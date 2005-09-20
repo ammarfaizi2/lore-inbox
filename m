@@ -1,64 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751464AbVIVKWb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751467AbVIVKcI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751464AbVIVKWb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 06:22:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751465AbVIVKWb
+	id S1751467AbVIVKcI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 06:32:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751470AbVIVKcI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 06:22:31 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:12810 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751464AbVIVKWb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 06:22:31 -0400
-Date: Thu, 22 Sep 2005 11:22:21 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Mark Lord <liml@rtr.ca>, Richard Purdie <rpurdie@rpsys.net>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Dominik Brodowski <linux@dominikbrodowski.net>, bzolnier@gmail.com,
-       linux-ide@vger.kernel.org
-Subject: Re: [RFC/BUG?] ide_cs's removable status
-Message-ID: <20050922102221.GD16949@flint.arm.linux.org.uk>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Mark Lord <liml@rtr.ca>, Richard Purdie <rpurdie@rpsys.net>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Dominik Brodowski <linux@dominikbrodowski.net>, bzolnier@gmail.com,
-	linux-ide@vger.kernel.org
-References: <1127319328.8542.57.camel@localhost.localdomain> <1127321829.18840.18.camel@localhost.localdomain> <433196B6.8000607@rtr.ca> <1127327243.18840.34.camel@localhost.localdomain> <20050921192932.GB13246@flint.arm.linux.org.uk> <1127347845.18840.53.camel@localhost.localdomain>
+	Thu, 22 Sep 2005 06:32:08 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:60073 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1751467AbVIVKcF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 06:32:05 -0400
+Date: Tue, 20 Sep 2005 22:11:44 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Mike Mohr <akihana@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Reboot & ACPI suspend Laptop display initialization
+Message-ID: <20050920201143.GB467@openzaurus.ucw.cz>
+References: <4746469c0509161157bc762bc@mail.gmail.com> <20050916201457.GA29516@ellpspace.math.ualberta.ca> <4746469c05091622163e81dbea@mail.gmail.com> <20050919121622.GA2317@elf.ucw.cz> <4746469c05091914071b3927f@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1127347845.18840.53.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <4746469c05091914071b3927f@mail.gmail.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 22, 2005 at 01:10:44AM +0100, Alan Cox wrote:
-> With drive->removable = 0 if I insert a card I get partition tables, it
-> will then not rescan that in future even if the card changed, because
-> there is no "media change detect" line, unlike on a floppy.
-> 
-> If I pull the CF adapter out it is fine because you get pcmcia level
-> hotplug but that is not neccessary for card changing on better designed
-> adapters or when the CF adapter is on the board itself with a CF slot
-> exposed to the user.
+Hi!
 
-Interesting - all my CF adapters (and I have several, some cheapo
-noname things to some branded ones) are dumb pieces of hardware -
-they merely convert the PCMCIA connector to a CF connector, just as
-dumb as those 240V mains adapters.
+> Hmm.  It seems unlikely to me that Toshiba will bother fixing a bug
+> like this (even as serious as this one is) for a 3-yr-old laptop on my
+> request.  I checked, and I already have the latest BIOS released by
+> them on 9-24-2002.  The fact that they let a bug as serious as this
+> through their QA really shocks me, esp. since my wife works for
+> Panasonic QA and I know the procedures they go through.  I will never
+> buy from Toshiba again.
 
-Also, "CF" is just a different form factor of PCMCIA - don't get
-mislead by the term "Compact Flash" - you can get "CF" network
-cards, serial cards, bluetooth cards, etc as well.  They're exactly
-the same as PCMCIA network, serial, bluetooth cards, just in a
-smaller package.
 
-If you have a CF adapter which behaves as you describe above, could
-you please check what happens as far as PCMCIA goes when you unplug
-the CF card - particularly what happens to cardctl status / cardctl
-ident ?
-
+Okay, sorry, it is not EC; I was replying to wrong mail. Chance of linux workaround
+still exists.
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+

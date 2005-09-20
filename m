@@ -1,56 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965090AbVITTbp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965094AbVITTfu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965090AbVITTbp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 15:31:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965093AbVITTbp
+	id S965094AbVITTfu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 15:35:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965098AbVITTfu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 15:31:45 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:6276 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965090AbVITTbp (ORCPT
+	Tue, 20 Sep 2005 15:35:50 -0400
+Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:46796 "HELO
+	develer.com") by vger.kernel.org with SMTP id S965094AbVITTft (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 15:31:45 -0400
-Subject: Re: [discuss] Re: [PATCH] x86-64: Fix bad assumption that dualcore
-	cpus have synced TSCs
-From: john stultz <johnstul@us.ibm.com>
-To: Scott Lampert <scott@lampert.org>
-Cc: "Langsdorf, Mark" <mark.langsdorf@amd.com>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       discuss@x86-64.org
-In-Reply-To: <433061E4.20903@lampert.org>
-References: <84EA05E2CA77634C82730353CBE3A843032187C4@SAUSEXMB1.amd.com>
-	 <433061E4.20903@lampert.org>
-Content-Type: text/plain
-Date: Tue, 20 Sep 2005 12:30:56 -0700
-Message-Id: <1127244656.11080.24.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 20 Sep 2005 15:35:49 -0400
+Message-ID: <43306484.2060103@develer.com>
+Date: Tue, 20 Sep 2005 21:35:32 +0200
+From: Bernardo Innocenti <bernie@develer.com>
+User-Agent: Mozilla Thunderbird 1.0.6-5 (X11/20050818)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bernardo Innocenti <bernie@develer.com>
+CC: lkml <linux-kernel@vger.kernel.org>, netfilter-devel@lists.netfilter.org
+Subject: Re: Intermittent NAT failure when multiple hosts send UDP packets
+References: <432B8702.3060801@develer.com> <432CD386.201@develer.com>
+In-Reply-To: <432CD386.201@develer.com>
+X-Enigmail-Version: 0.91.0.0
+OpenPGP: id=FC6A66CA;
+	url=https://www.develer.com/~bernie/gpgkey.txt
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-09-20 at 12:24 -0700, Scott Lampert wrote:
-> Langsdorf, Mark wrote:
-> >>Personally I suspect that the powernow driver is putting the 
-> >>cores independently into low power sleep and the TSCs are 
-> >>being independently halted, causing them to become unsynchronized.
-> >
-> >The powernow-k8 driver doesn't know what a low power sleep state
-> >is, so I strongly doubt it is involved here.  It only handles
-> >pstates.
-> > 
-> Just to add some end-user input here, I see the same issues regardless 
-> of whether I'm running with the powernow-k8 or not.  The clock problems 
-> seem to be unrelated to that, at least on my system.
 
-Hmmm. Ok, I don't know the cpufreq/power management code well enough. 
+I'm sorry to say that this bug has shown up again on
+2.6.13 too, so it's not fixed at all.
 
-I know some Intel cpus halt the TSC in C3. Could the ACPI code be
-causing this? 
+It's quite hard to trigger, but after it does, packets
+are consistently routed with the source IP untranslated.
 
-Could anyone with better knowledge speak to why it looks like the TSCs
-are unsynced? Is my test flawed?
 
-thanks
--john
+Bernardo Innocenti wrote:
 
+> Never mind, it was fixed in 2.6.13, probably by this patch:
+> 
+>   https://lists.netfilter.org/pipermail/netfilter-devel/2004-March/014412.html
+> 
+> 
+> Bernardo Innocenti wrote:
+> 
+>>This smells like a bug in UDP ip_nat_proto_udp.c or nearby.
+>>I'm seeing this on 2.6.12-1.1447_FC4, but code in 2.6.13 is
+>>still the same.
+>>
+>>I've setup SNAT the usual way:
+>>
+>> iptables -A POSTROUTING -t nat -o ppp0 -j SNAT --to-source 151.38.19.110
+>>
+>>When multiple clients in the LAN send UDP packets to the same port of
+>>the same remote host, I see something like this in my /proc/net/ip_conntrack:
+>>
+>> udp      17 170 src=10.3.3.2 dst=194.185.88.60 sport=5060 dport=5060 src=194.185.88.60 dst=151.38.19.110 sport=5060 dport=5060 [ASSURED] use=1
+>> udp      17 29 src=10.3.3.2 dst=212.97.59.76 sport=5060 dport=5060 [UNREPLIED] src=212.97.59.76 dst=151.38.19.110 sport=5060 dport=5060 use=1
+>> udp      17 177 src=10.3.3.250 dst=194.185.88.60 sport=5060 dport=5060 src=194.185.88.60 dst=151.38.19.110 sport=5060 dport=1024 [ASSURED] use=1
+>>
+>>In the last line, the destination port has been properly remapped from
+>>5060 to 1024 to distingish between incoming packets.
+>>
+>>However, I see packets going out over ppp0 without the source
+>>address properly rewritten to 151.38.19.110:
+>>
+>> 04:38:28.739514 IP 10.3.3.2.5060 > 194.185.88.60.5060: UDP, length 536
+>>
+>>This doesn't happen when there's just a single host sending to port 5060.
+>>Sometimes I must restart the interface to trigger this bug.
+> 
+> 
+
+-- 
+  // Bernardo Innocenti - Develer S.r.l., R&D dept.
+\X/  http://www.develer.com/
 

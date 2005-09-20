@@ -1,65 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932734AbVITRxt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964772AbVITRzT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932734AbVITRxt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 13:53:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932793AbVITRxt
+	id S964772AbVITRzT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 13:55:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964775AbVITRzS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 13:53:49 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:53168 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932734AbVITRxr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 13:53:47 -0400
-To: stephen.pollei@gmail.com
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Nikita Danilov <nikita@clusterfs.com>,
-       Denis Vlasenko <vda@ilport.com.ua>, LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: I request inclusion of reiser4 in the mainline kernel
-References: <nikita@clusterfs.com>
-	<17197.15183.235861.655720@gargle.gargle.HOWL>
-	<200509192316.j8JNFxY8030819@inti.inf.utfsm.cl>
-	<feed8cdd0509192057e1aa9e3@mail.gmail.com>
-From: Alexandre Oliva <aoliva@redhat.com>
-Organization: Red Hat Global Engineering Services Compiler Team
-Date: Tue, 20 Sep 2005 14:53:00 -0300
-In-Reply-To: <feed8cdd0509192057e1aa9e3@mail.gmail.com> (Stephen Pollei's
- message of "Mon, 19 Sep 2005 20:57:20 -0700")
-Message-ID: <or4q8fvd6r.fsf@livre.oliva.athome.lsd.ic.unicamp.br>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+	Tue, 20 Sep 2005 13:55:18 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:52870 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S964772AbVITRzR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 13:55:17 -0400
+Message-ID: <43304D05.2050803@namesys.com>
+Date: Tue, 20 Sep 2005 10:55:17 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+CC: Nick Piggin <nickpiggin@yahoo.com.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       thenewme91@gmail.com, Christoph Hellwig <hch@infradead.org>,
+       Denis Vlasenko <vda@ilport.com.ua>, chriswhite@gentoo.org,
+       LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>,
+       Nate Diller <ndiller@namesys.com>
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+References: <200509201542.j8KFgh2q011730@laptop11.inf.utfsm.cl>
+In-Reply-To: <200509201542.j8KFgh2q011730@laptop11.inf.utfsm.cl>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 20, 2005, Stephen Pollei <stephen.pollei@gmail.com> wrote:
+Horst von Brand wrote:
 
-> On 9/19/05, Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
->> Nikita Danilov <nikita@clusterfs.com> wrote:
->> > It's other way around: declaration is guarded by the preprocessor
->> > conditional so that nobody accidentally use znode_is_loaded() outside of
->> > the debugging mode.
->> 
->> Since when has a missing declaration prevented anyone calling a function in
->> C?!
-> Never AFAIK... K&R, ANSI,ISO C89,  c99, whatever version that I know of...
+> Could you /please/ stop your snide remarks on the code and its authors? If
+>
+>for nothing else, the very people you are insulting in public are the exact
+>ones that will decide if they take on the work of auditing and integrating
+>your code.
+>  
+>
+Our code was called messy.  It is less messy than the rest of the
+kernel.  I was asked for specifics. I gave one.
 
-Actually...  C99 requires a declaration (not necessarily with a
-prototype) before a function can be called.  A prior declaration is
-required for all identifiers.  I'm not sure whether this is new in C99
-or carried over from ISO C90 (AKA ANSI C89).  The fact that so many
-compilers accept calls without prior declarations is a common
-extension to the language, mainly for backward compatibility.
+Sure, let this thread die.  Can we all agree to that?
 
-> It's really over silly anyway, as it will fail at link time if they
-> had matching preprocessor stuff around the function definition.
+My guys will send patches responding to the technical portion of what
+Hellwig said, the kthread stuff, etc., were useful comments to receive,
+and I thank him for them.
 
-Not really.  A compiler might optimize away the reference to the
-symbol if it's say guarded by a condition whose value can be
-determined to be false at compile time.  If you rely on that, moving
-to a different compiler that is unable to compute the condition value,
-or simply is pickier as to standard compliance, will get you errors.
-
--- 
-Alexandre Oliva         http://www.lsd.ic.unicamp.br/~oliva/
-Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
-Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}
+Hans

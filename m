@@ -1,83 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965087AbVITTNx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965091AbVITTTb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965087AbVITTNx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 15:13:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965088AbVITTNx
+	id S965091AbVITTTb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 15:19:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965092AbVITTTb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 15:13:53 -0400
-Received: from amdext4.amd.com ([163.181.251.6]:22433 "EHLO amdext4.amd.com")
-	by vger.kernel.org with ESMTP id S965087AbVITTNx convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 15:13:53 -0400
-X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Subject: RE: [discuss] Re: [PATCH] x86-64: Fix bad assumption that
- dualcore cpus have synced TSCs
-Date: Tue, 20 Sep 2005 14:13:13 -0500
-Message-ID: <84EA05E2CA77634C82730353CBE3A843032187C4@SAUSEXMB1.amd.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [discuss] Re: [PATCH] x86-64: Fix bad assumption that
- dualcore cpus have synced TSCs
-Thread-Index: AcW+FaEdhoZpYvZgTdaGA0sTES3jFAAAS2/Q
-From: "Langsdorf, Mark" <mark.langsdorf@amd.com>
-To: "john stultz" <johnstul@us.ibm.com>, "Andi Kleen" <ak@suse.de>
-cc: "Andrew Morton" <akpm@osdl.org>, "lkml" <linux-kernel@vger.kernel.org>,
-       discuss@x86-64.org
-X-OriginalArrivalTime: 20 Sep 2005 19:13:14.0000 (UTC)
- FILETIME=[59338100:01C5BE17]
-X-WSS-ID: 6F2E80C309S1621524-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+	Tue, 20 Sep 2005 15:19:31 -0400
+Received: from fmr20.intel.com ([134.134.136.19]:41398 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S965091AbVITTTa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 15:19:30 -0400
+Date: Tue, 20 Sep 2005 15:13:29 -0400
+From: Benjamin LaHaise <bcrl@linux.intel.com>
+To: =?iso-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [AIO] aio-2.6.13-rc6-B1
+Message-ID: <20050920191329.GA6579@linux.intel.com>
+References: <20050817184406.GA24961@linux.intel.com> <1127211790.2051.9.camel@frecb000686>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1127211790.2051.9.camel@frecb000686>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, 2005-09-19 at 21:49 +0200, Andi Kleen wrote:
-> > On Mon, Sep 19, 2005 at 12:42:16PM -0700, john stultz wrote:
-> > > On Mon, 2005-09-19 at 21:31 +0200, Andi Kleen wrote:
-> > > > On Mon, Sep 19, 2005 at 12:16:43PM -0700, john stultz wrote:
-> > > > > 	This patch should resolve the issue seen in 
-> bugme bug #5105, 
-> > > > > where it is assumed that dualcore x86_64 systems have synced 
-> > > > > TSCs. This is not the case, and alternate timesources 
-> should be 
-> > > > > used instead.
-> > > > 
-> > > > 
-> > > > I asked AMD some time ago and they told me it was synchronized. 
-> > > > The TSC on K8 is C state invariant, but not P state 
-> invariant, but 
-> > > > P states always happen synchronized on dual cores.
-> > > > 
-> > > > So I'm not quite convinced of your explanation yet.
-> > > 
-> > > Would a litter userspace test checking the TSC 
-> synchronization maybe 
-> > > shed additional light on the issue?
-> > 
-> > Sure you can try it.
+On Tue, Sep 20, 2005 at 12:23:10PM +0200, Sébastien Dugué wrote:
+>   what's the point of calling wake_up_locked(&sem->wait) in 
+> aio_down_wait? We're already in a wakeup path and end up
+> calling __wake_up_common recursively.
+
+That's necessary to kick the next semaphore op in the list.  The 
+list_del_init() right above that makes sure that we don't recurse 
+and run the routine again.
+
+>   I think it may be one of the cause of my kernel hanging at the
+> very beginning.
 > 
-> So, bugzilla.kernel.org has (temporarily at least) lost the 
-> reports from yesterday, but from the email i got, folks using 
-> my TSC consistency check that I posted were seeing what 
-> appears to be unsynched TSCs on dualcore AMD systems.
+>   When I remove this call things go further but at some point a
+> semaphore wait queue gets thrashed and __wake_up_common tries to
+> call an invalid callback function.
 
-My understanding was that each TSC on a dual-core processor
-will advance individually and atomically.  They will not 
-always be in synchronization.
+This patch from Zach might make a difference.  Let me know if it changes 
+the symptoms at all.  Sorry if it doesn't apply cleanly, as it is against 
+a base kernel.  Basically, we could sleep while holding ctx_lock, which 
+does Bad Things(tm) on SMP systems.
 
-> Personally I suspect that the powernow driver is putting the 
-> cores independently into low power sleep and the TSCs are 
-> being independently halted, causing them to become unsynchronized.
+		-ben
 
-The powernow-k8 driver doesn't know what a low power sleep state
-is, so I strongly doubt it is involved here.  It only handles
-pstates.
+
+Index: 2.6.13-git12-lock-kiocb/fs/aio.c
+===================================================================
+--- 2.6.13-git12-lock-kiocb.orig/fs/aio.c
++++ 2.6.13-git12-lock-kiocb/fs/aio.c
+@@ -398,7 +398,7 @@ static struct kiocb fastcall *__aio_get_
+ 	if (unlikely(!req))
+ 		return NULL;
  
--Mark Langsdorf
-K8 PowerNow! Maintainer
-AMD, Inc.
-
+-	req->ki_flags = 1 << KIF_LOCKED;
++	req->ki_flags = 0;
+ 	req->ki_users = 2;
+ 	req->ki_key = 0;
+ 	req->ki_ctx = ctx;
+@@ -717,6 +717,8 @@ static ssize_t aio_run_iocb(struct kiocb
+ 	iocb->ki_run_list.next = iocb->ki_run_list.prev = NULL;
+ 	spin_unlock_irq(&ctx->ctx_lock);
+ 
++	lock_kiocb(iocb);
++
+ 	/* Quit retrying if the i/o has been cancelled */
+ 	if (kiocbIsCancelled(iocb)) {
+ 		ret = -EINTR;
+@@ -781,6 +783,7 @@ out:
+ 			aio_queue_work(ctx);
+ 		}
+ 	}
++	unlock_kiocb(iocb);
+ 	return ret;
+ }
+ 
+@@ -805,9 +808,7 @@ static int __aio_run_iocbs(struct kioctx
+ 		 * Hold an extra reference while retrying i/o.
+ 		 */
+ 		iocb->ki_users++;       /* grab extra reference */
+-		lock_kiocb(iocb);
+ 		aio_run_iocb(iocb);
+-		unlock_kiocb(iocb);
+ 		if (__aio_put_req(ctx, iocb))  /* drop extra ref */
+ 			put_ioctx(ctx);
+  	}
+@@ -1549,7 +1550,6 @@ int fastcall io_submit_one(struct kioctx
+ 
+ 	spin_lock_irq(&ctx->ctx_lock);
+ 	aio_run_iocb(req);
+-	unlock_kiocb(req);
+ 	if (!list_empty(&ctx->run_list)) {
+ 		/* drain the run list */
+ 		while (__aio_run_iocbs(ctx))

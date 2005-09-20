@@ -1,76 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964901AbVITHjR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964903AbVITHny@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964901AbVITHjR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 03:39:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964903AbVITHjR
+	id S964903AbVITHny (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 03:43:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964904AbVITHny
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 03:39:17 -0400
-Received: from mail.portrix.net ([212.202.157.208]:2474 "EHLO
-	zoidberg.portrix.net") by vger.kernel.org with ESMTP
-	id S964901AbVITHjR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 03:39:17 -0400
-Message-ID: <432FBC93.4040007@ppp0.net>
-Date: Tue, 20 Sep 2005 09:38:59 +0200
-From: Jan Dittmer <jdittmer@ppp0.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Thunderbird/1.0.6 Mnenhy/0.6.0.104
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-CC: Jurriaan <thunder7@xs4all.nl>, linux-kernel@vger.kernel.org,
-       linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: no cursor on nvidiafb console in 2.6.14-rc1-mm1
-References: <20050919175116.GA8172@amd64.of.nowhere> <432F08C1.8010705@ppp0.net> <432F36B4.8030209@gmail.com>
-In-Reply-To: <432F36B4.8030209@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Sep 2005 03:43:54 -0400
+Received: from zproxy.gmail.com ([64.233.162.197]:18740 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964903AbVITHny convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 03:43:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iUpHE8P3Pz3Qd8b2Y/TEShW3AnIHaACCG6AmS8xh2XFZevyB4bF/e3sYs7kGn/FXtKMQ+UV47EoVNkAZonzJ8slUGVjcSexhyqiWv13SW3Qn/Lyll6e0Jr+kmOjGXJ379n9Eh0lairXoY280AXlkZLMZ2vFpVRpEyCJJmJotKMk=
+Message-ID: <3b8510d80509200043e09eae9@mail.gmail.com>
+Date: Tue, 20 Sep 2005 13:13:51 +0530
+From: Thayumanavar Sachithanantham <thayumk@gmail.com>
+Reply-To: thayumk@gmail.com
+To: Ustyugov Roman <dr_unique@ymg.ru>
+Subject: Re: [BUG] module-init-tools
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3b8510d805092000346c27270f@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200509191432.58736.dr_unique@ymg.ru>
+	 <3b8510d8050920000560aeb39e@mail.gmail.com>
+	 <3b8510d805092000116c6a9c33@mail.gmail.com>
+	 <200509201124.35942.dr_unique@ymg.ru>
+	 <3b8510d8050920002661c08f48@mail.gmail.com>
+	 <3b8510d805092000346c27270f@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Antonino A. Daplas wrote:
-> Jan Dittmer wrote:
-> 
->>jurriaan wrote:
->>
->>>After updating from 2.6.13-rc4-mm1 to 2.6.14-rc1-mm1 I see no cursor on
->>>my console.
->>
->>Me too, 2.6.14-rc1-git4. Didn't try any kernel before with framebuffer,
->>sorry. No fb options on the kernel command line.
->>
-> 
-> 
-> Can you try reversing this particular diff?
-> 
-> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blobdiff_plain;h=af99ea96012ec72ef57fd36655a6d8aaa22e809e;hp=30f80c23f934bb0a76719232f492153fc7cca00a
-> 
-> Tony
-> 
+Please change the lines that you have mentioned to this:
+ 
+buf_printf(b, " .name = KBUILD_MODNAME,\n"); 
+modname_flags = $(if $(filter 1,$(words $(modname))),-D'DUM(a)=\#a'
+-D'KBUILD_MODNAME=DUM($(subst $(comma),_,$(subst -,_,$(modname))))')
+ 
+Let me know your results.Take care of the quotes while you change.
 
---- 30f80c23f934bb0a76719232f492153fc7cca00a
-+++ af99ea96012ec72ef57fd36655a6d8aaa22e809e
-
-^^^ Which file??
-
-
-@@ -893,7 +893,7 @@ static int nvidiafb_cursor(struct fb_inf
- 	int i, set = cursor->set;
- 	u16 fg, bg;
-
--	if (cursor->image.width > MAX_CURS || cursor->image.height > MAX_CURS)
-+	if (!hwcur || cursor->image.width > MAX_CURS || cursor->image.height > MAX_CURS)
- 		return -ENXIO;
-
- 	NVShowHideCursor(par, 0);
-@@ -1356,8 +1356,6 @@ static int __devinit nvidia_set_fbinfo(s
- 	info->pixmap.size = 8 * 1024;
- 	info->pixmap.flags = FB_PIXMAP_SYSTEM;
-
--	if (!hwcur)
--		info->fbops->fb_cursor = soft_cursor;
- 	info->var.accel_flags = (!noaccel);
-
- 	switch (par->Architecture) {
-
-
--- 
-Jan
+Thayumanavar

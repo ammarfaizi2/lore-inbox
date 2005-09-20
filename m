@@ -1,65 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964997AbVITM2d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964987AbVITM17@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964997AbVITM2d (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 08:28:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964995AbVITM2d
+	id S964987AbVITM17 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 08:27:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964994AbVITM17
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 08:28:33 -0400
-Received: from pat.uio.no ([129.240.130.16]:57305 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S964994AbVITM2b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 08:28:31 -0400
-Subject: Re: ctime set by truncate even if NOCMTIME requested
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: smfrench@austin.rr.com, linux-fsdevel@vger.kernel.org,
+	Tue, 20 Sep 2005 08:27:59 -0400
+Received: from zproxy.gmail.com ([64.233.162.198]:38879 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964987AbVITM16 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 08:27:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=eJ5zNGavZCn1VaARv7J54ZJaltPt26+XW1m06wGn+cuoVSyAkHi5H3xsgP8np8UzOoucYFfBTg5I8oMe3YtvU5/GRYdY70M1NwQyqIVCCR9xjAf/bOkH70BlvkVmGeVtMjtwlbl/O7z2SBwk2ugHcP/2jlVBfhcSrXFwn2bksfg=
+Message-ID: <9a87484905092005277f1bb470@mail.gmail.com>
+Date: Tue, 20 Sep 2005 14:27:54 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: jesper.juhl@gmail.com
+To: fawadlateef@gmail.com
+Subject: Re: regarding kernel compilation
+Cc: Denis Vlasenko <vda@ilport.com.ua>,
+       Gireesh Kumar <gireesh.kumar@einfochips.com>,
        linux-kernel@vger.kernel.org
-In-Reply-To: <E1EHh6U-0001Hp-00@dorka.pomaz.szeredi.hu>
-References: <432EFAB1.4080406@austin.rr.com>
-	 <1127156303.8519.29.camel@lade.trondhjem.org>
-	 <432F2684.4040300@austin.rr.com>
-	 <1127165311.8519.39.camel@lade.trondhjem.org>
-	 <432F5968.1020106@austin.rr.com>
-	 <1127180199.26459.17.camel@lade.trondhjem.org>
-	 <E1EHdrk-00014N-00@dorka.pomaz.szeredi.hu>
-	 <E1EHf0E-000197-00@dorka.pomaz.szeredi.hu>
-	 <1127218345.8413.32.camel@lade.trondhjem.org>
-	 <E1EHh6U-0001Hp-00@dorka.pomaz.szeredi.hu>
-Content-Type: text/plain
-Date: Tue, 20 Sep 2005 08:27:57 -0400
-Message-Id: <1127219277.11420.0.camel@lade.trondhjem.org>
+In-Reply-To: <1e62d137050920013752bf31d7@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-2.678, required 12,
-	autolearn=disabled, AWL 2.13, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <32854.192.168.9.246.1127197320.squirrel@192.168.9.246>
+	 <1e62d13705092000112a49cb6c@mail.gmail.com>
+	 <200509201112.28091.vda@ilport.com.ua>
+	 <1e62d137050920013752bf31d7@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ty den 20.09.2005 Klokka 14:20 (+0200) skreiv Miklos Szeredi:
-> > > ATTR_MTIME is _only_ set in utime[s], which all filesystems want to
-> > > honor.
-> > 
-> > ATTR_MTIME is set in both utimes and truncate.
+On 9/20/05, Fawad Lateef <fawadlateef@gmail.com> wrote:
+> On 9/20/05, Denis Vlasenko <vda@ilport.com.ua> wrote:
+> > On Tuesday 20 September 2005 10:11, Fawad Lateef wrote:
+> > > I don't think you will be able to compile 2.4 kernel on to the 2.6
+> > > kernel based distro .... as in 2.6 based distro, mod-utils and other
+> >
+> > 2.6 modutils (module-init-tools to be exact) fall back to <toolname>.old
+> > (by just exec'ing it) if those exist.
+> >
 > 
-> Not in truncate:
+> you are right, but if they exists .... but what IIRC I havn't found
+> them on FC4/RH EL4 distributions .....
 > 
-> int do_truncate(struct dentry *dentry, loff_t length)
-> {
-> 	/* ... */
-> 
-> 	newattrs.ia_size = length;
-> 	newattrs.ia_valid = ATTR_SIZE | ATTR_CTIME;
-> 
-> 	down(&dentry->d_inode->i_sem);
-> 	err = notify_change(dentry, &newattrs);
-> 	up(&dentry->d_inode->i_sem);
-> 	return err;
-> }
+Slackware 10.0, 10.1 and 10.2 run just fine with 2.4.x and 2.6.x
+kernels and you can build, install and run both just fine - no
+problems at all there (even Slackware 9.1 will work with a few small
+changes).
 
-Oops. You're right. That is a recent change that I missed...
+> > > packages are updated and will only support 2.6 based kernel .... So
+> >
+> > Not true. I compiled 2.4 kernels on 2.6 machine without any problems.
+> >
+> On which distribution 2.6 based you compiled and succesfully run 2.4
+> kernel ??? b/c its not working on FC3/FC4/AS4 .........
+> 
+Those are just a small subset of available distributions. Just because
+it won't work there doesn't mean much.
 
-Cheers,
-  Trond
-
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932654AbVISXew@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964795AbVITAVX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932654AbVISXew (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 19:34:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932656AbVISXew
+	id S964795AbVITAVX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 20:21:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964797AbVITAVX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 19:34:52 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:61365 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932654AbVISXew (ORCPT
+	Mon, 19 Sep 2005 20:21:23 -0400
+Received: from zproxy.gmail.com ([64.233.162.192]:4597 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964795AbVITAVX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 19:34:52 -0400
+	Mon, 19 Sep 2005 20:21:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=Xax3VxoFv1MIfEWsHftNkrNtiIcuiuRsuAR5f04HR++wQhi6oOEUab6PslsbEIOPol9dMCVdzUX6CEFYWBUl5lUejGnfb0d5KLuVspdI3xAdMgekFwblMOKHJenwilI42zMY5RHeVco/AyFlOg7TD7Wldb0k599TACf7jDQSvIA=
+Message-ID: <432F55E0.70304@gmail.com>
+Date: Tue, 20 Sep 2005 08:20:48 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-fbdev-devel@lists.sourceforge.net
+CC: Jan Dittmer <jdittmer@ppp0.net>, Jurriaan <thunder7@xs4all.nl>,
+       linux-kernel@vger.kernel.org, James Simmons <jsimmons@infradead.org>
+Subject: Re: [Linux-fbdev-devel] Re: no cursor on nvidiafb console in 2.6.14-rc1-mm1
+References: <20050919175116.GA8172@amd64.of.nowhere> <432F08C1.8010705@ppp0.net> <432F36B4.8030209@gmail.com> <Pine.LNX.4.56.0509200030280.611@pentafluge.infradead.org>
+In-Reply-To: <Pine.LNX.4.56.0509200030280.611@pentafluge.infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-X-Fcc: ~/Mail/linus
-Cc: Badari Pulavarty <pbadari@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.14-rc1 wait()/SIG_CHILD bevahiour
-In-Reply-To: Linus Torvalds's message of  Monday, 19 September 2005 12:14:54 -0700 <Pine.LNX.4.58.0509191206040.2553@g5.osdl.org>
-X-Fcc: ~/Mail/linus
-X-Shopping-List: (1) Mendacious eruption lips
-   (2) Lousy brunch money
-   (3) Static dissident sodium excitements
-Message-Id: <20050919233440.AC5D8180E1D@magilla.sf.frob.com>
-Date: Mon, 19 Sep 2005 16:34:40 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The test program is buggy.  Here is one clue:
+James Simmons wrote:
+> the hwcur module parameter is set to off by default. Should it be removed?
+> 
 
-	elm3b29:~ # strace -p 30023
-	Process 30023 attached - interrupt to quit
-	futex(0x2aaaaaddf118, FUTEX_WAIT, 2, NULL
+The hardware cursor for newer chipsets (NV20 and above?) is not very
+nice to the eyes.  When the cursor is moved, the old cursor image does
+not disappear immediately, but kinda fades away.  I believe it is an
+nvidia special effect for mouse pointer trails. Cool when in graphics, but
+irritating when in text mode.
 
-It's not anywhere near wait4.  It's deadlocked in the rand() call inside
-rand_delay, called from sigchld_handler.  You cannot safely call rand
-inside a signal handler, for exactly this reason.  The signal came during
-another rand call and attempted to reenter.  If this sort of deadlock is
-the failure mode of your real-world case, then it is probably an
-application bug.  If this deadlock is just a mistake in your test program
-here, then you'll need to give us a corrected test program to pursue
-whatever real kernel issue you may have.
+So, no, let's leave hwcur to 0.
 
-
-Thanks,
-Roland
+Tony

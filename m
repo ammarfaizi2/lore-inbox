@@ -1,59 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965114AbVITUPz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965085AbVITUeh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965114AbVITUPz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 16:15:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965115AbVITUPz
+	id S965085AbVITUeh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 16:34:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965115AbVITUeh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 16:15:55 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:16315 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S965114AbVITUPz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 16:15:55 -0400
-Subject: Re: p = kmalloc(sizeof(*p), )
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: rmk+lkml@arm.linux.org.uk, penberg@cs.Helsinki.FI, viro@ftp.linux.org.uk,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org
-In-Reply-To: <20050920105939.3c9c5e39.akpm@osdl.org>
-References: <20050918100627.GA16007@flint.arm.linux.org.uk>
-	 <84144f0205092004187f86840c@mail.gmail.com>
-	 <20050920114003.GA31025@flint.arm.linux.org.uk>
-	 <Pine.LNX.4.58.0509201501440.9304@sbz-30.cs.Helsinki.FI>
-	 <20050920123149.GA29112@flint.arm.linux.org.uk>
-	 <20050920101128.70fec697.akpm@osdl.org>
-	 <1127239361.7763.3.camel@localhost.localdomain>
-	 <20050920105939.3c9c5e39.akpm@osdl.org>
+	Tue, 20 Sep 2005 16:34:37 -0400
+Received: from smtp3.Stanford.EDU ([171.67.16.138]:42153 "EHLO
+	smtp3.Stanford.EDU") by vger.kernel.org with ESMTP id S965085AbVITUeg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 16:34:36 -0400
+Subject: Re: 2.6.13-rt14 fails to build (smp)
+From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+To: tglx@linutronix.de
+Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1127197575.24044.310.camel@tglx.tec.linutronix.de>
+References: <1127178337.5868.15.camel@cmn3.stanford.edu>
+	 <1127197575.24044.310.camel@tglx.tec.linutronix.de>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 20 Sep 2005 21:41:36 +0100
-Message-Id: <1127248896.7763.9.camel@localhost.localdomain>
+Date: Tue, 20 Sep 2005 13:34:11 -0700
+Message-Id: <1127248451.4623.4.camel@cmn3.stanford.edu>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2005-09-20 at 10:59 -0700, Andrew Morton wrote:
-> umm, the three reasons which you deleted from the mail to which you're
-> replying?
+On Tue, 2005-09-20 at 08:26 +0200, Thomas Gleixner wrote:
+> On Mon, 2005-09-19 at 18:05 -0700, Fernando Lopez-Lezcano wrote:
+> > Hi Ingo, just hit this problem trying to build rt14, this is on the SMP
+> > build, with 
+> > # CONFIG_HIGH_RES_TIMERS is not set
+> > Find the .config I used attached...
+> > 
+> > kernel/ktimers.c: In function 'migrate_ktimer_list':
+> 
+> Uuurg. HOTPLUG_CPU
+> 
+> tglx
+> 
+> Index: linux-2.6.13-rt12/kernel/ktimers.c
+> ===================================================================
+> --- linux-2.6.13-rt12.orig/kernel/ktimers.c
+> +++ linux-2.6.13-rt12/kernel/ktimers.c
+> @@ -865,11 +865,11 @@ static void migrate_ktimer_list(struct k
+>  	struct ktimer *timer;
+>  	struct rb_node *node;
+>  
+> -	while ((node = rb_first(&old_base->root))) {
+> -		timer = rb_entry(node, struct ktimer, tnode);
+> +	while ((node = rb_first(&old_base->active))) {
+> +		timer = rb_entry(node, struct ktimer, node);
+>  		remove_ktimer(timer, old_base);
+>  		timer->base = new_base;
+> -		enqueue_ktimer(timer, new_base, NULL);
+> +		enqueue_ktimer(timer, new_base, NULL, KTIMER_RESTART);
+>  	}
+>  }
 
-There were no reasons given in the mail I replied to. Perhaps I missed
-another mail from you earlier.
+Compiles with the patch, thanks!
+But depmod complains:
 
-I'm also puzzled by the one comemnt you made. You seem to imply that
-seeing
+WARNING: /lib/modules/2.6.13-0.3.rdt.rhfc4.ccrmasmp/kernel/drivers/char/hangcheck-timer.ko needs unknown symbol monotonic_clock
 
-foo = malloc(sizeof(*foo))
+-- Fernando
 
-means it doesn't need checking. That is false on various grounds
-
-1.	A lot of stuff is using void *, char * etc
-2.	You've no idea that foo is the full object not a generic object with
-stuff tacked on.
-
-So thats very much false. You have to know what is really being
-allocated in both cases. In the sizeof(*foo) case you also have to go
-back, work out wtf foo really is and check that its not an array pointer
-because sizeof char[40] is not the same as sizeof(* char *).
-
-Thankfully Linus hates typedefs so that removes many of those
 

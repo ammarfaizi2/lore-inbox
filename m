@@ -1,84 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965079AbVITTCW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965068AbVITTDj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965079AbVITTCW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 15:02:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965083AbVITTCW
+	id S965068AbVITTDj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 15:03:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965083AbVITTDj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 15:02:22 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:4576 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965079AbVITTCV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 15:02:21 -0400
-From: Jeff Moyer <jmoyer@redhat.com>
+	Tue, 20 Sep 2005 15:03:39 -0400
+Received: from mail-in-07.arcor-online.net ([151.189.21.47]:54249 "EHLO
+	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
+	id S965068AbVITTDi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 15:03:38 -0400
+Date: Tue, 20 Sep 2005 21:03:33 +0200 (CEST)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Valdis.Kletnieks@vt.edu
+cc: 7eggert@gmx.de, Keith Owens <kaos@ocs.com.au>,
+       Ben Dooks <ben-linux@fluff.org>, linux-kernel@vger.kernel.org,
+       patch-out@fluff.rog
+Subject: Re: [PATCH] scripts - use $OBJDUMP to get correct objdump (cross
+ compile)
+In-Reply-To: <200509201843.j8KIhadu020970@turing-police.cc.vt.edu>
+Message-ID: <Pine.LNX.4.58.0509202100460.4568@be1.lrz>
+References: <4OB3R-5gu-13@gated-at.bofh.it> <4OLPC-3NQ-19@gated-at.bofh.it>
+            <E1EHlOt-00012f-Au@be1.lrz> <200509201843.j8KIhadu020970@turing-police.cc.vt.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17200.23724.686149.394150@segfault.boston.redhat.com>
-Date: Tue, 20 Sep 2005 15:02:04 -0400
-To: raven@themaw.net
-CC: autofs@linux.kernel.org, linux-kernel@vger.kernel.org
-Subject: autofs4 looks up wrong path element when ghosting is enabled
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Reply-To: jmoyer@redhat.com
-X-PGP-KeyID: 1F78E1B4
-X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
-X-PCLoadLetter: What the f**k does that mean?
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Ian, list,
+On Tue, 20 Sep 2005 Valdis.Kletnieks@vt.edu wrote:
+> On Tue, 20 Sep 2005 18:55:22 +0200, Bodo Eggert said:
 
-I have a bug filed against autofs when ghosting is enabled.  The best way
-to describe the bug is to walk through the reproducer, I guess.
+> > Having a space as the option delimiter will break if the path to objdump
+> > contains a space. Therefore you'll need to use an array.
+> 
+> No. You need to draw the line somewhere.  You let them have a space in the
+> path, the next thing you know the'll be back asking why a UTF-8 encoded
+> non-breaking-white-space in the path doesn't work. :)
 
-Take the following maps, for example:
+Anything not containing '\0' SHOULD work on posix systems. Anything else 
+is a programming error.
 
-auto.master
-/sbox	auto.sbox
-
-auto.sbox:
-src	segfault:/sbox/src/
-
-Let's say that there is a file, id3_0.12.orig.tar.gz, in segfault:/sbox/src/.
-
-To reproduce the problem, stop the nfs service on the server.
-
-On the client, do an 'ls /sbox/src/id3_012.orig.tar.gz'.  This will fail,
-as well it should.  However, if we look in the logs, we find this:
-
-automount[1182]: handle_packet_missing: token 1, name src 
-automount[1182]: attempting to mount entry /sbox/src
-...
-automount[1481]: mount(nfs): calling mkdir_path /sbox/src
-automount[1481]: mount(nfs): calling mount -t nfs -s-o tcp,intr,timeo=600,rsize=8192,wsize=8192,retrans=5 segfault:/sbox/src /sbox/src
-automount[1481]: >> mount: RPC: Program not registered
-automount[1481]: mount(nfs): add_bad_host: segfault:/sbox/src
-automount[1481]: mount(nfs): nfs: mount failure segfault:/sbox/src on /sbox/src
-automount[1481]: failed to mount /sbox/src
-...
-automount[1182]: send_fail: token=1 
-automount[1182]: handle_packet: type = 0 
-automount[1182]: handle_packet_missing: token 2, name src/id3_0.12.orig.tar.gz 
-automount[1182]: attempting to mount entry /sbox/src/id3_0.12.orig.tar.gz
-
-Noteworthy are these last two lines!  Even though the mount failed, we are
-continuing the lookup.  The culprit is here, in cached_lookup:
-
-    if (!dentry->d_op->d_revalidate(dentry, flags) && !d_invalidate(dentry)) { 
-            dput(dentry); 
-            dentry = NULL; 
-    } 
-
-d_revalidate points to autofs4_revalidate, which calls try_to_fill_dentry,
-which will return a status of 0.  Since ghosting is enabled,
-d_invalidate(dentry) will return -EBUSY, and so we return the dentry to the
-caller, which then continues the lookup.
-
-Ian, I'm not really sure how we can address this issue without VFS
-changes.  Any ideas?
-
-Oh, also note that, once the nfs service is started up again on the server,
-the lookup of a specific file name will still fail!  In this case, the
-daemon won't even be called.
-
--Jeff
+-- 
+I always tell customers/clients the same thing:
+   "Good, Fast, Cheap.  You can pick two."
+	-- randem in <slrna09rui.g43.root@jade.randemmedia.com>

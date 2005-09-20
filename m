@@ -1,82 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932771AbVITRXf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932774AbVITRZg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932771AbVITRXf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 13:23:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932772AbVITRXP
+	id S932774AbVITRZg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 13:25:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932773AbVITRZf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 13:23:15 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:9951 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932771AbVITRXN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 13:23:13 -0400
-Subject: [RFC][PATCH 1/4] build_zonelists(): create zone_index_to_type() helper
-To: linux-mm@kvack.org
-Cc: linux-kernel@vger.kernel.org, Dave Hansen <haveblue@us.ibm.com>
-From: Dave Hansen <haveblue@us.ibm.com>
-Date: Tue, 20 Sep 2005 10:23:09 -0700
-References: <20050920172303.8CD9190C@kernel.beaverton.ibm.com>
-In-Reply-To: <20050920172303.8CD9190C@kernel.beaverton.ibm.com>
-Message-Id: <20050920172309.5C36CE4C@kernel.beaverton.ibm.com>
+	Tue, 20 Sep 2005 13:25:35 -0400
+Received: from rwcrmhc12.comcast.net ([204.127.198.43]:13209 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S932772AbVITRZe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 13:25:34 -0400
+Message-ID: <43304606.6040608@namesys.com>
+Date: Tue, 20 Sep 2005 10:25:26 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Masover <ninja@slaphack.com>
+CC: Pavel Machek <pavel@suse.cz>, Horst von Brand <vonbrand@inf.utfsm.cl>,
+       thenewme91@gmail.com, Christoph Hellwig <hch@infradead.org>,
+       Denis Vlasenko <vda@ilport.com.ua>, chriswhite@gentoo.org,
+       LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>, vitaly@thebsh.namesys.com
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+References: <200509182004.j8IK4JNx012764@inti.inf.utfsm.cl> <432E5024.20709@namesys.com> <20050920075133.GB4074@elf.ucw.cz> <43301FA0.7030906@slaphack.com>
+In-Reply-To: <43301FA0.7030906@slaphack.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Masover wrote:
 
-The two build_zonelists() do identical conversions from a
-zone index variable (__GFP_*) to a zone type variable
-(ZONE_*).  Create a common helper.
-
-Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
----
-
- memhotplug-dave/mm/page_alloc.c |   24 ++++++++++++++----------
- 1 files changed, 14 insertions(+), 10 deletions(-)
-
-diff -puN mm/page_alloc.c~B1-build_zonelists_unification mm/page_alloc.c
---- memhotplug/mm/page_alloc.c~B1-build_zonelists_unification	2005-09-14 09:32:37.000000000 -0700
-+++ memhotplug-dave/mm/page_alloc.c	2005-09-14 09:32:37.000000000 -0700
-@@ -1451,6 +1451,18 @@ static int __init build_zonelists_node(p
- 	return j;
- }
- 
-+static inline zone_index_to_type(int index)
-+{
-+	int type = ZONE_NORMAL;
-+
-+	if (index & __GFP_HIGHMEM)
-+		type = ZONE_HIGHMEM;
-+	if (index & __GFP_DMA)
-+		type = ZONE_DMA;
-+	return type;
-+}
-+
-+
- #ifdef CONFIG_NUMA
- #define MAX_NODE_LOAD (num_online_nodes())
- static int __initdata node_load[MAX_NUMNODES];
-@@ -1547,11 +1559,7 @@ static void __init build_zonelists(pg_da
- 			zonelist = pgdat->node_zonelists + i;
- 			for (j = 0; zonelist->zones[j] != NULL; j++);
- 
--			k = ZONE_NORMAL;
--			if (i & __GFP_HIGHMEM)
--				k = ZONE_HIGHMEM;
--			if (i & __GFP_DMA)
--				k = ZONE_DMA;
-+			k = zone_index_to_type(i);
- 
- 	 		j = build_zonelists_node(NODE_DATA(node), zonelist, j, k);
- 			zonelist->zones[j] = NULL;
-@@ -1572,11 +1580,7 @@ static void __init build_zonelists(pg_da
- 		zonelist = pgdat->node_zonelists + i;
- 
- 		j = 0;
--		k = ZONE_NORMAL;
--		if (i & __GFP_HIGHMEM)
--			k = ZONE_HIGHMEM;
--		if (i & __GFP_DMA)
--			k = ZONE_DMA;
-+		k = zone_index_to_type(i);
- 
-  		j = build_zonelists_node(pgdat, zonelist, j, k);
-  		/*
-_
+>
+> And personally, if it was my FS, I'd stop working on fsck after it was
+> able to "check".  That's what it's for.  To fix an FS, you wipe it and
+> restore from backups.
+>
+>
+Umm, this is going too far David.  Our fsck should work, and we will
+give his script to Vitaly to play with and comment on.

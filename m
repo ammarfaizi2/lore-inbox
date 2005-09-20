@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964852AbVITPIZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964834AbVITPJ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964852AbVITPIZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 11:08:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964952AbVITPIZ
+	id S964834AbVITPJ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 11:09:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965027AbVITPJ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 11:08:25 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:59611 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964852AbVITPIY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 11:08:24 -0400
-Date: Tue, 20 Sep 2005 08:07:31 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Robin Holt <holt@sgi.com>
-cc: Paul Jackson <pj@sgi.com>, zippel@linux-m68k.org, akpm@osdl.org,
-       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, nikita@clusterfs.com
-Subject: Re: [PATCH] cpuset semaphore depth check optimize
-In-Reply-To: <20050920145449.GA31461@lnx-holt.americas.sgi.com>
-Message-ID: <Pine.LNX.4.58.0509200804520.2553@g5.osdl.org>
-References: <20050912153135.3812d8e2.pj@sgi.com> <Pine.LNX.4.61.0509131120020.3728@scrub.home>
- <20050913103724.19ac5efa.pj@sgi.com> <Pine.LNX.4.61.0509141446590.3728@scrub.home>
- <20050914124642.1b19dd73.pj@sgi.com> <Pine.LNX.4.61.0509150116150.3728@scrub.home>
- <20050915104535.6058bbda.pj@sgi.com> <20050920005743.4ea5f224.pj@sgi.com>
- <20050920120523.GC21435@lnx-holt.americas.sgi.com> <20050920072255.0096f1bb.pj@sgi.com>
- <20050920145449.GA31461@lnx-holt.americas.sgi.com>
+	Tue, 20 Sep 2005 11:09:28 -0400
+Received: from 69.50.231.10.ip.nectartech.com ([69.50.231.10]:40146 "EHLO
+	newton.ctyme.com") by vger.kernel.org with ESMTP id S964834AbVITPJ1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 11:09:27 -0400
+Message-ID: <43302616.6000908@perkel.com>
+Date: Tue, 20 Sep 2005 08:09:10 -0700
+From: Marc Perkel <marc@perkel.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.10) Gecko/20050716
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Lost Ticks - TSC Timer - AMD 64 X2 Processor - What's up with that?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-filter-host: newton.ctyme.com - http://www.junkemailfilter.com
+X-Sender-host-address: 204.95.16.61
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Having timer problems. About to head to the data center to try different 
+things to get this server to work right. Losing ticks and clock is all 
+over the place and doing obscene things to keep it almost on track - but 
+I really need a solution.
 
+Running 2.6.13.1 Kernel - FC4 Linux - Asus Motherboard - A8N-SLI 
+Premium. Athlon X2 4400+ with 4 gigs of ram and it uses some sort of 
+memory remapping to use the full 4 gigs.
 
-On Tue, 20 Sep 2005, Robin Holt wrote:
-> 
-> This makes things even easier!!!
-> 
-> When you create a cpuset, set the refcount to 0.  The root
-> cpuset is the exception and has a refcount of 1.
-> 
-> When tasks are added to the cpuset, increment the refcount.
-> 
-> When child cpusets are created, increment the refcount.  Each
-> cpuset has a list of children that is protected by a single
-> lock.
+I don't understand all the different timers. There's TSC and PM and what 
+else?
 
-You just described the "dentry" reference counting. Which has the same 
-issues: as long as a dentry has any children, it needs to remain.
+Someone suggested "notsc" which I will try when I get there. But  - 
+looking for a list of other things to try as well. I have flashed the 
+latest BIOS.
 
-Except dentries are a lot more complex, because we want to keep cached 
-versions of them around even when the count goes to zero (and zero only 
-means that we're _allowed_ to remove it under memory pressure). And 
-dentries can move from one parent to another. 
+I'm thinking about giving up and going back to DOS. I didn't have these 
+problem with DOS - and DOS boots faster. ;)
 
-			Linus
+Tell me about all these timers - what are my choices - and what is most 
+likely to actually work.
+
+Thanks in advance.
+
+-- 
+Marc Perkel - marc@perkel.com
+
+Spam Filter: http://www.junkemailfilter.com
+    My Blog: http://marc.perkel.com
+

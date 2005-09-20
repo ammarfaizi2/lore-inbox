@@ -1,61 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932707AbVITG0M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932737AbVITG2Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932707AbVITG0M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 02:26:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932734AbVITG0M
+	id S932737AbVITG2Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 02:28:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932739AbVITG2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 02:26:12 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:10713
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932707AbVITG0L
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 02:26:11 -0400
-Subject: Re: 2.6.13-rt14 fails to build (smp)
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1127178337.5868.15.camel@cmn3.stanford.edu>
-References: <1127178337.5868.15.camel@cmn3.stanford.edu>
-Content-Type: text/plain
-Organization: linutronix
-Date: Tue, 20 Sep 2005 08:26:14 +0200
-Message-Id: <1127197575.24044.310.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Tue, 20 Sep 2005 02:28:16 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:49300 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S932737AbVITG2P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 02:28:15 -0400
+Message-ID: <432FABFA.9010406@namesys.com>
+Date: Mon, 19 Sep 2005 23:28:10 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, thenewme91@gmail.com,
+       Christoph Hellwig <hch@infradead.org>,
+       Denis Vlasenko <vda@ilport.com.ua>, chriswhite@gentoo.org,
+       LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>,
+       Nate Diller <ndiller@namesys.com>
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+References: <432AFB44.9060707@namesys.com>	 <200509171415.50454.vda@ilport.com.ua>	 <200509180934.50789.chriswhite@gentoo.org>	 <200509181321.23211.vda@ilport.com.ua>	 <20050918102658.GB22210@infradead.org>	 <b14e81f0050918102254146224@mail.gmail.com> <1127079524.8932.21.camel@localhost.localdomain> <432E4786.7010001@namesys.com> <432F8D1E.7060300@yahoo.com.au>
+In-Reply-To: <432F8D1E.7060300@yahoo.com.au>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-09-19 at 18:05 -0700, Fernando Lopez-Lezcano wrote:
-> Hi Ingo, just hit this problem trying to build rt14, this is on the SMP
-> build, with 
-> # CONFIG_HIGH_RES_TIMERS is not set
-> Find the .config I used attached...
-> 
-> kernel/ktimers.c: In function 'migrate_ktimer_list':
+Nick Piggin wrote:
 
-Uuurg. HOTPLUG_CPU
+> Hans Reiser wrote:
+>
+>> So why is the code in the kernel so hard to read then?
+>>
+>> Linux kernel code is getting better, and Andrew Morton's code is
+>> especially good, but for the most part it's unnecessarily hard to
+>> read. Look at the elevator code for instance.  Ugh.
+>>
+>>
+>
+> What's wrong with the elevator code?
+>
+The name for one.  There is no elevator algorithm anywhere in it.  There
+is a least block number first algorithm that was called an elevator, but
+it does not have the properties described by Ousterhout and sundry CS
+textbooks describing elevator algorithms.  The textbook algorithms are
+better than least block number first, and it is interesting how nobody
+fixed the mislabeling of the algorithm once Linux had gotten to the
+point that it was striving for more than making gcc be able to run on it. 
 
-tglx
+cfq is good code though for many usage patterns. 
 
-Index: linux-2.6.13-rt12/kernel/ktimers.c
-===================================================================
---- linux-2.6.13-rt12.orig/kernel/ktimers.c
-+++ linux-2.6.13-rt12/kernel/ktimers.c
-@@ -865,11 +865,11 @@ static void migrate_ktimer_list(struct k
- 	struct ktimer *timer;
- 	struct rb_node *node;
- 
--	while ((node = rb_first(&old_base->root))) {
--		timer = rb_entry(node, struct ktimer, tnode);
-+	while ((node = rb_first(&old_base->active))) {
-+		timer = rb_entry(node, struct ktimer, node);
- 		remove_ktimer(timer, old_base);
- 		timer->base = new_base;
--		enqueue_ktimer(timer, new_base, NULL);
-+		enqueue_ktimer(timer, new_base, NULL, KTIMER_RESTART);
- 	}
- }
- 
+I would say more, but I need to talk a customer into ok'ing releasing
+some code first, so I can only say what I knew before doing the work for
+that customer at this time.
 
+If you would like many more details of coding/commenting inelegance, ask
+Nate Diller after the customer oks his talking about it, which will
+happen more easily if we say nothing that we did not know before the
+work for them until we first get their ok.....
 
+Hans

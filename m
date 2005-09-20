@@ -1,45 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964939AbVITI5t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964941AbVITJDF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964939AbVITI5t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 04:57:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964940AbVITI5s
+	id S964941AbVITJDF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 05:03:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964944AbVITJDF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 04:57:48 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:32198 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S964939AbVITI5s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 04:57:48 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: fawadlateef@gmail.com
-Subject: Re: regarding kernel compilation
-Date: Tue, 20 Sep 2005 11:56:41 +0300
-User-Agent: KMail/1.8.2
-Cc: Gireesh Kumar <gireesh.kumar@einfochips.com>, linux-kernel@vger.kernel.org
-References: <32854.192.168.9.246.1127197320.squirrel@192.168.9.246> <200509201112.28091.vda@ilport.com.ua> <1e62d137050920013752bf31d7@mail.gmail.com>
-In-Reply-To: <1e62d137050920013752bf31d7@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Sep 2005 05:03:05 -0400
+Received: from relay.rost.ru ([80.254.111.11]:52632 "EHLO smtp.rost.ru")
+	by vger.kernel.org with ESMTP id S964941AbVITJDE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 05:03:04 -0400
+Date: Tue, 20 Sep 2005 13:02:52 +0400
+To: Vadim Lobanov <vlobanov@speakeasy.net>
+Cc: colin <colin@realtek.com.tw>, linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_PRINTK doesn't makes size smaller
+Message-ID: <20050920090252.GC20363@pazke>
+Mail-Followup-To: Vadim Lobanov <vlobanov@speakeasy.net>,
+	colin <colin@realtek.com.tw>, linux-kernel@vger.kernel.org
+References: <01bf01c5bdaa$9e8b81c0$106215ac@realtek.com.tw> <20050920063805.GB20363@pazke> <Pine.LNX.4.58.0509200047120.3173@shell2.speakeasy.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200509201156.42084.vda@ilport.com.ua>
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <Pine.LNX.4.58.0509200047120.3173@shell2.speakeasy.net>
+X-Uname: Linux 2.6.11-pazke i686
+User-Agent: Mutt/1.5.9i
+From: Andrey Panin <pazke@donpac.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> you are right, but if they exists .... but what IIRC I havn't found
-> them on FC4/RH EL4 distributions .....
+On 263, 09 20, 2005 at 12:48:59AM -0700, Vadim Lobanov wrote:
+> On Tue, 20 Sep 2005, Andrey Panin wrote:
+> 
+> > On 263, 09 20, 2005 at 02:14:55PM +0800, colin wrote:
+> > >
+> > > Hi there,
+> > > I tried to make kernel with CONFIG_PRINTK off. I considered it should become
+> > > smaller, but it didn't because it actually isn't an empty function, and
+> > > there are many copies of it in vmlinux, not just one. Here is its
+> > > definition:
+> > >     static inline int printk(const char *s, ...) { return 0; }
+> > >
+> > > I change the definition to this and it can greatly reduce the size by about
+> > > 5%:
+> > >     #define printk(...) do {} while (0)
+> > > However, this definition would lead to error in some situations. For
+> > > example:
+> > >     1. (printk)
+> > >     2. ret = printk
+> > >
+> > > I hope someone could suggest a better definition of printk that can both
+> > > make printk smaller and eliminate errors.
+> >
+> > What about the macro below ?
+> >
+> > #define printk(...) ({ do { } while(0); 0; })
+> 
+> So what does the do-while loop give us in the above case? In other
+> words, why not just do the following...?
 
-Then build them from source. Big deal.
- 
-> > > packages are updated and will only support 2.6 based kernel .... So
-> > 
-> > Not true. I compiled 2.4 kernels on 2.6 machine without any problems.
-> > 
-> On which distribution 2.6 based you compiled and succesfully run 2.4
-> kernel ??? b/c its not working on FC3/FC4/AS4 .........
+do-while loop eliminates "statement with no effect" warnings from gcc4.
 
-I used distro for installing my Linux box exactly once in my life when
-I installed Slackware (IIRC it was Slack 7). It got heavily modified
-over time...
---
-vda
+> #define printk(...) ({ 0; })
+> 
+
+-- 
+Andrey Panin		| Linux and UNIX system administrator
+pazke@donpac.ru		| PGP key: wwwkeys.pgp.net

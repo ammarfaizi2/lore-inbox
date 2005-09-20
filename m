@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964932AbVITIpL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbVITIuO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964932AbVITIpL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 04:45:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964934AbVITIpL
+	id S964930AbVITIuO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 04:50:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964936AbVITIuO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 04:45:11 -0400
-Received: from ncc1701.cistron.net ([62.216.30.38]:33692 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S964932AbVITIpK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 04:45:10 -0400
-From: dth@cistron.nl (Danny ter Haar)
-Subject: Re: 2.6.14-rc1-git5: problem with "nosmp" boot argument
-Date: Tue, 20 Sep 2005 08:45:09 +0000 (UTC)
-Organization: Cistron
-Message-ID: <dgoi6l$34t$1@news.cistron.nl>
-References: <dgohe2$2iv$1@news.cistron.nl>
-X-Trace: ncc1701.cistron.net 1127205909 3229 62.216.30.70 (20 Sep 2005 08:45:09 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: dth@cistron.nl (Danny ter Haar)
-To: linux-kernel@vger.kernel.org
+	Tue, 20 Sep 2005 04:50:14 -0400
+Received: from 223-177.adsl.pool.ew.hu ([193.226.223.177]:58118 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S964930AbVITIuM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 04:50:12 -0400
+To: trond.myklebust@fys.uio.no
+CC: smfrench@austin.rr.com, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+In-reply-to: <1127156303.8519.29.camel@lade.trondhjem.org> (message from Trond
+	Myklebust on Mon, 19 Sep 2005 14:58:23 -0400)
+Subject: Re: ctime set by truncate even if NOCMTIME requested
+References: <432EFAB1.4080406@austin.rr.com> <1127156303.8519.29.camel@lade.trondhjem.org>
+Message-Id: <E1EHdnX-00013H-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Tue, 20 Sep 2005 10:48:19 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Danny ter Haar <dth@cistron.nl> wrote:
->Just tried to reboot SMP kernel with "nosmp" argument.
->testing NMI watchdog ... CPU#0: NMI appears to be stuck (0->0)!
+> See the discussion on this a couple of weeks back.
+> 
+> It is quite correct for the kernel to request that the filesystem set
+> ctime/mtime on successful calls to open(O_TRUNC).
+>   http://www.opengroup.org/onlinepubs/009695399/toc.htm
+> 
+> It is _incorrect_ for it to request that ctime/mtime be set (or that the
+> suid/sgid mode bit be cleared) if a truncate()/ftruncate() call results
+> in no size change.
+>   http://www.opengroup.org/onlinepubs/009695399/toc.htm
+> 
+> So the current do_truncate() does have to be changed. Adding a check for
+> IS_NOCMTIME would be wrong, though.
 
-Couldn't post it on bugzilla.kernel.org since that one is down.
+These are othogonal problems.
 
-"Bugzilla is currently broken. Please try again later. If the problem
-persists, please contact bugme-admin@osdl.org.+The error you should
-quote is: Can't connect to MySQL server on 'nat.osdl.org' (113) at
-globals.pl line 140."
+IS_NOCMTIME is the filesystem's way of saying that it doesn't need
+->setattr on truncate(), write(), etc.  Why?  Because it can do the
+[cm]time change implicitly _within_ the operation.
 
-kernel config is @ http://newsgate.newsserver.nl/kernel/
+If IS_NOCMTIME is set, the only place where the filesystem should get
+ATTR_MTIME or ATTR_CTIME (and for that matter ATTR_MTIME_SET) is from
+sys_utime[s].
 
-Danny
-
-
-
+Miklos

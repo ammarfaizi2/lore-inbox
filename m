@@ -1,83 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964964AbVITKVa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964971AbVITK20@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964964AbVITKVa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 06:21:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964965AbVITKVa
+	id S964971AbVITK20 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 06:28:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964967AbVITK20
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 06:21:30 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:1467 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S964964AbVITKVa convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 06:21:30 -0400
-Subject: Re: [AIO] aio-2.6.13-rc6-B1
-From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-To: Benjamin LaHaise <bcrl@linux.intel.com>
-Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20050817184406.GA24961@linux.intel.com>
-References: <20050817184406.GA24961@linux.intel.com>
-Date: Tue, 20 Sep 2005 12:23:10 +0200
-Message-Id: <1127211790.2051.9.camel@frecb000686>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 20/09/2005 12:34:25,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 20/09/2005 12:34:27,
-	Serialize complete at 20/09/2005 12:34:27
-Content-Transfer-Encoding: 8BIT
+	Tue, 20 Sep 2005 06:28:26 -0400
+Received: from zproxy.gmail.com ([64.233.162.203]:48777 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964968AbVITK2Z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 06:28:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=lzKtMBPwjmoCJdplK5R1MqKM24OdrZymnWKo+m+CnRRVpWlJSYz9TLcgTH49CzLP7mxGkbisjI6ffBOPsC6EfGKWf9Dju9Lu6x4BVHPrPpINsE27gJi4vqHMJajvVzBNn6+Uy4FOU9ttKQE6RAsnxubWDOM4Sy6A/sEZqmSGhgg=
+Message-ID: <432FE3E0.3020405@gmail.com>
+Date: Tue, 20 Sep 2005 18:26:40 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jan Dittmer <jdittmer@ppp0.net>
+CC: Jurriaan <thunder7@xs4all.nl>, linux-kernel@vger.kernel.org,
+       linux-fbdev-devel@lists.sourceforge.net
+Subject: Re: no cursor on nvidiafb console in 2.6.14-rc1-mm1
+References: <20050919175116.GA8172@amd64.of.nowhere> <432F08C1.8010705@ppp0.net> <432F36B4.8030209@gmail.com> <432FBC93.4040007@ppp0.net>
+In-Reply-To: <432FBC93.4040007@ppp0.net>
 Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-08-17 at 14:44 -0400, Benjamin LaHaise wrote:
-> The bugfix followup to the last aio rollup is now available at:
+Jan Dittmer wrote:
+> Antonino A. Daplas wrote:
+>> Jan Dittmer wrote:
+>>
+>>> jurriaan wrote:
+>>>
+>>>> After updating from 2.6.13-rc4-mm1 to 2.6.14-rc1-mm1 I see no cursor on
+>>>> my console.
+>>> Me too, 2.6.14-rc1-git4. Didn't try any kernel before with framebuffer,
+>>> sorry. No fb options on the kernel command line.
+>>>
+>>
+>> Can you try reversing this particular diff?
+>>
+>> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blobdiff_plain;h=af99ea96012ec72ef57fd36655a6d8aaa22e809e;hp=30f80c23f934bb0a76719232f492153fc7cca00a
+>>
+>> Tony
+>>
 > 
-> 	http://www.kvack.org/~bcrl/patches/aio-2.6.13-rc6-B1-all.diff
+> --- 30f80c23f934bb0a76719232f492153fc7cca00a
+> +++ af99ea96012ec72ef57fd36655a6d8aaa22e809e
 > 
-> with the split up in:
-> 
-> 	http://www.kvack.org/~bcrl/patches/aio-2.6.13-rc6-B1/
-> 
-> This fixes the bugs noticed in the -B0 variant.  Major changes in this 
-> patchset are:
-> 
-> 	- added aio semaphore ops
-> 	- aio thread based fallbacks
-> 	- vectored aio file_operations
-> 	- aio sendmsg/recvmsg via thread fallbacks
-> 	- retry based aio pipe operations
-> 
-> Comments?
-> 
-> 		-ben
+> ^^^ Which file??
 > 
 
-  Hi Ben,
+Heh, didn't realize that. drivers/video/nvidia/nvidia.c, actually.
+But just apply this patch instead, as a Kconfig change is also
+needed.
 
-  what's the point of calling wake_up_locked(&sem->wait) in 
-aio_down_wait? We're already in a wakeup path and end up
-calling __wake_up_common recursively.
+Signed-off-by: Antonino Daplas <adaplas@pol.net>
 
-  I think it may be one of the cause of my kernel hanging at the
-very beginning.
-
-  When I remove this call things go further but at some point a
-semaphore wait queue gets thrashed and __wake_up_common tries to
-call an invalid callback function.
-
-  Any input appreciated.
-
-  Sébastien.
-
--- 
-------------------------------------------------------
-
-  Sébastien Dugué                BULL/FREC:B1-247
-  phone: (+33) 476 29 77 70      Bullcom: 229-7770
-
-  mailto:sebastien.dugue@bull.net
-
-  Linux POSIX AIO: http://www.bullopensource.org/posix
-  
-------------------------------------------------------
-
+diff --git a/drivers/video/Kconfig b/drivers/video/Kconfig
+--- a/drivers/video/Kconfig
++++ b/drivers/video/Kconfig
+@@ -650,6 +650,7 @@ config FB_NVIDIA
+ 	select FB_CFB_FILLRECT
+ 	select FB_CFB_COPYAREA
+ 	select FB_CFB_IMAGEBLIT
++	select FB_SOFT_CURSOR
+ 	help
+ 	  This driver supports graphics boards with the nVidia chips, TNT
+ 	  and newer. For very old chipsets, such as the RIVA128, then use
+diff --git a/drivers/video/nvidia/nvidia.c b/drivers/video/nvidia/nvidia.c
+--- a/drivers/video/nvidia/nvidia.c
++++ b/drivers/video/nvidia/nvidia.c
+@@ -893,7 +893,7 @@ static int nvidiafb_cursor(struct fb_inf
+ 	int i, set = cursor->set;
+ 	u16 fg, bg;
+ 
+-	if (!hwcur || cursor->image.width > MAX_CURS || cursor->image.height > MAX_CURS)
++	if (cursor->image.width > MAX_CURS || cursor->image.height > MAX_CURS)
+ 		return -ENXIO;
+ 
+ 	NVShowHideCursor(par, 0);
+@@ -1356,6 +1356,9 @@ static int __devinit nvidia_set_fbinfo(s
+ 	info->pixmap.size = 8 * 1024;
+ 	info->pixmap.flags = FB_PIXMAP_SYSTEM;
+ 
++	if (!hwcur)
++	    info->fbops->fb_cursor = soft_cursor;
++
+ 	info->var.accel_flags = (!noaccel);
+ 
+ 	switch (par->Architecture) {

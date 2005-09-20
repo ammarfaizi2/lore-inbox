@@ -1,51 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965116AbVITWJb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbVITWIY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965116AbVITWJb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 18:09:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965028AbVITWJO
+	id S1750863AbVITWIY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 18:08:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750866AbVITWIY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 18:09:14 -0400
-Received: from ams-iport-1.cisco.com ([144.254.224.140]:52121 "EHLO
-	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S965122AbVITWI0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 18:08:26 -0400
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: [PATCH 02/10] IB/mthca: assign ACK timeout field correctly
-In-Reply-To: <2005920158.6GA97hjj1WYfaq3W@cisco.com>
-X-Mailer: Roland's Patchbomber
-Date: Tue, 20 Sep 2005 15:08:10 -0700
-Message-Id: <2005920158.rJMu8Og0ayj9lKb3@cisco.com>
+	Tue, 20 Sep 2005 18:08:24 -0400
+Received: from zproxy.gmail.com ([64.233.162.200]:11484 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750863AbVITWIX convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 18:08:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=MkMQy/BXD7lhPG2nCh0nrRURsWb2mdTF1Ap76E+MSZgTg/PeCeel8IwEzLlCDL3AR5mgR2nFdqcI1rm8Qdu4rnwbzNmxYc/ZQxVX1dDbSk8u6lmFYYwlJhc6SB2TJK9LeF5k4JNDvqcpt9E8jTq9y2MXfTfHwamW9lK150Zd5ws=
+Message-ID: <feed8cdd050920150866e7925d@mail.gmail.com>
+Date: Tue, 20 Sep 2005 15:08:21 -0700
+From: Stephen Pollei <stephen.pollei@gmail.com>
+Reply-To: stephen.pollei@gmail.com
+To: Hans Reiser <reiser@namesys.com>
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Nikita Danilov <nikita@clusterfs.com>,
+       Denis Vlasenko <vda@ilport.com.ua>, LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+In-Reply-To: <43304A41.7080206@namesys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-To: torvalds@osdl.org
 Content-Transfer-Encoding: 7BIT
-From: Roland Dreier <rolandd@cisco.com>
-X-OriginalArrivalTime: 20 Sep 2005 22:08:12.0041 (UTC) FILETIME=[CA856F90:01C5BE2F]
+Content-Disposition: inline
+References: <200509201536.j8KFa6wn011651@laptop11.inf.utfsm.cl>
+	 <43304A41.7080206@namesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The hardware reads the ACK timeout field from the most significant 5
-bits of struct mthca_qp_path's ackto field, not the least significant
-bits.  This fix has the driver put the timeout in the right place.
-Without this, we get a timeout that is 2^8 times too small.
+On 9/20/05, Hans Reiser <reiser@namesys.com> wrote:
+> Horst von Brand wrote:
+> >Nikita Danilov <nikita@clusterfs.com> wrote:
+> >It is supposed to go into the kernel, which is not exactly warning-free.
 
-Signed-off-by: Roland Dreier <rolandd@cisco.com>
+> Is that what this thread boils down to, that you guys think the compile
+> should fail not warn?
 
----
+I don't care if it fails or warns at compile time, but you shouldn't
+misuse/abuse a warning by potentialily introducing an unrelated bug.
 
- drivers/infiniband/hw/mthca/mthca_qp.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+So if you had
+#if defined(DEBUG_THIS) || defined(DEBUG_THAT) 
+int znode_is_loaded(const struct znode *z);
+#else
+int znode_is_loaded(const struct znode *z)
+  __attribute__((__warn_broken__("unavailible when not debuging")));
+#endif
+That would be great with me.. except __warn_broken__ or the like
+doesn't exist AFAIK :-<
+Closest thing is __attribute((__deprecated__)) but thats not quite right.
 
-6fd9dccd77024ea85b65aa3e8f1cce22caa0d578
-diff --git a/drivers/infiniband/hw/mthca/mthca_qp.c b/drivers/infiniband/hw/mthca/mthca_qp.c
---- a/drivers/infiniband/hw/mthca/mthca_qp.c
-+++ b/drivers/infiniband/hw/mthca/mthca_qp.c
-@@ -687,7 +687,7 @@ int mthca_modify_qp(struct ib_qp *ibqp, 
- 	}
- 
- 	if (attr_mask & IB_QP_TIMEOUT) {
--		qp_context->pri_path.ackto = attr->timeout;
-+		qp_context->pri_path.ackto = attr->timeout << 3;
- 		qp_param->opt_param_mask |= cpu_to_be32(MTHCA_QP_OPTPAR_ACK_TIMEOUT);
- 	}
- 
+> >As was said before: It it is /really/ wrong, arrange for it not to compile
+> >or not to link. If it isn't, well... then it wasn't that wrong anyway.
+
+That is really true, if it is really wrong then make it so that trying
+to do it simply breaks.
+And if you are impatient then use a define to substitute crap into the
+compile that will give you something you can't ignore as well. Make it
+throw off sparks, get bonus points if you can make gcc segfault;->
+
+#define znode_is_loaded(I_dont_care_you_are_going_to_) \
+  } )die(]0now[>anyway<}}}}}}*bye*}
+
+should stop a compile, but I don't think it's evil enough to cause gcc
+to segfault.
+If you didn't like my humor I'm sure you could code something more
+concise that is as sick and twisted to crash a compile...
+Hmmm. 
+#if yadda yadda
+int znode_is_loaded_yet_again(....)
+#else
+#define znode_is_loaded(z) ><<<>
+/* break the compile if someone tries using it while not debuging */
+#endif
+
+That should break the parser as well. too bad there isn't a
+_Pragma("error") or something... oh well.
+
+Also note my opinion, doesn't really count if you grep the kernel
+sources for pollei, you won't find anything.
+
+-- 
+http://dmoz.org/profiles/pollei.html
+http://sourceforge.net/users/stephen_pollei/
+http://www.orkut.com/Profile.aspx?uid=2455954990164098214
+http://stephen_pollei.home.comcast.net/

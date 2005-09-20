@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964882AbVITEe3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964886AbVITEmA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964882AbVITEe3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 00:34:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964883AbVITEe3
+	id S964886AbVITEmA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 00:42:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964887AbVITEmA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 00:34:29 -0400
-Received: from smtp100.rog.mail.re2.yahoo.com ([206.190.36.78]:57788 "HELO
-	smtp100.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S964882AbVITEe2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 00:34:28 -0400
-Subject: Re: [patch] stop inotify from sending random DELETE_SELF event
-	under load
-From: John McCutchan <ttb@tentacle.dhs.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Robert Love <rml@novell.com>, Al Viro <viro@ZenIV.linux.org.uk>
-In-Reply-To: <20050920042456.GC7992@ftp.linux.org.uk>
-References: <1127177337.15262.6.camel@vertex>
-	 <Pine.LNX.4.58.0509191821220.2553@g5.osdl.org>
-	 <1127181641.16372.10.camel@vertex>
-	 <Pine.LNX.4.58.0509191909220.2553@g5.osdl.org>
-	 <1127188015.17794.6.camel@vertex>
-	 <Pine.LNX.4.58.0509192054060.2553@g5.osdl.org>
-	 <20050920042456.GC7992@ftp.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 20 Sep 2005 00:36:11 -0400
-Message-Id: <1127190971.18595.5.camel@vertex>
+	Tue, 20 Sep 2005 00:42:00 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:3470 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964886AbVITEmA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 00:42:00 -0400
+Date: Tue, 20 Sep 2005 10:11:10 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
+       Li Shaohua <shaohua.li@intel.com>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: PATCH: Fix race in cpu_down (hotplug cpu)
+Message-ID: <20050920044110.GA19184@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20050919055715.GE8653@in.ibm.com> <1127110271.9696.97.camel@localhost> <20050919062336.GA9466@in.ibm.com> <1127111830.4087.3.camel@linux-hp.sh.intel.com> <1127111784.5272.10.camel@npiggin-nld.site> <1127113930.4087.6.camel@linux-hp.sh.intel.com> <1127114538.5272.16.camel@npiggin-nld.site> <20050919072842.GA11293@elte.hu> <1127115425.5272.21.camel@npiggin-nld.site> <1127170547.18737.3.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1127170547.18737.3.camel@localhost>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-09-20 at 05:24 +0100, Al Viro wrote:
-> On Mon, Sep 19, 2005 at 09:03:36PM -0700, Linus Torvalds wrote:
-> > One possibility is to mark the dentry deleted in d_flags. That would mean 
-> > something like this (against the just-pushed-put v2.6.14-rc2, which has 
-> > my previous hack).
-> > 
-> > Untested. Al?
->  
-> Uhh...  I still don't understand which behaviour do you want.
+On Tue, Sep 20, 2005 at 08:55:47AM +1000, Nigel Cunningham wrote:
+> I got on the same page eventually :). When you have it ready, I'll be
+> happy to try it. Apart from trying another 75 suspends (which I'm happy
+> to do), I'm not really sure how we can be totally sure that the patch
+> fixes it. Do you have any thoughts in this regard?
+
+Since this seems to be related to CPU down event, you could run a
+tight loop like this overnight (for all CPUs in the system):
+
+	while :
+	do
+		echo 0 > online
+		echo 1 > online
+	done
 
 
-> 	* removal of this link, at the moment when it stops being accessible
-> [ none of the above, better done from vfs_...() ]
-
-That is the behaviour we want, how does Linus's second patch not
-accomplish this? 
+This, maybe in conjunction with some other test like LTP or make -jN bzImage,
+is usually enough to capture all CPU-hotplug related problems.
 
 -- 
-John McCutchan <ttb@tentacle.dhs.org>
+
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

@@ -1,35 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964931AbVITIme@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964932AbVITIpL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964931AbVITIme (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 04:42:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964934AbVITIme
+	id S964932AbVITIpL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 04:45:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964934AbVITIpL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 04:42:34 -0400
-Received: from odin2.bull.net ([192.90.70.84]:41653 "EHLO odin2.bull.net")
-	by vger.kernel.org with ESMTP id S964931AbVITIme (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 04:42:34 -0400
-From: "Serge Noiraud" <serge.noiraud@bull.net>
-To: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: RT bug with 2.6.13-rt4 and 3c905c tornado
-Date: Tue, 20 Sep 2005 10:46:17 +0200
-User-Agent: KMail/1.7.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509201046.17818.Serge.Noiraud@bull.net>
+	Tue, 20 Sep 2005 04:45:11 -0400
+Received: from ncc1701.cistron.net ([62.216.30.38]:33692 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S964932AbVITIpK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 04:45:10 -0400
+From: dth@cistron.nl (Danny ter Haar)
+Subject: Re: 2.6.14-rc1-git5: problem with "nosmp" boot argument
+Date: Tue, 20 Sep 2005 08:45:09 +0000 (UTC)
+Organization: Cistron
+Message-ID: <dgoi6l$34t$1@news.cistron.nl>
+References: <dgohe2$2iv$1@news.cistron.nl>
+X-Trace: ncc1701.cistron.net 1127205909 3229 62.216.30.70 (20 Sep 2005 08:45:09 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: dth@cistron.nl (Danny ter Haar)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Danny ter Haar <dth@cistron.nl> wrote:
+>Just tried to reboot SMP kernel with "nosmp" argument.
+>testing NMI watchdog ... CPU#0: NMI appears to be stuck (0->0)!
 
-	This driver works perfectly if you insert the physical card on a PCI slot. If 
-you insert this same card on a PCI-X slot, we got the following problem :
-When you type "modprobe 3c59x", the system freeze.
+Couldn't post it on bugzilla.kernel.org since that one is down.
 
-Has someone already test this ?
+"Bugzilla is currently broken. Please try again later. If the problem
+persists, please contact bugme-admin@osdl.org.+The error you should
+quote is: Can't connect to MySQL server on 'nat.osdl.org' (113) at
+globals.pl line 140."
 
-This card works perfectly on the same PCI-X slot with  a non RT kernel.
-Do you need some more info ?
+kernel config is @ http://newsgate.newsserver.nl/kernel/
+
+Danny
+
+
+

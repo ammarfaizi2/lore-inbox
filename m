@@ -1,48 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965016AbVITNzn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932538AbVITN6T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965016AbVITNzn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 09:55:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965017AbVITNzn
+	id S932538AbVITN6T (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 09:58:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932416AbVITN6T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 09:55:43 -0400
-Received: from moraine.clusterfs.com ([66.96.26.190]:47065 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S965016AbVITNzm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 09:55:42 -0400
-From: Nikita Danilov <nikita@clusterfs.com>
+	Tue, 20 Sep 2005 09:58:19 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:6379 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S932628AbVITN6S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 09:58:18 -0400
+Message-ID: <43301578.8040305@vc.cvut.cz>
+Date: Tue, 20 Sep 2005 15:58:16 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andrew Morton <akpm@osdl.org>
+CC: Christoph Lameter <clameter@engr.sgi.com>, alokk@calsoftinc.com,
+       linux-kernel@vger.kernel.org, manfred@colorfullife.com
+Subject: Re: 2.6.14-rc1-git-now still dying in mm/slab - this time line 1849
+References: <4329A6A3.7080506@vc.cvut.cz>	<20050916023005.4146e499.akpm@osdl.org>	<432AA00D.4030706@vc.cvut.cz>	<20050916230809.789d6b0b.akpm@osdl.org>	<432EE103.5020105@vc.cvut.cz>	<20050919112912.18daf2eb.akpm@osdl.org>	<Pine.LNX.4.62.0509191141380.26105@schroedinger.engr.sgi.com>	<20050919122847.4322df95.akpm@osdl.org>	<Pine.LNX.4.62.0509191351440.26388@schroedinger.engr.sgi.com> <20050919221614.6c01c2d1.akpm@osdl.org>
+In-Reply-To: <20050919221614.6c01c2d1.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17200.5343.908617.558388@gargle.gargle.HOWL>
-Date: Tue, 20 Sep 2005 17:55:43 +0400
-To: Lorenzo Allegrucci <l.allegrucci@gmail.com>
-Cc: Hans Reiser <reiser@namesys.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, thenewme91@gmail.com,
-       Christoph Hellwig <hch@infradead.org>,
-       Denis Vlasenko <vda@ilport.com.ua>, chriswhite@gentoo.org,
-       lkml <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>,
-       Nate Diller <ndiller@namesys.com>
-Subject: Re: I request inclusion of reiser4 in the mainline kernel
-Newsgroups: gmane.comp.file-systems.reiserfs.general,gmane.linux.kernel
-In-Reply-To: <200509201530.01808.l.allegrucci@gmail.com>
-References: <200509180934.50789.chriswhite@gentoo.org>
-	<432FC150.9020807@namesys.com>
-	<20050920114253.GL10845@suse.de>
-	<200509201530.01808.l.allegrucci@gmail.com>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lorenzo Allegrucci <l.allegrucci@gmail.com> writes:
+Andrew Morton wrote:
+> Christoph Lameter <clameter@engr.sgi.com> wrote:
+> 
+>>On Mon, 19 Sep 2005, Andrew Morton wrote:
+>>
+>>
+>>>	list_for_each(walk, &cache_chain) {
+>>>		kmem_cache_t *searchp;
+>>>		struct list_head* p;
+>>>		int tofree;
+>>>		struct slab *slabp;
+>>>
+>>>		searchp = list_entry(walk, kmem_cache_t, next);
+>>>
+>>>		if (searchp->flags & SLAB_NO_REAP)
+>>>			goto next;
+>>>
+>>>		check_irq_on();
+>>>
+>>>		l3 = searchp->nodelists[numa_node_id()];
+>>>		if (l3->alien)
+>>>			drain_alien_cache(searchp, l3);
+>>>->preempt here
+>>>		spin_lock_irq(&l3->list_lock);
+>>>
+>>>		drain_array_locked(searchp, ac_data(searchp), 0,
+>>>				numa_node_id());
+>>>->oops, wrong node.
+>>
+>>This is called from keventd which exists per processor. Hmmm... This looks 
+>>as if it can change processors after all
+> 
+> 
+> Well no, it would be a big bug if a keventd thread were to change CPUs.
+> 
+> It's OK to rely upon the pinnedness of keventd I guess - a comment would be
+> nice.
+> 
+> 
+>>but the slab allocator depends on 
+>>it running on the right processor. So does the page allocator. sigh. What 
+>>is the point of having per processor workqueues if they do not stay on 
+>>the assigned processor?
+> 
+> 
+> They do.  I don't believe that preemption is the source of this BUG. 
+> (Petr, does CONFIG_PREEMPT=n fix it?)
 
-[...]
+No, it does not.  I've even added printks here and there to show node number,
+and everything works as it should.  Maybe there are some problems with
+numa_node_id() and migrating between processors when memory gets released,
+I do not know.
 
->
-> Why not just rename the kernel option "elevator" to "iosched" ?
+Only thing I know that if I'll add WARN_ON below to the free_block(), it
+triggers...
 
-At least update Documentation/kernel-parameters.txt to be consistent,
-but I think kernel boot options are considered to be a part of the "user
-space API" and, as such, cannot be changed that easily.
+@free_block
+   slabp = GET_PAGE_SLAB(virt_to_page(objp));
+   nodeid = slabp->nodeid;
++  WARN_ON(nodeid != numa_node_id());             <<<<<
+   l3 = cachep->nodelist[nodeid];
+   list_del(&slabp->list);
+   objnr = (objp - slabp->s_mem) / cachep->objsize;
+   check_spinlock_acquired_node(cachep, nodeid);
+   check_slabp(cachep, slabp);
 
-Nikita.
+... saying that keventd/0 tries to operate on
+slab belonging to node#1, while having acquired lock for cachep belonging
+to node #0.  Due to this check_spinlock_acquired_node(cachep, nodeid) fails
+(check_spinlock_acquired_node(cachep, 0) would succeed).
+								Petr
+

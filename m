@@ -1,80 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965013AbVITNlc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965014AbVITNnL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965013AbVITNlc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 09:41:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965016AbVITNlc
+	id S965014AbVITNnL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 09:43:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965018AbVITNnL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 09:41:32 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:48717 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S965013AbVITNlb (ORCPT
+	Tue, 20 Sep 2005 09:43:11 -0400
+Received: from xproxy.gmail.com ([66.249.82.207]:53821 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965014AbVITNnK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 09:41:31 -0400
-Date: Tue, 20 Sep 2005 15:41:16 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Lorenzo Allegrucci <l.allegrucci@gmail.com>
-Cc: Hans Reiser <reiser@namesys.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, thenewme91@gmail.com,
-       Christoph Hellwig <hch@infradead.org>,
-       Denis Vlasenko <vda@ilport.com.ua>, chriswhite@gentoo.org,
-       lkml <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>,
-       Nate Diller <ndiller@namesys.com>
-Subject: Re: I request inclusion of reiser4 in the mainline kernel
-Message-ID: <20050920134115.GN10845@suse.de>
-References: <200509180934.50789.chriswhite@gentoo.org> <432FC150.9020807@namesys.com> <20050920114253.GL10845@suse.de> <200509201530.01808.l.allegrucci@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200509201530.01808.l.allegrucci@gmail.com>
+	Tue, 20 Sep 2005 09:43:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:message-id:from;
+        b=LYMYwNbMYul42cU0oSOnubFQ/nCIKisAv3h1ipNSf3rjRobSGEVtEAVmn8/GxmyOrW2swZvVPtUVNgS2MSZumxs4lkp5oaNXATVjrmVxnuIyMml4JQMXSNlI12wBJRAyhzyX21Bdxb6MWhYUfO7jpHAOzvvkv5FCzm1oPLXkGTw=
+To: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: Arrr! Linux v2.6.14-rc2
+Date: Tue, 20 Sep 2005 09:31:42 -0400
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0509192003410.2553@g5.osdl.org> <200509200050.15347.gene.heskett@verizon.net>
+In-Reply-To: <200509200050.15347.gene.heskett@verizon.net>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart3424363.DgrljFBoa8";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200509200931.58371.pmcfarland@downeast.net>
+From: Patrick McFarland <diablod3@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 20 2005, Lorenzo Allegrucci wrote:
-> On Tuesday 20 September 2005 13:42, Jens Axboe wrote:
-> > On Tue, Sep 20 2005, Hans Reiser wrote:
-> > > >>The name for one.  There is no elevator algorithm anywhere in it.  There
-> > > >>is a least block number first algorithm that was called an elevator, but
-> > > >>    
-> > > >>
-> > > >
-> > > >Well the terminology changed to "io scheduler" now, however the
-> > > >residual "elevator" name found in places doesn't cause anyone
-> > > >any problems and there isn't much reason to change it other than
-> > > >the desire to break things.
-> > > >  
-> > > >
-> > > Did you really say that?    I mean, come on, can't you at least manage a
-> > > "well, it ought to get changed but I am busy with something more
-> > > exciting to me".
-> > 
-> > Seeing as you are the one that is apparently bothered by the misnomer,
-> > it follows that you would be the one submitting a patch for this. Not
-> > that it would be accepted though, I don't see much point in renaming
-> > functions and breaking drivers just because of a slightly bad name. The
-> > io schedulers are all called foo-iosched.c, it's only the simple core
-> > api that uses the 'elevator' description.
-> 
-> Why not just rename the kernel option "elevator" to "iosched" ?
-> 
-> --- elevator.c  2005-09-20 15:26:19.000000000 +0200
-> +++ elevator.c.iosched  2005-09-20 15:27:11.000000000 +0200
-> @@ -178,7 +178,7 @@
->         return 0;
->  }
-> 
-> -__setup("elevator=", elevator_setup);
-> +__setup("iosched=", elevator_setup);
-> 
->  int elevator_init(request_queue_t *q, char *name)
->  {
+--nextPart3424363.DgrljFBoa8
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Because I know at least SUSE uses this name for setting a different io
-scheduler on boot. And there are users out there that have added the
-options to their boot loader config.
+On Tuesday 20 September 2005 12:50 am, Gene Heskett wrote:
+> You've been watching entirely too much tv Linus.  That commercial
+> is one of the better examples of the "vast wasteland" that is todays
+> tv.
 
-So let me repeat - we are not going to break any existing setups for no
-good reason. End of discussion.
+D'arr, the 19th of Septembarrr tis International Talk Like A Pirate Day.=20
+( http://talklikeapirate.com/ ).
 
--- 
-Jens Axboe
+=2D-=20
+Patrick the Bloody, Captain of the Red Sea Deamon, Yarr!
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
+e'd=20
+all be running around in darkened rooms, munching magic pills and listening=
+ to
+repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
 
+--nextPart3424363.DgrljFBoa8
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDMA9O8Gvouk7G1cURAuaCAKCFhDyCzb+Mz7moR8lI9ogmbDz7qwCeKn2C
+45Tduq+DzOPuaeahUzvh66Q=
+=I9Ai
+-----END PGP SIGNATURE-----
+
+--nextPart3424363.DgrljFBoa8--

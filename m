@@ -1,49 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965004AbVITMzy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965003AbVITMxr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965004AbVITMzy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 08:55:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965005AbVITMzy
+	id S965003AbVITMxr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 08:53:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965004AbVITMxr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 08:55:54 -0400
-Received: from [195.209.228.254] ([195.209.228.254]:42963 "EHLO
-	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S965004AbVITMzx
+	Tue, 20 Sep 2005 08:53:47 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:3271 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S965003AbVITMxr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 08:55:53 -0400
-Message-ID: <433006D8.4010502@yandex.ru>
-Date: Tue, 20 Sep 2005 16:55:52 +0400
-From: "Artem B. Bityutskiy" <dedekind@yandex.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-1.3.1
-X-Accept-Language: en, ru, en-us
-MIME-Version: 1.0
-To: Peter Menzebach <pm-mtd@mw-itcon.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: data  loss on jffs2 filesystem on dataflash
-References: <432812E8.2030807@mw-itcon.de>	<432817FF.10307@yandex.ru>	<4329251C.7050102@mw-itcon.de>	<4329288B.8050909@yandex.ru> <43292AC6.40809@mw-itcon.de>	<43292E16.70401@yandex.ru> <43292F91.9010302@mw-itcon.de> <432FE1EF.9000807@yandex.ru> <432FEF55.5090700@mw-itcon.de>
-In-Reply-To: <432FEF55.5090700@mw-itcon.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 20 Sep 2005 08:53:47 -0400
+Date: Tue, 20 Sep 2005 15:53:36 +0300 (EEST)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Al Viro <viro@ftp.linux.org.uk>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: p = kmalloc(sizeof(*p), )
+In-Reply-To: <20050920123149.GA29112@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.58.0509201551480.11907@sbz-30.cs.Helsinki.FI>
+References: <20050918100627.GA16007@flint.arm.linux.org.uk>
+ <84144f0205092004187f86840c@mail.gmail.com> <20050920114003.GA31025@flint.arm.linux.org.uk>
+ <Pine.LNX.4.58.0509201501440.9304@sbz-30.cs.Helsinki.FI>
+ <20050920123149.GA29112@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Menzebach wrote:
-> No, not at then moment. If I have some time, I can try to rewrite the 
-> chipset driver, that it reports a sector size of 1024.
+Btw, I would prefer this one to be applied instead. The other parts should 
+be okay, right?
 
-I glanced at the manual. Uhh, DataFlash is very specific beast. It 
-suppoers page program with built-in erase command... So DataFlash 
-effectively may be considered as a block device. Then you may use any FS 
-on it providing you have wrote proper driver? Why do you need JFFS2 then 
-:-) ?
+[PATCH] CodingStyle remove sizeof preferred form
 
-JFFS2 orients to "classical" flashes. They have no "write page with 
-built-in erase" operation.
+It isn't clear that the use of p = kmalloc(sizeof(*p), ...) is
+preferred over p = kmalloc(sizeof(struct foo), ...) - in fact,
+there are some good reasons to use the latter form.
 
-Didn't read the manual carefully, what do they refer by "Main memory array"?
+Therefore, the choice of which to use should be left up to the
+developer concerned, and not written in to the coding style.
 
-BTW, having 8*1056 write buffer is not perfect ides, better make it as 
-small as possible, i.e., 1056 bytes.
+For discussion, please see the thread:
+     http://lkml.org/lkml/2005/9/18/29
 
--- 
-Best Regards,
-Artem B. Bityuckiy,
-St.-Petersburg, Russia.
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+
+Index: 2.6/Documentation/CodingStyle
+===================================================================
+--- 2.6.orig/Documentation/CodingStyle
++++ 2.6/Documentation/CodingStyle
+@@ -416,14 +416,6 @@ The kernel provides the following genera
+ kmalloc(), kzalloc(), kcalloc(), and vmalloc().  Please refer to the API
+ documentation for further information about them.
+ 
+-The preferred form for passing a size of a struct is the following:
+-
+-	p = kmalloc(sizeof(*p), ...);
+-
+-The alternative form where struct name is spelled out hurts readability and
+-introduces an opportunity for a bug when the pointer variable type is changed
+-but the corresponding sizeof that is passed to a memory allocator is not.
+-
+ Casting the return value which is a void pointer is redundant. The conversion
+ from void pointer to any other pointer type is guaranteed by the C programming
+ language.

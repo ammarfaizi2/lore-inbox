@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751314AbVIURqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbVIURqr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751314AbVIURqi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 13:46:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbVIURqi
+	id S1751309AbVIURqr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 13:46:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbVIURqr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 13:46:38 -0400
-Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:58286 "HELO
-	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1751314AbVIURqh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 13:46:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:User-Agent:Cc:MIME-Version:Content-Disposition:Date:Message-Id:Content-Type:Content-Transfer-Encoding;
-  b=05BYNTYPtXW5UGxe8KOGrdM4hXAQQEKgSOu9jnhkwGgHlqZvsyQ7HX4giUUlgQEHvhT7SOyycVVp+asWAKp4GArhRnytC1/j8RQ572DbCxAECskRiNk7jXKsZVJzFdTddZ8h6RM28BVlgTCs0xan4SkvsnOEKY/eofNAI5Wd27s=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 0/10] "Bigger" UML fixes for 2.6.14
-User-Agent: KMail/1.8.2
-Cc: Jeff Dike <jdike@addtoit.com>, user-mode-linux-devel@lists.sourceforge.net,
-       LKML <linux-kernel@vger.kernel.org>
+	Wed, 21 Sep 2005 13:46:47 -0400
+Received: from gold.veritas.com ([143.127.12.110]:54817 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1751309AbVIURqq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 13:46:46 -0400
+Date: Wed, 21 Sep 2005 18:46:19 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Jay Lan <jlan@engr.sgi.com>
+cc: Frank van Maarseveen <frankvm@frankvm.com>,
+       Christoph Lameter <clameter@engr.sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.14-rc2] fix incorrect mm->hiwater_vm and mm->hiwater_rss
+In-Reply-To: <4331990A.80904@engr.sgi.com>
+Message-ID: <Pine.LNX.4.61.0509211835190.9340@goblin.wat.veritas.com>
+References: <20050921121915.GA14645@janus> <Pine.LNX.4.61.0509211515330.6114@goblin.wat.veritas.com>
+ <43319111.1050803@engr.sgi.com> <Pine.LNX.4.61.0509211802150.8880@goblin.wat.veritas.com>
+ <4331990A.80904@engr.sgi.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Date: Wed, 21 Sep 2005 19:23:20 +0200
-Message-Id: <200509211923.21861.blaisorblade@yahoo.it>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 21 Sep 2005 17:46:43.0790 (UTC) FILETIME=[6E020EE0:01C5BED4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a collection of more intrusive UML fixes for 2.6.14.
+On Wed, 21 Sep 2005, Jay Lan wrote:
+> 
+> It is not really an issue of out-of-tree accounting package. The
+> system accounting is based on very old technology and needs improvement.
+> The issue we face is not an issue of one particular accounting package.
+> 
+> I think the best approach would be to wrap the mm usage accounting
+> in a new CONFIG_ENHANCED_SYS_ACCT and leave it OFF by default so that
+> people can still get the minimal accounting with
+> CONFIG_BSD_PROCESS_ACCT.
 
-However, I've been careful in them (at least so I hope). You may want to put 
-some in -mm, but please let's make sure that they get into -mm.
--- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
+Yes, please: that sounds right.  With macros which dissolve to nothing
+when it's off, to avoid #ifdef CONFIG_....s throughout the source.c.
+#ifdef around the mm fields themselves?  Probably best that way.
 
+Still need a pointer in the Kconfig to some project that uses these.
 
-	
+Still sceptical that hiwater_vm and hiwater_rss are the magic
+missing numbers which bring system accounting into the 21st century:
+more to come?
 
-	
-		
-___________________________________ 
-Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
-http://mail.yahoo.it
+Thanks,
+Hugh

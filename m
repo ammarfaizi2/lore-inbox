@@ -1,81 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751052AbVIUO6f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750975AbVIUPEG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751052AbVIUO6f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 10:58:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751053AbVIUO6f
+	id S1750975AbVIUPEG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 11:04:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751053AbVIUPEG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 10:58:35 -0400
-Received: from frankvm.xs4all.nl ([80.126.170.174]:49315 "EHLO
-	janus.localdomain") by vger.kernel.org with ESMTP id S1751049AbVIUO6e
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 10:58:34 -0400
-Date: Wed, 21 Sep 2005 16:58:33 +0200
-From: Frank van Maarseveen <frankvm@frankvm.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Christoph Lameter <clameter@engr.sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.14-rc2] fix incorrect mm->hiwater_vm and mm->hiwater_rss
-Message-ID: <20050921145833.GA15682@janus>
-References: <20050921121915.GA14645@janus> <Pine.LNX.4.61.0509211515330.6114@goblin.wat.veritas.com>
+	Wed, 21 Sep 2005 11:04:06 -0400
+Received: from ns.suse.de ([195.135.220.2]:7638 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750975AbVIUPEF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 11:04:05 -0400
+Date: Wed, 21 Sep 2005 17:04:04 +0200
+From: Andi Kleen <ak@suse.de>
+To: Ray Bryant <raybry@mpdtxmail.amd.com>
+Cc: Daniel Jacobowitz <dan@debian.org>, john stultz <johnstul@us.ibm.com>,
+       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, discuss@x86-64.org
+Subject: Re: [discuss] Re: [PATCH] x86-64: Fix bad assumption that dualcore cpus have synced TSCs
+Message-ID: <20050921150404.GD12810@verdi.suse.de>
+References: <1127157404.3455.209.camel@cog.beaverton.ibm.com> <1127242785.11080.20.camel@cog.beaverton.ibm.com> <20050921040342.GA7175@nevyn.them.org> <200509211015.09356.raybry@mpdtxmail.amd.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0509211515330.6114@goblin.wat.veritas.com>
-User-Agent: Mutt/1.4.1i
-X-Subliminal-Message: Use Linux!
+In-Reply-To: <200509211015.09356.raybry@mpdtxmail.amd.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 21, 2005 at 03:38:57PM +0100, Hugh Dickins wrote:
-> On Wed, 21 Sep 2005, Frank van Maarseveen wrote:
-> > This fixes a post 2.6.11 regression in maintaining the mm->hiwater_* counters.
+On Wed, Sep 21, 2005 at 10:15:08AM -0500, Ray Bryant wrote:
+> On Tuesday 20 September 2005 23:03, Daniel Jacobowitz wrote:
 > 
-> It would be a good idea to CC Christoph Lameter, who I believe was the
-> one who very intentionally moved most of these updates out to timer tick.
-> Is that significantly missing updates?
+> >
+> > FYI, at least I have reproduced this without powernow loaded.
+> 
+> There are cases that we are aware of where the TSC will count slower while the 
+> processor is halted.    This can make TSC's get out of sync on dual cores.
 
-Apparently: I use a private patch (see below) to expose mm->hiwater_vm
-to userland via /proc to detect misbehaving processes and for measuring
-worst case memory use by programs. from 2.6.12 on I'm constantly seeing
-a lot of processes with hiwater_vm < total_vm.
-
-> 2. You've missed the instance Dave Miller recently added in fs/compat.c.
-
-Thanks. I'll add that.
+Ok thanks for the confirmation. I guess John's patch is ok then.
+Drawback is much slower to extremly slow gettimeofday  (depending
+if the chipset/BIOS has usable HPET, most seem not to) 
 
 > 
-> 3. If these are to be peppered back all over, then the places where
->    total_vm changes and the places where rss changes are almost completely
->    disjoint, so it's lazy to be calling one function to do both all over.
-
-I'll look into this.
-
+> I wonder if you can reproduce this problem while also running a pair of cpu 
+> bound tasks on your dual core box.   If you can't, then this is the culprit.
 > 
-> 5. Please add appropriate CONFIG, dummy macros etc., so that no time
->    is wasted on these updates in all the vanilla systems which have no
->    interest in them - but maybe Christoph already has that well in hand.
+> In general, however, on multisocket systems, you can't depend on TSC's being 
+> synchronized between sockets, so all of this is moot.   We just have to deal 
+> with it. 
 
-I'm not sure where it's being used for, other than how I use it in which
-case it probably should depend on CONFIG_PROC_FS:
+We handle this, but single socket dual core was special cased because
+I was told previously it should be ok.
 
---- ./fs/proc/task_mmu.c.orig	2005-07-07 14:22:12.000000000 +0200
-+++ ./fs/proc/task_mmu.c	2005-09-16 13:51:56.000000000 +0200
-@@ -14,6 +14,7 @@
- 	text = (PAGE_ALIGN(mm->end_code) - (mm->start_code & PAGE_MASK)) >> 10;
- 	lib = (mm->exec_vm << (PAGE_SHIFT-10)) - text;
- 	buffer += sprintf(buffer,
-+		"VmPeak:\t%8lu kB\n"
- 		"VmSize:\t%8lu kB\n"
- 		"VmLck:\t%8lu kB\n"
- 		"VmRSS:\t%8lu kB\n"
-@@ -22,6 +23,7 @@
- 		"VmExe:\t%8lu kB\n"
- 		"VmLib:\t%8lu kB\n"
- 		"VmPTE:\t%8lu kB\n",
-+		mm->hiwater_vm << (PAGE_SHIFT-10),
- 		(mm->total_vm - mm->reserved_vm) << (PAGE_SHIFT-10),
- 		mm->locked_vm << (PAGE_SHIFT-10),
- 		get_mm_counter(mm, rss) << (PAGE_SHIFT-10),
-
-
--- 
-Frank
+-Andi

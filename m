@@ -1,71 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751395AbVIUT3m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751402AbVIUTe7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751395AbVIUT3m (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 15:29:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751399AbVIUT3l
+	id S1751402AbVIUTe7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 15:34:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751403AbVIUTe7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 15:29:41 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:22793 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751395AbVIUT3l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 15:29:41 -0400
-Date: Wed, 21 Sep 2005 20:29:32 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Mark Lord <liml@rtr.ca>, Richard Purdie <rpurdie@rpsys.net>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Dominik Brodowski <linux@dominikbrodowski.net>, bzolnier@gmail.com,
-       linux-ide@vger.kernel.org
-Subject: Re: [RFC/BUG?] ide_cs's removable status
-Message-ID: <20050921192932.GB13246@flint.arm.linux.org.uk>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Mark Lord <liml@rtr.ca>, Richard Purdie <rpurdie@rpsys.net>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Dominik Brodowski <linux@dominikbrodowski.net>, bzolnier@gmail.com,
-	linux-ide@vger.kernel.org
-References: <1127319328.8542.57.camel@localhost.localdomain> <1127321829.18840.18.camel@localhost.localdomain> <433196B6.8000607@rtr.ca> <1127327243.18840.34.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1127327243.18840.34.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+	Wed, 21 Sep 2005 15:34:59 -0400
+Received: from ppsw-9.csi.cam.ac.uk ([131.111.8.139]:32962 "EHLO
+	ppsw-9.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1751402AbVIUTe6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 15:34:58 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Wed, 21 Sep 2005 20:34:02 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Jean Delvare <khali@linux-fr.org>
+cc: kronos@kronoz.cjb.net, linux-kernel@vger.kernel.org,
+       Bas Vermeulen <bvermeul@blackstar.nl>
+Subject: Re: 2.6.14-rc1 - kernel BUG at fs/ntfs/aops.c:403
+In-Reply-To: <20050921203737.5a82ba60.khali@linux-fr.org>
+Message-ID: <Pine.LNX.4.60.0509212033490.27896@hermes-1.csi.cam.ac.uk>
+References: <20050917145150.GA5481@dreamland.darkstar.lan>
+ <1127122747.493.5.camel@imp.csi.cam.ac.uk> <20050921203737.5a82ba60.khali@linux-fr.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 21, 2005 at 07:27:23PM +0100, Alan Cox wrote:
-> On Mer, 2005-09-21 at 13:21 -0400, Mark Lord wrote:
-> > In the case of CF cards in ide-cs, removing the card is equivalent
-> > to removing the entire IDE controller, not just the media.
+Hi,
+
+On Wed, 21 Sep 2005, Jean Delvare wrote:
+> > Below is the fix I just sent off to Linus.
 > 
-> It isn't the same as removing the entire PCMCIA controller layer. As far
-> as PCMCIA is concerned there has been no change. Thus we have no media
-> change event and we need ->removable = 1
-> 
-> If the PCMCIA card disappeared each time it would be different
+> 2.6.14-rc2 works for me.
 
-Last time I checked, with CF cards the media was an inherent part of
-the CF card and is not changable without removing the card, opening
-it, getting out the soldering iron... or alternatively plugging in
-a different CF card.
+Great, thanks.
 
-Of course, PCMCIA will detect removal of the CF card provided the
-PCMCIA hardware is working.  PCMCIA will also detect a CF card which
-has been changed while the system has been suspended _provided_ the
-CIS does not match the previous cards CIS.  It'll even do this if
-you use cardctl suspend/cardctl resume.
+Best regards,
 
-However, if you suspend your system, remove your CF card, put it in
-a different machine, use it (note: by doing this it could _already_
-be in an inconsistent state), and put it back in the original machine
-before resuming it, the cache on the original machine will disagree
-with what is on the card.  But then you have done something silly
-already by taking media in an inconsistent state to another machine
-- and modified that inconsistent filesystem state.
-
-It sounds like you know of a case where this isn't true - maybe a bug
-report.  Can you expand on it?
-
+	Anton
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

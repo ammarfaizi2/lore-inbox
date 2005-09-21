@@ -1,109 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbVIUGXO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbVIUGVr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932129AbVIUGXO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 02:23:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbVIUGXO
+	id S932123AbVIUGVr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 02:21:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbVIUGVr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 02:23:14 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:17107 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932129AbVIUGXN (ORCPT
+	Wed, 21 Sep 2005 02:21:47 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:58310 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932123AbVIUGVr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 02:23:13 -0400
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
-From: Keith Owens <kaos@sgi.com>
-To: kdb@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Announce: kdb v4.4 is available for kernel 2.6.14-rc2
-Date: Wed, 21 Sep 2005 16:21:11 +1000
-Message-ID: <8905.1127283671@kao2.melbourne.sgi.com>
+	Wed, 21 Sep 2005 02:21:47 -0400
+Date: Tue, 20 Sep 2005 23:21:02 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Marc Perkel <marc@perkel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Lost Ticks - TSC Timer - AMD 64 X2 Processor - What's up with
+ that?
+Message-Id: <20050920232102.4cf1cedf.akpm@osdl.org>
+In-Reply-To: <43302616.6000908@perkel.com>
+References: <43302616.6000908@perkel.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Marc Perkel <marc@perkel.com> wrote:
+>
+> Having timer problems. About to head to the data center to try different 
+> things to get this server to work right. Losing ticks and clock is all 
+> over the place and doing obscene things to keep it almost on track - but 
+> I really need a solution.
+> 
+> Running 2.6.13.1 Kernel - FC4 Linux - Asus Motherboard - A8N-SLI 
+> Premium. Athlon X2 4400+ with 4 gigs of ram and it uses some sort of 
+> memory remapping to use the full 4 gigs.
+> 
+> I don't understand all the different timers. There's TSC and PM and what 
+> else?
+> 
+> Someone suggested "notsc" which I will try when I get there. But  - 
+> looking for a list of other things to try as well. I have flashed the 
+> latest BIOS.
+> 
+> I'm thinking about giving up and going back to DOS. I didn't have these 
+> problem with DOS - and DOS boots faster. ;)
+> 
+> Tell me about all these timers - what are my choices - and what is most 
+> likely to actually work.
+> 
 
-KDB (Linux Kernel Debugger) has been updated.
+Grab a coffee, go read http://bugzilla.kernel.org/show_bug.cgi?id=5105
 
-ftp://oss.sgi.com/projects/kdb/download/v4.4/
-ftp://ftp.ocs.com.au/pub/mirrors/oss.sgi.com/projects/kdb/download/v4.4/
-
-Note:  Due to a spam attack, the kdb@oss.sgi.com mailing list is now
-subscriber only.  If you reply to this mail, you may wish to trim
-kdb@oss.sgi.com from the cc: list.
-
-Current versions are :-
-
-  kdb-v4.4-2.6.14-rc2-common-1.bz2
-  kdb-v4.4-2.6.14-rc2-i386-1.bz2
-  kdb-v4.4-2.6.14-rc2-ia64-1.bz2
-
-The register display (rd, r) and register modify (rm) commands now work
-for tasks that were running when MCA/INIT was delivered.
-
-There is a small change in the behaviour of rd/rm after you use the
-pid, btt, btp and btc commands.  I recommend that you read the rd and
-bt man pages in Documentation/kdb, pay attention to KDB's notion of the
-"current task" when working with registers.
-
-Changelog extract since kdb-v4.4-2.6.13-common-1.
-
-2005-09-21 Keith Owens  <kaos@sgi.com>
-
-	* Support kdb_current_task in register display and modify commands.
-	* Document what changes kdb's notion of the current task.
-	* Update rd documentation for IA64.
-	* Move some definitions to kdbprivate.h and remove some unused symbol
-	  exports.
-	* kdb v4.4-2.6.14-rc2-common-1.
-
-2005-09-20 Keith Owens  <kaos@sgi.com>
-
-	* Document IA64 handlers command.
-	* Add more fields to the task command.
-	* Cope with MCA/INIT handlers in the ps command.
-	* Namespace cleanup, delete unused exports, make some functions static.
-	* Add a kdb_notifier_list callback when kdb is about to reboot the
-	  system.
-	* kdb v4.4-2.6.14-rc1-common-1.
-
-
-Changelog extract since kdb-v4.4-2.6.13-i386-1.
-
-2005-09-21 Keith Owens  <kaos@sgi.com>
-
-	* Support kdb_current_task in register display and modify commands.
-	* kdb v4.4-2.6.14-rc2-i386-1.
-
-2005-09-20 Keith Owens  <kaos@sgi.com>
-
-	* Remove use of __STDC_VERSION__ in ansidecl.h.
-	* kdb v4.4-2.6.14-rc1-i386-1.
-
-
-Changelog extract since kdb v4.4-2.6.13-ia64-1.
-
-2005-09-21 Keith Owens  <kaos@sgi.com>
-
-	* Support kdb_current_task in register display and modify commands.
-	* kdb v4.4-2.6.14-rc2-ia64-1.
-
-2005-09-20 Keith Owens  <kaos@sgi.com>
-
-	* Coexist with kprobes.
-	* Coexist with MCA/INIT rewrite.
-	* Add KDB_ENTER_SLAVE to handle concurrent entry to kdb from multiple
-	  cpus.
-	* Add handlers command to control whether the MCA/INIT task or the
-	  original task is displayed.
-	* Namespace clean up, remove unused kdba_sw_interrupt.
-	* kdb v4.4-2.6.14-rc1-ia64-1.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQFDMPvXi4UHNye0ZOoRAkEtAKCj7n5RUJ31iP3xjPFx1M1rZAemUQCePHiL
-Fgaq2p2ceW8p771aCY5OIQQ=
-=CiVw
------END PGP SIGNATURE-----
-
+Using "clock=pit" might help.

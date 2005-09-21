@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750750AbVIUSvM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbVIUSxi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750750AbVIUSvM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 14:51:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750835AbVIUSvL
+	id S1750835AbVIUSxi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 14:53:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751001AbVIUSxi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 14:51:11 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:31390 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750750AbVIUSvK convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 14:51:10 -0400
-Date: Wed, 21 Sep 2005 11:49:48 -0700
+	Wed, 21 Sep 2005 14:53:38 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:32159 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750835AbVIUSxh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 14:53:37 -0400
+Date: Wed, 21 Sep 2005 11:52:56 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Diego Calleja <diegocg@gmail.com>, "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: alexn@telia.com, torvalds@osdl.org, pavel@suse.cz, ebiederm@xmission.com,
-       len.brown@intel.com, drzeus-list@drzeus.cx,
-       acpi-devel@lists.sourceforge.net, ncunningham@cyclades.com,
-       masouds@masoud.ir, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] suspend: Cleanup calling of power off methods.
-Message-Id: <20050921114948.5b423109.akpm@osdl.org>
-In-Reply-To: <20050921203505.32cc714d.diegocg@gmail.com>
-References: <m1vf0vfa0o.fsf@ebiederm.dsl.xmission.com>
-	<20050921101855.GD25297@atrey.karlin.mff.cuni.cz>
-	<Pine.LNX.4.58.0509210930410.2553@g5.osdl.org>
-	<20050921173630.GA2477@localhost.localdomain>
-	<20050921203505.32cc714d.diegocg@gmail.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: latest patches degrade reiser4 performance substantially
+Message-Id: <20050921115256.6a11ab8d.akpm@osdl.org>
+In-Reply-To: <4331A9BD.5030006@namesys.com>
+References: <4331A9BD.5030006@namesys.com>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Diego Calleja <diegocg@gmail.com> wrote:
+Hans Reiser <reiser@namesys.com> wrote:
 >
-> El Wed, 21 Sep 2005 19:36:30 +0200,
-> Alexander Nyberg <alexn@telia.com> escribió:
+> At the this time we have no idea which patch is responsible, probably in
+> a day or two we'll have a patch to fix it.
 > 
-> > Morever bugme.osdl.org is severely underworked (acpi being a noteable
-> > exception) and Andrew has stepped in alot there too. Alot of bugs
-> > reported on the mailing list are only followed up by Andrew.
-> 
-> One of the things I'm _really_ missing from OSDL's bugzilla setup is a mailing
-> list (if there's one I've never heard about it) where all changes/new bugs/
-> random crap are posted.
 
-There is such a list - it's a great way to depress yourself while still
-half asleep.
+OK.  I assume this performance change is demonstrable in just
+2.6.14-rc2+reiser4?  Beware that there are other changes in the -mm lineup
+which might cause regressions.  Notably
 
-bugme-new@lists.osdl.org, but I'm not sure how one subscribes.  It doesn't
-appear at http://lists.osdl.org/mailman/listinfo/.   Martin?
+	mm-try-to-allocate-higher-order-pages-in-rmqueue_bulk.patch
+
+and
+
+	per-task-predictive-write-throttling-1.patch
+	per-task-predictive-write-throttling-1-tweaks.patch
+

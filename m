@@ -1,101 +1,166 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750952AbVIUN6M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750965AbVIUOCw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750952AbVIUN6M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 09:58:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750958AbVIUN6M
+	id S1750965AbVIUOCw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 10:02:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750967AbVIUOCw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 09:58:12 -0400
-Received: from rrcs-67-78-243-58.se.biz.rr.com ([67.78.243.58]:28558 "EHLO
-	mail.concannon.net") by vger.kernel.org with ESMTP id S1750952AbVIUN6M
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 09:58:12 -0400
-Message-ID: <4331671F.7000006@concannon.net>
-Date: Wed, 21 Sep 2005 09:58:55 -0400
-From: Michael Concannon <mike@concannon.net>
-User-Agent: Mozilla Thunderbird 1.0.6-1.4.1.centos4 (X11/20050721)
+	Wed, 21 Sep 2005 10:02:52 -0400
+Received: from moutvdom.kundenserver.de ([212.227.126.249]:7126 "EHLO
+	moutvdomng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1750965AbVIUOCv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 10:02:51 -0400
+Message-ID: <43316804.5090403@anagramm.de>
+Date: Wed, 21 Sep 2005 16:02:44 +0200
+From: Clemens Koller <clemens.koller@anagramm.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Bogomips on AMD X2 (was Re:)
-References: <OF73453AE5.CDE706CC-ON80257083.004ACF55-80257083.004B7A0F@telex.com>
-In-Reply-To: <OF73453AE5.CDE706CC-ON80257083.004ACF55-80257083.004B7A0F@telex.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+To: David Sanchez <david.sanchez@lexbox.fr>
+CC: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: How to Force PIO mode on sata promise (Linux 2.6.10)
+References: <17AB476A04B7C842887E0EB1F268111E026FB3@xpserver.intra.lexbox.org>
+In-Reply-To: <17AB476A04B7C842887E0EB1F268111E026FB3@xpserver.intra.lexbox.org>
+Content-Type: multipart/mixed;
+ boundary="------------050306090706030400090700"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert.Boermans@uk.telex.com wrote:
+This is a multi-part message in MIME format.
+--------------050306090706030400090700
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
->On Wednesday 21 September 2005 16:20, Robert.Boermans@uk.telex.com wrote:
->  
->
->>Hello, 
->>
->>I noticed that the bogomips results for the two cores on my machine are 
->>consistently not the same, the second one is always reported slightly 
->>faster, it's a small difference and I saw the same in a posted dmesg 
->>    
->>
->from 
->  
->
->>somebody else on the list. Which made me wonder: 
->>    
->>
->
->I guess it's a cache warming effect. Please show the numbers.
->--
->vda
->
->Probably not, got this one from a web site, and on this one the first core 
->seems to be faster (can't check my own machine it's off and at home and 
->I'm at work.) The difference I get is similar, but always with the second 
->one faster. It's the same when using cat on /proc/cpuinfo. Oh and I saw it 
->on 2.6.11 and 2.6.12 as supplied with fedora core 4 myself.
->
->Calibrating delay using timer specific routine.. 4014.73 BogoMIPS 
->(lpj=8029470)
->Mount-cache hash table entries: 512
->CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
->CPU: L2 Cache: 512K (64 bytes/line)
->CPU 0(2) -> Core 0
->Intel machine check architecture supported.
->Intel machine check reporting enabled on CPU#0.
->mtrr: v2.0 (20020519)
->Enabling fast FPU save and restore... done.
->Enabling unmasked SIMD FPU exception support... done.
->Checking 'hlt' instruction... OK.
->CPU0: AMD Athlon(tm) 64 X2 Dual Core Processor 3800+ stepping 02
->Booting processor 1/1 eip 2000
->Initializing CPU#1
->Calibrating delay using timer specific routine.. 4005.37 BogoMIPS 
->(lpj=8010751)
->CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
->CPU: L2 Cache: 512K (64 bytes/line)
->CPU 1(2) -> Core 1
->Intel machine check architecture supported.
->Intel machine check reporting enabled on CPU#1.
->CPU1: AMD Athlon(tm) 64 X2 Dual Core Processor 3800+ stepping 02
->Total of 2 processors activated (8020.11 BogoMIPS).
->
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-opposite result here - 2nd one is faster (from /proc/cpuinfo):
-processor       : 0
-vendor_id       : AuthenticAMD
-model name      : AMD Athlon(tm) 64 X2 Dual Core Processor 4400+
-cpu MHz         : 2211.337
-bogomips        : 4374.52
-...
-processor       : 1
-vendor_id       : AuthenticAMD
-model name      : AMD Athlon(tm) 64 X2 Dual Core Processor 4400+
-cpu MHz         : 2211.337
-...
-bogomips        : 4407.29
+Hello, David, Jeff!
 
+> I'm using the linux kernel 2.6.10 and busybox on an AMD db AU1550 with a
+> hdd connected to the pata port of a PCI card (Promise PDC20579).
+
+I'm using a PDC20269 (on Promise Ultra133TX2 card) w/ DMA disabled on
+an embedded ppc (MPC8540). I cannot use DMA, too.
+I guess it's a PCI IRQ/REQ/GNT problem on my board.
+With DMA disabled I haven't had any problems on my system.
+I am going to use a PDC20275 in the future.
+
+My .config of a linux-2.6.13-rc7 is attached.
+
+And... I know other guys with similar problems on embedded environments.
+Unfortunately I wasn't able to have a closer look at this problem yet.
+
+Best greets,
+
+-- 
+Clemens Koller
+_______________________________
+R&D Imaging Devices
+Anagramm GmbH
+Rupert-Mayer-Str. 45/1
+81379 Muenchen
+Germany
+
+http://www.anagramm.de
+Phone: +49-89-741518-50
+Fax: +49-89-741518-19
+
+--------------050306090706030400090700
+Content-Type: application/octet-stream;
+ name=".config.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename=".config.gz"
+
+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
+A5QKMf8HcL7dJ9FKAAA=
+--------------050306090706030400090700--

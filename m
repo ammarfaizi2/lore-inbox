@@ -1,141 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbVIUPyK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbVIUP4A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751098AbVIUPyK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 11:54:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbVIUPyK
+	id S1751106AbVIUP4A (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 11:56:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751109AbVIUP4A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 11:54:10 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:62884 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751098AbVIUPyJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 11:54:09 -0400
-Date: Wed, 21 Sep 2005 17:54:07 +0200
-From: Olaf Hering <olh@suse.de>
-To: linux-kernel@vger.kernel.org
-Cc: bruce.allan@us.ibm.com, Olaf Hering <olh@suse.de>
-Subject: compat fcntl errors
-Message-ID: <20050921155407.GA21537@suse.de>
+	Wed, 21 Sep 2005 11:56:00 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:20882 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S1751106AbVIUP4A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 11:56:00 -0400
+Date: Wed, 21 Sep 2005 19:55:36 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Andreas Koch <koch@esa.informatik.tu-darmstadt.de>
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: Continuing PCI and Yenta troubles in 2.6.13.1 and 2.6.14-rc1
+Message-ID: <20050921195536.A32255@jurassic.park.msu.ru>
+References: <200509030138.11905.koch@esa.informatik.tu-darmstadt.de> <200509201202.24318.koch@esa.informatik.tu-darmstadt.de> <20050920165902.A27065@jurassic.park.msu.ru> <200509202006.19193.koch@esa.informatik.tu-darmstadt.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200509202006.19193.koch@esa.informatik.tu-darmstadt.de>; from koch@esa.informatik.tu-darmstadt.de on Tue, Sep 20, 2005 at 08:06:15PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Sep 20, 2005 at 08:06:15PM +0200, Andreas Koch wrote:
+> many thanks for the quick patch. I have applied it and your previous Yenta 
+> patch (is that still necessary with the new patch?) to 2.6.13.2.
 
-This testcase fron ltp fails as 32bit binary on ppc64.
-./testcases/network/nfs/cthon04/lock/tlock.c
+Yenta patch is still needed (it will be included in 2.6.13.3). 
 
-fcntl(): Value too large for defined data type
+> With pci=assign-busses, I don't see any obvious oops or slow-downs either.
+> However: As you can see from the attached boot log (assign-busses-26132.log), 
+> there are now problems with the USB ports 9-2 and 10-2, on  
+> uhci_hcd 0000:05:02.1 and uhci_hcd 0000:05:03.0, respectively. This delays the 
+> boot for about 5 seconds per error, but does continue. The system doesn't 
+> hang afterwards, either (again, tested for roughly 15min). The lspci-vvx 
+> output is attached as assign-busses-26132.lspci.
 
-Possible patch below.
+These errors most likely mean that there are no interrupts form PCI
+devices in the docking station. I'd suppose that massively changed bus
+numbers make ACPI confused wrt interrupt routing, but all relevant IRQs
+are exactly the same as without "assign-busses", so I'm puzzled...
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
+> I'll try using the patched 2.6.13.2 without pci=assign-busses in the next few 
+> days and test whether other instabilities come up. If you want me to try 
+> further patches for fixing the assign-busses option, I'm game.
 
-int main(int argc, char *argv[])
-{
-        int fd = open(argv[1], O_RDWR | O_CREAT, 0666);
-        struct flock fl;
-        off_t maxeof;
+At the moment I can only think of something like this: the PCIE-to-PCI bridge
+(Intel 6702PXH) in your docking station also has IOxAPIC as PCI function #1,
+but its config space is turned off by BIOS for some reason. However, its MMIO
+registers are still present somewhere in PCI address space - we just don't
+know where.
+So there is a small possibility that we have accidentally stepped on them
+and destroyed IRQ routing setup writing to MMIO registers of totally
+unrelated device.
 
-        memset(&fl, 0, sizeof(struct flock));
-        // test 1.6 of cthon04 locking tests
-        maxeof = (off_t)1 << (sizeof (off_t) * 8 - 2);
-        maxeof += maxeof - 1;
-        fl.l_type   = F_WRLCK;
-        fl.l_whence = SEEK_SET;
-        fl.l_start  = 1;
-        fl.l_len    = maxeof;
-        if (fcntl(fd, F_GETLK, &fl) < 0) {
-                perror("fcntl()");
-                exit(1);
-        }
-        printf("test 1.6 passes\n");
+Please test this patch, though chances that it helps are quite small...
+In either case lspci output will be useful.
 
-        close(fd);
-        return 0;
-}
+Ivan.
 
- fs/compat.c |   30 ++++++++++++++++--------------
- fs/locks.c  |    3 ++-
- 2 files changed, 18 insertions(+), 15 deletions(-)
-
-Index: linux-2.6.13.cthon04/fs/compat.c
-===================================================================
---- linux-2.6.13.cthon04.orig/fs/compat.c
-+++ linux-2.6.13.cthon04/fs/compat.c
-@@ -584,17 +584,18 @@ asmlinkage long compat_sys_fcntl64(unsig
- 		ret = get_compat_flock(&f, compat_ptr(arg));
- 		if (ret != 0)
- 			break;
-+		if ((cmd == F_GETLK) &&
-+		    ((f.l_start > COMPAT_OFF_T_MAX) ||
-+		     ((f.l_start + f.l_len - 1) > COMPAT_OFF_T_MAX))) {
-+			ret = -EOVERFLOW;
-+			break;
-+		}
- 		old_fs = get_fs();
- 		set_fs(KERNEL_DS);
- 		ret = sys_fcntl(fd, cmd, (unsigned long)&f);
- 		set_fs(old_fs);
--		if (cmd == F_GETLK && ret == 0) {
--			if ((f.l_start >= COMPAT_OFF_T_MAX) ||
--			    ((f.l_start + f.l_len) > COMPAT_OFF_T_MAX))
--				ret = -EOVERFLOW;
--			if (ret == 0)
--				ret = put_compat_flock(&f, compat_ptr(arg));
--		}
-+		if (cmd == F_GETLK && ret == 0)
-+			ret = put_compat_flock(&f, compat_ptr(arg));
- 		break;
- 
- 	case F_GETLK64:
-@@ -603,19 +604,20 @@ asmlinkage long compat_sys_fcntl64(unsig
- 		ret = get_compat_flock64(&f, compat_ptr(arg));
- 		if (ret != 0)
- 			break;
-+		if ((cmd == F_GETLK64) &&
-+		    ((f.l_start > COMPAT_LOFF_T_MAX) ||
-+		     ((f.l_start + f.l_len - 1) > COMPAT_LOFF_T_MAX))) {
-+			ret = -EOVERFLOW;
-+			break;
-+		}
- 		old_fs = get_fs();
- 		set_fs(KERNEL_DS);
- 		ret = sys_fcntl(fd, (cmd == F_GETLK64) ? F_GETLK :
- 				((cmd == F_SETLK64) ? F_SETLK : F_SETLKW),
- 				(unsigned long)&f);
- 		set_fs(old_fs);
--		if (cmd == F_GETLK64 && ret == 0) {
--			if ((f.l_start >= COMPAT_LOFF_T_MAX) ||
--			    ((f.l_start + f.l_len) > COMPAT_LOFF_T_MAX))
--				ret = -EOVERFLOW;
--			if (ret == 0)
--				ret = put_compat_flock64(&f, compat_ptr(arg));
--		}
-+		if (cmd == F_GETLK64 && ret == 0)
-+			ret = put_compat_flock64(&f, compat_ptr(arg));
- 		break;
- 
- 	default:
-Index: linux-2.6.13.cthon04/fs/locks.c
-===================================================================
---- linux-2.6.13.cthon04.orig/fs/locks.c
-+++ linux-2.6.13.cthon04/fs/locks.c
-@@ -314,7 +314,8 @@ static int flock_to_posix_lock(struct fi
- 
- 	/* POSIX-1996 leaves the case l->l_len < 0 undefined;
- 	   POSIX-2001 defines it. */
--	start += l->l_start;
-+	if ((start += l->l_start) < 0)
-+		return -EINVAL;
- 	end = start + l->l_len - 1;
- 	if (l->l_len < 0) {
- 		end = start - 1;
-
+--- 2.6.13.2/drivers/pci/quirks.c	Mon Aug 29 03:41:01 2005
++++ linux/drivers/pci/quirks.c	Wed Sep 21 16:58:01 2005
+@@ -1298,6 +1298,12 @@ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_IN
+  */
+ static void __devinit quirk_pcie_pxh(struct pci_dev *dev)
+ {
++	u16 ctrl;
++
++	/* Enable config access to I/OxAPIC function. */
++	pci_read_config_word(dev, 0x40, &ctrl);
++	pci_write_config_word(dev, 0x40, ctrl | 0x2000);
++
+ 	disable_msi_mode(dev, pci_find_capability(dev, PCI_CAP_ID_MSI),
+ 					PCI_CAP_ID_MSI);
+ 	dev->no_msi = 1;

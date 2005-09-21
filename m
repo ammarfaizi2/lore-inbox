@@ -1,36 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964829AbVIUU5i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964833AbVIUU7Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964829AbVIUU5i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 16:57:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964831AbVIUU5i
+	id S964833AbVIUU7Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 16:59:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964842AbVIUU7Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 16:57:38 -0400
-Received: from lakshmi.addtoit.com ([198.99.130.6]:12296 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S964829AbVIUU5i
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 16:57:38 -0400
-Date: Wed, 21 Sep 2005 16:50:28 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Cc: user-mode-linux-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [uml-devel] [PATCH 06/10] uml: run mconsole "sysrq" in process context
-Message-ID: <20050921205028.GB9918@ccure.user-mode-linux.org>
-References: <200509211923.21861.blaisorblade@yahoo.it> <20050921172857.10219.71071.stgit@zion.home.lan>
+	Wed, 21 Sep 2005 16:59:16 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:58575 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964833AbVIUU7P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 16:59:15 -0400
+Date: Wed, 21 Sep 2005 13:58:34 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [swsusp] Rework image freeing
+Message-Id: <20050921135834.4fd73447.akpm@osdl.org>
+In-Reply-To: <20050921205132.GA4249@elf.ucw.cz>
+References: <20050921205132.GA4249@elf.ucw.cz>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050921172857.10219.71071.stgit@zion.home.lan>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 21, 2005 at 07:28:57PM +0200, Paolo 'Blaisorblade' Giarrusso wrote:
-> From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-> 
-> Things are breaking horribly with sysrq called in interrupt context. I want to
-> try to fix it, but probably this is simpler. To tell the truth, sysrq is
-> normally run in interrupt context, so there shouldn't be any problem.
+Pavel Machek <pavel@ucw.cz> wrote:
+>
+> +	for_each_zone(zone) {
+>  +		for (zone_pfn = 0; zone_pfn < zone->spanned_pages; ++zone_pfn) {
+>  +			struct page * page;
+>  +			page = pfn_to_page(zone_pfn + zone->zone_start_pfn);
+>  +			if (PageNosave(page) && PageNosaveFree(page)) {
+>  +				ClearPageNosave(page);
+>  +				ClearPageNosaveFree(page);
+>  +				free_page((long) page_address(page));
+>  +			}
 
-How are they breaking?
+There doesn't seem to be much point in converting the pageframe address to
+a virtual address, then back to a pageframe address.  Why not just do
+put_page() here?
 
-				Jeff

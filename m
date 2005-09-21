@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750872AbVIUMfE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750881AbVIUMuz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750872AbVIUMfE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 08:35:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750875AbVIUMfE
+	id S1750881AbVIUMuz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 08:50:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750885AbVIUMuz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 08:35:04 -0400
-Received: from bay23-f22.bay23.hotmail.com ([64.4.22.72]:64680 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S1750872AbVIUMfC
+	Wed, 21 Sep 2005 08:50:55 -0400
+Received: from bay23-f12.bay23.hotmail.com ([64.4.22.62]:57636 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S1750880AbVIUMuz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 08:35:02 -0400
-Message-ID: <BAY23-F224179F78BFAB7872DC2A8B3940@phx.gbl>
+	Wed, 21 Sep 2005 08:50:55 -0400
+Message-ID: <BAY23-F12063472FED6F1E303FCF3B3940@phx.gbl>
 X-Originating-IP: [80.179.100.148]
 X-Originating-Email: [katrinarelief2005@hotmail.com]
 Reply-To: charity@louisiana.usa.com
 From: "Relief Programme" <katrinarelief2005@hotmail.com>
 Subject: CHARITY
-Date: Wed, 21 Sep 2005 12:34:56 +0000
+Date: Wed, 21 Sep 2005 12:50:52 +0000
 Mime-Version: 1.0
 Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 21 Sep 2005 12:34:56.0846 (UTC) FILETIME=[DFCCEEE0:01C5BEA8]
+X-OriginalArrivalTime: 21 Sep 2005 12:50:52.0707 (UTC) FILETIME=[1989BF30:01C5BEAB]
 To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org

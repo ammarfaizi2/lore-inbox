@@ -1,103 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751157AbVIUQvG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751174AbVIUQx0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751157AbVIUQvG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 12:51:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751156AbVIUQvG
+	id S1751174AbVIUQx0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 12:53:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbVIUQx0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 12:51:06 -0400
-Received: from vms040pub.verizon.net ([206.46.252.40]:55551 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1751155AbVIUQvE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 12:51:04 -0400
-Date: Wed, 21 Sep 2005 12:50:25 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: Arrr! Linux v2.6.14-rc2
-In-reply-to: <BAYC1-PASMTP04AB35B0A82E89B341AB0BAE950@cez.ice>
+	Wed, 21 Sep 2005 12:53:26 -0400
+Received: from zctfs063.nortelnetworks.com ([47.164.128.120]:57298 "EHLO
+	zctfs063.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S1751171AbVIUQxZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 12:53:25 -0400
+Message-ID: <43318FFA.4010706@nortel.com>
+Date: Wed, 21 Sep 2005 10:53:14 -0600
+From: "Christopher Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Message-id: <200509211250.25356.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <Pine.LNX.4.58.0509192003410.2553@g5.osdl.org>
- <200509201025.36998.gene.heskett@verizon.net>
- <BAYC1-PASMTP04AB35B0A82E89B341AB0BAE950@cez.ice>
-User-Agent: KMail/1.7
+CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: dentry_cache using up all my zone normal memory
+References: <433189B5.3030308@nortel.com>
+In-Reply-To: <433189B5.3030308@nortel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 21 Sep 2005 16:53:19.0573 (UTC) FILETIME=[F8255850:01C5BECC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 20 September 2005 11:20, Sean wrote:
->On Tue, September 20, 2005 10:25 am, Gene Heskett said:
->> Humm, what are they holding out for, more ram or more cpu?:-)
->>
->> FWIW, http://master.kernel.org doesn't show it either just now.
->
->Gene,
->
->While kernel.org snapshots will no doubt be working again shortly, you
->might want to consider using git.  It reduces the amount you have to
->download for each release a lot.
->
->It's really easy to grab a copy of git and use it to grab the kernel:
->
->mkdir kernel
->cd kernel
->wget http://kernel.org/pub/software/scm/git/git-core-0.99.7.tar.bz2
->tar -xvjf git-core-0.99.7.tar.bz2
->cd git-core-0.99.7
->make install
->cd ..
->
->git clone \
->rsync://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git \
->linux
->
->cd linux
->git checkout
->
->
->The above is given as an attachment as well because of annoying word
-> wrap issues with the long url's.   Anyway, after that you can stay
-> current with the latest Linus release with a simple  "git pull".
->
->Cheers,
->Sean
 
-What is the lifetime of this script?  The reason I am asking is that
-somehow, the 'linux' directory got emptied when I used mc to make a
-copy of it to /usr/src/linux-2.6.14-rc2, which then built just fine
-and I'm running it.
+On Marcelo's suggestion, I modified the oom killer code to dump the 
+stack.  The dmesg output of the first process being killed is as follows:
 
-But editing the script so that it only does the stuff from the rsync
-line on, I have not been able to duplicate its flawless performance,
-instead getting this near the end of the proceedure:
-------
-[...]
-tags/v2.6.14-rc2
 
-sent 563 bytes  received 2778 bytes  954.57 bytes/sec
-total size is 779  speedup is 0.23
-rsync: link_stat
-"/scm/linux/kernel/git/torvalds/linux-2.6.git/objects/info/alternates"
-(in pub) failed: No such file or directory (2)
-rsync error: some files could not be transferred (code 23) at
-main.c(812)
-------
+oom-killer: gfp_mask=0xd0
+  [<c0137701>] out_of_memory+0x51/0xb0
+  [<c0138888>] __alloc_pages+0x3d8/0x3f0
+  [<c01388bb>] __get_free_pages+0x1b/0x40
+  [<c013bbc2>] kmem_getpages+0x22/0xb0
+  [<c013c7d9>] cache_grow+0xa9/0x170
+  [<c013ca4d>] cache_alloc_refill+0x1ad/0x1f0
+  [<c013cc78>] kmem_cache_alloc+0x38/0x40
+  [<c01655f1>] d_alloc+0x21/0x170
+  [<c015b15d>] cached_lookup+0x7d/0x90
+  [<c015c53d>] __lookup_hash+0x8d/0xe0
+  [<c015c5ad>] lookup_hash+0x1d/0x30
+  [<c015e737>] sys_rename+0x137/0x230
+  [<c01106e0>] recalc_task_prio+0xc0/0x1c0
+  [<c010250d>] sysenter_past_esp+0x52/0x75
+DMA per-cpu:
+cpu 0 hot: low 2, high 6, batch 1
+cpu 0 cold: low 0, high 2, batch 1
+Normal per-cpu:
+cpu 0 hot: low 32, high 96, batch 16
+cpu 0 cold: low 0, high 32, batch 16
+HighMem per-cpu:
+cpu 0 hot: low 32, high 96, batch 16
+cpu 0 cold: low 0, high 32, batch 16
 
-I have now re-ran this 4 times, each time doing an rm -fR on the
-'linux' directory, with the same results as above each time.
-
-Is this normal, or am I missing something important (and probably
-a 'duh' moment too) that it takes to do a re-run?
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.35% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
-
+Free pages:     2484556kB (2480576kB HighMem)
+Active:1787 inactive:419 dirty:2 writeback:0 unstable:0 free:621139 
+slab:217642 mapped:1511 pagetables:102
+DMA free:68kB min:68kB low:84kB high:100kB active:0kB inactive:0kB 
+present:16384kB pages_scanned:0 all_unreclaimable? yes
+protections[]: 0 0 0
+Normal free:3912kB min:3756kB low:4692kB high:5632kB active:0kB 
+inactive:0kB present:901120kB pages_scanned:0 all_unreclaimable? no
+protections[]: 0 0 0
+HighMem free:2480576kB min:512kB low:640kB high:768kB active:7148kB 
+inactive:1676kB present:3276800kB pages_scanned:0 all_unreclaimable? no
+protections[]: 0 0 0
+DMA: 1*4kB 0*8kB 0*16kB 0*32kB 1*64kB 0*128kB 0*256kB 0*512kB 0*1024kB 
+0*2048kB 0*4096kB = 68kB
+Normal: 2*4kB 0*8kB 0*16kB 0*32kB 1*64kB 0*128kB 1*256kB 1*512kB 
+1*1024kB 1*2048kB 0*4096kB = 3912kB
+HighMem: 244*4kB 116*8kB 73*16kB 66*32kB 44*64kB 25*128kB 16*256kB 
+3*512kB 0*1024kB 1*2048kB 601*4096kB = 2480576kB
+Out of Memory: Killed process 595 (portmap).

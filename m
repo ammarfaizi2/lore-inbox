@@ -1,182 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750857AbVIUMTR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750854AbVIUMSA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750857AbVIUMTR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 08:19:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750865AbVIUMTR
+	id S1750854AbVIUMSA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 08:18:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750856AbVIUMSA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 08:19:17 -0400
-Received: from frankvm.xs4all.nl ([80.126.170.174]:40355 "EHLO
-	janus.localdomain") by vger.kernel.org with ESMTP id S1750856AbVIUMTQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 08:19:16 -0400
-Date: Wed, 21 Sep 2005 14:19:15 +0200
-From: Frank van Maarseveen <frankvm@frankvm.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.14-rc2] fix incorrect mm->hiwater_vm and mm->hiwater_rss
-Message-ID: <20050921121915.GA14645@janus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-Subliminal-Message: Use Linux!
+	Wed, 21 Sep 2005 08:18:00 -0400
+Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:33453 "HELO
+	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1750848AbVIUMR7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 08:17:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=uOeT96jolzbOHwaoko50O+Gf7T3gILSVcOnmply/WqSc1p1DtVCzrzLEIxQtQx8pXs3Ai1GMoHZbjAUQTXJ129EjlLP7qG8nnc2l4h777GH0dhZ7Z+bAU9fGWyl/obt59nCyIkMWFUrh2jHyZoerCwoKvzEJDx4tQ86PL8xn82E=  ;
+Message-ID: <43314F92.5040801@yahoo.com.au>
+Date: Wed, 21 Sep 2005 22:18:26 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
+CC: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       joe-lkml@rameria.de, George Anzinger <george@mvista.com>,
+       Roman Zippel <zippel@linux-m68k.org>, yoshfuji@linux-ipv6.org
+Subject: Re: [PATCH] NTP shift_right cleanup (v. A3)
+References: <1127273050.11080.34.camel@cog.beaverton.ibm.com> <43313241.19315.AC261D7@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
+In-Reply-To: <43313241.19315.AC261D7@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This fixes a post 2.6.11 regression in maintaining the mm->hiwater_* counters.
+Ulrich Windl wrote:
 
-Signed-off-by: Frank van Maarseveen <frankvm@frankvm.com>
+> 
+> Hi,
+> 
+> I'm against "signed shift right", because the reason for the macro is exaclty that 
+> CPUs do a "signed" shift right. John does a "signum(arg) * right_shift(abs(arg), 
+> number_of_positions)". So maybe it's the signed_unsigned_shift_right(), susr() to 
+> be cryptic ;-)
+> 
 
-diff -ru a/arch/ppc64/kernel/vdso.c b/arch/ppc64/kernel/vdso.c
---- a/arch/ppc64/kernel/vdso.c	2005-09-21 11:05:11.000000000 +0200
-+++ b/arch/ppc64/kernel/vdso.c	2005-09-21 11:17:06.053426000 +0200
-@@ -272,6 +272,7 @@
- 	}
- 	mm->total_vm += (vma->vm_end - vma->vm_start) >> PAGE_SHIFT;
- 	up_write(&mm->mmap_sem);
-+	update_mem_hiwater(mm);
- 
- 	return 0;
- }
-diff -ru a/arch/x86_64/ia32/syscall32.c b/arch/x86_64/ia32/syscall32.c
---- a/arch/x86_64/ia32/syscall32.c	2005-09-21 11:05:24.000000000 +0200
-+++ b/arch/x86_64/ia32/syscall32.c	2005-09-21 11:17:06.130574000 +0200
-@@ -72,6 +72,7 @@
- 	}
- 	mm->total_vm += npages;
- 	up_write(&mm->mmap_sem);
-+	update_mem_hiwater(mm);
- 	return 0;
- }
- 
-diff -ru a/fs/exec.c b/fs/exec.c
---- a/fs/exec.c	2005-09-21 11:06:43.000000000 +0200
-+++ b/fs/exec.c	2005-09-21 11:17:06.218465000 +0200
-@@ -1207,7 +1207,7 @@
- 		/* execve success */
- 		security_bprm_free(bprm);
- 		acct_update_integrals(current);
--		update_mem_hiwater(current);
-+		update_mem_hiwater(current->mm);
- 		kfree(bprm);
- 		return retval;
- 	}
-diff -ru a/include/linux/mm.h b/include/linux/mm.h
---- a/include/linux/mm.h	2005-09-14 14:27:39.000000000 +0200
-+++ b/include/linux/mm.h	2005-09-21 11:17:06.327839000 +0200
-@@ -949,7 +949,7 @@
- }
- 
- /* update per process rss and vm hiwater data */
--extern void update_mem_hiwater(struct task_struct *tsk);
-+extern void update_mem_hiwater(struct mm_struct *mm);
- 
- #ifndef CONFIG_DEBUG_PAGEALLOC
- static inline void
-diff -ru a/kernel/exit.c b/kernel/exit.c
---- a/kernel/exit.c	2005-09-21 11:07:38.000000000 +0200
-+++ b/kernel/exit.c	2005-09-21 11:17:06.395222000 +0200
-@@ -839,7 +839,7 @@
- 				preempt_count());
- 
- 	acct_update_integrals(tsk);
--	update_mem_hiwater(tsk);
-+	update_mem_hiwater(tsk->mm);
- 	group_dead = atomic_dec_and_test(&tsk->signal->live);
- 	if (group_dead) {
-  		del_timer_sync(&tsk->signal->real_timer);
-diff -ru a/kernel/sched.c b/kernel/sched.c
---- a/kernel/sched.c	2005-09-21 11:07:39.000000000 +0200
-+++ b/kernel/sched.c	2005-09-21 11:17:06.462605000 +0200
-@@ -2512,7 +2512,7 @@
- 	/* Account for system time used */
- 	acct_update_integrals(p);
- 	/* Update rss highwater mark */
--	update_mem_hiwater(p);
-+	update_mem_hiwater(p->mm);
- }
- 
- /*
-diff -ru a/mm/memory.c b/mm/memory.c
---- a/mm/memory.c	2005-09-21 11:07:40.000000000 +0200
-+++ b/mm/memory.c	2005-09-21 11:17:06.602253000 +0200
-@@ -2210,15 +2210,16 @@
-  * update_mem_hiwater
-  *	- update per process rss and vm high water data
-  */
--void update_mem_hiwater(struct task_struct *tsk)
-+void update_mem_hiwater(struct mm_struct *mm)
- {
--	if (tsk->mm) {
--		unsigned long rss = get_mm_counter(tsk->mm, rss);
-+	unsigned long rss;
- 
--		if (tsk->mm->hiwater_rss < rss)
--			tsk->mm->hiwater_rss = rss;
--		if (tsk->mm->hiwater_vm < tsk->mm->total_vm)
--			tsk->mm->hiwater_vm = tsk->mm->total_vm;
-+	if (likely(mm)) {
-+		rss = get_mm_counter(mm, rss);
-+		if (mm->hiwater_rss < rss)
-+			mm->hiwater_rss = rss;
-+		if (mm->hiwater_vm < mm->total_vm)
-+			mm->hiwater_vm = mm->total_vm;
- 	}
- }
- 
-diff -ru a/mm/mmap.c b/mm/mmap.c
---- a/mm/mmap.c	2005-09-21 11:07:40.000000000 +0200
-+++ b/mm/mmap.c	2005-09-21 11:17:06.755572000 +0200
-@@ -854,6 +854,7 @@
- 		mm->stack_vm += pages;
- 	if (flags & (VM_RESERVED|VM_IO))
- 		mm->reserved_vm += pages;
-+	update_mem_hiwater(mm);
- }
- #endif /* CONFIG_PROC_FS */
- 
-@@ -1915,6 +1916,7 @@
- 	vma_link(mm, vma, prev, rb_link, rb_parent);
- out:
- 	mm->total_vm += len >> PAGE_SHIFT;
-+	update_mem_hiwater(mm);
- 	if (flags & VM_LOCKED) {
- 		mm->locked_vm += len >> PAGE_SHIFT;
- 		make_pages_present(addr, addr + len);
-diff -ru a/mm/nommu.c b/mm/nommu.c
---- a/mm/nommu.c	2005-09-21 11:07:40.000000000 +0200
-+++ b/mm/nommu.c	2005-09-21 12:26:02.166764000 +0200
-@@ -839,6 +839,7 @@
- 	show_process_blocks();
- #endif
- 
-+	update_mem_hiwater(mm);
- 	return (unsigned long) result;
- 
-  error:
-@@ -1079,16 +1080,16 @@
- {
- }
- 
--void update_mem_hiwater(struct task_struct *tsk)
-+void update_mem_hiwater(struct mm_struct *mm)
- {
- 	unsigned long rss;
- 
--	if (likely(tsk->mm)) {
--		rss = get_mm_counter(tsk->mm, rss);
--		if (tsk->mm->hiwater_rss < rss)
--			tsk->mm->hiwater_rss = rss;
--		if (tsk->mm->hiwater_vm < tsk->mm->total_vm)
--			tsk->mm->hiwater_vm = tsk->mm->total_vm;
-+	if (likely(mm)) {
-+		rss = get_mm_counter(mm, rss);
-+		if (mm->hiwater_rss < rss)
-+			mm->hiwater_rss = rss;
-+		if (mm->hiwater_vm < mm->total_vm)
-+			mm->hiwater_vm = mm->total_vm;
- 	}
- }
- 
+I see, so that would be a divide by 2^shift?
+
+Well, nevermind - I guess the patch is better than what was
+there before.
 
 -- 
-Frank
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

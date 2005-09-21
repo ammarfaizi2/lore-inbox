@@ -1,76 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbVIURVl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751274AbVIURWD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751156AbVIURVl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 13:21:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbVIURVl
+	id S1751274AbVIURWD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 13:22:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbVIURWC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 13:21:41 -0400
-Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:35190 "HELO
-	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1751156AbVIURVk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 13:21:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=UEayBSUypfJDE1OzRii4VjQpFBEah5nA0QEugWPMC5F7Iq5wqXS7QMqGV9Lm/51KordE7B+9BYxn541iJ7Thc7hQXQn1NMFYt1KTxS3te/nQpJuN4Ii71gp1HRV5O5w8cfsMwFbsPG5PKbhtbE9emukKyvcNokPqZh+QVaSA2GA=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: Hugh Dickins <hugh@veritas.com>
-Subject: Re: Remap_file_pages, RSS limits, security implications (was: Re: [uml-devel] Re: [RFC] [patch 0/18] remap_file_pages protection support (for UML), try 3)
-Date: Wed, 21 Sep 2005 19:02:25 +0200
-User-Agent: KMail/1.8.2
-Cc: Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
-References: <200508262023.29170.blaisorblade@yahoo.it> <200509211816.37512.blaisorblade@yahoo.it> <Pine.LNX.4.61.0509211729020.8121@goblin.wat.veritas.com>
-In-Reply-To: <Pine.LNX.4.61.0509211729020.8121@goblin.wat.veritas.com>
+	Wed, 21 Sep 2005 13:22:02 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:39331 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S1751166AbVIURWA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 13:22:00 -0400
+Message-ID: <433196B6.8000607@rtr.ca>
+Date: Wed, 21 Sep 2005 13:21:58 -0400
+From: Mark Lord <liml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050728
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Richard Purdie <rpurdie@rpsys.net>, LKML <linux-kernel@vger.kernel.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>, bzolnier@gmail.com,
+       linux-ide@vger.kernel.org
+Subject: Re: [RFC/BUG?] ide_cs's removable status
+References: <1127319328.8542.57.camel@localhost.localdomain> <1127321829.18840.18.camel@localhost.localdomain>
+In-Reply-To: <1127321829.18840.18.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509211902.25989.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 21 September 2005 18:50, Hugh Dickins wrote:
-> On Wed, 21 Sep 2005, Blaisorblade wrote:
-> > Other pages in the VMA may be unmapped, yes, but not freed. In fact,
-> > they're kept in by the pagecache reference; try_to_unmap() (or better its
-> > caller, shrink_list) will only actually free the page it asked for.
+Alan Cox wrote:
+> 
+> I can't comment on the MMC layer or its core requirements as I don't
+> know them well. IDE PCMCIA does however encompass removal devices. The
+> removable flag is set so that we get removable media behaviour - that is
+> the media can change under us and we must not cache partition data. The
+> current behavioiur in that sense is correct.
 
-> Not freed in that pass, yes; but brought closer to being freed soon.
+Mmm.. I'm not so sure about that.
 
-Will a page with mapcount == 0 be put in the inactive list explicitly? At next 
-scan PageActive will be clear, sure, and it won't be reactivated while it's 
-unmapped.
+In the case of CF cards in ide-cs, removing the card is equivalent
+to removing the entire IDE controller, not just the media.
 
-But references will only cause more hardware faults.
-> > The only real "problem" is that we do ptep_clear_flush_young without
-> > activating the page. And yes, *this* may penalize who holds a nonlinear
-> > VMA. But this is probably fair, given that we're going to have trouble in
-> > freeing those pages.
+So "media change" is not what happens here.
 
-> Good point, I don't remember ever considering that.
-> But agree it should work out fairly.
+But yes, it still should be managed as a removable device,
+but we currently seem to be using this bit to mean two things,
+as explained by Russell in the given link.
 
-> > > mm/trash.c?  I got quite excited,
+ > http://lkml.org/lkml/2005/1/8/165
 
-> > What would that have meant?
-
-> Trash is rubbish or garbage.  Or if I trash my hotel room (not me!),
-> I'd rip the washbasin off the wall, smash the mirror, throw the
-> chair through the window, ... hmm, better stop this public fantasy.
-
-Nice... hope this can get to LWN "quotes of the week" page.
-
--- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
-
-	
-
-	
-		
-___________________________________ 
-Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
-http://mail.yahoo.it
+Cheers

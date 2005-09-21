@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbVIUGVr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932135AbVIUGmE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932123AbVIUGVr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 02:21:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbVIUGVr
+	id S932135AbVIUGmE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 02:42:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932137AbVIUGmE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 02:21:47 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:58310 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932123AbVIUGVr (ORCPT
+	Wed, 21 Sep 2005 02:42:04 -0400
+Received: from xenotime.net ([66.160.160.81]:48591 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932135AbVIUGmD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 02:21:47 -0400
-Date: Tue, 20 Sep 2005 23:21:02 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Marc Perkel <marc@perkel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Lost Ticks - TSC Timer - AMD 64 X2 Processor - What's up with
- that?
-Message-Id: <20050920232102.4cf1cedf.akpm@osdl.org>
-In-Reply-To: <43302616.6000908@perkel.com>
-References: <43302616.6000908@perkel.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 21 Sep 2005 02:42:03 -0400
+Date: Tue, 20 Sep 2005 23:42:00 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>, jdike@karaya.com
+Subject: [PATCH] clarify help text for INIT_ENV_ARG_LIMIT
+Message-Id: <20050920234200.084a344e.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Perkel <marc@perkel.com> wrote:
->
-> Having timer problems. About to head to the data center to try different 
-> things to get this server to work right. Losing ticks and clock is all 
-> over the place and doing obscene things to keep it almost on track - but 
-> I really need a solution.
-> 
-> Running 2.6.13.1 Kernel - FC4 Linux - Asus Motherboard - A8N-SLI 
-> Premium. Athlon X2 4400+ with 4 gigs of ram and it uses some sort of 
-> memory remapping to use the full 4 gigs.
-> 
-> I don't understand all the different timers. There's TSC and PM and what 
-> else?
-> 
-> Someone suggested "notsc" which I will try when I get there. But  - 
-> looking for a list of other things to try as well. I have flashed the 
-> latest BIOS.
-> 
-> I'm thinking about giving up and going back to DOS. I didn't have these 
-> problem with DOS - and DOS boots faster. ;)
-> 
-> Tell me about all these timers - what are my choices - and what is most 
-> likely to actually work.
-> 
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-Grab a coffee, go read http://bugzilla.kernel.org/show_bug.cgi?id=5105
+Try to make the INIT_ENV_ARG_LIMIT help text more readable
+and understandable.
 
-Using "clock=pit" might help.
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+
+ init/Kconfig |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff -Naurp linux-2614-rc2/init/Kconfig~help_text linux-2614-rc2/init/Kconfig
+--- linux-2614-rc2/init/Kconfig~help_text	2005-09-20 19:31:56.000000000 -0700
++++ linux-2614-rc2/init/Kconfig	2005-09-20 22:54:47.000000000 -0700
+@@ -60,8 +60,8 @@ config INIT_ENV_ARG_LIMIT
+ 	default 32 if !USERMODE
+ 	default 128 if USERMODE
+ 	help
+-	  This is the value of the two limits on the number of argument and of
+-	  env.var passed to init from the kernel command line.
++	  Maximum of each of the number of arguments and environment
++	  variables passed to init from the kernel command line.
+ 
+ endmenu
+ 
+
+---
+

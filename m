@@ -1,72 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750797AbVIUUYH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751413AbVIUU14@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750797AbVIUUYH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 16:24:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751412AbVIUUYH
+	id S1751413AbVIUU14 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 16:27:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751414AbVIUU1z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 16:24:07 -0400
-Received: from smtp004.mail.ukl.yahoo.com ([217.12.11.35]:40610 "HELO
-	smtp004.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1750797AbVIUUYF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 16:24:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=pWW0JiMwqV8uWkXJPbaOLiCKHnvmfiQEIr/RJ48wVmtphjI+bSIYaYrETjhi0P/YWMmLlLRGvxaaOwRIlH/PCVuF4pBnyzoseESE9mkGItljgyENbb3+hn4H2BgK7b+58PDlcxj07615ZfqC1LXJZwE3OVbZttFxpZWLQ8L5ewo=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] Re: [PATCH 07/10] uml: avoid fixing faults while atomic
-Date: Wed, 21 Sep 2005 22:22:50 +0200
-User-Agent: KMail/1.8.2
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, jdike@addtoit.com,
-       linux-kernel@vger.kernel.org
-References: <200509211923.21861.blaisorblade@yahoo.it> <20050921172908.10219.57644.stgit@zion.home.lan> <20050921124957.437cf069.akpm@osdl.org>
-In-Reply-To: <20050921124957.437cf069.akpm@osdl.org>
+	Wed, 21 Sep 2005 16:27:55 -0400
+Received: from zctfs063.nortelnetworks.com ([47.164.128.120]:7677 "EHLO
+	zctfs063.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S1751413AbVIUU1z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 16:27:55 -0400
+Message-ID: <4331C23B.4010104@nortel.com>
+Date: Wed, 21 Sep 2005 14:27:39 -0600
+From: "Christopher Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Sonny Rao <sonny@burdell.org>
+CC: linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: dentry_cache using up all my zone normal memory -- also seen
+ on 2.6.14-rc2
+References: <433189B5.3030308@nortel.com> <43318FFA.4010706@nortel.com> <4331B89B.3080107@nortel.com> <20050921200758.GA25362@kevlar.burdell.org>
+In-Reply-To: <20050921200758.GA25362@kevlar.burdell.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509212222.50653.blaisorblade@yahoo.it>
+X-OriginalArrivalTime: 21 Sep 2005 20:27:47.0858 (UTC) FILETIME=[EE3DCF20:01C5BEEA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 21 September 2005 21:49, Andrew Morton wrote:
-> "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it> wrote:
-> > From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+Sonny Rao wrote:
 
-> The in_atomic() test in x86's do_page_fault() is in fact a message passed
-> into it from filemap.c's kmap_atomic().
-Ok, this can be ok, but:
-> It has accidental side-effects, 
-> such as making copy_to_user() fail if inside spinlocks when
-> CONFIG_PREEMPT=y.
-Sorry, but should it ever succeed inside spinlocks? I mean, should it ever 
-call down() inside spinlocks? (We never do down_trylock, and ever if we did 
-the x86 trick, that wouldn't make the whole thing safe at all - they still 
-take the spinlock and potentially sleep. And it's legal only if no spinlock 
-is held).
+> If I'm reading this correctly, you seem to have about 1.2 million
+> files open and about 3.9 million dentrys objects in lowmem with almost
+> no fragmentation..  for those files which are open there certainly
+> will be a dentry attached to the inode (how big is inode cache?), but
+> the shrinker should be trying to reclaim memory from the other 2.7
+> million objects I would think.
 
-Even if spinlocks don't always trigger in_atomic() - which means that we'd 
-need to have a better fix for this.
+I don't know what the code is actually doing.  This is testcase 
+"rename14" from the LTP suite.  It runs fine on ppc, ppc64, dual-xeon, 
+and Xscale.
 
-(Btw, I took the above reasoning from something said, as an aside, on LWN.net 
-kernel page, about the FUTEX deadlock on mm->mmap_sem of ~ 2.6.8 - yes, it 
-wasn't the full truth, but not totally dumb).
+The inode cache is small...under 300 objects.
 
-> So I think this change is only needed if UML implements kmap_atomic, as in
-> arch/i386/mm/highmem.c, which it surely does not do?
-NACK, see above.
+> Based on the lack of fragmentation I would guess that either the shrinker isn't
+> running or those dentrys are otherwise pinned somehow (parent
+> directorys of the open files?)  What does the directory structure look
+> like?
 
--- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
+No idea.
 
-	
+> Just for kicks (again), have you tried ratcheting up the
+> /proc/sys/vm/vfs_cache_pressure tunable by a few orders of magnitude ?
 
-	
-		
-___________________________________ 
-Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
-http://mail.yahoo.it
+Nope.  I'm currently rebooting with an instrumentation patch for dentry, 
+may try this too.
+
+Chris

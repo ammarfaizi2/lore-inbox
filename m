@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751110AbVIUQHj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751112AbVIUQL2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751110AbVIUQHj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 12:07:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751111AbVIUQHj
+	id S1751112AbVIUQL2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 12:11:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751111AbVIUQL2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 12:07:39 -0400
-Received: from zctfs063.nortelnetworks.com ([47.164.128.120]:29378 "EHLO
-	zctfs063.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S1751110AbVIUQHj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 12:07:39 -0400
-Message-ID: <43318540.5020105@nortel.com>
-Date: Wed, 21 Sep 2005 10:07:28 -0600
-From: "Christopher Friesen" <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
+	Wed, 21 Sep 2005 12:11:28 -0400
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:61703 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1751112AbVIUQL1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 12:11:27 -0400
+To: Blaisorblade <blaisorblade@yahoo.it>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/7] Add dm-snapshot tutorial in Documentation
+References: <20050920184513.14557.8152.stgit@zion.home.lan>
+	<874q8f5qw1.fsf@amaterasu.srvr.nix>
+	<200509211704.15364.blaisorblade@yahoo.it>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: Lovecraft was an optimist.
+Date: Wed, 21 Sep 2005 17:11:17 +0100
+In-Reply-To: <200509211704.15364.blaisorblade@yahoo.it> (blaisorblade@yahoo.it's
+ message of "Wed, 21 Sep 2005 17:04:14 +0200")
+Message-ID: <87mzm61jve.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: help interpreting oom-killer output
-References: <43308131.5040104@nortel.com> <20050921133701.GB5532@dmt.cnet>
-In-Reply-To: <20050921133701.GB5532@dmt.cnet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Sep 2005 16:07:31.0606 (UTC) FILETIME=[923ADB60:01C5BEC6]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
-
-> See that the DMA zone free count is equal to the "min" watermark. Normal
-> and Highmem are both above the "high" watermark.
+On Wed, 21 Sep 2005, blaisorblade@yahoo.it spake:
+> On Wednesday 21 September 2005 00:13, Nix wrote:
+>> On 20 Sep 2005, Paolo Giarrusso docced:
+>> > +When you create a LVM* snapshot of a volume, four dm devices are used:
+>>
+>> [...]
+>>
+>> > +* I've verified this with LVM 2.01.09, however I assume this is the LVM2
+>> > way +  of doing this.
 > 
-> So this must be a DMA allocation (see gfp_mask). Stick a "dump_stack()" 
-> to find out who is the allocator.
+>> Yes; LVM1 doesn't use device-mapper at all, so these docs don't apply to
+>> it.
+> I really meant "I assume that all LVM2 releases work this way".
 
-The final trigger may be a DMA allocation, but the initial cause is 
-whatever is chewing up all the NORMAL memory.
+As far as I know they do, modulo bugs, although if you go back far enough
+device-mapper doesn't have support for snapshots at all.
 
-I can repeatably trigger the fault by running LTP.  When it hits the 
-"rename14" test, the oom killer kicks in.  Before running this test, I 
-had over 3GB of memory free, including over 800MB of normal memory.
-
-To track it down, I started dumping /proc/slabinfo every second while 
-running this test.  It appears the culprit is the dentry_cache, which 
-consumed at least 817MB of memory (and probably peaked higher than 
-that).  As soon as the test program died, all the memory was freed.
-
-Anyone have any ideas what's going on?
-
-Chris
+-- 
+`One cannot, after all, be expected to read every single word
+ of a book whose author one wishes to insult.' --- Richard Dawkins

@@ -1,161 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbVIUADl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbVIUAEy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750715AbVIUADl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 20:03:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbVIUADl
+	id S1750737AbVIUAEy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 20:04:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbVIUAEy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 20:03:41 -0400
-Received: from qproxy.gmail.com ([72.14.204.199]:30823 "EHLO qproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750715AbVIUADl convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 20:03:41 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=olCQhbbUJxAwryxPInph/UcekmARrKLLna5pRwKXEZdr+xzsWZPAVG4lm0uet74k0yYCr5hBtuHh0dM2kCD8q0hZoQeeydG8qYHW17fYrtxWEt0U5Hdtq+rxbs9YUeENTJJH6sDkyruyoiYwCw1L2ec3BKEcqeg0h4tj7VEshVg=
-Message-ID: <47f5dce305092017031a2ba375@mail.gmail.com>
-Date: Tue, 20 Sep 2005 20:03:40 -0400
-From: jayakumar alsa <jayakumar.alsa@gmail.com>
-Reply-To: jayakumar.alsa@gmail.com
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 2.6.13.1 1/1] CS5535 AUDIO ALSA driver
-Cc: perex@suse.cz, mj@ucw.cz, alsa-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050920152830.7ef6733b.akpm@osdl.org>
+	Tue, 20 Sep 2005 20:04:54 -0400
+Received: from thunk.org ([69.25.196.29]:8904 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1750737AbVIUAEx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 20:04:53 -0400
+Date: Tue, 20 Sep 2005 20:04:25 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Hans Reiser <reiser@namesys.com>, Horst von Brand <vonbrand@inf.utfsm.cl>,
+       thenewme91@gmail.com, Christoph Hellwig <hch@infradead.org>,
+       Denis Vlasenko <vda@ilport.com.ua>, chriswhite@gentoo.org,
+       LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+Message-ID: <20050921000425.GF6179@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Pavel Machek <pavel@suse.cz>, Hans Reiser <reiser@namesys.com>,
+	Horst von Brand <vonbrand@inf.utfsm.cl>, thenewme91@gmail.com,
+	Christoph Hellwig <hch@infradead.org>,
+	Denis Vlasenko <vda@ilport.com.ua>, chriswhite@gentoo.org,
+	LKML <linux-kernel@vger.kernel.org>,
+	ReiserFS List <reiserfs-list@namesys.com>
+References: <200509182004.j8IK4JNx012764@inti.inf.utfsm.cl> <432E5024.20709@namesys.com> <20050920075133.GB4074@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200509190639.j8J6dIM4007948@localhost.localdomain>
-	 <20050920152830.7ef6733b.akpm@osdl.org>
+In-Reply-To: <20050920075133.GB4074@elf.ucw.cz>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/20/05, Andrew Morton <akpm@osdl.org> wrote:
-> By convention we put the asm/ includes after the linux/ includes.
-
-Will do. Thanks for the detailed review!
-
+On Tue, Sep 20, 2005 at 09:51:33AM +0200, Pavel Machek wrote:
+> Do you have working fsck for V4? Until then, you should not claim that
+> users should switch. Journalling does not help you, if you have
+> unexpected kernel problem or hardware trouble, fsck _is_ mandatory.
 > 
-> > +
-> > +static unsigned short snd_cs5535audio_codec_read(cs5535audio_t *cs5535au,
-> 
-> typedefs are unpopular in-kernel.  We generally don't get too fussed if a
-> driver maintainer really wants them there.  The main objection is that we
-> now have two names for the same thing.  Plus they cannot be used when
-> forward-declaring a structure.
+> Can V4 survive few hours of test below?
 
-I just used those typedefs in order to match the style in all the
-other alsa drivers. For example:
+The script could be improved by select random locations to damage the
+filesystem, instead of hard-coding the seek=7 value.  Seek=7 is good
+for testing ext2/ext3 filesystems, but it may not be ideal for other
+filesystems.
 
-% egrep typedef $lintree/sound/pci/*.c
-als4000.c:typedef struct {
-atiixp.c:typedef struct snd_atiixp atiixp_t;
-atiixp.c:typedef struct snd_atiixp_dma atiixp_dma_t;
-atiixp.c:typedef struct snd_atiixp_dma_ops atiixp_dma_ops_t;
-atiixp.c:typedef struct atiixp_dma_desc {
-azt3328.c:typedef struct _snd_azf3328 azf3328_t;
-azt3328.c:typedef struct azf3328_mixer_reg {
-bt87x.c:typedef struct snd_bt87x bt87x_t;
-cmipci.c:typedef struct snd_stru_cmipci cmipci_t;
-<snip>
+Another interesting refinement would be to analyze the resulting
+filesystem after it has been repaired to determine how much data could
+be salvaged by the fsck program.   
 
-I'm not sure what to do. I'd be happy to take them out. But I woudn't
-mind leaving them in if that's what alsa convention is.
+There is a very interesting paper that I coincidentally just came
+across today that talks about making filesystems robust against
+various different forms of failures of modern disk systems.  It is
+going to be presented at the upcoming 2005 SOSP conference.
 
-> This isn't right.  `timeout' will have a value of -1 if we timed out.
-> (several instances).
+	http://www.cs.wisc.edu/adsl/Publications/iron-sosp05.pdf
 
-How embarrassing. Will fix. :-)
+It's definitely worth a read.  A few comments about it; first of all,
+I know nothing about this modified "iron ext3" (ixt3) discussed in the
+paper aside from what's the paper itself.  It would be interesting to
+see what they have done with it.  Secondly, I _think_ sct has already
+fixed the problems discussed in the paper with respect to inadequate
+write squelching after an I/O failure writing to the ext3 journal, but
+we need to chat with the paper's authors to confirm that, and if there
+still is a problem, obviously we need to fix it.  Third of all, I'll
+note that the paper does takes an approving note of the fact that
+Reiserfs (v3) always panic's when it detects a write fault, so for
+those folks in the Reiser team who might have a persecution complex,
+relax, the whole world isn't out to get you.  :-)
 
-> Ditto.  Plus we prefer to not put braces around a single statement like this.
-
-Will fix.
-
-> Again.  Perhaps a helper function so this code (and its bug) don't get
-> duplicated so much?
-
-Will do.
-
-> 
-> We normally put a space after commas.
-> 
-> Unneeded typecast.
-
-Will fix.
-
-> 
-> > +             dma->index = (++(dma->index)) % dma->periods;
-> 
-> Is no locking needed for dma->index?
-
-Looks like I stopped using index after I found I don't need to track
-the individual descriptors. I'll take it out.
-
-> 
-> Just to save a tabstop.
-
-Will do.
-
-> > +     }
-> > +     return IRQ_HANDLED;
-> > +}
-> 
-> Perhaps the default case should return IRQ_NONE.
-
-In this case I think the code is correct as it is. I check that in the
-top level irq status register if the irq was from the cs5535 audio. I
-return NONE if it wasn't there. Then I proceed to read a bunch of
-other registers, all with the assumption that the irq was from us. I
-return HANDLED at that point since reading those other registers has
-cleared any irq from us even if it was from an unexpected src.
-
-> > +     cs5535au = kcalloc(1, sizeof(*cs5535au), GFP_KERNEL);
-> 
-> We have kzalloc() now.
-
-Yes, Takashi pointed that out too. But I did the patch against 13.1
-which doesn't have kzalloc. I guess I'll redo the patch against -mm
-and switch to kzalloc.
-
-> Please consider reworking functions such as the above so as to have a
-> single `reutrn' statement.  Or one `return' for success and just one for
-> the error paths.  Reason: a) it's easier to chack that all resources are
-> being freed on the error paths and b) It's easier to add new stuff which
-> allocates new resources which need to be released on error paths.  Involves
-> goto spaghetti.
-
-Will do.
-
-> 
-> The handling of `dev' is racy ;)
-
-Ok. Will look at that.
-
-> 
-> > +     addr = (u32)substream->runtime->dma_addr;
-> 
-> Nope, _snd_pcm_runtime.addr has type dma_addr_t, which is an opaque type,
-> 64-bit on some platforms.  I expect this driver will blow up on those
-> platforms.
-
-The 5535 hw's dma descriptor is only 32 bit capable. I guess I should
-look into informing the dma alloc that the buffers need to be in the
-lower 32. Would it be okay to drop the upper then?
-
->From a practical standpoint, the 5535 is only used in x86-32
-embeddeded systems so high mem probably won't occur. But you are
-right, I'll go and try make it right.
-
-> +#define cs_writel(reg, val)    outl(val, (int) cs5535au->port + reg)
-> +#define cs_writeb(reg, val)    outb(val, (int) cs5535au->port + reg)
-> +#define cs_readl(reg)          inl((unsigned short) (cs5535au->port + reg))
-> +#define cs_readw(reg)          inw((unsigned short) (cs5535au->port + reg))
-> +#define cs_readb(reg)          inb((unsigned short) (cs5535au->port + reg))
-> 
-> erk.   subsystem-wide helper macros which reference local variables?
-
-Ok. I'll change that.
-
-Thanks,
-jk
+						- Ted

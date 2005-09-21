@@ -1,91 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751278AbVIUSDA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751340AbVIUSGX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751278AbVIUSDA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 14:03:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbVIUSDA
+	id S1751340AbVIUSGX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 14:06:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbVIUSGX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 14:03:00 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:34190 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751278AbVIUSC7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 14:02:59 -0400
-Date: Wed, 21 Sep 2005 11:02:01 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: torvalds@osdl.org, pavel@suse.cz, len.brown@intel.com,
-       drzeus-list@drzeus.cx, acpi-devel@lists.sourceforge.net,
-       ncunningham@cyclades.com, masouds@masoud.ir,
+	Wed, 21 Sep 2005 14:06:23 -0400
+Received: from frankvm.xs4all.nl ([80.126.170.174]:57507 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S1751340AbVIUSGW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 14:06:22 -0400
+Date: Wed, 21 Sep 2005 20:06:21 +0200
+From: Frank van Maarseveen <frankvm@frankvm.com>
+To: Jay Lan <jlan@engr.sgi.com>
+Cc: Christoph Lameter <clameter@engr.sgi.com>, Hugh Dickins <hugh@veritas.com>,
+       Frank van Maarseveen <frankvm@frankvm.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] suspend: Cleanup calling of power off methods.
-Message-Id: <20050921110201.1cc7fca2.akpm@osdl.org>
-In-Reply-To: <m1slvycotk.fsf@ebiederm.dsl.xmission.com>
-References: <m1vf0vfa0o.fsf@ebiederm.dsl.xmission.com>
-	<20050921101855.GD25297@atrey.karlin.mff.cuni.cz>
-	<Pine.LNX.4.58.0509210930410.2553@g5.osdl.org>
-	<m1slvycotk.fsf@ebiederm.dsl.xmission.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Subject: Re: [PATCH 2.6.14-rc2] fix incorrect mm->hiwater_vm and mm->hiwater_rss
+Message-ID: <20050921180621.GA17272@janus>
+References: <20050921121915.GA14645@janus> <Pine.LNX.4.61.0509211515330.6114@goblin.wat.veritas.com> <43319111.1050803@engr.sgi.com> <Pine.LNX.4.62.0509211000470.10480@schroedinger.engr.sgi.com> <43319AB5.8030103@engr.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43319AB5.8030103@engr.sgi.com>
+User-Agent: Mutt/1.4.1i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ebiederm@xmission.com (Eric W. Biederman) wrote:
->
-> Linus Torvalds <torvalds@osdl.org> writes:
+On Wed, Sep 21, 2005 at 10:39:01AM -0700, Jay Lan wrote:
 > 
-> > On Wed, 21 Sep 2005, Pavel Machek wrote:
-> >> 
-> >> I think you are not following the proper procedure. All the patches
-> >> should go through akpm.
+> Frank's patch looks fine to me except one place:
+> diff -ru a/mm/mmap.c b/mm/mmap.c
+> --- a/mm/mmap.c	2005-09-21 11:07:40.000000000 +0200
+> +++ b/mm/mmap.c	2005-09-21 11:17:06.755572000 +0200
+> @@ -854,6 +854,7 @@
+>  		mm->stack_vm += pages;
+>  	if (flags & (VM_RESERVED|VM_IO))
+>  		mm->reserved_vm += pages;
+> +	update_mem_hiwater(mm);
+>  }
+>  #endif /* CONFIG_PROC_FS */
 > 
-> Ok.  I thought it was fine to send simple and obviously correct bug
-> fixes to Linus.
+> I have a question of adding this call here. 'update_mem_hiwater'
+> does nothing unless mm->total_vm or rss gets updated.
+> I do not see total_vm get updates in __vm_stat_account()?
 
-I habitually scoop up patches and will get them into Linus (preferably
-after 1-2 -mm cycles) if he ducks them.
+Check the callers of __vm_stat_account(). It is called at various places
+after increasing (sometimes decreasing) vm_total.
 
-> > One issue is that I actually worry that Andrew will at some point be where 
-> > I was a couple of years ago - overworked and stressed out by just tons and 
-> > tons of patches. 
-> >
-> > Yes, he's written/modified tons of patch-tracking tools, and the git 
-> > merging hopefully avoids some of the pressures, but it still worries me. 
-> > If Andrew burns out, we'll all suffer hugely.
-> >
-> > I'm wondering what we can do to offset those kinds of issues. I _do_ like 
-> > having -mm as a staging area and catching some problems there, so going 
-> > through andrew is wonderful in that sense, but it has downsides.
-> 
-> It is especially challenging for people like me who typically work on
-> parts of the kernel without a maintainer.  So there frequently isn't
-> an intermediate I can submit my patches to.
+BTW, __vm_stat_account() itself is surrounded by #ifdef CONFIG_PROC_FS so
+I'd thought that that might be appropriate for hiwater_* too. So far they are
+set but are not read except by my patch for /proc/pid/status.
 
-Yup.  And MAINTAINERS has quite a few omissions.  I generally know who
-should be poked and if there's nobody obvious I have 26000 patches to grep
-through to find out who might know a bit about that code.  Low-level x86 is
-a bit of a problem really because it has many cooks and no obvious chef.
+in 2.6.13.2:
 
-Individual maintainers have differing response times, differing
-attentiveness and differing patchloss ratios.
+$ find -type f|xargs grep hiwater_rss
+./kernel/fork.c:        mm->hiwater_rss = get_mm_counter(mm,rss);
+./include/linux/sched.h:        unsigned long hiwater_rss;      /* High-water RSS usage */
+./mm/memory.c:          if (tsk->mm->hiwater_rss < rss)
+./mm/memory.c:                  tsk->mm->hiwater_rss = rss;
+./mm/nommu.c:           if (tsk->mm->hiwater_rss < rss)
+./mm/nommu.c:                   tsk->mm->hiwater_rss = rss;
 
-There's also confusion once I've cc'ed a maintainer on a patch over whether
-I'll be sending it to Linus or whether I want them to.
+$ find -type f|xargs grep hiwater_vm 
+./kernel/fork.c:        mm->hiwater_vm = mm->total_vm;
+./include/linux/sched.h:        unsigned long hiwater_vm;       /* High-water virtual memory usage */
+./mm/memory.c:          if (tsk->mm->hiwater_vm < tsk->mm->total_vm)
+./mm/memory.c:                  tsk->mm->hiwater_vm = tsk->mm->total_vm;
+./mm/nommu.c:           if (tsk->mm->hiwater_vm < tsk->mm->total_vm)
+./mm/nommu.c:                   tsk->mm->hiwater_vm = tsk->mm->total_vm;
 
-If a maintainer has a tree in -mm then I'll autodrop the patch if they
-merge it, so there's no confusion there.
+The matches in mm/memory.c and mm/nommu.c are in function update_mem_hiwater().
 
-If the maintainer says "thanks, merged" and I don't have their tree in -mm
-then I'll tend to hang onto the patch indefinitely until it finally hits
--linus.  Or I'll eventually forget and merge it up anyway ;) 
-
-If the maintainer just acks the patch I'll send it in to Linus.
-
-If the maintainer nacks the patch I'll either drop it or I'll mark it
-not-for-merging and hang onto it anwyay, as a reminder that we have some
-bug which needs fixing.
-
-If the maintainer has a tree in -mm and doesn't merge the patch I'll hang
-onto it and periodically resend to the maintainer until some definite
-response comes back.
-
+-- 
+Frank

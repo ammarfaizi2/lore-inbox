@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751337AbVIURt7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751338AbVIURux@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751337AbVIURt7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 13:49:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbVIURs5
+	id S1751338AbVIURux (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 13:50:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbVIURs4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 13:48:57 -0400
-Received: from [151.97.230.9] ([151.97.230.9]:14275 "EHLO ssc.unict.it")
-	by vger.kernel.org with ESMTP id S1751339AbVIURsx (ORCPT
+	Wed, 21 Sep 2005 13:48:56 -0400
+Received: from [151.97.230.9] ([151.97.230.9]:16579 "EHLO ssc.unict.it")
+	by vger.kernel.org with ESMTP id S1751341AbVIURsy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 13:48:53 -0400
+	Wed, 21 Sep 2005 13:48:54 -0400
 From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH 02/10] strlcat: use for uml umid.c
-Date: Wed, 21 Sep 2005 19:28:15 +0200
+Subject: [PATCH 09/10] Uml: use GFP_ATOMIC for allocations under spinlocks.
+Date: Wed, 21 Sep 2005 19:29:28 +0200
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: Jeff Dike <jdike@addtoit.com>, user-mode-linux-devel@lists.sourceforge.net,
        linux-kernel@vger.kernel.org
-Message-Id: <20050921172815.10219.19512.stgit@zion.home.lan>
+Message-Id: <20050921172928.10219.63412.stgit@zion.home.lan>
 In-Reply-To: <200509211923.21861.blaisorblade@yahoo.it>
 References: <200509211923.21861.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -23,52 +23,45 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-Simplify the code by using strlcat() instead of strncat() and manual
-appending.
+setup_initial_poll is only called with sigio_lock() held, so use appropriate
+allocation.
+
+Also, parse_chan() can also be called when holding a spinlock (see line_open()
+ -> parse_chan_pair()).
+
+I have sporadical problems (spinlock taken twice, with spinlock debugging on
+UP) which could be caused by a sequence like "take spinlock, alloc and go to
+sleep, take again the spinlock in the other thread".
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- arch/um/include/user.h |    4 +++-
- arch/um/kernel/umid.c  |   11 ++++-------
- 2 files changed, 7 insertions(+), 8 deletions(-)
+ arch/um/drivers/chan_kern.c |    2 +-
+ arch/um/kernel/sigio_user.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/um/include/user.h b/arch/um/include/user.h
---- a/arch/um/include/user.h
-+++ b/arch/um/include/user.h
-@@ -14,7 +14,9 @@ extern void *um_kmalloc_atomic(int size)
- extern void kfree(void *ptr);
- extern int in_aton(char *str);
- extern int open_gdb_chan(void);
--extern int strlcpy(char *, const char *, int);
-+/* These use size_t, however unsigned long is correct on both i386 and x86_64. */
-+extern unsigned long strlcpy(char *, const char *, unsigned long);
-+extern unsigned long strlcat(char *, const char *, unsigned long);
- extern void *um_vmalloc(int size);
- extern void vfree(void *ptr);
+diff --git a/arch/um/drivers/chan_kern.c b/arch/um/drivers/chan_kern.c
+--- a/arch/um/drivers/chan_kern.c
++++ b/arch/um/drivers/chan_kern.c
+@@ -465,7 +465,7 @@ static struct chan *parse_chan(char *str
+ 	data = (*ops->init)(str, device, opts);
+ 	if(data == NULL) return(NULL);
  
-diff --git a/arch/um/kernel/umid.c b/arch/um/kernel/umid.c
---- a/arch/um/kernel/umid.c
-+++ b/arch/um/kernel/umid.c
-@@ -237,16 +237,13 @@ static int __init make_uml_dir(void)
- 		strlcpy(dir, home, sizeof(dir));
- 		uml_dir++;
- 	}
-+	strlcat(dir, uml_dir, sizeof(dir));
- 	len = strlen(dir);
--	strncat(dir, uml_dir, sizeof(dir) - len);
--	len = strlen(dir);
--	if((len > 0) && (len < sizeof(dir) - 1) && (dir[len - 1] != '/')){
--		dir[len] = '/';
--		dir[len + 1] = '\0';
--	}
-+	if (len > 0 && dir[len - 1] != '/')
-+		strlcat(dir, "/", sizeof(dir));
+-	chan = kmalloc(sizeof(*chan), GFP_KERNEL);
++	chan = kmalloc(sizeof(*chan), GFP_ATOMIC);
+ 	if(chan == NULL) return(NULL);
+ 	*chan = ((struct chan) { .list	 	= LIST_HEAD_INIT(chan->list),
+ 				 .primary	= 1,
+diff --git a/arch/um/kernel/sigio_user.c b/arch/um/kernel/sigio_user.c
+--- a/arch/um/kernel/sigio_user.c
++++ b/arch/um/kernel/sigio_user.c
+@@ -340,7 +340,7 @@ static int setup_initial_poll(int fd)
+ {
+ 	struct pollfd *p;
  
- 	uml_dir = malloc(strlen(dir) + 1);
--	if(uml_dir == NULL){
-+	if (uml_dir == NULL) {
- 		printf("make_uml_dir : malloc failed, errno = %d\n", errno);
- 		exit(1);
- 	}
+-	p = um_kmalloc(sizeof(struct pollfd));
++	p = um_kmalloc_atomic(sizeof(struct pollfd));
+ 	if(p == NULL){
+ 		printk("setup_initial_poll : failed to allocate poll\n");
+ 		return(-1);
 

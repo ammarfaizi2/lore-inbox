@@ -1,67 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750870AbVIUMao@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750872AbVIUMfE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750870AbVIUMao (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 08:30:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750868AbVIUMao
+	id S1750872AbVIUMfE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 08:35:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750875AbVIUMfE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 08:30:44 -0400
-Received: from laf31-5-82-235-130-100.fbx.proxad.net ([82.235.130.100]:47587
-	"EHLO lexbox.fr") by vger.kernel.org with ESMTP id S1750824AbVIUMao convert rfc822-to-8bit
+	Wed, 21 Sep 2005 08:35:04 -0400
+Received: from bay23-f22.bay23.hotmail.com ([64.4.22.72]:64680 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S1750872AbVIUMfC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 08:30:44 -0400
-Subject: RE: How to Force PIO mode on sata promise (Linux 2.6.10)
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-class: urn:content-classes:message
-Date: Wed, 21 Sep 2005 14:28:02 +0200
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Message-ID: <17AB476A04B7C842887E0EB1F268111E026FB3@xpserver.intra.lexbox.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: How to Force PIO mode on sata promise (Linux 2.6.10)
-thread-index: AcW+pBGin444d+MZTR2wi9lOM0pFgwAAZN8Q
-From: "David Sanchez" <david.sanchez@lexbox.fr>
-To: "Jeff Garzik" <jgarzik@pobox.com>
-Cc: <linux-kernel@vger.kernel.org>
+	Wed, 21 Sep 2005 08:35:02 -0400
+Message-ID: <BAY23-F224179F78BFAB7872DC2A8B3940@phx.gbl>
+X-Originating-IP: [80.179.100.148]
+X-Originating-Email: [katrinarelief2005@hotmail.com]
+Reply-To: charity@louisiana.usa.com
+From: "Relief Programme" <katrinarelief2005@hotmail.com>
+Subject: CHARITY
+Date: Wed, 21 Sep 2005 12:34:56 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 21 Sep 2005 12:34:56.0846 (UTC) FILETIME=[DFCCEEE0:01C5BEA8]
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-I'm using the linux kernel 2.6.10 and busybox on an AMD db AU1550 with a hdd connected to the pata port of a PCI card (Promise PDC20579).
-
-I've got file copy corruption on big files (around 500MB). I made some investigations and I found that sometimes the read(fd,4096) function returns unexpected data and sometimes after a write(fd,4096) function, the data on disk is not the data send in the write() function... 
-
-Maybe a hw bug ? A hw or sw DMA transfer bug ? or anything else... I need to known what happens so I try everything...
-
-Any idea on my problem Jeff ?
-
-David 
-
-Note: I've connected a hdd through the ide interface in PIO mode and my problem seems to not appear. But when I enable DMA, I've got a lot of error messages. In other word, the DMA doesn't work (as it is wrote in the HELP of the option in the kernel) with the ide interface.
-
------Message d'origine-----
-De : Jeff Garzik [mailto:jgarzik@pobox.com] 
-Envoyé : mercredi 21 septembre 2005 14:01
-À : David Sanchez
-Cc : linux-kernel@vger.kernel.org
-Objet : Re: How to Force PIO mode on sata promise (Linux 2.6.10)
-
-David Sanchez wrote:
-> I'm using the Linux kernel 2.6.10 on a DBAU1550 and I would like to
-> force PIO mode (and thus disable DMA) on my sata promise TX2.
-> How can I do that ?
-
-Why do you wish to do this?
-
-	Jeff
-
-
-
-
-
-
+Dear friend,
+As you may know, many have been evacuated and
+thousands are feared dead in Hurricane Katrina's
+devastating aftermath. World Vision is responding by
+shipping emergency supplies and other essential items
+to children and families in the Gulf Coast region.
+Your gift today will be a great relief to the victims
+of Hurricane Katrina. We got your email through the
+assistance of microsoft internet department.
+World Vision has already started responding by sending
+shipments of emergency supplies, donated by generous
+corporations and distributed in partnership with local
+churches and Christian agencies to children and
+families in need. Your contribution will multiply the
+value of shipments and urgent distribution of needed
+items to those who needs them the most.
+World Vision's American devastated Families relief
+Fund works in partnership with local churches and
+Christian agencies to provide lasting hope for
+American children and families in difficult
+situations, including those affected by disasters like
+Hurricane Katrina.
+President Bush and others who saw the devastation
+firsthand warned that recovery will take years. World
+Vision will be there for long term to assist children
+and families that have been devastated by the
+hurricane and to rebuild devastated communities.
+Your donation will help children and families in need
+You can help by contacting our office, the head of
+department for the relief administration, for victims
+of the Hurricane katrina disaster
+American devastated Families relief Fund.
+Mr. Brian Jordan
+4526 S. Claiborne Ave.
+New Orleans, LA 70125
+Tel:831-305-5832
+fax:831-305-5832
+All donations will be duly aknowledge.
 
 

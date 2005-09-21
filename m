@@ -1,62 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbVIUIfl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbVIUIwc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750749AbVIUIfl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 04:35:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbVIUIfl
+	id S1750774AbVIUIwc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 04:52:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbVIUIwc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 04:35:41 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:17060 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750749AbVIUIfk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 04:35:40 -0400
-Date: Wed, 21 Sep 2005 09:35:25 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: John McCutchan <ttb@tentacle.dhs.org>, Linus Torvalds <torvalds@osdl.org>,
-       Ray Lee <ray@madrabbit.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Robert Love <rml@novell.com>, ocfs2-devel@oss.oracle.com
-Subject: Re: [patch] stop inotify from sending random DELETE_SELF event under load
-Message-ID: <20050921083525.GB27254@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Al Viro <viro@ftp.linux.org.uk>,
-	John McCutchan <ttb@tentacle.dhs.org>,
-	Linus Torvalds <torvalds@osdl.org>, Ray Lee <ray@madrabbit.org>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Robert Love <rml@novell.com>, ocfs2-devel@oss.oracle.com
-References: <76677C3D-D5E0-4B5A-800F-9503DA09F1C3@tentacle.dhs.org> <20050920163848.GO7992@ftp.linux.org.uk> <1127238257.9940.14.camel@localhost> <Pine.LNX.4.58.0509201108120.2553@g5.osdl.org> <20050920182249.GP7992@ftp.linux.org.uk> <Pine.LNX.4.58.0509201234560.2553@g5.osdl.org> <1127256814.749.5.camel@vertex> <20050921010154.GR7992@ftp.linux.org.uk> <1127266907.3950.5.camel@vertex> <20050921023601.GT7992@ftp.linux.org.uk>
-Mime-Version: 1.0
+	Wed, 21 Sep 2005 04:52:32 -0400
+Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:16770 "EHLO
+	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S1750774AbVIUIwc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 04:52:32 -0400
+From: Grant Coady <grant_lkml@dodo.com.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "J.A. Magallon" <jamagallon@able.es>, linux-kernel@vger.kernel.org,
+       Jean Delvare <khali@linux-fr.org>, Greg KH <greg@kroah.com>
+Subject: Re: one more oops on sensor modules removal
+Date: Wed, 21 Sep 2005 18:52:06 +1000
+Organization: http://bugsplatter.mine.nu/
+Reply-To: gcoady@gmail.com
+Message-ID: <u562j19ssinm946odbib7lqfrij1hm8dst@4ax.com>
+References: <20050916022319.12bf53f3.akpm@osdl.org> <20050921004230.64ed395d@werewolf.able.es> <20050920225647.167325f7.akpm@osdl.org>
+In-Reply-To: <20050920225647.167325f7.akpm@osdl.org>
+X-Mailer: Forte Agent 2.0/32.652
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050921023601.GT7992@ftp.linux.org.uk>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 21, 2005 at 03:36:01AM +0100, Al Viro wrote:
-> On Tue, Sep 20, 2005 at 09:41:47PM -0400, John McCutchan wrote:
-> > I grepped all the filesystems
-> 
-> ... in the tree
-> 
-> > , and they all seem to use
-> > generic_drop_inode, except for hugetlbfs, which seems to have the same
-> > logic of (!inode->i_nlink).
-> 
-> I have no problems with killing ->drop_inode(), but that should be
-> 	a) done for in-tree filesystems
-> 	b) announced on fsdevel, so that out-of-tree folks could deal
-> with that
-> 	c) given at least one release to avoid screwing them.
-> 
-> Christoph, could you send the patch you've mentioned?  I'd rather avoid
-> duplicating what you've done...
+On Tue, 20 Sep 2005 22:56:47 -0700, Andrew Morton <akpm@osdl.org> wrote:
+>
+>Is 2.6.14-rc2 OK?
 
-sure.  Note that clusterfs folks (ocfs2 in particular) really want
-->drop_inode because they need additional checks instead of just the
-nlink one in there.  While hugetlbfs should just go away ->drop_inode
-makes some sense for them.
+It is here :o)
 
+In one terminal:
+  'while [ 1 ]; do sensors; done', 
+
+in another:
+  'while [ 1 ]; do rmmod w83627hf; sleep 1; modprobe w83627hf; sleep 1; done'
+
+
+Is fine in -rc2, but same test on 2.6.14-rc1 locked up with a busy error 
+a couple times on rmmod during ~ 30 seconds or so, something has changed 
+and improved.
+
+Grant.

@@ -1,128 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964999AbVIUVcb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964838AbVIUVcF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964999AbVIUVcb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 17:32:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965008AbVIUVcb
+	id S964838AbVIUVcF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 17:32:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964968AbVIUVcF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 17:32:31 -0400
-Received: from mf00.sitadelle.com ([212.94.174.67]:7739 "EHLO smtp.cegetel.net")
-	by vger.kernel.org with ESMTP id S964968AbVIUVc3 (ORCPT
+	Wed, 21 Sep 2005 17:32:05 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:32471 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964838AbVIUVcE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 17:32:29 -0400
-Message-ID: <4331D168.6090604@cosmosbay.com>
-Date: Wed, 21 Sep 2005 23:32:24 +0200
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, netfilter-devel@lists.netfilter.org,
-       netdev@vger.kernel.org
-Cc: Andi Kleen <ak@suse.de>
-Subject: [PATCH 2/3] netfilter : 3 patches to boost ip_tables performance
-References: <432EF0C5.5090908@cosmosbay.com> <200509191948.55333.ak@suse.de> <432FDAC5.3040801@cosmosbay.com> <200509201830.20689.ak@suse.de> <433082DE.3060308@cosmosbay.com> <43308324.70403@cosmosbay.com>
-In-Reply-To: <43308324.70403@cosmosbay.com>
-Content-Type: multipart/mixed;
- boundary="------------060702070101090202020705"
+	Wed, 21 Sep 2005 17:32:04 -0400
+Date: Wed, 21 Sep 2005 14:31:23 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [swsusp] Rework image freeing
+Message-Id: <20050921143123.462ea5fa.akpm@osdl.org>
+In-Reply-To: <20050921211944.GB2071@elf.ucw.cz>
+References: <20050921205132.GA4249@elf.ucw.cz>
+	<20050921135834.4fd73447.akpm@osdl.org>
+	<20050921211944.GB2071@elf.ucw.cz>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060702070101090202020705
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Pavel Machek <pavel@ucw.cz> wrote:
+>
+> Hi!
+> 
+> > >
+> > > +	for_each_zone(zone) {
+> > >  +		for (zone_pfn = 0; zone_pfn < zone->spanned_pages; ++zone_pfn) {
+> > >  +			struct page * page;
+> > >  +			page = pfn_to_page(zone_pfn + zone->zone_start_pfn);
+> > >  +			if (PageNosave(page) && PageNosaveFree(page)) {
+> > >  +				ClearPageNosave(page);
+> > >  +				ClearPageNosaveFree(page);
+> > >  +				free_page((long) page_address(page));
+> > >  +			}
+> > 
+> > There doesn't seem to be much point in converting the pageframe address to
+> > a virtual address, then back to a pageframe address.  Why not just do
+> > put_page() here?
+> 
+> I do not know what put_page does, and free_page() has some friendly
+> BUG_ONs. But if I should just do put_page(page); instead of
+> free_page((long) page_address(page)), that is okay with me.
 
-Patch 2/3 (please apply after Patch 1/3)
+I don't know what alloc_pages() and free_page[s]() are supposed to do either
+really.  They date from when Linus was in diapers.  They talk in terms of
+kernel virtual addresses and will explode loudly if used for highmem pages.
 
-2) Loop unrolling
+All modern code will use page*'s or pfn's.
 
-It seems that with current compilers and CFLAGS, the code from
-ip_packet_match() is very bad, using lot of mispredicted conditional branches 
-I made some patches and generated code on i386 and x86_64
-is much better.
+> [Sound of harddrive seeking and CPU fan going up as test kernel
+> compiles].
+> 
 
-Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
+Ah, I wondered what it was.
 
-
-
---------------060702070101090202020705
-Content-Type: text/plain;
- name="patch_ip_tables_numa.2"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="patch_ip_tables_numa.2"
-
-LS0tIGxpbnV4LTIuNi9uZXQvaXB2NC9uZXRmaWx0ZXIvaXBfdGFibGVzLmMJMjAwNS0wOS0y
-MSAyMzo1NTozMC4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4LTIuNi1lZC9uZXQvaXB2NC9u
-ZXRmaWx0ZXIvaXBfdGFibGVzLmMJMjAwNS0wOS0yMiAwMDozOToyOS4wMDAwMDAwMDAgKzAy
-MDAKQEAgLTEyNSw2ICsxMjUsMjcgQEAKICNkZWZpbmUgdXAoeCkgZG8geyBwcmludGsoIlVQ
-OiV1OiIgI3ggIlxuIiwgX19MSU5FX18pOyB1cCh4KTsgfSB3aGlsZSgwKQogI2VuZGlmCiAK
-Ky8qCisgKiBTcGVjaWFsIG1hY3JvIHRvIGNvbXBhcmUgSUZOQU1TSVogJ3N0cmluZ3MnLCB3
-aXRoIG1hc2suCisgKiBCZXN0IHJlc3VsdHMgaWYgZmVlZGVkIHdpdGggMyBhcmdzIHBvaW50
-aW5nIHRvICd1bnNpZ25lZCBsb25nJyB0eXBlcworICogTG9vcCBpcyBtYW51YWxseSB1bnJv
-bGxlZCBmb3IgcGVyZm9ybWFuY2UgcmVhc29ucy4KKyAqIGdjYyBnZW5lcmF0ZXMgY29kZSB3
-aXRob3V0IGJyYW5jaGVzLCBJRk5BTVNJWiBiZWluZyBhIGNvbnN0YW50CisgKi8KKyNkZWZp
-bmUgY29tcGFyZV9pZl9sc3RyaW5ncyhyZXQsIGRldm5hbWUsIGV4cGVjdCwgZXhwZWN0X21h
-c2spCQkJXAorCXJldCA9ICgoZGV2bmFtZSlbMF0gXiAoZXhwZWN0KVswXSkgJiAoZXhwZWN0
-X21hc2spWzBdOwkJCVwKKwlpZiAoSUZOQU1TSVogPiBzaXplb2YoKmRldm5hbWUpKQkJCQkJ
-XAorCQlyZXQgfD0gKChkZXZuYW1lKVsxXSBeIChleHBlY3QpWzFdKSAmIChleHBlY3RfbWFz
-aylbMV07CQlcCisJaWYgKElGTkFNU0laID4gMiAqIHNpemVvZigqZGV2bmFtZSkpCQkJCQlc
-CisJCXJldCB8PSAoKGRldm5hbWUpWzJdIF4gKGV4cGVjdClbMl0pICYgKGV4cGVjdF9tYXNr
-KVsyXTsJCVwKKwlpZiAoSUZOQU1TSVogPiAzICogc2l6ZW9mKCpkZXZuYW1lKSkJCQkJCVwK
-KwkJcmV0IHw9ICgoZGV2bmFtZSlbM10gXiAoZXhwZWN0KVszXSkgJiAoZXhwZWN0X21hc2sp
-WzNdOwkJXAorCS8qIGp1c3QgaW4gY2FzZSBJRk5BTVNJWiBpcyBlbmxhcmdlZCAqLwkJCQkJ
-XAorCWlmIChJRk5BTVNJWiA+IDQgKiBzaXplb2YoKmRldm5hbWUpKSB7CQkJCQlcCisJCWlu
-dCBpOwkJCQkJCQkJXAorCQlmb3IgKGkgPSA0IDsgKGkgPCBJRk5BTVNJWi9zaXplb2YoKmRl
-dm5hbWUpKTsgaSsrKQkJXAorCQkJcmV0IHw9ICgoZGV2bmFtZSlbaV0gXiAoZXhwZWN0KVtp
-XSkgJiAoZXhwZWN0X21hc2spW2ldOwlcCisJfQorCiAvKiBSZXR1cm5zIHdoZXRoZXIgbWF0
-Y2hlcyBydWxlIG9yIG5vdC4gKi8KIHN0YXRpYyBpbmxpbmUgaW50CiBpcF9wYWNrZXRfbWF0
-Y2goY29uc3Qgc3RydWN0IGlwaGRyICppcCwKQEAgLTEzMywxNiArMTU0LDIyIEBACiAJCWNv
-bnN0IHN0cnVjdCBpcHRfaXAgKmlwaW5mbywKIAkJaW50IGlzZnJhZykKIHsKLQlzaXplX3Qg
-aTsKKwlpbnQgYm9vbDEsIGJvb2wyOwogCXVuc2lnbmVkIGxvbmcgcmV0OwogCiAjZGVmaW5l
-IEZXSU5WKGJvb2wsaW52ZmxnKSAoKGJvb2wpIF4gISEoaXBpbmZvLT5pbnZmbGFncyAmIGlu
-dmZsZykpCiAKLQlpZiAoRldJTlYoKGlwLT5zYWRkciZpcGluZm8tPnNtc2suc19hZGRyKSAh
-PSBpcGluZm8tPnNyYy5zX2FkZHIsCi0JCSAgSVBUX0lOVl9TUkNJUCkKLQkgICAgfHwgRldJ
-TlYoKGlwLT5kYWRkciZpcGluZm8tPmRtc2suc19hZGRyKSAhPSBpcGluZm8tPmRzdC5zX2Fk
-ZHIsCi0JCSAgICAgSVBUX0lOVl9EU1RJUCkpIHsKLQkJZHByaW50ZigiU291cmNlIG9yIGRl
-c3QgbWlzbWF0Y2guXG4iKTsKKwlib29sMSA9ICgoaXAtPnNhZGRyJmlwaW5mby0+c21zay5z
-X2FkZHIpICE9IGlwaW5mby0+c3JjLnNfYWRkcik7CisJYm9vbDEgXj0gISEoaXBpbmZvLT5p
-bnZmbGFncyAmIElQVF9JTlZfU1JDSVApOworCisJYm9vbDIgPSAoKGlwLT5kYWRkciZpcGlu
-Zm8tPmRtc2suc19hZGRyKSAhPSBpcGluZm8tPmRzdC5zX2FkZHIpOworCWJvb2wyIF49ICEh
-KGlwaW5mby0+aW52ZmxhZ3MgJiBJUFRfSU5WX0RTVElQKTsKKworCWlmICgoYm9vbDEgfCBi
-b29sMikgIT0gMCkgeworCQlpZiAoYm9vbDEpCisJCQlkcHJpbnRmKCJTb3VyY2UlcyBtaXNt
-YXRjaC5cbiIsIGJvb2wyID8gIiBhbmQgRGVzdCI6IiIpOworCQllbHNlCisJCQlkcHJpbnRm
-KCJEZXN0IG1pc21hdGNoLlxuIik7CiAKIAkJZHByaW50ZigiU1JDOiAldS4ldS4ldS4ldS4g
-TWFzazogJXUuJXUuJXUuJXUuIFRhcmdldDogJXUuJXUuJXUuJXUuJXNcbiIsCiAJCQlOSVBR
-VUFEKGlwLT5zYWRkciksCkBAIC0xNTcsMjcgKzE4NCwyNiBAQAogCQlyZXR1cm4gMDsKIAl9
-CiAKLQkvKiBMb29rIGZvciBpZm5hbWUgbWF0Y2hlczsgdGhpcyBzaG91bGQgdW5yb2xsIG5p
-Y2VseS4gKi8KLQlmb3IgKGkgPSAwLCByZXQgPSAwOyBpIDwgSUZOQU1TSVovc2l6ZW9mKHVu
-c2lnbmVkIGxvbmcpOyBpKyspIHsKLQkJcmV0IHw9ICgoKGNvbnN0IHVuc2lnbmVkIGxvbmcg
-KilpbmRldilbaV0KLQkJCV4gKChjb25zdCB1bnNpZ25lZCBsb25nICopaXBpbmZvLT5pbmlm
-YWNlKVtpXSkKLQkJCSYgKChjb25zdCB1bnNpZ25lZCBsb25nICopaXBpbmZvLT5pbmlmYWNl
-X21hc2spW2ldOwotCX0KKwljb21wYXJlX2lmX2xzdHJpbmdzKHJldCwKKwkJKGNvbnN0IHVu
-c2lnbmVkIGxvbmcgKilpbmRldiwKKwkJKGNvbnN0IHVuc2lnbmVkIGxvbmcgKilpcGluZm8t
-PmluaWZhY2UsCisJCShjb25zdCB1bnNpZ25lZCBsb25nICopaXBpbmZvLT5pbmlmYWNlX21h
-c2spOwogCi0JaWYgKEZXSU5WKHJldCAhPSAwLCBJUFRfSU5WX1ZJQV9JTikpIHsKKwlib29s
-MSA9IEZXSU5WKHJldCAhPSAwLCBJUFRfSU5WX1ZJQV9JTik7CisJaWYgKGJvb2wxKSB7CiAJ
-CWRwcmludGYoIlZJQSBpbiBtaXNtYXRjaCAoJXMgdnMgJXMpLiVzXG4iLAogCQkJaW5kZXYs
-IGlwaW5mby0+aW5pZmFjZSwKIAkJCWlwaW5mby0+aW52ZmxhZ3MmSVBUX0lOVl9WSUFfSU4g
-PyIgKElOVikiOiIiKTsKIAkJcmV0dXJuIDA7CiAJfQogCi0JZm9yIChpID0gMCwgcmV0ID0g
-MDsgaSA8IElGTkFNU0laL3NpemVvZih1bnNpZ25lZCBsb25nKTsgaSsrKSB7Ci0JCXJldCB8
-PSAoKChjb25zdCB1bnNpZ25lZCBsb25nICopb3V0ZGV2KVtpXQotCQkJXiAoKGNvbnN0IHVu
-c2lnbmVkIGxvbmcgKilpcGluZm8tPm91dGlmYWNlKVtpXSkKLQkJCSYgKChjb25zdCB1bnNp
-Z25lZCBsb25nICopaXBpbmZvLT5vdXRpZmFjZV9tYXNrKVtpXTsKLQl9CisJY29tcGFyZV9p
-Zl9sc3RyaW5ncyhyZXQsCisJCShjb25zdCB1bnNpZ25lZCBsb25nICopb3V0ZGV2LAorCQko
-Y29uc3QgdW5zaWduZWQgbG9uZyAqKWlwaW5mby0+b3V0aWZhY2UsCisJCShjb25zdCB1bnNp
-Z25lZCBsb25nICopaXBpbmZvLT5vdXRpZmFjZV9tYXNrKTsKIAotCWlmIChGV0lOVihyZXQg
-IT0gMCwgSVBUX0lOVl9WSUFfT1VUKSkgeworCWJvb2wxID0gRldJTlYocmV0ICE9IDAsIElQ
-VF9JTlZfVklBX09VVCk7CisJaWYgKGJvb2wxKSB7CiAJCWRwcmludGYoIlZJQSBvdXQgbWlz
-bWF0Y2ggKCVzIHZzICVzKS4lc1xuIiwKIAkJCW91dGRldiwgaXBpbmZvLT5vdXRpZmFjZSwK
-IAkJCWlwaW5mby0+aW52ZmxhZ3MmSVBUX0lOVl9WSUFfT1VUID8iIChJTlYpIjoiIik7CkBA
-IC0xODUsOCArMjExLDkgQEAKIAl9CiAKIAkvKiBDaGVjayBzcGVjaWZpYyBwcm90b2NvbCAq
-LwotCWlmIChpcGluZm8tPnByb3RvCi0JICAgICYmIEZXSU5WKGlwLT5wcm90b2NvbCAhPSBp
-cGluZm8tPnByb3RvLCBJUFRfSU5WX1BST1RPKSkgeworCWJvb2wxID0gRldJTlYoaXAtPnBy
-b3RvY29sICE9IGlwaW5mby0+cHJvdG8sIElQVF9JTlZfUFJPVE8pIDsKKwlib29sMSAmPSAo
-aXBpbmZvLT5wcm90byAhPSAwKTsKKwlpZiAoYm9vbDEpIHsKIAkJZHByaW50ZigiUGFja2V0
-IHByb3RvY29sICVoaSBkb2VzIG5vdCBtYXRjaCAlaGkuJXNcbiIsCiAJCQlpcC0+cHJvdG9j
-b2wsIGlwaW5mby0+cHJvdG8sCiAJCQlpcGluZm8tPmludmZsYWdzJklQVF9JTlZfUFJPVE8g
-PyAiIChJTlYpIjoiIik7Cg==
---------------060702070101090202020705--

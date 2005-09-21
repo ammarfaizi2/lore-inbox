@@ -1,92 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750795AbVIUKf4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbVIUKcb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750795AbVIUKf4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 06:35:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750804AbVIUKf4
+	id S1750798AbVIUKcb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 06:32:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbVIUKcb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 06:35:56 -0400
-Received: from ns.firmix.at ([62.141.48.66]:1417 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S1750795AbVIUKfz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 06:35:55 -0400
-Subject: Patch: Rename vprintk define in bttpvp.h
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: mchehab@brturbo.com.br, video4linux-list@redhat.com
+	Wed, 21 Sep 2005 06:32:31 -0400
+Received: from rproxy.gmail.com ([64.233.170.193]:2260 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750777AbVIUKcb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 06:32:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=KY3whulySkAewzyvu6T6BNdNgZcmgm9A4fYKTF3ZyZuWMbZNuLa4vS/8NESKDBJ2nZgcNw8HtEyIN98DccxoRKAv39i9iRl7G8uVIqjFOLpSu1VcRKaQr8PsiWne6gVrsVyjmfpZec9QDyi1EMNDwSBJEKGiUvyDRHMrLia5z2Y=
+Message-ID: <21d7e9970509210332f01458c@mail.gmail.com>
+Date: Wed, 21 Sep 2005 20:32:30 +1000
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Athar Hameed <06020051@lums.edu.pk>
+Subject: Re: In-kernel graphics subsystem
 Cc: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-Oq0984baGZNNLe36yY5S"
-Organization: Firmix Software GmbH
-Date: Wed, 21 Sep 2005 12:35:14 +0200
-Message-Id: <1127298914.26231.46.camel@tara.firmix.at>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+In-Reply-To: <2CB9FE03B6DBB54AAD7193A44499D6242C9B96@satluj1.lums.edu.pk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <AcW+QBo8uJ+XV7vHTZWR1mo7M5VcNg==>
+	 <2CB9FE03B6DBB54AAD7193A44499D6242C9B96@satluj1.lums.edu.pk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>
+> We are a group of three undergrad CS students, almost ready to start our senior project. We have this idea of integrating a graphics subsystem with the kernel and doing away with the X server. We are not really sure if this is a wise thing to do. It hasn't been done before. Your comments on this idea will be very helpful.
+>
+>
 
---=-Oq0984baGZNNLe36yY5S
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+This isn't a good idea, the whole idea of dumping the X server has
+been done to death, you might notice we still have an X server... as
+mentioned fbui and also DirectFB does a lot of things (not all
+in-kernel....)
 
-The attached patched againt 2.6.13 renames the (apparently) bttv intern 
-#define vprintk to verbprintk to resolve a name clash.
+What might be an interesting side project that is fairly self
+contained would be a userspace console with full support for
+international languages and Unicode/UTF-8 rendering, using
+freetype/xft code. Jon Smirl suggests this in his
+http://www.freedesktop.org/~jonsmirl/graphics.html paper and I've
+thought it would be an interesting idea to implement at some point,
 
-Reason: vprintk() is defined in include/linux/kernel.h similar to printk
-but with a va_list argument.
+You could sit it on top of OpenGL or directly on the drm/fbdev layers
+(probably a bit harder) an OpenGL rendered console would be a good
+enough start I suppose...
 
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
-
---=-Oq0984baGZNNLe36yY5S
-Content-Disposition: attachment; filename=printk.patch
-Content-Type: text/x-patch; name=printk.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-diff -uprN -X linux-2.6.13/Documentation/dontdiff linux-2.6.13/include/asm-i386/spinlock.h linux-2.6.13-patched/include/asm-i386/spinlock.h
---- linux-2.6.13/include/asm-i386/spinlock.h	2005-09-20 18:38:41.000000000 +0200
-+++ linux-2.6.13-patched/include/asm-i386/spinlock.h	2005-09-20 18:44:07.000000000 +0200
-@@ -7,9 +7,6 @@
- #include <linux/config.h>
- #include <linux/compiler.h>
- 
--asmlinkage int printk(const char * fmt, ...)
--	__attribute__ ((format (printf, 1, 2)));
--
- /*
-  * Your basic SMP spinlocks, allowing only a single CPU anywhere
-  */
-diff -uprN -X linux-2.6.13/Documentation/dontdiff linux-2.6.13/include/linux/kernel.h linux-2.6.13-patched/include/linux/kernel.h
---- linux-2.6.13/include/linux/kernel.h	2005-09-20 11:12:50.000000000 +0200
-+++ linux-2.6.13-patched/include/linux/kernel.h	2005-09-20 11:54:02.000000000 +0200
-@@ -129,12 +129,8 @@ asmlinkage int vprintk(const char *fmt, 
- asmlinkage int printk(const char * fmt, ...)
- 	__attribute__ ((format (printf, 1, 2)));
- #else
--static inline int vprintk(const char *s, va_list args)
--	__attribute__ ((format (printf, 1, 0)));
--static inline int vprintk(const char *s, va_list args) { return 0; }
--static inline int printk(const char *s, ...)
--	__attribute__ ((format (printf, 1, 2)));
--static inline int printk(const char *s, ...) { return 0; }
-+#define vprintk(fmt, args)      ((void)(fmt, args), 0)
-+#define printk(...)             (__VA_ARGS__, 0)
- #endif
- 
- unsigned long int_sqrt(unsigned long);
-diff -uprN -X linux-2.6.13/Documentation/dontdiff linux-2.6.13/Makefile linux-2.6.13-patched/Makefile
---- linux-2.6.13/Makefile	2005-08-29 01:41:01.000000000 +0200
-+++ linux-2.6.13-patched/Makefile	2005-09-20 11:45:56.000000000 +0200
-@@ -350,7 +350,7 @@ CPPFLAGS        := -D__KERNEL__ $(LINUXI
- 
- CFLAGS 		:= -Wall -Wstrict-prototypes -Wno-trigraphs \
- 	  	   -fno-strict-aliasing -fno-common \
--		   -ffreestanding
-+		   -ffreestanding -Wno-unused-value
- AFLAGS		:= -D__ASSEMBLY__
- 
- export	VERSION PATCHLEVEL SUBLEVEL EXTRAVERSION LOCALVERSION KERNELRELEASE \
-
---=-Oq0984baGZNNLe36yY5S--
-
+Dave.

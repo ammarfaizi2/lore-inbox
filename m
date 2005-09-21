@@ -1,78 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750823AbVIUAdl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbVIUAdj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750823AbVIUAdl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 20:33:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbVIUAdl
+	id S1750822AbVIUAdj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 20:33:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbVIUAdi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 20:33:41 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:35720 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750823AbVIUAdk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 20:33:40 -0400
-Date: Tue, 20 Sep 2005 17:33:29 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: John McCutchan <ttb@tentacle.dhs.org>
-cc: Al Viro <viro@ftp.linux.org.uk>, Ray Lee <ray@madrabbit.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Robert Love <rml@novell.com>, Al Viro <viro@ZenIV.linux.org.uk>
-Subject: Re: [patch] stop inotify from sending random DELETE_SELF event under
- load
-In-Reply-To: <1127256814.749.5.camel@vertex>
-Message-ID: <Pine.LNX.4.58.0509201728360.2553@g5.osdl.org>
-References: <1127190971.18595.5.camel@vertex>  <20050920044623.GD7992@ftp.linux.org.uk>
- <1127191992.19093.3.camel@vertex>  <20050920045835.GE7992@ftp.linux.org.uk>
- <1127192784.19093.7.camel@vertex>  <20050920051729.GF7992@ftp.linux.org.uk>
-  <76677C3D-D5E0-4B5A-800F-9503DA09F1C3@tentacle.dhs.org> 
- <20050920163848.GO7992@ftp.linux.org.uk>  <1127238257.9940.14.camel@localhost>
-  <Pine.LNX.4.58.0509201108120.2553@g5.osdl.org>  <20050920182249.GP7992@ftp.linux.org.uk>
-  <Pine.LNX.4.58.0509201234560.2553@g5.osdl.org> <1127256814.749.5.camel@vertex>
+	Tue, 20 Sep 2005 20:33:38 -0400
+Received: from mailhub.lss.emc.com ([168.159.2.31]:3661 "EHLO
+	mailhub.lss.emc.com") by vger.kernel.org with ESMTP
+	id S1750822AbVIUAdi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 20:33:38 -0400
+Message-ID: <4330A8F2.7010903@emc.com>
+Date: Tue, 20 Sep 2005 20:27:30 -0400
+From: Ric Wheeler <ric@emc.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Theodore Ts'o" <tytso@mit.edu>
+CC: Pavel Machek <pavel@suse.cz>, Hans Reiser <reiser@namesys.com>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, thenewme91@gmail.com,
+       Christoph Hellwig <hch@infradead.org>,
+       Denis Vlasenko <vda@ilport.com.ua>, chriswhite@gentoo.org,
+       LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+References: <200509182004.j8IK4JNx012764@inti.inf.utfsm.cl> <432E5024.20709@namesys.com> <20050920075133.GB4074@elf.ucw.cz> <20050921000425.GF6179@thunk.org>
+In-Reply-To: <20050921000425.GF6179@thunk.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-PMX-Version: 4.7.1.128075, Antispam-Engine: 2.1.0.0, Antispam-Data: 2005.9.19.6
+X-PerlMx-Spam: Gauge=, SPAM=7%, Reasons='EMC_FROM_00+ 0, __CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0, __USER_AGENT 0'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Theodore Ts'o wrote:
 
-
-On Tue, 20 Sep 2005, John McCutchan wrote:
 > 
-> Is there some reason we can't just do this from vfs_unlink
+> Another interesting refinement would be to analyze the resulting
+> filesystem after it has been repaired to determine how much data could
+> be salvaged by the fsck program.   
+
+We use reiserfs3 to store data and have had very good luck in getting 
+data off of real world, hard disk failures.  In our case, we have a 
+digital signature which is used to compare validate the content of the 
+files after recovery so we have an extra comfort level with the results 
+of a repaired file system...
+
+Working on getting fsck to run reliably and quickly on large file 
+systems (any type of file system) is certainly a big item on our wish 
+list.  With relatively small file system (320GB) we can spend hours 
+trying to recover.
+
 > 
-> inode = dentry->inode;
-> iget (inode);
-> d_delete (dentry);
-> fsnotify_inoderemove (inode);
-> iput (inode);
+> There is a very interesting paper that I coincidentally just came
+> across today that talks about making filesystems robust against
+> various different forms of failures of modern disk systems.  It is
+> going to be presented at the upcoming 2005 SOSP conference.
+> 
+> 	http://www.cs.wisc.edu/adsl/Publications/iron-sosp05.pdf
+> 
+> It's definitely worth a read.  A few comments about it; first of all,
+> I know nothing about this modified "iron ext3" (ixt3) discussed in the
+> paper aside from what's the paper itself.  It would be interesting to
+> see what they have done with it.  Secondly, I _think_ sct has already
+> fixed the problems discussed in the paper with respect to inadequate
+> write squelching after an I/O failure writing to the ext3 journal, but
+> we need to chat with the paper's authors to confirm that, and if there
+> still is a problem, obviously we need to fix it.  Third of all, I'll
+> note that the paper does takes an approving note of the fact that
+> Reiserfs (v3) always panic's when it detects a write fault, so for
+> those folks in the Reiser team who might have a persecution complex,
+> relax, the whole world isn't out to get you.  :-)
+> 
+> 						- Ted
 
-Mainly that it slows things down, and that it's wrong.
+We have been sponsors of this work at Wisconsin - a good group with 
+interesting results.
 
-The thing is, I don't consider fsnotify_inoderemove() that important.
+As an earlier thread on lkml showed this summer, we still have a long 
+way to go to getting consistent error semantics in face of media 
+failures between the various file systems.  I am not sure that we even 
+have consensus on what that default behavior should be between 
+developers, so image how difficult life is for application writers who 
+want to try to ride through or write automated "HA" recovery scripts for 
+systems with large numbers of occasionally flaky IO devices ;-)
 
-It is a fundamentally broken interface. We should document it as such. It 
-is _senseless_. 
+Ric
 
-If you want immediate notification of a filename going away, then check 
-the directory. That is something with a _meaning_. 
 
-But the whole IN_DELETE_SELF is a STUPID INTERFACE.
 
-I don't want to have stupid interfaces doing stupid things.
 
-I'm perfectly willing to give an approximate answer if one is easy to 
-give. But there IS no "exact" answer, as shown by the fact that you didn't 
-even know what the semantics should be in the presense of links and 
-keeping a file open.
-
-The file still _exists_ when it's open. You can read it, write it, extend
-it, truncate it.. It's only the name that is gone.  So I think delaying 
-the "IN_DELETE_SELF" until you can't do that any more is the RIGHT THING, 
-dammit.
-
-All of the problems with the interface have come from expecting semantics 
-that simply aren't _valid_.
-
-Live with the fact that files live on after the name is gone. Embrace it. 
-IT'S HOW THE UNIX WORLD WORKS. Arguing against it is like arguing against 
-gravity.
-
-		Linus

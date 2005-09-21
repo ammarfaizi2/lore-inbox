@@ -1,102 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbVIUBYd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbVIUBZ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932095AbVIUBYd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 21:24:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932102AbVIUBYd
+	id S932122AbVIUBZ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 21:25:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932111AbVIUBZ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 21:24:33 -0400
-Received: from wombat.indigo.net.au ([202.0.185.19]:22288 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S932095AbVIUBYc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 21:24:32 -0400
-Date: Wed, 21 Sep 2005 09:25:50 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-X-X-Sender: raven@wombat.indigo.net.au
-To: Jeff Moyer <jmoyer@redhat.com>
-cc: autofs@linux.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: autofs4 looks up wrong path element when ghosting is enabled
-In-Reply-To: <17200.23724.686149.394150@segfault.boston.redhat.com>
-Message-ID: <Pine.LNX.4.58.0509210916040.26144@wombat.indigo.net.au>
-References: <17200.23724.686149.394150@segfault.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-102.5, required 8,
-	EMAIL_ATTRIBUTION, IN_REP_TO, QUOTED_EMAIL_TEXT, REFERENCES,
-	REPLY_WITH_QUOTES, USER_AGENT_PINE, USER_IN_WHITELIST)
+	Tue, 20 Sep 2005 21:25:28 -0400
+Received: from sccrmhc14.comcast.net ([204.127.202.59]:62943 "EHLO
+	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S932102AbVIUBZ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 21:25:27 -0400
+Date: Tue, 20 Sep 2005 21:25:26 -0400
+From: Latchesar Ionkov <lucho@ionkov.net>
+To: linux-kernel@vger.kernel.org
+Cc: v9fs-developer@lists.sourceforge.net
+Subject: [PATCH] v9fs-get-sb-cleanup.patch
+Message-ID: <20050921012526.GF2008@ionkov.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Sep 2005, Jeff Moyer wrote:
+Signed-off-by: Latchesar Ionkov <lucho@ionkov.net>
 
-> Hi, Ian, list,
-> 
-> I have a bug filed against autofs when ghosting is enabled.  The best way
-> to describe the bug is to walk through the reproducer, I guess.
-> 
-> Take the following maps, for example:
-> 
-> auto.master
-> /sbox	auto.sbox
-> 
-> auto.sbox:
-> src	segfault:/sbox/src/
-> 
-> Let's say that there is a file, id3_0.12.orig.tar.gz, in segfault:/sbox/src/.
-> 
-> To reproduce the problem, stop the nfs service on the server.
-> 
-> On the client, do an 'ls /sbox/src/id3_012.orig.tar.gz'.  This will fail,
-> as well it should.  However, if we look in the logs, we find this:
-> 
-> automount[1182]: handle_packet_missing: token 1, name src 
-> automount[1182]: attempting to mount entry /sbox/src
-> ...
-> automount[1481]: mount(nfs): calling mkdir_path /sbox/src
-> automount[1481]: mount(nfs): calling mount -t nfs -s-o tcp,intr,timeo=600,rsize=8192,wsize=8192,retrans=5 segfault:/sbox/src /sbox/src
-> automount[1481]: >> mount: RPC: Program not registered
-> automount[1481]: mount(nfs): add_bad_host: segfault:/sbox/src
-> automount[1481]: mount(nfs): nfs: mount failure segfault:/sbox/src on /sbox/src
-> automount[1481]: failed to mount /sbox/src
-> ...
-> automount[1182]: send_fail: token=1 
-> automount[1182]: handle_packet: type = 0 
-> automount[1182]: handle_packet_missing: token 2, name src/id3_0.12.orig.tar.gz 
-> automount[1182]: attempting to mount entry /sbox/src/id3_0.12.orig.tar.gz
-> 
-> Noteworthy are these last two lines!  Even though the mount failed, we are
-> continuing the lookup.  The culprit is here, in cached_lookup:
-> 
->     if (!dentry->d_op->d_revalidate(dentry, flags) && !d_invalidate(dentry)) { 
->             dput(dentry); 
->             dentry = NULL; 
->     } 
-> 
-> d_revalidate points to autofs4_revalidate, which calls try_to_fill_dentry,
-> which will return a status of 0.  Since ghosting is enabled,
-> d_invalidate(dentry) will return -EBUSY, and so we return the dentry to 
-the
-> caller, which then continues the lookup.
-> 
-> Ian, I'm not really sure how we can address this issue without VFS
-> changes.  Any ideas?
-> 
+if error occurs while in v9fs_get_sb, some objects are freed twice -- once
+in v9fs_get_sb, the second time when v9fs_kill_super is (indirectly
+called).
 
-I'm aware of this problem.
-I'm not sure how to deal with it yet.
-The case above is probably not that difficult to solve but if the last 
-component is a directory it's hard to work out it's a problem.
+---
+commit f3f3a1deaaf88410ab71e9cf806c440d66103fad
+tree d2e9deb7d763fc10eba2ef23ff90640f1c21f1f6
+parent 0b381cf7efcd34bb6b316baf7ed5d18d402e62f0
+author Latchesar Ionkov <lucho@ionkov.net> Tue, 20 Sep 2005 19:33:39 -0400
+committer Latchesar Ionkov <lucho@ionkov.net> Tue, 20 Sep 2005 19:33:39 -0400
 
-There's more information here than I've gathhered so far.
+ fs/9p/vfs_super.c |   24 +++++++-----------------
+ 1 files changed, 7 insertions(+), 17 deletions(-)
 
-> Oh, also note that, once the nfs service is started up again on the server,
-> the lookup of a specific file name will still fail!  In this case, the
-> daemon won't even be called.
-
-I'll have to check this out.
-It could be helpful.
-
-> 
-> -Jeff
-> 
-
+diff --git a/fs/9p/vfs_super.c b/fs/9p/vfs_super.c
+--- a/fs/9p/vfs_super.c
++++ b/fs/9p/vfs_super.c
+@@ -129,8 +129,8 @@ static struct super_block *v9fs_get_sb(s
+ 
+ 	if ((newfid = v9fs_session_init(v9ses, dev_name, data)) < 0) {
+ 		dprintk(DEBUG_ERROR, "problem initiating session\n");
+-		retval = newfid;
+-		goto free_session;
++		kfree(v9ses);
++		return ERR_PTR(newfid);
+ 	}
+ 
+ 	sb = sget(fs_type, NULL, v9fs_set_super, v9ses);
+@@ -150,7 +150,7 @@ static struct super_block *v9fs_get_sb(s
+ 
+ 	if (!root) {
+ 		retval = -ENOMEM;
+-		goto release_inode;
++		goto put_back_sb;
+ 	}
+ 
+ 	sb->s_root = root;
+@@ -159,7 +159,7 @@ static struct super_block *v9fs_get_sb(s
+ 	root_fid = v9fs_fid_create(root);
+ 	if (root_fid == NULL) {
+ 		retval = -ENOMEM;
+-		goto release_dentry;
++		goto put_back_sb;
+ 	}
+ 
+ 	root_fid->fidopen = 0;
+@@ -182,25 +182,15 @@ static struct super_block *v9fs_get_sb(s
+ 
+ 	if (stat_result < 0) {
+ 		retval = stat_result;
+-		goto release_dentry;
++		goto put_back_sb;
+ 	}
+ 
+ 	return sb;
+ 
+-      release_dentry:
+-	dput(sb->s_root);
+-
+-      release_inode:
+-	iput(inode);
+-
+-      put_back_sb:
++put_back_sb:
++	/* deactivate_super calls v9fs_kill_super which will frees the rest */
+ 	up_write(&sb->s_umount);
+ 	deactivate_super(sb);
+-	v9fs_session_close(v9ses);
+-
+-      free_session:
+-	kfree(v9ses);
+-
+ 	return ERR_PTR(retval);
+ }
+ 

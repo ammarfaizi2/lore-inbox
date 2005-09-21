@@ -1,59 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbVIURao@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751299AbVIURbj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751290AbVIURao (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 13:30:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751299AbVIURao
+	id S1751299AbVIURbj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 13:31:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751266AbVIURbi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 13:30:44 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:11413 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751290AbVIURan (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 13:30:43 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>,
-       len.brown@intel.com, Pierre Ossman <drzeus-list@drzeus.cx>,
-       acpi-devel@lists.sourceforge.net, ncunningham@cyclades.com,
-       Masoud Sharbiani <masouds@masoud.ir>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/2] suspend: Cleanup calling of power off methods.
-References: <m1vf0vfa0o.fsf@ebiederm.dsl.xmission.com>
-	<20050921101855.GD25297@atrey.karlin.mff.cuni.cz>
-	<Pine.LNX.4.58.0509210930410.2553@g5.osdl.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Wed, 21 Sep 2005 11:28:55 -0600
-In-Reply-To: <Pine.LNX.4.58.0509210930410.2553@g5.osdl.org> (Linus
- Torvalds's message of "Wed, 21 Sep 2005 09:35:20 -0700 (PDT)")
-Message-ID: <m1slvycotk.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Wed, 21 Sep 2005 13:31:38 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:35548 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S1751299AbVIURbi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 13:31:38 -0400
+Date: Wed, 21 Sep 2005 19:28:37 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: Bgs <bgs@bgs.hu>, linux-kernel@vger.kernel.org,
+       Tommy Christensen <tommy.christensen@tpack.net>
+Subject: Re: probs with realtek 8110/8169 NIC
+Message-ID: <20050921172837.GA28317@electric-eye.fr.zoreil.com>
+References: <4331229D.9050302@bgs.hu> <43316B1F.6010106@grupopie.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43316B1F.6010106@grupopie.com>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> writes:
+Paulo Marques <pmarques@grupopie.com> :
+[...]
+> I would suggest you turn CONFIG_4KSTACKS off or use a different filesystem.
 
-> On Wed, 21 Sep 2005, Pavel Machek wrote:
->> 
->> I think you are not following the proper procedure. All the patches
->> should go through akpm.
+This is not needed. Tommy Christensen noticed that the r8169 driver
+called a forbidden function in an irq context.
 
-Ok.  I thought it was fine to send simple and obviously correct bug
-fixes to Linus.
+I'll have to figure why it was not noticed during the last testing round
+but that's a different story.
 
-> One issue is that I actually worry that Andrew will at some point be where 
-> I was a couple of years ago - overworked and stressed out by just tons and 
-> tons of patches. 
->
-> Yes, he's written/modified tons of patch-tracking tools, and the git 
-> merging hopefully avoids some of the pressures, but it still worries me. 
-> If Andrew burns out, we'll all suffer hugely.
->
-> I'm wondering what we can do to offset those kinds of issues. I _do_ like 
-> having -mm as a staging area and catching some problems there, so going 
-> through andrew is wonderful in that sense, but it has downsides.
-
-It is especially challenging for people like me who typically work on
-parts of the kernel without a maintainer.  So there frequently isn't
-an intermediate I can submit my patches to.
-
-Eric
+--
+Ueimor

@@ -1,91 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750852AbVIUAwd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750862AbVIUA6w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750852AbVIUAwd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 20:52:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750853AbVIUAwd
+	id S1750862AbVIUA6w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 20:58:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750858AbVIUA6w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 20:52:33 -0400
-Received: from smtp104.rog.mail.re2.yahoo.com ([206.190.36.82]:6074 "HELO
-	smtp104.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1750851AbVIUAwc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 20:52:32 -0400
-Subject: Re: [patch] stop inotify from sending random DELETE_SELF event
-	under load
-From: John McCutchan <ttb@tentacle.dhs.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Al Viro <viro@ftp.linux.org.uk>, Ray Lee <ray@madrabbit.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Robert Love <rml@novell.com>, Al Viro <viro@ZenIV.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.58.0509201728360.2553@g5.osdl.org>
-References: <1127190971.18595.5.camel@vertex>
-	 <20050920044623.GD7992@ftp.linux.org.uk> <1127191992.19093.3.camel@vertex>
-	 <20050920045835.GE7992@ftp.linux.org.uk> <1127192784.19093.7.camel@vertex>
-	 <20050920051729.GF7992@ftp.linux.org.uk>
-	 <76677C3D-D5E0-4B5A-800F-9503DA09F1C3@tentacle.dhs.org>
-	 <20050920163848.GO7992@ftp.linux.org.uk>
-	 <1127238257.9940.14.camel@localhost>
-	 <Pine.LNX.4.58.0509201108120.2553@g5.osdl.org>
-	 <20050920182249.GP7992@ftp.linux.org.uk>
-	 <Pine.LNX.4.58.0509201234560.2553@g5.osdl.org>
-	 <1127256814.749.5.camel@vertex>
-	 <Pine.LNX.4.58.0509201728360.2553@g5.osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 20 Sep 2005 20:52:59 -0400
-Message-Id: <1127263979.3593.3.camel@vertex>
+	Tue, 20 Sep 2005 20:58:52 -0400
+Received: from fmr24.intel.com ([143.183.121.16]:14533 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1750866AbVIUA6v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 20:58:51 -0400
+Date: Tue, 20 Sep 2005 17:58:44 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       venkatesh.pallipadi@intel.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch] intel_cacheinfo: remove MAX_CACHE_LEAVES limit
+Message-ID: <20050920175843.A31499@unix-os.sc.intel.com>
+References: <20050919121435.A10231@unix-os.sc.intel.com> <20050920160604.5e022fa8.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050920160604.5e022fa8.akpm@osdl.org>; from akpm@osdl.org on Tue, Sep 20, 2005 at 04:06:04PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-09-20 at 17:33 -0700, Linus Torvalds wrote:
+On Tue, Sep 20, 2005 at 04:06:04PM -0700, Andrew Morton wrote:
+> "Siddha, Suresh B" <suresh.b.siddha@intel.com> wrote:
+> >
+> > Remove the MAX_CACHE_LEAVES limit from the routine which calculates the
+> > number of cache levels using cpuid(4)
 > 
-> On Tue, 20 Sep 2005, John McCutchan wrote:
-> > 
-> > Is there some reason we can't just do this from vfs_unlink
-> > 
-> > inode = dentry->inode;
-> > iget (inode);
-> > d_delete (dentry);
-> > fsnotify_inoderemove (inode);
-> > iput (inode);
+> Why?  Why was the code there originally, and why is it required that it be
+> removed, and why is it safe to remove it?
 > 
-> Mainly that it slows things down, and that it's wrong.
-> 
-> The thing is, I don't consider fsnotify_inoderemove() that important.
-> 
-> It is a fundamentally broken interface. We should document it as such. It 
-> is _senseless_. 
-> 
-> If you want immediate notification of a filename going away, then check 
-> the directory. That is something with a _meaning_. 
-> 
-> But the whole IN_DELETE_SELF is a STUPID INTERFACE.
-> 
-> I don't want to have stupid interfaces doing stupid things.
-> 
-> I'm perfectly willing to give an approximate answer if one is easy to 
-> give. But there IS no "exact" answer, as shown by the fact that you didn't 
-> even know what the semantics should be in the presense of links and 
-> keeping a file open.
-> 
-> The file still _exists_ when it's open. You can read it, write it, extend
-> it, truncate it.. It's only the name that is gone.  So I think delaying 
-> the "IN_DELETE_SELF" until you can't do that any more is the RIGHT THING, 
-> dammit.
-> 
-> All of the problems with the interface have come from expecting semantics 
-> that simply aren't _valid_.
-> 
-> Live with the fact that files live on after the name is gone. Embrace it. 
-> IT'S HOW THE UNIX WORLD WORKS. Arguing against it is like arguing against 
-> gravity.
-> 
+> (IOW: your description of this patch is inadequate: it describes what was
+> done, but not why it was done).
 
-Alright, at this point I was just throwing out ideas ;). Anyways, you've
-convinced me! Now, what about my last patch and your last patch getting
-included? 
+oops! Initial internal version of Venki's cpuid(4) deterministic cache
+parameter identification patch used static arrays of size MAX_CACHE_LEAVES. 
+Final patch which made to the base used dynamic array allocation, with this
+MAX_CACHE_LEAVES limit hunk still in place. 
 
--- 
-John McCutchan <ttb@tentacle.dhs.org>
+cpuid(4) already has a mechanism to find out the number of cache levels
+implemented and there is no need for this hardcoded MAX_CACHE_LEAVES limit.
+
+thanks,
+suresh

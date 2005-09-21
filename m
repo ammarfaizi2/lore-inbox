@@ -1,39 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbVIULrK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750830AbVIULtv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750826AbVIULrK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 07:47:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbVIULrJ
+	id S1750830AbVIULtv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 07:49:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750832AbVIULtu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 07:47:09 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:23967 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750826AbVIULrI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 07:47:08 -0400
-Message-ID: <4331482E.3090201@pobox.com>
-Date: Wed, 21 Sep 2005 07:46:54 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Sanchez <david.sanchez@lexbox.fr>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: How to Force PIO mode on sata promise (Linux 2.6.10)
-References: <17AB476A04B7C842887E0EB1F268111E026FB0@xpserver.intra.lexbox.org>
-In-Reply-To: <17AB476A04B7C842887E0EB1F268111E026FB0@xpserver.intra.lexbox.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Wed, 21 Sep 2005 07:49:50 -0400
+Received: from science.horizon.com ([192.35.100.1]:33352 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S1750830AbVIULtu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 07:49:50 -0400
+Date: 21 Sep 2005 07:49:31 -0400
+Message-ID: <20050921114931.14363.qmail@science.horizon.com>
+From: linux@horizon.com
+To: johnstul@us.ibm.com
+Subject: Re: [PATCH] NTP shift_right cleanup (v. A3)
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Sanchez wrote:
-> I'm using the Linux kernel 2.6.10 on a DBAU1550 and I would like to
-> force PIO mode (and thus disable DMA) on my sata promise TX2.
-> How can I do that ?
+- For fixed shifts, you can just write it as a divide; GCC will DTRT.
+  For interest's sake, GCC 4.0 generates, for x /= 64:
+        testl   %eax, %eax
+	jns	.L2
+	addl	$63, %eax
+.L2:
+	sarl	$6, %eax
 
-Why do you wish to do this?
+- If you want to be more verbose with the explanation, try something like:
+  (Public domain, copyright abandoned, use freely, yadda yadda.)
+/*
+ * NTP uses power-of-two divides a lot for speed, but it wants to use
+ * negative numbers.
+ * 1) ANSI C does not guarantee signed right shifts (but GCC does)
+ * 2) Such a shift is like a divide that rounds to -infinity.
+ *    NTP wants rounding to zero, i.e. -3/2 = -2, while -3>>1 = -2.
+ */
 
-	Jeff
-
-
-
+Interestingly, _Hacker's Delight_ chapter 10 skips over this particular
+case, signed division by a variable power of two.

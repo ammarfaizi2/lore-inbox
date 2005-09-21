@@ -1,41 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751241AbVIURKt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbVIURMZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751241AbVIURKt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 13:10:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbVIURKt
+	id S1751253AbVIURMZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 13:12:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbVIURMZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 13:10:49 -0400
-Received: from teetot.devrandom.net ([66.35.250.243]:5297 "EHLO
-	teetot.devrandom.net") by vger.kernel.org with ESMTP
-	id S1751241AbVIURKs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 13:10:48 -0400
-Date: Wed, 21 Sep 2005 10:21:57 -0700
-From: thockin@hockin.org
-To: "Shawn M. Campbell" <scampbell@malone.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PCI Express or TG3 issue
-Message-ID: <20050921172156.GA31339@hockin.org>
-References: <433182C8.2060006@malone.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <433182C8.2060006@malone.edu>
-User-Agent: Mutt/1.4.1i
+	Wed, 21 Sep 2005 13:12:25 -0400
+Received: from gold.veritas.com ([143.127.12.110]:3611 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1751253AbVIURMY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 13:12:24 -0400
+Date: Wed, 21 Sep 2005 18:12:00 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Jay Lan <jlan@engr.sgi.com>
+cc: Frank van Maarseveen <frankvm@frankvm.com>,
+       Christoph Lameter <clameter@engr.sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.14-rc2] fix incorrect mm->hiwater_vm and mm->hiwater_rss
+In-Reply-To: <43319111.1050803@engr.sgi.com>
+Message-ID: <Pine.LNX.4.61.0509211802150.8880@goblin.wat.veritas.com>
+References: <20050921121915.GA14645@janus> <Pine.LNX.4.61.0509211515330.6114@goblin.wat.veritas.com>
+ <43319111.1050803@engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 21 Sep 2005 17:12:24.0259 (UTC) FILETIME=[A26E9130:01C5BECF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 21, 2005 at 11:56:56AM -0400, Shawn M. Campbell wrote:
-> 0000:02:00.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5751
-> Gigabit Ethernet PCI Express (rev 11)
->         Subsystem: IBM: Unknown device 02f7
->         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-> ParErr+ Stepping- SERR+ FastB2B-
->         Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort-
-> <TAbort- <MAbort- >SERR- <PERR-
->         Latency: 0, Cache Line Size: 0x08 (32 bytes)
->         Interrupt: pin A routed to IRQ 5
->         Region 0: Memory at <ignored> (64-bit, non-prefetchable)
-                    ^^^^^^^^^^^^^^^^^^
-		    Problem.
+On Wed, 21 Sep 2005, Jay Lan wrote:
+> Hugh Dickins wrote:
+> > 
+> > 4. If you've noticed a regression, you must be one of the elite that
+> > knows
+> > what these counters are used for: nothing in the kernel.org tree does.
+> > Please add a comment saying what it is that uses them and how, so
+> > developers can make better judgements about how best to maintain them.
+> > 
+> > 5. Please add appropriate CONFIG, dummy macros etc., so that no time
+> > is wasted on these updates in all the vanilla systems which have no
+> > interest in them - but maybe Christoph already has that well in hand.
+> 
+> It is used in enhanced system accounting. An obvious CONFIG would be
+> CONFIG_BSD_PROCESS_ACCT.
+> 
+> However, since the CONFIG flag is almost always Yes, people would need
+> to turn it off if they do not want system accounting. Would that be
+> OK?
 
-hexdump /proc/bus/pci/02/00.0 and send it here.
+Christoph will know the issue better than I.  But I'd say no, that's
+not OK.  You have some out of tree "enhanced system accounting" which
+has been granted the privilege of hooks within the mainline kernel:
+they should be disabled unless a CONFIG option is switched on, which
+your accounting patch can do.  And the (mainline) Kconfig help entry
+for that CONFIG option should point us to the source of your package.
+
+Hugh

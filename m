@@ -1,58 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbVIUQ3M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbVIUQbF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751129AbVIUQ3M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 12:29:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbVIUQ3M
+	id S1751138AbVIUQbF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 12:31:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbVIUQbE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 12:29:12 -0400
-Received: from odin2.bull.net ([192.90.70.84]:36344 "EHLO odin2.bull.net")
-	by vger.kernel.org with ESMTP id S1751129AbVIUQ3K convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 12:29:10 -0400
-From: "Serge Noiraud" <serge.noiraud@bull.net>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: RT bug with 2.6.13-rt4 and 3c905c tornado
-Date: Wed, 21 Sep 2005 18:32:56 +0200
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org
-References: <200509201046.17818.Serge.Noiraud@bull.net> <20050920085532.GA19807@elte.hu>
-In-Reply-To: <20050920085532.GA19807@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200509211832.56948.Serge.Noiraud@bull.net>
+	Wed, 21 Sep 2005 12:31:04 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:10150 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S1751130AbVIUQbD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 12:31:03 -0400
+Subject: Re: [RFC/BUG?] ide_cs's removable status
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>, bzolnier@gmail.com,
+       linux-ide@vger.kernel.org
+In-Reply-To: <1127319328.8542.57.camel@localhost.localdomain>
+References: <1127319328.8542.57.camel@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 21 Sep 2005 17:57:08 +0100
+Message-Id: <1127321829.18840.18.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mardi 20 Septembre 2005 10:55, Ingo Molnar wrote/a écrit :
-> * Serge Noiraud <serge.noiraud@bull.net> wrote:
-> > Hi
-> >
-> > 	This driver works perfectly if you insert the physical card on a
-> > PCI slot. If you insert this same card on a PCI-X slot, we got the
-> > following problem : When you type "modprobe 3c59x", the system freeze.
-...
->
-> use serial logging and the NMI watchdog to debug hard lockups (see the
-> info below). Use CONFIG_DETECT_SOFTLOCKUP=y to detect soft lockups.
-> Generally the use of debugging options can help as well. Here's a 'full'
-> debugging kernel:
->
-I have another big problem with debugging :
+On Mer, 2005-09-21 at 17:15 +0100, Richard Purdie wrote:
+> As ide_cs only creates the block devices when a card is present, I think
+> it shouldn't be set as removable. As a point of reference, the MMC
+> system does not set the removable flag for exactly this reason (There is
+> an email from Russell King explaining this -
+> http://lkml.org/lkml/2005/1/8/165).
 
-I have :
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_8250_CONSOLE=y
+I can't comment on the MMC layer or its core requirements as I don't
+know them well. IDE PCMCIA does however encompass removal devices. The
+removable flag is set so that we get removable media behaviour - that is
+the media can change under us and we must not cache partition data. The
+current behavioiur in that sense is correct.
 
-If the following config option is set, I can't get traces. If I unset it, I 
-can't get mouse or keyboard. Do you have a work around or a patch for this ?
+> 
+> It is worth noting the MMC subsystem works with my evil udev script. If
+> I apply the patch below (which removes the removable flag for flash
+> devices), I don't see this loop.
 
-# CONFIG_SERIO_I8042 is not set => the trace stop and keyboard works.
-CONFIG_SERIO_I8042=y => the trace is ok but no keyboard and mouse.
+But does MMC have a media change detect, and if not does the right thing
+occur if you swap cards with partition tables ?
 
-If the system is loaded and you can type something, an echo x >/dev/ttyS0 
-fixes the problem. You can have new traces. The problem is still between the 
-i8042 loading module and the system ok to works : If you have a module 
-loading problem or something else, you can't get trace.
+> 1. Can anyone provide details on what the bits in id->config really
+> mean?  
+
+ATA standards are all available for download.
+
+> 2. Which other drivers exploit the "if (id->config & (1<<7))
+> drive->removable = 1;" code? Is it just ide_cs?
+
+It might be currently because the old IDE layer has no hotplug support
+(not even for PCMCIA - it happens to work some days) but that wasn't
+true in 2.4-ac or some 2.6-ac.
+
+It sounds like something needs to be smarter about whether the media has
+changed - could be kernel but it seems like a user space problem. I note
+that the standard Gnome tools "just work" in this case so perhaps you
+can see how they do it.
+
+Alan
+

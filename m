@@ -1,39 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbVIUHhi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbVIUHtP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750745AbVIUHhi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 03:37:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbVIUHhi
+	id S1750731AbVIUHtP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 03:49:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbVIUHtP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 03:37:38 -0400
-Received: from laf31-5-82-235-130-100.fbx.proxad.net ([82.235.130.100]:20467
-	"EHLO lexbox.fr") by vger.kernel.org with ESMTP id S1750745AbVIUHhh convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 03:37:37 -0400
-Subject: How to Force PIO mode on sata promise (Linux 2.6.10)
+	Wed, 21 Sep 2005 03:49:15 -0400
+Received: from [210.76.114.20] ([210.76.114.20]:15490 "EHLO ccoss.com.cn")
+	by vger.kernel.org with ESMTP id S1750731AbVIUHtO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 03:49:14 -0400
+Message-ID: <43311071.8070706@ccoss.com.cn>
+Date: Wed, 21 Sep 2005 15:49:05 +0800
+From: liyu <liyu@ccoss.com.cn>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: zh-cn,zh
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Content-class: urn:content-classes:message
-Date: Wed, 21 Sep 2005 09:34:53 +0200
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Message-ID: <17AB476A04B7C842887E0EB1F268111E026FB0@xpserver.intra.lexbox.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: How to Force PIO mode on sata promise (Linux 2.6.10)
-thread-index: AcW+fvTsEfozZnVhSgW2EIN1VNmDYA==
-From: "David Sanchez" <david.sanchez@lexbox.fr>
-To: <linux-kernel@vger.kernel.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: A pettiness question.
+Content-Type: text/plain; charset=gb18030; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi, All.
+   
+    I found there are use double operator ! continuously sometimes in 
+kernel.
+e.g:
 
-I'm using the Linux kernel 2.6.10 on a DBAU1550 and I would like to
-force PIO mode (and thus disable DMA) on my sata promise TX2.
-How can I do that ?
+    static inline int is_page_cache_freeable(struct page *page)
+    {
+        return page_count(page) - !!PagePrivate(page) == 2;
+    }
 
-Thanks
+    Who would like tell me why write like above?
+   
+  
+    Thanks in advanced.
 
-David
 
+Liyu

@@ -1,46 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965006AbVIUVg7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965026AbVIUViX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965006AbVIUVg7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 17:36:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965008AbVIUVg7
+	id S965026AbVIUViX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 17:38:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965047AbVIUViX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 17:36:59 -0400
-Received: from H190.C26.B96.tor.eicat.ca ([66.96.26.190]:31447 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S965006AbVIUVg6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 17:36:58 -0400
-From: Nikita Danilov <nikita@clusterfs.com>
+	Wed, 21 Sep 2005 17:38:23 -0400
+Received: from iits01137.inlink.com ([209.135.140.137]:5543 "EHLO robertk.com")
+	by vger.kernel.org with ESMTP id S965026AbVIUViW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 17:38:22 -0400
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+To: "Bartlomiej Zolnierkiewicz" <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: [PATCH 2.6.13] drivers/ide: Enable basic VIA VT6410 IDE functionality
+Date: Wed, 21 Sep 2005 16:38:11 -0500
+From: "Robert Kesterson" <robertk@robertk.com>
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed	delsp=yes
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17201.53892.148162.340378@gargle.gargle.HOWL>
-Date: Thu, 22 Sep 2005 01:37:08 +0400
-To: Hans Reiser <reiser@namesys.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       thenewme91@gmail.com, Christoph Hellwig <hch@infradead.org>,
-       Denis Vlasenko <vda@ilport.com.ua>, chriswhite@gentoo.org,
-       LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>,
-       Nate Diller <ndiller@namesys.com>
-Subject: Re: I request inclusion of reiser4 in the mainline kernel
-In-Reply-To: <4331CDC2.1080300@namesys.com>
-References: <200509201542.j8KFgh2q011730@laptop11.inf.utfsm.cl>
-	<43304AF2.8080404@namesys.com>
-	<17200.21620.684685.966054@gargle.gargle.HOWL>
-	<4331CDC2.1080300@namesys.com>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+Content-Transfer-Encoding: 7BIT
+Message-ID: <op.sxg2dxd5wc4mme@new.robertk.com>
+User-Agent: Opera M2/8.50 (Linux, build 1358)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser writes:
+This patch enables plain IDE functionality on the VIA VT6410 IDE controller
+(such as used on the Asus P4P800 Deluxe motherboard).  This is not a RAID
+driver, but you can use Linux's software RAID once the drives are visible.
+I did not write the original version of this patch, which I found on the
+internet back in the days of kernel 2.6.2.  I have been unable to identify
+the original author to give him/her proper credit.  I have been maintaining
+and updating this patch since then and have released several updates which
+have been successfully used by others who have downloaded it from my
+website.
 
-[...]
+It seems appropriate that this minimal functionality should be in the
+mainstream kernel.
 
- > >
- > Yes, and one can compensate for them  fairly cleanly.  I can't say more
- > without the customer releasing the code first.
+Signed-off-by: Robert Kesterson <robertk@robertk.com>
 
-That's the point: text-book algorithms are usually useless as is. They
-need adjustments and changes to work in real life.
+diff -rup linux-2.6.13.2.orig/drivers/ide/pci/generic.c linux-2.6.13.2/drivers/ide/pci/generic.c
+--- linux-2.6.13.2.orig/drivers/ide/pci/generic.c	2005-09-16 20:02:12.000000000 -0500
++++ linux-2.6.13.2/drivers/ide/pci/generic.c	2005-09-21 16:27:38.000000000 -0500
+@@ -179,6 +179,12 @@ static ide_pci_device_t generic_chipsets
+  		.channels	= 2,
+  		.autodma	= AUTODMA,
+  		.bootable	= OFF_BOARD,
++	},{	/* 15 */
++		.name		= "VIA_610",
++		.init_hwif	= init_hwif_generic,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.bootable	= ON_BOARD,
+  	}
+  };
 
-Nikita.
+@@ -238,6 +244,7 @@ static struct pci_device_id generic_pci_
+  	{ PCI_VENDOR_ID_TOSHIBA,PCI_DEVICE_ID_TOSHIBA_PICCOLO_1,   PCI_ANY_ID, PCI_ANY_ID, 0, 0, 12},
+  	{ PCI_VENDOR_ID_TOSHIBA,PCI_DEVICE_ID_TOSHIBA_PICCOLO_2,   PCI_ANY_ID, PCI_ANY_ID, 0, 0, 13},
+  	{ PCI_VENDOR_ID_NETCELL,PCI_DEVICE_ID_REVOLUTION,          PCI_ANY_ID, PCI_ANY_ID, 0, 0, 14},
++	{ PCI_VENDOR_ID_VIA,    PCI_DEVICE_ID_VIA_610,             PCI_ANY_ID, PCI_ANY_ID, 0, 0, 15},
+  	/* Must come last. If you add entries adjust this table appropriately and the init_one code */
+  	{ PCI_ANY_ID,		PCI_ANY_ID,			   PCI_ANY_ID, PCI_ANY_ID, PCI_CLASS_STORAGE_IDE << 8, 0xFFFFFF00UL, 0},
+  	{ 0, },
+diff -rup linux-2.6.13.2.orig/include/linux/pci_ids.h linux-2.6.13.2/include/linux/pci_ids.h
+--- linux-2.6.13.2.orig/include/linux/pci_ids.h	2005-09-16 20:02:12.000000000 -0500
++++ linux-2.6.13.2/include/linux/pci_ids.h	2005-09-21 16:27:38.000000000 -0500
+@@ -1413,6 +1413,7 @@
+  #define PCI_DEVICE_ID_VIA_8703_51_0	0x3148
+  #define PCI_DEVICE_ID_VIA_8237_SATA	0x3149
+  #define PCI_DEVICE_ID_VIA_XN266		0x3156
++#define PCI_DEVICE_ID_VIA_610		0x3164
+  #define PCI_DEVICE_ID_VIA_8754C_0	0x3168
+  #define PCI_DEVICE_ID_VIA_8235		0x3177
+  #define PCI_DEVICE_ID_VIA_P4N333	0x3178

@@ -1,61 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751200AbVIURAU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbVIURFQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751200AbVIURAU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 13:00:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbVIURAT
+	id S1751248AbVIURFQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 13:05:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751252AbVIURFQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 13:00:19 -0400
-Received: from birao.terra.com.br ([200.176.10.197]:26268 "EHLO
-	birao.terra.com.br") by vger.kernel.org with ESMTP id S1751200AbVIURAS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 13:00:18 -0400
-X-Terra-Karma: -2%
-X-Terra-Hash: 4c90acccf3bc464230c979567a0f2060
-Message-ID: <433191A2.9030702@terra.com.br>
-Date: Wed, 21 Sep 2005 14:00:18 -0300
-From: Piter Punk <piterpk@terra.com.br>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050905
-X-Accept-Language: en-us, en
+	Wed, 21 Sep 2005 13:05:16 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:41448 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1751248AbVIURFO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 13:05:14 -0400
+Date: Wed, 21 Sep 2005 10:05:09 -0700 (PDT)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Jay Lan <jlan@engr.sgi.com>
+cc: Hugh Dickins <hugh@veritas.com>,
+       Frank van Maarseveen <frankvm@frankvm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.14-rc2] fix incorrect mm->hiwater_vm and mm->hiwater_rss
+In-Reply-To: <43319111.1050803@engr.sgi.com>
+Message-ID: <Pine.LNX.4.62.0509211000470.10480@schroedinger.engr.sgi.com>
+References: <20050921121915.GA14645@janus> <Pine.LNX.4.61.0509211515330.6114@goblin.wat.veritas.com>
+ <43319111.1050803@engr.sgi.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, xorg@lists.freedesktop.org
-Subject: kernel 2.6.13, USB keyboard and X.org
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 21 Sep 2005, Jay Lan wrote:
 
-	i am using 2.6.13 in some machines. One of them has a USB keyboard.
-My first problem: the keyboard simply doesn't works. I put "usb-handoff" in
-prompt and all goes OK.
+> > 5. Please add appropriate CONFIG, dummy macros etc., so that no time
+> >    is wasted on these updates in all the vanilla systems which have no
+> >    interest in them - but maybe Christoph already has that well in hand.
+> 
+> It is used in enhanced system accounting. An obvious CONFIG would be
+> CONFIG_BSD_PROCESS_ACCT.
 
-	But, when i start X i got a second problem, is impossible to type
-only one letter, one touch in a key makes a lot of letters, like that:
+Right. Make all the data fields and code dependent on an appropriate 
+CONFIG_XXX macro. We talked about that a couple of weeks ago as AFAIK.
 
-	lllllliiiiiiinnnnnnnnuuuuxxxxx
-
-	instead
-
-	linux
-
-	The problem don't happens in kernel 2.4.31 (2.4.31 recognizes
-the keyboard without usb-handoff, and works great in X).
-
-	Using 2.6.13, i try to configure X and change the "Autorepeat"
-option. The default is to wait 500ms before start to repeat. I think
-something is wrong and configure to wait 5000ms (5s) before start to
-repeat the letters. In X nothing happens, i continue to type:
-llllllliiiiiinnnnnnuuuuuuxxxxx
-
-	But, when i stop the X, the console keyboard got really
-slow and start to repeat one letter only after i press the key by
-five seconds. Following my X configuration.
-
-	I don't know if the bug is in kernel 2.6.13 or in X, because
-that i am sending the report to both lists. In kernel 2.4.31 the X
-works OK and, in 2.6.13 the console works OK, problem only in X.
-
-	If you want more information, let me know.
-
-								Piter PUNK
+I had a look at Frank's patch and it does not seem to touch the critical 
+paths. Jay: Can you verify that the changes do not affect critical paths 
+and that accounting is still working in the right way?

@@ -1,54 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751006AbVIUOj4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751008AbVIUOnR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751006AbVIUOj4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 10:39:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751012AbVIUOj4
+	id S1751008AbVIUOnR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 10:43:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751021AbVIUOnR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 10:39:56 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.50]:18058 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S1750999AbVIUOjz (ORCPT
+	Wed, 21 Sep 2005 10:43:17 -0400
+Received: from zproxy.gmail.com ([64.233.162.194]:56917 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751008AbVIUOnQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 10:39:55 -0400
-Date: Wed, 21 Sep 2005 16:39:54 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch] eliminate CLONE_* duplications
-Message-ID: <20050921143954.GA10137@MAIL.13thfloor.at>
-Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Kernel ML <linux-kernel@vger.kernel.org>
-References: <20050921092132.GA4710@MAIL.13thfloor.at> <Pine.LNX.4.61.0509211252160.3743@scrub.home>
+	Wed, 21 Sep 2005 10:43:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=J9O5Rbx22SpOYDCegREP7HqgBuTP6kkVpv0HjMySyTNaYpGU6Nwf8+IQhrJ5UOQoTV0ZNgWBYcI0+vBYWYljxbJUi6SLHwdrux+9SkM7dO89VQkENi0eNhO8mogSoozVPJ0Fe+S+HGVQLA5zr3LjDLLiNmi82Gnp71rsDFYT3JI=
+Date: Wed, 21 Sep 2005 18:53:49 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: kernel-janitors@lists.osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.14-rc2-kj1
+Message-ID: <20050921145349.GA1897@mipter.zuzino.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0509211252160.3743@scrub.home>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 21, 2005 at 12:55:10PM +0200, Roman Zippel wrote:
-> Hi,
-> 
-> On Wed, 21 Sep 2005, Herbert Poetzl wrote:
-> 
-> > some archs (alpha,cris,ia64,ppc/64,v850) map those
-> > values via asm-offsets.c, others (cris-*,hppa/64)
-> > redefine the values in the asm code ...
-> 
-> Please fix cris-*,hppa/64 instead to use asm-offsets.c.
+2.6.14-rc2-kj1 aka "Affine Albatross" is out. You can grab it from
+http://coderock.org/kj/2.6.14-rc1-kj1/
 
-please elaborate _why_ we would want a bunch of
-additional DEFINE entries in each arch instead of a
-simple include file?
+Full shortlog is at
+http://coderock.org/kj/2.6.14-rc2-kj1/shortlog
 
-TIA,
-Herbert
+Merged
+------
+kernel_audit_c_fix_sparse_warnings___nocast_type.patch
+i386_reboot_c_replace_custom_macro_with_isdigit.patch
+remove_arch_arm26_boot_compressed_hw_bse_c.patch
 
-> bye, Roman
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+New in this release
+-------------------
+Christoph Hellwig:
+  specialix: check_region/request_region related cleanups
+
+Christophe Lucas:
+  arch/alpha/kernel/*: use KERN_*
+  	two new files
+
+Dropped
+-------
+arm_sa1111_c_use_sizeof_pointer.patch
+	There was a discussion and much disagreement about sizeof(*p)
+	vs sizeof(struct foo) on linux-kernel (grep for "Russell King
+	sizeof").
+	
+	Net result #1: maintainer decides what to put into sizeof.
+	Net result #2: kernel janitors won't convert code to either
+		       form.
+
+floppy_relocate_devfs_comment.patch
+	akpm() returned -ETOOTRIVIAL.
+
+gt96100_stop_using_pci_find_device.patch
+	Should be converted to standart PCI API instead.
+
+prism54_use_msleep.patch
+	Old patch to use msleep() instead of schedule_timeout(). netdev
+	tree switched to schedule_timeout_uninterruptible(). I'll wait
+	for API dust to settle.
+
+stir4200_use_set_current_state.patch
+	Ditto.
+

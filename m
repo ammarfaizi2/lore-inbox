@@ -1,67 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751334AbVIURur@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbVIURv4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751334AbVIURur (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 13:50:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbVIURuA
+	id S1751344AbVIURv4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 13:51:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751345AbVIURvz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 13:50:00 -0400
-Received: from [151.97.230.9] ([151.97.230.9]:12739 "EHLO ssc.unict.it")
-	by vger.kernel.org with ESMTP id S1751345AbVIURs4 (ORCPT
+	Wed, 21 Sep 2005 13:51:55 -0400
+Received: from iotaanl.aps.anl.gov ([164.54.56.3]:25794 "EHLO iota.aps.anl.gov")
+	by vger.kernel.org with ESMTP id S1751343AbVIURvg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 13:48:56 -0400
-From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH 07/10] uml: avoid fixing faults while atomic
-Date: Wed, 21 Sep 2005 19:29:08 +0200
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Jeff Dike <jdike@addtoit.com>, user-mode-linux-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Message-Id: <20050921172908.10219.57644.stgit@zion.home.lan>
-In-Reply-To: <200509211923.21861.blaisorblade@yahoo.it>
-References: <200509211923.21861.blaisorblade@yahoo.it>
+	Wed, 21 Sep 2005 13:51:36 -0400
+Message-ID: <43319DA0.6030300@aps.anl.gov>
+Date: Wed, 21 Sep 2005 12:51:28 -0500
+From: Shifu Xu <xusf@aps.anl.gov>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050909 Red Hat/1.7.10-1.1.3.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.13-rt14 build problem on Powerpc board
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+ Hi,
 
-Following i386, we should maybe refuse trying to fault in pages when we're
-doing atomic operations, because to handle the fault we could need to take
-already taken spinlocks.
+I tried the patch-2.6.13-rt14 on mvme2100 board,  the following are the 
+build message:
+hope it get fixed.
+Thanks
 
-Also, if we're doing an atomic operation (in the sense of in_atomic()) we're
-surely in kernel mode and we're surely going to handle adequately the failed
-fault, so it's safe to behave this way.
+Shifu
 
-Currently, on UML SMP is rarely used, and we don't support PREEMPT, so this is
-unlikely to create problems right now, but it might in the future.
-
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
-
- arch/um/kernel/trap_kern.c |    7 +++++++
- 1 files changed, 7 insertions(+), 0 deletions(-)
-
-diff --git a/arch/um/kernel/trap_kern.c b/arch/um/kernel/trap_kern.c
---- a/arch/um/kernel/trap_kern.c
-+++ b/arch/um/kernel/trap_kern.c
-@@ -40,6 +40,12 @@ int handle_page_fault(unsigned long addr
- 	int err = -EFAULT;
- 
- 	*code_out = SEGV_MAPERR;
-+
-+	/* If the fault was during atomic operation, don't take the fault, just
-+	 * fail. */
-+	if (in_atomic())
-+		goto out_nosemaphore;
-+
- 	down_read(&mm->mmap_sem);
- 	vma = find_vma(mm, address);
- 	if(!vma) 
-@@ -90,6 +96,7 @@ survive:
- 	flush_tlb_page(vma, address);
- out:
- 	up_read(&mm->mmap_sem);
-+out_nosemaphore:
- 	return(err);
- 
- /*
+------------------------------
+ CC      kernel/posix-cpu-timers.o
+In file included from kernel/posix-cpu-timers.c:6:
+include/linux/posix-timers.h: In function `forward_posix_timer':
+include/linux/posix-timers.h:106: warning: comparison of distinct 
+pointer types lacks a cast
+  CC      kernel/ktimers.o
+  CC      kernel/ntp.o
+kernel/ntp.c:84: error: parse error before "__cacheline_aligned_in_smp"
+kernel/ntp.c:84: warning: type defaults to `int' in declaration of 
+`__cacheline_aligned_in_smp'
+kernel/ntp.c:84: warning: excess elements in scalar initializer
+kernel/ntp.c:84: warning: (near initialization for 
+`__cacheline_aligned_in_smp')
+kernel/ntp.c:84: warning: data definition has no type or storage class
+kernel/ntp.c: In function `ntp_advance':
+kernel/ntp.c:104: error: `ntp_lock' undeclared (first use in this function)
+kernel/ntp.c:104: error: (Each undeclared identifier is reported only once
+kernel/ntp.c:104: error: for each function it appears in.)
+kernel/ntp.c:104: warning: type defaults to `int' in declaration of 
+`type name'
+kernel/ntp.c:104: warning: type defaults to `int' in declaration of 
+`type name'
+kernel/ntp.c:104: warning: type defaults to `int' in declaration of 
+`type name'
+kernel/ntp.c:104: warning: type defaults to `int' in declaration of 
+`type name'
+kernel/ntp.c:209: warning: type defaults to `int' in declaration of 
+`type name'
+kernel/ntp.c:209: warning: type defaults to `int' in declaration of 
+`type name'
+kernel/ntp.c:209: warning: type defaults to `int' in declaration of 
+`type name'
+kernel/ntp.c:209: warning: type defaults to `int' in declaration of 
+`type name'
+kernel/ntp.c: In function `ntp_adjtimex':
+kernel/ntp.c:346: error: `ntp_lock' undeclared (first use in this function)
+kernel/ntp.c:346: warning: type defaults to `int' in declaration of 
+`type name'
+kernel/ntp.c:346: warning: type defaults to `int' in declaration of 
+`type name'
+kernel/ntp.c:346: warning: type defaults to `int' in declaration of 
+`type name'
+kernel/ntp.c:346: warning: type defaults to `int' in declaration of 
+`type name'
+kernel/ntp.c:418: warning: type defaults to `int' in declaration of 
+`type name'
+kernel/ntp.c:418: warning: type defaults to `int' in declaration of 
+`type name'
+kernel/ntp.c:418: warning: type defaults to `int' in declaration of 
+`type name'
+kernel/ntp.c:418: warning: type defaults to `int' in declaration of 
+`type name'
+kernel/ntp.c: In function `ntp_leapsecond':
+kernel/ntp.c:442: error: `ntp_lock' undeclared (first use in this function)
+kernel/ntp.c:442: warning: type defaults to `int' in declaration of 
+`type name'
+kernel/ntp.c:442: warning: type defaults to `int' in declaration of 
+`type name'
+kernel/ntp.c:442: warning: type defaults to `int' in declaration of 
+`type name'
+kernel/ntp.c:442: warning: type defaults to `int' in declaration of 
+`type name'
+kernel/ntp.c:485: warning: type defaults to `int' in declaration of 
+`type name'
+kernel/ntp.c:485: warning: type defaults to `int' in declaration of 
+`type name'
+kernel/ntp.c:485: warning: type defaults to `int' in declaration of 
+`type name'
+kernel/ntp.c:485: warning: type defaults to `int' in declaration of 
+`type name'
+kernel/ntp.c: In function `ntp_clear':
+kernel/ntp.c:497: error: `ntp_lock' undeclared (first use in this function)
+kernel/ntp.c:497: warning: type defaults to `int' in declaration of 
+`type name'
+kernel/ntp.c:497: warning: type defaults to `int' in declaration of 
+`type name'
+kernel/ntp.c:497: warning: type defaults to `int' in declaration of 
+`type name'
+kernel/ntp.c:497: warning: type defaults to `int' in declaration of 
+`type name'
+kernel/ntp.c:507: warning: type defaults to `int' in declaration of 
+`type name'
+kernel/ntp.c:507: warning: type defaults to `int' in declaration of 
+`type name'
+kernel/ntp.c:507: warning: type defaults to `int' in declaration of 
+`type name'
+kernel/ntp.c:507: warning: type defaults to `int' in declaration of 
+`type name'
+make[1]: *** [kernel/ntp.o] Error 1
+make: *** [kernel] Error 2
 

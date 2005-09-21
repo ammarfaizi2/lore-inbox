@@ -1,37 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751362AbVIUSgZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751361AbVIUShH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751362AbVIUSgZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 14:36:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbVIUSgZ
+	id S1751361AbVIUShH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 14:37:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbVIUShH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 14:36:25 -0400
-Received: from smtp-103-wednesday.nerim.net ([62.4.16.103]:38413 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S1751362AbVIUSgY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 14:36:24 -0400
-Date: Wed, 21 Sep 2005 20:37:37 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: kronos@kronoz.cjb.net, linux-kernel@vger.kernel.org,
-       Bas Vermeulen <bvermeul@blackstar.nl>
-Subject: Re: 2.6.14-rc1 - kernel BUG at fs/ntfs/aops.c:403
-Message-Id: <20050921203737.5a82ba60.khali@linux-fr.org>
-In-Reply-To: <1127122747.493.5.camel@imp.csi.cam.ac.uk>
-References: <20050917145150.GA5481@dreamland.darkstar.lan>
-	<1127122747.493.5.camel@imp.csi.cam.ac.uk>
-X-Mailer: Sylpheed version 2.0.1 (GTK+ 2.6.1; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 21 Sep 2005 14:37:07 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:19361 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751361AbVIUShF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 14:37:05 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1127324834.11109.26.camel@lade.trondhjem.org> 
+References: <1127324834.11109.26.camel@lade.trondhjem.org>  <5378.1127211442@warthog.cambridge.redhat.com> <12434.1127314090@warthog.cambridge.redhat.com> <20050921101558.7ad7e7d7.akpm@osdl.org> 
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       torvalds@osdl.org, keyrings@linux-nfs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Keys: Add possessor permissions to keys 
+X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
+Date: Wed, 21 Sep 2005 19:36:58 +0100
+Message-ID: <6325.1127327818@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Anton,
+Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
 
-> Below is the fix I just sent off to Linus.
+> 
+> Shouldn't that test for IS_ERR(key_ref) be inverted?
 
-2.6.14-rc2 works for me.
+Yes, and it should come first.
 
-Thanks,
--- 
-Jean Delvare
+David

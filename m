@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751338AbVIURux@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751341AbVIURux@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751338AbVIURux (ORCPT <rfc822;willy@w.ods.org>);
+	id S1751341AbVIURux (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 21 Sep 2005 13:50:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbVIURs4
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751339AbVIURuu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 13:48:56 -0400
-Received: from [151.97.230.9] ([151.97.230.9]:16579 "EHLO ssc.unict.it")
-	by vger.kernel.org with ESMTP id S1751341AbVIURsy (ORCPT
+	Wed, 21 Sep 2005 13:50:50 -0400
+Received: from [151.97.230.9] ([151.97.230.9]:22723 "EHLO ssc.unict.it")
+	by vger.kernel.org with ESMTP id S1751344AbVIURs4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 13:48:54 -0400
+	Wed, 21 Sep 2005 13:48:56 -0400
 From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH 09/10] Uml: use GFP_ATOMIC for allocations under spinlocks.
-Date: Wed, 21 Sep 2005 19:29:28 +0200
+Subject: [PATCH 04/10] uml: fix hang in TT mode on fault
+Date: Wed, 21 Sep 2005 19:28:36 +0200
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: Jeff Dike <jdike@addtoit.com>, user-mode-linux-devel@lists.sourceforge.net,
        linux-kernel@vger.kernel.org
-Message-Id: <20050921172928.10219.63412.stgit@zion.home.lan>
+Message-Id: <20050921172835.10219.94895.stgit@zion.home.lan>
 In-Reply-To: <200509211923.21861.blaisorblade@yahoo.it>
 References: <200509211923.21861.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -23,45 +23,72 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-setup_initial_poll is only called with sigio_lock() held, so use appropriate
-allocation.
+The current code doesn't handle well general protection faults on the host - it
+thinks that cr2 is always the address of a page fault. While actually, on
+general protection faults, that address is not accessible, so we'd better assume
+we couldn't satisfy the fault. Currently instead we think we've fixed it, so we
+go back, retry the instruction and fault again endlessly.
 
-Also, parse_chan() can also be called when holding a spinlock (see line_open()
- -> parse_chan_pair()).
+This leads to the kernel hanging when doing copy_from_user(dest, -1, ...) in TT
+mode, since reading *(-1) causes a GFP, and we don't support kernel preemption.
 
-I have sporadical problems (spinlock taken twice, with spinlock debugging on
-UP) which could be caused by a sequence like "take spinlock, alloc and go to
-sleep, take again the spinlock in the other thread".
+Thanks to Luo Xin for testing UML with LTP and reporting the failures he got.
 
+Cc: Luo Xin <luothing@sina.com>
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- arch/um/drivers/chan_kern.c |    2 +-
- arch/um/kernel/sigio_user.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/um/kernel/trap_kern.c       |   11 ++++++++++-
+ arch/um/kernel/tt/uaccess_user.c |   11 +++++++++--
+ 2 files changed, 19 insertions(+), 3 deletions(-)
 
-diff --git a/arch/um/drivers/chan_kern.c b/arch/um/drivers/chan_kern.c
---- a/arch/um/drivers/chan_kern.c
-+++ b/arch/um/drivers/chan_kern.c
-@@ -465,7 +465,7 @@ static struct chan *parse_chan(char *str
- 	data = (*ops->init)(str, device, opts);
- 	if(data == NULL) return(NULL);
+diff --git a/arch/um/kernel/trap_kern.c b/arch/um/kernel/trap_kern.c
+--- a/arch/um/kernel/trap_kern.c
++++ b/arch/um/kernel/trap_kern.c
+@@ -18,6 +18,7 @@
+ #include "asm/a.out.h"
+ #include "asm/current.h"
+ #include "asm/irq.h"
++#include "sysdep/sigcontext.h"
+ #include "user_util.h"
+ #include "kern_util.h"
+ #include "kern.h"
+@@ -125,7 +126,15 @@ unsigned long segv(struct faultinfo fi, 
+         }
+ 	else if(current->mm == NULL)
+ 		panic("Segfault with no mm");
+-	err = handle_page_fault(address, ip, is_write, is_user, &si.si_code);
++
++	if (SEGV_IS_FIXABLE(&fi))
++		err = handle_page_fault(address, ip, is_write, is_user, &si.si_code);
++	else {
++		err = -EFAULT;
++		/* A thread accessed NULL, we get a fault, but CR2 is invalid.
++		 * This code is used in __do_copy_from_user() of TT mode. */
++		address = 0;
++	}
  
--	chan = kmalloc(sizeof(*chan), GFP_KERNEL);
-+	chan = kmalloc(sizeof(*chan), GFP_ATOMIC);
- 	if(chan == NULL) return(NULL);
- 	*chan = ((struct chan) { .list	 	= LIST_HEAD_INIT(chan->list),
- 				 .primary	= 1,
-diff --git a/arch/um/kernel/sigio_user.c b/arch/um/kernel/sigio_user.c
---- a/arch/um/kernel/sigio_user.c
-+++ b/arch/um/kernel/sigio_user.c
-@@ -340,7 +340,7 @@ static int setup_initial_poll(int fd)
- {
- 	struct pollfd *p;
+ 	catcher = current->thread.fault_catcher;
+ 	if(!err)
+diff --git a/arch/um/kernel/tt/uaccess_user.c b/arch/um/kernel/tt/uaccess_user.c
+--- a/arch/um/kernel/tt/uaccess_user.c
++++ b/arch/um/kernel/tt/uaccess_user.c
+@@ -22,8 +22,15 @@ int __do_copy_from_user(void *to, const 
+ 			       __do_copy, &faulted);
+ 	TASK_REGS(get_current())->tt = save;
  
--	p = um_kmalloc(sizeof(struct pollfd));
-+	p = um_kmalloc_atomic(sizeof(struct pollfd));
- 	if(p == NULL){
- 		printk("setup_initial_poll : failed to allocate poll\n");
- 		return(-1);
+-	if(!faulted) return(0);
+-	else return(n - (fault - (unsigned long) from));
++	if(!faulted)
++		return 0;
++	else if (fault)
++		return n - (fault - (unsigned long) from);
++	else
++		/* In case of a general protection fault, we don't have the
++		 * fault address, so NULL is used instead. Pretend we didn't
++		 * copy anything. */
++		return n;
+ }
+ 
+ static void __do_strncpy(void *dst, const void *src, int count)
 

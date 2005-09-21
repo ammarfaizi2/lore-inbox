@@ -1,66 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751403AbVIUTiu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751404AbVIUTnd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751403AbVIUTiu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 15:38:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751405AbVIUTit
+	id S1751404AbVIUTnd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 15:43:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751405AbVIUTnd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 15:38:49 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:61138 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1751403AbVIUTit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 15:38:49 -0400
-Message-ID: <4331B6A0.9010403@engr.sgi.com>
-Date: Wed, 21 Sep 2005 12:38:08 -0700
-From: Jay Lan <jlan@engr.sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, zh-tw, en, zh-cn, zh-hk
-MIME-Version: 1.0
-To: Frank van Maarseveen <frankvm@frankvm.com>
-CC: Hugh Dickins <hugh@veritas.com>, Christoph Lameter <clameter@engr.sgi.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.14-rc2] fix incorrect mm->hiwater_vm and mm->hiwater_rss
-References: <20050921121915.GA14645@janus> <Pine.LNX.4.61.0509211515330.6114@goblin.wat.veritas.com> <43319111.1050803@engr.sgi.com> <Pine.LNX.4.61.0509211802150.8880@goblin.wat.veritas.com> <4331990A.80904@engr.sgi.com> <Pine.LNX.4.61.0509211835190.9340@goblin.wat.veritas.com> <4331A0DA.5030801@engr.sgi.com> <20050921182627.GB17272@janus> <Pine.LNX.4.61.0509211958410.10449@goblin.wat.veritas.com> <20050921192835.GA18347@janus>
-In-Reply-To: <20050921192835.GA18347@janus>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 21 Sep 2005 15:43:33 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:33042 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751404AbVIUTnd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 15:43:33 -0400
+Date: Wed, 21 Sep 2005 20:43:07 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Alexander Nyberg <alexn@telia.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Pavel Machek <pavel@suse.cz>,
+       Andrew Morton <akpm@osdl.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>, len.brown@intel.com,
+       Pierre Ossman <drzeus-list@drzeus.cx>, acpi-devel@lists.sourceforge.net,
+       ncunningham@cyclades.com, Masoud Sharbiani <masouds@masoud.ir>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/2] suspend: Cleanup calling of power off methods.
+Message-ID: <20050921194306.GC13246@flint.arm.linux.org.uk>
+Mail-Followup-To: Alexander Nyberg <alexn@telia.com>,
+	Linus Torvalds <torvalds@osdl.org>, Pavel Machek <pavel@suse.cz>,
+	Andrew Morton <akpm@osdl.org>,
+	"Eric W. Biederman" <ebiederm@xmission.com>, len.brown@intel.com,
+	Pierre Ossman <drzeus-list@drzeus.cx>,
+	acpi-devel@lists.sourceforge.net, ncunningham@cyclades.com,
+	Masoud Sharbiani <masouds@masoud.ir>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <m1vf0vfa0o.fsf@ebiederm.dsl.xmission.com> <20050921101855.GD25297@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.58.0509210930410.2553@g5.osdl.org> <20050921173630.GA2477@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050921173630.GA2477@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frank van Maarseveen wrote:
-> On Wed, Sep 21, 2005 at 08:19:31PM +0100, Hugh Dickins wrote:
-> 
->>On Wed, 21 Sep 2005, Frank van Maarseveen wrote:
->>
->>>What about calling
->>>
->>>static inline void grow_total_vm(struct mm_struct *mm, unsigned long increase)
->>>{
->>>	mm->total_vm += increase;
->>>	if (mm->total_vm > mm->hiwater_vm)
->>>		mm->hiwater_vm = mm->total_vm;
->>>}
->>>
->>>whenever total_vm is increased and possibly doing something similar for rss at
->>>different places? If it is not on the fast path then it's not necessary to
->>>#ifdef the thing anywhere.
->>
->   ...
-> 
->>But I think you're right that hiwater_vm is best updated where total_vm
->>is: I'm not sure if it covers all cases completely (I think there's one
->>or two places which don't bother to call __vm_stat_account because they
->>believe it won't change anything), but in principle it would make lots of
->>sense to do it in the __vm_stat_account which typically follows adjusting
->>total_vm, as you did, and if possible nowhere else; rather than adding
->>your inline above.
-> 
-> 
-> But update_mem_hiwater() is called at various places too, and I guess that
-> covers merely the total_vm increase, not rss.
+On Wed, Sep 21, 2005 at 07:36:30PM +0200, Alexander Nyberg wrote:
+> Morever bugme.osdl.org is severely underworked (acpi being a noteable
+> exception) and Andrew has stepped in alot there too. Alot of bugs
+> reported on the mailing list are only followed up by Andrew.
 
-That is not true. update_mem_hiwater() also updates hiwater_rss.
+That depends on your point of view.  One of the biggest problems
+bugme has is that not enough of the kernel developers are on it.
 
-> 
-> Maybe above inline should replace update_mem_hiwater()?
-> 
+I originally signed up to bugme to be able to use it as a service
+for those folk who want to report a bug against the new code I look
+after, but (for me) it's turned into a bug reporting system for all
+serial drivers and seemingly its my responsibility to fix them all
+(because I can't assign them to anyone else - I don't even know
+who else is signed up to bugme to be able to give them away.)
 
+And as a direct result of this, I tend to end up rejecting bug
+reports for random serial drivers that I have absolutely no idea
+about just because I can't shift them.  I don't like doing this
+because it means as a whole we're losing valuable bug reports,
+but if I don't take this drastic action, I'd end up with pages
+of unprocessable bugs.
+
+So, before trying to get the "underworked" bug system used more,
+please try to get more developers signed up to it so that we have
+the necessary folk behind the bug system to handle the increased
+work load.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

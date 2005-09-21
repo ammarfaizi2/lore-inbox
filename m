@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964883AbVIUVSs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964897AbVIUVUA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964883AbVIUVSs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 17:18:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964897AbVIUVSs
+	id S964897AbVIUVUA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 17:20:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964920AbVIUVUA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 17:18:48 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:48350 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964883AbVIUVSr (ORCPT
+	Wed, 21 Sep 2005 17:20:00 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:42453 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S964897AbVIUVT7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 17:18:47 -0400
+	Wed, 21 Sep 2005 17:19:59 -0400
+Date: Wed, 21 Sep 2005 23:19:44 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [swsusp] Rework image freeing
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050921205132.GA4249@elf.ucw.cz>
-References: <20050921205132.GA4249@elf.ucw.cz>
-Content-Type: text/plain
-Date: Wed, 21 Sep 2005 14:18:02 -0700
-Message-Id: <1127337482.10664.21.camel@localhost>
+Message-ID: <20050921211944.GB2071@elf.ucw.cz>
+References: <20050921205132.GA4249@elf.ucw.cz> <20050921135834.4fd73447.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050921135834.4fd73447.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-09-21 at 22:51 +0200, Pavel Machek wrote:
-> +static long alloc_image_page(void)
-> +{
-> +       long res = get_zeroed_page(GFP_ATOMIC | __GFP_COLD);
-> +       if (res) {
-> +               SetPageNosave(virt_to_page(res));
-> +               SetPageNosaveFree(virt_to_page(res));
-> +       }
-> +       return res;
-> +}
+Hi!
 
-Please avoid using longs here.  "res" really is a virtual address, and
-it would be polite to keep it in a pointer of some kind.  Returning
-void* would also avoid the two casts in alloc_pagedir().  The same
-probably goes for pbe->address and pbe->orig_address.
+> >
+> > +	for_each_zone(zone) {
+> >  +		for (zone_pfn = 0; zone_pfn < zone->spanned_pages; ++zone_pfn) {
+> >  +			struct page * page;
+> >  +			page = pfn_to_page(zone_pfn + zone->zone_start_pfn);
+> >  +			if (PageNosave(page) && PageNosaveFree(page)) {
+> >  +				ClearPageNosave(page);
+> >  +				ClearPageNosaveFree(page);
+> >  +				free_page((long) page_address(page));
+> >  +			}
+> 
+> There doesn't seem to be much point in converting the pageframe address to
+> a virtual address, then back to a pageframe address.  Why not just do
+> put_page() here?
 
-BTW, I think get_zeroed_page() returns a long to keep people from
-confusing it with the allocator routines that return actual 'struct page
-*', and not the page's virtual address.  So, you really should be
-casting them to real pointers as soon as it comes back from
-get_zeroed_page() and cousins.
+I do not know what put_page does, and free_page() has some friendly
+BUG_ONs. But if I should just do put_page(page); instead of
+free_page((long) page_address(page)), that is okay with me.
 
--- Dave
+[Sound of harddrive seeking and CPU fan going up as test kernel
+compiles].
 
+								Pavel
+
+-- 
+if you have sharp zaurus hardware you don't need... you know my address

@@ -1,70 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750864AbVIUBBx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750861AbVIUBCA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750864AbVIUBBx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 21:01:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750866AbVIUBBx
+	id S1750861AbVIUBCA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 21:02:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750869AbVIUBCA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 21:01:53 -0400
-Received: from xproxy.gmail.com ([66.249.82.205]:32834 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750861AbVIUBBw convert rfc822-to-8bit
+	Tue, 20 Sep 2005 21:02:00 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:30694 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750866AbVIUBB7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 21:01:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=mYPRH7M3rYmv1T/irhcrp1TjZyjuTS/Lv/GGJANkqAxaVB+78d2yGlpnSKWql4uDuZuo4TLjLiO5f6PMlljRyZxcMLDvu4BqyPJmWGu7S1SsHZZPviZOY+5gE3hPDhUunannJw1OLBARto5KVMeY2uOI1TmH9sNP9jiA3oh2kvk=
-Message-ID: <e692861c05092018017ceef484@mail.gmail.com>
-Date: Tue, 20 Sep 2005 21:01:51 -0400
-From: Gregory Maxwell <gmaxwell@gmail.com>
-Reply-To: gmaxwell@gmail.com
-To: "Theodore Ts'o" <tytso@mit.edu>, Pavel Machek <pavel@suse.cz>,
-       Hans Reiser <reiser@namesys.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, thenewme91@gmail.com,
-       Christoph Hellwig <hch@infradead.org>,
-       Denis Vlasenko <vda@ilport.com.ua>, chriswhite@gentoo.org,
-       LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: I request inclusion of reiser4 in the mainline kernel
-In-Reply-To: <20050921000425.GF6179@thunk.org>
+	Tue, 20 Sep 2005 21:01:59 -0400
+Date: Wed, 21 Sep 2005 02:01:55 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: John McCutchan <ttb@tentacle.dhs.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Ray Lee <ray@madrabbit.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Robert Love <rml@novell.com>, Al Viro <viro@ZenIV.linux.org.uk>
+Subject: Re: [patch] stop inotify from sending random DELETE_SELF event under load
+Message-ID: <20050921010154.GR7992@ftp.linux.org.uk>
+References: <20050920045835.GE7992@ftp.linux.org.uk> <1127192784.19093.7.camel@vertex> <20050920051729.GF7992@ftp.linux.org.uk> <76677C3D-D5E0-4B5A-800F-9503DA09F1C3@tentacle.dhs.org> <20050920163848.GO7992@ftp.linux.org.uk> <1127238257.9940.14.camel@localhost> <Pine.LNX.4.58.0509201108120.2553@g5.osdl.org> <20050920182249.GP7992@ftp.linux.org.uk> <Pine.LNX.4.58.0509201234560.2553@g5.osdl.org> <1127256814.749.5.camel@vertex>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200509182004.j8IK4JNx012764@inti.inf.utfsm.cl>
-	 <432E5024.20709@namesys.com> <20050920075133.GB4074@elf.ucw.cz>
-	 <20050921000425.GF6179@thunk.org>
+In-Reply-To: <1127256814.749.5.camel@vertex>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/20/05, Theodore Ts'o <tytso@mit.edu> wrote:
-> The script could be improved by select random locations to damage the
-> filesystem, instead of hard-coding the seek=7 value.  Seek=7 is good
-> for testing ext2/ext3 filesystems, but it may not be ideal for other
-> filesystems.
-
-What would be interesting would be to overwrite random blocks in an
-sub-exponentially increasing fashion, fsck and measure file loss at
-every step. You fail the test if the system panics reading a FS that
-passed a fsck. It would be interesting to chart files lost and files
-silently corrupted over time...
-
-Another interesting thought would be to snapshot a file system over
-and over again while it's got a disk workout suite running on it..
-Then fsck the snapshots, and check for the amount of data loss and
-corruption.
-
-> There is a very interesting paper that I coincidentally just came
-> across today that talks about making filesystems robust against
-> various different forms of failures of modern disk systems.  It is
-> going to be presented at the upcoming 2005 SOSP conference.
+On Tue, Sep 20, 2005 at 06:53:34PM -0400, John McCutchan wrote:
+> Is there some reason we can't just do this from vfs_unlink
 > 
->         http://www.cs.wisc.edu/adsl/Publications/iron-sosp05.pdf
+> inode = dentry->inode;
+> iget (inode);
+> d_delete (dentry);
+> fsnotify_inoderemove (inode);
+> iput (inode);
+> 
+> This would allow us to have immediate event notification, and avoid a
+> race with the inode going away, right?
 
-Very interesting indeed, although it almost seems silly to tackle the
-difficult problem of making filesystems highly robust against oddball
-failure modes while our RAID subsystem falls horribly on it's face in
-the fairly common (and conceptually easy to handle) failure mode of a
-raid-5 where two disks have single unreadable blocks on differing
-parts of the disk. (the current raid system hits one bad block, fails
-the whole disk, then you attempt a rebuild and while reading hits the
-other bad block and downs the array).
+Playing with references to struct inode means playing dirty tricks
+behind the filesystem's back.  Doing that in a way that really changes
+inode lifetime means asking for trouble.  Combined with a dirty trick
+*already* pulled by sys_unlink() to postpone the final iput until after
+we unlock the parent, it means breakage (and aforementioned dirty trick
+took some rather interesting logics to compensate for in the first place).
+
+Moreover, your suggestion would do that to _everyone_, whether they use
+inotify or not.  NAK.
+
+>  static inline void fsnotify_inoderemove(struct inode *inode)
+>  {
+> -	inotify_inode_queue_event(inode, IN_DELETE_SELF, 0, NULL);
+> -	inotify_inode_is_dead(inode);
+> +	inotify_inode_queue_event(inode, IN_DELETE_SELF, inode->i_nlink, NULL);
+> +	if (inode->i_nlink == 0)
+> +		inotify_inode_is_dead(inode);
+>  }
+
+Assumes that filesystem treats ->i_nlink on final iput() in usual way.
+It doesn't have to.
+
+BTW, what happens if one uses inotify on procfs?  Or sysfs, for that matter?
+Fundamental problem with that sucker is that you are playing games with
+lifetime rules of inodes in a way that might be OK for some filesystems,
+but violates a lot of assumptions made by other...
+
+BTW^2, what guarantees that inotify_unmount_inodes() will not happen while we
+are in inotify_release()?  That would happily keep watch refcount bumped,
+so it would outlive inotify_unmount_inodes().  Sure, it would be dropped.
+And call iput() on a pinned inode that had outlived the umount().  Oops...

@@ -1,42 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965102AbVIUWDn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965104AbVIUWHT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965102AbVIUWDn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 18:03:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965103AbVIUWDn
+	id S965104AbVIUWHT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 18:07:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965105AbVIUWHT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 18:03:43 -0400
-Received: from ams-iport-1.cisco.com ([144.254.224.140]:24656 "EHLO
-	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S965102AbVIUWDm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 18:03:42 -0400
-To: "Christopher Friesen" <cfriesen@nortel.com>
-Cc: dipankar@in.ibm.com, Sonny Rao <sonny@burdell.org>,
-       linux-kernel@vger.kernel.org, "Theodore Ts'o" <tytso@mit.edu>,
-       bharata@in.ibm.com, viro@ftp.linux.org.uk, trond.myklebust@fys.uio.no
-Subject: Re: dentry_cache using up all my zone normal memory -- also seen on
- 2.6.14-rc2
-X-Message-Flag: Warning: May contain useful information
-References: <433189B5.3030308@nortel.com> <43318FFA.4010706@nortel.com>
-	<4331B89B.3080107@nortel.com>
-	<20050921200758.GA25362@kevlar.burdell.org>
-	<4331C9B2.5070801@nortel.com> <20050921210019.GF4569@in.ibm.com>
-	<4331CFAD.6020805@nortel.com>
-From: Roland Dreier <rolandd@cisco.com>
-Date: Wed, 21 Sep 2005 15:03:33 -0700
-In-Reply-To: <4331CFAD.6020805@nortel.com> (Christopher Friesen's message of
- "Wed, 21 Sep 2005 15:25:01 -0600")
-Message-ID: <52ll1qkrii.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+	Wed, 21 Sep 2005 18:07:19 -0400
+Received: from rwcrmhc11.comcast.net ([216.148.227.117]:21240 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S965104AbVIUWHS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 18:07:18 -0400
+Message-ID: <4331D997.70603@namesys.com>
+Date: Wed, 21 Sep 2005 15:07:19 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-X-OriginalArrivalTime: 21 Sep 2005 22:03:34.0904 (UTC) FILETIME=[4FBF6F80:01C5BEF8]
+To: Nikita Danilov <nikita@clusterfs.com>
+CC: Nick Piggin <nickpiggin@yahoo.com.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       thenewme91@gmail.com, Christoph Hellwig <hch@infradead.org>,
+       Denis Vlasenko <vda@ilport.com.ua>, chriswhite@gentoo.org,
+       LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>,
+       Nate Diller <ndiller@namesys.com>
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+References: <200509201542.j8KFgh2q011730@laptop11.inf.utfsm.cl>	<43304AF2.8080404@namesys.com>	<17200.21620.684685.966054@gargle.gargle.HOWL>	<4331CDC2.1080300@namesys.com> <17201.53892.148162.340378@gargle.gargle.HOWL>
+In-Reply-To: <17201.53892.148162.340378@gargle.gargle.HOWL>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Christopher> Digging in a bit more, it looks like the files are
-    Christopher> being created/destroyed/renamed in /tmp, which is a
-    Christopher> tmpfs filesystem.
+Nikita Danilov wrote:
 
-Hmm... could there be a race in shmem_rename()??
+>Hans Reiser writes:
+>
+>[...]
+>
+> > >
+> > Yes, and one can compensate for them  fairly cleanly.  I can't say more
+> > without the customer releasing the code first.
+>
+>That's the point: text-book algorithms are usually useless as is. They
+>need adjustments and changes to work in real life.
+>
+>Nikita.
+>
+>
+>  
+>
+Yes, but you want to understand the textbook algorithms first before you
+tweak. If you don't understand why least block number first is inferior
+to real elevator.....
 
- - R.
+There is value to reading the classics of literature, even though they
+are always simplistic compared to real life.
+
+Hans

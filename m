@@ -1,100 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbVIUCPj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbVIUCKW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750724AbVIUCPj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 22:15:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750809AbVIUCPj
+	id S1750734AbVIUCKW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 22:10:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750809AbVIUCKW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 22:15:39 -0400
-Received: from nproxy.gmail.com ([64.233.182.194]:12107 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750724AbVIUCPj convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 22:15:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Neg6p6pXTkTAIjm9fo2bwjftwiciSULgGmgKFbQP2e9I4A9P+ZtsWDm0gOr7DG3AyT11Yw4PvEW582maNE4HuvPPMWyqn+Vav9odAsMU/IwAHS/0kt3qM6IM8IzKTlxoE2Gp/9irKw/JeeY+LVu61Wl7gyKc1AGBrrxu/thSGz8=
-Message-ID: <2cd57c9005092019154758c826@mail.gmail.com>
-Date: Wed, 21 Sep 2005 10:15:35 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: coywolf@gmail.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: readme-update-from-the-stone-age.patch added to -mm tree
-Cc: blaisorblade@yahoo.it, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200509202336.j8KNak00013479@shell0.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200509202336.j8KNak00013479@shell0.pdx.osdl.net>
+	Tue, 20 Sep 2005 22:10:22 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:9867 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750734AbVIUCKW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 22:10:22 -0400
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linus Torvalds <torvalds@osdl.org>, len.brown@intel.com,
+       Pierre Ossman <drzeus-list@drzeus.cx>, acpi-devel@lists.sourceforge.net,
+       ncunningham@cyclades.com, Masoud Sharbiani <masouds@masoud.ir>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/2] suspend: Cleanup calling of power off methods.
+References: <F7DC2337C7631D4386A2DF6E8FB22B30047B8DAF@hdsmsx401.amr.corp.intel.com>
+	<m1d5ngk4xa.fsf@ebiederm.dsl.xmission.com>
+	<Pine.SOC.4.61.0509111140550.9218@math.ut.ee>
+	<m14q8fhc02.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1zmq7fx3v.fsf_-_@ebiederm.dsl.xmission.com>
+	<20050920210617.GA1779@elf.ucw.cz>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 20 Sep 2005 20:08:07 -0600
+In-Reply-To: <20050920210617.GA1779@elf.ucw.cz> (Pavel Machek's message of
+ "Tue, 20 Sep 2005 23:06:17 +0200")
+Message-ID: <m1vf0vfa0o.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/21/05, akpm@osdl.org <akpm@osdl.org> wrote:
-> 
-> The patch titled
-> 
->      README update from the stone age
-> 
-> has been added to the -mm tree.  Its filename is
-> 
->      readme-update-from-the-stone-age.patch
-> 
-> 
-> From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-> 
-> We have no options which the user can set in the Makefile.  Only the
-> EXTRAVERSION, which is also useful in place of the "backup modules"
-> suggestion.
-> 
-> We don't have configuration options in the top Makefile.
-> 
-> Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
-> ---
-> 
->  README |    9 ++++++---
->  1 files changed, 6 insertions(+), 3 deletions(-)
-> 
-> diff -puN README~readme-update-from-the-stone-age README
-> --- 25/README~readme-update-from-the-stone-age  Tue Sep 20 16:36:49 2005
-> +++ 25-akpm/README      Tue Sep 20 16:36:49 2005
-> @@ -149,6 +149,9 @@ CONFIGURING the kernel:
->         "make gconfig"     X windows (Gtk) based configuration tool.
->         "make oldconfig"   Default all questions based on the contents of
->                            your existing ./.config file.
-> +       "make silentoldconfig"
-> +                          Like above, but avoids cluttering the screen
-> +                          with question already answered.
-> 
->         NOTES on "make config":
->         - having unnecessary drivers will make the kernel bigger, and can
-> @@ -169,9 +172,6 @@ CONFIGURING the kernel:
->           should probably answer 'n' to the questions for
->            "development", "experimental", or "debugging" features.
-> 
-> - - Check the top Makefile for further site-dependent configuration
-> -   (default SVGA mode etc).
-> -
->  COMPILING the kernel:
-> 
->   - Make sure you have gcc 2.95.3 available.
-> @@ -199,6 +199,9 @@ COMPILING the kernel:
->     are installing a new kernel with the same version number as your
->     working kernel, make a backup of your modules directory before you
->     do a "make modules_install".
-> +   In alternative, before compiling, edit your Makefile and change the
-> +   "EXTRAVERSION" line - its content is appended to the regular kernel
-> +   version.
+Pavel Machek <pavel@ucw.cz> writes:
 
-This is wrong. You expect users to both do menuconfig and edit top
-Makefile manually?  What is the local version for then?
+> Hi!
+>
+>> In the lead up to 2.6.13 I fixed a large number of reboot
+>> problems by making the calling conventions consistent.  Despite
+>> checking and double checking my work it appears I missed an
+>> obvious one.
+>> 
+>> The S4 suspend code for PM_DISK_PLATFORM was also calling
+>> device_shutdown without setting system_state, and was
+>> not calling the appropriate reboot_notifier.
+>
+> ACK on both. But should not you submit patch via -mm, so it gets at
+> least some testing there?
 
-> 
->   - In order to boot your new kernel, you'll need to copy the kernel
->     image (e.g. .../linux/arch/i386/boot/bzImage after compilation)
-> _
+The code is obviously correct, and the people with the problem
+have reported that this approach solves it.
 
+If this bit of functionality is to even work we need to do
+something like this.
 
--- 
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+So I don't see what benefit putting this in -mm would give.  If
+I was aggressive I would say that this needs to be in 2.6.13.N.
+If I'm not following some procedure I don't have a problem
+changing though.
+
+This is the final fix I know of to get a consistent set of semantics
+for the everything in the ``reboot path''.
+
+>From a practical standpoint I am very tardy in getting this out.
+
+Eric

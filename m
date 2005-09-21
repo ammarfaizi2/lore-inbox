@@ -1,65 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751411AbVIUUME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964804AbVIUUMs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751411AbVIUUME (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 16:12:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751412AbVIUUME
+	id S964804AbVIUUMs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 16:12:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964811AbVIUUMs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 16:12:04 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:35008 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751411AbVIUUMC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 16:12:02 -0400
-Date: Wed, 21 Sep 2005 13:10:19 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: alexn@telia.com, torvalds@osdl.org, pavel@suse.cz, ebiederm@xmission.com,
-       len.brown@intel.com, drzeus-list@drzeus.cx,
-       acpi-devel@lists.sourceforge.net, ncunningham@cyclades.com,
-       masouds@masoud.ir, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] suspend: Cleanup calling of power off methods.
-Message-Id: <20050921131019.21f20e97.akpm@osdl.org>
-In-Reply-To: <20050921194306.GC13246@flint.arm.linux.org.uk>
-References: <m1vf0vfa0o.fsf@ebiederm.dsl.xmission.com>
-	<20050921101855.GD25297@atrey.karlin.mff.cuni.cz>
-	<Pine.LNX.4.58.0509210930410.2553@g5.osdl.org>
-	<20050921173630.GA2477@localhost.localdomain>
-	<20050921194306.GC13246@flint.arm.linux.org.uk>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 21 Sep 2005 16:12:48 -0400
+Received: from 66-23-228-155.clients.speedfactory.net ([66.23.228.155]:6337
+	"EHLO kevlar.burdell.org") by vger.kernel.org with ESMTP
+	id S964804AbVIUUMr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 16:12:47 -0400
+Date: Wed, 21 Sep 2005 16:07:58 -0400
+From: Sonny Rao <sonny@burdell.org>
+To: Christopher Friesen <cfriesen@nortel.com>
+Cc: linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: dentry_cache using up all my zone normal memory -- also seen on 2.6.14-rc2
+Message-ID: <20050921200758.GA25362@kevlar.burdell.org>
+References: <433189B5.3030308@nortel.com> <43318FFA.4010706@nortel.com> <4331B89B.3080107@nortel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4331B89B.3080107@nortel.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
->
-> So, before trying to get the "underworked" bug system used more,
->  please try to get more developers signed up to it so that we have
->  the necessary folk behind the bug system to handle the increased
->  work load.
+On Wed, Sep 21, 2005 at 01:46:35PM -0600, Christopher Friesen wrote:
+> 
+> Just for kicks I tried with 2.6.14-rc2, and got the same behaviour. 
+> /proc/slabinfo gives the following two high-runners within a second of 
+> the oom-killer running:
+> 
+> dentry_cache      3894397 3894961    136   29    1 : tunables  120   60 
+>    0 : slabdata 134307 134309      0
+> filp              1216820 1216980    192   20    1 : tunables  120   60 
+>    0 : slabdata  60844  60849      0
+> 
+> 
 
-They don't actually need to be signed up to bugzilla.  Just cc
-bugme-daemon@kernel-bugs.osdl.org on the email trail and anything with
-'[Bug NNNN]' in Subject: gets filed appropriately.
+If I'm reading this correctly, you seem to have about 1.2 million
+files open and about 3.9 million dentrys objects in lowmem with almost
+no fragmentation..  for those files which are open there certainly
+will be a dentry attached to the inode (how big is inode cache?), but
+the shrinker should be trying to reclaim memory from the other 2.7
+million objects I would think.
 
-So all you need to do forward the email to the relevant culprit and cc
-bugme-daemon@kernel-bugs.osdl.org.  Unfotunately some of the emails which
-bugzilla sends (the [bugme-new] ones) don't actually have
-bugme-daemon@kernel-bugs.osdl.org on the To: or Cc: lines, so you need to
-add that by hand the first time.
+Based on the lack of fragmentation I would guess that either the shrinker isn't
+running or those dentrys are otherwise pinned somehow (parent
+directorys of the open files?)  What does the directory structure look
+like? 
+ 
+Just for kicks (again), have you tried ratcheting up the
+/proc/sys/vm/vfs_cache_pressure tunable by a few orders of magnitude ?
 
-On problem with all this is that once the discussion has gone to email, it
-kinda has to stay that way - if someone goes in and updates the bug via the
-web interface, those people who were getting the info only via direct email
-don't get to see the new info.   Generally that works out OK.
+Probably go from the default of 100 to say 10000 to start.
 
-It would be nice if
+Over one million files open at once is just asking for trouble on a
+lowmem-crippled x86 machine, IMHO.
 
-a) we could add non-bugzilla-account-holders to a bug's cc list and
-
-b) Once bugzilla sees any person either sending or receiving emails or
-   web entries, it autoadds that person to the bug's cc list, so they get
-   email for all further activity.  Could be a bit irritating, but tough
-   luck ;) We need to fix bugs.
-
-
+Sonny

@@ -1,160 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965059AbVIUVxA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965102AbVIUWDn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965059AbVIUVxA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 17:53:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965054AbVIUVxA
+	id S965102AbVIUWDn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 18:03:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965103AbVIUWDn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 17:53:00 -0400
-Received: from tim.rpsys.net ([194.106.48.114]:32437 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S965047AbVIUVw7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 17:52:59 -0400
-Subject: Re: [RFC/BUG?] ide_cs's removable status
-From: Richard Purdie <rpurdie@rpsys.net>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: linux-ide@vger.kernel.org, bzolnier@gmail.com,
-       Dominik Brodowski <linux@dominikbrodowski.net>, Mark Lord <liml@rtr.ca>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-In-Reply-To: <20050921192932.GB13246@flint.arm.linux.org.uk>
-References: <1127319328.8542.57.camel@localhost.localdomain>
-	 <1127321829.18840.18.camel@localhost.localdomain> <433196B6.8000607@rtr.ca>
-	 <1127327243.18840.34.camel@localhost.localdomain>
-	 <20050921192932.GB13246@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Date: Wed, 21 Sep 2005 22:52:44 +0100
-Message-Id: <1127339564.27462.7.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 21 Sep 2005 18:03:43 -0400
+Received: from ams-iport-1.cisco.com ([144.254.224.140]:24656 "EHLO
+	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S965102AbVIUWDm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 18:03:42 -0400
+To: "Christopher Friesen" <cfriesen@nortel.com>
+Cc: dipankar@in.ibm.com, Sonny Rao <sonny@burdell.org>,
+       linux-kernel@vger.kernel.org, "Theodore Ts'o" <tytso@mit.edu>,
+       bharata@in.ibm.com, viro@ftp.linux.org.uk, trond.myklebust@fys.uio.no
+Subject: Re: dentry_cache using up all my zone normal memory -- also seen on
+ 2.6.14-rc2
+X-Message-Flag: Warning: May contain useful information
+References: <433189B5.3030308@nortel.com> <43318FFA.4010706@nortel.com>
+	<4331B89B.3080107@nortel.com>
+	<20050921200758.GA25362@kevlar.burdell.org>
+	<4331C9B2.5070801@nortel.com> <20050921210019.GF4569@in.ibm.com>
+	<4331CFAD.6020805@nortel.com>
+From: Roland Dreier <rolandd@cisco.com>
+Date: Wed, 21 Sep 2005 15:03:33 -0700
+In-Reply-To: <4331CFAD.6020805@nortel.com> (Christopher Friesen's message of
+ "Wed, 21 Sep 2005 15:25:01 -0600")
+Message-ID: <52ll1qkrii.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+X-OriginalArrivalTime: 21 Sep 2005 22:03:34.0904 (UTC) FILETIME=[4FBF6F80:01C5BEF8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A proposed solution/patch:
-[One step further is to totally remove the drive->removable = 1]
+    Christopher> Digging in a bit more, it looks like the files are
+    Christopher> being created/destroyed/renamed in /tmp, which is a
+    Christopher> tmpfs filesystem.
 
-This patch stops CompactFlash devices being marked as removable. They
-are not removable as the media and device are inseparable. When a card
-is removed, the device is removed from the system.
+Hmm... could there be a race in shmem_rename()??
 
-Further, once this change is made, there is no need for ide to
-differentiate between flash and other devices so the is_flash variable
-can be removed from ide_drive_t.
-
-Signed-Off-By: Richard Purdie <rpurdie@rpsys.net> 
-
-Index: linux-2.6.13/drivers/ide/ide-probe.c
-===================================================================
---- linux-2.6.13.orig/drivers/ide/ide-probe.c	2005-08-29 00:41:01.000000000 +0100
-+++ linux-2.6.13/drivers/ide/ide-probe.c	2005-09-21 20:57:34.000000000 +0100
-@@ -125,45 +125,6 @@
- }
- 
- /**
-- *	drive_is_flashcard	-	check for compact flash
-- *	@drive: drive to check
-- *
-- *	CompactFlash cards and their brethern pretend to be removable
-- *	hard disks, except:
-- * 		(1) they never have a slave unit, and
-- *		(2) they don't have doorlock mechanisms.
-- *	This test catches them, and is invoked elsewhere when setting
-- *	appropriate config bits.
-- *
-- *	FIXME: This treatment is probably applicable for *all* PCMCIA (PC CARD)
-- *	devices, so in linux 2.3.x we should change this to just treat all
-- *	PCMCIA  drives this way, and get rid of the model-name tests below
-- *	(too big of an interface change for 2.4.x).
-- *	At that time, we might also consider parameterizing the timeouts and
-- *	retries, since these are MUCH faster than mechanical drives. -M.Lord
-- */
-- 
--static inline int drive_is_flashcard (ide_drive_t *drive)
--{
--	struct hd_driveid *id = drive->id;
--
--	if (drive->removable) {
--		if (id->config == 0x848a) return 1;	/* CompactFlash */
--		if (!strncmp(id->model, "KODAK ATA_FLASH", 15)	/* Kodak */
--		 || !strncmp(id->model, "Hitachi CV", 10)	/* Hitachi */
--		 || !strncmp(id->model, "SunDisk SDCFB", 13)	/* old SanDisk */
--		 || !strncmp(id->model, "SanDisk SDCFB", 13)	/* SanDisk */
--		 || !strncmp(id->model, "HAGIWARA HPC", 12)	/* Hagiwara */
--		 || !strncmp(id->model, "LEXAR ATA_FLASH", 15)	/* Lexar */
--		 || !strncmp(id->model, "ATA_FLASH", 9))	/* Simple Tech */
--		{
--			return 1;	/* yes, it is a flash memory card */
--		}
--	}
--	return 0;	/* no, it is not a flash memory card */
--}
--
--/**
-  *	do_identify	-	identify a drive
-  *	@drive: drive to identify 
-  *	@cmd: command used
-@@ -278,13 +239,17 @@
- 	/*
- 	 * Not an ATAPI device: looks like a "regular" hard disk
- 	 */
--	if (id->config & (1<<7))
--		drive->removable = 1;
- 
--	if (drive_is_flashcard(drive))
--		drive->is_flash = 1;
-+	/* 
-+	 * 0x848a = CompactFlash device 
-+	 * These are *not* removable in Linux definition of the term
-+	 */
-+
-+	if ((id->config != 0x848a) && (id->config & (1<<7)))
-+		drive->removable = 1;
-+
- 	drive->media = ide_disk;
--	printk("%s DISK drive\n", (drive->is_flash) ? "CFA" : "ATA" );
-+	printk("%s DISK drive\n", (id->config == 0x848a) ? "CFA" : "ATA" );
- 	QUIRK_LIST(drive);
- 	return;
- 
-Index: linux-2.6.13/drivers/ide/ide.c
-===================================================================
---- linux-2.6.13.orig/drivers/ide/ide.c	2005-09-19 10:53:59.000000000 +0100
-+++ linux-2.6.13/drivers/ide/ide.c	2005-09-21 20:52:53.000000000 +0100
-@@ -242,7 +242,6 @@
- 		drive->name[2]			= 'a' + (index * MAX_DRIVES) + unit;
- 		drive->max_failures		= IDE_DEFAULT_MAX_FAILURES;
- 		drive->using_dma		= 0;
--		drive->is_flash			= 0;
- 		drive->vdma			= 0;
- 		INIT_LIST_HEAD(&drive->list);
- 		sema_init(&drive->gendev_rel_sem, 0);
-Index: linux-2.6.13/drivers/ide/ide-disk.c
-===================================================================
---- linux-2.6.13.orig/drivers/ide/ide-disk.c	2005-09-19 10:53:59.000000000 +0100
-+++ linux-2.6.13/drivers/ide/ide-disk.c	2005-09-21 20:51:31.000000000 +0100
-@@ -895,11 +895,7 @@
- 	if (drive->id_read == 0)
- 		return;
- 
--	/*
--	 * CompactFlash cards and their brethern look just like hard drives
--	 * to us, but they are removable and don't have a doorlock mechanism.
--	 */
--	if (drive->removable && !(drive->is_flash)) {
-+	if (drive->removable) {
- 		/*
- 		 * Removable disks (eg. SYQUEST); ignore 'WD' drives 
- 		 */
-Index: linux-2.6.13/include/linux/ide.h
-===================================================================
---- linux-2.6.13.orig/include/linux/ide.h	2005-08-29 00:41:01.000000000 +0100
-+++ linux-2.6.13/include/linux/ide.h	2005-09-21 20:56:29.000000000 +0100
-@@ -697,7 +697,6 @@
- 	unsigned noprobe 	: 1;	/* from:  hdx=noprobe */
- 	unsigned removable	: 1;	/* 1 if need to do check_media_change */
- 	unsigned attach		: 1;	/* needed for removable devices */
--	unsigned is_flash	: 1;	/* 1 if probed as flash */
- 	unsigned forced_geom	: 1;	/* 1 if hdx=c,h,s was given at boot */
- 	unsigned no_unmask	: 1;	/* disallow setting unmask bit */
- 	unsigned no_io_32bit	: 1;	/* disallow enabling 32bit I/O */
-
+ - R.

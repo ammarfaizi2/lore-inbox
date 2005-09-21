@@ -1,101 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750819AbVIUAX6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750823AbVIUAdl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750819AbVIUAX6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 20:23:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbVIUAX6
+	id S1750823AbVIUAdl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 20:33:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbVIUAdl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 20:23:58 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:61574 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750819AbVIUAX6 (ORCPT
+	Tue, 20 Sep 2005 20:33:41 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:35720 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750823AbVIUAdk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 20:23:58 -0400
-Date: Tue, 20 Sep 2005 17:23:09 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: jayakumar.alsa@gmail.com
-Cc: perex@suse.cz, mj@ucw.cz, alsa-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.13.1 1/1] CS5535 AUDIO ALSA driver
-Message-Id: <20050920172309.626db866.akpm@osdl.org>
-In-Reply-To: <47f5dce305092017031a2ba375@mail.gmail.com>
-References: <200509190639.j8J6dIM4007948@localhost.localdomain>
-	<20050920152830.7ef6733b.akpm@osdl.org>
-	<47f5dce305092017031a2ba375@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Sep 2005 20:33:40 -0400
+Date: Tue, 20 Sep 2005 17:33:29 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: John McCutchan <ttb@tentacle.dhs.org>
+cc: Al Viro <viro@ftp.linux.org.uk>, Ray Lee <ray@madrabbit.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Robert Love <rml@novell.com>, Al Viro <viro@ZenIV.linux.org.uk>
+Subject: Re: [patch] stop inotify from sending random DELETE_SELF event under
+ load
+In-Reply-To: <1127256814.749.5.camel@vertex>
+Message-ID: <Pine.LNX.4.58.0509201728360.2553@g5.osdl.org>
+References: <1127190971.18595.5.camel@vertex>  <20050920044623.GD7992@ftp.linux.org.uk>
+ <1127191992.19093.3.camel@vertex>  <20050920045835.GE7992@ftp.linux.org.uk>
+ <1127192784.19093.7.camel@vertex>  <20050920051729.GF7992@ftp.linux.org.uk>
+  <76677C3D-D5E0-4B5A-800F-9503DA09F1C3@tentacle.dhs.org> 
+ <20050920163848.GO7992@ftp.linux.org.uk>  <1127238257.9940.14.camel@localhost>
+  <Pine.LNX.4.58.0509201108120.2553@g5.osdl.org>  <20050920182249.GP7992@ftp.linux.org.uk>
+  <Pine.LNX.4.58.0509201234560.2553@g5.osdl.org> <1127256814.749.5.camel@vertex>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jayakumar alsa <jayakumar.alsa@gmail.com> wrote:
->
-> > > +
-> > > +static unsigned short snd_cs5535audio_codec_read(cs5535audio_t *cs5535au,
-> > 
-> > typedefs are unpopular in-kernel.  We generally don't get too fussed if a
-> > driver maintainer really wants them there.  The main objection is that we
-> > now have two names for the same thing.  Plus they cannot be used when
-> > forward-declaring a structure.
+
+
+On Tue, 20 Sep 2005, John McCutchan wrote:
 > 
-> I just used those typedefs in order to match the style in all the
-> other alsa drivers. For example:
+> Is there some reason we can't just do this from vfs_unlink
 > 
-> % egrep typedef $lintree/sound/pci/*.c
-> als4000.c:typedef struct {
-> atiixp.c:typedef struct snd_atiixp atiixp_t;
-> atiixp.c:typedef struct snd_atiixp_dma atiixp_dma_t;
-> atiixp.c:typedef struct snd_atiixp_dma_ops atiixp_dma_ops_t;
-> atiixp.c:typedef struct atiixp_dma_desc {
-> azt3328.c:typedef struct _snd_azf3328 azf3328_t;
-> azt3328.c:typedef struct azf3328_mixer_reg {
-> bt87x.c:typedef struct snd_bt87x bt87x_t;
-> cmipci.c:typedef struct snd_stru_cmipci cmipci_t;
-> <snip>
-> 
-> I'm not sure what to do. I'd be happy to take them out. But I woudn't
-> mind leaving them in if that's what alsa convention is.
+> inode = dentry->inode;
+> iget (inode);
+> d_delete (dentry);
+> fsnotify_inoderemove (inode);
+> iput (inode);
 
-I'd be inclined to stick with the alsa style.  That's just an fyi if you
-plan on working in other places.
+Mainly that it slows things down, and that it's wrong.
 
-> > We have kzalloc() now.
-> 
-> Yes, Takashi pointed that out too. But I did the patch against 13.1
-> which doesn't have kzalloc. I guess I'll redo the patch against -mm
-> and switch to kzalloc.
+The thing is, I don't consider fsnotify_inoderemove() that important.
 
-2.6.14-rc2 has kzalloc().  Generally, patches should only be based on -mm
-if there's other stuff in -mm which they depend upon.
+It is a fundamentally broken interface. We should document it as such. It 
+is _senseless_. 
 
-> > 
-> > > +     addr = (u32)substream->runtime->dma_addr;
-> > 
-> > Nope, _snd_pcm_runtime.addr has type dma_addr_t, which is an opaque type,
-> > 64-bit on some platforms.  I expect this driver will blow up on those
-> > platforms.
-> 
-> The 5535 hw's dma descriptor is only 32 bit capable. I guess I should
-> look into informing the dma alloc that the buffers need to be in the
-> lower 32. Would it be okay to drop the upper then?
+If you want immediate notification of a filename going away, then check 
+the directory. That is something with a _meaning_. 
 
-An IOMMU permits 64-bit platforms to use 32-bit PCI devices.
+But the whole IN_DELETE_SELF is a STUPID INTERFACE.
 
-> >From a practical standpoint, the 5535 is only used in x86-32
-> embeddeded systems so high mem probably won't occur. But you are
-> right, I'll go and try make it right.
+I don't want to have stupid interfaces doing stupid things.
 
-Yup, try to honour the provided type system as much as poss.
+I'm perfectly willing to give an approximate answer if one is easy to 
+give. But there IS no "exact" answer, as shown by the fact that you didn't 
+even know what the semantics should be in the presense of links and 
+keeping a file open.
 
-> > +#define cs_writel(reg, val)    outl(val, (int) cs5535au->port + reg)
-> > +#define cs_writeb(reg, val)    outb(val, (int) cs5535au->port + reg)
-> > +#define cs_readl(reg)          inl((unsigned short) (cs5535au->port + reg))
-> > +#define cs_readw(reg)          inw((unsigned short) (cs5535au->port + reg))
-> > +#define cs_readb(reg)          inb((unsigned short) (cs5535au->port + reg))
-> > 
-> > erk.   subsystem-wide helper macros which reference local variables?
-> 
-> Ok. I'll change that.
+The file still _exists_ when it's open. You can read it, write it, extend
+it, truncate it.. It's only the name that is gone.  So I think delaying 
+the "IN_DELETE_SELF" until you can't do that any more is the RIGHT THING, 
+dammit.
 
-well, again, if that's alsa-style then you might choose to retain it.  But
-it'd be an unpopular approach in most other kernel code.
+All of the problems with the interface have come from expecting semantics 
+that simply aren't _valid_.
 
+Live with the fact that files live on after the name is gone. Embrace it. 
+IT'S HOW THE UNIX WORLD WORKS. Arguing against it is like arguing against 
+gravity.
+
+		Linus

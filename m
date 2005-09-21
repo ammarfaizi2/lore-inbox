@@ -1,141 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751117AbVIUQPi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbVIUQR6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751117AbVIUQPi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 12:15:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbVIUQPh
+	id S1751114AbVIUQR6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 12:17:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbVIUQR6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 12:15:37 -0400
-Received: from tim.rpsys.net ([194.106.48.114]:52128 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S1751111AbVIUQPg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 12:15:36 -0400
-Subject: [RFC/BUG?] ide_cs's removable status
-From: Richard Purdie <rpurdie@rpsys.net>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>, bzolnier@gmail.com,
-       linux-ide@vger.kernel.org
-Content-Type: text/plain
-Date: Wed, 21 Sep 2005 17:15:28 +0100
-Message-Id: <1127319328.8542.57.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+	Wed, 21 Sep 2005 12:17:58 -0400
+Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:6491 "HELO
+	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1751114AbVIUQR5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 12:17:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=OUiS92xxPKNAf34n9mDsORryNwCKZYuV35AmUsMRGFw1znfNhIFrJsNkSU1/77U8maaQ71WtaMOlDgw/gnIvXRtlt76fTFnTspq+Hl8r4zphCVOspawCbftKkjlKxtRh4MjHlZNfVf1T0UiJgcs0JbXWo6Ju9R58giiiEB8nI3c=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: Hugh Dickins <hugh@veritas.com>
+Subject: Re: Remap_file_pages, RSS limits, security implications (was: Re: [uml-devel] Re: [RFC] [patch 0/18] remap_file_pages protection support (for UML), try 3)
+Date: Wed, 21 Sep 2005 18:16:36 +0200
+User-Agent: KMail/1.8.2
+Cc: Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
+References: <200508262023.29170.blaisorblade@yahoo.it> <200509201706.06852.blaisorblade@yahoo.it> <Pine.LNX.4.61.0509211547270.6584@goblin.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.61.0509211547270.6584@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509211816.37512.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a handheld system that takes compact flash memory cards and uses
-ide_cs to interface to them. I've been trying to kill off a load of
-hotplug scripts and switch to using udev. As HAL is too bloated for the
-handheld, I hacked some evil auto-mount udev scripts together. When I
-insert a memory card, I see the disk get repeatedly mounted and
-unmounted in a loop.
+On Wednesday 21 September 2005 17:16, Hugh Dickins wrote:
+> On Tue, 20 Sep 2005, Blaisorblade wrote:
+> > On Wednesday 07 September 2005 14:00, Hugh Dickins wrote:
 
-I realise auto-mounting via udev is evil but I think this highlights a
-kernel driver issue.
+> > Ahh, ok... VM_MAYSHARE is the recorded MAP_SHARED, while VM_SHARED says
+> > whether the pages are actually shared and writable.
 
-I'm seeing the following sequence of events:
+> That's it (let's say "potentially writable" - VM_SHARED says they're
+> shared and already writable or shared and could be mprotected writable).
 
-1. I insert the card
-2. The partitions are scanned and block devices are created
-3. udev creates the device nodes
-4. udev triggers my mount script which mounts the device
-5. mounting the device triggers check_disk_change() in block_dev.c
-6. The bd_invalidated flag is set
-7. rescan_partitions is hence called
-8. the block devices are destroyed
-9. goto 2
+> It is confusing, but it's been that way for years, and once you grasp it,
+> you like to keep it that way, so as to feel superior to everyone else ;)
 
-As ide_cs only creates the block devices when a card is present, I think
-it shouldn't be set as removable. As a point of reference, the MMC
-system does not set the removable flag for exactly this reason (There is
-an email from Russell King explaining this -
-http://lkml.org/lkml/2005/1/8/165).
+> > > Though thinking through that again now, the user of the nonlinear vma
+> > > is penalized,
 
-It is worth noting the MMC subsystem works with my evil udev script. If
-I apply the patch below (which removes the removable flag for flash
-devices), I don't see this loop.
+> > Where? Not in the page fault path.... it's as penalized as the rest of
+> > the system. Or will direct reclaim have a preference for pages of the
+> > calling process?
 
-With the patch below, the is_flash variable can actually be removed as
-its only useful purpose is in ide-disk.c in a "if (drive->removable
-&& !(drive->is_flash)) {" statement...
+> Not in the page fault path, no; and no, direct reclaim doesn't have that
+> preference (sounds quite a good idea, but would need a different way of
+> choosing pages to free, and would conflict with the swap token idea?).
 
-I'm wondering if one of the more experienced IDE developers could give
-some insight into which drivers use bits of code at the end of
-do_identify() in ide-probe.c. Some questions:
+> I meant in reclaim: that since try_to_unmap_cluster makes such poor
+> choices of what to reclaim, and tries to reclaim more than asked because
+> it's unable to target the page in question, I'd expect the user of a
+> nonlinear vma to suffer more thrashing under memory pressure.
 
-1. Can anyone provide details on what the bits in id->config really
-mean?  
-2. Which other drivers exploit the "if (id->config & (1<<7))
-drive->removable = 1;" code? Is it just ide_cs?
-3. Do any other drivers expose flash interfaces in the same way ide_cs
-does but with "proper" removable media handling where the block device
-is persistent?
+Other pages in the VMA may be unmapped, yes, but not freed. In fact, they're 
+kept in by the pagecache reference; try_to_unmap() (or better its caller, 
+shrink_list) will only actually free the page it asked for.
 
-If ide_cs is the only user of this code, there is scope for a reasonable
-amount of cleanup here. Other than the ATAPI drivers, I can't see any
-with special removable handling which leads me to believe none of this
-code is required.
+The only real "problem" is that we do ptep_clear_flush_young without 
+activating the page. And yes, *this* may penalize who holds a nonlinear VMA. 
+But this is probably fair, given that we're going to have trouble in freeing 
+those pages.
 
-Comments welcome as I can't help feeling there's something I've missed.
-I'll write a neater patch if there is some agreement on what needs to be
-done.
+> > So, it would really be better to actually enforce the RSS rlimit when
+> > mapping in pages in *nonlinear* areas (and fallback on setting file PTE's
+> > like on NONBLOCK & page not in cache), rather than the "current" Rik's
+> > idea of marking pages as inactive on memory-hog processes.
 
-Richard
+> I'd go mad if I delved into these issues, luckily we have suckers like Rik
+> and Nick and Con who are prepared to give their lives to such endless
+> tuning.
 
+> > But oh, right in mm/trash.c, the code which should do part of this is
+> > fully commented out - and it was in the very first version of the code
+> > (looking through bkcvs-git repository).
 
-Index: linux-2.6.13/drivers/ide/ide-probe.c
-===================================================================
---- linux-2.6.13.orig/drivers/ide/ide-probe.c	2005-08-29 00:41:01.000000000 +0100
-+++ linux-2.6.13/drivers/ide/ide-probe.c	2005-09-21 16:57:15.000000000 +0100
-@@ -147,19 +147,19 @@
- {
- 	struct hd_driveid *id = drive->id;
- 
--	if (drive->removable) {
--		if (id->config == 0x848a) return 1;	/* CompactFlash */
--		if (!strncmp(id->model, "KODAK ATA_FLASH", 15)	/* Kodak */
--		 || !strncmp(id->model, "Hitachi CV", 10)	/* Hitachi */
--		 || !strncmp(id->model, "SunDisk SDCFB", 13)	/* old SanDisk */
--		 || !strncmp(id->model, "SanDisk SDCFB", 13)	/* SanDisk */
--		 || !strncmp(id->model, "HAGIWARA HPC", 12)	/* Hagiwara */
--		 || !strncmp(id->model, "LEXAR ATA_FLASH", 15)	/* Lexar */
--		 || !strncmp(id->model, "ATA_FLASH", 9))	/* Simple Tech */
--		{
--			return 1;	/* yes, it is a flash memory card */
--		}
-+	if (id->config == 0x848a) return 1;	/* CompactFlash */
-+
-+	if (!strncmp(id->model, "KODAK ATA_FLASH", 15)	/* Kodak */
-+	 || !strncmp(id->model, "Hitachi CV", 10)	/* Hitachi */
-+	 || !strncmp(id->model, "SunDisk SDCFB", 13)	/* old SanDisk */
-+	 || !strncmp(id->model, "SanDisk SDCFB", 13)	/* SanDisk */
-+	 || !strncmp(id->model, "HAGIWARA HPC", 12)	/* Hagiwara */
-+	 || !strncmp(id->model, "LEXAR ATA_FLASH", 15)	/* Lexar */
-+	 || !strncmp(id->model, "ATA_FLASH", 9))	/* Simple Tech */
-+	{
-+		return 1;	/* yes, it is a flash memory card */
- 	}
-+
- 	return 0;	/* no, it is not a flash memory card */
- }
- 
-@@ -278,11 +278,15 @@
- 	/*
- 	 * Not an ATAPI device: looks like a "regular" hard disk
- 	 */
-+
- 	if (id->config & (1<<7))
- 		drive->removable = 1;
- 
--	if (drive_is_flashcard(drive))
-+	if (drive_is_flashcard(drive)) {
- 		drive->is_flash = 1;
-+		drive->removable = 0;
-+	}
-+	
- 	drive->media = ide_disk;
- 	printk("%s DISK drive\n", (drive->is_flash) ? "CFA" : "ATA" );
- 	QUIRK_LIST(drive);
+> mm/trash.c?  I got quite excited,
+What would that have meant?
+> but now it looks like you just mean 
+> mm/thrash.c.
+Yes.
+> Yawn. 
+
+-- 
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
 
 	
 
+	
+		
+___________________________________ 
+Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
+http://mail.yahoo.it

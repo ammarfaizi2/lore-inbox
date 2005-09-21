@@ -1,47 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbVIUIwc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbVIUI53@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750774AbVIUIwc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 04:52:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbVIUIwc
+	id S1750764AbVIUI53 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 04:57:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbVIUI53
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 04:52:32 -0400
-Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:16770 "EHLO
-	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1750774AbVIUIwc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 04:52:32 -0400
-From: Grant Coady <grant_lkml@dodo.com.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "J.A. Magallon" <jamagallon@able.es>, linux-kernel@vger.kernel.org,
-       Jean Delvare <khali@linux-fr.org>, Greg KH <greg@kroah.com>
-Subject: Re: one more oops on sensor modules removal
-Date: Wed, 21 Sep 2005 18:52:06 +1000
-Organization: http://bugsplatter.mine.nu/
-Reply-To: gcoady@gmail.com
-Message-ID: <u562j19ssinm946odbib7lqfrij1hm8dst@4ax.com>
-References: <20050916022319.12bf53f3.akpm@osdl.org> <20050921004230.64ed395d@werewolf.able.es> <20050920225647.167325f7.akpm@osdl.org>
-In-Reply-To: <20050920225647.167325f7.akpm@osdl.org>
-X-Mailer: Forte Agent 2.0/32.652
+	Wed, 21 Sep 2005 04:57:29 -0400
+Received: from omta01sl.mx.bigpond.com ([144.140.92.153]:27644 "EHLO
+	omta01sl.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1750764AbVIUI52 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 04:57:28 -0400
+Message-ID: <43312071.7000809@eyal.emu.id.au>
+Date: Wed, 21 Sep 2005 18:57:21 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050817)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: A pettiness question.
+References: <43311071.8070706@ccoss.com.cn> <200509211200.06274.dr_unique@ymg.ru>
+In-Reply-To: <200509211200.06274.dr_unique@ymg.ru>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Sep 2005 22:56:47 -0700, Andrew Morton <akpm@osdl.org> wrote:
->
->Is 2.6.14-rc2 OK?
+Ustyugov Roman wrote:
+>>Hi, All.
+>>
+>>    I found there are use double operator ! continuously sometimes in
+>>kernel.
+>>e.g:
+>>
+>>    static inline int is_page_cache_freeable(struct page *page)
+>>    {
+>>        return page_count(page) - !!PagePrivate(page) == 2;
+>>    }
+>>
+>>    Who would like tell me why write like above?
+>>
+>>
+>>    Thanks in advanced.
+>>
+>>
+>>Liyu
+> 
+> 
+> For example,
+> 
+> 	int test = 5;
+> 	!test will be  0,  !!test will be 1.
+> 
+> This give a enum of {0,1}. If test is not 0, !!test will give 1, otherwise 0.
+> 
+> Am I right?
 
-It is here :o)
+Yes, !! converts {zero,not-zero} to {0,1} which is useable
+in arithmetic.
 
-In one terminal:
-  'while [ 1 ]; do sensors; done', 
-
-in another:
-  'while [ 1 ]; do rmmod w83627hf; sleep 1; modprobe w83627hf; sleep 1; done'
-
-
-Is fine in -rc2, but same test on 2.6.14-rc1 locked up with a busy error 
-a couple times on rmmod during ~ 30 seconds or so, something has changed 
-and improved.
-
-Grant.
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

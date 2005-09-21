@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbVIUQfv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751119AbVIUQrb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751141AbVIUQfv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 12:35:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbVIUQfv
+	id S1751119AbVIUQrb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 12:47:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbVIUQrG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 12:35:51 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:8670 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751141AbVIUQfu (ORCPT
+	Wed, 21 Sep 2005 12:47:06 -0400
+Received: from [151.97.230.9] ([151.97.230.9]:32654 "EHLO ssc.unict.it")
+	by vger.kernel.org with ESMTP id S1751124AbVIUQrC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 12:35:50 -0400
-Date: Wed, 21 Sep 2005 09:35:20 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>
-cc: "Eric W. Biederman" <ebiederm@xmission.com>, len.brown@intel.com,
-       Pierre Ossman <drzeus-list@drzeus.cx>, acpi-devel@lists.sourceforge.net,
-       ncunningham@cyclades.com, Masoud Sharbiani <masouds@masoud.ir>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/2] suspend: Cleanup calling of power off methods.
-In-Reply-To: <20050921101855.GD25297@atrey.karlin.mff.cuni.cz>
-Message-ID: <Pine.LNX.4.58.0509210930410.2553@g5.osdl.org>
-References: <m1vf0vfa0o.fsf@ebiederm.dsl.xmission.com>
- <20050921101855.GD25297@atrey.karlin.mff.cuni.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 21 Sep 2005 12:47:02 -0400
+From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
+Subject: [PATCH 09/10] uml: comment about cast build fix
+Date: Wed, 21 Sep 2005 18:40:29 +0200
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jeff Dike <jdike@addtoit.com>, user-mode-linux-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Message-Id: <20050921164028.30500.13294.stgit@zion.home.lan>
+In-Reply-To: <200509211822.17590.blaisorblade@yahoo.it>
+References: <200509211822.17590.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
+Explain why the casting we do to silence this warning is indeed safe.
 
-On Wed, 21 Sep 2005, Pavel Machek wrote:
-> 
-> I think you are not following the proper procedure. All the patches
-> should go through akpm.
+It is because the field we're casting from, though being 64-bit wide, was filled
+with a pointer in first place by ourselves.
 
-One issue is that I actually worry that Andrew will at some point be where 
-I was a couple of years ago - overworked and stressed out by just tons and 
-tons of patches. 
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
 
-Yes, he's written/modified tons of patch-tracking tools, and the git 
-merging hopefully avoids some of the pressures, but it still worries me. 
-If Andrew burns out, we'll all suffer hugely.
+ arch/um/os-Linux/aio.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-I'm wondering what we can do to offset those kinds of issues. I _do_ like 
-having -mm as a staging area and catching some problems there, so going 
-through andrew is wonderful in that sense, but it has downsides.
+diff --git a/arch/um/os-Linux/aio.c b/arch/um/os-Linux/aio.c
+--- a/arch/um/os-Linux/aio.c
++++ b/arch/um/os-Linux/aio.c
+@@ -144,6 +144,7 @@ static int aio_thread(void *arg)
+                                "errno = %d\n", errno);
+                 }
+                 else {
++			/* This is safe as we've just a pointer here. */
+ 			aio = (struct aio_context *) (long) event.data;
+ 			if(update_aio(aio, event.res)){
+ 				do_aio(ctx, aio);
 
-Andrew?
-
-			Linus

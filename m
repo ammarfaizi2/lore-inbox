@@ -1,73 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbVIUAbN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750845AbVIUAoY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750702AbVIUAbN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 20:31:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbVIUAbN
+	id S1750845AbVIUAoY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 20:44:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750851AbVIUAoY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 20:31:13 -0400
-Received: from smtpout.mac.com ([17.250.248.73]:1730 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1750702AbVIUAbN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 20:31:13 -0400
-In-Reply-To: <2CB9FE03B6DBB54AAD7193A44499D6242C9B96@satluj1.lums.edu.pk>
-References: <2CB9FE03B6DBB54AAD7193A44499D6242C9B96@satluj1.lums.edu.pk>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <497A33BB-A83C-437A-ADD7-1E747EA860BA@mac.com>
-Cc: LKML Kernel <linux-kernel@vger.kernel.org>, Dave Airlie <airlied@linux.ie>
+	Tue, 20 Sep 2005 20:44:24 -0400
+Received: from rwcrmhc12.comcast.net ([204.127.198.43]:27352 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1750845AbVIUAoX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 20:44:23 -0400
+Message-ID: <4330ACE2.8000909@namesys.com>
+Date: Tue, 20 Sep 2005 17:44:18 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ric Wheeler <ric@emc.com>, vitaly@thebsh.namesys.com
+CC: "Theodore Ts'o" <tytso@mit.edu>, Pavel Machek <pavel@suse.cz>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, thenewme91@gmail.com,
+       Christoph Hellwig <hch@infradead.org>,
+       Denis Vlasenko <vda@ilport.com.ua>, chriswhite@gentoo.org,
+       LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+References: <200509182004.j8IK4JNx012764@inti.inf.utfsm.cl> <432E5024.20709@namesys.com> <20050920075133.GB4074@elf.ucw.cz> <20050921000425.GF6179@thunk.org> <4330A8F2.7010903@emc.com>
+In-Reply-To: <4330A8F2.7010903@emc.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: In-kernel graphics subsystem
-Date: Tue, 20 Sep 2005 20:30:31 -0400
-To: Athar Hameed <06020051@lums.edu.pk>
-X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 20, 2005, at 20:05:15, Athar Hameed wrote:
-> We have this idea of integrating a graphics subsystem with the  
-> kernel and doing away with the X server.
+Ric Wheeler wrote:
 
-Don't, please!  Graphics cards are way too complex to consider  
-putting a whole OpenGL or windowing layer into the kernel.
+> As an earlier thread on lkml showed this summer, we still have a long
+> way to go to getting consistent error semantics in face of media
+> failures between the various file systems.  I am not sure that we even
+> have consensus on what that default behavior should be between
+> developers, so image how difficult life is for application writers who
+> want to try to ride through or write automated "HA" recovery scripts
+> for systems with large numbers of occasionally flaky IO devices ;-)
 
-> We are not really sure if this is a wise thing to do.
+If you'd like to form a committee to standardize these things, I will
+ask Vitaly to work with you on that committee, and to have ReiserFS3+4
+conform to the standards that result.
 
-It's not.
-
-> It hasn't been done before.
-
-It has.  See http://fbui.org/  Please note that most kernel  
-developers do not think it's a good idea.  We have several interfaces  
-(framebuffer, DRM, etc) provided to userspace to make it really easy  
-to do such things there.
-
-If you want to do something useful for graphics in the Linux kernel,  
-you might ask Dave Arlie what he needs help with (I've CCed him).  I  
-think that the current list (not in any kind of order), includes a  
-generic platform-independent VGA arbiter and a safe kernel/userspace  
-API for submitting commands to graphics cards so that the X server  
-doesn't need to mmap /dev/mem and manually bang on the PCI busses.   
-Also, a reliable system to freeze GPU activity, reset the GPU, and  
-display a panic message would be helpful.  Dave can probably give you  
-more information about this stuff.
-
-You might also think about a console program that uses the  
-framebuffer and input subsystem, so that it is possible to put  
-multiple graphics cards in a single box and have multiple independent  
-consoles (One on each GPU).
-
-If you feel like doing something X.org related, you could go ask on  
-the x.org mailing lists, I'm sure they'd welcome the extra help.
-
-Cheers,
-Kyle Moffett
-
---
-There are two ways of constructing a software design. One way is to  
-make it so simple that there are obviously no deficiencies. And the  
-other way is to make it so complicated that there are no obvious  
-deficiencies.  The first method is far more difficult.
-   -- C.A.R. Hoare
-
-
+Hans

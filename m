@@ -1,47 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751415AbVIUVMc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964808AbVIUVOt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751415AbVIUVMc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 17:12:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750786AbVIUVMc
+	id S964808AbVIUVOt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 17:14:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964843AbVIUVOt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 17:12:32 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:22934 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751415AbVIUVMb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 17:12:31 -0400
-Subject: Re: [swsusp] Rework image freeing
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050921205132.GA4249@elf.ucw.cz>
-References: <20050921205132.GA4249@elf.ucw.cz>
-Content-Type: text/plain
-Date: Wed, 21 Sep 2005 14:11:50 -0700
-Message-Id: <1127337110.10664.15.camel@localhost>
+	Wed, 21 Sep 2005 17:14:49 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:58821 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S964808AbVIUVOt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 17:14:49 -0400
+Date: Wed, 21 Sep 2005 22:14:38 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: Christopher Friesen <cfriesen@nortel.com>, Sonny Rao <sonny@burdell.org>,
+       linux-kernel@vger.kernel.org, "Theodore Ts'o" <tytso@mit.edu>,
+       bharata@in.ibm.com
+Subject: Re: dentry_cache using up all my zone normal memory -- also seen on 2.6.14-rc2
+Message-ID: <20050921211438.GC7992@ftp.linux.org.uk>
+References: <433189B5.3030308@nortel.com> <43318FFA.4010706@nortel.com> <4331B89B.3080107@nortel.com> <20050921200758.GA25362@kevlar.burdell.org> <4331C9B2.5070801@nortel.com> <20050921210019.GF4569@in.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050921210019.GF4569@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-09-21 at 22:51 +0200, Pavel Machek wrote:
-> +void swsusp_free(void)
-...
-> +       for_each_zone(zone) {
-> +               for (zone_pfn = 0; zone_pfn < zone->spanned_pages; ++zone_pfn) {
-> +                       struct page * page;
-> +                       page = pfn_to_page(zone_pfn + zone->zone_start_pfn);
-> +                       if (PageNosave(page) && PageNosaveFree(page)) {
-> +                               ClearPageNosave(page);
-> +                               ClearPageNosaveFree(page);
-> +                               free_page((long) page_address(page));
-> +                       }
->                 }
->         }
+On Thu, Sep 22, 2005 at 02:30:20AM +0530, Dipankar Sarma wrote:
+> > unlink("./rename14");
+> > close(fd);
+> > 
+> > thread 2 spins doing:
+> > rename("./rename14", "./rename14xyz");
+> 
+> Ewww.. Looks like a leak due to a race.
 
-This won't work with discontiguous page ranges.  Due to sparsemem you
-can run into pages in the middle of a zone where pfn_to_page() doesn't
-work.  I'd suggest adding a pfn_valid() check in there.  
-
--- Dave
-
+Looks like sillyrename being b0rken, if that's NFS...

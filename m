@@ -1,63 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbVIUJaM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750802AbVIUJmU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750782AbVIUJaM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 05:30:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbVIUJaM
+	id S1750802AbVIUJmU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 05:42:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbVIUJmU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 05:30:12 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:64519
-	"EHLO x30.random") by vger.kernel.org with ESMTP id S1750782AbVIUJaL
+	Wed, 21 Sep 2005 05:42:20 -0400
+Received: from oban.houtzager.net ([217.77.130.26]:60073 "EHLO
+	oban.houtzager.net") by vger.kernel.org with ESMTP id S1750797AbVIUJmT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 05:30:11 -0400
-Date: Wed, 21 Sep 2005 11:30:07 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Fawad Lateef <fawadlateef@gmail.com>
-Cc: Ustyugov Roman <dr_unique@ymg.ru>, liyu <liyu@ccoss.com.cn>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: A pettiness question.
-Message-ID: <20050921093007.GA11144@x30.random>
-References: <43311071.8070706@ccoss.com.cn> <200509211200.06274.dr_unique@ymg.ru> <1e62d13705092102012f0a5c9c@mail.gmail.com>
+	Wed, 21 Sep 2005 05:42:19 -0400
+Subject: Re: OOPS in raid10.c:1448 in vanilla 2.6.13.2
+From: Guus Houtzager <guus@luna.nl>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
+In-Reply-To: <17201.6713.60861.781073@cse.unsw.edu.au>
+References: <1127234670.2893.103.camel@localhost>
+	 <17201.6713.60861.781073@cse.unsw.edu.au>
+Content-Type: text/plain
+Organization: Luna.nl BV
+Date: Wed, 21 Sep 2005 11:42:06 +0200
+Message-Id: <1127295726.5136.22.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1e62d13705092102012f0a5c9c@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 21, 2005 at 02:01:11PM +0500, Fawad Lateef wrote:
-> On 9/21/05, Ustyugov Roman <dr_unique@ymg.ru> wrote:
-> > > Hi, All.
-> > >
-> > >     I found there are use double operator ! continuously sometimes in
-> > > kernel.
-> > > e.g:
-> > >
-> > >     static inline int is_page_cache_freeable(struct page *page)
-> > >     {
-> > >         return page_count(page) - !!PagePrivate(page) == 2;
-> > >     }
-> > >
-> > >     Who would like tell me why write like above?
-> > 
-> > For example,
-> > 
-> >         int test = 5;
-> >         !test will be  0,  !!test will be 1.
-> > 
-> > This give a enum of {0,1}. If test is not 0, !!test will give 1, otherwise 0.
-> > 
-> > Am I right?
+Hi,
+
+First of all: thanks for the speedy reply! Both patches applied cleanly
+to 2.6.13.2 and work as expected. No more oops :) I hope these patches
+make it into the next stable release of the 2.6.13 branch.
+
+On Wed, 2005-09-21 at 10:30 +0200, Neil Brown wrote:
+
+<snip>
+
+> > Filesystem on /mnt stays usable during all this (slight hickup when a
+> > disk is removed, but keeps going)
+> > Then reinserted sdc. To get it resynced I did:
+> > # mdadm /dev/md1 -r /dev/sdc2
+> > # mdadm /dev/md1 -a /dev/sdc2
+> > And it happily resynced and made sdc2 healthy again.
 > 
-> Yes, but what abt the above case/example ??? PagePrivate is defined as
-> test_bit and test_bit will return 0 or 1 only ...... So y there is (
-> !! )  ??
+> now
+>    sda2 sdc2 missing sdd2
+> 
+> note that sdc2 took the first empty slot.
 
-Note that gcc should optimize it away as long as the asm*/bitops is
-doing "return something != 0" like most archs do.
+That's where I went wrong. I thought it would take it's "old" place
+again at the second empty slot.
 
-Most of the time test_bit retval is checked against zero only, here it's
-one of the few cases where it's required to be 1 or 0. If you audit all
-archs then you can as well remove the !! from above.
+<snip the rest>
 
-Thanks!
+Thanks again!
+
+Regards,
+
+Guus Houtzager
+-- 
+                              Luna.nl B.V.
+                Puntegaalstraat 109 * 3024 EB Rotterdam
+              T 010 7502000 * F 010 7502002 * www.luna.nl
+
+
+

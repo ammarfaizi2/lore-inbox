@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbVIUIPq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbVIUIRM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750761AbVIUIPq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 04:15:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbVIUIPq
+	id S1750763AbVIUIRM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 04:17:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbVIUIRM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 04:15:46 -0400
-Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:45065 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1750736AbVIUIPp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 04:15:45 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Subject: Re: RFC: struct netdevice changes for IPoIB UC support
-Cc: openib-general@openib.org, netdev@vger.kernel.org, davem@davemloft.net,
-       linux-kernel@vger.kernel.org, gdror@mellanox.co.il
-Organization: Core
-In-Reply-To: <20050921080230.GE18449@mellanox.co.il>
-X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1EHzlD-0004eE-00@gondolin.me.apana.org.au>
-Date: Wed, 21 Sep 2005 18:15:23 +1000
+	Wed, 21 Sep 2005 04:17:12 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:23235 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750763AbVIUIRL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 04:17:11 -0400
+To: stephen.pollei@gmail.com
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Nikita Danilov <nikita@clusterfs.com>,
+       Denis Vlasenko <vda@ilport.com.ua>, LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+References: <nikita@clusterfs.com>
+	<17197.15183.235861.655720@gargle.gargle.HOWL>
+	<200509192316.j8JNFxY8030819@inti.inf.utfsm.cl>
+	<feed8cdd0509192057e1aa9e3@mail.gmail.com>
+	<or4q8fvd6r.fsf@livre.oliva.athome.lsd.ic.unicamp.br>
+	<feed8cdd050920155714510453@mail.gmail.com>
+From: Alexandre Oliva <aoliva@redhat.com>
+Organization: Red Hat Global Engineering Services Compiler Team
+Date: Wed, 21 Sep 2005 05:15:30 -0300
+In-Reply-To: <feed8cdd050920155714510453@mail.gmail.com> (Stephen Pollei's
+ message of "Tue, 20 Sep 2005 15:57:31 -0700")
+Message-ID: <or1x3i3kgt.fsf@livre.oliva.athome.lsd.ic.unicamp.br>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael S. Tsirkin <mst@mellanox.co.il> wrote:
-> 
-> Please comment on this approach: does it make sense to you guys?
-> Please Cc me directly, I'm not on the list.
+On Sep 20, 2005, Stephen Pollei <stephen.pollei@gmail.com> wrote:
 
-Sorry, this doesn't make sense.  
- 
-> static inline u32 dst_mtu(const struct dst_entry *dst)
-> {
-> -       u32 mtu = dst_metric(dst, RTAX_MTU);
-> +       u32 mtu;
-> +       if (dst->dev && dst->dev->get_mtu)
-> +               mtu = dst->dev->get_mtu(dst->dev, dst->neighbour,
-> +                                       dst_metric(dst, RTAX_MTU));
-> +       else
-> +               mtu = dst_metric(dst, RTAX_MTU);
+> it takes gcc -Wall test_proto.c --std=c99 -pedantic-errors to cause it
+> not to create the a.out .
+> So gcc should have caused an error as I didn't set --std=gnu99 .. bad compiler.
+> So I don't know howto get gcc to follow the standards in this area,
+> that sounds like a good thing to require.
 
->From this I gather that for a given dst the MTU is actually constant.
-That is, it only varies across different dst's.
+gnu99 is the default.  Also, the standard doesn't talk about errors or
+warnings, it only requires diagnostics for ill-formed code.  Deciding
+what kind of diagnostic to issue is a compiler implementation
+decision.
 
-In this case you should calculate the correct MTU when the dst is
-created rather than here.
-
-Cheers,
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Alexandre Oliva         http://www.lsd.ic.unicamp.br/~oliva/
+Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
+Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}

@@ -1,55 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751367AbVIUUGA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751411AbVIUUME@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751367AbVIUUGA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 16:06:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751408AbVIUUGA
+	id S1751411AbVIUUME (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 16:12:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751412AbVIUUME
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 16:06:00 -0400
-Received: from mail23.sea5.speakeasy.net ([69.17.117.25]:11701 "EHLO
-	mail23.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1751367AbVIUUF7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 16:05:59 -0400
-Date: Wed, 21 Sep 2005 13:05:59 -0700 (PDT)
-From: Vadim Lobanov <vlobanov@speakeasy.net>
-To: Nick Warne <nick@linicks.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: A pettiness question.
-In-Reply-To: <200509212046.15793.nick@linicks.net>
-Message-ID: <Pine.LNX.4.58.0509211305250.24543@shell4.speakeasy.net>
-References: <200509212046.15793.nick@linicks.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 21 Sep 2005 16:12:04 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:35008 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751411AbVIUUMC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 16:12:02 -0400
+Date: Wed, 21 Sep 2005 13:10:19 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: alexn@telia.com, torvalds@osdl.org, pavel@suse.cz, ebiederm@xmission.com,
+       len.brown@intel.com, drzeus-list@drzeus.cx,
+       acpi-devel@lists.sourceforge.net, ncunningham@cyclades.com,
+       masouds@masoud.ir, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] suspend: Cleanup calling of power off methods.
+Message-Id: <20050921131019.21f20e97.akpm@osdl.org>
+In-Reply-To: <20050921194306.GC13246@flint.arm.linux.org.uk>
+References: <m1vf0vfa0o.fsf@ebiederm.dsl.xmission.com>
+	<20050921101855.GD25297@atrey.karlin.mff.cuni.cz>
+	<Pine.LNX.4.58.0509210930410.2553@g5.osdl.org>
+	<20050921173630.GA2477@localhost.localdomain>
+	<20050921194306.GC13246@flint.arm.linux.org.uk>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Sep 2005, Nick Warne wrote:
+Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+>
+> So, before trying to get the "underworked" bug system used more,
+>  please try to get more developers signed up to it so that we have
+>  the necessary folk behind the bug system to handle the increased
+>  work load.
 
-> >> This give a enum of {0,1}. If test is not 0, !!test will give 1,
-> >> otherwise 0.
-> >>
-> >> Am I right?
-> >
-> > Yes.  I think of it as a "truth value" predicate (or operator).
->
-> Interesting.  I thought maybe this way was trick, until later I experimented.
->
-> My post here (as Bill Stokes):
->
-> http://www.quakesrc.org/forums/viewtopic.php?t=5626
->
-> So what is the reason to doing !!num as opposed to num ? 1:0 (which is more
-> readable I think, especially to a lesser experienced C coder).  Quicker to
-> type?
+They don't actually need to be signed up to bugzilla.  Just cc
+bugme-daemon@kernel-bugs.osdl.org on the email trail and anything with
+'[Bug NNNN]' in Subject: gets filed appropriately.
 
-Some people also prefer the following form:
-	num != 0
+So all you need to do forward the email to the relevant culprit and cc
+bugme-daemon@kernel-bugs.osdl.org.  Unfotunately some of the emails which
+bugzilla sends (the [bugme-new] ones) don't actually have
+bugme-daemon@kernel-bugs.osdl.org on the To: or Cc: lines, so you need to
+add that by hand the first time.
 
-> My quick test shows compiler renders both the same?
->
-> Nick
-> --
-> "When you're chewing on life's gristle,
-> Don't grumble, Give a whistle..."
-> -
+On problem with all this is that once the discussion has gone to email, it
+kinda has to stay that way - if someone goes in and updates the bug via the
+web interface, those people who were getting the info only via direct email
+don't get to see the new info.   Generally that works out OK.
 
--Vadim Lobanov
+It would be nice if
+
+a) we could add non-bugzilla-account-holders to a bug's cc list and
+
+b) Once bugzilla sees any person either sending or receiving emails or
+   web entries, it autoadds that person to the bug's cc list, so they get
+   email for all further activity.  Could be a bit irritating, but tough
+   luck ;) We need to fix bugs.
+
+

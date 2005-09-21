@@ -1,77 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750903AbVIUNLT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750892AbVIUNUQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750903AbVIUNLT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 09:11:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750914AbVIUNLT
+	id S1750892AbVIUNUQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 09:20:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750901AbVIUNUQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 09:11:19 -0400
-Received: from pilet.ens-lyon.fr ([140.77.167.16]:60113 "EHLO
-	relaissmtp.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S1750897AbVIUNLS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 09:11:18 -0400
-Message-ID: <43315BEB.3010909@ens-lyon.org>
-Date: Wed, 21 Sep 2005 15:11:07 +0200
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: fr, en
+	Wed, 21 Sep 2005 09:20:16 -0400
+Received: from Lodur.telex.com ([192.112.63.16]:6419 "EHLO lodur.telex.com")
+	by vger.kernel.org with ESMTP id S1750892AbVIUNUP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 09:20:15 -0400
+To: linux-kernel@vger.kernel.org
+Subject: 
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Kernel panic during SysRq-b on Alpha
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+X-Mailer: Lotus Notes Release 6.5.1 January 21, 2004
+From: Robert.Boermans@uk.telex.com
+Message-ID: <OFC881AE81.2A41D9FD-ON80257083.00491CF1-80257083.00494354@telex.com>
+Date: Wed, 21 Sep 2005 14:20:17 +0100
+X-MIMETrack: Serialize by Router on Passthru01/Telex(652HF636|November 23, 2004) at 09/21/2005
+ 08:20:15 AM,
+	Serialize complete at 09/21/2005 08:20:15 AM
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello, 
 
-I get the following panic each time I try SysRq-b on my
-Alpha EV56. This is a home-compiled 2.6.13.1 kernel.
-I don't see anything interesting in 2.6.13.2 changelog.
+I noticed that the bogomips results for the two cores on my machine are 
+consistently not the same, the second one is always reported slightly 
+faster, it's a small difference and I saw the same in a posted dmesg from 
+somebody else on the list. Which made me wonder: 
 
-This one was actually caught through a serial line,
-but I see the same behavior when sysrq-b is passed
-through the main console.
+Shouldn't they be the same, as the cores run from the same clock? 
+Could it be a bug in the bogomips calculation which could make some of the 
+short time-out stuff fail?
+Could this be related to the tsc synchronisation stuff mentioned in the 
+lost ticks - TSC timer thread? 
 
-Regards,
-Brice
+Regards, 
 
-
-
-SysRq : Resetting
-Kernel bug at kernel/printk.c:683
-swapper(0): Kernel Bug 1
-pc = [<fffffc000032706c>]  ra = [<fffffc00004352d4>]  ps = 0007    Not
-tainted
-pc is at acquire_console_sem+0x2c/0x90
-ra is at take_over_console+0x74/0x500
-v0 = 0000000000000007  t0 = 000000000fffff00  t1 = 0000000000010000
-t2 = fffffc0000002240  t3 = 0000000000000000  t4 = 000000000000000d
-t5 = 000000000000000e  t6 = ffffffffffffe051  t7 = fffffc000059c000
-a0 = fffffc00005022c0  a1 = 0000000000000000  a2 = 000000000000003e
-a3 = 0000000000000001  a4 = 0000000000000001  a5 = 0000000000000005
-t8 = 000000000000001f  t9 = fffffc00004038d0  t10= 0000000000000000
-t11= 000000000000000a  pv = fffffc0000327040  at = 0000000000000000
-gp = fffffc0000648e00  sp = fffffc000059fbc0
-Trace:
-[<fffffc00004352d4>] take_over_console+0x74/0x500
-[<fffffc0000312de8>] common_shutdown_1+0x78/0x130
-[<fffffc0000312ec0>] common_shutdown+0x20/0x30
-[<fffffc00004372f4>] __handle_sysrq+0xd4/0x200
-[<fffffc0000441398>] receive_chars+0x1e8/0x330
-[<fffffc000044197c>] serial8250_interrupt+0x12c/0x130
-[<fffffc0000315dfc>] handle_IRQ_event+0x6c/0xf0
-[<fffffc00003167a0>] handle_irq+0xd0/0x180
-[<fffffc000031f530>] miata_srm_device_interrupt+0x30/0x50
-[<fffffc0000316d64>] do_entInt+0xf4/0x140
-[<fffffc0000311140>] ret_from_sys_call+0x0/0x10
-[<fffffc0000312ce0>] default_idle+0x0/0x10
-[<fffffc0000312d48>] cpu_idle+0x58/0x80
-[<fffffc0000312ce0>] default_idle+0x0/0x10
-[<fffffc0000312ce0>] default_idle+0x0/0x10
-[<fffffc00003100a4>] rest_init+0x44/0x60
-[<fffffc000031001c>] __start+0x1c/0x20
-
-Code: 2021ff00  b53e0008  a0480064  44410002  e4400004  00000081
-<000002ab> 0050944f
-Kernel panic - not syncing: Aiee, killing interrupt handler!
+Robert Boermans. 
+PS nothing actually fails on my system because of this, I just thought it 
+was odd. Although I do sometimes get the clock runs at double speed 
+problem but only after at least one day uptime, but I reboot most days for 
+games anyway. 

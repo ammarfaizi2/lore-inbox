@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751000AbVIUOj0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751006AbVIUOj4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751000AbVIUOj0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 10:39:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750998AbVIUOj0
+	id S1751006AbVIUOj4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 10:39:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751012AbVIUOj4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 10:39:26 -0400
-Received: from gold.veritas.com ([143.127.12.110]:41395 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1750999AbVIUOj0 (ORCPT
+	Wed, 21 Sep 2005 10:39:56 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.50]:18058 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S1750999AbVIUOjz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 10:39:26 -0400
-Date: Wed, 21 Sep 2005 15:38:57 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Frank van Maarseveen <frankvm@frankvm.com>
-cc: Christoph Lameter <clameter@engr.sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.14-rc2] fix incorrect mm->hiwater_vm and mm->hiwater_rss
-In-Reply-To: <20050921121915.GA14645@janus>
-Message-ID: <Pine.LNX.4.61.0509211515330.6114@goblin.wat.veritas.com>
-References: <20050921121915.GA14645@janus>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 21 Sep 2005 14:39:21.0512 (UTC) FILETIME=[41169280:01C5BEBA]
+	Wed, 21 Sep 2005 10:39:55 -0400
+Date: Wed, 21 Sep 2005 16:39:54 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch] eliminate CLONE_* duplications
+Message-ID: <20050921143954.GA10137@MAIL.13thfloor.at>
+Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux Kernel ML <linux-kernel@vger.kernel.org>
+References: <20050921092132.GA4710@MAIL.13thfloor.at> <Pine.LNX.4.61.0509211252160.3743@scrub.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0509211252160.3743@scrub.home>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Sep 2005, Frank van Maarseveen wrote:
-> This fixes a post 2.6.11 regression in maintaining the mm->hiwater_* counters.
+On Wed, Sep 21, 2005 at 12:55:10PM +0200, Roman Zippel wrote:
+> Hi,
+> 
+> On Wed, 21 Sep 2005, Herbert Poetzl wrote:
+> 
+> > some archs (alpha,cris,ia64,ppc/64,v850) map those
+> > values via asm-offsets.c, others (cris-*,hppa/64)
+> > redefine the values in the asm code ...
+> 
+> Please fix cris-*,hppa/64 instead to use asm-offsets.c.
 
-It would be a good idea to CC Christoph Lameter, who I believe was the
-one who very intentionally moved most of these updates out to timer tick.
-Is that significantly missing updates?
+please elaborate _why_ we would want a bunch of
+additional DEFINE entries in each arch instead of a
+simple include file?
 
-If it turns out that your patch is appropriate:
+TIA,
+Herbert
 
-1. The change from tsk to mm is good (but not urgent 2.6.14 material).
-
-2. You've missed the instance Dave Miller recently added in fs/compat.c.
-
-3. If these are to be peppered back all over, then the places where
-   total_vm changes and the places where rss changes are almost completely
-   disjoint, so it's lazy to be calling one function to do both all over.
-
-4. If you've noticed a regression, you must be one of the elite that knows
-   what these counters are used for: nothing in the kernel.org tree does.
-   Please add a comment saying what it is that uses them and how, so
-   developers can make better judgements about how best to maintain them.
-
-5. Please add appropriate CONFIG, dummy macros etc., so that no time
-   is wasted on these updates in all the vanilla systems which have no
-   interest in them - but maybe Christoph already has that well in hand.
-
-Sorry for the rifle fire, you did put your head above the parapet!
-
-Hugh
+> bye, Roman
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

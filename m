@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751356AbVIUSZt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751358AbVIUS0a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751356AbVIUSZt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 14:25:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751358AbVIUSZt
+	id S1751358AbVIUS0a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 14:26:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbVIUS03
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 14:25:49 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:30869 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751356AbVIUSZt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 14:25:49 -0400
-Date: Wed, 21 Sep 2005 11:24:48 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: torvalds@osdl.org, pavel@suse.cz, len.brown@intel.com,
-       drzeus-list@drzeus.cx, acpi-devel@lists.sourceforge.net,
-       ncunningham@cyclades.com, masouds@masoud.ir,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] suspend: Cleanup calling of power off methods.
-Message-Id: <20050921112448.0e121a3d.akpm@osdl.org>
-In-Reply-To: <m1ll1qcmzr.fsf@ebiederm.dsl.xmission.com>
-References: <m1vf0vfa0o.fsf@ebiederm.dsl.xmission.com>
-	<20050921101855.GD25297@atrey.karlin.mff.cuni.cz>
-	<Pine.LNX.4.58.0509210930410.2553@g5.osdl.org>
-	<20050921104615.2e8dd7d5.akpm@osdl.org>
-	<m1ll1qcmzr.fsf@ebiederm.dsl.xmission.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 21 Sep 2005 14:26:29 -0400
+Received: from frankvm.xs4all.nl ([80.126.170.174]:58019 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S1751358AbVIUS03
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 14:26:29 -0400
+Date: Wed, 21 Sep 2005 20:26:27 +0200
+From: Frank van Maarseveen <frankvm@frankvm.com>
+To: Jay Lan <jlan@engr.sgi.com>
+Cc: Hugh Dickins <hugh@veritas.com>,
+       Frank van Maarseveen <frankvm@frankvm.com>,
+       Christoph Lameter <clameter@engr.sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.14-rc2] fix incorrect mm->hiwater_vm and mm->hiwater_rss
+Message-ID: <20050921182627.GB17272@janus>
+References: <20050921121915.GA14645@janus> <Pine.LNX.4.61.0509211515330.6114@goblin.wat.veritas.com> <43319111.1050803@engr.sgi.com> <Pine.LNX.4.61.0509211802150.8880@goblin.wat.veritas.com> <4331990A.80904@engr.sgi.com> <Pine.LNX.4.61.0509211835190.9340@goblin.wat.veritas.com> <4331A0DA.5030801@engr.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4331A0DA.5030801@engr.sgi.com>
+User-Agent: Mutt/1.4.1i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ebiederm@xmission.com (Eric W. Biederman) wrote:
->
-> > Famous last words, but the actual patch volume _has_ to drop off one day. 
-> > In fact there doesn't seem to much happening out there wrt 2.6.15.
+On Wed, Sep 21, 2005 at 11:05:14AM -0700, Jay Lan wrote:
 > 
-> Due to changes coming through git or that there will simply be fewer
-> things that need to be patched?
+> System accounting improvement is needed because those accouting
+> information were needed and used at real customer sites.
+> 
+> So, yes, the basic system accounting code (ie, BSD) needs
+> improvement, and, no, i am done with sys acct data collection.
 
-We're at -rc2 and I only have only maybe 100 patches tagged for 2.6.15 at
-this time.  The number of actual major features lined up for 2.6.15 looks
-relatively small too.
+Ok, but how do you verify that the mm->hiwater_* counters are correct to
+any degree? because it appears that at least hiwater_vm is incorrect in
+post-2.6.11 and not by a small amount.
 
-As I said, famous last words.  But we have to finish this thing one day ;)
 
-> As for 2.6.15 I know I have patches in the queue that I intend to send
-> out later this week, which probably count.  I wonder if other developers
-> are similar.  
+What about calling
 
-Possibly.  Quite a few of the git trees are looking pretty fat.  I need to
-get another kernel-status thingy out soon, but that takes many hours of
-bugzilla-poking.
+static inline void grow_total_vm(struct mm_struct *mm, unsigned long increase)
+{
+	mm->total_vm += increase;
+	if (mm->total_vm > mm->hiwater_vm)
+		mm->hiwater_vm = mm->total_vm;
+}
 
+whenever total_vm is increased and possibly doing something similar for rss at
+different places? If it is not on the fast path then it's not necessary to
+#ifdef the thing anywhere.
+
+-- 
+Frank

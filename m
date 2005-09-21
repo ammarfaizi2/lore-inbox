@@ -1,68 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750814AbVIUK7n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbVIULQG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750814AbVIUK7n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 06:59:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750824AbVIUK7n
+	id S1750810AbVIULQG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 07:16:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbVIULQG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 06:59:43 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:13776 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750814AbVIUK7m
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 06:59:42 -0400
-Date: Wed, 21 Sep 2005 16:31:22 +0530
-From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>, davem@davemloft.net,
-       anil.s.keshavamurthy@intel.com, ananth@in.ibm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Updating maintainers list with the kprobes maintainers
-Message-ID: <20050921110122.GB5130@in.ibm.com>
-Reply-To: prasanna@in.ibm.com
-Mime-Version: 1.0
+	Wed, 21 Sep 2005 07:16:06 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:4741 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1750810AbVIULQF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 07:16:05 -0400
+Message-ID: <433143C1.8D1C6F9C@tv-sign.ru>
+Date: Wed, 21 Sep 2005 15:28:01 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       George Anzinger <george@mvista.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>
+Subject: Re: [PATCH] ktimers subsystem
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thomas Gleixner wrote:
+>
+> +static int internal_restart_ktimer(struct ktimer *timer, nsec_t *tim,
+> +				   int mode)
+> +{
+> +	struct ktimer_base *base, *new_base;
+> +  	unsigned long flags;
+> +	int ret;
+> +
+> +	BUG_ON(!timer->function);
+> +
+> + retry:
+> +	base = lock_ktimer_base(timer, &flags);
+> +
+> +	/* Remove an active timer from the queue */
+> +	ret = remove_ktimer(timer, base);
+> +
+> +	/* Switch the timer base, if necessary */
+> +	new_base = switch_ktimer_base(timer, base);
+> +
+> +	/* SMP  */
+> +	if (ktimer_base_can_change && unlikely(!new_base)){
+> +		spin_unlock_irqrestore(&base->lock, flags);
+> +		wait_for_ktimer(timer);
+> +		goto retry;
+> +	}
 
-This patch updates the maintainers list with kprobes maintainers.
+This is deadlockable.
 
-Signed-of-by: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+The caller of modify_ktimer()->internal_restart_ktimer() can hold locks
+which would prevent the completion of the ktimer->function().
 
+Also, I don't understand why the timer is deleted _before_ checking that
+new_base != NULL. This way you can delete the timer (ret == 1), then goto
+retry, then get ret == 0.
 
----
-
- linux-2.6.14-rc2-prasanna/MAINTAINERS |   12 ++++++++++++
- 1 files changed, 12 insertions(+)
-
-diff -puN MAINTAINERS~kprobes-maintainers MAINTAINERS
---- linux-2.6.14-rc2/MAINTAINERS~kprobes-maintainers	2005-09-21 16:26:00.276108128 +0530
-+++ linux-2.6.14-rc2-prasanna/MAINTAINERS	2005-09-21 16:26:00.284106912 +0530
-@@ -1404,6 +1404,18 @@ L:	linux-kernel@vger.kernel.org
- L:	fastboot@osdl.org
- S:	Maintained
- 
-+KPROBES
-+P:	Prasanna S Panchamukhi
-+M:	prasanna@in.ibm.com
-+P:	Ananth N Mavinakayanahalli
-+M:	ananth@in.ibm.com
-+P:	Anil S Keshavamurthy
-+M:	anil.s.keshavamurthy@intel.com
-+P:	David S. Miller
-+M:	davem@davemloft.net
-+L:	linux-kernel@vger.kernel.org
-+S:	Maintained
-+
- LANMEDIA WAN CARD DRIVER
- P:	Andrew Stanley-Jones
- M:	asj@lanmedia.com
-
-_
--- 
-
-Prasanna S Panchamukhi
-Linux Technology Center
-India Software Labs, IBM Bangalore
-Ph: 91-80-25044636
-<prasanna@in.ibm.com>
+Oleg.

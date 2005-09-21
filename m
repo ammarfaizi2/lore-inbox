@@ -1,50 +1,160 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965030AbVIUVoF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965059AbVIUVxA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965030AbVIUVoF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 17:44:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965041AbVIUVoF
+	id S965059AbVIUVxA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 17:53:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965054AbVIUVxA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 17:44:05 -0400
-Received: from [203.171.93.254] ([203.171.93.254]:2478 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S965030AbVIUVoE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 17:44:04 -0400
-Subject: Re: [PATCH 2.6.14-rc1-git5] sched: disable preempt in idle tasks
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, Li Shaohua <shaohua.li@intel.com>,
-       Srivatsa Vaddagiri <vatsa@in.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ian Molton <spyro@f2s.com>
-In-Reply-To: <43317F3E.9090207@yahoo.com.au>
-References: <43317F3E.9090207@yahoo.com.au>
+	Wed, 21 Sep 2005 17:53:00 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:32437 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S965047AbVIUVw7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 17:52:59 -0400
+Subject: Re: [RFC/BUG?] ide_cs's removable status
+From: Richard Purdie <rpurdie@rpsys.net>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: linux-ide@vger.kernel.org, bzolnier@gmail.com,
+       Dominik Brodowski <linux@dominikbrodowski.net>, Mark Lord <liml@rtr.ca>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+In-Reply-To: <20050921192932.GB13246@flint.arm.linux.org.uk>
+References: <1127319328.8542.57.camel@localhost.localdomain>
+	 <1127321829.18840.18.camel@localhost.localdomain> <433196B6.8000607@rtr.ca>
+	 <1127327243.18840.34.camel@localhost.localdomain>
+	 <20050921192932.GB13246@flint.arm.linux.org.uk>
 Content-Type: text/plain
-Organization: Cyclades
-Message-Id: <1127338993.19156.17.camel@localhost>
+Date: Wed, 21 Sep 2005 22:52:44 +0100
+Message-Id: <1127339564.27462.7.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 22 Sep 2005 07:43:13 +1000
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nick et al.
+A proposed solution/patch:
+[One step further is to totally remove the drive->removable = 1]
 
-On Thu, 2005-09-22 at 01:41, Nick Piggin wrote:
-> This patch should hopefully fix Nigel's bug.
-> 
-> Split out from sched-resched-opt.patch. Tested on i386 with acpi idle
-> and poll idle (previous iterations tested on various other architectures).
-> 
-> CCed Ian because I am amazed that arm26 ever managed to reschedule
-> out of the idle task without this... what am I missing?
-> 
-> Andrew please apply
+This patch stops CompactFlash devices being marked as removable. They
+are not removable as the media and device are inseparable. When a card
+is removed, the device is removed from the system.
 
-I'll give it a whirl when I get into work and let you know how I go.
+Further, once this change is made, there is no need for ide to
+differentiate between flash and other devices so the is_flash variable
+can be removed from ide_drive_t.
 
-Regards,
+Signed-Off-By: Richard Purdie <rpurdie@rpsys.net> 
 
-Nigel
+Index: linux-2.6.13/drivers/ide/ide-probe.c
+===================================================================
+--- linux-2.6.13.orig/drivers/ide/ide-probe.c	2005-08-29 00:41:01.000000000 +0100
++++ linux-2.6.13/drivers/ide/ide-probe.c	2005-09-21 20:57:34.000000000 +0100
+@@ -125,45 +125,6 @@
+ }
+ 
+ /**
+- *	drive_is_flashcard	-	check for compact flash
+- *	@drive: drive to check
+- *
+- *	CompactFlash cards and their brethern pretend to be removable
+- *	hard disks, except:
+- * 		(1) they never have a slave unit, and
+- *		(2) they don't have doorlock mechanisms.
+- *	This test catches them, and is invoked elsewhere when setting
+- *	appropriate config bits.
+- *
+- *	FIXME: This treatment is probably applicable for *all* PCMCIA (PC CARD)
+- *	devices, so in linux 2.3.x we should change this to just treat all
+- *	PCMCIA  drives this way, and get rid of the model-name tests below
+- *	(too big of an interface change for 2.4.x).
+- *	At that time, we might also consider parameterizing the timeouts and
+- *	retries, since these are MUCH faster than mechanical drives. -M.Lord
+- */
+- 
+-static inline int drive_is_flashcard (ide_drive_t *drive)
+-{
+-	struct hd_driveid *id = drive->id;
+-
+-	if (drive->removable) {
+-		if (id->config == 0x848a) return 1;	/* CompactFlash */
+-		if (!strncmp(id->model, "KODAK ATA_FLASH", 15)	/* Kodak */
+-		 || !strncmp(id->model, "Hitachi CV", 10)	/* Hitachi */
+-		 || !strncmp(id->model, "SunDisk SDCFB", 13)	/* old SanDisk */
+-		 || !strncmp(id->model, "SanDisk SDCFB", 13)	/* SanDisk */
+-		 || !strncmp(id->model, "HAGIWARA HPC", 12)	/* Hagiwara */
+-		 || !strncmp(id->model, "LEXAR ATA_FLASH", 15)	/* Lexar */
+-		 || !strncmp(id->model, "ATA_FLASH", 9))	/* Simple Tech */
+-		{
+-			return 1;	/* yes, it is a flash memory card */
+-		}
+-	}
+-	return 0;	/* no, it is not a flash memory card */
+-}
+-
+-/**
+  *	do_identify	-	identify a drive
+  *	@drive: drive to identify 
+  *	@cmd: command used
+@@ -278,13 +239,17 @@
+ 	/*
+ 	 * Not an ATAPI device: looks like a "regular" hard disk
+ 	 */
+-	if (id->config & (1<<7))
+-		drive->removable = 1;
+ 
+-	if (drive_is_flashcard(drive))
+-		drive->is_flash = 1;
++	/* 
++	 * 0x848a = CompactFlash device 
++	 * These are *not* removable in Linux definition of the term
++	 */
++
++	if ((id->config != 0x848a) && (id->config & (1<<7)))
++		drive->removable = 1;
++
+ 	drive->media = ide_disk;
+-	printk("%s DISK drive\n", (drive->is_flash) ? "CFA" : "ATA" );
++	printk("%s DISK drive\n", (id->config == 0x848a) ? "CFA" : "ATA" );
+ 	QUIRK_LIST(drive);
+ 	return;
+ 
+Index: linux-2.6.13/drivers/ide/ide.c
+===================================================================
+--- linux-2.6.13.orig/drivers/ide/ide.c	2005-09-19 10:53:59.000000000 +0100
++++ linux-2.6.13/drivers/ide/ide.c	2005-09-21 20:52:53.000000000 +0100
+@@ -242,7 +242,6 @@
+ 		drive->name[2]			= 'a' + (index * MAX_DRIVES) + unit;
+ 		drive->max_failures		= IDE_DEFAULT_MAX_FAILURES;
+ 		drive->using_dma		= 0;
+-		drive->is_flash			= 0;
+ 		drive->vdma			= 0;
+ 		INIT_LIST_HEAD(&drive->list);
+ 		sema_init(&drive->gendev_rel_sem, 0);
+Index: linux-2.6.13/drivers/ide/ide-disk.c
+===================================================================
+--- linux-2.6.13.orig/drivers/ide/ide-disk.c	2005-09-19 10:53:59.000000000 +0100
++++ linux-2.6.13/drivers/ide/ide-disk.c	2005-09-21 20:51:31.000000000 +0100
+@@ -895,11 +895,7 @@
+ 	if (drive->id_read == 0)
+ 		return;
+ 
+-	/*
+-	 * CompactFlash cards and their brethern look just like hard drives
+-	 * to us, but they are removable and don't have a doorlock mechanism.
+-	 */
+-	if (drive->removable && !(drive->is_flash)) {
++	if (drive->removable) {
+ 		/*
+ 		 * Removable disks (eg. SYQUEST); ignore 'WD' drives 
+ 		 */
+Index: linux-2.6.13/include/linux/ide.h
+===================================================================
+--- linux-2.6.13.orig/include/linux/ide.h	2005-08-29 00:41:01.000000000 +0100
++++ linux-2.6.13/include/linux/ide.h	2005-09-21 20:56:29.000000000 +0100
+@@ -697,7 +697,6 @@
+ 	unsigned noprobe 	: 1;	/* from:  hdx=noprobe */
+ 	unsigned removable	: 1;	/* 1 if need to do check_media_change */
+ 	unsigned attach		: 1;	/* needed for removable devices */
+-	unsigned is_flash	: 1;	/* 1 if probed as flash */
+ 	unsigned forced_geom	: 1;	/* 1 if hdx=c,h,s was given at boot */
+ 	unsigned no_unmask	: 1;	/* disallow setting unmask bit */
+ 	unsigned no_io_32bit	: 1;	/* disallow enabling 32bit I/O */
 

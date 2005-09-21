@@ -1,60 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbVIUT2h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751395AbVIUT3m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751393AbVIUT2h (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 15:28:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbVIUT2h
+	id S1751395AbVIUT3m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 15:29:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751399AbVIUT3l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 15:28:37 -0400
-Received: from frankvm.xs4all.nl ([80.126.170.174]:62371 "EHLO
-	janus.localdomain") by vger.kernel.org with ESMTP id S1751393AbVIUT2g
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 15:28:36 -0400
-Date: Wed, 21 Sep 2005 21:28:35 +0200
-From: Frank van Maarseveen <frankvm@frankvm.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Frank van Maarseveen <frankvm@frankvm.com>, Jay Lan <jlan@engr.sgi.com>,
-       Christoph Lameter <clameter@engr.sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.14-rc2] fix incorrect mm->hiwater_vm and mm->hiwater_rss
-Message-ID: <20050921192835.GA18347@janus>
-References: <20050921121915.GA14645@janus> <Pine.LNX.4.61.0509211515330.6114@goblin.wat.veritas.com> <43319111.1050803@engr.sgi.com> <Pine.LNX.4.61.0509211802150.8880@goblin.wat.veritas.com> <4331990A.80904@engr.sgi.com> <Pine.LNX.4.61.0509211835190.9340@goblin.wat.veritas.com> <4331A0DA.5030801@engr.sgi.com> <20050921182627.GB17272@janus> <Pine.LNX.4.61.0509211958410.10449@goblin.wat.veritas.com>
+	Wed, 21 Sep 2005 15:29:41 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:22793 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751395AbVIUT3l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 15:29:41 -0400
+Date: Wed, 21 Sep 2005 20:29:32 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Mark Lord <liml@rtr.ca>, Richard Purdie <rpurdie@rpsys.net>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>, bzolnier@gmail.com,
+       linux-ide@vger.kernel.org
+Subject: Re: [RFC/BUG?] ide_cs's removable status
+Message-ID: <20050921192932.GB13246@flint.arm.linux.org.uk>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Mark Lord <liml@rtr.ca>, Richard Purdie <rpurdie@rpsys.net>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Dominik Brodowski <linux@dominikbrodowski.net>, bzolnier@gmail.com,
+	linux-ide@vger.kernel.org
+References: <1127319328.8542.57.camel@localhost.localdomain> <1127321829.18840.18.camel@localhost.localdomain> <433196B6.8000607@rtr.ca> <1127327243.18840.34.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0509211958410.10449@goblin.wat.veritas.com>
+In-Reply-To: <1127327243.18840.34.camel@localhost.localdomain>
 User-Agent: Mutt/1.4.1i
-X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 21, 2005 at 08:19:31PM +0100, Hugh Dickins wrote:
-> On Wed, 21 Sep 2005, Frank van Maarseveen wrote:
-> > 
-> > What about calling
-> > 
-> > static inline void grow_total_vm(struct mm_struct *mm, unsigned long increase)
-> > {
-> > 	mm->total_vm += increase;
-> > 	if (mm->total_vm > mm->hiwater_vm)
-> > 		mm->hiwater_vm = mm->total_vm;
-> > }
-> > 
-> > whenever total_vm is increased and possibly doing something similar for rss at
-> > different places? If it is not on the fast path then it's not necessary to
-> > #ifdef the thing anywhere.
+On Wed, Sep 21, 2005 at 07:27:23PM +0100, Alan Cox wrote:
+> On Mer, 2005-09-21 at 13:21 -0400, Mark Lord wrote:
+> > In the case of CF cards in ide-cs, removing the card is equivalent
+> > to removing the entire IDE controller, not just the media.
 > 
-  ...
-> But I think you're right that hiwater_vm is best updated where total_vm
-> is: I'm not sure if it covers all cases completely (I think there's one
-> or two places which don't bother to call __vm_stat_account because they
-> believe it won't change anything), but in principle it would make lots of
-> sense to do it in the __vm_stat_account which typically follows adjusting
-> total_vm, as you did, and if possible nowhere else; rather than adding
-> your inline above.
+> It isn't the same as removing the entire PCMCIA controller layer. As far
+> as PCMCIA is concerned there has been no change. Thus we have no media
+> change event and we need ->removable = 1
+> 
+> If the PCMCIA card disappeared each time it would be different
 
-But update_mem_hiwater() is called at various places too, and I guess that
-covers merely the total_vm increase, not rss.
+Last time I checked, with CF cards the media was an inherent part of
+the CF card and is not changable without removing the card, opening
+it, getting out the soldering iron... or alternatively plugging in
+a different CF card.
 
-Maybe above inline should replace update_mem_hiwater()?
+Of course, PCMCIA will detect removal of the CF card provided the
+PCMCIA hardware is working.  PCMCIA will also detect a CF card which
+has been changed while the system has been suspended _provided_ the
+CIS does not match the previous cards CIS.  It'll even do this if
+you use cardctl suspend/cardctl resume.
+
+However, if you suspend your system, remove your CF card, put it in
+a different machine, use it (note: by doing this it could _already_
+be in an inconsistent state), and put it back in the original machine
+before resuming it, the cache on the original machine will disagree
+with what is on the card.  But then you have done something silly
+already by taking media in an inconsistent state to another machine
+- and modified that inconsistent filesystem state.
+
+It sounds like you know of a case where this isn't true - maybe a bug
+report.  Can you expand on it?
 
 -- 
-Frank
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

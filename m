@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964833AbVIUU7Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbVIUU7v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964833AbVIUU7Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 16:59:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964842AbVIUU7Q
+	id S964832AbVIUU7v (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 16:59:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964837AbVIUU7v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 16:59:16 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:58575 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964833AbVIUU7P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 16:59:15 -0400
-Date: Wed, 21 Sep 2005 13:58:34 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [swsusp] Rework image freeing
-Message-Id: <20050921135834.4fd73447.akpm@osdl.org>
-In-Reply-To: <20050921205132.GA4249@elf.ucw.cz>
-References: <20050921205132.GA4249@elf.ucw.cz>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 21 Sep 2005 16:59:51 -0400
+Received: from zctfs063.nortelnetworks.com ([47.164.128.120]:24706 "EHLO
+	zctfs063.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S964835AbVIUU7u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 16:59:50 -0400
+Message-ID: <4331C9B2.5070801@nortel.com>
+Date: Wed, 21 Sep 2005 14:59:30 -0600
+From: "Christopher Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Sonny Rao <sonny@burdell.org>
+CC: linux-kernel@vger.kernel.org, "Theodore Ts'o" <tytso@mit.edu>,
+       dipankar@in.ibm.com, bharata@in.ibm.com
+Subject: Re: dentry_cache using up all my zone normal memory -- also seen
+ on 2.6.14-rc2
+References: <433189B5.3030308@nortel.com> <43318FFA.4010706@nortel.com> <4331B89B.3080107@nortel.com> <20050921200758.GA25362@kevlar.burdell.org>
+In-Reply-To: <20050921200758.GA25362@kevlar.burdell.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 21 Sep 2005 20:59:40.0596 (UTC) FILETIME=[62527740:01C5BEEF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> wrote:
->
-> +	for_each_zone(zone) {
->  +		for (zone_pfn = 0; zone_pfn < zone->spanned_pages; ++zone_pfn) {
->  +			struct page * page;
->  +			page = pfn_to_page(zone_pfn + zone->zone_start_pfn);
->  +			if (PageNosave(page) && PageNosaveFree(page)) {
->  +				ClearPageNosave(page);
->  +				ClearPageNosaveFree(page);
->  +				free_page((long) page_address(page));
->  +			}
+Sonny Rao wrote:
 
-There doesn't seem to be much point in converting the pageframe address to
-a virtual address, then back to a pageframe address.  Why not just do
-put_page() here?
+> Over one million files open at once is just asking for trouble on a
+> lowmem-crippled x86 machine, IMHO.
 
+I don't think there actually are.  I ran the testcase under strace, and 
+it appears that there are two threads going at once.
+
+thread 1 spins doing the following:
+fd = creat("./rename14", 0666);
+unlink("./rename14");
+close(fd);
+
+thread 2 spins doing:
+rename("./rename14", "./rename14xyz");
+
+Chris

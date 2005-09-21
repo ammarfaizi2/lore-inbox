@@ -1,67 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbVIUSNf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751348AbVIUSQY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751133AbVIUSNf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 14:13:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751348AbVIUSNf
+	id S1751348AbVIUSQY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 14:16:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbVIUSQY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 14:13:35 -0400
-Received: from mailhub.lss.emc.com ([168.159.2.31]:53600 "EHLO
-	mailhub.lss.emc.com") by vger.kernel.org with ESMTP
-	id S1751133AbVIUSNe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 14:13:34 -0400
-Message-ID: <4331A28E.1030107@emc.com>
-Date: Wed, 21 Sep 2005 14:12:30 -0400
-From: Ric Wheeler <ric@emc.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-CC: gmaxwell@gmail.com, vitaly@thebsh.namesys.com,
-       "Theodore Ts'o" <tytso@mit.edu>, Pavel Machek <pavel@suse.cz>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, thenewme91@gmail.com,
-       Christoph Hellwig <hch@infradead.org>,
-       Denis Vlasenko <vda@ilport.com.ua>, chriswhite@gentoo.org,
-       LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: I request inclusion of reiser4 in the mainline kernel
-References: <200509182004.j8IK4JNx012764@inti.inf.utfsm.cl>	 <432E5024.20709@namesys.com> <20050920075133.GB4074@elf.ucw.cz>	 <20050921000425.GF6179@thunk.org> <4330A8F2.7010903@emc.com>	 <4330ACE2.8000909@namesys.com> <4330B388.8010307@emc.com>	 <4330CDF1.4050902@namesys.com> <e692861c05092021552d39cecc@mail.gmail.com> <43314242.1050802@emc.com> <43319A2B.3050707@namesys.com>
-In-Reply-To: <43319A2B.3050707@namesys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 21 Sep 2005 14:16:24 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:14483 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751348AbVIUSQY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 14:16:24 -0400
+Date: Wed, 21 Sep 2005 11:15:23 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alexander Nyberg <alexn@telia.com>
+Cc: torvalds@osdl.org, pavel@suse.cz, ebiederm@xmission.com,
+       len.brown@intel.com, drzeus-list@drzeus.cx,
+       acpi-devel@lists.sourceforge.net, ncunningham@cyclades.com,
+       masouds@masoud.ir, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] suspend: Cleanup calling of power off methods.
+Message-Id: <20050921111523.4b007281.akpm@osdl.org>
+In-Reply-To: <20050921173630.GA2477@localhost.localdomain>
+References: <m1vf0vfa0o.fsf@ebiederm.dsl.xmission.com>
+	<20050921101855.GD25297@atrey.karlin.mff.cuni.cz>
+	<Pine.LNX.4.58.0509210930410.2553@g5.osdl.org>
+	<20050921173630.GA2477@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-PMX-Version: 4.7.1.128075, Antispam-Engine: 2.1.0.0, Antispam-Data: 2005.9.21.20
-X-PerlMx-Spam: Gauge=, SPAM=7%, Reasons='EMC_FROM_00+ 0, __CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __FRAUD_419_BADTHINGS 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0, __USER_AGENT 0'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser wrote:
-> Ric Wheeler wrote:
+Alexander Nyberg <alexn@telia.com> wrote:
+>
+> On Wed, Sep 21, 2005 at 09:35:20AM -0700 Linus Torvalds wrote:
 > 
+> > 
+> > 
+> > On Wed, 21 Sep 2005, Pavel Machek wrote:
+> > > 
+> > > I think you are not following the proper procedure. All the patches
+> > > should go through akpm.
+> > 
+> > One issue is that I actually worry that Andrew will at some point be where 
+> > I was a couple of years ago - overworked and stressed out by just tons and 
+> > tons of patches. 
+> > 
+> > Yes, he's written/modified tons of patch-tracking tools, and the git 
+> > merging hopefully avoids some of the pressures, but it still worries me. 
+> > If Andrew burns out, we'll all suffer hugely.
+> > 
+> > I'm wondering what we can do to offset those kinds of issues. I _do_ like 
+> > having -mm as a staging area and catching some problems there, so going 
+> > through andrew is wonderful in that sense, but it has downsides.
+> > 
 > 
->>Gregory Maxwell wrote:
->>
->>
->>>On 9/20/05, Hans Reiser <reiser@namesys.com> wrote:
->>> 
->>>
->>>
->>>Another goal of the group should be to formulate a requested set of
->>>changes or extensions to the makers of drives and other storage
->>>systems.  For example, it might be advantageous to be able to disable
->>>bad block relocation and allow the filesystem to perform the action.
->>>The reason for this is because relocates slaughter streaming read
->>>performance, but the filesystem could still contiguously allocate
->>>around them...
->>>
->>> 
->>>
+> Morever bugme.osdl.org is severely underworked (acpi being a noteable
+> exception) and Andrew has stepped in alot there too. Alot of bugs
+> reported on the mailing list are only followed up by Andrew.
 > 
-> The words were attributed to me, but were not mine.
-> 
-> Sometimes mua's do that to one.
-> 
+> I think he really should receive much more help than he currently does.
 
-Sorry - my error in trying to trim my response ended up trimming the 
-proper attribution to Gregory,
+Yes, kernel bugmeister is a completely separate function from
+patchmonkeying.  It is something which a separate person can and should do.
 
-ric
+My current thinking is that I'll develop the processes, find out what works
+and then look to hand it off to some other sucker.  I wouldn't claim that
+this is going very well at present, perhaps because I'm just not putting
+enough time into the bugmeistering to be able to demonstrate what works and
+what does not.
+
+I wouldn't say that bugmeister is a fulltime job, but it'll be a
+lot-of-time job.  It needs someone who isn't shy and who has a good
+understanding of the kernel code-wise, of the processes (hah) and of the
+people.
+
+The ability to maintain an overall view of where we're at, which bugs are
+serious and which aren't.  The ability to succinctly communicate that
+overview to everyone else.  Able to tell Linus "you can't release a kernel
+until bugs A, B and C are fixed".  The skills and gut-feel to know when a
+patch is some once-off which can be ignored unless it reoccurs, etc.  It's
+one of those things which can consume as much effort as one is able to put
+into it.
+
+Kernel development is more professional than we like to pretend nowadays,
+and developers will react well to someone who is doing this for us.  It's
+pretty boring tho.
 

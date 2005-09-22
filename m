@@ -1,52 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030377AbVIVO3S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030370AbVIVOdv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030377AbVIVO3S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 10:29:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030375AbVIVO3R
+	id S1030370AbVIVOdv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 10:33:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030375AbVIVOdv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 10:29:17 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:51929 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030368AbVIVO3Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 10:29:16 -0400
-Date: Thu, 22 Sep 2005 15:28:55 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Mark Lord <liml@rtr.ca>
-Cc: Jens Axboe <axboe@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
-       Joshua Kwan <joshk@triplehelix.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, linux-scsi@vger.kernel.org
-Subject: Re: SATA suspend-to-ram patch - merge?
-Message-ID: <20050922142855.GA29672@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Mark Lord <liml@rtr.ca>, Jens Axboe <axboe@suse.de>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Joshua Kwan <joshk@triplehelix.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	"linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, linux-scsi@vger.kernel.org
-References: <433104E0.4090308@triplehelix.org> <433221A1.5000600@pobox.com> <20050922061849.GJ7929@suse.de> <4332ABDC.3030106@rtr.ca>
-Mime-Version: 1.0
+	Thu, 22 Sep 2005 10:33:51 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:44195 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S1030370AbVIVOdu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 10:33:50 -0400
+Message-ID: <4332C0C5.5040100@adaptec.com>
+Date: Thu, 22 Sep 2005 10:33:41 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Rolf Offermanns <roffermanns@sysgo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linus GIT tree disappeared from http://www.kernel.org/git/?
+References: <200509221514.44027.roffermanns@sysgo.com> <20050922133228.GB26438@flint.arm.linux.org.uk> <20050922133621.GJ4262@suse.de> <20050922134238.GC26438@flint.arm.linux.org.uk> <20050922135706.GL4262@suse.de>
+In-Reply-To: <20050922135706.GL4262@suse.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4332ABDC.3030106@rtr.ca>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Sep 2005 14:33:48.0845 (UTC) FILETIME=[A5375DD0:01C5BF82]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 22, 2005 at 09:04:28AM -0400, Mark Lord wrote:
-> Rather than sitting around for another six months hoping the problem
-> will go away (it won't), perhaps we should just update/merge Jen's
-> patch as a sorely needed interim fix.
+On 09/22/05 09:57, Jens Axboe wrote:
+> On Thu, Sep 22 2005, Russell King wrote:
 > 
-> This might then prod James et al into looking more at the SCSI side of
-> things, and some year we might see this get replaced with a better scheme.
+>>On Thu, Sep 22, 2005 at 03:36:22PM +0200, Jens Axboe wrote:
+>>
+>>>On Thu, Sep 22 2005, Russell King wrote:
+>>>
+>>>>On Thu, Sep 22, 2005 at 03:14:43PM +0200, Rolf Offermanns wrote:
+>>>>
+>>>>>Maybe I am dreaming, but I could have sworn it has been there yesterday...
+>>>>
+>>>>It seems that kernel.org hasn't finished updating the mirrors yet -
+>>>>and it seems to be taking hours.  Unfortunately, this has left Linus'
+>>>>public git tree in an inconsistent state.
+>>>
+>>>Actually it's getting closer to days (last I checked it was over half a
+>>>day), which really is a shame as it basically destroys the usability of
+>>>having git repos available there... Lets hope it gets fixed soon.
+>>
+>>I think it isn't taking days, based upon the start times of the
+>>processes I saw earlier today and yesterday.
 > 
-> This is a real problem, and an immediate solution is needed last spring.
+> 
+> No not days, half a day at least :)
+> 
+> 
+>>If not already done, maybe the kernel.org ftp admins would prefer
+>>to be informed about the problem?  Reporting the problems with
+>>kernel.org to lkml might only reach folk who use the services, not
+>>those who provide them.
 
-Folks, bitching around on lkml on this won't get you far.  Send the
-patch to linux-scsi again, and explain what's the current stance on the
-disk synchronize cache and spindown issues.
+Yes, hopefully they can fix that soon.
+
+Whatever it is, it seems to be affecting only Linus' git tree,
+as it seems all other git trees are accounted for.
+
+	Luben

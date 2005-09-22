@@ -1,65 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965195AbVIVAgw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965200AbVIVBGO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965195AbVIVAgw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 20:36:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965196AbVIVAgv
+	id S965200AbVIVBGO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 21:06:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965201AbVIVBGN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 20:36:51 -0400
-Received: from nproxy.gmail.com ([64.233.182.205]:16258 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965195AbVIVAgv convert rfc822-to-8bit
+	Wed, 21 Sep 2005 21:06:13 -0400
+Received: from nproxy.gmail.com ([64.233.182.192]:32728 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965200AbVIVBGN convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 20:36:51 -0400
+	Wed, 21 Sep 2005 21:06:13 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=KotnLCnjUXlVaBZaMVrgd07hET4FsZ+gS1DhI57mMc6uvkByEp+hley44EywOyo2cPWTMfuinQkwaVxGPvo+WOPT1ONZjeaiqpVmM4D0YyK2/Xz/iy+q+IX6KCHezLN6gQiobtXJJ3+If4HXQw2OAUxLdhmhvzFEFhthDbLigzE=
-Message-ID: <2cd57c900509211736414cea32@mail.gmail.com>
-Date: Thu, 22 Sep 2005 08:36:48 +0800
+        b=ZDDrisysOQTRjZCxbGASGnTJN0cin/6T7UbwGZQJrAX6XVSHORT9cHforEcN9AdtuzRo89OxHLK1gn78nWn0sbqEhfj9pjly1kKcsIX5xp6xrK3Xi6JS9ugX06Xb7dkvpw9ef0OGnrwu27zqpC+Cf9frBgxmCBqmof+j+BGlHjU=
+Message-ID: <2cd57c900509211806291f7b77@mail.gmail.com>
+Date: Thu, 22 Sep 2005 09:06:12 +0800
 From: Coywolf Qi Hunt <coywolf@gmail.com>
 Reply-To: Coywolf Qi Hunt <coywolf@gmail.com>
-To: Blaisorblade <blaisorblade@yahoo.it>
-Subject: Re: readme-update-from-the-stone-age.patch added to -mm tree
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200509211630.33242.blaisorblade@yahoo.it>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: Query: How fix: `ide_generic_all_on' defined but not used??
+Cc: gcoady@gmail.com, grant_lkml@dodo.com.au, linux-kernel@vger.kernel.org
+In-Reply-To: <20050921172835.005caf11.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <200509202336.j8KNak00013479@shell0.pdx.osdl.net>
-	 <2cd57c9005092019154758c826@mail.gmail.com>
-	 <200509211630.33242.blaisorblade@yahoo.it>
+References: <mpn3j1p9n087sq45le5tio0np8aoa3s11a@4ax.com>
+	 <20050921172835.005caf11.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/21/05, Blaisorblade <blaisorblade@yahoo.it> wrote:
-> On Wednesday 21 September 2005 04:15, Coywolf Qi Hunt wrote:
-> > On 9/21/05, akpm@osdl.org <akpm@osdl.org> wrote:
-> > > The patch titled
-> > >
-> > >      README update from the stone age
-> > >
-> > > has been added to the -mm tree.  Its filename is
-> > >
-> > >      readme-update-from-the-stone-age.patch
-> > >
-> > >
+On 9/22/05, Andrew Morton <akpm@osdl.org> wrote:
+> Grant Coady <grant_lkml@dodo.com.au> wrote:
+> >
+> > drivers/ide/pci/generic.c:45: warning: `ide_generic_all_on' defined but not used
+> >
+> >
+> >  Source:
+> >  ...
+> >  static int ide_generic_all;             /* Set to claim all devices */
+> >
+> >  static int __init ide_generic_all_on(char *unused)
+> >  {
+> >          ide_generic_all = 1;
+> >          printk(KERN_INFO "IDE generic will claim all unknown PCI IDE storage controllers.\n");
+> >          return 1;
+> >  }
+> >
+> >  __setup("all-generic-ide", ide_generic_all_on);
+> >  ...
+> >
+> >  How to silence this type of warning?
 >
-> > > @@ -199,6 +199,9 @@ COMPILING the kernel:
-> > >     are installing a new kernel with the same version number as your
-> > >     working kernel, make a backup of your modules directory before you
-> > >     do a "make modules_install".
-> > > +   In alternative, before compiling, edit your Makefile and change the
-> > > +   "EXTRAVERSION" line - its content is appended to the regular kernel
-> > > +   version.
+> You could try poking around in the __setup() definition, using
+> __attribute_used__, perhaps.
 >
-> > This is wrong. You expect users to both do menuconfig and edit top
-> > Makefile manually?  What is the local version for then?
-> Ok, yes, feel free to upgrade this to the use of CONFIG_LOCALVERSION. Or I can
-> do it as well.
-> --
 
-CONFIG_LOCALVERSION is for normal users while "EXTRAVERSION" is for
-developers to maintain different kernel trees.
+Weird, we have many such things, but we don't get this warning there.
+Look at __setup() in main.c.
 --
 Coywolf Qi Hunt
 http://sosdg.org/~coywolf/

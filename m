@@ -1,520 +1,282 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751319AbVIVWFp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750832AbVIVW3Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751319AbVIVWFp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 18:05:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751351AbVIVWFp
+	id S1750832AbVIVW3Z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 18:29:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbVIVW3Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 18:05:45 -0400
-Received: from zctfs063.nortelnetworks.com ([47.164.128.120]:34300 "EHLO
-	zctfs063.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S1751319AbVIVWFo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 18:05:44 -0400
-Message-ID: <43332AA3.6000804@nortel.com>
-Date: Thu, 22 Sep 2005 16:05:23 -0600
-From: "Christopher Friesen" <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: dipankar@in.ibm.com
-CC: Al Viro <viro@ftp.linux.org.uk>, Roland Dreier <rolandd@cisco.com>,
-       Sonny Rao <sonny@burdell.org>, linux-kernel@vger.kernel.org,
-       "Theodore Ts'o" <tytso@mit.edu>, bharata@in.ibm.com,
-       trond.myklebust@fys.uio.no
-Subject: Re: dentry_cache using up all my zone normal memory -- also seen
- on 2.6.14-rc2
-References: <4331C9B2.5070801@nortel.com> <20050921210019.GF4569@in.ibm.com> <4331CFAD.6020805@nortel.com> <52ll1qkrii.fsf@cisco.com> <20050922031136.GE7992@ftp.linux.org.uk> <43322AE6.1080408@nortel.com> <20050922041733.GF7992@ftp.linux.org.uk> <4332CAEA.1010509@nortel.com> <20050922182719.GA4729@in.ibm.com> <4332FFF5.5060207@nortel.com> <20050922191805.GB4729@in.ibm.com>
-In-Reply-To: <20050922191805.GB4729@in.ibm.com>
-Content-Type: multipart/mixed;
- boundary="------------020105020501080102060203"
-X-OriginalArrivalTime: 22 Sep 2005 22:05:35.0251 (UTC) FILETIME=[C1E4AE30:01C5BFC1]
+	Thu, 22 Sep 2005 18:29:25 -0400
+Received: from xproxy.gmail.com ([66.249.82.206]:14147 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750832AbVIVW3Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 18:29:24 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer;
+        b=LzORD/JxRnzpSA1RruP3+1FsllgAdMdxOMExEsiaBK1l4QAjOwaiqFZeBzOvxhVFqDmM/Y5ykDxFsF6lHIv7rFrSuFUkneW9FJjLLpNKw3FfYVS5vle7xit8JjYGolrvWpO2BxQlIWo1pTcL27KIx4OiHVdKAdJan2Q4W+ZKdJM=
+Subject: Re: 2.6.14-rc2-mm1 - ide problems ?
+From: Badari Pulavarty <pbadari@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050922125219.7ea04930.akpm@osdl.org>
+References: <20050921222839.76c53ba1.akpm@osdl.org>
+	 <64900000.1127415577@[10.10.2.4]>  <20050922125219.7ea04930.akpm@osdl.org>
+Content-Type: multipart/mixed; boundary="=-ZUz06AAFjPfkb7aZW7Ad"
+Date: Thu, 22 Sep 2005 15:28:53 -0700
+Message-Id: <1127428133.17227.94.camel@dyn9047017102.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020105020501080102060203
-Content-Type: text/plain; charset=us-ascii; format=flowed
+
+--=-ZUz06AAFjPfkb7aZW7Ad
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-Dipankar Sarma wrote:
+Hi Andrew,
 
-> Can you look at that each cpu is running (backtrace) using
-> sysrq ? That may tell us what is holding up RCU. I will look
-> at it myself later.
+My ide-based AMD64 machine doesn't boot 2.6.14-rc2-mm1.
+Known issue ?
 
-Okay, I'm not sure what you're looking for exactly, so I've included 
-inline a number of sysrq-p dumps from different iterations right before 
-the oom killer kicks in.  I've also attached a sysrq-t dump.
-
-This is on a UP system running 2.6.14-rc2.
-
-Pid: 913, comm:             rename14
-EIP: 0060:[<c015b6ec>] CPU: 0
-EIP is at link_path_walk+0x2c/0xe0
-  EFLAGS: 00000202    Not tainted  (2.6.14-rc2-gc90eef84)
-EAX: 00000007 EBX: dc35df28 ECX: 00000000 EDX: f7e7dbb8
-ESI: dc35df68 EDI: dc35ded4 EBP: dc35dee0 DS: 007b ES: 007b
-CR0: 8005003b CR2: b7db1000 CR3: 3470c000 CR4: 000006d0
-  [<c0100f9d>] show_regs+0x14d/0x174
-  [<c01f41b5>] sysrq_handle_showregs+0x15/0x20
-  [<c01f43cf>] __handle_sysrq+0x7f/0x110
-  [<c01f4493>] handle_sysrq+0x33/0x40
-  [<c01f9dce>] receive_chars+0x22e/0x290
-  [<c01fa141>] serial8250_interrupt+0xe1/0xf0
-  [<c0130cfe>] handle_IRQ_event+0x3e/0x90
-  [<c0130dab>] __do_IRQ+0x5b/0xc0
-  [<c0104d4c>] do_IRQ+0x1c/0x30
-  [<c0103586>] common_interrupt+0x1a/0x20
-  [<c015b9f8>] path_lookup+0x78/0x120
-  [<c015dd19>] sys_rename+0x99/0x240
-  [<c0102b5f>] sysenter_past_esp+0x54/0x75
-
-Pid: 919, comm:             rename14
-EIP: 0060:[<c01c9e53>] CPU: 0
-EIP is at _atomic_dec_and_lock+0x23/0x40
-  EFLAGS: 00000246    Not tainted  (2.6.14-rc2-gc90eef84)
-EAX: 00000000 EBX: f7fd66f0 ECX: f7fd66f0 EDX: 00000006
-ESI: f7fd66f0 EDI: ce84ab2c EBP: f7fbff2c DS: 007b ES: 007b
-CR0: 8005003b CR2: b7db1000 CR3: 06289000 CR4: 000006d0
-  [<c0100f9d>] show_regs+0x14d/0x174
-  [<c01f41b5>] sysrq_handle_showregs+0x15/0x20
-  [<c01f43cf>] __handle_sysrq+0x7f/0x110
-  [<c01f4493>] handle_sysrq+0x33/0x40
-  [<c01f9dce>] receive_chars+0x22e/0x290
-  [<c01fa141>] serial8250_interrupt+0xe1/0xf0
-  [<c0130cfe>] handle_IRQ_event+0x3e/0x90
-  [<c0130dab>] __do_IRQ+0x5b/0xc0
-  [<c0104d4c>] do_IRQ+0x1c/0x30
-  [<c0103586>] common_interrupt+0x1a/0x20
-  [<c01641a6>] dput+0x56/0x1d0
-  [<c014e098>] __fput+0x108/0x180
-  [<c014df88>] fput+0x18/0x20
-  [<c014c704>] filp_close+0x44/0x80
-  [<c014c795>] sys_close+0x55/0x80
-  [<c0102b5f>] sysenter_past_esp+0x54/0x75
-
-Pid: 931, comm:             rename14
-EIP: 0060:[<c01cebaf>] CPU: 0
-EIP is at strncpy_from_user+0x3f/0x60
-  EFLAGS: 00000216    Not tainted  (2.6.14-rc2-gc90eef84)
-EAX: cd0d202f EBX: 0804aac9 ECX: 00000fff EDX: 00001000
-ESI: 0804aaca EDI: dd477002 EBP: cd0d3edc DS: 007b ES: 007b
-CR0: 8005003b CR2: b7e37000 CR3: 37eb7000 CR4: 000006d0
-  [<c0100f9d>] show_regs+0x14d/0x174
-  [<c01f41b5>] sysrq_handle_showregs+0x15/0x20
-  [<c01f43cf>] __handle_sysrq+0x7f/0x110
-  [<c01f4493>] handle_sysrq+0x33/0x40
-  [<c01f9dce>] receive_chars+0x22e/0x290
-  [<c01fa141>] serial8250_interrupt+0xe1/0xf0
-  [<c0130cfe>] handle_IRQ_event+0x3e/0x90
-  [<c0130dab>] __do_IRQ+0x5b/0xc0
-  [<c0104d4c>] do_IRQ+0x1c/0x30
-  [<c0103586>] common_interrupt+0x1a/0x20
-  [<c015a235>] getname+0x75/0xc0
-  [<c015dc9d>] sys_rename+0x1d/0x240
-  [<c0102b5f>] sysenter_past_esp+0x54/0x75
-
-Pid: 937, comm:             rename14
-EIP: 0060:[<c015a386>] CPU: 0
-EIP is at generic_permission+0x106/0x140
-  EFLAGS: 00000246    Not tainted  (2.6.14-rc2-gc90eef84)
-EAX: 00000000 EBX: 000041ff ECX: 00000000 EDX: f7fc10b0
-ESI: ce84a994 EDI: 00000003 EBP: ca037e70 DS: 007b ES: 007b
-CR0: 8005003b CR2: b7e37000 CR3: 0b40a000 CR4: 000006d0
-  [<c0100f9d>] show_regs+0x14d/0x174
-  [<c01f41b5>] sysrq_handle_showregs+0x15/0x20
-  [<c01f43cf>] __handle_sysrq+0x7f/0x110
-  [<c01f4493>] handle_sysrq+0x33/0x40
-  [<c01f9dce>] receive_chars+0x22e/0x290
-  [<c01fa141>] serial8250_interrupt+0xe1/0xf0
-  [<c0130cfe>] handle_IRQ_event+0x3e/0x90
-  [<c0130dab>] __do_IRQ+0x5b/0xc0
-  [<c0104d4c>] do_IRQ+0x1c/0x30
-  [<c0103586>] common_interrupt+0x1a/0x20
-  [<c015a444>] permission+0x84/0xb0
-  [<c015bdd0>] vfs_create+0x70/0xf0
-  [<c015c140>] open_namei+0xe0/0x5f0
-  [<c014c3a4>] filp_open+0x54/0xa0
-  [<c014c5b9>] do_sys_open+0x59/0x100
-  [<c014c67f>] sys_open+0x1f/0x30
-  [<c014c6b1>] sys_creat+0x21/0x30
-  [<c0102b5f>] sysenter_past_esp+0x54/0x75
+Thanks,
+Badari
 
 
-Chris
 
-
---------------020105020501080102060203
-Content-Type: text/plain;
- name="runningprocesses"
+--=-ZUz06AAFjPfkb7aZW7Ad
+Content-Disposition: attachment; filename=amd-log
+Content-Type: text/plain; name=amd-log; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="runningprocesses"
 
-SysRq : Show State
+Bootdata ok (command line is root=/dev/hda2 vga=0x314 selinux=0 splash=silent console=tty0 console=ttyS0,38400 resume=/dev/hda1 profile=2)
+Linux version 2.6.14-rc2-mm1 (root@elm3b29) (gcc version 3.3.3 (SuSE Linux)) #1 SMP Thu Sep 22 14:46:56 PDT 2005
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009f000 (usable)
+ BIOS-e820: 000000000009f000 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000ca000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 00000000dfef0000 (usable)
+ BIOS-e820: 00000000dfef0000 - 00000000dfeff000 (ACPI data)
+ BIOS-e820: 00000000dfeff000 - 00000000dff00000 (ACPI NVS)
+ BIOS-e820: 00000000dff00000 - 00000000e0000000 (usable)
+ BIOS-e820: 00000000fec00000 - 00000000fec00400 (reserved)
+ BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
+ BIOS-e820: 00000000fff80000 - 0000000100000000 (reserved)
+ BIOS-e820: 0000000100000000 - 00000001e0000000 (usable)
+Scanning NUMA topology in Northbridge 24
+Number of nodes 4
+Node 0 MemBase 0000000000000000 Limit 000000017fffffff
+Node 1 MemBase 0000000180000000 Limit 000000019fffffff
+Node 2 MemBase 00000001a0000000 Limit 00000001bfffffff
+Node 3 MemBase 00000001c0000000 Limit 00000001dfffffff
+Using node hash shift of 21
+Bootmem setup node 0 0000000000000000-000000017fffffff
+Bootmem setup node 1 0000000180000000-000000019fffffff
+Bootmem setup node 2 00000001a0000000-00000001bfffffff
+Bootmem setup node 3 00000001c0000000-00000001dfffffff
+ACPI: PM-Timer IO Port: 0x8008
+ACPI: LAPIC (acpi_id[0x00] lapic_id[0x00] enabled)
+Processor #0 15:5 APIC version 16
+ACPI: LAPIC (acpi_id[0x01] lapic_id[0x01] enabled)
+Processor #1 15:5 APIC version 16
+ACPI: LAPIC (acpi_id[0x02] lapic_id[0x02] enabled)
+Processor #2 15:5 APIC version 16
+ACPI: LAPIC (acpi_id[0x03] lapic_id[0x03] enabled)
+Processor #3 15:5 APIC version 16
+ACPI: LAPIC_NMI (acpi_id[0x00] high edge lint[0x1])
+ACPI: LAPIC_NMI (acpi_id[0x01] high edge lint[0x1])
+ACPI: LAPIC_NMI (acpi_id[0x02] high edge lint[0x1])
+ACPI: LAPIC_NMI (acpi_id[0x03] high edge lint[0x1])
+ACPI: IOAPIC (id[0x04] address[0xfec00000] gsi_base[0])
+IOAPIC[0]: apic_id 4, version 17, address 0xfec00000, GSI 0-23
+ACPI: IOAPIC (id[0x05] address[0xfa3e0000] gsi_base[24])
+IOAPIC[1]: apic_id 5, version 17, address 0xfa3e0000, GSI 24-27
+ACPI: IOAPIC (id[0x06] address[0xfa3e1000] gsi_base[28])
+IOAPIC[2]: apic_id 6, version 17, address 0xfa3e1000, GSI 28-31
+ACPI: IOAPIC (id[0x07] address[0xfa3e2000] gsi_base[32])
+IOAPIC[3]: apic_id 7, version 17, address 0xfa3e2000, GSI 32-35
+ACPI: IOAPIC (id[0x08] address[0xfa3e4000] gsi_base[36])
+IOAPIC[4]: apic_id 8, version 17, address 0xfa3e4000, GSI 36-39
+ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 high edge)
+Setting APIC routing to flat
+Using ACPI (MADT) for SMP configuration information
+Allocating PCI resources starting at e2000000 (gap: e0000000:1ec00000)
+Checking aperture...
+CPU 0: aperture @ 0 size 32 MB
+No AGP bridge found
+Your BIOS doesn't leave a aperture memory hole
+Please enable the IOMMU option in the BIOS setup
+This costs you 64 MB of RAM
+Mapping aperture over 65536 KB of RAM @ 8000000
+Built 4 zonelists
+Initializing CPU#0
+Kernel command line: root=/dev/hda2 vga=0x314 selinux=0 splash=silent console=tty0 console=ttyS0,38400 resume=/dev/hda1 profile=2
+kernel profiling enabled (shift: 2)
+PID hash table entries: 4096 (order: 12, 131072 bytes)
+time.c: Using 3.579545 MHz PM timer.
+time.c: Detected 1398.189 MHz processor.
+Console: colour dummy device 80x25
+Dentry cache hash table entries: 1048576 (order: 11, 8388608 bytes)
+Inode-cache hash table entries: 524288 (order: 10, 4194304 bytes)
+Memory: 6110856k/7864320k available (3049k kernel code, 194612k reserved, 1612k data, 244k init)
+Calibrating delay using timer specific routine.. 2801.62 BogoMIPS (lpj=5603254)
+Security Framework v1.0.0 initialized
+SELinux:  Disabled at boot.
+Mount-cache hash table entries: 256
+CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+CPU: L2 Cache: 1024K (64 bytes/line)
+CPU 0(1) -> Node 0 -> Core 0
+mtrr: v2.0 (20020519)
+Using local APIC timer interrupts.
+Detected 12.483 MHz APIC timer.
+setup_APIC_timer
+done
+Booting processor 1/4 APIC 0x1
+Initializing CPU#1
+Calibrating delay using timer specific routine.. 2796.59 BogoMIPS (lpj=5593188)
+CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+CPU: L2 Cache: 1024K (64 bytes/line)
+CPU 1(1) -> Node 1 -> Core 0
+Opteron MP w/ 1MB stepping 00
+setup_APIC_timer
+done
+CPU 1: Syncing TSC to CPU 0.
+CPU 1: synchronized TSC with CPU 0 (last diff -1 cycles, maxerr 981 cycles)
+Booting processor 2/4 APIC 0x2
+Initializing CPU#2
+Calibrating delay using timer specific routine.. 2796.59 BogoMIPS (lpj=5593185)
+CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+CPU: L2 Cache: 1024K (64 bytes/line)
+CPU 2(1) -> Node 2 -> Core 0
+Opteron MP w/ 1MB stepping 00
+setup_APIC_timer
+done
+CPU 2: Syncing TSC to CPU 0.
+CPU 2: synchronized TSC with CPU 0 (last diff -4 cycles, maxerr 976 cycles)
+Booting processor 3/4 APIC 0x3
+Initializing CPU#3
+Calibrating delay using timer specific routine.. 2796.59 BogoMIPS (lpj=5593186)
+CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+CPU: L2 Cache: 1024K (64 bytes/line)
+CPU 3(1) -> Node 3 -> Core 0
+Opteron MP w/ 1MB stepping 00
+setup_APIC_timer
+done
+CPU 3: Syncing TSC to CPU 0.
+CPU 3: synchronized TSC with CPU 0 (last diff -2 cycles, maxerr 1606 cycles)
+Brought up 4 CPUs
+Disabling vsyscall due to use of PM timer
+time.c: Using PM based timekeeping.
+testing NMI watchdog ... OK.
+NET: Registered protocol family 16
+ACPI: bus type pci registered
+PCI: Using configuration type 1
+ACPI: Subsystem revision 20050902
+ACPI: Interpreter enabled
+ACPI: Using IOAPIC for interrupt routing
+ACPI: PCI Root Bridge [PCI0] (0000:00)
+PCI: Probing PCI hardware (bus 00)
+ACPI: PCI Interrupt Link [LNKA] (IRQs 3 *5 10 11)
+ACPI: PCI Interrupt Link [LNKB] (IRQs 3 5 *10 11)
+ACPI: PCI Interrupt Link [LNKC] (IRQs 3 5 10 *11)
+ACPI: PCI Interrupt Link [LNKD] (IRQs 3 5 10 *11)
+ACPI: PCI Root Bridge [PCI1] (0000:08)
+PCI: Probing PCI hardware (bus 08)
+SCSI subsystem initialized
+PCI: Using ACPI for IRQ routing
+PCI: If a device doesn't work, try "pci=routeirq".  If it helps, post a report
+PCI-DMA: Disabling AGP.
+PCI-DMA: aperture base @ 8000000 size 65536 KB
+PCI-DMA: Reserving 64MB of IOMMU area in the AGP aperture
+PCI: Bridge: 0000:00:06.0
+  IO window: 2000-2fff
+  MEM window: fa000000-fa0fffff
+  PREFETCH window: e2000000-e20fffff
+PCI: Bridge: 0000:09:01.0
+  IO window: disabled.
+  MEM window: fa400000-faffffff
+  PREFETCH window: fc000000-fdffffff
+PCI: Bridge: 0000:08:01.0
+  IO window: disabled.
+  MEM window: fa400000-faffffff
+  PREFETCH window: fc000000-fdffffff
+PCI: Bridge: 0000:08:02.0
+  IO window: 3000-3fff
+  MEM window: fb000000-fb0fffff
+  PREFETCH window: e2100000-e21fffff
+PCI: Bridge: 0000:08:03.0
+  IO window: disabled.
+  MEM window: disabled.
+  PREFETCH window: disabled.
+PCI: Bridge: 0000:08:04.0
+  IO window: 4000-4fff
+  MEM window: fb100000-fb1fffff
+  PREFETCH window: e2200000-e22fffff
+ACPI: PCI Interrupt 0000:08:04.0[A] -> GSI 36 (level, low) -> IRQ 16
+IA32 emulation $Id: sys_ia32.c,v 1.32 2002/03/24 13:02:28 ak Exp $
+audit: initializing netlink socket (disabled)
+audit(1127427646.392:1): initialized
+Total HugeTLB memory allocated, 0
+VFS: Disk quotas dquot_6.5.1
+Dquot-cache hash table entries: 512 (order 0, 4096 bytes)
+JFS: nTxBlock = 8192, nTxLock = 65536
+Initializing Cryptographic API
+PCI: MSI quirk detected. pci_msi_quirk set.
+PCI: MSI quirk detected. pci_msi_quirk set.
+PCI: MSI quirk detected. pci_msi_quirk set.
+PCI: MSI quirk detected. pci_msi_quirk set.
+vesafb: framebuffer at 0xfc000000, mapped to 0xffffc20000600000, using 1875k, total 16384k
+vesafb: mode is 800x600x16, linelength=1600, pages=16
+vesafb: scrolling: redraw
+vesafb: Truecolor: size=0:5:6:5, shift=0:11:5:0
+mtrr: type mismatch for fc000000,1000000 old: write-back new: write-combining
+mtrr: type mismatch for fc000000,800000 old: write-back new: write-combining
+mtrr: type mismatch for fc000000,400000 old: write-back new: write-combining
+mtrr: type mismatch for fc000000,200000 old: write-back new: write-combining
+mtrr: type mismatch for fc000000,100000 old: write-back new: write-combining
+mtrr: type mismatch for fc000000,80000 old: write-back new: write-combining
+mtrr: type mismatch for fc000000,40000 old: write-back new: write-combining
+mtrr: type mismatch for fc000000,20000 old: write-back new: write-combining
+mtrr: type mismatch for fc000000,10000 old: write-back new: write-combining
+mtrr: type mismatch for fc000000,8000 old: write-back new: write-combining
+mtrr: type mismatch for fc000000,4000 old: write-back new: write-combining
+mtrr: type mismatch for fc000000,2000 old: write-back new: write-combining
+mtrr: type mismatch for fc000000,1000 old: write-back new: write-combining
+vesafb: Mode is not VGA compatible
+Console: switching to colour frame buffer device 100x37
+fb0: VESA VGA frame buffer device
+Real Time Clock Driver v1.12
+Non-volatile memory driver v1.2
+Linux agpgart interface v0.101 (c) Dave Jones
+serio: i8042 AUX port at 0x60,0x64 irq 12
+serio: i8042 KBD port at 0x60,0x64 irq 1
+Serial: 8250/16550 driver $Revision: 1.90 $ 4 ports, IRQ sharing disabled
+ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
+mice: PS/2 mouse device common for all mice
+input: PC Speaker
+io scheduler noop registered
+input: AT Translated Set 2 keyboard on isa0060/serio0
+io scheduler anticipatory registered
+io scheduler deadline registered
+io scheduler cfq registered
+RAMDISK driver initialized: 16 RAM disks of 128000K size 1024 blocksize
+loop: loaded (max 8 devices)
+tg3.c:v3.40 (September 15, 2005)
+ACPI: PCI Interrupt 0000:19:02.0[A] -> GSI 38 (level, low) -> IRQ 17
+input: PS/2 Generic Mouse on isa0060/serio1
+eth0: Tigon3 [partno(3C996B-T) rev 0105 PHY(5701)] (PCI:66MHz:64-bit) 10/100/1000BaseT Ethernet 00:04:76:f0:f9:aa
+eth0: RXcsums[1] LinkChgREG[0] MIirq[0] ASF[0] Split[0] WireSpeed[1] TSOcap[0]
+eth0: dma_rwctrl[76ff000f]
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+AMD8111: IDE controller at PCI slot 0000:00:07.1
+AMD8111: chipset revision 3
+AMD8111: not 100% native mode: will probe irqs later
+AMD8111: 0000:00:07.1 (rev 03) UDMA133 controller
+    ide0: BM-DMA at 0x1020-0x1027, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0x1028-0x102f, BIOS settings: hdc:DMA, hdd:pio
 
-                                               sibling
-  task             PC      pid father child younger older
-init          S 00000000     0     1      0     2               (NOTLB)
-c353fea0 c34f4a10 c03b7b80 00000000 00000000 00000000 00000001 00000000 
-       c34f4a10 f7ef5560 00002bfa a0dbb75a 00000187 c34f4a10 c34f4b38 0014c7ea 
-       c353feb4 0000000b c353fedc c02fb023 c353feb4 0014c7ea f7f4caec c03bd9a0 
-Call Trace:
- [<c02fb023>] schedule_timeout+0x53/0xb0
- [<c015fea6>] do_select+0x256/0x290
- [<c01601fc>] sys_select+0x2cc/0x3f0
- [<c0102b5f>] sysenter_past_esp+0x54/0x75
-ksoftirqd/0   R running     0     2      1             3       (L-TLB)
-watchdog/0    S 0000014E     0     3      1             4     2 (L-TLB)
-c3543f44 c34f4030 c03b7b80 0000014e 00000000 7c56f42d 0000014e 00000417 
-       00000000 f7ef5560 000002de 8bcab025 00000187 c34f4030 c34f4158 0014b6ea 
-       c3543f58 00000000 c3543f80 c02fb023 c3543f58 0014b6ea c34f4030 c03bdb18 
-Call Trace:
- [<c02fb023>] schedule_timeout+0x53/0xb0
- [<c02fb09a>] schedule_timeout_interruptible+0x1a/0x20
- [<c011e794>] msleep_interruptible+0x34/0x40
- [<c0130b81>] watchdog+0x61/0x90
- [<c012867a>] kthread+0x9a/0xe0
- [<c0100fc9>] kernel_thread_helper+0x5/0xc
-events/0      S 00000246     0     4      1             5     3 (L-TLB)
-c3549f38 c34fba50 c03b7b80 00000246 f7d5800c 00000286 00000000 00000092 
-       f7d580d8 f7ef5560 000004f8 995007cf 00000187 c34fba50 c34fbb78 00000286 
-       f7d58000 c34f2848 c3549fb4 c012486c 00000000 c3549f68 00000000 c34f2858 
-Call Trace:
- [<c012486c>] worker_thread+0x1ec/0x220
- [<c012867a>] kthread+0x9a/0xe0
- [<c0100fc9>] kernel_thread_helper+0x5/0xc
-khelper       S F74F9D38     0     5      1             6     4 (L-TLB)
-c354bf38 c34fb560 c03b7b80 f74f9d38 c354bf20 00000282 00000000 00000092 
-       f74f9d38 f751da90 000000e9 5a1a74e3 00000008 c34fb560 c34fb688 00000292 
-       f74f9d74 c34f27c8 c354bfb4 c012486c 00000000 c354bf68 00000000 c34f27d8 
-Call Trace:
- [<c012486c>] worker_thread+0x1ec/0x220
- [<c012867a>] kthread+0x9a/0xe0
- [<c0100fc9>] kernel_thread_helper+0x5/0xc
-kthread       S C3573F1C     0     6      1     8      91     5 (L-TLB)
-c3573f38 c34fb070 c03b7b80 c3573f1c 00000282 c353fdd4 00000000 00000092 
-       c353fd7c c34f4a10 0000004f d0f13e25 00000007 c34fb070 c34fb198 00000286 
-       c353fdb8 c3505bc8 c3573fb4 c012486c 00000000 c3573f68 00000000 c3505bd8 
-Call Trace:
- [<c012486c>] worker_thread+0x1ec/0x220
- [<c012867a>] kthread+0x9a/0xe0
- [<c0100fc9>] kernel_thread_helper+0x5/0xc
-kblockd/0     S 2E8A98C2     0     8      6            89       (L-TLB)
-c3575f38 c3509a90 c03b7b80 2e8a98c2 c3575f1c c0111c5c 00010000 c3574000 
-       c3509a90 c34f4a10 000002fe 8ecc70a0 00000006 c3509a90 c3509bb8 c3574000 
-       00000000 fffffffb c3575fb4 c012486c 00000011 c3575f68 00000000 c35058d8 
-Call Trace:
- [<c012486c>] worker_thread+0x1ec/0x220
- [<c012867a>] kthread+0x9a/0xe0
- [<c0100fc9>] kernel_thread_helper+0x5/0xc
-pdflush       S C373DF50     0    89      6            90     8 (L-TLB)
-c373df70 c35095a0 c03b7b80 c373df50 00000001 c373df5c 00000086 c34fb070 
-       b3494352 c35090b0 00000082 a7acf1c2 00000006 c35095a0 c35096c8 c373dfa0 
-       c373df94 00000000 c373df84 c0138a60 c373c000 c373c000 c353ff58 c373dfb4 
-Call Trace:
- [<c0138a60>] __pdflush+0x80/0x170
- [<c0138b78>] pdflush+0x28/0x30
- [<c012867a>] kthread+0x9a/0xe0
- [<c0100fc9>] kernel_thread_helper+0x5/0xc
-pdflush       S 00000000     0    90      6            92    89 (L-TLB)
-c375df70 c35090b0 c03b7b80 00000000 00000000 00000000 00000000 00000000 
-       00000005 f7fc1a90 000008b9 90cbc789 00000187 c35090b0 c35091d8 c375dfa0 
-       c375df94 00000000 c375df84 c0138a60 00000000 c375c000 c353ff58 c375dfb4 
-Call Trace:
- [<c0138a60>] __pdflush+0x80/0x170
- [<c0138b78>] pdflush+0x28/0x30
- [<c012867a>] kthread+0x9a/0xe0
- [<c0100fc9>] kernel_thread_helper+0x5/0xc
-aio/0         S 00000006     0    92      6           208    90 (L-TLB)
-c379ff38 c34fb560 c03b7bb0 00000006 c379ff1c a948ef6f 00000006 00000195 
-       00000000 c34fb560 00000072 a948f32f 00000006 c359b5e0 c359b708 c379e000 
-       00000000 fffffffb c379ffb4 c012486c 00000011 c379ff68 00000000 c35979d8 
-Call Trace:
- [<c012486c>] worker_thread+0x1ec/0x220
- [<c012867a>] kthread+0x9a/0xe0
- [<c0100fc9>] kernel_thread_helper+0x5/0xc
-kswapd0       S 00000020     0    91      1           427     6 (L-TLB)
-c375ff80 c359bad0 c03b7b80 00000020 00000000 00000000 0000052c 00000020 
-       0000000c f7f10ad0 00000065 dde71359 00000133 c359bad0 c359bbf8 00000000 
-       c033c014 00000000 c375ffe4 c013dffa c033bc40 00000000 00000000 00000000 
-Call Trace:
- [<c013dffa>] kswapd+0xda/0xf0
- [<c0100fc9>] kernel_thread_helper+0x5/0xc
-rpciod/0      S C02E41C5     0   208      6                  92 (L-TLB)
-f7f71f38 c359b0f0 c03b7b80 c02e41c5 f7dd8ac4 f7dd8b80 00000000 00000092 
-       f7dd8b44 f7f71f38 00000105 ea3d42af 00000182 c359b0f0 c359b218 00000292 
-       f7dd8ac4 f7f1c748 f7f71fb4 c012486c 00000000 f7f71f68 00000000 f7f1c758 
-Call Trace:
- [<c012486c>] worker_thread+0x1ec/0x220
- [<c012867a>] kthread+0x9a/0xe0
- [<c0100fc9>] kernel_thread_helper+0x5/0xc
-syslogd       S 00000000     0   427      1           431    91 (NOTLB)
-f7f09ea0 f7f5a520 c03b7b80 00000000 f7f5a520 00000010 c033bfc4 00000000 
-       f7f09e90 00000000 00000489 194edd72 00000181 f7f5a520 f7f5a648 00000000 
-       7fffffff 00000001 f7f09edc c02fb06f f7f09ec4 c0243292 f7fd7840 c37979d8 
-Call Trace:
- [<c02fb06f>] schedule_timeout+0x9f/0xb0
- [<c015fea6>] do_select+0x256/0x290
- [<c01601fc>] sys_select+0x2cc/0x3f0
- [<c0102b5f>] sysenter_past_esp+0x54/0x75
-klogd         R running     0   431      1           502   427 (NOTLB)
-sshd          S F7412030     0   502      1   823     518   431 (NOTLB)
-f7f53ea0 f7412030 c03b7b80 f7412030 00000010 c033bfc4 00000000 00000202 
-       00000000 f7fae5c0 000003d5 3a05cff4 00000136 f7412030 f7412158 00000000 
-       7fffffff 00000004 f7f53edc c02fb06f c0263850 f7fae5c0 c37970d8 f7f53f38 
-Call Trace:
- [<c02fb06f>] schedule_timeout+0x9f/0xb0
- [<c015fea6>] do_select+0x256/0x290
- [<c01601fc>] sys_select+0x2cc/0x3f0
- [<c0102b5f>] sysenter_past_esp+0x54/0x75
-xinetd        S 00000000     0   518      1           527   502 (NOTLB)
-f7e2bea0 f7f105e0 c03b7b80 00000000 00000000 00000000 00000001 00000000 
-       f7f105e0 00000010 00001511 38ccc693 00000008 f7f105e0 f7f10708 00000000 
-       7fffffff 00000007 f7e2bedc c02fb06f c0263850 f7e55a40 f7e58c98 f7e2bf38 
-Call Trace:
- [<c02fb06f>] schedule_timeout+0x9f/0xb0
- [<c015fea6>] do_select+0x256/0x290
- [<c01601fc>] sys_select+0x2cc/0x3f0
- [<c0102b5f>] sysenter_past_esp+0x54/0x75
-bash          S F7E57E54     0   527      1           528   518 (NOTLB)
-f7e57e74 f7412a10 c03b7b80 f7e57e54 c01f9ab0 c03c91e0 00000001 00000007 
-       c03c91e0 f74cd803 000003ad 79dbde27 00000181 f7412a10 f7412b38 f7d58000 
-       7fffffff 00000000 f7e57eb0 c02fb06f f7d58000 00000003 c03c91e0 f74cd803 
-Call Trace:
- [<c02fb06f>] schedule_timeout+0x9f/0xb0
- [<c01e7ad2>] read_chan+0x4e2/0x640
- [<c01e287c>] tty_read+0xcc/0xe0
- [<c014d088>] vfs_read+0x198/0x1a0
- [<c014d38b>] sys_read+0x4b/0x80
- [<c0102b5f>] sysenter_past_esp+0x54/0x75
-mingetty      S C341B000     0   528      1           529   527 (NOTLB)
-f7f67e74 f7412520 c03b7b80 c341b000 c341b220 0000000b 00000001 00000000 
-       00000000 c341b000 00000ac1 41ee1e5e 00000008 f7412520 f7412648 c37d1000 
-       7fffffff f7f67f00 f7f67eb0 c02fb06f f7f67e98 c01f2b3f c37d1000 c379200b 
-Call Trace:
- [<c02fb06f>] schedule_timeout+0x9f/0xb0
- [<c01e7ad2>] read_chan+0x4e2/0x640
- [<c01e287c>] tty_read+0xcc/0xe0
- [<c014d088>] vfs_read+0x198/0x1a0
- [<c014d38b>] sys_read+0x4b/0x80
- [<c0102b5f>] sysenter_past_esp+0x54/0x75
-mingetty      S 00000008     0   529      1           530   528 (NOTLB)
-f7f4be74 c34f4a10 c03b8028 00000008 00000020 44d95ace 00000008 000c1ebb 
-       00000000 c34f4a10 00000cee 44f60f61 00000008 f7feaa50 f7feab78 f7ef4000 
-       7fffffff f7f4bf00 f7f4beb0 c02fb06f f7f4be98 c01f2b3f f7ef4000 f7ef8c0b 
-Call Trace:
- [<c02fb06f>] schedule_timeout+0x9f/0xb0
- [<c01e7ad2>] read_chan+0x4e2/0x640
- [<c01e287c>] tty_read+0xcc/0xe0
- [<c014d088>] vfs_read+0x198/0x1a0
- [<c014d38b>] sys_read+0x4b/0x80
- [<c0102b5f>] sysenter_past_esp+0x54/0x75
-mingetty      S 00000008     0   530      1           531   529 (NOTLB)
-f7e69e74 f7f5a030 c03b8028 00000008 00000020 4cc7c3e5 00000008 0014f81b 
-       00000000 f7f5a030 00002aca 4cf96dd7 00000008 f7fea560 f7fea688 f7dc9000 
-       7fffffff f7e69f00 f7e69eb0 c02fb06f f7e69e98 c01f2b3f f7dc9000 f7eeb80b 
-Call Trace:
- [<c02fb06f>] schedule_timeout+0x9f/0xb0
- [<c01e7ad2>] read_chan+0x4e2/0x640
- [<c01e287c>] tty_read+0xcc/0xe0
- [<c014d088>] vfs_read+0x198/0x1a0
- [<c014d38b>] sys_read+0x4b/0x80
- [<c0102b5f>] sysenter_past_esp+0x54/0x75
-mingetty      S F7FD9000     0   531      1           532   530 (NOTLB)
-f7f15e74 f7fea070 c03b7b80 f7fd9000 00000020 f7f15f28 f7f15f28 fffffffe 
-       00000000 f7f5a030 00001c1a 51f4ffc2 00000008 f7fea070 f7fea198 f7ec6000 
-       7fffffff f7f15f00 f7f15eb0 c02fb06f f7f15e98 c01f2b3f f7ec6000 f747f40b 
-Call Trace:
- [<c02fb06f>] schedule_timeout+0x9f/0xb0
- [<c01e7ad2>] read_chan+0x4e2/0x640
- [<c01e287c>] tty_read+0xcc/0xe0
- [<c014d088>] vfs_read+0x198/0x1a0
- [<c014d38b>] sys_read+0x4b/0x80
- [<c0102b5f>] sysenter_past_esp+0x54/0x75
-mingetty      S F7418800     0   532      1           548   531 (NOTLB)
-f7e8be74 f7f5a030 c03b7b80 f7418800 00000020 f7e8bf28 f7e8bf28 fffffffe 
-       00000000 c015b71a 0000318d 567baabc 00000008 f7f5a030 f7f5a158 f7581000 
-       7fffffff f7e8bf00 f7e8beb0 c02fb06f f7e8be98 c01f2b3f f7581000 f754f00b 
-Call Trace:
- [<c02fb06f>] schedule_timeout+0x9f/0xb0
- [<c01e7ad2>] read_chan+0x4e2/0x640
- [<c01e287c>] tty_read+0xcc/0xe0
- [<c014d088>] vfs_read+0x198/0x1a0
- [<c014d38b>] sys_read+0x4b/0x80
- [<c0102b5f>] sysenter_past_esp+0x54/0x75
-udevd         S 00000000     0   548      1           573   532 (NOTLB)
-f7467ea0 f7ef5070 c03b7b80 00000000 00000000 00000000 00000001 00000000 
-       f7ef5070 00000010 00001e03 b3cffce1 0000000a f7ef5070 f7ef5198 00000000 
-       7fffffff 00000006 f7467edc c02fb06f f7467ec4 c0243292 f7e9eb40 f7fee858 
-Call Trace:
- [<c02fb06f>] schedule_timeout+0x9f/0xb0
- [<c015fea6>] do_select+0x256/0x290
- [<c01601fc>] sys_select+0x2cc/0x3f0
- [<c0102b5f>] sysenter_past_esp+0x54/0x75
-mingetty      S 00000008     0   573      1                 548 (NOTLB)
-f74f9e74 f7553520 c03b7bb0 00000008 f74f9eac 5a25a9be 00000008 000024bd 
-       00000000 f7553520 00000c4b 5a25a9be 00000008 f748e560 f748e688 f7498000 
-       7fffffff f74f9f00 f74f9eb0 c02fb06f c37b2380 f74f8000 00000000 00000000 
-Call Trace:
- [<c02fb06f>] schedule_timeout+0x9f/0xb0
- [<c01e7ad2>] read_chan+0x4e2/0x640
- [<c01e287c>] tty_read+0xcc/0xe0
- [<c014d088>] vfs_read+0x198/0x1a0
- [<c014d38b>] sys_read+0x4b/0x80
- [<c0102b5f>] sysenter_past_esp+0x54/0x75
-sshd          S 00000187     0   823    502   825     832       (NOTLB)
-f7fbfea0 f7f5aa10 c03b8028 00000187 c01e1853 81a0af3c 00000187 0001031e 
-       00000000 f7f5aa10 00006b6c 81a314f0 00000187 f748ea50 f748eb78 00000000 
-       7fffffff 00000008 f7fbfedc c02fb06f 00000286 00000000 f7d9f000 f7d9f00c 
-Call Trace:
- [<c02fb06f>] schedule_timeout+0x9f/0xb0
- [<c015fea6>] do_select+0x256/0x290
- [<c01601fc>] sys_select+0x2cc/0x3f0
- [<c0102b5f>] sysenter_past_esp+0x54/0x75
-bash          S C01364EA     0   825    823   828               (NOTLB)
-f75bdf08 f748e070 c03b7b80 c01364ea f75bdee4 c013bd35 00000002 f75bdee8 
-       c0125211 ffffffff 0000133a b3d1ff7b 0000012c f748e070 f748e198 fffffe00 
-       f748e070 f748e11c f75bdf80 c0118d2b f7f5aa10 00000000 00000000 bf914df8 
-Call Trace:
- [<c0118d2b>] do_wait+0x2bb/0x390
- [<c0118ecc>] sys_wait4+0x3c/0x40
- [<c0118ef5>] sys_waitpid+0x25/0x27
- [<c0102b5f>] sysenter_past_esp+0x54/0x75
-slabtop       S F74DDEB8     0   828    825                     (NOTLB)
-f74ddea0 f7f5aa10 c03b7b80 f74ddeb8 c01e1853 f7f30000 00000187 00000000 
-       00000096 c34f4520 000000ac 81a31a51 00000187 f7f5aa10 f7f5ab38 0014be0e 
-       f74ddeb4 00000001 f74ddedc c02fb023 f74ddeb4 0014be0e f7f30000 c03bdb58 
-Call Trace:
- [<c02fb023>] schedule_timeout+0x53/0xb0
- [<c015fea6>] do_select+0x256/0x290
- [<c01601fc>] sys_select+0x2cc/0x3f0
- [<c0102b5f>] sysenter_past_esp+0x54/0x75
-sshd          S 00000184     0   832    502   834           823 (NOTLB)
-f7517ea0 f7f100f0 c03b7bb0 00000184 c01e1853 a47a174b 00000184 000013ac 
-       00000000 f7f100f0 000008bd a47a45e4 00000184 f7f10ad0 f7f10bf8 00000000 
-       7fffffff 00000008 f7517edc c02fb06f 00000286 00000000 f7d7a000 f7d7a00c 
-Call Trace:
- [<c02fb06f>] schedule_timeout+0x9f/0xb0
- [<c015fea6>] do_select+0x256/0x290
- [<c01601fc>] sys_select+0x2cc/0x3f0
- [<c0102b5f>] sysenter_past_esp+0x54/0x75
-bash          S C01364EA     0   834    832   846               (NOTLB)
-f755bf08 f7f100f0 c03b7b80 c01364ea f755bee4 c013bd35 00000002 f755bee8 
-       c0125211 ffffffff 00001e40 a47e8c3d 00000184 f7f100f0 f7f10218 fffffe00 
-       f7f100f0 f7f1019c f755bf80 c0118d2b f7fc10b0 00000000 00000000 bfccc0f8 
-Call Trace:
- [<c0118d2b>] do_wait+0x2bb/0x390
- [<c0118ecc>] sys_wait4+0x3c/0x40
- [<c0118ef5>] sys_waitpid+0x25/0x27
- [<c0102b5f>] sysenter_past_esp+0x54/0x75
-rename14      S E3BD3EF0     0   846    834   847               (NOTLB)
-e3bd3f20 f7fc10b0 c03b7b80 e3bd3ef0 e3bd3f9c 00000001 e3bd3f24 c0140f36 
-       c2d32c80 f7fc1a90 00002ff6 a6b76d1a 00000184 f7fc10b0 f7fc11d8 fffffe00 
-       f7fc10b0 f7fc115c e3bd3f98 c0118d2b ffffffff 00000004 f7ef5560 b7f9f181 
-Call Trace:
- [<c0118d2b>] do_wait+0x2bb/0x390
- [<c0118ecc>] sys_wait4+0x3c/0x40
- [<c0102b5f>] sysenter_past_esp+0x54/0x75
-rename14      R running     0   847    846           848       (NOTLB)
-rename14      R running     0   848    846                 847 (NOTLB)
-oom-killer: gfp_mask=0xd0, order=0
-Mem-info:
-DMA per-cpu:
-cpu 0 hot: low 2, high 6, batch 1 used:2
-cpu 0 cold: low 0, high 2, batch 1 used:0
-Normal per-cpu:
-cpu 0 hot: low 62, high 186, batch 31 used:92
-cpu 0 cold: low 0, high 62, batch 31 used:0
-HighMem per-cpu:
-cpu 0 hot: low 62, high 186, batch 31 used:77
-cpu 0 cold: low 0, high 62, batch 31 used:28
-Free pages:     2487360kB (2480124kB HighMem)
-Active:1693 inactive:626 dirty:19 writeback:0 unstable:0 free:621840 slab:215739 mapped:1371 pagetables:65
-DMA free:3588kB min:68kB low:84kB high:100kB active:0kB inactive:0kB present:16384kB pages_scanned:30 all_unreclaimable? yes
-lowmem_reserve[]: 0 880 4080
-Normal free:3648kB min:3756kB low:4692kB high:5632kB active:0kB inactive:0kB present:901120kB pages_scanned:16 all_unreclaimable? yes
-lowmem_reserve[]: 0 0 25600
-HighMem free:2480124kB min:512kB low:640kB high:768kB active:6772kB inactive:2504kB present:3276800kB pages_scanned:0 all_unreclaimable? no
-lowmem_reserve[]: 0 0 0
-DMA: 1*4kB 0*8kB 0*16kB 0*32kB 0*64kB 0*128kB 0*256kB 1*512kB 1*1024kB 1*2048kB 0*4096kB = 3588kB
-Normal: 0*4kB 0*8kB 0*16kB 0*32kB 1*64kB 0*128kB 0*256kB 1*512kB 1*1024kB 1*2048kB 0*4096kB = 3648kB
-HighMem: 1*4kB 1*8kB 19*16kB 12*32kB 21*64kB 14*128kB 5*256kB 2*512kB 2*1024kB 1*2048kB 603*4096kB = 2480124kB
-Free swap:            0kB
-1048576 pages of RAM
-819200 pages of HIGHMEM
-206973 reserved pages
-3265 pages shared
-0 pages swap cached
-19 pages dirty
-0 pages writeback
-1371 pages mapped
-215561 pages slab
-65 pages pagetables
-oom-killer: gfp_mask=0xd0, order=0
-Mem-info:
-DMA per-cpu:
-cpu 0 hot: low 2, high 6, batch 1 used:2
-cpu 0 cold: low 0, high 2, batch 1 used:0
-Normal per-cpu:
-cpu 0 hot: low 62, high 186, batch 31 used:92
-cpu 0 cold: low 0, high 62, batch 31 used:0
-HighMem per-cpu:
-cpu 0 hot: low 62, high 186, batch 31 used:175
-cpu 0 cold: low 0, high 62, batch 31 used:28
-Free pages:     2487732kB (2480496kB HighMem)
-Active:1524 inactive:604 dirty:21 writeback:0 unstable:0 free:621933 slab:215754 mapped:1142 pagetables:55
-DMA free:3588kB min:68kB low:84kB high:100kB active:0kB inactive:0kB present:16384kB pages_scanned:52 all_unreclaimable? yes
-lowmem_reserve[]: 0 880 4080
-Normal free:3648kB min:3756kB low:4692kB high:5632kB active:0kB inactive:0kB present:901120kB pages_scanned:22 all_unreclaimable? yes
-lowmem_reserve[]: 0 0 25600
-HighMem free:2480496kB min:512kB low:640kB high:768kB active:6096kB inactive:2416kB present:3276800kB pages_scanned:0 all_unreclaimable? no
-lowmem_reserve[]: 0 0 0
-DMA: 1*4kB 0*8kB 0*16kB 0*32kB 0*64kB 0*128kB 0*256kB 1*512kB 1*1024kB 1*2048kB 0*4096kB = 3588kB
-Normal: 0*4kB 0*8kB 0*16kB 0*32kB 1*64kB 0*128kB 0*256kB 1*512kB 1*1024kB 1*2048kB 0*4096kB = 3648kB
-HighMem: 60*4kB 18*8kB 19*16kB 12*32kB 21*64kB 14*128kB 5*256kB 2*512kB 2*1024kB 1*2048kB 603*4096kB = 2480496kB
-Free swap:            0kB
-1048576 pages of RAM
-819200 pages of HIGHMEM
-206973 reserved pages
-2450 pages shared
-0 pages swap cached
-21 pages dirty
-0 pages writeback
-1142 pages mapped
-215581 pages slab
-55 pages pagetables
-oom-killer: gfp_mask=0xd0, order=0
-Mem-info:
-DMA per-cpu:
-cpu 0 hot: low 2, high 6, batch 1 used:2
-cpu 0 cold: low 0, high 2, batch 1 used:0
-Normal per-cpu:
-cpu 0 hot: low 62, high 186, batch 31 used:92
-cpu 0 cold: low 0, high 62, batch 31 used:0
-HighMem per-cpu:
-cpu 0 hot: low 62, high 186, batch 31 used:162
-cpu 0 cold: low 0, high 62, batch 31 used:28
-Free pages:     2487980kB (2480744kB HighMem)
-Active:1476 inactive:603 dirty:22 writeback:1 unstable:0 free:621995 slab:215760 mapped:1014 pagetables:51
-DMA free:3588kB min:68kB low:84kB high:100kB active:0kB inactive:0kB present:16384kB pages_scanned:68 all_unreclaimable? yes
-lowmem_reserve[]: 0 880 4080
-Normal free:3648kB min:3756kB low:4692kB high:5632kB active:0kB inactive:0kB present:901120kB pages_scanned:16 all_unreclaimable? yes
-lowmem_reserve[]: 0 0 25600
-HighMem free:2480744kB min:512kB low:640kB high:768kB active:5904kB inactive:2412kB present:3276800kB pages_scanned:0 all_unreclaimable? no
-lowmem_reserve[]: 0 0 0
-DMA: 1*4kB 0*8kB 0*16kB 0*32kB 0*64kB 0*128kB 0*256kB 1*512kB 1*1024kB 1*2048kB 0*4096kB = 3588kB
-Normal: 0*4kB 0*8kB 0*16kB 0*32kB 1*64kB 0*128kB 0*256kB 1*512kB 1*1024kB 1*2048kB 0*4096kB = 3648kB
-HighMem: 86*4kB 26*8kB 20*16kB 14*32kB 21*64kB 14*128kB 5*256kB 2*512kB 2*1024kB 1*2048kB 603*4096kB = 2480744kB
-Free swap:            0kB
-1048576 pages of RAM
-819200 pages of HIGHMEM
-206973 reserved pages
-2116 pages shared
-0 pages swap cached
-22 pages dirty
-1 pages writeback
-1014 pages mapped
-215581 pages slab
-51 pages pagetables
 
---------------020105020501080102060203--
+
+--=-ZUz06AAFjPfkb7aZW7Ad--
+

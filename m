@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030251AbVIVKsl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030252AbVIVKtQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030251AbVIVKsl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 06:48:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030252AbVIVKsl
+	id S1030252AbVIVKtQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 06:49:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030253AbVIVKtQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 06:48:41 -0400
-Received: from [195.209.228.254] ([195.209.228.254]:7591 "EHLO
-	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP
-	id S1030251AbVIVKsl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 06:48:41 -0400
-Message-ID: <43328C07.9070001@yandex.ru>
-Date: Thu, 22 Sep 2005 14:48:39 +0400
-From: "Artem B. Bityutskiy" <dedekind@yandex.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-1.3.1
-X-Accept-Language: en, ru, en-us
+	Thu, 22 Sep 2005 06:49:16 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:15544 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1030252AbVIVKtP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 06:49:15 -0400
+Message-ID: <43328C2B.8060302@comcast.net>
+Date: Thu, 22 Sep 2005 06:49:15 -0400
+From: Ed Sweetman <safemode@comcast.net>
+User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-Cc: J Engel <joern@wohnheim.fh-wedel.de>, Peter Menzebach <pm-mtd@mw-itcon.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: data  loss on jffs2 filesystem on dataflash
-References: <432817FF.10307@yandex.ru> <4329251C.7050102@mw-itcon.de> <4329288B.8050909@yandex.ru> <43292AC6.40809@mw-itcon.de> <43292E16.70401@yandex.ru> <43292F91.9010302@mw-itcon.de> <432FE1EF.9000807@yandex.ru> <432FEF55.5090700@mw-itcon.de> <433006D8.4010502@yandex.ru> <20050920133244.GC4634@wohnheim.fh-wedel.de> <20050921190759.GC467@openzaurus.ucw.cz>
-In-Reply-To: <20050921190759.GC467@openzaurus.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: ipw2200 Broken 2.6.13: "firmware_loading_store: unexpected value
+ (0)"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> ext2 and anything that does not do journalling?
-> 
-> I do not thing behaviour on powerfail is part of block device definition.
-> 
-Pavel, AFAIU,
+I'm using 2.6.13-mm1, and i tried both 1.0.6 and the included driver 
+(both matched with the appropriate ieee80211 driver) and I'm using 
+debian unstable's version of hotplug Version: 0.0.20031013-2.   I have 
+very little installed on this computer as it's a WRAP board with mini 
+pci intel 2915.  Is anything in userspace required to load firmware 
+besides hotplug? I dont use udev or devfs ...not sure if there are /dev 
+entries or what. 
 
-Joern meant that if HDD starts a block write operation, it will 
-accomplish it even if power-fail happens (probably there are some 
-capacitors there). So, it is impossible, say, that HDD has written one 
-half of a sector and has not written the other half.
+I'm getting this error constantly (thousands of times a second when 
+modprobing the ipw2200 driver (any version)
+ 
+firmware_loading_store: unexpected value (0)
 
-And he wanted to say that DataFlash HW does not guarante this. But, 
-perhaps, adding a special HW, this is implementable.
 
--- 
-Best Regards,
-Artem B. Bityuckiy,
-St.-Petersburg, Russia.
+I have the firmware available in every possible accepted location for 
+firmware.   I have no doubt that it's finding the firmware, but unable 
+to load it.  My sysfs driver directory for the pci device has no "data" 
+file/directory in it, which I thought is where firmware is loaded. 
+
+If any other info is required to figure this problem out.  Just mention 
+it.  I'll provide everything.  Attached is my config for the kernel in 
+question. 
+

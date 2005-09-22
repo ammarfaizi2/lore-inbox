@@ -1,221 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750988AbVIVHoo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751431AbVIVHsQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750988AbVIVHoo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 03:44:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751391AbVIVHoo
+	id S1751431AbVIVHsQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 03:48:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751434AbVIVHsQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 03:44:44 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:24790 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S1750988AbVIVHon convert rfc822-to-8bit (ORCPT
+	Thu, 22 Sep 2005 03:48:16 -0400
+Received: from mail.kroah.org ([69.55.234.183]:35250 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751431AbVIVHsP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 03:44:43 -0400
-Subject: Re: AIO Support and related package information??
-From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-To: vikas gupta <vikas_gupta51013@yahoo.co.in>
-Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org, suparna@in.ibm.com,
-       bcrl@kvack.org
-In-Reply-To: <20050922030844.14682.qmail@web8406.mail.in.yahoo.com>
-References: <20050922030844.14682.qmail@web8406.mail.in.yahoo.com>
-Date: Thu, 22 Sep 2005 09:46:30 +0200
-Message-Id: <1127375190.2051.53.camel@frecb000686>
+	Thu, 22 Sep 2005 03:48:15 -0400
+Date: Thu, 22 Sep 2005 00:47:36 -0700
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       notting@redhat.com
+Subject: [patch 03/18] fix class symlinks in sysfs
+Message-ID: <20050922074736.GD15053@kroah.com>
+References: <20050922003901.814147000@echidna.kroah.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 22/09/2005 09:57:48,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 22/09/2005 09:57:50,
-	Serialize complete at 22/09/2005 09:57:50
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename="driver-fix-class-symlinks.patch"
+In-Reply-To: <20050922074643.GA15053@kroah.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi Vikas,
+From: Bill Nottingham <notting@redhat.com>
 
+The class symlinks in sysfs don't properly handle changing device names.
 
-On Thu, 2005-09-22 at 04:08 +0100, vikas gupta wrote:
-> hello ALL ,
-> 
-> I am very curious about the AIO support in kernel. I
-> have downloaded the
-> recent kernel 2.6.13 and applied suparna's patches on
-> that but now i got stuck as
-> now there are two different packages are available.
+To demonstrate, rename your network device from eth0 to eth1. Your
+pci (or usb, or whatever) device will still have a 'net:eth0' link,
+except now it points to /sys/class/net/eth1.
 
-  You should try Ben LaHaise's patchset which includes
-Suparna's patches. It's available as a single patch at:
+The attached patch makes sure the class symlink name changes when
+the class device name changes. It isn't 100% correct, it should be
+using sysfs_rename_link. Unfortunately, sysfs_rename_link doesn't exist.
 
-http://www.kvack.org/~bcrl/patches/aio-2.6.13-rc6-B1-all.diff 
+Signed-off-by: Bill Nottingham <notting@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-and broken down at:
-http://www.kvack.org/~bcrl/patches/aio-2.6.13-rc6-B1/
+---
+ drivers/base/class.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-> 
-> 1) libaio rpm
-> 
+--- scsi-2.6.orig/drivers/base/class.c	2005-09-20 05:59:41.000000000 -0700
++++ scsi-2.6/drivers/base/class.c	2005-09-21 17:29:22.000000000 -0700
+@@ -669,6 +669,7 @@
+ int class_device_rename(struct class_device *class_dev, char *new_name)
+ {
+ 	int error = 0;
++	char *old_class_name = NULL, *new_class_name = NULL;
+ 
+ 	class_dev = class_device_get(class_dev);
+ 	if (!class_dev)
+@@ -677,12 +678,24 @@
+ 	pr_debug("CLASS: renaming '%s' to '%s'\n", class_dev->class_id,
+ 		 new_name);
+ 
++	if (class_dev->dev)
++		old_class_name = make_class_name(class_dev);
++
+ 	strlcpy(class_dev->class_id, new_name, KOBJ_NAME_LEN);
+ 
+ 	error = kobject_rename(&class_dev->kobj, new_name);
+ 
++	if (class_dev->dev) {
++		new_class_name = make_class_name(class_dev);
++		sysfs_create_link(&class_dev->dev->kobj, &class_dev->kobj,
++				  new_class_name);
++		sysfs_remove_link(&class_dev->dev->kobj, old_class_name);
++	}
+ 	class_device_put(class_dev);
+ 
++	kfree(old_class_name);
++	kfree(new_class_name);
++
+ 	return error;
+ }
+ 
 
-  libaio is meant as a way for using the kernel AIO support but 
-does not provide a POSIX compliant interface.
-
-> There are many rpm available such as
-> libaio-0.3.xxx-02.src rpm and many
-> more but at http://lse.sourceforge.net/io/aio.html
-> ,Somebody has said to use
-> libaio-0.3.99 package ..
-
-  I've been using libaio-0.3.92 with success.
-
-> 
-> So can you please give me some guidelines on after
-> applying the patch how
-> to proceed further???
-> 
-> Is these packages are part of linux kernel
-> installation ????
-> 
-> Is this package implementation is really necessary and
-> if yes then what
-> are the packages we need to install.
-> 
-> And if any other resource is required then from where
-> i can get that
-> resource.
-> 
-> 2) libposix API library of 
-> http://www.bullopensource.org/posix.
-> 
->         How to use it???
->         Is it any other way of implementing the AIO
-> Support or it is to
-> provide posix conformance to the kernel.
-
-
-  Just like libaio, libposix-aio uses the kernel AIO support but 
-provides a POSIX compliant interface.
-
-  There are no man pages yet, but you can look a the SuSV3 
-specification (links are on http://www.bullopensource.org/posix/).
-
-  For completeness, I should add that there is a POSIX AIO
-implementation in glibc librt but it uses helper threads to achieve
-asynchrony and does not use kernel support.
-
-> 
-> 3) What is the relation between libposixaio pacakage
-> supported by bullsource.net and libaio pacakage
-> supported by redhat ....
-
-  None, libposix-aio used to rely on libaio for the syscalls but that's
-no longer the case.
-
-> 
-> 4) I am able to built that libposix package without
-> libaio ??????
-
-  Normal.
-
-> 
-> 5) are these pacakages are supported for othewr
-> platforms such as arm and ppc ,I am not able to build
-> libposix for arm platform.Do Cross compiling is
-> supported ???
-> 
-
-  Right now support is provided for:
-
-	i386	- tested
-	ia64	- not tested
-	x86_64	- not tested
-
-  If you're willing to add support for other platforms there is
-only one file to add for implementing the architecture dependant
-syscalls, such as syscall_arm.h or syscall_ppc.h. Look at the sources.
-
-> 
-> 
-> 6) How to use these api in test program
-> 
->   Can i use it as mentioned below ????
-> 
->   Test1.c
-> 
->   #include <aio.h>
->   #include <errno.h>
->   #include <stdio.h>
->   #include <string.h>
->   #include <unistd.h>
-> 
->   #define BYTES 8
-> 
->   int main( int argc, char *argv[] )
->   {
->       int i, r;
->       int fildes;
->       struct aiocb cb;
->       char buff[BYTES];
-> 
->       if ((fildes = open( "/etc/resolv.conf", O_RDONLY
-> )) < 0) {
->           perror( "opening file" ); return 1;
->       }
-> 
->       cb.aio_fildes = fildes;
->       cb.aio_offset = 0;
->       cb.aio_buf = buff;
->       cb.aio_nbytes = BYTES;
->       cb.aio_reqprio = 0;
->       cb.aio_sigevent.sigev_notify = SIGEV_NONE;
-> 
->       errno = 0;
->       r = aio_read( &cb );
->       printf( "aio_read() ret: %i\terrno: %i\n", r,
-> errno );
-> 
->       while (aio_error( &cb ) == EINPROGRESS) {
-> usleep( 10 ); }
-> 
->       for (i = 0; i < BYTES; i++) { printf( "%c ",
-> buff[i] ); } printf(
-> "\n" );
-> 
->       errno = 0;
->       r = aio_return( &cb );
->       printf( "aio_return() ret: %i\tBYTES: %i\terrno:
-> %i\n", r, BYTES,
-> errno );
-> 
->       return 0;
-> }
-
-  That should be OK. Look at the examples in libposix-aio, in
-the check and testbed subdirectories.
-
-
-> 
-> 
-> 
-> Any other information, if u can provide then it will
-> be of great use ...
-> 
-> 
-> Thanks in advance ...
-> 
-> Vikas
-
-  Hope this helps,
-
-  Sébastien.
-
--- 
-------------------------------------------------------
-
-  Sébastien Dugué                BULL/FREC:B1-247
-  phone: (+33) 476 29 77 70      Bullcom: 229-7770
-
-  mailto:sebastien.dugue@bull.net
-
-  Linux POSIX AIO: http://www.bullopensource.org/posix
-  
-------------------------------------------------------
-
+--

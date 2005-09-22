@@ -1,66 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030379AbVIVOgm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030383AbVIVOkK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030379AbVIVOgm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 10:36:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030380AbVIVOgm
+	id S1030383AbVIVOkK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 10:40:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030382AbVIVOkK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 10:36:42 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:63502 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1030379AbVIVOgl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 10:36:41 -0400
-Date: Thu, 22 Sep 2005 15:36:35 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mark Lord <liml@rtr.ca>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Dominik Brodowski <linux@dominikbrodowski.net>, bzolnier@gmail.com,
-       linux-ide@vger.kernel.org
-Subject: Re: [RFC/BUG?] ide_cs's removable status
-Message-ID: <20050922143635.GD26438@flint.arm.linux.org.uk>
-Mail-Followup-To: Richard Purdie <rpurdie@rpsys.net>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Mark Lord <liml@rtr.ca>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Dominik Brodowski <linux@dominikbrodowski.net>, bzolnier@gmail.com,
-	linux-ide@vger.kernel.org
-References: <1127319328.8542.57.camel@localhost.localdomain> <1127321829.18840.18.camel@localhost.localdomain> <433196B6.8000607@rtr.ca> <1127327243.18840.34.camel@localhost.localdomain> <20050921192932.GB13246@flint.arm.linux.org.uk> <1127347845.18840.53.camel@localhost.localdomain> <20050922102221.GD16949@flint.arm.linux.org.uk> <1127396382.18840.79.camel@localhost.localdomain> <1127398876.8242.74.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1127398876.8242.74.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+	Thu, 22 Sep 2005 10:40:10 -0400
+Received: from spirit.analogic.com ([204.178.40.4]:55821 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP
+	id S1030383AbVIVOkI convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 10:40:08 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <Pine.LNX.4.58.0509220815530.16109@localhost.localdomain>
+References: <200509212046.15793.nick@linicks.net> <Pine.LNX.4.58.0509211305250.24543@shell4.speakeasy.net> <433258D1.8080301@aitel.hist.no> <Pine.LNX.4.58.0509220815530.16109@localhost.localdomain>
+X-OriginalArrivalTime: 22 Sep 2005 14:40:06.0817 (UTC) FILETIME=[86815110:01C5BF83]
+Content-class: urn:content-classes:message
+Subject: Re: A pettiness question.
+Date: Thu, 22 Sep 2005 10:40:00 -0400
+Message-ID: <Pine.LNX.4.61.0509221034140.1164@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: A pettiness question.
+Thread-Index: AcW/g4aI8/6yeNNmRomHTEQBvyngXw==
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Steven Rostedt" <rostedt@goodmis.org>
+Cc: "Helge Hafting" <helge.hafting@aitel.hist.no>,
+       "Vadim Lobanov" <vlobanov@speakeasy.net>,
+       "Nick Warne" <nick@linicks.net>, <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 22, 2005 at 03:21:16PM +0100, Richard Purdie wrote:
-> 3. ide-cs sometimes can't/doesn't detect the removal of an ide
-> controller.
 
-This is the one I'm particularly interested in, and I think it's
-responsible for a lot of problems in this area.
+On Thu, 22 Sep 2005, Steven Rostedt wrote:
 
-"can't" is correct - from what I now understand from Alan, it seems
-that there are PCMCIA to CF adapters out there which tie the PCMCIA
-card detect lines to ground, rather than passing them through to the
-CF socket.
+>
+> On Thu, 22 Sep 2005, Helge Hafting wrote:
+>
+>> That one looks good for if-tests and such. But if you need
+>> a 0 or 1 for adding to a counter, then
+>>
+>> a += !!x;
+>>
+>> looks much better than
+>>
+>> a += (x != 0);
+>>
+>
+> Actually I prefer:
+>
+> a += (x == '-'-'-'?'-'-'-':'/'/'/');
+>
+>  :)
+>
+> -- Steve
 
-This means that if you leave the PCMCIA to CF adapter in the slot,
-pull out the CF card, replace it with another CF card, PCMCIA will
-not notice the change.
+I like that! Nevertheless, for readability one should probably
+standardize upon something returing 1 or 0 for a true/false
+comparison. I see "(x)?1:0" a lot in the bit-banging code
+and I'm pretty sure the compiler knows how to optimize it.
 
-You could even plug this adapter into the slot with a CF IDE card in,
-unplug the CF IDE card and replace it with a CF network card.  Then
-watch the fun and games when IDE tries to access the CF network card!
+The bang/bang stuff was a way of hiding warnings back in the
+days that `lint` was used as a code-checker. It's use should
+be condemned to the fullest extent!
 
-Therefore, it's completely unsafe to assume anything about what's
-plugged in with such a broken adapter... the only way you could be
-sure is to regularly check the CIS matches the PCMCIA cached version,
-provided you have enough of the CIS cached.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13 on an i686 machine (5589.55 BogoMips).
+Warning : 98.36% of all statistics are fiction.
 
-I think this basically comes down to a buggy CF adapter which needs
-bining.
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Thank you.

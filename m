@@ -1,58 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030451AbVIVREq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030454AbVIVRJs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030451AbVIVREq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 13:04:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030450AbVIVREq
+	id S1030454AbVIVRJs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 13:09:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030453AbVIVRJs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 13:04:46 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:45491 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030452AbVIVREp (ORCPT
+	Thu, 22 Sep 2005 13:09:48 -0400
+Received: from xenotime.net ([66.160.160.81]:12175 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1030454AbVIVRJr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 13:04:45 -0400
-Message-ID: <4332E329.F5CB90B4@redhat.com>
-Date: Thu, 22 Sep 2005 13:00:25 -0400
-From: Dave Anderson <anderson@redhat.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-e.57enterprise i686)
-X-Accept-Language: en
+	Thu, 22 Sep 2005 13:09:47 -0400
+Date: Thu, 22 Sep 2005 10:09:45 -0700 (PDT)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Harald Welte <laforge@netfilter.org>
+cc: Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] update Documentation/sparse.txt
+In-Reply-To: <20050922170009.GP26520@sunbeam.de.gnumonks.org>
+Message-ID: <Pine.LNX.4.58.0509221008100.20059@shark.he.net>
+References: <20050921170539.GA10537@mipter.zuzino.mipt.ru>
+ <20050922132833.GM26520@sunbeam.de.gnumonks.org> <20050922153451.GA7519@mipter.zuzino.mipt.ru>
+ <20050922170009.GP26520@sunbeam.de.gnumonks.org>
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: vgoyal@in.ibm.com, Morton Andrew Morton <akpm@osdl.org>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [Fastboot] [PATCH] Kdump(x86): add note type NT_KDUMPINFOtokernel  
- core dumps
-References: <20050921065633.GC3780@in.ibm.com>
-		<m1mzm6ebqn.fsf@ebiederm.dsl.xmission.com>
-		<43317980.D6AEA859@redhat.com>
-		<m1d5n1cw89.fsf@ebiederm.dsl.xmission.com>
-		<20050922140824.GF3753@in.ibm.com> <m1vf0tawgv.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric W. Biederman" wrote:
+On Thu, 22 Sep 2005, Harald Welte wrote:
 
-> Vivek Goyal <vgoyal@in.ibm.com> writes:
+> On Thu, Sep 22, 2005 at 07:34:51PM +0400, Alexey Dobriyan wrote:
+> > On Thu, Sep 22, 2005 at 03:28:34PM +0200, Harald Welte wrote:
+> > > btw, where can I get the latest sparse release?
+> > >
+> > > linux-2.6.14-rc2/Documentation/sparse.txt still points to a dead
+> > > directory at
+> > > http://www.codemonkey.org.uk/projects/git-snapshots/sparse/
+> > > which now seems to be 404.
+> > >
+> > > Are there no snapshots available?  Didn't anyone convre the bitkeeper
+> > > repository to git or something else?  I'm a bit puzzled.
+> >
+> >
+> > I use
+> >
+> > rsync -avz --progress --delete \
+> > 	rsync://rsync.kernel.org/pub/scm/devel/sparse/sparse.git/ \
+> > 	.git
 >
-> > I quickly browsed through "crash" code and looks like it is already doing
-> > similiar check (kernel.c, verify_version()). It seems to be retrieving
-> > "linux_banner" from core image and also retrieving banner string from vmlinux
-> > and trying to match. So if banner information can be directly read from the
-> > core image, probably there is no need to export it through notes.
+> Thanks.  Please consider this patch for the mainline kernel:
 >
-> Sounds good.  We still need to define a note for the cpu control
-> registers.  Do any of the other crash dump solution capture that
-> information right now?
 >
-> Eric
+> [DOCUMENTATION] sparse no longer uses bk, but git
+>
+> Signed-off-by: Harald Welte <laforge@netfilter.org>
+>
+> ---
+> commit 37df3d8b065579042d32a866ae6a00cd57c5812b
+> tree dd0e013e4744201b2ae13b38e0186477fd2eb47d
+> parent 0410f33b62b892379270539b189577126ea56ffe
+> author Harald Welte <laforge@netfilter.org> Do, 22 Sep 2005 18:58:49 +0200
+> committer Harald Welte <laforge@netfilter.org> Do, 22 Sep 2005 18:58:49 +0200
+>
+>  Documentation/sparse.txt |    9 ++-------
+>  1 files changed, 2 insertions(+), 7 deletions(-)
+>
+> diff --git a/Documentation/sparse.txt b/Documentation/sparse.txt
+> --- a/Documentation/sparse.txt
+> +++ b/Documentation/sparse.txt
+> @@ -51,14 +51,9 @@ or you don't get any checking at all.
+>  Where to get sparse
+>  ~~~~~~~~~~~~~~~~~~~
+>
+> -With BK, you can just get it from
+> -
+> -        bk://sparse.bkbits.net/sparse
+> -
+> -and DaveJ has tar-balls at
+> -
+> -	http://www.codemonkey.org.uk/projects/git-snapshots/sparse/
 
-Certainly not in netdump, diskdump or LKCD...
+Please leave Dave's snapshots dir. there even if you add the git method.
+It is still present and working.
+Thanks.
 
-On the other hand, I can't say I ever really needed it, although
-that's not to say it couldn't be valuable for some types of
-crashes.
+> +With git, you can just get it from
+>
+> +        rsync://rsync.kernel.org/pub/scm/devel/sparse/sparse.git
+>
+>  Once you have it, just do
+>
+>
 
-Dave
-
-
+-- 
+~Randy

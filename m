@@ -1,115 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbVIVUd7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbVIVUhB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751148AbVIVUd7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 16:33:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbVIVUd6
+	id S1751096AbVIVUhB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 16:37:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbVIVUhB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 16:33:58 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:45739 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751148AbVIVUd6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 16:33:58 -0400
-Message-ID: <43331517.3080800@us.ibm.com>
-Date: Thu, 22 Sep 2005 13:33:27 -0700
-From: Haren Myneni <haren@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
-X-Accept-Language: en-us, en
+	Thu, 22 Sep 2005 16:37:01 -0400
+Received: from smtp006.mail.ukl.yahoo.com ([217.12.11.95]:6783 "HELO
+	smtp006.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1751096AbVIVUhA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 16:37:00 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Disposition:Content-Type:Content-Transfer-Encoding:Message-Id;
+  b=oHfU4m8Yl63viEPWHKuq2iEVzdTJEsRSxziAq//SeQngwraAPs19+EC7pr9UkBDT4JVcKLGy5NXR3qRnL69rxDaeM2RBBSffqp2gHWCIh6lyZeSTU31upbbd6K1kWeJRNUuMz76C1L9DE02KpdxpLy688K+Dl4/NB8zFnIk6DFc=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: Coywolf Qi Hunt <coywolf@gmail.com>
+Subject: Re: readme-update-from-the-stone-age.patch added to -mm tree
+Date: Thu, 22 Sep 2005 22:27:29 +0200
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+References: <200509202336.j8KNak00013479@shell0.pdx.osdl.net> <200509211630.33242.blaisorblade@yahoo.it> <2cd57c900509211736414cea32@mail.gmail.com>
+In-Reply-To: <2cd57c900509211736414cea32@mail.gmail.com>
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Dave Anderson <anderson@redhat.com>, Morton Andrew Morton <akpm@osdl.org>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [Fastboot] [PATCH] Kdump(x86): add note type NT_KDUMPINFO	tokernel
-   core dumps
-References: <20050921065633.GC3780@in.ibm.com>	<m1mzm6ebqn.fsf@ebiederm.dsl.xmission.com>	<43317980.D6AEA859@redhat.com>	<m1d5n1cw89.fsf@ebiederm.dsl.xmission.com>	<20050922140824.GF3753@in.ibm.com> <4332C87C.9CE47E8D@redhat.com> <m1zmq5awsn.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1zmq5awsn.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200509222227.29885.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry. Reposting since it did not made to LKML due to my stupid mistake; 
-Also posting Dave Anderson's reponse:
+On Thursday 22 September 2005 02:36, Coywolf Qi Hunt wrote:
+> On 9/21/05, Blaisorblade <blaisorblade@yahoo.it> wrote:
+> > On Wednesday 21 September 2005 04:15, Coywolf Qi Hunt wrote:
+> > > On 9/21/05, akpm@osdl.org <akpm@osdl.org> wrote:
+> > > > The patch titled
+> > > >
+> > > >      README update from the stone age
+> > > >
+> > > > has been added to the -mm tree.  Its filename is
+> > > >
+> > > >      readme-update-from-the-stone-age.patch
+> > > >
+> > > >
+> > > >
+> > > > @@ -199,6 +199,9 @@ COMPILING the kernel:
+> > > >     are installing a new kernel with the same version number as your
+> > > >     working kernel, make a backup of your modules directory before
+> > > > you do a "make modules_install".
+> > > > +   In alternative, before compiling, edit your Makefile and change
+> > > > the +   "EXTRAVERSION" line - its content is appended to the regular
+> > > > kernel +   version.
+> > >
+> > > This is wrong. You expect users to both do menuconfig and edit top
+> > > Makefile manually?  What is the local version for then?
+> >
+> > Ok, yes, feel free to upgrade this to the use of CONFIG_LOCALVERSION. Or
+> > I can do it as well.
+> > --
 
-Eric W. Biederman wrote:
+> CONFIG_LOCALVERSION is for normal users while "EXTRAVERSION" is for
+> developers to maintain different kernel trees.
+Ok, Randy Dunlap just fixed it up.
+-- 
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
 
->Dave Anderson <anderson@redhat.com> writes:
->
->  
->
->>Just flagging the cpu, and then mapping that to the stack pointer found in
->>the associated NT_PRSTATUS register set should work OK too.  It gets
->>a little muddy if it crashed while running on an IRQ stack, but it still can be
->>tracked back from there as well.  (although not if the crashing task overflowed
->>the IRQ stack)
->>    
->>
->
->You can't track it back from the crashing cpu if the IRQ stack overflows
->either.  So I would rather have crash confused when trying to find the
->task_struct.  Then to have the kernel fail avoidably while attempting
->to capture a core dump.  
->
->Even if you overflow the stack wit a bit of detective work it should still
->be possible to show the stack overflowed and correct for it when analyzing
->the crash dump.  Doing anything like that from a crashing cpu (in a
->reliable way) is very hard. 
->
->  
->
->>The task_struct would be ideal though -- if the kernel's use of task_structs
->>changes in the future, well, then crash is going to need a serious re-write
->>anyway...  FWIW, netdump and diskdump use the NT_TASKSTRUCT note
->>note to store just the "current" pointer, and not the whole task_struct itself,
->>which would just be a waste of space in the ELF header for crash's purposes.
->>And looking at the gdb sources, it appears to be totally ignored.  Who
->>uses the NT_TASKSTRUCT note anyway?
->>    
->>
->
->Good question, especially as the kernel exports whatever we have for
->a task struct today in the ELF note.  No ABI compatibility is
->maintained.
->
->Given all of that I recommend an empty NT_TASKSTRUCT to flag the
->crashing cpu, for now.
->  
->
-At present /proc/kcore writes the complete task structure for 
-NT_TASKSTRUCT note section. Thought it is the standard. Hence created 
-separate note section. The other option is the crash tool can directly 
-read "crashing_cpu variable" from the vmcore to determine the panic cpu. 
-Similarly, we can define panic_task variable in the kernel.
+	
 
-Dave Anderson (anderson@redhat.com) reponse:
-
-" So does elf_core_dump() as well, but to gdb it's useless AFAICT...
-
-Hey -- I wasn't even aware of the "crashing_cpu" variable.  
-That would work just fine.
-
-Still a "panic_task", and perhaps even a "crash_page_size" variable
-would be nice as well.   No additional notes required...
-
-Dave "
-
-Basically, we can use some global structure in the kernel and dump any 
-needed information which we do not need to invoke any analysis tools 
-(crash, gdb). Dumping CPU control registers can also be done this way 
-without creating separate note section.
-
-Thanks
-Haren
-
->Eric
->  
->
->------------------------------------------------------------------------
->
->_______________________________________________
->fastboot mailing list
->fastboot@lists.osdl.org
->https://lists.osdl.org/mailman/listinfo/fastboot
->  
->
-
+	
+		
+___________________________________ 
+Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
+http://mail.yahoo.it

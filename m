@@ -1,50 +1,33 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030457AbVIVReo (ORCPT <rfc822;ralf@linux-mips.org>);
-	Thu, 22 Sep 2005 13:34:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030458AbVIVReo
+	id S1750875AbVIWKGt (ORCPT <rfc822;ralf@linux-mips.org>);
+	Fri, 23 Sep 2005 06:06:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750879AbVIWKGt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 13:34:44 -0400
-Received: from bay14-f3.bay14.hotmail.com ([64.4.49.3]:61641 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id S1030457AbVIVReo (ORCPT
+	Fri, 23 Sep 2005 06:06:49 -0400
+Received: from [86.125.135.148] ([86.125.135.148]:49164 "HELO 86.125.135.148")
+	by vger.kernel.org with SMTP id S1750875AbVIWKGs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 13:34:44 -0400
-Message-ID: <BAY14-F3856610F844852729857ED8970@phx.gbl>
-X-Originating-IP: [80.88.143.170]
-X-Originating-Email: [mrcholee@hotmail.com]
-From: "Cho Lee" <mrcholee@hotmail.com>
-Subject: Shandong Kaitai Metal Abrasive Co.,Ltd
-Date: Thu, 22 Sep 2005 17:34:41 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 22 Sep 2005 17:34:41.0730 (UTC) FILETIME=[EA0A3220:01C5BF9B]
-To: unlisted-recipients:; (no To-header on input)
+	Fri, 23 Sep 2005 06:06:48 -0400
+Reply-To: "Lavonne Acosta" <peterciy@caseware.com>
+From: "Lavonne" <peterciy@caseware.com>
+Message-ID: <8188035925.348538159557@caseware.com>
+Date: Thu, 22 Sep 2005 07:09:01 -0500
+To: <linux-kernel@vger.kernel.org>
+Subject: Brunnette takes a huge cock
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1030457AbVIVReo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750875AbVIWKGt@vger.kernel.org>
 
-Dear
+Tiny brunette  toying pussy
+Assian teen spreading
+Fucked on  the truck
 
-It is my pleasure to write you in respect of our organization.
+    http://shesangels.info
 
-We are experts in the manufacturing of abrasive materials,cast steel 
-shot,cast steel grit,steel cut wire shot,etc. and we export into 
-Canada/America and some parts of Europe.
-
-We are searching for reliable representatives who can help us establish a 
-medium of getting to our customers in the Canada/America/Europe as well as 
-legally receiving cash and all forms of payment on our behalf from them as 
-our Representative.
-Please if interested in transacting business in view of helping us, so our 
-clients could be making payment to you as our representative, we will be 
-very glad.Compensations will be given and other benefits.
-
-Contact us for more information, if this proposal is acceptable to you.
-We anticipate your earliest response in this regard.
-
-Thanks,
-
-Mr Lee Cho (Secretary).
-Shandong Kaitai Metal Abrasive Co.,Ltd - China
-Tel/Fax:852-301-77895
+Girl gets ssandwiched
+Latin hooker humping horrny guy
 
 

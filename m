@@ -1,37 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030301AbVIVNDX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030305AbVIVNE3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030301AbVIVNDX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 09:03:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030299AbVIVNDX
+	id S1030305AbVIVNE3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 09:04:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030304AbVIVNE2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 09:03:23 -0400
-Received: from ns2.suse.de ([195.135.220.15]:61674 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1030298AbVIVNDW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 09:03:22 -0400
-From: Andi Kleen <ak@suse.de>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Subject: Re: [PATCH 0/3] netfilter : 3 patches to boost ip_tables performance
-Date: Thu, 22 Sep 2005 15:03:21 +0200
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org, netfilter-devel@lists.netfilter.org,
-       netdev@vger.kernel.org
-References: <432EF0C5.5090908@cosmosbay.com> <43308324.70403@cosmosbay.com> <4331CFA7.50104@cosmosbay.com>
-In-Reply-To: <4331CFA7.50104@cosmosbay.com>
+	Thu, 22 Sep 2005 09:04:28 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:11427 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S1030299AbVIVNE1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 09:04:27 -0400
+Message-ID: <4332ABDC.3030106@rtr.ca>
+Date: Thu, 22 Sep 2005 09:04:28 -0400
+From: Mark Lord <liml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050728
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: Jens Axboe <axboe@suse.de>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Joshua Kwan <joshk@triplehelix.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: SATA suspend-to-ram patch - merge?
+References: <433104E0.4090308@triplehelix.org> <433221A1.5000600@pobox.com> <20050922061849.GJ7929@suse.de>
+In-Reply-To: <20050922061849.GJ7929@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509221503.21650.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>So currently we are in limbo...
+> 
+> Which is a shame, since it means that software suspend on sata is
+> basically impossible :)
 
-> 1) No more central rwlock protecting each table (filter, nat, mangle, raw),
->     but one lock per CPU. It avoids cache line ping pongs for each packet.
+Except that it actually does work, with Jen's patch.
 
-Another useful change would be to not take the lock when there are no
-rules. Currently just loading iptables has a large overhead.
+Rather than sitting around for another six months hoping the problem
+will go away (it won't), perhaps we should just update/merge Jen's
+patch as a sorely needed interim fix.
 
--Andi
+This might then prod James et al into looking more at the SCSI side of
+things, and some year we might see this get replaced with a better scheme.
+
+This is a real problem, and an immediate solution is needed last spring.
+
+Cheers
+

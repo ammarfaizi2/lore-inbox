@@ -1,97 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030213AbVIVEyn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030214AbVIVE7H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030213AbVIVEyn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 00:54:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030214AbVIVEym
+	id S1030214AbVIVE7H (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 00:59:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030217AbVIVE7H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 00:54:42 -0400
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:38326 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S1030213AbVIVEym (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 00:54:42 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [swsusp] Rework image freeing
-Date: Thu, 22 Sep 2005 06:54:54 +0200
-User-Agent: KMail/1.8.2
-Cc: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
-References: <20050921205132.GA4249@elf.ucw.cz> <200509220053.45358.rjw@sisk.pl>
-In-Reply-To: <200509220053.45358.rjw@sisk.pl>
+	Thu, 22 Sep 2005 00:59:07 -0400
+Received: from de01egw02.freescale.net ([192.88.165.103]:36516 "EHLO
+	de01egw02.freescale.net") by vger.kernel.org with ESMTP
+	id S1030214AbVIVE7F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 00:59:05 -0400
+Date: Wed, 21 Sep 2005 23:54:58 -0500 (CDT)
+From: Kumar Gala <galak@freescale.com>
+X-X-Sender: galak@nylon.am.freescale.net
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Andrew Morton <akpm@osdl.org>,
+       linuxppc-embedded <linuxppc-embedded@ozlabs.org>,
+       linux-kernel@vger.kernel.org, andrew@cesa.opbu.xerox.com
+Subject: [PATCH] ppc32: Fix configuration of PCI IO space on MPC85xx platform
+Message-ID: <Pine.LNX.4.61.0509212353540.28494@nylon.am.freescale.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509220654.55341.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+For platforms that don't have PCI IO at 0 the outbound window
+registers were not being properly configured.
 
-On Thursday, 22 of September 2005 00:53, Rafael J. Wysocki wrote:
-> Hi,
-> 
-> On Wednesday, 21 of September 2005 22:51, Pavel Machek wrote:
-> > Do not store pagedirs in swap twice. This needed rewrite of image
-> > freeing, but it enabled me nice cleanups in the end.
-> > 
-> > Signed-off-by: Pavel Machek <pavel@suse.cz>
-> > 
-> > ---
-> > commit 67434821951d6f10d55e29465a24e7f5015038f1
-> > tree ee0f4a209e8b680ffdfa6e7837a3a248b524f421
-> > parent 7bdc8fc378f053bd4eb4210beb1d494485318512
-> > author <pavel@amd.(none)> Tue, 20 Sep 2005 15:34:55 +0200
-> > committer <pavel@amd.(none)> Tue, 20 Sep 2005 15:34:55 +0200
-> > 
-> >  kernel/power/swsusp.c |  103 ++++++++++++++++++++++---------------------------
-> >  1 files changed, 46 insertions(+), 57 deletions(-)
-> > 
-> > diff --git a/kernel/power/swsusp.c b/kernel/power/swsusp.c
-> > --- a/kernel/power/swsusp.c
-> > +++ b/kernel/power/swsusp.c
-> > @@ -729,16 +729,6 @@ static void copy_data_pages(void)
-> >  	BUG_ON(pbe);
-> >  }
-> >  
-> > -
-> > -/**
-> > - *	calc_nr - Determine the number of pages needed for a pbe list.
-> > - */
-> > -
-> > -static int calc_nr(int nr_copy)
-> > -{
-> > -	return nr_copy + (nr_copy+PBES_PER_PAGE-2)/(PBES_PER_PAGE-1);
-> > -}
-> 
-> I can't see why you are going to drop this function.  Isn't it necessary any more?
+Signed-off-by: Andrew Klossner <andrew@cesa.opbu.xerox.com>
+Signed-off-by: Kumar K. Gala <kumar.gala@freescale.com>
 
-OK, swsusp fails anyway when it cannot allocate a page, so in fact it is not.
-However, the information printed in swsusp_alloc():
+---
+commit 7b992aef26bd7dc2ed3eea0554d3e901d17aa999
+tree a39f664767dbb49df981ed2037b7921f982a7854
+parent db1488b812a7a96d50d51b018fbeb20586cc8e84
+author Kumar K. Gala <kumar.gala@freescale.com> Wed, 21 Sep 2005 23:53:25 -0500
+committer Kumar K. Gala <kumar.gala@freescale.com> Wed, 21 Sep 2005 23:53:25 -0500
 
->  /**
->   *	enough_free_mem - Make sure we enough free memory to snapshot.
-> @@ -914,19 +895,23 @@ static int enough_swap(void)
->  
->  static int swsusp_alloc(void)
->  {
-> -	int error;
-> +	struct pbe *p;
->  
->  	pagedir_nosave = NULL;
-> -	nr_copy_pages = calc_nr(nr_copy_pages);
->  
->  	pr_debug("suspend: (pages needed: %d + %d free: %d)\n",
->  		 nr_copy_pages, PAGES_FOR_IO, nr_free_pages());
+ arch/ppc/syslib/ppc85xx_setup.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-now seems to be inaccurate, because we likely need more pages than
- nr_copy_pages + PAGES_FOR_IO.
-
-Greetings,
-Rafael
-
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+diff --git a/arch/ppc/syslib/ppc85xx_setup.c b/arch/ppc/syslib/ppc85xx_setup.c
+--- a/arch/ppc/syslib/ppc85xx_setup.c
++++ b/arch/ppc/syslib/ppc85xx_setup.c
+@@ -184,8 +184,8 @@ mpc85xx_setup_pci1(struct pci_controller
+ 	pci->powar1 = 0x80044000 |
+ 	   (__ilog2(MPC85XX_PCI1_UPPER_MEM - MPC85XX_PCI1_LOWER_MEM + 1) - 1);
+ 
+-	/* Setup outboud IO windows @ MPC85XX_PCI1_IO_BASE */
+-	pci->potar2 = 0x00000000;
++	/* Setup outbound IO windows @ MPC85XX_PCI1_IO_BASE */
++	pci->potar2 = (MPC85XX_PCI1_LOWER_IO >> 12) & 0x000fffff;
+ 	pci->potear2 = 0x00000000;
+ 	pci->powbar2 = (MPC85XX_PCI1_IO_BASE >> 12) & 0x000fffff;
+ 	/* Enable, IO R/W */
+@@ -235,8 +235,8 @@ mpc85xx_setup_pci2(struct pci_controller
+ 	pci->powar1 = 0x80044000 |
+ 	   (__ilog2(MPC85XX_PCI2_UPPER_MEM - MPC85XX_PCI2_LOWER_MEM + 1) - 1);
+ 
+-	/* Setup outboud IO windows @ MPC85XX_PCI2_IO_BASE */
+-	pci->potar2 = 0x00000000;
++	/* Setup outbound IO windows @ MPC85XX_PCI2_IO_BASE */
++	pci->potar2 = (MPC85XX_PCI2_LOWER_IO >> 12) & 0x000fffff;;
+ 	pci->potear2 = 0x00000000;
+ 	pci->powbar2 = (MPC85XX_PCI2_IO_BASE >> 12) & 0x000fffff;
+ 	/* Enable, IO R/W */

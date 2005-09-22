@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965214AbVIVCid@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965215AbVIVCna@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965214AbVIVCid (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 22:38:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965216AbVIVCid
+	id S965215AbVIVCna (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 22:43:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965216AbVIVCna
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 22:38:33 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:43431 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S965214AbVIVCic (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 22:38:32 -0400
-Message-ID: <43321922.70707@pobox.com>
-Date: Wed, 21 Sep 2005 22:38:26 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
+	Wed, 21 Sep 2005 22:43:30 -0400
+Received: from zproxy.gmail.com ([64.233.162.203]:39724 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965215AbVIVCn3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 22:43:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=CiSlq0lu6g8x6933cV4NmrlWUoZy4ctK+zsyoVG8MIQBMoEfqnkTIoH3pIZbKWY1F/JEa4P/M7aTQL3E90PPZiQMCwSW43NxieJOz7Qd9wrt8++HURXLv7va4qnSHn/aWWilqZ3vtXltIJ2NQrDPVFCBXu+JZZCcmQ135BvReOQ=
+Message-ID: <1e62d1370509211943443ba3ea@mail.gmail.com>
+Date: Thu, 22 Sep 2005 07:43:26 +0500
+From: Fawad Lateef <fawadlateef@gmail.com>
+Reply-To: Fawad Lateef <fawadlateef@gmail.com>
+To: Nick Warne <nick@linicks.net>
+Subject: Re: A pettiness question.
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200509212046.15793.nick@linicks.net>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, Florin Malita <fmalita@gmail.com>
-CC: linux-kernel@vger.kernel.org, ctindel@users.sourceforge.net,
-       fubar@us.ibm.com, "David S. Miller" <davem@davemloft.net>,
-       netdev@vger.kernel.org
-Subject: Re: [PATCH] bond_main.c: fix device deregistration in init exception
- path
-References: <432D0612.7070408@gmail.com> <20050917233224.2d4b3652.akpm@osdl.org>
-In-Reply-To: <20050917233224.2d4b3652.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200509212046.15793.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> diff -puN drivers/net/bonding/bond_main.c~bond_mainc-fix-device-deregistration-in-init-exception drivers/net/bonding/bond_main.c
-> --- devel/drivers/net/bonding/bond_main.c~bond_mainc-fix-device-deregistration-in-init-exception	2005-09-17 23:18:38.000000000 -0700
-> +++ devel-akpm/drivers/net/bonding/bond_main.c	2005-09-17 23:31:02.000000000 -0700
-> @@ -5039,6 +5039,14 @@ static int __init bonding_init(void)
->  	return 0;
->  
->  out_err:
-> +	/*
-> +	 * rtnl_unlock() will run netdev_run_todo(), putting the
-> +	 * thus-far-registered bonding devices into a state which
-> +	 * unregigister_netdevice() will accept
-> +	 */
-> +	rtnl_unlock();
-> +	rtnl_lock();
-> +
+On 9/22/05, Nick Warne <nick@linicks.net> wrote:
+>
+> Interesting.  I thought maybe this way was trick, until later I experimented.
+>
+> My post here (as Bill Stokes):
+>
+> http://www.quakesrc.org/forums/viewtopic.php?t=5626
+>
+> So what is the reason to doing !!num as opposed to num ? 1:0 (which is more
+> readable I think, especially to a lesser experienced C coder).  Quicker to
+> type?
+>
 
+I think using !! is quick and the place where it is used, will look
+little bit odd (like you say in #define or macros) if some one use num
+? 1 : 0 ...... And I think lesser experienced C coder will learn other
+ways of doing same things !!!!!
 
-Don't we want a schedule() or schedule_timeout(1) in between?
+> My quick test shows compiler renders both the same?
+>
 
-	Jeff
+Ya, I think both !! and num ? 1: 0 will result in same thing by compiler
 
-
+--
+Fawad Lateef

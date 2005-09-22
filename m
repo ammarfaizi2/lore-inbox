@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030438AbVIVQiv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030439AbVIVQi7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030438AbVIVQiv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 12:38:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030439AbVIVQiv
+	id S1030439AbVIVQi7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 12:38:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030440AbVIVQi7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 12:38:51 -0400
-Received: from postage-due.permabit.com ([66.228.95.230]:11925 "EHLO
-	postage-due.permabit.com") by vger.kernel.org with ESMTP
-	id S1030438AbVIVQiu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 12:38:50 -0400
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Peter Staubach <staubach@redhat.com>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] nfs client: handle long symlinks properly
-References: <20050922161420.GC5588@dmt.cnet>
-	<1127406811.8365.8.camel@lade.trondhjem.org>
-From: Assar <assar@permabit.com>
-Date: 22 Sep 2005 12:38:18 -0400
-In-Reply-To: <1127406811.8365.8.camel@lade.trondhjem.org>
-Message-ID: <78u0gd2h39.fsf@sober-counsel.permabit.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Permabit-Spam: SKIPPED
+	Thu, 22 Sep 2005 12:38:59 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:35228 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S1030439AbVIVQi6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 12:38:58 -0400
+Subject: Libata for parallel ATA controllers
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 22 Sep 2005 18:05:26 +0100
+Message-Id: <1127408726.18840.126.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust <trond.myklebust@fys.uio.no> writes:
-> > diff --git a/fs/nfs/nfs2xdr.c b/fs/nfs/nfs2xdr.c
-> > --- a/fs/nfs/nfs2xdr.c
-> > +++ b/fs/nfs/nfs2xdr.c
-> > @@ -571,8 +571,11 @@ nfs_xdr_readlinkres(struct rpc_rqst *req
-> >         strlen = (u32*)kmap(rcvbuf->pages[0]);
-> >         /* Convert length of symlink */
-> >         len = ntohl(*strlen);
-> > -       if (len > rcvbuf->page_len)
-> > -               len = rcvbuf->page_len;
-> > +       if (len >= rcvbuf->page_len - sizeof(u32) || len > NFS2_MAXPATHLEN) {
-> 
-> Shouldn't that be
-> 
-> 	if (len > rcvbuf->page_len - sizeof(u32) || len > NFS2_MAXPATHLEN)
-> 
-> ? As long as we use page_len == PAGE_SIZE, we probably don't care, but
-> if someone some day decides to set a different value for page_len, then
-> we want to make sure that we don't end up overflowing the buffer when we
-> NUL-terminate.
 
-Wouldn't len == rcvbuf->page_len - sizeof(u32) mean that there isn't
-room for writing the terminating NUL?
+I mentioned a while ago I was hacking on libata and PATA drivers. I've
+also fed a few bits of the needed support code to Jeff Garzik as I went.
+
+Some initial patches are now ready for wider testing although strictly
+suicide squad material at this point. I'm now at the point I'm running a
+full Fedora Core 4 with CONFIG_IDE=n using four disk raid on SIL680
+controllers.
+
+A lot of hardware isn't yet covered - I'm working on adding more support
+but I wanted to start with weirder devices first to better understand
+what was needed in libata.
+
+Status info and patches are at
+
+http://zeniv.linux.org.uk/~alan/IDE
+
+
+Enjoy but remember this is very early code and don't use it for
+production!
+

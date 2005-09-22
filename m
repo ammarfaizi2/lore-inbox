@@ -1,1185 +1,2816 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030188AbVIVTxO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030285AbVIVT43@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030188AbVIVTxO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 15:53:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030207AbVIVTxN
+	id S1030285AbVIVT43 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 15:56:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030286AbVIVT43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 15:53:13 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:38793 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030188AbVIVTxM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 15:53:12 -0400
-Date: Thu, 22 Sep 2005 12:52:39 -0700 (PDT)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-cc: Andrew Morton <akpm@osdl.org>, alokk@calsoftinc.com,
-       linux-kernel@vger.kernel.org, manfred@colorfullife.com
-Subject: Re: 2.6.14-rc1-git-now still dying in mm/slab - this time line 1849
-In-Reply-To: <Pine.LNX.4.62.0509210856410.10272@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.62.0509221250120.17975@schroedinger.engr.sgi.com>
-References: <4329A6A3.7080506@vc.cvut.cz> <20050916023005.4146e499.akpm@osdl.org>
- <432AA00D.4030706@vc.cvut.cz> <20050916230809.789d6b0b.akpm@osdl.org>
- <432EE103.5020105@vc.cvut.cz> <20050919112912.18daf2eb.akpm@osdl.org>
- <Pine.LNX.4.62.0509191141380.26105@schroedinger.engr.sgi.com>
- <20050919122847.4322df95.akpm@osdl.org> <Pine.LNX.4.62.0509191351440.26388@schroedinger.engr.sgi.com>
- <20050919221614.6c01c2d1.akpm@osdl.org> <43301578.8040305@vc.cvut.cz>
- <Pine.LNX.4.62.0509201800460.6792@schroedinger.engr.sgi.com>
- <4330B5C2.3080300@vc.cvut.cz> <Pine.LNX.4.62.0509210856410.10272@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 22 Sep 2005 15:56:29 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:63110
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1030285AbVIVT41
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 15:56:27 -0400
+Message-ID: <20050922215632.1.patchmail@tglx.tec.linutronix.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+To: linux-kernel@vger.kernel.org
+Cc: mingo@elte.hu, akpm@osdl.org, george@mvista.com, johnstul@us.ibm.com,
+       paulmck@us.ibm.com, hch@infradead.org, oleg@tv-sign.ru
+Subject: [PATCH]  ktimers subsystem V2
+Date: Thu, 22 Sep 2005 21:56:28 +0200 (CEST)
+From: tglx@linutronix.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Sep 2005, Christoph Lameter wrote:
-
-> Hmm. This likely has something to do with debugging code. I was unable to 
-> reproduce this on amd64 with your config. I get another failure with 
-> 2.6.14-rc2 on ia64 if I enable all the debugging features that you have. 
-> The system works fine if no debugging is configured:
-> 
-> kernel BUG at kernel/workqueue.c:541!
-> swapper[1]: bugcheck! 0 [1]
-
-I fixed the above issue (a structure became larger than the maximum 
-allowed by the slab allocator) and the kernel boots fine now on an 8 way 
-ia64. Cannot reproduce the problem.
-
-#
-# Automatically generated make config: don't edit
-# Linux kernel version: 2.6.14-rc2-git1
-# Thu Sep 22 10:31:35 2005
-#
-
-#
-# Code maturity level options
-#
-CONFIG_EXPERIMENTAL=y
-CONFIG_CLEAN_COMPILE=y
-CONFIG_LOCK_KERNEL=y
-CONFIG_INIT_ENV_ARG_LIMIT=32
-
-#
-# General setup
-#
-CONFIG_LOCALVERSION=""
-CONFIG_LOCALVERSION_AUTO=y
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_POSIX_MQUEUE=y
-# CONFIG_BSD_PROCESS_ACCT is not set
-CONFIG_SYSCTL=y
-# CONFIG_AUDIT is not set
-CONFIG_HOTPLUG=y
-CONFIG_KOBJECT_UEVENT=y
-# CONFIG_IKCONFIG is not set
-CONFIG_CPUSETS=y
-CONFIG_INITRAMFS_SOURCE=""
-# CONFIG_EMBEDDED is not set
-CONFIG_KALLSYMS=y
-CONFIG_KALLSYMS_ALL=y
-# CONFIG_KALLSYMS_EXTRA_PASS is not set
-CONFIG_PRINTK=y
-CONFIG_BUG=y
-CONFIG_BASE_FULL=y
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_SHMEM=y
-CONFIG_CC_ALIGN_FUNCTIONS=0
-CONFIG_CC_ALIGN_LABELS=0
-CONFIG_CC_ALIGN_LOOPS=0
-CONFIG_CC_ALIGN_JUMPS=0
-# CONFIG_TINY_SHMEM is not set
-CONFIG_BASE_SMALL=0
-
-#
-# Loadable module support
-#
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-# CONFIG_MODULE_FORCE_UNLOAD is not set
-CONFIG_OBSOLETE_MODPARM=y
-# CONFIG_MODVERSIONS is not set
-# CONFIG_MODULE_SRCVERSION_ALL is not set
-CONFIG_KMOD=y
-CONFIG_STOP_MACHINE=y
-
-#
-# Processor type and features
-#
-CONFIG_IA64=y
-CONFIG_64BIT=y
-CONFIG_MMU=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_GENERIC_CALIBRATE_DELAY=y
-CONFIG_TIME_INTERPOLATION=y
-CONFIG_EFI=y
-CONFIG_GENERIC_IOMAP=y
-CONFIG_SCHED_NO_NO_OMIT_FRAME_POINTER=y
-CONFIG_IA64_UNCACHED_ALLOCATOR=y
-# CONFIG_IA64_GENERIC is not set
-# CONFIG_IA64_DIG is not set
-# CONFIG_IA64_HP_ZX1 is not set
-# CONFIG_IA64_HP_ZX1_SWIOTLB is not set
-CONFIG_IA64_SGI_SN2=y
-# CONFIG_IA64_HP_SIM is not set
-# CONFIG_ITANIUM is not set
-CONFIG_MCKINLEY=y
-# CONFIG_IA64_PAGE_SIZE_4KB is not set
-# CONFIG_IA64_PAGE_SIZE_8KB is not set
-CONFIG_IA64_PAGE_SIZE_16KB=y
-# CONFIG_IA64_PAGE_SIZE_64KB is not set
-# CONFIG_HZ_100 is not set
-CONFIG_HZ_250=y
-# CONFIG_HZ_1000 is not set
-CONFIG_HZ=250
-CONFIG_IA64_L1_CACHE_SHIFT=7
-CONFIG_NUMA=y
-CONFIG_VIRTUAL_MEM_MAP=y
-CONFIG_HOLES_IN_ZONE=y
-CONFIG_ARCH_DISCONTIGMEM_ENABLE=y
-# CONFIG_IA64_CYCLONE is not set
-CONFIG_IOSAPIC=y
-CONFIG_IA64_SGI_SN_XP=m
-CONFIG_FORCE_MAX_ZONEORDER=18
-CONFIG_SMP=y
-CONFIG_NR_CPUS=512
-# CONFIG_HOTPLUG_CPU is not set
-CONFIG_SCHED_SMT=y
-CONFIG_PREEMPT=y
-CONFIG_SELECT_MEMORY_MODEL=y
-# CONFIG_FLATMEM_MANUAL is not set
-CONFIG_DISCONTIGMEM_MANUAL=y
-# CONFIG_SPARSEMEM_MANUAL is not set
-CONFIG_DISCONTIGMEM=y
-CONFIG_FLAT_NODE_MEM_MAP=y
-CONFIG_NEED_MULTIPLE_NODES=y
-# CONFIG_SPARSEMEM_STATIC is not set
-CONFIG_IA32_SUPPORT=y
-CONFIG_COMPAT=y
-CONFIG_IA64_MCA_RECOVERY=y
-CONFIG_PERFMON=y
-CONFIG_IA64_PALINFO=y
-
-#
-# Firmware Drivers
-#
-CONFIG_EFI_VARS=y
-CONFIG_EFI_PCDP=y
-# CONFIG_DELL_RBU is not set
-CONFIG_BINFMT_ELF=y
-# CONFIG_BINFMT_MISC is not set
-
-#
-# Power management and ACPI
-#
-CONFIG_PM=y
-# CONFIG_PM_DEBUG is not set
-
-#
-# ACPI (Advanced Configuration and Power Interface) Support
-#
-CONFIG_ACPI=y
-# CONFIG_ACPI_BUTTON is not set
-# CONFIG_ACPI_FAN is not set
-# CONFIG_ACPI_PROCESSOR is not set
-CONFIG_ACPI_NUMA=y
-CONFIG_ACPI_BLACKLIST_YEAR=0
-# CONFIG_ACPI_DEBUG is not set
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_SYSTEM=y
-# CONFIG_ACPI_CONTAINER is not set
-
-#
-# CPU Frequency scaling
-#
-# CONFIG_CPU_FREQ is not set
-
-#
-# Bus options (PCI, PCMCIA)
-#
-CONFIG_PCI=y
-CONFIG_PCI_DOMAINS=y
-# CONFIG_PCI_MSI is not set
-CONFIG_PCI_LEGACY_PROC=y
-# CONFIG_PCI_DEBUG is not set
-
-#
-# PCI Hotplug Support
-#
-CONFIG_HOTPLUG_PCI=y
-# CONFIG_HOTPLUG_PCI_FAKE is not set
-# CONFIG_HOTPLUG_PCI_ACPI is not set
-# CONFIG_HOTPLUG_PCI_CPCI is not set
-# CONFIG_HOTPLUG_PCI_SHPC is not set
-CONFIG_HOTPLUG_PCI_SGI=y
-
-#
-# PCCARD (PCMCIA/CardBus) support
-#
-# CONFIG_PCCARD is not set
-
-#
-# Networking
-#
-CONFIG_NET=y
-
-#
-# Networking options
-#
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_UNIX=y
-# CONFIG_NET_KEY is not set
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-# CONFIG_IP_ADVANCED_ROUTER is not set
-CONFIG_IP_FIB_HASH=y
-# CONFIG_IP_PNP is not set
-# CONFIG_NET_IPIP is not set
-# CONFIG_NET_IPGRE is not set
-# CONFIG_IP_MROUTE is not set
-# CONFIG_ARPD is not set
-CONFIG_SYN_COOKIES=y
-# CONFIG_INET_AH is not set
-# CONFIG_INET_ESP is not set
-# CONFIG_INET_IPCOMP is not set
-# CONFIG_INET_TUNNEL is not set
-CONFIG_INET_DIAG=y
-CONFIG_INET_TCP_DIAG=y
-# CONFIG_TCP_CONG_ADVANCED is not set
-CONFIG_TCP_CONG_BIC=y
-CONFIG_IPV6=m
-# CONFIG_IPV6_PRIVACY is not set
-# CONFIG_INET6_AH is not set
-# CONFIG_INET6_ESP is not set
-# CONFIG_INET6_IPCOMP is not set
-# CONFIG_INET6_TUNNEL is not set
-# CONFIG_IPV6_TUNNEL is not set
-# CONFIG_NETFILTER is not set
-
-#
-# DCCP Configuration (EXPERIMENTAL)
-#
-# CONFIG_IP_DCCP is not set
-
-#
-# SCTP Configuration (EXPERIMENTAL)
-#
-# CONFIG_IP_SCTP is not set
-# CONFIG_ATM is not set
-# CONFIG_BRIDGE is not set
-# CONFIG_VLAN_8021Q is not set
-# CONFIG_DECNET is not set
-# CONFIG_LLC2 is not set
-# CONFIG_IPX is not set
-# CONFIG_ATALK is not set
-# CONFIG_X25 is not set
-# CONFIG_LAPB is not set
-# CONFIG_NET_DIVERT is not set
-# CONFIG_ECONET is not set
-# CONFIG_WAN_ROUTER is not set
-# CONFIG_NET_SCHED is not set
-# CONFIG_NET_CLS_ROUTE is not set
-
-#
-# Network testing
-#
-# CONFIG_NET_PKTGEN is not set
-# CONFIG_HAMRADIO is not set
-# CONFIG_IRDA is not set
-# CONFIG_BT is not set
-# CONFIG_IEEE80211 is not set
-
-#
-# Device Drivers
-#
-
-#
-# Generic Driver Options
-#
-CONFIG_STANDALONE=y
-CONFIG_PREVENT_FIRMWARE_BUILD=y
-CONFIG_FW_LOADER=y
-# CONFIG_DEBUG_DRIVER is not set
-
-#
-# Connector - unified userspace <-> kernelspace linker
-#
-# CONFIG_CONNECTOR is not set
-
-#
-# Memory Technology Devices (MTD)
-#
-# CONFIG_MTD is not set
-
-#
-# Parallel port support
-#
-# CONFIG_PARPORT is not set
-
-#
-# Plug and Play support
-#
-# CONFIG_PNP is not set
-
-#
-# Block devices
-#
-# CONFIG_BLK_CPQ_DA is not set
-# CONFIG_BLK_CPQ_CISS_DA is not set
-# CONFIG_BLK_DEV_DAC960 is not set
-# CONFIG_BLK_DEV_UMEM is not set
-# CONFIG_BLK_DEV_COW_COMMON is not set
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_BLK_DEV_CRYPTOLOOP=m
-CONFIG_BLK_DEV_NBD=m
-# CONFIG_BLK_DEV_SX8 is not set
-# CONFIG_BLK_DEV_UB is not set
-CONFIG_BLK_DEV_RAM=y
-CONFIG_BLK_DEV_RAM_COUNT=16
-CONFIG_BLK_DEV_RAM_SIZE=4096
-CONFIG_BLK_DEV_INITRD=y
-# CONFIG_CDROM_PKTCDVD is not set
-
-#
-# IO Schedulers
-#
-CONFIG_IOSCHED_NOOP=y
-CONFIG_IOSCHED_AS=y
-CONFIG_IOSCHED_DEADLINE=y
-CONFIG_IOSCHED_CFQ=y
-CONFIG_ATA_OVER_ETH=m
-
-#
-# ATA/ATAPI/MFM/RLL support
-#
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-
-#
-# Please see Documentation/ide.txt for help/info on IDE drives
-#
-# CONFIG_BLK_DEV_IDE_SATA is not set
-CONFIG_BLK_DEV_IDEDISK=y
-# CONFIG_IDEDISK_MULTI_MODE is not set
-CONFIG_BLK_DEV_IDECD=y
-# CONFIG_BLK_DEV_IDETAPE is not set
-# CONFIG_BLK_DEV_IDEFLOPPY is not set
-# CONFIG_BLK_DEV_IDESCSI is not set
-# CONFIG_IDE_TASK_IOCTL is not set
-
-#
-# IDE chipset support/bugfixes
-#
-CONFIG_IDE_GENERIC=y
-CONFIG_BLK_DEV_IDEPCI=y
-# CONFIG_IDEPCI_SHARE_IRQ is not set
-# CONFIG_BLK_DEV_OFFBOARD is not set
-# CONFIG_BLK_DEV_GENERIC is not set
-# CONFIG_BLK_DEV_OPTI621 is not set
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-CONFIG_IDEDMA_PCI_AUTO=y
-# CONFIG_IDEDMA_ONLYDISK is not set
-# CONFIG_BLK_DEV_AEC62XX is not set
-# CONFIG_BLK_DEV_ALI15X3 is not set
-# CONFIG_BLK_DEV_AMD74XX is not set
-# CONFIG_BLK_DEV_CMD64X is not set
-# CONFIG_BLK_DEV_TRIFLEX is not set
-# CONFIG_BLK_DEV_CY82C693 is not set
-# CONFIG_BLK_DEV_CS5520 is not set
-# CONFIG_BLK_DEV_CS5530 is not set
-# CONFIG_BLK_DEV_HPT34X is not set
-# CONFIG_BLK_DEV_HPT366 is not set
-# CONFIG_BLK_DEV_SC1200 is not set
-# CONFIG_BLK_DEV_PIIX is not set
-# CONFIG_BLK_DEV_IT821X is not set
-# CONFIG_BLK_DEV_NS87415 is not set
-# CONFIG_BLK_DEV_PDC202XX_OLD is not set
-# CONFIG_BLK_DEV_PDC202XX_NEW is not set
-# CONFIG_BLK_DEV_SVWKS is not set
-CONFIG_BLK_DEV_SGIIOC4=y
-# CONFIG_BLK_DEV_SIIMAGE is not set
-# CONFIG_BLK_DEV_SLC90E66 is not set
-# CONFIG_BLK_DEV_TRM290 is not set
-# CONFIG_BLK_DEV_VIA82CXXX is not set
-# CONFIG_IDE_ARM is not set
-CONFIG_BLK_DEV_IDEDMA=y
-# CONFIG_IDEDMA_IVB is not set
-CONFIG_IDEDMA_AUTO=y
-# CONFIG_BLK_DEV_HD is not set
-
-#
-# SCSI device support
-#
-# CONFIG_RAID_ATTRS is not set
-CONFIG_SCSI=y
-CONFIG_SCSI_PROC_FS=y
-
-#
-# SCSI support type (disk, tape, CD-ROM)
-#
-CONFIG_BLK_DEV_SD=y
-CONFIG_CHR_DEV_ST=m
-# CONFIG_CHR_DEV_OSST is not set
-CONFIG_BLK_DEV_SR=m
-# CONFIG_BLK_DEV_SR_VENDOR is not set
-CONFIG_CHR_DEV_SG=m
-CONFIG_CHR_DEV_SCH=m
-
-#
-# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
-#
-# CONFIG_SCSI_MULTI_LUN is not set
-CONFIG_SCSI_CONSTANTS=y
-# CONFIG_SCSI_LOGGING is not set
-
-#
-# SCSI Transport Attributes
-#
-CONFIG_SCSI_SPI_ATTRS=y
-CONFIG_SCSI_FC_ATTRS=y
-# CONFIG_SCSI_ISCSI_ATTRS is not set
-# CONFIG_SCSI_SAS_ATTRS is not set
-
-#
-# SCSI low-level drivers
-#
-# CONFIG_BLK_DEV_3W_XXXX_RAID is not set
-# CONFIG_SCSI_3W_9XXX is not set
-# CONFIG_SCSI_ACARD is not set
-# CONFIG_SCSI_AACRAID is not set
-# CONFIG_SCSI_AIC7XXX is not set
-# CONFIG_SCSI_AIC7XXX_OLD is not set
-# CONFIG_SCSI_AIC79XX is not set
-# CONFIG_MEGARAID_NEWGEN is not set
-# CONFIG_MEGARAID_LEGACY is not set
-CONFIG_SCSI_SATA=y
-# CONFIG_SCSI_SATA_AHCI is not set
-# CONFIG_SCSI_SATA_SVW is not set
-# CONFIG_SCSI_ATA_PIIX is not set
-# CONFIG_SCSI_SATA_MV is not set
-# CONFIG_SCSI_SATA_NV is not set
-# CONFIG_SCSI_SATA_PROMISE is not set
-# CONFIG_SCSI_SATA_QSTOR is not set
-# CONFIG_SCSI_SATA_SX4 is not set
-# CONFIG_SCSI_SATA_SIL is not set
-# CONFIG_SCSI_SATA_SIS is not set
-# CONFIG_SCSI_SATA_ULI is not set
-# CONFIG_SCSI_SATA_VIA is not set
-CONFIG_SCSI_SATA_VITESSE=y
-# CONFIG_SCSI_DMX3191D is not set
-# CONFIG_SCSI_FUTURE_DOMAIN is not set
-# CONFIG_SCSI_IPS is not set
-# CONFIG_SCSI_INITIO is not set
-# CONFIG_SCSI_INIA100 is not set
-# CONFIG_SCSI_SYM53C8XX_2 is not set
-# CONFIG_SCSI_IPR is not set
-# CONFIG_SCSI_QLOGIC_FC is not set
-CONFIG_SCSI_QLOGIC_1280=y
-# CONFIG_SCSI_QLOGIC_1280_1040 is not set
-CONFIG_SCSI_QLA2XXX=y
-# CONFIG_SCSI_QLA21XX is not set
-CONFIG_SCSI_QLA22XX=y
-CONFIG_SCSI_QLA2300=y
-CONFIG_SCSI_QLA2322=y
-# CONFIG_SCSI_QLA6312 is not set
-# CONFIG_SCSI_QLA24XX is not set
-# CONFIG_SCSI_LPFC is not set
-# CONFIG_SCSI_DC395x is not set
-# CONFIG_SCSI_DC390T is not set
-# CONFIG_SCSI_DEBUG is not set
-
-#
-# Multi-device support (RAID and LVM)
-#
-CONFIG_MD=y
-CONFIG_BLK_DEV_MD=y
-CONFIG_MD_LINEAR=y
-CONFIG_MD_RAID0=y
-CONFIG_MD_RAID1=y
-# CONFIG_MD_RAID10 is not set
-CONFIG_MD_RAID5=y
-# CONFIG_MD_RAID6 is not set
-CONFIG_MD_MULTIPATH=y
-# CONFIG_MD_FAULTY is not set
-CONFIG_BLK_DEV_DM=y
-CONFIG_DM_CRYPT=m
-CONFIG_DM_SNAPSHOT=m
-CONFIG_DM_MIRROR=m
-CONFIG_DM_ZERO=m
-CONFIG_DM_MULTIPATH=m
-CONFIG_DM_MULTIPATH_EMC=m
-
-#
-# Fusion MPT device support
-#
-CONFIG_FUSION=y
-CONFIG_FUSION_SPI=y
-CONFIG_FUSION_FC=y
-# CONFIG_FUSION_SAS is not set
-CONFIG_FUSION_MAX_SGE=128
-CONFIG_FUSION_CTL=m
-
-#
-# IEEE 1394 (FireWire) support
-#
-# CONFIG_IEEE1394 is not set
-
-#
-# I2O device support
-#
-# CONFIG_I2O is not set
-
-#
-# Network device support
-#
-CONFIG_NETDEVICES=y
-# CONFIG_DUMMY is not set
-# CONFIG_BONDING is not set
-# CONFIG_EQUALIZER is not set
-# CONFIG_TUN is not set
-
-#
-# ARCnet devices
-#
-# CONFIG_ARCNET is not set
-
-#
-# PHY device support
-#
-
-#
-# Ethernet (10 or 100Mbit)
-#
-# CONFIG_NET_ETHERNET is not set
-
-#
-# Ethernet (1000 Mbit)
-#
-# CONFIG_ACENIC is not set
-# CONFIG_DL2K is not set
-# CONFIG_E1000 is not set
-# CONFIG_NS83820 is not set
-# CONFIG_HAMACHI is not set
-# CONFIG_YELLOWFIN is not set
-# CONFIG_R8169 is not set
-# CONFIG_SIS190 is not set
-# CONFIG_SKGE is not set
-# CONFIG_SK98LIN is not set
-CONFIG_TIGON3=y
-# CONFIG_BNX2 is not set
-
-#
-# Ethernet (10000 Mbit)
-#
-# CONFIG_CHELSIO_T1 is not set
-# CONFIG_IXGB is not set
-CONFIG_S2IO=m
-# CONFIG_S2IO_NAPI is not set
-# CONFIG_2BUFF_MODE is not set
-
-#
-# Token Ring devices
-#
-# CONFIG_TR is not set
-
-#
-# Wireless LAN (non-hamradio)
-#
-# CONFIG_NET_RADIO is not set
-
-#
-# Wan interfaces
-#
-# CONFIG_WAN is not set
-# CONFIG_FDDI is not set
-# CONFIG_HIPPI is not set
-# CONFIG_PPP is not set
-# CONFIG_SLIP is not set
-# CONFIG_NET_FC is not set
-# CONFIG_SHAPER is not set
-CONFIG_NETCONSOLE=y
-CONFIG_NETPOLL=y
-# CONFIG_NETPOLL_RX is not set
-# CONFIG_NETPOLL_TRAP is not set
-CONFIG_NET_POLL_CONTROLLER=y
-
-#
-# ISDN subsystem
-#
-# CONFIG_ISDN is not set
-
-#
-# Telephony Support
-#
-# CONFIG_PHONE is not set
-
-#
-# Input device support
-#
-CONFIG_INPUT=y
-
-#
-# Userland interfaces
-#
-CONFIG_INPUT_MOUSEDEV=y
-# CONFIG_INPUT_MOUSEDEV_PSAUX is not set
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-# CONFIG_INPUT_JOYDEV is not set
-# CONFIG_INPUT_TSDEV is not set
-# CONFIG_INPUT_EVDEV is not set
-# CONFIG_INPUT_EVBUG is not set
-
-#
-# Input Device Drivers
-#
-# CONFIG_INPUT_KEYBOARD is not set
-# CONFIG_INPUT_MOUSE is not set
-# CONFIG_INPUT_JOYSTICK is not set
-# CONFIG_INPUT_TOUCHSCREEN is not set
-# CONFIG_INPUT_MISC is not set
-
-#
-# Hardware I/O ports
-#
-# CONFIG_SERIO is not set
-# CONFIG_GAMEPORT is not set
-
-#
-# Character devices
-#
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_NONSTANDARD=y
-# CONFIG_ROCKETPORT is not set
-# CONFIG_CYCLADES is not set
-# CONFIG_DIGIEPCA is not set
-# CONFIG_MOXA_SMARTIO is not set
-# CONFIG_ISI is not set
-# CONFIG_SYNCLINKMP is not set
-# CONFIG_N_HDLC is not set
-# CONFIG_SPECIALIX is not set
-# CONFIG_SX is not set
-# CONFIG_STALDRV is not set
-CONFIG_SGI_SNSC=y
-CONFIG_SGI_TIOCX=y
-CONFIG_SGI_MBCS=m
-
-#
-# Serial drivers
-#
-# CONFIG_SERIAL_8250 is not set
-
-#
-# Non-8250 serial port support
-#
-CONFIG_SERIAL_CORE=y
-CONFIG_SERIAL_CORE_CONSOLE=y
-CONFIG_SERIAL_SGI_L1_CONSOLE=y
-# CONFIG_SERIAL_JSM is not set
-CONFIG_SERIAL_SGI_IOC4=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_LEGACY_PTYS=y
-CONFIG_LEGACY_PTY_COUNT=256
-
-#
-# IPMI
-#
-# CONFIG_IPMI_HANDLER is not set
-
-#
-# Watchdog Cards
-#
-# CONFIG_WATCHDOG is not set
-# CONFIG_HW_RANDOM is not set
-CONFIG_EFI_RTC=y
-# CONFIG_DTLK is not set
-# CONFIG_R3964 is not set
-# CONFIG_APPLICOM is not set
-
-#
-# Ftape, the floppy tape device driver
-#
-# CONFIG_AGP is not set
-# CONFIG_DRM is not set
-CONFIG_RAW_DRIVER=m
-# CONFIG_HPET is not set
-CONFIG_MAX_RAW_DEVS=256
-# CONFIG_HANGCHECK_TIMER is not set
-CONFIG_MMTIMER=y
-
-#
-# TPM devices
-#
-# CONFIG_TCG_TPM is not set
-
-#
-# I2C support
-#
-# CONFIG_I2C is not set
-
-#
-# Dallas's 1-wire bus
-#
-# CONFIG_W1 is not set
-
-#
-# Hardware Monitoring support
-#
-# CONFIG_HWMON is not set
-# CONFIG_HWMON_VID is not set
-
-#
-# Misc devices
-#
-
-#
-# Multimedia Capabilities Port drivers
-#
-
-#
-# Multimedia devices
-#
-# CONFIG_VIDEO_DEV is not set
-
-#
-# Digital Video Broadcasting Devices
-#
-# CONFIG_DVB is not set
-
-#
-# Graphics support
-#
-# CONFIG_FB is not set
-
-#
-# Console display driver support
-#
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-
-#
-# Sound
-#
-# CONFIG_SOUND is not set
-
-#
-# USB support
-#
-CONFIG_USB_ARCH_HAS_HCD=y
-CONFIG_USB_ARCH_HAS_OHCI=y
-CONFIG_USB=m
-# CONFIG_USB_DEBUG is not set
-
-#
-# Miscellaneous USB options
-#
-# CONFIG_USB_DEVICEFS is not set
-# CONFIG_USB_BANDWIDTH is not set
-# CONFIG_USB_DYNAMIC_MINORS is not set
-# CONFIG_USB_SUSPEND is not set
-# CONFIG_USB_OTG is not set
-
-#
-# USB Host Controller Drivers
-#
-CONFIG_USB_EHCI_HCD=m
-# CONFIG_USB_EHCI_SPLIT_ISO is not set
-# CONFIG_USB_EHCI_ROOT_HUB_TT is not set
-# CONFIG_USB_ISP116X_HCD is not set
-CONFIG_USB_OHCI_HCD=m
-# CONFIG_USB_OHCI_BIG_ENDIAN is not set
-CONFIG_USB_OHCI_LITTLE_ENDIAN=y
-CONFIG_USB_UHCI_HCD=m
-# CONFIG_USB_SL811_HCD is not set
-
-#
-# USB Device Class drivers
-#
-# CONFIG_USB_BLUETOOTH_TTY is not set
-# CONFIG_USB_ACM is not set
-# CONFIG_USB_PRINTER is not set
-
-#
-# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support' may also be needed; see USB_STORAGE Help for more information
-#
-# CONFIG_USB_STORAGE is not set
-
-#
-# USB Input Devices
-#
-CONFIG_USB_HID=m
-CONFIG_USB_HIDINPUT=y
-# CONFIG_HID_FF is not set
-# CONFIG_USB_HIDDEV is not set
-
-#
-# USB HID Boot Protocol drivers
-#
-# CONFIG_USB_KBD is not set
-# CONFIG_USB_MOUSE is not set
-# CONFIG_USB_AIPTEK is not set
-# CONFIG_USB_WACOM is not set
-# CONFIG_USB_ACECAD is not set
-# CONFIG_USB_KBTAB is not set
-# CONFIG_USB_POWERMATE is not set
-# CONFIG_USB_MTOUCH is not set
-# CONFIG_USB_ITMTOUCH is not set
-# CONFIG_USB_EGALAX is not set
-# CONFIG_USB_YEALINK is not set
-# CONFIG_USB_XPAD is not set
-# CONFIG_USB_ATI_REMOTE is not set
-# CONFIG_USB_KEYSPAN_REMOTE is not set
-# CONFIG_USB_APPLETOUCH is not set
-
-#
-# USB Imaging devices
-#
-# CONFIG_USB_MDC800 is not set
-# CONFIG_USB_MICROTEK is not set
-
-#
-# USB Multimedia devices
-#
-# CONFIG_USB_DABUSB is not set
-
-#
-# Video4Linux support is needed for USB Multimedia device support
-#
-
-#
-# USB Network Adapters
-#
-# CONFIG_USB_CATC is not set
-# CONFIG_USB_KAWETH is not set
-# CONFIG_USB_PEGASUS is not set
-# CONFIG_USB_RTL8150 is not set
-# CONFIG_USB_USBNET is not set
-CONFIG_USB_MON=y
-
-#
-# USB port drivers
-#
-
-#
-# USB Serial Converter support
-#
-# CONFIG_USB_SERIAL is not set
-
-#
-# USB Miscellaneous drivers
-#
-# CONFIG_USB_EMI62 is not set
-# CONFIG_USB_EMI26 is not set
-# CONFIG_USB_AUERSWALD is not set
-# CONFIG_USB_RIO500 is not set
-# CONFIG_USB_LEGOTOWER is not set
-# CONFIG_USB_LCD is not set
-# CONFIG_USB_LED is not set
-# CONFIG_USB_CYTHERM is not set
-# CONFIG_USB_PHIDGETKIT is not set
-# CONFIG_USB_PHIDGETSERVO is not set
-# CONFIG_USB_IDMOUSE is not set
-# CONFIG_USB_SISUSBVGA is not set
-# CONFIG_USB_LD is not set
-
-#
-# USB DSL modem support
-#
-
-#
-# USB Gadget Support
-#
-# CONFIG_USB_GADGET is not set
-
-#
-# MMC/SD Card support
-#
-# CONFIG_MMC is not set
-
-#
-# InfiniBand support
-#
-CONFIG_INFINIBAND=m
-# CONFIG_INFINIBAND_USER_MAD is not set
-# CONFIG_INFINIBAND_USER_ACCESS is not set
-CONFIG_INFINIBAND_MTHCA=m
-# CONFIG_INFINIBAND_MTHCA_DEBUG is not set
-CONFIG_INFINIBAND_IPOIB=m
-# CONFIG_INFINIBAND_IPOIB_DEBUG is not set
-
-#
-# SN Devices
-#
-CONFIG_SGI_IOC4=y
-
-#
-# File systems
-#
-CONFIG_EXT2_FS=y
-CONFIG_EXT2_FS_XATTR=y
-CONFIG_EXT2_FS_POSIX_ACL=y
-CONFIG_EXT2_FS_SECURITY=y
-# CONFIG_EXT2_FS_XIP is not set
-CONFIG_EXT3_FS=y
-CONFIG_EXT3_FS_XATTR=y
-CONFIG_EXT3_FS_POSIX_ACL=y
-CONFIG_EXT3_FS_SECURITY=y
-CONFIG_JBD=y
-# CONFIG_JBD_DEBUG is not set
-CONFIG_FS_MBCACHE=y
-CONFIG_REISERFS_FS=y
-# CONFIG_REISERFS_CHECK is not set
-# CONFIG_REISERFS_PROC_INFO is not set
-CONFIG_REISERFS_FS_XATTR=y
-CONFIG_REISERFS_FS_POSIX_ACL=y
-CONFIG_REISERFS_FS_SECURITY=y
-# CONFIG_JFS_FS is not set
-CONFIG_FS_POSIX_ACL=y
-CONFIG_XFS_FS=y
-CONFIG_XFS_EXPORT=y
-CONFIG_XFS_QUOTA=y
-# CONFIG_XFS_SECURITY is not set
-CONFIG_XFS_POSIX_ACL=y
-CONFIG_XFS_RT=y
-# CONFIG_MINIX_FS is not set
-# CONFIG_ROMFS_FS is not set
-CONFIG_INOTIFY=y
-CONFIG_QUOTA=y
-# CONFIG_QFMT_V1 is not set
-# CONFIG_QFMT_V2 is not set
-CONFIG_QUOTACTL=y
-CONFIG_DNOTIFY=y
-CONFIG_AUTOFS_FS=m
-CONFIG_AUTOFS4_FS=m
-# CONFIG_FUSE_FS is not set
-
-#
-# CD-ROM/DVD Filesystems
-#
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-# CONFIG_ZISOFS is not set
-CONFIG_UDF_FS=m
-CONFIG_UDF_NLS=y
-
-#
-# DOS/FAT/NT Filesystems
-#
-CONFIG_FAT_FS=y
-# CONFIG_MSDOS_FS is not set
-CONFIG_VFAT_FS=y
-CONFIG_FAT_DEFAULT_CODEPAGE=437
-CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
-# CONFIG_NTFS_FS is not set
-
-#
-# Pseudo filesystems
-#
-CONFIG_PROC_FS=y
-CONFIG_PROC_KCORE=y
-CONFIG_SYSFS=y
-CONFIG_TMPFS=y
-CONFIG_HUGETLBFS=y
-CONFIG_HUGETLB_PAGE=y
-CONFIG_RAMFS=y
-# CONFIG_RELAYFS_FS is not set
-
-#
-# Miscellaneous filesystems
-#
-# CONFIG_ADFS_FS is not set
-# CONFIG_AFFS_FS is not set
-# CONFIG_HFS_FS is not set
-# CONFIG_HFSPLUS_FS is not set
-# CONFIG_BEFS_FS is not set
-# CONFIG_BFS_FS is not set
-# CONFIG_EFS_FS is not set
-# CONFIG_CRAMFS is not set
-# CONFIG_VXFS_FS is not set
-# CONFIG_HPFS_FS is not set
-# CONFIG_QNX4FS_FS is not set
-# CONFIG_SYSV_FS is not set
-# CONFIG_UFS_FS is not set
-
-#
-# Network File Systems
-#
-CONFIG_NFS_FS=m
-CONFIG_NFS_V3=y
-# CONFIG_NFS_V3_ACL is not set
-CONFIG_NFS_V4=y
-CONFIG_NFS_DIRECTIO=y
-CONFIG_NFSD=m
-CONFIG_NFSD_V3=y
-# CONFIG_NFSD_V3_ACL is not set
-CONFIG_NFSD_V4=y
-CONFIG_NFSD_TCP=y
-CONFIG_LOCKD=m
-CONFIG_LOCKD_V4=y
-CONFIG_EXPORTFS=y
-CONFIG_NFS_COMMON=y
-CONFIG_SUNRPC=m
-CONFIG_SUNRPC_GSS=m
-CONFIG_RPCSEC_GSS_KRB5=m
-# CONFIG_RPCSEC_GSS_SPKM3 is not set
-CONFIG_SMB_FS=m
-# CONFIG_SMB_NLS_DEFAULT is not set
-CONFIG_CIFS=m
-# CONFIG_CIFS_STATS is not set
-# CONFIG_CIFS_XATTR is not set
-# CONFIG_CIFS_EXPERIMENTAL is not set
-# CONFIG_NCP_FS is not set
-# CONFIG_CODA_FS is not set
-# CONFIG_AFS_FS is not set
-# CONFIG_9P_FS is not set
-
-#
-# Partition Types
-#
-CONFIG_PARTITION_ADVANCED=y
-# CONFIG_ACORN_PARTITION is not set
-# CONFIG_OSF_PARTITION is not set
-# CONFIG_AMIGA_PARTITION is not set
-# CONFIG_ATARI_PARTITION is not set
-# CONFIG_MAC_PARTITION is not set
-CONFIG_MSDOS_PARTITION=y
-# CONFIG_BSD_DISKLABEL is not set
-# CONFIG_MINIX_SUBPARTITION is not set
-# CONFIG_SOLARIS_X86_PARTITION is not set
-# CONFIG_UNIXWARE_DISKLABEL is not set
-# CONFIG_LDM_PARTITION is not set
-CONFIG_SGI_PARTITION=y
-# CONFIG_ULTRIX_PARTITION is not set
-# CONFIG_SUN_PARTITION is not set
-CONFIG_EFI_PARTITION=y
-
-#
-# Native Language Support
-#
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=y
-# CONFIG_NLS_CODEPAGE_737 is not set
-# CONFIG_NLS_CODEPAGE_775 is not set
-# CONFIG_NLS_CODEPAGE_850 is not set
-# CONFIG_NLS_CODEPAGE_852 is not set
-# CONFIG_NLS_CODEPAGE_855 is not set
-# CONFIG_NLS_CODEPAGE_857 is not set
-# CONFIG_NLS_CODEPAGE_860 is not set
-# CONFIG_NLS_CODEPAGE_861 is not set
-# CONFIG_NLS_CODEPAGE_862 is not set
-# CONFIG_NLS_CODEPAGE_863 is not set
-# CONFIG_NLS_CODEPAGE_864 is not set
-# CONFIG_NLS_CODEPAGE_865 is not set
-# CONFIG_NLS_CODEPAGE_866 is not set
-# CONFIG_NLS_CODEPAGE_869 is not set
-# CONFIG_NLS_CODEPAGE_936 is not set
-# CONFIG_NLS_CODEPAGE_950 is not set
-# CONFIG_NLS_CODEPAGE_932 is not set
-# CONFIG_NLS_CODEPAGE_949 is not set
-# CONFIG_NLS_CODEPAGE_874 is not set
-# CONFIG_NLS_ISO8859_8 is not set
-# CONFIG_NLS_CODEPAGE_1250 is not set
-# CONFIG_NLS_CODEPAGE_1251 is not set
-# CONFIG_NLS_ASCII is not set
-CONFIG_NLS_ISO8859_1=y
-# CONFIG_NLS_ISO8859_2 is not set
-# CONFIG_NLS_ISO8859_3 is not set
-# CONFIG_NLS_ISO8859_4 is not set
-# CONFIG_NLS_ISO8859_5 is not set
-# CONFIG_NLS_ISO8859_6 is not set
-# CONFIG_NLS_ISO8859_7 is not set
-# CONFIG_NLS_ISO8859_9 is not set
-# CONFIG_NLS_ISO8859_13 is not set
-# CONFIG_NLS_ISO8859_14 is not set
-# CONFIG_NLS_ISO8859_15 is not set
-# CONFIG_NLS_KOI8_R is not set
-# CONFIG_NLS_KOI8_U is not set
-CONFIG_NLS_UTF8=y
-
-#
-# Library routines
-#
-# CONFIG_CRC_CCITT is not set
-# CONFIG_CRC16 is not set
-CONFIG_CRC32=y
-# CONFIG_LIBCRC32C is not set
-CONFIG_ZLIB_INFLATE=m
-CONFIG_ZLIB_DEFLATE=m
-CONFIG_GENERIC_ALLOCATOR=y
-CONFIG_GENERIC_HARDIRQS=y
-CONFIG_GENERIC_IRQ_PROBE=y
-CONFIG_GENERIC_PENDING_IRQ=y
-
-#
-# Profiling support
-#
-# CONFIG_PROFILING is not set
-
-#
-# Kernel hacking
-#
-# CONFIG_PRINTK_TIME is not set
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_LOG_BUF_SHIFT=20
-CONFIG_DETECT_SOFTLOCKUP=y
-CONFIG_SCHEDSTATS=y
-CONFIG_DEBUG_SLAB=y
-CONFIG_DEBUG_PREEMPT=y
-CONFIG_DEBUG_SPINLOCK=y
-CONFIG_DEBUG_SPINLOCK_SLEEP=y
-# CONFIG_DEBUG_KOBJECT is not set
-CONFIG_DEBUG_INFO=y
-CONFIG_DEBUG_FS=y
-# CONFIG_KPROBES is not set
-CONFIG_IA64_GRANULE_16MB=y
-# CONFIG_IA64_GRANULE_64MB is not set
-# CONFIG_IA64_PRINT_HAZARDS is not set
-# CONFIG_DISABLE_VHPT is not set
-# CONFIG_IA64_DEBUG_CMPXCHG is not set
-# CONFIG_IA64_DEBUG_IRQ is not set
-CONFIG_SYSVIPC_COMPAT=y
-
-#
-# Security options
-#
-# CONFIG_KEYS is not set
-# CONFIG_SECURITY is not set
-
-#
-# Cryptographic options
-#
-CONFIG_CRYPTO=y
-CONFIG_CRYPTO_HMAC=y
-# CONFIG_CRYPTO_NULL is not set
-# CONFIG_CRYPTO_MD4 is not set
-CONFIG_CRYPTO_MD5=y
-CONFIG_CRYPTO_SHA1=m
-# CONFIG_CRYPTO_SHA256 is not set
-# CONFIG_CRYPTO_SHA512 is not set
-# CONFIG_CRYPTO_WP512 is not set
-# CONFIG_CRYPTO_TGR192 is not set
-CONFIG_CRYPTO_DES=m
-# CONFIG_CRYPTO_BLOWFISH is not set
-# CONFIG_CRYPTO_TWOFISH is not set
-# CONFIG_CRYPTO_SERPENT is not set
-# CONFIG_CRYPTO_AES is not set
-# CONFIG_CRYPTO_CAST5 is not set
-# CONFIG_CRYPTO_CAST6 is not set
-# CONFIG_CRYPTO_TEA is not set
-# CONFIG_CRYPTO_ARC4 is not set
-# CONFIG_CRYPTO_KHAZAD is not set
-# CONFIG_CRYPTO_ANUBIS is not set
-CONFIG_CRYPTO_DEFLATE=m
-# CONFIG_CRYPTO_MICHAEL_MIC is not set
-# CONFIG_CRYPTO_CRC32C is not set
-# CONFIG_CRYPTO_TEST is not set
-
-#
-# Hardware crypto devices
-#
+This is an updated version which contains following changes:
+- per cpu data reworked
+- possible deadlock of switching timer bases fixed
+
+Thanks for review and feedback
+
+tglx
+
+
+ktimers seperate the "timer API" from the "timeout API". 
+ktimers are used for:
+- nanosleep
+- posixtimers
+- itimers
+
+
+The patch contains the base implementation of ktimers and the
+conversion of nanosleep, posixtimers and itimers to ktimer users. 
+
+The patch does not require other changes to the Linux time(r) core
+system.
+
+The implementation was done with following constraints in mind:
+
+- Not bound to jiffies
+- Multiple time sources
+- Per CPU timer queues
+- Simplification of absolute CLOCK_REALTIME posix timers
+- High resolution timer aware
+- Allows the timeout API to reschedule the next event 
+  (for tickless systems)
+
+Ktimers enqueue the timers into a time sorted list, which is implemented 
+with a rbtree, which is effiecient and already used in other performance 
+critical parts of the kernel. This is a bit slower than the timer wheel, 
+but due to the fact that the vast majority of timers is actually 
+expiring it has to be waged versus the cascading penalty.
+
+The code supports multiple time sources. Currently implemented are 
+CLOCK_REALTIME and CLOCK_MONOTONIC. They provide seperate timer queues 
+and support functions.
+
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+---
+ fs/exec.c                    |    9 
+ fs/proc/array.c              |    6 
+ include/asm-generic/div64.h  |   18 
+ include/linux/ktimer.h       |  142 +++++++
+ include/linux/posix-timers.h |   87 ++--
+ include/linux/sched.h        |    4 
+ include/linux/time.h         |   65 ++-
+ include/linux/timer.h        |    2 
+ init/main.c                  |    1 
+ kernel/Makefile              |    3 
+ kernel/exit.c                |    2 
+ kernel/fork.c                |    5 
+ kernel/itimer.c              |   83 +---
+ kernel/ktimers.c             |  826 ++++++++++++++++++++++++++++++++++++++++++
+ kernel/posix-cpu-timers.c    |   23 -
+ kernel/posix-timers.c        |  832 ++++++++-----------------------------------
+ kernel/timer.c               |   57 --
+ 17 files changed, 1308 insertions(+), 857 deletions(-)
+
+Index: linux-2.6.14-rc2.ktimers/fs/exec.c
+===================================================================
+--- linux-2.6.14-rc2.ktimers.orig/fs/exec.c
++++ linux-2.6.14-rc2.ktimers/fs/exec.c
+@@ -645,9 +645,10 @@ static inline int de_thread(struct task_
+ 		 * synchronize with any firing (by calling del_timer_sync)
+ 		 * before we can safely let the old group leader die.
+ 		 */
+-		sig->real_timer.data = (unsigned long)current;
+-		if (del_timer_sync(&sig->real_timer))
+-			add_timer(&sig->real_timer);
++		sig->real_timer.data = current;
++		if (stop_ktimer(&sig->real_timer))
++			start_ktimer(&sig->real_timer, NULL,
++				     KTIMER_RESTART|KTIMER_NOCHECK);
+ 	}
+ 	while (atomic_read(&sig->count) > count) {
+ 		sig->group_exit_task = current;
+@@ -659,7 +660,7 @@ static inline int de_thread(struct task_
+ 	}
+ 	sig->group_exit_task = NULL;
+ 	sig->notify_count = 0;
+-	sig->real_timer.data = (unsigned long)current;
++	sig->real_timer.data = current;
+ 	spin_unlock_irq(lock);
+ 
+ 	/*
+Index: linux-2.6.14-rc2.ktimers/fs/proc/array.c
+===================================================================
+--- linux-2.6.14-rc2.ktimers.orig/fs/proc/array.c
++++ linux-2.6.14-rc2.ktimers/fs/proc/array.c
+@@ -330,7 +330,7 @@ static int do_task_stat(struct task_stru
+ 	unsigned long  min_flt = 0,  maj_flt = 0;
+ 	cputime_t cutime, cstime, utime, stime;
+ 	unsigned long rsslim = 0;
+-	unsigned long it_real_value = 0;
++	nsec_t it_real_value = 0;
+ 	struct task_struct *t;
+ 	char tcomm[sizeof(task->comm)];
+ 
+@@ -386,7 +386,7 @@ static int do_task_stat(struct task_stru
+ 			utime = cputime_add(utime, task->signal->utime);
+ 			stime = cputime_add(stime, task->signal->stime);
+ 		}
+-		it_real_value = task->signal->it_real_value;
++		it_real_value = task->signal->real_timer.expires;
+ 	}
+ 	ppid = pid_alive(task) ? task->group_leader->real_parent->tgid : 0;
+ 	read_unlock(&tasklist_lock);
+@@ -435,7 +435,7 @@ static int do_task_stat(struct task_stru
+ 		priority,
+ 		nice,
+ 		num_threads,
+-		jiffies_to_clock_t(it_real_value),
++		(clock_t) nsec_to_clock_t(it_real_value),
+ 		start_time,
+ 		vsize,
+ 		mm ? get_mm_counter(mm, rss) : 0, /* you might want to shift this left 3 */
+Index: linux-2.6.14-rc2.ktimers/include/asm-generic/div64.h
+===================================================================
+--- linux-2.6.14-rc2.ktimers.orig/include/asm-generic/div64.h
++++ linux-2.6.14-rc2.ktimers/include/asm-generic/div64.h
+@@ -30,6 +30,24 @@
+ 	__rem;							\
+  })
+ 
++/*
++ * (long)X = ((long long)divs) / (long)div
++ * (long)rem = ((long long)divs) % (long)div
++ *
++ * Warning, this will do an exception if X overflows.
++ */
++#define div_long_long_rem(a,b,c) div_ll_X_l_rem(a,b,c)
++
++/* x = divs / div; *rem = divs % div; */
++static inline unsigned long div_ll_X_l_rem(unsigned long long divs,
++					   unsigned long div,
++					   unsigned long * rem)
++{
++	unsigned long long it = divs;
++	*rem = do_div(it, div);
++	return (unsigned long)it;
++}
++
+ #elif BITS_PER_LONG == 32
+ 
+ extern uint32_t __div64_32(uint64_t *dividend, uint32_t divisor);
+Index: linux-2.6.14-rc2.ktimers/include/linux/ktimer.h
+===================================================================
+--- /dev/null
++++ linux-2.6.14-rc2.ktimers/include/linux/ktimer.h
+@@ -0,0 +1,142 @@
++#ifndef _LINUX_KTIMER_H
++#define _LINUX_KTIMER_H
++
++#include <linux/init.h>
++#include <linux/list.h>
++#include <linux/rbtree.h>
++#include <linux/time.h>
++#include <linux/wait.h>
++
++/* Timer API */
++
++struct ktimer_base;
++
++/*
++ * Timer structure must be initialized by init_ktimer_xxx !
++ */
++struct ktimer {
++	struct rb_node		node;
++	struct list_head	list;
++	nsec_t			expires;
++	nsec_t		 	expired;
++	nsec_t		 	interval;
++	int 	 	 	overrun;
++	unsigned long		status;
++	void 			(*function)(void *);
++	void			*data;
++	struct ktimer_base 	*base;
++};
++
++/*
++ * Timer base struct
++ */
++struct ktimer_base {
++	int			index;
++	char			*name;
++	spinlock_t		lock;
++	struct rb_root		active;
++	struct list_head	pending;
++	int			count;
++	unsigned long		resolution;
++	nsec_t			(*get_time)(void);
++	struct ktimer		*running_timer;
++	wait_queue_head_t	wait_for_running_timer;
++};
++
++/*
++ * Values for the mode argument of xxx_ktimer functions
++ */
++enum
++{
++	KTIMER_NOREARM,	/* Internal value */
++	KTIMER_ABS,	/* Time value is absolute */
++	KTIMER_REL,	/* Time value is relativ to now */
++	KTIMER_INCR,	/* Time value is relativ to previous expiry time */
++	KTIMER_FORWARD,	/* Timer is rearmed with value. Overruns are accounted */
++	KTIMER_REARM,	/* Timer is rearmed with interval. Overruns are accounted */
++	KTIMER_RESTART	/* Timer is restarted with the stored expiry value */
++};
++
++/* Expiry must not be checked when the timer is started */
++#define KTIMER_NOCHECK		0x10000
++
++#define KTIMER_POISON		((void *) 0x00100101)
++#define KTIMERS_MAX_NSEC	(~(1LL<<63))
++
++#define ktimer_before(t1, t2) (t1->expires < t2->expires)
++#define ktimer_active(t) ((t)->status != KTIMER_INACTIVE)
++
++enum
++{
++	KTIMER_INACTIVE,
++	KTIMER_PENDING,
++	KTIMER_EXPIRED,
++	KTIMER_EXPIRED_NOQUEUE,
++};
++
++/* Exported functions */
++extern void fastcall init_ktimer_real(struct ktimer *timer);
++extern void fastcall init_ktimer_mono(struct ktimer *timer);
++extern int modify_ktimer(struct ktimer *timer, nsec_t *tim, int mode);
++extern int start_ktimer(struct ktimer *timer, nsec_t *tim, int mode);
++extern int try_to_stop_ktimer(struct ktimer *timer);
++extern int stop_ktimer(struct ktimer *timer);
++extern nsec_t get_remtime_ktimer(struct ktimer *timer, long fake);
++extern nsec_t get_expiry_ktimer(struct ktimer *timer, nsec_t *now);
++extern void __init init_ktimers(void);
++
++/* Conversion functions with rounding based on resolution */
++extern nsec_t ktimer_convert_timeval(struct ktimer *timer, struct timeval *tv);
++extern nsec_t ktimer_convert_timespec(struct ktimer *timer, struct timespec *ts);
++
++/* Posix timers current quirks */
++extern int get_ktimer_mono_res(clockid_t which_clock, struct timespec *tp);
++extern int get_ktimer_real_res(clockid_t which_clock, struct timespec *tp);
++
++/* nanosleep functions */
++long ktimer_nanosleep_mono(struct timespec *rqtp, struct timespec __user *rmtp, int mode);
++long ktimer_nanosleep_real(struct timespec *rqtp, struct timespec __user *rmtp, int mode);
++
++#if defined(CONFIG_SMP)
++extern void wait_for_ktimer(struct ktimer *timer);
++#else
++#define wait_for_ktimer(t) do {} while (0)
++#endif
++
++#define KTIME_REALTIME_RES (NSEC_PER_SEC/HZ)
++#define KTIME_MONOTONIC_RES (NSEC_PER_SEC/HZ)
++
++static inline void get_ktime_mono_ts(struct timespec *ts)
++{
++	unsigned long seq;
++	struct timespec tomono;
++	do {
++		seq = read_seqbegin(&xtime_lock);
++		getnstimeofday(ts);
++		tomono = wall_to_monotonic;
++	} while (read_seqretry(&xtime_lock, seq));
++
++	set_normalized_timespec(ts, ts->tv_sec + tomono.tv_sec,
++				ts->tv_nsec + tomono.tv_nsec);
++}
++
++static inline nsec_t do_get_ktime_mono(void)
++{
++	struct timespec tm;
++	get_ktime_mono_ts(&tm);
++	return timespec_to_ns(&tm);
++}
++
++#define get_ktime_real_ts(ts) getnstimeofday(ts)
++static inline nsec_t do_get_ktime_real(void)
++{
++	struct timeval now;
++
++	do_gettimeofday(&now);
++	return timeval_to_ns(&now);
++}
++
++#define clock_was_set() do { } while (0)
++extern void run_ktimer_queues(void);
++
++#endif
+Index: linux-2.6.14-rc2.ktimers/include/linux/posix-timers.h
+===================================================================
+--- linux-2.6.14-rc2.ktimers.orig/include/linux/posix-timers.h
++++ linux-2.6.14-rc2.ktimers/include/linux/posix-timers.h
+@@ -51,10 +51,9 @@ struct k_itimer {
+ 	struct sigqueue *sigq;		/* signal queue entry. */
+ 	union {
+ 		struct {
+-			struct timer_list timer;
+-			struct list_head abs_timer_entry; /* clock abs_timer_list */
+-			struct timespec wall_to_prev;   /* wall_to_monotonic used when set */
+-			unsigned long incr; /* interval in jiffies */
++			struct ktimer timer;
++			nsec_t incr;
++			int overrun;
+ 		} real;
+ 		struct cpu_timer_list cpu;
+ 		struct {
+@@ -66,10 +65,6 @@ struct k_itimer {
+ 	} it;
+ };
+ 
+-struct k_clock_abs {
+-	struct list_head list;
+-	spinlock_t lock;
+-};
+ struct k_clock {
+ 	int res;		/* in nano seconds */
+ 	int (*clock_getres) (clockid_t which_clock, struct timespec *tp);
+@@ -77,7 +72,7 @@ struct k_clock {
+ 	int (*clock_set) (clockid_t which_clock, struct timespec * tp);
+ 	int (*clock_get) (clockid_t which_clock, struct timespec * tp);
+ 	int (*timer_create) (struct k_itimer *timer);
+-	int (*nsleep) (clockid_t which_clock, int flags, struct timespec *);
++	int (*nsleep) (clockid_t which_clock, int flags, struct timespec *, struct timespec __user *);
+ 	int (*timer_set) (struct k_itimer * timr, int flags,
+ 			  struct itimerspec * new_setting,
+ 			  struct itimerspec * old_setting);
+@@ -91,37 +86,71 @@ void register_posix_clock(clockid_t cloc
+ 
+ /* Error handlers for timer_create, nanosleep and settime */
+ int do_posix_clock_notimer_create(struct k_itimer *timer);
+-int do_posix_clock_nonanosleep(clockid_t, int flags, struct timespec *);
++int do_posix_clock_nonanosleep(clockid_t, int flags, struct timespec *, struct timespec __user *);
+ int do_posix_clock_nosettime(clockid_t, struct timespec *tp);
+ 
+ /* function to call to trigger timer event */
+ int posix_timer_event(struct k_itimer *timr, int si_private);
+ 
+-struct now_struct {
+-	unsigned long jiffies;
+-};
++#if (BITS_PER_LONG < 64)
++static inline nsec_t forward_posix_timer(struct k_itimer *t, nsec_t now)
++{
++	nsec_t delta = now - t->it.real.timer.expires;
++	unsigned long long orun = 1;
++
++	if (delta < 0)
++		return -delta;
++
++	if (unlikely(delta >= t->it.real.incr)) {
++		if ((t->it.real.incr >> 32) == 0) {
++			do_div(delta, (unsigned long) t->it.real.incr);
++			orun += delta;
++		} else {
++			int sft = 0;
++			u64 t1 = t->it.real.incr;
++			u64 t2 = delta;
++
++			while(t1 >> 32) {
++				sft++;
++				t2 >>= 1;
++			}
++			t2 >>= sft;
++			do_div(t2, (unsigned long) t1);
++			t2 *= t->it.real.incr
++;
++			if (t2 <= delta)
++				orun++;
++		}
++	}
++	t->it_overrun += (long) orun;
++	t->it.real.timer.expires += orun * t->it.real.incr;
++	return t->it.real.timer.expires - now;
++}
++#else
++static inline nsec_t forward_posix_timer(struct k_itimer *t, nsec_t now)
++{
++	nsec_t delta = now - t->it.real.timer.expires;
++	unsigned long orun = 1;
++
++	if (delta < 0)
++		return -delta;
++
++	if (unlikely(delta >= t->it.real.incr))
++		orun += delta / t->it.real.incr;
++	t->it.real.timer.expires += orun * t->it.real.incr;
++	t->it_overrun += orun;
++	return t->it.real.timer.expires - now;
++}
++#endif
++
+ 
+-#define posix_get_now(now) (now)->jiffies = jiffies;
+-#define posix_time_before(timer, now) \
+-                      time_before((timer)->expires, (now)->jiffies)
+-
+-#define posix_bump_timer(timr, now)					\
+-         do {								\
+-              long delta, orun;						\
+-	      delta = now.jiffies - (timr)->it.real.timer.expires;	\
+-              if (delta >= 0) {						\
+-	           orun = 1 + (delta / (timr)->it.real.incr);		\
+-	          (timr)->it.real.timer.expires +=			\
+-			 orun * (timr)->it.real.incr;			\
+-                  (timr)->it_overrun += orun;				\
+-              }								\
+-            }while (0)
+ 
+ int posix_cpu_clock_getres(clockid_t which_clock, struct timespec *);
+ int posix_cpu_clock_get(clockid_t which_clock, struct timespec *);
+ int posix_cpu_clock_set(clockid_t which_clock, const struct timespec *tp);
+ int posix_cpu_timer_create(struct k_itimer *);
+-int posix_cpu_nsleep(clockid_t, int, struct timespec *);
++int posix_cpu_nsleep(clockid_t, int, struct timespec *,
++		     struct timespec __user *);
+ int posix_cpu_timer_set(struct k_itimer *, int,
+ 			struct itimerspec *, struct itimerspec *);
+ int posix_cpu_timer_del(struct k_itimer *);
+Index: linux-2.6.14-rc2.ktimers/include/linux/sched.h
+===================================================================
+--- linux-2.6.14-rc2.ktimers.orig/include/linux/sched.h
++++ linux-2.6.14-rc2.ktimers/include/linux/sched.h
+@@ -104,6 +104,7 @@ extern unsigned long nr_iowait(void);
+ #include <linux/param.h>
+ #include <linux/resource.h>
+ #include <linux/timer.h>
++#include <linux/ktimer.h>
+ 
+ #include <asm/processor.h>
+ 
+@@ -346,8 +347,7 @@ struct signal_struct {
+ 	struct list_head posix_timers;
+ 
+ 	/* ITIMER_REAL timer for the process */
+-	struct timer_list real_timer;
+-	unsigned long it_real_value, it_real_incr;
++	struct ktimer real_timer;
+ 
+ 	/* ITIMER_PROF and ITIMER_VIRTUAL timers for the process */
+ 	cputime_t it_prof_expires, it_virt_expires;
+Index: linux-2.6.14-rc2.ktimers/include/linux/time.h
+===================================================================
+--- linux-2.6.14-rc2.ktimers.orig/include/linux/time.h
++++ linux-2.6.14-rc2.ktimers/include/linux/time.h
+@@ -5,6 +5,7 @@
+ 
+ #ifdef __KERNEL__
+ #include <linux/seqlock.h>
++#include <asm/div64.h>
+ #endif
+ 
+ #ifndef _STRUCT_TIMESPEC
+@@ -38,6 +39,11 @@ static __inline__ int timespec_equal(str
+ 	return (a->tv_sec == b->tv_sec) && (a->tv_nsec == b->tv_nsec);
+ } 
+ 
++#define timespec_valid(ts) \
++(((ts)->tv_sec >= 0) && (((unsigned) (ts)->tv_nsec) < NSEC_PER_SEC))
++
++typedef s64 nsec_t;
++
+ /* Converts Gregorian date to seconds since 1970-01-01 00:00:00.
+  * Assumes input in normal date format, i.e. 1980-12-31 23:59:59
+  * => year=1980, mon=12, day=31, hour=23, min=59, sec=59.
+@@ -88,8 +94,7 @@ struct timespec current_kernel_time(void
+ extern void do_gettimeofday(struct timeval *tv);
+ extern int do_settimeofday(struct timespec *tv);
+ extern int do_sys_settimeofday(struct timespec *tv, struct timezone *tz);
+-extern void clock_was_set(void); // call when ever the clock is set
+-extern int do_posix_clock_monotonic_gettime(struct timespec *tp);
++extern void do_posix_clock_monotonic_gettime(struct timespec *ts);
+ extern long do_utimes(char __user * filename, struct timeval * times);
+ struct itimerval;
+ extern int do_setitimer(int which, struct itimerval *value, struct itimerval *ovalue);
+@@ -113,6 +118,49 @@ set_normalized_timespec (struct timespec
+ 	ts->tv_nsec = nsec;
+ }
+ 
++static inline void div_sign_safe_ns(struct timespec *ts, nsec_t ns)
++{
++	if (unlikely(ns < 0)) {
++		ts->tv_sec = div_long_long_rem(-ns, NSEC_PER_SEC, &ts->tv_nsec);
++		set_normalized_timespec(ts, -ts->tv_sec, -ts->tv_nsec);
++	} else
++		ts->tv_sec = div_long_long_rem(ns, NSEC_PER_SEC, &ts->tv_nsec);
++}
++
++static __inline__ nsec_t timespec_to_ns(struct timespec *s)
++{
++	nsec_t res = (nsec_t) s->tv_sec * NSEC_PER_SEC;
++	return res + (nsec_t) s->tv_nsec;
++}
++
++static __inline__ struct timespec ns_to_timespec(nsec_t n)
++{
++	struct timespec ts;
++
++	if (n)
++		div_sign_safe_ns(&ts, n);
++	else
++		ts.tv_sec = ts.tv_nsec = 0;
++	return ts;
++}
++
++static __inline__ nsec_t timeval_to_ns(struct timeval *s)
++{
++	nsec_t res = (nsec_t) s->tv_sec * NSEC_PER_SEC;
++	return res + (nsec_t) s->tv_usec * NSEC_PER_USEC;
++}
++
++static __inline__ struct timeval ns_to_timeval(nsec_t n)
++{
++	struct timeval tv;
++	if (n) {
++		div_sign_safe_ns((struct timespec *)&tv, n);
++		tv.tv_usec /= 1000;
++	} else
++		tv.tv_sec = tv.tv_usec = 0;
++	return tv;
++}
++
+ #endif /* __KERNEL__ */
+ 
+ #define NFDBITS			__NFDBITS
+@@ -145,23 +193,18 @@ struct	itimerval {
+ /*
+  * The IDs of the various system clocks (for POSIX.1b interval timers).
+  */
+-#define CLOCK_REALTIME		  0
+-#define CLOCK_MONOTONIC	  1
++#define CLOCK_REALTIME		 0
++#define CLOCK_MONOTONIC	  	 1
+ #define CLOCK_PROCESS_CPUTIME_ID 2
+ #define CLOCK_THREAD_CPUTIME_ID	 3
+-#define CLOCK_REALTIME_HR	 4
+-#define CLOCK_MONOTONIC_HR	  5
+ 
+ /*
+  * The IDs of various hardware clocks
+  */
+-
+-
+ #define CLOCK_SGI_CYCLE 10
+ #define MAX_CLOCKS 16
+-#define CLOCKS_MASK  (CLOCK_REALTIME | CLOCK_MONOTONIC | \
+-                     CLOCK_REALTIME_HR | CLOCK_MONOTONIC_HR)
+-#define CLOCKS_MONO (CLOCK_MONOTONIC & CLOCK_MONOTONIC_HR)
++#define CLOCKS_MASK  (CLOCK_REALTIME | CLOCK_MONOTONIC)
++#define CLOCKS_MONO (CLOCK_MONOTONIC)
+ 
+ /*
+  * The various flags for setting POSIX.1b interval timers.
+Index: linux-2.6.14-rc2.ktimers/include/linux/timer.h
+===================================================================
+--- linux-2.6.14-rc2.ktimers.orig/include/linux/timer.h
++++ linux-2.6.14-rc2.ktimers/include/linux/timer.h
+@@ -91,6 +91,6 @@ static inline void add_timer(struct time
+ 
+ extern void init_timers(void);
+ extern void run_local_timers(void);
+-extern void it_real_fn(unsigned long);
++extern void it_real_fn(void *);
+ 
+ #endif
+Index: linux-2.6.14-rc2.ktimers/init/main.c
+===================================================================
+--- linux-2.6.14-rc2.ktimers.orig/init/main.c
++++ linux-2.6.14-rc2.ktimers/init/main.c
+@@ -485,6 +485,7 @@ asmlinkage void __init start_kernel(void
+ 	init_IRQ();
+ 	pidhash_init();
+ 	init_timers();
++	init_ktimers();
+ 	softirq_init();
+ 	time_init();
+ 
+Index: linux-2.6.14-rc2.ktimers/kernel/Makefile
+===================================================================
+--- linux-2.6.14-rc2.ktimers.orig/kernel/Makefile
++++ linux-2.6.14-rc2.ktimers/kernel/Makefile
+@@ -7,7 +7,8 @@ obj-y     = sched.o fork.o exec_domain.o
+ 	    sysctl.o capability.o ptrace.o timer.o user.o \
+ 	    signal.o sys.o kmod.o workqueue.o pid.o \
+ 	    rcupdate.o intermodule.o extable.o params.o posix-timers.o \
+-	    kthread.o wait.o kfifo.o sys_ni.o posix-cpu-timers.o
++	    kthread.o wait.o kfifo.o sys_ni.o posix-cpu-timers.o \
++	    ktimers.o
+ 
+ obj-$(CONFIG_FUTEX) += futex.o
+ obj-$(CONFIG_GENERIC_ISA_DMA) += dma.o
+Index: linux-2.6.14-rc2.ktimers/kernel/exit.c
+===================================================================
+--- linux-2.6.14-rc2.ktimers.orig/kernel/exit.c
++++ linux-2.6.14-rc2.ktimers/kernel/exit.c
+@@ -842,7 +842,7 @@ fastcall NORET_TYPE void do_exit(long co
+ 	update_mem_hiwater(tsk);
+ 	group_dead = atomic_dec_and_test(&tsk->signal->live);
+ 	if (group_dead) {
+- 		del_timer_sync(&tsk->signal->real_timer);
++ 		stop_ktimer(&tsk->signal->real_timer);
+ 		acct_process(code);
+ 	}
+ 	exit_mm(tsk);
+Index: linux-2.6.14-rc2.ktimers/kernel/fork.c
+===================================================================
+--- linux-2.6.14-rc2.ktimers.orig/kernel/fork.c
++++ linux-2.6.14-rc2.ktimers/kernel/fork.c
+@@ -804,10 +804,9 @@ static inline int copy_signal(unsigned l
+ 	init_sigpending(&sig->shared_pending);
+ 	INIT_LIST_HEAD(&sig->posix_timers);
+ 
+-	sig->it_real_value = sig->it_real_incr = 0;
++	init_ktimer_mono(&sig->real_timer);
+ 	sig->real_timer.function = it_real_fn;
+-	sig->real_timer.data = (unsigned long) tsk;
+-	init_timer(&sig->real_timer);
++	sig->real_timer.data = tsk;
+ 
+ 	sig->it_virt_expires = cputime_zero;
+ 	sig->it_virt_incr = cputime_zero;
+Index: linux-2.6.14-rc2.ktimers/kernel/itimer.c
+===================================================================
+--- linux-2.6.14-rc2.ktimers.orig/kernel/itimer.c
++++ linux-2.6.14-rc2.ktimers/kernel/itimer.c
+@@ -12,36 +12,22 @@
+ #include <linux/syscalls.h>
+ #include <linux/time.h>
+ #include <linux/posix-timers.h>
++#include <linux/ktimer.h>
+ 
+ #include <asm/uaccess.h>
+ 
+-static unsigned long it_real_value(struct signal_struct *sig)
+-{
+-	unsigned long val = 0;
+-	if (timer_pending(&sig->real_timer)) {
+-		val = sig->real_timer.expires - jiffies;
+-
+-		/* look out for negative/zero itimer.. */
+-		if ((long) val <= 0)
+-			val = 1;
+-	}
+-	return val;
+-}
+-
+ int do_getitimer(int which, struct itimerval *value)
+ {
+ 	struct task_struct *tsk = current;
+-	unsigned long interval, val;
++	nsec_t interval, val;
+ 	cputime_t cinterval, cval;
+ 
+ 	switch (which) {
+ 	case ITIMER_REAL:
+-		spin_lock_irq(&tsk->sighand->siglock);
+-		interval = tsk->signal->it_real_incr;
+-		val = it_real_value(tsk->signal);
+-		spin_unlock_irq(&tsk->sighand->siglock);
+-		jiffies_to_timeval(val, &value->it_value);
+-		jiffies_to_timeval(interval, &value->it_interval);
++		interval = tsk->signal->real_timer.interval;
++		val = get_remtime_ktimer(&tsk->signal->real_timer, NSEC_PER_USEC);
++		value->it_value = ns_to_timeval(val);
++		value->it_interval = ns_to_timeval(interval);
+ 		break;
+ 	case ITIMER_VIRTUAL:
+ 		read_lock(&tasklist_lock);
+@@ -113,59 +99,34 @@ asmlinkage long sys_getitimer(int which,
+ }
+ 
+ 
+-void it_real_fn(unsigned long __data)
++/*
++ * The timer is automagically restarted, when interval != 0
++ */
++void it_real_fn(void *data)
+ {
+-	struct task_struct * p = (struct task_struct *) __data;
+-	unsigned long inc = p->signal->it_real_incr;
+-
+-	send_group_sig_info(SIGALRM, SEND_SIG_PRIV, p);
+-
+-	/*
+-	 * Now restart the timer if necessary.  We don't need any locking
+-	 * here because do_setitimer makes sure we have finished running
+-	 * before it touches anything.
+-	 * Note, we KNOW we are (or should be) at a jiffie edge here so
+-	 * we don't need the +1 stuff.  Also, we want to use the prior
+-	 * expire value so as to not "slip" a jiffie if we are late.
+-	 * Deal with requesting a time prior to "now" here rather than
+-	 * in add_timer.
+-	 */
+-	if (!inc)
+-		return;
+-	while (time_before_eq(p->signal->real_timer.expires, jiffies))
+-		p->signal->real_timer.expires += inc;
+-	add_timer(&p->signal->real_timer);
++	send_group_sig_info(SIGALRM, SEND_SIG_PRIV, data);
+ }
+ 
+ int do_setitimer(int which, struct itimerval *value, struct itimerval *ovalue)
+ {
+ 	struct task_struct *tsk = current;
+- 	unsigned long val, interval, expires;
++	struct ktimer *timer;
++ 	nsec_t expires;
+ 	cputime_t cval, cinterval, nval, ninterval;
+ 
+ 	switch (which) {
+ 	case ITIMER_REAL:
+-again:
+-		spin_lock_irq(&tsk->sighand->siglock);
+-		interval = tsk->signal->it_real_incr;
+-		val = it_real_value(tsk->signal);
+-		/* We are sharing ->siglock with it_real_fn() */
+-		if (try_to_del_timer_sync(&tsk->signal->real_timer) < 0) {
+-			spin_unlock_irq(&tsk->sighand->siglock);
+-			goto again;
+-		}
+-		tsk->signal->it_real_incr =
+-			timeval_to_jiffies(&value->it_interval);
+-		expires = timeval_to_jiffies(&value->it_value);
+-		if (expires)
+-			mod_timer(&tsk->signal->real_timer,
+-				  jiffies + 1 + expires);
+-		spin_unlock_irq(&tsk->sighand->siglock);
++		timer = &tsk->signal->real_timer;
++		stop_ktimer(timer);
+ 		if (ovalue) {
+-			jiffies_to_timeval(val, &ovalue->it_value);
+-			jiffies_to_timeval(interval,
+-					   &ovalue->it_interval);
++			ovalue->it_value = ns_to_timeval(get_remtime_ktimer(timer, NSEC_PER_USEC));
++			ovalue->it_interval = ns_to_timeval(timer->interval);
+ 		}
++		timer->interval = ktimer_convert_timeval(timer, &value->it_interval);
++		expires = ktimer_convert_timeval(timer, &value->it_value);
++		if (expires)
++			modify_ktimer(timer, &expires, KTIMER_REL | KTIMER_NOCHECK);
++
+ 		break;
+ 	case ITIMER_VIRTUAL:
+ 		nval = timeval_to_cputime(&value->it_value);
+Index: linux-2.6.14-rc2.ktimers/kernel/ktimers.c
+===================================================================
+--- /dev/null
++++ linux-2.6.14-rc2.ktimers/kernel/ktimers.c
+@@ -0,0 +1,823 @@
++/*
++ *  linux/kernel/ktimers.c
++ *
++ *  Copyright(C) 2005 Thomas Gleixner <tglx@linutronix.de>
++ *
++ *  Kudos to Ingo Molnar for review, criticism, ideas
++ *
++ *  Credits:
++ *	Lot of ideas and implementation details taken from
++ *	timer.c and related code
++ *
++ *  Kernel timers
++ *
++ *  In contrast to the timeout related API found in kernel/timer.c,
++ *  ktimers provide finer resolution and accuracy depending on system
++ *  configuration and capabilities.
++ *
++ *  These timers are used for
++ *  - itimers
++ *  - posixtimers
++ *  - nanosleep
++ *  - precise in kernel timing
++ *
++ *  Please do not abuse this API for simple timeouts.
++ *
++ *  For licencing details see kernel-base/COPYING
++ *
++ */
++
++#include <linux/cpu.h>
++#include <linux/interrupt.h>
++#include <linux/ktimer.h>
++#include <linux/module.h>
++#include <linux/notifier.h>
++#include <linux/percpu.h>
++#include <linux/syscalls.h>
++
++#include <asm/uaccess.h>
++
++static nsec_t get_ktime_mono(void);
++static nsec_t get_ktime_real(void);
++
++/* The time bases */
++#define MAX_KTIMER_BASES	2
++static DEFINE_PER_CPU(struct ktimer_base, ktimer_bases[MAX_KTIMER_BASES]) =
++{
++	{
++		.index = CLOCK_REALTIME,
++		.name = "Realtime",
++		.get_time = &get_ktime_real,
++		.resolution = KTIME_REALTIME_RES,
++	},
++	{
++		.index = CLOCK_MONOTONIC,
++		.name = "Monotonic",
++		.get_time = &get_ktime_mono,
++		.resolution = KTIME_MONOTONIC_RES,
++	},
++};
++
++/*
++ * The SMP/UP kludge goes here
++ */
++#if defined(CONFIG_SMP)
++
++#define set_running_timer(b,t) b->running_timer = t
++#define wake_up_timer_waiters(b) wake_up(&b->wait_for_running_timer)
++#define ktimer_base_can_change (1)
++/*
++ * Wait for a running timer
++ */
++void wait_for_ktimer(struct ktimer *timer)
++{
++	struct ktimer_base *base = timer->base;
++
++	if (base && base->running_timer == timer)
++		wait_event(base->wait_for_running_timer,
++			   base->running_timer != timer);
++}
++
++/*
++ * We are using hashed locking: holding per_cpu(ktimer_bases)[n].lock
++ * means that all timers which are tied to this base via timer->base are
++ * locked, and the base itself is locked too.
++ *
++ * So __run_timers/migrate_timers can safely modify all timers which could
++ * be found on the lists/queues.
++ *
++ * When the timer's base is locked, and the timer removed from list, it is
++ * possible to set timer->base = NULL and drop the lock: the timer remains
++ * locked.
++ */
++static inline struct ktimer_base *lock_ktimer_base(struct ktimer *timer,
++					    unsigned long *flags)
++{
++	struct ktimer_base *base;
++
++	for (;;) {
++		base = timer->base;
++		if (likely(base != NULL)) {
++			spin_lock_irqsave(&base->lock, *flags);
++			if (likely(base == timer->base))
++				return base;
++			/* The timer has migrated to another CPU */
++			spin_unlock_irqrestore(&base->lock, *flags);
++		}
++		cpu_relax();
++	}
++}
++
++static inline struct ktimer_base *switch_ktimer_base(struct ktimer *timer,
++						     struct ktimer_base *base)
++{
++	int ktidx = base->index;
++	struct ktimer_base *new_base = &__get_cpu_var(ktimer_bases[ktidx]);
++
++	if (base != new_base) {
++		/*
++		 * We are trying to schedule the timer on the local CPU.
++		 * However we can't change timer's base while it is running,
++		 * so we keep it on the same CPU. No hassle vs. reprogramming
++		 * the event source in the high resolution case. The softirq
++		 * code will take care of this when the timer function has
++		 * completed. There is no conflict as we hold the lock until
++		 * the timer is enqueued.
++		 */
++		if (unlikely(base->running_timer == timer)) {
++			return base;
++		} else {
++			/* See the comment in lock_timer_base() */
++			timer->base = NULL;
++			spin_unlock(&base->lock);
++			spin_lock(&new_base->lock);
++			timer->base = new_base;
++		}
++	}
++	return new_base;
++}
++
++/*
++ * Get the timer base unlocked
++ *
++ * Take care of timer->base = NULL in switch_ktimer_base !
++ */
++static inline struct ktimer_base *get_ktimer_base_unlocked(struct ktimer *timer)
++{
++	struct ktimer_base *base;
++	while (!(base = timer->base));
++	return base;
++}
++#else
++
++#define set_running_timer(b,t) do {} while (0)
++#define wake_up_timer_waiters(b)  do {} while (0)
++
++static inline struct ktimer_base *lock_ktimer_base(struct ktimer *timer,
++					    unsigned long *flags)
++{
++	struct ktimer_base *base;
++
++	base = timer->base;
++	spin_lock_irqsave(&base->lock, *flags);
++	return base;
++}
++
++#define switch_ktimer_base(t, b) b
++
++#define get_ktimer_base_unlocked(t) (t)->base
++#define ktimer_base_can_change (0)
++
++#endif	/* !CONFIG_SMP */
++
++/*
++ * Convert timespec to nsec_t with resolution adjustment
++ *
++ * Note: We can access base without locking here, as ktimers can
++ * migrate between CPUs but can not be moved from one clock source to
++ * another. The clock source binding is set at init_ktimer_XXX.
++ */
++nsec_t ktimer_convert_timespec(struct ktimer *timer, struct timespec *ts)
++{
++	struct ktimer_base *base = get_ktimer_base_unlocked(timer);
++	nsec_t t;
++	long rem = ts->tv_nsec % base->resolution;
++
++	t = (nsec_t) ts->tv_sec * NSEC_PER_SEC;
++ 	t += (nsec_t) ts->tv_nsec;
++
++	/* Check, if the value has to be rounded */
++	if (rem)
++		t += (nsec_t) (base->resolution - rem);
++	return t;
++}
++
++/*
++ * Convert timeval to nsec_t with resolution adjustment
++ */
++nsec_t ktimer_convert_timeval(struct ktimer *timer, struct timeval *tv)
++{
++	struct timespec ts;
++
++	ts.tv_sec = tv->tv_sec;
++	ts.tv_nsec = tv->tv_usec * NSEC_PER_USEC;
++
++	return ktimer_convert_timespec(timer, &ts);
++}
++
++/*
++ * Internal function to add (re)start a timer
++ *
++ * The timer is inserted in expiry order.
++ * Insertion into the red black tree is O(log(n))
++ *
++ */
++static int enqueue_ktimer(struct ktimer *timer, struct ktimer_base *base,
++			   nsec_t *tim, int mode)
++{
++	struct rb_node **link = &base->active.rb_node;
++	struct rb_node *parent = NULL;
++	struct ktimer *entry;
++	struct list_head *prev = &base->pending;
++	nsec_t now;
++
++	/* Get current time */
++	now = base->get_time();
++
++	/* Timer expiry mode */
++	switch (mode & ~KTIMER_NOCHECK) {
++	case KTIMER_ABS:
++		timer->expires = *tim;
++		break;
++	case KTIMER_REL:
++		timer->expires = now + *tim;
++		break;
++	case KTIMER_INCR:
++		timer->expires += *tim;
++		break;
++	case KTIMER_FORWARD:
++		while (timer->expires < now) {
++			timer->expires += *tim;
++			timer->overrun++;
++		}
++		goto nocheck;
++	case KTIMER_REARM:
++		while (timer->expires < now) {
++			timer->expires += timer->interval;
++			timer->overrun++;
++		}
++		goto nocheck;
++	case KTIMER_RESTART:
++		break;
++	default:
++		BUG();
++	}
++
++	/* Already expired.*/
++	if (timer->expires <= now) {
++		timer->expired = now;
++		/* The caller takes care of expiry */
++		if (!(mode & KTIMER_NOCHECK))
++			return -1;
++	}
++ nocheck:
++
++	while (*link) {
++		parent = *link;
++		entry = rb_entry(parent, struct ktimer, node);
++		/*
++		 * We dont care about collisions. Nodes with
++		 * the same expiry time stay together.
++		 */
++		if (ktimer_before(timer, entry))
++			link = &(*link)->rb_left;
++		else {
++			link = &(*link)->rb_right;
++			prev = &entry->list;
++		}
++	}
++
++	rb_link_node(&timer->node, parent, link);
++	rb_insert_color(&timer->node, &base->active);
++	list_add(&timer->list, prev);
++	timer->status = KTIMER_PENDING;
++	base->count++;
++	return 0;
++}
++
++/*
++ * Internal helper to remove a timer
++ *
++ * The function allows automatic rearming for interval
++ * timers.
++ *
++ */
++static inline void do_remove_ktimer(struct ktimer *timer,
++				    struct ktimer_base *base, int rearm)
++{
++	list_del(&timer->list);
++	rb_erase(&timer->node, &base->active);
++	timer->node.rb_parent = KTIMER_POISON;
++	timer->status = KTIMER_INACTIVE;
++	base->count--;
++	BUG_ON(base->count < 0);
++	/* Auto rearm the timer ? */
++	if (rearm && timer->interval > 0)
++		enqueue_ktimer(timer, base, NULL, KTIMER_REARM);
++}
++
++/*
++ * Called with base lock held
++ */
++static inline int remove_ktimer(struct ktimer *timer, struct ktimer_base *base)
++{
++	if (ktimer_active(timer)) {
++		do_remove_ktimer(timer, base, KTIMER_NOREARM);
++		return 1;
++	}
++	return 0;
++}
++
++/*
++ * Internal function to (re)start a timer.
++ */
++static int internal_restart_ktimer(struct ktimer *timer, nsec_t *tim,
++				   int mode)
++{
++	struct ktimer_base *base, *new_base;
++  	unsigned long flags;
++	int ret;
++
++	BUG_ON(!timer->function);
++
++	base = lock_ktimer_base(timer, &flags);
++
++	/* Remove an active timer from the queue */
++	ret = remove_ktimer(timer, base);
++
++	/* Switch the timer base, if necessary */
++	new_base = switch_ktimer_base(timer, base);
++
++	/*
++	 * When the new timer setting is already expired,
++	 * let the calling code deal with it.
++	 */
++	if (enqueue_ktimer(timer, new_base, tim, mode))
++		ret = -1;
++
++	spin_unlock_irqrestore(&new_base->lock, flags);
++	return ret;
++}
++
++/***
++ * modify_ktimer - modify a running timer
++ * @timer: the timer to be modified
++ * @tim: expiry time (required)
++ * @mode: timer setup mode
++ *
++ */
++int modify_ktimer(struct ktimer *timer, nsec_t *tim, int mode)
++{
++  	BUG_ON(!tim || !timer->function);
++	return internal_restart_ktimer(timer, tim, mode);
++}
++
++/***
++ * start_ktimer - start a timer on current CPU
++ * @timer: the timer to be added
++ * @tim: expiry time (optional, if not set in the timer)
++ * @mode: timer setup mode
++ */
++int start_ktimer(struct ktimer *timer, nsec_t *tim, int mode)
++{
++  	BUG_ON(ktimer_active(timer) || !timer->function);
++
++	return internal_restart_ktimer(timer, tim, mode);
++}
++
++/***
++ * try_to_stop_ktimer - try to deactivate a timer
++ */
++int try_to_stop_ktimer(struct ktimer *timer)
++{
++	struct ktimer_base *base;
++	unsigned long flags;
++	int ret = -1;
++
++	base = lock_ktimer_base(timer, &flags);
++
++	if (base->running_timer != timer) {
++		ret = remove_ktimer(timer, base);
++		if (ret)
++			timer->expired = base->get_time();
++	}
++
++	spin_unlock_irqrestore(&base->lock, flags);
++
++	return ret;
++
++}
++
++/***
++ * stop_timer_sync - deactivate a timer and wait for the handler to finish.
++ * @timer: the timer to be deactivated
++ *
++ */
++int stop_ktimer(struct ktimer *timer)
++{
++	for (;;) {
++		int ret = try_to_stop_ktimer(timer);
++		if (ret >= 0)
++			return ret;
++		wait_for_ktimer(timer);
++	}
++}
++
++/***
++ * get_remtime_ktimer - get remaining time for the timer
++ * @timer: the timer to read
++ * @fake:  when fake > 0 a pending, but expired timer
++ *	   returns fake (itimers need this, uurg)
++ */
++nsec_t get_remtime_ktimer(struct ktimer *timer, long fake)
++{
++	struct ktimer_base *base;
++	unsigned long flags;
++	nsec_t rem;
++
++	base = lock_ktimer_base(timer, &flags);
++	if (ktimer_active(timer)) {
++		rem = timer->expires - base->get_time();
++		if (fake && rem <= 0)
++			rem = (nsec_t) fake;
++	} else {
++		rem = fake ? 0 : timer->expires - timer->expired;
++	}
++	spin_unlock_irqrestore(&base->lock, flags);
++	return rem;
++}
++
++/***
++ * get_expiry_ktimer - get expiry time for the timer
++ * @timer: the timer to read
++ * @now:   if != NULL store current base->time
++ */
++nsec_t get_expiry_ktimer(struct ktimer *timer, nsec_t *now)
++{
++	struct ktimer_base *base;
++	unsigned long flags;
++	nsec_t expiry;
++
++	base = lock_ktimer_base(timer, &flags);
++	expiry = timer->expires;
++	if (now)
++		*now = base->get_time();
++	spin_unlock_irqrestore(&base->lock, flags);
++	return expiry;
++}
++
++/*
++ * Functions related to clock sources
++ */
++
++static inline void ktimer_common_init(struct ktimer *timer)
++{
++	memset(timer, 0, sizeof(struct ktimer));
++	timer->node.rb_parent = KTIMER_POISON;
++}
++
++/*
++ * Get monotonic time
++ */
++static nsec_t get_ktime_mono(void)
++{
++	return do_get_ktime_mono();
++}
++
++/***
++ * init_ktimer_mono - initialize a timer on monotonic time
++ * @timer: the timer to be initialized
++ *
++ */
++void fastcall init_ktimer_mono(struct ktimer *timer)
++{
++	ktimer_common_init(timer);
++	timer->base =
++		&per_cpu(ktimer_bases, raw_smp_processor_id())[CLOCK_MONOTONIC];
++}
++
++/***
++ * get_ktimer_mono_res - get the monotonic timer resolution
++ *
++ */
++int get_ktimer_mono_res(clockid_t which_clock, struct timespec *tp)
++{
++	tp->tv_sec = 0;
++	tp->tv_nsec =
++		per_cpu(ktimer_bases, raw_smp_processor_id())[CLOCK_MONOTONIC].resolution;
++	return 0;
++}
++
++/*
++ * Get real time
++ */
++static nsec_t get_ktime_real(void)
++{
++	return do_get_ktime_real();
++}
++
++/***
++ * init_ktimer_real - initialize a timer on real time
++ * @timer: the timer to be initialized
++ *
++ */
++void fastcall init_ktimer_real(struct ktimer *timer)
++{
++	ktimer_common_init(timer);
++	timer->base =
++		&per_cpu(ktimer_bases, raw_smp_processor_id())[CLOCK_REALTIME];
++}
++
++/***
++ * get_ktimer_real_res - get the real timer resolution
++ *
++ */
++int get_ktimer_real_res(clockid_t which_clock, struct timespec *tp)
++{
++	tp->tv_sec = 0;
++	tp->tv_nsec =
++		per_cpu(ktimer_bases, raw_smp_processor_id())[CLOCK_REALTIME].resolution;
++	return 0;
++}
++
++/*
++ * The per base runqueue
++ */
++static inline void run_ktimer_queue(struct ktimer_base *base)
++{
++	nsec_t now = base->get_time();
++
++	spin_lock_irq(&base->lock);
++	while (!list_empty(&base->pending)) {
++		void (*fn)(void *);
++		void *data;
++		struct ktimer *timer = list_entry(base->pending.next,
++						  struct ktimer, list);
++		if (timer->expires > now)
++			break;
++		timer->expired = now;
++		fn = timer->function;
++		data = timer->data;
++		set_running_timer(base, timer);
++		do_remove_ktimer(timer, base, KTIMER_REARM);
++		spin_unlock_irq(&base->lock);
++ 		fn(data);
++		spin_lock_irq(&base->lock);
++		set_running_timer(base, NULL);
++	}
++	spin_unlock_irq(&base->lock);
++	wake_up_timer_waiters(base);
++}
++
++/*
++ * Called from timer softirq every jiffy
++ */
++void run_ktimer_queues(void)
++{
++	struct ktimer_base *base = __get_cpu_var(ktimer_bases);
++	int i;
++
++	for (i = 0; i < MAX_KTIMER_BASES; i++)
++		run_ktimer_queue(&base[i]);
++}
++
++/*
++ * Functions related to initialization
++ */
++static void __devinit init_ktimers_cpu(int cpu)
++{
++	struct ktimer_base *base = per_cpu(ktimer_bases, cpu);
++	int i;
++
++	for (i = 0; i < MAX_KTIMER_BASES; i++) {
++		spin_lock_init(&base->lock);
++		INIT_LIST_HEAD(&base->pending);
++		init_waitqueue_head(&base->wait_for_running_timer);
++		base++;
++	}
++}
++
++#ifdef CONFIG_HOTPLUG_CPU
++static void migrate_ktimer_list(struct ktimer_base *old_base,
++				struct ktimer_base *new_base)
++{
++	struct ktimer *timer;
++	struct rb_node *node;
++
++	while ((node = rb_first(&old_base->active))) {
++		timer = rb_entry(node, struct ktimer, node);
++		remove_ktimer(timer, old_base);
++		timer->base = new_base;
++		enqueue_ktimer(timer, new_base, NULL, KTIMER_RESTART);
++	}
++}
++
++static void __devinit migrate_ktimers(int cpu)
++{
++	struct ktimer_base *old_base;
++	struct ktimer_base *new_base;
++	int i;
++
++	BUG_ON(cpu_online(cpu));
++	old_base = per_cpu(ktimer_bases, cpu);
++	new_base = get_cpu_var(ktimer_bases);
++
++	local_irq_disable();
++
++	for (i = 0; i < MAX_KTIMER_BASES; i++) {
++
++		spin_lock(&new_base->lock);
++		spin_lock(&old_base->lock);
++
++		if (old_base->running_timer)
++			BUG();
++
++		migrate_ktimer_list(old_base, new_base);
++
++		spin_unlock(&old_base->lock);
++		spin_unlock(&new_base->lock);
++		old_base++;
++		new_base++;
++	}
++
++	local_irq_enable();
++	&put_cpu_var(ktimer_bases);
++}
++#endif /* CONFIG_HOTPLUG_CPU */
++
++static int __devinit ktimer_cpu_notify(struct notifier_block *self,
++				       unsigned long action, void *hcpu)
++{
++	long cpu = (long)hcpu;
++	switch(action) {
++	case CPU_UP_PREPARE:
++		init_ktimers_cpu(cpu);
++		break;
++#ifdef CONFIG_HOTPLUG_CPU
++	case CPU_DEAD:
++		migrate_ktimers(cpu);
++		break;
++#endif
++	default:
++		break;
++	}
++	return NOTIFY_OK;
++}
++
++static struct notifier_block __devinitdata ktimers_nb = {
++	.notifier_call	= ktimer_cpu_notify,
++};
++
++void __init init_ktimers(void)
++{
++	ktimer_cpu_notify(&ktimers_nb, (unsigned long)CPU_UP_PREPARE,
++				(void *)(long)smp_processor_id());
++	register_cpu_notifier(&ktimers_nb);
++}
++
++/*
++ * system interface related functions
++ */
++static void process_ktimer(void *data)
++{
++	wake_up_process(data);
++}
++
++/**
++ * schedule_ktimer - sleep until timeout
++ * @timeout: timeout value
++ * @state:   state to use for sleep
++ * @rel:    timeout value is abs/rel
++ *
++ * Make the current task sleep until @timeout is
++ * elapsed.
++ *
++ * You can set the task state as follows -
++ *
++ * %TASK_UNINTERRUPTIBLE - at least @timeout is guaranteed to
++ * pass before the routine returns. The routine will return 0
++ *
++ * %TASK_INTERRUPTIBLE - the routine may return early if a signal is
++ * delivered to the current task. In this case the remaining time
++ * will be returned
++ *
++ * The current task state is guaranteed to be TASK_RUNNING when this
++ * routine returns.
++ *
++ */
++static fastcall nsec_t __sched schedule_ktimer(struct ktimer *timer,
++					nsec_t *t, int state, int mode)
++{
++	timer->data = current;
++	timer->function = process_ktimer;
++
++	current->state = state;
++	if (start_ktimer(timer, t, mode)) {
++		current->state = TASK_RUNNING;
++		goto out;
++	}
++	if (current->state != TASK_RUNNING)
++		schedule();
++	stop_ktimer(timer);
++ out:
++	/* Store the absolute expiry time */
++	*t = timer->expires;
++	/* Return the remaining time */
++	return timer->expires - timer->expired;
++}
++
++static long __sched nanosleep_restart(struct ktimer *timer,
++				      struct restart_block *restart)
++{
++	struct timespec tu;
++	nsec_t t, rem;
++	void *rfn = restart->fn;
++	struct timespec __user *rmtp = (struct timespec __user *) restart->arg2;
++
++	restart->fn = do_no_restart_syscall;
++
++	t = (nsec_t) restart->arg0;
++	t += ((nsec_t) restart->arg1) << 32;
++
++	rem = schedule_ktimer(timer, &t, TASK_INTERRUPTIBLE, KTIMER_ABS);
++
++	if (rem <= 0)
++		return 0;
++
++	tu = ns_to_timespec(rem);
++	if (rmtp && copy_to_user(rmtp, &rem, sizeof(rem)))
++		return -EFAULT;
++
++	restart->fn = rfn;
++	/* The other values in restart are already filled in */
++	return -ERESTART_RESTARTBLOCK;
++}
++
++static long __sched nanosleep_restart_mono(struct restart_block *restart)
++{
++	struct ktimer timer;
++
++	init_ktimer_mono(&timer);
++	return nanosleep_restart(&timer, restart);
++}
++
++static long __sched nanosleep_restart_real(struct restart_block *restart)
++{
++	struct ktimer timer;
++
++	init_ktimer_real(&timer);
++	return nanosleep_restart(&timer, restart);
++}
++
++static long ktimer_nanosleep(struct ktimer *timer, struct timespec *rqtp,
++			     struct timespec __user *rmtp, int mode,
++			     long (*rfn)(struct restart_block *))
++{
++	struct timespec tu;
++	nsec_t rem, t;
++	struct restart_block *restart;
++
++	t = ktimer_convert_timespec(timer, rqtp);
++
++	/* t is updated to absolute expiry time ! */
++	rem = schedule_ktimer(timer, &t, TASK_INTERRUPTIBLE, mode);
++
++	if (rem <= 0)
++		return 0;
++
++	tu = ns_to_timespec(rem);
++
++	if (rmtp && copy_to_user(rmtp, &tu, sizeof(tu)))
++		return -EFAULT;
++
++	restart = &current_thread_info()->restart_block;
++	restart->fn = rfn;
++	restart->arg0 = t & 0xFFFFFFFFLL;
++	restart->arg1 = t >> 32;
++	restart->arg2 = (unsigned long) rmtp;
++	return -ERESTART_RESTARTBLOCK;
++
++}
++
++long ktimer_nanosleep_mono(struct timespec *rqtp,
++			   struct timespec __user *rmtp, int mode)
++{
++	struct ktimer timer;
++
++	init_ktimer_mono(&timer);
++	return ktimer_nanosleep(&timer, rqtp, rmtp, mode, nanosleep_restart_mono);
++}
++
++long ktimer_nanosleep_real(struct timespec *rqtp,
++			   struct timespec __user *rmtp, int mode)
++{
++	struct ktimer timer;
++
++	init_ktimer_real(&timer);
++	return ktimer_nanosleep(&timer, rqtp, rmtp, mode, nanosleep_restart_real);
++}
++
++asmlinkage long sys_nanosleep(struct timespec __user *rqtp,
++			      struct timespec __user *rmtp)
++{
++	struct timespec tu;
++
++	if (copy_from_user(&tu, rqtp, sizeof(tu)))
++		return -EFAULT;
++
++	if (!timespec_valid(&tu))
++		return -EINVAL;
++
++	return ktimer_nanosleep_mono(&tu, rmtp, KTIMER_REL);
++}
++
+Index: linux-2.6.14-rc2.ktimers/kernel/posix-cpu-timers.c
+===================================================================
+--- linux-2.6.14-rc2.ktimers.orig/kernel/posix-cpu-timers.c
++++ linux-2.6.14-rc2.ktimers/kernel/posix-cpu-timers.c
+@@ -1394,7 +1394,7 @@ void set_process_cpu_timer(struct task_s
+ static long posix_cpu_clock_nanosleep_restart(struct restart_block *);
+ 
+ int posix_cpu_nsleep(clockid_t which_clock, int flags,
+-		     struct timespec *rqtp)
++		     struct timespec *rqtp, struct timespec __user *rmtp)
+ {
+ 	struct restart_block *restart_block =
+ 	    &current_thread_info()->restart_block;
+@@ -1419,7 +1419,6 @@ int posix_cpu_nsleep(clockid_t which_clo
+ 	error = posix_cpu_timer_create(&timer);
+ 	timer.it_process = current;
+ 	if (!error) {
+-		struct timespec __user *rmtp;
+ 		static struct itimerspec zero_it;
+ 		struct itimerspec it = { .it_value = *rqtp,
+ 					 .it_interval = {} };
+@@ -1466,7 +1465,6 @@ int posix_cpu_nsleep(clockid_t which_clo
+ 		/*
+ 		 * Report back to the user the time still remaining.
+ 		 */
+-		rmtp = (struct timespec __user *) restart_block->arg1;
+ 		if (rmtp != NULL && !(flags & TIMER_ABSTIME) &&
+ 		    copy_to_user(rmtp, &it.it_value, sizeof *rmtp))
+ 			return -EFAULT;
+@@ -1474,6 +1472,7 @@ int posix_cpu_nsleep(clockid_t which_clo
+ 		restart_block->fn = posix_cpu_clock_nanosleep_restart;
+ 		/* Caller already set restart_block->arg1 */
+ 		restart_block->arg0 = which_clock;
++		restart_block->arg1 = (unsigned long) rmtp;
+ 		restart_block->arg2 = rqtp->tv_sec;
+ 		restart_block->arg3 = rqtp->tv_nsec;
+ 
+@@ -1487,10 +1486,15 @@ static long
+ posix_cpu_clock_nanosleep_restart(struct restart_block *restart_block)
+ {
+ 	clockid_t which_clock = restart_block->arg0;
+-	struct timespec t = { .tv_sec = restart_block->arg2,
+-			      .tv_nsec = restart_block->arg3 };
++	struct timespec __user *rmtp;
++	struct timespec t;
++
++	rmtp = (struct timespec __user *) restart_block->arg1;
++	t.tv_sec = restart_block->arg2;
++	t.tv_nsec = restart_block->arg3;
++
+ 	restart_block->fn = do_no_restart_syscall;
+-	return posix_cpu_nsleep(which_clock, TIMER_ABSTIME, &t);
++	return posix_cpu_nsleep(which_clock, TIMER_ABSTIME, &t, rmtp);
+ }
+ 
+ 
+@@ -1511,9 +1515,10 @@ static int process_cpu_timer_create(stru
+ 	return posix_cpu_timer_create(timer);
+ }
+ static int process_cpu_nsleep(clockid_t which_clock, int flags,
+-			      struct timespec *rqtp)
++			      struct timespec *rqtp,
++			      struct timespec __user *rmtp)
+ {
+-	return posix_cpu_nsleep(PROCESS_CLOCK, flags, rqtp);
++	return posix_cpu_nsleep(PROCESS_CLOCK, flags, rqtp, rmtp);
+ }
+ static int thread_cpu_clock_getres(clockid_t which_clock, struct timespec *tp)
+ {
+@@ -1529,7 +1534,7 @@ static int thread_cpu_timer_create(struc
+ 	return posix_cpu_timer_create(timer);
+ }
+ static int thread_cpu_nsleep(clockid_t which_clock, int flags,
+-			      struct timespec *rqtp)
++			      struct timespec *rqtp, struct timespec __user *rmtp)
+ {
+ 	return -EINVAL;
+ }
+Index: linux-2.6.14-rc2.ktimers/kernel/posix-timers.c
+===================================================================
+--- linux-2.6.14-rc2.ktimers.orig/kernel/posix-timers.c
++++ linux-2.6.14-rc2.ktimers/kernel/posix-timers.c
+@@ -48,21 +48,6 @@
+ #include <linux/workqueue.h>
+ #include <linux/module.h>
+ 
+-#ifndef div_long_long_rem
+-#include <asm/div64.h>
+-
+-#define div_long_long_rem(dividend,divisor,remainder) ({ \
+-		       u64 result = dividend;		\
+-		       *remainder = do_div(result,divisor); \
+-		       result; })
+-
+-#endif
+-#define CLOCK_REALTIME_RES TICK_NSEC  /* In nano seconds. */
+-
+-static inline u64  mpy_l_X_l_ll(unsigned long mpy1,unsigned long mpy2)
+-{
+-	return (u64)mpy1 * mpy2;
+-}
+ /*
+  * Management arrays for POSIX timers.	 Timers are kept in slab memory
+  * Timer ids are allocated by an external routine that keeps track of the
+@@ -148,18 +133,18 @@ static DEFINE_SPINLOCK(idr_lock);
+  */
+ 
+ static struct k_clock posix_clocks[MAX_CLOCKS];
++
+ /*
+- * We only have one real clock that can be set so we need only one abs list,
+- * even if we should want to have several clocks with differing resolutions.
++ * These ones are defined below.
+  */
+-static struct k_clock_abs abs_list = {.list = LIST_HEAD_INIT(abs_list.list),
+-				      .lock = SPIN_LOCK_UNLOCKED};
++static int common_nsleep(clockid_t, int flags, struct timespec *t,
++			 struct timespec __user *rmtp);
++static void common_timer_get(struct k_itimer *, struct itimerspec *);
++static int common_timer_set(struct k_itimer *, int,
++			    struct itimerspec *, struct itimerspec *);
++static int common_timer_del(struct k_itimer *timer);
+ 
+-static void posix_timer_fn(unsigned long);
+-static u64 do_posix_clock_monotonic_gettime_parts(
+-	struct timespec *tp, struct timespec *mo);
+-int do_posix_clock_monotonic_gettime(struct timespec *tp);
+-static int do_posix_clock_monotonic_get(clockid_t, struct timespec *tp);
++static void posix_timer_fn(void *data);
+ 
+ static struct k_itimer *lock_timer(timer_t timer_id, unsigned long *flags);
+ 
+@@ -205,21 +190,25 @@ static inline int common_clock_set(clock
+ 
+ static inline int common_timer_create(struct k_itimer *new_timer)
+ {
+-	INIT_LIST_HEAD(&new_timer->it.real.abs_timer_entry);
+-	init_timer(&new_timer->it.real.timer);
+-	new_timer->it.real.timer.data = (unsigned long) new_timer;
++	return -EINVAL;
++}
++
++static int timer_create_mono(struct k_itimer *new_timer)
++{
++	init_ktimer_mono(&new_timer->it.real.timer);
++	new_timer->it.real.timer.data = new_timer;
++	new_timer->it.real.timer.function = posix_timer_fn;
++	return 0;
++}
++
++static int timer_create_real(struct k_itimer *new_timer)
++{
++	init_ktimer_real(&new_timer->it.real.timer);
++	new_timer->it.real.timer.data = new_timer;
+ 	new_timer->it.real.timer.function = posix_timer_fn;
+ 	return 0;
+ }
+ 
+-/*
+- * These ones are defined below.
+- */
+-static int common_nsleep(clockid_t, int flags, struct timespec *t);
+-static void common_timer_get(struct k_itimer *, struct itimerspec *);
+-static int common_timer_set(struct k_itimer *, int,
+-			    struct itimerspec *, struct itimerspec *);
+-static int common_timer_del(struct k_itimer *timer);
+ 
+ /*
+  * Return nonzero iff we know a priori this clockid_t value is bogus.
+@@ -239,19 +228,44 @@ static inline int invalid_clockid(clocki
+ 	return 1;
+ }
+ 
++/*
++ * Get real time for posix timers
++ */
++static int posix_get_ktime_real_ts(clockid_t which_clock, struct timespec *tp)
++{
++	get_ktime_real_ts(tp);
++	return 0;
++}
++
++/*
++ * Get monotonic time for posix timers
++ */
++static int posix_get_ktime_mono_ts(clockid_t which_clock, struct timespec *tp)
++{
++	get_ktime_mono_ts(tp);
++	return 0;
++}
++
++void do_posix_clock_monotonic_gettime(struct timespec *ts)
++{
++	get_ktime_mono_ts(ts);
++}
+ 
+ /*
+  * Initialize everything, well, just everything in Posix clocks/timers ;)
+  */
+ static __init int init_posix_timers(void)
+ {
+-	struct k_clock clock_realtime = {.res = CLOCK_REALTIME_RES,
+-					 .abs_struct = &abs_list
++	struct k_clock clock_realtime = {
++		.clock_getres = get_ktimer_real_res,
++		.clock_get = posix_get_ktime_real_ts,
++		.timer_create = timer_create_real,
+ 	};
+-	struct k_clock clock_monotonic = {.res = CLOCK_REALTIME_RES,
+-		.abs_struct = NULL,
+-		.clock_get = do_posix_clock_monotonic_get,
+-		.clock_set = do_posix_clock_nosettime
++	struct k_clock clock_monotonic = {
++		.clock_getres = get_ktimer_mono_res,
++		.clock_get = posix_get_ktime_mono_ts,
++		.clock_set = do_posix_clock_nosettime,
++		.timer_create = timer_create_mono,
+ 	};
+ 
+ 	register_posix_clock(CLOCK_REALTIME, &clock_realtime);
+@@ -265,117 +279,17 @@ static __init int init_posix_timers(void
+ 
+ __initcall(init_posix_timers);
+ 
+-static void tstojiffie(struct timespec *tp, int res, u64 *jiff)
+-{
+-	long sec = tp->tv_sec;
+-	long nsec = tp->tv_nsec + res - 1;
+-
+-	if (nsec > NSEC_PER_SEC) {
+-		sec++;
+-		nsec -= NSEC_PER_SEC;
+-	}
+-
+-	/*
+-	 * The scaling constants are defined in <linux/time.h>
+-	 * The difference between there and here is that we do the
+-	 * res rounding and compute a 64-bit result (well so does that
+-	 * but it then throws away the high bits).
+-  	 */
+-	*jiff =  (mpy_l_X_l_ll(sec, SEC_CONVERSION) +
+-		  (mpy_l_X_l_ll(nsec, NSEC_CONVERSION) >> 
+-		   (NSEC_JIFFIE_SC - SEC_JIFFIE_SC))) >> SEC_JIFFIE_SC;
+-}
+-
+-/*
+- * This function adjusts the timer as needed as a result of the clock
+- * being set.  It should only be called for absolute timers, and then
+- * under the abs_list lock.  It computes the time difference and sets
+- * the new jiffies value in the timer.  It also updates the timers
+- * reference wall_to_monotonic value.  It is complicated by the fact
+- * that tstojiffies() only handles positive times and it needs to work
+- * with both positive and negative times.  Also, for negative offsets,
+- * we need to defeat the res round up.
+- *
+- * Return is true if there is a new time, else false.
+- */
+-static long add_clockset_delta(struct k_itimer *timr,
+-			       struct timespec *new_wall_to)
+-{
+-	struct timespec delta;
+-	int sign = 0;
+-	u64 exp;
+-
+-	set_normalized_timespec(&delta,
+-				new_wall_to->tv_sec -
+-				timr->it.real.wall_to_prev.tv_sec,
+-				new_wall_to->tv_nsec -
+-				timr->it.real.wall_to_prev.tv_nsec);
+-	if (likely(!(delta.tv_sec | delta.tv_nsec)))
+-		return 0;
+-	if (delta.tv_sec < 0) {
+-		set_normalized_timespec(&delta,
+-					-delta.tv_sec,
+-					1 - delta.tv_nsec -
+-					posix_clocks[timr->it_clock].res);
+-		sign++;
+-	}
+-	tstojiffie(&delta, posix_clocks[timr->it_clock].res, &exp);
+-	timr->it.real.wall_to_prev = *new_wall_to;
+-	timr->it.real.timer.expires += (sign ? -exp : exp);
+-	return 1;
+-}
+-
+-static void remove_from_abslist(struct k_itimer *timr)
+-{
+-	if (!list_empty(&timr->it.real.abs_timer_entry)) {
+-		spin_lock(&abs_list.lock);
+-		list_del_init(&timr->it.real.abs_timer_entry);
+-		spin_unlock(&abs_list.lock);
+-	}
+-}
+ 
+ static void schedule_next_timer(struct k_itimer *timr)
+ {
+-	struct timespec new_wall_to;
+-	struct now_struct now;
+-	unsigned long seq;
+-
+-	/*
+-	 * Set up the timer for the next interval (if there is one).
+-	 * Note: this code uses the abs_timer_lock to protect
+-	 * it.real.wall_to_prev and must hold it until exp is set, not exactly
+-	 * obvious...
+-
+-	 * This function is used for CLOCK_REALTIME* and
+-	 * CLOCK_MONOTONIC* timers.  If we ever want to handle other
+-	 * CLOCKs, the calling code (do_schedule_next_timer) would need
+-	 * to pull the "clock" info from the timer and dispatch the
+-	 * "other" CLOCKs "next timer" code (which, I suppose should
+-	 * also be added to the k_clock structure).
+-	 */
+ 	if (!timr->it.real.incr)
+ 		return;
+ 
+-	do {
+-		seq = read_seqbegin(&xtime_lock);
+-		new_wall_to =	wall_to_monotonic;
+-		posix_get_now(&now);
+-	} while (read_seqretry(&xtime_lock, seq));
+-
+-	if (!list_empty(&timr->it.real.abs_timer_entry)) {
+-		spin_lock(&abs_list.lock);
+-		add_clockset_delta(timr, &new_wall_to);
+-
+-		posix_bump_timer(timr, now);
+-
+-		spin_unlock(&abs_list.lock);
+-	} else {
+-		posix_bump_timer(timr, now);
+-	}
+-	timr->it_overrun_last = timr->it_overrun;
+-	timr->it_overrun = -1;
++	timr->it_overrun_last = timr->it.real.overrun;
++	timr->it.real.overrun = timr->it.real.timer.overrun = -1;
+ 	++timr->it_requeue_pending;
+-	add_timer(&timr->it.real.timer);
++	start_ktimer(&timr->it.real.timer, &timr->it.real.incr, KTIMER_FORWARD);
++	timr->it.real.overrun = timr->it.real.timer.overrun;
+ }
+ 
+ /*
+@@ -413,14 +327,7 @@ int posix_timer_event(struct k_itimer *t
+ {
+ 	memset(&timr->sigq->info, 0, sizeof(siginfo_t));
+ 	timr->sigq->info.si_sys_private = si_private;
+-	/*
+-	 * Send signal to the process that owns this timer.
+-
+-	 * This code assumes that all the possible abs_lists share the
+-	 * same lock (there is only one list at this time). If this is
+-	 * not the case, the CLOCK info would need to be used to find
+-	 * the proper abs list lock.
+-	 */
++	/* Send signal to the process that owns this timer.*/
+ 
+ 	timr->sigq->info.si_signo = timr->it_sigev_signo;
+ 	timr->sigq->info.si_errno = 0;
+@@ -454,65 +361,28 @@ EXPORT_SYMBOL_GPL(posix_timer_event);
+ 
+  * This code is for CLOCK_REALTIME* and CLOCK_MONOTONIC* timers.
+  */
+-static void posix_timer_fn(unsigned long __data)
++static void posix_timer_fn(void *data)
+ {
+-	struct k_itimer *timr = (struct k_itimer *) __data;
++	struct k_itimer *timr = data;
+ 	unsigned long flags;
+-	unsigned long seq;
+-	struct timespec delta, new_wall_to;
+-	u64 exp = 0;
+-	int do_notify = 1;
++	int si_private = 0;
+ 
+ 	spin_lock_irqsave(&timr->it_lock, flags);
+-	if (!list_empty(&timr->it.real.abs_timer_entry)) {
+-		spin_lock(&abs_list.lock);
+-		do {
+-			seq = read_seqbegin(&xtime_lock);
+-			new_wall_to =	wall_to_monotonic;
+-		} while (read_seqretry(&xtime_lock, seq));
+-		set_normalized_timespec(&delta,
+-					new_wall_to.tv_sec -
+-					timr->it.real.wall_to_prev.tv_sec,
+-					new_wall_to.tv_nsec -
+-					timr->it.real.wall_to_prev.tv_nsec);
+-		if (likely((delta.tv_sec | delta.tv_nsec ) == 0)) {
+-			/* do nothing, timer is on time */
+-		} else if (delta.tv_sec < 0) {
+-			/* do nothing, timer is already late */
+-		} else {
+-			/* timer is early due to a clock set */
+-			tstojiffie(&delta,
+-				   posix_clocks[timr->it_clock].res,
+-				   &exp);
+-			timr->it.real.wall_to_prev = new_wall_to;
+-			timr->it.real.timer.expires += exp;
+-			add_timer(&timr->it.real.timer);
+-			do_notify = 0;
+-		}
+-		spin_unlock(&abs_list.lock);
+ 
+-	}
+-	if (do_notify)  {
+-		int si_private=0;
++	if (timr->it.real.incr)
++		si_private = ++timr->it_requeue_pending;
+ 
+-		if (timr->it.real.incr)
+-			si_private = ++timr->it_requeue_pending;
+-		else {
+-			remove_from_abslist(timr);
+-		}
++	if (posix_timer_event(timr, si_private))
++		/*
++		 * signal was not sent because of sig_ignor
++		 * we will not get a call back to restart it AND
++		 * it should be restarted.
++		 */
++		schedule_next_timer(timr);
+ 
+-		if (posix_timer_event(timr, si_private))
+-			/*
+-			 * signal was not sent because of sig_ignor
+-			 * we will not get a call back to restart it AND
+-			 * it should be restarted.
+-			 */
+-			schedule_next_timer(timr);
+-	}
+ 	unlock_timer(timr, flags); /* hold thru abs lock to keep irq off */
+ }
+ 
+-
+ static inline struct task_struct * good_sigevent(sigevent_t * event)
+ {
+ 	struct task_struct *rtn = current->group_leader;
+@@ -776,39 +646,39 @@ static struct k_itimer * lock_timer(time
+ static void
+ common_timer_get(struct k_itimer *timr, struct itimerspec *cur_setting)
+ {
+-	unsigned long expires;
+-	struct now_struct now;
++	nsec_t expires, now, remaining;
++	struct ktimer *timer = &timr->it.real.timer;
+ 
+-	do
+-		expires = timr->it.real.timer.expires;
+-	while ((volatile long) (timr->it.real.timer.expires) != expires);
+-
+-	posix_get_now(&now);
+-
+-	if (expires &&
+-	    ((timr->it_sigev_notify & ~SIGEV_THREAD_ID) == SIGEV_NONE) &&
+-	    !timr->it.real.incr &&
+-	    posix_time_before(&timr->it.real.timer, &now))
+-		timr->it.real.timer.expires = expires = 0;
+-	if (expires) {
+-		if (timr->it_requeue_pending & REQUEUE_PENDING ||
+-		    (timr->it_sigev_notify & ~SIGEV_THREAD_ID) == SIGEV_NONE) {
+-			posix_bump_timer(timr, now);
+-			expires = timr->it.real.timer.expires;
+-		}
+-		else
+-			if (!timer_pending(&timr->it.real.timer))
+-				expires = 0;
+-		if (expires)
+-			expires -= now.jiffies;
+-	}
+-	jiffies_to_timespec(expires, &cur_setting->it_value);
+-	jiffies_to_timespec(timr->it.real.incr, &cur_setting->it_interval);
+-
+-	if (cur_setting->it_value.tv_sec < 0) {
++	memset(cur_setting, 0, sizeof(struct itimerspec));
++	expires = get_expiry_ktimer(timer, &now);
++	remaining = expires - now;
++	/* Time left ? or timer pending */
++	if (remaining > 0 || ktimer_active(timer))
++		goto calci;
++	/* interval timer ? */
++	if (!timr->it.real.incr)
++		return;
++	/*
++	 * When a requeue is pending or this is a SIGEV_NONE timer
++	 * move the expiry time forward by intervals, so expiry is >
++	 * now.
++	 * The active (non SIGEV_NONE) rearm should be done
++	 * automatically by the ktimer REARM mode. Thats the next
++	 * iteration.  The REQUEUE_PENDING part will go away !
++	 */
++	if (timr->it_requeue_pending & REQUEUE_PENDING ||
++	    (timr->it_sigev_notify & ~SIGEV_THREAD_ID) == SIGEV_NONE) {
++		remaining = forward_posix_timer(timr, now);
++	}
++ calci:
++	/* interval timer ? */
++	if (timr->it.real.incr)
++		cur_setting->it_interval = ns_to_timespec(timr->it.real.incr);
++	/* Return 0 only, when the timer is expired and not pending */
++	if (remaining <= 0)
+ 		cur_setting->it_value.tv_nsec = 1;
+-		cur_setting->it_value.tv_sec = 0;
+-	}
++	else
++		cur_setting->it_value = ns_to_timespec(remaining);
+ }
+ 
+ /* Get the time remaining on a POSIX.1b interval timer. */
+@@ -832,6 +702,7 @@ sys_timer_gettime(timer_t timer_id, stru
+ 
+ 	return 0;
+ }
++
+ /*
+  * Get the number of overruns of a POSIX.1b interval timer.  This is to
+  * be the overrun of the timer last delivered.  At the same time we are
+@@ -858,84 +729,6 @@ sys_timer_getoverrun(timer_t timer_id)
+ 
+ 	return overrun;
+ }
+-/*
+- * Adjust for absolute time
+- *
+- * If absolute time is given and it is not CLOCK_MONOTONIC, we need to
+- * adjust for the offset between the timer clock (CLOCK_MONOTONIC) and
+- * what ever clock he is using.
+- *
+- * If it is relative time, we need to add the current (CLOCK_MONOTONIC)
+- * time to it to get the proper time for the timer.
+- */
+-static int adjust_abs_time(struct k_clock *clock, struct timespec *tp, 
+-			   int abs, u64 *exp, struct timespec *wall_to)
+-{
+-	struct timespec now;
+-	struct timespec oc = *tp;
+-	u64 jiffies_64_f;
+-	int rtn =0;
+-
+-	if (abs) {
+-		/*
+-		 * The mask pick up the 4 basic clocks 
+-		 */
+-		if (!((clock - &posix_clocks[0]) & ~CLOCKS_MASK)) {
+-			jiffies_64_f = do_posix_clock_monotonic_gettime_parts(
+-				&now,  wall_to);
+-			/*
+-			 * If we are doing a MONOTONIC clock
+-			 */
+-			if((clock - &posix_clocks[0]) & CLOCKS_MONO){
+-				now.tv_sec += wall_to->tv_sec;
+-				now.tv_nsec += wall_to->tv_nsec;
+-			}
+-		} else {
+-			/*
+-			 * Not one of the basic clocks
+-			 */
+-			clock->clock_get(clock - posix_clocks, &now);
+-			jiffies_64_f = get_jiffies_64();
+-		}
+-		/*
+-		 * Take away now to get delta and normalize
+-		 */
+-		set_normalized_timespec(&oc, oc.tv_sec - now.tv_sec,
+-					oc.tv_nsec - now.tv_nsec);
+-	}else{
+-		jiffies_64_f = get_jiffies_64();
+-	}
+-	/*
+-	 * Check if the requested time is prior to now (if so set now)
+-	 */
+-	if (oc.tv_sec < 0)
+-		oc.tv_sec = oc.tv_nsec = 0;
+-
+-	if (oc.tv_sec | oc.tv_nsec)
+-		set_normalized_timespec(&oc, oc.tv_sec,
+-					oc.tv_nsec + clock->res);
+-	tstojiffie(&oc, clock->res, exp);
+-
+-	/*
+-	 * Check if the requested time is more than the timer code
+-	 * can handle (if so we error out but return the value too).
+-	 */
+-	if (*exp > ((u64)MAX_JIFFY_OFFSET))
+-			/*
+-			 * This is a considered response, not exactly in
+-			 * line with the standard (in fact it is silent on
+-			 * possible overflows).  We assume such a large 
+-			 * value is ALMOST always a programming error and
+-			 * try not to compound it by setting a really dumb
+-			 * value.
+-			 */
+-			rtn = -EINVAL;
+-	/*
+-	 * return the actual jiffies expire time, full 64 bits
+-	 */
+-	*exp += jiffies_64_f;
+-	return rtn;
+-}
+ 
+ /* Set a POSIX.1b interval timer. */
+ /* timr->it_lock is taken. */
+@@ -943,8 +736,8 @@ static inline int
+ common_timer_set(struct k_itimer *timr, int flags,
+ 		 struct itimerspec *new_setting, struct itimerspec *old_setting)
+ {
+-	struct k_clock *clock = &posix_clocks[timr->it_clock];
+-	u64 expire_64;
++	nsec_t expires;
++	int mode;
+ 
+ 	if (old_setting)
+ 		common_timer_get(timr, old_setting);
+@@ -955,56 +748,40 @@ common_timer_set(struct k_itimer *timr, 
+ 	 * careful here.  If smp we could be in the "fire" routine which will
+ 	 * be spinning as we hold the lock.  But this is ONLY an SMP issue.
+ 	 */
+-	if (try_to_del_timer_sync(&timr->it.real.timer) < 0) {
+-#ifdef CONFIG_SMP
+-		/*
+-		 * It can only be active if on an other cpu.  Since
+-		 * we have cleared the interval stuff above, it should
+-		 * clear once we release the spin lock.  Of course once
+-		 * we do that anything could happen, including the
+-		 * complete melt down of the timer.  So return with
+-		 * a "retry" exit status.
+-		 */
++	if (try_to_stop_ktimer(&timr->it.real.timer) < 0)
+ 		return TIMER_RETRY;
+-#endif
+-	}
+-
+-	remove_from_abslist(timr);
+ 
+ 	timr->it_requeue_pending = (timr->it_requeue_pending + 2) & 
+ 		~REQUEUE_PENDING;
+ 	timr->it_overrun_last = 0;
+ 	timr->it_overrun = -1;
+-	/*
+-	 *switch off the timer when it_value is zero
+-	 */
+-	if (!new_setting->it_value.tv_sec && !new_setting->it_value.tv_nsec) {
+-		timr->it.real.timer.expires = 0;
++
++	/* switch off the timer when it_value is zero */
++	if (!new_setting->it_value.tv_sec && !new_setting->it_value.tv_nsec)
+ 		return 0;
+-	}
+ 
+-	if (adjust_abs_time(clock,
+-			    &new_setting->it_value, flags & TIMER_ABSTIME, 
+-			    &expire_64, &(timr->it.real.wall_to_prev))) {
+-		return -EINVAL;
+-	}
+-	timr->it.real.timer.expires = (unsigned long)expire_64;
+-	tstojiffie(&new_setting->it_interval, clock->res, &expire_64);
+-	timr->it.real.incr = (unsigned long)expire_64;
++	mode = flags & TIMER_ABSTIME ? KTIMER_ABS : KTIMER_REL;
+ 
+-	/*
+-	 * We do not even queue SIGEV_NONE timers!  But we do put them
+-	 * in the abs list so we can do that right.
++	/* Posix madness. Only absolute CLOCK_REALTIME timers
++	 * are affected by clock sets. So we must reiniatilize
++	 * the timer.
+ 	 */
++	if (timr->it_clock == CLOCK_REALTIME && mode == KTIMER_ABS)
++		timer_create_real(timr);
++	else
++		timer_create_mono(timr);
++
++	expires = ktimer_convert_timespec(&timr->it.real.timer,
++					  &new_setting->it_value);
++	/* This should be moved to the auto rearm code */
++	timr->it.real.incr = ktimer_convert_timespec(&timr->it.real.timer,
++						     &new_setting->it_interval);
++
++	/* SIGEV_NONE timers are not queued ! See common_timer_get */
+ 	if (((timr->it_sigev_notify & ~SIGEV_THREAD_ID) != SIGEV_NONE))
+-		add_timer(&timr->it.real.timer);
++		start_ktimer(&timr->it.real.timer, &expires,
++			     mode | KTIMER_NOCHECK);
+ 
+-	if (flags & TIMER_ABSTIME && clock->abs_struct) {
+-		spin_lock(&clock->abs_struct->lock);
+-		list_add_tail(&(timr->it.real.abs_timer_entry),
+-			      &(clock->abs_struct->list));
+-		spin_unlock(&clock->abs_struct->lock);
+-	}
+ 	return 0;
+ }
+ 
+@@ -1039,6 +816,7 @@ retry:
+ 
+ 	unlock_timer(timr, flag);
+ 	if (error == TIMER_RETRY) {
++		wait_for_ktimer(&timr->it.real.timer);
+ 		rtn = NULL;	// We already got the old time...
+ 		goto retry;
+ 	}
+@@ -1054,22 +832,8 @@ static inline int common_timer_del(struc
+ {
+ 	timer->it.real.incr = 0;
+ 
+-	if (try_to_del_timer_sync(&timer->it.real.timer) < 0) {
+-#ifdef CONFIG_SMP
+-		/*
+-		 * It can only be active if on an other cpu.  Since
+-		 * we have cleared the interval stuff above, it should
+-		 * clear once we release the spin lock.  Of course once
+-		 * we do that anything could happen, including the
+-		 * complete melt down of the timer.  So return with
+-		 * a "retry" exit status.
+-		 */
++	if (try_to_stop_ktimer(&timer->it.real.timer) < 0)
+ 		return TIMER_RETRY;
+-#endif
+-	}
+-
+-	remove_from_abslist(timer);
+-
+ 	return 0;
+ }
+ 
+@@ -1085,24 +849,17 @@ sys_timer_delete(timer_t timer_id)
+ 	struct k_itimer *timer;
+ 	long flags;
+ 
+-#ifdef CONFIG_SMP
+-	int error;
+ retry_delete:
+-#endif
+ 	timer = lock_timer(timer_id, &flags);
+ 	if (!timer)
+ 		return -EINVAL;
+ 
+-#ifdef CONFIG_SMP
+-	error = timer_delete_hook(timer);
+-
+-	if (error == TIMER_RETRY) {
++	if (timer_delete_hook(timer) == TIMER_RETRY) {
+ 		unlock_timer(timer, flags);
++		wait_for_ktimer(&timer->it.real.timer);
+ 		goto retry_delete;
+ 	}
+-#else
+-	timer_delete_hook(timer);
+-#endif
++
+ 	spin_lock(&current->sighand->siglock);
+ 	list_del(&timer->list);
+ 	spin_unlock(&current->sighand->siglock);
+@@ -1119,6 +876,7 @@ retry_delete:
+ 	release_posix_timer(timer, IT_ID_SET);
+ 	return 0;
+ }
++
+ /*
+  * return timer owned by the process, used by exit_itimers
+  */
+@@ -1126,22 +884,14 @@ static inline void itimer_delete(struct 
+ {
+ 	unsigned long flags;
+ 
+-#ifdef CONFIG_SMP
+-	int error;
+ retry_delete:
+-#endif
+ 	spin_lock_irqsave(&timer->it_lock, flags);
+ 
+-#ifdef CONFIG_SMP
+-	error = timer_delete_hook(timer);
+-
+-	if (error == TIMER_RETRY) {
++	if (timer_delete_hook(timer) == TIMER_RETRY) {
+ 		unlock_timer(timer, flags);
++		wait_for_ktimer(&timer->it.real.timer);
+ 		goto retry_delete;
+ 	}
+-#else
+-	timer_delete_hook(timer);
+-#endif
+ 	list_del(&timer->list);
+ 	/*
+ 	 * This keeps any tasks waiting on the spin lock from thinking
+@@ -1170,60 +920,7 @@ void exit_itimers(struct signal_struct *
+ 	}
+ }
+ 
+-/*
+- * And now for the "clock" calls
+- *
+- * These functions are called both from timer functions (with the timer
+- * spin_lock_irq() held and from clock calls with no locking.	They must
+- * use the save flags versions of locks.
+- */
+-
+-/*
+- * We do ticks here to avoid the irq lock ( they take sooo long).
+- * The seqlock is great here.  Since we a reader, we don't really care
+- * if we are interrupted since we don't take lock that will stall us or
+- * any other cpu. Voila, no irq lock is needed.
+- *
+- */
+-
+-static u64 do_posix_clock_monotonic_gettime_parts(
+-	struct timespec *tp, struct timespec *mo)
+-{
+-	u64 jiff;
+-	unsigned int seq;
+-
+-	do {
+-		seq = read_seqbegin(&xtime_lock);
+-		getnstimeofday(tp);
+-		*mo = wall_to_monotonic;
+-		jiff = jiffies_64;
+-
+-	} while(read_seqretry(&xtime_lock, seq));
+-
+-	return jiff;
+-}
+-
+-static int do_posix_clock_monotonic_get(clockid_t clock, struct timespec *tp)
+-{
+-	struct timespec wall_to_mono;
+-
+-	do_posix_clock_monotonic_gettime_parts(tp, &wall_to_mono);
+-
+-	tp->tv_sec += wall_to_mono.tv_sec;
+-	tp->tv_nsec += wall_to_mono.tv_nsec;
+-
+-	if ((tp->tv_nsec - NSEC_PER_SEC) > 0) {
+-		tp->tv_nsec -= NSEC_PER_SEC;
+-		tp->tv_sec++;
+-	}
+-	return 0;
+-}
+-
+-int do_posix_clock_monotonic_gettime(struct timespec *tp)
+-{
+-	return do_posix_clock_monotonic_get(CLOCK_MONOTONIC, tp);
+-}
+-
++/* Not available / possible... functions */
+ int do_posix_clock_nosettime(clockid_t clockid, struct timespec *tp)
+ {
+ 	return -EINVAL;
+@@ -1236,7 +933,8 @@ int do_posix_clock_notimer_create(struct
+ }
+ EXPORT_SYMBOL_GPL(do_posix_clock_notimer_create);
+ 
+-int do_posix_clock_nonanosleep(clockid_t clock, int flags, struct timespec *t)
++int do_posix_clock_nonanosleep(clockid_t clock, int flags, struct timespec *t,
++			       struct timespec __user *r)
+ {
+ #ifndef ENOTSUP
+ 	return -EOPNOTSUPP;	/* aka ENOTSUP in userland for POSIX */
+@@ -1295,125 +993,34 @@ sys_clock_getres(clockid_t which_clock, 
+ 	return error;
+ }
+ 
+-static void nanosleep_wake_up(unsigned long __data)
+-{
+-	struct task_struct *p = (struct task_struct *) __data;
+-
+-	wake_up_process(p);
+-}
+-
+ /*
+- * The standard says that an absolute nanosleep call MUST wake up at
+- * the requested time in spite of clock settings.  Here is what we do:
+- * For each nanosleep call that needs it (only absolute and not on
+- * CLOCK_MONOTONIC* (as it can not be set)) we thread a little structure
+- * into the "nanosleep_abs_list".  All we need is the task_struct pointer.
+- * When ever the clock is set we just wake up all those tasks.	 The rest
+- * is done by the while loop in clock_nanosleep().
+- *
+- * On locking, clock_was_set() is called from update_wall_clock which
+- * holds (or has held for it) a write_lock_irq( xtime_lock) and is
+- * called from the timer bh code.  Thus we need the irq save locks.
+- *
+- * Also, on the call from update_wall_clock, that is done as part of a
+- * softirq thing.  We don't want to delay the system that much (possibly
+- * long list of timers to fix), so we defer that work to keventd.
++ * nanosleep for monotonic and realtime clocks
+  */
+-
+-static DECLARE_WAIT_QUEUE_HEAD(nanosleep_abs_wqueue);
+-static DECLARE_WORK(clock_was_set_work, (void(*)(void*))clock_was_set, NULL);
+-
+-static DECLARE_MUTEX(clock_was_set_lock);
+-
+-void clock_was_set(void)
++static int common_nsleep(clockid_t which_clock, int flags,
++			 struct timespec *tsave, struct timespec __user *rmtp)
+ {
+-	struct k_itimer *timr;
+-	struct timespec new_wall_to;
+-	LIST_HEAD(cws_list);
+-	unsigned long seq;
+-
++	int mode = flags & TIMER_ABSTIME ? KTIMER_ABS : KTIMER_REL;
+ 
+-	if (unlikely(in_interrupt())) {
+-		schedule_work(&clock_was_set_work);
+-		return;
++	switch (which_clock) {
++	case CLOCK_REALTIME:
++		/* Posix madness. Only absolute timers on clock realtime
++		   are affected by clock set. */
++		if (mode == KTIMER_ABS)
++			return ktimer_nanosleep_real(tsave, rmtp, mode);
++	case CLOCK_MONOTONIC:
++		return ktimer_nanosleep_mono(tsave, rmtp, mode);
++	default:
++		break;
+ 	}
+-	wake_up_all(&nanosleep_abs_wqueue);
+-
+-	/*
+-	 * Check if there exist TIMER_ABSTIME timers to correct.
+-	 *
+-	 * Notes on locking: This code is run in task context with irq
+-	 * on.  We CAN be interrupted!  All other usage of the abs list
+-	 * lock is under the timer lock which holds the irq lock as
+-	 * well.  We REALLY don't want to scan the whole list with the
+-	 * interrupt system off, AND we would like a sequence lock on
+-	 * this code as well.  Since we assume that the clock will not
+-	 * be set often, it seems ok to take and release the irq lock
+-	 * for each timer.  In fact add_timer will do this, so this is
+-	 * not an issue.  So we know when we are done, we will move the
+-	 * whole list to a new location.  Then as we process each entry,
+-	 * we will move it to the actual list again.  This way, when our
+-	 * copy is empty, we are done.  We are not all that concerned
+-	 * about preemption so we will use a semaphore lock to protect
+-	 * aginst reentry.  This way we will not stall another
+-	 * processor.  It is possible that this may delay some timers
+-	 * that should have expired, given the new clock, but even this
+-	 * will be minimal as we will always update to the current time,
+-	 * even if it was set by a task that is waiting for entry to
+-	 * this code.  Timers that expire too early will be caught by
+-	 * the expire code and restarted.
+-
+-	 * Absolute timers that repeat are left in the abs list while
+-	 * waiting for the task to pick up the signal.  This means we
+-	 * may find timers that are not in the "add_timer" list, but are
+-	 * in the abs list.  We do the same thing for these, save
+-	 * putting them back in the "add_timer" list.  (Note, these are
+-	 * left in the abs list mainly to indicate that they are
+-	 * ABSOLUTE timers, a fact that is used by the re-arm code, and
+-	 * for which we have no other flag.)
+-
+-	 */
+-
+-	down(&clock_was_set_lock);
+-	spin_lock_irq(&abs_list.lock);
+-	list_splice_init(&abs_list.list, &cws_list);
+-	spin_unlock_irq(&abs_list.lock);
+-	do {
+-		do {
+-			seq = read_seqbegin(&xtime_lock);
+-			new_wall_to =	wall_to_monotonic;
+-		} while (read_seqretry(&xtime_lock, seq));
+-
+-		spin_lock_irq(&abs_list.lock);
+-		if (list_empty(&cws_list)) {
+-			spin_unlock_irq(&abs_list.lock);
+-			break;
+-		}
+-		timr = list_entry(cws_list.next, struct k_itimer,
+-				  it.real.abs_timer_entry);
+-
+-		list_del_init(&timr->it.real.abs_timer_entry);
+-		if (add_clockset_delta(timr, &new_wall_to) &&
+-		    del_timer(&timr->it.real.timer))  /* timer run yet? */
+-			add_timer(&timr->it.real.timer);
+-		list_add(&timr->it.real.abs_timer_entry, &abs_list.list);
+-		spin_unlock_irq(&abs_list.lock);
+-	} while (1);
+-
+-	up(&clock_was_set_lock);
++	return -EINVAL;
+ }
+ 
+-long clock_nanosleep_restart(struct restart_block *restart_block);
+-
+ asmlinkage long
+ sys_clock_nanosleep(clockid_t which_clock, int flags,
+ 		    const struct timespec __user *rqtp,
+ 		    struct timespec __user *rmtp)
+ {
+ 	struct timespec t;
+-	struct restart_block *restart_block =
+-	    &(current_thread_info()->restart_block);
+-	int ret;
+ 
+ 	if (invalid_clockid(which_clock))
+ 		return -EINVAL;
+@@ -1421,135 +1028,8 @@ sys_clock_nanosleep(clockid_t which_cloc
+ 	if (copy_from_user(&t, rqtp, sizeof (struct timespec)))
+ 		return -EFAULT;
+ 
+-	if ((unsigned) t.tv_nsec >= NSEC_PER_SEC || t.tv_sec < 0)
++	if (!timespec_valid(&t))
+ 		return -EINVAL;
+ 
+-	/*
+-	 * Do this here as nsleep function does not have the real address.
+-	 */
+-	restart_block->arg1 = (unsigned long)rmtp;
+-
+-	ret = CLOCK_DISPATCH(which_clock, nsleep, (which_clock, flags, &t));
+-
+-	if ((ret == -ERESTART_RESTARTBLOCK) && rmtp &&
+-					copy_to_user(rmtp, &t, sizeof (t)))
+-		return -EFAULT;
+-	return ret;
+-}
+-
+-
+-static int common_nsleep(clockid_t which_clock,
+-			 int flags, struct timespec *tsave)
+-{
+-	struct timespec t, dum;
+-	struct timer_list new_timer;
+-	DECLARE_WAITQUEUE(abs_wqueue, current);
+-	u64 rq_time = (u64)0;
+-	s64 left;
+-	int abs;
+-	struct restart_block *restart_block =
+-	    &current_thread_info()->restart_block;
+-
+-	abs_wqueue.flags = 0;
+-	init_timer(&new_timer);
+-	new_timer.expires = 0;
+-	new_timer.data = (unsigned long) current;
+-	new_timer.function = nanosleep_wake_up;
+-	abs = flags & TIMER_ABSTIME;
+-
+-	if (restart_block->fn == clock_nanosleep_restart) {
+-		/*
+-		 * Interrupted by a non-delivered signal, pick up remaining
+-		 * time and continue.  Remaining time is in arg2 & 3.
+-		 */
+-		restart_block->fn = do_no_restart_syscall;
+-
+-		rq_time = restart_block->arg3;
+-		rq_time = (rq_time << 32) + restart_block->arg2;
+-		if (!rq_time)
+-			return -EINTR;
+-		left = rq_time - get_jiffies_64();
+-		if (left <= (s64)0)
+-			return 0;	/* Already passed */
+-	}
+-
+-	if (abs && (posix_clocks[which_clock].clock_get !=
+-			    posix_clocks[CLOCK_MONOTONIC].clock_get))
+-		add_wait_queue(&nanosleep_abs_wqueue, &abs_wqueue);
+-
+-	do {
+-		t = *tsave;
+-		if (abs || !rq_time) {
+-			adjust_abs_time(&posix_clocks[which_clock], &t, abs,
+-					&rq_time, &dum);
+-		}
+-
+-		left = rq_time - get_jiffies_64();
+-		if (left >= (s64)MAX_JIFFY_OFFSET)
+-			left = (s64)MAX_JIFFY_OFFSET;
+-		if (left < (s64)0)
+-			break;
+-
+-		new_timer.expires = jiffies + left;
+-		__set_current_state(TASK_INTERRUPTIBLE);
+-		add_timer(&new_timer);
+-
+-		schedule();
+-
+-		del_timer_sync(&new_timer);
+-		left = rq_time - get_jiffies_64();
+-	} while (left > (s64)0 && !test_thread_flag(TIF_SIGPENDING));
+-
+-	if (abs_wqueue.task_list.next)
+-		finish_wait(&nanosleep_abs_wqueue, &abs_wqueue);
+-
+-	if (left > (s64)0) {
+-
+-		/*
+-		 * Always restart abs calls from scratch to pick up any
+-		 * clock shifting that happened while we are away.
+-		 */
+-		if (abs)
+-			return -ERESTARTNOHAND;
+-
+-		left *= TICK_NSEC;
+-		tsave->tv_sec = div_long_long_rem(left, 
+-						  NSEC_PER_SEC, 
+-						  &tsave->tv_nsec);
+-		/*
+-		 * Restart works by saving the time remaing in 
+-		 * arg2 & 3 (it is 64-bits of jiffies).  The other
+-		 * info we need is the clock_id (saved in arg0). 
+-		 * The sys_call interface needs the users 
+-		 * timespec return address which _it_ saves in arg1.
+-		 * Since we have cast the nanosleep call to a clock_nanosleep
+-		 * both can be restarted with the same code.
+-		 */
+-		restart_block->fn = clock_nanosleep_restart;
+-		restart_block->arg0 = which_clock;
+-		/*
+-		 * Caller sets arg1
+-		 */
+-		restart_block->arg2 = rq_time & 0xffffffffLL;
+-		restart_block->arg3 = rq_time >> 32;
+-
+-		return -ERESTART_RESTARTBLOCK;
+-	}
+-
+-	return 0;
+-}
+-/*
+- * This will restart clock_nanosleep.
+- */
+-long
+-clock_nanosleep_restart(struct restart_block *restart_block)
+-{
+-	struct timespec t;
+-	int ret = common_nsleep(restart_block->arg0, 0, &t);
+-
+-	if ((ret == -ERESTART_RESTARTBLOCK) && restart_block->arg1 &&
+-	    copy_to_user((struct timespec __user *)(restart_block->arg1), &t,
+-			 sizeof (t)))
+-		return -EFAULT;
+-	return ret;
++	return CLOCK_DISPATCH(which_clock, nsleep, (which_clock, flags, &t, rmtp));
+ }
+Index: linux-2.6.14-rc2.ktimers/kernel/timer.c
+===================================================================
+--- linux-2.6.14-rc2.ktimers.orig/kernel/timer.c
++++ linux-2.6.14-rc2.ktimers/kernel/timer.c
+@@ -912,6 +912,7 @@ static void run_timer_softirq(struct sof
+ {
+ 	tvec_base_t *base = &__get_cpu_var(tvec_bases);
+ 
++ 	run_ktimer_queues();
+ 	if (time_after_eq(jiffies, base->timer_jiffies))
+ 		__run_timers(base);
+ }
+@@ -1177,62 +1178,6 @@ asmlinkage long sys_gettid(void)
+ 	return current->pid;
+ }
+ 
+-static long __sched nanosleep_restart(struct restart_block *restart)
+-{
+-	unsigned long expire = restart->arg0, now = jiffies;
+-	struct timespec __user *rmtp = (struct timespec __user *) restart->arg1;
+-	long ret;
+-
+-	/* Did it expire while we handled signals? */
+-	if (!time_after(expire, now))
+-		return 0;
+-
+-	expire = schedule_timeout_interruptible(expire - now);
+-
+-	ret = 0;
+-	if (expire) {
+-		struct timespec t;
+-		jiffies_to_timespec(expire, &t);
+-
+-		ret = -ERESTART_RESTARTBLOCK;
+-		if (rmtp && copy_to_user(rmtp, &t, sizeof(t)))
+-			ret = -EFAULT;
+-		/* The 'restart' block is already filled in */
+-	}
+-	return ret;
+-}
+-
+-asmlinkage long sys_nanosleep(struct timespec __user *rqtp, struct timespec __user *rmtp)
+-{
+-	struct timespec t;
+-	unsigned long expire;
+-	long ret;
+-
+-	if (copy_from_user(&t, rqtp, sizeof(t)))
+-		return -EFAULT;
+-
+-	if ((t.tv_nsec >= 1000000000L) || (t.tv_nsec < 0) || (t.tv_sec < 0))
+-		return -EINVAL;
+-
+-	expire = timespec_to_jiffies(&t) + (t.tv_sec || t.tv_nsec);
+-	expire = schedule_timeout_interruptible(expire);
+-
+-	ret = 0;
+-	if (expire) {
+-		struct restart_block *restart;
+-		jiffies_to_timespec(expire, &t);
+-		if (rmtp && copy_to_user(rmtp, &t, sizeof(t)))
+-			return -EFAULT;
+-
+-		restart = &current_thread_info()->restart_block;
+-		restart->fn = nanosleep_restart;
+-		restart->arg0 = jiffies + expire;
+-		restart->arg1 = (unsigned long) rmtp;
+-		ret = -ERESTART_RESTARTBLOCK;
+-	}
+-	return ret;
+-}
+-
+ /*
+  * sys_sysinfo - fill in sysinfo struct
+  */ 

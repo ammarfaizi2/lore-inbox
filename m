@@ -1,57 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964968AbVIVTdE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030183AbVIVTd5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964968AbVIVTdE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 15:33:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964973AbVIVTdE
+	id S1030183AbVIVTd5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 15:33:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030188AbVIVTd5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 15:33:04 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:19369 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964968AbVIVTdC (ORCPT
+	Thu, 22 Sep 2005 15:33:57 -0400
+Received: from smtp-4.llnl.gov ([128.115.41.84]:25540 "EHLO smtp-4.llnl.gov")
+	by vger.kernel.org with ESMTP id S1030183AbVIVTd4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 15:33:02 -0400
-Date: Thu, 22 Sep 2005 12:31:50 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Lever, Charles" <Charles.Lever@netapp.com>
-Cc: SteveD@redhat.com, NFS@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: [NFS] Re: [PATCH] repair nfsd/sunrpc in 2.6.14-rc2-mm1 (and
- other -mm versions)
-Message-Id: <20050922123150.7a147d1e.akpm@osdl.org>
-In-Reply-To: <044B81DE141D7443BCE91E8F44B3C1E288E488@exsvl02.hq.netapp.com>
-References: <044B81DE141D7443BCE91E8F44B3C1E288E488@exsvl02.hq.netapp.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Sep 2005 15:33:56 -0400
+Date: Thu, 22 Sep 2005 12:33:52 -0700 (PDT)
+From: Chuck Harding <charding@llnl.gov>
+Subject: Re: Arrr! Linux v2.6.14-rc2 (was [RT] build error with 2.6.14-rc2-rt1)
+In-reply-to: <Pine.LNX.4.63.0509221058300.17628@ghostwheel.llnl.gov>
+To: Linux Kernel Discussion List <linux-kernel@vger.kernel.org>
+Cc: Ingo Molnar <mingo@elte.hu>
+Message-id: <Pine.LNX.4.63.0509221228010.17628@ghostwheel.llnl.gov>
+Organization: Lawrence Livermore National Laboratory
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-transfer-encoding: 7BIT
+User-Agent: Pine/4.62 (X11; U; Linux i686; en-US; rv:2.6.11-rc2-mm1)
+References: <Pine.LNX.4.63.0509221058300.17628@ghostwheel.llnl.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Lever, Charles" <Charles.Lever@netapp.com> wrote:
+On Thu, 22 Sep 2005, Chuck Harding wrote:
+
+>  CC      kernel/power/poweroff.o
+>  LD      kernel/power/built-in.o
+>  CC      kernel/acct.o
+>  CC      kernel/kexec.o
+>  GZIP    kernel/config_data.gz
+>  IKCFG   kernel/config_data.h
+>  CC      kernel/configs.o
+>  CC      kernel/audit.o
+> kernel/audit.c: In function `audit_serial':
+> kernel/audit.c:617: error: `SPIN_LOCK_UNLOCKED' undeclared (first use in this 
+> function)
+> kernel/audit.c:617: error: (Each undeclared identifier is reported only once
+> kernel/audit.c:617: error: for each function it appears in.)
+> make[1]: *** [kernel/audit.o] Error 1
+> make: *** [kernel] Error 2
 >
-> > -----Original Message-----
->  > From: Steve Dickson [mailto:SteveD@redhat.com] 
->  > Sent: Thursday, September 22, 2005 10:02 AM
->  > To: linux-kernel
->  > Cc: NFS@lists.sourceforge.net
->  > Subject: [NFS] Re: [PATCH] repair nfsd/sunrpc in 
->  > 2.6.14-rc2-mm1 (and other -mm versions)
->  > 
->  > Max Kellermann wrote:
->  > > Your -mm patches make the sunrpc client connect to the 
->  > portmapper with
->  > > a non-privileged source port.  This is due to a change in
->  > > net/sunrpc/pmap_clnt.c, which manually resets the xprt->resvport
->  > > field.  My tiny patch removes this line.  I have no idea 
->  > why the line
->  > > was added in the first place, does somebody know better?
->  > Yes this is a bug, since most Linux portmapper will not
->  > allow ports to be set or unset using non-privilege ports.
->  > But non-privilege ports can be used to get ports information.
->  > So I would suggest the following patch that stops the
->  > use of privileges ports on only get port requests.
-> 
->  this was my patch (idea was steve's).  i've already sent a fix to
->  andrew.  andrew please let me know if you haven't received it.
+>
+> .config is attached
+>
+>
 
-Ah, good.  Please resend?
+Oops! My bad!! This was really due to 2.6.14-rc2 *not* rt1 - sorry to
+be pointing fingers at the wrong parties - next time I'll check more
+carefully before submitting a bug report B-$
 
+-- 
+Charles D. (Chuck) Harding <charding@llnl.gov>  Voice: 925-423-8879
+Senior Computer Associate         ICCD            Fax: 925-423-6961
+Lawrence Livermore National Laboratory      Computation Directorate
+Livermore, CA USA  http://www.llnl.gov  GPG Public Key ID: B9EB6601
+------------------ http://tinyurl.com/5w5ey -----------------------
+-- I like cats, but I don't think I could eat a whole one. --

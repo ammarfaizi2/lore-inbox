@@ -1,78 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965242AbVIVG30@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750949AbVIVGdk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965242AbVIVG30 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 02:29:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965243AbVIVG3Z
+	id S1750949AbVIVGdk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 02:33:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750932AbVIVGdk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 02:29:25 -0400
-Received: from ZIVLNX17.UNI-MUENSTER.DE ([128.176.188.79]:33755 "EHLO
-	ZIVLNX17.uni-muenster.de") by vger.kernel.org with ESMTP
-	id S965242AbVIVG3Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 02:29:25 -0400
-Date: Thu, 22 Sep 2005 08:29:44 +0200
-From: Borislav Petkov <petkov@uni-muenster.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove check_region from PnPWakeUp routine of Eepro ISA driver
-Message-ID: <20050922062943.GA31805@gollum.tnic>
-References: <20050922060030.GB19049@gollum.tnic> <20050921230915.364f0ac9.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 22 Sep 2005 02:33:40 -0400
+Received: from zproxy.gmail.com ([64.233.162.194]:19193 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750949AbVIVGdj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 02:33:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=aOgxEsvbxSUJPLc4CQjhuyFK+tdj4TDe5faB0dY+2zUOkj9HAMm6x7NXiox05UssqPCiq9UDB7AwHDpSy8ABsOk2e5703o2IFExQ3u9Tg7Q8zCdPRY52dMYVVcVQKtGfWxApy/uliX1VJ7CDjNiJUmJ41VV54O2rfw2MFCwT6CM=
+Message-ID: <9a8748490509212333197a4980@mail.gmail.com>
+Date: Thu, 22 Sep 2005 08:33:39 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: abonilla@linuxwireless.org
+Subject: Re: Patch Question.
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050921213219.090d63c5.rdunlap@xenotime.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050921230915.364f0ac9.akpm@osdl.org>
-User-Agent: Mutt/1.5.10i
+References: <1127358091.5644.7.camel@localhost.localdomain>
+	 <20050921213219.090d63c5.rdunlap@xenotime.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 21, 2005 at 11:09:15PM -0700, Andrew Morton wrote:
-> Borislav Petkov <petkov@uni-muenster.de> wrote:
+On 9/22/05, Randy.Dunlap <rdunlap@xenotime.net> wrote:
+> On Wed, 21 Sep 2005 21:01:31 -0600 Alejandro Bonilla Beeche wrote:
+>
+> > Hi,
 > >
-> >  Hi,
-> > 
-> >  The following patch removes the check_region call in the PnPWakeUp
-> >  path in the Eepro /10 ISA driver. Instead, now it calls request_region
-> >  for the PnP wake up routine and, after succeeding, it calls release_region
-> >  for the actual reservation of I/O ports takes place in the eepro_probe1() 
-> >  function straight afterwards.
-> > 
-> >  Signed-off-by: Borislav Petkov <petkov@uni-muenster.de>
-> > 
-> > 
-> > --- drivers/net/eepro.c.orig	2005-09-22 06:20:28.000000000 +0200
-> > +++ drivers/net/eepro.c	2005-09-22 07:20:16.000000000 +0200
-> > @@ -552,7 +552,7 @@ static int __init do_eepro_probe(struct 
-> >  	{
-> >  		unsigned short int WS[32]=WakeupSeq;
-> >  
-> > -		if (check_region(WakeupPort, 2)==0) {
-> > +		if (request_region(WakeupPort, 2, DRV_NAME)) {
-> >  
-> >  			if (net_debug>5)
-> >  				printk(KERN_DEBUG "Waking UP\n");
-> > @@ -563,6 +563,8 @@ static int __init do_eepro_probe(struct 
-> >  				outb_p(WS[i],WakeupPort);
-> >  				if (net_debug>5) printk(KERN_DEBUG ": %#x ",WS[i]);
-> >  			}
-> > +			release_region(WakeupPort, 2);
-> > +
-> >  		} else printk(KERN_WARNING "Checkregion Failed!\n");
-> >  	}
-> >  #endif
-> 
-> hm, that's all a bit strange.  It would be better to do the
-> request_region() just once and if that works, retain the reservation rather
-> than releasing and reacquiring it.
-I thought so at first too but was having problems with the call to
-eepro_probe1() a bit further down where request_region() is called a second time
-and this would have resulted in two consecutive calls to request_region for the
-same region without freeing it. I guess in the actual __request_region() in the
-while loop, during the second call IORESOURCE_BUSY will be returned meaning that
-the region is already reserved?
-> 
-> That being said, the code you've modified is disabled due to
-> !defined(PnPWakeup), and the chances of anyone ever changing that are close
-> to zero.
-should I remove it then altogether?
+> >       I have a couple of questions about sending patches. I did read the
+> > SubmittingPatches Doc but don't recall this.
+> >
+> > Can anyone send a patch to LKML to be applied?
+>
+> Anyone can send a patch.  Whether it gets applied depends on
+> several factors.
+>
+> > How long does it normally take for a patch to be merged?
+>
+> Depends on who you ask to merge it.  Andrew put patches into
+> the -mm patchset within minutes sometimes, depending on how
+> busy he is, what else he is doing, etc.
+>
+> But it varies quite a bit by driver or subsystem maintainer.
+>
+Also depends on the content of the patch. If it is tricky to read/non
+obvious etc it will usually draw some comments before being merged.
+Some patches get missed/overlooked completely - in that case it's up
+to you to make sure it gets resend after a while (if it draws no
+comments and doesn't get merged, then resending it after the next
+majoe, -rc or -mm release, updated to apply to that release, is
+usually good).
+I've personally sent patches that got merged by someone within a few
+minutes, but I've also seen patches suddenly get merged that I had
+completely forgotten about that some maintainer just picked up from
+the list weeks after I had sent it.
 
-Regards,
-		Boris.
+
+> > If a patch is not merged and I get no Replys, what should one do?
+>
+> Send it to the correct maintainer (driver or subsystem usually).
+> If you can't find a correct maintainer, then send it to Andrew
+> (akpm@osdl.org).  Maybe put "[RFC]" in the Subject: line to
+> get (more) comments on it.
+>
+Resend the patch and check your To: and Cc: lists. Read the
+MAINTAINERS file to find out who to send it to, as well as comments in
+the top of the source file. Adding linux-kernel@vger.kernel.org to Cc:
+in any case, in addition to other recipients, is usually a good thing
+as well.
+
+
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

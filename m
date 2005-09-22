@@ -1,58 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030210AbVIVEcW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750909AbVIVEui@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030210AbVIVEcW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 00:32:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030211AbVIVEcW
+	id S1750909AbVIVEui (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 00:50:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751433AbVIVEui
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 00:32:22 -0400
-Received: from xenotime.net ([66.160.160.81]:44517 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1030210AbVIVEcW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 00:32:22 -0400
-Date: Wed, 21 Sep 2005 21:32:19 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: abonilla@linuxwireless.org
+	Thu, 22 Sep 2005 00:50:38 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:58619 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S1750909AbVIVEuh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 00:50:37 -0400
+Subject: Re: [PATCH] RT: Checks for cmpxchg in get_task_struct_rcu()
+From: Daniel Walker <dwalker@mvista.com>
+To: mingo@elte.hu
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Patch Question.
-Message-Id: <20050921213219.090d63c5.rdunlap@xenotime.net>
-In-Reply-To: <1127358091.5644.7.camel@localhost.localdomain>
-References: <1127358091.5644.7.camel@localhost.localdomain>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+In-Reply-To: <1127355538.8950.1.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+References: <1127345874.19506.43.camel@dhcp153.mvista.com>
+	 <433201FC.8040004@yahoo.com.au>
+	 <1127355538.8950.1.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+Content-Type: text/plain
+Date: Wed, 21 Sep 2005 21:50:28 -0700
+Message-Id: <1127364629.8950.6.camel@c-67-188-6-232.hsd1.ca.comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 (2.0.4-6) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Sep 2005 21:01:31 -0600 Alejandro Bonilla Beeche wrote:
 
-> Hi,
-> 
-> 	I have a couple of questions about sending patches. I did read the
-> SubmittingPatches Doc but don't recall this.
-> 
-> Can anyone send a patch to LKML to be applied?
+Checks for cmpxchg in get_task_struct_rcu() . No race version.
 
-Anyone can send a patch.  Whether it gets applied depends on
-several factors.
+Signed-Off-By: Daniel Walker <dwalker@mvista.com>
 
-> How long does it normally take for a patch to be merged?
+Index: linux-2.6.13/include/linux/sched.h
+===================================================================
+--- linux-2.6.13.orig/include/linux/sched.h
++++ linux-2.6.13/include/linux/sched.h
+@@ -1026,13 +1026,24 @@ static inline int get_task_struct_rcu(st
+ {
+ 	int oldusage;
+ 
++#ifdef __HAVE_ARCH_CMPXCHG
+ 	do {
+ 		oldusage = atomic_read(&t->usage);
+ 		if (oldusage == 0) {
+ 			return 0;
+ 		}
+ 	} while (cmpxchg(&t->usage.counter,
+-		 oldusage, oldusage + 1) != oldusage);
++				oldusage, oldusage + 1) != oldusage);
++#else
++	raw_local_irq_disable();
++	oldusage = atomic_read(&t->usage);
++	if (oldusage == 0) {
++		raw_local_irq_enable();
++		return 0;
++	}
++	atomic_inc(&t->usage);
++	raw_local_irq_enable();
++#endif
+ 	return 1;
+ }
+ 
 
-Depends on who you ask to merge it.  Andrew put patches into
-the -mm patchset within minutes sometimes, depending on how
-busy he is, what else he is doing, etc.
 
-But it varies quite a bit by driver or subsystem maintainer.
-
-> If a patch is not merged and I get no Replys, what should one do?
-
-Send it to the correct maintainer (driver or subsystem usually).
-If you can't find a correct maintainer, then send it to Andrew
-(akpm@osdl.org).  Maybe put "[RFC]" in the Subject: line to
-get (more) comments on it.
-
----
-~Randy
-You can't do anything without having to do something else first.
--- Belefant's Law

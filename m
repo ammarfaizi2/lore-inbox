@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030311AbVIVUDw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030307AbVIVUJ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030311AbVIVUDw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 16:03:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030307AbVIVUDv
+	id S1030307AbVIVUJ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 16:09:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030321AbVIVUJ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 16:03:51 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:7560 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1030311AbVIVUDv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 16:03:51 -0400
-Message-Id: <200509222003.j8MK3i8E010365@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: breno@kalangolinux.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: security patch 
-In-Reply-To: Your message of "Thu, 22 Sep 2005 19:44:33 -0000."
-             <20050922194433.13200.qmail@webmail2.locasite.com.br> 
-From: Valdis.Kletnieks@vt.edu
-References: <20050922194433.13200.qmail@webmail2.locasite.com.br>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1127419424_2709P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Thu, 22 Sep 2005 16:09:29 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:19648 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030307AbVIVUJ3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 16:09:29 -0400
+Message-ID: <43330F59.7080503@redhat.com>
+Date: Thu, 22 Sep 2005 16:08:57 -0400
+From: Peter Staubach <staubach@redhat.com>
+User-Agent: Mozilla Thunderbird  (X11/20050322)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Lever, Charles" <Charles.Lever@netapp.com>
+CC: Andrew Morton <akpm@osdl.org>, SteveD@redhat.com,
+       NFS@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: [NFS] Re: [PATCH] repair nfsd/sunrpc in 2.6.14-rc2-mm1 (and other
+ -mm versions)
+References: <044B81DE141D7443BCE91E8F44B3C1E288E48E@exsvl02.hq.netapp.com>
+In-Reply-To: <044B81DE141D7443BCE91E8F44B3C1E288E48E@exsvl02.hq.netapp.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Thu, 22 Sep 2005 16:03:44 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1127419424_2709P
-Content-Type: text/plain; charset=us-ascii
+Lever, Charles wrote:
 
-On Thu, 22 Sep 2005 19:44:33 -0000, breno@kalangolinux.org said:
+>>Actually, Chuck's patch and Steve's aren't quite the same.  
+>>Both patches
+>>fix the problem that the portmap daemon requires a request to 
+>>set something
+>>to come from a reserved port.  In addition to this, Steve's 
+>>patch reduces
+>>the number of reserved ports that the kernel requires.  This 
+>>is the problem
+>>that resulted in pmap_create() being incorrectly modified in 
+>>the first 
+>>place.
+>>Steve's patch correctly puts the support in rpc_getport() 
+>>where it belongs.
+>>    
+>>
+>
+>mine does too.  pmap_create() is used for both GET and SET, and i added
+>a parm to allow pmap_create()'s caller to request a reserved port when
+>needed.
+>
 
-> I'm doing a new feature for linux kernel 2.6 to protect against all kinds of buffer
-> overflow. It works with new sys_control() system call controling if a process can or can't
-> call a system call ie. sys_execve();
+Hmmm.  That's not the patch that Andrew Morton included in his email to
+linux-kernel then.  That patch just removed the line to set xprt->resvport
+to 0.  That one fixed problem but not the other.
 
-This has been done before. ;)
+    Thanx...
 
-Also, note *VERY* carefully that this does *NOT* protect against buffer overflow
-the way ExecShield and PAX and similar do - this merely tries to mitigate the
-damage.
-
-Note that you probably don't *DARE* remove open()/read()/write()/close() from
-the "permitted syscall" list - and an attacker can have plenty of fun just with
-those 4 syscalls.
-
-(That's also why SELinux was designed to give better granularity to syscalls - it
-can restrict a program to "write only to files it *should* be able to write").
-
---==_Exmh_1127419424_2709P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFDMw4gcC3lWbTT17ARAlBmAKCa9Ia2S3wIgs3WH/WBOL0AxatW1QCg6yUE
-qXLoC+AuYvj0mybD5z2CdqQ=
-=Bkq5
------END PGP SIGNATURE-----
-
---==_Exmh_1127419424_2709P--
+       ps

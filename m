@@ -1,50 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030322AbVIVNR7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030327AbVIVNR4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030322AbVIVNR7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 09:17:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030325AbVIVNR7
+	id S1030327AbVIVNR4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 09:17:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030325AbVIVNR4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 09:17:59 -0400
-Received: from zproxy.gmail.com ([64.233.162.201]:51115 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030322AbVIVNR5 convert rfc822-to-8bit
+	Thu, 22 Sep 2005 09:17:56 -0400
+Received: from gw1.cosmosbay.com ([62.23.185.226]:65164 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S1030321AbVIVNRz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 09:17:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=MDX1hudXGTOM3teWqd86FFbXMcPdFzLM1vlepGOwral4XaS8T1xkhdT5fxXXM8GIRLFZZJ+oq1LZCuSUPSfMJwMzKmTJo2KyGpvC2qKC0WxmbDM9qDz2U24/IQThhZXILXpXQWP2XOJUkKyhrFRDC8VyjZnzW8D/tVTL+BBT+88=
-Message-ID: <28f73412050922061735b157a@mail.gmail.com>
-Date: Thu, 22 Sep 2005 13:17:50 +0000
-From: Andy Fong <boringuy@gmail.com>
-Reply-To: Andy Fong <boringuy@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: major oops resier4 on 2.6.14-rc1-mm1
+	Thu, 22 Sep 2005 09:17:55 -0400
+Message-ID: <4332AEFF.1040105@cosmosbay.com>
+Date: Thu, 22 Sep 2005 15:17:51 +0200
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+To: Harald Welte <laforge@netfilter.org>
+CC: linux-kernel@vger.kernel.org, netfilter-devel@lists.netfilter.org,
+       netdev@vger.kernel.org, Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH 1/3] netfilter : 3 patches to boost ip_tables performance
+References: <432EF0C5.5090908@cosmosbay.com> <200509191948.55333.ak@suse.de> <432FDAC5.3040801@cosmosbay.com> <200509201830.20689.ak@suse.de> <433082DE.3060308@cosmosbay.com> <43308324.70403@cosmosbay.com> <4331D0A9.3080801@cosmosbay.com> <20050922125724.GJ26520@sunbeam.de.gnumonks.org>
+In-Reply-To: <20050922125724.GJ26520@sunbeam.de.gnumonks.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Thu, 22 Sep 2005 15:17:52 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am using reiser4 on a SATA drive and got a major oops after
-upgrading to 2.6.14-rc1-mm1. The whole system hangs and all changes on
-FS are lost after reboot. So, I lost the log file too.
+Harald Welte a écrit :
+> On Wed, Sep 21, 2005 at 11:29:13PM +0200, Eric Dumazet wrote:
+> 
+>>Patch 1/3
+>>
+>>1) No more one rwlock_t protecting the 'curtain'
+> 
+> 
+> I have no problem with this change "per se", but with the
+> implementation.
+> 
+> As of now, we live without any ugly #ifdef CONFIG_SMP / #endif sections
+> in the code - and if possible, I would continue this good tradition.
+> 
+> For example the get_counters() function.  Wouldn't all the smp specific
+> code (for_each_cpu(), ...)  be #defined to nothing anyway?
 
-Then it kind of happened again but this time not completely hang. It
-reported a fatal operation at block_alloc.c: 140. in dmesg.
-This is from my memory because I try to go back to my old kernel
-2.6.12 but the fs seems to be corrupted and I
-got a kernel panic. However, the new 2.6.14-rc1-mm1 kernel will still
-boot up. So, I did a fsck.reiser4 --build-fs.
-After that, none of the kernel can detect the partition and I got
-kernel panic. I just created a liveCD and doing fsck.reiser4 again and
-hope that it will work better this time. So, I don't have any trace or
-log file but this is a serious bug.
+Well... not exactly, but you are right only the first loop (SET_COUNTER) will 
+really do something. The if (cpu == curcpu) will be true but the compiler wont 
+  know that, cpu and curcpu are still C variables.
 
-I notice there is a 2.6.14-rc2-mm1 which some reiser4 fixes in the log
-file. I wonder if those fixes is related to this bug.
-I just want to make sure this get fix soon. Also, if anyone have idea
-on how to recover the partition, please let me know.
 
-Since I am not on the list yet, please make sure you cc the reply to
-my email. Thank you.
+> 
+> And if we really need the #ifdef's, I would appreciate if those
+> sectionas are as small as possible.  in get_counters() the section can
+> definitely be smaller, rather than basically having the whole function
+> body separate for smp and non-smp cases.
+
+get_counters() is not critical, so I agree with you we can stick the general 
+version (not the UP optimized one)
+
+> 
+> Also, how much would we loose in runtime performance if we were using a
+> "rwlock_t *" even in the UP case?.  I mean, it's just one more pointer
+> dereference of something that is expected to be in cache anyway, isn't
+> it?  This gets rid of another huge set of #ifdefs that make the code
+> unreadable and prone to errors being introduced later on.
+> 
+
+Well, in UP case, the rwlock_t is a nulldef.
+
+I was inspired by another use of percpu data in include/linux/genhd.h
+#ifdef  CONFIG_SMP
+     struct disk_stats *dkstats;
+#else
+     struct disk_stats dkstats;
+#endif
+
+But if you dislike this, we can use pointer for all cases.
+
+Eric

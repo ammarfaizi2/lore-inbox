@@ -1,43 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030184AbVIVTkS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030187AbVIVToZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030184AbVIVTkS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 15:40:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030187AbVIVTkS
+	id S1030187AbVIVToZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 15:44:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030188AbVIVToZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 15:40:18 -0400
-Received: from xproxy.gmail.com ([66.249.82.201]:6556 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030184AbVIVTkQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 15:40:16 -0400
+	Thu, 22 Sep 2005 15:44:25 -0400
+Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:32111 "HELO
+	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1030187AbVIVToY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 15:44:24 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=LgpNgku5+65Okcqhg2W+vWXRiV5FBbL2i4zWUAOWmRswXUXwYT+5SbtNSbL4bAkZTXtYTxtv+I62aAcwTJn65TzHgnBMTYWqZo1ttswdRSdi4JK/iExVXXrdIU/Byj1uWZj2B5/Xkw5yZLC8zAhBY51kCGTkxDEC3zg7W8JLmdw=
-Date: Thu, 22 Sep 2005 23:50:29 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: tty update speed regression (was: 2.6.14-rc2-mm1)
-Message-ID: <20050922195029.GA6426@mipter.zuzino.mipt.ru>
-References: <20050921222839.76c53ba1.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=CcOVlwrJjdA1auN9Fjhs9J5RZIXM6ZwM0QR3qwz47VWXppr6Ftkr5iIM+DIUIwUykpljDoq6ybj5atrwC8YvjgeX6nFKjbqXbSFkG3tIIQZGUUt46anaxL4X48L39YxnbuGOr0P5fsGvqLOlfcSe+u+h64E881LUBzn1TTtgVZs=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: Jeff Dike <jdike@addtoit.com>
+Subject: Re: [uml-devel] [PATCH 06/10] uml: run mconsole "sysrq" in process context
+Date: Thu, 22 Sep 2005 21:20:20 +0200
+User-Agent: KMail/1.8.2
+Cc: user-mode-linux-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <200509211923.21861.blaisorblade@yahoo.it> <20050921172857.10219.71071.stgit@zion.home.lan> <20050921205028.GB9918@ccure.user-mode-linux.org>
+In-Reply-To: <20050921205028.GB9918@ccure.user-mode-linux.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050921222839.76c53ba1.akpm@osdl.org>
-User-Agent: Mutt/1.5.8i
+Message-Id: <200509222120.20922.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I see regression in tty update speed with ADOM (ncurses based
-roguelike) [1].
+On Wednesday 21 September 2005 22:50, Jeff Dike wrote:
+> On Wed, Sep 21, 2005 at 07:28:57PM +0200, Paolo 'Blaisorblade' Giarrusso 
+wrote:
+> > From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+> >
+> > Things are breaking horribly with sysrq called in interrupt context. I
+> > want to try to fix it, but probably this is simpler. To tell the truth,
+> > sysrq is normally run in interrupt context, so there shouldn't be any
+> > problem.
+>
+> How are they breaking?
+sysrq t is broken (and stays), but additionally there are some warnings from 
+some commands (enable sleep inside spinlock checking and spinlock debugging), 
+which go to the down_read inside handle_page_fault IIRC. So try to run in 
+process context.
 
-Messages at the top ("goblin hits you") are printed slowly. An eye can
-notice letter after letter printing.
+-- 
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
 
-2.6.14-rc2 is OK.
-
-I'll try to revert tty-layer-buffering-revamp*.patch pieces and see if
-it'll change something.
-
-[1] http://adom.de/adom/download/linux/adom-111-elf.tar.gz (binary only)
-
+		
+___________________________________ 
+Yahoo! Messenger: chiamate gratuite in tutto il mondo 
+http://it.messenger.yahoo.com

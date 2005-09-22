@@ -1,62 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030227AbVIVJD5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965244AbVIVJFG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030227AbVIVJD5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 05:03:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965250AbVIVJD5
+	id S965244AbVIVJFG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 05:05:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965247AbVIVJFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 05:03:57 -0400
-Received: from moutvdom.kundenserver.de ([212.227.126.249]:37615 "EHLO
-	moutvdomng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S965246AbVIVJD4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 05:03:56 -0400
-Message-ID: <43327383.1060507@anagramm.de>
-Date: Thu, 22 Sep 2005 11:04:03 +0200
-From: Clemens Koller <clemens.koller@anagramm.de>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Sanchez <david.sanchez@lexbox.fr>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: How to Force PIO mode on sata promise (Linux 2.6.10)
-References: <17AB476A04B7C842887E0EB1F268111E026FB9@xpserver.intra.lexbox.org>
-In-Reply-To: <17AB476A04B7C842887E0EB1F268111E026FB9@xpserver.intra.lexbox.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Sep 2005 05:05:05 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:18579 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S1030228AbVIVJFE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 05:05:04 -0400
+Date: Thu, 22 Sep 2005 13:04:49 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Brice.Goglin@ens-lyon.org, linux-kernel@vger.kernel.org, rth@twiddle.net
+Subject: Re: Kernel panic during SysRq-b on Alpha
+Message-ID: <20050922130449.A29503@jurassic.park.msu.ru>
+References: <43315BEB.3010909@ens-lyon.org> <20050922101259.A29179@jurassic.park.msu.ru> <20050921234232.1034cc02.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20050921234232.1034cc02.akpm@osdl.org>; from akpm@osdl.org on Wed, Sep 21, 2005 at 11:42:32PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, David!
+On Wed, Sep 21, 2005 at 11:42:32PM -0700, Andrew Morton wrote:
+> Wow, never seen that done before.  Does it actually work?  For keyboard,
+> serial console and /proc/sysrq-trigger?
 
-David Sanchez wrote:
-> How did you disabled the DMA ?
+Yes, all of this works for me.
 
-Have you seen my .config file?
-(Remember that it's all PATA I'm talking about, YMMV!)
+There is another problem on Alpha with 2.6.14-rc kernels, much worse:
+slab.c:index_of() works _only_ when it's really inlined, because of
+__builtin_constant_p() check. It happens to work on other archs
+due to "always_inline" alchemy in compiler.h, but on Alpha we undo 
+the "inline" redefinitions as they heavily break our internal stuff.
+So the slab.c blows up very early on boot (at least when compiled
+with gcc3).
 
-I think it is
-CONFIG_IDEDMA_PCI_AUTO=n
-while
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-And I am using the
-BLK_DEV_PDC202XX_NEW=y
+I'd be happy if it is possible to stop global redefining of "inline"
+keywords and just use __attribute__((always_inline)) when needed.
+If not, I don't know how to fix that cleanly.
 
-One of the options there made it working...
-It's pretty lame (<10MByte/sec) but thats
-fine for now (just a test system).
+Richard?
 
-The HDD is a a Maxtor DiamondMax 10, 120GB
-(6B120P0), usually pretty fast.
-
-Best greets,
--- 
-Clemens Koller
-_______________________________
-R&D Imaging Devices
-Anagramm GmbH
-Rupert-Mayer-Str. 45/1
-81379 Muenchen
-Germany
-
-http://www.anagramm.de
-Phone: +49-89-741518-50
-Fax: +49-89-741518-19
+Ivan.

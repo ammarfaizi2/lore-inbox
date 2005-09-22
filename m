@@ -1,39 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030300AbVIVNFN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030302AbVIVNGQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030300AbVIVNFN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 09:05:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030308AbVIVNFN
+	id S1030302AbVIVNGQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 09:06:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030306AbVIVNGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 09:05:13 -0400
-Received: from ns.suse.de ([195.135.220.2]:11206 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1030300AbVIVNFK (ORCPT
+	Thu, 22 Sep 2005 09:06:15 -0400
+Received: from duempel.org ([81.209.165.42]:17384 "HELO duempel.org")
+	by vger.kernel.org with SMTP id S1030302AbVIVNGO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 09:05:10 -0400
-From: Andi Kleen <ak@suse.de>
-To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH 0/3] netfilter : 3 patches to boost ip_tables performance
-Date: Thu, 22 Sep 2005 15:05:04 +0200
-User-Agent: KMail/1.8
-Cc: Eric Dumazet <dada1@cosmosbay.com>,
-       Christoph Lameter <clameter@engr.sgi.com>,
-       "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       netfilter-devel@lists.netfilter.org, netdev@vger.kernel.org
-References: <43308324.70403@cosmosbay.com> <200509221454.22923.ak@suse.de> <20050922125849.GA27413@infradead.org>
-In-Reply-To: <20050922125849.GA27413@infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Sep 2005 09:06:14 -0400
+Date: Thu, 22 Sep 2005 15:04:41 +0200
+From: Max Kellermann <max@duempel.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Avuton Olrich <avuton@gmail.com>
+Subject: [PATCH] repair nfsd/sunrpc in 2.6.14-rc2-mm1 (and other -mm versions)
+Message-ID: <20050922130441.GA24005@roonstrasse.net>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, Avuton Olrich <avuton@gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="OgqxwSJOaUobr8KG"
 Content-Disposition: inline
-Message-Id: <200509221505.05395.ak@suse.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 22 September 2005 14:58, Christoph Hellwig wrote:
 
-> Umm, no - adding set_fs/get_fs mess for things like that is not right.
+--OgqxwSJOaUobr8KG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I think it's fine. We're using it for various other interfaces too. In fact
-sys_set_mempolicy is already used elsewhere in the kernel too.
+Hi Andrew,
 
--Andi
+nfsd is still broken in 2.6.14-rc2-mm1; the following procedure is
+reproducable:
+
+ rabbit:~# echo 2 >/proc/fs/nfsd/threads 
+
+... /var/log/daemon.log says:
+
+ Sep 22 13:52:55 rabbit kernel: NFSD: Using /var/lib/nfs/v4recovery as
+ the NFSv4 state recovery directory
+ Sep 22 13:52:55 rabbit kernel: NFSD: starting 90-second grace period
+ Sep 22 13:52:55 rabbit portmap[3191]: connect from 127.0.0.1 to
+ set(nfs): request from unprivileged port
+
+Your -mm patches make the sunrpc client connect to the portmapper with
+a non-privileged source port.  This is due to a change in
+net/sunrpc/pmap_clnt.c, which manually resets the xprt->resvport
+field.  My tiny patch removes this line.  I have no idea why the line
+was added in the first place, does somebody know better?
+
+Max
+
+
+--OgqxwSJOaUobr8KG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="nfsd-pmap-fix-privileged-port.patch"
+
+--- linux-2.6.14-rc2-mm1/net/sunrpc/pmap_clnt.c.orig	2005-09-22 14:58:14.000000000 +0200
++++ linux-2.6.14-rc2-mm1/net/sunrpc/pmap_clnt.c	2005-09-22 14:58:16.000000000 +0200
+@@ -208,7 +208,6 @@
+ 	if (IS_ERR(xprt))
+ 		return (struct rpc_clnt *)xprt;
+ 	xprt->addr.sin_port = htons(RPC_PMAP_PORT);
+-	xprt->resvport = 0;
+ 
+ 	/* printk("pmap: create clnt\n"); */
+ 	clnt = rpc_new_client(xprt, hostname,
+
+--OgqxwSJOaUobr8KG--

@@ -1,76 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbVIVUhB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbVIVUiQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751096AbVIVUhB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 16:37:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbVIVUhB
+	id S1751153AbVIVUiQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 16:38:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbVIVUiQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 16:37:01 -0400
-Received: from smtp006.mail.ukl.yahoo.com ([217.12.11.95]:6783 "HELO
-	smtp006.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1751096AbVIVUhA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 16:37:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Disposition:Content-Type:Content-Transfer-Encoding:Message-Id;
-  b=oHfU4m8Yl63viEPWHKuq2iEVzdTJEsRSxziAq//SeQngwraAPs19+EC7pr9UkBDT4JVcKLGy5NXR3qRnL69rxDaeM2RBBSffqp2gHWCIh6lyZeSTU31upbbd6K1kWeJRNUuMz76C1L9DE02KpdxpLy688K+Dl4/NB8zFnIk6DFc=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: Coywolf Qi Hunt <coywolf@gmail.com>
-Subject: Re: readme-update-from-the-stone-age.patch added to -mm tree
-Date: Thu, 22 Sep 2005 22:27:29 +0200
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-References: <200509202336.j8KNak00013479@shell0.pdx.osdl.net> <200509211630.33242.blaisorblade@yahoo.it> <2cd57c900509211736414cea32@mail.gmail.com>
-In-Reply-To: <2cd57c900509211736414cea32@mail.gmail.com>
+	Thu, 22 Sep 2005 16:38:16 -0400
+Received: from fmr14.intel.com ([192.55.52.68]:22965 "EHLO
+	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1751153AbVIVUiP convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 16:38:15 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200509222227.29885.blaisorblade@yahoo.it>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [patch 2.6.13 0/6] swiotlb maintenance and x86_64 dma_sync_single_range_for_{cpu,device}
+Date: Thu, 22 Sep 2005 13:37:46 -0700
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F0475A8B6@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch 2.6.13 0/6] swiotlb maintenance and x86_64 dma_sync_single_range_for_{cpu,device}
+Thread-Index: AcW3qaWCeTX+wvI0QOmoo7o87wADyAICwCKg
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "John W. Linville" <linville@tuxdriver.com>,
+       <linux-kernel@vger.kernel.org>, <discuss@x86-64.org>,
+       <linux-ia64@vger.kernel.org>
+Cc: <ak@suse.de>, "Mallick, Asit K" <asit.k.mallick@intel.com>
+X-OriginalArrivalTime: 22 Sep 2005 20:37:47.0300 (UTC) FILETIME=[7DF32640:01C5BFB5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 22 September 2005 02:36, Coywolf Qi Hunt wrote:
-> On 9/21/05, Blaisorblade <blaisorblade@yahoo.it> wrote:
-> > On Wednesday 21 September 2005 04:15, Coywolf Qi Hunt wrote:
-> > > On 9/21/05, akpm@osdl.org <akpm@osdl.org> wrote:
-> > > > The patch titled
-> > > >
-> > > >      README update from the stone age
-> > > >
-> > > > has been added to the -mm tree.  Its filename is
-> > > >
-> > > >      readme-update-from-the-stone-age.patch
-> > > >
-> > > >
-> > > >
-> > > > @@ -199,6 +199,9 @@ COMPILING the kernel:
-> > > >     are installing a new kernel with the same version number as your
-> > > >     working kernel, make a backup of your modules directory before
-> > > > you do a "make modules_install".
-> > > > +   In alternative, before compiling, edit your Makefile and change
-> > > > the +   "EXTRAVERSION" line - its content is appended to the regular
-> > > > kernel +   version.
-> > >
-> > > This is wrong. You expect users to both do menuconfig and edit top
-> > > Makefile manually?  What is the local version for then?
-> >
-> > Ok, yes, feel free to upgrade this to the use of CONFIG_LOCALVERSION. Or
-> > I can do it as well.
-> > --
+>Conduct some maintenance of the swiotlb code:
+>
+>	-- Move the code from arch/ia64/lib to lib
 
-> CONFIG_LOCALVERSION is for normal users while "EXTRAVERSION" is for
-> developers to maintain different kernel trees.
-Ok, Randy Dunlap just fixed it up.
--- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
+I agree that this code needs to move up out of arch/ia64, it is messy
+that x86_64 needs to reach over and grab this from arch/ia64.
 
-	
+But is "lib" really the right place for it to move to?  Perhaps
+a more logical place might be "drivers/pci/swiotlb/" since this
+code is tightly coupled to pci?
 
-	
-		
-___________________________________ 
-Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
-http://mail.yahoo.it
+-Tony

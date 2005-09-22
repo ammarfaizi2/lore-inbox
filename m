@@ -1,86 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030273AbVIVTsc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030231AbVIVTsK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030273AbVIVTsc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 15:48:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030207AbVIVTsb
+	id S1030231AbVIVTsK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 15:48:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030285AbVIVTsK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 15:48:31 -0400
-Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:8075 "HELO
-	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1030273AbVIVTsa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 15:48:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=E9nSnSBEccxeae7U9Z/PWWRK4JA+SpcKE4ZEu27FObBZAtcgjJZJO5j20qgvNO4q8ffkmYaMOC/qmd56JqVBeWr2go4UPI+uYyaLPnlQexolU2kICqOWF5LBxO2qCd8hnyZK1hBn/trH0J3q6i6Yp++rLOB80SWkU0q8VPu1mQs=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: Laurent Vivier <LaurentVivier@wanadoo.fr>
-Subject: Re: PTRACE_SYSEMU numbering
-Date: Thu, 22 Sep 2005 21:46:38 +0200
-User-Agent: KMail/1.8.2
-Cc: Daniel Jacobowitz <dan@debian.org>, linux-kernel@vger.kernel.org,
-       Jeff Dike <jdike@addtoit.com>,
-       "Paolo 'Blaisorblade' Giarrusso" <blaisorblade_spam@yahoo.it>,
-       Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-References: <20050921172550.GA10332@nevyn.them.org> <4D3DE86B-EDE9-494E-A935-A6CE9CFF1134@wanadoo.fr>
-In-Reply-To: <4D3DE86B-EDE9-494E-A935-A6CE9CFF1134@wanadoo.fr>
+	Thu, 22 Sep 2005 15:48:10 -0400
+Received: from webmail2-gw.fasthost.com.br ([200.183.77.27]:21405 "HELO
+	webmail2.locasite.com.br") by vger.kernel.org with SMTP
+	id S1030231AbVIVTsJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 15:48:09 -0400
+Date: 22 Sep 2005 19:44:33 -0000
+Message-ID: <20050922194433.13200.qmail@webmail2.locasite.com.br>
+From: breno@kalangolinux.org
+To: linux-kernel@vger.kernel.org
+Subject: security patch 
+X-Mailer: Locasite Webmail
+X-IPAddress: 200.101.52.3
+X-Priority: 3
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509222146.39172.blaisorblade@yahoo.it>
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 22 September 2005 08:48, Laurent Vivier wrote:
-> Hi,
+Hi people,
 
-> Paolo, as you are the submitter of the patch to the list and the real
-> maintainer, what do you think about that ?
+I'm doing a new feature for linux kernel 2.6 to protect against all kinds of buffer
+overflow. It works with new sys_control() system call controling if a process can or can't
+call a system call ie. sys_execve();
 
-> Regards,
-> Laurent
+You can do it using /bin/sys_control <pid> <enable or not system call> <eax of system
+call> <secret number>
+for process that never call for example sys_execve(), setuid() ( you must need specify
+each eax for each system call) and use some functions in sys_control.h like lock_execve(n)
+and unlock_execve(n), where n is a secret number defined in sysctl. With this functions
+you will use system calls only when you need. 
+All shellcodes that use system calls like sys_execve() sys_setuid() will not work with
+this feature.
 
-> > +#define PTRACE_SYSEMU 31
+I think it can be an option in linux kernel.
 
-> >  /* 0x4200-0x4300 are reserved for architecture-independent
-> > additions. */
-> >  #define PTRACE_SETOPTIONS 0x4200
+Questions .. suggestions.
 
-> > OK, I admit I could have made the comment clearer.
-That's not your fault, the patch was born using those numbers, even because it 
-started from 2.4.
+Thanks
 
-> > But can we fix 
-> > this?
+Breno at kalangolinux.org 
 
-> > You've added PTRACE_SYSEMU on top of PTRACE_GETFDPIC,
-Ok, I see the value on frv.
-> > which 
-> > presumably will
-> > mess up either debugging or UML on that architecture
-
-> > (if the latter 
-> > were
-> > ported).
-The fix is easy, IMHO, and not even urgent. It suffices to move PTRACE_SYSEMU 
-def from <linux/ptrace.h> to <asm-i386/ptrace.h>, and we didn't do that yet 
-for laziness only. There's no architecture that I know of, apart i386, which 
-implements SYSEMU (except maybe s390, but that isn't public).
-> > That's exactly the problem we defined the 0x4200-0x4300 
-> > range
-> > to prevent.
-
--- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
-
-	
-
-	
-		
-___________________________________ 
-Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
-http://mail.yahoo.it

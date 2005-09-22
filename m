@@ -1,56 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965231AbVIVFvc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965229AbVIVFv0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965231AbVIVFvc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 01:51:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965232AbVIVFvc
+	id S965229AbVIVFv0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 01:51:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965231AbVIVFv0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 01:51:32 -0400
-Received: from fmr13.intel.com ([192.55.52.67]:4997 "EHLO
-	fmsfmr001.fm.intel.com") by vger.kernel.org with ESMTP
-	id S965231AbVIVFvb convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 01:51:31 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Thu, 22 Sep 2005 01:51:26 -0400
+Received: from web33203.mail.mud.yahoo.com ([68.142.206.101]:23641 "HELO
+	web33203.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S965229AbVIVFvZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 01:51:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.ca;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=E+uLuoUtKc+Y5srQdTKvBJzihgeiwPU4Rthy5DVZA91W4cKGx37nWrPcrLGTdoXSUVWWg9tfw0kzcXNx1wgPgAVnx8D7KXBkpJ53Mmz9AcKonrjA9CnXZDHydMf9aAwPKfksUCFmX2OBTOfaXOcYvV2+N+2UzOEQEY3ropqhAao=  ;
+Message-ID: <20050922055120.23356.qmail@web33203.mail.mud.yahoo.com>
+Date: Thu, 22 Sep 2005 01:51:20 -0400 (EDT)
+From: rep stsb <repstsb@yahoo.ca>
+Subject: Re: In-kernel graphics subsystem
+To: linux-kernel@vger.kernel.org
+Cc: 06020051@lums.edu.pk
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH] bogus #if (acpi/blacklist)
-Date: Thu, 22 Sep 2005 01:50:57 -0400
-Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B3004AA5C50@hdsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] bogus #if (acpi/blacklist)
-Thread-Index: AcW/NLh6Q0+wFi32RjGOJu/c56BfvQABNspg
-From: "Brown, Len" <len.brown@intel.com>
-To: "Al Viro" <viro@ftp.linux.org.uk>, "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: <zippel@linux-m68k.org>, <viro@ZenIV.linux.org.uk>, <Eric.Piel@lifl.fr>,
-       <torvalds@osdl.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 22 Sep 2005 05:50:59.0548 (UTC) FILETIME=[9BA881C0:01C5BF39]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-applied.
+Athar Hameed wrote: 
 
-thanks,
--Len 
+> We are a group of three undergrad CS students, 
+> almost ready to start our senior project. We have
+> this idea of integrating a graphics subsystem with
+> the kernel
 
->-----Original Message-----
->From: Al Viro [mailto:viro@ftp.linux.org.uk] 
->Sent: Thursday, September 22, 2005 1:16 AM
->To: Randy.Dunlap
->Cc: Brown, Len; zippel@linux-m68k.org; 
->viro@ZenIV.linux.org.uk; Eric.Piel@lifl.fr; torvalds@osdl.org; 
->linux-kernel@vger.kernel.org
->Subject: Re: [PATCH] bogus #if (acpi/blacklist)
->
->On Wed, Sep 21, 2005 at 10:14:26PM -0700, Randy.Dunlap wrote:
->>  obj-y				+= tables.o
->> +ifdef CONFIG_X86
->>  obj-y				+= blacklist.o
->> +endif
->
->More common form would be
->
->obj-$(CONFIG_X86)	+= blacklist.o
->
+
+A thread about getting vertical synchronization
+interrupts from a video card is available at, 
+
+http://groups.google.ca/group/alt.lang.asm/browse_frm/thread/d1057c825a7933f0/f7239ffb484587d9
+
+I have started a project to write a windowing program
+on svgalib at, 
+
+http://sourceforge.net/projects/svgalib-windows 
+
+My idea is, 
+
+1. Convert svgalib drivers into kernel modules to get
+v-sync interrupts. 
+
+2. Write a windowing program on svgalib. 
+
+Everyone can join. 
+
+> P.S. We are not subscribed to the lklm. Kindly CC
+> your replies to 06020051@lums.edu.pk 
+
+http://groups.google.ca/group/fa.linux.kernel
+
+
+	
+
+	
+		
+__________________________________________________________ 
+Find your next car at http://autos.yahoo.ca

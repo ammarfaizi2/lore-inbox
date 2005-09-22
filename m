@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030448AbVIVRDv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030451AbVIVREq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030448AbVIVRDv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 13:03:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030450AbVIVRDv
+	id S1030451AbVIVREq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 13:04:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030450AbVIVREq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 13:03:51 -0400
-Received: from [195.209.228.254] ([195.209.228.254]:27578 "EHLO
-	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP
-	id S1030448AbVIVRDu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 13:03:50 -0400
-Message-ID: <4332E3F5.3040905@yandex.ru>
-Date: Thu, 22 Sep 2005 21:03:49 +0400
-From: "Artem B. Bityutskiy" <dedekind@yandex.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-1.3.1
-X-Accept-Language: en, ru, en-us
+	Thu, 22 Sep 2005 13:04:46 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:45491 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030452AbVIVREp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 13:04:45 -0400
+Message-ID: <4332E329.F5CB90B4@redhat.com>
+Date: Thu, 22 Sep 2005 13:00:25 -0400
+From: Dave Anderson <anderson@redhat.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-e.57enterprise i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-Cc: Pavel Machek <pavel@ucw.cz>, J Engel <joern@wohnheim.fh-wedel.de>,
-       Peter Menzebach <pm-mtd@mw-itcon.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: data loss on jffs2 filesystem on dataflash
-References: <432817FF.10307@yandex.ru> <4329251C.7050102@mw-itcon.de> <4329288B.8050909@yandex.ru> <43292AC6.40809@mw-itcon.de> <43292E16.70401@yandex.ru> <43292F91.9010302@mw-itcon.de> <432FE1EF.9000807@yandex.ru> <432FEF55.5090700@mw-itcon.de> <433006D8.4010502@yandex.ru> <20050920133244.GC4634@wohnheim.fh-wedel.de> <20050921190759.GC467@openzaurus.ucw.cz>            <43328C07.9070001@yandex.ru> <200509221646.j8MGkYo3017314@turing-police.cc.vt.edu>
-In-Reply-To: <200509221646.j8MGkYo3017314@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: vgoyal@in.ibm.com, Morton Andrew Morton <akpm@osdl.org>,
+       Fastboot mailing list <fastboot@lists.osdl.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [Fastboot] [PATCH] Kdump(x86): add note type NT_KDUMPINFOtokernel  
+ core dumps
+References: <20050921065633.GC3780@in.ibm.com>
+		<m1mzm6ebqn.fsf@ebiederm.dsl.xmission.com>
+		<43317980.D6AEA859@redhat.com>
+		<m1d5n1cw89.fsf@ebiederm.dsl.xmission.com>
+		<20050922140824.GF3753@in.ibm.com> <m1vf0tawgv.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
-> On Thu, 22 Sep 2005 14:48:39 +0400, "Artem B. Bityutskiy" said:
-> 
->>Joern meant that if HDD starts a block write operation, it will 
->>accomplish it even if power-fail happens (probably there are some 
->>capacitors there). So, it is impossible, say, that HDD has written one 
->>half of a sector and has not written the other half.
-> 
-> Hard drives contain capacitors to prevent writing of runt sectors on
-> a powerfail?  Didn't we go around this a while ago and decide it's mostly
-> urban legend, and that plenty of people have seen runt/bad sectors?
+"Eric W. Biederman" wrote:
 
-No idea. But theoretically it should be so, at least "good" drives 
-should. May be a competent person will comment on this, that's quite 
-interesting.
+> Vivek Goyal <vgoyal@in.ibm.com> writes:
+>
+> > I quickly browsed through "crash" code and looks like it is already doing
+> > similiar check (kernel.c, verify_version()). It seems to be retrieving
+> > "linux_banner" from core image and also retrieving banner string from vmlinux
+> > and trying to match. So if banner information can be directly read from the
+> > core image, probably there is no need to export it through notes.
+>
+> Sounds good.  We still need to define a note for the cpu control
+> registers.  Do any of the other crash dump solution capture that
+> information right now?
+>
+> Eric
 
--- 
-Best Regards,
-Artem B. Bityuckiy,
-St.-Petersburg, Russia.
+Certainly not in netdump, diskdump or LKCD...
+
+On the other hand, I can't say I ever really needed it, although
+that's not to say it couldn't be valuable for some types of
+crashes.
+
+Dave
+
+

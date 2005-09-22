@@ -1,76 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965225AbVIVE2W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030210AbVIVEcW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965225AbVIVE2W (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 00:28:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965227AbVIVE2V
+	id S1030210AbVIVEcW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 00:32:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030211AbVIVEcW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 00:28:21 -0400
-Received: from hqemgate03.nvidia.com ([216.228.112.143]:36121 "EHLO
-	HQEMGATE03.nvidia.com") by vger.kernel.org with ESMTP
-	id S965225AbVIVE2V convert rfc822-to-8bit (ORCPT
+	Thu, 22 Sep 2005 00:32:22 -0400
+Received: from xenotime.net ([66.160.160.81]:44517 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1030210AbVIVEcW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 00:28:21 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH 2.6.14-rc1] Fix broken NVIDIA device ID in sata_nv
-Date: Wed, 21 Sep 2005 21:28:20 -0700
-Message-ID: <8E5ACAE05E6B9E44A2903C693A5D4E8A091D1D6A@hqemmail02.nvidia.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 2.6.14-rc1] Fix broken NVIDIA device ID in sata_nv
-Thread-Index: AcW/HnUE/TubLzDqSdmVxJyjuzsIJwADy5MA
-From: "Andy Currid" <ACurrid@nvidia.com>
-To: "Jeff Garzik" <jgarzik@pobox.com>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 22 Sep 2005 04:28:21.0002 (UTC) FILETIME=[10226EA0:01C5BF2E]
+	Thu, 22 Sep 2005 00:32:22 -0400
+Date: Wed, 21 Sep 2005 21:32:19 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: abonilla@linuxwireless.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Patch Question.
+Message-Id: <20050921213219.090d63c5.rdunlap@xenotime.net>
+In-Reply-To: <1127358091.5644.7.camel@localhost.localdomain>
+References: <1127358091.5644.7.camel@localhost.localdomain>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 21 Sep 2005 21:01:31 -0600 Alejandro Bonilla Beeche wrote:
 
-Jeff
+> Hi,
+> 
+> 	I have a couple of questions about sending patches. I did read the
+> SubmittingPatches Doc but don't recall this.
+> 
+> Can anyone send a patch to LKML to be applied?
 
-It fixes something if you apply the entire patch that I posted. I
-changed the #defines for MCP55_SATA and MCP55_SATA2 in pci_ids.h.
+Anyone can send a patch.  Whether it gets applied depends on
+several factors.
 
-The patch didn't appear word-wrapped in what I saw get reflected back to
-me from LKML. Andrew Morton accepted it without comment.
+> How long does it normally take for a patch to be merged?
 
-Let me now if you want me to resubmit.
+Depends on who you ask to merge it.  Andrew put patches into
+the -mm patchset within minutes sometimes, depending on how
+busy he is, what else he is doing, etc.
 
-Thanks
+But it varies quite a bit by driver or subsystem maintainer.
 
-Andy
+> If a patch is not merged and I get no Replys, what should one do?
 
-> -----Original Message-----
-> From: Jeff Garzik [mailto:jgarzik@pobox.com] 
-> Sent: Wednesday, September 21, 2005 19:37
-> To: Andy Currid
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: [PATCH 2.6.14-rc1] Fix broken NVIDIA device ID in sata_nv
-> 
-> Andy Currid wrote:
-> > Please apply this patch that corrects an NVIDIA SATA device ID in
-> > 2.6.14-rc1.
-> 
-> > @@ -158,6 +158,8 @@ static struct pci_device_id nv_pci_tbl[]
-> >  		PCI_ANY_ID, PCI_ANY_ID, 0, 0, MCP51 },
-> >  	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_SATA,
-> >  		PCI_ANY_ID, PCI_ANY_ID, 0, 0, MCP55 },
-> > +	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_SATA2,
-> > +		PCI_ANY_ID, PCI_ANY_ID, 0, 0, MCP55 },
-> >  	{ PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
-> >  		PCI_ANY_ID, PCI_ANY_ID,
-> >  		PCI_CLASS_STORAGE_IDE<<8, 0xffff00, GENERIC },
-> 
-> I am applying this patch, but note that it does not "fix" 
-> anything.  It 
-> simply adds a new PCI ID, for additional hardware support.
-> 
-> 	Jeff
-> 
-> 
-> 
+Send it to the correct maintainer (driver or subsystem usually).
+If you can't find a correct maintainer, then send it to Andrew
+(akpm@osdl.org).  Maybe put "[RFC]" in the Subject: line to
+get (more) comments on it.
+
+---
+~Randy
+You can't do anything without having to do something else first.
+-- Belefant's Law

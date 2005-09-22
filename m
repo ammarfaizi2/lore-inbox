@@ -1,68 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964933AbVIVIGM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751443AbVIVIKZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964933AbVIVIGM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 04:06:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751445AbVIVIGL
+	id S1751443AbVIVIKZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 04:10:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751446AbVIVIKZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 04:06:11 -0400
-Received: from laf31-5-82-235-130-100.fbx.proxad.net ([82.235.130.100]:10749
-	"EHLO lexbox.fr") by vger.kernel.org with ESMTP id S1751443AbVIVIGK convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 04:06:10 -0400
-Subject: RE: How to Force PIO mode on sata promise (Linux 2.6.10)
+	Thu, 22 Sep 2005 04:10:25 -0400
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:29367 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S1751443AbVIVIKW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 04:10:22 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] Re: [PATCH 2/2] suspend: Cleanup calling of power off methods.
+Date: Thu, 22 Sep 2005 10:10:32 +0200
+User-Agent: KMail/1.8.2
+Cc: Pierre Ossman <drzeus-list@drzeus.cx>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Alexander Nyberg <alexn@telia.com>, Linus Torvalds <torvalds@osdl.org>,
+       Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>, len.brown@intel.com,
+       ncunningham@cyclades.com, Masoud Sharbiani <masouds@masoud.ir>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <m1vf0vfa0o.fsf@ebiederm.dsl.xmission.com> <20050921194306.GC13246@flint.arm.linux.org.uk> <43325A02.90208@drzeus.cx>
+In-Reply-To: <43325A02.90208@drzeus.cx>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-class: urn:content-classes:message
-Date: Thu, 22 Sep 2005 10:03:10 +0200
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Message-ID: <17AB476A04B7C842887E0EB1F268111E026FBD@xpserver.intra.lexbox.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: How to Force PIO mode on sata promise (Linux 2.6.10)
-thread-index: AcW/Icc+56C5Fc5NQY2nw7Bcc/NBSQAKWdog
-From: "David Sanchez" <david.sanchez@lexbox.fr>
-To: "Chris Wedgwood" <cw@f00f.org>
-Cc: "Jeff Garzik" <jgarzik@pobox.com>, <linux-kernel@vger.kernel.org>
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509221010.33643.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Chris,
-It was a good idea but it doesn't resolve the problem...
+Hi,
 
-I add my card into the dma_black_list of the libata to force DMA disabled and the problem seems to no more appear...maybe PIO is so slow that the data has no time to be corrupted...
-But I can NOT affirm that the problem is the DMA. 
+On Thursday, 22 of September 2005 09:15, Pierre Ossman wrote:
+> Russell King wrote:
+> 
+> >So, before trying to get the "underworked" bug system used more,
+> >please try to get more developers signed up to it so that we have
+> >the necessary folk behind the bug system to handle the increased
+> >work load.
+> >
+> >  
+> >
+> 
+> What we probably need then is an official policy that maintainers need
+> to have an account in the bugzilla. Start with the subsystem maintainers
+> and leave it to them to get each driver maintainer in line. Having only
+> a handful of parts of the kernel in the bugzilla is just confusing.
+> 
+> Personally I think the mailing lists are a great way for general
+> discussion. But once we have a confirmed bug (or difficult new feature)
+> it is better off being tracked in bugzilla. And this is my opinion both
+> as a user and as a developer. Bugzilla is the de facto standard of
+> reporting bugs so some users might find it troublesome dealing with
+> mailing lists such as LKML.
 
-I try the linux kernel 2.4,2.6.11, 2.6.12 and 2.6.13. More I try 2 different toolchains and the problem persists...
+Generally, I think, all bugs fall into one of two categories.  Namely, there
+are bugs that get fixed immediately as soon as someone with a clue sees
+the report, compilation problems and the like, and there are bugs that
+require much time to be handled.  IMHO, it doesn't make sense to litter
+bugzilla with bugs of the first kind, but all bugs of the second kind
+should be tracked in it, at least for the record.
 
-Another idea??
-
-Thanks,
-
-David
-
------Message d'origine-----
-De : linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-owner@vger.kernel.org] De la part de Chris Wedgwood
-Envoyé : jeudi 22 septembre 2005 05:00
-À : David Sanchez
-Cc : Jeff Garzik; linux-kernel@vger.kernel.org
-Objet : Re: How to Force PIO mode on sata promise (Linux 2.6.10)
-
-On Wed, Sep 21, 2005 at 02:28:02PM +0200, David Sanchez wrote:
-
-> I'm using the linux kernel 2.6.10 and busybox on an AMD db AU1550
-> with a hdd connected to the pata port of a PCI card (Promise
-> PDC20579).
-
-Disable prefetch in lib/memcpy.S and see if that helps.
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
-
+Greetings,
+Rafael
 
 
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

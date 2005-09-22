@@ -1,50 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965194AbVIVA3T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965197AbVIVAem@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965194AbVIVA3T (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 20:29:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965195AbVIVA3T
+	id S965197AbVIVAem (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 20:34:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965195AbVIVAem
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 20:29:19 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:31882 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965194AbVIVA3T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 20:29:19 -0400
-Date: Wed, 21 Sep 2005 17:28:35 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: gcoady@gmail.com
-Cc: grant_lkml@dodo.com.au, linux-kernel@vger.kernel.org
-Subject: Re: Query: How fix: `ide_generic_all_on' defined but not used??
-Message-Id: <20050921172835.005caf11.akpm@osdl.org>
-In-Reply-To: <mpn3j1p9n087sq45le5tio0np8aoa3s11a@4ax.com>
-References: <mpn3j1p9n087sq45le5tio0np8aoa3s11a@4ax.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 21 Sep 2005 20:34:42 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:2272
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S965186AbVIVAel (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 20:34:41 -0400
+Date: Wed, 21 Sep 2005 17:34:08 -0700 (PDT)
+Message-Id: <20050921.173408.122945960.davem@davemloft.net>
+To: clameter@engr.sgi.com
+Cc: dada1@cosmosbay.com, linux-kernel@vger.kernel.org,
+       netfilter-devel@lists.netfilter.org, netdev@vger.kernel.org, ak@suse.de
+Subject: Re: [PATCH 0/3] netfilter : 3 patches to boost ip_tables
+ performance
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.62.0509211542210.13045@schroedinger.engr.sgi.com>
+References: <43308324.70403@cosmosbay.com>
+	<4331CFA7.50104@cosmosbay.com>
+	<Pine.LNX.4.62.0509211542210.13045@schroedinger.engr.sgi.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grant Coady <grant_lkml@dodo.com.au> wrote:
->
-> drivers/ide/pci/generic.c:45: warning: `ide_generic_all_on' defined but not used
-> 
-> 
->  Source:
->  ...
->  static int ide_generic_all;             /* Set to claim all devices */
-> 
->  static int __init ide_generic_all_on(char *unused)
->  {
->          ide_generic_all = 1;
->          printk(KERN_INFO "IDE generic will claim all unknown PCI IDE storage controllers.\n");
->          return 1;
->  }
-> 
->  __setup("all-generic-ide", ide_generic_all_on);
->  ...
-> 
->  How to silence this type of warning?
+From: Christoph Lameter <clameter@engr.sgi.com>
+Date: Wed, 21 Sep 2005 15:43:29 -0700 (PDT)
 
-You could try poking around in the __setup() definition, using
-__attribute_used__, perhaps.
+> Maybe we better introduce vmalloc_node() instead of improvising this for 
+> several subsystems? The e1000 driver has similar issues.
 
+I agree.

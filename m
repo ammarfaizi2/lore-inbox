@@ -1,91 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030450AbVIVRW0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030459AbVIVRhr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030450AbVIVRW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 13:22:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030455AbVIVRW0
+	id S1030459AbVIVRhr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 13:37:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030460AbVIVRhr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 13:22:26 -0400
-Received: from spirit.analogic.com ([204.178.40.4]:9734 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP
-	id S1030450AbVIVRW0 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 13:22:26 -0400
+	Thu, 22 Sep 2005 13:37:47 -0400
+Received: from bayc1-pasmtp02.bayc1.hotmail.com ([65.54.191.162]:61733 "EHLO
+	BAYC1-PASMTP02.BAYC1.HOTMAIL.COM") by vger.kernel.org with ESMTP
+	id S1030459AbVIVRhq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 13:37:46 -0400
+Message-ID: <BAYC1-PASMTP0225E685AD4FA9108A11B1AE970@CEZ.ICE>
+X-Originating-IP: [67.71.125.52]
+X-Originating-Email: [seanlkml@sympatico.ca]
+Message-ID: <44657.10.10.10.28.1127410663.squirrel@linux1>
+In-Reply-To: <200509221212.01811.gene.heskett@verizon.net>
+References: <200509221514.44027.roffermanns@sysgo.com>
+    <200509221131.41838.gene.heskett@verizon.net>
+    <4332D447.6050503@adaptec.com>
+    <200509221212.01811.gene.heskett@verizon.net>
+Date: Thu, 22 Sep 2005 13:37:43 -0400 (EDT)
+Subject: Re: Linus GIT tree disappeared from http://www.kernel.org/git/?
+From: "Sean" <seanlkml@sympatico.ca>
+To: "Gene Heskett" <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.4-2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <4332E3F5.3040905@yandex.ru>
-References: <432817FF.10307@yandex.ru> <4329251C.7050102@mw-itcon.de> <4329288B.8050909@yandex.ru> <43292AC6.40809@mw-itcon.de> <43292E16.70401@yandex.ru> <43292F91.9010302@mw-itcon.de> <432FE1EF.9000807@yandex.ru> <432FEF55.5090700@mw-itcon.de> <433006D8.4010502@yandex.ru> <20050920133244.GC4634@wohnheim.fh-wedel.de> <20050921190759.GC467@openzaurus.ucw.cz>            <43328C07.9070001@yandex.ru> <200509221646.j8MGkYo3017314@turing-police.cc.vt.edu> <4332E3F5.3040905@yandex.ru>
-X-OriginalArrivalTime: 22 Sep 2005 17:22:19.0730 (UTC) FILETIME=[2FC5FB20:01C5BF9A]
-Content-class: urn:content-classes:message
-Subject: Re: data loss on jffs2 filesystem on dataflash
-Date: Thu, 22 Sep 2005 13:22:18 -0400
-Message-ID: <Pine.LNX.4.61.0509221306350.4631@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: data loss on jffs2 filesystem on dataflash
-Thread-Index: AcW/mi/P+1rw+qikQuC4IJBWe7DPWw==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Artem B. Bityutskiy" <dedekind@yandex.ru>
-Cc: <Valdis.Kletnieks@vt.edu>, "Pavel Machek" <pavel@ucw.cz>,
-       "J Engel" <joern@wohnheim.fh-wedel.de>,
-       "Peter Menzebach" <pm-mtd@mw-itcon.de>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+X-Priority: 3 (Normal)
+Importance: Normal
+X-OriginalArrivalTime: 22 Sep 2005 17:37:13.0796 (UTC) FILETIME=[44ADA040:01C5BF9C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, September 22, 2005 12:12 pm, Gene Heskett said:
 
-On Thu, 22 Sep 2005, Artem B. Bityutskiy wrote:
+> Well, I think what I was trying to ask but got lost in the bushes was
+> "do I have a valid download?"  and, how do I go about keeping it upto
+> date now that I have it?  I've read about half the git.txt stuff in
+> the Documentation dir, but nothing sticks out as being the magic
+> updater command.
 
-> Valdis.Kletnieks@vt.edu wrote:
->> On Thu, 22 Sep 2005 14:48:39 +0400, "Artem B. Bityutskiy" said:
->>
->>> Joern meant that if HDD starts a block write operation, it will
->>> accomplish it even if power-fail happens (probably there are some
->>> capacitors there). So, it is impossible, say, that HDD has written one
->>> half of a sector and has not written the other half.
->>
->> Hard drives contain capacitors to prevent writing of runt sectors on
->> a powerfail?  Didn't we go around this a while ago and decide it's mostly
->> urban legend, and that plenty of people have seen runt/bad sectors?
->
-> No idea. But theoretically it should be so, at least "good" drives
-> should. May be a competent person will comment on this, that's quite
-> interesting.
->
-> --
-> Best Regards,
-> Artem B. Bityuckiy,
-> St.-Petersburg, Russia.
+Gene,
 
-The only significant energy storage that hard disks contain
-is the inertia of the rotating disk assembly. Since the platter
-motor is not a generator it doesn't help. Those tiny bypass
-capacitors you see can't store enough energy to do anything
-useful during a power failure.
+In order to update your copy of the kernel repository just run "git pull".
+   Unfortunately there still seem to be some issues with kernel.org,
+hopefully that'll be fixed up soon.
 
-BUT... The PC/AT power supplies store a lot of energy and
-they run for many milliseconds after a power fail.
-2-100 uF in series = 50 uF @ 300 v.
-J = 1/2 CV^2
+The warning you're getting from git about "alternates" will be fixed in
+the next release of git.   You _could_ use your current version of git to
+track the official git repository and get this fix before it's officially
+released:
 
-J = 50uF * 300^2 / 2 =  2.25 joules (lots of energy).
+$ cd ~
+$ git clone rsync://rsync.kernel.org/pub/scm/git/git.git/ git-repo
+$ cd git-repo
+$ git checkout
+$ make install
 
-If the power-fail line is properly connected and if the
-power fail line operates at the correct time, the CPU
-will be halted while there is still enough energy available
-to complete any write that has gotten to the disk-drives sector
-buffer. This does not protect data, but it should certainly
-protect the sectors which might now contain header, good data
-or junk, and a proper CRC. IOW a good sector.
+Which should upgrade your current version of git to the very latest. 
+After which you can upgrade git whenever you like by running:
+
+$ cd ~/git-repo
+$ git pull
+$ make install
 
 Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13 on an i686 machine (5589.55 BogoMips).
-Warning : 98.36% of all statistics are fiction.
+Sean
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.

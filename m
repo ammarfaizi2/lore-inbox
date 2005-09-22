@@ -1,55 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965235AbVIVGDy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965236AbVIVGHH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965235AbVIVGDy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 02:03:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965236AbVIVGDy
+	id S965236AbVIVGHH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 02:07:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965237AbVIVGHH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 02:03:54 -0400
-Received: from xproxy.gmail.com ([66.249.82.203]:15027 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965234AbVIVGDx convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 02:03:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=KhlpUD/vBSLa/wbRnlYpoAd1jOwSAFX0VFhUshJ9e7zV1tmUfBCu8bJeXXvD0YBF1rBCfD1uxzojzrNJaG6oh50CSG0/0EwuVOgzIOFR/19hVnIH9IWvsi6JJ/8J36SJKCNjZCF5O8vlev21Bpgcby3DVbwXut8++7NUNQaw16A=
-Message-ID: <c295378405092123032534d93b@mail.gmail.com>
-Date: Wed, 21 Sep 2005 23:03:53 -0700
-From: "Jason R. Martin" <nsxfreddy@gmail.com>
-Reply-To: "Jason R. Martin" <nsxfreddy@gmail.com>
-To: Florin Malita <fmalita@gmail.com>
-Subject: Re: [PATCH] channel bonding: add support for device-indexed parameters
-Cc: akpm@osdl.org, davem@davemloft.net, ctindel@users.sourceforge.net,
-       fubar@us.ibm.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       bonding-devel@lists.sourceforge.net
-In-Reply-To: <20050922000444.369c32c2.fmalita@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050922000444.369c32c2.fmalita@gmail.com>
+	Thu, 22 Sep 2005 02:07:07 -0400
+Received: from h80ad24c8.async.vt.edu ([128.173.36.200]:31445 "EHLO
+	h80ad24c8.async.vt.edu") by vger.kernel.org with ESMTP
+	id S965236AbVIVGHG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 02:07:06 -0400
+Message-Id: <200509220606.j8M66u8d010990@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: rep stsb <repstsb@yahoo.ca>
+Cc: linux-kernel@vger.kernel.org, 06020051@lums.edu.pk
+Subject: Re: In-kernel graphics subsystem 
+In-Reply-To: Your message of "Thu, 22 Sep 2005 01:51:20 EDT."
+             <20050922055120.23356.qmail@web33203.mail.mud.yahoo.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <20050922055120.23356.qmail@web33203.mail.mud.yahoo.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1127369215_2825P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 22 Sep 2005 02:06:56 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/21/05, Florin Malita <fmalita@gmail.com> wrote:
-> While originally I was interested in being able to set a different
-> primary interface for each bond device (same primary for all bond
-> devices doesn't make any sense), most parameters deserve the same
-> treatement.
->
-> This patch adds support for device indexed module parameter
-> arrays instead of the old plain scalars. Mostly module_param
-> substitutions and parameter parsing logic tweaking.
-[snip]
+--==_Exmh_1127369215_2825P
+Content-Type: text/plain; charset=us-ascii
 
-Personally I think working to get the sysfs support finished in
-bonding and stop relying on module parameters to configure bonds would
-be better, since bonds will truly be independent of each other and be
-able to be added and removed on the fly.  Having worked with a
-previous attempt to set per-bond values through module parameters
-(http://marc.theaimsgroup.com/?t=110558187800001&r=1&w=2), it's easy
-to get pretty crazy.  For example, you can have more than one
-arp_ip_target, and they really should be per bond as well, so how do
-you divvy those up via module parameters?
+On Thu, 22 Sep 2005 01:51:20 EDT, rep stsb said:
 
-Jason
+> 1. Convert svgalib drivers into kernel modules to get
+> v-sync interrupts. 
+> 
+> 2. Write a windowing program on svgalib. 
+
+Wouldn't it make more sense to extend the current framebuffer driver
+support to support v-sync? (framebuffers are already in the kernel, and
+there were so many security holes with svgalib-based programs that it left
+a bad taste in a lot of people's mouths)
+
+And having gotten a v-sync interrupt, what would you *do* with it?
+You'll need an API here....
+
+
+
+--==_Exmh_1127369215_2825P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFDMkn/cC3lWbTT17ARAtAcAKCIuuHQVPpJVljBn5josVQSmGUKsgCeIDF3
+KiRe63QE3rCENQLTsBNYKO4=
+=Oil2
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1127369215_2825P--

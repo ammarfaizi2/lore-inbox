@@ -1,67 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030426AbVIVQdU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030427AbVIVQdu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030426AbVIVQdU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 12:33:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030436AbVIVQdU
+	id S1030427AbVIVQdu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 12:33:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030436AbVIVQdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 12:33:20 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:48802 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1030427AbVIVQdU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 12:33:20 -0400
-To: Dave Anderson <anderson@redhat.com>
-Cc: vgoyal@in.ibm.com, Morton Andrew Morton <akpm@osdl.org>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [Fastboot] [PATCH] Kdump(x86): add note type NT_KDUMPINFO
- tokernel   core dumps
-References: <20050921065633.GC3780@in.ibm.com>
-	<m1mzm6ebqn.fsf@ebiederm.dsl.xmission.com>
-	<43317980.D6AEA859@redhat.com>
-	<m1d5n1cw89.fsf@ebiederm.dsl.xmission.com>
-	<20050922140824.GF3753@in.ibm.com> <4332C87C.9CE47E8D@redhat.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Thu, 22 Sep 2005 10:31:52 -0600
-In-Reply-To: <4332C87C.9CE47E8D@redhat.com> (Dave Anderson's message of
- "Thu, 22 Sep 2005 11:06:36 -0400")
-Message-ID: <m1zmq5awsn.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 22 Sep 2005 12:33:50 -0400
+Received: from pat.uio.no ([129.240.130.16]:9714 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1030427AbVIVQdt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 12:33:49 -0400
+Subject: Re: [PATCH] nfs client: handle long symlinks properly
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Assar <assar@permabit.com>, Peter Staubach <staubach@redhat.com>,
+       Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
+In-Reply-To: <20050922161420.GC5588@dmt.cnet>
+References: <20050922161420.GC5588@dmt.cnet>
+Content-Type: text/plain
+Date: Thu, 22 Sep 2005 12:33:30 -0400
+Message-Id: <1127406811.8365.8.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.925, required 12,
+	autolearn=disabled, AWL 1.07, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Anderson <anderson@redhat.com> writes:
+to den 22.09.2005 Klokka 13:14 (-0300) skreiv Marcelo Tosatti:
+> commit 87e03738fc15dc3ea4acde3a5dcb5f84b6b6152b
+> tree be323c0a65d7e380ad04cad1c3a80015a82056dd
+> parent bb52ef60b5caa8f973523eda15d3c3941f298e63
+> author Assar <assar@permabit.com> Wed, 14 Sep 2005 16:59:25 -0400
+> committer Marcelo Tosatti <marcelo@dmt.cnet> Thu, 22 Sep 2005 13:11:18 -0300
+> 
+>     [PATCH] nfs client: handle long symlinks properly
+> 
+>     In 2.4.31, the v2/3 nfs readlink accepts too long symlinks.
+>     I have tested this by having a server return long symlinks.
+> 
+> diff --git a/fs/nfs/nfs2xdr.c b/fs/nfs/nfs2xdr.c
+> --- a/fs/nfs/nfs2xdr.c
+> +++ b/fs/nfs/nfs2xdr.c
+> @@ -571,8 +571,11 @@ nfs_xdr_readlinkres(struct rpc_rqst *req
+>         strlen = (u32*)kmap(rcvbuf->pages[0]);
+>         /* Convert length of symlink */
+>         len = ntohl(*strlen);
+> -       if (len > rcvbuf->page_len)
+> -               len = rcvbuf->page_len;
+> +       if (len >= rcvbuf->page_len - sizeof(u32) || len > NFS2_MAXPATHLEN) {
 
-> Just flagging the cpu, and then mapping that to the stack pointer found in
-> the associated NT_PRSTATUS register set should work OK too.  It gets
-> a little muddy if it crashed while running on an IRQ stack, but it still can be
-> tracked back from there as well.  (although not if the crashing task overflowed
-> the IRQ stack)
+Shouldn't that be
 
-You can't track it back from the crashing cpu if the IRQ stack overflows
-either.  So I would rather have crash confused when trying to find the
-task_struct.  Then to have the kernel fail avoidably while attempting
-to capture a core dump.  
+	if (len > rcvbuf->page_len - sizeof(u32) || len > NFS2_MAXPATHLEN)
 
-Even if you overflow the stack wit a bit of detective work it should still
-be possible to show the stack overflowed and correct for it when analyzing
-the crash dump.  Doing anything like that from a crashing cpu (in a
-reliable way) is very hard. 
+? As long as we use page_len == PAGE_SIZE, we probably don't care, but
+if someone some day decides to set a different value for page_len, then
+we want to make sure that we don't end up overflowing the buffer when we
+NUL-terminate.
 
-> The task_struct would be ideal though -- if the kernel's use of task_structs
-> changes in the future, well, then crash is going to need a serious re-write
-> anyway...  FWIW, netdump and diskdump use the NT_TASKSTRUCT note
-> note to store just the "current" pointer, and not the whole task_struct itself,
-> which would just be a waste of space in the ELF header for crash's purposes.
-> And looking at the gdb sources, it appears to be totally ignored.  Who
-> uses the NT_TASKSTRUCT note anyway?
+> +               printk(KERN_WARNING "NFS: server returned giant symlink!\n");
 
-Good question, especially as the kernel exports whatever we have for
-a task struct today in the ELF note.  No ABI compatibility is
-maintained.
+Please make this a dprintk().
 
-Given all of that I recommend an empty NT_TASKSTRUCT to flag the
-crashing cpu, for now.
+> +               kunmap(rcvbuf->pages[0]);
+> +               return -ENAMETOOLONG;
+> +        }
+>         *strlen = len;
+>         /* NULL terminate the string we got */
+>         string = (char *)(strlen + 1);
+> diff --git a/fs/nfs/nfs3xdr.c b/fs/nfs/nfs3xdr.c
+> --- a/fs/nfs/nfs3xdr.c
+> +++ b/fs/nfs/nfs3xdr.c
+> @@ -759,8 +759,11 @@ nfs3_xdr_readlinkres(struct rpc_rqst *re
+>         strlen = (u32*)kmap(rcvbuf->pages[0]);
+>         /* Convert length of symlink */
+>         len = ntohl(*strlen);
+> -       if (len > rcvbuf->page_len)
+> -               len = rcvbuf->page_len;
+> +       if (len >= rcvbuf->page_len - sizeof(u32)) {
 
-Eric
+Ditto.
+
+> +               printk(KERN_WARNING "NFS: server returned giant symlink!\n");
+
+...and ditto.
+
+> +               kunmap(rcvbuf->pages[0]);
+> +               return -ENAMETOOLONG;
+> +        }
+>         *strlen = len;
+>         /* NULL terminate the string we got */
+>         string = (char *)(strlen + 1);
+
+Cheers,
+  Trond
+

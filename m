@@ -1,51 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030201AbVIVD16@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030202AbVIVDfW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030201AbVIVD16 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 23:27:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030202AbVIVD15
+	id S1030202AbVIVDfW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 23:35:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030203AbVIVDfW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 23:27:57 -0400
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:39348 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1030201AbVIVD15 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 23:27:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=vvUft79TI15bnompUBCiAkCqvmz0PryDbOaKnZ2U3EPUwCSIx2xwxlT8eO0hAkoDlx6zQiSNEc1MninczCfpRUliqETcaO8sZnEiFl4XZB4shlV3YumuFYquFr4nwL1mWSxJlWZJyMZTXC95ZdyhBmtYlwzS/SHqk0PlWvzqPxc=  ;
-Message-ID: <433224BC.1000904@yahoo.com.au>
-Date: Thu, 22 Sep 2005 13:27:56 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Daniel Walker <dwalker@mvista.com>
-CC: mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] RT: Checks for cmpxchg in get_task_struct_rcu()
-References: <1127345874.19506.43.camel@dhcp153.mvista.com>	 <433201FC.8040004@yahoo.com.au> <1127355538.8950.1.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-In-Reply-To: <1127355538.8950.1.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 21 Sep 2005 23:35:22 -0400
+Received: from h80ad24c8.async.vt.edu ([128.173.36.200]:49076 "EHLO
+	h80ad24c8.async.vt.edu") by vger.kernel.org with ESMTP
+	id S1030202AbVIVDfW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 23:35:22 -0400
+Message-Id: <200509220335.j8M3ZGEJ004230@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.14-rc1-mm1.5 - keyboard wierdness
+From: Valdis.Kletnieks@vt.edu
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1127360115_2825P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Wed, 21 Sep 2005 23:35:16 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Walker wrote:
-> On Thu, 2005-09-22 at 10:59 +1000, Nick Piggin wrote:
-> 
-> 
->>You need my atomic_cmpxchg patches that provide an atomic_cmpxchg
->>(and atomic_inc_not_zero) for all architectures.
->>
-> 
-> 
-> It is racy, but why not just disable preemption ..
-> 
+--==_Exmh_1127360115_2825P
+Content-Type: text/plain; charset=us-ascii
 
-Well you haven't, that's the point. You *introduce* racy operation.
+I've had this happen twice now, running Andrew's "not quite -mm2" patch.
 
-Anyway, no matter, atomic_cmpxchg will take care of this nicely.
+Symptoms: After about 20-30 minutes uptime, a running gkrellm shows system mode
+suddenly shoot up to 99-100%, and the keyboard dies.  Oddly enough, a USB mouse
+continued working, and the X server was still quite responsive (I was able to
+close Firefox by opening a menu with the mouse and selecting 'quit', for
+example).
 
--- 
-SUSE Labs, Novell Inc.
+alt-sysrq-foo still worked, but ctl-alt-N to switch virtual consoles didn't.
+sysrq-t produced a trace with nothing obviously odd - klogd, syslog, and the
+disk were all working.
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Nothing interesting in the syslog - no oops, bug, etc..
+
+Another odd data point (I didn't notice if this part happened the first time):
+gkrellm reported that link ppp0 had inbound packets on the modem port of a
+Xircom ethernet/modem combo card.  At the rate of 3.5M/second - a neat trick
+for a 56K modem.  When I unplugged the RJ-11, gkrellm *kept* reporting the
+inbound traffic.  When I ejected the card, *then* the ppp0 (and the alleged
+inbound packets) stopped - but still sitting at 99% system and no keyboard.
+
+This ring any bells?  Any suggestions for instrumentation to help debug this?
+
+--==_Exmh_1127360115_2825P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFDMiZzcC3lWbTT17ARAhwEAJ9Eon+lRBsi+40imt6PQ8UE6Q7ztQCeP3+q
+d5h+Dw9zlLMQjGiH+NMY41I=
+=B7EI
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1127360115_2825P--

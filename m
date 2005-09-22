@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751456AbVIVI5G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751459AbVIVI6o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751456AbVIVI5G (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 04:57:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751457AbVIVI5F
+	id S1751459AbVIVI6o (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 04:58:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751460AbVIVI6o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 04:57:05 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:42205 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751456AbVIVI5E (ORCPT
+	Thu, 22 Sep 2005 04:58:44 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:454 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751459AbVIVI6n (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 04:57:04 -0400
-Date: Thu, 22 Sep 2005 10:57:37 +0200
+	Thu, 22 Sep 2005 04:58:43 -0400
+Date: Thu, 22 Sep 2005 10:59:31 +0200
 From: Ingo Molnar <mingo@elte.hu>
 To: Zachary Amsden <zach@vmware.com>
 Cc: Linus Torvalds <torvalds@osdl.org>, Jeffrey Sheldon <jeffshel@vmware.com>,
@@ -21,13 +21,13 @@ Cc: Linus Torvalds <torvalds@osdl.org>, Jeffrey Sheldon <jeffshel@vmware.com>,
        Pratap Subrahmanyam <pratap@vmware.com>,
        Christopher Li <chrisl@vmware.com>, "H. Peter Anvin" <hpa@zytor.com>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>, Andi Kleen <ak@muc.de>
-Subject: Re: [PATCH 1/3] Bogus tls from gdt
-Message-ID: <20050922085737.GA25909@elte.hu>
-References: <200509220737.j8M7bKgh000928@zach-dev.vmware.com>
+Subject: Re: [PATCH 3/3] Gdt page isolation
+Message-ID: <20050922085931.GC25909@elte.hu>
+References: <200509220749.j8M7nINV001001@zach-dev.vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200509220737.j8M7bKgh000928@zach-dev.vmware.com>
+In-Reply-To: <200509220749.j8M7nINV001001@zach-dev.vmware.com>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamScore: 0.0
 X-ELTE-SpamLevel: 
@@ -42,10 +42,14 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 * Zachary Amsden <zach@vmware.com> wrote:
 
-> The per-CPU initialization code is copying in bogus data into 
-> thread->tls_array.  Note that it copies &per_cpu(cpu_gdt_table, cpu), 
-> not &per_cpu(cpu_gdt_table, cpu)[GDT_ENTRY_TLS_MIN).  That is totally 
-> broken and unnecessary.  Make the initialization explicitly NULL.
+> Make GDT page aligned and page padded to support running inside of a 
+> hypervisor.  This prevents false sharing of the GDT page with other 
+> hot data, which is not allowed in Xen, and causes performance problems 
+> in VMware.
+> 
+> Rather than go back to the old method of statically allocating the GDT 
+> (which wastes unneded space for non-present CPUs), the GDT for APs is 
+> allocated dynamically.
 > 
 > Signed-off-by: Zachary Amsden <zach@vmware.com>
 

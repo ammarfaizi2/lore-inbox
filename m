@@ -1,52 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030319AbVIVNpg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030326AbVIVNuX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030319AbVIVNpg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 09:45:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030343AbVIVNpg
+	id S1030326AbVIVNuX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 09:50:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030344AbVIVNuW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 09:45:36 -0400
-Received: from az33egw02.freescale.net ([192.88.158.103]:54452 "EHLO
-	az33egw02.freescale.net") by vger.kernel.org with ESMTP
-	id S1030319AbVIVNpf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 09:45:35 -0400
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <CE56193B-A4BB-4557-87C0-BFCC6B9E7E5B@freescale.com>
-Cc: linux-kernel list <linux-kernel@vger.kernel.org>
-Content-Transfer-Encoding: 7bit
-From: Kumar Gala <kumar.gala@freescale.com>
-Subject: kernel buildsystem error/warning?
-Date: Thu, 22 Sep 2005 08:45:35 -0500
-To: Sam Ravnborg <sam@ravnborg.org>
-X-Mailer: Apple Mail (2.734)
+	Thu, 22 Sep 2005 09:50:22 -0400
+Received: from odin2.bull.net ([192.90.70.84]:59903 "EHLO odin2.bull.net")
+	by vger.kernel.org with ESMTP id S1030326AbVIVNuW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 09:50:22 -0400
+From: "Serge Noiraud" <serge.noiraud@bull.net>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: RT bug with 2.6.13-rt4 and 3c905c tornado
+Date: Thu, 22 Sep 2005 15:54:02 +0200
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org
+References: <200509201046.17818.Serge.Noiraud@bull.net> <20050920085532.GA19807@elte.hu>
+In-Reply-To: <20050920085532.GA19807@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200509221554.02765.Serge.Noiraud@bull.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam,
+mardi 20 Septembre 2005 10:55, Ingo Molnar wrote/a écrit :
+> * Serge Noiraud <serge.noiraud@bull.net> wrote:
+> > Hi
+> >
+> > 	This driver works perfectly if you insert the physical card on a
+> > PCI slot. If you insert this same card on a PCI-X slot, we got the
+> > following problem : When you type "modprobe 3c59x", the system freeze.
+> >
+> > Has someone already test this ?
+> >
+> > This card works perfectly on the same PCI-X slot with a non RT kernel.
+> > Do you need some more info ?
+>
+> use serial logging and the NMI watchdog to debug hard lockups (see the
+> info below). Use CONFIG_DETECT_SOFTLOCKUP=y to detect soft lockups.
+> Generally the use of debugging options can help as well. Here's a 'full'
+> debugging kernel:
 
-I was wondering if anyone else is seeing the following error/warning  
-when building a recent kernel.  This error seems to have been  
-introduced between 2.6.13 and 2.6.14-rc1:
+Big deal !
+How can I debug this problem ?
+If the kernel has no debug option, modprobe freeze the machine.
+If the kernel has debug option, modprobe works correctly and the card works 
+perfectly. I compile one kernel and make recursively listing trough nfs
+I got 140 millions nfs requests without problem.
 
-   CHK     include/linux/version.h
-   CHK     include/linux/compile.h
-   CHK     usr/initramfs_list
-/bin/sh: line 1: +@: command not found
-   CHK     include/linux/compile.h
-   UPD     include/linux/compile.h
-   CC      init/version.o
-   LD      init/built-in.o
-   LD      vmlinux
-   SYSMAP  System.map
+I could have kgdb, but it doesn't work. I'm not sure it helps me. I think it's 
+a timing problem somewhere in the pci driver.
 
-
-I'm building a cross compiled ARCH ppc kernel on an x86 host.  I  
-tried using git bisect to track down the error but for some reason it  
-ended up referencing a change before 2.6.13 which I really dont  
-understand.
-
-Anyways, let me know if you need more info on this.
-
-thanks
-
-- kumar

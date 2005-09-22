@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030198AbVIVDOv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030197AbVIVDWq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030198AbVIVDOv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 23:14:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030197AbVIVDOv
+	id S1030197AbVIVDWq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 23:22:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030199AbVIVDWq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 23:14:51 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:3496 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030195AbVIVDOu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 23:14:50 -0400
-Message-ID: <433221A1.5000600@pobox.com>
-Date: Wed, 21 Sep 2005 23:14:41 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
+	Wed, 21 Sep 2005 23:22:46 -0400
+Received: from icopts.com ([66.199.231.42]:43393 "EHLO ns2.webquill.com")
+	by vger.kernel.org with ESMTP id S1030197AbVIVDWp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 23:22:45 -0400
+Message-ID: <3813-22005942232221555@i2Technology.com>
+X-Priority: 1
+To: "i2Technology" <Jobs@i2Technology.com>
+Organization: i2Technology
+From: "" <Jobs@i2Technology.com>
+Subject: C++ Multithreading UNIX  Requirement in NYC - 50 Positions.
+Date: Wed, 21 Sep 2005 23:22:21 -0400
 MIME-Version: 1.0
-To: Joshua Kwan <joshk@triplehelix.org>
-CC: axboe@suse.de, Linux Kernel <linux-kernel@vger.kernel.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: SATA suspend-to-ram patch - merge?
-References: <433104E0.4090308@triplehelix.org>
-In-Reply-To: <433104E0.4090308@triplehelix.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 8BIT
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns2.webquill.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - i2Technology.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joshua Kwan wrote:
-> Is Jens' patch still relevant? If so, should it be rediffed and merged
-> into mainline? It doesn't seem to cause any weird side-effects.
-> 
-> More importantly, I would be inclined to properly rediff Jens' patch and
-> merge it into Debian 2.6.12 kernel sources if there aren't any such
-> side-effects, since it benefits everyone using SATA and suspend-to-ram
-> (that is, users of relatively modern laptops.)
+Our Client in NYC looking for C++ Multithreading in UNIX environment.
 
-Jens' patch is technical correct for SATA, but really we want to do more 
-stuff at the SCSI layer (see James Bottomley's response to Jens' patch).
+50 position open Fulltime. Must be GURU in C++
 
-Unfortunately, this also implies that we have to figure out which SCSI 
-devices are available to be power-managed, and which SCSI devices are on 
-a shared bus that should never be suspended.
+Back ground doesn’t matter every one is welcomed.
 
-So currently we are in limbo...
+If you match the skills Please Reply to this message and attach your resume. 
 
-	Jeff
+Feel free to forward this email to friends and associates. 
+
+If would like to be Removed from future mailings email remove@i2Technology.com
+
+
+i2Technology
+
 
 

@@ -1,65 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750909AbVIVEui@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030213AbVIVEyn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750909AbVIVEui (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 00:50:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751433AbVIVEui
+	id S1030213AbVIVEyn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 00:54:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030214AbVIVEym
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 00:50:38 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:58619 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S1750909AbVIVEuh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 00:50:37 -0400
-Subject: Re: [PATCH] RT: Checks for cmpxchg in get_task_struct_rcu()
-From: Daniel Walker <dwalker@mvista.com>
-To: mingo@elte.hu
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1127355538.8950.1.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-References: <1127345874.19506.43.camel@dhcp153.mvista.com>
-	 <433201FC.8040004@yahoo.com.au>
-	 <1127355538.8950.1.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-Content-Type: text/plain
-Date: Wed, 21 Sep 2005 21:50:28 -0700
-Message-Id: <1127364629.8950.6.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
+	Thu, 22 Sep 2005 00:54:42 -0400
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:38326 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S1030213AbVIVEym (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 00:54:42 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [swsusp] Rework image freeing
+Date: Thu, 22 Sep 2005 06:54:54 +0200
+User-Agent: KMail/1.8.2
+Cc: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
+References: <20050921205132.GA4249@elf.ucw.cz> <200509220053.45358.rjw@sisk.pl>
+In-Reply-To: <200509220053.45358.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509220654.55341.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Checks for cmpxchg in get_task_struct_rcu() . No race version.
+On Thursday, 22 of September 2005 00:53, Rafael J. Wysocki wrote:
+> Hi,
+> 
+> On Wednesday, 21 of September 2005 22:51, Pavel Machek wrote:
+> > Do not store pagedirs in swap twice. This needed rewrite of image
+> > freeing, but it enabled me nice cleanups in the end.
+> > 
+> > Signed-off-by: Pavel Machek <pavel@suse.cz>
+> > 
+> > ---
+> > commit 67434821951d6f10d55e29465a24e7f5015038f1
+> > tree ee0f4a209e8b680ffdfa6e7837a3a248b524f421
+> > parent 7bdc8fc378f053bd4eb4210beb1d494485318512
+> > author <pavel@amd.(none)> Tue, 20 Sep 2005 15:34:55 +0200
+> > committer <pavel@amd.(none)> Tue, 20 Sep 2005 15:34:55 +0200
+> > 
+> >  kernel/power/swsusp.c |  103 ++++++++++++++++++++++---------------------------
+> >  1 files changed, 46 insertions(+), 57 deletions(-)
+> > 
+> > diff --git a/kernel/power/swsusp.c b/kernel/power/swsusp.c
+> > --- a/kernel/power/swsusp.c
+> > +++ b/kernel/power/swsusp.c
+> > @@ -729,16 +729,6 @@ static void copy_data_pages(void)
+> >  	BUG_ON(pbe);
+> >  }
+> >  
+> > -
+> > -/**
+> > - *	calc_nr - Determine the number of pages needed for a pbe list.
+> > - */
+> > -
+> > -static int calc_nr(int nr_copy)
+> > -{
+> > -	return nr_copy + (nr_copy+PBES_PER_PAGE-2)/(PBES_PER_PAGE-1);
+> > -}
+> 
+> I can't see why you are going to drop this function.  Isn't it necessary any more?
 
-Signed-Off-By: Daniel Walker <dwalker@mvista.com>
+OK, swsusp fails anyway when it cannot allocate a page, so in fact it is not.
+However, the information printed in swsusp_alloc():
 
-Index: linux-2.6.13/include/linux/sched.h
-===================================================================
---- linux-2.6.13.orig/include/linux/sched.h
-+++ linux-2.6.13/include/linux/sched.h
-@@ -1026,13 +1026,24 @@ static inline int get_task_struct_rcu(st
- {
- 	int oldusage;
- 
-+#ifdef __HAVE_ARCH_CMPXCHG
- 	do {
- 		oldusage = atomic_read(&t->usage);
- 		if (oldusage == 0) {
- 			return 0;
- 		}
- 	} while (cmpxchg(&t->usage.counter,
--		 oldusage, oldusage + 1) != oldusage);
-+				oldusage, oldusage + 1) != oldusage);
-+#else
-+	raw_local_irq_disable();
-+	oldusage = atomic_read(&t->usage);
-+	if (oldusage == 0) {
-+		raw_local_irq_enable();
-+		return 0;
-+	}
-+	atomic_inc(&t->usage);
-+	raw_local_irq_enable();
-+#endif
- 	return 1;
- }
- 
+>  /**
+>   *	enough_free_mem - Make sure we enough free memory to snapshot.
+> @@ -914,19 +895,23 @@ static int enough_swap(void)
+>  
+>  static int swsusp_alloc(void)
+>  {
+> -	int error;
+> +	struct pbe *p;
+>  
+>  	pagedir_nosave = NULL;
+> -	nr_copy_pages = calc_nr(nr_copy_pages);
+>  
+>  	pr_debug("suspend: (pages needed: %d + %d free: %d)\n",
+>  		 nr_copy_pages, PAGES_FOR_IO, nr_free_pages());
+
+now seems to be inaccurate, because we likely need more pages than
+ nr_copy_pages + PAGES_FOR_IO.
+
+Greetings,
+Rafael
 
 
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

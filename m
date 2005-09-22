@@ -1,63 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030216AbVIVFBZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030217AbVIVFEp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030216AbVIVFBZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 01:01:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030217AbVIVFBY
+	id S1030217AbVIVFEp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 01:04:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030218AbVIVFEp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 01:01:24 -0400
-Received: from xenotime.net ([66.160.160.81]:35738 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1030216AbVIVFBY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 01:01:24 -0400
-Date: Wed, 21 Sep 2005 22:01:14 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, blaisorblade@yahoo.it
-Subject: [PATCH] corrections to top-level README
-Message-Id: <20050921220114.32d4c283.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 22 Sep 2005 01:04:45 -0400
+Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:14754 "HELO
+	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1030217AbVIVFEp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 01:04:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=FCOIOoLjev6CrdzWL2FPXi6OTHBovoE0gieZN7mjqkkRCUz33yixh0NB6xRkFAA+GBjX+cg8yZldod5c6UYlaTyWhP4j6Hzc1PQf7DpnKLdR0E20nEZmhNd+WRA16EJPmdPa2Skrr5QrYcDpPXleVBHa7eYWxVCmSel7Q8uH0ac=  ;
+Message-ID: <43323BA1.6000100@yahoo.com.au>
+Date: Thu, 22 Sep 2005 15:05:37 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Daniel Walker <dwalker@mvista.com>
+CC: mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] RT: Checks for cmpxchg in get_task_struct_rcu()
+References: <1127345874.19506.43.camel@dhcp153.mvista.com>	 <433201FC.8040004@yahoo.com.au>	 <1127355538.8950.1.camel@c-67-188-6-232.hsd1.ca.comcast.net> <1127364629.8950.6.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+In-Reply-To: <1127364629.8950.6.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+Daniel Walker wrote:
 
-Corrections to the recent top-level README changes.
+> +#else
+> +	raw_local_irq_disable();
+> +	oldusage = atomic_read(&t->usage);
+> +	if (oldusage == 0) {
+> +		raw_local_irq_enable();
+> +		return 0;
+> +	}
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
+Isn't this still racy if another cpu drops the last reference
+to task struct here? Or can't that happen?
 
- README |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+When you said "disable preempt", I had some silly idea that this
+function was only used in PREEMPT_RT mode, and that you would
+simply disallow architectures without cmpxchg from configuring
+PREEMPT_RT.
 
-diff -Naurp linux-2614-rc2/README~readme_ancient linux-2614-rc2/README
---- linux-2614-rc2/README~readme_ancient	2005-09-21 21:53:49.000000000 -0700
-+++ linux-2614-rc2/README	2005-09-21 21:56:58.000000000 -0700
-@@ -151,7 +151,7 @@ CONFIGURING the kernel:
- 			   your existing ./.config file.
- 	"make silentoldconfig"
- 			   Like above, but avoids cluttering the screen
--			   with question already answered.
-+			   with questions already answered.
-    
- 	NOTES on "make config":
- 	- having unnecessary drivers will make the kernel bigger, and can
-@@ -199,9 +199,9 @@ COMPILING the kernel:
-    are installing a new kernel with the same version number as your
-    working kernel, make a backup of your modules directory before you
-    do a "make modules_install".
--   In alternative, before compiling, edit your Makefile and change the
--   "EXTRAVERSION" line - its content is appended to the regular kernel
--   version.
-+   Alternatively, before compiling, use the kernel config option
-+   "LOCALVERSION" to append a unique suffix to the regular kernel version.
-+   LOCALVERSION can be set in the "General Setup" menu.
- 
-  - In order to boot your new kernel, you'll need to copy the kernel
-    image (e.g. .../linux/arch/i386/boot/bzImage after compilation)
+> +	atomic_inc(&t->usage);
+> +	raw_local_irq_enable();
+> +#endif
 
+-- 
+SUSE Labs, Novell Inc.
 
----
+Send instant messages to your online friends http://au.messenger.yahoo.com 

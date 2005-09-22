@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030342AbVIVNmo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030319AbVIVNpg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030342AbVIVNmo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 09:42:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030343AbVIVNmo
+	id S1030319AbVIVNpg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 09:45:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030343AbVIVNpg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 09:42:44 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:58376 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1030342AbVIVNmn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 09:42:43 -0400
-Date: Thu, 22 Sep 2005 14:42:38 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Jens Axboe <axboe@suse.de>
-Cc: Rolf Offermanns <roffermanns@sysgo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linus GIT tree disappeared from http://www.kernel.org/git/?
-Message-ID: <20050922134238.GC26438@flint.arm.linux.org.uk>
-Mail-Followup-To: Jens Axboe <axboe@suse.de>,
-	Rolf Offermanns <roffermanns@sysgo.com>,
-	linux-kernel@vger.kernel.org
-References: <200509221514.44027.roffermanns@sysgo.com> <20050922133228.GB26438@flint.arm.linux.org.uk> <20050922133621.GJ4262@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050922133621.GJ4262@suse.de>
-User-Agent: Mutt/1.4.1i
+	Thu, 22 Sep 2005 09:45:36 -0400
+Received: from az33egw02.freescale.net ([192.88.158.103]:54452 "EHLO
+	az33egw02.freescale.net") by vger.kernel.org with ESMTP
+	id S1030319AbVIVNpf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 09:45:35 -0400
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <CE56193B-A4BB-4557-87C0-BFCC6B9E7E5B@freescale.com>
+Cc: linux-kernel list <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+From: Kumar Gala <kumar.gala@freescale.com>
+Subject: kernel buildsystem error/warning?
+Date: Thu, 22 Sep 2005 08:45:35 -0500
+To: Sam Ravnborg <sam@ravnborg.org>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 22, 2005 at 03:36:22PM +0200, Jens Axboe wrote:
-> On Thu, Sep 22 2005, Russell King wrote:
-> > On Thu, Sep 22, 2005 at 03:14:43PM +0200, Rolf Offermanns wrote:
-> > > Maybe I am dreaming, but I could have sworn it has been there yesterday...
-> > 
-> > It seems that kernel.org hasn't finished updating the mirrors yet -
-> > and it seems to be taking hours.  Unfortunately, this has left Linus'
-> > public git tree in an inconsistent state.
-> 
-> Actually it's getting closer to days (last I checked it was over half a
-> day), which really is a shame as it basically destroys the usability of
-> having git repos available there... Lets hope it gets fixed soon.
+Sam,
 
-I think it isn't taking days, based upon the start times of the
-processes I saw earlier today and yesterday.
+I was wondering if anyone else is seeing the following error/warning  
+when building a recent kernel.  This error seems to have been  
+introduced between 2.6.13 and 2.6.14-rc1:
 
-If not already done, maybe the kernel.org ftp admins would prefer
-to be informed about the problem?  Reporting the problems with
-kernel.org to lkml might only reach folk who use the services, not
-those who provide them.
+   CHK     include/linux/version.h
+   CHK     include/linux/compile.h
+   CHK     usr/initramfs_list
+/bin/sh: line 1: +@: command not found
+   CHK     include/linux/compile.h
+   UPD     include/linux/compile.h
+   CC      init/version.o
+   LD      init/built-in.o
+   LD      vmlinux
+   SYSMAP  System.map
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+
+I'm building a cross compiled ARCH ppc kernel on an x86 host.  I  
+tried using git bisect to track down the error but for some reason it  
+ended up referencing a change before 2.6.13 which I really dont  
+understand.
+
+Anyways, let me know if you need more info on this.
+
+thanks
+
+- kumar

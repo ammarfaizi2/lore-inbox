@@ -1,351 +1,541 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750847AbVIVDym@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751430AbVIVEEE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750847AbVIVDym (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 23:54:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750842AbVIVDym
+	id S1751430AbVIVEEE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 00:04:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751432AbVIVEEE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 23:54:42 -0400
-Received: from zctfs063.nortelnetworks.com ([47.164.128.120]:6321 "EHLO
-	zctfs063.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S1750838AbVIVDyl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 23:54:41 -0400
-Message-ID: <43322AE6.1080408@nortel.com>
-Date: Wed, 21 Sep 2005 21:54:14 -0600
-From: "Christopher Friesen" <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Al Viro <viro@ftp.linux.org.uk>
-CC: Roland Dreier <rolandd@cisco.com>, dipankar@in.ibm.com,
-       Sonny Rao <sonny@burdell.org>, linux-kernel@vger.kernel.org,
-       "Theodore Ts'o" <tytso@mit.edu>, bharata@in.ibm.com,
-       trond.myklebust@fys.uio.no
-Subject: Re: dentry_cache using up all my zone normal memory -- also seen
- on 2.6.14-rc2
-References: <433189B5.3030308@nortel.com> <43318FFA.4010706@nortel.com> <4331B89B.3080107@nortel.com> <20050921200758.GA25362@kevlar.burdell.org> <4331C9B2.5070801@nortel.com> <20050921210019.GF4569@in.ibm.com> <4331CFAD.6020805@nortel.com> <52ll1qkrii.fsf@cisco.com> <20050922031136.GE7992@ftp.linux.org.uk>
-In-Reply-To: <20050922031136.GE7992@ftp.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 22 Sep 2005 00:04:04 -0400
+Received: from zproxy.gmail.com ([64.233.162.192]:60222 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751430AbVIVEEC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 00:04:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=EKjIVJqXI72Jyb50j9rFoeVwWMHv9ptXsZybf8LU9sd1h+AvPtY+y/FOlMr9BdBqe2/VKml7JHlIErVQsPH6AtPHIybe85EHTOyEtPANRn39QERv1XWdDlVIuaDAr8N8k0/e+iEx61O8Fpcpm+xo8oQzdntBpjWNF+VjJKHhhig=
+Date: Thu, 22 Sep 2005 00:04:44 -0400
+From: Florin Malita <fmalita@gmail.com>
+To: akpm@osdl.org, davem@davemloft.net
+Cc: ctindel@users.sourceforge.net, fubar@us.ibm.com,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH] channel bonding: add support for device-indexed parameters
+Message-Id: <20050922000444.369c32c2.fmalita@gmail.com>
+X-Mailer: Sylpheed version 2.1.2 (GTK+ 2.6.7; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 Sep 2005 03:54:33.0544 (UTC) FILETIME=[57ACE480:01C5BF29]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro wrote:
+While originally I was interested in being able to set a different
+primary interface for each bond device (same primary for all bond
+devices doesn't make any sense), most parameters deserve the same
+treatement.
 
->>Hmm... could there be a race in shmem_rename()??
+This patch adds support for device indexed module parameter
+arrays instead of the old plain scalars. Mostly module_param
+substitutions and parameter parsing logic tweaking.
 
-> Not likely - in that setup all calls of ->unlink() and ->rename()
-> are completely serialized by ->i_sem on parent.  One question:
-> is it dcache or icache that ends up leaking?
 
-dcache.  Here's some information I sent to dipankar earlier, with his 
-debug patch applied.  This is within half a second of the oom killer 
-kicking in.
-
-/proc/sys/fs/dentry-state:
-1185    415     45      0       0       0
-
-/proc/meminfo:
-MemTotal:      3366368 kB
-MemFree:       2522660 kB
-Buffers:             0 kB
-Cached:           8040 kB
-SwapCached:          0 kB
-Active:           9372 kB
-Inactive:         2544 kB
-HighTotal:     2489836 kB
-HighFree:      2477520 kB
-LowTotal:       876532 kB
-LowFree:         45140 kB
-SwapTotal:           0 kB
-SwapFree:            0 kB
-Dirty:               4 kB
-Writeback:           0 kB
-Mapped:           6476 kB
-Slab:           824648 kB
-CommitLimit:   1683184 kB
-Committed_AS:    18624 kB
-PageTables:        336 kB
-VmallocTotal:   114680 kB
-VmallocUsed:       444 kB
-VmallocChunk:   114036 kB
-pages_with_[ 0]_dentries: 0
-pages_with_[ 1]_dentries: 3
-pages_with_[ 2]_dentries: 2
-pages_with_[ 3]_dentries: 2
-pages_with_[ 4]_dentries: 1
-pages_with_[ 5]_dentries: 4
-pages_with_[ 6]_dentries: 3
-pages_with_[ 7]_dentries: 3
-pages_with_[ 8]_dentries: 2
-pages_with_[ 9]_dentries: 2
-pages_with_[10]_dentries: 1
-pages_with_[11]_dentries: 0
-pages_with_[12]_dentries: 2
-pages_with_[13]_dentries: 1
-pages_with_[14]_dentries: 0
-pages_with_[15]_dentries: 1
-pages_with_[16]_dentries: 0
-pages_with_[17]_dentries: 0
-pages_with_[18]_dentries: 3
-pages_with_[19]_dentries: 1
-pages_with_[20]_dentries: 2
-pages_with_[21]_dentries: 1
-pages_with_[22]_dentries: 2
-pages_with_[23]_dentries: 1
-pages_with_[24]_dentries: 0
-pages_with_[25]_dentries: 0
-pages_with_[26]_dentries: 0
-pages_with_[27]_dentries: 0
-pages_with_[28]_dentries: 0
-pages_with_[29]_dentries: 139491
-dcache_pages total: 139528
-prune_dcache: requested  1 freed 1
-dcache lru list data:
-dentries total: 416
-dentries in_use: 36
-dentries free: 380
-dentries referenced: 416
-HugePages_Total:     0
-HugePages_Free:      0
-Hugepagesize:     4096 kB
-
-/proc/slabinfo:
-slabinfo - version: 2.1
-# name            <active_objs> <num_objs> <objsize> <objperslab> 
-<pagesperslab> : tunables <limit> <batchcount> <sharedfactor> : slabdata 
-<active_slabs> <num_slabs> <sharedavail>
-ip_fib_alias          11    113     32  113    1 : tunables  120   60  0 
-: slabdata      1      1      0
-ip_fib_hash           11    113     32  113    1 : tunables  120   60  0 
-: slabdata      1      1      0
-rpc_buffers            8      8   2048    2    1 : tunables   24   12  0 
-: slabdata      4      4      0
-rpc_tasks             20     20    192   20    1 : tunables  120   60  0 
-: slabdata      1      1      0
-rpc_inode_cache        8      9    448    9    1 : tunables   54   27  0 
-: slabdata      1      1      0
-xfrm6_tunnel_spi       0      0     64   59    1 : tunables  120   60  0 
-: slabdata      0      0      0
-fib6_nodes             5    113     32  113    1 : tunables  120   60  0 
-: slabdata      1      1      0
-ip6_dst_cache          4     15    256   15    1 : tunables  120   60  0 
-: slabdata      1      1      0
-ndisc_cache            1     20    192   20    1 : tunables  120   60  0 
-: slabdata      1      1      0
-RAWv6                  3      6    640    6    1 : tunables   54   27  0 
-: slabdata      1      1      0
-UDPv6                  0      0    576    7    1 : tunables   54   27  0 
-: slabdata      0      0      0
-tw_sock_TCPv6          0      0    128   30    1 : tunables  120   60  0 
-: slabdata      0      0      0
-request_sock_TCPv6      0      0    128   30    1 : tunables  120   60 
-  0 : slabdata      0      0      0
-TCPv6                  4      7   1088    7    2 : tunables   24   12  0 
-: slabdata      1      1      0
-UNIX                   5     20    384   10    1 : tunables   54   27  0 
-: slabdata      2      2      0
-ip_mrt_cache           0      0    128   30    1 : tunables  120   60  0 
-: slabdata      0      0      0
-tcp_bind_bucket        3    203     16  203    1 : tunables  120   60  0 
-: slabdata      1      1      0
-inet_peer_cache        2     59     64   59    1 : tunables  120   60  0 
-: slabdata      1      1      0
-secpath_cache          0      0    128   30    1 : tunables  120   60  0 
-: slabdata      0      0      0
-xfrm_dst_cache         0      0    320   12    1 : tunables   54   27  0 
-: slabdata      0      0      0
-ip_dst_cache           7     15    256   15    1 : tunables  120   60  0 
-: slabdata      1      1      0
-arp_cache              2     30    128   30    1 : tunables  120   60  0 
-: slabdata      1      1      0
-RAW                    2      9    448    9    1 : tunables   54   27  0 
-: slabdata      1      1      0
-UDP                    1      7    512    7    1 : tunables   54   27  0 
-: slabdata      1      1      0
-tw_sock_TCP            0      0    128   30    1 : tunables  120   60  0 
-: slabdata      0      0      0
-request_sock_TCP       0      0     64   59    1 : tunables  120   60  0 
-: slabdata      0      0      0
-TCP                    2      4    960    4    1 : tunables   54   27  0 
-: slabdata      1      1      0
-flow_cache             0      0    128   30    1 : tunables  120   60  0 
-: slabdata      0      0      0
-cfq_ioc_pool           0      0     48   78    1 : tunables  120   60  0 
-: slabdata      0      0      0
-cfq_pool               0      0     96   40    1 : tunables  120   60  0 
-: slabdata      0      0      0
-crq_pool               0      0     44   84    1 : tunables  120   60  0 
-: slabdata      0      0      0
-deadline_drq           0      0     48   78    1 : tunables  120   60  0 
-: slabdata      0      0      0
-as_arq                 0      0     60   63    1 : tunables  120   60  0 
-: slabdata      0      0      0
-relayfs_inode_cache      0      0    320   12    1 : tunables   54   27 
-    0 : slabdata      0      0      0
-nfs_direct_cache       0      0     40   92    1 : tunables  120   60  0 
-: slabdata      0      0      0
-nfs_write_data        45     45    448    9    1 : tunables   54   27  0 
-: slabdata      5      5      0
-nfs_read_data         33     45    448    9    1 : tunables   54   27  0 
-: slabdata      5      5      0
-nfs_inode_cache      204    228    592    6    1 : tunables   54   27  0 
-: slabdata     38     38      0
-nfs_page              59     59     64   59    1 : tunables  120   60  0 
-: slabdata      1      1      0
-hugetlbfs_inode_cache      1     12    316   12    1 : tunables   54 27 
-    0 : slabdata      1      1      0
-ext2_inode_cache       0      0    436    9    1 : tunables   54   27  0 
-: slabdata      0      0      0
-ext2_xattr             0      0     44   84    1 : tunables  120   60  0 
-: slabdata      0      0      0
-dnotify_cache          0      0     20  169    1 : tunables  120   60  0 
-: slabdata      0      0      0
-eventpoll_pwq          0      0     36  101    1 : tunables  120   60  0 
-: slabdata      0      0      0
-eventpoll_epi          0      0    128   30    1 : tunables  120   60  0 
-: slabdata      0      0      0
-inotify_event_cache      0      0     28  127    1 : tunables  120   60 
-    0 : slabdata      0      0      0
-inotify_watch_cache      0      0     36  101    1 : tunables  120   60 
-    0 : slabdata      0      0      0
-kioctx                 0      0    192   20    1 : tunables  120   60  0 
-: slabdata      0      0      0
-kiocb                  0      0    128   30    1 : tunables  120   60  0 
-: slabdata      0      0      0
-fasync_cache           0      0     16  203    1 : tunables  120   60  0 
-: slabdata      0      0      0
-shmem_inode_cache    405    405    408    9    1 : tunables   54   27  0 
-: slabdata     45     45      0
-posix_timers_cache      0      0     96   40    1 : tunables  120   60 
-  0 : slabdata      0      0      0
-uid_cache              0     59     64   59    1 : tunables  120   60  0 
-: slabdata      0      1      0
-blkdev_ioc             0      0     28  127    1 : tunables  120   60  0 
-: slabdata      0      0      0
-blkdev_queue          24     30    380   10    1 : tunables   54   27  0 
-: slabdata      3      3      0
-blkdev_requests        0      0    152   26    1 : tunables  120   60  0 
-: slabdata      0      0      0
-biovec-(256)         256    256   3072    2    2 : tunables   24   12  0 
-: slabdata    128    128      0
-biovec-128           256    260   1536    5    2 : tunables   24   12  0 
-: slabdata     52     52      0
-biovec-64            256    260    768    5    1 : tunables   54   27  0 
-: slabdata     52     52      0
-biovec-16            256    260    192   20    1 : tunables  120   60  0 
-: slabdata     13     13      0
-biovec-4             256    295     64   59    1 : tunables  120   60  0 
-: slabdata      5      5      0
-biovec-1             256    406     16  203    1 : tunables  120   60  0 
-: slabdata      2      2      0
-bio                  256    295     64   59    1 : tunables  120   60  0 
-: slabdata      5      5      0
-file_lock_cache        0     44     88   44    1 : tunables  120   60  0 
-: slabdata      0      1      0
-sock_inode_cache      22     40    384   10    1 : tunables   54   27  0 
-: slabdata      4      4      0
-skbuff_fclone_cache     12     12    320   12    1 : tunables   54   27 
-    0 : slabdata      1      1      0
-skbuff_head_cache    266    300    192   20    1 : tunables  120   60  0 
-: slabdata     15     15      0
-proc_inode_cache     140    144    332   12    1 : tunables   54   27  0 
-: slabdata     12     12      0
-sigqueue               1     26    148   26    1 : tunables  120   60  0 
-: slabdata      1      1      0
-radix_tree_node      330    476    276   14    1 : tunables   54   27  0 
-: slabdata     34     34      0
-bdev_cache             2      9    448    9    1 : tunables   54   27  0 
-: slabdata      1      1      0
-sysfs_dir_cache     1356   1380     40   92    1 : tunables  120   60  0 
-: slabdata     15     15      0
-mnt_cache             20     30    128   30    1 : tunables  120   60  0 
-: slabdata      1      1      0
-inode_cache          258    288    316   12    1 : tunables   54   27  0 
-: slabdata     24     24      0
-dentry_cache      4071717 4072354    136   29    1 : tunables  120   60 
-    0 : slabdata 140424 140426      0
-filp              1300260 1300500    192   20    1 : tunables  120   60 
-    0 : slabdata  65020  65025      0
-names_cache            4      4   4096    1    1 : tunables   24   12  0 
-: slabdata      4      4      0
-idr_layer_cache       69     87    136   29    1 : tunables  120   60  0 
-: slabdata      3      3      0
-buffer_head            0      0     48   78    1 : tunables  120   60  0 
-: slabdata      0      0      0
-mm_struct             35     35    576    7    1 : tunables   54   27  0 
-: slabdata      5      5      0
-vm_area_struct       536    880     88   44    1 : tunables  120   60  0 
-: slabdata     20     20      0
-fs_cache              40    113     32  113    1 : tunables  120   60  0 
-: slabdata      1      1      0
-files_cache           41     54    448    9    1 : tunables   54   27  0 
-: slabdata      6      6      0
-signal_cache          50     50    384   10    1 : tunables   54   27  0 
-: slabdata      5      5      0
-sighand_cache         42     42   1344    3    1 : tunables   24   12  0 
-: slabdata     14     14      0
-task_struct           42     42   1264    3    1 : tunables   24   12  0 
-: slabdata     14     14      0
-anon_vma             278    678      8  339    1 : tunables  120   60  0 
-: slabdata      2      2      0
-pgd                   28     28   4096    1    1 : tunables   24   12  0 
-: slabdata     28     28      0
-size-131072(DMA)       0      0 131072    1   32 : tunables    8    4  0 
-: slabdata      0      0      0
-size-131072            0      0 131072    1   32 : tunables    8    4  0 
-: slabdata      0      0      0
-size-65536(DMA)        0      0  65536    1   16 : tunables    8    4  0 
-: slabdata      0      0      0
-size-65536             0      0  65536    1   16 : tunables    8    4  0 
-: slabdata      0      0      0
-size-32768(DMA)        0      0  32768    1    8 : tunables    8    4  0 
-: slabdata      0      0      0
-size-32768             0      0  32768    1    8 : tunables    8    4  0 
-: slabdata      0      0      0
-size-16384(DMA)        0      0  16384    1    4 : tunables    8    4  0 
-: slabdata      0      0      0
-size-16384             0      0  16384    1    4 : tunables    8    4  0 
-: slabdata      0      0      0
-size-8192(DMA)         0      0   8192    1    2 : tunables    8    4  0 
-: slabdata      0      0      0
-size-8192             38     38   8192    1    2 : tunables    8    4  0 
-: slabdata     38     38      0
-size-4096(DMA)         0      0   4096    1    1 : tunables   24   12  0 
-: slabdata      0      0      0
-size-4096            314    314   4096    1    1 : tunables   24   12  0 
-: slabdata    314    314      0
-size-2048(DMA)         0      0   2048    2    1 : tunables   24   12  0 
-: slabdata      0      0      0
-size-2048             24     24   2048    2    1 : tunables   24   12  0 
-: slabdata     12     12      0
-size-1024(DMA)         0      0   1024    4    1 : tunables   54   27  0 
-: slabdata      0      0      0
-size-1024             84     84   1024    4    1 : tunables   54   27  0 
-: slabdata     21     21      0
-size-512(DMA)          0      0    512    8    1 : tunables   54   27  0 
-: slabdata      0      0      0
-size-512             130    152    512    8    1 : tunables   54   27  0 
-: slabdata     19     19      0
-size-256(DMA)          0      0    256   15    1 : tunables  120   60  0 
-: slabdata      0      0      0
-size-256              75     75    256   15    1 : tunables  120   60  0 
-: slabdata      5      5      0
-size-192(DMA)          0      0    192   20    1 : tunables  120   60  0 
-: slabdata      0      0      0
-size-192              40     40    192   20    1 : tunables  120   60  0 
-: slabdata      2      2      0
-size-128(DMA)          0      0    128   30    1 : tunables  120   60  0 
-: slabdata      0      0      0
-size-128             964    990    128   30    1 : tunables  120   60  0 
-: slabdata     33     33      0
-size-64(DMA)           0      0     64   59    1 : tunables  120   60  0 
-: slabdata      0      0      0
-size-32(DMA)           0      0     32  113    1 : tunables  120   60  0 
-: slabdata      0      0      0
-size-64              503    767     64   59    1 : tunables  120   60  0 
-: slabdata     13     13      0
-size-32             1161   1808     32  113    1 : tunables  120   60  0 
-: slabdata     16     16      0
-kmem_cache           120    120    128   30    1 : tunables  120   60  0 
-: slabdata      4      4      0
+Signed-off-by: Florin Malita <fmalita@gmail.com>
+---
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -487,6 +487,8 @@
+  *	  * Added xmit_hash_policy_layer34()
+  *	- Modified by Jay Vosburgh <fubar@us.ibm.com> to also support mode 4.
+  *	  Set version to 2.6.3.
++ * 2005/09/20 - Florin Malita <fmalita at gmail dot com>
++ *      - Added support for device-indexed module parameters.
+  */
+ 
+ //#define BONDING_DEBUG 1
+@@ -545,38 +547,47 @@
+ #define BOND_LINK_ARP_INTERV	0
+ 
+ static int max_bonds	= BOND_DEFAULT_MAX_BONDS;
+-static int miimon	= BOND_LINK_MON_INTERV;
+-static int updelay	= 0;
+-static int downdelay	= 0;
+-static int use_carrier	= 1;
+-static char *mode	= NULL;
+-static char *primary	= NULL;
+-static char *lacp_rate	= NULL;
+-static char *xmit_hash_policy = NULL;
+-static int arp_interval = BOND_LINK_ARP_INTERV;
++static int miimon[BOND_MAX_PARMS];
++static int num_miimon;
++static int updelay[BOND_MAX_PARMS];
++static int num_updelay;
++static int downdelay[BOND_MAX_PARMS];
++static int num_downdelay;
++static int use_carrier[BOND_MAX_PARMS];
++static int num_use_carrier;
++static char *mode[BOND_MAX_PARMS];
++static int num_mode;
++static char *primary[BOND_MAX_PARMS];
++static int num_primary;
++static char *lacp_rate[BOND_MAX_PARMS];
++static int num_lacp_rate;
++static char *xmit_hash_policy[BOND_MAX_PARMS];
++static int num_xmit_hash_policy;
++static int arp_interval[BOND_MAX_PARMS];
++static int num_arp_interval;
+ static char *arp_ip_target[BOND_MAX_ARP_TARGETS] = { NULL, };
+ 
+-module_param(max_bonds, int, 0);
++module_param(max_bonds, int, S_IRUGO);
+ MODULE_PARM_DESC(max_bonds, "Max number of bonded devices");
+-module_param(miimon, int, 0);
++module_param_array(miimon, int, &num_miimon, S_IRUGO);
+ MODULE_PARM_DESC(miimon, "Link check interval in milliseconds");
+-module_param(updelay, int, 0);
++module_param_array(updelay, int, &num_updelay, S_IRUGO);
+ MODULE_PARM_DESC(updelay, "Delay before considering link up, in milliseconds");
+-module_param(downdelay, int, 0);
++module_param_array(downdelay, int, &num_downdelay, S_IRUGO);
+ MODULE_PARM_DESC(downdelay, "Delay before considering link down, in milliseconds");
+-module_param(use_carrier, int, 0);
++module_param_array(use_carrier, int, &num_use_carrier, S_IRUGO);
+ MODULE_PARM_DESC(use_carrier, "Use netif_carrier_ok (vs MII ioctls) in miimon; 0 for off, 1 for on (default)");
+-module_param(mode, charp, 0);
++module_param_array(mode, charp, &num_mode, S_IRUGO);
+ MODULE_PARM_DESC(mode, "Mode of operation : 0 for round robin, 1 for active-backup, 2 for xor");
+-module_param(primary, charp, 0);
++module_param_array(primary, charp, &num_primary, S_IRUGO);
+ MODULE_PARM_DESC(primary, "Primary network device to use");
+-module_param(lacp_rate, charp, 0);
++module_param_array(lacp_rate, charp, &num_lacp_rate, S_IRUGO);
+ MODULE_PARM_DESC(lacp_rate, "LACPDU tx rate to request from 802.3ad partner (slow/fast)");
+-module_param(xmit_hash_policy, charp, 0);
++module_param_array(xmit_hash_policy, charp, &num_xmit_hash_policy, S_IRUGO);
+ MODULE_PARM_DESC(xmit_hash_policy, "XOR hashing method : 0 for layer 2 (default), 1 for layer 3+4");
+-module_param(arp_interval, int, 0);
++module_param_array(arp_interval, int, &num_arp_interval, S_IRUGO);
+ MODULE_PARM_DESC(arp_interval, "arp interval in milliseconds");
+-module_param_array(arp_ip_target, charp, NULL, 0);
++module_param_array(arp_ip_target, charp, NULL, S_IRUGO);
+ MODULE_PARM_DESC(arp_ip_target, "arp targets in n.n.n.n form");
+ 
+ /*----------------------------- Global variables ----------------------------*/
+@@ -592,9 +603,6 @@ static struct proc_dir_entry *bond_proc_
+ 
+ static u32 arp_target[BOND_MAX_ARP_TARGETS] = { 0, } ;
+ static int arp_ip_count	= 0;
+-static int bond_mode	= BOND_MODE_ROUNDROBIN;
+-static int xmit_hashtype= BOND_XMIT_POLICY_LAYER2;
+-static int lacp_fast	= 0;
+ static int app_abi_ver	= 0;
+ static int orig_app_abi_ver = -1; /* This is used to save the first ABI version
+ 				   * we receive from the application. Once set,
+@@ -4714,51 +4722,62 @@ static inline int bond_parse_parm(char *
+ 	return -1;
+ }
+ 
+-static int bond_check_params(struct bond_params *params)
++static int bond_check_params(struct bond_params *params, int bond)
+ {
++	params->miimon = (bond < num_miimon) ? miimon[bond] : BOND_LINK_MON_INTERV;
++	params->updelay	= (bond < num_updelay) ? updelay[bond] : 0;
++	params->downdelay = (bond < num_downdelay) ? downdelay[bond] : 0;
++	params->use_carrier = (bond < num_use_carrier) ? use_carrier[bond] : 1;
++	params->arp_interval = (bond < num_arp_interval) ? arp_interval[bond] : BOND_LINK_ARP_INTERV;
++	
++	params->mode = BOND_MODE_ROUNDROBIN;
++	params->primary[0] = '\0';
++	params->lacp_fast = 0;
++	params->xmit_policy = BOND_XMIT_POLICY_LAYER2;
++	
++
+ 	/*
+ 	 * Convert string parameters.
+ 	 */
+-	if (mode) {
+-		bond_mode = bond_parse_parm(mode, bond_mode_tbl);
+-		if (bond_mode == -1) {
++	if (bond < num_mode) {
++		params->mode = bond_parse_parm(mode[bond], bond_mode_tbl);
++		if (params->mode == -1) {
+ 			printk(KERN_ERR DRV_NAME
+ 			       ": Error: Invalid bonding mode \"%s\"\n",
+-			       mode == NULL ? "NULL" : mode);
++			       mode[bond]);
+ 			return -EINVAL;
+ 		}
+ 	}
+ 
+-	if (xmit_hash_policy) {
+-		if ((bond_mode != BOND_MODE_XOR) &&
+-		    (bond_mode != BOND_MODE_8023AD)) {
++	if (bond < num_xmit_hash_policy) {
++		if ((params->mode != BOND_MODE_XOR) &&
++		    (params->mode != BOND_MODE_8023AD)) {
+ 			printk(KERN_INFO DRV_NAME
+ 			       ": xor_mode param is irrelevant in mode %s\n",
+-			       bond_mode_name(bond_mode));
++			       bond_mode_name(params->mode));
+ 		} else {
+-			xmit_hashtype = bond_parse_parm(xmit_hash_policy,
++			params->xmit_policy = bond_parse_parm(xmit_hash_policy[bond],
+ 							xmit_hashtype_tbl);
+-			if (xmit_hashtype == -1) {
++			if (params->xmit_policy == -1) {
+ 				printk(KERN_ERR DRV_NAME
+ 			       	": Error: Invalid xmit_hash_policy \"%s\"\n",
+-			       	xmit_hash_policy == NULL ? "NULL" :
+-				       xmit_hash_policy);
++			       	xmit_hash_policy[bond]);
+ 				return -EINVAL;
+ 			}
+ 		}
+ 	}
+ 
+-	if (lacp_rate) {
+-		if (bond_mode != BOND_MODE_8023AD) {
++	if (bond < num_lacp_rate) {
++		if (params->mode != BOND_MODE_8023AD) {
+ 			printk(KERN_INFO DRV_NAME
+ 			       ": lacp_rate param is irrelevant in mode %s\n",
+-			       bond_mode_name(bond_mode));
++			       bond_mode_name(params->mode));
+ 		} else {
+-			lacp_fast = bond_parse_parm(lacp_rate, bond_lacp_tbl);
+-			if (lacp_fast == -1) {
++			params->lacp_fast = bond_parse_parm(lacp_rate[bond], bond_lacp_tbl);
++			if (params->lacp_fast == -1) {
+ 				printk(KERN_ERR DRV_NAME
+ 				       ": Error: Invalid lacp rate \"%s\"\n",
+-				       lacp_rate == NULL ? "NULL" : lacp_rate);
++				       lacp_rate[bond]);
+ 				return -EINVAL;
+ 			}
+ 		}
+@@ -4772,77 +4791,77 @@ static int bond_check_params(struct bond
+ 		max_bonds = BOND_DEFAULT_MAX_BONDS;
+ 	}
+ 
+-	if (miimon < 0) {
++	if (params->miimon < 0) {
+ 		printk(KERN_WARNING DRV_NAME
+ 		       ": Warning: miimon module parameter (%d), "
+ 		       "not in range 0-%d, so it was reset to %d\n",
+-		       miimon, INT_MAX, BOND_LINK_MON_INTERV);
+-		miimon = BOND_LINK_MON_INTERV;
++		       params->miimon, INT_MAX, BOND_LINK_MON_INTERV);
++		params->miimon = BOND_LINK_MON_INTERV;
+ 	}
+ 
+-	if (updelay < 0) {
++	if (params->updelay < 0) {
+ 		printk(KERN_WARNING DRV_NAME
+ 		       ": Warning: updelay module parameter (%d), "
+ 		       "not in range 0-%d, so it was reset to 0\n",
+-		       updelay, INT_MAX);
+-		updelay = 0;
++		       params->updelay, INT_MAX);
++		params->updelay = 0;
+ 	}
+ 
+-	if (downdelay < 0) {
++	if (params->downdelay < 0) {
+ 		printk(KERN_WARNING DRV_NAME
+ 		       ": Warning: downdelay module parameter (%d), "
+ 		       "not in range 0-%d, so it was reset to 0\n",
+-		       downdelay, INT_MAX);
+-		downdelay = 0;
++		       params->downdelay, INT_MAX);
++		params->downdelay = 0;
+ 	}
+ 
+-	if ((use_carrier != 0) && (use_carrier != 1)) {
++	if ((params->use_carrier != 0) && (params->use_carrier != 1)) {
+ 		printk(KERN_WARNING DRV_NAME
+ 		       ": Warning: use_carrier module parameter (%d), "
+ 		       "not of valid value (0/1), so it was set to 1\n",
+-		       use_carrier);
+-		use_carrier = 1;
++		       params->use_carrier);
++		params->use_carrier = 1;
+ 	}
+ 
+ 	/* reset values for 802.3ad */
+-	if (bond_mode == BOND_MODE_8023AD) {
+-		if (!miimon) {
++	if (params->mode == BOND_MODE_8023AD) {
++		if (!params->miimon) {
+ 			printk(KERN_WARNING DRV_NAME
+ 			       ": Warning: miimon must be specified, "
+ 			       "otherwise bonding will not detect link "
+ 			       "failure, speed and duplex which are "
+ 			       "essential for 802.3ad operation\n");
+ 			printk(KERN_WARNING "Forcing miimon to 100msec\n");
+-			miimon = 100;
++			params->miimon = 100;
+ 		}
+ 	}
+ 
+ 	/* reset values for TLB/ALB */
+-	if ((bond_mode == BOND_MODE_TLB) ||
+-	    (bond_mode == BOND_MODE_ALB)) {
+-		if (!miimon) {
++	if ((params->mode == BOND_MODE_TLB) ||
++	    (params->mode == BOND_MODE_ALB)) {
++		if (!params->miimon) {
+ 			printk(KERN_WARNING DRV_NAME
+ 			       ": Warning: miimon must be specified, "
+ 			       "otherwise bonding will not detect link "
+ 			       "failure and link speed which are essential "
+ 			       "for TLB/ALB load balancing\n");
+ 			printk(KERN_WARNING "Forcing miimon to 100msec\n");
+-			miimon = 100;
++			params->miimon = 100;
+ 		}
+ 	}
+ 
+-	if (bond_mode == BOND_MODE_ALB) {
++	if (params->mode == BOND_MODE_ALB) {
+ 		printk(KERN_NOTICE DRV_NAME
+ 		       ": In ALB mode you might experience client "
+ 		       "disconnections upon reconnection of a link if the "
+ 		       "bonding module updelay parameter (%d msec) is "
+ 		       "incompatible with the forwarding delay time of the "
+ 		       "switch\n",
+-		       updelay);
++		       params->updelay);
+ 	}
+ 
+-	if (!miimon) {
+-		if (updelay || downdelay) {
++	if (!params->miimon) {
++		if (params->updelay || params->downdelay) {
+ 			/* just warn the user the up/down delay will have
+ 			 * no effect since miimon is zero...
+ 			 */
+@@ -4851,45 +4870,45 @@ static int bond_check_params(struct bond
+ 			       "and updelay (%d) or downdelay (%d) module "
+ 			       "parameter is set; updelay and downdelay have "
+ 			       "no effect unless miimon is set\n",
+-			       updelay, downdelay);
++			       params->updelay, params->downdelay);
+ 		}
+ 	} else {
+ 		/* don't allow arp monitoring */
+-		if (arp_interval) {
++		if (params->arp_interval) {
+ 			printk(KERN_WARNING DRV_NAME
+ 			       ": Warning: miimon (%d) and arp_interval (%d) "
+ 			       "can't be used simultaneously, disabling ARP "
+ 			       "monitoring\n",
+-			       miimon, arp_interval);
+-			arp_interval = 0;
++			       params->miimon, params->arp_interval);
++			params->arp_interval = 0;
+ 		}
+ 
+-		if ((updelay % miimon) != 0) {
++		if ((params->updelay % params->miimon) != 0) {
+ 			printk(KERN_WARNING DRV_NAME
+ 			       ": Warning: updelay (%d) is not a multiple "
+ 			       "of miimon (%d), updelay rounded to %d ms\n",
+-			       updelay, miimon, (updelay / miimon) * miimon);
++			       params->updelay, params->miimon, (params->updelay / params->miimon) * params->miimon);
+ 		}
+ 
+-		updelay /= miimon;
++		params->updelay /= params->miimon;
+ 
+-		if ((downdelay % miimon) != 0) {
++		if ((params->downdelay % params->miimon) != 0) {
+ 			printk(KERN_WARNING DRV_NAME
+ 			       ": Warning: downdelay (%d) is not a multiple "
+ 			       "of miimon (%d), downdelay rounded to %d ms\n",
+-			       downdelay, miimon,
+-			       (downdelay / miimon) * miimon);
++			       params->downdelay, params->miimon,
++			       (params->downdelay / params->miimon) * params->miimon);
+ 		}
+ 
+-		downdelay /= miimon;
++		params->downdelay /= params->miimon;
+ 	}
+ 
+-	if (arp_interval < 0) {
++	if (params->arp_interval < 0) {
+ 		printk(KERN_WARNING DRV_NAME
+ 		       ": Warning: arp_interval module parameter (%d) "
+ 		       ", not in range 0-%d, so it was reset to %d\n",
+-		       arp_interval, INT_MAX, BOND_LINK_ARP_INTERV);
+-		arp_interval = BOND_LINK_ARP_INTERV;
++		       params->arp_interval, INT_MAX, BOND_LINK_ARP_INTERV);
++		params->arp_interval = BOND_LINK_ARP_INTERV;
+ 	}
+ 
+ 	for (arp_ip_count = 0;
+@@ -4902,33 +4921,33 @@ static int bond_check_params(struct bond
+ 			       ": Warning: bad arp_ip_target module parameter "
+ 			       "(%s), ARP monitoring will not be performed\n",
+ 			       arp_ip_target[arp_ip_count]);
+-			arp_interval = 0;
++			params->arp_interval = 0;
+ 		} else {
+ 			u32 ip = in_aton(arp_ip_target[arp_ip_count]);
+ 			arp_target[arp_ip_count] = ip;
+ 		}
+ 	}
+ 
+-	if (arp_interval && !arp_ip_count) {
++	if (params->arp_interval && !arp_ip_count) {
+ 		/* don't allow arping if no arp_ip_target given... */
+ 		printk(KERN_WARNING DRV_NAME
+ 		       ": Warning: arp_interval module parameter (%d) "
+ 		       "specified without providing an arp_ip_target "
+ 		       "parameter, arp_interval was reset to 0\n",
+-		       arp_interval);
+-		arp_interval = 0;
++		       params->arp_interval);
++		params->arp_interval = 0;
+ 	}
+ 
+-	if (miimon) {
++	if (params->miimon) {
+ 		printk(KERN_INFO DRV_NAME
+ 		       ": MII link monitoring set to %d ms\n",
+-		       miimon);
+-	} else if (arp_interval) {
++		       params->miimon);
++	} else if (params->arp_interval) {
+ 		int i;
+ 
+ 		printk(KERN_INFO DRV_NAME
+ 		       ": ARP monitoring set to %d ms with %d target(s):",
+-		       arp_interval, arp_ip_count);
++		       params->arp_interval, arp_ip_count);
+ 
+ 		for (i = 0; i < arp_ip_count; i++)
+ 			printk (" %s", arp_ip_target[i]);
+@@ -4945,32 +4964,20 @@ static int bond_check_params(struct bond
+ 		       "otherwise bonding will not detect link failures! see "
+ 		       "bonding.txt for details.\n");
+ 	}
+-
+-	if (primary && !USES_PRIMARY(bond_mode)) {
++	
++	if (bond < num_primary) {
+ 		/* currently, using a primary only makes sense
+ 		 * in active backup, TLB or ALB modes
+ 		 */
+-		printk(KERN_WARNING DRV_NAME
+-		       ": Warning: %s primary device specified but has no "
+-		       "effect in %s mode\n",
+-		       primary, bond_mode_name(bond_mode));
+-		primary = NULL;
+-	}
+-
+-	/* fill params struct with the proper values */
+-	params->mode = bond_mode;
+-	params->xmit_policy = xmit_hashtype;
+-	params->miimon = miimon;
+-	params->arp_interval = arp_interval;
+-	params->updelay = updelay;
+-	params->downdelay = downdelay;
+-	params->use_carrier = use_carrier;
+-	params->lacp_fast = lacp_fast;
+-	params->primary[0] = 0;
+-
+-	if (primary) {
+-		strncpy(params->primary, primary, IFNAMSIZ);
+-		params->primary[IFNAMSIZ - 1] = 0;
++		if (USES_PRIMARY(params->mode)) {
++			strncpy(params->primary, primary[bond], IFNAMSIZ);
++			params->primary[IFNAMSIZ - 1] = 0;
++		} else {
++			printk(KERN_WARNING DRV_NAME
++			       ": Warning: %s primary device specified but has no "
++			       "effect in %s mode\n",
++		    		primary[bond], bond_mode_name(params->mode));
++		}
+ 	}
+ 
+ 	memcpy(params->arp_targets, arp_target, sizeof(arp_target));
+@@ -4981,16 +4988,12 @@ static int bond_check_params(struct bond
+ static int __init bonding_init(void)
+ {
+ 	struct bond_params params;
++	struct net_device *bond_dev;
+ 	int i;
+ 	int res;
+ 
+ 	printk(KERN_INFO "%s", version);
+ 
+-	res = bond_check_params(&params);
+-	if (res) {
+-		return res;
+-	}
+-
+ 	rtnl_lock();
+ 
+ #ifdef CONFIG_PROC_FS
+@@ -4998,8 +5001,6 @@ static int __init bonding_init(void)
+ #endif
+ 
+ 	for (i = 0; i < max_bonds; i++) {
+-		struct net_device *bond_dev;
+-
+ 		bond_dev = alloc_netdev(sizeof(struct bonding), "", ether_setup);
+ 		if (!bond_dev) {
+ 			res = -ENOMEM;
+@@ -5008,8 +5009,11 @@ static int __init bonding_init(void)
+ 
+ 		res = dev_alloc_name(bond_dev, "bond%d");
+ 		if (res < 0) {
+-			free_netdev(bond_dev);
+-			goto out_err;
++			goto out_dev;
++		}
++		
++		if ((res = bond_check_params(&params, i)) < 0){
++			goto out_dev;
+ 		}
+ 
+ 		/* bond_init() must be called after dev_alloc_name() (for the
+@@ -5018,8 +5022,7 @@ static int __init bonding_init(void)
+ 		 */
+ 		res = bond_init(bond_dev, &params);
+ 		if (res < 0) {
+-			free_netdev(bond_dev);
+-			goto out_err;
++			goto out_dev;
+ 		}
+ 
+ 		SET_MODULE_OWNER(bond_dev);
+@@ -5027,8 +5030,7 @@ static int __init bonding_init(void)
+ 		res = register_netdevice(bond_dev);
+ 		if (res < 0) {
+ 			bond_deinit(bond_dev);
+-			free_netdev(bond_dev);
+-			goto out_err;
++			goto out_dev;
+ 		}
+ 	}
+ 
+@@ -5038,6 +5040,8 @@ static int __init bonding_init(void)
+ 
+ 	return 0;
+ 
++out_dev:
++	free_netdev(bond_dev);
+ out_err:
+ 	/*
+ 	 * rtnl_unlock() will run netdev_run_todo(), putting the
+diff --git a/drivers/net/bonding/bonding.h b/drivers/net/bonding/bonding.h
+--- a/drivers/net/bonding/bonding.h
++++ b/drivers/net/bonding/bonding.h
+@@ -46,6 +46,7 @@
+ #define DRV_DESCRIPTION	"Ethernet Channel Bonding Driver"
+ 
+ #define BOND_MAX_ARP_TARGETS	16
++#define BOND_MAX_PARMS		16
+ 
+ #ifdef BONDING_DEBUG
+ #define dprintk(fmt, args...) \

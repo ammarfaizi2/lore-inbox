@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030361AbVIVVTO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030369AbVIVVVv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030361AbVIVVTO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 17:19:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030365AbVIVVTO
+	id S1030369AbVIVVVv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 17:21:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030373AbVIVVVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 17:19:14 -0400
-Received: from opersys.com ([64.40.108.71]:18181 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S1030361AbVIVVTN (ORCPT
+	Thu, 22 Sep 2005 17:21:51 -0400
+Received: from [85.8.12.41] ([85.8.12.41]:12163 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S1030369AbVIVVVu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 17:19:13 -0400
-Message-ID: <43332254.1040603@opersys.com>
-Date: Thu, 22 Sep 2005 17:29:56 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Thu, 22 Sep 2005 17:21:50 -0400
+Message-ID: <4333206C.1010307@drzeus.cx>
+Date: Thu, 22 Sep 2005 23:21:48 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 1.0.6-1.2.fc4 (X11/20050909)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Nishanth Aravamudan <nacc@us.ibm.com>
-CC: sean.bruno@dsl-only.net, ak@suse.de, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: The system works (2.6.14-rc2): functional k8n-dl
-References: <20050922155254.GE5910@us.ibm.com>
-In-Reply-To: <20050922155254.GE5910@us.ibm.com>
-Content-Type: text/plain; charset=us-ascii
+To: rmk+lkml@arm.linux.org.uk
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [MMC] wbsd version bump
+References: <20050917130137.5185.81106.stgit@poseidon.drzeus.cx>
+In-Reply-To: <20050917130137.5185.81106.stgit@poseidon.drzeus.cx>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pierre Ossman wrote:
 
-Nish,
+>Increase wbsd version number.
+>
+>Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
+>---
+>  
+>
 
-OK, I can confirm that with version 1006 of the BIOS it works flawlessly
-with Linux. I was able to install full FC4 and boot without a problem
-even with the SATA disk plugged to the nVidia controller (reading the
-archives you will see that the nVidia SATA controller is something I
-was simply unable to get working.) I didn't need to recompile anything.
-The kernel that came with FC4 worked just fine.
+Russell, please continue ignoring this. I forgot that I updated the
+version number in the chip select patch. :)
 
-This is great news. That box had been sitting on my rack for the past
-couple of months because I was just not able to get Linux to work
-properly. I had figured I would put a cheap network card in there just
-to get things started, but it really wasn't doing what I bought it
-for. Now it works as would be expected.
+(Should teach me a thing or two about separating patches...)
 
-Hopefully next time ASUS releases a board they actually test that it
-works with all major OSes before making the release. In this case, I
-feel as if I was tricked into buying a board that really didn't perform
-as planned, and as a result I wasted lots of time which could been for
-more productive work.
+Rgds
+Pierre
 
-Thanks again for the heads up.
-
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546

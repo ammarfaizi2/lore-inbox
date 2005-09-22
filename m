@@ -1,33 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030185AbVIVC5a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030186AbVIVDBf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030185AbVIVC5a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 22:57:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965224AbVIVC5a
+	id S1030186AbVIVDBf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 23:01:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965224AbVIVDBe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 22:57:30 -0400
-Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:36309 "EHLO
-	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S965223AbVIVC53
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 22:57:29 -0400
-X-ORBL: [67.124.117.85]
-Date: Wed, 21 Sep 2005 20:01:15 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: David Sanchez <david.sanchez@lexbox.fr>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: How to Force PIO mode on sata promise (Linux 2.6.10)
-Message-ID: <20050922030115.GA10219@taniwha.stupidest.org>
-References: <17AB476A04B7C842887E0EB1F268111E026FB3@xpserver.intra.lexbox.org>
+	Wed, 21 Sep 2005 23:01:34 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:55732
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S965223AbVIVDBe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 23:01:34 -0400
+Subject: Patch Question.
+From: Alejandro Bonilla Beeche <abonilla@linuxwireless.org>
+Reply-To: abonilla@linuxwireless.org
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Wed, 21 Sep 2005 21:01:31 -0600
+Message-Id: <1127358091.5644.7.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17AB476A04B7C842887E0EB1F268111E026FB3@xpserver.intra.lexbox.org>
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 21, 2005 at 02:28:02PM +0200, David Sanchez wrote:
+Hi,
 
-> I'm using the linux kernel 2.6.10 and busybox on an AMD db AU1550
-> with a hdd connected to the pata port of a PCI card (Promise
-> PDC20579).
+	I have a couple of questions about sending patches. I did read the
+SubmittingPatches Doc but don't recall this.
 
-Disable prefetch in lib/memcpy.S and see if that helps.
+Can anyone send a patch to LKML to be applied?
+How long does it normally take for a patch to be merged?
+If a patch is not merged and I get no Replys, what should one do?
+
+.Alejandro
+

@@ -1,52 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030207AbVIVTxi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030282AbVIVTxP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030207AbVIVTxi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 15:53:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030285AbVIVTxi
+	id S1030282AbVIVTxP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 15:53:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030207AbVIVTxP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 15:53:38 -0400
-Received: from mx2.netapp.com ([216.240.18.37]:22285 "EHLO mx2.netapp.com")
-	by vger.kernel.org with ESMTP id S1030207AbVIVTxY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 15:53:24 -0400
-X-IronPort-AV: i="3.97,138,1125903600"; 
-   d="scan'208"; a="325344529:sNHT18379596"
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [NFS] Re: [PATCH] repair nfsd/sunrpc in 2.6.14-rc2-mm1 (and other -mm versions)
-Date: Thu, 22 Sep 2005 12:53:22 -0700
-Message-ID: <044B81DE141D7443BCE91E8F44B3C1E288E48E@exsvl02.hq.netapp.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [NFS] Re: [PATCH] repair nfsd/sunrpc in 2.6.14-rc2-mm1 (and other -mm versions)
-Thread-Index: AcW/rmP4SkG5o6+2Soej0FUQGA7RhgAALlpQ
-From: "Lever, Charles" <Charles.Lever@netapp.com>
-To: "Peter Staubach" <staubach@redhat.com>, "Andrew Morton" <akpm@osdl.org>
-Cc: <SteveD@redhat.com>, <NFS@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>,
-       "Trond Myklebust" <trond.myklebust@fys.uio.no>
-X-OriginalArrivalTime: 22 Sep 2005 19:53:23.0876 (UTC) FILETIME=[4A6CE640:01C5BFAF]
+	Thu, 22 Sep 2005 15:53:15 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:54701 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030282AbVIVTxO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 15:53:14 -0400
+Date: Thu, 22 Sep 2005 12:52:19 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: linux-kernel@vger.kernel.org, David Brownell <david-b@pacbell.net>,
+       Paul Mackerras <paulus@samba.org>,
+       "Antonino A. Daplas" <adaplas@pol.net>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: 2.6.14-rc2-mm1
+Message-Id: <20050922125219.7ea04930.akpm@osdl.org>
+In-Reply-To: <64900000.1127415577@[10.10.2.4]>
+References: <20050921222839.76c53ba1.akpm@osdl.org>
+	<64900000.1127415577@[10.10.2.4]>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Actually, Chuck's patch and Steve's aren't quite the same.  
-> Both patches
-> fix the problem that the portmap daemon requires a request to 
-> set something
-> to come from a reserved port.  In addition to this, Steve's 
-> patch reduces
-> the number of reserved ports that the kernel requires.  This 
-> is the problem
-> that resulted in pmap_create() being incorrectly modified in 
-> the first 
-> place.
-> Steve's patch correctly puts the support in rpc_getport() 
-> where it belongs.
+"Martin J. Bligh" <mbligh@mbligh.org> wrote:
+>
+> Build breaks with this config (x440/summit): 
+> http://ftp.kernel.org/pub/linux/kernel/people/mbligh/config/abat/elm3b67
+> 
+> arch/i386/kernel/built-in.o(.init.text+0x389d): In function `set_nmi_ipi_callback':
+> /usr/local/autobench/var/tmp/build/arch/i386/kernel/traps.c:727: undefined reference to `usb_early_handoff'
+> arch/i386/kernel/built-in.o(.init.text+0x4ee0): In function `smp_read_mpc':
+> /usr/local/autobench/var/tmp/build/include/asm-i386/mach-summit/mach_mpparse.h:35: undefined reference to `usb_early_handoff'
+> 
 
-mine does too.  pmap_create() is used for both GET and SET, and i added
-a parm to allow pmap_create()'s caller to request a reserved port when
-needed.
+grr.  David had a hack in there which caused my links to fail so I hacked
+it out and broke yours.
+
+> Plus it panics on boot on Power-4 LPAR
+> 
+> Memory: 30962716k/31457280k available (4308k kernel code, 494564k reserved, 1112k data, 253k bss, 420k init)
+> Mount-cache hash table entries: 256
+> softlockup thread 0 started up.
+> Processor 1 found.
+> softlockup thread 1 started up.
+> Processor 2 found.
+> softlockup thread 2 started up.
+> Processor 3 found.
+> Brought up 4 CPUs
+> softlockup thread 3 started up.
+> NET: Registered protocol family 16
+> PCI: Probing PCI hardware
+> IOMMU table initialized, virtual merging disabled
+> PCI_DMA: iommu_table_setparms: /pci@3fffde0a000/pci@2,2 has missing tce entries !
+> Kernel panic - not syncing: iommu_init_table: Can't allocate 1729382256943765922 bytes
+> 
+>  <7>RTAS: event: 3, Type: Internal Device Failure, Severity: 5
+> ibm,os-term call failed -1
+
+There are ppc64 IOMMU changes in Linus's tree...

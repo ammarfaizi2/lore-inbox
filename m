@@ -1,47 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030330AbVIVNYv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030287AbVIVNZX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030330AbVIVNYv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 09:24:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030315AbVIVNYv
+	id S1030287AbVIVNZX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 09:25:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030303AbVIVNZX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 09:24:51 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:52781 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1030326AbVIVNYu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 09:24:50 -0400
-Date: Thu, 22 Sep 2005 15:24:52 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
-Cc: Mark Lord <liml@rtr.ca>, Jeff Garzik <jgarzik@pobox.com>,
-       Joshua Kwan <joshk@triplehelix.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: SATA suspend-to-ram patch - merge?
-Message-ID: <20050922132451.GI4262@suse.de>
-References: <433104E0.4090308@triplehelix.org> <433221A1.5000600@pobox.com> <20050922061849.GJ7929@suse.de> <20050922061849.GJ7929@suse.de> <4332ABDC.3030106@rtr.ca> <E1EIQoQ-0007FT-00@chiark.greenend.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1EIQoQ-0007FT-00@chiark.greenend.org.uk>
-X-IMAPbase: 1124875140 49
+	Thu, 22 Sep 2005 09:25:23 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:2228 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1030299AbVIVNZV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 09:25:21 -0400
+Message-ID: <030801c5bf79$114d3df0$ce677c0a@CARREN>
+From: "Hironobu Ishii" <hishii@soft.fujitsu.com>
+To: <minyard@mvista.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] ipmi_msghandler: inconsistent spin_lock usage
+Date: Thu, 22 Sep 2005 22:24:27 +0900
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-2022-jp";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2670
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 22 2005, Matthew Garrett wrote:
-> Mark Lord <liml@rtr.ca> wrote:
-> 
-> > Rather than sitting around for another six months hoping the problem
-> > will go away (it won't), perhaps we should just update/merge Jen's
-> > patch as a sorely needed interim fix.
-> 
-> As a datapoint, we've been shipping it in Ubuntu for a month or so now
-> and we haven't had any reported problems.
+Hi Corey,
 
-(dunno why I was trimmed from the reply?)
+I found a inconsistent spin_lock usage in ipmi_smi_msg_received.
 
-SUSE has shipped it in 9.3 and now in 10.0 as well.
+Best regards,
+  Hironobu Ishii
 
--- 
-Jens Axboe
+Signed-off-by: Hironobu Ishii <hishii@soft.fujitsu.com>
+------
+diff -urNp linux-2.6.14-rc1.org/drivers/char/ipmi/ipmi_msghandler.c linux-2.6.14-rc1/drivers/char/ipmi/ipmi_msghandler.c
+--- linux-2.6.14-rc1.org/drivers/char/ipmi/ipmi_msghandler.c 2005-09-13 12:12:09.000000000 +0900
++++ linux-2.6.14-rc1/drivers/char/ipmi/ipmi_msghandler.c 2005-09-22 16:37:48.623052375 +0900
+@@ -2620,7 +2620,7 @@ void ipmi_smi_msg_received(ipmi_smi_t   
+  spin_lock_irqsave(&(intf->waiting_msgs_lock), flags);
+  if (!list_empty(&(intf->waiting_msgs))) {
+   list_add_tail(&(msg->link), &(intf->waiting_msgs));
+-  spin_unlock(&(intf->waiting_msgs_lock));
++  spin_unlock_irqrestore(&(intf->waiting_msgs_lock), flags);
+   goto out_unlock;
+  }
+  spin_unlock_irqrestore(&(intf->waiting_msgs_lock), flags);
+@@ -2629,9 +2629,9 @@ void ipmi_smi_msg_received(ipmi_smi_t   
+  if (rv > 0) {
+   /* Could not handle the message now, just add it to a
+                    list to handle later. */
+-  spin_lock(&(intf->waiting_msgs_lock));
++  spin_lock_irqsave(&(intf->waiting_msgs_lock), flags);
+   list_add_tail(&(msg->link), &(intf->waiting_msgs));
+-  spin_unlock(&(intf->waiting_msgs_lock));
++  spin_unlock_irqrestore(&(intf->waiting_msgs_lock), flags);
+  } else if (rv == 0) {
+   ipmi_free_smi_msg(msg);
+  }
 

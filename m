@@ -1,57 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750824AbVIVUdc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbVIVUd7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750824AbVIVUdc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 16:33:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbVIVUdc
+	id S1751148AbVIVUd7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 16:33:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbVIVUd6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 16:33:32 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:19599 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1750824AbVIVUdc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 16:33:32 -0400
-Message-Id: <200509222032.j8MKWo44011569@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Zan Lynx <zlynx@acm.org>
-Cc: breno@kalangolinux.org, linux-kernel@vger.kernel.org
-Subject: Re: security patch 
-In-Reply-To: Your message of "Thu, 22 Sep 2005 14:24:48 MDT."
-             <1127420688.10462.9.camel@localhost> 
-From: Valdis.Kletnieks@vt.edu
-References: <20050922194433.13200.qmail@webmail2.locasite.com.br> <200509222003.j8MK3i8E010365@turing-police.cc.vt.edu>
-            <1127420688.10462.9.camel@localhost>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1127421170_2709P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Thu, 22 Sep 2005 16:33:58 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:45739 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751148AbVIVUd6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 16:33:58 -0400
+Message-ID: <43331517.3080800@us.ibm.com>
+Date: Thu, 22 Sep 2005 13:33:27 -0700
+From: Haren Myneni <haren@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: Dave Anderson <anderson@redhat.com>, Morton Andrew Morton <akpm@osdl.org>,
+       Fastboot mailing list <fastboot@lists.osdl.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [Fastboot] [PATCH] Kdump(x86): add note type NT_KDUMPINFO	tokernel
+   core dumps
+References: <20050921065633.GC3780@in.ibm.com>	<m1mzm6ebqn.fsf@ebiederm.dsl.xmission.com>	<43317980.D6AEA859@redhat.com>	<m1d5n1cw89.fsf@ebiederm.dsl.xmission.com>	<20050922140824.GF3753@in.ibm.com> <4332C87C.9CE47E8D@redhat.com> <m1zmq5awsn.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1zmq5awsn.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Thu, 22 Sep 2005 16:32:50 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1127421170_2709P
-Content-Type: text/plain; charset=us-ascii
+Sorry. Reposting since it did not made to LKML due to my stupid mistake; 
+Also posting Dave Anderson's reponse:
 
-On Thu, 22 Sep 2005 14:24:48 MDT, Zan Lynx said:
+Eric W. Biederman wrote:
 
-> An interesting thing that I don't think has been done before is to
-> create a map linking stack call chains to syscalls.  If the call stack
-> doesn't match then it isn't a valid call.
+>Dave Anderson <anderson@redhat.com> writes:
+>
+>  
+>
+>>Just flagging the cpu, and then mapping that to the stack pointer found in
+>>the associated NT_PRSTATUS register set should work OK too.  It gets
+>>a little muddy if it crashed while running on an IRQ stack, but it still can be
+>>tracked back from there as well.  (although not if the crashing task overflowed
+>>the IRQ stack)
+>>    
+>>
+>
+>You can't track it back from the crashing cpu if the IRQ stack overflows
+>either.  So I would rather have crash confused when trying to find the
+>task_struct.  Then to have the kernel fail avoidably while attempting
+>to capture a core dump.  
+>
+>Even if you overflow the stack wit a bit of detective work it should still
+>be possible to show the stack overflowed and correct for it when analyzing
+>the crash dump.  Doing anything like that from a crashing cpu (in a
+>reliable way) is very hard. 
+>
+>  
+>
+>>The task_struct would be ideal though -- if the kernel's use of task_structs
+>>changes in the future, well, then crash is going to need a serious re-write
+>>anyway...  FWIW, netdump and diskdump use the NT_TASKSTRUCT note
+>>note to store just the "current" pointer, and not the whole task_struct itself,
+>>which would just be a waste of space in the ELF header for crash's purposes.
+>>And looking at the gdb sources, it appears to be totally ignored.  Who
+>>uses the NT_TASKSTRUCT note anyway?
+>>    
+>>
+>
+>Good question, especially as the kernel exports whatever we have for
+>a task struct today in the ELF note.  No ABI compatibility is
+>maintained.
+>
+>Given all of that I recommend an empty NT_TASKSTRUCT to flag the
+>crashing cpu, for now.
+>  
+>
+At present /proc/kcore writes the complete task structure for 
+NT_TASKSTRUCT note section. Thought it is the standard. Hence created 
+separate note section. The other option is the crash tool can directly 
+read "crashing_cpu variable" from the vmcore to determine the panic cpu. 
+Similarly, we can define panic_task variable in the kernel.
 
-I suspect longjmp() and friends would play havoc on this, and vice versa,
-as well as those syscalls that are legal from inside signal handlers, and
-a few other cases.
+Dave Anderson (anderson@redhat.com) reponse:
 
-What validity check were you planning to make on the stack call chain?
+" So does elf_core_dump() as well, but to gdb it's useless AFAICT...
 
---==_Exmh_1127421170_2709P
-Content-Type: application/pgp-signature
+Hey -- I wasn't even aware of the "crashing_cpu" variable.  
+That would work just fine.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Still a "panic_task", and perhaps even a "crash_page_size" variable
+would be nice as well.   No additional notes required...
 
-iD8DBQFDMxTycC3lWbTT17ARAkACAKCPOKCZ1wnV1AhOPYwIg32nCbd2DwCgixNf
-SBpO8xCkCBE4aLrls5EoiAE=
-=krNZ
------END PGP SIGNATURE-----
+Dave "
 
---==_Exmh_1127421170_2709P--
+Basically, we can use some global structure in the kernel and dump any 
+needed information which we do not need to invoke any analysis tools 
+(crash, gdb). Dumping CPU control registers can also be done this way 
+without creating separate note section.
+
+Thanks
+Haren
+
+>Eric
+>  
+>
+>------------------------------------------------------------------------
+>
+>_______________________________________________
+>fastboot mailing list
+>fastboot@lists.osdl.org
+>https://lists.osdl.org/mailman/listinfo/fastboot
+>  
+>
+

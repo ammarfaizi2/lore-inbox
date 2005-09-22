@@ -1,66 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965229AbVIVFv0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965233AbVIVGAK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965229AbVIVFv0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 01:51:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965231AbVIVFv0
+	id S965233AbVIVGAK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 02:00:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965232AbVIVGAK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 01:51:26 -0400
-Received: from web33203.mail.mud.yahoo.com ([68.142.206.101]:23641 "HELO
-	web33203.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S965229AbVIVFvZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 01:51:25 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.ca;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=E+uLuoUtKc+Y5srQdTKvBJzihgeiwPU4Rthy5DVZA91W4cKGx37nWrPcrLGTdoXSUVWWg9tfw0kzcXNx1wgPgAVnx8D7KXBkpJ53Mmz9AcKonrjA9CnXZDHydMf9aAwPKfksUCFmX2OBTOfaXOcYvV2+N+2UzOEQEY3ropqhAao=  ;
-Message-ID: <20050922055120.23356.qmail@web33203.mail.mud.yahoo.com>
-Date: Thu, 22 Sep 2005 01:51:20 -0400 (EDT)
-From: rep stsb <repstsb@yahoo.ca>
-Subject: Re: In-kernel graphics subsystem
-To: linux-kernel@vger.kernel.org
-Cc: 06020051@lums.edu.pk
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 22 Sep 2005 02:00:10 -0400
+Received: from ZIVLNX17.UNI-MUENSTER.DE ([128.176.188.79]:24263 "EHLO
+	ZIVLNX17.uni-muenster.de") by vger.kernel.org with ESMTP
+	id S964976AbVIVGAJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 02:00:09 -0400
+Date: Thu, 22 Sep 2005 08:00:30 +0200
+From: Borislav Petkov <petkov@uni-muenster.de>
+To: netdev@vger.kernel.org
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] remove check_region from PnPWakeUp routine of Eepro ISA driver
+Message-ID: <20050922060030.GB19049@gollum.tnic>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Athar Hameed wrote: 
+ Hi,
 
-> We are a group of three undergrad CS students, 
-> almost ready to start our senior project. We have
-> this idea of integrating a graphics subsystem with
-> the kernel
+ The following patch removes the check_region call in the PnPWakeUp
+ path in the Eepro /10 ISA driver. Instead, now it calls request_region
+ for the PnP wake up routine and, after succeeding, it calls release_region
+ for the actual reservation of I/O ports takes place in the eepro_probe1() 
+ function straight afterwards.
 
-
-A thread about getting vertical synchronization
-interrupts from a video card is available at, 
-
-http://groups.google.ca/group/alt.lang.asm/browse_frm/thread/d1057c825a7933f0/f7239ffb484587d9
-
-I have started a project to write a windowing program
-on svgalib at, 
-
-http://sourceforge.net/projects/svgalib-windows 
-
-My idea is, 
-
-1. Convert svgalib drivers into kernel modules to get
-v-sync interrupts. 
-
-2. Write a windowing program on svgalib. 
-
-Everyone can join. 
-
-> P.S. We are not subscribed to the lklm. Kindly CC
-> your replies to 06020051@lums.edu.pk 
-
-http://groups.google.ca/group/fa.linux.kernel
+ Signed-off-by: Borislav Petkov <petkov@uni-muenster.de>
 
 
-	
-
-	
-		
-__________________________________________________________ 
-Find your next car at http://autos.yahoo.ca
+--- drivers/net/eepro.c.orig	2005-09-22 06:20:28.000000000 +0200
++++ drivers/net/eepro.c	2005-09-22 07:20:16.000000000 +0200
+@@ -552,7 +552,7 @@ static int __init do_eepro_probe(struct 
+ 	{
+ 		unsigned short int WS[32]=WakeupSeq;
+ 
+-		if (check_region(WakeupPort, 2)==0) {
++		if (request_region(WakeupPort, 2, DRV_NAME)) {
+ 
+ 			if (net_debug>5)
+ 				printk(KERN_DEBUG "Waking UP\n");
+@@ -563,6 +563,8 @@ static int __init do_eepro_probe(struct 
+ 				outb_p(WS[i],WakeupPort);
+ 				if (net_debug>5) printk(KERN_DEBUG ": %#x ",WS[i]);
+ 			}
++			release_region(WakeupPort, 2);
++
+ 		} else printk(KERN_WARNING "Checkregion Failed!\n");
+ 	}
+ #endif

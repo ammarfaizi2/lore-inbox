@@ -1,70 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030414AbVIVPry@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030411AbVIVPrJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030414AbVIVPry (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 11:47:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030413AbVIVPry
+	id S1030411AbVIVPrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 11:47:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030412AbVIVPrJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 11:47:54 -0400
-Received: from xenotime.net ([66.160.160.81]:44209 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1030414AbVIVPrx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 11:47:53 -0400
-Date: Thu, 22 Sep 2005 08:47:52 -0700 (PDT)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: David R <david@industrialstrengthsolutions.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: DMA broken in mainline 2.6.13.2 _AND_ opensuse vendor 2.6.13-15
- - oopsers
-In-Reply-To: <4332CB66.7090107@industrialstrengthsolutions.com>
-Message-ID: <Pine.LNX.4.58.0509220846070.20059@shark.he.net>
-References: <433216C2.4020707@industrialstrengthsolutions.com>
- <1127398965.18840.88.camel@localhost.localdomain>
- <4332CB66.7090107@industrialstrengthsolutions.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 22 Sep 2005 11:47:09 -0400
+Received: from teetot.devrandom.net ([66.35.250.243]:48841 "EHLO
+	teetot.devrandom.net") by vger.kernel.org with ESMTP
+	id S1030411AbVIVPrG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 11:47:06 -0400
+Date: Thu, 22 Sep 2005 08:58:54 -0700
+From: thockin@hockin.org
+To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+Cc: scampbell@malone.edu, linux-kernel@vger.kernel.org
+Subject: Re: PCI Express or TG3 issue
+Message-ID: <20050922155854.GA31157@hockin.org>
+References: <15F23A40330F5742B268A041F003055705D2A3@srv-elijah1.malone.int> <20050921181151.GA809@hockin.org> <20050923.002548.126141978.anemo@mba.ocn.ne.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050923.002548.126141978.anemo@mba.ocn.ne.jp>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Sep 2005, David R wrote:
+On Fri, Sep 23, 2005 at 12:25:48AM +0900, Atsushi Nemoto wrote:
+> >>>>> On Wed, 21 Sep 2005 11:11:51 -0700, thockin@hockin.org said:
+> 
+> thockin> This device is claiming that it has a 64-bit base-address
+> thockin> which has been programmed by BIOS to be at
+> thockin> 0x80000001d0000000.
+> 
+> thockin> I suspect that the 4 bytes at offset 0x14 want to be 0.  The
+> thockin> address 0xd0000000 jives with the rest of your PCI listing.
+> 
+> thockin> I don't know where that extra 0x80000001 comes from, but it's
+> thockin> pretty clearly wrong.  BIOS bug?  I can't see where kernel
+> thockin> would have boned that up *that* badly.
+> 
+> I also have seen same problem on some custom MIPS-based boards which
+> do not have BIOS.  Broadcom BCM5751 had garbage in its 64-bit BAR on
+> power-up.  So it should not be a BIOS bug.  And I also could not find
+> any good place to fixup it at that time.
 
->
-> >
-> >
-> >>DMA is broken in 2.6.13.2 and opensuse 2.6.13-15, for  my  cdrom/dvd
-> >>
-> >>
-> >
-> >particular that you turned off IDE PCI
-> >
-> >
-> You are totaly correct and I apologize for that, the last thing I want
-> to do is increase the noise level.  I spent several hours trying to get
-> netconsole to work with this, but I spose it just happens to soon. Im
-> getting an oops now. (The oops was happening a week or so ago when I
-> first tried to upgrade from .12 to .13 by simply using make oldconfig
-> and going from there, then I started poking around and eventualy the
-> drive worked but with no dma)  Attached is my current oops generating
-> config. Here is a digicam shot of my screen:
->
-
-if you can't use serial console or netconsole, can you use a
-smaller screen font so that we can see more oops info?
-that screen shot is missing a good bit of info.
-
->
-> Again my drive is a:
->
-> LITE-ON DVDRW SOHW-1693S, FwRev=KS09
->
-> And my IDE chip is a:
-> VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C/VT8235 PIPC Bus Master IDE (rev 06)
->
-> Thanks!
->
-> -David
->
-> ps. Your beard rocks!
-
--- 
-~Randy
+Well, on a PC (i386 or x86_64) system, that address is almost certainly
+going to be below 4G.  You could reguister a quirk to zero the upper half
+of that BAR...

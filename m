@@ -1,52 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751159AbVIVTX7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964920AbVIVT2r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751159AbVIVTX7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 15:23:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbVIVTX7
+	id S964920AbVIVT2r (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 15:28:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964968AbVIVT2r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 15:23:59 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:50887 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751159AbVIVTX7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 15:23:59 -0400
-Date: Fri, 23 Sep 2005 00:48:05 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Christopher Friesen <cfriesen@nortel.com>
-Cc: Al Viro <viro@ftp.linux.org.uk>, Roland Dreier <rolandd@cisco.com>,
-       Sonny Rao <sonny@burdell.org>, linux-kernel@vger.kernel.org,
-       "Theodore Ts'o" <tytso@mit.edu>, bharata@in.ibm.com,
-       trond.myklebust@fys.uio.no
-Subject: Re: dentry_cache using up all my zone normal memory -- also seen on 2.6.14-rc2
-Message-ID: <20050922191805.GB4729@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <4331C9B2.5070801@nortel.com> <20050921210019.GF4569@in.ibm.com> <4331CFAD.6020805@nortel.com> <52ll1qkrii.fsf@cisco.com> <20050922031136.GE7992@ftp.linux.org.uk> <43322AE6.1080408@nortel.com> <20050922041733.GF7992@ftp.linux.org.uk> <4332CAEA.1010509@nortel.com> <20050922182719.GA4729@in.ibm.com> <4332FFF5.5060207@nortel.com>
+	Thu, 22 Sep 2005 15:28:47 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:45224 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964920AbVIVT2r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 15:28:47 -0400
+Date: Thu, 22 Sep 2005 12:27:49 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Max Kellermann <max@duempel.org>
+Cc: linux-kernel@vger.kernel.org, avuton@gmail.com,
+       Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: [PATCH] repair nfsd/sunrpc in 2.6.14-rc2-mm1 (and other -mm
+ versions)
+Message-Id: <20050922122749.555e0068.akpm@osdl.org>
+In-Reply-To: <20050922130441.GA24005@roonstrasse.net>
+References: <20050922130441.GA24005@roonstrasse.net>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4332FFF5.5060207@nortel.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 22, 2005 at 01:03:17PM -0600, Christopher Friesen wrote:
-> Dipankar Sarma wrote:
+Max Kellermann <max@duempel.org> wrote:
+>
+> nfsd is still broken in 2.6.14-rc2-mm1; the following procedure is
+>  reproducable:
 > 
-> >This can happen if a task runs for too long inside the kernel
-> >holding up context switches or usermode code running on that
-> >cpu. The fact that RCU grace period eventually happens
-> >and the dentries are freed means that something intermittently
-> >holds up RCU. Is this 2.6.10 vanilla or does it have other
-> >patches in there ?
+>   rabbit:~# echo 2 >/proc/fs/nfsd/threads 
 > 
-> The 2.6.10 was modified.  All the results with the dcache debugging 
-> patch applied were from vanilla 2.6.14-rc2.
+>  ... /var/log/daemon.log says:
 > 
-> It's perfectly repeatable as well...every single time I run "rename14" 
-> the OOM killer kicks in.
+>   Sep 22 13:52:55 rabbit kernel: NFSD: Using /var/lib/nfs/v4recovery as
+>   the NFSv4 state recovery directory
+>   Sep 22 13:52:55 rabbit kernel: NFSD: starting 90-second grace period
+>   Sep 22 13:52:55 rabbit portmap[3191]: connect from 127.0.0.1 to
+>   set(nfs): request from unprivileged port
+> 
+>  Your -mm patches make the sunrpc client connect to the portmapper with
+>  a non-privileged source port.  This is due to a change in
+>  net/sunrpc/pmap_clnt.c, which manually resets the xprt->resvport
+>  field.  My tiny patch removes this line.  I have no idea why the line
+>  was added in the first place, does somebody know better?
+> 
 
-Can you look at that each cpu is running (backtrace) using
-sysrq ? That may tell us what is holding up RCU. I will look
-at it myself later.
+That change comes from Trond's git tree.  I don't know why the change was
+made.
 
-Thanks
-Dipankar
+Trond, rsync://client.linux-nfs.org/pub/linux/nfs-2.6.git hasn't been
+updated in quite some time, I think.  I still need to revert the oopsy
+rpc_mkdir() change.  Am I using the right tree?
+
+> 
+> [nfsd-pmap-fix-privileged-port.patch  text/plain (522 bytes)]
+>  --- linux-2.6.14-rc2-mm1/net/sunrpc/pmap_clnt.c.orig	2005-09-22 14:58:14.000000000 +0200
+>  +++ linux-2.6.14-rc2-mm1/net/sunrpc/pmap_clnt.c	2005-09-22 14:58:16.000000000 +0200
+>  @@ -208,7 +208,6 @@
+>   	if (IS_ERR(xprt))
+>   		return (struct rpc_clnt *)xprt;
+>   	xprt->addr.sin_port = htons(RPC_PMAP_PORT);
+>  -	xprt->resvport = 0;
+>   
+>   	/* printk("pmap: create clnt\n"); */
+>   	clnt = rpc_new_client(xprt, hostname,
+

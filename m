@@ -1,107 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750998AbVIVVJl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030338AbVIVVJ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750998AbVIVVJl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 17:09:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbVIVVJl
+	id S1030338AbVIVVJ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 17:09:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030341AbVIVVJ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 17:09:41 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:36840 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750998AbVIVVJk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 17:09:40 -0400
-From: Jeff Moyer <jmoyer@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17203.7543.949262.883138@segfault.boston.redhat.com>
-Date: Thu, 22 Sep 2005 17:09:11 -0400
-To: Ian Kent <raven@themaw.net>
-Cc: autofs@linux.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: autofs4 looks up wrong path element when ghosting is enabled
-In-Reply-To: <Pine.LNX.4.58.0509210916040.26144@wombat.indigo.net.au>
-References: <17200.23724.686149.394150@segfault.boston.redhat.com>
-	<Pine.LNX.4.58.0509210916040.26144@wombat.indigo.net.au>
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Reply-To: jmoyer@redhat.com
-X-PGP-KeyID: 1F78E1B4
-X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
-X-PCLoadLetter: What the f**k does that mean?
+	Thu, 22 Sep 2005 17:09:56 -0400
+Received: from vms048pub.verizon.net ([206.46.252.48]:2027 "EHLO
+	vms048pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1030303AbVIVVJz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 17:09:55 -0400
+Date: Thu, 22 Sep 2005 17:09:53 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: Linus GIT tree disappeared from http://www.kernel.org/git/?
+In-reply-to: <BAYC1-PASMTP0225E685AD4FA9108A11B1AE970@CEZ.ICE>
+To: linux-kernel@vger.kernel.org
+Message-id: <200509221709.53482.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <200509221514.44027.roffermanns@sysgo.com>
+ <200509221212.01811.gene.heskett@verizon.net>
+ <BAYC1-PASMTP0225E685AD4FA9108A11B1AE970@CEZ.ICE>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-==> Regarding Re: autofs4 looks up wrong path element when ghosting is enabled; Ian Kent <raven@themaw.net> adds:
+On Thursday 22 September 2005 13:37, Sean wrote:
+>On Thu, September 22, 2005 12:12 pm, Gene Heskett said:
+>> Well, I think what I was trying to ask but got lost in the bushes was
+>> "do I have a valid download?"  and, how do I go about keeping it upto
+>> date now that I have it?  I've read about half the git.txt stuff in
+>> the Documentation dir, but nothing sticks out as being the magic
+>> updater command.
+>
+>Gene,
+>
+>In order to update your copy of the kernel repository just run "git
+> pull". Unfortunately there still seem to be some issues with
+> kernel.org, hopefully that'll be fixed up soon.
+>
+>The warning you're getting from git about "alternates" will be fixed in
+>the next release of git.   You _could_ use your current version of git
+> to track the official git repository and get this fix before it's
+> officially released:
+>
+>$ cd ~
+>$ git clone rsync://rsync.kernel.org/pub/scm/git/git.git/ git-repo
+>$ cd git-repo
+>$ git checkout
+>$ make install
+>
+>Which should upgrade your current version of git to the very latest.
+>After which you can upgrade git whenever you like by running:
+>
+>$ cd ~/git-repo
+>$ git pull
+>$ make install
+>
+>Cheers,
+>Sean
 
-raven> On Tue, 20 Sep 2005, Jeff Moyer wrote:
->> Hi, Ian, list,
->> 
->> I have a bug filed against autofs when ghosting is enabled.  The best way
->> to describe the bug is to walk through the reproducer, I guess.
->> 
->> Take the following maps, for example:
->> 
->> auto.master
->> /sbox	auto.sbox
->> 
->> auto.sbox:
->> src	segfault:/sbox/src/
->> 
->> Let's say that there is a file, id3_0.12.orig.tar.gz, in segfault:/sbox/src/.
->> 
->> To reproduce the problem, stop the nfs service on the server.
->> 
->> On the client, do an 'ls /sbox/src/id3_012.orig.tar.gz'.  This will fail,
->> as well it should.  However, if we look in the logs, we find this:
->> 
->> automount[1182]: handle_packet_missing: token 1, name src 
->> automount[1182]: attempting to mount entry /sbox/src
->> ...
->> automount[1481]: mount(nfs): calling mkdir_path /sbox/src
->> automount[1481]: mount(nfs): calling mount -t nfs -s-o tcp,intr,timeo=600,rsize=8192,wsize=8192,retrans=5 segfault:/sbox/src /sbox/src
->> automount[1481]: >> mount: RPC: Program not registered
->> automount[1481]: mount(nfs): add_bad_host: segfault:/sbox/src
->> automount[1481]: mount(nfs): nfs: mount failure segfault:/sbox/src on /sbox/src
->> automount[1481]: failed to mount /sbox/src
->> ...
->> automount[1182]: send_fail: token=1 
->> automount[1182]: handle_packet: type = 0 
->> automount[1182]: handle_packet_missing: token 2, name src/id3_0.12.orig.tar.gz 
->> automount[1182]: attempting to mount entry /sbox/src/id3_0.12.orig.tar.gz
->> 
->> Noteworthy are these last two lines!  Even though the mount failed, we are
->> continuing the lookup.  The culprit is here, in cached_lookup:
->> 
->> if (!dentry->d_op->d_revalidate(dentry, flags) && !d_invalidate(dentry)) { 
->> dput(dentry); 
->> dentry = NULL; 
->> } 
->> 
->> d_revalidate points to autofs4_revalidate, which calls try_to_fill_dentry,
->> which will return a status of 0.  Since ghosting is enabled,
->> d_invalidate(dentry) will return -EBUSY, and so we return the dentry to 
-raven> the
->> caller, which then continues the lookup.
->> 
->> Ian, I'm not really sure how we can address this issue without VFS
->> changes.  Any ideas?
->> 
+Thanks, I've printed this, and as soon as BDI-4.29.iso is here so I
+have some bandwidth, I'll give it a shot.  But I think I'll do it in
+/usr/src rather than ~=/root.  Is that going to be a problem?
 
-raven> I'm aware of this problem.
-raven> I'm not sure how to deal with it yet.
-raven> The case above is probably not that difficult to solve but if the last 
-raven> component is a directory it's hard to work out it's a problem.
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.35% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
 
-Ugh.  If you're thinking what I think you're thinking, that's an ugly hack.
-
-raven> There's more information here than I've gathhered so far.
-
->> Oh, also note that, once the nfs service is started up again on the server,
->> the lookup of a specific file name will still fail!  In this case, the
->> daemon won't even be called.
-
-raven> I'll have to check this out.
-raven> It could be helpful.
-
-Well, I've provided a reproducer.  If you'd like log output from the kernel
-side, let me know.  I can certainly provide that.
-
--Jeff

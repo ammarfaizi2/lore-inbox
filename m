@@ -1,55 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030339AbVIVUOJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750804AbVIVUZE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030339AbVIVUOJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 16:14:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030341AbVIVUOJ
+	id S1750804AbVIVUZE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 16:25:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750824AbVIVUZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 16:14:09 -0400
-Received: from dvhart.com ([64.146.134.43]:46472 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S1030339AbVIVUOI (ORCPT
+	Thu, 22 Sep 2005 16:25:04 -0400
+Received: from zlynx.org ([199.45.143.209]:2823 "EHLO 199.45.143.209")
+	by vger.kernel.org with ESMTP id S1750804AbVIVUZC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 16:14:08 -0400
-Date: Thu, 22 Sep 2005 13:14:10 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, David Brownell <david-b@pacbell.net>,
-       Paul Mackerras <paulus@samba.org>,
-       "Antonino A. Daplas" <adaplas@pol.net>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: 2.6.14-rc2-mm1
-Message-ID: <77240000.1127420050@[10.10.2.4]>
-In-Reply-To: <20050922125219.7ea04930.akpm@osdl.org>
-References: <20050921222839.76c53ba1.akpm@osdl.org><64900000.1127415577@[10.10.2.4]> <20050922125219.7ea04930.akpm@osdl.org>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Thu, 22 Sep 2005 16:25:02 -0400
+Subject: Re: security patch
+From: Zan Lynx <zlynx@acm.org>
+To: Valdis.Kletnieks@vt.edu
+Cc: breno@kalangolinux.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200509222003.j8MK3i8E010365@turing-police.cc.vt.edu>
+References: <20050922194433.13200.qmail@webmail2.locasite.com.br>
+	 <200509222003.j8MK3i8E010365@turing-police.cc.vt.edu>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-f6nWB5F2rI6CFyTavWa8"
+Date: Thu, 22 Sep 2005 14:24:48 -0600
+Message-Id: <1127420688.10462.9.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Plus it panics on boot on Power-4 LPAR
->> 
->> Memory: 30962716k/31457280k available (4308k kernel code, 494564k reserved, 1112k data, 253k bss, 420k init)
->> Mount-cache hash table entries: 256
->> softlockup thread 0 started up.
->> Processor 1 found.
->> softlockup thread 1 started up.
->> Processor 2 found.
->> softlockup thread 2 started up.
->> Processor 3 found.
->> Brought up 4 CPUs
->> softlockup thread 3 started up.
->> NET: Registered protocol family 16
->> PCI: Probing PCI hardware
->> IOMMU table initialized, virtual merging disabled
->> PCI_DMA: iommu_table_setparms: /pci@3fffde0a000/pci@2,2 has missing tce entries !
->> Kernel panic - not syncing: iommu_init_table: Can't allocate 1729382256943765922 bytes
->> 
->>  <7>RTAS: event: 3, Type: Internal Device Failure, Severity: 5
->> ibm,os-term call failed -1
-> 
-> There are ppc64 IOMMU changes in Linus's tree...
 
-Thanks. will retest with just linus.patch to confirm
+--=-f6nWB5F2rI6CFyTavWa8
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, 2005-09-22 at 16:03 -0400, Valdis.Kletnieks@vt.edu wrote:
+> On Thu, 22 Sep 2005 19:44:33 -0000, breno@kalangolinux.org said:
+>=20
+> > I'm doing a new feature for linux kernel 2.6 to protect against all kin=
+ds of buffer
+> > overflow. It works with new sys_control() system call controling if a p=
+rocess can or can't
+> > call a system call ie. sys_execve();
+>=20
+> This has been done before. ;)
+>=20
+> Also, note *VERY* carefully that this does *NOT* protect against buffer o=
+verflow
+> the way ExecShield and PAX and similar do - this merely tries to mitigate=
+ the
+> damage.
+>=20
+> Note that you probably don't *DARE* remove open()/read()/write()/close() =
+from
+> the "permitted syscall" list - and an attacker can have plenty of fun jus=
+t with
+> those 4 syscalls.
+>=20
+> (That's also why SELinux was designed to give better granularity to sysca=
+lls - it
+> can restrict a program to "write only to files it *should* be able to wri=
+te").
+
+An interesting thing that I don't think has been done before is to
+create a map linking stack call chains to syscalls.  If the call stack
+doesn't match then it isn't a valid call.
+
+Although that might already be part of execution fingerprinting, now
+that I think about it...
+--=20
+Zan Lynx <zlynx@acm.org>
+
+--=-f6nWB5F2rI6CFyTavWa8
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBDMxMOG8fHaOLTWwgRAsPTAJ40WqbxvX8McweOAEU7D3R5nHJDRQCdGxBO
+ZBx1Ll3F+kBymDY1fIgelQk=
+=z4UG
+-----END PGP SIGNATURE-----
+
+--=-f6nWB5F2rI6CFyTavWa8--
+

@@ -1,79 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030321AbVIVUKi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030323AbVIVUMR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030321AbVIVUKi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 16:10:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030325AbVIVUKi
+	id S1030323AbVIVUMR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 16:12:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030325AbVIVUMR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 16:10:38 -0400
-Received: from hera.kernel.org ([140.211.167.34]:60043 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1030321AbVIVUKh (ORCPT
+	Thu, 22 Sep 2005 16:12:17 -0400
+Received: from spirit.analogic.com ([204.178.40.4]:41488 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP
+	id S1030323AbVIVUMQ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 16:10:37 -0400
-Date: Thu, 22 Sep 2005 17:04:46 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Horms <horms@debian.org>, suresh.b.siddha@intel.com
-Cc: Nikos Ntarmos <ntarmos@ceid.upatras.gr>, 329354@bugs.debian.org,
-       Frederik Schueler <fs@lowpingbastards.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: CAN-2005-0204 and 2.4
-Message-ID: <20050922200446.GB9472@dmt.cnet>
-References: <E1EI1tH-0006Yy-00@master.debian.org> <20050922023025.GA20981@verge.net.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050922023025.GA20981@verge.net.au>
-User-Agent: Mutt/1.4.1i
+	Thu, 22 Sep 2005 16:12:16 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <20050922194433.13200.qmail@webmail2.locasite.com.br>
+References: <20050922194433.13200.qmail@webmail2.locasite.com.br>
+X-OriginalArrivalTime: 22 Sep 2005 20:12:14.0978 (UTC) FILETIME=[EC9D5E20:01C5BFB1]
+Content-class: urn:content-classes:message
+Subject: Re: security patch 
+Date: Thu, 22 Sep 2005 16:12:14 -0400
+Message-ID: <Pine.LNX.4.61.0509221557400.13302@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: security patch 
+Thread-Index: AcW/seyk0CyfZ/QiTTeQEICHnYfiCQ==
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: <breno@kalangolinux.org>
+Cc: <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, Sep 22, 2005 at 11:30:25AM +0900, Horms wrote:
-> On Wed, Sep 21, 2005 at 01:31:37PM +0300, Nikos Ntarmos wrote:
-> > Package: kernel-source-2.4.27
-> > Version: 2.4.27-11.hls.2005082200
-> > Severity: important
-> > Justification: fails to build from source
-> > 
-> > Patch 143_outs.diff.bz2 breaks the kernel compilation on x86_64. The
-> > problem is that it uses the IO_BITMAP_BYTES macro which is defined for
-> > i386 (in linux/include/asm-i386/processor.h) but not for x86_64.
-> > Reverting the patch lets the kernel build again, although I guess the
-> > correct solution would be to add an appropriate IO_BITMAP_BYTES to
-> > linux/include/asm-x86_64/processor.h as well.
-> 
-> Hi Nikos,
-> 
-> First up, thanks for testing out my prebuild kernels.  For the
-> uninitiated they are snapshots of what is in the deabian kernel-team's
-> SVN and live in http://packages.vergenet.net/testing/
-> 
-> The problem that you see is a patch that was included in
-> 2.4.27-11 (the current version in sid), though it isn't built
-> for amd64.
-> 
-> Could you see if the following patch works for you.  I've CCed lkml and
-> Marcelo for their consideration.  It seems to me that 2.4 is indeed
-> vulnerable to CAN-2005-0204, perhaps someone can shed some light on
-> this.
-> 
-> -- 
-> Horms
-> 
-> Description: [CAN-2005-0204]: AMD64, allows local users to write to privileged IO ports via OUTS instruction
-> Patch author: Suresh Siddha (suresh.b.siddha@intel.com)
-> Upstream status: not applied
-> URL: https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=146244
-> Patch source: Micah Anderson <micah@riseup.net> (debian-kernel)
-> 
-> Added definition of IO_BITMAP_BYTES for Debian's 2.4.27 and
-> submitted upstream for consideration for inclusion in 2.4 -- Horms
+On Thu, 22 Sep 2005 breno@kalangolinux.org wrote:
 
-And v2.6 does not seem to have been updated either, or a different form of 
-the fix has been deployed? 
+> Hi people,
+>
+> I'm doing a new feature for linux kernel 2.6 to protect against all kinds of buffer
+> overflow. It works with new sys_control() system call controling if a process can or can't
+> call a system call ie. sys_execve();
+>
 
-130 static inline void set_tss_desc(unsigned cpu, void *addr)
-131 {
-132 	set_tssldt_descriptor(&cpu_gdt_table[cpu][GDT_ENTRY_TSS], (unsigned long)addr,
-133 	DESC_TSS,
-134 	sizeof(struct tss_struct) - 1);
-135 } 
+Are you aware that there are very few 'built-in' commands in
+any of the shells?  If a user can't execute anything, the
+user can't do anything.
+
+If you think that this will protect against improperly-written
+daemons, and things that never exec anything, you are wrong.
+The place to fix bad code is in the code.
+
+> You can do it using /bin/sys_control <pid> <enable or not system call>
+> <eax of system call> <secret number>
+
+
+This is a joke, right?
+
+
+> for process that never call for example sys_execve(), setuid()
+> ( you must need specify each eax for each system call) and use
+> some functions in sys_control.h like lock_execve(n)
+> and unlock_execve(n), where n is a secret number defined in sysctl.
+> With this functions you will use system calls only when you need.
+> All shellcodes that use system calls like sys_execve() sys_setuid()
+> will not work with this feature.
+
+What will they do? I try to execute `ls`, the kernel says I can't
+fork and exec `/bin/ls`. So, do I get killed, logged out? The
+shells handle errors in different ways. There is a big difference
+between how bash handles ENOENT (No such file or directory) and
+ENOSYS (Function not implimented).
+
+>
+> I think it can be an option in linux kernel.
+>
+> Questions .. suggestions.
+>
+> Thanks
+>
+
+I think this is just another ruse to attempt to get the system
+call table exported, something you don't need to do in order
+to replace any of its elements. Am I guessing correctly?
+
+> Breno at kalangolinux.org
+>
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13 on an i686 machine (5589.55 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

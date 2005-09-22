@@ -1,43 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965208AbVIVBpT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750816AbVIVCTH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965208AbVIVBpT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 21:45:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965207AbVIVBpT
+	id S1750816AbVIVCTH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 22:19:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751422AbVIVCTH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 21:45:19 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:3722 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S965205AbVIVBpS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 21:45:18 -0400
-Date: Wed, 21 Sep 2005 18:44:51 -0700 (PDT)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: "David S. Miller" <davem@davemloft.net>
-cc: dada1@cosmosbay.com, linux-kernel@vger.kernel.org,
-       netfilter-devel@lists.netfilter.org, netdev@vger.kernel.org, ak@suse.de
-Subject: Re: [PATCH 0/3] netfilter : 3 patches to boost ip_tables performance
-In-Reply-To: <20050921.173408.122945960.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.62.0509211843530.13764@schroedinger.engr.sgi.com>
-References: <43308324.70403@cosmosbay.com> <4331CFA7.50104@cosmosbay.com>
- <Pine.LNX.4.62.0509211542210.13045@schroedinger.engr.sgi.com>
- <20050921.173408.122945960.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 21 Sep 2005 22:19:07 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:43261 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S1750816AbVIVCTF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 22:19:05 -0400
+Subject: Re: [PATCH] RT: Checks for cmpxchg in get_task_struct_rcu()
+From: Daniel Walker <dwalker@mvista.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
+In-Reply-To: <433201FC.8040004@yahoo.com.au>
+References: <1127345874.19506.43.camel@dhcp153.mvista.com>
+	 <433201FC.8040004@yahoo.com.au>
+Content-Type: text/plain
+Date: Wed, 21 Sep 2005 19:18:57 -0700
+Message-Id: <1127355538.8950.1.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-6) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Sep 2005, David S. Miller wrote:
+On Thu, 2005-09-22 at 10:59 +1000, Nick Piggin wrote:
 
-> From: Christoph Lameter <clameter@engr.sgi.com>
-> Date: Wed, 21 Sep 2005 15:43:29 -0700 (PDT)
+> You need my atomic_cmpxchg patches that provide an atomic_cmpxchg
+> (and atomic_inc_not_zero) for all architectures.
 > 
-> > Maybe we better introduce vmalloc_node() instead of improvising this for 
-> > several subsystems? The e1000 driver has similar issues.
-> 
-> I agree.
 
-I did an implementation in June.
+It is racy, but why not just disable preemption ..
 
-See http://marc.theaimsgroup.com/?l=linux-mm&m=111766643127530&w=2
-
-Not sure if this will fit the bill. Never really tested it.
+Daniel
 

@@ -1,70 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030338AbVIVVJ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030303AbVIVVLc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030338AbVIVVJ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 17:09:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030341AbVIVVJ4
+	id S1030303AbVIVVLc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 17:11:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030341AbVIVVLc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 17:09:56 -0400
-Received: from vms048pub.verizon.net ([206.46.252.48]:2027 "EHLO
-	vms048pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1030303AbVIVVJz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 17:09:55 -0400
-Date: Thu, 22 Sep 2005 17:09:53 -0400
+	Thu, 22 Sep 2005 17:11:32 -0400
+Received: from vms040pub.verizon.net ([206.46.252.40]:62505 "EHLO
+	vms040pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1030303AbVIVVLc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 17:11:32 -0400
+Date: Thu, 22 Sep 2005 17:11:26 -0400
 From: Gene Heskett <gene.heskett@verizon.net>
 Subject: Re: Linus GIT tree disappeared from http://www.kernel.org/git/?
-In-reply-to: <BAYC1-PASMTP0225E685AD4FA9108A11B1AE970@CEZ.ICE>
+In-reply-to: <Pine.LNX.4.58.0509220944220.2553@g5.osdl.org>
 To: linux-kernel@vger.kernel.org
-Message-id: <200509221709.53482.gene.heskett@verizon.net>
+Message-id: <200509221711.26899.gene.heskett@verizon.net>
 Organization: None, usuallly detectable by casual observers
 MIME-version: 1.0
 Content-type: text/plain; charset=us-ascii
 Content-transfer-encoding: 7bit
 Content-disposition: inline
 References: <200509221514.44027.roffermanns@sysgo.com>
- <200509221212.01811.gene.heskett@verizon.net>
- <BAYC1-PASMTP0225E685AD4FA9108A11B1AE970@CEZ.ICE>
+ <200509221131.41838.gene.heskett@verizon.net>
+ <Pine.LNX.4.58.0509220944220.2553@g5.osdl.org>
 User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 22 September 2005 13:37, Sean wrote:
->On Thu, September 22, 2005 12:12 pm, Gene Heskett said:
->> Well, I think what I was trying to ask but got lost in the bushes was
->> "do I have a valid download?"  and, how do I go about keeping it upto
->> date now that I have it?  I've read about half the git.txt stuff in
->> the Documentation dir, but nothing sticks out as being the magic
->> updater command.
+On Thursday 22 September 2005 12:52, Linus Torvalds wrote:
+[...]
+>It's fixed in the current git already. I thought it was fixed in
+0.99.7
+>already, but regardless, this error is harmless and should just be
+>ignored.
 >
->Gene,
->
->In order to update your copy of the kernel repository just run "git
-> pull". Unfortunately there still seem to be some issues with
-> kernel.org, hopefully that'll be fixed up soon.
->
->The warning you're getting from git about "alternates" will be fixed in
->the next release of git.   You _could_ use your current version of git
-> to track the official git repository and get this fix before it's
-> officially released:
->
->$ cd ~
->$ git clone rsync://rsync.kernel.org/pub/scm/git/git.git/ git-repo
->$ cd git-repo
->$ git checkout
->$ make install
->
->Which should upgrade your current version of git to the very latest.
->After which you can upgrade git whenever you like by running:
->
->$ cd ~/git-repo
->$ git pull
->$ make install
->
->Cheers,
->Sean
+>  Linus
 
-Thanks, I've printed this, and as soon as BDI-4.29.iso is here so I
-have some bandwidth, I'll give it a shot.  But I think I'll do it in
-/usr/src rather than ~=/root.  Is that going to be a problem?
+I see, thanks.
 
 -- 
 Cheers, Gene

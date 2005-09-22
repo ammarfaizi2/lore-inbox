@@ -1,541 +1,398 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751430AbVIVEEE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751435AbVIVELO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751430AbVIVEEE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 00:04:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751432AbVIVEEE
+	id S1751435AbVIVELO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 00:11:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751434AbVIVELO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 00:04:04 -0400
-Received: from zproxy.gmail.com ([64.233.162.192]:60222 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751430AbVIVEEC (ORCPT
+	Thu, 22 Sep 2005 00:11:14 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:60897 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1751432AbVIVELN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 00:04:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=EKjIVJqXI72Jyb50j9rFoeVwWMHv9ptXsZybf8LU9sd1h+AvPtY+y/FOlMr9BdBqe2/VKml7JHlIErVQsPH6AtPHIybe85EHTOyEtPANRn39QERv1XWdDlVIuaDAr8N8k0/e+iEx61O8Fpcpm+xo8oQzdntBpjWNF+VjJKHhhig=
-Date: Thu, 22 Sep 2005 00:04:44 -0400
-From: Florin Malita <fmalita@gmail.com>
-To: akpm@osdl.org, davem@davemloft.net
-Cc: ctindel@users.sourceforge.net, fubar@us.ibm.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH] channel bonding: add support for device-indexed parameters
-Message-Id: <20050922000444.369c32c2.fmalita@gmail.com>
-X-Mailer: Sylpheed version 2.1.2 (GTK+ 2.6.7; i686-pc-linux-gnu)
+	Thu, 22 Sep 2005 00:11:13 -0400
+Date: Thu, 22 Sep 2005 00:11:09 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [git patches] net driver fixes
+Message-ID: <20050922041109.GA6428@havoc.gtf.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While originally I was interested in being able to set a different
-primary interface for each bond device (same primary for all bond
-devices doesn't make any sense), most parameters deserve the same
-treatement.
 
-This patch adds support for device indexed module parameter
-arrays instead of the old plain scalars. Mostly module_param
-substitutions and parameter parsing logic tweaking.
+Please pull from 'upstream-fixes' branch of
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git
+
+to obtain the following fixes:
 
 
-Signed-off-by: Florin Malita <fmalita@gmail.com>
----
+ drivers/net/bonding/bond_main.c |    3 
+ drivers/net/r8169.c             |    4 
+ drivers/net/skge.c              |  194 ++++++++++++++++++----------------------
+ drivers/net/skge.h              |    2 
+ 4 files changed, 97 insertions(+), 106 deletions(-)
+
+
+nsxfreddy@gmail.com:
+  bonding: Fix link monitor capability check (was skge: set mac address oops with bonding)
+
+Stephen Hemminger:
+  skge: expand ethtool debug register dump
+  skge: check length from PHY
+
+Tommy Christensen:
+  r8169: call proper VLAN receive function
+
+
 diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
 --- a/drivers/net/bonding/bond_main.c
 +++ b/drivers/net/bonding/bond_main.c
-@@ -487,6 +487,8 @@
-  *	  * Added xmit_hash_policy_layer34()
-  *	- Modified by Jay Vosburgh <fubar@us.ibm.com> to also support mode 4.
-  *	  Set version to 2.6.3.
-+ * 2005/09/20 - Florin Malita <fmalita at gmail dot com>
-+ *      - Added support for device-indexed module parameters.
-  */
+@@ -1653,7 +1653,8 @@ static int bond_enslave(struct net_devic
+ 	int old_features = bond_dev->features;
+ 	int res = 0;
  
- //#define BONDING_DEBUG 1
-@@ -545,38 +547,47 @@
- #define BOND_LINK_ARP_INTERV	0
- 
- static int max_bonds	= BOND_DEFAULT_MAX_BONDS;
--static int miimon	= BOND_LINK_MON_INTERV;
--static int updelay	= 0;
--static int downdelay	= 0;
--static int use_carrier	= 1;
--static char *mode	= NULL;
--static char *primary	= NULL;
--static char *lacp_rate	= NULL;
--static char *xmit_hash_policy = NULL;
--static int arp_interval = BOND_LINK_ARP_INTERV;
-+static int miimon[BOND_MAX_PARMS];
-+static int num_miimon;
-+static int updelay[BOND_MAX_PARMS];
-+static int num_updelay;
-+static int downdelay[BOND_MAX_PARMS];
-+static int num_downdelay;
-+static int use_carrier[BOND_MAX_PARMS];
-+static int num_use_carrier;
-+static char *mode[BOND_MAX_PARMS];
-+static int num_mode;
-+static char *primary[BOND_MAX_PARMS];
-+static int num_primary;
-+static char *lacp_rate[BOND_MAX_PARMS];
-+static int num_lacp_rate;
-+static char *xmit_hash_policy[BOND_MAX_PARMS];
-+static int num_xmit_hash_policy;
-+static int arp_interval[BOND_MAX_PARMS];
-+static int num_arp_interval;
- static char *arp_ip_target[BOND_MAX_ARP_TARGETS] = { NULL, };
- 
--module_param(max_bonds, int, 0);
-+module_param(max_bonds, int, S_IRUGO);
- MODULE_PARM_DESC(max_bonds, "Max number of bonded devices");
--module_param(miimon, int, 0);
-+module_param_array(miimon, int, &num_miimon, S_IRUGO);
- MODULE_PARM_DESC(miimon, "Link check interval in milliseconds");
--module_param(updelay, int, 0);
-+module_param_array(updelay, int, &num_updelay, S_IRUGO);
- MODULE_PARM_DESC(updelay, "Delay before considering link up, in milliseconds");
--module_param(downdelay, int, 0);
-+module_param_array(downdelay, int, &num_downdelay, S_IRUGO);
- MODULE_PARM_DESC(downdelay, "Delay before considering link down, in milliseconds");
--module_param(use_carrier, int, 0);
-+module_param_array(use_carrier, int, &num_use_carrier, S_IRUGO);
- MODULE_PARM_DESC(use_carrier, "Use netif_carrier_ok (vs MII ioctls) in miimon; 0 for off, 1 for on (default)");
--module_param(mode, charp, 0);
-+module_param_array(mode, charp, &num_mode, S_IRUGO);
- MODULE_PARM_DESC(mode, "Mode of operation : 0 for round robin, 1 for active-backup, 2 for xor");
--module_param(primary, charp, 0);
-+module_param_array(primary, charp, &num_primary, S_IRUGO);
- MODULE_PARM_DESC(primary, "Primary network device to use");
--module_param(lacp_rate, charp, 0);
-+module_param_array(lacp_rate, charp, &num_lacp_rate, S_IRUGO);
- MODULE_PARM_DESC(lacp_rate, "LACPDU tx rate to request from 802.3ad partner (slow/fast)");
--module_param(xmit_hash_policy, charp, 0);
-+module_param_array(xmit_hash_policy, charp, &num_xmit_hash_policy, S_IRUGO);
- MODULE_PARM_DESC(xmit_hash_policy, "XOR hashing method : 0 for layer 2 (default), 1 for layer 3+4");
--module_param(arp_interval, int, 0);
-+module_param_array(arp_interval, int, &num_arp_interval, S_IRUGO);
- MODULE_PARM_DESC(arp_interval, "arp interval in milliseconds");
--module_param_array(arp_ip_target, charp, NULL, 0);
-+module_param_array(arp_ip_target, charp, NULL, S_IRUGO);
- MODULE_PARM_DESC(arp_ip_target, "arp targets in n.n.n.n form");
- 
- /*----------------------------- Global variables ----------------------------*/
-@@ -592,9 +603,6 @@ static struct proc_dir_entry *bond_proc_
- 
- static u32 arp_target[BOND_MAX_ARP_TARGETS] = { 0, } ;
- static int arp_ip_count	= 0;
--static int bond_mode	= BOND_MODE_ROUNDROBIN;
--static int xmit_hashtype= BOND_XMIT_POLICY_LAYER2;
--static int lacp_fast	= 0;
- static int app_abi_ver	= 0;
- static int orig_app_abi_ver = -1; /* This is used to save the first ABI version
- 				   * we receive from the application. Once set,
-@@ -4714,51 +4722,62 @@ static inline int bond_parse_parm(char *
- 	return -1;
- }
- 
--static int bond_check_params(struct bond_params *params)
-+static int bond_check_params(struct bond_params *params, int bond)
- {
-+	params->miimon = (bond < num_miimon) ? miimon[bond] : BOND_LINK_MON_INTERV;
-+	params->updelay	= (bond < num_updelay) ? updelay[bond] : 0;
-+	params->downdelay = (bond < num_downdelay) ? downdelay[bond] : 0;
-+	params->use_carrier = (bond < num_use_carrier) ? use_carrier[bond] : 1;
-+	params->arp_interval = (bond < num_arp_interval) ? arp_interval[bond] : BOND_LINK_ARP_INTERV;
-+	
-+	params->mode = BOND_MODE_ROUNDROBIN;
-+	params->primary[0] = '\0';
-+	params->lacp_fast = 0;
-+	params->xmit_policy = BOND_XMIT_POLICY_LAYER2;
-+	
-+
- 	/*
- 	 * Convert string parameters.
- 	 */
--	if (mode) {
--		bond_mode = bond_parse_parm(mode, bond_mode_tbl);
--		if (bond_mode == -1) {
-+	if (bond < num_mode) {
-+		params->mode = bond_parse_parm(mode[bond], bond_mode_tbl);
-+		if (params->mode == -1) {
- 			printk(KERN_ERR DRV_NAME
- 			       ": Error: Invalid bonding mode \"%s\"\n",
--			       mode == NULL ? "NULL" : mode);
-+			       mode[bond]);
- 			return -EINVAL;
- 		}
- 	}
- 
--	if (xmit_hash_policy) {
--		if ((bond_mode != BOND_MODE_XOR) &&
--		    (bond_mode != BOND_MODE_8023AD)) {
-+	if (bond < num_xmit_hash_policy) {
-+		if ((params->mode != BOND_MODE_XOR) &&
-+		    (params->mode != BOND_MODE_8023AD)) {
- 			printk(KERN_INFO DRV_NAME
- 			       ": xor_mode param is irrelevant in mode %s\n",
--			       bond_mode_name(bond_mode));
-+			       bond_mode_name(params->mode));
- 		} else {
--			xmit_hashtype = bond_parse_parm(xmit_hash_policy,
-+			params->xmit_policy = bond_parse_parm(xmit_hash_policy[bond],
- 							xmit_hashtype_tbl);
--			if (xmit_hashtype == -1) {
-+			if (params->xmit_policy == -1) {
- 				printk(KERN_ERR DRV_NAME
- 			       	": Error: Invalid xmit_hash_policy \"%s\"\n",
--			       	xmit_hash_policy == NULL ? "NULL" :
--				       xmit_hash_policy);
-+			       	xmit_hash_policy[bond]);
- 				return -EINVAL;
- 			}
- 		}
- 	}
- 
--	if (lacp_rate) {
--		if (bond_mode != BOND_MODE_8023AD) {
-+	if (bond < num_lacp_rate) {
-+		if (params->mode != BOND_MODE_8023AD) {
- 			printk(KERN_INFO DRV_NAME
- 			       ": lacp_rate param is irrelevant in mode %s\n",
--			       bond_mode_name(bond_mode));
-+			       bond_mode_name(params->mode));
- 		} else {
--			lacp_fast = bond_parse_parm(lacp_rate, bond_lacp_tbl);
--			if (lacp_fast == -1) {
-+			params->lacp_fast = bond_parse_parm(lacp_rate[bond], bond_lacp_tbl);
-+			if (params->lacp_fast == -1) {
- 				printk(KERN_ERR DRV_NAME
- 				       ": Error: Invalid lacp rate \"%s\"\n",
--				       lacp_rate == NULL ? "NULL" : lacp_rate);
-+				       lacp_rate[bond]);
- 				return -EINVAL;
- 			}
- 		}
-@@ -4772,77 +4791,77 @@ static int bond_check_params(struct bond
- 		max_bonds = BOND_DEFAULT_MAX_BONDS;
- 	}
- 
--	if (miimon < 0) {
-+	if (params->miimon < 0) {
+-	if (slave_dev->do_ioctl == NULL) {
++	if (!bond->params.use_carrier && slave_dev->ethtool_ops == NULL &&
++		slave_dev->do_ioctl == NULL) {
  		printk(KERN_WARNING DRV_NAME
- 		       ": Warning: miimon module parameter (%d), "
- 		       "not in range 0-%d, so it was reset to %d\n",
--		       miimon, INT_MAX, BOND_LINK_MON_INTERV);
--		miimon = BOND_LINK_MON_INTERV;
-+		       params->miimon, INT_MAX, BOND_LINK_MON_INTERV);
-+		params->miimon = BOND_LINK_MON_INTERV;
- 	}
+ 		       ": Warning : no link monitoring support for %s\n",
+ 		       slave_dev->name);
+diff --git a/drivers/net/r8169.c b/drivers/net/r8169.c
+--- a/drivers/net/r8169.c
++++ b/drivers/net/r8169.c
+@@ -100,11 +100,11 @@ VERSION 2.2LK	<2005/01/25>
  
--	if (updelay < 0) {
-+	if (params->updelay < 0) {
- 		printk(KERN_WARNING DRV_NAME
- 		       ": Warning: updelay module parameter (%d), "
- 		       "not in range 0-%d, so it was reset to 0\n",
--		       updelay, INT_MAX);
--		updelay = 0;
-+		       params->updelay, INT_MAX);
-+		params->updelay = 0;
- 	}
- 
--	if (downdelay < 0) {
-+	if (params->downdelay < 0) {
- 		printk(KERN_WARNING DRV_NAME
- 		       ": Warning: downdelay module parameter (%d), "
- 		       "not in range 0-%d, so it was reset to 0\n",
--		       downdelay, INT_MAX);
--		downdelay = 0;
-+		       params->downdelay, INT_MAX);
-+		params->downdelay = 0;
- 	}
- 
--	if ((use_carrier != 0) && (use_carrier != 1)) {
-+	if ((params->use_carrier != 0) && (params->use_carrier != 1)) {
- 		printk(KERN_WARNING DRV_NAME
- 		       ": Warning: use_carrier module parameter (%d), "
- 		       "not of valid value (0/1), so it was set to 1\n",
--		       use_carrier);
--		use_carrier = 1;
-+		       params->use_carrier);
-+		params->use_carrier = 1;
- 	}
- 
- 	/* reset values for 802.3ad */
--	if (bond_mode == BOND_MODE_8023AD) {
--		if (!miimon) {
-+	if (params->mode == BOND_MODE_8023AD) {
-+		if (!params->miimon) {
- 			printk(KERN_WARNING DRV_NAME
- 			       ": Warning: miimon must be specified, "
- 			       "otherwise bonding will not detect link "
- 			       "failure, speed and duplex which are "
- 			       "essential for 802.3ad operation\n");
- 			printk(KERN_WARNING "Forcing miimon to 100msec\n");
--			miimon = 100;
-+			params->miimon = 100;
- 		}
- 	}
- 
- 	/* reset values for TLB/ALB */
--	if ((bond_mode == BOND_MODE_TLB) ||
--	    (bond_mode == BOND_MODE_ALB)) {
--		if (!miimon) {
-+	if ((params->mode == BOND_MODE_TLB) ||
-+	    (params->mode == BOND_MODE_ALB)) {
-+		if (!params->miimon) {
- 			printk(KERN_WARNING DRV_NAME
- 			       ": Warning: miimon must be specified, "
- 			       "otherwise bonding will not detect link "
- 			       "failure and link speed which are essential "
- 			       "for TLB/ALB load balancing\n");
- 			printk(KERN_WARNING "Forcing miimon to 100msec\n");
--			miimon = 100;
-+			params->miimon = 100;
- 		}
- 	}
- 
--	if (bond_mode == BOND_MODE_ALB) {
-+	if (params->mode == BOND_MODE_ALB) {
- 		printk(KERN_NOTICE DRV_NAME
- 		       ": In ALB mode you might experience client "
- 		       "disconnections upon reconnection of a link if the "
- 		       "bonding module updelay parameter (%d msec) is "
- 		       "incompatible with the forwarding delay time of the "
- 		       "switch\n",
--		       updelay);
-+		       params->updelay);
- 	}
- 
--	if (!miimon) {
--		if (updelay || downdelay) {
-+	if (!params->miimon) {
-+		if (params->updelay || params->downdelay) {
- 			/* just warn the user the up/down delay will have
- 			 * no effect since miimon is zero...
- 			 */
-@@ -4851,45 +4870,45 @@ static int bond_check_params(struct bond
- 			       "and updelay (%d) or downdelay (%d) module "
- 			       "parameter is set; updelay and downdelay have "
- 			       "no effect unless miimon is set\n",
--			       updelay, downdelay);
-+			       params->updelay, params->downdelay);
- 		}
- 	} else {
- 		/* don't allow arp monitoring */
--		if (arp_interval) {
-+		if (params->arp_interval) {
- 			printk(KERN_WARNING DRV_NAME
- 			       ": Warning: miimon (%d) and arp_interval (%d) "
- 			       "can't be used simultaneously, disabling ARP "
- 			       "monitoring\n",
--			       miimon, arp_interval);
--			arp_interval = 0;
-+			       params->miimon, params->arp_interval);
-+			params->arp_interval = 0;
- 		}
- 
--		if ((updelay % miimon) != 0) {
-+		if ((params->updelay % params->miimon) != 0) {
- 			printk(KERN_WARNING DRV_NAME
- 			       ": Warning: updelay (%d) is not a multiple "
- 			       "of miimon (%d), updelay rounded to %d ms\n",
--			       updelay, miimon, (updelay / miimon) * miimon);
-+			       params->updelay, params->miimon, (params->updelay / params->miimon) * params->miimon);
- 		}
- 
--		updelay /= miimon;
-+		params->updelay /= params->miimon;
- 
--		if ((downdelay % miimon) != 0) {
-+		if ((params->downdelay % params->miimon) != 0) {
- 			printk(KERN_WARNING DRV_NAME
- 			       ": Warning: downdelay (%d) is not a multiple "
- 			       "of miimon (%d), downdelay rounded to %d ms\n",
--			       downdelay, miimon,
--			       (downdelay / miimon) * miimon);
-+			       params->downdelay, params->miimon,
-+			       (params->downdelay / params->miimon) * params->miimon);
- 		}
- 
--		downdelay /= miimon;
-+		params->downdelay /= params->miimon;
- 	}
- 
--	if (arp_interval < 0) {
-+	if (params->arp_interval < 0) {
- 		printk(KERN_WARNING DRV_NAME
- 		       ": Warning: arp_interval module parameter (%d) "
- 		       ", not in range 0-%d, so it was reset to %d\n",
--		       arp_interval, INT_MAX, BOND_LINK_ARP_INTERV);
--		arp_interval = BOND_LINK_ARP_INTERV;
-+		       params->arp_interval, INT_MAX, BOND_LINK_ARP_INTERV);
-+		params->arp_interval = BOND_LINK_ARP_INTERV;
- 	}
- 
- 	for (arp_ip_count = 0;
-@@ -4902,33 +4921,33 @@ static int bond_check_params(struct bond
- 			       ": Warning: bad arp_ip_target module parameter "
- 			       "(%s), ARP monitoring will not be performed\n",
- 			       arp_ip_target[arp_ip_count]);
--			arp_interval = 0;
-+			params->arp_interval = 0;
- 		} else {
- 			u32 ip = in_aton(arp_ip_target[arp_ip_count]);
- 			arp_target[arp_ip_count] = ip;
- 		}
- 	}
- 
--	if (arp_interval && !arp_ip_count) {
-+	if (params->arp_interval && !arp_ip_count) {
- 		/* don't allow arping if no arp_ip_target given... */
- 		printk(KERN_WARNING DRV_NAME
- 		       ": Warning: arp_interval module parameter (%d) "
- 		       "specified without providing an arp_ip_target "
- 		       "parameter, arp_interval was reset to 0\n",
--		       arp_interval);
--		arp_interval = 0;
-+		       params->arp_interval);
-+		params->arp_interval = 0;
- 	}
- 
--	if (miimon) {
-+	if (params->miimon) {
- 		printk(KERN_INFO DRV_NAME
- 		       ": MII link monitoring set to %d ms\n",
--		       miimon);
--	} else if (arp_interval) {
-+		       params->miimon);
-+	} else if (params->arp_interval) {
- 		int i;
- 
- 		printk(KERN_INFO DRV_NAME
- 		       ": ARP monitoring set to %d ms with %d target(s):",
--		       arp_interval, arp_ip_count);
-+		       params->arp_interval, arp_ip_count);
- 
- 		for (i = 0; i < arp_ip_count; i++)
- 			printk (" %s", arp_ip_target[i]);
-@@ -4945,32 +4964,20 @@ static int bond_check_params(struct bond
- 		       "otherwise bonding will not detect link failures! see "
- 		       "bonding.txt for details.\n");
- 	}
--
--	if (primary && !USES_PRIMARY(bond_mode)) {
-+	
-+	if (bond < num_primary) {
- 		/* currently, using a primary only makes sense
- 		 * in active backup, TLB or ALB modes
- 		 */
--		printk(KERN_WARNING DRV_NAME
--		       ": Warning: %s primary device specified but has no "
--		       "effect in %s mode\n",
--		       primary, bond_mode_name(bond_mode));
--		primary = NULL;
--	}
--
--	/* fill params struct with the proper values */
--	params->mode = bond_mode;
--	params->xmit_policy = xmit_hashtype;
--	params->miimon = miimon;
--	params->arp_interval = arp_interval;
--	params->updelay = updelay;
--	params->downdelay = downdelay;
--	params->use_carrier = use_carrier;
--	params->lacp_fast = lacp_fast;
--	params->primary[0] = 0;
--
--	if (primary) {
--		strncpy(params->primary, primary, IFNAMSIZ);
--		params->primary[IFNAMSIZ - 1] = 0;
-+		if (USES_PRIMARY(params->mode)) {
-+			strncpy(params->primary, primary[bond], IFNAMSIZ);
-+			params->primary[IFNAMSIZ - 1] = 0;
-+		} else {
-+			printk(KERN_WARNING DRV_NAME
-+			       ": Warning: %s primary device specified but has no "
-+			       "effect in %s mode\n",
-+		    		primary[bond], bond_mode_name(params->mode));
-+		}
- 	}
- 
- 	memcpy(params->arp_targets, arp_target, sizeof(arp_target));
-@@ -4981,16 +4988,12 @@ static int bond_check_params(struct bond
- static int __init bonding_init(void)
- {
- 	struct bond_params params;
-+	struct net_device *bond_dev;
- 	int i;
- 	int res;
- 
- 	printk(KERN_INFO "%s", version);
- 
--	res = bond_check_params(&params);
--	if (res) {
--		return res;
--	}
--
- 	rtnl_lock();
- 
- #ifdef CONFIG_PROC_FS
-@@ -4998,8 +5001,6 @@ static int __init bonding_init(void)
+ #ifdef CONFIG_R8169_NAPI
+ #define rtl8169_rx_skb			netif_receive_skb
+-#define rtl8169_rx_hwaccel_skb		vlan_hwaccel_rx
++#define rtl8169_rx_hwaccel_skb		vlan_hwaccel_receive_skb
+ #define rtl8169_rx_quota(count, quota)	min(count, quota)
+ #else
+ #define rtl8169_rx_skb			netif_rx
+-#define rtl8169_rx_hwaccel_skb		vlan_hwaccel_receive_skb
++#define rtl8169_rx_hwaccel_skb		vlan_hwaccel_rx
+ #define rtl8169_rx_quota(count, quota)	count
  #endif
  
- 	for (i = 0; i < max_bonds; i++) {
--		struct net_device *bond_dev;
+diff --git a/drivers/net/skge.c b/drivers/net/skge.c
+--- a/drivers/net/skge.c
++++ b/drivers/net/skge.c
+@@ -42,7 +42,7 @@
+ #include "skge.h"
+ 
+ #define DRV_NAME		"skge"
+-#define DRV_VERSION		"1.0"
++#define DRV_VERSION		"1.1"
+ #define PFX			DRV_NAME " "
+ 
+ #define DEFAULT_TX_RING_SIZE	128
+@@ -105,41 +105,28 @@ static const u32 rxirqmask[] = { IS_R1_F
+ static const u32 txirqmask[] = { IS_XA1_F, IS_XA2_F };
+ static const u32 portirqmask[] = { IS_PORT_1, IS_PORT_2 };
+ 
+-/* Don't need to look at whole 16K.
+- * last interesting register is descriptor poll timer.
+- */
+-#define SKGE_REGS_LEN	(29*128)
 -
- 		bond_dev = alloc_netdev(sizeof(struct bonding), "", ether_setup);
- 		if (!bond_dev) {
- 			res = -ENOMEM;
-@@ -5008,8 +5009,11 @@ static int __init bonding_init(void)
+ static int skge_get_regs_len(struct net_device *dev)
+ {
+-	return SKGE_REGS_LEN;
++	return 0x4000;
+ }
  
- 		res = dev_alloc_name(bond_dev, "bond%d");
- 		if (res < 0) {
--			free_netdev(bond_dev);
--			goto out_err;
-+			goto out_dev;
-+		}
-+		
-+		if ((res = bond_check_params(&params, i)) < 0){
-+			goto out_dev;
- 		}
+ /*
+- * Returns copy of control register region
+- * I/O region is divided into banks and certain regions are unreadable
++ * Returns copy of whole control register region
++ * Note: skip RAM address register because accessing it will
++ * 	 cause bus hangs!
+  */
+ static void skge_get_regs(struct net_device *dev, struct ethtool_regs *regs,
+ 			  void *p)
+ {
+ 	const struct skge_port *skge = netdev_priv(dev);
+-	unsigned long offs;
+ 	const void __iomem *io = skge->hw->regs;
+-	static const unsigned long bankmap
+-		= (1<<0) | (1<<2) | (1<<8) | (1<<9)
+-		  | (1<<12) | (1<<13) | (1<<14) | (1<<15) | (1<<16)
+-		  | (1<<17) | (1<<20) | (1<<21) | (1<<22) | (1<<23)
+-		  | (1<<24)  | (1<<25) | (1<<26) | (1<<27) | (1<<28);
  
- 		/* bond_init() must be called after dev_alloc_name() (for the
-@@ -5018,8 +5022,7 @@ static int __init bonding_init(void)
- 		 */
- 		res = bond_init(bond_dev, &params);
- 		if (res < 0) {
--			free_netdev(bond_dev);
--			goto out_err;
-+			goto out_dev;
- 		}
+ 	regs->version = 1;
+-	for (offs = 0; offs < regs->len; offs += 128) {
+-		u32 len = min_t(u32, 128, regs->len - offs);
++	memset(p, 0, regs->len);
++	memcpy_fromio(p, io, B3_RAM_ADDR);
  
- 		SET_MODULE_OWNER(bond_dev);
-@@ -5027,8 +5030,7 @@ static int __init bonding_init(void)
- 		res = register_netdevice(bond_dev);
- 		if (res < 0) {
- 			bond_deinit(bond_dev);
--			free_netdev(bond_dev);
--			goto out_err;
-+			goto out_dev;
- 		}
- 	}
+-		if (bankmap & (1<<(offs/128)))
+-			memcpy_fromio(p + offs, io + offs, len);
+-		else
+-			memset(p + offs, 0, len);
+-	}
++	memcpy_fromio(p + B3_RI_WTO_R1, io + B3_RI_WTO_R1,
++		      regs->len - B3_RI_WTO_R1);
+ }
  
-@@ -5038,6 +5040,8 @@ static int __init bonding_init(void)
- 
+ /* Wake on Lan only supported on Yukon chps with rev 1 or above */
+@@ -775,17 +762,6 @@ static int skge_ring_alloc(struct skge_r
  	return 0;
+ }
  
-+out_dev:
-+	free_netdev(bond_dev);
- out_err:
- 	/*
- 	 * rtnl_unlock() will run netdev_run_todo(), putting the
-diff --git a/drivers/net/bonding/bonding.h b/drivers/net/bonding/bonding.h
---- a/drivers/net/bonding/bonding.h
-+++ b/drivers/net/bonding/bonding.h
-@@ -46,6 +46,7 @@
- #define DRV_DESCRIPTION	"Ethernet Channel Bonding Driver"
+-static struct sk_buff *skge_rx_alloc(struct net_device *dev, unsigned int size)
+-{
+-	struct sk_buff *skb = dev_alloc_skb(size);
+-
+-	if (likely(skb)) {
+-		skb->dev = dev;
+-		skb_reserve(skb, NET_IP_ALIGN);
+-	}
+-	return skb;
+-}
+-
+ /* Allocate and setup a new buffer for receiving */
+ static void skge_rx_setup(struct skge_port *skge, struct skge_element *e,
+ 			  struct sk_buff *skb, unsigned int bufsize)
+@@ -858,16 +834,17 @@ static int skge_rx_fill(struct skge_port
+ {
+ 	struct skge_ring *ring = &skge->rx_ring;
+ 	struct skge_element *e;
+-	unsigned int bufsize = skge->rx_buf_size;
  
- #define BOND_MAX_ARP_TARGETS	16
-+#define BOND_MAX_PARMS		16
+ 	e = ring->start;
+ 	do {
+-		struct sk_buff *skb = skge_rx_alloc(skge->netdev, bufsize);
++		struct sk_buff *skb;
  
- #ifdef BONDING_DEBUG
- #define dprintk(fmt, args...) \
++		skb = dev_alloc_skb(skge->rx_buf_size + NET_IP_ALIGN);
+ 		if (!skb)
+ 			return -ENOMEM;
+ 
+-		skge_rx_setup(skge, e, skb, bufsize);
++		skb_reserve(skb, NET_IP_ALIGN);
++		skge_rx_setup(skge, e, skb, skge->rx_buf_size);
+ 	} while ( (e = e->next) != ring->start);
+ 
+ 	ring->to_clean = ring->start;
+@@ -2442,6 +2419,14 @@ static void yukon_set_multicast(struct n
+ 	gma_write16(hw, port, GM_RX_CTRL, reg);
+ }
+ 
++static inline u16 phy_length(const struct skge_hw *hw, u32 status)
++{
++	if (hw->chip_id == CHIP_ID_GENESIS)
++		return status >> XMR_FS_LEN_SHIFT;
++	else
++		return status >> GMR_FS_LEN_SHIFT;
++}
++
+ static inline int bad_phy_status(const struct skge_hw *hw, u32 status)
+ {
+ 	if (hw->chip_id == CHIP_ID_GENESIS)
+@@ -2451,80 +2436,99 @@ static inline int bad_phy_status(const s
+ 			(status & GMR_FS_RX_OK) == 0;
+ }
+ 
+-static void skge_rx_error(struct skge_port *skge, int slot,
+-			  u32 control, u32 status)
+-{
+-	if (netif_msg_rx_err(skge))
+-		printk(KERN_DEBUG PFX "%s: rx err, slot %d control 0x%x status 0x%x\n",
+-		       skge->netdev->name, slot, control, status);
+-
+-	if ((control & (BMU_EOF|BMU_STF)) != (BMU_STF|BMU_EOF))
+-		skge->net_stats.rx_length_errors++;
+-	else if (skge->hw->chip_id == CHIP_ID_GENESIS) {
+-		if (status & (XMR_FS_RUNT|XMR_FS_LNG_ERR))
+-			skge->net_stats.rx_length_errors++;
+-		if (status & XMR_FS_FRA_ERR)
+-			skge->net_stats.rx_frame_errors++;
+-		if (status & XMR_FS_FCS_ERR)
+-			skge->net_stats.rx_crc_errors++;
+-	} else {
+-		if (status & (GMR_FS_LONG_ERR|GMR_FS_UN_SIZE))
+-			skge->net_stats.rx_length_errors++;
+-		if (status & GMR_FS_FRAGMENT)
+-			skge->net_stats.rx_frame_errors++;
+-		if (status & GMR_FS_CRC_ERR)
+-			skge->net_stats.rx_crc_errors++;
+-	}
+-}
+ 
+ /* Get receive buffer from descriptor.
+  * Handles copy of small buffers and reallocation failures
+  */
+ static inline struct sk_buff *skge_rx_get(struct skge_port *skge,
+ 					  struct skge_element *e,
+-					  unsigned int len)
++					  u32 control, u32 status, u16 csum)
+ {
+-	struct sk_buff *nskb, *skb;
++	struct sk_buff *skb;
++	u16 len = control & BMU_BBC;
++
++	if (unlikely(netif_msg_rx_status(skge)))
++		printk(KERN_DEBUG PFX "%s: rx slot %td status 0x%x len %d\n",
++		       skge->netdev->name, e - skge->rx_ring.start,
++		       status, len);
++
++	if (len > skge->rx_buf_size)
++		goto error;
++
++	if ((control & (BMU_EOF|BMU_STF)) != (BMU_STF|BMU_EOF))
++		goto error;
++
++	if (bad_phy_status(skge->hw, status))
++		goto error;
++
++	if (phy_length(skge->hw, status) != len)
++		goto error;
+ 
+ 	if (len < RX_COPY_THRESHOLD) {
+-		nskb = skge_rx_alloc(skge->netdev, len + NET_IP_ALIGN);
+-		if (unlikely(!nskb))
+-			return NULL;
++		skb = dev_alloc_skb(len + 2);
++		if (!skb)
++			goto resubmit;
+ 
++		skb_reserve(skb, 2);
+ 		pci_dma_sync_single_for_cpu(skge->hw->pdev,
+ 					    pci_unmap_addr(e, mapaddr),
+ 					    len, PCI_DMA_FROMDEVICE);
+-		memcpy(nskb->data, e->skb->data, len);
++		memcpy(skb->data, e->skb->data, len);
+ 		pci_dma_sync_single_for_device(skge->hw->pdev,
+ 					       pci_unmap_addr(e, mapaddr),
+ 					       len, PCI_DMA_FROMDEVICE);
+-
+-		if (skge->rx_csum) {
+-			struct skge_rx_desc *rd = e->desc;
+-			nskb->csum = le16_to_cpu(rd->csum2);
+-			nskb->ip_summed = CHECKSUM_HW;
+-		}
+ 		skge_rx_reuse(e, skge->rx_buf_size);
+-		return nskb;
+ 	} else {
+-		nskb = skge_rx_alloc(skge->netdev, skge->rx_buf_size);
+-		if (unlikely(!nskb))
+-			return NULL;
++		struct sk_buff *nskb;
++		nskb = dev_alloc_skb(skge->rx_buf_size + NET_IP_ALIGN);
++		if (!nskb)
++			goto resubmit;
+ 
+ 		pci_unmap_single(skge->hw->pdev,
+ 				 pci_unmap_addr(e, mapaddr),
+ 				 pci_unmap_len(e, maplen),
+ 				 PCI_DMA_FROMDEVICE);
+ 		skb = e->skb;
+-		if (skge->rx_csum) {
+-			struct skge_rx_desc *rd = e->desc;
+-			skb->csum = le16_to_cpu(rd->csum2);
+-			skb->ip_summed = CHECKSUM_HW;
+-		}
+-
++  		prefetch(skb->data);
+ 		skge_rx_setup(skge, e, nskb, skge->rx_buf_size);
+-		return skb;
+ 	}
++
++	skb_put(skb, len);
++	skb->dev = skge->netdev;
++	if (skge->rx_csum) {
++		skb->csum = csum;
++		skb->ip_summed = CHECKSUM_HW;
++	}
++
++	skb->protocol = eth_type_trans(skb, skge->netdev);
++
++	return skb;
++error:
++
++	if (netif_msg_rx_err(skge))
++		printk(KERN_DEBUG PFX "%s: rx err, slot %td control 0x%x status 0x%x\n",
++		       skge->netdev->name, e - skge->rx_ring.start,
++		       control, status);
++
++	if (skge->hw->chip_id == CHIP_ID_GENESIS) {
++		if (status & (XMR_FS_RUNT|XMR_FS_LNG_ERR))
++			skge->net_stats.rx_length_errors++;
++		if (status & XMR_FS_FRA_ERR)
++			skge->net_stats.rx_frame_errors++;
++		if (status & XMR_FS_FCS_ERR)
++			skge->net_stats.rx_crc_errors++;
++	} else {
++		if (status & (GMR_FS_LONG_ERR|GMR_FS_UN_SIZE))
++			skge->net_stats.rx_length_errors++;
++		if (status & GMR_FS_FRAGMENT)
++			skge->net_stats.rx_frame_errors++;
++		if (status & GMR_FS_CRC_ERR)
++			skge->net_stats.rx_crc_errors++;
++	}
++
++resubmit:
++	skge_rx_reuse(e, skge->rx_buf_size);
++	return NULL;
+ }
+ 
+ 
+@@ -2540,32 +2544,16 @@ static int skge_poll(struct net_device *
+ 	for (e = ring->to_clean; work_done < to_do; e = e->next) {
+ 		struct skge_rx_desc *rd = e->desc;
+ 		struct sk_buff *skb;
+-		u32 control, len, status;
++		u32 control;
+ 
+ 		rmb();
+ 		control = rd->control;
+ 		if (control & BMU_OWN)
+ 			break;
+ 
+-		len = control & BMU_BBC;
+-		status = rd->status;
+-
+-		if (unlikely((control & (BMU_EOF|BMU_STF)) != (BMU_STF|BMU_EOF)
+-			     || bad_phy_status(hw, status))) {
+-			skge_rx_error(skge, e - ring->start, control, status);
+-			skge_rx_reuse(e, skge->rx_buf_size);
+-			continue;
+-		}
+-
+-		if (netif_msg_rx_status(skge))
+-		    printk(KERN_DEBUG PFX "%s: rx slot %td status 0x%x len %d\n",
+-			   dev->name, e - ring->start, rd->status, len);
+-
+-		skb = skge_rx_get(skge, e, len);
++ 		skb = skge_rx_get(skge, e, control, rd->status,
++ 				  le16_to_cpu(rd->csum2));
+ 		if (likely(skb)) {
+-			skb_put(skb, len);
+-			skb->protocol = eth_type_trans(skb, dev);
+-
+ 			dev->last_rx = jiffies;
+ 			netif_receive_skb(skb);
+ 
+diff --git a/drivers/net/skge.h b/drivers/net/skge.h
+--- a/drivers/net/skge.h
++++ b/drivers/net/skge.h
+@@ -953,6 +953,7 @@ enum {
+  */
+ enum {
+ 	XMR_FS_LEN	= 0x3fff<<18,	/* Bit 31..18:	Rx Frame Length */
++	XMR_FS_LEN_SHIFT = 18,
+ 	XMR_FS_2L_VLAN	= 1<<17, /* Bit 17:	tagged wh 2Lev VLAN ID*/
+ 	XMR_FS_1_VLAN	= 1<<16, /* Bit 16:	tagged wh 1ev VLAN ID*/
+ 	XMR_FS_BC	= 1<<15, /* Bit 15:	Broadcast Frame */
+@@ -1868,6 +1869,7 @@ enum {
+ /* Receive Frame Status Encoding */
+ enum {
+ 	GMR_FS_LEN	= 0xffff<<16, /* Bit 31..16:	Rx Frame Length */
++	GMR_FS_LEN_SHIFT = 16,
+ 	GMR_FS_VLAN	= 1<<13, /* Bit 13:	VLAN Packet */
+ 	GMR_FS_JABBER	= 1<<12, /* Bit 12:	Jabber Packet */
+ 	GMR_FS_UN_SIZE	= 1<<11, /* Bit 11:	Undersize Packet */

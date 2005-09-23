@@ -1,57 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbVIWIJq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbVIWIK5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750800AbVIWIJq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 04:09:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbVIWIJq
+	id S1750801AbVIWIK5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 04:10:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbVIWIK5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 04:09:46 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:28567
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750800AbVIWIJp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 04:09:45 -0400
-Date: Fri, 23 Sep 2005 01:09:39 -0700 (PDT)
-Message-Id: <20050923.010939.11256142.davem@davemloft.net>
-To: nickpiggin@yahoo.com.au
-Cc: ioe-lkml@rameria.de, linux-kernel@vger.kernel.org, clameter@engr.sgi.com
-Subject: Re: making kmalloc BUG() might not be a good idea
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <4333B588.9060503@yahoo.com.au>
-References: <4333A109.2000908@yahoo.com.au>
-	<200509230909.54046.ioe-lkml@rameria.de>
-	<4333B588.9060503@yahoo.com.au>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Fri, 23 Sep 2005 04:10:57 -0400
+Received: from liaag2ae.mx.compuserve.com ([149.174.40.156]:5056 "EHLO
+	liaag2ae.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1750801AbVIWIK4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 04:10:56 -0400
+Date: Fri, 23 Sep 2005 04:07:40 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: x86-64: Why minimum 64MB aperture?
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200509230410_MC3-1-AAFB-6FC6@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-Date: Fri, 23 Sep 2005 17:58:00 +1000
+I get this when I boot:
 
-> Then you'll get people not enabling it on real workloads, or
-> tuning it off if it bugs them. No, the point of having a WARN
-> there is really for people like SGI to detect a few rare failure
-> cases when they first boot up their 1024+ CPU systems. It is not
-> going to spam anyone's logs (and if it does it *needs* fixing).
+Checking aperture...
+CPU 0: aperture @ 23a8000000 size 32 MB
+Aperture from northbridge cpu 0 too small (32 MB)
 
-SGI (and people "like" them) can't enable a debug option when bringing
-up new changes for the first time on that huge system?  Why is this?
 
-What in the world are all these CONFIG_*DEBUG* options for then?
-They are there for "I'm doing something radically new, or my new
-change isn't working, therefore I need more debugging than usual."
+arch/x86_64/aperture.c says this when aperture is < 64MB.
 
-We want it to spam the logs, sure, during _development_.  We don't
-want it on production systems where any kind of downtime is a very
-serious problem.  Rate limited, maybe, but not for every call as
-that's simply asking for trouble.
+I have no way of changing this in my BIOS.  The systems shares video memory
+with RAM.  All I can change is the amount of RAM allocated for video (32, 64
+or 128 MB, currently set to 64.)
 
-This is why we have things like net_ratelimit() in the networking btw.
-It's there so you can't remotely spam someone's logs just becuase you
-figured out the "bug of the week" magic packet that erroneously
-generates a huge number of log messages.
-
-If we know how to make certain classes of bugs non-lethal, we should
-do so because there will always be bugs. :-)  This change makes
-previously non-lethal bugs potentially kill the machine.
+__
+Chuck

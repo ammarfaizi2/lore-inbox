@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750819AbVIWI6J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbVIWJCy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750819AbVIWI6J (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 04:58:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbVIWI6J
+	id S1750826AbVIWJCy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 05:02:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750828AbVIWJCy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 04:58:09 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:64932 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750819AbVIWI6H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 04:58:07 -0400
-Date: Fri, 23 Sep 2005 01:57:19 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Chris Sykes <chris@sigsegv.plus.com>
-Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: Hang during rm on ext2 mounted sync (2.6.14-rc2+)
-Message-Id: <20050923015719.5eb765a4.akpm@osdl.org>
-In-Reply-To: <20050922163708.GF5898@sigsegv.plus.com>
-References: <20050922163708.GF5898@sigsegv.plus.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 23 Sep 2005 05:02:54 -0400
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:10648 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1750826AbVIWJCy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 05:02:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=b/shxcK1v51n2WlXNDaH5QcA1ky2OrUqeG2FGudc2NTs28K/6F7/gFiE72oGe6DdMkU27cdHH7XoSM3Krt5zSMe7mhcR7qp4r/UXMgqeCKS3RFqcWejJ9ZgsBo0/IgRJ8i51mdfwRlCiyZNL3/g83piIReuveIMaAoNoaoAiTbE=  ;
+Message-ID: <4333C4F4.9030402@yahoo.com.au>
+Date: Fri, 23 Sep 2005 19:03:48 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@davemloft.net>
+CC: ioe-lkml@rameria.de, linux-kernel@vger.kernel.org, clameter@engr.sgi.com
+Subject: Re: making kmalloc BUG() might not be a good idea
+References: <4333A109.2000908@yahoo.com.au>	<200509230909.54046.ioe-lkml@rameria.de>	<4333B588.9060503@yahoo.com.au> <20050923.010939.11256142.davem@davemloft.net>
+In-Reply-To: <20050923.010939.11256142.davem@davemloft.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Sykes <chris@sigsegv.plus.com> wrote:
->
-> Kernels: 2.6.14-rc1 -> 2.6.14-rc2 + up to hg changeset 5c9ff0e17a61
+David S. Miller wrote:
+> From: Nick Piggin <nickpiggin@yahoo.com.au>
+> Date: Fri, 23 Sep 2005 17:58:00 +1000
 > 
->  I'm experiencing processes getting stuck in the 'D' state whilst
->  rm'ing files on an ext2 fs mounted with the 'sync' option.  What I've
->  tested so far:
+
+> If we know how to make certain classes of bugs non-lethal, we should
+> do so because there will always be bugs. :-)  This change makes
+> previously non-lethal bugs potentially kill the machine.
 > 
->   * Ext2 mounted with sync:     rm hangs
->   * Ext2 mounted without sync:  OK
->   * Ext3 mounted with sync:     OK
->   * Ext3 mounted without sync:  OK
-> 
->  I first noticed this on my /boot partition, and wanted to know whether
->  it was repeatable so I've created a few test ext2 filesystem images
->  and mounted them via loopback.
 
-Odd.  Seems OK here.  How hard is it to make it occur?
+Oh the BUG is bad, sure. I just thought WARN would be a better _compromise_
+than BUG in that it will achieve the same result without takeing the machine
+down.
 
-I'd be suspecting a lost I/O completion from the device driver.  Are you
-really sure that ext3 cannot be made to do the same thing?
+I think the CONFIG_DEBUG options are there for some major types of debugging
+that require significant infrastructure or can slow down the kernel quite
+a lot. With that said, I think there is an option somewhere to turn off all
+WARNs and remove strings from all BUGs.
 
-Suggest you generate the `dmesg -s 1000000' output for both good and bad
-kernels, do a `diff -u' on them and look for IDE complaints (or SCSI, if
-you're on SCSI).
+Regarding proliferation of assertions and warnings everywhere - without any
+official standard, I think we're mostly being sensible with them (at least
+in the core code that I look at). A warn in kmalloc for this wouldn't be
+anything radical.
 
+I don't much care for it, but I agree the BUG has to go.
+
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,45 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751045AbVIWOs6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751046AbVIWOvA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751045AbVIWOs6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 10:48:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751049AbVIWOs6
+	id S1751046AbVIWOvA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 10:51:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751049AbVIWOvA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 10:48:58 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:4244 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751045AbVIWOs6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 10:48:58 -0400
-From: Andi Kleen <ak@suse.de>
-To: Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: x86-64: Why minimum 64MB aperture?
-Date: Fri, 23 Sep 2005 16:49:07 +0200
-User-Agent: KMail/1.8
-References: <200509230410_MC3-1-AAFB-6FC6@compuserve.com>
-In-Reply-To: <200509230410_MC3-1-AAFB-6FC6@compuserve.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509231649.07354.ak@suse.de>
+	Fri, 23 Sep 2005 10:51:00 -0400
+Received: from 223-177.adsl.pool.ew.hu ([193.226.223.177]:51212 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S1751042AbVIWOu7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 10:50:59 -0400
+To: akpm@osdl.org
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] open: cleanup in lookup_flags()
+Message-Id: <E1EIost-0006Uf-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Fri, 23 Sep 2005 16:50:43 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 23 September 2005 10:07, you wrote:
-> I get this when I boot:
->
-> Checking aperture...
-> CPU 0: aperture @ 23a8000000 size 32 MB
-> Aperture from northbridge cpu 0 too small (32 MB)
->
->
-> arch/x86_64/aperture.c says this when aperture is < 64MB.
->
-> I have no way of changing this in my BIOS.  The systems shares video memory
-> with RAM.  All I can change is the amount of RAM allocated for video (32,
-> 64 or 128 MB, currently set to 64.)
+lookup_flags() is only called from the non-create case, so it needn't
+check for O_CREAT|O_EXCL.
 
-32MB is too small for IOMMU use. Linux will fix it up for you.
+Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
 
--Andi
+Index: linux/fs/namei.c
+===================================================================
+--- linux.orig/fs/namei.c	2005-09-23 16:34:22.000000000 +0200
++++ linux/fs/namei.c	2005-09-23 16:34:27.000000000 +0200
+@@ -1246,9 +1246,6 @@ static inline int lookup_flags(unsigned 
+ 	if (f & O_NOFOLLOW)
+ 		retval &= ~LOOKUP_FOLLOW;
+ 	
+-	if ((f & (O_CREAT|O_EXCL)) == (O_CREAT|O_EXCL))
+-		retval &= ~LOOKUP_FOLLOW;
+-	
+ 	if (f & O_DIRECTORY)
+ 		retval |= LOOKUP_DIRECTORY;
+ 

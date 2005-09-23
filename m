@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbVIWSvG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751142AbVIWSur@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751145AbVIWSvG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 14:51:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbVIWSvG
+	id S1751142AbVIWSur (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 14:50:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbVIWSur
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 14:51:06 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:5524
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751145AbVIWSvF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 14:51:05 -0400
-Date: Fri, 23 Sep 2005 11:50:58 -0700 (PDT)
-Message-Id: <20050923.115058.63342389.davem@davemloft.net>
-To: kiran@scalex86.org
-Cc: akpm@osdl.org, rusty@rustcorp.com.au, dipankar@in.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 0/6] mm: alloc_percpu and bigrefs
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20050923184052.GA4103@localhost.localdomain>
-References: <20050923062529.GA4209@localhost.localdomain>
-	<20050923001013.28b7f032.akpm@osdl.org>
-	<20050923184052.GA4103@localhost.localdomain>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Fri, 23 Sep 2005 14:50:47 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:11274 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1751142AbVIWSuq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 14:50:46 -0400
+Date: Fri, 23 Sep 2005 14:50:23 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: "Luck, Tony" <tony.luck@intel.com>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org, linux-ia64@vger.kernel.org, ak@suse.de,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>
+Subject: Re: [patch 2.6.13 0/6] swiotlb maintenance and x86_64 dma_sync_single_range_for_{cpu,device}
+Message-ID: <20050923185021.GC6576@tuxdriver.com>
+Mail-Followup-To: "Luck, Tony" <tony.luck@intel.com>,
+	Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+	discuss@x86-64.org, linux-ia64@vger.kernel.org, ak@suse.de,
+	"Mallick, Asit K" <asit.k.mallick@intel.com>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F04795ED2@scsmsx401.amr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F04795ED2@scsmsx401.amr.corp.intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-Date: Fri, 23 Sep 2005 11:40:52 -0700
+On Fri, Sep 23, 2005 at 11:27:26AM -0700, Luck, Tony wrote:
+> >> It should just go away once the GFP_DMA32 code is merged.
+> >
+> >Is that the plan?  I suppose it makes sense.
 
-> As for the benchmarks, tbench on lo was used indicatively.  lo performance
-> does matter for quite a few benchmarks. There are apps which do use lo 
-> extensively.  The dst and netdevice changes were made after profiling such 
-> real wold apps.  Agreed, per-cpufication of objects which can go up in 
-> size is not the right approach on hindsight, but netdevice.refcount is not 
-> one of those.  I can try running a standard mpi benchmark or some
-> other indicative benchmark if that would help?
+> I don't have a good (or in fact any) understanding of the impact
+> of GFP_DMA32 on ia64.  People tell me it will all be good, but I'd
+> like to hear from someone running it.
+ 
+All the patches I saw were for x86_64.  So, the impact on ia64 should
+be minimal... :-)
 
-I worry about real life sites, such as a big web server, that will by
-definition have hundreds of thousands of routing cache (and thus
-'dst') entries active.
+> If it is good, and if it is coming soon, then there is no point
+> moving swiotlb.  But I don't know the answers to either of those
+> questions.
 
-The memory usage will increase, and that's particularly bad in this
-kind of case because unlike the 'lo' benchmarks you won't have nodes
-and cpus fighting over access to the same routes.  In such a load
-the bigrefs are just wasted memory and aren't actually needed.
+The xen guys have an swiotlb implementation, although theres differs
+somewhat.  Perhaps if we moved it out from under ia64, the two could
+be consolidated?
 
-I really would like to encourage a move away from this fascination
-with optimizating the loopback interface performance on enormous
-systems, yes even if it is hit hard by the benchmarks.  It just
-means the benchmarks are wrong, not that we should optimize for
-them.
+John
+-- 
+John W. Linville
+linville@tuxdriver.com

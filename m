@@ -1,107 +1,192 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751322AbVIWWS7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbVIWWZQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751322AbVIWWS7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 18:18:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbVIWWS7
+	id S932092AbVIWWZQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 18:25:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbVIWWZQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 18:18:59 -0400
-Received: from fmr24.intel.com ([143.183.121.16]:42913 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1751322AbVIWWS6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 18:18:58 -0400
-Date: Fri, 23 Sep 2005 15:17:39 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Horms <horms@debian.org>, suresh.b.siddha@intel.com,
-       Nikos Ntarmos <ntarmos@ceid.upatras.gr>, 329354@bugs.debian.org,
-       Frederik Schueler <fs@lowpingbastards.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org,
-       ak@suse.de
-Subject: [patch] x86_64: fix tss limit (was Re: CAN-2005-0204 and 2.4)
-Message-ID: <20050923151738.B12631@unix-os.sc.intel.com>
-References: <E1EI1tH-0006Yy-00@master.debian.org> <20050922023025.GA20981@verge.net.au> <20050922200446.GB9472@dmt.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050922200446.GB9472@dmt.cnet>; from marcelo.tosatti@cyclades.com on Thu, Sep 22, 2005 at 05:04:46PM -0300
+	Fri, 23 Sep 2005 18:25:16 -0400
+Received: from fmr19.intel.com ([134.134.136.18]:51128 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751325AbVIWWZO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 18:25:14 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C5C08D.AA02D0A6"
+Subject: [RFC] Asynchronous IPI and e1000 Multiple Queues
+Date: Fri, 23 Sep 2005 15:25:12 -0700
+Message-ID: <76FA8CF8F1F53240BB5B962A3385A58003A87C7A@orsmsx405>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: [RFC] Asynchronous IPI and e1000 Multiple Queues
+Thread-Index: AcXAjamywHMtAeJrSfyBnt9nFu4cHw==
+From: "cramerj" <cramerj@intel.com>
+To: <linux-net@vger.kernel.org>, <linux-netdev@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 23 Sep 2005 22:25:13.0155 (UTC) FILETIME=[AA645130:01C5C08D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 22, 2005 at 05:04:46PM -0300, Marcelo Tosatti wrote:
-> 
-> On Thu, Sep 22, 2005 at 11:30:25AM +0900, Horms wrote:
-> > On Wed, Sep 21, 2005 at 01:31:37PM +0300, Nikos Ntarmos wrote:
-> > > Package: kernel-source-2.4.27
-> > > Version: 2.4.27-11.hls.2005082200
-> > > Severity: important
-> > > Justification: fails to build from source
-> > > 
-> > > Patch 143_outs.diff.bz2 breaks the kernel compilation on x86_64. The
-> > > problem is that it uses the IO_BITMAP_BYTES macro which is defined for
-> > > i386 (in linux/include/asm-i386/processor.h) but not for x86_64.
-> > > Reverting the patch lets the kernel build again, although I guess the
-> > > correct solution would be to add an appropriate IO_BITMAP_BYTES to
-> > > linux/include/asm-x86_64/processor.h as well.
-> > 
-> > Hi Nikos,
-> > 
-> > First up, thanks for testing out my prebuild kernels.  For the
-> > uninitiated they are snapshots of what is in the deabian kernel-team's
-> > SVN and live in http://packages.vergenet.net/testing/
-> > 
-> > The problem that you see is a patch that was included in
-> > 2.4.27-11 (the current version in sid), though it isn't built
-> > for amd64.
-> > 
-> > Could you see if the following patch works for you.  I've CCed lkml and
-> > Marcelo for their consideration.  It seems to me that 2.4 is indeed
-> > vulnerable to CAN-2005-0204, perhaps someone can shed some light on
-> > this.
-> > 
-> > -- 
-> > Horms
-> > 
-> > Description: [CAN-2005-0204]: AMD64, allows local users to write to privileged IO ports via OUTS instruction
-> > Patch author: Suresh Siddha (suresh.b.siddha@intel.com)
-> > Upstream status: not applied
-> > URL: https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=146244
-> > Patch source: Micah Anderson <micah@riseup.net> (debian-kernel)
-> > 
-> > Added definition of IO_BITMAP_BYTES for Debian's 2.4.27 and
-> > submitted upstream for consideration for inclusion in 2.4 -- Horms
-> 
-> And v2.6 does not seem to have been updated either, or a different form of 
-> the fix has been deployed? 
-> 
-> 130 static inline void set_tss_desc(unsigned cpu, void *addr)
-> 131 {
-> 132 	set_tssldt_descriptor(&cpu_gdt_table[cpu][GDT_ENTRY_TSS], (unsigned long)addr,
-> 133 	DESC_TSS,
-> 134 	sizeof(struct tss_struct) - 1);
-> 135 } 
+This is a multi-part message in MIME format.
 
-Marcelo, This particular vulnerability is not present in 2.6 base. As I
-mentioned in that bugzilla, 2.6 base increased IO_BITMAP_BITS  to 65536
-and the kernel initializes this bitmap pointer during boot appropriately.
+------_=_NextPart_001_01C5C08D.AA02D0A6
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-But in general the specified limit is wrong and needs to be fixed.
+With our latest submittal of e1000 patches, we introduced code to enable
+multiple transmit and receive queues for the 82571 adapter.  All of the
+code is wrapped with CONFIG_E1000_MQ with the intention that it not be
+enabled until the patchset within this email is reviewed and (in some
+form) released.  So we'd like to gather some feedback on this patchset
+and get an idea if this is the correct approach.
 
-Appended patch will fix the tss limit. Andrew, please apply. Thanks.
---
+Multiple queues serve a couple purposes (probably more): Receive-Side
+Scaling - Share the interrupt processing across multiple CPUs.  We've
+got hyper-threaded/multi-core processors, let's use them; Priority
+Queuing (e.g., TOS) - Queue 0 transmits X more/less packets than queue 1
+due to <insert arbitration scheme here>.  With the single-queue (qdisc)
+implementation for transmits, it doesn't make multiple Tx queues all
+that exciting, and it means the arbitration scheme resides in the
+driver, but it's possible that could change over time.  So most benefits
+of multiple queues are seen on receives.  NAPI helps this effort (with
+per-CPU processing), but this means netif_rx_schedule is CPU-bound.  So
+we needed a way to schedule receive processing per-CPU context.  The one
+way we came up with was designing a new asynchronous IPI vector.  The
+helper function is exported to drivers to queue up the work, then inform
+the other CPUs of this pending work.
 
-Fix the x86_64 TSS limit in TSS descriptor.
+In smp_call_async.2.6.13.patch, we create an asynchronous IPI with an
+associated queue.  Drivers fill out the call_async_data_struct and call
+the "smp_call_function"-like routine smp_call_async_mask.  If the mask
+contains the current running CPU, it simply calls the routine specified
+in the data struct, otherwise add the task to the call_async_queue and
+send an IPI to all CPUs in the mask.  The async interrupt simply
+processes each task in the queue.
 
-Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
+Each CPU can now take care of its own work (essentially calling
+netif_rx_schedule) without messy locks around the NAPI threads.
 
---- linux-2.6.14-rc1/include/asm-x86_64/desc.h.orig	2005-09-12 20:12:09.000000000 -0700
-+++ linux-2.6.14-rc1/include/asm-x86_64/desc.h	2005-09-23 12:50:58.210135128 -0700
-@@ -129,7 +129,7 @@ static inline void set_tss_desc(unsigned
- { 
- 	set_tssldt_descriptor(&cpu_gdt_table[cpu][GDT_ENTRY_TSS], (unsigned long)addr, 
- 			      DESC_TSS,
--			      sizeof(struct tss_struct) - 1);
-+			      IO_BITMAP_OFFSET + IO_BITMAP_BYTES + 7);
- } 
- 
- static inline void set_ldt_desc(unsigned cpu, void *addr, int size)
+In e1000_mq_Kconfig.patch, we simply add the option to enable multiple
+queues during kernel configuration.
+
+Is this the right approach?  Any input, fixes and testing would be
+greatly appreciated.
+
+Thanks,
+-Jeb
+
+ <<e1000_mq_Kconfig.patch>>  <<smp_call_async.2.6.13.patch>>=20
+
+------_=_NextPart_001_01C5C08D.AA02D0A6
+Content-Type: application/octet-stream;
+	name="e1000_mq_Kconfig.patch"
+Content-Transfer-Encoding: base64
+Content-Description: e1000_mq_Kconfig.patch
+Content-Disposition: attachment;
+	filename="e1000_mq_Kconfig.patch"
+
+ZGlmZiAtdQotLS0gYS9kcml2ZXJzL25ldC9LY29uZmlnCisrKyBiL2RyaXZlcnMvbmV0L0tjb25m
+aWcKQEAgLTE4NDEsNiArMTg0MSwyMyBAQAogCiAJICBJZiBpbiBkb3VidCwgc2F5IE4uCiAKK2Nv
+bmZpZyBFMTAwMF9NUQorCWJvb2wgIkVuYWJsZSBNdWx0aXBsZSBUcmFuc21pdC9SZWNlaXZlIFF1
+ZXVlcyAoRVhQRVJJTUVOVEFMKSIKKwlkZXBlbmRzIG9uIEUxMDAwX05BUEkgJiYgRVhQRVJJTUVO
+VEFMCisJaGVscAorCSAgU3RhcnRpbmcgd2l0aCB0aGUgODI1NzEgKFBDSS1FeHByZXNzKSBuZXR3
+b3JrIGFkYXB0ZXIsIHRoZSBvcHRpb24KKwkgIHRvIHNwZWNpZnkgbXVsdGlwbGUgcXVldWVzIGhh
+cyBiZWVuIHN1cHBvcnRlZC4gIE11bHRpcGxlIHF1ZXVlcworCSAgYWxsb3cgZm9yIFJlY2VpdmUt
+U2lkZSBTY2FsaW5nLCBwcmlvcml0eSBxdWV1ZXMsIGV0Yy4gYWxsIHdpdGhpbgorCSAgYSBzaW5n
+bGUgbmV0d29yayBjb250cm9sbGVyLiAgVGhlIGltcGxlbWVudGF0aW9uIGlzIHN1Y2ggdGhhdCBl
+YWNoCisJICByZWNlaXZlIHF1ZXVlIGlzIG1hcHBlZCB0byBhIGxvZ2ljYWwgcHJvY2Vzc29yOyBh
+bmQgZWFjaCBwYWNrZXQKKwkgIHF1ZXVlZCBmb3IgdHJhbnNtaXNzaW9uIGlzIGFzc2lnbmVkIHRv
+IHRoZSBhcHByb3ByaWF0ZSB0cmFuc21pdAorCSAgcXVldWUgYmFzZWQgb24gYSBiaXQgaW4gaXRz
+IHNvY2tldCBhZGRyZXNzLgorCisJICBUaGlzIGZlYXR1cmUsIGhvd2V2ZXIsIHJlcXVpcmVzIGEg
+a2VybmVsIHBhdGNoIGZvciBhc3luY2hyb25vdXMKKwkgIElQSSBjYWxscy4gIFdpdGhvdXQgdGhh
+dCBwYXRjaCwgY29tcGlsYXRpb24gb2YgdGhlIGRyaXZlciB3aWxsIGZhaWwuCisKKwkgIElmIGlu
+IGRvdWJ0LCBzYXkgTi4KKwo=
+
+------_=_NextPart_001_01C5C08D.AA02D0A6
+Content-Type: application/octet-stream;
+	name="smp_call_async.2.6.13.patch"
+Content-Transfer-Encoding: base64
+Content-Description: smp_call_async.2.6.13.patch
+Content-Disposition: attachment;
+	filename="smp_call_async.2.6.13.patch"
+
+ZGlmZiAtdQotLS0gYS9hcmNoL2kzODYva2VybmVsL3NtcC5jCisrKyBiL2FyY2gvaTM4Ni9rZXJu
+ZWwvc21wLmMKQEAgLTYyOSwzICs2MjksODMgQEAKIAl9CiB9CiAKK0xJU1RfSEVBRChjYWxsX2Fz
+eW5jX3F1ZXVlKTsKK3J3bG9ja190IGNhbGxfYXN5bmNfcXVldWVfbG9jayA9IFJXX0xPQ0tfVU5M
+T0NLRUQ7CisKKy8qIHVzZXIgbXVzdCBzZXQgZnVuYywgaW5mbywgY3B1bWFzaywgYW5kIGNvdW50
+IGJlZm9yZSBjYWxsaW5nIHRoaXMgKi8KKy8qIG1heWJlIHNvbWUgb2YgdGhhdCBjYW4gYmUgbW92
+ZWQgaW50byBoZXJlIChjb3VudD8pICovCisKK2ludCBzbXBfY2FsbF9hc3luY19tYXNrKHN0cnVj
+dCBjYWxsX2FzeW5jX2RhdGFfc3RydWN0ICpjYWxsX2RhdGEpCit7CisJdW5zaWduZWQgbG9uZyBm
+bGFnczsKKwlpbnQgdGhpc19jcHU7CisKKwl0aGlzX2NwdSA9IGdldF9jcHUoKTsKKwkKKwkvKiBt
+YWtlIHN1cmUgdGhlIGNhbGxlciBkaWQgbm90IHNwZWNpZnkgYW55IG9mZmxpbmUgQ1BVcyAqLwor
+CWlmICh1bmxpa2VseSghY3B1c19zdWJzZXQoY2FsbF9kYXRhLT5jcHVtYXNrLCBjcHVfb25saW5l
+X21hcCkpKQorCQlyZXR1cm4gLUVJTlZBTDsKKworCS8qIGNoZWNrIHRvIHNlZSBpZiB0aGlzIENQ
+VSBpcyBpbiB0aGUgbWFzayAqLworCWlmIChjcHVfaXNzZXQodGhpc19jcHUsIGNhbGxfZGF0YS0+
+Y3B1bWFzaykpIHsKKwkJaWYgKGNhbGxfZGF0YS0+ZnVuYykKKwkJCWNhbGxfZGF0YS0+ZnVuYyhj
+YWxsX2RhdGEtPmluZm8pOworCQljcHVfY2xlYXIodGhpc19jcHUsIGNhbGxfZGF0YS0+Y3B1bWFz
+ayk7CisJCWF0b21pY19kZWMoJmNhbGxfZGF0YS0+Y291bnQpOworCX0KKworCWlmICh1bmxpa2Vs
+eShjcHVzX2VtcHR5KGNhbGxfZGF0YS0+Y3B1bWFzaykpKQorCQlyZXR1cm4gMDsKKworCXdyaXRl
+X2xvY2tfaXJxc2F2ZSgmY2FsbF9hc3luY19xdWV1ZV9sb2NrLCBmbGFncyk7CisJbGlzdF9hZGRf
+dGFpbCgmY2FsbF9kYXRhLT5ub2RlLCAmY2FsbF9hc3luY19xdWV1ZSk7CisJd3JpdGVfdW5sb2Nr
+X2lycXJlc3RvcmUoJmNhbGxfYXN5bmNfcXVldWVfbG9jaywgZmxhZ3MpOworCisJbWIoKTsKKwlz
+ZW5kX0lQSV9tYXNrKGNhbGxfZGF0YS0+Y3B1bWFzaywgQ0FMTF9BU1lOQ19WRUNUT1IpOworCXB1
+dF9jcHVfbm9fcmVzY2hlZCgpOworCXJldHVybiAwOworfQorRVhQT1JUX1NZTUJPTChzbXBfY2Fs
+bF9hc3luY19tYXNrKTsKKworZmFzdGNhbGwgdm9pZCBzbXBfY2FsbF9hc3luY19pbnRlcnJ1cHQo
+dm9pZCkKK3sKKwlzdHJ1Y3QgY2FsbF9hc3luY19kYXRhX3N0cnVjdCAqY2FsbF9kYXRhID0gTlVM
+TCwgKmxhc3RfZW50cnkgPSBOVUxMOworCWludCB0aGlzX2NwdTsKKworCWFja19BUElDX2lycSgp
+OworCWlycV9lbnRlcigpOworCXRoaXNfY3B1ID0gc21wX3Byb2Nlc3Nvcl9pZCgpOworCisJY2Fs
+bF9kYXRhID0gbGlzdF9wcmVwYXJlX2VudHJ5KGNhbGxfZGF0YSwgJmNhbGxfYXN5bmNfcXVldWUs
+IG5vZGUpOworCWRvIHsKKwkJLyogZmluZCB0aGUgbmV4dCB3b3JrIGl0ZW0gb24gdGhlIGxpc3Qg
+Zm9yIHRoaXMgQ1BVICovCisJCXJlYWRfbG9ja19pcnEoJmNhbGxfYXN5bmNfcXVldWVfbG9jayk7
+CisJCWxpc3RfZm9yX2VhY2hfZW50cnlfY29udGludWUoY2FsbF9kYXRhLCAmY2FsbF9hc3luY19x
+dWV1ZSwgbm9kZSkgeworCQkJaWYgKGNwdV9pc3NldCh0aGlzX2NwdSwgY2FsbF9kYXRhLT5jcHVt
+YXNrKSkKKwkJCQlicmVhazsKKwkJfQorCQlpZiAoJmNhbGxfZGF0YS0+bm9kZSA9PSAmY2FsbF9h
+c3luY19xdWV1ZSkKKwkJCWNhbGxfZGF0YSA9IE5VTEw7CisJCXJlYWRfdW5sb2NrX2lycSgmY2Fs
+bF9hc3luY19xdWV1ZV9sb2NrKTsKKworCQkvKiBjbGVhbiB1cCBmcm9tIHRoZSBsYXN0IGl0ZW0s
+IGlmIHRoaXMgaXNuJ3QgdGhlIGZpcnN0IHBhc3MgKi8KKwkJaWYgKGxhc3RfZW50cnkpIHsKKwkJ
+CWNwdV9jbGVhcih0aGlzX2NwdSwgbGFzdF9lbnRyeS0+Y3B1bWFzayk7CisJCQltYigpOworCQkJ
+aWYgKGF0b21pY19kZWNfYW5kX3Rlc3QoJmxhc3RfZW50cnktPmNvdW50KSkgeworCQkJCXdyaXRl
+X2xvY2tfaXJxKCZjYWxsX2FzeW5jX3F1ZXVlX2xvY2spOworCQkJCWxpc3RfZGVsKCZsYXN0X2Vu
+dHJ5LT5ub2RlKTsKKwkJCQl3cml0ZV91bmxvY2tfaXJxKCZjYWxsX2FzeW5jX3F1ZXVlX2xvY2sp
+OworCQkJfQorCQl9CisKKwkJLyogY2FsbCB0aGUgZnVuY3Rpb24gKi8KKwkJaWYgKGNhbGxfZGF0
+YSAmJiBjYWxsX2RhdGEtPmZ1bmMpCisJCQljYWxsX2RhdGEtPmZ1bmMoY2FsbF9kYXRhLT5pbmZv
+KTsKKworCQlsYXN0X2VudHJ5ID0gY2FsbF9kYXRhOworCX0gd2hpbGUgKGNhbGxfZGF0YSk7CisK
+KwlpcnFfZXhpdCgpOworfQpkaWZmIC11Ci0tLSBhL2FyY2gvaTM4Ni9rZXJuZWwvc21wYm9vdC5j
+CisrKyBiL2FyY2gvaTM4Ni9rZXJuZWwvc21wYm9vdC5jCkBAIC0xMzk5LDQgKzEzOTksNiBAQAog
+CiAJLyogSVBJIGZvciBnZW5lcmljIGZ1bmN0aW9uIGNhbGwgKi8KIAlzZXRfaW50cl9nYXRlKENB
+TExfRlVOQ1RJT05fVkVDVE9SLCBjYWxsX2Z1bmN0aW9uX2ludGVycnVwdCk7CisKKwlzZXRfaW50
+cl9nYXRlKENBTExfQVNZTkNfVkVDVE9SLCBjYWxsX2FzeW5jX2ludGVycnVwdCk7CiB9CmRpZmYg
+LXUKLS0tIGEvaW5jbHVkZS9hc20taTM4Ni9od19pcnEuaAorKysgYi9pbmNsdWRlL2FzbS1pMzg2
+L2h3X2lycS5oCkBAIC0zNSw2ICszNSw3IEBACiBmYXN0Y2FsbCB2b2lkIHJlc2NoZWR1bGVfaW50
+ZXJydXB0KHZvaWQpOwogZmFzdGNhbGwgdm9pZCBpbnZhbGlkYXRlX2ludGVycnVwdCh2b2lkKTsK
+IGZhc3RjYWxsIHZvaWQgY2FsbF9mdW5jdGlvbl9pbnRlcnJ1cHQodm9pZCk7CitmYXN0Y2FsbCB2
+b2lkIGNhbGxfYXN5bmNfaW50ZXJydXB0KHZvaWQpOwogI2VuZGlmCiAKICNpZmRlZiBDT05GSUdf
+WDg2X0xPQ0FMX0FQSUMKZGlmZiAtdQotLS0gYS9pbmNsdWRlL2FzbS1pMzg2L21hY2gtZGVmYXVs
+dC9lbnRyeV9hcmNoLmgKKysrIGIvaW5jbHVkZS9hc20taTM4Ni9tYWNoLWRlZmF1bHQvZW50cnlf
+YXJjaC5oCkBAIC0xMyw2ICsxMyw3IEBACiBCVUlMRF9JTlRFUlJVUFQocmVzY2hlZHVsZV9pbnRl
+cnJ1cHQsUkVTQ0hFRFVMRV9WRUNUT1IpCiBCVUlMRF9JTlRFUlJVUFQoaW52YWxpZGF0ZV9pbnRl
+cnJ1cHQsSU5WQUxJREFURV9UTEJfVkVDVE9SKQogQlVJTERfSU5URVJSVVBUKGNhbGxfZnVuY3Rp
+b25faW50ZXJydXB0LENBTExfRlVOQ1RJT05fVkVDVE9SKQorQlVJTERfSU5URVJSVVBUKGNhbGxf
+YXN5bmNfaW50ZXJydXB0LENBTExfQVNZTkNfVkVDVE9SKQogI2VuZGlmCiAKIC8qCmRpZmYgLXUK
+LS0tIGEvaW5jbHVkZS9hc20taTM4Ni9tYWNoLWRlZmF1bHQvaXJxX3ZlY3RvcnMuaAorKysgYi9p
+bmNsdWRlL2FzbS1pMzg2L21hY2gtZGVmYXVsdC9pcnFfdmVjdG9ycy5oCkBAIC00OCw2ICs0OCw3
+IEBACiAjZGVmaW5lIElOVkFMSURBVEVfVExCX1ZFQ1RPUgkweGZkCiAjZGVmaW5lIFJFU0NIRURV
+TEVfVkVDVE9SCTB4ZmMKICNkZWZpbmUgQ0FMTF9GVU5DVElPTl9WRUNUT1IJMHhmYgorI2RlZmlu
+ZSBDQUxMX0FTWU5DX1ZFQ1RPUgkweGZhCiAKICNkZWZpbmUgVEhFUk1BTF9BUElDX1ZFQ1RPUgkw
+eGYwCiAvKgpkaWZmIC11Ci0tLSBhL2luY2x1ZGUvbGludXgvc21wLmgKKysrIGIvaW5jbHVkZS9s
+aW51eC9zbXAuaApAQCAtMTYsOCArMTYsMTEgQEAKICNpbmNsdWRlIDxsaW51eC9rZXJuZWwuaD4K
+ICNpbmNsdWRlIDxsaW51eC9jb21waWxlci5oPgogI2luY2x1ZGUgPGxpbnV4L3RocmVhZF9pbmZv
+Lmg+CisjaW5jbHVkZSA8bGludXgvbGlzdC5oPgorI2luY2x1ZGUgPGxpbnV4L2NwdW1hc2suaD4K
+ICNpbmNsdWRlIDxhc20vc21wLmg+CiAjaW5jbHVkZSA8YXNtL2J1Zy5oPgorI2luY2x1ZGUgPGFz
+bS9hdG9taWMuaD4KIAogLyoKICAqIG1haW4gY3Jvc3MtQ1BVIGludGVyZmFjZXMsIGhhbmRsZXMg
+SU5JVCwgVExCIGZsdXNoLCBTVE9QLCBldGMuCkBAIC03MSw2ICs3NCwxNiBAQAogCXJldHVybiBy
+ZXQ7CiB9CiAKK3N0cnVjdCBjYWxsX2FzeW5jX2RhdGFfc3RydWN0IHsKKwl2b2lkICgqZnVuYykg
+KHZvaWQgKmluZm8pOworCXZvaWQgKmluZm87CisJY3B1bWFza190IGNwdW1hc2s7CisJYXRvbWlj
+X3QgY291bnQ7CisJc3RydWN0IGxpc3RfaGVhZCBub2RlOworfTsKKworZXh0ZXJuIGludCBzbXBf
+Y2FsbF9hc3luY19tYXNrKHN0cnVjdCBjYWxsX2FzeW5jX2RhdGFfc3RydWN0ICpjYWxsX2RhdGEp
+OworCiAjZGVmaW5lIE1TR19BTExfQlVUX1NFTEYJMHg4MDAwCS8qIEFzc3VtZSA8MzI3NjggQ1BV
+J3MgKi8KICNkZWZpbmUgTVNHX0FMTAkJCTB4ODAwMQogCg==
+
+------_=_NextPart_001_01C5C08D.AA02D0A6--

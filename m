@@ -1,49 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751135AbVIWSwN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751154AbVIWSwl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751135AbVIWSwN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 14:52:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbVIWSwN
+	id S1751154AbVIWSwl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 14:52:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751156AbVIWSwl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 14:52:13 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:4483 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751135AbVIWSwM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 14:52:12 -0400
-Date: Sat, 24 Sep 2005 00:16:15 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Frank van Maarseveen <frankvm@frankvm.com>
-Cc: Pablo Fernandez <pablo.ferlop@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: max_fd
-Message-ID: <20050923184615.GB4573@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <8518592505092305373465a5@mail.gmail.com> <20050923155509.GA4723@in.ibm.com> <20050923170345.GA1555@janus> <20050923172653.GA4573@in.ibm.com> <20050923184056.GA2024@janus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 23 Sep 2005 14:52:41 -0400
+Received: from zproxy.gmail.com ([64.233.162.203]:61832 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751154AbVIWSwk convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 14:52:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=BNv2ZQcHjcj8td3xueYRnBh2nQYSPg1rre8Gke+P0MAevlOeZd7DojdXKUMg+FNi8lMfC3GFtMXX+kd9/CLUw/OqGj6QZSDJ2TxALWoQ8L0if2mzboq2or7naQww+b4UKGV5s5NCyiZCIBXX/3pK/hR0UxLY1IywJ3FRkCYOOXo=
+Message-ID: <1e62d1370509231152ac90f99@mail.gmail.com>
+Date: Fri, 23 Sep 2005 23:52:37 +0500
+From: Fawad Lateef <fawadlateef@gmail.com>
+Reply-To: Fawad Lateef <fawadlateef@gmail.com>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: Trapping Block I/O
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050923184342.GJ22655@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050923184056.GA2024@janus>
-User-Agent: Mutt/1.4.1i
+References: <64c7635405092305433356bd17@mail.gmail.com>
+	 <1e62d137050923103843058e92@mail.gmail.com>
+	 <20050923180407.GG22655@suse.de>
+	 <1e62d137050923111046d0b762@mail.gmail.com>
+	 <20050923181435.GI22655@suse.de>
+	 <1e62d13705092311306853e7d0@mail.gmail.com>
+	 <20050923184342.GJ22655@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 23, 2005 at 08:40:56PM +0200, Frank van Maarseveen wrote:
-> On Fri, Sep 23, 2005 at 10:56:53PM +0530, Dipankar Sarma wrote:
-> > 
-> > Well, the main reason is that if that code is somehow copied
-> > by to a lock-free critical section, it could cause problems.
-> > If you dereference ->fdt multiple times in a lock-free
-> > section, you could see two different pointers due to
-> > a concurrent update.
-> 
-> thanks for the explanation. This raises a lot of other questions. What
-> if max_fds is updated by RCU right after obtaining it...
+On 9/23/05, Jens Axboe <axboe@suse.de> wrote:
+> > Ya, I looked at it and its looking very good tool to tracing block I/O
+> > layer, but this tracing requires recompilation of the kernel and have
+> > to use on kernel directly from kernel.org but its not a big deal, I
+> > hope it will get into the main kernel soon ....
+>
+> That is true, I plan on submitting it for 2.6.15. The goal was to get
+> relayfs pushed in first and that did happen for 2.6.14.
+>
 
-If you are updating it, you hold the lock. That way you can't
-be racing with another update. Secondly, changing max_fds
-would require allocating a new fdtable structure and
-updating ->fdt to point to the new structure, all under
-the files_struct lock. The lock-free readers may see the
-older fdtable which is kept around until the RCU grace
-period is over. That makes it safe.
+That will be nice ....
 
-Thanks
-Dipankar
+>
+> There are certainly a lot of ways to get the data out to user space, by
+> far the bulk of the code is in the monitoring application. blktrace
+> should be pretty fast though, one of the goals was to make sure it would
+> be very light weight on the kernel side (which it is) and very fast on
+> getting the data out (also achieved, relayfs works very well). The
+> xprobe approach does have certain advantages, the main one being that
+> you can easily modify it.
+>
+
+I will test/use it soon and will let you know if find any bug/problem :)
+
+
+--
+Fawad Lateef

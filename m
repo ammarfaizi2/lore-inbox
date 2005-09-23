@@ -1,48 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751228AbVIWAZU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751234AbVIWA0A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751228AbVIWAZU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 20:25:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbVIWAZU
+	id S1751234AbVIWA0A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 20:26:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751235AbVIWA0A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 20:25:20 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:7315
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S1751228AbVIWAZT (ORCPT
+	Thu, 22 Sep 2005 20:26:00 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:16313 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751234AbVIWAZ7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 20:25:19 -0400
-Subject: Re: R52 hdaps support?
-From: Alejandro Bonilla Beeche <abonilla@linuxwireless.org>
-Reply-To: abonilla@linuxwireless.org
-To: Robert Love <rml@novell.com>
-Cc: Keenan Pepper <keenanpepper@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1127400694.5692.10.camel@molly>
-References: <432B34D6.6010904@gmail.com> <1126911860.24266.1.camel@phantasy>
-	 <432B7EE6.1040905@gmail.com>
-	 <1126928394.5461.0.camel@localhost.localdomain>
-	 <432BB127.3010102@gmail.com>  <1127400694.5692.10.camel@molly>
-Content-Type: text/plain
-Date: Thu, 22 Sep 2005 18:25:13 -0600
-Message-Id: <1127435113.5690.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Sep 2005 20:25:59 -0400
+Date: Fri, 23 Sep 2005 02:25:34 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Christopher Friesen <cfriesen@nortel.com>
+cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
+       mingo@elte.hu, akpm@osdl.org, george@mvista.com, johnstul@us.ibm.com,
+       paulmck@us.ibm.com
+Subject: Re: [ANNOUNCE] ktimers subsystem
+In-Reply-To: <43333EBA.5030506@nortel.com>
+Message-ID: <Pine.LNX.4.61.0509230151080.3743@scrub.home>
+References: <20050919184834.1.patchmail@tglx.tec.linutronix.de> 
+ <Pine.LNX.4.61.0509201247190.3743@scrub.home> <1127342485.24044.600.camel@tglx.tec.linutronix.de>
+ <Pine.LNX.4.61.0509221816030.3728@scrub.home> <43333EBA.5030506@nortel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-09-22 at 10:51 -0400, Robert Love wrote:
-> On Sat, 2005-09-17 at 02:01 -0400, Keenan Pepper wrote:
+Hi,
+
+On Thu, 22 Sep 2005, Christopher Friesen wrote:
+
+> Roman Zippel wrote:
 > 
-> > Oh wow! That's really cool. And my R52 definitely works as "NORMAL", so you can 
-> > go ahead and add it to the whitelist.
+> > This no answer at all, you only repeat what you already said above. :(
+> > Care to share your knowledge?
 > 
-> Done.  Will be in the next patch I send to Linus.
+> Ingo already gave an example.  "a busy network server can easily have millions
+> of timers pending. I once had to increase a server's 16 million tw timer
+> sysctl limit ..."
+
+I hoped for a more concrete example (i.e. pointer to source), but this one 
+at least gave me enough hints where to look.
+There are ways to avoid this huge number of added timers, but this 
+requires a better analysis of the problem.
+
+> I see two assumptions that lead to the API using nanoseconds:
 > 
-> 	Robert Love
+> 1) it is desireable to have a human-time-unit timer API, so that people can
+> specify timeouts in easily-understood units
+> 2) eventually we will use sub-ms resolution timers, so it makes sense to just
+> jump to nanoseconds as our base timing unit
+> 
+> Are these reasonable starting points, or is there disagreement on these?
+> 
+> Maybe it would make sense to have the API be in nanoseconds and internally use
+> 32bit ms for now, and only change to 64bit nanos when we actually move to
+> sub-ms resolution timers.
 
-Robert,
+Actually the decision to use ns has nothing to do with API issues. 
+<linux/jiffies.h> has already a lot of options to specify timeouts for 
+kernel timer. The official userspace API is mostly timespec/timeval.
+The nsec_t type is an _internal_ type to manage time, so this makes it 
+possible to do something like this:
 
-	We have some laptops missing from the HDAPS list.
-X41 and X42? (I think)
+#ifdef CONFIG_HIRES_TIMER
+typedef u64 ktime_t;
+#else
+typedef u32 ktime_t;
+#endif
 
-.Alejandro
-
+bye, Roman

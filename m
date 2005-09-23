@@ -1,77 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbVIWVUq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbVIWV14@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751310AbVIWVUq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 17:20:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbVIWVUq
+	id S1751306AbVIWV14 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 17:27:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751308AbVIWV14
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 17:20:46 -0400
-Received: from dyn50.sunlabs.com ([204.153.12.50]:60934 "EHLO
-	mail-mta.sunlabs.com") by vger.kernel.org with ESMTP
-	id S1751304AbVIWVUo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 17:20:44 -0400
-Date: Fri, 23 Sep 2005 14:21:45 -0700
-From: Joshua Kwan <joshk@triplehelix.org>
-Subject: Re: [PATCH] updated version of Jens' SATA suspend-to-ram patch
-In-reply-to: <433469DF.1060900@pobox.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Jens Axboe <axboe@suse.de>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Message-id: <433471E9.2040307@triplehelix.org>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-X-Enigmail-Version: 0.92.0.0
-References: <20050923163334.GA13567@triplehelix.org>
- <20050923180711.GH22655@suse.de> <433469DF.1060900@pobox.com>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
+	Fri, 23 Sep 2005 17:27:56 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:18907 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751306AbVIWV1z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 17:27:55 -0400
+Date: Fri, 23 Sep 2005 14:27:58 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/3] fuse: check O_DIRECT
+Message-Id: <20050923142758.641189f2.akpm@osdl.org>
+In-Reply-To: <E1EIoQZ-0006Rz-00@dorka.pomaz.szeredi.hu>
+References: <E1EIoQZ-0006Rz-00@dorka.pomaz.szeredi.hu>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Very strange.  I cannot find this patch at all in my email folders.
+Miklos Szeredi <miklos@szeredi.hu> wrote:
+>
+> Check O_DIRECT and return -EINVAL error in open.  dentry_open() also
+> checks this but only after the open method is called.  This patch
+> optimizes away the unnecessary upcalls in this case.
 > 
-> Can someone resend it to me?
-
-The original is at
-http://seclists.org/lists/linux-kernel/2005/May/0447.html, as indicated
-by the footnote in my original message.
-
-That said, it's identical in content to the one I've just sent (attached
-as a text/plain MIME attachment.)
-
-> Worried now!
+> Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
 > 
-> If this patch is needed, something VERY VERY WRONG is going on.  This
-> patch indicates that the queueing state machine has been violated, and
-> something is trying to IGNORE the command synchronization :(
-> 
-> Further, you cannot always assume that msleep() is valid in that
-> context.  It should be the caller that waits (libata suspend code), not
-> ata_do_simple_cmd() itself.
-> 
-> Does anyone have a link to James Bottomley's proposed patch?  That one
-> seemed to do what was necessary -- send a SYNCHRONIZE_CACHE command then
-> turn it over to the LLD for further suspend.
+> Index: linux/fs/fuse/file.c
+> ===================================================================
+> --- linux.orig/fs/fuse/file.c	2005-09-21 11:55:45.000000000 +0200
+> +++ linux/fs/fuse/file.c	2005-09-23 15:24:23.000000000 +0200
+> @@ -23,6 +23,10 @@ int fuse_open_common(struct inode *inode
+>  	struct fuse_file *ff;
+>  	int err;
+>  
+> +	/* VFS checks this, but only _after_ ->open() */
+> +	if (file->f_flags & O_DIRECT)
+> +		return -EINVAL;
+> +
+>  	err = generic_file_open(inode, file);
+>  	if (err)
+>  		return err;
 
-I don't think James sent any patch in the original thread with Jens'
-patch. But that sounds somewhat cleaner than msleep().
-
-At any rate, the current patch (with or without Jens' new addition)
-works for me on Thinkpad T43. So the net result is better anyway, IMO.
-
->> Ok. Can we have this in -mm for a few days just to shake out anything
->> interesting, and then merge it into mainline?
-> 
-> Once we get a decent patch, I can merge it into my libata-dev.git
-> repository, which is automatically propagated to -mm.
-
-Is the kludginess of Jens' addition the only problem you have with the
-current patch? (If it is, then fixing this is out of the range of my
-current ability...)
-
-Thanks for responding.
-
--- 
-Joshua Kwan
+This hardly seems worth optimising for?

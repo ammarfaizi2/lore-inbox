@@ -1,104 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932097AbVIWXGk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbVIWXJV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932097AbVIWXGk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 19:06:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932098AbVIWXGk
+	id S932102AbVIWXJV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 19:09:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbVIWXJV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 19:06:40 -0400
-Received: from xenotime.net ([66.160.160.81]:63127 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932097AbVIWXGj (ORCPT
+	Fri, 23 Sep 2005 19:09:21 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:8620 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S932099AbVIWXJU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 19:06:39 -0400
-Date: Fri, 23 Sep 2005 16:06:36 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: manomugdha biswas <manomugdhab@yahoo.co.in>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.6 panic
-Message-Id: <20050923160636.07135828.rdunlap@xenotime.net>
-In-Reply-To: <20050923121538.88627.qmail@web8509.mail.in.yahoo.com>
-References: <20050923121538.88627.qmail@web8509.mail.in.yahoo.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 23 Sep 2005 19:09:20 -0400
+Date: Fri, 23 Sep 2005 19:09:17 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [git patches] net driver fixes
+Message-ID: <20050923230917.GA3243@havoc.gtf.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Sep 2005 13:15:38 +0100 (BST) manomugdha biswas wrote:
 
-> Hi,
-> I have a kernel module. I can install (insmod) my
-> module successfully. I start my module by ioctl() from
-> user application and also use ioctl() to stop my
-> module from user application. But sometimes after
-> removing (stoping) my module kernel panic happens.
-> Following is the dump:
-> 
-> Sep 23 02:40:09 localhost kernel: Unable to handle
-> kernel NULL pointer dereference at virtual address
-> 00000025
-> Sep 23 02:40:09 localhost kernel:  printing eip:
-> Sep 23 02:40:09 localhost kernel: c0163516
-> Sep 23 02:40:09 localhost kernel: *pde = 00000000
-> Sep 23 02:40:09 localhost kernel: Oops: 0000 [#1]
-> Sep 23 02:40:09 localhost kernel: Modules linked in:
-> vnicclient(U) i915 parport_pc lp parport autofs4
-> i2c_dev i2c_core sunrpc dm_mod button battery ac md5
-> ipv6 uhci_hcd ehci_hcd snd_intel8x0 snd_ac97_codec
-> snd_pcm_oss snd_mixer_oss snd_pcm snd_timer
-> snd_page_alloc snd_mpu401_uart snd_rawmidi
-> snd_seq_device snd soundcore e100 mii floppy ext3 jbd
-> Sep 23 02:40:09 localhost kernel: CPU:    0
-> Sep 23 02:40:09 localhost kernel: EIP:   
-> 0060:[<c0163516>]    Not tainted VLI
-> Sep 23 02:40:09 localhost kernel: EFLAGS: 00010202  
-> (2.6.9-11.EL)
-> Sep 23 02:40:09 localhost kernel: EIP is at
-> sys_read+0x1d/0x62
-> Sep 23 02:40:09 localhost kernel: eax: 00000001   ebx:
-> 00000001   ecx: f2067380   edx: 00000001 Sep 23
-> 02:40:09 localhost kernel: esi: fffffff7   edi:
-> 00000000   ebp: f29e5000   esp: f29e5fac
-> Sep 23 02:40:09 localhost kernel: ds: 007b   es: 007b 
->  ss: 0068
-> Sep 23 02:40:09 localhost kernel: Process bash (pid:
-> 10171, threadinfo=f29e5000 task=f21111a0)
-> Sep 23 02:40:09 localhost kernel: Stack: 00000000
-> 00000000 00000000 00000000 bffdcbaf c03036f3 00000000
-> bffdcbaf
-> Sep 23 02:40:09 localhost kernel:        00000001
-> bffdcbaf 00000000 bffdcbb8 00000003 0000007b 0000007b
-> 00000003
-> Sep 23 02:40:09 localhost kernel:        006e77a2
-> 00000073 00000246 bffdcb94 0000007b
-> Sep 23 02:40:09 localhost kernel: Call Trace:
-> Sep 23 02:40:09 localhost kernel:  [<c03036f3>]
-> syscall_call+0x7/0xb
-> Sep 23 02:40:09 localhost kernel: Code: 00 e8 ed fc 01
-> 00 89 d8 5d 5b 5e 5f 5d c3 56 be f7 ff ff ff 53 83 ec
-> 0c 8b 44 24 18 8d 54 24 08 e8 8c 0d 00 00 85 c0 89 c3
-> 74 3d <8b> 40 24 8b 53 28 89 04 24 89 e0 89 54 24 04
-> 50 8b 54 24 20 89 Sep 23 02:40:09 localhost kernel: 
-> <0>Fatal exception: panic in 5 seconds
-> 
-> vnicclient is my module. 
-> Could you please tell me what is meant by  "Not
-> tainted VLI" ?
+Please pull from 'upstream-fixes' branch of
+master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git
 
-It's normal.  "Not tainted" means that there are no
-proprietary modules loaded, only GPL modules.
-VLI means Variable Length Instructions.  It's just a flag
-to software that reads these reports that the "Code" bytes
-are not fixed-length instructions.
+to obtain the following fixes:
 
-> This is happening after comming out my module. 
-> Could you please give some light on this issue?
 
-Sure, just tell us where to find/get your GPL source code
-and someone will probably take a look at it.
+ drivers/net/8390.c |    2 +-
+ drivers/net/skge.c |   22 ++++++++++++++++++++--
+ 2 files changed, 21 insertions(+), 3 deletions(-)
 
----
-~Randy
-You can't do anything without having to do something else first.
--- Belefant's Law
+
+Paul Gortmaker:
+  8390 Tx fix for non i386 machines
+
+Stephen Hemminger:
+  skge: fix Yukon-Lite A0 workaround
+
+
+diff --git a/drivers/net/8390.c b/drivers/net/8390.c
+--- a/drivers/net/8390.c
++++ b/drivers/net/8390.c
+@@ -1094,7 +1094,7 @@ static void NS8390_trigger_send(struct n
+    
+ 	outb_p(E8390_NODMA+E8390_PAGE0, e8390_base+E8390_CMD);
+     
+-	if (inb_p(e8390_base) & E8390_TRANS) 
++	if (inb_p(e8390_base + E8390_CMD) & E8390_TRANS) 
+ 	{
+ 		printk(KERN_WARNING "%s: trigger_send() called with the transmitter busy.\n",
+ 			dev->name);
+diff --git a/drivers/net/skge.c b/drivers/net/skge.c
+--- a/drivers/net/skge.c
++++ b/drivers/net/skge.c
+@@ -1643,6 +1643,22 @@ static void yukon_reset(struct skge_hw *
+ 			 | GM_RXCR_UCF_ENA | GM_RXCR_MCF_ENA);
+ }
+ 
++/* Apparently, early versions of Yukon-Lite had wrong chip_id? */
++static int is_yukon_lite_a0(struct skge_hw *hw)
++{
++	u32 reg;
++	int ret;
++
++	if (hw->chip_id != CHIP_ID_YUKON)
++		return 0;
++
++	reg = skge_read32(hw, B2_FAR);
++	skge_write8(hw, B2_FAR + 3, 0xff);
++	ret = (skge_read8(hw, B2_FAR + 3) != 0);
++	skge_write32(hw, B2_FAR, reg);
++	return ret;
++}
++
+ static void yukon_mac_init(struct skge_hw *hw, int port)
+ {
+ 	struct skge_port *skge = netdev_priv(hw->dev[port]);
+@@ -1758,9 +1774,11 @@ static void yukon_mac_init(struct skge_h
+ 	/* Configure Rx MAC FIFO */
+ 	skge_write16(hw, SK_REG(port, RX_GMF_FL_MSK), RX_FF_FL_DEF_MSK);
+ 	reg = GMF_OPER_ON | GMF_RX_F_FL_ON;
+-	if (hw->chip_id == CHIP_ID_YUKON_LITE &&
+-	    hw->chip_rev >= CHIP_REV_YU_LITE_A3)
++
++	/* disable Rx GMAC FIFO Flush for YUKON-Lite Rev. A0 only */
++	if (is_yukon_lite_a0(hw))
+ 		reg &= ~GMF_RX_F_FL_ON;
++
+ 	skge_write8(hw, SK_REG(port, RX_GMF_CTRL_T), GMF_RST_CLR);
+ 	skge_write16(hw, SK_REG(port, RX_GMF_CTRL_T), reg);
+ 	/*

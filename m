@@ -1,117 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750928AbVIWFTs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751302AbVIWFhG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750928AbVIWFTs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 01:19:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbVIWFTs
+	id S1751302AbVIWFhG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 01:37:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751307AbVIWFhG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 01:19:48 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:42934 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750928AbVIWFTs
+	Fri, 23 Sep 2005 01:37:06 -0400
+Received: from qproxy.gmail.com ([72.14.204.195]:49708 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751302AbVIWFhF convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 01:19:48 -0400
-Date: Fri, 23 Sep 2005 10:49:38 +0530
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Haren Myneni <hbabu@us.ibm.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Morton Andrew Morton <akpm@osdl.org>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       Dave Anderson <anderson@redhat.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       fastboot-bounces@lists.osdl.org
-Subject: Re: [Fastboot] [PATCH] Kdump(x86): add note type NT_KDUMPINFO	tokernel core dumps
-Message-ID: <20050923051938.GD3736@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <m1zmq5awsn.fsf@ebiederm.dsl.xmission.com> <OF0A1E6B6F.F00DC760-ON87257084.005F99D6-88257084.00634A38@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 23 Sep 2005 01:37:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=P+VIuTaamgJNeLXkg6iekq2egOoLLNAwnQb8P0hoGxwY6hZSM+eCIv7TXx2pdn2fN2UC04b8Xso9gzHBB49L4qVl3LVi0+tRSUbXayAAph7rJB+KA/jeMaDlCNjf9PFrYkfG7E+v5dZ7Z0K7hgfXScuRiUEt4nNdUKai3t2K7Dg=
+Message-ID: <489ecd0c050922223736cf1548@mail.gmail.com>
+Date: Fri, 23 Sep 2005 13:37:03 +0800
+From: Luke Yang <luke.adi@gmail.com>
+Reply-To: Luke Yang <luke.adi@gmail.com>
+Subject: Re: ADI Blackfin porting for kernel-2.6.13
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050920071514.GA10909@plexity.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <OF0A1E6B6F.F00DC760-ON87257084.005F99D6-88257084.00634A38@us.ibm.com>
-User-Agent: Mutt/1.4.2.1i
+References: <489ecd0c05091923336b48555@mail.gmail.com>
+	 <20050920071514.GA10909@plexity.net>
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 22, 2005 at 11:04:43AM -0700, Haren Myneni wrote:
-> fastboot-bounces@lists.osdl.org wrote on 09/22/2005 09:31:52 AM:
-> 
-> > Dave Anderson <anderson@redhat.com> writes:
-> > 
-> > > Just flagging the cpu, and then mapping that to the stack pointer 
-> found in
-> > > the associated NT_PRSTATUS register set should work OK too.  It gets
-> > > a little muddy if it crashed while running on an IRQ stack, but it
-> > still can be
-> > > tracked back from there as well.  (although not if the crashing 
-> > task overflowed
-> > > the IRQ stack)
-> > 
-> > You can't track it back from the crashing cpu if the IRQ stack overflows
-> > either.  So I would rather have crash confused when trying to find the
-> > task_struct.  Then to have the kernel fail avoidably while attempting
-> > to capture a core dump. 
-> > 
-> > Even if you overflow the stack wit a bit of detective work it should 
-> still
-> > be possible to show the stack overflowed and correct for it when 
-> analyzing
-> > the crash dump.  Doing anything like that from a crashing cpu (in a
-> > reliable way) is very hard. 
-> > 
-> > > The task_struct would be ideal though -- if the kernel's use of 
-> task_structs
-> > > changes in the future, well, then crash is going to need a serious 
-> re-write
-> > > anyway...  FWIW, netdump and diskdump use the NT_TASKSTRUCT note
-> > > note to store just the "current" pointer, and not the whole 
-> > task_struct itself,
-> > > which would just be a waste of space in the ELF header for 
-> crash'spurposes.
-> > > And looking at the gdb sources, it appears to be totally ignored.  Who
-> > > uses the NT_TASKSTRUCT note anyway?
-> > 
-> > Good question, especially as the kernel exports whatever we have for
-> > a task struct today in the ELF note.  No ABI compatibility is
-> > maintained.
-> > 
-> > Given all of that I recommend an empty NT_TASKSTRUCT to flag the
-> > crashing cpu, for now.
-> 
-> At present /proc/kcore writes the complete task structure for 
-> NT_TASKSTRUCT note section. Thought it is the standard. Hence created 
-> separate note section. The other option is the crash tool can directly 
-> read "crashing_cpu variable" from the vmcore to determine the panic cpu. 
-> Similarly, we can define panic_task variable in the kernel.
+Hi all,
 
-crashing_cpu was introduced recently to handle one of the problems caused
-due to NMI. I think we should not be relying on this variable. we get the
-value of crashing_cpu by making smp_processor_id() call and this value will
-be corrupted in case of stack overflow.
+   This is the ADI Blackfin patch for kernel 2.6.13.  I know this
+patch doesn' meet the kernel patch submission format, but this patch
+is only for reviewing, shows the changes we made.  And I'll send new
+patch for kernel 2.6.14 for you to merge into kernel.
 
-During OLS, Eric had suggested to either find a way to disable NMI after 
-panic() or may be read LAPIC id. Reading LAPIC id seems to be more reliable.
-I think mkdump folks already do something similar.
+   This patch mainly includes the arch/bfinnommu architecture files
+and some blackfin specific drivers.  The only change to the common
+files is that we change binfmt.c and related header file, added one
+flat binary format for blackfin. We are considering removing this
+change in next release.
 
-So, in short, using crashing_cpu might not be a good idea. Down the line
-this varibale might not be present at all. 
+  The patch is too big to put here , url is
+http://blackfin.uclinux.org/frs/download.php/570/bfinnonnu-linux-2.6.13.patch
 
-> 
-> Basically, we can use some global structure in the kernel and dump any 
-> needed information which we do not need to invoke any analysis tools 
-> (crash, gdb). Dumping CPU control registers can also be done this way 
-> without creating separate note section.
-> 
-> Thanks
-> Haren
-> 
-> Anyway, we already have crashing_cpu variable in the kernel. 
-> > 
-> > Eric
-> > _______________________________________________
-> > fastboot mailing list
-> > fastboot@lists.osdl.org
-> > https://lists.osdl.org/mailman/listinfo/fastboot
+  Thanks!
+Luke
 
-> _______________________________________________
-> fastboot mailing list
-> fastboot@lists.osdl.org
-> https://lists.osdl.org/mailman/listinfo/fastboot
-
+On 9/20/05, Deepak Saxena <dsaxena@plexity.net> wrote:
+> On Sep 20 2005, at 14:33, Luke Yang was caught saying:
+> > Hi,
+> >
+> >    I am Luke Yang, an engineer from Analog Devices Inc. We ported
+> > uclinux to our Blackfin cpu. Now we updated our architecture code for
+> > kernel-2.6.13. I will send out a patch to this list.
+> >
+> >    I know kernel-2.6.14 is coming. Will the linux kernel accept our
+> > patch for 2.6.13?
+>
+> Nope. 2.6.13 is now closed to new features as is 2.6.14 (unless it is
+> a really sper special case that Linus feels is important enough to slip
+> in).  At this point the best thing to do is to post your patches for review,
+> make the changes that are asked, and be ready to post a patch vs 2.6.14
+> within the first week after it is released so that it might be be picked
+> up for 2.6.15.
+>
+> ~Deepak
+>
+> --
+> Deepak Saxena - dsaxena@plexity.net - http://www.plexity.net
+>
+> Even a stopped clock gives the right time twice a day.
+>

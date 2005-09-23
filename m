@@ -1,68 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751013AbVIWSnW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbVIWSsc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751013AbVIWSnW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 14:43:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbVIWSnW
+	id S1751129AbVIWSsc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 14:48:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbVIWSsc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 14:43:22 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:51822 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1750705AbVIWSnW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 14:43:22 -0400
-Date: Fri, 23 Sep 2005 20:43:43 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Fawad Lateef <fawadlateef@gmail.com>
-Cc: Block Device <blockdevice@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Trapping Block I/O
-Message-ID: <20050923184342.GJ22655@suse.de>
-References: <64c7635405092305433356bd17@mail.gmail.com> <1e62d137050923103843058e92@mail.gmail.com> <20050923180407.GG22655@suse.de> <1e62d137050923111046d0b762@mail.gmail.com> <20050923181435.GI22655@suse.de> <1e62d13705092311306853e7d0@mail.gmail.com>
+	Fri, 23 Sep 2005 14:48:32 -0400
+Received: from serv01.siteground.net ([70.85.91.68]:36266 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S1751129AbVIWSsb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 14:48:31 -0400
+Date: Fri, 23 Sep 2005 11:48:20 -0700
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>,
+       "David S. Miller" <davem@davemloft.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 0/6] mm: alloc_percpu and bigrefs
+Message-ID: <20050923184820.GB4103@localhost.localdomain>
+References: <20050923062529.GA4209@localhost.localdomain> <20050923001013.28b7f032.akpm@osdl.org> <20050923.001729.101033164.davem@davemloft.net> <1127463090.796.7.camel@localhost.localdomain> <20050923113636.GB5006@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1e62d13705092311306853e7d0@mail.gmail.com>
+In-Reply-To: <20050923113636.GB5006@in.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 23 2005, Fawad Lateef wrote:
-> On 9/23/05, Jens Axboe <axboe@suse.de> wrote:
-> > Well it's pretty new, so no wonder. But it should do everything you want
-> > and lots more. There's a list for it here:
-> >
-> > linux-btrace@vger.kernel.org
-> >
-> > I'm a little pressed for time these days, but I'll do a proper announce
-> > / demo of all the features starting next week since it's basically
-> > feature complete now.
-> >
-> > If you don't use git, there are also snapshots available on kernel.org,
-> > more precisely here:
-> >
-> > kernel.org/pub/linux/kernel/people/axboe/blktrace/
-> >
-> > but kernel.org is pretty slow these days, so pulling from the git repo
-> > above is greatly recommended.
-> >
+On Fri, Sep 23, 2005 at 05:06:36PM +0530, Dipankar Sarma wrote:
+> On Fri, Sep 23, 2005 at 06:11:30PM +1000, Rusty Russell wrote:
+> > On Fri, 2005-09-23 at 00:17 -0700, David S. Miller wrote:
+> > Now, that said, I wanted (and wrote, way back when) a far simpler
+> > allocator which only worked for GFP_KERNEL and used the same
+> > __per_cpu_offset[] to fixup dynamic per-cpu ptrs as static ones.  Maybe
+> > not as "complete" as this one, but maybe less offensive.
 > 
-> Ya, I looked at it and its looking very good tool to tracing block I/O
-> layer, but this tracing requires recompilation of the kernel and have
-> to use on kernel directly from kernel.org but its not a big deal, I
-> hope it will get into the main kernel soon ....
+> The GFP_ATOMIC support stuff is needed only for dst entries. However
+> using per-cpu refcounters in such objects like dentries and dst entries
+> are problematic and that is why I hadn't tried changing those.
+> Some of the earlier versions of the allocator were simpler and I think
+> we need to roll this back and do some more analysis. No GFP_ATOMIC
+> support, no early use. I haven't got around to look at this 
 
-That is true, I plan on submitting it for 2.6.15. The goal was to get
-relayfs pushed in first and that did happen for 2.6.14.
+The patches I have submitted this time does not have GFP_ATOMIC support. The
+early use enablement stuff are in seperate patches  (patch 5 and 6).  The
+patchset would work without these two patches too.
 
-> By the way my approach about creating wrapper and getting the device
-> requests without modification into the kernel and can be easily used
-> on any block device ...... ;)
-
-There are certainly a lot of ways to get the data out to user space, by
-far the bulk of the code is in the monitoring application. blktrace
-should be pretty fast though, one of the goals was to make sure it would
-be very light weight on the kernel side (which it is) and very fast on
-getting the data out (also achieved, relayfs works very well). The
-xprobe approach does have certain advantages, the main one being that
-you can easily modify it.
-
--- 
-Jens Axboe
-
+Thanks,
+Kiran

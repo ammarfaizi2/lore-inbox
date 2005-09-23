@@ -1,80 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750815AbVIWRMO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbVIWRPO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750815AbVIWRMO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 13:12:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbVIWRMN
+	id S1750825AbVIWRPO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 13:15:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750829AbVIWRPO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 13:12:13 -0400
-Received: from zproxy.gmail.com ([64.233.162.195]:44651 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750815AbVIWRMM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 13:12:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=e+XdmVwWBMYjAxdE74FPc3nUgRJDC13KRvF8vvSwmOMPhOPKjipC090CbAdRQz5dX4TuQS0OLD/LRZdidvA05QH3fX4w1ZnW+R5rn3EtmMNv7KqoAJ0gC+CjTfB/AWIA+G7szsLNcOKgRn/tJSYRhGzHo+x0R4s2g9tqyFJSnTI=
-Message-ID: <29495f1d050923101228384a34@mail.gmail.com>
-Date: Fri, 23 Sep 2005 10:12:11 -0700
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: Nishanth Aravamudan <nacc@us.ibm.com>
-Subject: Re: tty update speed regression (was: 2.6.14-rc2-mm1)
-Cc: Alexey Dobriyan <adobriyan@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050923000815.GB2973@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 23 Sep 2005 13:15:14 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:17339 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750825AbVIWRPM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 13:15:12 -0400
+Date: Fri, 23 Sep 2005 10:15:14 -0700
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: sean.bruno@dsl-only.net, ak@suse.de, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: The system works (2.6.14-rc2): functional k8n-dl
+Message-ID: <20050923171514.GF5910@us.ibm.com>
+References: <20050922155254.GE5910@us.ibm.com> <433303A9.6050909@tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20050921222839.76c53ba1.akpm@osdl.org>
-	 <20050922195029.GA6426@mipter.zuzino.mipt.ru>
-	 <20050922214926.GA6524@mipter.zuzino.mipt.ru>
-	 <20050923000815.GB2973@us.ibm.com>
+In-Reply-To: <433303A9.6050909@tmr.com>
+X-Operating-System: Linux 2.6.14-rc2 (x86_64)
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/22/05, Nishanth Aravamudan <nacc@us.ibm.com> wrote:
-> On 23.09.2005 [01:49:26 +0400], Alexey Dobriyan wrote:
-> > On Thu, Sep 22, 2005 at 11:50:29PM +0400, Alexey Dobriyan wrote:
-> > > I see regression in tty update speed with ADOM (ncurses based
-> > > roguelike) [1].
-> > >
-> > > Messages at the top ("goblin hits you") are printed slowly. An eye can
-> > > notice letter after letter printing.
-> > >
-> > > 2.6.14-rc2 is OK.
-> > >
-> > > I'll try to revert tty-layer-buffering-revamp*.patch pieces and see if
-> > > it'll change something.
-> > >
-> > > [1] http://adom.de/adom/download/linux/adom-111-elf.tar.gz (binary only)
-> >
-> > Scratch TTY revamp, the sucker is
-> > fix-sys_poll-large-timeout-handling.patch
-> >
-> > HZ=250 here.
->
-> Alexey,
->
-> Thanks for the report. I will take a look on my Thinkpad with HZ=250
-> under -mm2. I have some ideas for debugging it if I see the same
-> problem.
+On 22.09.2005 [15:19:05 -0400], Bill Davidsen wrote:
+> Nishanth Aravamudan wrote:
+> >Hello all,
 
-I did not see any tty refresh problems on my TP with HZ=250 under
-2.6.14-rc2-mm1 (excuse the typo in my previous response) under the
-adom binary you sent me. I even played two games just to make sure ;)
+<snip my long mail>
 
-Is there any chance you can do an strace of the process while it is
-slow to redraw your screen? Just to verify how poll() is being called
-[if my patch is the problem, then poll() must be being used somewhat
-differently than I expected -- e.g. a dependency on the broken
-behavior]. The only thing I can think of right now is that I made
-timeout_jiffies unsigned, when schedule_timeout() will treat it as
-signed, but I'm not sure if that is the problem.
+> >code in such a solid state. I have had only one complaint so far: it
+> >seems that the the "Broadcom Corporation NetXtreme BCM5751 Gigabit
+> >Ethernet PCI Express" adapter, with the tg3 driver, downs and ups the
+> >iface on MTU changes. Unfortunately, with some VPN software I use, it is
+> >sometimes necessary to drop the MTU to 1300 or so to get consistent
+> >connections. When I do this, though, ssh through the tunnel tends to not
+> >function. I have a workaround, where I bounce over a different laptop,
+> >but that's a bit of a pain (and that network adapter seems to be able to
+> >transiently change the MTU). Not a big deal, in any case.
+> 
+> You can (or could in 2.4) sometimes play with the size for an individual 
+> IP by using the "mss" option of the old "route" command. That shouldn't 
+> glitch anything, it just should use little packets.
 
-We may want to contact the adom author eventually to figure out how
-poll() is being used in the Linux port, if strace is unable to help
-further.
+Yes, I see that still being an option. Let me go learn how to use route
+and see if that works better.
 
 Thanks,
 Nish

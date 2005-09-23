@@ -1,81 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750897AbVIWMBY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750905AbVIWMPm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750897AbVIWMBY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 08:01:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750898AbVIWMBX
+	id S1750905AbVIWMPm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 08:15:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750906AbVIWMPm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 08:01:23 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:60119 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750896AbVIWMBX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 08:01:23 -0400
-Date: Fri, 23 Sep 2005 17:31:07 +0530
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Dave Anderson <anderson@redhat.com>, Morton Andrew Morton <akpm@osdl.org>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       fastboot-bounces@lists.osdl.org
-Subject: Re: [Fastboot] [PATCH] Kdump(x86): add note type NT_KDUMPINFO tokernelcore dumps
-Message-ID: <20050923120107.GB7440@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <OF0A1E6B6F.F00DC760-ON87257084.005F99D6-88257084.00634A38@us.ibm.com> <4332FD56.2F5256F5@redhat.com> <m1ll1ob6lk.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1ll1ob6lk.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.4.2.1i
+	Fri, 23 Sep 2005 08:15:42 -0400
+Received: from web8509.mail.in.yahoo.com ([202.43.219.171]:58024 "HELO
+	web8509.mail.in.yahoo.com") by vger.kernel.org with SMTP
+	id S1750903AbVIWMPm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 08:15:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.co.in;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=aDGdKidNLb2Dtt2q3gJ9sD8q80NRLZi/rKv65qYAsARfYFds8pATcHhif8ukbAShbFRS5pkTh1kv+Z3NmpnmF35MLJykw1YjbhrvTtHi0RRzniWW4Yz0p3EyFWgE887HOIvsLhD5eSX7HQL+hsmtA6qKszT0fGbpb6HGwH8SjHA=  ;
+Message-ID: <20050923121538.88627.qmail@web8509.mail.in.yahoo.com>
+Date: Fri, 23 Sep 2005 13:15:38 +0100 (BST)
+From: manomugdha biswas <manomugdhab@yahoo.co.in>
+Subject: kernel 2.6 panic
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 23, 2005 at 01:12:23AM -0600, Eric W. Biederman wrote:
-> Dave Anderson <anderson@redhat.com> writes:
-> 
-> > So does elf_core_dump() as well, but to gdb it's useless AFAICT...
-> 
-> We can always post_process things when generating a core dump
-> if we have enough information.
-> 
-> > Hey -- I wasn't even aware of the "crashing_cpu" variable.  
-> > That would work just fine.
-> >
-> > Still a "panic_task", and perhaps even a "crash_page_size" variable
-> > would be nice as well.   No additional notes required...
-> 
-> To avoid defining an ABI that we need to maintain there is some
-> benefit in simply using static variables.  But the form of the
-> information really isn't the concern.
-> 
-> Where we capture the information and how reliable is that capture
-> is the concern.
-> 
-> To capture page size the easiest and most reliable way I can see
-> to do is to modify vmlinux.lds.S to contain something like:
-> >	 _page_shift = PAGE_SHIFT;
-> Giving you an absolute symbol _page_shift in vmlinux that
-> contains the value you need, without overhead in the running
-> kernel.
+Hi,
+I have a kernel module. I can install (insmod) my
+module successfully. I start my module by ioctl() from
+user application and also use ioctl() to stop my
+module from user application. But sometimes after
+removing (stoping) my module kernel panic happens.
+Following is the dump:
 
-That's a cool idea. I just tested it. 
+Sep 23 02:40:09 localhost kernel: Unable to handle
+kernel NULL pointer dereference at virtual address
+00000025
+Sep 23 02:40:09 localhost kernel:  printing eip:
+Sep 23 02:40:09 localhost kernel: c0163516
+Sep 23 02:40:09 localhost kernel: *pde = 00000000
+Sep 23 02:40:09 localhost kernel: Oops: 0000 [#1]
+Sep 23 02:40:09 localhost kernel: Modules linked in:
+vnicclient(U) i915 parport_pc lp parport autofs4
+i2c_dev i2c_core sunrpc dm_mod button battery ac md5
+ipv6 uhci_hcd ehci_hcd snd_intel8x0 snd_ac97_codec
+snd_pcm_oss snd_mixer_oss snd_pcm snd_timer
+snd_page_alloc snd_mpu401_uart snd_rawmidi
+snd_seq_device snd soundcore e100 mii floppy ext3 jbd
+Sep 23 02:40:09 localhost kernel: CPU:    0
+Sep 23 02:40:09 localhost kernel: EIP:   
+0060:[<c0163516>]    Not tainted VLI
+Sep 23 02:40:09 localhost kernel: EFLAGS: 00010202  
+(2.6.9-11.EL)
+Sep 23 02:40:09 localhost kernel: EIP is at
+sys_read+0x1d/0x62
+Sep 23 02:40:09 localhost kernel: eax: 00000001   ebx:
+00000001   ecx: f2067380   edx: 00000001 Sep 23
+02:40:09 localhost kernel: esi: fffffff7   edi:
+00000000   ebp: f29e5000   esp: f29e5fac
+Sep 23 02:40:09 localhost kernel: ds: 007b   es: 007b 
+ ss: 0068
+Sep 23 02:40:09 localhost kernel: Process bash (pid:
+10171, threadinfo=f29e5000 task=f21111a0)
+Sep 23 02:40:09 localhost kernel: Stack: 00000000
+00000000 00000000 00000000 bffdcbaf c03036f3 00000000
+bffdcbaf
+Sep 23 02:40:09 localhost kernel:        00000001
+bffdcbaf 00000000 bffdcbb8 00000003 0000007b 0000007b
+00000003
+Sep 23 02:40:09 localhost kernel:        006e77a2
+00000073 00000246 bffdcb94 0000007b
+Sep 23 02:40:09 localhost kernel: Call Trace:
+Sep 23 02:40:09 localhost kernel:  [<c03036f3>]
+syscall_call+0x7/0xb
+Sep 23 02:40:09 localhost kernel: Code: 00 e8 ed fc 01
+00 89 d8 5d 5b 5e 5f 5d c3 56 be f7 ff ff ff 53 83 ec
+0c 8b 44 24 18 8d 54 24 08 e8 8c 0d 00 00 85 c0 89 c3
+74 3d <8b> 40 24 8b 53 28 89 04 24 89 e0 89 54 24 04
+50 8b 54 24 20 89 Sep 23 02:40:09 localhost kernel: 
+<0>Fatal exception: panic in 5 seconds
 
-[vivek@vivegoya linux]$ readelf -s vmlinux | grep __page_shift
- 28865: 0000000c     0 NOTYPE  GLOBAL DEFAULT  ABS __page_shift
+vnicclient is my module. 
+Could you please tell me what is meant by  "Not
+tainted VLI" ?
 
-> 
-> crashing_cpu makes sense to capture in some form, we definitely
-> need to compute something that will allow us to write to
-> a per cpu area on an SMP system.
-> 
-> The big concern at this point is that the code has not undergone
-> a serious stability audit.  So it is the expectation that there
-> is still code we can remove and modify to increase the likely hood
-> of getting a crash dump.
-> 
-> Currently we know that stack overflows sometimes happen and that
-> they are a source of kernel crashes.  It would be good if we could
-> take a crash dump despite them.  To do that requires code more
-> robust than we have today.  Quite likely it means that we will
-> not be able to reliably capture the task_struct of the crashing cpu.
->
+This is happening after comming out my module. 
+Could you please give some light on this issue?
 
-Agreed.
+Thanks and Regards,
+Mano
+
+
+
+
+Manomugdha Biswas
+
+
+		
+__________________________________________________________ 
+Yahoo! India Matrimony: Find your partner now. Go to http://yahoo.shaadi.com

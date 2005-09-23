@@ -1,112 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750876AbVIWRhv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750843AbVIWRmZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750876AbVIWRhv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 13:37:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbVIWRhu
+	id S1750843AbVIWRmZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 13:42:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750848AbVIWRmZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 13:37:50 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:53959 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750836AbVIWRhu
+	Fri, 23 Sep 2005 13:42:25 -0400
+Received: from zproxy.gmail.com ([64.233.162.196]:27354 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750841AbVIWRmY convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 13:37:50 -0400
-Date: Fri, 23 Sep 2005 10:37:43 -0700
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: Sean Bruno <sean.bruno@dsl-only.net>
-Cc: karim@opersys.com, ak@suse.de, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: The system works (2.6.14-rc2): functional k8n-dl
-Message-ID: <20050923173743.GJ5910@us.ibm.com>
-References: <20050922155254.GE5910@us.ibm.com> <43332254.1040603@opersys.com> <1127495296.25701.15.camel@oscar> <20050923172014.GH5910@us.ibm.com> <1127496135.25701.22.camel@oscar>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 23 Sep 2005 13:42:24 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=BynneEdjm/C3TzAThxekMJUPUqkmKW8PuRNNqZs3WgyZawPOqVSLTS/dXVedgd+V5dollozHstiRbgrUKtECUHQ4rBzmx831/fXP/MZsP2h04GgRWjqp30j5w5i6YMxMTgC4N58z8bF172sXQTM21BGa5IgAR56u7CQMLbcG3Z4=
+Message-ID: <29495f1d0509231042139e9b94@mail.gmail.com>
+Date: Fri, 23 Sep 2005 10:42:23 -0700
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
+To: Davide Libenzi <davidel@xmailserver.org>
+Subject: Re: [patch] Make epoll_wait() handle negative timeouts as MAX_SCHEDULE_TIMEOUT ...
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.63.0509231031570.10222@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1127496135.25701.22.camel@oscar>
-X-Operating-System: Linux 2.6.14-rc2 (x86_64)
-User-Agent: Mutt/1.5.9i
+References: <Pine.LNX.4.63.0509231031570.10222@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23.09.2005 [10:22:15 -0700], Sean Bruno wrote:
-> On Fri, 2005-09-23 at 10:20 -0700, Nishanth Aravamudan wrote:
-> > On 23.09.2005 [10:08:16 -0700], Sean Bruno wrote:
-> > > On Thu, 2005-09-22 at 17:29 -0400, Karim Yaghmour wrote:
-> > > > Nish,
-> > > > 
-> > > > OK, I can confirm that with version 1006 of the BIOS it works flawlessly
-> > > > with Linux. I was able to install full FC4 and boot without a problem
-> > > > even with the SATA disk plugged to the nVidia controller (reading the
-> > > > archives you will see that the nVidia SATA controller is something I
-> > > > was simply unable to get working.) I didn't need to recompile anything.
-> > > > The kernel that came with FC4 worked just fine.
-> > > I can also confirm these findings.  However, I still have to boot the
-> > > kernel with iommu=memaper=3 in order to get the system to work
-> > > properly.  
-> > 
-> > You have 6GB of RAM, right? That must be the difference, as I only have
-> > 2 GB (and the IOMMU is used when you have more than 3 GB according to
-> > menuconfig?).
-> > 
-> Yes 6GB of ram.
+On 9/23/05, Davide Libenzi <davidel@xmailserver.org> wrote:
+>
+> As reported by Vadim Lobanov, epoll_wait() did not handle correctly
+> timeouts <0 (only the -1 case was MAX_SCHEDULE_TIMEOUT'd).
+>
+>
+> Signed-off-by: Davide Libenzi <davidel@xmailserver.org>
 
-Odd, any ideas of why that is? What happens when you don't pass the
-param? (sorry, haven't followed all the k8n-dl threads :)
+Arrgggh, this is as wrong as sys_poll() was before! :)
 
-A couple of points. Noticed that param is not documented in
-Documentation/kernel-parameters.txt; care to make up a patch? Also,
-after your message, I did a quick grep through my dmesg and see the
-following:
+--- a/fs/eventpoll.c	2005-09-23 10:06:45.000000000 -0700
++++ b/fs/eventpoll.c	2005-09-23 10:09:35.000000000 -0700
+@@ -1507,7 +1507,7 @@
+ 	 * and the overflow condition. The passed timeout is in milliseconds,
+ 	 * that why (t * HZ) / 1000.
+ 	 */
+-	jtimeout = timeout == -1 || timeout > (MAX_SCHEDULE_TIMEOUT - 1000) / HZ ?
++	jtimeout = timeout < 0 || timeout > (MAX_SCHEDULE_TIMEOUT - 1000) / HZ ?
 
-[    0.000000] Checking aperture...
-[    0.000000] CPU 0: aperture @ 4000000 size 32 MB
-[    0.000000] Aperture from northbridge cpu 0 too small (32 MB)
-[    0.000000] No AGP bridge found
-[    0.000000] Your BIOS doesn't leave a aperture memory hole
-[    0.000000] Please enable the IOMMU option in the BIOS setup
-[    0.000000] This costs you 64 MB of RAM
-[    0.000000] Mapping aperture over 65536 KB of RAM @ 4000000
+@timeout is in miliseconds, per the comment, yes? If so, then
 
-Is the aperture memory hole necessary even without AGP? Does the ASUS
-BIOS provide a means to change the aperture size (I didn't see one when
-I looked, but I could easily have missed it).
+timeout [msecs] > MAX_SCHEDULE_TIMEOUT [jiffies] - 1000 [jiffies] / HZ
+[jiffies / sec]
 
-[   45.703183] PCI: Using ACPI for IRQ routing
-[   45.703194] PCI: If a device doesn't work, try "pci=routeirq".  If it helps, post a report
-[   45.703286] PCI-DMA: Disabling AGP.
-[   45.703295] PCI-DMA: More than 4GB of RAM and no IOMMU
-[   45.703296] PCI-DMA: 32bit PCI IO may malfunction.<6>PCI-DMA: Disabling IOMMU.
-
-I am not sure why the kernel thinks I have more than 4GB of RAM, when I
-have 2 GB. Seems like a bug? Looks like that "Disabling IOMMU" printk is
-b0rked...and why does it disable it if I don't have one?  (according to
-2 messages before that one?) Andi, do you have any input on this?
-
-/proc/meminfo:
-
-MemTotal:      1989424 kB
-MemFree:         32896 kB
-Buffers:        276924 kB
-Cached:        1013852 kB
-SwapCached:          0 kB
-Active:        1085736 kB
-Inactive:       510788 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:      1989424 kB
-LowFree:         32896 kB
-SwapTotal:           0 kB
-SwapFree:            0 kB
-Dirty:              24 kB
-Writeback:           0 kB
-Mapped:         355348 kB
-Slab:           340204 kB
-CommitLimit:    994712 kB
-Committed_AS:   432912 kB
-PageTables:       6792 kB
-VmallocTotal: 34359738367 kB
-VmallocUsed:    262572 kB
-VmallocChunk: 34359475707 kB
-HugePages_Total:     0
-HugePages_Free:      0
-Hugepagesize:     2048 kB
+compares milliseconds to seconds! (Don't worry, sys_poll() had the
+same error for a long time). There is a patch in 2.6.14-rc2-mm1 for
+sys_poll() to fix the handling of long timeouts, please take a look
+and maybe apply the same ideas to epoll(). Alexey Dobriyan has filed a
+regression against the patch, but I'm unable to reproduce it (and it
+could be an app depending on the old broken behavior).
 
 Thanks,
 Nish

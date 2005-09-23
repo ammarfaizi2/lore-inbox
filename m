@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbVIWLhs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750893AbVIWLlX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750885AbVIWLhs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 07:37:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750889AbVIWLhs
+	id S1750893AbVIWLlX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 07:41:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750897AbVIWLlX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 07:37:48 -0400
-Received: from xproxy.gmail.com ([66.249.82.197]:8055 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750883AbVIWLhr convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 07:37:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=troy+hoPN4LsZT3LIcvemIVJMEC6/ruyy9zCijUijBJZ9KvDkfE4zJKpjxl6d1saN1GJWWsEDK9FUBHSKh/e4jatVNiISPrSkAscLJ7U2eMPOa++b246Ffn+dotBMOcvCRml/0Nxq8TNUPKcXKzoh1yKmwJn9W/laCdHZmsUb8Y=
-Message-ID: <e692861c05092304375542ec93@mail.gmail.com>
-Date: Fri, 23 Sep 2005 07:37:46 -0400
-From: Gregory Maxwell <gmaxwell@gmail.com>
-Reply-To: Gregory Maxwell <gmaxwell@gmail.com>
-To: David Greaves <david@dgreaves.com>
-Subject: Re: I request inclusion of reiser4 in the mainline kernel
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Pavel Machek <pavel@suse.cz>,
-       Hans Reiser <reiser@namesys.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, thenewme91@gmail.com,
-       Christoph Hellwig <hch@infradead.org>,
-       Denis Vlasenko <vda@ilport.com.ua>, chriswhite@gentoo.org,
-       LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <43339EE5.9030202@dgreaves.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200509182004.j8IK4JNx012764@inti.inf.utfsm.cl>
-	 <432E5024.20709@namesys.com> <20050920075133.GB4074@elf.ucw.cz>
-	 <20050921000425.GF6179@thunk.org>
-	 <e692861c05092018017ceef484@mail.gmail.com>
-	 <43339EE5.9030202@dgreaves.com>
+	Fri, 23 Sep 2005 07:41:23 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:27037 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750892AbVIWLlX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 07:41:23 -0400
+Subject: Re: Libata for parallel ATA controllers
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mark Lord <lkml@rtr.ca>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <4333674D.3070502@rtr.ca>
+References: <1127408726.18840.126.camel@localhost.localdomain>
+	 <4333674D.3070502@rtr.ca>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 23 Sep 2005 13:07:56 +0100
+Message-Id: <1127477276.5561.15.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/23/05, David Greaves <david@dgreaves.com> wrote:
-> who's not keeping up with the linux-raid list then ;)
->
-> David
-> PS I'm sure assistance would be appreciated in testing and reviewing
-> this few day old feature - or indeed the newer 'add a new disk to the
-> array' feature.
+On Iau, 2005-09-22 at 22:24 -0400, Mark Lord wrote:
+> built-in error-handling or recovery mechanisms yet.  If a drive
+> gets into a "reset me to recover" state, then libata just might
+> require a reboot to recover, whereas the IDE subsystem will usually
+> try a reset operation at some point.
 
-After posting that I checked linux-raid.... Thanked the author,
-patched a box, but got called out of town before I could test
-anything. :)
+Or crash.
 
-This is an important development. ... and it's about darn time!
+> Not a problem with modern, mostly bug-free hardware (eg. most SATA),
+> but this could be an issue for some PATA interfaces.
+
+The basic error handling in the libata code seems to work as well when I
+tested it, if not better because the old PATA code hangs the box on SMP
+or pre-empt if you get a DMA timeout and cable changedown due to locking
+flaws and also issues an immediate idle in error recovery which seems to
+crash some drives for good.
+
+What doesn't work at all is failed cable detect - the speed change down
+support simply isn't in libata yet and that turns a downspeed change for
+poor cables or cable misdetect into a hang.
+
+

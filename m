@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbVIWVtH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932074AbVIWVvK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932073AbVIWVtH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 17:49:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932074AbVIWVtH
+	id S932074AbVIWVvK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 17:51:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932075AbVIWVvJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 17:49:07 -0400
-Received: from zproxy.gmail.com ([64.233.162.199]:15790 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932073AbVIWVtG (ORCPT
+	Fri, 23 Sep 2005 17:51:09 -0400
+Received: from zproxy.gmail.com ([64.233.162.204]:54841 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932074AbVIWVvI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 17:49:06 -0400
+	Fri, 23 Sep 2005 17:51:08 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=srBhxYFTmFbrh8ULjmY2aoNGVwp2GUG/tbdvcxlTm1I27J+SdmrNlib8wFDAfNI6KHFExD1BlmO9IGEcldaqHht32E7awr8q2zjvhHy4cFHlTBxvyFwJpL3o6xk0u78AZRZhblg9ySdhDok1cRuc+gI/wMEjqxzzSxwbIBsIvLE=
+        b=CagA6qJdwmnceS9+bf0sb9lHeJftaYxnZWKnxg13DRPtg/gRIoNu8VlfOPvl3T04wBAHZVs9oJUnxOMOlvOcNCXQ1oNBLmD6EJN++cyae6jiHz2IcFMz/r16Z+tdXtzaSFuA6/6IkyBHojID2e7HI5GnAuTey1HLXcB2RrNisuI=
 From: Jesper Juhl <jesper.juhl@gmail.com>
 To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2/3] lib/string.c cleanup : remove pointless register keyword
-Date: Fri, 23 Sep 2005 23:51:12 +0200
+Subject: [PATCH 3/3] lib/string.c cleanup : remove pointless explicit casts
+Date: Fri, 23 Sep 2005 23:53:14 +0200
 User-Agent: KMail/1.8.2
 Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
        Ingo Oeser <ioe@informatik.tu-chemnitz.de>,
@@ -29,44 +29,89 @@ Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200509232351.12730.jesper.juhl@gmail.com>
+Message-Id: <200509232353.14357.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Removes a few pointless  register  keywords. register is merely a compiler 
-hint that access to the variable should be optimized, but gcc (3.3.6 in my 
-case) generates the exact same code with and without the keyword, and even 
-if gcc did something different with register present I think it is doubtful 
-we would want to optimize access to these variables - especially since this 
-is generic library code and there are supposed to be optimized versions in 
-asm/ for anything that really matters speed wise.
+Remove a few pointless explicit casts.
+The first two hunks of the patch really belongs in patch 1, but I missed 
+them on the first pass and instead of redoing all 3 patches I stuck them in 
+this one.
 
 
 Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
 ---
 
- lib/string.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ lib/string.c |   21 +++++++++++----------
+ 1 files changed, 11 insertions(+), 10 deletions(-)
 
---- linux-2.6.14-rc2-git3/lib/string.c-with-patch-1	2005-09-23 22:44:42.000000000 +0200
-+++ linux-2.6.14-rc2-git3/lib/string.c	2005-09-23 22:45:35.000000000 +0200
-@@ -219,7 +219,7 @@ EXPORT_SYMBOL(strlcat);
- #undef strcmp
- int strcmp(const char *cs, const char *ct)
- {
--	register signed char __res;
-+	signed char __res;
+--- linux-2.6.14-rc2-git3/lib/string.c-with-patch-2	2005-09-23 22:46:35.000000000 +0200
++++ linux-2.6.14-rc2-git3/lib/string.c	2005-09-23 23:05:19.000000000 +0200
+@@ -36,7 +36,7 @@ int strnicmp(const char *s1, const char 
+ 	/* Yes, Virginia, it had better be unsigned */
+ 	unsigned char c1, c2;
  
- 	while (1) {
- 		if ((__res = *cs - *ct++) != 0 || !*cs++)
-@@ -239,7 +239,7 @@ EXPORT_SYMBOL(strcmp);
+-	c1 = 0;	c2 = 0;
++	c1 = c2 = 0;
+ 	if (len) {
+ 		do {
+ 			c1 = *s1;
+@@ -148,7 +148,6 @@ char *strcat(char *dest, const char *src
+ 		dest++;
+ 	while ((*dest++ = *src++) != '\0')
+ 		;
+-
+ 	return tmp;
+ }
+ EXPORT_SYMBOL(strcat);
+@@ -447,7 +446,7 @@ EXPORT_SYMBOL(strsep);
   */
- int strncmp(const char *cs, const char *ct, size_t count)
+ void *memset(void *s, int c, size_t count)
  {
--	register signed char __res = 0;
-+	signed char __res = 0;
+-	char *xs = (char *)s;
++	char *xs = s;
  
- 	while (count) {
- 		if ((__res = *cs - *ct++) != 0 || !*cs++)
+ 	while (count--)
+ 		*xs++ = c;
+@@ -468,8 +467,8 @@ EXPORT_SYMBOL(memset);
+  */
+ void *memcpy(void *dest, const void *src, size_t count)
+ {
+-	char *tmp = (char *)dest;
+-	char *s = (char *)src;
++	char *tmp = dest;
++	char *s = src;
+ 
+ 	while (count--)
+ 		*tmp++ = *s++;
+@@ -492,13 +491,15 @@ void *memmove(void *dest, const void *sr
+ 	char *tmp, *s;
+ 
+ 	if (dest <= src) {
+-		tmp = (char *)dest;
+-		s = (char *)src;
++		tmp = dest;
++		s = src;
+ 		while (count--)
+ 			*tmp++ = *s++;
+ 	} else {
+-		tmp = (char *)dest + count;
+-		s = (char *)src + count;
++		tmp = dest;
++		tmp += count;
++		s = src;
++		s += count;
+ 		while (count--)
+ 			*--tmp = *--s;
+ 	}
+@@ -540,7 +541,7 @@ EXPORT_SYMBOL(memcmp);
+  */
+ void *memscan(void *addr, int c, size_t size)
+ {
+-	unsigned char *p = (unsigned char *)addr;
++	unsigned char *p = addr;
+ 
+ 	while (size) {
+ 		if (*p == c)
 
 

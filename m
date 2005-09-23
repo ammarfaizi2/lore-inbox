@@ -1,44 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbVIWU1n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751266AbVIWUrp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751248AbVIWU1n (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 16:27:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751264AbVIWU1n
+	id S1751266AbVIWUrp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 16:47:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbVIWUrp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 16:27:43 -0400
-Received: from opersys.com ([64.40.108.71]:25099 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S1751248AbVIWU1m (ORCPT
+	Fri, 23 Sep 2005 16:47:45 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:21690 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751233AbVIWUro (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 16:27:42 -0400
-Message-ID: <433467C4.1000701@opersys.com>
-Date: Fri, 23 Sep 2005 16:38:28 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Fri, 23 Sep 2005 16:47:44 -0400
+Message-ID: <433469DF.1060900@pobox.com>
+Date: Fri, 23 Sep 2005 16:47:27 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Nishanth Aravamudan <nacc@us.ibm.com>
-CC: sean.bruno@dsl-only.net, ak@suse.de, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: The system works (2.6.14-rc2): functional k8n-dl
-References: <20050922155254.GE5910@us.ibm.com> <43332254.1040603@opersys.com> <20050923171649.GG5910@us.ibm.com> <433447D3.4090608@opersys.com>
-In-Reply-To: <433447D3.4090608@opersys.com>
-Content-Type: text/plain; charset=us-ascii
+To: Jens Axboe <axboe@suse.de>, torvalds@osdl.org
+CC: joshk@triplehelix.org, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] updated version of Jens' SATA suspend-to-ram patch
+References: <20050923163334.GA13567@triplehelix.org> <20050923180711.GH22655@suse.de>
+In-Reply-To: <20050923180711.GH22655@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jens Axboe wrote:
+> On Fri, Sep 23 2005, Joshua Kwan wrote:
+>>I had some time yesterday and decided to help Jens out by rediffing the
+>>now-infamous SATA suspend-to-ram patch [1] against current git and
+>>test-building it.
 
-typo ....
+Very strange.  I cannot find this patch at all in my email folders.
 
-Karim Yaghmour wrote:
-> Well, you were the smartest :) I should have tried playing a little more
-> with the params, but, to be quite honest, I don't feel that I should need
-> to for a mainstream board such as this. I do have plenty of embedded/custom
-> boards where you just can't live with boot params, but mainstream boards
-                                   ^^^^^ I really meant "without".
+Can someone resend it to me?
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+
+
+> --- linux-2.6.13/drivers/scsi/libata-core.c~	2005-09-01 12:22:19.000000000 +0200
+> +++ linux-2.6.13/drivers/scsi/libata-core.c	2005-09-01 12:24:38.000000000 +0200
+> @@ -3738,8 +3738,8 @@
+>  	unsigned long flags;
+>  	int rc;
+>  
+> -	qc = ata_qc_new_init(ap, dev);
+> -	BUG_ON(qc == NULL);
+> +	while ((qc = ata_qc_new_init(ap, dev)) == NULL)
+> +		msleep(10);
+>  
+>  	qc->tf.command = cmd;
+>  	qc->tf.flags |= ATA_TFLAG_DEVICE;
+
+Worried now!
+
+If this patch is needed, something VERY VERY WRONG is going on.  This 
+patch indicates that the queueing state machine has been violated, and 
+something is trying to IGNORE the command synchronization :(
+
+Further, you cannot always assume that msleep() is valid in that 
+context.  It should be the caller that waits (libata suspend code), not 
+ata_do_simple_cmd() itself.
+
+Does anyone have a link to James Bottomley's proposed patch?  That one 
+seemed to do what was necessary -- send a SYNCHRONIZE_CACHE command then 
+turn it over to the LLD for further suspend.
+
+
+Linus wrote:
+> Ok. Can we have this in -mm for a few days just to shake out anything 
+> interesting, and then merge it into mainline?
+
+Once we get a decent patch, I can merge it into my libata-dev.git 
+repository, which is automatically propagated to -mm.
+
+	Jeff
+
+

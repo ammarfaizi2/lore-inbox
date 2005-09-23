@@ -1,59 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751282AbVIWEFH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbVIWE33@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751282AbVIWEFH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 00:05:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751289AbVIWEFH
+	id S1751287AbVIWE33 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 00:29:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751289AbVIWE32
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 00:05:07 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:37381 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1751282AbVIWEFG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 00:05:06 -0400
-Date: Fri, 23 Sep 2005 06:02:34 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: Harald Welte <laforge@netfilter.org>, netdev@vger.kernel.org,
-       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH 2/3] netfilter : 3 patches to boost ip_tables performance
-Message-ID: <20050923040234.GC595@alpha.home.local>
-References: <432EF0C5.5090908@cosmosbay.com> <200509191948.55333.ak@suse.de> <432FDAC5.3040801@cosmosbay.com> <200509201830.20689.ak@suse.de> <433082DE.3060308@cosmosbay.com> <43308324.70403@cosmosbay.com> <4331D168.6090604@cosmosbay.com> <20050922124803.GH26520@sunbeam.de.gnumonks.org> <4332AC2E.8000607@cosmosbay.com>
+	Fri, 23 Sep 2005 00:29:28 -0400
+Received: from dsl017-059-136.wdc2.dsl.speakeasy.net ([69.17.59.136]:30593
+	"EHLO luther.kurtwerks.com") by vger.kernel.org with ESMTP
+	id S1751287AbVIWE32 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 00:29:28 -0400
+Date: Fri, 23 Sep 2005 00:32:01 -0400
+From: Kurt Wall <kwall@kurtwerks.com>
+To: linux-kernel@vger.kernel.org
+Subject: GPF Using Quickcam
+Message-ID: <20050923043201.GA14899@kurtwerks.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4332AC2E.8000607@cosmosbay.com>
-User-Agent: Mutt/1.5.10i
+User-Agent: Mutt/1.4.2.1i
+X-Operating-System: Linux 2.6.12.3
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 22, 2005 at 03:05:50PM +0200, Eric Dumazet wrote:
-(...) 
-> It was necessary to get the best code with gcc-3.4.4 on i386 and 
-> gcc-4.0.1 on x86_64
-> 
-> For example :
-> 
-> bool1 = FWINV(ret != 0, IPT_INV_VIA_OUT);
-> if (bool1) {
-> 
-> gives a better code than :
-> 
-> if (FWINV(ret != 0, IPT_INV_VIA_OUT)) {
-> 
-> (one less conditional branch)
-> 
-> Dont ask me why, it is shocking but true :(
+Evenin' all,
 
-I also noticed many times that gcc's optimization of "if (complex condition)"
-is rather poor and it's often better to put it in a variable before. I even
-remember that if you use an intermediate variable, it can often generate a
-CMOV instruction on processors which support it, while it produces cond tests
-and jumps without the variable. Generally speaking, if you want fast code,
-you have to write it as a long sequence of small instructions, just as if
-you were writing assembly. As you said, shocking but true.
+I was testing out my spiffy new (to me) QuickCam Express webcam, pressed
+^C to terminate the test, and got the GPF shown below. Kernel version
+is 2.6.12.3 running on SLAMD64:
 
-BTW, cheers for your optimizations !
+The driver specifics are:
 
-Regards,
-Willy
+quickcam: QuickCam USB camera found (driver version QuickCam USB 0.6.3
+$Date: 2005/04/15 19:32:49 $)
+quickcam: Kernel:2.6.13.1 bus:3 class:FF subclass:FF vendor:046D
+product:0870
+quickcam: Sensor HDCS-1020 detected
+quickcam: Registered device: /dev/video1
+usbcore: registered new driver quickcam
+APIC error on CPU0: 40(40)
+APIC error on CPU0: 40(40)
 
+The message on the console after I pressed ^C:
+
+general protection fault: 0000 [1] PREEMPT
+
+The relevant extract from dmesg:
+
+quickcam: Control URB error -2
+general protection fault: 0000 [1] PREEMPT
+CPU 0
+Modules linked in: quickcam snd_pcm_oss snd_mixer_oss nfsd exportfs
+lockd sunrpc md5 ipv6 eth1394 ohci1394 ieee1394 tulip bt878 tuner
+tvaudio bttv video_buf firmware_class v4l2_common btcx_risc tveeprom
+videodev snd_atiixp snd_ac97_codec audio snd_usb_audio snd_pcm snd_timer
+snd_page_alloc snd_usb_lib snd_rawmidi snd_seq_device snd_hwdep snd
+ehci_hcd usb_storage
+Pid: 9603, comm: testquickcam Not tainted 2.6.13.1
+RIP: 0010:[<ffffffff802fe1a7>] <ffffffff802fe1a7>{usb_kill_urb+39}
+RSP: 0000:ffff810006977c58  EFLAGS: 00010202
+RAX: 0001002b00152dea RBX: ffff81001360a200 RCX: 0000000000000002
+RDX: 0000000000000000 RSI: 0000000000000002 RDI: ffff81001360a200
+RBP: 0000000000000001 R08: 0000000000000001 R09: 0000000000000000
+R10: ffff81001f8bbe08 R11: 0000000000000002 R12: ffff81000a8a82f0
+R13: ffff81000a847938 R14: ffff81000b285cf8 R15: ffff810006dc9e58
+FS:  00002aaaaadfbb00(0000) GS:ffffffff80540800(0000)
+knlGS:00000000560f2180
+CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+CR2: 00002aaaaab0f008 CR3: 000000001b024000 CR4: 00000000000006e0
+Process testquickcam (pid: 9603, threadinfo ffff810006976000, task
+ffff810006dc9880)
+Stack: ffff81001ef27800 ffffffff802ff5f4 ffff81001ef27800 ffff81001ef27800
+       0000000000000000 ffffffff802ff937 0000000000000000
+	   ffff810000000000 ffffffff00001388 ffff81000a8a8000
+Call Trace:<ffffffff802ff5f4>{usb_disable_interface+52} <ffffffff802ff937>{usb_set_interface+327}
+<ffffffff88202b70>{:quickcam:qc_isoc_stop+224} <ffffffff882048c4>{:quickcam:qc_v4l_close+68}
+       <ffffffff80177002>{__fput+178} <ffffffff801756ee>{filp_close+110}
+       <ffffffff80134813>{put_files_struct+115} <ffffffff801351d5>{do_exit+533}
+       <ffffffff8013d825>{__dequeue_signal+501} <ffffffff80135df8>{do_group_exit+280}
+       <ffffffff8013fa57>{get_signal_to_deliver+1575} <ffffffff8010de8f>{do_signal+159}
+       <ffffffff801495b0>{autoremove_wake_function+0} <ffffffff80175f24>{vfs_read+308}
+       <ffffffff8010eb3f>{sysret_signal+28} <ffffffff8010ee27>{ptregscall_common+103}
+
+
+Code: 48 8b 40 58 48 85 c0 0f 84 3c 01 00 00 48 83 78 30 00 0f 84
+RIP <ffffffff802fe1a7>{usb_kill_urb+39} RSP <ffff810006977c58>
+<1>Fixing recursive fault but reboot is needed!
+
+Is this a buggy driver? I can provide more information if need be.
+
+Thanks,
+
+Kurt
+-- 
+"I used to think that the brain was the most wonderful organ in my
+body.  Then I realized who was telling me this."
+		-- Emo Phillips

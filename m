@@ -1,60 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750892AbVIWLmZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbVIWMFG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750892AbVIWLmZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 07:42:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750896AbVIWLmZ
+	id S1750898AbVIWMFG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 08:05:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750900AbVIWMFG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 07:42:25 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:6042 "EHLO e36.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750887AbVIWLmZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 07:42:25 -0400
-Date: Fri, 23 Sep 2005 17:06:36 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "David S. Miller" <davem@davemloft.net>, akpm@osdl.org, kiran@scalex86.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 0/6] mm: alloc_percpu and bigrefs
-Message-ID: <20050923113636.GB5006@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20050923062529.GA4209@localhost.localdomain> <20050923001013.28b7f032.akpm@osdl.org> <20050923.001729.101033164.davem@davemloft.net> <1127463090.796.7.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1127463090.796.7.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+	Fri, 23 Sep 2005 08:05:06 -0400
+Received: from mail06.syd.optusnet.com.au ([211.29.132.187]:236 "EHLO
+	mail06.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1750898AbVIWMFF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 08:05:05 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: 2.6.13-ck6
+Date: Fri, 23 Sep 2005 22:04:49 +1000
+User-Agent: KMail/1.8.2
+Cc: ck list <ck@vds.kolivas.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2502051.V4JnRGGhtg";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200509232204.52910.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 23, 2005 at 06:11:30PM +1000, Rusty Russell wrote:
-> On Fri, 2005-09-23 at 00:17 -0700, David S. Miller wrote:
-> > I'm still against expanding these networking datastructures with
-> > bigrefs just for this stuff.  Some people have per-cpu and per-node on
-> > the brain, and it's starting to bloat things up a little bit too much.
-> 
-> I think for net devices it actually makes sense; most of the time we are
-> not trying to remove them, so the refcounting is simply overhead.  We
-> also don't alloc and free them very often.  The size issue is not really
-> an issue since we only map for each CPU, and even better: if a bigref
-> allocation can't get per-cpu data it just degrades beautifully into a
-> test and an atomic.
+--nextPart2502051.V4JnRGGhtg
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I agree, given that it is for a much smaller number of refcounted
-objects.
+These are patches designed to improve system responsiveness and interactivi=
+ty.=20
+It is configurable to any workload but the default ck* patch is aimed at th=
+e=20
+desktop and ck*-server is available with more emphasis on serverspace.
 
-> 
-> Now, that said, I wanted (and wrote, way back when) a far simpler
-> allocator which only worked for GFP_KERNEL and used the same
-> __per_cpu_offset[] to fixup dynamic per-cpu ptrs as static ones.  Maybe
-> not as "complete" as this one, but maybe less offensive.
 
-The GFP_ATOMIC support stuff is needed only for dst entries. However
-using per-cpu refcounters in such objects like dentries and dst entries
-are problematic and that is why I hadn't tried changing those.
-Some of the earlier versions of the allocator were simpler and I think
-we need to roll this back and do some more analysis. No GFP_ATOMIC
-support, no early use. I haven't got around to look at this 
-for a while, but I will try.
+THIS INCLUDES ALL THE PATCHES IN 2.6.13.2 SO YOU SHOULD START WITH 2.6.13 T=
+O=20
+USE THESE PATCHES
 
-Thanks
-Dipankar
+Apply to 2.6.13
+http://ck.kolivas.org/patches/2.6/2.6.13/2.6.13-ck6/patch-2.6.13-ck6.bz2
+
+or server version
+http://ck.kolivas.org/patches/2.6/2.6.13/2.6.13-ck6/patch-2.6.13-ck6-server=
+=2Ebz2
+
+*prefetching should still be considered experimental*
+I appreciate the extensive testing it is receiving!
+
+web:
+http://kernel.kolivas.org
+all patches:
+http://ck.kolivas.org/patches/
+Split patches available.
+
+
+Changes:
+
+Added:
++sched-iso_tunables.patch
+Add a tunable in /proc/sys/kernel/iso_cpu to allow you to set the amount of=
+=20
+cpu that SCHED_ISO tasks run realtime. It is 70% by default on -ck and 0% b=
+y=20
+default on -ckserver.
+
++ck5_sp11.patch
+Massive update to the swap prefetching code to version 11. This makes the=20
+decision when to prefetch far more intelligent, the cost of the code much=20
+cheaper on SMP/preempt, fixes bugs, and substantially decreases the risk of=
+=20
+the code causing out-of-memory conditions. The code is very safe and stable=
+=20
+and quite effective. The incidence of regressions has dropped dramatically=
+=20
+now but it still does need more testing.
+
+
+Removed:
+=2Dper-task-predictive-write-throttling-1.patch
+This patch is causing as yet not well understood problems with I/O pauses s=
+o=20
+it has been removed till it is developed and tested further in -mm.
+
+
+Modified:
+=2D2613ck5-version.diff
++2613ck6-version.diff
+Version update
+
+
+Cheers,
+Con
+
+--nextPart2502051.V4JnRGGhtg
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDM+9kZUg7+tp6mRURAjEBAJ9OPZblvS9qgrwmn1bknjdtraSDxQCfWENr
+z61wUK3VILHRiHScp+W+qfs=
+=LAd3
+-----END PGP SIGNATURE-----
+
+--nextPart2502051.V4JnRGGhtg--

@@ -1,74 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbVIWH5R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750799AbVIWICi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750734AbVIWH5R (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 03:57:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750735AbVIWH5R
+	id S1750799AbVIWICi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 04:02:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbVIWICi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 03:57:17 -0400
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:51029 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1750734AbVIWH5Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 03:57:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=D/4oZpDTCmTmxTXCR2dHxpKWkt+rtf+REFmJgiDZ1PkocbwBvcVr5nrcFDL0xah5kEN2PGZVEot1A5ShBNv+gl8IM+qdxuNPCeh8px6lsYAmegRHawm9M/Rt4iH/omWYtkDytVVYndtpozxoHyyJhKEuLbsNW/pA4xx6nMmozaM=  ;
-Message-ID: <4333B588.9060503@yahoo.com.au>
-Date: Fri, 23 Sep 2005 17:58:00 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
-X-Accept-Language: en
+	Fri, 23 Sep 2005 04:02:38 -0400
+Received: from dslsmtp.struer.net ([62.242.36.21]:2826 "EHLO
+	dslsmtp.struer.net") by vger.kernel.org with ESMTP id S1750799AbVIWICh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 04:02:37 -0400
+Message-ID: <12922.194.237.142.21.1127462553.squirrel@194.237.142.21>
+In-Reply-To: <6017D66D-E5E5-4C0E-BE65-952BEA405F0C@freescale.com>
+References: <CE56193B-A4BB-4557-87C0-BFCC6B9E7E5B@freescale.com>
+    <20050922214940.5ab30894.rdunlap@xenotime.net>
+    <669340F6-17D1-487D-A055-374077E96500@freescale.com>
+    <6017D66D-E5E5-4C0E-BE65-952BEA405F0C@freescale.com>
+Date: Fri, 23 Sep 2005 10:02:33 +0200 (CEST)
+Subject: Re: kernel buildsystem error/warning?
+From: "Sam Ravnborg" <sam@ravnborg.org>
+To: "Kumar Gala" <kumar.gala@freescale.com>
+Cc: "Gala Kumar K.-galak" <kumar.gala@freescale.com>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, sam@ravnborg.org,
+       linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
 MIME-Version: 1.0
-To: Ingo Oeser <ioe-lkml@rameria.de>
-CC: linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-       clameter@engr.sgi.com
-Subject: Re: making kmalloc BUG() might not be a good idea
-References: <20050922.231434.07643075.davem@davemloft.net> <4333A109.2000908@yahoo.com.au> <200509230909.54046.ioe-lkml@rameria.de>
-In-Reply-To: <200509230909.54046.ioe-lkml@rameria.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Oeser wrote:
-> Hi,
-> 
-> On Friday 23 September 2005 08:30, Nick Piggin wrote:
-> 
->>David S. Miller wrote:
 >>
->>>I'm sort-of concerned about this change:
->>>
->>>   [PATCH] __kmalloc: Generate BUG if size requested is too large.
->>>
->>>it opens a can of worms, and stuff that used to generate
->>>-ENOMEM kinds of failures will now BUG() the kernel.
->>
->>Making it WARN might be a good compromise.
-> 
-> 
-> Which has the potential to spam the logs with a user triggerable event
-> without even killing the responsible process.
-> Same problem, just worse.
-> 
+> After some more debug it appears that define rule_vmlinux__ is what's
+> causing this and in my .config CONFIG_KALLSYMS is not defined.
+>
+> Not sure if that will help.  If I enable CONFIG_KALLSYMS the "error"
+> goes away (which makes sense based on the rule_vmlinux__) define.
 
-As opposed to potentially taking the system down? I don't
-think so.
+Good info - thanks.
+I will fix it in the weekend.
 
-> I could live with a solution that enables it based on a config.
-> 
+   Sam
 
-Then you'll get people not enabling it on real workloads, or
-tuning it off if it bugs them. No, the point of having a WARN
-there is really for people like SGI to detect a few rare failure
-cases when they first boot up their 1024+ CPU systems. It is not
-going to spam anyone's logs (and if it does it *needs* fixing).
 
-What you don't want is to kill the responsible process, because
-at that point they're deep in the kernel, probably holding other
-locks and resources.
-
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,51 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751130AbVIWS1z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750974AbVIWSaY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751130AbVIWS1z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 14:27:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbVIWS1z
+	id S1750974AbVIWSaY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 14:30:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbVIWSaY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 14:27:55 -0400
-Received: from fmr16.intel.com ([192.55.52.70]:53702 "EHLO
-	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1751127AbVIWS1y convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 14:27:54 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Fri, 23 Sep 2005 14:30:24 -0400
+Received: from zproxy.gmail.com ([64.233.162.205]:11868 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750974AbVIWSaY convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 14:30:24 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=gJFsTofLB6SPIFhpJ3k6306Iikz19z+Bl2KlOn8tN2lLLPqvhDFeFPiZiLOCdhH2y+vFEmdmAId+wJ6VtvuItnIZNtvvK1q5rLzUFoHVXGwcYTFVZ7s9atuHPGxlGM4AS1HZ+YdHSUNvGIWj3l55KJk3b9dYGQB1g+x2gA9goJ8=
+Message-ID: <1e62d13705092311306853e7d0@mail.gmail.com>
+Date: Fri, 23 Sep 2005 23:30:22 +0500
+From: Fawad Lateef <fawadlateef@gmail.com>
+Reply-To: Fawad Lateef <fawadlateef@gmail.com>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: Trapping Block I/O
+Cc: Block Device <blockdevice@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050923181435.GI22655@suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Subject: RE: [patch 2.6.13 0/6] swiotlb maintenance and x86_64 dma_sync_single_range_for_{cpu,device}
-Date: Fri, 23 Sep 2005 11:27:26 -0700
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F04795ED2@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch 2.6.13 0/6] swiotlb maintenance and x86_64 dma_sync_single_range_for_{cpu,device}
-Thread-Index: AcXAa88QFkeRIr4hSlqPEtFr+kd8JgAACN6w
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "John W. Linville" <linville@tuxdriver.com>,
-       "Christoph Hellwig" <hch@infradead.org>, <linux-kernel@vger.kernel.org>,
-       <discuss@x86-64.org>, <linux-ia64@vger.kernel.org>, <ak@suse.de>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>
-X-OriginalArrivalTime: 23 Sep 2005 18:27:28.0656 (UTC) FILETIME=[74168100:01C5C06C]
+Content-Disposition: inline
+References: <64c7635405092305433356bd17@mail.gmail.com>
+	 <1e62d137050923103843058e92@mail.gmail.com>
+	 <20050923180407.GG22655@suse.de>
+	 <1e62d137050923111046d0b762@mail.gmail.com>
+	 <20050923181435.GI22655@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> It should just go away once the GFP_DMA32 code is merged.
+On 9/23/05, Jens Axboe <axboe@suse.de> wrote:
+> Well it's pretty new, so no wonder. But it should do everything you want
+> and lots more. There's a list for it here:
 >
->Is that the plan?  I suppose it makes sense.
+> linux-btrace@vger.kernel.org
 >
->So, move it to driver/pci/swiotlb.c?  Or just leave it where it is?
+> I'm a little pressed for time these days, but I'll do a proper announce
+> / demo of all the features starting next week since it's basically
+> feature complete now.
 >
->Either way, I'll redo the other patches to reflect the correct
->location.
+> If you don't use git, there are also snapshots available on kernel.org,
+> more precisely here:
+>
+> kernel.org/pub/linux/kernel/people/axboe/blktrace/
+>
+> but kernel.org is pretty slow these days, so pulling from the git repo
+> above is greatly recommended.
+>
 
-I don't have a good (or in fact any) understanding of the impact
-of GFP_DMA32 on ia64.  People tell me it will all be good, but I'd
-like to hear from someone running it.
+Ya, I looked at it and its looking very good tool to tracing block I/O
+layer, but this tracing requires recompilation of the kernel and have
+to use on kernel directly from kernel.org but its not a big deal, I
+hope it will get into the main kernel soon ....
 
-If it is good, and if it is coming soon, then there is no point
-moving swiotlb.  But I don't know the answers to either of those
-questions.
+By the way my approach about creating wrapper and getting the device
+requests without modification into the kernel and can be easily used
+on any block device ...... ;)
 
--Tony
+
+--
+Fawad Lateef

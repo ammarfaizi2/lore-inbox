@@ -1,58 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751120AbVIWSON@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750994AbVIWSQI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751120AbVIWSON (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 14:14:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750994AbVIWSON
+	id S1750994AbVIWSQI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 14:16:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751127AbVIWSQI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 14:14:13 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:31834 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751125AbVIWSOM (ORCPT
+	Fri, 23 Sep 2005 14:16:08 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:62169 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750994AbVIWSQH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 14:14:12 -0400
-Date: Fri, 23 Sep 2005 20:14:36 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Fawad Lateef <fawadlateef@gmail.com>
-Cc: Block Device <blockdevice@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Trapping Block I/O
-Message-ID: <20050923181435.GI22655@suse.de>
-References: <64c7635405092305433356bd17@mail.gmail.com> <1e62d137050923103843058e92@mail.gmail.com> <20050923180407.GG22655@suse.de> <1e62d137050923111046d0b762@mail.gmail.com>
+	Fri, 23 Sep 2005 14:16:07 -0400
+Date: Fri, 23 Sep 2005 11:16:08 -0700
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: sean.bruno@dsl-only.net, ak@suse.de, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: The system works (2.6.14-rc2): functional k8n-dl
+Message-ID: <20050923181608.GM5910@us.ibm.com>
+References: <20050922155254.GE5910@us.ibm.com> <43332254.1040603@opersys.com> <20050923171649.GG5910@us.ibm.com> <433447D3.4090608@opersys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1e62d137050923111046d0b762@mail.gmail.com>
+In-Reply-To: <433447D3.4090608@opersys.com>
+X-Operating-System: Linux 2.6.14-rc2 (x86_64)
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 23 2005, Fawad Lateef wrote:
-> On 9/23/05, Jens Axboe <axboe@suse.de> wrote:
-> > On Fri, Sep 23 2005, Fawad Lateef wrote:
-> > > you created wrapper .... So by doing this you can easily monitor
-> > > requests (similar to this approach is used in LVM/RAID) ......
-> >
-> > Or just use btrace, pull it from:
-> >
-> > git://brick.kernel.dk/data/git/blktrace.git
-> >
+On 23.09.2005 [14:22:11 -0400], Karim Yaghmour wrote:
 > 
-> Thnx for telling about btrace .... I havn't tried/looked at it before !!!!
+> Nishanth Aravamudan wrote:
+> > Again, I find it odd that it worked OOB for me (with the aforementioned
+> > boot params).
+> 
+> Well, you were the smartest :) I should have tried playing a little more
+> with the params, but, to be quite honest, I don't feel that I should need
+> to for a mainstream board such as this. I do have plenty of embedded/custom
+> boards where you just can't live with boot params, but mainstream boards
+> ... nah ...
 
-Well it's pretty new, so no wonder. But it should do everything you want
-and lots more. There's a list for it here:
+I agree, honestly; ASUS probably should have done a better job
+developing the board and testing it with various setups. But at least
+they are reasonably quick at putting out BIOS updates (and some that
+work at that :)
 
-linux-btrace@vger.kernel.org
+> > Regardless, I'm glad it is working for you now.
+> 
+> Thanks again for your help, I really appreciate it.
 
-I'm a little pressed for time these days, but I'll do a proper announce
-/ demo of all the features starting next week since it's basically
-feature complete now.
+Not a problem at all. It was my pleasure.
 
-If you don't use git, there are also snapshots available on kernel.org,
-more precisely here:
-
-kernel.org/pub/linux/kernel/people/axboe/blktrace/
-
-but kernel.org is pretty slow these days, so pulling from the git repo
-above is greatly recommended.
-
--- 
-Jens Axboe
-
+-Nish

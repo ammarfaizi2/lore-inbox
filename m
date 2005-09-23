@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbVIWV14@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbVIWVcn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751306AbVIWV14 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 17:27:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751308AbVIWV14
+	id S1751315AbVIWVcn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 17:32:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbVIWVcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 17:27:56 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:18907 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751306AbVIWV1z (ORCPT
+	Fri, 23 Sep 2005 17:32:43 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:40617 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751315AbVIWVcm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 17:27:55 -0400
-Date: Fri, 23 Sep 2005 14:27:58 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/3] fuse: check O_DIRECT
-Message-Id: <20050923142758.641189f2.akpm@osdl.org>
-In-Reply-To: <E1EIoQZ-0006Rz-00@dorka.pomaz.szeredi.hu>
-References: <E1EIoQZ-0006Rz-00@dorka.pomaz.szeredi.hu>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 23 Sep 2005 17:32:42 -0400
+Date: Fri, 23 Sep 2005 14:32:41 -0700
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Nish Aravamudan <nish.aravamudan@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: tty update speed regression (was: 2.6.14-rc2-mm1)
+Message-ID: <20050923213241.GB3950@us.ibm.com>
+References: <20050921222839.76c53ba1.akpm@osdl.org> <20050922195029.GA6426@mipter.zuzino.mipt.ru> <20050922214926.GA6524@mipter.zuzino.mipt.ru> <20050923000815.GB2973@us.ibm.com> <29495f1d050923101228384a34@mail.gmail.com> <20050923184216.GA6452@mipter.zuzino.mipt.ru> <20050923190749.GO5910@us.ibm.com> <20050923194252.GA6460@mipter.zuzino.mipt.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050923194252.GA6460@mipter.zuzino.mipt.ru>
+X-Operating-System: Linux 2.6.14-rc2 (x86_64)
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miklos Szeredi <miklos@szeredi.hu> wrote:
->
-> Check O_DIRECT and return -EINVAL error in open.  dentry_open() also
-> checks this but only after the open method is called.  This patch
-> optimizes away the unnecessary upcalls in this case.
+On 23.09.2005 [23:42:53 +0400], Alexey Dobriyan wrote:
+> On Fri, Sep 23, 2005 at 12:07:49PM -0700, Nishanth Aravamudan wrote:
+> > On 23.09.2005 [22:42:16 +0400], Alexey Dobriyan wrote:
+> > > poll([{fd=0, events=POLLIN}], 1, 0) = 0
 > 
-> Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+> > > I can send full strace log if needed.
+> > 
+> > Nope, that helped tremendously! I think I know what the issue is (and
+> > why it's HZ dependent).
+> > 
+> > In the current code, (2.6.13.2, e.g) we allow 0 timeout poll-requests to
+> > be resolved as 0 jiffy requests. But in my patch, those requests become
+> > 1 jiffy (which of course depends on HZ and gets quite long if HZ=100)!
+> > 
+> > Care to try the following patch?
 > 
-> Index: linux/fs/fuse/file.c
-> ===================================================================
-> --- linux.orig/fs/fuse/file.c	2005-09-21 11:55:45.000000000 +0200
-> +++ linux/fs/fuse/file.c	2005-09-23 15:24:23.000000000 +0200
-> @@ -23,6 +23,10 @@ int fuse_open_common(struct inode *inode
->  	struct fuse_file *ff;
->  	int err;
->  
-> +	/* VFS checks this, but only _after_ ->open() */
-> +	if (file->f_flags & O_DIRECT)
-> +		return -EINVAL;
-> +
->  	err = generic_file_open(inode, file);
->  	if (err)
->  		return err;
+> It works! Now, even with HZ=100, gameplay is smooth.
+> 
+> Andrew, please, apply.
 
-This hardly seems worth optimising for?
+Great! Thanks for the testing, Alexey.
+
+-Nish

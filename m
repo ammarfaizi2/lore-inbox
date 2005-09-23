@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbVIWRDr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbVIWRIT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750702AbVIWRDr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 13:03:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750809AbVIWRDr
+	id S1750803AbVIWRIT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 13:08:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbVIWRIS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 13:03:47 -0400
-Received: from frankvm.xs4all.nl ([80.126.170.174]:53925 "EHLO
-	janus.localdomain") by vger.kernel.org with ESMTP id S1750702AbVIWRDr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 13:03:47 -0400
-Date: Fri, 23 Sep 2005 19:03:45 +0200
-From: Frank van Maarseveen <frankvm@frankvm.com>
-To: Dipankar Sarma <dipankar@in.ibm.com>
-Cc: Pablo Fernandez <pablo.ferlop@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: max_fd
-Message-ID: <20050923170345.GA1555@janus>
-References: <8518592505092305373465a5@mail.gmail.com> <20050923155509.GA4723@in.ibm.com>
+	Fri, 23 Sep 2005 13:08:18 -0400
+Received: from iron.pdx.net ([207.149.241.18]:17547 "EHLO iron.pdx.net")
+	by vger.kernel.org with ESMTP id S1750803AbVIWRIS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 13:08:18 -0400
+Subject: Re: The system works (2.6.14-rc2): functional k8n-dl
+From: Sean Bruno <sean.bruno@dsl-only.net>
+To: karim@opersys.com
+Cc: Nishanth Aravamudan <nacc@us.ibm.com>, ak@suse.de,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <43332254.1040603@opersys.com>
+References: <20050922155254.GE5910@us.ibm.com>
+	 <43332254.1040603@opersys.com>
+Content-Type: text/plain
+Date: Fri, 23 Sep 2005 10:08:16 -0700
+Message-Id: <1127495296.25701.15.camel@oscar>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050923155509.GA4723@in.ibm.com>
-User-Agent: Mutt/1.4.1i
-X-Subliminal-Message: Use Linux!
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 23, 2005 at 09:25:10PM +0530, Dipankar Sarma wrote:
-> On Fri, Sep 23, 2005 at 02:37:51PM +0200, Pablo Fernandez wrote:
-> > Hi
-> > 
-> > What happend to files_struct.max_fd? Is it safe to use
-> > files_fdtable(files_struct).max_fds?
+On Thu, 2005-09-22 at 17:29 -0400, Karim Yaghmour wrote:
+> Nish,
 > 
-> No.
-> 
-> Just do - 
-> 
-> 	struct fdtable *fdt;
-> 
-> 	rcu_read_lock();
-> 	fdt = files_fdtable(files_struct);
-> 	if (fdt->max_fds......
-> 	...
-> 	rcu_read_unlock();
+> OK, I can confirm that with version 1006 of the BIOS it works flawlessly
+> with Linux. I was able to install full FC4 and boot without a problem
+> even with the SATA disk plugged to the nVidia controller (reading the
+> archives you will see that the nVidia SATA controller is something I
+> was simply unable to get working.) I didn't need to recompile anything.
+> The kernel that came with FC4 worked just fine.
+I can also confirm these findings.  However, I still have to boot the
+kernel with iommu=memaper=3 in order to get the system to work
+properly.  
 
-In include/linux/file.h I see this:
+Sean
 
- #define files_fdtable(files) (rcu_dereference((files)->fdt))
-
-looks better to me unless you really want to update the
-struct fdtable.
-
--- 
-Frank

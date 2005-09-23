@@ -1,87 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbVIWHF5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbVIWHKF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750718AbVIWHF5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 03:05:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbVIWHF5
+	id S1750708AbVIWHKF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 03:10:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbVIWHKE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 03:05:57 -0400
-Received: from omta05ps.mx.bigpond.com ([144.140.83.195]:57175 "EHLO
-	omta05ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1750718AbVIWHF4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 03:05:56 -0400
-Message-ID: <4333A951.3060903@bigpond.net.au>
-Date: Fri, 23 Sep 2005 17:05:53 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
+	Fri, 23 Sep 2005 03:10:04 -0400
+Received: from smtprelay02.ispgateway.de ([80.67.18.14]:51942 "EHLO
+	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1750708AbVIWHKD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 03:10:03 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: making kmalloc BUG() might not be a good idea
+Date: Fri, 23 Sep 2005 09:09:47 +0200
+User-Agent: KMail/1.7.2
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       "David S. Miller" <davem@davemloft.net>, clameter@engr.sgi.com
+References: <20050922.231434.07643075.davem@davemloft.net> <4333A109.2000908@yahoo.com.au>
+In-Reply-To: <4333A109.2000908@yahoo.com.au>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Jake Moilanen <moilanen@austin.ibm.com>
-Subject: Re: [ANNOUNCE][RFC] PlugSched-6.1.1 for 2.6.13 and 2.6.13-mm2
-References: <4323896F.5050703@bigpond.net.au>
-In-Reply-To: <4323896F.5050703@bigpond.net.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart4633142.lWGBWvbvRP";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Fri, 23 Sep 2005 07:05:54 +0000
+Message-Id: <200509230909.54046.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams wrote:
-> This version contains minor code cleanups and more modifications to the 
-> spa_ws scheduler to improve its interactive responsiveness.  This 
-> modification includes control parameters for the identification of 
-> "media streaming" tasks.  The default values for these parameters are 
-> set based on observations of RealPlayer and the parameters of the video 
-> and audio benchmarks in Con Kolivas's interbench test and, therefore, 
-> may need adjusting for other programs.
-> 
-> A patch for 2.6.13-mm2 is available at:
-> 
-> <http://prdownloads.sourceforge.net/cpuse/plugsched-6.1.1-for-2.6.13-mm2.patch?download> 
-> 
-> 
-> and a patch to upgrade the 6.1 for 2.6.13 to 6.1.1 is available at:
-> 
-> <http://prdownloads.sourceforge.net/cpuse/plugsched-6.1-to-6.1.1-for-2.6.13.patch?download> 
-> 
-> 
-> Very Brief Documentation:
-> 
-> You can select a default scheduler at kernel build time.  If you wish to
-> boot with a scheduler other than the default it can be selected at boot
-> time by adding:
-> 
-> cpusched=<scheduler>
-> 
-> to the boot command line where <scheduler> is one of: ingosched,
-> nicksched, staircase, spa_no_frills, spa_ws or zaphod.  If you don't
-> change the default when you build the kernel the default scheduler will
-> be ingosched (which is the normal scheduler).
-> 
-> The scheduler in force on a running system can be determined by the
-> contents of:
-> 
-> /proc/scheduler
-> 
-> Control parameters for the scheduler can be read/set via files in:
-> 
-> /sys/cpusched/<scheduler>/
-> 
-> Peter
+--nextPart4633142.lWGBWvbvRP
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Patches for 2.6.14-rc2 and 2.6.14-rc2-mm1 are available at:
+Hi,
 
-<http://prdownloads.sourceforge.net/cpuse/plugsched-6.1.1-for-2.6.14-rc2.patch?download>
+On Friday 23 September 2005 08:30, Nick Piggin wrote:
+> David S. Miller wrote:
+> >I'm sort-of concerned about this change:
+> >
+> >    [PATCH] __kmalloc: Generate BUG if size requested is too large.
+> >
+> >it opens a can of worms, and stuff that used to generate
+> >-ENOMEM kinds of failures will now BUG() the kernel.
+> Making it WARN might be a good compromise.
 
-and
+Which has the potential to spam the logs with a user triggerable event
+without even killing the responsible process.
+Same problem, just worse.
 
-<http://prdownloads.sourceforge.net/cpuse/plugsched-6.1.1-for-2.6.14-rc2-mm1.patch?download>
+I could live with a solution that enables it based on a config.
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+KERNEL_HACKING is no such config. That feature is almost always
+enabled, because MAGIC_SYSRQ depends on it and a significant amount
+of Linux-Admins like it for a "sync, remount ro and reboot" sequence.
+So you need a new one.
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+
+Regards
+
+Ingo Oeser
+
+
+
+--nextPart4633142.lWGBWvbvRP
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDM6pBU56oYWuOrkARAmrhAKC4Xi5EK7EGpWUEO1hO6711MP190ACgnybZ
+v0O5DMcPIcabUMzOIjRs0LY=
+=+Lot
+-----END PGP SIGNATURE-----
+
+--nextPart4633142.lWGBWvbvRP--

@@ -1,64 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751297AbVIWVTG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751301AbVIWVUO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751297AbVIWVTG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 17:19:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751301AbVIWVTF
+	id S1751301AbVIWVUO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 17:20:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbVIWVUO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 17:19:05 -0400
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:44736 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S1751297AbVIWVTE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 17:19:04 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [swsusp] Rework image freeing
-Date: Fri, 23 Sep 2005 23:19:06 +0200
-User-Agent: KMail/1.8.2
-Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>
-References: <20050921205132.GA4249@elf.ucw.cz> <20050922094608.GA1773@elf.ucw.cz> <200509232252.53237.rjw@sisk.pl>
-In-Reply-To: <200509232252.53237.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 23 Sep 2005 17:20:14 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:7143 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751301AbVIWVUM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 17:20:12 -0400
+Date: Fri, 23 Sep 2005 22:19:53 +0100
+From: Alasdair G Kergon <agk@redhat.com>
+To: Blaisorblade <blaisorblade@yahoo.it>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       user-mode-linux-devel@lists.sourceforge.net,
+       user-mode-linux-user@lists.sourceforge.net
+Subject: Re: Writing on DM snapshots, and having no "mainstream" device (was: Re: Fw: [PATCH 1/7] Add dm-snapshot tutorial in Documentation)
+Message-ID: <20050923211953.GG18976@agk.surrey.redhat.com>
+Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
+	Blaisorblade <blaisorblade@yahoo.it>,
+	LKML <linux-kernel@vger.kernel.org>,
+	user-mode-linux-devel@lists.sourceforge.net,
+	user-mode-linux-user@lists.sourceforge.net
+References: <20050920163433.6081be3b.akpm@osdl.org> <20050921154846.GW18976@agk.surrey.redhat.com> <200509232211.32238.blaisorblade@yahoo.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200509232319.07380.rjw@sisk.pl>
+In-Reply-To: <200509232211.32238.blaisorblade@yahoo.it>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 23 of September 2005 22:52, Rafael J. Wysocki wrote:
-> Hi,
-> 
-> On Thursday, 22 of September 2005 11:46, Pavel Machek wrote:
-> > Hi!
-> > 
-> > > > -
-> > > > -/**
-> > > > - *	calc_nr - Determine the number of pages needed for a pbe list.
-> > > > - */
-> > > > -
-> > > > -static int calc_nr(int nr_copy)
-> > > > -{
-> > > > -	return nr_copy + (nr_copy+PBES_PER_PAGE-2)/(PBES_PER_PAGE-1);
-> > > > -}
-> > > 
-> > > I can't see why you are going to drop this function.  Isn't it necessary any more?
-> > 
-> > I've actually decreased on-disk memory requirements by... guess what:
-> > (nr_copy+PBES_PER_PAGE-2)/(PBES_PER_PAGE-1) factor. I do not store two
-> > copies of page directories any more.
-> 
-> On-disk - yes, but we still need to allocate RAM to create the "pagedir".
-> It takes ca (nr_copy_pages/(PBS_PER_PAGE-1) + !!(nr_copy_pages % (PBS_PER_PAGE-1))),
+On Fri, Sep 23, 2005 at 10:11:31PM +0200, Blaisorblade wrote:
+> you can create snapshots *WITHOUT* having a snapshot-origin device 
+ 
+Checking the code, yes you're correct.
+When that LVM2 code was developed you'd get an oops but it's been fixed.
 
-Sorry, this is not the right number, of course.  Should be
-(nr_copy_pages/PBS_PER_PAGE + !!(nr_copy_pages % PBS_PER_PAGE))
-
-Greetings,
-Rafael
-
-
+Alasdair
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+agk@redhat.com

@@ -1,72 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbVIWUMj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbVIWUYW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751216AbVIWUMj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 16:12:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751221AbVIWUMj
+	id S1751257AbVIWUYW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 16:24:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbVIWUYW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 16:12:39 -0400
-Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:27220 "HELO
-	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1751216AbVIWUMi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 16:12:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=Mn7KzVKL22O0liDPhSraZtzubR60WjKvfWBDht2cFo5MODNP0YH2yGn7NMybTkBaUi8TLmsZHQ2ZnQ0sHt/PVpJpQfcl4B7eLiJ8RugAkpAcOVLNz7aGkjN3U1BWFMisnxItO8xuRbwCQMPPvLQtKaCQYvKTJpQ9dWO0epAb9Z4=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: Alasdair G Kergon <agk@redhat.com>
-Subject: Writing on DM snapshots, and having no "mainstream" device (was: Re: Fw: [PATCH 1/7] Add dm-snapshot tutorial in Documentation)
-Date: Fri, 23 Sep 2005 22:11:31 +0200
-User-Agent: KMail/1.8.2
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       user-mode-linux-devel@lists.sourceforge.net,
-       user-mode-linux-user@lists.sourceforge.net
-References: <20050920163433.6081be3b.akpm@osdl.org> <20050921154846.GW18976@agk.surrey.redhat.com>
-In-Reply-To: <20050921154846.GW18976@agk.surrey.redhat.com>
+	Fri, 23 Sep 2005 16:24:22 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:13771 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751227AbVIWUYU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 16:24:20 -0400
+Date: Fri, 23 Sep 2005 13:23:54 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jens Axboe <axboe@suse.de>
+cc: joshk@triplehelix.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org,
+       Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] updated version of Jens' SATA suspend-to-ram patch
+In-Reply-To: <20050923180711.GH22655@suse.de>
+Message-ID: <Pine.LNX.4.58.0509231323120.3325@g5.osdl.org>
+References: <20050923163334.GA13567@triplehelix.org> <20050923180711.GH22655@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509232211.32238.blaisorblade@yahoo.it>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 21 September 2005 17:48, Alasdair G Kergon wrote:
-> On Tue, Sep 20, 2005 at 04:34:33PM -0700, Andrew Morton wrote:
-> > ack?
->
-> Applied some quick corrections to this.
-I'm now looking at this, but you've done an error. You say that 
 
-You must create the snapshot-origin device before you can create snapshots.
 
-This is totally wrong. The whole point of my document is to show that you can 
-create snapshots *WITHOUT* having a snapshot-origin device (yes, I did it).
+On Fri, 23 Sep 2005, Jens Axboe wrote:
+> 
+> Port looks fine, thanks. The only problem I've seen with the base patch
+> is that sometimes ata_do_simple_cmd() seems to be invoked right before a
+> previous command has completed. So I needed this addon to work around
+> that issue.
 
-And while the LVM setup (with snapshot-origin) is often used and well known, 
-the possibility to do without the snapshot-origin, and more important to 
-write on the snapshots, is something which is not widely known at all.
+Ok. Can we have this in -mm for a few days just to shake out anything 
+interesting, and then merge it into mainline?
 
-In fact, UML community has been using an in-house version of the same feature, 
-which cannot be mounted on the host due to missing code.
-> See also http://people.redhat.com/agk/talks/FOSDEM_2005/
-> (slides 15-27)
-Not yet had time to look at those, sorry.
-> You might like to convert some of those diagrams to ASCII
-> and include them?
-If you feel like doing this, ok, but I'm not normally a documentor.
-> Alasdair
-
--- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
-
-	
-
-	
-		
-___________________________________ 
-Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
-http://mail.yahoo.it
+		Linus

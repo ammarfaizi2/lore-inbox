@@ -1,46 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751334AbVIWWzC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751340AbVIWW7R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751334AbVIWWzC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 18:55:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbVIWWzB
+	id S1751340AbVIWW7R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 18:59:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbVIWW7R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 18:55:01 -0400
-Received: from zproxy.gmail.com ([64.233.162.204]:48799 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751334AbVIWWzA (ORCPT
+	Fri, 23 Sep 2005 18:59:17 -0400
+Received: from xenotime.net ([66.160.160.81]:46471 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751340AbVIWW7R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 18:55:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=uLCve0itNKjDIT4P98fTD/bYYr+AfNvoPvD5SpJ5xEKeZVucGheh0JdFGZpf/f0WS7clK0UhQxhDarU0/et1vfoxH0NrqzMjjHjvtEQBUKsE3BnYv0NPpCgraCt2riPw+4TtDGiKIGUYsfUwqeQ+crpERlFSIiZoklJis2G2lHE=
-Date: Sat, 24 Sep 2005 03:05:21 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Ingo Oeser <ioe@informatik.tu-chemnitz.de>,
-       Jason Thomas <jason@topic.com.au>,
-       Matthew Hawkins <matt@mh.dropbear.id.au>
-Subject: Re: [PATCH 1/3] lib/string.c cleanup : whitespace and CodingStyle cleanups
-Message-ID: <20050923230521.GA6915@mipter.zuzino.mipt.ru>
-References: <200509232344.26044.jesper.juhl@gmail.com> <200509232348.45030.jesper.juhl@gmail.com>
+	Fri, 23 Sep 2005 18:59:17 -0400
+Date: Fri, 23 Sep 2005 15:59:14 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Franck <vagabon.xyz@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to add a new ram region ?
+Message-Id: <20050923155914.0e13e0e5.rdunlap@xenotime.net>
+In-Reply-To: <cda58cb805092300496abc8350@mail.gmail.com>
+References: <cda58cb805092300496abc8350@mail.gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200509232348.45030.jesper.juhl@gmail.com>
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 23, 2005 at 11:48:44PM +0200, Jesper Juhl wrote:
-> Whitespace and CodingStyle cleanups for lib/string.c
+On Fri, 23 Sep 2005 09:49:43 +0200 Franck wrote:
+
+> Hi,
 > 
-> Removes some blank lines, removes some trailing whitespace, adds spaces 
-> after commas and a few similar changes.
+> I'm working on port of linux 2.6.13. The target is a custom board
+> based on a MIPS cpu. There are several RAMs on this board whose
+> address are not contiguous and don't start to 0 . I currently succeed
+> to make linux detect one of these RAM (the biggest one) but I'd like
+> to make linux able to use the others...I'd like to use the other in a
+> particular way: I would like to be able to allocate memory only on a
+> single RAM when needed in kernel space, and in userspace I would be
+> able to export a RAM disk that uses memory on a single RAM.
+> 
+> Could someone tell me how to do that or give me some pointers  ?
 
-> -char * strcpy(char * dest,const char *src)
-> +char *strcpy(char *dest, const char *src)
-	^^^
+You can try the "memmap=" kernel boot options, although I don't
+know if or how well they apply to MIPS.  Some of them apparently
+do apply, according to Documentation/kernel-parameters.txt .
 
-Why? Seriously.
-
+---
+~Randy
+You can't do anything without having to do something else first.
+-- Belefant's Law

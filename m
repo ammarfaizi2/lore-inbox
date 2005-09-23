@@ -1,157 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751418AbVIWGAO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751493AbVIWGKR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751418AbVIWGAO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 02:00:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751419AbVIWGAO
+	id S1751493AbVIWGKR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 02:10:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751494AbVIWGKR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 02:00:14 -0400
-Received: from mail23.sea5.speakeasy.net ([69.17.117.25]:41602 "EHLO
-	mail23.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1751418AbVIWGAM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 02:00:12 -0400
-Date: Thu, 22 Sep 2005 23:00:11 -0700 (PDT)
-From: Vadim Lobanov <vlobanov@speakeasy.net>
-To: Davide Libenzi <davidel@xmailserver.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] epoll
-In-Reply-To: <Pine.LNX.4.63.0509222233020.7372@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0509222254390.5524@shell2.speakeasy.net>
-References: <Pine.LNX.4.58.0509221950010.15726@shell2.speakeasy.net>
- <Pine.LNX.4.63.0509222233020.7372@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 23 Sep 2005 02:10:17 -0400
+Received: from az33egw01.freescale.net ([192.88.158.102]:58530 "EHLO
+	az33egw01.freescale.net") by vger.kernel.org with ESMTP
+	id S1751493AbVIWGKP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 02:10:15 -0400
+In-Reply-To: <669340F6-17D1-487D-A055-374077E96500@freescale.com>
+References: <CE56193B-A4BB-4557-87C0-BFCC6B9E7E5B@freescale.com> <20050922214940.5ab30894.rdunlap@xenotime.net> <669340F6-17D1-487D-A055-374077E96500@freescale.com>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <6017D66D-E5E5-4C0E-BE65-952BEA405F0C@freescale.com>
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, <sam@ravnborg.org>,
+       <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+From: Kumar Gala <kumar.gala@freescale.com>
+Subject: Re: kernel buildsystem error/warning?
+Date: Fri, 23 Sep 2005 01:10:20 -0500
+To: "Gala Kumar K.-galak" <kumar.gala@freescale.com>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Sep 2005, Davide Libenzi wrote:
 
-> On Thu, 22 Sep 2005, Vadim Lobanov wrote:
->
-> > 1. Size
-> > The size parameter to sys_epoll_create() is simply sanity-checked (has
-> > to be greater than zero) and then ignored. I presume the current
-> > implementation works perfectly without this parameter, so I am rather
-> > curious why it is even passed in. Historical reasons? Future code
-> > improvements? On the same note, I'd like to suggest that '0' also should
-> > be an allowed value, for the case when the application really does not
-> > know what the size estimate should be.
->
-> This born from the initial epoll implementation, that was using the size
-> parameter to size the hash. Since now epoll uses rbtrees, the parameter is
-> no more used. Changing the API to remove it, and break userspace, was/is
-> not a good idea.
->
-
-Any thoughts on allowing a size of '0'?
+On Sep 23, 2005, at 12:44 AM, Gala Kumar K.-galak wrote:
 
 >
-> > 2. Timeout
-> > It seems that the timeout parameter in sys_epoll_wait() is not handled
-> > quite correctly. According to the manpages, a value of '-1' means
-> > infinite timeout, but the effect of other negative values is left
-> > undefined. In fact, if you run a userland program that calls
-> > epoll_wait() with a timeout value of '-2', the kernel prints an error
-> > into /var/log/messages from within schedule_timeout(), due to its
-> > argument being negative. It seems there are two ways to correct this
-> > behavior:
-> > - Check the passed timeout for being less than '-1', and return an
-> > error. A new errno value needs to be introduced into the epoll_wait()
-> > API.
-> > - Redefine the epoll_wait() API to accept any negative value as an
-> > infinite timeout, and change the code appropriately.
+> On Sep 22, 2005, at 11:49 PM, Randy.Dunlap wrote:
 >
-> Yes, it is nicer if epoll behaves like poll. (*)
 >
-
-No patch needed from me here, then?
-
+>> On Thu, 22 Sep 2005 08:45:35 -0500 Kumar Gala wrote:
+>>
+>>
+>>
+>>> Sam,
+>>>
+>>> I was wondering if anyone else is seeing the following error/warning
+>>> when building a recent kernel.  This error seems to have been
+>>> introduced between 2.6.13 and 2.6.14-rc1:
+>>>
+>>>    CHK     include/linux/version.h
+>>>    CHK     include/linux/compile.h
+>>>    CHK     usr/initramfs_list
+>>> /bin/sh: line 1: +@: command not found
+>>>    CHK     include/linux/compile.h
+>>>    UPD     include/linux/compile.h
+>>>    CC      init/version.o
+>>>    LD      init/built-in.o
+>>>    LD      vmlinux
+>>>    SYSMAP  System.map
+>>>
+>>>
+>>> I'm building a cross compiled ARCH ppc kernel on an x86 host.  I
+>>> tried using git bisect to track down the error but for some  
+>>> reason it
+>>>
+>>>
+>>
+>>
+>>
+>>> ended up referencing a change before 2.6.13 which I really dont
+>>> understand.
+>>>
+>>> Anyways, let me know if you need more info on this.
+>>>
+>>>
+>>
+>> I don't see the error message.  Do you have anything (added) to
+>> usr/initramfs_list ?  (of course, the error messsage doesn't have
+>> to be coming from that file at all)
+>>
 >
-> > 3. Wakeup
-> > As determined by testing with userland code, the sys_tgkill() and
-> > sys_tkill() functions currently will NOT wake up a sleeping
-> > epoll_wait(). Effectively, this means that epoll_wait() is NOT a pthread
-> > cancellation point. There are two potential issues with this:
-> > - epoll_wait() meets the unofficial(?) definition of a "system call that
-> > may block".
-> > - epoll_wait() behaves differently from poll() and friends.
+> Nope. Hmm, after a little more debug it appears to be an issue with
+> "if_changed_rule" in scripts/Kbuild.include. If I remove the '@' in
+> front of the "set -e" I get the following:
 >
-> The epoll_wait() wait loop is the standard one that even poll() uses (prep
-> wait, make interruptible, test signals, sched timeo). So if poll() is woke
-> up, so should epoll_wait(). A minimal code snippet that proves poll()
-> behing woke up, and epoll_wait() not, would help.
+>    CHK     include/linux/version.h
+>    CHK     include/linux/compile.h
+>    CHK     usr/initramfs_list
+> set -e;         +@ echo '  GEN     .version' && set -e; if [ ! -
+> r .version ]; then rm -f .version; echo 1 >.version; else
+> mv .version .old_version; expr 0$(cat .old_version) + 1 >.version;
+> fi; make -f scripts/Makefile.build obj=init
+> /bin/sh: line 1: +@: command not found
+>    CHK     include/linux/compile.h
+>    UPD     include/linux/compile.h
+> set -e;           echo '  CC      init/version.o'; powerpc-unknown-
+> linux-gnu-gcc -m32 -Wp,-MD,init/.version.o.d  -nostdinc -isystem /
+> _TOOLS_/dist/gnu-gcc-3.4.3-binutils-2.15-powerpc-unknown-linux-gnu/
+> i686-pc-linux2.4/lib/gcc/powerpc-unknown-linux-gnu/3.4.3/include -
+> D__KERNEL__ -Iinclude  -Iarch/ppc -Iarch/ppc/include -Wall -Wundef -
+> Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -
+> ffreestanding -O2     -fomit-frame-pointer -Iarch/ppc -msoft-float -
+> pipe -ffixed-r2 -mmultiple -Wa,-me500 -Wdeclaration-after-
+> statement     -DKBUILD_BASENAME=version -DKBUILD_MODNAME=version -c -
+> o init/version.o init/version.c;  scripts/basic/fixdep
+> init/.version.o.d init/version.o 'powerpc-unknown-linux-gnu-gcc -m32 -
+> Wp,-MD,init/.version.o.d  -nostdinc -isystem /_TOOLS_/dist/gnu-
+> gcc-3.4.3-binutils-2.15-powerpc-unknown-linux-gnu/i686-pc-linux2.4/
+> lib/gcc/powerpc-unknown-linux-gnu/3.4.3/include -D__KERNEL__ -
+> Iinclude  -Iarch/ppc -Iarch/ppc/include -Wall -Wundef -Wstrict-
+> prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -
+> ffreestanding -O2     -fomit-frame-pointer -Iarch/ppc -msoft-float -
+> pipe -ffixed-r2 -mmultiple -Wa,-me500 -Wdeclaration-after-
+> statement     -DKBUILD_BASENAME=version -DKBUILD_MODNAME=version -c -
+> o init/version.o init/version.c' > init/.version.o.tmp; rm -f
+> init/.version.o.d; mv -f init/.version.o.tmp init/.version.o.cmd
+>    CC      init/version.o
+>    LD      init/built-in.o
+>    LD      vmlinux
+>    SYSMAP  System.map
 >
-
-Certainly. :-) See end of email for sample program.
-
+> I'm guessing the +@ echo... is what's getting me, not to figure out
+> why that's happening.
 >
-> > 4. Code Duplication
-> > As sys_tgkill() and sys_tkill() are currently written, a large portion
-> > of the two functions is duplicated. It might make sense to pull that
-> > equivalent code out into a separate function.
->
-> This should be moved in "[RFC] something else" ;)
->
+> - kumar
 
-Alright.
+After some more debug it appears that define rule_vmlinux__ is what's  
+causing this and in my .config CONFIG_KALLSYMS is not defined.
 
->
-> > Comments please? In particular, the pthread cancellation issue is
-> > worrysome. In the case that any of the above points turn into actual
-> > code TODOs, I'll be more than happy to cook up and submit the patches.
->
-> [*] No need, since it's a one liner.
->
+Not sure if that will help.  If I enable CONFIG_KALLSYMS the "error"  
+goes away (which makes sense based on the rule_vmlinux__) define.
 
-Here's a sample program that illustrates difference in pthread killing
-between poll and epoll:
-================================================================
-#include <sys/epoll.h>
-#include <sys/poll.h>
-#include <pthread.h>
-#include <stdio.h>
-#include <unistd.h>
+- kumar
 
-//#define _E_
-
-void * run (int * fd) {
-    struct epoll_event result;
-
-    printf("Wait forever while polling.\n");
-#ifdef _E_
-    epoll_wait(*fd, &result, 1, -1);
-#else
-    poll(NULL, 0, -1);
-#endif
-    printf("Uhoh! Something is borked!\n");
-
-    return NULL;
-}
-
-int main (void) {
-    int events;
-    pthread_t thread;
-
-#ifdef _E_
-    events = epoll_create(1);
-#endif
-    pthread_create(&thread, NULL, (void * (*) (void *))run, &events);
-    getchar();
-    printf("Try to kill the thread.\n");
-    pthread_cancel(thread);
-    pthread_join(thread, NULL);
-    printf("Success.\n");
-#ifdef _E_
-    close(events);
-#endif
-
-    return 0;
-}
-================================================================
-gcc -lpthread -Wall -o test test.c
-================================================================
-
->
-> - Davide
->
-
--Vadim Lobanov

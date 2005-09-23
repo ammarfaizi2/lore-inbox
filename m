@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbVIWIvv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750819AbVIWI6J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750817AbVIWIvv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 04:51:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbVIWIvv
+	id S1750819AbVIWI6J (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 04:58:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbVIWI6J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 04:51:51 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:58756 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1750817AbVIWIvu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 04:51:50 -0400
-Date: Fri, 23 Sep 2005 10:51:54 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Valdis.Kletnieks@vt.edu
-Cc: "Artem B. Bityutskiy" <dedekind@yandex.ru>, Pavel Machek <pavel@ucw.cz>,
-       Peter Menzebach <pm-mtd@mw-itcon.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: data loss on jffs2 filesystem on dataflash
-Message-ID: <20050923085154.GA7522@wohnheim.fh-wedel.de>
-References: <43292AC6.40809@mw-itcon.de> <43292E16.70401@yandex.ru> <43292F91.9010302@mw-itcon.de> <432FE1EF.9000807@yandex.ru> <432FEF55.5090700@mw-itcon.de> <433006D8.4010502@yandex.ru> <20050920133244.GC4634@wohnheim.fh-wedel.de> <20050921190759.GC467@openzaurus.ucw.cz> <43328C07.9070001@yandex.ru> <200509221646.j8MGkYo3017314@turing-police.cc.vt.edu>
+	Fri, 23 Sep 2005 04:58:09 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:64932 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750819AbVIWI6H (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 04:58:07 -0400
+Date: Fri, 23 Sep 2005 01:57:19 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Chris Sykes <chris@sigsegv.plus.com>
+Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+Subject: Re: Hang during rm on ext2 mounted sync (2.6.14-rc2+)
+Message-Id: <20050923015719.5eb765a4.akpm@osdl.org>
+In-Reply-To: <20050922163708.GF5898@sigsegv.plus.com>
+References: <20050922163708.GF5898@sigsegv.plus.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200509221646.j8MGkYo3017314@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 September 2005 12:46:33 -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Thu, 22 Sep 2005 14:48:39 +0400, "Artem B. Bityutskiy" said:
+Chris Sykes <chris@sigsegv.plus.com> wrote:
+>
+> Kernels: 2.6.14-rc1 -> 2.6.14-rc2 + up to hg changeset 5c9ff0e17a61
 > 
-> > Joern meant that if HDD starts a block write operation, it will 
-> > accomplish it even if power-fail happens (probably there are some 
-> > capacitors there). So, it is impossible, say, that HDD has written one 
-> > half of a sector and has not written the other half.
+>  I'm experiencing processes getting stuck in the 'D' state whilst
+>  rm'ing files on an ext2 fs mounted with the 'sync' option.  What I've
+>  tested so far:
 > 
-> Hard drives contain capacitors to prevent writing of runt sectors on
-> a powerfail?  Didn't we go around this a while ago and decide it's mostly
-> urban legend, and that plenty of people have seen runt/bad sectors?
+>   * Ext2 mounted with sync:     rm hangs
+>   * Ext2 mounted without sync:  OK
+>   * Ext3 mounted with sync:     OK
+>   * Ext3 mounted without sync:  OK
+> 
+>  I first noticed this on my /boot partition, and wanted to know whether
+>  it was repeatable so I've created a few test ext2 filesystem images
+>  and mounted them via loopback.
 
-Yep.  I did _not_ say anything about finishing to write a sector.
-What I said was that there is only one case of a started and
-unfinished sector: it contains partially old and partially new data
-and nothing else.
+Odd.  Seems OK here.  How hard is it to make it occur?
 
-And the difference (one of them, at least) between hard disks and
-flash is the "and nothing else" part.  Flash may contain other
-information as well or even be in a partially erased state, randomly
-flipping bits in the future or not accepting writes.
+I'd be suspecting a lost I/O completion from the device driver.  Are you
+really sure that ext3 cannot be made to do the same thing?
 
-Jörn
+Suggest you generate the `dmesg -s 1000000' output for both good and bad
+kernels, do a `diff -u' on them and look for IDE complaints (or SCSI, if
+you're on SCSI).
 
--- 
-When in doubt, use brute force.
--- Ken Thompson

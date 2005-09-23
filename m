@@ -1,111 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751152AbVIWTAY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751157AbVIWTGQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751152AbVIWTAY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 15:00:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbVIWTAY
+	id S1751157AbVIWTGQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 15:06:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751156AbVIWTGQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 15:00:24 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:14597 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1751152AbVIWTAX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 15:00:23 -0400
-Message-ID: <433450C4.2080104@vmware.com>
-Date: Fri, 23 Sep 2005 12:00:20 -0700
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
+	Fri, 23 Sep 2005 15:06:16 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:23936 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id S1751157AbVIWTGP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 15:06:15 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Fri, 23 Sep 2005 12:09:00 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@localhost.localdomain
+To: Vadim Lobanov <vlobanov@speakeasy.net>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] epoll
+In-Reply-To: <Pine.LNX.4.58.0509231123440.9215@shell4.speakeasy.net>
+Message-ID: <Pine.LNX.4.63.0509231202160.10222@localhost.localdomain>
+References: <Pine.LNX.4.58.0509221950010.15726@shell2.speakeasy.net>
+ <Pine.LNX.4.63.0509222233020.7372@localhost.localdomain>
+ <Pine.LNX.4.58.0509222254390.5524@shell2.speakeasy.net>
+ <Pine.LNX.4.63.0509231027300.10222@localhost.localdomain>
+ <Pine.LNX.4.58.0509231123440.9215@shell4.speakeasy.net>
+X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
+X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
 MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Jeffrey Sheldon <jeffshel@vmware.com>,
-       Ole Agesen <agesen@vmware.com>, Shai Fultheim <shai@scalex86.org>,
-       Andrew Morton <akpm@odsl.org>, Jack Lo <jlo@vmware.com>,
-       Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       Chris Wright <chrisw@osdl.org>, Martin Bligh <mbligh@mbligh.org>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>, "H. Peter Anvin" <hpa@zytor.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Subject: Re: [PATCH 3/3] Gdt page isolation
-References: <200509220749.j8M7nINV001001@zach-dev.vmware.com> <20050922131714.GA97170@muc.de>
-In-Reply-To: <20050922131714.GA97170@muc.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Sep 2005 19:00:21.0307 (UTC) FILETIME=[0BE128B0:01C5C071]
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
+On Fri, 23 Sep 2005, Vadim Lobanov wrote:
 
->> 	 * This grunge runs the startup process for
->> 	 * the targeted processor.
->> 	 */
->>+	cpu_gdt_descr[cpu].address = __get_free_page(GFP_KERNEL|__GFP_ZERO);
->>    
+> On Fri, 23 Sep 2005, Davide Libenzi wrote:
+>
+>>>>> 3. Wakeup
+>>>>> As determined by testing with userland code, the sys_tgkill() and
+>>>>> sys_tkill() functions currently will NOT wake up a sleeping
+>>>>> epoll_wait(). Effectively, this means that epoll_wait() is NOT a pthread
+>>>>> cancellation point. There are two potential issues with this:
+>>>>> - epoll_wait() meets the unofficial(?) definition of a "system call that
+>>>>> may block".
+>>>>> - epoll_wait() behaves differently from poll() and friends.
+>>>>
+>>>> The epoll_wait() wait loop is the standard one that even poll() uses (prep
+>>>> wait, make interruptible, test signals, sched timeo). So if poll() is woke
+>>>> up, so should epoll_wait(). A minimal code snippet that proves poll()
+>>>> behing woke up, and epoll_wait() not, would help.
+>>>>
+>>>
+>>> Certainly. :-) See end of email for sample program.
 >>
+>> I'm afraid you need to bug the glibc guys, since I think they wrap
+>> sys_poll(). Try the test program below, when defining _X_, that makes it
+>> call sys_poll() directly. It will have the same epoll_wait() behaviour.
 >
->I can see why don't check it for NULL, but it's a ugly reason
->and would be better fixed. It at least needs a comment.
->
->-Andi (who would still prefer just going back to the array
->in head.S - would work as well and waste less memory) 
->  
->
+> I'm still a bit confused by how the pthread implementation fits
+> together. Correct me if the following is wrong, please:
+> Whenever the user wants to cancel a pthread, glibc eventually calls
+> {sys-}tgkill() upon the given thread, causing the kernel to return EINTR
+> to the blocking system call, in this case epoll_wait(). It is glibc's
+> job to catch this return value and realize that the thread is ready to be
+> killed, which it is not doing in the case of epoll_wait().
+> Or is the "current thread has been cancelled and should be killed" check
+> happening elsewhere / in some other way?
 
-The array in head.S does waste more memory if you compile for NR_CPUS >> 
-actual cpus.  But the primary reason for allocating on individual pages 
-is to preserve the hypervisor GDT entries for Xen.  Xen relies on a GDT 
-virtualization technique which uses descriptors in the high part of the 
-GDT.  Keep in mind, the GDT is a paged data structure.  So here is what 
-they do:
-
-Linear address space:
-
-+---------------------------+  4GB
-|                           | 
-|  Xen code, heap           |
-|                           |
-|                           |
-+---------------------------+
-|                           |  GDT virtual mapping
-|  Xen per-domain mappings  |==(page 15)====> hypervisor physical page
-|                           |==(page 1-14)==> zeroed pages
-|  GDT (16 pages)           |==(page 0)==+
-+---------------------------+  -168 ? MB |
-|                           |            |
-|  MPT tables               |            |
-|                           |            |
-|                           |            |
-+---------------------------+            |
-|                           |            |
-|  Guest kernel             |            |
-|                           |            |
-|                           |            |
-|                           |            |
-|                           |            |
-|  GDT 256 bytes, read-only |============+==> guest physical page
-|                           |
-+---------------------------+  3GB
+Please do not make me look at glibc/pthread code since I do not have time 
+ATM. I can only speculate on what it is happening. The sys_poll() and 
+sys_epoll_wait() system calls, when called directly, have the same 
+behaviour (like you can see in the test code snippet). They both return 
+EINTR to the caller. When you call glibc's poll(), the behaviour changes 
+and function is explicitly made a pthread cancellation point. The glibc's 
+epoll_wait() is not wrapped by the same code, and this makes it unable to 
+be pthread-canceled. Try to post to glibc the code snippet, and see if 
+they want to make epoll_wait() pthread-cancel enabled too.
 
 
-So, the GDT mapping which is live in the hypervisor consists of guest 
-GDT pages following by blank pages, followed by a page which is reserved 
-for Xen private GDT mappings.  The guest pages are mapped into the 
-guest, read-only.
 
-This imposes a strict requirement on the guest regarding sharing of data 
-on the GDT pages; it is impossible to share arbitrary data, even if it 
-is read-only.  All data on thes pages must conform to the rules for 
-valid guest GDT descriptors, which only GDT and LDT entries are forced 
-to do.
+> By the way, I already brought this up on the glibc mailing list (before
+> I sent it to LKML), and it seems they couldn't care less.
+> (http://sources.redhat.com/ml/libc-alpha/2005-09/msg00071.html)
 
-So while it is technically possible to share the per-cpu GDTs on the 
-same set of pages, the entire thing must be padded, page-aligned, and 
-zeroed of any unused data.  Unless you go to a complicated scheme where 
-per-cpu GDTs are colored and shared, you have an arbitrary limit (240) 
-on the number of virtual CPUs.
+Yeah, that's Uli :)
 
-So for now, the approach Xen is currently using appears to be simplest 
-and most flexible to implement in terms of one page per CPU for the GDT.
 
-Zach
+
+- Davide
+
+

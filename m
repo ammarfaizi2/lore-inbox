@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750799AbVIWICi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbVIWIJq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750799AbVIWICi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 04:02:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbVIWICi
+	id S1750800AbVIWIJq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 04:09:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbVIWIJq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 04:02:38 -0400
-Received: from dslsmtp.struer.net ([62.242.36.21]:2826 "EHLO
-	dslsmtp.struer.net") by vger.kernel.org with ESMTP id S1750799AbVIWICh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 04:02:37 -0400
-Message-ID: <12922.194.237.142.21.1127462553.squirrel@194.237.142.21>
-In-Reply-To: <6017D66D-E5E5-4C0E-BE65-952BEA405F0C@freescale.com>
-References: <CE56193B-A4BB-4557-87C0-BFCC6B9E7E5B@freescale.com>
-    <20050922214940.5ab30894.rdunlap@xenotime.net>
-    <669340F6-17D1-487D-A055-374077E96500@freescale.com>
-    <6017D66D-E5E5-4C0E-BE65-952BEA405F0C@freescale.com>
-Date: Fri, 23 Sep 2005 10:02:33 +0200 (CEST)
-Subject: Re: kernel buildsystem error/warning?
-From: "Sam Ravnborg" <sam@ravnborg.org>
-To: "Kumar Gala" <kumar.gala@freescale.com>
-Cc: "Gala Kumar K.-galak" <kumar.gala@freescale.com>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, sam@ravnborg.org,
-       linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Fri, 23 Sep 2005 04:09:46 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:28567
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1750800AbVIWIJp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 04:09:45 -0400
+Date: Fri, 23 Sep 2005 01:09:39 -0700 (PDT)
+Message-Id: <20050923.010939.11256142.davem@davemloft.net>
+To: nickpiggin@yahoo.com.au
+Cc: ioe-lkml@rameria.de, linux-kernel@vger.kernel.org, clameter@engr.sgi.com
+Subject: Re: making kmalloc BUG() might not be a good idea
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <4333B588.9060503@yahoo.com.au>
+References: <4333A109.2000908@yahoo.com.au>
+	<200509230909.54046.ioe-lkml@rameria.de>
+	<4333B588.9060503@yahoo.com.au>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>
-> After some more debug it appears that define rule_vmlinux__ is what's
-> causing this and in my .config CONFIG_KALLSYMS is not defined.
->
-> Not sure if that will help.  If I enable CONFIG_KALLSYMS the "error"
-> goes away (which makes sense based on the rule_vmlinux__) define.
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+Date: Fri, 23 Sep 2005 17:58:00 +1000
 
-Good info - thanks.
-I will fix it in the weekend.
+> Then you'll get people not enabling it on real workloads, or
+> tuning it off if it bugs them. No, the point of having a WARN
+> there is really for people like SGI to detect a few rare failure
+> cases when they first boot up their 1024+ CPU systems. It is not
+> going to spam anyone's logs (and if it does it *needs* fixing).
 
-   Sam
+SGI (and people "like" them) can't enable a debug option when bringing
+up new changes for the first time on that huge system?  Why is this?
 
+What in the world are all these CONFIG_*DEBUG* options for then?
+They are there for "I'm doing something radically new, or my new
+change isn't working, therefore I need more debugging than usual."
 
+We want it to spam the logs, sure, during _development_.  We don't
+want it on production systems where any kind of downtime is a very
+serious problem.  Rate limited, maybe, but not for every call as
+that's simply asking for trouble.
+
+This is why we have things like net_ratelimit() in the networking btw.
+It's there so you can't remotely spam someone's logs just becuase you
+figured out the "bug of the week" magic packet that erroneously
+generates a huge number of log messages.
+
+If we know how to make certain classes of bugs non-lethal, we should
+do so because there will always be bugs. :-)  This change makes
+previously non-lethal bugs potentially kill the machine.

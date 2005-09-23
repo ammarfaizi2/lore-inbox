@@ -1,37 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751182AbVIWTpg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbVIWTpj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751182AbVIWTpg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 15:45:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbVIWTpg
+	id S1751191AbVIWTpj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 15:45:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbVIWTpj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 15:45:36 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:61377 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751182AbVIWTpf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 15:45:35 -0400
-Date: Fri, 23 Sep 2005 12:44:51 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: <Abhay_Salunke@Dell.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: FW: [patch 2.6.14-rc2] dell_rbu: changes in packet update
- mechanism
-Message-Id: <20050923124451.61694274.akpm@osdl.org>
-In-Reply-To: <597A2BC19EDD3C458F841E8724E92D4B973E19@ausx3mps301.aus.amer.dell.com>
-References: <597A2BC19EDD3C458F841E8724E92D4B973E19@ausx3mps301.aus.amer.dell.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
+	Fri, 23 Sep 2005 15:45:39 -0400
+Received: from zproxy.gmail.com ([64.233.162.193]:29431 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751191AbVIWTpi convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 15:45:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WpAZiKaBMOsQqTOEKVMuN82fsBiS9A0XZAnZPOBTPA+w4yrhdo5czo0qg5QkmSN97qh7D9Zf5qvuqMjp9N/V64fGlW8fJVSaLhOCx1H0o65kRkmzyR2JFvKlh/Ek5sdubcvFih3weJCbZc282pltyO5MNrIBj5g1Q1Wl9tMezj4=
+Message-ID: <9a8748490509231245d26d875@mail.gmail.com>
+Date: Fri, 23 Sep 2005 21:45:37 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: Hang during rm on ext2 mounted sync (2.6.14-rc2+)
+Cc: Chris Sykes <chris@sigsegv.plus.com>, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
+In-Reply-To: <20050923121811.2ef1f0be.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050922163708.GF5898@sigsegv.plus.com>
+	 <20050923015719.5eb765a4.akpm@osdl.org>
+	 <20050923121932.GA5395@sigsegv.plus.com>
+	 <20050923132216.GA5784@sigsegv.plus.com>
+	 <20050923121811.2ef1f0be.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<Abhay_Salunke@Dell.com> wrote:
+On 9/23/05, Andrew Morton <akpm@osdl.org> wrote:
+[snip]
 >
-> -static ssize_t write_rbu_image_type(struct kobject *kobj, char *buffer,
->  -			loff_t pos, size_t count)
->  +static ssize_t
->  +write_rbu_image_type(struct kobject *kobj, char *buffer, loff_t pos,
+> We ought to have the git bisection process documented in the kernel tree,
+> but we don't, alas.  There's stuff at http://lkml.org/lkml/2005/6/24/234
+> but a standalone document which walks people through installing git,
+> pulling the initial tree, building and bisecting is needed (hint).
+>
 
-This is contrary to the conventional kernel coding style.  I suggest you
-not include all these layout changes.
+If noone else is doing this then I'll write such a document.
+If someone has already started writing it, then please let me know so
+we don't duplicate work. I'll get write it during the weekend if I
+hear nothing.
 
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

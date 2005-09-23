@@ -1,62 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751289AbVIWEts@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751291AbVIWFKM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751289AbVIWEts (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 00:49:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbVIWEts
+	id S1751291AbVIWFKM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 01:10:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751295AbVIWFKM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 00:49:48 -0400
-Received: from xenotime.net ([66.160.160.81]:63707 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751289AbVIWEts (ORCPT
+	Fri, 23 Sep 2005 01:10:12 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:2792 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751291AbVIWFKK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 00:49:48 -0400
-Date: Thu, 22 Sep 2005 21:49:40 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Kumar Gala <kumar.gala@freescale.com>
-Cc: sam@ravnborg.org, linux-kernel@vger.kernel.org
-Subject: Re: kernel buildsystem error/warning?
-Message-Id: <20050922214940.5ab30894.rdunlap@xenotime.net>
-In-Reply-To: <CE56193B-A4BB-4557-87C0-BFCC6B9E7E5B@freescale.com>
-References: <CE56193B-A4BB-4557-87C0-BFCC6B9E7E5B@freescale.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 23 Sep 2005 01:10:10 -0400
+Date: Fri, 23 Sep 2005 10:39:50 +0530
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Dave Anderson <anderson@redhat.com>, Morton Andrew Morton <akpm@osdl.org>,
+       Fastboot mailing list <fastboot@lists.osdl.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [Fastboot] [PATCH] Kdump(x86): add note type NT_KDUMPINFO tokernel   core dumps
+Message-ID: <20050923050950.GC3736@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20050921065633.GC3780@in.ibm.com> <m1mzm6ebqn.fsf@ebiederm.dsl.xmission.com> <43317980.D6AEA859@redhat.com> <m1d5n1cw89.fsf@ebiederm.dsl.xmission.com> <20050922140824.GF3753@in.ibm.com> <4332C87C.9CE47E8D@redhat.com> <m1zmq5awsn.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1zmq5awsn.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Sep 2005 08:45:35 -0500 Kumar Gala wrote:
+On Thu, Sep 22, 2005 at 10:31:52AM -0600, Eric W. Biederman wrote:
+> Dave Anderson <anderson@redhat.com> writes:
+> 
+> > Just flagging the cpu, and then mapping that to the stack pointer found in
+> > the associated NT_PRSTATUS register set should work OK too.  It gets
+> > a little muddy if it crashed while running on an IRQ stack, but it still can be
+> > tracked back from there as well.  (although not if the crashing task overflowed
+> > the IRQ stack)
+> 
+> You can't track it back from the crashing cpu if the IRQ stack overflows
+> either.  So I would rather have crash confused when trying to find the
+> task_struct.  Then to have the kernel fail avoidably while attempting
+> to capture a core dump.  
+> 
+> Even if you overflow the stack wit a bit of detective work it should still
+> be possible to show the stack overflowed and correct for it when analyzing
+> the crash dump.  Doing anything like that from a crashing cpu (in a
+> reliable way) is very hard. 
+> 
+> > The task_struct would be ideal though -- if the kernel's use of task_structs
+> > changes in the future, well, then crash is going to need a serious re-write
+> > anyway...  FWIW, netdump and diskdump use the NT_TASKSTRUCT note
+> > note to store just the "current" pointer, and not the whole task_struct itself,
+> > which would just be a waste of space in the ELF header for crash's purposes.
+> > And looking at the gdb sources, it appears to be totally ignored.  Who
+> > uses the NT_TASKSTRUCT note anyway?
+> 
+> Good question, especially as the kernel exports whatever we have for
+> a task struct today in the ELF note.  No ABI compatibility is
+> maintained.
+> 
+> Given all of that I recommend an empty NT_TASKSTRUCT to flag the
+> crashing cpu, for now.
+>
 
-> Sam,
-> 
-> I was wondering if anyone else is seeing the following error/warning  
-> when building a recent kernel.  This error seems to have been  
-> introduced between 2.6.13 and 2.6.14-rc1:
-> 
->    CHK     include/linux/version.h
->    CHK     include/linux/compile.h
->    CHK     usr/initramfs_list
-> /bin/sh: line 1: +@: command not found
->    CHK     include/linux/compile.h
->    UPD     include/linux/compile.h
->    CC      init/version.o
->    LD      init/built-in.o
->    LD      vmlinux
->    SYSMAP  System.map
-> 
-> 
-> I'm building a cross compiled ARCH ppc kernel on an x86 host.  I  
-> tried using git bisect to track down the error but for some reason it  
-> ended up referencing a change before 2.6.13 which I really dont  
-> understand.
-> 
-> Anyways, let me know if you need more info on this.
+I got a concern here. Are we not breaking the convention. NT_TASKSTRUCT note
+type represents that task_sturct is stored in note data. elf_core_dump()
+and /proc/kcore already do that (That's a different story that it might not 
+be needed at all). Now if we store a null NT_TASKSTURCT, same note type will
+carry two meanings.
 
-I don't see the error message.  Do you have anything (added) to
-usr/initramfs_list ?  (of course, the error messsage doesn't have
-to be coming from that file at all)
+IMHO, introducing a null NT_KDUMPINFO will help in that sense, at least 
+there are no two interpretations of same note type. Also it provides the
+scope to add more elements to it if need be.
 
----
-~Randy
-You can't do anything without having to do something else first.
--- Belefant's Law
+Thanks
+Vivek

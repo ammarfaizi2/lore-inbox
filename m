@@ -1,78 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751226AbVIWCgM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751256AbVIWDMP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751226AbVIWCgM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 22:36:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751127AbVIWCgM
+	id S1751256AbVIWDMP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 23:12:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbVIWDMP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 22:36:12 -0400
-Received: from mail26.sea5.speakeasy.net ([69.17.117.28]:41349 "EHLO
+	Thu, 22 Sep 2005 23:12:15 -0400
+Received: from mail26.sea5.speakeasy.net ([69.17.117.28]:61610 "EHLO
 	mail26.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1751226AbVIWCgM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 22:36:12 -0400
-Date: Thu, 22 Sep 2005 19:36:11 -0700 (PDT)
+	id S1751256AbVIWDMP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 23:12:15 -0400
+Date: Thu, 22 Sep 2005 20:12:14 -0700 (PDT)
 From: Vadim Lobanov <vlobanov@speakeasy.net>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Fawad Lateef <fawadlateef@gmail.com>, Ustyugov Roman <dr_unique@ymg.ru>,
-       liyu <liyu@ccoss.com.cn>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: A pettiness question.
-In-Reply-To: <20050921093007.GA11144@x30.random>
-Message-ID: <Pine.LNX.4.58.0509221931230.27735@shell2.speakeasy.net>
-References: <43311071.8070706@ccoss.com.cn> <200509211200.06274.dr_unique@ymg.ru>
- <1e62d13705092102012f0a5c9c@mail.gmail.com> <20050921093007.GA11144@x30.random>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] epoll
+Message-ID: <Pine.LNX.4.58.0509221950010.15726@shell2.speakeasy.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Sep 2005, Andrea Arcangeli wrote:
+Hi,
 
-> On Wed, Sep 21, 2005 at 02:01:11PM +0500, Fawad Lateef wrote:
-> > On 9/21/05, Ustyugov Roman <dr_unique@ymg.ru> wrote:
-> > > > Hi, All.
-> > > >
-> > > >     I found there are use double operator ! continuously sometimes in
-> > > > kernel.
-> > > > e.g:
-> > > >
-> > > >     static inline int is_page_cache_freeable(struct page *page)
-> > > >     {
-> > > >         return page_count(page) - !!PagePrivate(page) == 2;
-> > > >     }
-> > > >
-> > > >     Who would like tell me why write like above?
-> > >
-> > > For example,
-> > >
-> > >         int test = 5;
-> > >         !test will be  0,  !!test will be 1.
-> > >
-> > > This give a enum of {0,1}. If test is not 0, !!test will give 1, otherwise 0.
-> > >
-> > > Am I right?
-> >
-> > Yes, but what abt the above case/example ??? PagePrivate is defined as
-> > test_bit and test_bit will return 0 or 1 only ...... So y there is (
-> > !! )  ??
->
-> Note that gcc should optimize it away as long as the asm*/bitops is
-> doing "return something != 0" like most archs do.
->
-> Most of the time test_bit retval is checked against zero only, here it's
-> one of the few cases where it's required to be 1 or 0. If you audit all
-> archs then you can as well remove the !! from above.
+Lately, I've been exploring the epoll code in more detail, and have come
+across a few questions/issues (I wouldn't call them problems) that I'd
+like to solicit comments on. If everyone agrees, some of these might
+turn into TODOs as code changes. Without further ado:
 
-After scanning through some of the archs, it seems that the !! is really
-necessary in that case. Here's why:
+1. Size
+The size parameter to sys_epoll_create() is simply sanity-checked (has
+to be greater than zero) and then ignored. I presume the current
+implementation works perfectly without this parameter, so I am rather
+curious why it is even passed in. Historical reasons? Future code
+improvements? On the same note, I'd like to suggest that '0' also should
+be an allowed value, for the case when the application really does not
+know what the size estimate should be.
 
-PagePrivate() is just a macro wrapper around test_bit(). On i386, in
-include/asm-i386/bitops.h, test_bit() may end up calling
-variable_test_bit(). This inline function uses two assembly instructions
-to compute the desired result, which end up returning '-1', not '1', in
-the case that the bit is set.
+2. Timeout
+It seems that the timeout parameter in sys_epoll_wait() is not handled
+quite correctly. According to the manpages, a value of '-1' means
+infinite timeout, but the effect of other negative values is left
+undefined. In fact, if you run a userland program that calls
+epoll_wait() with a timeout value of '-2', the kernel prints an error
+into /var/log/messages from within schedule_timeout(), due to its
+argument being negative. It seems there are two ways to correct this
+behavior:
+- Check the passed timeout for being less than '-1', and return an
+error. A new errno value needs to be introduced into the epoll_wait()
+API.
+- Redefine the epoll_wait() API to accept any negative value as an
+infinite timeout, and change the code appropriately.
 
-(Hopefully this mail gets archived away and saves someone else the work
-of digging through the archs.)
+3. Wakeup
+As determined by testing with userland code, the sys_tgkill() and
+sys_tkill() functions currently will NOT wake up a sleeping
+epoll_wait(). Effectively, this means that epoll_wait() is NOT a pthread
+cancellation point. There are two potential issues with this:
+- epoll_wait() meets the unofficial(?) definition of a "system call that
+may block".
+- epoll_wait() behaves differently from poll() and friends.
 
-> Thanks!
+4. Code Duplication
+As sys_tgkill() and sys_tkill() are currently written, a large portion
+of the two functions is duplicated. It might make sense to pull that
+equivalent code out into a separate function.
 
+Comments please? In particular, the pthread cancellation issue is
+worrysome. In the case that any of the above points turn into actual
+code TODOs, I'll be more than happy to cook up and submit the patches.
+
+Thanks for reading. :-)
 -Vadim Lobanov

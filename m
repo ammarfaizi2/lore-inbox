@@ -1,78 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbVIWHKF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbVIWHMP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750708AbVIWHKF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 03:10:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbVIWHKE
+	id S1750723AbVIWHMP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 03:12:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbVIWHMP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 03:10:04 -0400
-Received: from smtprelay02.ispgateway.de ([80.67.18.14]:51942 "EHLO
-	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1750708AbVIWHKD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 03:10:03 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: making kmalloc BUG() might not be a good idea
-Date: Fri, 23 Sep 2005 09:09:47 +0200
-User-Agent: KMail/1.7.2
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       "David S. Miller" <davem@davemloft.net>, clameter@engr.sgi.com
-References: <20050922.231434.07643075.davem@davemloft.net> <4333A109.2000908@yahoo.com.au>
-In-Reply-To: <4333A109.2000908@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart4633142.lWGBWvbvRP";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Fri, 23 Sep 2005 03:12:15 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:2695 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750723AbVIWHMO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 03:12:14 -0400
+Date: Fri, 23 Sep 2005 00:10:13 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+Cc: davem@davemloft.net, rusty@rustcorp.com.au, dipankar@in.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 0/6] mm: alloc_percpu and  bigrefs
+Message-Id: <20050923001013.28b7f032.akpm@osdl.org>
+In-Reply-To: <20050923062529.GA4209@localhost.localdomain>
+References: <20050923062529.GA4209@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200509230909.54046.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart4633142.lWGBWvbvRP
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-Hi,
+(Added linux-kernel)
 
-On Friday 23 September 2005 08:30, Nick Piggin wrote:
-> David S. Miller wrote:
-> >I'm sort-of concerned about this change:
-> >
-> >    [PATCH] __kmalloc: Generate BUG if size requested is too large.
-> >
-> >it opens a can of worms, and stuff that used to generate
-> >-ENOMEM kinds of failures will now BUG() the kernel.
-> Making it WARN might be a good compromise.
+Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
+>
+> Hi Andrew,
+> This patchset contains alloc_percpu + bigrefs + bigrefs for netdevice
+> refcount.  This patchset improves tbench lo performance by 6% on a 8 way IBM
+> x445.
 
-Which has the potential to spam the logs with a user triggerable event
-without even killing the responsible process.
-Same problem, just worse.
+I think we'd need more comprehensive benchmarks than this before adding
+large amounts of complex core code.
 
-I could live with a solution that enables it based on a config.
+We'd also need to know how much of any performance improvement was due to
+alloc_percpu versus bigrefs, please.
 
-KERNEL_HACKING is no such config. That feature is almost always
-enabled, because MAGIC_SYSRQ depends on it and a significant amount
-of Linux-Admins like it for a "sync, remount ro and reboot" sequence.
-So you need a new one.
+Bigrefs look reasonably sane to me, but a whole new memory allocator is a
+big deal.  Given that alloc_percpu() is already numa-aware, is that extra
+cross-node fetch and pointer hop really worth all that new code?  The new
+version will have to do a tlb load (including a cross-node fetch)
+approximately as often as the old version will get a CPU cache miss on the
+percpu array, maybe?
 
 
-Regards
-
-Ingo Oeser
-
-
-
---nextPart4633142.lWGBWvbvRP
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDM6pBU56oYWuOrkARAmrhAKC4Xi5EK7EGpWUEO1hO6711MP190ACgnybZ
-v0O5DMcPIcabUMzOIjRs0LY=
-=+Lot
------END PGP SIGNATURE-----
-
---nextPart4633142.lWGBWvbvRP--

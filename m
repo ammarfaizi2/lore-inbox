@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750976AbVIWSL0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750988AbVIWSKu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750976AbVIWSL0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 14:11:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbVIWSLZ
+	id S1750988AbVIWSKu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 14:10:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750991AbVIWSKt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 14:11:25 -0400
-Received: from opersys.com ([64.40.108.71]:41226 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S1750976AbVIWSLY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 14:11:24 -0400
-Message-ID: <433447D3.4090608@opersys.com>
-Date: Fri, 23 Sep 2005 14:22:11 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Fri, 23 Sep 2005 14:10:49 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:9856 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id S1750976AbVIWSKr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 14:10:47 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Fri, 23 Sep 2005 11:13:30 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@localhost.localdomain
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: Andrew Morton <akpm@osdl.org>
+Subject: [patch] sys_epoll_wait() timeout saga ...
+Message-ID: <Pine.LNX.4.63.0509231108140.10222@localhost.localdomain>
+X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
+X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
 MIME-Version: 1.0
-To: Nishanth Aravamudan <nacc@us.ibm.com>
-CC: sean.bruno@dsl-only.net, ak@suse.de, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: The system works (2.6.14-rc2): functional k8n-dl
-References: <20050922155254.GE5910@us.ibm.com> <43332254.1040603@opersys.com> <20050923171649.GG5910@us.ibm.com>
-In-Reply-To: <20050923171649.GG5910@us.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1932119442-1127499048=:10222"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Nishanth Aravamudan wrote:
-> Again, I find it odd that it worked OOB for me (with the aforementioned
-> boot params).
+--8323328-1932119442-1127499048=:10222
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; FORMAT=flowed
 
-Well, you were the smartest :) I should have tried playing a little more
-with the params, but, to be quite honest, I don't feel that I should need
-to for a mainstream board such as this. I do have plenty of embedded/custom
-boards where you just can't live with boot params, but mainstream boards
-... nah ...
 
-> Regardless, I'm glad it is working for you now.
+The sys_epoll_wait() function was not handling correctly negative timeouts 
+(besides -1), and like sys_poll(), was comparing millisec to secs in 
+testing the upper timeout limit.
 
-Thanks again for your help, I really appreciate it.
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+Signed-off-by: Davide Libenzi <davidel@xmailserver.org>
+
+
+- Davide
+
+--8323328-1932119442-1127499048=:10222
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME=epoll-timeofix-2.diff
+Content-Transfer-Encoding: BASE64
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME=epoll-timeofix-2.diff
+
+LS0tIGEvZnMvZXZlbnRwb2xsLmMJMjAwNS0wOS0yMyAxMDo1Njo1Ny4wMDAw
+MDAwMDAgLTA3MDANCisrKyBiL2ZzL2V2ZW50cG9sbC5jCTIwMDUtMDktMjMg
+MTE6MDA6MDYuMDAwMDAwMDAwIC0wNzAwDQpAQCAtMTUwNyw3ICsxNTA3LDcg
+QEANCiAJICogYW5kIHRoZSBvdmVyZmxvdyBjb25kaXRpb24uIFRoZSBwYXNz
+ZWQgdGltZW91dCBpcyBpbiBtaWxsaXNlY29uZHMsDQogCSAqIHRoYXQgd2h5
+ICh0ICogSFopIC8gMTAwMC4NCiAJICovDQotCWp0aW1lb3V0ID0gdGltZW91
+dCA9PSAtMSB8fCB0aW1lb3V0ID4gKE1BWF9TQ0hFRFVMRV9USU1FT1VUIC0g
+MTAwMCkgLyBIWiA/DQorCWp0aW1lb3V0ID0gdGltZW91dCA8IDAgfHwgKHRp
+bWVvdXQgLyAxMDAwKSA+PSAoTUFYX1NDSEVEVUxFX1RJTUVPVVQgLyBIWikg
+Pw0KIAkJTUFYX1NDSEVEVUxFX1RJTUVPVVQ6ICh0aW1lb3V0ICogSFogKyA5
+OTkpIC8gMTAwMDsNCiANCiByZXRyeToNCg==
+
+--8323328-1932119442-1127499048=:10222--

@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751255AbVIWBst@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751081AbVIWCY0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751255AbVIWBst (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 21:48:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbVIWBst
+	id S1751081AbVIWCY0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Sep 2005 22:24:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbVIWCYZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 21:48:49 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:25752 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S1751255AbVIWBss
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 21:48:48 -0400
-Subject: Re: R52 hdaps support?
-From: Robert Love <rml@novell.com>
-To: abonilla@linuxwireless.org
-Cc: Keenan Pepper <keenanpepper@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1127435113.5690.3.camel@localhost.localdomain>
-References: <432B34D6.6010904@gmail.com> <1126911860.24266.1.camel@phantasy>
-	 <432B7EE6.1040905@gmail.com>
-	 <1126928394.5461.0.camel@localhost.localdomain>
-	 <432BB127.3010102@gmail.com>  <1127400694.5692.10.camel@molly>
-	 <1127435113.5690.3.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Thu, 22 Sep 2005 21:48:48 -0400
-Message-Id: <1127440128.9263.0.camel@phantasy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Thu, 22 Sep 2005 22:24:25 -0400
+Received: from thorn.pobox.com ([208.210.124.75]:23989 "EHLO thorn.pobox.com")
+	by vger.kernel.org with ESMTP id S1751081AbVIWCYZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Sep 2005 22:24:25 -0400
+Message-ID: <4333674D.3070502@rtr.ca>
+Date: Thu, 22 Sep 2005 22:24:13 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050728
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Libata for parallel ATA controllers
+References: <1127408726.18840.126.camel@localhost.localdomain>
+In-Reply-To: <1127408726.18840.126.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-09-22 at 18:25 -0600, Alejandro Bonilla Beeche wrote:
+Alan Cox wrote:
+>
+> Status info and patches are at
+> 
+> http://zeniv.linux.org.uk/~alan/IDE
+> 
+> Enjoy but remember this is very early code and don't use it for
+> production!
 
-> 	We have some laptops missing from the HDAPS list.
-> X41 and X42? (I think)
+And especially keep in mind, that libata has practically *no*
+built-in error-handling or recovery mechanisms yet.  If a drive
+gets into a "reset me to recover" state, then libata just might
+require a reboot to recover, whereas the IDE subsystem will usually
+try a reset operation at some point.
 
-I added X41 in the patch I sent out today.
+Not a problem with modern, mostly bug-free hardware (eg. most SATA),
+but this could be an issue for some PATA interfaces.
 
-X42: I don't think I have ever gotten any reports.
-
-	Robert Love
-
+Cheers
 

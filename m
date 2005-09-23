@@ -1,53 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbVIWGV1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbVIWGak@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbVIWGV1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 02:21:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750707AbVIWGV0
+	id S1750707AbVIWGak (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 02:30:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750708AbVIWGak
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 02:21:26 -0400
-Received: from s2.ukfsn.org ([217.158.120.143]:19335 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S1750706AbVIWGV0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 02:21:26 -0400
-Message-ID: <43339EE5.9030202@dgreaves.com>
-Date: Fri, 23 Sep 2005 07:21:25 +0100
-From: David Greaves <david@dgreaves.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
+	Fri, 23 Sep 2005 02:30:40 -0400
+Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:64650 "HELO
+	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1750707AbVIWGak (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 02:30:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=guF1KYUP6poMmwywK/TO7n+mOlTK5MJGWFRoDTo82ln4P3Ck34KtMTTPgBthHQ6BWjxUTm4veDoVv0tNeAoVEOWzDS9DrYPnpP91+Qk33Q537jGpR+cHM08l/8BWlbYdTLQXZXEFhV6+EOToIUt9WUWZ8j65g9t+nr6UDyBcN0k=  ;
+Message-ID: <4333A109.2000908@yahoo.com.au>
+Date: Fri, 23 Sep 2005 16:30:33 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: gmaxwell@gmail.com
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Pavel Machek <pavel@suse.cz>,
-       Hans Reiser <reiser@namesys.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, thenewme91@gmail.com,
-       Christoph Hellwig <hch@infradead.org>,
-       Denis Vlasenko <vda@ilport.com.ua>, chriswhite@gentoo.org,
-       LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: I request inclusion of reiser4 in the mainline kernel
-References: <200509182004.j8IK4JNx012764@inti.inf.utfsm.cl>	 <432E5024.20709@namesys.com> <20050920075133.GB4074@elf.ucw.cz>	 <20050921000425.GF6179@thunk.org> <e692861c05092018017ceef484@mail.gmail.com>
-In-Reply-To: <e692861c05092018017ceef484@mail.gmail.com>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: "David S. Miller" <davem@davemloft.net>
+CC: linux-kernel@vger.kernel.org, clameter@engr.sgi.com
+Subject: Re: making kmalloc BUG() might not be a good idea
+References: <20050922.231434.07643075.davem@davemloft.net>
+In-Reply-To: <20050922.231434.07643075.davem@davemloft.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gregory Maxwell wrote:
+David S. Miller wrote:
 
->Very interesting indeed, although it almost seems silly to tackle the
->difficult problem of making filesystems highly robust against oddball
->failure modes while our RAID subsystem falls horribly on it's face in
->the fairly common (and conceptually easy to handle) failure mode of a
->raid-5 where two disks have single unreadable blocks on differing
->parts of the disk. (the current raid system hits one bad block, fails
->the whole disk, then you attempt a rebuild and while reading hits the
->other bad block and downs the array).
+>I'm sort-of concerned about this change:
+>
+>    [PATCH] __kmalloc: Generate BUG if size requested is too large.
+>
+>it opens a can of worms, and stuff that used to generate
+>-ENOMEM kinds of failures will now BUG() the kernel.
+>
+>Unless you're going to audit every user triggerable
+>path for proper size limiting, I think we should revert
+>this change.
+>
+>Thanks.
 >  
 >
-who's not keeping up with the linux-raid list then ;)
 
-David
-PS I'm sure assistance would be appreciated in testing and reviewing
-this few day old feature - or indeed the newer 'add a new disk to the
-array' feature.
+Making it WARN might be a good compromise.
 
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

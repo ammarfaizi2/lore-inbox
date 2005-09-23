@@ -1,192 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbVIWWZQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751329AbVIWWhA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932092AbVIWWZQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 18:25:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbVIWWZQ
+	id S1751329AbVIWWhA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 18:37:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbVIWWhA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 18:25:16 -0400
-Received: from fmr19.intel.com ([134.134.136.18]:51128 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751325AbVIWWZO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 18:25:14 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C5C08D.AA02D0A6"
-Subject: [RFC] Asynchronous IPI and e1000 Multiple Queues
-Date: Fri, 23 Sep 2005 15:25:12 -0700
-Message-ID: <76FA8CF8F1F53240BB5B962A3385A58003A87C7A@orsmsx405>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: [RFC] Asynchronous IPI and e1000 Multiple Queues
-Thread-Index: AcXAjamywHMtAeJrSfyBnt9nFu4cHw==
-From: "cramerj" <cramerj@intel.com>
-To: <linux-net@vger.kernel.org>, <linux-netdev@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 23 Sep 2005 22:25:13.0155 (UTC) FILETIME=[AA645130:01C5C08D]
+	Fri, 23 Sep 2005 18:37:00 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:11754 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751329AbVIWWg7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 18:36:59 -0400
+Date: Fri, 23 Sep 2005 15:37:02 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: nickpiggin@yahoo.com.au, davem@davemloft.net, linux-kernel@vger.kernel.org
+Subject: Re: Make kzalloc a macro
+Message-Id: <20050923153702.6194e53f.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.62.0509231048530.22423@schroedinger.engr.sgi.com>
+References: <4333A109.2000908@yahoo.com.au>
+	<200509230909.54046.ioe-lkml@rameria.de>
+	<4333B588.9060503@yahoo.com.au>
+	<20050923.010939.11256142.davem@davemloft.net>
+	<4333C4F4.9030402@yahoo.com.au>
+	<2cd57c9005092302174e0f657e@mail.gmail.com>
+	<Pine.LNX.4.62.0509230857190.22086@schroedinger.engr.sgi.com>
+	<Pine.LNX.4.62.0509231048530.22423@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Christoph Lameter <clameter@engr.sgi.com> wrote:
+>
+> Make kzalloc a macro and use __GFP_ZERO for zeroed slab allocations
+>
 
-------_=_NextPart_001_01C5C08D.AA02D0A6
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+I'd question the usefulness of this.  It adds more code to a fastpath
+(kmem_cache_alloc) so as to speed up a slowpath (kzalloc()) which is
+already slow due to its memset.
 
-With our latest submittal of e1000 patches, we introduced code to enable
-multiple transmit and receive queues for the 82571 adapter.  All of the
-code is wrapped with CONFIG_E1000_MQ with the intention that it not be
-enabled until the patchset within this email is reviewed and (in some
-form) released.  So we'd like to gather some feedback on this patchset
-and get an idea if this is the correct approach.
-
-Multiple queues serve a couple purposes (probably more): Receive-Side
-Scaling - Share the interrupt processing across multiple CPUs.  We've
-got hyper-threaded/multi-core processors, let's use them; Priority
-Queuing (e.g., TOS) - Queue 0 transmits X more/less packets than queue 1
-due to <insert arbitration scheme here>.  With the single-queue (qdisc)
-implementation for transmits, it doesn't make multiple Tx queues all
-that exciting, and it means the arbitration scheme resides in the
-driver, but it's possible that could change over time.  So most benefits
-of multiple queues are seen on receives.  NAPI helps this effort (with
-per-CPU processing), but this means netif_rx_schedule is CPU-bound.  So
-we needed a way to schedule receive processing per-CPU context.  The one
-way we came up with was designing a new asynchronous IPI vector.  The
-helper function is exported to drivers to queue up the work, then inform
-the other CPUs of this pending work.
-
-In smp_call_async.2.6.13.patch, we create an asynchronous IPI with an
-associated queue.  Drivers fill out the call_async_data_struct and call
-the "smp_call_function"-like routine smp_call_async_mask.  If the mask
-contains the current running CPU, it simply calls the routine specified
-in the data struct, otherwise add the task to the call_async_queue and
-send an IPI to all CPUs in the mask.  The async interrupt simply
-processes each task in the queue.
-
-Each CPU can now take care of its own work (essentially calling
-netif_rx_schedule) without messy locks around the NAPI threads.
-
-In e1000_mq_Kconfig.patch, we simply add the option to enable multiple
-queues during kernel configuration.
-
-Is this the right approach?  Any input, fixes and testing would be
-greatly appreciated.
-
-Thanks,
--Jeb
-
- <<e1000_mq_Kconfig.patch>>  <<smp_call_async.2.6.13.patch>>=20
-
-------_=_NextPart_001_01C5C08D.AA02D0A6
-Content-Type: application/octet-stream;
-	name="e1000_mq_Kconfig.patch"
-Content-Transfer-Encoding: base64
-Content-Description: e1000_mq_Kconfig.patch
-Content-Disposition: attachment;
-	filename="e1000_mq_Kconfig.patch"
-
-ZGlmZiAtdQotLS0gYS9kcml2ZXJzL25ldC9LY29uZmlnCisrKyBiL2RyaXZlcnMvbmV0L0tjb25m
-aWcKQEAgLTE4NDEsNiArMTg0MSwyMyBAQAogCiAJICBJZiBpbiBkb3VidCwgc2F5IE4uCiAKK2Nv
-bmZpZyBFMTAwMF9NUQorCWJvb2wgIkVuYWJsZSBNdWx0aXBsZSBUcmFuc21pdC9SZWNlaXZlIFF1
-ZXVlcyAoRVhQRVJJTUVOVEFMKSIKKwlkZXBlbmRzIG9uIEUxMDAwX05BUEkgJiYgRVhQRVJJTUVO
-VEFMCisJaGVscAorCSAgU3RhcnRpbmcgd2l0aCB0aGUgODI1NzEgKFBDSS1FeHByZXNzKSBuZXR3
-b3JrIGFkYXB0ZXIsIHRoZSBvcHRpb24KKwkgIHRvIHNwZWNpZnkgbXVsdGlwbGUgcXVldWVzIGhh
-cyBiZWVuIHN1cHBvcnRlZC4gIE11bHRpcGxlIHF1ZXVlcworCSAgYWxsb3cgZm9yIFJlY2VpdmUt
-U2lkZSBTY2FsaW5nLCBwcmlvcml0eSBxdWV1ZXMsIGV0Yy4gYWxsIHdpdGhpbgorCSAgYSBzaW5n
-bGUgbmV0d29yayBjb250cm9sbGVyLiAgVGhlIGltcGxlbWVudGF0aW9uIGlzIHN1Y2ggdGhhdCBl
-YWNoCisJICByZWNlaXZlIHF1ZXVlIGlzIG1hcHBlZCB0byBhIGxvZ2ljYWwgcHJvY2Vzc29yOyBh
-bmQgZWFjaCBwYWNrZXQKKwkgIHF1ZXVlZCBmb3IgdHJhbnNtaXNzaW9uIGlzIGFzc2lnbmVkIHRv
-IHRoZSBhcHByb3ByaWF0ZSB0cmFuc21pdAorCSAgcXVldWUgYmFzZWQgb24gYSBiaXQgaW4gaXRz
-IHNvY2tldCBhZGRyZXNzLgorCisJICBUaGlzIGZlYXR1cmUsIGhvd2V2ZXIsIHJlcXVpcmVzIGEg
-a2VybmVsIHBhdGNoIGZvciBhc3luY2hyb25vdXMKKwkgIElQSSBjYWxscy4gIFdpdGhvdXQgdGhh
-dCBwYXRjaCwgY29tcGlsYXRpb24gb2YgdGhlIGRyaXZlciB3aWxsIGZhaWwuCisKKwkgIElmIGlu
-IGRvdWJ0LCBzYXkgTi4KKwo=
-
-------_=_NextPart_001_01C5C08D.AA02D0A6
-Content-Type: application/octet-stream;
-	name="smp_call_async.2.6.13.patch"
-Content-Transfer-Encoding: base64
-Content-Description: smp_call_async.2.6.13.patch
-Content-Disposition: attachment;
-	filename="smp_call_async.2.6.13.patch"
-
-ZGlmZiAtdQotLS0gYS9hcmNoL2kzODYva2VybmVsL3NtcC5jCisrKyBiL2FyY2gvaTM4Ni9rZXJu
-ZWwvc21wLmMKQEAgLTYyOSwzICs2MjksODMgQEAKIAl9CiB9CiAKK0xJU1RfSEVBRChjYWxsX2Fz
-eW5jX3F1ZXVlKTsKK3J3bG9ja190IGNhbGxfYXN5bmNfcXVldWVfbG9jayA9IFJXX0xPQ0tfVU5M
-T0NLRUQ7CisKKy8qIHVzZXIgbXVzdCBzZXQgZnVuYywgaW5mbywgY3B1bWFzaywgYW5kIGNvdW50
-IGJlZm9yZSBjYWxsaW5nIHRoaXMgKi8KKy8qIG1heWJlIHNvbWUgb2YgdGhhdCBjYW4gYmUgbW92
-ZWQgaW50byBoZXJlIChjb3VudD8pICovCisKK2ludCBzbXBfY2FsbF9hc3luY19tYXNrKHN0cnVj
-dCBjYWxsX2FzeW5jX2RhdGFfc3RydWN0ICpjYWxsX2RhdGEpCit7CisJdW5zaWduZWQgbG9uZyBm
-bGFnczsKKwlpbnQgdGhpc19jcHU7CisKKwl0aGlzX2NwdSA9IGdldF9jcHUoKTsKKwkKKwkvKiBt
-YWtlIHN1cmUgdGhlIGNhbGxlciBkaWQgbm90IHNwZWNpZnkgYW55IG9mZmxpbmUgQ1BVcyAqLwor
-CWlmICh1bmxpa2VseSghY3B1c19zdWJzZXQoY2FsbF9kYXRhLT5jcHVtYXNrLCBjcHVfb25saW5l
-X21hcCkpKQorCQlyZXR1cm4gLUVJTlZBTDsKKworCS8qIGNoZWNrIHRvIHNlZSBpZiB0aGlzIENQ
-VSBpcyBpbiB0aGUgbWFzayAqLworCWlmIChjcHVfaXNzZXQodGhpc19jcHUsIGNhbGxfZGF0YS0+
-Y3B1bWFzaykpIHsKKwkJaWYgKGNhbGxfZGF0YS0+ZnVuYykKKwkJCWNhbGxfZGF0YS0+ZnVuYyhj
-YWxsX2RhdGEtPmluZm8pOworCQljcHVfY2xlYXIodGhpc19jcHUsIGNhbGxfZGF0YS0+Y3B1bWFz
-ayk7CisJCWF0b21pY19kZWMoJmNhbGxfZGF0YS0+Y291bnQpOworCX0KKworCWlmICh1bmxpa2Vs
-eShjcHVzX2VtcHR5KGNhbGxfZGF0YS0+Y3B1bWFzaykpKQorCQlyZXR1cm4gMDsKKworCXdyaXRl
-X2xvY2tfaXJxc2F2ZSgmY2FsbF9hc3luY19xdWV1ZV9sb2NrLCBmbGFncyk7CisJbGlzdF9hZGRf
-dGFpbCgmY2FsbF9kYXRhLT5ub2RlLCAmY2FsbF9hc3luY19xdWV1ZSk7CisJd3JpdGVfdW5sb2Nr
-X2lycXJlc3RvcmUoJmNhbGxfYXN5bmNfcXVldWVfbG9jaywgZmxhZ3MpOworCisJbWIoKTsKKwlz
-ZW5kX0lQSV9tYXNrKGNhbGxfZGF0YS0+Y3B1bWFzaywgQ0FMTF9BU1lOQ19WRUNUT1IpOworCXB1
-dF9jcHVfbm9fcmVzY2hlZCgpOworCXJldHVybiAwOworfQorRVhQT1JUX1NZTUJPTChzbXBfY2Fs
-bF9hc3luY19tYXNrKTsKKworZmFzdGNhbGwgdm9pZCBzbXBfY2FsbF9hc3luY19pbnRlcnJ1cHQo
-dm9pZCkKK3sKKwlzdHJ1Y3QgY2FsbF9hc3luY19kYXRhX3N0cnVjdCAqY2FsbF9kYXRhID0gTlVM
-TCwgKmxhc3RfZW50cnkgPSBOVUxMOworCWludCB0aGlzX2NwdTsKKworCWFja19BUElDX2lycSgp
-OworCWlycV9lbnRlcigpOworCXRoaXNfY3B1ID0gc21wX3Byb2Nlc3Nvcl9pZCgpOworCisJY2Fs
-bF9kYXRhID0gbGlzdF9wcmVwYXJlX2VudHJ5KGNhbGxfZGF0YSwgJmNhbGxfYXN5bmNfcXVldWUs
-IG5vZGUpOworCWRvIHsKKwkJLyogZmluZCB0aGUgbmV4dCB3b3JrIGl0ZW0gb24gdGhlIGxpc3Qg
-Zm9yIHRoaXMgQ1BVICovCisJCXJlYWRfbG9ja19pcnEoJmNhbGxfYXN5bmNfcXVldWVfbG9jayk7
-CisJCWxpc3RfZm9yX2VhY2hfZW50cnlfY29udGludWUoY2FsbF9kYXRhLCAmY2FsbF9hc3luY19x
-dWV1ZSwgbm9kZSkgeworCQkJaWYgKGNwdV9pc3NldCh0aGlzX2NwdSwgY2FsbF9kYXRhLT5jcHVt
-YXNrKSkKKwkJCQlicmVhazsKKwkJfQorCQlpZiAoJmNhbGxfZGF0YS0+bm9kZSA9PSAmY2FsbF9h
-c3luY19xdWV1ZSkKKwkJCWNhbGxfZGF0YSA9IE5VTEw7CisJCXJlYWRfdW5sb2NrX2lycSgmY2Fs
-bF9hc3luY19xdWV1ZV9sb2NrKTsKKworCQkvKiBjbGVhbiB1cCBmcm9tIHRoZSBsYXN0IGl0ZW0s
-IGlmIHRoaXMgaXNuJ3QgdGhlIGZpcnN0IHBhc3MgKi8KKwkJaWYgKGxhc3RfZW50cnkpIHsKKwkJ
-CWNwdV9jbGVhcih0aGlzX2NwdSwgbGFzdF9lbnRyeS0+Y3B1bWFzayk7CisJCQltYigpOworCQkJ
-aWYgKGF0b21pY19kZWNfYW5kX3Rlc3QoJmxhc3RfZW50cnktPmNvdW50KSkgeworCQkJCXdyaXRl
-X2xvY2tfaXJxKCZjYWxsX2FzeW5jX3F1ZXVlX2xvY2spOworCQkJCWxpc3RfZGVsKCZsYXN0X2Vu
-dHJ5LT5ub2RlKTsKKwkJCQl3cml0ZV91bmxvY2tfaXJxKCZjYWxsX2FzeW5jX3F1ZXVlX2xvY2sp
-OworCQkJfQorCQl9CisKKwkJLyogY2FsbCB0aGUgZnVuY3Rpb24gKi8KKwkJaWYgKGNhbGxfZGF0
-YSAmJiBjYWxsX2RhdGEtPmZ1bmMpCisJCQljYWxsX2RhdGEtPmZ1bmMoY2FsbF9kYXRhLT5pbmZv
-KTsKKworCQlsYXN0X2VudHJ5ID0gY2FsbF9kYXRhOworCX0gd2hpbGUgKGNhbGxfZGF0YSk7CisK
-KwlpcnFfZXhpdCgpOworfQpkaWZmIC11Ci0tLSBhL2FyY2gvaTM4Ni9rZXJuZWwvc21wYm9vdC5j
-CisrKyBiL2FyY2gvaTM4Ni9rZXJuZWwvc21wYm9vdC5jCkBAIC0xMzk5LDQgKzEzOTksNiBAQAog
-CiAJLyogSVBJIGZvciBnZW5lcmljIGZ1bmN0aW9uIGNhbGwgKi8KIAlzZXRfaW50cl9nYXRlKENB
-TExfRlVOQ1RJT05fVkVDVE9SLCBjYWxsX2Z1bmN0aW9uX2ludGVycnVwdCk7CisKKwlzZXRfaW50
-cl9nYXRlKENBTExfQVNZTkNfVkVDVE9SLCBjYWxsX2FzeW5jX2ludGVycnVwdCk7CiB9CmRpZmYg
-LXUKLS0tIGEvaW5jbHVkZS9hc20taTM4Ni9od19pcnEuaAorKysgYi9pbmNsdWRlL2FzbS1pMzg2
-L2h3X2lycS5oCkBAIC0zNSw2ICszNSw3IEBACiBmYXN0Y2FsbCB2b2lkIHJlc2NoZWR1bGVfaW50
-ZXJydXB0KHZvaWQpOwogZmFzdGNhbGwgdm9pZCBpbnZhbGlkYXRlX2ludGVycnVwdCh2b2lkKTsK
-IGZhc3RjYWxsIHZvaWQgY2FsbF9mdW5jdGlvbl9pbnRlcnJ1cHQodm9pZCk7CitmYXN0Y2FsbCB2
-b2lkIGNhbGxfYXN5bmNfaW50ZXJydXB0KHZvaWQpOwogI2VuZGlmCiAKICNpZmRlZiBDT05GSUdf
-WDg2X0xPQ0FMX0FQSUMKZGlmZiAtdQotLS0gYS9pbmNsdWRlL2FzbS1pMzg2L21hY2gtZGVmYXVs
-dC9lbnRyeV9hcmNoLmgKKysrIGIvaW5jbHVkZS9hc20taTM4Ni9tYWNoLWRlZmF1bHQvZW50cnlf
-YXJjaC5oCkBAIC0xMyw2ICsxMyw3IEBACiBCVUlMRF9JTlRFUlJVUFQocmVzY2hlZHVsZV9pbnRl
-cnJ1cHQsUkVTQ0hFRFVMRV9WRUNUT1IpCiBCVUlMRF9JTlRFUlJVUFQoaW52YWxpZGF0ZV9pbnRl
-cnJ1cHQsSU5WQUxJREFURV9UTEJfVkVDVE9SKQogQlVJTERfSU5URVJSVVBUKGNhbGxfZnVuY3Rp
-b25faW50ZXJydXB0LENBTExfRlVOQ1RJT05fVkVDVE9SKQorQlVJTERfSU5URVJSVVBUKGNhbGxf
-YXN5bmNfaW50ZXJydXB0LENBTExfQVNZTkNfVkVDVE9SKQogI2VuZGlmCiAKIC8qCmRpZmYgLXUK
-LS0tIGEvaW5jbHVkZS9hc20taTM4Ni9tYWNoLWRlZmF1bHQvaXJxX3ZlY3RvcnMuaAorKysgYi9p
-bmNsdWRlL2FzbS1pMzg2L21hY2gtZGVmYXVsdC9pcnFfdmVjdG9ycy5oCkBAIC00OCw2ICs0OCw3
-IEBACiAjZGVmaW5lIElOVkFMSURBVEVfVExCX1ZFQ1RPUgkweGZkCiAjZGVmaW5lIFJFU0NIRURV
-TEVfVkVDVE9SCTB4ZmMKICNkZWZpbmUgQ0FMTF9GVU5DVElPTl9WRUNUT1IJMHhmYgorI2RlZmlu
-ZSBDQUxMX0FTWU5DX1ZFQ1RPUgkweGZhCiAKICNkZWZpbmUgVEhFUk1BTF9BUElDX1ZFQ1RPUgkw
-eGYwCiAvKgpkaWZmIC11Ci0tLSBhL2luY2x1ZGUvbGludXgvc21wLmgKKysrIGIvaW5jbHVkZS9s
-aW51eC9zbXAuaApAQCAtMTYsOCArMTYsMTEgQEAKICNpbmNsdWRlIDxsaW51eC9rZXJuZWwuaD4K
-ICNpbmNsdWRlIDxsaW51eC9jb21waWxlci5oPgogI2luY2x1ZGUgPGxpbnV4L3RocmVhZF9pbmZv
-Lmg+CisjaW5jbHVkZSA8bGludXgvbGlzdC5oPgorI2luY2x1ZGUgPGxpbnV4L2NwdW1hc2suaD4K
-ICNpbmNsdWRlIDxhc20vc21wLmg+CiAjaW5jbHVkZSA8YXNtL2J1Zy5oPgorI2luY2x1ZGUgPGFz
-bS9hdG9taWMuaD4KIAogLyoKICAqIG1haW4gY3Jvc3MtQ1BVIGludGVyZmFjZXMsIGhhbmRsZXMg
-SU5JVCwgVExCIGZsdXNoLCBTVE9QLCBldGMuCkBAIC03MSw2ICs3NCwxNiBAQAogCXJldHVybiBy
-ZXQ7CiB9CiAKK3N0cnVjdCBjYWxsX2FzeW5jX2RhdGFfc3RydWN0IHsKKwl2b2lkICgqZnVuYykg
-KHZvaWQgKmluZm8pOworCXZvaWQgKmluZm87CisJY3B1bWFza190IGNwdW1hc2s7CisJYXRvbWlj
-X3QgY291bnQ7CisJc3RydWN0IGxpc3RfaGVhZCBub2RlOworfTsKKworZXh0ZXJuIGludCBzbXBf
-Y2FsbF9hc3luY19tYXNrKHN0cnVjdCBjYWxsX2FzeW5jX2RhdGFfc3RydWN0ICpjYWxsX2RhdGEp
-OworCiAjZGVmaW5lIE1TR19BTExfQlVUX1NFTEYJMHg4MDAwCS8qIEFzc3VtZSA8MzI3NjggQ1BV
-J3MgKi8KICNkZWZpbmUgTVNHX0FMTAkJCTB4ODAwMQogCg==
-
-------_=_NextPart_001_01C5C08D.AA02D0A6--
+It makes my kernel a bit fatter too - 150-odd bytes of text for some
+reason.

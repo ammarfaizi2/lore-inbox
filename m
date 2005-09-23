@@ -1,181 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751095AbVIWP6w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbVIWQBO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751095AbVIWP6w (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 11:58:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbVIWP6w
+	id S1751108AbVIWQBO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 12:01:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751109AbVIWQBO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 11:58:52 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:29085 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751095AbVIWP6v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 11:58:51 -0400
-Date: Fri, 23 Sep 2005 08:58:42 -0700 (PDT)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: akpm@osdl.org
-cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       "David S. Miller" <davem@davemloft.net>, ioe-lkml@rameria.dem,
-       linux-kernel@vger.kernel.org
-Subject: Make kzalloc a macro
-In-Reply-To: <2cd57c9005092302174e0f657e@mail.gmail.com>
-Message-ID: <Pine.LNX.4.62.0509230857190.22086@schroedinger.engr.sgi.com>
-References: <4333A109.2000908@yahoo.com.au>  <200509230909.54046.ioe-lkml@rameria.de>
-  <4333B588.9060503@yahoo.com.au>  <20050923.010939.11256142.davem@davemloft.net>
-  <4333C4F4.9030402@yahoo.com.au> <2cd57c9005092302174e0f657e@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 23 Sep 2005 12:01:14 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:3511 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751108AbVIWQBN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 12:01:13 -0400
+Date: Fri, 23 Sep 2005 21:25:10 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Pablo Fernandez <pablo.ferlop@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: max_fd
+Message-ID: <20050923155509.GA4723@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <8518592505092305373465a5@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8518592505092305373465a5@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How about this patch making kzalloc a macro?
+On Fri, Sep 23, 2005 at 02:37:51PM +0200, Pablo Fernandez wrote:
+> Hi
+> 
+> What happend to files_struct.max_fd? Is it safe to use
+> files_fdtable(files_struct).max_fds?
 
----
+No.
 
-Make kzalloc a macro and use __GFP_ZERO for zeroed slab allocations
+Just do - 
 
-kzalloc is right now a function call. The optimization that the kmalloc macro
-provides does not work for kzalloc invocations. kmalloc also determines the
-slab to use at compile time and fails the compilation if the size is too big.
-kzalloc cannot do not.
+	struct fdtable *fdt;
 
-Moreover there is no kzalloc_node.
+	rcu_read_lock();
+	fdt = files_fdtable(files_struct);
+	if (fdt->max_fds......
+	...
+	rcu_read_unlock();
 
-This patch adds the ability to the slab allocator to indicate that an entity
-should be zeroed by using __GFP_ZERO in the same way to the page allocator.
 
-__GFP_ZERO may be specified when using any slab allocation operation.
+If you are updating the fd table, then acuire the file_lock
+instead of rcu_read_lock/unlock.
 
-Then kzalloc can be defined as a simple macro which will then perform all the
-compile time checks of kmalloc and also check the sizes.
-
-Signed-off-by: Christoph Lameter
-
-Index: linux-2.6.14-rc2/include/linux/slab.h
-===================================================================
---- linux-2.6.14-rc2.orig/include/linux/slab.h	2005-09-19 20:00:41.000000000 -0700
-+++ linux-2.6.14-rc2/include/linux/slab.h	2005-09-22 16:25:25.000000000 -0700
-@@ -99,7 +99,7 @@ found:
- 	return __kmalloc(size, flags);
- }
- 
--extern void *kzalloc(size_t, unsigned int __nocast);
-+#define kzalloc(__size, __flags) kmalloc(__size, (__flags) | __GFP_ZERO)
- 
- /**
-  * kcalloc - allocate memory for an array. The memory is set to zero.
-Index: linux-2.6.14-rc2/mm/slab.c
-===================================================================
---- linux-2.6.14-rc2.orig/mm/slab.c	2005-09-22 11:58:45.000000000 -0700
-+++ linux-2.6.14-rc2/mm/slab.c	2005-09-23 08:53:16.000000000 -0700
-@@ -1190,7 +1190,7 @@ static void *kmem_getpages(kmem_cache_t 
- 	void *addr;
- 	int i;
- 
--	flags |= cachep->gfpflags;
-+	flags = (flags | cachep->gfpflags) & ~__GFP_ZERO;
- 	if (likely(nodeid == -1)) {
- 		page = alloc_pages(flags, cachep->gfporder);
- 	} else {
-@@ -2508,11 +2508,23 @@ cache_alloc_debugcheck_after(kmem_cache_
- #define cache_alloc_debugcheck_after(a,b,objp,d) (objp)
- #endif
- 
-+static inline void *obj_checkout(kmem_cache_t *cachep, unsigned int __nocast flags, void *objp)
-+{
-+	if (likely(objp)) {
-+		objp = cache_alloc_debugcheck_after(cachep, flags, objp,
-+					__builtin_return_address(0));
-+		if (unlikely(flags & __GFP_ZERO))
-+			memset(objp, 0, obj_reallen(cachep));
-+		else
-+			prefetchw(objp);
-+	}
-+	return objp;
-+}
- 
- static inline void *__cache_alloc(kmem_cache_t *cachep, unsigned int __nocast flags)
- {
- 	unsigned long save_flags;
--	void* objp;
-+	void *objp;
- 	struct array_cache *ac;
- 
- 	cache_alloc_debugcheck_before(cachep, flags);
-@@ -2528,10 +2540,7 @@ static inline void *__cache_alloc(kmem_c
- 		objp = cache_alloc_refill(cachep, flags);
- 	}
- 	local_irq_restore(save_flags);
--	objp = cache_alloc_debugcheck_after(cachep, flags, objp,
--					__builtin_return_address(0));
--	prefetchw(objp);
--	return objp;
-+	return obj_checkout(cachep, flags, objp);
- }
- 
- #ifdef CONFIG_NUMA
-@@ -2550,14 +2559,23 @@ static void *__cache_alloc_node(kmem_cac
-  	l3 = cachep->nodelists[nodeid];
-  	BUG_ON(!l3);
- 
-+	cache_alloc_debugcheck_before(cachep, flags);
-+
- retry:
-  	spin_lock(&l3->list_lock);
-  	entry = l3->slabs_partial.next;
-  	if (entry == &l3->slabs_partial) {
-  		l3->free_touched = 1;
-  		entry = l3->slabs_free.next;
-- 		if (entry == &l3->slabs_free)
-- 			goto must_grow;
-+ 		if (entry == &l3->slabs_free) {
-+ 			spin_unlock(&l3->list_lock);
-+ 			x = cache_grow(cachep, flags, nodeid);
-+
-+		 	if (!x)
-+ 				return NULL;
-+
-+ 			goto retry;
-+		}
-  	}
- 
-  	slabp = list_entry(entry, struct slab, list);
-@@ -2590,18 +2608,7 @@ retry:
-  	}
- 
-  	spin_unlock(&l3->list_lock);
-- 	goto done;
--
--must_grow:
-- 	spin_unlock(&l3->list_lock);
-- 	x = cache_grow(cachep, flags, nodeid);
--
-- 	if (!x)
-- 		return NULL;
--
-- 	goto retry;
--done:
-- 	return obj;
-+	return obj_checkout(cachep, flags, obj);
- }
- #endif
- 
-@@ -2980,20 +2987,6 @@ void kmem_cache_free(kmem_cache_t *cache
- EXPORT_SYMBOL(kmem_cache_free);
- 
- /**
-- * kzalloc - allocate memory. The memory is set to zero.
-- * @size: how many bytes of memory are required.
-- * @flags: the type of memory to allocate.
-- */
--void *kzalloc(size_t size, unsigned int __nocast flags)
--{
--	void *ret = kmalloc(size, flags);
--	if (ret)
--		memset(ret, 0, size);
--	return ret;
--}
--EXPORT_SYMBOL(kzalloc);
--
--/**
-  * kfree - free previously allocated memory
-  * @objp: pointer returned by kmalloc.
-  *
+Thanks
+Dipankar

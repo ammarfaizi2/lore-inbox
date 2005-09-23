@@ -1,46 +1,33 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932271AbVISAr1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750844AbVIWSph@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932271AbVISAr1 (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 18 Sep 2005 20:47:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbVISAr1
+	id S1750844AbVIWSph (ORCPT <rfc822;akpm@zip.com.au>);
+	Fri, 23 Sep 2005 14:45:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbVIWSpg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 20:47:27 -0400
-Received: from vms048pub.verizon.net ([206.46.252.48]:62937 "EHLO
-	vms048pub.verizon.net") by vger.kernel.org with ESMTP
-	id S932271AbVISAr1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 20:47:27 -0400
-Date: Sun, 18 Sep 2005 20:47:25 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Stooopid Q
+	Fri, 23 Sep 2005 14:45:36 -0400
+Received: from web35513.mail.mud.yahoo.com ([66.163.179.137]:23132 "HELO
+	web35513.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750844AbVIWSpg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 14:45:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=LsZv2JH2mqfOjXSg1K5jxENXHmO2zzeUGwdXrWhskTy3gaVA8vbN7UJwbE56bmb6jQpEjkd0FgODW6OwIWcmikrYPqXj19J0Tdp6scA4kcE9ghQPMB3mqB0ECUkyEczQnlZ2Lr7/uXy95gYUzRWvHRESwf82bVNPCcHeB3iyylM=  ;
+Message-ID: <20050923184533.25462.qmail@web35513.mail.mud.yahoo.com>
+Date: Fri, 23 Sep 2005 11:45:33 -0700 (PDT)
+From: salman khan <madat_ye_khuda@yahoo.com>
+Subject: new patch for kernel 2.6.13 : sex..sex...sex..sex...sex..sex...sex..sex...
 To: linux-kernel@vger.kernel.org
-Message-id: <200509182047.25887.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-User-Agent: KMail/1.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I finally got fdutils to almost work.
+ 
+ 
 
-BUT, when was the kernels floppy.c reworked such that it needs
-special patching to handle a floppy format that uses sector zero? 
-There is a patch, but its for the floppy.c in 2.6.4 and thats a
-vintage kernel itself today.  And it won't apply to recent kernels,
-been there, done that.
-
-That emasculates it so bad that half the vintage computer formats are
-disabled.  Dumb...
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.35% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
-
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

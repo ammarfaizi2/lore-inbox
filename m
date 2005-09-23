@@ -1,62 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751116AbVIWRev@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751117AbVIWRiT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751116AbVIWRev (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 13:34:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751117AbVIWRev
+	id S1751117AbVIWRiT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 13:38:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751120AbVIWRiT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 13:34:51 -0400
-Received: from x35.xmailserver.org ([69.30.125.51]:17902 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id S1751116AbVIWReu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 13:34:50 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Fri, 23 Sep 2005 10:37:36 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@localhost.localdomain
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Andrew Morton <akpm@osdl.org>
-Subject: [patch] Make epoll_wait() handle negative timeouts as MAX_SCHEDULE_TIMEOUT
- ...
-Message-ID: <Pine.LNX.4.63.0509231031570.10222@localhost.localdomain>
-X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
-X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
+	Fri, 23 Sep 2005 13:38:19 -0400
+Received: from zproxy.gmail.com ([64.233.162.203]:59664 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751117AbVIWRiS convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 13:38:18 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=N3bkPreZJUVop7r1cEYPTimBOVrqGiZxC+ozrmGjhEXRUT0E+gSpyNRiJ/EIBlACjDuJhUGk03Hg+tKcc/VoaWaYuYrFY3eu5JkiqT9elZolJT7FmR/oICSgbktbXUpVhHDkQeXtL/gR8SdePITydyAhu9KO+gtWC92l9WXsthQ=
+Message-ID: <1e62d137050923103843058e92@mail.gmail.com>
+Date: Fri, 23 Sep 2005 22:38:17 +0500
+From: Fawad Lateef <fawadlateef@gmail.com>
+Reply-To: Fawad Lateef <fawadlateef@gmail.com>
+To: Block Device <blockdevice@gmail.com>
+Subject: Re: Trapping Block I/O
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <64c7635405092305433356bd17@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1950461079-1127496933=:10222"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <64c7635405092305433356bd17@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On 9/23/05, Block Device <blockdevice@gmail.com> wrote:
+>
+>     I need to trap _all_ the I/O going to each and every block device
+> in the system. I used jprobes to trap calls to generic_make_request.
+> Is this the correct/only place to do such a thing ?
+> Or do I have to monitor the q->make_request_fn for every device ?
+>
 
---8323328-1950461079-1127496933=:10222
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; FORMAT=flowed
+Yes, generic_make_request or monitoring q->make_request_fn can trap
+the _all_ I/O tpo block devices but other approach might be a little
+bit odd/difficult but through that you can get every request to block
+device .... the approach is you create a block device and then create
+that block device as a wrapper on your device, now use your block
+device and in its request function (can alter the data and sectors
+etc) and calls generic_make_request for the original device on which
+you created wrapper .... So by doing this you can easily monitor
+requests (similar to this approach is used in LVM/RAID) ......
 
 
-As reported by Vadim Lobanov, epoll_wait() did not handle correctly 
-timeouts <0 (only the -1 case was MAX_SCHEDULE_TIMEOUT'd).
-
-
-Signed-off-by: Davide Libenzi <davidel@xmailserver.org>
-
-
-- Davide
-
---8323328-1950461079-1127496933=:10222
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME=epoll-timeofix.diff
-Content-Transfer-Encoding: BASE64
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME=epoll-timeofix.diff
-
-LS0tIGEvZnMvZXZlbnRwb2xsLmMJMjAwNS0wOS0yMyAxMDowNjo0NS4wMDAw
-MDAwMDAgLTA3MDANCisrKyBiL2ZzL2V2ZW50cG9sbC5jCTIwMDUtMDktMjMg
-MTA6MDk6MzUuMDAwMDAwMDAwIC0wNzAwDQpAQCAtMTUwNyw3ICsxNTA3LDcg
-QEANCiAJICogYW5kIHRoZSBvdmVyZmxvdyBjb25kaXRpb24uIFRoZSBwYXNz
-ZWQgdGltZW91dCBpcyBpbiBtaWxsaXNlY29uZHMsDQogCSAqIHRoYXQgd2h5
-ICh0ICogSFopIC8gMTAwMC4NCiAJICovDQotCWp0aW1lb3V0ID0gdGltZW91
-dCA9PSAtMSB8fCB0aW1lb3V0ID4gKE1BWF9TQ0hFRFVMRV9USU1FT1VUIC0g
-MTAwMCkgLyBIWiA/DQorCWp0aW1lb3V0ID0gdGltZW91dCA8IDAgfHwgdGlt
-ZW91dCA+IChNQVhfU0NIRURVTEVfVElNRU9VVCAtIDEwMDApIC8gSFogPw0K
-IAkJTUFYX1NDSEVEVUxFX1RJTUVPVVQ6ICh0aW1lb3V0ICogSFogKyA5OTkp
-IC8gMTAwMDsNCiANCiByZXRyeToNCg==
-
---8323328-1950461079-1127496933=:10222--
+--
+Fawad Lateef

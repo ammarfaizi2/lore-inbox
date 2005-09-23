@@ -1,257 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751071AbVIWDKI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751282AbVIWEFH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751071AbVIWDKI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Sep 2005 23:10:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbVIWDKI
+	id S1751282AbVIWEFH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 00:05:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751289AbVIWEFH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Sep 2005 23:10:08 -0400
-Received: from web8401.mail.in.yahoo.com ([202.43.219.149]:46010 "HELO
-	web8401.mail.in.yahoo.com") by vger.kernel.org with SMTP
-	id S1751071AbVIWDKG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Sep 2005 23:10:06 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.co.in;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=02mEIxFGwKI/45UE9sZcQiN2Yvy3dixxh9LvevlpGIjG8ECJhIdkIL3CUahlZUfjIwf4tyYp92xBuCy/l43wlp2Ux3apoK3AEr0reiPwJLea4SpidK7K7Xu1ZcCY4t5GJPauIVL2hVsCV1bFBLKKlozjMKG5Dv8RYaHTjAelRGU=  ;
-Message-ID: <20050923031003.32068.qmail@web8401.mail.in.yahoo.com>
-Date: Fri, 23 Sep 2005 04:10:03 +0100 (BST)
-From: vikas gupta <vikas_gupta51013@yahoo.co.in>
-Subject: Re: AIO Support and related package information??
-To: =?iso-8859-1?q?S=E9bastien=20Dugu=E9?= <sebastien.dugue@bull.net>
-Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org, bcrl@kvack.org
-In-Reply-To: <1127375190.2051.53.camel@frecb000686>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Fri, 23 Sep 2005 00:05:07 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:37381 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1751282AbVIWEFG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 00:05:06 -0400
+Date: Fri, 23 Sep 2005 06:02:34 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: Harald Welte <laforge@netfilter.org>, netdev@vger.kernel.org,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH 2/3] netfilter : 3 patches to boost ip_tables performance
+Message-ID: <20050923040234.GC595@alpha.home.local>
+References: <432EF0C5.5090908@cosmosbay.com> <200509191948.55333.ak@suse.de> <432FDAC5.3040801@cosmosbay.com> <200509201830.20689.ak@suse.de> <433082DE.3060308@cosmosbay.com> <43308324.70403@cosmosbay.com> <4331D168.6090604@cosmosbay.com> <20050922124803.GH26520@sunbeam.de.gnumonks.org> <4332AC2E.8000607@cosmosbay.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4332AC2E.8000607@cosmosbay.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi Sebastein,
-Well Thanks For your Reply...
-I will Try to Provide support on Arm Platform ...
-but while cross building in configure script only i am
-getting error i had given follwing option with
-configure script
-CC=<pathto cross compiler> ./configure --host=<arm
-host> --prefix=<build library> 
+On Thu, Sep 22, 2005 at 03:05:50PM +0200, Eric Dumazet wrote:
+(...) 
+> It was necessary to get the best code with gcc-3.4.4 on i386 and 
+> gcc-4.0.1 on x86_64
+> 
+> For example :
+> 
+> bool1 = FWINV(ret != 0, IPT_INV_VIA_OUT);
+> if (bool1) {
+> 
+> gives a better code than :
+> 
+> if (FWINV(ret != 0, IPT_INV_VIA_OUT)) {
+> 
+> (one less conditional branch)
+> 
+> Dont ask me why, it is shocking but true :(
 
-But i am getting errors ...
-Can you please look into the matter 
+I also noticed many times that gcc's optimization of "if (complex condition)"
+is rather poor and it's often better to put it in a variable before. I even
+remember that if you use an intermediate variable, it can often generate a
+CMOV instruction on processors which support it, while it produces cond tests
+and jumps without the variable. Generally speaking, if you want fast code,
+you have to write it as a long sequence of small instructions, just as if
+you were writing assembly. As you said, shocking but true.
 
-Thanks in advance 
+BTW, cheers for your optimizations !
 
- 
+Regards,
+Willy
 
---- Sébastien Dugué <sebastien.dugue@bull.net> wrote:
-
->   Hi Vikas,
-> 
-> 
-> On Thu, 2005-09-22 at 04:08 +0100, vikas gupta
-> wrote:
-> > hello ALL ,
-> > 
-> > I am very curious about the AIO support in kernel.
-> I
-> > have downloaded the
-> > recent kernel 2.6.13 and applied suparna's patches
-> on
-> > that but now i got stuck as
-> > now there are two different packages are
-> available.
-> 
->   You should try Ben LaHaise's patchset which
-> includes
-> Suparna's patches. It's available as a single patch
-> at:
-> 
->
-http://www.kvack.org/~bcrl/patches/aio-2.6.13-rc6-B1-all.diff
-> 
-> 
-> and broken down at:
->
-http://www.kvack.org/~bcrl/patches/aio-2.6.13-rc6-B1/
-> 
-> > 
-> > 1) libaio rpm
-> > 
-> 
->   libaio is meant as a way for using the kernel AIO
-> support but 
-> does not provide a POSIX compliant interface.
-> 
-> > There are many rpm available such as
-> > libaio-0.3.xxx-02.src rpm and many
-> > more but at http://lse.sourceforge.net/io/aio.html
-> > ,Somebody has said to use
-> > libaio-0.3.99 package ..
-> 
->   I've been using libaio-0.3.92 with success.
-> 
-> > 
-> > So can you please give me some guidelines on after
-> > applying the patch how
-> > to proceed further???
-> > 
-> > Is these packages are part of linux kernel
-> > installation ????
-> > 
-> > Is this package implementation is really necessary
-> and
-> > if yes then what
-> > are the packages we need to install.
-> > 
-> > And if any other resource is required then from
-> where
-> > i can get that
-> > resource.
-> > 
-> > 2) libposix API library of 
-> > http://www.bullopensource.org/posix.
-> > 
-> >         How to use it???
-> >         Is it any other way of implementing the
-> AIO
-> > Support or it is to
-> > provide posix conformance to the kernel.
-> 
-> 
->   Just like libaio, libposix-aio uses the kernel AIO
-> support but 
-> provides a POSIX compliant interface.
-> 
->   There are no man pages yet, but you can look a the
-> SuSV3 
-> specification (links are on
-> http://www.bullopensource.org/posix/).
-> 
->   For completeness, I should add that there is a
-> POSIX AIO
-> implementation in glibc librt but it uses helper
-> threads to achieve
-> asynchrony and does not use kernel support.
-> 
-> > 
-> > 3) What is the relation between libposixaio
-> pacakage
-> > supported by bullsource.net and libaio pacakage
-> > supported by redhat ....
-> 
->   None, libposix-aio used to rely on libaio for the
-> syscalls but that's
-> no longer the case.
-> 
-> > 
-> > 4) I am able to built that libposix package
-> without
-> > libaio ??????
-> 
->   Normal.
-> 
-> > 
-> > 5) are these pacakages are supported for othewr
-> > platforms such as arm and ppc ,I am not able to
-> build
-> > libposix for arm platform.Do Cross compiling is
-> > supported ???
-> > 
-> 
->   Right now support is provided for:
-> 
-> 	i386	- tested
-> 	ia64	- not tested
-> 	x86_64	- not tested
-> 
->   If you're willing to add support for other
-> platforms there is
-> only one file to add for implementing the
-> architecture dependant
-> syscalls, such as syscall_arm.h or syscall_ppc.h.
-> Look at the sources.
-> 
-> > 
-> > 
-> > 6) How to use these api in test program
-> > 
-> >   Can i use it as mentioned below ????
-> > 
-> >   Test1.c
-> > 
-> >   #include <aio.h>
-> >   #include <errno.h>
-> >   #include <stdio.h>
-> >   #include <string.h>
-> >   #include <unistd.h>
-> > 
-> >   #define BYTES 8
-> > 
-> >   int main( int argc, char *argv[] )
-> >   {
-> >       int i, r;
-> >       int fildes;
-> >       struct aiocb cb;
-> >       char buff[BYTES];
-> > 
-> >       if ((fildes = open( "/etc/resolv.conf",
-> O_RDONLY
-> > )) < 0) {
-> >           perror( "opening file" ); return 1;
-> >       }
-> > 
-> >       cb.aio_fildes = fildes;
-> >       cb.aio_offset = 0;
-> >       cb.aio_buf = buff;
-> >       cb.aio_nbytes = BYTES;
-> >       cb.aio_reqprio = 0;
-> >       cb.aio_sigevent.sigev_notify = SIGEV_NONE;
-> > 
-> >       errno = 0;
-> >       r = aio_read( &cb );
-> >       printf( "aio_read() ret: %i\terrno: %i\n",
-> r,
-> > errno );
-> > 
-> >       while (aio_error( &cb ) == EINPROGRESS) {
-> > usleep( 10 ); }
-> > 
-> >       for (i = 0; i < BYTES; i++) { printf( "%c ",
-> > buff[i] ); } printf(
-> > "\n" );
-> > 
-> >       errno = 0;
-> >       r = aio_return( &cb );
-> >       printf( "aio_return() ret: %i\tBYTES:
-> %i\terrno:
-> > %i\n", r, BYTES,
-> > errno );
-> > 
-> >       return 0;
-> > }
-> 
->   That should be OK. Look at the examples in
-> libposix-aio, in
-> the check and testbed subdirectories.
-> 
-> 
-> > 
-> > 
-> > 
-> > Any other information, if u can provide then it
-> will
-> > be of great use ...
-> > 
-> > 
-> > Thanks in advance ...
-> > 
-> > Vikas
-> 
->   Hope this helps,
-> 
-=== message truncated ===
-
-
-
-		
-__________________________________________________________ 
-Yahoo! India Matrimony: Find your partner now. Go to http://yahoo.shaadi.com

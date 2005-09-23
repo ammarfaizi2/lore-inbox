@@ -1,63 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750931AbVIWSB2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750932AbVIWSBW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750931AbVIWSB2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 14:01:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750934AbVIWSB2
+	id S1750932AbVIWSBW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 14:01:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750933AbVIWSBW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 14:01:28 -0400
-Received: from smtpout.mac.com ([17.250.248.89]:57046 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1750931AbVIWSB1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 14:01:27 -0400
-In-Reply-To: <43343FC9.5090601@cosmosbay.com>
-References: <43308324.70403@cosmosbay.com> <200509221454.22923.ak@suse.de> <20050922125849.GA27413@infradead.org> <200509221505.05395.ak@suse.de> <Pine.LNX.4.62.0509220835310.16793@schroedinger.engr.sgi.com> <4332D2D9.7090802@cosmosbay.com> <20050923171120.GO731@sunbeam.de.gnumonks.org> <43343FC9.5090601@cosmosbay.com>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=ISO-8859-1; delsp=yes; format=flowed
-Message-Id: <F0FB4318-1AAF-4A84-8DCD-740877F013D3@mac.com>
-Cc: Harald Welte <laforge@netfilter.org>,
-       Christoph Lameter <clameter@engr.sgi.com>, Andi Kleen <ak@suse.de>,
-       Christoph Hellwig <hch@infradead.org>,
-       "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       netfilter-devel@lists.netfilter.org, netdev@vger.kernel.org
-Content-Transfer-Encoding: 8BIT
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [PATCH 0/3] netfilter : 3 patches to boost ip_tables performance
-Date: Fri, 23 Sep 2005 14:00:58 -0400
-To: Eric Dumazet <dada1@cosmosbay.com>
-X-Mailer: Apple Mail (2.734)
+	Fri, 23 Sep 2005 14:01:22 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:7040 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id S1750931AbVIWSBV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 14:01:21 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Fri, 23 Sep 2005 11:04:05 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@localhost.localdomain
+To: Nish Aravamudan <nish.aravamudan@gmail.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] Make epoll_wait() handle negative timeouts as
+ MAX_SCHEDULE_TIMEOUT ...
+In-Reply-To: <29495f1d0509231042139e9b94@mail.gmail.com>
+Message-ID: <Pine.LNX.4.63.0509231055260.10222@localhost.localdomain>
+References: <Pine.LNX.4.63.0509231031570.10222@localhost.localdomain>
+ <29495f1d0509231042139e9b94@mail.gmail.com>
+X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
+X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 23, 2005, at 13:47:53, Eric Dumazet wrote:
-> Harald Welte a écrit :
->> I see a contradiction in your sentence.  "a new ip_tables is  
->> loaded" every time a user changes a single rule.  There are  
->> numerous setups that dynamically change the ruleset (e.g. at  
->> interface up/down point, or even think of your typical wlan  
->> hotspot, where once a user is authorized, he'll get different rules.
+On Fri, 23 Sep 2005, Nish Aravamudan wrote:
+
+> On 9/23/05, Davide Libenzi <davidel@xmailserver.org> wrote:
+>>
+>> As reported by Vadim Lobanov, epoll_wait() did not handle correctly
+>> timeouts <0 (only the -1 case was MAX_SCHEDULE_TIMEOUT'd).
+>>
+>>
+>> Signed-off-by: Davide Libenzi <davidel@xmailserver.org>
 >
-> But a user changing a single rule usually calls (fork()/exec()) a  
-> program called iptables. The  underlying cost of all this, plus  
-> copying the rules to user space, so that iptables change them and  
-> reload them in the kernel is far more important than an  
-> hypothetical vmalloc_node() performance problem.
+> Arrgggh, this is as wrong as sys_poll() was before! :)
+>
+> --- a/fs/eventpoll.c	2005-09-23 10:06:45.000000000 -0700
+> +++ b/fs/eventpoll.c	2005-09-23 10:09:35.000000000 -0700
+> @@ -1507,7 +1507,7 @@
+> 	 * and the overflow condition. The passed timeout is in milliseconds,
+> 	 * that why (t * HZ) / 1000.
+> 	 */
+> -	jtimeout = timeout == -1 || timeout > (MAX_SCHEDULE_TIMEOUT - 1000) / HZ ?
+> +	jtimeout = timeout < 0 || timeout > (MAX_SCHEDULE_TIMEOUT - 1000) / HZ ?
+>
+> @timeout is in miliseconds, per the comment, yes? If so, then
+>
+> timeout [msecs] > MAX_SCHEDULE_TIMEOUT [jiffies] - 1000 [jiffies] / HZ
+> [jiffies / sec]
 
-Yeah, if you're really worried about the cost of iptables  
-manipulations, you should probably write your own happy little C  
-program to atomically load, update, and store the rules.  Even then,  
-the cost of copying the whole ruleset to userspace for modification  
-is probably greater than that of memory allocation issues, especially  
-if the ruleset is large enough that memory allocation issues cause  
-problems :-D
+Sh*t, you're right! Reposting soon.
 
-Cheers,
-Kyle Moffett
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$ L++++(+ 
-++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+ PGP+++ t+(+ 
-++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  !y?(-)
-------END GEEK CODE BLOCK------
+- Davide
 
 

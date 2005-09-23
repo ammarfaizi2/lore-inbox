@@ -1,68 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbVIWJRr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750854AbVIWJf5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750834AbVIWJRr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 05:17:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbVIWJRr
+	id S1750854AbVIWJf5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 05:35:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750852AbVIWJf5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 05:17:47 -0400
-Received: from nproxy.gmail.com ([64.233.182.199]:15045 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750834AbVIWJRq convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 05:17:46 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NXecxcNEYHCecvz/AHFGDbsNwXGkjjrr2rw9feICu7lmleM7wVVuVyWKpEPLIQLDm0ragXHpZfDGCZR2CavSWMnf+y2MZ3cFlI4MLVssWCbtlZZOsCaPevF2fHAplmFACUECLUbELeN5eQQOoldV+wrpPETqH2uMR4i6qpE40Ng=
-Message-ID: <2cd57c9005092302174e0f657e@mail.gmail.com>
-Date: Fri, 23 Sep 2005 17:17:44 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: Coywolf Qi Hunt <coywolf@gmail.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: making kmalloc BUG() might not be a good idea
-Cc: "David S. Miller" <davem@davemloft.net>, ioe-lkml@rameria.de,
-       linux-kernel@vger.kernel.org, clameter@engr.sgi.com
-In-Reply-To: <4333C4F4.9030402@yahoo.com.au>
+	Fri, 23 Sep 2005 05:35:57 -0400
+Received: from gw1.cosmosbay.com ([62.23.185.226]:712 "EHLO gw1.cosmosbay.com")
+	by vger.kernel.org with ESMTP id S1750768AbVIWJf5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 05:35:57 -0400
+Message-ID: <4333CC69.3000401@cosmosbay.com>
+Date: Fri, 23 Sep 2005 11:35:37 +0200
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <4333A109.2000908@yahoo.com.au>
-	 <200509230909.54046.ioe-lkml@rameria.de>
-	 <4333B588.9060503@yahoo.com.au>
-	 <20050923.010939.11256142.davem@davemloft.net>
-	 <4333C4F4.9030402@yahoo.com.au>
+To: akpm@osdl.org
+CC: "David S. Miller" <davem@davemloft.net>, kiran@scalex86.org,
+       rusty@rustcorp.com.au, dipankar@in.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 0/6] mm: alloc_percpu and bigrefs
+References: <20050923062529.GA4209@localhost.localdomain>	<20050923001013.28b7f032.akpm@osdl.org> <20050923.001729.101033164.davem@davemloft.net> <4333C4E2.9000000@cosmosbay.com>
+In-Reply-To: <4333C4E2.9000000@cosmosbay.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Fri, 23 Sep 2005 11:35:38 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/23/05, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> David S. Miller wrote:
-> > From: Nick Piggin <nickpiggin@yahoo.com.au>
-> > Date: Fri, 23 Sep 2005 17:58:00 +1000
-> >
->
-> > If we know how to make certain classes of bugs non-lethal, we should
-> > do so because there will always be bugs. :-)  This change makes
-> > previously non-lethal bugs potentially kill the machine.
-> >
->
-> Oh the BUG is bad, sure. I just thought WARN would be a better _compromise_
-> than BUG in that it will achieve the same result without takeing the machine
-> down.
->
-> I think the CONFIG_DEBUG options are there for some major types of debugging
-> that require significant infrastructure or can slow down the kernel quite
-> a lot. With that said, I think there is an option somewhere to turn off all
-> WARNs and remove strings from all BUGs.
->
-> Regarding proliferation of assertions and warnings everywhere - without any
-> official standard, I think we're mostly being sensible with them (at least
-> in the core code that I look at). A warn in kmalloc for this wouldn't be
-> anything radical.
->
-> I don't much care for it, but I agree the BUG has to go.
->
+Andrew Morton a écrit :
+ > Eric Dumazet <dada1@cosmosbay.com> wrote:
+ >
+ >> Please (re)consider this patch since it really reduce CPU load and/or memory
+ >> bus trafic between CPUS.
+ >
+ >
+ > Did you actually measure this?   If so, you should publish the results.
+ >
+ >
 
-Nice to see: + revert-oversized-kmalloc-check.patch added to -mm tree
---
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+Hi Andrew
+
+Well yes I did.
+
+Here is part of the mail sent on netdev one month ago :
+
+
+
+Hi David
+
+I played and I have very good results with the following patches.
+
+# tc -s -d qdisc show dev eth0 ; sleep 10 ; tc -s -d qdisc show dev eth0
+qdisc pfifo_fast 0: bands 3 priomap  1 2 2 2 1 2 0 0 1 1 1 1 1 1 1 1
+  Sent 440173135511 bytes 3211378293 pkt (dropped 240817, overlimits 0 
+requeues 27028035)
+  backlog 0b 0p requeues 27028035
+qdisc pfifo_fast 0: bands 3 priomap  1 2 2 2 1 2 0 0 1 1 1 1 1 1 1 1
+  Sent 440216655667 bytes 3211730812 pkt (dropped 240904, overlimits 0 
+requeues 27031668)
+  backlog 0b 0p requeues 27031668
+
+(So about 360 requeues per second, much better than before (12000 / second))
+
+oprofile results give
+0.6257  %    qdisc_restart  (instead of 2.6452 %)
+
+
+thread is archived here :
+
+http://marc.theaimsgroup.com/?l=linux-netdev&m=112521684415443&w=2
+
+Thank you
+
+Eric

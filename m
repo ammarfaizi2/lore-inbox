@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751080AbVIWPVY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751082AbVIWPXH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751080AbVIWPVY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 11:21:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751082AbVIWPVY
+	id S1751082AbVIWPXH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 11:23:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751085AbVIWPXH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 11:21:24 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:44162 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751080AbVIWPVX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 11:21:23 -0400
-Date: Fri, 23 Sep 2005 08:21:41 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
-       mingo@elte.hu, akpm@osdl.org, george@mvista.com, johnstul@us.ibm.com
-Subject: Re: [ANNOUNCE] ktimers subsystem
-Message-ID: <20050923152141.GA29941@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20050919184834.1.patchmail@tglx.tec.linutronix.de> <Pine.LNX.4.61.0509201247190.3743@scrub.home> <1127342485.24044.600.camel@tglx.tec.linutronix.de> <Pine.LNX.4.61.0509221816030.3728@scrub.home>
+	Fri, 23 Sep 2005 11:23:07 -0400
+Received: from zproxy.gmail.com ([64.233.162.205]:15604 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751082AbVIWPXF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 11:23:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=FQerJCyJe9DvDpdRALJqgUPEmKKcsFnWOzxHTIoNoB41osaaYad2+3KZo3AVqDHJXktXUvWR/Yv9F9IRqP+4O8iNmdgmCyq6l6ljIJ4/mcXf5kYL53TrGMFX4jQrVIscajZ1bUn7J39NahlQwCplTJKVQJv+RtZ/scvts9ZxvOs=
+Date: Fri, 23 Sep 2005 19:33:45 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm v2] Bisecting through -mm with quilt
+Message-ID: <20050923153345.GC28868@mipter.zuzino.mipt.ru>
+References: <20050923003217.GA18675@mipter.zuzino.mipt.ru> <20050922174250.71f9c6a9.akpm@osdl.org> <20050923152025.GA28868@mipter.zuzino.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0509221816030.3728@scrub.home>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20050923152025.GA28868@mipter.zuzino.mipt.ru>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 23, 2005 at 01:09:46AM +0200, Roman Zippel wrote:
-> On Thu, 22 Sep 2005, Thomas Gleixner wrote:
-
-[ . . . ]
-
-> > > The main difference between them is that the latter is user 
-> > > programmable. 
+On Fri, Sep 23, 2005 at 07:20:25PM +0400, Alexey Dobriyan wrote:
+> On Thu, Sep 22, 2005 at 05:42:50PM -0700, Andrew Morton wrote:
+> > hm, I wouldn't use it.  The problem is that a _lot_ of patches in -mm don't
+> > fscking compile.
 > > 
-> > wallclock is reprogrammable too and it introduces a bunch of horrible
-> > functions in posix-timers.c. grep for abs_list. I explained why its
-> > horrible already.
-> 
-> I said _user_ programmable, wallclock time is usually NTP controlled.
+> > 	bix:/usr/src/25> grep '[-]fix.patch' series | wc
+> > 	     72      72    2905
+> > 
+> > If your bisection happens to land you between foo.patch and foo-fix.patch,
+> > you have a *known bad* kernel.   What's the point in testing it?
 
-I believe Thomas is concerned about workloads that need a short-term
-stable timebase.  For example, a process-control application might need
-to accurately measure a (say) 1500-millisecond time interval.  Both
-user-programmability and NTP adjustments to a given timebase could
-destroy the needed measurement accuracy.
+If "./bisect-mm apply" landed you to obviously wrong kernel, with v2 you
+can do a couple of "quilt {push,pop}" by hand. "./bisect {bad,good}"
+marks _current_ patch as reported by "quilt top".
 
-Such a workload does not need the long-term tie to wallclock time that
-NTP provides, but it does need the accurate short-term timekeeping that
-NTP cannot provide -- NTP sacrifices short-term accuracy in order to
-adjust the clock as needed to gain long-term stability.
-
-Thomas, John, please jump in if I am missing the point here.
-
-						Thanx, Paul

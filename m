@@ -1,49 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750893AbVIWLlX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750892AbVIWLmZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750893AbVIWLlX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 07:41:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750897AbVIWLlX
+	id S1750892AbVIWLmZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 07:42:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750896AbVIWLmZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 07:41:23 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:27037 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750892AbVIWLlX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 07:41:23 -0400
-Subject: Re: Libata for parallel ATA controllers
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Mark Lord <lkml@rtr.ca>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4333674D.3070502@rtr.ca>
-References: <1127408726.18840.126.camel@localhost.localdomain>
-	 <4333674D.3070502@rtr.ca>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 23 Sep 2005 13:07:56 +0100
-Message-Id: <1127477276.5561.15.camel@localhost.localdomain>
+	Fri, 23 Sep 2005 07:42:25 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:6042 "EHLO e36.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750887AbVIWLmZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 07:42:25 -0400
+Date: Fri, 23 Sep 2005 17:06:36 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "David S. Miller" <davem@davemloft.net>, akpm@osdl.org, kiran@scalex86.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 0/6] mm: alloc_percpu and bigrefs
+Message-ID: <20050923113636.GB5006@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20050923062529.GA4209@localhost.localdomain> <20050923001013.28b7f032.akpm@osdl.org> <20050923.001729.101033164.davem@davemloft.net> <1127463090.796.7.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1127463090.796.7.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-09-22 at 22:24 -0400, Mark Lord wrote:
-> built-in error-handling or recovery mechanisms yet.  If a drive
-> gets into a "reset me to recover" state, then libata just might
-> require a reboot to recover, whereas the IDE subsystem will usually
-> try a reset operation at some point.
+On Fri, Sep 23, 2005 at 06:11:30PM +1000, Rusty Russell wrote:
+> On Fri, 2005-09-23 at 00:17 -0700, David S. Miller wrote:
+> > I'm still against expanding these networking datastructures with
+> > bigrefs just for this stuff.  Some people have per-cpu and per-node on
+> > the brain, and it's starting to bloat things up a little bit too much.
+> 
+> I think for net devices it actually makes sense; most of the time we are
+> not trying to remove them, so the refcounting is simply overhead.  We
+> also don't alloc and free them very often.  The size issue is not really
+> an issue since we only map for each CPU, and even better: if a bigref
+> allocation can't get per-cpu data it just degrades beautifully into a
+> test and an atomic.
 
-Or crash.
+I agree, given that it is for a much smaller number of refcounted
+objects.
 
-> Not a problem with modern, mostly bug-free hardware (eg. most SATA),
-> but this could be an issue for some PATA interfaces.
+> 
+> Now, that said, I wanted (and wrote, way back when) a far simpler
+> allocator which only worked for GFP_KERNEL and used the same
+> __per_cpu_offset[] to fixup dynamic per-cpu ptrs as static ones.  Maybe
+> not as "complete" as this one, but maybe less offensive.
 
-The basic error handling in the libata code seems to work as well when I
-tested it, if not better because the old PATA code hangs the box on SMP
-or pre-empt if you get a DMA timeout and cable changedown due to locking
-flaws and also issues an immediate idle in error recovery which seems to
-crash some drives for good.
+The GFP_ATOMIC support stuff is needed only for dst entries. However
+using per-cpu refcounters in such objects like dentries and dst entries
+are problematic and that is why I hadn't tried changing those.
+Some of the earlier versions of the allocator were simpler and I think
+we need to roll this back and do some more analysis. No GFP_ATOMIC
+support, no early use. I haven't got around to look at this 
+for a while, but I will try.
 
-What doesn't work at all is failed cable detect - the speed change down
-support simply isn't in libata yet and that turns a downspeed change for
-poor cables or cable misdetect into a hang.
-
-
+Thanks
+Dipankar

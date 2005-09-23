@@ -1,67 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751274AbVIWUzm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751268AbVIWU5e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751274AbVIWUzm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 16:55:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbVIWUzm
+	id S1751268AbVIWU5e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 16:57:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbVIWU5e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 16:55:42 -0400
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:38592 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S1751274AbVIWUzl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 16:55:41 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [swsusp] Rework image freeing
-Date: Fri, 23 Sep 2005 22:52:52 +0200
-User-Agent: KMail/1.8.2
-Cc: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
-References: <20050921205132.GA4249@elf.ucw.cz> <200509220053.45358.rjw@sisk.pl> <20050922094608.GA1773@elf.ucw.cz>
-In-Reply-To: <20050922094608.GA1773@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 23 Sep 2005 16:57:34 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:20097 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751268AbVIWU5e
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 16:57:34 -0400
+Subject: Re: 2.6.14-rc2-mm1 - ext3 wedging up
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Valdis.Kletnieks@vt.edu, Con Kolivas <kernel@kolivas.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050923153158.GA4548@x30.random>
+References: <200509221959.j8MJxJsY010193@turing-police.cc.vt.edu>
+	 <200509231036.16921.kernel@kolivas.org>
+	 <200509230720.j8N7KYGX023826@turing-police.cc.vt.edu>
+	 <20050923153158.GA4548@x30.random>
+Content-Type: text/plain
+Date: Fri, 23 Sep 2005 15:57:27 -0500
+Message-Id: <1127509047.8880.4.camel@kleikamp.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509232252.53237.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Thursday, 22 of September 2005 11:46, Pavel Machek wrote:
-> Hi!
+On Fri, 2005-09-23 at 17:31 +0200, Andrea Arcangeli wrote:
+> Hello,
 > 
-> > > -
-> > > -/**
-> > > - *	calc_nr - Determine the number of pages needed for a pbe list.
-> > > - */
-> > > -
-> > > -static int calc_nr(int nr_copy)
-> > > -{
-> > > -	return nr_copy + (nr_copy+PBES_PER_PAGE-2)/(PBES_PER_PAGE-1);
-> > > -}
-> > 
-> > I can't see why you are going to drop this function.  Isn't it necessary any more?
-> 
-> I've actually decreased on-disk memory requirements by... guess what:
-> (nr_copy+PBES_PER_PAGE-2)/(PBES_PER_PAGE-1) factor. I do not store two
-> copies of page directories any more.
+> Can you try this updated patch? I believe the blk_congestion_wait is
+> just wrong there, since there may be just one page being flushed. That
+> sounds like a longstanding bug except it normally wouldn't trigger
+> because the dirty levels never goes down near zero during heavy writes.
 
-On-disk - yes, but we still need to allocate RAM to create the "pagedir".
-It takes ca (nr_copy_pages/(PBS_PER_PAGE-1) + !!(nr_copy_pages % (PBS_PER_PAGE-1))),
-so we should include this number in the check for free RAM and in the message
-in swsusp_alloc(), I think.
+fsx is now stuck in a loop somewhere, using 100% cpu.
 
-Besides, the checks for free RAM and swap could be moved to
-suspend_prepare_image(), along with the accompanying printk()s,
-so that we call swsusp_alloc() only after we have verified there should
-be enough resources.
-
-Greetings,
-Rafael
-
+> 	http://www.kernel.org/pub/linux/kernel/people/andrea/patches/v2.6/2.6.14-rc1/per-task-predictive-write-throttling-3
 
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+David Kleikamp
+IBM Linux Technology Center
+

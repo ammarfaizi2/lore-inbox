@@ -1,100 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750905AbVIWMPm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750916AbVIWMTn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750905AbVIWMPm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 08:15:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750906AbVIWMPm
+	id S1750916AbVIWMTn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 08:19:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750919AbVIWMTn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 08:15:42 -0400
-Received: from web8509.mail.in.yahoo.com ([202.43.219.171]:58024 "HELO
-	web8509.mail.in.yahoo.com") by vger.kernel.org with SMTP
-	id S1750903AbVIWMPm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 08:15:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.co.in;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=aDGdKidNLb2Dtt2q3gJ9sD8q80NRLZi/rKv65qYAsARfYFds8pATcHhif8ukbAShbFRS5pkTh1kv+Z3NmpnmF35MLJykw1YjbhrvTtHi0RRzniWW4Yz0p3EyFWgE887HOIvsLhD5eSX7HQL+hsmtA6qKszT0fGbpb6HGwH8SjHA=  ;
-Message-ID: <20050923121538.88627.qmail@web8509.mail.in.yahoo.com>
-Date: Fri, 23 Sep 2005 13:15:38 +0100 (BST)
-From: manomugdha biswas <manomugdhab@yahoo.co.in>
-Subject: kernel 2.6 panic
+	Fri, 23 Sep 2005 08:19:43 -0400
+Received: from pih-relay04.plus.net ([212.159.14.131]:58798 "EHLO
+	pih-relay04.plus.net") by vger.kernel.org with ESMTP
+	id S1750912AbVIWMTn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 08:19:43 -0400
+Date: Fri, 23 Sep 2005 13:19:32 +0100
+From: Chris Sykes <chris@sigsegv.plus.com>
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Cc: Andrew Morton <akpm@osdl.org>, ext2-devel@lists.sourceforge.net
+Subject: Re: Hang during rm on ext2 mounted sync (2.6.14-rc2+)
+Message-ID: <20050923121932.GA5395@sigsegv.plus.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>, ext2-devel@lists.sourceforge.net
+References: <20050922163708.GF5898@sigsegv.plus.com> <20050923015719.5eb765a4.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="DocE+STaALJfprDB"
+Content-Disposition: inline
+In-Reply-To: <20050923015719.5eb765a4.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I have a kernel module. I can install (insmod) my
-module successfully. I start my module by ioctl() from
-user application and also use ioctl() to stop my
-module from user application. But sometimes after
-removing (stoping) my module kernel panic happens.
-Following is the dump:
 
-Sep 23 02:40:09 localhost kernel: Unable to handle
-kernel NULL pointer dereference at virtual address
-00000025
-Sep 23 02:40:09 localhost kernel:  printing eip:
-Sep 23 02:40:09 localhost kernel: c0163516
-Sep 23 02:40:09 localhost kernel: *pde = 00000000
-Sep 23 02:40:09 localhost kernel: Oops: 0000 [#1]
-Sep 23 02:40:09 localhost kernel: Modules linked in:
-vnicclient(U) i915 parport_pc lp parport autofs4
-i2c_dev i2c_core sunrpc dm_mod button battery ac md5
-ipv6 uhci_hcd ehci_hcd snd_intel8x0 snd_ac97_codec
-snd_pcm_oss snd_mixer_oss snd_pcm snd_timer
-snd_page_alloc snd_mpu401_uart snd_rawmidi
-snd_seq_device snd soundcore e100 mii floppy ext3 jbd
-Sep 23 02:40:09 localhost kernel: CPU:    0
-Sep 23 02:40:09 localhost kernel: EIP:   
-0060:[<c0163516>]    Not tainted VLI
-Sep 23 02:40:09 localhost kernel: EFLAGS: 00010202  
-(2.6.9-11.EL)
-Sep 23 02:40:09 localhost kernel: EIP is at
-sys_read+0x1d/0x62
-Sep 23 02:40:09 localhost kernel: eax: 00000001   ebx:
-00000001   ecx: f2067380   edx: 00000001 Sep 23
-02:40:09 localhost kernel: esi: fffffff7   edi:
-00000000   ebp: f29e5000   esp: f29e5fac
-Sep 23 02:40:09 localhost kernel: ds: 007b   es: 007b 
- ss: 0068
-Sep 23 02:40:09 localhost kernel: Process bash (pid:
-10171, threadinfo=f29e5000 task=f21111a0)
-Sep 23 02:40:09 localhost kernel: Stack: 00000000
-00000000 00000000 00000000 bffdcbaf c03036f3 00000000
-bffdcbaf
-Sep 23 02:40:09 localhost kernel:        00000001
-bffdcbaf 00000000 bffdcbb8 00000003 0000007b 0000007b
-00000003
-Sep 23 02:40:09 localhost kernel:        006e77a2
-00000073 00000246 bffdcb94 0000007b
-Sep 23 02:40:09 localhost kernel: Call Trace:
-Sep 23 02:40:09 localhost kernel:  [<c03036f3>]
-syscall_call+0x7/0xb
-Sep 23 02:40:09 localhost kernel: Code: 00 e8 ed fc 01
-00 89 d8 5d 5b 5e 5f 5d c3 56 be f7 ff ff ff 53 83 ec
-0c 8b 44 24 18 8d 54 24 08 e8 8c 0d 00 00 85 c0 89 c3
-74 3d <8b> 40 24 8b 53 28 89 04 24 89 e0 89 54 24 04
-50 8b 54 24 20 89 Sep 23 02:40:09 localhost kernel: 
-<0>Fatal exception: panic in 5 seconds
+--DocE+STaALJfprDB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-vnicclient is my module. 
-Could you please tell me what is meant by  "Not
-tainted VLI" ?
+On Fri, Sep 23, 2005 at 01:57:19AM -0700, Andrew Morton wrote:
+> Odd.  Seems OK here.  How hard is it to make it occur?
 
-This is happening after comming out my module. 
-Could you please give some light on this issue?
+The following always works first time on an affected kernel (I'm just
+mimmicing that update-grub did at the point it hung on me):
 
-Thanks and Regards,
-Mano
+cd /to_ext2_fs_mounted_with_sync
+cp /boot/grub/menu.lst menu.lst.new
+cat menu.lst.new >menu.lst
+rm menu.lst.new
 
+> I'd be suspecting a lost I/O completion from the device driver.  Are you
+> really sure that ext3 cannot be made to do the same thing?
 
+I just ran the above 1000 times on 2.6.13-git10 (also affected), on
+ext3, no hung rm process.
+Running on ext2, rm hangs first time.
 
+> Suggest you generate the `dmesg -s 1000000' output for both good and bad
+> kernels, do a `diff -u' on them and look for IDE complaints (or SCSI, if
+> you're on SCSI).
 
-Manomugdha Biswas
+OK will do.
 
+Initial testing suggests that 2.6.13-git9 is good while 2.6.13-git10
+that I'm running now fails.  I'll verify this and have a look at dmesg
+output as well.
 
-		
-__________________________________________________________ 
-Yahoo! India Matrimony: Find your partner now. Go to http://yahoo.shaadi.com
+--=20
+
+(o-  Chris Sykes
+//\       "Don't worry. Everything is getting nicely out of control ..."
+V_/_                          Douglas Adams - The Salmon of Doubt
+GPG Fingerprint: 5E8E D17F F96C CC08 911D  CAF2 9049 70D8 5143 8090
+
+--DocE+STaALJfprDB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFDM/LUkElw2FFDgJARAjg1AJ98ITLu0pSQDmlG1UfGPFewDcZ60QCeLnW3
+7QNeuvvWhjOsPWaZh5IRgNg=
+=SngE
+-----END PGP SIGNATURE-----
+
+--DocE+STaALJfprDB--

@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbVIYFqN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbVIYFuj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751096AbVIYFqN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Sep 2005 01:46:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbVIYFqN
+	id S1751103AbVIYFuj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Sep 2005 01:50:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbVIYFuj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Sep 2005 01:46:13 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:24000 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751096AbVIYFqM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Sep 2005 01:46:12 -0400
-Date: Sat, 24 Sep 2005 22:44:49 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: tglx@linutronix.de, mingo@elte.hu, roland@redhat.com, george@mvista.com,
-       linux-kernel@vger.kernel.org, rostedt@goodmis.org, paulmck@us.ibm.com
-Subject: Re: [PATCH] fix exit_itimers() vs posix_timer_event() AB-BA
- deadlock
-Message-Id: <20050924224449.30582f70.akpm@osdl.org>
-In-Reply-To: <433557BB.EE6E5FE5@tv-sign.ru>
-References: <20050818060126.GA13152@elte.hu>
-	<1124495303.23647.579.camel@tglx.tec.linutronix.de>
-	<43076138.C37ED380@tv-sign.ru>
-	<1124617458.23647.643.camel@tglx.tec.linutronix.de>
-	<43085E97.4EC3908B@tv-sign.ru>
-	<1124659468.23647.695.camel@tglx.tec.linutronix.de>
-	<1124661032.23647.698.camel@tglx.tec.linutronix.de>
-	<4309731E.ED621149@tv-sign.ru>
-	<1124698127.23647.716.camel@tglx.tec.linutronix.de>
-	<43099235.65BC4757@tv-sign.ru>
-	<1124705208.23647.737.camel@tglx.tec.linutronix.de>
-	<430A012E.1CAF0A2F@tv-sign.ru>
-	<1124791998.23647.789.camel@tglx.tec.linutronix.de>
-	<430B4C35.AE7CD179@tv-sign.ru>
-	<433557BB.EE6E5FE5@tv-sign.ru>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 25 Sep 2005 01:50:39 -0400
+Received: from 142.163.233.220.exetel.com.au ([220.233.163.142]:2776 "EHLO
+	idefix") by vger.kernel.org with ESMTP id S1751103AbVIYFui convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Sep 2005 01:50:38 -0400
+Subject: Re: Suspend to RAM broken with 2.6.13
+From: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050923163200.GC8946@openzaurus.ucw.cz>
+References: <1127347633.25357.49.camel@idefix.homelinux.org>
+	 <20050923163200.GC8946@openzaurus.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Organization: =?ISO-8859-1?Q?Universit=E9?= de Sherbrooke
+Date: Sat, 24 Sep 2005 21:12:41 +1000
+Message-Id: <1127560361.7163.14.camel@142.163.233.220.exetel.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.2.1.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov <oleg@tv-sign.ru> wrote:
->
-> +	/*
->  +	 * We are locking ->it_lock + tasklist_lock backwards
->  +	 * from release_task()->exit_itimers(), beware deadlock.
->  +	 */
->  +	leader = timr->it_process->group_leader;
->  +	while (unlikely(!read_trylock(&tasklist_lock))) {
->  +		if (leader->flags & PF_EXITING) {
->  +			smp_rmb();
->  +			if (thread_group_empty(leader))
->  +				return 0;
->  +		}
->  +		cpu_relax();
->  +	}
+Hi,
 
-Oh dear.  Is there no way to fix this up by taking the locks in the correct
-order?  (Whatever that is).
+> > I'm experiencing problems with suspend to RAM on my Dell D600 laptop.
+> > When I run Ubuntu's 2.6.10 kernel I have no problem with suspend to RAM.
+> > However, when I run 2.6.13, my laptop sometimes doesn't wake up. It
+> > seems like the longer my uptime, the more likely the problem is to occur
+> > (which makes it hard to reproduce sometimes). This happens even with a
+> > non-preempt kernel.
+> 
+> Check if it works with minimal drivers and non-preemptible kernel...
 
+I checked with 1) a minimal drivers on a preempt kernel and 2) with a
+few more drivers (usb mouse) and a non-preempt kernel. Both didn't wake
+up when I suspended after a few days of uptime (right after boot, it's
+fine). The default Ubuntu kernel is a preempt-enabled 2.6.10 kernel and
+it always resumed from suspend, even with usb devices plugged in (I
+still had to reload the driver though). As I said, it's not trivial to
+test, because it takes a while before the bug occurs.
+
+	Jean-Marc
+
+-- 
+Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
+Université de Sherbrooke

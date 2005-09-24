@@ -1,38 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbVIXPHz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbVIXPEc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932188AbVIXPHz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Sep 2005 11:07:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932189AbVIXPHy
+	id S932186AbVIXPEc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Sep 2005 11:04:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbVIXPEc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Sep 2005 11:07:54 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:14316 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S932188AbVIXPHy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Sep 2005 11:07:54 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: thomas.mey3r@arcor.de
-Subject: Re: Aw: Re: 2.6.14-rc2-ge484585e: kexec into same kernel: irq 11 nobody cared; but ehci_hcd should
-Date: Sat, 24 Sep 2005 18:07:11 +0300
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
-References: <200509241530.42284.vda@ilport.com.ua> <32750612.1127563007089.JavaMail.ngmail@webmail-09.arcor-online.net> <23431147.1127571157771.JavaMail.ngmail@webmail-05.arcor-online.net>
-In-Reply-To: <23431147.1127571157771.JavaMail.ngmail@webmail-05.arcor-online.net>
+	Sat, 24 Sep 2005 11:04:32 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:62482 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S932186AbVIXPEc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Sep 2005 11:04:32 -0400
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] mm/msync.c cleanup
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Sun, 25 Sep 2005 00:04:19 +0900
+Message-ID: <874q8amrrg.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509241807.11479.vda@ilport.com.ua>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 24 September 2005 17:12, thomas.mey3r@arcor.de wrote:
-> Correct.
-> The interrupt happens before the interrupt is enabled by the ehci driver. the question is why is the interrupt already enabled? or: who forgot to disable the interrupt?
+Hi,
 
-Correct question is "who forgot to set ehci->regs->intr_enable before request_irq'ing?"
+This is not problem actually, but sync_page_range() is using for
+exported function to filesystems.
 
-IOW: writel (INTR_MASK, &ehci->regs->intr_enable); /* Turn On Interrupts */
-needs to be moved so that it happens before request_irq. 
---
-vda
+The msync_xxx is more readable at least to me.
+
+Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+---
+
+ mm/msync.c |   28 ++++++++++++++--------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
+
+diff -puN mm/msync.c~msync-rename mm/msync.c
+--- linux-2.6.14-rc2/mm/msync.c~msync-rename	2005-09-24 23:52:28.000000000 +0900
++++ linux-2.6.14-rc2-hirofumi/mm/msync.c	2005-09-24 23:53:14.000000000 +0900
+@@ -22,7 +22,7 @@
+  * threads/the swapper from ripping pte's out from under us.
+  */
+ 
+-static void sync_pte_range(struct vm_area_struct *vma, pmd_t *pmd,
++static void msync_pte_range(struct vm_area_struct *vma, pmd_t *pmd,
+ 				unsigned long addr, unsigned long end)
+ {
+ 	pte_t *pte;
+@@ -50,7 +50,7 @@ static void sync_pte_range(struct vm_are
+ 	pte_unmap(pte - 1);
+ }
+ 
+-static inline void sync_pmd_range(struct vm_area_struct *vma, pud_t *pud,
++static inline void msync_pmd_range(struct vm_area_struct *vma, pud_t *pud,
+ 				unsigned long addr, unsigned long end)
+ {
+ 	pmd_t *pmd;
+@@ -61,11 +61,11 @@ static inline void sync_pmd_range(struct
+ 		next = pmd_addr_end(addr, end);
+ 		if (pmd_none_or_clear_bad(pmd))
+ 			continue;
+-		sync_pte_range(vma, pmd, addr, next);
++		msync_pte_range(vma, pmd, addr, next);
+ 	} while (pmd++, addr = next, addr != end);
+ }
+ 
+-static inline void sync_pud_range(struct vm_area_struct *vma, pgd_t *pgd,
++static inline void msync_pud_range(struct vm_area_struct *vma, pgd_t *pgd,
+ 				unsigned long addr, unsigned long end)
+ {
+ 	pud_t *pud;
+@@ -76,11 +76,11 @@ static inline void sync_pud_range(struct
+ 		next = pud_addr_end(addr, end);
+ 		if (pud_none_or_clear_bad(pud))
+ 			continue;
+-		sync_pmd_range(vma, pud, addr, next);
++		msync_pmd_range(vma, pud, addr, next);
+ 	} while (pud++, addr = next, addr != end);
+ }
+ 
+-static void sync_page_range(struct vm_area_struct *vma,
++static void msync_page_range(struct vm_area_struct *vma,
+ 				unsigned long addr, unsigned long end)
+ {
+ 	struct mm_struct *mm = vma->vm_mm;
+@@ -101,14 +101,14 @@ static void sync_page_range(struct vm_ar
+ 		next = pgd_addr_end(addr, end);
+ 		if (pgd_none_or_clear_bad(pgd))
+ 			continue;
+-		sync_pud_range(vma, pgd, addr, next);
++		msync_pud_range(vma, pgd, addr, next);
+ 	} while (pgd++, addr = next, addr != end);
+ 	spin_unlock(&mm->page_table_lock);
+ }
+ 
+ #ifdef CONFIG_PREEMPT
+-static inline void filemap_sync(struct vm_area_struct *vma,
+-				unsigned long addr, unsigned long end)
++static inline void filemap_msync(struct vm_area_struct *vma,
++				 unsigned long addr, unsigned long end)
+ {
+ 	const size_t chunk = 64 * 1024;	/* bytes */
+ 	unsigned long next;
+@@ -117,15 +117,15 @@ static inline void filemap_sync(struct v
+ 		next = addr + chunk;
+ 		if (next > end || next < addr)
+ 			next = end;
+-		sync_page_range(vma, addr, next);
++		msync_page_range(vma, addr, next);
+ 		cond_resched();
+ 	} while (addr = next, addr != end);
+ }
+ #else
+-static inline void filemap_sync(struct vm_area_struct *vma,
+-				unsigned long addr, unsigned long end)
++static inline void filemap_msync(struct vm_area_struct *vma,
++				 unsigned long addr, unsigned long end)
+ {
+-	sync_page_range(vma, addr, end);
++	msync_page_range(vma, addr, end);
+ }
+ #endif
+ 
+@@ -150,7 +150,7 @@ static int msync_interval(struct vm_area
+ 		return -EBUSY;
+ 
+ 	if (file && (vma->vm_flags & VM_SHARED)) {
+-		filemap_sync(vma, addr, end);
++		filemap_msync(vma, addr, end);
+ 
+ 		if (flags & MS_SYNC) {
+ 			struct address_space *mapping = file->f_mapping;
+_
+
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

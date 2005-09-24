@@ -1,127 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932227AbVIXSnR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932226AbVIXSra@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932227AbVIXSnR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Sep 2005 14:43:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbVIXSnR
+	id S932226AbVIXSra (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Sep 2005 14:47:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbVIXSr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Sep 2005 14:43:17 -0400
-Received: from baldrick.bootc.net ([83.142.228.48]:60618 "EHLO
-	baldrick.bootc.net") by vger.kernel.org with ESMTP id S932227AbVIXSnR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Sep 2005 14:43:17 -0400
-Message-ID: <43359E42.4080000@bootc.net>
-Date: Sat, 24 Sep 2005 19:43:14 +0100
-From: Chris Boot <bootc@bootc.net>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050911)
-X-Accept-Language: en-us, en
+	Sat, 24 Sep 2005 14:47:29 -0400
+Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:6802 "EHLO
+	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S932226AbVIXSr3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Sep 2005 14:47:29 -0400
+From: Grant Coady <grant_lkml@dodo.com.au>
+To: Denis Vlasenko <vda@ilport.com.ua>
+Cc: Simon Evans <spse@secret.org.uk>, Vojtech Pavlik <vojtech@suse.cz>,
+       linux-kernel@vger.kernel.org
+Subject: Re: New inventions in rounding up in catc.c?
+Date: Sun, 25 Sep 2005 04:46:23 +1000
+Organization: http://bugsplatter.mine.nu/
+Message-ID: <l27bj1hjeqsl9ifg4ogb0drj56fsm0j62a@4ax.com>
+References: <200509241343.42464.vda@ilport.com.ua>
+In-Reply-To: <200509241343.42464.vda@ilport.com.ua>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: libata patches and log spam?
-References: <432DB7F2.8090306@bootc.net>
-In-Reply-To: <432DB7F2.8090306@bootc.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Boot wrote:
+On Sat, 24 Sep 2005 13:43:42 +0300, Denis Vlasenko <vda@ilport.com.ua> wrote:
+> 		/* F5U011 only does one packet per RX */
+> 		if (catc->is_f5u011)
+> 			break;
+>-		pkt_start += (((pkt_len + 1) >> 6) + 1) << 6;
+>+		pkt_start += ((pkt_len + 2) + 63) & ~63;
 
-> Hi all,
->
-> I've started using Jeff's libata patches from 
-> http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/, mostly 
-> so I can check the SMART status of a few drives that seem to be on 
-> their way out. I've only just noticed that recently, my kernel has 
-> been spewing out messages like the following every minute or so:
->
-> Sep 18 19:34:55 [kernel] [4376428.164000] ata1: translated ATA 
-> stat/err 0xb0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-> Sep 18 19:34:55 [kernel] [4376428.216000] ata1: translated ATA 
-> stat/err 0xb0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-> Sep 18 19:34:55 [kernel] [4376428.216000] ata2: translated ATA 
-> stat/err 0xb0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-> Sep 18 19:34:55 [kernel] [4376428.268000] ata2: translated ATA 
-> stat/err 0xb0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-> Sep 18 19:34:55 [kernel] [4376428.268000] ata3: translated ATA 
-> stat/err 0xb0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-> Sep 18 19:34:55 [kernel] [4376428.319000] ata3: translated ATA 
-> stat/err 0xb0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-> Sep 18 19:34:55 [kernel] [4376428.320000] ata4: translated ATA 
-> stat/err 0xb0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-> Sep 18 19:34:55 [kernel] [4376428.374000] ata4: translated ATA 
-> stat/err 0xb0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-> Sep 18 19:36:00 [kernel] [4376493.196000] ata1: translated ATA 
-> stat/err 0xb0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-> Sep 18 19:36:00 [kernel] [4376493.266000] ata1: translated ATA 
-> stat/err 0xb0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-> Sep 18 19:36:00 [kernel] [4376493.273000] ata2: translated ATA 
-> stat/err 0xb0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-> Sep 18 19:36:00 [kernel] [4376493.324000] ata2: translated ATA 
-> stat/err 0xb0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-> Sep 18 19:36:00 [kernel] [4376493.327000] ata3: translated ATA 
-> stat/err 0xb0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-> Sep 18 19:36:00 [kernel] [4376493.378000] ata3: translated ATA 
-> stat/err 0xb0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-> Sep 18 19:36:00 [kernel] [4376493.388000] ata4: translated ATA 
-> stat/err 0xb0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-> Sep 18 19:36:00 [kernel] [4376493.440000] ata4: translated ATA 
-> stat/err 0xb0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
->
-> These messages don't seem to cause any trouble and I don't get any 
-> other errors. Is this just because of increased verbosity due to the 
-> patches? Can these messages be safely ignored / nuked?
->
-> I'm using 2.6.13-ck5 + 2.6.13-rc7-libata1.patch + 
-> reiser4-for-2.6.12-3.patch.gz + 
-> vesafb-tng-0.9-rc7-r1-2.6.13-rc6.patch. ata{1,2} are on a sata_sil 
-> controller, ata{3,4} are on sata_via.
->
-> It also has to be noted that I get similar errors when I try to 
-> enable/disable SMART automatic offline tests (and other similar 
-> settings) on a drive:
->
-> [4377001.595000] ata1: PIO error, drv_stat 0x51
-> [4377001.595000] ata1: translated ATA stat/err 0xb0/00 to SCSI 
-> SK/ASC/ASCQ 0xb/47/00
-> [4377001.595000] ata1: status=0xb0 { Busy }
-> [4377001.596000] ata1: PIO error, drv_stat 0x51
-> [4377001.596000] ata1: translated ATA stat/err 0xb0/00 to SCSI 
-> SK/ASC/ASCQ 0xb/47/00
-> [4377001.596000] ata1: status=0xb0 { Busy }
-> [4377001.596000] ata1: PIO error, drv_stat 0x51
-> [4377001.596000] ata1: translated ATA stat/err 0xb0/00 to SCSI 
-> SK/ASC/ASCQ 0xb/47/00
-> [4377001.596000] ata1: status=0xb0 { Busy }
-> [4377001.597000] ata1: PIO error, drv_stat 0x51
-> [4377001.597000] ata1: translated ATA stat/err 0xb0/00 to SCSI 
-> SK/ASC/ASCQ 0xb/47/00
-> [4377001.597000] ata1: status=0xb0 { Busy }
-> [4377001.597000] ata1: PIO error, drv_stat 0x51
-> [4377001.597000] ata1: translated ATA stat/err 0xb0/00 to SCSI 
-> SK/ASC/ASCQ 0xb/47/00
-> [4377001.597000] ata1: status=0xb0 { Busy }
->
-> I'm getting similar messages when playing with SMART on another 
-> machine with vanilla 2.6.13.1 + 2.6.13-rc7-libata1.patch, but not the 
-> regular, minute-by-minute messages on that machine. This one has two 
-> drives on a sata_piix controller.
->
-> Other than that, no trouble. Thanks for the patches, they're really 
-> handy! :-)
->
-> PS: I'm willing to apply patches to, and reboot at will, the first 
-> machine, but not the second since it's my production web server.
->
-Aha! That would have been hddtemp scanning the temperature every minute 
-or so. Now, how come these messages appear in the first place? Needless 
-to say the temperature is retrieved correctly.
+  		pkt_start += ((pkt_len + 1) + 64) & ~63;
 
-Thanks,
-Chris
+Seems more clear to me.
 
--- 
-Chris Boot
-bootc@bootc.net
-http://www.bootc.net/
+Grant.
 

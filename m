@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbVIXQEW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbVIXQi2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932171AbVIXQEW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Sep 2005 12:04:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbVIXQEW
+	id S932190AbVIXQi2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Sep 2005 12:38:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbVIXQi2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Sep 2005 12:04:22 -0400
-Received: from highlandsun.propagation.net ([66.221.212.168]:51982 "EHLO
-	highlandsun.propagation.net") by vger.kernel.org with ESMTP
-	id S1750750AbVIXQEV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Sep 2005 12:04:21 -0400
-Message-ID: <433578EE.6070402@symas.com>
-Date: Sat, 24 Sep 2005 09:03:58 -0700
-From: Howard Chu <hyc@symas.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9a1) Gecko/20050924 SeaMonkey/1.1a
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Serious time drift - clock running fast
+	Sat, 24 Sep 2005 12:38:28 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:5866 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1750755AbVIXQi1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Sep 2005 12:38:27 -0400
+Date: Sat, 24 Sep 2005 18:38:18 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Vadim Lobanov <vlobanov@speakeasy.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Unify sys_tkill() and sys_tgkill()
+Message-ID: <20050924163818.GA7339@wohnheim.fh-wedel.de>
 References: <Pine.LNX.4.58.0509231913550.5348@shell3.speakeasy.net> <9a8748490509240752436ef7b2@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 In-Reply-To: <9a8748490509240752436ef7b2@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm having the same problem with 2.6.13, AMD64 X2, Asus A8V Deluxe 
-motherboard. What's worse is that this is my local net's NTP server, so 
-it's taking all my other machines' clocks along for the ride, and I'm 
-losing my associations to the upper strata servers because the skew gets 
-too great. (So ntpd needs to be restarted periodically.)
+On Sat, 24 September 2005 16:52:28 +0200, Jesper Juhl wrote:
+> 
+> [snip]
+> > +static int do_tkill(int tgid, int pid, int sig)
+> 
+> I would probably have made this
+> 
+>   static inline int do_tkill(int tgid, int pid, int sig)
 
-I've seen earlier reports on this list about the clock running twice 
-normal speed. That's not what I'm seeing here; after several hours it's 
-only ahead by 5 minutes at the moment. (The system has been up 20 days, 
-but I restarted ntpd a few hours ago, and it resync'd via ntpdate at 
-that point.) Maybe it would be running at 2X if I kill ntpd, I haven't 
-checked that.
+Why?  It would only return the original duplication in binary form and
+save a minimal amount of time for something already slow - a system
+call.  With small caches, the code duplication could even waste more
+performance than the missing function call would gain you.
 
-If it matters, I configured a 250Hz clock tick on this kernel.
+Other nits were well-picked.
+
+Jörn
 
 -- 
-  -- Howard Chu
-  Chief Architect, Symas Corp.  http://www.symas.com
-  Director, Highland Sun        http://highlandsun.com/hyc
-  OpenLDAP Core Team            http://www.openldap.org/project/
-
+You can't tell where a program is going to spend its time. Bottlenecks
+occur in surprising places, so don't try to second guess and put in a
+speed hack until you've proven that's where the bottleneck is.
+-- Rob Pike

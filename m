@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbVIXQi2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbVIXQsm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932190AbVIXQi2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Sep 2005 12:38:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbVIXQi2
+	id S932193AbVIXQsm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Sep 2005 12:48:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbVIXQsm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Sep 2005 12:38:28 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:5866 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1750755AbVIXQi1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Sep 2005 12:38:27 -0400
-Date: Sat, 24 Sep 2005 18:38:18 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Vadim Lobanov <vlobanov@speakeasy.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Unify sys_tkill() and sys_tgkill()
-Message-ID: <20050924163818.GA7339@wohnheim.fh-wedel.de>
-References: <Pine.LNX.4.58.0509231913550.5348@shell3.speakeasy.net> <9a8748490509240752436ef7b2@mail.gmail.com>
+	Sat, 24 Sep 2005 12:48:42 -0400
+Received: from cavan.codon.org.uk ([217.147.92.49]:28908 "EHLO
+	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
+	id S1750755AbVIXQsl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Sep 2005 12:48:41 -0400
+Date: Sat, 24 Sep 2005 17:48:23 +0100
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: acpi-support@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Supporting ACPI drive hotswap
+Message-ID: <20050924164823.GA24351@srcf.ucam.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <9a8748490509240752436ef7b2@mail.gmail.com>
 User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@vavatch.codon.org.uk
+X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 24 September 2005 16:52:28 +0200, Jesper Juhl wrote:
-> 
-> [snip]
-> > +static int do_tkill(int tgid, int pid, int sig)
-> 
-> I would probably have made this
-> 
->   static inline int do_tkill(int tgid, int pid, int sig)
+ACPI provides a mechanism for noting which devices can be hotswapped and 
+notifying the system that this has happened. Hotswappable devices are 
+tagged with a _RMV token. What effectively needs to be done is this:
 
-Why?  It would only return the original duplication in binary form and
-save a minimal amount of time for something already slow - a system
-call.  With small caches, the code duplication could even waste more
-performance than the missing function call would gain you.
+1) Find every device with an _RMV token, and install a notify handler 
+for it. This is fairly easy.
 
-Other nits were well-picked.
+2) On notification, check whether the device is present or absent. This 
+can be done by calling the _STA method - alternatively it could 
+presumably be done through the appropriate IDE or SCSI layer. I believe 
+that we now have code that allows binding of ACPI devices to appropriate 
+busses.
 
-Jörn
+3) If a device has been added, enumerate it and do appropriate messaging
+to userspace (for device node creation and so forth). This ought to be 
+relatively easy?
 
+4) If a device has been removed, we currently have problems. SATA 
+hotplugging is only supported on a subset of devices. The SATA laptop I 
+have here is an Intel ICH part, but uses the ata_piix driver (ahci won't 
+load) which isn't supposed to support hotswap. Unregistering devices in 
+the IDE layer has been broken for ages.
+
+Is there any point in working on the first three of these points until 
+point four is more reasonable? What actually needs to be done to improve 
+this?
 -- 
-You can't tell where a program is going to spend its time. Bottlenecks
-occur in surprising places, so don't try to second guess and put in a
-speed hack until you've proven that's where the bottleneck is.
--- Rob Pike
+Matthew Garrett | mjg59@srcf.ucam.org

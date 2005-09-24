@@ -1,44 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbVIXTl3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbVIXTpt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750716AbVIXTl3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Sep 2005 15:41:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750706AbVIXTl3
+	id S1750718AbVIXTpt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Sep 2005 15:45:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbVIXTps
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Sep 2005 15:41:29 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:22022 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1750716AbVIXTl2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Sep 2005 15:41:28 -0400
-Date: Sat, 24 Sep 2005 21:38:39 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Davide Libenzi <davidel@xmailserver.org>, Andrew Morton <akpm@osdl.org>
-Cc: Nishanth Aravamudan <nacc@us.ibm.com>, Willy Tarreau <willy@w.ods.org>,
-       Nish Aravamudan <nish.aravamudan@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 0/3] fixes for overflow in poll(), epoll(), and msec_to_jiffies()
-Message-ID: <20050924193839.GB26197@alpha.home.local>
-References: <Pine.LNX.4.63.0509231108140.10222@localhost.localdomain> <20050924040534.GB18716@alpha.home.local> <29495f1d05092321447417503@mail.gmail.com> <20050924061500.GA24628@alpha.home.local> <20050924171928.GF3950@us.ibm.com> <Pine.LNX.4.63.0509241120380.31327@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.63.0509241120380.31327@localhost.localdomain>
-User-Agent: Mutt/1.5.10i
+	Sat, 24 Sep 2005 15:45:48 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:38084 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S1750715AbVIXTpr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Sep 2005 15:45:47 -0400
+Message-ID: <4335ACE9.7070009@rtr.ca>
+Date: Sat, 24 Sep 2005 15:45:45 -0400
+From: Mark Lord <liml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050728
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, acpi-support@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: Supporting ACPI drive hotswap
+References: <20050924164823.GA24351@srcf.ucam.org> <20050924124050.1955c290.rdunlap@xenotime.net>
+In-Reply-To: <20050924124050.1955c290.rdunlap@xenotime.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+ >Do you know why the ahci driver won't load?
 
-After the discussion around epoll() timeout, I noticed that the functions used
-to detect the timeout could themselves overflow for some values of HZ.
+Undoubtedly the chip is being used in "combined mode",
+to support a PATA ATAPI device on the second channel.
 
-So I decided to fix them by defining a macro which represents the maximal
-acceptable argument which is guaranteed not to overflow. As an added bonus,
-those functions can now be used in poll() and ep_poll() and remove the divide
-if HZ == 1000, or replace it with a shift if (1000 % HZ) or (HZ % 1000) is a
-power of two.
+For that matter, the primary HD is probably actually PATA,
+perhaps with a SATA bridge on the notebook M/B.
 
-Patches against 2.6.14-rc2-mm1 sent as replies to this mail.
+Very very common arrangement these days -- practically all
+Sonoma Centrino chipset notebooks are set up like this.
 
-Regards,
-Willy
-
+Cheers

@@ -1,65 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751397AbVIXEIn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751401AbVIXEPu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751397AbVIXEIn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Sep 2005 00:08:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751399AbVIXEIn
+	id S1751401AbVIXEPu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Sep 2005 00:15:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751402AbVIXEPu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Sep 2005 00:08:43 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:262 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1751397AbVIXEIm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Sep 2005 00:08:42 -0400
-Date: Sat, 24 Sep 2005 06:05:34 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] sys_epoll_wait() timeout saga ...
-Message-ID: <20050924040534.GB18716@alpha.home.local>
-References: <Pine.LNX.4.63.0509231108140.10222@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 24 Sep 2005 00:15:50 -0400
+Received: from mail28.syd.optusnet.com.au ([211.29.133.169]:31908 "EHLO
+	mail28.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751401AbVIXEPt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Sep 2005 00:15:49 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Subject: Re: [RFC][PATCH] inline a few tiny functions in init/initramfs.c
+Date: Sat, 24 Sep 2005 14:15:43 +1000
+User-Agent: KMail/1.8.2
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+References: <200509240126.26575.jesper.juhl@gmail.com>
+In-Reply-To: <200509240126.26575.jesper.juhl@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.63.0509231108140.10222@localhost.localdomain>
-User-Agent: Mutt/1.5.10i
+Message-Id: <200509241415.43773.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Davide,
+On Sat, 24 Sep 2005 09:26, Jesper Juhl wrote:
+> A few functions in init/initramfs.c are so simple that I don't see why
+> *any* point in them having to bear the cost of a function call.
+> Wouldn't something like the patch below make sense ?
 
-On Fri, Sep 23, 2005 at 11:13:30AM -0700, Davide Libenzi wrote:
-> 
-> The sys_epoll_wait() function was not handling correctly negative 
-> timeouts (besides -1), and like sys_poll(), was comparing millisec to 
-> secs in testing the upper timeout limit.
-> 
-> 
-> Signed-off-by: Davide Libenzi <davidel@xmailserver.org>
-> 
-> 
-> - Davide
+> -static void __init *malloc(size_t size)
+> +static inline void __init *malloc(size_t size)
+>  {
+>  	return kmalloc(size, GFP_KERNEL);
 
-> --- a/fs/eventpoll.c	2005-09-23 10:56:57.000000000 -0700
-> +++ b/fs/eventpoll.c	2005-09-23 11:00:06.000000000 -0700
-> @@ -1507,7 +1507,7 @@
->  	 * and the overflow condition. The passed timeout is in milliseconds,
->  	 * that why (t * HZ) / 1000.
->  	 */
-> -	jtimeout = timeout == -1 || timeout > (MAX_SCHEDULE_TIMEOUT - 1000) / HZ ?
-> +	jtimeout = timeout < 0 || (timeout / 1000) >= (MAX_SCHEDULE_TIMEOUT / HZ) ?
->  		MAX_SCHEDULE_TIMEOUT: (timeout * HZ + 999) / 1000;
+maybe it looks like it would, but kmalloc looks like this:
 
-Here, I'm not certain that gcc will optimize the divide. It would be better
-anyway to write this which is equivalent, and a pure integer comparison :
+85 static inline void *kmalloc(size_t size, int flags)
+86 {
+87         if (__builtin_constant_p(size)) {
+88                 int i = 0;
+89 #define CACHE(x) \
+90                 if (size <= x) \
+91                         goto found; \
+92                 else \
+93                         i++;
+94 #include "kmalloc_sizes.h"
+95 #undef CACHE
+96                 {
+97                         extern void __you_cannot_kmalloc_that_much(void);
+98                         __you_cannot_kmalloc_that_much();
+99                 }
+100 found:
+101                 return kmem_cache_alloc((flags & GFP_DMA) ?
+102                         malloc_sizes[i].cs_dmacachep :
+103                         malloc_sizes[i].cs_cachep, flags);
+104         }
+105         return __kmalloc(size, flags);
+106 }
 
-+	jtimeout = timeout < 0 || timeout >= 1000 * MAX_SCHEDULE_TIMEOUT / HZ ?
->  		MAX_SCHEDULE_TIMEOUT: (timeout * HZ + 999) / 1000;
+which is not a one liner to inline at all
 
-gcc will also spit a warning if the constant is too big for an int,
-depending on MAX_SCHEDULE_TIMEOUT and HZ, while in the previous case,
-it would remain silent, and possibly, timeout/1000 would never reach
-the limit.
+> -static void __init free(void *where)
+> +static inline void __init free(void *where)
+>  {
+>  	kfree(where);
 
-Regards,
-Willy
+kfree ok since it's a void function of its own
 
+>  static __initdata char *header_buf, *symlink_buf, *name_buf;
+>
+> -static int __init do_start(void)
+> +static inline int __init do_start(void)
+>  {
+>  	read_into(header_buf, 110, GotHeader);
+
+read_into ok as well.
+
+Cheers,
+Con

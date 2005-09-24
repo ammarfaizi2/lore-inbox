@@ -1,51 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbVIXRkj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932209AbVIXRnb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932207AbVIXRkj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Sep 2005 13:40:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932208AbVIXRki
+	id S932209AbVIXRnb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Sep 2005 13:43:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbVIXRnb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Sep 2005 13:40:38 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:55470 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932207AbVIXRki (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Sep 2005 13:40:38 -0400
-Date: Sat, 24 Sep 2005 10:39:46 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Chris Sykes <chris@sigsegv.plus.com>
-Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: Hang during rm on ext2 mounted sync (2.6.14-rc2+)
-Message-Id: <20050924103946.540d708d.akpm@osdl.org>
-In-Reply-To: <20050924142825.GA5158@sigsegv.plus.com>
-References: <20050922163708.GF5898@sigsegv.plus.com>
-	<20050923015719.5eb765a4.akpm@osdl.org>
-	<20050923121932.GA5395@sigsegv.plus.com>
-	<20050923132216.GA5784@sigsegv.plus.com>
-	<20050923121811.2ef1f0be.akpm@osdl.org>
-	<20050924121431.GA5530@sigsegv.plus.com>
-	<20050924142825.GA5158@sigsegv.plus.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 24 Sep 2005 13:43:31 -0400
+Received: from ms001msg.fastwebnet.it ([213.140.2.51]:3506 "EHLO
+	ms001msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S932209AbVIXRna (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Sep 2005 13:43:30 -0400
+Date: Sat, 24 Sep 2005 19:43:17 +0200
+From: Mattia Dongili <malattia@linux.it>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-rc2-mm1
+Message-ID: <20050924174317.GC3586@inferi.kami.home>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20050921222839.76c53ba1.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050921222839.76c53ba1.akpm@osdl.org>
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.14-rc2-mm1-1 i686
+X-Editor: Vim http://www.vim.org/
+X-Disclaimer: Buh!
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Sykes <chris@sigsegv.plus.com> wrote:
->
-> On Sat, Sep 24, 2005 at 01:14:31PM +0100, Chris Sykes wrote:
->  > After many compile reboot cycles, git-bisect tells me that the
->  > offending cset is 10f47e6a1b8b276323b652053945c87a63a5812d:
->  >     [PATCH] ext2: Enable atomic inode security labeling
->  > 
->  > I'll do some more testing to verify.
+On Wed, Sep 21, 2005 at 10:28:39PM -0700, Andrew Morton wrote:
 > 
->  Latest kernel from git (2.6.14-rc2-g87e807b6) still causes the problem
->  for me.  Reversing cset 10f47e6a1b8b276323b652053945c87a63a5812d fixes
->  it for me.
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc2/2.6.14-rc2-mm1/
+[...]
+> +reiser4-ver_linux-dont-print-reiser4progs-version-if-none-found.patch
+> +reiser4-atime-update-fix.patch
+> +reiser4-use-try_to_freeze.patch
+> 
+>  reiser4 fixes
 
-Good stuff, thanks.
+Runs good, except that reiser4 seems to do bad things in do_sendfile.
+I have apache2 running here and it refuses to serve my ~/public_html
+homepage. /home is running on a reiser4 partition and while apache2
+serves good pages from different filesystems, stracing the process while
+requesting my homepage, I get:
 
->  I'll build a kernel with CONFIG_EXT2_FS_XATTR disabled and see if that
->  also makes the issue go away.
+stat64("/home/mattia/public_html/index.html", {st_mode=S_IFREG|0644, st_size=2315, ...}) = 0
+open("/home/mattia/public_html/index.html", O_RDONLY) = 12
+setsockopt(11, SOL_TCP, TCP_NODELAY, [0], 4) = 0
+setsockopt(11, SOL_TCP, TCP_CORK, [1], 4) = 0
+writev(11, [{"HTTP/1.1 200 OK\r\nDate: Sat, 24 S"..., 328}], 1) = 328
+sendfile(11, 12, [0], 2315)             = -1 EINVAL (Invalid argument)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+setsockopt(11, SOL_TCP, TCP_CORK, [0], 4) = 0
+setsockopt(11, SOL_TCP, TCP_NODELAY, [1], 4) = 0
+read(11, 0x82297f0, 8000)               = -1 EAGAIN (Resource temporarily unavailable)
+write(10, "127.0.0.1 - - [24/Sep/2005:10:13"..., 95) = 95
+close(11)                               = 0
+read(5, 0xbfe4c4e3, 1)                  = -1 EAGAIN (Resource temporarily unavailable)
+close(12)                               = 0
 
-Yup.  I thought I already tested wth your .config?
+-- 
+mattia
+:wq!

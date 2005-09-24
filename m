@@ -1,62 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751361AbVIXCJJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751365AbVIXCTB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751361AbVIXCJJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 22:09:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbVIXCJJ
+	id S1751365AbVIXCTB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 22:19:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbVIXCTB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 22:09:09 -0400
-Received: from xenotime.net ([66.160.160.81]:28093 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751361AbVIXCJI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 22:09:08 -0400
-Date: Fri, 23 Sep 2005 19:09:06 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Karel Kulhavy <clock@twibright.com>
-Cc: linux-kernel@vger.kernel.org, akpm <akpm@osdl.org>
-Subject: [PATCH] clarify menuconfig /(search) help text
-Message-Id: <20050923190906.5e0d721f.rdunlap@xenotime.net>
-In-Reply-To: <20050914065010.GA8430@kestrel.twibright.com>
-References: <20050914065010.GA8430@kestrel.twibright.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 23 Sep 2005 22:19:01 -0400
+Received: from mail26.sea5.speakeasy.net ([69.17.117.28]:44522 "EHLO
+	mail26.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1751365AbVIXCTB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 22:19:01 -0400
+Date: Fri, 23 Sep 2005 19:18:59 -0700 (PDT)
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Unify sys_tkill() and sys_tgkill()
+Message-ID: <Pine.LNX.4.58.0509231913550.5348@shell3.speakeasy.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+Hi,
 
-Add explicit text about
-- where menuconfig '/' (search) searches for strings,
-- that substrings are allowed, and
-- that regular expressions are supported.
+The majority of the sys_tkill() and sys_tgkill() function code is
+duplicated between the two of them. This patch pulls the duplication out
+into a separate function -- do_tkill() -- and lets sys_tkill() and
+sys_tgkill() be simple wrappers around it. This should make it easier to
+maintain in light of future changes.
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
+Diffed against 2.6.14-rc2.
 
- scripts/kconfig/mconf.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
+Signed-off-by: Vadim Lobanov <vlobanov@speakeasy.net>
 
-diff -Naurp linux-2614-rc2-git3/scripts/kconfig/mconf.c~search_keyword linux-2614-rc2-git3/scripts/kconfig/mconf.c
---- linux-2614-rc2-git3/scripts/kconfig/mconf.c~search_keyword	2005-08-28 16:41:01.000000000 -0700
-+++ linux-2614-rc2-git3/scripts/kconfig/mconf.c	2005-09-23 19:04:39.000000000 -0700
-@@ -219,6 +219,7 @@ save_config_help[] = N_(
- search_help[] = N_(
- 	"\n"
- 	"Search for CONFIG_ symbols and display their relations.\n"
-+	"Regular expressions are allowed.\n"
- 	"Example: search for \"^FOO\"\n"
- 	"Result:\n"
- 	"-----------------------------------------------------------------\n"
-@@ -531,7 +532,7 @@ again:
- 	cprint("--title");
- 	cprint(_("Search Configuration Parameter"));
- 	cprint("--inputbox");
--	cprint(_("Enter Keyword"));
-+	cprint(_("Enter CONFIG_ (sub)string to search for (omit CONFIG_)"));
- 	cprint("10");
- 	cprint("75");
- 	cprint("");
+diff -Npru a/kernel/signal.c b/kernel/signal.c
+--- a/kernel/signal.c	2005-09-22 18:32:48.000000000 -0700
++++ b/kernel/signal.c	2005-09-23 18:51:58.000000000 -0700
+@@ -2262,26 +2262,13 @@ sys_kill(int pid, int sig)
+ 	return kill_something_info(sig, &info, pid);
+ }
 
----
+-/**
+- *  sys_tgkill - send signal to one specific thread
+- *  @tgid: the thread group ID of the thread
+- *  @pid: the PID of the thread
+- *  @sig: signal to be sent
+- *
+- *  This syscall also checks the tgid and returns -ESRCH even if the PID
+- *  exists but it's not belonging to the target process anymore. This
+- *  method solves the problem of threads exiting and PIDs getting reused.
+- */
+-asmlinkage long sys_tgkill(int tgid, int pid, int sig)
++static int do_tkill(int tgid, int pid, int sig)
+ {
+-	struct siginfo info;
+ 	int error;
++	struct siginfo info;
+ 	struct task_struct *p;
+
+-	/* This is only valid for single tasks */
+-	if (pid <= 0 || tgid <= 0)
+-		return -EINVAL;
+-
++	error = -ESRCH;
+ 	info.si_signo = sig;
+ 	info.si_errno = 0;
+ 	info.si_code = SI_TKILL;
+@@ -2290,8 +2277,7 @@ asmlinkage long sys_tgkill(int tgid, int
+
+ 	read_lock(&tasklist_lock);
+ 	p = find_task_by_pid(pid);
+-	error = -ESRCH;
+-	if (p && (p->tgid == tgid)) {
++	if (p && ((tgid <= 0) || (p->tgid == tgid))) {
+ 		error = check_kill_permission(sig, &info, p);
+ 		/*
+ 		 * The null signal is a permissions and process existence
+@@ -2305,47 +2291,40 @@ asmlinkage long sys_tgkill(int tgid, int
+ 		}
+ 	}
+ 	read_unlock(&tasklist_lock);
++
+ 	return error;
+ }
+
++/**
++ *  sys_tgkill - send signal to one specific thread
++ *  @tgid: the thread group ID of the thread
++ *  @pid: the PID of the thread
++ *  @sig: signal to be sent
++ *
++ *  This syscall also checks the tgid and returns -ESRCH even if the PID
++ *  exists but it's not belonging to the target process anymore. This
++ *  method solves the problem of threads exiting and PIDs getting reused.
++ */
++asmlinkage long sys_tgkill(int tgid, int pid, int sig)
++{
++	/* This is only valid for single tasks */
++	if (pid <= 0 || tgid <= 0)
++		return -EINVAL;
++
++	return (do_tkill(tgid, pid, sig));
++}
++
+ /*
+  *  Send a signal to only one task, even if it's a CLONE_THREAD task.
+  */
+ asmlinkage long
+ sys_tkill(int pid, int sig)
+ {
+-	struct siginfo info;
+-	int error;
+-	struct task_struct *p;
+-
+ 	/* This is only valid for single tasks */
+ 	if (pid <= 0)
+ 		return -EINVAL;
+
+-	info.si_signo = sig;
+-	info.si_errno = 0;
+-	info.si_code = SI_TKILL;
+-	info.si_pid = current->tgid;
+-	info.si_uid = current->uid;
+-
+-	read_lock(&tasklist_lock);
+-	p = find_task_by_pid(pid);
+-	error = -ESRCH;
+-	if (p) {
+-		error = check_kill_permission(sig, &info, p);
+-		/*
+-		 * The null signal is a permissions and process existence
+-		 * probe.  No signal is actually delivered.
+-		 */
+-		if (!error && sig && p->sighand) {
+-			spin_lock_irq(&p->sighand->siglock);
+-			handle_stop_signal(sig, p);
+-			error = specific_send_sig_info(sig, &info, p);
+-			spin_unlock_irq(&p->sighand->siglock);
+-		}
+-	}
+-	read_unlock(&tasklist_lock);
+-	return error;
++	return (do_tkill(0, pid, sig));
+ }
+
+ asmlinkage long

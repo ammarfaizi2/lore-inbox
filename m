@@ -1,147 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbVIXVmE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbVIXWf5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750767AbVIXVmE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Sep 2005 17:42:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbVIXVmE
+	id S1750775AbVIXWf5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Sep 2005 18:35:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750777AbVIXWf5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Sep 2005 17:42:04 -0400
-Received: from mail24.sea5.speakeasy.net ([69.17.117.26]:21663 "EHLO
-	mail24.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1750767AbVIXVmC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Sep 2005 17:42:02 -0400
-Date: Sat, 24 Sep 2005 14:42:01 -0700 (PDT)
-From: Vadim Lobanov <vlobanov@speakeasy.net>
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Unify sys_tkill() and sys_tgkill(), take 2
-Message-ID: <Pine.LNX.4.58.0509241439410.13229@shell3.speakeasy.net>
+	Sat, 24 Sep 2005 18:35:57 -0400
+Received: from zproxy.gmail.com ([64.233.162.193]:53686 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750775AbVIXWf4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Sep 2005 18:35:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ZgushK3xpOWWhyeN/mHObmheBXasvZMoRUpUqJZobje5RCnWdaCWiQzm7qYazlcH+g7Euz0g5ugIsp/wEPs7xLHgeNQrEdI9OHVhX6BU1xL8qQQSquy7WBsLgwov55lrCHeJV6pckBTcf9e88O6Eus560HRPWH5GcGAm0RiYA38=
+Message-ID: <9a874849050924153565cdc2b8@mail.gmail.com>
+Date: Sun, 25 Sep 2005 00:35:56 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: patrizio.bassi@gmail.com
+Subject: Re: [BUG] alsa volume and settings not restored after suspend
+Cc: "Kernel," <linux-kernel@vger.kernel.org>
+In-Reply-To: <4335909D.2070904@gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4335909D.2070904@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 9/24/05, Patrizio Bassi <patrizio.bassi@gmail.com> wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+> As topic.
+>
+> Suspend works perfectly, but after resume, no sound from audio card.
+>
+> i see application works, for example i see xmms equalizer working, but
+> no sound,
+> even if i change manually volume.
+>
+> only way is restarting the alsa init script. after that it works
+> perfectly.
+> not a critical bug, but may be very confortable to have registers
+> setted properly.
+>
+[snip]
 
-The majority of the sys_tkill() and sys_tgkill() function code is
-duplicated between the two of them. This patch pulls the duplication out
-into a separate function -- do_tkill() -- and lets sys_tkill() and
-sys_tgkill() be simple wrappers around it. This should make it easier to
-maintain in light of future changes.
+Have you tried talking to the ALSA people about this?
 
-Diffed against 2.6.14-rc2.
-Incorporates the latest LKML feedback.
+    http://www.alsa-project.org/mailing-lists.php
+    alsa-devel@lists.sourceforge.net
 
-Signed-off-by: Vadim Lobanov <vlobanov@speakeasy.net>
-
-diff -Npru a/kernel/signal.c b/kernel/signal.c
---- a/kernel/signal.c	2005-09-22 18:32:48.000000000 -0700
-+++ b/kernel/signal.c	2005-09-24 14:32:58.000000000 -0700
-@@ -2262,26 +2262,13 @@ sys_kill(int pid, int sig)
- 	return kill_something_info(sig, &info, pid);
- }
-
--/**
-- *  sys_tgkill - send signal to one specific thread
-- *  @tgid: the thread group ID of the thread
-- *  @pid: the PID of the thread
-- *  @sig: signal to be sent
-- *
-- *  This syscall also checks the tgid and returns -ESRCH even if the PID
-- *  exists but it's not belonging to the target process anymore. This
-- *  method solves the problem of threads exiting and PIDs getting reused.
-- */
--asmlinkage long sys_tgkill(int tgid, int pid, int sig)
-+static int do_tkill(int tgid, int pid, int sig)
- {
--	struct siginfo info;
- 	int error;
-+	struct siginfo info;
- 	struct task_struct *p;
-
--	/* This is only valid for single tasks */
--	if (pid <= 0 || tgid <= 0)
--		return -EINVAL;
--
-+	error = -ESRCH;
- 	info.si_signo = sig;
- 	info.si_errno = 0;
- 	info.si_code = SI_TKILL;
-@@ -2290,8 +2277,7 @@ asmlinkage long sys_tgkill(int tgid, int
-
- 	read_lock(&tasklist_lock);
- 	p = find_task_by_pid(pid);
--	error = -ESRCH;
--	if (p && (p->tgid == tgid)) {
-+	if (p && (tgid <= 0 || p->tgid == tgid)) {
- 		error = check_kill_permission(sig, &info, p);
- 		/*
- 		 * The null signal is a permissions and process existence
-@@ -2305,47 +2291,40 @@ asmlinkage long sys_tgkill(int tgid, int
- 		}
- 	}
- 	read_unlock(&tasklist_lock);
-+
- 	return error;
- }
-
-+/**
-+ *  sys_tgkill - send signal to one specific thread
-+ *  @tgid: the thread group ID of the thread
-+ *  @pid: the PID of the thread
-+ *  @sig: signal to be sent
-+ *
-+ *  This syscall also checks the tgid and returns -ESRCH even if the PID
-+ *  exists but it's not belonging to the target process anymore. This
-+ *  method solves the problem of threads exiting and PIDs getting reused.
-+ */
-+asmlinkage long sys_tgkill(int tgid, int pid, int sig)
-+{
-+	/* This is only valid for single tasks */
-+	if (pid <= 0 || tgid <= 0)
-+		return -EINVAL;
-+
-+	return do_tkill(tgid, pid, sig);
-+}
-+
- /*
-  *  Send a signal to only one task, even if it's a CLONE_THREAD task.
-  */
- asmlinkage long
- sys_tkill(int pid, int sig)
- {
--	struct siginfo info;
--	int error;
--	struct task_struct *p;
--
- 	/* This is only valid for single tasks */
- 	if (pid <= 0)
- 		return -EINVAL;
-
--	info.si_signo = sig;
--	info.si_errno = 0;
--	info.si_code = SI_TKILL;
--	info.si_pid = current->tgid;
--	info.si_uid = current->uid;
--
--	read_lock(&tasklist_lock);
--	p = find_task_by_pid(pid);
--	error = -ESRCH;
--	if (p) {
--		error = check_kill_permission(sig, &info, p);
--		/*
--		 * The null signal is a permissions and process existence
--		 * probe.  No signal is actually delivered.
--		 */
--		if (!error && sig && p->sighand) {
--			spin_lock_irq(&p->sighand->siglock);
--			handle_stop_signal(sig, p);
--			error = specific_send_sig_info(sig, &info, p);
--			spin_unlock_irq(&p->sighand->siglock);
--		}
--	}
--	read_unlock(&tasklist_lock);
--	return error;
-+	return do_tkill(0, pid, sig);
- }
-
- asmlinkage long
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

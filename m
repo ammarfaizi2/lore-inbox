@@ -1,118 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbVIXMbr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbVIXMx1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750737AbVIXMbr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Sep 2005 08:31:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbVIXMbr
+	id S1750744AbVIXMx1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Sep 2005 08:53:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbVIXMx1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Sep 2005 08:31:47 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:60869 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S1750737AbVIXMbq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Sep 2005 08:31:46 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: thomas.mey3r@arcor.de
-Subject: Re: 2.6.14-rc2-ge484585e: kexec into same kernel: irq 11 nobody cared; but ehci_hcd should
-Date: Sat, 24 Sep 2005 15:30:42 +0300
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
-References: <32750612.1127563007089.JavaMail.ngmail@webmail-09.arcor-online.net>
-In-Reply-To: <32750612.1127563007089.JavaMail.ngmail@webmail-09.arcor-online.net>
+	Sat, 24 Sep 2005 08:53:27 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:34453 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S1750744AbVIXMx0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Sep 2005 08:53:26 -0400
+Message-ID: <43354C0E.5050001@colorfullife.com>
+Date: Sat, 24 Sep 2005 14:52:30 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.10) Gecko/20050909 Fedora/1.7.10-1.5.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Alok Kataria <alokk@calsoftinc.com>
+CC: Christoph Lameter <clameter@engr.sgi.com>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-rc1-git-now still dying in mm/slab - this time line 1849
+References: <433458B6.7000008@calsoftinc.com>
+In-Reply-To: <433458B6.7000008@calsoftinc.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509241530.42284.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 24 September 2005 14:56, thomas.mey3r@arcor.de wrote:
-> Hi.
-> 
-> I played a bit with the new kexec function:
-> 
-> when i kexec into the same kernel i get this error message:
-> 
-> [17179593.108000] ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 11
-> [17179593.108000] PCI: setting IRQ 11 as level-triggered
-> [17179593.108000] ACPI: PCI Interrupt 0000:00:10.3[D] -> Link [LNKD] -> GSI 11 (level, low) -> IRQ 11
-> [17179593.108000] ehci_hcd 0000:00:10.3: EHCI Host Controller
-> [17179593.124000] ehci_hcd 0000:00:10.3: new USB bus registered, assigned bus number 4
-> [17179593.936000] irq 11: nobody cared (try booting with the "irqpoll" option)
-> [17179593.936000]  [<c0103f9e>] dump_stack+0x1e/0x20
-> [17179593.936000]  [<c013dc6b>] __report_bad_irq+0x2b/0x90
-> [17179593.936000]  [<c013dd90>] note_interrupt+0x90/0xf0
-> [17179593.936000]  [<c013d69a>] __do_IRQ+0xca/0xe0
-> [17179593.936000]  [<c010530c>] do_IRQ+0x1c/0x30
-> [17179593.936000]  [<c0103b26>] common_interrupt+0x1a/0x20
-> [17179593.936000]  [<c0120ffa>] do_softirq+0x2a/0x30
-> [17179593.936000]  [<c01210a5>] irq_exit+0x35/0x40
-> [17179593.936000]  [<c0105311>] do_IRQ+0x21/0x30
-> [17179593.936000]  [<c0103b26>] common_interrupt+0x1a/0x20
-> [17179593.936000]  [<c013d931>] setup_irq+0xb1/0x110
-> [17179593.936000]  [<c013dae6>] request_irq+0x86/0xb0
-> [17179593.936000]  [<ec99c344>] usb_add_hcd+0x234/0x3a0 [usbcore]
-> [17179593.936000]  [<ec9a3a59>] usb_hcd_pci_probe+0x269/0x390 [usbcore]
-> [17179593.936000]  [<c01da239>] pci_call_probe+0x19/0x20
-> [17179593.936000]  [<c01da297>] __pci_device_probe+0x57/0x70
-> [17179593.936000]  [<c01da2df>] pci_device_probe+0x2f/0x60
-> [17179593.936000]  [<c021fa49>] driver_probe_device+0x39/0xc0
-> [17179593.936000]  [<c021fbaf>] __driver_attach+0x4f/0x60
-> [17179593.936000]  [<c021ef84>] bus_for_each_dev+0x54/0x80
-> [17179593.936000]  [<c021fbe8>] driver_attach+0x28/0x30
-> [17179593.936000]  [<c021f49d>] bus_add_driver+0x7d/0xe0
-> [17179593.936000]  [<c0220098>] driver_register+0x78/0x80
-> [17179593.936000]  [<c01da5d0>] pci_register_driver+0xb0/0xd0
-> [17179593.936000]  [<eca3d020>] init+0x20/0x26 [ehci_hcd]
-> [17179593.936000]  [<c0137e24>] sys_init_module+0x144/0x1c0
-> [17179593.936000]  [<c01030ff>] sysenter_past_esp+0x54/0x75
-> [17179593.936000] handlers:
-> [17179593.936000] [<ec99bf20>] (usb_hcd_irq+0x0/0x70 [usbcore])
-> [17179593.936000] Disabling IRQ #11
-> [17179593.972000] ehci_hcd 0000:00:10.3: irq 11, io mem 0xd0004800
-> [17179593.972000] ehci_hcd 0000:00:10.3: USB 2.0 initialized, EHCI 1.00, driver 10 Dec 2004
-> [17179593.976000] hub 4-0:1.0: USB hub found
-> [17179593.976000] hub 4-0:1.0: 6 ports detected
-> 
->            CPU0
->   0:     245067          XT-PIC  timer
->   1:       2877          XT-PIC  i8042
->   2:          0          XT-PIC  cascade
->   4:      37766          XT-PIC  uhci_hcd:usb1, eth0, via@pci:0000:01:00.0
->   5:        296          XT-PIC  yenta, ohci1394, uhci_hcd:usb2
->   7:          2          XT-PIC  parport0
->   8:          2          XT-PIC  rtc
->   9:      51497          XT-PIC  uhci_hcd:usb3, VIA8233
->  10:          9          XT-PIC  acpi
->  11:     100000          XT-PIC  ehci_hcd:usb4
->  12:      86427          XT-PIC  i8042
->  14:      10409          XT-PIC  ide0
->  15:      19973          XT-PIC  ide1
-> NMI:          0
-> LOC:          0
-> ERR:          0
-> MIS:          0
-> 
-> any ideas? 
+Alok Kataria wrote:
 
-I suspect that interrupt happens before intr mast is written
-ot corresponding register.
+>
+> IMO the slab->nodeid  field just lets us know to which nodes list3 is 
+> this slab attached, irrespective of the node from
+> which node the memory was got.
+>
+Correct. Otherwise the code wouldn't work on ia32 NUMAQ systems: They 
+have the whole ZONE_NORMAL in node 0.
+When a slab is allocated, it's assigned to the node that did the alloc, 
+regardless of the physical location of the memory.
 
-Add two printks, one before this writel:
-
-printk("setting ehci->regs->intr_enable to %x\n", INTR_MASK);
-        writel (INTR_MASK, &ehci->regs->intr_enable); /* Turn On Interrupts */
-
-and one here:
-
-        status &= INTR_MASK;
-        if (!status) {                  /* irq sharing? */
-static int ratelimit = 20;
-if(ratelimit) ratelimit--, printk("ehci_irq: IRQ_NONE\n");
-                spin_unlock(&ehci->lock);
-                return IRQ_NONE;
-        }
-
-and see whether first printk happens before second.
 --
-vda
+    Manfred

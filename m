@@ -1,134 +1,250 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbVIXUvh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbVIXVAx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750730AbVIXUvh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Sep 2005 16:51:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750750AbVIXUvh
+	id S1750759AbVIXVAx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Sep 2005 17:00:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbVIXVAw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Sep 2005 16:51:37 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:49882 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750730AbVIXUvg (ORCPT
+	Sat, 24 Sep 2005 17:00:52 -0400
+Received: from zproxy.gmail.com ([64.233.162.201]:4779 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750759AbVIXVAw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Sep 2005 16:51:36 -0400
-From: Jeff Moyer <jmoyer@redhat.com>
-MIME-Version: 1.0
+	Sat, 24 Sep 2005 17:00:52 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=Od/HrbE6LcJIlFldRPevdNitYB3zmFE1bXAt1VMRoknZS5du9qcR7K7tJj+yKXTnShWV90GzjKyy8w8VJ9UC0jAAjze6B5QILUZPsXxnuF/jc+P3OlY4cLunTQBoqe5xe9G+j1bh6kQnkR606mrdvqmsv9BkuC5ivYwo2ZGbtrw=
+Date: Sun, 25 Sep 2005 01:11:40 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: David Airlie <airlied@linux.ie>
+Cc: Michael Veeck <michael.veeck@gmx.net>, dri-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] Remove DRM_ARRAY_SIZE
+Message-ID: <20050924211139.GA18795@mipter.zuzino.mipt.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17205.48192.180623.885538@segfault.boston.redhat.com>
-Date: Sat, 24 Sep 2005 16:51:12 -0400
-To: Ian Kent <raven@themaw.net>
-Cc: autofs@linux.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: autofs4 looks up wrong path element when ghosting is enabled
-In-Reply-To: <Pine.LNX.4.63.0509241644420.2069@donald.themaw.net>
-References: <17200.23724.686149.394150@segfault.boston.redhat.com>
-	<Pine.LNX.4.58.0509210916040.26144@wombat.indigo.net.au>
-	<17203.7543.949262.883138@segfault.boston.redhat.com>
-	<Pine.LNX.4.63.0509241644420.2069@donald.themaw.net>
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Reply-To: jmoyer@redhat.com
-X-PGP-KeyID: 1F78E1B4
-X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
-X-PCLoadLetter: What the f**k does that mean?
+Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-==> Regarding Re: autofs4 looks up wrong path element when ghosting is enabled; Ian Kent <raven@themaw.net> adds:
+From: Michael Veeck <michael.veeck@gmx.net>
 
-raven> On Thu, 22 Sep 2005, Jeff Moyer wrote:
->> ==> Regarding Re: autofs4 looks up wrong path element when ghosting is
->> enabled; Ian Kent <raven@themaw.net> adds:
->> 
-raven> On Tue, 20 Sep 2005, Jeff Moyer wrote:
->> >> Hi, Ian, list,
->> >> 
->> >> I have a bug filed against autofs when ghosting is enabled.  The best
->> way >> to describe the bug is to walk through the reproducer, I guess.
->> >> 
->> >> Take the following maps, for example:
->> >> 
->> >> auto.master >> /sbox auto.sbox
->> >> 
->> >> auto.sbox: >> src segfault:/sbox/src/
->> >> 
->> >> Let's say that there is a file, id3_0.12.orig.tar.gz, in
->> segfault:/sbox/src/.
->> >> 
->> >> To reproduce the problem, stop the nfs service on the server.
->> >> 
->> >> On the client, do an 'ls /sbox/src/id3_012.orig.tar.gz'.  This will
->> fail, >> as well it should.  However, if we look in the logs, we find
->> this:
->> >> 
->> >> automount[1182]: handle_packet_missing: token 1, name src >>
->> automount[1182]: attempting to mount entry /sbox/src >> ...  >>
->> automount[1481]: mount(nfs): calling mkdir_path /sbox/src >>
->> automount[1481]: mount(nfs): calling mount -t nfs -s-o
->> tcp,intr,timeo=600,rsize=8192,wsize=8192,retrans=5 segfault:/sbox/src
->> /sbox/src >> automount[1481]: >> mount: RPC: Program not registered >>
->> automount[1481]: mount(nfs): add_bad_host: segfault:/sbox/src >>
->> automount[1481]: mount(nfs): nfs: mount failure segfault:/sbox/src on
->> /sbox/src >> automount[1481]: failed to mount /sbox/src >> ...  >>
->> automount[1182]: send_fail: token=1 >> automount[1182]: handle_packet:
->> type = 0 >> automount[1182]: handle_packet_missing: token 2, name
->> src/id3_0.12.orig.tar.gz >> automount[1182]: attempting to mount entry
->> /sbox/src/id3_0.12.orig.tar.gz
->> >> 
->> >> Noteworthy are these last two lines!  Even though the mount failed,
->> we are >> continuing the lookup.  The culprit is here, in cached_lookup:
->> >> 
->> >> if (!dentry->d_op->d_revalidate(dentry, flags) &&
->> !d_invalidate(dentry)) { >> dput(dentry); >> dentry = NULL; >> }
->> >> 
->> >> d_revalidate points to autofs4_revalidate, which calls
->> try_to_fill_dentry, >> which will return a status of 0.  Since ghosting
->> is enabled, >> d_invalidate(dentry) will return -EBUSY, and so we return
->> the dentry to
-raven> the
->> >> caller, which then continues the lookup.
->> >> 
->> >> Ian, I'm not really sure how we can address this issue without VFS >>
->> changes.  Any ideas?
->> >> 
->> 
-raven> I'm aware of this problem.  I'm not sure how to deal with it yet.
-raven> The case above is probably not that difficult to solve but if the
-raven> last component is a directory it's hard to work out it's a problem.
->> Ugh.  If you're thinking what I think you're thinking, that's an ugly
->> hack.
+drivers/char/drm/drmP.h defines a macro DRM_ARRAY_SIZE(x) for
+determining the size of an array. kernel.h already provides one.
 
-raven> Don't think so.
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-raven> I've been seeing this for a while. I wasn't quite sure of the source
-raven> but, for some reason your report has cleared that up.
+ drivers/char/drm/drmP.h         |    1 -
+ drivers/char/drm/drm_drv.c      |    4 ++--
+ drivers/char/drm/drm_fops.c     |    2 +-
+ drivers/char/drm/drm_ioc32.c    |    2 +-
+ drivers/char/drm/ffb_drv.c      |    2 +-
+ drivers/char/drm/i810_dma.c     |    2 +-
+ drivers/char/drm/i830_dma.c     |    2 +-
+ drivers/char/drm/i915_dma.c     |    2 +-
+ drivers/char/drm/i915_ioc32.c   |    2 +-
+ drivers/char/drm/mga_ioc32.c    |    2 +-
+ drivers/char/drm/mga_state.c    |    2 +-
+ drivers/char/drm/r128_ioc32.c   |    2 +-
+ drivers/char/drm/r128_state.c   |    2 +-
+ drivers/char/drm/radeon_ioc32.c |    2 +-
+ drivers/char/drm/radeon_state.c |    2 +-
+ drivers/char/drm/savage_bci.c   |    2 +-
+ drivers/char/drm/sis_mm.c       |    2 +-
+ drivers/char/drm/via_drv.c      |    2 +-
+ 18 files changed, 18 insertions(+), 19 deletions(-)
 
-raven> The problem is not so much the success returned on the failed mount
-raven> (revalidate). It's the return from the following lookup. This is a
-raven> lookup in a non-root directory. I replaced the non-root lookup with
-raven> the root lookup a while ago and I think this is an unexpected side
-raven> affect of that. Becuase of other changes that lead to that decision
-raven> I think that it should be now be OK to put back the null function
-raven> (always return a negative dentry) that was there before I started
-raven> working on the browable maps feature.
+--- a/drivers/char/drm/drmP.h
++++ b/drivers/char/drm/drmP.h
+@@ -228,7 +228,6 @@
+ /** \name Internal types and structures */
+ /*@{*/
+ 
+-#define DRM_ARRAY_SIZE(x) (sizeof(x)/sizeof(x[0]))
+ #define DRM_MIN(a,b) ((a)<(b)?(a):(b))
+ #define DRM_MAX(a,b) ((a)>(b)?(a):(b))
+ 
+--- a/drivers/char/drm/drm_drv.c
++++ b/drivers/char/drm/drm_drv.c
+@@ -15,7 +15,7 @@
+  * #define DRIVER_DESC		"Matrox G200/G400"
+  * #define DRIVER_DATE		"20001127"
+  *
+- * #define DRIVER_IOCTL_COUNT	DRM_ARRAY_SIZE( mga_ioctls )
++ * #define DRIVER_IOCTL_COUNT	ARRAY_SIZE( mga_ioctls )
+  *
+  * #define drm_x		mga_##x
+  * \endcode
+@@ -118,7 +118,7 @@ static drm_ioctl_desc_t		  drm_ioctls[] 
+ 	[DRM_IOCTL_NR(DRM_IOCTL_WAIT_VBLANK)]   = { drm_wait_vblank, 0, 0 },
+ };
+ 
+-#define DRIVER_IOCTL_COUNT	DRM_ARRAY_SIZE( drm_ioctls )
++#define DRIVER_IOCTL_COUNT	ARRAY_SIZE( drm_ioctls )
+ 
+ /**
+  * Take down the DRM device.
+--- a/drivers/char/drm/drm_fops.c
++++ b/drivers/char/drm/drm_fops.c
+@@ -63,7 +63,7 @@ static int drm_setup( drm_device_t *dev 
+ 			return i;
+ 	}
+ 
+-	for ( i = 0 ; i < DRM_ARRAY_SIZE(dev->counts) ; i++ )
++	for ( i = 0 ; i < ARRAY_SIZE(dev->counts) ; i++ )
+ 		atomic_set( &dev->counts[i], 0 );
+ 
+ 	for ( i = 0 ; i < DRM_HASH_SIZE ; i++ ) {
+--- a/drivers/char/drm/mga_state.c
++++ b/drivers/char/drm/mga_state.c
+@@ -1186,4 +1186,4 @@ drm_ioctl_desc_t mga_ioctls[] = {
+ 
+ };
+ 
+-int mga_max_ioctl = DRM_ARRAY_SIZE(mga_ioctls);
++int mga_max_ioctl = ARRAY_SIZE(mga_ioctls);
+--- a/drivers/char/drm/r128_state.c
++++ b/drivers/char/drm/r128_state.c
+@@ -1733,4 +1733,4 @@ drm_ioctl_desc_t r128_ioctls[] = {
+ 	[DRM_IOCTL_NR(DRM_R128_GETPARAM)]   = { r128_getparam, 1, 0 },
+ };
+ 
+-int r128_max_ioctl = DRM_ARRAY_SIZE(r128_ioctls);
++int r128_max_ioctl = ARRAY_SIZE(r128_ioctls);
+--- a/drivers/char/drm/radeon_state.c
++++ b/drivers/char/drm/radeon_state.c
+@@ -3104,4 +3104,4 @@ drm_ioctl_desc_t radeon_ioctls[] = {
+ 	[DRM_IOCTL_NR(DRM_RADEON_SURF_FREE)]  = { radeon_surface_free, 1, 0 }
+ };
+ 
+-int radeon_max_ioctl = DRM_ARRAY_SIZE(radeon_ioctls);
++int radeon_max_ioctl = ARRAY_SIZE(radeon_ioctls);
+--- a/drivers/char/drm/sis_mm.c
++++ b/drivers/char/drm/sis_mm.c
+@@ -413,5 +413,5 @@ drm_ioctl_desc_t sis_ioctls[] = {
+ 	[DRM_IOCTL_NR(DRM_SIS_FB_INIT)]   = { sis_fb_init,         1, 1 }
+ };
+ 
+-int sis_max_ioctl = DRM_ARRAY_SIZE(sis_ioctls);
++int sis_max_ioctl = ARRAY_SIZE(sis_ioctls);
+ 
+--- a/drivers/char/drm/via_drv.c
++++ b/drivers/char/drm/via_drv.c
+@@ -91,7 +91,7 @@ static struct drm_driver driver = {
+ 	.postinit = postinit,
+ 	.version = version,
+ 	.ioctls = ioctls,
+-	.num_ioctls = DRM_ARRAY_SIZE(ioctls),
++	.num_ioctls = ARRAY_SIZE(ioctls),
+ 	.fops = {
+ 		.owner = THIS_MODULE,
+ 		.open = drm_open,
+--- a/drivers/char/drm/i810_dma.c
++++ b/drivers/char/drm/i810_dma.c
+@@ -1378,7 +1378,7 @@ drm_ioctl_desc_t i810_ioctls[] = {
+ 	[DRM_IOCTL_NR(DRM_I810_FLIP)]    = { i810_flip_bufs,   1, 0 }
+ };
+ 
+-int i810_max_ioctl = DRM_ARRAY_SIZE(i810_ioctls);
++int i810_max_ioctl = ARRAY_SIZE(i810_ioctls);
+ 
+ /**
+  * Determine if the device really is AGP or not.
+--- a/drivers/char/drm/i830_dma.c
++++ b/drivers/char/drm/i830_dma.c
+@@ -1581,7 +1581,7 @@ drm_ioctl_desc_t i830_ioctls[] = {
+ 	[DRM_IOCTL_NR(DRM_I830_SETPARAM)] = { i830_setparam,    1, 0 } 
+ };
+ 
+-int i830_max_ioctl = DRM_ARRAY_SIZE(i830_ioctls);
++int i830_max_ioctl = ARRAY_SIZE(i830_ioctls);
+ 
+ /**
+  * Determine if the device really is AGP or not.
+--- a/drivers/char/drm/drm_ioc32.c
++++ b/drivers/char/drm/drm_ioc32.c
+@@ -1052,7 +1052,7 @@ long drm_compat_ioctl(struct file *filp,
+ 	drm_ioctl_compat_t *fn;
+ 	int ret;
+ 
+-	if (nr >= DRM_ARRAY_SIZE(drm_compat_ioctls))
++	if (nr >= ARRAY_SIZE(drm_compat_ioctls))
+ 		return -ENOTTY;
+ 
+ 	fn = drm_compat_ioctls[nr];
+--- a/drivers/char/drm/ffb_drv.c
++++ b/drivers/char/drm/ffb_drv.c
+@@ -333,7 +333,7 @@ static struct drm_driver driver = {
+ 	.postinit = postinit,
+ 	.version = version,
+ 	.ioctls = ioctls,
+-	.num_ioctls = DRM_ARRAY_SIZE(ioctls),
++	.num_ioctls = ARRAY_SIZE(ioctls),
+ 	.fops = {
+ 		.owner = THIS_MODULE,
+ 		.open = drm_open,
+--- a/drivers/char/drm/i915_dma.c
++++ b/drivers/char/drm/i915_dma.c
+@@ -731,7 +731,7 @@ drm_ioctl_desc_t i915_ioctls[] = {
+ 	[DRM_IOCTL_NR(DRM_I915_CMDBUFFER)] = {i915_cmdbuffer, 1, 0}
+ };
+ 
+-int i915_max_ioctl = DRM_ARRAY_SIZE(i915_ioctls);
++int i915_max_ioctl = ARRAY_SIZE(i915_ioctls);
+ 
+ /**
+  * Determine if the device really is AGP or not.
+--- a/drivers/char/drm/i915_ioc32.c
++++ b/drivers/char/drm/i915_ioc32.c
+@@ -207,7 +207,7 @@ long i915_compat_ioctl(struct file *filp
+ 	if (nr < DRM_COMMAND_BASE)
+ 		return drm_compat_ioctl(filp, cmd, arg);
+ 	
+-	if (nr < DRM_COMMAND_BASE + DRM_ARRAY_SIZE(i915_compat_ioctls))
++	if (nr < DRM_COMMAND_BASE + ARRAY_SIZE(i915_compat_ioctls))
+ 		fn = i915_compat_ioctls[nr - DRM_COMMAND_BASE];
+ 
+ 	lock_kernel();		/* XXX for now */
+--- a/drivers/char/drm/mga_ioc32.c
++++ b/drivers/char/drm/mga_ioc32.c
+@@ -220,7 +220,7 @@ long mga_compat_ioctl(struct file *filp,
+ 	if (nr < DRM_COMMAND_BASE)
+ 		return drm_compat_ioctl(filp, cmd, arg);
+ 	
+-	if (nr < DRM_COMMAND_BASE + DRM_ARRAY_SIZE(mga_compat_ioctls))
++	if (nr < DRM_COMMAND_BASE + ARRAY_SIZE(mga_compat_ioctls))
+ 		fn = mga_compat_ioctls[nr - DRM_COMMAND_BASE];
+ 
+ 	lock_kernel();		/* XXX for now */
+--- a/drivers/char/drm/r128_ioc32.c
++++ b/drivers/char/drm/r128_ioc32.c
+@@ -205,7 +205,7 @@ long r128_compat_ioctl(struct file *filp
+ 	if (nr < DRM_COMMAND_BASE)
+ 		return drm_compat_ioctl(filp, cmd, arg);
+ 
+-	if (nr < DRM_COMMAND_BASE + DRM_ARRAY_SIZE(r128_compat_ioctls))
++	if (nr < DRM_COMMAND_BASE + ARRAY_SIZE(r128_compat_ioctls))
+ 		fn = r128_compat_ioctls[nr - DRM_COMMAND_BASE];
+ 
+ 	lock_kernel();		/* XXX for now */
+--- a/drivers/char/drm/radeon_ioc32.c
++++ b/drivers/char/drm/radeon_ioc32.c
+@@ -381,7 +381,7 @@ long radeon_compat_ioctl(struct file *fi
+ 	if (nr < DRM_COMMAND_BASE)
+ 		return drm_compat_ioctl(filp, cmd, arg);
+ 
+-	if (nr < DRM_COMMAND_BASE + DRM_ARRAY_SIZE(radeon_compat_ioctls))
++	if (nr < DRM_COMMAND_BASE + ARRAY_SIZE(radeon_compat_ioctls))
+ 		fn = radeon_compat_ioctls[nr - DRM_COMMAND_BASE];
+ 
+ 	lock_kernel();		/* XXX for now */
+--- a/drivers/char/drm/savage_bci.c
++++ b/drivers/char/drm/savage_bci.c
+@@ -1093,4 +1093,4 @@ drm_ioctl_desc_t savage_ioctls[] = {
+ 	[DRM_IOCTL_NR(DRM_SAVAGE_BCI_EVENT_WAIT)] = {savage_bci_event_wait, 1, 0},
+ };
+ 
+-int savage_max_ioctl = DRM_ARRAY_SIZE(savage_ioctls);
++int savage_max_ioctl = ARRAY_SIZE(savage_ioctls);
 
-raven> I'll change the module I use here and test it out for a while.  If
-raven> you have time I could make a patch for the 2.4 code and send it over
-raven> so that you could test it out a bit as well.
-
-Just send along the 2.6 patch, since I have to deal with that, too.  I'll
-go through the trouble of backporting it.
-
->>
-raven> There's more information here than I've gathhered so far.
->> >> Oh, also note that, once the nfs service is started up again on the
->> server, >> the lookup of a specific file name will still fail!  In this
->> case, the >> daemon won't even be called.
->> 
-raven> I'll have to check this out.  It could be helpful.
->> Well, I've provided a reproducer.  If you'd like log output from the
->> kernel side, let me know.  I can certainly provide that.
-
-raven> Don't think I need it.  I'm fairly sure I understand what's
-raven> happening here now. As I said above.
-
-Cool.  Thanks!
-
-Jeff

@@ -1,36 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbVIXALk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbVIXAT7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932139AbVIXALk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 20:11:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbVIXALk
+	id S1750827AbVIXAT7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 20:19:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbVIXAT7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 20:11:40 -0400
-Received: from 216-239-45-4.google.com ([216.239.45.4]:59436 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S932139AbVIXALj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 20:11:39 -0400
-Date: Fri, 23 Sep 2005 17:11:14 -0700
-From: Arun Sharma <arun.sharma@google.com>
-To: linux-kernel@vger.kernel.org, roland@redhat.com, akpm@osdl.org
-Subject: Re: [PATCH] POSIX timers SMP race condition
-Message-ID: <20050924001114.GA16682@sharma-home.net>
-References: <20050923225444.GB13502@sharma-home.net>
+	Fri, 23 Sep 2005 20:19:59 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:38370 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750827AbVIXAT7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 20:19:59 -0400
+Date: Sat, 24 Sep 2005 01:19:58 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] reduce sizeof(struct file)
+Message-ID: <20050924001958.GJ7992@ftp.linux.org.uk>
+References: <17AB476A04B7C842887E0EB1F268111E026FC5@xpserver.intra.lexbox.org> <4333CF4C.2000306@anagramm.de> <4333D2AA.6020009@cosmosbay.com> <20050923100541.GA18447@infradead.org> <20050924013021.1130f3c8@werewolf.able.es>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050923225444.GB13502@sharma-home.net>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <20050924013021.1130f3c8@werewolf.able.es>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 23, 2005 at 03:54:44PM -0700, Arun Sharma wrote:
-> -			if (!unlikely(t->exit_state)) {
-> +			if (!unlikely(t->flags & PF_EXITING)) {
+On Sat, Sep 24, 2005 at 01:30:21AM +0200, J.A. Magallon wrote:
+> How about anonymous unions ? gcc-3.3.3 and above support them.
+> Is 2.6 supposed to be built with 2.95 ?
 
-I just had this problem happen again, after the patch. It looks like we
-need to cover other unguarded assignments to tsk->it_prof_expires,
-which could possibly race with do_exit().
-
-Or just check for PF_EXITING in run_posix_cpu_timers() and return.
-
-	-Arun
+NAK.  For one thing, yes, it is supposed to be built with 2.95.  For
+another, they do not buy you anything - few enough places use either
+field, so there is no point in hiding that union.

@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751450AbVIXHCi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751448AbVIXHBv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751450AbVIXHCi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Sep 2005 03:02:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751451AbVIXHCi
+	id S1751448AbVIXHBv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Sep 2005 03:01:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbVIXHBv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Sep 2005 03:02:38 -0400
-Received: from smtp105.sbc.mail.re2.yahoo.com ([68.142.229.100]:60502 "HELO
-	smtp105.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1751450AbVIXHCh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Sep 2005 03:02:37 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: [PATCH] Input: check switch bitmap when matching handlers
-Date: Sat, 24 Sep 2005 02:02:29 -0500
-User-Agent: KMail/1.8.2
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sat, 24 Sep 2005 03:01:51 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:58261 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751448AbVIXHBv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Sep 2005 03:01:51 -0400
+Date: Sat, 24 Sep 2005 08:01:50 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] open: O_DIRECTORY and O_CREAT together should fail
+Message-ID: <20050924070150.GL7992@ftp.linux.org.uk>
+References: <E1EIonQ-0006Ts-00@dorka.pomaz.szeredi.hu> <20050923122834.659966c4.akpm@osdl.org> <E1EJ2xC-0007SZ-00@dorka.pomaz.szeredi.hu> <20050924060913.GK7992@ftp.linux.org.uk> <E1EJ3ib-0007V7-00@dorka.pomaz.szeredi.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200509240202.29764.dtor_core@ameritech.net>
+In-Reply-To: <E1EJ3ib-0007V7-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Input: check switch bitmap when matching handlers
+On Sat, Sep 24, 2005 at 08:41:05AM +0200, Miklos Szeredi wrote:
+> > > Well yes.  But I don't think anybody is using it, and if so they are
+> > > clearly breaking the rules in man open(2):
+> > 
+> > Be liberal in what you accept and all such...  Everything else aside,
+> > why bother?
+> 
+> To conform to well defined semantics?
 
-Switch bitmap was added to input_device_id structure so we should
-check it when matching handlers and input devices.
+Well-defined is not exactly the word I'd use for that mess (example -
+we still have the last remnant of ancient BSD idiocy in there; the last
+case when dangling symlink is still traversed upon object creation,
+everything else had been fixed since then).
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
- drivers/input/input.c |    1 +
- 1 files changed, 1 insertion(+)
-
-Index: work/drivers/input/input.c
-===================================================================
---- work.orig/drivers/input/input.c
-+++ work/drivers/input/input.c
-@@ -309,6 +309,7 @@ static struct input_device_id *input_mat
- 		MATCH_BIT(ledbit, LED_MAX);
- 		MATCH_BIT(sndbit, SND_MAX);
- 		MATCH_BIT(ffbit,  FF_MAX);
-+		MATCH_BIT(swbit,  SW_MAX);
- 
- 		return id;
- 	}
+And O_DIRECTORY is not the only flag that acquires or loses meaning
+depending on O_CREAT - consider e.g. O_EXCL.  It's a mess, of course,
+but this mess is part of userland ABI.  We tried to fix symlink idiocy,
+BTW, on the assumption that nothing would be relying on it.  Didn't
+work...

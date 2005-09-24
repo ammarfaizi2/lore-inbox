@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751354AbVIXAcd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751361AbVIXCJJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751354AbVIXAcd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Sep 2005 20:32:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751356AbVIXAcd
+	id S1751361AbVIXCJJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Sep 2005 22:09:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbVIXCJJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Sep 2005 20:32:33 -0400
-Received: from web52613.mail.yahoo.com ([206.190.48.216]:40321 "HELO
-	web52613.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1751354AbVIXAcc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Sep 2005 20:32:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=Va7Q0bGHUsnLLm585HP0Jvojp8Tx1NxVrh+tqdMfyJnsHhctf+teCCKhyJWvemvXqmKOgCtdiAZSxhyOYzEJtAc9GUW0kFe6Riog5d5GxKiV/UWC6gUWTwF0e8Cu4+1uKIttB+If5Nu+vOHmId6pRRqI2EmpV03vVSGs8QNTPmg=  ;
-Message-ID: <20050924003231.44867.qmail@web52613.mail.yahoo.com>
-Date: Sat, 24 Sep 2005 10:32:31 +1000 (EST)
-From: Srihari Vijayaraghavan <sriharivijayaraghavan@yahoo.com.au>
-Subject: Re: [PROBLEM] USB Storage & D state processes
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050923142927.GA13433@kroah.com>
-MIME-Version: 1.0
+	Fri, 23 Sep 2005 22:09:09 -0400
+Received: from xenotime.net ([66.160.160.81]:28093 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751361AbVIXCJI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Sep 2005 22:09:08 -0400
+Date: Fri, 23 Sep 2005 19:09:06 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Karel Kulhavy <clock@twibright.com>
+Cc: linux-kernel@vger.kernel.org, akpm <akpm@osdl.org>
+Subject: [PATCH] clarify menuconfig /(search) help text
+Message-Id: <20050923190906.5e0d721f.rdunlap@xenotime.net>
+In-Reply-To: <20050914065010.GA8430@kestrel.twibright.com>
+References: <20050914065010.GA8430@kestrel.twibright.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Greg KH <greg@kroah.com> wrote:
-> > ... 
-> > Software:
-> > FC4
-> > 2.6.14-rc2 (vanilla)
-> 
-> Try 2.6.14-rc2-git2, it should be fixed there.
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-Yes. When I tried to mount/umount usb storage few
-times, it appears to work normal under
-2.6.14-rc2-git3. I'll keep an eye on usb-storage
-throughout 2.6.14-rc*.
- 
-> thanks,
+Add explicit text about
+- where menuconfig '/' (search) searches for strings,
+- that substrings are allowed, and
+- that regular expressions are supported.
 
-Likewise thank you.
- 
-Hari
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
 
+ scripts/kconfig/mconf.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+diff -Naurp linux-2614-rc2-git3/scripts/kconfig/mconf.c~search_keyword linux-2614-rc2-git3/scripts/kconfig/mconf.c
+--- linux-2614-rc2-git3/scripts/kconfig/mconf.c~search_keyword	2005-08-28 16:41:01.000000000 -0700
++++ linux-2614-rc2-git3/scripts/kconfig/mconf.c	2005-09-23 19:04:39.000000000 -0700
+@@ -219,6 +219,7 @@ save_config_help[] = N_(
+ search_help[] = N_(
+ 	"\n"
+ 	"Search for CONFIG_ symbols and display their relations.\n"
++	"Regular expressions are allowed.\n"
+ 	"Example: search for \"^FOO\"\n"
+ 	"Result:\n"
+ 	"-----------------------------------------------------------------\n"
+@@ -531,7 +532,7 @@ again:
+ 	cprint("--title");
+ 	cprint(_("Search Configuration Parameter"));
+ 	cprint("--inputbox");
+-	cprint(_("Enter Keyword"));
++	cprint(_("Enter CONFIG_ (sub)string to search for (omit CONFIG_)"));
+ 	cprint("10");
+ 	cprint("75");
+ 	cprint("");
+
+---

@@ -1,35 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751444AbVIXGla@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751450AbVIXHCi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751444AbVIXGla (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Sep 2005 02:41:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751446AbVIXGla
+	id S1751450AbVIXHCi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Sep 2005 03:02:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751451AbVIXHCi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Sep 2005 02:41:30 -0400
-Received: from 223-177.adsl.pool.ew.hu ([193.226.223.177]:17166 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S1751444AbVIXGla (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Sep 2005 02:41:30 -0400
-To: viro@ftp.linux.org.uk
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-reply-to: <20050924060913.GK7992@ftp.linux.org.uk> (message from Al Viro on
-	Sat, 24 Sep 2005 07:09:13 +0100)
-Subject: Re: [PATCH] open: O_DIRECTORY and O_CREAT together should fail
-References: <E1EIonQ-0006Ts-00@dorka.pomaz.szeredi.hu> <20050923122834.659966c4.akpm@osdl.org> <E1EJ2xC-0007SZ-00@dorka.pomaz.szeredi.hu> <20050924060913.GK7992@ftp.linux.org.uk>
-Message-Id: <E1EJ3ib-0007V7-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Sat, 24 Sep 2005 08:41:05 +0200
+	Sat, 24 Sep 2005 03:02:38 -0400
+Received: from smtp105.sbc.mail.re2.yahoo.com ([68.142.229.100]:60502 "HELO
+	smtp105.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1751450AbVIXHCh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Sep 2005 03:02:37 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: [PATCH] Input: check switch bitmap when matching handlers
+Date: Sat, 24 Sep 2005 02:02:29 -0500
+User-Agent: KMail/1.8.2
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509240202.29764.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Well yes.  But I don't think anybody is using it, and if so they are
-> > clearly breaking the rules in man open(2):
-> 
-> Be liberal in what you accept and all such...  Everything else aside,
-> why bother?
+Input: check switch bitmap when matching handlers
 
-To conform to well defined semantics?
+Switch bitmap was added to input_device_id structure so we should
+check it when matching handlers and input devices.
 
-It just bathers me, that you can get a non-directory file descriptor
-with O_DIRECTORY.
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
 
-Miklos
+ drivers/input/input.c |    1 +
+ 1 files changed, 1 insertion(+)
+
+Index: work/drivers/input/input.c
+===================================================================
+--- work.orig/drivers/input/input.c
++++ work/drivers/input/input.c
+@@ -309,6 +309,7 @@ static struct input_device_id *input_mat
+ 		MATCH_BIT(ledbit, LED_MAX);
+ 		MATCH_BIT(sndbit, SND_MAX);
+ 		MATCH_BIT(ffbit,  FF_MAX);
++		MATCH_BIT(swbit,  SW_MAX);
+ 
+ 		return id;
+ 	}

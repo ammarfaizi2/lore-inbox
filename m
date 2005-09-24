@@ -1,253 +1,180 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbVIXN41@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbVIXOMk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750749AbVIXN41 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Sep 2005 09:56:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbVIXN41
+	id S932168AbVIXOMk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Sep 2005 10:12:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750754AbVIXOMk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Sep 2005 09:56:27 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:11926
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1750749AbVIXN40
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Sep 2005 09:56:26 -0400
-Subject: Re: [ANNOUNCE] ktimers subsystem
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Christopher Friesen <cfriesen@nortel.com>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, george@mvista.com,
-       johnstul@us.ibm.com, paulmck@us.ibm.com
-In-Reply-To: <Pine.LNX.4.61.0509241212170.3728@scrub.home>
-References: <20050919184834.1.patchmail@tglx.tec.linutronix.de>
-	 <Pine.LNX.4.61.0509201247190.3743@scrub.home>
-	 <1127342485.24044.600.camel@tglx.tec.linutronix.de>
-	 <Pine.LNX.4.61.0509221816030.3728@scrub.home> <43333EBA.5030506@nortel.com>
-	 <Pine.LNX.4.61.0509230151080.3743@scrub.home>
-	 <1127458197.24044.726.camel@tglx.tec.linutronix.de>
-	 <Pine.LNX.4.61.0509240443440.3728@scrub.home>
-	 <20050924051643.GB29052@elte.hu>
-	 <Pine.LNX.4.61.0509241212170.3728@scrub.home>
-Content-Type: text/plain
-Organization: linutronix
-Date: Sat, 24 Sep 2005 15:56:52 +0200
-Message-Id: <1127570212.15115.77.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Sat, 24 Sep 2005 10:12:40 -0400
+Received: from mail-in-01.arcor-online.net ([151.189.21.41]:10637 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1750753AbVIXOMj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Sep 2005 10:12:39 -0400
+Message-ID: <23431147.1127571157771.JavaMail.ngmail@webmail-05.arcor-online.net>
+Date: Sat, 24 Sep 2005 16:12:37 +0200 (CEST)
+From: thomas.mey3r@arcor.de
+To: vda@ilport.com.ua
+Subject: Aw: Re: 2.6.14-rc2-ge484585e: kexec into same kernel: irq 11 nobody
+ cared; but ehci_hcd should
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200509241530.42284.vda@ilport.com.ua>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+References: <200509241530.42284.vda@ilport.com.ua> <32750612.1127563007089.JavaMail.ngmail@webmail-09.arcor-online.net>
+X-ngMessageSubType: MessageSubType_MAIL
+X-WebmailclientIP: 84.58.162.159
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-09-24 at 12:35 +0200, Roman Zippel wrote:
-> Hi,
-> 
-> On Sat, 24 Sep 2005, Ingo Molnar wrote:
-> 
-> > > Anyway, the biggest cost is the conversion from/to the 64bit ns value 
-> > > [...]
+Correct.
+The interrupt happens before the interrupt is enabled by the ehci driver. the question is why is the interrupt already enabled? or: who forgot to disable the interrupt?
+
+See: 
+[17179591.828000] ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 11
+[17179591.828000] PCI: setting IRQ 11 as level-triggered
+[17179591.828000] ACPI: PCI Interrupt 0000:00:10.3[D] -> Link [LNKD] -> GSI 11 (level, low) -> IRQ 11
+[17179591.828000] ehci_hcd 0000:00:10.3: EHCI Host Controller
+[17179591.840000] ehci_hcd 0000:00:10.3: new USB bus registered, assigned bus number 4
+[17179592.648000] irq 11: nobody cared (try booting with the "irqpoll" option)
+[17179592.648000]  [<c0103f9e>] dump_stack+0x1e/0x20
+[17179592.648000]  [<c013dc9b>] __report_bad_irq+0x2b/0x90
+[17179592.648000]  [<c013ddc0>] note_interrupt+0x90/0xf0
+[17179592.648000]  [<c013d6ca>] __do_IRQ+0xca/0xe0
+[17179592.648000]  [<c010530c>] do_IRQ+0x1c/0x30
+[17179592.648000]  [<c0103b26>] common_interrupt+0x1a/0x20
+[17179592.648000]  [<c0120ffa>] do_softirq+0x2a/0x30
+[17179592.648000]  [<c01210a5>] irq_exit+0x35/0x40
+[17179592.648000]  [<c0105311>] do_IRQ+0x21/0x30
+[17179592.648000]  [<c0103b26>] common_interrupt+0x1a/0x20
+[17179592.648000]  [<c013d961>] setup_irq+0xb1/0x110
+[17179592.648000]  [<c013db16>] request_irq+0x86/0xb0
+[17179592.648000]  [<ec99c344>] usb_add_hcd+0x234/0x3a0 [usbcore]
+[17179592.648000]  [<ec9a3a59>] usb_hcd_pci_probe+0x269/0x390 [usbcore]
+[17179592.648000]  [<c01da2c9>] pci_call_probe+0x19/0x20
+[17179592.648000]  [<c01da327>] __pci_device_probe+0x57/0x70
+[17179592.648000]  [<c01da36f>] pci_device_probe+0x2f/0x60
+[17179592.648000]  [<c021fad9>] driver_probe_device+0x39/0xc0
+[17179592.648000]  [<c021fc3f>] __driver_attach+0x4f/0x60
+[17179592.648000]  [<c021f014>] bus_for_each_dev+0x54/0x80
+[17179592.648000]  [<c021fc78>] driver_attach+0x28/0x30
+[17179592.648000]  [<c021f52d>] bus_add_driver+0x7d/0xe0
+[17179592.648000]  [<c0220128>] driver_register+0x78/0x80
+[17179592.648000]  [<c01da660>] pci_register_driver+0xb0/0xd0
+[17179592.648000]  [<eca3d020>] init+0x20/0x26 [ehci_hcd]
+[17179592.648000]  [<c0137e54>] sys_init_module+0x144/0x1c0
+[17179592.648000]  [<c01030ff>] sysenter_past_esp+0x54/0x75
+[17179592.648000] handlers:
+[17179592.648000] [<ec99bf20>] (usb_hcd_irq+0x0/0x70 [usbcore])
+[17179592.648000] Disabling IRQ #11
+[17179592.648000] ehci_hcd 0000:00:10.3: irq 11, io mem 0xd0004800
+[17179592.648000] ehci_hcd 0000:00:10.3: USB 2.0 initialized, EHCI 1.00, driver 10 Dec 2004
+
+[17179592.648000] setting ehci->regs->intr_enable to 37
+
+[17179592.652000] hub 4-0:1.0: USB hub found
+[17179592.652000] hub 4-0:1.0: 6 ports detected
+
+
+----- Original Nachricht ----
+Von:     Denis Vlasenko <vda@ilport.com.ua>
+An:      thomas.mey3r@arcor.de
+Datum:   24.09.2005 14:30
+Betreff: Re: 2.6.14-rc2-ge484585e: kexec into same kernel: irq 11 nobody cared; but ehci_hcd should
+
+> On Saturday 24 September 2005 14:56, thomas.mey3r@arcor.de wrote:
+> > Hi.
 > > 
-> > Where do you get that notion from? Have you personally measured the 
-> > performance and code size impact of it? If yes, would you mind to share 
-> > the resulting data with us?
+> > I played a bit with the new kexec function:
 > > 
-> > Our data is that the use of 64-bit nsec_t significantly reduces the size 
-> > of a representative piece of code (object size in bytes):
+> > when i kexec into the same kernel i get this error message:
 > > 
-> >                 AMD64    I386        ARM          PPC32       M68K
-> >    nsec_t_ops   226      284         252          428         206
-> >    timespec_ops 412      324         448          640         342
+> > [17179593.108000] ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 11
+> > [17179593.108000] PCI: setting IRQ 11 as level-triggered
+> > [17179593.108000] ACPI: PCI Interrupt 0000:00:10.3[D] -> Link [LNKD] ->
+> GSI 11 (level, low) -> IRQ 11
+> > [17179593.108000] ehci_hcd 0000:00:10.3: EHCI Host Controller
+> > [17179593.124000] ehci_hcd 0000:00:10.3: new USB bus registered, assigned
+> bus number 4
+> > [17179593.936000] irq 11: nobody cared (try booting with the "irqpoll"
+> option)
+> > [17179593.936000]  [<c0103f9e>] dump_stack+0x1e/0x20
+> > [17179593.936000]  [<c013dc6b>] __report_bad_irq+0x2b/0x90
+> > [17179593.936000]  [<c013dd90>] note_interrupt+0x90/0xf0
+> > [17179593.936000]  [<c013d69a>] __do_IRQ+0xca/0xe0
+> > [17179593.936000]  [<c010530c>] do_IRQ+0x1c/0x30
+> > [17179593.936000]  [<c0103b26>] common_interrupt+0x1a/0x20
+> > [17179593.936000]  [<c0120ffa>] do_softirq+0x2a/0x30
+> > [17179593.936000]  [<c01210a5>] irq_exit+0x35/0x40
+> > [17179593.936000]  [<c0105311>] do_IRQ+0x21/0x30
+> > [17179593.936000]  [<c0103b26>] common_interrupt+0x1a/0x20
+> > [17179593.936000]  [<c013d931>] setup_irq+0xb1/0x110
+> > [17179593.936000]  [<c013dae6>] request_irq+0x86/0xb0
+> > [17179593.936000]  [<ec99c344>] usb_add_hcd+0x234/0x3a0 [usbcore]
+> > [17179593.936000]  [<ec9a3a59>] usb_hcd_pci_probe+0x269/0x390 [usbcore]
+> > [17179593.936000]  [<c01da239>] pci_call_probe+0x19/0x20
+> > [17179593.936000]  [<c01da297>] __pci_device_probe+0x57/0x70
+> > [17179593.936000]  [<c01da2df>] pci_device_probe+0x2f/0x60
+> > [17179593.936000]  [<c021fa49>] driver_probe_device+0x39/0xc0
+> > [17179593.936000]  [<c021fbaf>] __driver_attach+0x4f/0x60
+> > [17179593.936000]  [<c021ef84>] bus_for_each_dev+0x54/0x80
+> > [17179593.936000]  [<c021fbe8>] driver_attach+0x28/0x30
+> > [17179593.936000]  [<c021f49d>] bus_add_driver+0x7d/0xe0
+> > [17179593.936000]  [<c0220098>] driver_register+0x78/0x80
+> > [17179593.936000]  [<c01da5d0>] pci_register_driver+0xb0/0xd0
+> > [17179593.936000]  [<eca3d020>] init+0x20/0x26 [ehci_hcd]
+> > [17179593.936000]  [<c0137e24>] sys_init_module+0x144/0x1c0
+> > [17179593.936000]  [<c01030ff>] sysenter_past_esp+0x54/0x75
+> > [17179593.936000] handlers:
+> > [17179593.936000] [<ec99bf20>] (usb_hcd_irq+0x0/0x70 [usbcore])
+> > [17179593.936000] Disabling IRQ #11
+> > [17179593.972000] ehci_hcd 0000:00:10.3: irq 11, io mem 0xd0004800
+> > [17179593.972000] ehci_hcd 0000:00:10.3: USB 2.0 initialized, EHCI 1.00,
+> driver 10 Dec 2004
+> > [17179593.976000] hub 4-0:1.0: USB hub found
+> > [17179593.976000] hub 4-0:1.0: 6 ports detected
 > > 
-> > i.e. a ~40% size reduction when going to nsec_t on m68k, in that 
-> > particular function. Even larger, ~45% code size reduction on a true 
-> > 64-bit platform.
+> >            CPU0
+> >   0:     245067          XT-PIC  timer
+> >   1:       2877          XT-PIC  i8042
+> >   2:          0          XT-PIC  cascade
+> >   4:      37766          XT-PIC  uhci_hcd:usb1, eth0,
+> via@pci:0000:01:00.0
+> >   5:        296          XT-PIC  yenta, ohci1394, uhci_hcd:usb2
+> >   7:          2          XT-PIC  parport0
+> >   8:          2          XT-PIC  rtc
+> >   9:      51497          XT-PIC  uhci_hcd:usb3, VIA8233
+> >  10:          9          XT-PIC  acpi
+> >  11:     100000          XT-PIC  ehci_hcd:usb4
+> >  12:      86427          XT-PIC  i8042
+> >  14:      10409          XT-PIC  ide0
+> >  15:      19973          XT-PIC  ide1
+> > NMI:          0
+> > LOC:          0
+> > ERR:          0
+> > MIS:          0
+> > 
+> > any ideas? 
 > 
-> Without any source these numbers are not verifiable. You don't even 
-> mention here what that "representative piece of code" is...
-
-struct base {
-        nsec_t now;
-        struct ktimer *timers[16];
-        struct ktimer *running;
-};
-
-void nsec_t_ops(struct base *base, struct ktimer *next,
-                  nsec_t *tim, int mode)
-{
-        int i;
-        nsec_t now = base->now;
-
-        for (i = 0; i < 16; i++) {
-
-                void (*fn)(void *);
-                void *data;
-                struct ktimer *timer = base->timers[i];
-
-                if (timer->expires > now)
-                        break;
-                timer->expired = now;
-                fn = timer->function;
-                data = timer->data;
-                base->running = timer;
-                fn(data);
-                base->running = NULL;
-        }
-
-        switch(mode) {
-        case 0:
-                next->expires = *tim;
-                break;
-        case 1:
-                next->expires = now + *tim;
-                break;
-        case 2:
-                next->expires += *tim;
-                break;
-        case 3:
-                while (next->expires > now) {
-                        next->expires += *tim;
-                }
-                break;
-        }
-        base->timers[0] = next;
-}
-
-
-versus:
-
-#define NSEC_PER_SEC 1000000000
-struct base {
-        struct timespec now;
-        struct ktimer *timers[16];
-        struct ktimer *running;
-};
-
-#define timespec_gt(a,b)                       	\
-        (((a).tv_sec > (b).tv_sec) ? 1 :        \
-        (((a).tv_sec < (b).tv_sec) ? 0 :        \
-        ((a).tv_nsec > (b).tv_nsec)))
-
-#define timespec_addptr(a,b)                            \
-        (a)->tv_sec = ((a)->tv_sec + (b)->tv_sec);      \
-        (a)->tv_nsec = ((a)->tv_nsec + (b)->tv_nsec);   \
-        if ((a)->tv_nsec >= NSEC_PER_SEC){               \
-                (a)->tv_nsec -= NSEC_PER_SEC;           \
-                (a)->tv_sec++;                          \
-        }
-
-#define timespec_addppp(c,a,b)                          \
-        (c)->tv_sec = ((a)->tv_sec + (b)->tv_sec);      \
-        (c)->tv_nsec = ((a)->tv_nsec + (b)->tv_nsec);   \
-        if ((c)->tv_nsec >= NSEC_PER_SEC){               \
-                (c)->tv_nsec -= NSEC_PER_SEC;           \
-                (c)->tv_sec++;                          \
-        }
-
-
-void timespec_ops(struct base *base, struct ktimer *next,
-                  struct timespec *tim, int mode)
-{
-        int i;
-        struct timespec now = base->now;
-
-        for (i = 0; i < 16; i++) {
-
-                void (*fn)(void *);
-                void *data;
-                struct ktimer *timer = base->timers[i];
-
-                if (timespec_gt(timer->expires, now))
-                        break;
-                timer->expired = now;
-                fn = timer->function;
-                data = timer->data;
-                base->running = timer;
-                fn(data);
-                base->running = NULL;
-        }
-
-        switch(mode) {
-        case 0:
-                next->expires = *tim;
-                break;
-        case 1:
-                timespec_addppp(&next->expires, &now, tim);
-                break;
-        case 2:
-                timespec_addptr(&next->expires, tim);
-                break;
-        case 3:
-                while (timespec_gt(now, next->expires)) {
-                        timespec_addptr(&next->expires, tim);
-                }
-                break;
-        }
-        base->timers[0] = next;
-}
-
-
-> Anyway, Thomas mentioned that this would be from the insert/remove code 
-> and here you omitted the most important part of my mail:
+> I suspect that interrupt happens before intr mast is written
+> ot corresponding register.
 > 
-> typedef union {
-> 	u64 tv64;
-> 	struct {
-> #ifdef __BIG_ENDIAN
-> 		u32 sec, nsec;
-> #else
-> 		u32 nsec, sec;
-> #endif
-> 	} tv;
-> } ktimespec;
+> Add two printks, one before this writel:
 > 
-> IOW this would allow to keep the time value in timespec format and use 
-> your nsec_t_ops for sorting.
-
-Yes, it works for comparisons. 
-
-But for any other operation this construct has the same problem than
-struct timespec itself. You need at least an add function which is
-always an add and a comparison / correction vs. nsec >= NSEC_PER_SEC. 
-
-The 64 bit nsec_t value can just be used as is without inventing a
-wrapper macro for each operation.
-
-The only point, where (k)timespec has an advantage is that the userspace
-value must not be converted to nsec_t, but deducing therefor this is the
-better overall solution is a fallacy.
-
-nsec_t				ktimespec
-
-syscall:
-32x32 mul
-64bit add			2 x 32bit move
-
-arm timer:
-64 bit add			2 x 32 bit add
-				  32 bit compare
-				  32 bit sub
-				  32 bit add
-
-The 3 operation compensate for the 32x32 
-multiplication.
-
-For interval timers you have the 
-				  32 bit compare
-				  32 bit sub
-				  32 bit add
-additional overhead for each rearm.
-
-The backward conversion from nsec_t to timespec is almost a non issue.
-The vast majority of callers dont provide the second argument to
-nanosleep(), setitimer(), set_timer() which makes the conversion
-necessary and I think we optimize for the common use case.
-
-Besides that the representation of time in nsec_t values is much
-clearer. 
-
-I know that we have to deal with timespecs vs. userspace, but keeping
-this representation for kernel internal usage reminds me on the BCD
-calculations which were a similar 2^x vs 10^x oddity in the early days
-of microprocessors. Of course they were obstinate and survived a
-surprisingly long time.
-
-tglx
-
-
+> printk("setting ehci->regs->intr_enable to %x\n", INTR_MASK);
+>         writel (INTR_MASK, &ehci->regs->intr_enable); /* Turn On Interrupts
+> */
+> 
+> and one here:
+> 
+>         status &= INTR_MASK;
+>         if (!status) {                  /* irq sharing? */
+> static int ratelimit = 20;
+> if(ratelimit) ratelimit--, printk("ehci_irq: IRQ_NONE\n");
+>                 spin_unlock(&ehci->lock);
+>                 return IRQ_NONE;
+>         }
+> 
+> and see whether first printk happens before second.
+> --
+> vda
+> 

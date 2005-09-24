@@ -1,141 +1,264 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbVIXXpb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbVIXX5I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750782AbVIXXpb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Sep 2005 19:45:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbVIXXpb
+	id S1750794AbVIXX5I (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Sep 2005 19:57:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbVIXX5I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Sep 2005 19:45:31 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:57543 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1750782AbVIXXpa (ORCPT
+	Sat, 24 Sep 2005 19:57:08 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:42213 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S1750794AbVIXX5F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Sep 2005 19:45:30 -0400
-Date: Sun, 25 Sep 2005 01:45:07 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Thomas Gleixner <tglx@linutronix.de>
-cc: Ingo Molnar <mingo@elte.hu>, Christopher Friesen <cfriesen@nortel.com>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, george@mvista.com,
-       johnstul@us.ibm.com, paulmck@us.ibm.com
-Subject: Re: [ANNOUNCE] ktimers subsystem
-In-Reply-To: <1127570212.15115.77.camel@tglx.tec.linutronix.de>
-Message-ID: <Pine.LNX.4.61.0509250052390.3728@scrub.home>
-References: <20050919184834.1.patchmail@tglx.tec.linutronix.de> 
- <Pine.LNX.4.61.0509201247190.3743@scrub.home>  <1127342485.24044.600.camel@tglx.tec.linutronix.de>
-  <Pine.LNX.4.61.0509221816030.3728@scrub.home> <43333EBA.5030506@nortel.com>
-  <Pine.LNX.4.61.0509230151080.3743@scrub.home>  <1127458197.24044.726.camel@tglx.tec.linutronix.de>
-  <Pine.LNX.4.61.0509240443440.3728@scrub.home>  <20050924051643.GB29052@elte.hu>
-  <Pine.LNX.4.61.0509241212170.3728@scrub.home> <1127570212.15115.77.camel@tglx.tec.linutronix.de>
+	Sat, 24 Sep 2005 19:57:05 -0400
+Date: Sun, 25 Sep 2005 00:56:49 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Michael Veeck <michael.veeck@gmx.net>, dri-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove DRM_ARRAY_SIZE
+In-Reply-To: <20050924211139.GA18795@mipter.zuzino.mipt.ru>
+Message-ID: <Pine.LNX.4.58.0509250054190.24532@skynet>
+References: <20050924211139.GA18795@mipter.zuzino.mipt.ru>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>
+> drivers/char/drm/drmP.h defines a macro DRM_ARRAY_SIZE(x) for
+> determining the size of an array. kernel.h already provides one.
+>
+> Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
 
-On Sat, 24 Sep 2005, Thomas Gleixner wrote:
+Nak.
 
-> #define timespec_gt(a,b)                       	\
->         (((a).tv_sec > (b).tv_sec) ? 1 :        \
->         (((a).tv_sec < (b).tv_sec) ? 0 :        \
->         ((a).tv_nsec > (b).tv_nsec)))
-> 
-> #define timespec_addptr(a,b)                            \
->         (a)->tv_sec = ((a)->tv_sec + (b)->tv_sec);      \
->         (a)->tv_nsec = ((a)->tv_nsec + (b)->tv_nsec);   \
->         if ((a)->tv_nsec >= NSEC_PER_SEC){               \
->                 (a)->tv_nsec -= NSEC_PER_SEC;           \
->                 (a)->tv_sec++;                          \
->         }
-> 
-> #define timespec_addppp(c,a,b)                          \
->         (c)->tv_sec = ((a)->tv_sec + (b)->tv_sec);      \
->         (c)->tv_nsec = ((a)->tv_nsec + (b)->tv_nsec);   \
->         if ((c)->tv_nsec >= NSEC_PER_SEC){               \
->                 (c)->tv_nsec -= NSEC_PER_SEC;           \
->                 (c)->tv_sec++;                          \
->         }
+We have DRM_ for cross platform reasons in DRM, I could in theory get rid
+of all of them in the kernel, but it would make the merging of code from
+DRM CVS even more of a nightmare,
 
-Alternative for ktimespec:
+I'll change DRM_ARRAY_SIZE to just be ARRAY_SIZE so at least we can use
+the kernel one..
 
-#define timespec_gt(a,b) ((a).tv64 > (b).tv64)
+Dave.
 
-#if BITS_PER_LONG == 64
-#define timespec_addptr(a,b)                            \
-        (a).tv64 += (b).tv64;                           \
-        if ((a).tv.nsec >= NSEC_PER_SEC) {              \
-                (a).tv64 += (u32)-NSEC_PER_SEC;         \
-        }
-        
-#define timespec_addppp(c,a,b)                          \
-        (c).tv64 = (a).tv64 + (b).tv64;                 \
-        if ((c).tv.nsec >= NSEC_PER_SEC) {              \
-                (c).tv64 += (u32)-NSEC_PER_SEC;         \
-        }
-#else
-#define timespec_addptr(a,b)                            \
-        (a).tv.sec = ((a).tv.sec + (b).tv.sec);         \
-        (a).tv.nsec = ((a).tv.nsec + (b).tv.nsec);      \
-        if ((a).tv.nsec >= NSEC_PER_SEC) {              \
-                (a).tv.nsec -= NSEC_PER_SEC;            \
-                (a).tv.sec++;                           \
-        }
+> ---
+>
+>  drivers/char/drm/drmP.h         |    1 -
+>  drivers/char/drm/drm_drv.c      |    4 ++--
+>  drivers/char/drm/drm_fops.c     |    2 +-
+>  drivers/char/drm/drm_ioc32.c    |    2 +-
+>  drivers/char/drm/ffb_drv.c      |    2 +-
+>  drivers/char/drm/i810_dma.c     |    2 +-
+>  drivers/char/drm/i830_dma.c     |    2 +-
+>  drivers/char/drm/i915_dma.c     |    2 +-
+>  drivers/char/drm/i915_ioc32.c   |    2 +-
+>  drivers/char/drm/mga_ioc32.c    |    2 +-
+>  drivers/char/drm/mga_state.c    |    2 +-
+>  drivers/char/drm/r128_ioc32.c   |    2 +-
+>  drivers/char/drm/r128_state.c   |    2 +-
+>  drivers/char/drm/radeon_ioc32.c |    2 +-
+>  drivers/char/drm/radeon_state.c |    2 +-
+>  drivers/char/drm/savage_bci.c   |    2 +-
+>  drivers/char/drm/sis_mm.c       |    2 +-
+>  drivers/char/drm/via_drv.c      |    2 +-
+>  18 files changed, 18 insertions(+), 19 deletions(-)
+>
+> --- a/drivers/char/drm/drmP.h
+> +++ b/drivers/char/drm/drmP.h
+> @@ -228,7 +228,6 @@
+>  /** \name Internal types and structures */
+>  /*@{*/
+>
+> -#define DRM_ARRAY_SIZE(x) (sizeof(x)/sizeof(x[0]))
+>  #define DRM_MIN(a,b) ((a)<(b)?(a):(b))
+>  #define DRM_MAX(a,b) ((a)>(b)?(a):(b))
+>
+> --- a/drivers/char/drm/drm_drv.c
+> +++ b/drivers/char/drm/drm_drv.c
+> @@ -15,7 +15,7 @@
+>   * #define DRIVER_DESC		"Matrox G200/G400"
+>   * #define DRIVER_DATE		"20001127"
+>   *
+> - * #define DRIVER_IOCTL_COUNT	DRM_ARRAY_SIZE( mga_ioctls )
+> + * #define DRIVER_IOCTL_COUNT	ARRAY_SIZE( mga_ioctls )
+>   *
+>   * #define drm_x		mga_##x
+>   * \endcode
+> @@ -118,7 +118,7 @@ static drm_ioctl_desc_t		  drm_ioctls[]
+>  	[DRM_IOCTL_NR(DRM_IOCTL_WAIT_VBLANK)]   = { drm_wait_vblank, 0, 0 },
+>  };
+>
+> -#define DRIVER_IOCTL_COUNT	DRM_ARRAY_SIZE( drm_ioctls )
+> +#define DRIVER_IOCTL_COUNT	ARRAY_SIZE( drm_ioctls )
+>
+>  /**
+>   * Take down the DRM device.
+> --- a/drivers/char/drm/drm_fops.c
+> +++ b/drivers/char/drm/drm_fops.c
+> @@ -63,7 +63,7 @@ static int drm_setup( drm_device_t *dev
+>  			return i;
+>  	}
+>
+> -	for ( i = 0 ; i < DRM_ARRAY_SIZE(dev->counts) ; i++ )
+> +	for ( i = 0 ; i < ARRAY_SIZE(dev->counts) ; i++ )
+>  		atomic_set( &dev->counts[i], 0 );
+>
+>  	for ( i = 0 ; i < DRM_HASH_SIZE ; i++ ) {
+> --- a/drivers/char/drm/mga_state.c
+> +++ b/drivers/char/drm/mga_state.c
+> @@ -1186,4 +1186,4 @@ drm_ioctl_desc_t mga_ioctls[] = {
+>
+>  };
+>
+> -int mga_max_ioctl = DRM_ARRAY_SIZE(mga_ioctls);
+> +int mga_max_ioctl = ARRAY_SIZE(mga_ioctls);
+> --- a/drivers/char/drm/r128_state.c
+> +++ b/drivers/char/drm/r128_state.c
+> @@ -1733,4 +1733,4 @@ drm_ioctl_desc_t r128_ioctls[] = {
+>  	[DRM_IOCTL_NR(DRM_R128_GETPARAM)]   = { r128_getparam, 1, 0 },
+>  };
+>
+> -int r128_max_ioctl = DRM_ARRAY_SIZE(r128_ioctls);
+> +int r128_max_ioctl = ARRAY_SIZE(r128_ioctls);
+> --- a/drivers/char/drm/radeon_state.c
+> +++ b/drivers/char/drm/radeon_state.c
+> @@ -3104,4 +3104,4 @@ drm_ioctl_desc_t radeon_ioctls[] = {
+>  	[DRM_IOCTL_NR(DRM_RADEON_SURF_FREE)]  = { radeon_surface_free, 1, 0 }
+>  };
+>
+> -int radeon_max_ioctl = DRM_ARRAY_SIZE(radeon_ioctls);
+> +int radeon_max_ioctl = ARRAY_SIZE(radeon_ioctls);
+> --- a/drivers/char/drm/sis_mm.c
+> +++ b/drivers/char/drm/sis_mm.c
+> @@ -413,5 +413,5 @@ drm_ioctl_desc_t sis_ioctls[] = {
+>  	[DRM_IOCTL_NR(DRM_SIS_FB_INIT)]   = { sis_fb_init,         1, 1 }
+>  };
+>
+> -int sis_max_ioctl = DRM_ARRAY_SIZE(sis_ioctls);
+> +int sis_max_ioctl = ARRAY_SIZE(sis_ioctls);
+>
+> --- a/drivers/char/drm/via_drv.c
+> +++ b/drivers/char/drm/via_drv.c
+> @@ -91,7 +91,7 @@ static struct drm_driver driver = {
+>  	.postinit = postinit,
+>  	.version = version,
+>  	.ioctls = ioctls,
+> -	.num_ioctls = DRM_ARRAY_SIZE(ioctls),
+> +	.num_ioctls = ARRAY_SIZE(ioctls),
+>  	.fops = {
+>  		.owner = THIS_MODULE,
+>  		.open = drm_open,
+> --- a/drivers/char/drm/i810_dma.c
+> +++ b/drivers/char/drm/i810_dma.c
+> @@ -1378,7 +1378,7 @@ drm_ioctl_desc_t i810_ioctls[] = {
+>  	[DRM_IOCTL_NR(DRM_I810_FLIP)]    = { i810_flip_bufs,   1, 0 }
+>  };
+>
+> -int i810_max_ioctl = DRM_ARRAY_SIZE(i810_ioctls);
+> +int i810_max_ioctl = ARRAY_SIZE(i810_ioctls);
+>
+>  /**
+>   * Determine if the device really is AGP or not.
+> --- a/drivers/char/drm/i830_dma.c
+> +++ b/drivers/char/drm/i830_dma.c
+> @@ -1581,7 +1581,7 @@ drm_ioctl_desc_t i830_ioctls[] = {
+>  	[DRM_IOCTL_NR(DRM_I830_SETPARAM)] = { i830_setparam,    1, 0 }
+>  };
+>
+> -int i830_max_ioctl = DRM_ARRAY_SIZE(i830_ioctls);
+> +int i830_max_ioctl = ARRAY_SIZE(i830_ioctls);
+>
+>  /**
+>   * Determine if the device really is AGP or not.
+> --- a/drivers/char/drm/drm_ioc32.c
+> +++ b/drivers/char/drm/drm_ioc32.c
+> @@ -1052,7 +1052,7 @@ long drm_compat_ioctl(struct file *filp,
+>  	drm_ioctl_compat_t *fn;
+>  	int ret;
+>
+> -	if (nr >= DRM_ARRAY_SIZE(drm_compat_ioctls))
+> +	if (nr >= ARRAY_SIZE(drm_compat_ioctls))
+>  		return -ENOTTY;
+>
+>  	fn = drm_compat_ioctls[nr];
+> --- a/drivers/char/drm/ffb_drv.c
+> +++ b/drivers/char/drm/ffb_drv.c
+> @@ -333,7 +333,7 @@ static struct drm_driver driver = {
+>  	.postinit = postinit,
+>  	.version = version,
+>  	.ioctls = ioctls,
+> -	.num_ioctls = DRM_ARRAY_SIZE(ioctls),
+> +	.num_ioctls = ARRAY_SIZE(ioctls),
+>  	.fops = {
+>  		.owner = THIS_MODULE,
+>  		.open = drm_open,
+> --- a/drivers/char/drm/i915_dma.c
+> +++ b/drivers/char/drm/i915_dma.c
+> @@ -731,7 +731,7 @@ drm_ioctl_desc_t i915_ioctls[] = {
+>  	[DRM_IOCTL_NR(DRM_I915_CMDBUFFER)] = {i915_cmdbuffer, 1, 0}
+>  };
+>
+> -int i915_max_ioctl = DRM_ARRAY_SIZE(i915_ioctls);
+> +int i915_max_ioctl = ARRAY_SIZE(i915_ioctls);
+>
+>  /**
+>   * Determine if the device really is AGP or not.
+> --- a/drivers/char/drm/i915_ioc32.c
+> +++ b/drivers/char/drm/i915_ioc32.c
+> @@ -207,7 +207,7 @@ long i915_compat_ioctl(struct file *filp
+>  	if (nr < DRM_COMMAND_BASE)
+>  		return drm_compat_ioctl(filp, cmd, arg);
+>
+> -	if (nr < DRM_COMMAND_BASE + DRM_ARRAY_SIZE(i915_compat_ioctls))
+> +	if (nr < DRM_COMMAND_BASE + ARRAY_SIZE(i915_compat_ioctls))
+>  		fn = i915_compat_ioctls[nr - DRM_COMMAND_BASE];
+>
+>  	lock_kernel();		/* XXX for now */
+> --- a/drivers/char/drm/mga_ioc32.c
+> +++ b/drivers/char/drm/mga_ioc32.c
+> @@ -220,7 +220,7 @@ long mga_compat_ioctl(struct file *filp,
+>  	if (nr < DRM_COMMAND_BASE)
+>  		return drm_compat_ioctl(filp, cmd, arg);
+>
+> -	if (nr < DRM_COMMAND_BASE + DRM_ARRAY_SIZE(mga_compat_ioctls))
+> +	if (nr < DRM_COMMAND_BASE + ARRAY_SIZE(mga_compat_ioctls))
+>  		fn = mga_compat_ioctls[nr - DRM_COMMAND_BASE];
+>
+>  	lock_kernel();		/* XXX for now */
+> --- a/drivers/char/drm/r128_ioc32.c
+> +++ b/drivers/char/drm/r128_ioc32.c
+> @@ -205,7 +205,7 @@ long r128_compat_ioctl(struct file *filp
+>  	if (nr < DRM_COMMAND_BASE)
+>  		return drm_compat_ioctl(filp, cmd, arg);
+>
+> -	if (nr < DRM_COMMAND_BASE + DRM_ARRAY_SIZE(r128_compat_ioctls))
+> +	if (nr < DRM_COMMAND_BASE + ARRAY_SIZE(r128_compat_ioctls))
+>  		fn = r128_compat_ioctls[nr - DRM_COMMAND_BASE];
+>
+>  	lock_kernel();		/* XXX for now */
+> --- a/drivers/char/drm/radeon_ioc32.c
+> +++ b/drivers/char/drm/radeon_ioc32.c
+> @@ -381,7 +381,7 @@ long radeon_compat_ioctl(struct file *fi
+>  	if (nr < DRM_COMMAND_BASE)
+>  		return drm_compat_ioctl(filp, cmd, arg);
+>
+> -	if (nr < DRM_COMMAND_BASE + DRM_ARRAY_SIZE(radeon_compat_ioctls))
+> +	if (nr < DRM_COMMAND_BASE + ARRAY_SIZE(radeon_compat_ioctls))
+>  		fn = radeon_compat_ioctls[nr - DRM_COMMAND_BASE];
+>
+>  	lock_kernel();		/* XXX for now */
+> --- a/drivers/char/drm/savage_bci.c
+> +++ b/drivers/char/drm/savage_bci.c
+> @@ -1093,4 +1093,4 @@ drm_ioctl_desc_t savage_ioctls[] = {
+>  	[DRM_IOCTL_NR(DRM_SAVAGE_BCI_EVENT_WAIT)] = {savage_bci_event_wait, 1, 0},
+>  };
+>
+> -int savage_max_ioctl = DRM_ARRAY_SIZE(savage_ioctls);
+> +int savage_max_ioctl = ARRAY_SIZE(savage_ioctls);
+>
 
-#define timespec_addppp(c,a,b)                          \
-        (c).tv.sec = ((a).tv.sec + (b).tv.sec);         \
-        (c).tv.nsec = ((a).tv.nsec + (b).tv.nsec);      \
-        if ((c).tv.nsec >= NSEC_PER_SEC) {              \
-                (c).tv.nsec -= NSEC_PER_SEC;            \
-                (c).tv.sec++;                           \
-        }
-#endif  
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+Linux kernel - DRI, VAX / pam_smb / ILUG
 
-Adding the necessary conversion to the makes the difference even smaller.
-
-> The only point, where (k)timespec has an advantage is that the userspace
-> value must not be converted to nsec_t, but deducing therefor this is the
-> better overall solution is a fallacy.
-
-That's your opinion...
-
-> nsec_t				ktimespec
-> 
-> syscall:
-> 32x32 mul
-> 64bit add			2 x 32bit move
-> 
-> arm timer:
-> 64 bit add			2 x 32 bit add
-> 				  32 bit compare
-> 				  32 bit sub
-> 				  32 bit add
-> 
-> The 3 operation compensate for the 32x32 
-> multiplication.
-
-The multiply is not necessarly cheap, if the arch has no 32x32->64 
-instruction, gcc will generate a call to __muldi3().
-Overall for the common case both variations don't differ much in speed 
-and size (for a single code path). For a few timers it likely doesn't 
-matter and for a lot of timers the tree insert likely dominates.
-
-> The backward conversion from nsec_t to timespec is almost a non issue.
-> The vast majority of callers dont provide the second argument to
-> nanosleep(), setitimer(), set_timer() which makes the conversion
-> necessary and I think we optimize for the common use case.
-
-You know very well, that the conversion back to timespec is the killer in 
-your calculation. You graciously decide that the "vast majority" doesn't 
-want to read the timer, how did you get to that conclusion?
-
-> Besides that the representation of time in nsec_t values is much
-> clearer. 
-
-Well, that depends on the bigger picture, mainly how the timesource 
-manages the time. We want to optimize them for a fast get(ns)timeofday, so 
-we have already timespec based interfaces. Tick based sources will keep a 
-cached xtime timespec, so they either have to convert that to ns or 
-maintain another cached value just for your ktimers.
-As long as you can't get rid of timespec completely (which is impossible), 
-there is a value in keeping it as much as possible as timespec.
-
-bye, Roman

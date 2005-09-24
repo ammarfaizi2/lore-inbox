@@ -1,93 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbVIXL4x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbVIXMOj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932170AbVIXL4x (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Sep 2005 07:56:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbVIXL4x
+	id S932166AbVIXMOj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Sep 2005 08:14:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbVIXMOj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Sep 2005 07:56:53 -0400
-Received: from mail-in-07.arcor-online.net ([151.189.21.47]:7313 "EHLO
-	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
-	id S932170AbVIXL4x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Sep 2005 07:56:53 -0400
-Message-ID: <32750612.1127563007089.JavaMail.ngmail@webmail-09.arcor-online.net>
-Date: Sat, 24 Sep 2005 13:56:47 +0200 (CEST)
-From: thomas.mey3r@arcor.de
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.14-rc2-ge484585e: kexec into same kernel: irq 11 nobody cared;
- but ehci_hcd should
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-ngMessageSubType: MessageSubType_MAIL
-X-WebmailclientIP: 84.58.162.159
+	Sat, 24 Sep 2005 08:14:39 -0400
+Received: from fuzznuts.plus.net ([212.159.14.133]:37550 "EHLO
+	pih-relay06.plus.net") by vger.kernel.org with ESMTP
+	id S932166AbVIXMOi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Sep 2005 08:14:38 -0400
+Date: Sat, 24 Sep 2005 13:14:31 +0100
+From: Chris Sykes <chris@sigsegv.plus.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+Subject: Re: Hang during rm on ext2 mounted sync (2.6.14-rc2+)
+Message-ID: <20050924121431.GA5530@sigsegv.plus.com>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+References: <20050922163708.GF5898@sigsegv.plus.com> <20050923015719.5eb765a4.akpm@osdl.org> <20050923121932.GA5395@sigsegv.plus.com> <20050923132216.GA5784@sigsegv.plus.com> <20050923121811.2ef1f0be.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="tKW2IUtsqtDRztdT"
+Content-Disposition: inline
+In-Reply-To: <20050923121811.2ef1f0be.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
-I played a bit with the new kexec function:
+--tKW2IUtsqtDRztdT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-when i kexec into the same kernel i get this error message:
+On Fri, Sep 23, 2005 at 12:18:11PM -0700, Andrew Morton wrote:
+> That would be ideal, thanks.  Grab the latest from
+> http://www.kernel.org/pub/software/scm/git/ and take a look at
+> Documentation/git-bisect-script.txt
 
-[17179593.108000] ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 11
-[17179593.108000] PCI: setting IRQ 11 as level-triggered
-[17179593.108000] ACPI: PCI Interrupt 0000:00:10.3[D] -> Link [LNKD] -> GSI 11 (level, low) -> IRQ 11
-[17179593.108000] ehci_hcd 0000:00:10.3: EHCI Host Controller
-[17179593.124000] ehci_hcd 0000:00:10.3: new USB bus registered, assigned bus number 4
-[17179593.936000] irq 11: nobody cared (try booting with the "irqpoll" option)
-[17179593.936000]  [<c0103f9e>] dump_stack+0x1e/0x20
-[17179593.936000]  [<c013dc6b>] __report_bad_irq+0x2b/0x90
-[17179593.936000]  [<c013dd90>] note_interrupt+0x90/0xf0
-[17179593.936000]  [<c013d69a>] __do_IRQ+0xca/0xe0
-[17179593.936000]  [<c010530c>] do_IRQ+0x1c/0x30
-[17179593.936000]  [<c0103b26>] common_interrupt+0x1a/0x20
-[17179593.936000]  [<c0120ffa>] do_softirq+0x2a/0x30
-[17179593.936000]  [<c01210a5>] irq_exit+0x35/0x40
-[17179593.936000]  [<c0105311>] do_IRQ+0x21/0x30
-[17179593.936000]  [<c0103b26>] common_interrupt+0x1a/0x20
-[17179593.936000]  [<c013d931>] setup_irq+0xb1/0x110
-[17179593.936000]  [<c013dae6>] request_irq+0x86/0xb0
-[17179593.936000]  [<ec99c344>] usb_add_hcd+0x234/0x3a0 [usbcore]
-[17179593.936000]  [<ec9a3a59>] usb_hcd_pci_probe+0x269/0x390 [usbcore]
-[17179593.936000]  [<c01da239>] pci_call_probe+0x19/0x20
-[17179593.936000]  [<c01da297>] __pci_device_probe+0x57/0x70
-[17179593.936000]  [<c01da2df>] pci_device_probe+0x2f/0x60
-[17179593.936000]  [<c021fa49>] driver_probe_device+0x39/0xc0
-[17179593.936000]  [<c021fbaf>] __driver_attach+0x4f/0x60
-[17179593.936000]  [<c021ef84>] bus_for_each_dev+0x54/0x80
-[17179593.936000]  [<c021fbe8>] driver_attach+0x28/0x30
-[17179593.936000]  [<c021f49d>] bus_add_driver+0x7d/0xe0
-[17179593.936000]  [<c0220098>] driver_register+0x78/0x80
-[17179593.936000]  [<c01da5d0>] pci_register_driver+0xb0/0xd0
-[17179593.936000]  [<eca3d020>] init+0x20/0x26 [ehci_hcd]
-[17179593.936000]  [<c0137e24>] sys_init_module+0x144/0x1c0
-[17179593.936000]  [<c01030ff>] sysenter_past_esp+0x54/0x75
-[17179593.936000] handlers:
-[17179593.936000] [<ec99bf20>] (usb_hcd_irq+0x0/0x70 [usbcore])
-[17179593.936000] Disabling IRQ #11
-[17179593.972000] ehci_hcd 0000:00:10.3: irq 11, io mem 0xd0004800
-[17179593.972000] ehci_hcd 0000:00:10.3: USB 2.0 initialized, EHCI 1.00, driver 10 Dec 2004
-[17179593.976000] hub 4-0:1.0: USB hub found
-[17179593.976000] hub 4-0:1.0: 6 ports detected
+OK
 
-           CPU0
-  0:     245067          XT-PIC  timer
-  1:       2877          XT-PIC  i8042
-  2:          0          XT-PIC  cascade
-  4:      37766          XT-PIC  uhci_hcd:usb1, eth0, via@pci:0000:01:00.0
-  5:        296          XT-PIC  yenta, ohci1394, uhci_hcd:usb2
-  7:          2          XT-PIC  parport0
-  8:          2          XT-PIC  rtc
-  9:      51497          XT-PIC  uhci_hcd:usb3, VIA8233
- 10:          9          XT-PIC  acpi
- 11:     100000          XT-PIC  ehci_hcd:usb4
- 12:      86427          XT-PIC  i8042
- 14:      10409          XT-PIC  ide0
- 15:      19973          XT-PIC  ide1
-NMI:          0
-LOC:          0
-ERR:          0
-MIS:          0
+After many compile reboot cycles, git-bisect tells me that the
+offending cset is 10f47e6a1b8b276323b652053945c87a63a5812d:
+    [PATCH] ext2: Enable atomic inode security labeling
 
-any ideas? 
+I'll do some more testing to verify.
 
+--=20
+
+(o-  Chris Sykes
+//\       "Don't worry. Everything is getting nicely out of control ..."
+V_/_                          Douglas Adams - The Salmon of Doubt
+GPG Fingerprint: 5E8E D17F F96C CC08 911D  CAF2 9049 70D8 5143 8090
+
+--tKW2IUtsqtDRztdT
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFDNUMnkElw2FFDgJARAqXvAKDMq4jMzHTE75EwQkm5JPlALAqzkwCcCzID
+XL29lOAwmQ8UBr9YOQD3dTA=
+=mLoZ
+-----END PGP SIGNATURE-----
+
+--tKW2IUtsqtDRztdT--

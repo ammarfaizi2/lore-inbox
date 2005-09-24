@@ -1,75 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbVIXKfq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbVIXKo3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932159AbVIXKfq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Sep 2005 06:35:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932164AbVIXKfq
+	id S932164AbVIXKo3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Sep 2005 06:44:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932165AbVIXKo3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Sep 2005 06:35:46 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:17092 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932159AbVIXKfp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Sep 2005 06:35:45 -0400
-Date: Sat, 24 Sep 2005 12:35:16 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Ingo Molnar <mingo@elte.hu>
-cc: Thomas Gleixner <tglx@linutronix.de>,
-       Christopher Friesen <cfriesen@nortel.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, george@mvista.com, johnstul@us.ibm.com,
-       paulmck@us.ibm.com
-Subject: Re: [ANNOUNCE] ktimers subsystem
-In-Reply-To: <20050924051643.GB29052@elte.hu>
-Message-ID: <Pine.LNX.4.61.0509241212170.3728@scrub.home>
-References: <20050919184834.1.patchmail@tglx.tec.linutronix.de>
- <Pine.LNX.4.61.0509201247190.3743@scrub.home> <1127342485.24044.600.camel@tglx.tec.linutronix.de>
- <Pine.LNX.4.61.0509221816030.3728@scrub.home> <43333EBA.5030506@nortel.com>
- <Pine.LNX.4.61.0509230151080.3743@scrub.home> <1127458197.24044.726.camel@tglx.tec.linutronix.de>
- <Pine.LNX.4.61.0509240443440.3728@scrub.home> <20050924051643.GB29052@elte.hu>
+	Sat, 24 Sep 2005 06:44:29 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:33772 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S932164AbVIXKo2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Sep 2005 06:44:28 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Simon Evans <spse@secret.org.uk>, Vojtech Pavlik <vojtech@suse.cz>
+Subject: New inventions in rounding up in catc.c?
+Date: Sat, 24 Sep 2005 13:43:42 +0300
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_e3SNDa2LoXaEDuh"
+Message-Id: <200509241343.42464.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--Boundary-00=_e3SNDa2LoXaEDuh
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-On Sat, 24 Sep 2005, Ingo Molnar wrote:
+# grep '>> 6' -C5 catc.c
+                catc->stats.rx_bytes += pkt_len;
 
-> > Anyway, the biggest cost is the conversion from/to the 64bit ns value 
-> > [...]
-> 
-> Where do you get that notion from? Have you personally measured the 
-> performance and code size impact of it? If yes, would you mind to share 
-> the resulting data with us?
-> 
-> Our data is that the use of 64-bit nsec_t significantly reduces the size 
-> of a representative piece of code (object size in bytes):
-> 
->                 AMD64    I386        ARM          PPC32       M68K
->    nsec_t_ops   226      284         252          428         206
->    timespec_ops 412      324         448          640         342
-> 
-> i.e. a ~40% size reduction when going to nsec_t on m68k, in that 
-> particular function. Even larger, ~45% code size reduction on a true 
-> 64-bit platform.
+                /* F5U011 only does one packet per RX */
+                if (catc->is_f5u011)
+                        break;
+                pkt_start += (((pkt_len + 1) >> 6) + 1) << 6;
 
-Without any source these numbers are not verifiable. You don't even 
-mention here what that "representative piece of code" is...
+        } while (pkt_start - (u8 *) urb->transfer_buffer < urb->actual_length);
 
-Anyway, Thomas mentioned that this would be from the insert/remove code 
-and here you omitted the most important part of my mail:
+        catc->netdev->last_rx = jiffies;
 
-typedef union {
-	u64 tv64;
-	struct {
-#ifdef __BIG_ENDIAN
-		u32 sec, nsec;
-#else
-		u32 nsec, sec;
-#endif
-	} tv;
-} ktimespec;
+--
+        unsigned long flags;
+        char *tx_buf;
 
-IOW this would allow to keep the time value in timespec format and use 
-your nsec_t_ops for sorting.
+        spin_lock_irqsave(&catc->tx_lock, flags);
 
-bye, Roman
+        catc->tx_ptr = (((catc->tx_ptr - 1) >> 6) + 1) << 6;
+        tx_buf = catc->tx_buf[catc->tx_idx] + catc->tx_ptr;
+        *((u16*)tx_buf) = (catc->is_f5u011) ? cpu_to_be16((u16)skb->len) : cpu_to_le16((u16)skb->len);
+        memcpy(tx_buf + 2, skb->data, skb->len);
+        catc->tx_ptr += skb->len + 2;
+
+I case I do not miss something, second one rounds tx_ptr up to 64 byte
+boundary. It can be done in 2 operations instead of 4.
+
+First one may be the same, but do you really meant pkt_len + 1, not pkt_len - 1?
+
+Patch is below, and also attached (KMail may mangle inline patches).
+--
+vda
+
+--- linux-2.6.13.org/drivers/usb/net/catc.c.org	Mon Aug 29 02:41:01 2005
++++ linux-2.6.13.org/drivers/usb/net/catc.c	Sat Sep 24 13:35:42 2005
+@@ -268,7 +268,7 @@ static void catc_rx_done(struct urb *urb
+ 		/* F5U011 only does one packet per RX */
+ 		if (catc->is_f5u011)
+ 			break;
+-		pkt_start += (((pkt_len + 1) >> 6) + 1) << 6;
++		pkt_start += ((pkt_len + 2) + 63) & ~63;
+ 
+ 	} while (pkt_start - (u8 *) urb->transfer_buffer < urb->actual_length);
+ 
+@@ -417,7 +417,7 @@ static int catc_hard_start_xmit(struct s
+ 
+ 	spin_lock_irqsave(&catc->tx_lock, flags);
+ 
+-	catc->tx_ptr = (((catc->tx_ptr - 1) >> 6) + 1) << 6;
++	catc->tx_ptr = (catc->tx_ptr + 63) & ~63;
+ 	tx_buf = catc->tx_buf[catc->tx_idx] + catc->tx_ptr;
+ 	*((u16*)tx_buf) = (catc->is_f5u011) ? cpu_to_be16((u16)skb->len) : cpu_to_le16((u16)skb->len);
+ 	memcpy(tx_buf + 2, skb->data, skb->len);
+
+--Boundary-00=_e3SNDa2LoXaEDuh
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="catc.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="catc.patch"
+
+--- linux-2.6.13.org/drivers/usb/net/catc.c.org	Mon Aug 29 02:41:01 2005
++++ linux-2.6.13.org/drivers/usb/net/catc.c	Sat Sep 24 13:35:42 2005
+@@ -268,7 +268,7 @@ static void catc_rx_done(struct urb *urb
+ 		/* F5U011 only does one packet per RX */
+ 		if (catc->is_f5u011)
+ 			break;
+-		pkt_start += (((pkt_len + 1) >> 6) + 1) << 6;
++		pkt_start += ((pkt_len + 2) + 63) & ~63;
+ 
+ 	} while (pkt_start - (u8 *) urb->transfer_buffer < urb->actual_length);
+ 
+@@ -417,7 +417,7 @@ static int catc_hard_start_xmit(struct s
+ 
+ 	spin_lock_irqsave(&catc->tx_lock, flags);
+ 
+-	catc->tx_ptr = (((catc->tx_ptr - 1) >> 6) + 1) << 6;
++	catc->tx_ptr = (catc->tx_ptr + 63) & ~63;
+ 	tx_buf = catc->tx_buf[catc->tx_idx] + catc->tx_ptr;
+ 	*((u16*)tx_buf) = (catc->is_f5u011) ? cpu_to_be16((u16)skb->len) : cpu_to_le16((u16)skb->len);
+ 	memcpy(tx_buf + 2, skb->data, skb->len);
+
+--Boundary-00=_e3SNDa2LoXaEDuh--

@@ -1,43 +1,32 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751443AbVIXGVW (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sat, 24 Sep 2005 02:21:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbVIXGVV
+	id S932176AbVIXLLH (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sat, 24 Sep 2005 07:11:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbVIXLLG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Sep 2005 02:21:21 -0400
-Received: from customer-201-133-117-104.prod-infinitum.com.mx ([201.133.117.104]:54278
-	"EHLO MENTE-LTTU72GIG") by vger.kernel.org with ESMTP
-	id S1751443AbVIXGVV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Sep 2005 02:21:21 -0400
-Message-ID: <4130-22005962462121422@MENTE-LTTU72GIG>
-Organisation: Mente Creativa
-From: "Mente Creativa" <boletin@mente-creativa.com>
+	Sat, 24 Sep 2005 07:11:06 -0400
+Received: from [221.140.208.60] ([221.140.208.60]:11013 "HELO tvn.pl")
+	by vger.kernel.org with SMTP id S932171AbVIXLLE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Sep 2005 07:11:04 -0400
+Message-ID: <0dde01c5c0f3$c376b0a0$7b2462c6@tvn.pl>
+From: "Lupe Hamm" <lupe.hamm_nh@stange-privat.de>
 To: linux-kernel@vger.kernel.org
-Subject: =?ISO-8859-1?Q?=20Bolet=EDn?= Mente Creativa
-Date: Sat, 24 Sep 2005 01:21:21 -0500
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+Subject: Budy cials-tabs at Unbelievable Prices
+Date: Sat, 24 Sep 2005 11:35:45 +0100
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751443AbVIXGVW@vger.kernel.org>
-
-Inscríbete GRATIS al boletín semanal Mente Creativa
-Con interesantes artículos relacionados con técnicas avanzadas de
-programación y desarrollo mental, comentadas de manera práctica y sencilla
-de forma tal, que podamos aplicarlas en nosotros mismos, así como temas
-enfocados a cultivar actitudes positivas que nos ayuden a manejar mejor,
-las situaciones cotidianas en nuestra profesión, relaciones sociales y
-familiares.
-En cada número se publica un sólo tema corto, ágil y ameno, que nos invita
-a reflexionar en la mentalidad que en ocasiones nos impiden alcanzar metas
-y objetivos con eficiencia.
-Inscríbete en:	http://mente-creativa.com/boletin.htm
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932176AbVIXLLH@vger.kernel.org>
 
 
-Para darte de baja y no seguir recibiendo correos de esta lista, favor
-envía un email a la siguiente dirección, con “asunto” Darme de baja. 
-baja@mente-creativa.com
+Be ERECT in less than 15 mins
 
+PRlCE: $ 2 / use
 
-
-
+visit us: greenones.com
 

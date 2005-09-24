@@ -1,51 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbVIXTyh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbVIXTzA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750723AbVIXTyh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Sep 2005 15:54:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750725AbVIXTyh
+	id S1750725AbVIXTzA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Sep 2005 15:55:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbVIXTy7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Sep 2005 15:54:37 -0400
-Received: from smtpout.mac.com ([17.250.248.86]:47325 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1750723AbVIXTyh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Sep 2005 15:54:37 -0400
-In-Reply-To: <20050924070150.GL7992@ftp.linux.org.uk>
-References: <E1EIonQ-0006Ts-00@dorka.pomaz.szeredi.hu> <20050923122834.659966c4.akpm@osdl.org> <E1EJ2xC-0007SZ-00@dorka.pomaz.szeredi.hu> <20050924060913.GK7992@ftp.linux.org.uk> <E1EJ3ib-0007V7-00@dorka.pomaz.szeredi.hu> <20050924070150.GL7992@ftp.linux.org.uk>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <305557E4-5EB5-48C6-BE00-04C5AA16924A@mac.com>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [PATCH] open: O_DIRECTORY and O_CREAT together should fail
-Date: Sat, 24 Sep 2005 15:53:53 -0400
-To: Al Viro <viro@ftp.linux.org.uk>
-X-Mailer: Apple Mail (2.734)
+	Sat, 24 Sep 2005 15:54:59 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:26118 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1750725AbVIXTy7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Sep 2005 15:54:59 -0400
+Date: Sat, 24 Sep 2005 21:52:05 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Davide Libenzi <davidel@xmailserver.org>, Andrew Morton <akpm@osdl.org>
+Cc: Nishanth Aravamudan <nacc@us.ibm.com>,
+       Nish Aravamudan <nish.aravamudan@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH 3/3] 2.6.14-rc2-mm1 : fixes for overflow in sys_poll()
+Message-ID: <20050924195205.GE26197@alpha.home.local>
+References: <Pine.LNX.4.63.0509231108140.10222@localhost.localdomain> <20050924040534.GB18716@alpha.home.local> <29495f1d05092321447417503@mail.gmail.com> <20050924061500.GA24628@alpha.home.local> <20050924171928.GF3950@us.ibm.com> <Pine.LNX.4.63.0509241120380.31327@localhost.localdomain> <20050924193839.GB26197@alpha.home.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050924193839.GB26197@alpha.home.local>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 24, 2005, at 03:01:50, Al Viro wrote:
-> And O_DIRECTORY is not the only flag that acquires or loses meaning  
-> depending on O_CREAT - consider e.g. O_EXCL.  It's a mess, of  
-> course, but this mess is part of userland ABI.  We tried to fix  
-> symlink idiocy, BTW, on the assumption that nothing would be  
-> relying on it.  Didn't work...
+This patch simplifies the overflow fix which was applied to sys_poll() in
+2.6.14-rc2-mm1 by relying on the overflow detection code added to jiffies.h
+by patch 1/3. This also removes a useless divide for HZ <= 1000.
 
-Maybe CONFIG_FIX_CRAPPY_ABI_CORNER_CASES?  If the user is willing to  
-deal with some minimal breakage and fix programs relying on icky  
-unsupported behavior, then they could turn that on for a slightly  
-more secure system.  Make it depend on "experimental" and give it big  
-warning messages.  It's likely that some of the more-secure server- 
-oriented distros that run patched gcc and such to avoid buffer  
-overflow and such might turn it on.
+It might be worth applying too. It's only for -mm1, and does *not* apply
+to 2.6.14-rc2 because this code has already received patches in -mm1.
 
-Cheers,
-Kyle Moffett
+Signed-off-by: Willy Tarreau <willy@w.ods.org>
 
---
-Simple things should be simple and complex things should be possible
-   -- Alan Kay
+- Willy
 
+
+diff -purN linux-2.6.14-rc2-mm1/fs/select.c linux-2.6.14-rc2-mm1-poll/fs/select.c
+--- linux-2.6.14-rc2-mm1/fs/select.c	Sat Sep 24 21:12:36 2005
++++ linux-2.6.14-rc2-mm1-poll/fs/select.c	Sat Sep 24 21:23:21 2005
+@@ -469,7 +469,6 @@ asmlinkage long sys_poll(struct pollfd _
+ {
+ 	struct poll_wqueues table;
+ 	int fdcount, err;
+-	int overflow;
+  	unsigned int i;
+ 	struct poll_list *head;
+  	struct poll_list *walk;
+@@ -486,22 +485,11 @@ asmlinkage long sys_poll(struct pollfd _
+ 		return -EINVAL;
+ 
+ 	/*
+-	 * We compare HZ with 1000 to work out which side of the
+-	 * expression needs conversion.  Because we want to avoid
+-	 * converting any value to a numerically higher value, which
+-	 * could overflow.
+-	 */
+-#if HZ > 1000
+-	overflow = timeout_msecs >= jiffies_to_msecs(MAX_SCHEDULE_TIMEOUT);
+-#else
+-	overflow = msecs_to_jiffies(timeout_msecs) >= MAX_SCHEDULE_TIMEOUT;
+-#endif
+-
+-	/*
+ 	 * If we would overflow in the conversion or a negative timeout
+-	 * is requested, sleep indefinitely.
++	 * is requested, sleep indefinitely. Note: msecs_to_jiffies checks
++	 * for the overflow.
+ 	 */
+-	if (overflow || timeout_msecs < 0)
++	if (timeout_msecs < 0)
+ 		timeout_jiffies = MAX_SCHEDULE_TIMEOUT;
+ 	else
+ 		timeout_jiffies = msecs_to_jiffies(timeout_msecs) + 1;
 
 

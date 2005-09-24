@@ -1,47 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbVIXKbO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbVIXKfq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932162AbVIXKbO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Sep 2005 06:31:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932163AbVIXKbO
+	id S932159AbVIXKfq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Sep 2005 06:35:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932164AbVIXKfq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Sep 2005 06:31:14 -0400
-Received: from silver.veritas.com ([143.127.12.111]:94 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S932162AbVIXKbN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Sep 2005 06:31:13 -0400
-Date: Sat, 24 Sep 2005 11:30:43 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
-Subject: [PATCH] mremap move ZERO_PAGE fix
-Message-ID: <Pine.LNX.4.61.0509241127420.11579@goblin.wat.veritas.com>
+	Sat, 24 Sep 2005 06:35:46 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:17092 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932159AbVIXKfp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Sep 2005 06:35:45 -0400
+Date: Sat, 24 Sep 2005 12:35:16 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Ingo Molnar <mingo@elte.hu>
+cc: Thomas Gleixner <tglx@linutronix.de>,
+       Christopher Friesen <cfriesen@nortel.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, george@mvista.com, johnstul@us.ibm.com,
+       paulmck@us.ibm.com
+Subject: Re: [ANNOUNCE] ktimers subsystem
+In-Reply-To: <20050924051643.GB29052@elte.hu>
+Message-ID: <Pine.LNX.4.61.0509241212170.3728@scrub.home>
+References: <20050919184834.1.patchmail@tglx.tec.linutronix.de>
+ <Pine.LNX.4.61.0509201247190.3743@scrub.home> <1127342485.24044.600.camel@tglx.tec.linutronix.de>
+ <Pine.LNX.4.61.0509221816030.3728@scrub.home> <43333EBA.5030506@nortel.com>
+ <Pine.LNX.4.61.0509230151080.3743@scrub.home> <1127458197.24044.726.camel@tglx.tec.linutronix.de>
+ <Pine.LNX.4.61.0509240443440.3728@scrub.home> <20050924051643.GB29052@elte.hu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 24 Sep 2005 10:31:09.0041 (UTC) FILETIME=[13B91610:01C5C0F3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix nasty little bug we've missed in Nick's mremap move ZERO_PAGE patch.
-The "pte" at that point may be a swap entry or a pte_file entry: we must
-check pte_present before perhaps corrupting such an entry.
+Hi,
 
-Patch below against 2.6.14-rc2-mm1, but the same bug is in 2.6.14-rc2's
-mm/mremap.c, and more dangerous there since it's affecting all arches:
-I think the safest course is to send Nick's patch and Yoichi's build fix
-and this fix (build tested) on to Linus - so only MIPS can be affected.
+On Sat, 24 Sep 2005, Ingo Molnar wrote:
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
+> > Anyway, the biggest cost is the conversion from/to the 64bit ns value 
+> > [...]
+> 
+> Where do you get that notion from? Have you personally measured the 
+> performance and code size impact of it? If yes, would you mind to share 
+> the resulting data with us?
+> 
+> Our data is that the use of 64-bit nsec_t significantly reduces the size 
+> of a representative piece of code (object size in bytes):
+> 
+>                 AMD64    I386        ARM          PPC32       M68K
+>    nsec_t_ops   226      284         252          428         206
+>    timespec_ops 412      324         448          640         342
+> 
+> i.e. a ~40% size reduction when going to nsec_t on m68k, in that 
+> particular function. Even larger, ~45% code size reduction on a true 
+> 64-bit platform.
 
---- 2.6.14-rc2-mm1/include/asm-generic/pgtable.h	2005-09-22 12:32:00.000000000 +0100
-+++ linux/include/asm-generic/pgtable.h	2005-09-24 10:51:41.000000000 +0100
-@@ -164,7 +164,8 @@ static inline void ptep_set_wrprotect(st
- #define move_pte(pte, prot, old_addr, new_addr)				\
- ({									\
-  	pte_t newpte = (pte);						\
--	if (pfn_valid(pte_pfn(pte)) && pte_page(pte) == ZERO_PAGE(old_addr)) \
-+	if (pte_present(pte) && pfn_valid(pte_pfn(pte)) &&		\
-+			pte_page(pte) == ZERO_PAGE(old_addr))		\
- 		newpte = mk_pte(ZERO_PAGE(new_addr), (prot));		\
- 	newpte;								\
- })
+Without any source these numbers are not verifiable. You don't even 
+mention here what that "representative piece of code" is...
+
+Anyway, Thomas mentioned that this would be from the insert/remove code 
+and here you omitted the most important part of my mail:
+
+typedef union {
+	u64 tv64;
+	struct {
+#ifdef __BIG_ENDIAN
+		u32 sec, nsec;
+#else
+		u32 nsec, sec;
+#endif
+	} tv;
+} ktimespec;
+
+IOW this would allow to keep the time value in timespec format and use 
+your nsec_t_ops for sorting.
+
+bye, Roman

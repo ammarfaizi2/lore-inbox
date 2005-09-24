@@ -1,45 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751448AbVIXHBv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751452AbVIXHHF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751448AbVIXHBv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Sep 2005 03:01:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbVIXHBv
+	id S1751452AbVIXHHF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Sep 2005 03:07:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751454AbVIXHHF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Sep 2005 03:01:51 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:58261 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751448AbVIXHBv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Sep 2005 03:01:51 -0400
-Date: Sat, 24 Sep 2005 08:01:50 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] open: O_DIRECTORY and O_CREAT together should fail
-Message-ID: <20050924070150.GL7992@ftp.linux.org.uk>
-References: <E1EIonQ-0006Ts-00@dorka.pomaz.szeredi.hu> <20050923122834.659966c4.akpm@osdl.org> <E1EJ2xC-0007SZ-00@dorka.pomaz.szeredi.hu> <20050924060913.GK7992@ftp.linux.org.uk> <E1EJ3ib-0007V7-00@dorka.pomaz.szeredi.hu>
+	Sat, 24 Sep 2005 03:07:05 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:4947 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751452AbVIXHHD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Sep 2005 03:07:03 -0400
+Date: Sat, 24 Sep 2005 09:07:04 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: torvalds@osdl.org, joshk@triplehelix.org, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] updated version of Jens' SATA suspend-to-ram patch
+Message-ID: <20050924070659.GK22655@suse.de>
+References: <20050923163334.GA13567@triplehelix.org> <20050923180711.GH22655@suse.de> <433469DF.1060900@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E1EJ3ib-0007V7-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <433469DF.1060900@pobox.com>
+X-IMAPbase: 1124875140 52
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 24, 2005 at 08:41:05AM +0200, Miklos Szeredi wrote:
-> > > Well yes.  But I don't think anybody is using it, and if so they are
-> > > clearly breaking the rules in man open(2):
+On Fri, Sep 23 2005, Jeff Garzik wrote:
+> >--- linux-2.6.13/drivers/scsi/libata-core.c~	2005-09-01 
+> >12:22:19.000000000 +0200
+> >+++ linux-2.6.13/drivers/scsi/libata-core.c	2005-09-01 
+> >12:24:38.000000000 +0200
+> >@@ -3738,8 +3738,8 @@
+> > 	unsigned long flags;
+> > 	int rc;
 > > 
-> > Be liberal in what you accept and all such...  Everything else aside,
-> > why bother?
+> >-	qc = ata_qc_new_init(ap, dev);
+> >-	BUG_ON(qc == NULL);
+> >+	while ((qc = ata_qc_new_init(ap, dev)) == NULL)
+> >+		msleep(10);
+> > 
+> > 	qc->tf.command = cmd;
+> > 	qc->tf.flags |= ATA_TFLAG_DEVICE;
 > 
-> To conform to well defined semantics?
+> Worried now!
+> 
+> If this patch is needed, something VERY VERY WRONG is going on.  This 
+> patch indicates that the queueing state machine has been violated, and 
+> something is trying to IGNORE the command synchronization :(
 
-Well-defined is not exactly the word I'd use for that mess (example -
-we still have the last remnant of ancient BSD idiocy in there; the last
-case when dangling symlink is still traversed upon object creation,
-everything else had been fixed since then).
+I haven't diagnosed this further and it only ever happened in the SUSE
+kernel to my knowledge (no one has reported it to me for the vanilla
+kernels + suspend patch).
 
-And O_DIRECTORY is not the only flag that acquires or loses meaning
-depending on O_CREAT - consider e.g. O_EXCL.  It's a mess, of course,
-but this mess is part of userland ABI.  We tried to fix symlink idiocy,
-BTW, on the assumption that nothing would be relying on it.  Didn't
-work...
+So lets just keep this patch out of the equation for now, it could be
+that other SUSE patches broke something in this area :/
+
+> Further, you cannot always assume that msleep() is valid in that 
+> context.  It should be the caller that waits (libata suspend code), not 
+> ata_do_simple_cmd() itself.
+
+ata_do_simple_cmd() always blocks anyways, so I don't see the point.
+Perhaps rename the function to ata_execute_and_wait_simple_cmd().
+
+-- 
+Jens Axboe
+

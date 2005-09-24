@@ -1,43 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbVIXOvH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbVIXPHz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932184AbVIXOvH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Sep 2005 10:51:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbVIXOvH
+	id S932188AbVIXPHz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Sep 2005 11:07:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932189AbVIXPHy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Sep 2005 10:51:07 -0400
-Received: from metis.extern.pengutronix.de ([83.236.181.26]:7060 "EHLO
-	metis.extern.pengutronix.de") by vger.kernel.org with ESMTP
-	id S932184AbVIXOvG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Sep 2005 10:51:06 -0400
-Date: Sat, 24 Sep 2005 16:51:02 +0200
-From: Robert Schwebel <r.schwebel@pengutronix.de>
-To: Luke Yang <luke.adi@gmail.com>
+	Sat, 24 Sep 2005 11:07:54 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:14316 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S932188AbVIXPHy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Sep 2005 11:07:54 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: thomas.mey3r@arcor.de
+Subject: Re: Aw: Re: 2.6.14-rc2-ge484585e: kexec into same kernel: irq 11 nobody cared; but ehci_hcd should
+Date: Sat, 24 Sep 2005 18:07:11 +0300
+User-Agent: KMail/1.8.2
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: ADI Blackfin porting for kernel-2.6.13
-Message-ID: <20050924145102.GD28883@pengutronix.de>
-References: <489ecd0c05091923336b48555@mail.gmail.com> <20050920071514.GA10909@plexity.net> <489ecd0c050922223736cf1548@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+References: <200509241530.42284.vda@ilport.com.ua> <32750612.1127563007089.JavaMail.ngmail@webmail-09.arcor-online.net> <23431147.1127571157771.JavaMail.ngmail@webmail-05.arcor-online.net>
+In-Reply-To: <23431147.1127571157771.JavaMail.ngmail@webmail-05.arcor-online.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <489ecd0c050922223736cf1548@mail.gmail.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Message-Id: <200509241807.11479.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 23, 2005 at 01:37:03PM +0800, Luke Yang wrote:
-> This patch mainly includes the arch/bfinnommu architecture files and
-> some blackfin specific drivers.
+On Saturday 24 September 2005 17:12, thomas.mey3r@arcor.de wrote:
+> Correct.
+> The interrupt happens before the interrupt is enabled by the ehci driver. the question is why is the interrupt already enabled? or: who forgot to disable the interrupt?
 
-Having in mind the pain with arm and m68k with and without MMU, could
-you structure that thing in a way that it will be able to share the
-current nommu code with (hopefully coming) code for blackfins which
-might have a MMU? So it would be something like arch/blackfin. 
+Correct question is "who forgot to set ehci->regs->intr_enable before request_irq'ing?"
 
-Robert 
--- 
- Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
-   Handelsregister:  Amtsgericht Hildesheim, HRA 2686
-     Hannoversche Str. 2, 31134 Hildesheim, Germany
-   Phone: +49-5121-206917-0 |  Fax: +49-5121-206917-9
-
+IOW: writel (INTR_MASK, &ehci->regs->intr_enable); /* Turn On Interrupts */
+needs to be moved so that it happens before request_irq. 
+--
+vda

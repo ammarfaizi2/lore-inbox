@@ -1,78 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbVIXOxA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbVIXOvH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932185AbVIXOxA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Sep 2005 10:53:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbVIXOw7
+	id S932184AbVIXOvH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Sep 2005 10:51:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbVIXOvH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Sep 2005 10:52:59 -0400
-Received: from zproxy.gmail.com ([64.233.162.193]:55118 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932185AbVIXOw7 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Sep 2005 10:52:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ij5cEpiLGfd4gg/ps6+kJF1FOZvVm3UPfGMVcI1WNLkyY3DnOZj9DjPylxsSRE5Wj+ybZ/gZoqQ1njQFTnkQwpY5A90zubVXfRKWv9yYDnMeVM95kxxl5DQyVdHJLacsFw2jednva9iYKoB2M1hYaBgg3+xvbnOOo4UYMyGoOMs=
-Message-ID: <9a8748490509240752436ef7b2@mail.gmail.com>
-Date: Sat, 24 Sep 2005 16:52:28 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: Vadim Lobanov <vlobanov@speakeasy.net>
-Subject: Re: [PATCH] Unify sys_tkill() and sys_tgkill()
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0509231913550.5348@shell3.speakeasy.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sat, 24 Sep 2005 10:51:07 -0400
+Received: from metis.extern.pengutronix.de ([83.236.181.26]:7060 "EHLO
+	metis.extern.pengutronix.de") by vger.kernel.org with ESMTP
+	id S932184AbVIXOvG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Sep 2005 10:51:06 -0400
+Date: Sat, 24 Sep 2005 16:51:02 +0200
+From: Robert Schwebel <r.schwebel@pengutronix.de>
+To: Luke Yang <luke.adi@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ADI Blackfin porting for kernel-2.6.13
+Message-ID: <20050924145102.GD28883@pengutronix.de>
+References: <489ecd0c05091923336b48555@mail.gmail.com> <20050920071514.GA10909@plexity.net> <489ecd0c050922223736cf1548@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-References: <Pine.LNX.4.58.0509231913550.5348@shell3.speakeasy.net>
+In-Reply-To: <489ecd0c050922223736cf1548@mail.gmail.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/24/05, Vadim Lobanov <vlobanov@speakeasy.net> wrote:
-> Hi,
->
-> The majority of the sys_tkill() and sys_tgkill() function code is
-> duplicated between the two of them. This patch pulls the duplication out
-> into a separate function -- do_tkill() -- and lets sys_tkill() and
-> sys_tgkill() be simple wrappers around it. This should make it easier to
-> maintain in light of future changes.
->
+On Fri, Sep 23, 2005 at 01:37:03PM +0800, Luke Yang wrote:
+> This patch mainly includes the arch/bfinnommu architecture files and
+> some blackfin specific drivers.
 
-A few nitpicks ... :
+Having in mind the pain with arm and m68k with and without MMU, could
+you structure that thing in a way that it will be able to share the
+current nommu code with (hopefully coming) code for blackfins which
+might have a MMU? So it would be something like arch/blackfin. 
 
-[snip]
-> +static int do_tkill(int tgid, int pid, int sig)
+Robert 
+-- 
+ Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de
+ Pengutronix - Linux Solutions for Science and Industry
+   Handelsregister:  Amtsgericht Hildesheim, HRA 2686
+     Hannoversche Str. 2, 31134 Hildesheim, Germany
+   Phone: +49-5121-206917-0 |  Fax: +49-5121-206917-9
 
-I would probably have made this
-
-  static inline int do_tkill(int tgid, int pid, int sig)
-
-
-[snip]
-> +       if (p && ((tgid <= 0) || (p->tgid == tgid))) {
-
-Why all the extra parenthesis?
-
-   if (p && (tgid <= 0 || p->tgid == tgid)) {
-
-
-[snip]
-> +       return (do_tkill(tgid, pid, sig));
-
-return is not a function
-
-   return do_tkill(tgid, pid, sig);
-
-[snip]
-> +       return (do_tkill(0, pid, sig));
-
-again, get rid of the pointless extra parens
-
-   return do_tkill(0, pid, sig);
-
-
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html

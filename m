@@ -1,270 +1,182 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932236AbVIYP5h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbVIYQAY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932236AbVIYP5h (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Sep 2005 11:57:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932237AbVIYP5h
+	id S932237AbVIYQAY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Sep 2005 12:00:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbVIYQAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Sep 2005 11:57:37 -0400
-Received: from gold.veritas.com ([143.127.12.110]:55211 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S932238AbVIYP5g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Sep 2005 11:57:36 -0400
-Date: Sun, 25 Sep 2005 16:57:10 +0100 (BST)
+	Sun, 25 Sep 2005 12:00:24 -0400
+Received: from silver.veritas.com ([143.127.12.111]:55990 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S932237AbVIYQAX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Sep 2005 12:00:23 -0400
+Date: Sun, 25 Sep 2005 16:59:56 +0100 (BST)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@goblin.wat.veritas.com
 To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 11/21] mm: move_page_tables by extents
+cc: "David S. Miller" <davem@davemloft.net>,
+       Russell King <rmk@arm.linux.org.uk>, Ian Molton <spyro@f2s.com>,
+       Tony Luck <tony.luck@intel.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH 12/21] mm: tlb_gather_mmu get_cpu_var
 In-Reply-To: <Pine.LNX.4.61.0509251644100.3490@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.61.0509251656310.3490@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0509251657200.3490@goblin.wat.veritas.com>
 References: <Pine.LNX.4.61.0509251644100.3490@goblin.wat.veritas.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 25 Sep 2005 15:57:35.0984 (UTC) FILETIME=[D8DD2700:01C5C1E9]
+X-OriginalArrivalTime: 25 Sep 2005 16:00:23.0109 (UTC) FILETIME=[3C7A6750:01C5C1EA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Speeding up mremap's moving of ptes has never been a priority, but the
-locking will get more complicated shortly, and is already too baroque.
-
-Scrap the current one-by-one moving, do an extent at a time: curtailed
-by end of src and dst pmds (have to use PMD_SIZE: the way pmd_addr_end
-gets elided doesn't match this usage), and by latency considerations.
-
-One nice property of the old method is lost: it never allocated a page
-table unless absolutely necessary, so you could free empty page tables
-by mremapping to and fro.  Whereas this way, it allocates a dst table
-wherever there was a src table.  I keep diving in to reinstate the old
-behaviour, then come out preferring not to clutter how it now is.
+tlb_gather_mmu dates from before kernel preemption was allowed, and uses
+smp_processor_id or __get_cpu_var to find its per-cpu mmu_gather.  That
+works because it's currently only called after getting page_table_lock,
+which is not dropped until after the matching tlb_finish_mmu.  But don't
+rely on that, it will soon change: now disable preemption internally by
+proper get_cpu_var in tlb_gather_mmu, put_cpu_var in tlb_finish_mmu.
 
 Signed-off-by: Hugh Dickins <hugh@veritas.com>
 ---
 
- mm/mremap.c |  166 +++++++++++++++++++++++++-----------------------------------
- 1 files changed, 71 insertions(+), 95 deletions(-)
+ include/asm-arm/tlb.h     |    5 +++--
+ include/asm-arm26/tlb.h   |    7 ++++---
+ include/asm-generic/tlb.h |   10 +++++-----
+ include/asm-ia64/tlb.h    |    6 ++++--
+ include/asm-sparc64/tlb.h |    4 +++-
+ 5 files changed, 19 insertions(+), 13 deletions(-)
 
---- mm10/mm/mremap.c	2005-09-24 19:27:33.000000000 +0100
-+++ mm11/mm/mremap.c	2005-09-24 19:28:42.000000000 +0100
-@@ -22,40 +22,15 @@
- #include <asm/cacheflush.h>
- #include <asm/tlbflush.h>
- 
--static pte_t *get_one_pte_map_nested(struct mm_struct *mm, unsigned long addr)
--{
--	pgd_t *pgd;
--	pud_t *pud;
--	pmd_t *pmd;
--	pte_t *pte = NULL;
--
--	pgd = pgd_offset(mm, addr);
--	if (pgd_none_or_clear_bad(pgd))
--		goto end;
--
--	pud = pud_offset(pgd, addr);
--	if (pud_none_or_clear_bad(pud))
--		goto end;
--
--	pmd = pmd_offset(pud, addr);
--	if (pmd_none_or_clear_bad(pmd))
--		goto end;
--
--	pte = pte_offset_map_nested(pmd, addr);
--	if (pte_none(*pte)) {
--		pte_unmap_nested(pte);
--		pte = NULL;
--	}
--end:
--	return pte;
--}
--
--static pte_t *get_one_pte_map(struct mm_struct *mm, unsigned long addr)
-+static pmd_t *get_old_pmd(struct mm_struct *mm, unsigned long addr)
+--- mm11/include/asm-arm/tlb.h	2005-06-17 20:48:29.000000000 +0100
++++ mm12/include/asm-arm/tlb.h	2005-09-24 19:28:56.000000000 +0100
+@@ -39,8 +39,7 @@ DECLARE_PER_CPU(struct mmu_gather, mmu_g
+ static inline struct mmu_gather *
+ tlb_gather_mmu(struct mm_struct *mm, unsigned int full_mm_flush)
  {
- 	pgd_t *pgd;
- 	pud_t *pud;
- 	pmd_t *pmd;
+-	int cpu = smp_processor_id();
+-	struct mmu_gather *tlb = &per_cpu(mmu_gathers, cpu);
++	struct mmu_gather *tlb = &get_cpu_var(mmu_gathers);
  
-+	/*
-+	 * We don't need page_table_lock: we have mmap_sem exclusively.
-+	 */
- 	pgd = pgd_offset(mm, addr);
- 	if (pgd_none_or_clear_bad(pgd))
- 		return NULL;
-@@ -68,35 +43,48 @@ static pte_t *get_one_pte_map(struct mm_
- 	if (pmd_none_or_clear_bad(pmd))
- 		return NULL;
+ 	tlb->mm = mm;
+ 	tlb->freed = 0;
+@@ -65,6 +64,8 @@ tlb_finish_mmu(struct mmu_gather *tlb, u
  
--	return pte_offset_map(pmd, addr);
-+	return pmd;
+ 	/* keep the page table cache within bounds */
+ 	check_pgt_cache();
++
++	put_cpu_var(mmu_gathers);
  }
  
--static inline pte_t *alloc_one_pte_map(struct mm_struct *mm, unsigned long addr)
-+static pmd_t *alloc_new_pmd(struct mm_struct *mm, unsigned long addr)
- {
- 	pgd_t *pgd;
- 	pud_t *pud;
--	pmd_t *pmd;
--	pte_t *pte = NULL;
-+	pmd_t *pmd = NULL;
-+	pte_t *pte;
+ static inline unsigned int tlb_is_full_mm(struct mmu_gather *tlb)
+--- mm11/include/asm-arm26/tlb.h	2005-06-17 20:48:29.000000000 +0100
++++ mm12/include/asm-arm26/tlb.h	2005-09-24 19:28:56.000000000 +0100
+@@ -17,13 +17,12 @@ struct mmu_gather {
+         unsigned int            avoided_flushes;
+ };
  
-+	/*
-+	 * We do need page_table_lock: because allocators expect that.
-+	 */
-+	spin_lock(&mm->page_table_lock);
- 	pgd = pgd_offset(mm, addr);
--
- 	pud = pud_alloc(mm, pgd, addr);
- 	if (!pud)
--		return NULL;
-+		goto out;
+-extern struct mmu_gather mmu_gathers[NR_CPUS];
++DECLARE_PER_CPU(struct mmu_gather, mmu_gathers);
+ 
+ static inline struct mmu_gather *
+ tlb_gather_mmu(struct mm_struct *mm, unsigned int full_mm_flush)
+ {
+-        int cpu = smp_processor_id();
+-        struct mmu_gather *tlb = &mmu_gathers[cpu];
++        struct mmu_gather *tlb = &get_cpu_var(mmu_gathers);
+ 
+         tlb->mm = mm;
+         tlb->freed = 0;
+@@ -52,6 +51,8 @@ tlb_finish_mmu(struct mmu_gather *tlb, u
+ 
+         /* keep the page table cache within bounds */
+         check_pgt_cache();
 +
- 	pmd = pmd_alloc(mm, pud, addr);
--	if (pmd)
--		pte = pte_alloc_map(mm, pmd, addr);
--	return pte;
-+	if (!pmd)
-+		goto out;
-+
-+	pte = pte_alloc_map(mm, pmd, addr);
-+	if (!pte) {
-+		pmd = NULL;
-+		goto out;
-+	}
-+	pte_unmap(pte);
-+out:
-+	spin_unlock(&mm->page_table_lock);
-+	return pmd;
++        put_cpu_var(mmu_gathers);
  }
  
--static int
--move_one_page(struct vm_area_struct *vma, unsigned long old_addr,
--		struct vm_area_struct *new_vma, unsigned long new_addr)
-+static void move_ptes(struct vm_area_struct *vma, pmd_t *old_pmd,
-+		unsigned long old_addr, unsigned long old_end,
-+		struct vm_area_struct *new_vma, pmd_t *new_pmd,
-+		unsigned long new_addr)
+ 
+--- mm11/include/asm-generic/tlb.h	2005-09-21 12:16:48.000000000 +0100
++++ mm12/include/asm-generic/tlb.h	2005-09-24 19:28:56.000000000 +0100
+@@ -35,9 +35,7 @@
+ #endif
+ 
+ /* struct mmu_gather is an opaque type used by the mm code for passing around
+- * any data needed by arch specific code for tlb_remove_page.  This structure
+- * can be per-CPU or per-MM as the page table lock is held for the duration of
+- * TLB shootdown.
++ * any data needed by arch specific code for tlb_remove_page.
+  */
+ struct mmu_gather {
+ 	struct mm_struct	*mm;
+@@ -57,7 +55,7 @@ DECLARE_PER_CPU(struct mmu_gather, mmu_g
+ static inline struct mmu_gather *
+ tlb_gather_mmu(struct mm_struct *mm, unsigned int full_mm_flush)
  {
- 	struct address_space *mapping = NULL;
- 	struct mm_struct *mm = vma->vm_mm;
--	int error = 0;
--	pte_t *src, *dst;
-+	pte_t *old_pte, *new_pte, pte;
+-	struct mmu_gather *tlb = &per_cpu(mmu_gathers, smp_processor_id());
++	struct mmu_gather *tlb = &get_cpu_var(mmu_gathers);
  
- 	if (vma->vm_file) {
- 		/*
-@@ -111,74 +99,62 @@ move_one_page(struct vm_area_struct *vma
- 		    new_vma->vm_truncate_count != vma->vm_truncate_count)
- 			new_vma->vm_truncate_count = 0;
- 	}
-+
- 	spin_lock(&mm->page_table_lock);
-+	old_pte = pte_offset_map(old_pmd, old_addr);
-+	new_pte = pte_offset_map_nested(new_pmd, new_addr);
+ 	tlb->mm = mm;
  
--	src = get_one_pte_map_nested(mm, old_addr);
--	if (src) {
--		/*
--		 * Look to see whether alloc_one_pte_map needs to perform a
--		 * memory allocation.  If it does then we need to drop the
--		 * atomic kmap
--		 */
--		dst = get_one_pte_map(mm, new_addr);
--		if (unlikely(!dst)) {
--			pte_unmap_nested(src);
--			if (mapping)
--				spin_unlock(&mapping->i_mmap_lock);
--			dst = alloc_one_pte_map(mm, new_addr);
--			if (mapping && !spin_trylock(&mapping->i_mmap_lock)) {
--				spin_unlock(&mm->page_table_lock);
--				spin_lock(&mapping->i_mmap_lock);
--				spin_lock(&mm->page_table_lock);
--			}
--			src = get_one_pte_map_nested(mm, old_addr);
--		}
--		/*
--		 * Since alloc_one_pte_map can drop and re-acquire
--		 * page_table_lock, we should re-check the src entry...
--		 */
--		if (src) {
--			if (dst) {
--				pte_t pte;
--				pte = ptep_clear_flush(vma, old_addr, src);
--
--				/* ZERO_PAGE can be dependant on virtual addr */
--				pte = move_pte(pte, new_vma->vm_page_prot,
--							old_addr, new_addr);
--				set_pte_at(mm, new_addr, dst, pte);
--			} else
--				error = -ENOMEM;
--			pte_unmap_nested(src);
--		}
--		if (dst)
--			pte_unmap(dst);
-+	for (; old_addr < old_end; old_pte++, old_addr += PAGE_SIZE,
-+				   new_pte++, new_addr += PAGE_SIZE) {
-+		if (pte_none(*old_pte))
-+			continue;
-+		pte = ptep_clear_flush(vma, old_addr, old_pte);
-+		/* ZERO_PAGE can be dependant on virtual addr */
-+		pte = move_pte(pte, new_vma->vm_page_prot, old_addr, new_addr);
-+		set_pte_at(mm, new_addr, new_pte, pte);
- 	}
+@@ -85,7 +83,7 @@ tlb_flush_mmu(struct mmu_gather *tlb, un
+ 
+ /* tlb_finish_mmu
+  *	Called at the end of the shootdown operation to free up any resources
+- *	that were required.  The page table lock is still held at this point.
++ *	that were required.
+  */
+ static inline void
+ tlb_finish_mmu(struct mmu_gather *tlb, unsigned long start, unsigned long end)
+@@ -101,6 +99,8 @@ tlb_finish_mmu(struct mmu_gather *tlb, u
+ 
+ 	/* keep the page table cache within bounds */
+ 	check_pgt_cache();
 +
-+	pte_unmap_nested(new_pte - 1);
-+	pte_unmap(old_pte - 1);
- 	spin_unlock(&mm->page_table_lock);
- 	if (mapping)
- 		spin_unlock(&mapping->i_mmap_lock);
--	return error;
++	put_cpu_var(mmu_gathers);
  }
  
-+#define LATENCY_LIMIT	(64 * PAGE_SIZE)
-+
- static unsigned long move_page_tables(struct vm_area_struct *vma,
- 		unsigned long old_addr, struct vm_area_struct *new_vma,
- 		unsigned long new_addr, unsigned long len)
+ static inline unsigned int
+--- mm11/include/asm-ia64/tlb.h	2005-06-17 20:48:29.000000000 +0100
++++ mm12/include/asm-ia64/tlb.h	2005-09-24 19:28:56.000000000 +0100
+@@ -129,7 +129,7 @@ ia64_tlb_flush_mmu (struct mmu_gather *t
+ static inline struct mmu_gather *
+ tlb_gather_mmu (struct mm_struct *mm, unsigned int full_mm_flush)
  {
--	unsigned long offset;
-+	unsigned long extent, next, old_end;
-+	pmd_t *old_pmd, *new_pmd;
+-	struct mmu_gather *tlb = &__get_cpu_var(mmu_gathers);
++	struct mmu_gather *tlb = &get_cpu_var(mmu_gathers);
  
--	flush_cache_range(vma, old_addr, old_addr + len);
-+	old_end = old_addr + len;
-+	flush_cache_range(vma, old_addr, old_end);
+ 	tlb->mm = mm;
+ 	/*
+@@ -154,7 +154,7 @@ tlb_gather_mmu (struct mm_struct *mm, un
  
--	/*
--	 * This is not the clever way to do this, but we're taking the
--	 * easy way out on the assumption that most remappings will be
--	 * only a few pages.. This also makes error recovery easier.
--	 */
--	for (offset = 0; offset < len; offset += PAGE_SIZE) {
--		if (move_one_page(vma, old_addr + offset,
--				new_vma, new_addr + offset) < 0)
--			break;
-+	for (; old_addr < old_end; old_addr += extent, new_addr += extent) {
- 		cond_resched();
-+		next = (old_addr + PMD_SIZE) & PMD_MASK;
-+		if (next - 1 > old_end)
-+			next = old_end;
-+		extent = next - old_addr;
-+		old_pmd = get_old_pmd(vma->vm_mm, old_addr);
-+		if (!old_pmd)
-+			continue;
-+		new_pmd = alloc_new_pmd(vma->vm_mm, new_addr);
-+		if (!new_pmd)
-+			break;
-+		next = (new_addr + PMD_SIZE) & PMD_MASK;
-+		if (extent > next - new_addr)
-+			extent = next - new_addr;
-+		if (extent > LATENCY_LIMIT)
-+			extent = LATENCY_LIMIT;
-+		move_ptes(vma, old_pmd, old_addr, old_addr + extent,
-+				new_vma, new_pmd, new_addr);
- 	}
--	return offset;
+ /*
+  * Called at the end of the shootdown operation to free up any resources that were
+- * collected.  The page table lock is still held at this point.
++ * collected.
+  */
+ static inline void
+ tlb_finish_mmu (struct mmu_gather *tlb, unsigned long start, unsigned long end)
+@@ -174,6 +174,8 @@ tlb_finish_mmu (struct mmu_gather *tlb, 
+ 
+ 	/* keep the page table cache within bounds */
+ 	check_pgt_cache();
 +
-+	return len + old_addr - old_end;	/* how much done */
++	put_cpu_var(mmu_gathers);
  }
  
- static unsigned long move_vma(struct vm_area_struct *vma,
+ static inline unsigned int
+--- mm11/include/asm-sparc64/tlb.h	2005-06-17 20:48:29.000000000 +0100
++++ mm12/include/asm-sparc64/tlb.h	2005-09-24 19:28:56.000000000 +0100
+@@ -44,7 +44,7 @@ extern void flush_tlb_pending(void);
+ 
+ static inline struct mmu_gather *tlb_gather_mmu(struct mm_struct *mm, unsigned int full_mm_flush)
+ {
+-	struct mmu_gather *mp = &__get_cpu_var(mmu_gathers);
++	struct mmu_gather *mp = &get_cpu_var(mmu_gathers);
+ 
+ 	BUG_ON(mp->tlb_nr);
+ 
+@@ -97,6 +97,8 @@ static inline void tlb_finish_mmu(struct
+ 
+ 	/* keep the page table cache within bounds */
+ 	check_pgt_cache();
++
++	put_cpu_var(mmu_gathers);
+ }
+ 
+ static inline unsigned int tlb_is_full_mm(struct mmu_gather *mp)

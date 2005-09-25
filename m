@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbVIYPui@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932192AbVIYPuS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932233AbVIYPui (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Sep 2005 11:50:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbVIYPuh
+	id S932192AbVIYPuS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Sep 2005 11:50:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbVIYPuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Sep 2005 11:50:37 -0400
-Received: from smtp-out2.blueyonder.co.uk ([195.188.213.5]:47758 "EHLO
-	smtp-out2.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S932232AbVIYPuh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Sep 2005 11:50:37 -0400
-Message-ID: <4336C6D8.4090602@blueyonder.co.uk>
-Date: Sun, 25 Sep 2005 16:48:40 +0100
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-Reply-To: sboyce@blueyonder.co.uk
-Organization: blueyonder.co.uk
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
+	Sun, 25 Sep 2005 11:50:18 -0400
+Received: from silver.veritas.com ([143.127.12.111]:24246 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S932231AbVIYPuQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Sep 2005 11:50:16 -0400
+Date: Sun, 25 Sep 2005 16:49:50 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 04/21] mm: zap_pte_range dont dirty anon
+In-Reply-To: <Pine.LNX.4.61.0509251644100.3490@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0509251649100.3490@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0509251644100.3490@goblin.wat.veritas.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] ktimers subsystem
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Sep 2005 15:49:29.0601 (UTC) FILETIME=[B6F4FF10:01C5C1E8]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 25 Sep 2005 15:50:15.0875 (UTC) FILETIME=[D289D930:01C5C1E8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OT, but something that's been bugging me for quite a while.
-I cut and paste the patch from the email to a file ktimers.patch.
-"# patch -l -p1 <ktimer.patch" and it returns ---
-  (Patch is indented 1 space.)
-patching file fs/exec.c
-patch: **** malformed patch at line 16: }
+zap_pte_range already avoids wasting time to mark_page_accessed on anon
+pages: it can also skip anon set_page_dirty - the page only needs to be
+marked dirty if shared with another mm, but that will say pte_dirty too.
 
-If I prepend 2 tabs to the line, it complains about line 17, I do the 
-same to line 17 and on it moves to the next. from the manpage it reads 
-like the "-l" should take care of the tabs so it only compares the text.
-Can anyone suggest how to apply the patch? Googling didn't help.
-Regards
-Sid.
--- 
-Sid Boyce ... Hamradio License G3VBV, licensed Private Pilot
-Retired IBM/Amdahl Mainframes and Sun/Fujitsu Servers Tech Support 
-Specialist
-Microsoft Windows Free Zone - Linux used for all Computing Tasks
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+---
+
+ mm/memory.c |   10 ++++++----
+ 1 files changed, 6 insertions(+), 4 deletions(-)
+
+--- mm03/mm/memory.c	2005-09-24 19:26:38.000000000 +0100
++++ mm04/mm/memory.c	2005-09-24 19:27:05.000000000 +0100
+@@ -574,12 +574,14 @@ static void zap_pte_range(struct mmu_gat
+ 						addr) != page->index)
+ 				set_pte_at(tlb->mm, addr, pte,
+ 					   pgoff_to_pte(page->index));
+-			if (pte_dirty(ptent))
+-				set_page_dirty(page);
+ 			if (PageAnon(page))
+ 				dec_mm_counter(tlb->mm, anon_rss);
+-			else if (pte_young(ptent))
+-				mark_page_accessed(page);
++			else {
++				if (pte_dirty(ptent))
++					set_page_dirty(page);
++				if (pte_young(ptent))
++					mark_page_accessed(page);
++			}
+ 			tlb->freed++;
+ 			page_remove_rmap(page);
+ 			tlb_remove_page(tlb, page);

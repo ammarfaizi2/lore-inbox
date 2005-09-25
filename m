@@ -1,32 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751206AbVIYGnv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbVIYGnR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751206AbVIYGnv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Sep 2005 02:43:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbVIYGnl
+	id S1751188AbVIYGnR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Sep 2005 02:43:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751189AbVIYGnR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Sep 2005 02:43:41 -0400
-Received: from zproxy.gmail.com ([64.233.162.199]:12813 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751198AbVIYGn3 (ORCPT
+	Sun, 25 Sep 2005 02:43:17 -0400
+Received: from zproxy.gmail.com ([64.233.162.197]:32093 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751188AbVIYGnQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Sep 2005 02:43:29 -0400
+	Sun, 25 Sep 2005 02:43:16 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:from:to:cc:user-agent:content-type:references:in-reply-to:subject:message-id:date;
-        b=WF5vRlfnba0j+XVCTfFNt6v0RIgG6XwbXRSkmfODDB1BUEd+6QyAd9TBDbhAcEW8i4Ax/79FHX42idcKYkJg88zLHDyeD2cBUNacAJy5ZTWeWWNp5+tC99HnmaHTDKzTpFUdbxCUXnXgbUE5YOZI3NAkm3BN+O181eTMyITF1e0=
+        h=received:from:to:cc:user-agent:content-type:subject:message-id:date;
+        b=kqeCiiHKYqZVO73UFZjr22oraQRDQ/flvX+X/DlXg2O7FEp6bfSO/VBYlCdA7CEFoFbuO7VdGvX5jTL73L4kJAinVhkg+OPte3HaJJKzfh/dXJC6fjwXQgv3qYp+nfusYSBawO6vZaM8PHbPDEEsddzfI5438pgyaH5A47MunJU=
 From: Tejun Heo <htejun@gmail.com>
 To: zwane@linuxpower.ca, viro@zeniv.linux.org.uk
 Cc: linux-kernel@vger.kernel.org
 User-Agent: lksp 0.3
 Content-Type: text/plain; charset=US-ASCII
-References: <20050925064218.E7558977@htj.dyndns.org>
-In-Reply-To: <20050925064218.E7558977@htj.dyndns.org>
-Subject: Re: [PATCH linux-2.6 03/04] brsem: fix ro-remount <-> open race condition
-Message-ID: <20050925064218.367B8B6E@htj.dyndns.org>
-Date: Sun, 25 Sep 2005 15:43:22 +0900 (KST)
+Subject: [PATCH linux-2.6 00/04] brsem: [RFC] big reader semaphore
+Message-ID: <20050925064218.E7558977@htj.dyndns.org>
+Date: Sun, 25 Sep 2005 15:43:07 +0900 (KST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ Hello, guys.
+
+ This patchset implements brsem - big reader semaphore.  This is
+similar to the late big reader lock in its concept.  Reader side tries
+to do as little as possible while writer side takes over all the
+overhead.  brsem is to be used for cases where...
+
+ a. writer operation is *extremely* rare compared to read ops
+
+ b. both readers and writers should be able to sleep
+
+ c. stale data or reader-side retry is impossible or impractical
+
+ Device or subsystem hotplug/unplug synchronization fits very well to
+above criteria.  Plugging and unplugging occur very rarely but they
+still need stringent synchronization.
+
+ brsem is implemented while trying to solve the following race
+condition in the vfs layer.
+
+ super->s_umount rwsem proctects filesystem unmounts and remounts
+against other operations.  When remounting a rw filesystem ro, after
+write-locking s_umount, do_remount_sb() is invoked, which scans all
+open files and either refuses to remount or bang all write-open files
+depending on force argument.  After that, the filesystem is remounted
+ro.
+
+ The problem is that a file can be opened rw after all open files are
+scanned but before the filesystem is remounted ro.  This can be easily
+exposed by adding msleep(2000) between open file scan and remount_fs()
+and doing the following in the user space.  An ext2 fs is mounted on
+tmp.
+
+# mount -o remount,ro tmp& sleep 1; cat >> tmp/asdf
+
+ This leaves us with a write-opened file on a ro filesystem.  ext2
+happily writes data to disk.  I've only verified open(2) but this race
+probably exists for other file operations, too.
+
+ I'll post a patch to add 2s sleep during remounting and test results
+in a reply to this mail.
+
+  The solution is to make permission check and the rest of open atomic
+against remounting by read-locking s_umount rwsem.  This probably
+should be done for most file operations including write(2) (maybe even
+when committing dirty pages to fs for rw-mmapped files in 'force'
+case).  This is an expensive overhead to pay for such rare cases and
+seqlock / rcupdate cannot be used here.
+
+ So, brsem is implemented.  Read locking and unlocking involve only
+local_bh_disable/enable, a few local arithmetics and conditionals - no
+atomic ops, no shared word, no memory barrier.  Writer operations are
+*very* expensive.  They have to issue workqueue works to each cpu
+using smp_call_function and wait for them.
+
+ This patchset also converts cpucontrol semaphore which protects cpu
+hotplug/unplugging events, which obviously occur very rarely.
+
+[ Start of patch descriptions ]
+
+01_brsem_implement_brsem.patch
+	: implement big reader semaphore
+
+	This patch implements big reader semaphore - a rwsem with very
+	cheap reader-side operations and very expensive writer-side
+	operations.  For details, please read comments at the top of
+	kern/brsem.c.
+
+02_brsem_convert-s_umount-to-brsem.patch
+	: convert super_block->s_umount to brsem
+
+	Convert super_block->s_umount from rwsem to brsem.
+
 03_brsem_fix-remount-open-race.patch
+	: fix ro-remount <-> open race condition
 
 	A file can be opened rw while ro-remounting is in progress
 	resulting in open rw file on ro mounted filesystem.  This
@@ -35,64 +107,16 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 	have this race condition and should be fixed in similar
 	manner.
 
-Signed-off-by: Tejun Heo <htejun@gmail.com>
+04_brsem_convert-cpucontrol-to-brsem.patch
+	: convert cpucontrol to brsem
 
- namei.c |   11 ++++++++++-
- open.c  |   12 ++++++++++--
- 2 files changed, 20 insertions(+), 3 deletions(-)
+	cpucontrol synchronizes cpu hotplugging and used to be a
+	semaphore.  This patch converts it to brsem.
 
-Index: linux-work/fs/namei.c
-===================================================================
---- linux-work.orig/fs/namei.c	2005-09-25 15:26:32.000000000 +0900
-+++ linux-work/fs/namei.c	2005-09-25 15:42:04.000000000 +0900
-@@ -1412,6 +1412,12 @@ int may_open(struct nameidata *nd, int a
-  *			  11 - read/write permissions needed
-  * which is a lot more logical, and also allows the "no perm" needed
-  * for symlinks (where the permissions are checked later).
-+ *
-+ * nd->mnt->mnt_sb->s_umount brsem is read-locked on successful return
-+ * from this function.  This is to make permission checking and the
-+ * actual open operation atomic w.r.t. remounting.  The caller must
-+ * release s_umount after open is complete.
-+ *
-  * SMP-safe
-  */
- int open_namei(const char * pathname, int flag, int mode, struct nameidata *nd)
-@@ -1512,9 +1518,12 @@ do_last:
- 	if (path.dentry->d_inode && S_ISDIR(path.dentry->d_inode->i_mode))
- 		goto exit;
- ok:
-+	brsem_down_read(nd->mnt->mnt_sb->s_umount);
- 	error = may_open(nd, acc_mode, flag);
--	if (error)
-+	if (error) {
-+		brsem_up_read(nd->mnt->mnt_sb->s_umount);
- 		goto exit;
-+	}
- 	return 0;
- 
- exit_dput:
-Index: linux-work/fs/open.c
-===================================================================
---- linux-work.orig/fs/open.c	2005-09-25 15:26:32.000000000 +0900
-+++ linux-work/fs/open.c	2005-09-25 15:42:04.000000000 +0900
-@@ -828,8 +828,16 @@ struct file *filp_open(const char * file
- 		return ERR_PTR(error);
- 
- 	error = open_namei(filename, namei_flags, mode, &nd);
--	if (!error)
--		return __dentry_open(nd.dentry, nd.mnt, flags, f);
-+	if (!error) {
-+		f = __dentry_open(nd.dentry, nd.mnt, flags, f);
-+		/*
-+		 * On successful return from open_namei(), s_umount is
-+		 * read-locked, see comment above open_namei() for
-+		 * more information.
-+		 */
-+		brsem_up_read(nd.mnt->mnt_sb->s_umount);
-+		return f;
-+	}
- 
- 	put_filp(f);
- 	return ERR_PTR(error);
+[ End of patch descriptions ]
+
+ Thanks.
+
+--
+tejun
 

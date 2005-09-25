@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751289AbVIYMlL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbVIYMq4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751289AbVIYMlL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Sep 2005 08:41:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbVIYMlL
+	id S1751284AbVIYMq4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Sep 2005 08:46:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbVIYMq4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Sep 2005 08:41:11 -0400
-Received: from quark.didntduck.org ([69.55.226.66]:64954 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id S1751289AbVIYMlK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Sep 2005 08:41:10 -0400
-Message-ID: <43369ACF.3000102@didntduck.org>
-Date: Sun, 25 Sep 2005 08:40:47 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla Thunderbird 1.0.6-5 (X11/20050818)
-X-Accept-Language: en-us, en
+	Sun, 25 Sep 2005 08:46:56 -0400
+Received: from pne-smtpout1-sn2.hy.skanova.net ([81.228.8.83]:51649 "EHLO
+	pne-smtpout1-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S1751284AbVIYMqz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Sep 2005 08:46:55 -0400
+Message-ID: <43369C2F.3050201@telia.com>
+Date: Sun, 25 Sep 2005 14:46:39 +0200
+From: Simon Strandman <simon.strandman@telia.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: sv, en-us, en
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] CONFIG_IA32
-References: <4335DD14.7090909@didntduck.org> <20050925100525.GA14741@infradead.org>
-In-Reply-To: <20050925100525.GA14741@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Ville Herva <v@iki.fi>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Upgrade 2.6.12-rc4 -> 2.6.13.1 broke DVD-R writing (fails consistenly
+ in OPC phase)
+References: <20050925123049.GA24760@viasys.com>
+In-Reply-To: <20050925123049.GA24760@viasys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Sat, Sep 24, 2005 at 07:11:16PM -0400, Brian Gerst wrote:
-> 
->>Add CONFIG_IA32 for i386.  This allows selecting options that only apply 
->>to 32-bit systems.
->>
->>(X86 && !X86_64) becomes IA32
->>(X86 ||  X86_64) becomes X86
-> 
-> 
-> Please call it X86_32 or I386, to match the terminology we use everywhere.
-> I386 would match the uname, and X86_32 would be the logical countepart
-> to X86_64.
-> 
+Ville Herva skrev:
 
-I386 is already used elsewhere for cpu optimization.  Intel has called 
-all of its 32-bit cpus IA32 since they introduced IA64.  I've never 
-heard of any usage of X86_32.
+>The .config from 2.6.12-rc4 and 2.6.13.1 is nearly identical, but with
+>2.6.13.1 I use HZ=250 (that being the default nowadays) and 
+>2.6.13.1 has CONFIG_PREEMPT_VOLUNTARY=y instead of 2.6.12-rc4's
+>CONFIG_PREEMPT=y and CONFIG_PREEMPT_BKL=y ².
+>
+>Any ideas?
+>
+>  
+>
+Have you tried with HZ=1000?
 
---
-				Brian Gerst
+-- 
+Simon Strandman <simon.strandman@telia.com>
+

@@ -1,107 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbVIYIyU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750986AbVIYJJm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751246AbVIYIyU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Sep 2005 04:54:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751247AbVIYIyU
+	id S1750986AbVIYJJm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Sep 2005 05:09:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750971AbVIYJJm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Sep 2005 04:54:20 -0400
-Received: from zproxy.gmail.com ([64.233.162.192]:48101 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751246AbVIYIyU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Sep 2005 04:54:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=UY7zAZjjn6316CGRswPA5413ZsbrfjG94E1tdyBEEGNMLeYluhcXuED+icRUJFrlrS1m21Bvu4pmXS4+oi1cwk/MjddmJdUZMw6VUI+oB8EyTfzuZYVkQ2LQrIiqZarWZlQJxBtKTz5UXjWkyxBGh56rMpuLTQr/V4t0QnFz66s=
-Message-ID: <433665A4.6010400@gmail.com>
-Date: Sun, 25 Sep 2005 17:53:56 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050803)
-X-Accept-Language: en-us, en
+	Sun, 25 Sep 2005 05:09:42 -0400
+Received: from pne-smtpout2-sn2.hy.skanova.net ([81.228.8.164]:22498 "EHLO
+	pne-smtpout2-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S1750809AbVIYJJl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Sep 2005 05:09:41 -0400
+To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: Re: [2.6.13] pktcdvd: IO-errors
+References: <Pine.LNX.4.60.0509242057001.4899@poirot.grange>
+From: Peter Osterlund <petero2@telia.com>
+Date: 25 Sep 2005 11:09:37 +0200
+In-Reply-To: <Pine.LNX.4.60.0509242057001.4899@poirot.grange>
+Message-ID: <m3slvtzf72.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: zwane@linuxpower.ca, viro@zeniv.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH linux-2.6 01/04] brsem: implement big reader semaphore
-References: <20050925064218.E7558977@htj.dyndns.org> <20050925064218.FF1C2BEC@htj.dyndns.org> <43364F70.7010705@yahoo.com.au> <43365BCA.6030904@gmail.com> <43365F82.1040801@yahoo.com.au>
-In-Reply-To: <43365F82.1040801@yahoo.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Guennadi Liakhovetski <g.liakhovetski@gmx.de> writes:
 
-  Hello, Nick.
-
-Nick Piggin wrote:
-> Tejun Heo wrote:
+> Just tried pktcdvd on 2.6.13.1. The setup went fine:
 > 
->>
->>  As I've said in the other reply, I'll first rip off three stage init 
->> thing for cpucontrol.  That added pretty much complexity to it.  And 
->> with the weird naming scheme, please tell me how to fix it.  I have no 
->> problem renaming things.
->>
+> 20:33:13: pktcdvd: writer pktcdvd0 mapped to hdc
+> 20:33:21: pktcdvd: inserted media is CD-RW
+> 20:33:21: pktcdvd: Fixed packets, 32 blocks, Mode-2 disc
+> 20:33:21: pktcdvd: Max. media speed: 10
+> 20:33:21: pktcdvd: write speed 10x
+> 20:33:21: pktcdvd: 590528kB available on disc
+> 20:33:23: UDF-fs INFO UDF 0.9.8.1 (2004/29/09) Mounting volume 'LinuxUDF', timestamp 2005/09/24 20:18 (1078)
 > 
-> OK, my criticism of your naming was not constructive so I apologise
-> for that. I willll help you with some of those minor issues if we
-> establish that your overall design is a a goer.
+> But, as I tried to copy some files to the CD-RW, it first went ok, but 
+> then produced the following:
 > 
-
-  Thanks. :-)
-
+> 20:41:01: ide-cd: cmd 0x2a timed out
+> 		      ^^^^	---------> write10
+> 20:41:01: hdc: DMA timeout retry
+> 20:41:01: hdc: timeout waiting for DMA
+> 20:41:01: hdc: status timeout: status=0xd0 { Busy }
+> 20:41:01: ide: failed opcode was: unknown
+> 20:41:01: hdc: drive not ready for command
+> 20:41:31: hdc: ATAPI reset timed-out, status=0x80
+> 20:42:06: ide1: reset timed-out, status=0x80
+> 20:42:06: hdc: status timeout: status=0x80 { Busy }
+> 20:42:06: ide: failed opcode was: unknown
+> 20:42:06: hdc: drive not ready for command
+> 20:42:36: hdc: ATAPI reset timed-out, status=0x80
+> 20:43:07: : I/O error, dev hdc, sector 136672
+> 20:43:07: end_request: I/O error, dev hdc, sector 136680
+> 20:43:07: end_request: I/O error, dev hdc, sector 136688
+> 20:43:07: end_request: I/O error, dev hdc, sector 136696
+> 20:43:07: end_request: I/O error, dev hdc, sector 137216
+> 20:43:07: end_request: I/O error, dev hdc, sector 137224
+> 20:43:07: end_request: I/O error, dev hdc, sector 137232
+> 20:43:07: end_request: I/O error, dev hdc, sector 137240
+> ... <thousands of the above>
+> 20:43:11: end_request: I/O error, dev hdc, sector 344440
+> 20:43:11: end_request: I/O error, dev hdc, sector 344444
+> 20:43:11: pktcdvd: bb 00 06 ea 06 ea 00 00 00 00 00 00 - sense 00.e0.0e (No sense)
+> 20:43:11: end_request: I/O error, dev hdc, sector 363008
+> 20:43:11: end_request: I/O error, dev hdc, sector 363016
+> ... <more of them>
+> 20:43:11: printk: 79693 messages suppressed.
+> 20:43:11: Buffer I/O error on device pktcdvd0, logical block 90752
+> 20:43:11: lost page write due to I/O error on pktcdvd0
+> 20:43:11: end_request: I/O error, dev hdc, sector 362880
+> 20:43:11: end_request: I/O error, dev hdc, sector 362884
+> ...
 > 
->>> What would be wrong with an array of NR_CPUS rwsems? The only
->>> tiny trick you would have to do AFAIKS is have up_read remember
->>> what rwsem down_read took, but that could be returned from
->>> down_read as a token.
->>
->>
->>
->>  Using array of rwsems means that every reader-side ops performs 
->> (unnecessary) real down and up operations on the semaphore which 
->> involve atomic memory op and probably memory barrier.  These are 
->> pretty expensive operations.
->>
->>  What brsem tries to do is implementing rwsem semantics while 
->> performing only normal (as opposed to atomic/barrier) intstructions 
->> during reader-side operations.  That's why all the call_on_all_cpus 
->> stuff is needed while write-locking.  Do you think avoiding 
->> atomic/barrier stuff would be an overkill?
->>
-> 
-> Yes I think so. I think the main problem on modern CPUs is
-> not atomic operations as such, but cacheline bouncing.
-> 
-> Without any numbers, I'd guess that your down_read is more
-> expensive than mine simply due to touching more cachelines
-> and having more branches.
+> the "cp" finished earlier, I did a sync, and it also finished. The good 
+> parts - no Oops, no process stuck in "D", tha bad parts - it didn't 
+> work:-), the IDE LED stays on and I cannot eject the CD. The CD-R is a 
+> BenQ 52x32x52 Seamless Link alone on ide1, the disk does indeed say 
+> 4x-10x. The cd-writer works mostly... if I am gentle to it - I usually 
+> burn at 32x even if the media says 52x... Is it just a hw-failure or a 
+> driver bug?
 
-  Other than local_bh_disable/enable(), all brsem read ops do are
+Did it ever work with this hardware, for example using 2.6.12? Does
+the drive have the latest firmware? If not, a firmware upgrade might
+help. Does it work if you use ide-scsi instead of ide-cd?
 
-  1. accessing sem->idx
-  2. calculate per-cpu rcnt address from sem->idx
-  3. do one branch on the value of per-cpu rcnt
-  4. inc/dec per-cpu rcnt
-
-  So, it does access one more cachline and, yeap, there is one branch 
-for bh enabling and several more inside local_bh_enable.  I'll try to 
-get some benchmark numbers for comparison.
-
-  I'm thinking about adding down_read(&xxx->s_umount) to write(2) and 
-compare normal rwsem and brsem performance by repeitively writing short 
-data into a file on a UP machine.  Do you have better ideas?
-
-> 
-> The other thing is simply that you really want your
-> synchronization primitives to be as simple and verifiable
-> as possible. For example rwsems even recently have had subtle
-> memory ordering and other implemntation corner cases, and
-> they're much less complex than this brsem.
-> 
-> Nick
-> 
-
-  Thanks.
+What errors do you get if you try to burn at 52x without using the
+packet writing driver?
 
 -- 
-tejun
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

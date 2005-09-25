@@ -1,69 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbVIYWKB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbVIYW2p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932317AbVIYWKB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Sep 2005 18:10:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbVIYWKB
+	id S932300AbVIYW2p (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Sep 2005 18:28:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932323AbVIYW2p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Sep 2005 18:10:01 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:34054 "EHLO
+	Sun, 25 Sep 2005 18:28:45 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:34822 "EHLO
 	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S932317AbVIYWKA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Sep 2005 18:10:00 -0400
-Date: Mon, 26 Sep 2005 00:06:28 +0200
+	id S932300AbVIYW2p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Sep 2005 18:28:45 -0400
+Date: Mon, 26 Sep 2005 00:25:27 +0200
 From: Willy Tarreau <willy@w.ods.org>
-To: Nishanth Aravamudan <nacc@us.ibm.com>
-Cc: Davide Libenzi <davidel@xmailserver.org>, Andrew Morton <akpm@osdl.org>,
-       Nish Aravamudan <nish.aravamudan@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/3] fixes for overflow in poll(), epoll(), and msec_to_jiffies()
-Message-ID: <20050925220628.GA998@alpha.home.local>
-References: <Pine.LNX.4.63.0509231108140.10222@localhost.localdomain> <20050924040534.GB18716@alpha.home.local> <29495f1d05092321447417503@mail.gmail.com> <20050924061500.GA24628@alpha.home.local> <20050924171928.GF3950@us.ibm.com> <Pine.LNX.4.63.0509241120380.31327@localhost.localdomain> <20050924193839.GB26197@alpha.home.local> <20050925205518.GB5079@us.ibm.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH-2.4] Fix jiffies overflow in delay.h
+Message-ID: <20050925222527.GB998@alpha.home.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050925205518.GB5079@us.ibm.com>
 User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 25, 2005 at 01:55:18PM -0700, Nishanth Aravamudan wrote:
-> On 24.09.2005 [21:38:39 +0200], Willy Tarreau wrote:
-> > Hello,
-> > 
-> > After the discussion around epoll() timeout, I noticed that the functions used
-> > to detect the timeout could themselves overflow for some values of HZ.
-> > 
-> > So I decided to fix them by defining a macro which represents the maximal
-> > acceptable argument which is guaranteed not to overflow. As an added bonus,
-> > those functions can now be used in poll() and ep_poll() and remove the divide
-> > if HZ == 1000, or replace it with a shift if (1000 % HZ) or (HZ % 1000) is a
-> > power of two.
-> > 
-> > Patches against 2.6.14-rc2-mm1 sent as replies to this mail.
-> 
-> These look really good, Willy. Thanks for the fixes!
+Hi Marcelo,
 
-Thanks.
-I noticed that there still existed a high risk of overflow with HZ values
-for which (HZ % 1000) != 0 && (1000 % HZ) != 0, because we hit the only
-situation where we start with a multiply by HZ, which is even worse as HZ
-grows. The only cases I've found are :
+There are several multiply overflows in delay.h:msecs_to_jiffies(). The
+first one is the call to jiffies_to_msecs(MAX_JIFFY_OFFSET) which will
+multiply MAX_JIFFY_OFFSET by (1000/HZ) or by 1000 during conversion,
+while it was already high (~0UL>>1)-1 ... Needless to say that it's
+wrong below 500 HZ and for all values not multiple of 1000 or which
+don't divide 1000.
 
-  - alpha : 1024 or 1200
-  - ia64  : 1024
+The second overflow can happen a few lines later, but this time on the
+argument. The fix consists in defining a constant (macro) which depends
+on HZ and fixes the absolute maximal value which we guarantee will not
+produce an overflow. Fortunately, I've found no user of msecs_to_jiffies()
+in mainline, although sys_poll() could benefit from it in order to avoid
+a useless divide in the fast path.
 
-Fortunately, they're both 64 bits, and since the result is an unsigned long,
-the multiply returns 64 bits result so it won't overflow in a while. However,
-we should avoid those combinations on 32-bits archs, because the limit is
-then rather low. For example, using HZ=1200 on an x86 will set MAX_MSEC_OFFSET
-to 3579138 ms, which is just below one hour. For reference, with HZ=1000,
-MAX_MSEC_OFFSET would be 2^32-1 ms, or 49.7 days, which makes quite a
-difference.
+But I think that the code needs be fixed anyway, considering that it
+had been inherited by 2.6 for which I proposed the same fix. And it
+is possible that some external patches use it.
 
-It is possible that some self-made setups hit the overflow before the patch.
-For this reason, I wonder how we could discourage people from using such
-bastard HZ values on 32 bits platforms :-/
+Please review and apply,
 
-Regards,
+Thanks in advance,
 Willy
+
+
+diff -purN linux-2.4.31-hf6/include/linux/delay.h linux-2.4.31-hf6-jiffies/include/linux/delay.h
+--- linux-2.4.31-hf6/include/linux/delay.h	Sun Sep 25 19:55:55 2005
++++ linux-2.4.31-hf6-jiffies/include/linux/delay.h	Sun Sep 25 23:39:47 2005
+@@ -14,6 +14,24 @@ extern unsigned long loops_per_jiffy;
+ #include <asm/delay.h>
+ 
+ /*
++ * We define MAX_MSEC_OFFSET as the maximal value that can be accepted by
++ * msecs_to_jiffies() without risking a multiply overflow. This function
++ * returns MAX_JIFFY_OFFSET for arguments above those values.
++ */
++
++#if HZ <= 1000 && !(1000 % HZ)
++#  define MAX_MSEC_OFFSET \
++	(ULONG_MAX - (1000 / HZ) + 1)
++#elif HZ > 1000 && !(HZ % 1000)
++#  define MAX_MSEC_OFFSET \
++	ULONG_MAX / (HZ / 1000)
++#else
++#  define MAX_MSEC_OFFSET \
++	(ULONG_MAX - 999) / HZ
++#endif
++
++
++/*
+  * Convert jiffies to milliseconds and back.
+  *
+  * Avoid unnecessary multiplications/divisions in the
+@@ -43,7 +61,7 @@ static inline unsigned int jiffies_to_us
+ 
+ static inline unsigned long msecs_to_jiffies(const unsigned int m)
+ {
+-	if (m > jiffies_to_msecs(MAX_JIFFY_OFFSET))
++	if (m > MAX_MSEC_OFFSET)
+ 		return MAX_JIFFY_OFFSET;
+ #if HZ <= 1000 && !(1000 % HZ)
+ 	return (m + (1000 / HZ) - 1) / (1000 / HZ);
+
 

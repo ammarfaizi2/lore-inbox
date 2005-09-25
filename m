@@ -1,60 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751466AbVIYO2a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751464AbVIYOik@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751466AbVIYO2a (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Sep 2005 10:28:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751467AbVIYO2a
+	id S1751464AbVIYOik (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Sep 2005 10:38:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751467AbVIYOij
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Sep 2005 10:28:30 -0400
-Received: from herkules.vianova.fi ([194.100.28.129]:64722 "HELO
-	mail.vianova.fi") by vger.kernel.org with SMTP id S1751466AbVIYO2a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Sep 2005 10:28:30 -0400
-Date: Sun, 25 Sep 2005 17:28:25 +0300
-From: Ville Herva <vherva@vianova.fi>
-To: Simon Strandman <simon.strandman@telia.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Upgrade 2.6.12-rc4 -> 2.6.13.1 broke DVD-R writing (fails consistenly in OPC phase)
-Message-ID: <20050925142825.GB24742@viasys.com>
-Reply-To: vherva@vianova.fi
-References: <20050925123049.GA24760@viasys.com> <43369C2F.3050201@telia.com> <20050925130436.GD24719@viasys.com>
-Mime-Version: 1.0
+	Sun, 25 Sep 2005 10:38:39 -0400
+Received: from mail-in-04.arcor-online.net ([151.189.21.44]:57230 "EHLO
+	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1751464AbVIYOij (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Sep 2005 10:38:39 -0400
+From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
+Subject: Re: A pettiness question.
+To: Steven Rostedt <rostedt@goodmis.org>, Steven Rostedt <rostedt@goodmis.org>,
+       Helge Hafting <helge.hafting@aitel.hist.no>,
+       Vadim Lobanov <vlobanov@speakeasy.net>, Nick Warne <nick@linicks.net>,
+       linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Sun, 25 Sep 2005 16:38:27 +0200
+References: <4PiLw-2yn-25@gated-at.bofh.it> <4Pj4M-3as-1@gated-at.bofh.it> <4PtnM-1oW-55@gated-at.bofh.it> <4Pynh-fp-1@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050925130436.GD24719@viasys.com>
-X-Operating-System: Linux herkules.vianova.fi 2.4.27
-User-Agent: Mutt/1.5.10i
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1EJXe7-0000lD-Vw@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 25, 2005 at 04:04:36PM +0300, you [Ville Herva] wrote:
-> On Sun, Sep 25, 2005 at 02:46:39PM +0200, you [Simon Strandman] wrote:
-> > Ville Herva skrev:
-> > 
-> > >The .config from 2.6.12-rc4 and 2.6.13.1 is nearly identical, but with
-> > >2.6.13.1 I use HZ=250 (that being the default nowadays) and 
-> > >2.6.13.1 has CONFIG_PREEMPT_VOLUNTARY=y instead of 2.6.12-rc4's
-> > >CONFIG_PREEMPT=y and CONFIG_PREEMPT_BKL=y ².
-> > >
-> > >Any ideas?
-> >
-> > Have you tried with HZ=1000?
+Steven Rostedt <rostedt@goodmis.org> wrote:
+
+> Actually I prefer:
 > 
-> No yet. 
-> 
-> I did see the HZ=250 problem wrt DVD recording thread earlier, but I got the
-> impression it had to do with not being able to supply data fast enough to
-> the drive. 
-> 
-> In my case, it fails before it even write a single byte to the disc.
-> (Fortunately it means it doesn't ruin the disc each time I try to write.)
+> a += (x == '-'-'-'?'-'-'-':'/'/'/');
 
-Recompiled the same 2.6.13.1 kernel with HZ=1000. DVD-R writing still fails
-with the exact same error.
+a += (x^'^'^'^'?'/'/'/':'-'-'-');
 
-
-
--- v -- 
-
-v@iki.fi
-
+CNR
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

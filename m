@@ -1,44 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbVIYMq4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751291AbVIYMr2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751284AbVIYMq4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Sep 2005 08:46:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbVIYMq4
+	id S1751291AbVIYMr2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Sep 2005 08:47:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbVIYMr2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Sep 2005 08:46:56 -0400
-Received: from pne-smtpout1-sn2.hy.skanova.net ([81.228.8.83]:51649 "EHLO
-	pne-smtpout1-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S1751284AbVIYMqz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Sep 2005 08:46:55 -0400
-Message-ID: <43369C2F.3050201@telia.com>
-Date: Sun, 25 Sep 2005 14:46:39 +0200
-From: Simon Strandman <simon.strandman@telia.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: sv, en-us, en
-MIME-Version: 1.0
-To: Ville Herva <v@iki.fi>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Upgrade 2.6.12-rc4 -> 2.6.13.1 broke DVD-R writing (fails consistenly
- in OPC phase)
-References: <20050925123049.GA24760@viasys.com>
-In-Reply-To: <20050925123049.GA24760@viasys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Sun, 25 Sep 2005 08:47:28 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:9135 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751291AbVIYMr1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Sep 2005 08:47:27 -0400
+Date: Sun, 25 Sep 2005 13:47:25 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] CONFIG_IA32
+Message-ID: <20050925124725.GA16878@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Brian Gerst <bgerst@didntduck.org>, Andrew Morton <akpm@osdl.org>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <4335DD14.7090909@didntduck.org> <20050925100525.GA14741@infradead.org> <43369ACF.3000102@didntduck.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43369ACF.3000102@didntduck.org>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ville Herva skrev:
+On Sun, Sep 25, 2005 at 08:40:47AM -0400, Brian Gerst wrote:
+> I386 is already used elsewhere for cpu optimization.  Intel has called 
+> all of its 32-bit cpus IA32 since they introduced IA64.  I've never 
+> heard of any usage of X86_32.
 
->The .config from 2.6.12-rc4 and 2.6.13.1 is nearly identical, but with
->2.6.13.1 I use HZ=250 (that being the default nowadays) and 
->2.6.13.1 has CONFIG_PREEMPT_VOLUNTARY=y instead of 2.6.12-rc4's
->CONFIG_PREEMPT=y and CONFIG_PREEMPT_BKL=y ².
->
->Any ideas?
->
->  
->
-Have you tried with HZ=1000?
-
--- 
-Simon Strandman <simon.strandman@telia.com>
+Intel doesn't use x86-64 or X86_64 either.  We're not their fifth marketing
+bridgade.
 

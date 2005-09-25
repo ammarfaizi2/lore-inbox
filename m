@@ -1,71 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751240AbVIYISQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751243AbVIYIUg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751240AbVIYISQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Sep 2005 04:18:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbVIYISQ
+	id S1751243AbVIYIUg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Sep 2005 04:20:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbVIYIUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Sep 2005 04:18:16 -0400
-Received: from zproxy.gmail.com ([64.233.162.192]:19827 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751240AbVIYISQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Sep 2005 04:18:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:organization:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=qFYr6FSpTpN8mQynUKpknvdyXAF3cSMqeTzkT9OCGHdKBeZ84wyGq0SRRnx/97mOS1DOGabzDZ5pESgrD0WEtElQogoeMSHXq+14E1USyhMEe6vOlLtzfNTgcAQcnhw2/rU8YjI3I+QJDz3YDf622fZOJZXzrR6asdlJRIL1RfI=
-Message-ID: <43365D3D.6050608@gmail.com>
-Date: Sun, 25 Sep 2005 10:18:05 +0200
-From: Patrizio Bassi <patrizio.bassi@gmail.com>
-Reply-To: patrizio.bassi@gmail.com
-Organization: patrizio.bassi@gmail.com
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050810)
-X-Accept-Language: it, it-it, en-us, en
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: "Kernel," <linux-kernel@vger.kernel.org>,
-       alsa-devel <alsa-devel@lists.sourceforge.net>
-Subject: Re: [BUG] alsa volume and settings not restored after suspend
-References: <4335909D.2070904@gmail.com> <1127593697.18892.1.camel@mindpipe>
-In-Reply-To: <1127593697.18892.1.camel@mindpipe>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+	Sun, 25 Sep 2005 04:20:36 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:35529 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751243AbVIYIUf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Sep 2005 04:20:35 -0400
+Subject: Re: [PATCH] Remove DRM_ARRAY_SIZE
+From: Arjan van de Ven <arjan@infradead.org>
+To: Dave Airlie <airlied@linux.ie>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>,
+       Michael Veeck <michael.veeck@gmx.net>, dri-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0509250054190.24532@skynet>
+References: <20050924211139.GA18795@mipter.zuzino.mipt.ru>
+	 <Pine.LNX.4.58.0509250054190.24532@skynet>
+Content-Type: text/plain
+Date: Sun, 25 Sep 2005 10:20:21 +0200
+Message-Id: <1127636422.16288.1.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell ha scritto:
+On Sun, 2005-09-25 at 00:56 +0100, Dave Airlie wrote:
+> >
+> > drivers/char/drm/drmP.h defines a macro DRM_ARRAY_SIZE(x) for
+> > determining the size of an array. kernel.h already provides one.
+> >
+> > Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+> 
+> Nak.
+> 
+> We have DRM_ for cross platform reasons in DRM, I could in theory get rid
+> of all of them in the kernel, but it would make the merging of code from
+> DRM CVS even more of a nightmare,
 
->On Sat, 2005-09-24 at 19:45 +0200, Patrizio Bassi wrote:
->  
->
->>-----BEGIN PGP SIGNED MESSAGE-----
->>Hash: SHA1
->>
->>As topic.
->>
->>Suspend works perfectly, but after resume, no sound from audio card.
->>    
->>
->
->I'm not surprised, suspend/resume is not implemented for that device.
->
->It looks like it would not be too hard, see es1938.c for an example.
->
->Lee
->
->
->  
->
-ok, suspend/resume functions are very very simple.
+ok so this brings the question: how does naming it DRM_ARRAY_SIZE make
+it more portable than naming it ARRAY_SIZE?
+If *BSD doesn't have ARRAY_SIZE, then surely naming it ARRAY_SIZE is
+easy for them to provide (after all they need to provide it already just
+called DRM_ARRAY_SIZE); if they have ARRAY_SIZE... then I assume it has
+the exact same semantics....
 
-the problem is i have really 0 experience in alsa devel, for example i 
-don't know
-the 0xa0 limit (in es1938...).
 
-so...i'm asking for alsa devel to implement that, i'll be happy to help 
-you in testing and debugging.
-
-Thanks
-
-Patrizio
 

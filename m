@@ -1,121 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751520AbVIYPsE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751524AbVIYPsr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751520AbVIYPsE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Sep 2005 11:48:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751522AbVIYPsE
+	id S1751524AbVIYPsr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Sep 2005 11:48:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751525AbVIYPsq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Sep 2005 11:48:04 -0400
-Received: from silver.veritas.com ([143.127.12.111]:10678 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1751520AbVIYPsC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Sep 2005 11:48:02 -0400
-Date: Sun, 25 Sep 2005 16:47:33 +0100 (BST)
+	Sun, 25 Sep 2005 11:48:46 -0400
+Received: from gold.veritas.com ([143.127.12.110]:5803 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1751524AbVIYPsq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Sep 2005 11:48:46 -0400
+Date: Sun, 25 Sep 2005 16:48:19 +0100 (BST)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@goblin.wat.veritas.com
 To: Andrew Morton <akpm@osdl.org>
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 01/21] mm: hugetlb truncation fixes
+Subject: [PATCH 02/21] mm: copy_pte_range progress fix
 In-Reply-To: <Pine.LNX.4.61.0509251644100.3490@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.61.0509251646380.3490@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0509251647390.3490@goblin.wat.veritas.com>
 References: <Pine.LNX.4.61.0509251644100.3490@goblin.wat.veritas.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 25 Sep 2005 15:48:00.0078 (UTC) FILETIME=[8198DEE0:01C5C1E8]
+X-OriginalArrivalTime: 25 Sep 2005 15:48:45.0750 (UTC) FILETIME=[9CD1DD60:01C5C1E8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hugetlbfs allows truncation of its files (should it?), but hugetlb.c
-often forgets that: crashes and misaccounting ensue.
+[PATCH 02/21] mm: copy_pte_range progress fix
 
-copy_hugetlb_page_range better grab the src page_table_lock since we
-don't want to guess what happens if concurrently truncated.
-unmap_hugepage_range rss accounting must not assume the full range was
-mapped.  follow_hugetlb_page must guard with page_table_lock and be
-prepared to exit early.
-
-Restyle copy_hugetlb_page_range with a for loop like the others there.
+My latency breaking in copy_pte_range didn't work as intended: instead
+of checking at regularish intervals, after the first interval it checked
+every time around the loop, too impatient to be preempted.  Fix that.
 
 Signed-off-by: Hugh Dickins <hugh@veritas.com>
 ---
 
- mm/hugetlb.c |   35 +++++++++++++++++++++--------------
- 1 files changed, 21 insertions(+), 14 deletions(-)
+ mm/memory.c |   14 ++++++++------
+ 1 files changed, 8 insertions(+), 6 deletions(-)
 
---- 2.6.14-rc2/mm/hugetlb.c	2005-09-22 12:32:03.000000000 +0100
-+++ mm01/mm/hugetlb.c	2005-09-24 19:26:24.000000000 +0100
-@@ -273,21 +273,22 @@ int copy_hugetlb_page_range(struct mm_st
+--- mm01/mm/memory.c	2005-09-21 12:16:59.000000000 +0100
++++ mm02/mm/memory.c	2005-09-24 19:26:38.000000000 +0100
+@@ -410,7 +410,7 @@ static int copy_pte_range(struct mm_stru
  {
- 	pte_t *src_pte, *dst_pte, entry;
- 	struct page *ptepage;
--	unsigned long addr = vma->vm_start;
--	unsigned long end = vma->vm_end;
-+	unsigned long addr;
+ 	pte_t *src_pte, *dst_pte;
+ 	unsigned long vm_flags = vma->vm_flags;
+-	int progress;
++	int progress = 0;
  
--	while (addr < end) {
-+	for (addr = vma->vm_start; addr < vma->vm_end; addr += HPAGE_SIZE) {
- 		dst_pte = huge_pte_alloc(dst, addr);
- 		if (!dst_pte)
- 			goto nomem;
-+		spin_lock(&src->page_table_lock);
- 		src_pte = huge_pte_offset(src, addr);
--		BUG_ON(!src_pte || pte_none(*src_pte)); /* prefaulted */
--		entry = *src_pte;
--		ptepage = pte_page(entry);
--		get_page(ptepage);
--		add_mm_counter(dst, rss, HPAGE_SIZE / PAGE_SIZE);
--		set_huge_pte_at(dst, addr, dst_pte, entry);
--		addr += HPAGE_SIZE;
-+		if (src_pte && !pte_none(*src_pte)) {
-+			entry = *src_pte;
-+			ptepage = pte_page(entry);
-+			get_page(ptepage);
-+			add_mm_counter(dst, rss, HPAGE_SIZE / PAGE_SIZE);
-+			set_huge_pte_at(dst, addr, dst_pte, entry);
-+		}
-+		spin_unlock(&src->page_table_lock);
- 	}
- 	return 0;
+ again:
+ 	dst_pte = pte_alloc_map(dst_mm, dst_pmd, addr);
+@@ -418,17 +418,19 @@ again:
+ 		return -ENOMEM;
+ 	src_pte = pte_offset_map_nested(src_pmd, addr);
  
-@@ -322,8 +323,8 @@ void unmap_hugepage_range(struct vm_area
- 
- 		page = pte_page(pte);
- 		put_page(page);
-+		add_mm_counter(mm, rss,  - (HPAGE_SIZE / PAGE_SIZE));
- 	}
--	add_mm_counter(mm, rss,  -((end - start) >> PAGE_SHIFT));
- 	flush_tlb_range(vma, start, end);
- }
- 
-@@ -402,6 +403,7 @@ int follow_hugetlb_page(struct mm_struct
- 	BUG_ON(!is_vm_hugetlb_page(vma));
- 
- 	vpfn = vaddr/PAGE_SIZE;
-+	spin_lock(&mm->page_table_lock);
- 	while (vaddr < vma->vm_end && remainder) {
- 
- 		if (pages) {
-@@ -414,8 +416,13 @@ int follow_hugetlb_page(struct mm_struct
- 			 * indexing below to work. */
- 			pte = huge_pte_offset(mm, vaddr & HPAGE_MASK);
- 
--			/* hugetlb should be locked, and hence, prefaulted */
--			WARN_ON(!pte || pte_none(*pte));
-+			/* the hugetlb file might have been truncated */
-+			if (!pte || pte_none(*pte)) {
-+				remainder = 0;
-+				if (!i)
-+					i = -EFAULT;
+-	progress = 0;
+ 	spin_lock(&src_mm->page_table_lock);
+ 	do {
+ 		/*
+ 		 * We are holding two locks at this point - either of them
+ 		 * could generate latencies in another task on another CPU.
+ 		 */
+-		if (progress >= 32 && (need_resched() ||
+-		    need_lockbreak(&src_mm->page_table_lock) ||
+-		    need_lockbreak(&dst_mm->page_table_lock)))
+-			break;
++		if (progress >= 32) {
++			progress = 0;
++			if (need_resched() ||
++			    need_lockbreak(&src_mm->page_table_lock) ||
++			    need_lockbreak(&dst_mm->page_table_lock))
 +				break;
-+			}
- 
- 			page = &pte_page(*pte)[vpfn % (HPAGE_SIZE/PAGE_SIZE)];
- 
-@@ -433,7 +440,7 @@ int follow_hugetlb_page(struct mm_struct
- 		--remainder;
- 		++i;
- 	}
--
-+	spin_unlock(&mm->page_table_lock);
- 	*length = remainder;
- 	*position = vaddr;
- 
++		}
+ 		if (pte_none(*src_pte)) {
+ 			progress++;
+ 			continue;

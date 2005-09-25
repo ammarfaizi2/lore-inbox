@@ -1,34 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751025AbVIYJa3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751050AbVIYKF3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751025AbVIYJa3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Sep 2005 05:30:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751030AbVIYJa3
+	id S1751050AbVIYKF3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Sep 2005 06:05:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751092AbVIYKF3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Sep 2005 05:30:29 -0400
-Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:38286 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S1751025AbVIYJa2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Sep 2005 05:30:28 -0400
-Date: Sun, 25 Sep 2005 11:30:25 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: pfn_valid question
-Message-ID: <Pine.LNX.4.53.0509251120340.26494@gockel.physik3.uni-rostock.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 25 Sep 2005 06:05:29 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:28121 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751050AbVIYKF3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Sep 2005 06:05:29 -0400
+Date: Sun, 25 Sep 2005 11:05:25 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] CONFIG_IA32
+Message-ID: <20050925100525.GA14741@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Brian Gerst <bgerst@didntduck.org>, Andrew Morton <akpm@osdl.org>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <4335DD14.7090909@didntduck.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4335DD14.7090909@didntduck.org>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While trying to clean up part of the include file mess, I got stuck with
-the pfn_valid() macro. For most architectures it is defined in asm/page.h
-as well as in asm/mmzone.h, but differently!
+On Sat, Sep 24, 2005 at 07:11:16PM -0400, Brian Gerst wrote:
+> Add CONFIG_IA32 for i386.  This allows selecting options that only apply 
+> to 32-bit systems.
+> 
+> (X86 && !X86_64) becomes IA32
+> (X86 ||  X86_64) becomes X86
 
-It even might be a macro in asm/page.h, but a static inline in
-asm/mmzone.h, so that the latter might never be included after the former.
-How do we make sure this is always the case?
+Please call it X86_32 or I386, to match the terminology we use everywhere.
+I386 would match the uname, and X86_32 would be the logical countepart
+to X86_64.
 
-To me this looks so incredibly fragile that I'm sure I got something
-wrong. Who can enlighten me?
-
-thanks,
-Tim

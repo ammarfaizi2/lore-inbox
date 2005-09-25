@@ -1,68 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751255AbVIYMay@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751289AbVIYMlL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751255AbVIYMay (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Sep 2005 08:30:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751289AbVIYMax
+	id S1751289AbVIYMlL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Sep 2005 08:41:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbVIYMlL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Sep 2005 08:30:53 -0400
-Received: from herkules.vianova.fi ([194.100.28.129]:15057 "HELO
-	mail.vianova.fi") by vger.kernel.org with SMTP id S1751255AbVIYMax
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Sep 2005 08:30:53 -0400
-Date: Sun, 25 Sep 2005 15:30:49 +0300
-From: Ville Herva <v@iki.fi>
-To: linux-kernel@vger.kernel.org
-Subject: Upgrade 2.6.12-rc4 -> 2.6.13.1 broke DVD-R writing (fails consistenly in OPC phase)
-Message-ID: <20050925123049.GA24760@viasys.com>
-Mime-Version: 1.0
-Content-Type: text/PLAIN; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.10i
+	Sun, 25 Sep 2005 08:41:11 -0400
+Received: from quark.didntduck.org ([69.55.226.66]:64954 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id S1751289AbVIYMlK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Sep 2005 08:41:10 -0400
+Message-ID: <43369ACF.3000102@didntduck.org>
+Date: Sun, 25 Sep 2005 08:40:47 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla Thunderbird 1.0.6-5 (X11/20050818)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] CONFIG_IA32
+References: <4335DD14.7090909@didntduck.org> <20050925100525.GA14741@infradead.org>
+In-Reply-To: <20050925100525.GA14741@infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After I upgraded from 2.6.12-rc4 to 2.6.13.1, I can no longer write DVD-R
-(haven't tried DVD+R nor CD-R). 
+Christoph Hellwig wrote:
+> On Sat, Sep 24, 2005 at 07:11:16PM -0400, Brian Gerst wrote:
+> 
+>>Add CONFIG_IA32 for i386.  This allows selecting options that only apply 
+>>to 32-bit systems.
+>>
+>>(X86 && !X86_64) becomes IA32
+>>(X86 ||  X86_64) becomes X86
+> 
+> 
+> Please call it X86_32 or I386, to match the terminology we use everywhere.
+> I386 would match the uname, and X86_32 would be the logical countepart
+> to X86_64.
+> 
 
-The command 
+I386 is already used elsewhere for cpu optimization.  Intel has called 
+all of its 32-bit cpus IA32 since they introduced IA64.  I've never 
+heard of any usage of X86_32.
 
- growisofs -r -l -J -R -f -graft-points ${=FILES} -Z /dev/hdc
-
-always gives:
-
- :-[ PERFORM OPC failed with SK=3h/ASC=73h/ACQ=03h]: Input/output error
-
-Nothing relevant in dmesg.
-
-The drive is Optoride DVD±RW DD0401, the medium is Verbatim DVD-R 8x, and
-the chipset is i815; Celeron Tualatin 1.4GHZ; Abit ST6R.
-
-I tried the growisofs command probably a dozen times, rebooted and powered
-off in the middle¹. I tried a couple of other discs from the same ("known
-good") batch. cdrecord also fails. I tried to set -speed=1, 2, 4, but
-growisofs claims setting speed to anything but 8x does not succeed.
-
-The drive is able to read CD and DVD media just fine with 2.6.13.1.
-
-I booted back to 2.6.12-rc4 and the recording succeeded at the first try. I
-used the exact same disc that had failed with 2.6.13.1.
-
-The .config from 2.6.12-rc4 and 2.6.13.1 is nearly identical, but with
-2.6.13.1 I use HZ=250 (that being the default nowadays) and 
-2.6.13.1 has CONFIG_PREEMPT_VOLUNTARY=y instead of 2.6.12-rc4's
-CONFIG_PREEMPT=y and CONFIG_PREEMPT_BKL=y ².
-
-Any ideas?
-
-
--- v -- 
-
-v@iki.fi
-
-¹) In past, the DVD-R drive has sometimes gotten so confused it needs a
-   power off before it co-operates. However, in those cases it has stopped 
-   responsing altogether, which it didn't do this time.
-²) The desktop does seem more responsive with 2.6.13.1-
-
-
+--
+				Brian Gerst

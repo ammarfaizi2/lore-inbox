@@ -1,64 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751081AbVIYFLq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbVIYFqN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751081AbVIYFLq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Sep 2005 01:11:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbVIYFLq
+	id S1751096AbVIYFqN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Sep 2005 01:46:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbVIYFqN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Sep 2005 01:11:46 -0400
-Received: from xenotime.net ([66.160.160.81]:52173 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751081AbVIYFLp (ORCPT
+	Sun, 25 Sep 2005 01:46:13 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:24000 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751096AbVIYFqM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Sep 2005 01:11:45 -0400
-Date: Sat, 24 Sep 2005 22:11:43 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: anup badhe <anup_223@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: patching kgdb to linux
-Message-Id: <20050924221143.73481ea8.rdunlap@xenotime.net>
-In-Reply-To: <20050925035539.93945.qmail@web52407.mail.yahoo.com>
-References: <20050925035539.93945.qmail@web52407.mail.yahoo.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 25 Sep 2005 01:46:12 -0400
+Date: Sat, 24 Sep 2005 22:44:49 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: tglx@linutronix.de, mingo@elte.hu, roland@redhat.com, george@mvista.com,
+       linux-kernel@vger.kernel.org, rostedt@goodmis.org, paulmck@us.ibm.com
+Subject: Re: [PATCH] fix exit_itimers() vs posix_timer_event() AB-BA
+ deadlock
+Message-Id: <20050924224449.30582f70.akpm@osdl.org>
+In-Reply-To: <433557BB.EE6E5FE5@tv-sign.ru>
+References: <20050818060126.GA13152@elte.hu>
+	<1124495303.23647.579.camel@tglx.tec.linutronix.de>
+	<43076138.C37ED380@tv-sign.ru>
+	<1124617458.23647.643.camel@tglx.tec.linutronix.de>
+	<43085E97.4EC3908B@tv-sign.ru>
+	<1124659468.23647.695.camel@tglx.tec.linutronix.de>
+	<1124661032.23647.698.camel@tglx.tec.linutronix.de>
+	<4309731E.ED621149@tv-sign.ru>
+	<1124698127.23647.716.camel@tglx.tec.linutronix.de>
+	<43099235.65BC4757@tv-sign.ru>
+	<1124705208.23647.737.camel@tglx.tec.linutronix.de>
+	<430A012E.1CAF0A2F@tv-sign.ru>
+	<1124791998.23647.789.camel@tglx.tec.linutronix.de>
+	<430B4C35.AE7CD179@tv-sign.ru>
+	<433557BB.EE6E5FE5@tv-sign.ru>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 24 Sep 2005 20:55:39 -0700 (PDT) anup badhe wrote:
+Oleg Nesterov <oleg@tv-sign.ru> wrote:
+>
+> +	/*
+>  +	 * We are locking ->it_lock + tasklist_lock backwards
+>  +	 * from release_task()->exit_itimers(), beware deadlock.
+>  +	 */
+>  +	leader = timr->it_process->group_leader;
+>  +	while (unlikely(!read_trylock(&tasklist_lock))) {
+>  +		if (leader->flags & PF_EXITING) {
+>  +			smp_rmb();
+>  +			if (thread_group_empty(leader))
+>  +				return 0;
+>  +		}
+>  +		cpu_relax();
+>  +	}
 
-> i am trying to debug the linux kernel 2.6.10 using
-> kgdb.i have downloaded the kgdb patch 2.6.10-mm2.bz2.
-> after bunzip2 it gives me the file 2.6.10-mm2.
-> 
-> problem:
-> 1- which type of file is this?
+Oh dear.  Is there no way to fix this up by taking the locks in the correct
+order?  (Whatever that is).
 
-It's a diff; apply it using 'patch'.
-
-> 2- what patch command should i use(the options) so
-> that i can patch it to linux 2.6.10.?
-> 3-i have used the following command and it gives me
-> some errors:
-> 
-> root@localhost root]# patch -p1 <2.6.10-mm2
-> can't find file to patch at input line 3
-> Perhaps you used the wrong -p or --strip option?
-> The text leading up to this
-> was:--------------------------|---
-> linux-2.6.10/arch/alpha/defconfig  2004-10-18
-> 16:55:19.000000000 -0700
-> |+++ 25/arch/alpha/defconfig    2005-01-05
-> 23:22:42.000000000 -0800
-> --------------------------
-> File to patch:
-
-$ cd linux-2.6.10
-$ patch -p1 -b < /path/to/2.6.10-mm2  # wherever you put it
-$ make *config
-
-
----
-~Randy
-You can't do anything without having to do something else first.
--- Belefant's Law

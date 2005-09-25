@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbVIYKOf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbVIYKoa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751247AbVIYKOf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Sep 2005 06:14:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbVIYKOf
+	id S1751250AbVIYKoa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Sep 2005 06:44:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbVIYKoa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Sep 2005 06:14:35 -0400
-Received: from smtprelay01.ispgateway.de ([80.67.18.13]:42634 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1751247AbVIYKOe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Sep 2005 06:14:34 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Use .incbin for config_data.gz
-Date: Sun, 25 Sep 2005 12:13:49 +0200
-User-Agent: KMail/1.7.2
-Cc: Brian Gerst <bgerst@didntduck.org>, Andrew Morton <akpm@osdl.org>
-References: <43359B28.1040007@didntduck.org>
-In-Reply-To: <43359B28.1040007@didntduck.org>
+	Sun, 25 Sep 2005 06:44:30 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:60058 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S1751250AbVIYKoa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Sep 2005 06:44:30 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Grant Coady <grant_lkml@dodo.com.au>
+Subject: Re: New inventions in rounding up in catc.c?
+Date: Sun, 25 Sep 2005 13:43:47 +0300
+User-Agent: KMail/1.8.2
+Cc: Simon Evans <spse@secret.org.uk>, Vojtech Pavlik <vojtech@suse.cz>,
+       linux-kernel@vger.kernel.org
+References: <200509241343.42464.vda@ilport.com.ua> <l27bj1hjeqsl9ifg4ogb0drj56fsm0j62a@4ax.com>
+In-Reply-To: <l27bj1hjeqsl9ifg4ogb0drj56fsm0j62a@4ax.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2016831.Z6g3jyCG9S";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200509251213.56437.ioe-lkml@rameria.de>
-Sender: linux-kernel-owner@vger.kernel.org
-X-Mailing-List: linux-kernel@vger.kernel.org
-
---nextPart2016831.Z6g3jyCG9S
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200509251343.47892.vda@ilport.com.ua>
+Sender: linux-kernel-owner@vger.kernel.org
+X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Brian,
+On Saturday 24 September 2005 21:46, Grant Coady wrote:
+> On Sat, 24 Sep 2005 13:43:42 +0300, Denis Vlasenko <vda@ilport.com.ua> wrote:
+> > 		/* F5U011 only does one packet per RX */
+> > 		if (catc->is_f5u011)
+> > 			break;
+> >-		pkt_start += (((pkt_len + 1) >> 6) + 1) << 6;
+> >+		pkt_start += ((pkt_len + 2) + 63) & ~63;
+> 
+>   		pkt_start += ((pkt_len + 1) + 64) & ~63;
+> 
+> Seems more clear to me.
 
-On Saturday 24 September 2005 20:30, Brian Gerst wrote:
-> Instead of creating config_data.h, use .incbin in inline assembly to
-> directly include config_data.gz.
+Why?
 
-Good idea, but please make this .rodata instead of .data,
-since this isn't going to be modified.
+((pkt_len + 2) + 63) & ~63 is "add 2 and round up to next 64".
+((pkt_len + 1) + 64) & ~63 is "???!"
 
-Regards
-
-Ingo Oeser
-
-
---nextPart2016831.Z6g3jyCG9S
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDNnhkU56oYWuOrkARAkNTAKCUZaj2ruQwfVYhDhRCkxaxzsMHOACgs10u
-EodWX0AxA9mAPXuMqp88JC0=
-=zIMH
------END PGP SIGNATURE-----
-
---nextPart2016831.Z6g3jyCG9S--
+It's strange code anyway, I hope maintainer can clarify what's going on.
+(I suspect it was intended to be pkt_len - 1, not +, in the first place)
+--
+vda

@@ -1,92 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbVIYWJi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbVIYWKB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932315AbVIYWJi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Sep 2005 18:09:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932317AbVIYWJi
+	id S932317AbVIYWKB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Sep 2005 18:10:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbVIYWKB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Sep 2005 18:09:38 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:23258 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932315AbVIYWJh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Sep 2005 18:09:37 -0400
-Date: Mon, 26 Sep 2005 00:07:38 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][Fix] Prevent swsusp from corrupting page translation tables during resume on x86-64
-Message-ID: <20050925220738.GF2775@elf.ucw.cz>
-References: <200509241936.12214.rjw@sisk.pl>
+	Sun, 25 Sep 2005 18:10:01 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:34054 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S932317AbVIYWKA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Sep 2005 18:10:00 -0400
+Date: Mon, 26 Sep 2005 00:06:28 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Nishanth Aravamudan <nacc@us.ibm.com>
+Cc: Davide Libenzi <davidel@xmailserver.org>, Andrew Morton <akpm@osdl.org>,
+       Nish Aravamudan <nish.aravamudan@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/3] fixes for overflow in poll(), epoll(), and msec_to_jiffies()
+Message-ID: <20050925220628.GA998@alpha.home.local>
+References: <Pine.LNX.4.63.0509231108140.10222@localhost.localdomain> <20050924040534.GB18716@alpha.home.local> <29495f1d05092321447417503@mail.gmail.com> <20050924061500.GA24628@alpha.home.local> <20050924171928.GF3950@us.ibm.com> <Pine.LNX.4.63.0509241120380.31327@localhost.localdomain> <20050924193839.GB26197@alpha.home.local> <20050925205518.GB5079@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200509241936.12214.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20050925205518.GB5079@us.ibm.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> The following patch fixes Bug #4959.  It creates temporary page translation
-> tables located in the page frames that are not overwritten by swsusp while copying
-> the image.
+On Sun, Sep 25, 2005 at 01:55:18PM -0700, Nishanth Aravamudan wrote:
+> On 24.09.2005 [21:38:39 +0200], Willy Tarreau wrote:
+> > Hello,
+> > 
+> > After the discussion around epoll() timeout, I noticed that the functions used
+> > to detect the timeout could themselves overflow for some values of HZ.
+> > 
+> > So I decided to fix them by defining a macro which represents the maximal
+> > acceptable argument which is guaranteed not to overflow. As an added bonus,
+> > those functions can now be used in poll() and ep_poll() and remove the divide
+> > if HZ == 1000, or replace it with a shift if (1000 % HZ) or (HZ % 1000) is a
+> > power of two.
+> > 
+> > Patches against 2.6.14-rc2-mm1 sent as replies to this mail.
 > 
-> The temporary page translation tables are generally based on the existing ones
-> with the exception that the mappings using 4KB pages are replaced with the
-> equivalent mappings that use 2MB pages only.  The temporary page tables are
-> only used for copying the image.
+> These look really good, Willy. Thanks for the fixes!
 
-Would not it be simpler to create them from scratch? mm/init.c has
-some handy functions, they should be applicable. [init_memory_mapping,
-phys_pud_init]. Perhaps even initialize only simple direct mapping,
-and place virt_to_phys() at strategic places?
-								Pavel
+Thanks.
+I noticed that there still existed a high risk of overflow with HZ values
+for which (HZ % 1000) != 0 && (1000 % HZ) != 0, because we hit the only
+situation where we start with a multiply by HZ, which is even worse as HZ
+grows. The only cases I've found are :
 
-> +static int __duplicate_page_tables(pgd_t *src_pgd, pgd_t *pgd, unsigned long map_offset)
-> +{
-> +	pud_t *src_pud, *pud;
-> +	pmd_t *src_pmd, *pmd;
-> +	pte_t *src_pte;
-> +	int i, j, k;
-> +
-> +	pr_debug("Duplicating pagetables for the map 0x%016lx at 0x%016lx\n",
-> +		map_offset, (unsigned long)src_pgd);
-> +	i = pgd_index(map_offset);
-> +	j = pud_index(map_offset);
-> +	k = pmd_index(map_offset);
-> +	src_pgd += i;
-> +	pgd += i;
-> +	for (; pgd_val(*src_pgd) && i < PTRS_PER_PGD; i++, src_pgd++, pgd++) {
-> +		pud = (pud_t *)get_usable_page(GFP_ATOMIC);
-> +		if (!pud)
-> +			return -ENOMEM;
-> +		pgd_val(*pgd) = (pgd_val(*src_pgd) & ~__PGTABLE_MASK) |
-> +			__pa((unsigned long)pud);
-> +		pud += j;
-> +		src_pud = (pud_t *)__va(pgd_val(*src_pgd) & __PGTABLE_MASK) + j;
-> +		for (; pud_val(*src_pud) && j < PTRS_PER_PUD; j++, src_pud++, pud++) {
-> +			pmd = (pmd_t *)get_usable_page(GFP_ATOMIC);
-> +			if (!pmd)
-> +				return -ENOMEM;
-> +			pud_val(*pud) = (pud_val(*src_pud) & ~__PGTABLE_MASK) |
-> +				__pa((unsigned long)pmd);
-> +			pmd += k;
-> +			src_pmd = (pmd_t *)__va(pud_val(*src_pud) & __PGTABLE_MASK) + k;
-> +			for (; pmd_val(*src_pmd) && k < PTRS_PER_PMD; k++, src_pmd++, pmd++)
-> +				if (pmd_val(*src_pmd) & _PAGE_PSE) /* 2MB page */
-> +					pmd_val(*pmd) = pmd_val(*src_pmd);
-> +				else { /* 4KB page table -> 2MB page */
-> +					src_pte = __va(pmd_val(*src_pmd) & __PGTABLE_MASK);
-> +					pmd_val(*pmd) = ((pmd_val(*src_pmd) & ~__PGTABLE_MASK) |
-> +						_PAGE_PSE) |
-> +						(pte_val(*src_pte) & __PGTABLE_PSE_MASK);
-> +				}
-> +			k = 0;
-> +		}
-> +		j = 0;
-> +	}
-> +	return 0;
-> +}
+  - alpha : 1024 or 1200
+  - ia64  : 1024
 
--- 
-if you have sharp zaurus hardware you don't need... you know my address
+Fortunately, they're both 64 bits, and since the result is an unsigned long,
+the multiply returns 64 bits result so it won't overflow in a while. However,
+we should avoid those combinations on 32-bits archs, because the limit is
+then rather low. For example, using HZ=1200 on an x86 will set MAX_MSEC_OFFSET
+to 3579138 ms, which is just below one hour. For reference, with HZ=1000,
+MAX_MSEC_OFFSET would be 2^32-1 ms, or 49.7 days, which makes quite a
+difference.
+
+It is possible that some self-made setups hit the overflow before the patch.
+For this reason, I wonder how we could discourage people from using such
+bastard HZ values on 32 bits platforms :-/
+
+Regards,
+Willy
+

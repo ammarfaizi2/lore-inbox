@@ -1,58 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751237AbVIYIGx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751238AbVIYIJJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751237AbVIYIGx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Sep 2005 04:06:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751238AbVIYIGx
+	id S1751238AbVIYIJJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Sep 2005 04:09:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751240AbVIYIJJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Sep 2005 04:06:53 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:30982 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1751237AbVIYIGw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Sep 2005 04:06:52 -0400
-Date: Sun, 25 Sep 2005 10:03:29 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Vadim Lobanov <vlobanov@speakeasy.net>
-Cc: Andrew Morton <akpm@osdl.org>, Davide Libenzi <davidel@xmailserver.org>,
-       nish.aravamudan@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch] sys_epoll_wait() timeout saga ...
-Message-ID: <20050925080328.GA31855@alpha.home.local>
-References: <Pine.LNX.4.63.0509231108140.10222@localhost.localdomain> <20050924040534.GB18716@alpha.home.local> <29495f1d05092321447417503@mail.gmail.com> <20050924061500.GA24628@alpha.home.local> <Pine.LNX.4.63.0509240800020.31060@localhost.localdomain> <20050924172011.GA25997@alpha.home.local> <Pine.LNX.4.63.0509241113370.31327@localhost.localdomain> <20050924230545.3245da3f.akpm@osdl.org> <Pine.LNX.4.58.0509250000470.5772@shell3.speakeasy.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0509250000470.5772@shell3.speakeasy.net>
-User-Agent: Mutt/1.5.10i
+	Sun, 25 Sep 2005 04:09:09 -0400
+Received: from zproxy.gmail.com ([64.233.162.197]:18092 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751238AbVIYIJI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Sep 2005 04:09:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=Ag48paQMqVznlzFDsfxPYpk5JIdlVKWma8uv6AhFUm+P0ep+W7UPMTXFIa9qjfUdCbGJd5MtOoxrTDJjgRfDp9W+XZEcs2hYyAEnLORtoJx344Y7OnApWuAu3ezIWimruRtwUSAJU/nN8ePzhh4sjUqUS9/br7iVX0X0e8Wt9fM=
+Message-ID: <433659E7.5080007@gmail.com>
+Date: Sun, 25 Sep 2005 17:03:51 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Debian Thunderbird 1.0.6 (X11/20050803)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: zwane@linuxpower.ca, viro@zeniv.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH linux-2.6 04/04] brsem: convert cpucontrol to brsem
+References: <20050925064218.E7558977@htj.dyndns.org> <20050925064218.642A9DFD@htj.dyndns.org> <4336542D.4000102@yahoo.com.au>
+In-Reply-To: <4336542D.4000102@yahoo.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Sun, Sep 25, 2005 at 12:08:03AM -0700, Vadim Lobanov wrote:
-(...)
-> > +/* Maximum msec timeout value storeable in a long int */
-> > +#define EP_MAX_MSTIMEO min(1000ULL * MAX_SCHEDULE_TIMEOUT / HZ, LONG_MAX / HZ - 1000ULL)
+Nick Piggin wrote:
+> Tejun Heo wrote:
 > 
-> This should instead be:
-> #define EP_MAX_MSTIMEO min(1000ULL * MAX_SCHEDULE_TIMEOUT / HZ, (LONG_MAX - 999ULL) / HZ)
-> Here's why:
-> We want to avoid overflow of (timeout * HZ + 999), or, in other words,
-> the case where (timeout * HZ + 999) >= LONG_MAX
-> Unwrapping the equation, we get timeout >= (LONG_MAX - 999) / HZ
+>> +/*
+>> + * cpucontrol is a brsem used to synchronize cpu hotplug events.
+>> + * Invoking lock_cpu_hotplug() read-locks cpucontrol and no
+>> + * hotplugging events will occur until it's released.
+>> + *
+>> + * Unfortunately, brsem itself makes use of lock_cpu_hotplug() and
+>> + * performing brsem write-lock operations on cpucontrol deadlocks.
+>> + * This is avoided by...
+>> + *
+>> + * a. guaranteeing that cpu hotplug events won't occur during the
+>> + *    write-lock operations, and
+>> + *
+>> + * b. skipping lock_cpu_hotplug() inside brsem.
+>> + *
+>> + * #a is achieved by acquiring and releasing cpucontrol_mutex outside
+>> + * cpucontrol write-lock.  #b is achieved by skipping
+>> + * lock_cpu_hotplug() inside brsem if the current task is
+>> + * cpucontrol_mutex holder (is_cpu_hotplug_holder() test).
+>> + *
+>> + * Also, note that cpucontrol is first initialized with
+>> + * BRSEM_BYPASS_INITIALIZER and then initialized again with
+>> + * __create_brsem() instead of simply using create_brsem().  This is
+>> + * necessary as cpucontrol brsem gets used way before brsem subsystem
+>> + * becomes up and running.
+>> + *
+>> + * Until brsem is properly initialized, all brsem ops succeed
+>> + * unconditionally.  cpucontrol becomes operational only after
+>> + * cpucontrol_init() is finished, which should be called after
+>> + * brsem_init_early().
+>> + */
 > 
-> The original code isn't _wrong_, but more restrictive than it should be.
-> In any case, better to fix up the base patch now, before all the other
-> patches go in. I could do this, or Davide can... it's all good. :-)
+> 
+> Mmm, this is just insane IMO.
+> 
+> Note that I happen to also think the idea (brsems) have merit, and
+> that cpucontrol may be one of the places where a sane implementation
+> would actually be useful... but at least when you're introducing
+> this kind of complexity anywhere, you *really* need to be able to
+> back it up with numbers.
+> 
+> As far as the VFS race fix goes, I guess Al or someone else will
+> comment on its correctness. But I think it might be nicer to first
+> fix it with a regular rwsem and then show some numbers to justify
+> its conversion to a brsem.
+> 
+> If you need interruptible rwsems, I almost got an implementation
+> working a while back, and David Howells recently said he was
+> interested in doing them... so that's not an impossibility.
+> 
+> Nick
+> 
 
-I think it's because with the numerous changes we brought, the '>' test
-became '>=' but the old timeout was still used with '>'. With '>=', I
-agree with you that it must be -999.
+  Hello, Nick.
 
-Andrew, Vadim is right. Anyway, this proves why we must really move all
-those complicated tests to jiffies.h ASAP !
+  I do agree that it's absolutely ugly.  I thought about ripping the 
+3-tage init'ing and cpu hotplug stuff as currently cpu hotplug locking 
+isn't used frequently, but was just giving a shot.  I'll strip this 
+thing out.
 
-BTW, Andrew, could you merge the jiffies fix before -mm3, so that we can
-remove those annoying tests quickly ?
+  Thanks.
 
-Thanks in advance,
-Willy
-
+-- 
+tejun

@@ -1,97 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750786AbVIYLWH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751255AbVIYMay@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750786AbVIYLWH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Sep 2005 07:22:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbVIYLWH
+	id S1751255AbVIYMay (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Sep 2005 08:30:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751289AbVIYMax
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Sep 2005 07:22:07 -0400
-Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:5271 "HELO
-	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1750786AbVIYLWG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Sep 2005 07:22:06 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=KoTgU1A2Eqyw8JqrNHlr9h7fz9BFbtur1Z2GnUgL5r3BwsiD5acecbAmVQKesGNlvctc8vBpuYWynjRER6/FJCAF8rMBqBIBU/Tc9nl+QTfAOON0zo/fa2zjVZilS/FnIncqLygtVSMJqv1ibuYRp7M5NKQMjrf5IyQOD2Azobk=  ;
-Message-ID: <43368887.2020008@yahoo.com.au>
-Date: Sun, 25 Sep 2005 21:22:47 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Tejun Heo <htejun@gmail.com>
-CC: viro@zeniv.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH linux-2.6 01/04] brsem: implement big reader semaphore
-References: <20050925064218.E7558977@htj.dyndns.org> <20050925064218.FF1C2BEC@htj.dyndns.org> <43364F70.7010705@yahoo.com.au> <43365BCA.6030904@gmail.com> <43365F82.1040801@yahoo.com.au> <433665A4.6010400@gmail.com> <43366CBA.5010306@yahoo.com.au> <43367676.1080308@gmail.com>
-In-Reply-To: <43367676.1080308@gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 25 Sep 2005 08:30:53 -0400
+Received: from herkules.vianova.fi ([194.100.28.129]:15057 "HELO
+	mail.vianova.fi") by vger.kernel.org with SMTP id S1751255AbVIYMax
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Sep 2005 08:30:53 -0400
+Date: Sun, 25 Sep 2005 15:30:49 +0300
+From: Ville Herva <v@iki.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Upgrade 2.6.12-rc4 -> 2.6.13.1 broke DVD-R writing (fails consistenly in OPC phase)
+Message-ID: <20050925123049.GA24760@viasys.com>
+Mime-Version: 1.0
+Content-Type: text/PLAIN; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tejun Heo wrote:
+After I upgraded from 2.6.12-rc4 to 2.6.13.1, I can no longer write DVD-R
+(haven't tried DVD+R nor CD-R). 
 
->  I did a busy-loop microbenchmark, and I think it's informative enough. :-)
-> 
+The command 
 
-Great!
+ growisofs -r -l -J -R -f -graft-points ${=FILES} -Z /dev/hdc
 
->  The following command is run on three versions - vanilla version, one 
-> with read_down/up(->s_umount) added to vfs_write(), and one with 
-> brsem_read_down/up(->s_umount) added to vfs_write().
-> 
-> # time -p dd if=/dev/zero of=out bs=32 count=10M
-> 
->  The test is run three times and the results are averaged.
-> 
-> a. vanilla
-> 
-> real 58.63
-> user 5.61
-> sys 52.37
-> 
-> b. rwsem
-> 
-> real 59.24
-> user 6.06
-> sys 52.29
-> 
-> c. brsem
-> 
-> real 61.74
-> user 5.78
-> sys 55.04
-> 
->  I don't think brsem has any chance of being faster than rwsem if it's 
-> slower in this micro benchmark.  One weird thing is that the result of 
-> rwsem consistently showed higher user time and lower system time than 
-> vanilla (no synchronization) case, maybe oprofiling will tell something.
-> 
+always gives:
 
-Yep, probably just some timing or cache anomaly, generally just
-sum the user and system time in the case where you are running
-identical userspace code... I wouldn't worry too much about it.
+ :-[ PERFORM OPC failed with SK=3h/ASC=73h/ACQ=03h]: Input/output error
 
->  Anyways, you were absolutely right.  My brsem was a pretty stupid idea 
-> after all.  Let's hope at least I learned something from it.  :-(
-> 
+Nothing relevant in dmesg.
 
-I wouldn't say stupid. Implementation was too complex, but some
-clever ideas were required to solve the problems you identified.
+The drive is Optoride DVD±RW DD0401, the medium is Verbatim DVD-R 8x, and
+the chipset is i815; Celeron Tualatin 1.4GHZ; Abit ST6R.
 
-There are definitely a couple of possible places where a brsem
-may be useful, and I think cpucontrol semaphore is one of those.
+I tried the growisofs command probably a dozen times, rebooted and powered
+off in the middle¹. I tried a couple of other discs from the same ("known
+good") batch. cdrecord also fails. I tried to set -speed=1, 2, 4, but
+growisofs claims setting speed to anything but 8x does not succeed.
 
-Al can probably comment on its use in the superblock. It seems
-fair enough, though I think we'll want to slim down my naive
-rwsem array and maybe think about using alloc_percpu.
+The drive is able to read CD and DVD media just fine with 2.6.13.1.
 
-Is the remount case much rarer than mount/unmount? Do we need to
-be careful about bloating the size of the superblock on large
-machines? In that case maybe a global remount brsem will be
-enough to handle this race?
+I booted back to 2.6.12-rc4 and the recording succeeded at the first try. I
+used the exact same disc that had failed with 2.6.13.1.
 
--- 
-SUSE Labs, Novell Inc.
+The .config from 2.6.12-rc4 and 2.6.13.1 is nearly identical, but with
+2.6.13.1 I use HZ=250 (that being the default nowadays) and 
+2.6.13.1 has CONFIG_PREEMPT_VOLUNTARY=y instead of 2.6.12-rc4's
+CONFIG_PREEMPT=y and CONFIG_PREEMPT_BKL=y ².
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Any ideas?
+
+
+-- v -- 
+
+v@iki.fi
+
+¹) In past, the DVD-R drive has sometimes gotten so confused it needs a
+   power off before it co-operates. However, in those cases it has stopped 
+   responsing altogether, which it didn't do this time.
+²) The desktop does seem more responsive with 2.6.13.1-
+
+

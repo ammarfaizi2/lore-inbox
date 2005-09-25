@@ -1,101 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbVIYHIG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751220AbVIYHSY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751198AbVIYHIG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Sep 2005 03:08:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbVIYHIF
+	id S1751220AbVIYHSY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Sep 2005 03:18:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbVIYHSX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Sep 2005 03:08:05 -0400
-Received: from mail24.sea5.speakeasy.net ([69.17.117.26]:26014 "EHLO
-	mail24.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1751198AbVIYHIE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Sep 2005 03:08:04 -0400
-Date: Sun, 25 Sep 2005 00:08:03 -0700 (PDT)
-From: Vadim Lobanov <vlobanov@speakeasy.net>
-To: Andrew Morton <akpm@osdl.org>, Davide Libenzi <davidel@xmailserver.org>
-cc: willy@w.ods.org, nish.aravamudan@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch] sys_epoll_wait() timeout saga ...
-In-Reply-To: <20050924230545.3245da3f.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0509250000470.5772@shell3.speakeasy.net>
-References: <Pine.LNX.4.63.0509231108140.10222@localhost.localdomain>
- <20050924040534.GB18716@alpha.home.local> <29495f1d05092321447417503@mail.gmail.com>
- <20050924061500.GA24628@alpha.home.local> <Pine.LNX.4.63.0509240800020.31060@localhost.localdomain>
- <20050924172011.GA25997@alpha.home.local> <Pine.LNX.4.63.0509241113370.31327@localhost.localdomain>
- <20050924230545.3245da3f.akpm@osdl.org>
+	Sun, 25 Sep 2005 03:18:23 -0400
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:2994 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1751220AbVIYHSX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Sep 2005 03:18:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=kkglO3fmozqEK6VFrVIvSfOHVsBGIngyrku2v/d4mcaLgffyfKgJzROQD/LrL12ok4SHac7sA91RSZyrKsbSpZxV4JmWx88WS5J/FHtAwzcdazt3sFvK0NTT1sXgM1g9OVJehHbJik9XMnFEPOzyuMH1uB4hKT0lz6I6Z5BtMIE=  ;
+Message-ID: <43364F70.7010705@yahoo.com.au>
+Date: Sun, 25 Sep 2005 17:19:12 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Tejun Heo <htejun@gmail.com>
+CC: zwane@linuxpower.ca, viro@zeniv.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH linux-2.6 01/04] brsem: implement big reader semaphore
+References: <20050925064218.E7558977@htj.dyndns.org> <20050925064218.FF1C2BEC@htj.dyndns.org>
+In-Reply-To: <20050925064218.FF1C2BEC@htj.dyndns.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 24 Sep 2005, Andrew Morton wrote:
+Tejun Heo wrote:
+> 01_brsem_implement_brsem.patch
+> 
+> 	This patch implements big reader semaphore - a rwsem with very
+> 	cheap reader-side operations and very expensive writer-side
+> 	operations.  For details, please read comments at the top of
+> 	kern/brsem.c.
+> 
 
-> Davide Libenzi <davidel@xmailserver.org> wrote:
-> >
-> > The attached patch uses the kernel min() macro, that is optimized has
-> >  single compare by gcc-O2. Andrew, this goes over (hopefully ;) the bits
-> >  you already have in -mm.
->
-> OK, well I've rather lost the plot with all the patches flying around.
->
-> I now have one single patch against epoll.c, below.  Please confirm that
-> this is what was intended.   If not, I'll drop it and let's start again.
->
+This thing looks pretty overengineered. It is difficult to
+read with all the little wrapper functions and weird naming
+schemes.
 
-I hate to be the squeaky wheel here, but the attached patch is not 100%
-right -
+What would be wrong with an array of NR_CPUS rwsems? The only
+tiny trick you would have to do AFAIKS is have up_read remember
+what rwsem down_read took, but that could be returned from
+down_read as a token.
 
->
-> From: Davide Libenzi <davidel@xmailserver.org>
->
-> The sys_epoll_wait() function was not handling correctly negative timeouts
-> (besides -1), and like sys_poll(), was comparing millisec to secs in
-> testing the upper timeout limit.
->
-> Signed-off-by: Davide Libenzi <davidel@xmailserver.org>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
-> ---
->
->  fs/eventpoll.c |    8 ++++++--
->  1 files changed, 6 insertions(+), 2 deletions(-)
->
-> diff -puN fs/eventpoll.c~sys_epoll_wait-fix-handling-of-negative-timeouts fs/eventpoll.c
-> --- devel/fs/eventpoll.c~sys_epoll_wait-fix-handling-of-negative-timeouts	2005-09-24 23:01:00.000000000 -0700
-> +++ devel-akpm/fs/eventpoll.c	2005-09-24 23:02:50.000000000 -0700
-> @@ -101,6 +101,10 @@
->  /* Maximum number of poll wake up nests we are allowing */
->  #define EP_MAX_POLLWAKE_NESTS 4
->
-> +/* Maximum msec timeout value storeable in a long int */
-> +#define EP_MAX_MSTIMEO min(1000ULL * MAX_SCHEDULE_TIMEOUT / HZ, LONG_MAX / HZ - 1000ULL)
+I have been meaning to do something like this for mmap_sem to
+see what happens to page fault scalability (though the heavy
+write-side would make such a scheme unsuitable for mainline).
 
-This should instead be:
-#define EP_MAX_MSTIMEO min(1000ULL * MAX_SCHEDULE_TIMEOUT / HZ, (LONG_MAX - 999ULL) / HZ)
-Here's why:
-We want to avoid overflow of (timeout * HZ + 999), or, in other words,
-the case where (timeout * HZ + 999) >= LONG_MAX
-Unwrapping the equation, we get timeout >= (LONG_MAX - 999) / HZ
+-- 
+SUSE Labs, Novell Inc.
 
-The original code isn't _wrong_, but more restrictive than it should be.
-In any case, better to fix up the base patch now, before all the other
-patches go in. I could do this, or Davide can... it's all good. :-)
-
-> +
-> +
->  struct epoll_filefd {
->  	struct file *file;
->  	int fd;
-> @@ -1506,8 +1510,8 @@ static int ep_poll(struct eventpoll *ep,
->  	 * and the overflow condition. The passed timeout is in milliseconds,
->  	 * that why (t * HZ) / 1000.
->  	 */
-> -	jtimeout = timeout == -1 || timeout > (MAX_SCHEDULE_TIMEOUT - 1000) / HZ ?
-> -		MAX_SCHEDULE_TIMEOUT: (timeout * HZ + 999) / 1000;
-> +	jtimeout = (timeout < 0 || timeout >= EP_MAX_MSTIMEO) ?
-> +		MAX_SCHEDULE_TIMEOUT : (timeout * HZ + 999) / 1000;
->
->  retry:
->  	write_lock_irqsave(&ep->lock, flags);
-> _
->
-> -
-
--Vadim Lobanov
+Send instant messages to your online friends http://au.messenger.yahoo.com 

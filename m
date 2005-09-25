@@ -1,45 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750998AbVIYBpl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751063AbVIYCyL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750998AbVIYBpl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Sep 2005 21:45:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750942AbVIYBpl
+	id S1751063AbVIYCyL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Sep 2005 22:54:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751064AbVIYCyL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Sep 2005 21:45:41 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:63413 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1750928AbVIYBpk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Sep 2005 21:45:40 -0400
-Date: Sat, 24 Sep 2005 18:45:30 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: akpm@osdl.org, ak@suse.de, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: NUMA mempolicy /proc code in mainline shouldn't have been
- merged
-Message-Id: <20050924184530.4f0a79a0.pj@sgi.com>
-In-Reply-To: <Pine.LNX.4.62.0509191607020.27528@schroedinger.engr.sgi.com>
-References: <200509101120.19236.ak@suse.de>
-	<20050919194038.GB12810@verdi.suse.de>
-	<Pine.LNX.4.62.0509191426250.26388@schroedinger.engr.sgi.com>
-	<200509192356.56300.ak@suse.de>
-	<20050919154813.52f5b706.akpm@osdl.org>
-	<Pine.LNX.4.62.0509191607020.27528@schroedinger.engr.sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Sat, 24 Sep 2005 22:54:11 -0400
+Received: from web35508.mail.mud.yahoo.com ([66.163.179.132]:22675 "HELO
+	web35508.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751062AbVIYCyK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Sep 2005 22:54:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=thRpdMq1LMxKRFHgOL7afFiW9JdXgQETdOly9tNNhehqlb595XflOcPuT52OoSlBPu8CaaQ4OURpSZOn6BKqC3gGl7I5Gy2MEQ1o3QCk3ZMhn76e5aB0HUk9bRSKgfVTwnj+S6qqFgOlRZQ83qMaVb29jVWphhoTRZ85wzRyQZo=  ;
+Message-ID: <20050925025409.6415.qmail@web35508.mail.mud.yahoo.com>
+Date: Sat, 24 Sep 2005 19:54:09 -0700 (PDT)
+From: Bob Henry <bobhenry99@yahoo.com>
+Subject: Re: Supporting ACPI drive hotswap
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph wrote:
-> I wish I knew how we can improve the communication. I have discussed this 
-> for two months now and tried to respond to every objection and concern 
-> that came up.
 
-The success of communication must be measured by what is heard,
-not what is said.
+I saw the same thing.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+-Bob
+
+
+
+> --- Matthew Garrett <mjg59@srcf.ucam.org> wrote:
+> 
+> > On Sat, Sep 24, 2005 at 03:45:45PM -0400, Mark
+> Lord
+> > wrote:
+> > > >Do you know why the ahci driver won't load?
+> > > 
+> > > Undoubtedly the chip is being used in "combined
+> > mode",
+> > > to support a PATA ATAPI device on the second
+> > channel.
+> > > 
+> > > For that matter, the primary HD is probably
+> > actually PATA,
+> > > perhaps with a SATA bridge on the notebook M/B.
+> > > 
+> > > Very very common arrangement these days --
+> > practically all
+> > > Sonoma Centrino chipset notebooks are set up
+> like
+> > this.
+> > 
+> > Yeah, I'd guess something along those lines. The
+> CD
+> > drive presents as 
+> > SATA, but looks more like a PATA part.
+> > pci_request_regions fails when 
+> > trying to load ahci. It's a Sonoma system (Dell
+> > Latitude D610)
+> > 
+> > Tyffani Purnell
+> > tyffani@cableaz.com
+> > Gregory Roman
+> > gregroman4@earthlink.net
+> > Joseph A Zyskowski
+> > JosephAZyskowski@yahoo.com
+> > Mike Hafen
+> > mike@mikehafen.com
+> > -- 
+> > Matthew Garrett | mjg59@srcf.ucam.org
+> > -
+> > To unsubscribe from this list: send the line
+> > "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at 
+> > http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> > 
+> 
+> 
+> 
+> 	
+> 		
+>
+______________________________________________________
+> 
+> Yahoo! for Good 
+> Donate to the Hurricane Katrina relief effort. 
+> http://store.yahoo.com/redcross-donate3/ 
+> 
+> 
+
+
+
+		
+__________________________________ 
+Yahoo! Mail - PC Magazine Editors' Choice 2005 
+http://mail.yahoo.com

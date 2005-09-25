@@ -1,74 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751524AbVIYPsr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751525AbVIYPtb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751524AbVIYPsr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Sep 2005 11:48:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751525AbVIYPsq
+	id S1751525AbVIYPtb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Sep 2005 11:49:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751526AbVIYPtb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Sep 2005 11:48:46 -0400
-Received: from gold.veritas.com ([143.127.12.110]:5803 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1751524AbVIYPsq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Sep 2005 11:48:46 -0400
-Date: Sun, 25 Sep 2005 16:48:19 +0100 (BST)
+	Sun, 25 Sep 2005 11:49:31 -0400
+Received: from silver.veritas.com ([143.127.12.111]:21430 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S1751523AbVIYPta
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Sep 2005 11:49:30 -0400
+Date: Sun, 25 Sep 2005 16:49:04 +0100 (BST)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@goblin.wat.veritas.com
 To: Andrew Morton <akpm@osdl.org>
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 02/21] mm: copy_pte_range progress fix
+Subject: [PATCH 03/21] mm: msync_pte_range progress
 In-Reply-To: <Pine.LNX.4.61.0509251644100.3490@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.61.0509251647390.3490@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0509251648240.3490@goblin.wat.veritas.com>
 References: <Pine.LNX.4.61.0509251644100.3490@goblin.wat.veritas.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 25 Sep 2005 15:48:45.0750 (UTC) FILETIME=[9CD1DD60:01C5C1E8]
+X-OriginalArrivalTime: 25 Sep 2005 15:49:30.0337 (UTC) FILETIME=[B7654D10:01C5C1E8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH 02/21] mm: copy_pte_range progress fix
-
-My latency breaking in copy_pte_range didn't work as intended: instead
-of checking at regularish intervals, after the first interval it checked
-every time around the loop, too impatient to be preempted.  Fix that.
+Use latency breaking in msync_pte_range like that in copy_pte_range,
+instead of the ugly CONFIG_PREEMPT filemap_msync alternatives.
 
 Signed-off-by: Hugh Dickins <hugh@veritas.com>
 ---
 
- mm/memory.c |   14 ++++++++------
- 1 files changed, 8 insertions(+), 6 deletions(-)
+ mm/msync.c |   38 ++++++++++++++------------------------
+ 1 files changed, 14 insertions(+), 24 deletions(-)
 
---- mm01/mm/memory.c	2005-09-21 12:16:59.000000000 +0100
-+++ mm02/mm/memory.c	2005-09-24 19:26:38.000000000 +0100
-@@ -410,7 +410,7 @@ static int copy_pte_range(struct mm_stru
+--- mm02/mm/msync.c	2005-09-24 16:59:50.000000000 +0100
++++ mm03/mm/msync.c	2005-09-24 19:26:52.000000000 +0100
+@@ -26,12 +26,21 @@ static void msync_pte_range(struct vm_ar
+ 				unsigned long addr, unsigned long end)
  {
- 	pte_t *src_pte, *dst_pte;
- 	unsigned long vm_flags = vma->vm_flags;
--	int progress;
+ 	pte_t *pte;
 +	int progress = 0;
  
- again:
- 	dst_pte = pte_alloc_map(dst_mm, dst_pmd, addr);
-@@ -418,17 +418,19 @@ again:
- 		return -ENOMEM;
- 	src_pte = pte_offset_map_nested(src_pmd, addr);
- 
--	progress = 0;
- 	spin_lock(&src_mm->page_table_lock);
++again:
+ 	pte = pte_offset_map(pmd, addr);
  	do {
- 		/*
- 		 * We are holding two locks at this point - either of them
- 		 * could generate latencies in another task on another CPU.
- 		 */
--		if (progress >= 32 && (need_resched() ||
--		    need_lockbreak(&src_mm->page_table_lock) ||
--		    need_lockbreak(&dst_mm->page_table_lock)))
--			break;
-+		if (progress >= 32) {
+ 		unsigned long pfn;
+ 		struct page *page;
+ 
++		if (progress >= 64) {
 +			progress = 0;
 +			if (need_resched() ||
-+			    need_lockbreak(&src_mm->page_table_lock) ||
-+			    need_lockbreak(&dst_mm->page_table_lock))
++			    need_lockbreak(&vma->vm_mm->page_table_lock))
 +				break;
 +		}
- 		if (pte_none(*src_pte)) {
- 			progress++;
++		progress++;
+ 		if (!pte_present(*pte))
  			continue;
+ 		if (!pte_maybe_dirty(*pte))
+@@ -46,8 +55,12 @@ static void msync_pte_range(struct vm_ar
+ 		if (ptep_clear_flush_dirty(vma, addr, pte) ||
+ 		    page_test_and_clear_dirty(page))
+ 			set_page_dirty(page);
++		progress += 3;
+ 	} while (pte++, addr += PAGE_SIZE, addr != end);
+ 	pte_unmap(pte - 1);
++	cond_resched_lock(&vma->vm_mm->page_table_lock);
++	if (addr != end)
++		goto again;
+ }
+ 
+ static inline void msync_pmd_range(struct vm_area_struct *vma, pud_t *pud,
+@@ -106,29 +119,6 @@ static void msync_page_range(struct vm_a
+ 	spin_unlock(&mm->page_table_lock);
+ }
+ 
+-#ifdef CONFIG_PREEMPT
+-static inline void filemap_msync(struct vm_area_struct *vma,
+-				 unsigned long addr, unsigned long end)
+-{
+-	const size_t chunk = 64 * 1024;	/* bytes */
+-	unsigned long next;
+-
+-	do {
+-		next = addr + chunk;
+-		if (next > end || next < addr)
+-			next = end;
+-		msync_page_range(vma, addr, next);
+-		cond_resched();
+-	} while (addr = next, addr != end);
+-}
+-#else
+-static inline void filemap_msync(struct vm_area_struct *vma,
+-				 unsigned long addr, unsigned long end)
+-{
+-	msync_page_range(vma, addr, end);
+-}
+-#endif
+-
+ /*
+  * MS_SYNC syncs the entire file - including mappings.
+  *
+@@ -150,7 +140,7 @@ static int msync_interval(struct vm_area
+ 		return -EBUSY;
+ 
+ 	if (file && (vma->vm_flags & VM_SHARED)) {
+-		filemap_msync(vma, addr, end);
++		msync_page_range(vma, addr, end);
+ 
+ 		if (flags & MS_SYNC) {
+ 			struct address_space *mapping = file->f_mapping;

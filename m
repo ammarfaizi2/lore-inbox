@@ -1,55 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbVIYUzi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932287AbVIYU7k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932289AbVIYUzi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Sep 2005 16:55:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932290AbVIYUzi
+	id S932287AbVIYU7k (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Sep 2005 16:59:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932290AbVIYU7k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Sep 2005 16:55:38 -0400
-Received: from styx.suse.cz ([82.119.242.94]:63700 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S932289AbVIYUzh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Sep 2005 16:55:37 -0400
-Date: Sun, 25 Sep 2005 22:54:55 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Cc: Grant Coady <grant_lkml@dodo.com.au>, Simon Evans <spse@secret.org.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: New inventions in rounding up in catc.c?
-Message-ID: <20050925205455.GA6747@midnight.ucw.cz>
-References: <200509241343.42464.vda@ilport.com.ua> <l27bj1hjeqsl9ifg4ogb0drj56fsm0j62a@4ax.com> <200509251343.47892.vda@ilport.com.ua>
+	Sun, 25 Sep 2005 16:59:40 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:11167
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932287AbVIYU7j
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Sep 2005 16:59:39 -0400
+Subject: Re: [ANNOUNCE] ktimers subsystem
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Christopher Friesen <cfriesen@nortel.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, george@mvista.com,
+       johnstul@us.ibm.com, paulmck@us.ibm.com
+In-Reply-To: <Pine.LNX.4.61.0509250052390.3728@scrub.home>
+References: <20050919184834.1.patchmail@tglx.tec.linutronix.de>
+	 <Pine.LNX.4.61.0509201247190.3743@scrub.home>
+	 <1127342485.24044.600.camel@tglx.tec.linutronix.de>
+	 <Pine.LNX.4.61.0509221816030.3728@scrub.home> <43333EBA.5030506@nortel.com>
+	 <Pine.LNX.4.61.0509230151080.3743@scrub.home>
+	 <1127458197.24044.726.camel@tglx.tec.linutronix.de>
+	 <Pine.LNX.4.61.0509240443440.3728@scrub.home>
+	 <20050924051643.GB29052@elte.hu>
+	 <Pine.LNX.4.61.0509241212170.3728@scrub.home>
+	 <1127570212.15115.77.camel@tglx.tec.linutronix.de>
+	 <Pine.LNX.4.61.0509250052390.3728@scrub.home>
+Content-Type: text/plain
+Organization: linutronix
+Date: Sun, 25 Sep 2005 23:00:05 +0200
+Message-Id: <1127682006.15115.96.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200509251343.47892.vda@ilport.com.ua>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 25, 2005 at 01:43:47PM +0300, Denis Vlasenko wrote:
-> On Saturday 24 September 2005 21:46, Grant Coady wrote:
-> > On Sat, 24 Sep 2005 13:43:42 +0300, Denis Vlasenko <vda@ilport.com.ua> wrote:
-> > > 		/* F5U011 only does one packet per RX */
-> > > 		if (catc->is_f5u011)
-> > > 			break;
-> > >-		pkt_start += (((pkt_len + 1) >> 6) + 1) << 6;
-> > >+		pkt_start += ((pkt_len + 2) + 63) & ~63;
-> > 
-> >   		pkt_start += ((pkt_len + 1) + 64) & ~63;
-> > 
-> > Seems more clear to me.
-> 
-> Why?
-> 
-> ((pkt_len + 2) + 63) & ~63 is "add 2 and round up to next 64".
-> ((pkt_len + 1) + 64) & ~63 is "???!"
-> 
-> It's strange code anyway, I hope maintainer can clarify what's going on.
-> (I suspect it was intended to be pkt_len - 1, not +, in the first place)
- 
-Honestly, I don't remember at all. I'll try to find the (very old) docs
-I have for the chip.
+On Sun, 2005-09-25 at 01:45 +0200, Roman Zippel wrote:
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+> > The backward conversion from nsec_t to timespec is almost a non issue.
+> > The vast majority of callers dont provide the second argument to
+> > nanosleep(), setitimer(), set_timer() which makes the conversion
+> > necessary and I think we optimize for the common use case.
+> 
+> You know very well, that the conversion back to timespec is the killer in 
+> your calculation. You graciously decide that the "vast majority" doesn't 
+> want to read the timer, how did you get to that conclusion?
+
+I graciously put instrumentation into _all_ the relevant syscalls on a
+desktop and a server machine. The result is that less than 1% of the
+calls provide the read back variable.
+
+tglx
+
+

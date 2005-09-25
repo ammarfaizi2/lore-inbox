@@ -1,57 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751220AbVIYHSY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbVIYHk0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751220AbVIYHSY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Sep 2005 03:18:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbVIYHSX
+	id S1751233AbVIYHk0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Sep 2005 03:40:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751234AbVIYHk0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Sep 2005 03:18:23 -0400
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:2994 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1751220AbVIYHSX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Sep 2005 03:18:23 -0400
+	Sun, 25 Sep 2005 03:40:26 -0400
+Received: from web35906.mail.mud.yahoo.com ([66.163.179.190]:37247 "HELO
+	web35906.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751233AbVIYHkZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Sep 2005 03:40:25 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=kkglO3fmozqEK6VFrVIvSfOHVsBGIngyrku2v/d4mcaLgffyfKgJzROQD/LrL12ok4SHac7sA91RSZyrKsbSpZxV4JmWx88WS5J/FHtAwzcdazt3sFvK0NTT1sXgM1g9OVJehHbJik9XMnFEPOzyuMH1uB4hKT0lz6I6Z5BtMIE=  ;
-Message-ID: <43364F70.7010705@yahoo.com.au>
-Date: Sun, 25 Sep 2005 17:19:12 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
-X-Accept-Language: en
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=0v6cEqMzLKD7MN6c6IPUra6hFEZ8YYnNWSnxZVM8sgaN/fly75vU/JxVg76Nr8ihso/B0e7vPfkFqbOQmHYwjTGayb/f5TCDKvEAsCRVSW6czJGro+Slf33bkjtrPOCzp4ZjcAfgEt6bjA/MXP5VWg4PMjHRYPT6cYW3jPwHaE0=  ;
+Message-ID: <20050925074021.20942.qmail@web35906.mail.mud.yahoo.com>
+Date: Sun, 25 Sep 2005 00:40:20 -0700 (PDT)
+From: umesh chandak <chandak_pict@yahoo.com>
+Subject: problem regarding new LSM hook
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Tejun Heo <htejun@gmail.com>
-CC: zwane@linuxpower.ca, viro@zeniv.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH linux-2.6 01/04] brsem: implement big reader semaphore
-References: <20050925064218.E7558977@htj.dyndns.org> <20050925064218.FF1C2BEC@htj.dyndns.org>
-In-Reply-To: <20050925064218.FF1C2BEC@htj.dyndns.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tejun Heo wrote:
-> 01_brsem_implement_brsem.patch
-> 
-> 	This patch implements big reader semaphore - a rwsem with very
-> 	cheap reader-side operations and very expensive writer-side
-> 	operations.  For details, please read comments at the top of
-> 	kern/brsem.c.
-> 
+Hello sir,
 
-This thing looks pretty overengineered. It is difficult to
-read with all the little wrapper functions and weird naming
-schemes.
+		I am using madwifi v1.5 driver with linksys pci
+adapter.
 
-What would be wrong with an array of NR_CPUS rwsems? The only
-tiny trick you would have to do AFAIKS is have up_read remember
-what rwsem down_read took, but that could be returned from
-down_read as a token.
 
-I have been meaning to do something like this for mmap_sem to
-see what happens to page fault scalability (though the heavy
-write-side would make such a scheme unsuitable for mainline).
+I have written a lsm hook  for netif_rx(struct sk_buff
+*skb) in security.h file. 
+I have  called that hook from  netif_rx fuction (after
+variable declaration) in net/core/dev.c . 
 
--- 
-SUSE Labs, Novell Inc.
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Then I have written module for that hook.In that
+module, I have dropped Icmp packets. But in Wireless
+network ,When i ping machine "B" from machine "A" ,i
+am getting the message on console like this
+  64 bytes from machine "B" ip addr :icmp_seq=no
+......   
+but this should not happen because i am dropping
+incoming Icmp packets in my module.
+Can you tell me why this is happening.What i have made
+wrong .
+          
+
+Note :    1)My module is working proper and i have
+also
+              freed the skb buffer.
+	  2)It work fine for wired network.
+	  3)Ethereal shows the correct result (does not
+capture ICMP reply packets)
+            for both wired and wireless network.
+
+
+                          -Plz help me.We are trying
+this from 6 days .  	                   
+            thanks in advance
+-Rishi
+
+
+	
+		
+______________________________________________________ 
+Yahoo! for Good 
+Donate to the Hurricane Katrina relief effort. 
+http://store.yahoo.com/redcross-donate3/ 
+

@@ -1,73 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932421AbVIZHOX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932423AbVIZHVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932421AbVIZHOX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 03:14:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbVIZHOX
+	id S932423AbVIZHVG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 03:21:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932424AbVIZHVG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 03:14:23 -0400
-Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:9871 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S932421AbVIZHOW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 03:14:22 -0400
-Date: Mon, 26 Sep 2005 09:14:02 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Paul Blazejowski <paulb@blazebox.homeip.net>
-cc: LKML <linux-kernel@vger.kernel.org>, Carlo Calica <ccalica@gmail.com>,
-       xorg@lists.freedesktop.org
-Subject: Re: 2.6.14-rc2-mm1
-In-Reply-To: <20050925220037.GA8776@blazebox.homeip.net>
-Message-ID: <Pine.LNX.4.53.0509260911540.29885@gockel.physik3.uni-rostock.de>
-References: <20050925220037.GA8776@blazebox.homeip.net>
+	Mon, 26 Sep 2005 03:21:06 -0400
+Received: from gold.veritas.com ([143.127.12.110]:45890 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S932423AbVIZHVF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 03:21:05 -0400
+Date: Mon, 26 Sep 2005 08:20:35 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 04/21] mm: zap_pte_range dont dirty anon
+In-Reply-To: <20050925231424.6c08bc8a.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0509260816530.8574@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0509251644100.3490@goblin.wat.veritas.com>
+ <Pine.LNX.4.61.0509251649100.3490@goblin.wat.veritas.com>
+ <20050925152630.75560571.akpm@osdl.org> <Pine.LNX.4.61.0509260659370.8065@goblin.wat.veritas.com>
+ <20050925231424.6c08bc8a.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 26 Sep 2005 07:21:04.0743 (UTC) FILETIME=[DB0ECF70:01C5C26A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 Sep 2005, Paul Blazejowski wrote:
+On Sun, 25 Sep 2005, Andrew Morton wrote:
+> 
+> 	mmap(MAP_ANONYMOUS|MAP_SHARED)
+> 	fork()
+> 	swapout
+> 	swapin
+> 	swapoff
+> 
+> Now we have two mm's sharing a clean, non-cowable, non-swapcache anonymous
+> page, no?
 
-> Upon quick testing the latest mm kernel it appears there's some kind of
-> race condition when using dual core cpu esp when using XORG and USB
-> (although PS2 has same issue) kebyboard rate being too fast.
+No, MAP_ANONYMOUS|MAP_SHARED gives you a tmpfs object via shmem_zero_setup:
+all those pages are shared file pages, not PageAnon at all.
 
-Does the following patch by John Stultz fix the problem?
-
-Tim
-
-
->From johnstul@us.ibm.com Mon Sep 26 09:04:08 2005
-Date: Mon, 19 Sep 2005 12:16:43 -0700
-From: john stultz <johnstul@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>
-Subject: [PATCH] x86-64: Fix bad assumption that dualcore cpus have synced
-    TSCs
-
-Andrew,
-	This patch should resolve the issue seen in bugme bug #5105, where it
-is assumed that dualcore x86_64 systems have synced TSCs. This is not
-the case, and alternate timesources should be used instead.
-
-For more details, see:
-http://bugzilla.kernel.org/show_bug.cgi?id=5105
-
-
-Please consider for inclusion in your tree.
-
-thanks
--john
-
-diff --git a/arch/x86_64/kernel/time.c b/arch/x86_64/kernel/time.c
---- a/arch/x86_64/kernel/time.c
-+++ b/arch/x86_64/kernel/time.c
-@@ -959,9 +959,6 @@ static __init int unsynchronized_tsc(voi
-  	   are handled in the OEM check above. */
-  	if (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL)
-  		return 0;
-- 	/* All in a single socket - should be synchronized */
-- 	if (cpus_weight(cpu_core_map[0]) == num_online_cpus())
-- 		return 0;
- #endif
-  	/* Assume multi socket systems are not synchronized */
-  	return num_online_cpus() > 1;
-
-
+Hugh

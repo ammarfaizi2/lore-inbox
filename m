@@ -1,72 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751571AbVIZAFJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750833AbVIZAPE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751571AbVIZAFJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Sep 2005 20:05:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751574AbVIZAFJ
+	id S1750833AbVIZAPE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Sep 2005 20:15:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751577AbVIZAPD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Sep 2005 20:05:09 -0400
-Received: from savages.net ([66.93.39.90]:59049 "EHLO mail.savages.net")
-	by vger.kernel.org with ESMTP id S1751571AbVIZAFH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Sep 2005 20:05:07 -0400
-Message-ID: <43373B3D.10602@savages.net>
-Date: Sun, 25 Sep 2005 17:05:17 -0700
-From: Shaun Savage <savages@savages.net>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc3 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: get partition size of block device from another block device.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 25 Sep 2005 20:15:03 -0400
+Received: from pacific.moreton.com.au ([203.143.235.130]:28838 "EHLO
+	moreton.com.au") by vger.kernel.org with ESMTP id S1750833AbVIZAPA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Sep 2005 20:15:00 -0400
+Date: Mon, 26 Sep 2005 10:14:59 +1000
+From: David McCullough <davidm@snapgear.com>
+To: linux-crypto@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: ocf-linux-20050922 - Asynchronous Crypto support for linux
+Message-ID: <20050926001459.GE10157@beast>
+References: <20050520135723.GB26883@beast> <20050630134806.GA30067@beast>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050630134806.GA30067@beast>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HI All
 
-I am writing a block device driver that uses another block device for 
-its "base storage". 
+Hi all,
 
-First the block device sturctures questions.
-there is one 'struct gendisk' per disk. with partitions under this   
-->part[N].
-there is one 'struct block_device' is the file system device, one per 
-disk or one part partition?
-Is ther one kobject for each disk or partition?
+A new release of the ocf-linux package is up:
 
------------------------------------
+	http://ocf-linux.sourceforge.net/
 
-one of the module parameters passed in is the base device.  eather 
-/dev/hda1 or 0x0301, which format is the best?
-module_parm_array(str_dev, charp, &dev_cnt,0);
-or
-module_parm_array(dev_dev, ushort, &dev_cnt,0);
+Mostly fixes in this release.  I had been sitting on sme tof this for
+too long.  Best to check the Changelog below for some of the specifics.
 
-from string to  gendisk
-bdev = lookup_bdev(str_dev);                             then finds the 
-block_device
-gd = get_gendisk(bdev->bd_dev,MINOR(bdev->bd_dev))  
+At least some 2.6 testing was done for this release :-)
 
-OR
+Changes:
 
-gd= get_gendisk(dev_dev,MINOR(dev_dev))
-bdev = bdget_disk(gd, MINOR(dev_dev))
-This confuses me, if there is one gendisk per disk why does get_gendisk 
-need a partition number?
+* Much improved 2.6 support in OCF
+* Openswan patch has full ESP/AH acceleration
+* Updated crypto-tools with many fixes/additions
+* Much more reliable (will not exhaust system resources under heavy load)
 
-OR
+Cheers,
+Davidm
 
-something with kobject?
-
-----------------------------------------------------------
-Now to get ther size.
-numberOfSectors =gd->part[MINOR(dev)]->nr_sects
-
-Now I need to 'open' the device for r/w 
-bd_claim()
-or
-open_bdev_excl()
-
-Now read and write data to the sub block device
-
-
+-- 
+David McCullough, davidm@cyberguard.com.au, Custom Embedded Solutions + Security
+Ph:+61 734352815 Fx:+61 738913630 http://www.uCdot.org http://www.cyberguard.com

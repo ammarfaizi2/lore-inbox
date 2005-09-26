@@ -1,66 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751009AbVIZOXE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751631AbVIZOcW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751009AbVIZOXE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 10:23:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751631AbVIZOXE
+	id S1751631AbVIZOcW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 10:32:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751635AbVIZOcW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 10:23:04 -0400
-Received: from mail.gmx.de ([213.165.64.20]:53436 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751009AbVIZOXC (ORCPT
+	Mon, 26 Sep 2005 10:32:22 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:51345 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S1751631AbVIZOcW convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 10:23:02 -0400
-X-Authenticated: #815327
-From: Malte =?utf-8?q?Schr=C3=B6der?= <maltesch@gmx.de>
-To: Trond Myklebust <Trond.Myklebust@netapp.com>
-Subject: Re: Problem with nfs4, kernel 2.6.13.2
-Date: Mon, 26 Sep 2005 16:21:24 +0200
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
-References: <200509251516.23862.MalteSch@gmx.de> <1127737730.8453.5.camel@lade.trondhjem.org>
-In-Reply-To: <1127737730.8453.5.camel@lade.trondhjem.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1670934.05x54zmcgi";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200509261621.37592.maltesch@gmx.de>
-X-Y-GMX-Trusted: 0
+	Mon, 26 Sep 2005 10:32:22 -0400
+Subject: Re: AIO Support and related package information??
+From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+To: vikas gupta <vikas_gupta51013@yahoo.co.in>
+Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org, bcrl@kvack.org
+In-Reply-To: <20050926140613.75109.qmail@web8402.mail.in.yahoo.com>
+References: <20050926140613.75109.qmail@web8402.mail.in.yahoo.com>
+Date: Mon, 26 Sep 2005 16:34:09 +0200
+Message-Id: <1127745249.2069.30.camel@frecb000686>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 26/09/2005 16:45:33,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 26/09/2005 16:45:36,
+	Serialize complete at 26/09/2005 16:45:36
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1670934.05x54zmcgi
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Mon, 2005-09-26 at 15:06 +0100, vikas gupta wrote:
+> Hi Sebastien
+> 
+> Thanks for Your reply .. I am now trying for that
+> Sysbench ..
+> 
+> In the mean time i have executed test cases that are
+> under check folder in libposix package ...
+> Well I am getting following result ...
+> ----------------------------------------------------
+ ...
+> Apart from that two test cases aio_read_one_thread_id
+> and aio_write_one_thread_id are hanging ...
+> 
+> Can You please justify this behaviour ....
+> As most of the testcases are giving either
+> error(Invalid Argument ..) 
 
-On Monday 26 September 2005 14:28, Trond Myklebust wrote:
-> Could you give us some details about your setup (client _and_ server)
-> please?
+  These results are normal if you has none of the aio patches
+applied.
 
-Clients and server are running Debian/Sid (one client amd64, the rest i386)=
-=20
-with given kernel version. Nfs userspace is at version 1.0.7. The kernel wa=
-s=20
-made using Debian's "gcc version 4.0.2 20050917 (prerelease) (Debian=20
-4.0.1-8))".
-The server is using the kernelspace server.
+-- 
+------------------------------------------------------
 
-> Also, is this something that is NFSv4 only, or can you reproduce it on
-> NFSv2/v3 too?
+  Sébastien Dugué                BULL/FREC:B1-247
+  phone: (+33) 476 29 77 70      Bullcom: 229-7770
 
-I will try. But i will have to reconfigure client and server first ...
+  mailto:sebastien.dugue@bull.net
 
---nextPart1670934.05x54zmcgi
-Content-Type: application/pgp-signature
+  Linux POSIX AIO: http://www.bullopensource.org/posix
+  
+------------------------------------------------------
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBDOAPx4q3E2oMjYtURApylAKDpt0VtLMPhF2o4ws2utrV9w5Y/LACglFXA
-yErBQT2UduFhnHqTiAvT1cQ=
-=kcAh
------END PGP SIGNATURE-----
-
---nextPart1670934.05x54zmcgi--

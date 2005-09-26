@@ -1,83 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751373AbVIZT3F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751384AbVIZT3e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751373AbVIZT3F (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 15:29:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbVIZT3F
+	id S1751384AbVIZT3e (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 15:29:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932484AbVIZT3d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 15:29:05 -0400
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:48075 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S1751373AbVIZT3E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 15:29:04 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: [PATCH][Fix] swsusp: avoid problems if there are too many pages to save
-Date: Mon, 26 Sep 2005 21:29:07 +0200
-User-Agent: KMail/1.8.2
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-References: <200509252018.36867.rjw@sisk.pl> <200509261454.09702.rjw@sisk.pl> <20050926142608.GA32249@elf.ucw.cz>
-In-Reply-To: <20050926142608.GA32249@elf.ucw.cz>
+	Mon, 26 Sep 2005 15:29:33 -0400
+Received: from spirit.analogic.com ([204.178.40.4]:39174 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP
+	id S1751379AbVIZT3P convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 15:29:15 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509262129.08316.rjw@sisk.pl>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <Pine.LNX.4.61.0509270009110.14218@students.iiit.net>
+References: <Pine.LNX.4.61.0509270009110.14218@students.iiit.net>
+X-OriginalArrivalTime: 26 Sep 2005 19:29:12.0973 (UTC) FILETIME=[9345ABD0:01C5C2D0]
+Content-class: urn:content-classes:message
+Subject: Re: Reg. gcc
+Date: Mon, 26 Sep 2005 15:29:12 -0400
+Message-ID: <Pine.LNX.4.61.0509261526010.32371@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Reg. gcc
+Thread-Index: AcXC0JNp1yWqFnZuROKYmOQQ8An+Ew==
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Prasant Gopal" <prasant_a@students.iiit.net>
+Cc: <linux-gcc@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-The following patch makes swsusp avoid problems during resume if there are too many
-pages to save on suspend.  It adds a constant that allows us to verify if we are going to
-save too many pages and implements the check (this is done as early as we can tell that
-the check will trigger, which is in swsusp_alloc()).
+On Mon, 26 Sep 2005, Prasant Gopal wrote:
 
-This is to replace swsusp-prevent-swsusp-from-failing-if-theres-too-many-pagedir-pages.patch
+>
+>
+> hi ,
+>
+>           can i hav 2 versions of gcc installed on the same kernel..  If
+> so how...please help me out...
+>
+> regards,
+> prasant gopal
+>
 
-Please consider for applying.
+Sure:
 
-Greetings,
-Rafael
+ 	http://www.goggle.com/search?hl=en&q=gcc
 
 
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13 on an i686 machine (5589.55 BogoMips).
+Warning : 98.36% of all statistics are fiction.
 
-Index: linux-2.6.14-rc2-git6/kernel/power/power.h
-===================================================================
---- linux-2.6.14-rc2-git6.orig/kernel/power/power.h	2005-09-26 20:58:33.000000000 +0200
-+++ linux-2.6.14-rc2-git6/kernel/power/power.h	2005-09-26 21:05:37.000000000 +0200
-@@ -9,6 +9,9 @@
- #define SUSPEND_CONSOLE	(MAX_NR_CONSOLES-1)
- #endif
- 
-+#define MAX_PBES	((PAGE_SIZE - sizeof(struct new_utsname) \
-+			- 4 - 3*sizeof(unsigned long) - sizeof(int) \
-+			- sizeof(void *)) / sizeof(swp_entry_t))
- 
- struct swsusp_info {
- 	struct new_utsname	uts;
-@@ -18,7 +21,7 @@
- 	unsigned long		image_pages;
- 	unsigned long		pagedir_pages;
- 	suspend_pagedir_t	* suspend_pagedir;
--	swp_entry_t		pagedir[768];
-+	swp_entry_t		pagedir[MAX_PBES];
- } __attribute__((aligned(PAGE_SIZE)));
- 
- 
-Index: linux-2.6.14-rc2-git6/kernel/power/swsusp.c
-===================================================================
---- linux-2.6.14-rc2-git6.orig/kernel/power/swsusp.c	2005-09-26 20:59:30.000000000 +0200
-+++ linux-2.6.14-rc2-git6/kernel/power/swsusp.c	2005-09-26 21:05:13.000000000 +0200
-@@ -931,6 +931,10 @@
- 	if (!enough_swap())
- 		return -ENOSPC;
- 
-+	if (MAX_PBES < nr_copy_pages / PBES_PER_PAGE +
-+	    !!(nr_copy_pages % PBES_PER_PAGE))
-+		return -ENOSPC;
-+
- 	if (!(pagedir_save = alloc_pagedir(nr_copy_pages))) {
- 		printk(KERN_ERR "suspend: Allocating pagedir failed.\n");
- 		return -ENOMEM;
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

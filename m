@@ -1,60 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932422AbVIZHBy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932413AbVIZG7F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932422AbVIZHBy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 03:01:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbVIZHBy
+	id S932413AbVIZG7F (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 02:59:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbVIZG7F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 03:01:54 -0400
-Received: from mx2.suse.de ([195.135.220.15]:1949 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932419AbVIZHBx (ORCPT
+	Mon, 26 Sep 2005 02:59:05 -0400
+Received: from colin.muc.de ([193.149.48.1]:41738 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S932413AbVIZG7E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 03:01:53 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Luck, Tony" <tony.luck@intel.com>
-Subject: Re: [patch 2.6.13 0/6] swiotlb maintenance and x86_64 dma_sync_single_range_for_{cpu,device}
-Date: Mon, 26 Sep 2005 09:01:48 +0200
-User-Agent: KMail/1.8
-Cc: "John W. Linville" <linville@tuxdriver.com>,
-       "Christoph Hellwig" <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       discuss@x86-64.org, linux-ia64@vger.kernel.org,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F04795ED2@scsmsx401.amr.corp.intel.com>
-In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F04795ED2@scsmsx401.amr.corp.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 26 Sep 2005 02:59:04 -0400
+Date: 26 Sep 2005 08:58:56 +0200
+Date: Mon, 26 Sep 2005 08:58:56 +0200
+From: Andi Kleen <ak@muc.de>
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Cc: Ashok Raj <ashok.raj@intel.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, discuss@x86-64.org
+Subject: Re: init and zap low address mappings on demand for cpu hotplug
+Message-ID: <20050926065856.GA99750@muc.de>
+References: <20050921135731.B14439@unix-os.sc.intel.com> <20050922094818.GB79762@muc.de> <20050923172855.D12631@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200509260901.48972.ak@suse.de>
+In-Reply-To: <20050923172855.D12631@unix-os.sc.intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 23 September 2005 20:27, Luck, Tony wrote:
-> >> It should just go away once the GFP_DMA32 code is merged.
-> >
-> >Is that the plan?  I suppose it makes sense.
-> >
-> >So, move it to driver/pci/swiotlb.c?  Or just leave it where it is?
-> >
-> >Either way, I'll redo the other patches to reflect the correct
-> >location.
->
-> I don't have a good (or in fact any) understanding of the impact
-> of GFP_DMA32 on ia64.  People tell me it will all be good, but I'd
-> like to hear from someone running it.
+> This patch introduces boot_level4_pgt, which will always have low identity
+> addresses mapped. Druing boot, all the processors will use this as their
+> level4 pgt. On BP, we will switch to init_level4_pgt as soon as we enter
+> C code and  zap the low mappings as soon as we are done with the usage of 
+> identity low mapped addresses. On AP's we will zap the low mappings as 
+> soon as we jump to C code.
 
-It shouldn't change anything for IA64. GFP_DMA32 just becomes
-an alias for your GFP_DMA.  On advantage is that drivers can
-be now source level compatible between x86-64 and ia64 
-for this (although they should be really using pci_alloc_consistent()
-instead) 
+Looks good. Thanks Suresh. The boot page tables should be marked __initdata
+now, but that can be done in an follow on patch.
 
-> If it is good, and if it is coming soon, then there is no point
-> moving swiotlb.  But I don't know the answers to either of those
-> questions.
-
-swiotlb is still needed even with GFP_DMA32. Just move it.
-2.6.15 won't have it also.
+i386 should probably get similar treatment.
 
 -Andi
 

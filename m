@@ -1,59 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751388AbVIZTaS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751353AbVIZT3E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751388AbVIZTaS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 15:30:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbVIZTaS
+	id S1751353AbVIZT3E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 15:29:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbVIZT3E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 15:30:18 -0400
-Received: from imap.gmx.net ([213.165.64.20]:727 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751379AbVIZTaQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 15:30:16 -0400
-X-Authenticated: #20450766
-Date: Mon, 26 Sep 2005 21:29:31 +0200 (CEST)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Peter Osterlund <petero2@telia.com>
-cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
-Subject: Re: [2.6.13] pktcdvd: IO-errors
-In-Reply-To: <m34q873ccc.fsf@telia.com>
-Message-ID: <Pine.LNX.4.60.0509262122450.4031@poirot.grange>
-References: <Pine.LNX.4.60.0509242057001.4899@poirot.grange> <m3slvtzf72.fsf@telia.com>
- <Pine.LNX.4.60.0509252026290.3089@poirot.grange> <m34q873ccc.fsf@telia.com>
+	Mon, 26 Sep 2005 15:29:04 -0400
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:46795 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S1751353AbVIZT3D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 15:29:03 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH 3/3][Fix] swsusp: prevent swsusp from failing if there's too many pagedir pages
+Date: Mon, 26 Sep 2005 21:19:26 +0200
+User-Agent: KMail/1.8.2
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+References: <200509252018.36867.rjw@sisk.pl> <200509261454.09702.rjw@sisk.pl> <20050926142608.GA32249@elf.ucw.cz>
+In-Reply-To: <20050926142608.GA32249@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509262119.27240.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Sep 2005, Peter Osterlund wrote:
+Hi,
 
-> Guennadi Liakhovetski <g.liakhovetski@gmx.de> writes:
+On Monday, 26 of September 2005 16:26, Pavel Machek wrote:
+> Hi!
 > 
-> > Besides, it works under 2.6.12-rc5...
+]-- snip --[
 > 
-> What gcc versions were used when compiling the kernels? (Boot both
-> kernels, run "cat /proc/version" to find out.)
+> > Unfortunately it's not enough for what I'm cooking (think of resuming in 35 sec.
+> > to a fully responsive system - well, that's on my box).  A preliminary patch
+> > is at http://www.sisk.pl/kernel/patches/2.6.14-rc2-git3/swsusp-improve-freeing-memory.patch
+> 
+> Okay, I see, nice... We want to support that in future. (Actually it
+> is last piece of puzzle for swsusp3).
 
-Well, they are somewhat different:
+Well, it can be implemented within the current swsusp, IMO.  It actually
+works for me now. :-)
 
-Linux version 2.6.12-rc5 (lyakh@poirot.grange) (gcc version 3.3.4 (Debian 
-1:3.3.4-13)) #1 Sun May 29 22:53:31 CEST 2005
+]-- snip --[
+> 
+> I plan to push "rework image freeing patch" for other reasons,
+> too. I'd like to run longer tests on it, but so far it looks okay.
 
-Linux version 2.6.13.1 (lyakh@poirot.grange) (gcc version 3.3.5 (Debian 
-1:3.3.5-13)) #1 Sat Sep 17 11:57:51 CEST 2005
+I think it's fine.  Could you please point me to the current version?
 
-... No gcc-4.0, but still - 3.3.4 and 3.3.5... I could try recompiling 
-2.6.12 with 3.3.5... Do you REALLY believe it could be the reason?
+Greetings,
+Rafael
 
-> I just discovered that the driver doesn't work correctly on my laptop
-> if I use "gcc version 4.0.1 20050727 (Red Hat 4.0.1-5)" from Fedora
-> Core 4. "pktsetup 0 /dev/hdc ; cat /proc/driver/pktcdvd/pktcdvd0"
-> OOPSes. If I use gcc32 it does seem to work though.
-
-Doesn't Oops for me under 2.6.13.1 compiled with 3.3.5, that's where I get 
-errors.
-
-Thanks
-Guennadi
----
-Guennadi Liakhovetski

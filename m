@@ -1,64 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932367AbVIZEX0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbVIZEYU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932367AbVIZEX0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 00:23:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbVIZEX0
+	id S932369AbVIZEYU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 00:24:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbVIZEYU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 00:23:26 -0400
-Received: from cnxtsmtp9.conexant.com ([198.62.9.206]:48143 "EHLO
-	nbmime1.bbnet.ad") by vger.kernel.org with ESMTP id S932367AbVIZEX0 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 00:23:26 -0400
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: schedule_work returns FAILURE (0)
-Date: Mon, 26 Sep 2005 09:54:16 +0530
-Message-ID: <4D6E93075B31154298572E6B73CA849D02339170@noida-mail.bbnet.ad>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: schedule_work returns FAILURE (0)
-Thread-Index: AcXCUigxtgSrsSHUSA+hY31BSHKZyw==
-From: "Ravi Dubey" <ravi.dubey@conexant.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 26 Sep 2005 04:24:21.0860 (UTC) 
-    FILETIME=[2B3F4240:01C5C252]
+	Mon, 26 Sep 2005 00:24:20 -0400
+Received: from koto.vergenet.net ([210.128.90.7]:15521 "EHLO koto.vergenet.net")
+	by vger.kernel.org with ESMTP id S932369AbVIZEYT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 00:24:19 -0400
+Date: Mon, 26 Sep 2005 11:04:52 +0900
+From: Horms <horms@debian.org>
+To: Nikos Ntarmos <ntarmos@ceid.upatras.gr>
+Cc: 329354@bugs.debian.org, Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Frederik Schueler <fs@lowpingbastards.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: CAN-2005-0204 and 2.4
+Message-ID: <20050926020450.GA18357@verge.net.au>
+References: <E1EI1tH-0006Yy-00@master.debian.org> <20050922023025.GA20981@verge.net.au> <20050922135624.GA4346@diogenis.ceid.upatras.gr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050922135624.GA4346@diogenis.ceid.upatras.gr>
+X-Cluestick: seven
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Sep 22, 2005 at 04:56:24PM +0300, Nikos Ntarmos wrote:
+> Hi there.
+> 
+> On Thu, Sep 22, 2005 at 11:30:25AM +0900, Horms wrote:
+> > The problem that you see is a patch that was included in 2.4.27-11
+> > (the current version in sid), though it isn't built for amd64.
+> > 
+> > Could you see if the following patch works for you.
+> 
+> Yes it does. That's exactly what I also did to make it build, but I
+> didn't send in a patch as I wasn't sure that 4 (sizeof(u32)) is the
+> right factor for a 64-bit arch.
+> 
+> > I've CCed lkml and Marcelo for their consideration.  It seems to me
+> > that 2.4 is indeed vulnerable to CAN-2005-0204, perhaps someone can
+> > shed some light on this.
+> 
+> My intuition agrees with yours. However, as also stated in #329355 by
+> fs, "the amd64 port does not support 2.4 kernels, and there are no plans
+> to change this", so I guess this is not-a-bug for debian/x86_64.
 
-I have ported my USB driver on from Linux Kernel 2.4.20-8 to 2.6.11.12.
-As a part of this porting process, I have replaced the bottom halves
-with work_queues. Now, I am facing problems in the driver execution.
-:-(.
+Well, its not a Debian bug as such, but it was an upstream
+bug which has now been fixed and should appear in 2.4.32.
+So your efforts weren't entirely in vain.
 
-The schedule_work() function which schedules the work is returning
-FAILURE (0) many times (at least 1 out of 4 times it is called).
-
-My queries:
-
-1. When a work is queued using schedule_work (), does the function (that
-is to be called as bottom half) run at process context OR Interrupt
-context - The reason why I am getting confused is that in this called
-function, if I print the return value of in_interrupt (), I get 0 (which
-means that is running at process context), However, if I print the value
-of in_interrupt after I have acquired a spin lock in this function, I
-get the value 256 (which means I am running in interrupt context) ?
-
-2. Why is the schedule_work () function failing. - I can't use
-flush_workqueue in interrupt context, so is there any way; I can force
-the work in the work queue to be scheduled.
-
-Best Regards
-Ravi
-
-
-
-
-
-********************** Legal Disclaimer ****************************
-"This email may contain confidential and privileged material for the sole use of the intended recipient.  Any unauthorized review, use or distribution by others is strictly prohibited.  If you have received the message in error, please advise the sender by reply email and delete the message. Thank you."
-**********************************************************************
-
+-- 
+Horms

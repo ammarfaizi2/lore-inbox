@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751690AbVIZRMf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932392AbVIZROc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751690AbVIZRMf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 13:12:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751694AbVIZRMf
+	id S932392AbVIZROc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 13:14:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932394AbVIZROc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 13:12:35 -0400
-Received: from mail-relay-2.tiscali.it ([213.205.33.42]:1158 "EHLO
-	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
-	id S1751688AbVIZRMe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 13:12:34 -0400
-Date: Mon, 26 Sep 2005 19:12:20 +0200
-From: Luca <kronos@kronoz.cjb.net>
-To: Keenan Pepper <keenanpepper@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ipw2200 only works as a module?
-Message-ID: <20050926171220.GA9341@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
+	Mon, 26 Sep 2005 13:14:32 -0400
+Received: from host-84-9-200-79.bulldogdsl.com ([84.9.200.79]:30339 "EHLO
+	aeryn.fluff.org.uk") by vger.kernel.org with ESMTP id S932392AbVIZROb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 13:14:31 -0400
+Date: Mon, 26 Sep 2005 18:14:18 +0100
+From: Ben Dooks <ben@fluff.org>
+To: Ed L Cashin <ecashin@coraid.com>
+Cc: linux-kernel@vger.kernel.org, Greg K-H <greg@kroah.com>
+Subject: Re: [PATCH 2.6.14-rc2] aoe [1/2]: explicitly set minimum packet length to ETH_ZLEN
+Message-ID: <20050926171418.GB3500@home.fluff.org>
+References: <87oe6fhj8y.fsf@coraid.com> <87hdc7ept7.fsf@coraid.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4338122C.9000901@gmail.com>
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <87hdc7ept7.fsf@coraid.com>
+X-Disclaimer: I speak for me, myself, and the other one of me.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keenan Pepper <keenanpepper@gmail.com> ha scritto:
-> With CONFIG_IPW2200=y I get:
+On Mon, Sep 26, 2005 at 12:50:28PM -0400, Ed L Cashin wrote:
+> "Ed L. Cashin" <ecashin@coraid.com> writes:
 > 
-> ipw2200: ipw-2.2-boot.fw load failed: Reason -2
-> ipw2200: Unable to load firmware: 0xFFFFFFFE
+> ...
+> > Explicitly set the minimum packet length to ETH_ZLEN.
+> >
+> > Index: 2.6.14-rc2-aoe/drivers/block/aoe/aoecmd.c
+> > ===================================================================
+> > --- 2.6.14-rc2-aoe.orig/drivers/block/aoe/aoecmd.c	2005-09-26 12:20:34.000000000 -0400
+> > +++ 2.6.14-rc2-aoe/drivers/block/aoe/aoecmd.c	2005-09-26 12:27:49.000000000 -0400
+> > @@ -20,6 +20,9 @@
+> >  {
+> >  	struct sk_buff *skb;
+> >  
+> > +	if (len < ETH_ZLEN)
+> > +		len = ETH_ZLEN;
+> > +
+> >  	skb = alloc_skb(len, GFP_ATOMIC);
 > 
-> but with CONFIG_IPW2200=m it works fine. If it doesn't work when built into the 
-> kernel, why even give people the option?
-> 
-> BTW, a better error message than "Reason -2" would be nice. =)
+> This change fixes some strange problems observed on a system that was
+> using the e1000 network driver.  Is the network driver supposed to
+> ensure that ethernet packets are up to spec, at least 60 bytes long?
 
--2 is -ENOENT (no such file or directory). ipw2000 requests its firmware
-using a hotplug event, but when the driver is compiled into the kernel
-it gets loaded _before_ the root fs is mounted and of course the hotplug
-system and the firmware are not available.
+I belive that 802.3 defines that a packet should be
+of at least 64 octets. I belive most ethernet controllers
+should consider anything smaller as a `runt`, but as
+usual, YMMV.
 
-I suggest to stick with modular driver, otherwise you must create an
-initrd with hotplug + firmware.
-
-More on firmware loading here: http://lwn.net/Articles/32997/
-
-Luca
 -- 
-Home: http://kronoz.cjb.net
-"L'amore consiste nell'essere cretini insieme." -- P. Valery
+Ben (ben@fluff.org, http://www.fluff.org/)
+
+  'a smiley only costs 4 bytes'

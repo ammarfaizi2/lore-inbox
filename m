@@ -1,42 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932413AbVIZG7F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbVIZHOS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932413AbVIZG7F (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 02:59:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbVIZG7F
+	id S932150AbVIZHOS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 03:14:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbVIZHOS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 02:59:05 -0400
-Received: from colin.muc.de ([193.149.48.1]:41738 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S932413AbVIZG7E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 02:59:04 -0400
-Date: 26 Sep 2005 08:58:56 +0200
-Date: Mon, 26 Sep 2005 08:58:56 +0200
-From: Andi Kleen <ak@muc.de>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Cc: Ashok Raj <ashok.raj@intel.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, discuss@x86-64.org
-Subject: Re: init and zap low address mappings on demand for cpu hotplug
-Message-ID: <20050926065856.GA99750@muc.de>
-References: <20050921135731.B14439@unix-os.sc.intel.com> <20050922094818.GB79762@muc.de> <20050923172855.D12631@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050923172855.D12631@unix-os.sc.intel.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 26 Sep 2005 03:14:18 -0400
+Received: from msr2-ces-av-smtp1.gmessaging.net ([194.51.201.39]:707 "EHLO
+	msr2-ces-av-smtp1.gmessaging.net") by vger.kernel.org with ESMTP
+	id S932150AbVIZHOR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 03:14:17 -0400
+Date: Mon, 26 Sep 2005 09:00:44 +0200
+From: "Woody.Wu" <Woody.Wu@cn.landisgyr.com>
+Subject: Kernel Compilation Question
+To: linux-kernel@vger.kernel.org
+Message-id: <7567C3A4682B894C99E5E16494442680010AD310@cnzhuex01.cn.landisgyr.com>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-Mailer: Internet Mail Service (5.5.2658.3)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-class: urn:content-classes:message
+Thread-topic: Kernel Compilation Question
+Thread-index: AcXCadwxLZ8e55EAQY2KX3Z/j9zkzw==
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This patch introduces boot_level4_pgt, which will always have low identity
-> addresses mapped. Druing boot, all the processors will use this as their
-> level4 pgt. On BP, we will switch to init_level4_pgt as soon as we enter
-> C code and  zap the low mappings as soon as we are done with the usage of 
-> identity low mapped addresses. On AP's we will zap the low mappings as 
-> soon as we jump to C code.
+i got a RedHat box which running a 2.2.x kernel.  since its too old, i
+decided to upgrade it to 2.6.x, but this might involving upgrading of
+gcc, libc and lots of other things.  i don't want to bother to do that
+and think i can build a kernel in another newer system (a slackware
+running 2.6.x) and copy needed stuff over to the old box.  is it
+possible?  if so, what stuff i have to copy from the newer box to the
+old box? what i can imaged by far are: the bzImage file, the
+/lib/modules/2.6.x directory.  are there still other things?
 
-Looks good. Thanks Suresh. The boot page tables should be marked __initdata
-now, but that can be done in an follow on patch.
+thanks in advance. 
 
-i386 should probably get similar treatment.
+-------------------------------- 
+Landis+Gyr Metering (Zhuhai) Ltd. 
+Tel:   +86 756 3229181 ext 2616 
+Fax:   +86 756 3229183 
+Email: Woody.Wu@cn.landisgyr.com 
 
--Andi
+Virginia Woolf: Someone has to die Leonard, in order that the rest of us
+should value our life more. 
+
+        - The Hours (2002) 
+
+
+  
 

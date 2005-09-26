@@ -1,55 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932345AbVIZWHb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbVIZWH2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932345AbVIZWHb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 18:07:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932346AbVIZWHb
+	id S932088AbVIZWH2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 18:07:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932345AbVIZWH2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 18:07:31 -0400
-Received: from imap.gmx.net ([213.165.64.20]:37787 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932345AbVIZWHa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 18:07:30 -0400
-X-Authenticated: #20450766
-Date: Tue, 27 Sep 2005 00:06:48 +0200 (CEST)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Peter Osterlund <petero2@telia.com>
-cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
-Subject: Re: [2.6.13] pktcdvd: IO-errors
-In-Reply-To: <m3slvr1ugx.fsf@telia.com>
-Message-ID: <Pine.LNX.4.60.0509262358020.6722@poirot.grange>
-References: <Pine.LNX.4.60.0509242057001.4899@poirot.grange> <m3slvtzf72.fsf@telia.com>
- <Pine.LNX.4.60.0509252026290.3089@poirot.grange> <m34q873ccc.fsf@telia.com>
- <Pine.LNX.4.60.0509262122450.4031@poirot.grange> <m3slvr1ugx.fsf@telia.com>
+	Mon, 26 Sep 2005 18:07:28 -0400
+Received: from mxfep02.bredband.com ([195.54.107.73]:19702 "EHLO
+	mxfep02.bredband.com") by vger.kernel.org with ESMTP
+	id S932088AbVIZWH2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 18:07:28 -0400
+Message-ID: <4338731B.4020301@stesmi.com>
+Date: Tue, 27 Sep 2005 00:15:55 +0200
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Y-GMX-Trusted: 0
+To: john stultz <johnstul@us.ibm.com>
+CC: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] x86-64: Fix bad assumption that dualcore cpus have synced
+ TSCs (resend)
+References: <1127764012.8195.138.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1127764012.8195.138.camel@cog.beaverton.ibm.com>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira Milter 1.0.7; VAE 6.29.0.5; VDF 6.29.0.100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Sep 2005, Peter Osterlund wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> OK. Another option since you have one good and one bad kernel, is to
-> try to find the point in time where it broke. If you are a git user,
+Hi John.
 
-No, I am not.
+> 	This patch should resolve the issue seen in bugme bug #5105, where it
+> is assumed that dualcore x86_64 systems have synced TSCs. This is not
+> the case, and alternate timesources should be used instead.
+> 
+> For more details, see:
+> http://bugzilla.kernel.org/show_bug.cgi?id=5105
+> 
+> Andi's earlier concerns that the TSCs should be synced on dualcore
+> systems have been resolved by confirmation from AMD folks that they can
+> be unsynced.
+> 
+> Please consider for inclusion in your tree.
 
-> you can use the "git bisect" method. If not, you can use -rc releases
-> from ftp.kernel.org.
+Wouldn't it be a good idea to change the comment following
+the code you removed as well?
 
-I think, I have an easier test - I just replaced the pktcdvd.[hc] in 
-2.6.13.1 with respective files from 2.6.12, and it worked. The diff is 
-pretty small, so, it should be possible to actually find the culprit 
-there. E.g., here's the comment, that came in with 2.6.13:
+Why have a comment saying "multi socket systems" if there is no
+distinction anymore?
 
-- * - Optimize for throughput at the expense of latency. This means that streaming
-- *   writes will never be interrupted by a read, but if the drive has to seek
-- *   before the next write, switch to reading instead if there are any pending
-- *   read requests.
+> 
+> diff --git a/arch/x86_64/kernel/time.c b/arch/x86_64/kernel/time.c
+> --- a/arch/x86_64/kernel/time.c
+> +++ b/arch/x86_64/kernel/time.c
+> @@ -959,9 +959,6 @@ static __init int unsynchronized_tsc(voi
+>   	   are handled in the OEM check above. */
+>   	if (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL)
+>   		return 0;
+> - 	/* All in a single socket - should be synchronized */
+> - 	if (cpus_weight(cpu_core_map[0]) == num_online_cpus())
+> - 		return 0;
+>  #endif
+>   	/* Assume multi socket systems are not synchronized */
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>   	return num_online_cpus() > 1;
 
-In the worst case, one could just reverse the patch for 2.6.14 and until a 
-solution to the problem is found.
+// Stefan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (MingW32)
 
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
+iD8DBQFDOHMbBrn2kJu9P78RAnSlAKCE2NSTYbi553i0OGadmRfuMdD3hgCgwedE
+blCF8zdC+fuTOgIuBy1Af60=
+=T4tA
+-----END PGP SIGNATURE-----

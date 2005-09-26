@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932472AbVIZSqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932476AbVIZSvY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932472AbVIZSqi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 14:46:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932473AbVIZSqi
+	id S932476AbVIZSvY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 14:51:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932475AbVIZSvY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 14:46:38 -0400
-Received: from zproxy.gmail.com ([64.233.162.200]:10209 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932472AbVIZSqh convert rfc822-to-8bit
+	Mon, 26 Sep 2005 14:51:24 -0400
+Received: from zproxy.gmail.com ([64.233.162.193]:42304 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932476AbVIZSvW convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 14:46:37 -0400
+	Mon, 26 Sep 2005 14:51:22 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=byRz5HiNOuz/an2blJU8ivIHxqLL4GhgWbBdWvPbPbRlx5gmG2oRvQNsOuw0N3xICRgGPpQpvBePn76lBjiVdPrU1xr/25nEVGb1h8aFEUZEimg47P6aY859ZNTO/YzI7xLCm60buhhaR4YeS87sA9oG8bIllHc6aUF/md4qePQ=
-Message-ID: <cda58cb8050926114675524d59@mail.gmail.com>
-Date: Mon, 26 Sep 2005 20:46:34 +0200
-From: Franck <vagabon.xyz@gmail.com>
-Reply-To: Franck <vagabon.xyz@gmail.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: questions on discontgmem.
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WeE+b9DMMeDsl4UeEWiL2VUxHFMLQfqGBSTtUwyk46dmhgB/yHwN6t9vfErEQ6qHy6pmJ8jfy/PW085zOT7hSq0rnMxkL59JI7QQcUi/ayY5oEuBU8XnwNaFxt1eOuk94WC+tsKM4eMX3Q7BQC6VA09IBXHpaR2Tz7MzycJd/zo=
+Message-ID: <9a8748490509261151bb10b67@mail.gmail.com>
+Date: Mon, 26 Sep 2005 20:51:20 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: Prasant Gopal <prasant_a@students.iiit.net>
+Subject: Re: Reg. gcc
+Cc: linux-gcc@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0509270009110.14218@students.iiit.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
+References: <Pine.LNX.4.61.0509270009110.14218@students.iiit.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 9/26/05, Prasant Gopal <prasant_a@students.iiit.net> wrote:
+>
+>
+> hi ,
+>
+>            can i hav 2 versions of gcc installed on the same kernel..  If
+> so how...please help me out...
+>
 
-I'd like to use discontigmem to access several RAM memories on an _no_
-NUMA embedded system. In that case, does a node  mean a single RAM
-whose start address is very different from the others ?
+If you have one, two, or more different versions of a userland program
+(which gcc is) installed, is nothing the kernel cares about. This is a
+userspace problem, not a kernel problem.
 
-When CONFIG_NUMA is _not_ set, how is a node choosen during allocation
-? any pointers are welcome !
+There is plenty of documentation to be found via google and other
+sources that describe how to accomplish what you want to do - spend a
+little time searching.
 
-With such mechanism, is it possible to create a block device (let say
-/dev/my_ram) whose (meta) data belongs to a _single_ node ?
+Here's one document that describes an installation of multiple gcc
+versions (and there are lots of others out there) :
+http://www.tellurian.com.au/whitepapers/multiplegcc.php
 
-Thanks.
 --
-               Franck
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

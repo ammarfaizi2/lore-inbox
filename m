@@ -1,55 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932335AbVIZVzX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932325AbVIZVzV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932335AbVIZVzX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 17:55:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932334AbVIZVzX
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 17:55:23 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:14601 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S932333AbVIZVzV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S932325AbVIZVzV (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 26 Sep 2005 17:55:21 -0400
-Date: Mon, 26 Sep 2005 17:54:50 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       linux-ia64@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       ak@suse.de, tony.luck@intel.com, Asit.K.Mallick@intel.com,
-       gregkh@suse.de
-Subject: Re: [patch 2.6.14-rc2 0/5] swiotlb maintenance and x86_64 dma_sync_single_range_for_{cpu,device}
-Message-ID: <20050926215447.GB5640@tuxdriver.com>
-Mail-Followup-To: Matthew Wilcox <matthew@wil.cx>,
-	linux-kernel@vger.kernel.org, discuss@x86-64.org,
-	linux-ia64@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-	ak@suse.de, tony.luck@intel.com, Asit.K.Mallick@intel.com,
-	gregkh@suse.de
-References: <B8E391BBE9FE384DAA4C5C003888BE6F04795ED2@scsmsx401.amr.corp.intel.com> <09262005170119.15628@bilbo.tuxdriver.com> <20050926213326.GF1459@parisc-linux.org>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbVIZVzU
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Mon, 26 Sep 2005 17:55:20 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:50578
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932325AbVIZVzU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 17:55:20 -0400
+Date: Mon, 26 Sep 2005 14:55:17 -0700 (PDT)
+Message-Id: <20050926.145517.02670662.davem@davemloft.net>
+To: ecashin@coraid.com
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com, jmacbaine@gmail.com
+Subject: Re: [PATCH 2.6.14-rc2] aoe [2/2]: use get_unaligned for possibly
+ unaligned accesses in ATA id buffer
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <87ll1jg4lt.fsf@coraid.com>
+References: <87oe6fhj8y.fsf@coraid.com>
+	<87ll1jg4lt.fsf@coraid.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050926213326.GF1459@parisc-linux.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 26, 2005 at 03:33:26PM -0600, Matthew Wilcox wrote:
-> On Mon, Sep 26, 2005 at 05:01:19PM -0400, John W. Linville wrote:
-> > In this round, the new location for swiotlb is driver/pci/swiotlb.c.
-> > This is the result of discussions on lkml pointing-out that swiotlb is
-> > closely related to PCI.
+From: "Ed L. Cashin" <ecashin@coraid.com>
+Date: Mon, 26 Sep 2005 12:45:34 -0400
+
+> Signed-off-by: "Ed L. Cashin" <ecashin@coraid.com>
 > 
-> Uh?  It implements DMA services, which aren't limited to PCI at all.
-> Despite the file including <linux.pci.h> and <asm/pci.h> (which should
-> probably both be removed), there's not a single PCI-related function in
-> this file.  You originally moved it to lib/ which made much more sense.
+> Use get_unaligned for possibly-unaligned multi-byte accesses to the
+> ATA device identify response buffer.
 
-Well, now, this is a quandry isn't it...  Actually, I'm inclined to
-agree with you.
+Thanks for following up on this Ed.
 
-Tony, et al., care to restate your reasoning for moving it under
-drivers/pci?
-
-John
--- 
-John W. Linville
-linville@tuxdriver.com
+Signed-off-by: David S. Miller <davem@davemloft.net>

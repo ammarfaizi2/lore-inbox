@@ -1,40 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbVIZUtR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbVIZUzc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750712AbVIZUtR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 16:49:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750733AbVIZUtR
+	id S1750735AbVIZUzc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 16:55:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbVIZUzc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 16:49:17 -0400
-Received: from ncc1701.cistron.net ([62.216.30.38]:5290 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id S1750712AbVIZUtR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 16:49:17 -0400
-From: dth@cistron.nl (Danny ter Haar)
-Subject: just a report: 2.6.14-rc2-git[35] (UP) not stable on usenet server  where 2.6.12 stays up for weeks
-Date: Mon, 26 Sep 2005 20:49:15 +0000 (UTC)
-Organization: Cistron
-Message-ID: <dh9msb$ko0$1@news.cistron.nl>
-X-Trace: ncc1701.cistron.net 1127767755 21248 62.216.30.70 (26 Sep 2005 20:49:15 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: dth@cistron.nl (Danny ter Haar)
-To: linux-kernel@vger.kernel.org
+	Mon, 26 Sep 2005 16:55:32 -0400
+Received: from edu.joroinen.fi ([194.89.68.130]:29131 "EHLO edu.joroinen.fi")
+	by vger.kernel.org with ESMTP id S1750735AbVIZUzc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 16:55:32 -0400
+Date: Mon, 26 Sep 2005 23:55:30 +0300
+From: Pasi =?iso-8859-1?Q?K=E4rkk=E4inen?= <pasik@iki.fi>
+To: Olivier Kaloudoff <kalou@kalou.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: watchdog with P4SCI and 2.6.9 (Supermicro)
+Message-ID: <20050926205530.GJ10146@edu.joroinen.fi>
+References: <Pine.LNX.4.62.0509261920340.15689@s1.ckr-solutions.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.62.0509261920340.15689@s1.ckr-solutions.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just feedback for the true kernel gods:
+On Mon, Sep 26, 2005 at 07:32:03PM +0200, Olivier Kaloudoff wrote:
+> Hi !
+> 
+> 
+> 	I'm happy to say that watchdog for P4SCi is detected
+> fine with my 2.6.9-freevps-1.5-1 kernel (centos 4.1 patched with freevps 
+> 1.5-1)
+>
 
-I've announced it probably all to often.
-But 2.6.1[34]* kernels aren't stable for me.
-Where 2.6.12-mm1 stays up for >> 3 weeks the latest kernels barfs:
+Sorry to disappoint you, but check the linux-kernel archives for discussion
+about supermicro motherboard and watchdog.. 
 
+the watchdog of this motherboard is not (yet) supported by linux..
 
-reboot   system boot  2.6.14-rc2-git5  Mon Sep 26 16:58          (05:44)
-[crash]
+Or do the latest watchdog patches for 2.6.13/14 already support this mb?
 
-reboot   system boot  2.6.14-rc2-git3  Sat Sep 24 05:14       (2+11:42)
-[crash]
-
-Danny
-machine has serial port but no buffering so no error report :-(
-
+-- Pasi Kärkkäinen
+ 
+> [root@shinwey ~]# uname -a
+> Linux shinwey 2.6.9-freevps-1.5-1 #1 SMP Sun Sep 25 23:07:51 CEST 2005 
+> i686 i686 i386 GNU/Linux
+> 
+> 
+> Sep 26 10:55:18 shinwey kernel: WDT500/501-P driver 0.10 at 0x0240 
+> (Interrupt 11). heartbeat=60 sec (nowayout=0)
+> 
+> Sep 26 10:55:18 shinwey kernel: wdt: Fan Tachometer is Disabled
+> Sep 26 10:55:18 shinwey kernel: w83877f_wdt: cannot register miscdev on 
+> minor=130 (err=-16)
+> 
+> Sep 26 10:55:18 shinwey kernel: WDT driver for the Winbond(TM) W83627HF 
+> Super I/O chip initialising.
+> 
+> Sep 26 10:55:18 shinwey kernel: w83627hf WDT: cannot register miscdev on 
+> minor=130 (err=-16)
+> 
+> 
+> Unfortunatelly, I set up a 4 minutes delay in the bios, the server takes 
+> less than 2 minutes to boot and detect the watchdog chip, but reboot takes
+> place ...
+> 
+> I don't get what's happening, my /dev/watchdog is existing and conform to 
+> the devices.txt;
+> 
+> [root@shinwey Documentation]# ls -l /dev/watchdog
+> crw-------  1 root root 10, 130 Sep 26  2005 /dev/watchdog
+> 
+> 
+> Any tip ?
+> 
+> 
+> 
+> Sincere Regards,
+> 
+> 
+> Olivier Kaloudoff
+> 

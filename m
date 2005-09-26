@@ -1,54 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbVIZHOS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932421AbVIZHOX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932150AbVIZHOS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 03:14:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbVIZHOS
+	id S932421AbVIZHOX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 03:14:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbVIZHOX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 03:14:18 -0400
-Received: from msr2-ces-av-smtp1.gmessaging.net ([194.51.201.39]:707 "EHLO
-	msr2-ces-av-smtp1.gmessaging.net") by vger.kernel.org with ESMTP
-	id S932150AbVIZHOR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 03:14:17 -0400
-Date: Mon, 26 Sep 2005 09:00:44 +0200
-From: "Woody.Wu" <Woody.Wu@cn.landisgyr.com>
-Subject: Kernel Compilation Question
-To: linux-kernel@vger.kernel.org
-Message-id: <7567C3A4682B894C99E5E16494442680010AD310@cnzhuex01.cn.landisgyr.com>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-Mailer: Internet Mail Service (5.5.2658.3)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-class: urn:content-classes:message
-Thread-topic: Kernel Compilation Question
-Thread-index: AcXCadwxLZ8e55EAQY2KX3Z/j9zkzw==
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
+	Mon, 26 Sep 2005 03:14:23 -0400
+Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:9871 "EHLO
+	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S932421AbVIZHOW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 03:14:22 -0400
+Date: Mon, 26 Sep 2005 09:14:02 +0200 (CEST)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Paul Blazejowski <paulb@blazebox.homeip.net>
+cc: LKML <linux-kernel@vger.kernel.org>, Carlo Calica <ccalica@gmail.com>,
+       xorg@lists.freedesktop.org
+Subject: Re: 2.6.14-rc2-mm1
+In-Reply-To: <20050925220037.GA8776@blazebox.homeip.net>
+Message-ID: <Pine.LNX.4.53.0509260911540.29885@gockel.physik3.uni-rostock.de>
+References: <20050925220037.GA8776@blazebox.homeip.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i got a RedHat box which running a 2.2.x kernel.  since its too old, i
-decided to upgrade it to 2.6.x, but this might involving upgrading of
-gcc, libc and lots of other things.  i don't want to bother to do that
-and think i can build a kernel in another newer system (a slackware
-running 2.6.x) and copy needed stuff over to the old box.  is it
-possible?  if so, what stuff i have to copy from the newer box to the
-old box? what i can imaged by far are: the bzImage file, the
-/lib/modules/2.6.x directory.  are there still other things?
+On Sun, 25 Sep 2005, Paul Blazejowski wrote:
 
-thanks in advance. 
+> Upon quick testing the latest mm kernel it appears there's some kind of
+> race condition when using dual core cpu esp when using XORG and USB
+> (although PS2 has same issue) kebyboard rate being too fast.
 
--------------------------------- 
-Landis+Gyr Metering (Zhuhai) Ltd. 
-Tel:   +86 756 3229181 ext 2616 
-Fax:   +86 756 3229183 
-Email: Woody.Wu@cn.landisgyr.com 
+Does the following patch by John Stultz fix the problem?
 
-Virginia Woolf: Someone has to die Leonard, in order that the rest of us
-should value our life more. 
-
-        - The Hours (2002) 
+Tim
 
 
-  
+>From johnstul@us.ibm.com Mon Sep 26 09:04:08 2005
+Date: Mon, 19 Sep 2005 12:16:43 -0700
+From: john stultz <johnstul@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>
+Subject: [PATCH] x86-64: Fix bad assumption that dualcore cpus have synced
+    TSCs
+
+Andrew,
+	This patch should resolve the issue seen in bugme bug #5105, where it
+is assumed that dualcore x86_64 systems have synced TSCs. This is not
+the case, and alternate timesources should be used instead.
+
+For more details, see:
+http://bugzilla.kernel.org/show_bug.cgi?id=5105
+
+
+Please consider for inclusion in your tree.
+
+thanks
+-john
+
+diff --git a/arch/x86_64/kernel/time.c b/arch/x86_64/kernel/time.c
+--- a/arch/x86_64/kernel/time.c
++++ b/arch/x86_64/kernel/time.c
+@@ -959,9 +959,6 @@ static __init int unsynchronized_tsc(voi
+  	   are handled in the OEM check above. */
+  	if (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL)
+  		return 0;
+- 	/* All in a single socket - should be synchronized */
+- 	if (cpus_weight(cpu_core_map[0]) == num_online_cpus())
+- 		return 0;
+ #endif
+  	/* Assume multi socket systems are not synchronized */
+  	return num_online_cpus() > 1;
+
 

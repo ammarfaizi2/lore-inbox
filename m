@@ -1,81 +1,161 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932462AbVIZSbv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932463AbVIZSfO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932462AbVIZSbv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 14:31:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbVIZSbv
+	id S932463AbVIZSfO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 14:35:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932464AbVIZSfO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 14:31:51 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:52958 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932462AbVIZSbu (ORCPT
+	Mon, 26 Sep 2005 14:35:14 -0400
+Received: from nproxy.gmail.com ([64.233.182.193]:6577 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932463AbVIZSfM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 14:31:50 -0400
-Date: Mon, 26 Sep 2005 16:26:08 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 3/3][Fix] swsusp: prevent swsusp from failing if there's too many pagedir pages
-Message-ID: <20050926142608.GA32249@elf.ucw.cz>
-References: <200509252018.36867.rjw@sisk.pl> <200509261311.29269.rjw@sisk.pl> <20050926112022.GD3554@elf.ucw.cz> <200509261454.09702.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200509261454.09702.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Mon, 26 Sep 2005 14:35:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:references;
+        b=OjBJbC1EUHsxoikxlX+qQbYaay5RNzEuINVRvPgwlXzky2wkI/3/jI6QScXF6cR75x8/P9jlkgp3hkUiMKfpA/kw8hNK5F6D5CRcEPYd2S8X6Zd9pc6I097xEVMyv5LiDHeY5hTM0LfC1ytC39HYL8+kynUhaHnuNCy91Ha3OI0=
+Message-ID: <ee588a54050926113569485648@mail.gmail.com>
+Date: Mon, 26 Sep 2005 20:35:10 +0200
+From: Xose Vazquez Perez <xose.vazquez@gmail.com>
+Reply-To: Xose Vazquez Perez <xose.vazquez@gmail.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Subject: Re: [PATCH 2.6.12 1/1] docs: updated some code docs
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <Pine.LNX.4.58.0509261122220.11898@shark.he.net>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_15111_12257676.1127759710730"
+References: <ee588a54050726152014f56899@mail.gmail.com>
+	 <16727.134.134.136.2.1122417419.squirrel@chretien.genwebhost.com>
+	 <ee588a5405092611108a9d063@mail.gmail.com>
+	 <Pine.LNX.4.58.0509261122220.11898@shark.he.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+------=_Part_15111_12257676.1127759710730
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> > > > Lets see...
-> > > > 
-> > > > for i386, we have 768 pagedir entries. Each pagedir entry points to
-> > > > page with 1023 pointers to pages. That means that up-to 768*1023*4096
-> > > > bytes image can be saved to swap ~= 768 * 1K * 4K ~= 3 GB. That's more
-> > > > than enough for i386.
-> > > > 
-> > > > for x86-64, we can have 128 pagedir entries (could not we fit more
-> > > > there? 384 entries should fit, no?).
-> > > 
-> > > Yes.  To be exact, 460.
-> > > 
-> > > > Each pagedir entry has 511 pointers to pages (IIRC)...
-> > > 
-> > > 512, I think.
-> > 
-> > Okay, can we do simple solution where we put 460 there, plus a check
-> > if it overflows (printk, abort suspend), for now? That should fix
-> > 768MB machine...
-> 
-> For now: a constant in power.h depending on sizeof(long) and PAGE_SIZE,
-> the size of swsusp_info.pagedir[] depending on it and the overflow check
-> in write_pagedir()?
+On 9/26/05, Randy.Dunlap <rdunlap@xenotime.net> wrote:
 
-Yes, that would be very nice.
+> All looks good to me except for this one line:
+>
+>  Andrew Morton's patch scripts:
+> -http://www.zip.com.au/~akpm/linux/patches/patch-scripts-0.20            =
+       +http://www.zip.com.au/~akpm/linux/patches/
+> +Instead these ones, people should use quilt ASAP (see above).
+>
+> Make that last line something like:
+> Instead of these (tools | scripts), quilt is the recommended
+> patch management tool (see above).
 
-> Unfortunately it's not enough for what I'm cooking (think of resuming in 35 sec.
-> to a fully responsive system - well, that's on my box).  A preliminary patch
-> is at http://www.sisk.pl/kernel/patches/2.6.14-rc2-git3/swsusp-improve-freeing-memory.patch
+ok. here it goes again.
 
-Okay, I see, nice... We want to support that in future. (Actually it
-is last piece of puzzle for swsusp3).
+------=_Part_15111_12257676.1127759710730
+Content-Type: text/x-patch; name="code_docs.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="code_docs.diff"
 
-> > No, they probably will not be consecutive.
-> > 
-> > OTOH pagedirs are stored as a link list in memory already. Maybe we
-> > should be able to extend that link list for a disk, too, with minimal
-> > fuss? ...we'd have to write pagedir _backwards_ for that to work,
-> > probably not nice, and swap_free() would really like direct access.
-> 
-> We write the pagedir after we have written the image, so the address
-> field of each entry is not needed at that time, except for freeing the
-> image memory in case of failure (with the "rework image freeing patch"
-> they are not needed at all).  Thus potentially we can use the address
-> fields of pagedir entries to link the pages on the swap.
-
-I plan to push "rework image freeing patch" for other reasons,
-too. I'd like to run longer tests on it, but so far it looks okay.
-
-								Pavel
--- 
-if you have sharp zaurus hardware you don't need... you know my address
+ZGlmZiAtTnVhciBvbGQvRG9jdW1lbnRhdGlvbi9Db2RpbmdTdHlsZSBuZXcvRG9jdW1lbnRhdGlv
+bi9Db2RpbmdTdHlsZQotLS0gb2xkL0RvY3VtZW50YXRpb24vQ29kaW5nU3R5bGUJMjAwNS0wOS0y
+NiAyMDowMjozNC4wMDAwMDAwMDAgKzAyMDAKKysrIG5ldy9Eb2N1bWVudGF0aW9uL0NvZGluZ1N0
+eWxlCTIwMDUtMDktMjYgMjA6MDU6NTkuMDAwMDAwMDAwICswMjAwCkBAIC00NDQsMTAgKzQ0NCwx
+MyBAQAogVVJMOiBodHRwOi8vY20uYmVsbC1sYWJzLmNvbS9jbS9jcy90cG9wLwogCiBHTlUgbWFu
+dWFscyAtIHdoZXJlIGluIGNvbXBsaWFuY2Ugd2l0aCBLJlIgYW5kIHRoaXMgdGV4dCAtIGZvciBj
+cHAsIGdjYywKLWdjYyBpbnRlcm5hbHMgYW5kIGluZGVudCwgYWxsIGF2YWlsYWJsZSBmcm9tIGh0
+dHA6Ly93d3cuZ251Lm9yZworZ2NjIGludGVybmFscyBhbmQgaW5kZW50LCBhbGwgYXZhaWxhYmxl
+IGZyb20gaHR0cDovL3d3dy5nbnUub3JnL21hbnVhbC8KIAogV0cxNCBpcyB0aGUgaW50ZXJuYXRp
+b25hbCBzdGFuZGFyZGl6YXRpb24gd29ya2luZyBncm91cCBmb3IgdGhlIHByb2dyYW1taW5nCi1s
+YW5ndWFnZSBDLCBVUkw6IGh0dHA6Ly9zdGQuZGt1dWcuZGsvSlRDMS9TQzIyL1dHMTQvCitsYW5n
+dWFnZSBDLCBVUkw6IGh0dHA6Ly93d3cub3Blbi1zdGQub3JnL0pUQzEvU0MyMi9XRzE0LworCitL
+ZXJuZWwgQ29kaW5nU3R5bGUgYnkgZ3JlZ0Brcm9haC5jb20gYXQgT0xTIDIwMDI6CitodHRwOi8v
+d3d3Lmtyb2FoLmNvbS9saW51eC90YWxrcy9vbHNfMjAwMl9rZXJuZWxfY29kaW5nc3R5bGVfdGFs
+ay9odG1sLwogCiAtLQogTGFzdCB1cGRhdGVkIG9uIDE2IEZlYnJ1YXJ5IDIwMDQgYnkgYSBjb21t
+dW5pdHkgZWZmb3J0IG9uIExLTUwuCmRpZmYgLU51YXIgb2xkL0RvY3VtZW50YXRpb24vU3VibWl0
+dGluZ0RyaXZlcnMgbmV3L0RvY3VtZW50YXRpb24vU3VibWl0dGluZ0RyaXZlcnMKLS0tIG9sZC9E
+b2N1bWVudGF0aW9uL1N1Ym1pdHRpbmdEcml2ZXJzCTIwMDUtMDktMjYgMjA6MDI6MzQuMDAwMDAw
+MDAwICswMjAwCisrKyBuZXcvRG9jdW1lbnRhdGlvbi9TdWJtaXR0aW5nRHJpdmVycwkyMDA1LTA5
+LTI1IDIyOjA1OjU2LjAwMDAwMDAwMCArMDIwMApAQCAtMjcsMTggKzI3LDE3IEBACiAtLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0KIAogTGludXggMi4wOgotCU5vIG5ldyBkcml2ZXJzIGFyZSBhY2Nl
+cHRlZCBmb3IgdGhpcyBrZXJuZWwgdHJlZQorCU5vIG5ldyBkcml2ZXJzIGFyZSBhY2NlcHRlZCBm
+b3IgdGhpcyBrZXJuZWwgdHJlZS4KIAogTGludXggMi4yOgorCU5vIG5ldyBkcml2ZXJzIGFyZSBh
+Y2NlcHRlZCBmb3IgdGhpcyBrZXJuZWwgdHJlZS4KKworTGludXggMi40OgogCUlmIHRoZSBjb2Rl
+IGFyZWEgaGFzIGEgZ2VuZXJhbCBtYWludGFpbmVyIHRoZW4gcGxlYXNlIHN1Ym1pdCBpdCB0bwog
+CXRoZSBtYWludGFpbmVyIGxpc3RlZCBpbiBNQUlOVEFJTkVSUyBpbiB0aGUga2VybmVsIGZpbGUu
+IElmIHRoZQogCW1haW50YWluZXIgZG9lcyBub3QgcmVzcG9uZCBvciB5b3UgY2Fubm90IGZpbmQg
+dGhlIGFwcHJvcHJpYXRlCi0JbWFpbnRhaW5lciB0aGVuIHBsZWFzZSBjb250YWN0IHRoZSAyLjIg
+a2VybmVsIG1haW50YWluZXI6Ci0JTWFyYy1DaHJpc3RpYW4gUGV0ZXJzZW4gPG0uYy5wQHdvbGst
+cHJvamVjdC5kZT4uCi0KLUxpbnV4IDIuNDoKLQlUaGUgc2FtZSBydWxlcyBhcHBseSBhcyAyLjIu
+IFRoZSBmaW5hbCBjb250YWN0IHBvaW50IGZvciBMaW51eCAyLjQKLQlzdWJtaXNzaW9ucyBpcyBN
+YXJjZWxvIFRvc2F0dGkgPG1hcmNlbG8udG9zYXR0aUBjeWNsYWRlcy5jb20+LgorCW1haW50YWlu
+ZXIgdGhlbiBwbGVhc2UgY29udGFjdCBNYXJjZWxvIFRvc2F0dGkKKwk8bWFyY2Vsby50b3NhdHRp
+QGN5Y2xhZGVzLmNvbT4uCiAKIExpbnV4IDIuNjoKIAlUaGUgc2FtZSBydWxlcyBhcHBseSBhcyAy
+LjQgZXhjZXB0IHRoYXQgeW91IHNob3VsZCBmb2xsb3cgbGludXgta2VybmVsCkBAIC01Myw2ICs1
+Miw3IEBACiAJCW9mIGV4Y2x1c2l2ZSBHUEwgbGljZW5zaW5nLCBhbmQgaWYgeW91IHdpc2ggdGhl
+IGRyaXZlcgogCQl0byBiZSB1c2VmdWwgdG8gb3RoZXIgY29tbXVuaXRpZXMgc3VjaCBhcyBCU0Qg
+eW91IG1heSB3ZWxsCiAJCXdpc2ggdG8gcmVsZWFzZSB1bmRlciBtdWx0aXBsZSBsaWNlbnNlcy4K
+KwkJU2VlIGFjY2VwdGVkIGxpY2Vuc2VzIGF0IGluY2x1ZGUvbGludXgvbW9kdWxlLmgKIAogQ29w
+eXJpZ2h0OglUaGUgY29weXJpZ2h0IG93bmVyIG11c3QgYWdyZWUgdG8gdXNlIG9mIEdQTC4KIAkJ
+SXQncyBiZXN0IGlmIHRoZSBzdWJtaXR0ZXIgYW5kIGNvcHlyaWdodCBvd25lcgpAQCAtMTQzLDUg
+KzE0MywxMyBAQAogCWh0dHA6Ly9rZXJuZWxuZXdiaWVzLm9yZy8KIAogTGludXggVVNCIHByb2pl
+Y3Q6Ci0JaHR0cDovL3NvdXJjZWZvcmdlLm5ldC9wcm9qZWN0cy9saW51eC11c2IvCisJaHR0cDov
+L2xpbnV4LXVzYi5zb3VyY2Vmb3JnZS5uZXQvCisKK0hvdyB0byBOT1Qgd3JpdGUga2VybmVsIGRy
+aXZlciBieSBhcmphbnZAcmVkaGF0LmNvbQorCWh0dHA6Ly9wZW9wbGUucmVkaGF0LmNvbS9hcmph
+bnYvb2xzcGFwZXIucGRmCisKK0tlcm5lbCBKYW5pdG9yOgorCWh0dHA6Ly9qYW5pdG9yLmtlcm5l
+bG5ld2JpZXMub3JnLwogCistLQorTGFzdCB1cGRhdGVkIG9uIDI1IFNlcCAyMDA1LgpkaWZmIC1O
+dWFyIG9sZC9Eb2N1bWVudGF0aW9uL1N1Ym1pdHRpbmdQYXRjaGVzIG5ldy9Eb2N1bWVudGF0aW9u
+L1N1Ym1pdHRpbmdQYXRjaGVzCi0tLSBvbGQvRG9jdW1lbnRhdGlvbi9TdWJtaXR0aW5nUGF0Y2hl
+cwkyMDA1LTA5LTI2IDIwOjAyOjM0LjAwMDAwMDAwMCArMDIwMAorKysgbmV3L0RvY3VtZW50YXRp
+b24vU3VibWl0dGluZ1BhdGNoZXMJMjAwNS0wOS0yNiAyMDozMjowMi4wMDAwMDAwMDAgKzAyMDAK
+QEAgLTc4LDcgKzc4LDkgQEAKIGh0dHA6Ly93d3cueGVub3RpbWUubmV0L2xpbnV4L3NjcmlwdHMv
+cGF0Y2hpbmctc2NyaXB0cy0wMDIudGFyLmd6CiAKIEFuZHJldyBNb3J0b24ncyBwYXRjaCBzY3Jp
+cHRzOgotaHR0cDovL3d3dy56aXAuY29tLmF1L35ha3BtL2xpbnV4L3BhdGNoZXMvcGF0Y2gtc2Ny
+aXB0cy0wLjIwCitodHRwOi8vd3d3LnppcC5jb20uYXUvfmFrcG0vbGludXgvcGF0Y2hlcy8KK0lu
+c3RlYWQgb2YgdGhlc2Ugc2NyaXB0cywgcXVpbHQgaXMgdGhlIHJlY29tbWVuZGVkIHBhdGNoIG1h
+bmFnZW1lbnQKK3Rvb2wgKHNlZSBhYm92ZSkuCiAKIAogCkBAIC05Nyw3ICs5OSw3IEBACiAKIDMp
+IFNlcGFyYXRlIHlvdXIgY2hhbmdlcy4KIAotU2VwYXJhdGUgZWFjaCBsb2dpY2FsIGNoYW5nZSBp
+bnRvIGl0cyBvd24gcGF0Y2guCitTZXBhcmF0ZSBfbG9naWNhbCBjaGFuZ2VzXyBpbnRvIGEgc2lu
+Z2xlIHBhdGNoIGZpbGUuCiAKIEZvciBleGFtcGxlLCBpZiB5b3VyIGNoYW5nZXMgaW5jbHVkZSBi
+b3RoIGJ1ZyBmaXhlcyBhbmQgcGVyZm9ybWFuY2UKIGVuaGFuY2VtZW50cyBmb3IgYSBzaW5nbGUg
+ZHJpdmVyLCBzZXBhcmF0ZSB0aG9zZSBjaGFuZ2VzIGludG8gdHdvCkBAIC0xMTIsNiArMTE0LDEw
+IEBACiBjb21wbGV0ZSwgdGhhdCBpcyBPSy4gIFNpbXBseSBub3RlICJ0aGlzIHBhdGNoIGRlcGVu
+ZHMgb24gcGF0Y2ggWCIKIGluIHlvdXIgcGF0Y2ggZGVzY3JpcHRpb24uCiAKK0lmIHlvdSBjYW5u
+b3QgY29uZGVuc2UgeW91ciBwYXRjaCBzZXQgaW50byBhIHNtYWxsZXIgc2V0IG9mIHBhdGNoZXMs
+Cit0aGVuIG9ubHkgcG9zdCBzYXkgMTUgb3Igc28gYXQgYSB0aW1lIGFuZCB3YWl0IGZvciByZXZp
+ZXcgYW5kIGludGVncmF0aW9uLgorCisKIAogNCkgU2VsZWN0IGUtbWFpbCBkZXN0aW5hdGlvbi4K
+IApAQCAtMTI0LDYgKzEzMCwxMCBAQAogbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZy4gIE1v
+c3Qga2VybmVsIGRldmVsb3BlcnMgbW9uaXRvciB0aGlzCiBlLW1haWwgbGlzdCwgYW5kIGNhbiBj
+b21tZW50IG9uIHlvdXIgY2hhbmdlcy4KIAorCitEbyBub3Qgc2VuZCBtb3JlIHRoYW4gMTUgcGF0
+Y2hlcyBhdCBvbmNlIHRvIHRoZSB2Z2VyIG1haWxpbmcgbGlzdHMhISEKKworCiBMaW51cyBUb3J2
+YWxkcyBpcyB0aGUgZmluYWwgYXJiaXRlciBvZiBhbGwgY2hhbmdlcyBhY2NlcHRlZCBpbnRvIHRo
+ZQogTGludXgga2VybmVsLiAgSGlzIGUtbWFpbCBhZGRyZXNzIGlzIDx0b3J2YWxkc0Bvc2RsLm9y
+Zz4uICBIZSBnZXRzCiBhIGxvdCBvZiBlLW1haWwsIHNvIHR5cGljYWxseSB5b3Ugc2hvdWxkIGRv
+IHlvdXIgYmVzdCB0byAtYXZvaWQtIHNlbmRpbmcKQEAgLTE0OSw2ICsxNTksOSBAQAogTUFJTlRB
+SU5FUlMgZmlsZSBmb3IgYSBtYWlsaW5nIGxpc3QgdGhhdCByZWxhdGVzIHNwZWNpZmljYWxseSB0
+bwogeW91ciBjaGFuZ2UuCiAKK01ham9yZG9tbyBsaXN0cyBvZiBWR0VSLktFUk5FTC5PUkcgYXQ6
+CisJaHR0cDovL3ZnZXIua2VybmVsLm9yZy92Z2VyLWxpc3RzLmh0bWwKKwogSWYgY2hhbmdlcyBh
+ZmZlY3QgdXNlcmxhbmQta2VybmVsIGludGVyZmFjZXMsIHBsZWFzZSBzZW5kCiB0aGUgTUFOLVBB
+R0VTIG1haW50YWluZXIgKGFzIGxpc3RlZCBpbiB0aGUgTUFJTlRBSU5FUlMgZmlsZSkKIGEgbWFu
+LXBhZ2VzIHBhdGNoLCBvciBhdCBsZWFzdCBhIG5vdGlmaWNhdGlvbiBvZiB0aGUgY2hhbmdlLApA
+QCAtMzAyLDE2ICszMTUsNiBAQAogCiAKIAotMTIpIE1vcmUgcmVmZXJlbmNlcyBmb3Igc3VibWl0
+dGluZyBwYXRjaGVzCi0KLUFuZHJldyBNb3J0b24sICJUaGUgcGVyZmVjdCBwYXRjaCIgKHRwcCku
+Ci0gIDxodHRwOi8vd3d3LnppcC5jb20uYXUvfmFrcG0vbGludXgvcGF0Y2hlcy9zdHVmZi90cHAu
+dHh0PgotCi1KZWZmIEdhcnppaywgIkxpbnV4IGtlcm5lbCBwYXRjaCBzdWJtaXNzaW9uIGZvcm1h
+dC4iCi0gIDxodHRwOi8vbGludXgueXl6LnVzL3BhdGNoLWZvcm1hdC5odG1sPgotCi0KLQogLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KIFNFQ1RJT04gMiAtIEhJTlRTLCBUSVBT
+LCBBTkQgVFJJQ0tTCiAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpAQCAtMzgy
+LDMgKzM4NSwyNCBAQAogRG9uJ3QgdHJ5IHRvIGFudGljaXBhdGUgbmVidWxvdXMgZnV0dXJlIGNh
+c2VzIHdoaWNoIG1heSBvciBtYXkgbm90CiBiZSB1c2VmdWw6ICAiTWFrZSBpdCBhcyBzaW1wbGUg
+YXMgeW91IGNhbiwgYW5kIG5vIHNpbXBsZXIuIgogCisKKworLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LQorU0VDVElPTiAzIC0gUkVGRVJFTkNFUworLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQorCitBbmRy
+ZXcgTW9ydG9uLCAiVGhlIHBlcmZlY3QgcGF0Y2giICh0cHApLgorICA8aHR0cDovL3d3dy56aXAu
+Y29tLmF1L35ha3BtL2xpbnV4L3BhdGNoZXMvc3R1ZmYvdHBwLnR4dD4KKworSmVmZiBHYXJ6aWss
+ICJMaW51eCBrZXJuZWwgcGF0Y2ggc3VibWlzc2lvbiBmb3JtYXQuIgorICA8aHR0cDovL2xpbnV4
+Lnl5ei51cy9wYXRjaC1mb3JtYXQuaHRtbD4KKworR3JlZyBLcm9haCwgIkhvdyB0byBwaXNzIG9m
+ZiBhIGtlcm5lbCBzdWJzeXN0ZW0gbWFpbnRhaW5lciIuCisgIDxodHRwOi8vd3d3Lmtyb2FoLmNv
+bS9sb2cvMjAwNS8wMy8zMS8+CisgIDxodHRwOi8vd3d3Lmtyb2FoLmNvbS9sb2cvMjAwNS8wNy8w
+OC8+CisKK05PISEhISBObyBtb3JlIGh1Z2UgcGF0Y2ggYm9tYnMgdG8gbGludXgta2VybmVsQHZn
+ZXIua2VybmVsLm9yZyBwZW9wbGUhLgorICA8aHR0cDovL21hcmMudGhlYWltc2dyb3VwLmNvbS8/
+bD1saW51eC1rZXJuZWwmbT0xMTIxMTI3NDk5MTI5NDQmdz0yPgorCistLQorTGFzdCB1cGRhdGVk
+IG9uIDI1IFNlcCAyMDA1Lgo=
+------=_Part_15111_12257676.1127759710730--

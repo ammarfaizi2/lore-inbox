@@ -1,108 +1,179 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbVIZNcr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932125AbVIZNe0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932123AbVIZNcr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 09:32:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbVIZNcq
+	id S932125AbVIZNe0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 09:34:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932129AbVIZNe0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 09:32:46 -0400
-Received: from zproxy.gmail.com ([64.233.162.206]:44440 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932123AbVIZNcp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 09:32:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=MRJGypyWX7oFNquXV8I22cQA8YWlnIxiNB9GJMUNjtZB0wqPiEqMovzTKKoSYKq0eQoe2v59KQtG6D/mbhGatVR1VcGhW8tIgM7o0Z/1JBQ7vgFBPO8x26xEZImibatliGoj9Ss8Dw3kjSd7k544BBWl9fObw/JTMqjf2PF1CpE=
-Message-ID: <9e473391050926063264010349@mail.gmail.com>
-Date: Mon, 26 Sep 2005 09:32:43 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>
-Subject: Re: usb-snd-audio breakage
-In-Reply-To: <20050926033805.GB22376@redhat.com>
+	Mon, 26 Sep 2005 09:34:26 -0400
+Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:19850 "EHLO
+	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S932127AbVIZNeZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 09:34:25 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Mon, 26 Sep 2005 14:34:18 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
+Subject: [PATCH 4/4] NTFS: More $LogFile handling fixes: when chkdsk has been
+ run, it can leave the
+In-Reply-To: <Pine.LNX.4.60.0509261433100.32257@hermes-1.csi.cam.ac.uk>
+Message-ID: <Pine.LNX.4.60.0509261433530.32257@hermes-1.csi.cam.ac.uk>
+References: <Pine.LNX.4.60.0509261427520.32257@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.60.0509261431270.32257@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.60.0509261432170.32257@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.60.0509261433100.32257@hermes-1.csi.cam.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <9e4733910509251927484a70c7@mail.gmail.com>
-	 <9e4733910509251943277f077a@mail.gmail.com>
-	 <20050926033805.GB22376@redhat.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So module and proc code will strip white space, but sysfs won't strip
-white space. Where is the consistency?
+NTFS: More $LogFile handling fixes: when chkdsk has been run, it can leave the
+      restart pages in the journal without multi sector transfer protection
+      fixups (i.e. the update sequence array is empty and in fact does not
+      exist).
 
-On 9/25/05, Dave Jones <davej@redhat.com> wrote:
-> On Sun, Sep 25, 2005 at 10:43:11PM -0400, Jon Smirl wrote:
->  > The Redhat FC4 installer is adds index=0 in modprobe.conf. The index
->  > parameter appears to have been removed fron snd-usb-audio.
->  >
->  > There are two issues:
->  > 1) should index have been left as a non-functioning param so that
->  > existing installs won't break.
->  > 2) Why didn't I get a decent error message about index being the
->  > problem instead of the message about `'
->
-> This patch really should have been merged for 2.6.13
-> but somehow fell through the cracks. I don't think it
-> even landed in -mm
->
->                 Dave
->
->
->
-> Name: Ignore trailing whitespace on kernel parameters correctly: Fixed version
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
->
-> Dave Jones says:
->
-> ... if the modprobe.conf has trailing whitespace, modules fail to load
-> with the following helpful message..
->
->         snd_intel8x0: Unknown parameter `'
->
-> Previous version truncated last argument.
->
-> Index: linux-2.6.13-rc6-git7-Module/kernel/params.c
-> ===================================================================
-> --- linux-2.6.13-rc6-git7-Module.orig/kernel/params.c   2005-08-10 16:12:45.000000000 +1000
-> +++ linux-2.6.13-rc6-git7-Module/kernel/params.c        2005-08-16 14:31:16.000000000 +1000
-> @@ -80,8 +80,6 @@
->         int in_quote = 0, quoted = 0;
->         char *next;
->
-> -       /* Chew any extra spaces */
-> -       while (*args == ' ') args++;
->         if (*args == '"') {
->                 args++;
->                 in_quote = 1;
-> @@ -121,6 +119,9 @@
->                 next = args + i + 1;
->         } else
->                 next = args + i;
-> +
-> +       /* Chew up trailing spaces. */
-> +       while (*next == ' ') next++;
->         return next;
->  }
->
-> @@ -134,6 +135,9 @@
->         char *param, *val;
->
->         DEBUGP("Parsing ARGS: %s\n", args);
-> +
-> +       /* Chew leading spaces */
-> +       while (*args == ' ') args++;
->
->         while (*args) {
->                 int ret;
->
->
->
+Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
 
+---
 
---
-Jon Smirl
-jonsmirl@gmail.com
+ fs/ntfs/ChangeLog |   18 +++++++++---------
+ fs/ntfs/Makefile  |    2 +-
+ fs/ntfs/logfile.c |   30 +++++++++++++++++++++++++-----
+ 3 files changed, 35 insertions(+), 15 deletions(-)
+
+5a8c0cc32bb6e029cd9c36f655c6b0955b0d9967
+diff --git a/fs/ntfs/ChangeLog b/fs/ntfs/ChangeLog
+--- a/fs/ntfs/ChangeLog
++++ b/fs/ntfs/ChangeLog
+@@ -22,14 +22,6 @@ ToDo/Notes:
+ 	- Enable the code for setting the NT4 compatibility flag when we start
+ 	  making NTFS 1.2 specific modifications.
+ 
+-2.1.25-WIP
+-
+-	- Fix sparse warnings that have crept in over time.
+-	- Change ntfs_cluster_free() to require a write locked runlist on entry
+-	  since we otherwise get into a lock reversal deadlock if a read locked
+-	  runlist is passed in. In the process also change it to take an ntfs
+-	  inode instead of a vfs inode as parameter.
+-
+ 2.1.24 - Lots of bug fixes and support more clean journal states.
+ 
+ 	- Support journals ($LogFile) which have been modified by chkdsk.  This
+@@ -37,7 +29,8 @@ ToDo/Notes:
+ 	  The Windows boot will run chkdsk and then reboot.  The user can then
+ 	  immediately boot into Linux rather than having to do a full Windows
+ 	  boot first before rebooting into Linux and we will recognize such a
+-	  journal and empty it as it is clean by definition.
++	  journal and empty it as it is clean by definition.  Note, this only
++	  works if chkdsk left the journal in an obviously clean state.
+ 	- Support journals ($LogFile) with only one restart page as well as
+ 	  journals with two different restart pages.  We sanity check both and
+ 	  either use the only sane one or the more recent one of the two in the
+@@ -102,6 +95,13 @@ ToDo/Notes:
+ 	  my ways.
+ 	- Fix various bugs in the runlist merging code.  (Based on libntfs
+ 	  changes by Richard Russon.)
++	- Fix sparse warnings that have crept in over time.
++	- Change ntfs_cluster_free() to require a write locked runlist on entry
++	  since we otherwise get into a lock reversal deadlock if a read locked
++	  runlist is passed in. In the process also change it to take an ntfs
++	  inode instead of a vfs inode as parameter.
++	- Fix the definition of the CHKD ntfs record magic.  It had an off by
++	  two error causing it to be CHKB instead of CHKD.
+ 
+ 2.1.23 - Implement extension of resident files and make writing safe as well as
+ 	 many bug fixes, cleanups, and enhancements...
+diff --git a/fs/ntfs/Makefile b/fs/ntfs/Makefile
+--- a/fs/ntfs/Makefile
++++ b/fs/ntfs/Makefile
+@@ -6,7 +6,7 @@ ntfs-objs := aops.o attrib.o collate.o c
+ 	     index.o inode.o mft.o mst.o namei.o runlist.o super.o sysctl.o \
+ 	     unistr.o upcase.o
+ 
+-EXTRA_CFLAGS = -DNTFS_VERSION=\"2.1.25-WIP\"
++EXTRA_CFLAGS = -DNTFS_VERSION=\"2.1.24\"
+ 
+ ifeq ($(CONFIG_NTFS_DEBUG),y)
+ EXTRA_CFLAGS += -DDEBUG
+diff --git a/fs/ntfs/logfile.c b/fs/ntfs/logfile.c
+--- a/fs/ntfs/logfile.c
++++ b/fs/ntfs/logfile.c
+@@ -51,7 +51,8 @@ static BOOL ntfs_check_restart_page_head
+ 		RESTART_PAGE_HEADER *rp, s64 pos)
+ {
+ 	u32 logfile_system_page_size, logfile_log_page_size;
+-	u16 usa_count, usa_ofs, usa_end, ra_ofs;
++	u16 ra_ofs, usa_count, usa_ofs, usa_end = 0;
++	BOOL have_usa = TRUE;
+ 
+ 	ntfs_debug("Entering.");
+ 	/*
+@@ -86,6 +87,14 @@ static BOOL ntfs_check_restart_page_head
+ 				(int)sle16_to_cpu(rp->minor_ver));
+ 		return FALSE;
+ 	}
++	/*
++	 * If chkdsk has been run the restart page may not be protected by an
++	 * update sequence array.
++	 */
++	if (ntfs_is_chkd_record(rp->magic) && !le16_to_cpu(rp->usa_count)) {
++		have_usa = FALSE;
++		goto skip_usa_checks;
++	}
+ 	/* Verify the size of the update sequence array. */
+ 	usa_count = 1 + (logfile_system_page_size >> NTFS_BLOCK_SIZE_BITS);
+ 	if (usa_count != le16_to_cpu(rp->usa_count)) {
+@@ -102,6 +111,7 @@ static BOOL ntfs_check_restart_page_head
+ 				"inconsistent update sequence array offset.");
+ 		return FALSE;
+ 	}
++skip_usa_checks:
+ 	/*
+ 	 * Verify the position of the restart area.  It must be:
+ 	 *	- aligned to 8-byte boundary,
+@@ -109,7 +119,8 @@ static BOOL ntfs_check_restart_page_head
+ 	 *	- within the system page size.
+ 	 */
+ 	ra_ofs = le16_to_cpu(rp->restart_area_offset);
+-	if (ra_ofs & 7 || ra_ofs < usa_end ||
++	if (ra_ofs & 7 || (have_usa ? ra_ofs < usa_end :
++			ra_ofs < sizeof(RESTART_PAGE_HEADER)) ||
+ 			ra_ofs > logfile_system_page_size) {
+ 		ntfs_error(vi->i_sb, "$LogFile restart page specifies "
+ 				"inconsistent restart area offset.");
+@@ -402,8 +413,12 @@ static int ntfs_check_and_load_restart_p
+ 			idx++;
+ 		} while (to_read > 0);
+ 	}
+-	/* Perform the multi sector transfer deprotection on the buffer. */
+-	if (post_read_mst_fixup((NTFS_RECORD*)trp,
++	/*
++	 * Perform the multi sector transfer deprotection on the buffer if the
++	 * restart page is protected.
++	 */
++	if ((!ntfs_is_chkd_record(trp->magic) || le16_to_cpu(trp->usa_count))
++			&& post_read_mst_fixup((NTFS_RECORD*)trp,
+ 			le32_to_cpu(rp->system_page_size))) {
+ 		/*
+ 		 * A multi sector tranfer error was detected.  We only need to
+@@ -615,11 +630,16 @@ is_empty:
+ 		 * Otherwise just throw it away.
+ 		 */
+ 		if (rstr2_lsn > rstr1_lsn) {
++			ntfs_debug("Using second restart page as it is more "
++					"recent.");
+ 			ntfs_free(rstr1_ph);
+ 			rstr1_ph = rstr2_ph;
+ 			/* rstr1_lsn = rstr2_lsn; */
+-		} else
++		} else {
++			ntfs_debug("Using first restart page as it is more "
++					"recent.");
+ 			ntfs_free(rstr2_ph);
++		}
+ 		rstr2_ph = NULL;
+ 	}
+ 	/* All consistency checks passed. */

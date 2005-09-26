@@ -1,57 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932512AbVIZWaz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932346AbVIZWbr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932512AbVIZWaz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 18:30:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932516AbVIZWaz
+	id S932346AbVIZWbr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 18:31:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932519AbVIZWbr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 18:30:55 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:58788 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932512AbVIZWay (ORCPT
+	Mon, 26 Sep 2005 18:31:47 -0400
+Received: from ns1.coraid.com ([65.14.39.133]:35635 "EHLO coraid.com")
+	by vger.kernel.org with ESMTP id S932346AbVIZWbp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 18:30:54 -0400
-Date: Mon, 26 Sep 2005 18:30:37 -0400
-From: Dave Jones <davej@redhat.com>
-To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] When L3 is present show its size in /proc/cpuinfo
-Message-ID: <20050926223037.GN19275@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
-	Andrew Morton <akpm@osdl.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <20050926145956.B15625@unix-os.sc.intel.com>
-Mime-Version: 1.0
+	Mon, 26 Sep 2005 18:31:45 -0400
+To: Valdis.Kletnieks@vt.edu
+Cc: linux-kernel@vger.kernel.org, Greg K-H <greg@kroah.com>
+Subject: Re: [PATCH 2.6.14-rc2] aoe [1/2]: explicitly set minimum packet
+ length to ETH_ZLEN
+References: <87oe6fhj8y.fsf@coraid.com> <87hdc7ept7.fsf@coraid.com>
+	<200509261710.j8QHAkE7008871@turing-police.cc.vt.edu>
+From: Ed L Cashin <ecashin@coraid.com>
+Date: Mon, 26 Sep 2005 18:28:39 -0400
+In-Reply-To: <200509261710.j8QHAkE7008871@turing-police.cc.vt.edu> (Valdis
+ Kletnieks's message of "Mon, 26 Sep 2005 13:10:46 -0400")
+Message-ID: <87vf0npip4.fsf@coraid.com>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050926145956.B15625@unix-os.sc.intel.com>
-User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 26, 2005 at 02:59:56PM -0700, Venkatesh Pallipadi wrote:
+Valdis.Kletnieks@vt.edu writes:
+
+...
+> I haven't chased through the code in detail - will this change ensure that
+> all ETH_ZLEN bytes are initialized?  We had a bunch of drivers a few years
+> ago that set the length to the legal min, but then only copied some smaller
+> number of bytes in, resulting in leakage of kernel memory contents....
+
+No, it looks like alloc_skb just kmallocs the data, so I'd need to
+follow up with something like this:
+
+diff -rN -u old-aoe-2.6-stand/linux/drivers/block/aoe/aoecmd.c new-aoe-2.6-stand/linux/drivers/block/aoe/aoecmd.c
+--- old-aoe-2.6-stand/linux/drivers/block/aoe/aoecmd.c	2005-09-26 18:25:19.000000000 -0400
++++ new-aoe-2.6-stand/linux/drivers/block/aoe/aoecmd.c	2005-09-26 17:08:21.000000000 -0400
+@@ -26,6 +26,7 @@
  
- > The code that prints the cache size assumes that L3 always lives in chipset and
- > is shared across CPUs. Which is not really true.
- > 
- > I think all the cachesizes reported by cpuid are in the processor itself.
- > The attached patch changes the code to reflect that.
- > 
- > Dave, any idea where that original comment in the code came from?
+ 	skb = alloc_skb(len, GFP_ATOMIC);
+ 	if (skb) {
++		memset(skb->head, 0, skb->end - skb->head);
+ 		skb->nh.raw = skb->mac.raw = skb->data;
+ 		skb->dev = if_dev;
+ 		skb->protocol = __constant_htons(ETH_P_AOE);
 
-Been there for a long time iirc (Though I've not checked [my kingdom for
-a 'git annotate' tool])
 
- > Are there any
- > systems which reports the L3 cache size in cpuid, when L3 sits in northbridge?
 
-Very unlikely.
-The only legacy system with L3 that I recall was the AMD K6-III (which had on-CPU L1/L2,
-though some motherboards at the time also included an L3 (or L2 if used with an earlier
-socket 7 cpu).  None of those off-cpu caches were detectable with cpuid, and
-required reading from pci config space to determine their size/status etc.
-
-The big question I have though is how relevant that 'weighting' is today
-if we factor in L3.
-
-		Dave
+-- 
+  Ed L Cashin <ecashin@coraid.com>
 

@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932494AbVIZUJ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932495AbVIZUK0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932494AbVIZUJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 16:09:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932495AbVIZUJ7
+	id S932495AbVIZUK0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 16:10:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932496AbVIZUKZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 16:09:59 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:7070 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932494AbVIZUJ6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 16:09:58 -0400
-Message-ID: <43385594.3080303@austin.ibm.com>
-Date: Mon, 26 Sep 2005 15:09:56 -0500
+	Mon, 26 Sep 2005 16:10:25 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:49355 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932495AbVIZUKX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 16:10:23 -0400
+Message-ID: <43385412.5080506@austin.ibm.com>
+Date: Mon, 26 Sep 2005 15:03:30 -0500
 From: Joel Schopp <jschopp@austin.ibm.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050909 Fedora/1.7.10-1.3.2
 X-Accept-Language: en-us, en
@@ -21,143 +21,165 @@ CC: Joel Schopp <jschopp@austin.ibm.com>,
        Linux Memory Management List <linux-mm@kvack.org>,
        linux-kernel@vger.kernel.org, Mel Gorman <mel@csn.ul.ie>,
        Mike Kravetz <kravetz@us.ibm.com>
-Subject: [PATCH 4/9] defrag helper functions
+Subject: [PATCH 1/9] add defrag flags
 References: <4338537E.8070603@austin.ibm.com>
 In-Reply-To: <4338537E.8070603@austin.ibm.com>
 Content-Type: multipart/mixed;
- boundary="------------020403000006080605070602"
+ boundary="------------060207000900010809020004"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------020403000006080605070602
+--------------060207000900010809020004
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-This patch contains a handful of trivial functions, and one fairly short function
-that finds an unallocated 2^MAX_ORDER-1 sized block from one type and moves it
-to another type.
+This patch adds 2 new GFP flags to correspond to the 3 allocation types.  The
+third state is indicated by neither flag corresponding to the first two states
+being set. It then modifies appropriate allocator calls to use these new flags.
+The flags are:
+__GFP_USER, which corresponds to easily reclaimable pages
+__GFP_KERNRCLM, which corresponds to userspace pages
+
+Also note that the __GFP_USER flag should be reusable by the HARDWALL folks as
+well.
+
+This patch was originally authored by Mel Gorman, and heavily modified by me.
 
 Signed-off-by: Mel Gorman <mel@csn.ul.ie>
 Signed-off-by: Joel Schopp <jschopp@austin.ibm.com>
 
-
-
---------------020403000006080605070602
+--------------060207000900010809020004
 Content-Type: text/plain;
- name="4_defrag_helper_funcs"
+ name="1_add_defrag_flags"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="4_defrag_helper_funcs"
+ filename="1_add_defrag_flags"
 
-Index: 2.6.13-joel2/mm/page_alloc.c
+Index: 2.6.13-joel2/fs/buffer.c
 ===================================================================
---- 2.6.13-joel2.orig/mm/page_alloc.c	2005-09-20 13:45:47.%N -0500
-+++ 2.6.13-joel2/mm/page_alloc.c	2005-09-20 14:16:35.%N -0500
-@@ -63,7 +63,62 @@ int sysctl_lowmem_reserve_ratio[MAX_NR_Z
+--- 2.6.13-joel2.orig/fs/buffer.c	2005-09-13 14:54:13.%N -0500
++++ 2.6.13-joel2/fs/buffer.c	2005-09-13 15:02:01.%N -0500
+@@ -1119,7 +1119,8 @@ grow_dev_page(struct block_device *bdev,
+ 	struct page *page;
+ 	struct buffer_head *bh;
  
- EXPORT_SYMBOL(totalram_pages);
- EXPORT_SYMBOL(nr_swap_pages);
-+static inline int need_min_fallback_reserve(struct zone *zone)
-+{
-+	return (zone->free_pages >> MAX_ORDER) < zone->fallback_reserve;
-+}
-+static inline int is_min_fallback_reserved(struct zone *zone)
-+{
-+	return zone->fallback_balance < 0;
-+}
-+static inline unsigned int get_pageblock_type(struct zone *zone,
-+					      struct page *page)
-+{
-+	unsigned long pfn = page_to_pfn(page);
-+	int i, bitidx;
-+	unsigned int type = 0;
-+	unsigned long *usemap;
-+
-+	bitidx = pfn_to_bitidx(zone, pfn);
-+	usemap = pfn_to_usemap(zone, pfn);
-+
-+	for (i=0; i < BITS_PER_RCLM_TYPE; i++) {
-+		type = (type << 1);
-+		type |= (!!test_bit(bitidx+i, usemap));
-+	}
-+
-+	return type;
-+}
+-	page = find_or_create_page(inode->i_mapping, index, GFP_NOFS);
++	page = find_or_create_page(inode->i_mapping, index,
++				   GFP_NOFS | __GFP_USER);
+ 	if (!page)
+ 		return NULL;
  
-+void assign_bit(int bit_nr, unsigned long* map, int value)
-+{
-+	switch (value) {
-+	case 0:
-+		clear_bit(bit_nr, map);
-+		break;
-+	default:
-+		set_bit(bit_nr, map);
-+	}
-+}
-+/*
-+ * Reserve a block of pages for an allocation type & enforce function
-+ * being changed if more bits are added to keep track of additional types
+@@ -3044,7 +3045,8 @@ static void recalc_bh_state(void)
+ 	
+ struct buffer_head *alloc_buffer_head(unsigned int __nocast gfp_flags)
+ {
+-	struct buffer_head *ret = kmem_cache_alloc(bh_cachep, gfp_flags);
++	struct buffer_head *ret = kmem_cache_alloc(bh_cachep,
++						   gfp_flags|__GFP_KERNRCLM);
+ 	if (ret) {
+ 		preempt_disable();
+ 		__get_cpu_var(bh_accounting).nr++;
+Index: 2.6.13-joel2/fs/dcache.c
+===================================================================
+--- 2.6.13-joel2.orig/fs/dcache.c	2005-09-13 14:54:14.%N -0500
++++ 2.6.13-joel2/fs/dcache.c	2005-09-13 15:02:01.%N -0500
+@@ -721,7 +721,7 @@ struct dentry *d_alloc(struct dentry * p
+ 	struct dentry *dentry;
+ 	char *dname;
+ 
+-	dentry = kmem_cache_alloc(dentry_cache, GFP_KERNEL); 
++	dentry = kmem_cache_alloc(dentry_cache, GFP_KERNEL|__GFP_KERNRCLM);
+ 	if (!dentry)
+ 		return NULL;
+ 
+Index: 2.6.13-joel2/fs/ext2/super.c
+===================================================================
+--- 2.6.13-joel2.orig/fs/ext2/super.c	2005-09-13 14:54:14.%N -0500
++++ 2.6.13-joel2/fs/ext2/super.c	2005-09-13 15:02:01.%N -0500
+@@ -138,7 +138,8 @@ static kmem_cache_t * ext2_inode_cachep;
+ static struct inode *ext2_alloc_inode(struct super_block *sb)
+ {
+ 	struct ext2_inode_info *ei;
+-	ei = (struct ext2_inode_info *)kmem_cache_alloc(ext2_inode_cachep, SLAB_KERNEL);
++	ei = (struct ext2_inode_info *)kmem_cache_alloc(ext2_inode_cachep,
++						SLAB_KERNEL|__GFP_KERNRCLM);
+ 	if (!ei)
+ 		return NULL;
+ #ifdef CONFIG_EXT2_FS_POSIX_ACL
+Index: 2.6.13-joel2/fs/ext3/super.c
+===================================================================
+--- 2.6.13-joel2.orig/fs/ext3/super.c	2005-09-13 14:54:14.%N -0500
++++ 2.6.13-joel2/fs/ext3/super.c	2005-09-13 15:02:01.%N -0500
+@@ -440,7 +440,7 @@ static struct inode *ext3_alloc_inode(st
+ {
+ 	struct ext3_inode_info *ei;
+ 
+-	ei = kmem_cache_alloc(ext3_inode_cachep, SLAB_NOFS);
++	ei = kmem_cache_alloc(ext3_inode_cachep, SLAB_NOFS|__GFP_KERNRCLM);
+ 	if (!ei)
+ 		return NULL;
+ #ifdef CONFIG_EXT3_FS_POSIX_ACL
+Index: 2.6.13-joel2/fs/ntfs/inode.c
+===================================================================
+--- 2.6.13-joel2.orig/fs/ntfs/inode.c	2005-09-13 14:54:14.%N -0500
++++ 2.6.13-joel2/fs/ntfs/inode.c	2005-09-13 15:05:53.%N -0500
+@@ -317,7 +317,7 @@ struct inode *ntfs_alloc_big_inode(struc
+ 	ntfs_inode *ni;
+ 
+ 	ntfs_debug("Entering.");
+-	ni = kmem_cache_alloc(ntfs_big_inode_cache, SLAB_NOFS);
++	ni = kmem_cache_alloc(ntfs_big_inode_cache, SLAB_NOFS|__GFP_KERNRCLM);
+ 	if (likely(ni != NULL)) {
+ 		ni->state = 0;
+ 		return VFS_I(ni);
+@@ -342,7 +342,7 @@ static inline ntfs_inode *ntfs_alloc_ext
+ 	ntfs_inode *ni;
+ 
+ 	ntfs_debug("Entering.");
+-	ni = kmem_cache_alloc(ntfs_inode_cache, SLAB_NOFS);
++	ni = kmem_cache_alloc(ntfs_inode_cache, SLAB_NOFS|__GFP_KERNRCLM);
+ 	if (likely(ni != NULL)) {
+ 		ni->state = 0;
+ 		return ni;
+Index: 2.6.13-joel2/include/linux/gfp.h
+===================================================================
+--- 2.6.13-joel2.orig/include/linux/gfp.h	2005-09-13 14:54:17.%N -0500
++++ 2.6.13-joel2/include/linux/gfp.h	2005-09-13 15:02:01.%N -0500
+@@ -41,21 +41,30 @@ struct vm_area_struct;
+ #define __GFP_NOMEMALLOC 0x10000u /* Don't use emergency reserves */
+ #define __GFP_NORECLAIM  0x20000u /* No realy zone reclaim during allocation */
+ 
+-#define __GFP_BITS_SHIFT 20	/* Room for 20 __GFP_FOO bits */
++/* Allocation type modifiers, group together if possible
++ * __GPF_USER: Allocation for user page or a buffer page
++ * __GFP_KERNRCLM: Short-lived or reclaimable kernel allocation
 + */
-+BUILD_BUG_ON(BITS_PER_RCLM_TYPE > 2)
-+static inline void set_pageblock_type(struct zone *zone, struct page *page,
-+				      int type)
-+{
-+	unsigned long pfn = page_to_pfn(page);
-+	int bitidx;
-+	unsigned long *usemap;
++#define __GFP_USER	0x40000u /* Kernel page that is easily reclaimable */
++#define __GFP_KERNRCLM	0x80000u /* User is a userspace user */
++#define __GFP_RCLM_BITS (__GFP_USER|__GFP_KERNRCLM)
 +
-+	usemap = pfn_to_usemap(zone, pfn);
-+	bitidx = pfn_to_bitidx(zone, pfn);
-+
-+	assign_bit(bitidx, usemap, (type & 0x1));
-+	assign_bit(bitidx + 1, usemap, (type & 0x2));
-+
-+}
- /*
-  * Used by page_zone() to look up the address of the struct zone whose
-  * id is encoded in the upper bits of page->flags
-@@ -465,6 +520,41 @@ static void prep_new_page(struct page *p
- 	kernel_map_pages(page, 1 << order, 1);
- }
++#define __GFP_BITS_SHIFT 21	/* Room for 20 __GFP_FOO bits */
+ #define __GFP_BITS_MASK ((1 << __GFP_BITS_SHIFT) - 1)
  
-+/*
-+ * Find a list that has a 2^MAX_ORDER-1 block of pages available and
-+ * return it
-+ */
-+static inline struct page* steal_largepage(struct zone *zone, int alloctype)
-+{
-+	struct page *page;
-+	struct free_area *area;
-+	int i=0;
-+
-+	for(i = 0; i < RCLM_TYPES; i++) {
-+		if(i == alloctype)
-+			continue;
-+
-+		area = &zone->free_area_lists[i][MAX_ORDER-1];
-+		if(!list_empty(&area->free_list))
-+			break;
-+	}
-+	if (i == RCLM_TYPES) return NULL;
-+
-+	page = list_entry(area->free_list.next, struct page, lru);
-+	area->nr_free--;
-+
-+	if (!is_min_fallback_reserved(zone) &&
-+	    need_min_fallback_reserve(zone)) {
-+		alloctype = RCLM_FALLBACK;
-+	}
-+
-+	set_pageblock_type(zone, page, alloctype);
-+	dec_reserve_count(zone, i);
-+	inc_reserve_count(zone, alloctype);
-+
-+	return page;
-+}
-+
- /* 
-  * Do the hard work of removing an element from the buddy allocator.
-  * Call me with the zone->lock already held.
+ /* if you forget to add the bitmask here kernel will crash, period */
+ #define GFP_LEVEL_MASK (__GFP_WAIT|__GFP_HIGH|__GFP_IO|__GFP_FS| \
+ 			__GFP_COLD|__GFP_NOWARN|__GFP_REPEAT| \
+ 			__GFP_NOFAIL|__GFP_NORETRY|__GFP_NO_GROW|__GFP_COMP| \
+-			__GFP_NOMEMALLOC|__GFP_NORECLAIM)
++			__GFP_NOMEMALLOC|__GFP_KERNRCLM|__GFP_USER)
+ 
+ #define GFP_ATOMIC	(__GFP_HIGH)
+ #define GFP_NOIO	(__GFP_WAIT)
+ #define GFP_NOFS	(__GFP_WAIT | __GFP_IO)
+ #define GFP_KERNEL	(__GFP_WAIT | __GFP_IO | __GFP_FS)
+-#define GFP_USER	(__GFP_WAIT | __GFP_IO | __GFP_FS)
+-#define GFP_HIGHUSER	(__GFP_WAIT | __GFP_IO | __GFP_FS | __GFP_HIGHMEM)
++#define GFP_USER	(__GFP_WAIT | __GFP_IO | __GFP_FS | __GFP_USER)
++#define GFP_HIGHUSER	(__GFP_WAIT | __GFP_IO | __GFP_FS | __GFP_HIGHMEM | \
++			 __GFP_USER)
+ 
+ /* Flag - indicates that the buffer will be suitable for DMA.  Ignored on some
+    platforms, used as appropriate on others */
 
---------------020403000006080605070602--
+--------------060207000900010809020004--

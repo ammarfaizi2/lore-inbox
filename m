@@ -1,94 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbVIZPHn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbVIZPJ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932212AbVIZPHn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 11:07:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932250AbVIZPHn
+	id S932211AbVIZPJ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 11:09:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932250AbVIZPJ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 11:07:43 -0400
-Received: from smtp.cs.aau.dk ([130.225.194.6]:62395 "EHLO smtp.cs.aau.dk")
-	by vger.kernel.org with ESMTP id S932212AbVIZPHn (ORCPT
+	Mon, 26 Sep 2005 11:09:28 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:11142 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932211AbVIZPJ2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 11:07:43 -0400
-Message-ID: <43380E4A.1060604@cs.aau.dk>
-Date: Mon, 26 Sep 2005 17:05:46 +0200
-From: Emmanuel Fleury <fleury@cs.aau.dk>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Michael Bellion <mbellion@hipac.org>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: Re: [ANNOUNCE] Release of nf-HiPAC 0.9.0
-References: <200509260445.46740.mbellion@hipac.org> <4337DA7C.2000804@cs.aau.dk> <200509261638.12731.mbellion@hipac.org>
-In-Reply-To: <200509261638.12731.mbellion@hipac.org>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Mon, 26 Sep 2005 11:09:28 -0400
+Date: Mon, 26 Sep 2005 20:38:52 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Nishanth Aravamudan <nacc@us.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Tony Lindgren <tony@atomide.com>, Con Kolivas <kernel@kolivas.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, ck list <ck@vds.kolivas.org>
+Subject: Re: [PATCH 1/3] dynticks - implement no idle hz for x86
+Message-ID: <20050926150852.GC3448@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20050907073743.GB5804@atomide.com> <20050907150517.GC4590@us.ibm.com> <20050908100035.GD25847@atomide.com> <20050908212213.GB2997@us.ibm.com> <20050908220854.GE2997@us.ibm.com> <20050920110654.GA373@in.ibm.com> <20050920145856.GE6589@us.ibm.com> <1127396290.4903.43.camel@localhost.localdomain> <20050922145222.GD5910@us.ibm.com> <20050922183215.GB7744@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050922183215.GB7744@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Bellion wrote:
+On Fri, Sep 23, 2005 at 12:02:15AM +0530, Srivatsa Vaddagiri wrote:
+> I feel this is a bit tricky on non-comparator based interrupt sources like
+> a decrementer on PPC64 or the local APIC timer.
+
+[snip]
+
+> We could consider passing absolute value to 'reprogram' (say 105), like below:
 > 
-> The current version of the algorithm used in nf-HiPAC does not optimize 
-> certain aspects of the lookup data structure in order to increase the speed 
-> of dynamic rule set updates.
-> This means that the lookup data structure is larger than it really needs to be 
-> because it contains some unnecessary redundancy.
-
-Could you quantify how much this "unnecessary redundancy" does hit the
-size of the filter. Because last time I looked it was quite huge (you
-may have improve it). And having a fat kernel does not help in backbones.
-
-> But your performance tests have a serious flaw:
-> You construct your rule set by creating one rule for each entry in your packet 
-> header trace. This results in an completely artificial rule set that creates 
-> a lot of redundancy in the nf-HiPAC lookup data structure making it much 
-> larger than the Compact Filter data structure.
-
-Yes, it was intended to be a worst case for our scheme (not realistic
-but worst case). We were more interested in comparing the complexity of
-the different algorithms better than the efficiency of several
-implementations.
-
-I don't consider this as a flaw in our experiment because our goal was
-different from having a real proof of concept (kind of having an
-empirical evidence of a theoretical result).
-
-> You have to understand that with real world rule sets the size of the computed 
-> lookup data structure will not be much different for Compact Filter and 
-> nf-HiPAC. This means that when you use real world rule sets there shouldn't 
-> be any noticeable difference in lookup performance betweeen Compact Filter 
-> and nf-HiPAC.
-
-Might be right, but admit that the big problem of your algorithm is the
-size of your data-structure in kernel-space. What you gain in speed, you
-loose it in memory. And this IS an issue on routers (IMHO).
-
-> I am currently working on a new improved version of the algorithm used in 
-> nf-HiPAC. The new algorithmic core will reduce memory usage while at the same 
-> time improving the running time of insert and delete operations. The lookup 
-> performance will be improved too, especially for bigger rulesets. The 
-> concepts and the design are already developed, but the implementation is 
-> still in its early stages.
+> 	unsigned int dyn_tick_reprogram_timer(void)
+> 	{
+> 		int cpu = smp_processor_id();
+> 		unsigned long next, delta, seq;
 > 
-> The new algorithmic core will make sure that the lookup data structure in the 
-> kernel is always fully optimized while at the same time allowing very fast 
-> dynamic updates.
+> 		cpu_set(cpu, nohz_cpu_mask);
 > 
-> At that point Compact Filter will not be able to win in any performance test 
-> against  nf-HiPAC anymore, simply because there is no way to optimize the 
-> lookup data structure any further.
+> 		smp_wmb();
+> 
+> 		if (rcu_pending(cpu) || local_softirq_pending()) {
+> 			cpu_clear(cpu, nohz_cpu_mask);
+> 			return 0;
+> 		}
+> 
+> 		do { 
+> 			read_seqbegin(&xtime_lock);
+> 	
+> 			next = next_timer_interrupt();
+> 			delta = next - jiffies;
+> 
+> 			if (delta < dyn_tick->min_skip) {
+> 				cpu_clear(cpu, nohz_cpu_mask);
+> 				return 0;
+> 			}
+> 
+> 			if (delta > dyn_tick->max_skip)
+> 				next = jiffies + dyn_tick->max_skip;
+> 
+> 		} while (read_seqretry(&xtime_lock, seq));
+> 
+> 		dyn_tick->reprogram(next);
+> 
+> 		return delta;
+> 	}
+> 	
+> 
+> Since reprogram has to convert it back to some relative number, it will need
+> to reference jiffy, which makes it racy and require the read_seqbegin/retry
+> based conversion to relative number.  I feel it is lot cleaner in such
+> a case to just take a write_lock(&xtime_lock) for the whole of 
+> dyn_tick_reprogram_timer.
 
-Well, you already said this last time we had exchanged some mails
-(it was more than one year ago if I count well).
+OTOH, write_seqlock is probably more heavier compared to read_seqlock. So 
+I am OK if we want to call 'reprogram' w/o any xtime_lock held and that
+routine internally uses a read_seqlock if it wants.
 
-Anyway, I doubt you can get something that you can update dynamically
-AND small in size following your way of doing. But, prove me wrong and
-I'll be happy. :)
+Let me know what you guys think about this and the rest of the interface.
+If it seems Ok, I can post modified i386 patch based on this interface and
+would request Martin/Tony to do the S390/ARM ports.
 
-Regards
+
 -- 
-Emmanuel Fleury
 
-Ideals are dangerous things. Realities are better.
-They wound but they are better.
-  -- Oscar Wilde
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

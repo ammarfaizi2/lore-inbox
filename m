@@ -1,70 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932490AbVIZU1i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932513AbVIZUd3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932490AbVIZU1i (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 16:27:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932512AbVIZU1i
+	id S932513AbVIZUd3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 16:33:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932515AbVIZUd3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 16:27:38 -0400
-Received: from [212.76.85.1] ([212.76.85.1]:772 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S932490AbVIZU1h (ORCPT
+	Mon, 26 Sep 2005 16:33:29 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:25298 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932513AbVIZUd3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 16:27:37 -0400
-From: Al Boldi <a1426z@gawab.com>
-To: Neil Horman <nhorman@tuxdriver.com>
-Subject: Re: Resource limits
-Date: Mon, 26 Sep 2005 23:26:10 +0300
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <200509251712.42302.a1426z@gawab.com> <200509262032.14613.a1426z@gawab.com> <20050926175148.GA3797@hmsreliant.homelinux.net>
-In-Reply-To: <20050926175148.GA3797@hmsreliant.homelinux.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 26 Sep 2005 16:33:29 -0400
+Date: Mon, 26 Sep 2005 13:33:31 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: john stultz <johnstul@us.ibm.com>
+Cc: ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86-64: Fix bad assumption that dualcore cpus have
+ synced TSCs (resend)
+Message-Id: <20050926133331.11bf4963.akpm@osdl.org>
+In-Reply-To: <1127764012.8195.138.camel@cog.beaverton.ibm.com>
+References: <1127764012.8195.138.camel@cog.beaverton.ibm.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509262326.10305.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Horman wrote:
-> On Mon, Sep 26, 2005 at 08:32:14PM +0300, Al Boldi wrote:
-> > Neil Horman wrote:
-> > > On Mon, Sep 26, 2005 at 05:18:17PM +0300, Al Boldi wrote:
-> > > > Rik van Riel wrote:
-> > > > > On Sun, 25 Sep 2005, Al Boldi wrote:
-> > > > > > Too many process forks and your system may crash.
-> > > > > > This can be capped with threads-max, but may lead you into a
-> > > > > > lock-out.
-> > > > > >
-> > > > > > What is needed is a soft, hard, and a special emergency limit
-> > > > > > that would allow you to use the resource for a limited time to
-> > > > > > circumvent a lock-out.
-> > > > >
-> > > > > How would you reclaim the resource after that limited time is
-> > > > > over ?  Kill processes?
-> > > >
-> > > > That's one way,  but really, the issue needs some deep thought.
-> > > > Leaving Linux exposed to a lock-out is rather frightening.
-> > >
-> > > What exactly is it that you're worried about here?
-> >
-> > Think about a DoS attack.
+john stultz <johnstul@us.ibm.com> wrote:
 >
-> Be more specific.  Are you talking about a fork bomb, a ICMP flood, what?
+> 	This patch should resolve the issue seen in bugme bug #5105, where it
+> is assumed that dualcore x86_64 systems have synced TSCs. This is not
+> the case, and alternate timesources should be used instead.
+> 
+> For more details, see:
+> http://bugzilla.kernel.org/show_bug.cgi?id=5105
+> 
+> Andi's earlier concerns that the TSCs should be synced on dualcore
+> systems have been resolved by confirmation from AMD folks that they can
+> be unsynced.
 
-How would you deal with a situation where the system hit the threads-max 
-ceiling?
+OK, thanks - it's good to knock that one over.
 
-> preventing resource starvation/exhaustion is often handled in a way thats
-> dovetailed to the semantics of how that resources is allocated (i.e. you
-> prevent syn-flood attacks differently than you manage excessive disk
-> usage).
-
-The issue here is a general lack of proper kernel support for resource 
-limits.  The fork problem is just an example.
-
-Thanks!
-
---
-Al
-
+Andi, does this look OK for 2.6.14?

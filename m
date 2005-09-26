@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751617AbVIZJef@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932437AbVIZJey@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751617AbVIZJef (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 05:34:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751614AbVIZJef
+	id S932437AbVIZJey (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 05:34:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751620AbVIZJei
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 05:34:35 -0400
-Received: from sv1.valinux.co.jp ([210.128.90.2]:18391 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S1751617AbVIZJee (ORCPT
+	Mon, 26 Sep 2005 05:34:38 -0400
+Received: from sv1.valinux.co.jp ([210.128.90.2]:19415 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S1751618AbVIZJee (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 26 Sep 2005 05:34:34 -0400
-Date: Mon, 26 Sep 2005 18:34:04 +0900
+Date: Mon, 26 Sep 2005 18:34:09 +0900
 From: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
 To: Paul Jackson <pj@sgi.com>
 Cc: taka@valinux.co.jp, magnus.damm@gmail.com, dino@in.ibm.com,
        linux-kernel@vger.kernel.org
-Subject: [PATCH 1/3] CPUMETER: add cpumeter framework to the CPUSETS
+Subject: [PATCH 2/3] CPUMETER: CPU resource controller
 In-Reply-To: <20050910015209.4f581b8a.pj@sgi.com>
 References: <20050908225539.0bc1acf6.pj@sgi.com>
 	<20050909.203849.33293224.taka@valinux.co.jp>
@@ -25,1011 +25,507 @@ X-Mailer: Sylpheed version 2.1.2+svn (GTK+ 2.6.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <20050926093432.9975870043@sv1.valinux.co.jp>
+Message-Id: <20050926093432.E082F70044@sv1.valinux.co.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds CPUMETER framework code to the CPUSETS.
-CPUMETER is meant for subdividing cpuset resources.
-A few files are added in order to control the guarantee and the limit
-of the resource amount to the cpuset filesystem.  Also, interfaces
-for the specific resource controller like CPU and memory.
+This patch adds CPU resource controller.  It enables us to control
+CPU time percentage of tasks grouped by the cpu_rc structure.
+It controls time_slice of tasks based on the feedback of difference
+between the target value and the current usage in order to control 
+the percentage of the CPU usage to the target value.
 
 Signed-off-by: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
 
---- from-0001/include/linux/cpuset.h
-+++ to-work/include/linux/cpuset.h	2005-09-26 17:24:09.480931862 +0900
-@@ -14,6 +14,46 @@
+--- /dev/null
++++ to-work/include/linux/cpu_rc.h	2005-09-26 17:26:19.234918633 +0900
+@@ -0,0 +1,65 @@
++#ifndef _LINUX_CPU_RC_H_
++#define _LINUX_CPU_RC_H_
++/*
++ *  CPU resource controller interface
++ *
++ *  Copyright 2005 FUJITSU LIMITED
++ *
++ *  This file is subject to the terms and conditions of the GNU General Public
++ *  License.  See the file COPYING in the main directory of the Linux
++ *  distribution for more details.
++ */
++
++#include <linux/config.h>
++#include <linux/sched.h>
++#include <linux/cpuset.h>
++
++#ifdef CONFIG_CPU_RC
++
++#ifdef __KERNEL__
++void cpu_rc_init(void);
++unsigned int cpu_rc_scale_timeslice(task_t *tsk, unsigned int slice);
++void cpu_rc_account(task_t *tsk, unsigned long now);
++void cpu_rc_collect_hunger(task_t *tsk);
++
++static inline void cpu_rc_record_activated(task_t *tsk, unsigned long now)
++{
++	tsk->last_activated = now;
++}
++
++static inline void cpu_rc_record_allocation(task_t *tsk,
++					    unsigned int slice,
++					    unsigned long now)
++{
++	if (slice == 0) {
++		/* minimal allocated time_slice is 1 (see sched_fork()). */
++		slice = 1;
++	}
++
++	tsk->last_slice = slice;
++	tsk->ts_alloced = now;
++}
++#endif /* __KERNEL__ */
++
++#else /* CONFIG_CPU_RC */
++
++#ifdef __KERNEL__
++static inline void cpu_rc_init(void) {}
++static inline void cpu_rc_account(task_t *tsk, unsigned long now) {}
++static inline void cpu_rc_collect_hunger(task_t *tsk) {}
++static inline void cpu_rc_record_activated(task_t *tsk, unsigned long now) {}
++static inline void cpu_rc_record_allocation(task_t *tsk,
++					    unsigned int slice,
++					    unsigned long now) {}
++
++static inline unsigned int cpu_rc_scale_timeslice(task_t *tsk,
++						  unsigned int slice)
++{
++	return slice;
++}
++#endif /* __KERNEL__ */
++
++#endif /* CONFIG_CPU_RC */
++
++#endif /* _LINUX_CPU_RC_H_ */
++
+--- from-0001/include/linux/sched.h
++++ to-work/include/linux/sched.h	2005-09-26 17:26:19.236918355 +0900
+@@ -769,6 +769,11 @@ struct task_struct {
+ 	nodemask_t mems_allowed;
+ 	int cpuset_mems_generation;
+ #endif
++#ifdef CONFIG_CPU_RC
++	unsigned int last_slice;
++	unsigned long ts_alloced;
++	unsigned long last_activated;
++#endif
+ 	atomic_t fs_excl;	/* holding fs exclusive resources */
+ };
  
- #ifdef CONFIG_CPUSETS
- 
-+#ifdef CONFIG_CPUMETER
-+struct cpumeter_ctlr {
-+	char *name;		/* controller name */
-+	int idx;		/* used by cpumeter core */
-+	void *(*create_rcdomain)(struct cpuset *cs, cpumask_t cpus,
-+				 nodemask_t mems);
-+	void (*destroy_rcdomain)(void *rcd);
-+	void *(*create)(void *rcd, struct cpuset *cs);
-+	void (*destroy)(void *ctldata);
-+	int (*set_lim)(void *ctldata, unsigned long val);
-+	int (*set_guar)(void *ctldata, unsigned long val);
-+	int (*get_cur)(void *ctldata, unsigned long *valp);
-+};
-+
-+extern int cpumeter_register_controller(struct cpumeter_ctlr *ctlr);
-+extern void *cpumeter_get_controller_data(struct cpuset *cs,
-+					  struct cpumeter_ctlr *ctlr);
-+extern void *cpumeter_get_rcdomain(struct cpuset *cs,
-+				   struct cpumeter_ctlr *ctlr);
-+#else /* CONFIG_CPUMETER */
-+struct cpumeter_ctlr;
-+
-+static inline int cpumeter_register_controller(struct cpumeter_ctlr *ctlr)
-+{
-+	return -EINVAL;
-+}
-+
-+static inline void *cpumeter_get_controller_data(struct cpuset *cs,
-+						 struct cpumeter_ctlr *ctlr)
-+{
-+	return NULL;
-+}
-+
-+static inline void *cpumeter_get_rcdomain(struct cpuset *cs,
-+					  struct cpumeter_ctlr *ctlr)
-+{
-+	return NULL;
-+}
-+#endif /* CONFIG_CPUMETER */
-+
- extern int cpuset_init(void);
- extern void cpuset_init_smp(void);
- extern void cpuset_fork(struct task_struct *p);
---- from-0001/init/Kconfig
-+++ to-work/init/Kconfig	2005-09-26 17:24:09.481931723 +0900
-@@ -238,6 +238,15 @@ config CPUSETS
+--- from-0002/init/Kconfig
++++ to-work/init/Kconfig	2005-09-26 17:28:43.911747746 +0900
+@@ -247,6 +247,14 @@ config CPUMETER
  
  	  Say N if unsure.
  
-+config CPUMETER
-+	bool "Cpumeter support"
-+	depends on CPUSETS
++config CPU_RC
++	bool "CPU resource controller"
 +	help
-+	  This option enables the resource control of CPUs and memory
-+	  via the CPUSETS interface.
++	  This options will let you control the CPU resource by scaling 
++	  the timeslice allocated for each tasks.
 +
 +	  Say N if unsure.
 +
  menuconfig EMBEDDED
  	bool "Configure standard kernel features (for small systems)"
  	help
---- from-0001/kernel/cpuset.c
-+++ to-work/kernel/cpuset.c	2005-09-26 17:24:09.479932000 +0900
-@@ -55,6 +55,19 @@
+--- from-0001/init/main.c
++++ to-work/init/main.c	2005-09-26 17:26:19.238918078 +0900
+@@ -42,6 +42,7 @@
+ #include <linux/writeback.h>
+ #include <linux/cpu.h>
+ #include <linux/cpuset.h>
++#include <linux/cpu_rc.h>
+ #include <linux/efi.h>
+ #include <linux/unistd.h>
+ #include <linux/rmap.h>
+@@ -524,7 +525,7 @@ asmlinkage void __init start_kernel(void
+ 	proc_root_init();
+ #endif
+ 	cpuset_init();
+-
++	cpu_rc_init();
+ 	check_bugs();
  
- #define CPUSET_SUPER_MAGIC 		0x27e0eb
- 
-+#ifdef CONFIG_CPUMETER
-+#define CPUMETER_CTLRS_MAX		16
-+
-+struct cpumeter {
-+	void *ctlr_data;		/* resource controller data */
-+	unsigned long guar;		/* resource guarantee */
-+	unsigned long lim;		/* resource limit */
-+};
-+
-+static struct cpumeter_ctlr *cpumeter_ctlrs[CPUMETER_CTLRS_MAX];
-+static int cpumeter_numctlrs = 0;
-+#endif /* CONFIG_CPUMETER */
-+
- struct cpuset {
- 	unsigned long flags;		/* "unsigned long" so bitops work */
- 	cpumask_t cpus_allowed;		/* CPUs allowed to tasks in cpuset */
-@@ -77,6 +90,16 @@ struct cpuset {
- 	 * recent time this cpuset changed its mems_allowed.
- 	 */
- 	 int mems_generation;
-+#ifdef CONFIG_CPUMETER
-+	/*
-+	 * rcdomains: used for the recource control domains
-+	 *            to keep track of total ammount of resources.
-+	 * meters:    used for metering resources assigned for
-+	 *            the cpuset.
-+	 */
-+	void *rcdomains[CPUMETER_CTLRS_MAX];
-+	struct cpumeter meters[CPUMETER_CTLRS_MAX];
-+#endif /* CONFIG_CPUMETER */
- };
- 
- /* bits in struct cpuset flags field */
-@@ -84,7 +107,8 @@ typedef enum {
- 	CS_CPU_EXCLUSIVE,
- 	CS_MEM_EXCLUSIVE,
- 	CS_REMOVED,
--	CS_NOTIFY_ON_RELEASE
-+	CS_NOTIFY_ON_RELEASE,
-+	CS_METER_OFFSET		/* must be the last. */
- } cpuset_flagbits_t;
- 
- /* convenient tests for these bits */
-@@ -108,6 +132,47 @@ static inline int notify_on_release(cons
- 	return !!test_bit(CS_NOTIFY_ON_RELEASE, &cs->flags);
- }
- 
-+static inline int is_metered(const struct cpuset *cs, int idx)
-+{
-+	return !!test_bit(CS_METER_OFFSET + idx, &cs->flags);
-+}
-+
-+static inline void set_meter(struct cpuset *cs, int idx)
-+{
-+	set_bit(CS_METER_OFFSET + idx, &cs->flags);
-+}
-+
-+static inline void clear_meter(struct cpuset *cs, int idx)
-+{
-+	clear_bit(CS_METER_OFFSET + idx, &cs->flags);
-+}
-+
-+#ifdef CONFIG_CPUMETER
-+static int cpumeter_add_meter_flags(struct dentry *d);
-+static int validate_meters(const struct cpuset *cur,
-+			   const struct cpuset *trial);
-+static int inherit_meters(struct cpuset *cs, struct cpuset *parent);
-+static void cpumeter_destroy_meters(struct cpuset *cs);
-+
-+#else /* CONFIG_CPUMETER */
-+
-+static inline int cpumeter_add_meter_flags(struct dentry *d) { return 0; }
-+
-+static inline int validate_meters(const struct cpuset *cur,
-+				  const struct cpuset *trial)
-+{
-+	return 0;
-+}
-+
-+static inline int inherit_meters(struct cpuset *cs, struct cpuset *parent)
-+{
-+	return 0;
-+}
-+
-+static inline void cpumeter_destroy_meters(struct cpuset *cs) {}
-+
-+#endif /* CONFIG_CPUMETER */
-+
- /*
-  * Increment this atomic integer everytime any cpuset changes its
-  * mems_allowed value.  Users of cpusets can track this generation
-@@ -217,6 +282,7 @@ static void cpuset_diput(struct dentry *
- 	if (S_ISDIR(inode->i_mode)) {
- 		struct cpuset *cs = dentry->d_fsdata;
- 		BUG_ON(!(is_removed(cs)));
-+		cpumeter_destroy_meters(cs);
- 		kfree(cs);
- 	}
- 	iput(inode);
-@@ -613,6 +679,9 @@ static int validate_change(const struct 
- 			return -EINVAL;
- 	}
- 
-+	if (validate_meters(cur, trial))
-+		return -EINVAL;
-+
- 	return 0;
- }
- 
-@@ -1052,7 +1121,10 @@ static struct inode_operations cpuset_di
- 	.rmdir = cpuset_rmdir,
- };
- 
--static int cpuset_create_file(struct dentry *dentry, int mode)
-+static int cpuset_create_file(struct dentry *dentry,
-+			      int mode,
-+			      struct inode_operations *iop,
-+			      struct file_operations *fop)
- {
- 	struct inode *inode;
- 
-@@ -1065,15 +1137,16 @@ static int cpuset_create_file(struct den
- 	if (!inode)
- 		return -ENOMEM;
- 
--	if (S_ISDIR(mode)) {
--		inode->i_op = &cpuset_dir_inode_operations;
--		inode->i_fop = &simple_dir_operations;
-+	if (iop)
-+		inode->i_op = iop;
-+	if (fop)
-+		inode->i_fop = fop;
- 
-+	if (S_ISDIR(mode)) {
- 		/* start off with i_nlink == 2 (for "." entry) */
- 		inode->i_nlink++;
- 	} else if (S_ISREG(mode)) {
- 		inode->i_size = 0;
--		inode->i_fop = &cpuset_file_operations;
- 	}
- 
- 	d_instantiate(dentry, inode);
-@@ -1100,7 +1173,9 @@ static int cpuset_create_dir(struct cpus
- 	dentry = cpuset_get_dentry(parent, name);
- 	if (IS_ERR(dentry))
- 		return PTR_ERR(dentry);
--	error = cpuset_create_file(dentry, S_IFDIR | mode);
-+	error = cpuset_create_file(dentry, S_IFDIR | mode,
-+				   &cpuset_dir_inode_operations,
-+				   &simple_dir_operations);
- 	if (!error) {
- 		dentry->d_fsdata = cs;
- 		parent->d_inode->i_nlink++;
-@@ -1119,7 +1194,8 @@ static int cpuset_add_file(struct dentry
- 	down(&dir->d_inode->i_sem);
- 	dentry = cpuset_get_dentry(dir, cft->name);
- 	if (!IS_ERR(dentry)) {
--		error = cpuset_create_file(dentry, 0644 | S_IFREG);
-+		error = cpuset_create_file(dentry, 0644 | S_IFREG,
-+					   NULL, &cpuset_file_operations);
- 		if (!error)
- 			dentry->d_fsdata = (void *)cft;
- 		dput(dentry);
-@@ -1321,6 +1397,8 @@ static int cpuset_populate_dir(struct de
- 		return err;
- 	if ((err = cpuset_add_file(cs_dentry, &cft_tasks)) < 0)
- 		return err;
-+	if ((err = cpumeter_add_meter_flags(cs_dentry)) < 0)
-+		return err;
- 	return 0;
- }
- 
-@@ -1359,6 +1437,10 @@ static long cpuset_create(struct cpuset 
- 
- 	list_add(&cs->sibling, &cs->parent->children);
- 
-+	err = inherit_meters(cs, parent);
-+	if (err < 0)
-+		goto err;
-+
- 	err = cpuset_create_dir(cs, name, mode);
- 	if (err < 0)
- 		goto err;
-@@ -1686,3 +1768,739 @@ char *cpuset_task_status_allowed(struct 
- 	buffer += sprintf(buffer, "\n");
- 	return buffer;
- }
-+
-+#ifdef CONFIG_CPUMETER
+ 	acpi_early_init(); /* before LAPIC and SMP init */
+--- from-0001/kernel/Makefile
++++ to-work/kernel/Makefile	2005-09-26 17:26:19.233918772 +0900
+@@ -20,6 +20,7 @@ obj-$(CONFIG_BSD_PROCESS_ACCT) += acct.o
+ obj-$(CONFIG_KEXEC) += kexec.o
+ obj-$(CONFIG_COMPAT) += compat.o
+ obj-$(CONFIG_CPUSETS) += cpuset.o
++obj-$(CONFIG_CPU_RC) += cpu_rc.o
+ obj-$(CONFIG_IKCONFIG) += configs.o
+ obj-$(CONFIG_IKCONFIG_PROC) += configs.o
+ obj-$(CONFIG_STOP_MACHINE) += stop_machine.o
+--- /dev/null
++++ to-work/kernel/cpu_rc.c	2005-09-26 17:28:09.131607286 +0900
+@@ -0,0 +1,233 @@
 +/*
-+ * cpumeter support routine
++ *  kernel/cpu_rc.c
++ *
++ *  CPU resource controller by scaling time_slice of the task.
++ *
++ *  Copyright 2005 FUJITSU LIMITED
++ *
++ *  This file is subject to the terms and conditions of the GNU General Public
++ *  License.  See the file COPYING in the main directory of the Linux
++ *  distribution for more details.
 + */
 +
-+static ssize_t cpumeter_file_read_common(struct file *file, char __user *buf, 
-+					 size_t nbytes, loff_t *ppos,
-+					 unsigned long val);
-+static ssize_t cpumeter_file_get_written_data(const char __user *userbuf,
-+					      size_t nbytes,
-+					      unsigned long *valp);
-+static ssize_t cpumeter_meter_file_read(struct file *file, char __user *buf, 
-+					size_t nbytes, loff_t *ppos);
-+static ssize_t cpumeter_meter_file_write(struct file *file,
-+					 const char __user *userbuf,
-+					 size_t nbytes,
-+					 loff_t *unused_ppos);
-+static ssize_t cpumeter_guar_file_read(struct file *file, char __user *buf, 
-+				       size_t nbytes, loff_t *ppos);
-+static ssize_t cpumeter_guar_file_write(struct file *file,
-+					const char __user *userbuf,
-+					size_t nbytes,
-+					loff_t *unused_ppos);
-+static int cpumeter_add_meter_flag(struct dentry *d, struct cpumeter_ctlr *c);
-+static int cpumeter_add_meter_file(struct dentry *dir,
-+				   char *name,
-+				   int mode,
-+				   struct file_operations *fop,
-+				   struct cpumeter_ctlr *c);
-+static int cpumeter_add_meter_files(struct dentry *d, struct cpumeter_ctlr *c);
-+static void cpumeter_remove_meter_files(struct dentry *d,
-+					struct cpumeter_ctlr *c);
++#include <linux/config.h>
++#include <linux/sched.h>
++#include <linux/proc_fs.h>
++#include <linux/cpu_rc.h>
 +
-+static char cpumeter_guar_suffix[] = "_guar";
-+static char cpumeter_lim_suffix[] = "_lim";
-+static char cpumeter_cur_suffix[] = "_cur";
-+static char cpumeter_meter_prefix[] = "meter_";
-+#define CPUMETER_FNAME_MAX		255
-+#define CPUMETER_AFFIX_MAX		\
-+	(sizeof(cpumeter_meter_prefix) + sizeof(cpumeter_guar_suffix) - 2)
++/* local macros */
++#define CPU_RC_SPREAD_PERIOD	(5 * HZ)
++#define CPU_RC_LOAD_SCALE	1000
++#define CPU_RC_GUAR_SCALE	100
++#define CPU_RC_TSFACTOR_MAX	CPU_RC_GUAR_SCALE
++#define CPU_RC_TSFACTOR_INC	5
++#define CPU_RC_RECALC_INTERVAL	HZ
 +
-+int cpumeter_register_controller(struct cpumeter_ctlr *ctlr)
++struct cpu_rc_domain {
++	spinlock_t lock;
++	unsigned int hungry_groups;
++	cpumask_t cpus;
++	int numcpus;
++};
++
++struct cpu_rc {
++	int guarantee;
++	int is_hungry;
++	unsigned int ts_factor;
++	unsigned long last_recalc;
++	struct cpu_rc_domain *rcd;
++	struct {
++		unsigned long timestamp;
++		unsigned int load;
++		int maybe_hungry;
++	} stat[NR_CPUS];	/* XXX  need alignment */
++};
++
++static struct cpu_rc *cpu_rc_get(task_t *tsk);
++
++static inline void cpu_rc_lock(struct cpu_rc *cr)
 +{
-+	int namelen;
++	spin_lock(&cr->rcd->lock);
++}
 +
-+	namelen = strlen(ctlr->name);
-+	if (namelen + CPUMETER_AFFIX_MAX > CPUMETER_FNAME_MAX)
-+		return -ENAMETOOLONG;
++static inline void cpu_rc_unlock(struct cpu_rc *cr)
++{
++	spin_unlock(&cr->rcd->lock);
++}
 +
-+	down(&cpuset_sem);
-+	if (cpumeter_numctlrs >= CPUMETER_CTLRS_MAX) {
-+		up(&cpuset_sem);
-+		return -ENOSPC;
++static inline int cpu_rc_is_hungry(struct cpu_rc *cr)
++{
++	return cr->is_hungry;
++}
++
++static inline void cpu_rc_set_hungry(struct cpu_rc *cr)
++{
++	if (!cr->is_hungry) {
++		cr->rcd->hungry_groups++;
++		cr->is_hungry = !cr->is_hungry;
 +	}
++}
 +
-+	cpumeter_ctlrs[cpumeter_numctlrs] = ctlr;
-+	ctlr->idx = cpumeter_numctlrs;
-+	cpumeter_numctlrs++;
-+	up(&cpuset_sem);
-+
-+	if (top_cpuset.dentry) {
-+		down(&top_cpuset.dentry->d_inode->i_sem);
-+		cpumeter_add_meter_flag(top_cpuset.dentry, ctlr);
-+		up(&top_cpuset.dentry->d_inode->i_sem);
++static inline void cpu_rc_set_satisfied(struct cpu_rc *cr)
++{
++	if (cr->is_hungry) {
++		cr->rcd->hungry_groups--;
++		cr->is_hungry = !cr->is_hungry;
 +	}
-+
-+	return 0;
 +}
 +
-+void *cpumeter_get_controller_data(struct cpuset *cs,
-+				   struct cpumeter_ctlr *c)
++static inline int cpu_rc_is_anyone_hungry(struct cpu_rc *cr)
 +{
-+	if (!cs || !is_metered(cs, c->idx))
-+		return NULL;
-+
-+	return cs->meters[c->idx].ctlr_data;
++	return cr->rcd->hungry_groups > 0;
 +}
 +
-+void *cpumeter_get_rcdomain(struct cpuset *cs,
-+			    struct cpumeter_ctlr *c)
++static inline void cpu_rc_recalc_tsfactor(struct cpu_rc *cr)
 +{
-+	if (!cs || !is_metered(cs, c->idx))
-+		return NULL;
++	unsigned int load;
++	int maybe_hungry;
++	int i, n;
 +
-+	return cs->rcdomains[c->idx];
-+}
++	n = 0;
++	load = 0;
++	maybe_hungry = 0;
 +
-+static ssize_t cpumeter_file_read_common(struct file *file, char __user *buf, 
-+					 size_t nbytes, loff_t *ppos,
-+					 unsigned long val)
-+{
-+	char *page, *s, *start;
-+	ssize_t retval;
-+	size_t n;
-+
-+	if (!(page = (char *)__get_free_page(GFP_KERNEL)))
-+		return -ENOMEM;
-+
-+	s = page;
-+	s += snprintf(s, PAGE_SIZE, "%lu", val);
-+	*s++ = '\n';
-+	*s = '\0';
-+
-+	/* Do nothing if *ppos is at the eof or beyond the eof. */
-+	if (s - page <= *ppos)
-+		return 0;
-+
-+	start = page + *ppos;
-+	n = s - start;
-+	retval = n - copy_to_user(buf, start, min(n, nbytes));
-+	*ppos += retval;
-+
-+	free_page((unsigned long)page);
-+	return retval;
-+}
-+
-+static ssize_t cpumeter_file_get_written_data(const char __user *userbuf,
-+					      size_t nbytes,
-+					      unsigned long *valp)
-+{
-+	char *buffer;
-+	int retval = 0;
-+
-+	/* Crude upper limit on largest legitimate cpulist user might write. */
-+	if (nbytes > 100 + 6 * NR_CPUS)
-+		return -E2BIG;
-+
-+	/* +1 for nul-terminator */
-+	if ((buffer = kmalloc(nbytes + 1, GFP_KERNEL)) == 0)
-+		return -ENOMEM;
-+
-+	if (copy_from_user(buffer, userbuf, nbytes)) {
-+		retval = -EFAULT;
-+		goto out;
++	cpu_rc_lock(cr);
++	for_each_cpu_mask(i, cr->rcd->cpus) {
++		load += cr->stat[i].load;
++		maybe_hungry += cr->stat[i].maybe_hungry;
++		cr->stat[i].maybe_hungry = 0;
++		n++;
 +	}
++	load = load / n;
 +
-+	buffer[nbytes] = 0;	/* nul-terminate */
-+	*valp = simple_strtoul(buffer, NULL, 0);
-+out:
-+	kfree(buffer);
-+	return retval;
-+}
-+
-+static ssize_t cpumeter_meter_file_read(struct file *file, char __user *buf, 
-+					size_t nbytes, loff_t *ppos)
-+{
-+	struct cpuset *cs = __d_cs(file->f_dentry->d_parent);
-+	struct cpumeter_ctlr *c = file->f_dentry->d_fsdata;
-+	unsigned long val;
-+
-+	down(&cpuset_sem);
-+	val = is_metered(cs, c->idx);
-+	up(&cpuset_sem);
-+
-+	return cpumeter_file_read_common(file, buf, nbytes, ppos, val);
-+}
-+
-+static ssize_t cpumeter_meter_file_write(struct file *file,
-+					 const char __user *userbuf,
-+					 size_t nbytes,
-+					 loff_t *unused_ppos)
-+{
-+	struct cpuset *cs = __d_cs(file->f_dentry->d_parent);
-+	struct cpuset *parent;
-+	struct cpuset trialcs;
-+	struct cpumeter_ctlr *c = file->f_dentry->d_fsdata;
-+	struct cpumeter *m;
-+	unsigned long val;
-+	void *ctlr_data;
-+	int turning_on;
-+	int retval;
-+
-+	retval = cpumeter_file_get_written_data(userbuf, nbytes, &val);
-+	if (retval)
-+		return retval;
-+
-+	turning_on = (val != 0);
-+
-+	/*
-+	 * keeping the lock order (i_sem > cpuset_sem).
-+	 * i_sem should be held because we are going to create/remove files.
-+	 */
-+	down(&cs->dentry->d_inode->i_sem);
-+	down(&cpuset_sem);
-+	if (is_removed(cs)) {
-+		retval = -ENODEV;
-+		goto out;
-+	}
-+
-+	parent = cs->parent;
-+	m = &cs->meters[c->idx];
-+	ctlr_data = m->ctlr_data;
-+	trialcs = *cs;
-+	if (turning_on)
-+		set_meter(&trialcs, c->idx);
-+	else
-+		clear_meter(&trialcs, c->idx);
-+
-+	retval = validate_change(cs, &trialcs);
-+	if (retval < 0)
-+		goto out;
-+
-+	if (is_metered(cs, c->idx) == is_metered(&trialcs, c->idx)) {
-+		retval = nbytes;
-+		goto out;
-+	}
-+
-+	if (!turning_on) {
-+		if (c->set_guar) {
-+			c->set_guar(cs->meters[c->idx].ctlr_data, 0);
-+			/* Do not set cs->meters[c->idx].guar=0 here. */
-+		}
-+		c->destroy(cs->meters[c->idx].ctlr_data);
-+		cs->meters[c->idx].ctlr_data = NULL;
-+
-+		if (parent && is_metered(parent, c->idx)) {
-+			parent->meters[c->idx].guar += cs->meters[c->idx].guar;
-+			cs->rcdomains[c->idx] = NULL;
-+		} else {
-+			c->destroy_rcdomain(cs->rcdomains[c->idx]);
-+			cs->rcdomains[c->idx] = NULL;
-+		}
-+
-+		cs->meters[c->idx].guar = 0;
-+		clear_meter(cs, c->idx);
++	if (load * CPU_RC_GUAR_SCALE >= cr->guarantee * CPU_RC_LOAD_SCALE) {
++		cpu_rc_set_satisfied(cr);
++	} else if (maybe_hungry > 0) {
++		cpu_rc_set_hungry(cr);
 +	} else {
-+		if (parent && is_metered(parent, c->idx)) {
-+			cs->rcdomains[c->idx] = parent->rcdomains[c->idx];
++		cpu_rc_set_satisfied(cr);
++	}
 +
-+			/* Initial guarantee for children should be 0% */
-+			cs->meters[c->idx].guar = 0;
++	if (!cpu_rc_is_anyone_hungry(cr)) {
++		/* Everyone satisfied.  Extend time_slice. */
++		cr->ts_factor += CPU_RC_TSFACTOR_INC;
++	} else {
++		if (cpu_rc_is_hungry(cr)) {
++			/* Extend time_slice a little. */
++			cr->ts_factor++;
 +		} else {
-+			cs->rcdomains[c->idx] =
-+				c->create_rcdomain(cs,
-+						   cs->cpus_allowed,
-+						   cs->mems_allowed);
-+			if (!cs->rcdomains[c->idx]) {
-+				retval = -ENOMEM;
-+				goto out;
-+			}
-+
-+			cs->meters[c->idx].guar = 100;
-+		}
-+
-+		cs->meters[c->idx].ctlr_data =
-+			c->create(cs->rcdomains[c->idx], cs);
-+		if (!cs->meters[c->idx].ctlr_data) {
-+			if (parent && is_metered(parent, c->idx)) {
-+				c->destroy_rcdomain(cs->rcdomains[c->idx]);
-+				cs->rcdomains[c->idx] = NULL;
-+			}
-+			retval = -ENOMEM;
-+			goto out;
-+		}
-+
-+		set_meter(cs, c->idx);
-+		if (c->set_guar) {
-+			c->set_guar(cs->meters[c->idx].ctlr_data,
-+				    cs->meters[c->idx].guar);
++			/* time_slice should be scaled. */
++			cr->ts_factor = cr->ts_factor * cr->guarantee 
++				* CPU_RC_LOAD_SCALE
++				/ (load * CPU_RC_GUAR_SCALE);
 +		}
 +	}
 +
-+	up(&cpuset_sem);
++	if (cr->ts_factor == 0) {
++		cr->ts_factor = 1;
++	} else if (cr->ts_factor > CPU_RC_TSFACTOR_MAX) {
++		cr->ts_factor = CPU_RC_TSFACTOR_MAX;
++	}
 +
-+	if (turning_on)
-+		cpumeter_add_meter_files(cs->dentry, c);
-+	else
-+		cpumeter_remove_meter_files(cs->dentry, c);
++	cr->last_recalc = jiffies;
 +
-+	up(&cs->dentry->d_inode->i_sem);
-+	return retval;
-+
-+out:
-+	up(&cpuset_sem);
-+	up(&cs->dentry->d_inode->i_sem);
-+
-+	return retval;
++	cpu_rc_unlock(cr);
 +}
 +
-+static struct file_operations cpumeter_meter_file_operations = {
-+	.read = cpumeter_meter_file_read,
-+	.write = cpumeter_meter_file_write,
-+	.llseek = generic_file_llseek,
-+	.open = generic_file_open,
-+};
-+
-+static ssize_t cpumeter_guar_file_read(struct file *file, char __user *buf, 
-+				       size_t nbytes, loff_t *ppos)
++unsigned int cpu_rc_scale_timeslice(task_t *tsk, unsigned int slice)
 +{
-+	struct cpuset *cs = __d_cs(file->f_dentry->d_parent);
-+	struct cpumeter_ctlr *c = file->f_dentry->d_fsdata;
-+	unsigned long val;
++	struct cpu_rc *cr;
++	unsigned int scaled;
 +
-+	down(&cpuset_sem);
-+	val = cs->meters[c->idx].guar;
-+	up(&cpuset_sem);
++	cr = cpu_rc_get(tsk);
++	if (cr == NULL) {
++		return slice;
++	}
 +
-+	return cpumeter_file_read_common(file, buf, nbytes, ppos, val);
++	if (jiffies - cr->last_recalc > CPU_RC_RECALC_INTERVAL) {
++		cpu_rc_recalc_tsfactor(cr);
++	}	
++
++	scaled = slice * cr->ts_factor / CPU_RC_TSFACTOR_MAX;
++	if (scaled == 0) {
++		scaled = 1;
++	}
++
++	return scaled;
 +}
 +
-+static ssize_t cpumeter_guar_file_write(struct file *file,
-+					const char __user *userbuf,
-+					size_t nbytes,
-+					loff_t *unused_ppos)
++void cpu_rc_account(task_t *tsk, unsigned long now)
 +{
-+	struct cpuset *cs = __d_cs(file->f_dentry->d_parent);
-+	struct cpuset *parent;
-+	struct cpumeter_ctlr *c = file->f_dentry->d_fsdata;
-+	struct cpumeter *m, *pm;
-+	unsigned long val;
-+	long diff;
-+	int retval;
++	struct cpu_rc *cr;
++	int cpu = smp_processor_id();
++	unsigned long last;
++	unsigned int load, tsk_load;
++	unsigned long base, update;
 +
-+	retval = cpumeter_file_get_written_data(userbuf, nbytes, &val);
-+	if (retval)
-+		return retval;
-+
-+	m = &cs->meters[c->idx];
-+	down(&cpuset_sem);
-+	if (is_removed(cs)) {
-+		retval = -ENODEV;
-+		goto out;
++	if (tsk == idle_task(task_cpu(tsk))) {
++		return;
 +	}
 +
-+	if (c->set_lim && m->lim && val > m->lim) {
-+		retval = -EINVAL;
-+		goto out;
++	cr = cpu_rc_get(tsk);
++	if (cr == NULL) {
++		return;
 +	}
 +
-+	/* If the meter is toplevel, the guarantee can not be changed. */
-+	parent = cs->parent;
-+	if (!parent || !is_metered(parent, c->idx)) {
-+		retval = -EINVAL;
-+		goto out;
++	base = now - tsk->ts_alloced;
++	if (base == 0) {
++		/* duration too small. can not collect statistics. */
++		return;
 +	}
 +
-+	pm = &parent->meters[c->idx];
-+	diff = (long)val - (long)m->guar;
-+	if (diff == 0) {
-+		retval = nbytes;
-+		goto out;
-+	} else if (diff > (long)pm->guar) {
-+		retval = -ENOSPC;
-+		goto out;
++	tsk_load = CPU_RC_LOAD_SCALE * (tsk->last_slice - tsk->time_slice)
++		+ (CPU_RC_LOAD_SCALE - 1);
++	if (base > CPU_RC_SPREAD_PERIOD) {
++		tsk_load = CPU_RC_SPREAD_PERIOD * tsk_load / base;
 +	}
 +
-+	retval = c->set_guar(m->ctlr_data, val);
-+	if (retval == 0) {
-+		retval = c->set_guar(pm->ctlr_data, pm->guar - diff);
-+		if (retval < 0) {
-+			c->set_guar(m->ctlr_data, m->guar);
-+			goto out;
-+		} else {
-+			pm->guar -= diff;
-+			m->guar  += diff;
-+			retval = nbytes;
-+		}
++	last = cr->stat[cpu].timestamp;
++	update = now - last;
++	if (update > CPU_RC_SPREAD_PERIOD) {
++		/* statistics data obsolete. */
++		load = 0;
++		update = CPU_RC_SPREAD_PERIOD;
++	} else {
++		load = cr->stat[cpu].load * (CPU_RC_SPREAD_PERIOD - update);
 +	}
-+out:
-+	up(&cpuset_sem);
-+	return retval;
++
++	cr->stat[cpu].timestamp = now;
++	cr->stat[cpu].load = (load + tsk_load) / CPU_RC_SPREAD_PERIOD;
 +}
 +
-+static struct file_operations cpumeter_guar_file_operations = {
-+	.read = cpumeter_guar_file_read,
-+	.write = cpumeter_guar_file_write,
-+	.llseek = generic_file_llseek,
-+	.open = generic_file_open,
-+};
-+
-+static ssize_t cpumeter_lim_file_read(struct file *file, char __user *buf, 
-+				      size_t nbytes, loff_t *ppos)
++void cpu_rc_collect_hunger(task_t *tsk)
 +{
-+	struct cpuset *cs = __d_cs(file->f_dentry->d_parent);
-+	struct cpumeter_ctlr *c = file->f_dentry->d_fsdata;
-+	unsigned long val;
++	struct cpu_rc *cr;
++	unsigned long wait;
++	int cpu = smp_processor_id();
 +
-+	down(&cpuset_sem);
-+	val = cs->meters[c->idx].lim;
-+	up(&cpuset_sem);
++	if (tsk == idle_task(task_cpu(tsk))) {
++		return;
++	}
 +
-+	return cpumeter_file_read_common(file, buf, nbytes, ppos, val);
++	if (tsk->last_activated == 0) {
++		return;
++	}
++
++	cr = cpu_rc_get(tsk);
++	if (cr == NULL) {
++		tsk->last_activated = 0;
++		return;
++	}
++
++	wait = jiffies - tsk->last_activated;
++	if (CPU_RC_GUAR_SCALE * tsk->last_slice
++	    / (wait + tsk->last_slice) < cr->guarantee / cr->rcd->numcpus) {
++		cr->stat[cpu].maybe_hungry++;
++	}
++
++	tsk->last_activated = 0;
 +}
 +
-+static ssize_t cpumeter_lim_file_write(struct file *file,
-+				       const char __user *userbuf,
-+				       size_t nbytes,
-+				       loff_t *unused_ppos)
++void cpu_rc_init(void)
 +{
-+	struct cpuset *cs = __d_cs(file->f_dentry->d_parent);
-+	struct cpumeter_ctlr *c = file->f_dentry->d_fsdata;
-+	struct cpumeter *m;
-+	unsigned long val;
-+	int retval;
-+
-+	retval = cpumeter_file_get_written_data(userbuf, nbytes, &val);
-+	if (retval)
-+		return retval;
-+
-+	m = &cs->meters[c->idx];
-+	down(&cpuset_sem);
-+	if (is_removed(cs)) {
-+		retval = -ENODEV;
-+		goto out;
-+	}
-+
-+	if (val && c->set_guar && val < m->guar) {
-+		retval = -EINVAL;
-+		goto out;
-+	}
-+
-+	retval = c->set_lim(m->ctlr_data, val);
-+	if (retval == 0) {
-+		m->lim = val;
-+		retval = nbytes;
-+	}
-+out:
-+	up(&cpuset_sem);
-+	return retval;
 +}
+--- from-0001/kernel/sched.c
++++ to-work/kernel/sched.c	2005-09-26 17:26:19.231919049 +0900
+@@ -41,6 +41,7 @@
+ #include <linux/rcupdate.h>
+ #include <linux/cpu.h>
+ #include <linux/cpuset.h>
++#include <linux/cpu_rc.h>
+ #include <linux/percpu.h>
+ #include <linux/kthread.h>
+ #include <linux/seq_file.h>
+@@ -168,10 +169,17 @@
+ 
+ static unsigned int task_timeslice(task_t *p)
+ {
++	unsigned int timeslice;
 +
-+static struct file_operations cpumeter_lim_file_operations = {
-+	.read = cpumeter_lim_file_read,
-+	.write = cpumeter_lim_file_write,
-+	.llseek = generic_file_llseek,
-+	.open = generic_file_open,
-+};
+ 	if (p->static_prio < NICE_TO_PRIO(0))
+-		return SCALE_PRIO(DEF_TIMESLICE*4, p->static_prio);
++		timeslice = SCALE_PRIO(DEF_TIMESLICE*4, p->static_prio);
+ 	else
+-		return SCALE_PRIO(DEF_TIMESLICE, p->static_prio);
++		timeslice = SCALE_PRIO(DEF_TIMESLICE, p->static_prio);
 +
-+static ssize_t cpumeter_cur_file_read(struct file *file, char __user *buf, 
-+				      size_t nbytes, loff_t *ppos)
-+{
-+	struct cpuset *cs = __d_cs(file->f_dentry->d_parent);
-+	struct cpumeter_ctlr *c = file->f_dentry->d_fsdata;
-+	struct cpumeter *m;
-+	unsigned long val;
-+	int err;
++	if (!TASK_INTERACTIVE(p))
++		timeslice = cpu_rc_scale_timeslice(p, timeslice);
 +
-+	m = &cs->meters[c->idx];
-+
-+	down(&cpuset_sem);
-+	err = c->get_cur(m->ctlr_data, &val);
-+	if (err) {
-+		up(&cpuset_sem);
-+		return err;
-+	}
-+	up(&cpuset_sem);
-+
-+	return cpumeter_file_read_common(file, buf, nbytes, ppos, val);
-+}
-+
-+static struct file_operations cpumeter_cur_file_operations = {
-+	.read = cpumeter_cur_file_read,
-+	.llseek = generic_file_llseek,
-+	.open = generic_file_open,
-+};
-+
-+
-+static int cpumeter_add_meter_flag(struct dentry *d, struct cpumeter_ctlr *c)
-+{
-+	char name[CPUMETER_FNAME_MAX + 1];
-+	struct dentry *dentry;
-+	int err;
-+
-+	sprintf(name, "%s%s", cpumeter_meter_prefix, c->name);
-+	dentry = cpuset_get_dentry(d, name);
-+	if (IS_ERR(dentry))
-+		return PTR_ERR(dentry);
-+
-+	err = cpuset_create_file(dentry, 0644 | S_IFREG, NULL,
-+				 &cpumeter_meter_file_operations);
-+	if (err) {
-+		dput(dentry);
-+		return err;
-+	}
-+
-+	dentry->d_fsdata = c;
-+	dput(dentry);
-+
-+	if (is_metered(__d_cs(d), c->idx)) {
-+		err = cpumeter_add_meter_files(d, c);
-+		if (err)
-+			return err;
-+	}
-+
-+	return 0;
-+}
-+
-+static int cpumeter_add_meter_flags(struct dentry *d)
-+{
-+	int err = 0;
-+	int i;
-+
-+	/* cpuset_sem needed because this function references cs->flags. */
-+	down(&cpuset_sem);
-+	for (i = 0; i < cpumeter_numctlrs; i++) {
-+		err = cpumeter_add_meter_flag(d, cpumeter_ctlrs[i]);
-+		if (err)
-+			break;
-+	}
-+
-+	up(&cpuset_sem);
-+
-+	return err;
-+}
-+
-+static int cpumeter_add_meter_file(struct dentry *dir,
-+				   char *name,
-+				   int mode,
-+				   struct file_operations *fop,
-+				   struct cpumeter_ctlr *c)
-+{
-+	struct dentry *dentry;
-+	int error;
-+
-+	dentry = cpuset_get_dentry(dir, name);
-+	if (!IS_ERR(dentry)) {
-+		error = cpuset_create_file(dentry, mode, NULL, fop);
-+		if (!error)
-+			dentry->d_fsdata = c;
-+		dput(dentry);
-+	} else
-+		error = PTR_ERR(dentry);
-+
-+	return error;
-+}
-+
-+static int cpumeter_add_meter_files(struct dentry *d, struct cpumeter_ctlr *c)
-+{
-+	char name[CPUMETER_FNAME_MAX + 1];
-+	int err;
-+
-+	if (c->set_guar) {
-+		sprintf(name, "%s%s%s", cpumeter_meter_prefix, c->name,
-+			cpumeter_guar_suffix);
-+		err = cpumeter_add_meter_file(d, name, 0644 | S_IFREG,
-+					      &cpumeter_guar_file_operations,
-+					      c);
-+		if (err < 0)
-+			return err;
-+	}
-+
-+	if (c->set_lim) {
-+		sprintf(name, "%s%s%s", cpumeter_meter_prefix, c->name,
-+			cpumeter_lim_suffix);
-+		err = cpumeter_add_meter_file(d, name, 0644 | S_IFREG,
-+					      &cpumeter_lim_file_operations,
-+					      c);
-+		if (err < 0)
-+			return err;
-+	}
-+
-+	if (c->get_cur) {
-+		sprintf(name, "%s%s%s", cpumeter_meter_prefix, c->name,
-+			cpumeter_cur_suffix);
-+		err = cpumeter_add_meter_file(d, name, 0444 | S_IFREG,
-+					      &cpumeter_cur_file_operations,
-+					      c);
-+		if (err < 0)
-+			return err;
-+	}
-+
-+	return 0;
-+}
-+
-+static void cpumeter_remove_meter_files(struct dentry *dentry,
-+					struct cpumeter_ctlr *c)
-+{
-+	struct list_head *node, *n;
-+	struct inode *inode;
-+
-+	dget(dentry);
-+	spin_lock(&dcache_lock);
-+	node = dentry->d_subdirs.next;
-+	while (node != &dentry->d_subdirs) {
-+		struct dentry *d = list_entry(node, struct dentry, d_child);
-+		n = node->next;
-+
-+		inode = d->d_inode;
-+		if (!inode)
-+			goto next;
-+
-+		if (d->d_fsdata != c)
-+			goto next;
-+
-+		if (inode->i_fop != &cpumeter_guar_file_operations &&
-+		    inode->i_fop != &cpumeter_lim_file_operations &&
-+		    inode->i_fop != &cpumeter_cur_file_operations)
-+			goto next;
-+
-+		list_del_init(node);
-+		d = dget_locked(d);
-+		spin_unlock(&dcache_lock);
-+		d_delete(d);
-+		simple_unlink(dentry->d_inode, d);
-+		dput(d);
-+		spin_lock(&dcache_lock);
-+
-+		/*
-+		 * this might be paranoid, but we have released 
-+		 * the dcache_lock...
-+		 */
-+		n = dentry->d_subdirs.next;
-+	next:
-+		node = n;
-+	}
-+
-+	spin_unlock(&dcache_lock);
-+	dput(dentry);
-+}
-+
-+static int validate_meters(const struct cpuset *cur,
-+			   const struct cpuset *trial)
-+{
-+	struct cpuset *parent;
-+	int is_anything_metered = 0;
-+	int is_changed;
-+	int i;
-+
-+	parent = cur->parent;
-+
-+	/* checks for flag bits */
-+	for (i = 0; i < cpumeter_numctlrs; i++) {
-+		is_changed = (is_metered(trial, i) != is_metered(cur, i));
-+
-+		/* meter flags can not be changed if the cs has any child. */
-+		if (!list_empty(&cur->children) && is_changed)
-+			return -EINVAL;
-+
-+		/* meter flags can not be changed if the parent is metered */
-+		if (parent && is_metered(parent, i) && is_changed)
-+			return -EINVAL;
-+
-+		if (is_metered(cur, i))
-+			is_anything_metered++;
-+	}
-+
-+	/* checks for cpus & mems changes */
-+	if (is_anything_metered) {
-+		if (!cpus_equal(cur->cpus_allowed, trial->cpus_allowed))
-+			return -EINVAL;
-+
-+		if (!nodes_equal(cur->mems_allowed, trial->mems_allowed))
-+			return -EINVAL;
-+	}
-+
-+	/* checks for guarantee values */
-+	/* XXX  not yet */
-+
-+	return 0;
-+}
-+
-+static int inherit_meters(struct cpuset *cs, struct cpuset *parent)
-+{
-+	struct cpumeter_ctlr *c;
-+	int is_anything_metered = 0;
-+	int i;
-+
-+	/* initialize meters */
-+	memset(cs->meters, 0, sizeof(cs->meters));
-+
-+	/* parent == NULL means the root cpuset.  no need to inherit. */
-+	if (!parent)
-+		return 0;
-+
-+	/* inerit meter flags and rcdomains */
-+	for (i = 0; i < cpumeter_numctlrs; i++) {
-+		cs->rcdomains[i] = parent->rcdomains[i];
-+		if (!is_metered(parent, i))
-+			continue;
-+
-+		set_meter(cs, i);
-+		c = cpumeter_ctlrs[i];
-+		cs->meters[i].ctlr_data =
-+			c->create(cs->rcdomains[i], cs);
-+		if (!cs->meters[i].ctlr_data)
-+			goto failed;
-+
-+		is_anything_metered++;
-+	}
-+
-+	if (is_anything_metered) {
-+		/* inherit cpus and mems. */
-+		cs->cpus_allowed = parent->cpus_allowed;
-+		cs->mems_allowed = parent->mems_allowed;
-+	}
-+
-+	return 0;
-+
-+failed:
-+	for (i = 0; i < cpumeter_numctlrs; i++) {
-+		if (!is_metered(cs, i))
-+			continue;
-+
-+		c = cpumeter_ctlrs[i];
-+		if (cs->meters[i].ctlr_data)
-+			c->destroy(cs->meters[i].ctlr_data);
-+		cs->meters[i].ctlr_data = NULL;
-+		clear_meter(cs, i);
-+	}
-+
-+	return -ENOMEM;
-+}
-+
-+static void cpumeter_destroy_meters(struct cpuset *cs)
-+{
-+	struct cpuset *parent = cs->parent;
-+	struct cpumeter_ctlr *c;
-+	int i;
-+
-+	for (i = 0; i < cpumeter_numctlrs; i++) {
-+		c = cpumeter_ctlrs[i];
-+		if (cs->meters[i].ctlr_data) {
-+			if (c->set_guar)
-+				c->set_guar(cs->meters[i].ctlr_data, 0);
-+			c->destroy(cs->meters[i].ctlr_data);
-+			cs->meters[i].ctlr_data = NULL;
-+		}
-+
-+		if (parent && is_metered(parent, i)) {
-+			/* the rcdomain is inherited from the parent. */
-+			parent->meters[i].guar += cs->meters[i].guar;
-+			if (c->set_guar)
-+				c->set_guar(parent->meters[i].ctlr_data,
-+					    parent->meters[i].guar);
-+			cs->rcdomains[i] = NULL;
-+			continue;
-+		}
-+
-+		if (cs->rcdomains[i]) {
-+			c->destroy_rcdomain(cs->rcdomains[i]);
-+			cs->rcdomains[i] = NULL;
-+		}
-+	}
-+}
-+#endif /* CONFIG_CPUMETER */
++	return timeslice;
+ }
+ #define task_hot(p, now, sd) ((long long) ((now) - (p)->last_ran)	\
+ 				< (long long) (sd)->cache_hot_time)
+@@ -660,6 +668,7 @@ static int effective_prio(task_t *p)
+  */
+ static inline void __activate_task(task_t *p, runqueue_t *rq)
+ {
++	cpu_rc_record_activated(p, jiffies);
+ 	enqueue_task(p, rq->active);
+ 	rq->nr_running++;
+ }
+@@ -1294,6 +1303,7 @@ int fastcall wake_up_state(task_t *p, un
+ void fastcall sched_fork(task_t *p, int clone_flags)
+ {
+ 	int cpu = get_cpu();
++	unsigned long now = jiffies;
+ 
+ #ifdef CONFIG_SMP
+ 	cpu = sched_balance_self(cpu, SD_BALANCE_FORK);
+@@ -1330,9 +1340,12 @@ void fastcall sched_fork(task_t *p, int 
+ 	 * The remainder of the first timeslice might be recovered by
+ 	 * the parent if the child exits early enough.
+ 	 */
++	cpu_rc_account(current, now);
+ 	p->first_time_slice = 1;
+ 	current->time_slice >>= 1;
+ 	p->timestamp = sched_clock();
++	cpu_rc_record_allocation(current, current->time_slice, now);
++	cpu_rc_record_allocation(p, p->time_slice, now);
+ 	if (unlikely(!current->time_slice)) {
+ 		/*
+ 		 * This case is rare, it happens when the parent has only
+@@ -1390,6 +1403,7 @@ void fastcall wake_up_new_task(task_t * 
+ 				p->array = current->array;
+ 				p->array->nr_active++;
+ 				rq->nr_running++;
++				cpu_rc_record_activated(p, jiffies);
+ 			}
+ 			set_need_resched();
+ 		} else
+@@ -1440,16 +1454,21 @@ void fastcall sched_exit(task_t * p)
+ {
+ 	unsigned long flags;
+ 	runqueue_t *rq;
++	unsigned long now = jiffies;
+ 
+ 	/*
+ 	 * If the child was a (relative-) CPU hog then decrease
+ 	 * the sleep_avg of the parent as well.
+ 	 */
+ 	rq = task_rq_lock(p->parent, &flags);
++	cpu_rc_account(p, now);
+ 	if (p->first_time_slice) {
++		cpu_rc_account(p->parent, now);
+ 		p->parent->time_slice += p->time_slice;
+ 		if (unlikely(p->parent->time_slice > task_timeslice(p)))
+ 			p->parent->time_slice = task_timeslice(p);
++		cpu_rc_record_allocation(p->parent,
++					 p->parent->time_slice, now);
+ 	}
+ 	if (p->sleep_avg < p->parent->sleep_avg)
+ 		p->parent->sleep_avg = p->parent->sleep_avg /
+@@ -2487,6 +2506,7 @@ void scheduler_tick(void)
+ 	runqueue_t *rq = this_rq();
+ 	task_t *p = current;
+ 	unsigned long long now = sched_clock();
++	unsigned long jnow = jiffies;
+ 
+ 	update_cpu_clock(p, rq, now);
+ 
+@@ -2521,6 +2541,9 @@ void scheduler_tick(void)
+ 			p->time_slice = task_timeslice(p);
+ 			p->first_time_slice = 0;
+ 			set_tsk_need_resched(p);
++#ifdef CONFIG_CPU_RC
++			/* XXX  need accounting even for rt_task? */
++#endif
+ 
+ 			/* put it at the end of the queue: */
+ 			requeue_task(p, rq->active);
+@@ -2530,9 +2553,12 @@ void scheduler_tick(void)
+ 	if (!--p->time_slice) {
+ 		dequeue_task(p, rq->active);
+ 		set_tsk_need_resched(p);
++		cpu_rc_account(p, jnow);
+ 		p->prio = effective_prio(p);
+ 		p->time_slice = task_timeslice(p);
+ 		p->first_time_slice = 0;
++		cpu_rc_record_allocation(p, p->time_slice, jnow);
++		cpu_rc_record_activated(p, jnow);
+ 
+ 		if (!rq->expired_timestamp)
+ 			rq->expired_timestamp = jiffies;
+@@ -2891,6 +2917,7 @@ switch_tasks:
+ 	rcu_qsctr_inc(task_cpu(prev));
+ 
+ 	update_cpu_clock(prev, rq, now);
++	cpu_rc_collect_hunger(next);
+ 
+ 	prev->sleep_avg -= run_time;
+ 	if ((long)prev->sleep_avg <= 0)

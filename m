@@ -1,39 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932461AbVIZS0a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932460AbVIZS02@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932461AbVIZS0a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 14:26:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932462AbVIZS0a
+	id S932460AbVIZS02 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 14:26:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbVIZS02
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 14:26:30 -0400
-Received: from mail.cs.unm.edu ([64.106.20.33]:23748 "EHLO mail.cs.unm.edu")
-	by vger.kernel.org with ESMTP id S932461AbVIZS03 (ORCPT
+	Mon, 26 Sep 2005 14:26:28 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:2014 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932460AbVIZS01 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 14:26:29 -0400
-Date: Mon, 26 Sep 2005 12:26:20 -0600 (MDT)
-From: Sharma Sushant <sushant@cs.unm.edu>
-To: linux-kernel@vger.kernel.org
-Subject: APIC and Performance Counters
-Message-ID: <Pine.LNX.4.62.0509261208040.11499@husband.cs.unm.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 26 Sep 2005 14:26:27 -0400
+Date: Mon, 26 Sep 2005 14:25:46 -0400
+From: Dave Jones <davej@redhat.com>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       Brian Gerst <bgerst@didntduck.org>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] CONFIG_IA32
+Message-ID: <20050926182545.GJ19275@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Chris Wedgwood <cw@f00f.org>,
+	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Christoph Hellwig <hch@infradead.org>,
+	Brian Gerst <bgerst@didntduck.org>, Andrew Morton <akpm@osdl.org>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <4335DD14.7090909@didntduck.org> <20050925100525.GA14741@infradead.org> <Pine.LNX.4.61.0509251116430.1684@montezuma.fsmlabs.com> <20050926091456.GB26983@taniwha.stupidest.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050926091456.GB26983@taniwha.stupidest.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
-I was trying to do some performance monitoring using performance counters 
-on an AMD Athlon64. I am trying to count number of retired uops (0xC1h) 
-and I want to call a function after every n number of uops. I think I need 
-to use APIC for this purpose and specifically APIC register for 
-"perfromance counter local vector table entry" in which i can set up the 
-vector which will be sent for the interrupt source. Now I am not familiar 
-with setting up of vector table entries and the detailed process of how 
-can I do what I want. Can anyone give some pointers where I can find more 
-information on programming APIC with performance-monitoring counters or if 
-some one can explain it to me, I would be thankful.
-TIA
--Sushant
-ps: please cc the reply to me.
+On Mon, Sep 26, 2005 at 02:14:56AM -0700, Chris Wedgwood wrote:
+ > On Sun, Sep 25, 2005 at 11:18:18AM -0700, Zwane Mwaikambo wrote:
+ > 
+ > > ia32 has been in use much longer than x86_32 and more ubiquitous.
+ > 
+ > ia32 is confusing when you consider ia32el
 
+It shouldn't be too difficult to explain it to both of the ia32el users.
 
---
-Sushant Sharma
+		Dave
+

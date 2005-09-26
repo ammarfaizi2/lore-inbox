@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964776AbVIZXpz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750812AbVIZXzP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964776AbVIZXpz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 19:45:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964777AbVIZXpz
+	id S1750812AbVIZXzP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 19:55:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbVIZXzO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 19:45:55 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:22260 "EHLO
-	pd4mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S964776AbVIZXpy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 19:45:54 -0400
-Date: Mon, 26 Sep 2005 17:49:21 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: USB on nForce4 board only working with pci=routeirq
-In-reply-to: <4R0rb-4nk-13@gated-at.bofh.it>
-To: Florian Engelhardt <flo@dotbox.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <43388901.8090500@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 8BIT
-X-Accept-Language: en-us, en
-References: <4R0rb-4nk-13@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+	Mon, 26 Sep 2005 19:55:14 -0400
+Received: from xproxy.gmail.com ([66.249.82.197]:15732 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750812AbVIZXzN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 19:55:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=ElteF9Y9M74uGiCQuYOXaOhUcaK6fnGpfWWoFZ450YbCoDHUwDReUZctpwI7UzbYryAg/9YGc5dDr8wkDALuiIxmZkg9UAKJXzC+GWicTYMJH8vff+GTpZpSf6O4B+XTZIuKLvYiFQ0qNp943QiyHDVfcLHIZ2VILJuIJtWeEs8=
+Date: Tue, 27 Sep 2005 01:55:03 +0200
+From: Diego Calleja <diegocg@gmail.com>
+To: Shawn Starr <shawn.starr@rogers.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Crazy Idea: Replacing /dev using sysfs over time
+Message-Id: <20050927015503.702ca60e.diegocg@gmail.com>
+In-Reply-To: <200509261928.20701.shawn.starr@rogers.com>
+References: <200509261928.20701.shawn.starr@rogers.com>
+X-Mailer: Sylpheed version 2.1.1 (GTK+ 2.8.3; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Florian Engelhardt wrote:
-> Hello,
-> 
-> i own a nForce4 mainboard from elitegroup. It has USB 1.1 and 2.0.
-> If i start the computer normal with my 2.6.13 kernel i get the following:
-> Sep 25 10:12:54 discovery ohci_hcd 0000:00:02.0: OHCI Host Controller
-> Sep 25 10:12:54 discovery ohci_hcd 0000:00:02.0: USB HC takeover failed! 
-> (BIOS/SMM bug)
-> Sep 25 10:12:54 discovery ohci_hcd 0000:00:02.0: can't reset
-> Sep 25 10:12:54 discovery ACPI: PCI interrupt for device 0000:00:02.0 disabled
-> Sep 25 10:12:54 discovery ohci_hcd 0000:00:02.0: init 0000:00:02.0 fail, -16
-> Sep 25 10:12:54 discovery ohci_hcd: probe of 0000:00:02.0 failed with error -16
-> 
-> And non of my USB-devices is wokring anymore.
-> I than switched to 2.6.14-rc2-mm1, but the same behavior.
-> I tried to parse pci=routeirq to the kernel, and than it was wokring again.
-> 
-> It worked perfect, also without pci=routeirq until 25th of september.
-> I updated the bios, but that was one month ago, and is was using my usb
-> devices since then with no problems, so i don´t know, what couses this
-> problem now.
+El Mon, 26 Sep 2005 19:28:18 -0400,
+Shawn Starr <shawn.starr@rogers.com> escribió:
 
-We probably need full dmesg output. Also, are you currently using the 
-latest BIOS available?
+>         /sys/class/block/
+>         `-- sda
+>             |-- sda1
+>                     | - major
+>                     | - minor
+>                     | - raw
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+With this you're adding again all the device naming linux has got ridden of
+by removing devfs (it rememebers me to solaris' devfs: They have a
+sysfs-like filesystem, except that things in /dev are a symbolic link to a
+device file in /devices)
 
+> Do we really need /dev other than for historical/legacy purposes?
+
+If your intention is just to boot kernels and not run userspace on them,
+then sure, it's a good idea to get rid of /dev.

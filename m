@@ -1,51 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbVIZHlb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbVIZHwR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750710AbVIZHlb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 03:41:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbVIZHlb
+	id S1750739AbVIZHwR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 03:52:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbVIZHwR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 03:41:31 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:61146
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750710AbVIZHlb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 03:41:31 -0400
-Date: Mon, 26 Sep 2005 00:41:23 -0700 (PDT)
-Message-Id: <20050926.004123.47346085.davem@davemloft.net>
-To: benh@kernel.crashing.org
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: update_mmu_cache(): fault or not fault ?
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <1127715725.15882.43.camel@gaston>
-References: <1127715725.15882.43.camel@gaston>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Mon, 26 Sep 2005 03:52:17 -0400
+Received: from h80ad2501.async.vt.edu ([128.173.37.1]:20375 "EHLO
+	h80ad2501.async.vt.edu") by vger.kernel.org with ESMTP
+	id S1750739AbVIZHwQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 03:52:16 -0400
+Message-Id: <200509260752.j8Q7q6qa005465@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: "Woody.Wu" <Woody.Wu@cn.landisgyr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel Compilation Question 
+In-Reply-To: Your message of "Mon, 26 Sep 2005 09:00:44 +0200."
+             <7567C3A4682B894C99E5E16494442680010AD310@cnzhuex01.cn.landisgyr.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <7567C3A4682B894C99E5E16494442680010AD310@cnzhuex01.cn.landisgyr.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: multipart/signed; boundary="==_Exmh_1127721125_3307P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 26 Sep 2005 03:52:05 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Date: Mon, 26 Sep 2005 16:22:05 +1000
+--==_Exmh_1127721125_3307P
+Content-Type: text/plain; charset=us-ascii
 
-> The problem is that want to only ever do that kind of hw TLB pre-fill
-> when update_mmu_cache() is called as the result an actual fault.
-> However, for some reasons that I'm not 100% sure about (*)
-> update_mmu_cache() is called from other places, typically in mm/fremap.c
-> which aren't directly results of faults.
-> 
-> So I suggest adding an argument to it "int is_fault", that would
-> basically be '1' on all the call sites in mm/memory.c and '0' in all the
-> call sites in mm/fremap.c.
+On Mon, 26 Sep 2005 09:00:44 +0200, "Woody.Wu" said:
+> i got a RedHat box which running a 2.2.x kernel.  since its too old, i
+> decided to upgrade it to 2.6.x, but this might involving upgrading of
+> gcc, libc and lots of other things.  i don't want to bother to do that
+> and think i can build a kernel in another newer system (a slackware
+> running 2.6.x) and copy needed stuff over to the old box.  is it
+> possible? 
 
-You can track this in your port specific code.  That's what I do on
-sparc64 to deal with this case.  I record the TLB miss type (D or I
-tlb), and also whether a write occurred, in a bitmask.  Then I check
-this in update_mmu_cache() to decide whether to prefill.
+If it's a RedHat old enough to include a 2.2 kernel, and you have to ask if
+it's doable, I can *guarantee* that you don't have the technical experience
+to track down all the little details.  That's a long time ago, and there will
+be all sorts of little tiny things (for instance, if you use ipchains, you'll
+need to switch to ipfilter instead).
 
-I store it in current_thread_info() and clear it at the end of fault
-processing.
+It's possible, but by the time you chase down all the pre-requisites and
+co-requisites, you will be better off just actually upgrading to something
+more recent - even if you get it to work, you get all the joy the *NEXT* time
+you have to make a system change.
 
-Just grep for "FAULT_CODE_*" in the sparc64 code to see how this
-works.
 
-Although, I'm ambivalent as to whether prefilling helps at all.
+
+--==_Exmh_1127721125_3307P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFDN6ilcC3lWbTT17ARAkmbAJ4oSE9DoE20PghxGqtz7lICeuz1jgCg8RJw
+UeD3qI2AiIVeOeRnYAb1SXE=
+=fwFH
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1127721125_3307P--

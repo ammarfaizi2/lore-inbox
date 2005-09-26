@@ -1,139 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932372AbVIZEn6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932380AbVIZFSO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932372AbVIZEn6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 00:43:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932374AbVIZEn6
+	id S932380AbVIZFSO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 01:18:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932381AbVIZFSO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 00:43:58 -0400
-Received: from xenotime.net ([66.160.160.81]:31127 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932372AbVIZEn5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 00:43:57 -0400
-Date: Sun, 25 Sep 2005 21:43:54 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: cfriesen@nortel.com, sonny@burdell.org, dipankar@in.ibm.com,
-       viro@ftp.linux.org.uk, rolandd@cisco.com, linux-kernel@vger.kernel.org,
-       tytso@mit.edu, bharata@in.ibm.com, trond.myklebust@fys.uio.no
-Subject: [PATCH/RFC] sysrq: updating console_loglevel
-Message-Id: <20050925214354.722d139d.rdunlap@xenotime.net>
-In-Reply-To: <Pine.LNX.4.58.0509221501490.20059@shark.he.net>
-References: <4331CFAD.6020805@nortel.com>
-	<52ll1qkrii.fsf@cisco.com>
-	<20050922031136.GE7992@ftp.linux.org.uk>
-	<43322AE6.1080408@nortel.com>
-	<20050922041733.GF7992@ftp.linux.org.uk>
-	<4332CAEA.1010509@nortel.com>
-	<20050922182719.GA4729@in.ibm.com>
-	<4332FFF5.5060207@nortel.com>
-	<20050922191805.GB4729@in.ibm.com>
-	<43332400.2070606@nortel.com>
-	<20050922214435.GA31911@kevlar.burdell.org>
-	<43332854.1070108@nortel.com>
-	<Pine.LNX.4.58.0509221501490.20059@shark.he.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 26 Sep 2005 01:18:14 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:45012 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932380AbVIZFSN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 01:18:13 -0400
+To: torvalds@odsl.org
+Subject: [PATCH] m32r: more basic __user annotations
+Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
+Message-Id: <E1EJlNU-00059S-Jp@ZenIV.linux.org.uk>
+From: Al Viro <viro@ftp.linux.org.uk>
+Date: Mon, 26 Sep 2005 06:18:12 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris,
-Here's a patch for you to try.  It creates a safe method for
-sysrq handlers to modify console_loglevel, which I suspect is
-why you were not seeing messages on the serial console.
-
-Please report back on your testing.
-Thanks.
----
-
-From: Randy Dunlap <rdunlap@xenotime.net>
-
-Some sysrq handlers modify the console_loglevel variable,
-but when they do so, some of their own messages may be lost
-(not logged, esp. on serial console).
-
-This patch introduces a way for console_loglevel to be
-modified safely by the sysrq handlers.  The new value is not
-set until the sysrq handler complets and returns.
-
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
-
- drivers/char/sysrq.c |   16 +++++++++-------
- 1 files changed, 9 insertions(+), 7 deletions(-)
-
-diff -Naurp linux-2613-rc2/drivers/char/sysrq.c~fix_loglevel linux-2613-rc2/drivers/char/sysrq.c
---- linux-2613-rc2/drivers/char/sysrq.c~fix_loglevel	2005-07-09 13:55:01.000000000 -0700
-+++ linux-2613-rc2/drivers/char/sysrq.c	2005-09-25 21:31:12.000000000 -0700
-@@ -41,6 +41,7 @@
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+----
+diff -urN RC14-rc2-git5-sata_qstor/arch/m32r/lib/usercopy.c RC14-rc2-git5-m32r-user/arch/m32r/lib/usercopy.c
+--- RC14-rc2-git5-sata_qstor/arch/m32r/lib/usercopy.c	2005-06-17 15:48:29.000000000 -0400
++++ RC14-rc2-git5-m32r-user/arch/m32r/lib/usercopy.c	2005-09-26 00:28:31.000000000 -0400
+@@ -13,7 +13,7 @@
+ #include <asm/uaccess.h>
  
- /* Whether we react on sysrq keys or just ignore them */
- int sysrq_enabled = 1;
-+static int next_log_level;
- 
- /* Loglevel sysrq handler */
- static void sysrq_handle_loglevel(int key, struct pt_regs *pt_regs,
-@@ -50,7 +51,7 @@ static void sysrq_handle_loglevel(int ke
- 	i = key - '0';
- 	console_loglevel = 7;
- 	printk("Loglevel set to %d\n", i);
--	console_loglevel = i;
-+	next_log_level = i;
- }	
- static struct sysrq_key_op sysrq_loglevel_op = {
- 	.handler	= sysrq_handle_loglevel,
-@@ -217,7 +218,7 @@ static void sysrq_handle_term(int key, s
- 			      struct tty_struct *tty) 
+ unsigned long
+-__generic_copy_to_user(void *to, const void *from, unsigned long n)
++__generic_copy_to_user(void __user *to, const void *from, unsigned long n)
  {
- 	send_sig_all(SIGTERM);
--	console_loglevel = 8;
-+	next_log_level = 8;
+ 	prefetch(from);
+ 	if (access_ok(VERIFY_WRITE, to, n))
+@@ -22,7 +22,7 @@
  }
- static struct sysrq_key_op sysrq_term_op = {
- 	.handler	= sysrq_handle_term,
-@@ -248,7 +249,7 @@ static void sysrq_handle_kill(int key, s
- 			      struct tty_struct *tty) 
- {
- 	send_sig_all(SIGKILL);
--	console_loglevel = 8;
-+	next_log_level = 8;
- }
- static struct sysrq_key_op sysrq_kill_op = {
- 	.handler	= sysrq_handle_kill,
-@@ -371,12 +372,11 @@ void __sysrq_put_key_op (int key, struct
- void __handle_sysrq(int key, struct pt_regs *pt_regs, struct tty_struct *tty, int check_mask)
- {
- 	struct sysrq_key_op *op_p;
--	int orig_log_level;
- 	int i, j;
- 	unsigned long flags;
  
- 	spin_lock_irqsave(&sysrq_key_table_lock, flags);
--	orig_log_level = console_loglevel;
-+	next_log_level = console_loglevel;
- 	console_loglevel = 7;
- 	printk(KERN_INFO "SysRq : ");
+ unsigned long
+-__generic_copy_from_user(void *to, const void *from, unsigned long n)
++__generic_copy_from_user(void *to, const void __user *from, unsigned long n)
+ {
+ 	prefetchw(to);
+ 	if (access_ok(VERIFY_READ, from, n))
+@@ -111,7 +111,7 @@
+ #endif /* CONFIG_ISA_DUAL_ISSUE */
  
-@@ -387,8 +387,10 @@ void __handle_sysrq(int key, struct pt_r
- 		if (!check_mask || sysrq_enabled == 1 ||
- 		    (sysrq_enabled & op_p->enable_mask)) {
- 			printk ("%s\n", op_p->action_msg);
--			console_loglevel = orig_log_level;
-+			/* handlers may change console_loglevel,
-+			 * but now they do this by setting <next_log_level> */
- 			op_p->handler(key, pt_regs, tty);
-+			console_loglevel = next_log_level;
- 		}
- 		else
- 			printk("This sysrq operation is disabled.\n");
-@@ -402,7 +404,7 @@ void __handle_sysrq(int key, struct pt_r
- 				printk ("%s ", sysrq_key_table[i]->help_msg);
- 		}
- 		printk ("\n");
--		console_loglevel = orig_log_level;
-+		console_loglevel = next_log_level;
- 	}
- 	spin_unlock_irqrestore(&sysrq_key_table_lock, flags);
+ long
+-__strncpy_from_user(char *dst, const char *src, long count)
++__strncpy_from_user(char *dst, const char __user *src, long count)
+ {
+ 	long res;
+ 	__do_strncpy_from_user(dst, src, count, res);
+@@ -119,7 +119,7 @@
  }
+ 
+ long
+-strncpy_from_user(char *dst, const char *src, long count)
++strncpy_from_user(char *dst, const char __user *src, long count)
+ {
+ 	long res = -EFAULT;
+ 	if (access_ok(VERIFY_READ, src, 1))
+@@ -222,7 +222,7 @@
+ #endif /* not CONFIG_ISA_DUAL_ISSUE */
+ 
+ unsigned long
+-clear_user(void *to, unsigned long n)
++clear_user(void __user *to, unsigned long n)
+ {
+ 	if (access_ok(VERIFY_WRITE, to, n))
+ 		__do_clear_user(to, n);
+@@ -230,7 +230,7 @@
+ }
+ 
+ unsigned long
+-__clear_user(void *to, unsigned long n)
++__clear_user(void __user *to, unsigned long n)
+ {
+ 	__do_clear_user(to, n);
+ 	return n;
+@@ -244,7 +244,7 @@
+ 
+ #ifdef CONFIG_ISA_DUAL_ISSUE
+ 
+-long strnlen_user(const char *s, long n)
++long strnlen_user(const char __user *s, long n)
+ {
+ 	unsigned long mask = -__addr_ok(s);
+ 	unsigned long res;
+@@ -313,7 +313,7 @@
+ 
+ #else /* not CONFIG_ISA_DUAL_ISSUE */
+ 
+-long strnlen_user(const char *s, long n)
++long strnlen_user(const char __user *s, long n)
+ {
+ 	unsigned long mask = -__addr_ok(s);
+ 	unsigned long res;
+diff -urN RC14-rc2-git5-sata_qstor/include/asm-m32r/uaccess.h RC14-rc2-git5-m32r-user/include/asm-m32r/uaccess.h
+--- RC14-rc2-git5-sata_qstor/include/asm-m32r/uaccess.h	2005-09-08 10:07:30.000000000 -0400
++++ RC14-rc2-git5-m32r-user/include/asm-m32r/uaccess.h	2005-09-26 00:33:15.000000000 -0400
+@@ -208,7 +208,8 @@
+  * On error, the variable @x is set to zero.
+  */
+ #define get_user(x,ptr)							\
+-({	int __ret_gu,__val_gu;						\
++({	int __ret_gu;							\
++	unsigned long __val_gu;						\
+ 	__chk_user_ptr(ptr);						\
+ 	switch(sizeof (*(ptr))) {					\
+ 	case 1:  __get_user_x(1,__ret_gu,__val_gu,ptr); break;		\
+@@ -403,7 +404,8 @@
+ 
+ #define __get_user_nocheck(x,ptr,size)					\
+ ({									\
+-	long __gu_err, __gu_val;					\
++	long __gu_err;							\
++	unsigned long __gu_val;						\
+ 	__get_user_size(__gu_val,(ptr),(size),__gu_err);		\
+ 	(x) = (__typeof__(*(ptr)))__gu_val;				\
+ 	__gu_err;							\
+@@ -594,8 +596,8 @@
+ 	return n;
+ }
+ 
+-unsigned long __generic_copy_to_user(void *, const void *, unsigned long);
+-unsigned long __generic_copy_from_user(void *, const void *, unsigned long);
++unsigned long __generic_copy_to_user(void __user *, const void *, unsigned long);
++unsigned long __generic_copy_from_user(void *, const void __user *, unsigned long);
+ 
+ /**
+  * __copy_to_user: - Copy a block of data into user space, with less checking.

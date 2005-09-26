@@ -1,90 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbVIZU6R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbVIZVCB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750756AbVIZU6R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 16:58:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750805AbVIZU6R
+	id S1750807AbVIZVCB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 17:02:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbVIZVCB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 16:58:17 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:59098 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750756AbVIZU6Q (ORCPT
+	Mon, 26 Sep 2005 17:02:01 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:56328 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1750807AbVIZVCA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 16:58:16 -0400
-From: Jeff Moyer <jmoyer@redhat.com>
-MIME-Version: 1.0
+	Mon, 26 Sep 2005 17:02:00 -0400
+Date: Mon, 26 Sep 2005 17:01:20 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: linux-kernel@vger.kernel.org, discuss@x86-64.org,
+       linux-ia64@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Cc: ak@suse.de, tony.luck@intel.com, Asit.K.Mallick@intel.com, gregkh@suse.de
+Subject: [patch 2.6.14-rc2 3/5] swiotlb: support syncing sub-ranges of mappings
+Message-ID: <09262005170120.15812@bilbo.tuxdriver.com>
+In-Reply-To: <09262005170120.15749@bilbo.tuxdriver.com>
+User-Agent: PatchPost/0.1
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <17208.24786.729632.221157@segfault.boston.redhat.com>
-Date: Mon, 26 Sep 2005 16:57:54 -0400
-To: Ian Kent <raven@themaw.net>
-Cc: autofs@linux.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: autofs4 looks up wrong path element when ghosting is enabled
-In-Reply-To: <Pine.LNX.4.63.0509250918150.2191@donald.themaw.net>
-References: <17200.23724.686149.394150@segfault.boston.redhat.com>
-	<Pine.LNX.4.58.0509210916040.26144@wombat.indigo.net.au>
-	<17203.7543.949262.883138@segfault.boston.redhat.com>
-	<Pine.LNX.4.63.0509241644420.2069@donald.themaw.net>
-	<17205.48192.180623.885538@segfault.boston.redhat.com>
-	<Pine.LNX.4.63.0509250918150.2191@donald.themaw.net>
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Reply-To: jmoyer@redhat.com
-X-PGP-KeyID: 1F78E1B4
-X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
-X-PCLoadLetter: What the f**k does that mean?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-==> Regarding Re: autofs4 looks up wrong path element when ghosting is enabled; Ian Kent <raven@themaw.net> adds:
+This patch implements swiotlb_sync_single_range_for_{cpu,device}. This
+is intended to support an x86_64 implementation of
+dma_sync_single_range_for_{cpu,device}.
 
-raven> On Sat, 24 Sep 2005, Jeff Moyer wrote:
->> >> >> >> >> Ian, I'm not really sure how we can address this issue
->> without VFS >> >> changes.  Any ideas?
->> >> >> 
->> >> 
-raven> I'm aware of this problem.  I'm not sure how to deal with it yet.
-raven> The case above is probably not that difficult to solve but if the
-raven> last component is a directory it's hard to work out it's a problem.
->> >> Ugh.  If you're thinking what I think you're thinking, that's an ugly
->> >> hack.
->> 
-raven> Don't think so.
->>
-raven> I've been seeing this for a while. I wasn't quite sure of the source
-raven> but, for some reason your report has cleared that up.
->>
-raven> The problem is not so much the success returned on the failed mount
-raven> (revalidate). It's the return from the following lookup. This is a
-raven> lookup in a non-root directory. I replaced the non-root lookup with
-raven> the root lookup a while ago and I think this is an unexpected side
-raven> affect of that. Becuase of other changes that lead to that decision
-raven> I think that it should be now be OK to put back the null function
-raven> (always return a negative dentry) that was there before I started
-raven> working on the browable maps feature.
->>
-raven> I'll change the module I use here and test it out for a while.  If
-raven> you have time I could make a patch for the 2.4 code and send it over
-raven> so that you could test it out a bit as well.
->> Just send along the 2.6 patch, since I have to deal with that, too.
->> I'll go through the trouble of backporting it.
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
 
-raven> I'm in the middle of working on lazy multi-mounts atm so I'm not in
-raven> a good position to test. It's a little tricky so I don't want to
-raven> forget where I'm at by getting side tracked.
+ drivers/pci/swiotlb.c        |   33 +++++++++++++++++++++++++++++++++
+ include/asm-x86_64/swiotlb.h |    8 ++++++++
+ 2 files changed, 41 insertions(+)
 
-raven> But here's the patch that I will apply to my v5 tree for the initial
-raven> testing. Hopefully you will be able to give it a run in a standard
-raven> setup.
-
-I put together a different patch, but I want to get your input on the
-approach before I post it.  It requires both user-space and kernel-space
-changes.
-
-Basically, you identify that a given automount tree is a direct map tree.
-This information is passed along to the kernel (I did this via a mount
-option), and recorded (in the super block info).  Then, when a directory
-lookup occurs, if we are in a direct map tree, and ghosting is enabled,
-then we pass the lookup on to the real lookup code.
-
-I'm not sold on the approach, as I haven't thought through all of the
-implications.  Care to comment?
-
--Jeff
+diff --git a/drivers/pci/swiotlb.c b/drivers/pci/swiotlb.c
+--- a/drivers/pci/swiotlb.c
++++ b/drivers/pci/swiotlb.c
+@@ -521,6 +521,37 @@ swiotlb_sync_single_for_device(struct de
+ }
+ 
+ /*
++ * Same as above, but for a sub-range of the mapping.
++ */
++static inline void
++swiotlb_sync_single_range(struct device *hwdev, dma_addr_t dev_addr,
++			  unsigned long offset, size_t size, int dir)
++{
++	char *dma_addr = phys_to_virt(dev_addr) + offset;
++
++	if (dir == DMA_NONE)
++		BUG();
++	if (dma_addr >= io_tlb_start && dma_addr < io_tlb_end)
++		sync_single(hwdev, dma_addr, size, dir);
++	else if (dir == DMA_FROM_DEVICE)
++		mark_clean(dma_addr, size);
++}
++
++void
++swiotlb_sync_single_range_for_cpu(struct device *hwdev, dma_addr_t dev_addr,
++				  unsigned long offset, size_t size, int dir)
++{
++	swiotlb_sync_single_range(hwdev, dev_addr, offset, size, dir);
++}
++
++void
++swiotlb_sync_single_range_for_device(struct device *hwdev, dma_addr_t dev_addr,
++				     unsigned long offset, size_t size, int dir)
++{
++	swiotlb_sync_single_range(hwdev, dev_addr, offset, size, dir);
++}
++
++/*
+  * Map a set of buffers described by scatterlist in streaming mode for DMA.
+  * This is the scatter-gather version of the above swiotlb_map_single
+  * interface.  Here the scatter gather list elements are each tagged with the
+@@ -648,6 +679,8 @@ EXPORT_SYMBOL(swiotlb_map_sg);
+ EXPORT_SYMBOL(swiotlb_unmap_sg);
+ EXPORT_SYMBOL(swiotlb_sync_single_for_cpu);
+ EXPORT_SYMBOL(swiotlb_sync_single_for_device);
++EXPORT_SYMBOL_GPL(swiotlb_sync_single_range_for_cpu);
++EXPORT_SYMBOL_GPL(swiotlb_sync_single_range_for_device);
+ EXPORT_SYMBOL(swiotlb_sync_sg_for_cpu);
+ EXPORT_SYMBOL(swiotlb_sync_sg_for_device);
+ EXPORT_SYMBOL(swiotlb_dma_mapping_error);
+diff --git a/include/asm-x86_64/swiotlb.h b/include/asm-x86_64/swiotlb.h
+--- a/include/asm-x86_64/swiotlb.h
++++ b/include/asm-x86_64/swiotlb.h
+@@ -15,6 +15,14 @@ extern void swiotlb_sync_single_for_cpu(
+ extern void swiotlb_sync_single_for_device(struct device *hwdev,
+ 					    dma_addr_t dev_addr,
+ 					    size_t size, int dir);
++extern void swiotlb_sync_single_range_for_cpu(struct device *hwdev,
++					      dma_addr_t dev_addr,
++					      unsigned long offset,
++					      size_t size, int dir);
++extern void swiotlb_sync_single_range_for_device(struct device *hwdev,
++						 dma_addr_t dev_addr,
++						 unsigned long offset,
++						 size_t size, int dir);
+ extern void swiotlb_sync_sg_for_cpu(struct device *hwdev,
+ 				     struct scatterlist *sg, int nelems,
+ 				     int dir);

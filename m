@@ -1,268 +1,161 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932448AbVIZR7D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932400AbVIZSA1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932448AbVIZR7D (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 13:59:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932449AbVIZR7D
+	id S932400AbVIZSA1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 14:00:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932449AbVIZSA1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 13:59:03 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:6121 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932448AbVIZR7B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 13:59:01 -0400
-Date: Mon, 26 Sep 2005 10:58:19 -0700 (PDT)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-cc: Eric Dumazet <dada1@cosmosbay.com>, Harald Welte <laforge@netfilter.org>,
-       Andi Kleen <ak@suse.de>, akpm@osdl.org,
-       Christoph Hellwig <hch@infradead.org>,
-       "David S. Miller" <davem@davemloft.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: vmalloc_node
-In-Reply-To: <1127498679.10664.85.camel@localhost>
-Message-ID: <Pine.LNX.4.62.0509261046410.3650@schroedinger.engr.sgi.com>
-References: <43308324.70403@cosmosbay.com> <200509221454.22923.ak@suse.de> 
- <20050922125849.GA27413@infradead.org> <200509221505.05395.ak@suse.de> 
- <Pine.LNX.4.62.0509220835310.16793@schroedinger.engr.sgi.com> 
- <4332D2D9.7090802@cosmosbay.com>  <20050923171120.GO731@sunbeam.de.gnumonks.org>
-  <Pine.LNX.4.62.0509231043270.22308@schroedinger.engr.sgi.com>
- <1127498679.10664.85.camel@localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 26 Sep 2005 14:00:27 -0400
+Received: from smtp1.Stanford.EDU ([171.67.16.123]:51909 "EHLO
+	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S932400AbVIZSA0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 14:00:26 -0400
+Subject: Re: jack, PREEMPT_DESKTOP, delayed interrupts?
+From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: jackit-devel@lists.sourceforge.net, Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel@vger.kernel.org, cc@ccrma.Stanford.EDU,
+       Steven Rostedt <rostedt@goodmis.org>
+In-Reply-To: <20050831073518.GA7582@elte.hu>
+References: <1125453795.25823.121.camel@cmn37.stanford.edu>
+	 <20050831073518.GA7582@elte.hu>
+Content-Type: text/plain
+Date: Mon, 26 Sep 2005 10:59:57 -0700
+Message-Id: <1127757597.4587.11.camel@cmn3.stanford.edu>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Sep 2005, Dave Hansen wrote:
+On Wed, 2005-08-31 at 09:35 +0200, Ingo Molnar wrote:
+> * Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
+> > Do a "tar cvf usr.tar /usr" just to read/write a lot to disk (this 
+> > within the same SATA disk). Watch memory being used in a system 
+> > monitor applet up to 100%. After a while, hard to say how long (maybe 
+> > 10/15 minutes?) the system eventually can get into a state where Jack 
+> > starts printing messages of the type "delay of 3856.000 usecs exceeds 
+> > estimated spare time of 2653.000; restart ..." (if I understand 
+> > correctly this means interrupts are being delayed on their way to 
+> > Jack, or at least Jack thinks they are arriving too late), along with 
+> > some less frequent xun notices.
+> > 
+> > Now the strange thing is that this condition seems to be persistent.  
+> > Nothing I do after it starts to happen seems to halt those messages.  
+> > Including stopping Jack and starting it again, and even (tried it 
+> > once) stopping the alsa sound driver and loading it again. Nothing out 
+> > of the ordinary in dmesg or /var/log/messages. I would guess that 
+> > something "breaks" inside the kernel with regards to interrupt 
+> > handling and/or whatever Jack uses to measure time inside the kernel?  
+> > Interrupts are prioritized correctly (rtc, then audio and jack runs at 
+> > lower realtime priority than the audio interrupts), everything else 
+> > looks fine.
+> 
+[MUNCH]
+> - please enable all latency tracing options like Lee suggested, and do 
+>   "echo 0 > /proc/sys/kernel/preempt_max_latency" to get some traces. 
 
-> Instead of hard-coding all of those -1's for the node to specify a
-> default allocation, and changing all of those callers, why not:
+I have done that, finally, but I'm not sure I'm clear on the sequence of
+things I have to do, sorry. 
 
-Done.
+echo 0 > /proc/sys/kernel/preempt_max_latency
+(zeroes the max latency, I guess). 
 
-> 	__vmalloc_node(size, gfp_mask, prot, -1);
-> A named macro is probably better than -1, but if it is only used in one
-> place, it is hard to complain.
+When should I look at /proc/latency_trace? What exactly does it show? (I
+know it is nicely commented :-) Is it just one trace?
 
--1 is used consistently in the *_node functions to indicate that the node 
-is not specified. Should I replace -1 throughout the kernel with a 
-constant?
+I'm including one sample output...
+-- Fernando
 
-Here is the updated vmalloc_node patch:
 
---
+# cat /proc/latency_trace
+preemption latency trace v1.1.5 on 2.6.13-0.3.rdtd.rhfc4.ccrmasmp
+--------------------------------------------------------------------
+ latency: 10852 us, #70/70, CPU#0 | (M:preempt VP:0, KP:1, SP:1 HP:1
+#P:2)
+    -----------------
+    | task: qjackctl-4797 (uid:743 nice:0 policy:1 rt_prio:61)
+    -----------------
 
-This patch adds
+                 _------=> CPU#
+                / _-----=> irqs-off
+               | / _----=> need-resched
+               || / _---=> hardirq/softirq
+               ||| / _--=> preempt-depth
+               |||| /
+               |||||     delay
+   cmd     pid ||||| time  |   caller
+      \   /    |||||   \   |   /
+   <...>-4593  1Dnh3    0us : MacPrivateStat (SkPnmiGetStruct)
+   <...>-4593  1Dnh3    0us : MacPrivateStat (SkPnmiGetStruct)
+   <...>-4593  1Dnh3    0us : MacUpdate (MacPrivateStat)
+   <...>-4593  1Dnh3    0us : GetStatVal (MacPrivateStat)
+   <...>-4593  1Dnh3    0us : GetPhysStatVal (GetStatVal)
+   <...>-4593  1Dnh3    1us+: SkGmMacStatistic (GetPhysStatVal)
+   <...>-4593  1Dnh3    3us : MacPrivateStat (SkPnmiGetStruct)
+   <...>-4593  1Dnh3    3us : MacUpdate (MacPrivateStat)
+   <...>-4593  1Dnh3    3us : GetStatVal (MacPrivateStat)
+   <...>-4593  1Dnh3    3us : GetPhysStatVal (GetStatVal)
+   <...>-4593  1Dnh3    3us+: SkGmMacStatistic (GetPhysStatVal)
+   <...>-4593  1Dnh3    5us : MacPrivateStat (SkPnmiGetStruct)
+   <...>-4593  1Dnh3    6us : MacPrivateStat (SkPnmiGetStruct)
+   <...>-4593  1Dnh3    6us : MacUpdate (MacPrivateStat)
+   <...>-4593  1Dnh3    6us : GetStatVal (MacPrivateStat)
+   <...>-4593  1Dnh3    6us : GetPhysStatVal (GetStatVal)
+   <...>-4593  1Dnh3    6us+: SkGmMacStatistic (GetPhysStatVal)
+   <...>-4593  1Dnh3    8us : MacPrivateStat (SkPnmiGetStruct)
+   <...>-4593  1Dnh3    9us : MacUpdate (MacPrivateStat)
+   <...>-4593  1Dnh3    9us : GetStatVal (MacPrivateStat)
+   <...>-4593  1Dnh3    9us : GetPhysStatVal (GetStatVal)
+   <...>-4593  1Dnh3    9us+: SkGmMacStatistic (GetPhysStatVal)
+   <...>-4593  1Dnh3   11us : MacPrivateStat (SkPnmiGetStruct)
+   <...>-4593  1Dnh3   11us : MacPrivateStat (SkPnmiGetStruct)
+   <...>-4593  1Dnh3   12us : MacUpdate (MacPrivateStat)
+   <...>-4593  1Dnh3   12us : GetStatVal (MacPrivateStat)
+   <...>-4593  1Dnh3   12us : GetPhysStatVal (GetStatVal)
+   <...>-4593  1Dnh3   12us : MacPrivateStat (SkPnmiGetStruct)
+   <...>-4593  1Dnh3   12us : MacUpdate (MacPrivateStat)
+   <...>-4593  1Dnh3   12us : GetStatVal (MacPrivateStat)
+   <...>-4593  1Dnh3   13us : GetPhysStatVal (GetStatVal)
+   <...>-4593  1Dnh3   13us : MacPrivateStat (SkPnmiGetStruct)
+   <...>-4593  1Dnh3   13us : MacPrivateStat (SkPnmiGetStruct)
+   <...>-4593  1Dnh3   13us : MacUpdate (MacPrivateStat)
+   <...>-4593  1Dnh3   13us : GetStatVal (MacPrivateStat)
+   <...>-4593  1Dnh3   13us : GetPhysStatVal (GetStatVal)
+   <...>-4593  1Dnh3   13us : MacPrivateStat (SkPnmiGetStruct)
+   <...>-4593  1Dnh3   13us : MacUpdate (MacPrivateStat)
+   <...>-4593  1Dnh3   13us : GetStatVal (MacPrivateStat)
+   <...>-4593  1Dnh3   14us : GetPhysStatVal (GetStatVal)
+   <...>-4593  1Dnh3   14us : MacPrivateStat (SkPnmiGetStruct)
+   <...>-4593  1Dnh3   14us : MacPrivateStat (SkPnmiGetStruct)
+   <...>-4593  1Dnh3   14us : MacUpdate (MacPrivateStat)
+   <...>-4593  1Dnh3   14us : GetStatVal (MacPrivateStat)
+   <...>-4593  1Dnh3   14us : GetPhysStatVal (GetStatVal)
+   <...>-4593  1Dnh3   14us+: SkGmMacStatistic (GetPhysStatVal)
+   <...>-4593  1Dnh3   17us : GetStatVal (MacPrivateStat)
+   <...>-4593  1Dnh3   18us : GetPhysStatVal (GetStatVal)
+   <...>-4593  1Dnh3   18us : SkGmMacStatistic (GetPhysStatVal)
+   <...>-4593  1Dnh3   20us : GetStatVal (MacPrivateStat)
+   <...>-4593  1Dnh3   20us : GetPhysStatVal (GetStatVal)
+   <...>-4593  1Dnh3   20us+: SkGmMacStatistic (GetPhysStatVal)
+   <...>-4593  1Dnh3   22us : GetStatVal (MacPrivateStat)
+   <...>-4593  1Dnh3   22us : GetPhysStatVal (GetStatVal)
+   <...>-4593  1Dnh3   22us+: SkGmMacStatistic (GetPhysStatVal)
+   <...>-4593  1Dnh3   24us!: MacPrivateStat (SkPnmiGetStruct)
+softirq--8     0Dnh4 9901us : trace_change_sched_cpu (1 0 0)
+softirq--8     0Dnh4 9901us : _raw_spin_unlock (trace_change_sched_cpu)
+softirq--8     0Dnh3 9902us : enqueue_task (move_tasks)
+softirq--8     0Dnh3 9902us : resched_task (move_tasks)
+softirq--8     0Dnh3 9902us : _raw_spin_unlock (load_balance_newidle)
+softirq--8     0Dnh2 9902us : preempt_schedule (_raw_spin_unlock)
+   <...>-4797  0Dnh2 9903us : __switch_to (__schedule)
+   <...>-4797  0Dnh2 9904us : __schedule <softirq--8> (62 26)
+   <...>-4797  0Dnh2 9904us : _raw_spin_unlock_irq (__schedule)
+   <...>-4797  0...1 9904us : trace_stop_sched_switched (__schedule)
+   <...>-4797  0Dnh1 9905us : _raw_spin_lock (trace_stop_sched_switched)
+   <...>-4797  0Dnh2 9905us : trace_stop_sched_switched <<...>-4797> (26
+0)
+   <...>-4797  0Dnh2 9905us : trace_stop_sched_switched (__schedule)
 
-vmalloc_node(size, node)	-> Allocate necessary memory on the specified node
 
-and
 
-get_vm_area_node(size, flags, node)
 
-and the other functions that it depends on.
-
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
-
-Index: linux-2.6.14-rc2/include/linux/vmalloc.h
-===================================================================
---- linux-2.6.14-rc2.orig/include/linux/vmalloc.h	2005-09-19 20:00:41.000000000 -0700
-+++ linux-2.6.14-rc2/include/linux/vmalloc.h	2005-09-26 10:40:57.000000000 -0700
-@@ -32,22 +32,37 @@ struct vm_struct {
-  *	Highlevel APIs for driver use
-  */
- extern void *vmalloc(unsigned long size);
-+extern void *vmalloc_node(unsigned long size, int node);
- extern void *vmalloc_exec(unsigned long size);
- extern void *vmalloc_32(unsigned long size);
--extern void *__vmalloc(unsigned long size, unsigned int __nocast gfp_mask, pgprot_t prot);
--extern void *__vmalloc_area(struct vm_struct *area, unsigned int __nocast gfp_mask, pgprot_t prot);
--extern void vfree(void *addr);
-+extern void *__vmalloc(unsigned long size, unsigned int __nocast gfp_mask,
-+				pgprot_t prot);
-+extern void *__vmalloc_node(unsigned long size, unsigned int __nocast gfp_mask,
-+				pgprot_t prot, int node);
-+extern void *__vmalloc_area(struct vm_struct *area, unsigned int __nocast gfp_mask,
-+				pgprot_t prot, int node);
- 
-+extern void vfree(void *addr);
- extern void *vmap(struct page **pages, unsigned int count,
- 			unsigned long flags, pgprot_t prot);
- extern void vunmap(void *addr);
-- 
--/*
-- *	Lowlevel-APIs (not for driver use!)
-+
-+/**
-+ *      get_vm_area  -  reserve a contingous kernel virtual area
-+ *
-+ *      @size:          size of the area
-+ *      @flags:         %VM_IOREMAP for I/O mappings or VM_ALLOC
-+ *
-+ *      Search an area of @size in the kernel virtual mapping area,
-+ *      and reserved it for out purposes.  Returns the area descriptor
-+ *      on success or %NULL on failure.
-  */
--extern struct vm_struct *get_vm_area(unsigned long size, unsigned long flags);
- extern struct vm_struct *__get_vm_area(unsigned long size, unsigned long flags,
--					unsigned long start, unsigned long end);
-+					unsigned long start, unsigned long end, int node);
-+#define get_vm_area(__size, __flags) __get_vm_area((__size), (__flags), VMALLOC_START, \
-+				 VMALLOC_END, -1)
-+#define get_vm_area_node(__size, __flags, __node) __get_vm_area((__size), (__flags), \
-+				VMALLOC_START, VMALLOC_END, __node)
- extern struct vm_struct *remove_vm_area(void *addr);
- extern struct vm_struct *__remove_vm_area(void *addr);
- extern int map_vm_area(struct vm_struct *area, pgprot_t prot,
-Index: linux-2.6.14-rc2/mm/vmalloc.c
-===================================================================
---- linux-2.6.14-rc2.orig/mm/vmalloc.c	2005-09-19 20:00:41.000000000 -0700
-+++ linux-2.6.14-rc2/mm/vmalloc.c	2005-09-26 10:46:14.000000000 -0700
-@@ -5,6 +5,7 @@
-  *  Support of BIGMEM added by Gerhard Wichert, Siemens AG, July 1999
-  *  SMP-safe vmalloc/vfree/ioremap, Tigran Aivazian <tigran@veritas.com>, May 2000
-  *  Major rework to support vmap/vunmap, Christoph Hellwig, SGI, August 2002
-+ *  Numa awareness, Christoph Lameter, SGI, June 2005
-  */
- 
- #include <linux/mm.h>
-@@ -159,7 +160,7 @@ int map_vm_area(struct vm_struct *area, 
- }
- 
- struct vm_struct *__get_vm_area(unsigned long size, unsigned long flags,
--				unsigned long start, unsigned long end)
-+				unsigned long start, unsigned long end, int node)
- {
- 	struct vm_struct **p, *tmp, *area;
- 	unsigned long align = 1;
-@@ -178,7 +179,7 @@ struct vm_struct *__get_vm_area(unsigned
- 	addr = ALIGN(start, align);
- 	size = PAGE_ALIGN(size);
- 
--	area = kmalloc(sizeof(*area), GFP_KERNEL);
-+	area = kmalloc_node(sizeof(*area), GFP_KERNEL, node);
- 	if (unlikely(!area))
- 		return NULL;
- 
-@@ -231,21 +232,6 @@ out:
- 	return NULL;
- }
- 
--/**
-- *	get_vm_area  -  reserve a contingous kernel virtual area
-- *
-- *	@size:		size of the area
-- *	@flags:		%VM_IOREMAP for I/O mappings or VM_ALLOC
-- *
-- *	Search an area of @size in the kernel virtual mapping area,
-- *	and reserved it for out purposes.  Returns the area descriptor
-- *	on success or %NULL on failure.
-- */
--struct vm_struct *get_vm_area(unsigned long size, unsigned long flags)
--{
--	return __get_vm_area(size, flags, VMALLOC_START, VMALLOC_END);
--}
--
- /* Caller must hold vmlist_lock */
- struct vm_struct *__remove_vm_area(void *addr)
- {
-@@ -395,7 +381,8 @@ void *vmap(struct page **pages, unsigned
- 
- EXPORT_SYMBOL(vmap);
- 
--void *__vmalloc_area(struct vm_struct *area, unsigned int __nocast gfp_mask, pgprot_t prot)
-+void *__vmalloc_area(struct vm_struct *area, unsigned int __nocast gfp_mask,
-+			pgprot_t prot, int node)
- {
- 	struct page **pages;
- 	unsigned int nr_pages, array_size, i;
-@@ -406,9 +393,9 @@ void *__vmalloc_area(struct vm_struct *a
- 	area->nr_pages = nr_pages;
- 	/* Please note that the recursion is strictly bounded. */
- 	if (array_size > PAGE_SIZE)
--		pages = __vmalloc(array_size, gfp_mask, PAGE_KERNEL);
-+		pages = __vmalloc_node(array_size, gfp_mask, PAGE_KERNEL, node);
- 	else
--		pages = kmalloc(array_size, (gfp_mask & ~__GFP_HIGHMEM));
-+		pages = kmalloc_node(array_size, (gfp_mask & ~__GFP_HIGHMEM), node);
- 	area->pages = pages;
- 	if (!area->pages) {
- 		remove_vm_area(area->addr);
-@@ -418,7 +405,10 @@ void *__vmalloc_area(struct vm_struct *a
- 	memset(area->pages, 0, array_size);
- 
- 	for (i = 0; i < area->nr_pages; i++) {
--		area->pages[i] = alloc_page(gfp_mask);
-+		if (node < 0)
-+			area->pages[i] = alloc_page(gfp_mask);
-+		else
-+			area->pages[i] = alloc_pages_node(node, gfp_mask, 0);
- 		if (unlikely(!area->pages[i])) {
- 			/* Successfully allocated i pages, free them in __vunmap() */
- 			area->nr_pages = i;
-@@ -436,17 +426,18 @@ fail:
- }
- 
- /**
-- *	__vmalloc  -  allocate virtually contiguous memory
-+ *	__vmalloc_node  -  allocate virtually contiguous memory
-  *
-  *	@size:		allocation size
-  *	@gfp_mask:	flags for the page level allocator
-  *	@prot:		protection mask for the allocated pages
-+ *	@node		node to use for allocation or -1
-  *
-  *	Allocate enough pages to cover @size from the page level
-  *	allocator with @gfp_mask flags.  Map them into contiguous
-  *	kernel virtual space, using a pagetable protection of @prot.
-  */
--void *__vmalloc(unsigned long size, unsigned int __nocast gfp_mask, pgprot_t prot)
-+void *__vmalloc_node(unsigned long size, unsigned int __nocast gfp_mask, pgprot_t prot, int node)
- {
- 	struct vm_struct *area;
- 
-@@ -454,13 +445,18 @@ void *__vmalloc(unsigned long size, unsi
- 	if (!size || (size >> PAGE_SHIFT) > num_physpages)
- 		return NULL;
- 
--	area = get_vm_area(size, VM_ALLOC);
-+	area = get_vm_area_node(size, VM_ALLOC, node);
- 	if (!area)
- 		return NULL;
- 
--	return __vmalloc_area(area, gfp_mask, prot);
-+	return __vmalloc_area(area, gfp_mask, prot, node);
- }
-+EXPORT_SYMBOL(__vmalloc_node);
- 
-+void *__vmalloc(unsigned long size, unsigned int __nocast gfp_mask, pgprot_t prot)
-+{
-+	return __vmalloc_node(size, gfp_mask, prot, -1);
-+}
- EXPORT_SYMBOL(__vmalloc);
- 
- /**
-@@ -481,6 +477,25 @@ void *vmalloc(unsigned long size)
- 
- EXPORT_SYMBOL(vmalloc);
- 
-+/**
-+ *	vmalloc_node  -  allocate memory on a specific node
-+ *
-+ *	@size:		allocation size
-+ *	@node;		numa node
-+ *
-+ *	Allocate enough pages to cover @size from the page level
-+ *	allocator and map them into contiguous kernel virtual space.
-+ *
-+ *	For tight cotrol over page level allocator and protection flags
-+ *	use __vmalloc() instead.
-+ */
-+void *vmalloc_node(unsigned long size, int node)
-+{
-+       return __vmalloc_node(size, GFP_KERNEL | __GFP_HIGHMEM, PAGE_KERNEL, node);
-+}
-+
-+EXPORT_SYMBOL(vmalloc_node);
-+
- #ifndef PAGE_KERNEL_EXEC
- # define PAGE_KERNEL_EXEC PAGE_KERNEL
- #endif

@@ -1,97 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbVIZPJ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932251AbVIZPOG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932211AbVIZPJ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 11:09:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932250AbVIZPJ2
+	id S932251AbVIZPOG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 11:14:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbVIZPOG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 11:09:28 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:11142 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932211AbVIZPJ2 (ORCPT
+	Mon, 26 Sep 2005 11:14:06 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:43985 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S932251AbVIZPOG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 11:09:28 -0400
-Date: Mon, 26 Sep 2005 20:38:52 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Nishanth Aravamudan <nacc@us.ibm.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Tony Lindgren <tony@atomide.com>, Con Kolivas <kernel@kolivas.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, ck list <ck@vds.kolivas.org>
-Subject: Re: [PATCH 1/3] dynticks - implement no idle hz for x86
-Message-ID: <20050926150852.GC3448@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20050907073743.GB5804@atomide.com> <20050907150517.GC4590@us.ibm.com> <20050908100035.GD25847@atomide.com> <20050908212213.GB2997@us.ibm.com> <20050908220854.GE2997@us.ibm.com> <20050920110654.GA373@in.ibm.com> <20050920145856.GE6589@us.ibm.com> <1127396290.4903.43.camel@localhost.localdomain> <20050922145222.GD5910@us.ibm.com> <20050922183215.GB7744@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050922183215.GB7744@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 26 Sep 2005 11:14:06 -0400
+Message-Id: <200509261513.j8QFDpJf020527@zeus1.kernel.org>
+From: "Mr.Cheung Pui" <cheung131@caramail.com>
+To: linux-kernel@vger.kernel.org
+Reply-To: cheung121@caramail.com
+Subject: ASAP
+Date: Mon, 26 Sep 2005 16:13:58 +0100
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="e9285510-3583-48fa-b8de-d339d455daa6"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 23, 2005 at 12:02:15AM +0530, Srivatsa Vaddagiri wrote:
-> I feel this is a bit tricky on non-comparator based interrupt sources like
-> a decrementer on PPC64 or the local APIC timer.
 
-[snip]
+This is a multi-part message in MIME format
+--e9285510-3583-48fa-b8de-d339d455daa6
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-> We could consider passing absolute value to 'reprogram' (say 105), like below:
-> 
-> 	unsigned int dyn_tick_reprogram_timer(void)
-> 	{
-> 		int cpu = smp_processor_id();
-> 		unsigned long next, delta, seq;
-> 
-> 		cpu_set(cpu, nohz_cpu_mask);
-> 
-> 		smp_wmb();
-> 
-> 		if (rcu_pending(cpu) || local_softirq_pending()) {
-> 			cpu_clear(cpu, nohz_cpu_mask);
-> 			return 0;
-> 		}
-> 
-> 		do { 
-> 			read_seqbegin(&xtime_lock);
-> 	
-> 			next = next_timer_interrupt();
-> 			delta = next - jiffies;
-> 
-> 			if (delta < dyn_tick->min_skip) {
-> 				cpu_clear(cpu, nohz_cpu_mask);
-> 				return 0;
-> 			}
-> 
-> 			if (delta > dyn_tick->max_skip)
-> 				next = jiffies + dyn_tick->max_skip;
-> 
-> 		} while (read_seqretry(&xtime_lock, seq));
-> 
-> 		dyn_tick->reprogram(next);
-> 
-> 		return delta;
-> 	}
-> 	
-> 
-> Since reprogram has to convert it back to some relative number, it will need
-> to reference jiffy, which makes it racy and require the read_seqbegin/retry
-> based conversion to relative number.  I feel it is lot cleaner in such
-> a case to just take a write_lock(&xtime_lock) for the whole of 
-> dyn_tick_reprogram_timer.
+I am Mr.Cheung Pui. I represent Mr.Ho Siu-hoi,the former C.E.O and
+director-cum-shareholder of Au Kiang International Company Limited (Au
+Kiang) and Dero Enterprise Limited (Dero) in Hong Kong. I have a very
+sensitive and confidential brief from this top (executive) to ask for your
+partnership in re-profiling funds over $27.5 Million US dollars.I will give
+the details, but in summary, the funds are coming via Hang Seng Bank.The
+bank official website is :
+ www.hangseng.com.
+This is a legitimate transaction. You will be paid 10% for your
+"management fees".
+ If you are interested, please write me back by email:
+ cheung11@caramail.com
+Also, furnish me with your confidential telephone number,fax number and
+private email address and and I will provide further details and
+instructions.
+Please keep this confidential; we can't afford more political
+problems/scandals.
+ Finally, please note that this must be concluded  as soon aspossible.
+Please write back promptly.I will also suggest you visit this news site on
+the internet to be better informed about this project.
+ http://www.webb-site.com/art
+icles/0011.htm>
+ Write me back.I look forward to it.
+ Sincerely,
+ Mr.Cheung P.  
+--e9285510-3583-48fa-b8de-d339d455daa6--
 
-OTOH, write_seqlock is probably more heavier compared to read_seqlock. So 
-I am OK if we want to call 'reprogram' w/o any xtime_lock held and that
-routine internally uses a read_seqlock if it wants.
-
-Let me know what you guys think about this and the rest of the interface.
-If it seems Ok, I can post modified i386 patch based on this interface and
-would request Martin/Tony to do the S390/ARM ports.
-
-
--- 
-
-
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017

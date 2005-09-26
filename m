@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932430AbVIZInK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932434AbVIZIze@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932430AbVIZInK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 04:43:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbVIZInK
+	id S932434AbVIZIze (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 04:55:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbVIZIze
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 04:43:10 -0400
-Received: from silver.veritas.com ([143.127.12.111]:5693 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S932430AbVIZInJ
+	Mon, 26 Sep 2005 04:55:34 -0400
+Received: from xproxy.gmail.com ([66.249.82.206]:47314 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932434AbVIZIzd convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 04:43:09 -0400
-Date: Mon, 26 Sep 2005 09:42:34 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 17/21] mm: batch updating mm_counters
-In-Reply-To: <1127719503.5101.38.camel@npiggin-nld.site>
-Message-ID: <Pine.LNX.4.61.0509260939060.9937@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0509251644100.3490@goblin.wat.veritas.com> 
- <Pine.LNX.4.61.0509251707171.3490@goblin.wat.veritas.com>
- <1127719503.5101.38.camel@npiggin-nld.site>
+	Mon, 26 Sep 2005 04:55:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=UQnTRjZIfMYnsA+bWg9zeMVJb/KZO7E62OrA2wAFAtMkzNkoBomuPf9VMJk76W6+OsGzsmDtHPoJdjsvFFbUJGdeK82PTdoc4KDO/Hfj7nXib/lxI9nyJVmCt4aCp9N6kxxVL5rHSJGt4jeskc+3bJAfsRxfCWibybirobz4rxs=
+Message-ID: <309a667c05092601553a14a22@mail.gmail.com>
+Date: Mon, 26 Sep 2005 14:25:28 +0530
+From: devesh sharma <devesh28@gmail.com>
+Reply-To: devesh sharma <devesh28@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Please Help me out!!
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 26 Sep 2005 08:43:03.0514 (UTC) FILETIME=[4EDFB3A0:01C5C276]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Sep 2005, Nick Piggin wrote:
-> On Sun, 2005-09-25 at 17:08 +0100, Hugh Dickins wrote:
-> > -		copy_one_pte(dst_mm, src_mm, dst_pte, src_pte, vm_flags, addr);
-> > +		anon = copy_one_pte(dst_mm, src_mm, dst_pte, src_pte,
-> > +							vm_flags, addr);
-> > +		rss[anon]++;
-> 
-> How about passing rss[2] to copy_one_pte, and have that
-> increment the correct rss value accordingly? Not that
-> you may consider that any nicer than what you have here.
+Hi everyone,
+I am trying 2.6.9 kernel to boot with boot time option as numa=fake=2
+On intel xeon 64 bit 4 way SMP environment with 4GB Physical memory
+but I am getting an error
 
-That does seem a more _normal_ way of doing it.
+Kenel penic : not syncing : kmem_cache_create() failed
 
-Though adding a seventh argument doesn't appeal
-(perhaps irrelevant since copy_one_pte is inlined).
+I want to know whether numa=fake=N option is only available with AMD
+opteron 64bit installation? Or It is supported with Intel also? If yes
+then is there any limit of Physical memory after which this is
+supported?
 
-I don't mind much either way: anyone have strong feelings?
-
-Hugh
+Devesh

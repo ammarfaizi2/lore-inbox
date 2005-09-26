@@ -1,71 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751649AbVIZPyf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751650AbVIZP5D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751649AbVIZPyf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 11:54:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751650AbVIZPye
+	id S1751650AbVIZP5D (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 11:57:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751652AbVIZP5D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 11:54:34 -0400
-Received: from zproxy.gmail.com ([64.233.162.200]:51904 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751648AbVIZPye convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 11:54:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=dg+XlJm7A/hocXnnTGslS1o76XZFkChxAheVRUBCl7PhZENiOjOdvoKgsuFHg4p+neUQzfd5/PmEXE3IEhvEdmFL0ntDXmUDK77bzFsskhbBQ0VVQlRNIoT8CdCG7/Ci/iorHjqgHGL2IWMT/NkY+zPKXb4nYRg8bmuZ4JA5uHA=
-Message-ID: <9e473391050926085476c1582d@mail.gmail.com>
-Date: Mon, 26 Sep 2005 11:54:31 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Greg KH <greg@kroah.com>
-Subject: Re: usb-snd-audio breakage
-Cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050926150709.GB15781@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 26 Sep 2005 11:57:03 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:1287 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1751650AbVIZP5B (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 11:57:01 -0400
+Date: Mon, 26 Sep 2005 11:56:44 -0400
+From: Neil Horman <nhorman@tuxdriver.com>
+To: Al Boldi <a1426z@gawab.com>
+Cc: Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Resource limits
+Message-ID: <20050926155644.GC2100@hmsreliant.homelinux.net>
+References: <200509251712.42302.a1426z@gawab.com> <Pine.LNX.4.63.0509252335560.28108@cuia.boston.redhat.com> <200509261718.17658.a1426z@gawab.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <9e4733910509251927484a70c7@mail.gmail.com>
-	 <9e4733910509251943277f077a@mail.gmail.com>
-	 <20050926033805.GB22376@redhat.com>
-	 <9e473391050926063264010349@mail.gmail.com>
-	 <20050926150709.GB15781@kroah.com>
+In-Reply-To: <200509261718.17658.a1426z@gawab.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/26/05, Greg KH <greg@kroah.com> wrote:
-> On Mon, Sep 26, 2005 at 09:32:43AM -0400, Jon Smirl wrote:
-> > So module
->
-> That's up to that maintainer.
->
-> > and proc code
->
-> That is not true at all.
+On Mon, Sep 26, 2005 at 05:18:17PM +0300, Al Boldi wrote:
+> Rik van Riel wrote:
+> > On Sun, 25 Sep 2005, Al Boldi wrote:
+> > > Resource limits in Linux, when available, are currently very limited.
+> > >
+> > > i.e.:
+> > > Too many process forks and your system may crash.
+> > > This can be capped with threads-max, but may lead you into a lock-out.
+> > >
+> > > What is needed is a soft, hard, and a special emergency limit that would
+> > > allow you to use the resource for a limited time to circumvent a
+> > > lock-out.
+> > >
+> > > Would this be difficult to implement?
+> >
+> > How would you reclaim the resource after that limited time is
+> > over ?  Kill processes?
+> 
+> That's one way,  but really, the issue needs some deep thought.
+> Leaving Linux exposed to a lock-out is rather frightening.
+> 
+What exactly is it that you're worried about here?  Do you have a particular
+concern that a process won't be able to fork or create a thread?  Resources that
+can be allocated to user space processes always run the risk that their
+allocation will not succede.  Its up to the application to deal with that.
 
-In one of the older threads about this someone pointed out two places
-in /proc where it is done too. I tried searching for the message but I
-can't find it.
+> Neil Horman wrote:
+> > Whats insufficient about the per-user limits that can be imposed by the
+> > ulimit syscall?
+> 
+> Are they system wide or per-user?
+> 
+ulimits are per-user.
+Neil
 
-> > will strip white space, but sysfs won't strip white space. Where is
-> > the consistency?
->
-> If you want to strip whitespace for all of your subsystem's sysfs files,
-> a single function call will do this.
->
-> After thinking about this for a while, and seeing all of the different
-> iterations that the sysfs-whitespace-cleanup patch went through, I do
-> not want to add this to sysfs.  It is very easy to add this to a
-> subsystem, or even provide a generic function to do this if you want to
-> (I'd be glad to add that to the sysfs core) but it's not for the core of
-> sysfs to do for all files.
+> --
+> Al
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-I went through the iterations because I hadn't thought about the case
-where people were assigning multi-line CR terminated values to sysfs
-attributes and then using multiple reads to process the assignments
-one line at a time. I had thought that sysfs was only supposed to
-allow the assignment of single values.
-
---
-Jon Smirl
-jonsmirl@gmail.com
+-- 
+/***************************************************
+ *Neil Horman
+ *Software Engineer
+ *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
+ ***************************************************/

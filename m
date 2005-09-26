@@ -1,80 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751666AbVIZQdn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751668AbVIZQla@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751666AbVIZQdn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 12:33:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751667AbVIZQdn
+	id S1751668AbVIZQla (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 12:41:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751669AbVIZQl3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 12:33:43 -0400
-Received: from smtp.cs.aau.dk ([130.225.194.6]:25538 "EHLO smtp.cs.aau.dk")
-	by vger.kernel.org with ESMTP id S1751666AbVIZQdn (ORCPT
+	Mon, 26 Sep 2005 12:41:29 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:14998 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751665AbVIZQl3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 12:33:43 -0400
-Message-ID: <43382271.90400@cs.aau.dk>
-Date: Mon, 26 Sep 2005 18:31:45 +0200
-From: Emmanuel Fleury <fleury@cs.aau.dk>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
-X-Accept-Language: en-us, en
+	Mon, 26 Sep 2005 12:41:29 -0400
+Date: Mon, 26 Sep 2005 09:41:14 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
+Subject: Re: [PATCH 1/4] NTFS: Fix sparse warnings that have crept in over
+ time.
+In-Reply-To: <Pine.LNX.4.60.0509261654550.29344@hermes-1.csi.cam.ac.uk>
+Message-ID: <Pine.LNX.4.58.0509260926160.3308@g5.osdl.org>
+References: <Pine.LNX.4.60.0509261427520.32257@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.60.0509261431270.32257@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.58.0509260746130.3308@g5.osdl.org>
+ <Pine.LNX.4.60.0509261654550.29344@hermes-1.csi.cam.ac.uk>
 MIME-Version: 1.0
-To: Michael Bellion <mbellion@hipac.org>
-CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [ANNOUNCE] Release of nf-HiPAC 0.9.0
-References: <200509260445.46740.mbellion@hipac.org> <200509261638.12731.mbellion@hipac.org> <43380E4A.1060604@cs.aau.dk> <200509261803.28150.mbellion@hipac.org>
-In-Reply-To: <200509261803.28150.mbellion@hipac.org>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Bellion wrote:
+
+
+On Mon, 26 Sep 2005, Anton Altaparmakov wrote:
+> > 
+> > What was the warning that caused this (and the two other things that look 
+> > the same)?
 > 
-> Sorry, but this is far away from the worst case for your scheme. Actually it 
-> is a quite good case for your compiler, because every rule is fully specified 
-> (meaning there are no wildcards in any rule) and there are no ranges or masks 
-> involved. 
-> Try using a mixed rule set that contains rules that only specify certain 
-> dimensions and have wildcards on the other dimensions. Try using rules with 
-> ranges and masks.
-> Try using overlapping rules, meaning rules that completely or partly overlap 
-> other rules in certain dimensions.
-> This will make your data structure grow!
+> fs/ntfs/mft.c:2577:24: warning: incompatible types for operation (&)
+> fs/ntfs/mft.c:2577:24:    left side has type unsigned long long [unsigned] [usertype] <noident>
+> fs/ntfs/mft.c:2577:24:    right side has type bad type enum MFT_REF_CONSTS [toplevel] MFT_REF_MASK_CPU
+> fs/ntfs/mft.c:2577:24: warning: cast from unknown type
 
-I think you misunderstood our experiment. In fact, we were trying to
-generate as much possible different singletons on the domain (each of
-our rule was the header of a packet which have not been seen before),
-because if we can group these rules into intervals, then our scheme is
-having some advantages.
+Ok, not the most wonderful of error messages, I do have to admit ;)
 
-We were using IDD (Interval Decision Diagrams) which is a kind of
-extended BDD (Binary Decision Diagrams) where you take your decision by
-looking at a partition of the possible values of the variable. For
-example, looking at the value x in [0,1024] where [0,128] leads to one
-node in the decision tree, [129,256] to another and [257,1024] to a last
-one. More this partition is fragmented more you increase the size of the
-structure. Having a lot of overlap does certainly increase the number of
-partitions, but adding singletons is the simplest way to increase the
-number of partitions.
+That's sparse being very verbose and not saying a lot, but what happens is
+that the "enum" doesn't have a well-defined type, since the different 
+constants in the enum don't have compatible types.
 
-Take a look at this paper, maybe you can get some idea for your scheme
-(it might be that some hybrid between your ideas and ours can make it):
-http://www.cs.aau.dk/~fleury/download/papers/tc04.pdf
+So it's type ends up being a "bad type enum MFT_REF_CONSTS"
 
-> Yes, you are right. The HiPAC project has gone through some tough times over 
-> the last 2 years. With MARA Systems the HiPAC Project has finally found a 
-> strong partner that is fully committed to the concept of Open Source 
-> Software. This allows me to continue the development of HiPAC under the GNU 
-> GPL license.
+(It also prints out the name of the symbol with that type, which is why
+you also see the MFT_REF_MASK_CPU - the "[toplevel]" is just an internal 
+sparse bit saying that it was declared outside of any block scope).
 
-I'm always happy to see a firm funding some Open Source project. So, I
-can do anything else but wishing you good luck for the future. :)
+I'm actually a bit surprised that the cast even shut sparse up. It
+probably shouldn't have, and it should have complained about casting an
+unknown type even _with_ your added cast (ie I think it should have cut
+your four lines of warning down to one).
 
-> Ok, I'll do that :)
+Did it?
 
-Good. :)
+> > The issue? "enum" is really an integer type. As in "int". Trying to put a 
+> > larger value than one that fits in "int" is not guaranteed to work.
+> 
+> Yes, that is true but as you say it does work with gcc.
 
-Regards
--- 
-Emmanuel Fleury
+Yes, and sparse will actually conform to gcc behaviour. I think we had a 
+warning about it, but it's sadly quite common in the kernel ;p
 
-As usual, goodness hardly puts up a fight.
-  -- Calvin & Hobbes (Bill Waterson)
+So if the size of the constants was the only problem, sparse wouldn't 
+actually have complained.
+
+The reason it ended up complaining was that it couldn't promote the 
+different enum values to the same type. 
+
+I suspect it might be more readable had it complained at enum declaration
+time instead, since at that point it would have been able to describe
+_why_ it didn't like that enum a bit better. But the problem with that 
+approach is that then it complains whether the thing is used or not (and a 
+lot of things are bad only at usage time, so sparse tends to try to 
+delay any complaints as long as computerly possible).
+
+> > There's another issue, namely that the type of the snum is not only of 
+> > undefined size (is it the same size as an "int"? Is it an "unsigned long 
+> > long"?) but the "endianness" of it is also now totally undefined. You have 
+> > two different endiannesses inside the _same_ enum. What is the type of the 
+> > enum?
+> 
+> Good question.  "confused"?  (-;
+
+Well, in gcc it's clear: it's "unsigned long long".  Because gcc doesn't 
+know about little-endian vs big-endian.
+
+In sparse, it's not actually confused either, it's "enum of type
+bad_ctype". But the error message isn't very helpful unless you understand
+how sparse does that internally (that's why sparse says "right side has
+type bad type enum ..." - that "bad type enum" is the magic code-word)
+
+		Linus

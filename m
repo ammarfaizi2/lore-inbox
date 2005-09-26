@@ -1,58 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbVIZW3M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932512AbVIZWaz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932350AbVIZW3M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 18:29:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932493AbVIZW3L
+	id S932512AbVIZWaz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 18:30:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932516AbVIZWaz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 18:29:11 -0400
-Received: from mail.avalus.com ([195.82.114.197]:24754 "EHLO shed.alex.org.uk")
-	by vger.kernel.org with ESMTP id S932350AbVIZW3K (ORCPT
+	Mon, 26 Sep 2005 18:30:55 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:58788 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932512AbVIZWay (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 18:29:10 -0400
-Date: Mon, 26 Sep 2005 23:29:01 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Joel Schopp <jschopp@austin.ibm.com>, Andrew Morton <akpm@osdl.org>
-Cc: Joel Schopp <jschopp@austin.ibm.com>,
-       lhms <lhms-devel@lists.sourceforge.net>,
-       Linux Memory Management List <linux-mm@kvack.org>,
-       linux-kernel@vger.kernel.org, Mel Gorman <mel@csn.ul.ie>,
-       Mike Kravetz <kravetz@us.ibm.com>,
-       Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: [PATCH 4/9] defrag helper functions
-Message-ID: <C50046EE58FA62242E92877C@[192.168.100.25]>
-In-Reply-To: <43385594.3080303@austin.ibm.com>
-References: <4338537E.8070603@austin.ibm.com>
- <43385594.3080303@austin.ibm.com>
-X-Mailer: Mulberry/4.0.3 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 26 Sep 2005 18:30:54 -0400
+Date: Mon, 26 Sep 2005 18:30:37 -0400
+From: Dave Jones <davej@redhat.com>
+To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] When L3 is present show its size in /proc/cpuinfo
+Message-ID: <20050926223037.GN19275@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
+	Andrew Morton <akpm@osdl.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <20050926145956.B15625@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20050926145956.B15625@unix-os.sc.intel.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Sep 26, 2005 at 02:59:56PM -0700, Venkatesh Pallipadi wrote:
+ 
+ > The code that prints the cache size assumes that L3 always lives in chipset and
+ > is shared across CPUs. Which is not really true.
+ > 
+ > I think all the cachesizes reported by cpuid are in the processor itself.
+ > The attached patch changes the code to reflect that.
+ > 
+ > Dave, any idea where that original comment in the code came from?
 
+Been there for a long time iirc (Though I've not checked [my kingdom for
+a 'git annotate' tool])
 
---On 26 September 2005 15:09 -0500 Joel Schopp <jschopp@austin.ibm.com> 
-wrote:
+ > Are there any
+ > systems which reports the L3 cache size in cpuid, when L3 sits in northbridge?
 
-> +void assign_bit(int bit_nr, unsigned long* map, int value)
+Very unlikely.
+The only legacy system with L3 that I recall was the AMD K6-III (which had on-CPU L1/L2,
+though some motherboards at the time also included an L3 (or L2 if used with an earlier
+socket 7 cpu).  None of those off-cpu caches were detectable with cpuid, and
+required reading from pci config space to determine their size/status etc.
 
-Maybe:
-static inline void assign_bit(int bit_nr, unsigned long* map, int value)
+The big question I have though is how relevant that 'weighting' is today
+if we factor in L3.
 
-it's short enough
+		Dave
 
->  +static struct page *
-> +fallback_alloc(int alloctype, struct zone *zone, unsigned int order)
-> +{
-> +       /* Stub out for seperate review, NULL equates to no fallback*/
-> +       return NULL;
-> +
-> +}
-
-Maybe "static inline" too.
-
---
-Alex Bligh

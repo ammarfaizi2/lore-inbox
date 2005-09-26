@@ -1,44 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932459AbVIZSZr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932461AbVIZS0a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932459AbVIZSZr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 14:25:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932460AbVIZSZr
+	id S932461AbVIZS0a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 14:26:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932462AbVIZS0a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 14:25:47 -0400
-Received: from xenotime.net ([66.160.160.81]:47544 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932459AbVIZSZr (ORCPT
+	Mon, 26 Sep 2005 14:26:30 -0400
+Received: from mail.cs.unm.edu ([64.106.20.33]:23748 "EHLO mail.cs.unm.edu")
+	by vger.kernel.org with ESMTP id S932461AbVIZS03 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 14:25:47 -0400
-Date: Mon, 26 Sep 2005 11:25:45 -0700 (PDT)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Xose Vazquez Perez <xose.vazquez@gmail.com>
-cc: Randy Dunlap <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH 2.6.12 1/1] docs: updated some code docs
-In-Reply-To: <ee588a5405092611108a9d063@mail.gmail.com>
-Message-ID: <Pine.LNX.4.58.0509261122220.11898@shark.he.net>
-References: <ee588a54050726152014f56899@mail.gmail.com> 
- <16727.134.134.136.2.1122417419.squirrel@chretien.genwebhost.com>
- <ee588a5405092611108a9d063@mail.gmail.com>
+	Mon, 26 Sep 2005 14:26:29 -0400
+Date: Mon, 26 Sep 2005 12:26:20 -0600 (MDT)
+From: Sharma Sushant <sushant@cs.unm.edu>
+To: linux-kernel@vger.kernel.org
+Subject: APIC and Performance Counters
+Message-ID: <Pine.LNX.4.62.0509261208040.11499@husband.cs.unm.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Sep 2005, Xose Vazquez Perez wrote:
+Hello all,
+I was trying to do some performance monitoring using performance counters 
+on an AMD Athlon64. I am trying to count number of retired uops (0xC1h) 
+and I want to call a function after every n number of uops. I think I need 
+to use APIC for this purpose and specifically APIC register for 
+"perfromance counter local vector table entry" in which i can set up the 
+vector which will be sent for the interrupt source. Now I am not familiar 
+with setting up of vector table entries and the detailed process of how 
+can I do what I want. Can anyone give some pointers where I can find more 
+information on programming APIC with performance-monitoring counters or if 
+some one can explain it to me, I would be thankful.
+TIA
+-Sushant
+ps: please cc the reply to me.
 
-> ok, here it goes agains somethig called "Affluent Albatross" aka 2.6.14-rc2-git5
 
-All looks good to me except for this one line:
-
- Andrew Morton's patch scripts:
--http://www.zip.com.au/~akpm/linux/patches/patch-scripts-0.20                   +http://www.zip.com.au/~akpm/linux/patches/
-+Instead these ones, people should use quilt ASAP (see above).
-
-Make that last line something like:
-Instead of these (tools | scripts), quilt is the recommended
-patch management tool (see above).
-
--- 
-~Randy
+--
+Sushant Sharma

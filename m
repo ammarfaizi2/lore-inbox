@@ -1,32 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbVIZJPf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932438AbVIZJNL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932439AbVIZJPf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 05:15:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932440AbVIZJPf
+	id S932438AbVIZJNL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 05:13:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932439AbVIZJNL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 05:15:35 -0400
-Received: from pimout3-ext.prodigy.net ([207.115.63.102]:983 "EHLO
-	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S932439AbVIZJPf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 05:15:35 -0400
-X-ORBL: [67.124.117.85]
-Date: Mon, 26 Sep 2005 02:14:56 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Christoph Hellwig <hch@infradead.org>, Brian Gerst <bgerst@didntduck.org>,
-       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] CONFIG_IA32
-Message-ID: <20050926091456.GB26983@taniwha.stupidest.org>
-References: <4335DD14.7090909@didntduck.org> <20050925100525.GA14741@infradead.org> <Pine.LNX.4.61.0509251116430.1684@montezuma.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0509251116430.1684@montezuma.fsmlabs.com>
+	Mon, 26 Sep 2005 05:13:11 -0400
+Received: from web8403.mail.in.yahoo.com ([202.43.219.151]:8791 "HELO
+	web8403.mail.in.yahoo.com") by vger.kernel.org with SMTP
+	id S932438AbVIZJNL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 05:13:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.co.in;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=iLfjgNRq4a+LGG7DZQ6U5C1e85nuX6uw4ldcHqXkG+v14BVfb/x7Amr1+yVc8SHp+Sq+ppGsvtM24H4IYBHpx2ypJ/qQfjRMeh0OlfaKhKb/oAqMK7Xtxxy1napSjk0ipA7PZTPAcN5Og379UOMRarD3S2GQbmkmFAhRkph2wmw=  ;
+Message-ID: <20050926091302.10847.qmail@web8403.mail.in.yahoo.com>
+Date: Mon, 26 Sep 2005 10:13:02 +0100 (BST)
+From: vikas gupta <vikas_gupta51013@yahoo.co.in>
+Subject: Re: AIO Support and related package information??
+To: =?iso-8859-1?q?S=E9bastien=20Dugu=E9?= <sebastien.dugue@bull.net>
+Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org, bcrl@kvack.org
+In-Reply-To: <1127725191.2069.17.camel@frecb000686>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 25, 2005 at 11:18:18AM -0700, Zwane Mwaikambo wrote:
+hi sebastien,
 
-> ia32 has been in use much longer than x86_32 and more ubiquitous.
+> 
+>>   Have a look at:
+>>
+http://www.bullopensource.org/posix/Bench/sysbench->oltp/sysbench.html
+>> for benchmarks using Sysbench and MySQL.
 
-ia32 is confusing when you consider ia32el
+I think this link is broken as it is not working ...
+Can you please check it ....
+
+>> > 2.1) aio_read/aio_write  is supported but what
+>> > limitation are there
+>> 
+>>   Supported but without notification (SIGEV_NONE
+>> only).
+
+Can you please tell whether kernel behaves
+asynchronously for read operation without O_DIRECT
+MACRO's ???
+
+> > 4) Is there any test program that can measure
+> > efficiency for both glibc and libposix
+> implementation
+> 
+>   I personally use Sysbench and have compiled 3
+> MySQL servers,
+> one with librt AIO, one with libposix-aio and one
+> with MySQL
+> native simulated AIO.
+> 
+>   You may also try iozone.
+
+Can you please tell which one is better among three
+that you have tested 
+
+4) Is there any simple procedure to test the above
+mentioned library packages ???
+
+WITH THANKS IN ADVANCE 
+
+vIKAS 
+
+
+		
+__________________________________________________________ 
+Yahoo! India Matrimony: Find your partner now. Go to http://yahoo.shaadi.com

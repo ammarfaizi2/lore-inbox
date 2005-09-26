@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932381AbVIZFS2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932385AbVIZFTb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932381AbVIZFS2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 01:18:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbVIZFS2
+	id S932385AbVIZFTb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 01:19:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbVIZFTb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 01:18:28 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:45780 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932381AbVIZFST
+	Mon, 26 Sep 2005 01:19:31 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:47572 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932388AbVIZFT3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 01:18:19 -0400
-To: torvalds@odsl.org
+	Mon, 26 Sep 2005 01:19:29 -0400
+To: torvalds@osdl.org
 Subject: [PATCH] m32r: missing  __iomem in ioremap() declaration
 Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
-Message-Id: <E1EJlNa-00059c-Kt@ZenIV.linux.org.uk>
+Message-Id: <E1EJlOi-0005A2-JD@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Mon, 26 Sep 2005 06:18:18 +0100
+Date: Mon, 26 Sep 2005 06:19:28 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 

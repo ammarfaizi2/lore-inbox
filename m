@@ -1,148 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbVIZOGR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbVIZOGx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932136AbVIZOGR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 10:06:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbVIZOGR
+	id S932130AbVIZOGx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 10:06:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbVIZOGx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 10:06:17 -0400
-Received: from web8402.mail.in.yahoo.com ([202.43.219.150]:58984 "HELO
-	web8402.mail.in.yahoo.com") by vger.kernel.org with SMTP
-	id S932136AbVIZOGQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 10:06:16 -0400
+	Mon, 26 Sep 2005 10:06:53 -0400
+Received: from zproxy.gmail.com ([64.233.162.201]:13917 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932130AbVIZOGw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 10:06:52 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.co.in;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=seUqc39DiSSA98uSupHRw/+i9L/h4+BUy71AyaoE8oZ0332VtLrPm9hafAYQCW6Vkv2BtVFrOy786FwesKuzeuLnRkyheYt5zroY3rB4BjCC1fKdXaSPVz2KNvK47lgAh/NtNPt+BQqF0g/GmO1jf8zHOJjha7NGyrt38jCTFH8=  ;
-Message-ID: <20050926140613.75109.qmail@web8402.mail.in.yahoo.com>
-Date: Mon, 26 Sep 2005 15:06:13 +0100 (BST)
-From: vikas gupta <vikas_gupta51013@yahoo.co.in>
-Subject: Re: AIO Support and related package information??
-To: =?iso-8859-1?q?S=E9bastien=20Dugu=E9?= <sebastien.dugue@bull.net>
-Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org, bcrl@kvack.org
-In-Reply-To: <1127742313.2103.27.camel@frecb000686>
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=PP6iwy6eR+ycicJsUp5f/n5RII2WNj1fULHHMvriKwLvD6zd2org4ubHIcET8eafRoelEzTvVHij31IxxGJLCMlMiZaenWwS28pmNcnTdMy+kbfTVOqm1srAD6wy2cDx033q0RwN8XnaGaHiMHle2oN0Ltz0l2E5jSiHS8nj/Dw=
+Message-ID: <43380074.4050705@gmail.com>
+Date: Mon, 26 Sep 2005 16:06:44 +0200
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+User-Agent: Thunderbird 1.4 (X11/20050908)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Ahmad Reza Cheraghi <a_r_cheraghi@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Automatic Configuration of a Kernel
+References: <20050926120850.30349.qmail@web51012.mail.yahoo.com>
+In-Reply-To: <20050926120850.30349.qmail@web51012.mail.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Sebastien
+Ahmad Reza Cheraghi wrote:
+> Hi folks,
+>
+> For my EndThesis, in the Niederrhein University of
+> Applied Sciences, I've almost finished a framework
+> that generates a .config file based on the target
+> system.This program should help people to generate a
+> linux kernel Config without spending a lot of time at
+> the configuration.
+[snip]
 
-Thanks for Your reply .. I am now trying for that
-Sysbench ..
+> Any comments and suggestions are welcome !
+Unfortunately your patches are wordwraped.
 
-In the mean time i have executed test cases that are
-under check folder in libposix package ...
-Well I am getting following result ...
-----------------------------------------------------
-aio_cancel
-aio_cancel: cancel error : 11 (Resource temporarily
-unavailable)
-
-real	0m0.017s
-user	0m0.001s
-sys	0m0.002s
-aio_cancel_fd
-aio_cancel_fd: cancel returned AIO_NOTCANCELED
-
-real	0m0.004s
-user	0m0.003s
-sys	0m0.002s
-aio_fsync
-aio_fsync: fsync error 22 (Invalid argument)
-
-real	0m0.003s
-user	0m0.001s
-sys	0m0.002s
-aio_read_one
-
-real	0m0.004s
-user	0m0.001s
-sys	0m0.003s
-aio_read_one_sig
-aio_read_one_sig: aio_read error: Invalid argument
-
-real	0m0.003s
-user	0m0.001s
-sys	0m0.002s
-aio_read_one_thread
-aio_read_one_thread: aio_read error: Invalid argument
-
-real	0m0.003s
-user	0m0.000s
-sys	0m0.003s
-aio_read_one_thread_id
-aio_read_one_thread_id: aio_read error: Invalid
-argument
-
-real	0m0.003s
-user	0m0.000s
-sys	0m0.003s
-aio_suspend
-aio_suspend: lio_listio failed (Invalid argument)
-
-real	0m0.003s
-user	0m0.000s
-sys	0m0.003s
-aio_suspend_timeout
-aio_suspend_timeout: lio_listio failed (Invalid
-argument)
-
-real	0m0.003s
-user	0m0.000s
-sys	0m0.003s
-aio_write_one
-
-real	0m0.004s
-user	0m0.000s
-sys	0m0.004s
-aio_write_one_sig
-aio_write_one_sig: aio_write error: Invalid argument
-
-real	0m0.003s
-user	0m0.001s
-sys	0m0.002s
-aio_write_one_thread
-aio_write_thread: aio_write error: Invalid argument
-
-real	0m0.003s
-user	0m0.002s
-sys	0m0.002s
-aio_write_one_thread_id
-aio_write_one_thread_id: aio_write error: Invalid
-argument
-
-real	0m0.003s
-user	0m0.000s
-sys	0m0.003s
-lio_listio_nowait
-lio_listio_nowait: lio_listio failed: Invalid argument
-
-real	0m0.003s
-user	0m0.001s
-sys	0m0.002s
-lio_listio_wait
-lio_listio_wait: lio_listio failed: Invalid argument
-
-real	0m0.003s
-user	0m0.001s
-sys	0m0.002s
---------------------------------------
-Apart from that two test cases aio_read_one_thread_id
-and aio_write_one_thread_id are hanging ...
-
-Can You please justify this behaviour ....
-As most of the testcases are giving either
-error(Invalid Argument ..) 
-
-I have also executed same test cases for glibc but
-their it is not showing this behaviour ...???
-
-Thanks in advance 
-
-
-
-
-		
-__________________________________________________________ 
-Yahoo! India Matrimony: Find your partner now. Go to http://yahoo.shaadi.com
+Regards,
+Michal Piotrowski

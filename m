@@ -1,95 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbVIZWIm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932382AbVIZWWJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932347AbVIZWIm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 18:08:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932350AbVIZWIl
+	id S932382AbVIZWWJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 18:22:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932384AbVIZWWJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 18:08:41 -0400
-Received: from fmr16.intel.com ([192.55.52.70]:11757 "EHLO
-	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
-	id S932347AbVIZWIk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 18:08:40 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C5C2E6.CFE9161F"
-Subject: RE: [patch 2.6.14-rc2 0/5] swiotlb maintenance and x86_64 dma_sync_single_range_for_{cpu,device}
-Date: Mon, 26 Sep 2005 15:08:23 -0700
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F047E9021@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch 2.6.14-rc2 0/5] swiotlb maintenance and x86_64 dma_sync_single_range_for_{cpu,device}
-Thread-Index: AcXC5PhySuCoonJER2aST1ORqjjl+wAAGPRA
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "John W. Linville" <linville@tuxdriver.com>,
-       "Matthew Wilcox" <matthew@wil.cx>
-Cc: <linux-kernel@vger.kernel.org>, <discuss@x86-64.org>,
-       <linux-ia64@vger.kernel.org>, <linux-pci@atrey.karlin.mff.cuni.cz>,
-       <ak@suse.de>, "Mallick, Asit K" <asit.k.mallick@intel.com>,
-       <gregkh@suse.de>
-X-OriginalArrivalTime: 26 Sep 2005 22:08:25.0014 (UTC) FILETIME=[D0BB7560:01C5C2E6]
+	Mon, 26 Sep 2005 18:22:09 -0400
+Received: from florence.buici.com ([206.124.142.26]:64178 "HELO
+	florence.buici.com") by vger.kernel.org with SMTP id S932382AbVIZWWI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 18:22:08 -0400
+Date: Mon, 26 Sep 2005 15:22:07 -0700
+From: Marc Singer <elf@buici.com>
+To: Franck <vagabon.xyz@gmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: questions on discontgmem.
+Message-ID: <20050926222207.GA987@buici.com>
+References: <cda58cb8050926114675524d59@mail.gmail.com> <20050926191921.GA25724@buici.com> <cda58cb805092612573bedb88d@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cda58cb805092612573bedb88d@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Mon, Sep 26, 2005 at 09:57:10PM +0200, Franck wrote:
+> 2005/9/26, Marc Singer <elf@buici.com>:
+> > On Mon, Sep 26, 2005 at 08:46:34PM +0200, Franck wrote:
+> > > Hi,
+> > >
+> > > I'd like to use discontigmem to access several RAM memories on an _no_
+> > > NUMA embedded system. In that case, does a node  mean a single RAM
+> > > whose start address is very different from the others ?
+> >
+> > I don't know what you mean by this.  The difference between
+> > discontiguous memory and non-discontiguous [sic] memory is that, well,
+> > the latter is contiguous.  If you have 64MiB of RAM, it is addressed
+> > starting at a base address and all 64 MiB's of addresses following it
+> > are valid.
+> >
+> > Discontiguous memory means that that isn't true, there is more than
+> > one start address with gaps of addresses between them which are either
+> > invalid, or which are aliases of other addresses.
+> >
+> 
+> yeah, I know what is discontiguous memory. What I'm trying to ask is:
+> in this case (discontiguous memory), the kernel seems to describe each
+> memory with a single node (cf alloc_page_node for instance). Unlike
+> for NUMA system where several memories can belong to the same node. Is
+> that correct ?
 
-------_=_NextPart_001_01C5C2E6.CFE9161F
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+I don't know what you mean by a 'memory'.  Are you talking about an
+IC?  If so, Linux doesn't care about the physical expression of memory
+hardware.  It only cares about the addresses of the RAM and, possibly,
+performance characteristics of that access.  I write possibly because
+I've not worked with that attribute of discontigmem.
 
->Well, now, this is a quandry isn't it...  Actually, I'm inclined to
->agree with you.
->
->Tony, et al., care to restate your reasoning for moving it under
->drivers/pci?
+There is a potential misunderstanding in how discontigmem really
+works.  There may be a memory system which is truly discontiguous, but
+that uses a single node.  It is wasteful because the node tables are
+accessed as arrays, so non-existent pages require data structure space
+just as existent ones do.
 
-Historically swiotlb.c was written with just PCI in mind (hence
-all the comments ("... implement the PCI DMA API",  "The PCI address
-to use is returned", "teardown the PCI dma mapping") and a few
-error messages ("PCI-DMA: Out of SW-IOMMU space ...", "PCI-DMA: Memory
-would be corrupted", "PCI-DMA: Random memory would be DMAed").
-Perhaps back then the only options were PCI and ISA????
+With discontigmem, we can use multiple nodes in order to cluster pages
+and eliminate unused array entries.  Assuming that this is *not* done
+for the sake of differing memory access times, the advantage is in
+saving node table space.  There are macros in the architecture/machine
+specific include files that create the mapping between physical
+addresses and nodes/pages.  At least, that's how ARM does it.
 
-Matthew is probably technically right in that this is a more
-generic interface ... but is it actually being used for anything
-other than PCI?  Will it ever be so used?
+> If so, how does the kernel select a node when allocating a page for a UMA ?
 
-Ignoring the comments and error messages, the attached patch
-removed the <linux/pci.h> and <asm/pci.h> includes (and adds a
-couple of others that are then needed, and converts a few
-PCI_DMA_* defines to DMA_* ones that sound like they mean the
-same thing).  Compiles, but not tested.
+Perhaps someone else can fill in that part.  I've been assuming that
+pages with equivalent access times are put in zones, on free-page
+lists and allocated as needed.  Nothing special is done with respect
+to the different discontigmem nodes.
 
--Tony
-
-------_=_NextPart_001_01C5C2E6.CFE9161F
-Content-Type: application/octet-stream;
-	name="sw.patch"
-Content-Transfer-Encoding: base64
-Content-Description: sw.patch
-Content-Disposition: attachment;
-	filename="sw.patch"
-
-LS0tIGEvYXJjaC9pYTY0L2xpYi9zd2lvdGxiLmMJMjAwNS0wOS0yNiAxMzowMzowNC4wMDAwMDAw
-MDAgLTA3MDAKKysrIGIvYXJjaC9pYTY0L2xpYi9zd2lvdGxiLmMJMjAwNS0wOS0yNiAxNDo1NDoz
-OC4wMDAwMDAwMDAgLTA3MDAKQEAgLTE1LDE3ICsxNSwxNyBAQAogICovCiAKICNpbmNsdWRlIDxs
-aW51eC9jYWNoZS5oPgorI2luY2x1ZGUgPGxpbnV4L2RtYS1tYXBwaW5nLmg+CiAjaW5jbHVkZSA8
-bGludXgvbW0uaD4KICNpbmNsdWRlIDxsaW51eC9tb2R1bGUuaD4KLSNpbmNsdWRlIDxsaW51eC9w
-Y2kuaD4KICNpbmNsdWRlIDxsaW51eC9zcGlubG9jay5oPgogI2luY2x1ZGUgPGxpbnV4L3N0cmlu
-Zy5oPgogI2luY2x1ZGUgPGxpbnV4L3R5cGVzLmg+CiAjaW5jbHVkZSA8bGludXgvY3R5cGUuaD4K
-IAogI2luY2x1ZGUgPGFzbS9pby5oPgotI2luY2x1ZGUgPGFzbS9wY2kuaD4KICNpbmNsdWRlIDxh
-c20vZG1hLmg+CisjaW5jbHVkZSA8YXNtL3NjYXR0ZXJsaXN0Lmg+CiAKICNpbmNsdWRlIDxsaW51
-eC9pbml0Lmg+CiAjaW5jbHVkZSA8bGludXgvYm9vdG1lbS5oPgpAQCAtMzkxLDkgKzM5MSw5IEBA
-CiAJICAgICAgICJkZXZpY2UgJXNcbiIsIHNpemUsIGRldiA/IGRldi0+YnVzX2lkIDogIj8iKTsK
-IAogCWlmIChzaXplID4gaW9fdGxiX292ZXJmbG93ICYmIGRvX3BhbmljKSB7Ci0JCWlmIChkaXIg
-PT0gUENJX0RNQV9GUk9NREVWSUNFIHx8IGRpciA9PSBQQ0lfRE1BX0JJRElSRUNUSU9OQUwpCisJ
-CWlmIChkaXIgPT0gRE1BX0ZST01fREVWSUNFIHx8IGRpciA9PSBETUFfQklESVJFQ1RJT05BTCkK
-IAkJCXBhbmljKCJQQ0ktRE1BOiBNZW1vcnkgd291bGQgYmUgY29ycnVwdGVkXG4iKTsKLQkJaWYg
-KGRpciA9PSBQQ0lfRE1BX1RPREVWSUNFIHx8IGRpciA9PSBQQ0lfRE1BX0JJRElSRUNUSU9OQUwp
-CisJCWlmIChkaXIgPT0gRE1BX1RPX0RFVklDRSB8fCBkaXIgPT0gRE1BX0JJRElSRUNUSU9OQUwp
-CiAJCQlwYW5pYygiUENJLURNQTogUmFuZG9tIG1lbW9yeSB3b3VsZCBiZSBETUFlZFxuIik7CiAJ
-fQogfQo=
-
-------_=_NextPart_001_01C5C2E6.CFE9161F--
+Cheers.

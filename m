@@ -1,73 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932149AbVIZO5W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750983AbVIZPEH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932149AbVIZO5W (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 10:57:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbVIZO5W
+	id S1750983AbVIZPEH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 11:04:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751640AbVIZPEG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 10:57:22 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:55019 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932149AbVIZO5W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 10:57:22 -0400
-Date: Mon, 26 Sep 2005 07:57:09 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
-Subject: Re: [PATCH 1/4] NTFS: Fix sparse warnings that have crept in over
- time.
-In-Reply-To: <Pine.LNX.4.60.0509261431270.32257@hermes-1.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.58.0509260746130.3308@g5.osdl.org>
-References: <Pine.LNX.4.60.0509261427520.32257@hermes-1.csi.cam.ac.uk>
- <Pine.LNX.4.60.0509261431270.32257@hermes-1.csi.cam.ac.uk>
+	Mon, 26 Sep 2005 11:04:06 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:38556 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S1750983AbVIZPEF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 11:04:05 -0400
+Message-ID: <43380DD8.8010200@namesys.com>
+Date: Mon, 26 Sep 2005 19:03:52 +0400
+From: "Vladimir V. Saveliev" <vs@namesys.com>
+Organization: Namesys
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Christoph Hellwig <hch@infradead.org>
+CC: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ReiserFS Mailing List <reiserfs-list@namesys.com>,
+       Hans Reiser <reiser@namesys.com>
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+References: <432AFB44.9060707@namesys.com> <20050916174028.GA32745@infradead.org>
+In-Reply-To: <20050916174028.GA32745@infradead.org>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello
 
+Christoph Hellwig wrote:
+> more trivial review comments ontop of the previous one, after looking
+> at things:
+> 
+>  - please never use list_for_each in new code but list_for_each_entry
 
-On Mon, 26 Sep 2005, Anton Altaparmakov wrote:
->
-> NTFS: Fix sparse warnings that have crept in over time.
+done
 
-I think this is wrong.
+>  - never use kernel_thread in new code but kthread_*
 
-What was the warning that caused this (and the two other things that look 
-the same)?
+done
 
->  #define MK_MREF(m, s)	((MFT_REF)(((MFT_REF)(s) << 48) |		\
-> -					((MFT_REF)(m) & MFT_REF_MASK_CPU)))
-> +					((MFT_REF)(m) & (u64)MFT_REF_MASK_CPU)))
+>  - do_sendfile duplicates the common sendfile code.  why aren't you
+>    using the generic code?
 
-Also, side note: how you defined "MFT_REF_MASK_CPU" is pretty debatable in 
-the first place:
+fixed to use generic code.
 
-	typedef enum {
-	        MFT_REF_MASK_CPU        = 0x0000ffffffffffffULL,
-	        MFT_REF_MASK_LE         = const_cpu_to_le64(0x0000ffffffffffffULL),
-	} MFT_REF_CONSTS;
+>  - there's tons of really useless assertation of the category
+>    discussed in the last thread
+>  - there's tons of deep pagecache messing in there.  normally this
+>    shouldn't be a filesystem, and if this breaks because of VM changes you'll
+>    have to fix it, don't complain..
 
-and this just _happens_ to work with gcc, but it's not real C.
+we are also not very happy with it. We will not complain, but try to simplify it.
 
-The issue? "enum" is really an integer type. As in "int". Trying to put a 
-larger value than one that fits in "int" is not guaranteed to work.
+>  - you still do your plugin mess in ->readpage.  honsetly could you
+>    please explain why mpage_readpage{,s} don't work for you?
 
-There's another issue, namely that the type of the snum is not only of 
-undefined size (is it the same size as an "int"? Is it an "unsigned long 
-long"?) but the "endianness" of it is also now totally undefined. You have 
-two different endiannesses inside the _same_ enum. What is the type of the 
-enum?
+The reason is performance. Reiser4 uses a search through the filesystem tree to
+access metadata of a file.
+If reiser4 implemented its read/write via generic functions it would have to
+repeat the search for every page being read/written.
+It is especially disappointing because reiser4 uses extents with which it is
+able in most cases to find all file pointers to data blocks with only one search
+through the tree.
+Another reason is multithread load.
+Tree search includes complex part of providing correct concurrent read/write
+access to the tree including deadlock avoidance algorithm. On multithread
+filesystem load minimizing of a number of tree searches should have improved
+filesystem throughput.
 
-You _really_ probably should use just
+These are on todo list yet.
+>  - (issues with the read/write path already addresses in the previous thread)
+>  - looking at ->d_count in ->release is wrong
+>  - still has security plugin stuff that duplicates LSM
+>  - why do underlying attributes change when VFS inode doesn't change?
+>    if not please rip out most of getattr_common
+>  - link_common S_ISDIR doesn't make sense, VFS takes care of it
+>  - please use the generic_readlink infrastructure
+> 
+> additinoal comment is that the code is very messy, very different
+> from normal kernel style, full of indirections and thus hard to read.
+> real review will take some time.
 
-	#define MFT_REF_MASK_CPU 0x0000ffffffffffffULL
-	#define MFT_REF_MASK_LE const_cpu_to_le64(MFT_REF_MASK_CPU)
+We hope to improve that with your help
 
-instead. That way the type of that thing is well-defined.
-
-Depending on what warning you're trying to shut up, that may well fix it 
-too. Because now "MFT_REF_MASK_CPU" is clearly a regular constant, while 
-MFT_REF_MASK_LE is clearly a little-endian constant. Before, they were of 
-the same enum type, which made it very unclear what the hell they were.
-
-		Linus
+Thanks

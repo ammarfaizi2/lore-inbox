@@ -1,53 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932411AbVIZGjh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932409AbVIZGl5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932411AbVIZGjh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 02:39:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbVIZGjh
+	id S932409AbVIZGl5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 02:41:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbVIZGl5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 02:39:37 -0400
-Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:20873 "HELO
-	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932411AbVIZGjh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 02:39:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Subject:From:To:Cc:In-Reply-To:References:Content-Type:Date:Message-Id:Mime-Version:X-Mailer:Content-Transfer-Encoding;
-  b=SpWtq1fjkbgb2L0Zr1Ef/fe/icsjptuYgeop14pAiKsU00yx6RTAY2TIxgw6HfVZLW4+R2nDNXoFhIYABoZK5xlUs6iAVVMNphBOX7FHPlznXnycvefE6uceQrsOPavonUe7lvx4hphCToY4UfkyMn1GlcYLNwTWkw3oEdU+rWo=  ;
-Subject: Re: [PATCH] RT: Checks for cmpxchg in get_task_struct_rcu()
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: dwalker@mvista.com, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050926062631.GE3273@elte.hu>
-References: <1127345874.19506.43.camel@dhcp153.mvista.com>
-	 <433201FC.8040004@yahoo.com.au>  <20050926062631.GE3273@elte.hu>
-Content-Type: text/plain
-Date: Mon, 26 Sep 2005 16:39:13 +1000
-Message-Id: <1127716753.5101.25.camel@npiggin-nld.site>
+	Mon, 26 Sep 2005 02:41:57 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:58084 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932409AbVIZGl5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 02:41:57 -0400
+Date: Mon, 26 Sep 2005 08:42:46 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Serge Noiraud <serge.noiraud@bull.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RT bug with 2.6.13-rt4 and 3c905c tornado
+Message-ID: <20050926064246.GC3472@elte.hu>
+References: <200509201046.17818.Serge.Noiraud@bull.net> <20050920085532.GA19807@elte.hu> <200509221554.02765.Serge.Noiraud@bull.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200509221554.02765.Serge.Noiraud@bull.net>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-09-26 at 08:26 +0200, Ingo Molnar wrote:
-> * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> 
-> > You need my atomic_cmpxchg patches that provide an atomic_cmpxchg (and 
-> > atomic_inc_not_zero) for all architectures.
-> 
-> yeah. When will they be merged upstream?
-> 
 
-Well they're in -mm now, you can put them in your RT tree until they're
-in mainline... I guess realistically, 2.6.15. They should blow up fairly
-quickly if there are any problems with them, but they simply need a bit
-of testing on all architectures which I cannot do and I suspect even -mm
-isn't tested on at least half of them.
+could you try -rt2, do the lockups still occur? If it locks up then 
+could you try one more thing: boot -rt2 _without_ the NMI watchdog 
+enabled. Maybe the NMI watchdog itself got broken. (it happens 
+occasionally)
 
-
--- 
-SUSE Labs, Novell Inc.
-
-
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+	Ingo

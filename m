@@ -1,42 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbVIZHAT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932417AbVIZHBd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932415AbVIZHAT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 03:00:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932417AbVIZHAT
+	id S932417AbVIZHBd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 03:01:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932419AbVIZHBd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 03:00:19 -0400
-Received: from idefix.CeNTIE.NET.au ([202.9.6.83]:16260 "HELO idefix")
-	by vger.kernel.org with SMTP id S932415AbVIZHAS (ORCPT
+	Mon, 26 Sep 2005 03:01:33 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:49849 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932417AbVIZHBd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 03:00:18 -0400
-Subject: Re: Suspend to RAM broken with 2.6.13
-From: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050923163200.GC8946@openzaurus.ucw.cz>
-References: <1127347633.25357.49.camel@idefix.homelinux.org>
-	 <20050923163200.GC8946@openzaurus.ucw.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: =?ISO-8859-1?Q?Universit=E9?= de Sherbrooke
-Date: Mon, 26 Sep 2005 16:59:57 +1000
-Message-Id: <1127717997.16318.2.camel@142.163.233.220.exetel.com.au>
+	Mon, 26 Sep 2005 03:01:33 -0400
+Date: Mon, 26 Sep 2005 09:02:10 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>, Steven Rostedt <rostedt@goodmis.org>,
+       dwalker@mvista.com, emann@mrv.com, yang.yi@bmrtech.com
+Subject: 2.6.14-rc2-rt2
+Message-ID: <20050926070210.GA5157@elte.hu>
+References: <20050913100040.GA13103@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050913100040.GA13103@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I'm experiencing problems with suspend to RAM on my Dell D600 laptop.
-> > When I run Ubuntu's 2.6.10 kernel I have no problem with suspend to RAM.
-> > However, when I run 2.6.13, my laptop sometimes doesn't wake up. It
-> > seems like the longer my uptime, the more likely the problem is to occur
-> > (which makes it hard to reproduce sometimes). This happens even with a
-> > non-preempt kernel.
-> 
-> Check if it works with minimal drivers and non-preemptible kernel...
 
-OK, I can confirm failure to resume even on a non-preempt 2.6.13 with no
-USB devices and lots of stuff (e.g. wifi card) turned off. So far,
-2.6.10 is resuming (running a non-Ubuntu vanilla 2.6.10 now).
+i have released the 2.6.14-rc2-rt2 tree, which can be downloaded from 
+the usual place:
 
-	Jean-Marc
+   http://redhat.com/~mingo/realtime-preempt/
+
+the biggest change is the merge to the 2.6.14 tree, but there are also 
+updates all across the board: lots of ktimer updates and fixes from 
+Thomas Gleixner, an important PI fix from Steven Rostedt, and lots of 
+other details.
+
+Changes since 2.6.13-rt6:
+
+ - tons of ktimer updates: build fixes, SMP fixes and more (Thomas 
+   Gleixner)
+
+ - PI fix (Steven Rostedt)
+
+ - ntfs fix for bit-spin-locks (Eran Mann)
+
+ - updates/fixes in preparation of the ARM merge (Daniel Walker)
+
+ - latency histogram cleanups (Yi Yang)
+
+ - merge to 2.6.14-rc2
+
+ - sysfs/scsi interaction workaround to get aic7xxx to boot
+
+to build a 2.6.14-rc2-rt2 tree, the following patches should be applied:
+
+   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.13.tar.bz2
+   http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.14-rc2.bz2
+   http://redhat.com/~mingo/realtime-preempt/patch-2.6.14-rc2-rt2
+
+	Ingo

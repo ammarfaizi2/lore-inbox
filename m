@@ -1,49 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750812AbVIZXzP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932065AbVIZX6z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750812AbVIZXzP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 19:55:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbVIZXzO
+	id S932065AbVIZX6z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 19:58:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750816AbVIZX6z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 19:55:14 -0400
-Received: from xproxy.gmail.com ([66.249.82.197]:15732 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750812AbVIZXzN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 19:55:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=ElteF9Y9M74uGiCQuYOXaOhUcaK6fnGpfWWoFZ450YbCoDHUwDReUZctpwI7UzbYryAg/9YGc5dDr8wkDALuiIxmZkg9UAKJXzC+GWicTYMJH8vff+GTpZpSf6O4B+XTZIuKLvYiFQ0qNp943QiyHDVfcLHIZ2VILJuIJtWeEs8=
-Date: Tue, 27 Sep 2005 01:55:03 +0200
-From: Diego Calleja <diegocg@gmail.com>
-To: Shawn Starr <shawn.starr@rogers.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Crazy Idea: Replacing /dev using sysfs over time
-Message-Id: <20050927015503.702ca60e.diegocg@gmail.com>
-In-Reply-To: <200509261928.20701.shawn.starr@rogers.com>
-References: <200509261928.20701.shawn.starr@rogers.com>
-X-Mailer: Sylpheed version 2.1.1 (GTK+ 2.8.3; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Mon, 26 Sep 2005 19:58:55 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:26312 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750814AbVIZX6x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 19:58:53 -0400
+Message-Id: <200509262358.j8QNwM8N012009@death.nxdomain.ibm.com>
+To: Florin Malita <fmalita@gmail.com>
+cc: "Jason R. Martin" <nsxfreddy@gmail.com>, akpm@osdl.org,
+       davem@davemloft.net, ctindel@users.sourceforge.net,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       bonding-devel@lists.sourceforge.net
+Subject: Re: [PATCH] channel bonding: add support for device-indexed parameters 
+In-Reply-To: Message from Florin Malita <fmalita@gmail.com> 
+   of "Thu, 22 Sep 2005 09:16:08 EDT." <20050922091608.5ec2724c.fmalita@gmail.com> 
+X-Mailer: MH-E 7.83; nmh 1.0.4; GNU Emacs 21.4.2
+Date: Mon, 26 Sep 2005 16:58:22 -0700
+From: Jay Vosburgh <fubar@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Mon, 26 Sep 2005 19:28:18 -0400,
-Shawn Starr <shawn.starr@rogers.com> escribió:
+Florin Malita <fmalita@gmail.com> wrote:
 
->         /sys/class/block/
->         `-- sda
->             |-- sda1
->                     | - major
->                     | - minor
->                     | - raw
+>On Wed, 21 Sep 2005 23:03:53 -0700
+>"Jason R. Martin" <nsxfreddy@gmail.com> wrote:
+>> Personally I think working to get the sysfs support finished in
+>> bonding and stop relying on module parameters to configure bonds would
+>> be better
+[...]
+>Agreed - that would be a better configuration interface, but I don't see
+>why we couldn't support module parameter arrays too. Especially since
+>the changes are minimal and don't break the ABI/ifenslave
+>compatibility/etc.
+>
+>IMHO the "primary" semantics are completely broken right now and this
+>is a possible fix for it.
 
-With this you're adding again all the device naming linux has got ridden of
-by removing devfs (it rememebers me to solaris' devfs: They have a
-sysfs-like filesystem, except that things in /dev are a symbolic link to a
-device file in /devices)
+	The distro provided network init scripts are, as far as I know,
+really the main user of the bonding module parameters.  Right now, the
+init scripts will generally load the bonding module multiple times when
+creating multiple bonds with differing parameters.  This works tolerably
+well, although I recall that some users have run afoul of Fedora Core
+kernels that could or would not load any module multiple times.  I don't
+know if that's still the case today.
 
-> Do we really need /dev other than for historical/legacy purposes?
+	In any event, your patch does not provide enough flexibility to
+allow the distro scripts to switch to it (it omits arp_ip_target), so
+the init scripts will be unable to switch.  Given that, I'm not sure I
+see the real value.
 
-If your intention is just to boot kernels and not run userspace on them,
-then sure, it's a good idea to get rid of /dev.
+	Additionally, as Jason mentions, the sysfs API is looming, and
+I'd frankly rather have the init scripts switch to sysfs as it provide
+greater flexibility (in particular, it removes the dependency on bonding
+being compiled as a module).
+
+	-J
+
+---
+	-Jay Vosburgh, IBM Linux Technology Center, fubar@us.ibm.com

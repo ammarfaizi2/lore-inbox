@@ -1,119 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932428AbVIZIXt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932430AbVIZInK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932428AbVIZIXt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 04:23:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932430AbVIZIXt
+	id S932430AbVIZInK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 04:43:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbVIZInK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 04:23:49 -0400
-Received: from mail.kroah.org ([69.55.234.183]:59281 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932428AbVIZIXs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 04:23:48 -0400
-Date: Fri, 23 Sep 2005 17:48:01 -0700
-From: Greg KH <gregkh@suse.de>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390: export ipl device parameters
-Message-ID: <20050924004801.GB21283@suse.de>
-References: <20050923095002.GA20928@osiris.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050923095002.GA20928@osiris.boeblingen.de.ibm.com>
-User-Agent: Mutt/1.5.10i
+	Mon, 26 Sep 2005 04:43:10 -0400
+Received: from silver.veritas.com ([143.127.12.111]:5693 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S932430AbVIZInJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 04:43:09 -0400
+Date: Mon, 26 Sep 2005 09:42:34 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 17/21] mm: batch updating mm_counters
+In-Reply-To: <1127719503.5101.38.camel@npiggin-nld.site>
+Message-ID: <Pine.LNX.4.61.0509260939060.9937@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0509251644100.3490@goblin.wat.veritas.com> 
+ <Pine.LNX.4.61.0509251707171.3490@goblin.wat.veritas.com>
+ <1127719503.5101.38.camel@npiggin-nld.site>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 26 Sep 2005 08:43:03.0514 (UTC) FILETIME=[4EDFB3A0:01C5C276]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 23, 2005 at 11:50:02AM +0200, Heiko Carstens wrote:
-> Hi,
+On Mon, 26 Sep 2005, Nick Piggin wrote:
+> On Sun, 2005-09-25 at 17:08 +0100, Hugh Dickins wrote:
+> > -		copy_one_pte(dst_mm, src_mm, dst_pte, src_pte, vm_flags, addr);
+> > +		anon = copy_one_pte(dst_mm, src_mm, dst_pte, src_pte,
+> > +							vm_flags, addr);
+> > +		rss[anon]++;
 > 
-> this is the new "export ipl device parameters" patch with the
-> changes integrated as proposed by Greg KH. Now this interface
-> resides in /sys/firmware/ipl and all files contain only a single
-> value.
+> How about passing rss[2] to copy_one_pte, and have that
+> increment the correct rss value accordingly? Not that
+> you may consider that any nicer than what you have here.
 
-Hi, I have a few minor comments on the patch.  It looks much better than
-the last one.
+That does seem a more _normal_ way of doing it.
 
-> Sysfs interface to export ipl device parameters.
-> Dependent on the ipl type the interface will look like this:
-> 
-> - ccw ipl:
-> 
-> /sys/firmware/ipl/device
-> 		 /ipl_type
-> 
-> - fcp ipl:
-> 
-> /sys/firmware/ipl/binary_parameter
-> 		 /bootprog
-> 		 /br_lba
-> 		 /device
-> 		 /ipl_type
-> 		 /lun
-> 		 /scp_data
-> 		 /wwpn
-> 
-> - otherwise (unknown that is):
-> 
-> /sys/firmware/ipl/ipl_type
+Though adding a seventh argument doesn't appeal
+(perhaps irrelevant since copy_one_pte is inlined).
 
-Nice interface.
+I don't mind much either way: anyone have strong feelings?
 
->  
-> +#ifdef CONFIG_SYSFS
-
-Does anyone build a s390 kernel without sysfs?  You can probably just
-drop this ifdef.
-
-> +#define DEFINE_IPL_ATTR(_name, _format, _value)			\
-> +static ssize_t ipl_##_name##_show(struct subsystem *subsys,	\
-> +		char *page)					\
-> +{								\
-> +	return sprintf(page, _format, _value);			\
-> +}								\
-> +static struct subsys_attribute ipl_##_name##_attr =		\
-> +	__ATTR(_name, S_IRUGO, ipl_##_name##_show, NULL);
-> +
-> +DEFINE_IPL_ATTR(wwpn, "0x%016llx\n", (unsigned long long)
-> +		IPL_PARMBLOCK_START->fcp.wwpn);
-> +DEFINE_IPL_ATTR(lun, "0x%016llx\n", (unsigned long long)
-> +		IPL_PARMBLOCK_START->fcp.lun);
-> +DEFINE_IPL_ATTR(bootprog, "%lld\n", (unsigned long long)
-> +		IPL_PARMBLOCK_START->fcp.bootprog);
-> +DEFINE_IPL_ATTR(br_lba, "%lld\n", (unsigned long long)
-> +		IPL_PARMBLOCK_START->fcp.br_lba);
-
-Why have a format field, if you only use the same format?
-
-> +static struct subsys_attribute ipl_type_attr = __ATTR_RO(ipl_type);
-> +
-> +static ssize_t
-> +ipl_device_show(struct subsystem *subsys, char *page)
-> +{
-> +	struct ipl_parameter_block *ipl = IPL_PARMBLOCK_START;
-> +
-> +	switch (get_ipl_type()) {
-> +	case ipl_type_ccw:
-> +		return sprintf(page, "0.0.%04x\n", ipl_devno);
-> +	case ipl_type_fcp:
-> +		return sprintf(page, "0.0.%04x\n", ipl->fcp.devno);
-> +	default:
-> +		return 0;
-> +	}
-> +}
-> +
-> +static struct subsys_attribute ipl_device_attr =
-> +	__ATTR(device, S_IRUGO, ipl_device_show, NULL);
-
-Why not use __ATTR_RO() like you did above?
-
-> +#define IPL_PARMBLOCK_ORIGIN	0x2000
-
-You are just directly addressing memory with this address, right?
-Shouldn't you iomap it or something first?
-
-thanks,
-
-greg k-h
+Hugh

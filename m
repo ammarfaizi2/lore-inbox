@@ -1,168 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932452AbVIZSKK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbVIZSKr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932452AbVIZSKK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 14:10:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbVIZSKK
+	id S932453AbVIZSKr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 14:10:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932454AbVIZSKr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 14:10:10 -0400
-Received: from nproxy.gmail.com ([64.233.182.199]:9549 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932452AbVIZSKI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 14:10:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:references;
-        b=HhCkFxxweoZ2Ge3lZFg6Wl978bVXd94K6JxvtqEamNoHiiR8YgpSXi8vr8EgS/xjW4whgZet0EFJwlxWl+bd4LZmXJiTJNMl4f0W3ODnHnIOYC2MuHFRtQAwJBNvaSXS1NoCtW9CdcwNZHgO1M0zj2OeQl+BoeKxoAcInlYweX0=
-Message-ID: <ee588a5405092611108a9d063@mail.gmail.com>
-Date: Mon, 26 Sep 2005 20:10:03 +0200
-From: Xose Vazquez Perez <xose.vazquez@gmail.com>
-Reply-To: Xose Vazquez Perez <xose.vazquez@gmail.com>
-To: Randy Dunlap <rdunlap@xenotime.net>
-Subject: Re: [PATCH 2.6.12 1/1] docs: updated some code docs
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <16727.134.134.136.2.1122417419.squirrel@chretien.genwebhost.com>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_14953_18742827.1127758203040"
-References: <ee588a54050726152014f56899@mail.gmail.com>
-	 <16727.134.134.136.2.1122417419.squirrel@chretien.genwebhost.com>
+	Mon, 26 Sep 2005 14:10:47 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:41964 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932453AbVIZSKq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 14:10:46 -0400
+Subject: Re: vmalloc_node
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: Eric Dumazet <dada1@cosmosbay.com>, Harald Welte <laforge@netfilter.org>,
+       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       "David S. Miller" <davem@davemloft.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.62.0509261046410.3650@schroedinger.engr.sgi.com>
+References: <43308324.70403@cosmosbay.com> <200509221454.22923.ak@suse.de>
+	 <20050922125849.GA27413@infradead.org> <200509221505.05395.ak@suse.de>
+	 <Pine.LNX.4.62.0509220835310.16793@schroedinger.engr.sgi.com>
+	 <4332D2D9.7090802@cosmosbay.com>
+	 <20050923171120.GO731@sunbeam.de.gnumonks.org>
+	 <Pine.LNX.4.62.0509231043270.22308@schroedinger.engr.sgi.com>
+	 <1127498679.10664.85.camel@localhost>
+	 <Pine.LNX.4.62.0509261046410.3650@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Date: Mon, 26 Sep 2005 11:10:13 -0700
+Message-Id: <1127758214.26894.20.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_14953_18742827.1127758203040
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Mon, 2005-09-26 at 10:58 -0700, Christoph Lameter wrote:
+> On Fri, 23 Sep 2005, Dave Hansen wrote:
+> > Instead of hard-coding all of those -1's for the node to specify a
+> > default allocation, and changing all of those callers, why not:
+> 
+> Done.
 
-On 7/27/05, Randy Dunlap <rdunlap@xenotime.net> wrote:
+That looks much nicer.  Thanks!
 
-> -Separate each logical change into its own patch.
-> +Separate each _logical changes_ into its own patch.
->                         change
-> or drop "each" and change "its own patch"
-> to "a single patch file."
->
->  On the other hand, if you make a single change to numerous files,
-> -group those changes into a single patch.  Thus a single logical change
-> -is contained within a single patch.
-> +group those changes into a single patch.  Thus single logical changes
-> +are contained within a single patch.
->
-> It's better in the original form.
->
-> +Do not send more than 15 patches at once to the vger mailing lists!!!
->
-> Only in one place, please.
+> > 	__vmalloc_node(size, gfp_mask, prot, -1);
+> > A named macro is probably better than -1, but if it is only used in one
+> > place, it is hard to complain.
+> 
+> -1 is used consistently in the *_node functions to indicate that the node 
+> is not specified. Should I replace -1 throughout the kernel with a 
+> constant?
 
-ok, here it goes agains somethig called "Affluent Albatross" aka 2.6.14-rc2=
--git5
+I certainly wouldn't mind.  Giving it a name like NODE_ANY or
+NODE_UNSPECIFIED would certainly keep anyone from having to go dig into
+the allocator functions to decide what it actually does.  
 
--thanks-
+-- Dave
 
-------=_Part_14953_18742827.1127758203040
-Content-Type: text/x-patch; name="code_docs.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="code_docs.diff"
-
-ZGlmZiAtTnVhciBvbGQvRG9jdW1lbnRhdGlvbi9Db2RpbmdTdHlsZSBuZXcvRG9jdW1lbnRhdGlv
-bi9Db2RpbmdTdHlsZQotLS0gb2xkL0RvY3VtZW50YXRpb24vQ29kaW5nU3R5bGUJMjAwNS0wOS0y
-NiAyMDowMjozNC4wMDAwMDAwMDAgKzAyMDAKKysrIG5ldy9Eb2N1bWVudGF0aW9uL0NvZGluZ1N0
-eWxlCTIwMDUtMDktMjYgMjA6MDU6NTkuMDAwMDAwMDAwICswMjAwCkBAIC00NDQsMTAgKzQ0NCwx
-MyBAQAogVVJMOiBodHRwOi8vY20uYmVsbC1sYWJzLmNvbS9jbS9jcy90cG9wLwogCiBHTlUgbWFu
-dWFscyAtIHdoZXJlIGluIGNvbXBsaWFuY2Ugd2l0aCBLJlIgYW5kIHRoaXMgdGV4dCAtIGZvciBj
-cHAsIGdjYywKLWdjYyBpbnRlcm5hbHMgYW5kIGluZGVudCwgYWxsIGF2YWlsYWJsZSBmcm9tIGh0
-dHA6Ly93d3cuZ251Lm9yZworZ2NjIGludGVybmFscyBhbmQgaW5kZW50LCBhbGwgYXZhaWxhYmxl
-IGZyb20gaHR0cDovL3d3dy5nbnUub3JnL21hbnVhbC8KIAogV0cxNCBpcyB0aGUgaW50ZXJuYXRp
-b25hbCBzdGFuZGFyZGl6YXRpb24gd29ya2luZyBncm91cCBmb3IgdGhlIHByb2dyYW1taW5nCi1s
-YW5ndWFnZSBDLCBVUkw6IGh0dHA6Ly9zdGQuZGt1dWcuZGsvSlRDMS9TQzIyL1dHMTQvCitsYW5n
-dWFnZSBDLCBVUkw6IGh0dHA6Ly93d3cub3Blbi1zdGQub3JnL0pUQzEvU0MyMi9XRzE0LworCitL
-ZXJuZWwgQ29kaW5nU3R5bGUgYnkgZ3JlZ0Brcm9haC5jb20gYXQgT0xTIDIwMDI6CitodHRwOi8v
-d3d3Lmtyb2FoLmNvbS9saW51eC90YWxrcy9vbHNfMjAwMl9rZXJuZWxfY29kaW5nc3R5bGVfdGFs
-ay9odG1sLwogCiAtLQogTGFzdCB1cGRhdGVkIG9uIDE2IEZlYnJ1YXJ5IDIwMDQgYnkgYSBjb21t
-dW5pdHkgZWZmb3J0IG9uIExLTUwuCmRpZmYgLU51YXIgb2xkL0RvY3VtZW50YXRpb24vU3VibWl0
-dGluZ0RyaXZlcnMgbmV3L0RvY3VtZW50YXRpb24vU3VibWl0dGluZ0RyaXZlcnMKLS0tIG9sZC9E
-b2N1bWVudGF0aW9uL1N1Ym1pdHRpbmdEcml2ZXJzCTIwMDUtMDktMjYgMjA6MDI6MzQuMDAwMDAw
-MDAwICswMjAwCisrKyBuZXcvRG9jdW1lbnRhdGlvbi9TdWJtaXR0aW5nRHJpdmVycwkyMDA1LTA5
-LTI1IDIyOjA1OjU2LjAwMDAwMDAwMCArMDIwMApAQCAtMjcsMTggKzI3LDE3IEBACiAtLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0KIAogTGludXggMi4wOgotCU5vIG5ldyBkcml2ZXJzIGFyZSBhY2Nl
-cHRlZCBmb3IgdGhpcyBrZXJuZWwgdHJlZQorCU5vIG5ldyBkcml2ZXJzIGFyZSBhY2NlcHRlZCBm
-b3IgdGhpcyBrZXJuZWwgdHJlZS4KIAogTGludXggMi4yOgorCU5vIG5ldyBkcml2ZXJzIGFyZSBh
-Y2NlcHRlZCBmb3IgdGhpcyBrZXJuZWwgdHJlZS4KKworTGludXggMi40OgogCUlmIHRoZSBjb2Rl
-IGFyZWEgaGFzIGEgZ2VuZXJhbCBtYWludGFpbmVyIHRoZW4gcGxlYXNlIHN1Ym1pdCBpdCB0bwog
-CXRoZSBtYWludGFpbmVyIGxpc3RlZCBpbiBNQUlOVEFJTkVSUyBpbiB0aGUga2VybmVsIGZpbGUu
-IElmIHRoZQogCW1haW50YWluZXIgZG9lcyBub3QgcmVzcG9uZCBvciB5b3UgY2Fubm90IGZpbmQg
-dGhlIGFwcHJvcHJpYXRlCi0JbWFpbnRhaW5lciB0aGVuIHBsZWFzZSBjb250YWN0IHRoZSAyLjIg
-a2VybmVsIG1haW50YWluZXI6Ci0JTWFyYy1DaHJpc3RpYW4gUGV0ZXJzZW4gPG0uYy5wQHdvbGst
-cHJvamVjdC5kZT4uCi0KLUxpbnV4IDIuNDoKLQlUaGUgc2FtZSBydWxlcyBhcHBseSBhcyAyLjIu
-IFRoZSBmaW5hbCBjb250YWN0IHBvaW50IGZvciBMaW51eCAyLjQKLQlzdWJtaXNzaW9ucyBpcyBN
-YXJjZWxvIFRvc2F0dGkgPG1hcmNlbG8udG9zYXR0aUBjeWNsYWRlcy5jb20+LgorCW1haW50YWlu
-ZXIgdGhlbiBwbGVhc2UgY29udGFjdCBNYXJjZWxvIFRvc2F0dGkKKwk8bWFyY2Vsby50b3NhdHRp
-QGN5Y2xhZGVzLmNvbT4uCiAKIExpbnV4IDIuNjoKIAlUaGUgc2FtZSBydWxlcyBhcHBseSBhcyAy
-LjQgZXhjZXB0IHRoYXQgeW91IHNob3VsZCBmb2xsb3cgbGludXgta2VybmVsCkBAIC01Myw2ICs1
-Miw3IEBACiAJCW9mIGV4Y2x1c2l2ZSBHUEwgbGljZW5zaW5nLCBhbmQgaWYgeW91IHdpc2ggdGhl
-IGRyaXZlcgogCQl0byBiZSB1c2VmdWwgdG8gb3RoZXIgY29tbXVuaXRpZXMgc3VjaCBhcyBCU0Qg
-eW91IG1heSB3ZWxsCiAJCXdpc2ggdG8gcmVsZWFzZSB1bmRlciBtdWx0aXBsZSBsaWNlbnNlcy4K
-KwkJU2VlIGFjY2VwdGVkIGxpY2Vuc2VzIGF0IGluY2x1ZGUvbGludXgvbW9kdWxlLmgKIAogQ29w
-eXJpZ2h0OglUaGUgY29weXJpZ2h0IG93bmVyIG11c3QgYWdyZWUgdG8gdXNlIG9mIEdQTC4KIAkJ
-SXQncyBiZXN0IGlmIHRoZSBzdWJtaXR0ZXIgYW5kIGNvcHlyaWdodCBvd25lcgpAQCAtMTQzLDUg
-KzE0MywxMyBAQAogCWh0dHA6Ly9rZXJuZWxuZXdiaWVzLm9yZy8KIAogTGludXggVVNCIHByb2pl
-Y3Q6Ci0JaHR0cDovL3NvdXJjZWZvcmdlLm5ldC9wcm9qZWN0cy9saW51eC11c2IvCisJaHR0cDov
-L2xpbnV4LXVzYi5zb3VyY2Vmb3JnZS5uZXQvCisKK0hvdyB0byBOT1Qgd3JpdGUga2VybmVsIGRy
-aXZlciBieSBhcmphbnZAcmVkaGF0LmNvbQorCWh0dHA6Ly9wZW9wbGUucmVkaGF0LmNvbS9hcmph
-bnYvb2xzcGFwZXIucGRmCisKK0tlcm5lbCBKYW5pdG9yOgorCWh0dHA6Ly9qYW5pdG9yLmtlcm5l
-bG5ld2JpZXMub3JnLwogCistLQorTGFzdCB1cGRhdGVkIG9uIDI1IFNlcCAyMDA1LgpkaWZmIC1O
-dWFyIG9sZC9Eb2N1bWVudGF0aW9uL1N1Ym1pdHRpbmdQYXRjaGVzIG5ldy9Eb2N1bWVudGF0aW9u
-L1N1Ym1pdHRpbmdQYXRjaGVzCi0tLSBvbGQvRG9jdW1lbnRhdGlvbi9TdWJtaXR0aW5nUGF0Y2hl
-cwkyMDA1LTA5LTI2IDIwOjAyOjM0LjAwMDAwMDAwMCArMDIwMAorKysgbmV3L0RvY3VtZW50YXRp
-b24vU3VibWl0dGluZ1BhdGNoZXMJMjAwNS0wOS0yNiAxOTo1OTo0OS4wMDAwMDAwMDAgKzAyMDAK
-QEAgLTc4LDcgKzc4LDggQEAKIGh0dHA6Ly93d3cueGVub3RpbWUubmV0L2xpbnV4L3NjcmlwdHMv
-cGF0Y2hpbmctc2NyaXB0cy0wMDIudGFyLmd6CiAKIEFuZHJldyBNb3J0b24ncyBwYXRjaCBzY3Jp
-cHRzOgotaHR0cDovL3d3dy56aXAuY29tLmF1L35ha3BtL2xpbnV4L3BhdGNoZXMvcGF0Y2gtc2Ny
-aXB0cy0wLjIwCitodHRwOi8vd3d3LnppcC5jb20uYXUvfmFrcG0vbGludXgvcGF0Y2hlcy8KK0lu
-c3RlYWQgdGhlc2Ugb25lcywgcGVvcGxlIHNob3VsZCB1c2UgcXVpbHQgQVNBUCAoc2VlIGFib3Zl
-KS4KIAogCiAKQEAgLTk3LDcgKzk4LDcgQEAKIAogMykgU2VwYXJhdGUgeW91ciBjaGFuZ2VzLgog
-Ci1TZXBhcmF0ZSBlYWNoIGxvZ2ljYWwgY2hhbmdlIGludG8gaXRzIG93biBwYXRjaC4KK1NlcGFy
-YXRlIF9sb2dpY2FsIGNoYW5nZXNfIGludG8gYSBzaW5nbGUgcGF0Y2ggZmlsZS4KIAogRm9yIGV4
-YW1wbGUsIGlmIHlvdXIgY2hhbmdlcyBpbmNsdWRlIGJvdGggYnVnIGZpeGVzIGFuZCBwZXJmb3Jt
-YW5jZQogZW5oYW5jZW1lbnRzIGZvciBhIHNpbmdsZSBkcml2ZXIsIHNlcGFyYXRlIHRob3NlIGNo
-YW5nZXMgaW50byB0d28KQEAgLTExMiw2ICsxMTMsMTAgQEAKIGNvbXBsZXRlLCB0aGF0IGlzIE9L
-LiAgU2ltcGx5IG5vdGUgInRoaXMgcGF0Y2ggZGVwZW5kcyBvbiBwYXRjaCBYIgogaW4geW91ciBw
-YXRjaCBkZXNjcmlwdGlvbi4KIAorSWYgeW91IGNhbm5vdCBjb25kZW5zZSB5b3VyIHBhdGNoIHNl
-dCBpbnRvIGEgc21hbGxlciBzZXQgb2YgcGF0Y2hlcywKK3RoZW4gb25seSBwb3N0IHNheSAxNSBv
-ciBzbyBhdCBhIHRpbWUgYW5kIHdhaXQgZm9yIHJldmlldyBhbmQgaW50ZWdyYXRpb24uCisKKwog
-CiA0KSBTZWxlY3QgZS1tYWlsIGRlc3RpbmF0aW9uLgogCkBAIC0xMjQsNiArMTI5LDEwIEBACiBs
-aW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnLiAgTW9zdCBrZXJuZWwgZGV2ZWxvcGVycyBtb25p
-dG9yIHRoaXMKIGUtbWFpbCBsaXN0LCBhbmQgY2FuIGNvbW1lbnQgb24geW91ciBjaGFuZ2VzLgog
-CisKK0RvIG5vdCBzZW5kIG1vcmUgdGhhbiAxNSBwYXRjaGVzIGF0IG9uY2UgdG8gdGhlIHZnZXIg
-bWFpbGluZyBsaXN0cyEhIQorCisKIExpbnVzIFRvcnZhbGRzIGlzIHRoZSBmaW5hbCBhcmJpdGVy
-IG9mIGFsbCBjaGFuZ2VzIGFjY2VwdGVkIGludG8gdGhlCiBMaW51eCBrZXJuZWwuICBIaXMgZS1t
-YWlsIGFkZHJlc3MgaXMgPHRvcnZhbGRzQG9zZGwub3JnPi4gIEhlIGdldHMKIGEgbG90IG9mIGUt
-bWFpbCwgc28gdHlwaWNhbGx5IHlvdSBzaG91bGQgZG8geW91ciBiZXN0IHRvIC1hdm9pZC0gc2Vu
-ZGluZwpAQCAtMTQ5LDYgKzE1OCw5IEBACiBNQUlOVEFJTkVSUyBmaWxlIGZvciBhIG1haWxpbmcg
-bGlzdCB0aGF0IHJlbGF0ZXMgc3BlY2lmaWNhbGx5IHRvCiB5b3VyIGNoYW5nZS4KIAorTWFqb3Jk
-b21vIGxpc3RzIG9mIFZHRVIuS0VSTkVMLk9SRyBhdDoKKwlodHRwOi8vdmdlci5rZXJuZWwub3Jn
-L3ZnZXItbGlzdHMuaHRtbAorCiBJZiBjaGFuZ2VzIGFmZmVjdCB1c2VybGFuZC1rZXJuZWwgaW50
-ZXJmYWNlcywgcGxlYXNlIHNlbmQKIHRoZSBNQU4tUEFHRVMgbWFpbnRhaW5lciAoYXMgbGlzdGVk
-IGluIHRoZSBNQUlOVEFJTkVSUyBmaWxlKQogYSBtYW4tcGFnZXMgcGF0Y2gsIG9yIGF0IGxlYXN0
-IGEgbm90aWZpY2F0aW9uIG9mIHRoZSBjaGFuZ2UsCkBAIC0zMDIsMTYgKzMxNCw2IEBACiAKIAog
-Ci0xMikgTW9yZSByZWZlcmVuY2VzIGZvciBzdWJtaXR0aW5nIHBhdGNoZXMKLQotQW5kcmV3IE1v
-cnRvbiwgIlRoZSBwZXJmZWN0IHBhdGNoIiAodHBwKS4KLSAgPGh0dHA6Ly93d3cuemlwLmNvbS5h
-dS9+YWtwbS9saW51eC9wYXRjaGVzL3N0dWZmL3RwcC50eHQ+Ci0KLUplZmYgR2FyemlrLCAiTGlu
-dXgga2VybmVsIHBhdGNoIHN1Ym1pc3Npb24gZm9ybWF0LiIKLSAgPGh0dHA6Ly9saW51eC55eXou
-dXMvcGF0Y2gtZm9ybWF0Lmh0bWw+Ci0KLQotCiAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLQogU0VDVElPTiAyIC0gSElOVFMsIFRJUFMsIEFORCBUUklDS1MKIC0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCkBAIC0zODIsMyArMzg0LDI0IEBACiBEb24ndCB0cnkg
-dG8gYW50aWNpcGF0ZSBuZWJ1bG91cyBmdXR1cmUgY2FzZXMgd2hpY2ggbWF5IG9yIG1heSBub3QK
-IGJlIHVzZWZ1bDogICJNYWtlIGl0IGFzIHNpbXBsZSBhcyB5b3UgY2FuLCBhbmQgbm8gc2ltcGxl
-ci4iCiAKKworCistLS0tLS0tLS0tLS0tLS0tLS0tLS0tCitTRUNUSU9OIDMgLSBSRUZFUkVOQ0VT
-CistLS0tLS0tLS0tLS0tLS0tLS0tLS0tCisKK0FuZHJldyBNb3J0b24sICJUaGUgcGVyZmVjdCBw
-YXRjaCIgKHRwcCkuCisgIDxodHRwOi8vd3d3LnppcC5jb20uYXUvfmFrcG0vbGludXgvcGF0Y2hl
-cy9zdHVmZi90cHAudHh0PgorCitKZWZmIEdhcnppaywgIkxpbnV4IGtlcm5lbCBwYXRjaCBzdWJt
-aXNzaW9uIGZvcm1hdC4iCisgIDxodHRwOi8vbGludXgueXl6LnVzL3BhdGNoLWZvcm1hdC5odG1s
-PgorCitHcmVnIEtyb2FoLCAiSG93IHRvIHBpc3Mgb2ZmIGEga2VybmVsIHN1YnN5c3RlbSBtYWlu
-dGFpbmVyIi4KKyAgPGh0dHA6Ly93d3cua3JvYWguY29tL2xvZy8yMDA1LzAzLzMxLz4KKyAgPGh0
-dHA6Ly93d3cua3JvYWguY29tL2xvZy8yMDA1LzA3LzA4Lz4KKworTk8hISEhIE5vIG1vcmUgaHVn
-ZSBwYXRjaCBib21icyB0byBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnIHBlb3BsZSEuCisg
-IDxodHRwOi8vbWFyYy50aGVhaW1zZ3JvdXAuY29tLz9sPWxpbnV4LWtlcm5lbCZtPTExMjExMjc0
-OTkxMjk0NCZ3PTI+CisKKy0tCitMYXN0IHVwZGF0ZWQgb24gMjUgU2VwIDIwMDUuCg==
-------=_Part_14953_18742827.1127758203040--

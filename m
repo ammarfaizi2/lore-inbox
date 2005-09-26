@@ -1,111 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932479AbVIZSvX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932478AbVIZTIZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932479AbVIZSvX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 14:51:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932478AbVIZSvX
+	id S932478AbVIZTIZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 15:08:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932480AbVIZTIZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 14:51:23 -0400
-Received: from pimout7-ext.prodigy.net ([207.115.63.58]:1674 "EHLO
-	pimout7-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S932475AbVIZSvW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 14:51:22 -0400
-X-ORBL: [69.225.172.73]
-Subject: Re: [PATCH 2.6.14-rc2] libata: Marvell SATA support (DMA mode)
-From: Michael Madore <Michael.Madore@aslab.com>
-To: Brett Russ <russb@emc.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Pasi Pirhonen <upi@papat.org>,
-       Bogdan Costescu <Bogdan.Costescu@iwr.uni-heidelberg.de>,
-       "Mr. Berkley Shands" <bshands@exegy.com>,
-       Jim Edwards <jim@networkdesigning.com>
-In-Reply-To: <20050923194222.C13101CD3F@lns1058.lss.emc.com>
-References: <20050923194222.C13101CD3F@lns1058.lss.emc.com>
-Content-Type: text/plain
-Date: Mon, 26 Sep 2005 11:49:01 -0700
-Message-Id: <1127760541.22826.14.camel@drevil.aslab.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
-Content-Transfer-Encoding: 7bit
+	Mon, 26 Sep 2005 15:08:25 -0400
+Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:42657 "EHLO
+	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S932478AbVIZTIY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 15:08:24 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Mon, 26 Sep 2005 20:08:20 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
+Subject: Re: [PATCH 1/4] NTFS: Fix sparse warnings that have crept in over
+ time.
+In-Reply-To: <Pine.LNX.4.58.0509260926160.3308@g5.osdl.org>
+Message-ID: <Pine.LNX.4.60.0509262005430.29344@hermes-1.csi.cam.ac.uk>
+References: <Pine.LNX.4.60.0509261427520.32257@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.60.0509261431270.32257@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.58.0509260746130.3308@g5.osdl.org>
+ <Pine.LNX.4.60.0509261654550.29344@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.58.0509260926160.3308@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-09-23 at 15:42 -0400, Brett Russ wrote:
-> This is my libata compatible low level driver for the Marvell SATA
-> family.  Currently it runs in DMA mode on a 6081 chip with caveats
-> (see below).
+On Mon, 26 Sep 2005, Linus Torvalds wrote:
+> On Mon, 26 Sep 2005, Anton Altaparmakov wrote:
+> > > What was the warning that caused this (and the two other things that look 
+> > > the same)?
+> > 
+> > fs/ntfs/mft.c:2577:24: warning: incompatible types for operation (&)
+> > fs/ntfs/mft.c:2577:24:    left side has type unsigned long long [unsigned] [usertype] <noident>
+> > fs/ntfs/mft.c:2577:24:    right side has type bad type enum MFT_REF_CONSTS [toplevel] MFT_REF_MASK_CPU
+> > fs/ntfs/mft.c:2577:24: warning: cast from unknown type
 > 
-> The 5xxx series parts are not yet DMA capable in this driver because
-> the registers have differences that haven't been accounted for yet.
-> Basically, I'm focused on the 6xxx series right now.  There are
-> numerous improvements in the driver that will affect PIO mode for all
-> parts, so it's worth running the new driver for all users.
+> Ok, not the most wonderful of error messages, I do have to admit ;)
 > 
-> Caveats...there is an outstanding panic in the scsi layer when hitting
-> error conditions.  I've also seen a hang, also apparently during error
-> conditions.  I will reply to this message with details of the panics
-> and will cc the scsi list as well.  Basically, error handling has a
-> bug.
+> That's sparse being very verbose and not saying a lot, but what happens is
+> that the "enum" doesn't have a well-defined type, since the different 
+> constants in the enum don't have compatible types.
 > 
-> All failures are under active debug but I wanted to get this out for
-> review sooner rather than later.
+> So it's type ends up being a "bad type enum MFT_REF_CONSTS"
 > 
-> Thank you,
-> BR
+> (It also prints out the name of the symbol with that type, which is why
+> you also see the MFT_REF_MASK_CPU - the "[toplevel]" is just an internal 
+> sparse bit saying that it was declared outside of any block scope).
+> 
+> I'm actually a bit surprised that the cast even shut sparse up. It
+> probably shouldn't have, and it should have complained about casting an
+> unknown type even _with_ your added cast (ie I think it should have cut
+> your four lines of warning down to one).
+> 
+> Did it?
 
-Hi Brett,
+No, the warnings completely disappeared with the cast.
 
-Here are the results of a quick test of the driver patch applied to
-2.6.14-rc2.  Both tests were performed on a dual Xeon with
-hyperthreading enabled.  A single Western Digital WD360 raptor drive was
-attached to the controller:
+This is using: make CHECKFLAGS=-Wbitwise C=2 modules
 
-MV88SX5081 8-port SATA I PCI-X Controller:
+> > > The issue? "enum" is really an integer type. As in "int". Trying to put a 
+> > > larger value than one that fits in "int" is not guaranteed to work.
+> > 
+> > Yes, that is true but as you say it does work with gcc.
+> 
+> Yes, and sparse will actually conform to gcc behaviour. I think we had a 
+> warning about it, but it's sadly quite common in the kernel ;p
+> 
+> So if the size of the constants was the only problem, sparse wouldn't 
+> actually have complained.
+> 
+> The reason it ended up complaining was that it couldn't promote the 
+> different enum values to the same type. 
+> 
+> I suspect it might be more readable had it complained at enum declaration
+> time instead, since at that point it would have been able to describe
+> _why_ it didn't like that enum a bit better. But the problem with that 
+> approach is that then it complains whether the thing is used or not (and a 
+> lot of things are bad only at usage time, so sparse tends to try to 
+> delay any complaints as long as computerly possible).
+> 
+> > > There's another issue, namely that the type of the snum is not only of 
+> > > undefined size (is it the same size as an "int"? Is it an "unsigned long 
+> > > long"?) but the "endianness" of it is also now totally undefined. You have 
+> > > two different endiannesses inside the _same_ enum. What is the type of the 
+> > > enum?
+> > 
+> > Good question.  "confused"?  (-;
+> 
+> Well, in gcc it's clear: it's "unsigned long long".  Because gcc doesn't 
+> know about little-endian vs big-endian.
+> 
+> In sparse, it's not actually confused either, it's "enum of type
+> bad_ctype". But the error message isn't very helpful unless you understand
+> how sparse does that internally (that's why sparse says "right side has
+> type bad type enum ..." - that "bad type enum" is the magic code-word)
 
-CPU 3: Machine Check Exception: 0000000000000004
-CPU 2: Machine Check Exception: 0000000000000004
+Thanks for the explanation.
 
-There are no other messages, and the machine locks up solid.
+Best regards,
 
-MV88SX6081 8-port SATA II PCI-X Controller (rev 09):
-
-libata version 1.12 loaded.
-sata_mv version 0.19
-ACPI: PCI Interrupt 0000:03:03.0[A] -> GSI 28 (level, low) -> IRQ 209
-sata_mv(0000:03:03.0) 32 slots 8 ports SCSI mode IRQ via MSI
-ata1: SATA max UDMA/133 cmd 0x0 ctl 0xF8BA2120 bmdma 0x0 irq 209
-ata2: SATA max UDMA/133 cmd 0x0 ctl 0xF8BA4120 bmdma 0x0 irq 209
-ata3: SATA max UDMA/133 cmd 0x0 ctl 0xF8BA6120 bmdma 0x0 irq 209
-ata4: SATA max UDMA/133 cmd 0x0 ctl 0xF8BA8120 bmdma 0x0 irq 209
-ata5: SATA max UDMA/133 cmd 0x0 ctl 0xF8BB2120 bmdma 0x0 irq 209
-ata6: SATA max UDMA/133 cmd 0x0 ctl 0xF8BB4120 bmdma 0x0 irq 209
-ata7: SATA max UDMA/133 cmd 0x0 ctl 0xF8BB6120 bmdma 0x0 irq 209
-ata8: SATA max UDMA/133 cmd 0x0 ctl 0xF8BB8120 bmdma 0x0 irq 209
-ata1: no device found (phy stat 00000000)
-scsi0 : sata_mv
-ata2: no device found (phy stat 00000000)
-scsi1 : sata_mv
-ata3: no device found (phy stat 00000000)
-scsi2 : sata_mv
-ata4: no device found (phy stat 00000000)
-scsi3 : sata_mv
-ATA: abnormal status 0x80 on port 0xF8BB211C
-ATA: abnormal status 0x80 on port 0xF8BB211C
-ATA: abnormal status 0x80 on port 0xF8BB211C
-ATA: abnormal status 0x80 on port 0xF8BB211C
-ATA: abnormal status 0x80 on port 0xF8BB211C
-ATA: abnormal status 0x80 on port 0xF8BB211C
-ata5: PIO error, drv_stat 0x50
-ata5: dev 0 cfg 49:0000 82:0000 83:0000 84:0000 85:0000 86:0000 87:0000
-88:0000
-ata5: no dma/lba
-ata5: dev 0 not supported, ignoring
-scsi4 : sata_mv
-ata6: no device found (phy stat 00000000)
-scsi5 : sata_mv
-ata7: no device found (phy stat 00000000)
-scsi6 : sata_mv
-ata8: no device found (phy stat 00000000)
-scsi7 : sata_mv
-
-Mike
-
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

@@ -1,82 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751644AbVIZPka@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751643AbVIZPuC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751644AbVIZPka (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 11:40:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751643AbVIZPka
+	id S1751643AbVIZPuC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 11:50:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751648AbVIZPuC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 11:40:30 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:16795 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751088AbVIZPka (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 11:40:30 -0400
-Subject: [PATCH] fixup bogus e820 entry with mem=
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       John Stultz <jstultz@alumni.cmu.edu>, Dale Mosby <k7fw@us.ibm.com>
-Content-Type: text/plain
-Date: Mon, 26 Sep 2005 08:40:01 -0700
-Message-Id: <1127749201.26894.4.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+	Mon, 26 Sep 2005 11:50:02 -0400
+Received: from webmailv3.ispgateway.de ([62.67.200.115]:22449 "EHLO
+	webmailv3.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1751643AbVIZPuA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 11:50:00 -0400
+Message-ID: <1127749798.433818a676435@domainfactory-webmail.de>
+Date: Mon, 26 Sep 2005 17:49:58 +0200
+From: Clemens Ladisch <clemens@ladisch.de>
+To: Karsten Wiese <annabellesgarden@yahoo.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH/RFC] Enable HPET on VIA8237 southbridge
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.8
+X-Originating-IP: 213.238.46.206
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This was reported because someone was getting oopses
-reading /proc/iomem.  It was tracked down to a zero-sized 'struct
-resource' entry which was located right at 4GB.  
+Karsten Wiese wrote:
+> if you have that chip on your mainboard and want to play with it's
+> hpet, this might get you going.
 
-You need two conditions to hit this bug: a BIOS E820_RAM area starting
-at exactly the boundary where you specify mem= (to get a zero-sized
-entry), and for the legacy_init_iomem_resources() loop to skip  that
-resource (which only happens at exactly 4G).
+I'm using similar code for my ICH5 southbridge, but I patched
+arch/i386/kernel/acpi/boot.c instead so that the kernel can use it
+for its own purposes.
 
-I think the killing zero-sized e820 entry is the easiest way to fix
-this.  
+> One exception: Timer1 says it can do PERIODIC mode,
+> but this doesn't work here. One shot is ok.
 
--- Dave
+This may be because your patch doesn't initialize the interrupt
+routing registers (which would have been the BIOS' job).
 
-Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
 
- linux/arch/i386/kernel/setup.c |   24 +++++++++++++++++-------
- 1 files changed, 17 insertions(+), 7 deletions(-)
-
-diff -puN arch/i386/kernel/setup.c~e820-empty arch/i386/kernel/setup.c
---- linux.orig/arch/i386/kernel/setup.c~e820-empty	2005-09-13 16:08:40.000000000 -0700
-+++ linux/arch/i386/kernel/setup.c	2005-09-13 16:14:20.000000000 -0700
-@@ -388,14 +388,24 @@ static void __init limit_regions(unsigne
- 		}
- 	}
- 	for (i = 0; i < e820.nr_map; i++) {
--		if (e820.map[i].type == E820_RAM) {
--			current_addr = e820.map[i].addr + e820.map[i].size;
--			if (current_addr >= size) {
--				e820.map[i].size -= current_addr-size;
--				e820.nr_map = i + 1;
--				return;
--			}
-+		current_addr = e820.map[i].addr + e820.map[i].size;
-+		if (current_addr < size)
-+			continue;
-+
-+		if (e820.map[i].type != E820_RAM)
-+			continue;
-+
-+		if (e820.map[i].addr >= size) {
-+			/*
-+			 * This region starts past the end of the
-+			 * requested size, skip it completely.
-+			 */
-+			e820.nr_map = i;
-+		} else {
-+			e820.nr_map = i + 1;
-+			e820.map[i].size -= current_addr - size;
- 		}
-+		return;
- 	}
- }
- 
-_
-
+Regards,
+Clemens
 

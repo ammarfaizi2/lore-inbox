@@ -1,40 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932305AbVIZQoo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751674AbVIZQoS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932305AbVIZQoo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 12:44:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751677AbVIZQoo
+	id S1751674AbVIZQoS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 12:44:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751675AbVIZQoS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 12:44:44 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:54942 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751673AbVIZQon (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 12:44:43 -0400
-Subject: RE: Resource limits
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Roger Heflin <rheflin@atipa.com>
-Cc: "'Al Boldi'" <a1426z@gawab.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <EXCHG2003ogxLDp7mvj00000ae4@EXCHG2003.microtech-ks.com>
-References: <EXCHG2003ogxLDp7mvj00000ae4@EXCHG2003.microtech-ks.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 26 Sep 2005 18:11:30 +0100
-Message-Id: <1127754691.27757.26.camel@localhost.localdomain>
+	Mon, 26 Sep 2005 12:44:18 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:45253 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751673AbVIZQoR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 12:44:17 -0400
+Date: Mon, 26 Sep 2005 17:44:13 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Anton Altaparmakov <aia21@cam.ac.uk>, linux-kernel@vger.kernel.org,
+       linux-ntfs-dev@lists.sourceforge.net
+Subject: Re: [PATCH 1/4] NTFS: Fix sparse warnings that have crept in over time.
+Message-ID: <20050926164413.GP7992@ftp.linux.org.uk>
+References: <Pine.LNX.4.60.0509261427520.32257@hermes-1.csi.cam.ac.uk> <Pine.LNX.4.60.0509261431270.32257@hermes-1.csi.cam.ac.uk> <Pine.LNX.4.58.0509260746130.3308@g5.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0509260746130.3308@g5.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2005-09-26 at 09:44 -0500, Roger Heflin wrote:
-> While talking about limits, one of my customers report that if
-> they set "ulimit -d" to be say 8GB, and then a program goes and
+On Mon, Sep 26, 2005 at 07:57:09AM -0700, Linus Torvalds wrote:
+> 	#define MFT_REF_MASK_CPU 0x0000ffffffffffffULL
+> 	#define MFT_REF_MASK_LE const_cpu_to_le64(MFT_REF_MASK_CPU)
+> 
+> instead. That way the type of that thing is well-defined.
 
-The kernel doesn't yet support rlimit64() - glibc does but it emulates
-it best effort. Thats a good intro project for someone
-
-> It would seem that the best thing to do would be to abort on
-> allocates that will by themselves exceed the limit.
-
-2.6 supports "no overcommit" modes.
-
-Alan
-
+Or just make those two different enums.  Basically, gcc is hopelessly
+b0rken in version-dependent way when it comes to multi-element enums
+that get outside of int range.  Single-element ones at least have
+kinda-sorta consistent semantics; anything beyond that and you are
+walking into very nasty areas.

@@ -1,74 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751687AbVIZRKu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751690AbVIZRMf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751687AbVIZRKu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 13:10:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751688AbVIZRKu
+	id S1751690AbVIZRMf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 13:12:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751694AbVIZRMf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 13:10:50 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:60848 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1751685AbVIZRKt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 13:10:49 -0400
-Message-Id: <200509261710.j8QHAkE7008871@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Ed L Cashin <ecashin@coraid.com>
-Cc: linux-kernel@vger.kernel.org, Greg K-H <greg@kroah.com>
-Subject: Re: [PATCH 2.6.14-rc2] aoe [1/2]: explicitly set minimum packet length to ETH_ZLEN 
-In-Reply-To: Your message of "Mon, 26 Sep 2005 12:50:28 EDT."
-             <87hdc7ept7.fsf@coraid.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <87oe6fhj8y.fsf@coraid.com>
-            <87hdc7ept7.fsf@coraid.com>
+	Mon, 26 Sep 2005 13:12:35 -0400
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:1158 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S1751688AbVIZRMe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 13:12:34 -0400
+Date: Mon, 26 Sep 2005 19:12:20 +0200
+From: Luca <kronos@kronoz.cjb.net>
+To: Keenan Pepper <keenanpepper@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ipw2200 only works as a module?
+Message-ID: <20050926171220.GA9341@dreamland.darkstar.lan>
+Reply-To: kronos@kronoz.cjb.net
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1127754646_3790P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 26 Sep 2005 13:10:46 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4338122C.9000901@gmail.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1127754646_3790P
-Content-Type: text/plain; charset=us-ascii
-
-On Mon, 26 Sep 2005 12:50:28 EDT, Ed L Cashin said:
-> "Ed L. Cashin" <ecashin@coraid.com> writes:
+Keenan Pepper <keenanpepper@gmail.com> ha scritto:
+> With CONFIG_IPW2200=y I get:
 > 
-> ...
-> > Explicitly set the minimum packet length to ETH_ZLEN.
-> >
-> > Index: 2.6.14-rc2-aoe/drivers/block/aoe/aoecmd.c
-> > ===================================================================
-> > --- 2.6.14-rc2-aoe.orig/drivers/block/aoe/aoecmd.c	2005-09-26 12:20:34.000000000 -0400
-> > +++ 2.6.14-rc2-aoe/drivers/block/aoe/aoecmd.c	2005-09-26 12:27:49.000000000 -0400
-> > @@ -20,6 +20,9 @@
-> >  {
-> >  	struct sk_buff *skb;
-> >  
-> > +	if (len < ETH_ZLEN)
-> > +		len = ETH_ZLEN;
-> > +
-> >  	skb = alloc_skb(len, GFP_ATOMIC);
+> ipw2200: ipw-2.2-boot.fw load failed: Reason -2
+> ipw2200: Unable to load firmware: 0xFFFFFFFE
 > 
-> This change fixes some strange problems observed on a system that was
-> using the e1000 network driver.  Is the network driver supposed to
-> ensure that ethernet packets are up to spec, at least 60 bytes long?
+> but with CONFIG_IPW2200=m it works fine. If it doesn't work when built into the 
+> kernel, why even give people the option?
+> 
+> BTW, a better error message than "Reason -2" would be nice. =)
 
-I haven't chased through the code in detail - will this change ensure that
-all ETH_ZLEN bytes are initialized?  We had a bunch of drivers a few years
-ago that set the length to the legal min, but then only copied some smaller
-number of bytes in, resulting in leakage of kernel memory contents....
+-2 is -ENOENT (no such file or directory). ipw2000 requests its firmware
+using a hotplug event, but when the driver is compiled into the kernel
+it gets loaded _before_ the root fs is mounted and of course the hotplug
+system and the firmware are not available.
 
+I suggest to stick with modular driver, otherwise you must create an
+initrd with hotplug + firmware.
 
---==_Exmh_1127754646_3790P
-Content-Type: application/pgp-signature
+More on firmware loading here: http://lwn.net/Articles/32997/
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFDOCuWcC3lWbTT17ARAmTkAJ9oJsXQBhFHw7BV92yJ/m1QBDZz1wCfcqlJ
-FSluQ6/N7lTjsu+CKmsFpr8=
-=t5LA
------END PGP SIGNATURE-----
-
---==_Exmh_1127754646_3790P--
+Luca
+-- 
+Home: http://kronoz.cjb.net
+"L'amore consiste nell'essere cretini insieme." -- P. Valery

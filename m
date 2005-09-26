@@ -1,161 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932463AbVIZSfO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932466AbVIZSg5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932463AbVIZSfO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 14:35:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932464AbVIZSfO
+	id S932466AbVIZSg5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 14:36:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbVIZSg5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 14:35:14 -0400
-Received: from nproxy.gmail.com ([64.233.182.193]:6577 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932463AbVIZSfM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 14:35:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:references;
-        b=OjBJbC1EUHsxoikxlX+qQbYaay5RNzEuINVRvPgwlXzky2wkI/3/jI6QScXF6cR75x8/P9jlkgp3hkUiMKfpA/kw8hNK5F6D5CRcEPYd2S8X6Zd9pc6I097xEVMyv5LiDHeY5hTM0LfC1ytC39HYL8+kynUhaHnuNCy91Ha3OI0=
-Message-ID: <ee588a54050926113569485648@mail.gmail.com>
-Date: Mon, 26 Sep 2005 20:35:10 +0200
-From: Xose Vazquez Perez <xose.vazquez@gmail.com>
-Reply-To: Xose Vazquez Perez <xose.vazquez@gmail.com>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Subject: Re: [PATCH 2.6.12 1/1] docs: updated some code docs
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <Pine.LNX.4.58.0509261122220.11898@shark.he.net>
+	Mon, 26 Sep 2005 14:36:57 -0400
+Received: from pne-smtpout2-sn2.hy.skanova.net ([81.228.8.164]:24967 "EHLO
+	pne-smtpout2-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S932466AbVIZSg4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 14:36:56 -0400
+To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: Re: [2.6.13] pktcdvd: IO-errors
+References: <Pine.LNX.4.60.0509242057001.4899@poirot.grange>
+	<m3slvtzf72.fsf@telia.com>
+	<Pine.LNX.4.60.0509252026290.3089@poirot.grange>
+From: Peter Osterlund <petero2@telia.com>
+Date: 26 Sep 2005 20:36:51 +0200
+In-Reply-To: <Pine.LNX.4.60.0509252026290.3089@poirot.grange>
+Message-ID: <m34q873ccc.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_15111_12257676.1127759710730"
-References: <ee588a54050726152014f56899@mail.gmail.com>
-	 <16727.134.134.136.2.1122417419.squirrel@chretien.genwebhost.com>
-	 <ee588a5405092611108a9d063@mail.gmail.com>
-	 <Pine.LNX.4.58.0509261122220.11898@shark.he.net>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_15111_12257676.1127759710730
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Guennadi Liakhovetski <g.liakhovetski@gmx.de> writes:
 
-On 9/26/05, Randy.Dunlap <rdunlap@xenotime.net> wrote:
+> On Sun, 25 Sep 2005, Peter Osterlund wrote:
+> 
+> > Guennadi Liakhovetski <g.liakhovetski@gmx.de> writes:
+> > 
+> > > Just tried pktcdvd on 2.6.13.1. The setup went fine:
+...
+> > > But, as I tried to copy some files to the CD-RW, it first went ok, but 
+> > > then produced the following:
+> > > 
+> > > 20:41:01: ide-cd: cmd 0x2a timed out
+> > > 		      ^^^^	---------> write10
+> > > 20:41:01: hdc: DMA timeout retry
+> > > 20:41:01: hdc: timeout waiting for DMA
+...
+> > > the "cp" finished earlier, I did a sync, and it also finished. The good 
+> > > parts - no Oops, no process stuck in "D", tha bad parts - it didn't 
+> > > work:-), the IDE LED stays on and I cannot eject the CD. The CD-R is a 
+> > > BenQ 52x32x52 Seamless Link alone on ide1, the disk does indeed say 
+> > > 4x-10x. The cd-writer works mostly... if I am gentle to it - I usually 
+> > > burn at 32x even if the media says 52x... Is it just a hw-failure or a 
+> > > driver bug?
+> > 
+> > Did it ever work with this hardware, for example using 2.6.12?
+> 
+> It was the first time I ever tried it. Now as you asked I also tried 
+> 2.6.12-rc5. Surprise, surprise - it worked... But very strange. First, I 
+> did
+> 
+> # time cp -a source /cdrom/ ; time sync
+> 
+> It took a few minutes to copy 190MB, but it finished successfully. Now to 
+> the strange things: even after it finished the LED on the writer continued 
+> flashing red... Only after I performed a read access to /cdrom/ it 
+> stopped. Actually, just wrote a small file to it, did a sync, sync 
+> returned, LED is flashing red. Now I cannot stop it by reading. Only 
+> unmounting it helped.
+...
+> Besides, it works under 2.6.12-rc5...
 
-> All looks good to me except for this one line:
->
->  Andrew Morton's patch scripts:
-> -http://www.zip.com.au/~akpm/linux/patches/patch-scripts-0.20            =
-       +http://www.zip.com.au/~akpm/linux/patches/
-> +Instead these ones, people should use quilt ASAP (see above).
->
-> Make that last line something like:
-> Instead of these (tools | scripts), quilt is the recommended
-> patch management tool (see above).
+What gcc versions were used when compiling the kernels? (Boot both
+kernels, run "cat /proc/version" to find out.)
 
-ok. here it goes again.
+I just discovered that the driver doesn't work correctly on my laptop
+if I use "gcc version 4.0.1 20050727 (Red Hat 4.0.1-5)" from Fedora
+Core 4. "pktsetup 0 /dev/hdc ; cat /proc/driver/pktcdvd/pktcdvd0"
+OOPSes. If I use gcc32 it does seem to work though.
 
-------=_Part_15111_12257676.1127759710730
-Content-Type: text/x-patch; name="code_docs.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="code_docs.diff"
-
-ZGlmZiAtTnVhciBvbGQvRG9jdW1lbnRhdGlvbi9Db2RpbmdTdHlsZSBuZXcvRG9jdW1lbnRhdGlv
-bi9Db2RpbmdTdHlsZQotLS0gb2xkL0RvY3VtZW50YXRpb24vQ29kaW5nU3R5bGUJMjAwNS0wOS0y
-NiAyMDowMjozNC4wMDAwMDAwMDAgKzAyMDAKKysrIG5ldy9Eb2N1bWVudGF0aW9uL0NvZGluZ1N0
-eWxlCTIwMDUtMDktMjYgMjA6MDU6NTkuMDAwMDAwMDAwICswMjAwCkBAIC00NDQsMTAgKzQ0NCwx
-MyBAQAogVVJMOiBodHRwOi8vY20uYmVsbC1sYWJzLmNvbS9jbS9jcy90cG9wLwogCiBHTlUgbWFu
-dWFscyAtIHdoZXJlIGluIGNvbXBsaWFuY2Ugd2l0aCBLJlIgYW5kIHRoaXMgdGV4dCAtIGZvciBj
-cHAsIGdjYywKLWdjYyBpbnRlcm5hbHMgYW5kIGluZGVudCwgYWxsIGF2YWlsYWJsZSBmcm9tIGh0
-dHA6Ly93d3cuZ251Lm9yZworZ2NjIGludGVybmFscyBhbmQgaW5kZW50LCBhbGwgYXZhaWxhYmxl
-IGZyb20gaHR0cDovL3d3dy5nbnUub3JnL21hbnVhbC8KIAogV0cxNCBpcyB0aGUgaW50ZXJuYXRp
-b25hbCBzdGFuZGFyZGl6YXRpb24gd29ya2luZyBncm91cCBmb3IgdGhlIHByb2dyYW1taW5nCi1s
-YW5ndWFnZSBDLCBVUkw6IGh0dHA6Ly9zdGQuZGt1dWcuZGsvSlRDMS9TQzIyL1dHMTQvCitsYW5n
-dWFnZSBDLCBVUkw6IGh0dHA6Ly93d3cub3Blbi1zdGQub3JnL0pUQzEvU0MyMi9XRzE0LworCitL
-ZXJuZWwgQ29kaW5nU3R5bGUgYnkgZ3JlZ0Brcm9haC5jb20gYXQgT0xTIDIwMDI6CitodHRwOi8v
-d3d3Lmtyb2FoLmNvbS9saW51eC90YWxrcy9vbHNfMjAwMl9rZXJuZWxfY29kaW5nc3R5bGVfdGFs
-ay9odG1sLwogCiAtLQogTGFzdCB1cGRhdGVkIG9uIDE2IEZlYnJ1YXJ5IDIwMDQgYnkgYSBjb21t
-dW5pdHkgZWZmb3J0IG9uIExLTUwuCmRpZmYgLU51YXIgb2xkL0RvY3VtZW50YXRpb24vU3VibWl0
-dGluZ0RyaXZlcnMgbmV3L0RvY3VtZW50YXRpb24vU3VibWl0dGluZ0RyaXZlcnMKLS0tIG9sZC9E
-b2N1bWVudGF0aW9uL1N1Ym1pdHRpbmdEcml2ZXJzCTIwMDUtMDktMjYgMjA6MDI6MzQuMDAwMDAw
-MDAwICswMjAwCisrKyBuZXcvRG9jdW1lbnRhdGlvbi9TdWJtaXR0aW5nRHJpdmVycwkyMDA1LTA5
-LTI1IDIyOjA1OjU2LjAwMDAwMDAwMCArMDIwMApAQCAtMjcsMTggKzI3LDE3IEBACiAtLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0KIAogTGludXggMi4wOgotCU5vIG5ldyBkcml2ZXJzIGFyZSBhY2Nl
-cHRlZCBmb3IgdGhpcyBrZXJuZWwgdHJlZQorCU5vIG5ldyBkcml2ZXJzIGFyZSBhY2NlcHRlZCBm
-b3IgdGhpcyBrZXJuZWwgdHJlZS4KIAogTGludXggMi4yOgorCU5vIG5ldyBkcml2ZXJzIGFyZSBh
-Y2NlcHRlZCBmb3IgdGhpcyBrZXJuZWwgdHJlZS4KKworTGludXggMi40OgogCUlmIHRoZSBjb2Rl
-IGFyZWEgaGFzIGEgZ2VuZXJhbCBtYWludGFpbmVyIHRoZW4gcGxlYXNlIHN1Ym1pdCBpdCB0bwog
-CXRoZSBtYWludGFpbmVyIGxpc3RlZCBpbiBNQUlOVEFJTkVSUyBpbiB0aGUga2VybmVsIGZpbGUu
-IElmIHRoZQogCW1haW50YWluZXIgZG9lcyBub3QgcmVzcG9uZCBvciB5b3UgY2Fubm90IGZpbmQg
-dGhlIGFwcHJvcHJpYXRlCi0JbWFpbnRhaW5lciB0aGVuIHBsZWFzZSBjb250YWN0IHRoZSAyLjIg
-a2VybmVsIG1haW50YWluZXI6Ci0JTWFyYy1DaHJpc3RpYW4gUGV0ZXJzZW4gPG0uYy5wQHdvbGst
-cHJvamVjdC5kZT4uCi0KLUxpbnV4IDIuNDoKLQlUaGUgc2FtZSBydWxlcyBhcHBseSBhcyAyLjIu
-IFRoZSBmaW5hbCBjb250YWN0IHBvaW50IGZvciBMaW51eCAyLjQKLQlzdWJtaXNzaW9ucyBpcyBN
-YXJjZWxvIFRvc2F0dGkgPG1hcmNlbG8udG9zYXR0aUBjeWNsYWRlcy5jb20+LgorCW1haW50YWlu
-ZXIgdGhlbiBwbGVhc2UgY29udGFjdCBNYXJjZWxvIFRvc2F0dGkKKwk8bWFyY2Vsby50b3NhdHRp
-QGN5Y2xhZGVzLmNvbT4uCiAKIExpbnV4IDIuNjoKIAlUaGUgc2FtZSBydWxlcyBhcHBseSBhcyAy
-LjQgZXhjZXB0IHRoYXQgeW91IHNob3VsZCBmb2xsb3cgbGludXgta2VybmVsCkBAIC01Myw2ICs1
-Miw3IEBACiAJCW9mIGV4Y2x1c2l2ZSBHUEwgbGljZW5zaW5nLCBhbmQgaWYgeW91IHdpc2ggdGhl
-IGRyaXZlcgogCQl0byBiZSB1c2VmdWwgdG8gb3RoZXIgY29tbXVuaXRpZXMgc3VjaCBhcyBCU0Qg
-eW91IG1heSB3ZWxsCiAJCXdpc2ggdG8gcmVsZWFzZSB1bmRlciBtdWx0aXBsZSBsaWNlbnNlcy4K
-KwkJU2VlIGFjY2VwdGVkIGxpY2Vuc2VzIGF0IGluY2x1ZGUvbGludXgvbW9kdWxlLmgKIAogQ29w
-eXJpZ2h0OglUaGUgY29weXJpZ2h0IG93bmVyIG11c3QgYWdyZWUgdG8gdXNlIG9mIEdQTC4KIAkJ
-SXQncyBiZXN0IGlmIHRoZSBzdWJtaXR0ZXIgYW5kIGNvcHlyaWdodCBvd25lcgpAQCAtMTQzLDUg
-KzE0MywxMyBAQAogCWh0dHA6Ly9rZXJuZWxuZXdiaWVzLm9yZy8KIAogTGludXggVVNCIHByb2pl
-Y3Q6Ci0JaHR0cDovL3NvdXJjZWZvcmdlLm5ldC9wcm9qZWN0cy9saW51eC11c2IvCisJaHR0cDov
-L2xpbnV4LXVzYi5zb3VyY2Vmb3JnZS5uZXQvCisKK0hvdyB0byBOT1Qgd3JpdGUga2VybmVsIGRy
-aXZlciBieSBhcmphbnZAcmVkaGF0LmNvbQorCWh0dHA6Ly9wZW9wbGUucmVkaGF0LmNvbS9hcmph
-bnYvb2xzcGFwZXIucGRmCisKK0tlcm5lbCBKYW5pdG9yOgorCWh0dHA6Ly9qYW5pdG9yLmtlcm5l
-bG5ld2JpZXMub3JnLwogCistLQorTGFzdCB1cGRhdGVkIG9uIDI1IFNlcCAyMDA1LgpkaWZmIC1O
-dWFyIG9sZC9Eb2N1bWVudGF0aW9uL1N1Ym1pdHRpbmdQYXRjaGVzIG5ldy9Eb2N1bWVudGF0aW9u
-L1N1Ym1pdHRpbmdQYXRjaGVzCi0tLSBvbGQvRG9jdW1lbnRhdGlvbi9TdWJtaXR0aW5nUGF0Y2hl
-cwkyMDA1LTA5LTI2IDIwOjAyOjM0LjAwMDAwMDAwMCArMDIwMAorKysgbmV3L0RvY3VtZW50YXRp
-b24vU3VibWl0dGluZ1BhdGNoZXMJMjAwNS0wOS0yNiAyMDozMjowMi4wMDAwMDAwMDAgKzAyMDAK
-QEAgLTc4LDcgKzc4LDkgQEAKIGh0dHA6Ly93d3cueGVub3RpbWUubmV0L2xpbnV4L3NjcmlwdHMv
-cGF0Y2hpbmctc2NyaXB0cy0wMDIudGFyLmd6CiAKIEFuZHJldyBNb3J0b24ncyBwYXRjaCBzY3Jp
-cHRzOgotaHR0cDovL3d3dy56aXAuY29tLmF1L35ha3BtL2xpbnV4L3BhdGNoZXMvcGF0Y2gtc2Ny
-aXB0cy0wLjIwCitodHRwOi8vd3d3LnppcC5jb20uYXUvfmFrcG0vbGludXgvcGF0Y2hlcy8KK0lu
-c3RlYWQgb2YgdGhlc2Ugc2NyaXB0cywgcXVpbHQgaXMgdGhlIHJlY29tbWVuZGVkIHBhdGNoIG1h
-bmFnZW1lbnQKK3Rvb2wgKHNlZSBhYm92ZSkuCiAKIAogCkBAIC05Nyw3ICs5OSw3IEBACiAKIDMp
-IFNlcGFyYXRlIHlvdXIgY2hhbmdlcy4KIAotU2VwYXJhdGUgZWFjaCBsb2dpY2FsIGNoYW5nZSBp
-bnRvIGl0cyBvd24gcGF0Y2guCitTZXBhcmF0ZSBfbG9naWNhbCBjaGFuZ2VzXyBpbnRvIGEgc2lu
-Z2xlIHBhdGNoIGZpbGUuCiAKIEZvciBleGFtcGxlLCBpZiB5b3VyIGNoYW5nZXMgaW5jbHVkZSBi
-b3RoIGJ1ZyBmaXhlcyBhbmQgcGVyZm9ybWFuY2UKIGVuaGFuY2VtZW50cyBmb3IgYSBzaW5nbGUg
-ZHJpdmVyLCBzZXBhcmF0ZSB0aG9zZSBjaGFuZ2VzIGludG8gdHdvCkBAIC0xMTIsNiArMTE0LDEw
-IEBACiBjb21wbGV0ZSwgdGhhdCBpcyBPSy4gIFNpbXBseSBub3RlICJ0aGlzIHBhdGNoIGRlcGVu
-ZHMgb24gcGF0Y2ggWCIKIGluIHlvdXIgcGF0Y2ggZGVzY3JpcHRpb24uCiAKK0lmIHlvdSBjYW5u
-b3QgY29uZGVuc2UgeW91ciBwYXRjaCBzZXQgaW50byBhIHNtYWxsZXIgc2V0IG9mIHBhdGNoZXMs
-Cit0aGVuIG9ubHkgcG9zdCBzYXkgMTUgb3Igc28gYXQgYSB0aW1lIGFuZCB3YWl0IGZvciByZXZp
-ZXcgYW5kIGludGVncmF0aW9uLgorCisKIAogNCkgU2VsZWN0IGUtbWFpbCBkZXN0aW5hdGlvbi4K
-IApAQCAtMTI0LDYgKzEzMCwxMCBAQAogbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZy4gIE1v
-c3Qga2VybmVsIGRldmVsb3BlcnMgbW9uaXRvciB0aGlzCiBlLW1haWwgbGlzdCwgYW5kIGNhbiBj
-b21tZW50IG9uIHlvdXIgY2hhbmdlcy4KIAorCitEbyBub3Qgc2VuZCBtb3JlIHRoYW4gMTUgcGF0
-Y2hlcyBhdCBvbmNlIHRvIHRoZSB2Z2VyIG1haWxpbmcgbGlzdHMhISEKKworCiBMaW51cyBUb3J2
-YWxkcyBpcyB0aGUgZmluYWwgYXJiaXRlciBvZiBhbGwgY2hhbmdlcyBhY2NlcHRlZCBpbnRvIHRo
-ZQogTGludXgga2VybmVsLiAgSGlzIGUtbWFpbCBhZGRyZXNzIGlzIDx0b3J2YWxkc0Bvc2RsLm9y
-Zz4uICBIZSBnZXRzCiBhIGxvdCBvZiBlLW1haWwsIHNvIHR5cGljYWxseSB5b3Ugc2hvdWxkIGRv
-IHlvdXIgYmVzdCB0byAtYXZvaWQtIHNlbmRpbmcKQEAgLTE0OSw2ICsxNTksOSBAQAogTUFJTlRB
-SU5FUlMgZmlsZSBmb3IgYSBtYWlsaW5nIGxpc3QgdGhhdCByZWxhdGVzIHNwZWNpZmljYWxseSB0
-bwogeW91ciBjaGFuZ2UuCiAKK01ham9yZG9tbyBsaXN0cyBvZiBWR0VSLktFUk5FTC5PUkcgYXQ6
-CisJaHR0cDovL3ZnZXIua2VybmVsLm9yZy92Z2VyLWxpc3RzLmh0bWwKKwogSWYgY2hhbmdlcyBh
-ZmZlY3QgdXNlcmxhbmQta2VybmVsIGludGVyZmFjZXMsIHBsZWFzZSBzZW5kCiB0aGUgTUFOLVBB
-R0VTIG1haW50YWluZXIgKGFzIGxpc3RlZCBpbiB0aGUgTUFJTlRBSU5FUlMgZmlsZSkKIGEgbWFu
-LXBhZ2VzIHBhdGNoLCBvciBhdCBsZWFzdCBhIG5vdGlmaWNhdGlvbiBvZiB0aGUgY2hhbmdlLApA
-QCAtMzAyLDE2ICszMTUsNiBAQAogCiAKIAotMTIpIE1vcmUgcmVmZXJlbmNlcyBmb3Igc3VibWl0
-dGluZyBwYXRjaGVzCi0KLUFuZHJldyBNb3J0b24sICJUaGUgcGVyZmVjdCBwYXRjaCIgKHRwcCku
-Ci0gIDxodHRwOi8vd3d3LnppcC5jb20uYXUvfmFrcG0vbGludXgvcGF0Y2hlcy9zdHVmZi90cHAu
-dHh0PgotCi1KZWZmIEdhcnppaywgIkxpbnV4IGtlcm5lbCBwYXRjaCBzdWJtaXNzaW9uIGZvcm1h
-dC4iCi0gIDxodHRwOi8vbGludXgueXl6LnVzL3BhdGNoLWZvcm1hdC5odG1sPgotCi0KLQogLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KIFNFQ1RJT04gMiAtIEhJTlRTLCBUSVBT
-LCBBTkQgVFJJQ0tTCiAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpAQCAtMzgy
-LDMgKzM4NSwyNCBAQAogRG9uJ3QgdHJ5IHRvIGFudGljaXBhdGUgbmVidWxvdXMgZnV0dXJlIGNh
-c2VzIHdoaWNoIG1heSBvciBtYXkgbm90CiBiZSB1c2VmdWw6ICAiTWFrZSBpdCBhcyBzaW1wbGUg
-YXMgeW91IGNhbiwgYW5kIG5vIHNpbXBsZXIuIgogCisKKworLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LQorU0VDVElPTiAzIC0gUkVGRVJFTkNFUworLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQorCitBbmRy
-ZXcgTW9ydG9uLCAiVGhlIHBlcmZlY3QgcGF0Y2giICh0cHApLgorICA8aHR0cDovL3d3dy56aXAu
-Y29tLmF1L35ha3BtL2xpbnV4L3BhdGNoZXMvc3R1ZmYvdHBwLnR4dD4KKworSmVmZiBHYXJ6aWss
-ICJMaW51eCBrZXJuZWwgcGF0Y2ggc3VibWlzc2lvbiBmb3JtYXQuIgorICA8aHR0cDovL2xpbnV4
-Lnl5ei51cy9wYXRjaC1mb3JtYXQuaHRtbD4KKworR3JlZyBLcm9haCwgIkhvdyB0byBwaXNzIG9m
-ZiBhIGtlcm5lbCBzdWJzeXN0ZW0gbWFpbnRhaW5lciIuCisgIDxodHRwOi8vd3d3Lmtyb2FoLmNv
-bS9sb2cvMjAwNS8wMy8zMS8+CisgIDxodHRwOi8vd3d3Lmtyb2FoLmNvbS9sb2cvMjAwNS8wNy8w
-OC8+CisKK05PISEhISBObyBtb3JlIGh1Z2UgcGF0Y2ggYm9tYnMgdG8gbGludXgta2VybmVsQHZn
-ZXIua2VybmVsLm9yZyBwZW9wbGUhLgorICA8aHR0cDovL21hcmMudGhlYWltc2dyb3VwLmNvbS8/
-bD1saW51eC1rZXJuZWwmbT0xMTIxMTI3NDk5MTI5NDQmdz0yPgorCistLQorTGFzdCB1cGRhdGVk
-IG9uIDI1IFNlcCAyMDA1Lgo=
-------=_Part_15111_12257676.1127759710730--
+-- 
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

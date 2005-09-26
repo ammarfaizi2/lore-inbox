@@ -1,76 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751650AbVIZP5D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751653AbVIZQDj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751650AbVIZP5D (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 11:57:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751652AbVIZP5D
+	id S1751653AbVIZQDj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 12:03:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751654AbVIZQDj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 11:57:03 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:1287 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1751650AbVIZP5B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 11:57:01 -0400
-Date: Mon, 26 Sep 2005 11:56:44 -0400
-From: Neil Horman <nhorman@tuxdriver.com>
-To: Al Boldi <a1426z@gawab.com>
-Cc: Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Resource limits
-Message-ID: <20050926155644.GC2100@hmsreliant.homelinux.net>
-References: <200509251712.42302.a1426z@gawab.com> <Pine.LNX.4.63.0509252335560.28108@cuia.boston.redhat.com> <200509261718.17658.a1426z@gawab.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 26 Sep 2005 12:03:39 -0400
+Received: from justus.rz.uni-saarland.de ([134.96.7.31]:15551 "EHLO
+	justus.rz.uni-saarland.de") by vger.kernel.org with ESMTP
+	id S1751652AbVIZQDj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 12:03:39 -0400
+From: Michael Bellion <mbellion@hipac.org>
+To: Emmanuel Fleury <fleury@cs.aau.dk>
+Subject: Re: [ANNOUNCE] Release of nf-HiPAC 0.9.0
+Date: Mon, 26 Sep 2005 18:03:27 +0200
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+References: <200509260445.46740.mbellion@hipac.org> <200509261638.12731.mbellion@hipac.org> <43380E4A.1060604@cs.aau.dk>
+In-Reply-To: <43380E4A.1060604@cs.aau.dk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200509261718.17658.a1426z@gawab.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200509261803.28150.mbellion@hipac.org>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.1 (justus.rz.uni-saarland.de [134.96.7.31]); Mon, 26 Sep 2005 18:03:28 +0200 (CEST)
+X-AntiVirus: checked by AntiVir Milter 1.0.6; AVE 6.32.0.6; VDF 6.32.0.43
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 26, 2005 at 05:18:17PM +0300, Al Boldi wrote:
-> Rik van Riel wrote:
-> > On Sun, 25 Sep 2005, Al Boldi wrote:
-> > > Resource limits in Linux, when available, are currently very limited.
-> > >
-> > > i.e.:
-> > > Too many process forks and your system may crash.
-> > > This can be capped with threads-max, but may lead you into a lock-out.
-> > >
-> > > What is needed is a soft, hard, and a special emergency limit that would
-> > > allow you to use the resource for a limited time to circumvent a
-> > > lock-out.
-> > >
-> > > Would this be difficult to implement?
+Hi,
+
+> > But your performance tests have a serious flaw:
+> > You construct your rule set by creating one rule for each entry in your
+> > packet header trace. This results in an completely artificial rule set
+> > that creates a lot of redundancy in the nf-HiPAC lookup data structure
+> > making it much larger than the Compact Filter data structure.
+>
+> Yes, it was intended to be a worst case for our scheme (not realistic
+> but worst case)..
+
+Sorry, but this is far away from the worst case for your scheme. Actually it 
+is a quite good case for your compiler, because every rule is fully specified 
+(meaning there are no wildcards in any rule) and there are no ranges or masks 
+involved. 
+Try using a mixed rule set that contains rules that only specify certain 
+dimensions and have wildcards on the other dimensions. Try using rules with 
+ranges and masks.
+Try using overlapping rules, meaning rules that completely or partly overlap 
+other rules in certain dimensions.
+This will make your data structure grow!
+
+> > I am currently working on a new improved version of the algorithm used in
+> > nf-HiPAC. The new algorithmic core will reduce memory usage while at the
+> > same time improving the running time of insert and delete operations. The
+> > lookup performance will be improved too, especially for bigger rulesets.
+> > The concepts and the design are already developed, but the implementation
+> > is still in its early stages.
 > >
-> > How would you reclaim the resource after that limited time is
-> > over ?  Kill processes?
-> 
-> That's one way,  but really, the issue needs some deep thought.
-> Leaving Linux exposed to a lock-out is rather frightening.
-> 
-What exactly is it that you're worried about here?  Do you have a particular
-concern that a process won't be able to fork or create a thread?  Resources that
-can be allocated to user space processes always run the risk that their
-allocation will not succede.  Its up to the application to deal with that.
+> > The new algorithmic core will make sure that the lookup data structure in
+> > the kernel is always fully optimized while at the same time allowing very
+> > fast dynamic updates.
+> >
+> > At that point Compact Filter will not be able to win in any performance
+> > test against  nf-HiPAC anymore, simply because there is no way to
+> > optimize the lookup data structure any further.
+>
+> Well, you already said this last time we had exchanged some mails
+> (it was more than one year ago if I count well).
 
-> Neil Horman wrote:
-> > Whats insufficient about the per-user limits that can be imposed by the
-> > ulimit syscall?
-> 
-> Are they system wide or per-user?
-> 
-ulimits are per-user.
-Neil
+Yes, you are right. The HiPAC project has gone through some tough times over 
+the last 2 years. With MARA Systems the HiPAC Project has finally found a 
+strong partner that is fully committed to the concept of Open Source 
+Software. This allows me to continue the development of HiPAC under the GNU 
+GPL license.
 
-> --
-> Al
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Anyway, I doubt you can get something that you can update dynamically
+> AND small in size following your way of doing. But, prove me wrong and
+> I'll be happy. :)
 
--- 
-/***************************************************
- *Neil Horman
- *Software Engineer
- *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
- ***************************************************/
+Ok, I'll do that :)
+
+Regards,
+    +---------------------------+
+    |      Michael Bellion      |
+    |   <mbellion@hipac.org>    |
+    +---------------------------+
+

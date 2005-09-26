@@ -1,86 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751686AbVIZRBj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751678AbVIZRHe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751686AbVIZRBj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 13:01:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751689AbVIZRBj
+	id S1751678AbVIZRHe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 13:07:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751685AbVIZRHe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 13:01:39 -0400
-Received: from ns1.coraid.com ([65.14.39.133]:30884 "EHLO coraid.com")
-	by vger.kernel.org with ESMTP id S1751686AbVIZRBj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 13:01:39 -0400
-To: linux-kernel@vger.kernel.org
-CC: ecashin@coraid.com, Greg K-H <greg@kroah.com>,
-       "David S. Miller" <davem@davemloft.net>,
-       Jim MacBaine <jmacbaine@gmail.com>
-Subject: [PATCH 2.6.14-rc2] aoe [2/2]: use get_unaligned for possibly
- unaligned accesses in ATA id buffer
-From: "Ed L. Cashin" <ecashin@coraid.com>
-References: <87oe6fhj8y.fsf@coraid.com>
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 26 Sep 2005 12:45:34 -0400
-Message-ID: <87ll1jg4lt.fsf@coraid.com>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+	Mon, 26 Sep 2005 13:07:34 -0400
+Received: from zproxy.gmail.com ([64.233.162.199]:57725 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751673AbVIZRHd convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 13:07:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=VKKQNK/pFUC42/Twuo30KSIUhJr/1CpWIz++z49YSWGbtjBlnUbqTBRq406bs7aZg5n4gxEv6YAuTyI/fY7RTbjzpnooOFXonHfv6Vz52eZQwG2jMft/NjgVRNbeTWBj1s36kSpDUU7opi1hzDsF3YnyVgNvIH/KpDwUWUMrpl0=
+Message-ID: <c775eb9b050926100723a3a0bf@mail.gmail.com>
+Date: Mon, 26 Sep 2005 13:07:30 -0400
+From: Bharath Ramesh <krosswindz@gmail.com>
+Reply-To: Bharath Ramesh <krosswindz@gmail.com>
+To: Keenan Pepper <keenanpepper@gmail.com>
+Subject: Re: ipw2200 only works as a module?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <4338122C.9000901@gmail.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4338122C.9000901@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: "Ed L. Cashin" <ecashin@coraid.com>
+When the kernel is booting it tries to locate the ipw-2.2 firmware
+which cannot be found as the filesystems are yet to be mounted. The
+firmware normally resides in the /lib directory. Its always advisable
+to use drivers which require firmware loading as modules so that when
+you try loading the module you have your file system already mounted.
 
-Use get_unaligned for possibly-unaligned multi-byte accesses to the
-ATA device identify response buffer.
-
-Index: 2.6.14-rc2-aoe/drivers/block/aoe/aoecmd.c
-===================================================================
---- 2.6.14-rc2-aoe.orig/drivers/block/aoe/aoecmd.c	2005-09-26 12:27:49.000000000 -0400
-+++ 2.6.14-rc2-aoe/drivers/block/aoe/aoecmd.c	2005-09-26 12:27:49.000000000 -0400
-@@ -8,6 +8,7 @@
- #include <linux/blkdev.h>
- #include <linux/skbuff.h>
- #include <linux/netdevice.h>
-+#include <asm/unaligned.h>
- #include "aoe.h"
- 
- #define TIMERTICK (HZ / 10)
-@@ -314,16 +315,16 @@
- 	u16 n;
- 
- 	/* word 83: command set supported */
--	n = le16_to_cpup((__le16 *) &id[83<<1]);
-+	n = le16_to_cpu(get_unaligned((__le16 *) &id[83<<1]));
- 
- 	/* word 86: command set/feature enabled */
--	n |= le16_to_cpup((__le16 *) &id[86<<1]);
-+	n |= le16_to_cpu(get_unaligned((__le16 *) &id[86<<1]));
- 
- 	if (n & (1<<10)) {	/* bit 10: LBA 48 */
- 		d->flags |= DEVFL_EXT;
- 
- 		/* word 100: number lba48 sectors */
--		ssize = le64_to_cpup((__le64 *) &id[100<<1]);
-+		ssize = le64_to_cpu(get_unaligned((__le64 *) &id[100<<1]));
- 
- 		/* set as in ide-disk.c:init_idedisk_capacity */
- 		d->geo.cylinders = ssize;
-@@ -334,12 +335,12 @@
- 		d->flags &= ~DEVFL_EXT;
- 
- 		/* number lba28 sectors */
--		ssize = le32_to_cpup((__le32 *) &id[60<<1]);
-+		ssize = le32_to_cpu(get_unaligned((__le32 *) &id[60<<1]));
- 
- 		/* NOTE: obsolete in ATA 6 */
--		d->geo.cylinders = le16_to_cpup((__le16 *) &id[54<<1]);
--		d->geo.heads = le16_to_cpup((__le16 *) &id[55<<1]);
--		d->geo.sectors = le16_to_cpup((__le16 *) &id[56<<1]);
-+		d->geo.cylinders = le16_to_cpu(get_unaligned((__le16 *) &id[54<<1]));
-+		d->geo.heads = le16_to_cpu(get_unaligned((__le16 *) &id[55<<1]));
-+		d->geo.sectors = le16_to_cpu(get_unaligned((__le16 *) &id[56<<1]));
- 	}
- 	d->ssize = ssize;
- 	d->geo.start = 0;
-
-
--- 
-  Ed L. Cashin <ecashin@coraid.com>
-
+On 9/26/05, Keenan Pepper <keenanpepper@gmail.com> wrote:
+> With CONFIG_IPW2200=y I get:
+>
+> ipw2200: ipw-2.2-boot.fw load failed: Reason -2
+> ipw2200: Unable to load firmware: 0xFFFFFFFE
+>
+> but with CONFIG_IPW2200=m it works fine. If it doesn't work when built into the
+> kernel, why even give people the option?
+>
+> BTW, a better error message than "Reason -2" would be nice. =)
+>
+> Keenan Pepper
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

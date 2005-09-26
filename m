@@ -1,95 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932361AbVIZCvo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbVIZDiK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932361AbVIZCvo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Sep 2005 22:51:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751613AbVIZCvo
+	id S932364AbVIZDiK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Sep 2005 23:38:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbVIZDiJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Sep 2005 22:51:44 -0400
-Received: from smtprelay01.ispgateway.de ([80.67.18.13]:58248 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1751609AbVIZCvn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Sep 2005 22:51:43 -0400
-From: Michael Bellion <mbellion@hipac.org>
-To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: [ANNOUNCE] Release of nf-HiPAC 0.9.0
-Date: Mon, 26 Sep 2005 04:45:46 +0200
-User-Agent: KMail/1.8.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sun, 25 Sep 2005 23:38:09 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:9188 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932364AbVIZDiI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Sep 2005 23:38:08 -0400
+Date: Sun, 25 Sep 2005 23:38:05 -0400
+From: Dave Jones <davej@redhat.com>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: usb-snd-audio breakage
+Message-ID: <20050926033805.GB22376@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Jon Smirl <jonsmirl@gmail.com>, linux-kernel@vger.kernel.org
+References: <9e4733910509251927484a70c7@mail.gmail.com> <9e4733910509251943277f077a@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200509260445.46740.mbellion@hipac.org>
+In-Reply-To: <9e4733910509251943277f077a@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Sun, Sep 25, 2005 at 10:43:11PM -0400, Jon Smirl wrote:
+ > The Redhat FC4 installer is adds index=0 in modprobe.conf. The index
+ > parameter appears to have been removed fron snd-usb-audio.
+ > 
+ > There are two issues:
+ > 1) should index have been left as a non-functioning param so that
+ > existing installs won't break.
+ > 2) Why didn't I get a decent error message about index being the
+ > problem instead of the message about `'
 
-I am happy to announce the release of nf-HiPAC version 0.9.0
+This patch really should have been merged for 2.6.13
+but somehow fell through the cracks. I don't think it
+even landed in -mm
 
-During the development of version 0.9.0 everything was ported to Linux kernel 
-2.6 and large parts of the kernel code have been rewritten.
-The kernel patch is now fairly non-intrusive: it only adds one simple function 
-to ip_tables.c. The rest of the patch introduces new files to the kernel. 
-The new release fixes all known bugs and also introduces some new features.
-
-Since the last release I have become part of MARA Systems AB 
-( http://www.marasystems.com ). MARA Systems AB is now the commercial backer 
-of the HiPAC Project and finances it completely. Together MARA Systems and I 
-will make sure that HiPAC is actively maintained and further developed under 
-the GNU GPL.
+		Dave
 
 
-For all of you who don't know nf-HiPAC yet, here is a short overview:
 
-nf-HiPAC is a full featured packet filter for Linux which demonstrates the
-power and flexibility of HiPAC. HiPAC is a novel framework for packet
-classification which uses an advanced algorithm to reduce the number of
-memory lookups per packet. It is ideal for environments involving large rule
-sets and/or high bandwidth networks.
+Name: Ignore trailing whitespace on kernel parameters correctly: Fixed version
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
-nf-HiPAC provides the same rich feature set as iptables, the popular Linux
-packet filter. The complexity of the sophisticated HiPAC packet
-classification algorithm is hidden behind an iptables compatible user
-interface which renders nf-HiPAC a drop-in replacement for iptables. Thereby,
-the iptables' semantics of the rules is preserved, i.e. you can construct your
-rules like you are used to. From a user's point of view there is no need to
-understand anything about the HiPAC algorithm.
+Dave Jones says:
 
-The nf-hipac user space tool is designed to be as compatible as possible to
-'iptables -t filter'. It even supports the full power of iptables targets,
-matches and stateful packet filtering (connection tracking) besides the native
-nf-HiPAC matches. This makes a switch from iptables to nf-HiPAC very easy.
-Usually it is sufficient to replace the calls to iptables with calls to
-nf-hipac for your filter rules.
+... if the modprobe.conf has trailing whitespace, modules fail to load
+with the following helpful message..
 
-Why another packet filter?
-Performance:
-    iptables, like most packet filters, uses a simple packet classification
-    algorithm which traverses the rules in a chain linearly per packet until a
-    matching rule is found (or not). Clearly, this approach lacks efficiency.
-    As networks grow more and more complex and offer a wider bandwidth linear
-    packet filtering is no longer an option if many rules have to be matched
-    per packet. Higher bandwidth means more packets per second which leads to
-    shorter process times per packet. nf-HiPAC outperforms iptables regardless
-    of the number of rules, i.e. the HiPAC classification engine does not
-    impose any overhead even for very small rule sets.
+	snd_intel8x0: Unknown parameter `'
 
-Scalability to large rule sets:
-    The performance of nf-HiPAC is nearly independent of the number of rules.
-    nf-HiPAC with thousands of rules still outperforms iptables with 20 rules.
+Previous version truncated last argument.
 
-Dynamic rule sets:
-    nf-HiPAC offers fast dynamic rules et updates without stalling packet
-    classification in contrast to iptables which yields bad update performance
-    along with stalled packet processing during updates.
+Index: linux-2.6.13-rc6-git7-Module/kernel/params.c
+===================================================================
+--- linux-2.6.13-rc6-git7-Module.orig/kernel/params.c	2005-08-10 16:12:45.000000000 +1000
++++ linux-2.6.13-rc6-git7-Module/kernel/params.c	2005-08-16 14:31:16.000000000 +1000
+@@ -80,8 +80,6 @@
+ 	int in_quote = 0, quoted = 0;
+ 	char *next;
+ 
+-	/* Chew any extra spaces */
+-	while (*args == ' ') args++;
+ 	if (*args == '"') {
+ 		args++;
+ 		in_quote = 1;
+@@ -121,6 +119,9 @@
+ 		next = args + i + 1;
+ 	} else
+ 		next = args + i;
++
++	/* Chew up trailing spaces. */
++	while (*next == ' ') next++;
+ 	return next;
+ }
+ 
+@@ -134,6 +135,9 @@
+ 	char *param, *val;
+ 
+ 	DEBUGP("Parsing ARGS: %s\n", args);
++	
++	/* Chew leading spaces */
++	while (*args == ' ') args++;
+ 
+ 	while (*args) {
+ 		int ret;
 
-More information about the project can be found at:    http://www.hipac.org
-The releases are published on:    http://sourceforge.net/projects/nf-hipac/
 
-Enjoy,
-    +---------------------------+
-    |      Michael Bellion      |
-    |   <mbellion@hipac.org>    |
-    +---------------------------+

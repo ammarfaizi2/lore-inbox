@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932484AbVIZTn4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932485AbVIZTrB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932484AbVIZTn4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 15:43:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932485AbVIZTn4
+	id S932485AbVIZTrB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 15:47:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932488AbVIZTrB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 15:43:56 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:21204 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932484AbVIZTnz
+	Mon, 26 Sep 2005 15:47:01 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:11432 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932485AbVIZTrA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 15:43:55 -0400
-Subject: Re: Resource limits
-From: Matthew Helsley <matthltc@us.ibm.com>
-To: Al Boldi <a1426z@gawab.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       "Chandra S. Seetharaman" <sekharan@us.ibm.com>
-In-Reply-To: <200509251712.42302.a1426z@gawab.com>
-References: <200509251712.42302.a1426z@gawab.com>
+	Mon, 26 Sep 2005 15:47:00 -0400
+Subject: [PATCH] x86-64: Fix bad assumption that dualcore cpus have synced
+	TSCs (resend)
+From: john stultz <johnstul@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Date: Mon, 26 Sep 2005 12:07:01 -0700
-Message-Id: <1127761622.12346.2017.camel@stark>
+Date: Mon, 26 Sep 2005 12:46:52 -0700
+Message-Id: <1127764012.8195.138.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-09-25 at 17:12 +0300, Al Boldi wrote:
-> Resource limits in Linux, when available, are currently very limited.
-> 
-> i.e.:
-> Too many process forks and your system may crash.
-> This can be capped with threads-max, but may lead you into a lock-out.
-> 
-> What is needed is a soft, hard, and a special emergency limit that would 
-> allow you to use the resource for a limited time to circumvent a lock-out.
-> 
-> Would this be difficult to implement?
-> 
-> Thanks!
-> 
-> --
-> Al
+Andrew,
+	This patch should resolve the issue seen in bugme bug #5105, where it
+is assumed that dualcore x86_64 systems have synced TSCs. This is not
+the case, and alternate timesources should be used instead.
 
-	Have you looked at Class-Based Kernel Resource Managment (CKRM)
-(http://ckrm.sf.net) to see if it fits your needs? My initial thought is
-that the CKRM numtasks controller may help limit forks in the way you
-describe.
+For more details, see:
+http://bugzilla.kernel.org/show_bug.cgi?id=5105
 
-	If you have any questions about it please join the CKRM-Tech mailing
-list (ckrm-tech@lists.sourceforge.net) or chat with folks on the OFTC
-IRC #ckrm channel.
+Andi's earlier concerns that the TSCs should be synced on dualcore
+systems have been resolved by confirmation from AMD folks that they can
+be unsynced.
 
-Cheers,
-	-Matt Helsley
+Please consider for inclusion in your tree.
+
+thanks
+-john
+
+diff --git a/arch/x86_64/kernel/time.c b/arch/x86_64/kernel/time.c
+--- a/arch/x86_64/kernel/time.c
++++ b/arch/x86_64/kernel/time.c
+@@ -959,9 +959,6 @@ static __init int unsynchronized_tsc(voi
+  	   are handled in the OEM check above. */
+  	if (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL)
+  		return 0;
+- 	/* All in a single socket - should be synchronized */
+- 	if (cpus_weight(cpu_core_map[0]) == num_online_cpus())
+- 		return 0;
+ #endif
+  	/* Assume multi socket systems are not synchronized */
+  	return num_online_cpus() > 1;
+
 

@@ -1,124 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbVIZI6F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932440AbVIZJQU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932435AbVIZI6F (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 04:58:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbVIZI6F
+	id S932440AbVIZJQU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 05:16:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932441AbVIZJQT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 04:58:05 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:52707 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S932435AbVIZI6E convert rfc822-to-8bit
+	Mon, 26 Sep 2005 05:16:19 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:18686 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S932440AbVIZJQT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 04:58:04 -0400
-Subject: Re: AIO Support and related package information??
-From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-To: vikas gupta <vikas_gupta51013@yahoo.co.in>
-Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org, bcrl@kvack.org
-In-Reply-To: <20050926073220.55509.qmail@web8405.mail.in.yahoo.com>
-References: <20050926073220.55509.qmail@web8405.mail.in.yahoo.com>
-Date: Mon, 26 Sep 2005 10:59:51 +0200
-Message-Id: <1127725191.2069.17.camel@frecb000686>
+	Mon, 26 Sep 2005 05:16:19 -0400
+Date: Mon, 26 Sep 2005 11:15:37 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Greg KH <gregkh@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390: export ipl device parameters
+Message-ID: <20050926091537.GA10062@osiris.boeblingen.de.ibm.com>
+References: <20050923095002.GA20928@osiris.boeblingen.de.ibm.com> <20050924004801.GB21283@suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 26/09/2005 11:11:15,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 26/09/2005 11:11:17,
-	Serialize complete at 26/09/2005 11:11:17
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050924004801.GB21283@suse.de>
+User-Agent: mutt-ng/devel (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-09-26 at 08:32 +0100, vikas gupta wrote:
-> hi Sebastien ,
-> 
-> I am having yet another query related to AIO Support
-> 
-> 1)As you mentioned that aio posix support is provided
-> by glibc also so can you tell me on the performance
-> basis which one is better (glibc implementation or
-> libposix implementation ) and how do we measure the
-> performance
+Hi,
 
-  Have a look at:
-http://www.bullopensource.org/posix/Bench/sysbench-oltp/sysbench.html
-for benchmarks using Sysbench and MySQL.
+> > +#ifdef CONFIG_SYSFS
+> Does anyone build a s390 kernel without sysfs?  You can probably just
+> drop this ifdef.
 
-> 
-> I have compiled glibc with following command 
-> 
-> gcc -g $1.c -o $1 -lrt -lpthread 
+Yes, you're right.
 
-  Then you're using glibc AIO implementation based on helper threads
-and without taking advantage of kernel support.
+> > +DEFINE_IPL_ATTR(lun, "0x%016llx\n", (unsigned long long)
+> > +DEFINE_IPL_ATTR(bootprog, "%lld\n", (unsigned long long)
+> Why have a format field, if you only use the same format?
 
-> 
-> 
-> 2)What posix features is supported by bare kernel and
-> libposix implementation, without applying the
-> patches.I have broken down my  query in following
-> parts
+I use two different formats (hexadecimal and decimal).
 
-  Without any of the patches:
+> > +	__ATTR(device, S_IRUGO, ipl_device_show, NULL);
+> Why not use __ATTR_RO() like you did above?
 
-> 
-> 2.1) aio_read/aio_write  is supported but what
-> limitation are there
+The name of the attribute is supposed to be 'device'. If I would use
+__ATTR_RO it stringifies the first parameter and the result would be
+'ipl_device' because of the function name I use.
+Otherwise I would have to rename my function, which is something I
+don't want to do. Somehow __ATTR_RO doesn't fit.
 
-  Supported but without notification (SIGEV_NONE only).
+> > +#define IPL_PARMBLOCK_ORIGIN	0x2000
+> You are just directly addressing memory with this address, right?
 
-> 
-> 2.2) aio_fsync is supported or not
+Yes.
 
-  Supported only if the underlying fs implements it
+> Shouldn't you iomap it or something first?
 
-> 
-> 2.3) what are the limitation with lio_listio
+No, we don't have memory mapped IO on S390.
 
-  Not supported wihtout the patches.
+How about this:
 
-> 
-> 2.4) what are the additional feature it provides for
-> aio_cancel implementation
-> 
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-  Needs support from the underlying fs.
+Remove unnecessary ifdef + unused variable.
 
-> 
-> 3) Is glibc implementation is providing all the above
-> mentioned fetures
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-  Yes, I think so.
+diffstat:
+ arch/s390/kernel/setup.c |    6 ------
+ 1 file changed, 6 deletions(-)
 
-> 
-> 4) Is there any test program that can measure
-> efficiency for both glibc and libposix implementation
-
-  I personally use Sysbench and have compiled 3 MySQL servers,
-one with librt AIO, one with libposix-aio and one with MySQL
-native simulated AIO.
-
-  You may also try iozone.
-
-> 
-> 
-> With Thanks in advance 
-> Vikas 
-
-
-  Hope this helps,
-
-  Sébastien.
-
--- 
-------------------------------------------------------
-
-  Sébastien Dugué                BULL/FREC:B1-247
-  phone: (+33) 476 29 77 70      Bullcom: 229-7770
-
-  mailto:sebastien.dugue@bull.net
-
-  Linux POSIX AIO: http://www.bullopensource.org/posix
-  
-------------------------------------------------------
-
+diff -urN a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+--- a/arch/s390/kernel/setup.c	2005-09-26 10:48:31.000000000 +0200
++++ b/arch/s390/kernel/setup.c	2005-09-26 11:01:12.000000000 +0200
+@@ -686,8 +686,6 @@
+ 	.show	= show_cpuinfo,
+ };
+ 
+-#ifdef CONFIG_SYSFS
+-
+ #define DEFINE_IPL_ATTR(_name, _format, _value)			\
+ static ssize_t ipl_##_name##_show(struct subsystem *subsys,	\
+ 		char *page)					\
+@@ -847,7 +845,6 @@
+ 
+ static int __init
+ ipl_device_sysfs_register(void) {
+-	struct attribute_group *attr_group;
+ 	int rc;
+ 
+ 	rc = firmware_register(&ipl_subsys);
+@@ -868,12 +865,9 @@
+ 	default:
+ 		sysfs_create_group(&ipl_subsys.kset.kobj,
+ 				   &ipl_unknown_attr_group);
+-		attr_group = &ipl_unknown_attr_group;
+ 		break;
+ 	}
+ 	return 0;
+ }
+ 
+ __initcall(ipl_device_sysfs_register);
+-
+-#endif /* CONFIG_SYSFS */

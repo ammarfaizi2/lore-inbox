@@ -1,60 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbVIZSKr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932458AbVIZSYD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932453AbVIZSKr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 14:10:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932454AbVIZSKr
+	id S932458AbVIZSYD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 14:24:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932459AbVIZSYD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 14:10:47 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:41964 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932453AbVIZSKq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 14:10:46 -0400
-Subject: Re: vmalloc_node
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: Eric Dumazet <dada1@cosmosbay.com>, Harald Welte <laforge@netfilter.org>,
-       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       "David S. Miller" <davem@davemloft.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.62.0509261046410.3650@schroedinger.engr.sgi.com>
-References: <43308324.70403@cosmosbay.com> <200509221454.22923.ak@suse.de>
-	 <20050922125849.GA27413@infradead.org> <200509221505.05395.ak@suse.de>
-	 <Pine.LNX.4.62.0509220835310.16793@schroedinger.engr.sgi.com>
-	 <4332D2D9.7090802@cosmosbay.com>
-	 <20050923171120.GO731@sunbeam.de.gnumonks.org>
-	 <Pine.LNX.4.62.0509231043270.22308@schroedinger.engr.sgi.com>
-	 <1127498679.10664.85.camel@localhost>
-	 <Pine.LNX.4.62.0509261046410.3650@schroedinger.engr.sgi.com>
-Content-Type: text/plain
-Date: Mon, 26 Sep 2005 11:10:13 -0700
-Message-Id: <1127758214.26894.20.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+	Mon, 26 Sep 2005 14:24:03 -0400
+Received: from fmr16.intel.com ([192.55.52.70]:40630 "EHLO
+	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
+	id S932458AbVIZSYB convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 14:24:01 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [RFT][PATCH] i386 per cpu IDT (2.6.12-rc1-mm1)
+Date: Mon, 26 Sep 2005 11:23:31 -0700
+Message-ID: <7F740D512C7C1046AB53446D37200173055345A1@scsmsx402.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [RFT][PATCH] i386 per cpu IDT (2.6.12-rc1-mm1)
+Thread-Index: AcXB+ksihk3CZlInRyWMhqUbHJLPPwAyA8EQ
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+To: "Zwane Mwaikambo" <zwane@arm.linux.org.uk>,
+       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>, "Andi Kleen" <ak@suse.de>,
+       "Raj, Ashok" <ashok.raj@intel.com>, <bjorn.helgaas@hp.com>
+X-OriginalArrivalTime: 26 Sep 2005 18:23:33.0958 (UTC) FILETIME=[676FAE60:01C5C2C7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-09-26 at 10:58 -0700, Christoph Lameter wrote:
-> On Fri, 23 Sep 2005, Dave Hansen wrote:
-> > Instead of hard-coding all of those -1's for the node to specify a
-> > default allocation, and changing all of those callers, why not:
+Zwane Mwaikambo wrote:
+
+Zwane, Hi
+
+> Apologies for the long periods between updates, i've been doing some
+> relocating.
 > 
-> Done.
-
-That looks much nicer.  Thanks!
-
-> > 	__vmalloc_node(size, gfp_mask, prot, -1);
-> > A named macro is probably better than -1, but if it is only used in one
-> > place, it is hard to complain.
+> Changes since last post:
 > 
-> -1 is used consistently in the *_node functions to indicate that the node 
-> is not specified. Should I replace -1 throughout the kernel with a 
-> constant?
+> * Current interrupt handling domain is still on a node basis,
+> although i 
+> have moved over to dynamically allocated per cpu IDTs.
 
-I certainly wouldn't mind.  Giving it a name like NODE_ANY or
-NODE_UNSPECIFIED would certainly keep anyone from having to go dig into
-the allocator functions to decide what it actually does.  
+I think it might be better if you define some cpu group where the cpus
+share the same IDT. Then you can handle big SMP machines as well; it's a
+kind of software partitioning limited to I/O device interrupts. That
+will be helpful for virtulization like Xen.
 
--- Dave
+> 
+> * MSI now allocates vectors per node too, i've introduced a policy
+> whereupon the node its allocated on depends on where the code is
+> running. 
+> I'd like to move towards a policy where we allocate the vector on the
+> node 
+> the bus/device belongs to, objections? This code is totally untested
+> as i 
+> don't have any MSI capable devices.
+> 
+> Thanks,
+> 	Zwane
+> 
 
+Jun
+---
+Intel Open Source Technology Center

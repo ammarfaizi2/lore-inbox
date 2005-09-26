@@ -1,158 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750789AbVIZK1J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbVIZKd4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750789AbVIZK1J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 06:27:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751628AbVIZK1J
+	id S1750704AbVIZKd4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 06:33:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750787AbVIZKd4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 06:27:09 -0400
-Received: from smtp006.mail.ukl.yahoo.com ([217.12.11.95]:53080 "HELO
-	smtp006.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1750789AbVIZK1I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 06:27:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.de;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:MIME-Version:Content-Type:Message-Id;
-  b=tlGj5xHR8XJ45BXq1aKmgrLffOVpsEtVCoIf6H+8sBoxsyI/S/QLADWTsNxMShIkd2Ghu1tq7znCzO+ptLRg4Q8tpuKlj3DCEyhO2eHIs6mYCPHN6mQY8jGWW0DIQ4ueDaF6u/wUmDDxd1Zd5PubWAQBeochjrjnNLpOIDsJByQ=  ;
-From: Karsten Wiese <annabellesgarden@yahoo.de>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH/RFC] Enable HPET on VIA8237 southbridge
-Date: Mon, 26 Sep 2005 12:31:32 +0200
-User-Agent: KMail/1.8.1
-Cc: Ingo Molnar <mingo@elte.hu>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_E48NDDlv4UxFtrM"
-Message-Id: <200509261231.32697.annabellesgarden@yahoo.de>
+	Mon, 26 Sep 2005 06:33:56 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:35992 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750704AbVIZKd4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 06:33:56 -0400
+Date: Mon, 26 Sep 2005 12:33:36 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 3/3][Fix] swsusp: prevent swsusp from failing if there's too many pagedir pages
+Message-ID: <20050926103336.GA3693@elf.ucw.cz>
+References: <200509252018.36867.rjw@sisk.pl> <200509252044.00928.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200509252044.00928.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_E48NDDlv4UxFtrM
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Hi!
 
-Hi,
+> There's a silent assumption in swsusp that always
+> sizeof(struct swsusp_info) <= PAGE_SIZE, which is wrong, because
+> eg. on x86-64 sizeof(swp_entry_t) = 8.  This causes swsusp to skip some pagedir
+> pages while reading the image if there are too many of them (depending on the
+> architecture, approx. 500 on x86-64).
 
-if you have that chip on your mainboard and want to play with it's
-hpet, this might get you going.
+Last time I did the math, swsusp_info could cover a *lot* of
+memory. It was wrong not to check for overflow, but I do not think we
+want to introduce *yet another* linklist.
 
-   Karsten
+Lets see...
 
---Boundary-00=_E48NDDlv4UxFtrM
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="patch-via8237-hpet-i386"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="patch-via8237-hpet-i386"
+for i386, we have 768 pagedir entries. Each pagedir entry points to
+page with 1023 pointers to pages. That means that up-to 768*1023*4096
+bytes image can be saved to swap ~= 768 * 1K * 4K ~= 3 GB. That's more
+than enough for i386.
 
-Enable HPET on VIA8237 southbridge
+for x86-64, we can have 128 pagedir entries (could not we fit more
+there? 384 entries should fit, no?). Each pagedir entry has 511
+pointers to pages (IIRC)... that is up-to 128*511*4K ~= 64*1K*4K = 256
+MB image. Hmm, that should still be enough for any 512MB machine, and
+probably okay for much bigger machines, too...
 
-Some BIOSs don't enable the hpet on that chip.
-The patch enables it before all the other pci devices.
+We can still get to 768 MB image (good enough for any 1.5GB machine,
+and probably for anything else, too).
 
-The hpet's hardware address is set to 0xFED00000,
-if the VIA8237 has been identified.
+If that is not good enough for you, can you simply allocate more than
+1 page for swsusp_info? No need for linklists yet.
 
-This IS DANGEROUS.
-I.e. because the hardware address might be assigned
-later in the boot process to somthing else.
-
-Tested succesfully on an K8T800/AMD64 Mobo.
-One exception: Timer1 says it can do PERIODIC mode,
-but this doesn't work here. One shot is ok.
-
-Signed-off-by: Karsten Wiese <annabellesgraden@yahoo.de>
-
-
-diff -ur linux-2.6.13-RT/arch/i386/kernel/time_hpet.c linux-2.6.13-RT-kw/arch/i386/kernel/time_hpet.c
---- linux-2.6.13-RT/arch/i386/kernel/time_hpet.c	2005-09-19 15:49:17.000000000 +0200
-+++ linux-2.6.13-RT-kw/arch/i386/kernel/time_hpet.c	2005-09-24 00:58:37.000000000 +0200
-@@ -223,11 +223,74 @@
- 	return use_hpet;
- }
- 
-+#define HPET_HACK_ENABLE_DANGEROUS 1
-+
-+#ifdef HPET_HACK_ENABLE_DANGEROUS
-+union conf_address {
-+	struct {
-+		u8	reg;
-+		u8	func:	3;
-+		u8	dev:	5;
-+		u8	bus;
-+		u8	reserved:7;
-+		u8	enable:	1;
-+	} bits;
-+	u32	dword;
-+};
-+
-+#include <linux/pci_ids.h>
-+
-+static void is_hpet_via8237(void)
-+{
-+	union conf_address ca = {
-+		.bits.reg = 0,
-+		.bits.dev = 17,
-+		.bits.enable = 1
-+	};
-+	union {
-+		struct {
-+			u8 control;
-+			u8 address[3];
-+		} hpet;
-+		unsigned raw;
-+	} hpet;
-+	u32 vendor_id, control;
-+
-+	control = inl(0xcf8);
-+	printk("%X\n", control);
-+	outl(ca.dword, 0xcf8);
-+	vendor_id = inl(0xcfc);
-+	if (vendor_id == (PCI_VENDOR_ID_VIA + (PCI_DEVICE_ID_VIA_8237 << 16))) {
-+		hpet.raw = 0xFED00000;
-+		hpet.hpet.control = 0x80;
-+		ca.bits.reg = 0x68;
-+		outl(ca.dword, 0xcf8);
-+		outl(hpet.raw, 0xcfc);
-+		outl(ca.dword, 0xcf8);
-+		hpet_address = (inl(0xcfc) & 0xFFFFFF00);
-+		printk(KERN_WARNING "time.c: WARNING: Enabled VIA8237 HPET "
-+		       "at %#lx.\n", hpet_address);
-+	}
-+}
-+
-+#else
-+
-+static void is_hpet_via8237(void)
-+{
-+}
-+
-+#endif
-+
-+
- int is_hpet_capable(void)
- {
--	if (!boot_hpet_disable && hpet_address)
--		return 1;
--	return 0;
-+	if (boot_hpet_disable)
-+		return 0;
-+
-+        if (!hpet_address)
-+		is_hpet_via8237();
-+
-+	return hpet_address;
- }
- 
- static int __init hpet_setup(char* str)
-
---Boundary-00=_E48NDDlv4UxFtrM--
-
-	
-
-	
-		
-___________________________________________________________ 
-Gesendet von Yahoo! Mail - Jetzt mit 1GB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de
+Andrew, please drop this one. It is too complex solution for quite a
+simple problem.
+								Pavel
+-- 
+if you have sharp zaurus hardware you don't need... you know my address

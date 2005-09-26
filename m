@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932378AbVIZFSJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932387AbVIZFTa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932378AbVIZFSJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 01:18:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932380AbVIZFSI
+	id S932387AbVIZFTa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 01:19:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbVIZFTa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 01:18:08 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:24983 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932378AbVIZFSI
+	Mon, 26 Sep 2005 01:19:30 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:47060 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932387AbVIZFT3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 01:18:08 -0400
-To: torvalds@odsl.org
+	Mon, 26 Sep 2005 01:19:29 -0400
+To: torvalds@osdl.org
 Subject: [PATCH] m32r: set CHECKFLAGS properly
 Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
-Message-Id: <E1EJlNM-00059K-R8@ZenIV.linux.org.uk>
+Message-Id: <E1EJlOi-00059w-IJ@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Mon, 26 Sep 2005 06:18:04 +0100
+Date: Mon, 26 Sep 2005 06:19:28 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 

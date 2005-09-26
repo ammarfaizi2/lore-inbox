@@ -1,82 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751619AbVIZJee@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751625AbVIZJtx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751619AbVIZJee (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 05:34:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751624AbVIZJee
+	id S1751625AbVIZJtx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 05:49:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751627AbVIZJtx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 05:34:34 -0400
-Received: from sv1.valinux.co.jp ([210.128.90.2]:18135 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S1751614AbVIZJed (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 05:34:33 -0400
-Date: Mon, 26 Sep 2005 18:33:59 +0900
-From: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
-To: Paul Jackson <pj@sgi.com>
-Cc: taka@valinux.co.jp, magnus.damm@gmail.com, dino@in.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH 0/3] CPUMETER (Re: [PATCH 0/5] SUBCPUSETS: a resource
- control functionality using CPUSETS)
-In-Reply-To: <20050910015209.4f581b8a.pj@sgi.com>
-References: <20050908225539.0bc1acf6.pj@sgi.com>
-	<20050909.203849.33293224.taka@valinux.co.jp>
-	<20050909063131.64dc8155.pj@sgi.com>
-	<20050910.161145.74742186.taka@valinux.co.jp>
-	<20050910015209.4f581b8a.pj@sgi.com>
-X-Mailer: Sylpheed version 2.1.2+svn (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 26 Sep 2005 05:49:53 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:57245 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751623AbVIZJtw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 05:49:52 -0400
+Subject: Re: Kernel Compilation Question
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Woody.Wu" <Woody.Wu@cn.landisgyr.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <7567C3A4682B894C99E5E16494442680010AD310@cnzhuex01.cn.landisgyr.com>
+References: <7567C3A4682B894C99E5E16494442680010AD310@cnzhuex01.cn.landisgyr.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <20050926093432.626D07003D@sv1.valinux.co.jp>
+Date: Mon, 26 Sep 2005 11:16:50 +0100
+Message-Id: <1127729811.26820.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jackson-san,
-
-Sorry for the late reply.
-
-I've implemented the cpumeter based on your idea with small modification
-on handling meter_cpu.  To make grouping the metered cpus and nodes 
-easier,  I modified your idea so that the meter_cpu file is also used for
-marking the toplevel of the metered CPUSET (CPUSET 1).  The toplevel 
-CPUSET (CPUSET 1) is also metered, that is different from the 
-subcpuset_top file of SUBCPUSETS.
+On Llu, 2005-09-26 at 09:00 +0200, Woody.Wu wrote:
+> and think i can build a kernel in another newer system (a slackware
+> running 2.6.x) and copy needed stuff over to the old box.  is it
+> possible?  if so, what stuff i have to copy from the newer box to the
+> old box? what i can imaged by far are: the bzImage file, the
 
 
-      +-----------------------------------+
-      |                                   |
-   CPUSET 0                            CPUSET 1
-   sched domain A                      sched domain B
-   cpus: 0, 1                          cpus: 2, 3
-   cpu_exclusive=1                     cpu_exclusive=1
-   meter_cpu=0                         meter_cpu=1
-                                       meter_cpu_*
-                                          |
-                         +----------------+----------------+
-                         |                |                |
-                      CPUSET 1a        CPUSET 1b        CPUSET 1c
-                      cpus: 2, 3       cpus: 2, 3       cpus: 2, 3
- 		     cpu_exclusive=0  cpu_exclusive=0  cpu_exclusive=0
-                      meter_cpu=1      meter_cpu=1      meter_cpu=1
-                      meter_cpu_*      meter_cpu_*      meter_cpu_*
-                         |
-            +------------+------------+
-            |                         |
-         CPUSET 2a                CPUSET 2b
-         cpus: 2, 3               cpus: 2, 3
-        cpu_exclusive=0          cpu_exclusive=0
-         meter_cpu=1              meter_cpu=1
-         meter_cpu_*              meter_cpu_*
+Possible but there is so much stuff that has changed (and 6.x has no
+updates any more for security fixes).
 
-Here are other rules around meters:
-- If meter_cpu is 1, meter_cpu_* files appear.
-- The children (CPUSET 1a, 1b, 1c) inherit CPUSET 1's value of 
-  cpus/mems/meter_cpu/... and do not have their specific values.
-- The metered CPUSETS can have their children
-  (this is not allowed in SUBCPUSETS).
-- meter_cpu in the children of metered CPUSETS can not be modified
-  (can not create normal CPUSETS under metered CPUSETS).
+I do a series of CD updates from 6.2 to 7.3, then 7.3 to 9 then 9 to
+Fedora Core 2, and FC2 to FC3 - If I had to do it that way. But really
+it'll be quicker to back it up reinstall and restore
+users/config/filestore
 
-I'll send patches right after this mail.
-
-Comments appreciated,
-KUROSAWA, Takahiro

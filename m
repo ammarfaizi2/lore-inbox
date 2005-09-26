@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932398AbVIZGPL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932402AbVIZGWj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932398AbVIZGPL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 02:15:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932399AbVIZGPK
+	id S932402AbVIZGWj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 02:22:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbVIZGWj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 02:15:10 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:55698 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932398AbVIZGPJ (ORCPT
+	Mon, 26 Sep 2005 02:22:39 -0400
+Received: from gate.crashing.org ([63.228.1.57]:48830 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932402AbVIZGWi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 02:15:09 -0400
-Date: Sun, 25 Sep 2005 23:14:24 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 04/21] mm: zap_pte_range dont dirty anon
-Message-Id: <20050925231424.6c08bc8a.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0509260659370.8065@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0509251644100.3490@goblin.wat.veritas.com>
-	<Pine.LNX.4.61.0509251649100.3490@goblin.wat.veritas.com>
-	<20050925152630.75560571.akpm@osdl.org>
-	<Pine.LNX.4.61.0509260659370.8065@goblin.wat.veritas.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 26 Sep 2005 02:22:38 -0400
+Subject: update_mmu_cache(): fault or not fault ?
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: linux-mm@kvack.org
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Mon, 26 Sep 2005 16:22:05 +1000
+Message-Id: <1127715725.15882.43.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins <hugh@veritas.com> wrote:
->
-> > What is the page is (for example) clean swapcache, having been recently
->  > faulted in.  If this pte indicates that this process has modified the page
->  > and we don't run set_page_dirty(), the page could be reclaimed and the
->  > change is lost.
-> 
->  Absolutely.  But either the page is unique to this mm, shared only with
->  swapcache: in which case we're about to do a free_swap_cache on it (that
->  may be delayed in actually freeing the swap because of not getting page
->  lock, presumably because vmscan just got to it, but no matter), and we
->  don't care at all that the page no longer represents what's on swap disk.
-> 
->  Or, the page is shared with another mm.  But it's an anonymous page
->  (a private page), so it's shared via fork, and COW applies to it.
+Hi !
 
-	mmap(MAP_ANONYMOUS|MAP_SHARED)
-	fork()
-	swapout
-	swapin
-	swapoff
+I been toying with using update_mmu_cache() to actually fill the TLB
+entry directly when taking a fault on some PPC CPUs with software TLB
+reload (among other optims I have in mind). Most of CPUs with software
+TLB reload currently take double TLB faults on linux page faults.
 
-Now we have two mm's sharing a clean, non-cowable, non-swapcache anonymous
-page, no?
+The problem is that want to only ever do that kind of hw TLB pre-fill
+when update_mmu_cache() is called as the result an actual fault.
+However, for some reasons that I'm not 100% sure about (*)
+update_mmu_cache() is called from other places, typically in mm/fremap.c
+which aren't directly results of faults.
+
+So I suggest adding an argument to it "int is_fault", that would
+basically be '1' on all the call sites in mm/memory.c and '0' in all the
+call sites in mm/fremap.c.
+
+Any objection, comment, whatever, before I come up with a patch adding
+it to all archs ?
+
+Ben.
+
+(*) I suspect because update_mmu_cache() has historically been hijacked
+to do the icache/dcache sync on some architecture, and thus was added to
+all call sites that can populate a PTE out of the blue, though it's a
+bit dodgy that it's not called in mremap(), thus people with hw execute
+permission using that trick should be careful... but then, if you have
+execute permission, you probably don't need that trick. This is what
+ppc32 and ppc64 old older CPUs do, in an SMP racy way even ;) But that's
+a different discussion and I'll have to fix it some day.
+

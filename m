@@ -1,80 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751639AbVIZOjE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932138AbVIZOoo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751639AbVIZOjE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 10:39:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751641AbVIZOjE
+	id S932138AbVIZOoo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 10:44:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbVIZOoo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 10:39:04 -0400
-Received: from host27-37.discord.birch.net ([65.16.27.37]:28291 "EHLO
-	EXCHG2003.microtech-ks.com") by vger.kernel.org with ESMTP
-	id S1751639AbVIZOjA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 10:39:00 -0400
-From: "Roger Heflin" <rheflin@atipa.com>
-To: "'Al Boldi'" <a1426z@gawab.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: Resource limits
-Date: Mon, 26 Sep 2005 09:44:15 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+	Mon, 26 Sep 2005 10:44:44 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:27887 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S932138AbVIZOoo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 10:44:44 -0400
+Subject: Re: [PATCH] RT: Checks for cmpxchg in get_task_struct_rcu()
+From: Daniel Walker <dwalker@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050926062552.GD3273@elte.hu>
+References: <1127345874.19506.43.camel@dhcp153.mvista.com>
+	 <433201FC.8040004@yahoo.com.au>
+	 <1127355538.8950.1.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+	 <1127364629.8950.6.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+	 <20050926062552.GD3273@elte.hu>
+Content-Type: text/plain
+Date: Mon, 26 Sep 2005 07:44:36 -0700
+Message-Id: <1127745877.28961.6.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-6) 
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Thread-Index: AcXB25YWH4EvWf80ShucshA6be5bMgAytLaQ
-In-Reply-To: <200509251712.42302.a1426z@gawab.com>
-Message-ID: <EXCHG2003ogxLDp7mvj00000ae4@EXCHG2003.microtech-ks.com>
-X-OriginalArrivalTime: 26 Sep 2005 14:35:03.0870 (UTC) FILETIME=[7B9645E0:01C5C2A7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2005-09-26 at 08:25 +0200, Ingo Molnar wrote:
+> * Daniel Walker <dwalker@mvista.com> wrote:
+> 
+> > Checks for cmpxchg in get_task_struct_rcu() . No race version.
+> 
+> shouldnt we actually define a global, default cmpxchg() function, based 
+> on IRQ-disable - instead of open-coding one?
 
-While talking about limits, one of my customers report that if
-they set "ulimit -d" to be say 8GB, and then a program goes and
-attempts to allocate 16GB (in one shot), that the process will
-hang on the 16GB allocate as the machine does not have enough
-memory+swap to handle this, the process is at this time unkillable,
-the customers method to kill the process is to send the process
-a kill signal, and then create enough swap to be able to meet
-the request, after the request is filled the process terminates.
+I was thinking it should be restructures so it just needs an atomic_inc
+in this case. Considering that without cmpxchg() you must be on a UP
+machine .
 
-It would seem that the best thing to do would be to abort on
-allocates that will by themselves exceed the limit.
-
-This was a custom version of a earlier version of the 2.6 kernel, 
-I would bet that this has not changed in quite a while.
-
-                        Roger
-
-
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org 
-> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Al Boldi
-> Sent: Sunday, September 25, 2005 9:13 AM
-> To: linux-kernel@vger.kernel.org
-> Subject: Resource limits
-> 
-> 
-> Resource limits in Linux, when available, are currently very limited.
-> 
-> i.e.:
-> Too many process forks and your system may crash.
-> This can be capped with threads-max, but may lead you into a lock-out.
-> 
-> What is needed is a soft, hard, and a special emergency limit 
-> that would allow you to use the resource for a limited time 
-> to circumvent a lock-out.
-> 
-> Would this be difficult to implement?
-> 
-> Thanks!
-> 
-> --
-> Al
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in the body of a message to 
-> majordomo@vger.kernel.org More majordomo info at  
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Daniel
 

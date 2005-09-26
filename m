@@ -1,136 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932412AbVIZGnH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932414AbVIZGrb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932412AbVIZGnH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 02:43:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbVIZGnH
+	id S932414AbVIZGrb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 02:47:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbVIZGrb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 02:43:07 -0400
-Received: from mail.autoweb.net ([198.172.237.26]:29058 "EHLO mail.autoweb.net")
-	by vger.kernel.org with ESMTP id S932412AbVIZGnF (ORCPT
+	Mon, 26 Sep 2005 02:47:31 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:19371 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932414AbVIZGra (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 02:43:05 -0400
-Date: Mon, 26 Sep 2005 02:43:03 -0400
-From: Ryan Anderson <ryan@michonline.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Auto-localversion should use git commands and behaviors
-Message-ID: <20050926064302.GA23034@mythryan2.michonline.com>
-References: <20050913082020.GF5276@mythryan2.michonline.com> <20050914044623.GA8099@mars.ravnborg.org>
+	Mon, 26 Sep 2005 02:47:30 -0400
+Date: Mon, 26 Sep 2005 08:48:18 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: dwalker@mvista.com, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] RT: Checks for cmpxchg in get_task_struct_rcu()
+Message-ID: <20050926064818.GA3970@elte.hu>
+References: <1127345874.19506.43.camel@dhcp153.mvista.com> <433201FC.8040004@yahoo.com.au> <20050926062631.GE3273@elte.hu> <1127716753.5101.25.camel@npiggin-nld.site>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050914044623.GA8099@mars.ravnborg.org>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <1127716753.5101.25.camel@npiggin-nld.site>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Auto-localversion support should use git commands and behaviors whenever possible.
 
-This fully switches to using git-rev-parse to dereference tags and
-symbolic heads (HEAD, for example), and emulates the behavior of git
-with respect to the use of the environment variable GIT_DIR.
+* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-Signed-off-by: Ryan Anderson <ryan@michonline.com>
+> On Mon, 2005-09-26 at 08:26 +0200, Ingo Molnar wrote:
+> > * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> > 
+> > > You need my atomic_cmpxchg patches that provide an atomic_cmpxchg (and 
+> > > atomic_inc_not_zero) for all architectures.
+> > 
+> > yeah. When will they be merged upstream?
+> > 
+> 
+> Well they're in -mm now, you can put them in your RT tree until 
+> they're in mainline... I guess realistically, 2.6.15. They should blow 
+> up fairly quickly if there are any problems with them, but they simply 
+> need a bit of testing on all architectures which I cannot do and I 
+> suspect even -mm isn't tested on at least half of them.
 
-Index: linux-git/scripts/setlocalversion
-===================================================================
---- linux-git.orig/scripts/setlocalversion	2005-09-25 15:00:49.000000000 -0400
-+++ linux-git/scripts/setlocalversion	2005-09-26 02:36:33.000000000 -0400
-@@ -23,51 +23,61 @@ my @LOCALVERSIONS = ();
- # currently assume that all meaningful version boundaries are marked by a tag.
- # We don't care what the tag is, just that something exists.
- 
--# Git/Cogito store the top-of-tree "commit" in .git/HEAD
-+# Git/Cogito store the top-of-tree "committish" in .git/HEAD
- # A list of known tags sits in .git/refs/tags/
- #
- # The simple trick here is to just compare the two of these, and if we get a
- # match, return nothing, otherwise, return a subset of the SHA-1 hash in
- # .git/HEAD
- 
-+# First, a helper routine to convert symbolic names into
-+# git committish values.
-+
-+sub git_rev_parse {
-+	my ($rev) = @_;
-+
-+	local(*oldstderr) = *STDERR;
-+	open(STDERR,">","/dev/null")
-+		or die "Failed to reopen stderr: $!";
-+
-+	unless (open(P,"-|","git-rev-parse",sprintf("%s^0",$rev))) {
-+		*STDERR = *oldstderr;
-+		die "Failed to open pipe from git-rev-parse: $!";
-+	}
-+
-+	*STDERR = *oldstderr;
-+
-+	my $commit = <P>;
-+	chomp $commit;
-+
-+	close(P);
-+
-+	return $commit;
-+}
-+
-+# Next, the guts, as outlined above.
-+# git-rev-parse $tag^0 evaluates $tag and dereferences it until
-+# we get to a committish
-+
- sub do_git_checks {
--	open(H,"<.git/HEAD") or return;
--	my $head = <H>;
--	chomp $head;
--	close(H);
-+	my $sanity_check = `which git-rev-parse`;
-+	return unless $sanity_check =~ m/git-rev-parse/;
-+
-+	my $head = git_rev_parse("HEAD");
-+
-+	my $GITDIR = exists $ENV{'GIT_DIR'} ? $ENV{'GIT_DIR'} : ".git";
- 
--	unless (opendir(D,".git/refs/tags")) {
--		warn "Failed to open .git/refs/tags : " . $!;
-+
-+	unless (opendir(D,"$GITDIR/refs/tags")) {
-+		warn "Failed to open $GITDIR/refs/tags : " . $!;
- 		return;
- 	}
- 	foreach my $tagfile (grep !/^\.{1,2}$/, readdir(D)) {
--		unless (open(F,"<",".git/refs/tags/" . $tagfile)) {
--			warn "Failed to open .git/refs/tags/$tagfile : " . $!;
--			return;
--		}
--		my $tag = <F>;
--		chomp $tag;
--		close(F);
--
--		local(*oldstderr) = *STDERR;
--		open(STDERR,">","/dev/null")
--			or die "Failed to reopen stderr: $!";
--
--		unless (open(P,"-|","git-rev-parse",sprintf("%s^0",$tag))) {
--			*STDERR = *oldstderr;
--			die "Failed to open pipe from git-rev-parse: $!";
--		}
--
--		*STDERR = *oldstderr;
--
--		my $commit = <P>;
--		chomp $commit;
-+		my $commit = git_rev_parse($tagfile);
- 
--		if ($tag eq $head) {
--			warn "$tagfile refers to commit $head (maybe indirectly)";
-+		if ($commit eq $head) {
- 			return;
- 		}
--		#return if ($tag eq $head);
- 	}
- 	closedir(D);
- 
+very good - i'll put them into -rt.
 
--- 
-
-Ryan Anderson
-  sometimes Pug Majere
+	Ingo

@@ -1,84 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751042AbVIZLLV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbVIZLKT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751042AbVIZLLV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 07:11:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbVIZLLV
+	id S1750770AbVIZLKT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 07:10:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751084AbVIZLKT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 07:11:21 -0400
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:61640 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S1751042AbVIZLLU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 07:11:20 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH 3/3][Fix] swsusp: prevent swsusp from failing if there's too many pagedir pages
-Date: Mon, 26 Sep 2005 13:11:28 +0200
-User-Agent: KMail/1.8.2
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-References: <200509252018.36867.rjw@sisk.pl> <200509252044.00928.rjw@sisk.pl> <20050926103336.GA3693@elf.ucw.cz>
-In-Reply-To: <20050926103336.GA3693@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 26 Sep 2005 07:10:19 -0400
+Received: from euklid.nt.tuwien.ac.at ([128.131.67.130]:18085 "EHLO
+	euklid.nt.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S1751042AbVIZLKS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 07:10:18 -0400
+Date: Mon, 26 Sep 2005 13:09:49 +0200
+From: Stefan Froehlich <Stefan@Froehlich.Priv.at>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6.12] cciss.o and DLT tape drives
+Message-ID: <20050926110949.GA9797@euklid.nt.tuwien.ac.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200509261311.29269.rjw@sisk.pl>
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Monday, 26 of September 2005 12:33, Pavel Machek wrote:
-> Hi!
-> 
-> > There's a silent assumption in swsusp that always
-> > sizeof(struct swsusp_info) <= PAGE_SIZE, which is wrong, because
-> > eg. on x86-64 sizeof(swp_entry_t) = 8.  This causes swsusp to skip some pagedir
-> > pages while reading the image if there are too many of them (depending on the
-> > architecture, approx. 500 on x86-64).
-> 
-> Last time I did the math, swsusp_info could cover a *lot* of
-> memory. It was wrong not to check for overflow, but I do not think we
-> want to introduce *yet another* linklist.
+I have an HP/Compaq ProLiant running 2.6.12 (2.6.0 before with
+exactly the same behaviour) with the cciss driver (2.6.6).
+HD Raid has been working fine for abount two years, but now
+there is an external DLT drive. Documentation/cciss.txt instructs to
+do 'echo "engage scsi" > /proc/driver/cciss/cciss0' to engage the SCSI
+core. This gives me the following results during startup:
 
-Yes, I thought of another solution, but any of them would require more
-than one swap page and I'd have to track the swap offsets of them somehow.
+| ERROR: SCSI host `cciss' has no error handling
+| ERROR: This is not a safe way to run your SCSI host
+| ERROR: The error handling must be added to this driver
+|  [<c02d2400>] scsi_host_alloc+0x350/0x360
+|  [<c015b7fa>] do_truncate+0x4a/0x70
+|  [<c02a47d4>] cciss_scsi_detect+0x24/0xc0
+|  [<c02a584c>] cciss_engage_scsi+0x6c/0xb0
+|  [<c02a5c90>] cciss_proc_write+0x80/0xa0
+|  [<c015e970>] file_move+0x20/0x60
+|  [<c015ca7c>] dentry_open+0x11c/0x260
+|  [<c01703db>] locate_fd+0x6b/0xb0
+|  [<c0196ca7>] proc_file_write+0x37/0x50
+|  [<c015d9ae>] vfs_write+0xae/0x130
+|  [<c015db01>] sys_write+0x51/0x80
+|  [<c0102f45>] syscall_call+0x7/0xb
+| scsi0 : cciss
+|   Vendor: QUANTUM   Model: DLT VS160         Rev: 2500
+|   Type:   Sequential-Access                  ANSI SCSI revision: 02
+| Attached scsi tape st0 at scsi0, channel 0, id 0, lun 0
+| st0: try direct i/o: yes (alignment 512 B), max page reachable by HBA 4294967295
+|Attached scsi generic sg0 at scsi0, channel 0, id 0, lun 0,  type 1
 
-> Lets see...
-> 
-> for i386, we have 768 pagedir entries. Each pagedir entry points to
-> page with 1023 pointers to pages. That means that up-to 768*1023*4096
-> bytes image can be saved to swap ~= 768 * 1K * 4K ~= 3 GB. That's more
-> than enough for i386.
-> 
-> for x86-64, we can have 128 pagedir entries (could not we fit more
-> there? 384 entries should fit, no?).
+I deliberately decided to ignore this (the tape seemed to be fine at the
+first glance), which was probably not the best idea, as the machine is
+now crashing quite hard every few days. So: if "this" is not a safe way
+to run my SCSI host, which way would be better?
 
-Yes.  To be exact, 460.
+(I don't have any further information about the crashes - there is no
+easy physical access to it for me, and the logfiles don't report
+anything abnormal - most likely due to the fact, that the controller
+won't be able to write any more)
 
-> Each pagedir entry has 511 pointers to pages (IIRC)...
+Bye,
+  Stefan
 
-512, I think.
+-- 
+http://kontaktinser.at/ - kostenlose Kontaktanzeigen fuer Österreich
 
-> that is up-to 128*511*4K ~= 64*1K*4K = 256 MB image.
-> Hmm, that should still be enough for any 512MB machine, and 
-> probably okay for much bigger machines, too...
-> 
-> We can still get to 768 MB image (good enough for any 1.5GB machine,
-> and probably for anything else, too).
-> 
-> If that is not good enough for you, can you simply allocate more than
-> 1 page for swsusp_info? No need for linklists yet.
-
-I can.  The problem is I have to track the swap offsets of these pages
-which is necessary for resume.  Is it guaranteed that the swap offsets
-of pages allocated in a row will be consecutive?
-
-> Andrew, please drop this one. It is too complex solution for quite a
-> simple problem.
-
-Perhaps it is.  Anyway the problem hit me when I was playing with swsusp on
-a machine with 768 MB of RAM.
-
-Greetings,
-Rafael
+Himmlisch bleibt himmlisch: Stefan braucht diese Welt!
+(Sloganizer)

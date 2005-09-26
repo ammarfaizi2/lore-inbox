@@ -1,66 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751627AbVIZJyI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750789AbVIZK1J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751627AbVIZJyI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 05:54:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751634AbVIZJyH
+	id S1750789AbVIZK1J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 06:27:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751628AbVIZK1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 05:54:07 -0400
-Received: from msr2-ces-av-smtp2.gmessaging.net ([194.51.201.40]:56789 "EHLO
-	msr2-ces-av-smtp2.gmessaging.net") by vger.kernel.org with ESMTP
-	id S1751627AbVIZJyG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 05:54:06 -0400
-Date: Mon, 26 Sep 2005 11:40:54 +0200
-From: "Woody.Wu" <Woody.Wu@cn.landisgyr.com>
-Subject: RE: Kernel Compilation Question
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Woody.Wu" <Woody.Wu@cn.landisgyr.com>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <7567C3A4682B894C99E5E16494442680010AD460@cnzhuex01.cn.landisgyr.com>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-Mailer: Internet Mail Service (5.5.2658.3)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-class: urn:content-classes:message
-Thread-topic: Kernel Compilation Question
-Thread-index: AcXCgDfCNKhDTN55T0yzrTkvCNyKPA==
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
+	Mon, 26 Sep 2005 06:27:09 -0400
+Received: from smtp006.mail.ukl.yahoo.com ([217.12.11.95]:53080 "HELO
+	smtp006.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1750789AbVIZK1I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 06:27:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.de;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:MIME-Version:Content-Type:Message-Id;
+  b=tlGj5xHR8XJ45BXq1aKmgrLffOVpsEtVCoIf6H+8sBoxsyI/S/QLADWTsNxMShIkd2Ghu1tq7znCzO+ptLRg4Q8tpuKlj3DCEyhO2eHIs6mYCPHN6mQY8jGWW0DIQ4ueDaF6u/wUmDDxd1Zd5PubWAQBeochjrjnNLpOIDsJByQ=  ;
+From: Karsten Wiese <annabellesgarden@yahoo.de>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH/RFC] Enable HPET on VIA8237 southbridge
+Date: Mon, 26 Sep 2005 12:31:32 +0200
+User-Agent: KMail/1.8.1
+Cc: Ingo Molnar <mingo@elte.hu>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_E48NDDlv4UxFtrM"
+Message-Id: <200509261231.32697.annabellesgarden@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--Boundary-00=_E48NDDlv4UxFtrM
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> -----Original Message----- 
-> From: Alan Cox [ mailto:alan@lxorguk.ukuu.org.uk] 
-> Sent: Monday, September 26, 2005 6:17 PM 
-> To: Woody.Wu 
-> Cc: linux-kernel@vger.kernel.org 
-> Subject: Re: Kernel Compilation Question 
-> 
-> 
-> On Llu, 2005-09-26 at 09:00 +0200, Woody.Wu wrote: 
-> > and think i can build a kernel in another newer system (a slackware 
-> > running 2.6.x) and copy needed stuff over to the old box.  is it 
-> > possible?  if so, what stuff i have to copy from the newer 
-> box to the 
-> > old box? what i can imaged by far are: the bzImage file, the 
-> 
-> 
-> Possible but there is so much stuff that has changed (and 6.x 
-> has no updates any more for security fixes). 
-> 
-> I do a series of CD updates from 6.2 to 7.3, then 7.3 to 9 
-> then 9 to Fedora Core 2, and FC2 to FC3 - If I had to do it 
-> that way. But really it'll be quicker to back it up reinstall 
-> and restore users/config/filestore 
+Hi,
 
-thanks. can i download thoese 6.2 to 7.3 and 7.3 to 9 upgrading CDs from
-redhat's site?  and by 'back it up and resinstall and restore', did you
-mean i back up my files and install a new redhat from scratch?
+if you have that chip on your mainboard and want to play with it's
+hpet, this might get you going.
 
-thanks. 
+   Karsten
 
-> 
-> 
-> 
+--Boundary-00=_E48NDDlv4UxFtrM
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="patch-via8237-hpet-i386"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="patch-via8237-hpet-i386"
 
+Enable HPET on VIA8237 southbridge
+
+Some BIOSs don't enable the hpet on that chip.
+The patch enables it before all the other pci devices.
+
+The hpet's hardware address is set to 0xFED00000,
+if the VIA8237 has been identified.
+
+This IS DANGEROUS.
+I.e. because the hardware address might be assigned
+later in the boot process to somthing else.
+
+Tested succesfully on an K8T800/AMD64 Mobo.
+One exception: Timer1 says it can do PERIODIC mode,
+but this doesn't work here. One shot is ok.
+
+Signed-off-by: Karsten Wiese <annabellesgraden@yahoo.de>
+
+
+diff -ur linux-2.6.13-RT/arch/i386/kernel/time_hpet.c linux-2.6.13-RT-kw/arch/i386/kernel/time_hpet.c
+--- linux-2.6.13-RT/arch/i386/kernel/time_hpet.c	2005-09-19 15:49:17.000000000 +0200
++++ linux-2.6.13-RT-kw/arch/i386/kernel/time_hpet.c	2005-09-24 00:58:37.000000000 +0200
+@@ -223,11 +223,74 @@
+ 	return use_hpet;
+ }
+ 
++#define HPET_HACK_ENABLE_DANGEROUS 1
++
++#ifdef HPET_HACK_ENABLE_DANGEROUS
++union conf_address {
++	struct {
++		u8	reg;
++		u8	func:	3;
++		u8	dev:	5;
++		u8	bus;
++		u8	reserved:7;
++		u8	enable:	1;
++	} bits;
++	u32	dword;
++};
++
++#include <linux/pci_ids.h>
++
++static void is_hpet_via8237(void)
++{
++	union conf_address ca = {
++		.bits.reg = 0,
++		.bits.dev = 17,
++		.bits.enable = 1
++	};
++	union {
++		struct {
++			u8 control;
++			u8 address[3];
++		} hpet;
++		unsigned raw;
++	} hpet;
++	u32 vendor_id, control;
++
++	control = inl(0xcf8);
++	printk("%X\n", control);
++	outl(ca.dword, 0xcf8);
++	vendor_id = inl(0xcfc);
++	if (vendor_id == (PCI_VENDOR_ID_VIA + (PCI_DEVICE_ID_VIA_8237 << 16))) {
++		hpet.raw = 0xFED00000;
++		hpet.hpet.control = 0x80;
++		ca.bits.reg = 0x68;
++		outl(ca.dword, 0xcf8);
++		outl(hpet.raw, 0xcfc);
++		outl(ca.dword, 0xcf8);
++		hpet_address = (inl(0xcfc) & 0xFFFFFF00);
++		printk(KERN_WARNING "time.c: WARNING: Enabled VIA8237 HPET "
++		       "at %#lx.\n", hpet_address);
++	}
++}
++
++#else
++
++static void is_hpet_via8237(void)
++{
++}
++
++#endif
++
++
+ int is_hpet_capable(void)
+ {
+-	if (!boot_hpet_disable && hpet_address)
+-		return 1;
+-	return 0;
++	if (boot_hpet_disable)
++		return 0;
++
++        if (!hpet_address)
++		is_hpet_via8237();
++
++	return hpet_address;
+ }
+ 
+ static int __init hpet_setup(char* str)
+
+--Boundary-00=_E48NDDlv4UxFtrM--
+
+	
+
+	
+		
+___________________________________________________________ 
+Gesendet von Yahoo! Mail - Jetzt mit 1GB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de

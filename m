@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751630AbVIZMhP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbVIZMhi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751630AbVIZMhP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 08:37:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751628AbVIZMhP
+	id S932111AbVIZMhi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 08:37:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932110AbVIZMhi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 08:37:15 -0400
-Received: from webmailv3.ispgateway.de ([62.67.200.115]:39389 "EHLO
-	webmailv3.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1751408AbVIZMhO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 08:37:14 -0400
-Message-ID: <1127738224.4337eb7042903@www.domainfactory-webmail.de>
-Date: Mon, 26 Sep 2005 14:37:04 +0200
-From: Florian Engelhardt <flo@dotbox.org>
-To: linux-kernel@vger.kernel.org
-Subject: USB on nForce4 board only working with pci=routeirq
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-User-Agent: Internet Messaging Program (IMP) 3.2.8
-X-Originating-IP: 213.143.195.2
+	Mon, 26 Sep 2005 08:37:38 -0400
+Received: from [85.21.88.2] ([85.21.88.2]:36317 "HELO mail.dev.rtsoft.ru")
+	by vger.kernel.org with SMTP id S932111AbVIZMhi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 08:37:38 -0400
+Subject: Re: [spi-devel-general] Re: SPI
+From: dmitry pervushin <dpervushin@gmail.com>
+To: Eric Piel <Eric.Piel@tremplin-utc.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       spi-devel-general@lists.sourceforge.net
+In-Reply-To: <4337EA12.1070001@tremplin-utc.net>
+References: <1127733134.7577.0.camel@diimka.dev.rtsoft.ru>
+	 <4337EA12.1070001@tremplin-utc.net>
+Content-Type: text/plain
+Date: Mon, 26 Sep 2005 16:37:36 +0400
+Message-Id: <1127738256.7577.3.camel@diimka.dev.rtsoft.ru>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1-1mdk 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, 2005-09-26 at 14:31 +0200, Eric Piel wrote:
+> > +	  Say Y if you need to enable SPI support on your kernel
+> SPI is far from being well know, please put more help. At least define 
+> SPI as "Serial Peripheral Interface" and suggest the user to have a look 
+> at Documentation/spi.txt . IMHO, it's also convenient if you give the 
+> name of the module that will be created (spi?).
+The module name is spi-core. If one who configures the kernel does not
+know about the SPI, it seems that it is better to keep the option
+unchanged... However, I edit the text in Kconfig.
+> Broken link, it is 
+> http://en.wikipedia.org/wiki/Serial_Peripheral_Interface (no trailing /)
+Fixed.
 
-i own a nForce4 mainboard from elitegroup. It has USB 1.1 and 2.0.
-If i start the computer normal with my 2.6.13 kernel i get the following:
-Sep 25 10:12:54 discovery ohci_hcd 0000:00:02.0: OHCI Host Controller
-Sep 25 10:12:54 discovery ohci_hcd 0000:00:02.0: USB HC takeover failed! 
-(BIOS/SMM bug)
-Sep 25 10:12:54 discovery ohci_hcd 0000:00:02.0: can't reset
-Sep 25 10:12:54 discovery ACPI: PCI interrupt for device 0000:00:02.0 disabled
-Sep 25 10:12:54 discovery ohci_hcd 0000:00:02.0: init 0000:00:02.0 fail, -16
-Sep 25 10:12:54 discovery ohci_hcd: probe of 0000:00:02.0 failed with error -16
-
-And non of my USB-devices is wokring anymore.
-I than switched to 2.6.14-rc2-mm1, but the same behavior.
-I tried to parse pci=routeirq to the kernel, and than it was wokring again.
-
-It worked perfect, also without pci=routeirq until 25th of september.
-I updated the bios, but that was one month ago, and is was using my usb
-devices since then with no problems, so i don´t know, what couses this
-problem now.
-
-Kind Regards
-
-Florian Engelhardt
-
-PS: Please cc me, couse i am not on the list.
+Thank you for comments,
+dmitry 
 

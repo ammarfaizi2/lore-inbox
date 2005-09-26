@@ -1,88 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751653AbVIZQDj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751655AbVIZQJj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751653AbVIZQDj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 12:03:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751654AbVIZQDj
+	id S1751655AbVIZQJj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 12:09:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751656AbVIZQJj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 12:03:39 -0400
-Received: from justus.rz.uni-saarland.de ([134.96.7.31]:15551 "EHLO
-	justus.rz.uni-saarland.de") by vger.kernel.org with ESMTP
-	id S1751652AbVIZQDj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 12:03:39 -0400
-From: Michael Bellion <mbellion@hipac.org>
-To: Emmanuel Fleury <fleury@cs.aau.dk>
-Subject: Re: [ANNOUNCE] Release of nf-HiPAC 0.9.0
-Date: Mon, 26 Sep 2005 18:03:27 +0200
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-References: <200509260445.46740.mbellion@hipac.org> <200509261638.12731.mbellion@hipac.org> <43380E4A.1060604@cs.aau.dk>
-In-Reply-To: <43380E4A.1060604@cs.aau.dk>
+	Mon, 26 Sep 2005 12:09:39 -0400
+Received: from ppsw-9.csi.cam.ac.uk ([131.111.8.139]:37287 "EHLO
+	ppsw-9.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1751654AbVIZQJi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 12:09:38 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Mon, 26 Sep 2005 17:09:36 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
+Subject: Re: [PATCH 1/4] NTFS: Fix sparse warnings that have crept in over
+ time.
+In-Reply-To: <Pine.LNX.4.58.0509260746130.3308@g5.osdl.org>
+Message-ID: <Pine.LNX.4.60.0509261654550.29344@hermes-1.csi.cam.ac.uk>
+References: <Pine.LNX.4.60.0509261427520.32257@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.60.0509261431270.32257@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.58.0509260746130.3308@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509261803.28150.mbellion@hipac.org>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.1 (justus.rz.uni-saarland.de [134.96.7.31]); Mon, 26 Sep 2005 18:03:28 +0200 (CEST)
-X-AntiVirus: checked by AntiVir Milter 1.0.6; AVE 6.32.0.6; VDF 6.32.0.43
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-> > But your performance tests have a serious flaw:
-> > You construct your rule set by creating one rule for each entry in your
-> > packet header trace. This results in an completely artificial rule set
-> > that creates a lot of redundancy in the nf-HiPAC lookup data structure
-> > making it much larger than the Compact Filter data structure.
->
-> Yes, it was intended to be a worst case for our scheme (not realistic
-> but worst case)..
-
-Sorry, but this is far away from the worst case for your scheme. Actually it 
-is a quite good case for your compiler, because every rule is fully specified 
-(meaning there are no wildcards in any rule) and there are no ranges or masks 
-involved. 
-Try using a mixed rule set that contains rules that only specify certain 
-dimensions and have wildcards on the other dimensions. Try using rules with 
-ranges and masks.
-Try using overlapping rules, meaning rules that completely or partly overlap 
-other rules in certain dimensions.
-This will make your data structure grow!
-
-> > I am currently working on a new improved version of the algorithm used in
-> > nf-HiPAC. The new algorithmic core will reduce memory usage while at the
-> > same time improving the running time of insert and delete operations. The
-> > lookup performance will be improved too, especially for bigger rulesets.
-> > The concepts and the design are already developed, but the implementation
-> > is still in its early stages.
+On Mon, 26 Sep 2005, Linus Torvalds wrote:
+> On Mon, 26 Sep 2005, Anton Altaparmakov wrote:
 > >
-> > The new algorithmic core will make sure that the lookup data structure in
-> > the kernel is always fully optimized while at the same time allowing very
-> > fast dynamic updates.
-> >
-> > At that point Compact Filter will not be able to win in any performance
-> > test against  nf-HiPAC anymore, simply because there is no way to
-> > optimize the lookup data structure any further.
->
-> Well, you already said this last time we had exchanged some mails
-> (it was more than one year ago if I count well).
+> > NTFS: Fix sparse warnings that have crept in over time.
+> 
+> I think this is wrong.
+> 
+> What was the warning that caused this (and the two other things that look 
+> the same)?
 
-Yes, you are right. The HiPAC project has gone through some tough times over 
-the last 2 years. With MARA Systems the HiPAC Project has finally found a 
-strong partner that is fully committed to the concept of Open Source 
-Software. This allows me to continue the development of HiPAC under the GNU 
-GPL license.
+fs/ntfs/mft.c:2577:24: warning: incompatible types for operation (&)
+fs/ntfs/mft.c:2577:24:    left side has type unsigned long long [unsigned] 
+[usertype] <noident>
+fs/ntfs/mft.c:2577:24:    right side has type bad type enum MFT_REF_CONSTS 
+[toplevel] MFT_REF_MASK_CPU
+fs/ntfs/mft.c:2577:24: warning: cast from unknown type
 
-> Anyway, I doubt you can get something that you can update dynamically
-> AND small in size following your way of doing. But, prove me wrong and
-> I'll be happy. :)
+> >  #define MK_MREF(m, s)	((MFT_REF)(((MFT_REF)(s) << 48) |		\
+> > -					((MFT_REF)(m) & MFT_REF_MASK_CPU)))
+> > +					((MFT_REF)(m) & (u64)MFT_REF_MASK_CPU)))
+> 
+> Also, side note: how you defined "MFT_REF_MASK_CPU" is pretty debatable in 
+> the first place:
+> 
+> 	typedef enum {
+> 	        MFT_REF_MASK_CPU        = 0x0000ffffffffffffULL,
+> 	        MFT_REF_MASK_LE         = const_cpu_to_le64(0x0000ffffffffffffULL),
+> 	} MFT_REF_CONSTS;
+> 
+> and this just _happens_ to work with gcc, but it's not real C.
+> 
+> The issue? "enum" is really an integer type. As in "int". Trying to put a 
+> larger value than one that fits in "int" is not guaranteed to work.
 
-Ok, I'll do that :)
+Yes, that is true but as you say it does work with gcc.
 
-Regards,
-    +---------------------------+
-    |      Michael Bellion      |
-    |   <mbellion@hipac.org>    |
-    +---------------------------+
+> There's another issue, namely that the type of the snum is not only of 
+> undefined size (is it the same size as an "int"? Is it an "unsigned long 
+> long"?) but the "endianness" of it is also now totally undefined. You have 
+> two different endiannesses inside the _same_ enum. What is the type of the 
+> enum?
 
+Good question.  "confused"?  (-;
+
+> You _really_ probably should use just
+> 
+> 	#define MFT_REF_MASK_CPU 0x0000ffffffffffffULL
+> 	#define MFT_REF_MASK_LE const_cpu_to_le64(MFT_REF_MASK_CPU)
+> 
+> instead. That way the type of that thing is well-defined.
+
+Yes, that is probably better given it is not possible to have them both be 
+the same type (by definition).
+
+> Depending on what warning you're trying to shut up, that may well fix it 
+> too. Because now "MFT_REF_MASK_CPU" is clearly a regular constant, while 
+> MFT_REF_MASK_LE is clearly a little-endian constant. Before, they were of 
+> the same enum type, which made it very unclear what the hell they were.
+
+Yes, I would expect it to fix it.
+
+In fact I just did it and yes, it fixes it, too.  The repository I asked 
+you to pull from is now updated with the below patch added which reverts 
+the wrong layout.h parts and changes the enum to two defines as per your 
+suggestion.
+
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/aia21/ntfs-2.6.git/HEAD
+
+Thanks for the comments.  (-:
+
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+
+---
+
+NTFS: Re-fix sparse warnings in a more correct way, i.e. don't use an enum with
+      different types in it but #define the two constants instead.
+
+Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
+
+---
+
+ fs/ntfs/layout.h |   13 +++++--------
+ 1 files changed, 5 insertions(+), 8 deletions(-)
+
+e2fcc61ef0d654887b651bd99ffcb52f7344b836
+diff --git a/fs/ntfs/layout.h b/fs/ntfs/layout.h
+--- a/fs/ntfs/layout.h
++++ b/fs/ntfs/layout.h
+@@ -308,22 +308,19 @@ typedef le16 MFT_RECORD_FLAGS;
+  * The _LE versions are to be applied on little endian MFT_REFs.
+  * Note: The _LE versions will return a CPU endian formatted value!
+  */
+-typedef enum {
+-	MFT_REF_MASK_CPU	= 0x0000ffffffffffffULL,
+-	MFT_REF_MASK_LE		= const_cpu_to_le64(0x0000ffffffffffffULL),
+-} MFT_REF_CONSTS;
++#define MFT_REF_MASK_CPU 0x0000ffffffffffffULL
++#define MFT_REF_MASK_LE const_cpu_to_le64(0x0000ffffffffffffULL)
+ 
+ typedef u64 MFT_REF;
+ typedef le64 leMFT_REF;
+ 
+ #define MK_MREF(m, s)	((MFT_REF)(((MFT_REF)(s) << 48) |		\
+-					((MFT_REF)(m) & (u64)MFT_REF_MASK_CPU)))
++					((MFT_REF)(m) & MFT_REF_MASK_CPU)))
+ #define MK_LE_MREF(m, s) cpu_to_le64(MK_MREF(m, s))
+ 
+-#define MREF(x)		((unsigned long)((x) & (u64)MFT_REF_MASK_CPU))
++#define MREF(x)		((unsigned long)((x) & MFT_REF_MASK_CPU))
+ #define MSEQNO(x)	((u16)(((x) >> 48) & 0xffff))
+-#define MREF_LE(x)	((unsigned long)(le64_to_cpu(x) &		\
+-					(u64)MFT_REF_MASK_CPU))
++#define MREF_LE(x)	((unsigned long)(le64_to_cpu(x) & MFT_REF_MASK_CPU))
+ #define MSEQNO_LE(x)	((u16)((le64_to_cpu(x) >> 48) & 0xffff))
+ 
+ #define IS_ERR_MREF(x)	(((x) & 0x0000800000000000ULL) ? 1 : 0)

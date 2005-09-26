@@ -1,55 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932518AbVIZUgg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbVIZUil@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932518AbVIZUgg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 16:36:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932517AbVIZUgg
+	id S1750701AbVIZUil (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 16:38:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750711AbVIZUik
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 16:36:36 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:60882 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932489AbVIZUgf (ORCPT
+	Mon, 26 Sep 2005 16:38:40 -0400
+Received: from zproxy.gmail.com ([64.233.162.197]:16573 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750701AbVIZUik (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 16:36:35 -0400
-Date: Mon, 26 Sep 2005 13:36:34 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Alex Williamson <alex.williamson@hp.com>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH] sys_sendmsg() alignment bug fix
-Message-Id: <20050926133634.657ef4a3.akpm@osdl.org>
-In-Reply-To: <1127764921.6529.60.camel@tdi>
-References: <1127764921.6529.60.camel@tdi>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 26 Sep 2005 16:38:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=emuLPuhpzWClK9KkekpIgpugPQCGxl5Y2n0UpzPKkXqOxllh/zvcj2whbqnHQWKjlXrsZOAxukeaxhcwXBpfY2bGi5TnYNC2N6GDlnQyuU1uHVh6oJtyAeXcgDt14yRMJedwynhdJgAN0KZ0C7D/D+/mLB4macaUVLzFVC5dqOk=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: [PATCH] *tiny* CodingStyle correction
+Date: Mon, 26 Sep 2005 22:40:53 +0200
+User-Agent: KMail/1.8.2
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509262240.53212.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Williamson <alex.williamson@hp.com> wrote:
->
->    The patch below adds an alignment attribute to the buffer used in
-> sys_sendmsg().  This eliminates an unaligned access warning on ia64.
-> 
+CodingStyle is supposed to set a good example, so 
+  int fun(int )
+doesn't look too good ;-)
 
-Vaguely surprised that the compiler cannot be taught to do this.
+I considered both
+  int fun(void)
+and
+  int fun(int a)
+as replacements, and settled on the last.
 
-> 
-> diff -r db9b9552a2b4 net/socket.c
-> --- a/net/socket.c	Sat Sep 24 23:56:08 2005
-> +++ b/net/socket.c	Mon Sep 26 13:44:09 2005
-> @@ -1700,7 +1700,9 @@
->  	struct socket *sock;
->  	char address[MAX_SOCK_ADDR];
->  	struct iovec iovstack[UIO_FASTIOV], *iov = iovstack;
-> -	unsigned char ctl[sizeof(struct cmsghdr) + 20];	/* 20 is size of ipv6_pktinfo */
-> +	unsigned char ctl[sizeof(struct cmsghdr) + 20]
-> +	                  __attribute__ ((aligned (sizeof(__kernel_size_t))));
-> +	                  /* 20 is size of ipv6_pktinfo */
->  	unsigned char *ctl_buf = ctl;
->  	struct msghdr msg_sys;
->  	int err, ctl_len, iov_size, total_len;
 
-OK, thanks - I'll send this on to davem.  It seems odd to be using
-__kernel_size_t rather than size_t, but that's what struct cmshdr does
-(also oddly).
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
+
+ Documentation/CodingStyle |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+--- linux-2.6.14-rc2-git3-orig/Documentation/CodingStyle	2005-09-22 00:27:53.000000000 +0200
++++ linux-2.6.14-rc2-git3/Documentation/CodingStyle	2005-09-26 22:36:37.000000000 +0200
+@@ -199,7 +199,7 @@
+     modifications are prevented
+ - saves the compiler work to optimize redundant code away ;)
+ 
+-int fun(int )
++int fun(int a)
+ {
+ 	int result = 0;
+ 	char *buffer = kmalloc(SIZE);
+
 

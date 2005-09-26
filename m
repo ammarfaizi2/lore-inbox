@@ -1,62 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751384AbVIZT3e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751388AbVIZTaS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751384AbVIZT3e (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 15:29:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932484AbVIZT3d
+	id S1751388AbVIZTaS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 15:30:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbVIZTaS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 15:29:33 -0400
-Received: from spirit.analogic.com ([204.178.40.4]:39174 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP
-	id S1751379AbVIZT3P convert rfc822-to-8bit (ORCPT
+	Mon, 26 Sep 2005 15:30:18 -0400
+Received: from imap.gmx.net ([213.165.64.20]:727 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751379AbVIZTaQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 15:29:15 -0400
+	Mon, 26 Sep 2005 15:30:16 -0400
+X-Authenticated: #20450766
+Date: Mon, 26 Sep 2005 21:29:31 +0200 (CEST)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: Peter Osterlund <petero2@telia.com>
+cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: Re: [2.6.13] pktcdvd: IO-errors
+In-Reply-To: <m34q873ccc.fsf@telia.com>
+Message-ID: <Pine.LNX.4.60.0509262122450.4031@poirot.grange>
+References: <Pine.LNX.4.60.0509242057001.4899@poirot.grange> <m3slvtzf72.fsf@telia.com>
+ <Pine.LNX.4.60.0509252026290.3089@poirot.grange> <m34q873ccc.fsf@telia.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <Pine.LNX.4.61.0509270009110.14218@students.iiit.net>
-References: <Pine.LNX.4.61.0509270009110.14218@students.iiit.net>
-X-OriginalArrivalTime: 26 Sep 2005 19:29:12.0973 (UTC) FILETIME=[9345ABD0:01C5C2D0]
-Content-class: urn:content-classes:message
-Subject: Re: Reg. gcc
-Date: Mon, 26 Sep 2005 15:29:12 -0400
-Message-ID: <Pine.LNX.4.61.0509261526010.32371@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Reg. gcc
-Thread-Index: AcXC0JNp1yWqFnZuROKYmOQQ8An+Ew==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Prasant Gopal" <prasant_a@students.iiit.net>
-Cc: <linux-gcc@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 26 Sep 2005, Peter Osterlund wrote:
 
-On Mon, 26 Sep 2005, Prasant Gopal wrote:
+> Guennadi Liakhovetski <g.liakhovetski@gmx.de> writes:
+> 
+> > Besides, it works under 2.6.12-rc5...
+> 
+> What gcc versions were used when compiling the kernels? (Boot both
+> kernels, run "cat /proc/version" to find out.)
 
->
->
-> hi ,
->
->           can i hav 2 versions of gcc installed on the same kernel..  If
-> so how...please help me out...
->
-> regards,
-> prasant gopal
->
+Well, they are somewhat different:
 
-Sure:
+Linux version 2.6.12-rc5 (lyakh@poirot.grange) (gcc version 3.3.4 (Debian 
+1:3.3.4-13)) #1 Sun May 29 22:53:31 CEST 2005
 
- 	http://www.goggle.com/search?hl=en&q=gcc
+Linux version 2.6.13.1 (lyakh@poirot.grange) (gcc version 3.3.5 (Debian 
+1:3.3.5-13)) #1 Sat Sep 17 11:57:51 CEST 2005
 
+... No gcc-4.0, but still - 3.3.4 and 3.3.5... I could try recompiling 
+2.6.12 with 3.3.5... Do you REALLY believe it could be the reason?
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13 on an i686 machine (5589.55 BogoMips).
-Warning : 98.36% of all statistics are fiction.
+> I just discovered that the driver doesn't work correctly on my laptop
+> if I use "gcc version 4.0.1 20050727 (Red Hat 4.0.1-5)" from Fedora
+> Core 4. "pktsetup 0 /dev/hdc ; cat /proc/driver/pktcdvd/pktcdvd0"
+> OOPSes. If I use gcc32 it does seem to work though.
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+Doesn't Oops for me under 2.6.13.1 compiled with 3.3.5, that's where I get 
+errors.
 
-Thank you.
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski

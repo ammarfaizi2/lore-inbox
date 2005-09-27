@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964980AbVI0QX2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964977AbVI0Q0Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964980AbVI0QX2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 12:23:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbVI0QX2
+	id S964977AbVI0Q0Y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 12:26:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964985AbVI0Q0Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 12:23:28 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:9435 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964980AbVI0QX1 (ORCPT
+	Tue, 27 Sep 2005 12:26:24 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:37356 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S964977AbVI0Q0X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 12:23:27 -0400
-From: Andi Kleen <ak@suse.de>
-To: Harald Welte <laforge@netfilter.org>
-Subject: Re: [PATCH 0/3] netfilter : 3 patches to boost ip_tables performance
-Date: Tue, 27 Sep 2005 18:23:18 +0200
-User-Agent: KMail/1.8.2
-Cc: Eric Dumazet <dada1@cosmosbay.com>, linux-kernel@vger.kernel.org,
-       netfilter-devel@lists.netfilter.org, netdev@vger.kernel.org
-References: <432EF0C5.5090908@cosmosbay.com> <200509221503.21650.ak@suse.de> <20050923170911.GN731@sunbeam.de.gnumonks.org>
-In-Reply-To: <20050923170911.GN731@sunbeam.de.gnumonks.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Tue, 27 Sep 2005 12:26:23 -0400
+Date: Tue, 27 Sep 2005 09:26:00 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Mel Gorman <mel@csn.ul.ie>
+Cc: haveblue@us.ibm.com, mrmacman_g4@mac.com, jschopp@austin.ibm.com,
+       akpm@osdl.org, lhms-devel@lists.sourceforge.net, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, kravetz@us.ibm.com
+Subject: Re: [Lhms-devel] Re: [PATCH 1/9] add defrag flags
+Message-Id: <20050927092600.2e9c7b47.pj@sgi.com>
+In-Reply-To: <Pine.LNX.4.58.0509271415460.12421@skynet>
+References: <4338537E.8070603@austin.ibm.com>
+	<43385412.5080506@austin.ibm.com>
+	<21024267-29C3-4657-9C45-17D186EAD808@mac.com>
+	<1127780648.10315.12.camel@localhost>
+	<20050926224439.056eaf8d.pj@sgi.com>
+	<Pine.LNX.4.58.0509271415460.12421@skynet>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509271823.19365.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 23 September 2005 19:09, Harald Welte wrote:
-> On Thu, Sep 22, 2005 at 03:03:21PM +0200, Andi Kleen wrote:
-> > > 1) No more central rwlock protecting each table (filter, nat, mangle,
-> > > raw), but one lock per CPU. It avoids cache line ping pongs for each
-> > > packet.
+Mel wrote:
+> > If you have good reason to keep __GFP_USER meanin either user or buffer,
+> > then perhaps the name __GFP_USER is misleading.
 > >
-> > Another useful change would be to not take the lock when there are no
-> > rules. Currently just loading iptables has a large overhead.
->
-> This is partially due to the netfilter hooks that are registered (so we
-> always take nf_hook_slow() in the NF_HOOK() macro).
+> 
+> Possibly but we are stuck for terminology here. It's hard to think of a
+> good term that reflects the intention.
 
-Not sure it's that. nf_hook_slow uses RCU, so it should be quite
-fast.
+You make several good points.  How about:
+  * Rename __GFP_USER to __GFP_EASYRCLM
+  * Shift the two __GFP_*RCLM flags up to 0x80000u and 0x100000u
+  * Leave __GFP_BITS_SHIFT at the 21 in your patch (and fix its comment)
+    (or should we go up the next nibble, to 24?).
 
-> The default policies inside an iptables chain are internally implemented
-> as a rule.  Thus, policies as built-in rules have packet/byte counters.
+This results in the two key GFP defines being:
 
-That could be special cased and done lockless, with the counting
-done per CPU.
+#define __GFP_EASYRCLM  0x80000u /* Easily reclaimed user or buffer page */
+#define __GFP_KERNRCLM 0x100000u /* Reclaimable kernel page */
 
--Andi
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

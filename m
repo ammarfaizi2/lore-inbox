@@ -1,44 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965046AbVI0S7U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965044AbVI0S4h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965046AbVI0S7U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 14:59:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965047AbVI0S7U
+	id S965044AbVI0S4h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 14:56:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965045AbVI0S4g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 14:59:20 -0400
-Received: from dvhart.com ([64.146.134.43]:12941 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S965046AbVI0S7T (ORCPT
+	Tue, 27 Sep 2005 14:56:36 -0400
+Received: from vena.lwn.net ([206.168.112.25]:27580 "HELO lwn.net")
+	by vger.kernel.org with SMTP id S965044AbVI0S4g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 14:59:19 -0400
-Date: Tue, 27 Sep 2005 11:59:16 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Andrew Morton <akpm@osdl.org>, Reuben Farrelly <reuben-lkml@reub.net>
-Cc: linux-kernel@vger.kernel.org, netfilter-devel@lists.netfilter.org,
-       "Seth, Rohit" <rohit.seth@intel.com>
-Subject: Re: 2.6.14-rc2-mm1 (Oops, possibly Netfilter related?)
-Message-ID: <925820000.1127847556@flay>
-In-Reply-To: <20050927004410.29ab9c03.akpm@osdl.org>
-References: <20050921222839.76c53ba1.akpm@osdl.org><4338F136.1020404@reub.net> <20050927004410.29ab9c03.akpm@osdl.org>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Tue, 27 Sep 2005 14:56:36 -0400
+Message-ID: <20050927185635.8023.qmail@lwn.net>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] vm - swap_prefetch-11 
+From: corbet@lwn.net (Jonathan Corbet)
+In-reply-to: Your message of "Fri, 23 Sep 2005 17:11:47 +1000."
+             <200509231711.47822.kernel@kolivas.org> 
+Date: Tue, 27 Sep 2005 12:56:35 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> No, this is simply a warning - the kernel ran out of 1-order pages in the
-> page allocator.  There have been several reports of this after
-> mm-try-to-allocate-higher-order-pages-in-rmqueue_bulk.patch was merged,
-> which was rather expected.
-> 
-> I've dropped that patch.  Joel Schopp is working on Mel Gorman's patches
-> which address fragmentation at this level.  If that code gets there then we
-> can take another look at
-> mm-try-to-allocate-higher-order-pages-in-rmqueue_bulk.patch.
+Hi, Con,
 
-Me no understand. We're going to deliberately cause fragmentation in order
-to defragment it again later ???
+> This patch implements swap prefetching when the vm is relatively idle and
+> there is free ram available. 
 
-M.
+I'm having a look at it now (better late than never...), and a couple of
+questions come to mind...
 
+The more general of the two is: would it make sense to somehow merge
+your swapped_entry data structure with Rik's page-remembering scheme for
+CLOCK-PRO?  Assumed that both are someday destined for inclusion, it
+seems it would make sense to add just one "remember info about swapped
+pages" data structure, rather than two.
+
+Second question:
+
+> +++ linux-2.6.13-sp/include/linux/fs.h	2005-09-23 16:57:03.000000000 +1000
+> @@ -340,6 +340,8 @@ struct address_space {
+>  	struct inode		*host;		/* owner: inode, block_device */
+>  	struct radix_tree_root	page_tree;	/* radix tree of all pages */
+>  	rwlock_t		tree_lock;	/* and rwlock protecting it */
+> +	struct radix_tree_root	swap_tree;	/* radix tree of swapped pages */
+> +	struct list_head	swapped_pages;	/* list of swapped pages */
+
+It looks like you are adding these fields to every address_space
+structure in the system - and there can be a fair number of those.  But
+further down, when it comes time to remember a swapped page:
+
+> +void add_to_swapped_list(unsigned long index)
+> +{
+> +	struct swapped_entry_t *entry;
+> +	struct address_space *mapping = &swapper_space;
+
+You're only actually remembering pages associated with a single address
+space.  
+
+Do you anticipate adding prefetching from other address spaces as well?
+If not, it might be worth putting these structures somewhere else to
+avoid bloating the address_space structure.
+
+...or am I missing something again...?
+
+Thanks,
+
+jon

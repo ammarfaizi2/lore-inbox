@@ -1,50 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964969AbVI0P15@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964976AbVI0Pih@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964969AbVI0P15 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 11:27:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964973AbVI0P15
+	id S964976AbVI0Pih (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 11:38:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964978AbVI0Pih
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 11:27:57 -0400
-Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:6122 "EHLO
-	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S964969AbVI0P14
+	Tue, 27 Sep 2005 11:38:37 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:42964 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S964977AbVI0Pig
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 11:27:56 -0400
-X-ORBL: [69.107.75.50]
-Date: Tue, 27 Sep 2005 08:27:41 -0700
-From: David Brownell <david-b@pacbell.net>
-To: vendor-sec@lst.de, security@linux.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       laforge@gnumonks.org, hch@infradead.org, greg@kroah.com
-Subject: Re: [vendor-sec] [BUG/PATCH/RFC] Oops while completing async USB via 
- usbdevio
-References: <20050925151330.GL731@sunbeam.de.gnumonks.org>
- <20050927080413.GA13149@kroah.com>
- <20050927124846.GA29649@infradead.org>
- <20050927125755.GA10738@kroah.com>
- <20050927125956.GA29861@infradead.org>
- <20050927130937.GA11060@kroah.com>
-In-Reply-To: <20050927130937.GA11060@kroah.com>
+	Tue, 27 Sep 2005 11:38:36 -0400
+Date: Tue, 27 Sep 2005 11:38:35 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+cc: jim.ramsay@gmail.com, <mdharm-kernel@one-eyed-alien.net>,
+       USB users list <linux-usb-users@lists.sourceforge.net>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       SCSI development list <linux-scsi@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [Linux-usb-users] Possible bug in usb storage (2.6.11 kernel)
+In-Reply-To: <20050927.234616.36922370.anemo@mba.ocn.ne.jp>
+Message-ID: <Pine.LNX.4.44L0.0509271120370.5703-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20050927152741.2D52FA84A1@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Sep 2005 at 06:09:38 Greg KH wrote:
-> On Tue, Sep 27, 2005 at 01:59:56PM +0100, Christoph Hellwig wrote:
-> > 
-> > This is more than messy.  usbfs is the only user of SI_ASYNCIO, and the
-> > way it uses it is more than messy.  Why can't USB simply use the proper
-> > AIO infrastructure?
->
-> No one has taken the time and effort to do this.  No other reason that I
-> know of.  David?  I know you have looked into this a bit in the past.
+On Tue, 27 Sep 2005, Atsushi Nemoto wrote:
 
-Time and effort are the main issues I know of.  First we'd need some
-kind of FD-per-endpoint infrastructure, then it should be easy to
-implement the AIO file ops, one kiocb per URB ... much like "gadgetfs"
-does for USB peripherals, one kiocb per usb_request.
+> >>>>> On Tue, 27 Sep 2005 10:21:17 -0400 (EDT), Alan Stern <stern@rowland.harvard.edu> said:
+> 
+> stern> Yes I did.  You can see it at
+> stern> https://lists.one-eyed-alien.net/pipermail/usb-storage/2005-September/001953.html
+> 
+> Thank you.  But 'kmalloc(US_SENSE_SIZE, GFP_KERNEL)' is not enough (at
+> least) for MIPS since some MIPS chips have 32 byte cacheline and
+> ARCH_KMALLOC_MINALIGN is 8 on linux-mips.
+> 
+> Using 'max(dma_get_cache_alignment(), US_SENSE_SIZE)' would be OK.
 
-- Dave
+If that is so, it's a bug in linux-mips.  ARCH_KMALLOC_MINALIGN is 
+supposed to be at least as large as a cacheline.  See this comment in 
+mm/slab.c:
+
+/*
+ * Enforce a minimum alignment for the kmalloc caches.
+ * Usually, the kmalloc caches are cache_line_size() aligned, except when
+ * DEBUG and FORCED_DEBUG are enabled, then they are BYTES_PER_WORD aligned.
+ * Some archs want to perform DMA into kmalloc caches and need a guaranteed
+ * alignment larger than BYTES_PER_WORD. ARCH_KMALLOC_MINALIGN allows that.
+ * Note that this flag disables some debug features.
+ */
+
+and also this comment (referring to the kmalloc caches):
+
+		/*
+		 * For performance, all the general caches are L1 aligned.
+		 * This should be particularly beneficial on SMP boxes, as it
+		 * eliminates "false sharing".
+		 * Note for systems short on memory removing the alignment will
+		 * allow tighter packing of the smaller caches.
+		 */
+
+Alan Stern
 

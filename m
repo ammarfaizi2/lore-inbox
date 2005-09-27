@@ -1,99 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965073AbVI0VA5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965089AbVI0VBV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965073AbVI0VA5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 17:00:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965076AbVI0VA4
+	id S965089AbVI0VBV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 17:01:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965086AbVI0VBU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 17:00:56 -0400
-Received: from 81-174-32-62.f5.ngi.it ([81.174.32.62]:36573 "HELO develer.com")
-	by vger.kernel.org with SMTP id S965073AbVI0VAz (ORCPT
+	Tue, 27 Sep 2005 17:01:20 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:45145 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S965084AbVI0VBS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 17:00:55 -0400
-Message-ID: <4339B2F3.5040206@develer.com>
-Date: Tue, 27 Sep 2005 23:00:35 +0200
-From: Bernardo Innocenti <bernie@develer.com>
-User-Agent: Mozilla Thunderbird 1.0.6-5 (X11/20050818)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bernardo Innocenti <bernie@develer.com>
-CC: Patrick McHardy <kaber@trash.net>, lkml <linux-kernel@vger.kernel.org>,
-       netfilter-devel@lists.netfilter.org
-Subject: Re: Intermittent NAT failure when multiple hosts send UDP packets
-References: <432B8702.3060801@develer.com> <432CD386.201@develer.com> <43306484.2060103@develer.com> <43307BDC.8060602@trash.net> <4330A51D.20009@develer.com>
-In-Reply-To: <4330A51D.20009@develer.com>
-X-Enigmail-Version: 0.91.0.0
-OpenPGP: id=FC6A66CA;
-	url=https://www.develer.com/~bernie/gpgkey.txt
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 27 Sep 2005 17:01:18 -0400
+Date: Tue, 27 Sep 2005 23:01:14 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Cc: Grzegorz Kulewski <kangur@polcom.net>,
+       =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Strange disk corruption with Linux >= 2.6.13
+Message-ID: <20050927210113.GA26967@harddisk-recovery.com>
+References: <20050927111038.GA22172@ime.usp.br> <Pine.LNX.4.63.0509271331590.21130@alpha.polcom.net> <204F8530-3DAD-4B20-AC24-2CBA776CC2C2@ime.usp.br> <Pine.LNX.4.63.0509271425500.21130@alpha.polcom.net> <Pine.LNX.4.60.0509272139220.18464@poirot.grange>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.60.0509272139220.18464@poirot.grange>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernardo Innocenti wrote:
-> Patrick McHardy wrote:
->>Bernardo Innocenti wrote:
->>
->>>It's quite hard to trigger, but after it does, packets
->>>are consistently routed with the source IP untranslated.
->>
->>Please try "echo 255 >
->>/proc/sys/net/ipv4/netfilter/ip_conntrack_log_invalid"
->>and modprobe ipt_LOG to see if conntrack ignores them because
->>of invalid checksums or something.
-> 
-> It doesn't seem to be the case.  I only see a few occasional
-> errors, probably caused by miserable hosts crawling with worms:
+On Tue, Sep 27, 2005 at 09:42:44PM +0200, Guennadi Liakhovetski wrote:
+> Version B here. It first had only 128MB, worked fine, I added 256MB, 
+> system become unstable, memtest86 found "bad memory" around the last 
+> megabytes. Then I bought 512MB, hoping to use it with 256MB - no way. 
+> Every module alone works, but not together. But in my case memtest86 did 
+> find errors. Try removing the 256MB module?...
+
+FWIW, some VIA based chipsets only take a single DDR400 module, not
+two. The manuals are a bit vague about it.
 
 
-PROBLEM SOLVED!  I'm glad to say It's *almost* not a kernel bug,
-more like a missing feature.
-
-
-In my ip-up.local script, I do:
-
-        echo "Loading NAT modules:"
-        /sbin/modprobe ip_conntrack
-        /sbin/modprobe ip_conntrack_ftp
-        /sbin/modprobe ip_conntrack_irc
-        /sbin/modprobe iptable_nat
-        /sbin/modprobe ip_nat_ftp
-        /sbin/modprobe ip_nat_irc
-
-	[...several filtering and QoS rules...]
-
-	$iptab -A POSTROUTING -t nat -o $IFNAME -j SNAT --to-source $IPLOCAL
-
-
-My ip-down.local attempts to do the opposite:
-
-        echo "Flushing all current rules:"
-        $iptab -F
-        $iptab -F -t nat
-        echo "Clearing all chains:"
-        $iptab -X
-        $iptab -Z
-        $iptab -X -t nat
-        $iptab -Z -t nat
-
-        echo "Removing NAT modules:"
-        /sbin/rmmod ip_nat_ftp ip_nat_irc iptable_nat ip_conntrack ip_conntrack_ftp ip_conntrack_irc
-
-
-Note the order of the modules in the last line: ip_conntrack cannot
-be unloaded because it's still being used by ip_conntrack_ftp and
-ip_conntrack_irc.
-
-So, whenever the PPP link goes down, ip_conntrack remains loaded with
-all connections still being tracked until the timer expires!
-
-If ppp0 goes up again soon enough, the script reloads the ip_nat modules,
-but the existing connections are no longer being translated.
-
-Would it be possible to do something at module initialization time
-to recover those connections?  Meanwhile, I've fixed my rmmod to make
-sure ip_conntrack really gets unloaded.
+Erik
 
 -- 
-  // Bernardo Innocenti - Develer S.r.l., R&D dept.
-\X/  http://www.develer.com/
-
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

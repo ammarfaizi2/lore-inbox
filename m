@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964894AbVI0Mn3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964911AbVI0Mnz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964894AbVI0Mn3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 08:43:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964911AbVI0Mn3
+	id S964911AbVI0Mnz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 08:43:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964913AbVI0Mnz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 08:43:29 -0400
-Received: from smtp3.nextra.sk ([195.168.1.142]:65288 "EHLO mailhub3.nextra.sk")
-	by vger.kernel.org with ESMTP id S964894AbVI0Mn2 (ORCPT
+	Tue, 27 Sep 2005 08:43:55 -0400
+Received: from mail.kroah.org ([69.55.234.183]:9449 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964911AbVI0Mnz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 08:43:28 -0400
-Message-ID: <43393E76.2050008@rainbow-software.org>
-Date: Tue, 27 Sep 2005 14:43:34 +0200
-From: Ondrej Zary <linux@rainbow-software.org>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Grant Coady <grant_lkml@dodo.com.au>
-CC: "=?ISO-8859-1?Q?Rog=E9rio_Brito?=" <rbrito@ime.usp.br>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Strange disk corruption with Linux >= 2.6.13
-References: <20050927111038.GA22172@ime.usp.br> <9ncij11fqb4l70qrhb0a8nri5moohnkaaf@4ax.com>
-In-Reply-To: <9ncij11fqb4l70qrhb0a8nri5moohnkaaf@4ax.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Tue, 27 Sep 2005 08:43:55 -0400
+Date: Tue, 27 Sep 2005 05:43:35 -0700
+From: Greg KH <greg@kroah.com>
+To: dmitry pervushin <dpervushin@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       spi-devel-general@lists.sourceforge.net
+Subject: Re: SPI
+Message-ID: <20050927124335.GA10361@kroah.com>
+References: <1127733134.7577.0.camel@diimka.dev.rtsoft.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1127733134.7577.0.camel@diimka.dev.rtsoft.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grant Coady wrote:
-> On Tue, 27 Sep 2005 08:10:39 -0300, Rogério Brito <rbrito@ime.usp.br> wrote:
-> 
-> 
->>Hi there. I'm seeing a really strange problem on my system lately and I
->>am not really sure that it has anything to do with the kernels.
-> 
-> 
-> Probably not, I had a similar problem recently and for a test case 
-> copied a .iso image file then compared it to original (cp + cmp), 
-> turned out to be bad memory, and yes, memtest86 did not find the 
-> problem.  Check mobo datasheet if 2+ double-sided memory allowed, 
-> you may need to stay at 1GB to reduce bus loading.
+On Mon, Sep 26, 2005 at 03:12:14PM +0400, dmitry pervushin wrote:
+> +/*
+> + * spi_device_release
+> + * 
+> + * Pointer to this function will be put to dev->release place
+> + * This function gets called as a part of device removing
+> + * 
+> + * Parameters:
+> + * 	struct device* dev
+> + * Return value:
+> + * 	none
+> + */
+> +void spi_device_release( struct device* dev )
+> +{
+> +/* just a placeholder */
+> +}
 
-I work a lot with hardware any my experience is that memtest is not very 
-good at detecting errors. I have a Socket 7 board somewhere with bad L2 
-cache - it was unstable but memtest was unable to find anything. 
-However, GoldMemory found some errors - they disappeared after disabling 
-L2 cache and crashes disappeared too. It's not free but at least 
-shareware - you can find it at http://www.goldmemory.cz/ The older 
-version (IIRC 5.07) was better, I had problems with some of the newer 
-ones on perfectly OK hardware (when the test should start, it rebooted 
-instead).
+This is ALWAYS wrong, please fix your code.  See the many times I have
+been over this issue in the archives.
 
--- 
-Ondrej Zary
+Also, please fix your coding style to match the kernel if you wish to
+have a chance to get it included. :)
+
+thanks,
+
+greg k-h

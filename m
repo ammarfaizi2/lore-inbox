@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964958AbVI0Oxq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964959AbVI0OzQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964958AbVI0Oxq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 10:53:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964963AbVI0Oxp
+	id S964959AbVI0OzQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 10:55:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964960AbVI0OzP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 10:53:45 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:22220 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964960AbVI0Oxo (ORCPT
+	Tue, 27 Sep 2005 10:55:15 -0400
+Received: from mail.kroah.org ([69.55.234.183]:49329 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964959AbVI0OzO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 10:53:44 -0400
-Date: Tue, 27 Sep 2005 07:53:30 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Harald Welte <laforge@gnumonks.org>
-cc: linux-usb-devel@lists.sourceforge.net, vendor-sec@lst.de,
-       linux-kernel@vger.kernel.org, greg@kroah.com, security@linux.kernel.org
-Subject: Re: [Security] [vendor-sec] [BUG/PATCH/RFC] Oops while completing
- async USB via usbdevio
-In-Reply-To: <20050925151330.GL731@sunbeam.de.gnumonks.org>
-Message-ID: <Pine.LNX.4.58.0509270746200.3308@g5.osdl.org>
-References: <20050925151330.GL731@sunbeam.de.gnumonks.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 27 Sep 2005 10:55:14 -0400
+Date: Tue, 27 Sep 2005 07:54:42 -0700
+From: Greg KH <greg@kroah.com>
+To: dmitry pervushin <dpervushin@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       spi-devel-general@lists.sourceforge.net
+Subject: Re: [spi-devel-general] Re: SPI
+Message-ID: <20050927145442.GA27470@kroah.com>
+References: <1127733134.7577.0.camel@diimka.dev.rtsoft.ru> <20050927124335.GA10361@kroah.com> <1127831236.7577.33.camel@diimka.dev.rtsoft.ru> <20050927143505.GA24245@kroah.com> <1127832597.7577.37.camel@diimka.dev.rtsoft.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1127832597.7577.37.camel@diimka.dev.rtsoft.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Sep 27, 2005 at 06:49:57PM +0400, dmitry pervushin wrote:
+> On Tue, 2005-09-27 at 07:35 -0700, Greg KH wrote:
+> > Please read up on how the lifetime rules work for devices, and what
+> > needs to happen in the release function (hint, take a look at other
+> > busses, like USB and PCI for examples of what needs to be done.)
+> As far as I can see, pci_release_device deletes the pci_dev using kfree.
 
+Yes.
 
-On Sun, 25 Sep 2005, Harald Welte wrote:
-> 
-> async_completed() calls send_sig_info(), which in turn does a
-> spin_lock(&tasklist_lock) to protect itself from task_struct->sighand
-> from going away.  However, the call to
-> "spin_lock_irqsave(task_struct->sighand->siglock)" causes an oops,
-> because "sighand" has disappeared.
+> But here we have statically allocated spi_device structures --
+> spi_device_add does not allocate spi_device, but uses caller-allocated
+> one.
 
-And the real bug is that you're buggering up the system in the first 
-place.
+Not good, reference counted structures almost always should be
+dynamically created.  Please change this to also be true for SPI,
+otherwise you will have a lot of nasty issues with devices that can be
+removed at any point in time.
 
-You don't save "current". You save "pid", and then you send a signal using 
-that and kill_proc_info(). End of story, bug gone. And it works with 
-threaded programs too, which the old thing didn't work at all with.
+thanks,
 
-I refuse to apply this patch - Greg, don't even _try_ to sneak this in 
-through a git merge. What a horribly broken thing to do: why would USB 
-_ever_ need to know about things like tasklist_lock, and internal signal 
-handling functions and rules like "p->sighand"?
-
-		Linus
+greg k-h

@@ -1,68 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964812AbVI0FPA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964813AbVI0FSY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964812AbVI0FPA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 01:15:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964813AbVI0FPA
+	id S964813AbVI0FSY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 01:18:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964814AbVI0FSY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 01:15:00 -0400
-Received: from colo.lackof.org ([198.49.126.79]:61389 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S964812AbVI0FPA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 01:15:00 -0400
-Date: Mon, 26 Sep 2005 23:21:28 -0600
-From: Grant Grundler <grundler@parisc-linux.org>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: Grant Grundler <grundler@parisc-linux.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, greg@kroah.com, linux-pci@atrey.karlin.mff.cuni.cz,
-       ak@suse.de
-Subject: Re: [PATCH] MSI interrupts: disallow when no LAPIC/IOAPIC support
-Message-ID: <20050927052128.GB21108@colo.lackof.org>
-References: <20050926201156.7b9ef031.rdunlap@xenotime.net> <20050927044840.GA21108@colo.lackof.org> <20050926215245.7a1be7fa.rdunlap@xenotime.net>
+	Tue, 27 Sep 2005 01:18:24 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:21226 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S964813AbVI0FSX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 01:18:23 -0400
+Subject: Re: Fw: Re: 2.6.14-rc2-mm1 ide problems on AMD64
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, ak@suse.de
+In-Reply-To: <20050926151149.6332c94e.akpm@osdl.org>
+References: <20050926151149.6332c94e.akpm@osdl.org>
+Content-Type: text/plain
+Date: Mon, 26 Sep 2005 22:17:52 -0700
+Message-Id: <1127798272.16275.40.camel@dyn9047017102.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050926215245.7a1be7fa.rdunlap@xenotime.net>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 26, 2005 at 09:52:45PM -0700, Randy.Dunlap wrote:
-> "nosmp" (currently) means 1 CPU and no LAPICs/no IOAPICs.
-
-ok - ie we ignore HW that may be present.
-
-In a way, this makes sense since LAPIC was used for
-IRQ "load balancing" - ie IRQs could get redirected
-to another "less busy" CPU.  IIRC, discussions about
-"XPR" should explain how that works.
-
-> It doesn't have to be that way, but yes, I suspect that it's
-> mostly historical, plus a method of getting to a lowest common
-> hardware boot sequence, which is sometimes nice for debugging
-> or installation.
+On Mon, 2005-09-26 at 15:11 -0700, Andrew Morton wrote:
+> Or just do the bisection search by hand.
 > 
-> Nevertheless, there is a problem here.  What do you suggest
-> to solve it?  Just making PCI_MSI depend on Local APIC support,
-> or something else?
+> Either way, can you please find the time to do this?  I have no idea
+> what broke it.
+> 
+> Except maybe acpi.  Try just linus.patch and git-acpi.patch, perhaps.
+> 
+> 
+> Begin forwarded message:
+> 
+> Date: Mon, 26 Sep 2005 23:02:40 +0400
+> From: Alexey Dobriyan <adobriyan@gmail.com>
+> To: Badari Pulavarty <pbadari@us.ibm.com>
+> Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+> Subject: Re: 2.6.14-rc2-mm1 ide problems on AMD64
+> 
+> 
+> On Mon, Sep 26, 2005 at 11:07:00AM -0700, Badari Pulavarty wrote:
+> > 2.6.14-rc2-mm1 doesn't seem to boot on my AMD64 box. It hangs
+> > while probing "ide" disks. I spent time looking at it and
+> > here is what I know so far.
+> > 
+> > 	2.6.13: works fine
+> > 	2.6.13-mm series: works fine
+> > 	2.6.14-rc2: works fine
+> > 	2.6.14-rc2 + linus.patch (from -mm1): works fine
+> > 	2.6.14-rc2-mm1: hangs on boot
+> > 
+> > I looked through all the changes in "drivers/ide/" in -mm
+> > and none of them seemed to cause the problem. I added tracing
+> > to figure out whats happening. It hangs while doing, "do_probe()"
+> > Here is the calling sequence:
+> > 	 
+> > 	ide_scan_pcidev()
+> > 	   amd74xx_probe()
+> > 	     ide_setup_pci_device()
+> > 	       probe_hwif_init_with_fixup()
+> > 	         probe_hwif()
+> > 	           probe_for_drive()
+> > 	            do_probe()
+> > 	         
+> > If anyone has fixes/debug to try, please let me know.
 
-Yeah, my preference would be PCI_MSI only depend on Local APIC.
-(Note that having a Local APIC implies having an IO APIC as well
-- but MSI should completely ignore it.)
+Finally, tracked the problem causing patch in -mm tree.
+Its,
 
-But I don't know enough x86 history to know if thats feasible
-or not. And I'm not blessed with the time to unravel the x86
-APIC support - if the dependencies are necessary, so be it.
+x86_64-no-idle-tick.patch
 
-> [Kernel is assigning MSI interrupts, but then they are "lost."
-> Using "irqpoll" will find them, but that's a performance penalty.]
+I backed out the patch and my machine works fine.
 
-Interesting. I'm suprised an MSI can get "lost".
-It implies MSI code is allocating a CPU vector but the vector is
-not getting enabled/unmasked or the Local APIC is ignoring it.
+Thanks,
+Badari
 
-Yeah, we don't want to be using irqpoll for this - entirely
-defeats the purpose of MSI.
-
-thanks,
-grant

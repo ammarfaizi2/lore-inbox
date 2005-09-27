@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750940AbVI0UBm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750950AbVI0UIE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750940AbVI0UBm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 16:01:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750943AbVI0UBl
+	id S1750950AbVI0UIE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 16:08:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750958AbVI0UIE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 16:01:41 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:33132 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S1750940AbVI0UBl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 16:01:41 -0400
-Date: Tue, 27 Sep 2005 22:02:30 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Hirokazu Takata <takata@linux-m32r.org>, torvalds@odsl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] m32r: set CHECKFLAGS properly
-Message-ID: <20050927200230.GA8403@mars.ravnborg.org>
-References: <E1EJlNM-00059K-R8@ZenIV.linux.org.uk> <20050927.151301.189720995.takata.hirokazu@renesas.com> <20050927071025.GS7992@ftp.linux.org.uk>
+	Tue, 27 Sep 2005 16:08:04 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:37845 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S1750950AbVI0UID (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 16:08:03 -0400
+Subject: Re: PID reuse safety for userspace apps (Re: [linux-usb-devel] Re:
+	[Security] [vendor-sec] [BUG/PATCH/RFC] Oops while completing async USB via
+	usbdevio)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Solar Designer <solar@openwall.com>
+Cc: Sergey Vlasov <vsu@altlinux.ru>, Linus Torvalds <torvalds@osdl.org>,
+       vendor-sec@lst.de, linux-kernel@vger.kernel.org,
+       security@linux.kernel.org
+In-Reply-To: <20050927172048.GA3423@openwall.com>
+References: <20050925151330.GL731@sunbeam.de.gnumonks.org>
+	 <Pine.LNX.4.58.0509270746200.3308@g5.osdl.org>
+	 <20050927160029.GA20466@master.mivlgu.local>
+	 <Pine.LNX.4.58.0509270904140.3308@g5.osdl.org>
+	 <20050927165206.GB20466@master.mivlgu.local>
+	 <20050927172048.GA3423@openwall.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 27 Sep 2005 21:34:11 +0100
+Message-Id: <1127853252.10674.9.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050927071025.GS7992@ftp.linux.org.uk>
-User-Agent: Mutt/1.5.8i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> Sam, any help in that area?  Ideally we want to have something equivalent
-> to
-> PREDEFINED_WE_MIGHT_WANT = __m32r__ __LITTLE_ENDIAN__ __BIG_ENDIAN__
-> and CHECKFLAGS done from that - basically, the subset of cross-gcc
-> predefined symbols reproduced for sparse.  Ideally with -m64 added
-> if we have sizeof(long) == 8 on target, to take care of all that
-> crap in one go.
-> 
-> Suggestions?
-The most simple solution would be to provide a small script that
-create the defines as we need and run it for each invocation of sparse.
-The script should use same trick as scripts/gcc-version.sh does.
+On Maw, 2005-09-27 at 21:20 +0400, Solar Designer wrote:
+> The idea is to introduce a kernel call (it can be a prctl(2) setting,
+> although my pseudo-code "defines" an entire syscall for simplicity)
+> which would "lock" the invoking process' view of a given PID (while
+> letting the PID get reused - so there's no added risk of DoS).  The
+> original posting and subsequent thread can be seen here:
 
-So we could have:
-#!/bin/sh
-compiler="$*"
 
-BIG=$(echo __BIG_ENDIAN__ | $compiler -E -xc - | tail -n 1)
-LITTLE=$(echo __LITTLE_ENDIAN__ | $compiler -E -xc - | tail -n 1)
+You can solve it just as well in kernel space without application
+changes. Given a refcounted structure something like
 
-Then BIG would be set to "1" if this is big endian, and "__BIG_ENDIAN__"
-if little endian.
-A little bit of shell script and we have the defines we want for m32r.
-Then we could add calling this script as part of sparse invocation.
+	struct pidref {
+		atomic_t ref;
+		struct pidref *next, *prev;
+		pid_t pid;
+	};
 
-The better solution would be to find the relevant flags before we
-start building the kernel. This is not so easy if we want access to
-final CFLAGS. But for the architecture the important ones are
-defined in arch/Makefile so placing this late in the file and
-use $(CC) $(CFLAGS) should be OK in almost all cases.
+and a hash you can take a pid reference whenever you hang onto a pid in
+kernel space and check what should be a tiny if not empty hash in the
+normal cases whenever you allocate a pid.
 
-Too late for me to cook up a patch right now - but simple.
-Oh, and I agree. We do NOT want all the gcc defined flags.
+Alan
 
-We should restrict to a subset in the kernel - so it's good
-if sparse warns/errors out on usage of the non-trivial defines.
-	Sam

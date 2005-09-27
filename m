@@ -1,77 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964935AbVI0Nj1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964939AbVI0NoV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964935AbVI0Nj1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 09:39:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964937AbVI0Nj1
+	id S964939AbVI0NoV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 09:44:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964945AbVI0NoV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 09:39:27 -0400
-Received: from mba.ocn.ne.jp ([210.190.142.172]:8130 "EHLO smtp.mba.ocn.ne.jp")
-	by vger.kernel.org with ESMTP id S964935AbVI0Nj0 (ORCPT
+	Tue, 27 Sep 2005 09:44:21 -0400
+Received: from xproxy.gmail.com ([66.249.82.202]:28860 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964939AbVI0NoU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 09:39:26 -0400
-Date: Tue, 27 Sep 2005 22:38:01 +0900 (JST)
-Message-Id: <20050927.223801.130240000.anemo@mba.ocn.ne.jp>
-To: stern@rowland.harvard.edu
-Cc: jim.ramsay@gmail.com, mdharm-kernel@one-eyed-alien.net,
-       linux-usb-users@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: [Linux-usb-users] Possible bug in usb storage (2.6.11 kernel)
-From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-In-Reply-To: <Pine.LNX.4.44L0.0509081637410.4545-100000@iolanthe.rowland.org>
-References: <4789af9e05090813287f05e12a@mail.gmail.com>
-	<Pine.LNX.4.44L0.0509081637410.4545-100000@iolanthe.rowland.org>
-X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
-X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
-X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Tue, 27 Sep 2005 09:44:20 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=Oi5rEZkWjbxiv7Sk3j+ZXLnFNeHOje/8raUs6qv/2QQPnpi2bs3JZ9W02/d7axFsYPEaK8WwNkpPs7twFm++WFpfbth1RszPmIXJ5sDeLYw5EcabjH4kOwJWv69OSG4Ez1T2k+6V3LKftsTPSb8b+7wkHmQyHp14qxkmgfNrf2g=
+Date: Tue, 27 Sep 2005 09:40:55 -0400
+From: Florin Malita <fmalita@gmail.com>
+To: Jay Vosburgh <fubar@us.ibm.com>
+Cc: nsxfreddy@gmail.com, akpm@osdl.org, davem@davemloft.net,
+       ctindel@users.sourceforge.net, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, bonding-devel@lists.sourceforge.net
+Subject: Re: [PATCH] channel bonding: add support for device-indexed
+ parameters
+Message-Id: <20050927094055.7953a832.fmalita@gmail.com>
+In-Reply-To: <200509270711.j8R7BunP014387@death.nxdomain.ibm.com>
+References: <20050927012444.be5d5311.fmalita@gmail.com>
+	<200509270711.j8R7BunP014387@death.nxdomain.ibm.com>
+X-Mailer: Sylpheed version 2.1.2 (GTK+ 2.4.13; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Thu, 8 Sep 2005 16:40:16 -0400 (EDT), Alan Stern <stern@rowland.harvard.edu> said:
+On Tue, 27 Sep 2005 00:11:56 -0700
+Jay Vosburgh <fubar@us.ibm.com> wrote:
+> 
+> Florin Malita <fmalita@gmail.com> wrote:
+> [...]
+> >How can you load a module multiple times on _any_ distro?
+> 
+> 	modprobe -obond0 bonding mode=your-favorite-mode
+> 	modprobe -obond1 bonding mode=some-other-mode
+> 
+> 	and so on.  This is in the modprobe man page, and is described
+> in the bonding documentation (found in the kernel documentation or at
+> http://sourceforge.net/projects/bonding).  It is admittedly somewhat
+> grotty, but it works.  
 
-stern> I've long thought that usb-storage should allocate its own
-stern> transfer buffer for sense data.  In the past people have said,
-stern> "No, don't bother, it's not really needed."  Here's a good
-stern> reason for doing it.
+OK, I see this capability has been in module-init-tools since the 0.8
+days. Doesn't apply to any 2.4/modutils based system tough.
 
-stern> Expect a patch before long.
+> 
+> >Not being able to set a (different) preferred
+> >interface/primary for each bond device makes it unacceptable for
+> >deployment in our environment.
+> 
+> 	How are you configuring bonding?  The current SuSE distros, for
+> example, will do the multiple module load stuff automatically in the
+> sysconfig scripts.  This is described in the current bonding
+> documentation.
 
-Did you already create the patch?  If not, how about this (against 2.6.13) ?
+Our systems are RHEL3 based so unfortunately the naming trick above
+doesn't work. 
 
+But it does work on RHEL4 so admittedly, having this workaround
+available for recent distros removes the urgency for a fix.
 
-Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-
-diff -u linux-2.6.13/drivers/usb/storage/transport.c linux/drivers/usb/storage/transport.c
---- linux-2.6.13/drivers/usb/storage/transport.c	2005-08-29 08:41:01.000000000 +0900
-+++ linux/drivers/usb/storage/transport.c	2005-09-27 18:03:32.000000000 +0900
-@@ -638,7 +638,8 @@
- 
- 		/* use the new buffer we have */
- 		old_request_buffer = srb->request_buffer;
--		srb->request_buffer = srb->sense_buffer;
-+		srb->request_buffer =
-+			kmalloc(max(dma_get_cache_alignment(), 18), GFP_NOIO);
- 
- 		/* set the buffer length for transfer */
- 		old_request_bufflen = srb->request_bufflen;
-@@ -655,7 +656,13 @@
- 		/* issue the auto-sense command */
- 		old_resid = srb->resid;
- 		srb->resid = 0;
--		temp_result = us->transport(us->srb, us);
-+		if (srb->request_buffer) {
-+			temp_result = us->transport(us->srb, us);
-+			memcpy(srb->sense_buffer, srb->request_buffer, 18);
-+			kfree(srb->request_buffer);
-+		} else {
-+			temp_result = USB_STOR_TRANSPORT_FAILED;
-+		}
- 
- 		/* let's clean up right away */
- 		srb->resid = old_resid;
-
-
----
-Atsushi Nemoto
+Thanks
+Florin

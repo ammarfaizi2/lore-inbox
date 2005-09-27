@@ -1,79 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965231AbVI0XI5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965233AbVI0XKa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965231AbVI0XI5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 19:08:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965233AbVI0XI5
+	id S965233AbVI0XKa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 19:10:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965234AbVI0XKa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 19:08:57 -0400
-Received: from fmr15.intel.com ([192.55.52.69]:31403 "EHLO
-	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
-	id S965231AbVI0XI4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 19:08:56 -0400
-Subject: Re: 2.6.14-rc2-mm1
-From: Rohit Seth <rohit.seth@intel.com>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Andrew Morton <akpm@osdl.org>, Mattia Dongili <malattia@linux.it>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1007710000.1127861369@flay>
-References: <922980000.1127847470@flay>
-	 <1127851502.6144.10.camel@akash.sc.intel.com>  <970900000.1127855894@flay>
-	 <1127857919.7258.13.camel@akash.sc.intel.com>  <985130000.1127858385@flay>
-	 <1127861347.7258.47.camel@akash.sc.intel.com>  <1007710000.1127861369@flay>
+	Tue, 27 Sep 2005 19:10:30 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:31473 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S965233AbVI0XK3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 19:10:29 -0400
+Subject: Re: 2.6.14-rc2-rt2
+From: Daniel Walker <dwalker@mvista.com>
+Reply-To: dwalker@mvista.com
+To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>, emann@mrv.com,
+       yang.yi@bmrtech.com, mingo@elte.hu
+In-Reply-To: <1127840377.27319.11.camel@cmn3.stanford.edu>
+References: <20050913100040.GA13103@elte.hu> <20050926070210.GA5157@elte.hu>
+	 <1127840377.27319.11.camel@cmn3.stanford.edu>
 Content-Type: text/plain
-Organization: Intel 
-Date: Tue, 27 Sep 2005 16:16:12 -0700
-Message-Id: <1127862972.7258.59.camel@akash.sc.intel.com>
+Organization: MontaVista
+Date: Tue, 27 Sep 2005 16:10:19 -0700
+Message-Id: <1127862619.4004.48.camel@dhcp153.mvista.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 Sep 2005 23:08:43.0586 (UTC) FILETIME=[67FB7A20:01C5C3B8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-09-27 at 15:49 -0700, Martin J. Bligh wrote:
-
-
-> > 
-> > Thinking of initiating this drain operation after the swapper daemon is
-> > woken up.  hopefully that will allow other possible pages to be put back
-> > on freelist and reduce the possible thrash of pages between freemem pool
-> > and pcps.
+On Tue, 2005-09-27 at 09:59 -0700, Fernando Lopez-Lezcano wrote:
+>  UPD     include/linux/compile.h
+> {standard input}: Assembler messages:
+> {standard input}:164: Error: can't resolve `.sched.text' {.sched.text
+> section} - `.Ltext0' {.text section}
+> {standard input}:165: Error: can't resolve `.sched.text' {.sched.text
+> section} - `.Ltext0' {.text section}
+> make[1]: *** [arch/i386/kernel/semaphore.o] Error 1
+> make[1]: *** Waiting for unfinished jobs....
+> make: *** [arch/i386/kernel] Error 2
+> make: *** Waiting for unfinished jobs....
 > 
-> OK, but waking up kswapd doesn't indicate a low memory condition.
-> It's standard procedure .... we'll have to wake it up whenever we dip
-> below the high watermarks. Perhaps before dropping into direct reclaim
-> would be more appropriate?
->  
+> Failing .config attached. 
+> -- Fernando
+> 
 
-Agreed.  That is a better place.
+Here's the fix.
+
+Index: linux-2.6.13/lib/semaphore-sleepers.c
+===================================================================
+--- linux-2.6.13.orig/lib/semaphore-sleepers.c
++++ linux-2.6.13/lib/semaphore-sleepers.c
+@@ -176,3 +176,10 @@ fastcall int __compat_down_trylock(struc
+ 	spin_unlock_irqrestore(&sem->wait.lock, flags);
+ 	return 1;
+ }
++
++int fastcall compat_sem_is_locked(struct compat_semaphore *sem)
++{
++	return (int) atomic_read(&sem->count) < 0;
++}
++
++EXPORT_SYMBOL(compat_sem_is_locked);
+Index: linux-2.6.13/arch/i386/kernel/semaphore.c
+===================================================================
+--- linux-2.6.13.orig/arch/i386/kernel/semaphore.c
++++ linux-2.6.13/arch/i386/kernel/semaphore.c
+@@ -102,10 +102,3 @@ asm(
+ 	"ret"
+ );
  
-> >> >> Could you elaborate on what the benefits were from this change in the
-> >> >> first place? Some page colouring thing on ia64? It seems to have way more
-> >> >> downside than upside to me.
-> >> > 
-> >> > The original change was to try to allocate a higher order page to
-> >> > service a batch size bulk request.  This was with the hope that better
-> >> > physical contiguity will spread the data better across big caches.
-> >> 
-> >> OK ... but it has an impact on fragmentation. How much benefit are you
-> >> getting?
-> > 
-> > Benefit is in terms of reduced performance variation (and expected
-> > throughput) of certain workloads from run to run on the same kernel. 
-> 
-> Mmmm. how much are you talking about in terms of throughput, and on what
-> platforms? all previous attempts to measure page colouring seemed to 
-> indicate it did nothing at all - maybe some specific types of h/w are
-> more susceptible?
-> 
+-int fastcall compat_sem_is_locked(struct compat_semaphore *sem)
+-{
+-	return (int) atomic_read(&sem->count) < 0;
+-}
+-
+-EXPORT_SYMBOL(compat_sem_is_locked);
+-
 
-In terms of percentages, between 10-15% variation.  Nothing out of
-regular about the platforms.  Do you remember what workloads were run in
-the previous attempts to see if there is any coloring.  I agree that
-with 2.6.x based kernel, there is better handle on the variation (as
-compared to 2.4).  And the best results of 2.6 matches the best results
-of any coloring patch. 
-
--rohit
-> 
 

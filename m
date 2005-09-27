@@ -1,56 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750958AbVI0UQH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751014AbVI0URE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750958AbVI0UQH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 16:16:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751014AbVI0UQH
+	id S1751014AbVI0URE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 16:17:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751059AbVI0URE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 16:16:07 -0400
-Received: from frankvm.xs4all.nl ([80.126.170.174]:31913 "EHLO
-	janus.localdomain") by vger.kernel.org with ESMTP id S1750958AbVI0UQG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 16:16:06 -0400
-Date: Tue, 27 Sep 2005 22:16:05 +0200
-From: Frank van Maarseveen <frankvm@frankvm.com>
-To: "Carlo J. Calica" <ccalica@gmail.com>
-Cc: linux-kernel@vger.kernel.org, xorg@freedesktop.org
-Subject: Re: kernel 2.6.13, USB keyboard and X.org
-Message-ID: <20050927201605.GB8055@janus>
-References: <433191A2.9030702@terra.com.br> <dh4phg$e4r$1@sea.gmane.org>
+	Tue, 27 Sep 2005 16:17:04 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:55006 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S1751031AbVI0URC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 16:17:02 -0400
+Subject: Re: 2.6.13.2: USB wedged
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Olaf Titz <olaf@bigred.inka.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E1EKJyP-0001lb-00@bigred.inka.de>
+References: <E1EKJyP-0001lb-00@bigred.inka.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 27 Sep 2005 21:44:07 +0100
+Message-Id: <1127853847.10674.14.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <dh4phg$e4r$1@sea.gmane.org>
-User-Agent: Mutt/1.4.1i
-X-Subliminal-Message: Use Linux!
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 24, 2005 at 05:04:17PM -0700, Carlo J. Calica wrote:
-> Piter Punk wrote:
-> 
-> > But, when i start X i got a second problem, is impossible to type
-> > only one letter, one touch in a key makes a lot of letters, like that:
-> > 
-> > lllllliiiiiiinnnnnnnnuuuuxxxxx
-> > 
-> > instead
-> > 
-> > linux
-> > 
-> 
-> I have the same problem, with my dual core athlon64.  Booting a uniprocessor
-> kernel solves it.  Another work around is turning off key repeat.
-> 
-> Best solution is setting processor affinity for the keyboard irq handler and
-> X to the same cpu.  Seems to be a race condition of some sort.  If a X
+On Maw, 2005-09-27 at 20:14 +0200, Olaf Titz wrote:
+> Sometimes when trying to print big jobs on an HP LJ 1022 it happens
+> that all processes accessing USB get stuck in D state.
+> I captured the following relevant stack traces, but apparently this does not
+> include kernel threads (there was another "khubd" stuck):
 
-You just might be hitting a TSC related problem, see bug #5105 at
-bugzilla.kernel.org. In that case you will probably see funny timings
-when doing an strace -tt of the xclock program, for example.
+I've had a couple of almost identical traces here. In my case I also
+have a hub which comes and goes as it is part of the monitor and when
+the monitor goes into deep sleep it turns off [*].
 
-A workaround for i386 kernels is "clock=pit" on the kernel commandline.
-In x86_64 mode, try "notsc" instead. Well, try that anyway but it didn't
-work in my case.
+Alan
 
--- 
-Frank
+[*] and yes if you plug your keyboard and mouse into the hub you realise
+the designer wasn't thinking.
+

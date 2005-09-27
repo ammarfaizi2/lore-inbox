@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964981AbVI0PmI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964978AbVI0Poe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964981AbVI0PmI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 11:42:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964978AbVI0PmI
+	id S964978AbVI0Poe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 11:44:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964979AbVI0Pod
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 11:42:08 -0400
-Received: from serv01.siteground.net ([70.85.91.68]:16273 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S964977AbVI0PmH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 11:42:07 -0400
-Date: Tue, 27 Sep 2005 08:42:01 -0700
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
-       Alok Kataria <alokk@calsoftinc.com>
-Subject: Re: [patch 0/4] ide: Break ide_lock to per-hwgroup lock
-Message-ID: <20050927154201.GD3822@localhost.localdomain>
-References: <20050906233322.GA3642@localhost.localdomain> <20050907091923.GE4785@suse.de> <20050907192747.GC3769@localhost.localdomain> <20050907193422.GS4785@suse.de> <58cb370e050927063674bb47a7@mail.gmail.com> <20050927152026.GC3822@localhost.localdomain> <20050927152641.GF2811@suse.de>
+	Tue, 27 Sep 2005 11:44:33 -0400
+Received: from colo.lackof.org ([198.49.126.79]:13530 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S964978AbVI0Pod (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 11:44:33 -0400
+Date: Tue, 27 Sep 2005 09:51:03 -0600
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: Grant Grundler <grundler@parisc-linux.org>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, greg@kroah.com, linux-pci@atrey.karlin.mff.cuni.cz,
+       ak@suse.de
+Subject: Re: [PATCH] MSI interrupts: disallow when no LAPIC/IOAPIC support
+Message-ID: <20050927155103.GA9294@colo.lackof.org>
+References: <20050926201156.7b9ef031.rdunlap@xenotime.net> <20050927044840.GA21108@colo.lackof.org> <20050926215245.7a1be7fa.rdunlap@xenotime.net> <20050927052128.GB21108@colo.lackof.org> <17209.3427.936263.463751@alkaid.it.uu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050927152641.GF2811@suse.de>
-User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+In-Reply-To: <17209.3427.936263.463751@alkaid.it.uu.se>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 27, 2005 at 05:26:42PM +0200, Jens Axboe wrote:
-> On Tue, Sep 27 2005, Ravikiran G Thirumalai wrote:
+On Tue, Sep 27, 2005 at 11:14:11AM +0200, Mikael Pettersson wrote:
+> Grant Grundler writes:
+>  > Yeah, my preference would be PCI_MSI only depend on Local APIC.
+>  > (Note that having a Local APIC implies having an IO APIC as well
 > 
-> You should run it eg 10 times on each kernel to get a feel for the
-> variance of the results. Were you testing 2 or 4 disks?
-> 
+> Not true. Lots of systems have a local APIC but no I/O APICs.
 
-Yes, I was planning to do that,  We were testing with 2 disks.
+Eh?!!!
+Do systems with Local APIC still have IRQ lines going to the CPU?
+How does PCI IRQ line otherwise generate an interrupt?
 
->...
-> I take it the numbers posted were for DMA enabled on all disks?
+> However, having an I/O APIC pretty much implies having a local APIC.
 
-Yes.
+Ok - That sounds right for x86 and is true for ia64.
+parisc has IO SAPICs but no local APIC.
 
-Thanks,
-Kiran
+parisc and (IIRC) alpha has the functional equivalent of Local APIC
+but the implementation details are different. ie they can't share
+code with x86/ia64.
 
+thanks,
+grant

@@ -1,56 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965220AbVI0Wxg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965224AbVI0W7P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965220AbVI0Wxg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 18:53:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965221AbVI0Wxg
+	id S965224AbVI0W7P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 18:59:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965225AbVI0W7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 18:53:36 -0400
-Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:10901 "HELO
-	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S965220AbVI0Wxf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 18:53:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.de;
-  h=Received:Date:From:To:Cc:Subject:Message-ID:Mime-Version:Content-Type:Content-Disposition:User-Agent;
-  b=tYUrwnFk5xm9YvQg1FEeO+d2YKV6nZ3aSGJSdXV9zA5dIRSkg9amfyDyEIY9FCjtdHdCM+A+WqocG73kESZCW/deWL3s+WP1FljTdhkSWsVdsM49OEMZ/zG7XrQzKvfVCjsa+v+/EjWecSMw/R4L26Kbow56slMn1AboPXFZACU=  ;
-Date: Wed, 28 Sep 2005 00:53:27 +0200
-From: Borislav Petkov <bbpetkov@yahoo.de>
-To: akpm@osdl.org
-Cc: waite@skycomputers.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] Remove check_region from arch/ppc/platforms/hdpu.c
-Message-ID: <20050927225327.GA6752@zmei.tnic>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.10i
+	Tue, 27 Sep 2005 18:59:15 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:6104 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965224AbVI0W7P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 18:59:15 -0400
+Date: Tue, 27 Sep 2005 15:58:33 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Stian Jordet <liste@jordet.nu>
+cc: Olaf Hering <olh@suse.de>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bogus VIA IRQ fixup in drivers/pci/quirks.c
+In-Reply-To: <1127857716.4339be34f239f@webmail.jordet.nu>
+Message-ID: <Pine.LNX.4.58.0509271556211.3308@g5.osdl.org>
+References: <20050926184451.GB11752@suse.de> <Pine.LNX.4.58.0509261446590.3308@g5.osdl.org>
+ <1127831274.433956ea35992@webmail.jordet.nu> <Pine.LNX.4.58.0509270734340.3308@g5.osdl.org>
+ <1127855989.4339b77537987@webmail.jordet.nu> <Pine.LNX.4.58.0509271432490.3308@g5.osdl.org>
+ <1127857716.4339be34f239f@webmail.jordet.nu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It looks as if this function is not called by anyone, so removing it
-is perfectly safe. In addition,we get rid of one more call to check_region().
-
-Signed-off-by: Borislav Petkov <petkov@uni-muenster.de>
 
 
---- 2.6.14-rc2/arch/ppc/platforms/hdpu.c.orig	2005-09-27 19:08:51.000000000 +0200
-+++ 2.6.14-rc2/arch/ppc/platforms/hdpu.c	2005-09-27 19:09:01.000000000 +0200
-@@ -609,12 +609,6 @@ static void parse_bootinfo(unsigned long
- 	}
- }
- 
- #if defined(CONFIG_BLK_DEV_IDE) || defined(CONFIG_BLK_DEV_IDE_MODULE)
--static int hdpu_ide_check_region(ide_ioreg_t from, unsigned int extent)
--{
--	return check_region(from, extent);
--}
--
- static void
- hdpu_ide_request_region(ide_ioreg_t from, unsigned int extent, const char *name)
- {
+On Tue, 27 Sep 2005, Stian Jordet wrote:
+> 
+> I have no idea. But I'll attach dmesg from the same kernel with your patch, so
+> you'll see the differences yourself. I also see that initialization of
+> everything have changed. Now scsi is almost the last thing in the dmesg, it
+> used to be about the first.  Weird.
 
-	
+That's not my patch. Something else has changed.
 
-	
-		
-___________________________________________________________ 
-Gesendet von Yahoo! Mail - Jetzt mit 1GB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de
+Anyway, this dmesg you posted still says
+
+	...
+	USB Universal Host Controller Interface driver v2.3
+	ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 11
+	ACPI: PCI Interrupt 0000:00:11.2[D] -> Link [LNKD] -> GSI 11 (level, low) -> IRQ 11
+**	PCI: Via IRQ fixup for 0000:00:11.2, from 9 to 11
+	uhci_hcd 0000:00:11.2: UHCI Host Controller
+	uhci_hcd 0000:00:11.2: new USB bus registered, assigned bus number 1
+	uhci_hcd 0000:00:11.2: irq 11, io base 0x00009800
+	hub 1-0:1.0: USB hub found
+	hub 1-0:1.0: 2 ports detected
+	ACPI: PCI Interrupt 0000:00:11.3[D] -> Link [LNKD] -> GSI 11 (level, low) -> IRQ 11
+**	PCI: Via IRQ fixup for 0000:00:11.3, from 9 to 11
+	uhci_hcd 0000:00:11.3: UHCI Host Controller
+	uhci_hcd 0000:00:11.3: new USB bus registered, assigned bus number 2
+	uhci_hcd 0000:00:11.3: irq 11, io base 0x00009400
+	hub 2-0:1.0: USB hub found
+	hub 2-0:1.0: 2 ports detected
+	ACPI: PCI Interrupt 0000:00:11.4[D] -> Link [LNKD] -> GSI 11 (level, low) -> IRQ 11
+**	PCI: Via IRQ fixup for 0000:00:11.4, from 9 to 11
+	...
+
+so my patch didn't change anything at all for you (which is correct - it 
+was designed not to ;)
+
+So if you have trouble with it, it's something else.
+
+		Linus

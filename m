@@ -1,118 +1,162 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964982AbVI0Pp1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964983AbVI0Pt0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964982AbVI0Pp1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 11:45:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbVI0Pp1
+	id S964983AbVI0Pt0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 11:49:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbVI0Pt0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 11:45:27 -0400
-Received: from okcforum.org ([66.224.116.102]:37518 "EHLO mail.okcforum.org")
-	by vger.kernel.org with ESMTP id S964982AbVI0Pp0 (ORCPT
+	Tue, 27 Sep 2005 11:49:26 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:29656 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S964983AbVI0PtZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 11:45:26 -0400
-Message-ID: <433968FF.8070504@cygnusx-1.org>
-Date: Tue, 27 Sep 2005 08:45:03 -0700
-From: Nathan Grennan <linux-kernel@cygnusx-1.org>
-Organization: Cygnus X-1
-User-Agent: Thunderbird 1.4 (X11/20050908)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.14-rc2: USB storage-related #GP on x86-64 again
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 27 Sep 2005 11:49:25 -0400
+Date: Tue, 27 Sep 2005 08:49:05 -0700
+From: Paul Jackson <pj@sgi.com>
+To: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
+Cc: taka@valinux.co.jp, magnus.damm@gmail.com, dino@in.ibm.com,
+       linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
+Subject: Re: [ckrm-tech] Re: [PATCH 1/3] CPUMETER: add cpumeter framework to
+ the CPUSETS
+Message-Id: <20050927084905.7d77bdde.pj@sgi.com>
+In-Reply-To: <20050927113902.C78A570046@sv1.valinux.co.jp>
+References: <20050908225539.0bc1acf6.pj@sgi.com>
+	<20050909.203849.33293224.taka@valinux.co.jp>
+	<20050909063131.64dc8155.pj@sgi.com>
+	<20050910.161145.74742186.taka@valinux.co.jp>
+	<20050910015209.4f581b8a.pj@sgi.com>
+	<20050926093432.9975870043@sv1.valinux.co.jp>
+	<20050927013751.47cbac8b.pj@sgi.com>
+	<20050927113902.C78A570046@sv1.valinux.co.jp>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  I just purchased a new digital camera and was playing with it last
-night. In
-the process I connected my camera to the computer with a usb cable. The
-system sees it as a usb flash drive. After unmounting the camera I turned it
-off and received a general protection fault. The system is a x86_64 system
-running 2.6.13-1.1578_FC5, which the changelog says is really
-2.6.14-rc2-git6.
+Takahiro-san asks perceptive question:
+> If it is prohibited to set meter_cpu=0 for the immediate children 
+> of C, cpuset_create() needs a check whether the siblings are
+> metered or not. 
 
-  I noticed the other message about this same topic. The thread said it
-was fixed, but I am seeing the same situation with a version that was
-said to be fixed.
+Very good question.  It exposes an impossibility in my proposal, as
+stated.  The rule I had in mind was that either all the children of C
+had meter_cpu set, or none of them.  But since one can only mark one
+cpuset at a time, this is impossible to setup if there is more than
+one child already.
 
+Allow me to try to fix my proposal.
 
-* Mon Sep 26 2005 Dave Jones <davej@redhat.com>
-- 2.6.14-rc2-git6
+Instead of doing the impossible and trying to mark all the children
+of C as meter_cpu all at same instant in time, I should just mark the
+parent cpuset C, one time.  Then if C is so marked, its -children- now
+have the meter_cpu_* files, which can default at that instant in time to
+providing (1/N) of the cpu to each of the N children of C.  I would
+say that C can only be marked meter_cpu if:
+ * C is already marked cpu_exclusive.
+ * All of its children have the same 'cpus' setting as C.
+ * Any new child of C created after C is marked meter_cpu will
+   automatically start with the same 'cpus' setting as C, and
+   with the meter_cpu_* files.
+ * It is prohibited to change the 'cpus' of any cpuset whose
+   parent is marked meter_cpu.
+ * Changing the 'cpus' of a cpuset such as C that is itself
+   marked meter_cpu will instantly change the 'cpus' of each
+   of its children.
+ * It is prohibited to turn on the cpu_exclusive flag of a cpuset
+   whose parent is marked meter_cpu, or to turn off the cpu_exclusive
+   flag on a cpuset that is itself marked meter_cpu.
 
+Similar rules would apply for mem_exclusive and meter_mem.
 
-Sep 27 07:43:11 proton udevd[686]: get_netlink_msg: no ACTION in payload
-found, skip event 'umount'
-Sep 27 07:43:13 proton kernel: usb 1-3: USB disconnect, address 2
-Sep 27 07:43:13 proton kernel: general protection fault: 0000 [1] SMP
-Sep 27 07:43:13 proton kernel: CPU 0
-Sep 27 07:43:13 proton kernel: Modules linked in: vfat fat usb_storage
-ipv6 dm_mod video button battery ac pcspkr ohci1394 ieee1394 ohci_hcd
-ehci_hcd i2c_nforce2 i2c_core shpchp snd_intel8x0 snd_emu10k1_synth
-snd_emux_synth snd_seq_virmidi snd_seq_midi_emul snd_emu10k1 snd_rawmidi
-snd_ac97_codec snd_seq_dummy snd_seq_oss snd_seq_midi_event snd_seq
-snd_seq_device snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd_ac97_bus
-snd_page_alloc snd_util_mem snd_hwdep snd soundcore 8139too mii r8169
-forcedeth floppy ext3 jbd raid1 raid0 sata_nv libata sd_mod scsi_mod
-Sep 27 07:43:13 proton kernel: Pid: 140, comm: khubd Not tainted
-2.6.13-1.1578_FC5 #1
-Sep 27 07:43:13 proton kernel: RIP: 0010:[<ffffffff8800b808>]
-<ffffffff8800b808>{:scsi_mod:scsi_remove_device+75}
-Sep 27 07:43:13 proton kernel: RSP: 0018:ffff810037c03c98  EFLAGS: 00010292
-Sep 27 07:43:13 proton kernel: RAX: 6b6b6b6b6b6b6b6b RBX:
-ffff81003ce00388 RCX: 0000000000000011
-Sep 27 07:43:13 proton kernel: RDX: ffff81003ce00380 RSI:
-ffffffff8020186f RDI: 6b6b6b6b6b6b6beb
-Sep 27 07:43:13 proton kernel: RBP: ffff81003cdaf4a8 R08:
-0000000000000000 R09: ffff81003ce00388
-Sep 27 07:43:13 proton kernel: R10: 0000000000000000 R11:
-ffffffff8800be6c R12: ffff81003cdaf538
-Sep 27 07:43:13 proton kernel: R13: ffff81003cdaf4b8 R14:
-ffff81003e59cd60 R15: 0000000000000100
-Sep 27 07:43:13 proton kernel: FS:  00002aaaaaf0fce0(0000)
-GS:ffffffff80554800(0000) knlGS:0000000000000000
-Sep 27 07:43:13 proton fstab-sync[3824]: removed mount point
-/media/usbdisk for /dev/sdd1
-Sep 27 07:43:13 proton kernel: CS:  0010 DS: 0018 ES: 0018 CR0:
-000000008005003b
-Sep 27 07:43:13 proton kernel: CR2: 00002aaaaad69c10 CR3:
-0000000000101000 CR4: 00000000000006e0
-Sep 27 07:43:13 proton kernel: Process khubd (pid: 140, threadinfo
-ffff810037c02000, task ffff81003fd758a0)
-Sep 27 07:43:13 proton kernel: Stack: ffff81003ce00388 ffff81003cdaf4b8
-ffff81002eaf1790 ffffffff8800baf5
-Sep 27 07:43:13 proton kernel:        0000000000000296 ffff81002eaf1790
-ffff81003cdaf4c0 ffff81003cdaf4b8
-Sep 27 07:43:13 proton kernel:        ffff81003cdaf4c8 ffffffff8800923c
-Sep 27 07:43:13 proton kernel: Call
-Trace:<ffffffff8800baf5>{:scsi_mod:__scsi_remove_target+147}
-Sep 27 07:43:13 proton kernel:       
-<ffffffff8800923c>{:scsi_mod:scsi_forget_host+71}
-<ffffffff8800354f>{:scsi_mod:scsi_remove_host+92}
-Sep 27 07:43:13 proton kernel:       
-<ffffffff80352254>{klist_release+0}
-<ffffffff8832b1f1>{:usb_storage:storage_disconnect+16}
-Sep 27 07:43:13 proton kernel:       
-<ffffffff802ba36a>{usb_unbind_interface+69}
-<ffffffff802704c8>{__device_release_driver+96}
-Sep 27 07:43:13 proton kernel:       
-<ffffffff802707b9>{device_release_driver+61}
-<ffffffff8026ffb7>{bus_remove_device+146}
-Sep 27 07:43:13 proton kernel:        <ffffffff8026f0cc>{device_del+55}
-<ffffffff802bff4f>{usb_disable_device+150}
-Sep 27 07:43:13 proton kernel:       
-<ffffffff802ba8ec>{usb_disconnect+241} <ffffffff802bcdac>{hub_thread+900}
-Sep 27 07:43:13 proton kernel:       
-<ffffffff8014a110>{autoremove_wake_function+0}
-<ffffffff802bca28>{hub_thread+0}
-Sep 27 07:43:13 proton kernel:       
-<ffffffff80149cb0>{keventd_create_kthread+0} <ffffffff80149f0e>{kthread+205}
-Sep 27 07:43:13 proton kernel:       
-<ffffffff80131326>{schedule_tail+70} <ffffffff8010ea22>{child_rip+8}
-Sep 27 07:43:13 proton kernel:       
-<ffffffff80149cb0>{keventd_create_kthread+0} <ffffffff80149e41>{kthread+0}
-Sep 27 07:43:13 proton kernel:        <ffffffff8010ea1a>{child_rip+0}
-Sep 27 07:43:13 proton kernel:
-Sep 27 07:43:13 proton kernel: Code: f0 ff 80 80 00 00 00 0f 8e f7 07 00
-00 5b 41 5c 41 5d c3 53
-Sep 27 07:43:13 proton kernel: RIP
-<ffffffff8800b808>{:scsi_mod:scsi_remove_device+75} RSP <ffff810037c03c98>
+The metered children of C may have their own children in turn, which
+may have cpus any subset of the cpus in C, but which cannot be marked
+cpu_exclusive or meter_cpu.
 
+Borrowing your fine art work, and modifying it slightly, this looks
+like:
+
+      +-----------------------------------+
+      |                                   |
+   CPUSET 0                            CPUSET 1 (aka 'C')
+   sched domain A                      sched domain B
+   cpus: 0, 1                          cpus: 2, 3
+   cpu_exclusive=1                     cpu_exclusive=1
+   meter_cpu=0                         meter_cpu=1
+                                          |
+                         +----------------+----------------+
+                         |                |                |
+                      CPUSET 1a        CPUSET 1b        CPUSET 1c
+                      cpus: 2, 3       cpus: 2, 3       cpus: 2, 3
+                      cpu_exclusive=0  cpu_exclusive=0  cpu_exclusive=0
+                      meter_cpu=0      meter_cpu=0      meter_cpu=0
+                      meter_cpu_*      meter_cpu_*      meter_cpu_*
+                         |
+            +------------+------------+
+            |                         |
+         CPUSET 2a                CPUSET 2b
+         cpus: 2                  cpus: 3
+         meter_cpu=0              meter_cpu=0
+         cpu_exclusive=0          cpu_exclusive=0
+
+Note here that marking C (CPUSET 1) as meter_cpu exposes the meter_cpu_*
+files in the children of C.
+
+> Is it prohibited for any decendant of C's children to set meter_cpu=1 ?
+
+Yes, I presume so, and made up my new rules above assuming that.  It is
+definitely worth an effort in my opinion to allow creating nested
+ordinary (not metered) cpusets below the children of C, but I am
+guessing it would be too hard to try to allow nesting of metered
+cpusets below metered cpusets.  If you have a mind to try that however,
+I am more than willing to listen to your proposal.
+
+The above proposal makes it more obvious than ever that I am starting
+to overload the meaning of cpu_exclusive and mem_exclusive perhaps a
+bit too much.
+
+One or the other of the two *_exclusive flags should be required
+preconditions for some of these special properties (sched domains,
+GFP_KERNEL memory allocation confinement, oom killer confinement, cpu
+metering and memory metering), but perhaps actually enabling any of
+these special properties should be an additional and distinct choice.
+
+Therefore I propose some new cpuset flags:
+ * 'sched_domain' to mark sched domains (now done by the cpu_exclusive
+   flag),
+ * 'kernel_memory' to mark the constraints on GFP_KERNEL allocations,
+ * 'oom_killer' to mark the constraints on oom killing,
+ * your 'meter_cpu' flag to mark a set of metered cpus, and
+ * your 'meter_mem' flag to mark a set of metered mems.
+
+Each of these new flags would require the appropriate cpu_exclusive or
+mem_exclusive flag on the same cpuset to already be set, but just
+setting the *_exclusive flags by themselves would not be enough to get
+you the special behaviour.  You would also have to set the appropriate
+one of these new flags.
+
+So, for example, the condition to define a sched domain would change,
+from just being the lowest level cpuset marked cpu_exclusive (or the
+left over CPUs not marked exclusive), to being both that -and- having
+its "sched_domain" flag marked True (or being the left over CPUs,
+again).
+
+At first writing, I like the sound of this.  But then I often
+think my suggestions are good, when I first write them <grin>.
+
+Without these new flags, the interface has an odd assymmetry to it.
+Just setting cpu_exclusive could get you a sched domain for instance,
+but you had to have both cpu_exclusive and meter_cpu to get the
+cpu metering code.  The only reason for this was that Dinakar got his
+sched domain patch in before you got your cpu meter patch in, which is
+a poor reason if I do say so.
+
+These extra flags have an additional benefit.  They make explicit
+to the user level what additional semantics are switched on, rather
+than hiding them as implicit side affects of the cpu_exclusive
+configuration.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

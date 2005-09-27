@@ -1,110 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964965AbVI0QWp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964980AbVI0QX2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964965AbVI0QWp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 12:22:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964977AbVI0QWp
+	id S964980AbVI0QX2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 12:23:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbVI0QX2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 12:22:45 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.50]:21400 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S964965AbVI0QWo (ORCPT
+	Tue, 27 Sep 2005 12:23:28 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:9435 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964980AbVI0QX1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 12:22:44 -0400
-Date: Tue, 27 Sep 2005 18:22:42 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch] eliminate CLONE_* duplications
-Message-ID: <20050927162242.GC21927@MAIL.13thfloor.at>
-Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Kernel ML <linux-kernel@vger.kernel.org>
-References: <20050921092132.GA4710@MAIL.13thfloor.at> <Pine.LNX.4.61.0509211252160.3743@scrub.home> <20050921143954.GA10137@MAIL.13thfloor.at> <Pine.LNX.4.61.0509211648240.3743@scrub.home> <20050921151124.GB10137@MAIL.13thfloor.at> <Pine.LNX.4.61.0509211738160.3728@scrub.home> <20050921235810.GC18040@MAIL.13thfloor.at> <Pine.LNX.4.61.0509271705380.3728@scrub.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 27 Sep 2005 12:23:27 -0400
+From: Andi Kleen <ak@suse.de>
+To: Harald Welte <laforge@netfilter.org>
+Subject: Re: [PATCH 0/3] netfilter : 3 patches to boost ip_tables performance
+Date: Tue, 27 Sep 2005 18:23:18 +0200
+User-Agent: KMail/1.8.2
+Cc: Eric Dumazet <dada1@cosmosbay.com>, linux-kernel@vger.kernel.org,
+       netfilter-devel@lists.netfilter.org, netdev@vger.kernel.org
+References: <432EF0C5.5090908@cosmosbay.com> <200509221503.21650.ak@suse.de> <20050923170911.GN731@sunbeam.de.gnumonks.org>
+In-Reply-To: <20050923170911.GN731@sunbeam.de.gnumonks.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0509271705380.3728@scrub.home>
-User-Agent: Mutt/1.5.6i
+Message-Id: <200509271823.19365.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 27, 2005 at 05:25:41PM +0200, Roman Zippel wrote:
-> Hi,
-> 
-> (Sorry for the delay.)
+On Friday 23 September 2005 19:09, Harald Welte wrote:
+> On Thu, Sep 22, 2005 at 03:03:21PM +0200, Andi Kleen wrote:
+> > > 1) No more central rwlock protecting each table (filter, nat, mangle,
+> > > raw), but one lock per CPU. It avoids cache line ping pongs for each
+> > > packet.
+> >
+> > Another useful change would be to not take the lock when there are no
+> > rules. Currently just loading iptables has a large overhead.
+>
+> This is partially due to the netfilter hooks that are registered (so we
+> always take nf_hook_slow() in the NF_HOOK() macro).
 
-no big deal ...
+Not sure it's that. nf_hook_slow uses RCU, so it should be quite
+fast.
 
-> On Thu, 22 Sep 2005, Herbert Poetzl wrote:
-> 
-> > _what_ do you consider 'logically organized' because
-> > putting all the CLONE_* stuff into a separate file is
-> > pretty logical for me ... but obviously not for you.
-> 
-> "logically organized" mainly means reducing dependencies by organizing
-> them by their logical dependencies. 
+> The default policies inside an iptables chain are internally implemented
+> as a rule.  Thus, policies as built-in rules have packet/byte counters.
 
-did you consider that separating out the clone
-stuff might be that basis for reducing dependencies?
+That could be special cased and done lockless, with the counting
+done per CPU.
 
-> If a large header file is included by a lot of other files, some parts
-> maybe separated to reduce header dependencies. The same can be done
-> for config dependencies, so that a config change doesn't necessarily
-> recompiles the whole kernel.
-
-> Your change doesn't reduce any dependecies and it's not such a big 
-> cleanup:
-
-aha, so we want a big all-in-one patch now which
-does many changes at once, instead of a small
-(and obvious) cleanup first, then later maybe
-a restructuring ... yes?
-
->  arch/alpha/kernel/asm-offsets.c         |    2 --
->  arch/alpha/kernel/entry.S               |    1 +
->  arch/cris/arch-v10/kernel/asm-offsets.c |    3 ---
->  arch/cris/arch-v10/kernel/entry.S       |    1 +
->  arch/cris/arch-v32/kernel/asm-offsets.c |    3 ---
->  arch/frv/kernel/kernel_thread.S         |    2 +-
->  arch/ia64/ia32/ia32_entry.S             |    3 ++-
->  arch/ia64/kernel/asm-offsets.c          |    4 ----
->  arch/parisc/kernel/entry.S              |    4 +---
->  arch/ppc/kernel/asm-offsets.c           |    2 --
->  arch/ppc/kernel/misc.S                  |    1 +
->  arch/ppc64/kernel/asm-offsets.c         |    3 ---
->  arch/ppc64/kernel/misc.S                |    1 +
->  arch/v850/kernel/asm-offsets.c          |    4 ----
->  arch/v850/kernel/entry.S                |    1 +
->  include/asm-cris/arch-v10/offset.h      |    3 ---
->  include/asm-cris/arch-v32/offset.h      |    3 ---
->  include/linux/clone.h                   |   32 ++++++++++++++++++++++++++++++++
->  include/linux/sched.h                   |   30 +-----------------------------
->  19 files changed, 42 insertions(+), 61 deletions(-)
-
-> The noise generated by the separation is larger than the avoided 
-> duplication.
-
-hmm, interesting argument ...
-
-> The hardcoded defines actually do need fixing, frv is especially bad,
-> as it even has hardcoded structure offsets.
-
-so instead of fixing the issue properly, we 
-'mend' it by adding new code to */asm-offsets.c
-
-> > I have absolutely no problem with different, more
-> > logical splitups, and I'm willing to break down the
-> > entire sched.h if that will help the cause ... so
-> > please enlighten me here ...
-
-> sched.h is especially challenging due to dependencies between headers
-> under asm and linux. It's not just splitting sched.h, it also requires
-> analyzing its dependencies.
-
-which you obviously think is nothing I can do
-'properly' ...
-
-thanks for the info,
-Herbert
-
-> bye, Roman
+-Andi

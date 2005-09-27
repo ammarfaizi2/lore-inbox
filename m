@@ -1,90 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbVI0LHi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964900AbVI0LKp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964898AbVI0LHi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 07:07:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964899AbVI0LHi
+	id S964900AbVI0LKp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 07:10:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbVI0LKp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 07:07:38 -0400
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:57478 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S964898AbVI0LHi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 07:07:38 -0400
-Message-ID: <433927B0.9020108@gmx.net>
-Date: Tue, 27 Sep 2005 13:06:24 +0200
-From: Daniel Link <stagger@gmx.net>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050924)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
+	Tue, 27 Sep 2005 07:10:45 -0400
+Received: from smtpout4.uol.com.br ([200.221.4.195]:175 "EHLO smtp.uol.com.br")
+	by vger.kernel.org with ESMTP id S964900AbVI0LKo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 07:10:44 -0400
+Date: Tue, 27 Sep 2005 08:10:39 -0300
+From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
 To: linux-kernel@vger.kernel.org
-Subject: OOPS: Suspend2+iptables when loading ipw2200
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ID: rffjRiZfwe0Aee1ViTH4KhW8+WxT-AjcK5CoSZT5xk9o3I7j6uqMEF@t-dialin.net
-X-TOI-MSGID: a97bf85d-25ac-43a4-a2c0-dbad9bd39653
+Subject: Strange disk corruption with Linux >= 2.6.13
+Message-ID: <20050927111038.GA22172@ime.usp.br>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi there. I'm seeing a really strange problem on my system lately and I
+am not really sure that it has anything to do with the kernels.
 
-my Suspend2-2.6.12-r1 kernel from Gentoo's portage worked almost
-perfectly until I decided to prepare it for using iptables. I've had
-only one system freeze before, which I didn't think much about. After
-adding numerous modules about firewalling to the kernel config and
-recompiling everything I finally rebooted the system. But some seconds
-after loading the ipw2200 module (1.0.6) there was an OOPS. I also tried
-not to use modules but to put the iptables stuff directly into the
-kernel, but that didn't help.
+I would appreciate any guidance with my problems. Any help is welcome.
 
-Here's some output from dmesg. First I thought it had come from the new
-iptables kernel, but that's not the case. It's the one from yesterday's
-kernel without iptables. During normal work with GNOME the computer just
-froze and I had to do a hard reboot.
+My desktop has a Duron 1.3GHz (but, for some reason, it runs only at
+1.1GHz) and an Asus A7V motherboard, with chipset VIA KT133 (not the
+enhanced version KT133A).
 
-Sep 26 13:07:54 hermes ------------[ cut here ]------------
-Sep 26 13:07:54 hermes kernel BUG at kernel/workqueue.c:131!
-Sep 26 13:07:54 hermes invalid operand: 0000 [#1]
-Sep 26 13:07:54 hermes PREEMPT
-Sep 26 13:07:54 hermes Modules linked in: ieee80211_crypt_tkip ipw2200
-ieee80211 ieee80211_crypt
-Sep 26 13:07:54 hermes CPU:    0
-Sep 26 13:07:54 hermes EIP:    0060:[<c012f0bb>]    Not tainted VLI
-Sep 26 13:07:54 hermes EFLAGS: 00010286   (2.6.12-suspend2-r6)
-Sep 26 13:07:54 hermes EIP is at queue_delayed_work+0x6b/0x80
-Sep 26 13:07:54 hermes eax: c053f9c0   ebx: 00000000   ecx: c04b13b8
-edx: c04b13a0
-Sep 26 13:07:54 hermes esi: c145e880   edi: 0000000a   ebp: 00000000
-esp: def03f14
-Sep 26 13:07:54 hermes ds: 007b   es: 007b   ss: 0068
-Sep 26 13:07:54 hermes Process events/0 (pid: 3, threadinfo=def02000
-task=c1469020)
-Sep 26 13:07:54 hermes Stack: dea75f00 c04b13a0 c04b13a0 00000202
-c04b13a4 c0329e26 00000000 c012f2e0
-Sep 26 13:07:54 hermes 00000000 def03f68 00000000 def02000 c145e898
-def02000 c145e888 c145e890
-Sep 26 13:07:54 hermes def02000 c0329de0 def02000 ffffffff ffffffff
-00000001 00000000 c011b140
-Sep 26 13:07:54 hermes Call Trace:
-Sep 26 13:07:54 hermes [<c0329e26>] do_dbs_timer+0x46/0x60
-Sep 26 13:07:54 hermes [<c012f2e0>] worker_thread+0x210/0x300
-Sep 26 13:07:54 hermes [<c0329de0>] do_dbs_timer+0x0/0x60
-Sep 26 13:07:54 hermes [<c011b140>] default_wake_function+0x0/0x20
-Sep 26 13:07:54 hermes [<c011b140>] default_wake_function+0x0/0x20
-Sep 26 13:07:54 hermes [<c0133a07>] kthread+0xd7/0x120
-Sep 26 13:07:54 hermes [<c012f0d0>] worker_thread+0x0/0x300
-Sep 26 13:07:54 hermes [<c0133930>] kthread+0x0/0x120
-Sep 26 13:07:54 hermes [<c010133d>] kernel_thread_helper+0x5/0x18
-Sep 26 13:07:54 hermes Code: 14 c7 41 10 30 f0 12 c0 01 f8 89 41 08 89
-44 24 04 89 0c 24 e8 b7 85 ff ff 89 d8 8b 74 24 0c 8b 5c 24 08 8b 7c 24
-10 83 c4 14 c3 <0f> 0b 83  00 36 a7 40 c0 eb b4 0f 0b 84 00 36 a7 40 c0
-eb b2 90
+Its memory modules are all PC133 and it had a 128MB card + 256MB
+memory. Then, I decided that it wasn't the right time for a new computer
+and just bought myself 2 newer expansion cards of 512MB.
 
-There was no other OOPS in /var/log/messages. It seems like when using
-the iptables kernel the OOPS comes too fast for logging something, but
-who am I to make any assumptions. Since there is no proof in the logs I
-have made a photo with a digital camera. The first lines look similar to
-the ones above. I haven't compared any more. Just tell me where to send
-the image. I can also send you the working/panic kernel, its config and
-the System.map.
+Now, the motherboard has 512MB + 512MB + 256MB (all slots filled). I
+then, recompiled the kernels with HIGHMEM support (the 4GB version) and
+I've been seeing some strangeness since then.
 
-Bye, Daniel
+The first thing that I noticed was that I run some file integrity
+programs (debsums, which checks the md5sum signatures of the packages
+that I have installed) to check the state of my system. I discovered
+that some packages didn't have its signatures matching the originals.
+
+Then, I reinstalled said packages and run debsums again. I got some
+*other* packages with md5sum mismatches. Thinking that it could be
+something related to the memory of my system, I decided to run
+memtest86+ for some time.
+
+After running for 6 hours, it could not find anything wrong with the
+1.25GB of memory installed, which left me quite puzzled.
+
+I then tried using the system again, but, still puzzled by the md5sum
+mismatches, I tried to verify them again and I got some other packages
+with problems.
+
+At the same time, I was trying to stress test the machine a little bit
+and decompressing the kernel tree from a tar.bz2 file, since a friend of
+mine asked me to compile him a kernel >= 2.6.12 so that he could use
+udev.
+
+In the middle of the untarring, bzip2 stopped and said that it found
+inconsitencies and that I should run bzip2recover on the file.  I
+removed the entire tree and tried uncompressing the tarball again and
+the same result happened.
+
+I then decided to reboot the machine, since I was fed up with this
+strangeness (that I had never seen occurring before), and after the
+boot, I tried running memtest86+ again for some minutes. It didn't find
+anything.
+
+Then, I booted back into Linux (at the time I was using 2.6.14-rc2) and
+*succeeded* in uncompressing the tar.bz2 file that was "corrupted". At
+this point in time, I did not understand anything.
+
+I then left my computer running on memtest86+ while I went to work and
+16 hours later, no problem was found and it was still running fine.
+
+I then thought that it could be something with the harddisk and tried to
+play with smartctl. I run one long/off-line test on my HD, but it
+succeeded (I conjectured that the drive could be running out of spare
+sectors).
+
+I also tried running the kernel with highmem=0K, but the symptoms of
+corruption repeated themselves. I even thought that maybe Linux couldn't
+have been very much exposed to systems with HIGHMEM on older hardware
+(like mine) and I then left the machine with just a 512MB card and it
+still has problems.
+
+I have voluntary preempt enabled, but I had it before and didn't notice
+anything strange. I am now back to kernel 2.6.13.2 (avoiding all the
+niceness that is in the 2.6.14-rc's), just to be sure. I can't see many
+other things to try, except disabling voluntary preempt (which hasn't
+given me any problems with earlier kernels and even -mm kernels).
+
+Other than that, I am stuck and without any ideas. Please, any help
+would be much more than welcome.
+
+
+Thank you very much for suggestions, Rogério Brito.
+
+P.S.: If anybody knows of a live CD with memtest86+ and cpuburn and
+other things so that I could test my system, I would be highly
+interested to know.
+
+I sincerely don't know if I have a software or a hardware problem here.
+
+P.P.S.: I am using a Debian testing system and the most demanding thing
+that I do with my system is to compress some files to MP3 and to type
+some texts in LaTeX with Emacs under Fluxbox with the Minimal style
+(which is quite easy on the machine---I have not yet dared to use any
+heavy desktop environment).
+
+If any information else is desired, please let me know. I will gladly
+help you to help me, as I am almost desperate. Thanks.
+-- 
+Rogério Brito : rbrito@ime.usp.br : http://www.ime.usp.br/~rbrito
+Homepage of the algorithms package : http://algorithms.berlios.de
+Homepage on freshmeat:  http://freshmeat.net/projects/algorithms/

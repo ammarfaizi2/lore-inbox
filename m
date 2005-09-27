@@ -1,87 +1,170 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964937AbVI0Nnn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964945AbVI0NwH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964937AbVI0Nnn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 09:43:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964939AbVI0Nnn
+	id S964945AbVI0NwH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 09:52:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964947AbVI0NwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 09:43:43 -0400
-Received: from [212.76.81.47] ([212.76.81.47]:33540 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S964937AbVI0Nnn (ORCPT
+	Tue, 27 Sep 2005 09:52:06 -0400
+Received: from mx.laposte.net ([81.255.54.11]:6423 "EHLO mx.laposte.net")
+	by vger.kernel.org with ESMTP id S964945AbVI0NwF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 09:43:43 -0400
-From: Al Boldi <a1426z@gawab.com>
-To: Neil Horman <nhorman@tuxdriver.com>
-Subject: Re: Resource limits
-Date: Tue, 27 Sep 2005 16:42:07 +0300
-User-Agent: KMail/1.5
-Cc: Matthew Helsley <matthltc@us.ibm.com>, linux-kernel@vger.kernel.org
-References: <200509251712.42302.a1426z@gawab.com> <200509270808.21821.a1426z@gawab.com> <20050927120840.GA5947@hmsreliant.homelinux.net>
-In-Reply-To: <20050927120840.GA5947@hmsreliant.homelinux.net>
+	Tue, 27 Sep 2005 09:52:05 -0400
+Message-ID: <43392BF9.30906@laposte.net>
+Date: Tue, 27 Sep 2005 13:24:41 +0200
+From: Laurent Meunier <meunier.laurent@laposte.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509271642.07864.a1426z@gawab.com>
+To: mmcclell@bigfoot.com
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] ov511-2.28 patch for 2.6.12 kernel compat.
+Content-Type: multipart/mixed;
+ boundary="------------040606030309040102020203"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Horman wrote:
-> On Tue, Sep 27, 2005 at 08:08:21AM +0300, Al Boldi wrote:
-> > Neil Horman wrote:
-> > > On Mon, Sep 26, 2005 at 11:26:10PM +0300, Al Boldi wrote:
-> > > > Neil Horman wrote:
-> > > > > On Mon, Sep 26, 2005 at 08:32:14PM +0300, Al Boldi wrote:
-> > > > > > Neil Horman wrote:
-> > > > > > > On Mon, Sep 26, 2005 at 05:18:17PM +0300, Al Boldi wrote:
-> > > > > > > > Rik van Riel wrote:
-> > > > > > > > > On Sun, 25 Sep 2005, Al Boldi wrote:
-> > > > > > > > > > Too many process forks and your system may crash.
-> > > > > > > > > > This can be capped with threads-max, but may lead you
-> > > > > > > > > > into a lock-out.
-> > > > > > > > > >
-> > > > > > > > > > What is needed is a soft, hard, and a special emergency
-> > > > > > > > > > limit that would allow you to use the resource for a
-> > > > > > > > > > limited time to circumvent a lock-out.
-> > > > > > > > >
-> > > > > > > > > How would you reclaim the resource after that limited time
-> > > > > > > > > is over ?  Kill processes?
-> > > > > > > >
-> > > > > > > > That's one way,  but really, the issue needs some deep
-> > > > > > > > thought. Leaving Linux exposed to a lock-out is rather
-> > > > > > > > frightening.
-> > > > > > >
-> > > > > > > What exactly is it that you're worried about here?
-> > > > > >
-> > > > > > Think about a DoS attack.
-> > > > >
-> > > > > Be more specific.  Are you talking about a fork bomb, a ICMP
-> > > > > flood, what?
-> >
-> > Consider this dilemma:
-> > Runaway proc/s hit the limit.
-> > Try to kill some and you are denied due to the resource limit.
-> > Use some previously running app like top, hope it hasn't been killed by
-> > some OOM situation, try killing some procs and another one takes it's
-> > place because of the runaway situation.
-> > Raise the limit, and it gets filled by the runaways.
-> > You are pretty much stuck.
->
-> Not really, this is the sort of thing ulimit is meant for.  To keep
-> processes from any one user from running away.  It lets you limit the
-> damage it can do, until such time as you can control it and fix the
-> runaway application.
+This is a multi-part message in MIME format.
+--------------040606030309040102020203
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-threads-max = 1024
-ulimit = 100 forks
-11 runaway procs hitting the threads-max limit
+Dear Mark,
 
-This example is extreme, but it's possible, and there should be a safe and 
-easy way out.
+Here is a patch for you to apply to your ov511-2.28 driver. It's based 
+on the patch made by Vassilli Khachaturov 
+(http://lkml.org/lkml/2005/6/8/242).
 
-What do you think?
+This patch basically remove references to the 'id' field from the static 
+struct i2c_client client_template in ovcamchip_core.c, tda7313.c and 
+saa7111-new.c) and update a deprecated function (usb_unlink_urb -> 
+usb_kill_urb).
 
-Thanks!
---
-Al
+Tested on ArchLinux 0.7 with kernel v2.6.12 and webcam philips toucam II.
 
+Regards,
+Laurent
+
+
+PS: I haven't subscribed to the linux-kernel mailing list and I would 
+like to be personally CC'ed the answers/comments posted to the list
+
+--------------040606030309040102020203
+Content-Type: text/plain;
+ name="ov511-2.28_linux-2.6.12.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ov511-2.28_linux-2.6.12.patch"
+
+diff -rbup ov511-2.28-orig/ov511_core.c ov511-2.28-new/ov511_core.c
+--- ov511-2.28-orig/ov511_core.c	2004-07-13 13:54:22.000000000 +0200
++++ ov511-2.28-new/ov511_core.c	2005-09-24 13:59:04.000000000 +0200
+@@ -3547,7 +3547,11 @@ ov51x_unlink_isoc(struct usb_ov511 *ov)
+ 	/* Unschedule all of the iso td's */
+ 	for (n = OV511_NUMSBUF - 1; n >= 0; n--) {
+ 		if (ov->sbuf[n].urb) {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 12)
++			usb_kill_urb(ov->sbuf[n].urb);
++#else
+ 			usb_unlink_urb(ov->sbuf[n].urb);
++#endif
+ 			usb_free_urb(ov->sbuf[n].urb);
+ 			ov->sbuf[n].urb = NULL;
+ 		}
+@@ -4881,12 +4885,18 @@ ov51x_mmap(struct file *file, struct vm_
+ 
+ 	pos = (unsigned long)ov->fbuf;
+ 	while (size > 0) {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 11)
++		page = vmalloc_to_pfn((void *)pos);
++		if (remap_pfn_range(vma, start, page, PAGE_SIZE,
++				     PAGE_SHARED)) {
++#else
+ 		page = kvirt_to_pa(pos);
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 5, 3) || defined(RH9_REMAP)
++# if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 5, 3) || defined(RH9_REMAP)
+ 		if (remap_page_range(vma, start, page, PAGE_SIZE,
+ 				     PAGE_SHARED)) {
+-#else
++# else
+ 		if (remap_page_range(start, page, PAGE_SIZE, PAGE_SHARED)) {
++# endif
+ #endif
+ 			up(&ov->lock);
+ 			return -EAGAIN;
+diff -rbup ov511-2.28-orig/ovcamchip_core.c ov511-2.28-new/ovcamchip_core.c
+--- ov511-2.28-orig/ovcamchip_core.c	2004-07-16 12:58:25.000000000 +0200
++++ ov511-2.28-new/ovcamchip_core.c	2005-09-24 13:54:11.000000000 +0200
+@@ -582,7 +582,9 @@ static struct i2c_driver driver = {
+ 
+ static struct i2c_client client_template = {
+ 	I2C_DEVNAME("(unset)"),
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 12)
+ 	.id =		-1,
++#endif
+ 	.driver =	&driver,
+ };
+ 
+diff -rbup ov511-2.28-orig/ovfx2.c ov511-2.28-new/ovfx2.c
+--- ov511-2.28-orig/ovfx2.c	2004-07-16 01:32:08.000000000 +0200
++++ ov511-2.28-new/ovfx2.c	2005-09-24 14:00:12.000000000 +0200
+@@ -1678,7 +1678,11 @@ ovfx2_unlink_bulk(struct usb_ovfx2 *ov)
+ 	/* Unschedule all of the bulk td's */
+ 	for (n = OVFX2_NUMSBUF - 1; n >= 0; n--) {
+ 		if (ov->sbuf[n].urb) {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 12)
+ 			usb_unlink_urb(ov->sbuf[n].urb);
++#else
++			usb_unlink_urb(ov->sbuf[n].urb);
++#endif
+ 			usb_free_urb(ov->sbuf[n].urb);
+ 			ov->sbuf[n].urb = NULL;
+ 		}
+@@ -2502,12 +2506,18 @@ ovfx2_mmap(struct file *file, struct vm_
+ 
+ 	pos = (unsigned long)ov->fbuf;
+ 	while (size > 0) {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 11)
++		page = vmalloc_to_pfn((void *)pos);
++		if (remap_pfn_range(vma, start, page, PAGE_SIZE,
++				     PAGE_SHARED)) {
++#else
+ 		page = kvirt_to_pa(pos);
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 5, 3) || defined(RH9_REMAP)
++# if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 5, 3) || defined(RH9_REMAP)
+ 		if (remap_page_range(vma, start, page, PAGE_SIZE,
+ 				     PAGE_SHARED)) {
+-#else
++# else
+ 		if (remap_page_range(start, page, PAGE_SIZE, PAGE_SHARED)) {
++# endif
+ #endif
+ 			up(&ov->lock);
+ 			return -EAGAIN;
+diff -rbup ov511-2.28-orig/saa7111-new.c ov511-2.28-new/saa7111-new.c
+--- ov511-2.28-orig/saa7111-new.c	2004-07-13 14:04:46.000000000 +0200
++++ ov511-2.28-new/saa7111-new.c	2005-09-24 13:54:56.000000000 +0200
+@@ -520,7 +520,9 @@ static struct i2c_driver driver = {
+ 
+ static struct i2c_client client_template = {
+ 	I2C_DEVNAME("(unset)"),
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 12)
+ 	.id =		-1,
++#endif
+ 	.driver =	&driver
+ };
+ 
+diff -rbup ov511-2.28-orig/tda7313.c ov511-2.28-new/tda7313.c
+--- ov511-2.28-orig/tda7313.c	2004-07-15 12:06:44.000000000 +0200
++++ ov511-2.28-new/tda7313.c	2005-09-24 13:56:13.000000000 +0200
+@@ -202,7 +202,9 @@ static struct i2c_driver driver = {
+ 
+ static struct i2c_client client_template = {
+ 	I2C_DEVNAME("tda7313"),
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 12)
+ 	.id      = -1,
++#endif
+ 	.driver  = &driver,
+ };
+ 
+
+--------------040606030309040102020203--

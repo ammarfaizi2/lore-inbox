@@ -1,66 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964976AbVI0Pih@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964981AbVI0PmI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964976AbVI0Pih (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 11:38:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964978AbVI0Pih
+	id S964981AbVI0PmI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 11:42:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964978AbVI0PmI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 11:38:37 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:42964 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S964977AbVI0Pig
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 11:38:36 -0400
-Date: Tue, 27 Sep 2005 11:38:35 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-cc: jim.ramsay@gmail.com, <mdharm-kernel@one-eyed-alien.net>,
-       USB users list <linux-usb-users@lists.sourceforge.net>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       SCSI development list <linux-scsi@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [Linux-usb-users] Possible bug in usb storage (2.6.11 kernel)
-In-Reply-To: <20050927.234616.36922370.anemo@mba.ocn.ne.jp>
-Message-ID: <Pine.LNX.4.44L0.0509271120370.5703-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 27 Sep 2005 11:42:08 -0400
+Received: from serv01.siteground.net ([70.85.91.68]:16273 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S964977AbVI0PmH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 11:42:07 -0400
+Date: Tue, 27 Sep 2005 08:42:01 -0700
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org,
+       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
+       Alok Kataria <alokk@calsoftinc.com>
+Subject: Re: [patch 0/4] ide: Break ide_lock to per-hwgroup lock
+Message-ID: <20050927154201.GD3822@localhost.localdomain>
+References: <20050906233322.GA3642@localhost.localdomain> <20050907091923.GE4785@suse.de> <20050907192747.GC3769@localhost.localdomain> <20050907193422.GS4785@suse.de> <58cb370e050927063674bb47a7@mail.gmail.com> <20050927152026.GC3822@localhost.localdomain> <20050927152641.GF2811@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050927152641.GF2811@suse.de>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Sep 2005, Atsushi Nemoto wrote:
-
-> >>>>> On Tue, 27 Sep 2005 10:21:17 -0400 (EDT), Alan Stern <stern@rowland.harvard.edu> said:
+On Tue, Sep 27, 2005 at 05:26:42PM +0200, Jens Axboe wrote:
+> On Tue, Sep 27 2005, Ravikiran G Thirumalai wrote:
 > 
-> stern> Yes I did.  You can see it at
-> stern> https://lists.one-eyed-alien.net/pipermail/usb-storage/2005-September/001953.html
+> You should run it eg 10 times on each kernel to get a feel for the
+> variance of the results. Were you testing 2 or 4 disks?
 > 
-> Thank you.  But 'kmalloc(US_SENSE_SIZE, GFP_KERNEL)' is not enough (at
-> least) for MIPS since some MIPS chips have 32 byte cacheline and
-> ARCH_KMALLOC_MINALIGN is 8 on linux-mips.
-> 
-> Using 'max(dma_get_cache_alignment(), US_SENSE_SIZE)' would be OK.
 
-If that is so, it's a bug in linux-mips.  ARCH_KMALLOC_MINALIGN is 
-supposed to be at least as large as a cacheline.  See this comment in 
-mm/slab.c:
+Yes, I was planning to do that,  We were testing with 2 disks.
 
-/*
- * Enforce a minimum alignment for the kmalloc caches.
- * Usually, the kmalloc caches are cache_line_size() aligned, except when
- * DEBUG and FORCED_DEBUG are enabled, then they are BYTES_PER_WORD aligned.
- * Some archs want to perform DMA into kmalloc caches and need a guaranteed
- * alignment larger than BYTES_PER_WORD. ARCH_KMALLOC_MINALIGN allows that.
- * Note that this flag disables some debug features.
- */
+>...
+> I take it the numbers posted were for DMA enabled on all disks?
 
-and also this comment (referring to the kmalloc caches):
+Yes.
 
-		/*
-		 * For performance, all the general caches are L1 aligned.
-		 * This should be particularly beneficial on SMP boxes, as it
-		 * eliminates "false sharing".
-		 * Note for systems short on memory removing the alignment will
-		 * allow tighter packing of the smaller caches.
-		 */
-
-Alan Stern
+Thanks,
+Kiran
 

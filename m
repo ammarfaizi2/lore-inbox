@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964862AbVI0NAB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964920AbVI0NAF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964862AbVI0NAB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 09:00:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964920AbVI0NAB
+	id S964920AbVI0NAF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 09:00:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964921AbVI0NAF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 27 Sep 2005 09:00:05 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:25021 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964920AbVI0NAB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 27 Sep 2005 09:00:01 -0400
-Received: from smtp.cs.aau.dk ([130.225.194.6]:55203 "EHLO smtp.cs.aau.dk")
-	by vger.kernel.org with ESMTP id S964862AbVI0NAA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 09:00:00 -0400
-Message-ID: <433941E0.7010005@cs.aau.dk>
-Date: Tue, 27 Sep 2005 14:58:08 +0200
-From: Emmanuel Fleury <fleury@cs.aau.dk>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Framework for automatic Configuration of a Kernel
-References: <20050927125300.24574.qmail@web51014.mail.yahoo.com>
-In-Reply-To: <20050927125300.24574.qmail@web51014.mail.yahoo.com>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Date: Tue, 27 Sep 2005 13:59:56 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Greg KH <greg@kroah.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Harald Welte <laforge@gnumonks.org>,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       vendor-sec@lst.de, security@linux.kernel.org
+Subject: Re: [vendor-sec] [BUG/PATCH/RFC] Oops while completing async USB via usbdevio
+Message-ID: <20050927125956.GA29861@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Greg KH <greg@kroah.com>, Harald Welte <laforge@gnumonks.org>,
+	linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+	vendor-sec@lst.de, security@linux.kernel.org
+References: <20050925151330.GL731@sunbeam.de.gnumonks.org> <20050927080413.GA13149@kroah.com> <20050927124846.GA29649@infradead.org> <20050927125755.GA10738@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050927125755.GA10738@kroah.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ahmad,
-
-Ahmad Reza Cheraghi wrote:
+On Tue, Sep 27, 2005 at 05:57:55AM -0700, Greg KH wrote:
+> Earlier in this thread, on these mailing lists.
 > 
-> Again another good Idea. Your right;-) Its better. 
-> But it better getting another way of detecting the
-> Hardware/Software etc. from the System without using
-> lspci or the proc-files...?
+> I've included it below too.
 
-Well, the proc files are always here (it removes one requisite which is
-to have lspci installed). So, I would go for the proc files.
+Ah, it was last week and I missed it.  sorry.
 
-> Something that gets all
-> the Hardware Information directly from the I/O and not
-> from the Kernel. The good thing about lspci is that it
-> does both . But it doesnt say if there is  a CDROM or
-> floppy-disc... 
-
-Well, lspci is for PCI bus devices, it's already a lot, but not
-everything (that's why you need several scripts/methods to detect
-hardware, I guess).
-
-> I tryed alot to search for something
-> like that but without any success. I heard about this
-> Otopia Project. I google after it but I didnt find
-> anything usefule. I think its dead. 
-
-I don't know this project.
-
-Regards
--- 
-Emmanuel Fleury
-
-echo '16i[q]sa[ln0=aln100%Pln100/snlbx]sb20293A2058554E494Csnlbxq'|dc
-  -- Unknown
+This is more than messy.  usbfs is the only user of SI_ASYNCIO, and the
+way it uses it is more than messy.  Why can't USB simply use the proper
+AIO infrastructure?

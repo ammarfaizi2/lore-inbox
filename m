@@ -1,40 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964844AbVI0HUE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbVI0HVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964844AbVI0HUE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 03:20:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964847AbVI0HUB
+	id S964845AbVI0HVG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 03:21:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964847AbVI0HVG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 03:20:01 -0400
-Received: from mail.kroah.org ([69.55.234.183]:6607 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S964845AbVI0HUA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 03:20:00 -0400
-Date: Mon, 26 Sep 2005 17:28:25 -0700
-From: Greg KH <gregkh@suse.de>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Kay Sievers <kay.sievers@vrfy.org>, Vojtech Pavlik <vojtech@suse.cz>,
-       Hannes Reinecke <hare@suse.de>
-Subject: Re: [patch 02/28] I2O: remove i2o_device_class
-Message-ID: <20050927002825.GA11826@suse.de>
-References: <20050915070131.813650000.dtor_core@ameritech.net> <20050915070302.068231000.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 27 Sep 2005 03:21:06 -0400
+Received: from nproxy.gmail.com ([64.233.182.193]:4836 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964845AbVI0HVF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 03:21:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=fCYGZPnv8Ib4BTnYdesuDgmHWI+HiWZOY4wp1JZPvXV0rE1puyCyuyzfVlKP5RPlOsvcjDDi64e1k96xzbXb1n/wjUTL/w2b9dJh/2Xp0e+jMIM03+YDQZeU5Fltobv9hQyttT6uv6AaXz6+nDQCt4PcNMuOXEufeq1/KgLpW+w=
+Message-ID: <2cd57c90050927002163f78269@mail.gmail.com>
+Date: Tue, 27 Sep 2005 15:21:03 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+Reply-To: Coywolf Qi Hunt <coywolf@gmail.com>
+To: Joel Schopp <jschopp@austin.ibm.com>
+Subject: Re: [PATCH 7/9] try harder on large allocations
+Cc: Andrew Morton <akpm@osdl.org>, lhms <lhms-devel@lists.sourceforge.net>,
+       Linux Memory Management List <linux-mm@kvack.org>,
+       linux-kernel@vger.kernel.org, Mel Gorman <mel@csn.ul.ie>,
+       Mike Kravetz <kravetz@us.ibm.com>
+In-Reply-To: <433856B2.8030906@austin.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050915070302.068231000.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.11
+References: <4338537E.8070603@austin.ibm.com> <433856B2.8030906@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 15, 2005 at 02:01:33AM -0500, Dmitry Torokhov wrote:
-> I2O: cleanup - remove i2o_device_class
-> 
-> I2O devices reside on their own bus so there should be no reason
-> to also have i2c_device class that mirros i2o bus.
+On 9/27/05, Joel Schopp <jschopp@austin.ibm.com> wrote:
+> Fragmentation avoidance patches increase our chances of satisfying high order
+> allocations.  So this patch takes more than one iteration at trying to fulfill
+> those allocations because unlike before the extra iterations are often useful.
+>
+> Signed-off-by: Mel Gorman <mel@csn.ul.ie>
+> Signed-off-by: Joel Schopp <jschopp@austin.ibm.com>
+>
+>
+> Index: 2.6.13-joel2/mm/page_alloc.c
+> ===================================================================
+> --- 2.6.13-joel2.orig/mm/page_alloc.c   2005-09-21 11:13:14.%N -0500
+> +++ 2.6.13-joel2/mm/page_alloc.c        2005-09-21 11:14:49.%N -0500
+> @@ -944,7 +944,8 @@ __alloc_pages(unsigned int __nocast gfp_
+>         int can_try_harder;
+>         int did_some_progress;
+>         int alloctype;
+> -
+> +       int highorder_retry = 3;
+> +
+>         alloctype = (gfp_mask & __GFP_RCLM_BITS);
+>         might_sleep_if(wait);
+>
+> @@ -1090,7 +1091,14 @@ rebalance:
+>                                 goto got_pg;
+>                 }
+>
+> -               out_of_memory(gfp_mask, order);
+> +               if (order < MAX_ORDER/2) out_of_memory(gfp_mask, order);
 
-Ok, nice, this is good.  But it doesn't apply at all, somethings odd.
-What tree is this diffed against, Linus's or -mm?
+Shouldn't that be written in two lines?
 
-thanks,
+> +               /*
+> +                * Due to low fragmentation efforts, we should try a little
+> +                * harder to satisfy high order allocations
+> +                */
+> +               if (order >= MAX_ORDER/2 && --highorder_retry > 0)
+> +                       goto rebalance;
+> +
+>                 goto restart;
+>         }
 
-greg k-h
+--
+Coywolf Qi Hunt
+http://sosdg.org/~coywolf/

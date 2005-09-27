@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750866AbVI0OEh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750944AbVI0ONu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750866AbVI0OEh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 10:04:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750920AbVI0OEh
+	id S1750944AbVI0ONu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 10:13:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbVI0ONu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 10:04:37 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:20381 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S1750866AbVI0OEg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 10:04:36 -0400
-Date: Tue, 27 Sep 2005 10:04:34 -0400
-To: Grant Coady <grant_lkml@dodo.com.au>
-Cc: Rog?rio Brito <rbrito@ime.usp.br>, linux-kernel@vger.kernel.org
-Subject: Re: Strange disk corruption with Linux >= 2.6.13
-Message-ID: <20050927140434.GL28578@csclub.uwaterloo.ca>
-References: <20050927111038.GA22172@ime.usp.br> <9ncij11fqb4l70qrhb0a8nri5moohnkaaf@4ax.com>
+	Tue, 27 Sep 2005 10:13:50 -0400
+Received: from xproxy.gmail.com ([66.249.82.192]:25192 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750942AbVI0ONt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 10:13:49 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=tIWyCFz4CsuwvX+x0hZG/h+6tHZwaMJkcOPPEfvwgol3yASYiHcxHCsXb8bqYgW7FY3fs9XQR7fTBccf/BAZtFEnSnWQyr524MLAJv8gIccMeV63blVkH/iCJIyPExrjsuLR7y28anD5+jCRfBwOl3iSM0piVHA9WxREgsiI+8U=
+Date: Tue, 27 Sep 2005 10:10:20 -0400
+From: Florin Malita <fmalita@gmail.com>
+To: Eric Paris <eparis@redhat.com>
+Cc: fubar@us.ibm.com, nsxfreddy@gmail.com, akpm@osdl.org, davem@davemloft.net,
+       ctindel@users.sourceforge.net, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, bonding-devel@lists.sourceforge.net
+Subject: Re: [Bonding-devel] Re: [PATCH] channel bonding: add support for
+ device-indexed parameters
+Message-Id: <20050927101020.6e0b2203.fmalita@gmail.com>
+In-Reply-To: <1127829269.4560.4.camel@localhost.localdomain>
+References: <20050927012444.be5d5311.fmalita@gmail.com>
+	<200509270711.j8R7BunP014387@death.nxdomain.ibm.com>
+	<20050927094055.7953a832.fmalita@gmail.com>
+	<1127829269.4560.4.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 2.1.2 (GTK+ 2.4.13; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9ncij11fqb4l70qrhb0a8nri5moohnkaaf@4ax.com>
-User-Agent: Mutt/1.5.9i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 27, 2005 at 09:57:52PM +1000, Grant Coady wrote:
-> Probably not, I had a similar problem recently and for a test case 
-> copied a .iso image file then compared it to original (cp + cmp), 
-> turned out to be bad memory, and yes, memtest86 did not find the 
-> problem.  Check mobo datasheet if 2+ double-sided memory allowed, 
-> you may need to stay at 1GB to reduce bus loading.
+On Tue, 27 Sep 2005 09:54:29 -0400
+Eric Paris <eparis@redhat.com> wrote:
 
-The board is allowed 1.5GB using 3 x 512M.  I believe the 512M modules
-must be double sided to work but I am not 100% sure of that.
+> It dos work with RHEL3.  In modules.conf you just need
+[...]
+> You can add your mode and mii_mon and such on the options lines.  It
+> does work I've used it.
 
-It is also generally unstable if set to anything over PC100 memory speed
-in my experience (my machine has the same board).  The memory speed
-detection doesn't work properly.  I have found it perfectly stable when
-set to PC100 in bios and using PC133 memory.  It seems to prefer having
-the extra margin.
+Verified - I completely missed "-o" functionality in insmod & friends.
 
-I have never personally had more than 2 x 256M on mine.
-
-Len Sorensen
+Sorry for the noise, I'll crawl back under my rock now :)

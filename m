@@ -1,62 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964999AbVI0QJx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964795AbVI0QOX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964999AbVI0QJx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 12:09:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965000AbVI0QJx
+	id S964795AbVI0QOX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 12:14:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964922AbVI0QOW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 12:09:53 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:61663 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964999AbVI0QJw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 12:09:52 -0400
-Date: Tue, 27 Sep 2005 09:09:28 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Sergey Vlasov <vsu@altlinux.ru>
-cc: Harald Welte <laforge@gnumonks.org>, linux-usb-devel@lists.sourceforge.net,
-       vendor-sec@lst.de, linux-kernel@vger.kernel.org, greg@kroah.com,
-       security@linux.kernel.org
-Subject: Re: [linux-usb-devel] Re: [Security] [vendor-sec] [BUG/PATCH/RFC]
- Oops while completing async USB via usbdevio
-In-Reply-To: <20050927160029.GA20466@master.mivlgu.local>
-Message-ID: <Pine.LNX.4.58.0509270904140.3308@g5.osdl.org>
-References: <20050925151330.GL731@sunbeam.de.gnumonks.org>
- <Pine.LNX.4.58.0509270746200.3308@g5.osdl.org> <20050927160029.GA20466@master.mivlgu.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 27 Sep 2005 12:14:22 -0400
+Received: from ns2.masterasp.com ([217.75.228.66]:42174 "HELO
+	powy.masterasp.com") by vger.kernel.org with SMTP id S964859AbVI0QOW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 12:14:22 -0400
+Message-ID: <20050927161759.20229.qmail@powy.masterasp.com>
+From: jordi@baylina.org
+To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Idea for packet classification.
+Date: Tue, 27 Sep 2005 18:17:59 +0200
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The idea is to create a set of iptables TARGETS that classifies the packets. 
+
+When a packet is classified, a classification / Values is associated with 
+the packet. 
+
+This classifications can then be used on an iptable filter rule, in a 
+routing table selection rule or in a tc classification filter. 
 
 
-On Tue, 27 Sep 2005, Sergey Vlasov wrote:
-> 
-> And then a process calls USBDEVFS_SUBMITURB and immediately exits; its
-> pid gets reused by a completely different process (maybe even
-> root-owned), then the urb completes, and kill_proc_info() sends the
-> signal to the unsuspecting process.
+For example: 
 
-Ehh.. pid's don't get re-used until they wrap.
+#iptables –A INPUT –j CLS user --classifier tcfilter --filtername u32 
+…
+#iptables –A INPUT –j CLS quota_plan --classifier hash --table 
+user_to_quota --input cls user
+#iptables –A INPUT –j CLS tos --classifier tos 
 
-Your _current_ code has that problem, though - "struct task_struct" _does_ 
-get re-used.
+#iptables –A FORWARD –p tcp –port 5343 –cls quota_plan=1 –j DROP 
 
-Don't assume that the fixes are as bad.
 
-Anyway, Christoph is certainly correct that what you _should_ be using is 
-the SIGIO infrastructure, even if you don't actually use the fcntl() to 
-register it. 
+So in this example when a packet arrives, the source address is taken and 
+translated directly to a user, and the packet is marked with the userid. 
+I.e. The packed has an associated classification user = 23 
 
-> Hmm, then probably send_sig_info() should check for non-NULL
-> p->sighand after taking tasklist_lock?  Otherwise all uses of
-> send_sig_info() for non-current tasks are unsafe.
+In the second line a hash table classifies the packet. The user is taken 
+from input and a quota plan is taken as an output. 
 
-I don't think so. 
+So after the second rule, the packet has associated 2 classifications:
+	user=23
+	quota_plan=2 
 
-Your oops is because you're using a STALE POINTER.
+The 3rd line classifies the packet by TOS so the packet has 3 
+classifications
+	User=23
+	Quota_plan=2
+	Tos=0 
 
-If you look it up by pid, it won't be stale, now will it?
+Once a packet is classified, those classifications can be used in a filter 
+rule or can be used in a routing rule or in a traffic shaping queue 
+classification. 
 
-Hint: the point where sighand is released is also the point where the 
-process is unhashed.
+A packet can have many classifications
+Those classifications can be used any time in the packet live. 
 
-			Linus
+In the 4th line in th example, the rule drops all tcp packets with port 5343 
+and had been classified as quota_plan 
+
+The 1st line in the rule uses a tc filter wrapper to classify the packet. 
+
+This idea would be an extesion of the MARK target. 
+
+I am planning to make a patch to implement a couple of functions to insert 
+classifications to the sk_buff structure and to  consult classifications of 
+a sk_buff.
+Do you believe that it is interesting or are you planning to do packet 
+classifications in another way and doing that I would lose the time. 
+
+Thank you, 
+
+Jordi 
+
+

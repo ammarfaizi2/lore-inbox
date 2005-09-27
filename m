@@ -1,64 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964804AbVI0On0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964938AbVI0Opm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964804AbVI0On0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 10:43:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964951AbVI0OnZ
+	id S964938AbVI0Opm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 10:45:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964929AbVI0Opl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 10:43:25 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:29898 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964804AbVI0OnZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 10:43:25 -0400
-Date: Tue, 27 Sep 2005 07:42:23 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Stian Jordet <liste@jordet.nu>
-cc: Olaf Hering <olh@suse.de>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bogus VIA IRQ fixup in drivers/pci/quirks.c
-In-Reply-To: <1127831274.433956ea35992@webmail.jordet.nu>
-Message-ID: <Pine.LNX.4.58.0509270734340.3308@g5.osdl.org>
-References: <20050926184451.GB11752@suse.de> <Pine.LNX.4.58.0509261446590.3308@g5.osdl.org>
- <1127831274.433956ea35992@webmail.jordet.nu>
+	Tue, 27 Sep 2005 10:45:41 -0400
+Received: from tiere.net.avaya.com ([198.152.12.100]:50130 "EHLO
+	tiere.net.avaya.com") by vger.kernel.org with ESMTP id S964938AbVI0Opl convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 10:45:41 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [RFC PATCH] New SA_NOPRNOTIF sigaction flag
+Date: Tue, 27 Sep 2005 08:45:07 -0600
+Message-ID: <21FFE0795C0F654FAD783094A9AE1DFC086EFADA@cof110avexu4.global.avaya.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [RFC PATCH] New SA_NOPRNOTIF sigaction flag
+Thread-Index: AcXDZFdRsJIQiAKtQbyveBSXo4sPZQADTJ/w
+From: "Davda, Bhavesh P \(Bhavesh\)" <bhavesh@avaya.com>
+To: "Daniel Jacobowitz" <dan@debian.org>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 27 Sep 2005, Stian Jordet wrote:
+> -----Original Message-----
+> From: Daniel Jacobowitz [mailto:dan@debian.org] 
+> Sent: Tuesday, September 27, 2005 7:07 AM
+> To: Davda, Bhavesh P (Bhavesh)
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: [RFC PATCH] New SA_NOPRNOTIF sigaction flag
 > 
-> He wanted me to test 2.6.12-rc2-mm3, which actually disabled irq9 as
-> well at boottime. After some debugging, he made this patch, which made
-> irq 9 work as normal again for me. Please don't back this patch out,
-> without at least re-looking at my system.
+> On Mon, Sep 26, 2005 at 11:39:40AM -0600, Bhavesh P. Davda wrote:
+> > 
+> > Sometimes when a task is being ptraced (e.g. by a 
+> debugger), one would
+> > like to handle a certain signal (e.g. SIGSEGV) within the 
+> task without
+> > having to notify the ptracing task.
+> > 
+> > An example of this is if one would like to detect the rate 
+> at which pages
+> > are being modified, and therefore mprotect() the pages. The SIGSEGV
+> > handler just keeps track of how many writes are happening 
+> on each of the
+> > mprotect()ed pages, but you don't want to bother the 
+> debugger with these
+> > SIGSEGVs.
+> > 
+> > I'm proposing the addition of a new SA_NOPRNOTIF flag to 
+> struct sigaction
+> > { sa_flags }, which makes the kernel skip notifying the 
+> ptracing parent if
+> > the flag is set for a sighandler for a particular signal.
+> > 
+> > This trivial patch achieves just that.
+> > 
+> > Comments?
+> 
+> No way!  It needs to work the other way: allow the debugger to
+> short-circuit a signal for performance reasons if it wants to.  Ptrace
+> is supposed to report all signals and debuggers expect it to do so.
+> It'd be pretty confusing if, say, you were trying to debug the SIGSEGV
+> handler in an application which did this.
+> 
+> -- 
+> Daniel Jacobowitz
+> CodeSourcery, LLC
+> 
 
-Well, looking at your messages, I bet that the appended patch works for 
-you, since your irq's are all in the legacy range.
 
-It is also conceptually closer to what the code _used_ to be (it used to
-say "if we have an IO-APIC, don't do this", now it says "if this irq is
-bound to an IO-APIC, don't do this")
+Then propose an alternative way where a real-time (SCHED_FIFO/SCHED_RR)
+CPU bound application getting lots of SEGVs for normal operation doesn't
+cause a priority inversion with the debugger getting SIGCHLDs for every
+SEGV and deciding to ignore it?
 
-Whether this will matter to Olaf, I don't know, but the old code was 
-definitely just writing random bits for the IO-APIC case afaik.
+This way avoids the unnecessary context switch to the debugger, and is
+intended for use only by someone who knows darn sure that s/he will
+handle the signal safely, and don't mind if the debugger is not notified
+(in fact would love it if that's the case) on specific signals.
 
-		Linus
+IMHO this is a perfectly safe capability...
 
----
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -546,7 +546,10 @@ static void quirk_via_irq(struct pci_dev
- {
- 	u8 irq, new_irq;
- 
--	new_irq = dev->irq & 0xf;
-+	new_irq = dev->irq;
-+	if (!new_irq || new_irq >= 15)
-+		return;
-+
- 	pci_read_config_byte(dev, PCI_INTERRUPT_LINE, &irq);
- 	if (new_irq != irq) {
- 		printk(KERN_INFO "PCI: Via IRQ fixup for %s, from %d to %d\n",
+- Bhavesh
+
+Bhavesh P. Davda | Distinguished Member of Technical Staff | Avaya |
+1300 West 120th Avenue | B3-B03 | Westminster, CO 80234 | U.S.A. |
+Voice/Fax: 303.538.4438 | bhavesh@avaya.com 

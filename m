@@ -1,47 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965011AbVI0Tnq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750911AbVI0T5v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965011AbVI0Tnq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 15:43:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965047AbVI0Tnq
+	id S1750911AbVI0T5v (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 15:57:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750848AbVI0T5v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 15:43:46 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:17164 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S965011AbVI0Tnq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 15:43:46 -0400
-Date: Tue, 27 Sep 2005 20:43:37 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [MMC] wbsd version bump
-Message-ID: <20050927194337.GA18950@flint.arm.linux.org.uk>
-Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
-	linux-kernel@vger.kernel.org
-References: <20050917130137.5185.81106.stgit@poseidon.drzeus.cx> <4333206C.1010307@drzeus.cx>
+	Tue, 27 Sep 2005 15:57:51 -0400
+Received: from fmr16.intel.com ([192.55.52.70]:42132 "EHLO
+	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1750837AbVI0T5v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 15:57:51 -0400
+Subject: Re: 2.6.14-rc2-mm1
+From: Rohit Seth <rohit.seth@intel.com>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: Andrew Morton <akpm@osdl.org>, Mattia Dongili <malattia@linux.it>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <922980000.1127847470@flay>
+References: <922980000.1127847470@flay>
+Content-Type: text/plain
+Organization: Intel 
+Date: Tue, 27 Sep 2005 13:05:02 -0700
+Message-Id: <1127851502.6144.10.camel@akash.sc.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4333206C.1010307@drzeus.cx>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 27 Sep 2005 19:57:39.0521 (UTC) FILETIME=[B6DDFB10:01C5C39D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 22, 2005 at 11:21:48PM +0200, Pierre Ossman wrote:
-> Pierre Ossman wrote:
+On Tue, 2005-09-27 at 11:57 -0700, Martin J. Bligh wrote:
+> > Seems like from the log messages that quite a few pages are hanging
+> in the cpu's cold pcp list even with the low memory conditions.  Below
+> is the patch to reduce the higher bound in cold pcp list (...this got
+> increased with my previous change).  
 > 
-> >Increase wbsd version number.
-> >
-> >Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
-> >---
 > >  
-> >
+> > I think we should also drain the CPU's hot and cold pcps for the
+> GFP_KERNEL page requests (in the event the higher order request is not
+> able to get serviced otherwise).  This will still only drains the
+> current CPUs pcps in an MP environment (leaving the other CPUs with
+> their lists intact).  I will send this patch later today.
 > 
-> Russell, please continue ignoring this. I forgot that I updated the
-> version number in the chip select patch. :)
+> >  
+> >       [PATCH]: Reduce the high mark in cpu's cold pcp list. 
+> >  
+> >       Signed-off-by: Rohit Seth <rohit.seth@intel.com> 
+> >  
+> >  
+> > --- linux-2.6.13.old/mm/page_alloc.c  2005-09-26 10:57:07.000000000
+> -0700 
+> > +++ linux-2.6.13.work/mm/page_alloc.c 2005-09-26 10:47:57.000000000
+> -0700 
+> > @@ -1749,7 +1749,7 @@ 
+> >       pcp = &p->pcp[1];               /* cold*/ 
+> >       pcp->count = 0; 
+> >       pcp->low = 0; 
+> > -     pcp->high = 2 * batch; 
+> > +     pcp->high = batch / 2; 
+> >       pcp->batch = max(1UL, batch/2); 
+> >       INIT_LIST_HEAD(&pcp->list); 
+> >  } 
+> > -
+> 
+> I don't understand. How can you set the high watermark at half the
+> batch size? Makes no sense to me.
+> 
 
-That's fine. 8)
+The batch size for the cold pcp list is getting initialized to batch/2
+in the code snip above.  So, this change is setting the high water mark
+for cold list to same as pcp's batch number.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+> And can you give a stricter definiton of what you mean by "low memory 
+> conditions"? I agree we ought to empty the lists before going OOM or 
+> anything, but not at the slightest feather of pressure ... answer lies
+> somewhere inbetween ... but where?
+> 
+
+In the specific case of dump information that Mattia sent earlier, there
+is only 4M of free mem available at the time the order 1 request is
+failing.  
+
+In general, I think if a specific higher order ( > 0) request fails that
+has GFP_KERNEL set then at least we should drain the pcps.
+
+-rohit
+
+

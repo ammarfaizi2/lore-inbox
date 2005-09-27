@@ -1,101 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750814AbVI0ACc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbVI0API@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750814AbVI0ACc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 20:02:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750816AbVI0ACc
+	id S964773AbVI0API (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 20:15:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964780AbVI0API
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 20:02:32 -0400
-Received: from smtp102.rog.mail.re2.yahoo.com ([206.190.36.80]:23449 "HELO
-	smtp102.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1750814AbVI0ACb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 20:02:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=rogers.com;
-  h=Received:From:Organization:To:Subject:Date:User-Agent:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=c54zfWWJSaD4wUxNAfITjMW7rMYJv56veX2qg2Y1KgUqKi6en/tP6TMEuBSYjDJrOu+4Aa/nd+g6+sr8ZVyH16I1hDPx/MMZ05+UUJBQSIIY9ZI1aanMZXab1taOGCkSJyiX4Gf3NZfslUuJGYP2IL5FRLzk6F4NT7NzWfg+1W8=  ;
-From: Shawn Starr <shawn.starr@rogers.com>
-Organization: sh0n.net
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Crazy Idea: Replacing /dev using sysfs over time
-Date: Mon, 26 Sep 2005 20:02:11 -0400
-User-Agent: KMail/1.8.2
-References: <200509261928.20701.shawn.starr@rogers.com>
-In-Reply-To: <200509261928.20701.shawn.starr@rogers.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 26 Sep 2005 20:15:08 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:64521 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S964773AbVI0APG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 20:15:06 -0400
+Date: Mon, 26 Sep 2005 20:14:29 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Grant Grundler <iod00d@hp.com>
+Cc: "Luck, Tony" <tony.luck@intel.com>, Matthew Wilcox <matthew@wil.cx>,
+       linux-kernel@vger.kernel.org, discuss@x86-64.org,
+       linux-ia64@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       ak@suse.de, "Mallick, Asit K" <asit.k.mallick@intel.com>,
+       gregkh@suse.de
+Subject: Re: [patch 2.6.14-rc2 0/5] swiotlb maintenance and x86_64 dma_sync_single_range_for_{cpu,device}
+Message-ID: <20050927001427.GC5640@tuxdriver.com>
+Mail-Followup-To: Grant Grundler <iod00d@hp.com>,
+	"Luck, Tony" <tony.luck@intel.com>, Matthew Wilcox <matthew@wil.cx>,
+	linux-kernel@vger.kernel.org, discuss@x86-64.org,
+	linux-ia64@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+	ak@suse.de, "Mallick, Asit K" <asit.k.mallick@intel.com>,
+	gregkh@suse.de
+References: <B8E391BBE9FE384DAA4C5C003888BE6F047E9021@scsmsx401.amr.corp.intel.com> <20050926224603.GD16113@esmail.cup.hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200509262002.11834.shawn.starr@rogers.com>
+In-Reply-To: <20050926224603.GD16113@esmail.cup.hp.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Sep 26, 2005 at 03:46:03PM -0700, Grant Grundler wrote:
 
-Or instead of even needing major/minor we just have:
+> But since swiotlb complies with DMA-API interface and is not related
+> to any particular type of bus, I'd rather it go into lib/ instead of
+> drivers/pci.
 
+OK...I read Tony's patch post to imply that he is consenting to lib/ as
+the location as well.  Tony, please speak-up if that is not the case.
 
-/sys/class/sound
-       `- - audio0
-                |
-                | - raw
-        `-- dsp0
-                |
-                | - raw
+If everyone agrees, I'll re-collect the patches moving everything to
+lib/ (plus the one I forgot to repost) and Tony's patch and repost.
 
-Then instead, let udev know that audio0 and dsp0 belong to one sound card 
-device or have it report this in sysfs:
+So, who is the proper committer for this?  Tony?  Or should I send
+them directly to Andrew?
 
-/dev/class/sound
-       `--sound0     
-               | 
-               | -- dev
-               | -- device -> ../../../devices/pci0000:00
-               `-- audio0
-                     |- device  -> ../../../devices/pci0000:00/0000:00:1f.5
-               `--dsp0
-                     | -device -> ../../../devices/pci0000:00/0000:00:1f.5
-               `--mixer0 
-        `--sound1
-               |
-               | -dev   
-               | -- device -> ../../../devices/pci0000:00:1a
-               `--audio0
-                       |- device 
---> ../../../devices/pci0000:00:1a/0000:00:1c.6
+Thanks,
 
-And so forth.
-
-
-Then map sound0 devices in /dev/dsp0 /dev/mixer0 /dev/audio0  with udev
-
-*NOTE: I am not avocating devfs, but more of keeping sysfs as the primary 
-structure for devices.
-
-On September 26, 2005 19:28, Shawn Starr wrote: > I wonder if in the future, 
-we can just eliminate /dev altogether (or map it
-> via sysfs until older apps move away from /dev). It just seems we could
-> represent major,minor in a sysfs node:
->
->         /sys/class/block/
->         `-- sda
->
->             |-- sda1
->             |
->                     | - major
->                     | - minor
->                     | - raw
->             |
->             |-- sda2
->             |
->                     | - major
->                     | - minor
->                     | - raw
->
->             `-- sda3
->
-> and so forth, or under a different branch elsewhere.
->
-> Does it make sense? Logical? Illogical? Do we really need /dev other than
-> for historical/legacy purposes?
->
-> Shawn.
+John
+-- 
+John W. Linville
+linville@tuxdriver.com

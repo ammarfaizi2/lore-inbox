@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964990AbVI0Qrc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965006AbVI0Qsn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964990AbVI0Qrc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 12:47:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965006AbVI0Qrc
+	id S965006AbVI0Qsn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 12:48:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965007AbVI0Qsn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 12:47:32 -0400
-Received: from web51005.mail.yahoo.com ([206.190.38.136]:13991 "HELO
-	web51005.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S964990AbVI0Qrc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 12:47:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=yUSjwk4Xg9SaU1qAS6fIgXKuXF0o93XpjOPIdW33qpHCjTajK2F/mrtOwgBSzw6d3B0p/GuOpG3vyWn4K5q9sXAMwkNscK6z+IaVCT0Ym9GkH85DfT3pGJLV+XfqURdIrXKiG9bIeN5Odr3fKYpfBiyjvqjspw6lnPaM86hZvlA=  ;
-Message-ID: <20050927164730.67368.qmail@web51005.mail.yahoo.com>
-Date: Tue, 27 Sep 2005 09:47:30 -0700 (PDT)
-From: Ahmad Reza Cheraghi <a_r_cheraghi@yahoo.com>
-Subject: Re: [ANNOUNCE] Framework for automatic Configuration of a Kernel
-To: Emmanuel Fleury <fleury@cs.aau.dk>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-In-Reply-To: <433941E0.7010005@cs.aau.dk>
+	Tue, 27 Sep 2005 12:48:43 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:26846 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S965006AbVI0Qsm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 12:48:42 -0400
+Date: Tue, 27 Sep 2005 18:48:01 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Thomas Gleixner <tglx@linutronix.de>
+cc: Ingo Molnar <mingo@elte.hu>, Christopher Friesen <cfriesen@nortel.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, george@mvista.com,
+       johnstul@us.ibm.com, paulmck@us.ibm.com
+Subject: Re: [ANNOUNCE] ktimers subsystem
+In-Reply-To: <1127682122.15115.97.camel@tglx.tec.linutronix.de>
+Message-ID: <Pine.LNX.4.61.0509271839140.3728@scrub.home>
+References: <20050919184834.1.patchmail@tglx.tec.linutronix.de> 
+ <Pine.LNX.4.61.0509201247190.3743@scrub.home>  <1127342485.24044.600.camel@tglx.tec.linutronix.de>
+  <Pine.LNX.4.61.0509221816030.3728@scrub.home> <43333EBA.5030506@nortel.com>
+  <Pine.LNX.4.61.0509230151080.3743@scrub.home>  <1127458197.24044.726.camel@tglx.tec.linutronix.de>
+  <Pine.LNX.4.61.0509240443440.3728@scrub.home>  <20050924051643.GB29052@elte.hu>
+  <Pine.LNX.4.61.0509241212170.3728@scrub.home>  <1127570212.15115.77.camel@tglx.tec.linutronix.de>
+  <Pine.LNX.4.61.0509250052390.3728@scrub.home> <1127682122.15115.97.camel@tglx.tec.linutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+On Sun, 25 Sep 2005, Thomas Gleixner wrote:
 
-> Well, the proc files are always here (it removes one
-> requisite which is
-> to have lspci installed). So, I would go for the
-> proc files.
+> On Sun, 2005-09-25 at 01:45 +0200, Roman Zippel wrote:
+> 
+> > The multiply is not necessarly cheap, if the arch has no 32x32->64 
+> > instruction, gcc will generate a call to __muldi3().
+> 
+> Can you please point out which architectures do not have a 32x32->64
+> instruction ?
 
-Proc files are not always on the system. As far as I
-know you have to chose in the Kernl-Configuration.
-And second of all I had some problem with a  debian
-distrubotion. I dont know for what reason there was no
-USB given in the /proc/... Files. But lspci did found 
-it. And the Kernel was correctly configurated. I didnt
-solved that problem. i just installed Kubuntu and
-everybody was happy. For that reason I dont trust
-/proc files anymore.
+I have no complete overview. I know that Motorola actually removed that 
+instruction in the M68060 (it causes an emulation trap) and it's still not 
+back in newer ColdFire cpus. For arm it's an optional instruction in 
+earlier versions (v3). For ppc it's splitted into two instructions.
 
-> Well, lspci is for PCI bus devices, it's already a
-> lot, but not
-> everything (that's why you need several
-> scripts/methods to detect
-> hardware, I guess).
+For the rest you might want to check <asm/div64.h>, if div64 has to be 
+emulated, there are good chances this instruction has to be emulated as 
+well (especially in smaller embedded archs).
 
-Lspci do find other Hardware as well. Like USB,
-Ethernet, ISA, Firewire...
-
-Regards
-Ahmad Reza Cheraghi
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+bye, Roman

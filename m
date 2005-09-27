@@ -1,113 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbVI0MJE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbVI0MKM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932070AbVI0MJE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 08:09:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbVI0MJE
+	id S1750703AbVI0MKM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 08:10:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbVI0MKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 08:09:04 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:3596 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1750703AbVI0MJC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 08:09:02 -0400
-Date: Tue, 27 Sep 2005 08:08:40 -0400
-From: Neil Horman <nhorman@tuxdriver.com>
-To: Al Boldi <a1426z@gawab.com>
-Cc: Matthew Helsley <matthltc@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: Resource limits
-Message-ID: <20050927120840.GA5947@hmsreliant.homelinux.net>
-References: <200509251712.42302.a1426z@gawab.com> <200509262326.10305.a1426z@gawab.com> <20050927010522.GB4522@localhost.localdomain> <200509270808.21821.a1426z@gawab.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200509270808.21821.a1426z@gawab.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 27 Sep 2005 08:10:11 -0400
+Received: from smtpout5.uol.com.br ([200.221.4.196]:20719 "EHLO
+	smtp.uol.com.br") by vger.kernel.org with ESMTP id S1750703AbVI0MKK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 08:10:10 -0400
+In-Reply-To: <01984F80-801E-4098-88B5-65A7AD7D1CAD@ime.usp.br>
+References: <20050927111038.GA22172@ime.usp.br> <20050927133447.c3caeb25.diegocg@gmail.com> <01984F80-801E-4098-88B5-65A7AD7D1CAD@ime.usp.br>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=ISO-8859-1; delsp=yes; format=flowed
+Message-Id: <A6BC4B10-EB89-4F7F-A92C-E8D3B828933F@ime.usp.br>
+Cc: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8BIT
+From: =?ISO-8859-1?Q?Rog=E9rio_Brito?= <rbrito@ime.usp.br>
+Subject: Re: Strange disk corruption with Linux >= 2.6.13
+Date: Tue, 27 Sep 2005 09:10:05 -0300
+To: Diego Calleja <diegocg@gmail.com>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 27, 2005 at 08:08:21AM +0300, Al Boldi wrote:
-> Neil Horman wrote:
-> > On Mon, Sep 26, 2005 at 11:26:10PM +0300, Al Boldi wrote:
-> > > Neil Horman wrote:
-> > > > On Mon, Sep 26, 2005 at 08:32:14PM +0300, Al Boldi wrote:
-> > > > > Neil Horman wrote:
-> > > > > > On Mon, Sep 26, 2005 at 05:18:17PM +0300, Al Boldi wrote:
-> > > > > > > Rik van Riel wrote:
-> > > > > > > > On Sun, 25 Sep 2005, Al Boldi wrote:
-> > > > > > > > > Too many process forks and your system may crash.
-> > > > > > > > > This can be capped with threads-max, but may lead you into a
-> > > > > > > > > lock-out.
-> > > > > > > > >
-> > > > > > > > > What is needed is a soft, hard, and a special emergency
-> > > > > > > > > limit that would allow you to use the resource for a limited
-> > > > > > > > > time to circumvent a lock-out.
-> > > > > > > >
-> > > > > > > > How would you reclaim the resource after that limited time is
-> > > > > > > > over ?  Kill processes?
-> > > > > > >
-> > > > > > > That's one way,  but really, the issue needs some deep thought.
-> > > > > > > Leaving Linux exposed to a lock-out is rather frightening.
-> > > > > >
-> > > > > > What exactly is it that you're worried about here?
-> > > > >
-> > > > > Think about a DoS attack.
-> > > >
-> > > > Be more specific.  Are you talking about a fork bomb, a ICMP flood,
-> > > > what?
-> > >
-> > > How would you deal with a situation where the system hit the threads-max
-> > > ceiling?
-> >
-> > Nominally I would log the inability to successfully create a new
-> > process/thread, attempt to free some of my applications resources, and try
-> > again.
-> 
-> Consider this dilemma:
-> Runaway proc/s hit the limit.
-> Try to kill some and you are denied due to the resource limit.
-> Use some previously running app like top, hope it hasn't been killed by some 
-> OOM situation, try killing some procs and another one takes it's place 
-> because of the runaway situation.
-> Raise the limit, and it gets filled by the runaways.
-> You are pretty much stuck.
-> 
-Not really, this is the sort of thing ulimit is meant for.  To keep processes
-from any one user from running away.  It lets you limit the damage it can do,
-until such time as you can control it and fix the runaway application.
+Oops! I forgot to answer your question completely.
 
-> You may get around the problem by a user-space solution, but this will always 
-> run the risks associated with user-space.
-> 
-Ulimit isn't a user-space solution, its a user-_based_ restriction mechanism for
-resources.  It allows you to prevent user X (or group X, IIRC) from creating
-more than A MB of files, or B processes, or allocating C KB of memory, etc.  man
-3 ulimit.
+On Sep 27, 2005, at 8:58 AM, Rogério Brito wrote:
+> On Sep 27, 2005, at 8:34 AM, Diego Calleja wrote:
+>> You don't say what filesystem are you using. Have you tried  
+>> running fsck?
+>
+> Oh, sure. I forgot to mention that. I am using ext3 with ACL/xattrs  
+> and with hashed B-Trees (I optimized the filesystem with option -D  
+> of fsck.ext2). Would one of these things be a possible cause for  
+> the strange behaviour that I am seeing?
+
+Yes, I did run fsck. Twice now, in a row (shutdown -r -F now).  
+Nothing was found, unfortunately. :-( I'm really running out of  
+ideas. :-(
 
 
-> > > The issue here is a general lack of proper kernel support for resource
-> > > limits.  The fork problem is just an example.
-> >
-> > Thats not really true.  As Mr. Helsley pointed out, CKRM is available
-> 
-> Matthew Helsley wrote:
-> > 	Have you looked at Class-Based Kernel Resource Managment (CKRM)
-> > (http://ckrm.sf.net) to see if it fits your needs? My initial thought is
-> > that the CKRM numtasks controller may help limit forks in the way you
-> > describe.
-> 
-> Thanks for the link!  CKRM is great!
-> 
-> Is there a CKRM-lite version?  This would make it easier to be included into 
-> the mainline, something that would concentrate on the pressing issues, like 
-> lock-out prevention, and leave all the management features as an option.
-> 
-> Thanks!
-> 
-> --
-> Al
+Thanks, Rogério Brito.
 
 -- 
-/***************************************************
- *Neil Horman
- *Software Engineer
- *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
- ***************************************************/
+Rogério Brito : rbrito@ime.usp.br : http://www.ime.usp.br/~rbrito
+Homepage of the algorithms package : http://algorithms.berlios.de
+Homepage on freshmeat:  http://freshmeat.net/projects/algorithms/
+
+

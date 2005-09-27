@@ -1,101 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965162AbVI0Vos@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965161AbVI0VpL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965162AbVI0Vos (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 17:44:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965161AbVI0Vos
+	id S965161AbVI0VpL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 17:45:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965164AbVI0VpL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 17:44:48 -0400
-Received: from fmr16.intel.com ([192.55.52.70]:14512 "EHLO
-	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
-	id S965160AbVI0Vor (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 17:44:47 -0400
-Subject: Re: 2.6.14-rc2-mm1
-From: Rohit Seth <rohit.seth@intel.com>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Andrew Morton <akpm@osdl.org>, Mattia Dongili <malattia@linux.it>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <970900000.1127855894@flay>
-References: <922980000.1127847470@flay>
-	 <1127851502.6144.10.camel@akash.sc.intel.com>  <970900000.1127855894@flay>
-Content-Type: text/plain
-Organization: Intel 
-Date: Tue, 27 Sep 2005 14:51:59 -0700
-Message-Id: <1127857919.7258.13.camel@akash.sc.intel.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Tue, 27 Sep 2005 17:45:11 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:22202 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S965163AbVI0VpI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 17:45:08 -0400
+Message-ID: <4339BD58.7060300@adaptec.com>
+Date: Tue, 27 Sep 2005 17:44:56 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: James Bottomley <James.Bottomley@SteelEye.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
+ the kernel
+References: <4339440C.6090107@adaptec.com>	 <20050927131959.GA30329@infradead.org>  <43395ED0.6070504@adaptec.com> <1127836380.4814.36.camel@mulgrave> <43399F17.4090004@adaptec.com> <4339ACDA.3090801@pobox.com>
+In-Reply-To: <4339ACDA.3090801@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 Sep 2005 21:44:35.0454 (UTC) FILETIME=[A70FA9E0:01C5C3AC]
+X-OriginalArrivalTime: 27 Sep 2005 21:45:05.0841 (UTC) FILETIME=[B92C5A10:01C5C3AC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-09-27 at 14:18 -0700, Martin J. Bligh wrote:
-> >> > --- linux-2.6.13.old/mm/page_alloc.c  2005-09-26 10:57:07.000000000
-> >> -0700 
-> >> > +++ linux-2.6.13.work/mm/page_alloc.c 2005-09-26 10:47:57.000000000
-> >> -0700 
-> >> > @@ -1749,7 +1749,7 @@ 
-> >> >       pcp = &p->pcp[1];               /* cold*/ 
-> >> >       pcp->count = 0; 
-> >> >       pcp->low = 0; 
-> >> > -     pcp->high = 2 * batch; 
-> >> > +     pcp->high = batch / 2; 
-> >> >       pcp->batch = max(1UL, batch/2); 
-> >> >       INIT_LIST_HEAD(&pcp->list); 
-> >> >  } 
-> >> > -
-> >> 
-> >> I don't understand. How can you set the high watermark at half the
-> >> batch size? Makes no sense to me.
-> >> 
-> > 
-> > The batch size for the cold pcp list is getting initialized to batch/2
-> > in the code snip above.  So, this change is setting the high water mark
-> > for cold list to same as pcp's batch number.
+On 09/27/05 16:34, Jeff Garzik wrote:
+> Luben,
 > 
-> I must be being particularly dense today ... but:
+> The fact that your responses are constantly filled with non-technical 
+> paranoia does not help the inclusion of aic94xx at all.
 > 
->  pcp->high = batch / 2; 
-> 
-> Looks like half the batch size to me, not the same? 
+> Maybe you need to write your driver as a block driver, and completely 
+> skip the SCSI core, if it bothers you so much?  That would get everybody 
+> else out of the loop, and free you to write the driver as you see fit.
 
-pcp->batch = max(1UL, batch/2); is the line of code that is setting the
-batch value for the cold pcp list.  batch is just a number that we
-counted based on some parameters earlier.
+Hi Jeff, how are you doing?
 
+Yes, that has been suggested before.  But do you remember what
+happened when I posted a patch to IDR?  James moved from SCSI Core
+to IDR. hehehe ;-)
 
-> 
-> >> And can you give a stricter definiton of what you mean by "low memory 
-> >> conditions"? I agree we ought to empty the lists before going OOM or 
-> >> anything, but not at the slightest feather of pressure ... answer lies
-> >> somewhere inbetween ... but where?
-> >> 
-> > 
-> > In the specific case of dump information that Mattia sent earlier, there
-> > is only 4M of free mem available at the time the order 1 request is
-> > failing.  
-> > 
-> > In general, I think if a specific higher order ( > 0) request fails that
-> > has GFP_KERNEL set then at least we should drain the pcps.
-> 
-> Mmmm. so every time we fork a process with 8K stacks, or allocate a frame
-> for jumbo ethernet, or NFS, you want to drain the lists? that seems to
-> wholly defeat the purpose.
-> 
+In the mids of the FUD, I completely removed IDR from being used
+in aic94xx, long before I posted the driver.
 
-Not every time there is a request for higher order pages.  That surely
-will defeat the purpose of pcps.  But my suggestion is only to drain
-when the the global pool is not able to service the request.  In the
-pathological case where the higher order and zero order requests are
-alternating you could have thrashing in terms of pages moving to pcp for
-them to move back to global list.
+> As it stands now, you're making an end run around the SCSI core, rather 
+> than fixing it up.  SCSI needs to be modified for SAS, not just 
+> complained about.
 
-> Could you elaborate on what the benefits were from this change in the
-> first place? Some page colouring thing on ia64? It seems to have way more
-> downside than upside to me.
+Well, back in 2001-2 I was asking for 64 bit LUN support and
+for native SCSI target support (since iSCSI "exports" targets), and
+it uses 64 bit LUNs (as any other transport).  Both sniffed at
+and rejected by your friends.
 
-The original change was to try to allocate a higher order page to
-service a batch size bulk request.  This was with the hope that better
-physical contiguity will spread the data better across big caches.
+See this thread from me, all the way back in 2002:
+http://marc.theaimsgroup.com/?l=linux-scsi&m=103013448713434&w=2
 
--rohit
+You still have people from IBM who claim that 64 bit LUN
+support is completely unnecessary as recently as 2 weeks ago.
+(link to email on marc.10east.com available upon request)
+
+As it has come to now, 2005, we cannot afford any more "putting off".
+
+The driver and the infrastructure needs to go in.
+
+Give it exposure to the people, let people play with it.
+
+If we start "fixing" SCSI Core now (this in itself is JB red
+herring), how long before it is "fixed" and we can "rest"?
+And how long then before the driver and infrastructure
+makes it in?
+
+"How long is the long hair?"
+
+You are calling for fixing SCSI Core.  JB is calling for
+integrating MPT with open transport.  I'm sure people
+have other (crazy) requests.
+
+At the end of the day the driver is not in, and business
+suffers.  And its not like the driver is using 
+static struct file_operations megasas_mgmt_fops, ;-)
+IOCTLs or other char dev for management...
+
+The driver does _not_ alter anything in the kernel, it only
+integrates with it.
+
+There needs to be a "passing gate":
+Linus, let the driver and transport layer in, as is and then
+patches "fixing SCSI Core" would start coming, naturally.
+>From people, from me, from everybody.
+
+	Luben
 

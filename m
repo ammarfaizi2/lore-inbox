@@ -1,49 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbVI0GJl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964827AbVI0GNF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964818AbVI0GJl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 02:09:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964823AbVI0GJk
+	id S964827AbVI0GNF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 02:13:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964828AbVI0GNF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 02:09:40 -0400
-Received: from cantor.suse.de ([195.135.220.2]:16293 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964818AbVI0GJk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 02:09:40 -0400
-Date: Tue, 27 Sep 2005 08:09:36 +0200
-From: Olaf Hering <olh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Andrew Morton <akpm@osdl.org>, Stian Jordet <liste@jordet.nu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bogus VIA IRQ fixup in drivers/pci/quirks.c
-Message-ID: <20050927060936.GA19880@suse.de>
-References: <20050926184451.GB11752@suse.de> <Pine.LNX.4.58.0509261446590.3308@g5.osdl.org>
+	Tue, 27 Sep 2005 02:13:05 -0400
+Received: from mail.renesas.com ([202.234.163.13]:39156 "EHLO
+	mail01.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S964827AbVI0GNE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 02:13:04 -0400
+Date: Tue, 27 Sep 2005 15:13:01 +0900 (JST)
+Message-Id: <20050927.151301.189720995.takata.hirokazu@renesas.com>
+To: viro@ftp.linux.org.uk
+Cc: torvalds@odsl.org, linux-kernel@vger.kernel.org, takata@linux-m32r.org
+Subject: Re: [PATCH] m32r: set CHECKFLAGS properly
+From: Hirokazu Takata <takata@linux-m32r.org>
+In-Reply-To: <E1EJlNM-00059K-R8@ZenIV.linux.org.uk>
+References: <E1EJlNM-00059K-R8@ZenIV.linux.org.uk>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.17 (Jumbo Shrimp)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0509261446590.3308@g5.osdl.org>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Mon, Sep 26, Linus Torvalds wrote:
+Please don't specify __BIG_ENDIAN__.  ;-)
+We have supported both big- and little-endian for the m32r kernel.
+I hope it will be kept unconditional.
 
-> 
-> 
-> On Mon, 26 Sep 2005, Olaf Hering wrote:
-> > 
-> > Why is the irq changed from 24 to 0, and why does uhci use irq 24
-> > anyway? I dont have the /proc/interrupts output from this box, maybe no
-> > interrupt is handled for the controller? None of the attached usb
-> > devices is recognized with 2.6.13.
-> 
-> Did that USB controller use to work in older kernels?
+Now, the endianness is to be determined by a (cross)compiler:
+- For the big-endian, a compiler (m32r-linux-gcc or m32r-linux-gnu-gcc)
+  provides a predefined macro __BIG_ENDIAN__.
+- For little-endian, a compiler (m32rle-linux-gcc or m32rle-linux-gnu-gcc)
+  provides a predefined macro __LITTLE_ENDIAN__.
 
-quirk_via_irqpic worked the same, so I guess no.
-I will let him try older kernels, and your suggested change.
+Here is a modified patch.
 
--- 
-short story of a lazy sysadmin:
- alias appserv=wotan
+Thank you.
+
+From: Al Viro <viro@ftp.linux.org.uk>
+Date: Mon, 26 Sep 2005 06:18:04 +0100
+> What we do need is __BIG_ENDIAN__; right now unconditional, when m32r starts
+> using CPU_LITTLE_ENDIAN, we'll need to adjust.
+
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
+----
+ arch/m32r/Makefile |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: linux-2.6.14-rc2/arch/m32r/Makefile
+===================================================================
+--- linux-2.6.14-rc2.orig/arch/m32r/Makefile	2005-08-29 08:41:01.000000000 +0900
++++ linux-2.6.14-rc2/arch/m32r/Makefile	2005-09-27 13:15:19.000000000 +0900
+@@ -24,7 +24,7 @@ aflags-$(CONFIG_ISA_M32R)	+= -DNO_FPU -W
+ CFLAGS += $(cflags-y)
+ AFLAGS += $(aflags-y)
+ 
+-CHECKFLAGS	:= $(CHECK) -D__m32r__
++CHECKFLAGS	+= -D__m32r__
+ 
+ head-y	:= arch/m32r/kernel/head.o arch/m32r/kernel/init_task.o
+ 
+--
+Hirokazu Takata <takata@linux-m32r.org>
+Linux/M32R Project:  http://www.linux-m32r.org/

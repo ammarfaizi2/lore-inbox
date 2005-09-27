@@ -1,55 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964997AbVI0QIk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964999AbVI0QJx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964997AbVI0QIk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 12:08:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964998AbVI0QIk
+	id S964999AbVI0QJx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 12:09:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965000AbVI0QJx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 12:08:40 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:59266 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S964997AbVI0QIj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 12:08:39 -0400
-Message-ID: <43396E83.7000803@austin.ibm.com>
-Date: Tue, 27 Sep 2005 11:08:35 -0500
-From: Joel Schopp <jschopp@austin.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050909 Fedora/1.7.10-1.3.2
-X-Accept-Language: en-us, en
+	Tue, 27 Sep 2005 12:09:53 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:61663 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964999AbVI0QJw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 12:09:52 -0400
+Date: Tue, 27 Sep 2005 09:09:28 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Sergey Vlasov <vsu@altlinux.ru>
+cc: Harald Welte <laforge@gnumonks.org>, linux-usb-devel@lists.sourceforge.net,
+       vendor-sec@lst.de, linux-kernel@vger.kernel.org, greg@kroah.com,
+       security@linux.kernel.org
+Subject: Re: [linux-usb-devel] Re: [Security] [vendor-sec] [BUG/PATCH/RFC]
+ Oops while completing async USB via usbdevio
+In-Reply-To: <20050927160029.GA20466@master.mivlgu.local>
+Message-ID: <Pine.LNX.4.58.0509270904140.3308@g5.osdl.org>
+References: <20050925151330.GL731@sunbeam.de.gnumonks.org>
+ <Pine.LNX.4.58.0509270746200.3308@g5.osdl.org> <20050927160029.GA20466@master.mivlgu.local>
 MIME-Version: 1.0
-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-CC: lhms <lhms-devel@lists.sourceforge.net>,
-       Linux Memory Management List <linux-mm@kvack.org>,
-       linux-kernel@vger.kernel.org, Mel Gorman <mel@csn.ul.ie>
-Subject: Re: [PATCH 4/9] defrag helper functions
-References: <4338537E.8070603@austin.ibm.com> <43385594.3080303@austin.ibm.com> <C50046EE58FA62242E92877C@[192.168.100.25]>
-In-Reply-To: <C50046EE58FA62242E92877C@[192.168.100.25]>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> +void assign_bit(int bit_nr, unsigned long* map, int value)
-> 
-> 
-> Maybe:
-> static inline void assign_bit(int bit_nr, unsigned long* map, int value)
-> 
-> it's short enough
 
-OK.  It looks like I'll be sending these again based on the feedback I got,
-I'll inline that in the next version.  I'd think with it being static that
-the compiler would be smart enough to inline it anyway though.
 
+On Tue, 27 Sep 2005, Sergey Vlasov wrote:
 > 
->>  +static struct page *
->> +fallback_alloc(int alloctype, struct zone *zone, unsigned int order)
->> +{
->> +       /* Stub out for seperate review, NULL equates to no fallback*/
->> +       return NULL;
->> +
->> +}
-> 
-> 
-> Maybe "static inline" too.
+> And then a process calls USBDEVFS_SUBMITURB and immediately exits; its
+> pid gets reused by a completely different process (maybe even
+> root-owned), then the urb completes, and kill_proc_info() sends the
+> signal to the unsuspecting process.
 
-Except this is only a placeholder for the next patch, where the function
-is no longer short.  I'm going to keep it not inline.
+Ehh.. pid's don't get re-used until they wrap.
+
+Your _current_ code has that problem, though - "struct task_struct" _does_ 
+get re-used.
+
+Don't assume that the fixes are as bad.
+
+Anyway, Christoph is certainly correct that what you _should_ be using is 
+the SIGIO infrastructure, even if you don't actually use the fcntl() to 
+register it. 
+
+> Hmm, then probably send_sig_info() should check for non-NULL
+> p->sighand after taking tasklist_lock?  Otherwise all uses of
+> send_sig_info() for non-current tasks are unsafe.
+
+I don't think so. 
+
+Your oops is because you're using a STALE POINTER.
+
+If you look it up by pid, it won't be stale, now will it?
+
+Hint: the point where sighand is released is also the point where the 
+process is unhashed.
+
+			Linus

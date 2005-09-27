@@ -1,56 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbVI0DuP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750867AbVI0D7m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750834AbVI0DuP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 23:50:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbVI0DuP
+	id S1750867AbVI0D7m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 23:59:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbVI0D7m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 23:50:15 -0400
-Received: from nproxy.gmail.com ([64.233.182.200]:5042 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750834AbVI0DuO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 23:50:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=T2de5Y1LTjb7GPL5gYp2LjerzCfVgZdqF6Gmiydw+WTNQlFaD0U6mlq4ewfz+E0FeWKG+A2rwkGSIaGl8wpMKIeyoRyoDZ+pDOoY91GK2VYT8RycPBu/fX85/q7Y9GbFQHP8iP7tXco6dtUljPrdOlLzHO9oN0UQetTuH6efB/Q=
-Message-ID: <2cd57c9005092620504c269a45@mail.gmail.com>
-Date: Tue, 27 Sep 2005 11:50:13 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: Coywolf Qi Hunt <coywolf@gmail.com>
-To: Roger Heflin <rheflin@atipa.com>
-Subject: Re: Resource limits
-Cc: Al Boldi <a1426z@gawab.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <EXCHG2003ogxLDp7mvj00000ae4@EXCHG2003.microtech-ks.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200509251712.42302.a1426z@gawab.com>
-	 <EXCHG2003ogxLDp7mvj00000ae4@EXCHG2003.microtech-ks.com>
+	Mon, 26 Sep 2005 23:59:42 -0400
+Received: from mailhub.hp.com ([192.151.27.10]:36503 "EHLO mailhub.hp.com")
+	by vger.kernel.org with ESMTP id S1750837AbVI0D7l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 23:59:41 -0400
+Subject: Re: [PATCH] sys_sendmsg() alignment bug fix
+From: Alex Williamson <alex.williamson@hp.com>
+To: Coywolf Qi Hunt <coywolf@gmail.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+In-Reply-To: <2cd57c90050926204022fb22ca@mail.gmail.com>
+References: <1127764921.6529.60.camel@tdi>
+	 <2cd57c90050926204022fb22ca@mail.gmail.com>
+Content-Type: text/plain
+Organization: OSLO R&D
+Date: Mon, 26 Sep 2005 21:59:34 -0600
+Message-Id: <1127793575.25276.14.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/26/05, Roger Heflin <rheflin@atipa.com> wrote:
->
-> While talking about limits, one of my customers report that if
-> they set "ulimit -d" to be say 8GB, and then a program goes and
-> attempts to allocate 16GB (in one shot), that the process will
-> hang on the 16GB allocate as the machine does not have enough
-> memory+swap to handle this, the process is at this time unkillable,
-> the customers method to kill the process is to send the process
-> a kill signal, and then create enough swap to be able to meet
-> the request, after the request is filled the process terminates.
->
-> It would seem that the best thing to do would be to abort on
-> allocates that will by themselves exceed the limit.
->
-> This was a custom version of a earlier version of the 2.6 kernel,
-> I would bet that this has not changed in quite a while.
->
->                         Roger
+On Tue, 2005-09-27 at 11:40 +0800, Coywolf Qi Hunt wrote:
+> On 9/27/05, Alex Williamson <alex.williamson@hp.com> wrote:
+> >    The patch below adds an alignment attribute to the buffer used in
+> > sys_sendmsg().  This eliminates an unaligned access warning on ia64.
+> 
+> Is this a warning fix or bug fix?
 
-It's simple. Set /proc/sys/vm/overcommit_memory to 2 (iirc) to get
-arround this `bug' .
---
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+  Guess I'd have to classify it as a warning fix.  ia64 is fairly
+verbose about unaligned accesses by default, so the warning is printed
+out runtime.
+
+	Alex
+

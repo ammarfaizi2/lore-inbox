@@ -1,77 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbVI0OEW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750866AbVI0OEh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750826AbVI0OEW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 10:04:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbVI0OEW
+	id S1750866AbVI0OEh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 10:04:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750920AbVI0OEh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 10:04:22 -0400
-Received: from nproxy.gmail.com ([64.233.182.201]:40325 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750826AbVI0OEV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 10:04:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=sZct2Wgv6HpfwWMJDQjEQkDHWxfL5KdAIrpYaLZ4HWh0DBqbrBN3eV+8ybD+jNMXsCL0ki1IuGR6zDQQ8dVpSeS8abarOyRtJG/8Pq3iYSIXszp2Y3lC/GNgLEH7uY7aH5KOKB0WQUNdgytXw38TWhBq/Z9lvT8cfMKeBhEpWmM=
-Message-ID: <58cb370e0509270704191629fb@mail.gmail.com>
-Date: Tue, 27 Sep 2005 16:04:20 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Adeshara Tushar <adesharatushar@yahoo.com>
-Subject: Re: usage count in device driver and concurrency
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050830142214.72958.qmail@web51802.mail.yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 27 Sep 2005 10:04:37 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:20381 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S1750866AbVI0OEg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 10:04:36 -0400
+Date: Tue, 27 Sep 2005 10:04:34 -0400
+To: Grant Coady <grant_lkml@dodo.com.au>
+Cc: Rog?rio Brito <rbrito@ime.usp.br>, linux-kernel@vger.kernel.org
+Subject: Re: Strange disk corruption with Linux >= 2.6.13
+Message-ID: <20050927140434.GL28578@csclub.uwaterloo.ca>
+References: <20050927111038.GA22172@ime.usp.br> <9ncij11fqb4l70qrhb0a8nri5moohnkaaf@4ax.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20050830142214.72958.qmail@web51802.mail.yahoo.com>
+In-Reply-To: <9ncij11fqb4l70qrhb0a8nri5moohnkaaf@4ax.com>
+User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/30/05, Adeshara Tushar <adesharatushar@yahoo.com> wrote:
-> Hi,
-> I am wondering how to handle device usage count in
-> open and release call of device driver if hardware
-> need to be initialized on first open and shutdown on
-> last close. I have seen som code like
->
-> int open()
-> {
->         /*some code*/
->         device->usage++;
->         if(device->usage==1)
->                 init_hardware();
->         /*rest of code*/
-> }
-> void release ()
-> {
->         /*some code*/
->         if(device->usage==1)
->                 shutdown_hardware();
->         device->usage--;
->         /*rest of code*/
-> }
->
->
->
-> However, it seems to me that this code can make
-> problem.
-> If device->usage=0, and two process A,B execute line
->         device->usage++;
-> concurretly, device->usage will become 2 when they
-> come to next line. This will result in hardware being
-> used without initialization. Same things can happen in
-> release call also, which will result in no shutdown of
-> hardware.
->                I have seen this type of code in
->         /linux-2.6.8/drivers/ide/ide-disk.c and
->         /linux-2.6.8/drivers/ide/ide-floppy.c
->
->     Please let me know if its bug or not before I
-> start working on patches.
+On Tue, Sep 27, 2005 at 09:57:52PM +1000, Grant Coady wrote:
+> Probably not, I had a similar problem recently and for a test case 
+> copied a .iso image file then compared it to original (cp + cmp), 
+> turned out to be bad memory, and yes, memtest86 did not find the 
+> problem.  Check mobo datasheet if 2+ double-sided memory allowed, 
+> you may need to stay at 1GB to reduce bus loading.
 
-Not a bug: ->open() and ->release() for block devices
-are never called concurrently (because of bdev->bd_sem).
+The board is allowed 1.5GB using 3 x 512M.  I believe the 512M modules
+must be double sided to work but I am not 100% sure of that.
 
-Bartlomiej
+It is also generally unstable if set to anything over PC100 memory speed
+in my experience (my machine has the same board).  The memory speed
+detection doesn't work properly.  I have found it perfectly stable when
+set to PC100 in bios and using PC133 memory.  It seems to prefer having
+the extra margin.
+
+I have never personally had more than 2 x 256M on mine.
+
+Len Sorensen

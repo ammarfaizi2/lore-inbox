@@ -1,42 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965172AbVI0Vuo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965175AbVI0VxS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965172AbVI0Vuo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 17:50:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965175AbVI0Vuo
+	id S965175AbVI0VxS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 17:53:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965177AbVI0VxS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 17:50:44 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:4319 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S965172AbVI0Vun (ORCPT
+	Tue, 27 Sep 2005 17:53:18 -0400
+Received: from [87.248.7.17] ([87.248.7.17]:16134 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S965175AbVI0VxR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 17:50:43 -0400
-Date: Tue, 27 Sep 2005 14:50:37 -0700 (PDT)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Jay Lan <jlan@engr.sgi.com>
-cc: Hugh Dickins <hugh@veritas.com>,
-       Frank van Maarseveen <frankvm@frankvm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.14-rc2] fix incorrect mm->hiwater_vm and mm->hiwater_rss
-In-Reply-To: <4339BDF6.3070706@engr.sgi.com>
-Message-ID: <Pine.LNX.4.62.0509271449280.10674@schroedinger.engr.sgi.com>
-References: <20050921121915.GA14645@janus> <Pine.LNX.4.61.0509211515330.6114@goblin.wat.veritas.com>
- <43319111.1050803@engr.sgi.com> <Pine.LNX.4.61.0509211802150.8880@goblin.wat.veritas.com>
- <4331990A.80904@engr.sgi.com> <Pine.LNX.4.61.0509211835190.9340@goblin.wat.veritas.com>
- <4331A0DA.5030801@engr.sgi.com> <20050921182627.GB17272@janus>
- <Pine.LNX.4.61.0509211958410.10449@goblin.wat.veritas.com>
- <4339AED4.8030108@engr.sgi.com> <4339BDF6.3070706@engr.sgi.com>
+	Tue, 27 Sep 2005 17:53:17 -0400
+Message-ID: <1127857959.4339bf2705c0a@webmail.jordet.nu>
+Date: Tue, 27 Sep 2005 23:52:39 +0200
+From: Stian Jordet <liste@jordet.nu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Olaf Hering <olh@suse.de>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bogus VIA IRQ fixup in drivers/pci/quirks.c
+References: <20050926184451.GB11752@suse.de> <Pine.LNX.4.58.0509261446590.3308@g5.osdl.org> <1127831274.433956ea35992@webmail.jordet.nu> <Pine.LNX.4.58.0509270734340.3308@g5.osdl.org> <1127855989.4339b77537987@webmail.jordet.nu> <Pine.LNX.4.58.0509271432490.3308@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0509271432490.3308@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.6
+X-Originating-IP: 217.8.143.72
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Sep 2005, Jay Lan wrote:
+Sitat Linus Torvalds <torvalds@osdl.org>:
 
-> Just looked at the __vm_stat_account() code. It is enclosed inside
-> #ifdef CONFIG_PROC_FS.
-> 
-> If that is necessary, i can not put hiwater_vm update code in there. The
-> system accounting code should not be dependent on a config flag that has
-> nothing to do with system accounting.
+>
+>
+> On Tue, 27 Sep 2005, Stian Jordet wrote:
+> >
+> > No dice. My irq's beyond 15 are changed. What used to be 19 became 17, 18
+> became
+> > 16, 17 became 18 and 16 became 19. The others are normal, and while looking
+> at
+> > dmesg, the fixup is still happening. While it boots, and at first glance
+> seems
+> > to work, it hangs hard when I try to use usb. At least the bluetooth
+> dongle,
+> > haven't tried with anything else, but I suppose that'd do the same.
+>
+Sorry! I was looking at the wrong dmesg. *stupid*. Really sorry about that. It
+still hangs hard when I try to use usb, but I'll double check that it worked
+before the patch before I complain more :P
 
-I doubt you can do accounting without having /proc. Dont you need to 
-read/write files in /proc? Can we make accounting dependent on /proc?
+Once again, sorry. And thank you :)
+
+-Stian
+
+
+
+

@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964953AbVI0POf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964929AbVI0PUA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964953AbVI0POf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 11:14:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964969AbVI0POf
+	id S964929AbVI0PUA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 11:20:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964960AbVI0PUA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 11:14:35 -0400
-Received: from smtpout.mac.com ([17.250.248.73]:27384 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S964953AbVI0POe (ORCPT
+	Tue, 27 Sep 2005 11:20:00 -0400
+Received: from [85.21.88.2] ([85.21.88.2]:62354 "HELO mail.dev.rtsoft.ru")
+	by vger.kernel.org with SMTP id S964929AbVI0PT7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 11:14:34 -0400
-In-Reply-To: <20050927071025.GS7992@ftp.linux.org.uk>
-References: <E1EJlNM-00059K-R8@ZenIV.linux.org.uk> <20050927.151301.189720995.takata.hirokazu@renesas.com> <20050927071025.GS7992@ftp.linux.org.uk>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <CFD86C0A-0BE4-4D39-BAAE-F985D997AFD2@mac.com>
-Cc: Hirokazu Takata <takata@linux-m32r.org>, torvalds@odsl.org,
-       linux-kernel@vger.kernel.org, sam@ravnborg.org
+	Tue, 27 Sep 2005 11:19:59 -0400
+Subject: Re: [spi-devel-general] Re: SPI
+From: dmitry pervushin <dpervushin@gmail.com>
+To: Greg KH <greg@kroah.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       spi-devel-general@lists.sourceforge.net
+In-Reply-To: <20050927145442.GA27470@kroah.com>
+References: <1127733134.7577.0.camel@diimka.dev.rtsoft.ru>
+	 <20050927124335.GA10361@kroah.com>
+	 <1127831236.7577.33.camel@diimka.dev.rtsoft.ru>
+	 <20050927143505.GA24245@kroah.com>
+	 <1127832597.7577.37.camel@diimka.dev.rtsoft.ru>
+	 <20050927145442.GA27470@kroah.com>
+Content-Type: text/plain
+Date: Tue, 27 Sep 2005 19:19:57 +0400
+Message-Id: <1127834397.7577.42.camel@diimka.dev.rtsoft.ru>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1-1mdk 
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [PATCH] m32r: set CHECKFLAGS properly
-Date: Tue, 27 Sep 2005 11:13:44 -0400
-To: Al Viro <viro@ftp.linux.org.uk>
-X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 27, 2005, at 03:10:25, Al Viro wrote:
-> You do realize that this way sparse will get neither?  It does not  
-> pick predefined symbols from gcc; thus the -D<your_arch>, etc.
+On Tue, 2005-09-27 at 07:54 -0700, Greg KH wrote:
+> Not good, reference counted structures almost always should be
+> dynamically created.  Please change this to also be true for SPI,
+> otherwise you will have a lot of nasty issues with devices that can be
+> removed at any point in time.
+Hmm. I thought a bit about this and it seems reasonable. I'll change
+this to dynamic allocation. 
 
-How about sticking this in some global Makefile somewhere?  This will  
-give sparse the same list of defines that GCC uses:
-
-CHECKFLAGS += $(shell echo | gcc -E - -dM | sed -re 's/^#define +([^ ] 
-+) +(.*)$/-D\1=\2/g')
-
-Or you could do this:
-
-include/linux/checkerdefines.h:
-         echo | gcc -E - -dM >$@
-
-And in linux/stddef.h or linux/compiler.h or something do:
-#if defined(__CHECKER__) and not defined(_LINUX_CHECKERDEFINES_H)
-# define _LINUX_CHECKERDEFINES_H 1
-# include <linux/checkerdefines.h>
-#endif
-
-Cheers,
-Kyle Moffett
-
---
-Q: Why do programmers confuse Halloween and Christmas?
-A: Because OCT 31 == DEC 25.
-
-
+> thanks,
+> 
+> greg k-h
 

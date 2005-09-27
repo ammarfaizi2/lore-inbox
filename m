@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965150AbVI0VV1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751031AbVI0VXN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965150AbVI0VV1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 17:21:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965153AbVI0VV1
+	id S1751031AbVI0VXN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 17:23:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751054AbVI0VXM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 17:21:27 -0400
-Received: from 75.80-203-232.nextgentel.com ([80.203.232.75]:51950 "EHLO
-	lincoln.jordet.nu") by vger.kernel.org with ESMTP id S965150AbVI0VV0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 17:21:26 -0400
-Message-ID: <1127855989.4339b77537987@webmail.jordet.nu>
-Date: Tue, 27 Sep 2005 23:19:49 +0200
-From: Stian Jordet <liste@jordet.nu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Olaf Hering <olh@suse.de>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bogus VIA IRQ fixup in drivers/pci/quirks.c
-References: <20050926184451.GB11752@suse.de> <Pine.LNX.4.58.0509261446590.3308@g5.osdl.org> <1127831274.433956ea35992@webmail.jordet.nu> <Pine.LNX.4.58.0509270734340.3308@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0509270734340.3308@g5.osdl.org>
+	Tue, 27 Sep 2005 17:23:12 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:20700 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750979AbVI0VXM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 17:23:12 -0400
+Message-ID: <4339B83C.9020103@pobox.com>
+Date: Tue, 27 Sep 2005 17:23:08 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.6
-X-Originating-IP: 217.8.143.72
+To: Greg KH <greg@kroah.com>
+CC: Grant Coady <grant_lkml@dodo.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH] pci_ids.h: cleanup: whitespace and remove unused
+ entries
+References: <937ti1hpvcjdk8hf894h651s81nu6il239@4ax.com> <20050926213557.GA21973@kroah.com>
+In-Reply-To: <20050926213557.GA21973@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sitat Linus Torvalds <torvalds@osdl.org>:
-> Well, looking at your messages, I bet that the appended patch works for
-> you, since your irq's are all in the legacy range.
->
-> It is also conceptually closer to what the code _used_ to be (it used to
-> say "if we have an IO-APIC, don't do this", now it says "if this irq is
-> bound to an IO-APIC, don't do this")
+Greg KH wrote:
+> I don't think you need the change to the comments at the top of the
+> file.
 
-No dice. My irq's beyond 15 are changed. What used to be 19 became 17, 18 became
-16, 17 became 18 and 16 became 19. The others are normal, and while looking at
-dmesg, the fixup is still happening. While it boots, and at first glance seems
-to work, it hangs hard when I try to use usb. At least the bluetooth dongle,
-haven't tried with anything else, but I suppose that'd do the same.
+agreed.
 
-Sorry.
 
-Best regards,
-Stian
+> Also, I thought we wanted to keep all of the pci class ids, why did you
+> delete them?  We should start by removing the pci device and vendor ids
+> that are not currently used by the kernel, and then slowly move those
+> ids into the individual drivers, starting with the device ids, and maybe
+> eventually moving to the vendor ids.
+
+The vendor ids are OBVIOUSLY common constants.  The proper place is 
+where they live now:  pci_ids.h.
+
+I see little value in moving referenced device ids into individual 
+drivers, as they will make them harder to grep for, as time passes.
+
+	Jeff
+
 

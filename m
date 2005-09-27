@@ -1,90 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964850AbVI0HjT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964851AbVI0HpP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964850AbVI0HjT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 03:39:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964851AbVI0HjT
+	id S964851AbVI0HpP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 03:45:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964852AbVI0HpP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 03:39:19 -0400
-Received: from [85.21.88.2] ([85.21.88.2]:26248 "HELO mail.dev.rtsoft.ru")
-	by vger.kernel.org with SMTP id S964850AbVI0HjT (ORCPT
+	Tue, 27 Sep 2005 03:45:15 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:21736 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964851AbVI0HpO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 03:39:19 -0400
-Subject: Re: [spi-devel-general] Re: SPI
-From: dmitry pervushin <dpervushin@gmail.com>
-To: Grant Likely <glikely@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       spi-devel-general@lists.sourceforge.net
-In-Reply-To: <528646bc05092609202192332@mail.gmail.com>
-References: <1127733134.7577.0.camel@diimka.dev.rtsoft.ru>
-	 <528646bc05092609202192332@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 27 Sep 2005 11:39:12 +0400
-Message-Id: <1127806752.7577.29.camel@diimka.dev.rtsoft.ru>
+	Tue, 27 Sep 2005 03:45:14 -0400
+Date: Tue, 27 Sep 2005 00:44:10 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Reuben Farrelly <reuben-lkml@reub.net>
+Cc: linux-kernel@vger.kernel.org, netfilter-devel@lists.netfilter.org,
+       "Seth, Rohit" <rohit.seth@intel.com>
+Subject: Re: 2.6.14-rc2-mm1 (Oops, possibly Netfilter related?)
+Message-Id: <20050927004410.29ab9c03.akpm@osdl.org>
+In-Reply-To: <4338F136.1020404@reub.net>
+References: <20050921222839.76c53ba1.akpm@osdl.org>
+	<4338F136.1020404@reub.net>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1-1mdk 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-09-26 at 10:20 -0600, Grant Likely wrote:
-> Would "SPI slave" or "SPI slave device" be better terminology than
-> "SPI device"?  That way the terminology matches how SPI hardware docs
-> are usually written.  (not a big deal, just thought I'd ask)
-The term "SPI slave device" looks correct.. I am correcting the doc :)
-> > +       err = spi_bus_populate( the_spi_bus,
-> > +                       "Dev1 0 1 2\0" "Dev2 2 1 0\0",
-> > +                       extract_name )
-> In my mind, this is not ideal.  For example, the MPC5200 has 4 PSC
-> ports which can be in SPI mode.  The SPI bus driver should/will not
-> know what devices are attached to it.  It should be the responsibility
-> of the board setup code to populate the bus.... on the other hand,
-> perhaps the bus driver should look to it's platform_device structure
-> to find a table of attached devices.  Generic platform_device parsing
-> code could be used by all SPI bus drivers.
-The spi_bus_populate is not the only way to populate the bus; the bus
-driver can discover SPI devices on his own and directly call
-spi_device_add, isn't it ?
-> > +In this example, function like extract_name would put the '\0' on the
-> > +1st space of device's name, so names will become just "Dev1", "Dev2",
-> > +and the rest of string will become parameters of device.
-> I don't think it's wise to use '\0' as a delimiter.  Sure it makes
-> parsing really simple when the string passed in is formed correctly,
-> but if someone misses the last '\0' you have no way to know where the
-> string ends.  It also makes it difficult support passing a device
-> string from the kernel command line.
-You're right. Using spi_populate_bus is the simplest way, that may lead
-to errors... From the other hand, if we used another char to delimit
-device name and its parameters, there would be person who would want
-this character in device name... I think that we can add another
-approach to populate the bus ? 
+Reuben Farrelly <reuben-lkml@reub.net> wrote:
+>
+>  On 22/09/2005 5:28 p.m., Andrew Morton wrote:
+>  > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc2/2.6.14-rc2-mm1/
+>  > 
+>  > - Added git tree `git-sas.patch': Luben Tuikov's SAS driver and its support.
+>  > 
+>  > - Various random other things - nothing major.
 > 
-> > +4. SPI functions are structures reference
-> > +-----------------------------------------
-> > +This section describes structures and functions that listed
-> > +in include/linux/spi.h
-> I would like to see this function and structure reference in the spi.h
-> file itself rather than here.  Better chance of it being kept up to
-> date that way.
-Yes; but I personally prefer to look to the only place instead of
-spi.h/spi-core.c. I'll try to keep the things consistent :)
+>  Just noticed this oops from about 4am this morning.  This would have been at 
+>  about the time when the normal daily cronjobs are run, but shouldn't have been 
+>  doing much else.
+> 
+> 
+>  Sep 27 04:04:28 tornado kernel: smbd: page allocation failure. order:1, 
+>  mode:0x80000020
+>  Sep 27 04:04:28 tornado kernel:  [<c0103ad0>] dump_stack+0x17/0x19
+>  Sep 27 04:04:28 tornado kernel:  [<c013f84a>] __alloc_pages+0x2d8/0x3ef
+>  Sep 27 04:04:28 tornado kernel:  [<c0142b32>] kmem_getpages+0x2c/0x91
+>  Sep 27 04:04:28 tornado kernel:  [<c0144136>] cache_grow+0xa2/0x1aa
+>  Sep 27 04:04:28 tornado kernel:  [<c0144810>] cache_alloc_refill+0x279/0x2bb
+>  Sep 27 04:04:28 tornado kernel:  [<c0144da9>] __kmalloc+0xc7/0xe7
+>  Sep 27 04:04:28 tornado kernel:  [<c02ab386>] pskb_expand_head+0x4b/0x11a
+>  Sep 27 04:04:28 tornado kernel:  [<c02afd34>] skb_checksum_help+0xcb/0xe5
+>  Sep 27 04:04:28 tornado kernel:  [<c0302b0d>] ip_nat_fn+0x16d/0x1bf
+>  Sep 27 04:04:28 tornado kernel:  [<c0302cdc>] ip_nat_local_fn+0x57/0x8d
+>  Sep 27 04:04:28 tornado kernel:  [<c03068ef>] nf_iterate+0x59/0x7d
+>  Sep 27 04:04:28 tornado kernel:  [<c030695d>] nf_hook_slow+0x4a/0x109
+>  Sep 27 04:04:28 tornado kernel:  [<c02ca035>] ip_queue_xmit+0x23c/0x4f5
+>  Sep 27 04:04:28 tornado kernel:  [<c02da477>] tcp_transmit_skb+0x3ce/0x713
+>  Sep 27 04:04:29 tornado kernel:  [<c02db53b>] tcp_write_xmit+0x124/0x37b
+>  Sep 27 04:04:29 tornado kernel:  [<c02db7b3>] __tcp_push_pending_frames+0x21/0x70
+>  Sep 27 04:04:29 tornado kernel:  [<c02d0b45>] tcp_sendmsg+0x9cc/0xabc
+>  Sep 27 04:04:29 tornado kernel:  [<c02ed3dd>] inet_sendmsg+0x2e/0x4c
+>  Sep 27 04:04:29 tornado kernel:  [<c02a6691>] sock_sendmsg+0xbf/0xe3
+>  Sep 27 04:04:29 tornado kernel:  [<c02a77be>] sys_sendto+0xa5/0xbe
 
-> > +This structure represents the message that SPI device driver sends to the
-> > +SPI bus driver to handle.
-> Is there any way for the SPI device to constrain the clock rate for a
-> transfer?  For example, if the devices maximum speed is lower than the
-> bus maximum speed.
-Thank you for this comment; the `clock' field is initially intended to
-do this. Device driver might set the field to maximum speed, and bus
-driver would analyze the field in its xfer function and send the message
-on lower speed. Moreover, there is the `set_clock' callback in
-spi_bus_driver. If msg specifies its own clock value, the bus driver's
-set_clock will be called just before transferring the message.
-> Overall, I like.  It looks like it does what I need it to.  If I get a
-> chance this week I'll port my SPI drivers to it and try it out on my
-> MPC5200 board.
-Thank you! If your drivers are going to open source, could you also sent
-them to spi mailing list, to prepare the consolidated patch ? I hope if
-there is no significant troubles, the current core will go to the
-mainstream kernel :)
+No, this is simply a warning - the kernel ran out of 1-order pages in the
+page allocator.  There have been several reports of this after
+mm-try-to-allocate-higher-order-pages-in-rmqueue_bulk.patch was merged,
+which was rather expected.
 
-
+I've dropped that patch.  Joel Schopp is working on Mel Gorman's patches
+which address fragmentation at this level.  If that code gets there then we
+can take another look at
+mm-try-to-allocate-higher-order-pages-in-rmqueue_bulk.patch.

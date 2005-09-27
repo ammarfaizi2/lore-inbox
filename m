@@ -1,56 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965175AbVI0VxS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965177AbVI0V4A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965175AbVI0VxS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 17:53:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965177AbVI0VxS
+	id S965177AbVI0V4A (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 17:56:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965179AbVI0V4A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 17:53:18 -0400
-Received: from [87.248.7.17] ([87.248.7.17]:16134 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S965175AbVI0VxR (ORCPT
+	Tue, 27 Sep 2005 17:56:00 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:41692 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S965177AbVI0Vz7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 17:53:17 -0400
-Message-ID: <1127857959.4339bf2705c0a@webmail.jordet.nu>
-Date: Tue, 27 Sep 2005 23:52:39 +0200
-From: Stian Jordet <liste@jordet.nu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Olaf Hering <olh@suse.de>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bogus VIA IRQ fixup in drivers/pci/quirks.c
-References: <20050926184451.GB11752@suse.de> <Pine.LNX.4.58.0509261446590.3308@g5.osdl.org> <1127831274.433956ea35992@webmail.jordet.nu> <Pine.LNX.4.58.0509270734340.3308@g5.osdl.org> <1127855989.4339b77537987@webmail.jordet.nu> <Pine.LNX.4.58.0509271432490.3308@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0509271432490.3308@g5.osdl.org>
+	Tue, 27 Sep 2005 17:55:59 -0400
+Message-ID: <4339BFE9.1060604@pobox.com>
+Date: Tue, 27 Sep 2005 17:55:53 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.6
-X-Originating-IP: 217.8.143.72
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+CC: Luben Tuikov <luben_tuikov@adaptec.com>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
+ the kernel
+References: <43384E28.8030207@adaptec.com>
+In-Reply-To: <43384E28.8030207@adaptec.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sitat Linus Torvalds <torvalds@osdl.org>:
+Luben Tuikov wrote:
+> I request inclusion of the SAS Transport Layer
+> and the AIC-94xx SAS LLDD into the Linux kernel.
 
->
->
-> On Tue, 27 Sep 2005, Stian Jordet wrote:
-> >
-> > No dice. My irq's beyond 15 are changed. What used to be 19 became 17, 18
-> became
-> > 16, 17 became 18 and 16 became 19. The others are normal, and while looking
-> at
-> > dmesg, the fixup is still happening. While it boots, and at first glance
-> seems
-> > to work, it hangs hard when I try to use usb. At least the bluetooth
-> dongle,
-> > haven't tried with anything else, but I suppose that'd do the same.
->
-Sorry! I was looking at the wrong dmesg. *stupid*. Really sorry about that. It
-still hangs hard when I try to use usb, but I'll double check that it worked
-before the patch before I complain more :P
-
-Once again, sorry. And thank you :)
-
--Stian
+Overall, I see the following major issues.  My recommendation is that 
+this driver live in -mm, or outside the kernel tree, for a while to let 
+things shake out.
 
 
+Background
+----------
+* There is no question that Adaptec's aic94xx and SAS code is correct 
+WRT the SCSI specifications.  The maintainer eats, sleeps, and breathes 
+SAS specs.  :)
+
+* aic94xx hardware supports both SAS and SATA connections.  Since SAS 
+and SATA are intentionally similar electrically, other vendors are 
+coming out with SATA+SAS hardware too.
+
+* Acronym:  "HCIL"  Stands for Host/Channel/ID/LUN.  Pre-SAS legacy 
+addressing method.
+
+
+Issues
+------
+* Avoids existing SAS code, rather than working with it.
+
+* Avoids existing SATA code, rather than working with it.
+
+* Avoids (rather than fix) several SCSI core false dependencies on HCIL. 
+  Results in code duplication and/or avoidance of needed code.
+
+* So far, it's an Adaptec-only solution.  Since it pointedly avoids the 
+existing SAS transport code, this results in two SAS solutions in Linux: 
+one for Adaptec, one for {everyone else}.
+
+* Maintainer reminds me of my ATA mentor, Andre Hedrick:  knows his 
+shit, but has difficulties working with the community.  May need a 
+filter if we want long term maintenance to continue.
+
+
+Resolution
+----------
+AFAICS, there are two paths:
+
+Easy path: make Adaptec's solution a block driver, which allows it to 
+sidestep all the "doesn't play well with others" issues.  Still an 
+Adaptec-only solution, but at least its in a separate playpen.
+
+Hard path: Update the SCSI core and libata to work with SATA+SAS 
+hardware such as Adaptec's.
+
+The hard path takes time, and won't be solved simply by shoving it in.
+
+	Jeff
 
 

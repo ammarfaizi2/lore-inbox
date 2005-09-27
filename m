@@ -1,157 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbVI0XUf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965146AbVI0X1H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751147AbVI0XUf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 19:20:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751148AbVI0XUf
+	id S965146AbVI0X1H (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 19:27:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbVI0X1H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 19:20:35 -0400
-Received: from newpeace.netnation.com ([204.174.223.7]:13979 "EHLO
-	peace.netnation.com") by vger.kernel.org with ESMTP
-	id S1751147AbVI0XUe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 19:20:34 -0400
-Date: Tue, 27 Sep 2005 16:20:34 -0700
-From: Simon Kirby <sim@netnation.com>
-To: linux-kernel@vger.kernel.org
-Subject: Strangeness with signals
-Message-ID: <20050927232034.GC6833@netnation.com>
+	Tue, 27 Sep 2005 19:27:07 -0400
+Received: from h80ad2583.async.vt.edu ([128.173.37.131]:43694 "EHLO
+	h80ad2583.async.vt.edu") by vger.kernel.org with ESMTP
+	id S1751160AbVI0X1G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 19:27:06 -0400
+Message-Id: <200509272326.j8RNQqHM031916@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: "Davda, Bhavesh P (Bhavesh)" <bhavesh@avaya.com>
+Cc: Daniel Jacobowitz <dan@debian.org>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH] New SA_NOPRNOTIF sigaction flag 
+In-Reply-To: Your message of "Tue, 27 Sep 2005 08:45:07 MDT."
+             <21FFE0795C0F654FAD783094A9AE1DFC086EFADA@cof110avexu4.global.avaya.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <21FFE0795C0F654FAD783094A9AE1DFC086EFADA@cof110avexu4.global.avaya.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="n8g4imXOkfNTN/H1"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+Content-Type: multipart/signed; boundary="==_Exmh_1127863610_31960P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 27 Sep 2005 19:26:51 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---n8g4imXOkfNTN/H1
+--==_Exmh_1127863610_31960P
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-Hi folks,
+On Tue, 27 Sep 2005 08:45:07 MDT, "Davda, Bhavesh P (Bhavesh)" said:
 
-I'm not sure if this is buggy, strange or just perfectly normal
-behaviour.  I was trying to write an application that does some simple
-network performance polling with setitimer() and also keeps a look out
-for SIGWINCH to see if the window size changes.  I was interested to
-find out that when I resized the window, the signal was never noticed.
-Even more interesting is the fact that if I run it in strace or even
-GDB to figure out what's going on, it works!
+> Then propose an alternative way where a real-time (SCHED_FIFO/SCHED_RR)
+> CPU bound application getting lots of SEGVs for normal operation doesn't
 
-I've simplified the program to this simple test case which will show
-clearly that (both on 2.4 and 2.6), SIGALRM and SIGHUP are received as
-expected but that without setting a special sa_sigaction handler,
-SIGWINCH and SIGCHLD don't appear to wake up sigwaitinfo().  Also,
-applying a sigaction() to all signals won't change the situation unless
-an sa_sigaction is set; sa_handler does not appear to change anything.
+If it's RT, *and* CPU-bound, *and* tossing enough SEGV's to matter, it's a
+train wreck waiting to happen.  If something attaches to that locomotive
+with a ptrace(), making sure that a SEGV doesn't cause a priority inversion
+merely delays the wreck until the *next* thing the debugger is interested in.
+What's *next*, prohibit the overhead of whatever "stop at" or "trace value"
+command the debugger has?  By the time you clean all of that stuff up, you're
+basically left with "why bother allowing a ptrace()?".
 
-Some people mentioned blocked and ignored signals, but as can be seen in
-this example, differing behaviour can be seen across signals even with
-all signals blocked and ignored.
+--==_Exmh_1127863610_31960P
+Content-Type: application/pgp-signature
 
-Usage:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-gcc -o sigweird sigweird.c && ./sigweird
+iD8DBQFDOdU6cC3lWbTT17ARAklGAKDhC6mgyFF/q7zqoUpTb/G+ahk8eQCfTJiR
+AzuDvvwDGP295exvQb96/30=
+=ZpUF
+-----END PGP SIGNATURE-----
 
-In another window, "killall -WINCH sigweird" and "killall -HUP sigweird". 
-Note the differing behaviour. :)
-
-Try running "strace sigweird" or "strace -p `pidof sigweird`".  Note
-how the behaviour changes.
-
-Try changing the second "#if 0" to "#if 1" to enable setting the same
-signal handlers exactly for all of the signals.  Note that the behaviour
-does not change.
-
-Try changing the first "#if 0" to "#if 1".  Note how all signals now
-appear to behave similarly, with or without strace/GDB.
-
-CHLD and WINCH seemed to be dropped without an sa_sigaction while HUP and
-ALRM seem to work as expected.  This might have something to do with
-their default behaviour.
-
-Broken?  Bizarre?
-
-Simon-
-
---n8g4imXOkfNTN/H1
-Content-Type: text/x-csrc; charset=us-ascii
-Content-Disposition: attachment; filename="sigweird.c"
-
-#include <sys/types.h>
-#include <sys/time.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <signal.h>
-#include <string.h>
-
-void some_signal_handler(int si_number, siginfo_t *siginfo, void *bits)
-{
-}
-
-int main(int argc,char *argv[])
-{
-	int r;
-	struct itimerval it;
-	sigset_t sigset;
-	siginfo_t siginfo;
-
-#if 0
-#define THE_SIGACTION some_signal_handler
-#else
-#define THE_SIGACTION NULL
-#endif
-
-#if 0
-	struct sigaction sa;
-
-	memset(&sa,0,sizeof(sa));
-	sa.sa_handler = SIG_IGN;
-	sa.sa_sigaction = THE_SIGACTION;
-	sigaction(SIGALRM,&sa,NULL);
-
-	memset(&sa,0,sizeof(sa));
-	sa.sa_handler = SIG_IGN;
-	sa.sa_sigaction = THE_SIGACTION;
-	sigaction(SIGWINCH,&sa,NULL);
-
-	memset(&sa,0,sizeof(sa));
-	sa.sa_handler = SIG_IGN;
-	sa.sa_sigaction = THE_SIGACTION;
-	sigaction(SIGCHLD,&sa,NULL);
-
-	memset(&sa,0,sizeof(sa));
-	sa.sa_handler = SIG_IGN;
-	sa.sa_sigaction = THE_SIGACTION;
-	sigaction(SIGHUP,&sa,NULL);
-#endif
-
-	sigemptyset(&sigset);
-	sigaddset(&sigset,SIGALRM);
-	sigaddset(&sigset,SIGWINCH);
-	sigaddset(&sigset,SIGCHLD);
-	sigaddset(&sigset,SIGHUP);
-	sigprocmask(SIG_BLOCK,&sigset,NULL);
-
-	memset(&it,0,sizeof(it));
-	it.it_interval.tv_sec = 2;
-	it.it_interval.tv_usec = 0;
-	it.it_value.tv_sec = it.it_interval.tv_sec;
-	it.it_value.tv_usec = it.it_interval.tv_usec;
-	setitimer(ITIMER_REAL,&it,NULL);
-
-	sigemptyset(&sigset);
-	sigaddset(&sigset,SIGALRM);
-	sigaddset(&sigset,SIGWINCH);
-	sigaddset(&sigset,SIGCHLD);
-	sigaddset(&sigset,SIGHUP);
-
-	for (;;) {
-		r = sigwaitinfo(&sigset,&siginfo);
-		if (r > 0)
-			printf("Received signal %u.\n",siginfo.si_signo);
-	}
-
-	exit(0);
-}
-
-
---n8g4imXOkfNTN/H1--
+--==_Exmh_1127863610_31960P--

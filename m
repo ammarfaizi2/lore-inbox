@@ -1,92 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964814AbVI0MUl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932327AbVI0MWt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964814AbVI0MUl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 08:20:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964817AbVI0MUl
+	id S932327AbVI0MWt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 08:22:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932419AbVI0MWt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 08:20:41 -0400
-Received: from smtpout4.uol.com.br ([200.221.4.195]:19357 "EHLO
-	smtp.uol.com.br") by vger.kernel.org with ESMTP id S964814AbVI0MUk convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 08:20:40 -0400
-In-Reply-To: <Pine.LNX.4.63.0509271331590.21130@alpha.polcom.net>
-References: <20050927111038.GA22172@ime.usp.br> <Pine.LNX.4.63.0509271331590.21130@alpha.polcom.net>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=ISO-8859-1; delsp=yes; format=flowed
-Message-Id: <204F8530-3DAD-4B20-AC24-2CBA776CC2C2@ime.usp.br>
-Cc: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 8BIT
-From: =?ISO-8859-1?Q?Rog=E9rio_Brito?= <rbrito@ime.usp.br>
-Subject: Re: Strange disk corruption with Linux >= 2.6.13
-Date: Tue, 27 Sep 2005 09:20:33 -0300
-To: Grzegorz Kulewski <kangur@polcom.net>
-X-Mailer: Apple Mail (2.734)
+	Tue, 27 Sep 2005 08:22:49 -0400
+Received: from mail.kroah.org ([69.55.234.183]:6112 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932327AbVI0MWt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 08:22:49 -0400
+Date: Tue, 27 Sep 2005 05:22:18 -0700
+From: Greg KH <greg@kroah.com>
+To: vendor-sec@lst.de, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, security@linux.kernel.org
+Subject: Re: [vendor-sec] Re: [BUG/PATCH/RFC] Oops while completing async USB via usbdevio
+Message-ID: <20050927122218.GA9971@kroah.com>
+References: <20050925151330.GL731@sunbeam.de.gnumonks.org> <20050927080413.GA13149@kroah.com> <20050927091337.GA9117@kroah.com> <20050927110319.GD1980@piware.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050927110319.GD1980@piware.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Grzegorz. Thank you for your response.
+On Tue, Sep 27, 2005 at 01:03:19PM +0200, Martin Pitt wrote:
+> Hi!
+> 
+> Greg KH [2005-09-27  2:13 -0700]:
+> > On Tue, Sep 27, 2005 at 01:04:15AM -0700, Greg KH wrote:
+> > > First off, thanks for providing a patch for this problem, it is real,
+> > > and has been known for a while (thanks to your debugging :)
+> > > 
+> > > On Sun, Sep 25, 2005 at 05:13:30PM +0200, Harald Welte wrote:
+> > > > 
+> > > > I suggest this (or any other) fix to be applied to both 2.6.14 final and
+> > > > the stable series.  I didn't yet investigate 2.4.x, but I think it is
+> > > > likely to have the same problem.
+> > > 
+> > > I agree, but I think we need an EXPORT_SYMBOL_GPL() for your newly
+> > > exported symbol, otherwise the kernel will not build if you have USB
+> > > built as a module.
+> > 
+> > Hm, it's even messier.  With your patch, we get:
+> > 	*** Warning: "__send_sig_info" [drivers/usb/core/usbcore.ko] undefined!
+> > 	*** Warning: "__put_task_struct" [drivers/usb/core/usbcore.ko] undefined!
+> > when the USB core is a module.
+> > 
+> > I can't pass judgement if we want to export both of these functions to
+> > modules...  Anyone else know?
+> 
+> FWIW, our kernel maintainer just added
+> 
+> EXPORT_SYMBOL_GPL(__send_sig_info);
+> 
+> and it worked fine (we modularize as much as possible).
 
-On Sep 27, 2005, at 8:43 AM, Grzegorz Kulewski wrote:
-> What is your southbridge?
+Yes, that would work, that's not an issue.  The issue is if this is the
+best solution or not (generally exporting functions that start with "__"
+is not a good idea...)
 
-The southbridge is a VIA VT82C686.
+thanks,
 
-> Maybe there are some problems there with DMA or cables.
-
-Humm, cables. I forgot to check that. I will check that as soon as I  
-wake up. I spent the entire night trying to fix this, but of course,  
-I gave up after some days of effort and decided to ask for help.
-
-> Anything in logs?
-
-Nothing in the logs. No oops, no stack trace, no nothing. :-( Oh, now  
-that you mention it, I remember that I also made my Matrox G400 use  
-speed 4x. I will try slowing it down to see if there is any influence  
-on what I see.
-
-> Maybe sourthbridge or northbridge is simply overheating? Maybe you  
-> have bad power suply? What are readings of temperatures and  
-> voltages in BIOS after some heavy disk-memmory activities?
-
-I don't know, because lmsensors doesn't give accurate measurements,  
-unfortunately. :-(
-
-> You can use http://pyropus.ca/software/memtester/ to check your  
-> memory in linux. You can run cpuburn at the same time. And you can  
-> do some disk activity at the same time (for example dd if=/dev/hda  
-> bs=200M | md5sum several times to check if it will give the same  
-> results).
-
-I had already tried using memtester, but I guess that I was too  
-ambitious with the amount of memory that I tried it to allocate. I  
-will try this, but with my filesystem in read-only mode, as I cannot  
-afford to loose what I have (and Debian's mondo/mind isn't working  
-right now---I already filed a bug report that is shared by others).
-
-> I will bet that you have some hardware problem there. You can try  
-> to remove the 256MB DDR module and turn HIGHMEM off. You can also  
-> try to check each module separately.
-
-I already checked each module separately, but I didn't see any  
-corruption. I guess that I maybe wasn't paying too much attention. I  
-will try it again. Thanks for the suggestion.
-
-> And the best choice will be probably to buy new mb (for example  
-> Abit KW7 or KV7) because your is very old and it can start to  
-> silently break after so many years... Today mbs are very short  
-> living parts - 3-4 years and they are broken...
-
-Yes, I was just trying to avoid getting a new system now, with all  
-the transitions going on (i386 -> x86_64 CPUs, PATA -> SATA etc). But  
-my time is also costing me some nights of sleep... :-( It sucks not  
-to be in the US, where things are cheaper. :-(
-
-
-Thank you very much, Rogério.
-
--- 
-Rogério Brito : rbrito@ime.usp.br : http://www.ime.usp.br/~rbrito
-Homepage of the algorithms package : http://algorithms.berlios.de
-Homepage on freshmeat:  http://freshmeat.net/projects/algorithms/
-
-
+greg k-h

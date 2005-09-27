@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965013AbVI0RCi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965014AbVI0RER@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965013AbVI0RCi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 13:02:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965014AbVI0RCi
+	id S965014AbVI0RER (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 13:04:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965017AbVI0RER
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 13:02:38 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:42114 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965013AbVI0RCi (ORCPT
+	Tue, 27 Sep 2005 13:04:17 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:32734 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S965014AbVI0REQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 13:02:38 -0400
-Date: Tue, 27 Sep 2005 10:02:16 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Sergey Vlasov <vsu@altlinux.ru>
-cc: Harald Welte <laforge@gnumonks.org>, linux-usb-devel@lists.sourceforge.net,
-       vendor-sec@lst.de, linux-kernel@vger.kernel.org, greg@kroah.com,
-       security@linux.kernel.org
-Subject: Re: [linux-usb-devel] Re: [Security] [vendor-sec] [BUG/PATCH/RFC]
- Oops while completing async USB via usbdevio
-In-Reply-To: <20050927165206.GB20466@master.mivlgu.local>
-Message-ID: <Pine.LNX.4.58.0509270959380.3308@g5.osdl.org>
-References: <20050925151330.GL731@sunbeam.de.gnumonks.org>
- <Pine.LNX.4.58.0509270746200.3308@g5.osdl.org> <20050927160029.GA20466@master.mivlgu.local>
- <Pine.LNX.4.58.0509270904140.3308@g5.osdl.org> <20050927165206.GB20466@master.mivlgu.local>
+	Tue, 27 Sep 2005 13:04:16 -0400
+Date: Tue, 27 Sep 2005 19:04:10 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Herbert Poetzl <herbert@13thfloor.at>
+cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch] eliminate CLONE_* duplications
+In-Reply-To: <20050927162242.GC21927@MAIL.13thfloor.at>
+Message-ID: <Pine.LNX.4.61.0509271856430.3728@scrub.home>
+References: <20050921092132.GA4710@MAIL.13thfloor.at>
+ <Pine.LNX.4.61.0509211252160.3743@scrub.home> <20050921143954.GA10137@MAIL.13thfloor.at>
+ <Pine.LNX.4.61.0509211648240.3743@scrub.home> <20050921151124.GB10137@MAIL.13thfloor.at>
+ <Pine.LNX.4.61.0509211738160.3728@scrub.home> <20050921235810.GC18040@MAIL.13thfloor.at>
+ <Pine.LNX.4.61.0509271705380.3728@scrub.home> <20050927162242.GC21927@MAIL.13thfloor.at>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+On Tue, 27 Sep 2005, Herbert Poetzl wrote:
 
-On Tue, 27 Sep 2005, Sergey Vlasov wrote:
+> > "logically organized" mainly means reducing dependencies by organizing
+> > them by their logical dependencies. 
 > 
-> The initial patch added get_task_struct()/put_task_struct() calls to
-> fix this - are they forbidden too?
+> did you consider that separating out the clone
+> stuff might be that basis for reducing dependencies?
 
-They are sure as hell not something that a _driver_ is supposed to use.
+Not in this form, all users of this flag need other definitions from 
+sched.h.
 
-> It at least has sigio_perm(), which prevents exploiting it to send
-> signals to tasks you don't have access to.
+> > The hardcoded defines actually do need fixing, frv is especially bad,
+> > as it even has hardcoded structure offsets.
+> 
+> so instead of fixing the issue properly, we 
+> 'mend' it by adding new code to */asm-offsets.c
 
-And the point is, you can do that _too_.
+Using asm-offsets.c _is_ a proper solution.
 
-Do it right. Don't cache pointers to threads. Use the pid.
+> > sched.h is especially challenging due to dependencies between headers
+> > under asm and linux. It's not just splitting sched.h, it also requires
+> > analyzing its dependencies.
+> 
+> which you obviously think is nothing I can do
+> 'properly' ...
 
-Your security arguments are _pointless_. As proven by the fact that SIGIO 
-happily uses a pid, and gets it right. Try to use _that_ infrastructure 
-instead, since that's what it's _meant_ for.
+I don't know, but I know that it does require a large amount of experience 
+in this area.
 
-The fact is, having drivers much around with thread locking is not
-acceptable. Drivers _will_ get it wrong, and even if they didn't, it's
-kernel internal data structures that drivers have no business in touching.
-
-			Linus
+bye, Roman

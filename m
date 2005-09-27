@@ -1,76 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964781AbVI0BAy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964796AbVI0BDJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964781AbVI0BAy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 21:00:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964783AbVI0BAy
+	id S964796AbVI0BDJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 21:03:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964794AbVI0BDJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 21:00:54 -0400
-Received: from zproxy.gmail.com ([64.233.162.202]:62201 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964782AbVI0BAx convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 21:00:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=SAqhFxL8Af9yZNlCDUoTb2nKqSRNsb9P5znN1XIZ5vWATtvK5KbIB4gWrhfU9JBWpkA3pr4BKzoODTcP0rBPMrdneB3escdAd58y9GYIlAVVpNxvgSnoci83x/UV6Mqt/pyIPpq4c/0pgOrZc8VeVjp10ocR7mlGULof40CA4fc=
-Message-ID: <355e5e5e0509261800271c39b7@mail.gmail.com>
-Date: Mon, 26 Sep 2005 21:00:48 -0400
-From: Lukasz Kosewski <lkosewsk@gmail.com>
-Reply-To: Lukasz Kosewski <lkosewsk@gmail.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: [PATCH 0/3] Add disk hotswap support to libata RESEND #5
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 26 Sep 2005 21:03:09 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:17674 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S964793AbVI0BDI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 21:03:08 -0400
+Date: Mon, 26 Sep 2005 21:05:22 -0400
+From: Neil Horman <nhorman@tuxdriver.com>
+To: Al Boldi <a1426z@gawab.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Resource limits
+Message-ID: <20050927010522.GB4522@localhost.localdomain>
+References: <200509251712.42302.a1426z@gawab.com> <200509262032.14613.a1426z@gawab.com> <20050926175148.GA3797@hmsreliant.homelinux.net> <200509262326.10305.a1426z@gawab.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200509262326.10305.a1426z@gawab.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Jeff, all,
+On Mon, Sep 26, 2005 at 11:26:10PM +0300, Al Boldi wrote:
+> Neil Horman wrote:
+> > On Mon, Sep 26, 2005 at 08:32:14PM +0300, Al Boldi wrote:
+> > > Neil Horman wrote:
+> > > > On Mon, Sep 26, 2005 at 05:18:17PM +0300, Al Boldi wrote:
+> > > > > Rik van Riel wrote:
+> > > > > > On Sun, 25 Sep 2005, Al Boldi wrote:
+> > > > > > > Too many process forks and your system may crash.
+> > > > > > > This can be capped with threads-max, but may lead you into a
+> > > > > > > lock-out.
+> > > > > > >
+> > > > > > > What is needed is a soft, hard, and a special emergency limit
+> > > > > > > that would allow you to use the resource for a limited time to
+> > > > > > > circumvent a lock-out.
+> > > > > >
+> > > > > > How would you reclaim the resource after that limited time is
+> > > > > > over ?  Kill processes?
+> > > > >
+> > > > > That's one way,  but really, the issue needs some deep thought.
+> > > > > Leaving Linux exposed to a lock-out is rather frightening.
+> > > >
+> > > > What exactly is it that you're worried about here?
+> > >
+> > > Think about a DoS attack.
+> >
+> > Be more specific.  Are you talking about a fork bomb, a ICMP flood, what?
+> 
+> How would you deal with a situation where the system hit the threads-max 
+> ceiling?
+> 
+Nominally I would log the inability to successfully create a new process/thread,
+attempt to free some of my applications resources, and try again.
 
-Once again I besiege you with what I hope is the last necessary fix to
-my hotswap patches!
+> > preventing resource starvation/exhaustion is often handled in a way thats
+> > dovetailed to the semantics of how that resources is allocated (i.e. you
+> > prevent syn-flood attacks differently than you manage excessive disk
+> > usage).
+> 
+> The issue here is a general lack of proper kernel support for resource 
+> limits.  The fork problem is just an example.
+> 
+Thats not really true.  As Mr. Helsley pointed out, CKRM is available to provide
+a level of class based resource management if you need it. By default you can
+also create a level of resource limitation with ulimits as I mentioned.  But no
+matter what you do, the only way you can guarantee that a system will be able to
+provide the resources your workload needs is to limit the number of resources
+your workload asks for, and in the event it asks for too much, make sure it can
+handle the denial of the resource gracefully.
 
-For those caught with their pants down, the purpose of these patches
-is as follows:
-patch1:  Mask out the correct hotswap interrupts on the Promise
-SATAII150 line of controllers.
-patch2:  Add a disk hotswap API to libata, a general purpose
-infrastructure which all libata drivers can use to play with disk
-swapping.
-patch3:  A reference and working implementation of a driver using this
-architecture with the sata_promise module.  Tested on SATA150 and
-SATAII150 Tx4/Tx2 Plus controllers.
+Thanks and regards
+Neil
 
-The differences between this patchset and previous ones:
-- no longer memory leaking struct pdc_host_priv all over the place,
-just in one (there are other leaks there too... I even added a comment
-saying that this should be taken care of!).
-- Slight difference in the order of instructions executed on disk
-removal to ensure that we don't have instructions bottled up in the
-ata workqueue waiting on a disk that's been removed.
+> Thanks!
+> 
+> --
+> Al
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-These patches will apply against seemingly any incarnation of the
-2.6.14-rc2 kernel, HOWEVER (BIG HOWEVER!) in my testing (with
-2.6.14-rc2 and 2.6.14-rc2-git5), the original -rc2 release has
-interesting problems that were rectified between 2.6.14-rc2-git5,
-which would cause kernel panics on disk removal during heavy I/O
-(thanks to Thomas Lustig for pointing out something was awry!).  So if
-you plan on sending me "hey, it crashed!" messages, please use
-2.6.15-git5 or later.
-
-The remaining vestiges of issues that I see might be related to
-swapping strange combinations of disks... I"ve tried to properly reset
-flags and such to allow swapping and switching arbitrary disks, but I
-only have a few disks and so only observed a few errors.  If you get
-strange errors trying to go from some disk of type A to another disk
-of type B (for instance, LBA48 to non-LBA48 drives, vice versa,
-different capacities being picked up wrong, etc), let me know!
-
-That's about it.  Thanks to Net Integration Technologies for giving me
-the freedom to do this kind of work and do the initial submission
-while working for them, and thanks to the testers; keep it coming!
-
-Luke Kosewski
+-- 
+/***************************************************
+ *Neil Horman
+ *Software Engineer
+ *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
+ ***************************************************/

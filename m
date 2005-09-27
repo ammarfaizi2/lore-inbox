@@ -1,228 +1,225 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbVI0X0H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965191AbVI0X1v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751148AbVI0X0H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 19:26:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751159AbVI0X0G
+	id S965191AbVI0X1v (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 19:27:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965182AbVI0X1v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 19:26:06 -0400
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:18642 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S1751148AbVI0X0F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 19:26:05 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: [PATCH][Fix] Fix Bug #4959 (take 2)
-Date: Wed, 28 Sep 2005 01:26:26 +0200
-User-Agent: KMail/1.8.2
-Cc: LKML <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>
-References: <200509241936.12214.rjw@sisk.pl> <200509272300.37197.rjw@sisk.pl> <20050927210821.GF2040@elf.ucw.cz>
-In-Reply-To: <20050927210821.GF2040@elf.ucw.cz>
+	Tue, 27 Sep 2005 19:27:51 -0400
+Received: from astound-64-85-224-245.ca.astound.net ([64.85.224.245]:33547
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S1751165AbVI0X1t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 19:27:49 -0400
+Date: Tue, 27 Sep 2005 16:14:42 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Luben Tuikov <luben_tuikov@adaptec.com>
+cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
+ the kernel
+In-Reply-To: <4339CCD6.5010409@adaptec.com>
+Message-ID: <Pine.LNX.4.10.10509271604510.14637-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509280126.26701.rjw@sisk.pl>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Tuesday, 27 of September 2005 23:08, Pavel Machek wrote:
-> Hi!
+Luben,
+
+Welcome to the club ...
+
+You have managed to prove your knowledge base and forgot everything
+learned in kindergarden.  Since I have kids, and spent time back in
+kindergarden, there are some valuable lessons there many have forgotten.
+
+>From what I have seen here, both sides have some valid points.
+
+>From what I know from history and why I no longer maintain anything,
+(working to get sanity back) is the Maintainer defines direction while
+following a bigger picture.
+
+The issues wrt to HCIL v/s WWN v/s Multiplier v/s Target-Mode v/s blahblah
+blahblah are important questions.
+
+Remember, everything about storage is a lie.
+
+Help create a better lie by mapping into the design set forward by James
+and company.  If the goal of Adaptec is to have support then they need to
+buckup and play be to rules at hand.  Remember, most people are open to
+new ideas and better models.  Propose one and you will find backing.
+
+Since you are in the bay-area ... want to met who you have been associated
+with ... or is the idea to weird?
+
+Cheers,
+
+Andre
+
+
+On Tue, 27 Sep 2005, Luben Tuikov wrote:
+
+> On 09/27/05 17:55, Jeff Garzik wrote:
+> > * Avoids existing SAS code, rather than working with it.
 > 
-]-- snip --[ 
-> > > > The following patch fixes Bug #4959.  For this purpose it creates temporary
-> > > > page translation tables including the kernel mapping (reused) and the direct
-> > > > mapping (created from scratch) and makes swsusp switch to these tables
-> > > > right before the image is restored.
-> > > 
-> > > Why do you need *two* mappings? Should not just kernel mapping be enough?
-> > 
-> > The kernel mapping is for the kernel text.  The direct mapping maps the physical
-> > RAM linearly to the set of virtual addresses starting at
-> > PAGE_OFFSET.
+> No, it's the _other_ way around.  There is NO existing
+> SAS code.
 > 
-> Could not you just add phys_to_virt at some strategic place? 
-
-No, I need both, but the original kernel mapping is safe, so I don't care (I just point to
-it from the temporary PGD).
-
-> > > Why? Reserve ten pages for them... static char resume_page_tables[10*PAGE_SIZE] does not
-> > > sound that bad.
-> > 
-> > That will allow us to suspend if there's no more that 8GB of RAM in the box.
-> > Is it acceptable?
+> My SAS code has been around _long_ before Christophs
+> code.
 > 
-> I'd say so.
+> Christoph's code is
+>  * MPT based only,
+>  * doesn't follow a spec to save its life,
+>  * far inferior in SAS capabilities and SAS representation
+>    again, due to the fact that it is MPT based.
 > 
-> > > > Moreover, such a code would have to be executed on every boot and the
-> > > > temporary page tables would always be present in memory.
-> > > 
-> > > Yep, but I do not see that as a big problem.
-> > 
-> > OK
-> > 
-> > I can reserve the static buffer (10 pages) in suspend.c and mark it as nosave.
-> > The code that creates the mappings can stay in suspend.c either except it
-> > won't need to call get_usable_page() and free_eaten_memory() any more
-> > (__next_page() can be changed to get pages from the static buffer instead
-> > of allocating them).  The code can also be simplified a bit, as we assume that
-> > there will be only one PGD entry in the direct mapping.
-> > 
-> > If that sounds good to you, please confirm.
+> Since the whole point of MPT is to _hide_ the transport.
 > 
-> 8GB limit seems good to me -- as long as it makes code significantly
-> simpler. It would be nice if it was <20 lines.
+> > * Avoids existing SATA code, rather than working with it.
+> 
+> FUD!  Why?  It does _not_ use SATA code at all.
+> 
+> Why?  SATA devices are discovered on the domain, but
+> there is _no_ SATL in the kernel to represent them.
+> 
+> And libata is _not_ SATL.  The reasons are that
+> libata is closely coupled to the hardware, i.e.
+> ata_port.
+> 
+> While in SAS open transport architecures, you'd have
+> execute ATA/SAS/SMP task just as you have in aic-94xx.
+> Why? Because all the chip is, is an interface to the
+> interconect.
+> 
+> But I'm sure you know all this having looked at the
+> specs of BCM8603.
+> 
+> > * Avoids (rather than fix) several SCSI core false dependencies on HCIL. 
+> >   Results in code duplication and/or avoidance of needed code.
+> 
+> No, not true.  It _integrates_ with SCSI Core.  The sad truth
+> is that SCSI Core knows only HCIL.
+> 
+> Jeff, please be more specific.
+> 
+> > * So far, it's an Adaptec-only solution.  Since it pointedly avoids the 
+> > existing SAS transport code, this results in two SAS solutions in Linux: 
+> > one for Adaptec, one for {everyone else}.
+> 
+> Hmm, again: _architecture_.  And you have to stop these
+> accusations: "pointedly avoids the existing SAS transport code".
+> 
+> I repeat again that I had this code _long_ before Christoph
+> ever dreamt up SAS.  And he got my code via James B sometime
+> before OLS this year.  I think he got it July 12, 2005.
+> 
+> The question is: why didn't _he_ use the solution already
+> available?
+> 
+> You have to understand the differences between MPT and open
+> transport architecture.
+> 
+> At some point I thought Christoph seemed to have understood it.
+> Now I'm not sure any more.
+> 
+> Now since the open transport solution completely encompasses
+> and _absolves_ MPT, it is not hard for an MPT driver to
+> generate a bunch of events and use that infrastructure.
+> 
+> > * Maintainer reminds me of my ATA mentor, Andre Hedrick:  knows his 
+> > shit, but has difficulties working with the community.  May need a 
+> > filter if we want long term maintenance to continue.
+> 
+> I take offence in your liking me to Andre -- I don't know
+> Andre personally, but is seems that you're expressing personal
+> opinion against him, against me and labeling me in some way.
+> 
+> I take offence in that, Jeff.
+> 
+> Why are you making this a _political_ and personal game?
+> 
+> All you're doing is trying to aliken me to someone and
+> brandish me as someone I'm not.
+> 
+> This is rude, offensive and done in desperation.
+> 
+> Shall we concentrate on the _technical_ part of
+> the argument?
+> 
+> I repeat again: _technical_ part of the argument.
+> 
+> > Easy path: make Adaptec's solution a block driver, which allows it to 
+> > sidestep all the "doesn't play well with others" issues.  Still an 
+> 
+> What _exactly_ does it mean "don't play well with others"?
+> 
+> Do you mean:
+>  - the solution is far superiour to anything available now
+>  - it presents the SAS Domain in sysfs as it looks in
+>    the physical world,
+>  - does domain discovery and expander configuration,
+>  - allows for complete control of the domain to user space,
+>  - it pokes at SCSI Core's 20 year old relics.
+>  - it's a thorn in the flesh to other people striving for
+>    similar functionality.
+> 
+> Or do you mean:
+>  - it does not change a single line of code in the kernel,
+>  - does not break anything existing,
+>  - etc, etc.
+> 
+> > Adaptec-only solution, but at least its in a separate playpen.
+> 
+> I'm sure James Bottomley will move from SCSI Core to the block
+> layer as he did for IDR. hehehe :-)
+> 
+> And no, it is not Adaptec's only solution.  Your BCM8603 SAS
+> LLDD when you write it could use it without any problems.
+> 
+> > Hard path: Update the SCSI core and libata to work with SATA+SAS 
+> > hardware such as Adaptec's.
+> 
+> Cannot do for libata -- ever.  Why?  You know best: because
+> libata uses direct access to the hardware!  There is no
+> layered architecture.
+> 
+> What you need to do is to write a SATL layer, just as you can
+> see in SAT-r6, page 2, Figure 3.  I'm on top of this already.
+> 
+> But in order to do this you need a unified architecture
+> for accessing ATA devices.
+> 
+> Now libata, uses ata_port to do this, which is _hardware_
+> access.
+> 
+> The SAS Transport layer uses Execute SCSI RPC (defined
+> in SAM, provided by aic94xx) to do this.
+> 
+> So in effect, what SATL would end up to be is a
+> data transformation function.   But I digress...
+> 
+> > The hard path takes time, and won't be solved simply by shoving it in.
+> 
+> No, you can do it now.  It will not affect anyone or anything.
+> (Other than hurting a couple of people's pride.)
+> 
+> The code doesn't alter Linux SCSI or anyone else's behaviour.
+> It only _provides_ SAS support to the kernel.
+> 
+> Including it in as is would does not hurt anyone as you can
+> see here:
+> http://linux.adaptec.com/sas/git/
+> 
+> Concentrate on the _technical_ merit, let's be more specific.
+> 
+> 	Luben
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-It is more than that, but it seems to be quite simple anyway.
-
-The new patch follows.
-
-Greetings,
-Rafael
-
-
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
-
-Index: linux-2.6.14-rc2-git6/arch/x86_64/kernel/suspend.c
-===================================================================
---- linux-2.6.14-rc2-git6.orig/arch/x86_64/kernel/suspend.c	2005-09-28 00:47:43.000000000 +0200
-+++ linux-2.6.14-rc2-git6/arch/x86_64/kernel/suspend.c	2005-09-28 01:05:08.000000000 +0200
-@@ -11,6 +11,21 @@
- #include <linux/smp.h>
- #include <linux/suspend.h>
- #include <asm/proto.h>
-+#include <asm/page.h>
-+#include <asm/pgtable.h>
-+
-+#define MAX_RESUME_PUD_ENTRIES	8
-+#define MAX_RESUME_RAM_SIZE	(MAX_RESUME_PUD_ENTRIES * PTRS_PER_PMD * PMD_SIZE)
-+
-+int arch_prepare_suspend(void)
-+{
-+	if (MAX_RESUME_RAM_SIZE < (end_pfn << PAGE_SHIFT)) {
-+		printk(KERN_ERR "Too much RAM for suspend (%lu), max. allowed: %lu",
-+			end_pfn << PAGE_SHIFT, MAX_RESUME_RAM_SIZE);
-+		return -ENOMEM;
-+	}
-+	return 0;
-+}
- 
- struct saved_context saved_context;
- 
-@@ -140,4 +155,62 @@
- 
- }
- 
-+/* Defined in arch/x86_64/kernel/suspend_asm.S */
-+int restore_image(void);
-+
-+/* References to section boundaries */
-+extern const void __nosave_begin, __nosave_end;
- 
-+pgd_t resume_level4_pgt[PTRS_PER_PGD] __nosavedata;
-+pud_t resume_level3_pgt[PTRS_PER_PUD] __nosavedata;
-+pmd_t resume_level2_pgt[MAX_RESUME_PUD_ENTRIES*PTRS_PER_PMD] __nosavedata;
-+
-+static void phys_pud_init(pud_t *pud, unsigned long end)
-+{
-+	long i, j;
-+	pmd_t *pmd = resume_level2_pgt;
-+
-+	for (i = 0; i < PTRS_PER_PUD; pud++, i++) {
-+		unsigned long paddr;
-+
-+		paddr = i*PUD_SIZE;
-+		if (paddr >= end) {
-+			for (; i < PTRS_PER_PUD; i++, pud++)
-+				set_pud(pud, __pud(0));
-+			break;
-+		}
-+
-+		set_pud(pud, __pud(__pa(pmd) | _KERNPG_TABLE));
-+		for (j = 0; j < PTRS_PER_PMD; pmd++, j++, paddr += PMD_SIZE) {
-+			unsigned long pe;
-+
-+			if (paddr >= end) {
-+				for (; j < PTRS_PER_PMD; j++, pmd++)
-+					set_pmd(pmd,  __pmd(0));
-+				break;
-+			}
-+			pe = _PAGE_NX|_PAGE_PSE | _KERNPG_TABLE | _PAGE_GLOBAL | paddr;
-+			pe &= __supported_pte_mask;
-+			set_pmd(pmd, __pmd(pe));
-+		}
-+	}
-+}
-+
-+static void set_up_temporary_mappings(void)
-+{
-+	/* It is safe to reuse the original kernel mapping */
-+	set_pgd(resume_level4_pgt + pgd_index(__START_KERNEL_map),
-+		init_level4_pgt[pgd_index(__START_KERNEL_map)]);
-+
-+	/* Set up the direct mapping from scratch */
-+	phys_pud_init(resume_level3_pgt, end_pfn << PAGE_SHIFT);
-+	set_pgd(resume_level4_pgt + pgd_index(PAGE_OFFSET),
-+		mk_kernel_pgd(__pa(resume_level3_pgt)));
-+}
-+
-+int swsusp_arch_resume(void)
-+{
-+	set_up_temporary_mappings();
-+	restore_image();
-+	return 0;
-+}
-Index: linux-2.6.14-rc2-git6/arch/x86_64/kernel/suspend_asm.S
-===================================================================
---- linux-2.6.14-rc2-git6.orig/arch/x86_64/kernel/suspend_asm.S	2005-09-28 00:47:43.000000000 +0200
-+++ linux-2.6.14-rc2-git6/arch/x86_64/kernel/suspend_asm.S	2005-09-28 00:48:09.000000000 +0200
-@@ -39,12 +39,12 @@
- 	call swsusp_save
- 	ret
- 
--ENTRY(swsusp_arch_resume)
--	/* set up cr3 */	
--	leaq	init_level4_pgt(%rip),%rax
--	subq	$__START_KERNEL_map,%rax
--	movq	%rax,%cr3
--
-+ENTRY(restore_image)
-+	/* switch to temporary page tables */
-+	leaq	resume_level4_pgt(%rip), %rax
-+	subq	$__START_KERNEL_map, %rax
-+	movq	%rax, %cr3
-+	/* Flush TLB */
- 	movq	mmu_cr4_features(%rip), %rax
- 	movq	%rax, %rdx
- 	andq	$~(1<<7), %rdx	# PGE
-@@ -69,6 +69,10 @@
- 	movq	pbe_next(%rdx), %rdx
- 	jmp	loop
- done:
-+	/* go back to the original page tables */
-+	leaq	init_level4_pgt(%rip), %rax
-+	subq	$__START_KERNEL_map, %rax
-+	movq	%rax, %cr3
- 	/* Flush TLB, including "global" things (vmalloc) */
- 	movq	mmu_cr4_features(%rip), %rax
- 	movq	%rax, %rdx
-Index: linux-2.6.14-rc2-git6/include/asm-x86_64/suspend.h
-===================================================================
---- linux-2.6.14-rc2-git6.orig/include/asm-x86_64/suspend.h	2005-09-28 00:47:43.000000000 +0200
-+++ linux-2.6.14-rc2-git6/include/asm-x86_64/suspend.h	2005-09-28 00:48:09.000000000 +0200
-@@ -6,11 +6,7 @@
- #include <asm/desc.h>
- #include <asm/i387.h>
- 
--static inline int
--arch_prepare_suspend(void)
--{
--	return 0;
--}
-+extern int arch_prepare_suspend(void);
- 
- /* Image of the saved processor state. If you touch this, fix acpi_wakeup.S. */
- struct saved_context {

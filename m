@@ -1,45 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965082AbVI0VRc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965149AbVI0VSS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965082AbVI0VRc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 17:17:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965148AbVI0VRc
+	id S965149AbVI0VSS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 17:18:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965148AbVI0VSS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 17:17:32 -0400
-Received: from mother.openwall.net ([195.42.179.200]:39642 "HELO
-	mother.openwall.net") by vger.kernel.org with SMTP id S965082AbVI0VRc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 17:17:32 -0400
-Date: Wed, 28 Sep 2005 01:16:24 +0400
-From: Solar Designer <solar@openwall.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Sergey Vlasov <vsu@altlinux.ru>,
-       vendor-sec@lst.de, linux-kernel@vger.kernel.org,
-       security@linux.kernel.org
-Subject: Re: PID reuse safety for userspace apps (Re: [linux-usb-devel] Re: [Security] [vendor-sec] [BUG/PATCH/RFC] Oops while completing async USB via usbdevio)
-Message-ID: <20050927211624.GA4947@openwall.com>
-References: <20050925151330.GL731@sunbeam.de.gnumonks.org> <Pine.LNX.4.58.0509270746200.3308@g5.osdl.org> <20050927160029.GA20466@master.mivlgu.local> <Pine.LNX.4.58.0509270904140.3308@g5.osdl.org> <20050927165206.GB20466@master.mivlgu.local> <20050927172048.GA3423@openwall.com> <1127853252.10674.9.camel@localhost.localdomain> <Pine.LNX.4.58.0509271335530.3308@g5.osdl.org>
-Mime-Version: 1.0
+	Tue, 27 Sep 2005 17:18:18 -0400
+Received: from dvhart.com ([64.146.134.43]:23693 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S965149AbVI0VSR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 17:18:17 -0400
+Date: Tue, 27 Sep 2005 14:18:14 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Rohit Seth <rohit.seth@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, Mattia Dongili <malattia@linux.it>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-rc2-mm1
+Message-ID: <970900000.1127855894@flay>
+In-Reply-To: <1127851502.6144.10.camel@akash.sc.intel.com>
+References: <922980000.1127847470@flay> <1127851502.6144.10.camel@akash.sc.intel.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0509271335530.3308@g5.osdl.org>
-User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 27, 2005 at 01:42:44PM -0700, Linus Torvalds wrote:
-> Note that for at least signal sending, the security aspect is _not_ about 
-> whether the pid has been re-used, but about whether the _user_ matches.
+>> > --- linux-2.6.13.old/mm/page_alloc.c  2005-09-26 10:57:07.000000000
+>> -0700 
+>> > +++ linux-2.6.13.work/mm/page_alloc.c 2005-09-26 10:47:57.000000000
+>> -0700 
+>> > @@ -1749,7 +1749,7 @@ 
+>> >       pcp = &p->pcp[1];               /* cold*/ 
+>> >       pcp->count = 0; 
+>> >       pcp->low = 0; 
+>> > -     pcp->high = 2 * batch; 
+>> > +     pcp->high = batch / 2; 
+>> >       pcp->batch = max(1UL, batch/2); 
+>> >       INIT_LIST_HEAD(&pcp->list); 
+>> >  } 
+>> > -
+>> 
+>> I don't understand. How can you set the high watermark at half the
+>> batch size? Makes no sense to me.
+>> 
+> 
+> The batch size for the cold pcp list is getting initialized to batch/2
+> in the code snip above.  So, this change is setting the high water mark
+> for cold list to same as pcp's batch number.
 
-That's true.  And, changing topic to userspace apps, killall(1)
-currently has no race-free way to check whether the user still matches.
+I must be being particularly dense today ... but:
 
-There's also the reliability aspect: killing one's own process, but
-other than the intended one, is a reliability issue.
+ pcp->high = batch / 2; 
 
-What I have proposed is a way to deal with both of these.
+Looks like half the batch size to me, not the same? 
 
-killall is just an example.  A GUI point-and-click task manager would
-have the same problem and the same solution would work for it.
+>> And can you give a stricter definiton of what you mean by "low memory 
+>> conditions"? I agree we ought to empty the lists before going OOM or 
+>> anything, but not at the slightest feather of pressure ... answer lies
+>> somewhere inbetween ... but where?
+>> 
+> 
+> In the specific case of dump information that Mattia sent earlier, there
+> is only 4M of free mem available at the time the order 1 request is
+> failing.  
+> 
+> In general, I think if a specific higher order ( > 0) request fails that
+> has GFP_KERNEL set then at least we should drain the pcps.
 
--- 
-Alexander
+Mmmm. so every time we fork a process with 8K stacks, or allocate a frame
+for jumbo ethernet, or NFS, you want to drain the lists? that seems to
+wholly defeat the purpose.
+
+Could you elaborate on what the benefits were from this change in the
+first place? Some page colouring thing on ia64? It seems to have way more
+downside than upside to me.
+
+M.
+

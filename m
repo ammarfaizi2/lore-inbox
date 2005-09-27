@@ -1,111 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750832AbVI0Dnd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750830AbVI0Dkm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750832AbVI0Dnd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 23:43:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbVI0Dnd
+	id S1750830AbVI0Dkm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 23:40:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750832AbVI0Dkm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 23:43:33 -0400
-Received: from liaag2ab.mx.compuserve.com ([149.174.40.153]:3486 "EHLO
-	liaag2ab.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1750832AbVI0Dnc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 23:43:32 -0400
-Date: Mon, 26 Sep 2005 23:40:21 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [RFT][PATCH] i386 per cpu IDT (2.6.12-rc1-mm1)
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-Message-ID: <200509262342_MC3-1-AB3C-C0FF@compuserve.com>
+	Mon, 26 Sep 2005 23:40:42 -0400
+Received: from nproxy.gmail.com ([64.233.182.193]:45940 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750826AbVI0Dkl convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Sep 2005 23:40:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TUrXWUeuMLX0XBrgMaubGBHTIqgwnSlwoJwhxHpqeNfavD7GlAaSDc/OtGElm8Q4VmPlJwN26QR8ftHG+qNphsJenJH3w2DNZ+3ytwxYCONI9lQiBWw/l0lbD/TDkQ1Iqp7fZhR4GPZw/o20HhkDBN11cXhtVqrdPUqw7P2H+Ps=
+Message-ID: <2cd57c90050926204022fb22ca@mail.gmail.com>
+Date: Tue, 27 Sep 2005 11:40:38 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+Reply-To: Coywolf Qi Hunt <coywolf@gmail.com>
+To: Alex Williamson <alex.williamson@hp.com>
+Subject: Re: [PATCH] sys_sendmsg() alignment bug fix
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+In-Reply-To: <1127764921.6529.60.camel@tdi>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
+References: <1127764921.6529.60.camel@tdi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <Pine.LNX.4.61.0509251101060.1684@montezuma.fsmlabs.com>
+On 9/27/05, Alex Williamson <alex.williamson@hp.com> wrote:
+>    The patch below adds an alignment attribute to the buffer used in
+> sys_sendmsg().  This eliminates an unaligned access warning on ia64.
 
-On Sun, 25 Sep 2005 at 11:01:29 -0700, Zwane Mwaikambo wrote:
-
-> --- linux-2.6.14-rc2-mm1/arch/i386/kernel/entry.S     24 Sep 2005 18:26:49 -0000      1.1.1.1
-> +++ linux-2.6.14-rc2-mm1/arch/i386/kernel/entry.S     25 Sep 2005 05:15:29 -0000
-> @@ -410,27 +410,18 @@ syscall_badsys:
->       FIXUP_ESPFIX_STACK \
->  28:  popl %eax;
->  
-> -/*
-> - * Build the entry stubs and pointer table with
-> - * some assembler magic.
-> - */
-> -.data
-> -ENTRY(interrupt)
-> -.text
-> -
-> +/* Build the IRQ entry stubs */
->  vector=0
-> -ENTRY(irq_entries_start)
-> +     .align IRQ_STUB_SIZE,0x90
-> +ENTRY(interrupt)
->  .rept NR_IRQS
->       ALIGN     <===================================
-> -1:   pushl $vector-256
-> +     pushl $vector-0x10000
->       jmp common_interrupt
-> -.data
-> -     .long 1b
-> -.text
-> +     .align IRQ_STUB_SIZE,0x90
->  vector=vector+1
->  .endr
->  
-> -     ALIGN
->  common_interrupt:
->       SAVE_ALL
->       movl %esp,%eax
-
-  That ALIGN could cause problems if someone changed default i386 alignment to
-something larger than IRQ_STUB_SIZE.  Why is it there?
-
-
-> --- linux-2.6.14-rc2-mm1/include/asm-i386/mach-default/irq_vectors_limits.h   24 Sep 2005 18:27:12 -0000      1.1.1.1
-> +++ linux-2.6.14-rc2-mm1/include/asm-i386/mach-default/irq_vectors_limits.h   25 Sep 2005 05:15:35 -0000
-> @@ -2,11 +2,15 @@
->  #define _ASM_IRQ_VECTORS_LIMITS_H
->  
->  #ifdef CONFIG_PCI_MSI
-> -#define NR_IRQS FIRST_SYSTEM_VECTOR
-> +#define NR_IRQS 224
-> +#define IRQ_STUB_SIZE 16
->  #define NR_IRQ_VECTORS NR_IRQS
-> +#define NR_IRQ_NODES MAX_NUMNODES
->  #else
->  #ifdef CONFIG_X86_IO_APIC
->  #define NR_IRQS 224
-> +#define IRQ_STUB_SIZE 16
-> +#define NR_IRQ_NODES MAX_NUMNODES
->  # if (224 >= 32 * NR_CPUS)
->  # define NR_IRQ_VECTORS NR_IRQS
->  # else
-> @@ -14,8 +18,13 @@
->  # endif
->  #else
->  #define NR_IRQS 16
-> +#define IRQ_STUB_SIZE 16        <=================================
-> +#define NR_IRQ_NODES 1
->  #define NR_IRQ_VECTORS NR_IRQS
->  #endif
->  #endif
->  
-> +/* number of vectors available for external interrupts in Linux */
-> +#define NR_DEVICE_VECTORS    190
-> +
->  #endif /* _ASM_IRQ_VECTORS_LIMITS_H */
-
- Can't these be 8 bytes when there are only 16 IRQs?
-
- And is there any way to special-case kernels built with max of two CPUs so there are
-only 24 IRQs allocated?  That seems to be the maximum for that case.
-
-__
-Chuck
+Is this a warning fix or bug fix?
+--
+Coywolf Qi Hunt
+http://sosdg.org/~coywolf/

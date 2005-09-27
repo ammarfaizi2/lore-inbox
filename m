@@ -1,74 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964998AbVI0QJN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964997AbVI0QIk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964998AbVI0QJN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 12:09:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965000AbVI0QJM
+	id S964997AbVI0QIk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 12:08:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964998AbVI0QIk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 12:09:12 -0400
-Received: from xproxy.gmail.com ([66.249.82.197]:19726 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964999AbVI0QJK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 12:09:10 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:message-id;
-        b=CC3yBZHysdMSUCYwBpjCvGNOR9oCVE0oXJm8kq2J1X593nl/4/+XTcK95oRjjwzfnV+maX84UTHm5+GreNfwxkaEzFt3sGFT1vq8KguZCtMua5yku6uWZVvaoaiZc8Ei2ZxOkiI9ui62qbjpjpPps4AWGRQ0P7nLqsypbhlV2TI=
-From: Patrick McFarland <diablod3@gmail.com>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Subject: Re: Audigy2 renamed, grrr...
-Date: Tue, 27 Sep 2005 12:08:55 -0400
-User-Agent: KMail/1.8.2
-Cc: Mathieu Chouquet-Stringer <ml2news@optonline.net>,
-       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
-       Stl <stlman@poczta.fm>
-References: <4338EF9A.1080906@poczta.fm> <m3achy4kgu.fsf@mcs.bigip.mine.nu> <200509271646.18301.s0348365@sms.ed.ac.uk>
-In-Reply-To: <200509271646.18301.s0348365@sms.ed.ac.uk>
+	Tue, 27 Sep 2005 12:08:40 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:59266 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S964997AbVI0QIj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 12:08:39 -0400
+Message-ID: <43396E83.7000803@austin.ibm.com>
+Date: Tue, 27 Sep 2005 11:08:35 -0500
+From: Joel Schopp <jschopp@austin.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050909 Fedora/1.7.10-1.3.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3091636.6dYRoNVIdZ";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+CC: lhms <lhms-devel@lists.sourceforge.net>,
+       Linux Memory Management List <linux-mm@kvack.org>,
+       linux-kernel@vger.kernel.org, Mel Gorman <mel@csn.ul.ie>
+Subject: Re: [PATCH 4/9] defrag helper functions
+References: <4338537E.8070603@austin.ibm.com> <43385594.3080303@austin.ibm.com> <C50046EE58FA62242E92877C@[192.168.100.25]>
+In-Reply-To: <C50046EE58FA62242E92877C@[192.168.100.25]>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200509271209.00693.diablod3@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3091636.6dYRoNVIdZ
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+>> +void assign_bit(int bit_nr, unsigned long* map, int value)
+> 
+> 
+> Maybe:
+> static inline void assign_bit(int bit_nr, unsigned long* map, int value)
+> 
+> it's short enough
 
-On Tuesday 27 September 2005 11:46 am, Alistair John Strachan wrote:
-> [alistair] 16:45 [~] cat /proc/asound/cards
-> 0 [Audigy2        ]: Audigy2 - Audigy 2 Platinum [SB0240P]
->                      Audigy 2 Platinum [SB0240P] (rev.4, serial:0x1002110=
-2)
-> at 0x9000, irq 177
+OK.  It looks like I'll be sending these again based on the feedback I got,
+I'll inline that in the next version.  I'd think with it being static that
+the compiler would be smart enough to inline it anyway though.
 
-0 [Audigy2        ]: Audigy2 - Audigy 2 ZS [SB0350]
-                     Audigy 2 ZS [SB0350] (rev.4, serial:0x20021102) at=20
-0xd000, irq 19
+> 
+>>  +static struct page *
+>> +fallback_alloc(int alloctype, struct zone *zone, unsigned int order)
+>> +{
+>> +       /* Stub out for seperate review, NULL equates to no fallback*/
+>> +       return NULL;
+>> +
+>> +}
+> 
+> 
+> Maybe "static inline" too.
 
-And that would be my Audigy 2 ZS.
-
-=2D-=20
-Patrick "Diablo-D3" McFarland || diablod3@gmail.com
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
-e'd=20
-all be running around in darkened rooms, munching magic pills and listening=
- to
-repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
-
---nextPart3091636.6dYRoNVIdZ
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDOW6c8Gvouk7G1cURAmU0AKC040R5Oy+PUhHi0wzbdp8PcoMUXQCfYeEm
-nigIeG7kQkT+E3lXNLjJ2tU=
-=50aQ
------END PGP SIGNATURE-----
-
---nextPart3091636.6dYRoNVIdZ--
+Except this is only a placeholder for the next patch, where the function
+is no longer short.  I'm going to keep it not inline.

@@ -1,96 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965063AbVI0U4e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbVI0VAU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965063AbVI0U4e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 16:56:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965060AbVI0U4e
+	id S932216AbVI0VAU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 17:00:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932456AbVI0VAU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 16:56:34 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:34018
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S965063AbVI0U4d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 16:56:33 -0400
-Date: Tue, 27 Sep 2005 13:56:26 -0700 (PDT)
-Message-Id: <20050927.135626.88296134.davem@davemloft.net>
-To: suzannew@cs.pdx.edu
-Cc: linux-kernel@vger.kernel.org, Robert.Olsson@data.slu.se,
-       paulmck@us.ibm.com, walpole@cs.pdx.edu
-Subject: Re: [RFC][PATCH] identify in_dev_get rcu read-side critical
- sections
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <200509081712.j88HCqke013162@rastaban.cs.pdx.edu>
-References: <200509081712.j88HCqke013162@rastaban.cs.pdx.edu>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Tue, 27 Sep 2005 17:00:20 -0400
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:38097 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S932216AbVI0VAT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 17:00:19 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: [PATCH][Fix] Fix Bug #4959 (take 2)
+Date: Tue, 27 Sep 2005 23:00:36 +0200
+User-Agent: KMail/1.8.2
+Cc: Pavel Machek <pavel@ucw.cz>, LKML <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>
+References: <200509241936.12214.rjw@sisk.pl> <200509271007.03865.rjw@sisk.pl> <20050927133218.GB9484@openzaurus.ucw.cz>
+In-Reply-To: <20050927133218.GB9484@openzaurus.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509272300.37197.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Suzanne Wood <suzannew@cs.pdx.edu>
-Date: Thu, 8 Sep 2005 10:12:52 -0700 (PDT)
+Hi,
 
-> Please consider this request for suggestions on an attempt at a partial patch 
-> based on the assumptions below to identify rcu read-side critical sections 
-> for in_dev_get() defined in inetdevice.h.  Thank you.
+On Tuesday, 27 of September 2005 15:32, Pavel Machek wrote:
+> Hi!
+> 
+> I do not really like new exports from swsusp.c, but I'm afraid
+> there's no way around.
 
-Thanks a lot for your patch, and patience in waiting for it
-to get reviewed :-)
+Well, there is one, if we use a static buffer, as you propose, since
+in that case we will not need get_usable_pages() etc. outside of
+swsusp.c.  The drawback of this, however, is that we will limit the
+size of RAM for which it is possible to suspend (we need at least 1 page
+for the PGD, 1 page for a PUD plus as many pages as there are GBs of
+RAM for PMDs).  If we want to cover the huge-RAM cases, the buffer will
+be too large for the average case, but otherwise some boxes will not
+be able to suspend.
 
-I agree with the changes to add rcu_dereference() use.
-Those were definitely lacking and needed.
+> > The following patch fixes Bug #4959.  For this purpose it creates temporary
+> > page translation tables including the kernel mapping (reused) and the direct
+> > mapping (created from scratch) and makes swsusp switch to these tables
+> > right before the image is restored.
+> 
+> Why do you need *two* mappings? Should not just kernel mapping be enough?
 
-This following case is clever and correct, though.  It is from
-the net/ipv4/devinet.c part of your patch:
+The kernel mapping is for the kernel text.  The direct mapping maps the physical
+RAM linearly to the set of virtual addresses starting at PAGE_OFFSET.
 
-@@ -409,7 +412,8 @@ static int inet_rtm_deladdr(struct sk_bu
- 
- 	if ((in_dev = inetdev_by_index(ifm->ifa_index)) == NULL)
- 		goto out;
--	__in_dev_put(in_dev);
-+	in_dev_put(in_dev);
-+	rcu_read_unlock();
- 
- 	for (ifap = &in_dev->ifa_list; (ifa = *ifap) != NULL;
- 	     ifap = &ifa->ifa_next) {
+> > NOTES:
+> > (1) I'm quite sure that to fix the problem we need to use temporary page
+> > translation tables that won't be modified in the process of copying the image.
+> > (2) These page translation tables have to be present in memory before the
+> > image is copied, so there are two possible ways in which they can be created:
+> > 	(a) in the startup kernel code that is executed before calling swsusp
+> > 	on resume, in which case they have to be marked with PG_nosave,
+> > 	(b) in swsusp, after the image has been loaded from disk (to set up
+> > 	the tables we need to know which pages will be overwritten while
+> > 	copying the image).
+> > However, (a) is tricky, because it will only work if the tables are always located
+> > at the same physical addresses, which I think would be quite difficult to achieve.
+> 
+> Why? Reserve ten pages for them... static char resume_page_tables[10*PAGE_SIZE] does not
+> sound that bad.
 
-Everyone gets fooled by a certain invariant in the Linux networking
-locking.  If the RTNL semaphore is held, _all_ device and address
-configuration changes are blocked.  IP addresses cannot be removed,
-devices cannot be brought up or down, routes cannot be added or
-deleted, etc.  The RTNL semaphore serializes all of these operations.
-And it is held during inet_rtm_deladdr() here.
+That will allow us to suspend if there's no more that 8GB of RAM in the box.
+Is it acceptable?
 
-So we _know_ that if inetdev_by_index() returns non-NULL someone
-else (the device itself) holds at least _one_ reference to that
-object which cannot go away, because all such actions would need
-to take the RTNL semaphore which we hold.
+> > Moreover, such a code would have to be executed on every boot and the
+> > temporary page tables would always be present in memory.
+> 
+> Yep, but I do not see that as a big problem.
 
-So __in_dev_put() is safe here.
+OK
 
-Arguably, it's being overly clever for questionable gain.
-It definitely deserves a comment, how about that? :-)
+I can reserve the static buffer (10 pages) in suspend.c and mark it as nosave.
+The code that creates the mappings can stay in suspend.c either except it
+won't need to call get_usable_page() and free_eaten_memory() any more
+(__next_page() can be changed to get pages from the static buffer instead
+of allocating them).  The code can also be simplified a bit, as we assume that
+there will be only one PGD entry in the direct mapping.
 
-Finally, about adding rcu_read_{lock,unlock}() around even
-in_dev_{get,put}().  I bet that really isn't needed but I cannot
-articulate why we can get away without it.  For example, if we
-are given a pair executed in a function like:
+If that sounds good to you, please confirm.
 
-	in_dev_get();
-
-	...
-
-	in_dev_put();
-
-who cares if we preempt?  The local function's execution holds the
-necessary reference, so the object's refcount cannot ever fall to
-zero.
-
-We can't get any RCU callbacks invoked, as a result, so we don't
-need the rcu_read_{lock,unlock}() calls here.
-
-The in_dev_put() uses atomic_dec_and_test(), which provides a memory
-barrier, so no out-of-order cpu memory references to the object
-can escape past the decrement to zero of the object reference count.
-
-In short, I think adding rcu_read_{lock,unlock}() is very heavy
-handed and unnecessary.
+Greetings,
+Rafael

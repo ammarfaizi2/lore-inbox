@@ -1,70 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965003AbVI0Qiz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965004AbVI0Qkc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965003AbVI0Qiz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 12:38:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965004AbVI0Qiz
+	id S965004AbVI0Qkc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 12:40:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965006AbVI0Qkc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 12:38:55 -0400
-Received: from tierw.net.avaya.com ([198.152.13.100]:44029 "EHLO
-	tierw.net.avaya.com") by vger.kernel.org with ESMTP id S965003AbVI0Qiy convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 12:38:54 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [RFC PATCH] New SA_NOPRNOTIF sigaction flag
-Date: Tue, 27 Sep 2005 10:24:23 -0600
-Message-ID: <21FFE0795C0F654FAD783094A9AE1DFC086EFBEB@cof110avexu4.global.avaya.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [RFC PATCH] New SA_NOPRNOTIF sigaction flag
-Thread-Index: AcXDfHSDezXjog24QIy5xVH9CqLpkQAAlAzA
-From: "Davda, Bhavesh P \(Bhavesh\)" <bhavesh@avaya.com>
-To: "Daniel Jacobowitz" <dan@debian.org>
-Cc: <linux-kernel@vger.kernel.org>
+	Tue, 27 Sep 2005 12:40:32 -0400
+Received: from hera.kernel.org ([140.211.167.34]:34742 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S965004AbVI0Qkb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 12:40:31 -0400
+To: linux-kernel@vger.kernel.org
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: Sys fs
+Date: Tue, 27 Sep 2005 09:40:37 -0700
+Organization: OSDL
+Message-ID: <20050927094037.3a4d54c4@dxpl.pdx.osdl.net>
+References: <C75A388845B4B54B9CF5E2ADB589B0E30F389A86@btss005a.siemens-pse.sk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Trace: build.pdx.osdl.net 1127839218 765 10.8.0.74 (27 Sep 2005 16:40:18 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Tue, 27 Sep 2005 16:40:18 +0000 (UTC)
+X-Newsreader: Sylpheed-Claws 1.9.14 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Also, this is far from the only problem you're going to have 
-> if you run
-> your debugger with lower priority than your debuggee.
+On Tue, 27 Sep 2005 14:22:47 +0200
+Kormos Matej <Matej.Kormos@siemens.com> wrote:
 
-About the priority inversion and running the debugger at higher priority
-then the debuggee, that's a moot point. You're still doing too many
-pointless context switches to the debugger only to do nothing and switch
-back to the debuggee.
-
-
-> > 
-> > IMHO this is a perfectly safe capability...
+> Hello,
+> As far as I know all network drivers are automatically shown in
+> /sys/class/net;
+> But what to do if I want my kobject which is in my char driver appears in
+> /sys/class/net?
+> I am writing char driver which control some features on a switching device.
+> My kobject appears in directly in /sys directory because I set kobject
+> parent and kset to NULL.
+> But I need to move it to the net directory. I have read the book Linux
+> Device Drivers and searched web, but I have not found way how to acquire
+> pointers to ksets created by another drivers and how to connect to net
+> class. 
 > 
-> No.  Ptrace is considered a security barrier; the tracee should not be
-> able to control what the tracer sees.
-> 
 
-Since when did ptrace become a security barrier? If security is the only
-concern, then we can always add a capability check to only allow root to
-set SA_NOPRNOTIF on sigaction() for a particular signal.
-
-Besides, putting this responsibility (ignore SIGCHLDs for signal X from
-Task Y) in the debugger requires the debugger to have information about
-the debuggee, like Task Y is special for handling signal X, and I'm
-going to ptrace() ignore SIGCHLD's from Task Y.
-
-See where I'm going with this?
-
-That's why I specifically put the responsibility on the debuggee to say:
-I know what I'm doing and I don't want the debugger to be notified about
-this specific signal.
-
-
-- Bhavesh
-
-
-Bhavesh P. Davda | Distinguished Member of Technical Staff | Avaya |
-1300 West 120th Avenue | B3-B03 | Westminster, CO 80234 | U.S.A. |
-Voice/Fax: 303.538.4438 | bhavesh@avaya.com
-
+If your driver is not a 'struct network_device' then don't put it
+in /sys/class/net please. If you must then, it must export the same
+files to keep from breaking assumptions of tools.

@@ -1,109 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964950AbVI0OhR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964804AbVI0On0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964950AbVI0OhR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 10:37:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964951AbVI0OhR
+	id S964804AbVI0On0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 10:43:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964951AbVI0OnZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 10:37:17 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:52236 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S964950AbVI0OhP (ORCPT
+	Tue, 27 Sep 2005 10:43:25 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:29898 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964804AbVI0OnZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 10:37:15 -0400
-Date: Tue, 27 Sep 2005 10:36:51 -0400
-From: Neil Horman <nhorman@tuxdriver.com>
-To: Al Boldi <a1426z@gawab.com>
-Cc: Matthew Helsley <matthltc@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: Resource limits
-Message-ID: <20050927143651.GB5947@hmsreliant.homelinux.net>
-References: <200509251712.42302.a1426z@gawab.com> <200509270808.21821.a1426z@gawab.com> <20050927120840.GA5947@hmsreliant.homelinux.net> <200509271642.07864.a1426z@gawab.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200509271642.07864.a1426z@gawab.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 27 Sep 2005 10:43:25 -0400
+Date: Tue, 27 Sep 2005 07:42:23 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Stian Jordet <liste@jordet.nu>
+cc: Olaf Hering <olh@suse.de>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bogus VIA IRQ fixup in drivers/pci/quirks.c
+In-Reply-To: <1127831274.433956ea35992@webmail.jordet.nu>
+Message-ID: <Pine.LNX.4.58.0509270734340.3308@g5.osdl.org>
+References: <20050926184451.GB11752@suse.de> <Pine.LNX.4.58.0509261446590.3308@g5.osdl.org>
+ <1127831274.433956ea35992@webmail.jordet.nu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 27, 2005 at 04:42:07PM +0300, Al Boldi wrote:
-> Neil Horman wrote:
-> > On Tue, Sep 27, 2005 at 08:08:21AM +0300, Al Boldi wrote:
-> > > Neil Horman wrote:
-> > > > On Mon, Sep 26, 2005 at 11:26:10PM +0300, Al Boldi wrote:
-> > > > > Neil Horman wrote:
-> > > > > > On Mon, Sep 26, 2005 at 08:32:14PM +0300, Al Boldi wrote:
-> > > > > > > Neil Horman wrote:
-> > > > > > > > On Mon, Sep 26, 2005 at 05:18:17PM +0300, Al Boldi wrote:
-> > > > > > > > > Rik van Riel wrote:
-> > > > > > > > > > On Sun, 25 Sep 2005, Al Boldi wrote:
-> > > > > > > > > > > Too many process forks and your system may crash.
-> > > > > > > > > > > This can be capped with threads-max, but may lead you
-> > > > > > > > > > > into a lock-out.
-> > > > > > > > > > >
-> > > > > > > > > > > What is needed is a soft, hard, and a special emergency
-> > > > > > > > > > > limit that would allow you to use the resource for a
-> > > > > > > > > > > limited time to circumvent a lock-out.
-> > > > > > > > > >
-> > > > > > > > > > How would you reclaim the resource after that limited time
-> > > > > > > > > > is over ?  Kill processes?
-> > > > > > > > >
-> > > > > > > > > That's one way,  but really, the issue needs some deep
-> > > > > > > > > thought. Leaving Linux exposed to a lock-out is rather
-> > > > > > > > > frightening.
-> > > > > > > >
-> > > > > > > > What exactly is it that you're worried about here?
-> > > > > > >
-> > > > > > > Think about a DoS attack.
-> > > > > >
-> > > > > > Be more specific.  Are you talking about a fork bomb, a ICMP
-> > > > > > flood, what?
-> > >
-> > > Consider this dilemma:
-> > > Runaway proc/s hit the limit.
-> > > Try to kill some and you are denied due to the resource limit.
-> > > Use some previously running app like top, hope it hasn't been killed by
-> > > some OOM situation, try killing some procs and another one takes it's
-> > > place because of the runaway situation.
-> > > Raise the limit, and it gets filled by the runaways.
-> > > You are pretty much stuck.
-> >
-> > Not really, this is the sort of thing ulimit is meant for.  To keep
-> > processes from any one user from running away.  It lets you limit the
-> > damage it can do, until such time as you can control it and fix the
-> > runaway application.
-> 
-> threads-max = 1024
-> ulimit = 100 forks
-> 11 runaway procs hitting the threads-max limit
-> 
-This is incorrect.  If you ulimit a user to 100 forks, and 11 processes running
-with that uid start to fork repeatedly, they will get fork failures after they
-have, in aggregate called fork 89 times.  That user can have no more than 100
-processes running in the system at any given time.  Another user (or root) can
-fork another process to kill one of the runaways.
 
-If you have a user process that for some reason legitimately needs to try use
-every process resource available in the system, the yes, you are prone to a lock
-out condition, if you have no way of killing those processes from a controlling
-terminal, then yes, you are prone to lock out.  In those conditions I would set
-my ulimit on processes for the user running this process to something less than
-threads-max, so that I could have some wiggle room to get out of that situation.
-I would of course also file a bug report with the application author, but thats
-another discussion :).
-Regards
-Neil
 
-> This example is extreme, but it's possible, and there should be a safe and 
-> easy way out.
+On Tue, 27 Sep 2005, Stian Jordet wrote:
 > 
-> What do you think?
-> 
-> Thanks!
-> --
-> Al
+> He wanted me to test 2.6.12-rc2-mm3, which actually disabled irq9 as
+> well at boottime. After some debugging, he made this patch, which made
+> irq 9 work as normal again for me. Please don't back this patch out,
+> without at least re-looking at my system.
 
--- 
-/***************************************************
- *Neil Horman
- *Software Engineer
- *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
- ***************************************************/
+Well, looking at your messages, I bet that the appended patch works for 
+you, since your irq's are all in the legacy range.
+
+It is also conceptually closer to what the code _used_ to be (it used to
+say "if we have an IO-APIC, don't do this", now it says "if this irq is
+bound to an IO-APIC, don't do this")
+
+Whether this will matter to Olaf, I don't know, but the old code was 
+definitely just writing random bits for the IO-APIC case afaik.
+
+		Linus
+
+---
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -546,7 +546,10 @@ static void quirk_via_irq(struct pci_dev
+ {
+ 	u8 irq, new_irq;
+ 
+-	new_irq = dev->irq & 0xf;
++	new_irq = dev->irq;
++	if (!new_irq || new_irq >= 15)
++		return;
++
+ 	pci_read_config_byte(dev, PCI_INTERRUPT_LINE, &irq);
+ 	if (new_irq != irq) {
+ 		printk(KERN_INFO "PCI: Via IRQ fixup for %s, from %d to %d\n",

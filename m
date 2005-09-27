@@ -1,37 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964892AbVI0Kcs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964893AbVI0Kcy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964892AbVI0Kcs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 06:32:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964893AbVI0Kcs
+	id S964893AbVI0Kcy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 06:32:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964894AbVI0Kcy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 06:32:48 -0400
-Received: from zproxy.gmail.com ([64.233.162.196]:4197 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964892AbVI0Kcr convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 06:32:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=oa4J8Wg1H7c37F1Mdvae7X6u59W35zqwSs4HUeXpyklvt/yGvxVUaomaOXTto+vGEQTeC1L0Uy9XBDB3/okBvFgcyUeqvPwlI2c45cIKKiq3hjNw1gxaXDLRufMhhJhhVKL2A5wPwRihO9KgvO+sA6htbuQ6CZiUFwmQzSsCIl4=
-Message-ID: <460afdfa05092703328347941@mail.gmail.com>
-Date: Tue, 27 Sep 2005 12:32:46 +0200
-From: Luca <luca.foppiano@gmail.com>
-Reply-To: Luca <luca.foppiano@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: problem with frontal output audio
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 27 Sep 2005 06:32:54 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:36562 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964893AbVI0Kcy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 06:32:54 -0400
+Date: Tue, 27 Sep 2005 12:33:40 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Eran Mann <emann@mrv.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-rc2-rt2
+Message-ID: <20050927103340.GA2727@elte.hu>
+References: <20050913100040.GA13103@elte.hu> <20050926070210.GA5157@elte.hu> <4338E301.4090808@mrv.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <4338E301.4090808@mrv.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi, I have a motherboard width intel hda audio.
-I have a problem with frontal panel of audio output because the two
-attachment (headphone and microphone) are inverted...
 
-Why this problem?
+* Eran Mann <emann@mrv.com> wrote:
 
-tnks
-sorry for my english..
-Luca
+> The attached 2 patches (against 2.6.14-rc2-rt3) seem to be required to 
+> compile dccp and nfnetlink (only compile-tested).
+
+thanks, applied.
+
+	Ingo

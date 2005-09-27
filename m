@@ -1,112 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964841AbVI0MdI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964826AbVI0MdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964841AbVI0MdI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 08:33:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964857AbVI0MdH
+	id S964826AbVI0MdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 08:33:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964857AbVI0MdJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 27 Sep 2005 08:33:09 -0400
+Received: from mail.kroah.org ([69.55.234.183]:60899 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964826AbVI0MdH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 27 Sep 2005 08:33:07 -0400
-Received: from [203.171.93.254] ([203.171.93.254]:28546 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S964841AbVI0MdG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 08:33:06 -0400
-Subject: Re: OOPS: Suspend2+iptables when loading ipw2200
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Daniel Link <stagger@gmx.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <433927B0.9020108@gmx.net>
-References: <433927B0.9020108@gmx.net>
-Content-Type: text/plain
-Organization: Cyclades
-Message-Id: <1127823733.4802.3.camel@localhost>
+Date: Tue, 27 Sep 2005 05:31:16 -0700
+From: Greg KH <greg@kroah.com>
+To: Grant Coady <grant_lkml@dodo.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pci_ids: remove duplicated and non-referenced symbols
+Message-ID: <20050927123116.GA10188@kroah.com>
+References: <f39ij1pe755t19dpgn5teed8e7069u3fmf@4ax.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Tue, 27 Sep 2005 22:22:13 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <f39ij1pe755t19dpgn5teed8e7069u3fmf@4ax.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-On Tue, 2005-09-27 at 21:06, Daniel Link wrote:
-> Hi,
+On Tue, Sep 27, 2005 at 09:01:34PM +1000, Grant Coady wrote:
+> Hi Greg, All,
 > 
-> my Suspend2-2.6.12-r1 kernel from Gentoo's portage worked almost
-> perfectly until I decided to prepare it for using iptables. I've had
-> only one system freeze before, which I didn't think much about. After
-> adding numerous modules about firewalling to the kernel config and
-> recompiling everything I finally rebooted the system. But some seconds
-> after loading the ipw2200 module (1.0.6) there was an OOPS. I also tried
-> not to use modules but to put the iptables stuff directly into the
-> kernel, but that didn't help.
+> Attached is first patch to cleanup pci_ids.h, compressed as it is 68k 
+> straight text.  More patches to follow moving device IDs to where they 
+> be referenced.  Whitespace cleanup planned at end of patch series.
 > 
-> Here's some output from dmesg. First I thought it had come from the new
-> iptables kernel, but that's not the case. It's the one from yesterday's
-> kernel without iptables. During normal work with GNOME the computer just
-> froze and I had to do a hard reboot.
 
-Suspend2 doesn't touch timer code but I should ask anyway: Can you
-reproduce it on a vanilla kernel (without Suspend2)? If so, I would
-contact the ipw2200 people. If on the otherhand you become convinced
-that Suspend2 is the case, we have lists at suspend2.net and a number of
-people using those modules.
+Please don't compress the patch, it's a pain to apply, I can handle
+large emails.  Or split it up into multiple patches if lkml can't handle
+it.
 
-Regards,
+thanks,
 
-Nigel
-
-> Sep 26 13:07:54 hermes ------------[ cut here ]------------
-> Sep 26 13:07:54 hermes kernel BUG at kernel/workqueue.c:131!
-> Sep 26 13:07:54 hermes invalid operand: 0000 [#1]
-> Sep 26 13:07:54 hermes PREEMPT
-> Sep 26 13:07:54 hermes Modules linked in: ieee80211_crypt_tkip ipw2200
-> ieee80211 ieee80211_crypt
-> Sep 26 13:07:54 hermes CPU:    0
-> Sep 26 13:07:54 hermes EIP:    0060:[<c012f0bb>]    Not tainted VLI
-> Sep 26 13:07:54 hermes EFLAGS: 00010286   (2.6.12-suspend2-r6)
-> Sep 26 13:07:54 hermes EIP is at queue_delayed_work+0x6b/0x80
-> Sep 26 13:07:54 hermes eax: c053f9c0   ebx: 00000000   ecx: c04b13b8
-> edx: c04b13a0
-> Sep 26 13:07:54 hermes esi: c145e880   edi: 0000000a   ebp: 00000000
-> esp: def03f14
-> Sep 26 13:07:54 hermes ds: 007b   es: 007b   ss: 0068
-> Sep 26 13:07:54 hermes Process events/0 (pid: 3, threadinfo=def02000
-> task=c1469020)
-> Sep 26 13:07:54 hermes Stack: dea75f00 c04b13a0 c04b13a0 00000202
-> c04b13a4 c0329e26 00000000 c012f2e0
-> Sep 26 13:07:54 hermes 00000000 def03f68 00000000 def02000 c145e898
-> def02000 c145e888 c145e890
-> Sep 26 13:07:54 hermes def02000 c0329de0 def02000 ffffffff ffffffff
-> 00000001 00000000 c011b140
-> Sep 26 13:07:54 hermes Call Trace:
-> Sep 26 13:07:54 hermes [<c0329e26>] do_dbs_timer+0x46/0x60
-> Sep 26 13:07:54 hermes [<c012f2e0>] worker_thread+0x210/0x300
-> Sep 26 13:07:54 hermes [<c0329de0>] do_dbs_timer+0x0/0x60
-> Sep 26 13:07:54 hermes [<c011b140>] default_wake_function+0x0/0x20
-> Sep 26 13:07:54 hermes [<c011b140>] default_wake_function+0x0/0x20
-> Sep 26 13:07:54 hermes [<c0133a07>] kthread+0xd7/0x120
-> Sep 26 13:07:54 hermes [<c012f0d0>] worker_thread+0x0/0x300
-> Sep 26 13:07:54 hermes [<c0133930>] kthread+0x0/0x120
-> Sep 26 13:07:54 hermes [<c010133d>] kernel_thread_helper+0x5/0x18
-> Sep 26 13:07:54 hermes Code: 14 c7 41 10 30 f0 12 c0 01 f8 89 41 08 89
-> 44 24 04 89 0c 24 e8 b7 85 ff ff 89 d8 8b 74 24 0c 8b 5c 24 08 8b 7c 24
-> 10 83 c4 14 c3 <0f> 0b 83  00 36 a7 40 c0 eb b4 0f 0b 84 00 36 a7 40 c0
-> eb b2 90
-> 
-> There was no other OOPS in /var/log/messages. It seems like when using
-> the iptables kernel the OOPS comes too fast for logging something, but
-> who am I to make any assumptions. Since there is no proof in the logs I
-> have made a photo with a digital camera. The first lines look similar to
-> the ones above. I haven't compared any more. Just tell me where to send
-> the image. I can also send you the working/panic kernel, its config and
-> the System.map.
-> 
-> Bye, Daniel
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-
-
+greg k-h

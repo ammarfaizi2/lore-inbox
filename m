@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965061AbVI0Uoq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750969AbVI0UyX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965061AbVI0Uoq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 16:44:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965064AbVI0Uoq
+	id S1750969AbVI0UyX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 16:54:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751031AbVI0UyX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 16:44:46 -0400
-Received: from mail.airbridge.net ([66.174.76.167]:20385 "EHLO njbrairmail1")
-	by vger.kernel.org with ESMTP id S965062AbVI0Uop (ORCPT
+	Tue, 27 Sep 2005 16:54:23 -0400
+Received: from gambit.vianw.pt ([195.22.31.34]:38292 "EHLO gambit.vianw.pt")
+	by vger.kernel.org with ESMTP id S1750969AbVI0UyX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 16:44:45 -0400
-Date: Tue, 27 Sep 2005 13:44:19 -0700
-From: Richard Meyers <richmeyers@intergate.com>
-Subject: Seeking a reputable source for information on HTML coding .. please
- read (September 27, 2005)
-To: linux-kernel@vger.kernel.org
-Reply-to: Richard Meyers <richmeyers@intergate.com>
-Message-id: <0INH006FTTLE88@mail.airbridge.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
+	Tue, 27 Sep 2005 16:54:23 -0400
+Message-ID: <4339BFA5.6070000@esoterica.pt>
+Date: Tue, 27 Sep 2005 21:54:45 +0000
+From: Paulo da Silva <psdasilva@esoterica.pt>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Robert Hancock <hancockr@shaw.ca>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Strange behaviour with SATA disks. Light always ON
+References: <4QP2K-4ML-7@gated-at.bofh.it> <43376FD1.2020306@shaw.ca>
+In-Reply-To: <43376FD1.2020306@shaw.ca>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
- 
-Some of my clients are searching online for a reputable source for
-information on HTML coding/programming. My job is to find one place to work
-with. I'd like to discuss an arrangement with you.
+Robert Hancock wrote:
 
-Please contact me at your earliest convenience. I will be in today
-(Tuesday) from 8:00 AM PST to 5:00 PM PST. You'll need to be at your
-computer when you call me. Please call when you have a few minutes and I
-will a> demonstrate how you would benefit from what we do and b> answer any
-and all questions you have.
+> Paulo da Silva wrote:
+>
+>> Hi!
+>> I don't know if this is the right place to ask
+>> about this, or even if this is a problem at all.
+>>
+>> Anyway I didn't find relevant information on
+>> this ...
+>>
+>> I have just bought a new PC with two SATA drives.
+>> I had no problems to have them working,
+>> apparently fine except for one thing:
+>> After reading the kernel, the driver access light (led?)
+>> is always on!
+>> Is this normal? Why?
+>
+>
+> I don't know if this is considered "normal" but I know that the 
+> Silicon Image chips do have a strange way of handling the access light 
+> - it has to be specifically turned on and off by a GPIO pin in the 
+> driver, the chip doesn't seem to handle it itself..
+>
+Is there any intention to correct this?
+Should I file a bug?
+I think this should be trivial for those
+who know the driver ...
 
-Best Regards,
+BTW, the kernel configuration has a specific "option" for
+Silicon Image SATA, but if I choose it without "ahci"
+the system does not boot! Why?
 
+Thanks
 
-Richard Meyers
-Business Segment Analyst, Star Position
-
-Phone (US): 877.732.5128 ext 2005
-Outside US: 858.217.4934
-
-PS: It is my job to send my clients looking from the search 
-engines to one place at the exact moment they are looking. 
-We have over 17,400,000 people on our network, and growing. 
-The users on our Network are the clients I am referring to.

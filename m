@@ -1,85 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964823AbVI0GKX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750842AbVI0GIN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964823AbVI0GKX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 02:10:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964824AbVI0GKW
+	id S1750842AbVI0GIN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 02:08:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750920AbVI0GIN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 02:10:22 -0400
-Received: from S01060013109fe3d4.vc.shawcable.net ([24.85.133.133]:64421 "EHLO
-	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S964823AbVI0GKV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 02:10:21 -0400
-Date: Mon, 26 Sep 2005 23:16:50 -0700 (PDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-Subject: Re: [RFT][PATCH] i386 per cpu IDT (2.6.12-rc1-mm1)
-In-Reply-To: <200509262342_MC3-1-AB3C-C0FF@compuserve.com>
-Message-ID: <Pine.LNX.4.61.0509262243500.1684@montezuma.fsmlabs.com>
-References: <200509262342_MC3-1-AB3C-C0FF@compuserve.com>
+	Tue, 27 Sep 2005 02:08:13 -0400
+Received: from apollo.nbase.co.il ([194.90.137.2]:34058 "EHLO
+	apollo.nbase.co.il") by vger.kernel.org with ESMTP id S1750842AbVI0GIM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 02:08:12 -0400
+Message-ID: <4338E301.4090808@mrv.com>
+Date: Tue, 27 Sep 2005 09:13:21 +0300
+From: emann@mrv.com (Eran Mann)
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc3 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-rc2-rt2
+References: <20050913100040.GA13103@elte.hu> <20050926070210.GA5157@elte.hu>
+In-Reply-To: <20050926070210.GA5157@elte.hu>
+Content-Type: multipart/mixed;
+ boundary="------------000108070306050706040800"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Chuck,
+This is a multi-part message in MIME format.
+--------------000108070306050706040800
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Mon, 26 Sep 2005, Chuck Ebbert wrote:
+The attached 2 patches (against 2.6.14-rc2-rt3) seem to be required to 
+compile dccp and nfnetlink (only compile-tested).
 
-> In-Reply-To: <Pine.LNX.4.61.0509251101060.1684@montezuma.fsmlabs.com>
-> > +/* Build the IRQ entry stubs */
-> >  vector=0
-> > -ENTRY(irq_entries_start)
-> > +     .align IRQ_STUB_SIZE,0x90
-> > +ENTRY(interrupt)
-> >  .rept NR_IRQS
-> >       ALIGN     <===================================
+Ingo Molnar wrote:
+> i have released the 2.6.14-rc2-rt2 tree, which can be downloaded from 
+> the usual place:
 > 
->   That ALIGN could cause problems if someone changed default i386 alignment to
-> something larger than IRQ_STUB_SIZE.  Why is it there?
-
-Yep, that's dead code and should go.
-
-> > +#define IRQ_STUB_SIZE 16        <=================================
-> > +#define NR_IRQ_NODES 1
-> >  #define NR_IRQ_VECTORS NR_IRQS
-> >  #endif
-> >  #endif
-> >  
-> > +/* number of vectors available for external interrupts in Linux */
-> > +#define NR_DEVICE_VECTORS    190
-> > +
-> >  #endif /* _ASM_IRQ_VECTORS_LIMITS_H */
+>    http://redhat.com/~mingo/realtime-preempt/
 > 
->  Can't these be 8 bytes when there are only 16 IRQs?
+...
 
-It actually should be constant regardless of IRQ count since it's used to 
-provide a 'size' for the code (since it's indexed via C and an array).
+--------------000108070306050706040800
+Content-Type: text/x-patch;
+ name="rt-netfilter.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="rt-netfilter.patch"
 
->  And is there any way to special-case kernels built with max of two CPUs so there are
-> only 24 IRQs allocated?  That seems to be the maximum for that case.
+--- linux-2.6.x/net/netfilter/nfnetlink_queue.c	2005-09-13 10:48:26.000000000 +0300
++++ linux-2.6.x-RT/net/netfilter/nfnetlink_queue.c	2005-09-27 08:20:10.000000000 +0300
+@@ -149,7 +149,7 @@
+ 	atomic_set(&inst->id_sequence, 0);
+ 	/* needs to be two, since we _put() after creation */
+ 	atomic_set(&inst->use, 2);
+-	inst->lock = SPIN_LOCK_UNLOCKED;
++	inst->lock = SPIN_LOCK_UNLOCKED(inst->lock);
+ 	INIT_LIST_HEAD(&inst->queue_list);
+ 
+ 	if (!try_module_get(THIS_MODULE))
+--- linux-2.6.x/net/netfilter/nfnetlink_log.c	2005-09-13 10:48:25.000000000 +0300
++++ linux-2.6.x-RT/net/netfilter/nfnetlink_log.c	2005-09-27 08:50:58.000000000 +0300
+@@ -152,7 +152,7 @@
+ 
+ 	memset(inst, 0, sizeof(*inst));
+ 	INIT_HLIST_NODE(&inst->hlist);
+-	inst->lock = SPIN_LOCK_UNLOCKED;
++	inst->lock = SPIN_LOCK_UNLOCKED(inst->lock);
+ 	/* needs to be two, since we _put() after creation */
+ 	atomic_set(&inst->use, 2);
+ 
 
-My 2 processor Xeon(HT) has 3 IOAPICs and currently has IRQ48 in use;
+--------------000108070306050706040800
+Content-Type: text/x-patch;
+ name="rt-dccp.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="rt-dccp.patch"
 
-           CPU0       CPU1       CPU2       CPU3
-  0:   30914980   30909270   30971083   30937399    IO-APIC-edge  timer
-  1:      85361      88979      71974     119655    IO-APIC-edge  i8042
-  8:      15080      10142      18495      20252    IO-APIC-edge  rtc
-  9:          0          0          0          0   IO-APIC-level  acpi
- 12:     559735     572493     467452     687913    IO-APIC-edge  i8042
- 14:    3921063    2503225     767373    5974789    IO-APIC-edge  ide0
- 15:     959112     612792     354578    1413090    IO-APIC-edge  ide1
- 16:        657       2755        611       3090   IO-APIC-level  uhci_hcd
- 19:    1088213   26750060    1845615       4948   IO-APIC-level  uhci_hcd, eth0
- 20:      69658      19831     472397      55840   IO-APIC-level  eth3
- 22:     239568     115070      53537     307576   IO-APIC-level  ide2, ide3
- 23:      19206      70661      46499     481665   IO-APIC-level  eth4
- 24:       1247      99474      43945     517674   IO-APIC-level  eth1
- 28:    3950153    1827325    3359121    2111991   IO-APIC-level  EMU10K1
- 48:     129473          0     616272      37889   IO-APIC-level  eth2
+--- linux-2.6.x/net/dccp/ipv4.c	2005-09-25 15:49:57.000000000 +0300
++++ linux-2.6.x-RT/net/dccp/ipv4.c	2005-09-26 15:06:02.000000000 +0300
+@@ -28,10 +28,10 @@
+ #include "dccp.h"
+ 
+ struct inet_hashinfo __cacheline_aligned dccp_hashinfo = {
+-	.lhash_lock	= RW_LOCK_UNLOCKED,
++	.lhash_lock	= RW_LOCK_UNLOCKED(dccp_hashinfo.lhash_lock),
+ 	.lhash_users	= ATOMIC_INIT(0),
+ 	.lhash_wait = __WAIT_QUEUE_HEAD_INITIALIZER(dccp_hashinfo.lhash_wait),
+-	.portalloc_lock	= SPIN_LOCK_UNLOCKED,
++	.portalloc_lock	= SPIN_LOCK_UNLOCKED(dccp_hashinfo.portalloc_lock),
+ 	.port_rover	= 1024 - 1,
+ };
+ 
+--- linux-2.6.x/net/dccp/minisocks.c	2005-09-25 15:49:57.000000000 +0300
++++ linux-2.6.x-RT/net/dccp/minisocks.c	2005-09-26 15:07:41.000000000 +0300
+@@ -26,7 +26,7 @@
+ struct inet_timewait_death_row dccp_death_row = {
+ 	.sysctl_max_tw_buckets = NR_FILE * 2,
+ 	.period		= DCCP_TIMEWAIT_LEN / INET_TWDR_TWKILL_SLOTS,
+-	.death_lock	= SPIN_LOCK_UNLOCKED,
++	.death_lock	= SPIN_LOCK_UNLOCKED(dccp_death_row.death_lock),
+ 	.hashinfo	= &dccp_hashinfo,
+ 	.tw_timer	= TIMER_INITIALIZER(inet_twdr_hangman, 0,
+ 					    (unsigned long)&dccp_death_row),
 
-Thanks for all the feedback, i'll incorporate your suggestions.
-
-	Zwane
-
+--------------000108070306050706040800--

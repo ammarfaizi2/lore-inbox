@@ -1,35 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964928AbVI0QRv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964965AbVI0QWp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964928AbVI0QRv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 12:17:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964943AbVI0QRv
+	id S964965AbVI0QWp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 12:22:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964977AbVI0QWp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 12:17:51 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:1755 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964928AbVI0QRu (ORCPT
+	Tue, 27 Sep 2005 12:22:45 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.50]:21400 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S964965AbVI0QWo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 12:17:50 -0400
-Message-ID: <433970A9.6010409@austin.ibm.com>
-Date: Tue, 27 Sep 2005 11:17:45 -0500
-From: Joel Schopp <jschopp@austin.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050909 Fedora/1.7.10-1.3.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Coywolf Qi Hunt <coywolf@gmail.com>
-CC: lhms <lhms-devel@lists.sourceforge.net>,
-       Linux Memory Management List <linux-mm@kvack.org>,
-       linux-kernel@vger.kernel.org, Mel Gorman <mel@csn.ul.ie>
-Subject: Re: [PATCH 7/9] try harder on large allocations
-References: <4338537E.8070603@austin.ibm.com> <433856B2.8030906@austin.ibm.com> <2cd57c90050927002163f78269@mail.gmail.com>
-In-Reply-To: <2cd57c90050927002163f78269@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 27 Sep 2005 12:22:44 -0400
+Date: Tue, 27 Sep 2005 18:22:42 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch] eliminate CLONE_* duplications
+Message-ID: <20050927162242.GC21927@MAIL.13thfloor.at>
+Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux Kernel ML <linux-kernel@vger.kernel.org>
+References: <20050921092132.GA4710@MAIL.13thfloor.at> <Pine.LNX.4.61.0509211252160.3743@scrub.home> <20050921143954.GA10137@MAIL.13thfloor.at> <Pine.LNX.4.61.0509211648240.3743@scrub.home> <20050921151124.GB10137@MAIL.13thfloor.at> <Pine.LNX.4.61.0509211738160.3728@scrub.home> <20050921235810.GC18040@MAIL.13thfloor.at> <Pine.LNX.4.61.0509271705380.3728@scrub.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0509271705380.3728@scrub.home>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>+               if (order < MAX_ORDER/2) out_of_memory(gfp_mask, order);
+On Tue, Sep 27, 2005 at 05:25:41PM +0200, Roman Zippel wrote:
+> Hi,
 > 
-> 
-> Shouldn't that be written in two lines?
+> (Sorry for the delay.)
 
-Yes, fixed.
+no big deal ...
+
+> On Thu, 22 Sep 2005, Herbert Poetzl wrote:
+> 
+> > _what_ do you consider 'logically organized' because
+> > putting all the CLONE_* stuff into a separate file is
+> > pretty logical for me ... but obviously not for you.
+> 
+> "logically organized" mainly means reducing dependencies by organizing
+> them by their logical dependencies. 
+
+did you consider that separating out the clone
+stuff might be that basis for reducing dependencies?
+
+> If a large header file is included by a lot of other files, some parts
+> maybe separated to reduce header dependencies. The same can be done
+> for config dependencies, so that a config change doesn't necessarily
+> recompiles the whole kernel.
+
+> Your change doesn't reduce any dependecies and it's not such a big 
+> cleanup:
+
+aha, so we want a big all-in-one patch now which
+does many changes at once, instead of a small
+(and obvious) cleanup first, then later maybe
+a restructuring ... yes?
+
+>  arch/alpha/kernel/asm-offsets.c         |    2 --
+>  arch/alpha/kernel/entry.S               |    1 +
+>  arch/cris/arch-v10/kernel/asm-offsets.c |    3 ---
+>  arch/cris/arch-v10/kernel/entry.S       |    1 +
+>  arch/cris/arch-v32/kernel/asm-offsets.c |    3 ---
+>  arch/frv/kernel/kernel_thread.S         |    2 +-
+>  arch/ia64/ia32/ia32_entry.S             |    3 ++-
+>  arch/ia64/kernel/asm-offsets.c          |    4 ----
+>  arch/parisc/kernel/entry.S              |    4 +---
+>  arch/ppc/kernel/asm-offsets.c           |    2 --
+>  arch/ppc/kernel/misc.S                  |    1 +
+>  arch/ppc64/kernel/asm-offsets.c         |    3 ---
+>  arch/ppc64/kernel/misc.S                |    1 +
+>  arch/v850/kernel/asm-offsets.c          |    4 ----
+>  arch/v850/kernel/entry.S                |    1 +
+>  include/asm-cris/arch-v10/offset.h      |    3 ---
+>  include/asm-cris/arch-v32/offset.h      |    3 ---
+>  include/linux/clone.h                   |   32 ++++++++++++++++++++++++++++++++
+>  include/linux/sched.h                   |   30 +-----------------------------
+>  19 files changed, 42 insertions(+), 61 deletions(-)
+
+> The noise generated by the separation is larger than the avoided 
+> duplication.
+
+hmm, interesting argument ...
+
+> The hardcoded defines actually do need fixing, frv is especially bad,
+> as it even has hardcoded structure offsets.
+
+so instead of fixing the issue properly, we 
+'mend' it by adding new code to */asm-offsets.c
+
+> > I have absolutely no problem with different, more
+> > logical splitups, and I'm willing to break down the
+> > entire sched.h if that will help the cause ... so
+> > please enlighten me here ...
+
+> sched.h is especially challenging due to dependencies between headers
+> under asm and linux. It's not just splitting sched.h, it also requires
+> analyzing its dependencies.
+
+which you obviously think is nothing I can do
+'properly' ...
+
+thanks for the info,
+Herbert
+
+> bye, Roman

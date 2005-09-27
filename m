@@ -1,74 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964972AbVI0P0V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964970AbVI0PZv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964972AbVI0P0V (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 11:26:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964975AbVI0P0V
+	id S964970AbVI0PZv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 11:25:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964972AbVI0PZv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 11:26:21 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:53539 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S964972AbVI0P0U (ORCPT
+	Tue, 27 Sep 2005 11:25:51 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:1758 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S964970AbVI0PZu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 11:26:20 -0400
-Date: Tue, 27 Sep 2005 17:26:42 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
-       Alok Kataria <alokk@calsoftinc.com>
-Subject: Re: [patch 0/4] ide: Break ide_lock to per-hwgroup lock
-Message-ID: <20050927152641.GF2811@suse.de>
-References: <20050906233322.GA3642@localhost.localdomain> <20050907091923.GE4785@suse.de> <20050907192747.GC3769@localhost.localdomain> <20050907193422.GS4785@suse.de> <58cb370e050927063674bb47a7@mail.gmail.com> <20050927152026.GC3822@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050927152026.GC3822@localhost.localdomain>
+	Tue, 27 Sep 2005 11:25:50 -0400
+Date: Tue, 27 Sep 2005 17:25:41 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Herbert Poetzl <herbert@13thfloor.at>
+cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch] eliminate CLONE_* duplications
+In-Reply-To: <20050921235810.GC18040@MAIL.13thfloor.at>
+Message-ID: <Pine.LNX.4.61.0509271705380.3728@scrub.home>
+References: <20050921092132.GA4710@MAIL.13thfloor.at>
+ <Pine.LNX.4.61.0509211252160.3743@scrub.home> <20050921143954.GA10137@MAIL.13thfloor.at>
+ <Pine.LNX.4.61.0509211648240.3743@scrub.home> <20050921151124.GB10137@MAIL.13thfloor.at>
+ <Pine.LNX.4.61.0509211738160.3728@scrub.home> <20050921235810.GC18040@MAIL.13thfloor.at>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 27 2005, Ravikiran G Thirumalai wrote:
-> On Tue, Sep 27, 2005 at 03:36:40PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> > On 9/7/05, Jens Axboe <axboe@suse.de> wrote:
-> > > On Wed, Sep 07 2005, Ravikiran G Thirumalai wrote:
-> > > > On Wed, Sep 07, 2005 at 11:19:24AM +0200, Jens Axboe wrote:
-> > > > > On Tue, Sep 06 2005, Ravikiran G Thirumalai wrote:
-> > > > > > The following patchset breaks down the global ide_lock to per-hwgroup lock.
-> > > > > > We have taken the following approach.
-> > > > >
-> > > > > Curious, what is the point of this?
-> > > > >
-> > > >
-> > >
-> > > I'm asking because I've never heard anyone complain about IDE lock
-> > > contention and a proper patch usually comes with analysis of why it is
-> > > needed.
-> > 
-> > Since ide_lock spinlock is used for all drives as queue lock and for all
-> > controllers as IDE lock I guess that with multiple controllers there is a lot
-> > contention on it...
-> > 
-> > Breaking ide_lock is fine with me however seeing numbers would
-> > greatly help in getting wider acceptance for this change, Ravikiran?
-> > 
-> 
-> With the lock breakdown, Iozone read performance went up by 5.5% on a 2 way
-> x86 xeon box, with two hwifs and two processes reading from disks connected
-> to each hwif.  There seems to be a small  regression on Iozone write
-> tests -- about 1.5%.  Maybe this is measurement noise as there is no apparent
-> reason for this.  We plan to run more tests to see if the regression for
-> writes is statistically significant.
+Hi,
 
-You should run it eg 10 times on each kernel to get a feel for the
-variance of the results. Were you testing 2 or 4 disks?
+(Sorry for the delay.)
 
-Some profile information for both kernels would also be paramount.
+On Thu, 22 Sep 2005, Herbert Poetzl wrote:
 
-> Btw, there was some problem with the moving of tuning code in this patchset
-> causing disks not to work in DMA mode. We were fixing that; will publish a
-> newer patchset with test results soon.
+> _what_ do you consider 'logically organized' because
+> putting all the CLONE_* stuff into a separate file is
+> pretty logical for me ... but obviously not for you.
 
-I take it the numbers posted were for DMA enabled on all disks?
+"logically organized" mainly means reducing dependencies by organizing 
+them by their logical dependencies. If a large header file is included by 
+a lot of other files, some parts maybe separated to reduce header 
+dependencies. The same can be done for config dependencies, so that a 
+config change doesn't necessarily recompiles the whole kernel.
 
--- 
-Jens Axboe
+Your change doesn't reduce any dependecies and it's not such a big 
+cleanup:
 
+ arch/alpha/kernel/asm-offsets.c         |    2 --
+ arch/alpha/kernel/entry.S               |    1 +
+ arch/cris/arch-v10/kernel/asm-offsets.c |    3 ---
+ arch/cris/arch-v10/kernel/entry.S       |    1 +
+ arch/cris/arch-v32/kernel/asm-offsets.c |    3 ---
+ arch/frv/kernel/kernel_thread.S         |    2 +-
+ arch/ia64/ia32/ia32_entry.S             |    3 ++-
+ arch/ia64/kernel/asm-offsets.c          |    4 ----
+ arch/parisc/kernel/entry.S              |    4 +---
+ arch/ppc/kernel/asm-offsets.c           |    2 --
+ arch/ppc/kernel/misc.S                  |    1 +
+ arch/ppc64/kernel/asm-offsets.c         |    3 ---
+ arch/ppc64/kernel/misc.S                |    1 +
+ arch/v850/kernel/asm-offsets.c          |    4 ----
+ arch/v850/kernel/entry.S                |    1 +
+ include/asm-cris/arch-v10/offset.h      |    3 ---
+ include/asm-cris/arch-v32/offset.h      |    3 ---
+ include/linux/clone.h                   |   32 ++++++++++++++++++++++++++++++++
+ include/linux/sched.h                   |   30 +-----------------------------
+ 19 files changed, 42 insertions(+), 61 deletions(-)
+
+The noise generated by the separation is larger than the avoided 
+duplication.
+The hardcoded defines actually do need fixing, frv is especially bad, as 
+it even has hardcoded structure offsets.
+
+> I have absolutely no problem with different, more
+> logical splitups, and I'm willing to break down the
+> entire sched.h if that will help the cause ... so
+> please enlighten me here ...
+
+sched.h is especially challenging due to dependencies between headers 
+under asm and linux. It's not just splitting sched.h, it also requires 
+analyzing its dependencies.
+
+bye, Roman

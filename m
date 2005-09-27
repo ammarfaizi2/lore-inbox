@@ -1,53 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964987AbVI0Pw6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964989AbVI0Pxp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964987AbVI0Pw6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 11:52:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964989AbVI0Pw6
+	id S964989AbVI0Pxp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 11:53:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964988AbVI0Pxp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 11:52:58 -0400
-Received: from smtp.cs.aau.dk ([130.225.194.6]:8370 "EHLO smtp.cs.aau.dk")
-	by vger.kernel.org with ESMTP id S964988AbVI0Pw5 (ORCPT
+	Tue, 27 Sep 2005 11:53:45 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:61913 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S964989AbVI0Pxo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 11:52:57 -0400
-Message-ID: <43396A6A.30104@cs.aau.dk>
-Date: Tue, 27 Sep 2005 17:51:06 +0200
-From: Emmanuel Fleury <fleury@cs.aau.dk>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Framework for automatic Configuration of a Kernel
-References: <20050927125300.24574.qmail@web51014.mail.yahoo.com>
-In-Reply-To: <20050927125300.24574.qmail@web51014.mail.yahoo.com>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 27 Sep 2005 11:53:44 -0400
+Date: Tue, 27 Sep 2005 08:53:19 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: kurosawa@valinux.co.jp, taka@valinux.co.jp, magnus.damm@gmail.com,
+       dino@in.ibm.com, linux-kernel@vger.kernel.org,
+       ckrm-tech@lists.sourceforge.net
+Subject: Re: [ckrm-tech] Re: [PATCH 1/3] CPUMETER: add cpumeter framework to
+ the CPUSETS
+Message-Id: <20050927085319.074ff4b1.pj@sgi.com>
+In-Reply-To: <1127812937.5174.6.camel@npiggin-nld.site>
+References: <20050908225539.0bc1acf6.pj@sgi.com>
+	<20050909.203849.33293224.taka@valinux.co.jp>
+	<20050909063131.64dc8155.pj@sgi.com>
+	<20050910.161145.74742186.taka@valinux.co.jp>
+	<20050910015209.4f581b8a.pj@sgi.com>
+	<20050926093432.9975870043@sv1.valinux.co.jp>
+	<20050927013751.47cbac8b.pj@sgi.com>
+	<1127812937.5174.6.camel@npiggin-nld.site>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ahmad Reza Cheraghi wrote:
-> 
-> Again another good Idea. Your right;-) Its better. 
-> But it better getting another way of detecting the
-> Hardware/Software etc. from the System without using
-> lspci or the proc-files...? Something that gets all
-> the Hardware Information directly from the I/O and not
-> from the Kernel. The good thing about lspci is that it
-> does both . But it doesnt say if there is  a CDROM or
-> floppy-disc... I tryed alot to search for something
-> like that but without any success. I heard about this
-> Otopia Project. I google after it but I didnt find
-> anything usefule. I think its dead. 
+Nick wrote:
+> this code looks much neater than the code I reviewed.
 
-I might be wrong, but I don't think that there is any other way to get
-hardware information but through the /proc or /sys interface.
+This does not surprise me.  Takahiro-san writes nice code.
 
-Can somebody comment on this ?
+I will abstain from picking one cpu controller over another,
+as that is not an area of my expertise.  But I definitely
+agree with your hope:
 
-Regards
+> to have just a single CPU resource controller 
+
 -- 
-Emmanuel Fleury
-
-It really is a nice theory. The only defect I think it has is probably
-common to all philosophical theories. It's wrong.
-  -- Saul Kripke (Naming and Necessity)
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

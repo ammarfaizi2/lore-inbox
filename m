@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964827AbVI0GNF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964824AbVI0GX1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964827AbVI0GNF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 02:13:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964828AbVI0GNF
+	id S964824AbVI0GX1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 02:23:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbVI0GX1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 02:13:05 -0400
-Received: from mail.renesas.com ([202.234.163.13]:39156 "EHLO
+	Tue, 27 Sep 2005 02:23:27 -0400
+Received: from mail.renesas.com ([202.234.163.13]:24314 "EHLO
 	mail01.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S964827AbVI0GNE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 02:13:04 -0400
-Date: Tue, 27 Sep 2005 15:13:01 +0900 (JST)
-Message-Id: <20050927.151301.189720995.takata.hirokazu@renesas.com>
+	id S964824AbVI0GX0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 02:23:26 -0400
+Date: Tue, 27 Sep 2005 15:23:25 +0900 (JST)
+Message-Id: <20050927.152325.424252181.takata.hirokazu@renesas.com>
 To: viro@ftp.linux.org.uk
-Cc: torvalds@odsl.org, linux-kernel@vger.kernel.org, takata@linux-m32r.org
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, takata@linux-m32r.org
 Subject: Re: [PATCH] m32r: set CHECKFLAGS properly
 From: Hirokazu Takata <takata@linux-m32r.org>
 In-Reply-To: <E1EJlNM-00059K-R8@ZenIV.linux.org.uk>

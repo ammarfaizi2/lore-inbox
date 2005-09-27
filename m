@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964794AbVI0OVU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964882AbVI0O1Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964794AbVI0OVU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 10:21:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbVI0OVT
+	id S964882AbVI0O1Y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 10:27:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964921AbVI0O1X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 10:21:19 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:27064 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S964795AbVI0OVT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 10:21:19 -0400
-Date: Tue, 27 Sep 2005 10:21:17 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-cc: jim.ramsay@gmail.com, <mdharm-kernel@one-eyed-alien.net>,
-       <linux-usb-users@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>,
-       <linux-scsi@vger.kernel.org>
-Subject: Re: [Linux-usb-users] Possible bug in usb storage (2.6.11 kernel)
-In-Reply-To: <20050927.223801.130240000.anemo@mba.ocn.ne.jp>
-Message-ID: <Pine.LNX.4.44L0.0509271020180.5703-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 27 Sep 2005 10:27:23 -0400
+Received: from [85.21.88.2] ([85.21.88.2]:27879 "HELO mail.dev.rtsoft.ru")
+	by vger.kernel.org with SMTP id S964882AbVI0O1X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 10:27:23 -0400
+Subject: Re: [spi-devel-general] Re: SPI
+From: dmitry pervushin <dpervushin@gmail.com>
+To: Greg KH <greg@kroah.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       spi-devel-general@lists.sourceforge.net
+In-Reply-To: <20050927124335.GA10361@kroah.com>
+References: <1127733134.7577.0.camel@diimka.dev.rtsoft.ru>
+	 <20050927124335.GA10361@kroah.com>
+Content-Type: text/plain
+Date: Tue, 27 Sep 2005 18:27:16 +0400
+Message-Id: <1127831236.7577.33.camel@diimka.dev.rtsoft.ru>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1-1mdk 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Sep 2005, Atsushi Nemoto wrote:
-
-> >>>>> On Thu, 8 Sep 2005 16:40:16 -0400 (EDT), Alan Stern <stern@rowland.harvard.edu> said:
+On Tue, 2005-09-27 at 05:43 -0700, Greg KH wrote:
+> This is ALWAYS wrong, please fix your code.  See the many times I have
+> been over this issue in the archives.
+Do you mean this comment ? The spi_device_release does nothing, just to
+prevent compains from device_release function :)
 > 
-> stern> I've long thought that usb-storage should allocate its own
-> stern> transfer buffer for sense data.  In the past people have said,
-> stern> "No, don't bother, it's not really needed."  Here's a good
-> stern> reason for doing it.
-> 
-> stern> Expect a patch before long.
-> 
-> Did you already create the patch?  If not, how about this (against 2.6.13) ?
+> Also, please fix your coding style to match the kernel if you wish to
+> have a chance to get it included. :)
+Hmm... running Lindent... done. Thank you once more, for your valuable
+comments :)
 
-Yes I did.  You can see it at
-
-https://lists.one-eyed-alien.net/pipermail/usb-storage/2005-September/001953.html
-
-Alan Stern
 

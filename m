@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964855AbVI0INV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964830AbVI0ITa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964855AbVI0INV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 04:13:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964856AbVI0INV
+	id S964830AbVI0ITa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 04:19:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964858AbVI0ITa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 04:13:21 -0400
-Received: from smtp.cs.aau.dk ([130.225.194.6]:45964 "EHLO smtp.cs.aau.dk")
-	by vger.kernel.org with ESMTP id S964855AbVI0INU (ORCPT
+	Tue, 27 Sep 2005 04:19:30 -0400
+Received: from ns.suse.de ([195.135.220.2]:38577 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964830AbVI0ITa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 04:13:20 -0400
-Message-ID: <4338FEB1.3090403@cs.aau.dk>
-Date: Tue, 27 Sep 2005 10:11:29 +0200
-From: Emmanuel Fleury <fleury@cs.aau.dk>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
-X-Accept-Language: en-us, en
+	Tue, 27 Sep 2005 04:19:30 -0400
+From: Andi Kleen <ak@suse.de>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Subject: Re: Fw: Re: 2.6.14-rc2-mm1 ide problems on AMD64
+Date: Tue, 27 Sep 2005 10:19:13 +0200
+User-Agent: KMail/1.8.2
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+References: <20050926151149.6332c94e.akpm@osdl.org> <1127798272.16275.40.camel@dyn9047017102.beaverton.ibm.com>
+In-Reply-To: <1127798272.16275.40.camel@dyn9047017102.beaverton.ibm.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Automatic Configuration of a Kernel
-References: <20050926120850.30349.qmail@web51012.mail.yahoo.com> <2cd57c9005092701055f96e629@mail.gmail.com>
-In-Reply-To: <2cd57c9005092701055f96e629@mail.gmail.com>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509271019.14243.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Coywolf Qi Hunt wrote:
-> 
-> Consider also 'm'odule support?
+On Tuesday 27 September 2005 07:17, Badari Pulavarty wrote:
 
-I think the point of a script is just to detect if the piece of hardware
-is here or not ('y' or 'n'). Then, it's up to the interface to decide
-what question to ask to the user (could be always 'y', could be always
-'m', could ask the user for a 'm/y/n' answer, ...).
+> Finally, tracked the problem causing patch in -mm tree.
+> Its,
+>
+> x86_64-no-idle-tick.patch
+>
+> I backed out the patch and my machine works fine.
 
-But the patches that Ahmad sent have been spoiled by his mailer, I think
-he will resend it today (maybe creating a fresh thread would be a good
-idea).
+Boot message please.
 
-Regards
--- 
-Emmanuel Fleury
+Did you enable CONFIG_NO_IDLE_TICK? 
 
-I can resist everything except temptation.
-  -- Oscar Wilde
+-Andi

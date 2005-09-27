@@ -1,70 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964939AbVI0NoV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964937AbVI0Nnn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964939AbVI0NoV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 09:44:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964945AbVI0NoV
+	id S964937AbVI0Nnn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 09:43:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964939AbVI0Nnn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 09:44:21 -0400
-Received: from xproxy.gmail.com ([66.249.82.202]:28860 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964939AbVI0NoU (ORCPT
+	Tue, 27 Sep 2005 09:43:43 -0400
+Received: from [212.76.81.47] ([212.76.81.47]:33540 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S964937AbVI0Nnn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 09:44:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=Oi5rEZkWjbxiv7Sk3j+ZXLnFNeHOje/8raUs6qv/2QQPnpi2bs3JZ9W02/d7axFsYPEaK8WwNkpPs7twFm++WFpfbth1RszPmIXJ5sDeLYw5EcabjH4kOwJWv69OSG4Ez1T2k+6V3LKftsTPSb8b+7wkHmQyHp14qxkmgfNrf2g=
-Date: Tue, 27 Sep 2005 09:40:55 -0400
-From: Florin Malita <fmalita@gmail.com>
-To: Jay Vosburgh <fubar@us.ibm.com>
-Cc: nsxfreddy@gmail.com, akpm@osdl.org, davem@davemloft.net,
-       ctindel@users.sourceforge.net, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, bonding-devel@lists.sourceforge.net
-Subject: Re: [PATCH] channel bonding: add support for device-indexed
- parameters
-Message-Id: <20050927094055.7953a832.fmalita@gmail.com>
-In-Reply-To: <200509270711.j8R7BunP014387@death.nxdomain.ibm.com>
-References: <20050927012444.be5d5311.fmalita@gmail.com>
-	<200509270711.j8R7BunP014387@death.nxdomain.ibm.com>
-X-Mailer: Sylpheed version 2.1.2 (GTK+ 2.4.13; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 27 Sep 2005 09:43:43 -0400
+From: Al Boldi <a1426z@gawab.com>
+To: Neil Horman <nhorman@tuxdriver.com>
+Subject: Re: Resource limits
+Date: Tue, 27 Sep 2005 16:42:07 +0300
+User-Agent: KMail/1.5
+Cc: Matthew Helsley <matthltc@us.ibm.com>, linux-kernel@vger.kernel.org
+References: <200509251712.42302.a1426z@gawab.com> <200509270808.21821.a1426z@gawab.com> <20050927120840.GA5947@hmsreliant.homelinux.net>
+In-Reply-To: <20050927120840.GA5947@hmsreliant.homelinux.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509271642.07864.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Sep 2005 00:11:56 -0700
-Jay Vosburgh <fubar@us.ibm.com> wrote:
-> 
-> Florin Malita <fmalita@gmail.com> wrote:
-> [...]
-> >How can you load a module multiple times on _any_ distro?
-> 
-> 	modprobe -obond0 bonding mode=your-favorite-mode
-> 	modprobe -obond1 bonding mode=some-other-mode
-> 
-> 	and so on.  This is in the modprobe man page, and is described
-> in the bonding documentation (found in the kernel documentation or at
-> http://sourceforge.net/projects/bonding).  It is admittedly somewhat
-> grotty, but it works.  
+Neil Horman wrote:
+> On Tue, Sep 27, 2005 at 08:08:21AM +0300, Al Boldi wrote:
+> > Neil Horman wrote:
+> > > On Mon, Sep 26, 2005 at 11:26:10PM +0300, Al Boldi wrote:
+> > > > Neil Horman wrote:
+> > > > > On Mon, Sep 26, 2005 at 08:32:14PM +0300, Al Boldi wrote:
+> > > > > > Neil Horman wrote:
+> > > > > > > On Mon, Sep 26, 2005 at 05:18:17PM +0300, Al Boldi wrote:
+> > > > > > > > Rik van Riel wrote:
+> > > > > > > > > On Sun, 25 Sep 2005, Al Boldi wrote:
+> > > > > > > > > > Too many process forks and your system may crash.
+> > > > > > > > > > This can be capped with threads-max, but may lead you
+> > > > > > > > > > into a lock-out.
+> > > > > > > > > >
+> > > > > > > > > > What is needed is a soft, hard, and a special emergency
+> > > > > > > > > > limit that would allow you to use the resource for a
+> > > > > > > > > > limited time to circumvent a lock-out.
+> > > > > > > > >
+> > > > > > > > > How would you reclaim the resource after that limited time
+> > > > > > > > > is over ?  Kill processes?
+> > > > > > > >
+> > > > > > > > That's one way,  but really, the issue needs some deep
+> > > > > > > > thought. Leaving Linux exposed to a lock-out is rather
+> > > > > > > > frightening.
+> > > > > > >
+> > > > > > > What exactly is it that you're worried about here?
+> > > > > >
+> > > > > > Think about a DoS attack.
+> > > > >
+> > > > > Be more specific.  Are you talking about a fork bomb, a ICMP
+> > > > > flood, what?
+> >
+> > Consider this dilemma:
+> > Runaway proc/s hit the limit.
+> > Try to kill some and you are denied due to the resource limit.
+> > Use some previously running app like top, hope it hasn't been killed by
+> > some OOM situation, try killing some procs and another one takes it's
+> > place because of the runaway situation.
+> > Raise the limit, and it gets filled by the runaways.
+> > You are pretty much stuck.
+>
+> Not really, this is the sort of thing ulimit is meant for.  To keep
+> processes from any one user from running away.  It lets you limit the
+> damage it can do, until such time as you can control it and fix the
+> runaway application.
 
-OK, I see this capability has been in module-init-tools since the 0.8
-days. Doesn't apply to any 2.4/modutils based system tough.
+threads-max = 1024
+ulimit = 100 forks
+11 runaway procs hitting the threads-max limit
 
-> 
-> >Not being able to set a (different) preferred
-> >interface/primary for each bond device makes it unacceptable for
-> >deployment in our environment.
-> 
-> 	How are you configuring bonding?  The current SuSE distros, for
-> example, will do the multiple module load stuff automatically in the
-> sysconfig scripts.  This is described in the current bonding
-> documentation.
+This example is extreme, but it's possible, and there should be a safe and 
+easy way out.
 
-Our systems are RHEL3 based so unfortunately the naming trick above
-doesn't work. 
+What do you think?
 
-But it does work on RHEL4 so admittedly, having this workaround
-available for recent distros removes the urgency for a fix.
+Thanks!
+--
+Al
 
-Thanks
-Florin

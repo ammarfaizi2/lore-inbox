@@ -1,79 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965166AbVI0Vp4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965164AbVI0Vpr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965166AbVI0Vp4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 17:45:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965168AbVI0Vps
+	id S965164AbVI0Vpr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 17:45:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965165AbVI0Vpr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 17:45:48 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:25589 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S965166AbVI0Vpq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 17:45:46 -0400
-Message-ID: <4339BD4E.3060401@mvista.com>
-Date: Tue, 27 Sep 2005 14:44:46 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: tglx@linutronix.de
-CC: Darren Hart <dvhltc@us.ibm.com>,
-       Geoff Levand <geoffrey.levand@am.sony.com>,
-       "Theodore Ts'o" <tytso@mit.edu>,
-       "'high-res-timers-discourse@lists.sourceforge.net'" 
-	<high-res-timers-discourse@lists.sourceforge.net>,
-       "lkml," <linux-kernel@vger.kernel.org>, dino@us.ibm.com,
-       Paul McKenney <paulmck@us.ibm.com>,
-       "Sarma, Dipankar" <dipankar@in.ibm.com>
-Subject: Re: HRT on opteron / rt14 on opteron
-References: <432F21D1.90209@us.ibm.com> <432F5A44.9010208@am.sony.com>	 <433489F6.9080203@us.ibm.com> <1127684460.15115.116.camel@tglx.tec.linutronix.de>
-In-Reply-To: <1127684460.15115.116.camel@tglx.tec.linutronix.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 27 Sep 2005 17:45:47 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:7311 "EHLO e36.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965164AbVI0Vp0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 17:45:26 -0400
+Subject: Re: [ckrm-tech] Re: [PATCH 1/3] CPUMETER: add cpumeter framework
+	to the CPUSETS
+From: Chandra Seetharaman <sekharan@us.ibm.com>
+Reply-To: sekharan@us.ibm.com
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Paul Jackson <pj@sgi.com>, KUROSAWA Takahiro <kurosawa@valinux.co.jp>,
+       taka@valinux.co.jp, magnus.damm@gmail.com, dino@in.ibm.com,
+       lkml <linux-kernel@vger.kernel.org>, ckrm-tech@lists.sourceforge.net
+In-Reply-To: <1127812937.5174.6.camel@npiggin-nld.site>
+References: <20050908225539.0bc1acf6.pj@sgi.com>
+	 <20050909.203849.33293224.taka@valinux.co.jp>
+	 <20050909063131.64dc8155.pj@sgi.com>
+	 <20050910.161145.74742186.taka@valinux.co.jp>
+	 <20050910015209.4f581b8a.pj@sgi.com>
+	 <20050926093432.9975870043@sv1.valinux.co.jp>
+	 <20050927013751.47cbac8b.pj@sgi.com>
+	 <1127812937.5174.6.camel@npiggin-nld.site>
+Content-Type: text/plain
+Organization: IBM
+Date: Tue, 27 Sep 2005 14:45:16 -0700
+Message-Id: <1127857516.4861.37.camel@linuxchandra>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-6) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Gleixner wrote:
-> On Fri, 2005-09-23 at 16:04 -0700, Darren Hart wrote:
+On Tue, 2005-09-27 at 19:22 +1000, Nick Piggin wrote:
 > 
->>I am trying to run all the tests in the above tarball on a 2.6.13 kernel with 
->>ktimers+tod+hrt + a hrt compatibility patch which uses the normal clocks when a 
->>_HR clock is requested since ktimers treats them the same.  I remember there 
->>used to be a run_tests script or something when this was a kernel patch, but I 
-> 
-> 
-> do_test
-~
->># ./timerlimit
->>7168: timer id = 7167
->>timer_create: Resource temporarily unavailable
->>
->>Is that a reasonable number of successfully created clocks?
-> 
-> 
-> Depends on the number of timers available on your system. But sounds
-> reasonable.
+> Last time I looked at the CKRM cpu controller code I found
+> it was quite horrible, with a great deal of duplication and
+> very intrusive large and complex.
 
-Actually is limited by the maximum number of signal control block.  This 
-is, I think, an RLIMIT and can be changed.  Currently it is set to 1024 
-by default.
+I admit it :)... and that was the reason why we did not post that to
+lkml.
+
+> It could have come a long way since then, but this code looks
+
+Since we were not planning to use it there isn't much change in the
+code :(
+> much neater than the code I reviewed.
 > 
-> I have no idea about the plots. George ?
+> I guess the question of the resource controller stuff is going
+> to come up again sooner or later. I would hope to have just a
+> single CPU resource controller (presumably based on cpusets),
+> the simpler the better ;)
 
-The plot code was done to get a handle on the performance of the timer 
-list code.  The plot should be showing the list overhead as a function 
-of the number of timers.  To get reasonable inteaction you may need to 
-adjust the RLIMIT up so you can get 3000 to 6000 timers.
+We were planning to start on a simplified CPU controller that can
+provide the functionalities CKRM is expected to provide. 
 
-This code was done when we were using the hashed timer list and showed 
-very good performance up to and above 3000 timers.  The hashed timer 
-list did NOT have a cascade issue and I still think it may be a 
-reasonable replacement for the cascade timer list.  It also had the nice 
-ability to change the hash bucket size at configure time to improve 
-performance as needed.
+As I stated in an earlier email cpusubsets looks promising for CKRM, but
+we are not able to spend more time on it as of now as the team is very
+busy trimming down CKRM.
 > 
-
+> Nick
+> 
 -- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------
+
+

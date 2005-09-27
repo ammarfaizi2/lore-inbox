@@ -1,87 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750911AbVI0T5v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750940AbVI0UBm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750911AbVI0T5v (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 15:57:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750848AbVI0T5v
+	id S1750940AbVI0UBm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 16:01:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750943AbVI0UBl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 15:57:51 -0400
-Received: from fmr16.intel.com ([192.55.52.70]:42132 "EHLO
-	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1750837AbVI0T5v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 15:57:51 -0400
-Subject: Re: 2.6.14-rc2-mm1
-From: Rohit Seth <rohit.seth@intel.com>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Andrew Morton <akpm@osdl.org>, Mattia Dongili <malattia@linux.it>,
+	Tue, 27 Sep 2005 16:01:41 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:33132 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S1750940AbVI0UBl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 16:01:41 -0400
+Date: Tue, 27 Sep 2005 22:02:30 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Hirokazu Takata <takata@linux-m32r.org>, torvalds@odsl.org,
        linux-kernel@vger.kernel.org
-In-Reply-To: <922980000.1127847470@flay>
-References: <922980000.1127847470@flay>
-Content-Type: text/plain
-Organization: Intel 
-Date: Tue, 27 Sep 2005 13:05:02 -0700
-Message-Id: <1127851502.6144.10.camel@akash.sc.intel.com>
+Subject: Re: [PATCH] m32r: set CHECKFLAGS properly
+Message-ID: <20050927200230.GA8403@mars.ravnborg.org>
+References: <E1EJlNM-00059K-R8@ZenIV.linux.org.uk> <20050927.151301.189720995.takata.hirokazu@renesas.com> <20050927071025.GS7992@ftp.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 Sep 2005 19:57:39.0521 (UTC) FILETIME=[B6DDFB10:01C5C39D]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050927071025.GS7992@ftp.linux.org.uk>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-09-27 at 11:57 -0700, Martin J. Bligh wrote:
-> > Seems like from the log messages that quite a few pages are hanging
-> in the cpu's cold pcp list even with the low memory conditions.  Below
-> is the patch to reduce the higher bound in cold pcp list (...this got
-> increased with my previous change).  
+ 
+> Sam, any help in that area?  Ideally we want to have something equivalent
+> to
+> PREDEFINED_WE_MIGHT_WANT = __m32r__ __LITTLE_ENDIAN__ __BIG_ENDIAN__
+> and CHECKFLAGS done from that - basically, the subset of cross-gcc
+> predefined symbols reproduced for sparse.  Ideally with -m64 added
+> if we have sizeof(long) == 8 on target, to take care of all that
+> crap in one go.
 > 
-> >  
-> > I think we should also drain the CPU's hot and cold pcps for the
-> GFP_KERNEL page requests (in the event the higher order request is not
-> able to get serviced otherwise).  This will still only drains the
-> current CPUs pcps in an MP environment (leaving the other CPUs with
-> their lists intact).  I will send this patch later today.
-> 
-> >  
-> >       [PATCH]: Reduce the high mark in cpu's cold pcp list. 
-> >  
-> >       Signed-off-by: Rohit Seth <rohit.seth@intel.com> 
-> >  
-> >  
-> > --- linux-2.6.13.old/mm/page_alloc.c  2005-09-26 10:57:07.000000000
-> -0700 
-> > +++ linux-2.6.13.work/mm/page_alloc.c 2005-09-26 10:47:57.000000000
-> -0700 
-> > @@ -1749,7 +1749,7 @@ 
-> >       pcp = &p->pcp[1];               /* cold*/ 
-> >       pcp->count = 0; 
-> >       pcp->low = 0; 
-> > -     pcp->high = 2 * batch; 
-> > +     pcp->high = batch / 2; 
-> >       pcp->batch = max(1UL, batch/2); 
-> >       INIT_LIST_HEAD(&pcp->list); 
-> >  } 
-> > -
-> 
-> I don't understand. How can you set the high watermark at half the
-> batch size? Makes no sense to me.
-> 
+> Suggestions?
+The most simple solution would be to provide a small script that
+create the defines as we need and run it for each invocation of sparse.
+The script should use same trick as scripts/gcc-version.sh does.
 
-The batch size for the cold pcp list is getting initialized to batch/2
-in the code snip above.  So, this change is setting the high water mark
-for cold list to same as pcp's batch number.
+So we could have:
+#!/bin/sh
+compiler="$*"
 
-> And can you give a stricter definiton of what you mean by "low memory 
-> conditions"? I agree we ought to empty the lists before going OOM or 
-> anything, but not at the slightest feather of pressure ... answer lies
-> somewhere inbetween ... but where?
-> 
+BIG=$(echo __BIG_ENDIAN__ | $compiler -E -xc - | tail -n 1)
+LITTLE=$(echo __LITTLE_ENDIAN__ | $compiler -E -xc - | tail -n 1)
 
-In the specific case of dump information that Mattia sent earlier, there
-is only 4M of free mem available at the time the order 1 request is
-failing.  
+Then BIG would be set to "1" if this is big endian, and "__BIG_ENDIAN__"
+if little endian.
+A little bit of shell script and we have the defines we want for m32r.
+Then we could add calling this script as part of sparse invocation.
 
-In general, I think if a specific higher order ( > 0) request fails that
-has GFP_KERNEL set then at least we should drain the pcps.
+The better solution would be to find the relevant flags before we
+start building the kernel. This is not so easy if we want access to
+final CFLAGS. But for the architecture the important ones are
+defined in arch/Makefile so placing this late in the file and
+use $(CC) $(CFLAGS) should be OK in almost all cases.
 
--rohit
+Too late for me to cook up a patch right now - but simple.
+Oh, and I agree. We do NOT want all the gcc defined flags.
 
-
+We should restrict to a subset in the kernel - so it's good
+if sparse warns/errors out on usage of the non-trivial defines.
+	Sam

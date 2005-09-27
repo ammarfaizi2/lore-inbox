@@ -1,100 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965161AbVI0VpL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965160AbVI0Vo7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965161AbVI0VpL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 17:45:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965164AbVI0VpL
+	id S965160AbVI0Vo7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 17:44:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965161AbVI0Vo7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 17:45:11 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:22202 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S965163AbVI0VpI (ORCPT
+	Tue, 27 Sep 2005 17:44:59 -0400
+Received: from pop.gmx.net ([213.165.64.20]:64725 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S965160AbVI0Vo6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 17:45:08 -0400
-Message-ID: <4339BD58.7060300@adaptec.com>
-Date: Tue, 27 Sep 2005 17:44:56 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
+	Tue, 27 Sep 2005 17:44:58 -0400
+X-Authenticated: #20450766
+Date: Tue, 27 Sep 2005 23:44:17 +0200 (CEST)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: Erik Mouw <erik@harddisk-recovery.com>
+cc: Grzegorz Kulewski <kangur@polcom.net>,
+       =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Strange disk corruption with Linux >= 2.6.13
+In-Reply-To: <20050927210113.GA26967@harddisk-recovery.com>
+Message-ID: <Pine.LNX.4.60.0509272342410.24945@poirot.grange>
+References: <20050927111038.GA22172@ime.usp.br> <Pine.LNX.4.63.0509271331590.21130@alpha.polcom.net>
+ <204F8530-3DAD-4B20-AC24-2CBA776CC2C2@ime.usp.br>
+ <Pine.LNX.4.63.0509271425500.21130@alpha.polcom.net>
+ <Pine.LNX.4.60.0509272139220.18464@poirot.grange> <20050927210113.GA26967@harddisk-recovery.com>
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: James Bottomley <James.Bottomley@SteelEye.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
- the kernel
-References: <4339440C.6090107@adaptec.com>	 <20050927131959.GA30329@infradead.org>  <43395ED0.6070504@adaptec.com> <1127836380.4814.36.camel@mulgrave> <43399F17.4090004@adaptec.com> <4339ACDA.3090801@pobox.com>
-In-Reply-To: <4339ACDA.3090801@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 Sep 2005 21:45:05.0841 (UTC) FILETIME=[B92C5A10:01C5C3AC]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09/27/05 16:34, Jeff Garzik wrote:
-> Luben,
+On Tue, 27 Sep 2005, Erik Mouw wrote:
+
+> On Tue, Sep 27, 2005 at 09:42:44PM +0200, Guennadi Liakhovetski wrote:
+> > Version B here. It first had only 128MB, worked fine, I added 256MB, 
+> > system become unstable, memtest86 found "bad memory" around the last 
+> > megabytes. Then I bought 512MB, hoping to use it with 256MB - no way. 
+> > Every module alone works, but not together. But in my case memtest86 did 
+> > find errors. Try removing the 256MB module?...
 > 
-> The fact that your responses are constantly filled with non-technical 
-> paranoia does not help the inclusion of aic94xx at all.
-> 
-> Maybe you need to write your driver as a block driver, and completely 
-> skip the SCSI core, if it bothers you so much?  That would get everybody 
-> else out of the loop, and free you to write the driver as you see fit.
+> FWIW, some VIA based chipsets only take a single DDR400 module, not
+> two. The manuals are a bit vague about it.
 
-Hi Jeff, how are you doing?
+My manual says "2". And it's a A7VI-VM, so, unfortunately, no DDR400, just 
+PC133/VC133.
 
-Yes, that has been suggested before.  But do you remember what
-happened when I posted a patch to IDR?  James moved from SCSI Core
-to IDR. hehehe ;-)
-
-In the mids of the FUD, I completely removed IDR from being used
-in aic94xx, long before I posted the driver.
-
-> As it stands now, you're making an end run around the SCSI core, rather 
-> than fixing it up.  SCSI needs to be modified for SAS, not just 
-> complained about.
-
-Well, back in 2001-2 I was asking for 64 bit LUN support and
-for native SCSI target support (since iSCSI "exports" targets), and
-it uses 64 bit LUNs (as any other transport).  Both sniffed at
-and rejected by your friends.
-
-See this thread from me, all the way back in 2002:
-http://marc.theaimsgroup.com/?l=linux-scsi&m=103013448713434&w=2
-
-You still have people from IBM who claim that 64 bit LUN
-support is completely unnecessary as recently as 2 weeks ago.
-(link to email on marc.10east.com available upon request)
-
-As it has come to now, 2005, we cannot afford any more "putting off".
-
-The driver and the infrastructure needs to go in.
-
-Give it exposure to the people, let people play with it.
-
-If we start "fixing" SCSI Core now (this in itself is JB red
-herring), how long before it is "fixed" and we can "rest"?
-And how long then before the driver and infrastructure
-makes it in?
-
-"How long is the long hair?"
-
-You are calling for fixing SCSI Core.  JB is calling for
-integrating MPT with open transport.  I'm sure people
-have other (crazy) requests.
-
-At the end of the day the driver is not in, and business
-suffers.  And its not like the driver is using 
-static struct file_operations megasas_mgmt_fops, ;-)
-IOCTLs or other char dev for management...
-
-The driver does _not_ alter anything in the kernel, it only
-integrates with it.
-
-There needs to be a "passing gate":
-Linus, let the driver and transport layer in, as is and then
-patches "fixing SCSI Core" would start coming, naturally.
->From people, from me, from everybody.
-
-	Luben
-
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski

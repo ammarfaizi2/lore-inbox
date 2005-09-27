@@ -1,37 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964889AbVI0K0Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964892AbVI0Kcs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964889AbVI0K0Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 06:26:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964890AbVI0K0Q
+	id S964892AbVI0Kcs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 06:32:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964893AbVI0Kcs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 06:26:16 -0400
-Received: from mail.kroah.org ([69.55.234.183]:34483 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S964889AbVI0K0Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 06:26:16 -0400
-Date: Tue, 27 Sep 2005 03:25:56 -0700
-From: Greg KH <greg@kroah.com>
-To: Shawn Starr <shawn.starr@rogers.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Crazy Idea: Replacing /dev using sysfs over time
-Message-ID: <20050927102555.GA7233@kroah.com>
-References: <200509261928.20701.shawn.starr@rogers.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 27 Sep 2005 06:32:48 -0400
+Received: from zproxy.gmail.com ([64.233.162.196]:4197 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964892AbVI0Kcr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 06:32:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=oa4J8Wg1H7c37F1Mdvae7X6u59W35zqwSs4HUeXpyklvt/yGvxVUaomaOXTto+vGEQTeC1L0Uy9XBDB3/okBvFgcyUeqvPwlI2c45cIKKiq3hjNw1gxaXDLRufMhhJhhVKL2A5wPwRihO9KgvO+sA6htbuQ6CZiUFwmQzSsCIl4=
+Message-ID: <460afdfa05092703328347941@mail.gmail.com>
+Date: Tue, 27 Sep 2005 12:32:46 +0200
+From: Luca <luca.foppiano@gmail.com>
+Reply-To: Luca <luca.foppiano@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: problem with frontal output audio
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <200509261928.20701.shawn.starr@rogers.com>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 26, 2005 at 07:28:18PM -0400, Shawn Starr wrote:
-> I wonder if in the future, we can just eliminate /dev altogether (or map it 
-> via sysfs until older apps move away from /dev). It just seems we could 
-> represent major,minor in a sysfs node: 
+hi, I have a motherboard width intel hda audio.
+I have a problem with frontal panel of audio output because the two
+attachment (headphone and microphone) are inverted...
 
-This comes up every few months.  Please read the archives for why this
-is not acceptable.
+Why this problem?
 
-thanks,
-
-greg k-h
+tnks
+sorry for my english..
+Luca

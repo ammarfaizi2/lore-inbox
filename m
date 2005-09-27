@@ -1,41 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750867AbVI0D7m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750840AbVI0ETm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750867AbVI0D7m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 23:59:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbVI0D7m
+	id S1750840AbVI0ETm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 00:19:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbVI0ETm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 23:59:42 -0400
-Received: from mailhub.hp.com ([192.151.27.10]:36503 "EHLO mailhub.hp.com")
-	by vger.kernel.org with ESMTP id S1750837AbVI0D7l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 23:59:41 -0400
-Subject: Re: [PATCH] sys_sendmsg() alignment bug fix
-From: Alex Williamson <alex.williamson@hp.com>
-To: Coywolf Qi Hunt <coywolf@gmail.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-In-Reply-To: <2cd57c90050926204022fb22ca@mail.gmail.com>
-References: <1127764921.6529.60.camel@tdi>
-	 <2cd57c90050926204022fb22ca@mail.gmail.com>
-Content-Type: text/plain
-Organization: OSLO R&D
-Date: Mon, 26 Sep 2005 21:59:34 -0600
-Message-Id: <1127793575.25276.14.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+	Tue, 27 Sep 2005 00:19:42 -0400
+Received: from wombat.indigo.net.au ([202.0.185.19]:49425 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S1750840AbVI0ETl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 00:19:41 -0400
+Date: Tue, 27 Sep 2005 12:21:46 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+X-X-Sender: raven@wombat.indigo.net.au
+To: Jeff Moyer <jmoyer@redhat.com>
+cc: autofs@linux.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: autofs4 looks up wrong path element when ghosting is enabled
+In-Reply-To: <17208.4192.84732.418313@segfault.boston.redhat.com>
+Message-ID: <Pine.LNX.4.58.0509271219230.3079@wombat.indigo.net.au>
+References: <17200.23724.686149.394150@segfault.boston.redhat.com>
+ <Pine.LNX.4.58.0509210916040.26144@wombat.indigo.net.au>
+ <17203.7543.949262.883138@segfault.boston.redhat.com>
+ <Pine.LNX.4.63.0509241644420.2069@donald.themaw.net>
+ <17205.48192.180623.885538@segfault.boston.redhat.com>
+ <Pine.LNX.4.63.0509250918150.2191@donald.themaw.net>
+ <17208.4192.84732.418313@segfault.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-102.5, required 8,
+	EMAIL_ATTRIBUTION, IN_REP_TO, QUOTED_EMAIL_TEXT, REFERENCES,
+	REPLY_WITH_QUOTES, USER_AGENT_PINE, USER_IN_WHITELIST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-09-27 at 11:40 +0800, Coywolf Qi Hunt wrote:
-> On 9/27/05, Alex Williamson <alex.williamson@hp.com> wrote:
-> >    The patch below adds an alignment attribute to the buffer used in
-> > sys_sendmsg().  This eliminates an unaligned access warning on ia64.
+On Mon, 26 Sep 2005, Jeff Moyer wrote:
+
+> ==> Regarding Re: autofs4 looks up wrong path element when ghosting is enabled; Ian Kent <raven@themaw.net> adds:
 > 
-> Is this a warning fix or bug fix?
+> raven> On Sat, 24 Sep 2005, Jeff Moyer wrote:
+> >> >> >> >> >> Ian, I'm not really sure how we can address this issue
+> >> without VFS >> >> changes.  Any ideas?
+> >> >> >> 
+> >> >> 
+> raven> I'm aware of this problem.  I'm not sure how to deal with it yet.
+> raven> The case above is probably not that difficult to solve but if the
+> raven> last component is a directory it's hard to work out it's a problem.
+> >> >> Ugh.  If you're thinking what I think you're thinking, that's an ugly
+> >> >> hack.
+> >> 
+> raven> Don't think so.
+> >>
+> raven> I've been seeing this for a while. I wasn't quite sure of the source
+> raven> but, for some reason your report has cleared that up.
+> >>
+> raven> The problem is not so much the success returned on the failed mount
+> raven> (revalidate). It's the return from the following lookup. This is a
+> raven> lookup in a non-root directory. I replaced the non-root lookup with
+> raven> the root lookup a while ago and I think this is an unexpected side
+> raven> affect of that. Becuase of other changes that lead to that decision
+> raven> I think that it should be now be OK to put back the null function
+> raven> (always return a negative dentry) that was there before I started
+> raven> working on the browable maps feature.
+> >>
+> raven> I'll change the module I use here and test it out for a while.  If
+> raven> you have time I could make a patch for the 2.4 code and send it over
+> raven> so that you could test it out a bit as well.
+> >> Just send along the 2.6 patch, since I have to deal with that, too.
+> >> I'll go through the trouble of backporting it.
+> 
+> raven> I'm in the middle of working on lazy multi-mounts atm so I'm not in
+> raven> a good position to test. It's a little tricky so I don't want to
+> raven> forget where I'm at by getting side tracked.
+> 
+> raven> But here's the patch that I will apply to my v5 tree for the initial
+> raven> testing. Hopefully you will be able to give it a run in a standard
+> raven> setup.
+> 
+> Ian, this will introduce a regression.  That code was changed to fix a
+> different bug with ghosted direct maps.  So, at least for autofs4, this
+> isn't a good fix.  To be more specific, the problem comes when you update a
+> ghosted direct map.  So, if you had a direct map that looks like:
 
-  Guess I'd have to classify it as a warning fix.  ia64 is fairly
-verbose about unaligned accesses by default, so the warning is printed
-out runtime.
+Yep. I see that too. Missed that.
 
-	Alex
+I'll have to look more closely at the returns from lookup.
+
+Ian
 

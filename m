@@ -1,89 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750840AbVI0ETm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbVI0EWw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750840AbVI0ETm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 00:19:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbVI0ETm
+	id S932310AbVI0EWw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 00:22:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932313AbVI0EWw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 00:19:42 -0400
-Received: from wombat.indigo.net.au ([202.0.185.19]:49425 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S1750840AbVI0ETl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 00:19:41 -0400
-Date: Tue, 27 Sep 2005 12:21:46 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-X-X-Sender: raven@wombat.indigo.net.au
-To: Jeff Moyer <jmoyer@redhat.com>
-cc: autofs@linux.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: autofs4 looks up wrong path element when ghosting is enabled
-In-Reply-To: <17208.4192.84732.418313@segfault.boston.redhat.com>
-Message-ID: <Pine.LNX.4.58.0509271219230.3079@wombat.indigo.net.au>
-References: <17200.23724.686149.394150@segfault.boston.redhat.com>
- <Pine.LNX.4.58.0509210916040.26144@wombat.indigo.net.au>
- <17203.7543.949262.883138@segfault.boston.redhat.com>
- <Pine.LNX.4.63.0509241644420.2069@donald.themaw.net>
- <17205.48192.180623.885538@segfault.boston.redhat.com>
- <Pine.LNX.4.63.0509250918150.2191@donald.themaw.net>
- <17208.4192.84732.418313@segfault.boston.redhat.com>
+	Tue, 27 Sep 2005 00:22:52 -0400
+Received: from xproxy.gmail.com ([66.249.82.203]:12264 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932310AbVI0EWv convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 00:22:51 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=ilm6gvPLFJyapceL7uiP3xKR5DWFqFWeh9Lj/ihtG8F4ufPYUvVJeF71aVjdPf8cOQluuJiD9G6kigdSK4kik8RDGaNIZcEXWnPHeA0vF/T5h2ap8UkBXrWeS8PstHgrXUf3futFDsD19cV453iGpfa6RKcMbMnmD6k5Ez0OZ8o=
+Message-ID: <309a667c0509262122260a7249@mail.gmail.com>
+Date: Tue, 27 Sep 2005 09:52:51 +0530
+From: devesh sharma <devesh28@gmail.com>
+Reply-To: devesh sharma <devesh28@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel 2.6.9 fail to boot with numa=fake=2 option
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-102.5, required 8,
-	EMAIL_ATTRIBUTION, IN_REP_TO, QUOTED_EMAIL_TEXT, REFERENCES,
-	REPLY_WITH_QUOTES, USER_AGENT_PINE, USER_IN_WHITELIST)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Sep 2005, Jeff Moyer wrote:
+Hi everyone,
+I am trying 2.6.9 kernel to boot with boot time option as numa=fake=2
+On intel xeon 64 bit 4 way SMP environment with 4GB Physical memory
+but I am getting an error
 
-> ==> Regarding Re: autofs4 looks up wrong path element when ghosting is enabled; Ian Kent <raven@themaw.net> adds:
-> 
-> raven> On Sat, 24 Sep 2005, Jeff Moyer wrote:
-> >> >> >> >> >> Ian, I'm not really sure how we can address this issue
-> >> without VFS >> >> changes.  Any ideas?
-> >> >> >> 
-> >> >> 
-> raven> I'm aware of this problem.  I'm not sure how to deal with it yet.
-> raven> The case above is probably not that difficult to solve but if the
-> raven> last component is a directory it's hard to work out it's a problem.
-> >> >> Ugh.  If you're thinking what I think you're thinking, that's an ugly
-> >> >> hack.
-> >> 
-> raven> Don't think so.
-> >>
-> raven> I've been seeing this for a while. I wasn't quite sure of the source
-> raven> but, for some reason your report has cleared that up.
-> >>
-> raven> The problem is not so much the success returned on the failed mount
-> raven> (revalidate). It's the return from the following lookup. This is a
-> raven> lookup in a non-root directory. I replaced the non-root lookup with
-> raven> the root lookup a while ago and I think this is an unexpected side
-> raven> affect of that. Becuase of other changes that lead to that decision
-> raven> I think that it should be now be OK to put back the null function
-> raven> (always return a negative dentry) that was there before I started
-> raven> working on the browable maps feature.
-> >>
-> raven> I'll change the module I use here and test it out for a while.  If
-> raven> you have time I could make a patch for the 2.4 code and send it over
-> raven> so that you could test it out a bit as well.
-> >> Just send along the 2.6 patch, since I have to deal with that, too.
-> >> I'll go through the trouble of backporting it.
-> 
-> raven> I'm in the middle of working on lazy multi-mounts atm so I'm not in
-> raven> a good position to test. It's a little tricky so I don't want to
-> raven> forget where I'm at by getting side tracked.
-> 
-> raven> But here's the patch that I will apply to my v5 tree for the initial
-> raven> testing. Hopefully you will be able to give it a run in a standard
-> raven> setup.
-> 
-> Ian, this will introduce a regression.  That code was changed to fix a
-> different bug with ghosted direct maps.  So, at least for autofs4, this
-> isn't a good fix.  To be more specific, the problem comes when you update a
-> ghosted direct map.  So, if you had a direct map that looks like:
+Kenel penic : not syncing : kmem_cache_create() failed
 
-Yep. I see that too. Missed that.
+I want to know whether numa=fake=N option is only available with AMD
+opteron 64bit installation? Or It is supported with Intel also? If yes
+then is there any limit of Physical memory after which this is
+supported?
 
-I'll have to look more closely at the returns from lookup.
-
-Ian
-
+Devesh

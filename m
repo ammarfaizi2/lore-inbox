@@ -1,43 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964809AbVI0FFh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964811AbVI0FL5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964809AbVI0FFh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 01:05:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbVI0FFh
+	id S964811AbVI0FL5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 01:11:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964812AbVI0FL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 01:05:37 -0400
-Received: from metis.extern.pengutronix.de ([83.236.181.26]:54193 "EHLO
-	metis.extern.pengutronix.de") by vger.kernel.org with ESMTP
-	id S964809AbVI0FFg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 01:05:36 -0400
-Date: Tue, 27 Sep 2005 07:05:35 +0200
-From: Robert Schwebel <r.schwebel@pengutronix.de>
-To: Luke Yang <luke.adi@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ADI Blackfin porting for kernel-2.6.13
-Message-ID: <20050927050535.GA19042@pengutronix.de>
-References: <489ecd0c05091923336b48555@mail.gmail.com> <20050920071514.GA10909@plexity.net> <489ecd0c050922223736cf1548@mail.gmail.com> <20050924145102.GD28883@pengutronix.de> <489ecd0c05092618372a5993c5@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-In-Reply-To: <489ecd0c05092618372a5993c5@mail.gmail.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Tue, 27 Sep 2005 01:11:57 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:38785
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S964811AbVI0FL5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 01:11:57 -0400
+Message-ID: <4338D48F.3090807@linuxwireless.org>
+Date: Mon, 26 Sep 2005 23:11:43 -0600
+From: Alejandro Bonilla <abonilla@linuxwireless.org>
+User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: kronos@kronoz.cjb.net
+CC: Keenan Pepper <keenanpepper@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: ipw2200 only works as a module?
+References: <20050926171220.GA9341@dreamland.darkstar.lan>
+In-Reply-To: <20050926171220.GA9341@dreamland.darkstar.lan>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 27, 2005 at 09:37:59AM +0800, Luke Yang wrote:
-> We really don't have plan about Blackfin with a MMU now. So do you
-> beleve it is necessary to change the name to arch/blackfin?
+Luca wrote:
 
-Hmm, as far as I know there are at least plans for variants with memory
-protection units (but without virtual addressing), but anyway - why put
-the mmu into the architecture name? If you use "blackfin" you are open
-to everything and no non dsp guru has to guess what bf might be ;) 
+>Keenan Pepper <keenanpepper@gmail.com> ha scritto:
+>  
+>
+>>With CONFIG_IPW2200=y I get:
+>>
+>>ipw2200: ipw-2.2-boot.fw load failed: Reason -2
+>>ipw2200: Unable to load firmware: 0xFFFFFFFE
+>>
+>>but with CONFIG_IPW2200=m it works fine. If it doesn't work when built into the 
+>>kernel, why even give people the option?
+>>
+>>BTW, a better error message than "Reason -2" would be nice. =)
+>>    
+>>
+>
+>-2 is -ENOENT (no such file or directory). ipw2000 requests its firmware
+>using a hotplug event, but when the driver is compiled into the kernel
+>it gets loaded _before_ the root fs is mounted and of course the hotplug
+>system and the firmware are not available.
+>
+>I suggest to stick with modular driver, otherwise you must create an
+>initrd with hotplug + firmware.
+>  
+>
 
-Robert
--- 
- Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
-   Handelsregister:  Amtsgericht Hildesheim, HRA 2686
-     Hannoversche Str. 2, 31134 Hildesheim, Germany
-   Phone: +49-5121-206917-0 |  Fax: +49-5121-206917-9
+I think I have seen this but in FC3 or FC4. We have had issues with them 
+loading things too soon and then making the driver to fail loading.
+
+Try it with * built in and then once booted to load it. If it works, 
+then is a distro thing.  It works for me here in Debian  with Y or as a 
+module.
+
+.Alejandro
+
+>More on firmware loading here: http://lwn.net/Articles/32997/
+>
+>Luca
+>  
+>
 

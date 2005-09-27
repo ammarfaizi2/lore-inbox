@@ -1,90 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965053AbVI0UnL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965056AbVI0Una@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965053AbVI0UnL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 16:43:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965054AbVI0UnK
+	id S965056AbVI0Una (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 16:43:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965059AbVI0Una
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 16:43:10 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:30921 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S965053AbVI0UnJ (ORCPT
+	Tue, 27 Sep 2005 16:43:30 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:54712 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965056AbVI0Un3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 16:43:09 -0400
-Message-ID: <4339AED4.8030108@engr.sgi.com>
-Date: Tue, 27 Sep 2005 13:43:00 -0700
-From: Jay Lan <jlan@engr.sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040906
-X-Accept-Language: en-us, en
+	Tue, 27 Sep 2005 16:43:29 -0400
+Date: Tue, 27 Sep 2005 13:42:44 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Solar Designer <solar@openwall.com>, Sergey Vlasov <vsu@altlinux.ru>,
+       vendor-sec@lst.de, linux-kernel@vger.kernel.org,
+       security@linux.kernel.org
+Subject: Re: PID reuse safety for userspace apps (Re: [linux-usb-devel] Re:
+ [Security] [vendor-sec] [BUG/PATCH/RFC] Oops while completing async USB via
+ usbdevio)
+In-Reply-To: <1127853252.10674.9.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0509271335530.3308@g5.osdl.org>
+References: <20050925151330.GL731@sunbeam.de.gnumonks.org> 
+ <Pine.LNX.4.58.0509270746200.3308@g5.osdl.org>  <20050927160029.GA20466@master.mivlgu.local>
+  <Pine.LNX.4.58.0509270904140.3308@g5.osdl.org>  <20050927165206.GB20466@master.mivlgu.local>
+  <20050927172048.GA3423@openwall.com> <1127853252.10674.9.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Frank van Maarseveen <frankvm@frankvm.com>,
-       Christoph Lameter <clameter@engr.sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.14-rc2] fix incorrect mm->hiwater_vm and mm->hiwater_rss
-References: <20050921121915.GA14645@janus> <Pine.LNX.4.61.0509211515330.6114@goblin.wat.veritas.com> <43319111.1050803@engr.sgi.com> <Pine.LNX.4.61.0509211802150.8880@goblin.wat.veritas.com> <4331990A.80904@engr.sgi.com> <Pine.LNX.4.61.0509211835190.9340@goblin.wat.veritas.com> <4331A0DA.5030801@engr.sgi.com> <20050921182627.GB17272@janus> <Pine.LNX.4.61.0509211958410.10449@goblin.wat.veritas.com>
-In-Reply-To: <Pine.LNX.4.61.0509211958410.10449@goblin.wat.veritas.com>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins wrote:
-> On Wed, 21 Sep 2005, Frank van Maarseveen wrote:
-> 
->>What about calling
->>
->>static inline void grow_total_vm(struct mm_struct *mm, unsigned long increase)
->>{
->>	mm->total_vm += increase;
->>	if (mm->total_vm > mm->hiwater_vm)
->>		mm->hiwater_vm = mm->total_vm;
->>}
->>
->>whenever total_vm is increased and possibly doing something similar for rss at
->>different places? If it is not on the fast path then it's not necessary to
->>#ifdef the thing anywhere.
-> 
-> 
-> I think there's a good argument for separating hiwater_vm and hiwater_rss
-> completely (and you don't seem to be interested in hiwater_rss yourself).
-> 
-> hiwater_rss is on some fast paths: well, I don't see them as fast paths
-> myself (the page faults), but they are of exceptional concern to Christoph,
-> and the less we have to mess with struct mm at those points the happier he
-> is.  I guess hiwater_rss should remain updated from the timer tick for now.
-> 
-> But I think you're right that hiwater_vm is best updated where total_vm
-> is: I'm not sure if it covers all cases completely (I think there's one
-> or two places which don't bother to call __vm_stat_account because they
-> believe it won't change anything), but in principle it would make lots of
-> sense to do it in the __vm_stat_account which typically follows adjusting
-> total_vm, as you did, and if possible nowhere else; rather than adding
-> your inline above.
-
-While in the work on separating hiwater_vm from hiwater_rss, i noticed
-that __vm_stat_account() was not called in these functions where
-total_vm was updated:
-     mm/mmap.c                           do_brk
-     mm/nommu.c                          do_mmap_pgoff
-     mm/nommu.c                          do_munmap
-     arch/ppc64/kernel/vdso.c            arch_setup_additional_pages
-     arch/x86_64/ia32/syscall32.c        syscall32_setup_pages
-
-Frank tried to touch the latter two in his proposed patch.
-Does it make sense we add __vm_stat_account() calls to the above
-routines?
-
-- jay
 
 
+On Tue, 27 Sep 2005, Alan Cox wrote:
+>
+> On Maw, 2005-09-27 at 21:20 +0400, Solar Designer wrote:
+> > The idea is to introduce a kernel call (it can be a prctl(2) setting,
+> > although my pseudo-code "defines" an entire syscall for simplicity)
+> > which would "lock" the invoking process' view of a given PID (while
+> > letting the PID get reused - so there's no added risk of DoS).  The
+> > original posting and subsequent thread can be seen here:
 > 
-> Would you be satisfied with that, Christoph?
-> 
-> I should warn you that I'll shortly (shortly meaning in days rather
-> than hours) be sending Andrew a patch which will remove the "__" from
-> __vm_stat_account, since the old vm_stat_account is now hardly used.
-> I'm also rearranging the rss,anon_rss accounting.  Maybe come back
-> to the hiwaters later on?
-> 
-> Hugh
+> You can solve it just as well in kernel space without application
+> changes.
 
+Note that for at least signal sending, the security aspect is _not_ about 
+whether the pid has been re-used, but about whether the _user_ matches.
+
+This is most trivially seen by thinking about just a suid exec.
+
+Sending a signal to a suid process should be disallowed even _if_ the
+"struct task_struct" is still the same, which is why the oops fix
+discussed in this thread is totally pointless - it has almost nothing to
+do with security. Doing "get_task_struct()" may remove the oops, but it 
+doesn't remove the security issues (pid wrapping is a total red herring: 
+with get_task_struct you don't need to wrap pids at all, you just do a 
+single exec on a suid executable, and off you go).
+
+Now, the fasync interfaces are a bit inconvenient because they require the 
+"struct file" to be around, since that's what also contains the owner 
+information. That means that you have to track file lifetime in the urb 
+submission.
+
+I don't know the code, but if that's inconvenient, then the real solution 
+ends up being to just do the permission checks by hand. Remember the 
+uid/euid/pid at the time of the submission, and use them at completion.
+
+I don't even think it's worth any general helper infrastructure: I suspect 
+the interfaces are pretty broken as designed, and we should _not_ 
+encourage them further. But it's not like the security check is more than 
+three lines of code, so..
+
+			Linus

@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964909AbVI0MFD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964910AbVI0MFr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964909AbVI0MFD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 08:05:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964910AbVI0MFD
+	id S964910AbVI0MFr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 08:05:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964911AbVI0MFr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 08:05:03 -0400
-Received: from smtpout5.uol.com.br ([200.221.4.196]:34244 "EHLO
-	smtp.uol.com.br") by vger.kernel.org with ESMTP id S964909AbVI0MFB convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 08:05:01 -0400
-In-Reply-To: <20050927133447.c3caeb25.diegocg@gmail.com>
-References: <20050927111038.GA22172@ime.usp.br> <20050927133447.c3caeb25.diegocg@gmail.com>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=ISO-8859-1; delsp=yes; format=flowed
-Message-Id: <01984F80-801E-4098-88B5-65A7AD7D1CAD@ime.usp.br>
-Cc: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 8BIT
-From: =?ISO-8859-1?Q?Rog=E9rio_Brito?= <rbrito@ime.usp.br>
-Subject: Re: Strange disk corruption with Linux >= 2.6.13
-Date: Tue, 27 Sep 2005 08:58:50 -0300
-To: Diego Calleja <diegocg@gmail.com>
-X-Mailer: Apple Mail (2.734)
+	Tue, 27 Sep 2005 08:05:47 -0400
+Received: from mail.renesas.com ([202.234.163.13]:63166 "EHLO
+	mail03.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S964910AbVI0MFq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 08:05:46 -0400
+Date: Tue, 27 Sep 2005 21:05:41 +0900 (JST)
+Message-Id: <20050927.210541.846961981.takata.hirokazu@renesas.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
+Subject: [PATCH 2.6.14-rc2-mm1] m32r: buildfix of m32r_sio.c
+From: Hirokazu Takata <takata@linux-m32r.org>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.17 (Jumbo Shrimp)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Diego. Thank you very much for your reply.
+This patch fixes build errors of -mm kernels, 2.6.14-rc1-mm1 or later.
+Please apply.
 
-On Sep 27, 2005, at 8:34 AM, Diego Calleja wrote:
-> You don't say what filesystem are you using. Have you tried running  
-> fsck?
+Thanks,
 
-Oh, sure. I forgot to mention that. I am using ext3 with ACL/xattrs  
-and with hashed B-Trees (I optimized the filesystem with option -D of  
-fsck.ext2). Would one of these things be a possible cause for the  
-strange behaviour that I am seeing?
+Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
+---
 
+ drivers/serial/m32r_sio.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Again, thank you very much for your interest.
+Index: linux-2.6.14-rc2-mm1/drivers/serial/m32r_sio.c
+===================================================================
+--- linux-2.6.14-rc2-mm1.orig/drivers/serial/m32r_sio.c	2005-09-27 20:53:39.000000000 +0900
++++ linux-2.6.14-rc2-mm1/drivers/serial/m32r_sio.c	2005-09-27 20:53:46.000000000 +0900
+@@ -386,7 +386,7 @@ static _INLINE_ void receive_chars(struc
+ 		if ((*status & up->port.ignore_status_mask) == 0)
+ 			tty_insert_flip_char(tty, ch, flag);
+ 
+-		if (*status & UART_LSR_OE)
++		if (*status & UART_LSR_OE) {
+ 			/*
+ 			 * Overrun is special, since it's reported
+ 			 * immediately, and doesn't affect the current
 
--- 
-Rogério Brito : rbrito@ime.usp.br : http://www.ime.usp.br/~rbrito
-Homepage of the algorithms package : http://algorithms.berlios.de
-Homepage on freshmeat:  http://freshmeat.net/projects/algorithms/
-
-
+--
+Hirokazu Takata <takata@linux-m32r.org>
+Linux/M32R Project:  http://www.linux-m32r.org/

@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964913AbVI0NGm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964923AbVI0NKL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964913AbVI0NGm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 09:06:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964922AbVI0NGm
+	id S964923AbVI0NKL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 09:10:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964924AbVI0NKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 09:06:42 -0400
-Received: from nevyn.them.org ([66.93.172.17]:41407 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S964913AbVI0NGl (ORCPT
+	Tue, 27 Sep 2005 09:10:11 -0400
+Received: from mail.kroah.org ([69.55.234.183]:51590 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964923AbVI0NKK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 09:06:41 -0400
-Date: Tue, 27 Sep 2005 09:06:39 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: "Bhavesh P. Davda" <bhavesh@avaya.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH] New SA_NOPRNOTIF sigaction flag
-Message-ID: <20050927130639.GA606@nevyn.them.org>
-Mail-Followup-To: "Bhavesh P. Davda" <bhavesh@avaya.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.GSO.4.33.0509261129280.20665-200000@drces.dr.avaya.com>
+	Tue, 27 Sep 2005 09:10:10 -0400
+Date: Tue, 27 Sep 2005 06:09:38 -0700
+From: Greg KH <greg@kroah.com>
+To: Christoph Hellwig <hch@infradead.org>, Harald Welte <laforge@gnumonks.org>,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       vendor-sec@lst.de, security@linux.kernel.org,
+       David Brownell <david-b@pacbell.net>
+Subject: Re: [vendor-sec] [BUG/PATCH/RFC] Oops while completing async USB via usbdevio
+Message-ID: <20050927130937.GA11060@kroah.com>
+References: <20050925151330.GL731@sunbeam.de.gnumonks.org> <20050927080413.GA13149@kroah.com> <20050927124846.GA29649@infradead.org> <20050927125755.GA10738@kroah.com> <20050927125956.GA29861@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.33.0509261129280.20665-200000@drces.dr.avaya.com>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <20050927125956.GA29861@infradead.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 26, 2005 at 11:39:40AM -0600, Bhavesh P. Davda wrote:
+On Tue, Sep 27, 2005 at 01:59:56PM +0100, Christoph Hellwig wrote:
+> On Tue, Sep 27, 2005 at 05:57:55AM -0700, Greg KH wrote:
+> > Earlier in this thread, on these mailing lists.
+> > 
+> > I've included it below too.
 > 
-> Sometimes when a task is being ptraced (e.g. by a debugger), one would
-> like to handle a certain signal (e.g. SIGSEGV) within the task without
-> having to notify the ptracing task.
+> Ah, it was last week and I missed it.  sorry.
 > 
-> An example of this is if one would like to detect the rate at which pages
-> are being modified, and therefore mprotect() the pages. The SIGSEGV
-> handler just keeps track of how many writes are happening on each of the
-> mprotect()ed pages, but you don't want to bother the debugger with these
-> SIGSEGVs.
-> 
-> I'm proposing the addition of a new SA_NOPRNOTIF flag to struct sigaction
-> { sa_flags }, which makes the kernel skip notifying the ptracing parent if
-> the flag is set for a sighandler for a particular signal.
-> 
-> This trivial patch achieves just that.
-> 
-> Comments?
+> This is more than messy.  usbfs is the only user of SI_ASYNCIO, and the
+> way it uses it is more than messy.  Why can't USB simply use the proper
+> AIO infrastructure?
 
-No way!  It needs to work the other way: allow the debugger to
-short-circuit a signal for performance reasons if it wants to.  Ptrace
-is supposed to report all signals and debuggers expect it to do so.
-It'd be pretty confusing if, say, you were trying to debug the SIGSEGV
-handler in an application which did this.
+No one has taken the time and effort to do this.  No other reason that I
+know of.  David?  I know you have looked into this a bit in the past.
 
--- 
-Daniel Jacobowitz
-CodeSourcery, LLC
+thanks,
+
+greg k-h

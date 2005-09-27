@@ -1,94 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbVI0HJh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964838AbVI0HK3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964836AbVI0HJh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 03:09:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964838AbVI0HJh
+	id S964838AbVI0HK3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 03:10:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964839AbVI0HK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 03:09:37 -0400
-Received: from web8409.mail.in.yahoo.com ([202.43.219.157]:40342 "HELO
-	web8409.mail.in.yahoo.com") by vger.kernel.org with SMTP
-	id S964836AbVI0HJh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 03:09:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.co.in;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=LpUrD6JwNKfDl6Om1EaSqGDGgyWWMXGiup7nBg+uDNZSyRtxhrGccjzigveh1YQgUJaPn+m3/Hh0G8dPgnww1JxwV+gGeh4hspfvwwk3JX0N88ShQgpjhGkpLh+9WTWFxh8PFI1X6edLUXmq9sV8V7pgxBgbd0oaFSqqhWSTRDE=  ;
-Message-ID: <20050927070933.77908.qmail@web8409.mail.in.yahoo.com>
-Date: Tue, 27 Sep 2005 08:09:33 +0100 (BST)
-From: vikas gupta <vikas_gupta51013@yahoo.co.in>
-Subject: Re: AIO Support and related package information??
-To: =?iso-8859-1?q?S=E9bastien=20Dugu=E9?= <sebastien.dugue@bull.net>
-Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org, bcrl@kvack.org
-In-Reply-To: <1127745249.2069.30.camel@frecb000686>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 27 Sep 2005 03:10:29 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:18370 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S964838AbVI0HK3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 03:10:29 -0400
+Date: Tue, 27 Sep 2005 08:10:25 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Hirokazu Takata <takata@linux-m32r.org>
+Cc: torvalds@odsl.org, linux-kernel@vger.kernel.org, sam@ravnborg.org
+Subject: Re: [PATCH] m32r: set CHECKFLAGS properly
+Message-ID: <20050927071025.GS7992@ftp.linux.org.uk>
+References: <E1EJlNM-00059K-R8@ZenIV.linux.org.uk> <20050927.151301.189720995.takata.hirokazu@renesas.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050927.151301.189720995.takata.hirokazu@renesas.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Sep 27, 2005 at 03:13:01PM +0900, Hirokazu Takata wrote:
+> Please don't specify __BIG_ENDIAN__.  ;-)
+> We have supported both big- and little-endian for the m32r kernel.
+> I hope it will be kept unconditional.
+> 
+> Now, the endianness is to be determined by a (cross)compiler:
+> - For the big-endian, a compiler (m32r-linux-gcc or m32r-linux-gnu-gcc)
+>   provides a predefined macro __BIG_ENDIAN__.
+> - For little-endian, a compiler (m32rle-linux-gcc or m32rle-linux-gnu-gcc)
+>   provides a predefined macro __LITTLE_ENDIAN__.
+> 
+> Here is a modified patch.
+> 
+> Thank you.
 
-HI Sebastien,
-Thanks for your Reply 
-...
+You do realize that this way sparse will get neither?  It does not
+pick predefined symbols from gcc; thus the -D<your_arch>, etc.
 
-As i told you that i am trying to build libposix
-package for arm platform,with bare Kernel AIO Support
-(without applying patches) and libposix-0.6 package.
+One solution would be to really run cross-gcc on something like
 
-When i tried to build the package then while
-configuration it is  showing Following
+#define HAVE(x) -D##x=x
+#ifdef __LITTLE_ENDIAN__
+HAVE(__LITTLE_ENDIAN__)
+#endif
+#ifdef __BIG_ENDIAN__
+HAVE(__BIG_ENDIAN__)
+#endif
 
-Error:
+with grep -- -D on the output and have it added to CHECKFLAGS.  The only
+problem being, for a generic solution we want to make sure that this
+sucker is run _after_ we have decided on gcc arguments.
 
-"Checking for default value for max events...
-configure: error: cannot 
-run
-test program while cross compiling
-See `config.log' for more details."
+Note that it's potentially more than just m32r - e.g. s390 wants
+__s390x__ added only for case of 64bit target.  Similar for powerpc
+if these get merged, etc.
 
-I traced the configure script for following Error and
-got following code that is, I think causing this
-Problem:
+Sam, any help in that area?  Ideally we want to have something equivalent
+to
+PREDEFINED_WE_MIGHT_WANT = __m32r__ __LITTLE_ENDIAN__ __BIG_ENDIAN__
+and CHECKFLAGS done from that - basically, the subset of cross-gcc
+predefined symbols reproduced for sparse.  Ideally with -m64 added
+if we have sizeof(long) == 8 on target, to take care of all that
+crap in one go.
 
-Code in configure script:
-
-if test "${enable_default_maxevents+set}" = set; then
-  enableval="$enable_default_maxevents"
-  ac_aio_default_maxevents=$enableval
-else
-  echo "$as_me:$LINENO: checking for default value for
-max events" >&5
-echo $ECHO_N "checking for default value for max
-events... $ECHO_C" >&6
-if test "$cross_compiling" = yes; then
-  { { echo "$as_me:$LINENO: error: cannot run test
-program while cross
-compiling
-See \`config.log' for more details." >&5
-echo "$as_me: error: cannot run test program while
-cross compiling
-See \`config.log' for more details." >&2;}
-   { (exit 1); exit 1; }; }
-else
-  cat >conftest.$ac_ext <<_ACEOF
-
-Even on x86 it is going into else part but their as
-cross compiling is false in that case it goes to 
-cat > conftest.$ac_ext <<_ACEOF
-
-
-So With this code while cross compiling we always face
-the same  problem...
-
-So Can you please tell me how to resolve this
-problem...
-
-Thanks in advance...
-
-Vikas
-
-
-
-		
-__________________________________________________________ 
-Yahoo! India Matrimony: Find your partner now. Go to http://yahoo.shaadi.com
+Suggestions?

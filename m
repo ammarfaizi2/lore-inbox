@@ -1,78 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964877AbVI0JWw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964878AbVI0J1K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964877AbVI0JWw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 05:22:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964878AbVI0JWw
+	id S964878AbVI0J1K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 05:27:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964879AbVI0J1K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 05:22:52 -0400
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:25477 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S964877AbVI0JWv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 05:22:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Subject:From:To:Cc:In-Reply-To:References:Content-Type:Date:Message-Id:Mime-Version:X-Mailer:Content-Transfer-Encoding;
-  b=wNdGK8TQkCFLCf0lIkeBqzGia+IyH9jb/MLmuJQ2VguxZoeLGcfjk9kYNxc0fCyqmLRgluI7HLN0Kr7bkKcP8D3asegc5TuZscqnc81K4y/NOpJt0KILBF/p8+tds4ZlrcG4OkcepGC5QyenkIGrCCEA/1V/cTADvNR5RDDxJO8=  ;
-Subject: Re: [PATCH 1/3] CPUMETER: add cpumeter framework to the CPUSETS
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-To: Paul Jackson <pj@sgi.com>
-Cc: KUROSAWA Takahiro <kurosawa@valinux.co.jp>, taka@valinux.co.jp,
-       magnus.damm@gmail.com, dino@in.ibm.com,
-       lkml <linux-kernel@vger.kernel.org>, ckrm-tech@lists.sourceforge.net
-In-Reply-To: <20050927013751.47cbac8b.pj@sgi.com>
-References: <20050908225539.0bc1acf6.pj@sgi.com>
-	 <20050909.203849.33293224.taka@valinux.co.jp>
-	 <20050909063131.64dc8155.pj@sgi.com>
-	 <20050910.161145.74742186.taka@valinux.co.jp>
-	 <20050910015209.4f581b8a.pj@sgi.com>
-	 <20050926093432.9975870043@sv1.valinux.co.jp>
-	 <20050927013751.47cbac8b.pj@sgi.com>
-Content-Type: text/plain
-Date: Tue, 27 Sep 2005 19:22:17 +1000
-Message-Id: <1127812937.5174.6.camel@npiggin-nld.site>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
+	Tue, 27 Sep 2005 05:27:10 -0400
+Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:11957 "EHLO
+	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S964878AbVI0J1J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 05:27:09 -0400
+From: Grant Coady <grant_lkml@dodo.com.au>
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Repeatable crash under 2.6.13.2 + NFS
+Date: Tue, 27 Sep 2005 19:27:00 +1000
+Organization: http://bugsplatter.mine.nu/
+Message-ID: <iv3ij1pnv79gm8i6rem25v98vu8a3ibun1@4ax.com>
+References: <Pine.LNX.4.63.0509270429360.1539@p34>
+In-Reply-To: <Pine.LNX.4.63.0509270429360.1539@p34>
+X-Mailer: Forte Agent 2.0/32.652
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-09-27 at 01:37 -0700, Paul Jackson wrote:
+On Tue, 27 Sep 2005 04:37:01 -0400 (EDT), Justin Piszcz <jpiszcz@lucidpixels.com> wrote:
 
-> You will need to encourage someone else, with scheduler expertise,
-> to review that portion of the patch.  The kernel/sched.c file is
-> too hard for me; I stick to easier files such as kernel/cpuset.c.
-> 
-> I continue to be quite suspicious that perhaps there should be a
-> tighter relation between your work and CKRM.  For one thing, I suspect
-> that CKRM has a cpu controller that serves essentially the same purpose
-> as yours.  If that is so, I cannot imagine that we would ever put both
-> cpu controllers in the kernel.  They touch on code that is changing too
-> rapidly, and too critical for performance.
-> 
-> My wild guess would be that the right answer would be to take the
-> CKRM cpu controller instead of yours, and connect it to cpusets in the
-> manner that you have done here.  But I have no expertise in cpu
-> controllers, so am quite unfit to judge which one or the other, or
-> perhaps some combination of the two cpu controllers, is the best one.
-> 
+>I've reported this before w/ .config etc but nobody responded.
 
-Last time I looked at the CKRM cpu controller code I found
-it was quite horrible, with a great deal of duplication and
-very intrusive large and complex.
+>host mail.lucidpixels.com [66.45.37.187]: 550 <jpiszcz@lucidpixels.com>:
+>    Recipient address rejected: Mail appeared to be SPAM or forged. Ask your Mail/DNS-Administrator to correct HELO and DNS MX settings or to get removed from DNSBLs
 
-It could have come a long way since then, but this code looks
-much neater than the code I reviewed.
+Perhaps if you use a real email address you'll get a better response?
 
-I guess the question of the resource controller stuff is going
-to come up again sooner or later. I would hope to have just a
-single CPU resource controller (presumably based on cpusets),
-the simpler the better ;)
+Grant.
 
-Nick
-
--- 
-SUSE Labs, Novell Inc.
-
-
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 

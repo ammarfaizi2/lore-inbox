@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbVI0API@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964778AbVI0AQr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964773AbVI0API (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Sep 2005 20:15:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964780AbVI0API
+	id S964778AbVI0AQr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Sep 2005 20:16:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964780AbVI0AQr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Sep 2005 20:15:08 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:64521 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S964773AbVI0APG (ORCPT
+	Mon, 26 Sep 2005 20:16:47 -0400
+Received: from smtpout.mac.com ([17.250.248.70]:39925 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S964778AbVI0AQq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Sep 2005 20:15:06 -0400
-Date: Mon, 26 Sep 2005 20:14:29 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Grant Grundler <iod00d@hp.com>
-Cc: "Luck, Tony" <tony.luck@intel.com>, Matthew Wilcox <matthew@wil.cx>,
-       linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       linux-ia64@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       ak@suse.de, "Mallick, Asit K" <asit.k.mallick@intel.com>,
-       gregkh@suse.de
-Subject: Re: [patch 2.6.14-rc2 0/5] swiotlb maintenance and x86_64 dma_sync_single_range_for_{cpu,device}
-Message-ID: <20050927001427.GC5640@tuxdriver.com>
-Mail-Followup-To: Grant Grundler <iod00d@hp.com>,
-	"Luck, Tony" <tony.luck@intel.com>, Matthew Wilcox <matthew@wil.cx>,
-	linux-kernel@vger.kernel.org, discuss@x86-64.org,
-	linux-ia64@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-	ak@suse.de, "Mallick, Asit K" <asit.k.mallick@intel.com>,
-	gregkh@suse.de
-References: <B8E391BBE9FE384DAA4C5C003888BE6F047E9021@scsmsx401.amr.corp.intel.com> <20050926224603.GD16113@esmail.cup.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050926224603.GD16113@esmail.cup.hp.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 26 Sep 2005 20:16:46 -0400
+In-Reply-To: <43385412.5080506@austin.ibm.com>
+References: <4338537E.8070603@austin.ibm.com> <43385412.5080506@austin.ibm.com>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <21024267-29C3-4657-9C45-17D186EAD808@mac.com>
+Cc: Andrew Morton <akpm@osdl.org>, lhms <lhms-devel@lists.sourceforge.net>,
+       Linux Memory Management List <linux-mm@kvack.org>,
+       linux-kernel@vger.kernel.org, Mel Gorman <mel@csn.ul.ie>,
+       Mike Kravetz <kravetz@us.ibm.com>
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [PATCH 1/9] add defrag flags
+Date: Mon, 26 Sep 2005 20:16:03 -0400
+To: Joel Schopp <jschopp@austin.ibm.com>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 26, 2005 at 03:46:03PM -0700, Grant Grundler wrote:
+On Sep 26, 2005, at 16:03:30, Joel Schopp wrote:
+> The flags are:
+> __GFP_USER, which corresponds to easily reclaimable pages
+> __GFP_KERNRCLM, which corresponds to userspace pages
 
-> But since swiotlb complies with DMA-API interface and is not related
-> to any particular type of bus, I'd rather it go into lib/ instead of
-> drivers/pci.
+Uhh, call me crazy, but don't those flags look a little backwards to  
+you?  Maybe it's just me, but wouldn't it make sense to expect  
+__GFP_USER to be a userspace allocation and __GFP_KERNRCLM to be an  
+easily reclaimable kernel page?
 
-OK...I read Tony's patch post to imply that he is consenting to lib/ as
-the location as well.  Tony, please speak-up if that is not the case.
+Cheers,
+Kyle Moffett
 
-If everyone agrees, I'll re-collect the patches moving everything to
-lib/ (plus the one I forgot to repost) and Tony's patch and repost.
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$ L++++(+ 
+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+ PGP+++ t+(+ 
+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  !y?(-)
+------END GEEK CODE BLOCK------
 
-So, who is the proper committer for this?  Tony?  Or should I send
-them directly to Andrew?
 
-Thanks,
-
-John
--- 
-John W. Linville
-linville@tuxdriver.com

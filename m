@@ -1,82 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965176AbVI0V7u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965185AbVI0WBY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965176AbVI0V7u (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 17:59:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965182AbVI0V7u
+	id S965185AbVI0WBY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 18:01:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965184AbVI0WBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 17:59:50 -0400
-Received: from dvhart.com ([64.146.134.43]:25741 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S965176AbVI0V7t (ORCPT
+	Tue, 27 Sep 2005 18:01:24 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:50140 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S965179AbVI0WBX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 17:59:49 -0400
-Date: Tue, 27 Sep 2005 14:59:45 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Rohit Seth <rohit.seth@intel.com>
-Cc: Andrew Morton <akpm@osdl.org>, Mattia Dongili <malattia@linux.it>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc2-mm1
-Message-ID: <985130000.1127858385@flay>
-In-Reply-To: <1127857919.7258.13.camel@akash.sc.intel.com>
-References: <922980000.1127847470@flay> <1127851502.6144.10.camel@akash.sc.intel.com>  <970900000.1127855894@flay> <1127857919.7258.13.camel@akash.sc.intel.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Tue, 27 Sep 2005 18:01:23 -0400
+Message-ID: <4339C12C.5020004@pobox.com>
+Date: Tue, 27 Sep 2005 18:01:16 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Luben Tuikov <luben_tuikov@adaptec.com>
+CC: James Bottomley <James.Bottomley@SteelEye.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
+ the kernel
+References: <4339440C.6090107@adaptec.com>	 <20050927131959.GA30329@infradead.org>  <43395ED0.6070504@adaptec.com> <1127836380.4814.36.camel@mulgrave> <43399F17.4090004@adaptec.com> <4339ACDA.3090801@pobox.com> <4339BD58.7060300@adaptec.com>
+In-Reply-To: <4339BD58.7060300@adaptec.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I must be being particularly dense today ... but:
->> 
->>  pcp->high = batch / 2; 
->> 
->> Looks like half the batch size to me, not the same? 
+Luben Tuikov wrote:
+> The driver and the infrastructure needs to go in.
 > 
-> pcp->batch = max(1UL, batch/2); is the line of code that is setting the
-> batch value for the cold pcp list.  batch is just a number that we
-> counted based on some parameters earlier.
+> Give it exposure to the people, let people play with it.
 
-Ah, OK, so I am being dense. Fair enough. But if there's a reason to do
-that max, perhaps:
+Merging into the upstream kernel is not necessary for exposure.
 
-pcp->batch = max(1UL, batch/2);
-pcp->high = pcp->batch;
+Historically, saying "no" to a single vendor pushing really hard -- as 
+you are doing -- has resulted in a superior solution.
 
-would be more appropriate? Tradeoff is more frequent dump / fill against
-better frag, I suppose (at least if we don't refill using higher order
-allocs ;-)) which seems fair enough.
 
->> > In general, I think if a specific higher order ( > 0) request fails that
->> > has GFP_KERNEL set then at least we should drain the pcps.
->> 
->> Mmmm. so every time we fork a process with 8K stacks, or allocate a frame
->> for jumbo ethernet, or NFS, you want to drain the lists? that seems to
->> wholly defeat the purpose.
+> If we start "fixing" SCSI Core now (this in itself is JB red
+> herring), how long before it is "fixed" and we can "rest"?
+> And how long then before the driver and infrastructure
+> makes it in?
+
+Just follow the recipe Christoph outlined.  It's not difficult, just 
+requires some work.
+
+
+> At the end of the day the driver is not in, and business
+> suffers.  And its not like the driver is using 
+> static struct file_operations megasas_mgmt_fops, ;-)
+> IOCTLs or other char dev for management...
 > 
-> Not every time there is a request for higher order pages.  That surely
-> will defeat the purpose of pcps.  But my suggestion is only to drain
-> when the the global pool is not able to service the request.  In the
-> pathological case where the higher order and zero order requests are
-> alternating you could have thrashing in terms of pages moving to pcp for
-> them to move back to global list.
-
-OK, seems fair enough. But there's multiple "harder and harder" attempts
-within __alloc_pages to do that ... which one are you going for? just 
-before we OOM / fail the alloc? That'd be hard to argue with, though I'm
-unsure what the locking is to dump out other CPUs queues - you going to
-global IPI and ask them to do it - that'd seem to cause it to race to
-refill (as you mention).
- 
->> Could you elaborate on what the benefits were from this change in the
->> first place? Some page colouring thing on ia64? It seems to have way more
->> downside than upside to me.
+> The driver does _not_ alter anything in the kernel, it only
+> integrates with it.
 > 
-> The original change was to try to allocate a higher order page to
-> service a batch size bulk request.  This was with the hope that better
-> physical contiguity will spread the data better across big caches.
+> There needs to be a "passing gate":
+> Linus, let the driver and transport layer in, as is and then
+> patches "fixing SCSI Core" would start coming, naturally.
+>>From people, from me, from everybody.
 
-OK ... but it has an impact on fragmentation. How much benefit are you
-getting?
+So far, this is an Adaptec-only solution.
 
-M.
+It does an end run around 90% of the SCSI core.  You might as well make 
+it a block driver, if you're going to do that.
+
+	Jeff
+
+

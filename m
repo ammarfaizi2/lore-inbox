@@ -1,44 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964954AbVI0Orl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964952AbVI0OuA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964954AbVI0Orl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 10:47:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964952AbVI0Ork
+	id S964952AbVI0OuA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 10:50:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964953AbVI0OuA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 10:47:40 -0400
-Received: from mba.ocn.ne.jp ([210.190.142.172]:26326 "EHLO smtp.mba.ocn.ne.jp")
-	by vger.kernel.org with ESMTP id S964951AbVI0Ork (ORCPT
+	Tue, 27 Sep 2005 10:50:00 -0400
+Received: from [85.21.88.2] ([85.21.88.2]:62340 "HELO mail.dev.rtsoft.ru")
+	by vger.kernel.org with SMTP id S964952AbVI0Ot7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 10:47:40 -0400
-Date: Tue, 27 Sep 2005 23:46:16 +0900 (JST)
-Message-Id: <20050927.234616.36922370.anemo@mba.ocn.ne.jp>
-To: stern@rowland.harvard.edu
-Cc: jim.ramsay@gmail.com, mdharm-kernel@one-eyed-alien.net,
-       linux-usb-users@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: [Linux-usb-users] Possible bug in usb storage (2.6.11 kernel)
-From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-In-Reply-To: <Pine.LNX.4.44L0.0509271020180.5703-100000@iolanthe.rowland.org>
-References: <20050927.223801.130240000.anemo@mba.ocn.ne.jp>
-	<Pine.LNX.4.44L0.0509271020180.5703-100000@iolanthe.rowland.org>
-X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
-X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
-X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Tue, 27 Sep 2005 10:49:59 -0400
+Subject: Re: [spi-devel-general] Re: SPI
+From: dmitry pervushin <dpervushin@gmail.com>
+To: Greg KH <greg@kroah.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       spi-devel-general@lists.sourceforge.net
+In-Reply-To: <20050927143505.GA24245@kroah.com>
+References: <1127733134.7577.0.camel@diimka.dev.rtsoft.ru>
+	 <20050927124335.GA10361@kroah.com>
+	 <1127831236.7577.33.camel@diimka.dev.rtsoft.ru>
+	 <20050927143505.GA24245@kroah.com>
+Content-Type: text/plain
+Date: Tue, 27 Sep 2005 18:49:57 +0400
+Message-Id: <1127832597.7577.37.camel@diimka.dev.rtsoft.ru>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.0.1-1mdk 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Tue, 27 Sep 2005 10:21:17 -0400 (EDT), Alan Stern <stern@rowland.harvard.edu> said:
+On Tue, 2005-09-27 at 07:35 -0700, Greg KH wrote:
+> Please read up on how the lifetime rules work for devices, and what
+> needs to happen in the release function (hint, take a look at other
+> busses, like USB and PCI for examples of what needs to be done.)
+As far as I can see, pci_release_device deletes the pci_dev using kfree.
+But here we have statically allocated spi_device structures --
+spi_device_add does not allocate spi_device, but uses caller-allocated
+one.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> 
+> -------------------------------------------------------
+> SF.Net email is sponsored by:
+> Tame your development challenges with Apache's Geronimo App Server. Download
+> it for free - -and be entered to win a 42" plasma tv or your very own
+> Sony(tm)PSP.  Click here to play: http://sourceforge.net/geronimo.php
+> _______________________________________________
+> spi-devel-general mailing list
+> spi-devel-general@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/spi-devel-general
+> 
+> 
 
-stern> Yes I did.  You can see it at
-stern> https://lists.one-eyed-alien.net/pipermail/usb-storage/2005-September/001953.html
-
-Thank you.  But 'kmalloc(US_SENSE_SIZE, GFP_KERNEL)' is not enough (at
-least) for MIPS since some MIPS chips have 32 byte cacheline and
-ARCH_KMALLOC_MINALIGN is 8 on linux-mips.
-
-Using 'max(dma_get_cache_alignment(), US_SENSE_SIZE)' would be OK.
-
----
-Atsushi Nemoto

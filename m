@@ -1,52 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964872AbVI0JOJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964877AbVI0JWw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964872AbVI0JOJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 05:14:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbVI0JOJ
+	id S964877AbVI0JWw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 05:22:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964878AbVI0JWw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 05:14:09 -0400
-Received: from mail.kroah.org ([69.55.234.183]:6803 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S964872AbVI0JOI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 05:14:08 -0400
-Date: Tue, 27 Sep 2005 02:13:37 -0700
-From: Greg KH <greg@kroah.com>
-To: Harald Welte <laforge@gnumonks.org>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       vendor-sec@lst.de, security@linux.kernel.org
-Subject: Re: [BUG/PATCH/RFC] Oops while completing async USB via usbdevio
-Message-ID: <20050927091337.GA9117@kroah.com>
-References: <20050925151330.GL731@sunbeam.de.gnumonks.org> <20050927080413.GA13149@kroah.com>
+	Tue, 27 Sep 2005 05:22:52 -0400
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:25477 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S964877AbVI0JWv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 05:22:51 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Subject:From:To:Cc:In-Reply-To:References:Content-Type:Date:Message-Id:Mime-Version:X-Mailer:Content-Transfer-Encoding;
+  b=wNdGK8TQkCFLCf0lIkeBqzGia+IyH9jb/MLmuJQ2VguxZoeLGcfjk9kYNxc0fCyqmLRgluI7HLN0Kr7bkKcP8D3asegc5TuZscqnc81K4y/NOpJt0KILBF/p8+tds4ZlrcG4OkcepGC5QyenkIGrCCEA/1V/cTADvNR5RDDxJO8=  ;
+Subject: Re: [PATCH 1/3] CPUMETER: add cpumeter framework to the CPUSETS
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+To: Paul Jackson <pj@sgi.com>
+Cc: KUROSAWA Takahiro <kurosawa@valinux.co.jp>, taka@valinux.co.jp,
+       magnus.damm@gmail.com, dino@in.ibm.com,
+       lkml <linux-kernel@vger.kernel.org>, ckrm-tech@lists.sourceforge.net
+In-Reply-To: <20050927013751.47cbac8b.pj@sgi.com>
+References: <20050908225539.0bc1acf6.pj@sgi.com>
+	 <20050909.203849.33293224.taka@valinux.co.jp>
+	 <20050909063131.64dc8155.pj@sgi.com>
+	 <20050910.161145.74742186.taka@valinux.co.jp>
+	 <20050910015209.4f581b8a.pj@sgi.com>
+	 <20050926093432.9975870043@sv1.valinux.co.jp>
+	 <20050927013751.47cbac8b.pj@sgi.com>
+Content-Type: text/plain
+Date: Tue, 27 Sep 2005 19:22:17 +1000
+Message-Id: <1127812937.5174.6.camel@npiggin-nld.site>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050927080413.GA13149@kroah.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 27, 2005 at 01:04:15AM -0700, Greg KH wrote:
-> First off, thanks for providing a patch for this problem, it is real,
-> and has been known for a while (thanks to your debugging :)
+On Tue, 2005-09-27 at 01:37 -0700, Paul Jackson wrote:
+
+> You will need to encourage someone else, with scheduler expertise,
+> to review that portion of the patch.  The kernel/sched.c file is
+> too hard for me; I stick to easier files such as kernel/cpuset.c.
 > 
-> On Sun, Sep 25, 2005 at 05:13:30PM +0200, Harald Welte wrote:
-> > 
-> > I suggest this (or any other) fix to be applied to both 2.6.14 final and
-> > the stable series.  I didn't yet investigate 2.4.x, but I think it is
-> > likely to have the same problem.
+> I continue to be quite suspicious that perhaps there should be a
+> tighter relation between your work and CKRM.  For one thing, I suspect
+> that CKRM has a cpu controller that serves essentially the same purpose
+> as yours.  If that is so, I cannot imagine that we would ever put both
+> cpu controllers in the kernel.  They touch on code that is changing too
+> rapidly, and too critical for performance.
 > 
-> I agree, but I think we need an EXPORT_SYMBOL_GPL() for your newly
-> exported symbol, otherwise the kernel will not build if you have USB
-> built as a module.
+> My wild guess would be that the right answer would be to take the
+> CKRM cpu controller instead of yours, and connect it to cpusets in the
+> manner that you have done here.  But I have no expertise in cpu
+> controllers, so am quite unfit to judge which one or the other, or
+> perhaps some combination of the two cpu controllers, is the best one.
+> 
 
-Hm, it's even messier.  With your patch, we get:
-	*** Warning: "__send_sig_info" [drivers/usb/core/usbcore.ko] undefined!
-	*** Warning: "__put_task_struct" [drivers/usb/core/usbcore.ko] undefined!
-when the USB core is a module.
+Last time I looked at the CKRM cpu controller code I found
+it was quite horrible, with a great deal of duplication and
+very intrusive large and complex.
 
-I can't pass judgement if we want to export both of these functions to
-modules...  Anyone else know?
+It could have come a long way since then, but this code looks
+much neater than the code I reviewed.
 
-thanks,
+I guess the question of the resource controller stuff is going
+to come up again sooner or later. I would hope to have just a
+single CPU resource controller (presumably based on cpusets),
+the simpler the better ;)
 
-greg k-h
+Nick
+
+-- 
+SUSE Labs, Novell Inc.
+
+
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

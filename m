@@ -1,58 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964901AbVI0LNo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964902AbVI0Le6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964901AbVI0LNo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 07:13:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964902AbVI0LNo
+	id S964902AbVI0Le6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 07:34:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964904AbVI0Le6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 07:13:44 -0400
-Received: from leon.mat.uni.torun.pl ([158.75.2.17]:49340 "EHLO
-	Leon.mat.uni.torun.pl") by vger.kernel.org with ESMTP
-	id S964901AbVI0LNo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 07:13:44 -0400
-Date: Tue, 27 Sep 2005 13:13:01 +0200 (CEST)
-From: Krzysztof Benedyczak <golbi@mat.uni.torun.pl>
-X-X-Sender: golbi@Juliusz
-To: Linus Torvalds <torvalds@osdl.org>
-cc: linux-kernel@vger.kernel.org, Michael Kerrisk <michael.kerrisk@gmx.net>,
-       Michal Wronski <michal.wronski@gmail.com>
-Subject: Re: [PATCH] umask in POSIX message queues
-In-Reply-To: <Pine.LNX.4.58.0509261827150.3308@g5.osdl.org>
-Message-ID: <Pine.GSO.4.58.0509271246570.2336@Juliusz>
-References: <Pine.GSO.4.58.0509261218080.5216@Juliusz>
- <Pine.LNX.4.58.0509261827150.3308@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 27 Sep 2005 07:34:58 -0400
+Received: from xproxy.gmail.com ([66.249.82.203]:29498 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964902AbVI0Le6 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 07:34:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=ieADyAW0PtstnNrggWFQeuYEIpeaJ5CTZm3tm6bZpjhjyFgcMVz1ftYxXvjo4OKMWUyNL025hVwIAlqX+dfSmVcaVVqZe0+B0a3kioscJNkML0YKPJ8MBDUlS1oF2GusyEzyvIamEHzSBc4Znhj1ZeJi6KN7s3weMyVbzwWImkI=
+Date: Tue, 27 Sep 2005 13:34:47 +0200
+From: Diego Calleja <diegocg@gmail.com>
+To: =?ISO-8859-15?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Strange disk corruption with Linux >= 2.6.13
+Message-Id: <20050927133447.c3caeb25.diegocg@gmail.com>
+In-Reply-To: <20050927111038.GA22172@ime.usp.br>
+References: <20050927111038.GA22172@ime.usp.br>
+X-Mailer: Sylpheed version 2.1.1 (GTK+ 2.8.3; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Sep 2005, Linus Torvalds wrote:
+El Tue, 27 Sep 2005 08:10:39 -0300,
+Rogério Brito <rbrito@ime.usp.br> escribió:
 
-> As far as I can tell, the VFS layer should have done this for us already,
-> with code like
->
-> 		...
->                 if (!IS_POSIXACL(dir->d_inode))
->                         mode &= ~current->fs->umask;
->                 error = vfs_create(dir->d_inode, path.dentry, mode, nd);
-> 		...
->
-> in fs/namei.c (open_namei()).
->
-> Which path did you come through that didn't do this? That would be the
-> real bug, I suspect..
+> Hi there. I'm seeing a really strange problem on my system lately and I
+> am not really sure that it has anything to do with the kernels.
 
-As I noted when creating mqueues with sys_open() the umask is set
-correctly just by the code you pointed out. But sys_mq_open() doesn't use
-open_namei() nor filp_open(); the reason is extra data - mq_attr - that
-must be passed to real mqueue creating code. So the invocation path is:
-sys_mq_open() -> do_create() -> vfs_create() -> (vfs create handler)
-mqueue_create().
 
-After rereading it I think that the better place for the line setting
-umask is do_create() function as it will be on the same level as
-open_namei(). I hope this change will clarify things.
-
-If this make sense I'll send a patch.
-
-Best regards
-Krzysiek
+You don't say what filesystem are you using. Have you tried running fsck?

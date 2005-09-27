@@ -1,93 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbVI0VAU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965069AbVI0VAs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932216AbVI0VAU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 17:00:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932456AbVI0VAU
+	id S965069AbVI0VAs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 17:00:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965070AbVI0VAs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 17:00:20 -0400
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:38097 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S932216AbVI0VAT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 17:00:19 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: [PATCH][Fix] Fix Bug #4959 (take 2)
-Date: Tue, 27 Sep 2005 23:00:36 +0200
-User-Agent: KMail/1.8.2
-Cc: Pavel Machek <pavel@ucw.cz>, LKML <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>
-References: <200509241936.12214.rjw@sisk.pl> <200509271007.03865.rjw@sisk.pl> <20050927133218.GB9484@openzaurus.ucw.cz>
-In-Reply-To: <20050927133218.GB9484@openzaurus.ucw.cz>
+	Tue, 27 Sep 2005 17:00:48 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:43182 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932523AbVI0VAr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 17:00:47 -0400
+Message-ID: <4339B2F6.1070806@austin.ibm.com>
+Date: Tue, 27 Sep 2005 16:00:38 -0500
+From: Joel Schopp <jschopp@austin.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050909 Fedora/1.7.10-1.3.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Paul Jackson <pj@sgi.com>
+CC: haveblue@us.ibm.com, mrmacman_g4@mac.com, akpm@osdl.org,
+       lhms-devel@lists.sourceforge.net, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, mel@csn.ul.ie, kravetz@us.ibm.com
+Subject: Re: [Lhms-devel] Re: [PATCH 1/9] add defrag flags
+References: <4338537E.8070603@austin.ibm.com>	<43385412.5080506@austin.ibm.com>	<21024267-29C3-4657-9C45-17D186EAD808@mac.com>	<1127780648.10315.12.camel@localhost>	<20050926224439.056eaf8d.pj@sgi.com>	<433991A0.7000803@austin.ibm.com> <20050927123055.0ad9c2b4.pj@sgi.com>
+In-Reply-To: <20050927123055.0ad9c2b4.pj@sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509272300.37197.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> Once this is merged with current Linux, which already has GFP_HARDWALL,
+> I presume you will be back up to 21 bits, code and comment.
 
-On Tuesday, 27 of September 2005 15:32, Pavel Machek wrote:
-> Hi!
+Looks like it.
+
 > 
-> I do not really like new exports from swsusp.c, but I'm afraid
-> there's no way around.
-
-Well, there is one, if we use a static buffer, as you propose, since
-in that case we will not need get_usable_pages() etc. outside of
-swsusp.c.  The drawback of this, however, is that we will limit the
-size of RAM for which it is possible to suspend (we need at least 1 page
-for the PGD, 1 page for a PUD plus as many pages as there are GBs of
-RAM for PMDs).  If we want to cover the huge-RAM cases, the buffer will
-be too large for the average case, but otherwise some boxes will not
-be able to suspend.
-
-> > The following patch fixes Bug #4959.  For this purpose it creates temporary
-> > page translation tables including the kernel mapping (reused) and the direct
-> > mapping (created from scratch) and makes swsusp switch to these tables
-> > right before the image is restored.
+> As I noted in another message the "USER" and the comment in:
 > 
-> Why do you need *two* mappings? Should not just kernel mapping be enough?
-
-The kernel mapping is for the kernel text.  The direct mapping maps the physical
-RAM linearly to the set of virtual addresses starting at PAGE_OFFSET.
-
-> > NOTES:
-> > (1) I'm quite sure that to fix the problem we need to use temporary page
-> > translation tables that won't be modified in the process of copying the image.
-> > (2) These page translation tables have to be present in memory before the
-> > image is copied, so there are two possible ways in which they can be created:
-> > 	(a) in the startup kernel code that is executed before calling swsusp
-> > 	on resume, in which case they have to be marked with PG_nosave,
-> > 	(b) in swsusp, after the image has been loaded from disk (to set up
-> > 	the tables we need to know which pages will be overwritten while
-> > 	copying the image).
-> > However, (a) is tricky, because it will only work if the tables are always located
-> > at the same physical addresses, which I think would be quite difficult to achieve.
+> #define __GFP_USER	0x40000u /* User is a userspace user */
 > 
-> Why? Reserve ten pages for them... static char resume_page_tables[10*PAGE_SIZE] does not
-> sound that bad.
-
-That will allow us to suspend if there's no more that 8GB of RAM in the box.
-Is it acceptable?
-
-> > Moreover, such a code would have to be executed on every boot and the
-> > temporary page tables would always be present in memory.
+> are a bit misleading now.  Perhaps GFP_EASYRCLM?
 > 
-> Yep, but I do not see that as a big problem.
 
-OK
+A rose by any other name would smell as sweet -Romeo
 
-I can reserve the static buffer (10 pages) in suspend.c and mark it as nosave.
-The code that creates the mappings can stay in suspend.c either except it
-won't need to call get_usable_page() and free_eaten_memory() any more
-(__next_page() can be changed to get pages from the static buffer instead
-of allocating them).  The code can also be simplified a bit, as we assume that
-there will be only one PGD entry in the direct mapping.
+A flag by any other name would work as well -Joel
 
-If that sounds good to you, please confirm.
+There are problems with any name we would use.  I personally like __GFP_USER 
+because it is mostly user memory, and nobody will accidently use it to label 
+something that is not user memory.  Those who do use it for non-user memory will 
+do so with more caution and ridicule.  This will keep it from expanding in use 
+beyond its intent.
 
-Greetings,
-Rafael
+If we name it __GFP_EASYRCLM we then start getting into questions about what we 
+mean by easy and somebody is going to  decide that their kernel memory is pretty 
+easy to reclaim and mess things up.  Maybe we could call it 
+__GPF_REALLYREALLYEASYRCLM to avoid confusion.
+
+If there is a consensus from multiple people for me to go rename the flag 
+__GFP_xxxxx then I'm not that attached to it and will.  But for now I'm going to 
+leave it __GFP_USER.

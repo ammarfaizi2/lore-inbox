@@ -1,121 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964839AbVI0Mae@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964841AbVI0MdI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964839AbVI0Mae (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 08:30:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964841AbVI0Mae
+	id S964841AbVI0MdI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 08:33:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964857AbVI0MdH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 08:30:34 -0400
-Received: from zproxy.gmail.com ([64.233.162.194]:26451 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964839AbVI0Mae convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 08:30:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=gsl0IbStgYSE8IDBMidjikySqmGM6f9T51q8oRs7S4FzDtj2aHYLVhQIs5dXFgtOfLFi/RdCe4ae13XfjmUVT2fZMXsFR3XnEUMljC+x2BWNXrwDo/mptaGI+paKMCJhWVOYhDxrJbvgm5Wd/bKFsTCgEoI+mS89aSBxLIW1/p4=
-Message-ID: <cda58cb8050927053056ce6b96@mail.gmail.com>
-Date: Tue, 27 Sep 2005 14:30:32 +0200
-From: Franck <vagabon.xyz@gmail.com>
-Reply-To: Franck <vagabon.xyz@gmail.com>
-To: Marc Singer <elf@buici.com>
-Subject: Re: questions on discontgmem.
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050926222207.GA987@buici.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <cda58cb8050926114675524d59@mail.gmail.com>
-	 <20050926191921.GA25724@buici.com>
-	 <cda58cb805092612573bedb88d@mail.gmail.com>
-	 <20050926222207.GA987@buici.com>
+	Tue, 27 Sep 2005 08:33:07 -0400
+Received: from [203.171.93.254] ([203.171.93.254]:28546 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S964841AbVI0MdG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 08:33:06 -0400
+Subject: Re: OOPS: Suspend2+iptables when loading ipw2200
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Daniel Link <stagger@gmx.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <433927B0.9020108@gmx.net>
+References: <433927B0.9020108@gmx.net>
+Content-Type: text/plain
+Organization: Cyclades
+Message-Id: <1127823733.4802.3.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Tue, 27 Sep 2005 22:22:13 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marc,
+Hi.
 
-2005/9/27, Marc Singer <elf@buici.com>:
-> On Mon, Sep 26, 2005 at 09:57:10PM +0200, Franck wrote:
-> > 2005/9/26, Marc Singer <elf@buici.com>:
-> > > On Mon, Sep 26, 2005 at 08:46:34PM +0200, Franck wrote:
-> > > > Hi,
-> > > >
-> > > > I'd like to use discontigmem to access several RAM memories on an _no_
-> > > > NUMA embedded system. In that case, does a node  mean a single RAM
-> > > > whose start address is very different from the others ?
-> > >
-> > > I don't know what you mean by this.  The difference between
-> > > discontiguous memory and non-discontiguous [sic] memory is that, well,
-> > > the latter is contiguous.  If you have 64MiB of RAM, it is addressed
-> > > starting at a base address and all 64 MiB's of addresses following it
-> > > are valid.
-> > >
-> > > Discontiguous memory means that that isn't true, there is more than
-> > > one start address with gaps of addresses between them which are either
-> > > invalid, or which are aliases of other addresses.
-> > >
-> >
-> > yeah, I know what is discontiguous memory. What I'm trying to ask is:
-> > in this case (discontiguous memory), the kernel seems to describe each
-> > memory with a single node (cf alloc_page_node for instance). Unlike
-> > for NUMA system where several memories can belong to the same node. Is
-> > that correct ?
->
-> I don't know what you mean by a 'memory'.  Are you talking about an
-> IC?
+On Tue, 2005-09-27 at 21:06, Daniel Link wrote:
+> Hi,
+> 
+> my Suspend2-2.6.12-r1 kernel from Gentoo's portage worked almost
+> perfectly until I decided to prepare it for using iptables. I've had
+> only one system freeze before, which I didn't think much about. After
+> adding numerous modules about firewalling to the kernel config and
+> recompiling everything I finally rebooted the system. But some seconds
+> after loading the ipw2200 module (1.0.6) there was an OOPS. I also tried
+> not to use modules but to put the iptables stuff directly into the
+> kernel, but that didn't help.
+> 
+> Here's some output from dmesg. First I thought it had come from the new
+> iptables kernel, but that's not the case. It's the one from yesterday's
+> kernel without iptables. During normal work with GNOME the computer just
+> froze and I had to do a hard reboot.
 
-yes I'm taking about IC. But each IC has a different start base
-address with huge hole between each of them. For instance I have 2 RAM
-mapped as shown below:
+Suspend2 doesn't touch timer code but I should ask anyway: Can you
+reproduce it on a vanilla kernel (without Suspend2)? If so, I would
+contact the ipw2200 people. If on the otherhand you become convinced
+that Suspend2 is the case, we have lists at suspend2.net and a number of
+people using those modules.
 
-RAM1 -> physical address at 0x2000 0000, size = 32 Mo
-RAM2 -> physical address at 0x3000 0000, size = 2 Mo
+Regards,
 
-> performance characteristics of that access.  I write possibly because
-> I've not worked with that attribute of discontigmem.
->
+Nigel
 
-did you work on ARM discontig memory ?
+> Sep 26 13:07:54 hermes ------------[ cut here ]------------
+> Sep 26 13:07:54 hermes kernel BUG at kernel/workqueue.c:131!
+> Sep 26 13:07:54 hermes invalid operand: 0000 [#1]
+> Sep 26 13:07:54 hermes PREEMPT
+> Sep 26 13:07:54 hermes Modules linked in: ieee80211_crypt_tkip ipw2200
+> ieee80211 ieee80211_crypt
+> Sep 26 13:07:54 hermes CPU:    0
+> Sep 26 13:07:54 hermes EIP:    0060:[<c012f0bb>]    Not tainted VLI
+> Sep 26 13:07:54 hermes EFLAGS: 00010286   (2.6.12-suspend2-r6)
+> Sep 26 13:07:54 hermes EIP is at queue_delayed_work+0x6b/0x80
+> Sep 26 13:07:54 hermes eax: c053f9c0   ebx: 00000000   ecx: c04b13b8
+> edx: c04b13a0
+> Sep 26 13:07:54 hermes esi: c145e880   edi: 0000000a   ebp: 00000000
+> esp: def03f14
+> Sep 26 13:07:54 hermes ds: 007b   es: 007b   ss: 0068
+> Sep 26 13:07:54 hermes Process events/0 (pid: 3, threadinfo=def02000
+> task=c1469020)
+> Sep 26 13:07:54 hermes Stack: dea75f00 c04b13a0 c04b13a0 00000202
+> c04b13a4 c0329e26 00000000 c012f2e0
+> Sep 26 13:07:54 hermes 00000000 def03f68 00000000 def02000 c145e898
+> def02000 c145e888 c145e890
+> Sep 26 13:07:54 hermes def02000 c0329de0 def02000 ffffffff ffffffff
+> 00000001 00000000 c011b140
+> Sep 26 13:07:54 hermes Call Trace:
+> Sep 26 13:07:54 hermes [<c0329e26>] do_dbs_timer+0x46/0x60
+> Sep 26 13:07:54 hermes [<c012f2e0>] worker_thread+0x210/0x300
+> Sep 26 13:07:54 hermes [<c0329de0>] do_dbs_timer+0x0/0x60
+> Sep 26 13:07:54 hermes [<c011b140>] default_wake_function+0x0/0x20
+> Sep 26 13:07:54 hermes [<c011b140>] default_wake_function+0x0/0x20
+> Sep 26 13:07:54 hermes [<c0133a07>] kthread+0xd7/0x120
+> Sep 26 13:07:54 hermes [<c012f0d0>] worker_thread+0x0/0x300
+> Sep 26 13:07:54 hermes [<c0133930>] kthread+0x0/0x120
+> Sep 26 13:07:54 hermes [<c010133d>] kernel_thread_helper+0x5/0x18
+> Sep 26 13:07:54 hermes Code: 14 c7 41 10 30 f0 12 c0 01 f8 89 41 08 89
+> 44 24 04 89 0c 24 e8 b7 85 ff ff 89 d8 8b 74 24 0c 8b 5c 24 08 8b 7c 24
+> 10 83 c4 14 c3 <0f> 0b 83  00 36 a7 40 c0 eb b4 0f 0b 84 00 36 a7 40 c0
+> eb b2 90
+> 
+> There was no other OOPS in /var/log/messages. It seems like when using
+> the iptables kernel the OOPS comes too fast for logging something, but
+> who am I to make any assumptions. Since there is no proof in the logs I
+> have made a photo with a digital camera. The first lines look similar to
+> the ones above. I haven't compared any more. Just tell me where to send
+> the image. I can also send you the working/panic kernel, its config and
+> the System.map.
+> 
+> Bye, Daniel
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
 
-> There is a potential misunderstanding in how discontigmem really
-> works.  There may be a memory system which is truly discontiguous, but
-> that uses a single node.  It is wasteful because the node tables are
-> accessed as arrays, so non-existent pages require data structure space
-> just as existent ones do.
->
-> With discontigmem, we can use multiple nodes in order to cluster pages
-> and eliminate unused array entries.  Assuming that this is *not* done
-> for the sake of differing memory access times, the advantage is in
-> saving node table space.  There are macros in the architecture/machine
-> specific include files that create the mapping between physical
-> addresses and nodes/pages.  At least, that's how ARM does it.
->
 
-yes that what I understand. CONFIG_DISCONTIGMEM is used on UMA system
-to avoid mem_map to blow up when using RAMs whose start base addresses
-are separated with huge hole.
-
-> > If so, how does the kernel select a node when allocating a page for a UMA ?
->
-> Perhaps someone else can fill in that part.  I've been assuming that
-> pages with equivalent access times are put in zones, on free-page
-> lists and allocated as needed.  Nothing special is done with respect
-> to the different discontigmem nodes.
->
-
-hmm, not sure it works the way you described. I thought there were
-nodes gathering several RAM whose start address are _contiguous_. Each
-node has several zones (dma, normal and highmem). But I don't see how
-allocation can be done using *all* nodes...
-
-I found in "include/linux/gfp.h", for a UMA system:
-
-               #define alloc_pages(gfp_mask, order) \
-                            alloc_pages_node(numa_node_id(), gfp_mask, order)
-
-and numa_node_id expands to 0 for a UP system.
-Any Idea ?
-
-Thanks
---
-               Franck

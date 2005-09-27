@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964978AbVI0Poe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964979AbVI0Ppp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964978AbVI0Poe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 11:44:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964979AbVI0Pod
+	id S964979AbVI0Ppp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 11:45:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbVI0Ppp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 11:44:33 -0400
-Received: from colo.lackof.org ([198.49.126.79]:13530 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S964978AbVI0Pod (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 11:44:33 -0400
-Date: Tue, 27 Sep 2005 09:51:03 -0600
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: Grant Grundler <grundler@parisc-linux.org>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, greg@kroah.com, linux-pci@atrey.karlin.mff.cuni.cz,
-       ak@suse.de
-Subject: Re: [PATCH] MSI interrupts: disallow when no LAPIC/IOAPIC support
-Message-ID: <20050927155103.GA9294@colo.lackof.org>
-References: <20050926201156.7b9ef031.rdunlap@xenotime.net> <20050927044840.GA21108@colo.lackof.org> <20050926215245.7a1be7fa.rdunlap@xenotime.net> <20050927052128.GB21108@colo.lackof.org> <17209.3427.936263.463751@alkaid.it.uu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 27 Sep 2005 11:45:45 -0400
+Received: from mail.metronet.co.uk ([213.162.97.75]:54235 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S964979AbVI0Ppo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 11:45:44 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Mathieu Chouquet-Stringer <ml2news@optonline.net>
+Subject: Re: Audigy2 renamed, grrr...
+Date: Tue, 27 Sep 2005 16:46:18 +0100
+User-Agent: KMail/1.8.91
+Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
+       Stl <stlman@poczta.fm>
+References: <4338EF9A.1080906@poczta.fm> <1127832555.1326.5.camel@mindpipe> <m3achy4kgu.fsf@mcs.bigip.mine.nu>
+In-Reply-To: <m3achy4kgu.fsf@mcs.bigip.mine.nu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <17209.3427.936263.463751@alkaid.it.uu.se>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.9i
+Message-Id: <200509271646.18301.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 27, 2005 at 11:14:11AM +0200, Mikael Pettersson wrote:
-> Grant Grundler writes:
->  > Yeah, my preference would be PCI_MSI only depend on Local APIC.
->  > (Note that having a Local APIC implies having an IO APIC as well
-> 
-> Not true. Lots of systems have a local APIC but no I/O APICs.
+On Tuesday 27 September 2005 16:08, Mathieu Chouquet-Stringer wrote:
+> rlrevell@joe-job.com (Lee Revell) writes:
+> > These changes were required to support the increasingly wide variety of
+> > emu10k1 based hardware.
+> >
+> > Anyway it should not matter - newer versions of alsactl will still be
+> > able to restore the mixer settings.
+>
+> Well it looks like I've lost my analog output in 2.6.14-rc2 (headphones on
+> the LiveDrive work fine though).
+>
+> My card is now reported as a SBLive! Platinum 5.1 [SB0060] and i've been
+> loading the modules with the following:
+> extin=0x3fc3 extout=0x1fc3 enable_ir=1
 
-Eh?!!!
-Do systems with Local APIC still have IRQ lines going to the CPU?
-How does PCI IRQ line otherwise generate an interrupt?
+My ZS is also reported as a Platinum. It does seem rather odd.
 
-> However, having an I/O APIC pretty much implies having a local APIC.
+> It's been working fine until the latest git updates. I'll try
+> again tonight if I get the time.
 
-Ok - That sounds right for x86 and is true for ia64.
-parisc has IO SAPICs but no local APIC.
+[alistair] 16:45 [~] cat /proc/asound/cards
+0 [Audigy2        ]: Audigy2 - Audigy 2 Platinum [SB0240P]
+                     Audigy 2 Platinum [SB0240P] (rev.4, serial:0x10021102) at 
+0x9000, irq 177
 
-parisc and (IIRC) alpha has the functional equivalent of Local APIC
-but the implementation details are different. ie they can't share
-code with x86/ia64.
+-- 
+Cheers,
+Alistair.
 
-thanks,
-grant
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

@@ -1,99 +1,296 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964992AbVI0QAl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964993AbVI0QEN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964992AbVI0QAl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 12:00:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964993AbVI0QAl
+	id S964993AbVI0QEN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 12:04:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964997AbVI0QEN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 12:00:41 -0400
-Received: from mivlgu.ru ([81.18.140.87]:35729 "EHLO master.mivlgu.local")
-	by vger.kernel.org with ESMTP id S964992AbVI0QAl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 12:00:41 -0400
-Date: Tue, 27 Sep 2005 20:00:30 +0400
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Harald Welte <laforge@gnumonks.org>, linux-usb-devel@lists.sourceforge.net,
-       vendor-sec@lst.de, linux-kernel@vger.kernel.org, greg@kroah.com,
-       security@linux.kernel.org
-Subject: Re: [linux-usb-devel] Re: [Security] [vendor-sec] [BUG/PATCH/RFC] Oops while completing async USB via usbdevio
-Message-ID: <20050927160029.GA20466@master.mivlgu.local>
-References: <20050925151330.GL731@sunbeam.de.gnumonks.org> <Pine.LNX.4.58.0509270746200.3308@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ReaqsoxgOBHFXBhH"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0509270746200.3308@g5.osdl.org>
+	Tue, 27 Sep 2005 12:04:13 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:40163 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S964993AbVI0QEM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 12:04:12 -0400
+Message-ID: <43396D6E.9070904@us.ibm.com>
+Date: Tue, 27 Sep 2005 09:03:58 -0700
+From: Badari Pulavarty <pbadari@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040804 Netscape/7.2 (ax)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Fw: Re: 2.6.14-rc2-mm1 ide problems on AMD64
+References: <20050926151149.6332c94e.akpm@osdl.org> <1127798272.16275.40.camel@dyn9047017102.beaverton.ibm.com> <200509271019.14243.ak@suse.de>
+In-Reply-To: <200509271019.14243.ak@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andi Kleen wrote:
 
---ReaqsoxgOBHFXBhH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Tuesday 27 September 2005 07:17, Badari Pulavarty wrote:
+> 
+> 
+>>Finally, tracked the problem causing patch in -mm tree.
+>>Its,
+>>
+>>x86_64-no-idle-tick.patch
+>>
+>>I backed out the patch and my machine works fine.
+> 
+> 
+> Boot message please.
+> 
+> Did you enable CONFIG_NO_IDLE_TICK? 
+> 
+> -Andi
+> 
 
-On Tue, Sep 27, 2005 at 07:53:30AM -0700, Linus Torvalds wrote:
-> On Sun, 25 Sep 2005, Harald Welte wrote:
-> >=20
-> > async_completed() calls send_sig_info(), which in turn does a
-> > spin_lock(&tasklist_lock) to protect itself from task_struct->sighand
-> > from going away.  However, the call to
-> > "spin_lock_irqsave(task_struct->sighand->siglock)" causes an oops,
-> > because "sighand" has disappeared.
->=20
-> And the real bug is that you're buggering up the system in the first=20
-> place.
->=20
-> You don't save "current". You save "pid", and then you send a signal usin=
-g=20
-> that and kill_proc_info(). End of story, bug gone. And it works with=20
-> threaded programs too, which the old thing didn't work at all with.
+No CONFIG_NO_IDLE_TICK.
 
-And then a process calls USBDEVFS_SUBMITURB and immediately exits; its
-pid gets reused by a completely different process (maybe even
-root-owned), then the urb completes, and kill_proc_info() sends the
-signal to the unsuspecting process.
+Boot Messages (till hang):
 
-> I refuse to apply this patch - Greg, don't even _try_ to sneak this in=20
-> through a git merge. What a horribly broken thing to do: why would USB=20
-> _ever_ need to know about things like tasklist_lock, and internal signal=
-=20
-> handling functions and rules like "p->sighand"?
+Bootdata ok (command line is root=/dev/hda2 vga=0x314 selinux=0 
+splash=silent \
+console=tty0 console=ttyS0,38400 resume=/dev/hda1 profile=2) Linux version \
+2.6.14-rc2-mm1 (root@elm3b29) (gcc version 3.3.3 (SuSE Linux)) #1 SMP 
+Thu Sep 22 \
+14:46:56 PDT 2005 BIOS-provided physical RAM map:
+  BIOS-e820: 0000000000000000 - 000000000009f000 (usable)
+  BIOS-e820: 000000000009f000 - 00000000000a0000 (reserved)
+  BIOS-e820: 00000000000ca000 - 0000000000100000 (reserved)
+  BIOS-e820: 0000000000100000 - 00000000dfef0000 (usable)
+  BIOS-e820: 00000000dfef0000 - 00000000dfeff000 (ACPI data)
+  BIOS-e820: 00000000dfeff000 - 00000000dff00000 (ACPI NVS)
+  BIOS-e820: 00000000dff00000 - 00000000e0000000 (usable)
+  BIOS-e820: 00000000fec00000 - 00000000fec00400 (reserved)
+  BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
+  BIOS-e820: 00000000fff80000 - 0000000100000000 (reserved)
+  BIOS-e820: 0000000100000000 - 00000001e0000000 (usable)
+Scanning NUMA topology in Northbridge 24
+Number of nodes 4
+Node 0 MemBase 0000000000000000 Limit 000000017fffffff
+Node 1 MemBase 0000000180000000 Limit 000000019fffffff
+Node 2 MemBase 00000001a0000000 Limit 00000001bfffffff
+Node 3 MemBase 00000001c0000000 Limit 00000001dfffffff
+Using node hash shift of 21
+Bootmem setup node 0 0000000000000000-000000017fffffff
+Bootmem setup node 1 0000000180000000-000000019fffffff
+Bootmem setup node 2 00000001a0000000-00000001bfffffff
+Bootmem setup node 3 00000001c0000000-00000001dfffffff
+ACPI: PM-Timer IO Port: 0x8008
+ACPI: LAPIC (acpi_id[0x00] lapic_id[0x00] enabled)
+Processor #0 15:5 APIC version 16
+ACPI: LAPIC (acpi_id[0x01] lapic_id[0x01] enabled)
+Processor #1 15:5 APIC version 16
+ACPI: LAPIC (acpi_id[0x02] lapic_id[0x02] enabled)
+Processor #2 15:5 APIC version 16
+ACPI: LAPIC (acpi_id[0x03] lapic_id[0x03] enabled)
+Processor #3 15:5 APIC version 16
+ACPI: LAPIC_NMI (acpi_id[0x00] high edge lint[0x1])
+ACPI: LAPIC_NMI (acpi_id[0x01] high edge lint[0x1])
+ACPI: LAPIC_NMI (acpi_id[0x02] high edge lint[0x1])
+ACPI: LAPIC_NMI (acpi_id[0x03] high edge lint[0x1])
+ACPI: IOAPIC (id[0x04] address[0xfec00000] gsi_base[0])
+IOAPIC[0]: apic_id 4, version 17, address 0xfec00000, GSI 0-23
+ACPI: IOAPIC (id[0x05] address[0xfa3e0000] gsi_base[24])
+IOAPIC[1]: apic_id 5, version 17, address 0xfa3e0000, GSI 24-27
+ACPI: IOAPIC (id[0x06] address[0xfa3e1000] gsi_base[28])
+IOAPIC[2]: apic_id 6, version 17, address 0xfa3e1000, GSI 28-31
+ACPI: IOAPIC (id[0x07] address[0xfa3e2000] gsi_base[32])
+IOAPIC[3]: apic_id 7, version 17, address 0xfa3e2000, GSI 32-35
+ACPI: IOAPIC (id[0x08] address[0xfa3e4000] gsi_base[36])
+IOAPIC[4]: apic_id 8, version 17, address 0xfa3e4000, GSI 36-39
+ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 high edge)
+Setting APIC routing to flat
+Using ACPI (MADT) for SMP configuration information
+Allocating PCI resources starting at e2000000 (gap: e0000000:1ec00000)
+Checking aperture...
+CPU 0: aperture @ 0 size 32 MB
+No AGP bridge found
+Your BIOS doesn't leave a aperture memory hole
+Please enable the IOMMU option in the BIOS setup
+This costs you 64 MB of RAM
+Mapping aperture over 65536 KB of RAM @ 8000000
+Built 4 zonelists
+Initializing CPU#0
+Kernel command line: root=/dev/hda2 vga=0x314 selinux=0 splash=silent 
+console=tty0 \
+console=ttyS0,38400 resume=/dev/hda1 profile=2 kernel profiling enabled 
+(shift: 2)
+PID hash table entries: 4096 (order: 12, 131072 bytes)
+time.c: Using 3.579545 MHz PM timer.
+time.c: Detected 1398.189 MHz processor.
+Console: colour dummy device 80x25
+Dentry cache hash table entries: 1048576 (order: 11, 8388608 bytes)
+Inode-cache hash table entries: 524288 (order: 10, 4194304 bytes)
+Memory: 6110856k/7864320k available (3049k kernel code, 194612k 
+reserved, 1612k data, \
+244k init) Calibrating delay using timer specific routine.. 2801.62 
+BogoMIPS \
+(lpj=5603254) Security Framework v1.0.0 initialized
+SELinux:  Disabled at boot.
+Mount-cache hash table entries: 256
+CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+CPU: L2 Cache: 1024K (64 bytes/line)
+CPU 0(1) -> Node 0 -> Core 0
+mtrr: v2.0 (20020519)
+Using local APIC timer interrupts.
+Detected 12.483 MHz APIC timer.
+setup_APIC_timer
+done
+Booting processor 1/4 APIC 0x1
+Initializing CPU#1
+Calibrating delay using timer specific routine.. 2796.59 BogoMIPS 
+(lpj=5593188)
+CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+CPU: L2 Cache: 1024K (64 bytes/line)
+CPU 1(1) -> Node 1 -> Core 0
+Opteron MP w/ 1MB stepping 00
+setup_APIC_timer
+done
+CPU 1: Syncing TSC to CPU 0.
+CPU 1: synchronized TSC with CPU 0 (last diff -1 cycles, maxerr 981 cycles)
+Booting processor 2/4 APIC 0x2
+Initializing CPU#2
+Calibrating delay using timer specific routine.. 2796.59 BogoMIPS 
+(lpj=5593185)
+CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+CPU: L2 Cache: 1024K (64 bytes/line)
+CPU 2(1) -> Node 2 -> Core 0
+Opteron MP w/ 1MB stepping 00
+setup_APIC_timer
+done
+CPU 2: Syncing TSC to CPU 0.
+CPU 2: synchronized TSC with CPU 0 (last diff -4 cycles, maxerr 976 cycles)
+Booting processor 3/4 APIC 0x3
+Initializing CPU#3
+Calibrating delay using timer specific routine.. 2796.59 BogoMIPS 
+(lpj=5593186)
+CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+CPU: L2 Cache: 1024K (64 bytes/line)
+CPU 3(1) -> Node 3 -> Core 0
+Opteron MP w/ 1MB stepping 00
+setup_APIC_timer
+done
+CPU 3: Syncing TSC to CPU 0.
+CPU 3: synchronized TSC with CPU 0 (last diff -2 cycles, maxerr 1606 cycles)
+Brought up 4 CPUs
+Disabling vsyscall due to use of PM timer
+time.c: Using PM based timekeeping.
+testing NMI watchdog ... OK.
+NET: Registered protocol family 16
+ACPI: bus type pci registered
+PCI: Using configuration type 1
+ACPI: Subsystem revision 20050902
+ACPI: Interpreter enabled
+ACPI: Using IOAPIC for interrupt routing
+ACPI: PCI Root Bridge [PCI0] (0000:00)
+PCI: Probing PCI hardware (bus 00)
+ACPI: PCI Interrupt Link [LNKA] (IRQs 3 *5 10 11)
+ACPI: PCI Interrupt Link [LNKB] (IRQs 3 5 *10 11)
+ACPI: PCI Interrupt Link [LNKC] (IRQs 3 5 10 *11)
+ACPI: PCI Interrupt Link [LNKD] (IRQs 3 5 10 *11)
+ACPI: PCI Root Bridge [PCI1] (0000:08)
+PCI: Probing PCI hardware (bus 08)
+SCSI subsystem initialized
+PCI: Using ACPI for IRQ routing
+PCI: If a device doesn't work, try "pci=routeirq".  If it helps, post a 
+report
+PCI-DMA: Disabling AGP.
+PCI-DMA: aperture base @ 8000000 size 65536 KB
+PCI-DMA: Reserving 64MB of IOMMU area in the AGP aperture
+PCI: Bridge: 0000:00:06.0
+   IO window: 2000-2fff
+   MEM window: fa000000-fa0fffff
+   PREFETCH window: e2000000-e20fffff
+PCI: Bridge: 0000:09:01.0
+   IO window: disabled.
+   MEM window: fa400000-faffffff
+   PREFETCH window: fc000000-fdffffff
+PCI: Bridge: 0000:08:01.0
+   IO window: disabled.
+   MEM window: fa400000-faffffff
+   PREFETCH window: fc000000-fdffffff
+PCI: Bridge: 0000:08:02.0
+   IO window: 3000-3fff
+   MEM window: fb000000-fb0fffff
+   PREFETCH window: e2100000-e21fffff
+PCI: Bridge: 0000:08:03.0
+   IO window: disabled.
+   MEM window: disabled.
+   PREFETCH window: disabled.
+PCI: Bridge: 0000:08:04.0
+   IO window: 4000-4fff
+   MEM window: fb100000-fb1fffff
+   PREFETCH window: e2200000-e22fffff
+ACPI: PCI Interrupt 0000:08:04.0[A] -> GSI 36 (level, low) -> IRQ 16
+IA32 emulation $Id: sys_ia32.c,v 1.32 2002/03/24 13:02:28 ak Exp $
+audit: initializing netlink socket (disabled)
+audit(1127427646.392:1): initialized
+Total HugeTLB memory allocated, 0
+VFS: Disk quotas dquot_6.5.1
+Dquot-cache hash table entries: 512 (order 0, 4096 bytes)
+JFS: nTxBlock = 8192, nTxLock = 65536
+Initializing Cryptographic API
+PCI: MSI quirk detected. pci_msi_quirk set.
+PCI: MSI quirk detected. pci_msi_quirk set.
+PCI: MSI quirk detected. pci_msi_quirk set.
+PCI: MSI quirk detected. pci_msi_quirk set.
+vesafb: framebuffer at 0xfc000000, mapped to 0xffffc20000600000, using 
+1875k, total \
+                 16384k
+vesafb: mode is 800x600x16, linelength=1600, pages=16
+vesafb: scrolling: redraw
+vesafb: Truecolor: size=0:5:6:5, shift=0:11:5:0
+mtrr: type mismatch for fc000000,1000000 old: write-back new: 
+write-combining
+mtrr: type mismatch for fc000000,800000 old: write-back new: write-combining
+mtrr: type mismatch for fc000000,400000 old: write-back new: write-combining
+mtrr: type mismatch for fc000000,200000 old: write-back new: write-combining
+mtrr: type mismatch for fc000000,100000 old: write-back new: write-combining
+mtrr: type mismatch for fc000000,80000 old: write-back new: write-combining
+mtrr: type mismatch for fc000000,40000 old: write-back new: write-combining
+mtrr: type mismatch for fc000000,20000 old: write-back new: write-combining
+mtrr: type mismatch for fc000000,10000 old: write-back new: write-combining
+mtrr: type mismatch for fc000000,8000 old: write-back new: write-combining
+mtrr: type mismatch for fc000000,4000 old: write-back new: write-combining
+mtrr: type mismatch for fc000000,2000 old: write-back new: write-combining
+mtrr: type mismatch for fc000000,1000 old: write-back new: write-combining
+vesafb: Mode is not VGA compatible
+Console: switching to colour frame buffer device 100x37
+fb0: VESA VGA frame buffer device
+Real Time Clock Driver v1.12
+Non-volatile memory driver v1.2
+Linux agpgart interface v0.101 (c) Dave Jones
+serio: i8042 AUX port at 0x60,0x64 irq 12
+serio: i8042 KBD port at 0x60,0x64 irq 1
+Serial: 8250/16550 driver $Revision: 1.90 $ 4 ports, IRQ sharing disabled
+ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
+mice: PS/2 mouse device common for all mice
+input: PC Speaker
+io scheduler noop registered
+input: AT Translated Set 2 keyboard on isa0060/serio0
+io scheduler anticipatory registered
+io scheduler deadline registered
+io scheduler cfq registered
+RAMDISK driver initialized: 16 RAM disks of 128000K size 1024 blocksize
+loop: loaded (max 8 devices)
+tg3.c:v3.40 (September 15, 2005)
+ACPI: PCI Interrupt 0000:19:02.0[A] -> GSI 38 (level, low) -> IRQ 17
+input: PS/2 Generic Mouse on isa0060/serio1
+eth0: Tigon3 [partno(3C996B-T) rev 0105 PHY(5701)] (PCI:66MHz:64-bit) \
+                 10/100/1000BaseT Ethernet 00:04:76:f0:f9:aa
+eth0: RXcsums[1] LinkChgREG[0] MIirq[0] ASF[0] Split[0] WireSpeed[1] 
+TSOcap[0]
+eth0: dma_rwctrl[76ff000f]
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+AMD8111: IDE controller at PCI slot 0000:00:07.1
+AMD8111: chipset revision 3
+AMD8111: not 100% native mode: will probe irqs later
+AMD8111: 0000:00:07.1 (rev 03) UDMA133 controller
+     ide0: BM-DMA at 0x1020-0x1027, BIOS settings: hda:DMA, hdb:pio
+     ide1: BM-DMA at 0x1028-0x102f, BIOS settings: hdc:DMA, hdd:pio
 
-Hmm, then probably send_sig_info() should check for non-NULL
-p->sighand after taking tasklist_lock?  Otherwise all uses of
-send_sig_info() for non-current tasks are unsafe.
 
-"git grep -w send_sig_info" shows that most callers call
-send_sig_info() for the current task, except these:
-
-arch/sparc/kernel/traps.c:      send_sig_info(SIGFPE, &info, fpt);
-arch/sparc64/kernel/sys_sunos32.c:      send_sig_info(SIGSYS, &info, curren=
-t);
-drivers/char/drm/drm_irq.c:                     send_sig_info( vbl_sig->inf=
-o.si_signo, &vbl_sig->info, vbl_sig->task );
-drivers/usb/core/devio.c:               send_sig_info(as->signr, &sinfo, as=
-->task);
-drivers/usb/core/inode.c:                       send_sig_info(ds->discsignr=
-, &sinfo, ds->disctask);
-drivers/usb/gadget/file_storage.c:                      send_sig_info(SIGUS=
-R1, SEND_SIG_FORCED, thread_task);
-kernel/signal.c:        return send_sig_info(sig, (void*)(long)(priv !=3D 0=
-), p);
-
-BTW, all other callers of send_sig_info() are under
-arch/{alpha,arm,sparc,sparc64}/ - 23 total.
-
---ReaqsoxgOBHFXBhH
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFDOWydW82GfkQfsqIRAtC4AKCJQ9k99X0fcx/bcOvtKenvZKbryACdGn7i
-/YIaQenUus4mhwXVrP4tb6M=
-=k6Sp
------END PGP SIGNATURE-----
-
---ReaqsoxgOBHFXBhH--

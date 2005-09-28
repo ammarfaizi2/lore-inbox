@@ -1,142 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751005AbVI1Wsi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbVI1Wvx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751005AbVI1Wsi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 18:48:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751077AbVI1Wsi
+	id S1751106AbVI1Wvx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 18:51:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751045AbVI1Wvx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 18:48:38 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:40710 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1751005AbVI1Wsh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 18:48:37 -0400
-Date: Thu, 29 Sep 2005 00:35:43 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Luben Tuikov <luben_tuikov@adaptec.com>
-Cc: Andre Hedrick <andre@linux-ide.org>,
-       Patrick Mansfield <patmans@us.ibm.com>,
-       Luben Tuikov <ltuikov@yahoo.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into the kernel
-Message-ID: <20050928223542.GA12559@alpha.home.local>
-References: <Pine.LNX.4.10.10509281227570.19896-100000@master.linux-ide.org> <433B0374.4090100@adaptec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <433B0374.4090100@adaptec.com>
-User-Agent: Mutt/1.5.10i
+	Wed, 28 Sep 2005 18:51:53 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:45188 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1751106AbVI1Wvw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 18:51:52 -0400
+Date: Wed, 28 Sep 2005 15:50:55 -0700 (PDT)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: Ravikiran G Thirumalai <kiran@scalex86.org>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>, alokk@calsoftinc.com,
+       linux-kernel@vger.kernel.org, manfred@colorfullife.com,
+       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
+       ananth@in.ibm.com, Andi Kleen <ak@suse.de>
+Subject: Re: 2.6.14-rc1-git-now still dying in mm/slab - this time line 1849
+In-Reply-To: <20050928210245.GA3760@localhost.localdomain>
+Message-ID: <Pine.LNX.4.62.0509281548340.16304@schroedinger.engr.sgi.com>
+References: <20050916023005.4146e499.akpm@osdl.org> <432AA00D.4030706@vc.cvut.cz>
+ <20050916230809.789d6b0b.akpm@osdl.org> <432EE103.5020105@vc.cvut.cz>
+ <20050919112912.18daf2eb.akpm@osdl.org> <Pine.LNX.4.62.0509191141380.26105@schroedinger.engr.sgi.com>
+ <20050919122847.4322df95.akpm@osdl.org> <Pine.LNX.4.62.0509191351440.26388@schroedinger.engr.sgi.com>
+ <20050919221614.6c01c2d1.akpm@osdl.org> <43301578.8040305@vc.cvut.cz>
+ <20050928210245.GA3760@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all, hi Luben,
+On Wed, 28 Sep 2005, Ravikiran G Thirumalai wrote:
 
-On Wed, Sep 28, 2005 at 04:56:20PM -0400, Luben Tuikov wrote:
-(...)
-> Ok, thanks Andre.  Much appreciated.
-> 
-> You are the first person to back me up _publicly_.  Now if we
-> can find a person from "the community" to do that, and get all
-> the other people who've written me _privately_, we'd be in
-> good shape.
+> Just might be relevant here, I found a bug with the recent
+> x86_64 changes to 2.6.14-rc* which causes the node_to_cpumask[] to go bad for
+> the boot processor.  This happens on both amd and em64t boxes. I guess the
+> kevent/0 cpus_allowed mask might be changed by the bad node_to_cpumask[]
+> here?
 
-I'm sure I'm not one of those who qualify best here, but having largely
-contributed to Linux acceptance at critical points at a handful of big
-customers here, I'd like to send some general feeling I get from there.
+Andrew, could we add the following patch to the kernel to detect
+conditions in the future? This code will only be compiled in if slab 
+debugging is enabled.
 
-There are people buying expensive hardware. The type of hardware
-that costs $100k for just a few CPUs. Those people don't buy "the
-Adaptec XXX which runs best with Red Hat Enterprise" nor the "LSI
-YYY which runs best with Solaris", they buy a few $100k systems
-with 3 TB disk to store their monthly logs. They cannot even imagine
-that the hardware in the $100k system will not be fully supported by
-some recent OS, that's just plain silly. The OS cost is just a water
-drop in the middle of this. When they install Solaris on it because
-they're used to run it, it just works. When I sometimes just show
-them that Solaris is not adequate for daily greps in logs, and I show
-them how faster it is on a $1k Linux machine in the next rack, they
-feel they can switch to it easily. But if they discover that this
-system does not correctly support their $100k hardware, do you know
-which one was is the crap ? the $300 Red Hat or the $100k hardware ?
-[ oh, BTW, I forgot to tell you : they say "Red Hat", and not "Linux"
-because it does not sound like what they long considered an OS for
-tamagotchis - to use their own words - :-( ]
+---
+[SLAB] Add additional debugging to detect slabs from the wrong node
 
-And when they go to adaptec site to find latest drivers and they only
-find patches which forces them to find another Linux to install the
-sources and guess how to patch and build, do you know which OS they
-consider as hobbyist's ? The Red Hat ! (which they can call "Linux"
-again then).
+This patch adds some stack dumps if the slab logic is processing
+slab blocks from the wrong node. This is necessary in order to detect
+situations as encountered by Petr.
 
-For those reasons, I could put Linux there on very specific places,
-mostly firewalls and load-balancers. A self-made distro with kernel
-2.4 with patch-o-matic still is one of the most powerful and reliable
-firewalls around, and at only a few bucks. The same hardened install
-is used for load-balancers with my proxy. Seeing that the proxies
-have been stable for years, they bought between 50-100 RHEL licences.
-But that's all. Nowhere you will find anything serious using Linux in
-other areas. It's already a nightmare for them to get a hardware RAID
-card working while they just have to click on stupid icons in Windows
-to do the same. Right now, new Linux-based machines are turning back
-to plain IDE. SCSI was too much boring for them and not needed to do
-just networking. Period.
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-When they will buy hundreds of TB of SAS-based racks in the next few
-years, and they will learn the hard way that Linux does not even see
-them as disks, it will be too late to give my preferred OS a second
-chance.
-
-Hans Reiser once said that every software needs a complete rewrite
-every 3 or 5 years (I don't precisely remember). I tend to agree
-with him. Maybe it's time to completely rewrite the SCSI subsystem,
-but maybe it will be too long, too risky and not worth the effort.
-Maybe it can simply coexist with another new subsystem. This is what
-Luben seems to have done : break no code, just bring a new subsystem
-which should not even give the SCSI maintainer too much work if he
-maintains it himself. At least I could understand some arguments against
-Reiser4 because it touched the VFS, but here we have a perfect example
-of something new which can live next to SCSI and probably some time
-will replace it definitely. Jeff has done this with libata (it even
-had to touch some pieces to coexist with piix4 and probably a few other
-chips).
-
-Having read the discussion from the start here a few days ago, I
-believe that Luben maybe has not explained well to non-competent
-people like me what the goal of his work is. I've looked at the GIF
-on T10.org, but I think that the equivalent with what it currently
-implemented in Linux would be worth doing. Maybe we would even
-notice that current maintainers cannot agree on a same representation.
-Maybe it will enlighten some of us about the poor error reporting,
-the reasons why USB storage sometimes fails to assign a device when
-plugging a flash, etc...
-
-Luben, you seem to have enough knowledge to draw both diagrams
-side-by-side :
- - the T10 spec with colors on the boxes covered by your work
- - the Linux view of SCSI
-
-Perhaps we will see that current code can be extended without too
-much work, or perhaps we will see that it's definitely a dead end
-and that a new design will help a lot.
-
-Anyway Luben, I fear that for some time, you'll have to provide
-pre-patched sources as well as binary kernels to enterprise customers
-who still try to get Linux working in production. I hope that this sad
-experience will not discourage other vendors from trying to take the
-opensource wagon, as it clearly brings fuel to closed-source drivers
-at the moment (no need to argue).
-
-Eventhough I don't have SAS, I sincerely hope that a quick and smart
-solution will be found which keeps everyone's pride intact, as it
-seems to matter much those days. In an ideal situation, 2.7 would
-have been opened for a long time, and Luben's code would have been
-discussed to death as a new development needed to be merged before
-2.8. Right now, as 2.7 is 2.6.<odd>, probably that ideas can gem
-before 2.6.15.
-
-Just my personnal thoughts
-Willy
-
-PS: please don't CC me in return, I can read LKML. I haven't trimmed
-the CC list as nobody has complained yet.
-
+Index: linux-2.6.14-rc2/mm/slab.c
+===================================================================
+--- linux-2.6.14-rc2.orig/mm/slab.c	2005-09-27 13:22:30.000000000 -0700
++++ linux-2.6.14-rc2/mm/slab.c	2005-09-28 15:46:31.000000000 -0700
+@@ -2421,6 +2421,7 @@ retry:
+ 			next = slab_bufctl(slabp)[slabp->free];
+ #if DEBUG
+ 			slab_bufctl(slabp)[slabp->free] = BUFCTL_FREE;
++			WARN_ON(numa_node_id() != slabp->nodeid);
+ #endif
+ 		       	slabp->free = next;
+ 		}
+@@ -2635,8 +2636,10 @@ static void free_block(kmem_cache_t *cac
+ 		check_spinlock_acquired_node(cachep, node);
+ 		check_slabp(cachep, slabp);
+ 
+-
+ #if DEBUG
++		/* Verify that the slab belongs to the intended node */
++		WARN_ON(slabp->nodeid != node);
++
+ 		if (slab_bufctl(slabp)[objnr] != BUFCTL_FREE) {
+ 			printk(KERN_ERR "slab: double free detected in cache "
+ 					"'%s', objp %p\n", cachep->name, objp);

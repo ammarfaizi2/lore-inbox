@@ -1,68 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbVI1UYW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbVI1UZN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750787AbVI1UYW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 16:24:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750777AbVI1UYW
+	id S1750774AbVI1UZN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 16:25:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750777AbVI1UZN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 16:24:22 -0400
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:64726 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S1750786AbVI1UYV convert rfc822-to-8bit (ORCPT
+	Wed, 28 Sep 2005 16:25:13 -0400
+Received: from wproxy.gmail.com ([64.233.184.202]:43790 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750774AbVI1UZL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 16:24:21 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH][Fix][Resend] Fix Bug #4959: Page tables corrupted during resume on x86-64 (take 3)
-Date: Wed, 28 Sep 2005 22:24:42 +0200
-User-Agent: KMail/1.8.2
-Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>, discuss@x86-64.org,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-References: <200509281624.29256.rjw@sisk.pl> <200509282118.54670.ak@suse.de>
-In-Reply-To: <200509282118.54670.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
+	Wed, 28 Sep 2005 16:25:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=BtNEZx9d3fQGDNxyyd9sQmhIaXaeIzpLih+ip6aun8GtONMwwNufdOlguhQKcOQtqEJGpb1PXNBUjGJn2QUppgDhlQHInkMAdsJs6q4pYEVOX1z0N/uwvUFRxBlqHiMqiAG1ZfuTIuzHxLjczNj4ZucPrzQ3kgtte4OnGvbGWok=
+Date: Thu, 29 Sep 2005 00:36:11 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Grzegorz Piotr Jaskiewicz <gj@kdemail.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: oops on firewire pcmcia card removal
+Message-ID: <20050928203611.GB27645@mipter.zuzino.mipt.ru>
+References: <200509282202.09341@gj-laptop>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200509282224.43397.rjw@sisk.pl>
+In-Reply-To: <200509282202.09341@gj-laptop>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Sep 28, 2005 at 10:02:05PM +0200, Grzegorz Piotr Jaskiewicz wrote:
+> sometimes it's enough to just unplug the cable first, than eject pcmcia card. 
 
-On Wednesday, 28 of September 2005 21:18, Andi Kleen wrote:
-> On Wednesday 28 September 2005 16:24, Rafael J. Wysocki wrote:
-> > Hi,
-> >
-> > The following patch fixes Bug #4959.  For this purpose it creates temporary
-> > page translation tables including the kernel mapping (reused) and the
-> > direct mapping (created from scratch) and makes swsusp switch to these
-> > tables right before the image is restored.
-> >
-> > The code that generates the direct mapping is based on the code in
-> > arch/x86_64/mm/init.c.
-> 
-> Looks much better than before, but is there any reason you cannot
-> share the code with the mm/init.c code?
+> Sep 28 19:56:10 thinkpaddie kernel: Unable to handle kernel NULL pointer 
+> dereference at virtual address 00000000
 
-I think so.  I have to make the temporary page tables nosavedata or set
-PG_nosave on them, so that swsusp doesn't overwrite them.  I'm not
-sure if I could do this cleanly if I used the code from mm/init.c directly.
+> Sep 28 19:56:10 thinkpaddie kernel: Modules linked in: dv1394 raw1394 eth1394 
+> ohci1394 binfmt_misc rfcomm l2cap bluetooth ipv6 deflate zlib_deflate twofish 
+> serpent aes_i586 blowfish des sha256 crypto_null af_key joydev ide_cd cdrom 
+> 8250_pnp snd_intel8x0m 8250_pci 8250 serial_core snd_intel8x0 snd_ac97_codec 
+> tpm_nsc tpm_atmel tpm uhci_hcd usbcore isofs zlib_inflate tun irtty_sir 
+> sir_dev irda radeon drm intel_agp evdev vmmon vmnet nvram snd_pcm_oss snd_pcm 
+> snd_timer snd_page_alloc snd_mixer_oss agpgart ieee1394 pcmcia firmware_class 
+> yenta_socket rsrc_nonstatic pcmcia_core rtc 3c59x mii nfs lockd nfs_acl 
+> sunrpc af_packet
 
-> Also Suresh S. has a patch out to turn the initial page tables
-> into initdata. It'll probably conflict with that. Needs to be coordinated
-> with him.
+> Tainted: P      VLI
 
-Do you mean the patch at:
-http://www.x86-64.org/lists/discuss/msg07297.html ?
-Unfortunately it interferes with the current swsusp code, which uses
-init_level4_pgt anyway.
+Can you reproduce it without proprietary modules loaded?
 
-Could we please treat my patch as a (very much needed) urgent bugfix
-and make the whole swsusp code in line with the Suresh's patch later on?
-
-Suresh, could you please say what you think of it?
-
-Greetings,
-Rafael

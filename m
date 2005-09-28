@@ -1,70 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbVI1UKF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbVI1UN2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750763AbVI1UKF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 16:10:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750759AbVI1UKE
+	id S1750762AbVI1UN2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 16:13:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750761AbVI1UN2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 16:10:04 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:4326 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750754AbVI1UKC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 16:10:02 -0400
-Message-ID: <433AF897.2050400@pobox.com>
-Date: Wed, 28 Sep 2005 16:09:59 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
+	Wed, 28 Sep 2005 16:13:28 -0400
+Received: from xproxy.gmail.com ([66.249.82.204]:2247 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750762AbVI1UN2 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 16:13:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=oAw6uWZndVDY3xXmgEY+UefFEbJmEedCGNOwLMBrWi620m0R6b876E8Yq1oPh+D7MpX8tCFxnDh77AVJbwHvNk5lRJhHOucZgeBL71Zdlc41Ts6WjmThyA4EgdhjoLBp853TQORZ5E6pmj/3FoVLfRXdPQoOS2xPW6DZ2ZpZ3Bg=
+Message-ID: <5bdc1c8b05092813131955ab8f@mail.gmail.com>
+Date: Wed, 28 Sep 2005 13:13:27 -0700
+From: Mark Knecht <markknecht@gmail.com>
+Reply-To: Mark Knecht <markknecht@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-rc2-rt6 build problems
+Cc: Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <5bdc1c8b05092808596a22847a@mail.gmail.com>
 MIME-Version: 1.0
-To: Lukasz Kosewski <lkosewsk@gmail.com>
-CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: [PATCH 3/3] Add disk hotswap support to libata RESEND #5
-References: <355e5e5e050926180156e58f59@mail.gmail.com>	 <433AEB4F.7010502@pobox.com> <355e5e5e0509281258536e4be4@mail.gmail.com>
-In-Reply-To: <355e5e5e0509281258536e4be4@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <5bdc1c8b05092808596a22847a@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lukasz Kosewski wrote:
->>>+     if (plugdata) {
->>>+             writeb(plugdata, mmio_base + hotplug_offset);
->>>+             for (i = 0; i < host_set->n_ports; ++i) {
->>>+                     ap = host_set->ports[i];
->>>+                     if (!(ap->flags & ATA_FLAG_SATA))
->>>+                             continue;  //No PATA support here... yet
->>>+                     // Check unplug flag
->>>+                     if (plugdata & 0x1) {
->>>+                             /* Do stuff related to unplugging a device */
->>>+                             ata_hotplug_unplug(ap);
->>>+                             handled = 1;
->>>+                     } else if ((plugdata >> 4) & 0x1) {  //Check plug flag
->>>+                             /* Do stuff related to plugging in a device */
->>>+                             ata_hotplug_plug(ap);
->>>+                             handled = 1;
->>
->>What happens if both bits are set?  Seems like that could happen, if a
->>plug+unplug (cable blip?) occurs in rapid succession.
-> 
-> 
-> What IF both bits are set?  This is why we have a debounce timer to
-> take care of the problem :P
-> 
-> The way this is set up, unplugging will win out (plugging will come
-> first, unplugging will come and destroy 'plug's timer, and then the
-> unplug action will be performed on timer expiry).  Personally, I like
-> it this way, but I can reverse the order of these two to make plugging
-> the default action.  Which do you prefer?
+On 9/28/05, Mark Knecht <markknecht@gmail.com> wrote:
+> Hi,
+>    I'm new to the list and not a developer. Please take mercy.
+>
+<SNIP>
+>
+> cd /usr/src/linux/linux-2.6.13
+> patch -p1 <~mark/patch-2.6.14-rc2
+> patch -p1 <~mark/patch-2.6.14-rc2-rt6
+>
+<SNIP>
 
-The above logic
-* acks multiple events
-* handles only a single event
+Following up I reread Ingo's offline message to me and realized I was
+supposed to try rt5 instead of tr6.
 
-so either way you lose an event.  In the code as it is written above, if 
-both 'plug' and 'unplug' events are noted, then only the unplug get 
-handled, and the newly-plugged device is never noticed.
+1) I downloaded 2.6.13 and built this correctly.
 
-	Jeff
+2) I applied the 2.6.14-rc2 patch. This built correctly also.
 
+3) I applied the 2.6.14-rc2-rt5 patch. It failed as foloows:
 
+include/linux/time.h: In function `div_sign_safe_ns':
+include/linux/time.h:127: warning: implicit declaration of function
+`div_long_lo ng_rem'
+In file included from include/linux/mm.h:15,
+                 from include/asm/tlbflush.h:5,
+                 from arch/x86_64/kernel/reboot.c:15:
+include/linux/fs.h: In function `lock_super':
+include/linux/fs.h:847: warning: implicit declaration of function `down'
+include/linux/fs.h: In function `unlock_super':
+include/linux/fs.h:853: warning: implicit declaration of function `up'
+  LD      arch/x86_64/kernel/quirks.o
+  LD      arch/x86_64/kernel/i8237.o
+  CC      arch/x86_64/kernel/mce.o
+In file included from include/linux/timex.h:58,
+                 from include/linux/sched.h:11,
+                 from arch/x86_64/kernel/mce.c:11:
+include/linux/time.h: In function `div_sign_safe_ns':
+include/linux/time.h:127: warning: implicit declaration of function
+`div_long_lo ng_rem'
+In file included from arch/x86_64/kernel/mce.c:17:
+include/linux/fs.h: In function `lock_super':
+include/linux/fs.h:847: warning: implicit declaration of function `down'
+include/linux/fs.h: In function `unlock_super':
+include/linux/fs.h:853: warning: implicit declaration of function `up'
+arch/x86_64/kernel/mce.c: In function `mce_read':
+arch/x86_64/kernel/mce.c:392: warning: type defaults to `int' in
+declaration of `DECLARE_MUTEX'
+arch/x86_64/kernel/mce.c:392: warning: parameter names (without types)
+in functi on declaration
+arch/x86_64/kernel/mce.c:401: error: `mce_read_sem' undeclared (first
+use in thi s function)
+arch/x86_64/kernel/mce.c:401: error: (Each undeclared identifier is
+reported onl y once
+arch/x86_64/kernel/mce.c:401: error: for each function it appears in.)
+make[1]: *** [arch/x86_64/kernel/mce.o] Error 1
+make: *** [arch/x86_64/kernel] Error 2
+lightning linux-2.6.13 #
+
+I'll supply more info, config files, etc., if requested.
+
+Thanks in advance,
+Mark

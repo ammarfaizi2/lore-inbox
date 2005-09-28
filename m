@@ -1,73 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965251AbVI1BsJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965247AbVI1B4h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965251AbVI1BsJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 21:48:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965250AbVI1BsI
+	id S965247AbVI1B4h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 21:56:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965248AbVI1B4h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 21:48:08 -0400
-Received: from astound-64-85-224-245.ca.astound.net ([64.85.224.245]:46091
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S965245AbVI1BsH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 21:48:07 -0400
-Date: Tue, 27 Sep 2005 18:34:55 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: "Moore, Eric Dean" <Eric.Moore@lsil.com>
-cc: Luben Tuikov <luben_tuikov@adaptec.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: RE: I request inclusion of SAS Transport Layer and AIC-94xx into 
- the kernel
-In-Reply-To: <91888D455306F94EBD4D168954A9457C0438823C@nacos172.co.lsil.com>
-Message-ID: <Pine.LNX.4.10.10509271833400.14637-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 27 Sep 2005 21:56:37 -0400
+Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:37490 "HELO
+	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S965247AbVI1B4g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 21:56:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Subject:From:To:Cc:In-Reply-To:References:Content-Type:Date:Message-Id:Mime-Version:X-Mailer:Content-Transfer-Encoding;
+  b=3xkfHStepJRmmtuu7gUK2EaK2teUXiV2u5vHY566cFAz1w40CERgQRgvTILpksj1c+9Y0Kf8fpcoDqk565WaAqUZ/1hD/pekt25mQExWo8gPPgIFXWOTgsyom3xgdkFo97poh/ap9YCD+5Xwx++kWY/rOf0mhecXzyeRb3+7v58=  ;
+Subject: Re: [RFC][PATCH] inline a few tiny functions in init/initramfs.c
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Con Kolivas <kernel@kolivas.org>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <9a87484905092717074e85657e@mail.gmail.com>
+References: <200509240126.26575.jesper.juhl@gmail.com>
+	 <200509241415.43773.kernel@kolivas.org> <4334DB96.3040904@yahoo.com.au>
+	 <9a87484905092717074e85657e@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 28 Sep 2005 11:56:05 +1000
+Message-Id: <1127872565.5210.4.camel@npiggin-nld.site>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2005-09-28 at 02:07 +0200, Jesper Juhl wrote:
 
-Eric,
-
-Luben is in shock.
-
-Jeff hinted Luben and I are similar, and that would scare anyone.
-
-Cheers,
-
-Andre
-
-On Tue, 27 Sep 2005, Moore, Eric Dean wrote:
-
-> On Tuesday, September 27, 2005 4:51 PM, Luben Tuikov wrote:
+> Ok, so it seems that there's agreement that the other two inlines in
+> the patch makes sense, but the malloc() is not clear cut.
 > 
-> > Christoph's code is
-> >  * MPT based only,
-> >  * doesn't follow a spec to save its life,
-> >  * far inferior in SAS capabilities and SAS representation
-> >    again, due to the fact that it is MPT based.
-> > 
-> > Since the whole point of MPT is to _hide_ the transport.
-> > 
-> 
-> 
-> Hi Luben,
-> 
-> OK, Man are you alright?
-> 
-> I've heard of other vendors planning to 
-> provide solutions where sas is implemented
-> in firmware, similar to MPT.  Christophs
-> sas layer is going to work with other 
-> solutions, don't think of it being 
-> MPT centric.
-> 
-> 
-> Later,
-> Eric Moore 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Since this is in initramfs after all it doesn't make that big a
+> difference overall, so I'll just send in a patch that inlines the
+> other two functions but leaves malloc() alone.
 > 
 
+Well, they're not particularly performance critical, and everything
+is marked init anyway so I don't know why you would bother changing
+anything ;)
+
+-- 
+SUSE Labs, Novell Inc.
+
+
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

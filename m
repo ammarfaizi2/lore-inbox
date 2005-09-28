@@ -1,63 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbVI1U4n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbVI1U4z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750772AbVI1U4n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 16:56:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750809AbVI1U4n
+	id S1750822AbVI1U4z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 16:56:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750816AbVI1U4z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 16:56:43 -0400
-Received: from pimout5-ext.prodigy.net ([207.115.63.73]:28047 "EHLO
-	pimout5-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S1750772AbVI1U4m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 16:56:42 -0400
-X-ORBL: [69.107.75.50]
-DomainKey-Signature: a=rsa-sha1; s=sbc01; d=pacbell.net; c=nofws; q=dns;
-	h=received:date:from:to:subject:cc:references:in-reply-to:
-	mime-version:content-type:content-transfer-encoding:message-id;
-	b=sAJ2TmhGb9OLhFZrtQdCle+pW5dvxIH8wOp986V0oY7vNVM8t9MNoBaDGyZw/1byK
-	jbOk+tJcYJH2PQo6YKNFQ==
-Date: Wed, 28 Sep 2005 13:56:09 -0700
-From: David Brownell <david-b@pacbell.net>
-To: rjw@sisk.pl
-Subject: Re: [linux-usb-devel] Re: 2.6.13-mm2
-Cc: torvalds@osdl.org, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, hugh@veritas.com, daniel.ritz@gmx.ch,
-       akpm@osdl.org
-References: <20050908053042.6e05882f.akpm@osdl.org>
- <200509282205.49316.daniel.ritz@gmx.ch>
- <20050928202314.54672E3723@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
- <200509282237.12750.rjw@sisk.pl>
-In-Reply-To: <200509282237.12750.rjw@sisk.pl>
+	Wed, 28 Sep 2005 16:56:55 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:39315 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S1750809AbVI1U4y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 16:56:54 -0400
+Message-ID: <433B0374.4090100@adaptec.com>
+Date: Wed, 28 Sep 2005 16:56:20 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: Andre Hedrick <andre@linux-ide.org>
+CC: Patrick Mansfield <patmans@us.ibm.com>, Luben Tuikov <ltuikov@yahoo.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
+ the kernel
+References: <Pine.LNX.4.10.10509281227570.19896-100000@master.linux-ide.org>
+In-Reply-To: <Pine.LNX.4.10.10509281227570.19896-100000@master.linux-ide.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <20050928205609.77623E371B@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
+X-OriginalArrivalTime: 28 Sep 2005 20:56:29.0282 (UTC) FILETIME=[192E8420:01C5C46F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wednesday, 28 of September 2005 22:23, David Brownell wrote:
-> > > > > > BTW, please have a look at:
-> > > > > > http://bugzilla.kernel.org/show_bug.cgi?id=4416#c36
-> > > > > > and
-> > > > > > http://bugzilla.kernel.org/show_bug.cgi?id=4416#c37
-> > 
-> > What's with the bogus dates in those reports ... claiming some of you
-> > were testing 2.6.13-rc2-mm2 more than two months ago, mid-July ?????
->
-> Nothing. :-)  2.6.13-rc2-mm2 was out exactly on July 12, and that's when
-> I tested it ...
+On 09/28/05 15:45, Andre Hedrick wrote:
+> Hi Patrick,
+> 
+> You have hit on one of the key word of my downfall.
+> 
+> Specifications!!!
+> 
+> I believe in them and they are the inflexable state machine which all OSes
+> are required to address.
 
-OK, sorry; pardon me!  Then the right question to ask is more like
-"So does this still happen in **2.6.14-rc2** ??".  2.6.13-rc is
-marginally more recent than 2.4.20, but it still feels old. :)
+Me too.  I live and breathe by them.
 
+> I am for following the rules of the spec, and will bet Linus would now
+> agree more so than before.
 
-My other point still stands though.  The IRQ for all HCDs _are_ freed
-on suspend, and re-requested on resume ... so lack of such free/request
-calls can't possibly be an issue.
+Me too.
 
-The old rule of thumb with USB does still apply though:  be sure to
-test with BIOS support for it disabled.
+An interesting thing which "the community" would appreciate is
+that M$ has aggressively started to "go by the spec" as far
+as SCSI is concerned.
 
-- Dave
+Ding-ding!
+
+> The problem is SCSI is a strange beast without
+> a formal FSM.  It is more of a BusPhase psuedo stated transport.  It is
+
+Oh, no, no, no!  So much has changed Andre.
+
+Just take a look at SAM, and I'm sure that you'll appreciate the object
+oriented design, the abstractions, etc.  Really!
+
+Recently all new protocols follow _explicit_ state machine definitions
+at each layer they define, and how it interacts with the layer
+above and below again by FSMs.  It's all a good thing.
+
+> Luben, I have a vested interest in seeing SAS run via SCSI.  So this means
+> you have one ex-demi-god from the world of maintainers looking to pull you
+> have towards the current path and open to ideas and willing to back a
+> better design and push it.
+
+Ok, thanks Andre.  Much appreciated.
+
+You are the first person to back me up _publicly_.  Now if we
+can find a person from "the community" to do that, and get all
+the other people who've written me _privately_, we'd be in
+good shape.
+
+	Luben
+P.S. Not sure if you have seen this link:
+http://linux.adaptec.com/sas/
 
 

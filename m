@@ -1,110 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbVI1TBA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbVI1TFT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750718AbVI1TBA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 15:01:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbVI1TBA
+	id S1750716AbVI1TFT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 15:05:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750719AbVI1TFS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 15:01:00 -0400
-Received: from [204.63.198.200] ([204.63.198.200]:5804 "EHLO
-	spr-scc-email.SPR.DOE.GOV") by vger.kernel.org with ESMTP
-	id S1750718AbVI1TA7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 15:00:59 -0400
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C5C45E.B93BC8F0"
-X-Mailer: Microsoft CDO for Exchange 2000
-Content-Class: urn:content-classes:message
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: [MailServer Resend] Announce: RSBAC v1.2.5 released
-Date: Wed, 28 Sep 2005 13:59:16 -0500
-Message-ID: <006701c5c45e$b936e680$e4c73fcc@SPR.DOE.GOV>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [MailServer Resend] Announce: RSBAC v1.2.5 released
-Thread-Index: AcXEXrkvR8wiuPLHSUq7FXvy46oVhA==
-From: "SystemMailbox{9B090266-39CC-48ED-8385-82B1132420DD}" 
-	<SystemMailbox{9B090266-39CC-48ED-8385-82B1132420DD}@SPR.DOE.GOV>
-To: <RSBAC@vger.kernel.org>, <RSBAC-Announce@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>, <sec@linux-sec.net>,
-       <bugtraq@securityfocus.com>
-Cc: <announce-l@lists.adamantix.org>
-Reply-To: "SystemMailbox{9B090266-39CC-48ED-8385-82B1132420DD}" 
-	  <SystemMailbox{9B090266-39CC-48ED-8385-82B1132420DD}@SPR.DOE.GOV>
+	Wed, 28 Sep 2005 15:05:18 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:63379 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1750716AbVI1TFR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 15:05:17 -0400
+Date: Wed, 28 Sep 2005 12:04:31 -0700
+From: Paul Jackson <pj@sgi.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: torvalds@osdl.org, kurosawa@valinux.co.jp, taka@valinux.co.jp,
+       magnus.damm@gmail.com, dino@in.ibm.com, linux-kernel@vger.kernel.org,
+       ckrm-tech@lists.sourceforge.net, akpm@osdl.org
+Subject: Re: [ckrm-tech] Re: [PATCH] cpuset read past eof memory leak fix
+Message-Id: <20050928120431.2a7323b8.pj@sgi.com>
+In-Reply-To: <Pine.LNX.4.58.0509281102330.14803@shark.he.net>
+References: <20050908225539.0bc1acf6.pj@sgi.com>
+	<20050909.203849.33293224.taka@valinux.co.jp>
+	<20050909063131.64dc8155.pj@sgi.com>
+	<20050910.161145.74742186.taka@valinux.co.jp>
+	<20050910015209.4f581b8a.pj@sgi.com>
+	<20050926093432.9975870043@sv1.valinux.co.jp>
+	<20050927013751.47cbac8b.pj@sgi.com>
+	<20050927113902.C78A570046@sv1.valinux.co.jp>
+	<20050928092558.61F6170041@sv1.valinux.co.jp>
+	<20050928064224.49170ca7.pj@sgi.com>
+	<Pine.LNX.4.58.0509280758560.3308@g5.osdl.org>
+	<20050928105316.0684c7cf.pj@sgi.com>
+	<Pine.LNX.4.58.0509281102330.14803@shark.he.net>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+> Paul, did you see Linus's email on the canonical patch format?
 
-------_=_NextPart_001_01C5C45E.B93BC8F0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: base64
+I had just found it in my archives, a few minutes earlier.  Thanks!
 
-DQoNCi0tLS0tIE9yaWdpbmFsIE1lc3NhZ2UgSGVhZGVyIC0tLS0tDQpTdWJqZWN0OiBBbm5vdW5j
-ZTogUlNCQUMgdjEuMi41IHJlbGVhc2VkDQpGcm9tOiBBbW9uIE90dDsgDQpUbzogUlNCQUM7IFJT
-QkFDLUFubm91bmNlOyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnOyBzZWNAbGludXgtc2Vj
-Lm5ldDsgYnVndHJhcUBzZWN1cml0eWZvY3VzLmNvbTsgDQpDYzogYW5ub3VuY2UtbEBsaXN0cy5h
-ZGFtYW50aXgub3JnOyANCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tDQoNCg==
-
-------_=_NextPart_001_01C5C45E.B93BC8F0
-Content-Type: application/octet-stream;
-	name="SMIME.txt"
-Content-Transfer-Encoding: base64
-Content-Description: SMIME.txt
-Content-Disposition: attachment;
-	filename="SMIME.txt"
-
-Q29udGVudC1UeXBlOiBtdWx0aXBhcnQvc2lnbmVkOw0KICBib3VuZGFyeT0ibmV4dFBhcnQxMzY5
-NjE5Lmh4bFgxamJ0SXoiOw0KICBwcm90b2NvbD0iYXBwbGljYXRpb24vcGdwLXNpZ25hdHVyZSI7
-DQogIG1pY2FsZz1wZ3Atc2hhMQ0KQ29udGVudC1UcmFuc2Zlci1FbmNvZGluZzogN2JpdA0KTWVz
-c2FnZS1JZDogPDIwMDUwOTI3MTAyOC40OTA5MS5hb0Byc2JhYy5vcmc+DQpYLVZpcnVzLVNjYW5u
-ZWQ6IGJ5IGFtYXZpc2QtbmV3LTIuMi4wICgyMDA0MTEwMikgKyBNYWlhIE1haWxndWFyZCAxLjAu
-MCBSQzUgKG0tcHJpdmFjeSkgYXQgY29tcHVuaXZlcnNlLmRlDQpYLVByb3ZhZ3MtSUQ6IGt1bmRl
-bnNlcnZlci5kZSBhYnVzZUBrdW5kZW5zZXJ2ZXIuZGUgbG9naW46ZTc4NGY0NDk3YTdlNTJiZmM4
-MTc5ZWU3MjA5NDA4YzMNClJldHVybi1QYXRoOiBidWd0cmFxLXJldHVybi0yMTQ1Mi1kdW5jYW4u
-bW9sb255PXNwci5kb2UuZ292QHNlY3VyaXR5Zm9jdXMuY29tDQpYLU9yaWdpbmFsQXJyaXZhbFRp
-bWU6IDI3IFNlcCAyMDA1IDE5OjE2OjM1LjAwODUgKFVUQykgRklMRVRJTUU9W0Y5RjJFM0QwOjAx
-QzVDMzk3XQ0KDQotLW5leHRQYXJ0MTM2OTYxOS5oeGxYMWpidEl6DQpDb250ZW50LVR5cGU6IHRl
-eHQvcGxhaW47DQogIGNoYXJzZXQ9InVzLWFzY2lpIg0KQ29udGVudC1UcmFuc2Zlci1FbmNvZGlu
-ZzogcXVvdGVkLXByaW50YWJsZQ0KQ29udGVudC1EaXNwb3NpdGlvbjogaW5saW5lDQoNClJ1bGUg
-U2V0IEJhc2VkIEFjY2VzcyBDb250cm9sIChSU0JBQykgdjEuMi41IGhhcyBiZWVuIHJlbGVhc2Vk
-ISBGdWxsPTIwDQppbmZvcm1hdGlvbiBhbmQgZG93bmxvYWRzIGFyZSBhdmFpbGFibGUgYXQgaHR0
-cDovL3d3dy5yc2JhYy5vcmcNCg0KUlNCQUMgS2V5IEZlYXR1cmVzOg0KDQogICAgKiBGcmVlIE9w
-ZW4gU291cmNlIChHUEwpIExpbnV4IGtlcm5lbCBzZWN1cml0eSBleHRlbnNpb24NCiAgICAqIElu
-ZGVwZW5kZW50IG9mIGdvdmVybm1lbnRzIGFuZCBiaWcgY29tcGFuaWVzDQogICAgKiBTZXZlcmFs
-IHdlbGwta25vd24gYW5kIG5ldyBzZWN1cml0eSBtb2RlbHMsIGUuZy4gTUFDLCBBQ0wgYW5kIFJD
-DQogICAgKiBDb250cm9sIG92ZXIgaW5kaXZpZHVhbCB1c2VyIGFuZCBwcm9ncmFtIG5ldHdvcmsg
-YWNjZXNzZXMNCiAgICAqIEZ1bGx5IGFjY2VzcyBjb250cm9sbGVkIGtlcm5lbCBsZXZlbCB1c2Vy
-IG1hbmFnZW1lbnQNCiAgICAqIEFueSBjb21iaW5hdGlvbiBvZiBtb2RlbHMgcG9zc2libGUNCiAg
-ICAqIEVhc2lseSBleHRlbmRhYmxlOiB3cml0ZSB5b3VyIG93biBtb2RlbCBmb3IgcnVudGltZSBy
-ZWdpc3RyYXRpb24NCiAgICAqIE9uLWFjY2VzcyB2aXJ1cyBzY2FubmluZyB3aXRoIERhenVrbyBp
-bnRlcmZhY2UNCiAgICAqIFN1cHBvcnQgZm9yIGN1cnJlbnQga2VybmVscyBpbiAyLjQgYW5kIDIu
-NiBzZXJpZXMNCiAgICAqIFN0YWJsZSBmb3IgcHJvZHVjdGlvbiB1c2Ugc2luY2UgSmFudWFyeSAy
-MDAwDQoNCk1ham9yIG5ldyBmZWF0dXJlcyBpbiB2MS4yLjU6DQoNCiAgICAqIENvbXBsZXRlIHJl
-dmlldyBvZiBhbGwgaW50ZXJjZXB0aW9ucyB3aXRoIG1hbnkgbmV3IG9uZXMgYWRkZWQNCiAgICAq
-IERldmljZSBhdHRyaWJ1dGUgaW5oZXJpdGFuY2U6IFVzZSB2YWx1ZXMgYXQgdHlwZTptYWpvciBh
-cz0yMA0KZGVmYXVsdCBmb3IgdHlwZTptYWpvcjptaW5vcg0KICAgICogTG9nIHJlbW90ZSBJUCBh
-ZGRyZXNzIG9mIHN1YmplY3QgaW4gYWNjZXNzIGxvZw0KICAgICogQ29tcGxldGVseSByZXdyaXR0
-ZW4gYWRtaW4gdG9vbHMgYnVpbGQgc3lzdGVtDQogICAgKiBNYW55IHNtYWxsZXIgY2hhbmdlcyB0
-byByZW1vdmUgYnVncyBhbmQgaW1wcm92ZSB1c2FiaWxpdHkNCiAgICAqIENvbXBsZXRlIGxpc3Qg
-b2YgY2hhbmdlcyBhdD0yMA0KaHR0cDovL2Rvd25sb2FkLnJzYmFjLm9yZy9jb2RlL3YxLjIuNS9j
-aGFuZ2VzLTEuMi41LnR4dA0KDQpWZXJzaW9ucyAxLjIueCB3aWxsIGJlIG1haW50YWluZWQgYXMg
-c3RhYmxlIHNlcmllcyB3aXRoIGJ1Z2ZpeD0yMA0KcmVsZWFzZXMgd2hlbmV2ZXIgbmVjZXNzYXJ5
-LiBBbGwgY29vbCBuZXcgZmVhdHVyZXMgd2lsbCBiZSBpbiB0aGUgbmV3PTIwDQoxLjMgc2VyaWVz
-LCB3aGljaCBoYXMgcmVjZW50bHkgYmVlbiBicmFuY2hlZCBvZmYsIHNlZT0yMA0KaHR0cDovL3d3
-dy5yc2JhYy5vcmcvdG9kby4NCg0KPTQ2b3IgZmlyc3QgdGVzdHMgd2l0aG91dCBpbnN0YWxsYXRp
-b24geW91IGNhbiB0cnkgdGhlIERlYmlhbiBiYXNlZD0yMA0KUlNCQUMgTGl2ZSBDRCBhdCBodHRw
-Oi8vbGl2ZWNkLnJzYmFjLm9yZw0KDQpQbGVhc2UgZm9yd2FyZCB0aGlzIGFubm91bmNlbWVudCB0
-byB3aGVyZWV2ZXIgeW91IHRoaW5rIGl0IGlzPTIwDQphcHBsaWNhYmxlLCAgZS5nLiAgbG9jYWwg
-b3IgbmF0aW9uYWwgc2VjdXJpdHkgbGlzdHMsIG5ld3NwYXBlcnMgb3I9MjANCm1hZ2F6aW5lcywg
-b3IgeW91ciBmYXZvdXJpdGUgSW50ZXJuZXQgZm9ydW0uDQoNCj00NmVlZGJhY2sgaXMgYWx3YXlz
-IHdlbGNvbWUhDQoNCkFtb24gT3R0Lg0KPTJELT0yMA0KaHR0cDovL3d3dy5yc2JhYy5vcmcgLSBH
-bnVQRzogMjA0OGcvNURFQUFBMzAgMjAwMi0xMC0yMg0KDQotLW5leHRQYXJ0MTM2OTYxOS5oeGxY
-MWpidEl6DQpDb250ZW50LVRyYW5zZmVyLUVuY29kaW5nOiA3Yml0DQpDb250ZW50LVR5cGU6IGFw
-cGxpY2F0aW9uL3BncC1zaWduYXR1cmUNCg0KLS0tLS1CRUdJTiBQR1AgU0lHTkFUVVJFLS0tLS0N
-ClZlcnNpb246IEdudVBHIHYxLjQuMSAoR05VL0xpbnV4KQ0KDQppRDhEQlFCRE9RTEJxOXluNmg1
-UlRvOFJBdlpyQUo5L3ZJVVZsaHMvZnlPbzRBdDBwQ1FVVkZkWXVRQ2FBNTQ5DQpmOFRBMW8yV25B
-NFJVcW15QzFrNVdVST0NCj11eUc4DQotLS0tLUVORCBQR1AgU0lHTkFUVVJFLS0tLS0NCg0KLS1u
-ZXh0UGFydDEzNjk2MTkuaHhsWDFqYnRJei0tDQo=
-
-------_=_NextPart_001_01C5C45E.B93BC8F0--
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030232AbVI1JgR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030234AbVI1Jhe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030232AbVI1JgR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 05:36:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030233AbVI1JgR
+	id S1030234AbVI1Jhe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 05:37:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030233AbVI1Jhe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 05:36:17 -0400
-Received: from [202.125.80.34] ([202.125.80.34]:42507 "EHLO mail.esn.co.in")
-	by vger.kernel.org with ESMTP id S1030232AbVI1JgQ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 05:36:16 -0400
-Subject: Bluetooth interface support in 2.6.x kernel
-Date: Wed, 28 Sep 2005 15:03:41 +0530
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <3AEC1E10243A314391FE9C01CD65429B0875C1@mail.esn.co.in>
-Content-class: urn:content-classes:message
-X-MS-Has-Attach: 
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-MS-TNEF-Correlator: 
-Thread-Topic: Bluetooth interface support in 2.6.x kernel
-Thread-Index: AcXED7Z74y8XGs15Ty2WIti6NrBkiw==
-From: "Srinivas G." <srinivasg@esntechnologies.co.in>
-To: "linux-kernel-Mailing-list" <linux-kernel@vger.kernel.org>
+	Wed, 28 Sep 2005 05:37:34 -0400
+Received: from mail.kroah.org ([69.55.234.183]:2696 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030234AbVI1Jhd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 05:37:33 -0400
+Date: Wed, 28 Sep 2005 02:36:33 -0700
+From: Greg KH <greg@kroah.com>
+To: Roland Dreier <rolandd@cisco.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [git pull] InfiniBand fixes for 2.6.14
+Message-ID: <20050928093633.GA12757@kroah.com>
+References: <524q85on6e.fsf@cisco.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <524q85on6e.fsf@cisco.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear All,
+On Tue, Sep 27, 2005 at 09:01:45PM -0700, Roland Dreier wrote:
+> Linus, please pull from
+> 
+>     master.kernel.org:/pub/scm/linux/kernel/git/roland/infiniband.git for-linus
 
-Could any one please tell me about the bluetooth interface support in
-2.6.x kernel?
-What is the default bluetooth interface for 2.6.x kernel? 
-Is it Affix or BlueZ? 
+Hm, I complained about this last time, with no response...
 
-Please send me the bluetooth related link if any.
+I didn't think that git pulls were going to be allowed from subsystem
+maintainers after -rc1 came out.  After that, patches by email were
+required to be sent, not git pulls.  This does cause a bit more work
+for the maintainer, but it ensures that they only send the patches they
+really want to get in.
 
-Thanks and Regards,
-Srinivas G
+At least that was what I thought we decided on at the kernel summit...
 
+thanks,
+
+greg k-h

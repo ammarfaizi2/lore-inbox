@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750765AbVI1UO0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750766AbVI1UTN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750765AbVI1UO0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 16:14:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbVI1UO0
+	id S1750766AbVI1UTN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 16:19:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbVI1UTN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 16:14:26 -0400
-Received: from hulk.vianw.pt ([195.22.31.43]:63118 "EHLO hulk.vianw.pt")
-	by vger.kernel.org with ESMTP id S1750765AbVI1UOZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 16:14:25 -0400
-Message-ID: <433AF98E.4020504@esoterica.pt>
-Date: Wed, 28 Sep 2005 21:14:06 +0100
-From: Paulo da Silva <psdasilva@esoterica.pt>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Strange behaviour with SATA disks. Light always ON
-References: <43374DDB.6090708@esoterica.pt> <20050928064612.GL2811@suse.de>
-In-Reply-To: <20050928064612.GL2811@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 28 Sep 2005 16:19:13 -0400
+Received: from fmr14.intel.com ([192.55.52.68]:38338 "EHLO
+	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1750766AbVI1UTN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 16:19:13 -0400
+Subject: Re: [patch] Reset the high water marks in CPUs pcp list
+From: Rohit Seth <rohit.seth@intel.com>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: akpm@osdl.org, linux-mm@kvack.org, Mattia Dongili <malattia@linux.it>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.62.0509281259550.14892@schroedinger.engr.sgi.com>
+References: <20050928105009.B29282@unix-os.sc.intel.com>
+	 <Pine.LNX.4.62.0509281259550.14892@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Organization: Intel 
+Date: Wed, 28 Sep 2005 13:26:25 -0700
+Message-Id: <1127939185.5046.17.camel@akash.sc.intel.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 28 Sep 2005 20:18:54.0584 (UTC) FILETIME=[D946E780:01C5C469]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
+On Wed, 2005-09-28 at 13:01 -0700, Christoph Lameter wrote:
+> On Wed, 28 Sep 2005, Seth, Rohit wrote:
+> 
+> > Recent changes in page allocations for pcps has increased the high watermark for these lists.  This has resulted in scenarios where pcp lists could be having bigger number of free pages even under low memory conditions. 
+> > 
+> >  	[PATCH]: Reduce the high mark in cpu's pcp lists.
+> 
+> There is no need for such a patch. The pcp lists are regularly flushed.
+> See drain_remote_pages.
 
->On Mon, Sep 26 2005, Paulo da Silva wrote:
->  
->
->>Hi!
->>I don't know if this is the right place to ask
->>about this, or even if this is a problem at all.
->>
->>Anyway I didn't find relevant information on
->>this ...
->>
->>I have just bought a new PC with two SATA drives.
->>I had no problems to have them working,
->>apparently fine except for one thing:
->>After reading the kernel, the driver access light (led?)
->>is always on!
->>Is this normal? Why?
->>    
->>
->
->It's a bug in the ahci driver in the kernel, if you upgrade to a newer
->kernel it is fixed there. The changeset of interest is:
->
->http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=c0b34ad2956036cdba87792d6c46d8f491539df1;hp=9309049544935f804b745aa4dea043fb39b2bf2a
->
->  
->
-I patched it by hand (just deleting 2 lines).
-I works fine now!!!
-I searched for a solution using "access light "
-keywords, but should have used "LED" instead :-(
+CONFIG_NUMA needs to be defined for that.  And then too for flushing the
+remote pages.  Also, when are you flushing the local pcps.  Also note
+that this patch is just bringing the free pages on the pcp list closer
+to what used to be the number earlier.
 
-Thank you.
+-rohit
 

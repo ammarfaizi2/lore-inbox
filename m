@@ -1,122 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751203AbVI1XI7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751208AbVI1XJv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751203AbVI1XI7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 19:08:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbVI1XI7
+	id S1751208AbVI1XJv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 19:09:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbVI1XJv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 19:08:59 -0400
-Received: from qproxy.gmail.com ([72.14.204.205]:53988 "EHLO qproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751203AbVI1XI6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 19:08:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=XYp6X69osbwCYZzR7tp/yL0KLSzrpDiFINNN2HVLraegN54AioLOihTiqQaWg9x1WTPk6L94w/jg+q0KKilAcww5RGcFpEe7GrO2B7lpOMuTlH6soVSiuzmG8lLirBfvdHph/Z396CTZFupUEtrJU2RzfPsHz+l2jizqby47nhE=
-Message-ID: <c775eb9b05092816086df55d13@mail.gmail.com>
-Date: Wed, 28 Sep 2005 19:08:57 -0400
-From: Bharath Ramesh <krosswindz@gmail.com>
-Reply-To: Bharath Ramesh <krosswindz@gmail.com>
-To: "Bhattacharjee, Satadal" <Satadal.Bhattacharjee@engenio.com>
-Subject: Re: Registering for multiple SIGIO within a process
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       "Bagalkote, Sreenivas" <Sreenivas.Bagalkote@engenio.com>,
-       "Patro, Sumant" <Sumant.Patro@engenio.com>,
-       "Ram, Hari" <hari.ram@engenio.com>,
-       "Mukker, Atul" <Atul.Mukker@engenio.com>
-In-Reply-To: <91888D455306F94EBD4D168954A9457C04181C2F@nacos172.co.lsil.com>
+	Wed, 28 Sep 2005 19:09:51 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:56838 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1751208AbVI1XJt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 19:09:49 -0400
+Message-ID: <433B21F0.1030103@vmware.com>
+Date: Wed, 28 Sep 2005 16:06:24 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <91888D455306F94EBD4D168954A9457C04181C2F@nacos172.co.lsil.com>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Jeffrey Sheldon <jeffshel@vmware.com>,
+       Ole Agesen <agesen@vmware.com>, Shai Fultheim <shai@scalex86.org>,
+       Andrew Morton <akpm@odsl.org>, Jack Lo <jlo@vmware.com>,
+       Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       Chris Wright <chrisw@osdl.org>, Martin Bligh <mbligh@mbligh.org>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>, Andi Kleen <ak@muc.de>
+Subject: Re: [PATCH 2/3] Pnp bios gdt fix
+References: <200509282143.j8SLh7dY032231@zach-dev.vmware.com>
+In-Reply-To: <200509282143.j8SLh7dY032231@zach-dev.vmware.com>
+Content-Type: multipart/mixed;
+ boundary="------------010704080706080604020501"
+X-OriginalArrivalTime: 28 Sep 2005 23:06:24.0343 (UTC) FILETIME=[3F666E70:01C5C481]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am not sure if this would work but you could try registering
-different real time signals to be delivered to the shared object
-instead of SIGIO. I am not sure if it would work. I do use RT signals
-to be used instead of SIGIO.
+This is a multi-part message in MIME format.
+--------------010704080706080604020501
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-You could try probably something like this
+Zachary Amsden wrote:
 
-fcntl (devhandle, SETOWN, getpid ());
-fcntl (devhandle, SETSIG, SIGRTMIN);
-fcntl (devhandle, SETFL, O_ASYNC);
+>PnP BIOS for x86 is part of drivers, so I missed it in the initial
+>GDT page alignment patch.  Kudos to Andrew for fixing that.
+>Unfortunately, fixing the build introduced a kernel panic when
+>trying to setup the as of yet unallocated GDTs for the APs.
+>This fixes the problem by setting only the BSP's GDT, then copying
+>the PnP segments back to the cpu_gdt_table template.
+>
+>  
+>
 
-try registering a signal handler for SIGRTMIN like SIGIO. Could be a
-possible solution.
+Bogus patch!  I was just getting lucky and not running PnP BIOS code on 
+the AP's -- until now.  Turns out the fix and the bug were much 
+simpler.  Please apply this instead.
 
-Bharath
 
-On 9/28/05, Bhattacharjee, Satadal <Satadal.Bhattacharjee@engenio.com> wrote:
-> Hi,
-> I have hit a typical situation where I am having issues with signals. Below
-> is the description of the issue.
-> There are two separate Host Bus Adapters (HBA) connected to the system. Each
-> HBA has its own driver loaded in the kernel.
->
-> There are two separate shared objects to talk to each of the drivers. One
-> shared object does not communicate with the other one.
->
-> Each shared object has function within it to register with kernel to receive
-> SIGIO when an event is generated by the HBA. Driver received the event from
-> the HBA and sends SIGIO to the kernel.
->
-> There is an application (executable) which loads the two shared objects.
-> Application then calls function within the shared object to register events
-> from HBA.
->
-> When driver generates a signal, the shared object which registered last,
-> receives the signal. The first registration never receives any signal.
->
-> Now I checked the man pages and found out that you can register for the same
-> signal only once from a process.
-> We tried to change the signal from SIGIO to SIGUSER1 in one of the shared
-> object. But on checking the kernel code we realized that only SIGIO is
-> supported.
->
-> So can somebody suggest what is the correct mechanism to register with the
-> kernel for receiving multiple signals from a single process?
->
-> I am not subscribed to the list, so please copy me in the CC field when
-> replying.
-> The shared object code snippet for registration is below:
-> struct sigaction sa;
-> int oflags;
-> int rc = 0;
-> // setup the signal handler
-> memset(&sa, 0, sizeof(struct sigaction));
-> sa.sa_handler = &AENSignalHandler; // AENSignalHandler is the signal handler
->
-> //sa.sa_flags = SA_ONESHOT;
-> sigfillset(&sa.sa_mask);
-> sigaction(SIGIO, &sa, NULL);
-> //aen_do_registration - enable driver to send us SIGIO for event
-> notification
-> rc = fcntl(ghMegaDev, F_SETOWN, getpid()); // ghMegaDev is the handle to the
-> driver
-> if (rc < 0) {
-> perror("AEN: registration, F_SETOWN");
-> return SL_ERR_LINUX_AEN_INIT_FAILED;
-> }
-> oflags = fcntl(ghMegaDev, F_GETFL);
-> rc = fcntl(ghMegaDev, F_SETFL, oflags| FASYNC);
-> if (rc < 0) {
-> perror("setup_aen_handler: Failed to set ASYNC flag\n");
-> return SL_ERR_LINUX_AEN_INIT_FAILED;
-> }
-> *****************************************************************
-> Satadal Bhattacharjee,
-> LSI Logic Corp.,
-> 3098 W Warren Ave,
-> Fremont, CA, 94539
-> satadalb@lsil.com
-> (408) 433-4204
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+
+--------------010704080706080604020501
+Content-Type: text/plain;
+ name="pnp-bios-gdt-fix"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="pnp-bios-gdt-fix"
+
+PnP BIOS for x86 is part of drivers, so I missed it in the initial
+GDT page alignment patch.  Kudos to Andrew for fixing that.
+Unfortunately, fixing the build introduced a kernel panic when
+trying to setup the as of yet unallocated GDTs for the APs.
+
+I totally misdiagnosed this.  The problem happens only
+when NR_CPUS > physical CPUs.  Fix is to ignore missing GDT's.
+
+Signed-off-by: Zachary Amsden <zach@vmware.com>
+Index: linux-2.6.14-rc2/drivers/pnp/pnpbios/bioscalls.c
+===================================================================
+--- linux-2.6.14-rc2.orig/drivers/pnp/pnpbios/bioscalls.c	2005-09-28 15:57:42.000000000 -0700
++++ linux-2.6.14-rc2/drivers/pnp/pnpbios/bioscalls.c	2005-09-28 15:59:37.000000000 -0700
+@@ -537,6 +537,8 @@ void pnpbios_calls_init(union pnp_bios_i
+ 	_set_limit((char *)&bad_bios_desc, 4095 - (0x40 << 4));
+ 	for(i=0; i < NR_CPUS; i++)
+ 	{
++		if (!get_cpu_gdt_table(i))
++			continue;
+ 		Q2_SET_SEL(i, PNP_CS32, &pnp_bios_callfunc, 64 * 1024);
+ 		Q_SET_SEL(i, PNP_CS16, header->fields.pm16cseg, 64 * 1024);
+ 		Q_SET_SEL(i, PNP_DS, header->fields.pm16dseg, 64 * 1024);
+
+--------------010704080706080604020501--

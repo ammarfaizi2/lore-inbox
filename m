@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751429AbVI1Qmw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751298AbVI1Qul@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751429AbVI1Qmw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 12:42:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751422AbVI1Qmw
+	id S1751298AbVI1Qul (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 12:50:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbVI1Qul
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 12:42:52 -0400
-Received: from qproxy.gmail.com ([72.14.204.207]:54801 "EHLO qproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751429AbVI1Qmv convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 12:42:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=uTS7JNRIdFBmg2dpf1EMmW+ieIMQ0iPG6zzGUeYtHuAxU/RWsc8KHX6+HnIepJH8sFPa85dIsCWUclN98j0RUz8m86s/w/RgggOrY8fz3Lo0MGZH26qbJHbQQ7OUyFt0J3yGc1boj5GUvyNmqP65guiG3cC6SQcyZqMFiJdaAI4=
-Message-ID: <98b62faa05092809423ac837bc@mail.gmail.com>
-Date: Wed, 28 Sep 2005 09:42:50 -0700
-From: <iodophlymiaelo@gmail.com>
-Reply-To: iodophlymiaelo@gmail.com
-To: "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>
-Subject: Re: raw aio write guarantee
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200509280923.j8S9Nkgq028579@turing-police.cc.vt.edu>
-MIME-Version: 1.0
+	Wed, 28 Sep 2005 12:50:41 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:32714 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1751298AbVI1Qul (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 12:50:41 -0400
+Date: Wed, 28 Sep 2005 09:49:32 -0700
+From: Paul Jackson <pj@sgi.com>
+To: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
+Cc: taka@valinux.co.jp, magnus.damm@gmail.com, dino@in.ibm.com,
+       linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
+Subject: Re: [ckrm-tech] Re: [PATCH 1/3] CPUMETER: add cpumeter framework to
+ the CPUSETS
+Message-Id: <20050928094932.43a1f650.pj@sgi.com>
+In-Reply-To: <20050928075331.0408A70041@sv1.valinux.co.jp>
+References: <20050908225539.0bc1acf6.pj@sgi.com>
+	<20050909.203849.33293224.taka@valinux.co.jp>
+	<20050909063131.64dc8155.pj@sgi.com>
+	<20050910.161145.74742186.taka@valinux.co.jp>
+	<20050910015209.4f581b8a.pj@sgi.com>
+	<20050926093432.9975870043@sv1.valinux.co.jp>
+	<20050927013751.47cbac8b.pj@sgi.com>
+	<20050927113902.C78A570046@sv1.valinux.co.jp>
+	<20050927084905.7d77bdde.pj@sgi.com>
+	<20050928062146.6038E70041@sv1.valinux.co.jp>
+	<20050928000839.1d659bfb.pj@sgi.com>
+	<20050928075331.0408A70041@sv1.valinux.co.jp>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <98b62faa050928001275d28771@mail.gmail.com>
-	 <200509280757.j8S7vmjB023730@turing-police.cc.vt.edu>
-	 <98b62faa050928015677d7253b@mail.gmail.com>
-	 <200509280923.j8S9Nkgq028579@turing-police.cc.vt.edu>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/28/05, Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
-> On Wed, 28 Sep 2005 01:56:05 PDT, iodophlymiaelo@gmail.com said:
->
-> > I was asking what a user-application can do to prevent data loss, not
-> > an application-user.
->
-> Right.  However, if you actually care about the distinction between "made it
-> to the disk cache" and "made it to the platter", those are things you'll
-> want to address - in particular, if you have one of the evil disk drives
-> I mentioned, there's very little a user application can do to work around it.
->
+Takahiro-san wrote:
+> This seems good for me.
+> I'd like to make sure that tasks in CPUSET 2a and CPUSET 2b actually
+> have the cpumask of CPUSET 1a.  Is this correct?
 
-Erm, is the hardware problem really as great as you're implying? Have you
-personally encountered any bad drives made by reputable brands? Mostly I've
-only heard only of people crying wolf and then realizing it was a problem with
-their reasoning or with the assumption that fsync() actually works properly on
-kernel X, where X doesn't even have to be that ancient a version of linux ;-)
+Oh I think not.  My primary motivation in pushing on this point
+of the design was to allow CPUSET 2a and 2b to have a smaller
+cpumask than CPUSET 1a.  This is used for example to allow a job
+that is running in 1a to setup two child cpusets, 2a and 2b,
+to run two subtasks that are constrained to smaller portions of
+the CPUs allowed to the job in 1a.
+
+How would hacking cpuset_cpus_allowed() help here?
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

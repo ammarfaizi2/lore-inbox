@@ -1,62 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030201AbVI1HNK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030203AbVI1HNo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030201AbVI1HNK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 03:13:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030203AbVI1HNF
+	id S1030203AbVI1HNo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 03:13:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030206AbVI1HNn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 03:13:05 -0400
-Received: from mailgate2.urz.uni-halle.de ([141.48.3.8]:26499 "EHLO
+	Wed, 28 Sep 2005 03:13:43 -0400
+Received: from mailgate2.urz.uni-halle.de ([141.48.3.8]:36995 "EHLO
 	mailgate2.uni-halle.de") by vger.kernel.org with ESMTP
-	id S1030201AbVI1HMq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 03:12:46 -0400
-Date: Wed, 28 Sep 2005 09:12:10 +0200 (MEST)
+	id S1030203AbVI1HNU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 03:13:20 -0400
+Date: Wed, 28 Sep 2005 09:12:37 +0200 (MEST)
 From: Clemens Ladisch <clemens@ladisch.de>
-Subject: [PATCH 2/7] HPET: remove superfluous register reads
+Subject: [PATCH 7/7] HPET-RTC: cache the comparator register
 In-reply-to: <20050928071155.23025.43523.balrog@turing>
 To: linux-kernel@vger.kernel.org
 Cc: akpm@osdl.org, Bob Picco <bob.picco@hp.com>,
        Clemens Ladisch <clemens@ladisch.de>
-Message-id: <20050928071210.23025.1810.balrog@turing>
+Message-id: <20050928071236.23025.15941.balrog@turing>
 Content-transfer-encoding: 7BIT
 References: <20050928071155.23025.43523.balrog@turing>
-X-Scan-Signature: a35061c0abf4d8fa2201d8bd9fe648d3
+X-Scan-Signature: 94e7f633d018021bce7a7f8fb1fa3035
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes several reads of a timer's config register that
-serve no purpose whatsoever.
+Reads from an HPET register require a round trip to the south bridge
+and are almost as slow as PCI reads.  By caching the last value we've
+written to the comparator register, we can eliminate all HPET reads
+from the fast path in the emulated RTC interrupt handler.
 
 Signed-off-by: Clemens Ladisch <clemens@ladisch.de>
 
-Index: linux-2.6.13/drivers/char/hpet.c
+Index: linux-2.6.13/arch/i386/kernel/time_hpet.c
 ===================================================================
---- linux-2.6.13.orig/drivers/char/hpet.c	2005-09-27 21:42:12.000000000 +0200
-+++ linux-2.6.13/drivers/char/hpet.c	2005-09-27 21:44:11.000000000 +0200
-@@ -367,7 +367,6 @@ static int hpet_ioctl_ieon(struct hpet_d
- 	if (!devp->hd_ireqfreq)
- 		return -EIO;
+--- linux-2.6.13.orig/arch/i386/kernel/time_hpet.c	2005-09-27 21:59:13.000000000 +0200
++++ linux-2.6.13/arch/i386/kernel/time_hpet.c	2005-09-27 22:01:29.000000000 +0200
+@@ -275,6 +275,7 @@ static unsigned long PIE_freq = DEFAULT_
+ static unsigned long PIE_count;
  
--	v = readq(&timer->hpet_config);
- 	spin_lock_irq(&hpet_lock);
+ static unsigned long hpet_rtc_int_freq; /* RTC interrupt frequency */
++static unsigned int hpet_t1_cmp; /* cached comparator register */
  
- 	if (devp->hd_flags & HPET_IE) {
-@@ -378,7 +377,6 @@ static int hpet_ioctl_ieon(struct hpet_d
- 	devp->hd_flags |= HPET_IE;
- 	spin_unlock_irq(&hpet_lock);
+ /*
+  * Timer 1 for RTC, we do not use periodic interrupt feature,
+@@ -306,6 +307,7 @@ int hpet_rtc_timer_init(void)
+ 	cnt = hpet_readl(HPET_COUNTER);
+ 	cnt += ((hpet_tick*HZ)/hpet_rtc_int_freq);
+ 	hpet_writel(cnt, HPET_T1_CMP);
++	hpet_t1_cmp = cnt;
+ 	local_irq_restore(flags);
  
--	t = readq(&timer->hpet_config);
- 	irq = devp->hd_hdwirq;
+ 	cfg = hpet_readl(HPET_T1_CFG);
+@@ -333,9 +335,10 @@ static void hpet_rtc_timer_reinit(void)
+ 		hpet_rtc_int_freq = DEFAULT_RTC_INT_FREQ;
  
- 	if (irq) {
-@@ -855,11 +853,9 @@ int hpet_alloc(struct hpet_data *hdp)
- 	}
+ 	/* It is more accurate to use the comparator value than current count.*/
+-	cnt = hpet_readl(HPET_T1_CMP);
++	cnt = hpet_t1_cmp;
+ 	cnt += hpet_tick*HZ/hpet_rtc_int_freq;
+ 	hpet_writel(cnt, HPET_T1_CMP);
++	hpet_t1_cmp = cnt;
+ }
  
- 	for (i = 0, devp = hpetp->hp_dev; i < hpetp->hp_ntimer; i++, devp++) {
--		unsigned long v;
- 		struct hpet_timer __iomem *timer;
+ /*
+Index: linux-2.6.13/arch/x86_64/kernel/time.c
+===================================================================
+--- linux-2.6.13.orig/arch/x86_64/kernel/time.c	2005-09-27 21:59:13.000000000 +0200
++++ linux-2.6.13/arch/x86_64/kernel/time.c	2005-09-27 22:01:29.000000000 +0200
+@@ -1100,6 +1100,7 @@ static unsigned long PIE_freq = DEFAULT_
+ static unsigned long PIE_count;
  
- 		timer = &hpet->hpet_timers[devp - hpetp->hp_dev];
--		v = readq(&timer->hpet_config);
+ static unsigned long hpet_rtc_int_freq; /* RTC interrupt frequency */
++static unsigned int hpet_t1_cmp; /* cached comparator register */
  
- 		devp->hd_hpets = hpetp;
- 		devp->hd_hpet = hpet;
+ int is_hpet_enabled(void)
+ {
+@@ -1136,6 +1137,7 @@ int hpet_rtc_timer_init(void)
+ 	cnt = hpet_readl(HPET_COUNTER);
+ 	cnt += ((hpet_tick*HZ)/hpet_rtc_int_freq);
+ 	hpet_writel(cnt, HPET_T1_CMP);
++	hpet_t1_cmp = cnt;
+ 	local_irq_restore(flags);
+ 
+ 	cfg = hpet_readl(HPET_T1_CFG);
+@@ -1163,9 +1165,10 @@ static void hpet_rtc_timer_reinit(void)
+ 		hpet_rtc_int_freq = DEFAULT_RTC_INT_FREQ;
+ 
+ 	/* It is more accurate to use the comparator value than current count.*/
+-	cnt = hpet_readl(HPET_T1_CMP);
++	cnt = hpet_t1_cmp;
+ 	cnt += hpet_tick*HZ/hpet_rtc_int_freq;
+ 	hpet_writel(cnt, HPET_T1_CMP);
++	hpet_t1_cmp = cnt;
+ }
+ 
+ /*

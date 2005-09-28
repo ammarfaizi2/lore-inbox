@@ -1,46 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751120AbVI1WLy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbVI1WPu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751120AbVI1WLy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 18:11:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751123AbVI1WLy
+	id S1751126AbVI1WPu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 18:15:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbVI1WPu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 18:11:54 -0400
-Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:10502 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751120AbVI1WLx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 18:11:53 -0400
-Date: Thu, 29 Sep 2005 08:11:10 +1000
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: "David S. Miller" <davem@davemloft.net>, suzannew@cs.pdx.edu,
-       linux-kernel@vger.kernel.org, Robert.Olsson@data.slu.se,
-       walpole@cs.pdx.edu, netdev@oss.sgi.com
-Subject: Re: [RFC][PATCH] identify in_dev_get rcu read-side critical sections
-Message-ID: <20050928221110.GA22018@gondor.apana.org.au>
-References: <20050927.135626.88296134.davem@davemloft.net> <E1EKS6j-0006s4-00@gondolin.me.apana.org.au> <20050928145110.GA4925@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 28 Sep 2005 18:15:50 -0400
+Received: from ns1.suse.de ([195.135.220.2]:29136 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751126AbVI1WPt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 18:15:49 -0400
+From: Andi Kleen <ak@suse.de>
+To: virtualization@lists.osdl.org
+Subject: Re: [PATCH 3/3] Gdt hotplug
+Date: Thu, 29 Sep 2005 00:15:00 +0200
+User-Agent: KMail/1.8.2
+Cc: Zachary Amsden <zach@vmware.com>, Linus Torvalds <torvalds@osdl.org>,
+       Jeffrey Sheldon <jeffshel@vmware.com>, Ole Agesen <agesen@vmware.com>,
+       Shai Fultheim <shai@scalex86.org>, Andrew Morton <akpm@odsl.org>,
+       Jack Lo <jlo@vmware.com>, Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@osdl.org>, Martin Bligh <mbligh@mbligh.org>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>, Andi Kleen <ak@muc.de>
+References: <200509282144.j8SLi53a032237@zach-dev.vmware.com>
+In-Reply-To: <200509282144.j8SLi53a032237@zach-dev.vmware.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050928145110.GA4925@us.ibm.com>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Message-Id: <200509290015.02973.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 28, 2005 at 07:51:10AM -0700, Paul E. McKenney wrote:
-> 
-> The reference-count approach is only guaranteed to work if the kernel
-> thread that did the reference-count increment is later referencing that
-> same data element.  Otherwise, one has the following possible situation
-> on DEC Alpha:
+On Wednesday 28 September 2005 23:44, Zachary Amsden wrote:
+> As suggested by Andi Kleen, don't allocate a GDT page if there is already
+> one present.  Needed for CPU hotplug.
 
-You're quite right.  Without the rcu_dereference users of in_dev_get()
-may see pre-initialisation contents of in_dev.
+Did I really suggest that? I think I suggested checking the return
+value of gfp. Also get_zeroed_page() is slightly cleaner than GFP_ZERO.
 
-So these barriers are definitely needed.
+-Andi
 
-Thanks,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+>
+> Signed-off-by: Zachary Amsden <zach@vmware.com>
+> Index: linux-2.6.14-rc1/arch/i386/kernel/smpboot.c
+> ===================================================================
+> --- linux-2.6.14-rc1.orig/arch/i386/kernel/smpboot.c	2005-09-20
+> 20:38:22.000000000 -0700 +++
+> linux-2.6.14-rc1/arch/i386/kernel/smpboot.c	2005-09-28 12:54:08.000000000
+> -0700 @@ -898,7 +898,8 @@ static int __devinit do_boot_cpu(int api
+>  	 * This grunge runs the startup process for
+>  	 * the targeted processor.
+>  	 */
+> -	cpu_gdt_descr[cpu].address = __get_free_page(GFP_KERNEL|__GFP_ZERO);
+> +	if (!cpu_gdt_descr[cpu].address)
+> +		cpu_gdt_descr[cpu].address = __get_free_page(GFP_KERNEL|__GFP_ZERO);
+>
+>  	atomic_set(&init_deasserted, 0);

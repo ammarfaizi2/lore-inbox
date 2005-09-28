@@ -1,22 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751038AbVI1Vyk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751041AbVI1Vyk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751038AbVI1Vyk (ORCPT <rfc822;willy@w.ods.org>);
+	id S1751041AbVI1Vyk (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 28 Sep 2005 17:54:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751041AbVI1VyG
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751068AbVI1VyC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 17:54:06 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:33285 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1751038AbVI1Vx2 (ORCPT
+	Wed, 28 Sep 2005 17:54:02 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:34565 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1751041AbVI1Vxd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 17:53:28 -0400
-Date: Wed, 28 Sep 2005 17:50:49 -0400
+	Wed, 28 Sep 2005 17:53:33 -0400
+Date: Wed, 28 Sep 2005 17:50:51 -0400
 From: "John W. Linville" <linville@tuxdriver.com>
-To: linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       linux-ia64@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Cc: ak@suse.de, tony.luck@intel.com, Asit.K.Mallick@intel.com, gregkh@suse.de
-Subject: [patch 2.6.14-rc2 2/6] swiotlb: cleanup some code duplication cruft
-Message-ID: <09282005175049.10217@bilbo.tuxdriver.com>
-In-Reply-To: <09282005175048.10153@bilbo.tuxdriver.com>
+To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Cc: jgarzik@pobox.com, leonid.grossman@neterion.com
+Subject: [patch 2.6.14-rc2 0/2] minor cleanups for s2io
+Message-ID: <09282005175051.10698@bilbo.tuxdriver.com>
 User-Agent: PatchPost/0.1
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -24,96 +22,11 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The implementations of swiotlb_sync_single_for_{cpu,device} are
-identical. Likewise for swiotlb_syng_sg_for_{cpu,device}. This patch
-move the guts of those functions to two new inline functions, and
-calls the appropriate one from the bodies of those functions.
+A couple of minor cleanups for the s2io driver:
 
-Signed-off-by: John W. Linville <linville@tuxdriver.com>
----
+	-- Use the target length as the third argument to strncpy
+	in s2io_ethtool_gdrvinfo()
 
- lib/swiotlb.c |   45 ++++++++++++++++++++++-----------------------
- 1 files changed, 22 insertions(+), 23 deletions(-)
+	-- Add a MODULE_VERSION entry
 
-diff --git a/lib/swiotlb.c b/lib/swiotlb.c
---- a/lib/swiotlb.c
-+++ b/lib/swiotlb.c
-@@ -492,9 +492,9 @@ swiotlb_unmap_single(struct device *hwde
-  * address back to the card, you must first perform a
-  * swiotlb_dma_sync_for_device, and then the device again owns the buffer
-  */
--void
--swiotlb_sync_single_for_cpu(struct device *hwdev, dma_addr_t dev_addr,
--			    size_t size, int dir)
-+static inline void
-+swiotlb_sync_single(struct device *hwdev, dma_addr_t dev_addr,
-+		    size_t size, int dir)
- {
- 	char *dma_addr = phys_to_virt(dev_addr);
- 
-@@ -507,17 +507,17 @@ swiotlb_sync_single_for_cpu(struct devic
- }
- 
- void
-+swiotlb_sync_single_for_cpu(struct device *hwdev, dma_addr_t dev_addr,
-+			    size_t size, int dir)
-+{
-+	swiotlb_sync_single(hwdev, dev_addr, size, dir);
-+}
-+
-+void
- swiotlb_sync_single_for_device(struct device *hwdev, dma_addr_t dev_addr,
- 			       size_t size, int dir)
- {
--	char *dma_addr = phys_to_virt(dev_addr);
--
--	if (dir == DMA_NONE)
--		BUG();
--	if (dma_addr >= io_tlb_start && dma_addr < io_tlb_end)
--		sync_single(hwdev, dma_addr, size, dir);
--	else if (dir == DMA_FROM_DEVICE)
--		mark_clean(dma_addr, size);
-+	swiotlb_sync_single(hwdev, dev_addr, size, dir);
- }
- 
- /*
-@@ -594,9 +594,9 @@ swiotlb_unmap_sg(struct device *hwdev, s
-  * The same as swiotlb_sync_single_* but for a scatter-gather list, same rules
-  * and usage.
-  */
--void
--swiotlb_sync_sg_for_cpu(struct device *hwdev, struct scatterlist *sg,
--			int nelems, int dir)
-+static inline void
-+swiotlb_sync_sg(struct device *hwdev, struct scatterlist *sg,
-+		int nelems, int dir)
- {
- 	int i;
- 
-@@ -610,18 +610,17 @@ swiotlb_sync_sg_for_cpu(struct device *h
- }
- 
- void
-+swiotlb_sync_sg_for_cpu(struct device *hwdev, struct scatterlist *sg,
-+			int nelems, int dir)
-+{
-+	swiotlb_sync_sg(hwdev, sg, nelems, dir);
-+}
-+
-+void
- swiotlb_sync_sg_for_device(struct device *hwdev, struct scatterlist *sg,
- 			   int nelems, int dir)
- {
--	int i;
--
--	if (dir == DMA_NONE)
--		BUG();
--
--	for (i = 0; i < nelems; i++, sg++)
--		if (sg->dma_address != SG_ENT_PHYS_ADDRESS(sg))
--			sync_single(hwdev, (void *) sg->dma_address,
--				    sg->dma_length, dir);
-+	swiotlb_sync_sg(hwdev, sg, nelems, dir);
- }
- 
- int
+Patches to follow...

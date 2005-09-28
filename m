@@ -1,65 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750989AbVI1VrI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750992AbVI1VrT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750989AbVI1VrI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 17:47:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750992AbVI1VrI
+	id S1750992AbVI1VrT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 17:47:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750991AbVI1VrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 17:47:08 -0400
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:40151 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S1750989AbVI1VrH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 17:47:07 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: David Brownell <david-b@pacbell.net>
-Subject: Re: [linux-usb-devel] Re: 2.6.13-mm2
-Date: Wed, 28 Sep 2005 23:47:29 +0200
-User-Agent: KMail/1.8.2
-Cc: daniel.ritz@gmx.ch, torvalds@osdl.org,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       hugh@veritas.com, akpm@osdl.org
-References: <20050908053042.6e05882f.akpm@osdl.org> <200509282245.30410.daniel.ritz@gmx.ch> <20050928210717.5CF71E372B@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
-In-Reply-To: <20050928210717.5CF71E372B@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200509282347.30586.rjw@sisk.pl>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 28 Sep 2005 17:47:19 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:17929 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1750992AbVI1VrS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 17:47:18 -0400
+Date: Wed, 28 Sep 2005 14:43:07 -0700
+Message-Id: <200509282143.j8SLh7dY032231@zach-dev.vmware.com>
+Subject: [PATCH 2/3] Pnp bios gdt fix
+From: Zachary Amsden <zach@vmware.com>
+To: Linus Torvalds <torvalds@osdl.org>, Jeffrey Sheldon <jeffshel@vmware.com>,
+       Ole Agesen <agesen@vmware.com>, Shai Fultheim <shai@scalex86.org>,
+       Andrew Morton <akpm@odsl.org>, Jack Lo <jlo@vmware.com>,
+       Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       Chris Wright <chrisw@osdl.org>, Martin Bligh <mbligh@mbligh.org>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>, Andi Kleen <ak@muc.de>,
+       Zachary Amsden <zach@vmware.com>
+X-OriginalArrivalTime: 28 Sep 2005 21:43:08.0073 (UTC) FILETIME=[9D642190:01C5C475]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+PnP BIOS for x86 is part of drivers, so I missed it in the initial
+GDT page alignment patch.  Kudos to Andrew for fixing that.
+Unfortunately, fixing the build introduced a kernel panic when
+trying to setup the as of yet unallocated GDTs for the APs.
+This fixes the problem by setting only the BSP's GDT, then copying
+the PnP segments back to the cpu_gdt_table template.
 
-On Wednesday, 28 of September 2005 23:07, David Brownell wrote:
-> > > > ok. i didn't look too close, but i think ohci-hcd does not fully disable
-> > > > interrupts in it's suspend callback...needs a closer look.
-> > > > cc:ing linux-usb-devel...
-> > > 
-> > > It's handled in hcd-pci.c ... All PCI based HCDs release their IRQs
-> > > when they suspend.  Including OHCI.  Your diagnosis is incorrect.
-> >
-> > would you be kind enough to tell me where?
-> 
-> There's only one free_irq() line, and it gets called the first time
-> through usb_hcd_pci_suspend().  QED.
-> 
-> 
-> > my point is: the test patch i sent to rafael which comments out the
-> > free_irq-on-suspend thing in hcd-pci.c shows that something is wrong with
-> > USB (i think only OHCI. UHCI looks ok and about EHCI i have no data). 
-> 
-> Your logic escapes me, since your patch affected all three PCI HCDs.
-> If that's wrong for one, its wrong for all three.
-> 
-> And as I just commented to Rafael, here are two better things to try
-> instead of believing a diagnosis that's clearly wrong:
-> 
->   - 2.6.14-rc2
-
-This one works obviously, as it contains the patch that adds acpi_pci_link_resume()
-(http://www.ussg.iu.edu/hypermail/linux/kernel/0507.3/2234.html).  The patch is
-not present in -mm though, AFAIK, so I can test the latest one, if you want me to,
-but I think it won't work.
-
-Greetings,
-Rafael
+Signed-off-by: Zachary Amsden <zach@vmware.com>
+Index: linux-2.6.14-rc2/drivers/pnp/pnpbios/bioscalls.c
+===================================================================
+--- linux-2.6.14-rc2.orig/drivers/pnp/pnpbios/bioscalls.c	2005-09-28 14:16:34.000000000 -0700
++++ linux-2.6.14-rc2/drivers/pnp/pnpbios/bioscalls.c	2005-09-28 14:23:57.000000000 -0700
+@@ -528,17 +528,24 @@ static int pnp_bios_write_escd(char *dat
+ 
+ void pnpbios_calls_init(union pnp_bios_install_struct *header)
+ {
+-	int i;
+ 	spin_lock_init(&pnp_bios_lock);
+ 	pnp_bios_callpoint.offset = header->fields.pm16offset;
+ 	pnp_bios_callpoint.segment = PNP_CS16;
+ 
+ 	set_base(bad_bios_desc, __va((unsigned long)0x40 << 4));
+ 	_set_limit((char *)&bad_bios_desc, 4095 - (0x40 << 4));
+-	for(i=0; i < NR_CPUS; i++)
+-	{
+-		Q2_SET_SEL(i, PNP_CS32, &pnp_bios_callfunc, 64 * 1024);
+-		Q_SET_SEL(i, PNP_CS16, header->fields.pm16cseg, 64 * 1024);
+-		Q_SET_SEL(i, PNP_DS, header->fields.pm16dseg, 64 * 1024);
+-	}
++
++	/*
++	 * This is awkward; GDT entries needed for this driver must
++	 * be set during init on the BSP, but also copied into the
++	 * cpu_gdt_table template for the APs to acquire.  This is
++	 * because APs will not have allocated GDTs until later in
++	 * the boot process.
++	 */
++	Q2_SET_SEL(0, PNP_CS32, &pnp_bios_callfunc, 64 * 1024);
++	Q_SET_SEL(0, PNP_CS16, header->fields.pm16cseg, 64 * 1024);
++	Q_SET_SEL(0, PNP_DS, header->fields.pm16dseg, 64 * 1024);
++	memcpy(&cpu_gdt_table[GDT_ENTRY_PNPBIOS_BASE],
++		&get_cpu_gdt_table(0)[GDT_ENTRY_PNPBIOS_BASE],
++		3 * sizeof(struct desc_struct));
+ }

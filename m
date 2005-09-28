@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbVI1TFT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbVI1TIC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750716AbVI1TFT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 15:05:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750719AbVI1TFS
+	id S1750719AbVI1TIC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 15:08:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbVI1TIC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 15:05:18 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:63379 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1750716AbVI1TFR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 15:05:17 -0400
-Date: Wed, 28 Sep 2005 12:04:31 -0700
-From: Paul Jackson <pj@sgi.com>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: torvalds@osdl.org, kurosawa@valinux.co.jp, taka@valinux.co.jp,
-       magnus.damm@gmail.com, dino@in.ibm.com, linux-kernel@vger.kernel.org,
-       ckrm-tech@lists.sourceforge.net, akpm@osdl.org
-Subject: Re: [ckrm-tech] Re: [PATCH] cpuset read past eof memory leak fix
-Message-Id: <20050928120431.2a7323b8.pj@sgi.com>
-In-Reply-To: <Pine.LNX.4.58.0509281102330.14803@shark.he.net>
-References: <20050908225539.0bc1acf6.pj@sgi.com>
-	<20050909.203849.33293224.taka@valinux.co.jp>
-	<20050909063131.64dc8155.pj@sgi.com>
-	<20050910.161145.74742186.taka@valinux.co.jp>
-	<20050910015209.4f581b8a.pj@sgi.com>
-	<20050926093432.9975870043@sv1.valinux.co.jp>
-	<20050927013751.47cbac8b.pj@sgi.com>
-	<20050927113902.C78A570046@sv1.valinux.co.jp>
-	<20050928092558.61F6170041@sv1.valinux.co.jp>
-	<20050928064224.49170ca7.pj@sgi.com>
-	<Pine.LNX.4.58.0509280758560.3308@g5.osdl.org>
-	<20050928105316.0684c7cf.pj@sgi.com>
-	<Pine.LNX.4.58.0509281102330.14803@shark.he.net>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Wed, 28 Sep 2005 15:08:02 -0400
+Received: from wproxy.gmail.com ([64.233.184.193]:24382 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750719AbVI1TIA convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 15:08:00 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=tEStYGJ12rAR44QKqI3hcd6C9X8CrABTpB5FAXuU/Ua+WF3iUK8mbXVxLOp8V9IEgzBW3pI1jgDWCUuVCDVrJcP9FDxLDAoGCq2f/HJEKc+0iBgBT/PnceacUXnIxnlIYWLE9/gFy9ZeIhV+A9euHhpxNWibnLPjhr8rtXIFCRQ=
+Message-ID: <b41d010d05092812079475644@mail.gmail.com>
+Date: Wed, 28 Sep 2005 12:07:59 -0700
+From: Carlo Calica <ccalica@gmail.com>
+Reply-To: Carlo Calica <ccalica@gmail.com>
+To: Paul Blazejowski <paulb@blazebox.homeip.net>
+Subject: Re: 2.6.14-rc2-mm1
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       xorg@lists.freedesktop.org
+In-Reply-To: <20050928045630.GA9960@blazebox.homeip.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050925220037.GA8776@blazebox.homeip.net>
+	 <20050925164421.75c734d2.akpm@osdl.org>
+	 <20050928045630.GA9960@blazebox.homeip.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Paul, did you see Linus's email on the canonical patch format?
+On 9/27/05, Paul Blazejowski <paulb@blazebox.homeip.net> wrote:
+> No 2.6.12 is not OK. I don't think there's any regression between the
+> recent kernels. It just does not work on 3 of them i tried so far.
+>
 
-I had just found it in my archives, a few minutes earlier.  Thanks!
+Another data point:
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+I'm unable to reproduce on a PATA install.  Specifically, booting on a
+PATA HD with sata_nv as a module.  When booting on a SATA HD with
+sata_nv compiled in, I get the race.  Setting irq 1,5 (keyboard and
+libata) handlers to cpu0 affinity and X affinity to cpu0 solves the
+problem.
+
+I haven't had time to try booting SATA with sata_nv as a module in initrd.
+
+--
+Carlo J. Calica

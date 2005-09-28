@@ -1,49 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbVI1TSy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbVI1T3f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750736AbVI1TSy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 15:18:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750738AbVI1TSx
+	id S1750731AbVI1T3f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 15:29:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbVI1T3f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 15:18:53 -0400
-Received: from mx2.suse.de ([195.135.220.15]:54695 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750736AbVI1TSx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 15:18:53 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [PATCH][Fix][Resend] Fix Bug #4959: Page tables corrupted during resume on x86-64 (take 3)
-Date: Wed, 28 Sep 2005 21:18:54 +0200
-User-Agent: KMail/1.8.2
-Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>, discuss@x86-64.org
-References: <200509281624.29256.rjw@sisk.pl>
-In-Reply-To: <200509281624.29256.rjw@sisk.pl>
+	Wed, 28 Sep 2005 15:29:35 -0400
+Received: from web34114.mail.mud.yahoo.com ([66.163.178.112]:24707 "HELO
+	web34114.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750731AbVI1T3f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 15:29:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=NBx67W+Bn00fHThIaTgrOdML9TDAoJPLrc4Uqwa0Gvdh798yANIXjnyypkWOPiU7JQtOGHQ7xjwKu3e2UEH7KZdvUPG1MeN258l4TuasE6Ya6tNTILmwFv7p5LujqGY9bEO2vWwlBqhicgF50YSz9uAmQ/BkB4NXFIfNtZZp4hE=  ;
+Message-ID: <20050928192934.56067.qmail@web34114.mail.mud.yahoo.com>
+Date: Wed, 28 Sep 2005 12:29:34 -0700 (PDT)
+From: Wilson Li <yongshenglee@yahoo.com>
+Subject: Slow loading big kernel module in 2.6 on PPC platform
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200509282118.54670.ak@suse.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 28 September 2005 16:24, Rafael J. Wysocki wrote:
-> Hi,
->
-> The following patch fixes Bug #4959.  For this purpose it creates temporary
-> page translation tables including the kernel mapping (reused) and the
-> direct mapping (created from scratch) and makes swsusp switch to these
-> tables right before the image is restored.
->
-> The code that generates the direct mapping is based on the code in
-> arch/x86_64/mm/init.c.
+Hi,
 
-Looks much better than before, but is there any reason you cannot
-share the code with the mm/init.c code?
+I am trying to port several third party kernel modules from kernel
+2.4 to 2.6 on a ppc (MPC824x) platform. For small size of modules, it
+works perfectly in 2.6. But there's one huge kernel module which size
+is about 2.7M bytes (size reported by lsmod after insmod), and it
+takes about 90 seconds to load this module before init_module starts.
+I did not notice there's such obvious delay in 2.4 kernel.
 
-Also Suresh S. has a patch out to turn the initial page tables
-into initdata. It'll probably conflict with that. Needs to be coordinated
-with him.
+Initially I suspected there might be a problem of the insmod of
+busybox I was using. I switched to module-init-tools-3.1 insmod. It
+didn't help. I also tried other things like disabling CONFIG_KALLSYMS
+and commenting out all the EXPORT_SYMBOLs in that module. Nothing
+works so far. I've not been able to find any relevant thread about
+slow loading of big kernel module on PPC platform.
 
--Andi
+Is this related to the new way of loading kernel module in 2.6 or
+vmalloc since the kernel module also needs contiguous memory? I am
+running 2.6.8 kernel on a ppc platform (MPC824x) with 24M bytes
+memory visible to kernel. Two small kernel modules are loaded first
+through shell command right after system boots up. And there are
+about 10M bytes free memory left before loading this big chunk. The
+memory seems big enough to me and memory is not that fragmented since
+it just boots up. 
 
+Any suggestions?
+
+Thanks a lot,
+Wilson Li
+
+
+
+
+
+
+		
+__________________________________ 
+Yahoo! Mail - PC Magazine Editors' Choice 2005 
+http://mail.yahoo.com

@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751013AbVI1Vwr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751046AbVI1VxT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751013AbVI1Vwr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 17:52:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751005AbVI1Vwr
+	id S1751046AbVI1VxT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 17:53:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751030AbVI1Vwt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 17:52:47 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:28165 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1751013AbVI1Vwo (ORCPT
+	Wed, 28 Sep 2005 17:52:49 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:28421 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1751015AbVI1Vwq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 17:52:44 -0400
-Date: Wed, 28 Sep 2005 17:50:47 -0400
+	Wed, 28 Sep 2005 17:52:46 -0400
+Date: Wed, 28 Sep 2005 17:50:50 -0400
 From: "John W. Linville" <linville@tuxdriver.com>
 To: linux-kernel@vger.kernel.org, discuss@x86-64.org,
        linux-ia64@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
 Cc: ak@suse.de, tony.luck@intel.com, Asit.K.Mallick@intel.com, gregkh@suse.de
-Subject: [patch 2.6.14-rc2 0/6] swiotlb maintenance and x86_64 dma_sync_single_range_for_{cpu,device}
-Message-ID: <09282005175047.10096@bilbo.tuxdriver.com>
-In-Reply-To: <12c511ca050926194784b63e5@mail.gmail.com>
+Subject: [patch 2.6.14-rc2 5/6] swiotlb: file header comments
+Message-ID: <09282005175050.10409@bilbo.tuxdriver.com>
+In-Reply-To: <09282005175049.10344@bilbo.tuxdriver.com>
 User-Agent: PatchPost/0.1
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -24,25 +24,36 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Conduct some maintenance of the swiotlb code:
+Change comment at top of swiotlb.c to reflect that the code is shared
+with EM64T (i.e. Intel x86_64). Also add an entry for myself so that
+if I "broke it", everyone knows who "bought it"... :-)
 
-	-- Move the code from arch/ia64/lib/ to lib/
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
 
-	-- Cleanup some cruft (code duplication)
+ lib/swiotlb.c |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
 
-	-- Add support for syncing sub-ranges of mappings
-
-	-- Add support for syncing DMA_BIDIRECTIONAL mappings
-
-	-- Comment fixup & change record
-
-Also, tack-on an x86_64 implementation of dma_sync_single_range_for_cpu
-and dma_sync_single_range_for _device.  This makes use of the new
-swiotlb sync sub-range support.
-
-In this (third) round, the new location for swiotlb is (again) lib/swiotlb.c.
-
-This set does NOT include the PCI excision that Tony Luck started after the
-last round of discussion.
-
-Patches to follow...
+diff --git a/lib/swiotlb.c b/lib/swiotlb.c
+--- a/lib/swiotlb.c
++++ b/lib/swiotlb.c
+@@ -1,7 +1,7 @@
+ /*
+  * Dynamic DMA mapping support.
+  *
+- * This implementation is for IA-64 platforms that do not support
++ * This implementation is for IA-64 and EM64T platforms that do not support
+  * I/O TLBs (aka DMA address translation hardware).
+  * Copyright (C) 2000 Asit Mallick <Asit.K.Mallick@intel.com>
+  * Copyright (C) 2000 Goutham Rao <goutham.rao@intel.com>
+@@ -11,7 +11,9 @@
+  * 03/05/07 davidm	Switch from PCI-DMA to generic device DMA API.
+  * 00/12/13 davidm	Rename to swiotlb.c and add mark_clean() to avoid
+  *			unnecessary i-cache flushing.
+- * 04/07/.. ak          Better overflow handling. Assorted fixes.
++ * 04/07/.. ak		Better overflow handling. Assorted fixes.
++ * 05/09/10 linville	Add support for syncing ranges, support syncing for
++ *			DMA_BIDIRECTIONAL mappings, miscellaneous cleanup.
+  */
+ 
+ #include <linux/cache.h>

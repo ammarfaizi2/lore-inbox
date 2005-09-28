@@ -1,67 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751157AbVI1W5H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbVI1XFT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751157AbVI1W5H (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 18:57:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751156AbVI1W5H
+	id S1751161AbVI1XFT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 19:05:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbVI1XFT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 18:57:07 -0400
-Received: from astound-64-85-224-245.ca.astound.net ([64.85.224.245]:62988
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S1751150AbVI1W5F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 18:57:05 -0400
-Date: Wed, 28 Sep 2005 15:43:41 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Luben Tuikov <luben_tuikov@adaptec.com>
-cc: Patrick Mansfield <patmans@us.ibm.com>, Luben Tuikov <ltuikov@yahoo.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
- the kernel
-In-Reply-To: <433B0374.4090100@adaptec.com>
-Message-ID: <Pine.LNX.4.10.10509281530190.19896-100000@master.linux-ide.org>
+	Wed, 28 Sep 2005 19:05:19 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:19475 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1751161AbVI1XFQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 19:05:16 -0400
+Message-ID: <433B217C.2050407@vmware.com>
+Date: Wed, 28 Sep 2005 16:04:28 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andi Kleen <ak@suse.de>
+Cc: virtualization@lists.osdl.org, Linus Torvalds <torvalds@osdl.org>,
+       Jeffrey Sheldon <jeffshel@vmware.com>, Ole Agesen <agesen@vmware.com>,
+       Shai Fultheim <shai@scalex86.org>, Andrew Morton <akpm@odsl.org>,
+       Jack Lo <jlo@vmware.com>, Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@osdl.org>, Martin Bligh <mbligh@mbligh.org>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>, Andi Kleen <ak@muc.de>
+Subject: Re: [PATCH 3/3] Gdt hotplug
+References: <200509282144.j8SLi53a032237@zach-dev.vmware.com> <200509290015.02973.ak@suse.de>
+In-Reply-To: <200509290015.02973.ak@suse.de>
+Content-Type: multipart/mixed;
+ boundary="------------000309020106030106000404"
+X-OriginalArrivalTime: 28 Sep 2005 23:04:28.0626 (UTC) FILETIME=[FA6D6B20:01C5C480]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------000309020106030106000404
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Wed, 28 Sep 2005, Luben Tuikov wrote:
+Andi Kleen wrote:
 
-> On 09/28/05 15:45, Andre Hedrick wrote:
-> > Luben, I have a vested interest in seeing SAS run via SCSI.  So this means
-> > you have one ex-demi-god from the world of maintainers looking to pull you
-> > have towards the current path and open to ideas and willing to back a
-> > better design and push it.
-> 
-> Ok, thanks Andre.  Much appreciated.
+>On Wednesday 28 September 2005 23:44, Zachary Amsden wrote:
+>  
+>
+>>As suggested by Andi Kleen, don't allocate a GDT page if there is already
+>>one present.  Needed for CPU hotplug.
+>>    
+>>
+>
+>Did I really suggest that? I think I suggested checking the return
+>value of gfp. Also get_zeroed_page() is slightly cleaner than GFP_ZERO.
+>  
+>
 
-Luben,
+Then I think this looks better all around.
 
-I have a vested interest in the improvement of the Linux SCSI Core and
-wider adoption and support for SATA II and SAS controllers with their
-associated domains and transport.
 
-> You are the first person to back me up _publicly_.  Now if we
-> can find a person from "the community" to do that, and get all
-> the other people who've written me _privately_, we'd be in
-> good shape.
+--------------000309020106030106000404
+Content-Type: text/plain;
+ name="gdt-hotplug"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="gdt-hotplug"
 
-Proving a better design with a migration path for integration is the key
-for success; however, I am not the person to be the political voice in the
-process.  People will disagree in the process and the only counter to
-remove blockage/adoption is in code.
-
-James is king of the hill, and is reasonable to a point.  James also
-follows a model of generalization v/s specific design.  Argh, this is not
-going to be an easy one to explain or back away from now.  Erm, inclusive
-API design is where I am wanting to go with this thought.
-
-Have you and company considered the approach of mapping to a library of
-sorts?
-
-Cheers,
-
-Andre
-
+QXMgc3VnZ2VzdGVkIGJ5IEFuZGkgS2xlZW4sIGRvbid0IGFsbG9jYXRlIGEgR0RUIHBhZ2Ug
+aWYgdGhlcmUgaXMgYWxyZWFkeSBvbmUKcHJlc2VudC4gIE5lZWRlZCBmb3IgQ1BVIGhvdHBs
+dWcuCgpTaWduZWQtb2ZmLWJ5OiBaYWNoYXJ5IEFtc2RlbiA8emFjaEB2bXdhcmUuY29tPgpJ
+bmRleDogbGludXgtMi42LjE0LXJjMi9hcmNoL2kzODYva2VybmVsL3NtcGJvb3QuYwo9PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09Ci0tLSBsaW51eC0yLjYuMTQtcmMyLm9yaWcvYXJjaC9pMzg2L2tlcm5lbC9z
+bXBib290LmMJMjAwNS0wOS0yOCAxNTo0OToyNi4wMDAwMDAwMDAgLTA3MDAKKysrIGxpbnV4
+LTIuNi4xNC1yYzIvYXJjaC9pMzg2L2tlcm5lbC9zbXBib290LmMJMjAwNS0wOS0yOCAxNjow
+MDo1NS4wMDAwMDAwMDAgLTA3MDAKQEAgLTg3NCw2ICs4NzQsMTIgQEAgc3RhdGljIGludCBf
+X2RldmluaXQgZG9fYm9vdF9jcHUoaW50IGFwaQogCXVuc2lnbmVkIGxvbmcgc3RhcnRfZWlw
+OwogCXVuc2lnbmVkIHNob3J0IG5taV9oaWdoID0gMCwgbm1pX2xvdyA9IDA7CiAKKwlpZiAo
+IWNwdV9nZHRfZGVzY3JbY3B1XS5hZGRyZXNzICYmCisJICAgICEoY3B1X2dkdF9kZXNjcltj
+cHVdLmFkZHJlc3MgPSBnZXRfemVyb2VkX3BhZ2UoR0ZQX0tFUk5FTCkpKSB7CisJCXByaW50
+aygiRmFpbGVkIHRvIGFsbG9jYXRlIEdEVCBmb3IgQ1BVICVkXG4iLCBjcHUpOworCQlyZXR1
+cm4gMTsKKwl9CisKIAkrK2NwdWNvdW50OwogCiAJLyoKQEAgLTg5OCw4ICs5MDQsNiBAQCBz
+dGF0aWMgaW50IF9fZGV2aW5pdCBkb19ib290X2NwdShpbnQgYXBpCiAJICogVGhpcyBncnVu
+Z2UgcnVucyB0aGUgc3RhcnR1cCBwcm9jZXNzIGZvcgogCSAqIHRoZSB0YXJnZXRlZCBwcm9j
+ZXNzb3IuCiAJICovCi0JY3B1X2dkdF9kZXNjcltjcHVdLmFkZHJlc3MgPSBfX2dldF9mcmVl
+X3BhZ2UoR0ZQX0tFUk5FTHxfX0dGUF9aRVJPKTsKLQogCWF0b21pY19zZXQoJmluaXRfZGVh
+c3NlcnRlZCwgMCk7CiAKIAlEcHJpbnRrKCJTZXR0aW5nIHdhcm0gcmVzZXQgY29kZSBhbmQg
+dmVjdG9yLlxuIik7Cg==
+--------------000309020106030106000404--

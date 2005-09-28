@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751432AbVI1Qmr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751429AbVI1Qmw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751432AbVI1Qmr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 12:42:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751429AbVI1Qmq
+	id S1751429AbVI1Qmw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 12:42:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751422AbVI1Qmw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 12:42:46 -0400
-Received: from dspnet.fr.eu.org ([213.186.44.138]:7688 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S1751423AbVI1Qmq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 12:42:46 -0400
-Date: Wed, 28 Sep 2005 18:42:37 +0200
-From: Olivier Galibert <galibert@pobox.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       "Hack inc." <linux-kernel@vger.kernel.org>
-Subject: Re: Infinite interrupt loop, INTSTAT = 0
-Message-ID: <20050928164237.GA40806@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	James Bottomley <James.Bottomley@SteelEye.com>,
-	SCSI Mailing List <linux-scsi@vger.kernel.org>,
-	"Hack inc." <linux-kernel@vger.kernel.org>
-References: <20050928134514.GA19734@dspnet.fr.eu.org> <1127919909.4852.7.camel@mulgrave> <20050928160744.GA37975@dspnet.fr.eu.org> <1127924686.4852.11.camel@mulgrave>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 28 Sep 2005 12:42:52 -0400
+Received: from qproxy.gmail.com ([72.14.204.207]:54801 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751429AbVI1Qmv convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 12:42:51 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=uTS7JNRIdFBmg2dpf1EMmW+ieIMQ0iPG6zzGUeYtHuAxU/RWsc8KHX6+HnIepJH8sFPa85dIsCWUclN98j0RUz8m86s/w/RgggOrY8fz3Lo0MGZH26qbJHbQQ7OUyFt0J3yGc1boj5GUvyNmqP65guiG3cC6SQcyZqMFiJdaAI4=
+Message-ID: <98b62faa05092809423ac837bc@mail.gmail.com>
+Date: Wed, 28 Sep 2005 09:42:50 -0700
+From: <iodophlymiaelo@gmail.com>
+Reply-To: iodophlymiaelo@gmail.com
+To: "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>
+Subject: Re: raw aio write guarantee
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200509280923.j8S9Nkgq028579@turing-police.cc.vt.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1127924686.4852.11.camel@mulgrave>
-User-Agent: Mutt/1.4.2.1i
+References: <98b62faa050928001275d28771@mail.gmail.com>
+	 <200509280757.j8S7vmjB023730@turing-police.cc.vt.edu>
+	 <98b62faa050928015677d7253b@mail.gmail.com>
+	 <200509280923.j8S9Nkgq028579@turing-police.cc.vt.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 28, 2005 at 11:24:46AM -0500, James Bottomley wrote:
-> On Wed, 2005-09-28 at 18:07 +0200, Olivier Galibert wrote:
-> > scsi1:0:0:0: Attempting to abort cmd ffff8101b1cdf880: 0x28 0x0 0x0
-> > 0xbc 0x0 0x3f 0x0 0x0 0x8 0x0
-> 
-> Hmm, that message doesn't appear in the current kernel driver.
-> 
-> Is this a non-standard kernel or non-standard aic79xx driver?
+On 9/28/05, Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
+> On Wed, 28 Sep 2005 01:56:05 PDT, iodophlymiaelo@gmail.com said:
+>
+> > I was asking what a user-application can do to prevent data loss, not
+> > an application-user.
+>
+> Right.  However, if you actually care about the distinction between "made it
+> to the disk cache" and "made it to the platter", those are things you'll
+> want to address - in particular, if you have one of the evil disk drives
+> I mentioned, there's very little a user application can do to work around it.
+>
 
-Hmmm, indeed, a leftover from when I was trying to debug some things
-(a message in ahd_linux_abort).  Lemme recompile a perfectly vanilla
-2.6.13.2.
-
-  OG.
+Erm, is the hardware problem really as great as you're implying? Have you
+personally encountered any bad drives made by reputable brands? Mostly I've
+only heard only of people crying wolf and then realizing it was a problem with
+their reasoning or with the assumption that fsync() actually works properly on
+kernel X, where X doesn't even have to be that ancient a version of linux ;-)

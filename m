@@ -1,36 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbVI1RKG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbVI1RLD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750803AbVI1RKG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 13:10:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbVI1RKF
+	id S1750863AbVI1RLD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 13:11:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbVI1RLB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 13:10:05 -0400
-Received: from quechua.inka.de ([193.197.184.2]:21171 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S1750803AbVI1RKE (ORCPT
+	Wed, 28 Sep 2005 13:11:01 -0400
+Received: from dspnet.fr.eu.org ([213.186.44.138]:26374 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S1750863AbVI1RLA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 13:10:04 -0400
-From: Andreas Jellinghaus <aj@dungeon.inka.de>
-To: Emmanuel Fleury <fleury@cs.aau.dk>
-Subject: Re: [ANNOUNCE] Framework for automatic Configuration of a Kernel
-Date: Wed, 28 Sep 2005 19:11:05 +0200
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <20050927125300.24574.qmail@web51014.mail.yahoo.com> <20050928084206.38991212C7@dungeon.inka.de> <433A5879.3050201@cs.aau.dk>
-In-Reply-To: <433A5879.3050201@cs.aau.dk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 28 Sep 2005 13:11:00 -0400
+Date: Wed, 28 Sep 2005 19:10:52 +0200
+From: Olivier Galibert <galibert@pobox.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       "Hack inc." <linux-kernel@vger.kernel.org>
+Subject: Re: Infinite interrupt loop, INTSTAT = 0
+Message-ID: <20050928171052.GA45082@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	James Bottomley <James.Bottomley@SteelEye.com>,
+	SCSI Mailing List <linux-scsi@vger.kernel.org>,
+	"Hack inc." <linux-kernel@vger.kernel.org>
+References: <20050928134514.GA19734@dspnet.fr.eu.org> <1127919909.4852.7.camel@mulgrave> <20050928160744.GA37975@dspnet.fr.eu.org> <1127924686.4852.11.camel@mulgrave>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200509281911.05365.aj@dungeon.inka.de>
+In-Reply-To: <1127924686.4852.11.camel@mulgrave>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-as far as I know it is only informative - and most
-likely not used by kernel source probing.
-the values in it might be as well wrong.
+On Wed, Sep 28, 2005 at 11:24:46AM -0500, James Bottomley wrote:
+> On Wed, 2005-09-28 at 18:07 +0200, Olivier Galibert wrote:
+> > scsi1:0:0:0: Attempting to abort cmd ffff8101b1cdf880: 0x28 0x0 0x0
+> > 0xbc 0x0 0x3f 0x0 0x0 0x8 0x0
+> 
+> Hmm, that message doesn't appear in the current kernel driver.
+> 
+> Is this a non-standard kernel or non-standard aic79xx driver?
 
-but I'm only guessing, I'm a user, not a kernel
-developer.
+Just reproduced the exact same message with a vanilla 2.6.13.2.
+Checking the just-untarred sources, it _is_ in aix79xx_osm.c, in
+ahd_linux_abort.  You must have typoed "Attempting" in your grep :-)
 
-Andreas
+Want be to try to BUG() it or something to get a stack trace?  The
+crash happens a handful of seconds after the card dumping, time enough
+for a well-placed dmesg in an xterm.
+
+Incidentally, how can one get a backtrace without crashing the kernel
+in the operation?
+
+  OG.
+

@@ -1,22 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751002AbVI1Vwp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751037AbVI1VxV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751002AbVI1Vwp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 17:52:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751005AbVI1Vwp
+	id S1751037AbVI1VxV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 17:53:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751043AbVI1VxT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 17:52:45 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:27653 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1751002AbVI1Vwn (ORCPT
+	Wed, 28 Sep 2005 17:53:19 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:30213 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1751016AbVI1VxC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 17:52:43 -0400
-Date: Wed, 28 Sep 2005 17:50:49 -0400
+	Wed, 28 Sep 2005 17:53:02 -0400
+Date: Wed, 28 Sep 2005 17:50:51 -0400
 From: "John W. Linville" <linville@tuxdriver.com>
-To: linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       linux-ia64@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Cc: ak@suse.de, tony.luck@intel.com, Asit.K.Mallick@intel.com, gregkh@suse.de
-Subject: [patch 2.6.14-rc2 3/6] swiotlb: support syncing sub-ranges of mappings
-Message-ID: <09282005175049.10281@bilbo.tuxdriver.com>
-In-Reply-To: <09282005175049.10217@bilbo.tuxdriver.com>
+To: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Cc: gregkh@suse.de
+Subject: [patch 2.6.14-rc2] pci: cleanup need_restore switch statement
+Message-ID: <09282005175051.10635@bilbo.tuxdriver.com>
 User-Agent: PatchPost/0.1
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -24,82 +22,44 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch implements swiotlb_sync_single_range_for_{cpu,device}. This
-is intended to support an x86_64 implementation of
-dma_sync_single_range_for_{cpu,device}.
+Cleanup the need_restore switch statement in
+pci_set_power_state(). This makes it more safe by explicitly handling
+all the PCI power states instead of handling them as the default
+case. It also reads a little better IMHO.
 
 Signed-off-by: John W. Linville <linville@tuxdriver.com>
 ---
 
- include/asm-x86_64/swiotlb.h |    8 ++++++++
- lib/swiotlb.c                |   33 +++++++++++++++++++++++++++++++++
- 2 files changed, 41 insertions(+)
+ drivers/pci/pci.c |   14 +++++++-------
+ 1 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/include/asm-x86_64/swiotlb.h b/include/asm-x86_64/swiotlb.h
---- a/include/asm-x86_64/swiotlb.h
-+++ b/include/asm-x86_64/swiotlb.h
-@@ -15,6 +15,14 @@ extern void swiotlb_sync_single_for_cpu(
- extern void swiotlb_sync_single_for_device(struct device *hwdev,
- 					    dma_addr_t dev_addr,
- 					    size_t size, int dir);
-+extern void swiotlb_sync_single_range_for_cpu(struct device *hwdev,
-+					      dma_addr_t dev_addr,
-+					      unsigned long offset,
-+					      size_t size, int dir);
-+extern void swiotlb_sync_single_range_for_device(struct device *hwdev,
-+						 dma_addr_t dev_addr,
-+						 unsigned long offset,
-+						 size_t size, int dir);
- extern void swiotlb_sync_sg_for_cpu(struct device *hwdev,
- 				     struct scatterlist *sg, int nelems,
- 				     int dir);
-diff --git a/lib/swiotlb.c b/lib/swiotlb.c
---- a/lib/swiotlb.c
-+++ b/lib/swiotlb.c
-@@ -521,6 +521,37 @@ swiotlb_sync_single_for_device(struct de
- }
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -314,19 +314,19 @@ pci_set_power_state(struct pci_dev *dev,
+ 	 * sets PowerState to 0.
+ 	 */
+ 	switch (dev->current_state) {
++	case PCI_D0:
++	case PCI_D1:
++	case PCI_D2:
++		pmcsr &= ~PCI_PM_CTRL_STATE_MASK;
++		pmcsr |= state;
++		break;
+ 	case PCI_UNKNOWN: /* Boot-up */
+ 		if ((pmcsr & PCI_PM_CTRL_STATE_MASK) == PCI_D3hot
+ 		 && !(pmcsr & PCI_PM_CTRL_NO_SOFT_RESET))
+ 			need_restore = 1;
+ 		/* Fall-through: force to D0 */
+-	case PCI_D3hot:
+-	case PCI_D3cold:
+-	case PCI_POWER_ERROR:
+-		pmcsr = 0;
+-		break;
+ 	default:
+-		pmcsr &= ~PCI_PM_CTRL_STATE_MASK;
+-		pmcsr |= state;
++		pmcsr = 0;
+ 		break;
+ 	}
  
- /*
-+ * Same as above, but for a sub-range of the mapping.
-+ */
-+static inline void
-+swiotlb_sync_single_range(struct device *hwdev, dma_addr_t dev_addr,
-+			  unsigned long offset, size_t size, int dir)
-+{
-+	char *dma_addr = phys_to_virt(dev_addr) + offset;
-+
-+	if (dir == DMA_NONE)
-+		BUG();
-+	if (dma_addr >= io_tlb_start && dma_addr < io_tlb_end)
-+		sync_single(hwdev, dma_addr, size, dir);
-+	else if (dir == DMA_FROM_DEVICE)
-+		mark_clean(dma_addr, size);
-+}
-+
-+void
-+swiotlb_sync_single_range_for_cpu(struct device *hwdev, dma_addr_t dev_addr,
-+				  unsigned long offset, size_t size, int dir)
-+{
-+	swiotlb_sync_single_range(hwdev, dev_addr, offset, size, dir);
-+}
-+
-+void
-+swiotlb_sync_single_range_for_device(struct device *hwdev, dma_addr_t dev_addr,
-+				     unsigned long offset, size_t size, int dir)
-+{
-+	swiotlb_sync_single_range(hwdev, dev_addr, offset, size, dir);
-+}
-+
-+/*
-  * Map a set of buffers described by scatterlist in streaming mode for DMA.
-  * This is the scatter-gather version of the above swiotlb_map_single
-  * interface.  Here the scatter gather list elements are each tagged with the
-@@ -648,6 +679,8 @@ EXPORT_SYMBOL(swiotlb_map_sg);
- EXPORT_SYMBOL(swiotlb_unmap_sg);
- EXPORT_SYMBOL(swiotlb_sync_single_for_cpu);
- EXPORT_SYMBOL(swiotlb_sync_single_for_device);
-+EXPORT_SYMBOL_GPL(swiotlb_sync_single_range_for_cpu);
-+EXPORT_SYMBOL_GPL(swiotlb_sync_single_range_for_device);
- EXPORT_SYMBOL(swiotlb_sync_sg_for_cpu);
- EXPORT_SYMBOL(swiotlb_sync_sg_for_device);
- EXPORT_SYMBOL(swiotlb_dma_mapping_error);

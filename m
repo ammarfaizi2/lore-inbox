@@ -1,112 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751168AbVI1HDj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030195AbVI1HIw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751168AbVI1HDj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 03:03:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751184AbVI1HDj
+	id S1030195AbVI1HIw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 03:08:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751185AbVI1HIv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 03:03:39 -0400
-Received: from mailgate.urz.uni-halle.de ([141.48.3.51]:56461 "EHLO
-	mailgate.uni-halle.de") by vger.kernel.org with ESMTP
-	id S1751168AbVI1HDi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 03:03:38 -0400
-Date: Wed, 28 Sep 2005 09:03:29 +0200 (METDST)
-From: Clemens Ladisch <clemens@ladisch.de>
-To: Karsten Wiese <annabellesgarden@yahoo.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH/RFC] Enable HPET on VIA8237 southbridge
-In-Reply-To: <200509261934.03876.annabellesgarden@yahoo.de>
-Message-ID: <Pine.HPX.4.33n.0509280855190.3203-200000@studcom.urz.uni-halle.de>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="2015913978-1804928587-1127891009=:3203"
-X-Scan-Signature: a5d1d8901da1864a140957f50574c644
+	Wed, 28 Sep 2005 03:08:51 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:21654 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1751167AbVI1HIu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 03:08:50 -0400
+Date: Wed, 28 Sep 2005 00:08:39 -0700
+From: Paul Jackson <pj@sgi.com>
+To: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
+Cc: taka@valinux.co.jp, magnus.damm@gmail.com, dino@in.ibm.com,
+       linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
+Subject: Re: [ckrm-tech] Re: [PATCH 1/3] CPUMETER: add cpumeter framework to
+ the CPUSETS
+Message-Id: <20050928000839.1d659bfb.pj@sgi.com>
+In-Reply-To: <20050928062146.6038E70041@sv1.valinux.co.jp>
+References: <20050908225539.0bc1acf6.pj@sgi.com>
+	<20050909.203849.33293224.taka@valinux.co.jp>
+	<20050909063131.64dc8155.pj@sgi.com>
+	<20050910.161145.74742186.taka@valinux.co.jp>
+	<20050910015209.4f581b8a.pj@sgi.com>
+	<20050926093432.9975870043@sv1.valinux.co.jp>
+	<20050927013751.47cbac8b.pj@sgi.com>
+	<20050927113902.C78A570046@sv1.valinux.co.jp>
+	<20050927084905.7d77bdde.pj@sgi.com>
+	<20050928062146.6038E70041@sv1.valinux.co.jp>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Takahiro-san, replying to pj:
+> >                          |
+> >                       CPUSET 1a
+> >                       cpus: 2, 3
+> >                       cpu_exclusive=0
+> >                       meter_cpu=0
+> >                       meter_cpu_*
+> >                          |
+> >             +------------+------------+
+> >             |                         |
+> >          CPUSET 2a                CPUSET 2b
+> >          cpus: 2                  cpus: 3
+> >          meter_cpu=0              meter_cpu=0
+> >          cpu_exclusive=0          cpu_exclusive=0
+> > 
+> > Note here that marking C (CPUSET 1) as meter_cpu exposes the meter_cpu_*
+> > files in the children of C.
+> 
+> If we split the cpus {2, 3} into {2} and {3} by creating CPUSET 2a 
+> and CPUSET 2b, the guarantee assigned to CPUSET 1a might not be
+> satisfied.  For example, the maximum cpu resource usage of tasks 
+> in CPUSET 2a should essentially be 50% because tasks in CPUSET 2a
+> can only use the half number of cpus. 
 
---2015913978-1804928587-1127891009=:3203
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Ah, yes, this could be difficult and not worth doing.
 
-Karsten Wiese wrote:
-> Am Montag, 26. September 2005 17:49 schrieb Clemens Ladisch:
-> > Karsten Wiese wrote:
-> > > if you have that chip on your mainboard and want to play with it's
-> > > hpet, this might get you going.
-> >
-> > I'm using similar code for my ICH5 southbridge, but I patched
-> > arch/i386/kernel/acpi/boot.c instead so that the kernel can use it
-> > for its own purposes.
->
-> The kernel uses the hpet here too with my patch.
+It might help if I stated more of what I mean, which I didn't before.
 
-Uh, yes.  I wasn't sure where I could add a hook to be called early
-enough so that the assignment to hpet_address still takes effect, so I
-just unconditionally replaced acpi_parse_hpet.
+I intended that all tasks in the combination of cpusets 1a, 2a, and 2b
+would collectively be allowed what ever percentage of cpu cycles the
+meter_cpu_* files in cpuset 1a prescribed.  I did not intend to suggest
+any particular balance between these tasks in 1a, 2a and 2b would be
+enforced.  In particular, I did not expect for anything like a 50%
+split between the tasks in 2a and 2b to be enforced.   For the purposes
+of your cpu controller, just treat the entire set of tasks in all
+three of these cpusets as one pool, governed by one meter_cpu_*
+setting, just as if all these tasks were in cpuset 1a, and as if
+cpusets 2a and 2b didn't exist.
 
-> Please send me your acpi/boot.c patch.
+This might be easier to do - I don't know.  If this is still hard,
+then I guess my dream of allowing metered cpusets to have child
+cpusets with a "proper subset" of CPUs (strictly fewer CPUs) is too
+hard to do now.  In the abstract, this seems like a serious limitation
+to me.  But practically speaking, it might not be a big problem.
+I don't know.
 
-Attached.
+If it is still hard, even this way, it may just have to wait, until
+someone needs it bad enough to find a way.  If we have layed a good
+foundation and allowed for this possibility in our architecture,
+then perhaps we will have done all we can do for now.
 
-> I guess you setup an ACPI_HPET entry, if none has been found?
+> Probably allowing nested metered cpusets is too hard both to implement
+> and to use.  So far, I woundn't like to implement it.
 
-This would be a good idea for a patch that would have any chance of
-being applied to the kernel.
+A wise choice.
 
-> Maybe your approach is safer/better,
+> This seems very interesting.  Tasks enclosed by a certain cpuset may
+> want to change the behavior of oom_killer.
 
-You didn't yet see it ... ;-)
+Yes - I think so too.
 
-
-Regards,
-Clemens
-
---2015913978-1804928587-1127891009=:3203
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="p4p800-hpet-enable-hack.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.HPX.4.33n.0509280903290.3203@studcom.urz.uni-halle.de>
-Content-Description: 
-Content-Disposition: attachment; filename="p4p800-hpet-enable-hack.diff"
-
-SW5kZXg6IGxpbnV4LTIuNi4xMy9hcmNoL2kzODYva2VybmVsL2FjcGkvYm9v
-dC5jDQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09DQotLS0gbGludXgtMi42LjEz
-Lm9yaWcvYXJjaC9pMzg2L2tlcm5lbC9hY3BpL2Jvb3QuYwkyMDA1LTA4LTMw
-IDE5OjIxOjAwLjAwMDAwMDAwMCArMDIwMA0KKysrIGxpbnV4LTIuNi4xMy9h
-cmNoL2kzODYva2VybmVsL2FjcGkvYm9vdC5jCTIwMDUtMDktMjcgMjE6MTg6
-MDMuMDAwMDAwMDAwICswMjAwDQpAQCAtNTkxLDYgKzU5MSw3IEBAIHN0YXRp
-YyBpbnQgX19pbml0IGFjcGlfcGFyc2Vfc2JmKHVuc2lnbmUNCiANCiAjaWZk
-ZWYgQ09ORklHX0hQRVRfVElNRVINCiANCisjaWYgMA0KIHN0YXRpYyBpbnQg
-X19pbml0IGFjcGlfcGFyc2VfaHBldCh1bnNpZ25lZCBsb25nIHBoeXMsIHVu
-c2lnbmVkIGxvbmcgc2l6ZSkNCiB7DQogCXN0cnVjdCBhY3BpX3RhYmxlX2hw
-ZXQgKmhwZXRfdGJsOw0KQEAgLTYyOCw4ICs2MjksNDEgQEAgc3RhdGljIGlu
-dCBfX2luaXQgYWNwaV9wYXJzZV9ocGV0KHVuc2lnbg0KIA0KIAlyZXR1cm4g
-MDsNCiB9DQorI2VuZGlmDQorDQorc3RhdGljIHUzMiBfX2luaXQgcmVhZF9w
-Y2lfY29uZmlnXzMyKHUzMiBhZGRyZXNzKQ0KK3sNCisJb3V0bChhZGRyZXNz
-LCAweGNmOCk7DQorCXJldHVybiBpbmwoMHhjZmMpOw0KK30NCisNCitzdGF0
-aWMgdm9pZCBfX2luaXQgd3JpdGVfcGNpX2NvbmZpZ18zMih1MzIgYWRkcmVz
-cywgdTMyIHZhbHVlKQ0KK3sNCisJb3V0bChhZGRyZXNzLCAweGNmOCk7DQor
-CW91dGwodmFsdWUsIDB4Y2ZjKTsNCit9DQorDQorI2RlZmluZSBQQ0lBRERS
-KGJ1cywgZGV2LCBmbiwgcmVnKSAoMHg4MDAwMDAwMCB8IChidXMgPDwgMTYp
-IHwgKGRldiA8PCAxMSkgfCAoZm4gPDwgOCkgfCByZWcpDQorDQorc3RhdGlj
-IHZvaWQgX19pbml0IGhhY2tfaHBldCh2b2lkKQ0KK3sNCisJZXh0ZXJuIHVu
-c2lnbmVkIGxvbmcgaHBldF9hZGRyZXNzOw0KKwl2b2lkIF9faW9tZW0gKmhw
-ZXQ7DQorDQorCXUzMiBjZmcgPSByZWFkX3BjaV9jb25maWdfMzIoUENJQURE
-UigwLCAzMSwgMCwgMHhkMCkpOw0KKwljZmcgJj0gfjB4MDAwMTgwMDA7IC8q
-IHNldCBhZGRyZXNzICovDQorCWNmZyB8PSAweDAwMDIwMDAwOyAvKiBlbmFi
-bGUgKi8NCisJd3JpdGVfcGNpX2NvbmZpZ18zMihQQ0lBRERSKDAsIDMxLCAw
-LCAweGQwKSwgY2ZnKTsNCisNCisJaHBldCA9IF9fYWNwaV9tYXBfdGFibGUo
-MHhmZWQwMDAwMCwgMHg0MDApOw0KKwl3cml0ZWwoMHgwMDAwMDAwMiwgaHBl
-dCArIDB4MTApOyAvKiBsZWdhY3kgcm91dGluZyAqLw0KKwl3cml0ZWwoMHgw
-MDAwMTYwMCwgaHBldCArIDB4MTQwKTsgLyogdGltZXIgMjogaW50ZXJydXB0
-IDExICovDQorCWhwZXRfYWRkcmVzcyA9IDB4ZmVkMDAwMDA7DQorCXByaW50
-ayhLRVJOX0lORk8gUFJFRklYICJIUEVUIGhhY2sgZW5hYmxlZCwgYmFzZTog
-JSNseFxuIiwgaHBldF9hZGRyZXNzKTsNCit9DQogI2Vsc2UNCiAjZGVmaW5l
-CWFjcGlfcGFyc2VfaHBldAlOVUxMDQorI2RlZmluZSBoYWNrX2hwZXQoKQ0K
-ICNlbmRpZg0KIA0KICNpZmRlZiBDT05GSUdfWDg2X1BNX1RJTUVSDQpAQCAt
-MTE2NCw3ICsxMTk4LDcgQEAgaW50IF9faW5pdCBhY3BpX2Jvb3RfaW5pdCh2
-b2lkKQ0KIAkgKi8NCiAJYWNwaV9wcm9jZXNzX21hZHQoKTsNCiANCi0JYWNw
-aV90YWJsZV9wYXJzZShBQ1BJX0hQRVQsIGFjcGlfcGFyc2VfaHBldCk7DQor
-CWhhY2tfaHBldCgpOw0KIA0KIAlyZXR1cm4gMDsNCiB9DQo=
---2015913978-1804928587-1127891009=:3203--
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

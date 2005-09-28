@@ -1,149 +1,156 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965200AbVI0Xfs (ORCPT <rfc822;ralf@linux-mips.org>);
-	Tue, 27 Sep 2005 19:35:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965214AbVI0Xfs
+	id S964905AbVI1Bkl (ORCPT <rfc822;ralf@linux-mips.org>);
+	Tue, 27 Sep 2005 21:40:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965241AbVI1Bkl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 19:35:48 -0400
-Received: from dsl-201-128-37-178.prod-infinitum.com.mx ([201.128.37.178]:14325
-	"EHLO terra.com.mx") by vger.kernel.org with ESMTP id S965209AbVI0Xfr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 19:35:47 -0400
-Message-ID: <20050927173538.43B83D6FA2744322@terra.com.mx>
-From: calidadpuntocom@terra.com.mx
-To: linux-kernel@vger.kernel.org
-Subject: 6sigma en ventas y mercadotecnia
-Date: 27 Sep 2005 17:35:39 -0600
-MIME-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+	Tue, 27 Sep 2005 21:40:41 -0400
+Received: from zeus2.kernel.org ([204.152.191.36]:393 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S964905AbVI1Bkk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 21:40:40 -0400
+Message-Id: <200509280140.j8S1eaof017433@zeus2.kernel.org>
+Reply-To: "ortemeca" <newsendell@msn.com>
+From: "ortemeca" <newsendell@msn.com>
+To: "" <linux-kernel@vger.kernel.org>
+Organization: TECNICA
+X-Priority: 3
+X-MSMail-Priority: Normal
+Subject: Sobre la medicina natural /Interes para linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Date: Wed, 28 Sep 2005 03:40:38 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S965200AbVI0Xfs@vger.kernel.org>
-
-Dise=F1o de Experimentos para las Ventas y la Mercadotecnia
-
-Los factores que afectan los resultados en las ventas, la mercadotecnia=
- y=20
-el servicio al cliente pueden ser identificados cient=EDficamente. Tamb=
-i=E9n es=20
-posible seber c=F3mo interactuan dichos factores y aplicar este conocim=
-iento=20
-para lograr mejoras significativas.=20
-
-Todo esto es posible por medio del dise=F1o de experimentos (DOE por su=
-s=20
-siglas en ingl=E9s), un m=E9todo estad=EDstico que inicialmente se apli=
-c=F3 en la=20
-agricultura y que posteriormente ha generado incrementos sustanciales e=
-n la=20
-calidad y la productividad de diversas industrias.
-
-Hasta el momento, la aplicaci=F3n del dise=F1o de experimentos en proce=
-sos=20
-administrativos y =E1reas de servicios han sido pocos y dispersos. Aunq=
-ue ya=20
-existe mucho conocimiento acumulado sobre la herramienta, =E9sta se ha=20
-enfocado en la investigaci=F3n cient=EDfica y en la mejora productos y =
-procesos=20
-de manufactura. En general, traducir los conceptos estad=EDsticos al le=
-nguaje=20
-de los negocios no ha sido f=E1cil, lo cual ha detenido los esfuerzos p=
-ara=20
-implementar iniciativas enfocadas en el an=E1lisis sistem=E1tico de los=
- datos y=20
-la mejora continua como Seis Sigma y Lean.=20
-
-Tras a=F1os de investigaci=F3n y de "evangelizaci=F3n", el Dr. Paul Sel=
-den (ver=20
-curr=EDculum al final de este documento) ha logrado reunir la primer=20
-generaci=F3n de casos de =E9xito que demuestran que esta poderosa herra=
-mienta=20
-puede generar millones de d=F3lares en ganancias para quienes la usan. =
-Al=20
-identificar cu=E1les son los factores que realmente s=ED tienen un impa=
-cto en=20
-los resultados se eliminan los gastos innecesarios al mismo tiempo que =
-se=20
-mejoran dichos resultados.
-
-Por ejemplo, al realizar un dise=F1o de experimentos, se determin=F3 qu=
-e al=20
-aumentar el tama=F1o de un anuncio de =BC a =BD p=E1gina se incrementan=
- tambi=E9n las=20
-ventas. Sin embargo, ese efecto se dispara cuando es combinado con otro=
-=20
-factor que hasta antes de realizar el experimento se consideraba=20
-intrascendente: =A1modificar la redacci=F3n en el encabezado del anunci=
-o!
-
-El Dr. Selden ha sido un pionero en la desmitificaci=F3n de la estad=ED=
-stica=20
-aplicada, cerrando la brecha entre la teor=EDa y la pr=E1ctica, de tal =
-forma=20
-que estas herramientas sean alcanzables para quienes no son expertos y =
-que=20
-trabajan en las =E1reas administrativas como las ventas, la mercadotecn=
-ia y=20
-el servicio al cliente.
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S964905AbVI1Bkl@vger.kernel.org>
 
 
-Si usted desea conocer m=E1s respecto al dise=F1o de experimentos aplic=
-ado en=20
-las =E1reas de ventas, mercadotecnia y servicio al cliente, le invitamo=
-s a=20
-participar en el seminario Sales Process Engineering, que se llevar=E1 =
-a cabo=20
-los d=EDas 27 y 28 de octubre de 2005.
+Si es vd un profesional de las terapias alternativas y medicina natural esta 
+de enhorabuena hay una asociación profesional que defiende sus 
+derechos de un modo singular.
 
-Para m=E1s informaci=F3n: http://www.calidad.com.mx/sales_promo.html
-e-mail: seminarios@calidad.com.mx
-Tel=E9fono: (55)5754 1190 ext. 212
+Con entrega y cariño hacia los profesionales, dándolo todo por ellos sin 
+falsas expectativas, engaños o distorsión de la realidad para obligarles a 
+realizar cursos innecesarios, contratar seguros sin ningún valor real , 
+inscribirse en ciclos absurdos 
+en una profesión no reglada. Donde quizá lo que más cuente sea la 
+incansable lectura y las suelas desgastadas de viajar por el mundo y 
+asimilar lo nuevo pero con el máximo rigor y objetividad contrastando y 
+rechazando , trabajando con mucho  rigor durante años.etc.
 
-Desde hace m=E1s de veinte a=F1os, Paul Selden ha asesorado en la=20
-automatizaci=F3n y mejora de procesos en las =E1reas de mercadotecnia y=
- ventas=20
-a empresas como Ford Motor Company, Frito-Lay, Novartis, Pfizer, Pharma=
-cia,=20
-Lederle Laboratories, Nalco Chemical, Helene Curtis, Gordon Foods, Orth=
-o=20
-Pharmaceutical, Kemper, y muchas otras.
+Así se formaron siempre los profesionales que atrajeron a una masa de 
+gente que esta huyendo mayoritariamente de nuestra actividad,  aunque 
+la experiencia nos dice que hay  academias rigurosas con el espíritu 
+naturista científico, al igual que algunos herbolarios , la inmensa mayoría 
+sola abunda en la confusión, el descrédito ,  la falsa expectativa , cuando 
+no en la burla hacia el profesional y complicidad con supuestos timos.
+ 
+Como el del Escorial el famoso proyecto Filipino fomentado por un “ 
+Gasolinero “. Cualquiera de la profesión puede dar un curso o un master 
+con mas valor y dignidad, pero no ofrecer un panfleto con tintes de 
+oficialidad, con olor a súper o sin plomo , para que se rían algunos 
+personajes en la sombra contando grandes sumas de dinero .
 
-Es fundador de la organizaci=F3n no-lucrativa Sales Automation Associat=
-ion y=20
-CEO de las empresas CE Innovations y Performance Management, la cual ha=
-=20
-recibido por parte de Ford Motor Company el premio Marketing Excellence=
-=20
-Award por cinco a=F1os consecutivos.
- =20
-Allied Signal y General Electric lo contrataron para que desarrollara e=
-=20
-impartiera programas de entrenamiento sobre 6Sigma espec=EDficamente=20
-dirigidos a su personal de ventas y mercadotecnia.
+Ojo...haciendoles firmar un papel a los alumnos de que no pueden 
+reclamar ;  luego sabían que no sirve ni para la pared ,  vaya 
+asociaciones , y academias complices , siniestra situación , hacerles 
+firmar un papel mojado.
 
-Paul es autor de varios libros, entre los que se encuentran Guide to=20
-Implementing Sales Automation y Sales Process Engineering.
+Dan acaso cursos los médicos o los farmacéuticos a cualquiera , pasan 
+acaso consulta en las farmacias. ?  “ No porque sienten y aman su 
+profesión “
 
-Recientemente fue nombrado una de las "10 M=E1s Influyentes Personas en=
- el=20
-campo del CRM (Customer Relationship Management)" por la revista Sales =
-&=20
-Marketing Automation. Paul ha sido entrevistado o ha colaborado para=20
-publicaciones como Selling Power, Sales and Marketing Management, Sales=
- &=20
-Field Force Automation, Training Magazine, Quality Progress, Sales Proc=
-ess=20
-Engineering & Automation Review, Sales and Marketing Strategies & News.=
-=20
+Porque se pasa consulta en un herbolario y se convierten los herbolarios 
+en centros de promoción de cursos, clínicas. ?  “ En una encuesta sobre 
+la clase media / alta,  el 85 %  de las personas encuestadas no sienten 
+confianza de estos establecimientos “. 
 
-Es Ingeniero en Calidad certificado por la ASQ, tiene Maestr=EDa en Dis=
-e=F1o=20
-Instruccional y Doctorado en Psicolog=EDa del Comportamiento, por parte=
- de la=20
-Western Michigan University.
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+Es eso fiable y serio para un profesional. ?  “  Le cambian tratamientos y le 
+quitan pacientes frecuentemente “.
+
+Ni que decir de la captación hacia productos milagro y timo aparatos. "  
+Resta credibilidad "
+
+Convendría aire fresco y una remodelación de estos establecimientos.
+
+La inmensa mayoría de la clase medica ni la industria farmacéutica es la 
+responsable de 
+este caos , como dicen algunos , son culpables de otras cosas.
+
+Sí  hay una serie de personas sin escrúpulos promotores de la anarquía y 
+el fraude moral. Dando de alta hasta los practicantes de la pitoterapia y 
+promocionando academias, herbolarios , multiniveles , etc.
+
+Cuando no cualquier Psico-Tontería, o Tau Xuan , Maestro de Teki, 
+Flores de Badajoz , actos complementarios no resolutivos etc. Por nombre 
+exótico que no quede. Y cada uno de estos seudo profesionales se 
+convierte a su vez en escuela con dogma , pueblos de cinco mil 
+habitantes tienen hasta seis escuelas de Quiromasaje  y maestría de Reki 
+con franquicia incluida.
+
+Términos como Linceciado,  Dr. en un alternativo, son burdos adjetivos 
+que solo causan risa y desconfianza entre personas medio inteligentes y 
+sirven de adorno a acomplejados, al igual que la compra y exhibición de 
+títulos médicos en países exóticos.
+Lo de licenciado en Medicina China es una payasada por parte de quien 
+acepta semejante titulo en desconocimiento. Y un acto de falta de 
+honradez de quien lo emite. Solo es valido él termino Acupuntor.
+
+El masaje no es en sí ninguna terapia sino un acto complementario de 
+cualquier terapia. Masaje Terapéutico es una terminología “ registrada por 
+la clase medica para sus profesionales en el ámbito mundial, bien sea 
+Fisioterapeutas ATS, etc. Y motivo de discordia gratuita motivado por 
+muchas academias sin ninguna categoria  y falsos profesionales que 
+utilizan el nombre Medicina Natural, Naturopata, asociado a MASAJE.
+
+Dando lugar a notas de prensa y persecuciones gratuitas , que al final 
+nos perjudican a todos.
+Los que piensen que si y los alientan para sacarles el dinero como han 
+hecho durante años muchas supuestas asociaciones en España y 
+Europa, que les digan si han estado con ellos cuando han sido 
+denunciados o procesados , o si las mutuas serias/solventes recogen a 
+sus masajistas , o se han gastado el dinero en notas de prensa en 
+periodicos de gran tirada explicándole a la sociedad hechos, no para 
+captar incautos. ?  Se han lavado las manos siempre , son los mismos 
+con distinto collar y las mismas intenciones.
+
+Ningún Naturopata ha sido nunca masajista “ Jamás “, es demostrable 
+con argumentos.Es mas a estado en contra siempre exceptuando lo que 
+son 6-10 minutos de extender un linimento , drenar , aplicar una crema  
+etc. 
+
+Pues existe una figura histórica y ancestral que se desconoce por ser 
+propia “ Los arregla huesos “  FISIATRIA ARTICULAR Y 
+PSICOMOTRICIDAD INTEGRAL , propio de la terapia alternativa desde 
+hace miles de  años, similar en parte y como tal ha sido presentada en el 
+ministerio como algo nuestro, aunque no es masaje.
+
+Deseamos que esta situación se arregle y no estar años cobrándole 
+cuotas a los profesionales y vendiéndole engaños, sin animo de solución 
+final digna.
+
+
+Ortemeca defiende a los profesionales , ofrece reciclaje sin coste , 
+enseña kit de aparatologia  etc. 
+
+Humildad no es hablar con voz baja ,  si no expresarse con claridad sin 
+animo de engaño , exponiendo hechos y el firme propósito de llegar hasta 
+el final.
+
+
+Luis Rendell
+
+Ortemeca
+
+ORGANIZACIÓN TÉCNICA DE MEDICINA CIENTÍFICA Y ANCESTRAL
+C/ Virgen de Belén, 32, 2º Izq. 
+CP 03310 JACARILLA (Alicante)
+newsrendell@msn.com
+
+Móvil: 617 17 60 66	
+
+
+
+
+Si deseas ser borrado envia un e-mail a .._____________  
+ortemecca@msn.com  ref.remov 
+

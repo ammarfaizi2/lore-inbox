@@ -1,56 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750999AbVI1OR6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751004AbVI1OWR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750999AbVI1OR6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 10:17:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751312AbVI1OR6
+	id S1751004AbVI1OWR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 10:22:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751006AbVI1OWR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 10:17:58 -0400
-Received: from main.gmane.org ([80.91.229.2]:41919 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750999AbVI1OR5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 10:17:57 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Blanky rivafb vs snowy nvidiafb with 2.6.12
-Date: Wed, 28 Sep 2005 16:12:07 +0200
-Message-ID: <1hcq27fp0wwd6.1xosn5xgejhhn$.dlg@40tude.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: host-84-221-19-69.cust-adsl.tiscali.it
-User-Agent: 40tude_Dialog/2.0.15.1
+	Wed, 28 Sep 2005 10:22:17 -0400
+Received: from [204.63.198.200] ([204.63.198.200]:22904 "EHLO
+	spr-scc-email.SPR.DOE.GOV") by vger.kernel.org with ESMTP
+	id S1751002AbVI1OWQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 10:22:16 -0400
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C5C437.CEB82C14"
+X-Mailer: Microsoft CDO for Exchange 2000
+Content-Class: urn:content-classes:message
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: [MailServer Resend] Announce: RSBAC v1.2.5 released
+Date: Wed, 28 Sep 2005 09:20:42 -0500
+Message-ID: <001f01c5c437$ceb10440$e4c73fcc@SPR.DOE.GOV>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [MailServer Resend] Announce: RSBAC v1.2.5 released
+Thread-Index: AcXEN86sczM4cA8xQkOvIrBZ7ehYYA==
+From: "SystemMailbox{9B090266-39CC-48ED-8385-82B1132420DD}" 
+	<SystemMailbox{9B090266-39CC-48ED-8385-82B1132420DD}@SPR.DOE.GOV>
+To: <RSBAC@vger.kernel.org>, <RSBAC-Announce@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>, <sec@linux-sec.net>,
+       <bugtraq@securityfocus.com>
+Cc: <announce-l@lists.adamantix.org>
+Reply-To: "SystemMailbox{9B090266-39CC-48ED-8385-82B1132420DD}" 
+	  <SystemMailbox{9B090266-39CC-48ED-8385-82B1132420DD}@SPR.DOE.GOV>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+This is a multi-part message in MIME format.
 
-I have a Dell Inspiron 8200 with an nVidia GeForce2 Go video card.
-There are currently two Linux kerenl framebuffer drivers that I can
-try to use (rivafb and nvidiafb) but they both have issues:
+------_=_NextPart_001_01C5C437.CEB82C14
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: base64
 
-* rivafb works when compiled in, but not when compiled as a module: in
-the latter case, as soon as the fb is touched (even just by a fbset
--i) the screen goes unrecoverably blank, although the computer is
-still usable (blindly). Interestingly, enabling the very verbose debug
-output allows the module to work, but as soon as scrolling beings the
-screen is continuously filled by the (very verbose) debug output and
-scrolls on forever.
+DQoNCi0tLS0tIE9yaWdpbmFsIE1lc3NhZ2UgSGVhZGVyIC0tLS0tDQpTdWJqZWN0OiBBbm5vdW5j
+ZTogUlNCQUMgdjEuMi41IHJlbGVhc2VkDQpGcm9tOiBBbW9uIE90dDsgDQpUbzogUlNCQUM7IFJT
+QkFDLUFubm91bmNlOyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnOyBzZWNAbGludXgtc2Vj
+Lm5ldDsgYnVndHJhcUBzZWN1cml0eWZvY3VzLmNvbTsgDQpDYzogYW5ub3VuY2UtbEBsaXN0cy5h
+ZGFtYW50aXgub3JnOyANCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tDQoNCg==
 
-* I have thus tried the new nvidiafb driver, which seems to work ok,
-except for the minor detail that the display is extremely snowy.
-Attempts to change the timing options with fbset fail: fbset seems to
-accept the settings, no error message is given, but nothing is
-changed. The X nv driver select the correct timings, so I tried
-modeline2fb to make fbset use those, but still nothing changes.
+------_=_NextPart_001_01C5C437.CEB82C14
+Content-Type: application/octet-stream;
+	name="SMIME.txt"
+Content-Transfer-Encoding: base64
+Content-Description: SMIME.txt
+Content-Disposition: attachment;
+	filename="SMIME.txt"
 
-Any suggestions?
+Q29udGVudC1UeXBlOiBtdWx0aXBhcnQvc2lnbmVkOw0KICBib3VuZGFyeT0ibmV4dFBhcnQxMzY5
+NjE5Lmh4bFgxamJ0SXoiOw0KICBwcm90b2NvbD0iYXBwbGljYXRpb24vcGdwLXNpZ25hdHVyZSI7
+DQogIG1pY2FsZz1wZ3Atc2hhMQ0KQ29udGVudC1UcmFuc2Zlci1FbmNvZGluZzogN2JpdA0KTWVz
+c2FnZS1JZDogPDIwMDUwOTI3MTAyOC40OTA5MS5hb0Byc2JhYy5vcmc+DQpYLVZpcnVzLVNjYW5u
+ZWQ6IGJ5IGFtYXZpc2QtbmV3LTIuMi4wICgyMDA0MTEwMikgKyBNYWlhIE1haWxndWFyZCAxLjAu
+MCBSQzUgKG0tcHJpdmFjeSkgYXQgY29tcHVuaXZlcnNlLmRlDQpYLVByb3ZhZ3MtSUQ6IGt1bmRl
+bnNlcnZlci5kZSBhYnVzZUBrdW5kZW5zZXJ2ZXIuZGUgbG9naW46ZTc4NGY0NDk3YTdlNTJiZmM4
+MTc5ZWU3MjA5NDA4YzMNClJldHVybi1QYXRoOiBidWd0cmFxLXJldHVybi0yMTQ1Mi1jb2J5LnBl
+bm5pbmd0b249c3ByLmRvZS5nb3ZAc2VjdXJpdHlmb2N1cy5jb20NClgtT3JpZ2luYWxBcnJpdmFs
+VGltZTogMjcgU2VwIDIwMDUgMTg6Mzg6NTguMDgwMSAoVVRDKSBGSUxFVElNRT1bQjkxOTQ2MTA6
+MDFDNUMzOTJdDQoNCi0tbmV4dFBhcnQxMzY5NjE5Lmh4bFgxamJ0SXoNCkNvbnRlbnQtVHlwZTog
+dGV4dC9wbGFpbjsNCiAgY2hhcnNldD0idXMtYXNjaWkiDQpDb250ZW50LVRyYW5zZmVyLUVuY29k
+aW5nOiBxdW90ZWQtcHJpbnRhYmxlDQpDb250ZW50LURpc3Bvc2l0aW9uOiBpbmxpbmUNCg0KUnVs
+ZSBTZXQgQmFzZWQgQWNjZXNzIENvbnRyb2wgKFJTQkFDKSB2MS4yLjUgaGFzIGJlZW4gcmVsZWFz
+ZWQhIEZ1bGw9MjANCmluZm9ybWF0aW9uIGFuZCBkb3dubG9hZHMgYXJlIGF2YWlsYWJsZSBhdCBo
+dHRwOi8vd3d3LnJzYmFjLm9yZw0KDQpSU0JBQyBLZXkgRmVhdHVyZXM6DQoNCiAgICAqIEZyZWUg
+T3BlbiBTb3VyY2UgKEdQTCkgTGludXgga2VybmVsIHNlY3VyaXR5IGV4dGVuc2lvbg0KICAgICog
+SW5kZXBlbmRlbnQgb2YgZ292ZXJubWVudHMgYW5kIGJpZyBjb21wYW5pZXMNCiAgICAqIFNldmVy
+YWwgd2VsbC1rbm93biBhbmQgbmV3IHNlY3VyaXR5IG1vZGVscywgZS5nLiBNQUMsIEFDTCBhbmQg
+UkMNCiAgICAqIENvbnRyb2wgb3ZlciBpbmRpdmlkdWFsIHVzZXIgYW5kIHByb2dyYW0gbmV0d29y
+ayBhY2Nlc3Nlcw0KICAgICogRnVsbHkgYWNjZXNzIGNvbnRyb2xsZWQga2VybmVsIGxldmVsIHVz
+ZXIgbWFuYWdlbWVudA0KICAgICogQW55IGNvbWJpbmF0aW9uIG9mIG1vZGVscyBwb3NzaWJsZQ0K
+ICAgICogRWFzaWx5IGV4dGVuZGFibGU6IHdyaXRlIHlvdXIgb3duIG1vZGVsIGZvciBydW50aW1l
+IHJlZ2lzdHJhdGlvbg0KICAgICogT24tYWNjZXNzIHZpcnVzIHNjYW5uaW5nIHdpdGggRGF6dWtv
+IGludGVyZmFjZQ0KICAgICogU3VwcG9ydCBmb3IgY3VycmVudCBrZXJuZWxzIGluIDIuNCBhbmQg
+Mi42IHNlcmllcw0KICAgICogU3RhYmxlIGZvciBwcm9kdWN0aW9uIHVzZSBzaW5jZSBKYW51YXJ5
+IDIwMDANCg0KTWFqb3IgbmV3IGZlYXR1cmVzIGluIHYxLjIuNToNCg0KICAgICogQ29tcGxldGUg
+cmV2aWV3IG9mIGFsbCBpbnRlcmNlcHRpb25zIHdpdGggbWFueSBuZXcgb25lcyBhZGRlZA0KICAg
+ICogRGV2aWNlIGF0dHJpYnV0ZSBpbmhlcml0YW5jZTogVXNlIHZhbHVlcyBhdCB0eXBlOm1ham9y
+IGFzPTIwDQpkZWZhdWx0IGZvciB0eXBlOm1ham9yOm1pbm9yDQogICAgKiBMb2cgcmVtb3RlIElQ
+IGFkZHJlc3Mgb2Ygc3ViamVjdCBpbiBhY2Nlc3MgbG9nDQogICAgKiBDb21wbGV0ZWx5IHJld3Jp
+dHRlbiBhZG1pbiB0b29scyBidWlsZCBzeXN0ZW0NCiAgICAqIE1hbnkgc21hbGxlciBjaGFuZ2Vz
+IHRvIHJlbW92ZSBidWdzIGFuZCBpbXByb3ZlIHVzYWJpbGl0eQ0KICAgICogQ29tcGxldGUgbGlz
+dCBvZiBjaGFuZ2VzIGF0PTIwDQpodHRwOi8vZG93bmxvYWQucnNiYWMub3JnL2NvZGUvdjEuMi41
+L2NoYW5nZXMtMS4yLjUudHh0DQoNClZlcnNpb25zIDEuMi54IHdpbGwgYmUgbWFpbnRhaW5lZCBh
+cyBzdGFibGUgc2VyaWVzIHdpdGggYnVnZml4PTIwDQpyZWxlYXNlcyB3aGVuZXZlciBuZWNlc3Nh
+cnkuIEFsbCBjb29sIG5ldyBmZWF0dXJlcyB3aWxsIGJlIGluIHRoZSBuZXc9MjANCjEuMyBzZXJp
+ZXMsIHdoaWNoIGhhcyByZWNlbnRseSBiZWVuIGJyYW5jaGVkIG9mZiwgc2VlPTIwDQpodHRwOi8v
+d3d3LnJzYmFjLm9yZy90b2RvLg0KDQo9NDZvciBmaXJzdCB0ZXN0cyB3aXRob3V0IGluc3RhbGxh
+dGlvbiB5b3UgY2FuIHRyeSB0aGUgRGViaWFuIGJhc2VkPTIwDQpSU0JBQyBMaXZlIENEIGF0IGh0
+dHA6Ly9saXZlY2QucnNiYWMub3JnDQoNClBsZWFzZSBmb3J3YXJkIHRoaXMgYW5ub3VuY2VtZW50
+IHRvIHdoZXJlZXZlciB5b3UgdGhpbmsgaXQgaXM9MjANCmFwcGxpY2FibGUsICBlLmcuICBsb2Nh
+bCBvciBuYXRpb25hbCBzZWN1cml0eSBsaXN0cywgbmV3c3BhcGVycyBvcj0yMA0KbWFnYXppbmVz
+LCBvciB5b3VyIGZhdm91cml0ZSBJbnRlcm5ldCBmb3J1bS4NCg0KPTQ2ZWVkYmFjayBpcyBhbHdh
+eXMgd2VsY29tZSENCg0KQW1vbiBPdHQuDQo9MkQtPTIwDQpodHRwOi8vd3d3LnJzYmFjLm9yZyAt
+IEdudVBHOiAyMDQ4Zy81REVBQUEzMCAyMDAyLTEwLTIyDQoNCi0tbmV4dFBhcnQxMzY5NjE5Lmh4
+bFgxamJ0SXoNCkNvbnRlbnQtVHJhbnNmZXItRW5jb2Rpbmc6IDdiaXQNCkNvbnRlbnQtVHlwZTog
+YXBwbGljYXRpb24vcGdwLXNpZ25hdHVyZQ0KDQotLS0tLUJFR0lOIFBHUCBTSUdOQVRVUkUtLS0t
+LQ0KVmVyc2lvbjogR251UEcgdjEuNC4xIChHTlUvTGludXgpDQoNCmlEOERCUUJET1FMQnE5eW42
+aDVSVG84UkF2WnJBSjkvdklVVmxocy9meU9vNEF0MHBDUVVWRmRZdVFDYUE1NDkNCmY4VEExbzJX
+bkE0UlVxbXlDMWs1V1VJPQ0KPXV5RzgNCi0tLS0tRU5EIFBHUCBTSUdOQVRVUkUtLS0tLQ0KDQot
+LW5leHRQYXJ0MTM2OTYxOS5oeGxYMWpidEl6LS0NCg==
 
--- 
-Giuseppe "Oblomov" Bilotta
-
-"They that can give up essential liberty to obtain
-a little temporary safety deserve neither liberty
-nor safety." Benjamin Franklin
-
+------_=_NextPart_001_01C5C437.CEB82C14--

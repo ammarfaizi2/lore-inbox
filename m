@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbVI1UZu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbVI1UaF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750777AbVI1UZu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 16:25:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbVI1UZu
+	id S1750794AbVI1UaF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 16:30:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750786AbVI1UaF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 16:25:50 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:62420 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750777AbVI1UZt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 16:25:49 -0400
-Subject: [PATCH 0/3] Demand faulting for huge pages
-From: Adam Litke <agl@us.ibm.com>
-To: akpm@osdl.org
-Cc: "ADAM G. LITKE [imap]" <agl@us.ibm.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
+	Wed, 28 Sep 2005 16:30:05 -0400
+Received: from fmr15.intel.com ([192.55.52.69]:6797 "EHLO
+	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1750769AbVI1UaE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 16:30:04 -0400
+Subject: Re: [PATCH]: show_free_area shows free pages in pcp list
+From: Rohit Seth <rohit.seth@intel.com>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.62.0509281135080.14597@schroedinger.engr.sgi.com>
+References: <20050928102219.A29282@unix-os.sc.intel.com>
+	 <Pine.LNX.4.62.0509281037240.14338@schroedinger.engr.sgi.com>
+	 <1127931469.5046.13.camel@akash.sc.intel.com>
+	 <Pine.LNX.4.62.0509281135080.14597@schroedinger.engr.sgi.com>
 Content-Type: text/plain
-Organization: IBM
-Date: Wed, 28 Sep 2005 15:25:41 -0500
-Message-Id: <1127939141.26401.32.camel@localhost.localdomain>
+Organization: Intel 
+Date: Wed, 28 Sep 2005 13:37:25 -0700
+Message-Id: <1127939845.5046.25.camel@akash.sc.intel.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 28 Sep 2005 20:29:55.0203 (UTC) FILETIME=[63095D30:01C5C46B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew.  Can we give hugetlb demand faulting a spin in the mm tree?
-And could people with alpha, sparc, and ia64 machines give them a good
-spin?  I haven't been able to test those arches yet.
+On Wed, 2005-09-28 at 11:36 -0700, Christoph Lameter wrote:
+> On Wed, 28 Sep 2005, Rohit Seth wrote:
+> 
+> > > Its the number of free pages used by the pcp list.
+> > As you said, pcp is a cache of free pages.  From pcp's point-of-view,
+> > this is a count of free pages that is available for use.
+> 
+> This is the number of free pages on the list. Its the number of free 
+> pages "used" by the list and no longer accounted for by the zone 
+> free_pages count.
+> 
 
--Thanks
+As we are dumping the information so putting the field name "count"
+itself makes more sense.
 
-- htlb-get_user_pages removes an optimization that is no longer valid
-when demand faulting huge pages
+-rohit
 
-- htlb-fault moves the fault logic from hugetlb_prefault() to
-hugetlb_pte_fault() and find_get_huge_page().
 
-- htlb-acct adds an overcommit check to maintain the no-overcommit
-semantics provided by hugetlb_prefault()
--- 
-Adam Litke - (agl at us.ibm.com)
-IBM Linux Technology Center
 

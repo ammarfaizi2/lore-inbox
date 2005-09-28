@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750930AbVI1Vx6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751066AbVI1VyB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750930AbVI1Vx6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 17:53:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750933AbVI1Vx5
+	id S1751066AbVI1VyB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 17:54:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751068AbVI1VyA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 17:53:57 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:35845 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1750930AbVI1Vxl (ORCPT
+	Wed, 28 Sep 2005 17:54:00 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:35077 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1751048AbVI1Vxh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 17:53:41 -0400
-Date: Wed, 28 Sep 2005 17:50:51 -0400
+	Wed, 28 Sep 2005 17:53:37 -0400
+Date: Wed, 28 Sep 2005 17:50:50 -0400
 From: "John W. Linville" <linville@tuxdriver.com>
-To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Cc: jgarzik@pobox.com, leonid.grossman@neterion.com
-Subject: [patch 2.6.14-rc2 1/2] s2io: change strncpy length arg to use size of target
-Message-ID: <09282005175051.10754@bilbo.tuxdriver.com>
-In-Reply-To: <09282005175051.10698@bilbo.tuxdriver.com>
+To: linux-kernel@vger.kernel.org, discuss@x86-64.org
+Cc: ak@suse.de
+Subject: [patch 2.6.14-rc2 6/6] x86_64: implement dma_sync_single_range_for_{cpu,device}
+Message-ID: <09282005175050.10472@bilbo.tuxdriver.com>
+In-Reply-To: <09282005175050.10409@bilbo.tuxdriver.com>
 User-Agent: PatchPost/0.1
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,31 +23,53 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use the size of the target array for the length argument to strncpy
-instead of the size of the source or a magic number.
+Re-implement dma_sync_single_range_for_{cpu,device} for x86_64 using
+swiotlb_sync_single_range_for_{cpu,device}.
 
 Signed-off-by: John W. Linville <linville@tuxdriver.com>
 ---
 
- drivers/net/s2io.c |    9 ++++-----
- 1 files changed, 4 insertions(+), 5 deletions(-)
+ include/asm-x86_64/dma-mapping.h |   31 +++++++++++++++++++++++++++----
+ 1 files changed, 27 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/s2io.c b/drivers/net/s2io.c
---- a/drivers/net/s2io.c
-+++ b/drivers/net/s2io.c
-@@ -3778,11 +3778,10 @@ static void s2io_ethtool_gdrvinfo(struct
- {
- 	nic_t *sp = dev->priv;
+diff --git a/include/asm-x86_64/dma-mapping.h b/include/asm-x86_64/dma-mapping.h
+--- a/include/asm-x86_64/dma-mapping.h
++++ b/include/asm-x86_64/dma-mapping.h
+@@ -85,10 +85,33 @@ static inline void dma_sync_single_for_d
+ 	flush_write_buffers();
+ }
  
--	strncpy(info->driver, s2io_driver_name, sizeof(s2io_driver_name));
--	strncpy(info->version, s2io_driver_version,
--		sizeof(s2io_driver_version));
--	strncpy(info->fw_version, "", 32);
--	strncpy(info->bus_info, pci_name(sp->pdev), 32);
-+	strncpy(info->driver, s2io_driver_name, sizeof(info->driver));
-+	strncpy(info->version, s2io_driver_version, sizeof(info->version));
-+	strncpy(info->fw_version, "", sizeof(info->fw_version));
-+	strncpy(info->bus_info, pci_name(sp->pdev), sizeof(info->bus_info));
- 	info->regdump_len = XENA_REG_SPACE;
- 	info->eedump_len = XENA_EEPROM_SPACE;
- 	info->testinfo_len = S2IO_TEST_LEN;
+-#define dma_sync_single_range_for_cpu(dev, dma_handle, offset, size, dir)       \
+-        dma_sync_single_for_cpu(dev, dma_handle, size, dir)
+-#define dma_sync_single_range_for_device(dev, dma_handle, offset, size, dir)    \
+-        dma_sync_single_for_device(dev, dma_handle, size, dir)
++static inline void dma_sync_single_range_for_cpu(struct device *hwdev,
++						 dma_addr_t dma_handle,
++						 unsigned long offset,
++						 size_t size, int direction)
++{
++	if (direction == DMA_NONE)
++		out_of_line_bug();
++
++	if (swiotlb)
++		return swiotlb_sync_single_range_for_cpu(hwdev,dma_handle,offset,size,direction);
++
++	flush_write_buffers();
++}
++
++static inline void dma_sync_single_range_for_device(struct device *hwdev,
++						    dma_addr_t dma_handle,
++						    unsigned long offset,
++						    size_t size, int direction)
++{
++        if (direction == DMA_NONE)
++		out_of_line_bug();
++
++	if (swiotlb)
++		return swiotlb_sync_single_range_for_device(hwdev,dma_handle,offset,size,direction);
++
++	flush_write_buffers();
++}
+ 
+ static inline void dma_sync_sg_for_cpu(struct device *hwdev,
+ 				       struct scatterlist *sg,

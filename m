@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbVI1XKH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbVI1XLV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751216AbVI1XKH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 19:10:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbVI1XKG
+	id S1751217AbVI1XLV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 19:11:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751221AbVI1XLU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 19:10:06 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:19366 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751216AbVI1XKF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 19:10:05 -0400
-Date: Thu, 29 Sep 2005 00:10:01 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: [PATCH] arm/rpc iomem annotations
-Message-ID: <20050928231001.GF7992@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Wed, 28 Sep 2005 19:11:20 -0400
+Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:8551 "EHLO
+	mta09-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S1751217AbVI1XLT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 19:11:19 -0400
+Message-ID: <433B2081.9050607@gentoo.org>
+Date: Thu, 29 Sep 2005 00:00:17 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050820)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Al Viro <viro@ftp.linux.org.uk>
+CC: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       posting@blx4.net, vsu@altlinux.ru
+Subject: Re: [PATCH] via82cxxx IDE: Remove /proc/ide/via entry
+References: <43146CC3.4010005@gentoo.org> <58cb370e05083008121f2eb783@mail.gmail.com> <43179CC9.8090608@gentoo.org> <58cb370e050927062049be32f8@mail.gmail.com> <433B16BD.7040409@gentoo.org> <20050928223718.GB7992@ftp.linux.org.uk>
+In-Reply-To: <20050928223718.GB7992@ftp.linux.org.uk>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-----
-diff -urN RC14-rc2-git6-ia64-user/include/asm-arm/arch-rpc/hardware.h RC14-rc2-git6-rpc-iomem/include/asm-arm/arch-rpc/hardware.h
---- RC14-rc2-git6-ia64-user/include/asm-arm/arch-rpc/hardware.h	2005-06-17 15:48:29.000000000 -0400
-+++ RC14-rc2-git6-rpc-iomem/include/asm-arm/arch-rpc/hardware.h	2005-09-28 13:02:05.000000000 -0400
-@@ -15,7 +15,7 @@
- #include <asm/arch/memory.h>
- 
- #ifndef __ASSEMBLY__
--#define IOMEM(x) ((void __iomem *)(x))
-+#define IOMEM(x) ((void __iomem *)(unsigned long)(x))
- #else
- #define IOMEM(x) x
- #endif /* __ASSEMBLY__ */
-@@ -52,7 +52,7 @@
- /*
-  * IO Addresses
-  */
--#define VIDC_BASE		(void __iomem *)0xe0400000
-+#define VIDC_BASE		IOMEM(0xe0400000)
- #define EXPMASK_BASE		0xe0360000
- #define IOMD_BASE		IOMEM(0xe0200000)
- #define IOC_BASE		IOMEM(0xe0200000)
+Hi Al,
+
+(btw, original subject was wrong, I actually meant /proc/ide/via)
+
+Al Viro wrote:
+> Care to explain
+> 	* where to get equivalent information?
+
+I don't think there is anywhere else that provides the whole range, but I do 
+question the usefulness of most of it :)
+
+Here's my previous attempt at this patch:
+
+	http://marc.theaimsgroup.com/?l=linux-ide&m=112630444000358&w=2
+
+If you can point out a way to keep /proc/ide/via around without causing the 
+kind of ugliness found above, then maybe Bart can be persuaded to keep it 
+around :)
+
+> 	* what hardware setup has more than one of those controllers?
+
+I'm pushing to get a simple patch merged, which adds ID's for a VIA VT6410 
+controller. Apparently these are available in PCI-card form as well as 
+onboard-PCI-chip form. Bart raised the concern that this driver wouldn't cope 
+well with 2 different controllers in use, so I'm trying to address this.
+
+Thanks,
+Daniel

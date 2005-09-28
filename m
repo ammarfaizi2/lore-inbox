@@ -1,59 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030235AbVI1JjY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750856AbVI1Jro@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030235AbVI1JjY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 05:39:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030238AbVI1JjY
+	id S1750856AbVI1Jro (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 05:47:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750854AbVI1Jro
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 05:39:24 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:36314 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030236AbVI1JjX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 05:39:23 -0400
-Subject: Re: [PATCH] RT: epca_lock to DEFINE_SPINLOCK
-From: Arjan van de Ven <arjan@infradead.org>
-To: dwalker@mvista.com
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
-In-Reply-To: <1127845928.4004.24.camel@dhcp153.mvista.com>
-References: <1127845928.4004.24.camel@dhcp153.mvista.com>
-Content-Type: text/plain
-Date: Wed, 28 Sep 2005 11:39:09 +0200
-Message-Id: <1127900349.2893.19.camel@laptopd505.fenrus.org>
+	Wed, 28 Sep 2005 05:47:44 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:34742 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750768AbVI1Jro (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 05:47:44 -0400
+Date: Wed, 28 Sep 2005 11:48:05 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Cc: dwalker@mvista.com, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>, emann@mrv.com,
+       yang.yi@bmrtech.com
+Subject: Re: 2.6.14-rc2-rt2
+Message-ID: <20050928094805.GA30446@elte.hu>
+References: <20050913100040.GA13103@elte.hu> <20050926070210.GA5157@elte.hu> <1127840377.27319.11.camel@cmn3.stanford.edu> <1127862619.4004.48.camel@dhcp153.mvista.com> <1127876673.9430.2.camel@cmn3.stanford.edu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1127876673.9430.2.camel@cmn3.stanford.edu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-09-27 at 11:32 -0700, Daniel Walker wrote:
-> Convert epca_lock to the new syntax.
+
+* Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
+
+> > Here's the fix.
 > 
-> Signed-Off-By: Daniel Walker <dwalker@mvista.com>
+> Hey thanks! That fixes that, but the compile fails further along:
 > 
-> Index: linux-2.6.13/drivers/char/epca.c
-> ===================================================================
-> --- linux-2.6.13.orig/drivers/char/epca.c
-> +++ linux-2.6.13/drivers/char/epca.c
-> @@ -80,7 +80,7 @@ static int invalid_lilo_config;
->  /* The ISA boards do window flipping into the same spaces so its only sane
->     with a single lock. It's still pretty efficient */
->  
-> -static spinlock_t epca_lock = SPIN_LOCK_UNLOCKED;
-> +static DEFINE_SPINLOCK(epca_lock);
->  
->  /* ------------------
+>   CHK     include/linux/compile.h
+>   UPD     include/linux/compile.h
+> arch/i386/kernel/built-in.o(.text+0xf086): In function `do_powersaver':
+> longhaul.c: undefined reference to `safe_halt'
+> arch/i386/kernel/built-in.o(.text+0xf271): In function
+> `longhaul_setstate':
+> longhaul.c: undefined reference to `safe_halt'
+> make: *** [.tmp_vmlinux1] Error 1
 
-this is really ugly though; at minimum a DEFINE_STATIC_SPINLOCK() would
-be needed to make this less ugly.
+could you try 2.6.14-rc2-rt6, does it build?
 
-
+	Ingo

@@ -1,110 +1,186 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751004AbVI1OWR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751313AbVI1OYH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751004AbVI1OWR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 10:22:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751006AbVI1OWR
+	id S1751313AbVI1OYH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 10:24:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbVI1OYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 10:22:17 -0400
-Received: from [204.63.198.200] ([204.63.198.200]:22904 "EHLO
-	spr-scc-email.SPR.DOE.GOV") by vger.kernel.org with ESMTP
-	id S1751002AbVI1OWQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 10:22:16 -0400
+	Wed, 28 Sep 2005 10:24:07 -0400
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:32725 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S1751313AbVI1OYG convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 10:24:06 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: [PATCH][Fix][Resend] Fix Bug #4959: Page tables corrupted during resume on x86-64 (take 3)
+Date: Wed, 28 Sep 2005 16:24:28 +0200
+User-Agent: KMail/1.8.2
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C5C437.CEB82C14"
-X-Mailer: Microsoft CDO for Exchange 2000
-Content-Class: urn:content-classes:message
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: [MailServer Resend] Announce: RSBAC v1.2.5 released
-Date: Wed, 28 Sep 2005 09:20:42 -0500
-Message-ID: <001f01c5c437$ceb10440$e4c73fcc@SPR.DOE.GOV>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [MailServer Resend] Announce: RSBAC v1.2.5 released
-Thread-Index: AcXEN86sczM4cA8xQkOvIrBZ7ehYYA==
-From: "SystemMailbox{9B090266-39CC-48ED-8385-82B1132420DD}" 
-	<SystemMailbox{9B090266-39CC-48ED-8385-82B1132420DD}@SPR.DOE.GOV>
-To: <RSBAC@vger.kernel.org>, <RSBAC-Announce@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>, <sec@linux-sec.net>,
-       <bugtraq@securityfocus.com>
-Cc: <announce-l@lists.adamantix.org>
-Reply-To: "SystemMailbox{9B090266-39CC-48ED-8385-82B1132420DD}" 
-	  <SystemMailbox{9B090266-39CC-48ED-8385-82B1132420DD}@SPR.DOE.GOV>
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200509281624.29256.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Hi,
 
-------_=_NextPart_001_01C5C437.CEB82C14
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: base64
+The following patch fixes Bug #4959.  For this purpose it creates temporary
+page translation tables including the kernel mapping (reused) and the direct
+mapping (created from scratch) and makes swsusp switch to these tables
+right before the image is restored.
 
-DQoNCi0tLS0tIE9yaWdpbmFsIE1lc3NhZ2UgSGVhZGVyIC0tLS0tDQpTdWJqZWN0OiBBbm5vdW5j
-ZTogUlNCQUMgdjEuMi41IHJlbGVhc2VkDQpGcm9tOiBBbW9uIE90dDsgDQpUbzogUlNCQUM7IFJT
-QkFDLUFubm91bmNlOyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnOyBzZWNAbGludXgtc2Vj
-Lm5ldDsgYnVndHJhcUBzZWN1cml0eWZvY3VzLmNvbTsgDQpDYzogYW5ub3VuY2UtbEBsaXN0cy5h
-ZGFtYW50aXgub3JnOyANCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tDQoNCg==
+The code that generates the direct mapping is based on the code in
+arch/x86_64/mm/init.c.
 
-------_=_NextPart_001_01C5C437.CEB82C14
-Content-Type: application/octet-stream;
-	name="SMIME.txt"
-Content-Transfer-Encoding: base64
-Content-Description: SMIME.txt
-Content-Disposition: attachment;
-	filename="SMIME.txt"
+Please consider for applying.
 
-Q29udGVudC1UeXBlOiBtdWx0aXBhcnQvc2lnbmVkOw0KICBib3VuZGFyeT0ibmV4dFBhcnQxMzY5
-NjE5Lmh4bFgxamJ0SXoiOw0KICBwcm90b2NvbD0iYXBwbGljYXRpb24vcGdwLXNpZ25hdHVyZSI7
-DQogIG1pY2FsZz1wZ3Atc2hhMQ0KQ29udGVudC1UcmFuc2Zlci1FbmNvZGluZzogN2JpdA0KTWVz
-c2FnZS1JZDogPDIwMDUwOTI3MTAyOC40OTA5MS5hb0Byc2JhYy5vcmc+DQpYLVZpcnVzLVNjYW5u
-ZWQ6IGJ5IGFtYXZpc2QtbmV3LTIuMi4wICgyMDA0MTEwMikgKyBNYWlhIE1haWxndWFyZCAxLjAu
-MCBSQzUgKG0tcHJpdmFjeSkgYXQgY29tcHVuaXZlcnNlLmRlDQpYLVByb3ZhZ3MtSUQ6IGt1bmRl
-bnNlcnZlci5kZSBhYnVzZUBrdW5kZW5zZXJ2ZXIuZGUgbG9naW46ZTc4NGY0NDk3YTdlNTJiZmM4
-MTc5ZWU3MjA5NDA4YzMNClJldHVybi1QYXRoOiBidWd0cmFxLXJldHVybi0yMTQ1Mi1jb2J5LnBl
-bm5pbmd0b249c3ByLmRvZS5nb3ZAc2VjdXJpdHlmb2N1cy5jb20NClgtT3JpZ2luYWxBcnJpdmFs
-VGltZTogMjcgU2VwIDIwMDUgMTg6Mzg6NTguMDgwMSAoVVRDKSBGSUxFVElNRT1bQjkxOTQ2MTA6
-MDFDNUMzOTJdDQoNCi0tbmV4dFBhcnQxMzY5NjE5Lmh4bFgxamJ0SXoNCkNvbnRlbnQtVHlwZTog
-dGV4dC9wbGFpbjsNCiAgY2hhcnNldD0idXMtYXNjaWkiDQpDb250ZW50LVRyYW5zZmVyLUVuY29k
-aW5nOiBxdW90ZWQtcHJpbnRhYmxlDQpDb250ZW50LURpc3Bvc2l0aW9uOiBpbmxpbmUNCg0KUnVs
-ZSBTZXQgQmFzZWQgQWNjZXNzIENvbnRyb2wgKFJTQkFDKSB2MS4yLjUgaGFzIGJlZW4gcmVsZWFz
-ZWQhIEZ1bGw9MjANCmluZm9ybWF0aW9uIGFuZCBkb3dubG9hZHMgYXJlIGF2YWlsYWJsZSBhdCBo
-dHRwOi8vd3d3LnJzYmFjLm9yZw0KDQpSU0JBQyBLZXkgRmVhdHVyZXM6DQoNCiAgICAqIEZyZWUg
-T3BlbiBTb3VyY2UgKEdQTCkgTGludXgga2VybmVsIHNlY3VyaXR5IGV4dGVuc2lvbg0KICAgICog
-SW5kZXBlbmRlbnQgb2YgZ292ZXJubWVudHMgYW5kIGJpZyBjb21wYW5pZXMNCiAgICAqIFNldmVy
-YWwgd2VsbC1rbm93biBhbmQgbmV3IHNlY3VyaXR5IG1vZGVscywgZS5nLiBNQUMsIEFDTCBhbmQg
-UkMNCiAgICAqIENvbnRyb2wgb3ZlciBpbmRpdmlkdWFsIHVzZXIgYW5kIHByb2dyYW0gbmV0d29y
-ayBhY2Nlc3Nlcw0KICAgICogRnVsbHkgYWNjZXNzIGNvbnRyb2xsZWQga2VybmVsIGxldmVsIHVz
-ZXIgbWFuYWdlbWVudA0KICAgICogQW55IGNvbWJpbmF0aW9uIG9mIG1vZGVscyBwb3NzaWJsZQ0K
-ICAgICogRWFzaWx5IGV4dGVuZGFibGU6IHdyaXRlIHlvdXIgb3duIG1vZGVsIGZvciBydW50aW1l
-IHJlZ2lzdHJhdGlvbg0KICAgICogT24tYWNjZXNzIHZpcnVzIHNjYW5uaW5nIHdpdGggRGF6dWtv
-IGludGVyZmFjZQ0KICAgICogU3VwcG9ydCBmb3IgY3VycmVudCBrZXJuZWxzIGluIDIuNCBhbmQg
-Mi42IHNlcmllcw0KICAgICogU3RhYmxlIGZvciBwcm9kdWN0aW9uIHVzZSBzaW5jZSBKYW51YXJ5
-IDIwMDANCg0KTWFqb3IgbmV3IGZlYXR1cmVzIGluIHYxLjIuNToNCg0KICAgICogQ29tcGxldGUg
-cmV2aWV3IG9mIGFsbCBpbnRlcmNlcHRpb25zIHdpdGggbWFueSBuZXcgb25lcyBhZGRlZA0KICAg
-ICogRGV2aWNlIGF0dHJpYnV0ZSBpbmhlcml0YW5jZTogVXNlIHZhbHVlcyBhdCB0eXBlOm1ham9y
-IGFzPTIwDQpkZWZhdWx0IGZvciB0eXBlOm1ham9yOm1pbm9yDQogICAgKiBMb2cgcmVtb3RlIElQ
-IGFkZHJlc3Mgb2Ygc3ViamVjdCBpbiBhY2Nlc3MgbG9nDQogICAgKiBDb21wbGV0ZWx5IHJld3Jp
-dHRlbiBhZG1pbiB0b29scyBidWlsZCBzeXN0ZW0NCiAgICAqIE1hbnkgc21hbGxlciBjaGFuZ2Vz
-IHRvIHJlbW92ZSBidWdzIGFuZCBpbXByb3ZlIHVzYWJpbGl0eQ0KICAgICogQ29tcGxldGUgbGlz
-dCBvZiBjaGFuZ2VzIGF0PTIwDQpodHRwOi8vZG93bmxvYWQucnNiYWMub3JnL2NvZGUvdjEuMi41
-L2NoYW5nZXMtMS4yLjUudHh0DQoNClZlcnNpb25zIDEuMi54IHdpbGwgYmUgbWFpbnRhaW5lZCBh
-cyBzdGFibGUgc2VyaWVzIHdpdGggYnVnZml4PTIwDQpyZWxlYXNlcyB3aGVuZXZlciBuZWNlc3Nh
-cnkuIEFsbCBjb29sIG5ldyBmZWF0dXJlcyB3aWxsIGJlIGluIHRoZSBuZXc9MjANCjEuMyBzZXJp
-ZXMsIHdoaWNoIGhhcyByZWNlbnRseSBiZWVuIGJyYW5jaGVkIG9mZiwgc2VlPTIwDQpodHRwOi8v
-d3d3LnJzYmFjLm9yZy90b2RvLg0KDQo9NDZvciBmaXJzdCB0ZXN0cyB3aXRob3V0IGluc3RhbGxh
-dGlvbiB5b3UgY2FuIHRyeSB0aGUgRGViaWFuIGJhc2VkPTIwDQpSU0JBQyBMaXZlIENEIGF0IGh0
-dHA6Ly9saXZlY2QucnNiYWMub3JnDQoNClBsZWFzZSBmb3J3YXJkIHRoaXMgYW5ub3VuY2VtZW50
-IHRvIHdoZXJlZXZlciB5b3UgdGhpbmsgaXQgaXM9MjANCmFwcGxpY2FibGUsICBlLmcuICBsb2Nh
-bCBvciBuYXRpb25hbCBzZWN1cml0eSBsaXN0cywgbmV3c3BhcGVycyBvcj0yMA0KbWFnYXppbmVz
-LCBvciB5b3VyIGZhdm91cml0ZSBJbnRlcm5ldCBmb3J1bS4NCg0KPTQ2ZWVkYmFjayBpcyBhbHdh
-eXMgd2VsY29tZSENCg0KQW1vbiBPdHQuDQo9MkQtPTIwDQpodHRwOi8vd3d3LnJzYmFjLm9yZyAt
-IEdudVBHOiAyMDQ4Zy81REVBQUEzMCAyMDAyLTEwLTIyDQoNCi0tbmV4dFBhcnQxMzY5NjE5Lmh4
-bFgxamJ0SXoNCkNvbnRlbnQtVHJhbnNmZXItRW5jb2Rpbmc6IDdiaXQNCkNvbnRlbnQtVHlwZTog
-YXBwbGljYXRpb24vcGdwLXNpZ25hdHVyZQ0KDQotLS0tLUJFR0lOIFBHUCBTSUdOQVRVUkUtLS0t
-LQ0KVmVyc2lvbjogR251UEcgdjEuNC4xIChHTlUvTGludXgpDQoNCmlEOERCUUJET1FMQnE5eW42
-aDVSVG84UkF2WnJBSjkvdklVVmxocy9meU9vNEF0MHBDUVVWRmRZdVFDYUE1NDkNCmY4VEExbzJX
-bkE0UlVxbXlDMWs1V1VJPQ0KPXV5RzgNCi0tLS0tRU5EIFBHUCBTSUdOQVRVUkUtLS0tLQ0KDQot
-LW5leHRQYXJ0MTM2OTYxOS5oeGxYMWpidEl6LS0NCg==
+Greetings,
+Rafael
 
-------_=_NextPart_001_01C5C437.CEB82C14--
+
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+
+Index: linux-2.6.14-rc2-git6/arch/x86_64/kernel/suspend.c
+===================================================================
+--- linux-2.6.14-rc2-git6.orig/arch/x86_64/kernel/suspend.c	2005-09-28 01:17:23.000000000 +0200
++++ linux-2.6.14-rc2-git6/arch/x86_64/kernel/suspend.c	2005-09-28 10:28:05.000000000 +0200
+@@ -11,6 +11,21 @@
+ #include <linux/smp.h>
+ #include <linux/suspend.h>
+ #include <asm/proto.h>
++#include <asm/page.h>
++#include <asm/pgtable.h>
++
++#define MAX_RESUME_PUD_ENTRIES	8
++#define MAX_RESUME_RAM_SIZE	(MAX_RESUME_PUD_ENTRIES * PTRS_PER_PMD * PMD_SIZE)
++
++int arch_prepare_suspend(void)
++{
++	if (MAX_RESUME_RAM_SIZE < (end_pfn << PAGE_SHIFT)) {
++		printk(KERN_ERR "Too much RAM for suspend (%lu K), max. allowed: %lu K",
++			end_pfn << (PAGE_SHIFT - 10), MAX_RESUME_RAM_SIZE >> 10);
++		return -ENOMEM;
++	}
++	return 0;
++}
+ 
+ struct saved_context saved_context;
+ 
+@@ -140,4 +155,62 @@
+ 
+ }
+ 
++/* Defined in arch/x86_64/kernel/suspend_asm.S */
++int restore_image(void);
++
++/* References to section boundaries */
++extern const void __nosave_begin, __nosave_end;
+ 
++pgd_t resume_level4_pgt[PTRS_PER_PGD] __nosavedata;
++pud_t resume_level3_pgt[PTRS_PER_PUD] __nosavedata;
++pmd_t resume_level2_pgt[MAX_RESUME_PUD_ENTRIES*PTRS_PER_PMD] __nosavedata;
++
++static void phys_pud_init(pud_t *pud, unsigned long end)
++{
++	long i, j;
++	pmd_t *pmd = resume_level2_pgt;
++
++	for (i = 0; i < PTRS_PER_PUD; pud++, i++) {
++		unsigned long paddr;
++
++		paddr = i*PUD_SIZE;
++		if (paddr >= end) {
++			for (; i < PTRS_PER_PUD; i++, pud++)
++				set_pud(pud, __pud(0));
++			break;
++		}
++
++		set_pud(pud, __pud(__pa(pmd) | _KERNPG_TABLE));
++		for (j = 0; j < PTRS_PER_PMD; pmd++, j++, paddr += PMD_SIZE) {
++			unsigned long pe;
++
++			if (paddr >= end) {
++				for (; j < PTRS_PER_PMD; j++, pmd++)
++					set_pmd(pmd,  __pmd(0));
++				break;
++			}
++			pe = _PAGE_NX|_PAGE_PSE | _KERNPG_TABLE | _PAGE_GLOBAL | paddr;
++			pe &= __supported_pte_mask;
++			set_pmd(pmd, __pmd(pe));
++		}
++	}
++}
++
++static void set_up_temporary_mappings(void)
++{
++	/* It is safe to reuse the original kernel mapping */
++	set_pgd(resume_level4_pgt + pgd_index(__START_KERNEL_map),
++		init_level4_pgt[pgd_index(__START_KERNEL_map)]);
++
++	/* Set up the direct mapping from scratch */
++	phys_pud_init(resume_level3_pgt, end_pfn << PAGE_SHIFT);
++	set_pgd(resume_level4_pgt + pgd_index(PAGE_OFFSET),
++		mk_kernel_pgd(__pa(resume_level3_pgt)));
++}
++
++int swsusp_arch_resume(void)
++{
++	set_up_temporary_mappings();
++	restore_image();
++	return 0;
++}
+Index: linux-2.6.14-rc2-git6/arch/x86_64/kernel/suspend_asm.S
+===================================================================
+--- linux-2.6.14-rc2-git6.orig/arch/x86_64/kernel/suspend_asm.S	2005-09-28 01:17:23.000000000 +0200
++++ linux-2.6.14-rc2-git6/arch/x86_64/kernel/suspend_asm.S	2005-09-28 01:18:12.000000000 +0200
+@@ -39,12 +39,12 @@
+ 	call swsusp_save
+ 	ret
+ 
+-ENTRY(swsusp_arch_resume)
+-	/* set up cr3 */	
+-	leaq	init_level4_pgt(%rip),%rax
+-	subq	$__START_KERNEL_map,%rax
+-	movq	%rax,%cr3
+-
++ENTRY(restore_image)
++	/* switch to temporary page tables */
++	leaq	resume_level4_pgt(%rip), %rax
++	subq	$__START_KERNEL_map, %rax
++	movq	%rax, %cr3
++	/* Flush TLB */
+ 	movq	mmu_cr4_features(%rip), %rax
+ 	movq	%rax, %rdx
+ 	andq	$~(1<<7), %rdx	# PGE
+@@ -69,6 +69,10 @@
+ 	movq	pbe_next(%rdx), %rdx
+ 	jmp	loop
+ done:
++	/* go back to the original page tables */
++	leaq	init_level4_pgt(%rip), %rax
++	subq	$__START_KERNEL_map, %rax
++	movq	%rax, %cr3
+ 	/* Flush TLB, including "global" things (vmalloc) */
+ 	movq	mmu_cr4_features(%rip), %rax
+ 	movq	%rax, %rdx
+Index: linux-2.6.14-rc2-git6/include/asm-x86_64/suspend.h
+===================================================================
+--- linux-2.6.14-rc2-git6.orig/include/asm-x86_64/suspend.h	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.14-rc2-git6/include/asm-x86_64/suspend.h	2005-09-28 01:18:12.000000000 +0200
+@@ -6,11 +6,7 @@
+ #include <asm/desc.h>
+ #include <asm/i387.h>
+ 
+-static inline int
+-arch_prepare_suspend(void)
+-{
+-	return 0;
+-}
++extern int arch_prepare_suspend(void);
+ 
+ /* Image of the saved processor state. If you touch this, fix acpi_wakeup.S. */
+ struct saved_context {

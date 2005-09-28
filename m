@@ -1,50 +1,189 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751164AbVI0X2l@vger.kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+X-Sieve: CMU Sieve 2.2
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751164AbVI0X2l (ORCPT <rfc822;akpm@zip.com.au>);
-	Tue, 27 Sep 2005 19:28:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbVI0X2l
+	id S964854AbVI0IGq (ORCPT <rfc822;rjwysocki@sisk.pl>);
+	Tue, 27 Sep 2005 04:06:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964855AbVI0IGq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 19:28:41 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:14557 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751160AbVI0X2k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 19:28:40 -0400
-Message-ID: <5f7e01c5c3b8$3589acd1$425a9d8c@infonegocio.com>
-From: Michael WICKHAM <Rea@infonegocio.com>
-To: linux-kernel@vger.kernel.org
-Subject: =?iso-8859-1?B?LCBvcGVuIHBvc2l0aW9uIGF2YWlsYWJsZSE=?=
-Date: Tue, 27 Sep 2005 23:10:00 +0000
+	Tue, 27 Sep 2005 04:06:46 -0400
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:13518 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S964854AbVI0IGp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 04:06:45 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: [PATCH][Fix] Fix Bug #4959 (take 3)
+Date: Wed, 28 Sep 2005 12:29:52 +0200
+User-Agent: KMail/1.8.2
+Cc: LKML <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
+        Andrew Morton <akpm@osdl.org>
+References: <200509241936.12214.rjw@sisk.pl>
+In-Reply-To: <200509241936.12214.rjw@sisk.pl>
 MIME-Version: 1.0
-Content-Type: text/plain;
-    format=flowed;
-    charset="iso-8859-1";
-    reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express V6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Content-Disposition: inline
+Message-Id: <200509281229.53262.linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+X-Length: 10927
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 
-Do you want to make money working at home? Do you need second income source?
-We are looking for people that want to make money working from home!
-No start up cost ! No Experience necessary! We will coach you.
-Many years in business means more work security and peace of mind.
-We are looking for people that want to make money working part time.
-We will need 3 hours per day from you. You can work part time or full time.
-Be your own boss and make money working a couple of hours per day.
-Many successful members started with no previous experience.
-Remember there are no costs to start working with our company.
-Work Smarter, Not Harder! You CAN make a difference in your financial future!
-Spend more time with your family doing the things that bring enjoyment to your life!
-Your commitment to success can make it all happen!
+Hi,
 
-APPLY NOW to get more information about this exciting opportunity.
-To continue with the application please fill out the form at:
+The following patch fixes Bug #4959.  For this purpose it creates temporary
+page translation tables including the kernel mapping (reused) and the direct
+mapping (created from scratch) and makes swsusp switch to these tables
+right before the image is restored.
 
-http://www.tera-consulting.org/careers.html
+The code that generates the direct mapping is based on the code in
+arch/x86_64/mm/init.c.
 
-Good luck!
-John Mohan
+Please consider for applying.
 
+Greetings,
+Rafael
+
+
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+
+Index: linux-2.6.14-rc2-git6/arch/x86_64/kernel/suspend.c
+===================================================================
+--- linux-2.6.14-rc2-git6.orig/arch/x86_64/kernel/suspend.c	2005-09-28 01:17:23.000000000 +0200
++++ linux-2.6.14-rc2-git6/arch/x86_64/kernel/suspend.c	2005-09-28 10:28:05.000000000 +0200
+@@ -11,6 +11,21 @@
+ #include <linux/smp.h>
+ #include <linux/suspend.h>
+ #include <asm/proto.h>
++#include <asm/page.h>
++#include <asm/pgtable.h>
++
++#define MAX_RESUME_PUD_ENTRIES	8
++#define MAX_RESUME_RAM_SIZE	(MAX_RESUME_PUD_ENTRIES * PTRS_PER_PMD * PMD_SIZE)
++
++int arch_prepare_suspend(void)
++{
++	if (MAX_RESUME_RAM_SIZE < (end_pfn << PAGE_SHIFT)) {
++		printk(KERN_ERR "Too much RAM for suspend (%lu K), max. allowed: %lu K",
++			end_pfn << (PAGE_SHIFT - 10), MAX_RESUME_RAM_SIZE >> 10);
++		return -ENOMEM;
++	}
++	return 0;
++}
+ 
+ struct saved_context saved_context;
+ 
+@@ -140,4 +155,62 @@
+ 
+ }
+ 
++/* Defined in arch/x86_64/kernel/suspend_asm.S */
++int restore_image(void);
++
++/* References to section boundaries */
++extern const void __nosave_begin, __nosave_end;
+ 
++pgd_t resume_level4_pgt[PTRS_PER_PGD] __nosavedata;
++pud_t resume_level3_pgt[PTRS_PER_PUD] __nosavedata;
++pmd_t resume_level2_pgt[MAX_RESUME_PUD_ENTRIES*PTRS_PER_PMD] __nosavedata;
++
++static void phys_pud_init(pud_t *pud, unsigned long end)
++{
++	long i, j;
++	pmd_t *pmd = resume_level2_pgt;
++
++	for (i = 0; i < PTRS_PER_PUD; pud++, i++) {
++		unsigned long paddr;
++
++		paddr = i*PUD_SIZE;
++		if (paddr >= end) {
++			for (; i < PTRS_PER_PUD; i++, pud++)
++				set_pud(pud, __pud(0));
++			break;
++		}
++
++		set_pud(pud, __pud(__pa(pmd) | _KERNPG_TABLE));
++		for (j = 0; j < PTRS_PER_PMD; pmd++, j++, paddr += PMD_SIZE) {
++			unsigned long pe;
++
++			if (paddr >= end) {
++				for (; j < PTRS_PER_PMD; j++, pmd++)
++					set_pmd(pmd,  __pmd(0));
++				break;
++			}
++			pe = _PAGE_NX|_PAGE_PSE | _KERNPG_TABLE | _PAGE_GLOBAL | paddr;
++			pe &= __supported_pte_mask;
++			set_pmd(pmd, __pmd(pe));
++		}
++	}
++}
++
++static void set_up_temporary_mappings(void)
++{
++	/* It is safe to reuse the original kernel mapping */
++	set_pgd(resume_level4_pgt + pgd_index(__START_KERNEL_map),
++		init_level4_pgt[pgd_index(__START_KERNEL_map)]);
++
++	/* Set up the direct mapping from scratch */
++	phys_pud_init(resume_level3_pgt, end_pfn << PAGE_SHIFT);
++	set_pgd(resume_level4_pgt + pgd_index(PAGE_OFFSET),
++		mk_kernel_pgd(__pa(resume_level3_pgt)));
++}
++
++int swsusp_arch_resume(void)
++{
++	set_up_temporary_mappings();
++	restore_image();
++	return 0;
++}
+Index: linux-2.6.14-rc2-git6/arch/x86_64/kernel/suspend_asm.S
+===================================================================
+--- linux-2.6.14-rc2-git6.orig/arch/x86_64/kernel/suspend_asm.S	2005-09-28 01:17:23.000000000 +0200
++++ linux-2.6.14-rc2-git6/arch/x86_64/kernel/suspend_asm.S	2005-09-28 01:18:12.000000000 +0200
+@@ -39,12 +39,12 @@
+ 	call swsusp_save
+ 	ret
+ 
+-ENTRY(swsusp_arch_resume)
+-	/* set up cr3 */	
+-	leaq	init_level4_pgt(%rip),%rax
+-	subq	$__START_KERNEL_map,%rax
+-	movq	%rax,%cr3
+-
++ENTRY(restore_image)
++	/* switch to temporary page tables */
++	leaq	resume_level4_pgt(%rip), %rax
++	subq	$__START_KERNEL_map, %rax
++	movq	%rax, %cr3
++	/* Flush TLB */
+ 	movq	mmu_cr4_features(%rip), %rax
+ 	movq	%rax, %rdx
+ 	andq	$~(1<<7), %rdx	# PGE
+@@ -69,6 +69,10 @@
+ 	movq	pbe_next(%rdx), %rdx
+ 	jmp	loop
+ done:
++	/* go back to the original page tables */
++	leaq	init_level4_pgt(%rip), %rax
++	subq	$__START_KERNEL_map, %rax
++	movq	%rax, %cr3
+ 	/* Flush TLB, including "global" things (vmalloc) */
+ 	movq	mmu_cr4_features(%rip), %rax
+ 	movq	%rax, %rdx
+Index: linux-2.6.14-rc2-git6/include/asm-x86_64/suspend.h
+===================================================================
+--- linux-2.6.14-rc2-git6.orig/include/asm-x86_64/suspend.h	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.14-rc2-git6/include/asm-x86_64/suspend.h	2005-09-28 01:18:12.000000000 +0200
+@@ -6,11 +6,7 @@
+ #include <asm/desc.h>
+ #include <asm/i387.h>
+ 
+-static inline int
+-arch_prepare_suspend(void)
+-{
+-	return 0;
+-}
++extern int arch_prepare_suspend(void);
+ 
+ /* Image of the saved processor state. If you touch this, fix acpi_wakeup.S. */
+ struct saved_context {

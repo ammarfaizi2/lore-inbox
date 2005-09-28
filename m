@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbVI1SFs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbVI1SHV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750707AbVI1SFs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 14:05:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750708AbVI1SFs
+	id S1750711AbVI1SHV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 14:07:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750713AbVI1SHV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 14:05:48 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:9956 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750707AbVI1SFr (ORCPT
+	Wed, 28 Sep 2005 14:07:21 -0400
+Received: from tiere.net.avaya.com ([198.152.12.100]:54997 "EHLO
+	tiere.net.avaya.com") by vger.kernel.org with ESMTP
+	id S1750711AbVI1SHU convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 14:05:47 -0400
-Date: Wed, 28 Sep 2005 11:03:49 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Paul Jackson <pj@sgi.com>
-cc: kurosawa@valinux.co.jp, taka@valinux.co.jp, magnus.damm@gmail.com,
-       dino@in.ibm.com, linux-kernel@vger.kernel.org,
-       ckrm-tech@lists.sourceforge.net, akpm@osdl.org
-Subject: Re: [PATCH] cpuset read past eof memory leak fix
-In-Reply-To: <20050928105316.0684c7cf.pj@sgi.com>
-Message-ID: <Pine.LNX.4.58.0509281100580.3308@g5.osdl.org>
-References: <20050908225539.0bc1acf6.pj@sgi.com> <20050909.203849.33293224.taka@valinux.co.jp>
- <20050909063131.64dc8155.pj@sgi.com> <20050910.161145.74742186.taka@valinux.co.jp>
- <20050910015209.4f581b8a.pj@sgi.com> <20050926093432.9975870043@sv1.valinux.co.jp>
- <20050927013751.47cbac8b.pj@sgi.com> <20050927113902.C78A570046@sv1.valinux.co.jp>
- <20050928092558.61F6170041@sv1.valinux.co.jp> <20050928064224.49170ca7.pj@sgi.com>
- <Pine.LNX.4.58.0509280758560.3308@g5.osdl.org> <20050928105316.0684c7cf.pj@sgi.com>
+	Wed, 28 Sep 2005 14:07:20 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+Subject: RE: [RFC PATCH] New SA_NOPRNOTIF sigaction flag
+Date: Wed, 28 Sep 2005 12:06:21 -0600
+Message-ID: <21FFE0795C0F654FAD783094A9AE1DFC086F02D1@cof110avexu4.global.avaya.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [RFC PATCH] New SA_NOPRNOTIF sigaction flag
+Thread-Index: AcXENmLaJQWJgFi9RZGK1SCQam7eWwAIIxbQ
+From: "Davda, Bhavesh P \(Bhavesh\)" <bhavesh@avaya.com>
+To: "Daniel Jacobowitz" <dan@debian.org>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 28 Sep 2005, Paul Jackson wrote:
+> Yes, I entirely understand what you're saying.  I feel like you're not
+> reading my responses.  GDB _already has a list of signals it does not
+> care about_.  If ptrace permitted, it could tell the kernel not to
+> context switch to deliver those signals.  In advance!  That's a
+> debugger-driven solution to your problem.
 > 
-> Too bad that first line doesn't start "Author:" instead of "From:".
-> Oh well - I see Andrew already suggested that, and you declined.
-> (You should'a listened to him ;).
+> I'm not arguing out of theory here.  I've implemented this mechanism
+> before in other contexts, for instance to prevent the remote protocol
+> overhead for ignored signals when using gdb with gdbserver.
+> 
 
-The "From:" rule has been implicit in my tools for a _loong_ time, and
-switching to "Author:" would just break the tools for no actual technical
-gain. Not just the tools, either, since Andrew isn't the only one who
-follows that From: rule - it would break "people".
 
-So you'd have to make the tools accept _both_ "From:" and "Author:", and I 
-personally prefer an _unambiguously_ slightly misnamed thing over some 
-"either X or Y" where X is slightly misnamed but accepted because it's the 
-one more commonly used.
+Okay, I'll come up with an alternative patch that enhances the ptrace
+interface so the debugger can guide the kernel to NOT context switch and
+bother it about signal x from task y.
 
-It's like the unix "creat()" system call. Sure, it would make more sense 
-to add the "e", but it wouldn't actually really _help_ anybody.
+Would you be amenable to such a patch?
 
-As to documenting the "From:" thing - yes, we probably should. It's quite 
-commonly used.
+Thanks
 
-		Linus
+- Bhavesh

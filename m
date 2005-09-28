@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbVI1Pef@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750858AbVI1Peq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750898AbVI1Pef (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 11:34:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750910AbVI1Pef
+	id S1750858AbVI1Peq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 11:34:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750977AbVI1Pep
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 11:34:35 -0400
-Received: from tantale.fifi.org ([64.81.251.130]:404 "EHLO tantale.fifi.org")
-	by vger.kernel.org with ESMTP id S1750858AbVI1Pef (ORCPT
+	Wed, 28 Sep 2005 11:34:45 -0400
+Received: from main.gmane.org ([80.91.229.2]:3216 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1750858AbVI1Pep (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 11:34:35 -0400
-To: Simon Kirby <sim@netnation.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Strangeness with signals
-References: <20050927232034.GC6833@netnation.com>
-	<87hdc6htur.fsf@ceramic.fifi.org>
-	<20050928034659.GA27953@netnation.com>
-Mail-Copies-To: nobody
-From: Philippe Troin <phil@fifi.org>
-Date: 28 Sep 2005 08:30:06 -0700
-In-Reply-To: <20050928034659.GA27953@netnation.com>
-Message-ID: <873bnp5hxd.fsf@ceramic.fifi.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 28 Sep 2005 11:34:45 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Matthieu CASTET <castet.matthieu@free.fr>
+Subject: Re: bogus VIA IRQ fixup in drivers/pci/quirks.c
+Date: Wed, 28 Sep 2005 17:32:57 +0200
+Message-ID: <pan.2005.09.28.15.32.56.897766@free.fr>
+References: <20050926184451.GB11752@suse.de> <Pine.LNX.4.58.0509261446590.3308@g5.osdl.org> <1127831274.433956ea35992@webmail.jordet.nu> <Pine.LNX.4.58.0509270734340.3308@g5.osdl.org> <1127855989.4339b77537987@webmail.jordet.nu> <Pine.LNX.4.58.0509271432490.3308@g5.osdl.org> <1127857716.4339be34f239f@webmail.jordet.nu> <Pine.LNX.4.58.0509271556211.3308@g5.osdl.org> <pan.2005.09.28.07.28.55.23717@free.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: cac94-1-81-57-151-96.fbx.proxad.net
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Simon Kirby <sim@netnation.com> writes:
+Le Wed, 28 Sep 2005 09:28:56 +0200, Matthieu CASTET a écrit :
 
-> On Tue, Sep 27, 2005 at 06:19:24PM -0700, Philippe Troin wrote:
+> Hi Linus,
 > 
-> > The SIGWINCH and SIGCHLD signals are not generated if their
-> > disposition is set to SIG_DFL.  I believe SIGCONT and SIGURG also
-> > behave similarly.  If you want to see them from your application, you
-> > have to establish a (potentially empty) signal handler.
+> Le Tue, 27 Sep 2005 15:58:33 -0700, Linus Torvalds a écrit :
 > 
-> Ok, and this is what I did in the example; however, is it expected that
-> it does not help to set a handler in sa_handler and call sigaction()?
-> In fact, it does not matter what sa_handler is set to (it can still be
-> SIG_IGN), but sa_sigaction must point to a valid handler.
+>> 
+>> 
+> 
+>> so my patch didn't change anything at all for you (which is correct - it 
+>> was designed not to ;)
+>> 
+> 
+> It will for me as I have [1].
+> 
+> But since the irq for ide are probe after, I think it won't change
+> anything.
+> I will try your patch when I'll have some free time.
+> 
+Seem to work fine here (disable all fix).
 
-As long as sa_handler (or sa_sigaction) is not SIG_DFL (which is NULL
-on linux).
-
-Phil.

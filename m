@@ -1,36 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbVI1VJX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750929AbVI1VKo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750744AbVI1VJX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 17:09:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbVI1VJX
+	id S1750929AbVI1VKo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 17:10:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750928AbVI1VKo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 17:09:23 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:6320 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750744AbVI1VJX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 17:09:23 -0400
-Date: Wed, 28 Sep 2005 14:09:12 -0700 (PDT)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Rohit Seth <rohit.seth@intel.com>
-cc: akpm@osdl.org, linux-mm@kvack.org, Mattia Dongili <malattia@linux.it>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] Reset the high water marks in CPUs pcp list
-In-Reply-To: <1127939185.5046.17.camel@akash.sc.intel.com>
-Message-ID: <Pine.LNX.4.62.0509281408480.15213@schroedinger.engr.sgi.com>
-References: <20050928105009.B29282@unix-os.sc.intel.com> 
- <Pine.LNX.4.62.0509281259550.14892@schroedinger.engr.sgi.com>
- <1127939185.5046.17.camel@akash.sc.intel.com>
+	Wed, 28 Sep 2005 17:10:44 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:50601 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1750923AbVI1VKn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 17:10:43 -0400
+Date: Wed, 28 Sep 2005 17:10:42 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Daniel Ritz <daniel.ritz@gmx.ch>
+cc: David Brownell <david-b@pacbell.net>, <rjw@sisk.pl>, <torvalds@osdl.org>,
+       <linux-usb-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>,
+       <hugh@veritas.com>, <akpm@osdl.org>
+Subject: Re: [linux-usb-devel] Re: 2.6.13-mm2
+In-Reply-To: <200509282245.30410.daniel.ritz@gmx.ch>
+Message-ID: <Pine.LNX.4.44L0.0509281706570.5193-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Sep 2005, Rohit Seth wrote:
+On Wed, 28 Sep 2005, Daniel Ritz wrote:
 
-> CONFIG_NUMA needs to be defined for that.  And then too for flushing the
-> remote pages.  Also, when are you flushing the local pcps.  Also note
-> that this patch is just bringing the free pages on the pcp list closer
-> to what used to be the number earlier.
+> > It's handled in hcd-pci.c ... All PCI based HCDs release their IRQs
+> > when they suspend.  Including OHCI.  Your diagnosis is incorrect.
+> 
+> would you be kind enough to tell me where?
+> 
+> my point is: the test patch i sent to rafael which comments out the
+> free_irq-on-suspend thing in hcd-pci.c shows that something is wrong with
+> USB (i think only OHCI. UHCI looks ok and about EHCI i have no data). 
 
-What was the reason for the increase of those numbers?
+There are two issues here: freeing the IRQ handler and preventing the 
+device from generating interrupt requests in the first place.  Dave and I 
+discussed this some time ago and agreed it was vital to stop interrupt 
+generation at the source, before releasing the handler, whenever the 
+device is suspended.
+
+So the real question becomes, is your OHCI controller somehow generating 
+interrupt requests at a time when it shouldn't be?  Adding debugging 
+printk's to the driver's interrupt handler could answer this.
+
+If it isn't, then the problem you see has some other cause.  ACPI often 
+turns out to be the culprit.
+
+Alan Stern
 

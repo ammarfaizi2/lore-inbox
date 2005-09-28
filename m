@@ -1,42 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751039AbVI1PFQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751035AbVI1PEs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751039AbVI1PFQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 11:05:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751040AbVI1PFQ
+	id S1751035AbVI1PEs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 11:04:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751036AbVI1PEs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 11:05:16 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:49574 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1751039AbVI1PFO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 11:05:14 -0400
-Subject: Re: Infinite interrupt loop, INTSTAT = 0
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Olivier Galibert <galibert@pobox.com>
-Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       "Hack inc." <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050928134514.GA19734@dspnet.fr.eu.org>
-References: <20050928134514.GA19734@dspnet.fr.eu.org>
+	Wed, 28 Sep 2005 11:04:48 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:42737 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S1751034AbVI1PEr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 11:04:47 -0400
+Subject: Re: [PATCH] RT:  unwritten_done_lock to DEFINE_SPINLOCK
+From: Daniel Walker <dwalker@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050928093424.GC30820@elte.hu>
+References: <1127845928.4004.26.camel@dhcp153.mvista.com>
+	 <20050928093424.GC30820@elte.hu>
 Content-Type: text/plain
-Date: Wed, 28 Sep 2005 10:05:08 -0500
-Message-Id: <1127919909.4852.7.camel@mulgrave>
+Date: Wed, 28 Sep 2005 08:04:02 -0700
+Message-Id: <1127919842.8520.2.camel@c-67-188-6-232.hsd1.ca.comcast.net>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-6) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-09-28 at 15:45 +0200, Olivier Galibert wrote:
-> Sep 28 15:26:13 m82 kernel: scsi1:0:0:0: Attempting to abort cmd ffff8100bfe3e300: 0x28 0x0 0x0 0x50 0x0 0x3f 0x0 0x0 0x8 0x0
-> Sep 28 15:26:13 m82 kernel: Infinite interrupt loop, INTSTAT = 0scsi1: At time of recovery, card was not paused
-> Sep 28 15:26:13 m82 kernel: >>>>>>>>>>>>>>>>>> Dump Card State Begins <<<<<<<<<<<<<<<<<
+On Wed, 2005-09-28 at 11:34 +0200, Ingo Molnar wrote:
+> * Daniel Walker <dwalker@mvista.com> wrote:
+> 
+> > Convert unwritten_done_lock xfs lock to the new syntax.
+> > 
+> > Signed-Off-By: Daniel Walker <dwalker@mvista.com>
+> > 
+> > Index: linux-2.6.13/fs/xfs/linux-2.6/xfs_aops.c
+> > ===================================================================
+> > --- linux-2.6.13.orig/fs/xfs/linux-2.6/xfs_aops.c
+> > +++ linux-2.6.13/fs/xfs/linux-2.6/xfs_aops.c
+> > @@ -192,7 +192,7 @@ linvfs_unwritten_done(
+> >  	int			uptodate)
+> >  {
+> >  	xfs_ioend_t		*ioend = bh->b_private;
+> > -	static spinlock_t	unwritten_done_lock = SPIN_LOCK_UNLOCKED;
+> > +	static DECLARE_SPINLOCK(unwritten_done_lock);
+> 
+> applied, with the additional detail that it's DEFINE, not DECLARE.
 
-What was it doing before this?  i.e. what were all the messages from the
-card.  The message happens when the aic driver is unable to clear its
-pending workqueue after it suspends ... which is part of error recovery.
-So, what error was it trying to recover from?
+Yeah, thanks .
 
-By the way, your AIC-7892 is a different driver.
-
-James
-
+Daniel
 

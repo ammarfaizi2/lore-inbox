@@ -1,91 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030205AbVI1HNz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030207AbVI1HXh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030205AbVI1HNz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 03:13:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030209AbVI1HNp
+	id S1030207AbVI1HXh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 03:23:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030208AbVI1HXh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 03:13:45 -0400
-Received: from mailgate2.urz.uni-halle.de ([141.48.3.8]:35203 "EHLO
-	mailgate2.uni-halle.de") by vger.kernel.org with ESMTP
-	id S1030207AbVI1HNU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 03:13:20 -0400
-Date: Wed, 28 Sep 2005 09:12:31 +0200 (MEST)
-From: Clemens Ladisch <clemens@ladisch.de>
-Subject: [PATCH 6/7] HPET-RTC: fix timer config register accesses
-In-reply-to: <20050928071155.23025.43523.balrog@turing>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, Bob Picco <bob.picco@hp.com>,
-       Clemens Ladisch <clemens@ladisch.de>
-Message-id: <20050928071231.23025.2922.balrog@turing>
-Content-transfer-encoding: 7BIT
-References: <20050928071155.23025.43523.balrog@turing>
-X-Scan-Signature: f968a577e6e619a9e09c6ac4b381cfb5
+	Wed, 28 Sep 2005 03:23:37 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:28811 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S1030207AbVI1HXg convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 03:23:36 -0400
+Subject: Re: AIO Support and related package information??
+From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+To: vikas gupta <vikas_gupta51013@yahoo.co.in>
+Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org, bcrl@kvack.org
+In-Reply-To: <20050927070933.77908.qmail@web8409.mail.in.yahoo.com>
+References: <20050927070933.77908.qmail@web8409.mail.in.yahoo.com>
+Date: Wed, 28 Sep 2005 09:25:24 +0200
+Message-Id: <1127892324.2103.39.camel@frecb000686>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 28/09/2005 09:36:50,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 28/09/2005 09:36:56,
+	Serialize complete at 28/09/2005 09:36:56
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Make sure that the RTC timer is in non-periodic mode; some stupid BIOS
-might have initialized it to periodic mode.
+On Tue, 2005-09-27 at 08:09 +0100, vikas gupta wrote:
+> HI Sebastien,
+> Thanks for your Reply 
+> ...
+> 
+> As i told you that i am trying to build libposix
+> package for arm platform,with bare Kernel AIO Support
+> (without applying patches) and libposix-0.6 package.
+> 
+> When i tried to build the package then while
+> configuration it is  showing Following
+> 
+> Error:
+> 
+> "Checking for default value for max events...
+> configure: error: cannot 
+> run
+> test program while cross compiling
+> See `config.log' for more details."
+> 
+> I traced the configure script for following Error and
+> got following code that is, I think causing this
+> Problem:
+> 
+> Code in configure script:
+> 
+> if test "${enable_default_maxevents+set}" = set; then
+>   enableval="$enable_default_maxevents"
+>   ac_aio_default_maxevents=$enableval
+> else
+>   echo "$as_me:$LINENO: checking for default value for
+> max events" >&5
+> echo $ECHO_N "checking for default value for max
+> events... $ECHO_C" >&6
+> if test "$cross_compiling" = yes; then
+>   { { echo "$as_me:$LINENO: error: cannot run test
+> program while cross
+> compiling
+> See \`config.log' for more details." >&5
+> echo "$as_me: error: cannot run test program while
+> cross compiling
+> See \`config.log' for more details." >&2;}
+>    { (exit 1); exit 1; }; }
+> else
+>   cat >conftest.$ac_ext <<_ACEOF
+> 
+> Even on x86 it is going into else part but their as
+> cross compiling is false in that case it goes to 
+> cat > conftest.$ac_ext <<_ACEOF
+> 
+> 
+> So With this code while cross compiling we always face
+> the same  problem...
+> 
+> So Can you please tell me how to resolve this
+> problem...
+> 
+> Thanks in advance...
+> 
+> Vikas
+> 
 
-Furthermore, don't set the SETVAL bit in the config register.  This
-wouldn't have any effect unless the timer was in period mode (which it
-isn't), and then the actual timer frequency would be half that of the
-desired one because incrementing the comparator in the interrupt
-handler would be done after the hardware has already incremented it
-itself.
+  Ok, then try to disable all the feature with:
 
-Signed-off-by: Clemens Ladisch <clemens@ladisch.de>
+./configure --disable-default-maxevents --disable-aio-signal
+--disable-lio-signal --disable-lio-wait --disable-cancel-fd
+--disable-buffered-aio
 
-Index: linux-2.6.13/arch/i386/kernel/time_hpet.c
-===================================================================
---- linux-2.6.13.orig/arch/i386/kernel/time_hpet.c	2005-09-27 21:56:38.000000000 +0200
-+++ linux-2.6.13/arch/i386/kernel/time_hpet.c	2005-09-27 21:59:13.000000000 +0200
-@@ -309,7 +309,8 @@ int hpet_rtc_timer_init(void)
- 	local_irq_restore(flags);
- 
- 	cfg = hpet_readl(HPET_T1_CFG);
--	cfg |= HPET_TN_ENABLE | HPET_TN_SETVAL | HPET_TN_32BIT;
-+	cfg &= ~HPET_TN_PERIODIC;
-+	cfg |= HPET_TN_ENABLE | HPET_TN_32BIT;
- 	hpet_writel(cfg, HPET_T1_CFG);
- 
- 	return 1;
-@@ -335,12 +336,6 @@ static void hpet_rtc_timer_reinit(void)
- 	cnt = hpet_readl(HPET_T1_CMP);
- 	cnt += hpet_tick*HZ/hpet_rtc_int_freq;
- 	hpet_writel(cnt, HPET_T1_CMP);
--
--	cfg = hpet_readl(HPET_T1_CFG);
--	cfg |= HPET_TN_ENABLE | HPET_TN_SETVAL | HPET_TN_32BIT;
--	hpet_writel(cfg, HPET_T1_CFG);
--
--	return;
- }
- 
- /*
-Index: linux-2.6.13/arch/x86_64/kernel/time.c
-===================================================================
---- linux-2.6.13.orig/arch/x86_64/kernel/time.c	2005-09-27 21:57:27.000000000 +0200
-+++ linux-2.6.13/arch/x86_64/kernel/time.c	2005-09-27 21:59:13.000000000 +0200
-@@ -1139,7 +1139,8 @@ int hpet_rtc_timer_init(void)
- 	local_irq_restore(flags);
- 
- 	cfg = hpet_readl(HPET_T1_CFG);
--	cfg |= HPET_TN_ENABLE | HPET_TN_SETVAL | HPET_TN_32BIT;
-+	cfg &= ~HPET_TN_PERIODIC;
-+	cfg |= HPET_TN_ENABLE | HPET_TN_32BIT;
- 	hpet_writel(cfg, HPET_T1_CFG);
- 
- 	return 1;
-@@ -1165,12 +1166,6 @@ static void hpet_rtc_timer_reinit(void)
- 	cnt = hpet_readl(HPET_T1_CMP);
- 	cnt += hpet_tick*HZ/hpet_rtc_int_freq;
- 	hpet_writel(cnt, HPET_T1_CMP);
--
--	cfg = hpet_readl(HPET_T1_CFG);
--	cfg |= HPET_TN_ENABLE | HPET_TN_SETVAL | HPET_TN_32BIT;
--	hpet_writel(cfg, HPET_T1_CFG);
--
--	return;
- }
- 
- /*
+  that way, the configure script will not try to autodetect
+kernel features.
+
+  The configure options available may be found with
+
+    configure --help
+
+  aio_read and aio_write with no event notification should work
+provided you implemented the ARM syscall wrappers.
+
+  Sebastien.
+
+
+-- 
+------------------------------------------------------
+
+  Sébastien Dugué                BULL/FREC:B1-247
+  phone: (+33) 476 29 77 70      Bullcom: 229-7770
+
+  mailto:sebastien.dugue@bull.net
+
+  Linux POSIX AIO: http://www.bullopensource.org/posix
+  
+------------------------------------------------------
+

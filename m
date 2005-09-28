@@ -1,55 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030215AbVI1Ihy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030216AbVI1ImL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030215AbVI1Ihy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 04:37:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030216AbVI1Ihy
+	id S1030216AbVI1ImL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 04:42:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030218AbVI1ImK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 04:37:54 -0400
-Received: from smtp.cs.aau.dk ([130.225.194.6]:18560 "EHLO smtp.cs.aau.dk")
-	by vger.kernel.org with ESMTP id S1030215AbVI1Ihx (ORCPT
+	Wed, 28 Sep 2005 04:42:10 -0400
+Received: from quechua.inka.de ([193.197.184.2]:57504 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S1030216AbVI1ImJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 04:37:53 -0400
-Message-ID: <433A55F0.5060809@cs.aau.dk>
-Date: Wed, 28 Sep 2005 10:36:00 +0200
-From: Emmanuel Fleury <fleury@cs.aau.dk>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel ML <linux-kernel@vger.kernel.org>, 7eggert@gmx.de
+	Wed, 28 Sep 2005 04:42:09 -0400
+From: Andreas Jellinghaus <aj@dungeon.inka.de>
 Subject: Re: [ANNOUNCE] Framework for automatic Configuration of a Kernel
-References: <4Rne4-4sd-3@gated-at.bofh.it> <4Rq2b-i7-1@gated-at.bofh.it> <E1EKSQx-0002Pf-M5@be1.lrz>
-In-Reply-To: <E1EKSQx-0002Pf-M5@be1.lrz>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+Mail-Copies-To: aj@dungeon.inka.de
+Date: Wed, 28 Sep 2005 10:46:30 +0200
+References: <20050927125300.24574.qmail@web51014.mail.yahoo.com> <43396A6A.30104@cs.aau.dk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+Message-Id: <20050928084206.38991212C7@dungeon.inka.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bodo Eggert wrote:
+Emmanuel Fleury wrote:
+> I might be wrong, but I don't think that there is any other way to get
+> hardware information but through the /proc or /sys interface.
 > 
-> You can actually try to probe the legacy ports like LPT and COM if you've
-> got the correct permissions. However, you SHOULD avoid any port except the
-> default port ranges and ask the user for non-standard hardware and you
-> SHOULD NOT touch devices being in use.
-> 
-> Each piece of hardware will be different, and you'll fell like having opened
-> a large freight container of worms.
+> Can somebody comment on this ?
 
-But you are speaking about printer/scanner/... or other external
-devices, isn't it ?
+dmidecode will give you some hardware information on some systems.
 
-Do you think they should be included in the automatic detection ? Or
-would it be safer to let the user make the configuration by himself ?
+for example my dell latitude c600 laptop the bios claims to support:
+                        PCI is supported
+                        PC Card (PCMCIA) is supported
+                        PNP is supported
+                        APM is supported
+                        BIOS is upgradeable
+                        BIOS shadowing is allowed
+                        Boot from CD is supported
+                        Selectable boot is supported
+                        Boot from PC Card (PCMCIA) is supported
+                        3.5"/720 KB floppy services are supported (int 13h)
+                        Print screen service is supported (int 5h)
+                        8042 keyboard services are supported (int 9h)
+                        Serial services are supported (int 14h)
+                        Printer services are supported (int 17h)
+                        CGA/mono video services are supported (int 10h)
+                        ACPI is supported
+                        USB legacy is supported
+                        AGP is supported
+                        LS-120 boot is supported
+                        ATAPI Zip drive boot is supported
+                        Smart battery is supported
+                        BIOS boot specification is supported
 
-As you pointed it out, it requires special rights and might actually be
-dangerous. I'm not sure that this is worthing to try.
+and the chipsets might include support for hardware that
+is left dead. so it is nice to see which connectors the
+mainboard has. dmidecode for example tells me:
+Handle 0x0800
+        DMI type 8, 9 bytes.
+        Port Connector Information
+                Internal Reference Designator: PARALLEL
+                Internal Connector Type: None
+                External Reference Designator: Not Specified
+                External Connector Type: DB-25 female
+                Port Type: Parallel Port PS/2
+Handle 0x0801
+        DMI type 8, 9 bytes.
+        Port Connector Information
+                Internal Reference Designator: SERIAL1
+                Internal Connector Type: None
+                External Reference Designator: Not Specified
+                External Connector Type: DB-9 male
+                Port Type: Serial Port 16550A Compatible
 
-My view of this "autoconfig" was more to detect what is present in the
-box, not what is lying outside...
+i.e. I have a serial and parallel connector. even more interesting
+is:
+Handle 0x0809
+        DMI type 8, 9 bytes.
+        Port Connector Information
+                Internal Reference Designator: IrDA
+                Internal Connector Type: None
+                External Reference Designator: Not Specified
+                External Connector Type: Infrared
+                Port Type: Other
 
-Regards
--- 
-Emmanuel Fleury
+because irda hides behind a fake serial port, if I understand
+things right, so now you know the first serial port is real,
+the second not, but an irda port is missing.
 
-Security is a process, not a product.
-  -- Bruce Schneier (Crypto-gram, February 15, 2002)
+also dmidecode has details on the cpu.
+
+I hope that information helps? good luck!
+
+Regards, Andreas

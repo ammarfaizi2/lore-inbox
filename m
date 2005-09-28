@@ -1,65 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbVI1T3f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbVI1Tks@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750731AbVI1T3f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 15:29:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbVI1T3f
+	id S1750745AbVI1Tks (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 15:40:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750746AbVI1Tks
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 15:29:35 -0400
-Received: from web34114.mail.mud.yahoo.com ([66.163.178.112]:24707 "HELO
-	web34114.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750731AbVI1T3f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 15:29:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=NBx67W+Bn00fHThIaTgrOdML9TDAoJPLrc4Uqwa0Gvdh798yANIXjnyypkWOPiU7JQtOGHQ7xjwKu3e2UEH7KZdvUPG1MeN258l4TuasE6Ya6tNTILmwFv7p5LujqGY9bEO2vWwlBqhicgF50YSz9uAmQ/BkB4NXFIfNtZZp4hE=  ;
-Message-ID: <20050928192934.56067.qmail@web34114.mail.mud.yahoo.com>
-Date: Wed, 28 Sep 2005 12:29:34 -0700 (PDT)
-From: Wilson Li <yongshenglee@yahoo.com>
-Subject: Slow loading big kernel module in 2.6 on PPC platform
-To: linux-kernel@vger.kernel.org
+	Wed, 28 Sep 2005 15:40:48 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:49640 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1750745AbVI1Tkr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 15:40:47 -0400
+Date: Wed, 28 Sep 2005 15:40:46 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Greg KH <greg@kroah.com>
+cc: Pete Zaitcev <zaitcev@redhat.com>, <linux-kernel@vger.kernel.org>,
+       <linux-usb-devel@lists.sourceforge.net>,
+       <linux-usb-storage@lists.one-eyed-alien.net>
+Subject: Re: [linux-usb-devel] RFC drivers/usb/storage/libusual
+In-Reply-To: <20050928085159.GA11862@kroah.com>
+Message-ID: <Pine.LNX.4.44L0.0509281537070.5193-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 28 Sep 2005, Greg KH wrote:
 
-I am trying to port several third party kernel modules from kernel
-2.4 to 2.6 on a ppc (MPC824x) platform. For small size of modules, it
-works perfectly in 2.6. But there's one huge kernel module which size
-is about 2.7M bytes (size reported by lsmod after insmod), and it
-takes about 90 seconds to load this module before init_module starts.
-I did not notice there's such obvious delay in 2.4 kernel.
+> If so, a few comments.
+>   - This only covers the "which module to load" question.  Once the
+>     module is loaded, it still always grabs the storage devices, even if
+>     another module is loaded later on.  Isn't that still the same issue
+>     we have today?  Can't we fix this too?
 
-Initially I suspected there might be a problem of the insmod of
-busybox I was using. I switched to module-init-tools-3.1 insmod. It
-didn't help. I also tried other things like disabling CONFIG_KALLSYMS
-and commenting out all the EXPORT_SYMBOLs in that module. Nothing
-works so far. I've not been able to find any relevant thread about
-slow loading of big kernel module on PPC platform.
+How about exposing modules' id tables through sysfs and allowing a way 
+for entries to be marked valid or invalid?  Then a userspace utility 
+program could easily set things up so that normal USB storage devices are 
+accepted by usb-storage and not ub, or the other way around.
 
-Is this related to the new way of loading kernel module in 2.6 or
-vmalloc since the kernel module also needs contiguous memory? I am
-running 2.6.8 kernel on a ppc platform (MPC824x) with 24M bytes
-memory visible to kernel. Two small kernel modules are loaded first
-through shell command right after system boots up. And there are
-about 10M bytes free memory left before loading this big chunk. The
-memory seems big enough to me and memory is not that fragmented since
-it just boots up. 
+The part that Pete tackled, arranging the preferences when the modules 
+_aren't_ loaded, is actually the harder part.
 
-Any suggestions?
+Alan Stern
 
-Thanks a lot,
-Wilson Li
-
-
-
-
-
-
-		
-__________________________________ 
-Yahoo! Mail - PC Magazine Editors' Choice 2005 
-http://mail.yahoo.com

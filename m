@@ -1,78 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750972AbVI1NnO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750973AbVI1NpH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750972AbVI1NnO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 09:43:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750973AbVI1NnO
+	id S1750973AbVI1NpH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 09:45:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750977AbVI1NpH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 09:43:14 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:56798 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1750968AbVI1NnN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 09:43:13 -0400
-Date: Wed, 28 Sep 2005 06:42:24 -0700
-From: Paul Jackson <pj@sgi.com>
-To: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
-Cc: kurosawa@valinux.co.jp, taka@valinux.co.jp, magnus.damm@gmail.com,
-       dino@in.ibm.com, linux-kernel@vger.kernel.org,
-       ckrm-tech@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] cpuset read past eof memory leak fix
-Message-Id: <20050928064224.49170ca7.pj@sgi.com>
-In-Reply-To: <20050928092558.61F6170041@sv1.valinux.co.jp>
-References: <20050908225539.0bc1acf6.pj@sgi.com>
-	<20050909.203849.33293224.taka@valinux.co.jp>
-	<20050909063131.64dc8155.pj@sgi.com>
-	<20050910.161145.74742186.taka@valinux.co.jp>
-	<20050910015209.4f581b8a.pj@sgi.com>
-	<20050926093432.9975870043@sv1.valinux.co.jp>
-	<20050927013751.47cbac8b.pj@sgi.com>
-	<20050927113902.C78A570046@sv1.valinux.co.jp>
-	<20050928092558.61F6170041@sv1.valinux.co.jp>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 28 Sep 2005 09:45:07 -0400
+Received: from ams-iport-1.cisco.com ([144.254.224.140]:58423 "EHLO
+	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S1750973AbVI1NpG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 09:45:06 -0400
+To: Greg KH <greg@kroah.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [git pull] InfiniBand fixes for 2.6.14
+X-Message-Flag: Warning: May contain useful information
+References: <524q85on6e.fsf@cisco.com> <20050928093633.GA12757@kroah.com>
+From: Roland Dreier <rolandd@cisco.com>
+Date: Wed, 28 Sep 2005 06:44:55 -0700
+In-Reply-To: <20050928093633.GA12757@kroah.com> (Greg KH's message of "Wed,
+ 28 Sep 2005 02:36:33 -0700")
+Message-ID: <52zmpxmhm0.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+X-OriginalArrivalTime: 28 Sep 2005 13:44:56.0736 (UTC) FILETIME=[D0058A00:01C5C432]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Don't leak a page of memory if user reads a cpuset file past eof.
+    Greg> I didn't think that git pulls were going to be allowed from
+    Greg> subsystem maintainers after -rc1 came out.  After that,
+    Greg> patches by email were required to be sent, not git pulls.
+    Greg> This does cause a bit more work for the maintainer, but it
+    Greg> ensures that they only send the patches they really want to
+    Greg> get in.
 
-Signed-off-by: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
-Signed-off-by: Paul Jackson <pj@sgi.com>
+I specifically asked Linus about this a couple of weeks ago, and he
+said that bug-fix-only git merges are file.  See http://lkml.org/lkml/2005/9/13/277
 
---- linux-2.6.14-rc2.orig/kernel/cpuset.c
-+++ linux-2.6.14-rc2/kernel/cpuset.c	2005-09-28 17:42:00.759401736 +0900
-@@ -969,7 +969,7 @@ static ssize_t cpuset_common_file_read(s
- 	ssize_t retval = 0;
- 	char *s;
- 	char *start;
--	size_t n;
-+	ssize_t n;
- 
- 	if (!(page = (char *)__get_free_page(GFP_KERNEL)))
- 		return -ENOMEM;
-@@ -999,12 +999,13 @@ static ssize_t cpuset_common_file_read(s
- 	*s++ = '\n';
- 	*s = '\0';
- 
--	/* Do nothing if *ppos is at the eof or beyond the eof. */
--	if (s - page <= *ppos)
--		return 0;
--
- 	start = page + *ppos;
- 	n = s - start;
-+
-+	/* Do nothing if *ppos is at the eof or beyond the eof. */
-+	if (n <= 0)
-+		goto out;
-+
- 	retval = n - copy_to_user(buf, start, min(n, nbytes));
- 	*ppos += retval;
- out:
-
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+ - R.

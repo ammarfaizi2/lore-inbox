@@ -1,37 +1,203 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751082AbVI1P4g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751080AbVI1P7m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751082AbVI1P4g (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 11:56:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751023AbVI1P4f
+	id S1751080AbVI1P7m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 11:59:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751079AbVI1P7m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 11:56:35 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:52978 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S1751079AbVI1P4f
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 11:56:35 -0400
-Subject: Re: [PATCH] RT: epca_lock to DEFINE_SPINLOCK
-From: Daniel Walker <dwalker@mvista.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
-In-Reply-To: <1127900349.2893.19.camel@laptopd505.fenrus.org>
-References: <1127845928.4004.24.camel@dhcp153.mvista.com>
-	 <1127900349.2893.19.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Date: Wed, 28 Sep 2005 08:54:32 -0700
-Message-Id: <1127922873.8520.23.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
-Content-Transfer-Encoding: 7bit
+	Wed, 28 Sep 2005 11:59:42 -0400
+Received: from xproxy.gmail.com ([66.249.82.206]:45898 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751080AbVI1P7l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 11:59:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type;
+        b=DKZ7RsWzLcpfRhCuoddylV0DquTO87mHYzvnTsuSQzAhbmY1KbVtRCXAxZ6ayyD85D183+qk9Oty5wZ/ttmTWv3YDcIgYiQMkQy9bR5s/wHKuHzqCOHQiVrIUDZOk2Zln69YWDt+9E/EP9McIsEBvq9ZjbaLN6d2ODNGSX2JRTU=
+Message-ID: <5bdc1c8b05092808596a22847a@mail.gmail.com>
+Date: Wed, 28 Sep 2005 08:59:40 -0700
+From: Mark Knecht <markknecht@gmail.com>
+Reply-To: Mark Knecht <markknecht@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.14-rc2-rt6 build problems
+Cc: Ingo Molnar <mingo@elte.hu>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_3884_2495142.1127923180759"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-09-28 at 11:39 +0200, Arjan van de Ven wrote:
+------=_Part_3884_2495142.1127923180759
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> this is really ugly though; at minimum a DEFINE_STATIC_SPINLOCK() would
-> be needed to make this less ugly.
+Hi,
+   I'm new to the list and not a developer. Please take mercy.
 
+   I'm attempting to build 2.6.14-rc2-rt6 for a new AMD64/NForce4
+system but it's failing. I want to double check my build process. I've
+downloaded the 2.6.13 kernel source tree (not 2.6.13.2) and patched
+against that. Is that correct? The patches seemed to go cleanly as far
+as I could tell.
 
-Doesn't exists as far as I know .. Shall we make one ?
+cd /usr/src/linux/linux-2.6.13
+patch -p1 <~mark/patch-2.6.14-rc2
+patch -p1 <~mark/patch-2.6.14-rc2-rt6
 
-Daniel 
+First, the build gives this warning over and over:
 
+include/linux/time.h: In function `div_sign_safe_ns':
+include/linux/time.h:127: warning: implicit declaration of function
+`div_long_long_rem'
+
+and finally the build fails as follows:
+
+  LD      init/built-in.o
+  LD      .tmp_vmlinux1
+kernel/built-in.o(.text+0x9b49): In function `do_getitimer':
+: undefined reference to `div_long_long_rem'
+kernel/built-in.o(.text+0x9b9f): In function `do_getitimer':
+: undefined reference to `div_long_long_rem'
+kernel/built-in.o(.text+0x9c26): In function `do_getitimer':
+: undefined reference to `div_long_long_rem'
+kernel/built-in.o(.text+0x9c80): In function `do_getitimer':
+: undefined reference to `div_long_long_rem'
+kernel/built-in.o(.text+0x9f96): In function `do_setitimer':
+: undefined reference to `div_long_long_rem'
+kernel/built-in.o(.text+0x9fef): more undefined references to
+`div_long_long_rem' follow
+make: *** [.tmp_vmlinux1] Error 1
+lightning linux #
+
+I am attaching my kernel .config file in zipped format.
+
+Thanks,
+Mark
+
+------=_Part_3884_2495142.1127923180759
+Content-Type: application/x-bzip2; name="knecht-2.6.14-rc2-rt6.config.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="knecht-2.6.14-rc2-rt6.config.bz2"
+
+QlpoOTFBWSZTWeBAHbYACDxfgGAQWOf//z////C////gYCB8AAC977gAHFvsoggpPcxOvuLQAE0G
+t20U9O9oQPRphSKa9DpQNHOwB7apANdsvbe1p7mkds299b7ed3N32aeUndrw0EARpoBMhpGo0ZIZ
+T0mTTR6mR6ag0AGmhGpiZAQRMTQiMxQAAaA0AANNApoRo1Teqe1T09JqZGnlAaAAaGhoAASaShAQ
+MUNUbKPakNDQADIA9QB6gDIiT0TEg8KPUDQABpmo0zUaD0nqaDI0EiICE0aBNFM1AEgGgAAAAB3f
+mdv/fFSKoTgnS0J69LHNsAuFiIf1ZVW2So2kxgjioPxCjzCs8cB+NDStRB+fQ36aZ8G4qGNXRhVQ
+3BIS011swFEP9aXNHMrUqL8E+DjP82/XTvAzvZae7KOM8RKmKMVtKIsFijUsIKtZUthSopCioMtF
+OqYuW2+mFDraKaNRlooVkCllAr5UsBzXApjRtrVavspXErFrRbYVI0raLFCCyKbqYscZRbBalpVW
+KEWBaUBEBR2sDGQDPelEZFxCaIsFFkHLDGoW3hmYAtW2LRkFKyVqpIpUVVsWkIVAA4JmNtjq0iMf
+W2OiNKGqFuUNol0rFnFqmKlZ6ZmDK0NWVFmNlttpRKIitVacHMtQtqiMvGyVVQxta2FKtzKqYJWp
+KjatQVRJWUrbVreOCOZkMywzEyViqiVY0LRtqNaCNQkNTjVhaXh9R9TcV+7ZLzT7PZbvCpf4P332
+qP8m72eSgiSCB76++y25ahCoh/FNKIgZPAu02DMhfSfreAkT11V6CLiBeU1tttfIgbSBBBOcvGBZ
+Sk8ndYChkhRptL78wLDMxCMsuyjP7HXEL/68evb1+1rl2qzocDIrTAtMO7psZCHGtJQ8D0Mu2XP6
+X9M2RThv52yM3t20eLczxmM9Ab8GHD1cowvRXtWUpLm9/y9V3z+ddU+Jsd8Mf0jH4Mfzs/N/tl2n
++ULfmO8JXYXvi245JZCXdySNyIiogigrP65HBsHCnzOzCMhU0+VBExXP7Za4I4ZXNbD5e9jsTVY6
+QX9MP37/ddG3ZKSd99A+la6z3S0lUftYtN0ceNcV3OGiPFbLujPpJzGDtDZR+i76Dlle9u459IUl
+HWDOi72LVJstdmyefXEPRBDLXw8MsX3Z2cyfndYdwZxmubFhnaXRuZ9uX43JkirgzeDufi83KjlN
+zmpCcOL9LuQy35GlvXPQamcIfdbuburelmvCCZYsEcm8CmvXVzotxdXpnujxukDlLjsbusk7SYxi
+4z7HBLGm98p7XDeGklzZxXR1GXOLDkXDgw2RyU9GI2drWbTGFnZX7SPF7jDkhg2eycx0pySjNXRh
+yWoYjqQ7Mq7rBr+kBzWEX7jSfBu6SdsFpjZAXp0oxaC1iX0cJaz3shavD46jxV4Wy3KHSUJdL03d
+FwNbKY32cH3m483PWXeVvLJ2y9rn3bYc7cbsGMyZyxzzd3/T3eeXt9F/LhF9PesEJBIIF6+y93Ok
+if3GWhLogEWV1skEggOxUVOiCRhHVLCmGRdbmmc0tfkc2i1s4nPRVNRr+XUl9BzolhFZAJIJfyz5
+FBLBMOLg5Q2uWBNhJ5lhxiOyMZ2acFM13opbGI/EZ/fh8TXy5V9nuHBmQ+SU+VdmMya4ONpZn+cG
+vQ4Q/nGABnloy70gMO9FSuKukMavANkjHNCnZ1kakhWS8/on9kqC0B3o6yS5w0fthW6w+n6lr1tr
++zizn5DhzT/tn8d/w/Wrv4/qxfRll+xlX+Qz2vFqJri2/8qiw36J6gLvn/TTyyBFEFD4d1aGGLKd
+7c3/XnYILf4w0MW+MtB4n8RaOcRqdNsYe4yrcqHlj4+FNRtlvL0wkV2Jg0998bskvPb7Xk26UsTI
+Io8G7UDcLk3N/hg3UOiSnYDMwCK9u2zBbm/GqGMZjyIXW3/Kb+yM0SeTXZNbdRW6CluD67DAOqds
+NqBmqxeTQxyPi0iAPz9igu4bm8wosA2vrjaeKB65bS4VztEYoTOvj7gtG6tffeXIvYiwudfydWni
+EFCAMaxJ5rnljEpdIhwzNR+5CcF+kKtljLw8o8I2QVHphawEsCAikizD5q3d6gnjinMljL6DbKiy
+OoVx4Ulvt56WlP36klntbzd+DX2PGD5MJ+DsnoQSCUAkUVbDGFlmaMK0DzLwuDls2qwY8TVEOOoN
+XFw+dEvnRZOsWOa5QVp2VFzSI97LHZejyHzXUqO+oDY1eV5/RwMwCsUAZZGRAThBsnN7l3HiAXKz
+tTzHNuooxmw36XXx2W23gQyflSLmNGkphjgEMiJwTks+slTKFjGjDksjAtQwVgBL75/swx/H083H
+1G914C1cg8fgjTYgMInidg5p6dfdz5w3hxNlJxkijyxOUGXG3sxkNYq5v0u0ufOTt78ddNa4lI3I
+IJv9+2C2ajmmRkNM5X9+I+v8Ec1W1h6zuTNuPgO/r9XaNuGA82deVp1wR92hm/csR1pHWEuNSitn
+W6Xada1TrFtQb7kfWgwB5pSjOxujKd5mIRol3ne6mQ4YXpLTArb00yefrw9hmChbfFmynMwaKzJy
+t1nk8NMOsMdlWtYm/t9V9lRThrSrSZxjApLpMdtdYPhm/H3IsqFZzW63w0Owih4AhBICu7XNjvqn
+YuGDkXCQqDNVmS9Evn8oQLp9OgXzX3G3TyexKDbnB2KlNDSWkhiJqkoFaXPK575dS0Rpa6DZhe02
+g+aS2aBVASCQQbJ5ugzYDh1HGI5NbjZOq6itXVnSum+elJgNrGQpKGIRr30OeomE6WEuVNEKC6m0
+UB00VQJ9Z9HQ3beEIjZ3i6x3gZdMshK+y8af7SoGg24348a7YU+YUKTx07qouCrLSKBNHLLW3U29
+mGNwY3jSSnfJPU4iw3aCF7NDZ3+JkIAEwZJtHlPC1oY/GAHrrWxl6Blhhh3s1xJ/6ofO1+eKXoqM
+n8GQSDSSVTSN/uFBuUKkq4zat93kyFQBPN5JwUCd7xYQ72BOqT9PmH3fpR8lyDa7sRcq+Jw7636o
+oIYRAmgD08PqpumU4yMSlleQk1Wbc+qiDCSRfIUZoYhZ2DsB6XPCTUCcr6+ylgwLBty7Al2mwbAn
+O6Ty16gND1YecwlcPe4TdwhwDvRYPK676XpzzZGKivd46BqREMIgVyLSyRPSkTVgK1q+KFjMKnxt
+/SuxEWIxQWMEFRRGRURSLARggqsVYKgiyCxRggKqqIoqKRVkUBYoiRUFUUGJEUYiKCCyMVYjERhI
+ixFFWCxQRBVFGCorBBisFRWKqjEUiLESDFViqxFQYqCgqxBFRERZAURIKCogoqIIqqKsUTLLBBRW
+a2iKixRQIoKQVRiCMhBVYiogsjGQUIqigqjBEiKsiMUYoMUVYwQRAUWCqEURgsFCLBGKxkYAiykO
+ieCGqG88PwbdxCbtjexUKi71lezsmdBpcyUJLmbUgyPPFLUY11aBrPrYsNTItAZ7zadpgHGiyTtU
+oTLIcoCq7KUwPgQMigF1PnMw9Kb6vg7eJTKrn4k6a7zOdPoenVN0ObNL8XSwd7TvWuklVjc9tMPF
+rHkuyh1tE9qRfooOW/iTg2pyING2OoqtJETGveUEidITKSj8pSRBvziw2Yc/dnT2tY8MEiGJjEsG
+jNPpEMoZgg5KKFaGw9slJL2SgoxivAth9rRrHSpNNhh2arcyuvzrbINGyfxpTu0YXhTx30mMX2Mm
+MnNNHNaS24nRnihL9MVSkA16hEvgQW6dR+KmnZ49W64pLvfYphFhsr0eoXcZhEdLWp9UmGc5H5La
+p7GQKO4ViK83KrslvD4Czlu5LyaAReG6LC1ZkiYN9eM6CqKyBEExmukszxeWFEFtRrV1kAnye4BA
+loGgzJEiruAdxk0On0qEumg7lUsoVXOgg8NGet3B6aQTjLTJ0OEiSjKQ0Xo6LydDMm1UHEmUhGtd
+FWK/GpYGNtAnJbtJoM5FdCE2JtcaWx2g0fSv1np746PNbXp0cGmTkINkEKEtjGCFGbybIBhuqi1p
+v3xvzuMmZ9ttwYESBTv05GhRC9+/KTQYzYjU6ujyutrBO8LVmrS1iAbG1ecpZM0xQSAsqci/6GEl
+AjUSOuM+HQxEZM6kTfDgtLGmFQo8yHrosrBztZVOxA1BkosqOGj5ZzfuJ47wg+buOaBCEoM+Z4qj
+207zU0ZDasU5yezQNgLDWrqyGozAZ9Ro9md2pR25IOdr662CccNxT2cX4VqZXkDMmKSAYg2kYBIK
+X2bB7XGMN/X1WYsONs5vZ6c81vn6g8FRb2102D6cRyarv73QWOQ7ABz5NR9LE0F9BzBzhKyr579D
+cAHNkOLAKkgGzjIjAWBBYRYEUCSKQIoCydGBUhowgSpAWBwQAqQAFkICkD5GQknaHgZHmJRnjyBc
+S2yGnKcHg056zZiEwmU+aEmYNxkG9CSSiZAKUdIQUBhKMckvVaXGxw9ZpShTzHWlk70oF5DKEm5n
+MrctpiHxGjckyeX2wSi5zBMhbLe0TYg9Xr0327oKx9jKHN6GqjXg110Gwlxqr+Lbw+xqJYsEARQy
+OfOZZeiS6+2++lMFDqVi8BEoEC6sSSEja/HVWWCel6vG8Y78tGmg2raOTjYFkEcYHJ1gyoUDvgZs
+4goEYoOiqUE77+sU5WQiMQ0T3bbYxQFXQU8Ghj3x53yQzk8M8d4SXHMvEkmYM8gIUFIWk+4qKgl9
+r145dNL+fGDWefYx79FeDlSpDSkmKVhaerNvQtC2CjMM8MFHirVZ9SzMaUZvyYZCicqtwSGZAk5U
+Q4DsLQ3Gl2r7X1ea7U5/cctDQzkiQxPVz0HY93Az1BVgYrUptzni4HmDFLDaQldmOysd1FtxCrIX
+6OHJpNhmOmfiPojOgpRi2YcEMzFN17fFEyvxtq0x7ALWS8iLVaR6Dg5qqlFKLpQSgIUHFM8hxxjE
+syLYAUoLe4otKswB+N9XpTTmWVYuWugREX2EXqZGzo7MQ4QP4BQHVRByurvl5IMZg47Qc67ZdVAk
+Hd7lmBv0WdfM6mZzngSQWJIQgkyA95yodYxurCT+U1aRvo7m2Up9zv69AN69e/CCCgnW6xXTAkGl
+1Ifr1MstiMnTzMlZnaMJObVJNYiMthBGTC3oa/J5l/ZtExhaMT/HMHN9LK5O32zlM3axMGGHw6DZ
+zDxKRw8wzZdqAa4OzbOHpV64SJLvm7PpkgIH+GkLyZGAUYBTucMB45tvARRjEmeQXQewgJLV4aE5
+3JQpWFRhLTqut9ygqEWmaTMuHFmOCHRCRRoRipaI9w6E4QblecUC7tCqwlttjYCqHDIEISZDIRk4
+6aGTfdchoIxIARLcqZCPad3vk6EpJq18ZIIQQkIZjLQC5RWAEOqB1tUo7kNrv0cU1UQwqaADRwp4
+cnQDbH3ezhcaOF4+udaPz2vXlFsITnUgfVdUrG32HckqmXgRENL39NttNJG+sid9rD2GvWiJdUan
+q+KLCD8alWsduVGM1h7ySQMUGnK/OymXA9un1441q0hCEukRgYFWEBhlGt64zi1hUzzwipgkZC8y
+xeRwUCcoKWANt/OQe6QjqHN5ZxxD26h1LVRzFY3PbJtpbiS2vahIzVFtzqPRB76hXKV90d88jwbb
+nlmHLlke6iUSwXf4Q+syZMNGvFhLWhfavIMToc+KLLdtIWRMHY2xDEie8kDC5vxinFN5OrhkHzHs
+6vZpD2irKGBxDWTYhkQcliOyPMc5zK+mN5XE+Yg2g1lVWlSM2JYIcnGCeqbHSw0E5iCOY+ZGaiMX
+1J56zYrUSJzHw0izllKke29pirXTgib7XsXVkGoxh4STBXCbkea7WKTEfnFa8VFBaPXgF2/N293G
+4hg4W8bkoKMDozyzEsZlmCa3JwZBQxQKhos1wgTW3AaxkuF0NaUL9NEHvsTVanZrUVFvWUsd7SKz
+JnZkGduqRlYESJMkxfWIHDuBMVlCNOTvKiEqSlkwgp1WfroZpiZcVHlbECwWYtGg1mP2i8PRztm7
+Oyc/ZSnJ5nRhzXongmxtGTISC2bqyJZW1rcGZeM00cPkBnHz7G9DwTsh6lM3VBtLar1KSnB1u0TS
+k18iM33l5U5uCM7C6b34G9oGsDLEV9dONOj6D1Gzo0fc1bgilYWliM4g5c0lvxGlDkAdWqDEkE2c
+7mkLAZxaPFTwv9OkKQLMEjiYPikYZrJsfFQ4p0LpHk6SEh1NL/dRJIwJgix7W6YdDtpBD4wSyjDu
+cgOjtQzhph5lBhDsCFyjSI1mfVBGKfn+P4VF7MEBgS+HC7JexHmUhELkV5cHWocxi9qx3deOy0bb
+0+pM8rxZxyGGjWYMw+dBKzlhciCox7wbs+j8pgbVRzdMx0kSHWIzQLSjLEudCEzDuCbMQCpSshvR
+FphNOxMKRMMCAFdWVBvLlyDZm3AdNIy5OU1k+NXTNMvEgvtoFAYDKDdt733M1aJ833VlNC1FE4zj
+IdrKNSL6rWwIwp3mSlYRIlq2vtpN4CgexNuZqXdDeHoiexGxbIHjvtihxF7grRnW+jzPcFLUWdZ2
+GMLIWxZNd2NhWGTEX67qsjuuIztQyXdKHHPTAbbY2QaL50+FinGICJUSHIXQyCsU8Xkhol14CqOK
+qVpNBq3z5aAa0Zl3UAM9VCPPhpThKkPwFJYpWX49ZrgraIN3Rmo96l8mOImyxghydY0oQi+c0BjH
+aCKkEuefUUeukaEQZU4e6+ljh/TdEYOViOIpqPaGKjBsMDBQwoUjGq9wrr3NSoMOVbB8muMZ4cxc
+bITiSpv66UucIL82zqCbWilgJQNILCa1hNFalNeCyLU6IvNULpTiQWpryVLWk40SwpPFSq8OaQOK
+EWGSoN66xTe5bdiLYUI5jMN6QtqwqjICWssCjSRDBjbEhj3NPNxUZZj58THjIsN9VhCKvJbH+cWu
+CDFWWl+B77aJL09p/YzO5CDT9x1b5BI7e3j7T19JteLAijzA3zh8RNFxWdaQ2eooiWIqbfOzr5Z1
+c09E917a+HHO2oahuo8wYPG1nk5mmz8M8LjgqDA2C5WbtckmgufWBMsxsYhdXJOZSQKYmDRqfne2
+75ZcaN1UL4rjqbmJX5G5nwjvSM5+Juzz+kSPl2oLoiqFVhP5Z8DP08+bfgcBNfsqlzGCKJiBC5Nr
+0IO5a0YCMWJoCfNAJTWbWh3PKb0znOBUEVss2jhucGYFRec0uWVIg2xc4gwQ5Qk5xAklLObCrNn9
+LE0+Tb9MxhGbTyog/N7cz2v4aOq+IIhubJ4Y0DLa7YyfPIazkg0lPyFIC+AIB5u4BHey9u3KtvZO
+a12MSEzR/feNEua9yASgx6TqDm6s6xxbn5qkglgNtg2lXgvxrSX1nyVoLYNrLNCOML4GZHqaApBc
+DNVGQbyfpwt5ibIo7Nx0opOCGQHNLaMA1dyZmxos0euJhldFvLYAj70EjmRBHV1GpQVOCIIt19uv
+BlMpOc2ZlZSqtifDInBwQtpsE7UHbuKkE3ExQhXr1D+XffJLYPdFgUROW1gaHKmzJA19rTZ0m1RV
+RUURbtJfRpK1iKtAernrtedczF0dSFGg0lev1ejpWsW3BRy5TGKIqZ8Y+pVXNeUmBio1obxG5owk
+ksMG07ttVZwtQguosRMzwu13Y0XsAagy6toYrzZrrEs40qalIHsx+ePGlUaXRAYK2vQxtGLxbS3b
+xU3aDRiWuTflRI7MBFJPEe9Ms0aXx42TMesucutqy9OS7RXOmQY7RdpKHZQeH2YZbuyDIGpsLEV4
+YOnledK6XhOx7AXe4D9rwLOEHYprrOrsRHkzUg5taasdNa39bCqARBcjT+6wSPK3HTXd+UkFzEIt
+rlF2cScL3JlBqiTJKzJGxQrG3rKBkC78ypm0DBC4cXI35KBcOWCRqHK0oJaVY2a/tijz3CrpmWOf
+Zgpl4StUiSkc0FGRAANgdSHI7idGpI2qXlz0z9VXRAl5wFLU1q4VbMkKqcyesTFZMey8OseM8nC6
+DcGC+NRi6nCPvaFqzeXh1m171fmkGRjpCXJgezEhQ1UdKUbYy1/ibHqaOKngX9SjCZWupbSIIsQW
+qgCWMilnyhqTGK8wGPDfpYM50V+AgX+dmEMKB7zuKuCKKSDSHiLJUAu26LhUYW7oTlA6EDvNfnN+
+l9IKZoyeohhp/eSFI1dYeqWHSTXaZ75hDaB/BQJSJbYvoX+3Odq3dC80KM4Aqiio7UdPR121LTdA
+/YkmuoN/a54exkQWVxYGQcmKlypBw2rq97zVHSVehzF21N/cXRGIM2vF71b3l5a7bfSwcTbPmuAy
+A5ZYi0aGeCVnQDxg2hW68KCy1u5+x5jAREgNb6ieC90oho8ITxkoP7YDArgXZlhZ908QdWB7vliB
+eskEwGUhIQb50b2flMQup9sOpBRSCrym45bws9945ShJAY4goPnPYE1yz20oyLV2d1195hU4BDhi
+y15wNKbymqNQAAXd3xyxWuJTykkgjfxygpevFiV5tjaa6O5wuuV5abSK9Yf3/q4byCSEH5Iyf6jO
+y6ZusszUIZACs0A2qh8duIvD3hzT8zMjBrMhxHj6j8abqZLKKF5NID3X+V3aFmA4qfmu8SEjAS97
+1+1JhoQz9/JrwQRYK6a1Uw/LR+umMIoMs0RCd4bTa8WLKQqGZXeuA1qCu80h6/rukJCC5MAJ8grw
+wyMLry3yc1o8Lixh5X+QbNrvh1k7N32ULEy0/btJnkvwcpDXtvkDV9t2PpT7/zSqfIgPloLfr6JC
+Qg7x3XoJ3wfj817Vb+vB/uQv5IgtS3bogCe1EY8SQPrXbfnFBZxPKb+QaDFRUdumX2+v8nlr3z5v
+m3yYh4PKlfuGm4nVNjD3+isYirJSoy8C/Vx6MvzVAXSEbxykf3/dT7GzzEM9nctxW/KyqnR8ta7F
+1W1wbnfTQyltrn9N3t0LU6hJCA83uc8UMs/VpZCQgdXq5yufLN9SlKU21Z2+qCJ0EB8EwxIRkbEk
+xAIWGAhQaaktydP4YNtkhIQQVZhMhaDxiecjZAN6TTatR9aU2qqgSqHRyIQlElRmub5vZlZCHSkF
+CEX2xFw7Xd3f7vGn/ufQer0ILXMqZ0KhkTYNtgNiOalW2uH4LHx7q1refS6HjwMA0pCgABzamSDv
+Qi3/qYZ/T18Tf8CBAgBnTt2HVxmubNGDZA4cigJ/4u5IpwoSHAgDtsA=
+------=_Part_3884_2495142.1127923180759--

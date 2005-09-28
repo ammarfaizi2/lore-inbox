@@ -1,56 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbVI1JXz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751185AbVI1JZ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751187AbVI1JXz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 05:23:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751058AbVI1JXz
+	id S1751185AbVI1JZ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 05:25:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751058AbVI1JZ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 05:23:55 -0400
-Received: from h80ad25b8.async.vt.edu ([128.173.37.184]:26509 "EHLO
-	h80ad25b8.async.vt.edu") by vger.kernel.org with ESMTP
-	id S1750813AbVI1JXy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 05:23:54 -0400
-Message-Id: <200509280923.j8S9Nkgq028579@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: iodophlymiaelo@gmail.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: raw aio write guarantee 
-In-Reply-To: Your message of "Wed, 28 Sep 2005 01:56:05 PDT."
-             <98b62faa050928015677d7253b@mail.gmail.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <98b62faa050928001275d28771@mail.gmail.com> <200509280757.j8S7vmjB023730@turing-police.cc.vt.edu>
-            <98b62faa050928015677d7253b@mail.gmail.com>
+	Wed, 28 Sep 2005 05:25:59 -0400
+Received: from sv1.valinux.co.jp ([210.128.90.2]:42166 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S1750813AbVI1JZ7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 05:25:59 -0400
+Date: Wed, 28 Sep 2005 18:25:58 +0900
+From: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
+To: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
+Cc: pj@sgi.com, taka@valinux.co.jp, magnus.damm@gmail.com, dino@in.ibm.com,
+       linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
+Subject: [PATCH][BUG] fix memory leak on reading cpuset files after seeking
+ beyond eof
+In-Reply-To: <20050927113902.C78A570046@sv1.valinux.co.jp>
+References: <20050908225539.0bc1acf6.pj@sgi.com>
+	<20050909.203849.33293224.taka@valinux.co.jp>
+	<20050909063131.64dc8155.pj@sgi.com>
+	<20050910.161145.74742186.taka@valinux.co.jp>
+	<20050910015209.4f581b8a.pj@sgi.com>
+	<20050926093432.9975870043@sv1.valinux.co.jp>
+	<20050927013751.47cbac8b.pj@sgi.com>
+	<20050927113902.C78A570046@sv1.valinux.co.jp>
+X-Mailer: Sylpheed version 2.1.2+svn (GTK+ 2.6.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1127899425_31960P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Date: Wed, 28 Sep 2005 05:23:45 -0400
+Message-Id: <20050928092558.61F6170041@sv1.valinux.co.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1127899425_31960P
-Content-Type: text/plain; charset=us-ascii
+On Tue, 27 Sep 2005 20:39:02 +0900
+KUROSAWA Takahiro <kurosawa@valinux.co.jp> wrote:
 
-On Wed, 28 Sep 2005 01:56:05 PDT, iodophlymiaelo@gmail.com said:
+> On Tue, 27 Sep 2005 01:37:51 -0700
+> Paul Jackson <pj@sgi.com> wrote:
+> 
+> > The above reminds me of a bug fix that you provided in the previous
+> > patch set, for the case *ppos >= eof.  I wonder if we have duplicated
+> > code here.
+> Ah, yes, we need to fix the bug in the cpuset code introduced by me...
 
-> I was asking what a user-application can do to prevent data loss, not
-> an application-user.
+I fixed the bug.  Sorry for my previous incomplete patch.
+The following patch is against linux-2.6.14-rc2.
 
-Right.  However, if you actually care about the distinction between "made it
-to the disk cache" and "made it to the platter", those are things you'll
-want to address - in particular, if you have one of the evil disk drives
-I mentioned, there's very little a user application can do to work around it.
+Signed-off-by: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
 
-
---==_Exmh_1127899425_31960P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFDOmEhcC3lWbTT17ARAphVAJ43tNjjCmZ1v/REVqW4WdIHjs8NUgCfZiEj
-NGsVDOZjptyHqGvEhboMM7s=
-=bCZB
------END PGP SIGNATURE-----
-
---==_Exmh_1127899425_31960P--
+--- from-0001/kernel/cpuset.c
++++ to-work/kernel/cpuset.c	2005-09-28 17:42:00.759401736 +0900
+@@ -969,7 +969,7 @@ static ssize_t cpuset_common_file_read(s
+ 	ssize_t retval = 0;
+ 	char *s;
+ 	char *start;
+-	size_t n;
++	ssize_t n;
+ 
+ 	if (!(page = (char *)__get_free_page(GFP_KERNEL)))
+ 		return -ENOMEM;
+@@ -999,12 +999,13 @@ static ssize_t cpuset_common_file_read(s
+ 	*s++ = '\n';
+ 	*s = '\0';
+ 
+-	/* Do nothing if *ppos is at the eof or beyond the eof. */
+-	if (s - page <= *ppos)
+-		return 0;
+-
+ 	start = page + *ppos;
+ 	n = s - start;
++
++	/* Do nothing if *ppos is at the eof or beyond the eof. */
++	if (n <= 0)
++		goto out;
++
+ 	retval = n - copy_to_user(buf, start, min(n, nbytes));
+ 	*ppos += retval;
+ out:

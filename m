@@ -1,44 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965207AbVI1AZr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965210AbVI1A3q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965207AbVI1AZr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 20:25:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbVI1AZq
+	id S965210AbVI1A3q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 20:29:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbVI1A3q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 20:25:46 -0400
-Received: from marasystems.com ([83.241.133.2]:40086 "EHLO
-	filer.marasystems.com") by vger.kernel.org with ESMTP
-	id S1751167AbVI1AZp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 20:25:45 -0400
-Date: Wed, 28 Sep 2005 02:25:16 +0200 (CEST)
-From: Henrik Nordstrom <hno@marasystems.com>
-To: Andi Kleen <ak@suse.de>
-cc: Harald Welte <laforge@netfilter.org>, netdev@vger.kernel.org,
-       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/3] netfilter : 3 patches to boost ip_tables performance
-In-Reply-To: <200509271823.19365.ak@suse.de>
-Message-ID: <Pine.LNX.4.61.0509280219110.25500@filer.marasystems.com>
-References: <432EF0C5.5090908@cosmosbay.com> <200509221503.21650.ak@suse.de>
- <20050923170911.GN731@sunbeam.de.gnumonks.org> <200509271823.19365.ak@suse.de>
+	Tue, 27 Sep 2005 20:29:46 -0400
+Received: from lucidpixels.com ([66.45.37.187]:62080 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S1751166AbVI1A3q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 20:29:46 -0400
+Date: Tue, 27 Sep 2005 20:29:44 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34
+To: linux-kernel@vger.kernel.org
+Subject: TCP=828mbps, UDP=1mbps? (both running 2.6.13.2)
+Message-ID: <Pine.LNX.4.63.0509272028390.2652@p34>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Sep 2005, Andi Kleen wrote:
+Any idea why with TCP I get 828 megabits on my gigabit connection but only 
+1.05 megabits with UDP?
 
-> That could be special cased and done lockless, with the counting
-> done per CPU.
+Using iperf to benchmark.
 
-It's also not very hard for iptables when verifying the table to conclude 
-that there really isn't any "real" rules for a certain hook and then 
-delete that hook registration (only policy ACCEPT rule found). Allowing 
-you to have as many ip tables modules you like in the kernel, but only 
-using the hooks where you have rules.  Drawback is that you loose the 
-packet counters on the policy.
+TCP
+------------------------------------------------------------
+Server listening on TCP port 5001
+TCP window size: 85.3 KByte (default)
+------------------------------------------------------------
+[  4] local 192.168.1.12 port 5001 connected with 192.168.1.253 port 
+48853
+[  4]  0.0-35.1 sec  3.38 GBytes    828 Mbits/sec
 
-Exception: iptable_nat. Needs the hooks for other purposes as well, not 
-just the iptable so here the hooks can not be deactivated when there is no 
-rules.
 
-Regards
-Henrik
+UDP
+------------------------------------------------------------
+Server listening on UDP port 5001
+Receiving 1470 byte datagrams
+UDP buffer size:   101 KByte (default)
+------------------------------------------------------------
+[  3] local 192.168.1.12 port 5001 connected with 192.168.1.253 port 
+32773
+[  3]  0.0-10.0 sec  1.25 MBytes  1.05 Mbits/sec  0.043 ms    0/  893 (0%)
+
+
+p34:~$ netstat -i
+Kernel Interface table
+Iface   MTU Met   RX-OK RX-ERR RX-DRP RX-OVR    TX-OK TX-ERR TX-DRP TX-OVR 
+Flg
+eth0   1500 0   1266337      0      0      0  2588651      0      0      0 
+BMRU
+eth1   1500 0      2358      0      0      0     2229      0      0      0 
+BMRU
+eth2   1500 0     39706      0      0      0     5747      0      0      0 
+BMNRU
+lo    16436 0       184      0      0      0      184      0      0      0 
+LRU
+
+box2:~$ netstat -i
+Kernel Interface table
+Iface   MTU Met   RX-OK RX-ERR RX-DRP RX-OVR    TX-OK TX-ERR TX-DRP TX-OVR 
+Flg
+eth0   1500 0   2955176      0      0      0  3696501      0      0      0 
+BMRU
+lo    16436 0       612      0      0      0      612      0      0      0 
+LRU
+
+

@@ -1,52 +1,278 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965214AbVI0Xnu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751165AbVI1AIt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965214AbVI0Xnu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 19:43:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965235AbVI0Xnu
+	id S1751165AbVI1AIt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 20:08:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbVI1AIt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 19:43:50 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:7318 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S965236AbVI0Xnt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 19:43:49 -0400
-Date: Wed, 28 Sep 2005 01:43:29 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH][Fix] Fix Bug #4959 (take 2)
-Message-ID: <20050927234329.GC2381@elf.ucw.cz>
-References: <200509241936.12214.rjw@sisk.pl> <200509272300.37197.rjw@sisk.pl> <20050927210821.GF2040@elf.ucw.cz> <200509280126.26701.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200509280126.26701.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Tue, 27 Sep 2005 20:08:49 -0400
+Received: from [139.30.44.2] ([139.30.44.2]:4442 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S1751166AbVI1AIs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 20:08:48 -0400
+Date: Wed, 28 Sep 2005 02:08:44 +0200 (CEST)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Andrew Morton <akpm@osdl.org>
+cc: Dave Jones <davej@redhat.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: [patch] fix even more missing includes
+In-Reply-To: <Pine.LNX.4.53.0509280129450.4224@gockel.physik3.uni-rostock.de>
+Message-ID: <Pine.LNX.4.61.0509280207350.16066@gans.physik3.uni-rostock.de>
+References: <Pine.LNX.4.53.0509241258460.2235@gockel.physik3.uni-rostock.de>
+ <Pine.LNX.4.53.0509280129450.4224@gockel.physik3.uni-rostock.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+[resent due to trailing whitespace breakage]
+Fix more missing includes as a preparatory step for not including sched.h
+from module.h. Together with the two previous patches this now covers
+all architectures.
+I'll let the patches settle before I push the patch to actually remove
+sched.h inclusion from module.h.
 
-> > > I can reserve the static buffer (10 pages) in suspend.c and mark it as nosave.
-> > > The code that creates the mappings can stay in suspend.c either except it
-> > > won't need to call get_usable_page() and free_eaten_memory() any more
-> > > (__next_page() can be changed to get pages from the static buffer instead
-> > > of allocating them).  The code can also be simplified a bit, as we assume that
-> > > there will be only one PGD entry in the direct mapping.
-> > > 
-> > > If that sounds good to you, please confirm.
-> > 
-> > 8GB limit seems good to me -- as long as it makes code significantly
-> > simpler. It would be nice if it was <20 lines.
-> 
-> It is more than that, but it seems to be quite simple anyway.
-> 
-> The new patch follows.
+Signed-off-by: Tim Schmielau <tim@physik3.uni-rostock.de>
 
-Thanks, seems okay to me. 
 
-								Pavel
+--- linux-2.6.14-rc2-mm1-sr-dj8/arch/cris/arch-v10/drivers/axisflashmap.c	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.14-rc2-mm1-sr-dj9/arch/cris/arch-v10/drivers/axisflashmap.c	2005-09-27 17:50:32.000000000 +0200
+@@ -140,6 +140,7 @@
+ #include <linux/kernel.h>
+ #include <linux/config.h>
+ #include <linux/init.h>
++#include <linux/slab.h>
+ 
+ #include <linux/mtd/concat.h>
+ #include <linux/mtd/map.h>
 
--- 
-if you have sharp zaurus hardware you don't need... you know my address
+--- linux-2.6.14-rc2-mm1-sr-dj8/arch/cris/arch-v32/drivers/axisflashmap.c	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.14-rc2-mm1-sr-dj9/arch/cris/arch-v32/drivers/axisflashmap.c	2005-09-27 17:50:32.000000000 +0200
+@@ -20,6 +20,7 @@
+ #include <linux/kernel.h>
+ #include <linux/config.h>
+ #include <linux/init.h>
++#include <linux/slab.h>
+ 
+ #include <linux/mtd/concat.h>
+ #include <linux/mtd/map.h>
+
+--- linux-2.6.14-rc2-mm1-sr-dj8/arch/cris/kernel/time.c	2005-09-27 17:23:30.000000000 +0200
++++ linux-2.6.14-rc2-mm1-sr-dj9/arch/cris/kernel/time.c	2005-09-27 17:50:32.000000000 +0200
+@@ -31,6 +31,7 @@
+ #include <linux/timex.h>
+ #include <linux/init.h>
+ #include <linux/profile.h>
++#include <linux/sched.h>	/* just for sched_clock() - funny that */
+ 
+ u64 jiffies_64 = INITIAL_JIFFIES;
+ 
+
+--- linux-2.6.14-rc2-mm1-sr-dj8/arch/m32r/lib/csum_partial_copy.c	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.14-rc2-mm1-sr-dj9/arch/m32r/lib/csum_partial_copy.c	2005-09-27 17:50:32.000000000 +0200
+@@ -18,10 +18,10 @@
+ 
+ #include <linux/module.h>
+ #include <linux/types.h>
++#include <linux/string.h>
+ 
+ #include <net/checksum.h>
+ #include <asm/byteorder.h>
+-#include <asm/string.h>
+ #include <asm/uaccess.h>
+ 
+ /*
+
+--- linux-2.6.14-rc2-mm1-sr-dj8/arch/mips/sgi-ip27/ip27-berr.c	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.14-rc2-mm1-sr-dj9/arch/mips/sgi-ip27/ip27-berr.c	2005-09-27 17:50:32.000000000 +0200
+@@ -10,6 +10,7 @@
+ #include <linux/init.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
++#include <linux/signal.h>	/* for SIGBUS */
+ 
+ #include <asm/module.h>
+ #include <asm/sn/addrs.h>
+
+--- linux-2.6.14-rc2-mm1-sr-dj8/arch/ppc/syslib/of_device.c	2005-09-27 17:23:46.000000000 +0200
++++ linux-2.6.14-rc2-mm1-sr-dj9/arch/ppc/syslib/of_device.c	2005-09-27 17:50:32.000000000 +0200
+@@ -4,6 +4,8 @@
+ #include <linux/init.h>
+ #include <linux/module.h>
+ #include <linux/mod_devicetable.h>
++#include <linux/slab.h>
++
+ #include <asm/errno.h>
+ #include <asm/of_device.h>
+ 
+
+--- linux-2.6.14-rc2-mm1-sr-dj8/arch/sh/drivers/dma/dma-sysfs.c	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.14-rc2-mm1-sr-dj9/arch/sh/drivers/dma/dma-sysfs.c	2005-09-27 17:50:32.000000000 +0200
+@@ -13,6 +13,7 @@
+ #include <linux/init.h>
+ #include <linux/sysdev.h>
+ #include <linux/module.h>
++#include <linux/string.h>
+ #include <asm/dma.h>
+ 
+ static struct sysdev_class dma_sysclass = {
+
+--- linux-2.6.14-rc2-mm1-sr-dj8/arch/sh/kernel/cpufreq.c	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.14-rc2-mm1-sr-dj9/arch/sh/kernel/cpufreq.c	2005-09-27 17:50:32.000000000 +0200
+@@ -20,6 +20,7 @@
+ #include <linux/delay.h>
+ #include <linux/cpumask.h>
+ #include <linux/smp.h>
++#include <linux/sched.h>	/* set_cpus_allowed() */
+ 
+ #include <asm/processor.h>
+ #include <asm/watchdog.h>
+
+--- linux-2.6.14-rc2-mm1-sr-dj8/arch/xtensa/kernel/platform.c	2005-09-27 17:23:46.000000000 +0200
++++ linux-2.6.14-rc2-mm1-sr-dj9/arch/xtensa/kernel/platform.c	2005-09-27 17:50:32.000000000 +0200
+@@ -18,6 +18,7 @@
+ #include <linux/time.h>
+ #include <asm/platform.h>
+ #include <asm/timex.h>
++#include <asm/param.h>		/* HZ */
+ 
+ #define _F(r,f,a,b)							\
+ 	r __platform_##f a b;                                   	\
+
+--- linux-2.6.14-rc2-mm1-sr-dj8/drivers/char/agp/ali-agp.c	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.14-rc2-mm1-sr-dj9/drivers/char/agp/ali-agp.c	2005-09-27 17:50:32.000000000 +0200
+@@ -7,6 +7,7 @@
+ #include <linux/pci.h>
+ #include <linux/init.h>
+ #include <linux/agp_backend.h>
++#include <asm/page.h>		/* PAGE_SIZE */
+ #include "agp.h"
+ 
+ #define ALI_AGPCTRL	0xb8
+
+--- linux-2.6.14-rc2-mm1-sr-dj8/drivers/char/agp/amd64-agp.c	2005-09-27 17:23:31.000000000 +0200
++++ linux-2.6.14-rc2-mm1-sr-dj9/drivers/char/agp/amd64-agp.c	2005-09-27 17:50:32.000000000 +0200
+@@ -13,6 +13,7 @@
+ #include <linux/pci.h>
+ #include <linux/init.h>
+ #include <linux/agp_backend.h>
++#include <asm/page.h>		/* PAGE_SIZE */
+ #include "agp.h"
+ 
+ /* Will need to be increased if AMD64 ever goes >8-way. */
+
+--- linux-2.6.14-rc2-mm1-sr-dj8/drivers/char/mwave/3780i.c	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.14-rc2-mm1-sr-dj9/drivers/char/mwave/3780i.c	2005-09-27 17:50:32.000000000 +0200
+@@ -53,6 +53,8 @@
+ #include <linux/ioport.h>
+ #include <linux/init.h>
+ #include <linux/bitops.h>
++#include <linux/sched.h>	/* cond_resched() */
++
+ #include <asm/io.h>
+ #include <asm/uaccess.h>
+ #include <asm/system.h>
+
+--- linux-2.6.14-rc2-mm1-sr-dj8/drivers/infiniband/hw/mthca/mthca_uar.c	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.14-rc2-mm1-sr-dj9/drivers/infiniband/hw/mthca/mthca_uar.c	2005-09-27 17:50:32.000000000 +0200
+@@ -32,6 +32,8 @@
+  * $Id$
+  */
+ 
++#include <asm/page.h>		/* PAGE_SHIFT */
++
+ #include "mthca_dev.h"
+ #include "mthca_memfree.h"
+ 
+
+--- linux-2.6.14-rc2-mm1-sr-dj8/drivers/pci/hotplug/pciehprm_nonacpi.c	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.14-rc2-mm1-sr-dj9/drivers/pci/hotplug/pciehprm_nonacpi.c	2005-09-27 17:50:32.000000000 +0200
+@@ -33,10 +33,13 @@
+ #include <linux/types.h>
+ #include <linux/pci.h>
+ #include <linux/init.h>
++#include <linux/slab.h>
++
+ #include <asm/uaccess.h>
+ #ifdef CONFIG_IA64
+ #include <asm/iosapic.h>
+ #endif
++
+ #include "pciehp.h"
+ #include "pciehprm.h"
+ #include "pciehprm_nonacpi.h"
+
+--- linux-2.6.14-rc2-mm1-sr-dj8/drivers/pci/hotplug/shpchp.h	2005-09-27 17:23:32.000000000 +0200
++++ linux-2.6.14-rc2-mm1-sr-dj9/drivers/pci/hotplug/shpchp.h	2005-09-27 17:50:32.000000000 +0200
+@@ -32,8 +32,11 @@
+ #include <linux/types.h>
+ #include <linux/pci.h>
+ #include <linux/delay.h>
++#include <linux/sched.h>	/* signal_pending(), struct timer_list */
++
+ #include <asm/semaphore.h>
+ #include <asm/io.h>		
++
+ #include "pci_hotplug.h"
+ 
+ #if !defined(MODULE)
+
+--- linux-2.6.14-rc2-mm1-sr-dj8/drivers/pci/hotplug/shpchprm_nonacpi.c	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.14-rc2-mm1-sr-dj9/drivers/pci/hotplug/shpchprm_nonacpi.c	2005-09-27 17:50:32.000000000 +0200
+@@ -33,10 +33,13 @@
+ #include <linux/types.h>
+ #include <linux/pci.h>
+ #include <linux/init.h>
++#include <linux/slab.h>
++
+ #include <asm/uaccess.h>
+ #ifdef CONFIG_IA64
+ #include <asm/iosapic.h>
+ #endif
++
+ #include "shpchp.h"
+ #include "shpchprm.h"
+ #include "shpchprm_nonacpi.h"
+
+--- linux-2.6.14-rc2-mm1-sr-dj8/drivers/usb/host/ohci-pci.c	2005-09-27 17:23:48.000000000 +0200
++++ linux-2.6.14-rc2-mm1-sr-dj9/drivers/usb/host/ohci-pci.c	2005-09-27 17:50:32.000000000 +0200
+@@ -14,6 +14,8 @@
+  * This file is licenced under the GPL.
+  */
+  
++#include <linux/jiffies.h>
++
+ #ifdef CONFIG_PPC_PMAC
+ #include <asm/machdep.h>
+ #include <asm/pmac_feature.h>
+
+--- linux-2.6.14-rc2-mm1-sr-dj8/include/linux/serial.h	2005-09-27 17:23:34.000000000 +0200
++++ linux-2.6.14-rc2-mm1-sr-dj9/include/linux/serial.h	2005-09-27 17:50:32.000000000 +0200
+@@ -11,6 +11,7 @@
+ #define _LINUX_SERIAL_H
+ 
+ #ifdef __KERNEL__
++#include <linux/types.h>
+ #include <asm/page.h>
+ 
+ /*
+
+--- linux-2.6.14-rc2-mm1-sr-dj8/kernel/kprobes.c	2005-09-27 17:23:34.000000000 +0200
++++ linux-2.6.14-rc2-mm1-sr-dj9/kernel/kprobes.c	2005-09-27 17:51:45.000000000 +0200
+@@ -35,6 +35,7 @@
+ #include <linux/spinlock.h>
+ #include <linux/hash.h>
+ #include <linux/init.h>
++#include <linux/slab.h>
+ #include <linux/module.h>
+ #include <linux/moduleloader.h>
+ #include <asm-generic/sections.h>
+
+--- linux-2.6.14-rc2-mm1-sr-dj8/lib/vsprintf.c	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.14-rc2-mm1-sr-dj9/lib/vsprintf.c	2005-09-27 17:50:32.000000000 +0200
+@@ -23,6 +23,7 @@
+ #include <linux/ctype.h>
+ #include <linux/kernel.h>
+ 
++#include <asm/page.h>		/* for PAGE_SIZE */
+ #include <asm/div64.h>
+ 
+ /**

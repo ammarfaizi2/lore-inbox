@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750856AbVI1Jro@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750854AbVI1JuM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750856AbVI1Jro (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 05:47:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750854AbVI1Jro
+	id S1750854AbVI1JuM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 05:50:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbVI1JuM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 05:47:44 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:34742 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750768AbVI1Jro (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 05:47:44 -0400
-Date: Wed, 28 Sep 2005 11:48:05 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Cc: dwalker@mvista.com, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>, emann@mrv.com,
-       yang.yi@bmrtech.com
-Subject: Re: 2.6.14-rc2-rt2
-Message-ID: <20050928094805.GA30446@elte.hu>
-References: <20050913100040.GA13103@elte.hu> <20050926070210.GA5157@elte.hu> <1127840377.27319.11.camel@cmn3.stanford.edu> <1127862619.4004.48.camel@dhcp153.mvista.com> <1127876673.9430.2.camel@cmn3.stanford.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1127876673.9430.2.camel@cmn3.stanford.edu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Wed, 28 Sep 2005 05:50:12 -0400
+Received: from pcsmail.patni.com ([203.124.139.197]:40334 "EHLO
+	pcsmail.patni.com") by vger.kernel.org with ESMTP id S1750854AbVI1JuL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 05:50:11 -0400
+Message-ID: <002f01c5c412$194561c0$5e91a8c0@patni.com>
+Reply-To: "lk" <linux_kernel@patni.com>
+From: "lk" <linux_kernel@patni.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: alloc_page_buffers() - kernel panic?
+Date: Wed, 28 Sep 2005 15:20:45 +0530
+Organization: Patni
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I was looking at the fs(buffer.c) code, An observation:
 
-* Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
+alloc_page_buffers() is called from the function create_empty_buffers() . If
+the memory allocation for the buffer head (through kmem_cache_alloc) fails
+the allocation is retried till successful for async I/O. However for
+synchronous I/O no such handling is done and create_buffer will return
+NULL which is not checked in the calling function. The pointer returned by
+NULL
+is used without checking for the NULL condition. This would result in a
+kernel panic when alloc_page_buffers() is not able to allocate buffer heads
+from the cache for sync I/O.
 
-> > Here's the fix.
-> 
-> Hey thanks! That fixes that, but the compile fails further along:
-> 
->   CHK     include/linux/compile.h
->   UPD     include/linux/compile.h
-> arch/i386/kernel/built-in.o(.text+0xf086): In function `do_powersaver':
-> longhaul.c: undefined reference to `safe_halt'
-> arch/i386/kernel/built-in.o(.text+0xf271): In function
-> `longhaul_setstate':
-> longhaul.c: undefined reference to `safe_halt'
-> make: *** [.tmp_vmlinux1] Error 1
 
-could you try 2.6.14-rc2-rt6, does it build?
+Is anyone aware of the thought process behind this difference in
+implementation for sync and async I/O.
 
-	Ingo
+regards
+lk
+
+

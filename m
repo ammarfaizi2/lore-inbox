@@ -1,83 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751409AbVI1QhG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751414AbVI1QlM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751409AbVI1QhG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 12:37:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbVI1QhF
+	id S1751414AbVI1QlM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 12:41:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751447AbVI1QlM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 12:37:05 -0400
-Received: from smtp2.Stanford.EDU ([171.67.16.125]:5837 "EHLO
-	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S1751409AbVI1QhE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 12:37:04 -0400
-Subject: Re: 2.6.14-rc2-rt2
-From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: nando@ccrma.Stanford.EDU, dwalker@mvista.com, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>, emann@mrv.com,
-       yang.yi@bmrtech.com
-In-Reply-To: <20050928094805.GA30446@elte.hu>
-References: <20050913100040.GA13103@elte.hu> <20050926070210.GA5157@elte.hu>
-	 <1127840377.27319.11.camel@cmn3.stanford.edu>
-	 <1127862619.4004.48.camel@dhcp153.mvista.com>
-	 <1127876673.9430.2.camel@cmn3.stanford.edu>
-	 <20050928094805.GA30446@elte.hu>
-Content-Type: text/plain
-Date: Wed, 28 Sep 2005 09:34:55 -0700
-Message-Id: <1127925295.24916.4.camel@cmn3.stanford.edu>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Wed, 28 Sep 2005 12:41:12 -0400
+Received: from smtp004.mail.ukl.yahoo.com ([217.12.11.35]:32344 "HELO
+	smtp004.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1751422AbVI1QlL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 12:41:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=wssTIg+V3+zs7hm5nvdhz/l9ZMF/pTbcznO9Z7l55bcAUJre0G3ttiTSj49xfWNoUxYxTiB7IZDDDh33/opqm3mDbhHUC+48LgcQW+jFxIJkss56oQgxD/9DT4cYHODLiaQaqPwgC6zwFL5Av/gKqg4/xWbA2pjYBFX2ckR0+2Y=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: Jeff Dike <jdike@addtoit.com>
+Subject: Re: [uml-devel] Re: Uml showstopper bugs for 2.6.14
+Date: Wed, 28 Sep 2005 18:40:22 +0200
+User-Agent: KMail/1.8.2
+Cc: user-mode-linux-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+References: <200509271846.51804.blaisorblade@yahoo.it> <200509281415.18586.blaisorblade@yahoo.it> <20050928145250.GB11610@ccure.user-mode-linux.org>
+In-Reply-To: <20050928145250.GB11610@ccure.user-mode-linux.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509281840.23816.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-09-28 at 11:48 +0200, Ingo Molnar wrote:
-> * Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
-> 
-> > > Here's the fix.
-> > 
-> > Hey thanks! That fixes that, but the compile fails further along:
-> > 
-> >   CHK     include/linux/compile.h
-> >   UPD     include/linux/compile.h
-> > arch/i386/kernel/built-in.o(.text+0xf086): In function `do_powersaver':
-> > longhaul.c: undefined reference to `safe_halt'
-> > arch/i386/kernel/built-in.o(.text+0xf271): In function
-> > `longhaul_setstate':
-> > longhaul.c: undefined reference to `safe_halt'
-> > make: *** [.tmp_vmlinux1] Error 1
-> 
-> could you try 2.6.14-rc2-rt6, does it build?
+On Wednesday 28 September 2005 16:52, Jeff Dike wrote:
+> On Wed, Sep 28, 2005 at 02:15:18PM +0200, Blaisorblade wrote:
+> > Do you know when this was introduced, and the last working UML version?
 
-No, sorry...
+> It's always been broken, I think.
+Ah, but you're talking of SKAS0.
 
-fs/ntfs/aops.c: In function 'ntfs_end_buffer_async_read':
-fs/ntfs/aops.c:108: error: 'BH_Uptodate_Lock' undeclared (first use in
-this function)
-fs/ntfs/aops.c:108: error: (Each undeclared identifier is reported only
-once
-fs/ntfs/aops.c:108: error: for each function it appears in.)
-make[2]: *** [fs/ntfs/aops.o] Error 1
+In this case (which seems strange, given the number of people using x86_64 and 
+not complaining - or maybe it's just me who didn't say "enable frame 
+pointers" to any of the various bug reports), if the patch is not trivial 
+enough (it seems to be), make sure to at least force frame pointers.
 
-and (probably unrelated to rt):
+Even if I think, if I understood the thing correctly, that this workaround is 
+not even guaranteed to work.
 
-drivers/isdn/hisax/config.c: In function 'HiSax_readstatus':
-drivers/isdn/hisax/config.c:636: warning: ignoring return value of
-'copy_to_user', declared with attribute warn_unused_result
-drivers/isdn/hisax/config.c:647: warning: ignoring return value of
-'copy_to_user', declared with attribute warn_unused_result
-drivers/isdn/hisax/callc.c: In function 'HiSax_writebuf_skb':
-drivers/isdn/hisax/callc.c:1781: warning: large integer implicitly
-truncated to unsigned type
-drivers/isdn/hisax/st5481_usb.c: In function 'st5481_in_mode':
-drivers/isdn/hisax/st5481_usb.c:648: error: 'URB_ASYNC_UNLINK'
-undeclared (first use in this function)
-drivers/isdn/hisax/st5481_usb.c:648: error: (Each undeclared identifier
-is reported only once
-drivers/isdn/hisax/st5481_usb.c:648: error: for each function it appears
-in.)
-make[3]: *** [drivers/isdn/hisax/st5481_usb.o] Error 1
+> It results from the stub having to 
+> sigreturn by hand because it has no access to the libc restorer, and thus
+> needing to restore the stack pointer to where it was on entry.  I did this
+> by popping the requisite number of times.
 
--- Fernando
+> Bodo fixed this for i386,
+By restoring in sp the address of first param (or something like that), right?
+> and  
+> I need to do something similar for x86_64.
 
+The bug killing almost everybody testing 2.6.12-bb? In this case, it's SKAS0 
+specific.
 
+But especially, couldn't this be triggered by another GCC version, changing 
+the stack layout?
+> 				Jeff
+
+-- 
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
+
+		
+___________________________________ 
+Yahoo! Messenger: chiamate gratuite in tutto il mondo 
+http://it.messenger.yahoo.com

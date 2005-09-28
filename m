@@ -1,58 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751219AbVI1LzU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750889AbVI1MPy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751219AbVI1LzU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 07:55:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbVI1LzU
+	id S1750889AbVI1MPy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 08:15:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbVI1MPy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 07:55:20 -0400
-Received: from webmail-outgoing.us4.outblaze.com ([205.158.62.67]:65488 "EHLO
-	webmail-outgoing.us4.outblaze.com") by vger.kernel.org with ESMTP
-	id S1751219AbVI1LzT convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 07:55:19 -0400
-X-OB-Received: from unknown (205.158.62.55)
-  by wfilter.us4.outblaze.com; 28 Sep 2005 11:55:18 -0000
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 28 Sep 2005 08:15:54 -0400
+Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:45212 "HELO
+	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1750889AbVI1MPy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 08:15:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=ILp/vvQIiA/XFH8fQMfFjVFpoJYp7drVc0AhrydI9b72ujeoaARsztX4bJcrKM+zxQs+RkCQg5AnGqPSGBEQUMouRA45Ii4wM4+Lt9QQm8vLDBoFQrNZVO2yAMdHV15J4YiF9Ek5lu7q3axQRQw+o0hw2MeO7c8YS9UXIbohNvg=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] Re: Uml showstopper bugs for 2.6.14
+Date: Wed, 28 Sep 2005 14:15:18 +0200
+User-Agent: KMail/1.8.2
+Cc: Jeff Dike <jdike@addtoit.com>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+References: <200509271846.51804.blaisorblade@yahoo.it> <20050927193055.GA30451@ccure.user-mode-linux.org>
+In-Reply-To: <20050927193055.GA30451@ccure.user-mode-linux.org>
 MIME-Version: 1.0
-From: "Simon White" <s_a_white@email.com>
-To: "Steven Rostedt" <rostedt@goodmis.org>
-Cc: linux-kernel@vger.kernel.org, "Ingo Molnar" <mingo@elte.hu>,
-       "Thomas Gleixner" <tglx@linutronix.de>
-Date: Wed, 28 Sep 2005 06:55:18 -0500
-Subject: Re: Best Kernel Timers?
-X-Originating-Ip: 193.195.77.146
-X-Originating-Server: ws1-3.us4.outblaze.com
-Message-Id: <20050928115518.DB7F3101D9@ws1-3.us4.outblaze.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509281415.18586.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> I'm not really sure what you have against patches?  If you have to wait
-> for this to be in the mainline, you are going to be disappointed.
-
-Me, personally nothing, but trying to get every user of a catweasel or
-hardsid card to patch there kernel is the problem.
-
-For those that do wish to patch there systems I have alternative
-better realtime code.  For those that don't I wanted something that
-would approximately work as I had before.
-
-As a note I've found it bad enough to try and get users to build the
-normal drivers for there prebuilt kernels... with various requests
-as to please put this in mainline (although not ready for that) so
-it comes pre-built and installed for there system.
-
-If there are no currently in mainline even approaching suitable clocks
-(why I asked) then I'll resort to some custom busy waiting mechanism :(.
-
-Thankyou for helping.
-Simon
-
-
+On Tuesday 27 September 2005 21:30, Jeff Dike wrote:
+> On Tue, Sep 27, 2005 at 06:46:50PM +0200, Blaisorblade wrote:
+> > Jeff, have you any further notes to add?
+>
+> Agree.
+>
+> I have one more to add - that UML/x86_64 doesn't run with
+> CONFIG_FRAME_POINTER disabled.
+Do you know when this was introduced, and the last working UML version?
 -- 
-___________________________________________________________
-Sign-up for Ads Free at Mail.com
-http://promo.mail.com/adsfreejump.htm
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
 
+	
+
+	
+		
+___________________________________ 
+Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
+http://mail.yahoo.it

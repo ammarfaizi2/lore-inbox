@@ -1,54 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030230AbVI1Jdg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030231AbVI1JgG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030230AbVI1Jdg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 05:33:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030231AbVI1Jdg
+	id S1030231AbVI1JgG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 05:36:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030233AbVI1JgG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 05:33:36 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:8639 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1030230AbVI1Jdf (ORCPT
+	Wed, 28 Sep 2005 05:36:06 -0400
+Received: from webmail-outgoing2.us4.outblaze.com ([205.158.62.67]:16604 "EHLO
+	webmail-outgoing.us4.outblaze.com") by vger.kernel.org with ESMTP
+	id S1030231AbVI1JgF convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 05:33:35 -0400
-Date: Wed, 28 Sep 2005 11:34:24 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] RT:  unwritten_done_lock to DEFINE_SPINLOCK
-Message-ID: <20050928093424.GC30820@elte.hu>
-References: <1127845928.4004.26.camel@dhcp153.mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 28 Sep 2005 05:36:05 -0400
+X-OB-Received: from unknown (205.158.62.51)
+  by wfilter.us4.outblaze.com; 28 Sep 2005 09:36:02 -0000
 Content-Disposition: inline
-In-Reply-To: <1127845928.4004.26.camel@dhcp153.mvista.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=US-ASCII
+MIME-Version: 1.0
+From: "Simon White" <s_a_white@email.com>
+To: linux-kernel@vger.kernel.org
+Date: Wed, 28 Sep 2005 04:36:02 -0500
+Subject: Best Kernel Timers?
+X-Originating-Ip: 193.195.77.146
+X-Originating-Server: ws1-5.us4.outblaze.com
+Message-Id: <20050928093602.DFA0B8401C@ws1-5.us4.outblaze.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-* Daniel Walker <dwalker@mvista.com> wrote:
+Wondered if anyone could provide information about where to look for
+suitable kernel timers?
 
-> Convert unwritten_done_lock xfs lock to the new syntax.
-> 
-> Signed-Off-By: Daniel Walker <dwalker@mvista.com>
-> 
-> Index: linux-2.6.13/fs/xfs/linux-2.6/xfs_aops.c
-> ===================================================================
-> --- linux-2.6.13.orig/fs/xfs/linux-2.6/xfs_aops.c
-> +++ linux-2.6.13/fs/xfs/linux-2.6/xfs_aops.c
-> @@ -192,7 +192,7 @@ linvfs_unwritten_done(
->  	int			uptodate)
->  {
->  	xfs_ioend_t		*ioend = bh->b_private;
-> -	static spinlock_t	unwritten_done_lock = SPIN_LOCK_UNLOCKED;
-> +	static DECLARE_SPINLOCK(unwritten_done_lock);
+For a while I have been working on supporting the hardsid/catweasel
+cards on Linux (and Windows).  Although undesirable the original
+implementations required real usec delays in the OS
+(this requirement being fixed in the very latest hardware).  I know
+Linux is not realtime so the original drivers were designed to
+queue hardware writes to a realtime thread that busy waited and
+recovered as best it could from errors (on the whole this worked
+pretty well).  Also another version of the code was written to use
+rtlinux/rtai that was capable of non busy waiting.
 
-applied, with the additional detail that it's DEFINE, not DECLARE.
+More recently with the release of the new buffering hardware the
+driver was redesigned from the realtime posix code.  Due to these
+changes the busy waiting (for the old cards) can nolonger occur
+and the delays have to happen asynchronusly notifing the realtime
+thread when the delay has expired.  The code uses the posix
+timer_set, etc calls with realtime clock with absolute delays and
+flags a semaphore when the signal occurs (works great under
+realtime systems).
 
-	Ingo
+Now as an alternative it is again desired that a version (although
+wont perfectly work) be available to a vanilla 2.6 kernel (possibly
+2.4) with similiar limitations as before.  Its a shame the posix
+calls appear to not be supported in kernel for drivers so I have
+wrapped the calls for semaphores/mutexs/threads to kernel
+equivalents.
+
+However I have no idea what to do for the timers.  Is there
+something suitable inkernel that would provide an async callback
+to pre-empt a realtime thread and provide better resolution than
+HZ a far amount of the time?  Or do I have to run a seperate lower
+priority busy waiting thread to wakeup the realtime one?
+
+Advice appreciated.
+Simon
+
+-- 
+___________________________________________________________
+Sign-up for Ads Free at Mail.com
+http://promo.mail.com/adsfreejump.htm
+

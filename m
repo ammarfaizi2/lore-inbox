@@ -1,50 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751363AbVI1Q3V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751351AbVI1Qay@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751363AbVI1Q3V (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 12:29:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751351AbVI1Q3V
+	id S1751351AbVI1Qay (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 12:30:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751372AbVI1Qay
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 12:29:21 -0400
-Received: from smtp3.Stanford.EDU ([171.67.16.138]:3555 "EHLO
-	smtp3.Stanford.EDU") by vger.kernel.org with ESMTP id S1751363AbVI1Q3U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 12:29:20 -0400
-Subject: Re: jack, PREEMPT_DESKTOP, delayed interrupts?
-From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: nando@ccrma.Stanford.EDU, Karsten Wiese <annabellesgarden@yahoo.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050928093846.GA30962@elte.hu>
-References: <200509262108.55448.annabellesgarden@yahoo.de>
-	 <20050928093846.GA30962@elte.hu>
-Content-Type: text/plain
-Date: Wed, 28 Sep 2005 09:29:07 -0700
-Message-Id: <1127924947.24916.1.camel@cmn3.stanford.edu>
+	Wed, 28 Sep 2005 12:30:54 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:21964 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1751351AbVI1Qax (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 12:30:53 -0400
+Message-Id: <200509281630.j8SGULJi022471@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: ltuikov@yahoo.com
+Cc: Andre Hedrick <andre@linux-ide.org>,
+       Luben Tuikov <luben_tuikov@adaptec.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into the kernel 
+In-Reply-To: Your message of "Wed, 28 Sep 2005 04:37:03 PDT."
+             <20050928113703.65626.qmail@web31806.mail.mud.yahoo.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <20050928113703.65626.qmail@web31806.mail.mud.yahoo.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: multipart/signed; boundary="==_Exmh_1127925020_3988P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Wed, 28 Sep 2005 12:30:21 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-09-28 at 11:38 +0200, Ingo Molnar wrote:
-> * Karsten Wiese <annabellesgarden@yahoo.de> wrote:
-> 
-> > >  latency: 10852 us, #70/70, CPU#0 | (M:preempt VP:0, KP:1, SP:1 HP:1
-> 
-> > > softirq--8     0Dnh4 9901us : trace_change_sched_cpu (1 0 0)
-> > 
-> > Maybe your ethernet device is getting in the way.
-> > Do you also get jack dropouts with ethernet chip disabled,
-> > it's Module unloaded?
-> 
-> also, the M:preempt suggests that it's not a PREEMPT_RT kernel but a 
-> PREEMPT_DESKTOP kernel. Do the dropouts happen even with a PREEMPT_RT 
-> kernel?
+--==_Exmh_1127925020_3988P
+Content-Type: text/plain; charset=us-ascii
 
-Last time I tried a PREEMPT_RT (not that long ago) I was not able to
-boot into it, it was failing very very early in the boot sequence. I
-could try again if it would be valuable. 
+On Wed, 28 Sep 2005 04:37:03 PDT, Luben Tuikov said:
 
--- Fernando
+> When it comes down to it SCSI Core is 20 years behind and thus Linux Storage
+> is 20 years behind.
+
+Hmm.. 20 years ago I was hooking Fujitsu Super-Eagles to Sun3/280 servers.
+If you're going to claim that the current SCSI core is *that* far behind, you're
+going to have to back it up.  Remember that making exaggerated claims is a good
+way to make people not listen to the *rest* of your message.
+
+Seen in include/scsi/scsi.h:
+
+        /*
+         * FIXME: bit0 is listed as reserved in SCSI-2, but is
+         * significant in SCSI-3.  For now, we follow the SCSI-2
+         * behaviour and ignore reserved bits.
+         */
+
+So obviously, it's at least the number of years since SCSI-3 was defined,
+but no more than the time since SCSI-2.  According to http://home.comcast.net/~SCSIguy/SCSI_FAQ/scsifaq.html
+SCSI-2 devices started showing up in 1988, and X3.131-1994 came out in 1994.
+1996 saw the first SCSI-3 proposals.
+
+I'll give you *one* decade, but not two. :)
 
 
+--==_Exmh_1127925020_3988P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFDOsUccC3lWbTT17ARAvapAJ4hW/nwG/5mjFKK5J/oditAkzo/ZQCg0xop
+ldhssTgPTq/4havuCRkBS30=
+=RBaE
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1127925020_3988P--

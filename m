@@ -1,42 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751447AbVI1RWa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751445AbVI1RWN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751447AbVI1RWa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 13:22:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbVI1RWa
+	id S1751445AbVI1RWN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 13:22:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751447AbVI1RWN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 13:22:30 -0400
-Received: from fmr22.intel.com ([143.183.121.14]:1459 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1751447AbVI1RW3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 13:22:29 -0400
-Date: Wed, 28 Sep 2005 10:22:20 -0700
-From: "Seth, Rohit" <rohit.seth@intel.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH]: show_free_area shows free pages in pcp list
-Message-ID: <20050928102219.A29282@unix-os.sc.intel.com>
+	Wed, 28 Sep 2005 13:22:13 -0400
+Received: from smtp3.nextra.sk ([195.168.1.142]:23559 "EHLO mailhub3.nextra.sk")
+	by vger.kernel.org with ESMTP id S1751445AbVI1RWM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 13:22:12 -0400
+Message-ID: <433AD13F.50508@rainbow-software.org>
+Date: Wed, 28 Sep 2005 19:22:07 +0200
+From: Ondrej Zary <linux@rainbow-software.org>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Type: multipart/mixed; boundary="=_tic-34602-1127928129-0001-2"
+To: linux-kernel@vger.kernel.org
+CC: linux-ide@vger.kernel.org
+Subject: [resend] [patch] ide-floppy - software eject not working with LS-120
+ drive
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
+--=_tic-34602-1127928129-0001-2
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-	[PATCH]: The count field in pcp list represents the free pages in that list.  Change the "used" to "free" in the print message in show_free_area routine.
+This is a resend because I didn't get any reply before.
 
-	Signed-off-by: Rohit Seth <rohit.seth@intel.com>
+The problem (eject not working on ATAPI LS-120 drive) is caused by 
+idefloppy_ioctl() function which *first* tries generic_ide_ioctl() and 
+*only* if it fails with -EINVAL, proceeds with the specific ioctls. The 
+generic eject command fails with something other than -EINVAL and the 
+specific one is never executed.
+This patch fixes it by first going through the internal ioctls and only
+trying generic_ide_ioctl() if none of them matches.
 
+Signed-off-by: Ondrej Zary <linux@rainbow-software.org>
 
---- linux-2.6.14-rc2-mm1.org/mm/page_alloc.c	2005-09-27 10:03:51.000000000 -0700
-+++ linux-2.6.14-rc2-mm1/mm/page_alloc.c	2005-09-28 09:09:21.000000000 -0700
-@@ -1409,7 +1409,7 @@
- 			pageset = zone_pcp(zone, cpu);
+-- 
+Ondrej Zary
+
+--=_tic-34602-1127928129-0001-2
+Content-Type: text/plain; name="ide-floppy-eject.patch"; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ide-floppy-eject.patch"
+
+--- linux-2.6.13-orig/drivers/ide/ide-floppy.c	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.13-pentium/drivers/ide/ide-floppy.c	2005-09-04 14:07:53.000000000 +0200
+@@ -2038,11 +2038,9 @@
+ 	struct ide_floppy_obj *floppy = ide_floppy_g(bdev->bd_disk);
+ 	ide_drive_t *drive = floppy->drive;
+ 	void __user *argp = (void __user *)arg;
+-	int err = generic_ide_ioctl(drive, file, bdev, cmd, arg);
++	int err;
+ 	int prevent = (arg) ? 1 : 0;
+ 	idefloppy_pc_t pc;
+-	if (err != -EINVAL)
+-		return err;
  
- 			for (temperature = 0; temperature < 2; temperature++)
--				printk("cpu %d %s: low %d, high %d, batch %d used:%d\n",
-+				printk("cpu %d %s: low %d, high %d, batch %d free:%d\n",
- 					cpu,
- 					temperature ? "cold" : "hot",
- 					pageset->pcp[temperature].low,
+ 	switch (cmd) {
+ 	case CDROMEJECT:
+@@ -2094,7 +2092,7 @@
+ 	case IDEFLOPPY_IOCTL_FORMAT_GET_PROGRESS:
+ 		return idefloppy_get_format_progress(drive, argp);
+ 	}
+- 	return -EINVAL;
++	return generic_ide_ioctl(drive, file, bdev, cmd, arg);
+ }
+ 
+ static int idefloppy_media_changed(struct gendisk *disk)
+
+
+
+
+--=_tic-34602-1127928129-0001-2--

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751271AbVI1M5a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751275AbVI1M6T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751271AbVI1M5a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 08:57:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751275AbVI1M5a
+	id S1751275AbVI1M6T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 08:58:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbVI1M6T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 08:57:30 -0400
-Received: from web8403.mail.in.yahoo.com ([202.43.219.151]:15033 "HELO
-	web8403.mail.in.yahoo.com") by vger.kernel.org with SMTP
-	id S1751271AbVI1M53 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 08:57:29 -0400
+	Wed, 28 Sep 2005 08:58:19 -0400
+Received: from web8405.mail.in.yahoo.com ([202.43.219.153]:40014 "HELO
+	web8405.mail.in.yahoo.com") by vger.kernel.org with SMTP
+	id S1751275AbVI1M6S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 08:58:18 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.co.in;
   h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=0VN5IIE33jUBmrlw/ZVs4F5tZX2+sUIcHmNLq8O1nZLLWLw3eeSmiH+j1G9O9QZKrF38bQkGFNxyjE0EFJvH54EYnQPDcEAn9P2ityk1Dh9zRbXxtftHppNG/NRQYG/w4Y4A5EqmWL97iI0r8iTJsavS91aDk8/J+4VRfpEUaz0=  ;
-Message-ID: <20050928125726.66983.qmail@web8403.mail.in.yahoo.com>
-Date: Wed, 28 Sep 2005 13:57:26 +0100 (BST)
+  b=ENnEdbi3CWfuhVlDztW5Q0tXrv32k1LOJe691Pi22HXz8zbSyIjkvvkcTZ3N23h8sAUYrTNCncDwIE/izKg5X1p8t3S2gRRHOlFFE3fUQvDXBj/qpiZtYZ0vS3WBKoUAua09wXRPIECHh6MSdC6DbWEQT+QwS2FsxO1/5QHaJHs=  ;
+Message-ID: <20050928125815.74025.qmail@web8405.mail.in.yahoo.com>
+Date: Wed, 28 Sep 2005 13:58:15 +0100 (BST)
 From: vikas gupta <vikas_gupta51013@yahoo.co.in>
 Subject: Re: AIO Support and related package information??
 To: =?iso-8859-1?q?S=E9bastien=20Dugu=E9?= <sebastien.dugue@bull.net>

@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbVI1Rug@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbVI1Rw6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750732AbVI1Rug (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 13:50:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750825AbVI1Rug
+	id S1750835AbVI1Rw6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 13:52:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbVI1Rw5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 13:50:36 -0400
-Received: from fmr23.intel.com ([143.183.121.15]:1922 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1750732AbVI1Ruf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 13:50:35 -0400
-Date: Wed, 28 Sep 2005 10:50:09 -0700
-From: "Seth, Rohit" <rohit.seth@intel.com>
-To: akpm@osdl.org
-Cc: "Seth, Rohit" <rohit.seth@intel.com>, linux-mm@kvack.org,
-       Mattia Dongili <malattia@linux.it>, linux-kernel@vger.kernel.org
-Subject: [patch] Reset the high water marks in CPUs pcp list
-Message-ID: <20050928105009.B29282@unix-os.sc.intel.com>
+	Wed, 28 Sep 2005 13:52:57 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:51368 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1750835AbVI1Rw4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 13:52:56 -0400
+Subject: Re: Infinite interrupt loop, INTSTAT = 0
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Olivier Galibert <galibert@pobox.com>
+Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       "Hack inc." <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050928171052.GA45082@dspnet.fr.eu.org>
+References: <20050928134514.GA19734@dspnet.fr.eu.org>
+	 <1127919909.4852.7.camel@mulgrave>
+	 <20050928160744.GA37975@dspnet.fr.eu.org>
+	 <1127924686.4852.11.camel@mulgrave>
+	 <20050928171052.GA45082@dspnet.fr.eu.org>
+Content-Type: text/plain
+Date: Wed, 28 Sep 2005 12:51:49 -0500
+Message-Id: <1127929909.4852.34.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+X-Mailer: Evolution 2.0.4 (2.0.4-6) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Recent changes in page allocations for pcps has increased the high watermark for these lists.  This has resulted in scenarios where pcp lists could be having bigger number of free pages even under low memory conditions. 
+On Wed, 2005-09-28 at 19:10 +0200, Olivier Galibert wrote:
+> On Wed, Sep 28, 2005 at 11:24:46AM -0500, James Bottomley wrote:
+> > On Wed, 2005-09-28 at 18:07 +0200, Olivier Galibert wrote:
+> > > scsi1:0:0:0: Attempting to abort cmd ffff8101b1cdf880: 0x28 0x0 0x0
+> > > 0xbc 0x0 0x3f 0x0 0x0 0x8 0x0
+> > 
+> > Hmm, that message doesn't appear in the current kernel driver.
+> > 
+> > Is this a non-standard kernel or non-standard aic79xx driver?
+> 
+> Just reproduced the exact same message with a vanilla 2.6.13.2.
+> Checking the just-untarred sources, it _is_ in aix79xx_osm.c, in
+> ahd_linux_abort.  You must have typoed "Attempting" in your grep :-)
 
- 	[PATCH]: Reduce the high mark in cpu's pcp lists.
- 
- 	Signed-off-by: Rohit Seth <rohit.seth@intel.com>
+Oh .. apparently that message got removed between 2.6.13 and current git
+head.
+
+Is there any chance you could try this with the latest git snapshot and
+post all the messages from the time the aic79xx is detected to the time
+this message appears ... what I'm trying to ascertain is if anything
+went wrong in negotiating with the device (2.6.13 unfortunately is a bit
+terse on the negotiation messages ... git head will be slightly more
+verbose).
+
+Thanks,
+
+James
 
 
---- linux-2.6.14-rc2-mm1.org/mm/page_alloc.c	2005-09-27 10:03:51.000000000 -0700
-+++ linux-2.6.14-rc2-mm1/mm/page_alloc.c	2005-09-27 18:01:21.000000000 -0700
-@@ -1859,15 +1859,15 @@
- 	pcp = &p->pcp[0];		/* hot */
- 	pcp->count = 0;
- 	pcp->low = 0;
--	pcp->high = 6 * batch;
-+	pcp->high = 4 * batch;
- 	pcp->batch = max(1UL, 1 * batch);
- 	INIT_LIST_HEAD(&pcp->list);
- 
- 	pcp = &p->pcp[1];		/* cold*/
- 	pcp->count = 0;
- 	pcp->low = 0;
--	pcp->high = 2 * batch;
- 	pcp->batch = max(1UL, batch/2);
-+	pcp->high = pcp->batch + 1;
- 	INIT_LIST_HEAD(&pcp->list);
- }
- 

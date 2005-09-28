@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbVI1PCc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751039AbVI1PFQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751032AbVI1PCc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 11:02:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751034AbVI1PCc
+	id S1751039AbVI1PFQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 11:05:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751040AbVI1PFQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 11:02:32 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:15282 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751026AbVI1PCc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 11:02:32 -0400
-Date: Wed, 28 Sep 2005 08:01:50 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Paul Jackson <pj@sgi.com>
-cc: KUROSAWA Takahiro <kurosawa@valinux.co.jp>, taka@valinux.co.jp,
-       magnus.damm@gmail.com, dino@in.ibm.com, linux-kernel@vger.kernel.org,
-       ckrm-tech@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] cpuset read past eof memory leak fix
-In-Reply-To: <20050928064224.49170ca7.pj@sgi.com>
-Message-ID: <Pine.LNX.4.58.0509280758560.3308@g5.osdl.org>
-References: <20050908225539.0bc1acf6.pj@sgi.com> <20050909.203849.33293224.taka@valinux.co.jp>
- <20050909063131.64dc8155.pj@sgi.com> <20050910.161145.74742186.taka@valinux.co.jp>
- <20050910015209.4f581b8a.pj@sgi.com> <20050926093432.9975870043@sv1.valinux.co.jp>
- <20050927013751.47cbac8b.pj@sgi.com> <20050927113902.C78A570046@sv1.valinux.co.jp>
- <20050928092558.61F6170041@sv1.valinux.co.jp> <20050928064224.49170ca7.pj@sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 28 Sep 2005 11:05:16 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:49574 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1751039AbVI1PFO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 11:05:14 -0400
+Subject: Re: Infinite interrupt loop, INTSTAT = 0
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Olivier Galibert <galibert@pobox.com>
+Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       "Hack inc." <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050928134514.GA19734@dspnet.fr.eu.org>
+References: <20050928134514.GA19734@dspnet.fr.eu.org>
+Content-Type: text/plain
+Date: Wed, 28 Sep 2005 10:05:08 -0500
+Message-Id: <1127919909.4852.7.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-6) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2005-09-28 at 15:45 +0200, Olivier Galibert wrote:
+> Sep 28 15:26:13 m82 kernel: scsi1:0:0:0: Attempting to abort cmd ffff8100bfe3e300: 0x28 0x0 0x0 0x50 0x0 0x3f 0x0 0x0 0x8 0x0
+> Sep 28 15:26:13 m82 kernel: Infinite interrupt loop, INTSTAT = 0scsi1: At time of recovery, card was not paused
+> Sep 28 15:26:13 m82 kernel: >>>>>>>>>>>>>>>>>> Dump Card State Begins <<<<<<<<<<<<<<<<<
 
-Applied. 
+What was it doing before this?  i.e. what were all the messages from the
+card.  The message happens when the aic driver is unable to clear its
+pending workqueue after it suspends ... which is part of error recovery.
+So, what error was it trying to recover from?
 
-Just a non-technical note: the sign-offs makes me suspect the patch (or an 
-earlier version of it) may have been written by Kurosawa-san. However, it 
-wasn't clear, so I didn't make that change, and so it now ends up being in 
-git with Paul as the author.
+By the way, your AIC-7892 is a different driver.
 
-If that was wrong, please for the future keep authorship intact by having 
-a "From: A U Thor <author@mailbox.com>" at the head of the description, 
-which will make authorship clear and allow the tools to pick that up.
+James
 
-		Linus
 
-On Wed, 28 Sep 2005, Paul Jackson wrote:
->
-> Don't leak a page of memory if user reads a cpuset file past eof.
-> 
-> Signed-off-by: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
-> Signed-off-by: Paul Jackson <pj@sgi.com>
-> 
-> --- linux-2.6.14-rc2.orig/kernel/cpuset.c
-> +++ linux-2.6.14-rc2/kernel/cpuset.c	2005-09-28 17:42:00.759401736 +0900
-> @@ -969,7 +969,7 @@ static ssize_t cpuset_common_file_read(s
-...

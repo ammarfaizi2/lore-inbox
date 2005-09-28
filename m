@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750858AbVI1Peq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751254AbVI1PmH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750858AbVI1Peq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 11:34:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750977AbVI1Pep
+	id S1751254AbVI1PmH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 11:42:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751343AbVI1PmG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 11:34:45 -0400
-Received: from main.gmane.org ([80.91.229.2]:3216 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750858AbVI1Pep (ORCPT
+	Wed, 28 Sep 2005 11:42:06 -0400
+Received: from atlrel9.hp.com ([156.153.255.214]:49590 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S1751254AbVI1PmF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 11:34:45 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Matthieu CASTET <castet.matthieu@free.fr>
-Subject: Re: bogus VIA IRQ fixup in drivers/pci/quirks.c
-Date: Wed, 28 Sep 2005 17:32:57 +0200
-Message-ID: <pan.2005.09.28.15.32.56.897766@free.fr>
-References: <20050926184451.GB11752@suse.de> <Pine.LNX.4.58.0509261446590.3308@g5.osdl.org> <1127831274.433956ea35992@webmail.jordet.nu> <Pine.LNX.4.58.0509270734340.3308@g5.osdl.org> <1127855989.4339b77537987@webmail.jordet.nu> <Pine.LNX.4.58.0509271432490.3308@g5.osdl.org> <1127857716.4339be34f239f@webmail.jordet.nu> <Pine.LNX.4.58.0509271556211.3308@g5.osdl.org> <pan.2005.09.28.07.28.55.23717@free.fr>
+	Wed, 28 Sep 2005 11:42:05 -0400
+Date: Wed, 28 Sep 2005 11:44:15 -0400
+From: Bob Picco <bob.picco@hp.com>
+To: Clemens Ladisch <clemens@ladisch.de>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, Bob Picco <bob.picco@hp.com>
+Subject: Re: [PATCH 0/7] HPET fixes and enhancements
+Message-ID: <20050928154415.GD25483@localhost.localdomain>
+References: <20050928071155.23025.43523.balrog@turing>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: cac94-1-81-57-151-96.fbx.proxad.net
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050928071155.23025.43523.balrog@turing>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le Wed, 28 Sep 2005 09:28:56 +0200, Matthieu CASTET a écrit :
+Clemens Ladisch wrote:	[Wed Sep 28 2005, 03:11:55AM EDT]
+> These patches remove a bunch of warts and quirks from the HPET drivers.
+> 
+> 
+>  arch/i386/kernel/time_hpet.c |   20 +++++++++++---------
+>  arch/x86_64/kernel/time.c    |   20 +++++++++++---------
+>  drivers/char/hpet.c          |   39 ++++++++++++++++++++++++---------------
+>  3 files changed, 46 insertions(+), 33 deletions(-)
+> -
+Ack on patches [1-4].
 
-> Hi Linus,
-> 
-> Le Tue, 27 Sep 2005 15:58:33 -0700, Linus Torvalds a écrit :
-> 
->> 
->> 
-> 
->> so my patch didn't change anything at all for you (which is correct - it 
->> was designed not to ;)
->> 
-> 
-> It will for me as I have [1].
-> 
-> But since the irq for ide are probe after, I think it won't change
-> anything.
-> I will try your patch when I'll have some free time.
-> 
-Seem to work fine here (disable all fix).
+For x86_64 you can try Andi Kleen.  Venki and I weren't responsible
+for x86_64 HPET.
 
+thanks,
+
+bob

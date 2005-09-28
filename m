@@ -1,85 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750852AbVI1J6g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750861AbVI1KEU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750852AbVI1J6g (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 05:58:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbVI1J6f
+	id S1750861AbVI1KEU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 06:04:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750864AbVI1KEU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 05:58:35 -0400
-Received: from nproxy.gmail.com ([64.233.182.201]:60523 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750852AbVI1J6f convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 05:58:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=iQFyHt156KXXsmTuIQhNRWlU/QKMvjdR4vbhe2GAD3YJkJSMDt7qBpRIIQ2NxNLdecM+ivPdeROiQQlKHZPgADVTSEr61/Kptu2P31iiqUFohjBR/TTkhkTtvHLLydkafpWmmL28BpRi/euJNW6TJb7gw+xQJL9N0Oqxoo786DI=
-Message-ID: <6278d222050928025865d8968c@mail.gmail.com>
-Date: Wed, 28 Sep 2005 10:58:32 +0100
-From: Daniel J Blueman <daniel.blueman@gmail.com>
-Reply-To: Daniel J Blueman <daniel.blueman@gmail.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>, jpiszcz@lucidpixels.com
-Subject: Re: TCP=828mbps, UDP=1mbps? (both running 2.6.13.2)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Wed, 28 Sep 2005 06:04:20 -0400
+Received: from mail.renesas.com ([202.234.163.13]:49338 "EHLO
+	mail04.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S1750860AbVI1KET (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 06:04:19 -0400
+Date: Wed, 28 Sep 2005 19:04:14 +0900 (JST)
+Message-Id: <20050928.190414.189705294.takata.hirokazu@renesas.com>
+To: viro@ftp.linux.org.uk
+Cc: torvalds@osdl.org, takata@linux-m32r.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] m32r: set CHECKFLAGS properly
+From: Hirokazu Takata <takata@linux-m32r.org>
+In-Reply-To: <20050928001840.GW7992@ftp.linux.org.uk>
+References: <20050927.152325.424252181.takata.hirokazu@renesas.com>
+	<Pine.LNX.4.58.0509270758040.3308@g5.osdl.org>
+	<20050928001840.GW7992@ftp.linux.org.uk>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.17 (Jumbo Shrimp)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin,
+From: Al Viro <viro@ftp.linux.org.uk>
+Date: Wed, 28 Sep 2005 01:18:40 +0100
+> On Tue, Sep 27, 2005 at 08:00:03AM -0700, Linus Torvalds wrote:
+> > 
+> > On Tue, 27 Sep 2005, Hirokazu Takata wrote:
+> > > 
+> > > Now, the endianness is to be determined by a (cross)compiler:
+> > > - For the big-endian, a compiler (m32r-linux-gcc or m32r-linux-gnu-gcc)
+> > >   provides a predefined macro __BIG_ENDIAN__.
+> > > - For little-endian, a compiler (m32rle-linux-gcc or m32rle-linux-gnu-gcc)
+> > >   provides a predefined macro __LITTLE_ENDIAN__.
+> > 
+> > Hmm.. You need to tell sparse _some_ way which one you use, since sparse 
+> > won't do it.
 
-When running iperf in UDP mode (-u), you must specify a bandwidth, ie:
+In the top Makefile, CHECKFLAGS is defined as follows:
+CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ $(CF)
 
-server$ iperf -s -u
-client$ iperf -c server -u -b 1000M
+Can I use CF for user specific CHECKFLAGS ?
+What do you think about we specify it manyally for a biendian target?
 
-Justin Piszcz wrote:
-> Any idea why with TCP I get 828 megabits on my gigabit connection but only
-> 1.05 megabits with UDP?
->
-> Using iperf to benchmark.
->
-> TCP
-> ------------------------------------------------------------
-> Server listening on TCP port 5001
-> TCP window size: 85.3 KByte (default)
-> ------------------------------------------------------------
-> [  4] local 192.168.1.12 port 5001 connected with 192.168.1.253 port
-> 48853
-> [  4]  0.0-35.1 sec  3.38 GBytes    828 Mbits/sec
->
->
-> UDP
-> ------------------------------------------------------------
-> Server listening on UDP port 5001
-> Receiving 1470 byte datagrams
-> UDP buffer size:   101 KByte (default)
-> ------------------------------------------------------------
-> [  3] local 192.168.1.12 port 5001 connected with 192.168.1.253 port
-> 32773
-> [  3]  0.0-10.0 sec  1.25 MBytes  1.05 Mbits/sec  0.043 ms    0/  893 (0%)
->
->
-> p34:~$ netstat -i
-> Kernel Interface table
-> Iface   MTU Met   RX-OK RX-ERR RX-DRP RX-OVR    TX-OK TX-ERR TX-DRP TX-OVR
-> Flg
-> eth0   1500 0   1266337      0      0      0  2588651      0      0      0
-> BMRU
-> eth1   1500 0      2358      0      0      0     2229      0      0      0
-> BMRU
-> eth2   1500 0     39706      0      0      0     5747      0      0      0
-> BMNRU
-> lo    16436 0       184      0      0      0      184      0      0      0
-> LRU
->
-> box2:~$ netstat -i
-> Kernel Interface table
-> Iface   MTU Met   RX-OK RX-ERR RX-DRP RX-OVR    TX-OK TX-ERR TX-DRP TX-OVR
-> Flg
-> eth0   1500 0   2955176      0      0      0  3696501      0      0      0
-> BMRU
-> lo    16436 0       612      0      0      0      612      0      0      0
-> LRU
-___
-Daniel J Blueman
+ex. m32r
+  sparse check for biendian target
+  $ make ARCH=m32r CF=-D__BIG_ENDIAN__=1 C=1   ... for big-endian
+  $ make ARCH=m32r CF=-D__LITTLE__=1 C=1       ... for little-endian
+
+  arch/m32r/Makefile:
+  CHECKFLAGS += -D__m32r__
+
+> > Picking one at random is fine, of course. It doesn't even have to match 
+> > the one you'll compile with, although that means that sparse will 
+> > obviously be testing a different configuration than the one you'd actually 
+> > compile.
+> > 
+> > So I think having -D__BIG_ENDIAN__ in the sparse flags is better than not
+> > having anything at all (since otherwise it won't be able to check
+> > anything). And having something that matches the compiler would be better
+> > still.
+
+I understand what you said.
+I think having -D__BIG_ENDIAN__ is one of the realistic solutions,
+because it seems that there is no good solution about this problem
+as other people said in this ML-thread.
+
+
+> Really interesting question is why do we need two toolchains at all.
+> Note that little-endian m32r gcc at least appears to understand
+> -mbe/-mbig-endian and binutils handles both endianness just fine.
+
+IMHO, I think it is for convinience of building userland programs.
+For example, in case of building programs (like Debian/GNU Linux
+packages), it is useful that we can simply use a compiler without
+not only modifying any source/Makefile but also specifing any 
+target-specific options of the compiler.
+
+> Does that really work and is there any reason why big-endian one
+> could not handle -mle the same way with minimal changes?  IOW, do
+> they have to differ in anything except the default target endianness?
+
+I have no idea...
+
+> Note that dependencies on "host endianness == target endianness" are
+> practically guaranteed to cause bugs in cross-compiler, so any of
+> those would very likely to be a bug in need of fixing anyway...
+
+I think so, too.
+I hope we can do check both of target endianness intentionally.
+
+-- Takata

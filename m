@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030234AbVI1Jhe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030233AbVI1JiA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030234AbVI1Jhe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 05:37:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030233AbVI1Jhe
+	id S1030233AbVI1JiA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 05:38:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030235AbVI1JiA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 05:37:34 -0400
-Received: from mail.kroah.org ([69.55.234.183]:2696 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1030234AbVI1Jhd (ORCPT
+	Wed, 28 Sep 2005 05:38:00 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:10689 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030233AbVI1Jh7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 05:37:33 -0400
-Date: Wed, 28 Sep 2005 02:36:33 -0700
-From: Greg KH <greg@kroah.com>
-To: Roland Dreier <rolandd@cisco.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [git pull] InfiniBand fixes for 2.6.14
-Message-ID: <20050928093633.GA12757@kroah.com>
-References: <524q85on6e.fsf@cisco.com>
+	Wed, 28 Sep 2005 05:37:59 -0400
+Date: Wed, 28 Sep 2005 11:38:46 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Karsten Wiese <annabellesgarden@yahoo.de>
+Cc: Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: jack, PREEMPT_DESKTOP, delayed interrupts?
+Message-ID: <20050928093846.GA30962@elte.hu>
+References: <200509262108.55448.annabellesgarden@yahoo.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <524q85on6e.fsf@cisco.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <200509262108.55448.annabellesgarden@yahoo.de>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 27, 2005 at 09:01:45PM -0700, Roland Dreier wrote:
-> Linus, please pull from
+
+* Karsten Wiese <annabellesgarden@yahoo.de> wrote:
+
+> >  latency: 10852 us, #70/70, CPU#0 | (M:preempt VP:0, KP:1, SP:1 HP:1
+
+> > softirq--8     0Dnh4 9901us : trace_change_sched_cpu (1 0 0)
 > 
->     master.kernel.org:/pub/scm/linux/kernel/git/roland/infiniband.git for-linus
+> Maybe your ethernet device is getting in the way.
+> Do you also get jack dropouts with ethernet chip disabled,
+> it's Module unloaded?
 
-Hm, I complained about this last time, with no response...
+also, the M:preempt suggests that it's not a PREEMPT_RT kernel but a 
+PREEMPT_DESKTOP kernel. Do the dropouts happen even with a PREEMPT_RT 
+kernel?
 
-I didn't think that git pulls were going to be allowed from subsystem
-maintainers after -rc1 came out.  After that, patches by email were
-required to be sent, not git pulls.  This does cause a bit more work
-for the maintainer, but it ensures that they only send the patches they
-really want to get in.
-
-At least that was what I thought we decided on at the kernel summit...
-
-thanks,
-
-greg k-h
+	Ingo

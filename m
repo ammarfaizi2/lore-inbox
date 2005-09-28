@@ -1,73 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965241AbVI1Boq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965251AbVI1BsJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965241AbVI1Boq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 21:44:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965245AbVI1Boq
+	id S965251AbVI1BsJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 21:48:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965250AbVI1BsI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 21:44:46 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:40371 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965241AbVI1Boq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 21:44:46 -0400
-Date: Wed, 28 Sep 2005 02:44:43 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Hirokazu Takata <takata@linux-m32r.org>, torvalds@odsl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] m32r: set CHECKFLAGS properly
-Message-ID: <20050928014443.GX7992@ftp.linux.org.uk>
-References: <E1EJlNM-00059K-R8@ZenIV.linux.org.uk> <20050927.151301.189720995.takata.hirokazu@renesas.com> <20050927071025.GS7992@ftp.linux.org.uk> <20050927200230.GA8403@mars.ravnborg.org>
-Mime-Version: 1.0
+	Tue, 27 Sep 2005 21:48:08 -0400
+Received: from astound-64-85-224-245.ca.astound.net ([64.85.224.245]:46091
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S965245AbVI1BsH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 21:48:07 -0400
+Date: Tue, 27 Sep 2005 18:34:55 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: "Moore, Eric Dean" <Eric.Moore@lsil.com>
+cc: Luben Tuikov <luben_tuikov@adaptec.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: RE: I request inclusion of SAS Transport Layer and AIC-94xx into 
+ the kernel
+In-Reply-To: <91888D455306F94EBD4D168954A9457C0438823C@nacos172.co.lsil.com>
+Message-ID: <Pine.LNX.4.10.10509271833400.14637-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050927200230.GA8403@mars.ravnborg.org>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 27, 2005 at 10:02:30PM +0200, Sam Ravnborg wrote:
->  
-> > Sam, any help in that area?  Ideally we want to have something equivalent
-> > to
-> > PREDEFINED_WE_MIGHT_WANT = __m32r__ __LITTLE_ENDIAN__ __BIG_ENDIAN__
-> > and CHECKFLAGS done from that - basically, the subset of cross-gcc
-> > predefined symbols reproduced for sparse.  Ideally with -m64 added
-> > if we have sizeof(long) == 8 on target, to take care of all that
-> > crap in one go.
+
+Eric,
+
+Luben is in shock.
+
+Jeff hinted Luben and I are similar, and that would scare anyone.
+
+Cheers,
+
+Andre
+
+On Tue, 27 Sep 2005, Moore, Eric Dean wrote:
+
+> On Tuesday, September 27, 2005 4:51 PM, Luben Tuikov wrote:
+> 
+> > Christoph's code is
+> >  * MPT based only,
+> >  * doesn't follow a spec to save its life,
+> >  * far inferior in SAS capabilities and SAS representation
+> >    again, due to the fact that it is MPT based.
 > > 
-> > Suggestions?
-> The most simple solution would be to provide a small script that
-> create the defines as we need and run it for each invocation of sparse.
-> The script should use same trick as scripts/gcc-version.sh does.
+> > Since the whole point of MPT is to _hide_ the transport.
+> > 
 > 
-> So we could have:
-> #!/bin/sh
-> compiler="$*"
 > 
-> BIG=$(echo __BIG_ENDIAN__ | $compiler -E -xc - | tail -n 1)
-> LITTLE=$(echo __LITTLE_ENDIAN__ | $compiler -E -xc - | tail -n 1)
+> Hi Luben,
 > 
-> Then BIG would be set to "1" if this is big endian, and "__BIG_ENDIAN__"
-> if little endian.
-> A little bit of shell script and we have the defines we want for m32r.
-> Then we could add calling this script as part of sparse invocation.
+> OK, Man are you alright?
+> 
+> I've heard of other vendors planning to 
+> provide solutions where sas is implemented
+> in firmware, similar to MPT.  Christophs
+> sas layer is going to work with other 
+> solutions, don't think of it being 
+> MPT centric.
+> 
+> 
+> Later,
+> Eric Moore 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Oww...  Somehow that doesn't look like a good idea.  Two spawned gcc
-per sparse run?  Not pretty...
- 
-> The better solution would be to find the relevant flags before we
-> start building the kernel. This is not so easy if we want access to
-> final CFLAGS. But for the architecture the important ones are
-> defined in arch/Makefile so placing this late in the file and
-> use $(CC) $(CFLAGS) should be OK in almost all cases.
-
-Alternatively, we could generate something like
-#define HAVE(x) -D##x=x
-#ifdef <symbol>
-HAVE(<symbol>)
-#endif
-...
-
-into arch/$ARCH/kernel/predefines.S, have arch/$ARCH/kernel/predefines.s
-generated by normal rules and have echo `grep -- -D arch/.../predefines.s`
-do the rest...

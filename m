@@ -1,52 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750963AbVI1Nhz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750972AbVI1NnO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750963AbVI1Nhz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 09:37:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750965AbVI1Nhz
+	id S1750972AbVI1NnO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 09:43:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750973AbVI1NnO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 09:37:55 -0400
-Received: from gold.veritas.com ([143.127.12.110]:4914 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1750962AbVI1Nhy (ORCPT
+	Wed, 28 Sep 2005 09:43:14 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:56798 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1750968AbVI1NnN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 09:37:54 -0400
-Date: Wed, 28 Sep 2005 14:37:22 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Blaisorblade <blaisorblade@yahoo.it>
-cc: LKML <linux-kernel@vger.kernel.org>, Ulrich Drepper <drepper@redhat.com>
-Subject: Re: [uml-devel] Re: [RFC] [patch 0/18] remap_file_pages protection
- support (for UML), try 3
-In-Reply-To: <200509261758.23705.blaisorblade@yahoo.it>
-Message-ID: <Pine.LNX.4.61.0509281418500.6830@goblin.wat.veritas.com>
-References: <200508262023.29170.blaisorblade@yahoo.it>
- <200509042110.01968.blaisorblade@yahoo.it> <Pine.LNX.4.61.0509071259380.17612@goblin.wat.veritas.com>
- <200509261758.23705.blaisorblade@yahoo.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 28 Sep 2005 13:37:53.0938 (UTC) FILETIME=[D403AF20:01C5C431]
+	Wed, 28 Sep 2005 09:43:13 -0400
+Date: Wed, 28 Sep 2005 06:42:24 -0700
+From: Paul Jackson <pj@sgi.com>
+To: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
+Cc: kurosawa@valinux.co.jp, taka@valinux.co.jp, magnus.damm@gmail.com,
+       dino@in.ibm.com, linux-kernel@vger.kernel.org,
+       ckrm-tech@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH] cpuset read past eof memory leak fix
+Message-Id: <20050928064224.49170ca7.pj@sgi.com>
+In-Reply-To: <20050928092558.61F6170041@sv1.valinux.co.jp>
+References: <20050908225539.0bc1acf6.pj@sgi.com>
+	<20050909.203849.33293224.taka@valinux.co.jp>
+	<20050909063131.64dc8155.pj@sgi.com>
+	<20050910.161145.74742186.taka@valinux.co.jp>
+	<20050910015209.4f581b8a.pj@sgi.com>
+	<20050926093432.9975870043@sv1.valinux.co.jp>
+	<20050927013751.47cbac8b.pj@sgi.com>
+	<20050927113902.C78A570046@sv1.valinux.co.jp>
+	<20050928092558.61F6170041@sv1.valinux.co.jp>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, it's really hard to read your interspersed comments.  Perhaps I
-need to switch on some colour option when reading your mails, but I've
-never found the need for it before.  Please, use a blank line above
-and below your comments to help us locate them and read them, thanks.
+Don't leak a page of memory if user reads a cpuset file past eof.
 
-On Mon, 26 Sep 2005, Blaisorblade wrote:
-> On Wednesday 07 September 2005 14:00, Hugh Dickins wrote:
-> 
-> > So far as I can see (I may have missed it), you really don't need to
-> > change from the write boolean
-> 
-> > (perhaps -1 for exec in one arch??)
-> ? Not understood this part, ignoring it?
-> Maybe you mean "except one arch, x86_64, which supports exec protection?"
+Signed-off-by: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
+Signed-off-by: Paul Jackson <pj@sgi.com>
 
-No, I meant the current code uses "0" for read fault, "1" for write fault,
-and (in a quick search) only found one architecture (I forget which,
-certainly not x86_64) which might have been interested to pass down
-a different value to handle_mm_fault to distinguish execution fault:
-for which I was suggesting to use "-1", rather than change everywhere.
-Though now I'm doubting there was any such case at all.
+--- linux-2.6.14-rc2.orig/kernel/cpuset.c
++++ linux-2.6.14-rc2/kernel/cpuset.c	2005-09-28 17:42:00.759401736 +0900
+@@ -969,7 +969,7 @@ static ssize_t cpuset_common_file_read(s
+ 	ssize_t retval = 0;
+ 	char *s;
+ 	char *start;
+-	size_t n;
++	ssize_t n;
+ 
+ 	if (!(page = (char *)__get_free_page(GFP_KERNEL)))
+ 		return -ENOMEM;
+@@ -999,12 +999,13 @@ static ssize_t cpuset_common_file_read(s
+ 	*s++ = '\n';
+ 	*s = '\0';
+ 
+-	/* Do nothing if *ppos is at the eof or beyond the eof. */
+-	if (s - page <= *ppos)
+-		return 0;
+-
+ 	start = page + *ppos;
+ 	n = s - start;
++
++	/* Do nothing if *ppos is at the eof or beyond the eof. */
++	if (n <= 0)
++		goto out;
++
+ 	retval = n - copy_to_user(buf, start, min(n, nbytes));
+ 	*ppos += retval;
+ out:
 
-Hugh
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

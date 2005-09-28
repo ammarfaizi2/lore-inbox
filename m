@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751436AbVI1RUl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751447AbVI1RWa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751436AbVI1RUl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 13:20:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751445AbVI1RUl
+	id S1751447AbVI1RWa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 13:22:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbVI1RWa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 13:20:41 -0400
-Received: from quechua.inka.de ([193.197.184.2]:47539 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S1751436AbVI1RUk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 13:20:40 -0400
-From: Andreas Jellinghaus <aj@dungeon.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: fat / multi arch binaries?
-Date: Wed, 28 Sep 2005 19:18:56 +0200
-User-Agent: KMail/1.7.2
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Wed, 28 Sep 2005 13:22:30 -0400
+Received: from fmr22.intel.com ([143.183.121.14]:1459 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1751447AbVI1RW3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 13:22:29 -0400
+Date: Wed, 28 Sep 2005 10:22:20 -0700
+From: "Seth, Rohit" <rohit.seth@intel.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH]: show_free_area shows free pages in pcp list
+Message-ID: <20050928102219.A29282@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200509281918.56386.aj@dungeon.inka.de>
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-does linux support binaries with code
-for several architectures? I read that
-elf allowes that, and for example
-apple plans to use it on mac os X,
-but I couldn't find anything whether
-such binaries would work with linux
-or not. can you tell me?
 
-if linux supports that, it should
-also work for merging x86 and x86_64
-into one binary? would ther be a way
-to run the 32bit version in the 64bit
-kernel, if requested? are there any
-tools to create such binaries?
+	[PATCH]: The count field in pcp list represents the free pages in that list.  Change the "used" to "free" in the print message in show_free_area routine.
 
-with google I found info from 97
-that indicades elf format has no
-provision for fat binaries and linux
-doesn't support them. is that still
-true?
+	Signed-off-by: Rohit Seth <rohit.seth@intel.com>
 
-Thanks, Andreas
+
+--- linux-2.6.14-rc2-mm1.org/mm/page_alloc.c	2005-09-27 10:03:51.000000000 -0700
++++ linux-2.6.14-rc2-mm1/mm/page_alloc.c	2005-09-28 09:09:21.000000000 -0700
+@@ -1409,7 +1409,7 @@
+ 			pageset = zone_pcp(zone, cpu);
+ 
+ 			for (temperature = 0; temperature < 2; temperature++)
+-				printk("cpu %d %s: low %d, high %d, batch %d used:%d\n",
++				printk("cpu %d %s: low %d, high %d, batch %d free:%d\n",
+ 					cpu,
+ 					temperature ? "cold" : "hot",
+ 					pageset->pcp[temperature].low,

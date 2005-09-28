@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751081AbVI1VzM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751057AbVI1V4I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751081AbVI1VzM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 17:55:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751030AbVI1Vyq
+	id S1751057AbVI1V4I (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 17:56:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751043AbVI1Vzi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 17:54:46 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:39941 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1751043AbVI1VyJ (ORCPT
+	Wed, 28 Sep 2005 17:55:38 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:37309 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751087AbVI1VzW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 17:54:09 -0400
-Date: Wed, 28 Sep 2005 17:50:52 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org
-Cc: perex@suse.cz, tiwai@suse.de
-Subject: [patch 2.6.14-rc2 1/3] alsa: fix HD audio ALC260 mono (un)mute
-Message-ID: <09282005175052.10938@bilbo.tuxdriver.com>
-In-Reply-To: <09282005175052.10882@bilbo.tuxdriver.com>
-User-Agent: PatchPost/0.1
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 28 Sep 2005 17:55:22 -0400
+Date: Wed, 28 Sep 2005 14:55:14 -0700 (PDT)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+cc: "Seth, Rohit" <rohit.seth@intel.com>, akpm@osdl.org, linux-mm@kvack.org,
+       Mattia Dongili <malattia@linux.it>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Reset the high water marks in CPUs pcp list
+In-Reply-To: <15630000.1127942318@flay>
+Message-ID: <Pine.LNX.4.62.0509281454210.15902@schroedinger.engr.sgi.com>
+References: <20050928105009.B29282@unix-os.sc.intel.com>
+ <Pine.LNX.4.62.0509281259550.14892@schroedinger.engr.sgi.com>
+ <15630000.1127942318@flay>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The ALC260 "Mono Playback Switch" is marked as an output in
-patch_realtek.c. It actually does not work unless it is marked as an
-input. Go figure... This was tested and confirmed on an HP xw4300.
 
-Signed-off-by: John W. Linville <linville@tuxdriver.com>
----
+On Wed, 28 Sep 2005, Martin J. Bligh wrote:
 
- sound/pci/hda/patch_realtek.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+> >> Recent changes in page allocations for pcps has increased the high watermark for these lists.  This has resulted in scenarios where pcp lists could be having bigger number of free pages even under low memory conditions. 
+> >> 
+> >>  	[PATCH]: Reduce the high mark in cpu's pcp lists.
+> > 
+> > There is no need for such a patch. The pcp lists are regularly flushed.
+> > See drain_remote_pages.
+> 
+> That's only retrieving pages which have migrated off-node, is it not?
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -2243,7 +2243,7 @@ static snd_kcontrol_new_t alc260_base_mi
- 	HDA_CODEC_VOLUME("Headphone Playback Volume", 0x09, 0x0, HDA_OUTPUT),
- 	ALC_BIND_MUTE("Headphone Playback Switch", 0x09, 2, HDA_INPUT),
- 	HDA_CODEC_VOLUME_MONO("Mono Playback Volume", 0x0a, 1, 0x0, HDA_OUTPUT),
--	ALC_BIND_MUTE_MONO("Mono Playback Switch", 0x0a, 1, 2, HDA_OUTPUT),
-+	ALC_BIND_MUTE_MONO("Mono Playback Switch", 0x0a, 1, 2, HDA_INPUT),
- 	HDA_CODEC_VOLUME("Capture Volume", 0x04, 0x0, HDA_INPUT),
- 	HDA_CODEC_MUTE("Capture Switch", 0x04, 0x0, HDA_INPUT),
- 	{
-@@ -2270,7 +2270,7 @@ static snd_kcontrol_new_t alc260_hp_mixe
- 	HDA_CODEC_VOLUME("Headphone Playback Volume", 0x09, 0x0, HDA_OUTPUT),
- 	ALC_BIND_MUTE("Headphone Playback Switch", 0x09, 2, HDA_INPUT),
- 	HDA_CODEC_VOLUME_MONO("Mono Playback Volume", 0x0a, 1, 0x0, HDA_OUTPUT),
--	ALC_BIND_MUTE_MONO("Mono Playback Switch", 0x0a, 1, 2, HDA_OUTPUT),
-+	ALC_BIND_MUTE_MONO("Mono Playback Switch", 0x0a, 1, 2, HDA_INPUT),
- 	HDA_CODEC_VOLUME("Capture Volume", 0x05, 0x0, HDA_INPUT),
- 	HDA_CODEC_MUTE("Capture Switch", 0x05, 0x0, HDA_INPUT),
- 	{
+Its freeing all pages in off node pcps. There is no page migration 
+in the current kernels.
+
+

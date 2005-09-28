@@ -1,32 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751276AbVI1PX2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbVI1Pef@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751276AbVI1PX2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 11:23:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751078AbVI1PX2
+	id S1750898AbVI1Pef (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 11:34:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750910AbVI1Pef
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 11:23:28 -0400
-Received: from S01060013109fe3d4.vc.shawcable.net ([24.85.133.133]:6601 "EHLO
-	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S1751276AbVI1PX1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 11:23:27 -0400
-Date: Wed, 28 Sep 2005 08:29:55 -0700 (PDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Clemens Koller <clemens.koller@anagramm.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13.2 crash on shutdown on SMP machine
-In-Reply-To: <433A747E.3070705@anagramm.de>
-Message-ID: <Pine.LNX.4.61.0509280828270.1684@montezuma.fsmlabs.com>
-References: <433A747E.3070705@anagramm.de>
+	Wed, 28 Sep 2005 11:34:35 -0400
+Received: from tantale.fifi.org ([64.81.251.130]:404 "EHLO tantale.fifi.org")
+	by vger.kernel.org with ESMTP id S1750858AbVI1Pef (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 11:34:35 -0400
+To: Simon Kirby <sim@netnation.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Strangeness with signals
+References: <20050927232034.GC6833@netnation.com>
+	<87hdc6htur.fsf@ceramic.fifi.org>
+	<20050928034659.GA27953@netnation.com>
+Mail-Copies-To: nobody
+From: Philippe Troin <phil@fifi.org>
+Date: 28 Sep 2005 08:30:06 -0700
+In-Reply-To: <20050928034659.GA27953@netnation.com>
+Message-ID: <873bnp5hxd.fsf@ceramic.fifi.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Sep 2005, Clemens Koller wrote:
+Simon Kirby <sim@netnation.com> writes:
 
-> I can try the latest git or 2.6.14-rc2 tonight and get you
-> some more info (.config) when I am back home...
-> BTW what is IPI? Any ideas? What do you need to track down
+> On Tue, Sep 27, 2005 at 06:19:24PM -0700, Philippe Troin wrote:
+> 
+> > The SIGWINCH and SIGCHLD signals are not generated if their
+> > disposition is set to SIG_DFL.  I believe SIGCONT and SIGURG also
+> > behave similarly.  If you want to see them from your application, you
+> > have to establish a (potentially empty) signal handler.
+> 
+> Ok, and this is what I did in the example; however, is it expected that
+> it does not help to set a handler in sa_handler and call sigaction()?
+> In fact, it does not matter what sa_handler is set to (it can still be
+> SIG_IGN), but sa_sigaction must point to a valid handler.
 
-Forgot to answer your other question, IPI is Inter Processor Interrupt, 
-the cpu's method of triggering an interrupt on remote processors.
+As long as sa_handler (or sa_sigaction) is not SIG_DFL (which is NULL
+on linux).
+
+Phil.

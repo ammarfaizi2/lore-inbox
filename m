@@ -1,61 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965202AbVI1ASo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965168AbVI1AWm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965202AbVI1ASo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Sep 2005 20:18:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbVI1ASo
+	id S965168AbVI1AWm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Sep 2005 20:22:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbVI1AWm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 20:18:44 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:57232 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751137AbVI1ASn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 20:18:43 -0400
-Date: Wed, 28 Sep 2005 01:18:40 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Hirokazu Takata <takata@linux-m32r.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] m32r: set CHECKFLAGS properly
-Message-ID: <20050928001840.GW7992@ftp.linux.org.uk>
-References: <E1EJlNM-00059K-R8@ZenIV.linux.org.uk> <20050927.152325.424252181.takata.hirokazu@renesas.com> <Pine.LNX.4.58.0509270758040.3308@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0509270758040.3308@g5.osdl.org>
-User-Agent: Mutt/1.4.1i
+	Tue, 27 Sep 2005 20:22:42 -0400
+Received: from lead.cat.pdx.edu ([131.252.208.91]:7115 "EHLO lead.cat.pdx.edu")
+	by vger.kernel.org with ESMTP id S1751137AbVI1AWl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Sep 2005 20:22:41 -0400
+Date: Tue, 27 Sep 2005 17:22:21 -0700 (PDT)
+From: Suzanne Wood <suzannew@cs.pdx.edu>
+Message-Id: <200509280022.j8S0MLql000686@rastaban.cs.pdx.edu>
+To: davem@davemloft.net
+Cc: Robert.Olsson@data.slu.se, linux-kernel@vger.kernel.org,
+       paulmck@us.ibm.com, walpole@cs.pdx.edu
+Subject: Re: [RFC][PATCH] identify in_dev_get rcu read-side critical sections
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 27, 2005 at 08:00:03AM -0700, Linus Torvalds wrote:
-> 
-> 
-> On Tue, 27 Sep 2005, Hirokazu Takata wrote:
-> > 
-> > Now, the endianness is to be determined by a (cross)compiler:
-> > - For the big-endian, a compiler (m32r-linux-gcc or m32r-linux-gnu-gcc)
-> >   provides a predefined macro __BIG_ENDIAN__.
-> > - For little-endian, a compiler (m32rle-linux-gcc or m32rle-linux-gnu-gcc)
-> >   provides a predefined macro __LITTLE_ENDIAN__.
-> 
-> Hmm.. You need to tell sparse _some_ way which one you use, since sparse 
-> won't do it.
-> 
-> Picking one at random is fine, of course. It doesn't even have to match 
-> the one you'll compile with, although that means that sparse will 
-> obviously be testing a different configuration than the one you'd actually 
-> compile.
-> 
-> So I think having -D__BIG_ENDIAN__ in the sparse flags is better than not
-> having anything at all (since otherwise it won't be able to check
-> anything). And having something that matches the compiler would be better
-> still.
+Many thanks for all you've provided here. 
 
-Really interesting question is why do we need two toolchains at all.
-Note that little-endian m32r gcc at least appears to understand
--mbe/-mbig-endian and binutils handles both endianness just fine.
+   > From davem@davemloft.net  Tue Sep 27 14:36:32 2005
 
-Does that really work and is there any reason why big-endian one
-could not handle -mle the same way with minimal changes?  IOW, do
-they have to differ in anything except the default target endianness?
+   > I agree with the changes to add rcu_dereference() use.
+   > Those were definitely lacking and needed.
 
-Note that dependencies on "host endianness == target endianness" are
-practically guaranteed to cause bugs in cross-compiler, so any of
-those would very likely to be a bug in need of fixing anyway...
+   > This following case is clever and correct, though.  It is from
+   > the net/ipv4/devinet.c part of your patch:
+
+   > @@ -409,7 +412,8 @@ static int inet_rtm_deladdr(struct sk_bu
+   >  
+   >         if ((in_dev = inetdev_by_index(ifm->ifa_index)) == NULL)
+   >                 goto out;
+   > -       __in_dev_put(in_dev);
+   > +       in_dev_put(in_dev);
+   > +       rcu_read_unlock();
+   >  
+   >         for (ifap = &in_dev->ifa_list; (ifa = *ifap) != NULL;
+   >              ifap = &ifa->ifa_next) {
+
+   > Everyone gets fooled by a certain invariant in the Linux networking
+   > locking.  If the RTNL semaphore is held, _all_ device and address
+   > configuration changes are blocked.  IP addresses cannot be removed,
+   > devices cannot be brought up or down, routes cannot be added or
+   > deleted, etc.  The RTNL semaphore serializes all of these operations.
+   > And it is held during inet_rtm_deladdr() here.
+
+   > So we _know_ that if inetdev_by_index() returns non-NULL someone
+   > else (the device itself) holds at least _one_ reference to that
+   > object which cannot go away, because all such actions would need
+   > to take the RTNL semaphore which we hold.
+
+   > So __in_dev_put() is safe here.
+
+In this case, you want the refcnt decremented without the unnecessary 
+test that in_dev_put() would incur.   I was concerned about the 
+pairings of __in_dev_get which doesn't increment refcnt with 
+__in_dev_put which decrements.  Didn't mean to address that til 
+after some feedback, but thank you for clarifying my error here
+since I can't trace any pairing with the use of __in_dev_put 
+in inet_rtm_deladdr.
+
+   > Arguably, it's being overly clever for questionable gain.
+   > It definitely deserves a comment, how about that? :-)
+
+   > Finally, about adding rcu_read_{lock,unlock}() around even
+   > in_dev_{get,put}().  I bet that really isn't needed but I cannot
+   > articulate why we can get away without it.  For example, if we
+   > are given a pair executed in a function like:
+
+   >         in_dev_get();
+
+   >         ...
+
+   >         in_dev_put();
+
+   > who cares if we preempt?  The local function's execution holds the
+   > necessary reference, so the object's refcount cannot ever fall to
+   > zero.
+
+   > We can't get any RCU callbacks invoked, as a result, so we don't
+   > need the rcu_read_{lock,unlock}() calls here.
+
+   > The in_dev_put() uses atomic_dec_and_test(), which provides a memory
+   > barrier, so no out-of-order cpu memory references to the object
+   > can escape past the decrement to zero of the object reference count.
+
+   > In short, I think adding rcu_read_{lock,unlock}() is very heavy
+   > handed and unnecessary.
+
+In Paul McKenney's reference at
+www.rdrop.com/users/paulmck/RCU/whatisRCU.html
+"Reference counts may be used in conjunction with RCU to maintain 
+longer-term references to data structures."  So you're right.  I
+was basing those rcu_read_lock extents on the idea that the calling
+function has the vision of the need for protection of an
+rcu_dereference'd pointer.  Paul has also provided further insight
+into discriminating between read-side and update-side uses of
+rcu_dereference which I need to incorporate.
+
+Many thanks again and I'll try for a better submission.

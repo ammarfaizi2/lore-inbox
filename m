@@ -1,74 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965188AbVI1EVf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030189AbVI1FBr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965188AbVI1EVf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 00:21:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965257AbVI1EVf
+	id S1030189AbVI1FBr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 01:01:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030190AbVI1FBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 00:21:35 -0400
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:26779 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S965188AbVI1EVf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 00:21:35 -0400
-From: Grant Coady <grant_lkml@dodo.com.au>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: Jean Delvare <khali@linux-fr.org>, LM Sensors <lm-sensors@lm-sensors.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Request only really used I/O ports in w83627hf driver
-Date: Wed, 28 Sep 2005 14:21:17 +1000
-Organization: http://bugsplatter.mine.nu/
-Message-ID: <5d6kj1pgrf7cg6gqgm24te4e4u6ojg223a@4ax.com>
-References: <20050907181415.GA468@vana.vc.cvut.cz> <20050907210753.3dbad61b.khali@linux-fr.org> <431F4006.6060901@vc.cvut.cz> <20050925195735.1ef98b40.khali@linux-fr.org> <43371F89.7090704@vc.cvut.cz> <20050928024956.GA24527@vana.vc.cvut.cz>
-In-Reply-To: <20050928024956.GA24527@vana.vc.cvut.cz>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 28 Sep 2005 01:01:47 -0400
+Received: from pool-151-202-105-53.ny325.east.verizon.net ([151.202.105.53]:44751
+	"EHLO blaze.homeip.net") by vger.kernel.org with ESMTP
+	id S1030189AbVI1FBr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 01:01:47 -0400
+Date: Wed, 28 Sep 2005 01:01:48 -0400
+From: Paul Blazejowski <paulb@blazebox.homeip.net>
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, Carlo Calica <ccalica@gmail.com>,
+       xorg@lists.freedesktop.org
+Subject: Re: 2.6.14-rc2-mm1
+Message-ID: <20050928050148.GB9960@blazebox.homeip.net>
+References: <20050925220037.GA8776@blazebox.homeip.net> <Pine.LNX.4.53.0509260911540.29885@gockel.physik3.uni-rostock.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Sr1nOIr3CvdE5hEN"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0509260911540.29885@gockel.physik3.uni-rostock.de>
+X-Mailer: Mutt http://www.mutt.org
+X-Operating-System: Slackware 10.2.0
+X-Kernel-Version: Linux blaze 2.6.13.2 i686
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Sep 2005 04:49:56 +0200, Petr Vandrovec <vandrove@vc.cvut.cz> wrote:
 
->On Mon, Sep 26, 2005 at 12:07:05AM +0200, Petr Vandrovec wrote:
->> Jean Delvare wrote:
->> 
->> >I would also want you to check that all of the W83627HF, W83627THF,
->> >W83697HF and W83637HF chips do not decode ports other than +5 and +6. I
->> >hope and guess so, but if not we will need slightly more complex code.
->> 
->> I've tested multiple revisions of W83627HF and W83627THF in various Tyan 
->> and ASUS boards.  I'll perform some search accross my other computers, but 
->> I'm not aware about any using W83697HF or W83637HF.
-                                 ^^^^^^^^
-root@sempro:~# sensors
-w83697hf-isa-0290
-Adapter: ISA adapter
-  VCore:   +1.55 V  (min =  +1.52 V, max =  +1.68 V)
-   3.3V:   +3.28 V  (min =  +3.14 V, max =  +3.47 V)
-     5V:   +5.08 V  (min =  +4.76 V, max =  +5.24 V)
-    12V:  +11.98 V  (min = +11.37 V, max = +12.59 V)
-   -12V:  -11.86 V  (min = -12.60 V, max = -11.36 V)
-    -5V:   -5.10 V  (min =  -5.25 V, max =  -4.75 V)
-   V5SB:   +4.95 V  (min =  +4.75 V, max =  +5.26 V)
-  VBatt:   +3.38 V  (min =  +2.90 V, max =  +3.41 V)
-CPU Fan:  3183 RPM  (min = 1500 RPM, div = 4)
-CaseFan:  1371 RPM  (min = 1196 RPM, div = 8)
-Ambient:     +32°C  (high =   +50°C, hyst =   +45°C)   sensor = thermistor
-    CPU:   +56.5°C  (high =   +66°C, hyst =   +61°C)   sensor = diode           (beep)
-alarms:
-beep_enable:
-          Sound alarm enabled
+--Sr1nOIr3CvdE5hEN
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-root@sempro:~# lsmod
-Module                  Size  Used by
-w83627hf               24656  0
-hwmon_vid               2048  1 w83627hf
-i2c_isa                 3392  1 w83627hf
-e100                   33860  0
-root@sempro:~# uname -r
-2.6.14-rc2-git6b
+On Mon, Sep 26, 2005 at 09:14:02AM +0200, Tim Schmielau wrote:
+> On Sun, 25 Sep 2005, Paul Blazejowski wrote:
+>=20
+> > Upon quick testing the latest mm kernel it appears there's some kind of
+> > race condition when using dual core cpu esp when using XORG and USB
+> > (although PS2 has same issue) kebyboard rate being too fast.
+>=20
+> Does the following patch by John Stultz fix the problem?
+>=20
+> Tim
 
-Your patch didn't break things here :o)
+Tim,
 
-Grant.
+No it does not, from my understanding it only pertains to x86_64 but
+currently i run i386 SMP enabled kernel on the dualcore X2 processor.
 
+Also worth noting is that i do not see any failures or errors in dmesg
+related to lost timers. Perhaps this is something new? I even run  a
+script from the bugzilla and the output matched both cpu's.
 
+Thanks,
+
+	Paul
+
+>=20
+>=20
+> From johnstul@us.ibm.com Mon Sep 26 09:04:08 2005
+> Date: Mon, 19 Sep 2005 12:16:43 -0700
+> From: john stultz <johnstul@us.ibm.com>
+> To: Andrew Morton <akpm@osdl.org>
+> Cc: lkml <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>
+> Subject: [PATCH] x86-64: Fix bad assumption that dualcore cpus have synced
+>     TSCs
+>=20
+> Andrew,
+> 	This patch should resolve the issue seen in bugme bug #5105, where it
+> is assumed that dualcore x86_64 systems have synced TSCs. This is not
+> the case, and alternate timesources should be used instead.
+>=20
+> For more details, see:
+> http://bugzilla.kernel.org/show_bug.cgi?id=3D5105
+>=20
+>=20
+> Please consider for inclusion in your tree.
+>=20
+> thanks
+> -john
+>=20
+> diff --git a/arch/x86_64/kernel/time.c b/arch/x86_64/kernel/time.c
+> --- a/arch/x86_64/kernel/time.c
+> +++ b/arch/x86_64/kernel/time.c
+> @@ -959,9 +959,6 @@ static __init int unsynchronized_tsc(voi
+>   	   are handled in the OEM check above. */
+>   	if (boot_cpu_data.x86_vendor =3D=3D X86_VENDOR_INTEL)
+>   		return 0;
+> - 	/* All in a single socket - should be synchronized */
+> - 	if (cpus_weight(cpu_core_map[0]) =3D=3D num_online_cpus())
+> - 		return 0;
+>  #endif
+>   	/* Assume multi socket systems are not synchronized */
+>   	return num_online_cpus() > 1;
+>=20
+>=20
+>=20
+
+--Sr1nOIr3CvdE5hEN
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDOiO8wu5Nmh3PsiMRAmqmAJ47gy0obnib4SEL6iE8uPwuSKBwfwCfbEbf
+yTgJZqxiIlxj1qHhcYW2LFw=
+=vh8R
+-----END PGP SIGNATURE-----
+
+--Sr1nOIr3CvdE5hEN--

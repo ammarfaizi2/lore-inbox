@@ -1,20 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751006AbVI1VwU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751002AbVI1Vwp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751006AbVI1VwU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 17:52:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751001AbVI1VwU
+	id S1751002AbVI1Vwp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 17:52:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751005AbVI1Vwp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 17:52:20 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:24325 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1750998AbVI1VwT (ORCPT
+	Wed, 28 Sep 2005 17:52:45 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:27653 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1751002AbVI1Vwn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 17:52:19 -0400
-Date: Wed, 28 Sep 2005 17:50:50 -0400
+	Wed, 28 Sep 2005 17:52:43 -0400
+Date: Wed, 28 Sep 2005 17:50:49 -0400
 From: "John W. Linville" <linville@tuxdriver.com>
-To: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl
-Subject: [patch 2.6.14-rc2] siimage: enable interrupts on Adaptec SA-1210 card
-Message-ID: <09282005175050.10552@bilbo.tuxdriver.com>
+To: linux-kernel@vger.kernel.org, discuss@x86-64.org,
+       linux-ia64@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Cc: ak@suse.de, tony.luck@intel.com, Asit.K.Mallick@intel.com, gregkh@suse.de
+Subject: [patch 2.6.14-rc2 3/6] swiotlb: support syncing sub-ranges of mappings
+Message-ID: <09282005175049.10281@bilbo.tuxdriver.com>
+In-Reply-To: <09282005175049.10217@bilbo.tuxdriver.com>
 User-Agent: PatchPost/0.1
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -22,43 +24,82 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The siimage driver proports to support the Adaptec SA-1210 SATA
-controller. However, at least some of those cards boot-up with their
-interrupts disabled internally. The siimage driver currently ignores
-that fact, so that driver does not actually work with those cards. This
-patch enables those interrupts on cards that need it.
+This patch implements swiotlb_sync_single_range_for_{cpu,device}. This
+is intended to support an x86_64 implementation of
+dma_sync_single_range_for_{cpu,device}.
 
 Signed-off-by: John W. Linville <linville@tuxdriver.com>
 ---
-This is implemented based on similar code in the libata-based sata_sil
-driver.
 
- drivers/ide/pci/siimage.c |    9 +++++++++
- 1 files changed, 9 insertions(+)
+ include/asm-x86_64/swiotlb.h |    8 ++++++++
+ lib/swiotlb.c                |   33 +++++++++++++++++++++++++++++++++
+ 2 files changed, 41 insertions(+)
 
-diff --git a/drivers/ide/pci/siimage.c b/drivers/ide/pci/siimage.c
---- a/drivers/ide/pci/siimage.c
-+++ b/drivers/ide/pci/siimage.c
-@@ -701,6 +701,7 @@ static unsigned int setup_mmio_siimage (
- 	unsigned long barsize	= pci_resource_len(dev, 5);
- 	u8 tmpbyte	= 0;
- 	void __iomem *ioaddr;
-+	u32 tmp, irq_mask;
+diff --git a/include/asm-x86_64/swiotlb.h b/include/asm-x86_64/swiotlb.h
+--- a/include/asm-x86_64/swiotlb.h
++++ b/include/asm-x86_64/swiotlb.h
+@@ -15,6 +15,14 @@ extern void swiotlb_sync_single_for_cpu(
+ extern void swiotlb_sync_single_for_device(struct device *hwdev,
+ 					    dma_addr_t dev_addr,
+ 					    size_t size, int dir);
++extern void swiotlb_sync_single_range_for_cpu(struct device *hwdev,
++					      dma_addr_t dev_addr,
++					      unsigned long offset,
++					      size_t size, int dir);
++extern void swiotlb_sync_single_range_for_device(struct device *hwdev,
++						 dma_addr_t dev_addr,
++						 unsigned long offset,
++						 size_t size, int dir);
+ extern void swiotlb_sync_sg_for_cpu(struct device *hwdev,
+ 				     struct scatterlist *sg, int nelems,
+ 				     int dir);
+diff --git a/lib/swiotlb.c b/lib/swiotlb.c
+--- a/lib/swiotlb.c
++++ b/lib/swiotlb.c
+@@ -521,6 +521,37 @@ swiotlb_sync_single_for_device(struct de
+ }
  
- 	/*
- 	 *	Drop back to PIO if we can't map the mmio. Some
-@@ -726,6 +727,14 @@ static unsigned int setup_mmio_siimage (
- 	pci_set_drvdata(dev, (void *) ioaddr);
- 
- 	if (pdev_is_sata(dev)) {
-+		/* make sure IDE0/1 interrupts are not masked */
-+		irq_mask = (1 << 22) | (1 << 23);
-+		tmp = readl(ioaddr + 0x48);
-+		if (tmp & irq_mask) {
-+			tmp &= ~irq_mask;
-+			writel(tmp, ioaddr + 0x48);
-+			readl(ioaddr + 0x48); /* flush */
-+		}
- 		writel(0, ioaddr + 0x148);
- 		writel(0, ioaddr + 0x1C8);
- 	}
+ /*
++ * Same as above, but for a sub-range of the mapping.
++ */
++static inline void
++swiotlb_sync_single_range(struct device *hwdev, dma_addr_t dev_addr,
++			  unsigned long offset, size_t size, int dir)
++{
++	char *dma_addr = phys_to_virt(dev_addr) + offset;
++
++	if (dir == DMA_NONE)
++		BUG();
++	if (dma_addr >= io_tlb_start && dma_addr < io_tlb_end)
++		sync_single(hwdev, dma_addr, size, dir);
++	else if (dir == DMA_FROM_DEVICE)
++		mark_clean(dma_addr, size);
++}
++
++void
++swiotlb_sync_single_range_for_cpu(struct device *hwdev, dma_addr_t dev_addr,
++				  unsigned long offset, size_t size, int dir)
++{
++	swiotlb_sync_single_range(hwdev, dev_addr, offset, size, dir);
++}
++
++void
++swiotlb_sync_single_range_for_device(struct device *hwdev, dma_addr_t dev_addr,
++				     unsigned long offset, size_t size, int dir)
++{
++	swiotlb_sync_single_range(hwdev, dev_addr, offset, size, dir);
++}
++
++/*
+  * Map a set of buffers described by scatterlist in streaming mode for DMA.
+  * This is the scatter-gather version of the above swiotlb_map_single
+  * interface.  Here the scatter gather list elements are each tagged with the
+@@ -648,6 +679,8 @@ EXPORT_SYMBOL(swiotlb_map_sg);
+ EXPORT_SYMBOL(swiotlb_unmap_sg);
+ EXPORT_SYMBOL(swiotlb_sync_single_for_cpu);
+ EXPORT_SYMBOL(swiotlb_sync_single_for_device);
++EXPORT_SYMBOL_GPL(swiotlb_sync_single_range_for_cpu);
++EXPORT_SYMBOL_GPL(swiotlb_sync_single_range_for_device);
+ EXPORT_SYMBOL(swiotlb_sync_sg_for_cpu);
+ EXPORT_SYMBOL(swiotlb_sync_sg_for_device);
+ EXPORT_SYMBOL(swiotlb_dma_mapping_error);

@@ -1,60 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932359AbVI2Wn4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbVI2Wqc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932359AbVI2Wn4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 18:43:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932344AbVI2Wn4
+	id S932315AbVI2Wqc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 18:46:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932344AbVI2Wqc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 18:43:56 -0400
-Received: from rgminet02.oracle.com ([148.87.122.31]:26969 "EHLO
-	rgminet02.oracle.com") by vger.kernel.org with ESMTP
-	id S932314AbVI2Wnz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 18:43:55 -0400
-Date: Thu, 29 Sep 2005 15:43:36 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Luben Tuikov <luben_tuikov@adaptec.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Luben Tuikov <ltuikov@yahoo.com>, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into the kernel
-Message-ID: <20050929224335.GK27375@ca-server1.us.oracle.com>
-Mail-Followup-To: Luben Tuikov <luben_tuikov@adaptec.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	SCSI Mailing List <linux-scsi@vger.kernel.org>,
-	Luben Tuikov <ltuikov@yahoo.com>, Jeff Garzik <jgarzik@pobox.com>
-References: <Pine.LNX.4.10.10509281227570.19896-100000@master.linux-ide.org> <433B0374.4090100@adaptec.com> <20050928223542.GA12559@alpha.home.local> <433BFB1F.2020808@adaptec.com> <1128007032.11443.77.camel@tara.firmix.at> <433C174D.4050302@adaptec.com> <1128014007.11443.108.camel@tara.firmix.at> <433C34F0.4080307@adaptec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <433C34F0.4080307@adaptec.com>
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
-User-Agent: Mutt/1.5.10i
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
+	Thu, 29 Sep 2005 18:46:32 -0400
+Received: from pilet.ens-lyon.fr ([140.77.167.16]:51620 "EHLO
+	relaissmtp.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S932315AbVI2Wqb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 18:46:31 -0400
+Message-ID: <433C60B1.8080003@ens-lyon.fr>
+Date: Thu, 29 Sep 2005 23:46:25 +0200
+From: Alexandre Buisse <alexandre.buisse@ens-lyon.fr>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050812)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-rc2-mm2
+References: <20050929143732.59d22569.akpm@osdl.org>
+In-Reply-To: <20050929143732.59d22569.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 29, 2005 at 02:39:44PM -0400, Luben Tuikov wrote:
-> So you see, it is _not_ about accepting code, it is about
-> accepting _ideas_ and _innovation_.
-> 
-> James can still do everything _his_ way.  The question is
-> how many _years_ would this be relevant?
+Andrew Morton wrote:
 
-	Is your cat sleeping on your underscore key?
+>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc2/2.6.14-rc2-mm2/
+>
+>(temp copy at http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.14-rc2-mm2.gz)
+>
 
-Joel
 
--- 
+Hi Andrew,
 
-"There is no more evil thing on earth than race prejudice, none at 
- all.  I write deliberately -- it is the worst single thing in life 
- now.  It justifies and holds together more baseness, cruelty and
- abomination than any other sort of error in the world." 
-        - H. G. Wells
+just wanting to report that reiser4 as a module was not compiling
+anymore. It failed with the following message :
 
-Joel Becker
-Principal Software Developer
-Oracle
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+In file included from fs/reiser4/lock.h:15,
+                 from fs/reiser4/context.h:14,
+                 from fs/reiser4/debug.c:25:
+fs/reiser4/txnmgr.h: In function `spin_atom_init':
+fs/reiser4/txnmgr.h:512: error: duplicate case value
+fs/reiser4/txnmgr.h:512: error: previously used here
+fs/reiser4/txnmgr.h: In function `spin_txnh_init':
+fs/reiser4/txnmgr.h:513: error: duplicate case value
+fs/reiser4/txnmgr.h:513: error: previously used here
+fs/reiser4/txnmgr.h: In function `spin_txnmgr_init':
+fs/reiser4/txnmgr.h:514: error: duplicate case value
+fs/reiser4/txnmgr.h:514: error: previously used here
+In file included from fs/reiser4/context.h:14,
+                 from fs/reiser4/debug.c:25:
+fs/reiser4/lock.h: In function `spin_stack_init':
+fs/reiser4/lock.h:198: error: duplicate case value
+fs/reiser4/lock.h:198: error: previously used here
+In file included from fs/reiser4/znode.h:16,
+                 from fs/reiser4/tree.h:15,
+                 from fs/reiser4/super.h:9,
+                 from fs/reiser4/debug.c:26:
+fs/reiser4/jnode.h: In function `spin_jnode_init':
+fs/reiser4/jnode.h:344: error: duplicate case value
+fs/reiser4/jnode.h:344: error: previously used here
+fs/reiser4/jnode.h: In function `spin_jload_init':
+fs/reiser4/jnode.h:348: error: duplicate case value
+fs/reiser4/jnode.h:348: error: previously used here
+In file included from fs/reiser4/super.h:9,
+                 from fs/reiser4/debug.c:26:
+fs/reiser4/tree.h: In function `spin_epoch_init':
+fs/reiser4/tree.h:169: error: duplicate case value
+fs/reiser4/tree.h:169: error: previously used here
+In file included from fs/reiser4/debug.c:26:
+fs/reiser4/super.h: In function `spin_super_init':
+fs/reiser4/super.h:379: error: duplicate case value
+fs/reiser4/super.h:379: error: previously used here
+make[2]: *** [fs/reiser4/debug.o] Error 1
+make[1]: *** [fs/reiser4] Error 2
+make: *** [fs] Error 2
+
+
+I did not investigate further and simply removed the module.
+
+Regards,
+Alexandre
+

@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964884AbVI2UPt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932436AbVI2U1m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964884AbVI2UPt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 16:15:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbVI2UPs
+	id S932436AbVI2U1m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 16:27:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932456AbVI2U1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 16:15:48 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:17134 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932447AbVI2UPr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 16:15:47 -0400
-Message-ID: <433C4B6D.6030701@pobox.com>
-Date: Thu, 29 Sep 2005 16:15:41 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
+	Thu, 29 Sep 2005 16:27:42 -0400
+Received: from zproxy.gmail.com ([64.233.162.194]:2458 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932436AbVI2U1m convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 16:27:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jofftQ+J3z74lK80a3/UxiQs0GRXtjzwMU0ROH1gyLHht+6zYNGUf/KKYLiTTFDhJcP3zpsMWTJm10Ppv4M4D/64tl/wl62xOy7VuYoA4uQjYtHfLs+TOKd0EFrPsfEvLUml4nDg6xuFcG2HWp7BtBMofJATdFquuLKBlSYdb8U=
+Message-ID: <12c511ca050929132743f946f1@mail.gmail.com>
+Date: Thu, 29 Sep 2005 13:27:41 -0700
+From: Tony Luck <tony.luck@gmail.com>
+Reply-To: Tony Luck <tony.luck@gmail.com>
+To: Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: [PATCH] ia64 basic __user annotations
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050928231213.GG7992@ftp.linux.org.uk>
 MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-Subject: Re: [howto] Kernel hacker's guide to git, updated
-References: <433BC9E9.6050907@pobox.com> <20050929200252.GA31516@redhat.com>
-In-Reply-To: <20050929200252.GA31516@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050928231213.GG7992@ftp.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> You wrote..
-> 
-> $ git clone rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git linux-2.6
-> $ cd linux-2.6
-> $ rsync -a --verbose --stats --progress \
->   rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git/ \
->   .git/
-> 
-> Could be just..
-> 
-> $ git clone rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git linux-2.6
-> $ cd linux-2.6
-> $ git pull
-> 
-> Likewise, in the next section, git pull doesn't need an argument
-> if pulling from the repo it cloned.
+On 9/28/05, Al Viro <viro@ftp.linux.org.uk> wrote:
+>         * uintptr_t is unsigned long, not long
 
+> -       long __gu_err = -EFAULT, __gu_val = 0;                                          \
+> -                                                                                       \
+> +       long __gu_err = -EFAULT;                                                        \
+> +       unsigned long __gu_val = 0;                                                     \
 
-Nope.  It intentionally includes the manual rsync because clone/pull 
-doesn't seem to grab tags.  Or at least last time I checked...
+Too subtle for me ... what's happening here?  If you change this, then
+should you also change "register long __gu_r9 asm ("r9");" in __get_user_size
+to be unsigned long as well?
 
-	Jeff
-
-
+-Tony

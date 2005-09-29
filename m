@@ -1,153 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbVI2SRQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbVI2SZK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932319AbVI2SRQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 14:17:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbVI2SQq
+	id S932340AbVI2SZK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 14:25:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbVI2SZK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 14:16:46 -0400
-Received: from amsfep13-int.chello.nl ([213.46.243.23]:26949 "EHLO
-	amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
-	id S932319AbVI2SQY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 14:16:24 -0400
-Message-Id: <20050929181617.160771255@twins>
-References: <20050929180845.910895444@twins>
-Date: Thu, 29 Sep 2005 20:08:47 +0200
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: linux-mm@kvack.org
-Subject: [PATCH 2/7] CART - an advanced page replacement policy
-Content-Disposition: inline; filename=cart-nonresident-stats.patch
+	Thu, 29 Sep 2005 14:25:10 -0400
+Received: from zproxy.gmail.com ([64.233.162.203]:2460 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932340AbVI2SZI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 14:25:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lho+JzPhEufIWdIIAVACrvr+5zlth4k0OXXeO4LrHoh7hJWWkALjVU/3W1TjIdnLBblOd1NrfudvxAF7ncodef8q6RVAQJDW7GJokzKC9HjVgXZoBd2fXyqRBBvleOFcMKhEzNL9zncc2M9n2DgFDSjlbtOtI704xhVywbsK2xU=
+Message-ID: <12c511ca05092911257ce58aef@mail.gmail.com>
+Date: Thu, 29 Sep 2005 11:25:07 -0700
+From: Tony Luck <tony.luck@gmail.com>
+Reply-To: Tony Luck <tony.luck@gmail.com>
+To: Joachim Bremer <joachim.bremer@web.de>
+Subject: Re: 2.6.14-rcX: strange timestamp on ping
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1976447075@web.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1976447075@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adds some /proc debugging output to the nonresident code.
+On 9/29/05, Joachim Bremer <joachim.bremer@web.de> wrote:
+>
+> Hello,
+>
+> since very early in the 2.6.14 process ping or traceroute gives very
+> strange timestamps. eg
+> 64 bytes from 192.168.0.1: icmp_seq=1 ttl=127 time=4294971590970 ms
+>
 
-Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Similar on ia64, but I don't see the problem across the network (either to
+or from my 2.6.14-rc2 system).  But I do see an odd time for localhost!
+$ ping localhost
+PING linux-t10 (127.0.0.1) 56(84) bytes of data.
+64 bytes from linux-t10 (127.0.0.1): icmp_seq=0 ttl=64 time=4294967 ms
+64 bytes from linux-t10 (127.0.0.1): icmp_seq=1 ttl=64 time=4294967 ms
 
- fs/proc/proc_misc.c |   15 +++++++++
- mm/nonresident.c    |   80 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 95 insertions(+)
-
-Index: linux-2.6-git/fs/proc/proc_misc.c
-===================================================================
---- linux-2.6-git.orig/fs/proc/proc_misc.c
-+++ linux-2.6-git/fs/proc/proc_misc.c
-@@ -233,6 +233,20 @@ static struct file_operations proc_zonei
- 	.release	= seq_release,
- };
- 
-+extern struct seq_operations nonresident_op;
-+static int nonresident_open(struct inode *inode, struct file *file)
-+{
-+       (void)inode;
-+       return seq_open(file, &nonresident_op);
-+}
-+
-+static struct file_operations nonresident_file_operations = {
-+       .open           = nonresident_open,
-+       .read           = seq_read,
-+       .llseek         = seq_lseek,
-+       .release        = seq_release,
-+};
-+
- static int version_read_proc(char *page, char **start, off_t off,
- 				 int count, int *eof, void *data)
- {
-@@ -602,6 +616,7 @@ void __init proc_misc_init(void)
- 	create_seq_entry("interrupts", 0, &proc_interrupts_operations);
- 	create_seq_entry("slabinfo",S_IWUSR|S_IRUGO,&proc_slabinfo_operations);
- 	create_seq_entry("buddyinfo",S_IRUGO, &fragmentation_file_operations);
-+	create_seq_entry("nonresident",S_IRUGO, &nonresident_file_operations);
- 	create_seq_entry("vmstat",S_IRUGO, &proc_vmstat_file_operations);
- 	create_seq_entry("zoneinfo",S_IRUGO, &proc_zoneinfo_file_operations);
- 	create_seq_entry("diskstats", 0, &proc_diskstats_operations);
-Index: linux-2.6-git/mm/nonresident.c
-===================================================================
---- linux-2.6-git.orig/mm/nonresident.c
-+++ linux-2.6-git/mm/nonresident.c
-@@ -373,3 +373,83 @@ static int __init set_nonresident_factor
- }
- 
- __setup("nonresident_factor=", set_nonresident_factor);
-+
-+#ifdef CONFIG_PROC_FS
-+
-+#include <linux/seq_file.h>
-+
-+static void *stats_start(struct seq_file *m, loff_t *pos)
-+{
-+	if (*pos < 0 || *pos >= (1 << nonres_shift))
-+		return NULL;
-+
-+	m->private = (void*)(unsigned long)*pos;
-+
-+	return pos;
-+}
-+
-+static void *stats_next(struct seq_file *m, void *arg, loff_t *pos)
-+{
-+	if (*pos < (1 << nonres_shift)-1) {
-+		(*pos)++;
-+		(unsigned long)m->private++;
-+		return pos;
-+	}
-+	return NULL;
-+}
-+
-+static void stats_stop(struct seq_file *m, void *arg)
-+{
-+}
-+
-+static void bucket_stats(struct nr_bucket * nr_bucket, int * b1, int * b2, int * free)
-+{
-+	unsigned long flags;
-+	unsigned int i, b[3] = {0, 0, 0};
-+
-+	spin_lock_irqsave(&nr_bucket->lock, flags);
-+	for (i = 0; i < 3; ++i) {
-+		unsigned int j = nr_bucket->hand[i];
-+		do
-+		{
-+			u32 *slot = &nr_bucket->slot[j];
-+			if (GET_LISTID(*slot) != i)
-+				break;
-+			j = GET_INDEX(*slot);
-+			++b[i];
-+		} while (j != nr_bucket->hand[i]);
-+	}
-+	spin_unlock_irqrestore(&nr_bucket->lock, flags);
-+
-+	*b1=b[0];
-+	*b2=b[1];
-+	*free=b[2];
-+}
-+
-+static int stats_show(struct seq_file *m, void *arg)
-+{
-+	unsigned int index = (unsigned long)m->private;
-+	struct nr_bucket *nr_bucket = &nonres_table[index];
-+	int b1, b2, free;
-+
-+	bucket_stats(nr_bucket, &b1, &b2, &free);
-+	seq_printf(m, "%d\t%d\t%d", b1, b2, free);
-+	if (index == 0) {
-+		seq_printf(m, "\t%d\t%d\t%d",
-+			   nonresident_count(NR_b1),
-+			   nonresident_count(NR_b2),
-+			   nonresident_count(NR_free));
-+	}
-+	seq_printf(m,"\n");
-+
-+	return 0;
-+}
-+
-+struct seq_operations nonresident_op = {
-+	.start = stats_start,
-+	.next = stats_next,
-+	.stop = stats_stop,
-+	.show = stats_show,
-+};
-+
-+#endif /* CONFIG_PROC_FS */
-
---
+-Tony

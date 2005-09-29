@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbVI2UKt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbVI2ULp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932306AbVI2UKt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 16:10:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932418AbVI2UKt
+	id S932191AbVI2ULp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 16:11:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932436AbVI2ULp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 16:10:49 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:32665 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932306AbVI2UKs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 16:10:48 -0400
-To: Grant Grundler <grundler@parisc-linux.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>,
-       lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
-       gregkh <greg@kroah.com>, linux-pci@atrey.karlin.mff.cuni.cz, ak@suse.de
-Subject: Re: [PATCH] MSI interrupts: disallow when no LAPIC/IOAPIC support
-References: <20050926201156.7b9ef031.rdunlap@xenotime.net>
-	<20050927044840.GA21108@colo.lackof.org> <4339B8EA.1080303@pobox.com>
-	<1127860670.10674.32.camel@localhost.localdomain>
-	<20050929033426.GA3892@colo.lackof.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Thu, 29 Sep 2005 14:09:15 -0600
-In-Reply-To: <20050929033426.GA3892@colo.lackof.org> (Grant Grundler's
- message of "Wed, 28 Sep 2005 21:34:26 -0600")
-Message-ID: <m1achvab6c.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 29 Sep 2005 16:11:45 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:33233 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932191AbVI2ULn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 16:11:43 -0400
+Date: Thu, 29 Sep 2005 16:11:27 -0400
+From: Dave Jones <davej@redhat.com>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: [howto] Kernel hacker's guide to git, updated
+Message-ID: <20050929201127.GB31516@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Anton Altaparmakov <aia21@cam.ac.uk>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Git Mailing List <git@vger.kernel.org>
+References: <433BC9E9.6050907@pobox.com> <20050929200252.GA31516@redhat.com> <Pine.LNX.4.60.0509292106080.17860@hermes-1.csi.cam.ac.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.60.0509292106080.17860@hermes-1.csi.cam.ac.uk>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grant Grundler <grundler@parisc-linux.org> writes:
+On Thu, Sep 29, 2005 at 09:07:29PM +0100, Anton Altaparmakov wrote:
 
-> On Tue, Sep 27, 2005 at 11:37:50PM +0100, Alan Cox wrote:
->> On Maw, 2005-09-27 at 17:26 -0400, Jeff Garzik wrote:
->> > Grant Grundler wrote:
->> > > I've no clue why folks thought it was better to ignore
->> > > the IO APIC on UP kernels.
->> > 
->> > Hysterical raisins:  the -majority- of the early uniprocessor systems 
->> > that claimed IOAPIC support were broken.
->> 
->> Not really broken in most cases, but since nobody was using the APIC
->> board makers didn't bother wiring for it.
->
-> ok. Any clue how PCI IRQs got routed/handled on those boxes?
-> Did UP boards have an 8259 PIC and an IRQ line to the CPU?
-> Could an 8529 PIC even co-exist with an IO APIC?
+ > > $ git clone rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git linux-2.6
+ > > $ cd linux-2.6
+ > > $ rsync -a --verbose --stats --progress \
+ > >   rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git/ \
+ > >   .git/
+ > > 
+ > > Could be just..
+ > > 
+ > > $ git clone rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git linux-2.6
+ > > $ cd linux-2.6
+ > > $ git pull
+ > 
+ > That is not actually the same.  "git pull" for example will not download 
+ > Linus' tags whilst the rsync would get everything.
 
-x86 linux can't even boot without using an 8259 PIC.
-The 8259 PIC if you don't have an IOAPIC is wired to the 
-local apic and the appropriate pin is placed in ExtINT mode.
+Ah. I didn't know this. Thanks.
+Hmm, it'd be nice to have a shorthand 'not have to type the url, pull everything'.
+Something like 'git pull all'.
 
-Most current systems have an 8259 PIC, their primary PIC, and a
-PIRQ router all in the same chip.
+		Dave
 
-Eric

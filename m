@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbVI2Vwx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932365AbVI2Vxo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932317AbVI2Vwx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 17:52:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932397AbVI2Vwx
+	id S932365AbVI2Vxo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 17:53:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932397AbVI2Vxo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 17:52:53 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:53477 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932317AbVI2Vww (ORCPT
+	Thu, 29 Sep 2005 17:53:44 -0400
+Received: from smtp.cogeco.net ([216.221.81.25]:42434 "EHLO fep7.cogeco.net")
+	by vger.kernel.org with ESMTP id S932365AbVI2Vxn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 17:52:52 -0400
-Date: Thu, 29 Sep 2005 23:52:34 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Marcel Holtmann <marcel@holtmann.org>, bluez-devel@lists.sourceforge.net,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Problems with CF bluetooth
-Message-ID: <20050929215234.GC2180@elf.ucw.cz>
-References: <20050929134802.GA6042@elf.ucw.cz> <1128008752.5123.28.camel@localhost.localdomain> <20050929155602.GA1990@elf.ucw.cz> <1128011355.30743.14.camel@localhost.localdomain> <20050929175420.GN1990@elf.ucw.cz> <1128016693.6052.2.camel@localhost.localdomain> <20050929213219.GA2180@elf.ucw.cz> <20050929213707.GH7684@flint.arm.linux.org.uk> <20050929214340.GB2180@elf.ucw.cz> <20050929214559.GI7684@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050929214559.GI7684@flint.arm.linux.org.uk>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Thu, 29 Sep 2005 17:53:43 -0400
+Message-ID: <433C6261.2050202@rtr.ca>
+Date: Thu, 29 Sep 2005 17:53:37 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050728
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: "John W. Linville" <linville@tuxdriver.com>
+Cc: linux-kernel@vger.kernel.org, Justin Piszcz <jpiszcz@lucidpixels.com>,
+       Nuno Silva <nuno.silva@vgertech.com>
+Subject: Re: Linux SATA S.M.A.R.T. and SLEEP? -- was [PATCH libata-dev-2.6:passthru]
+ passthru fixes
+References: <20050929185245.GA28483@tuxdriver.com>
+In-Reply-To: <20050929185245.GA28483@tuxdriver.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > > > > I believe it would happen with any other CF card, too. Can you
-> > > > > > hciattach it, unplug, hciattach again?
-> > > > > 
-> > > > > actually I don't have any of them with me and I don't saw a problem with
-> > > > > my Casira of a serial port.
-> > > > 
-> > > > Following patch seems to work around it. And yes, printk() triggers
-> > > > twice after 
-> > > 
-> > > What's the problem this patch is trying to address?
-> > 
-> > I get oops after starting my bluetooth subsystem for second
-> > time. billionton_start, unplug CF, billionton_start will oops the
-> > system. That patch prevents it.
+John W. Linville wrote:
+> You probably want this patch as well, at least the first hunk.
+> It fixes a potential memory leak that could cause lock-ups when using
+> hdparm or smartctl/smartd.
 > 
-> More details please.  I don't have the ability to run bluetooth myself.
+> John
+> ---
+> Fix a few problems seen with the passthru branch:
+> 
+> - leaked scsi_request on buffer allocate failure
+> - passthru sense routines were refering to tf->command
+>   which is not read in tf_read, instead use drv_stat for
+>   status register.
+> - passthru sense passed back to user on ata_task_ioctl
+> 
+> Patch is against the current libata-dev passthru branch.
+> 
+> Signed-off-by: Jeff Raubitschek <jhr@google.com>
+...
 
-Unfortunately I do not know much about bluetooth. The card is
-basically CF serial with bluetooth chip attached to that. billionton
-start does setserial, then attaches bluetooth subsystem to that chip,
-and enables bluetooth.
+When I tried that patch recently, smartctl stopped working.
+Reverted.  Works again.
 
-								Pavel
--- 
-if you have sharp zaurus hardware you don't need... you know my address
+??

@@ -1,53 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbVI2QeT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932209AbVI2Qlg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932220AbVI2QeT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 12:34:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbVI2QeT
+	id S932209AbVI2Qlg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 12:41:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbVI2Qlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 12:34:19 -0400
-Received: from gscsmtp.wustl.edu ([128.252.233.26]:25000 "EHLO
-	gscsmtp.wustl.edu") by vger.kernel.org with ESMTP id S932220AbVI2QeS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 12:34:18 -0400
-Message-ID: <433C1787.4090001@watson.wustl.edu>
-Date: Thu, 29 Sep 2005 11:34:15 -0500
-From: Richard Wohlstadter <rwohlsta@watson.wustl.edu>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: em64t speedstep technology not supported in kernel yet?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Sep 2005 12:41:36 -0400
+Received: from wproxy.gmail.com ([64.233.184.196]:7602 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932209AbVI2Qlf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 12:41:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=tzPdiLHoU566A097fdgj6iFJKWhJnNWbkkSsXY9KL3o1RvBGG1KSnOaEoVjeHr+M6GbsnDVH6fUUt2Fk1tdz/TST6tyYAYrL+J2mwGldOms+QsDbyCNgCUVsapiB8LfyTn3tXhioIC54zBMG1WhgR8drVJ6CK1BuIaVYM8wK80U=
+Date: Thu, 29 Sep 2005 20:52:36 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rio: switch to ANSI prototypes
+Message-ID: <20050929165236.GC18132@mipter.zuzino.mipt.ru>
+References: <20050929152208.GA18132@mipter.zuzino.mipt.ru> <20050929152556.GU7992@ftp.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050929152556.GU7992@ftp.linux.org.uk>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Thu, Sep 29, 2005 at 04:25:56PM +0100, Al Viro wrote:
+> Uh-oh...  Well, if you want to play with it...  FWIW, I'm disabling rio as
+> hopeless FPOS; if you feel masochistic, go ahead but keep in mind that its
+> handling of tty glue is severely b0rken.
 
-We recently had Intel give our company a roadmap presentation where they 
-told us that their enhanced speedstep technology was supported by linux 
-kernels 2.6.9+.  I have since tried to get cpufreq speedstep driver to 
-work with no luck on our em64t Xeon 3.6g processors.  Intel even has a 
-webpage describing the technology and how to get it working at url: 
-http://www.intel.com/cd/ids/developer/asmo-na/eng/195910.htm?prn=Y
+Well, duh... It clutters _my_ logs.
 
-I made a bugzilla report to redhat [Bug 169290] and got a reply that 
-none of the Xeon's were supported yet on speedstep because they cannot 
-find documentation detailing the tables of frequencies these CPUs support.
+> >  int
+> > -RIOBootCodeHOST(p, rbp)
+> > -struct rio_info *	p;
+> > -register struct DownLoad *rbp;
+> > +RIOBootCodeHOST(struct rio_info *p, register struct DownLoad *rbp)
+> 
+> s/register//
 
-The only processor I have had luck with so far is a 32-bit Xeon with the 
-p4-clockmod driver(which does not appear to be present in the x86-64 
-kernel).
+Sure.
 
-Anyone have any knowledge regarding cpufreq and when the em64t's are 
-going have a linux driver supporting the speedstep technology?  If it is 
-an issue of Intel not providing the neccessary info, maybe I can press 
-the issue with the gentlemen that came to my office and stated support 
-was there already.
+> >  int
+> > -riocontrol(p, dev, cmd, arg, su)
+> > -struct rio_info	* p;
+> > -dev_t		dev;
+> > -int		cmd;
+> > -caddr_t		arg;
+> > -int		su;
+> > +riocontrol(struct rio_info *p, dev_t dev, int cmd, caddr_t arg, int su)
+> 
+> Use of dev_t here is almost certainly broken.
 
-Thanks for any info and advice.  Please CC my on any replies since I am 
-not on the list.
+It is with the only call being
 
-Rich Wohlstadter
-Genome Sequencing Center
-Washington Univ. of St. Louis
+drivers/char/rio/rio_linux.c:
+   642    /* The "dev" argument isn't used. */
+   643    rc = riocontrol (p, 0, cmd, (void *)arg, capable(CAP_SYS_ADMIN));
+
+Though riocontrol() happily does MAJOR(dev) three times.
+
+> Use of caddr_t is *always* broken.
+
+"unsigned long arg" or do you keep in mind something more fundamental? 
+

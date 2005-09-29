@@ -1,100 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932273AbVI2RPt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbVI2RRH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932273AbVI2RPt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 13:15:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbVI2RPt
+	id S932271AbVI2RRH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 13:17:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932274AbVI2RRH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 13:15:49 -0400
-Received: from ns.firmix.at ([62.141.48.66]:26772 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S932267AbVI2RPs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 13:15:48 -0400
+	Thu, 29 Sep 2005 13:17:07 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:1747 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S932268AbVI2RRF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 13:17:05 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <433C2137.1040108@s5r6.in-berlin.de>
+Date: Thu, 29 Sep 2005 19:15:35 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: SCSI Mailing List <linux-scsi@vger.kernel.org>
+CC: Arjan van de Ven <arjan@infradead.org>, Willy Tarreau <willy@w.ods.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Luben Tuikov <luben_tuikov@adaptec.com>,
+       Jeff Garzik <jgarzik@pobox.com>
 Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
-	the kernel
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Luben Tuikov <luben_tuikov@adaptec.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Andre Hedrick <andre@linux-ide.org>,
-       Patrick Mansfield <patmans@us.ibm.com>,
-       Luben Tuikov <ltuikov@yahoo.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <433C174D.4050302@adaptec.com>
-References: <Pine.LNX.4.10.10509281227570.19896-100000@master.linux-ide.org>
-	 <433B0374.4090100@adaptec.com> <20050928223542.GA12559@alpha.home.local>
-	 <433BFB1F.2020808@adaptec.com> <1128007032.11443.77.camel@tara.firmix.at>
-	 <433C174D.4050302@adaptec.com>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Date: Thu, 29 Sep 2005 19:13:27 +0200
-Message-Id: <1128014007.11443.108.camel@tara.firmix.at>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+ the kernel
+References: <43384E28.8030207@adaptec.com> <4339BFE9.1060604@pobox.com>	 <4339CCD6.5010409@adaptec.com> <4339F9A8.2030709@pobox.com>	 <433AFEB2.7090003@adaptec.com> <433B0457.7020509@pobox.com>	 <433B14E1.6080201@adaptec.com> <433B217F.4060509@pobox.com>	 <20050929040403.GE18716@alpha.home.local> <1127979848.2918.7.camel@laptopd505.fenrus.org>
+In-Reply-To: <1127979848.2918.7.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: (0.128) AWL,BAYES_50
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-09-29 at 12:33 -0400, Luben Tuikov wrote:
-> On 09/29/05 11:17, Bernd Petrovitsch wrote:
-[...] 
-> > Then submit your driver as a (separate) block device in parallel to the
-> > existing SCSI subsystem. People will use it for/with other parts if it
+Arjan van de Ven wrote:
+> On Thu, 2005-09-29 at 06:04 +0200, Willy Tarreau wrote:
+>>On Wed, Sep 28, 2005 at 07:04:31PM -0400, Jeff Garzik wrote:
+>>
+>>>Linux is about getting things done, not being religious about 
+>>>specifications.  You are way too focused on the SCSI specs, and missing 
+>>>the path we need to take to achieve additional flexibility.
+
+AFAIU, demands to get our concepts closer to SAM concepts are actually 
+motivated by this: To achieve additional flexibility. (In particular, to 
+ease integration of the various transports.)
+
+>>>With Linux, it's all about evolution and the path we take.
+>>
+>>Hmmm... I'm fine with "not being religious about specs", but I hope we
+>>try to respect them as much as possible
 > 
-> SAS is ultimately SCSI.  I'll just have to write my own SCSI core.
-> _We_ together can do this in parallel to the old SCSI Core.
->
-> This is the whole idea.
+> a spec describes how the hw works... how we do the sw piece is up to
+> us ;)
 
-The question is: Who starts and leads seriously this effort (and takes
-in the course others with him)?
-Just telling others where to go and waiting until they carry you there
-usually doesn't succeed if you are not the boss of them (and/or they
-are free to leave at any time without significant punishment).
+We implement drivers of initiators. (Well, targets too.) The specs 
+describe _what_ initiators do. Thereby they partly describe _how_ 
+drivers of initiators (our sw pieces) work.
 
-> > makes sense (and you - as the maintainer - accept their patches). And in
-[...]
-> > a few years the "old" SCSI core fades out as legacy drives fade out (or
-> > they will happily coexist forever).
-> 
-> Yep, I've been saying this since 2002.  On the linux-scsi ML.
+> (I know the scsi stuff also provides sort of a reference "here is how
+> you can do it in sw" but I see that more as you "you need this
+> functionality" not "you need this exact architecture in your software")
 
-Perhaps speaking is not enough and work should follow?
-All people who really do the work like those others standing beneath
-(possibly doing their own thing) and telling them how to do their own
-work best.
+This is correct. The SAM is what it is --- the SCSI-3 Architecture 
+Model, not the architecture model of Linux' SCSI stack.
 
-> And this is the problem: *you* and "the community" see things in
-> *this* way:  "your balls - my balls", "yours/mine".
+However it is very desirable to reflect layers and concepts of the SAM 
+in our stack. One class of reasons is maintainability. No person is able 
+to understand the stack; nor is a person able to consume and understand 
+all or even half of the SCSI specs. No person is able to construct a 
+mapping between the whole stack and the whole SCSI-3 Architecture Model 
+(in his mind or with pencil and paper...). Therefore there have to be 
+_components_ of the stack's architecture model which map 1:1 to 
+_components_ of the SCSI-3 Architecture Model.
 
-It's at most (and actually exactly) "my work - your work", not "my balls
-- your balls" (or "code" or whatever).
-If you want to play "our work" (read: team[0] work), than you have to
-cope with others (and they with you), their - probably historically
-grown - design (even if it is wrong), etc.
-If this doesn't work (and ATM I have this impression) for whatever
-reason, the second step is "my work, your work".
-And if two (or more) people have different design opinions (and
-different opinions about "quality" and/or "correct vs wrong" - I can't
-decide since I have virtually no knowledge about SCSI core internals,
-discussions on the Linux-SCSI-ML, etc. to decide - not even for me -,
-who is "right" and/or "wrong" in which aspect or in general), it comes
-down to "better the not-so-good design and working code than the best
-design and no code".
-So just copy the old core, throw out what you don't want, need and/or
-like and voila. If it *is* "better", it will succeed and people will
-come and help.
-Of course it is probably more work in the short and in the long run to
-maintain a separate block driver for SAS storage, but it is at least a
-possible solution.
-Perhaps all relevant people will see that the difference is small enough
-to converge to some point in between.
-
-	Bernd
-
-[0]: Not in the ironic interpretation in German which translates roughly
-     to "great, another one does it".
+Fortunately, SAM layers and concepts are already there in the stack, 
+although incomplete and incoherent. It will always be disputable _how_ 
+complete and coherent our software should be in this respect. However it 
+is out of a question that our software's architecture model might 
+arbitrarily differ from the SAM.
 -- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
-
+Stefan Richter
+-=====-=-=-= =--= ===-=
+http://arcgraph.de/sr/

@@ -1,85 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964891AbVI2VPB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbVI2VNW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964891AbVI2VPB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 17:15:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbVI2VPA
+	id S1750734AbVI2VNW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 17:13:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbVI2VNW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 17:15:00 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:48352 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751333AbVI2VO7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 17:14:59 -0400
-Date: Thu, 29 Sep 2005 14:14:36 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Dave Jones <davej@redhat.com>
-cc: Anton Altaparmakov <aia21@cam.ac.uk>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-Subject: Re: [howto] Kernel hacker's guide to git, updated
-In-Reply-To: <20050929201127.GB31516@redhat.com>
-Message-ID: <Pine.LNX.4.64.0509291413060.5362@g5.osdl.org>
-References: <433BC9E9.6050907@pobox.com> <20050929200252.GA31516@redhat.com>
- <Pine.LNX.4.60.0509292106080.17860@hermes-1.csi.cam.ac.uk>
- <20050929201127.GB31516@redhat.com>
+	Thu, 29 Sep 2005 17:13:22 -0400
+Received: from wscnet.wsc.cz ([212.80.64.118]:24711 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S1750734AbVI2VNV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 17:13:21 -0400
+Message-ID: <433C58D0.3000007@gmail.com>
+Date: Thu, 29 Sep 2005 23:12:48 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: cs, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: janik holy <divizion@pobox.sk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: pcmcia bug ?
+References: <11ef658a67624a82b2b73decd6a78c07@pobox.sk>
+In-Reply-To: <11ef658a67624a82b2b73decd6a78c07@pobox.sk>
+Content-Type: text/plain; charset=windows-1250
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+janik holy napsal(a):
 
-
-On Thu, 29 Sep 2005, Dave Jones wrote:
+>Hello, i use slack 10.1, kernel 2.6.14-rc2-git7, i have orinoco silver pcmcia wifi card, i compile PCMCIA support into kernel, and orinoco, hermes, orinoco_cs as modules.... after booting loading modules, and run /etc/rc.d/rc.pcmcia i see message >= cardmgr no pcmcia in /proc/devices. after cat /proc/devices there is really no pcmcia. I really dont know what is it, on 2.6.11 with the same kernel conf, its works ok and pcmcia was in /proc/devices. So during i wont have pcmcia in /proc/devices i cant use cardctl and cardmgr ... any idea how to fix it ? where can be a problem ? thanks 
+>  
 >
-> Ah. I didn't know this. Thanks.
-> Hmm, it'd be nice to have a shorthand 'not have to type the url, pull everything'.
-> Something like 'git pull all'.
+Compile yenta, pcmcia, hermes and hermes pcmcia into kernel. I know
+about this problem, but I haven't had enough time to solve it.
 
-Something like this?
-
-Except it's called "git fetch --all", and it's obviously totally untested.
-
- 		Linus
+regards,
 --
-diff --git a/git-fetch.sh b/git-fetch.sh
---- a/git-fetch.sh
-+++ b/git-fetch.sh
-@@ -5,6 +5,8 @@
-  _x40='[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]'
-  _x40="$_x40$_x40$_x40$_x40$_x40$_x40$_x40$_x40"
-
-+all=
-+tags=
-  append=
-  force=
-  update_head_ok=
-@@ -17,6 +19,12 @@ do
-  	-f|--f|--fo|--for|--forc|--force)
-  		force=t
-  		;;
-+	--tags)
-+		tags=t
-+		;;
-+	--all)
-+		all=t
-+		;;
-  	-u|--u|--up|--upd|--upda|--updat|--update|--update-|--update-h|\
-  	--update-he|--update-hea|--update-head|--update-head-|\
-  	--update-head-o|--update-head-ok)
-@@ -158,7 +166,16 @@ case "$update_head_ok" in
-  	;;
-  esac
-
--for ref in $(get_remote_refs_for_fetch "$@")
-+taglist=
-+if [ "$tags$all" ]; then
-+	pattern='/refs\/tags/'
-+	if [ "$all" ]; then
-+		pattern='/refs/'
-+	fi
-+	taglist=$(git-ls-remote "$remote" | awk "$pattern"' { print $2":"$2 }')
-+fi
-+
-+for ref in $(get_remote_refs_for_fetch "$@" $taglist)
-  do
-      refs="$refs $ref"
-
+Jiri Slaby         www.fi.muni.cz/~xslaby
+~\-/~      jirislaby@gmail.com      ~\-/~
+241B347EC88228DE51EE A49C4A73A25004CB2A10

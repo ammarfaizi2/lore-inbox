@@ -1,122 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932084AbVI2Hlx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbVI2HoP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932084AbVI2Hlx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 03:41:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbVI2Hlx
+	id S932184AbVI2HoP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 03:44:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbVI2HoP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 03:41:53 -0400
-Received: from wg.technophil.ch ([213.189.149.230]:48843 "HELO
-	hydrogenium.schottelius.org") by vger.kernel.org with SMTP
-	id S932084AbVI2Hlx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 03:41:53 -0400
-Date: Thu, 29 Sep 2005 09:41:40 +0200
-From: Nico Schottelius <nico-kernel@schottelius.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: linux-hotplug-devel@lists.sourceforge.net
-Subject: udev/modprobe issue
-Message-ID: <20050929074140.GD2886@schottelius.org>
-Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
-	LKML <linux-kernel@vger.kernel.org>,
-	linux-hotplug-devel@lists.sourceforge.net
+	Thu, 29 Sep 2005 03:44:15 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:37846 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932184AbVI2HoM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 03:44:12 -0400
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
+	the kernel
+From: Arjan van de Ven <arjan@infradead.org>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Luben Tuikov <luben_tuikov@adaptec.com>,
+       Jeff Garzik <jgarzik@pobox.com>
+In-Reply-To: <20050929040403.GE18716@alpha.home.local>
+References: <43384E28.8030207@adaptec.com> <4339BFE9.1060604@pobox.com>
+	 <4339CCD6.5010409@adaptec.com> <4339F9A8.2030709@pobox.com>
+	 <433AFEB2.7090003@adaptec.com> <433B0457.7020509@pobox.com>
+	 <433B14E1.6080201@adaptec.com> <433B217F.4060509@pobox.com>
+	 <20050929040403.GE18716@alpha.home.local>
+Content-Type: text/plain
+Date: Thu, 29 Sep 2005 09:44:08 +0200
+Message-Id: <1127979848.2918.7.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Ycz6tD7Th1CMF4v7"
-Content-Disposition: inline
-User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
-X-Linux-Info: http://linux.schottelius.org/
-X-Operating-System: Linux 2.6.13.1
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2005-09-29 at 06:04 +0200, Willy Tarreau wrote:
+> On Wed, Sep 28, 2005 at 07:04:31PM -0400, Jeff Garzik wrote:
+> > Linux is about getting things done, not being religious about 
+> > specifications.  You are way too focused on the SCSI specs, and missing 
+> > the path we need to take to achieve additional flexibility.
+> > 
+> > With Linux, it's all about evolution and the path we take.
+> 
+> Hmmm... I'm fine with "not being religious about specs", but I hope we
+> try to respect them as much as possible
 
---Ycz6tD7Th1CMF4v7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+a spec describes how the hw works... how we do the sw piece is up to
+us ;)
 
-Good morning everybody!
+(I know the scsi stuff also provides sort of a reference "here is how
+you can do it in sw" but I see that more as you "you need this
+functionality" not "you need this exact architecture in your software")
 
-I've a small problem with loading the sata_sil module, but it could be a
-general issue: We use this sata-kontroller with sata-harddisks to backup
-our systems. The harddisk is exchanged (while the system is running) every
-day. So we load/unload sata_sil in our backup scripts, so 'hotplugging' is =
-possible.
-
-My problem is, that modprobe returns earlier than the attached device is us=
-able:
-
-----------------------------------------------------------------------
-srwali01:/# modprobe sata_sil; mount /dev/sda1 /mnt/hdbackup/
-mount: you must specify the filesystem type
-srwali01:/# rmmod sata_sil
-srwali01:/# modprobe sata_sil; ls -l /dev/sda1              =20
-ls: /dev/sda1: No such file or directory
-----------------------------------------------------------------------
-
-So I have to do
-
-----------------------------------------------------------------------
-srwali01:/# modprobe sata_sil
-srwali01:/# sleep 2
-srwali01:/# mount /dev/sda1 /mnt/hdbackup
-----------------------------------------------------------------------
-
-The problem is most likely that udev is too slow or that modprobe does not
-know/wait for udev:
-
-----------------------------------------------------------------------
-srwali01:/# mount | grep tmpfs | grep -v /dev/shm
-tmpfs on /dev type tmpfs (rw,size=3D10M,mode=3D0755)
-srwali01:/# cat /proc/sys/kernel/hotplug=20
-/sbin/udevsend
-----------------------------------------------------------------------
-
-My questions:
-
-- Should modprobe wait for whatever current hotplug is so that
-  the system can definitly use the device after modprobe?
-- Or should there be a command-line switch to modprobe to tell it to wait
-  for hotplug?
-- Is the 'wait for hotplug'-idea possible to do or would it have to be a di=
-rty
-  hack in the kernel?
-- Is there clean solution to wait exactly as long as
-  it needs to load sata_sil and create /dev/sda*?
-  Using while+ls monitoring /dev/sda* is not a solution imho.
-
-Greetings,
-
-Nico
-
-P.S.: Sorry for crossposting, I am not really sure which list would have be=
-en
-      the correct one to ask.
-
---=20
-Latest project: cconfig (http://nico.schotteli.us/papers/linux/cconfig/)
-Open Source nutures open minds and free, creative developers.
-
---Ycz6tD7Th1CMF4v7
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iQIVAwUBQzuas7OTBMvCUbrlAQIJsw/+LVyhsY8Qzxq5XAI7kxEgzr3I5czFimTW
-9F89qjabvHMSEkjrx81oyjOfMmwQTJGolTt2N9CRsBto4e+ymHST/rZvPXw9oLOv
-DD7vAA8wsn8tXjAi1cQzSXn/SP973W4wBCm+chrB2TVr2GF4ILndVes6C2bou57i
-nOHUXa4Q6GjmnVboXWnf2FxQWIV0QteLYEGV0tuuMeMNz6IB3rV2ED/Xs+A+AYRI
-LH+ks4LhwJ5Gto6zeNRZriWWQh6oNqtm4pSPy8QAQgK3LVpNfxdbonF98zpMjeuF
-lKWq4MttaQkUDz0UsbS3OJ0Y2TIsax4xZpRwgDY55onObmgjhV4g7mgC5C8cCrwW
-z+yFePPUaxWXLWu31TfD7Dbtw4NW2O4qrQRGclo5edKXGqSF9FAOD/JR9+sEHhZr
-cINs1j2QQP7jojhGuEHWtQhcz8puVNXW5HVXy4MBpxHuiTAnu1eQb/V5lcwZchhK
-jB00pHUX3k9s0ArXas2AMJ7UN2QtJxU1pkgffdoIk0fxOMbJhi5wDoP6B3x4NfZ+
-hRmSmg9gC8C4fRPw5/+PkGAQ5cOo0tic5JjML9lJPtNvWx6rhnrNfW2i0X/qp8Wb
-OGqZXb4yJ3849PsIY2LxWgep9tOTl/r8Thk0PsQHpleKN5/5A3PKNt9A8dGxaQ1I
-Fx0SSKVcirU=
-=HrMe
------END PGP SIGNATURE-----
-
---Ycz6tD7Th1CMF4v7--

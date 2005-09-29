@@ -1,81 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751256AbVI2AAg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751261AbVI2ABx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751256AbVI2AAg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 20:00:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbVI2AAg
+	id S1751261AbVI2ABx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 20:01:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751263AbVI2ABx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 20:00:36 -0400
-Received: from www.tuxrocks.com ([64.62.190.123]:32774 "EHLO tuxrocks.com")
-	by vger.kernel.org with ESMTP id S1751256AbVI2AAf (ORCPT
+	Wed, 28 Sep 2005 20:01:53 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:10130 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751261AbVI2ABw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 20:00:35 -0400
-Message-ID: <433B2E62.5050201@tuxrocks.com>
-Date: Wed, 28 Sep 2005 17:59:30 -0600
-From: Frank Sorenson <frank@tuxrocks.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: tglx@linutronix.de
-CC: linux-kernel@vger.kernel.org, mingo@elte.hu, akpm@osdl.org,
-       george@mvista.com, johnstul@us.ibm.com, paulmck@us.ibm.com,
-       hch@infradead.org, oleg@tv-sign.ru, zippel@linux-m68k.org,
-       tim.bird@am.sony.com
-Subject: Re: [PATCH]  ktimers subsystem 2.6.14-rc2-kt5
-References: <20050928224419.1.patchmail@tglx.tec.linutronix.de>
-In-Reply-To: <20050928224419.1.patchmail@tglx.tec.linutronix.de>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 28 Sep 2005 20:01:52 -0400
+Date: Wed, 28 Sep 2005 17:01:33 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       zaitcev@redhat.com, rusty@rustcorp.com.au
+Subject: Re: [linux-usb-devel] RFC drivers/usb/storage/libusual
+Message-Id: <20050928170133.5406f8f4.zaitcev@redhat.com>
+In-Reply-To: <20050928085159.GA11862@kroah.com>
+References: <20050927205559.078ba9ed.zaitcev@redhat.com>
+	<20050928085159.GA11862@kroah.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, 28 Sep 2005 01:52:00 -0700, Greg KH <greg@kroah.com> wrote:
 
-tglx@linutronix.de wrote:
-> This is an updated version which contains following changes:
-<snip>
-> Thanks for review and feedback.
+> Ok, fair enough, but it is nice at times to mix ub and usb-storage
+> device controlled devices.
+
+I mixed them just fine, as long as the protocol was different.
+The difference now is how we can split devices with same protocol
+by their IDs.
+
+> >  - Devices can be marked for use by ub or usb-storage without rebuilding
+> >    or rebooting.
 > 
-> tglx
+> How?  I missed this in the patch somewhere.
 
-I get this kernel panic on boot (serial capture) with the latest
-git tree (2.6.14-rc2++) plus this version of ktimers:
+I do it with  rmmod ub, rmmod libusual, then changing the module
+parameter to bias="usb-storage". Then either modprobe usb-storage or
+replug the device. In Gentoo we could simply rebuild with
+CONFIG_BLK_DEV_UB unset, but in Fedora this is more useful.
 
-[4294709.646000] Unable to handle kernel NULL pointer dereference at virtual address 00000000
-[4294709.646000]  printing eip:
-[4294709.646000] c0137578
-[4294709.646000] *pde = 00000000
-[4294709.646000] Oops: 0000 [#1]
-[4294709.646000] PREEMPT 
-[4294709.646000] Modules linked in: ipw2200 ieee80211 ieee80211_crypt
-[4294709.646000] CPU:    0
-[4294709.646000] EIP:    0060:[<c0137578>]    Not tainted VLI
-[4294709.646000] EFLAGS: 00010087   (2.6.14-rc2-fs2) 
-[4294709.646000] EIP is at enqueue_ktimer+0x168/0x280
-[4294709.646000] eax: 00000000   ebx: c051c1b4   ecx: 0000002a   edx: 14712508
-[4294709.646000] esi: 00000000   edi: f7f42240   ebp: c051c1b8   esp: c05e4f58
-[4294709.646000] ds: 007b   es: 007b   ss: 0068
-[4294709.646000] Process swapper (pid: 0, threadinfo=c05e4000 task=c0515bc0)
-[4294709.646000] Stack: c051c1b4 00000000 c051c1ac 147a7f90 0000002a 147a7f90 0000002a f7f42240 
-[4294709.646000]        147a6ff0 0000002a c051c1ac c0137d72 00000005 c05e4000 c051c1b8 c051c1b4 
-[4294709.646000]        c05e4000 c0124380 f7f69a90 147a6ff0 0000002a 00000001 c06136c8 0000000a 
-[4<0>Kernel panic - not syncing: Fatal exception in interrupt
-[4294709.680000]  
+Ultimately I wanted to add some facility to add IDs, but it was
+too tricky to be included into this first cut.
 
+> >  - The scheme can be useful for sharing of devices between
+> >    HID, Wacom, and Apitek, if we like how it works for the storage.
+> 
+> Fair enough, so we should rename it :)
 
+I was going to have a very similar, but separate shared piece
+called "libhideous", you know, because it's HIDeous. Then, maybe
+factor out common parts... Maybe make it part of core, if we find it
+useful. I'll ask Ping Cheng and Kristian Hoksberg about it. The flow
+of requests to add another Wacom ID to the exclusion list is not very
+strong recently.
 
-Frank
-- -- 
-Frank Sorenson - KD7TZK
-Systems Manager, Computer Science Department
-Brigham Young University
-frank@tuxrocks.com
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+> Just to verify that I read this code correct, is this how it all works?
+> 
+> 	- kernel finds usb device and calls out to hotplug with the
+> 	  device id stuff.
+> 	- hotplug scripts load libusual as that is where the mod info is
+> 	  pointing to.
+> 	- libusual's probe function gets called.
+> 	- kernel thread is spawned and probe fails
+> 	- module for "preferred" driver is loaded with a call to
+> 	  request_module
+> 	- requested module is loaded.
+> 	- requested module's probe is called by core and device is bound
+> 	  to it.
+> 
+> Did I get that correct?
 
-iD8DBQFDOy5haI0dwg4A47wRAnXcAJ996Yrw2nkjuNThfLCep2GRZ0VjzgCcDIWl
-IvIgmrrHG3qB8LNszTPITX8=
-=TLMU
------END PGP SIGNATURE-----
+Yes.
+
+It is not the only mode of operation. You can modprobe modules by
+hand, and also our installer can load them without hotplug.
+In such case, dependancies cause libusual to be loaded ahead.
+
+Another situation is when modules are built statically. I recommend
+not to use libusual when building static kernel, and pre-select
+usb-storage or ub, depending on application. There was company which
+shipped static ub in arcage game machines. Libusual continues to work
+but it's rather silly.
+
+> If so, a few comments.
+>   - This only covers the "which module to load" question.  Once the
+>     module is loaded, it still always grabs the storage devices, even if
+>     another module is loaded later on.  Isn't that still the same issue
+>     we have today?  Can't we fix this too?
+
+I am very sorry, I forgot a little piece of code in component driver's
+probe() routines, like this:
+
+@@ -2168,6 +2176,9 @@ static int ub_probe(struct usb_interface
+ 	int rc;
+ 	int i;
+ 
++	if (USB_US_TYPE(dev_id->driver_info) != USB_US_TYPE_UB)
++		return -ENXIO;
++
+ 	rc = -ENOMEM;
+ 	if ((sc = kmalloc(sizeof(struct ub_dev), GFP_KERNEL)) == NULL)
+ 		goto err_core;
+
+I'll retest and resend a corrected patch.
+
+>   - request_module() is icky.  I keep wanting to get rid of that
+>     function, and really don't want to see any further users get added.
+>     But that's just my feeling, if there's no other way to do this, I
+>     don't mind.
+
+Yes, yes, and yes. And also, it looks to me as if I am trying to do
+something which "obviously" belongs to modprobe or other user mode
+component. The trouble is, I am unable to find a different solution
+which would not involve an alias pointing to an alias, and Rusty's
+modprobe does not allow that. I could hack it up easily, but he
+put in a comment, "that way lies madness". He probably knew what
+he was doing.
+
+-- Pete

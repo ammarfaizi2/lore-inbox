@@ -1,159 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbVI2TeT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964828AbVI2Tfs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964800AbVI2TeT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 15:34:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964793AbVI2Tdz
+	id S964828AbVI2Tfs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 15:35:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964797AbVI2Tc7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 15:33:55 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:26851 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S964816AbVI2Tdq
+	Thu, 29 Sep 2005 15:32:59 -0400
+Received: from ppp-62-11-74-97.dialup.tiscali.it ([62.11.74.97]:50589 "EHLO
+	zion.home.lan") by vger.kernel.org with ESMTP id S932444AbVI2Tc5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 15:33:46 -0400
-Subject: Re: [RFC][PATCH 2/2] Reduced NTP rework (part 2)
-From: john stultz <johnstul@us.ibm.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
-       George Anzinger <george@mvista.com>,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
-In-Reply-To: <Pine.LNX.4.61.0509291658130.3728@scrub.home>
-References: <1127419120.8195.7.camel@cog.beaverton.ibm.com>
-	 <1127419198.8195.10.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.61.0509271809460.3728@scrub.home>
-	 <1127852362.8195.215.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.61.0509291658130.3728@scrub.home>
-Content-Type: text/plain
-Date: Thu, 29 Sep 2005 12:33:42 -0700
-Message-Id: <1128022423.8195.302.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Sep 2005 15:32:57 -0400
+From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
+Subject: [PATCH 2/5] uml: fix page faults in SKAS3 mode.
+Date: Thu, 29 Sep 2005 21:30:37 +0200
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Message-Id: <20050929193036.14528.92621.stgit@zion.home.lan>
+In-Reply-To: <200509292102.44942.blaisorblade@yahoo.it>
+References: <200509292102.44942.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-09-29 at 20:43 +0200, Roman Zippel wrote:
-> On Tue, 27 Sep 2005, john stultz wrote:
-> > The idea being:
-> > 
-> > update_wall_clock():
-> > 	ticks = jiffies - wall_jiffies
-> > 	while (ticks):
-> > 		ticks--
-> > 		xtime += tick_nsec + ntp_adjustment
-> > 
-> > 
-> > isn't that different from:
-> > 
-> > timekeeping_periodic_hook():
-> > 	now = timesource_read(ts)
-> > 	delta_cycle = now - last
-> > 	while (delta_cycle > interval_cycle):
-> > 		delta_cycle -= interval_cycle
-> > 		system_time += interval_nsec
-> 
-> BTW that's not what you do in the first part of the patch:
-> 
-> +static void ntp_advance(unsigned long interval_ns)
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-Well, I was trying to describe what I am going to follow the NTP patches
-with. 
+I hadn't been running a SKAS3 host when testing the "uml: fix hang in TT mode on
+fault" patch (commit 546fe1cbf91d4d62e3849517c31a2327c992e5c5), and I didn't
+think enough to the missing trap_no in SKAS3 mode.
 
-So yes, the reduced NTP rework patches are not discussed in the above
-(but ntp_advance() does have a place in the above, I just left it out to
-shorten the comparison), but they allow the two examples above to look
-similar. 
+In fact, the resulting kernel doesn't work at all in SKAS3 mode.
 
-For clarity here's the ntp details included
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
 
-update_wall_clock():
-	ticks = jiffies - wall_jiffies
-	while (ticks):
-		ticks--
-		xtime += tick_nsec + ntp_adjustment
-		ntp_advance(tick_nsec)
+ arch/um/include/sysdep-i386/sigcontext.h   |   10 +++++++++-
+ arch/um/include/sysdep-x86_64/sigcontext.h |    5 ++++-
+ arch/um/kernel/trap_kern.c                 |    5 ++++-
+ 3 files changed, 17 insertions(+), 3 deletions(-)
 
-
-timekeeping_periodic_hook():
-	now = timesource_read(ts)
-	delta_cycle = now - last
-	while (delta_cycle > interval_cycle):
-		delta_cycle -= interval_cycle
-		system_time += interval_nsec
-		ntp_advance(interval_nsec)
-
-
-> I'm quite sure that the interval_ns is wrong, it's important to advance 
-> the ntp state in constant intervals (i.e. interval_cycle). Your patch 
-> already includes time adjustments and e.g. the "while (interval_ns >= 
-> tick_nsec)" loop is not executed anymore, once time_adjust_step becomes 
-> negative.
-
-Commenting the specific code would help clarify this. If I'm
-understanding you, you're talking about the following logic:
-
-static void ntp_advance(unsigned long interval_ns):
-	static unsigned long interval_sum;
-
-	/* increment the interval sum */
-	interval_sum += interval_ns
-
-	/* calculate the per tick singleshot adjtime adjustment step */
-	while (interval_ns >= tick_nsec):
-		time_adjust_step = time_adjust
-		if (time_adjust_step):
-			time_adjust_step = min(time_adjust_step, tickadj)
-			time_adjust_step = max(time_adjust_step, -tickadj)
-			time_adjust -= time_adjust_step
-		interval_ns -= tick_nsec
-
-I'm not sure I understand the problem if time_adjust_step becomes
-negative.
-
-> In general I would prefer it if we could finalize the basic design first, 
-> before doing such changes, otherwise I'm afraid we need a cleanup of the 
-> cleanup.
-
-Well, that's evolution. :)  But really, the reduced ntp rework stuff
-isn't a cleanup. Its just the bare minimum changes to NTP that I'm
-needing for my generic timeofday code. Hopefully the reduced changes
-will clarify what exactly I need (or think I need ;) from the NTP
-subsystem to get my timekeeping code to function properly. Then maybe
-you (or anyone else - don't let Roman have all the fun) can point to a
-better way. 
-
-
-> > The only difference between continuous and tick based systems would then
-> > be in gettimeofday() (which really could be the same with a simple
-> > #define)
-> > 
-> > continuous_gettimeofday():
-> > 	now = timesource_read(ts)
-> > 	delta_cycle = now - last
-> > 	delta_nsec = cyc2ns(timesource, delta_cycle)
-> > 	return system_time + delta_nsec
-> > 
-> > tick_gettime():
-> > 	now = timesource_read(jiffes_timesource)
-> > 	delta_cycle = now - last
-> > 	delta_nsec = cyc2ns(timesource, delta_cycle)
-> > 	delta_nsec += arch_get_offset()
-> > 	return system_time + delta_nsec
-> 
-> The basic idea of gettimeofday is of course always the same: "base + 
-> get_offset() * mult". I can understand the temptation to unify the 
-> implementation, but please accept the current reality that we have 
-> different gettimeofday implementations (for whatever reasons), so unifying 
-> them would be a premature change. If the situation changes later we can 
-> still do that unification.
-
-I'm sorta going at it from the other way (call me optimistic :), where
-I'm trying to unify what I can until I hit the exception. Then I'll
-happily break out an arch specific gettimeofday implementation.
-
-Once again, I do appreciate your feedback. Hopefully I'll have patches
-out later today for you to look at.
-
-thanks
--john
-
-
+diff --git a/arch/um/include/sysdep-i386/sigcontext.h b/arch/um/include/sysdep-i386/sigcontext.h
+--- a/arch/um/include/sysdep-i386/sigcontext.h
++++ b/arch/um/include/sysdep-i386/sigcontext.h
+@@ -6,6 +6,7 @@
+ #ifndef __SYS_SIGCONTEXT_I386_H
+ #define __SYS_SIGCONTEXT_I386_H
+ 
++#include "uml-config.h"
+ #include <sysdep/sc.h>
+ 
+ #define IP_RESTART_SYSCALL(ip) ((ip) -= 2)
+@@ -26,7 +27,14 @@
+ #define SC_START_SYSCALL(sc) do SC_EAX(sc) = -ENOSYS; while(0)
+ 
+ /* This is Page Fault */
+-#define SEGV_IS_FIXABLE(fi) ((fi)->trap_no == 14)
++#define SEGV_IS_FIXABLE(fi)	((fi)->trap_no == 14)
++
++/* SKAS3 has no trap_no on i386, but get_skas_faultinfo() sets it to 0. */
++#ifdef UML_CONFIG_MODE_SKAS
++#define SEGV_MAYBE_FIXABLE(fi)	((fi)->trap_no == 0 && ptrace_faultinfo)
++#else
++#define SEGV_MAYBE_FIXABLE(fi)	0
++#endif
+ 
+ extern unsigned long *sc_sigmask(void *sc_ptr);
+ extern int sc_get_fpregs(unsigned long buf, void *sc_ptr);
+diff --git a/arch/um/include/sysdep-x86_64/sigcontext.h b/arch/um/include/sysdep-x86_64/sigcontext.h
+--- a/arch/um/include/sysdep-x86_64/sigcontext.h
++++ b/arch/um/include/sysdep-x86_64/sigcontext.h
+@@ -31,7 +31,10 @@
+ #define SC_START_SYSCALL(sc) do SC_RAX(sc) = -ENOSYS; while(0)
+ 
+ /* This is Page Fault */
+-#define SEGV_IS_FIXABLE(fi) ((fi)->trap_no == 14)
++#define SEGV_IS_FIXABLE(fi)	((fi)->trap_no == 14)
++
++/* No broken SKAS API, which doesn't pass trap_no, here. */
++#define SEGV_MAYBE_FIXABLE(fi)	0
+ 
+ extern unsigned long *sc_sigmask(void *sc_ptr);
+ 
+diff --git a/arch/um/kernel/trap_kern.c b/arch/um/kernel/trap_kern.c
+--- a/arch/um/kernel/trap_kern.c
++++ b/arch/um/kernel/trap_kern.c
+@@ -26,6 +26,9 @@
+ #include "mconsole_kern.h"
+ #include "mem.h"
+ #include "mem_kern.h"
++#ifdef CONFIG_MODE_SKAS
++#include "skas.h"
++#endif
+ 
+ /* Note this is constrained to return 0, -EFAULT, -EACCESS, -ENOMEM by segv(). */
+ int handle_page_fault(unsigned long address, unsigned long ip, 
+@@ -134,7 +137,7 @@ unsigned long segv(struct faultinfo fi, 
+ 	else if(current->mm == NULL)
+ 		panic("Segfault with no mm");
+ 
+-	if (SEGV_IS_FIXABLE(&fi))
++	if (SEGV_IS_FIXABLE(&fi) || SEGV_MAYBE_FIXABLE(&fi))
+ 		err = handle_page_fault(address, ip, is_write, is_user, &si.si_code);
+ 	else {
+ 		err = -EFAULT;
 

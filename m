@@ -1,77 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751340AbVI2WGP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751347AbVI2WMt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751340AbVI2WGP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 18:06:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbVI2WGP
+	id S1751347AbVI2WMt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 18:12:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751345AbVI2WMt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 18:06:15 -0400
-Received: from web31806.mail.mud.yahoo.com ([68.142.207.69]:52332 "HELO
-	web31806.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751341AbVI2WGO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 18:06:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=demT0plqrrquqN8xwAX+u8kZ1XpieWo4S+841+0x0Rv/r526Z5zK/knTpnwj1RA/4baAUI4OZ36zYbm05oqqNMDS3cxnq6/CITs2dv6Pdgo0d/omKP+LR/FZMnoDFgLGBdzQfw92zCpaCMQ93sds3DkBGKHlDudf0OzWcR4aofg=  ;
-Message-ID: <20050929220613.78655.qmail@web31806.mail.mud.yahoo.com>
-Date: Thu, 29 Sep 2005 15:06:13 -0700 (PDT)
-From: Luben Tuikov <ltuikov@yahoo.com>
-Reply-To: ltuikov@yahoo.com
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into the kernel
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Cc: Luben Tuikov <luben_tuikov@adaptec.com>,
-       Andre Hedrick <andre@linux-ide.org>,
-       Patrick Mansfield <patmans@us.ibm.com>,
-       Luben Tuikov <ltuikov@yahoo.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <433C3BD7.4090104@s5r6.in-berlin.de>
+	Thu, 29 Sep 2005 18:12:49 -0400
+Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:26525 "EHLO
+	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1751330AbVI2WMs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 18:12:48 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Thu, 29 Sep 2005 23:12:37 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Dave Jones <davej@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: [howto] Kernel hacker's guide to git, updated
+In-Reply-To: <Pine.LNX.4.64.0509291451540.5362@g5.osdl.org>
+Message-ID: <Pine.LNX.4.60.0509292309470.17860@hermes-1.csi.cam.ac.uk>
+References: <433BC9E9.6050907@pobox.com> <20050929200252.GA31516@redhat.com>
+ <Pine.LNX.4.60.0509292106080.17860@hermes-1.csi.cam.ac.uk>
+ <20050929201127.GB31516@redhat.com> <Pine.LNX.4.64.0509291413060.5362@g5.osdl.org>
+ <Pine.LNX.4.64.0509291425560.5362@g5.osdl.org> <20050929213312.GD31516@redhat.com>
+ <Pine.LNX.4.64.0509291451540.5362@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
-> Luben Tuikov wrote:
-> > What you'll see in the code is:
+On Thu, 29 Sep 2005, Linus Torvalds wrote:
+> On Thu, 29 Sep 2005, Dave Jones wrote:
+> > What I find amusing is that it was a patch rejection mail from you
+> > *years* back (circa 2000 iirc), telling me my pine corrupted whitespace,
+> > that made me switch MUA ;-)
 > > 
-> >   hardware implementation  (interconnect, SAM 4.15, 1.3)
-> >       firmware implementation  (interconnect, SDS, SAM 4.6, 1.3)
-> >           LLDD                     (SAM, section 5, 6, 7)
-> >              Transport Layer          (SAM 4.15, SAS)
-> >                   SCSI Core             (SAM section 4,5,8)
-> >                      Commmand Sets        (SAM section 1)
-> > 
-> > A very nice explanation in latest SAM4r03,
-> > section 4.15 The SCSI model for distributed communications.
+> > All these years later, and it's still buggered ?
 > 
-> BTW, Linux' implementations of transports like USB storage and SBP-2 
-> have always been similarly layered. (Actually they come with at least 
-> one more layer between LLDD and SCSI core.) Needless to say that these 
-> transports need their specific managing infrastructures. So this 
-> layering is not at all new to Linux.
+> Actually, it seems better. It seems to be buggered by default, but it used 
+> to be that you had to actually recompile pine to make it behave. Now you 
+> can just disable "strip-whitespace-before-send" and _enable_ 
+> "quell-flowed-text" and those together seem to do the trick. No extra 
+> patches or recompiles necessary.
 
-True, true.
+Indeed.  I use those two options like that, too.  (-:
 
-But those subsystems are shielded from SCSI Core.  Plus SCSI Core
-is managed by people unaware of SAM or the layering infrastructure.
-
-    Luben
- 
-> > Now for MPT based solutions you have:
-> > 
-> >   LLDD                  (SAM, section 5, 6, 7)
-> >      SCSI Core             (SAM section 4,5,8)
-> >         Commmand Sets         (SAM section 1)
-> > 
-> > You see?  No Transport Layer between LLDD and SCSI Core!
-> > Why?  Because all this work is done in FIRMWARE!
+> So there's progress. 
 > 
-> -- 
-> Stefan Richter
-> -=====-=-=-= =--= ===-=
-> http://arcgraph.de/sr/
+> Of course, pico is still pico. Which I find a bit sad: my editor of choise 
+> is still an improved version of uemacs, and pico actually comes from the 
+> same uemacs history, but has different key-bindings for just enough keys 
+> to be slightly confusing.
 > 
+> Still, that shared history means that I find pico a lot more to my taste 
+> than just about any other emailer editor out there. It may have a few 
+> differences, but it has more things in common..
 
+Why don't you enable "enable-alternate-editor-implicitly" and set 
+editor = "your-editor-of-choice" in the pine config?  It is integrated in 
+a quite seamless way.
+
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

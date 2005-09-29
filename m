@@ -1,49 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964821AbVI2Thv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964829AbVI2Thy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964821AbVI2Thv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 15:37:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964848AbVI2Thv
+	id S964829AbVI2Thy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 15:37:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964852AbVI2Thx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 15:37:51 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:28644 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S964821AbVI2Tht (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 15:37:49 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <433C4266.7040304@s5r6.in-berlin.de>
-Date: Thu, 29 Sep 2005 21:37:10 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: SCSI Mailing List <linux-scsi@vger.kernel.org>
-CC: Jeff Garzik <jgarzik@pobox.com>, Luben Tuikov <luben_tuikov@adaptec.com>,
+	Thu, 29 Sep 2005 15:37:53 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:43526 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S964829AbVI2Thu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 15:37:50 -0400
+Date: Thu, 29 Sep 2005 21:32:25 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
- the kernel
-References: <43384E28.8030207@adaptec.com> <4339BFE9.1060604@pobox.com> <4339CCD6.5010409@adaptec.com> <4339F9A8.2030709@pobox.com>
-In-Reply-To: <4339F9A8.2030709@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: (-1.485) AWL,BAYES_00
+       Luben Tuikov <luben_tuikov@adaptec.com>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into the kernel
+Message-ID: <20050929193225.GA16171@alpha.home.local>
+References: <43384E28.8030207@adaptec.com> <4339BFE9.1060604@pobox.com> <4339CCD6.5010409@adaptec.com> <4339F9A8.2030709@pobox.com> <433AFEB2.7090003@adaptec.com> <433B0457.7020509@pobox.com> <433B14E1.6080201@adaptec.com> <433B217F.4060509@pobox.com> <20050929040403.GE18716@alpha.home.local> <1127979848.2918.7.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1127979848.2918.7.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
->> The sad truth is that SCSI Core knows only HCIL.
+On Thu, Sep 29, 2005 at 09:44:08AM +0200, Arjan van de Ven wrote:
+> On Thu, 2005-09-29 at 06:04 +0200, Willy Tarreau wrote:
+> > On Wed, Sep 28, 2005 at 07:04:31PM -0400, Jeff Garzik wrote:
+> > > Linux is about getting things done, not being religious about 
+> > > specifications.  You are way too focused on the SCSI specs, and missing 
+> > > the path we need to take to achieve additional flexibility.
+> > > 
+> > > With Linux, it's all about evolution and the path we take.
+> > 
+> > Hmmm... I'm fine with "not being religious about specs", but I hope we
+> > try to respect them as much as possible
 > 
-> That's something that needs fixing, for SAS.
+> a spec describes how the hw works... how we do the sw piece is up to
+> us ;)
 
-Not just for SAS.
+No Arjan, you cannot say that ! (well, of course you can but in this case
+you may be wrong). A spec describes any process, whether it's soft or hard,
+and BTW, the frontier between soft and hard is diminishing. When I designed
+a PI-Bus-PCI bridge 10 years ago, I used PCI 2.1 Specification. And it was
+more related to software than hardware (FSMs, config registers, etc...).
 
->> The code doesn't alter Linux SCSI or anyone else's behaviour.
->> It only _provides_ SAS support to the kernel.
-> 
-> That's one of the problems: It should update the SCSI core.
+It's the *implementation* which is up to us, not the spec. A spec will never
+tell you that you have to be compliant with 4k stacks or things like this.
+This is implementation. What it tells you is when interrupt X strikes and
+you read bit Y from reg Z, then you must reset bit Y before leaving. And this
+is software specs, not hardware.
 
-Sure, but the same is true for the other transports except for SPI.
--- 
-Stefan Richter
--=====-=-=-= =--= ===-=
-http://arcgraph.de/sr/
+> (I know the scsi stuff also provides sort of a reference "here is how
+> you can do it in sw" but I see that more as you "you need this
+> functionality" not "you need this exact architecture in your software")
+
+Keeping close to an accepted standard model makes it far easier to upgrade
+later, but you're right, the spec does not tell you what your implementation
+must look like.
+
+I think we agree but just don't give the exact same meaning to words.
+
+Regards,
+Willy
+

@@ -1,113 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751226AbVI2GTt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbVI2GU7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751226AbVI2GTt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 02:19:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbVI2GTt
+	id S932082AbVI2GU7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 02:20:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932080AbVI2GU7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 02:19:49 -0400
-Received: from fraserv1.smcc.de ([217.110.115.151]:58789 "EHLO
-	fraserv1.smcc.de") by vger.kernel.org with ESMTP id S1751226AbVI2GTt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 02:19:49 -0400
-Message-ID: <433B876C.90706@smcc.de>
-Date: Thu, 29 Sep 2005 08:19:24 +0200
-From: =?UTF-8?B?VGhvbWFzIEx1w59uaWc=?= <lussnig@smcc.de>
-User-Agent: Thunderbird 1.4 (X11/20050908)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-Subject: PROBLEM: Badness in kref_get at /home/inst/linux-2.6.13.2/lib/kref.c:32
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Thu, 29 Sep 2005 02:20:59 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:38295 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932083AbVI2GU6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 02:20:58 -0400
+Date: Wed, 28 Sep 2005 23:20:27 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Adam Litke <agl@us.ibm.com>
+Cc: agl@us.ibm.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH 3/3 htlb-acct] Demand faulting for huge pages
+Message-Id: <20050928232027.28e1bb93.akpm@osdl.org>
+In-Reply-To: <1127939593.26401.38.camel@localhost.localdomain>
+References: <1127939141.26401.32.camel@localhost.localdomain>
+	<1127939593.26401.38.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-in the Bootup i got this ERROR Warning.
+Adam Litke <agl@us.ibm.com> wrote:
+>
+> Initial Post (Thu, 18 Aug 2005)
+> 
+> Basic overcommit checking for hugetlb_file_map() based on an implementation
+> used with demand faulting in SLES9.
+> 
+> Since demand faulting can't guarantee the availability of pages at mmap time,
+> this patch implements a basic sanity check to ensure that the number of huge
+> pages required to satisfy the mmap are currently available.  Despite the
+> obvious race, I think it is a good start on doing proper accounting.  I'd like
+> to work towards an accounting system that mimics the semantics of normal pages
+> (especially for the MAP_PRIVATE/COW case).  That work is underway and builds on
+> what this patch starts.
+> 
+> Huge page shared memory segments are simpler and still maintain their commit on
+> shmget semantics.
+> 
+> Diffed against 2.6.14-rc2-git6
+> 
+> Signed-off-by: Adam Litke <agl@us.ibm.com>
+> ---
+>  inode.c |   47 +++++++++++++++++++++++++++++++++++++++++++++++
+>  1 files changed, 47 insertions(+)
+> diff -upN reference/fs/hugetlbfs/inode.c current/fs/hugetlbfs/inode.c
+> --- reference/fs/hugetlbfs/inode.c
+> +++ current/fs/hugetlbfs/inode.c
+> @@ -45,9 +45,51 @@ static struct backing_dev_info hugetlbfs
+>  
+>  int sysctl_hugetlb_shm_group;
+>  
+> +static void huge_pagevec_release(struct pagevec *pvec);
 
-[17179574.472000] ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
-[17179574.700000] Badness in kref_get at 
-/home/inst/linux-2.6.13.2/lib/kref.c:32
-[17179574.700000]  [<c022569f>] kref_get+0x3f/0x50
-[17179574.700000]  [<c0224bf7>] kobject_get+0x17/0x20
-[17179574.700000]  [<c02248ae>] kobject_init+0x2e/0x50
-[17179574.700000]  [<c0224a10>] kobject_register+0x20/0x80
-[17179574.700000]  [<c013c9c2>] mod_sysfs_setup+0x62/0xd0
-[17179574.700000]  [<c013df20>] load_module+0xa50/0xbf0
-[17179574.700000]  [<c01575d3>] do_mmap_pgoff+0x5e3/0x820
-[17179574.700000]  [<c013e161>] sys_init_module+0x71/0x240
-[17179574.700000]  [<c0103197>] sysenter_past_esp+0x54/0x75
-[17179575.676000] ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 6 7 10 *11 12)
-[17179575.708000] ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 6 7 10 11 
-12) *0, disabled.
+nit: personally I prefer to move the helper function to the top of the file
+rather than having to forward-declare it.
 
-This happens on 2 different Boards with 2 different CPU's
+> +unsigned long
+> +huge_pages_needed(struct address_space *mapping, struct vm_area_struct *vma)
+> +{
 
-cat /proc/cpuinfo
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 15
-model           : 44
-model name      : AMD Sempron(tm) Processor 3000+
-stepping        : 2
-cpu MHz         : 1800.131
-cache size      : 128 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge 
-mca cmov pat pse36 clflush mmx fxsr sse sse2 syscall nx mmxext fxsr_opt 
-lm 3dnowext 3dnow pni lahf_lm
-bogomips        : 3604.44
+What does this function do?  Seems to count all the present pages within a
+vma which are backed by a particular hugetlbfs file?  Or something?
+
+If so, the chosen name seems strange.  And it definitely needs a decent
+comment.
 
 
-cat /proc/cpuinfo
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 8
-model name      : AMD Athlon(tm) XP 1800+
-stepping        : 1
-cpu MHz         : 1500.125
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge 
-mca cmov pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
-bogomips        : 3004.00
+> +	int i;
+> +	struct pagevec pvec;
+> +	unsigned long start = vma->vm_start;
+> +	unsigned long end = vma->vm_end;
+> +	unsigned long hugepages = (end - start) >> HPAGE_SHIFT;
 
-./ver_linux
-Linux susi 2.6.13.2.k7 #1 SMP Wed Sep 28 09:24:17 CEST 2005 i686 unknown 
-unknown GNU/Linux
-Gnu C                  4.0.1
-Gnu make               3.80
-binutils               2.16.91.0.2
-util-linux             2.12q
-mount                  2.12q
-module-init-tools      3.1
-e2fsprogs              1.38
-reiserfsprogs          3.6.17
-reiser4progs           line
-pcmcia-cs              3.2.7
-PPP                    2.4.2
-isdn4k-utils           3.2p1
-Linux C Library        > /opt/glibc/lib/libc.so.6
-Dynamic linker (ldd)   2.3.90
-Linux C++ Library      ..
-Procps                 3.2.5
-Net-tools              1.60
-Kbd                    1.12
-Sh-utils               5.3.0
-udev                   062
-re
+`hugepages' is the size of the vma
+
+> +	pgoff_t next = vma->vm_pgoff;
+> +	pgoff_t endpg = next + ((end - start) >> PAGE_SHIFT);
+> +	struct inode *inode = vma->vm_file->f_dentry->d_inode;
+> +
+> +	/*
+> +	 * Shared memory segments are accounted for at shget time,
+> +	 * not at shmat (when the mapping is actually created) so 
+> +	 * check here if the memory has already been accounted for.
+> +	 */
+> +	if (inode->i_blocks != 0)
+> +		return 0;
+> +
+> +	pagevec_init(&pvec, 0);
+> +	while (next < endpg) {
+> +		if (!pagevec_lookup(&pvec, mapping, next, PAGEVEC_SIZE))
+> +			break;
+> +		for (i = 0; i < pagevec_count(&pvec); i++) {
+> +			struct page *page = pvec.pages[i];
+> +			if (page->index > next)
+> +				next = page->index;
+> +			if (page->index >= endpg)
+> +				break;
+> +			next++;
+> +			hugepages--;
+
+And we subtract one from it for each present page.
+
+> +		}
+> +		huge_pagevec_release(&pvec);
+> +	}
+> +	return hugepages << HPAGE_SHIFT;
+> +}
+
+So it seems to be returning the number of bytes which are still unpopulated
+within this vma?
+
+Think you can rework this code to reduce my perplexity?
 

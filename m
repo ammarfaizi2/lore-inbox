@@ -1,61 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751333AbVI2VTr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964918AbVI2VXH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751333AbVI2VTr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 17:19:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbVI2VTr
+	id S964918AbVI2VXH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 17:23:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbVI2VXH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 17:19:47 -0400
-Received: from rwcrmhc11.comcast.net ([216.148.227.117]:65020 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S1751333AbVI2VTq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 17:19:46 -0400
-Date: Thu, 29 Sep 2005 14:20:55 -0700
-From: Deepak Saxena <dsaxena@plexity.net>
-To: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mtd@lists.infradead.org
-Subject: Re: [PATCH] Fix IXP4xx MTD driver no cast warning
-Message-ID: <20050929212055.GA311@plexity.net>
-Reply-To: dsaxena@plexity.net
-References: <20050929195205.GA30002@plexity.net> <20050929205252.GG7684@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050929205252.GG7684@flint.arm.linux.org.uk>
-Organization: Plexity Networks
-User-Agent: Mutt/1.5.10i
+	Thu, 29 Sep 2005 17:23:07 -0400
+Received: from citi.umich.edu ([141.211.133.111]:2177 "EHLO citi.umich.edu")
+	by vger.kernel.org with ESMTP id S1751334AbVI2VXG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 17:23:06 -0400
+Message-ID: <433C5B34.9060907@citi.umich.edu>
+Date: Thu, 29 Sep 2005 17:23:00 -0400
+From: Chuck Lever <cel@citi.umich.edu>
+Reply-To: cel@citi.umich.edu
+Organization: Network Appliance, Inc.
+User-Agent: Mozilla Thunderbird 1.0.6-1.4.1 (X11/20050719)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: [howto] Kernel hacker's guide to git, updated
+References: <433BC9E9.6050907@pobox.com> <20050929200252.GA31516@redhat.com> <433C4B6D.6030701@pobox.com>
+In-Reply-To: <433C4B6D.6030701@pobox.com>
+Content-Type: multipart/mixed;
+ boundary="------------080704090108050103010306"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 29 2005, at 21:52, Russell King was caught saying:
-> On Thu, Sep 29, 2005 at 12:52:05PM -0700, Deepak Saxena wrote:
-> > Fix following warning:
-> > 
-> > drivers/mtd/maps/ixp4xx.c: In function 'ixp4xx_flash_probe':
-> > drivers/mtd/maps/ixp4xx.c:199: warning: assignment makes integer from
-> > pointer without a cast
-> > 
-> > Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
-> > 
-> > diff --git a/drivers/mtd/maps/ixp4xx.c b/drivers/mtd/maps/ixp4xx.c
-> > --- a/drivers/mtd/maps/ixp4xx.c
-> > +++ b/drivers/mtd/maps/ixp4xx.c
-> > @@ -196,7 +196,7 @@ static int ixp4xx_flash_probe(struct dev
-> >  		goto Error;
-> >  	}
-> >  
-> > -	info->map.map_priv_1 = ioremap(dev->resource->start,
-> > +	info->map.map_priv_1 = (unsigned long)ioremap(dev->resource->start,
+This is a multi-part message in MIME format.
+--------------080704090108050103010306
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Jeff Garzik wrote:
+> Dave Jones wrote:
 > 
-> Shouldn't this be using info->map.virt instead of the old map.map_priv_1 ?
+>> You wrote..
+>>
+>> $ git clone 
+>> rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git 
+>> linux-2.6
+>> $ cd linux-2.6
+>> $ rsync -a --verbose --stats --progress \
+>>   
+>> rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git/ 
+>> \
+>>   .git/
+>>
+>> Could be just..
+>>
+>> $ git clone 
+>> rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git 
+>> linux-2.6
+>> $ cd linux-2.6
+>> $ git pull
+>>
+>> Likewise, in the next section, git pull doesn't need an argument
+>> if pulling from the repo it cloned.
+> 
+> 
+> 
+> Nope.  It intentionally includes the manual rsync because clone/pull 
+> doesn't seem to grab tags.  Or at least last time I checked...
 
-I think when I wrote this, having a !0 value in map->virt would cause the mtd
-core to assume that the map driver supported point()ing and direct copy
-of data.  Looking at the mtd code it looks like this assumption might
-have gone away...will change code.
+i just used the instructions at the bottom of your web page to grab new 
+tags, and it completely wiped all my Stacked Git metadata.  (fortunately 
+i was trying this in a test repository, and it will be simple to recover 
+the missing files).
 
-~Deepak
+so, this is probably something that should have a warning, or maybe you 
+might consider providing an example that won't wipe out existing files 
+and directories under .git/ ...
 
--- 
-Deepak Saxena - dsaxena@plexity.net - http://www.plexity.net
+--------------080704090108050103010306
+Content-Type: text/x-vcard; charset=utf-8;
+ name="cel.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="cel.vcf"
 
-Even a stopped clock gives the right time twice a day.
+begin:vcard
+fn:Chuck Lever
+n:Lever;Charles
+org:Network Appliance, Incorporated;Linux NFS Client Development
+adr:535 West William Street, Suite 3100;;Center for Information Technology Integration;Ann Arbor;MI;48103-4943;USA
+email;internet:cel@citi.umich.edu
+title:Member of Technical Staff
+tel;work:+1 734 763 4415
+tel;fax:+1 734 763 4434
+tel;home:+1 734 668 1089
+x-mozilla-html:FALSE
+url:http://www.monkey.org/~cel/
+version:2.1
+end:vcard
+
+
+--------------080704090108050103010306--

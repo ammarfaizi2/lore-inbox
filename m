@@ -1,52 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751184AbVI2TvD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbVI2Twy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751184AbVI2TvD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 15:51:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbVI2TvC
+	id S1751253AbVI2Twy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 15:52:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751274AbVI2Twy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 15:51:02 -0400
-Received: from rwcrmhc13.comcast.net ([216.148.227.118]:43227 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1751184AbVI2TvA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 15:51:00 -0400
-Date: Thu, 29 Sep 2005 12:52:05 -0700
-From: Deepak Saxena <dsaxena@plexity.net>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org
-Subject: [PATCH] Fix IXP4xx MTD driver no cast warning
-Message-ID: <20050929195205.GA30002@plexity.net>
-Reply-To: dsaxena@plexity.net
+	Thu, 29 Sep 2005 15:52:54 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:45516 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751253AbVI2Twx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 15:52:53 -0400
+Date: Thu, 29 Sep 2005 12:52:07 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: davidel@xmailserver.org, nacc@us.ibm.com, nish.aravamudan@gmail.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] 2.6.14-rc2-mm1: fixes for overflow
+ msec_to_jiffies()
+Message-Id: <20050929125207.52c6a1b8.akpm@osdl.org>
+In-Reply-To: <20050929194155.GB16171@alpha.home.local>
+References: <Pine.LNX.4.63.0509231108140.10222@localhost.localdomain>
+	<20050924040534.GB18716@alpha.home.local>
+	<29495f1d05092321447417503@mail.gmail.com>
+	<20050924061500.GA24628@alpha.home.local>
+	<20050924171928.GF3950@us.ibm.com>
+	<Pine.LNX.4.63.0509241120380.31327@localhost.localdomain>
+	<20050924193839.GB26197@alpha.home.local>
+	<20050924194418.GC26197@alpha.home.local>
+	<20050929024312.2f3a9e80.akpm@osdl.org>
+	<20050929194155.GB16171@alpha.home.local>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: Plexity Networks
-User-Agent: Mutt/1.5.10i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Willy Tarreau <willy@w.ods.org> wrote:
+>
+> Thanks Andrew,
+> 
+> I'm very sorry because I have verified the code with gcc-2.95.3,
+> gcc-3.3.6 and gcc-3.4.4 on x86 and alpha to ensure that everything
+> went smooth on archs where sizeof(long) > sizeof(int). But I've
+> tested all the combinations in user-space for obvious ease of
+> validation. I believe I forgot to use -Wall. What architecture
+> gave you this, and with which compiler please ? I'm willing to
+> fix this as soon as I can understand the root of the problem.
+> 
 
-Fix following warning:
+http://www.zip.com.au/~akpm/linux/patches/stuff/top-posting.txt
 
-drivers/mtd/maps/ixp4xx.c: In function 'ixp4xx_flash_probe':
-drivers/mtd/maps/ixp4xx.c:199: warning: assignment makes integer from
-pointer without a cast
+> 
+> 
+> On Thu, Sep 29, 2005 at 02:43:12AM -0700, Andrew Morton wrote:
+> > Willy Tarreau <willy@w.ods.org> wrote:
+> > >
+> > > +#if HZ <= MSEC_PER_SEC && !(MSEC_PER_SEC % HZ)
+> > >  +#  define MAX_MSEC_OFFSET \
+> > >  +	(ULONG_MAX - (MSEC_PER_SEC / HZ) + 1)
+> > 
+> > That generates numbers which don't fit into unsigned ints, yielding vast
+> > numbers of
+> > 
+> > include/linux/jiffies.h: In function `msecs_to_jiffies':
+> > include/linux/jiffies.h:310: warning: comparison is always false due to limited range of data type
+> > include/linux/jiffies.h: In function `usecs_to_jiffies':
+> > include/linux/jiffies.h:323: warning: comparison is always false due to limited range of data type
+> > 
 
-Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
+This was a ppc64 build, gcc-3.3.3, CONFIG_HZ=250
 
-diff --git a/drivers/mtd/maps/ixp4xx.c b/drivers/mtd/maps/ixp4xx.c
---- a/drivers/mtd/maps/ixp4xx.c
-+++ b/drivers/mtd/maps/ixp4xx.c
-@@ -196,7 +196,7 @@ static int ixp4xx_flash_probe(struct dev
- 		goto Error;
- 	}
- 
--	info->map.map_priv_1 = ioremap(dev->resource->start,
-+	info->map.map_priv_1 = (unsigned long)ioremap(dev->resource->start,
- 			    dev->resource->end - dev->resource->start + 1);
- 	if (!info->map.map_priv_1) {
- 		printk(KERN_ERR "IXP4XXFlash: Failed to ioremap region\n");
+Look a the value which MAX_MSEC_OFFSET will take (it's 2^63 minus a bit). 
+Comparing that to an unsigned int will generate the always-true or
+always-false warning.
 
--- 
-Deepak Saxena - dsaxena@plexity.net - http://www.plexity.net
-
-Even a stopped clock gives the right time twice a day.

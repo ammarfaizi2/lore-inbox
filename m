@@ -1,64 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbVI2HoP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbVI2H4h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932184AbVI2HoP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 03:44:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbVI2HoP
+	id S932188AbVI2H4h (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 03:56:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932189AbVI2H4h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 03:44:15 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:37846 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932184AbVI2HoM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 03:44:12 -0400
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
-	the kernel
-From: Arjan van de Ven <arjan@infradead.org>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Luben Tuikov <luben_tuikov@adaptec.com>,
-       Jeff Garzik <jgarzik@pobox.com>
-In-Reply-To: <20050929040403.GE18716@alpha.home.local>
-References: <43384E28.8030207@adaptec.com> <4339BFE9.1060604@pobox.com>
-	 <4339CCD6.5010409@adaptec.com> <4339F9A8.2030709@pobox.com>
-	 <433AFEB2.7090003@adaptec.com> <433B0457.7020509@pobox.com>
-	 <433B14E1.6080201@adaptec.com> <433B217F.4060509@pobox.com>
-	 <20050929040403.GE18716@alpha.home.local>
-Content-Type: text/plain
-Date: Thu, 29 Sep 2005 09:44:08 +0200
-Message-Id: <1127979848.2918.7.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Thu, 29 Sep 2005 03:56:37 -0400
+Received: from port-83-236-157-249.static.qsc.de ([83.236.157.249]:12936 "EHLO
+	kaasa.com") by vger.kernel.org with ESMTP id S932188AbVI2H4g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 03:56:36 -0400
+Message-ID: <433B9E31.5040406@gmail.com>
+Date: Thu, 29 Sep 2005 09:56:33 +0200
+From: Matteo Brusa <matteo.brusa@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: libata/ata_piix stuck in combined mode
+X-Enigmail-Version: 0.90.1.1
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-09-29 at 06:04 +0200, Willy Tarreau wrote:
-> On Wed, Sep 28, 2005 at 07:04:31PM -0400, Jeff Garzik wrote:
-> > Linux is about getting things done, not being religious about 
-> > specifications.  You are way too focused on the SCSI specs, and missing 
-> > the path we need to take to achieve additional flexibility.
-> > 
-> > With Linux, it's all about evolution and the path we take.
-> 
-> Hmmm... I'm fine with "not being religious about specs", but I hope we
-> try to respect them as much as possible
+Hi,
+I'm running Sarge on a Dell PE 750, official Debian kernel 2.6.8-2-686,
+with 2 SATA disks. The disk controller is an Intel ICH5.
+Since I upgraded from kernel 2.4 to 2.6, the DMA disk access doesn't
+work anymore, because libata and ata_piix goes in combined mode:
 
-a spec describes how the hw works... how we do the sw piece is up to
-us ;)
+# grep -i ata /var/log/dmesg
+ BIOS-e820: 000000003ffc0000 - 000000003ffcfc00 (ACPI data)
+Memory: 1031108k/1048320k available (1551k kernel code, 16284k reserved, 690k data, 148k init,
+130816k highmem)
+libata version 1.02 loaded.
+ata_piix version 1.02
+ata_piix: combined mode detected
+ata1: PATA max UDMA/33 cmd 0x1F0 ctl 0x3F6 bmdma 0xFEA0 irq 14
+ata1: dev 0 cfg 49:0f00 82:0000 83:0000 84:0000 85:0000 86:0000 87:0000 88:0407
+ata1: dev 0 ATAPI, max UDMA/33
+ata1: dev 0 configured for UDMA/33
+scsi0 : ata_piix
+ata2: SATA max UDMA/133 cmd 0x170 ctl 0x376 bmdma 0xFEA8 irq 15
+ata2: dev 0 cfg 49:2f00 82:7c6b 83:7b09 84:4003 85:7c69 86:3a01 87:4003 88:207f
+ata2: dev 0 ATA, max UDMA/133, 156250000 sectors:
+ata2: dev 0 configured for UDMA/133
+scsi1 : ata_piix
+  Vendor: ATA       Model: Maxtor 6Y080M0    Rev: YAR5
+EXT3-fs: mounted filesystem with ordered data mode.
 
-(I know the scsi stuff also provides sort of a reference "here is how
-you can do it in sw" but I see that more as you "you need this
-functionality" not "you need this exact architecture in your software")
+I've read some posts here about disabling the PATA/SATA mixed mode in the BIOS; too bad there's no
+such a switch in Dell servers.
+I tried to disable the IDE cdrom in the BIOS, with no luck. Also kernel 2.6.12 from Knoppix 4.0.2
+couldn't help.
+Is there a way to force the ata_piix module out of combined mode?
 
+Thanks in advance.

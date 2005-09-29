@@ -1,129 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbVI2It7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751170AbVI2IyK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751125AbVI2It7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 04:49:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbVI2It6
+	id S1751170AbVI2IyK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 04:54:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751184AbVI2IyK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 04:49:58 -0400
-Received: from mail.parbin.co.uk ([213.162.111.43]:57736 "EHLO
-	mail.parbin.co.uk") by vger.kernel.org with ESMTP id S1751125AbVI2It6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 04:49:58 -0400
-Date: Thu, 29 Sep 2005 09:44:35 +0100
-From: Alexander Clouter <alex@digriz.org.uk>
-To: LKML <linux-kernel@vger.kernel.org>, cpufreq@lists.linux.org.uk
-Cc: Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
-       Blaisorblade <blaisorblade@yahoo.it>, alex-kernel@digriz.org.uk
-Subject: [patch 1/1] cpufreq_conservative: invert meaning of 'ignore_nice'
-Message-ID: <20050929084435.GC3169@inskipp.digriz.org.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="JwB53PgKC5A7+0Ej"
-Content-Disposition: inline
-Organization: diGriz
-X-URL: http://www.digriz.org.uk/
-User-Agent: Mutt/1.5.10i
+	Thu, 29 Sep 2005 04:54:10 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:34689 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751170AbVI2IyJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 04:54:09 -0400
+Message-ID: <433BABA9.8070908@suse.de>
+Date: Thu, 29 Sep 2005 10:54:01 +0200
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050715 Thunderbird/1.0.6 Mnenhy/0.7.2.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Blaisorblade <blaisorblade@yahoo.it>
+Cc: Dave Jones <davej@redhat.com>, LKML <linux-kernel@vger.kernel.org>,
+       Alexander Clouter <alex@digriz.org.uk>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [2.6.14] Cpufreq_ondemand sysfs names change
+References: <200508232108.26248.blaisorblade@yahoo.it> <200509101536.10307.blaisorblade@yahoo.it> <20050910140148.GC7072@inskipp.digriz.org.uk> <200509271851.36706.blaisorblade@yahoo.it>
+In-Reply-To: <200509271851.36706.blaisorblade@yahoo.it>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Blaisorblade wrote:
 
---JwB53PgKC5A7+0Ej
-Content-Type: multipart/mixed; boundary="KN5l+BnMqAQyZLvT"
-Content-Disposition: inline
+> *) to rename the flag to ignore_nice_load or ignore_nice_tasks, to avoid 
+> burning the user too much. Very few people use it now, but let's help them.
 
+I use it and i have even "fixed" my applications to use the "wrong" flag.
 
---KN5l+BnMqAQyZLvT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>> My thinking too, its a relatively new feature and when I have looked around
+>> very few userland tools even tinker with ondemand so either we do it now or
+>> not at all...or rather we do it later and listen to everyone complain :)
 
-The use of the 'ignore_nice' sysfs file is confusing to anyone using.  This=
-=20
-patch makes it so when you now set it to the default value of 1, process ni=
-ce=20
-time is also ignored in the cpu 'busyness' calculation.
-
-Prior to this patch to set it to '1' to make process nice time count...even=
-=20
-confused me :)
-
-WARNING: this obvious breaks any userland tools that expect things to be th=
-e=20
-other way round.  This patch clears up the confusion but should go in ASAP =
-as=20
-at the moment it seems very few tools even make use of this functionality;=
-=20
-all I could find was a Gentoo Wiki entry.
-
-Signed-off-by: Alexander Clouter <alex-kernel@digriz.org.uk>
-
---KN5l+BnMqAQyZLvT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="01_inverse_ignore_nice_flag.diff"
-Content-Transfer-Encoding: quoted-printable
-
-diff -u linux-2.6.13.orig/drivers/cpufreq/cpufreq_conservative.c linux-2.6.=
-13/drivers/cpufreq/cpufreq_conservative.c
---- linux-2.6.13.orig/drivers/cpufreq/cpufreq_conservative.c	2005-09-23 15:=
-24:46.605223250 +0100
-+++ linux-2.6.13/drivers/cpufreq/cpufreq_conservative.c	2005-09-23 15:24:30=
-=2E740231750 +0100
-@@ -93,7 +93,7 @@
- {
- 	return	kstat_cpu(cpu).cpustat.idle +
- 		kstat_cpu(cpu).cpustat.iowait +
--		( !dbs_tuners_ins.ignore_nice ?=20
-+		( dbs_tuners_ins.ignore_nice ?=20
- 		  kstat_cpu(cpu).cpustat.nice :
- 		  0);
- }
-@@ -515,7 +515,7 @@
- 			def_sampling_rate =3D (latency / 1000) *
- 					DEF_SAMPLING_RATE_LATENCY_MULTIPLIER;
- 			dbs_tuners_ins.sampling_rate =3D def_sampling_rate;
--			dbs_tuners_ins.ignore_nice =3D 0;
-+			dbs_tuners_ins.ignore_nice =3D 1;
- 			dbs_tuners_ins.freq_step =3D 5;
-=20
- 			dbs_timer_init();
-diff -u linux-2.6.13.orig/drivers/cpufreq/cpufreq_ondemand.c linux-2.6.13/d=
-rivers/cpufreq/cpufreq_ondemand.c
---- linux-2.6.13.orig/drivers/cpufreq/cpufreq_ondemand.c	2005-09-23 15:24:4=
-6.609223500 +0100
-+++ linux-2.6.13/drivers/cpufreq/cpufreq_ondemand.c	2005-09-23 15:24:08.846=
-863500 +0100
-@@ -86,7 +86,7 @@
- {
- 	return	kstat_cpu(cpu).cpustat.idle +
- 		kstat_cpu(cpu).cpustat.iowait +
--		( !dbs_tuners_ins.ignore_nice ?=20
-+		( dbs_tuners_ins.ignore_nice ?=20
- 		  kstat_cpu(cpu).cpustat.nice :
- 		  0);
- }
-@@ -424,7 +424,7 @@
- 			def_sampling_rate =3D (latency / 1000) *
- 					DEF_SAMPLING_RATE_LATENCY_MULTIPLIER;
- 			dbs_tuners_ins.sampling_rate =3D def_sampling_rate;
--			dbs_tuners_ins.ignore_nice =3D 0;
-+			dbs_tuners_ins.ignore_nice =3D 1;
-=20
- 			dbs_timer_init();
- 		}
-
---KN5l+BnMqAQyZLvT--
-
---JwB53PgKC5A7+0Ej
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFDO6lzNv5Ugh/sRBYRAvrVAJ0Sqytl1vMcA/lSsG0sycKgunv6nwCeIMe8
-EPCT+XzR+jDoAalnp5flRUw=
-=GI2g
------END PGP SIGNATURE-----
-
---JwB53PgKC5A7+0Ej--
+so the early birds are doomed? ;-)
+I'll bite the bullet if this "flip the meaning" gets in, but i don't
+like it. I'll have to check for the kernel version in my userspace code,
+then which is generally a bad idea IMO.
+-- 
+Stefan Seyfried                  \ "I didn't want to write for pay. I
+QA / R&D Team Mobile Devices      \ wanted to be paid for what I write."
+SUSE LINUX Products GmbH, Nürnberg \                    -- Leonard Cohen

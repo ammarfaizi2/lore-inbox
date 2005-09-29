@@ -1,93 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932145AbVI2Hyd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbVI2IAp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932145AbVI2Hyd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 03:54:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbVI2Hyd
+	id S1750831AbVI2IAp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 04:00:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbVI2IAp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 03:54:33 -0400
-Received: from amsfep11-int.chello.nl ([213.46.243.19]:41811 "EHLO
-	amsfep19-int.chello.nl") by vger.kernel.org with ESMTP
-	id S932145AbVI2Hyc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 03:54:32 -0400
-Subject: Re: 2.6.13-rc6-rt9
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: paulmck@us.ibm.com, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostdt@goodmis.org>
-Cc: Jeff Dike <jdike@addtoit.com>
-In-Reply-To: <20050820212446.GA9822@ccure.user-mode-linux.org>
-References: <20050818060126.GA13152@elte.hu>
-	 <1124470574.17311.4.camel@twins> <1124476205.17311.8.camel@twins>
-	 <20050819184334.GG1298@us.ibm.com> <1124566045.17311.11.camel@twins>
-	 <20050820212446.GA9822@ccure.user-mode-linux.org>
-Content-Type: text/plain
-Date: Thu, 29 Sep 2005 09:54:23 +0200
-Message-Id: <1127980463.14695.6.camel@twins>
+	Thu, 29 Sep 2005 04:00:45 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:58278 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1750831AbVI2IAp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 04:00:45 -0400
+Date: Thu, 29 Sep 2005 10:00:37 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Deepak Saxena <dsaxena@plexity.net>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-mtd@lists.infradead.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix ixp4xx MTD driver module build
+Message-ID: <20050929080037.GD16687@wohnheim.fh-wedel.de>
+References: <20050928234254.GA21547@plexity.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050928234254.GA21547@plexity.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-08-20 at 17:24 -0400, Jeff Dike wrote:
-> On Sat, Aug 20, 2005 at 09:27:25PM +0200, Peter Zijlstra wrote:
-> > Jeff, could you help us out here?
-> > What exactly does uml need to get out of the calibrate delay loop?
+On Wed, 28 September 2005 16:42:54 -0700, Deepak Saxena wrote:
 > 
-> Interrupts, it's not too demanding :-)
+> Missing ';' breaks module build.
 > 
-> If it's not seeing VTALRM, then it will never leave the calibration loop.
+> Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
 > 
-> Try stracing it and see what it's getting.
+> diff --git a/drivers/mtd/maps/ixp4xx.c b/drivers/mtd/maps/ixp4xx.c
+> --- a/drivers/mtd/maps/ixp4xx.c
+> +++ b/drivers/mtd/maps/ixp4xx.c
+> @@ -254,6 +255,6 @@ module_init(ixp4xx_flash_init);
+>  module_exit(ixp4xx_flash_exit);
+>  
+>  MODULE_LICENSE("GPL");
+> -MODULE_DESCRIPTION("MTD map driver for Intel IXP4xx systems")
+> +MODULE_DESCRIPTION("MTD map driver for Intel IXP4xx systems");
+>  MODULE_AUTHOR("Deepak Saxena");
 
-Sorry for the late reply.
+Applied to mtd cvs.  (Actually, with cvs it was easier to just redo
+the change myself, but basically...)
 
-Yes, that does seem to be the problem.
-
-Even with a current -rt (2.6.14-rc2-rt5) UML does not run. The issue is
-indeed (as jeff pointed out) that VTALRM is never send. The small test
-programm below illustrates this.
-
-On a non-rt kernel it completed in 1 second.
-On a -rt kernel it waits at infinitum.
-
-Kind regards,
-
-Peter Zijlstra
-
----------------------------
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/time.h>
-#include <signal.h>
-
-volatile int quit = 0;
-
-void sig_vtalrm(int signr, siginfo_t * si, void * arg)
-{
-        if (signr == SIGVTALRM) quit = 1;
-}
-
-int main()
-{
-        struct itimerval ival = {{0,0}, {1, 0}};
-
-        struct sigaction sa;
-        sa.sa_sigaction = sig_vtalrm;
-        sigemptyset(&sa.sa_mask);
-        sa.sa_flags = 0;
-        sigaction(SIGVTALRM, &sa, NULL);
-
-        setitimer(ITIMER_VIRTUAL, &ival, NULL);
-
-        printf("wait\n");
-        while (!quit) ;
-        printf("done\n");
-}
-
+Jörn
 
 -- 
-Peter Zijlstra <a.p.zijlstra@chello.nl>
-
+ticks = jiffies;
+while (ticks == jiffies);
+ticks = jiffies;
+-- /usr/src/linux/init/main.c

@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbVI2HYq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbVI2H0Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932144AbVI2HYq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 03:24:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbVI2HYq
+	id S932146AbVI2H0Y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 03:26:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbVI2H0X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 03:24:46 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:28348
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932144AbVI2HYp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 03:24:45 -0400
-Date: Thu, 29 Sep 2005 00:24:23 -0700 (PDT)
-Message-Id: <20050929.002423.18974352.davem@davemloft.net>
-To: andre@linux-ide.org
-Cc: jgarzik@pobox.com, willy@w.ods.org, luben_tuikov@adaptec.com,
-       patmans@us.ibm.com, ltuikov@yahoo.com, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, torvalds@osdl.org, linux-scsi@vger.kernel.org
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
- the kernel
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.10.10509282223570.19896-100000@master.linux-ide.org>
-References: <20050928.162929.50617923.davem@davemloft.net>
-	<Pine.LNX.4.10.10509282223570.19896-100000@master.linux-ide.org>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Sep 2005 03:26:23 -0400
+Received: from nproxy.gmail.com ([64.233.182.204]:12514 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932146AbVI2H0X convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 03:26:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=L3vVjJ/jkgFkzvxv1eTJywNy/0i27VbzsXnB6zvQ4XFaZxzw9c/Tp87mkVIM/7tpZT9EbodNwBpv5wOZI5uFa+7y6+JgDm2KmlUdl3eb24B9adx8xtlTBhO+ELetFNdeICNkWlJDBs6e7wZT3Dg82wDejbV4z3XO8y5kom29X+s=
+Message-ID: <58cb370e0509290026655a7bb1@mail.gmail.com>
+Date: Thu, 29 Sep 2005 09:26:17 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Daniel Drake <dsd@gentoo.org>
+Subject: Re: [PATCH] via82cxxx IDE: Remove /proc/ide/via entry
+Cc: Al Viro <viro@ftp.linux.org.uk>, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       posting@blx4.net, vsu@altlinux.ru
+In-Reply-To: <433B2081.9050607@gentoo.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <43146CC3.4010005@gentoo.org>
+	 <58cb370e05083008121f2eb783@mail.gmail.com>
+	 <43179CC9.8090608@gentoo.org>
+	 <58cb370e050927062049be32f8@mail.gmail.com>
+	 <433B16BD.7040409@gentoo.org> <20050928223718.GB7992@ftp.linux.org.uk>
+	 <433B2081.9050607@gentoo.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andre Hedrick <andre@linux-ide.org>
-Date: Wed, 28 Sep 2005 22:30:58 -0700 (PDT)
+Hi,
 
-> Not sure who to credit the following to:
-> 
-> When TOE's were introduced to Linux, there was a violent rejection of this
-> hardware because Linux is superior in the NetStack than any other possible
-> NetStack every created.
-> 
-> The point is there is a known history in Linux to reject things which
-> steps on peoples' egos.
+On 9/29/05, Daniel Drake <dsd@gentoo.org> wrote:
+> Hi Al,
+>
+> (btw, original subject was wrong, I actually meant /proc/ide/via)
+>
+> Al Viro wrote:
+> > Care to explain
+> >       * where to get equivalent information?
+>
+> I don't think there is anywhere else that provides the whole range, but I do
+> question the usefulness of most of it :)
 
-In that case, it is indeed a vendor trying to shove their particular
-solution down our throats.  They never even attempt to try out the
-alternatives, and we've even gone through the trouble of coming up
-with several.  And they do this because their whole buisness model is
-all about their scheme to the exclusion of anything else, not because
-what they have is better.
+Exactly, all the important information is available through other sources
+(dmesg, lspci and of course /proc/ide/hd?/*) and configuration of timing
+registers etc. shouldn't be of user concern (and it is available from PCI
+configuration space so code to parse it can be easily moved to user-space).
+
+Bartlomiej

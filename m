@@ -1,54 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932226AbVI2QNV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932228AbVI2QQD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932226AbVI2QNV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 12:13:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932227AbVI2QNV
+	id S932228AbVI2QQD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 12:16:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbVI2QQD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 12:13:21 -0400
-Received: from zproxy.gmail.com ([64.233.162.200]:36406 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932225AbVI2QNU convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 12:13:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=gvdeGDxX8S2N7BTRYkN280OeqovVZ8Ul/YtZsmeYpydOwG1fxqul6wmTWBZdu7Rcdj/GLKNlbzBUV8GjgvVztxUb+IDBbRWnxWR96EeGKl8tcFnCXmP6/+z9crkDZh1TGOn/Tl7bcAL19HZHiftTMBj46UPm6RUvfJiA0xQGrgU=
-Message-ID: <3e1162e605092909137a0da92e@mail.gmail.com>
-Date: Thu, 29 Sep 2005 09:13:19 -0700
-From: David Leimbach <leimy2k@gmail.com>
-Reply-To: David Leimbach <leimy2k@gmail.com>
-To: Alberto Patino <pato.lukaz@gmail.com>
-Subject: Re: [howto] Kernel hacker's guide to git, updated
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-In-Reply-To: <4489a22a050929090358badd29@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 29 Sep 2005 12:16:03 -0400
+Received: from mail.kroah.org ([69.55.234.183]:12977 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932228AbVI2QQB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 12:16:01 -0400
+Date: Thu, 29 Sep 2005 09:12:36 -0700
+From: Greg KH <greg@kroah.com>
+To: Roland Dreier <rolandd@cisco.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [git pull] InfiniBand fixes for 2.6.14
+Message-ID: <20050929161236.GB19770@kroah.com>
+References: <524q85on6e.fsf@cisco.com> <20050928093633.GA12757@kroah.com> <52zmpxmhm0.fsf@cisco.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <433BC9E9.6050907@pobox.com>
-	 <3e1162e605092908187e181936@mail.gmail.com>
-	 <4489a22a050929090358badd29@mail.gmail.com>
+In-Reply-To: <52zmpxmhm0.fsf@cisco.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/29/05, Alberto Patino <pato.lukaz@gmail.com> wrote:
-> On 9/29/05, David Leimbach <leimy2k@gmail.com> wrote:
-> > On 9/29/05, Jeff Garzik <jgarzik@pobox.com> wrote:
-> > >
-> > > Just updated my KHGtG to include the latest goodies available in
-> > > git-core, the Linux kernel standard SCM tool:
-> > >
-> > >         http://linux.yyz.us/git-howto.html
-> >
-> > Can you update the date on that page to reflect your latest updates?
-> > - Dave
->
-> The  KHGtG page is updated to September 29, 2005.
->
->
-Awesome!  Thanks. :-)  I'm looking at cogito and darcs-git for working
-with v9fs and other goodies.
+On Wed, Sep 28, 2005 at 06:44:55AM -0700, Roland Dreier wrote:
+>     Greg> I didn't think that git pulls were going to be allowed from
+>     Greg> subsystem maintainers after -rc1 came out.  After that,
+>     Greg> patches by email were required to be sent, not git pulls.
+>     Greg> This does cause a bit more work for the maintainer, but it
+>     Greg> ensures that they only send the patches they really want to
+>     Greg> get in.
+> 
+> I specifically asked Linus about this a couple of weeks ago, and he
+> said that bug-fix-only git merges are file.  See http://lkml.org/lkml/2005/9/13/277
 
-Dave
+Ah, thanks for pointing me to that, I missed that.
+
+greg k-h

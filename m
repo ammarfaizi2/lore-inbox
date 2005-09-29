@@ -1,91 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbVI2Qdb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbVI2QeT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932170AbVI2Qdb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 12:33:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbVI2Qda
+	id S932220AbVI2QeT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 12:34:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbVI2QeT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 12:33:30 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:61354 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S932170AbVI2Qd3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 12:33:29 -0400
-Message-ID: <433C174D.4050302@adaptec.com>
-Date: Thu, 29 Sep 2005 12:33:17 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
+	Thu, 29 Sep 2005 12:34:19 -0400
+Received: from gscsmtp.wustl.edu ([128.252.233.26]:25000 "EHLO
+	gscsmtp.wustl.edu") by vger.kernel.org with ESMTP id S932220AbVI2QeS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 12:34:18 -0400
+Message-ID: <433C1787.4090001@watson.wustl.edu>
+Date: Thu, 29 Sep 2005 11:34:15 -0500
+From: Richard Wohlstadter <rwohlsta@watson.wustl.edu>
 User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Bernd Petrovitsch <bernd@firmix.at>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Andre Hedrick <andre@linux-ide.org>,
-       Patrick Mansfield <patmans@us.ibm.com>,
-       Luben Tuikov <ltuikov@yahoo.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
- the kernel
-References: <Pine.LNX.4.10.10509281227570.19896-100000@master.linux-ide.org>	 <433B0374.4090100@adaptec.com> <20050928223542.GA12559@alpha.home.local>	 <433BFB1F.2020808@adaptec.com> <1128007032.11443.77.camel@tara.firmix.at>
-In-Reply-To: <1128007032.11443.77.camel@tara.firmix.at>
-Content-Type: text/plain; charset=ISO-8859-1
+To: linux-kernel@vger.kernel.org
+Subject: em64t speedstep technology not supported in kernel yet?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 29 Sep 2005 16:33:26.0431 (UTC) FILETIME=[844852F0:01C5C513]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09/29/05 11:17, Bernd Petrovitsch wrote:
-> 
-> Then submit your driver as a (separate) block device in parallel to the
-> existing SCSI subsystem. People will use it for/with other parts if it
+Hello all,
 
-SAS is ultimately SCSI.  I'll just have to write my own SCSI core.
-_We_ together can do this in parallel to the old SCSI Core.
+We recently had Intel give our company a roadmap presentation where they 
+told us that their enhanced speedstep technology was supported by linux 
+kernels 2.6.9+.  I have since tried to get cpufreq speedstep driver to 
+work with no luck on our em64t Xeon 3.6g processors.  Intel even has a 
+webpage describing the technology and how to get it working at url: 
+http://www.intel.com/cd/ids/developer/asmo-na/eng/195910.htm?prn=Y
 
-This is the whole idea.
+I made a bugzilla report to redhat [Bug 169290] and got a reply that 
+none of the Xeon's were supported yet on speedstep because they cannot 
+find documentation detailing the tables of frequencies these CPUs support.
 
-> makes sense (and you - as the maintainer - accept their patches). And in
+The only processor I have had luck with so far is a 32-bit Xeon with the 
+p4-clockmod driver(which does not appear to be present in the x86-64 
+kernel).
 
-You see, at my age and my situation, I no longer see this as
-"my balls - your balls".  What matters to me is good design,
-quality code, customer satisfaction, bottom line.
+Anyone have any knowledge regarding cpufreq and when the em64t's are 
+going have a linux driver supporting the speedstep technology?  If it is 
+an issue of Intel not providing the neccessary info, maybe I can press 
+the issue with the gentlemen that came to my office and stated support 
+was there already.
 
-E.g. I'm quite a liberal person and I wouldn't block
-or stop new technologes from going into Linux on the basis
-and merit of my not understanidn that particular new technology.
+Thanks for any info and advice.  Please CC my on any replies since I am 
+not on the list.
 
-The bottom line is not "my balls - your balls" but the wide
-spread use of Linux and "storage OS of choice".  Not "hobbyist
-OS of choice" and not "let me play Robin Hood".
-
-> a few years the "old" SCSI core fades out as legacy drives fade out (or
-> they will happily coexist forever).
-
-Yep, I've been saying this since 2002.  On the linux-scsi ML.
-
-> The point is: If *you* want it that way, *you* must go that way (and do
-> not expect others to do it just that *you* get *your* driver merged).
-> You are the maintainer of the new stuff and (almost) everything will
-> work as you want.
-
-And this is the problem: *you* and "the community" see things in
-*this* way:  "your balls - my balls", "yours/mine".
-
-While I see things like this: new technology, absolve, use, move on.
-
-As to your comment above, it's not about how *I* see things.
-It's about how things _actually_ *are*:
-http://www.t10.org/ftp/t10/drafts/sam4/sam4r03.pdf
-
-> It might not be the cleanest or most elegant solution in the world, but
-> if it works, who cares and why?
-
-Turn the table around: can _I_ pose this question to JB and Christoph?
-
-(since they are the ones who think this of SAM/SPC)
-
-> Where is now the real problem?
-> I can't see one.
-
-Me neither.
-
-	Luben
-
+Rich Wohlstadter
+Genome Sequencing Center
+Washington Univ. of St. Louis

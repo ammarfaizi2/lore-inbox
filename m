@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030257AbVI2VqI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030262AbVI2VsJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030257AbVI2VqI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 17:46:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030260AbVI2VqI
+	id S1030262AbVI2VsJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 17:48:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030265AbVI2VsI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 17:46:08 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:40202 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1030257AbVI2VqH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 17:46:07 -0400
-Date: Thu, 29 Sep 2005 22:45:59 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Marcel Holtmann <marcel@holtmann.org>, bluez-devel@lists.sourceforge.net,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Problems with CF bluetooth
-Message-ID: <20050929214559.GI7684@flint.arm.linux.org.uk>
-Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
-	Marcel Holtmann <marcel@holtmann.org>, bluez-devel@lists.sf.net,
-	kernel list <linux-kernel@vger.kernel.org>
-References: <20050929134802.GA6042@elf.ucw.cz> <1128008752.5123.28.camel@localhost.localdomain> <20050929155602.GA1990@elf.ucw.cz> <1128011355.30743.14.camel@localhost.localdomain> <20050929175420.GN1990@elf.ucw.cz> <1128016693.6052.2.camel@localhost.localdomain> <20050929213219.GA2180@elf.ucw.cz> <20050929213707.GH7684@flint.arm.linux.org.uk> <20050929214340.GB2180@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050929214340.GB2180@elf.ucw.cz>
-User-Agent: Mutt/1.4.1i
+	Thu, 29 Sep 2005 17:48:08 -0400
+Received: from xenotime.net ([66.160.160.81]:60891 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1030262AbVI2VsG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 17:48:06 -0400
+Date: Thu, 29 Sep 2005 14:48:06 -0700 (PDT)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+cc: Jeff Garzik <jgarzik@pobox.com>, Joshua Kwan <joshk@triplehelix.org>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       linux-scsi@vger.kernel.org, axboe@suse.de, torvalds@osdl.org
+Subject: Re: SATA suspend/resume (was Re: [PATCH] updated version of Jens'
+ SATA suspend-to-ram patch)
+In-Reply-To: <Pine.LNX.4.58.0509291309050.1424@shark.he.net>
+Message-ID: <Pine.LNX.4.58.0509291446430.1424@shark.he.net>
+References: <20050923163334.GA13567@triplehelix.org> <433B79D8.9080305@pobox.com>
+ <Pine.LNX.4.58.0509291309050.1424@shark.he.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 29, 2005 at 11:43:40PM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > > > > I believe it would happen with any other CF card, too. Can you
-> > > > > hciattach it, unplug, hciattach again?
-> > > > 
-> > > > actually I don't have any of them with me and I don't saw a problem with
-> > > > my Casira of a serial port.
-> > > 
-> > > Following patch seems to work around it. And yes, printk() triggers
-> > > twice after 
-> > 
-> > What's the problem this patch is trying to address?
-> 
-> I get oops after starting my bluetooth subsystem for second
-> time. billionton_start, unplug CF, billionton_start will oops the
-> system. That patch prevents it.
+On Thu, 29 Sep 2005, Randy.Dunlap wrote:
 
-More details please.  I don't have the ability to run bluetooth myself.
+> Here's Nathan Bryant's patch (from the lwn.ne article) updated
+> to 2.6.14-rc2-git7 + changes that Christoph suggested (except
+> that 'scsi_device_resume' name was already used, so I changed it
+> to 'scsi_device_wakeup' instead).
+>
+> I'll get back to Jeff's suggestion(s) and the sysfs flag next,
+> but others can use this as a basis if wanted.
+>
+> (also available from
+> http://www.xenotime.net/linux/scsi/scsi-suspend-resume.patch
+> )
+
+The inline version of this patch is whitespace-damaged  :(
+(thanx to pine).
+
+It's ok for review, but please download the one above
+for applying or patching.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+~Randy

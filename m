@@ -1,79 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbVI2PHU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbVI2PI7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932178AbVI2PHU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 11:07:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932180AbVI2PHU
+	id S932182AbVI2PI7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 11:08:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbVI2PI7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 11:07:20 -0400
-Received: from 203.197.88.2.ILL-PUNE.static.vsnl.net.in ([203.197.88.2]:6828
-	"EHLO marvin.codito.net") by vger.kernel.org with ESMTP
-	id S932178AbVI2PHT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 11:07:19 -0400
-Subject: Linux I-cache aliasing problem
-From: Amit Bhor <amit.bhor@codito.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: Codito Technologies Pvt. Ltd.
-Date: Thu, 29 Sep 2005 20:35:52 +0530
-Message-Id: <1128006353.7140.33.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Thu, 29 Sep 2005 11:08:59 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:44523 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932174AbVI2PI6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 11:08:58 -0400
+Message-ID: <433C0382.10404@pobox.com>
+Date: Thu, 29 Sep 2005 11:08:50 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Luben Tuikov <luben_tuikov@adaptec.com>
+CC: Andre Hedrick <andre@linux-ide.org>,
+       Patrick Mansfield <patmans@us.ibm.com>,
+       Luben Tuikov <ltuikov@yahoo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
+ the kernel
+References: <Pine.LNX.4.10.10509281530190.19896-100000@master.linux-ide.org> <433C0285.3050106@adaptec.com>
+In-Reply-To: <433C0285.3050106@adaptec.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all, 
+Luben Tuikov wrote:
+>   hardware implementation  (interconnect, SAM 4.15, 1.3)
+>       firmware implementation  (interconnect, SDS, SAM 4.6, 1.3)
+>           LLDD                     (SAM, section 5, 6, 7)
+>              Transport Layer          (SAM 4.15, SAS)
+>                   SCSI Core             (SAM section 4,5,8)
+>                      Commmand Sets        (SAM section 1)
 
-I am working on linux(2.4) port to a 32 bit RISC core. The question I
-have is about cache aliasing. The architecture has virtually indexed and
-physically tagged cache. The I-cache is a 2 way 32K cache and the page
-size is 8K. Since the way size (16) is greater than the page size (8K)
-it would suffer from I-cache aliasing. I am talking about the aliasing
-case where 2 different virtual addresses can be indexed into the same
-cache line and physical tag will also match. Basically 1 bit used for
-virtual indexing which is also translated by the MMU. This is case is
-different from the kernel-user aliasing where the same phys address is
-mapped at two different virtual addresses. 
+Transport class + libsas achieves this.
 
-eg : 
+Maybe I will have to demonstrate using code...
 
-31              14|13        5|4         0
- -----------------------------------------
-|Phys tag         |Set index  |line offset|
- -----------------------------------------
-
-0-4 i.e. 5 bits for line offset into a 32 byte line
-5-13 i.e. 9 bits for indexing into a 32K 2 way cache (16K/512 sets per
-way)
-14-31 i.e. remaining 18 bits as a physical tag in the virt indexed phys
-tagged cache
-
-V->0x0000_0000  P->0x0000_0000
-V->0x0001_0000  P->0x0000_2000
-
-First lets say the program accesses address 0x0, the cache will be
-indexed using the 9 index bits in the  virt addr (0x0) and the phys tag
-will be the top 18 bits in the translated addr (again 0x0). Now say the
-program accesses 0x0001_0000. The cache will be indexed using the index
-bits which turn out to be 0x0 and the phys tag will also match(top 18
-bits) thus causing an incorrect cache lookup.
-
-One way of looking at the problem is that there are insufficient phys
-tag bits and another is that one bit (bit 13) from virt addr is used to
-index and it is also translated. 
-
-I have take a look at the cache and tlb flush architecture with the help
-of your documentation. I have also studied sparc64's page coloring to
-avoid cache aliasing(pte_alloc* in pgalloc.h). But it seems to me that
-this page colouring can only handle D-cache aliasing and not I-cache
-aliasing (the above case) since Instruction/code pages mapped from
-filesystem and not allocated using the pte_alloc* functions. 
-
-Is my understanding correct ? Do you have any comments on this issue and
-how, if at all, I can solve it.  Any help would be greatly appreciated.
-
-
-Regards,
-Amit
+	Jeff
 
 

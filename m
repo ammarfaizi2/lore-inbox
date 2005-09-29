@@ -1,240 +1,176 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964780AbVI2S6x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932343AbVI2S5w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964780AbVI2S6x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 14:58:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964775AbVI2S6x
+	id S932343AbVI2S5w (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 14:57:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbVI2S5w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 14:58:53 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:20235 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S964780AbVI2S6v (ORCPT
+	Thu, 29 Sep 2005 14:57:52 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:9370 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932343AbVI2S5v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 14:58:51 -0400
-Date: Thu, 29 Sep 2005 14:52:47 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
+	Thu, 29 Sep 2005 14:57:51 -0400
+Date: Thu, 29 Sep 2005 14:57:33 -0400
+From: Dave Jones <davej@redhat.com>
 To: linux-kernel@vger.kernel.org
-Cc: Justin Piszcz <jpiszcz@lucidpixels.com>,
-       Nuno Silva <nuno.silva@vgertech.com>
-Subject: Re: Linux SATA S.M.A.R.T. and SLEEP? -- was [PATCH libata-dev-2.6:passthru] passthru fixes
-Message-ID: <20050929185245.GA28483@tuxdriver.com>
+Cc: akpm@osdl.org
+Subject: Fix broken module aliases in ieee1394
+Message-ID: <20050929185732.GA31117@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	linux-kernel@vger.kernel.org, akpm@osdl.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <433C31C8.1030901@vgertech.com>
 User-Agent: Mutt/1.4.1i
-X-Original-Status: RO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nuno Silva <nuno.silva@vgertech.com> wrote:
-> Justin Piszcz wrote:
-> >Under 2.6.13.2,
-> >
-> >Is there any utility that I can use to put a SATA HDD to sleep?
-> >Secondly, I notice I cannot access any of the HDD's S.M.A.R.T. functions
-> >on SATA drives?
-> 
-> Search for Jeff's patch 2.6.12-git4-passthru1.patch
-> I think this will be included RSN. This solves your two issues.
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=134047
 
-You probably want this patch as well, at least the first hunk.
-It fixes a potential memory leak that could cause lock-ups when using
-hdparm or smartctl/smartd.
+The ieee1394 drivers have buggered module aliases.
 
-John
----
-Fix a few problems seen with the passthru branch:
+alias:          char-major-171-0 * 16
 
-- leaked scsi_request on buffer allocate failure
-- passthru sense routines were refering to tf->command
-  which is not read in tf_read, instead use drv_stat for
-  status register.
-- passthru sense passed back to user on ata_task_ioctl
+This is because MODULE_ALIAS_CHARDEV stringifies its arguments.
 
-Patch is against the current libata-dev passthru branch.
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-Signed-off-by: Jeff Raubitschek <jhr@google.com>
-
-diff --git a/drivers/scsi/libata-scsi.c b/drivers/scsi/libata-scsi.c
---- a/drivers/scsi/libata-scsi.c
-+++ b/drivers/scsi/libata-scsi.c
-@@ -116,8 +116,10 @@ int ata_cmd_ioctl(struct scsi_device *sc
- 	if (args[3]) {
- 		argsize = SECTOR_SIZE * args[3];
- 		argbuf = kmalloc(argsize, GFP_KERNEL);
--		if (argbuf == NULL)
--			return -ENOMEM;
-+		if (argbuf == NULL) {
-+			rc = -ENOMEM;
-+			goto error;
-+		}
+--- linux-2.6.13/drivers/ieee1394/amdtp.c~	2005-09-29 03:50:20.000000000 -0400
++++ linux-2.6.13/drivers/ieee1394/amdtp.c	2005-09-29 03:50:54.000000000 -0400
+@@ -1234,7 +1234,7 @@ static void amdtp_add_host(struct hpsb_h
  
- 		scsi_cmd[1]  = (4 << 1); /* PIO Data-in */
- 		scsi_cmd[2]  = 0x0e;     /* no off.line or cc, read from dev,
-@@ -182,6 +184,7 @@ int ata_task_ioctl(struct scsi_device *s
- 	u8 scsi_cmd[MAX_COMMAND_SIZE];
- 	u8 args[7];
- 	struct scsi_request *sreq;
-+	unsigned char *sb;
+ 	hpsb_set_hostinfo_key(&amdtp_highlevel, host, ah->host->id);
  
- 	if (NULL == (void *)arg)
- 		return -EINVAL;
-@@ -192,7 +195,7 @@ int ata_task_ioctl(struct scsi_device *s
- 	memset(scsi_cmd, 0, sizeof(scsi_cmd));
- 	scsi_cmd[0]  = ATA_16;
- 	scsi_cmd[1]  = (3 << 1); /* Non-data */
--	/* scsi_cmd[2] is already 0 -- no off.line, cc, or data xfer */
-+	scsi_cmd[2]  = 0x20; /* Always ask for sense data */
- 	scsi_cmd[4]  = args[1];
- 	scsi_cmd[6]  = args[2];
- 	scsi_cmd[8]  = args[3];
-@@ -211,15 +214,29 @@ int ata_task_ioctl(struct scsi_device *s
- 	   from scsi_ioctl_send_command() for default case... */
- 	scsi_wait_req(sreq, scsi_cmd, NULL, 0, (10*HZ), 5);
+-	minor = IEEE1394_MINOR_BLOCK_AMDTP * 16 + ah->host->id;
++	minor = IEEE1394_MINOR_BLOCK_AMDTP + ah->host->id;
  
--	if (sreq->sr_result) {
-+	sb = sreq->sr_sense_buffer;
-+
-+	/* Retrieve data from check condition */
-+	if((sb[1] == NO_SENSE) && (sb[2] == 0) && (sb[3] == 0x1D)) {
-+		unsigned char *desc= sb + 8;
-+
-+		args[0]=desc[13];
-+		args[1]=desc[3];
-+		args[2]=desc[5];
-+		args[3]=desc[7];
-+		args[4]=desc[9];
-+		args[5]=desc[11];
-+	} else if (sreq->sr_result) {
- 		rc = -EIO;
- 		goto error;
+ 	INIT_LIST_HEAD(&ah->stream_list);
+ 	spin_lock_init(&ah->stream_list_lock);
+@@ -1297,4 +1297,4 @@ static void __exit amdtp_exit_module (vo
+ 
+ module_init(amdtp_init_module);
+ module_exit(amdtp_exit_module);
+-MODULE_ALIAS_CHARDEV(IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_AMDTP * 16);
++MODULE_ALIAS_CHARDEV(IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_AMDTP);
+--- linux-2.6.13/drivers/ieee1394/dv1394.c~	2005-09-29 03:51:08.000000000 -0400
++++ linux-2.6.13/drivers/ieee1394/dv1394.c	2005-09-29 03:51:26.000000000 -0400
+@@ -2344,7 +2344,7 @@ static void dv1394_remove_host (struct h
+ 	} while (video != NULL);
+ 
+ 	class_device_destroy(hpsb_protocol_class,
+-		MKDEV(IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_DV1394 * 16 + (id<<2)));
++		MKDEV(IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_DV1394 + (id<<2)));
+ 	devfs_remove("ieee1394/dv/host%d/NTSC", id);
+ 	devfs_remove("ieee1394/dv/host%d/PAL", id);
+ 	devfs_remove("ieee1394/dv/host%d", id);
+@@ -2362,7 +2362,7 @@ static void dv1394_add_host (struct hpsb
+ 	ohci = (struct ti_ohci *)host->hostdata;
+ 
+ 	class_device_create(hpsb_protocol_class, MKDEV(
+-		IEEE1394_MAJOR,	IEEE1394_MINOR_BLOCK_DV1394 * 16 + (id<<2)), 
++		IEEE1394_MAJOR,	IEEE1394_MINOR_BLOCK_DV1394 + (id<<2)), 
+ 		NULL, "dv1394-%d", id);
+ 	devfs_mk_dir("ieee1394/dv/host%d", id);
+ 	devfs_mk_dir("ieee1394/dv/host%d/NTSC", id);
+@@ -2660,4 +2660,4 @@ static int __init dv1394_init_module(voi
+ 
+ module_init(dv1394_init_module);
+ module_exit(dv1394_exit_module);
+-MODULE_ALIAS_CHARDEV(IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_DV1394 * 16);
++MODULE_ALIAS_CHARDEV(IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_DV1394);
+--- linux-2.6.13/drivers/ieee1394/raw1394.c~	2005-09-29 03:51:34.000000000 -0400
++++ linux-2.6.13/drivers/ieee1394/raw1394.c	2005-09-29 03:51:53.000000000 -0400
+@@ -2905,14 +2905,14 @@ static int __init init_raw1394(void)
+ 	hpsb_register_highlevel(&raw1394_highlevel);
+ 
+ 	if (IS_ERR(class_device_create(hpsb_protocol_class, MKDEV(
+-		IEEE1394_MAJOR,	IEEE1394_MINOR_BLOCK_RAW1394 * 16), 
++		IEEE1394_MAJOR,	IEEE1394_MINOR_BLOCK_RAW1394), 
+ 		NULL, RAW1394_DEVICE_NAME))) {
+ 		ret = -EFAULT;
+ 		goto out_unreg;
  	}
+ 	
+ 	devfs_mk_cdev(MKDEV(
+-		IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_RAW1394 * 16),
++		IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_RAW1394),
+ 		S_IFCHR | S_IRUSR | S_IWUSR, RAW1394_DEVICE_NAME);
  
--	/* Need code to retrieve data from check condition? */
--
- error:
- 	scsi_release_request(sreq);
-+
-+	if (rc == 0 && copy_to_user(arg, args, sizeof(args)))
-+		return -EFAULT;
-+
- 	return rc;
- }
- 
-@@ -323,6 +340,7 @@ struct ata_queued_cmd *ata_scsi_qc_new(s
-  *	ata_dump_status - user friendly display of error info
-  *	@id: id of the port in question
-  *	@tf: ptr to filled out taskfile
-+ *	@stat: ATA command/status register
-  *
-  *	Decode and dump the ATA error/status registers for the user so
-  *	that they have some idea what really happened at the non
-@@ -331,9 +349,9 @@ struct ata_queued_cmd *ata_scsi_qc_new(s
-  *	LOCKING:
-  *	inherited from caller
-  */
--void ata_dump_status(unsigned id, struct ata_taskfile *tf)
-+void ata_dump_status(unsigned id, struct ata_taskfile *tf, u8 stat)
+ 	cdev_init(&raw1394_cdev, &raw1394_fops);
+@@ -2938,7 +2938,7 @@ static int __init init_raw1394(void)
+ out_dev:
+ 	devfs_remove(RAW1394_DEVICE_NAME);
+ 	class_device_destroy(hpsb_protocol_class,
+-		MKDEV(IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_RAW1394 * 16));
++		MKDEV(IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_RAW1394));
+ out_unreg:
+ 	hpsb_unregister_highlevel(&raw1394_highlevel);
+ out:
+@@ -2948,7 +2948,7 @@ out:
+ static void __exit cleanup_raw1394(void)
  {
--	u8 stat = tf->command, err = tf->feature;
-+	u8 err = tf->feature;
+ 	class_device_destroy(hpsb_protocol_class,
+-		MKDEV(IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_RAW1394 * 16));
++		MKDEV(IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_RAW1394));
+ 	cdev_del(&raw1394_cdev);
+ 	devfs_remove(RAW1394_DEVICE_NAME);
+ 	hpsb_unregister_highlevel(&raw1394_highlevel);
+@@ -2958,4 +2958,4 @@ static void __exit cleanup_raw1394(void)
+ module_init(init_raw1394);
+ module_exit(cleanup_raw1394);
+ MODULE_LICENSE("GPL");
+-MODULE_ALIAS_CHARDEV(IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_RAW1394 * 16);
++MODULE_ALIAS_CHARDEV(IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_RAW1394);
+--- linux-2.6.13/drivers/ieee1394/video1394.c~	2005-09-29 03:51:59.000000000 -0400
++++ linux-2.6.13/drivers/ieee1394/video1394.c	2005-09-29 03:52:10.000000000 -0400
+@@ -1369,7 +1369,7 @@ static void video1394_add_host (struct h
+ 	hpsb_set_hostinfo(&video1394_highlevel, host, ohci);
+ 	hpsb_set_hostinfo_key(&video1394_highlevel, host, ohci->host->id);
  
- 	printk(KERN_WARNING "ata%u: status=0x%02x { ", id, stat);
- 	if (stat & ATA_BUSY) {
-@@ -479,6 +497,7 @@ void ata_to_sense_error(unsigned id, u8 
- /*
-  *	ata_gen_ata_desc_sense - Generate check condition sense block.
-  *	@qc: Command that completed.
-+ *	@stat: ATA status register
-  *
-  *	This function is specific to the ATA descriptor format sense
-  *	block specified for the ATA pass through commands.  Regardless
-@@ -489,7 +508,7 @@ void ata_to_sense_error(unsigned id, u8 
-  *	LOCKING:
-  *	spin_lock_irqsave(host_set lock)
-  */
--void ata_gen_ata_desc_sense(struct ata_queued_cmd *qc)
-+void ata_gen_ata_desc_sense(struct ata_queued_cmd *qc, u8 stat)
- {
- 	struct scsi_cmnd *cmd = qc->scsicmd;
- 	struct ata_taskfile *tf = &qc->tf;
-@@ -510,10 +529,15 @@ void ata_gen_ata_desc_sense(struct ata_q
- 	 * Use ata_to_sense_error() to map status register bits
- 	 * onto sense key, asc & ascq.
- 	 */
--	if (unlikely(tf->command & (ATA_BUSY | ATA_DF | ATA_ERR | ATA_DRQ))) {
-+	if (unlikely(stat & (ATA_BUSY | ATA_DF | ATA_ERR | ATA_DRQ))) {
- 		ata_to_sense_error(qc->ap->id, tf->command, tf->feature,
- 				   &sb[1], &sb[2], &sb[3]);
- 		sb[1] &= 0x0f;
-+	} else {
-+		/* ATA PASS THROUGH INFORMATION AVAILABLE */
-+		sb[1] = NO_SENSE;
-+		sb[2] = 0;
-+		sb[3] = 0x1D;
+-	minor = IEEE1394_MINOR_BLOCK_VIDEO1394 * 16 + ohci->host->id;
++	minor = IEEE1394_MINOR_BLOCK_VIDEO1394 + ohci->host->id;
+ 	class_device_create(hpsb_protocol_class, MKDEV(
+ 		IEEE1394_MAJOR,	minor), 
+ 		NULL, "%s-%d", VIDEO1394_DRIVER_NAME, ohci->host->id);
+@@ -1385,7 +1385,7 @@ static void video1394_remove_host (struc
+ 
+ 	if (ohci) {
+ 		class_device_destroy(hpsb_protocol_class, MKDEV(IEEE1394_MAJOR,
+-			IEEE1394_MINOR_BLOCK_VIDEO1394 * 16 + ohci->host->id));
++			IEEE1394_MINOR_BLOCK_VIDEO1394 + ohci->host->id));
+ 		devfs_remove("%s/%d", VIDEO1394_DRIVER_NAME, ohci->host->id);
  	}
+ 	
+@@ -1571,4 +1571,4 @@ static int __init video1394_init_module 
  
- 	/*
-@@ -540,7 +564,7 @@ void ata_gen_ata_desc_sense(struct ata_q
- 	desc[9] = tf->lbam;
- 	desc[11] = tf->lbah;
- 	desc[12] = tf->device;
--	desc[13] = tf->command; /* == status reg */
-+	desc[13] = stat;
+ module_init(video1394_init_module);
+ module_exit(video1394_exit_module);
+-MODULE_ALIAS_CHARDEV(IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_VIDEO1394 * 16);
++MODULE_ALIAS_CHARDEV(IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_VIDEO1394);
+--- linux-2.6.13/drivers/ieee1394/ieee1394_core.h~	2005-09-29 03:52:20.000000000 -0400
++++ linux-2.6.13/drivers/ieee1394/ieee1394_core.h	2005-09-29 03:53:14.000000000 -0400
+@@ -200,17 +200,17 @@ void hpsb_packet_received(struct hpsb_ho
+ #define IEEE1394_MAJOR               171
  
- 	/*
- 	 * Fill in Extend bit, and the high order bytes
-@@ -558,6 +582,7 @@ void ata_gen_ata_desc_sense(struct ata_q
- /**
-  *	ata_gen_fixed_sense - generate a SCSI fixed sense block
-  *	@qc: Command that we are erroring out
-+ *	@stat: ATA status register
-  *
-  *	Leverage ata_to_sense_error() to give us the codes.  Fit our
-  *	LBA in here if there's room.
-@@ -565,7 +590,7 @@ void ata_gen_ata_desc_sense(struct ata_q
-  *	LOCKING:
-  *	inherited from caller
-  */
--void ata_gen_fixed_sense(struct ata_queued_cmd *qc)
-+void ata_gen_fixed_sense(struct ata_queued_cmd *qc, u8 stat)
- {
- 	struct scsi_cmnd *cmd = qc->scsicmd;
- 	struct ata_taskfile *tf = &qc->tf;
-@@ -585,7 +610,7 @@ void ata_gen_fixed_sense(struct ata_queu
- 	 * Use ata_to_sense_error() to map status register bits
- 	 * onto sense key, asc & ascq.
- 	 */
--	if (unlikely(tf->command & (ATA_BUSY | ATA_DF | ATA_ERR | ATA_DRQ))) {
-+	if (unlikely(stat & (ATA_BUSY | ATA_DF | ATA_ERR | ATA_DRQ))) {
- 		ata_to_sense_error(qc->ap->id, tf->command, tf->feature,
- 				   &sb[2], &sb[12], &sb[13]);
- 		sb[2] &= 0x0f;
-@@ -998,7 +1023,7 @@ static int ata_scsi_qc_complete(struct a
- 	 */
- 	if (((cmd->cmnd[0] == ATA_16) || (cmd->cmnd[0] == ATA_12)) &&
-  	    ((cmd->cmnd[2] & 0x20) || need_sense)) {
-- 		ata_gen_ata_desc_sense(qc);
-+ 		ata_gen_ata_desc_sense(qc, drv_stat);
- 	} else {
- 		if (!need_sense) {
- 			cmd->result = SAM_STAT_GOOD;
-@@ -1009,13 +1034,13 @@ static int ata_scsi_qc_complete(struct a
- 			 * good for smaller LBA (and maybe CHS?)
- 			 * devices.
- 			 */
--			ata_gen_fixed_sense(qc);
-+			ata_gen_fixed_sense(qc, drv_stat);
- 		}
- 	}
+ #define IEEE1394_MINOR_BLOCK_RAW1394       0
+-#define IEEE1394_MINOR_BLOCK_VIDEO1394     1
+-#define IEEE1394_MINOR_BLOCK_DV1394        2
+-#define IEEE1394_MINOR_BLOCK_AMDTP         3
++#define IEEE1394_MINOR_BLOCK_VIDEO1394     (1*16)
++#define IEEE1394_MINOR_BLOCK_DV1394        (2*16)
++#define IEEE1394_MINOR_BLOCK_AMDTP         (3*16)
+ #define IEEE1394_MINOR_BLOCK_EXPERIMENTAL 15
  
- 	if (need_sense) {
- 		/* The ata_gen_..._sense routines fill in tf */
--		ata_dump_status(qc->ap->id, &qc->tf);
-+		ata_dump_status(qc->ap->id, &qc->tf, drv_stat);
- 	}
+ #define IEEE1394_CORE_DEV		MKDEV(IEEE1394_MAJOR, 0)
+-#define IEEE1394_RAW1394_DEV		MKDEV(IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_RAW1394 * 16)
+-#define IEEE1394_VIDEO1394_DEV		MKDEV(IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_VIDEO1394 * 16)
+-#define IEEE1394_DV1394_DEV		MKDEV(IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_DV1394 * 16)
+-#define IEEE1394_AMDTP_DEV		MKDEV(IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_AMDTP * 16)
+-#define IEEE1394_EXPERIMENTAL_DEV	MKDEV(IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_EXPERIMENTAL * 16)
++#define IEEE1394_RAW1394_DEV		MKDEV(IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_RAW1394)
++#define IEEE1394_VIDEO1394_DEV		MKDEV(IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_VIDEO1394)
++#define IEEE1394_DV1394_DEV		MKDEV(IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_DV1394)
++#define IEEE1394_AMDTP_DEV		MKDEV(IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_AMDTP)
++#define IEEE1394_EXPERIMENTAL_DEV	MKDEV(IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_EXPERIMENTAL)
  
- 	qc->scsidone(cmd);
--- 
-John W. Linville
-linville@tuxdriver.com
-
+ /* return the index (within a minor number block) of a file */
+ static inline unsigned char ieee1394_file_to_instance(struct file *file)

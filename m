@@ -1,72 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751347AbVI2WMt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751342AbVI2WPy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751347AbVI2WMt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 18:12:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751345AbVI2WMt
+	id S1751342AbVI2WPy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 18:15:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbVI2WPy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 18:12:49 -0400
-Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:26525 "EHLO
-	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1751330AbVI2WMs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 18:12:48 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Thu, 29 Sep 2005 23:12:37 +0100 (BST)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Dave Jones <davej@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-Subject: Re: [howto] Kernel hacker's guide to git, updated
-In-Reply-To: <Pine.LNX.4.64.0509291451540.5362@g5.osdl.org>
-Message-ID: <Pine.LNX.4.60.0509292309470.17860@hermes-1.csi.cam.ac.uk>
-References: <433BC9E9.6050907@pobox.com> <20050929200252.GA31516@redhat.com>
- <Pine.LNX.4.60.0509292106080.17860@hermes-1.csi.cam.ac.uk>
- <20050929201127.GB31516@redhat.com> <Pine.LNX.4.64.0509291413060.5362@g5.osdl.org>
- <Pine.LNX.4.64.0509291425560.5362@g5.osdl.org> <20050929213312.GD31516@redhat.com>
- <Pine.LNX.4.64.0509291451540.5362@g5.osdl.org>
+	Thu, 29 Sep 2005 18:15:54 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:750 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751342AbVI2WPx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 18:15:53 -0400
+Date: Thu, 29 Sep 2005 15:15:36 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Roland McGrath <roland@redhat.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Oleg Nesterov <oleg@tv-sign.ru>
+Subject: Re: [PATCH] fix TASK_STOPPED vs TASK_NONINTERACTIVE interaction
+In-Reply-To: <20050929215442.74EE0180E20@magilla.sf.frob.com>
+Message-ID: <Pine.LNX.4.64.0509291504200.5362@g5.osdl.org>
+References: <20050929215442.74EE0180E20@magilla.sf.frob.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Sep 2005, Linus Torvalds wrote:
-> On Thu, 29 Sep 2005, Dave Jones wrote:
-> > What I find amusing is that it was a patch rejection mail from you
-> > *years* back (circa 2000 iirc), telling me my pine corrupted whitespace,
-> > that made me switch MUA ;-)
-> > 
-> > All these years later, and it's still buggered ?
-> 
-> Actually, it seems better. It seems to be buggered by default, but it used 
-> to be that you had to actually recompile pine to make it behave. Now you 
-> can just disable "strip-whitespace-before-send" and _enable_ 
-> "quell-flowed-text" and those together seem to do the trick. No extra 
-> patches or recompiles necessary.
 
-Indeed.  I use those two options like that, too.  (-:
 
-> So there's progress. 
-> 
-> Of course, pico is still pico. Which I find a bit sad: my editor of choise 
-> is still an improved version of uemacs, and pico actually comes from the 
-> same uemacs history, but has different key-bindings for just enough keys 
-> to be slightly confusing.
-> 
-> Still, that shared history means that I find pico a lot more to my taste 
-> than just about any other emailer editor out there. It may have a few 
-> differences, but it has more things in common..
+On Thu, 29 Sep 2005, Roland McGrath wrote:
+>
+> I am dubious about this change.  I don't see a corresponding change to
+> fs/proc/array.c where it knows what all the bit values are.
 
-Why don't you enable "enable-alternate-editor-implicitly" and set 
-editor = "your-editor-of-choice" in the pine config?  It is integrated in 
-a quite seamless way.
+You're right. Not only that, but "TASK_NONINTERACTIVE" is special in that 
+it's an _additional_ flag to the task state, not an independent flag at 
+all.
 
-Best regards,
+Ie it's _really_ only valid as a bitmask.
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+So I think we're better off reverting that ordering change, and testing 
+the bitmap properly.
+
+> Any tests using < TASK_STOPPED or the like are left over from the time when
+> the TASK_ZOMBIE and TASK_DEAD bits were in the same word, and it served to
+> check for "stopped or dead".
+
+Correct again.
+
+Btw, that brings up another thing: those EXIT_ZOMBIE/EXIT_DEAD flags are 
+really really confusing. 
+
+It's two different words, but the way we use them in get_task_state(), 
+they are or'ed together, which is why they need to have non-overlapping 
+bit definitions. But there's no comment about that anywhere.
+
+I'll add a comment to <linux/sched.h> about it.
+
+Thanks,
+
+		Linus

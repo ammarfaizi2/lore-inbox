@@ -1,83 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751241AbVI2JVz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbVI2J3t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751241AbVI2JVz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 05:21:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbVI2JVz
+	id S1751245AbVI2J3t (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 05:29:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751297AbVI2J3t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 05:21:55 -0400
-Received: from cfa.harvard.edu ([131.142.10.1]:32763 "EHLO cfa.harvard.edu")
-	by vger.kernel.org with ESMTP id S1751241AbVI2JVy (ORCPT
+	Thu, 29 Sep 2005 05:29:49 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:53459 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S1751245AbVI2J3t convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 05:21:54 -0400
-Date: Thu, 29 Sep 2005 05:24:13 -0400
-From: Balazs Csak <bcsak@cfa.harvard.edu>
-To: linux-kernel@vger.kernel.org
-Subject: mm/rmap.c bug(?) in the 2.6.12 kernel
-Message-Id: <20050929052413.42816b81.bcsak@cfa.harvard.edu>
-Organization: Center for Astrophysics
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 29 Sep 2005 05:29:49 -0400
+Subject: Re: AIO Support and related package information??
+From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+To: vikas gupta <vikas_gupta51013@yahoo.co.in>
+Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org, bcrl@kvack.org
+In-Reply-To: <20050928140458.53545.qmail@web8409.mail.in.yahoo.com>
+References: <20050928140458.53545.qmail@web8409.mail.in.yahoo.com>
+Date: Thu, 29 Sep 2005 11:31:37 +0200
+Message-Id: <1127986297.2103.53.camel@frecb000686>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.2.2 
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 29/09/2005 11:43:05,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 29/09/2005 11:43:07,
+	Serialize complete at 29/09/2005 11:43:07
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good morning,
+On Wed, 2005-09-28 at 15:04 +0100, vikas gupta wrote:
+> Hi Sebastein,
+> 
+> Thanks for Replying ....
+> 
+> > 
+> >   This is perfectly normal as a vanilla kernel only
+> > have
+> > support for aio_read and aio_write without event
+> > notification
+> > so only aio_read_one and aio_write_one will pass
+> 
+> 1)well Whether these test cases will work after
+> applying the patches to kernel
 
+  The patches will make all the aio_read, aio_write, listio
+and aio_suspend tests work. The aio_cancel and aio_fsync
+still need support from the underlying fs.
 
+> 
+> 2)What all the patches we need to apply in order to
+> provide full AIO  support on kernel 2.6.11 
 
+  The patches are for the 2.6.10 or 2.6.12 kernel only,
+sorry. 
 
-I've got an oops on a dual Opteron machine that's running on 2.6.12.3
-kernel. Under heavy load the system hangs and we get this oops on the
-screen:
+  Sébastien.
 
+-- 
+------------------------------------------------------
 
+  Sébastien Dugué                BULL/FREC:B1-247
+  phone: (+33) 476 29 77 70      Bullcom: 229-7770
 
-...
+  mailto:sebastien.dugue@bull.net
 
-<ffffffff8013477d>{printk+141} <ffffffff8012db83>{try_to_wake_up+915}
-<ffffffff8010e445>{error_exit+0} <ffffffff80170ec6>{page_remove_rmap+38}
-<ffffffff80168fde>{unmap_vmas+1342} <ffffffff8016ea63>{exit_mmap+163}
-<ffffffff801317a1>{mmput+49} <ffffffff80136432>{do_exit+338}
-<ffffffff80136f5f>{do_group_exit+239}
-<ffffffff8010da46>{system_call+126}
+  Linux POSIX AIO: http://www.bullopensource.org/posix
+  
+------------------------------------------------------
 
-
-Code: 41 8b 45 40 ff c8 7e 45 48 c7 83 f0 01 00 00 00 00 00 00 48
-RIP <ffffffff801318f6>{mm_release+86} RSP <ffff8100daf26308>
-CR2: 0000000000000040
- <0>Kernel panic - not syncing: Aiee, killing interrupt handler!
-
-
-
-
-
-This problem has been described here, earlier:
-
-http://seclists.org/lists/linux-kernel/2005/May/6369.html
-
-
-
-
-Our setup is: 2x Opteron 246, Tyan Thunder K8S MB, 3ware 9500-8,
-4 G RAM, Fedora Core 3 x86_64, 2.6.12.3 kernel.
-
-
-
-Memtest shows nothing special...
-
-
-Does anyone know something useful for this problem?
-
-
-
-
-Thanks in advance,
-
-
-Balazs
-
-
-
-P.S.: Please CC me on answers/comments, I don't regularly read the
-mailing list.

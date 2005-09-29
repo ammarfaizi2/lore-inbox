@@ -1,40 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbVI2VNW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751333AbVI2VTr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750734AbVI2VNW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 17:13:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbVI2VNW
+	id S1751333AbVI2VTr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 17:19:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbVI2VTr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 17:13:22 -0400
-Received: from wscnet.wsc.cz ([212.80.64.118]:24711 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1750734AbVI2VNV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 17:13:21 -0400
-Message-ID: <433C58D0.3000007@gmail.com>
-Date: Thu, 29 Sep 2005 23:12:48 +0200
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: cs, en-us, en
-MIME-Version: 1.0
-To: janik holy <divizion@pobox.sk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: pcmcia bug ?
-References: <11ef658a67624a82b2b73decd6a78c07@pobox.sk>
-In-Reply-To: <11ef658a67624a82b2b73decd6a78c07@pobox.sk>
-Content-Type: text/plain; charset=windows-1250
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Sep 2005 17:19:47 -0400
+Received: from rwcrmhc11.comcast.net ([216.148.227.117]:65020 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1751333AbVI2VTq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 17:19:46 -0400
+Date: Thu, 29 Sep 2005 14:20:55 -0700
+From: Deepak Saxena <dsaxena@plexity.net>
+To: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mtd@lists.infradead.org
+Subject: Re: [PATCH] Fix IXP4xx MTD driver no cast warning
+Message-ID: <20050929212055.GA311@plexity.net>
+Reply-To: dsaxena@plexity.net
+References: <20050929195205.GA30002@plexity.net> <20050929205252.GG7684@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050929205252.GG7684@flint.arm.linux.org.uk>
+Organization: Plexity Networks
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-janik holy napsal(a):
+On Sep 29 2005, at 21:52, Russell King was caught saying:
+> On Thu, Sep 29, 2005 at 12:52:05PM -0700, Deepak Saxena wrote:
+> > Fix following warning:
+> > 
+> > drivers/mtd/maps/ixp4xx.c: In function 'ixp4xx_flash_probe':
+> > drivers/mtd/maps/ixp4xx.c:199: warning: assignment makes integer from
+> > pointer without a cast
+> > 
+> > Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
+> > 
+> > diff --git a/drivers/mtd/maps/ixp4xx.c b/drivers/mtd/maps/ixp4xx.c
+> > --- a/drivers/mtd/maps/ixp4xx.c
+> > +++ b/drivers/mtd/maps/ixp4xx.c
+> > @@ -196,7 +196,7 @@ static int ixp4xx_flash_probe(struct dev
+> >  		goto Error;
+> >  	}
+> >  
+> > -	info->map.map_priv_1 = ioremap(dev->resource->start,
+> > +	info->map.map_priv_1 = (unsigned long)ioremap(dev->resource->start,
+> 
+> Shouldn't this be using info->map.virt instead of the old map.map_priv_1 ?
 
->Hello, i use slack 10.1, kernel 2.6.14-rc2-git7, i have orinoco silver pcmcia wifi card, i compile PCMCIA support into kernel, and orinoco, hermes, orinoco_cs as modules.... after booting loading modules, and run /etc/rc.d/rc.pcmcia i see message >= cardmgr no pcmcia in /proc/devices. after cat /proc/devices there is really no pcmcia. I really dont know what is it, on 2.6.11 with the same kernel conf, its works ok and pcmcia was in /proc/devices. So during i wont have pcmcia in /proc/devices i cant use cardctl and cardmgr ... any idea how to fix it ? where can be a problem ? thanks 
->  
->
-Compile yenta, pcmcia, hermes and hermes pcmcia into kernel. I know
-about this problem, but I haven't had enough time to solve it.
+I think when I wrote this, having a !0 value in map->virt would cause the mtd
+core to assume that the map driver supported point()ing and direct copy
+of data.  Looking at the mtd code it looks like this assumption might
+have gone away...will change code.
 
-regards,
---
-Jiri Slaby         www.fi.muni.cz/~xslaby
-~\-/~      jirislaby@gmail.com      ~\-/~
-241B347EC88228DE51EE A49C4A73A25004CB2A10
+~Deepak
+
+-- 
+Deepak Saxena - dsaxena@plexity.net - http://www.plexity.net
+
+Even a stopped clock gives the right time twice a day.

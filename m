@@ -1,114 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751136AbVI1X6S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbVI2AAu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751136AbVI1X6S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 19:58:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbVI1X6S
+	id S1751257AbVI2AAu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 20:00:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751266AbVI2AAu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 19:58:18 -0400
-Received: from wproxy.gmail.com ([64.233.184.204]:58591 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751136AbVI1X6R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 19:58:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=Ya+UYTf/GuAD7UD0rcIjxvwKcmo82NpwEUvQR1PCo6R0nqlsfU0uPFpXyyTb9gtwuSFkl0QfK/UKLJ5RMQDEitmWX9kNDgx7PJ0jsPYHQpN1y06sD0O2YrUreChu+8rvLgwEtsh5tvQTrwALtjChkP7NPi7zSDhMfogMV7FZSuk=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Abhay Salunke <Abhay_Salunke@dell.com>
-Subject: Re: [RFC][patch 2.6.14-rc2] dell_rbu: Changing packet update mechanism
-Date: Thu, 29 Sep 2005 02:00:36 +0200
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <20050923194009.GA2682@littleblue.us.dell.com>
-In-Reply-To: <20050923194009.GA2682@littleblue.us.dell.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 28 Sep 2005 20:00:50 -0400
+Received: from fmr24.intel.com ([143.183.121.16]:16303 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1751257AbVI2AAs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 20:00:48 -0400
+Date: Wed, 28 Sep 2005 17:00:31 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andi Kleen <ak@suse.de>, Pavel Machek <pavel@ucw.cz>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       discuss@x86-64.org, "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Subject: Re: [PATCH][Fix][Resend] Fix Bug #4959: Page tables corrupted during resume on x86-64 (take 3)
+Message-ID: <20050928170031.D30088@unix-os.sc.intel.com>
+References: <200509281624.29256.rjw@sisk.pl> <200509282118.54670.ak@suse.de> <200509282224.43397.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200509290200.37203.jesper.juhl@gmail.com>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200509282224.43397.rjw@sisk.pl>; from rjw@sisk.pl on Wed, Sep 28, 2005 at 10:24:42PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 23 September 2005 21:40, Abhay Salunke wrote:
-> Please ignore earlier patches as there was error submitting it! :-(
-> patch below is good...
+On Wed, Sep 28, 2005 at 10:24:42PM +0200, Rafael J. Wysocki wrote:
+> On Wednesday, 28 of September 2005 21:18, Andi Kleen wrote:
+> > Also Suresh S. has a patch out to turn the initial page tables
+> > into initdata. It'll probably conflict with that. Needs to be coordinated
+> > with him.
 > 
+> Do you mean the patch at:
+> http://www.x86-64.org/lists/discuss/msg07297.html ?
+> Unfortunately it interferes with the current swsusp code, which uses
+> init_level4_pgt anyway.
+> 
+> Could we please treat my patch as a (very much needed) urgent bugfix
+> and make the whole swsusp code in line with the Suresh's patch later on?
+> 
+> Suresh, could you please say what you think of it?
 
-Ok, I'm being pedantic. So shoot me.
-There are a few tiny bits CodingStyle wise that could be better. No big deal,
-I'm nitpicking in the extreme here...
+My patch as such shouldn't change the behavior of the existing swsup
+code. I am making only boot_level4_pgt as initdata. But not the 
+init_level4_pgt.
 
-
-[snip]
-> -	pr_debug("fill_last_packet: entry \n");
-
-	pr_debug("fill_last_packet: entry\n");
-
-
-[snip]
-> -	pr_debug("fill_last_packet: exit \n");
-
-	pr_debug("fill_last_packet: exit\n");
-
-
-[snip]
->  	pr_debug("create_packet: exit \n");
-
-	pr_debug("create_packet: exit\n");
-
-
-[snip]
-> +	temp = (u8 *) data;
-
-	temp = (u8 *)data;
-
-
-[snip]
-> +do_packet_read(char *data, struct list_head *ptemp_list,
->  	int length, int bytes_read, int *list_read_count)
-
-Hmm, I believe the prefered style for functions is to indent parameters that
-won't fit on the first line by two tab stops, like this : 
-
-do_packet_read(char *data, struct list_head *ptemp_list,
-		int length, int bytes_read, int *list_read_count)
-
-There are several occourences of this.
-
-
-[snip]
-> +packet_read_list(char *data, size_t * pread_length)
-
-packet_read_list(char *data, size_t *pread_length)
-
-[snip]
->   * img_update_free: Frees the buffer allocated for storing BIOS image
->   * Always called with lock held and returned with lock held
-
- * Always called with lock held and returned with lock held.
-
-
-[snip]
-> +	.attr = {.name = "data",.owner = THIS_MODULE,.mode = 0444},
-
-	.attr = {.name = "data", .owner = THIS_MODULE, .mode = 0444},
-
-
-[snip]
-> +	.attr = {.name = "image_type",.owner = THIS_MODULE,.mode = 0644},
-
-	.attr = {.name = "image_type", .owner = THIS_MODULE, .mode = 0644},
-
-
-[snip]
-> +	.attr = {.name = "packet_size",.owner = THIS_MODULE,.mode = 0644},
-
-	.attr = {.name = "packet_size", .owner = THIS_MODULE, .mode = 0644},
-
-
-
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-
-
+thanks,
+suresh

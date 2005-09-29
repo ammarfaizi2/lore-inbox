@@ -1,68 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbVI2QnJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932246AbVI2Qqb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932239AbVI2QnJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 12:43:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbVI2QnJ
+	id S932246AbVI2Qqb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 12:46:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbVI2Qqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 12:43:09 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:55771 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S932239AbVI2QnH (ORCPT
+	Thu, 29 Sep 2005 12:46:31 -0400
+Received: from qproxy.gmail.com ([72.14.204.204]:40893 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932246AbVI2Qqa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 12:43:07 -0400
-Message-ID: <433C1999.2060201@vc.cvut.cz>
-Date: Thu, 29 Sep 2005 18:43:05 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-CC: Andrew Morton <akpm@osdl.org>, Christoph Lameter <clameter@engr.sgi.com>,
-       alokk@calsoftinc.com, linux-kernel@vger.kernel.org,
-       manfred@colorfullife.com,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
-       ananth@in.ibm.com, Andi Kleen <ak@suse.de>
-Subject: Re: 2.6.14-rc1-git-now still dying in mm/slab - this time line 1849
-References: <20050916023005.4146e499.akpm@osdl.org> <432AA00D.4030706@vc.cvut.cz> <20050916230809.789d6b0b.akpm@osdl.org> <432EE103.5020105@vc.cvut.cz> <20050919112912.18daf2eb.akpm@osdl.org> <Pine.LNX.4.62.0509191141380.26105@schroedinger.engr.sgi.com> <20050919122847.4322df95.akpm@osdl.org> <Pine.LNX.4.62.0509191351440.26388@schroedinger.engr.sgi.com> <20050919221614.6c01c2d1.akpm@osdl.org> <43301578.8040305@vc.cvut.cz> <20050928210245.GA3760@localhost.localdomain>
-In-Reply-To: <20050928210245.GA3760@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Sep 2005 12:46:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer;
+        b=pgVyCP+TgZrK6kNufERAzECrS4c6NY007IPkFBhQ4qHIsfigetxVd6IpxUHRQzuNyoYQ0xSiKUtuqUvj2qF1aOsg1XAQDxBh8pUg2yR4p1XxmHSelt+cGzSGWdrBtLh63UaHwZGofS8vdaJ0ZLUlfZcBHT4iq+RrTvCFiyoy4cg=
+Subject: Re: 2.6.14-rc2-rt2
+From: Badari Pulavarty <pbadari@gmail.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050926070210.GA5157@elte.hu>
+References: <20050913100040.GA13103@elte.hu> <20050926070210.GA5157@elte.hu>
+Content-Type: multipart/mixed; boundary="=-Adfzz52zjuaNZorPPOmB"
+Date: Thu, 29 Sep 2005 09:45:46 -0700
+Message-Id: <1128012346.16275.71.camel@dyn9047017102.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ravikiran G Thirumalai wrote:
 
-Unfortunately I must confirm that it does not fix problem.  But it pointed
-out to me another thing - proc_inode_cache stuff is put into caches
-BEFORE this code is executed.  So if anything in mm/slab.c relies
-on node_to_mask[] being valid (and if it relies on some other things
-which are set this late), it probably won't work.
-								Petr
+--=-Adfzz52zjuaNZorPPOmB
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-
-> On Tue, Sep 20, 2005 at 03:58:16PM +0200, Petr Vandrovec wrote:
-> Index: linux-2.6.14-rc1/arch/x86_64/mm/numa.c
-> ===================================================================
-> --- linux-2.6.14-rc1.orig/arch/x86_64/mm/numa.c	2005-09-19 17:58:10.000000000 -0700
-> +++ linux-2.6.14-rc1/arch/x86_64/mm/numa.c	2005-09-27 01:34:20.000000000 -0700
-> @@ -178,7 +178,6 @@
->  		rr++; 
->  	}
->  
-> -	set_bit(0, &node_to_cpumask[cpu_to_node(0)]);
->  }
->  
->  #ifdef CONFIG_NUMA_EMU
-> @@ -266,9 +265,7 @@
->  
->  __cpuinit void numa_add_cpu(int cpu)
->  {
-> -	/* BP is initialized elsewhere */
-> -	if (cpu) 
-> -		set_bit(cpu, &node_to_cpumask[cpu_to_node(cpu)]);
-> +	set_bit(cpu, &node_to_cpumask[cpu_to_node(cpu)]);
->  } 
->  
->  unsigned long __init numa_free_all_bootmem(void) 
+On Mon, 2005-09-26 at 09:02 +0200, Ingo Molnar wrote:
+> i have released the 2.6.14-rc2-rt2 tree, which can be downloaded from 
+> the usual place:
+> 
+>    http://redhat.com/~mingo/realtime-preempt/
 > 
 
+Hi Ingo,
+
+I noticed that you moved to "-rt7" already.
+ "-rt7" fails to compile with CONFIG_NUMA.
+
+mm/slab.c:2404: error: conflicting types for `kmem_cache_alloc_node'
+include/linux/slab.h:122: error: previous declaration of
+`kmem_cache_alloc_node'
+
+Here is the simple fix.
+
+Thanks,
+Badari
+
+
+
+--=-Adfzz52zjuaNZorPPOmB
+Content-Disposition: attachment; filename=rt7-fix.patch
+Content-Type: text/x-patch; name=rt7-fix.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+--- linux-2.6.14-rc2/mm/slab.c	2005-09-29 02:55:11.000000000 -0700
++++ linux-2.6.14-rc2-rt7/mm/slab.c	2005-09-29 02:48:05.000000000 -0700
+@@ -2400,7 +2400,7 @@ out:
+  * and can sleep. And it will allocate memory on the given node, which
+  * can improve the performance for cpu bound structures.
+  */
+-void *kmem_cache_alloc_node(kmem_cache_t *cachep, int flags, int nodeid)
++void *kmem_cache_alloc_node(kmem_cache_t *cachep, unsigned int __nocast flags, int nodeid)
+ {
+ 	int loop;
+ 	void *objp;
+
+--=-Adfzz52zjuaNZorPPOmB--
 

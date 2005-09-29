@@ -1,49 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbVI2P0Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbVI2PZ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932204AbVI2P0Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 11:26:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932208AbVI2P0Y
+	id S932199AbVI2PZ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 11:25:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbVI2PZ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 11:26:24 -0400
-Received: from wproxy.gmail.com ([64.233.184.198]:7213 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932204AbVI2P0X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 11:26:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=UbAmR3Ta9EGCLd0zyT8hkQKvKONzAgtgsglkrK+HdSFIvY6iueqy3ck2zVqnvDOaJ4WkigCadf33m5ZVpkLhgPmnzR6qcNNRjIeAqphOWF4fCPg3YfEtAwREGUZ9IR3E4wOTkbKq1+oSeFRwMTK2UbKkTZwOGo97E2DjjqaWGmY=
-Date: Thu, 29 Sep 2005 19:37:25 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Documentation/sparse.txt: mention CF=-Wbitwise
-Message-ID: <20050929153725.GB18132@mipter.zuzino.mipt.ru>
+	Thu, 29 Sep 2005 11:25:59 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:55225 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932199AbVI2PZ6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 11:25:58 -0400
+Date: Thu, 29 Sep 2005 16:25:56 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rio: switch to ANSI prototypes
+Message-ID: <20050929152556.GU7992@ftp.linux.org.uk>
+References: <20050929152208.GA18132@mipter.zuzino.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <20050929152208.GA18132@mipter.zuzino.mipt.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+On Thu, Sep 29, 2005 at 07:22:08PM +0400, Alexey Dobriyan wrote:
+> Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+> ---
+> 
+>  drivers/char/rio/rioboot.c  |   25 +++++--------------------
+>  drivers/char/rio/rioctrl.c  |   12 ++----------
+>  drivers/char/rio/rioinit.c  |   27 +++++----------------------
+>  drivers/char/rio/riointr.c  |   12 +++---------
+>  drivers/char/rio/rioparam.c |   24 ++++++------------------
+>  drivers/char/rio/rioroute.c |   34 +++++++---------------------------
+>  drivers/char/rio/riotable.c |   19 +++++--------------
+>  drivers/char/rio/riotty.c   |    3 +--
+>  8 files changed, 34 insertions(+), 122 deletions(-)
 
- Documentation/sparse.txt |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Uh-oh...  Well, if you want to play with it...  FWIW, I'm disabling rio as
+hopeless FPOS; if you feel masochistic, go ahead but keep in mind that its
+handling of tty glue is severely b0rken.
 
---- a/Documentation/sparse.txt
-+++ b/Documentation/sparse.txt
-@@ -41,9 +41,9 @@ sure that bitwise types don't get mixed 
- vs cpu-endian vs whatever), and there the constant "0" really _is_
- special.
- 
--Modify top-level Makefile to say
-+Use
- 
--CHECK           = sparse -Wbitwise
-+	make C=[12] CF=-Wbitwise
- 
- or you don't get any checking at all.
- 
+>  int
+> -RIOBootCodeHOST(p, rbp)
+> -struct rio_info *	p;
+> -register struct DownLoad *rbp;
+> +RIOBootCodeHOST(struct rio_info *p, register struct DownLoad *rbp)
 
+s/register//
+
+> @@ -151,12 +151,7 @@ static int copyout (caddr_t dp, int arg,
+>  }
+>  
+>  int
+> -riocontrol(p, dev, cmd, arg, su)
+> -struct rio_info	* p;
+> -dev_t		dev;
+> -int		cmd;
+> -caddr_t		arg;
+> -int		su;
+> +riocontrol(struct rio_info *p, dev_t dev, int cmd, caddr_t arg, int su)
+
+Use of dev_t here is almost certainly broken.  Use of caddr_t is *always*
+broken.

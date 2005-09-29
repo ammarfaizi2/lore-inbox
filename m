@@ -1,70 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932352AbVI2TME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932225AbVI2TTE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932352AbVI2TME (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 15:12:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932225AbVI2TMD
+	id S932225AbVI2TTE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 15:19:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932274AbVI2TTE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 15:12:03 -0400
-Received: from [67.137.28.189] ([67.137.28.189]:59264 "EHLO vger.utah-nac.org")
-	by vger.kernel.org with ESMTP id S932274AbVI2TMA (ORCPT
+	Thu, 29 Sep 2005 15:19:04 -0400
+Received: from mail.gmx.net ([213.165.64.20]:18317 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932225AbVI2TTD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 15:12:00 -0400
-Message-ID: <433C2A11.9090506@utah-nac.org>
-Date: Thu, 29 Sep 2005 11:53:21 -0600
-From: jmerkey <jmerkey@utah-nac.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Thu, 29 Sep 2005 15:19:03 -0400
+X-Authenticated: #20450766
+Date: Thu, 29 Sep 2005 21:18:23 +0200 (CEST)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: Peter Osterlund <petero2@telia.com>
+cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: Re: [2.6.13] pktcdvd: IO-errors
+In-Reply-To: <m3hdc4ucrt.fsf@telia.com>
+Message-ID: <Pine.LNX.4.60.0509292116260.11615@poirot.grange>
+References: <Pine.LNX.4.60.0509242057001.4899@poirot.grange> <m3slvtzf72.fsf@telia.com>
+ <Pine.LNX.4.60.0509252026290.3089@poirot.grange> <m34q873ccc.fsf@telia.com>
+ <Pine.LNX.4.60.0509262122450.4031@poirot.grange> <m3slvr1ugx.fsf@telia.com>
+ <Pine.LNX.4.60.0509262358020.6722@poirot.grange> <m3hdc4ucrt.fsf@telia.com>
 MIME-Version: 1.0
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-Cc: Nuno Silva <nuno.silva@vgertech.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux SATA S.M.A.R.T. and SLEEP?
-References: <Pine.LNX.4.63.0509290916450.20827@p34> <433C31C8.1030901@vgertech.com> <Pine.LNX.4.63.0509291433340.13272@p34>
-In-Reply-To: <Pine.LNX.4.63.0509291433340.13272@p34>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 28 Sep 2005, Peter Osterlund wrote:
 
-Someone needs to fix SATA drive ordering in the kernel so it matches 
-GRUBs ordering, or perhaps GRUB needs fixing. I have run into
-several situation where hd0,hd1 are in reverse order from what is 
-reported when the Intel PII drivers load from the kernel, making in
-necessary to swap the two values in the grub config.
+> That patch changes the logic that decides when the driver should
+> change between reading and writing. However, the read/write/sync
+> sequence that makes your drive fail in 2.6.13 could theoretically
+> happen in 2.6.12 as well if you are unlucky.
 
-Jeff
+Well, I didn't test it extensively - it was the first time I tried it 
+under 2.6.13.
 
-Justin Piszcz wrote:
+> I think some trial and error will be required to figure out what
+> causes your drive to fail. If you apply this patch to 2.6.12, does it
+> still work?
 
-> I will have to give this a shot, any idea when it will be merged into 
-> mainline?
->
-> Thanks,
->
-> Justin.
->
-> On Thu, 29 Sep 2005, Nuno Silva wrote:
->
->> Justin Piszcz wrote:
->>
->>> Under 2.6.13.2,
->>>
->>> Is there any utility that I can use to put a SATA HDD to sleep?
->>> Secondly, I notice I cannot access any of the HDD's S.M.A.R.T. 
->>> functions on SATA drives?
->>
->>
->> Search for Jeff's patch 2.6.12-git4-passthru1.patch
->> I think this will be included RSN. This solves your two issues.
->>
->> Regards,
->> Nuno Silva
->>
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at http://www.tux.org/lkml/
->
+Yes, it does...
 
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski

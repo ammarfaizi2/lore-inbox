@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbVI2BKb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751222AbVI2BP6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932073AbVI2BKb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 21:10:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932074AbVI2BKb
+	id S1751222AbVI2BP6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 21:15:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbVI2BP6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 21:10:31 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:3012 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932076AbVI2BKa
+	Wed, 28 Sep 2005 21:15:58 -0400
+Received: from sb0-cf9a48a7.dsl.impulse.net ([207.154.72.167]:16655 "EHLO
+	madrabbit.org") by vger.kernel.org with ESMTP id S1750792AbVI2BP6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 21:10:30 -0400
-Date: Thu, 29 Sep 2005 02:10:26 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Borislav Petkov <bbpetkov@yahoo.de>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, R.E.Wolff@BitWizard.nl
-Subject: Re: [PATCH] remove check_region in drivers-char-specialix.c
-Message-ID: <20050929011026.GO7992@ftp.linux.org.uk>
-References: <20050928083737.GA29498@gollum.tnic> <20050928175244.GY7992@ftp.linux.org.uk> <20050928222822.GA14949@gollum.tnic>
+	Wed, 28 Sep 2005 21:15:58 -0400
+Subject: RE: Registering for multiple SIGIO within a process
+From: Ray Lee <ray-lk@madrabbit.org>
+To: "Bagalkote, Sreenivas" <Sreenivas.Bagalkote@engenio.com>
+Cc: "Bhattacharjee, Satadal" <Satadal.Bhattacharjee@engenio.com>,
+       linux-kernel@vger.kernel.org,
+       "Patro, Sumant" <Sumant.Patro@engenio.com>,
+       "Ram, Hari" <hari.ram@engenio.com>,
+       "Mukker, Atul" <Atul.Mukker@engenio.com>
+In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E57060CD1EB@exa-atlanta>
+References: <0E3FA95632D6D047BA649F95DAB60E57060CD1EB@exa-atlanta>
+Content-Type: text/plain
+Organization: http://madrabbit.org/
+Date: Wed, 28 Sep 2005 18:15:50 -0700
+Message-Id: <1127956550.25462.15.camel@orca.madrabbit.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050928222822.GA14949@gollum.tnic>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 29, 2005 at 12:28:22AM +0200, Borislav Petkov wrote:
-> Andrew told me already today that Jeff[1] had sent a patch fixing all that. To
-> prevent the leaks he's calling sx_release_io_range(bp) in every check before
-> exiting sx_probe so this seems correct. A small question though: After calling
-> sx_request_io_range() in the if-statement on line 499 is it ok to call
-> sx_request_io_range() for a second time in a row on line 587?  I think in
-> this case the second call has to go, no?
-> 
-> [1]rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/misc-2.6.git
+On Wed, 2005-09-28 at 20:44 -0400, Bagalkote, Sreenivas wrote:
+> >(Sheesh, what is it with people thinking signals are something 
+> >to be used in any design after the 1970's?)
+> What's your recommendation for asynchronous notification from driver
+> to an application?
 
-Huh?  I don't see any specialix patches in that repository right now...
+Pass back an fd to select() upon. Cuts out that nasty middle step where
+app authors end up registering a signal handler that merely write()s the
+signal number down a pipe into the (nearly ubiquitous) select loop.
 
-But yes, after successful request_region() you shouldn't call it again -
-that would simply fail.
+Ray
+

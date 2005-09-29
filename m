@@ -1,70 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbVI2P6N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbVI2P6Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932174AbVI2P6N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 11:58:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbVI2P6N
+	id S932207AbVI2P6Y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 11:58:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932190AbVI2P6V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 11:58:13 -0400
-Received: from jade.aracnet.com ([216.99.193.136]:45020 "EHLO
-	jade.spiritone.com") by vger.kernel.org with ESMTP id S932174AbVI2P6N
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 11:58:13 -0400
-Message-ID: <433C0F21.8070104@BitWagon.com>
-Date: Thu, 29 Sep 2005 08:58:25 -0700
-From: John Reiser <jreiser@BitWagon.com>
-Organization: -
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
+	Thu, 29 Sep 2005 11:58:21 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:54725 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S932167AbVI2P6U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 11:58:20 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <433C0EBF.7080605@s5r6.in-berlin.de>
+Date: Thu, 29 Sep 2005 17:56:47 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: ptrace unexpected SIGTRAP (trace bit) on x86, x86_64  kernel 2.6.13.2
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: linux-scsi@vger.kernel.org
+CC: James.Smart@Emulex.Com, hch@infradead.org, jgarzik@pobox.com,
+       joshk@triplehelix.org, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org, axboe@suse.de, torvalds@osdl.org,
+       rdunlap@xenotime.net
+Subject: Re: SATA suspend/resume (was Re: [PATCH] updated version of Jens'
+ SATA suspend-to-ram patch)
+References: <9BB4DECD4CFE6D43AA8EA8D768ED51C21D7AC2@xbl3.ma.emulex.com>
+In-Reply-To: <9BB4DECD4CFE6D43AA8EA8D768ED51C21D7AC2@xbl3.ma.emulex.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: (0.126) AWL,BAYES_50
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ptrace is giving unexpected SIGTRAP (trace bit) in kernel 2.6.13.2
-on both x86 and x86_64.
+I admit I haven't studied the patches. Anyway, here is what I have to 
+say about what I (mis?)understood from your posts:
 
-The 8-instruction program below just execve()s itself over and over.
-When run under gdb, the first user-visible SIGTRAP is expected due to
-the 'int3'.  But the second user-visible SIGTRAP is unexpected, as
-there is no reason to trap.
+James Smart wrote:
+> You need to be careful on the power-up. Many JBODs share a single
+> "enclosure" and that enclosure has a limited power supply. If all
+> drives were spun up in parallel (and a drive may take 10-15seconds
+> to spin up), then they can overload the enclosure's power limit.
+[...]
+> There were not a lot of great answers on how to solve this as it usually
+> required knowledge of how the hardware was packaged.
+[...]
 
-Changing the line "nop; int3" to "nop; nop" gives a program that
-just spins merrily when run under /bin/bash.  But gdb sees a SIGTRAP,
-with the $pc pointing after the second 'nop'.  When run under strace
-(strace gdb ./execve; (gdb) run), the process spins merrily with
-no unexpected SIGTRAP.
+>>On Thu, Sep 29, 2005 at 08:34:37AM +0100, Christoph Hellwig wrote:
+>>>is an ULDD operation, not an LLDD one, and this fits the layering model
+>>>much better.
 
+The operation _involves_ the high level, yes. But whether it may be/ 
+must not be performed has to be controlled by the transport layer. Take 
+FireWire as an example: IEEE 1394(a,b) has power management 
+specifications. (NB: Its indeed in IEEE 1394, not in the SBP-2 spec.) 
+One rule is that only one node on a FireWire bus may perform power 
+management; the node which is allowed to do this is determined by a 
+special protocol.
 
------execve.S
-#include <asm/unistd.h>
+>>Actually one important thing is missing, that is a way to avoid spinning
+>>down external disks.  As a start a sysfs-controlable flag should do it,
+>>later we can add transport-specific ways to find out whether a device
+>>is external.
 
-/*
-gcc -o execve -nostartfiles -nostdlib execve.S
-gdb ./execve
-run
-p/x $ps
-   # 0x202
-c
-p/x $ps
-   # 0x302  TF (0x100) set, but should not be
-*/
+It is not a question of external vs. internal, at least not if you 
+consider more than SATA. Power management is the genuine task of 
+transport layers (specifically, of transport management layers). These 
+layers might need assistence from SCSI high-level protocol layer though.
 
-_start: .globl _start
-        nop; int3
-        popl %ebp  # argc
-        movl (%esp),%ebx  # same filename from argv[0]
-        movl %esp,%ecx    # same argv
-        lea 4(%esp,%ebp,4),%edx  # same envp
-        movl $__NR_execve,%eax   # here we go 'round the mulberry bush, ...
-        int $0x80
------end of execve.S
-
-Previous history, and translation for x86_64 are at:
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=144805#c23
-
+IOW it's certainly correct to provide suspend/resume helpers in SCSI 
+high level (probably abstracted through SCSI core), but whether these 
+helpers are called or not has to be decided down in the SCSI low level, 
+or even further beneath that level.
 -- 
-John Reiser, jreiser@BitWagon.com
+Stefan Richter
+-=====-=-=-= =--= ===-=
+http://arcgraph.de/sr/

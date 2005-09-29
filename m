@@ -1,76 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932246AbVI2Qqb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbVI2Qp7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932246AbVI2Qqb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 12:46:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbVI2Qqb
+	id S932243AbVI2Qp7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 12:45:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932245AbVI2Qp7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 12:46:31 -0400
-Received: from qproxy.gmail.com ([72.14.204.204]:40893 "EHLO qproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932246AbVI2Qqa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 12:46:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer;
-        b=pgVyCP+TgZrK6kNufERAzECrS4c6NY007IPkFBhQ4qHIsfigetxVd6IpxUHRQzuNyoYQ0xSiKUtuqUvj2qF1aOsg1XAQDxBh8pUg2yR4p1XxmHSelt+cGzSGWdrBtLh63UaHwZGofS8vdaJ0ZLUlfZcBHT4iq+RrTvCFiyoy4cg=
-Subject: Re: 2.6.14-rc2-rt2
-From: Badari Pulavarty <pbadari@gmail.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050926070210.GA5157@elte.hu>
-References: <20050913100040.GA13103@elte.hu> <20050926070210.GA5157@elte.hu>
-Content-Type: multipart/mixed; boundary="=-Adfzz52zjuaNZorPPOmB"
-Date: Thu, 29 Sep 2005 09:45:46 -0700
-Message-Id: <1128012346.16275.71.camel@dyn9047017102.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Thu, 29 Sep 2005 12:45:59 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:27667 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S932243AbVI2Qp6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 12:45:58 -0400
+To: Jerome Pinot <ngc891@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.6.14-rc2] ext3: fix build warning if !quota
+References: <88ee31b7050928174557572f77@mail.gmail.com>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Fri, 30 Sep 2005 01:45:49 +0900
+In-Reply-To: <88ee31b7050928174557572f77@mail.gmail.com> (Jerome Pinot's message of "Thu, 29 Sep 2005 09:45:22 +0900")
+Message-ID: <8764sju8jm.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jerome Pinot <ngc891@gmail.com> writes:
 
---=-Adfzz52zjuaNZorPPOmB
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> sbi is not used if quota is not defined. This leads to a useless
+> variable after preprocessing and a build warning.
+>
+> This moves the declaration in right place.
 
-On Mon, 2005-09-26 at 09:02 +0200, Ingo Molnar wrote:
-> i have released the 2.6.14-rc2-rt2 tree, which can be downloaded from 
-> the usual place:
-> 
->    http://redhat.com/~mingo/realtime-preempt/
-> 
+Sorry, my fault. But we use -Wdeclaration-after-statement option.
+So, gcc-4.0.1 warns it, and gcc info says "not supported before GCC 3.0".
 
-Hi Ingo,
+fs/ext3/super.c: In function 'ext3_show_options':
+fs/ext3/super.c:525: warning: ISO C90 forbids mixed declarations and code
 
-I noticed that you moved to "-rt7" already.
- "-rt7" fails to compile with CONFIG_NUMA.
+How about this instead?
 
-mm/slab.c:2404: error: conflicting types for `kmem_cache_alloc_node'
-include/linux/slab.h:122: error: previous declaration of
-`kmem_cache_alloc_node'
+Thanks.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 
-Here is the simple fix.
+Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+---
 
-Thanks,
-Badari
+ fs/ext3/super.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-
-
---=-Adfzz52zjuaNZorPPOmB
-Content-Disposition: attachment; filename=rt7-fix.patch
-Content-Type: text/x-patch; name=rt7-fix.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
---- linux-2.6.14-rc2/mm/slab.c	2005-09-29 02:55:11.000000000 -0700
-+++ linux-2.6.14-rc2-rt7/mm/slab.c	2005-09-29 02:48:05.000000000 -0700
-@@ -2400,7 +2400,7 @@ out:
-  * and can sleep. And it will allocate memory on the given node, which
-  * can improve the performance for cpu bound structures.
-  */
--void *kmem_cache_alloc_node(kmem_cache_t *cachep, int flags, int nodeid)
-+void *kmem_cache_alloc_node(kmem_cache_t *cachep, unsigned int __nocast flags, int nodeid)
+diff -puN fs/ext3/super.c~aaa fs/ext3/super.c
+--- linux-2.6.14-rc2-a/fs/ext3/super.c~aaa	2005-09-30 01:10:55.000000000 +0900
++++ linux-2.6.14-rc2-a-hirofumi/fs/ext3/super.c	2005-09-30 01:10:55.000000000 +0900
+@@ -513,8 +513,9 @@ static void ext3_clear_inode(struct inod
+ static int ext3_show_options(struct seq_file *seq, struct vfsmount *vfs)
  {
- 	int loop;
- 	void *objp;
-
---=-Adfzz52zjuaNZorPPOmB--
-
+ 	struct super_block *sb = vfs->mnt_sb;
++#if defined(CONFIG_QUOTA)
+ 	struct ext3_sb_info *sbi = EXT3_SB(sb);
+-
++#endif
+ 	if (test_opt(sb, DATA_FLAGS) == EXT3_MOUNT_JOURNAL_DATA)
+ 		seq_puts(seq, ",data=journal");
+ 	else if (test_opt(sb, DATA_FLAGS) == EXT3_MOUNT_ORDERED_DATA)
+_

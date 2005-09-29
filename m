@@ -1,60 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751117AbVI2MlI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751231AbVI2MrO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751117AbVI2MlI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 08:41:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbVI2MlI
+	id S1751231AbVI2MrO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 08:47:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbVI2MrO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 08:41:08 -0400
-Received: from zproxy.gmail.com ([64.233.162.193]:38632 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751117AbVI2MlH (ORCPT
+	Thu, 29 Sep 2005 08:47:14 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:25827 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S1751128AbVI2MrN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 08:41:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=fjXFxhtKJw/wlHa0SWLqY5ZJ7n/YVFtUPfateFxBjjQNqEMmI1q7M+O1d12Eu5GKc9YPVDlnmsruYQVeys8+RpywmFoeUOagIW3D9NEvHHh+xQ0G+wXzzSCbE5fjypn0+m3/uz1UuEM01pwpqyV3GJtDumb8aHt3KMWkbF+vsBE=
-Message-ID: <433BE0D1.1070501@gmail.com>
-Date: Thu, 29 Sep 2005 20:40:49 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+	Thu, 29 Sep 2005 08:47:13 -0400
+Message-ID: <433BE216.1090108@adaptec.com>
+Date: Thu, 29 Sep 2005 08:46:14 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Giuseppe Bilotta <bilotta78@hotpop.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Blanky rivafb vs snowy nvidiafb with 2.6.12
-References: <1hcq27fp0wwd6.1xosn5xgejhhn$.dlg@40tude.net> <433B049B.1090502@gmail.com> <1gie1vr78iijd$.qcvoypipyouu.dlg@40tude.net>
-In-Reply-To: <1gie1vr78iijd$.qcvoypipyouu.dlg@40tude.net>
-Content-Type: text/plain; charset=ISO-8859-1
+To: "Moore, Eric Dean" <Eric.Moore@lsil.com>
+CC: ltuikov@yahoo.com, Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
+ 	the kernel
+References: <91888D455306F94EBD4D168954A9457C043889D9@nacos172.co.lsil.com>
+In-Reply-To: <91888D455306F94EBD4D168954A9457C043889D9@nacos172.co.lsil.com>
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 29 Sep 2005 12:46:22.0831 (UTC) FILETIME=[CBFBEFF0:01C5C4F3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Giuseppe Bilotta wrote:
-> On Thu, 29 Sep 2005 05:01:15 +0800, Antonino A. Daplas wrote:
+On 09/28/05 18:17, Moore, Eric Dean wrote:
+> Can you stop this tirade, e.g. conspiracy theory,
+> in regards to LSI/MPT and the transport layer?
+
+What conspiracy theory?
+
+Oh you mean that one _technology_ is in the kernel
+and another distinct, radically _different_ is NOT?
+
+Oh you mean that conspiracy theory?
+
+> That is not the case.   There will be other sas 
+
+I don't see our driver in the kernel, do you?
+
+> solutions that implement discovery, and 
+> sas/sata translation in firmware, higher level
+> event handling.
+
+Yes, and they would all be MPT-like technology.
+I don't have a problem with that.
+
+What I have a problem with is that you folks
+just sit and watch this, while you could explain
+to James et al, that indeed the technologies
+are different and there is no reason NOT to include
+one but leave the other out.
+
+>>See, I've mentioned many times that the two
+>>radically different technologies can coexist.
+>>But I've not heard any technical word
+>>from the other guys: you.
 > 
->> Giuseppe Bilotta wrote:
-> 
-> So as you can see the problem is that the timings are NOT set by
-> fbset. No error messages or anything.
-> 
+> I just don't have time to engage you.
+> I've got work to do, customer requests, issues,
+> etc.
 
-Sorry about the blank reply, hit send accidentally.
+:-)  That a nice way to get out of the situation.
 
-Probably, the EDID block is incomplete, so nvidiafb is refusing
-custom modes.  You can change the #undef DEBUG to #define DEBUG
-in drivers/video/fbmon.c to see verbose output of the EDID block in
-dmesg.
+I was hoping you'd say something like, "Yeah, the
+technologies are different -- I don't see why one
+should be in and another not."
 
-Then, can you recompile without the DDC/I2C support, and boot with:
-
-video=nvidiafb:1600x1200-60, then play with fbset later on.
-
-If possible, you can also get the latest git snapshot then boot with:
-
-video=nvidiafb:1600x1200MR
-
-Note the appended MR - it's CVT with reduced blanking - which is
-for LCD displays especially those manufactured by Dell since they
-are the proponents of CVT.
- 
-Tony
+	Luben

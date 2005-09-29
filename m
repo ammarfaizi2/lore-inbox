@@ -1,68 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbVI2F2O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751181AbVI2FoP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750759AbVI2F2O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 01:28:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbVI2F2O
+	id S1751181AbVI2FoP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 01:44:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbVI2FoP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 01:28:14 -0400
-Received: from sb0-cf9a48a7.dsl.impulse.net ([207.154.72.167]:51215 "EHLO
-	madrabbit.org") by vger.kernel.org with ESMTP id S1750759AbVI2F2O
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 01:28:14 -0400
-Subject: RE: Registering for multiple SIGIO within a process
-From: Ray Lee <ray-lk@madrabbit.org>
-To: "Bagalkote, Sreenivas" <Sreenivas.Bagalkote@engenio.com>
-Cc: "Bhattacharjee, Satadal" <Satadal.Bhattacharjee@engenio.com>,
-       linux-kernel@vger.kernel.org,
-       "Patro, Sumant" <Sumant.Patro@engenio.com>,
-       "Ram, Hari" <hari.ram@engenio.com>,
-       "Mukker, Atul" <Atul.Mukker@engenio.com>
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E57060CD1F1@exa-atlanta>
-References: <0E3FA95632D6D047BA649F95DAB60E57060CD1F1@exa-atlanta>
-Content-Type: text/plain
-Organization: http://madrabbit.org/
-Date: Wed, 28 Sep 2005 22:28:08 -0700
-Message-Id: <1127971689.25462.67.camel@orca.madrabbit.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Sep 2005 01:44:15 -0400
+Received: from astound-64-85-224-245.ca.astound.net ([64.85.224.245]:21517
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S1751155AbVI2FoO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 01:44:14 -0400
+Date: Wed, 28 Sep 2005 22:30:58 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: "David S. Miller" <davem@davemloft.net>
+cc: jgarzik@pobox.com, willy@w.ods.org, luben_tuikov@adaptec.com,
+       patmans@us.ibm.com, ltuikov@yahoo.com, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, torvalds@osdl.org, linux-scsi@vger.kernel.org
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
+ the kernel
+In-Reply-To: <20050928.162929.50617923.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.10.10509282223570.19896-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-09-29 at 00:09 -0400, Bagalkote, Sreenivas wrote:
-> select() is not asynchronous to the app (like a signal handler is).
 
-(Way off topic now, but...)
+Dave,
 
-Correct. Asynchronous to the app is rarely what an app author wants,
-though (at least this app author). Asynchronous is the unix version of
-throwing an exception in OO languages, which is fine for something
-that's exceptional. As for something that one *expects* as a matter of
-course (a broken pipe or SIGXFSZ upon a write(), for example), having a
-signal arrive out of line from normal processing is a pain, and
-needlessly complicates code.
+Was it really necessary to this far and rude?
 
-Further, if you took a poll of random self-proclaimed Unix/C hackers, I
-bet fewer than 1 in 10 could actually tell you what functions are *safe*
-to call inside the handler. (Probably less than half even realize
-there's a problem. Better, I bet a large percentage of them don't even
-understand the case that they can be introducing race conditions with
-signal handlers.)
+I heard the snow is falling and there is a fresh shipment of hash headed
+out to the slopes, don't be late.
 
-The common, safe, approach taken by those who do realize that there's an
-issue is to just collect the signals as they arrive, and merely perform
-a write to transfer it into the main select loop (which, seemingly, most
-programs have). The main select() loop then deals with the signals as
-events rather than exceptions.
+Not sure who to credit the following to:
 
-As I mentioned up top, this is straying far off course, and into my
-personal software practices. As I'm just some random guy, I'd suggest
-ignoring me :-).
+When TOE's were introduced to Linux, there was a violent rejection of this
+hardware because Linux is superior in the NetStack than any other possible
+NetStack every created.
 
-For the matter mentioned at top of the email thread, forking a couple
-separate processes communicating back to the parent should take care of
-the issue of wanting to register for the same signal twice under two
-different contexts.
+The point is there is a known history in Linux to reject things which
+steps on peoples' egos.
 
-Ray
+Have a great ski trip.
+
+Cheers,
+
+Andre
+
+On Wed, 28 Sep 2005, David S. Miller wrote:
+
+> From: Jeff Garzik <jgarzik@pobox.com>
+> Date: Wed, 28 Sep 2005 19:22:53 -0400
+> 
+> > Both Luben and his predecessor, Justin Gibbs, were severely dissatisfied 
+> > with the SCSI core.  Often they have raised valid issues that need 
+> > addressing, but their choice has been to work around or ignore existing 
+> > code (and maintainers), rather than work with it, and fix it.
+> 
+> I'm in violent agreement here.
+> 
+> Justin was just as anti-social of an engineer as one could get.  And,
+> when you put an ex-FreeBSD guy onto Linux driver maintainence, what in
+> the world could anyone expect. :-)
+> 
+> For example, instead of accepting that the symbol "current" is a
+> reserved symbol when compiling under the Linux kernel, he decided that
+> "sticking a square peg into a round hole" was a better way to deal
+> with this, and thus he put an "#undef current" into the adaptec driver
+> instead of simply renaming a structure member from "current" to
+> something else.
+> 
+> I don't know how else to define "control freak".
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

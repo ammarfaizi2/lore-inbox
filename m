@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbVI2OOo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932163AbVI2OTh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932159AbVI2OOo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 10:14:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932163AbVI2OOo
+	id S932163AbVI2OTh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 10:19:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932164AbVI2OTh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 10:14:44 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:36513 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932159AbVI2OOn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 10:14:43 -0400
-Date: Thu, 29 Sep 2005 19:43:41 +0530
-From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Cc: "Zhang, Yanmin" <yanmin.zhang@intel.com>, linux-kernel@vger.kernel.org,
-       discuss@x86-64.org, systemtap@sources.redhat.com,
-       "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>
-Subject: Re: [discuss] [PATCH] utilization of kprobe_mutex is incorrect on x86_64
-Message-ID: <20050929141341.GA10273@in.ibm.com>
-Reply-To: prasanna@in.ibm.com
+	Thu, 29 Sep 2005 10:19:37 -0400
+Received: from 122.0.203.62.cust.bluewin.ch ([62.203.0.122]:1324 "EHLO
+	kestrel.twibright.com") by vger.kernel.org with ESMTP
+	id S932163AbVI2OTh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 10:19:37 -0400
+Date: Thu, 29 Sep 2005 16:19:24 +0200
+From: Karel Kulhavy <clock@twibright.com>
+To: linux-kernel@vger.kernel.org
+Subject: CD writer is burning with open tray
+Message-ID: <20050929141924.GA6512@kestrel>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+X-Orientation: Gay
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->On Thu, Sep 29, 2005 at 08:43:44AM +0800, Zhang, Yanmin wrote:
->>  <<kprobe_incorrect_kprobe_mutex_2.6.14-rc2_x86_64.patch>> I found it
->> when reading the source codes. Basically, the bug could break
->> kprobe_insn_pages under multi-thread environment. PPC arch also has the
->> problem.
+Hello
 
->Can you describe what the problem actually is? 
+I ran cdrecord -tao dev=ATAPI:0,0,0 speed=8 /home/clock/cdrom.iso on
+2.6.12-gentoo-r10 and it burned a good CD.
 
-Andi,
+Then I repeated the same command (press up and enter) and it
+1) Burned two bad CD's with a strip near the central area
+2) Third CD burned bad
+3) When rerun cdrecord says
+cdrecord: Drive does not support TAO recording.
+cdrecord: Illegal write mode for this drive.
 
-The up()/down() orders are incorrect in arch/x86_64/kprobes.c file while
-trying to get/remove a kprobes instruction slot in arch_prepare_kprobe() 
-and arch_remove_kprobe() routines. Zhang's patch corrects this.
+I should note here that I didn't hotplug the hardware - I can't
+understand how supported modes can change on the fly...
 
+Anyway the activity LED is now flashing (later shining) even when
+cdrecord is not running and I open the tray using emergency open
+(it cannot be opened by normal open). /dev/hdc (the CDROM) is not mounted.
+The mechanics inside is quite heated up.
 
-Thanks
-Prasanna
--- 
+The activity LED is flashing or shining even when the mechanics is open
+and I can look into the laser lens!  However I didn't see any dim red
+light - looks like the laser switches off when the tray is open.
 
-Prasanna S Panchamukhi
-Linux Technology Center
-India Software Labs, IBM Bangalore
-Ph: 91-80-25044636
-<prasanna@in.ibm.com>
+Is it possible to get eye damage due to faulty kernel driver?
+
+Is it possible to destroy the mechanics by overheating or mechanical
+damage due to faulty kernel driver?
+
+Is this intended behaviour of Linux kernel?
+
+CL<

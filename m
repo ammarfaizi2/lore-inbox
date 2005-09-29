@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964806AbVI2TfK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964816AbVI2TeU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964806AbVI2TfK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 15:35:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964828AbVI2Te7
+	id S964816AbVI2TeU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 15:34:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964803AbVI2TdZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 15:34:59 -0400
-Received: from az33egw02.freescale.net ([192.88.158.103]:41211 "EHLO
-	az33egw02.freescale.net") by vger.kernel.org with ESMTP
-	id S964806AbVI2Teu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 15:34:50 -0400
-Subject: Re: [howto] Kernel hacker's guide to git, updated
-From: Jon Loeliger <jdl@freescale.com>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-In-Reply-To: <200509292108.11092.oliver@neukum.org>
-References: <433BC9E9.6050907@pobox.com>
-	 <200509292108.11092.oliver@neukum.org>
-Content-Type: text/plain
-Message-Id: <1128022473.14595.6.camel@cashmere.sps.mot.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.ydl.1) 
-Date: Thu, 29 Sep 2005 14:34:33 -0500
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Sep 2005 15:33:25 -0400
+Received: from ppp-62-11-74-97.dialup.tiscali.it ([62.11.74.97]:54429 "EHLO
+	zion.home.lan") by vger.kernel.org with ESMTP id S964800AbVI2TdC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 15:33:02 -0400
+From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
+Subject: [PATCH] Fix ext3 warning for unused var
+Date: Thu, 29 Sep 2005 20:40:22 +0200
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <20050929184021.12780.33431.stgit@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-09-29 at 14:08, Oliver Neukum wrote:
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-> Unfortunately, following the instructions to the letter produces this:
-> oliver@oenone:~/linux-2.6> git checkout
-> usage: read-tree (<sha> | -m <sha1> [<sha2> <sha3>])
+Gcc warns about an unused var, fix this. Introduced in commit
+275abf5b06676ca057cf3e15f0d027eafcb204a0, after 2.6.14-rc2.
 
-Yeah.  See if you still have a .git/HEADS that symlinks
-to a valid place or not...?
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
 
-jdl
+ fs/ext3/super.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
+diff --git a/fs/ext3/super.c b/fs/ext3/super.c
+--- a/fs/ext3/super.c
++++ b/fs/ext3/super.c
+@@ -513,7 +513,9 @@ static void ext3_clear_inode(struct inod
+ static int ext3_show_options(struct seq_file *seq, struct vfsmount *vfs)
+ {
+ 	struct super_block *sb = vfs->mnt_sb;
++#if defined(CONFIG_QUOTA)
+ 	struct ext3_sb_info *sbi = EXT3_SB(sb);
++#endif
+ 
+ 	if (test_opt(sb, DATA_FLAGS) == EXT3_MOUNT_JOURNAL_DATA)
+ 		seq_puts(seq, ",data=journal");
 

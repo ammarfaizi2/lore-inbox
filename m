@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbVI2Gtj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbVI2Gtw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932099AbVI2Gtj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 02:49:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932100AbVI2Gtj
+	id S932100AbVI2Gtw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 02:49:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932102AbVI2Gtw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 02:49:39 -0400
-Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:20827 "HELO
-	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932099AbVI2Gtj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 02:49:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=2F4BrDURjQUzZMd7lC4f5LwX7FWfQO8pj2UwrPBlOwTmi0IvpFFLjT0HmWUDDoUxf9zNaxfGq/s7UBPDcBLQp0Z2SlDtndlP+VrtC/odD4RF9hwsuBqFokDC+ilJU9AiMPuRok8n+FIipcanecdmNXTT3X3mACoPDmUtdJcC+go=  ;
-Message-ID: <433B8E76.9080005@yahoo.com.au>
-Date: Thu, 29 Sep 2005 16:49:26 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: en
+	Thu, 29 Sep 2005 02:49:52 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:43682 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932100AbVI2Gtu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 02:49:50 -0400
+Date: Thu, 29 Sep 2005 02:49:31 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+To: Nikita Danilov <nikita@clusterfs.com>
+cc: Roland Dreier <rolandd@cisco.com>, dwalker@mvista.com, mingo@elte.hu,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] RT: epca_lock to DEFINE_SPINLOCK
+In-Reply-To: <17211.139.119978.52725@gargle.gargle.HOWL>
+Message-ID: <Pine.LNX.4.58.0509290243320.10496@localhost.localdomain>
+References: <1127845928.4004.24.camel@dhcp153.mvista.com>
+ <1127900349.2893.19.camel@laptopd505.fenrus.org> <52irwlmb1y.fsf@cisco.com>
+ <17211.139.119978.52725@gargle.gargle.HOWL>
 MIME-Version: 1.0
-To: Christoph Lameter <clameter@engr.sgi.com>
-CC: Rohit Seth <rohit.seth@intel.com>, akpm@osdl.org, linux-mm@kvack.org,
-       Mattia Dongili <malattia@linux.it>, linux-kernel@vger.kernel.org,
-       steiner@sgi.com
-Subject: Re: [patch] Reset the high water marks in CPUs pcp list
-References: <20050928105009.B29282@unix-os.sc.intel.com>  <Pine.LNX.4.62.0509281259550.14892@schroedinger.engr.sgi.com>  <1127939185.5046.17.camel@akash.sc.intel.com>  <Pine.LNX.4.62.0509281408480.15213@schroedinger.engr.sgi.com> <1127943168.5046.39.camel@akash.sc.intel.com> <Pine.LNX.4.62.0509281455310.15902@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.62.0509281455310.15902@schroedinger.engr.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
+
+On Thu, 29 Sep 2005, Nikita Danilov wrote:
 
 >
->I know that Jack and Nick did something with those counts to insure that 
->page coloring effects are avoided. Would you comment?
+> The only reasonable case where DEFINE_FOO(x) is really necessary is when
+> initializer uses address of x, but even in that case something like
 >
+>         spinlock_t guard = SPINLOCK_UNLOCKED(guard);
+>
+> is much more readable than
+>
+>         DEFINE_SPIN_LOCK(guard);
 >
 
-The 'batch' argument to setup_pageset should be clamped to a power
-of 2 minus 1 (ie. 15, 31, etc), which was found to avoid the worst
-of the colouring problems.
+Except that the former is also error prone. I just found a bug in my code
+(I customize Ingo's RT kernel) where I had a cut and paste error:
 
-pcp->high of the hotlist IMO should have been reduced to 4 anyway
-after its pcp->low was reduced from 2 to 0.
+spinlock_t a = SPINLOCK_UNLOCKED(a);
+spinlock_t b = SPINLOCK_UNLOCKED(a);
 
-I don't see that there would be any problems with playing with the
-->high and ->low numbers so long as they are a reasonable multiple
-of batch, however I would question the merit of setting the high
-watermark of the cold queue to ->batch + 1 (should really stay at
-2*batch IMO).
+This took me two days to find since the problems occurred elsewhere.
 
-Nick
+-- Steve
 
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 

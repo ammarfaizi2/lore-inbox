@@ -1,62 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbVI2PhT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750893AbVI2Pnt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751197AbVI2PhT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 11:37:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbVI2PhS
+	id S1750893AbVI2Pnt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 11:43:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbVI2Pnt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 11:37:18 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:27791 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750809AbVI2PhR (ORCPT
+	Thu, 29 Sep 2005 11:43:49 -0400
+Received: from smtp1.ist.utl.pt ([193.136.128.21]:49625 "EHLO smtp1.ist.utl.pt")
+	by vger.kernel.org with ESMTP id S1750893AbVI2Pns (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 11:37:17 -0400
-Date: Thu, 29 Sep 2005 08:36:46 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: David Brownell <david-b@pacbell.net>
-cc: daniel.ritz@gmx.ch, rjw@sisk.pl, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, hugh@veritas.com, akpm@osdl.org
-Subject: Re: [linux-usb-devel] Re: 2.6.13-mm2
-In-Reply-To: <20050929000929.2CEACE372B@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
-Message-ID: <Pine.LNX.4.58.0509290832190.3308@g5.osdl.org>
-References: <20050908053042.6e05882f.akpm@osdl.org> <200509282334.58365.rjw@sisk.pl>
- <20050928220409.DE48BE3724@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
- <200509290032.26815.daniel.ritz@gmx.ch>
- <20050929000929.2CEACE372B@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
+	Thu, 29 Sep 2005 11:43:48 -0400
+From: Pedro Venda <pjvenda@rnl.ist.utl.pt>
+To: Karel Kulhavy <clock@twibright.com>
+Subject: Re: CD writer is burning with open tray
+Date: Thu, 29 Sep 2005 16:43:38 +0000
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
+References: <20050929141924.GA6512@kestrel>
+In-Reply-To: <20050929141924.GA6512@kestrel>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed;
+  boundary="nextPart1773956.bFb4jnNSWC";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200509291643.41393.pjvenda@rnl.ist.utl.pt>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--nextPart1773956.bFb4jnNSWC
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
+On Thursday 29 September 2005 14:19, Karel Kulhavy wrote:
+> Hello
+>
+> The activity LED is flashing or shining even when the mechanics is open
+> and I can look into the laser lens!  However I didn't see any dim red
+> light - looks like the laser switches off when the tray is open.
+>
+> Is it possible to get eye damage due to faulty kernel driver?
 
-On Wed, 28 Sep 2005, David Brownell wrote:
-> 
-> You could try adding
-> 
-> 	ohci_writel(ohci, OHCI_INTR_MIE, &ohci->regs->intrdisable);
-> 
-> near the end of ohci_pci_suspend().  
+as DervishD already explained, the kernel driver doesn't, but lasers can=20
+easily cause severe irreversible eye damage. doesn't matter if you actually=
+=20
+*see* the laser beam. NEVER use a non-closed cd drive (either standard simp=
+le=20
+stereo units or dvd burners, they all present similar dangers). most drives=
+=20
+have hardware safety features that disable all lasers when tray is open, bu=
+t=20
+some other may not...
 
-Give it up.
+[]
+=2D-=20
 
-The right thing is to not free and re-aquire the damn interrupt in the 
-first place. It was a MISTAKE. We undid the ACPI braindamage that made it 
-be required a month ago, because sane people REALIZED it was a mistake.
+Pedro Jo=E3o Lopes Venda
+email: pjvenda < at > rnl.ist.utl.pt
+http://arrakis.dhis.org
 
-It's not just "random luck" that not releasing the interrupt over suspend 
-fixes the problem. The problem is _due_ to drivers releasing the 
-interrupt in the first place.
+--nextPart1773956.bFb4jnNSWC
+Content-Type: application/pgp-signature
 
-IT DOESN'T MATTER what we do before the suspend, because we don't control 
-the wakeup sequence. If the BIOS wakeup enables the devices again, the 
-fact that we disabled them on suspend makes zero difference.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-And yes, we can always "fix" things by selecting the right order to 
-re-aquire the interrupts, but the thing is, the "right order" will be 
-machine-dependent and in general depend on the phase of the moon and BIOS 
-version, and ACPI quirks.
+iD8DBQBDPBm9eRy7HWZxjWERAmczAKDt5HpCfsjCR5ttsNa8oKk2A6D0igCeK/DB
+nMV6PciB+iY2TMDGzTmM3FU=
+=VWo4
+-----END PGP SIGNATURE-----
 
-The _only_ sane thing to do is to not drop the interrupts in the first 
-place. So that if you start getting interrupts before you expect them, you 
-can still handle them.
-
-		Linus
+--nextPart1773956.bFb4jnNSWC--

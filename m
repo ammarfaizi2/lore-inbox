@@ -1,128 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbVI2AlF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751154AbVI2Anw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751284AbVI2AlF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 20:41:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751280AbVI2AlF
+	id S1751154AbVI2Anw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 20:43:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbVI2Anw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 20:41:05 -0400
-Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:35272 "EHLO
-	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1751154AbVI2AlD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 20:41:03 -0400
-From: Grant Coady <grant_lkml@dodo.com.au>
-To: Greg KH <greg@kroah.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: [PATCHv3 02/04] pci_ids: macros: replace partial with whole symbols
-Date: Thu, 29 Sep 2005 10:40:52 +1000
-Organization: http://bugsplatter.mine.nu/
-Message-ID: <rudmj15onsnvo1b29ctunhq54qu5a8vo4f@4ax.com>
-X-Mailer: Forte Agent 2.0/32.652
+	Wed, 28 Sep 2005 20:43:52 -0400
+Received: from fmr20.intel.com ([134.134.136.19]:48798 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751154AbVI2Anv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Sep 2005 20:43:51 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C5C48E.D8F74115"
+Subject: [PATCH] utilization of kprobe_mutex is incorrect on x86_64
+Date: Thu, 29 Sep 2005 08:43:44 +0800
+Message-ID: <8126E4F969BA254AB43EA03C59F44E84037185A6@pdsmsx404>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] utilization of kprobe_mutex is incorrect on x86_64
+Thread-Index: AcXEjthj7P595BPcR56TMF+39Sx7ZA==
+From: "Zhang, Yanmin" <yanmin.zhang@intel.com>
+To: <linux-kernel@vger.kernel.org>, <discuss@x86-64.org>
+Cc: <systemtap@sources.redhat.com>,
+       "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>
+X-OriginalArrivalTime: 29 Sep 2005 00:43:45.0779 (UTC) FILETIME=[D92AD430:01C5C48E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
 
-From: Grant Coady <gcoady@gmail.com>
+------_=_NextPart_001_01C5C48E.D8F74115
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-pci_ids cleanup: replace symbols built by macros with whole symbols to 
-aid grep searches.
+ <<kprobe_incorrect_kprobe_mutex_2.6.14-rc2_x86_64.patch>> I found it
+when reading the source codes. Basically, the bug could break
+kprobe_insn_pages under multi-thread environment. PPC arch also has the
+problem.
+Here is the patch against x86_64.
 
-Signed-off-by: Grant Coady <gcoady@gmail.com>
+Signed-off-by: Zhang Yanmin <Yanmin.zhang@intel.com>
 
----
- drivers/video/cirrusfb.c |   24 ++++++++++++------------
- sound/oss/ymfpci.c       |   17 +++++++++--------
- sound/pci/bt87x.c        |   11 +++++++----
- 3 files changed, 28 insertions(+), 24 deletions(-)
 
-diff -X dontdiff -Nrup linux-2.6.14-rc2-git7b/drivers/video/cirrusfb.c linux-2.6.14-rc2-git7c/drivers/video/cirrusfb.c
---- linux-2.6.14-rc2-git7b/drivers/video/cirrusfb.c	2005-09-29 08:49:20.000000000 +1000
-+++ linux-2.6.14-rc2-git7c/drivers/video/cirrusfb.c	2005-09-29 08:48:41.000000000 +1000
-@@ -275,20 +275,20 @@ static const struct cirrusfb_board_info_
- 
- #ifdef CONFIG_PCI
- #define CHIP(id, btype) \
--	{ PCI_VENDOR_ID_CIRRUS, PCI_DEVICE_ID_##id, PCI_ANY_ID, PCI_ANY_ID, 0, 0, (btype) }
-+	{ PCI_VENDOR_ID_CIRRUS, id, PCI_ANY_ID, PCI_ANY_ID, 0, 0, (btype) }
- 
- static struct pci_device_id cirrusfb_pci_table[] = {
--	CHIP( CIRRUS_5436,	BT_ALPINE ),
--	CHIP( CIRRUS_5434_8,	BT_ALPINE ),
--	CHIP( CIRRUS_5434_4,	BT_ALPINE ),
--	CHIP( CIRRUS_5430,	BT_ALPINE ), /* GD-5440 has identical id */
--	CHIP( CIRRUS_7543,	BT_ALPINE ),
--	CHIP( CIRRUS_7548,	BT_ALPINE ),
--	CHIP( CIRRUS_5480,	BT_GD5480 ), /* MacPicasso probably */
--	CHIP( CIRRUS_5446,	BT_PICASSO4 ), /* Picasso 4 is a GD5446 */
--	CHIP( CIRRUS_5462,	BT_LAGUNA ), /* CL Laguna */
--	CHIP( CIRRUS_5464,	BT_LAGUNA ), /* CL Laguna 3D */
--	CHIP( CIRRUS_5465,	BT_LAGUNA ), /* CL Laguna 3DA*/
-+	CHIP( PCI_DEVICE_ID_CIRRUS_5436, BT_ALPINE ),
-+	CHIP( PCI_DEVICE_ID_CIRRUS_5434_8, BT_ALPINE ),
-+	CHIP( PCI_DEVICE_ID_CIRRUS_5434_4, BT_ALPINE ),
-+	CHIP( PCI_DEVICE_ID_CIRRUS_5430, BT_ALPINE ), /* GD-5440 is same id */
-+	CHIP( PCI_DEVICE_ID_CIRRUS_7543, BT_ALPINE ),
-+	CHIP( PCI_DEVICE_ID_CIRRUS_7548, BT_ALPINE ),
-+	CHIP( PCI_DEVICE_ID_CIRRUS_5480, BT_GD5480 ), /* MacPicasso likely */
-+	CHIP( PCI_DEVICE_ID_CIRRUS_5446, BT_PICASSO4 ), /* Picasso 4 is 5446 */
-+	CHIP( PCI_DEVICE_ID_CIRRUS_5462, BT_LAGUNA ), /* CL Laguna */
-+	CHIP( PCI_DEVICE_ID_CIRRUS_5464, BT_LAGUNA ), /* CL Laguna 3D */
-+	CHIP( PCI_DEVICE_ID_CIRRUS_5465, BT_LAGUNA ), /* CL Laguna 3DA*/
- 	{ 0, }
- };
- MODULE_DEVICE_TABLE(pci, cirrusfb_pci_table);
-diff -X dontdiff -Nrup linux-2.6.14-rc2-git7b/sound/oss/ymfpci.c linux-2.6.14-rc2-git7c/sound/oss/ymfpci.c
---- linux-2.6.14-rc2-git7b/sound/oss/ymfpci.c	2005-09-29 08:49:20.000000000 +1000
-+++ linux-2.6.14-rc2-git7c/sound/oss/ymfpci.c	2005-09-29 08:48:41.000000000 +1000
-@@ -107,14 +107,15 @@ static LIST_HEAD(ymf_devs);
-  */
- 
- static struct pci_device_id ymf_id_tbl[] = {
--#define DEV(v, d, data) \
--  { PCI_VENDOR_ID_##v, PCI_DEVICE_ID_##v##_##d, PCI_ANY_ID, PCI_ANY_ID, 0, 0, (unsigned long)data }
--	DEV (YAMAHA, 724,  "YMF724"),
--	DEV (YAMAHA, 724F, "YMF724F"),
--	DEV (YAMAHA, 740,  "YMF740"),
--	DEV (YAMAHA, 740C, "YMF740C"),
--	DEV (YAMAHA, 744,  "YMF744"),
--	DEV (YAMAHA, 754,  "YMF754"),
-+#define DEV(dev, data) \
-+	{ PCI_VENDOR_ID_YAMAHA, dev, PCI_ANY_ID, PCI_ANY_ID, 0, 0, \
-+		(unsigned long)data }
-+	DEV (PCI_DEVICE_ID_YAMAHA_724,  "YMF724"),
-+	DEV (PCI_DEVICE_ID_YAMAHA_724F, "YMF724F"),
-+	DEV (PCI_DEVICE_ID_YAMAHA_740,  "YMF740"),
-+	DEV (PCI_DEVICE_ID_YAMAHA_740C, "YMF740C"),
-+	DEV (PCI_DEVICE_ID_YAMAHA_744,  "YMF744"),
-+	DEV (PCI_DEVICE_ID_YAMAHA_754,  "YMF754"),
- #undef DEV
- 	{ }
- };
-diff -X dontdiff -Nrup linux-2.6.14-rc2-git7b/sound/pci/bt87x.c linux-2.6.14-rc2-git7c/sound/pci/bt87x.c
---- linux-2.6.14-rc2-git7b/sound/pci/bt87x.c	2005-09-29 08:49:20.000000000 +1000
-+++ linux-2.6.14-rc2-git7c/sound/pci/bt87x.c	2005-09-29 08:48:41.000000000 +1000
-@@ -761,15 +761,18 @@ static int __devinit snd_bt87x_create(sn
- 
- #define BT_DEVICE(chip, subvend, subdev, rate) \
- 	{ .vendor = PCI_VENDOR_ID_BROOKTREE, \
--	  .device = PCI_DEVICE_ID_BROOKTREE_##chip, \
-+	  .device = chip, \
- 	  .subvendor = subvend, .subdevice = subdev, \
- 	  .driver_data = rate }
- 
- /* driver_data is the default digital_rate value for that device */
- static struct pci_device_id snd_bt87x_ids[] = {
--	BT_DEVICE(878, 0x0070, 0x13eb, 32000), /* Hauppauge WinTV series */
--	BT_DEVICE(879, 0x0070, 0x13eb, 32000), /* Hauppauge WinTV series */
--	BT_DEVICE(878, 0x0070, 0xff01, 44100), /* Viewcast Osprey 200 */
-+	/* Hauppauge WinTV series */
-+	BT_DEVICE(PCI_DEVICE_ID_BROOKTREE_878, 0x0070, 0x13eb, 32000),
-+	/* Hauppauge WinTV series */
-+	BT_DEVICE(PCI_DEVICE_ID_BROOKTREE_879, 0x0070, 0x13eb, 32000),
-+	/* Viewcast Osprey 200 */
-+	BT_DEVICE(PCI_DEVICE_ID_BROOKTREE_878, 0x0070, 0xff01, 44100),
- 	{ }
- };
- MODULE_DEVICE_TABLE(pci, snd_bt87x_ids);
+
+------_=_NextPart_001_01C5C48E.D8F74115
+Content-Type: application/octet-stream;
+	name="kprobe_incorrect_kprobe_mutex_2.6.14-rc2_x86_64.patch"
+Content-Transfer-Encoding: base64
+Content-Description: kprobe_incorrect_kprobe_mutex_2.6.14-rc2_x86_64.patch
+Content-Disposition: attachment;
+	filename="kprobe_incorrect_kprobe_mutex_2.6.14-rc2_x86_64.patch"
+
+ZGlmZiAtTnJhdXAgbGludXgtMi42LjE0LXJjMi9hcmNoL3g4Nl82NC9rZXJuZWwva3Byb2Jlcy5j
+IGxpbnV4LTIuNi4xNC1yYzJfZml4L2FyY2gveDg2XzY0L2tlcm5lbC9rcHJvYmVzLmMKLS0tIGxp
+bnV4LTIuNi4xNC1yYzIvYXJjaC94ODZfNjQva2VybmVsL2twcm9iZXMuYwkyMDA1LTA5LTI5IDA4
+OjM1OjQ2LjAwMDAwMDAwMCArMDgwMAorKysgbGludXgtMi42LjE0LXJjMl9maXgvYXJjaC94ODZf
+NjQva2VybmVsL2twcm9iZXMuYwkyMDA1LTA5LTI5IDA4OjM2OjI3LjAwMDAwMDAwMCArMDgwMApA
+QCAtNzcsOSArNzcsOSBAQCBzdGF0aWMgaW5saW5lIGludCBpc19JRl9tb2RpZmllcihrcHJvYmVf
+CiBpbnQgX19rcHJvYmVzIGFyY2hfcHJlcGFyZV9rcHJvYmUoc3RydWN0IGtwcm9iZSAqcCkKIHsK
+IAkvKiBpbnNuOiBtdXN0IGJlIG9uIHNwZWNpYWwgZXhlY3V0YWJsZSBwYWdlIG9uIHg4Nl82NC4g
+Ki8KLQl1cCgma3Byb2JlX211dGV4KTsKLQlwLT5haW5zbi5pbnNuID0gZ2V0X2luc25fc2xvdCgp
+OwogCWRvd24oJmtwcm9iZV9tdXRleCk7CisJcC0+YWluc24uaW5zbiA9IGdldF9pbnNuX3Nsb3Qo
+KTsKKwl1cCgma3Byb2JlX211dGV4KTsKIAlpZiAoIXAtPmFpbnNuLmluc24pIHsKIAkJcmV0dXJu
+IC1FTk9NRU07CiAJfQpAQCAtMjMxLDkgKzIzMSw5IEBAIHZvaWQgX19rcHJvYmVzIGFyY2hfZGlz
+YXJtX2twcm9iZShzdHJ1Y3QKIAogdm9pZCBfX2twcm9iZXMgYXJjaF9yZW1vdmVfa3Byb2JlKHN0
+cnVjdCBrcHJvYmUgKnApCiB7Ci0JdXAoJmtwcm9iZV9tdXRleCk7Ci0JZnJlZV9pbnNuX3Nsb3Qo
+cC0+YWluc24uaW5zbik7CiAJZG93bigma3Byb2JlX211dGV4KTsKKwlmcmVlX2luc25fc2xvdChw
+LT5haW5zbi5pbnNuKTsKKwl1cCgma3Byb2JlX211dGV4KTsKIH0KIAogc3RhdGljIGlubGluZSB2
+b2lkIHNhdmVfcHJldmlvdXNfa3Byb2JlKHZvaWQpCg==
+
+------_=_NextPart_001_01C5C48E.D8F74115--

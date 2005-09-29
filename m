@@ -1,85 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751316AbVI2WCO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751280AbVI2WBl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751316AbVI2WCO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 18:02:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751337AbVI2WCO
+	id S1751280AbVI2WBl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 18:01:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbVI2WBl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 18:02:14 -0400
-Received: from fmr21.intel.com ([143.183.121.13]:17795 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1751316AbVI2WCN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 18:02:13 -0400
-Date: Thu, 29 Sep 2005 15:01:55 -0700
-From: "Seth, Rohit" <rohit.seth@intel.com>
-To: akpm@osdl.org
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] earlier allocation of order 0 pages from pcp in __alloc_pages
-Message-ID: <20050929150155.A15646@unix-os.sc.intel.com>
+	Thu, 29 Sep 2005 18:01:41 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:52753 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751280AbVI2WBk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 18:01:40 -0400
+Date: Thu, 29 Sep 2005 23:01:34 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Marcel Holtmann <marcel@holtmann.org>, bluez-devel@lists.sourceforge.net,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Problems with CF bluetooth
+Message-ID: <20050929220134.GJ7684@flint.arm.linux.org.uk>
+Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
+	Marcel Holtmann <marcel@holtmann.org>, bluez-devel@lists.sf.net,
+	kernel list <linux-kernel@vger.kernel.org>
+References: <1128008752.5123.28.camel@localhost.localdomain> <20050929155602.GA1990@elf.ucw.cz> <1128011355.30743.14.camel@localhost.localdomain> <20050929175420.GN1990@elf.ucw.cz> <1128016693.6052.2.camel@localhost.localdomain> <20050929213219.GA2180@elf.ucw.cz> <20050929213707.GH7684@flint.arm.linux.org.uk> <20050929214340.GB2180@elf.ucw.cz> <20050929214559.GI7684@flint.arm.linux.org.uk> <20050929215234.GC2180@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050929215234.GC2180@elf.ucw.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	[PATCH]: Try to service a order 0 page request in __alloc_pages from the pcp list before checking the aone_watermarks.
+On Thu, Sep 29, 2005 at 11:52:34PM +0200, Pavel Machek wrote:
+> Hi!
+> 
+> > > > > > > I believe it would happen with any other CF card, too. Can you
+> > > > > > > hciattach it, unplug, hciattach again?
+> > > > > > 
+> > > > > > actually I don't have any of them with me and I don't saw a problem with
+> > > > > > my Casira of a serial port.
+> > > > > 
+> > > > > Following patch seems to work around it. And yes, printk() triggers
+> > > > > twice after 
+> > > > 
+> > > > What's the problem this patch is trying to address?
+> > > 
+> > > I get oops after starting my bluetooth subsystem for second
+> > > time. billionton_start, unplug CF, billionton_start will oops the
+> > > system. That patch prevents it.
+> > 
+> > More details please.  I don't have the ability to run bluetooth myself.
+> 
+> Unfortunately I do not know much about bluetooth. The card is
+> basically CF serial with bluetooth chip attached to that. billionton
+> start does setserial, then attaches bluetooth subsystem to that chip,
+> and enables bluetooth.
 
-        Try to service a order 0 page request from pcp list.  This will allow us to not check and possibly start the reclaim activity when there are free pages present on the pcp.  This early allocation does not try to replenish an empty pcp.
+How about showing the oops?  The patch is definitely wrong btw - there's
+no way state->info should be NULL here.
 
-        Signed-off-by: Rohit Seth <rohit.seth@intel.com>
-
---- linux-2.6.14-rc2-mm1.org/mm/page_alloc.c	2005-09-27 10:03:51.000000000 -0700
-+++ linux-2.6.14-rc2-mm1/mm/page_alloc.c	2005-09-28 17:38:15.000000000 -0700
-@@ -716,6 +716,39 @@
- 		clear_highpage(page + i);
- }
- 
-+/* This routine allocates a order 0 page from cpu's pcp list when one is present.
-+ * It does not try to remove the pages from zone_free_list as the zone low
-+ * water mark has not yet been checked.
-+ */
-+
-+static struct page *
-+remove_from_pcp(struct zone *zone, unsigned int __nocast gfp_flags)
-+{
-+	unsigned long flags;
-+	struct per_cpu_pages *pcp;
-+	struct page *page = NULL;
-+	int cold = !!(gfp_flags & __GFP_COLD);
-+
-+	pcp = &zone_pcp(zone, get_cpu())->pcp[cold];
-+	local_irq_save(flags);
-+	if (pcp->count > pcp->low) {
-+		page = list_entry(pcp->list.next, struct page, lru);
-+		list_del(&page->lru);
-+		pcp->count--;
-+	}
-+	local_irq_restore(flags);
-+	put_cpu();
-+
-+	if (page != NULL) {
-+		mod_page_state_zone(zone, pgalloc, 1 );
-+		prep_new_page(page, 0);
-+
-+		if (gfp_flags & __GFP_ZERO)
-+			prep_zero_page(page, 0, gfp_flags);
-+	}
-+	return page;
-+}
-+
- /*
-  * Really, prep_compound_page() should be called from __rmqueue_bulk().  But
-  * we cheat by calling it from here, in the order > 0 path.  Saves a branch
-@@ -905,6 +938,12 @@
- 		if (!cpuset_zone_allowed(z, __GFP_HARDWALL))
- 			continue;
- 
-+		if (order == 0) {
-+			page = remove_from_pcp(z, gfp_mask);
-+			if (page)
-+				goto got_pg;
-+		}
-+
- 		/*
- 		 * If the zone is to attempt early page reclaim then this loop
- 		 * will try to reclaim pages and check the watermark a second
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

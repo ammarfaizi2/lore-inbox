@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbVI2Hgt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbVI2Hid@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932083AbVI2Hgt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 03:36:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbVI2Hgs
+	id S932132AbVI2Hid (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 03:38:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbVI2Hid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 03:36:48 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:2466 "EHLO
+	Thu, 29 Sep 2005 03:38:33 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:5794 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932083AbVI2Hgs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 03:36:48 -0400
-Subject: Re: Slow loading big kernel module in 2.6 on PPC platform
-From: Arjan van de Ven <arjan@infradead.org>
-To: Wilson Li <yongshenglee@yahoo.com>
-Cc: Bill Davidsen <davidsen@tmr.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050928213755.11544.qmail@web34102.mail.mud.yahoo.com>
-References: <20050928213755.11544.qmail@web34102.mail.mud.yahoo.com>
-Content-Type: text/plain
-Date: Thu, 29 Sep 2005 09:36:42 +0200
-Message-Id: <1127979403.2918.2.camel@laptopd505.fenrus.org>
+	id S932132AbVI2Hid (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 03:38:33 -0400
+Date: Thu, 29 Sep 2005 08:38:30 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, bbpetkov@yahoo.de,
+       linux-kernel@vger.kernel.org, R.E.Wolff@BitWizard.nl
+Subject: Re: [PATCH] remove check_region in drivers-char-specialix.c
+Message-ID: <20050929073830.GD9669@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Al Viro <viro@ftp.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+	bbpetkov@yahoo.de, linux-kernel@vger.kernel.org,
+	R.E.Wolff@BitWizard.nl
+References: <20050928083737.GA29498@gollum.tnic> <20050928175244.GY7992@ftp.linux.org.uk> <20050928222822.GA14949@gollum.tnic> <20050929011026.GO7992@ftp.linux.org.uk> <20050928184106.49e9db11.akpm@osdl.org> <20050929020510.GR7992@ftp.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050929020510.GR7992@ftp.linux.org.uk>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> The original module size on disk is around 3.3M bytes. Here's details
-> of size.
+On Thu, Sep 29, 2005 at 03:05:10AM +0100, Al Viro wrote:
+> On Wed, Sep 28, 2005 at 06:41:06PM -0700, Andrew Morton wrote:
+>  
+> > http://www.spinics.net/lists/kernel/msg399680.html
 > 
->    text    data     bss     dec     hex filename
-> 2025644  263244  213024 2501912  262d18 mrbig.ko
+> Ewww...  A lot of chunks consisting only of whitespace removals - great
+> way to make patch less readable...
+> 
+> And yes, that second call of sx_request_io_range() must die.  BTW,
+> what's wrong with use of mdelay() instead of that sx_long_delay()
+> junk?  Replacing both calls of sx_long_delay() with mdelay(50) would do it...
 
-wow that is a whole lot of GPL code ;)
-
+There's a proper check_region removal for specialix.c patch from me queued
+up in the kernel-janitors tree.  Including removal of the silly wrappers.
 

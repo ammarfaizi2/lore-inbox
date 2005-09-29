@@ -1,47 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751170AbVI2IyK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbVI2JCO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751170AbVI2IyK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 04:54:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751184AbVI2IyK
+	id S1751264AbVI2JCO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 05:02:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751295AbVI2JCO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 04:54:10 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:34689 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751170AbVI2IyJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 04:54:09 -0400
-Message-ID: <433BABA9.8070908@suse.de>
-Date: Thu, 29 Sep 2005 10:54:01 +0200
-From: Stefan Seyfried <seife@suse.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050715 Thunderbird/1.0.6 Mnenhy/0.7.2.0
+	Thu, 29 Sep 2005 05:02:14 -0400
+Received: from apollo.nbase.co.il ([194.90.137.2]:11027 "EHLO
+	apollo.nbase.co.il") by vger.kernel.org with ESMTP id S1751264AbVI2JCN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 05:02:13 -0400
+Message-ID: <433BAECF.9000403@mrv.com>
+Date: Thu, 29 Sep 2005 12:07:27 +0300
+From: emann@mrv.com (Eran Mann)
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc3 (X11/20050720)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Blaisorblade <blaisorblade@yahoo.it>
-Cc: Dave Jones <davej@redhat.com>, LKML <linux-kernel@vger.kernel.org>,
-       Alexander Clouter <alex@digriz.org.uk>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [2.6.14] Cpufreq_ondemand sysfs names change
-References: <200508232108.26248.blaisorblade@yahoo.it> <200509101536.10307.blaisorblade@yahoo.it> <20050910140148.GC7072@inskipp.digriz.org.uk> <200509271851.36706.blaisorblade@yahoo.it>
-In-Reply-To: <200509271851.36706.blaisorblade@yahoo.it>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+CC: Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com,
+       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>, yang.yi@bmrtech.com
+Subject: Re: 2.6.14-rc2-rt2
+References: <20050913100040.GA13103@elte.hu> <20050926070210.GA5157@elte.hu>	 <1127840377.27319.11.camel@cmn3.stanford.edu>	 <1127862619.4004.48.camel@dhcp153.mvista.com>	 <1127876673.9430.2.camel@cmn3.stanford.edu>	 <20050928094805.GA30446@elte.hu> <1127925295.24916.4.camel@cmn3.stanford.edu>
+In-Reply-To: <1127925295.24916.4.camel@cmn3.stanford.edu>
+Content-Type: multipart/mixed;
+ boundary="------------070404000600020505030104"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Blaisorblade wrote:
+This is a multi-part message in MIME format.
+--------------070404000600020505030104
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> *) to rename the flag to ignore_nice_load or ignore_nice_tasks, to avoid 
-> burning the user too much. Very few people use it now, but let's help them.
 
-I use it and i have even "fixed" my applications to use the "wrong" flag.
+Fernando Lopez-Lezcano wrote:
+>>could you try 2.6.14-rc2-rt6, does it build?
+> 
+> 
+> No, sorry...
+> 
+> fs/ntfs/aops.c: In function 'ntfs_end_buffer_async_read':
+> fs/ntfs/aops.c:108: error: 'BH_Uptodate_Lock' undeclared (first use in
+> this function)
+> fs/ntfs/aops.c:108: error: (Each undeclared identifier is reported only
+> once
+> fs/ntfs/aops.c:108: error: for each function it appears in.)
+> make[2]: *** [fs/ntfs/aops.o] Error 1
+> 
+> and (probably unrelated to rt):
+> 
+> drivers/isdn/hisax/config.c: In function 'HiSax_readstatus':
+> drivers/isdn/hisax/config.c:636: warning: ignoring return value of
+> 'copy_to_user', declared with attribute warn_unused_result
+> drivers/isdn/hisax/config.c:647: warning: ignoring return value of
+> 'copy_to_user', declared with attribute warn_unused_result
+> drivers/isdn/hisax/callc.c: In function 'HiSax_writebuf_skb':
+> drivers/isdn/hisax/callc.c:1781: warning: large integer implicitly
+> truncated to unsigned type
+> drivers/isdn/hisax/st5481_usb.c: In function 'st5481_in_mode':
+> drivers/isdn/hisax/st5481_usb.c:648: error: 'URB_ASYNC_UNLINK'
+> undeclared (first use in this function)
+> drivers/isdn/hisax/st5481_usb.c:648: error: (Each undeclared identifier
+> is reported only once
+> drivers/isdn/hisax/st5481_usb.c:648: error: for each function it appears
+> in.)
+> make[3]: *** [drivers/isdn/hisax/st5481_usb.o] Error 1
+> 
+> -- Fernando
+> 
+> 
+Regarding NTFS - try with the attached patch. It seems to be still 
+missing from 2.6.14-rc2-rt7.
 
->> My thinking too, its a relatively new feature and when I have looked around
->> very few userland tools even tinker with ondemand so either we do it now or
->> not at all...or rather we do it later and listen to everyone complain :)
+--------------070404000600020505030104
+Content-Type: text/x-patch;
+ name="linux-rt-ntfs.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linux-rt-ntfs.patch"
 
-so the early birds are doomed? ;-)
-I'll bite the bullet if this "flip the meaning" gets in, but i don't
-like it. I'll have to check for the kernel version in my userspace code,
-then which is generally a bad idea IMO.
--- 
-Stefan Seyfried                  \ "I didn't want to write for pay. I
-QA / R&D Team Mobile Devices      \ wanted to be paid for what I write."
-SUSE LINUX Products GmbH, Nürnberg \                    -- Leonard Cohen
+--- fs/ntfs/aops.c.old	2005-09-25 16:20:26.000000000 +0300
++++ fs/ntfs/aops.c	2005-09-25 16:22:04.000000000 +0300
+@@ -104,8 +104,7 @@
+ 				"0x%llx.", (unsigned long long)bh->b_blocknr);
+ 	}
+ 	first = page_buffers(page);
+-	local_irq_save(flags);
+-	bit_spin_lock(BH_Uptodate_Lock, &first->b_state);
++	spin_lock_irqsave(&first->b_uptodate_lock, flags);
+ 	clear_buffer_async_read(bh);
+ 	unlock_buffer(bh);
+ 	tmp = bh;
+@@ -120,8 +119,7 @@
+ 		}
+ 		tmp = tmp->b_this_page;
+ 	} while (tmp != bh);
+-	bit_spin_unlock(BH_Uptodate_Lock, &first->b_state);
+-	local_irq_restore(flags);
++	spin_unlock_irqrestore(&first->b_uptodate_lock, flags);
+ 	/*
+ 	 * If none of the buffers had errors then we can set the page uptodate,
+ 	 * but we first have to perform the post read mst fixups, if the
+@@ -154,8 +152,7 @@
+ 	unlock_page(page);
+ 	return;
+ still_busy:
+-	bit_spin_unlock(BH_Uptodate_Lock, &first->b_state);
+-	local_irq_restore(flags);
++	spin_unlock_irqrestore(&first->b_uptodate_lock, flags);
+ 	return;
+ }
+ 
+
+--------------070404000600020505030104--

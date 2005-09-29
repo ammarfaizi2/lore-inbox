@@ -1,64 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbVI2Gwd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932101AbVI2HAR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932102AbVI2Gwd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 02:52:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932103AbVI2Gwd
+	id S932101AbVI2HAR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 03:00:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbVI2HAR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 02:52:33 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:55490
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932102AbVI2Gwc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 02:52:32 -0400
-Subject: Re: [PATCH]  ktimers subsystem 2.6.14-rc2-kt5
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: john stultz <johnstul@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, akpm@osdl.org,
-       george@mvista.com, paulmck@us.ibm.com, hch@infradead.org,
-       oleg@tv-sign.ru, zippel@linux-m68k.org, tim.bird@am.sony.com
-In-Reply-To: <1127956200.8195.260.camel@cog.beaverton.ibm.com>
-References: <20050928224419.1.patchmail@tglx.tec.linutronix.de>
-	 <1127956200.8195.260.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain
-Organization: linutronix
-Date: Thu, 29 Sep 2005 08:53:23 +0200
-Message-Id: <1127976803.15115.281.camel@tglx.tec.linutronix.de>
+	Thu, 29 Sep 2005 03:00:17 -0400
+Received: from smtp1.pp.htv.fi ([213.243.153.37]:45204 "EHLO smtp1.pp.htv.fi")
+	by vger.kernel.org with ESMTP id S932101AbVI2HAQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 03:00:16 -0400
+Date: Thu, 29 Sep 2005 10:00:10 +0300
+From: Paul Mundt <lethal@linux-sh.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 20/21] mm: sh64 hugetlbpage.c
+Message-ID: <20050929070010.GB2960@linux-sh.org>
+Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
+	Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.61.0509251644100.3490@goblin.wat.veritas.com> <Pine.LNX.4.61.0509251710200.3490@goblin.wat.veritas.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="RnlQjJ0d97Da+TV1"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0509251710200.3490@goblin.wat.veritas.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-09-28 at 18:10 -0700, john stultz wrote:
 
-> > +	/* Auto rearm the timer ? */
-> > +	if (rearm && ktime_cmp_val(timer->interval, !=, KTIME_ZERO))
-> > +		enqueue_ktimer(timer, base, NULL, KTIMER_REARM);
-> > +}
-> 
-> 
-> There's a couple of places like this where you pass NULL as the ktime_t
-> pointer tim to enqueue_ktimer(). However in enqueue_ktimer, you
-> dereference tim in a few spots w/o checking for NULL.
-> 
+--RnlQjJ0d97Da+TV1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The KTIMER_REARM case is the broken spot. I fixed this already as it was
-oopsing here to, but somehow I messed up with quilt.
+On Sun, Sep 25, 2005 at 05:11:58PM +0100, Hugh Dickins wrote:
+> The sh64 hugetlbpage.c seems to be erroneous, left over from a bygone
+> age, clashing with the common hugetlb.c.  Replace it by a copy of the
+> sh hugetlbpage.c.  Except, delete that mk_pte_huge macro neither uses.
+>=20
+> Signed-off-by: Hugh Dickins <hugh@veritas.com>
+> ---
+>=20
+>  arch/sh/mm/hugetlbpage.c   |    2=20
+>  arch/sh64/mm/hugetlbpage.c |  188 ++------------------------------------=
+-------
+>  2 files changed, 12 insertions(+), 178 deletions(-)
+>=20
+Looks good, thanks Hugh.
 
-tglx
+Acked-by: Paul Mundt <lethal@linux-sh.org>
 
-Index: linux-2.6.14-rc2-rt4/kernel/ktimers.c
-===================================================================
---- linux-2.6.14-rc2-rt4.orig/kernel/ktimers.c
-+++ linux-2.6.14-rc2-rt4/kernel/ktimers.c
-@@ -242,7 +242,7 @@ static int enqueue_ktimer(struct ktimer 
- 		goto nocheck;
- 	case KTIMER_REARM:
- 		while ktime_cmp(timer->expires, <= , now) {
--			timer->expires = ktime_add(timer->expires, *tim);
-+			timer->expires = ktime_add(timer->expires, timer->interval);
- 			timer->overrun++;
- 		}
- 		goto nocheck;
+--RnlQjJ0d97Da+TV1
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
 
+iD8DBQFDO5D61K+teJFxZ9wRAje8AJ48q8dtdkup4BXeQ41hnabXPb8+DQCfXwyN
+vNl9l3Ykrsb7zZ0VXT/e3oY=
+=J4Q+
+-----END PGP SIGNATURE-----
+
+--RnlQjJ0d97Da+TV1--

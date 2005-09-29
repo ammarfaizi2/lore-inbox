@@ -1,38 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932481AbVI2Vx6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbVI2V4G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932481AbVI2Vx6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 17:53:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932418AbVI2Vx6
+	id S1750780AbVI2V4G (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 17:56:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751337AbVI2V4F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 17:53:58 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:40680 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932516AbVI2Vx5 (ORCPT
+	Thu, 29 Sep 2005 17:56:05 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:19945 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751280AbVI2V4B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 17:53:57 -0400
-Date: Thu, 29 Sep 2005 14:54:00 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux-kernel@vger.kernel.org, ck@vds.kolivas.org
-Subject: Re: [PATCH] vm - swap_prefetch v12
-Message-Id: <20050929145400.1cc2b748.akpm@osdl.org>
-In-Reply-To: <200509300115.33060.kernel@kolivas.org>
-References: <200509300115.33060.kernel@kolivas.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Sep 2005 17:56:01 -0400
+Date: Thu, 29 Sep 2005 14:55:43 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Dave Jones <davej@redhat.com>
+cc: Anton Altaparmakov <aia21@cam.ac.uk>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: [howto] Kernel hacker's guide to git, updated
+In-Reply-To: <20050929213312.GD31516@redhat.com>
+Message-ID: <Pine.LNX.4.64.0509291451540.5362@g5.osdl.org>
+References: <433BC9E9.6050907@pobox.com> <20050929200252.GA31516@redhat.com>
+ <Pine.LNX.4.60.0509292106080.17860@hermes-1.csi.cam.ac.uk>
+ <20050929201127.GB31516@redhat.com> <Pine.LNX.4.64.0509291413060.5362@g5.osdl.org>
+ <Pine.LNX.4.64.0509291425560.5362@g5.osdl.org> <20050929213312.GD31516@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas <kernel@kolivas.org> wrote:
->
-> Once pages have been added to the swapped list, a timer is started, testing
-> for conditions suitable to prefetch swap pages every 5 seconds. Suitable
-> conditions are defined as lack of swapping out or in any pages, and no
-> watermark tests failing. Significant amounts of dirtied ram also prevent
-> prefetching. It then checks that we have spare ram looking for at
-> least 3* pages_high free per zone and if it succeeds that will prefetch
-> pages from swap.
 
-Did you consider poking around in gendisk.disk_stats to determine whether
-the swap disk(s) are idleish?
+
+On Thu, 29 Sep 2005, Dave Jones wrote:
+>
+> What I find amusing is that it was a patch rejection mail from you
+> *years* back (circa 2000 iirc), telling me my pine corrupted whitespace,
+> that made me switch MUA ;-)
+> 
+> All these years later, and it's still buggered ?
+
+Actually, it seems better. It seems to be buggered by default, but it used 
+to be that you had to actually recompile pine to make it behave. Now you 
+can just disable "strip-whitespace-before-send" and _enable_ 
+"quell-flowed-text" and those together seem to do the trick. No extra 
+patches or recompiles necessary.
+
+So there's progress. 
+
+Of course, pico is still pico. Which I find a bit sad: my editor of choise 
+is still an improved version of uemacs, and pico actually comes from the 
+same uemacs history, but has different key-bindings for just enough keys 
+to be slightly confusing.
+
+Still, that shared history means that I find pico a lot more to my taste 
+than just about any other emailer editor out there. It may have a few 
+differences, but it has more things in common..
+
+		Linus

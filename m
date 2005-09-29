@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751330AbVI2XYH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751358AbVI2XZM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751330AbVI2XYH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 19:24:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751358AbVI2XYH
+	id S1751358AbVI2XZM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 19:25:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbVI2XZM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 19:24:07 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:14733 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751330AbVI2XYG (ORCPT
+	Thu, 29 Sep 2005 19:25:12 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:23949 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751358AbVI2XZK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 19:24:06 -0400
-Date: Thu, 29 Sep 2005 16:24:02 -0700
+	Thu, 29 Sep 2005 19:25:10 -0400
+Date: Thu, 29 Sep 2005 16:25:07 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux-kernel@vger.kernel.org, ck@vds.kolivas.org
-Subject: Re: [PATCH] vm - swap_prefetch v12
-Message-Id: <20050929162402.71eee9c2.akpm@osdl.org>
-In-Reply-To: <200509300912.58722.kernel@kolivas.org>
-References: <200509300115.33060.kernel@kolivas.org>
-	<20050929145400.1cc2b748.akpm@osdl.org>
-	<200509300912.58722.kernel@kolivas.org>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Cc: michal.k.k.piotrowski@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-rc2-mm2
+Message-Id: <20050929162507.3efb8b1a.akpm@osdl.org>
+In-Reply-To: <433C765D.9020205@gmail.com>
+References: <20050929143732.59d22569.akpm@osdl.org>
+	<6bffcb0e05092915472f8589eb@mail.gmail.com>
+	<433C765D.9020205@gmail.com>
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -26,28 +26,28 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas <kernel@kolivas.org> wrote:
+"Antonino A. Daplas" <adaplas@gmail.com> wrote:
 >
-> On Fri, 30 Sep 2005 07:54 am, Andrew Morton wrote:
-> > Con Kolivas <kernel@kolivas.org> wrote:
-> > > Once pages have been added to the swapped list, a timer is started,
-> > > testing for conditions suitable to prefetch swap pages every 5 seconds.
-> > > Suitable conditions are defined as lack of swapping out or in any pages,
-> > > and no watermark tests failing. Significant amounts of dirtied ram also
-> > > prevent prefetching. It then checks that we have spare ram looking for at
-> > > least 3* pages_high free per zone and if it succeeds that will prefetch
-> > > pages from swap.
-> >
-> > Did you consider poking around in gendisk.disk_stats to determine whether
-> > the swap disk(s) are idleish?
+> Michal Piotrowski wrote:
+> > Hi,
+> > 
+> > On 29/09/05, Andrew Morton <akpm@osdl.org> wrote:
+> >> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc2/2.6.14-rc2-mm2/
+> >>
+> >> (temp copy at http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.14-rc2-mm2.gz)
+> > 
+> > VESA VGA graphics support doesn't work with nvidia card (black
+> > screen). (I know there is nvidia frame buffer support, but VESA VGA
+> > works for me on current git).
+> > 
+> > #
+> > # Console display driver support
+> > #
+> > CONFIG_VGA_CONSOLE=y
+> > CONFIG_DUMMY_CONSOLE=y
+> > # CONFIG_FRAMEBUFFER_CONSOLE is not set
 > 
-> I didn't know where to look for that info. Thanks! I'm open to *any* 
-> suggestions and I'll look into it as I can't take this code much further 
-> without outside help.
+> Set this to y.
 > 
 
-Might also be able to utilise CFQ's I/O priorities.  That should be more
-efective than a heuristic based on disk_stats, however you'd probably need
-to work out whether the swapdev actually supports IO priorities and I'm not
-sure how one would query that (cleanly).
-
+Was this a slipup by Michal, or did we do something to fool `make oldconfig'?

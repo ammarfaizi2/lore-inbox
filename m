@@ -1,59 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbVI2H4h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932145AbVI2Hyd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932188AbVI2H4h (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 03:56:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932189AbVI2H4h
+	id S932145AbVI2Hyd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 03:54:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbVI2Hyd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 03:56:37 -0400
-Received: from port-83-236-157-249.static.qsc.de ([83.236.157.249]:12936 "EHLO
-	kaasa.com") by vger.kernel.org with ESMTP id S932188AbVI2H4g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 03:56:36 -0400
-Message-ID: <433B9E31.5040406@gmail.com>
-Date: Thu, 29 Sep 2005 09:56:33 +0200
-From: Matteo Brusa <matteo.brusa@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: libata/ata_piix stuck in combined mode
-X-Enigmail-Version: 0.90.1.1
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 29 Sep 2005 03:54:33 -0400
+Received: from amsfep11-int.chello.nl ([213.46.243.19]:41811 "EHLO
+	amsfep19-int.chello.nl") by vger.kernel.org with ESMTP
+	id S932145AbVI2Hyc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 03:54:32 -0400
+Subject: Re: 2.6.13-rc6-rt9
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: paulmck@us.ibm.com, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostdt@goodmis.org>
+Cc: Jeff Dike <jdike@addtoit.com>
+In-Reply-To: <20050820212446.GA9822@ccure.user-mode-linux.org>
+References: <20050818060126.GA13152@elte.hu>
+	 <1124470574.17311.4.camel@twins> <1124476205.17311.8.camel@twins>
+	 <20050819184334.GG1298@us.ibm.com> <1124566045.17311.11.camel@twins>
+	 <20050820212446.GA9822@ccure.user-mode-linux.org>
+Content-Type: text/plain
+Date: Thu, 29 Sep 2005 09:54:23 +0200
+Message-Id: <1127980463.14695.6.camel@twins>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I'm running Sarge on a Dell PE 750, official Debian kernel 2.6.8-2-686,
-with 2 SATA disks. The disk controller is an Intel ICH5.
-Since I upgraded from kernel 2.4 to 2.6, the DMA disk access doesn't
-work anymore, because libata and ata_piix goes in combined mode:
+On Sat, 2005-08-20 at 17:24 -0400, Jeff Dike wrote:
+> On Sat, Aug 20, 2005 at 09:27:25PM +0200, Peter Zijlstra wrote:
+> > Jeff, could you help us out here?
+> > What exactly does uml need to get out of the calibrate delay loop?
+> 
+> Interrupts, it's not too demanding :-)
+> 
+> If it's not seeing VTALRM, then it will never leave the calibration loop.
+> 
+> Try stracing it and see what it's getting.
 
-# grep -i ata /var/log/dmesg
- BIOS-e820: 000000003ffc0000 - 000000003ffcfc00 (ACPI data)
-Memory: 1031108k/1048320k available (1551k kernel code, 16284k reserved, 690k data, 148k init,
-130816k highmem)
-libata version 1.02 loaded.
-ata_piix version 1.02
-ata_piix: combined mode detected
-ata1: PATA max UDMA/33 cmd 0x1F0 ctl 0x3F6 bmdma 0xFEA0 irq 14
-ata1: dev 0 cfg 49:0f00 82:0000 83:0000 84:0000 85:0000 86:0000 87:0000 88:0407
-ata1: dev 0 ATAPI, max UDMA/33
-ata1: dev 0 configured for UDMA/33
-scsi0 : ata_piix
-ata2: SATA max UDMA/133 cmd 0x170 ctl 0x376 bmdma 0xFEA8 irq 15
-ata2: dev 0 cfg 49:2f00 82:7c6b 83:7b09 84:4003 85:7c69 86:3a01 87:4003 88:207f
-ata2: dev 0 ATA, max UDMA/133, 156250000 sectors:
-ata2: dev 0 configured for UDMA/133
-scsi1 : ata_piix
-  Vendor: ATA       Model: Maxtor 6Y080M0    Rev: YAR5
-EXT3-fs: mounted filesystem with ordered data mode.
+Sorry for the late reply.
 
-I've read some posts here about disabling the PATA/SATA mixed mode in the BIOS; too bad there's no
-such a switch in Dell servers.
-I tried to disable the IDE cdrom in the BIOS, with no luck. Also kernel 2.6.12 from Knoppix 4.0.2
-couldn't help.
-Is there a way to force the ata_piix module out of combined mode?
+Yes, that does seem to be the problem.
 
-Thanks in advance.
+Even with a current -rt (2.6.14-rc2-rt5) UML does not run. The issue is
+indeed (as jeff pointed out) that VTALRM is never send. The small test
+programm below illustrates this.
+
+On a non-rt kernel it completed in 1 second.
+On a -rt kernel it waits at infinitum.
+
+Kind regards,
+
+Peter Zijlstra
+
+---------------------------
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/time.h>
+#include <signal.h>
+
+volatile int quit = 0;
+
+void sig_vtalrm(int signr, siginfo_t * si, void * arg)
+{
+        if (signr == SIGVTALRM) quit = 1;
+}
+
+int main()
+{
+        struct itimerval ival = {{0,0}, {1, 0}};
+
+        struct sigaction sa;
+        sa.sa_sigaction = sig_vtalrm;
+        sigemptyset(&sa.sa_mask);
+        sa.sa_flags = 0;
+        sigaction(SIGVTALRM, &sa, NULL);
+
+        setitimer(ITIMER_VIRTUAL, &ival, NULL);
+
+        printf("wait\n");
+        while (!quit) ;
+        printf("done\n");
+}
+
+
+-- 
+Peter Zijlstra <a.p.zijlstra@chello.nl>
+

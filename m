@@ -1,44 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbVI2Bln@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932074AbVI2BrR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751305AbVI2Bln (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 21:41:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbVI2Bln
+	id S932074AbVI2BrR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 21:47:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751310AbVI2BrR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 21:41:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:24536 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751305AbVI2Bln (ORCPT
+	Wed, 28 Sep 2005 21:47:17 -0400
+Received: from relay-bv.club-internet.fr ([194.158.96.102]:64745 "EHLO
+	relay-bv.club-internet.fr") by vger.kernel.org with ESMTP
+	id S1751306AbVI2BrQ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 21:41:43 -0400
-Date: Wed, 28 Sep 2005 18:41:06 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: bbpetkov@yahoo.de, linux-kernel@vger.kernel.org, R.E.Wolff@BitWizard.nl
-Subject: Re: [PATCH] remove check_region in drivers-char-specialix.c
-Message-Id: <20050928184106.49e9db11.akpm@osdl.org>
-In-Reply-To: <20050929011026.GO7992@ftp.linux.org.uk>
-References: <20050928083737.GA29498@gollum.tnic>
-	<20050928175244.GY7992@ftp.linux.org.uk>
-	<20050928222822.GA14949@gollum.tnic>
-	<20050929011026.GO7992@ftp.linux.org.uk>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 28 Sep 2005 21:47:16 -0400
+From: pinotj@club-internet.fr
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH][2.6.14-rc2] ext3: fix build warning if !quota
+Date: Thu, 29 Sep 2005 03:46:53 +0200
 Mime-Version: 1.0
+X-Mailer: Medianet/v2.0
+Message-Id: <mnet1.1127958413.3944.pinotj@club-internet.fr>
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro <viro@ftp.linux.org.uk> wrote:
->
-> On Thu, Sep 29, 2005 at 12:28:22AM +0200, Borislav Petkov wrote:
->  > Andrew told me already today that Jeff[1] had sent a patch fixing all that. To
->  > prevent the leaks he's calling sx_release_io_range(bp) in every check before
->  > exiting sx_probe so this seems correct. A small question though: After calling
->  > sx_request_io_range() in the if-statement on line 499 is it ok to call
->  > sx_request_io_range() for a second time in a row on line 587?  I think in
->  > this case the second call has to go, no?
->  > 
->  > [1]rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/misc-2.6.git
-> 
->  Huh?  I don't see any specialix patches in that repository right now...
+Hi,
 
-http://www.spinics.net/lists/kernel/msg399680.html
+(My first e-mail seems to be lost somewhere, here is a second try)
+
+sbi is not used if quota is not defined. This leads to a useless
+variable after preprocessing and a build warning.
+
+This moves the declaration in right place.
+
+ ------8<------
+diff -Naur a/fs/ext3/super.c b/fs/ext3/super.c
+--- a/fs/ext3/super.c	2005-09-29 00:28:16.000000000 +0000
++++ b/fs/ext3/super.c	2005-09-29 00:25:02.000000000 +0000
+@@ -513,7 +513,6 @@
+ static int ext3_show_options(struct seq_file *seq, struct vfsmount *vfs)
+ {
+ 	struct super_block *sb = vfs->mnt_sb;
+-	struct ext3_sb_info *sbi = EXT3_SB(sb);
+
+ 	if (test_opt(sb, DATA_FLAGS) == EXT3_MOUNT_JOURNAL_DATA)
+ 		seq_puts(seq, ",data=journal");
+@@ -523,6 +522,8 @@
+ 		seq_puts(seq, ",data=writeback");
+
+ #if defined(CONFIG_QUOTA)
++	struct ext3_sb_info *sbi = EXT3_SB(sb);
++
+ 	if (sbi->s_jquota_fmt)
+ 		seq_printf(seq, ",jqfmt=%s",
+ 		(sbi->s_jquota_fmt == QFMT_VFS_OLD) ? "vfsold": "vfsv0");
+ ------8<------
+
+Signed-off-by: Jerome Pinot <ngc891@gmail.com>
+
+
+Regards,
+
+--
+Jerome Pinot
+http://ngc891.blogdns.net/
+

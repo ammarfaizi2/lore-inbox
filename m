@@ -1,84 +1,240 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751167AbVI2UiW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964886AbVI2UsI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751167AbVI2UiW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 16:38:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbVI2UiW
+	id S964886AbVI2UsI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 16:48:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbVI2UsI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 16:38:22 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:40171 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1751167AbVI2UiW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 16:38:22 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <433C5049.9020505@s5r6.in-berlin.de>
-Date: Thu, 29 Sep 2005 22:36:25 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
-X-Accept-Language: de, en
+	Thu, 29 Sep 2005 16:48:08 -0400
+Received: from zproxy.gmail.com ([64.233.162.196]:7210 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751297AbVI2UsF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 16:48:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=KggqilHBjsvqvXKjaCnwbzpaACUURULHN6AsZcC9B5QDNLbBcU1a359rNd539SX1nkd5WK2PglOLXmCX8Wo2uV7i1qwoM2Ci21G9/oDuEboMdZ+mcBAYOg0FeV+mdwaRzY/ph2m1eSrTbmw5KgvilCGqR+Sx6pnKm7hn7xAOuEY=
+Message-ID: <433C52F0.6000401@gmail.com>
+Date: Fri, 30 Sep 2005 04:47:44 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org,
-       linux1394-devel@lists.sourceforge.net,
-       Jody McIntyre <scjody@modernduck.com>
-Subject: Re: Fix broken module aliases in ieee1394
-References: <20050929185732.GA31117@redhat.com> <20050929121038.54d4cef0.akpm@osdl.org>
-In-Reply-To: <20050929121038.54d4cef0.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Giuseppe Bilotta <bilotta78@hotpop.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Blanky rivafb vs snowy nvidiafb with 2.6.12
+References: <1hcq27fp0wwd6.1xosn5xgejhhn$.dlg@40tude.net> <433B049B.1090502@gmail.com> <1gie1vr78iijd$.qcvoypipyouu.dlg@40tude.net> <433BE0D1.1070501@gmail.com> <dsq9rvr3xni3.1py6wljnelhp0.dlg@40tude.net>
+In-Reply-To: <dsq9rvr3xni3.1py6wljnelhp0.dlg@40tude.net>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: (-1.019) AWL,BAYES_20
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Dave Jones <davej@redhat.com> wrote:
->>https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=134047
-
-This bug has been reported in 12/2004 (shame on us) at 
-http://bugzilla.kernel.org/show_bug.cgi?id=3966
-
->>The ieee1394 drivers have buggered module aliases.
+Giuseppe Bilotta wrote:
+> On Thu, 29 Sep 2005 20:40:49 +0800, Antonino A. Daplas wrote:
+> 
+>> Giuseppe Bilotta wrote:
+>>> On Thu, 29 Sep 2005 05:01:15 +0800, Antonino A. Daplas wrote:
+>>>
+>>>> Giuseppe Bilotta wrote:
+>>> So as you can see the problem is that the timings are NOT set by
+>>> fbset. No error messages or anything.
+>> Sorry about the blank reply, hit send accidentally.
 >>
->>alias:          char-major-171-0 * 16
+>> Probably, the EDID block is incomplete, so nvidiafb is refusing
+>> custom modes.  You can change the #undef DEBUG to #define DEBUG
+>> in drivers/video/fbmon.c to see verbose output of the EDID block in
+>> dmesg.
+> 
+> Here you are:
+> 
+> """
+> nvidiafb: nVidia device/chipset 10DE0112
+> nvidiafb: nVidia Corporation NV11 [GeForce2 Go]
+> nvidiafb: EDID found from BUS2
+> ========================================
+> Display Information (EDID)
+> ========================================
+>    EDID Version 1.3
+>    Manufacturer: SHP
+>    Model: 138e
+>    Serial#: 0
+>    Year: 1990 Week 0
+>    Display Characteristics:
+>       Monitor Operating Limits:    Supported VESA Modes
+>       Manufacturer's mask: 0
+>    Standard Timings
+>       1600x1200@60Hz
+>    Detailed Timings
+>       160 MHz 1600 1664 1856 2112 1200 1201 1204 1250 -HSync -VSync
+> 
+> Extrapolated
+>            H: 75-75KHz V: 60-60Hz DCLK: 162MHz
+>       Digital Display Input
+>       Sync: 
+>       Max H-size in cm: 30
+>       Max V-size in cm: 23
+>       Gamma: 2.20
+>       DPMS: Active no, Suspend yes, Standby yes
+>       RGB Color Display
+>       Chroma
+>          RedX:     0.599 RedY:     0.335
+>          GreenX:   0.313 GreenY:   0.552
+>          BlueX:    0.150 BlueY:    0.145
+>          WhiteX:   0.313 WhiteY:   0.328
+>       First DETAILED Timing is preferred
+>    Supported VESA Modes
+>       Manufacturer's mask: 0
+>    Standard Timings
+>       1600x1200@60Hz
+>    Detailed Timings
+>       160 MHz 1600 1664 1856 2112 1200 1201 1204 1250 -HSync -VSync
+> 
+> ========================================
+> nvidiafb: CRTC 1 is currently programmed for DFP
+> nvidiafb: Using DFP on CRTC 1
+> Panel size is 1600 x 1200
+> nvidiafb: MTRR set to ON
+> nvidiafb: PCI nVidia NV11 framebuffer (32MB @ 0xE0000000) 
+> """
+
+
+The EDID supports only one mode, and no min/max vsync and hsync,
+so using other custom modes will not be supported.
+
+> 
+>> Then, can you recompile without the DDC/I2C support, and boot with:
 >>
->>This is because MODULE_ALIAS_CHARDEV stringifies its arguments.
+>> video=nvidiafb:1600x1200-60, then play with fbset later on.
 > 
-> hm.  There are a bunch of 1394 patches in -mm which appear to remove
-> most/all of this stuff.
+> Remember I'm using nvidiafb as a module, it's not compiled in. So what
+> I do is
+> 
+> modprobe nvidiafb
+> 
+> Is there a way to specifiy resolution when loading nvidiafb this way?
 
-Yes, that is the plan. These module aliases have been unnecessary for 
-some time.
+Not currently, but you can add this at the end of drivers/video/nvidia/nvidia.c:
 
-> So what-the-heck I think I'll send those patches on to Linus today.  Please
-> review the result and send any remaining fixups on to Linus for 2.6.14. 
-> (I'm offline for ~10 days, starting tomorrow).
-> 
-> 
-> 
->>--- linux-2.6.13/drivers/ieee1394/amdtp.c~	2005-09-29 03:50:20.000000000 -0400
->>+++ linux-2.6.13/drivers/ieee1394/amdtp.c	2005-09-29 03:50:54.000000000 -0400
->>@@ -1234,7 +1234,7 @@ static void amdtp_add_host(struct hpsb_h
->> 
->> 	hpsb_set_hostinfo_key(&amdtp_highlevel, host, ah->host->id);
->> 
->>-	minor = IEEE1394_MINOR_BLOCK_AMDTP * 16 + ah->host->id;
->>+	minor = IEEE1394_MINOR_BLOCK_AMDTP + ah->host->id;
->> 
->> 	INIT_LIST_HEAD(&ah->stream_list);
->> 	spin_lock_init(&ah->stream_list_lock);
->>@@ -1297,4 +1297,4 @@ static void __exit amdtp_exit_module (vo
->> 
->> module_init(amdtp_init_module);
->> module_exit(amdtp_exit_module);
->>-MODULE_ALIAS_CHARDEV(IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_AMDTP * 16);
->>+MODULE_ALIAS_CHARDEV(IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_AMDTP);
-[...same for the other 1394 hi-level drivers]
+module_param(mode_option, charp, 0);
+MODULE_PARM_DESC(mode_option, "Specify initial video mode");
 
-This not a correct fix as far as I can see. Each of these drivers has a 
-block of minor numbers assigned, and we would need to create aliases for 
-all of the numbers in the blocks --- if we wanted these aliases badly. 
-Brief discussion in August:
-http://marc.theaimsgroup.com/?l=linux1394-devel&t=112341382400002
--- 
-Stefan Richter
--=====-=-=-= =--= ===-=
-http://arcgraph.de/sr/
+Then load nvidiafb like this:
+
+modprobe nvidiafb mode_option=1600x1200
+
+> Presently, when compiling without DDC support, I get this:
+> 
+> """
+> mode "640x480-60"
+>     # D: 25.176 MHz, H: 31.469 kHz, V: 59.942 Hz
+>     geometry 640 480 640 32767 8
+>     timings 39721 40 24 32 11 96 2
+>     accel true
+>     rgba 8/0,8/0,8/0,0/0
+> endmode
+> 
+> Frame buffer device information:
+>     Name        : NV11
+>     Address     : 0xe0000000
+>     Size        : 33554432
+>     Type        : PACKED PIXELS
+>     Visual      : PSEUDOCOLOR
+>     XPanStep    : 8
+>     YPanStep    : 1
+>     YWrapStep   : 0
+>     LineLength  : 0
+>     MMIO Address: 0xfc000000
+>     MMIO Size   : 16777216
+>     Accelerator : Unknown (43)  
+> """
+> 
+> and then, after fbset "1600x1200"
+> 
+> """
+> mode "1600x1200-60"
+>     # D: 162.022 MHz, H: 75.010 kHz, V: 60.008 Hz
+>     geometry 1600 1200 1920 17408 8
+>     timings 6172 304 64 46 1 192 3
+>     hsync high
+>     vsync high
+>     accel true
+>     rgba 8/0,8/0,8/0,0/0
+> endmode
+> 
+> Frame buffer device information:
+>     Name        : NV11
+>     Address     : 0xe0000000
+>     Size        : 33554432
+>     Type        : PACKED PIXELS
+>     Visual      : PSEUDOCOLOR
+>     XPanStep    : 8
+>     YPanStep    : 1
+>     YWrapStep   : 0
+>     LineLength  : 1920
+>     MMIO Address: 0xfc000000
+>     MMIO Size   : 16777216
+>     Accelerator : Unknown (43)  
+> """
+> 
+> but a borked screen (see further down)
+> 
+
+Yes, unfortunately, nvidiafb's hardware initialization routine
+may disrupt the hardware state, so you need something that will
+use the framebuffer, such as fbcon.
+
+> BTW, I think that having it in module form may be part of the problem:
+> even the old rivafb acted differently when in module form (as I
+> mentioned in my original post)
+
+Yes, that in itself is weird.
+> 
+> BTW #2: There are two interesting differences between the
+> (modularized) nvidiafb in Debian and the one from my kernel:
+> 
+> 1. Debian's nvidiafb resets the console font to 200x75 on load, while
+> the one from my kernel doesn't
+> 
+
+If a vt already exists and it has a defined font, fbcon will use that font.
+If there is not vt yet, or no defined font, fbcon will use one of the
+compiled font, usually 8x16.
+  
+> 2. If I try to change resolution or color depth when using my kernel,
+> the screen gets garbled, and there is no way to restore it.
+> 
+
+Yes, rivafb has the ability to save the VGA state on the first open,
+and restore on the last close.  So rivafb, at least with some cards,
+using fbset without fbcon will bring you back a working VGA console.
+
+nvidiafb does not have this capability.
+
+However, if fbcon is also loaded, and you have a garbled screen after
+fbset, then it is a bug.
+
+>> If possible, you can also get the latest git snapshot then boot with:
+>>
+>> video=nvidiafb:1600x1200MR
+>>
+>> Note the appended MR - it's CVT with reduced blanking - which is
+>> for LCD displays especially those manufactured by Dell since they
+>> are the proponents of CVT.
+> 
+> I'm afraid this will have to wait.
+
+That's okay.  I'm not expecting too much from this anyway. I was
+thinking that the snowy screen might be due to the mode maximizing
+the bandwidth of the DVI.  So a reduced-blanking calculation, which
+is not as bandwidth intensive, might be helpful.
+
+> 
+> And while we're talking about Dell: my configuration (GeForce2 Go on
+> Dell Inspiron 8200 with UXGA monitor 15" at 1600x1200) is known to be
+> borky even with nVidia's own driver for Windows XP --not all versions
+> work correctly.
+> 
+
+Hmm... But X's nv works, right?
+
+Tony

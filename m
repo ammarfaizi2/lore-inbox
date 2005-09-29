@@ -1,73 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbVI2QWX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbVI2QYA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932234AbVI2QWX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 12:22:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932232AbVI2QWX
+	id S932233AbVI2QYA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 12:24:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbVI2QX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 12:22:23 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:5544 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S932231AbVI2QWW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 12:22:22 -0400
-Message-ID: <433C14AD.4070700@adaptec.com>
-Date: Thu, 29 Sep 2005 12:22:05 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+	Thu, 29 Sep 2005 12:23:59 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:49926 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932233AbVI2QX7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 12:23:59 -0400
+Message-ID: <433C151B.7090603@vmware.com>
+Date: Thu, 29 Sep 2005 09:23:55 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Andre Hedrick <andre@linux-ide.org>,
-       Patrick Mansfield <patmans@us.ibm.com>,
-       Luben Tuikov <ltuikov@yahoo.com>,
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jeffrey Sheldon <jeffshel@vmware.com>, Ole Agesen <agesen@vmware.com>,
+       Shai Fultheim <shai@scalex86.org>, Andrew Morton <akpm@odsl.org>,
+       Jack Lo <jlo@vmware.com>, Ingo Molnar <mingo@elte.hu>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
- the kernel
-References: <Pine.LNX.4.10.10509281530190.19896-100000@master.linux-ide.org> <433C0285.3050106@adaptec.com> <433C0382.10404@pobox.com>
-In-Reply-To: <433C0382.10404@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       Chris Wright <chrisw@osdl.org>, Martin Bligh <mbligh@mbligh.org>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>, Andi Kleen <ak@muc.de>
+Subject: Re: [PATCH 0/3] GDT alignment fixes
+References: <200509282140.j8SLelHR032216@zach-dev.vmware.com> <Pine.LNX.4.58.0509290851370.3308@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0509290851370.3308@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 29 Sep 2005 16:22:14.0992 (UTC) FILETIME=[F412DD00:01C5C511]
+X-OriginalArrivalTime: 29 Sep 2005 16:23:57.0143 (UTC) FILETIME=[30F5DE70:01C5C512]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09/29/05 11:08, Jeff Garzik wrote:
-> Luben Tuikov wrote:
-> 
->>  hardware implementation  (interconnect, SAM 4.15, 1.3)
->>      firmware implementation  (interconnect, SDS, SAM 4.6, 1.3)
->>          LLDD                     (SAM, section 5, 6, 7)
->>             Transport Layer          (SAM 4.15, SAS)
->>                  SCSI Core             (SAM section 4,5,8)
->>                     Commmand Sets        (SAM section 1)
-> 
-> 
-> Transport class + libsas achieves this.
+Linus Torvalds wrote:
 
-This is *WRONG*.  (see below)
+>Just fyi, 
+> I'll leave this until after 2.6.14, since it doesn't seem to be that 
+>pressing. Can you re-send after the release (preferably with the relevant 
+>people having signed-off on it or at least added their "acked-by" lines?)
+>  
+>
 
-And it doesn't "achieve" this.  Stop the FUD.
-There is a _reason_ why it is the way it is.
+No problems - all of this should be brewing in -mm if not there already 
+and will be ready to go in the first week of 2.6.15 developement.  
+Judging by the quickening pace, I'm guessing that will be soon?
 
-> Maybe I will have to demonstrate using code...
-
-Jeff,
-
-There is a _reason_ why technical people separate concepts
-in _layers_.
-
-There is a _reason_ why technical people use Object Oriented
-Paradigms describing models and design.
-
-Do you know _what_ that reason is?
-
-Or should I leave you to "demonstrate with code"?
-
-Seeing that you keep _persisting_ in your ways,
-I'll leave it for you to "enrich" Linux SCSI in
-your "demonstrate with code".
-
-	Luben
-
-
+Zach

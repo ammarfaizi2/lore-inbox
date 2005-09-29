@@ -1,90 +1,179 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbVI2R3I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbVI2Rfa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932282AbVI2R3I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 13:29:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbVI2R3I
+	id S932262AbVI2Rfa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 13:35:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbVI2Rfa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 13:29:08 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:4077 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932278AbVI2R3H (ORCPT
+	Thu, 29 Sep 2005 13:35:30 -0400
+Received: from NS6.Sony.CO.JP ([137.153.0.32]:48091 "EHLO ns6.sony.co.jp")
+	by vger.kernel.org with ESMTP id S932262AbVI2Rfa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 13:29:07 -0400
-Message-ID: <433C245D.7070707@pobox.com>
-Date: Thu, 29 Sep 2005 13:29:01 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
+	Thu, 29 Sep 2005 13:35:30 -0400
+Message-ID: <433C25D9.9090602@sm.sony.co.jp>
+Date: Fri, 30 Sep 2005 02:35:21 +0900
+From: "Machida, Hiroyuki" <machida@sm.sony.co.jp>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: ja, en-us, en
 MIME-Version: 1.0
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-CC: SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Arjan van de Ven <arjan@infradead.org>, Willy Tarreau <willy@w.ods.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Luben Tuikov <luben_tuikov@adaptec.com>
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
- the kernel
-References: <43384E28.8030207@adaptec.com> <4339BFE9.1060604@pobox.com>	 <4339CCD6.5010409@adaptec.com> <4339F9A8.2030709@pobox.com>	 <433AFEB2.7090003@adaptec.com> <433B0457.7020509@pobox.com>	 <433B14E1.6080201@adaptec.com> <433B217F.4060509@pobox.com>	 <20050929040403.GE18716@alpha.home.local> <1127979848.2918.7.camel@laptopd505.fenrus.org> <433C2137.1040108@s5r6.in-berlin.de>
-In-Reply-To: <433C2137.1040108@s5r6.in-berlin.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, linux-kernel@vger.kernel.org
+Subject: [PATCH 1/2] miss-sync changes on attributes (Re: [PATCH 2/2][FAT]
+ miss-sync issues on sync mount (miss-sync on utime))
+References: <43288A84.2090107@sm.sony.co.jp> <87oe6uwjy7.fsf@devron.myhome.or.jp>
+In-Reply-To: <87oe6uwjy7.fsf@devron.myhome.or.jp>
+Content-Type: multipart/mixed;
+ boundary="------------090202080209030501050909"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefan Richter wrote:
-> Arjan van de Ven wrote:
+This is a multi-part message in MIME format.
+--------------090202080209030501050909
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+
+I revise a previous patch. Now checking dirty flag is done
+at vfs layer, as OGAWA-san said. I realized ext2_sync_inode()
+is good for syncing inode without it's data. I moved it to vfs layer
+and rename it to sync_inode_wodata().
+
+The first patch attached here is changes on vfs layer.
+Second patch attached at the next mail is changes on ext2 fs.
+
+
+OGAWA Hirofumi wrote:
+> "Machida, Hiroyuki" <machida@sm.sony.co.jp> writes:
 > 
->> On Thu, 2005-09-29 at 06:04 +0200, Willy Tarreau wrote:
->>
->>> On Wed, Sep 28, 2005 at 07:04:31PM -0400, Jeff Garzik wrote:
->>>
->>>> Linux is about getting things done, not being religious about 
->>>> specifications.  You are way too focused on the SCSI specs, and 
->>>> missing the path we need to take to achieve additional flexibility.
+> 
+>>+	if ( (!error) && IS_SYNC(inode)) {
+>>+		error = write_inode_now(inode, 1);
+>>+	}
 > 
 > 
-> AFAIU, demands to get our concepts closer to SAM concepts are actually 
-> motivated by this: To achieve additional flexibility. (In particular, to 
-> ease integration of the various transports.)
-
-That's what transport classes help achieve.
-
-We just gotta move gunk from the core (HCIL etc.) to scsi_transport_spi 
-before we get there.
-
-
-> We implement drivers of initiators. (Well, targets too.) The specs 
-> describe _what_ initiators do. Thereby they partly describe _how_ 
-> drivers of initiators (our sw pieces) work.
-
-Mostly agreed.  Some of the firmware-based and emulated SCSI stuff is a 
-bit of an I_T mix.
-
-
-> However it is very desirable to reflect layers and concepts of the SAM 
-> in our stack. One class of reasons is maintainability. No person is able 
-> to understand the stack; nor is a person able to consume and understand 
-> all or even half of the SCSI specs. No person is able to construct a 
-> mapping between the whole stack and the whole SCSI-3 Architecture Model 
-> (in his mind or with pencil and paper...). Therefore there have to be 
-> _components_ of the stack's architecture model which map 1:1 to 
-> _components_ of the SCSI-3 Architecture Model.
+> We don't need to sync the data pages at all here. And I think it is
+> not right place for doing this.  If we need this, since we need to see
+> O_SYNC for fchxxx() VFS would be right place to do it.
 > 
-> Fortunately, SAM layers and concepts are already there in the stack, 
-> although incomplete and incoherent. It will always be disputable _how_ 
-> complete and coherent our software should be in this respect. However it 
-> is out of a question that our software's architecture model might 
-> arbitrarily differ from the SAM.
+> But, personally, I'd like to kill the "-o sync" stuff for these
+> independent meta data rather. Then...
 
-I think just about everybody agrees with this.
-
-The current thread is more about the path to take, to get there...
-
-The general point about specs is that you gotta think about them, not 
-just blindly implement them.  SNIA for example is notorious for 
-generating silly storage-related specifications.  And some of the T10 
-stuff is... well... obviously designed by committee :)
-
-	Jeff
+-- 
+Hiroyuki Machida		machida@sm.sony.co.jp		
 
 
+--------------090202080209030501050909
+Content-Type: text/plain;
+ name="fs-sync-attr.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="fs-sync-attr.patch"
+
+
+This patch adds inode-sync after attribute changes, if needed.
+
+* fs-sync-attr.patch for 2.6.13
+
+ fs/fs-writeback.c      |   19 +++++++++++++++++++
+ fs/open.c              |   12 ++++++++++++
+ include/linux/fs.h     |    1 +
+ 4 files changed, 32 insertions(+)
+
+Signed-off-by: Hiroyuki Machida <machdia@sm.sony.co.jp>
+
+--- linux-2.6.13/fs/fs-writeback.c	2005-08-29 08:41:01.000000000 +0900
++++ linux-2.6.13-sync-attr/fs/fs-writeback.c	2005-09-29 12:56:21.052335295 +0900
+@@ -593,6 +593,25 @@ int sync_inode(struct inode *inode, stru
+ EXPORT_SYMBOL(sync_inode);
+ 
+ /**
++ * sync_inode_wodata - sync(write and wait) inode to disk, without it's data.
++ * @inode: the inode to sync
++ *
++ * sync_inode_wodata() will write an inode  then wait.  It will also
++ * correctly update the inode on its superblock's dirty inode lists 
++ * and will update inode->i_state.
++ *
++ * The caller must have a ref on the inode.
++ */
++int sync_inode_wodata(struct inode *inode)
++{
++	struct writeback_control wbc = {
++		.sync_mode = WB_SYNC_ALL, /* wait */
++		.nr_to_write = 0,/* no data to be written */
++	};
++	return sync_inode(inode, &wbc);
++}
++
++/**
+  * generic_osync_inode - flush all dirty data for a given inode to disk
+  * @inode: inode to write
+  * @mapping: the address_space that should be flushed
+diff -upr linux-2.6.13/fs/open.c linux-2.6.13-sync-attr/fs/open.c
+--- linux-2.6.13/fs/open.c	2005-08-29 08:41:01.000000000 +0900
++++ linux-2.6.13-sync-attr/fs/open.c	2005-09-30 01:29:45.279437136 +0900
+@@ -207,6 +207,8 @@ int do_truncate(struct dentry *dentry, l
+ 
+ 	down(&dentry->d_inode->i_sem);
+ 	err = notify_change(dentry, &newattrs);
++	if (!err && IS_SYNC(dentry->d_inode))
++		sync_inode_wodata(dentry->d_inode);
+ 	up(&dentry->d_inode->i_sem);
+ 	return err;
+ }
+@@ -394,6 +396,8 @@ asmlinkage long sys_utime(char __user * 
+ 	}
+ 	down(&inode->i_sem);
+ 	error = notify_change(nd.dentry, &newattrs);
++	if (!error && IS_SYNC(inode))
++		sync_inode_wodata(inode);
+ 	up(&inode->i_sem);
+ dput_and_out:
+ 	path_release(&nd);
+@@ -447,6 +451,8 @@ long do_utimes(char __user * filename, s
+ 	}
+ 	down(&inode->i_sem);
+ 	error = notify_change(nd.dentry, &newattrs);
++	if (!error && IS_SYNC(inode))
++		sync_inode_wodata(inode);
+ 	up(&inode->i_sem);
+ dput_and_out:
+ 	path_release(&nd);
+@@ -620,6 +626,8 @@ asmlinkage long sys_fchmod(unsigned int 
+ 	newattrs.ia_mode = (mode & S_IALLUGO) | (inode->i_mode & ~S_IALLUGO);
+ 	newattrs.ia_valid = ATTR_MODE | ATTR_CTIME;
+ 	err = notify_change(dentry, &newattrs);
++	if (!err && IS_SYNC(inode))
++		sync_inode_wodata(inode);
+ 	up(&inode->i_sem);
+ 
+ out_putf:
+@@ -654,6 +662,8 @@ asmlinkage long sys_chmod(const char __u
+ 	newattrs.ia_mode = (mode & S_IALLUGO) | (inode->i_mode & ~S_IALLUGO);
+ 	newattrs.ia_valid = ATTR_MODE | ATTR_CTIME;
+ 	error = notify_change(nd.dentry, &newattrs);
++	if (!error && IS_SYNC(inode))
++		sync_inode_wodata(inode);
+ 	up(&inode->i_sem);
+ 
+ dput_and_out:
+@@ -692,6 +702,8 @@ static int chown_common(struct dentry * 
+ 		newattrs.ia_valid |= ATTR_KILL_SUID|ATTR_KILL_SGID;
+ 	down(&inode->i_sem);
+ 	error = notify_change(dentry, &newattrs);
++	if (!error && IS_SYNC(inode))
++		sync_inode_wodata(inode);
+ 	up(&inode->i_sem);
+ out:
+ 	return error;
+diff -upr linux-2.6.13/include/linux/fs.h linux-2.6.13-sync-attr/include/linux/fs.h
+--- linux-2.6.13/include/linux/fs.h	2005-08-29 08:41:01.000000000 +0900
++++ linux-2.6.13-sync-attr/include/linux/fs.h	2005-09-30 01:29:06.278507000 +0900
+@@ -1082,6 +1082,7 @@ static inline void file_accessed(struct 
+ }
+ 
+ int sync_inode(struct inode *inode, struct writeback_control *wbc);
++int sync_inode_wodata(struct inode *inode);
+ 
+ /**
+  * struct export_operations - for nfsd to communicate with file systems
+
+--------------090202080209030501050909--

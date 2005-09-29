@@ -1,66 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932201AbVI2PUo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbVI2PVI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932201AbVI2PUo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 11:20:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbVI2PUo
+	id S932196AbVI2PVI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 11:21:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbVI2PVH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 11:20:44 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:54251 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932196AbVI2PUn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 11:20:43 -0400
-Message-ID: <433C0641.3030101@pobox.com>
-Date: Thu, 29 Sep 2005 11:20:33 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Luben Tuikov <luben_tuikov@adaptec.com>
-CC: Arjan van de Ven <arjan@infradead.org>, Willy Tarreau <willy@w.ods.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
- the kernel
-References: <43384E28.8030207@adaptec.com> <4339BFE9.1060604@pobox.com>	 <4339CCD6.5010409@adaptec.com> <4339F9A8.2030709@pobox.com>	 <433AFEB2.7090003@adaptec.com> <433B0457.7020509@pobox.com>	 <433B14E1.6080201@adaptec.com> <433B217F.4060509@pobox.com>	 <20050929040403.GE18716@alpha.home.local> <1127979848.2918.7.camel@laptopd505.fenrus.org> <433C0398.4040302@adaptec.com>
-In-Reply-To: <433C0398.4040302@adaptec.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 29 Sep 2005 11:21:07 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:23548 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S932196AbVI2PVG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 11:21:06 -0400
+Subject: Re: [PATCH] RT: update rcurefs for RT
+From: Daniel Walker <dwalker@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050929114235.GA638@elte.hu>
+References: <1127845926.4004.22.camel@dhcp153.mvista.com>
+	 <20050929114235.GA638@elte.hu>
+Content-Type: text/plain
+Date: Thu, 29 Sep 2005 08:20:58 -0700
+Message-Id: <1128007259.11511.4.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-6) 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luben Tuikov wrote:
-> On 09/29/05 03:44, Arjan van de Ven wrote:
+On Thu, 2005-09-29 at 13:42 +0200, Ingo Molnar wrote:
+
+> > +		SPIN_LOCK_UNLOCKED(__rcuref_hash[i]);
 > 
->>a spec describes how the hw works... how we do the sw piece is up to
->>us ;)
-> 
-> 
-> Arjan, I'll be your best friend here:
-> Never say this in public or in an intervew.
+> what the heck is this doing??? Patch reverted.
 
-It's hard-earned experience.  We constantly have to teach hardware 
-vendors how to write good drivers.
+How is this ?
 
-At some point you have to step away from the spec, and ask yourself what 
-makes sense for Linux.  I've already had to poke T10 when they put silly 
-things in the SAT spec.
-
-As a tangent, I already have a design for a Linux filesystem that makes 
-use of SCSI object-based storage (to James's horror, no doubt :)).  It's 
-a fun thing to ponder.
-
-
-> Hardware folks needs to work with software folks and
-> software folks need to work with hardware folks.
-
-Certainly.  The historical disconnect is where hardware vendors tend to 
-presume They Know Best, when in reality it needs to be an equal 
-tradeoff.  Hardware vendors must admit they don't know Linux, and Linux 
-developers must admit that hardware vendors know their own hardware 
-better than anyone else.
-
-	Jeff
+Index: linux-2.6.13/kernel/rcupdate.c
+===================================================================
+--- linux-2.6.13.orig/kernel/rcupdate.c
++++ linux-2.6.13/kernel/rcupdate.c
+@@ -96,6 +96,25 @@ static void rcu_torture_init(void);
+ static inline void rcu_torture_init(void) { }
+ #endif
+ 
++#ifndef __HAVE_ARCH_CMPXCHG
++/*
++ * We use an array of spinlocks for the rcurefs -- similar to ones in sparc
++ * 32 bit atomic_t implementations, and a hash function similar to that
++ * for our refcounting needs.
++ * Can't help multiprocessors which donot have cmpxchg :(
++ */
++spinlock_t __rcuref_hash[RCUREF_HASH_SIZE];
++
++static inline void init_rcurefs(void)
++{
++	int i;
++	for (i=0; i < RCUREF_HASH_SIZE; i++) 
++		__rcuref_hash[i] = SPIN_LOCK_UNLOCKED(__rcuref_hash[i]);
++}
++#else
++#define init_rcurefs()	do { } while (0)
++#endif
++
+ #ifndef CONFIG_PREEMPT_RCU
+ 
+ /* Definition for rcupdate control block. */
+@@ -123,18 +142,6 @@ DEFINE_PER_CPU(struct rcu_data, rcu_bh_d
+ static DEFINE_PER_CPU(struct tasklet_struct, rcu_tasklet) = {NULL};
+ static int maxbatch = 10;
+ 
+-#ifndef __HAVE_ARCH_CMPXCHG
+-/*
+- * We use an array of spinlocks for the rcurefs -- similar to ones in sparc
+- * 32 bit atomic_t implementations, and a hash function similar to that
+- * for our refcounting needs.
+- * Can't help multiprocessors which donot have cmpxchg :(
+- */
+-
+-spinlock_t __rcuref_hash[RCUREF_HASH_SIZE] = {
+-	[0 ... (RCUREF_HASH_SIZE-1)] = SPIN_LOCK_UNLOCKED
+-};
+-#endif
+ 
+ /**
+  * call_rcu - Queue an RCU callback for invocation after a grace period.
+@@ -487,6 +494,7 @@ static struct notifier_block __devinitda
+  */
+ void __init rcu_init(void)
+ {
++	init_rcurefs();
+ 	rcu_torture_init();
+ 	rcu_cpu_notify(&rcu_nb, CPU_UP_PREPARE,
+ 			(void *)(long)smp_processor_id());
+@@ -824,6 +832,7 @@ rcu_pending(int cpu)
+ 
+ void __init rcu_init(void)
+ {
++	init_rcurefs();
+ 	rcu_torture_init();
+ /*&&&&*/printk("WARNING: experimental RCU implementation.\n");
+ 	spin_lock_init(&rcu_data.lock);
 
 

@@ -1,53 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751332AbVI2XCV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751335AbVI2XCv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751332AbVI2XCV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 19:02:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbVI2XCU
+	id S1751335AbVI2XCv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 19:02:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbVI2XCv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 19:02:20 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:41695 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1751332AbVI2XCU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 19:02:20 -0400
-Date: Fri, 30 Sep 2005 01:02:23 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Deepak Saxena <dsaxena@plexity.net>, linux-mtd@lists.infradead.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix IXP4xx MTD driver no cast warning
-Message-ID: <20050929230222.GA30887@wohnheim.fh-wedel.de>
-References: <20050929195205.GA30002@plexity.net> <Pine.LNX.4.58.0509291259110.3308@g5.osdl.org>
+	Thu, 29 Sep 2005 19:02:51 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:60357 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751335AbVI2XCu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 19:02:50 -0400
+Subject: Re: RocketPoint 1520 [hpt366] fails clock stabilization
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Loren M. Lang" <lorenl@alzatex.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050929103309.GA12361@alzatex.com>
+References: <20050929103309.GA12361@alzatex.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 30 Sep 2005 00:30:11 +0100
+Message-Id: <1128036611.9290.3.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.58.0509291259110.3308@g5.osdl.org>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 September 2005 13:00:18 -0700, Linus Torvalds wrote:
-> On Thu, 29 Sep 2005, Deepak Saxena wrote:
-> > 
-> > drivers/mtd/maps/ixp4xx.c: In function 'ixp4xx_flash_probe':
-> > drivers/mtd/maps/ixp4xx.c:199: warning: assignment makes integer from
-> > pointer without a cast
+On Iau, 2005-09-29 at 03:33 -0700, Loren M. Lang wrote:
+> Please CC me as I'm not on the list.
 > 
-> Please don't. The warning is entirely warranted, as far as I can tell.
-> 
-> Shutting up warnings just because they are warnings is bad practice. 
-> Either fix them, or leave them be.
-> 
-> If you do an "ioremap()", then the result is a "(void __iomem *)". If you 
-> assign it to something that is "unsigned long", you _should_ get a 
-> warning.
+> I just purchased a HighPoint Rocket 1520 SATA controller.  There seems
+> to be no libata driver (yet), but there is an ide driver, hpt366.  When
 
-Code is correct, as far as this specific mapping driver is concerned.
-But it would make some sense to convert one of the map_priv_[12] in
-struct map_info to (void __iomem *).
+Is this 302 or 302N based (what does lspci -vxx say about it ?)
 
-Jörn
 
--- 
-It does not matter how slowly you go, so long as you do not stop.
--- Confucius
+

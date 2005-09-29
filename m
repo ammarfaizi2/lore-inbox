@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbVI2Pqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932165AbVI2PrZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932139AbVI2Pqi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 11:46:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932165AbVI2Pqi
+	id S932165AbVI2PrZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 11:47:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932172AbVI2PrZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 11:46:38 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:450 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932139AbVI2Pqh (ORCPT
+	Thu, 29 Sep 2005 11:47:25 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:29582 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S932165AbVI2PrY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 11:46:37 -0400
-Message-ID: <433C0F3D.30C19186@tv-sign.ru>
-Date: Thu, 29 Sep 2005 19:58:53 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] fix TASK_STOPPED vs TASK_NONINTERACTIVE interaction
-Content-Type: text/plain; charset=us-ascii
+	Thu, 29 Sep 2005 11:47:24 -0400
+Subject: Re: Strange disk corruption with Linux >= 2.6.13
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: vherva@vianova.fi
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050929062937.GY24719@viasys.com>
+References: <20050927111038.GA22172@ime.usp.br>
+	 <20050928084330.GC24760@viasys.com>
+	 <1127949809.26686.14.camel@localhost.localdomain>
+	 <20050929062937.GY24719@viasys.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Thu, 29 Sep 2005 17:14:44 +0100
+Message-Id: <1128010484.5774.13.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-do_signal_stop:
+On Iau, 2005-09-29 at 09:29 +0300, Ville Herva wrote:
+> On Thu, Sep 29, 2005 at 12:23:28AM +0100, you [Alan Cox] wrote:
+> > On Mer, 2005-09-28 at 11:43 +0300, Ville Herva wrote:
+> > > I NEVER got the board stable, and ended up ditching it.
+> > > 
+> > > It seemed to be a KT133 Northbridge DMA issue. My impression is that KT133
+> > > is utter crap period.
+> > 
+> > It was a FIFO bug, but the kernel knows about it and it should handle
+> > this correctly. 
+> 
+> Interesting. Since which version?
 
-	for_each_thread(t) {
-		if (t->state < TASK_STOPPED)
-			++sig->group_stop_count;
-	}
+Some fixes went in early 2.4 and they got refined later on. See the
+function quirk_vialatency). There is a brief summary at the first URL
+listed still. Essentially the chip has a flaw where it can lose a
+transfer.
 
-However, TASK_NONINTERACTIVE > TASK_STOPPED, so this loop will not
-count TASK_INTERRUPTIBLE | TASK_NONINTERACTIVE threads.
+If people see this behaviour on a KT133 can you please check the quirk
+is being run and displaying
 
-See also wait_task_stopped(), which checks ->state > TASK_STOPPED.
+   printk(KERN_INFO "Applying VIA southbridge workaround.\n");
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-
---- 2.6.14-rc2/include/linux/sched.h~6_NONINT	2005-09-24 18:33:51.000000000 +0400
-+++ 2.6.14-rc2/include/linux/sched.h	2005-09-29 23:42:25.000000000 +0400
-@@ -110,11 +110,11 @@ extern unsigned long nr_iowait(void);
- #define TASK_RUNNING		0
- #define TASK_INTERRUPTIBLE	1
- #define TASK_UNINTERRUPTIBLE	2
--#define TASK_STOPPED		4
--#define TASK_TRACED		8
--#define EXIT_ZOMBIE		16
--#define EXIT_DEAD		32
--#define TASK_NONINTERACTIVE	64
-+#define TASK_NONINTERACTIVE	4
-+#define TASK_STOPPED		8
-+#define TASK_TRACED		16
-+#define EXIT_ZOMBIE		32
-+#define EXIT_DEAD		64
- 
- #define __set_task_state(tsk, state_value)		\
- 	do { (tsk)->state = (state_value); } while (0)

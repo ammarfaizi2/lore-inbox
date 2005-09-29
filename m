@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751358AbVI2XZM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751362AbVI2X0l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751358AbVI2XZM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 19:25:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbVI2XZM
+	id S1751362AbVI2X0l (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 19:26:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbVI2X0l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 19:25:12 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:23949 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751358AbVI2XZK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 19:25:10 -0400
-Date: Thu, 29 Sep 2005 16:25:07 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-Cc: michal.k.k.piotrowski@gmail.com, linux-kernel@vger.kernel.org
+	Thu, 29 Sep 2005 19:26:41 -0400
+Received: from xproxy.gmail.com ([66.249.82.196]:58151 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751362AbVI2X0k convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 19:26:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WKjHXXMeNTs/eYYBNv5ub1A7/hxTEKteGQcRssxAdRlfyN3wEAqT7QtcJX/a6Ktk1g8YTAHJqBe0dXiyioAUsf7d9HMaahD2KT6B9TxDVT6c06VJdB6wvyteFGB5xiRnOUGww5si1OuWJQHP31bsvoTBpj9dRnSfvHbhWVWRsNk=
+Message-ID: <5bdc1c8b050929162689415dd@mail.gmail.com>
+Date: Thu, 29 Sep 2005 16:26:38 -0700
+From: Mark Knecht <markknecht@gmail.com>
+Reply-To: Mark Knecht <markknecht@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
 Subject: Re: 2.6.14-rc2-mm2
-Message-Id: <20050929162507.3efb8b1a.akpm@osdl.org>
-In-Reply-To: <433C765D.9020205@gmail.com>
-References: <20050929143732.59d22569.akpm@osdl.org>
-	<6bffcb0e05092915472f8589eb@mail.gmail.com>
-	<433C765D.9020205@gmail.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050929143732.59d22569.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050929143732.59d22569.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Antonino A. Daplas" <adaplas@gmail.com> wrote:
+On 9/29/05, Andrew Morton <akpm@osdl.org> wrote:
 >
-> Michal Piotrowski wrote:
-> > Hi,
-> > 
-> > On 29/09/05, Andrew Morton <akpm@osdl.org> wrote:
-> >> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc2/2.6.14-rc2-mm2/
-> >>
-> >> (temp copy at http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.14-rc2-mm2.gz)
-> > 
-> > VESA VGA graphics support doesn't work with nvidia card (black
-> > screen). (I know there is nvidia frame buffer support, but VESA VGA
-> > works for me on current git).
-> > 
-> > #
-> > # Console display driver support
-> > #
-> > CONFIG_VGA_CONSOLE=y
-> > CONFIG_DUMMY_CONSOLE=y
-> > # CONFIG_FRAMEBUFFER_CONSOLE is not set
-> 
-> Set this to y.
-> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc2/2.6.14-rc2-mm2/
+>
+> (temp copy at http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.14-rc2-mm2.gz)
+>
 
-Was this a slipup by Michal, or did we do something to fool `make oldconfig'?
+Hi,
+   I'm semi-sure at this point that the xrun problems I'm seeing on my
+AMD64/NForce4 machine (Asus A8N-E motherboard) are isolated to the
+SATA drive. Is there anything here that might address that? I'm
+currently running 2.6.14-rc2-mm1. I've got this machine headless at
+the moment. I can move data reliably using the CDRW drive, the DVD
+drive with xine, and I can copy lots of data off and on my 1394
+drives. I can run Ardour, Aqualung and lots of other apps remotely
+using this machine as a server. When I start using the SATA drive,
+read or write, I get lots xruns.
+
+- Mark

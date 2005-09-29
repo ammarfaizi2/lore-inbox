@@ -1,50 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932172AbVI2P5O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbVI2P6N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932172AbVI2P5O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 11:57:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932176AbVI2P5O
+	id S932174AbVI2P6N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 11:58:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbVI2P6N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 11:57:14 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:42371 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932172AbVI2P5O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 11:57:14 -0400
-Date: Thu, 29 Sep 2005 17:56:02 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: bluez-devel@lists.sourceforge.net,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Problems with CF bluetooth
-Message-ID: <20050929155602.GA1990@elf.ucw.cz>
-References: <20050929134802.GA6042@elf.ucw.cz> <1128008752.5123.28.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1128008752.5123.28.camel@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Thu, 29 Sep 2005 11:58:13 -0400
+Received: from jade.aracnet.com ([216.99.193.136]:45020 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S932174AbVI2P6N
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 11:58:13 -0400
+Message-ID: <433C0F21.8070104@BitWagon.com>
+Date: Thu, 29 Sep 2005 08:58:25 -0700
+From: John Reiser <jreiser@BitWagon.com>
+Organization: -
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: ptrace unexpected SIGTRAP (trace bit) on x86, x86_64  kernel 2.6.13.2
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Ptrace is giving unexpected SIGTRAP (trace bit) in kernel 2.6.13.2
+on both x86 and x86_64.
 
-> > I have some problems with Billionton CF card: if I insert card,
-> > hciattach to it, eject it, hciattach again, I get an oops.
-> > 
-> > [Pretty recent kernel: Linux amd 2.6.14-rc2-g5fb2493e #106 Thu Sep 29
-> > 01:35:25 CEST 2005 i686 GNU/Linux]
-> > 
-> > Another problem is that... it works well on my PC. When I try to do
-> > the same hciattach on sharp zaurus handheld, I get
-> 
-> I am not an expert for the Zaurus, but the oops looks like a problem in
-> the serial subsystem. Does somebody else has seen problems with the
-> uart_flush_buffer() and other architectures?
+The 8-instruction program below just execve()s itself over and over.
+When run under gdb, the first user-visible SIGTRAP is expected due to
+the 'int3'.  But the second user-visible SIGTRAP is unexpected, as
+there is no reason to trap.
 
-No, oops is from normal PC. (And I believe it is reproducible). On
-zaurus, hciattach just fails (and I have no idea how to debug that :-(
-).
+Changing the line "nop; int3" to "nop; nop" gives a program that
+just spins merrily when run under /bin/bash.  But gdb sees a SIGTRAP,
+with the $pc pointing after the second 'nop'.  When run under strace
+(strace gdb ./execve; (gdb) run), the process spins merrily with
+no unexpected SIGTRAP.
 
-								Pavel
+
+-----execve.S
+#include <asm/unistd.h>
+
+/*
+gcc -o execve -nostartfiles -nostdlib execve.S
+gdb ./execve
+run
+p/x $ps
+   # 0x202
+c
+p/x $ps
+   # 0x302  TF (0x100) set, but should not be
+*/
+
+_start: .globl _start
+        nop; int3
+        popl %ebp  # argc
+        movl (%esp),%ebx  # same filename from argv[0]
+        movl %esp,%ecx    # same argv
+        lea 4(%esp,%ebp,4),%edx  # same envp
+        movl $__NR_execve,%eax   # here we go 'round the mulberry bush, ...
+        int $0x80
+-----end of execve.S
+
+Previous history, and translation for x86_64 are at:
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=144805#c23
+
 -- 
-if you have sharp zaurus hardware you don't need... you know my address
+John Reiser, jreiser@BitWagon.com

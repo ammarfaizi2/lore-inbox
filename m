@@ -1,94 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932155AbVI2Nsq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbVI2Nzt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932155AbVI2Nsq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 09:48:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932156AbVI2Nsq
+	id S932161AbVI2Nzt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 09:55:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932160AbVI2Nzt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 09:48:46 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:12688 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932155AbVI2Nsp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 09:48:45 -0400
-Date: Thu, 29 Sep 2005 15:48:02 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: marcel@holtmann.org, bluez-devel@lists.sourceforge.net,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Problems with CF bluetooth
-Message-ID: <20050929134802.GA6042@elf.ucw.cz>
+	Thu, 29 Sep 2005 09:55:49 -0400
+Received: from tayrelbas04.tay.hp.com ([161.114.80.247]:13786 "EHLO
+	tayrelbas04.tay.hp.com") by vger.kernel.org with ESMTP
+	id S932156AbVI2Nzs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 09:55:48 -0400
+Date: Wed, 28 Sep 2005 18:57:27 -0700
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: perfctr-devel@lists.sourceforge.net
+Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [Perfctr-devel] 2.6.14-rc2-mm1 new perfmon2 kernel patch available
+Message-ID: <20050929015727.GB5211@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+References: <44BDAFB888F59F408FAE3CC35AB4704102225AA9@orsmsx409> <20050928040218.GB3170@frankl.hpl.hp.com> <20050928103331.GB3808@frankl.hpl.hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20050928103331.GB3808@frankl.hpl.hp.com>
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello,
 
-I have some problems with Billionton CF card: if I insert card,
-hciattach to it, eject it, hciattach again, I get an oops.
+An updated version of the kernel patch I released yesterday
+is available. It fixes the following problems:
+	- compilation errors on Fedora Core 4 with gcc-4.x (reported by John Reiser)
+	- range restriction not working on Itanium processors.
+	- time-based event set switching not working on X86-64
 
-[Pretty recent kernel: Linux amd 2.6.14-rc2-g5fb2493e #106 Thu Sep 29
-01:35:25 CEST 2005 i686 GNU/Linux]
+You can grab the new release at:
+	http://www.sf.net/projects/perfmon2
 
-Another problem is that... it works well on my PC. When I try to do
-the same hciattach on sharp zaurus handheld, I get
+as kernel-patch: 2.6.14-rc2-mm1-050929
 
-(I had to hack serial driver a bit to default to 921600 bitrate; it
-does not have setserial).
-
-# hciattach -s 921600 /dev/ttyS0 bcsp
-BCSP initialization timed out
-								Pavel
-
-Sep 29 15:42:34 amd kernel: EIP:    0060:[<c02d4e2c>]    Not tainted
-VLI
-Sep 29 15:42:34 amd kernel: EFLAGS: 00010082   (2.6.14-rc2-g5fb2493e)
-Sep 29 15:42:34 amd kernel: EIP is at uart_flush_buffer+0xc/0x30
-Sep 29 15:42:34 amd kernel: eax: f658a000   ebx: f6741400   ecx:
-00000282   edx: 00000000
-Sep 29 15:42:34 amd kernel: esi: f658a000   edi: 00000000   ebp:
-00000000   esp: f4b49d80
-Sep 29 15:42:34 amd kernel: ds: 007b   es: 007b   ss: 0068
-Sep 29 15:42:34 amd kernel: Process hciattach (pid: 5971,
-threadinfo=f4b48000 task=f7141070)
-Sep 29 15:42:34 amd kernel: Stack: c03f9df6 f6741400 f5e7ca00 c03f9e27
-c03f9f86 f658a000 00000001 c02a5ed7
-Sep 29 15:42:34 amd kernel:        0000000f f27f0424 00001000 f7384e00
-00000000 00000000 00000000 00000001
-Sep 29 15:42:34 amd kernel:        00000000 00000000 00000000 f7d58000
-f4b49e14 f27f03c0 f70fde3c 00000000
-Sep 29 15:42:34 amd kernel: Call Trace:
-Sep 29 15:42:34 amd kernel:  [<c03f9df6>] hci_uart_flush+0x66/0x80
-Sep 29 15:42:34 amd kernel:  [<c03f9e27>] hci_uart_close+0x17/0x20
-Sep 29 15:42:34 amd kernel:  [<c03f9f86>] hci_uart_tty_close+0x26/0x60
-Sep 29 15:42:34 amd kernel:  [<c02a5ed7>] release_dev+0x587/0x670
-Sep 29 15:42:34 amd kernel:  [<c016c521>] update_atime+0x51/0xa0
-Sep 29 15:42:34 amd kernel:  [<c0146a14>] free_pte_range+0x34/0x40
-Sep 29 15:42:34 amd kernel:  [<c0146af7>] free_pgd_range+0xd7/0x190
-Sep 29 15:42:34 amd kernel:  [<c0169b7e>] dput+0x1e/0x180
-Sep 29 15:42:34 amd kernel:  [<c02a63f7>] tty_release+0x7/0x10
-Sep 29 15:42:34 amd kernel:  [<c0155796>] __fput+0x136/0x150
-Sep 29 15:42:34 amd kernel:  [<c0153f03>] filp_close+0x43/0x70
-Sep 29 15:42:34 amd kernel:  [<c011e721>] put_files_struct+0x61/0x90
-Sep 29 15:42:34 amd kernel:  [<c011f24b>] do_exit+0xeb/0x350
-Sep 29 15:42:34 amd kernel:  [<c011f51f>] do_group_exit+0x2f/0x70
-Sep 29 15:42:34 amd kernel:  [<c012740a>]
-get_signal_to_deliver+0x1ca/0x290
-Sep 29 15:42:34 amd kernel:  [<c0102c57>] do_signal+0x87/0x110
-Sep 29 15:42:34 amd kernel:  [<c0515c5e>] schedule+0x30e/0x590
-Sep 29 15:42:34 amd kernel:  [<c05165e1>] schedule_timeout+0x61/0xb0
-Sep 29 15:42:34 amd kernel:  [<c0231806>] copy_to_user+0x36/0x60
-Sep 29 15:42:34 amd kernel:  [<c01251e7>] sys_nanosleep+0xf7/0x140
-Sep 29 15:42:34 amd kernel:  [<c0102d17>] do_notify_resume+0x37/0x3c
-Sep 29 15:42:34 amd kernel:  [<c0102eaa>] work_notifysig+0x13/0x19
-Sep 29 15:42:34 amd kernel: Code: 80 7c 09 00 00 8b 50 10 8b 42 08 8b
-4a 0c 29 c8 25 ff 0f 00 00 c3 89 f6 8d bc 27 00 00 00 00 8b 90 7c 09
-00 00 9c 59 fa 8b 52 10 <c7> 42 0c 00 00 00 00 c7 42 08 00 00 00
-00 51 9d e9 ef f9 fc ff
-Sep 29 15:42:34 amd kernel:  <1>Fixing recursive fault but reboot is
-needed!
-Sep 29 15:43:10 amd pam_limits[5869]: wrong limit value 'unlimited'
+On Wed, Sep 28, 2005 at 03:33:31AM -0700, Stephane Eranian wrote:
+> Hello everyone,
+> 
+> I am pleased to announce that I have released an  updated version
+> of new-perfmon2 code base. This patch is against 2.6.14-rc2-mm1.
+> 
+> This new releases includes:
+> 	- several bug fixes
+> 	- many performance improvements (a PMD read on Itanium2 is down to 645 cycles).
+> 	- a lot of code simplifications
+> 	- support for P4/Xeon 32-bit (e.g., family 15 model 2).
+> 	  includes support for HyperThreading(HT).
+> 	- a P4/Xeon 32-bit sampling format for Precise Event Based sampling (PEBS)
+> 
+> The patch is known to work for all Itanium processors, P6/Pentium M,
+> AMD X86-64, P4/Xeon 32-bit. I do not have a lot of user level support for P4 so
+> testing was limited. Hopefully some people on this list may help with this.
+> The EM64T is currently broken and must be updated to match the level of
+> the P4/Xeon 32-bit version. The ppc64 portion has not been tested at all,
+> it might not even compile.
+> 
+> For all PMU models, the mapping from PMC/PMD to actual PMU registers is
+> accessible through /proc/perfmon_map. That is useful for people porting
+> applications from other interfaces.
+> 
+> I encourage everybody to test this patch on their machine and report any
+> problems.
+> 
+> You can download the new patch from our project website at:
+> 
+> 	http://www.sf.net/projects/perfmon2
+> 
+> as release: 2.6.14-rc2-mm1-050928
+> 
+> Enjoy,
+> 
+> -- 
+> -Stephane
+> 
+> 
+> -------------------------------------------------------
+> This SF.Net email is sponsored by:
+> Power Architecture Resource Center: Free content, downloads, discussions,
+> and more. http://solutions.newsforge.com/ibmarch.tmpl
+> _______________________________________________
+> Perfctr-devel mailing list
+> Perfctr-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/perfctr-devel
 
 -- 
-if you have sharp zaurus hardware you don't need... you know my address
+
+-Stephane

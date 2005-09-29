@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932210AbVI2QDI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbVI2QD1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932210AbVI2QDI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 12:03:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbVI2QDH
+	id S932214AbVI2QD1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 12:03:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbVI2QD0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 12:03:07 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:39317 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932210AbVI2QDG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 12:03:06 -0400
-Date: Thu, 29 Sep 2005 09:02:59 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] fix TASK_STOPPED vs TASK_NONINTERACTIVE interaction
-In-Reply-To: <433C0F3D.30C19186@tv-sign.ru>
-Message-ID: <Pine.LNX.4.58.0509290901060.3308@g5.osdl.org>
-References: <433C0F3D.30C19186@tv-sign.ru>
+	Thu, 29 Sep 2005 12:03:26 -0400
+Received: from zproxy.gmail.com ([64.233.162.195]:2323 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932217AbVI2QDY convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 12:03:24 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=GJhDxKapxA14dEGmVI0PV42acKbUUslOfug1a+s7nlr+BwG8APb6kxKv+YzAIELfE19Uw+RGwRJBYHYOno0HVzLq9ffNui966YTLE6Q8DEGIe9ez8gkERTTVV9y+SEiIVn2CipUqTDcYwaXARaQ4lG+cLPDI7/H7XCOb8w6acBk=
+Message-ID: <4489a22a050929090358badd29@mail.gmail.com>
+Date: Thu, 29 Sep 2005 11:03:23 -0500
+From: Alberto Patino <pato.lukaz@gmail.com>
+Reply-To: Alberto Patino <pato.lukaz@gmail.com>
+To: David Leimbach <leimy2k@gmail.com>
+Subject: Re: [howto] Kernel hacker's guide to git, updated
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+In-Reply-To: <3e1162e605092908187e181936@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <433BC9E9.6050907@pobox.com>
+	 <3e1162e605092908187e181936@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 29 Sep 2005, Oleg Nesterov wrote:
+On 9/29/05, David Leimbach <leimy2k@gmail.com> wrote:
+> On 9/29/05, Jeff Garzik <jgarzik@pobox.com> wrote:
+> >
+> > Just updated my KHGtG to include the latest goodies available in
+> > git-core, the Linux kernel standard SCM tool:
+> >
+> >         http://linux.yyz.us/git-howto.html
 >
-> do_signal_stop:
-> 
-> 	for_each_thread(t) {
-> 		if (t->state < TASK_STOPPED)
-> 			++sig->group_stop_count;
-> 	}
-> 
-> However, TASK_NONINTERACTIVE > TASK_STOPPED, so this loop will not
-> count TASK_INTERRUPTIBLE | TASK_NONINTERACTIVE threads.
+> Can you update the date on that page to reflect your latest updates?
+> - Dave
 
-Ok, I think your patch is correct (we really do try to keep an order to 
-those task flags), but the _real_ issue is that the comparisons are bogus.
+The  KHGtG page is updated to September 29, 2005.
 
-Using ">" for task states is wrong. It's a bitmask, and if you want to 
-check multiple states, then we should just do so with
 
-	if (t->state & (TASK_xxx | TASK_yyy | ...))
 
-Oh, well. The inequality comparisons are shorter, and historical, so I 
-guess it's debatable whether we should remove them all.
-
-		Linus
+--
+Don't be evil!!!

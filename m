@@ -1,74 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbVI2Hen@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbVI2Hgt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932080AbVI2Hen (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 03:34:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932083AbVI2Hen
+	id S932083AbVI2Hgt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 03:36:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbVI2Hgs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 03:34:43 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:61345 "EHLO
+	Thu, 29 Sep 2005 03:36:48 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:2466 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932080AbVI2Hem (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 03:34:42 -0400
-Date: Thu, 29 Sep 2005 08:34:37 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Joshua Kwan <joshk@triplehelix.org>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org, axboe@suse.de,
-       torvalds@osdl.org, randy_dunlap <rdunlap@xenotime.net>
-Subject: Re: SATA suspend/resume (was Re: [PATCH] updated version of Jens' SATA suspend-to-ram patch)
-Message-ID: <20050929073437.GC9669@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Joshua Kwan <joshk@triplehelix.org>, linux-kernel@vger.kernel.org,
-	linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org,
-	axboe@suse.de, torvalds@osdl.org,
-	randy_dunlap <rdunlap@xenotime.net>
-References: <20050923163334.GA13567@triplehelix.org> <433B79D8.9080305@pobox.com>
+	id S932083AbVI2Hgs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 03:36:48 -0400
+Subject: Re: Slow loading big kernel module in 2.6 on PPC platform
+From: Arjan van de Ven <arjan@infradead.org>
+To: Wilson Li <yongshenglee@yahoo.com>
+Cc: Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050928213755.11544.qmail@web34102.mail.mud.yahoo.com>
+References: <20050928213755.11544.qmail@web34102.mail.mud.yahoo.com>
+Content-Type: text/plain
+Date: Thu, 29 Sep 2005 09:36:42 +0200
+Message-Id: <1127979403.2918.2.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <433B79D8.9080305@pobox.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 29, 2005 at 01:21:28AM -0400, Jeff Garzik wrote:
-> Ah hah!  I found the other SCSI suspend patch:
-> 
-> 	http://lwn.net/Articles/97453/
-> 
-> Anybody (Joshua?) up for reconciling and testing the two?
-> 
-> The main change from Jens/Joshua's patch is that we use SCSI's 
-> sd_shutdown() to call sync cache, eliminating the need for 
-> ata_flush_cache(), since the SCSI layer would now perform that.
-> 
-> For bonus points,
-> 
-> 1) sd should call START STOP UNIT on suspend, which eliminates the need 
-> for ata_standby_drive(), and completely encompasses the suspend process 
-> in the SCSI layer.
-> 
-> 2) sd should call START STOP UNIT on resume -- and as a SUPER BONUS, the 
-> combination of these two changes ensures that there are no queue 
-> synchronization issues, the likes of which would require hacks like 
-> Jens' while-loop patch.
-> 
-> None of these are huge changes requiring a lot of thinking/planning...
-> 
-> Finally, ideally, we should be issuing a hardware or software reset on 
-> suspend.
 
-I like this one much more than the other patch aswell, because suspsending
-is an ULDD operation, not an LLDD one, and this fits the layering model
-much better.  The only complaints here are cosmetics:
+> The original module size on disk is around 3.3M bytes. Here's details
+> of size.
+> 
+>    text    data     bss     dec     hex filename
+> 2025644  263244  213024 2501912  262d18 mrbig.ko
 
- - generic_scsi_suspend/generic_scsi_resume are misnamed, they should
-   probably be scsi_device_suspend/resume.
- - while we're at it they could probably move to scsi_sysfs.c to keep
-   them static in one file - they're just a tiny bit of glue anyway.
- - get rid of all the CONFIG_PM ifdefs - it just clutters thing up far
-   too much.
+wow that is a whole lot of GPL code ;)
+
 

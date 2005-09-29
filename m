@@ -1,52 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751317AbVI2Cy6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751179AbVI2C7r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751317AbVI2Cy6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Sep 2005 22:54:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbVI2Cy5
+	id S1751179AbVI2C7r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Sep 2005 22:59:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbVI2C7r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Sep 2005 22:54:57 -0400
-Received: from mx1.rowland.org ([192.131.102.7]:11271 "HELO mx1.rowland.org")
-	by vger.kernel.org with SMTP id S1751317AbVI2Cy5 (ORCPT
+	Wed, 28 Sep 2005 22:59:47 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:32128 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1751179AbVI2C7r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Sep 2005 22:54:57 -0400
-Date: Wed, 28 Sep 2005 22:54:54 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Daniel Ritz <daniel.ritz@gmx.ch>
-cc: David Brownell <david-b@pacbell.net>, <rjw@sisk.pl>, <torvalds@osdl.org>,
-       <linux-usb-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>,
-       <hugh@veritas.com>, <akpm@osdl.org>
-Subject: Re: [linux-usb-devel] Re: 2.6.13-mm2
-In-Reply-To: <200509290032.26815.daniel.ritz@gmx.ch>
-Message-ID: <Pine.LNX.4.44L0.0509282209110.11976-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 28 Sep 2005 22:59:47 -0400
+Date: Wed, 28 Sep 2005 19:58:55 -0700
+From: Paul Jackson <pj@sgi.com>
+To: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
+Cc: taka@valinux.co.jp, magnus.damm@gmail.com, dino@in.ibm.com,
+       linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
+Subject: Re: [ckrm-tech] Re: [PATCH 1/3] CPUMETER: add cpumeter framework to
+ the CPUSETS
+Message-Id: <20050928195855.434e28c9.pj@sgi.com>
+In-Reply-To: <20050929025328.E4BFC70046@sv1.valinux.co.jp>
+References: <20050908225539.0bc1acf6.pj@sgi.com>
+	<20050909.203849.33293224.taka@valinux.co.jp>
+	<20050909063131.64dc8155.pj@sgi.com>
+	<20050910.161145.74742186.taka@valinux.co.jp>
+	<20050910015209.4f581b8a.pj@sgi.com>
+	<20050926093432.9975870043@sv1.valinux.co.jp>
+	<20050927013751.47cbac8b.pj@sgi.com>
+	<20050927113902.C78A570046@sv1.valinux.co.jp>
+	<20050927084905.7d77bdde.pj@sgi.com>
+	<20050928062146.6038E70041@sv1.valinux.co.jp>
+	<20050928000839.1d659bfb.pj@sgi.com>
+	<20050928075331.0408A70041@sv1.valinux.co.jp>
+	<20050928094932.43a1f650.pj@sgi.com>
+	<20050929025328.E4BFC70046@sv1.valinux.co.jp>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Sep 2005, Daniel Ritz wrote:
+Takahiro-san wrote:
+> Maybe I still misunderstand your idea.
 
-> USB ohci controller having no handler. yenta shares the line, has the
-> correct handler installer, sees the interrupt, does not handle it since
-> it was not the cardbus bridge generating the interrupt but ohci.
-> nobody cares about the interrupt, nobody tells the hardware to stop.
-> hello interrupt storm. and during reesume...boom.
+I will have to wait a day before responding - sorry.
+My boss has me doing something more urgent.
 
-Does this occur during resume from disk?  Most likely the controller was
-enabled by the BIOS.  Try passing the "usb-handoff" parameter to the boot
-kernel when you resume.
+> thank you for fixing the [PATCH] 
 
-> btw. i'm still suggesting not doing that free_irq() thing in suspend, at
-> least not short-term. i was thinking that it is a good idea in the beginning,
-> but Linus changed my mind...[ patch for usb ready ]
+You are very welcome.
 
-I think that calling free_irq during suspend is a good thing in general, 
-for the reason Adam Belay mentioned: It reduces interrupt overhead for 
-runtime power management, where a few devices may be suspended while the 
-rest of the system stays awake.
-
-Of course, that doesn't mean I advocate going around right away and adding 
-those free_irq/request_irq pairs to every driver.
-
-Alan Stern
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

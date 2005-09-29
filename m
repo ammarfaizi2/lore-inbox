@@ -1,76 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbVI2Twy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964860AbVI2T61@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751253AbVI2Twy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 15:52:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751274AbVI2Twy
+	id S964860AbVI2T61 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 15:58:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964879AbVI2T61
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 15:52:54 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:45516 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751253AbVI2Twx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 15:52:53 -0400
-Date: Thu, 29 Sep 2005 12:52:07 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: davidel@xmailserver.org, nacc@us.ibm.com, nish.aravamudan@gmail.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] 2.6.14-rc2-mm1: fixes for overflow
- msec_to_jiffies()
-Message-Id: <20050929125207.52c6a1b8.akpm@osdl.org>
-In-Reply-To: <20050929194155.GB16171@alpha.home.local>
-References: <Pine.LNX.4.63.0509231108140.10222@localhost.localdomain>
-	<20050924040534.GB18716@alpha.home.local>
-	<29495f1d05092321447417503@mail.gmail.com>
-	<20050924061500.GA24628@alpha.home.local>
-	<20050924171928.GF3950@us.ibm.com>
-	<Pine.LNX.4.63.0509241120380.31327@localhost.localdomain>
-	<20050924193839.GB26197@alpha.home.local>
-	<20050924194418.GC26197@alpha.home.local>
-	<20050929024312.2f3a9e80.akpm@osdl.org>
-	<20050929194155.GB16171@alpha.home.local>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 29 Sep 2005 15:58:27 -0400
+Received: from [205.233.219.253] ([205.233.219.253]:52200 "EHLO
+	conifer.conscoop.ottawa.on.ca") by vger.kernel.org with ESMTP
+	id S964860AbVI2T60 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 15:58:26 -0400
+Date: Thu, 29 Sep 2005 15:51:21 -0400
+From: Jody McIntyre <scjody@modernduck.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org,
+       linux1394-devel@lists.sourceforge.net
+Subject: Re: Fix broken module aliases in ieee1394
+Message-ID: <20050929195121.GA8095@conscoop.ottawa.on.ca>
+References: <20050929185732.GA31117@redhat.com> <20050929121038.54d4cef0.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050929121038.54d4cef0.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau <willy@w.ods.org> wrote:
->
-> Thanks Andrew,
-> 
-> I'm very sorry because I have verified the code with gcc-2.95.3,
-> gcc-3.3.6 and gcc-3.4.4 on x86 and alpha to ensure that everything
-> went smooth on archs where sizeof(long) > sizeof(int). But I've
-> tested all the combinations in user-space for obvious ease of
-> validation. I believe I forgot to use -Wall. What architecture
-> gave you this, and with which compiler please ? I'm willing to
-> fix this as soon as I can understand the root of the problem.
-> 
+On Thu, Sep 29, 2005 at 12:10:38PM -0700, Andrew Morton wrote:
 
-http://www.zip.com.au/~akpm/linux/patches/stuff/top-posting.txt
+> hm.  There are a bunch of 1394 patches in -mm which appear to remove
+> most/all of this stuff.
 
-> 
-> 
-> On Thu, Sep 29, 2005 at 02:43:12AM -0700, Andrew Morton wrote:
-> > Willy Tarreau <willy@w.ods.org> wrote:
-> > >
-> > > +#if HZ <= MSEC_PER_SEC && !(MSEC_PER_SEC % HZ)
-> > >  +#  define MAX_MSEC_OFFSET \
-> > >  +	(ULONG_MAX - (MSEC_PER_SEC / HZ) + 1)
-> > 
-> > That generates numbers which don't fit into unsigned ints, yielding vast
-> > numbers of
-> > 
-> > include/linux/jiffies.h: In function `msecs_to_jiffies':
-> > include/linux/jiffies.h:310: warning: comparison is always false due to limited range of data type
-> > include/linux/jiffies.h: In function `usecs_to_jiffies':
-> > include/linux/jiffies.h:323: warning: comparison is always false due to limited range of data type
-> > 
+Stefan's patch (attached) just removes those aliases, but that's fine
+since they've never worked.
 
-This was a ppc64 build, gcc-3.3.3, CONFIG_HZ=250
+> So what-the-heck I think I'll send those patches on to Linus today.  Please
+> review the result and send any remaining fixups on to Linus for 2.6.14. 
+> (I'm offline for ~10 days, starting tomorrow).
 
-Look a the value which MAX_MSEC_OFFSET will take (it's 2^63 minus a bit). 
-Comparing that to an unsigned int will generate the always-true or
-always-false warning.
+You could just push that patch.  It applies fine on its own.  It would
+be really nice to see the rest of them in 2.6.14 though since they
+contain some much-needed sbp2 fixes, among other things.
 
+Jody
+
+
+Subject: ieee1394: delete legacy module aliases
+
+amdtp, dv1394, raw1394, video1394:
+Delete legacy module aliases. The macros did not work and the aliases are not
+needed nowadays.
+
+Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Signed-off-by: Ben Collins <bcollins@debian.org>
+Signed-off-by: Jody McIntyre <scjody@steamballoon.com>
+
+Index: linux-2.6.13/drivers/ieee1394/amdtp.c
+===================================================================
+--- linux-2.6.13.orig/drivers/ieee1394/amdtp.c
++++ linux-2.6.13/drivers/ieee1394/amdtp.c
+@@ -1297,4 +1297,3 @@ static void __exit amdtp_exit_module (vo
+ 
+ module_init(amdtp_init_module);
+ module_exit(amdtp_exit_module);
+-MODULE_ALIAS_CHARDEV(IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_AMDTP * 16);
+Index: linux-2.6.13/drivers/ieee1394/dv1394.c
+===================================================================
+--- linux-2.6.13.orig/drivers/ieee1394/dv1394.c
++++ linux-2.6.13/drivers/ieee1394/dv1394.c
+@@ -2660,4 +2660,3 @@ static int __init dv1394_init_module(voi
+ 
+ module_init(dv1394_init_module);
+ module_exit(dv1394_exit_module);
+-MODULE_ALIAS_CHARDEV(IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_DV1394 * 16);
+Index: linux-2.6.13/drivers/ieee1394/raw1394.c
+===================================================================
+--- linux-2.6.13.orig/drivers/ieee1394/raw1394.c
++++ linux-2.6.13/drivers/ieee1394/raw1394.c
+@@ -2958,4 +2958,3 @@ static void __exit cleanup_raw1394(void)
+ module_init(init_raw1394);
+ module_exit(cleanup_raw1394);
+ MODULE_LICENSE("GPL");
+-MODULE_ALIAS_CHARDEV(IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_RAW1394 * 16);
+Index: linux-2.6.13/drivers/ieee1394/video1394.c
+===================================================================
+--- linux-2.6.13.orig/drivers/ieee1394/video1394.c
++++ linux-2.6.13/drivers/ieee1394/video1394.c
+@@ -1571,4 +1571,3 @@ static int __init video1394_init_module 
+ 
+ module_init(video1394_init_module);
+ module_exit(video1394_exit_module);
+-MODULE_ALIAS_CHARDEV(IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_VIDEO1394 * 16);

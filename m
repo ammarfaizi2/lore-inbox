@@ -1,69 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbVI2TVx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932426AbVI2TWW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932285AbVI2TVx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 15:21:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbVI2TVx
+	id S932426AbVI2TWW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 15:22:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932383AbVI2TWV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 15:21:53 -0400
-Received: from smtp007.mail.ukl.yahoo.com ([217.12.11.96]:39539 "HELO
-	smtp007.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S932285AbVI2TVw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 15:21:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=b50DaS/wyfdyUEq8KDrdbYRObe3fXzrbpIwoTv0Q/rh0J9kr7r/n2YB/DH29AysQ/bCGcBFpSAlEtw1T3l+YgYyq/TnzWoHrjJgHnMWpoHguw32nUH0LNXv5li2YU0LFyeIfA4KprgwFD+rU4Lord4641/iKGuFRTg9VMdWaUm8=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: Alexander Clouter <alex@digriz.org.uk>
-Subject: Re: [patch 1/1] cpufreq_conservative: invert meaning of 'ignore_nice'
-Date: Thu, 29 Sep 2005 13:46:33 +0200
-User-Agent: KMail/1.8.2
-Cc: LKML <linux-kernel@vger.kernel.org>, cpufreq@lists.linux.org.uk,
-       Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
-       alex-kernel@digriz.org.uk
-References: <20050929084435.GC3169@inskipp.digriz.org.uk>
-In-Reply-To: <20050929084435.GC3169@inskipp.digriz.org.uk>
+	Thu, 29 Sep 2005 15:22:21 -0400
+Received: from dsl092-017-098.sfo4.dsl.speakeasy.net ([66.92.17.98]:28309 "EHLO
+	baywinds.org") by vger.kernel.org with ESMTP id S932377AbVI2TWE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 15:22:04 -0400
+Message-ID: <433C3E97.2040701@baywinds.org>
+Date: Thu, 29 Sep 2005 12:20:55 -0700
+From: Bruce Ferrell <bferrell@baywinds.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: John Stoffel <john@stoffel.org>
+CC: Luben Tuikov <luben_tuikov@adaptec.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Andre Hedrick <andre@linux-ide.org>,
+       Patrick Mansfield <patmans@us.ibm.com>,
+       Luben Tuikov <ltuikov@yahoo.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
+ the kernel
+References: <Pine.LNX.4.10.10509281227570.19896-100000@master.linux-ide.org>	<433B0374.4090100@adaptec.com>	<20050928223542.GA12559@alpha.home.local>	<433BFB1F.2020808@adaptec.com> <17212.10714.576797.424890@smtp.charter.net>
+In-Reply-To: <17212.10714.576797.424890@smtp.charter.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509291346.33855.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 29 September 2005 10:44, Alexander Clouter wrote:
-> The use of the 'ignore_nice' sysfs file is confusing to anyone using.  This
-> patch makes it so when you now set it to the default value of 1, process
-> nice time is also ignored in the cpu 'busyness' calculation.
+Well said John!
 
-> Prior to this patch to set it to '1' to make process nice time count...even
-> confused me :)
-
-> WARNING: this obvious breaks any userland tools that expect things to be
-> the other way round.  This patch clears up the confusion but should go in
-> ASAP as at the moment it seems very few tools even make use of this
-> functionality; all I could find was a Gentoo Wiki entry.
-
-My suggestion on this is to rename the flag too, as ignore_nice_load (or 
-ignore_nice_tasks, choose your way). Don't forget to do it in docs too.
-
-So userspace tools will error out rather than do the reverse of what they were 
-doing, and the user will fix the thing according to the (new) docs.
-
-This is the way we avoid problems in kernel code, when changing APIs (I read 
-Linus talking about this), so I assume it's ok?
-
--- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
+For that matter get us a driver for the embedded 7902 (is that the one? 
+  I forget now) with host raid support.
 
 
-	
 
-	
-		
-___________________________________ 
-Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
-http://mail.yahoo.it
+John Stoffel wrote:
+> Luben,
+> 
+> I'd really prefer if you'd just stop on your tirade and just send in a
+> 10 line patch for the existing linux SCSI subsystem to fix something
+> you think is wrong. 
+> 
+> Code talks, bullshit walks.  
+> 
+> Sure, Linux SCSI might not be ideal, but how many people do you know
+> have SAS storage on their home PCs right now?  Heck, I don't have SATA
+> or PIV on my home system!  
+> 
+> And as a customer of Adaptec hardware, I'm getting to the point of
+> seriously taking my money and going elsewhere for my storage needs.
+> If you are a general example of how Adaptec works with its customers,
+> then I want nothing to do with you or your products.  
+> 
+> Sure, I know you think Linux is stuck in the past, so help us move to
+> the future in small baby steps.  It doesn't require big huge leaps
+> like you're proposing.  I mean, have you actually tried to your old
+> legacy SCSI controllers in a system with your new hardware?  How did
+> your testing go?  
+> 
+> Now I'm not a programmer, and I can't talk like one, but in my real
+> life job I'm a SysAdmin and knowing what I know about Adaptec's
+> interactions on this list will certainly color my perceptions of your
+> hardware and trying to make it work with my company.
+> 
+> John
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

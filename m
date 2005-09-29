@@ -1,48 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbVI2Hid@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932084AbVI2Hlx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932132AbVI2Hid (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 03:38:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbVI2Hid
+	id S932084AbVI2Hlx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 03:41:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbVI2Hlx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 03:38:33 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:5794 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932132AbVI2Hid (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 03:38:33 -0400
-Date: Thu, 29 Sep 2005 08:38:30 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>, bbpetkov@yahoo.de,
-       linux-kernel@vger.kernel.org, R.E.Wolff@BitWizard.nl
-Subject: Re: [PATCH] remove check_region in drivers-char-specialix.c
-Message-ID: <20050929073830.GD9669@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Al Viro <viro@ftp.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
-	bbpetkov@yahoo.de, linux-kernel@vger.kernel.org,
-	R.E.Wolff@BitWizard.nl
-References: <20050928083737.GA29498@gollum.tnic> <20050928175244.GY7992@ftp.linux.org.uk> <20050928222822.GA14949@gollum.tnic> <20050929011026.GO7992@ftp.linux.org.uk> <20050928184106.49e9db11.akpm@osdl.org> <20050929020510.GR7992@ftp.linux.org.uk>
+	Thu, 29 Sep 2005 03:41:53 -0400
+Received: from wg.technophil.ch ([213.189.149.230]:48843 "HELO
+	hydrogenium.schottelius.org") by vger.kernel.org with SMTP
+	id S932084AbVI2Hlx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 03:41:53 -0400
+Date: Thu, 29 Sep 2005 09:41:40 +0200
+From: Nico Schottelius <nico-kernel@schottelius.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: linux-hotplug-devel@lists.sourceforge.net
+Subject: udev/modprobe issue
+Message-ID: <20050929074140.GD2886@schottelius.org>
+Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
+	LKML <linux-kernel@vger.kernel.org>,
+	linux-hotplug-devel@lists.sourceforge.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Ycz6tD7Th1CMF4v7"
 Content-Disposition: inline
-In-Reply-To: <20050929020510.GR7992@ftp.linux.org.uk>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
+X-Linux-Info: http://linux.schottelius.org/
+X-Operating-System: Linux 2.6.13.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 29, 2005 at 03:05:10AM +0100, Al Viro wrote:
-> On Wed, Sep 28, 2005 at 06:41:06PM -0700, Andrew Morton wrote:
->  
-> > http://www.spinics.net/lists/kernel/msg399680.html
-> 
-> Ewww...  A lot of chunks consisting only of whitespace removals - great
-> way to make patch less readable...
-> 
-> And yes, that second call of sx_request_io_range() must die.  BTW,
-> what's wrong with use of mdelay() instead of that sx_long_delay()
-> junk?  Replacing both calls of sx_long_delay() with mdelay(50) would do it...
 
-There's a proper check_region removal for specialix.c patch from me queued
-up in the kernel-janitors tree.  Including removal of the silly wrappers.
+--Ycz6tD7Th1CMF4v7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+Good morning everybody!
+
+I've a small problem with loading the sata_sil module, but it could be a
+general issue: We use this sata-kontroller with sata-harddisks to backup
+our systems. The harddisk is exchanged (while the system is running) every
+day. So we load/unload sata_sil in our backup scripts, so 'hotplugging' is =
+possible.
+
+My problem is, that modprobe returns earlier than the attached device is us=
+able:
+
+----------------------------------------------------------------------
+srwali01:/# modprobe sata_sil; mount /dev/sda1 /mnt/hdbackup/
+mount: you must specify the filesystem type
+srwali01:/# rmmod sata_sil
+srwali01:/# modprobe sata_sil; ls -l /dev/sda1              =20
+ls: /dev/sda1: No such file or directory
+----------------------------------------------------------------------
+
+So I have to do
+
+----------------------------------------------------------------------
+srwali01:/# modprobe sata_sil
+srwali01:/# sleep 2
+srwali01:/# mount /dev/sda1 /mnt/hdbackup
+----------------------------------------------------------------------
+
+The problem is most likely that udev is too slow or that modprobe does not
+know/wait for udev:
+
+----------------------------------------------------------------------
+srwali01:/# mount | grep tmpfs | grep -v /dev/shm
+tmpfs on /dev type tmpfs (rw,size=3D10M,mode=3D0755)
+srwali01:/# cat /proc/sys/kernel/hotplug=20
+/sbin/udevsend
+----------------------------------------------------------------------
+
+My questions:
+
+- Should modprobe wait for whatever current hotplug is so that
+  the system can definitly use the device after modprobe?
+- Or should there be a command-line switch to modprobe to tell it to wait
+  for hotplug?
+- Is the 'wait for hotplug'-idea possible to do or would it have to be a di=
+rty
+  hack in the kernel?
+- Is there clean solution to wait exactly as long as
+  it needs to load sata_sil and create /dev/sda*?
+  Using while+ls monitoring /dev/sda* is not a solution imho.
+
+Greetings,
+
+Nico
+
+P.S.: Sorry for crossposting, I am not really sure which list would have be=
+en
+      the correct one to ask.
+
+--=20
+Latest project: cconfig (http://nico.schotteli.us/papers/linux/cconfig/)
+Open Source nutures open minds and free, creative developers.
+
+--Ycz6tD7Th1CMF4v7
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iQIVAwUBQzuas7OTBMvCUbrlAQIJsw/+LVyhsY8Qzxq5XAI7kxEgzr3I5czFimTW
+9F89qjabvHMSEkjrx81oyjOfMmwQTJGolTt2N9CRsBto4e+ymHST/rZvPXw9oLOv
+DD7vAA8wsn8tXjAi1cQzSXn/SP973W4wBCm+chrB2TVr2GF4ILndVes6C2bou57i
+nOHUXa4Q6GjmnVboXWnf2FxQWIV0QteLYEGV0tuuMeMNz6IB3rV2ED/Xs+A+AYRI
+LH+ks4LhwJ5Gto6zeNRZriWWQh6oNqtm4pSPy8QAQgK3LVpNfxdbonF98zpMjeuF
+lKWq4MttaQkUDz0UsbS3OJ0Y2TIsax4xZpRwgDY55onObmgjhV4g7mgC5C8cCrwW
+z+yFePPUaxWXLWu31TfD7Dbtw4NW2O4qrQRGclo5edKXGqSF9FAOD/JR9+sEHhZr
+cINs1j2QQP7jojhGuEHWtQhcz8puVNXW5HVXy4MBpxHuiTAnu1eQb/V5lcwZchhK
+jB00pHUX3k9s0ArXas2AMJ7UN2QtJxU1pkgffdoIk0fxOMbJhi5wDoP6B3x4NfZ+
+hRmSmg9gC8C4fRPw5/+PkGAQ5cOo0tic5JjML9lJPtNvWx6rhnrNfW2i0X/qp8Wb
+OGqZXb4yJ3849PsIY2LxWgep9tOTl/r8Thk0PsQHpleKN5/5A3PKNt9A8dGxaQ1I
+Fx0SSKVcirU=
+=HrMe
+-----END PGP SIGNATURE-----
+
+--Ycz6tD7Th1CMF4v7--

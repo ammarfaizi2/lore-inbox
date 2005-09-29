@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751112AbVI2Mjf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751117AbVI2MlI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751112AbVI2Mjf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 08:39:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751117AbVI2Mje
+	id S1751117AbVI2MlI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 08:41:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbVI2MlI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 08:39:34 -0400
-Received: from zproxy.gmail.com ([64.233.162.203]:65226 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751112AbVI2Mje (ORCPT
+	Thu, 29 Sep 2005 08:41:08 -0400
+Received: from zproxy.gmail.com ([64.233.162.193]:38632 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751117AbVI2MlH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 08:39:34 -0400
+	Thu, 29 Sep 2005 08:41:07 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=Qd6T5HM2LiCoZrga18FkZykdNhphRGPXwGI6dqKCGBrOTRMVsyMYGbQQwk+EBPar7L1iCVCieUZ012aEJAuXjKE6YKIEGIT3ap7aJlhmovfG+ajwbVyZ0Mg8WbzH/UOVF2bZ+m6HAOC58xip7mTKnKM+1V40bBr8m/ElZdF13a4=
-Message-ID: <433BE076.50404@gmail.com>
-Date: Thu, 29 Sep 2005 20:39:18 +0800
+        b=fjXFxhtKJw/wlHa0SWLqY5ZJ7n/YVFtUPfateFxBjjQNqEMmI1q7M+O1d12Eu5GKc9YPVDlnmsruYQVeys8+RpywmFoeUOagIW3D9NEvHHh+xQ0G+wXzzSCbE5fjypn0+m3/uz1UuEM01pwpqyV3GJtDumb8aHt3KMWkbF+vsBE=
+Message-ID: <433BE0D1.1070501@gmail.com>
+Date: Thu, 29 Sep 2005 20:40:49 +0800
 From: "Antonino A. Daplas" <adaplas@gmail.com>
 User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
 X-Accept-Language: en-us, en
@@ -33,101 +33,28 @@ Giuseppe Bilotta wrote:
 > On Thu, 29 Sep 2005 05:01:15 +0800, Antonino A. Daplas wrote:
 > 
 >> Giuseppe Bilotta wrote:
->>> Hello all,
->>>
->>> * I have thus tried the new nvidiafb driver, which seems to work ok,
->>> except for the minor detail that the display is extremely snowy.
->>> Attempts to change the timing options with fbset fail: fbset seems to
->>> accept the settings, no error message is given, but nothing is
->>> changed. The X nv driver select the correct timings, so I tried
->>> modeline2fb to make fbset use those, but still nothing changes.
->>>
->> What's the dmesg output?
-> 
-> """
-> nvidiafb: nVidia device/chipset 10DE0112
-> nvidiafb: nVidia Corporation NV11 [GeForce2 Go]
-> nvidiafb: EDID found from BUS2
-> nvidiafb: CRTC 1 is currently programmed for DFP
-> nvidiafb: Using DFP on CRTC 1
-> Panel size is 1600 x 1200
-> nvidiafb: MTRR set to ON
-> Console: switching to colour frame buffer device 200x75
-> nvidiafb: PCI nVidia NV11 framebuffer (32MB @ 0xE0000000) 
-> """
-> 
-> (do you need more?)
-> 
->>  What's fbset -i output?
-> 
-> Right after modprobing nvidiafb:
-> 
-> """
-> mode "1600x1200-61"
->     # D: 160.000 MHz, H: 75.758 kHz, V: 60.606 Hz
->     geometry 1600 1200 1600 20889 8
->     timings 6250 256 64 46 1 192 3
->     accel true
->     rgba 8/0,8/0,8/0,0/0
-> endmode
-> 
-> Frame buffer device information:
->     Name        : NV11
->     Address     : 0xe0000000
->     Size        : 33554432
->     Type        : PACKED PIXELS
->     Visual      : PSEUDOCOLOR
->     XPanStep    : 8
->     YPanStep    : 1
->     YWrapStep   : 0
->     LineLength  : 1600
->     MMIO Address: 0xfc000000
->     MMIO Size   : 16777216
->     Accelerator : Unknown (43)  
-> """
-> 
-> After trying fbset "1600x1200":
-> 
-> """
-> mode "1600x1200-61"
->     # D: 160.000 MHz, H: 75.758 kHz, V: 60.606 Hz
->     geometry 1600 1200 1920 17408 8
->     timings 6250 256 64 46 1 192 3
->     accel true
->     rgba 8/0,8/0,8/0,0/0
-> endmode
-> 
-> Frame buffer device information:
->     Name        : NV11
->     Address     : 0xe0000000
->     Size        : 33554432
->     Type        : PACKED PIXELS
->     Visual      : PSEUDOCOLOR
->     XPanStep    : 8
->     YPanStep    : 1
->     YWrapStep   : 0
->     LineLength  : 1920
->     MMIO Address: 0xfc000000
->     MMIO Size   : 16777216
->     Accelerator : Unknown (43)  
-> """
-> 
-> The "1600x1200" mode is:
-> 
-> """
-> mode "1600x1200"
->   geometry   1600 1200   1920 17467   8
->   timings    6172   304 64   46 1   192 3
->   hsync high
->   vsync high
-> endmode 
-> """
 > 
 > So as you can see the problem is that the timings are NOT set by
 > fbset. No error messages or anything.
 > 
->> Can you try doing fbset -accel false and see if it makes a difference?
-> 
-> Nope, same thing. Also with modprobe nvidiafb noaccel=1.
-> 
 
+Sorry about the blank reply, hit send accidentally.
+
+Probably, the EDID block is incomplete, so nvidiafb is refusing
+custom modes.  You can change the #undef DEBUG to #define DEBUG
+in drivers/video/fbmon.c to see verbose output of the EDID block in
+dmesg.
+
+Then, can you recompile without the DDC/I2C support, and boot with:
+
+video=nvidiafb:1600x1200-60, then play with fbset later on.
+
+If possible, you can also get the latest git snapshot then boot with:
+
+video=nvidiafb:1600x1200MR
+
+Note the appended MR - it's CVT with reduced blanking - which is
+for LCD displays especially those manufactured by Dell since they
+are the proponents of CVT.
+ 
+Tony

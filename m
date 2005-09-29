@@ -1,94 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbVI2QcE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932217AbVI2Qch@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932167AbVI2QcE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 12:32:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbVI2QcE
+	id S932217AbVI2Qch (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 12:32:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbVI2Qch
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 12:32:04 -0400
-Received: from pimout5-ext.prodigy.net ([207.115.63.73]:62453 "EHLO
-	pimout5-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S932167AbVI2QcC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 12:32:02 -0400
-X-ORBL: [69.107.75.50]
-DomainKey-Signature: a=rsa-sha1; s=sbc01; d=pacbell.net; c=nofws; q=dns;
-	h=received:date:from:to:subject:cc:references:in-reply-to:
-	mime-version:content-type:content-transfer-encoding:message-id;
-	b=eLgs9H6L2Uoz9T69IWTG0b6D463wcfnZNJdyEEdGFGE9hEf6WgZ+BEWqND8CLE4ja
-	pZeVFqztLA1xkn6X1Rn5g==
-Date: Thu, 29 Sep 2005 09:31:22 -0700
-From: David Brownell <david-b@pacbell.net>
-To: torvalds@osdl.org
-Subject: Re: [linux-usb-devel] Re: 2.6.13-mm2
-Cc: rjw@sisk.pl, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, hugh@veritas.com, daniel.ritz@gmx.ch,
-       akpm@osdl.org
-References: <20050908053042.6e05882f.akpm@osdl.org>
- <200509282334.58365.rjw@sisk.pl>
- <20050928220409.DE48BE3724@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
- <200509290032.26815.daniel.ritz@gmx.ch>
- <20050929000929.2CEACE372B@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
- <Pine.LNX.4.58.0509290832190.3308@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0509290832190.3308@g5.osdl.org>
+	Thu, 29 Sep 2005 12:32:37 -0400
+Received: from silver.veritas.com ([143.127.12.111]:18595 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S932217AbVI2Qcg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 12:32:36 -0400
+Date: Thu, 29 Sep 2005 17:31:56 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Balazs Csak <bcsak@cfa.harvard.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: mm/rmap.c bug(?) in the 2.6.12 kernel
+In-Reply-To: <20050929052413.42816b81.bcsak@cfa.harvard.edu>
+Message-ID: <Pine.LNX.4.61.0509291724270.651@goblin.wat.veritas.com>
+References: <20050929052413.42816b81.bcsak@cfa.harvard.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20050929163123.15945E372B@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 29 Sep 2005 16:32:35.0777 (UTC) FILETIME=[66172310:01C5C513]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu Sep 29 2005 Our Fearless Leader <torvalds@osdl.org> wrote:
+On Thu, 29 Sep 2005, Balazs Csak wrote:
+> 
+> I've got an oops on a dual Opteron machine that's running on 2.6.12.3
+> kernel. Under heavy load the system hangs and we get this oops on the
+> screen:
+> ...
+> <ffffffff8013477d>{printk+141} <ffffffff8012db83>{try_to_wake_up+915}
+> <ffffffff8010e445>{error_exit+0} <ffffffff80170ec6>{page_remove_rmap+38}
+> <ffffffff80168fde>{unmap_vmas+1342} <ffffffff8016ea63>{exit_mmap+163}
+> <ffffffff801317a1>{mmput+49} <ffffffff80136432>{do_exit+338}
+> <ffffffff80136f5f>{do_group_exit+239}
+> <ffffffff8010da46>{system_call+126}
+> 
+> This problem has been described here, earlier:
+> http://seclists.org/lists/linux-kernel/2005/May/6369.html
+> 
+> Our setup is: 2x Opteron 246, Tyan Thunder K8S MB, 3ware 9500-8,
+> 4 G RAM, Fedora Core 3 x86_64, 2.6.12.3 kernel.
+> 
+> Memtest shows nothing special...
+> Does anyone know something useful for this problem?
 
-> > You could try adding
-> > 
-> > 	ohci_writel(ohci, OHCI_INTR_MIE, &ohci->regs->intrdisable);
-> > 
-> > near the end of ohci_pci_suspend().  
+Please try Linus' patch at the bottom: our best guess now is that
+yours is a different manifestation of the same underlying issue.  
+Here's what Linus said on 20 Sep:
+
+On Tue, 20 Sep 2005, Charles McCreary wrote:
 >
-> Give it up.
+> Another datapoint for this thread. The box spewing the bad pmds messages is a 
+> dual opteron 246 on a TYAN S2885 Thunder K8W motherboard. Kernel is 
+> 2.6.11.4-20a-smp.
 
-Actually the notion of doing _that_ predated that "recent" ACPI stuff,
-since from time to time people with OHCI in ASICs (and without ACPI)
-have said they need to run with a patch doing just that.
+This is quite possibly the result of an Opteron errata (tlb flush
+filtering is broken on SMP) that we worked around as of 2.6.14-rc4.
 
-Which is why regardless of that other ACPI-ish issue, I'd like to
-hear test results on this one.  I suspect they'll be "OHCI resume
-breaks for other reasons", unfortunately, but that's one reason we
-have a 2.6.15 cycle upcoming.  (And such reports would put a rather
-different complexion on this whole recent thread too ... ;)
+So either just try 2.6.14-rc2, or try the appended patch (it has since 
+been confirmed by many more people).
 
+		Linus
 
-> The right thing is to not free and re-aquire the damn interrupt in the 
-> first place. It was a MISTAKE. We undid the ACPI braindamage that made it 
-> be required a month ago, because sane people REALIZED it was a mistake.
->
-> It's not just "random luck" that not releasing the interrupt over suspend 
-> fixes the problem. The problem is _due_ to drivers releasing the 
-> interrupt in the first place.
+---
+diff-tree bc5e8fdfc622b03acf5ac974a1b8b26da6511c99 (from 61ffcafafb3d985e1ab8463be0187b421614775c)
+Author: Linus Torvalds <torvalds@g5.osdl.org>
+Date:   Sat Sep 17 15:41:04 2005 -0700
 
-The patch above would be orthogonal to that issue, though ...
+    x86-64/smp: fix random SIGSEGV issues
+    
+    They seem to have been due to AMD errata 63/122; the fix is to disable
+    TLB flush filtering in SMP configurations.
+    
+    Confirmed to fix the problem by Andrew Walrond <andrew@walrond.org>
+    
+    [ Let's see if we'll have a better fix eventually, this is the Q&D
+      "let's get this fixed and out there" version ]
+    
+    Signed-off-by: Linus Torvalds <torvalds@osdl.org>
 
-
-If we change how usbcore does this stuff -- so hcd-pci.c won't release
-and later re-allocate the IRQ -- I don't think I'd object.  But I'd
-rather do it in the 2.6.15 cycle, since as I understand things the
-bug that restores that "ACPI braindamage" is only in the MM tree, and
-there have been _no failures at all_ reported using mainstream kernels.
-
-- Dave
-
-
-> IT DOESN'T MATTER what we do before the suspend, because we don't control 
-> the wakeup sequence. If the BIOS wakeup enables the devices again, the 
-> fact that we disabled them on suspend makes zero difference.
->
-> And yes, we can always "fix" things by selecting the right order to 
-> re-aquire the interrupts, but the thing is, the "right order" will be 
-> machine-dependent and in general depend on the phase of the moon and BIOS 
-> version, and ACPI quirks.
->
-> The _only_ sane thing to do is to not drop the interrupts in the first 
-> place. So that if you start getting interrupts before you expect them, you 
-> can still handle them.
->
-> 		Linus
->
+diff --git a/arch/x86_64/kernel/setup.c b/arch/x86_64/kernel/setup.c
+--- a/arch/x86_64/kernel/setup.c
++++ b/arch/x86_64/kernel/setup.c
+@@ -831,11 +831,26 @@ static void __init amd_detect_cmp(struct
+ #endif
+ }
+ 
++#define HWCR 0xc0010015
++
+ static int __init init_amd(struct cpuinfo_x86 *c)
+ {
+ 	int r;
+ 	int level;
+ 
++#ifdef CONFIG_SMP
++	unsigned long value;
++
++	// Disable TLB flush filter by setting HWCR.FFDIS:
++	// bit 6 of msr C001_0015
++	//
++	// Errata 63 for SH-B3 steppings
++	// Errata 122 for all(?) steppings
++	rdmsrl(HWCR, value);
++	value |= 1 << 6;
++	wrmsrl(HWCR, value);
++#endif
++
+ 	/* Bit 31 in normal CPUID used for nonstandard 3DNow ID;
+ 	   3DNow is IDd by bit 31 in extended CPUID (1*32+31) anyway */
+ 	clear_bit(0*32+31, &c->x86_capability);

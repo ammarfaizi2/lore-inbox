@@ -1,65 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbVI2WdI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbVI2Wcl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932309AbVI2WdI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 18:33:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbVI2WdI
+	id S932296AbVI2Wcl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 18:32:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932300AbVI2Wcl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 18:33:08 -0400
-Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:41386 "EHLO
-	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S932300AbVI2WdF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 18:33:05 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Thu, 29 Sep 2005 23:32:57 +0100 (BST)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Dave Jones <davej@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-Subject: Re: [howto] Kernel hacker's guide to git, updated
-In-Reply-To: <Pine.LNX.4.64.0509291521300.5362@g5.osdl.org>
-Message-ID: <Pine.LNX.4.60.0509292330130.17860@hermes-1.csi.cam.ac.uk>
-References: <433BC9E9.6050907@pobox.com> <20050929200252.GA31516@redhat.com>
- <Pine.LNX.4.60.0509292106080.17860@hermes-1.csi.cam.ac.uk>
- <20050929201127.GB31516@redhat.com> <Pine.LNX.4.64.0509291413060.5362@g5.osdl.org>
- <Pine.LNX.4.64.0509291425560.5362@g5.osdl.org> <20050929213312.GD31516@redhat.com>
- <Pine.LNX.4.64.0509291451540.5362@g5.osdl.org>
- <Pine.LNX.4.60.0509292309470.17860@hermes-1.csi.cam.ac.uk>
- <Pine.LNX.4.64.0509291521300.5362@g5.osdl.org>
+	Thu, 29 Sep 2005 18:32:41 -0400
+Received: from ns1.coraid.com ([65.14.39.133]:60507 "EHLO coraid.com")
+	by vger.kernel.org with ESMTP id S932296AbVI2Wck (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 18:32:40 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, Greg K-H <greg@kroah.com>
+Subject: Re: [PATCH 2.6.14-rc2] aoe [1/3]: explicitly set minimum packet
+ length to ETH_ZLEN
+References: <87wtkzbz5z.fsf@coraid.com>
+	<1128032491.9290.1.camel@localhost.localdomain>
+From: Ed L Cashin <ecashin@coraid.com>
+Date: Thu, 29 Sep 2005 18:31:02 -0400
+In-Reply-To: <1128032491.9290.1.camel@localhost.localdomain> (Alan Cox's
+ message of "Thu, 29 Sep 2005 23:21:31 +0100")
+Message-ID: <874q83tsk9.fsf@coraid.com>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Sep 2005, Linus Torvalds wrote:
-> On Thu, 29 Sep 2005, Anton Altaparmakov wrote:
-> > Why don't you enable "enable-alternate-editor-implicitly" and set 
-> > editor = "your-editor-of-choice" in the pine config?  It is integrated in 
-> > a quite seamless way.
-> 
-> You think so? I don't find it that way.
-> 
-> With an alternate editor you have to edit the headers separately, and 
-> things like postponing a message suddenly turns into a big deal, not just 
-> a trivial ^O. In fact, almost everything gets more involved.
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-Well using vim as alternate editor a postpone turns into a "ZZ" followed 
-by ^O which I don't think is such a big deal but in general I agree that 
-it adds hassle.  It is a shame that the text based headers do not appear 
-as part of the message in the editor in particular...
- 
-> And pico _is_ pretty close to uemacs.
+> On Iau, 2005-09-29 at 12:45 -0400, Ed L. Cashin wrote:
+>> Signed-off-by: "Ed L. Cashin" <ecashin@coraid.com>
+>> 
+>> Explicitly set the minimum packet length to ETH_ZLEN and zero the
+>> packet data.
+>
+> You still haven't explained why this is neccessary. The drivers should
+> be doing it for you.
 
-I wouldn't know about that.  Never used uemacs.  I am a vim addict myself.  
-(-;
+I did respond to your earlier request post, but I forgot to make sure
+you were in the CC list, sorry.  I've quoted my response below.
 
-Best regards,
+Ed L Cashin <ecashin@coraid.com> writes:
 
-	Anton
+> Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+...
+>> The network driver is supposed to pad frames if the hardware cannot and
+>> to blank the spare bits. 
+>
+> Ah ha.
+>
+>> If it isn't occurring please try and trace down
+>> the offender.
+>
+> My colleague Sam observed problems with the e1000 driver in the
+> 2.6.11.4-21.9-smp kernel from Suse 9.3 and also the e1000 driver in
+> 2.6.12-1.1398_FC4smp from Fedora Core 4.  
+>
+> The problems aren't fully characterized, but AoE ATA read packets
+> appeared to be getting dropped and/or corrupted.
+>
+> When using the tg3 driver instead of e1000 the problems went away, and
+> making the aoe driver alloc_skb with a minimum length of ETH_ZLEN also
+> made the problems go away.
+
+We suspect that the e1000 driver is misbehaving when given short
+packets, but we have not had time to pinpoint what part of the e1000
+driver is involved or what the specific problem is.
+
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+  Ed L Cashin <ecashin@coraid.com>
+

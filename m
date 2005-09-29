@@ -1,56 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbVI2Q3J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbVI2QaH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932237AbVI2Q3J (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 12:29:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932167AbVI2Q3J
+	id S932238AbVI2QaH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 12:30:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbVI2QaH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 12:29:09 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:50638 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S932237AbVI2Q3H
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 12:29:07 -0400
-Subject: Re: Problems with CF bluetooth
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: bluez-devel@lists.sourceforge.net,
-       kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050929155602.GA1990@elf.ucw.cz>
-References: <20050929134802.GA6042@elf.ucw.cz>
-	 <1128008752.5123.28.camel@localhost.localdomain>
-	 <20050929155602.GA1990@elf.ucw.cz>
-Content-Type: text/plain
-Date: Thu, 29 Sep 2005 18:29:14 +0200
-Message-Id: <1128011355.30743.14.camel@localhost.localdomain>
+	Thu, 29 Sep 2005 12:30:07 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:7841 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S932167AbVI2QaF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 12:30:05 -0400
+Date: Thu, 29 Sep 2005 12:30:05 -0400
+To: Karel Kulhavy <clock@twibright.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Temporary workaround for stuck CD burner
+Message-ID: <20050929163005.GB20178@csclub.uwaterloo.ca>
+References: <20050929160006.GA19550@kestrel>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050929160006.GA19550@kestrel>
+User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pavel,
+On Thu, Sep 29, 2005 at 06:00:07PM +0200, Karel Kulhavy wrote:
+> I managed to turn off the DVD burner by suspending the laptop to disk
+> and reviving.
 
-> > > I have some problems with Billionton CF card: if I insert card,
-> > > hciattach to it, eject it, hciattach again, I get an oops.
-> > > 
-> > > [Pretty recent kernel: Linux amd 2.6.14-rc2-g5fb2493e #106 Thu Sep 29
-> > > 01:35:25 CEST 2005 i686 GNU/Linux]
-> > > 
-> > > Another problem is that... it works well on my PC. When I try to do
-> > > the same hciattach on sharp zaurus handheld, I get
-> > 
-> > I am not an expert for the Zaurus, but the oops looks like a problem in
-> > the serial subsystem. Does somebody else has seen problems with the
-> > uart_flush_buffer() and other architectures?
+Well that would turn off and on power and reset the drive just as a
+reboot would have.
+
+> Now the command
+> cdrecord -tao dev=ATAPI:0,0,0 speed=8 /home/clock/cdrom.iso
+> is behaving like in those good olden days before Linux kernel seizure.
 > 
-> No, oops is from normal PC. (And I believe it is reproducible). On
-> zaurus, hciattach just fails (and I have no idea how to debug that :-(
-> ).
+> More information: dmesg reveals that during the seizure, no dmesg
+> messages were generated (no SCSI errors/timeouts etc.).
+> 
+> When mounting the first badly burned CD, SCSI errors were generated.
+> Last 3 of them:
+> 
+> hdc: media error (bad sector): status=0x51 { DriveReady SeekComplete
+> Error }
+> hdc: media error (bad sector): error=0x30 { LastFailedSense=0x03 }
+> ide: failed opcode was: unknown
+> end_request: I/O error, dev hdc, sector 8
+> printk: 2 messages suppressed.
+> Buffer I/O error on device hdc, logical block 1
+> hdc: media error (bad sector): status=0x51 { DriveReady SeekComplete
+> Error }
+> hdc: media error (bad sector): error=0x30 { LastFailedSense=0x03 }
+> ide: failed opcode was: unknown
+> end_request: I/O error, dev hdc, sector 16
+> hdc: media error (bad sector): status=0x51 { DriveReady SeekComplete
+> Error }
+> hdc: media error (bad sector): error=0x30 { LastFailedSense=0x03 }
+> ide: failed opcode was: unknown
+> end_request: I/O error, dev hdc, sector 0
 
-I think that I have such a card at home, but I don't know when I have
-time to pick it up. Anybody else out there to debug this.
+Those are normal messages meaning 'can not read this disc'.  Usually
+means incomplete or bad burn.
 
-Regards
-
-Marcel
-
-
+Len Sorensen

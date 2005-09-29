@@ -1,65 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbVI2Jba@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751172AbVI2Jnp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751315AbVI2Jba (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 05:31:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbVI2Jba
+	id S1751172AbVI2Jnp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 05:43:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751184AbVI2Jnp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 05:31:30 -0400
-Received: from smtp2-g19.free.fr ([212.27.42.28]:23436 "EHLO smtp2-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1751315AbVI2Jb3 (ORCPT
+	Thu, 29 Sep 2005 05:43:45 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:42939 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751172AbVI2Jno (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 05:31:29 -0400
-Message-ID: <1751.192.168.201.6.1127986280.squirrel@pc300>
-Date: Thu, 29 Sep 2005 10:31:20 +0100 (BST)
-From: "Etienne Lorrain" <etienne.lorrain@masroudeau.com>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org
-Reply-To: etienne.lorrain@masroudeau.com
-User-Agent: SquirrelMail/1.4.5
-MIME-Version: 1.0
-X-Priority: 3 (Normal)
-Importance: Normal
-X-SA-Exim-Connect-IP: 192.168.2.240
-X-SA-Exim-Mail-From: etienne.lorrain@masroudeau.com
-Subject: minibug: 'mv' -> 'mv -f ' in main Makefile
+	Thu, 29 Sep 2005 05:43:44 -0400
+Date: Thu, 29 Sep 2005 02:43:12 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: davidel@xmailserver.org, nacc@us.ibm.com, nish.aravamudan@gmail.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] 2.6.14-rc2-mm1: fixes for overflow
+ msec_to_jiffies()
+Message-Id: <20050929024312.2f3a9e80.akpm@osdl.org>
+In-Reply-To: <20050924194418.GC26197@alpha.home.local>
+References: <Pine.LNX.4.63.0509231108140.10222@localhost.localdomain>
+	<20050924040534.GB18716@alpha.home.local>
+	<29495f1d05092321447417503@mail.gmail.com>
+	<20050924061500.GA24628@alpha.home.local>
+	<20050924171928.GF3950@us.ibm.com>
+	<Pine.LNX.4.63.0509241120380.31327@localhost.localdomain>
+	<20050924193839.GB26197@alpha.home.local>
+	<20050924194418.GC26197@alpha.home.local>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
-X-SA-Exim-Scanned: Yes (on cygne.masroudeau.com)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi,
+Willy Tarreau <willy@w.ods.org> wrote:
+>
+> +#if HZ <= MSEC_PER_SEC && !(MSEC_PER_SEC % HZ)
+>  +#  define MAX_MSEC_OFFSET \
+>  +	(ULONG_MAX - (MSEC_PER_SEC / HZ) + 1)
 
- I've got to answer this question on RedHat FC4 when building a kernel
-in verbose mode:
-$ make V=1 /boot/linux-2.6.14-rc2.kgz
-  .. lot of log ...
-  set -e; if [ ! -r .version ]; then rm -f .version; echo 1 >.version;
-else mv .version .old_version; expr 0$(cat .old_version) + 1 >.version;
-fi; make -f scripts/Makefile.build obj=init
-mv: overwrite `.old_version', overriding mode 0644? y
+That generates numbers which don't fit into unsigned ints, yielding vast
+numbers of
 
- I do not know why it is only when verbose is ON.
- Either add the -f option to mv (or alternatively call /bin/mv)
-in this part of patch-2.6.14-rc2 file b/Makefile :
+include/linux/jiffies.h: In function `msecs_to_jiffies':
+include/linux/jiffies.h:310: warning: comparison is always false due to limited range of data type
+include/linux/jiffies.h: In function `usecs_to_jiffies':
+include/linux/jiffies.h:323: warning: comparison is always false due to limited range of data type
 
-@@ -624,8 +644,13 @@ quiet_cmd_vmlinux__ ?= LD      $@
- # Generate new vmlinux version
- quiet_cmd_vmlinux_version = GEN     .version
-       cmd_vmlinux_version = set -e;                     \
--	. $(srctree)/scripts/mkversion > .tmp_version;	\
--	mv -f .tmp_version .version;			\
-+	if [ ! -r .version ]; then			\
-+	  rm -f .version;				\
-+	  echo 1 >.version;				\
-+	else						\
-+	  mv .version .old_version;			\
-+	  expr 0$$(cat .old_version) + 1 >.version;	\
-+	fi;						\
- 	$(MAKE) $(build)=init
-
- # Generate System.map
-
-  Etienne.
 

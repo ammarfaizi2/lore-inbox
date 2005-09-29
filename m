@@ -1,175 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932385AbVI2X5a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbVI2X6U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932385AbVI2X5a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 19:57:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbVI2X5a
+	id S932388AbVI2X6U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 19:58:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbVI2X6U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 19:57:30 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:16851 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932385AbVI2X53 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 19:57:29 -0400
-In-Reply-To: <20050929232013.95117.qmail@web31810.mail.mud.yahoo.com>
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into the kernel
-To: ltuikov@yahoo.com
-Cc: Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       linux-scsi-owner@vger.kernel.org,
-       Luben Tuikov <luben_tuikov@adaptec.com>,
-       Linus Torvalds <torvalds@osdl.org>, Willy Tarreau <willy@w.ods.org>
-X-Mailer: Lotus Notes Release 6.5.1IBM2 August 03, 2004
-Message-ID: <OF914B6D62.B2BEC145-ON8825708B.0082FAA5-8825708B.00839885@us.ibm.com>
-From: Prasenjit Sarkar <psarkar@almaden.ibm.com>
-Date: Thu, 29 Sep 2005 16:57:24 -0700
-X-MIMETrack: Serialize by Router on D01ML605/01/M/IBM(Release 7.0|August 18, 2005) at 09/29/2005
- 19:57:27
+	Thu, 29 Sep 2005 19:58:20 -0400
+Received: from xproxy.gmail.com ([66.249.82.201]:38847 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932388AbVI2X6T convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 19:58:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=MAAuAOABlb+C4CubVaUqwFt7KeB3OlJQjPxLuJ7Wx7AvfrX72VBRp6wNfaU14a7cU4s2p2edxi9H4kxbhZW/AaZ/xscD/hMYZWxpINEN9eh8R+jdHxRoExEEixoPp87/Gg8etIjDdgN5f9X9nN3bmzmGqNQGFZwY1RXZVyQLOUU=
+Message-ID: <5bdc1c8b050929165866fbea81@mail.gmail.com>
+Date: Thu, 29 Sep 2005 16:58:16 -0700
+From: Mark Knecht <markknecht@gmail.com>
+Reply-To: Mark Knecht <markknecht@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.14-rc2-mm2
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050929164939.5329d6f0.akpm@osdl.org>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050929143732.59d22569.akpm@osdl.org>
+	 <5bdc1c8b050929162689415dd@mail.gmail.com>
+	 <20050929164939.5329d6f0.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luben,
-
-The role of standard bodies is to primarily enforce interoperability but
-while they suggest FSMs and layering, those directives are not mandatory.
-
-I have also seen industrial SCSI Core implementations from various sources
-to come to the following conclusions (i) they do not implement all the
-manadatory stuff (ii) they implement just enough to get by with
-interoperability [who has the time] (iii) any layering design is
-evolutionary and (iv) none of them come close to the T10 FSMs.
-
-You may disagree, but there needs to be a balance between standards and
-implementations.
-
-
-
-
-                                                                           
-             Luben Tuikov                                                  
-             <ltuikov@yahoo.co                                             
-             m>                                                         To 
-             Sent by:                  Linus Torvalds <torvalds@osdl.org>, 
-             linux-scsi-owner@         Arjan van de Ven                    
-             vger.kernel.org           <arjan@infradead.org>               
-                                                                        cc 
-                                       Willy Tarreau <willy@w.ods.org>,    
-             09/29/2005 04:20          SCSI Mailing List                   
-             PM                        <linux-scsi@vger.kernel.org>,       
-                                       Andrew Morton <akpm@osdl.org>,      
-                                       Linux Kernel Mailing List           
-             Please respond to         <linux-kernel@vger.kernel.org>,     
-             ltuikov@yahoo.com         Luben Tuikov                        
-                                       <luben_tuikov@adaptec.com>, Jeff    
-                                       Garzik <jgarzik@pobox.com>          
-                                                                   Subject 
-                                       Re: I request inclusion of SAS      
-                                       Transport Layer and AIC-94xx into   
-                                       the kernel                          
-                                                                           
-                                                                           
-                                                                           
-                                                                           
-                                                                           
-                                                                           
-
-
-
-
---- Linus Torvalds <torvalds@osdl.org> wrote:
+On 9/29/05, Andrew Morton <akpm@osdl.org> wrote:
+> Mark Knecht <markknecht@gmail.com> wrote:
+> >
+> > On 9/29/05, Andrew Morton <akpm@osdl.org> wrote:
+> > >
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc2/2.6.14-rc2-mm2/
+> > >
+> > > (temp copy at http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.14-rc2-mm2.gz)
+> > >
+> >
+> > Hi,
+> >    I'm semi-sure at this point that the xrun problems I'm seeing on my
+> > AMD64/NForce4 machine (Asus A8N-E motherboard) are isolated to the
+> > SATA drive. Is there anything here that might address that? I'm
+> > currently running 2.6.14-rc2-mm1. I've got this machine headless at
+> > the moment. I can move data reliably using the CDRW drive, the DVD
+> > drive with xine, and I can copy lots of data off and on my 1394
+> > drives. I can run Ardour, Aqualung and lots of other apps remotely
+> > using this machine as a server. When I start using the SATA drive,
+> > read or write, I get lots xruns.
+> >
 >
-> A "spec" is close to useless. I have _never_ seen a spec that was both
-big
-> enough to be useful _and_ accurate.
+> What is an xrun?
 >
-> And I have seen _lots_ of total crap work that was based on specs. It's
-> _the_ single worst way to write software, because it by definition means
-> that the software was written to match theory, not reality.
+Jack, the audio server, misses a digital audio frame. I think xrun
+means either an overrun or an underrun.
 
-A spec defines how a protocol works and behaves.  All SCSI specs
-are currently very layered and defined by FSMs.
+Basically Jack is running with extra priveledges expecting the system
+to get out of its way when it needs to move audio data. It seems that
+everything except my SAT drive is honoring this.
 
-This is _the reason_ I can plug in an Adaptec SAS host adapter
-to Vitesse Expander which has a Seagate SAS disk attached to phy X...
-And guess what? They interoperate and communicate with each other.
+It all works great on my 32-bit machines. This is my first 64-bit. I'm
+having troubles as are others. I think this is NForce4 specific.
 
-Why?  Because at each layer (physical/link/phy/etc) each
-one of them follow the FSMs defined in the, guess where, SAS spec.
-
-If you take a SAS/SATA/FC/etc course, they _show you_ a link
-trace and then _show_ you how all of it is defined by the FSM
-specs, and make you follow the FSMs.
-
-> So there's two MAJOR reasons to avoid specs:
-
-Ok, then I accept that you and James Bottomley and Christoph are
-_right_, and I'm wrong.
-
-I see we differ in ideology.
-
->    It's like real science: if you have a theory that doesn't match
->    experiments, it doesn't matter _how_ much you like that theory. It's
->    wrong. You can use it as an approximation, but you MUST keep in mind
->    that it's an approximation.
-
-But this is _the_ definition of a theory.  No one is arguing that
-a theory is not an approximation to observed behaviour.
-
-What you have here is interoperability. Only possible because
-different vendors follow the same spec(s).
-
->  - specs have an inevitably tendency to try to introduce abstractions
->    levels and wording and documentation policies that make sense for a
->    written spec. Trying to implement actual code off the spec leads to
-the
->    code looking and working like CRAP.
-
-Ok, I give up: I'm wrong and you and James B are right.
-
->    The classic example of this is the OSI network model protocols.
-Classic
-
-Yes, it is a _classic_ example and OSI is _very_ old.
-
-_But_ the tendency of representing things in a _layered_, object oriented
-design has persisted.
-
->    spec-design, which had absolutely _zero_ relevance for the real world.
-
->    We still talk about the seven layers model, because it's a convenient
->    model for _discussion_, but that has absolutely zero to do with any
->    real-life software engineering. In other words, it's a way to _talk_
->    about things, not to implement them.
-
-Ok.
-
->    And that's important. Specs are a basis for _talking_about_ things.
-But
->    they are _not_ a basis for implementing software.
-
-Ok.  Let's forget about maintenance and adding _new_ functionality.
-
-> So please don't bother talking about specs. Real standards grow up
-> _despite_ specs, not thanks to them.
-
-Yes, you're right. Linus is always right.
-
-Now to things more pertinent, which I'm sure people are interested in:
-
-Jeff has been appointed to the role of integrating the SAS code
-with the Linux SCSI _model_, with James Bottomley's "transport attributes".
-So you can expect more patches from him.
-
-Regards,
-    Luben
-
-P.S. I have to get this 8139too.c network card here working.
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
-
+Thanks,
+Mark

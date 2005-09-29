@@ -1,88 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbVI2LZY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750933AbVI2LqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932096AbVI2LZY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 07:25:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932097AbVI2LZY
+	id S1750933AbVI2LqE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 07:46:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751051AbVI2LqE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 07:25:24 -0400
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:10972 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S932096AbVI2LZX convert rfc822-to-8bit (ORCPT
+	Thu, 29 Sep 2005 07:46:04 -0400
+Received: from main.gmane.org ([80.91.229.2]:29312 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1750933AbVI2LqC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 07:25:23 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: [discuss] Re: [PATCH][Fix][Resend] Fix Bug #4959: Page tables corrupted during resume on x86-64 (take 3)
-Date: Thu, 29 Sep 2005 13:25:47 +0200
-User-Agent: KMail/1.8.2
-Cc: Andi Kleen <ak@suse.de>, discuss@x86-64.org, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-References: <200509281624.29256.rjw@sisk.pl> <200509290011.41335.rjw@sisk.pl> <20050928223535.GA2010@elf.ucw.cz>
-In-Reply-To: <20050928223535.GA2010@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200509291325.48011.rjw@sisk.pl>
+	Thu, 29 Sep 2005 07:46:02 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Re: Blanky rivafb vs snowy nvidiafb with 2.6.12
+Date: Thu, 29 Sep 2005 13:41:46 +0200
+Message-ID: <1gie1vr78iijd$.qcvoypipyouu.dlg@40tude.net>
+References: <1hcq27fp0wwd6.1xosn5xgejhhn$.dlg@40tude.net> <433B049B.1090502@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: adsl-ull-99-118.44-151.net24.it
+User-Agent: 40tude_Dialog/2.0.15.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 29 Sep 2005 05:01:15 +0800, Antonino A. Daplas wrote:
 
-On Thursday, 29 of September 2005 00:35, Pavel Machek wrote:
-> Hi!
+> Giuseppe Bilotta wrote:
+>> Hello all,
+>> 
 > 
-> > > > > > The following patch fixes Bug #4959.  For this purpose it creates
-> > > > > > temporary page translation tables including the kernel mapping (reused)
-> > > > > > and the direct mapping (created from scratch) and makes swsusp switch
-> > > > > > to these tables right before the image is restored.
-> > > > > >
-> > > > > > The code that generates the direct mapping is based on the code in
-> > > > > > arch/x86_64/mm/init.c.
-> > > > >
-> > > > > Looks much better than before, but is there any reason you cannot
-> > > > > share the code with the mm/init.c code?
-> > > >
-> > > > I think so.  I have to make the temporary page tables nosavedata or set
-> > > > PG_nosave on them, so that swsusp doesn't overwrite them.  I'm not
-> > > > sure if I could do this cleanly if I used the code from mm/init.c directly.
-> > > 
-> > > Just pass a flag for that.
-> > 
-> > Well, the code in mm/init.c is only executed really early, before zones
-> > are initialized, and it uses alloc_low_page() to map memory.  Thus it seems
-> > I only could make my code be executed next to init_memory_mapping(),
-> > in which case I wouldn't be able to use page flags.  Apparently I'm missing
-> > something but now I'm too tired to think efficiently.
+>> * I have thus tried the new nvidiafb driver, which seems to work ok,
+>> except for the minor detail that the display is extremely snowy.
+>> Attempts to change the timing options with fbset fail: fbset seems to
+>> accept the settings, no error message is given, but nothing is
+>> changed. The X nv driver select the correct timings, so I tried
+>> modeline2fb to make fbset use those, but still nothing changes.
+>> 
 > 
-> I guess Andi meant "add a parameter to those mm/init.c functions".
+> What's the dmesg output?
 
-Ahh, ok.
+"""
+nvidiafb: nVidia device/chipset 10DE0112
+nvidiafb: nVidia Corporation NV11 [GeForce2 Go]
+nvidiafb: EDID found from BUS2
+nvidiafb: CRTC 1 is currently programmed for DFP
+nvidiafb: Using DFP on CRTC 1
+Panel size is 1600 x 1200
+nvidiafb: MTRR set to ON
+Console: switching to colour frame buffer device 200x75
+nvidiafb: PCI nVidia NV11 framebuffer (32MB @ 0xE0000000) 
+"""
 
-This does not seem to be enough, however, because the original code
-in mm/init.c is __init, so I can't call it during resume.  Moreover, it calls
-some more __init functions, so to use it I'll have to move the allocation
-of the resume temporary page tables to the kernel initialization code.
+(do you need more?)
 
-If I do this, I'll have to mark the allocated pages as nosave (see below)
-and make sure they will always get the same physical addresses.  I am
-going to see if I can do this, but I need some time.
+>  What's fbset -i output?
 
-Anyway this could be a long-term solution, but in the short term the bug
-is there and needs fixing ASAP.  One good thing about the current
-solution is that it does not break anything outside of swsusp _for_ _sure_.
+Right after modprobing nvidiafb:
 
-> (Otoh, you have reserved area, anyway, just set all of it PG_nosave,
-> and you'll not need to modify mm/init.c stuff).
+"""
+mode "1600x1200-61"
+    # D: 160.000 MHz, H: 75.758 kHz, V: 60.606 Hz
+    geometry 1600 1200 1600 20889 8
+    timings 6250 256 64 46 1 192 3
+    accel true
+    rgba 8/0,8/0,8/0,0/0
+endmode
 
-Rather I've reserved a set of individual pages that are only linked
-via the page tables structure.  IMO it's better to mark them as nosave
-as soon as they get allocated or I'll need to browse the entire
-structure to do this.  Also, I need to make them get always the
-same physical addresses and tell the memory management
-they are not free.
+Frame buffer device information:
+    Name        : NV11
+    Address     : 0xe0000000
+    Size        : 33554432
+    Type        : PACKED PIXELS
+    Visual      : PSEUDOCOLOR
+    XPanStep    : 8
+    YPanStep    : 1
+    YWrapStep   : 0
+    LineLength  : 1600
+    MMIO Address: 0xfc000000
+    MMIO Size   : 16777216
+    Accelerator : Unknown (43)  
+"""
 
-Greetings,
-Rafael
+After trying fbset "1600x1200":
+
+"""
+mode "1600x1200-61"
+    # D: 160.000 MHz, H: 75.758 kHz, V: 60.606 Hz
+    geometry 1600 1200 1920 17408 8
+    timings 6250 256 64 46 1 192 3
+    accel true
+    rgba 8/0,8/0,8/0,0/0
+endmode
+
+Frame buffer device information:
+    Name        : NV11
+    Address     : 0xe0000000
+    Size        : 33554432
+    Type        : PACKED PIXELS
+    Visual      : PSEUDOCOLOR
+    XPanStep    : 8
+    YPanStep    : 1
+    YWrapStep   : 0
+    LineLength  : 1920
+    MMIO Address: 0xfc000000
+    MMIO Size   : 16777216
+    Accelerator : Unknown (43)  
+"""
+
+The "1600x1200" mode is:
+
+"""
+mode "1600x1200"
+  geometry   1600 1200   1920 17467   8
+  timings    6172   304 64   46 1   192 3
+  hsync high
+  vsync high
+endmode 
+"""
+
+So as you can see the problem is that the timings are NOT set by
+fbset. No error messages or anything.
+
+> Can you try doing fbset -accel false and see if it makes a difference?
+
+Nope, same thing. Also with modprobe nvidiafb noaccel=1.
+
+-- 
+Giuseppe "Oblomov" Bilotta
+
+"I weep for our generation" -- Charlie Brown
+

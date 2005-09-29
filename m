@@ -1,56 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932163AbVI2OTh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbVI2O1N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932163AbVI2OTh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 10:19:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932164AbVI2OTh
+	id S932168AbVI2O1N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 10:27:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932167AbVI2O1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 10:19:37 -0400
-Received: from 122.0.203.62.cust.bluewin.ch ([62.203.0.122]:1324 "EHLO
-	kestrel.twibright.com") by vger.kernel.org with ESMTP
-	id S932163AbVI2OTh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 10:19:37 -0400
-Date: Thu, 29 Sep 2005 16:19:24 +0200
-From: Karel Kulhavy <clock@twibright.com>
-To: linux-kernel@vger.kernel.org
-Subject: CD writer is burning with open tray
-Message-ID: <20050929141924.GA6512@kestrel>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Orientation: Gay
-User-Agent: Mutt/1.5.8i
+	Thu, 29 Sep 2005 10:27:13 -0400
+Received: from emulex.emulex.com ([138.239.112.1]:2479 "EHLO emulex.emulex.com")
+	by vger.kernel.org with ESMTP id S932164AbVI2O1L convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 10:27:11 -0400
+From: James.Smart@Emulex.Com
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: SATA suspend/resume (was Re: [PATCH] updated version of Jens' SATA suspend-to-ram patch)
+Date: Thu, 29 Sep 2005 10:26:25 -0400
+Message-ID: <9BB4DECD4CFE6D43AA8EA8D768ED51C21D7AC2@xbl3.ma.emulex.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: SATA suspend/resume (was Re: [PATCH] updated version of Jens' SATA suspend-to-ram patch)
+Thread-Index: AcXEzYVO8K96UQ5LTuC4G3i7hKmhpgAMwBvA
+To: <hch@infradead.org>, <jgarzik@pobox.com>, <joshk@triplehelix.org>,
+       <linux-kernel@vger.kernel.org>, <linux-ide@vger.kernel.org>,
+       <linux-scsi@vger.kernel.org>, <axboe@suse.de>, <torvalds@osdl.org>,
+       <rdunlap@xenotime.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+In other times when I implemented this....
 
-I ran cdrecord -tao dev=ATAPI:0,0,0 speed=8 /home/clock/cdrom.iso on
-2.6.12-gentoo-r10 and it burned a good CD.
+You need to be careful on the power-up. Many JBODs share a single
+"enclosure" and that enclosure has a limited power supply. If all
+drives were spun up in parallel (and a drive may take 10-15seconds
+to spin up), then they can overload the enclosure's power limit.
+This issue, which normally occurs when an enclosure is first powered
+on, was solved by injecting sequence delays based on either jumpers
+or delays based on address/slot. But this won't help the software
+suspend/resume.
 
-Then I repeated the same command (press up and enter) and it
-1) Burned two bad CD's with a strip near the central area
-2) Third CD burned bad
-3) When rerun cdrecord says
-cdrecord: Drive does not support TAO recording.
-cdrecord: Illegal write mode for this drive.
+There were not a lot of great answers on how to solve this as it usually
+required knowledge of how the hardware was packaged. What we defaulted
+to was limiting spin up to never concurrently start more than N drives
+on a scsi bus. N defaulted to 1, but allowed the admin to tune it.
 
-I should note here that I didn't hotplug the hardware - I can't
-understand how supported modes can change on the fly...
+-- james s
 
-Anyway the activity LED is now flashing (later shining) even when
-cdrecord is not running and I open the tray using emergency open
-(it cannot be opened by normal open). /dev/hdc (the CDROM) is not mounted.
-The mechanics inside is quite heated up.
-
-The activity LED is flashing or shining even when the mechanics is open
-and I can look into the laser lens!  However I didn't see any dim red
-light - looks like the laser switches off when the tray is open.
-
-Is it possible to get eye damage due to faulty kernel driver?
-
-Is it possible to destroy the mechanics by overheating or mechanical
-damage due to faulty kernel driver?
-
-Is this intended behaviour of Linux kernel?
-
-CL<
+> -----Original Message-----
+> From: linux-scsi-owner@vger.kernel.org
+> [mailto:linux-scsi-owner@vger.kernel.org]On Behalf Of 
+> Christoph Hellwig
+> Sent: Thursday, September 29, 2005 4:12 AM
+> To: Christoph Hellwig; Jeff Garzik; Joshua Kwan;
+> linux-kernel@vger.kernel.org; linux-ide@vger.kernel.org;
+> linux-scsi@vger.kernel.org; axboe@suse.de; torvalds@osdl.org;
+> randy_dunlap
+> Subject: Re: SATA suspend/resume (was Re: [PATCH] updated version of
+> Jens' SATA suspend-to-ram patch)
+> 
+> 
+> On Thu, Sep 29, 2005 at 08:34:37AM +0100, Christoph Hellwig wrote:
+> > is an ULDD operation, not an LLDD one, and this fits the 
+> layering model
+> > much better.  The only complaints here are cosmetics:
+> > 
+> >  - generic_scsi_suspend/generic_scsi_resume are misnamed, 
+> they should
+> >    probably be scsi_device_suspend/resume.
+> >  - while we're at it they could probably move to 
+> scsi_sysfs.c to keep
+> >    them static in one file - they're just a tiny bit of glue anyway.
+> >  - get rid of all the CONFIG_PM ifdefs - it just clutters 
+> thing up far
+> >    too much.
+> 
+> Actually one important thing is missing, that is a way to 
+> avoid spinning
+> down external disks.  As a start a sysfs-controlable flag 
+> should do it,
+> later we can add transport-specific ways to find out whether a device
+> is external.
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-scsi" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 

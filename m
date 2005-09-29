@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932368AbVI2XKM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbVI2XLq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932368AbVI2XKM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 19:10:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751356AbVI2XKM
+	id S1751357AbVI2XLq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 19:11:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751358AbVI2XLq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 19:10:12 -0400
-Received: from mail02.syd.optusnet.com.au ([211.29.132.183]:30891 "EHLO
-	mail02.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751349AbVI2XKK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 19:10:10 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] vm - swap_prefetch v12
-Date: Fri, 30 Sep 2005 09:12:58 +1000
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org, ck@vds.kolivas.org
-References: <200509300115.33060.kernel@kolivas.org> <20050929145400.1cc2b748.akpm@osdl.org>
-In-Reply-To: <20050929145400.1cc2b748.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 29 Sep 2005 19:11:46 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:17546 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751359AbVI2XLp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 19:11:45 -0400
+Date: Thu, 29 Sep 2005 16:11:18 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: rohit.seth@intel.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       Martin Hicks <mort@sgi.com>
+Subject: Re: [PATCH] earlier allocation of order 0 pages from pcp in
+ __alloc_pages
+Message-Id: <20050929161118.27f9f1eb.akpm@osdl.org>
+In-Reply-To: <719460000.1128034108@[10.10.2.4]>
+References: <20050929150155.A15646@unix-os.sc.intel.com>
+	<719460000.1128034108@[10.10.2.4]>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509300912.58722.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Sep 2005 07:54 am, Andrew Morton wrote:
-> Con Kolivas <kernel@kolivas.org> wrote:
-> > Once pages have been added to the swapped list, a timer is started,
-> > testing for conditions suitable to prefetch swap pages every 5 seconds.
-> > Suitable conditions are defined as lack of swapping out or in any pages,
-> > and no watermark tests failing. Significant amounts of dirtied ram also
-> > prevent prefetching. It then checks that we have spare ram looking for at
-> > least 3* pages_high free per zone and if it succeeds that will prefetch
-> > pages from swap.
+"Martin J. Bligh" <mbligh@mbligh.org> wrote:
 >
-> Did you consider poking around in gendisk.disk_stats to determine whether
-> the swap disk(s) are idleish?
+> It looks like we're now dropping into direct reclaim as the first thing
+> in __alloc_pages before even trying to kick off kswapd. When the hell
+> did that start? Or is that only meant to trigger if we're already below
+> the low watermark level?
 
-I didn't know where to look for that info. Thanks! I'm open to *any* 
-suggestions and I'll look into it as I can't take this code much further 
-without outside help.
+That's all the numa goop which Martin Hicks added.  It's all disabled if
+z->reclaim_pages is zero (it is).  However we could be testing that flag a
+bit earlier, I think.
 
-Cheers,
-Con
+And yeah, some de-spaghettification would be nice.  Certainly before adding
+more logic.
+
+Martin, should we take out the early zone reclaim logic?  It's all
+unreachable at present anyway.
+

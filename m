@@ -1,113 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932217AbVI2Qch@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbVI2Qdb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932217AbVI2Qch (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 12:32:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbVI2Qch
+	id S932170AbVI2Qdb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 12:33:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbVI2Qda
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 12:32:37 -0400
-Received: from silver.veritas.com ([143.127.12.111]:18595 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S932217AbVI2Qcg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 12:32:36 -0400
-Date: Thu, 29 Sep 2005 17:31:56 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Balazs Csak <bcsak@cfa.harvard.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: mm/rmap.c bug(?) in the 2.6.12 kernel
-In-Reply-To: <20050929052413.42816b81.bcsak@cfa.harvard.edu>
-Message-ID: <Pine.LNX.4.61.0509291724270.651@goblin.wat.veritas.com>
-References: <20050929052413.42816b81.bcsak@cfa.harvard.edu>
+	Thu, 29 Sep 2005 12:33:30 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:61354 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S932170AbVI2Qd3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 12:33:29 -0400
+Message-ID: <433C174D.4050302@adaptec.com>
+Date: Thu, 29 Sep 2005 12:33:17 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 29 Sep 2005 16:32:35.0777 (UTC) FILETIME=[66172310:01C5C513]
+To: Bernd Petrovitsch <bernd@firmix.at>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Andre Hedrick <andre@linux-ide.org>,
+       Patrick Mansfield <patmans@us.ibm.com>,
+       Luben Tuikov <ltuikov@yahoo.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
+ the kernel
+References: <Pine.LNX.4.10.10509281227570.19896-100000@master.linux-ide.org>	 <433B0374.4090100@adaptec.com> <20050928223542.GA12559@alpha.home.local>	 <433BFB1F.2020808@adaptec.com> <1128007032.11443.77.camel@tara.firmix.at>
+In-Reply-To: <1128007032.11443.77.camel@tara.firmix.at>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 29 Sep 2005 16:33:26.0431 (UTC) FILETIME=[844852F0:01C5C513]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Sep 2005, Balazs Csak wrote:
+On 09/29/05 11:17, Bernd Petrovitsch wrote:
 > 
-> I've got an oops on a dual Opteron machine that's running on 2.6.12.3
-> kernel. Under heavy load the system hangs and we get this oops on the
-> screen:
-> ...
-> <ffffffff8013477d>{printk+141} <ffffffff8012db83>{try_to_wake_up+915}
-> <ffffffff8010e445>{error_exit+0} <ffffffff80170ec6>{page_remove_rmap+38}
-> <ffffffff80168fde>{unmap_vmas+1342} <ffffffff8016ea63>{exit_mmap+163}
-> <ffffffff801317a1>{mmput+49} <ffffffff80136432>{do_exit+338}
-> <ffffffff80136f5f>{do_group_exit+239}
-> <ffffffff8010da46>{system_call+126}
-> 
-> This problem has been described here, earlier:
-> http://seclists.org/lists/linux-kernel/2005/May/6369.html
-> 
-> Our setup is: 2x Opteron 246, Tyan Thunder K8S MB, 3ware 9500-8,
-> 4 G RAM, Fedora Core 3 x86_64, 2.6.12.3 kernel.
-> 
-> Memtest shows nothing special...
-> Does anyone know something useful for this problem?
+> Then submit your driver as a (separate) block device in parallel to the
+> existing SCSI subsystem. People will use it for/with other parts if it
 
-Please try Linus' patch at the bottom: our best guess now is that
-yours is a different manifestation of the same underlying issue.  
-Here's what Linus said on 20 Sep:
+SAS is ultimately SCSI.  I'll just have to write my own SCSI core.
+_We_ together can do this in parallel to the old SCSI Core.
 
-On Tue, 20 Sep 2005, Charles McCreary wrote:
->
-> Another datapoint for this thread. The box spewing the bad pmds messages is a 
-> dual opteron 246 on a TYAN S2885 Thunder K8W motherboard. Kernel is 
-> 2.6.11.4-20a-smp.
+This is the whole idea.
 
-This is quite possibly the result of an Opteron errata (tlb flush
-filtering is broken on SMP) that we worked around as of 2.6.14-rc4.
+> makes sense (and you - as the maintainer - accept their patches). And in
 
-So either just try 2.6.14-rc2, or try the appended patch (it has since 
-been confirmed by many more people).
+You see, at my age and my situation, I no longer see this as
+"my balls - your balls".  What matters to me is good design,
+quality code, customer satisfaction, bottom line.
 
-		Linus
+E.g. I'm quite a liberal person and I wouldn't block
+or stop new technologes from going into Linux on the basis
+and merit of my not understanidn that particular new technology.
 
----
-diff-tree bc5e8fdfc622b03acf5ac974a1b8b26da6511c99 (from 61ffcafafb3d985e1ab8463be0187b421614775c)
-Author: Linus Torvalds <torvalds@g5.osdl.org>
-Date:   Sat Sep 17 15:41:04 2005 -0700
+The bottom line is not "my balls - your balls" but the wide
+spread use of Linux and "storage OS of choice".  Not "hobbyist
+OS of choice" and not "let me play Robin Hood".
 
-    x86-64/smp: fix random SIGSEGV issues
-    
-    They seem to have been due to AMD errata 63/122; the fix is to disable
-    TLB flush filtering in SMP configurations.
-    
-    Confirmed to fix the problem by Andrew Walrond <andrew@walrond.org>
-    
-    [ Let's see if we'll have a better fix eventually, this is the Q&D
-      "let's get this fixed and out there" version ]
-    
-    Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+> a few years the "old" SCSI core fades out as legacy drives fade out (or
+> they will happily coexist forever).
 
-diff --git a/arch/x86_64/kernel/setup.c b/arch/x86_64/kernel/setup.c
---- a/arch/x86_64/kernel/setup.c
-+++ b/arch/x86_64/kernel/setup.c
-@@ -831,11 +831,26 @@ static void __init amd_detect_cmp(struct
- #endif
- }
- 
-+#define HWCR 0xc0010015
-+
- static int __init init_amd(struct cpuinfo_x86 *c)
- {
- 	int r;
- 	int level;
- 
-+#ifdef CONFIG_SMP
-+	unsigned long value;
-+
-+	// Disable TLB flush filter by setting HWCR.FFDIS:
-+	// bit 6 of msr C001_0015
-+	//
-+	// Errata 63 for SH-B3 steppings
-+	// Errata 122 for all(?) steppings
-+	rdmsrl(HWCR, value);
-+	value |= 1 << 6;
-+	wrmsrl(HWCR, value);
-+#endif
-+
- 	/* Bit 31 in normal CPUID used for nonstandard 3DNow ID;
- 	   3DNow is IDd by bit 31 in extended CPUID (1*32+31) anyway */
- 	clear_bit(0*32+31, &c->x86_capability);
+Yep, I've been saying this since 2002.  On the linux-scsi ML.
+
+> The point is: If *you* want it that way, *you* must go that way (and do
+> not expect others to do it just that *you* get *your* driver merged).
+> You are the maintainer of the new stuff and (almost) everything will
+> work as you want.
+
+And this is the problem: *you* and "the community" see things in
+*this* way:  "your balls - my balls", "yours/mine".
+
+While I see things like this: new technology, absolve, use, move on.
+
+As to your comment above, it's not about how *I* see things.
+It's about how things _actually_ *are*:
+http://www.t10.org/ftp/t10/drafts/sam4/sam4r03.pdf
+
+> It might not be the cleanest or most elegant solution in the world, but
+> if it works, who cares and why?
+
+Turn the table around: can _I_ pose this question to JB and Christoph?
+
+(since they are the ones who think this of SAM/SPC)
+
+> Where is now the real problem?
+> I can't see one.
+
+Me neither.
+
+	Luben
+

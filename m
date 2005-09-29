@@ -1,74 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbVI2Ncl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbVI2Nnj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932107AbVI2Ncl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 09:32:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932137AbVI2Ncl
+	id S932157AbVI2Nnj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 09:43:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbVI2Nni
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 09:32:41 -0400
-Received: from silver.veritas.com ([143.127.12.111]:3966 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S932107AbVI2Ncl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 09:32:41 -0400
-Date: Thu, 29 Sep 2005 14:32:01 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Adam Litke <agl@us.ibm.com>, William Irwin <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH 0/3] Demand faulting for huge pages
-In-Reply-To: <1127939141.26401.32.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0509291420150.27691@goblin.wat.veritas.com>
-References: <1127939141.26401.32.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 29 Sep 2005 13:32:40.0697 (UTC) FILETIME=[43B8A690:01C5C4FA]
+	Thu, 29 Sep 2005 09:43:38 -0400
+Received: from mail.suse.de ([195.135.220.2]:52660 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932157AbVI2Nni (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 09:43:38 -0400
+Date: Thu, 29 Sep 2005 15:43:37 +0200
+From: Andi Kleen <ak@suse.de>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [NUMA , x86_64] Why memnode_shift is chosen with the lowest possible value ?
+Message-ID: <20050929134337.GF2720@wotan.suse.de>
+References: <1127939141.26401.32.camel@localhost.localdomain> <1127939593.26401.38.camel@localhost.localdomain> <20050928232027.28e1bb93.akpm@osdl.org> <p73k6h0jjh3.fsf@verdi.suse.de> <433BEED6.6000008@cosmosbay.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <433BEED6.6000008@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Sep 2005, Adam Litke wrote:
+> Using memnode_shift=33 would access only 2 bytes from this memnodemap[], 
+> touching fewer cache lines (well , one cache line). kfree() and friends 
+> would be slightly faster, at least cache friendly.
 
-> Hi Andrew.  Can we give hugetlb demand faulting a spin in the mm tree?
-> And could people with alpha, sparc, and ia64 machines give them a good
-> spin?  I haven't been able to test those arches yet.
+Agreed. Please send a patch.
 
-It's going to be a little confusing if these go in while I'm moving
-the page_table_lock inwards.  My patches don't make a big difference
-to hugetlb (I've not attempted splitting the lock at all for hugetlb -
-there would be per-arch implementation issues and very little point -
-though more point if we do move to hugetlb faulting).  But I'm ill at
-ease with changing the locking at one end while it's unclear whether
-it's right at the other end.
-
-Currently Adam's patches don't include my hugetlb changes already in
--mm; and I don't see any attention in his patches to the issue of
-hugetlb file truncation, which I was fixing up in those.
-
-The current hugetlb_prefault guards against this with i_sem held:
-which _appears_ to be a lock ordering violation, but may not be,
-since the official lock ordering is determined by the possibility
-of fault within write, whereas hugetlb mmaps were never faulting.
-
-Presumably on-demand hugetlb faulting would entail truncate_count
-checking like do_no_page, and corresponding code in hugetlbfs.
-
-I've no experience of hugetlb use.  Personally, I'd be very happy with
-a decision to disallow truncation of hugetlb files (seems odd to allow
-ftruncate when read and write are not allowed, and the size normally
-determined automatically by mmap size); but I have to assume that it's
-been allowed for good reason.
-
-> - htlb-get_user_pages removes an optimization that is no longer valid
-> when demand faulting huge pages
 > 
-> - htlb-fault moves the fault logic from hugetlb_prefault() to
-> hugetlb_pte_fault() and find_get_huge_page().
+> Another question is :
 > 
-> - htlb-acct adds an overcommit check to maintain the no-overcommit
-> semantics provided by hugetlb_prefault()
+> Could we add in pda (struct x8664_pda) the node of the cpu ?
+> 
+> We currently do :
+> 
+> #define numa_node_id()             (cpu_to_node(raw_smp_processor_id()))
+> 
+> Instead of reading the processor_id from pda, then access cpu_to_node[], we 
+> could directly get this information from pda.
+> 
+> #if defined(CONFIG_NUMA)
+> static inline __attribute_pure__ int numa_node_id() { return 
+> read_pda(node);}
+> #else
+> #define numa_node_id()             0
+> #endif
 
-Yes, I found that last one rather strange too.  Doing it at creation
-time based on i_size (and updating if i_size is allowed to change) is
-one possibility; doing it at fault time whenever newly allocated is
-another possibility; but these pagevec lookups at mmap time seem odd.
+Should be fine too. Please send a patch for that too.
 
-Hugh
+-Andi
+

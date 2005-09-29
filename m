@@ -1,71 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbVI2GUu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932094AbVI2Gae@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751248AbVI2GUu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 02:20:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbVI2GUt
+	id S932094AbVI2Gae (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 02:30:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbVI2Gae
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 02:20:49 -0400
-Received: from smtp-104-thursday.noc.nerim.net ([62.4.17.104]:46601 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1751248AbVI2GUt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 02:20:49 -0400
-Date: Thu, 29 Sep 2005 08:20:48 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: David Ronis <David.Ronis@mcgill.ca>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Parag Warudkar <kernel-stuff@comcast.net>
-Subject: Re: problem with 2.6.13.[0-2]
-Message-Id: <20050929082048.0cca3f58.khali@linux-fr.org>
-In-Reply-To: <1127957830.6261.5.camel@montroll.chem.mcgill.ca>
-References: <Pine.WNT.4.63.0509272247550.2588@home-comp>
-	<1127957830.6261.5.camel@montroll.chem.mcgill.ca>
-X-Mailer: Sylpheed version 2.0.1 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Sep 2005 02:30:34 -0400
+Received: from mailgate.urz.Uni-Halle.DE ([141.48.3.51]:15763 "EHLO
+	mailgate.uni-halle.de") by vger.kernel.org with ESMTP
+	id S932094AbVI2Gad (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 02:30:33 -0400
+Date: Thu, 29 Sep 2005 08:30:26 +0200 (METDST)
+From: Clemens Ladisch <clemens@ladisch.de>
+To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+cc: <linux-kernel@vger.kernel.org>, Bob Picco <bob.picco@hp.com>
+Subject: Re: [PATCH 5/7] HPET-RTC: disable interrupt when no longer needed
+In-Reply-To: <20050928060306.A26313@unix-os.sc.intel.com>
+Message-ID: <Pine.HPX.4.33n.0509290828210.4137-100000@studcom.urz.uni-halle.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Scan-Signature: 44699ef9896cba58db3267a1f0641b2b
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David,
+Venkatesh Pallipadi wrote:
+> On Wed, Sep 28, 2005 at 09:12:26AM +0200, Clemens Ladisch wrote:
+> > When the emulated RTC interrupt is no longer needed, we better disable
+> > it; otherwise, we get a spurious interrupt whenever the timer has
+> > rolled over and reaches the same comparator value.
+> >
+> > Having a superfluous interrupt every five minutes doesn't hurt much,
+> > but it's bad style anyway.  ;-)
+>
+> Do you really see the interrupt every five minutes once RTC is disabled.
 
-[David Ronis]
-> In 2.6.12.6:
-> 
-> /dev/hda:
->  Timing cached reads:   1140 MB in  2.00 seconds = 569.80 MB/sec
->  Timing buffered disk reads:  102 MB in  3.02 seconds =  33.80 MB/sec
-> 
-> In 2.6.13.2:
-> 
-> /dev/hda:
->  Timing cached reads:    28 MB in  2.15 seconds =  13.03 MB/sec
->  Timing buffered disk reads:   14 MB in  3.30 seconds =   4.24 MB/sec
-> 
-> and after hdparm -m 16 /dev/hda (recall this is the default in 2.6.12.6)
-> 
-> /dev/hda:
->  Timing cached reads:    24 MB in  2.05 seconds =  11.73 MB/sec
->  Timing buffered disk reads:   36 MB in  3.11 seconds =  11.56 MB/sec
-> 
-> I ran thing a few times in each case and the results were close.  There
-> was nothing in dmesg.
+Yes; at least on my Intel chipset.  ;-)
 
-Try hdparm -i /dev/hda on both kernels, this will tell you the
-controller/drive operation mode:
+> I had assumed while in one-shot interrupt mode, HPET would automatically unarm
+> after generating the interrupt, so that we won't get interrupts any more.
 
- PIO modes:  pio0 pio1 pio2 pio3 pio4 
- DMA modes:  sdma0 sdma1 sdma2 mdma0 mdma1 mdma2 
- UDMA modes: udma0 udma1 udma2 udma3 udma4 *udma5 
- * signifies the current active mode
+The spec never mentions this.  What it mentions is that it was
+designed so that it can be implemented in as few gates as possible.
 
-I expect you to find that your IDE controller is in UDMA mode on
-2.6.12.6 but not on 2.6.13.2. The figures you obtain for the latter
-suggest mdma2 (those max throughput is 16 MB/sec IIRC) at best.
 
-If I'm right, then you will have to find out which driver your IDE
-controller uses, and why it decided that UDMA was no good for your
-controller/driver combination. You may want to try the linux-ide list
-for a more assistance, my own knowledge of that matter stops here ;)
+Regards,
+Clemens
 
--- 
-Jean Delvare

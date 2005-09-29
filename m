@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751362AbVI2X0l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751367AbVI2X2G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751362AbVI2X0l (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 19:26:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbVI2X0l
+	id S1751367AbVI2X2G (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 19:28:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbVI2X2G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 19:26:41 -0400
-Received: from xproxy.gmail.com ([66.249.82.196]:58151 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751362AbVI2X0k convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 19:26:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WKjHXXMeNTs/eYYBNv5ub1A7/hxTEKteGQcRssxAdRlfyN3wEAqT7QtcJX/a6Ktk1g8YTAHJqBe0dXiyioAUsf7d9HMaahD2KT6B9TxDVT6c06VJdB6wvyteFGB5xiRnOUGww5si1OuWJQHP31bsvoTBpj9dRnSfvHbhWVWRsNk=
-Message-ID: <5bdc1c8b050929162689415dd@mail.gmail.com>
-Date: Thu, 29 Sep 2005 16:26:38 -0700
-From: Mark Knecht <markknecht@gmail.com>
-Reply-To: Mark Knecht <markknecht@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.14-rc2-mm2
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050929143732.59d22569.akpm@osdl.org>
+	Thu, 29 Sep 2005 19:28:06 -0400
+Received: from mail-red.bigfish.com ([216.148.222.61]:42794 "EHLO
+	mail21-red-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S1751367AbVI2X2E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 19:28:04 -0400
+X-BigFish: V
+Message-ID: <433C7882.20000@am.sony.com>
+Date: Thu, 29 Sep 2005 16:28:02 -0700
+From: Geoff Levand <geoffrey.levand@am.sony.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050929143732.59d22569.akpm@osdl.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: linuxppc64-dev@ozlabs.org, linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       "debian-powerpc@lists.debian.org" <debian-powerpc@lists.debian.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: iMac G5: experimental thermal & cpufreq support
+References: <1127978432.6102.53.camel@gaston>
+In-Reply-To: <1127978432.6102.53.camel@gaston>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/29/05, Andrew Morton <akpm@osdl.org> wrote:
->
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc2/2.6.14-rc2-mm2/
->
-> (temp copy at http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.14-rc2-mm2.gz)
->
+Benjamin Herrenschmidt wrote:
+> The algorithm itself is extracted from darwin. However, it's a rather
+> complex modified version of the PID algorithm, and thus it could use
+> some review to make sure I got everything right.
+> 
 
-Hi,
-   I'm semi-sure at this point that the xrun problems I'm seeing on my
-AMD64/NForce4 machine (Asus A8N-E motherboard) are isolated to the
-SATA drive. Is there anything here that might address that? I'm
-currently running 2.6.14-rc2-mm1. I've got this machine headless at
-the moment. I can move data reliably using the CDRW drive, the DVD
-drive with xine, and I can copy lots of data off and on my 1394
-drives. I can run Ardour, Aqualung and lots of other apps remotely
-using this machine as a server. When I start using the SATA drive,
-read or write, I get lots xruns.
+As we are already in the digital domain, I would think it would be 
+more savvy to use a digital controller than try to simulate an
+analog controller...  Why don't you abstract the control algorithm 
+such that you can plug in others as they are developed.
 
-- Mark
+-Geoff
+

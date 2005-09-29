@@ -1,58 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbVI2TFK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbVI2TIO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932186AbVI2TFK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 15:05:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932191AbVI2TFK
+	id S932195AbVI2TIO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 15:08:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbVI2TIO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 15:05:10 -0400
-Received: from main.gmane.org ([80.91.229.2]:2472 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932186AbVI2TFI (ORCPT
+	Thu, 29 Sep 2005 15:08:14 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:29673 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S932195AbVI2TIN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 15:05:08 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Wes Felter <wesley@felter.org>
-Subject: Re: em64t speedstep technology not supported in kernel yet?
-Date: Thu, 29 Sep 2005 13:58:18 -0500
-Message-ID: <433C394A.7010802@felter.org>
-References: <433C1787.4090001@watson.wustl.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 29 Sep 2005 15:08:13 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [howto] Kernel hacker's guide to git, updated
+Date: Thu, 29 Sep 2005 21:08:10 +0200
+User-Agent: KMail/1.8
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+References: <433BC9E9.6050907@pobox.com>
+In-Reply-To: <433BC9E9.6050907@pobox.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: pixpat.austin.ibm.com
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-In-Reply-To: <433C1787.4090001@watson.wustl.edu>
+Content-Disposition: inline
+Message-Id: <200509292108.11092.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Wohlstadter wrote:
-> Hello all,
+Am Donnerstag, 29. September 2005 13:03 schrieb Jeff Garzik:
 > 
-> We recently had Intel give our company a roadmap presentation where they 
-> told us that their enhanced speedstep technology was supported by linux 
-> kernels 2.6.9+.  I have since tried to get cpufreq speedstep driver to 
-> work with no luck on our em64t Xeon 3.6g processors.  Intel even has a 
-> webpage describing the technology and how to get it working at url: 
-> http://www.intel.com/cd/ids/developer/asmo-na/eng/195910.htm?prn=Y
+> Just updated my KHGtG to include the latest goodies available in 
+> git-core, the Linux kernel standard SCM tool:
+> 
+> 	http://linux.yyz.us/git-howto.html
+> 
+> Several changes in git-core have made working with git a lot easier, so 
+> be sure to re-familiarize yourself with the development process.
+> 
+> Comments, corrections, and notes of omission welcome.  This document 
+> mainly reflects my typical day-to-day git activities, and may not be 
+> very applicable outside of kernel work.
 
-I think this is a BIOS problem; the BIOS needs to provide the proper 
-ACPI frequency/voltage tables for cpufreq to use. You might want to 
-harass your system/motherboard vendor.
+Unfortunately, following the instructions to the letter produces this:
+oliver@oenone:~/linux-2.6> git checkout
+usage: read-tree (<sha> | -m <sha1> [<sha2> <sha3>])
 
-Alternately maybe you can find someone who can give you the secret table 
-and then you can just hardcode it into the driver.
-
-> The only processor I have had luck with so far is a 32-bit Xeon with the 
-> p4-clockmod driver(which does not appear to be present in the x86-64 
-> kernel).
-
-Beware that p4-clockmod won't increase the power efficiency of your 
-system. (As an aside, clock modulation is so simple that you can do it 
-from userspace in a few lines of C if you modprobe msr. This works on 
-x86-64.)
-
-Wes Felter - wesley@felter.org
-
-
+	Regards
+		Oliver

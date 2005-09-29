@@ -1,76 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbVI2P6Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbVI2QAQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932207AbVI2P6Y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 11:58:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932190AbVI2P6V
+	id S932190AbVI2QAQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 12:00:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbVI2QAP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 11:58:21 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:54725 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S932167AbVI2P6U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 11:58:20 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <433C0EBF.7080605@s5r6.in-berlin.de>
-Date: Thu, 29 Sep 2005 17:56:47 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: linux-scsi@vger.kernel.org
-CC: James.Smart@Emulex.Com, hch@infradead.org, jgarzik@pobox.com,
-       joshk@triplehelix.org, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org, axboe@suse.de, torvalds@osdl.org,
-       rdunlap@xenotime.net
-Subject: Re: SATA suspend/resume (was Re: [PATCH] updated version of Jens'
- SATA suspend-to-ram patch)
-References: <9BB4DECD4CFE6D43AA8EA8D768ED51C21D7AC2@xbl3.ma.emulex.com>
-In-Reply-To: <9BB4DECD4CFE6D43AA8EA8D768ED51C21D7AC2@xbl3.ma.emulex.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: (0.126) AWL,BAYES_50
+	Thu, 29 Sep 2005 12:00:15 -0400
+Received: from 122.0.203.62.cust.bluewin.ch ([62.203.0.122]:64091 "EHLO
+	kestrel.twibright.com") by vger.kernel.org with ESMTP
+	id S932190AbVI2QAO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 12:00:14 -0400
+Date: Thu, 29 Sep 2005 18:00:07 +0200
+From: Karel Kulhavy <clock@twibright.com>
+To: linux-kernel@vger.kernel.org
+Subject: Temporary workaround for stuck CD burner
+Message-ID: <20050929160006.GA19550@kestrel>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Orientation: Gay
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I admit I haven't studied the patches. Anyway, here is what I have to 
-say about what I (mis?)understood from your posts:
+I managed to turn off the DVD burner by suspending the laptop to disk
+and reviving.
 
-James Smart wrote:
-> You need to be careful on the power-up. Many JBODs share a single
-> "enclosure" and that enclosure has a limited power supply. If all
-> drives were spun up in parallel (and a drive may take 10-15seconds
-> to spin up), then they can overload the enclosure's power limit.
-[...]
-> There were not a lot of great answers on how to solve this as it usually
-> required knowledge of how the hardware was packaged.
-[...]
+Now the command
+cdrecord -tao dev=ATAPI:0,0,0 speed=8 /home/clock/cdrom.iso
+is behaving like in those good olden days before Linux kernel seizure.
 
->>On Thu, Sep 29, 2005 at 08:34:37AM +0100, Christoph Hellwig wrote:
->>>is an ULDD operation, not an LLDD one, and this fits the layering model
->>>much better.
+More information: dmesg reveals that during the seizure, no dmesg
+messages were generated (no SCSI errors/timeouts etc.).
 
-The operation _involves_ the high level, yes. But whether it may be/ 
-must not be performed has to be controlled by the transport layer. Take 
-FireWire as an example: IEEE 1394(a,b) has power management 
-specifications. (NB: Its indeed in IEEE 1394, not in the SBP-2 spec.) 
-One rule is that only one node on a FireWire bus may perform power 
-management; the node which is allowed to do this is determined by a 
-special protocol.
+When mounting the first badly burned CD, SCSI errors were generated.
+Last 3 of them:
 
->>Actually one important thing is missing, that is a way to avoid spinning
->>down external disks.  As a start a sysfs-controlable flag should do it,
->>later we can add transport-specific ways to find out whether a device
->>is external.
+hdc: media error (bad sector): status=0x51 { DriveReady SeekComplete
+Error }
+hdc: media error (bad sector): error=0x30 { LastFailedSense=0x03 }
+ide: failed opcode was: unknown
+end_request: I/O error, dev hdc, sector 8
+printk: 2 messages suppressed.
+Buffer I/O error on device hdc, logical block 1
+hdc: media error (bad sector): status=0x51 { DriveReady SeekComplete
+Error }
+hdc: media error (bad sector): error=0x30 { LastFailedSense=0x03 }
+ide: failed opcode was: unknown
+end_request: I/O error, dev hdc, sector 16
+hdc: media error (bad sector): status=0x51 { DriveReady SeekComplete
+Error }
+hdc: media error (bad sector): error=0x30 { LastFailedSense=0x03 }
+ide: failed opcode was: unknown
+end_request: I/O error, dev hdc, sector 0
 
-It is not a question of external vs. internal, at least not if you 
-consider more than SATA. Power management is the genuine task of 
-transport layers (specifically, of transport management layers). These 
-layers might need assistence from SCSI high-level protocol layer though.
-
-IOW it's certainly correct to provide suspend/resume helpers in SCSI 
-high level (probably abstracted through SCSI core), but whether these 
-helpers are called or not has to be decided down in the SCSI low level, 
-or even further beneath that level.
--- 
-Stefan Richter
--=====-=-=-= =--= ===-=
-http://arcgraph.de/sr/
+CL<

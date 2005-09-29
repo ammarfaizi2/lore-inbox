@@ -1,64 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932399AbVI2TX7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbVI2T3i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932399AbVI2TX7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 15:23:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932436AbVI2TX7
+	id S932215AbVI2T3i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 15:29:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932444AbVI2T3i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 15:23:59 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:42770 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932399AbVI2TX6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 15:23:58 -0400
-Message-ID: <433C3F48.8020404@tmr.com>
-Date: Thu, 29 Sep 2005 15:23:52 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
+	Thu, 29 Sep 2005 15:29:38 -0400
+Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:50067 "EHLO
+	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S932215AbVI2T3i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 15:29:38 -0400
+From: Grant Coady <grant_lkml@dodo.com.au>
+To: Greg KH <greg@kroah.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCHv3 04a/04] pci_ids: whitespace cleanup, resend first half
+Date: Fri, 30 Sep 2005 05:29:20 +1000
+Organization: http://bugsplatter.mine.nu/
+Message-ID: <33eoj1tpebaaibjo7a3mg0en2f5jlofadq@4ax.com>
+References: <vo0nj19p336vsm05mrtefan1fajgi6qngi@4ax.com> <20050929161450.GC19770@kroah.com>
+In-Reply-To: <20050929161450.GC19770@kroah.com>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
-To: Al Viro <viro@ftp.linux.org.uk>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rio: switch to ANSI prototypes
-References: <20050929152208.GA18132@mipter.zuzino.mipt.ru> <20050929152556.GU7992@ftp.linux.org.uk> <20050929165236.GC18132@mipter.zuzino.mipt.ru> <20050929165259.GV7992@ftp.linux.org.uk>
-In-Reply-To: <20050929165259.GV7992@ftp.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro wrote:
-> On Thu, Sep 29, 2005 at 08:52:36PM +0400, Alexey Dobriyan wrote:
-> 
->>On Thu, Sep 29, 2005 at 04:25:56PM +0100, Al Viro wrote:
->>
->>>Uh-oh...  Well, if you want to play with it...  FWIW, I'm disabling rio as
->>>hopeless FPOS; if you feel masochistic, go ahead but keep in mind that its
->>>handling of tty glue is severely b0rken.
->>
->>Well, duh... It clutters _my_ logs.
-> 
-> 
-> diff -urN RC13-git12-nfs-endian/drivers/char/Kconfig RC13-git12-rio/drivers/char/Kconfig
-> --- RC13-git12-nfs-endian/drivers/char/Kconfig	2005-09-10 15:41:34.000000000 -0400
-> +++ RC13-git12-rio/drivers/char/Kconfig	2005-09-12 14:50:05.000000000 -0400
-> @@ -282,12 +282,13 @@
->  
->  config RIO
->  	tristate "Specialix RIO system support"
-> -	depends on SERIAL_NONSTANDARD && BROKEN_ON_SMP
-> +	depends on SERIAL_NONSTANDARD && BROKEN
->  	help
->  	  This is a driver for the Specialix RIO, a smart serial card which
->  	  drives an outboard box that can support up to 128 ports.  Product
->  	  information is at <http://www.perle.com/support/documentation.html#multiport>.
->  	  There are both ISA and PCI versions.
-> +	  Note that while card might be smart, driver most certainly isn't.
+On Thu, 29 Sep 2005 09:14:51 -0700, Greg KH <greg@kroah.com> wrote:
 
-Funniest comment line of the month ;-)
+>On Thu, Sep 29, 2005 at 04:02:26PM +1000, Grant Coady wrote:
+>> 
+>> From: Grant Coady <gcoady@gmail.com>
+>> 
+>> pci_ids.h: whitespace cleanup, split into two 'cos lkml ate single patch.
+>
+>This patch is going to be tough, as it will conflict with everything at
+>the same time (other trees that touch the file.)
+>
+>I'll do this by hand, right before sending Linus a PCI git tree to
+>merge, if you don't mind.
 
-But if you have a need for something like this, the bad driver is better 
-than none, and marked BROKEN it may actually get some attention.
+Would you like the patchset broken to smaller hunks so you can drop 
+conflicting hunks and I'll resubmit the dropped hunks later?  
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Since I learned to break a 115k hunk, can break it up some more ;-)
+
+Choose a number?
+
+>> + *
+>> + *	September 2005 - cleanup by Grant Coady <gcoady@gmail.com>
+>
+>changelog stuff within files is not needed, or encouraged at all.
+>That's why we have changelogs now.
+
+So people can blame me for many hundred missing symbols?
+
+Thanks,
+Grant.
+

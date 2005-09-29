@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932225AbVI2TTE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932274AbVI2TTR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932225AbVI2TTE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 15:19:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932274AbVI2TTE
+	id S932274AbVI2TTR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 15:19:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbVI2TTR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 15:19:04 -0400
-Received: from mail.gmx.net ([213.165.64.20]:18317 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932225AbVI2TTD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 15:19:03 -0400
-X-Authenticated: #20450766
-Date: Thu, 29 Sep 2005 21:18:23 +0200 (CEST)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Peter Osterlund <petero2@telia.com>
-cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
-Subject: Re: [2.6.13] pktcdvd: IO-errors
-In-Reply-To: <m3hdc4ucrt.fsf@telia.com>
-Message-ID: <Pine.LNX.4.60.0509292116260.11615@poirot.grange>
-References: <Pine.LNX.4.60.0509242057001.4899@poirot.grange> <m3slvtzf72.fsf@telia.com>
- <Pine.LNX.4.60.0509252026290.3089@poirot.grange> <m34q873ccc.fsf@telia.com>
- <Pine.LNX.4.60.0509262122450.4031@poirot.grange> <m3slvr1ugx.fsf@telia.com>
- <Pine.LNX.4.60.0509262358020.6722@poirot.grange> <m3hdc4ucrt.fsf@telia.com>
+	Thu, 29 Sep 2005 15:19:17 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:16645 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932274AbVI2TTQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 15:19:16 -0400
+Message-ID: <433C3E3B.80708@tmr.com>
+Date: Thu, 29 Sep 2005 15:19:23 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Y-GMX-Trusted: 0
+To: Karel Kulhavy <clock@twibright.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: CD writer is burning with open tray
+References: <20050929141924.GA6512@kestrel>
+In-Reply-To: <20050929141924.GA6512@kestrel>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Sep 2005, Peter Osterlund wrote:
+Karel Kulhavy wrote:
+> Hello
+> 
+> I ran cdrecord -tao dev=ATAPI:0,0,0 speed=8 /home/clock/cdrom.iso on
+> 2.6.12-gentoo-r10 and it burned a good CD.
+> 
+> Then I repeated the same command (press up and enter) and it
+> 1) Burned two bad CD's with a strip near the central area
+> 2) Third CD burned bad
+> 3) When rerun cdrecord says
+> cdrecord: Drive does not support TAO recording.
+> cdrecord: Illegal write mode for this drive.
+> 
+> I should note here that I didn't hotplug the hardware - I can't
+> understand how supported modes can change on the fly...
 
-> That patch changes the logic that decides when the driver should
-> change between reading and writing. However, the read/write/sync
-> sequence that makes your drive fail in 2.6.13 could theoretically
-> happen in 2.6.12 as well if you are unlucky.
+My guess is that your writer is bad, or at minimum needs a firmware 
+upgrade. However, is this the real cdwrite program from Joerg Schilling, 
+or is it one of the hacked versions which come with some distributions 
+with mods to burn DVDs?
 
-Well, I didn't test it extensively - it was the first time I tried it 
-under 2.6.13.
-
-> I think some trial and error will be required to figure out what
-> causes your drive to fail. If you apply this patch to 2.6.12, does it
-> still work?
-
-Yes, it does...
-
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
+I would also specify the real device name, like dev=/dev/hdX, and drop 
+the speed= option and let it choose one it likes. You may also want to 
+use the -atip option to see what cdrecord thinks about your drive.
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

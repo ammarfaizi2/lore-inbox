@@ -1,127 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932257AbVI2QzI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932254AbVI2Q4O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932257AbVI2QzI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 12:55:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932256AbVI2QzI
+	id S932254AbVI2Q4O (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 12:56:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932249AbVI2Q4N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 12:55:08 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:41196 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932245AbVI2QzF (ORCPT
+	Thu, 29 Sep 2005 12:56:13 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:31920 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S932254AbVI2Q4M (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 12:55:05 -0400
-Message-ID: <433C1C61.30506@pobox.com>
-Date: Thu, 29 Sep 2005 12:54:57 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+	Thu, 29 Sep 2005 12:56:12 -0400
+Message-ID: <433C1CA1.3080007@adaptec.com>
+Date: Thu, 29 Sep 2005 12:56:01 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Luben Tuikov <luben_tuikov@adaptec.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Arjan van de Ven <arjan@infradead.org>, Willy Tarreau <willy@w.ods.org>,
        SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Andre Hedrick <andre@linux-ide.org>,
-       Patrick Mansfield <patmans@us.ibm.com>,
-       Luben Tuikov <ltuikov@yahoo.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
  the kernel
-References: <Pine.LNX.4.10.10509281227570.19896-100000@master.linux-ide.org> <433B0374.4090100@adaptec.com> <20050928223542.GA12559@alpha.home.local> <433BFB1F.2020808@adaptec.com> <433BFEDB.6050505@pobox.com> <433C0D30.9050901@adaptec.com>
-In-Reply-To: <433C0D30.9050901@adaptec.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <43384E28.8030207@adaptec.com> <4339BFE9.1060604@pobox.com>	 <4339CCD6.5010409@adaptec.com> <4339F9A8.2030709@pobox.com>	 <433AFEB2.7090003@adaptec.com> <433B0457.7020509@pobox.com>	 <433B14E1.6080201@adaptec.com> <433B217F.4060509@pobox.com>	 <20050929040403.GE18716@alpha.home.local> <1127979848.2918.7.camel@laptopd505.fenrus.org> <433C0398.4040302@adaptec.com> <433C0641.3030101@pobox.com>
+In-Reply-To: <433C0641.3030101@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.3 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Luben Tuikov wrote: > of SAS. THE REASON THEY WERE
-	INTRODUCED INTO LINUX BY JB IS TO > ACCOMODATE MPT-based SOLUTIONS FROM
-	TWIDDLING WITH IOCTLS! Wrong. This shows you fundamentally don't
-	understand transport classes at all. [...] 
-	Content analysis details:   (0.3 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 BEST_PORN              BODY: Possible porn - Best, Largest, Most Porn
+X-OriginalArrivalTime: 29 Sep 2005 16:56:10.0450 (UTC) FILETIME=[B14D1B20:01C5C516]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luben Tuikov wrote:
-> of SAS.  THE REASON THEY WERE INTRODUCED INTO LINUX BY JB IS TO
-> ACCOMODATE MPT-based SOLUTIONS FROM TWIDDLING WITH IOCTLS!
-
-Wrong.  This shows you fundamentally don't understand transport classes 
-at all.
-
-AFAIK, the first transport class was FC, for qla2xxx.
-
-Read the code to see how FC avoids the SPI-centric scan -- an example of 
-transport independence.
-
-
-> How do I know this: simple: JB's "transport attributes" have
-> NOTHING to do with SAM.
-> 
-> They break the layering architecture for one, and are
-> ATTRIBUTE EXPORTING FACILITY for another.
-
-Transport class == transport layer.  Eventually this will sink in.
-
-Transport class allows for complete transport independence, be it SAS, 
-FC, iSCSI, or other.
-
-
-> And as you can see, Linux today is the most anal retentive as it
-> has ever been (e.g. SAS, reiser4, and other (revolutionary) technologies).
-> 
-> Remember, you can only go _down_ from the top.  So please
-> do not say
->    "Linux is the most successful it's ever been."
-
-We've still got all that Microsoft and old-Unix marketshare to steal :)
-
-
-> It's too immature as it means that it would either go down
-> or that it cannot become even _more_ successful.
+On 09/29/05 11:20, Jeff Garzik wrote:
+>>Arjan, I'll be your best friend here:
+>>Never say this in public or in an intervew.
 > 
 > 
->>The rest of the Linux-SCSI devs are trying to make it less SPI-centric. 
->>  Rather than just complain, we're doing something about it.
+> It's hard-earned experience.  We constantly have to teach hardware 
+> vendors how to write good drivers.
+
+I'm sure you have.  Hardware vendors are lost without
+Jeff, James Bottomley and Christoph.
+
+You see, it is because of your _enormous_ ego as shown
+above, that the code is being blocked.
+
+> At some point you have to step away from the spec, and ask yourself what 
+> makes sense for Linux.
+
+I'm sure -- flush interoperability down the drain.
+
+> I've already had to poke T10 when they put silly 
+> things in the SAT spec.
+
+Surely they are lost without you.
+
+> As a tangent, I already have a design for a Linux filesystem that makes 
+> use of SCSI object-based storage (to James's horror, no doubt :)).  It's 
+> a fun thing to ponder.
+
+Ok, so the way I see it you want to show who has got
+the bigger balls?
+
+Jeff, I have *worked* on a Linux OBD-based filesystem.
+
+Are you going to stop this self-gratifying stuff?
+
+>>Hardware folks needs to work with software folks and
+>>software folks need to work with hardware folks.
 > 
-> 
-> Oh this is such a political sap, Jeff -- I cannot believe
-> you're actually saying this.
+> Certainly.  The historical disconnect is where hardware vendors tend to 
+> presume They Know Best, when in reality it needs to be an equal 
+> tradeoff.  Hardware vendors must admit they don't know Linux, and Linux 
+> developers must admit that hardware vendors know their own hardware 
+> better than anyone else.
 
-I'm merely stating I'm submitting patches to clean up SCSI core.  Others 
-have submitted far more patches than I.  And further patches to SCSI 
-core are needed to properly integrate SAS as a transport completely 
-independent from SPI.  I'm going to be putting time and effort into 
-moving the SCSI core away from SPI, so that SAS can be properly integrated.
+Reflection of above:
+  The historical disconnect is where "the community" tend to 
+presume They Know Best, when in reality it needs to be an equal 
+tradeoff.  "The community" must admit they don't know hardware,
+and hardware developers must admit that "the community" know their
+own code better than anyone else.
 
-All I've seen from you is
-(a) complaints that the SCSI core is too SPI-centric
-(b) a solution that does nothing to fix this
+Jeff, if you had started looking at the design and firmware
+of any new SCSI storage chip, you'd see how incredibly similar
+it is to the transport it defines, and thus to SAM, since the
+transport itself has to comply with SAM for interoperability
+(TMF and all).
 
+Linux SCSI does _not_ need to do "its own thing".  There are
+perfectly well defined specs, telling you how things are
+conceptually _and_ in the physical world.
 
-> Who are you pleasing?  Your management?
+In order to control those objects, you need to represent
+them internally (you can learn this either in neuroscience
+class or in OOD & OOP comp sci classes) as you can see has
+been done in the SAS Transport Layer code.
 
-My goal is Linux.  Always has been.  I put quality of Linux code, and 
-giving features to Linux users, above all else.  Have been doing so 
-regardless of who employs me, for many years now.
+So if you want _better control_, higher quality you need
+to invent _your own_ stuff as _little as possible_ and
+represent things as they are.
 
-Maybe one day I will be independently wealthy, be a completely 
-independent Linux maintainer, and then people will have to find 
-something other than Red Hat as the reason for why their code is 
-receiving criticism.
-
-
-> I doubt you've ever been honest with me.*  The reason is that
-> you are trying to push down my throat JB's "transport classes",
-> all the while you're saying I'm supposed to change other people's
-> code?
-
-To get a fully SPI-independent SCSI core, we must change other people's 
-code.  That's the way Linux works.  We evolve the existing code.
-
-	Jeff
-
+	Luben
 

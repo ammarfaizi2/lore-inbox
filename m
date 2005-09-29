@@ -1,39 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964973AbVI2V05@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbVI2V33@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964973AbVI2V05 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 17:26:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964930AbVI2V05
+	id S964930AbVI2V33 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 17:29:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbVI2V33
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 17:26:57 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:19428 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751334AbVI2V04 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 17:26:56 -0400
-Date: Thu, 29 Sep 2005 14:26:42 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Dave Jones <davej@redhat.com>
-cc: Anton Altaparmakov <aia21@cam.ac.uk>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-Subject: Re: [howto] Kernel hacker's guide to git, updated
-In-Reply-To: <Pine.LNX.4.64.0509291413060.5362@g5.osdl.org>
-Message-ID: <Pine.LNX.4.64.0509291425560.5362@g5.osdl.org>
-References: <433BC9E9.6050907@pobox.com> <20050929200252.GA31516@redhat.com>
- <Pine.LNX.4.60.0509292106080.17860@hermes-1.csi.cam.ac.uk>
- <20050929201127.GB31516@redhat.com> <Pine.LNX.4.64.0509291413060.5362@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 29 Sep 2005 17:29:29 -0400
+Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:44556 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751334AbVI2V32
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 17:29:28 -0400
+Date: Fri, 30 Sep 2005 07:28:36 +1000
+To: Suzanne Wood <suzannew@cs.pdx.edu>
+Cc: paulmck@us.ibm.com, Robert.Olsson@data.slu.se, davem@davemloft.net,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, walpole@cs.pdx.edu
+Subject: Re: [RFC][PATCH] identify in_dev_get rcu read-side critical sections
+Message-ID: <20050929212836.GA14323@gondor.apana.org.au>
+References: <200509291602.j8TG2TuI015920@rastaban.cs.pdx.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200509291602.j8TG2TuI015920@rastaban.cs.pdx.edu>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Sep 29, 2005 at 09:02:29AM -0700, Suzanne Wood wrote:
+> 
+> The exchange below suggests that it is equally important 
+> to have the rcu_dereference() in __in_dev_get(), so the 
+> idea of the only difference between in_dev_get and 
+> __in_dev_get being the refcnt may be accepted.
 
+With __in_dev_get() it's the caller's responsibility to ensure
+that RCU works correctly.  Therefore if any rcu_dereference is
+needed it should be done by the caller.
 
-On Thu, 29 Sep 2005, Linus Torvalds wrote:
->
-> Something like this?
+Some callers of __in_dev_get() don't need rcu_dereference at all
+because they're protected by the rtnl.
 
-Gaah. Using a new pine version, and it is back to corrupting whitespace.
+BTW, could you please move the rcu_dereference in in_dev_get()
+into the if clause? The barrier is not needed when ip_ptr is
+NULL.
 
-Damn all mailer writers. Do they think email is just for grandma?
-
- 		Linus
+Thanks,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

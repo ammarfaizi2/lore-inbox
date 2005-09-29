@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932223AbVI2Ta7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932445AbVI2Tc5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932223AbVI2Ta7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 15:30:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932445AbVI2Ta7
+	id S932445AbVI2Tc5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 15:32:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbVI2Tc5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 15:30:59 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:22288 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932223AbVI2Ta6
+	Thu, 29 Sep 2005 15:32:57 -0400
+Received: from ppp-62-11-74-97.dialup.tiscali.it ([62.11.74.97]:50333 "EHLO
+	zion.home.lan") by vger.kernel.org with ESMTP id S932445AbVI2Tc4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 15:30:58 -0400
-Message-ID: <433C4106.1020801@tmr.com>
-Date: Thu, 29 Sep 2005 15:31:18 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nuno Silva <nuno.silva@vgertech.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux SATA S.M.A.R.T. and SLEEP?
-References: <Pine.LNX.4.63.0509290916450.20827@p34> <433C31C8.1030901@vgertech.com>
-In-Reply-To: <433C31C8.1030901@vgertech.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Sep 2005 15:32:56 -0400
+From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
+Subject: [PATCH 3/5] uml: clear SKAS0/3 flags when running in TT mode
+Date: Thu, 29 Sep 2005 21:30:44 +0200
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Message-Id: <20050929193044.14528.13150.stgit@zion.home.lan>
+In-Reply-To: <200509292102.44942.blaisorblade@yahoo.it>
+References: <200509292102.44942.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nuno Silva wrote:
-> Justin Piszcz wrote:
-> 
->> Under 2.6.13.2,
->>
->> Is there any utility that I can use to put a SATA HDD to sleep?
->> Secondly, I notice I cannot access any of the HDD's S.M.A.R.T. 
->> functions on SATA drives?
-> 
-> 
-> Search for Jeff's patch 2.6.12-git4-passthru1.patch
-> I think this will be included RSN. This solves your two issues.
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-Thank you for mentioning this, it makes using SATA drives in production 
-look more appealing. I like to be proactive on drive health and check it 
-regularly.
+SEGV_MAYBE_FIXABLE tests ptrace_faultinfo, and depends on it being 1 only in
+SKAS3 mode, while currently when running with mode=tt it will be 1 anyway. Fix
+this, and do the same for proc_mm.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
+
+ arch/um/include/os.h     |    4 ++++
+ arch/um/kernel/um_arch.c |    2 ++
+ 2 files changed, 6 insertions(+), 0 deletions(-)
+
+diff --git a/arch/um/include/os.h b/arch/um/include/os.h
+--- a/arch/um/include/os.h
++++ b/arch/um/include/os.h
+@@ -157,6 +157,10 @@ extern int os_lock_file(int fd, int excl
+ extern void os_early_checks(void);
+ extern int can_do_skas(void);
+ 
++/* Make sure they are clear when running in TT mode. Required by
++ * SEGV_MAYBE_FIXABLE */
++#define clear_can_do_skas() do { ptrace_faultinfo = proc_mm = 0; } while (0)
++
+ /* mem.c */
+ extern int create_mem_file(unsigned long len);
+ 
+diff --git a/arch/um/kernel/um_arch.c b/arch/um/kernel/um_arch.c
+--- a/arch/um/kernel/um_arch.c
++++ b/arch/um/kernel/um_arch.c
+@@ -334,6 +334,8 @@ int linux_main(int argc, char **argv)
+ 		add_arg(DEFAULT_COMMAND_LINE);
+ 
+ 	os_early_checks();
++	if (force_tt)
++		clear_can_do_skas();
+ 	mode_tt = force_tt ? 1 : !can_do_skas();
+ #ifndef CONFIG_MODE_TT
+ 	if (mode_tt) {
+

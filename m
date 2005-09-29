@@ -1,81 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbVI2FVf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbVI2F2O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751233AbVI2FVf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 01:21:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751297AbVI2FVf
+	id S1750759AbVI2F2O (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 01:28:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbVI2F2O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 01:21:35 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:32488 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751233AbVI2FVe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 01:21:34 -0400
-Message-ID: <433B79D8.9080305@pobox.com>
-Date: Thu, 29 Sep 2005 01:21:28 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Joshua Kwan <joshk@triplehelix.org>
-CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       linux-scsi@vger.kernel.org, axboe@suse.de, torvalds@osdl.org,
-       randy_dunlap <rdunlap@xenotime.net>
-Subject: SATA suspend/resume (was Re: [PATCH] updated version of Jens' SATA
- suspend-to-ram patch)
-References: <20050923163334.GA13567@triplehelix.org>
-In-Reply-To: <20050923163334.GA13567@triplehelix.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 29 Sep 2005 01:28:14 -0400
+Received: from sb0-cf9a48a7.dsl.impulse.net ([207.154.72.167]:51215 "EHLO
+	madrabbit.org") by vger.kernel.org with ESMTP id S1750759AbVI2F2O
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 01:28:14 -0400
+Subject: RE: Registering for multiple SIGIO within a process
+From: Ray Lee <ray-lk@madrabbit.org>
+To: "Bagalkote, Sreenivas" <Sreenivas.Bagalkote@engenio.com>
+Cc: "Bhattacharjee, Satadal" <Satadal.Bhattacharjee@engenio.com>,
+       linux-kernel@vger.kernel.org,
+       "Patro, Sumant" <Sumant.Patro@engenio.com>,
+       "Ram, Hari" <hari.ram@engenio.com>,
+       "Mukker, Atul" <Atul.Mukker@engenio.com>
+In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E57060CD1F1@exa-atlanta>
+References: <0E3FA95632D6D047BA649F95DAB60E57060CD1F1@exa-atlanta>
+Content-Type: text/plain
+Organization: http://madrabbit.org/
+Date: Wed, 28 Sep 2005 22:28:08 -0700
+Message-Id: <1127971689.25462.67.camel@orca.madrabbit.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
-X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joshua Kwan wrote:
-> Hello,
-> 
-> I had some time yesterday and decided to help Jens out by rediffing the
-> now-infamous SATA suspend-to-ram patch [1] against current git and
-> test-building it.
-> 
-> For posterity,
-> 
-> This patch adds the ata_scsi_device_resume and ata_scsi_device_suspend
-> functions (along with helpers) to put to sleep and wake up Serial ATA
-> controllers when entering sleep states, and hooks the functions into
-> each SATA controller driver so that suspend-to-RAM is possible.
-> 
-> Note that this patch is a holdover patch until it is possible to
-> generalize this concept for all SCSI devices, which requires more data
-> on which devices need to be put to sleep and which don't.
-> 
-> Signed-off-by: Joshua Kwan <joshk@triplehelix.org>
+On Thu, 2005-09-29 at 00:09 -0400, Bagalkote, Sreenivas wrote:
+> select() is not asynchronous to the app (like a signal handler is).
 
-Ah hah!  I found the other SCSI suspend patch:
+(Way off topic now, but...)
 
-	http://lwn.net/Articles/97453/
+Correct. Asynchronous to the app is rarely what an app author wants,
+though (at least this app author). Asynchronous is the unix version of
+throwing an exception in OO languages, which is fine for something
+that's exceptional. As for something that one *expects* as a matter of
+course (a broken pipe or SIGXFSZ upon a write(), for example), having a
+signal arrive out of line from normal processing is a pain, and
+needlessly complicates code.
 
-Anybody (Joshua?) up for reconciling and testing the two?
+Further, if you took a poll of random self-proclaimed Unix/C hackers, I
+bet fewer than 1 in 10 could actually tell you what functions are *safe*
+to call inside the handler. (Probably less than half even realize
+there's a problem. Better, I bet a large percentage of them don't even
+understand the case that they can be introducing race conditions with
+signal handlers.)
 
-The main change from Jens/Joshua's patch is that we use SCSI's 
-sd_shutdown() to call sync cache, eliminating the need for 
-ata_flush_cache(), since the SCSI layer would now perform that.
+The common, safe, approach taken by those who do realize that there's an
+issue is to just collect the signals as they arrive, and merely perform
+a write to transfer it into the main select loop (which, seemingly, most
+programs have). The main select() loop then deals with the signals as
+events rather than exceptions.
 
-For bonus points,
+As I mentioned up top, this is straying far off course, and into my
+personal software practices. As I'm just some random guy, I'd suggest
+ignoring me :-).
 
-1) sd should call START STOP UNIT on suspend, which eliminates the need 
-for ata_standby_drive(), and completely encompasses the suspend process 
-in the SCSI layer.
+For the matter mentioned at top of the email thread, forking a couple
+separate processes communicating back to the parent should take care of
+the issue of wanting to register for the same signal twice under two
+different contexts.
 
-2) sd should call START STOP UNIT on resume -- and as a SUPER BONUS, the 
-combination of these two changes ensures that there are no queue 
-synchronization issues, the likes of which would require hacks like 
-Jens' while-loop patch.
-
-None of these are huge changes requiring a lot of thinking/planning...
-
-Finally, ideally, we should be issuing a hardware or software reset on 
-suspend.
-
-	Jeff
-
+Ray
 

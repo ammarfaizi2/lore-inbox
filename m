@@ -1,85 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbVI2OkP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbVI2On1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932164AbVI2OkP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 10:40:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbVI2OkO
+	id S932169AbVI2On1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 10:43:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbVI2On1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 10:40:14 -0400
-Received: from ns9.hostinglmi.net ([213.194.149.146]:10113 "EHLO
-	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S932164AbVI2OkN
+	Thu, 29 Sep 2005 10:43:27 -0400
+Received: from tirith.ics.muni.cz ([147.251.4.36]:43220 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S932169AbVI2On0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 10:40:13 -0400
-Date: Thu, 29 Sep 2005 16:40:33 +0200
-From: DervishD <lkml@dervishd.net>
-To: Karel Kulhavy <clock@twibright.com>
+	Thu, 29 Sep 2005 10:43:26 -0400
+Date: Thu, 29 Sep 2005 16:43:20 +0200
+From: Jan Kasprzak <kas@fi.muni.cz>
+To: Greg KH <greg@kroah.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: CD writer is burning with open tray
-Message-ID: <20050929144033.GA663@DervishD>
-Mail-Followup-To: Karel Kulhavy <clock@twibright.com>,
-	linux-kernel@vger.kernel.org
-References: <20050929141924.GA6512@kestrel>
+Subject: Re: PCI/IRQ regressions in 2.6.13.2
+Message-ID: <20050929144320.GO1901@fi.muni.cz>
+References: <20050923171054.GB19763@fi.muni.cz> <20050928204510.GC19285@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050929141924.GA6512@kestrel>
-User-Agent: Mutt/1.4.2.1i
-Organization: DervishD
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - dervishd.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+In-Reply-To: <20050928204510.GC19285@kroah.com>
+User-Agent: Mutt/1.4.1i
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: kas@fi.muni.cz
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Karel :)
+Greg KH wrote:
+: On Fri, Sep 23, 2005 at 07:10:54PM +0200, Jan Kasprzak wrote:
+: > 	Hello,
+: > 
+: > I've tried to upgrade my Linux boxes to 2.6.13.2, and on some configurations
+: > I have problems that IRQ stopped working or devices are not visible on
+: > the PCI bus. These problems may be completely unrelated, though:
+: 
+: Can you see if 2.6.14-rc2 fixes the pci issues?
+: 
+	I have not been able to test the issue with part of PCI bus
+missing from the lspci output on HP DL-585 quad opteron (the server is
+in production use, I cannot reboot it just now), however the two other
+problems (IRQ timeout on IDE controller and no IRQs on tg3 NIC) seem
+to be fixed on 2.6.14-rc2.
 
- * Karel Kulhavy <clock@twibright.com> dixit:
-> Then I repeated the same command (press up and enter) and it
-> 1) Burned two bad CD's with a strip near the central area
-> 2) Third CD burned bad
-> 3) When rerun cdrecord says
-> cdrecord: Drive does not support TAO recording.
-> cdrecord: Illegal write mode for this drive.
+	I will probably test the 2.6.14-rc2 on HP DL-585 tomorrow evening.
+Thanks,
 
-    Your writer doesn't seem to work good with cdrecord...
-
-> Is it possible to get eye damage due to faulty kernel driver?
-
-    First, CD recording doesn't have to do directly with the kernel.
-AFAIK, the kernel driver just passes commands to the device, is the
-userspace app which generates the commands.
-
-    Second, your writer looks faulty, although the problem may be a
-simple incompatibility between the device and cdrecord.
-
-    Third, not, you cannot get eye damage due to a faulty kernel
-driver, but is possible to get eye damage if you look directly to a
-laser. No matter if you use Linux or not.
-
-> Is it possible to destroy the mechanics by overheating or mechanical
-> damage due to faulty kernel driver?
-
-    I don't think so. Better: I *hope* that my CD writer mechanics
-can stand high temperatures without destroying, otherwise it won't
-last long...
- 
-> Is this intended behaviour of Linux kernel?
-
-    Do you think that the kernel designers want to create a good
-source of coasters? My writer (Plextor) has burned almost 500 CD's
-more or less, and I only have two coasters. Certainly both cdrecord
-and the kernel seems to work quite good here. But my old CD writer, a
-Philips 3610 (or something like that) did more or less what you tell
-when it got broken.
-
-    Raúl Núñez de Arenas Coronado
+-Yenya
 
 -- 
-Linux Registered User 88736 | http://www.dervishd.net
-http://www.pleyades.net & http://www.gotesdelluna.net
-It's my PC and I'll cry if I want to...
+| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
+| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
+| http://www.fi.muni.cz/~kas/    Journal: http://www.fi.muni.cz/~kas/blog/ |
+>>> $ cd my-kernel-tree-2.6                                              <<<
+>>> $ dotest /path/to/mbox  # yes, Linus has no taste in naming scripts  <<<

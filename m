@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030262AbVI2VsJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbVI2Vwe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030262AbVI2VsJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 17:48:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030265AbVI2VsI
+	id S932301AbVI2Vwe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 17:52:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932397AbVI2Vwe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 17:48:08 -0400
-Received: from xenotime.net ([66.160.160.81]:60891 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1030262AbVI2VsG (ORCPT
+	Thu, 29 Sep 2005 17:52:34 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:58534 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932301AbVI2Vwd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 17:48:06 -0400
-Date: Thu, 29 Sep 2005 14:48:06 -0700 (PDT)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-cc: Jeff Garzik <jgarzik@pobox.com>, Joshua Kwan <joshk@triplehelix.org>,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       linux-scsi@vger.kernel.org, axboe@suse.de, torvalds@osdl.org
-Subject: Re: SATA suspend/resume (was Re: [PATCH] updated version of Jens'
- SATA suspend-to-ram patch)
-In-Reply-To: <Pine.LNX.4.58.0509291309050.1424@shark.he.net>
-Message-ID: <Pine.LNX.4.58.0509291446430.1424@shark.he.net>
-References: <20050923163334.GA13567@triplehelix.org> <433B79D8.9080305@pobox.com>
- <Pine.LNX.4.58.0509291309050.1424@shark.he.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 29 Sep 2005 17:52:33 -0400
+Date: Thu, 29 Sep 2005 17:51:53 -0400
+From: Dave Jones <davej@redhat.com>
+To: Blaisorblade <blaisorblade@yahoo.it>
+Cc: Alexander Clouter <alex@digriz.org.uk>,
+       LKML <linux-kernel@vger.kernel.org>, cpufreq@lists.linux.org.uk,
+       Andrew Morton <akpm@osdl.org>, alex-kernel@digriz.org.uk
+Subject: Re: [patch 1/1] cpufreq_conservative: invert meaning of 'ignore_nice'
+Message-ID: <20050929215153.GF31516@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Blaisorblade <blaisorblade@yahoo.it>,
+	Alexander Clouter <alex@digriz.org.uk>,
+	LKML <linux-kernel@vger.kernel.org>, cpufreq@lists.linux.org.uk,
+	Andrew Morton <akpm@osdl.org>, alex-kernel@digriz.org.uk
+References: <20050929084435.GC3169@inskipp.digriz.org.uk> <200509291346.33855.blaisorblade@yahoo.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200509291346.33855.blaisorblade@yahoo.it>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Sep 2005, Randy.Dunlap wrote:
+On Thu, Sep 29, 2005 at 01:46:33PM +0200, Blaisorblade wrote:
+ > On Thursday 29 September 2005 10:44, Alexander Clouter wrote:
+ > > The use of the 'ignore_nice' sysfs file is confusing to anyone using.  This
+ > > patch makes it so when you now set it to the default value of 1, process
+ > > nice time is also ignored in the cpu 'busyness' calculation.
+ > 
+ > > Prior to this patch to set it to '1' to make process nice time count...even
+ > > confused me :)
+ > 
+ > > WARNING: this obvious breaks any userland tools that expect things to be
+ > > the other way round.  This patch clears up the confusion but should go in
+ > > ASAP as at the moment it seems very few tools even make use of this
+ > > functionality; all I could find was a Gentoo Wiki entry.
+ > 
+ > My suggestion on this is to rename the flag too, as ignore_nice_load (or 
+ > ignore_nice_tasks, choose your way). Don't forget to do it in docs too.
+ > 
+ > So userspace tools will error out rather than do the reverse of what they were 
+ > doing, and the user will fix the thing according to the (new) docs.
 
-> Here's Nathan Bryant's patch (from the lwn.ne article) updated
-> to 2.6.14-rc2-git7 + changes that Christoph suggested (except
-> that 'scsi_device_resume' name was already used, so I changed it
-> to 'scsi_device_wakeup' instead).
->
-> I'll get back to Jeff's suggestion(s) and the sysfs flag next,
-> but others can use this as a basis if wanted.
->
-> (also available from
-> http://www.xenotime.net/linux/scsi/scsi-suspend-resume.patch
-> )
+Agreed. If we change this, we change it completely.
+Stefan already mentioned his app will break, and we typically don't
+find out about widespread breakage until after we ship a release.
 
-The inline version of this patch is whitespace-damaged  :(
-(thanx to pine).
+		Dave
 
-It's ok for review, but please download the one above
-for applying or patching.
-
--- 
-~Randy

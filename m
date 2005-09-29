@@ -1,99 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbVI2HWW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbVI2HWm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932140AbVI2HWW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 03:22:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932141AbVI2HWW
+	id S932141AbVI2HWm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 03:22:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932144AbVI2HWm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 03:22:22 -0400
-Received: from gate.crashing.org ([63.228.1.57]:52708 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932140AbVI2HWV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 03:22:21 -0400
-Subject: iMac G5: experimental thermal & cpufreq support
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: linuxppc64-dev@ozlabs.org
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       "debian-powerpc@lists.debian.org" <debian-powerpc@lists.debian.org>
-Content-Type: text/plain
-Date: Thu, 29 Sep 2005 17:20:31 +1000
-Message-Id: <1127978432.6102.53.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Sep 2005 03:22:42 -0400
+Received: from web51008.mail.yahoo.com ([206.190.38.139]:7840 "HELO
+	web51008.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S932141AbVI2HWl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 03:22:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=DTBN6U2FnjnvS8TZmwIZMhpHu+gbxi3LnskwVoBNfaiCy3kbP2LtoLcxwvYcCijPNyHHhm5hg5sHgnu7rr/0OdNtr5tGXfRu7nVmGKz+uWyPn01tYlAAZ/WS2uvyk3yygn5zQMmMGL0iyznp+8xsr/mqoctNwCGG358RI9bR9tI=  ;
+Message-ID: <20050929072240.74436.qmail@web51008.mail.yahoo.com>
+Date: Thu, 29 Sep 2005 00:22:40 -0700 (PDT)
+From: Ahmad Reza Cheraghi <a_r_cheraghi@yahoo.com>
+Subject: Re: [ANNOUNCE] Framework for automatic Configuration of a Kernel
+To: Emmanuel Fleury <fleury@cs.aau.dk>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+In-Reply-To: <433A81F0.2080409@cs.aau.dk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
 
-I now have some experimental thermal control and cpufreq support for
-iMac G5. I have not _yet_ implemented support for the SMU based single
-CPU desktops (PowerMac9,1), those will have to wait a little bit more
-(not too much hopefully, but I need potential testers to contact me as I
-lack hardware access). At this point, it should work on PowerMac8,1
-(iMacG5 rev A) and PowerMac8,2 (iMacG5 rev B).
 
-WARNING: This is really a 'first shot'. There is no overtemp detection,
-so be careful. The driver doesn't yet have a sysfs interface for you to
-read the temperature, but I left it with verbose debugging enabled in
-the kernel log so you can see what's going on with the 2 control loops
-(the System one which ticks every 5 seconds and the CPU one which ticks
-every second). Please tell me if it appears to behave properly. On my
-iMac G5 rev A, the target temperature for the CPU is set by the firmware
-at 78 degree C with a max at about 83 degree. If I put load on the CPU,
-the CPU appears to properly ramp up slowly to 82 then go down and
-stabilize at 78 while the driver slowly ramps the fans up.
+--- Emmanuel Fleury <fleury@cs.aau.dk> wrote:
 
-The algorithm itself is extracted from darwin. However, it's a rather
-complex modified version of the PID algorithm, and thus it could use
-some review to make sure I got everything right.
+> > I think its good to detect everything, that let a
+> > Kernel work after the installation. I mean it the
+> > autoconfiguration should't be only for
+> Kernel-Hackers.
+> > Maybe its good idea to make two type of detection
+> > 
+> > 1. which detects only the HW(For Kernel-Hackers)
+> > 2. which detects all the HW and configure
+> everything
+> > that let the Kernel work.(for beginners)
+> 
+> Why would a beginner compile a kernel ?
 
-The thermal control is also part of a new infrastructure I have written
-called "windfarm" that splits the whole thing into several modules
-(though I have only tested with everything built in at this point).
-Ultimately, it should be possible to port the existing Desktop G5 and
-Xserver thermal driver to the new infrastructure provided that the
-appropriate sensor & control modules are written. The old thermal driver
-uses pretty much the same 2 kind of PID control loops as provided by the
-windfarm_pid helper.
-
-I would encourage people doing thermal control on other machines
-(laptops, etc...) to also use the new infrastructure.
-
-Ok, now the patches. You need to appy them in proper order. First of
-all, it all is on top of current -git as of yesterday. I won't guarantee
-they will apply on anything more ancient.
-
-First, you need a fix that is currently pending in -mm (and should be in
-2.6.14 before it's final) :
-
-http://gate.crashing.org/~benh/ppc64-smu-fix.diff
-
-Then, you can apply the patch that adds cpufreq support for the iMac G5
-(and possibly the SMU based desktop, though not tested)
-
-http://gate.crashing.org/~benh/ppc64-fx-freq-scaling.diff
-
-Then apply those 2 patches in that order:
-
-http://gate.crashing.org/~benh/ppc64-smu-partitions.diff
-http://gate.crashing.org/~benh/ppc64-smu-thermal-control.diff
-
-That's it. Now enable:
-
-  CONFIG_WINDFARM_SMU
+Because he wants to be upto date
  
-and
+> I would even say this would be bad if you can avoid
+> them to go through
+> all the documentations of each option. :)
 
-  CONFIG_I2C_PMAC_SMU
+Why? 
 
-If you are using modules, you may have to manually load the whole bunch,
-especially the i2c SMU one which isn't requested (yet).
+> > The best was is to use HW-Detection-Tools that are
+> in
+> > naked Kernel. But I dont know if is lspci is in
+> the
+> > Kernel. I mean dmidecode is good for detecting all
+> the
+> > HW but it has to be installed first. And its no
+> good
+> > to let the user install first of all some tools so
+> the
+> > autoconfigure can work.
+> > How do we get the HW detected from a naked Kernel
+> > without any Distrubotion or whatever.   
+> 
+> I doubt we can, at least not in the current status.
+> 
+> And requiring more external tools as lspci,
+> dmidecode, etc, is probably
+> not right.
+> 
+> More I am thinking of it, more it seems that the
+> hardware detection
+> softwares (lspci, dmidecode, lsusb) should be
+> stripped down and probably
+> included somewhere in the kernel tree... But
+> wouldn't be too much to pay
+> for having an autoconfig ? (I mean maintenance,
+> update, debug, ... will
+> be way out of the scope of the kernel).
 
-And let me know :)
+How about making a new project for calling all the
+Hardware on the system directly from the I/O and let
+then be a part of the Kernel? Its just a suggestion!!
 
-Regards,
-Ben.
+> Did anybody had some though about this previously (I
+> tried to look in
+> the archive of the LKM but didn't find anything
+> relevant) ?
+> 
+> > I dont understand your question. What you mean
+> with
+> > interfaces??
+> 
+> ncurses, Qt, Gtk, ... (aka menuconfig, xconfig,
+> gconfig).
+
+Why should it be in other interfaces?? The plan of the
+autoconfig is just to configure the Kernel and nothing
+more... What is the advantage of having it in other
+interfaces?? 
+
+Regards 
+Ahmad Reza Cheraghi
 
 
-
+		
+__________________________________ 
+Yahoo! Mail - PC Magazine Editors' Choice 2005 
+http://mail.yahoo.com

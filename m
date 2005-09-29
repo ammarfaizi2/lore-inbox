@@ -1,55 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbVI2RDA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbVI2RLs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932263AbVI2RDA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 13:03:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932262AbVI2RC7
+	id S932270AbVI2RLs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 13:11:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932267AbVI2RLs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 13:02:59 -0400
-Received: from ns1.coraid.com ([65.14.39.133]:41816 "EHLO coraid.com")
-	by vger.kernel.org with ESMTP id S932259AbVI2RC7 (ORCPT
+	Thu, 29 Sep 2005 13:11:48 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:56300 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932266AbVI2RLr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 13:02:59 -0400
-To: linux-kernel@vger.kernel.org
-CC: ecashin@coraid.com, Greg K-H <greg@kroah.com>
-Subject: [PATCH 2.6.14-rc2] aoe [1/3]: explicitly set minimum packet length
- to ETH_ZLEN
-From: "Ed L. Cashin" <ecashin@coraid.com>
-Date: Thu, 29 Sep 2005 12:45:44 -0400
-Message-ID: <87wtkzbz5z.fsf@coraid.com>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+	Thu, 29 Sep 2005 13:11:47 -0400
+Message-ID: <433C204C.7010602@pobox.com>
+Date: Thu, 29 Sep 2005 13:11:40 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Luben Tuikov <luben_tuikov@adaptec.com>
+CC: Arjan van de Ven <arjan@infradead.org>, Willy Tarreau <willy@w.ods.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
+ the kernel
+References: <43384E28.8030207@adaptec.com> <4339BFE9.1060604@pobox.com>	 <4339CCD6.5010409@adaptec.com> <4339F9A8.2030709@pobox.com>	 <433AFEB2.7090003@adaptec.com> <433B0457.7020509@pobox.com>	 <433B14E1.6080201@adaptec.com> <433B217F.4060509@pobox.com>	 <20050929040403.GE18716@alpha.home.local> <1127979848.2918.7.camel@laptopd505.fenrus.org> <433C0398.4040302@adaptec.com> <433C0641.3030101@pobox.com> <433C1CA1.3080007@adaptec.com>
+In-Reply-To: <433C1CA1.3080007@adaptec.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: "Ed L. Cashin" <ecashin@coraid.com>
+Luben Tuikov wrote:
+> On 09/29/05 11:20, Jeff Garzik wrote:
+> 
+>>>Arjan, I'll be your best friend here:
+>>>Never say this in public or in an intervew.
+>>
+>>
+>>It's hard-earned experience.  We constantly have to teach hardware 
+>>vendors how to write good drivers.
+> 
+> 
+> I'm sure you have.  Hardware vendors are lost without
+> Jeff, James Bottomley and Christoph.
+> 
+> You see, it is because of your _enormous_ ego as shown
+> above, that the code is being blocked.
 
-Explicitly set the minimum packet length to ETH_ZLEN and zero the
-packet data.
+No, I was referring to things such as, e.g.
+	http://people.redhat.com/arjanv/olspaper.pdf
+	http://people.redhat.com/arjanv/OLS.pdf
 
-diff -u 2.6.14-rc2-aoe/drivers/block/aoe/aoecmd.c 2.6.14-rc2-aoe/drivers/block/aoe/aoecmd.c
---- 2.6.14-rc2-aoe/drivers/block/aoe/aoecmd.c	2005-09-29 12:01:55.000000000 -0400
-+++ 2.6.14-rc2-aoe/drivers/block/aoe/aoecmd.c	2005-09-29 12:01:56.000000000 -0400
-@@ -20,6 +20,9 @@
- {
- 	struct sk_buff *skb;
- 
-+	if (len < ETH_ZLEN)
-+		len = ETH_ZLEN;
-+
- 	skb = alloc_skb(len, GFP_ATOMIC);
- 	if (skb) {
- 		skb->nh.raw = skb->mac.raw = skb->data;
-@@ -27,6 +30,7 @@
- 		skb->protocol = __constant_htons(ETH_P_AOE);
- 		skb->priority = 0;
- 		skb_put(skb, len);
-+		memset(skb->head, 0, len);
- 		skb->next = skb->prev = NULL;
- 
- 		/* tell the network layer not to perform IP checksums
+It has nothing to do with ego, just hard-won experience.
+
+There are bunches of hardware vendors who have their patches merged 
+immediately after posting.  They get it.  They have internalized the 
+reasons why Linux drivers look the way they do.
 
 
--- 
-  Ed L. Cashin <ecashin@coraid.com>
+>>As a tangent, I already have a design for a Linux filesystem that makes 
+>>use of SCSI object-based storage (to James's horror, no doubt :)).  It's 
+>>a fun thing to ponder.
+> 
+> 
+> Ok, so the way I see it you want to show who has got
+> the bigger balls?
+> 
+> Jeff, I have *worked* on a Linux OBD-based filesystem.
+> 
+> Are you going to stop this self-gratifying stuff?
+
+Oh good grief.  It was an example, silly.  Trying to lighten the mood, even.
+
+	Jeff
+
 

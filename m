@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751152AbVI2ENZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751176AbVI2EQZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751152AbVI2ENZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 00:13:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbVI2ENZ
+	id S1751176AbVI2EQZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 00:16:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751175AbVI2EQY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 00:13:25 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:18110 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S1751152AbVI2ENY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 00:13:24 -0400
-From: kernel-stuff@comcast.net
-To: David.Ronis@mcgill.ca
-Cc: David Ronis <ronis@ronispc.chem.mcgill.ca>, david.ronis@mcgill.ca,
-       linux-kernel@vger.kernel.org
-Subject: RE: problem with 2.6.13.[0-2]
-Date: Thu, 29 Sep 2005 04:13:23 +0000
-Message-Id: <092920050413.11090.433B69E3000AA6AE00002B5222058863609D0E050B9A9D0E99@comcast.net>
-X-Mailer: AT&T Message Center Version 1 (Dec 17 2004)
-X-Authenticated-Sender: d2FydWRrYXJAY29tY2FzdC5uZXQ=
+	Thu, 29 Sep 2005 00:16:24 -0400
+Received: from zorg.st.net.au ([203.16.233.9]:39563 "EHLO borg.st.net.au")
+	by vger.kernel.org with ESMTP id S1751169AbVI2EQY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 00:16:24 -0400
+Message-ID: <433B6AC3.2070903@torque.net>
+Date: Thu, 29 Sep 2005 14:17:07 +1000
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-scsi@vger.kernel.org
+CC: linux-kernel@vger.kernel.org
+Subject: [Announce] sg3_utils-1.17 available
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> In 2.6.13.2:
-> 
-> /dev/hda:
->  Timing cached reads:    28 MB in  2.15 seconds =  13.03 MB/sec
->  Timing buffered disk reads:   14 MB in  3.30 seconds =   4.24 MB/sec
-> 
-> and after hdparm -m 16 /dev/hda (recall this is the default in 2.6.12.6)
-> 
-> /dev/hda:
->  Timing cached reads:    24 MB in  2.05 seconds =  11.73 MB/sec
->  Timing buffered disk reads:   36 MB in  3.11 seconds =  11.56 MB/sec
-> 
-> I ran thing a few times in each case and the results were close.  There
-> was nothing in dmesg.
-> 
-> David
-> 
+sg3_utils is a package of command line utilities for sending
+SCSI (and some ATA) commands to devices. This package targets
+the lk 2.6 and lk 2.4 series. In the lk 2.6 series these
+utilities (except sgp_dd) can be used with any devices that
+support the SG_IO ioctl.
 
-Hey  that 4.24 MB/sec hints at DMA being busted although it claims to be on. Can you post the complete dmesg output for both kernels please?
+This version improves support for ATA(PI) devices in the sg_inq
+utility. For example, assuming /dev/hdc is an ATAPI DVD drive,
+"sg_inq /dev/hdc" shows the response to a SCSI INQUIRY command,
+while "sg_inq -A /dev/hdc" shows the response to an ATA IDENTIFY
+PACKET DEVICE command. See CHANGELOG for more information.
 
-Parag
+A tarball, rpm and deb can be found on (see table 2):
+http://www.torque.net/sg
+For an overview of sg3_utils see this page:
+http://www.torque.net/sg/u_index.html
+The sg_dd utility has its own page at:
+http://www.torque.net/sg/sg_dd.html
+A changelog can be found at:
+http://www.torque.net/sg/p/sg3_utils.CHANGELOG
 
+A release announcement has been sent to freshmeat.net .
 
-
+Doug Gilbert

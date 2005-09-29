@@ -1,69 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751328AbVI2KKj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751266AbVI2K3Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751328AbVI2KKj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 06:10:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751329AbVI2KKj
+	id S1751266AbVI2K3Y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 06:29:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751329AbVI2K3Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 06:10:39 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:128 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1751328AbVI2KKj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 06:10:39 -0400
-Date: Thu, 29 Sep 2005 12:10:38 +0200
-From: Jan Kara <jack@suse.cz>
-To: pinotj@club-internet.fr
+	Thu, 29 Sep 2005 06:29:24 -0400
+Received: from nproxy.gmail.com ([64.233.182.198]:34020 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751266AbVI2K3X convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 06:29:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=quA3HSlyRA0JZXxTfueKp5pQ7hctE76v2RtId7Tour8A4MT9mt2WfCNv74F/LZDGTFANPcOfp+304g1U3UyzQ8UH8gPVaoVa7FbsdsHT8qmA4k4Xuzga1nQfQW+ktlUi4irFBa+hbalN9DkJhDiZl7ymB9Wa6BZeO5jKnPLnO/o=
+Message-ID: <58cb370e050929032935a87c72@mail.gmail.com>
+Date: Thu, 29 Sep 2005 12:29:20 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: david.ronis@mcgill.ca
+Subject: Re: problem with 2.6.13.[0-2]
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.6.14-rc2] ext3: fix build warning if !quota
-Message-ID: <20050929101037.GC13827@atrey.karlin.mff.cuni.cz>
-References: <mnet2.1127960641.3944.pinotj@club-internet.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <17206.60255.403692.773279@montroll.lan>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <mnet2.1127960641.3944.pinotj@club-internet.fr>
-User-Agent: Mutt/1.5.9i
+References: <17206.60255.403692.773279@montroll.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> >Date: Thu, 29 Sep 2005 02:57:20 +0100
-> >From: Al Viro
-> >To: pinotj
-> >Cc: linux-kernel
-> >Subject: Re: [PATCH][2.6.14-rc2] ext3: fix build warning if !quota
-> [...]
-> >.... and puts declaration in the middle of code.
-> >
-> 
-> Is this better ?
-  Yes, I like this version better. I guess you can submit it to Andrew.
-(and add your Signed-off-by before the patch (Andrew's scripts won't find 
-it otherwise I guess. Feel free to add mine too).
+On 9/25/05, David Ronis <ronis@ronispc.chem.mcgill.ca> wrote:
+>
+> I recently tried upgrading from 2.6.12.6 to 2.6.13.[0-2] on an HP
+> pavilion zv5000 (a P4 with hyper-threading) running slackware-current.
+> The configuration and build went fine and the new kernel boots;
+> however, things run very very slowly.  As far as I can tell, what is
+> slow are process involving any disk IO.  For example, the part of the
+> boot where ldconfig is run seems to take 2-3 times as long as do
+> things like remaking the X font caches, loading programs etc.
+>
+> This vaguely reminds me of my initial experience with this laptop,
+> where I hadn't turned on CONFIG_BLK_DEV_ATIIXP, although it is now
+> (see below).  If I reboot with the old kernel, things run as before.
 
-								Honza
+According to this page http://web.purplefrog.com/~thoth/zv5000/
+this laptop uses nForce3 chipset so you should turn on AMD/nForce
+IDE driver (CONFIG_BLK_DEV_AMD74XX).  Does it help?
 
-> ------8<------
-> diff -Naur a/fs/ext3/super.c b/fs/ext3/super.c
-> --- a/fs/ext3/super.c	2005-09-29 00:28:16.000000000 +0000
-> +++ b/fs/ext3/super.c	2005-09-29 02:18:22.000000000 +0000
-> @@ -513,7 +513,9 @@
->  static int ext3_show_options(struct seq_file *seq, struct vfsmount *vfs)
->  {
->  	struct super_block *sb = vfs->mnt_sb;
-> +#if defined(CONFIG_QUOTA)
->  	struct ext3_sb_info *sbi = EXT3_SB(sb);
-> +#endif
->  
->  	if (test_opt(sb, DATA_FLAGS) == EXT3_MOUNT_JOURNAL_DATA)
->  		seq_puts(seq, ",data=journal");
-> ------8<------
-> 
-> 
-> -- 
-> Jerome Pinot
-> http://ngc891.blogdns.net/
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Bartlomiej

@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030260AbVI3K5n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030267AbVI3LGv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030260AbVI3K5n (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 06:57:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030261AbVI3K5m
+	id S1030267AbVI3LGv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 07:06:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030271AbVI3LGu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 06:57:42 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:16873 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1030260AbVI3K5m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 06:57:42 -0400
-Date: Fri, 30 Sep 2005 12:58:26 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Badari Pulavarty <pbadari@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.14-rc2-rt2
-Message-ID: <20050930105826.GA24111@elte.hu>
-References: <20050913100040.GA13103@elte.hu> <20050926070210.GA5157@elte.hu> <1128012346.16275.71.camel@dyn9047017102.beaverton.ibm.com>
+	Fri, 30 Sep 2005 07:06:50 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:3968 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030267AbVI3LGu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 07:06:50 -0400
+Subject: Re: RocketPoint 1520 [hpt366] fails clock stabilization
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Loren M. Lang" <lorenl@alzatex.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050930093355.GB22233@alzatex.com>
+References: <20050929103309.GA12361@alzatex.com>
+	 <1128036611.9290.3.camel@localhost.localdomain>
+	 <20050930093355.GB22233@alzatex.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 30 Sep 2005 12:34:04 +0100
+Message-Id: <1128080044.17099.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1128012346.16275.71.camel@dyn9047017102.beaverton.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Gwe, 2005-09-30 at 02:33 -0700, Loren M. Lang wrote:
+> I booted FreeBSD 6.0 and it seemed to reconize the card and attached
+> hard drive ok.  In the dmesg for freebsd, it mentioned 372N, if that
+> means anything.  There is a patch, I discovered, which disables the
 
-* Badari Pulavarty <pbadari@gmail.com> wrote:
+Yes - it means its the older card with a 372N on it.
 
-> On Mon, 2005-09-26 at 09:02 +0200, Ingo Molnar wrote:
-> > i have released the 2.6.14-rc2-rt2 tree, which can be downloaded from 
-> > the usual place:
-> > 
-> >    http://redhat.com/~mingo/realtime-preempt/
-> > 
-> 
-> Hi Ingo,
-> 
-> I noticed that you moved to "-rt7" already.
->  "-rt7" fails to compile with CONFIG_NUMA.
-> 
-> mm/slab.c:2404: error: conflicting types for `kmem_cache_alloc_node'
-> include/linux/slab.h:122: error: previous declaration of
-> `kmem_cache_alloc_node'
-> 
-> Here is the simple fix.
+> seg faulting when it failed to detect my chip, and I disabled a check
+> for the 372N chipset.
 
-thanks, applied.
+Which means you are misclocking the IDE drive. I need to work out why
+the PLL failed.
 
-	Ingo
+What does it report for FREQ and PLL if you boot 2.6.13.something on
+it ?
+

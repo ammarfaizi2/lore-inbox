@@ -1,72 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030486AbVI3WcU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030497AbVI3W5I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030486AbVI3WcU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 18:32:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030485AbVI3WcU
+	id S1030497AbVI3W5I (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 18:57:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030498AbVI3W5I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 18:32:20 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:39391 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S1030483AbVI3WcT (ORCPT
+	Fri, 30 Sep 2005 18:57:08 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:30875 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030497AbVI3W5H (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 18:32:19 -0400
-Message-ID: <433DBCF1.9030804@adaptec.com>
-Date: Fri, 30 Sep 2005 18:32:17 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andre Hedrick <andre@linux-ide.org>
-CC: "David S. Miller" <davem@davemloft.net>, jgarzik@pobox.com,
-       willy@w.ods.org, patmans@us.ibm.com, ltuikov@yahoo.com,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org,
-       linux-scsi@vger.kernel.org,
-       James Bottomley <James.Bottomley@steeleye.com>
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
- the kernel
-References: <Pine.LNX.4.10.10509301305070.27623-100000@master.linux-ide.org>
-In-Reply-To: <Pine.LNX.4.10.10509301305070.27623-100000@master.linux-ide.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Sep 2005 22:32:17.0275 (UTC) FILETIME=[D01424B0:01C5C60E]
+	Fri, 30 Sep 2005 18:57:07 -0400
+Date: Fri, 30 Sep 2005 18:56:32 -0400
+From: Dave Jones <davej@redhat.com>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [Patch] x86, x86_64: fix cpu model for family 0x6
+Message-ID: <20050930225632.GE15160@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Petr Vandrovec <vandrove@vc.cvut.cz>,
+	"Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+	Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+	akpm@osdl.org
+References: <20050929190419.C15943@unix-os.sc.intel.com> <433D391A.70607@vc.cvut.cz> <20050930112310.A28092@unix-os.sc.intel.com> <200510010002.16382.ak@suse.de> <20050930152358.D28092@unix-os.sc.intel.com> <433DBE33.7090700@vc.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <433DBE33.7090700@vc.cvut.cz>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09/30/05 18:04, Andre Hedrick wrote:
-> 
-> No true, many of us could careless about credit list.
+On Sat, Oct 01, 2005 at 12:37:39AM +0200, Petr Vandrovec wrote:
+ > Siddha, Suresh B wrote:
+ > >On Sat, Oct 01, 2005 at 12:02:16AM +0200, Andi Kleen wrote:
+ > >
+ > >>I applied an earlier mix of your original one and Petr's suggestions. 
+ > >>Hope it's ok. 
+ > >
+ > >
+ > >Andi I prefer to follow the SDM guidelines. Who knows if future families
+ > >comeup with a different rule or use/initialize these extended model/family
+ > >bits differently. I am just being paranoid.
+ > 
+ > And which chance is bigger - that such hypothetical processor will use
+ > extended model, and your code will get incorrect answer everywhere, or
+ > that such hypothetical processor will not use extended model, and your
+ > code will be right?
+ > 
+ > >>+		if (c->x86 >= 0xf) 
+ > >
+ > >
+ > >And also you have a typo. It should be 0x6.
+ > 
+ > It is intentional.  Maybe it could do BUG_ON(c->x86 < 0xf).
 
-I wasn't talking about you.  They know who they are.
+<complete speculation> Pentium M is family 6, so maybe this is
+an indication we'll see em64t capable P-M's soon ? :)
 
-> Sometimes teaching others is a better way to bring them around to your
-> view point while learning about their goals.  Since everyone/most agree
-> your T10 knowledge is strong, others have pointed out you are savy enough
-> to work around problems over fixing them in general.  Blah blah ...
-
-Thank you Andre.
-
-> Just show everyone why it can not work the "Linux Way" and defend the
-> points logically.  Should the defense of it not be possible, then the
-> point is lost.
-
-I think I have.  All the references to T10, all the pictures
-to the email you replied to which you deleted, all the words.
-
-> SPECs become crap when organizations like STA with T10 make joining and
-> voting on the technology under NCITS $10,000.00 annual membership.  This
-> is old boys club rules, otherwise I would have joined and terrorized T10
-> like I did to T13.  Exclusion breeds distrust.
-
-Well, the T10.org reflector is open to everyone.
-
-Of course voting-membership is expensive.  And it should be so.
-They don't want every "Joe" (no offence to Joe or to LKML or LSML
-participants) to participate.
-
-If you are a voting member then you really have a reason, you really
-know what you're talking about and voting for and you really are
-serious. It means that you or your company care.
-It also becoms quickly enough obvious if you know your stuff
-after a meeting or two.
-
-	Luben
+		Dave
 

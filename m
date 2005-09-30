@@ -1,94 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932590AbVI3TVa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030351AbVI3T0N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932590AbVI3TVa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 15:21:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932588AbVI3TV3
+	id S1030351AbVI3T0N (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 15:26:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932591AbVI3T0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 15:21:29 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:46775 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S932587AbVI3TV2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 15:21:28 -0400
-Message-ID: <433D9035.6000504@adaptec.com>
-Date: Fri, 30 Sep 2005 15:21:25 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: andrew.patterson@hp.com
-CC: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>, dougg@torque.net,
-       Linus Torvalds <torvalds@osdl.org>, Luben Tuikov <ltuikov@yahoo.com>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
- the kernel
-References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01A9FA11@otce2k03.adaptec.com> <1128105594.10079.109.camel@bluto.andrew>
-In-Reply-To: <1128105594.10079.109.camel@bluto.andrew>
-Content-Type: text/plain; charset=ISO-8859-1
+	Fri, 30 Sep 2005 15:26:12 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:34517
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932589AbVI3T0M
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 15:26:12 -0400
+Subject: [PATCH] Revert [PATCH] x86-64: Reverse order of bootmem lists
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: linux-kernel@vger.kernel.org
+Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Russell King <linux@arm.linux.org.uk>
+Content-Type: text/plain
+Organization: linutronix
+Date: Fri, 30 Sep 2005 21:27:00 +0200
+Message-Id: <1128108420.15115.409.camel@tglx.tec.linutronix.de>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Sep 2005 19:21:25.0138 (UTC) FILETIME=[2612B720:01C5C5F4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09/30/05 14:39, Andrew Patterson wrote:
-> 
-> SDI is supposed to be a cross-platform spec, so mandating sysfs would
-> not work.
+Linus,
 
-True, sysfs is a Linux only thing.
+please revert the patch 
 
-But you can write a user space library which uses sysfs or whatever
-_that_ OS uses to represent an SDI spec-ed out picture.
+http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=5d3d0f7704ed0bc7eaca0501eeae3e5da1ea6c87
 
-So a user space program would call (uniformly across all OSs)
-a libsdi library which will use whatever OS dependent way there is
-to get the information (be it sysfs or ioctl).
+as it breaks a couple of ARM boards, which depend on the historical
+bootmem allocation order. AFAIK there is a cleaner solution around to
+remove the pgdat list completely, but this is a topic for post 2.6.14
 
-> I suggested to the author to use a library like HPAAPI (used
-> by Fibre channel), so you could hide OS implementation details.  I am in
-> fact working on such a beasty (http://libsdi.berlios.de).  He thinks
-> that library solutions tend to not work, because the library version is
-> never in synch with the standard/LLDD's. Given Linux vendor lead-times,
-> he does have a valid point.
+Andi signalled ACK already.
 
-Yes, but it would be the best of all the current ways there are
-to do it.
 
-> Note that a sysfs implementation has problems.  Binary attributes are
-> discouraged/not-allowed.
+tglx
 
-I've never heard that.  Is this similar to the argument
-"The sysfs tree would be too deep?"
 
-> There is no atomic request/response operations
 
-For a reason: let user space do it, there is plenty of ways to
-do it, some assisted by the kernel.
+Index: linux-2.6.14-rc2-genirq/mm/bootmem.c
+===================================================================
+--- linux-2.6.14-rc2-genirq.orig/mm/bootmem.c
++++ linux-2.6.14-rc2-genirq/mm/bootmem.c
+@@ -61,17 +61,9 @@ static unsigned long __init init_bootmem
+ {
+ 	bootmem_data_t *bdata = pgdat->bdata;
+ 	unsigned long mapsize = ((end - start)+7)/8;
+-	static struct pglist_data *pgdat_last;
+ 
+-	pgdat->pgdat_next = NULL;
+-	/* Add new nodes last so that bootmem always starts
+-	   searching in the first nodes, not the last ones */
+-	if (pgdat_last)
+-		pgdat_last->pgdat_next = pgdat;
+-	else {
+-		pgdat_list = pgdat; 	
+-		pgdat_last = pgdat;
+-	}
++	pgdat->pgdat_next = pgdat_list;
++	pgdat_list = pgdat;
+ 
+ 	mapsize = ALIGN(mapsize, sizeof(long));
+ 	bdata->node_bootmem_map = phys_to_virt(mapstart << PAGE_SHIFT);
 
-> buffers limited to page size, etc.
 
-"You have an attribute larger than 4k?  What is it?"
-
-As to SMP response/request is more than 4K/8K?  The largest
-I'm aware of is 64 bytes.
-
-> Other alternatives are
-> configfs, SG_IO, and the above mentioned character device.  None are a
-
-Again, char devices for controlling are discouraged.  There are not enough
-around and it is old technology.
-
-> complete replacement for the transactional nature of IOCTL's.  A group
-
-Here:
-
-/* User space lock */
-
-fd = open(smp_portal, ...);
-write(fd, smp_req, smp_req_size);
-read(fd, smp_resp, smp_resp_size);
-close(fd);
-
-/* User space unlock */
-
-	Luben

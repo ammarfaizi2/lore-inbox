@@ -1,94 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030318AbVI3OWS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030324AbVI3OXe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030318AbVI3OWS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 10:22:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030321AbVI3OWS
+	id S1030324AbVI3OXe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 10:23:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030322AbVI3OXe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 10:22:18 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:39104 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1030318AbVI3OWR (ORCPT
+	Fri, 30 Sep 2005 10:23:34 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:6866 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S1030320AbVI3OXd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 10:22:17 -0400
-Date: Fri, 30 Sep 2005 07:21:44 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Simon Derr <simon.derr@bull.net>
-Cc: kurosawa@valinux.co.jp, taka@valinux.co.jp, magnus.damm@gmail.com,
-       dino@in.ibm.com, linux-kernel@vger.kernel.org,
-       ckrm-tech@lists.sourceforge.net
-Subject: Re: [ckrm-tech] Re: [PATCH 1/3] CPUMETER: add cpumeter framework to
- the CPUSETS
-Message-Id: <20050930072144.7298ec3c.pj@sgi.com>
-In-Reply-To: <Pine.LNX.4.58.0509301117500.28042@localhost.localdomain>
-References: <20050908225539.0bc1acf6.pj@sgi.com>
-	<20050909.203849.33293224.taka@valinux.co.jp>
-	<20050909063131.64dc8155.pj@sgi.com>
-	<20050910.161145.74742186.taka@valinux.co.jp>
-	<20050910015209.4f581b8a.pj@sgi.com>
-	<20050926093432.9975870043@sv1.valinux.co.jp>
-	<20050927013751.47cbac8b.pj@sgi.com>
-	<20050927113902.C78A570046@sv1.valinux.co.jp>
-	<20050927084905.7d77bdde.pj@sgi.com>
-	<20050928062146.6038E70041@sv1.valinux.co.jp>
-	<20050928000839.1d659bfb.pj@sgi.com>
-	<20050928075331.0408A70041@sv1.valinux.co.jp>
-	<20050928094932.43a1f650.pj@sgi.com>
-	<20050929025328.E4BFC70046@sv1.valinux.co.jp>
-	<Pine.LNX.4.58.0509301117500.28042@localhost.localdomain>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 30 Sep 2005 10:23:33 -0400
+Message-ID: <433D4A5A.1090704@adaptec.com>
+Date: Fri, 30 Sep 2005 10:23:22 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: dougg@torque.net
+CC: Linus Torvalds <torvalds@osdl.org>, Luben Tuikov <ltuikov@yahoo.com>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
+ the kernel
+References: <20050929232013.95117.qmail@web31810.mail.mud.yahoo.com> <Pine.LNX.4.64.0509291730360.3378@g5.osdl.org> <433CE961.3040504@torque.net>
+In-Reply-To: <433CE961.3040504@torque.net>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 30 Sep 2005 14:23:31.0939 (UTC) FILETIME=[88D0FB30:01C5C5CA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good reply, Simon.  Thank-you.
+On 09/30/05 03:29, Douglas Gilbert wrote:
+> 
+> For SAS we have a well thought out definition for what the
+> interface should be to hardware specific drivers IMO. It is
+> called CSMI, rechristened SDI. The editor of SDI is also
+> the editor of SAS, SAS-1.1 and SAS-2. Judging from his work,
+> he knows his stuff. Unfortunately SDI uses ioctls to define
+> its interface, which is mainly between two kernel layers
+> (if one ignores pass throughs). Sorry, did I mention "ioctl",
 
-My apologies for the delay in responding, Takahiro-san.
+Hi Doug,
 
-As I think Simon was saying, we can only guarantee to make available
-to an application a certain amount of CPU cycles.  We cannot guarantee
-that the application will use them.  Essentially, we can only guarantee
-that some no -other- application will use them.
+Almost all of the SDI stuff can be extracted by a user space
+library reading the SAS sysfs domain tree (which is the result
+of domain discovery).
 
-If a job of several tasks is running on a cpuset containing multiple
-CPUs, and is guaranteed a certain percentage of those CPUs and
-limited to some other percentage, then you've got a set of tasks
-that altogether cannot use more than so much of those CPUs (the
-meter_cpu_limit) and that will always have at least a certain amount
-of those CPUs free and available for its use (the meter_cpu_guarantee).
+Pictures of can be found here:
+http://marc.theaimsgroup.com/?l=linux-scsi&m=112629509826900&w=2
 
-If that job uses child cpusets to force some of its tasks on one of
-those CPUs, and some other of its tasks on another of those CPUs,
-that makes no difference whatsoever to the guarantees and limits in
-the previous paragraph.  Those child cpusets should not have any
-settings for m->guar or m->lim.  Your code must not just look in the
-current tasks cpuset for guarantees and limits, because there might
-not be any meter settings there.  Rather it must look up the cpuset
-hierarchy, to find the nearest ancestor cpuset that has meter data.
+Since MPT-based hardware does domain discovery in the FIRMWARE,
+this is why you do not have the domain picture as easily.
 
-Indeed, this might be the best reason to NOT do what I am suggesting.
+> oh that makes SDI unacceptable. Almost a year ago that is what
+> happened to the first proposed SAS driver for Linux. That
+> decision has pushed Luben (amongst others) into the position
+> he is in now: come up with a "better" design, produce code
+> and then watch it get rejected. So please cut Luben a bit
+> of slack.
 
-With the current simple locking of cpusets (one global cpuset_sem),
-and even with the improvements suggested by Roman that I hope soon
-to writeup (two global locks - a semaphore and a spinlock), it might
-be too expensive to do this now.  I am no scheduler guru, but I am
-pretty sure that we do not want to take multiple global semaphores
-for each task we examine on the hot path of the scheduler.
+What James Bottomley et al. complained back then is that
+"common code" to SAS should be pulled out in a "common layer".
 
-We probably need someone with more locking expertise than I have
-(so far at least) to refine the cpuset locking enough to make this
-practical.
+This layer is the SAS Transport layer.
 
-So I think I have just talked myself out of asking you to allow
-a metered cpuset, such as 1a in our example, to be split into
-child cpusets.  Even if we could reach a shared understanding of
-what that meant, it would be too slow.
+But in the mean time, LSI came out with SAS, whose driver
+as you can see had nothing to do with SAS -- it was an MPT
+driver after all, so James Bottomley decides that whatever
+else comes along, it would use _his_ design.  Whether it
+works for open transport, he doesn't want to listen.  He
+is using his political power to enforce it.
 
-So - metered cpusets may not have child cpusets, until someone
-wants it enough to figure out how to make the locking efficient.
+> Just in case people think that I agree with Luben on using
+> sysfs to represent the whole SAS topology and interesting
+> bits suspended in it (i.e. SAS expanders), then I don't.
+> I am, however, prepared to argue the detail. Since the
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Sorry, since the discover process keeps an internal
+representation of "what is out there" via discovery,
+I just tacked a kobject to each structure I have anyway,
+and showed it in sysfs.
+
+I thought that was the whole purpose of sysfs -- to show
+kernel internal structures and dependencies.
+
+Plus, this is what it _actually_ looks in the physical world.
+
+Also you have to admit -- it looks cool:
+http://marc.theaimsgroup.com/?l=linux-scsi&m=112629509826900&w=2
+
+> days of Eric Youngdale I have believed that SCSI Host Bus
+> Adapters (HBAs) should be addressable devices, just like
+> network interfaces. IMO it is the block layer and its
+> associated end devices that are the legacy thinking.
+
+Host Adapters are addressable -- if there's an initiator
+on the domain, the discover process will discover it
+and it will show up in the SAS sysfs tree.
+
+> It is ironic that as the author of the SG_IO
+> passthrough ioctl the "specs" that I am
+> often asked to help circumvent are the "we
+> know better" variety built into various layers
+> of the linux kernel :-)
+
+Indeed.
+
+	Luben

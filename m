@@ -1,52 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030461AbVI3WE3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932599AbVI3WGT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030461AbVI3WE3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 18:04:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932599AbVI3WE3
+	id S932599AbVI3WGT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 18:06:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbVI3WGT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 18:04:29 -0400
-Received: from zctfs063.nortelnetworks.com ([47.164.128.120]:35738 "EHLO
-	zctfs063.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S932597AbVI3WE2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 18:04:28 -0400
-Message-ID: <433DB64B.70405@nortel.com>
-Date: Fri, 30 Sep 2005 16:03:55 -0600
-From: "Christopher Friesen" <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+	Fri, 30 Sep 2005 18:06:19 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:31194 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S1030465AbVI3WGS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 18:06:18 -0400
+Message-ID: <433DB6BE.4020706@adaptec.com>
+Date: Fri, 30 Sep 2005 18:05:50 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       "Theodore Ts'o" <tytso@mit.edu>, dipankar@in.ibm.com,
-       viro@ftp.linux.org.uk
-Subject: Re: dentry_cache using up all my zone normal memory
-References: <433189B5.3030308@nortel.com>
-In-Reply-To: <433189B5.3030308@nortel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: James Bottomley <James.Bottomley@SteelEye.com>
+CC: Andre Hedrick <andre@linux-ide.org>,
+       "David S. Miller" <davem@davemloft.net>,
+       Jeff Garzik <jgarzik@pobox.com>, willy@w.ods.org,
+       Patrick Mansfield <patmans@us.ibm.com>, ltuikov@yahoo.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
+ the kernel
+References: <Pine.LNX.4.10.10509300015100.27623-100000@master.linux-ide.org>	 <433D8542.1010601@adaptec.com> <1128113158.12267.29.camel@mulgrave>
+In-Reply-To: <1128113158.12267.29.camel@mulgrave>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Sep 2005 22:04:19.0817 (UTC) FILETIME=[E83C5D90:01C5C60A]
+X-OriginalArrivalTime: 30 Sep 2005 22:05:50.0453 (UTC) FILETIME=[1E425250:01C5C60B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Friesen, Christopher [CAR:VC21:EXCH] wrote:
+On 09/30/05 16:45, James Bottomley wrote:
+> On Fri, 2005-09-30 at 14:34 -0400, Luben Tuikov wrote:
+> 
+>>James, Linus, can we have this driver in the kernel now, please?
+> 
+> 
+> A while ago I told you that if you could show that the transport class
+> abstraction could not support both the aic94xx and LSI SAS cards then we
 
-> With a bit of digging the culprit appears to be the dentry_cache.  The 
-> last log I have shows it using 817MB of memory.  Right after that the 
-> oom killer kicked me off the system.  When I logged back in, the cache 
-> usage was back down to normal and everything was fine.
+I have, by example and by spec.  They both use two different
+and distinct architectures.
 
-There hasn't been any new suggestions as to the culprit, so I started 
-experimenting a bit.
+Now _you_ have decided that this isn't the case, simply because
+you want to prove your own idea.  (which breaks SAM layering)
 
-It turns out that if I limit the memory on the system to 896MB, the 
-dcache slab usage peaks at around 600MB and sits there for the duration 
-of the test.
+I think I explained the similarity of the SAS Transport Layer
+to *USB and SBP*.
 
-When I limit the memory to 1024MB, the dcache slab chews up all my zone 
-normal memory and the oom killer runs.
+As I said: everyone wants a pice of the SAS code.
+You do too.
 
-It almost seems like the dcache responds to memory pressure on the 
-system as a whole, but not as well to pressure on zone normal.  Would 
-this make sense?
+I'm sure you'll do whatever humanly possible to show
+that _your_ idea can be applied: you can do this now:
+just use a big if () { ... } else { ... } statement and
+you're done.
 
-Chris
+Furthermore I do not see the reasons to umbrella both
+"aic94xx and LSI cards" when they are _completely different_
+in architecture: MPT and open transport (ala USB Storage and SBP).
+
+> could look at doing SAS differently.  Since then you have asserted many
+> times that a transport class could not work for the aic94xx (mostly by
+> making inaccurate statements about what the transport class abstraction
+> is) but have never actually provided any evidence for your assertion.
+
+The code is here:
+http://linux.adaptec.com/sas/
+
+>>Now to things more pertinent, which I'm sure people are interested in:
+>>
+>>Jeff has been appointed to the role of integrating the SAS code
+>>with the Linux SCSI _model_, with James Bottomley's "transport
+>>attributes".
+>>So you can expect more patches from him.
+> 
+> So very soon now, with proof by code, we shall have confirmation or
+> negation of that assertion.  I'll wait quietly for this to happen, and I
+> would suggest you do the same.
+
+I just thought it was only fare to the rest of the community
+to know how far the politics has escalated.
+
+Everyone wants a piece of the SAS code.
+
+	Luben
+

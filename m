@@ -1,64 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932574AbVI3HNg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932578AbVI3HO0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932574AbVI3HNg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 03:13:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932572AbVI3HNg
+	id S932578AbVI3HO0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 03:14:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932576AbVI3HOZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 03:13:36 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:27869 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932571AbVI3HNf (ORCPT
+	Fri, 30 Sep 2005 03:14:25 -0400
+Received: from gate.crashing.org ([63.228.1.57]:20612 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932572AbVI3HOZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 03:13:35 -0400
-Date: Fri, 30 Sep 2005 00:13:01 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: dth@cistron.nl (Danny ter Haar)
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: 2.6.14-rc2-git7 crashed on amd64 (usenet gateway) after 18
- hours
-Message-Id: <20050930001301.08eeab9d.akpm@osdl.org>
-In-Reply-To: <dhinf5$skf$1@news.cistron.nl>
-References: <dhinf5$skf$1@news.cistron.nl>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 30 Sep 2005 03:14:25 -0400
+Subject: Re: iMac G5: experimental thermal & cpufreq support
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: linuxppc64-dev@ozlabs.org
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       "debian-powerpc@lists.debian.org" <debian-powerpc@lists.debian.org>
+In-Reply-To: <1127983229.6102.60.camel@gaston>
+References: <1127978432.6102.53.camel@gaston>
+	 <1127983229.6102.60.camel@gaston>
+Content-Type: text/plain
+Date: Fri, 30 Sep 2005 17:12:12 +1000
+Message-Id: <1128064333.31197.18.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dth@cistron.nl (Danny ter Haar) wrote:
->
-> Known story:
-> last stable kernel for this machine is/was 2.6.12-mm1
+On Thu, 2005-09-29 at 18:40 +1000, Benjamin Herrenschmidt wrote:
+> On Thu, 2005-09-29 at 17:20 +1000, Benjamin Herrenschmidt wrote:
 > 
-> Every 2.6.1[34] kernel panics so far.
-> Sometimes after 40 minutes, sometimes after 4 days.
+> > http://gate.crashing.org/~benh/ppc64-smu-thermal-control.diff
 > 
-> Config/more info at:
-> http://newsgate.newsserver.nl/kernel/2.6.14-rc2-git7/
+> You may want to re-download this one if you got it already, I just fixed
+> a bug in the calculations of the CPU control loop. It's now getting
+> results much more consistant with OS X. I still have to add some
+> overtemp handling and I'll remove the debug stuff and work on supporting
+> the PowerMac9,1 desktop model.
 
-The aic79xx driver shat itself.
+Ok, I've updated it. News are:
 
-The log buffer starts with
+ - It now requires cpufreq support (it won't start if the cpufreq clamp
+sensor isn't loaded). I also changed the Kconfig stuff a bit, you'll
+need to enable 2 options now
 
-scsi1 (4:0): rejecting I/O to offline device
-scsi1 (4:0): rejecting I/O to offline device
-scsi1 (4:0): rejecting I/O to offline device
+ - It has some totally untested support for PowerMac9,1
 
-So we've probably lost the info which will tell us how the problems
-started.  A serial console would be nice.
+ - It has overtemp support (will slow CPU down and blow fans full speed
+if the machine goes overtemp)
 
-> This time it was scsi system again which "blew-up"
-> 
-> Obvious difference i see between 2.6.12 en 2.6.1[34] is that the 
-> scsi/ethernet cards have different IRQ's set. 
-> If i'm correct acpi code changed in 2.6.13, right ?
-> 
-> Since the 2.6.12-mm1 kernel survived 3 weeks+ and gave super performance
-> i'm convinced it's not a hardware issue.
-> 
-> Just giving feedback.
-> 
-> Will try git8 and mm2 and of course report here when they fail.
+ - It has some basic sysfs interface to read values
+in /sys/devices/platform/windfarm.0
 
-Are all the failures due to the aic79xx driver failing in this manner?  If
-not then please report the different failures separately, thanks.
+ - DEBUG is disabled by default
+
+Enjoy !
+
+Ben.
+
+

@@ -1,68 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964848AbVI3GQw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932291AbVI3GZI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964848AbVI3GQw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 02:16:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932454AbVI3GQw
+	id S932291AbVI3GZI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 02:25:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbVI3GZI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 02:16:52 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:37326
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932396AbVI3GQw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 02:16:52 -0400
-Subject: Re: 2.6.13-rc6-rt9
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: paulmck@us.ibm.com
-Cc: George Anzinger <george@mvista.com>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, Steven Rostedt <rostdt@goodmis.org>,
-       Jeff Dike <jdike@addtoit.com>
-In-Reply-To: <20050930014636.GV8177@us.ibm.com>
-References: <20050818060126.GA13152@elte.hu>
-	 <1124470574.17311.4.camel@twins> <1124476205.17311.8.camel@twins>
-	 <20050819184334.GG1298@us.ibm.com> <1124566045.17311.11.camel@twins>
-	 <20050820212446.GA9822@ccure.user-mode-linux.org>
-	 <1127980463.14695.6.camel@twins> <20050930010041.GS8177@us.ibm.com>
-	 <1128042449.15115.375.camel@tglx.tec.linutronix.de>
-	 <20050930014636.GV8177@us.ibm.com>
-Content-Type: text/plain
-Organization: linutronix
-Date: Fri, 30 Sep 2005 08:17:36 +0200
-Message-Id: <1128061056.15115.388.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Fri, 30 Sep 2005 02:25:08 -0400
+Received: from tachyon.quantumlinux.com ([64.113.1.99]:49309 "EHLO
+	tachyon.quantumlinux.com") by vger.kernel.org with ESMTP
+	id S932291AbVI3GZG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 02:25:06 -0400
+Date: Thu, 29 Sep 2005 23:25:14 -0700 (PDT)
+From: Chuck Wolber <chuckw@quantumlinux.com>
+X-X-Sender: chuckw@localhost.localdomain
+To: Chris Wright <chrisw@osdl.org>
+cc: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       "David S. Miller" <davem@davemloft.net>,
+       Mitsuru KANDA <mk@linux-ipv6.org>
+Subject: Re: [PATCH 07/10] [PATCH] check connect(2) status for IPv6 UDP socket
+In-Reply-To: <20050930022239.411732000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.63.0509292318320.29997@localhost.localdomain>
+References: <20050930022016.640197000@localhost.localdomain>
+ <20050930022239.411732000@localhost.localdomain>
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-09-29 at 18:46 -0700, Paul E. McKenney wrote:
-> > you are not the culprit :)
+On Thu, 29 Sep 2005, Chris Wright wrote:
+
+> -stable review patch.  If anyone has any objections, please let us know.
+> ------------------
 > 
-> Woo-hoo!!!  Exonerated!!!  This time, anyway...  ;-)
-
-My pleasure :)
-
-
-> > It can not be run from hardirq context, as it takes a lot of locks
-> > (especially our favorites: tasklist_lock and sighand->siglock). :(
-> > 
-> > Maybe another playground for rcu, but it might also be solved by some
-> > other mechanism for accounting and delayed execution in the PREEMPT_RT
-> > case.
+> I think we should cache the per-socket route(dst_entry) only when the 
+> IPv6 UDP socket is connect(2)'ed. (which is same as IPv4 UDP send 
+> behavior)
 > 
-> Certainly check_thread_timers() and check_process_timers() are playing
-> with a number of task_struct fields, so it is not immediately clear
-> to me how to safely replace tasklist_lock with RCU, at least not with
-> a simple and small patch.
-> 
-> What did you have in mind for delayed execution?
+> Signed-off-by: Mitsuru KANDA <mk@linux-ipv6.org>
+> Signed-off-by: Chris Wright <chrisw@osdl.org>
+> ---
 
-Do only the time check in hard irq context and defer the lock protected
-operations to a softirq context. Have to look deeper at the details
-though.
-
-tglx
+%< Snip %<
 
 
+Does this really qualify as a necessary bug fix?
+
+..Chuck..
 
 
+-- 
+http://www.quantumlinux.com
+ Quantum Linux Laboratories, LLC.
+ ACCELERATING Business with Open Technology
+
+ "The measure of the restoration lies in the extent to which we apply
+  social values more noble than mere monetary profit." - FDR

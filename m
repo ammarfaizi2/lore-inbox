@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030331AbVI3PK6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030332AbVI3PQa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030331AbVI3PK6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 11:10:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030334AbVI3PK6
+	id S1030332AbVI3PQa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 11:16:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030333AbVI3PQa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 11:10:58 -0400
-Received: from zproxy.gmail.com ([64.233.162.207]:12011 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030331AbVI3PK5 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 11:10:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=YHaSUMoDOS8wtdMAC1are2IJsJAK9yqDK6QaKp05TZBDZ5Pf4HC7rksWLlQgiXVSFqE3SDVFcNXt0h5kdPSRv1gwII3ObPelgs4he8NHipxMujeSu0buerGkhiuFzCU5m9BYIFGjxXBX362kvm2bzBLc53ix93KJkPnxtE9/qEI=
-Message-ID: <4489a22a0509300810y723e5ef5tb9109a29508a1e38@mail.gmail.com>
-Date: Fri, 30 Sep 2005 10:10:57 -0500
-From: Alberto Patino <pato.lukaz@gmail.com>
-Reply-To: Alberto Patino <pato.lukaz@gmail.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [howto] Kernel hacker's guide to git, updated
-Cc: Oliver Neukum <oliver@neukum.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Junio C Hamano <junkio@cox.net>, git@vger.kernel.org
-In-Reply-To: <433D447E.9030103@pobox.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <433BC9E9.6050907@pobox.com>
-	 <7virwjegb5.fsf@assigned-by-dhcp.cox.net> <433D1E5D.20303@pobox.com>
-	 <200509301402.46740.oliver@neukum.org> <433D447E.9030103@pobox.com>
+	Fri, 30 Sep 2005 11:16:30 -0400
+Received: from mx.pathscale.com ([64.160.42.68]:19665 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1030332AbVI3PQ3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 11:16:29 -0400
+Subject: Re: 2.6.14-rc1-git-now still dying in mm/slab - this time line 1849
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+Cc: Andrew Morton <akpm@osdl.org>, vandrove@vc.cvut.cz, clameter@engr.sgi.com,
+       alokk@calsoftinc.com, linux-kernel@vger.kernel.org,
+       manfred@colorfullife.com, shai@scalex86.org, ananth@in.ibm.com,
+       ak@suse.de
+In-Reply-To: <20050930062853.GB3599@localhost.localdomain>
+References: <20050919112912.18daf2eb.akpm@osdl.org>
+	 <Pine.LNX.4.62.0509191141380.26105@schroedinger.engr.sgi.com>
+	 <20050919122847.4322df95.akpm@osdl.org>
+	 <Pine.LNX.4.62.0509191351440.26388@schroedinger.engr.sgi.com>
+	 <20050919221614.6c01c2d1.akpm@osdl.org> <43301578.8040305@vc.cvut.cz>
+	 <20050928210245.GA3760@localhost.localdomain> <433C1999.2060201@vc.cvut.cz>
+	 <20050930054556.GA3599@localhost.localdomain>
+	 <20050929230540.6a8651fa.akpm@osdl.org>
+	 <20050930062853.GB3599@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 30 Sep 2005 08:16:22 -0700
+Message-Id: <1128093382.10913.92.camel@serpentine.pathscale.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/30/05, Jeff Garzik <jgarzik@pobox.com> wrote:
-> Oliver Neukum wrote:
-> >
-> > The error is still there.
-> >
-> > oliver@oenone:~/linux-2.6> git checkout -f master
-> > usage: read-tree (<sha> | -m <sha1> [<sha2> <sha3>])
->
-> Something's wrong with your installation, not the instructions.  Works
-> fine here.
->
+On Thu, 2005-09-29 at 23:28 -0700, Ravikiran G Thirumalai wrote:
 
-Right , you must have a corrupted copy of the git repo. Do the initial
-cloning of the linux repository again, and then retry the git
-checkout.
+> Yes. 
+
+Kiran, your patch works for me, too.  I can boot 2.6.14-rc2 with your
+patch, but not without it.
+
+Thanks for your help.
+
+	<b
+

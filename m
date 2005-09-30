@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030376AbVI3TgW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030375AbVI3TiL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030376AbVI3TgW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 15:36:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030378AbVI3TgV
+	id S1030375AbVI3TiL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 15:38:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030377AbVI3TiL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 15:36:21 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:46747 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S1030377AbVI3TgV
+	Fri, 30 Sep 2005 15:38:11 -0400
+Received: from xproxy.gmail.com ([66.249.82.202]:37733 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030375AbVI3TiJ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 15:36:21 -0400
-Date: Fri, 30 Sep 2005 21:32:50 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Dominik Karall <dominik.karall@gmx.net>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
-Subject: [patch 2.6.14-rc2 1/1] r8169: tone down the r8169 driver
-Message-ID: <20050930193250.GA24548@electric-eye.fr.zoreil.com>
-References: <20050929143732.59d22569.akpm@osdl.org> <200509302049.45143.dominik.karall@gmx.net> <20050930120723.07d42517.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 30 Sep 2005 15:38:09 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=nToVzMT2fgDP8zM7MwIRjH2orDLJYgSPhdUTqVU0zagKFtrde8Qo3tNQbKhdHVRkojFnzucFdPxfg+8BqRHsb/2bXj4r5LOozp+R7BF8Q1y/Kh9BLcNbiT9gO0nDAJtVBc3QGXA2dBP7yr20lXRkkbFtqZoPxHDuBHmsqrwYBqw=
+Message-ID: <b6c5339f05093012385ead2cff@mail.gmail.com>
+Date: Fri, 30 Sep 2005 15:38:08 -0400
+From: Bob Copeland <bcopeland@gmail.com>
+Reply-To: Bob Copeland <bcopeland@gmail.com>
+To: Joe Bob Spamtest <joebob@spamtest.viacore.net>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into the kernel
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <433D8E22.9060505@spamtest.viacore.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050930120723.07d42517.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+References: <20050929232013.95117.qmail@web31810.mail.mud.yahoo.com>
+	 <Pine.LNX.4.64.0509291730360.3378@g5.osdl.org>
+	 <92154686-787B-4254-B404-482E234B245D@neostrada.pl>
+	 <433D8E22.9060505@spamtest.viacore.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tone down the r8169 driver
+[cc trimmed]
 
-As an alternative, people can use the boot time 'debug' option
-and/or use 'ethtool -s ethX msglvl xyz'. The different messages
-are listed at: http://www.zoreil.com/~romieu/r8169/doc/msglvl.txt
+> I think a better explanation of 'scientific theory' is:
+>
+> an explanation or definition of observed behaviour with no known error
 
-Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
+...that is testable.  (Not that this has anything to do with the point.)
 
-diff -puN drivers/net/r8169.c~r8169-a00 drivers/net/r8169.c
---- linux-2.6.14-rc2-git/drivers/net/r8169.c~r8169-a00	2005-09-30 21:16:11.749368793 +0200
-+++ linux-2.6.14-rc2-git/drivers/net/r8169.c	2005-09-30 21:16:46.687692546 +0200
-@@ -92,8 +92,7 @@ VERSION 2.2LK	<2005/01/25>
- #endif /* RTL8169_DEBUG */
- 
- #define R8169_MSG_DEFAULT \
--	(NETIF_MSG_DRV | NETIF_MSG_PROBE | NETIF_MSG_LINK | NETIF_MSG_IFUP | \
--	 NETIF_MSG_IFDOWN)
-+	(NETIF_MSG_DRV | NETIF_MSG_PROBE | NETIF_MSG_IFUP | NETIF_MSG_IFDOWN)
- 
- #define TX_BUFFS_AVAIL(tp) \
- 	(tp->dirty_tx + NUM_TX_DESC - tp->cur_tx - 1)
-
-_
+While jumping on the thread for no good reason, I might point out (to
+Luben) that ^w is erase word and ^h is erase character.  Your stty
+settings may vary.

@@ -1,70 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751401AbVI3BY7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751403AbVI3BZ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751401AbVI3BY7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 21:24:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751403AbVI3BY7
+	id S1751403AbVI3BZ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 21:25:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751412AbVI3BZZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 21:24:59 -0400
-Received: from fmr16.intel.com ([192.55.52.70]:30080 "EHLO
-	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1751401AbVI3BY6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 21:24:58 -0400
-Subject: Re: [PATCH] earlier allocation of order 0 pages from pcp in
-	__alloc_pages
-From: Rohit Seth <rohit.seth@intel.com>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: akpm@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
-In-Reply-To: <719460000.1128034108@[10.10.2.4]>
-References: <20050929150155.A15646@unix-os.sc.intel.com>
-	 <719460000.1128034108@[10.10.2.4]>
-Content-Type: text/plain
-Organization: Intel 
-Date: Thu, 29 Sep 2005 18:32:13 -0700
-Message-Id: <1128043933.3735.26.camel@akash.sc.intel.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Sep 2005 01:24:42.0055 (UTC) FILETIME=[BBA28D70:01C5C55D]
+	Thu, 29 Sep 2005 21:25:25 -0400
+Received: from xproxy.gmail.com ([66.249.82.206]:7557 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751403AbVI3BZX convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 21:25:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=gjBTW50LcA6DgnmEzN2Uz7VxoaThe3RzxnVDM/KI9NJVh8jZu2HTVS+Xh+cWlo4aV7mP68B/sIbfSpc+QksC35ljE89eIZN9W48fUtw+a+nbvUddX/3OBXwi9q/fxQg8UPnipyjRC7vIfJ5LPZjguLDkBl7iPaPZSNXXgjHUVdk=
+Message-ID: <924c28830509291825y10c1709bt9a648ef3fb89b22@mail.gmail.com>
+Date: Thu, 29 Sep 2005 18:25:22 -0700
+From: Hua Zhong <hzhong@gmail.com>
+Reply-To: Hua Zhong <hzhong@gmail.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into the kernel
+Cc: Luben Tuikov <ltuikov@yahoo.com>, Arjan van de Ven <arjan@infradead.org>,
+       Willy Tarreau <willy@w.ods.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Luben Tuikov <luben_tuikov@adaptec.com>,
+       Jeff Garzik <jgarzik@pobox.com>
+In-Reply-To: <Pine.LNX.4.64.0509291730360.3378@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050929232013.95117.qmail@web31810.mail.mud.yahoo.com>
+	 <Pine.LNX.4.64.0509291730360.3378@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-09-29 at 15:48 -0700, Martin J. Bligh wrote:
-> >         Try to service a order 0 page request from pcp list.  This will allow us to not check and possibly start the reclaim activity when there are free pages present on the pcp.  This early allocation does not try to replenish an empty pcp.
-> > 
-> >         Signed-off-by: Rohit Seth <rohit.seth@intel.com>
-> 
-> It seems a bit odd to copy more code to do this, which I think we already
-> have in buffered_rmqueue? Can we clean up the flow a bit here ... it 
-> is already looking messy in __alloc_pages with various gotos and crud
-> there. I'm not saying what you're trying to do is bad, but the flow
-> in there is getting more and move convoluted, and we perhaps need to
-> straighten it. 
-> 
+> Once there are known holes in the theory, it's not a
+> scientific theory. At best it's an approximation, but
+> quite possibly it's just plain wrong.
 
-I will update/streamline __alloc_pages code and send the patch.
+You are right about scientific theory, but specs are not just a theory.
+You are mixing "discovery" and "invention".
 
-> It looks like we're now dropping into direct reclaim as the first thing
-> in __alloc_pages before even trying to kick off kswapd. When the hell
-> did that start? Or is that only meant to trigger if we're already below
-> the low watermark level?
-> 
+A scientific theory has to match reality, because the universe deveops
+independently. There is no way you can enforce your theory down the
+throat on the "nature".
 
-As Andrew said in the other mail that do_reclaim is never true so the
-first reclaim never happens.  That also means that we don't look at pcp
-for the scenarios when zone has run below the low water mark before
-waking kswapd.
+But the roles of specs are more than that. There are two parts of it:
+1. unify/summarize the reality
+2. guide future implementations on a unified road
 
-> What do we want to do at a higher level?
-> 
-> 	if (order 0) and (have stuff in the local lists)
-> 		take from local lists
-> 	else if (we're under a little pressure)
-> 		do kswapd reclaim
-> 	else if (we're under a lot of pressure)
-> 		do direct reclaim?
-> 
-> That whole code area seems to have been turned into spagetti, without
-> any clear comments.
+It might do job 1 poorly (simply because the reality is a mess),
+but if everyone from the point on puts the effort to follow it, job 2 can
+be done, and it is the real goal. It can do this simply because *humans*
+can collaborate and be influenced for a goal that could eventually
+benefit everybody.
 
-Agreed. 
+> And that's my point. Specs are not only almost invariably
+> badly written, they also never actually match reality.
+>
+> At which point at _best_ it's just an approximation. At
+> worst, it's much worse. At worst, it causes people to
+> ignore reality, and then it becomes religion.
 
+Let me add more to the moron/asshole argument:
+
+Anyone that thinks specs are reality is a moron.
+
+Anyone that thinks specs are useless and refuses to collaborate
+is an asshole. :)

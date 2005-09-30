@@ -1,65 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932398AbVI3CEa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932402AbVI3CHU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932398AbVI3CEa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 22:04:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932402AbVI3CEa
+	id S932402AbVI3CHU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 22:07:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932403AbVI3CHU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 22:04:30 -0400
-Received: from fmr23.intel.com ([143.183.121.15]:9621 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932398AbVI3CEa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 22:04:30 -0400
-Date: Thu, 29 Sep 2005 19:04:20 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+	Thu, 29 Sep 2005 22:07:20 -0400
+Received: from xproxy.gmail.com ([66.249.82.192]:19817 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932402AbVI3CHT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 22:07:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=rzSj6JMWtAxqtx+1nxaXNcV6uBlY2rLsQ0+I4ViRWE+DhkHMneIFQ5cHtU1tRqxCXb66ywytij8mnaBDJGXfohkX7qNAB7LQvDANbNWKC7o90wB+kXJnsxjIobH7A7KO4nvIaRsi2K8wnMlKTSijyF5cH4ECxQB2ZIm8kLHYRdY=
+Message-ID: <5bdc1c8b0509291907x77604133oc1d8a64e9e70dd59@mail.gmail.com>
+Date: Thu, 29 Sep 2005 19:07:18 -0700
+From: Mark Knecht <markknecht@gmail.com>
+Reply-To: Mark Knecht <markknecht@gmail.com>
 To: linux-kernel@vger.kernel.org
-Cc: ak@suse.de, akpm@osdl.org
-Subject: [Patch] x86, x86_64: fix cpu model for family 0x6
-Message-ID: <20050929190419.C15943@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: l2.6.14-rc2-rt7 - build problems - mce?
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi, please pickup this patch and push to Andrew/Linus.
+Hi,
+   Any ideas how I could configure the kernel to get past this
+problem? Currently the config file says this about MCE:
 
-thanks,
-suresh
+CONFIG_GART_IOMMU=y
+CONFIG_SWIOTLB=y
+CONFIG_X86_MCE=y
+# CONFIG_X86_MCE_INTEL is not set
 
---
-According to cpuid instruction in IA32 SDM-Vol2, when computing cpu model,
-we need to consider extended model ID for family 0x6 also.
+Can I safely set CONFIG_X86_MCE to no or not set? Or is this something
+else completely?
 
-Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
+Thanks,
+Mark
 
---- linux-2.6.14-rc2-git7/arch/i386/kernel/cpu/common.c~	2005-09-29 17:44:12.030688920 -0700
-+++ linux-2.6.14-rc2-git7/arch/i386/kernel/cpu/common.c	2005-09-29 17:44:30.967810040 -0700
-@@ -233,10 +233,10 @@ static void __init early_cpu_detect(void
- 		cpuid(0x00000001, &tfms, &misc, &junk, &cap0);
- 		c->x86 = (tfms >> 8) & 15;
- 		c->x86_model = (tfms >> 4) & 15;
--		if (c->x86 == 0xf) {
-+		if (c->x86 == 0xf)
- 			c->x86 += (tfms >> 20) & 0xff;
-+		if (c->x86 == 0x6 || c->x86 == 0xf)
- 			c->x86_model += ((tfms >> 16) & 0xF) << 4;
--		}
- 		c->x86_mask = tfms & 15;
- 		if (cap0 & (1<<19))
- 			c->x86_cache_alignment = ((misc >> 8) & 0xff) * 8;
---- linux-2.6.14-rc2-git7/arch/x86_64/kernel/setup.c~	2005-09-29 18:05:26.503939536 -0700
-+++ linux-2.6.14-rc2-git7/arch/x86_64/kernel/setup.c	2005-09-29 18:06:42.318413984 -0700
-@@ -1059,10 +1059,10 @@ void __cpuinit early_identify_cpu(struct
- 		c->x86 = (tfms >> 8) & 0xf;
- 		c->x86_model = (tfms >> 4) & 0xf;
- 		c->x86_mask = tfms & 0xf;
--		if (c->x86 == 0xf) {
-+		if (c->x86 == 0xf)
- 			c->x86 += (tfms >> 20) & 0xff;
-+		if (c->x86 == 0x6 || c->x86 == 0xf)
- 			c->x86_model += ((tfms >> 16) & 0xF) << 4;
--		} 
- 		if (c->x86_capability[0] & (1<<19)) 
- 			c->x86_clflush_size = ((misc >> 8) & 0xff) * 8;
- 	} else {
+lightning linux-2.6.14-rc2-rt7 # make
+  CHK     include/linux/version.h
+  CHK     include/linux/compile.h
+  CHK     usr/initramfs_list
+  CC      arch/x86_64/kernel/mce.o
+In file included from arch/x86_64/kernel/mce.c:17:
+include/linux/fs.h: In function `lock_super':
+include/linux/fs.h:847: warning: implicit declaration of function `down'
+include/linux/fs.h: In function `unlock_super':
+include/linux/fs.h:853: warning: implicit declaration of function `up'
+arch/x86_64/kernel/mce.c: In function `mce_read':
+arch/x86_64/kernel/mce.c:392: warning: type defaults to `int' in
+declaration of `DECLARE_MUTEX'
+arch/x86_64/kernel/mce.c:392: warning: parameter names (without types)
+in function declaration
+arch/x86_64/kernel/mce.c:401: error: `mce_read_sem' undeclared (first
+use in this function)
+arch/x86_64/kernel/mce.c:401: error: (Each undeclared identifier is
+reported only once
+arch/x86_64/kernel/mce.c:401: error: for each function it appears in.)
+make[1]: *** [arch/x86_64/kernel/mce.o] Error 1
+make: *** [arch/x86_64/kernel] Error 2
+lightning linux-2.6.14-rc2-rt7 #

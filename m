@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965031AbVI3KYr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030259AbVI3Kr7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965031AbVI3KYr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 06:24:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965034AbVI3KYr
+	id S1030259AbVI3Kr7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 06:47:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030261AbVI3Kr7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 06:24:47 -0400
-Received: from 223-177.adsl.pool.ew.hu ([193.226.223.177]:523 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S965031AbVI3KYq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 06:24:46 -0400
-To: akpm@osdl.org
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] fuse: clean up dead code related to nfs exporting
-Message-Id: <E1ELI3p-0005rf-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Fri, 30 Sep 2005 12:24:13 +0200
+	Fri, 30 Sep 2005 06:47:59 -0400
+Received: from web26902.mail.ukl.yahoo.com ([217.146.176.91]:51640 "HELO
+	web26902.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1030259AbVI3Kr6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 06:47:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=B7jEDJx1qgeHgZrXuiE/edhZIah9bs5EWbP7y65ImQF0vGeq3SIxvmyfbl0GgUEm4uayrbHt1lwOD5UerJGid4IA1BYsqMPEDTQ1BuhMO51jApmbl8NkObIdciouIcu0PIG4u1MSPKPnbbitIQY6UsBYJTGUurNj7qEcfzTpZqw=  ;
+Message-ID: <20050930104751.47898.qmail@web26902.mail.ukl.yahoo.com>
+Date: Fri, 30 Sep 2005 12:47:51 +0200 (CEST)
+From: Etienne Lorrain <etienne_lorrain@yahoo.fr>
+Subject: Re: Linux SATA S.M.A.R.T. and SLEEP?
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove last remains of NFS exportability support.
+Grant Coady wrote:
+> jmerkey wrote:
+> >Someone needs to fix SATA drive ordering in the kernel so it matches 
+> >GRUBs ordering, or perhaps GRUB needs fixing. I have run into
+>                     ^^^^^^^^^^^^^^^^^^^^^^^^^
+> User-space issue?  Four of the last five drives I buy are SATA, I 
+> don't see this problem 'cos I use lilo :o)
 
-The code is actually buggy (as reported by Akshat Aranya), since
-'alias' will be leaked if it's non-null and alias->d_flags has
-DCACHE_DISCONNECTED.
+  Lilo is not the only bootloader which do not make random assumptions
+ on the order of the drives - you should also try Gujin...
+http://gujin.org
 
-This is not an active bug, since there will never be any disconnected
-dentries.  But it's better to get rid of the unnecessary complexity
-anyway.
+  Etienne.
 
-Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
 
-Index: linux/fs/fuse/dir.c
-===================================================================
---- linux.orig/fs/fuse/dir.c	2005-09-28 12:57:38.000000000 +0200
-+++ linux/fs/fuse/dir.c	2005-09-30 12:07:11.000000000 +0200
-@@ -741,13 +741,14 @@ static struct dentry *fuse_lookup(struct
- 	if (inode && S_ISDIR(inode->i_mode)) {
- 		/* Don't allow creating an alias to a directory  */
- 		struct dentry *alias = d_find_alias(inode);
--		if (alias && !(alias->d_flags & DCACHE_DISCONNECTED)) {
-+		if (alias) {
- 			dput(alias);
- 			iput(inode);
- 			return ERR_PTR(-EIO);
- 		}
- 	}
--	return d_splice_alias(inode, entry);
-+	d_add(entry, inode);
-+	return NULL;
- }
- 
- static int fuse_setxattr(struct dentry *entry, const char *name,
+	
+
+	
+		
+___________________________________________________________________________ 
+Appel audio GRATUIT partout dans le monde avec le nouveau Yahoo! Messenger 
+Téléchargez cette version sur http://fr.messenger.yahoo.com

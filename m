@@ -1,46 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932378AbVI3CXD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbVI3CWw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932378AbVI3CXD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 22:23:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932539AbVI3CXC
+	id S932415AbVI3CWw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 22:22:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbVI3CWv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 22:23:02 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:48117 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S932378AbVI3CXA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 22:23:00 -0400
-Subject: Re: l2.6.14-rc2-rt7 - build problems - mce?
-From: Daniel Walker <dwalker@mvista.com>
-Reply-To: dwalker@mvista.com
-To: Mark Knecht <markknecht@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <5bdc1c8b0509291907x77604133oc1d8a64e9e70dd59@mail.gmail.com>
-References: <5bdc1c8b0509291907x77604133oc1d8a64e9e70dd59@mail.gmail.com>
-Content-Type: text/plain
-Organization: MontaVista
-Date: Thu, 29 Sep 2005 19:22:59 -0700
-Message-Id: <1128046979.987.36.camel@dhcp153.mvista.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Sep 2005 22:22:51 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:49833 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932415AbVI3CWu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 22:22:50 -0400
+Message-Id: <20050930022209.125719000@localhost.localdomain>
+References: <20050930022016.640197000@localhost.localdomain>
+Date: Thu, 29 Sep 2005 19:20:19 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       David Stevens <dlstevens@us.ibm.com>, Chris Wright <chrisw@osdl.org>
+Subject: [PATCH 03/10] [PATCH] fix IPv6 per-socket multicast filtering in exact-match case
+Content-Disposition: inline; filename=ipv6-fix-per-socket-multicast-filtering.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-09-29 at 19:07 -0700, Mark Knecht wrote:
-> Hi,
->    Any ideas how I could configure the kernel to get past this
-> problem? Currently the config file says this about MCE:
-> 
-> CONFIG_GART_IOMMU=y
-> CONFIG_SWIOTLB=y
-> CONFIG_X86_MCE=y
-> # CONFIG_X86_MCE_INTEL is not set
-> 
-> Can I safely set CONFIG_X86_MCE to no or not set? Or is this something
-> else completely?
+-stable review patch.  If anyone has any objections, please let us know.
+------------------
 
-I think it's something else completely .. You would be better off
-turning on complete preemption .
+per-socket multicast filters were not being applied to all sockets
+in the case of an exact-match bound address, due to an over-exuberant
+"return" in the look-up code. Fix below. IPv4 does not have this problem.
 
-Daniel
+Thanks to Hoerdt Mickael for reporting the bug.
 
+Signed-off-by: David L Stevens <dlstevens@us.ibm.com>
+Signed-off-by: Chris Wright <chrisw@osdl.org>
+---
+ net/ipv6/udp.c |    5 ++---
+ 1 files changed, 2 insertions(+), 3 deletions(-)
+
+Index: linux-2.6.13.y/net/ipv6/udp.c
+===================================================================
+--- linux-2.6.13.y.orig/net/ipv6/udp.c
++++ linux-2.6.13.y/net/ipv6/udp.c
+@@ -404,9 +404,8 @@ static struct sock *udp_v6_mcast_next(st
+ 				continue;
+ 
+ 			if (!ipv6_addr_any(&np->rcv_saddr)) {
+-				if (ipv6_addr_equal(&np->rcv_saddr, loc_addr))
+-					return s;
+-				continue;
++				if (!ipv6_addr_equal(&np->rcv_saddr, loc_addr))
++					continue;
+ 			}
+ 			if(!inet6_mc_check(s, loc_addr, rmt_addr))
+ 				continue;
+
+--

@@ -1,110 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030387AbVI3Ucd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030380AbVI3UjF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030387AbVI3Ucd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 16:32:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030391AbVI3Ucd
+	id S1030380AbVI3UjF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 16:39:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030382AbVI3UjE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 16:32:33 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:22470 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S1030387AbVI3Ucc (ORCPT
+	Fri, 30 Sep 2005 16:39:04 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:43924 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030380AbVI3UjD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 16:32:32 -0400
-Message-ID: <433DA0DF.9080308@adaptec.com>
-Date: Fri, 30 Sep 2005 16:32:31 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: andrew.patterson@hp.com
-CC: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>, dougg@torque.net,
-       Linus Torvalds <torvalds@osdl.org>, Luben Tuikov <ltuikov@yahoo.com>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
- the kernel
-References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01A9FA11@otce2k03.adaptec.com>	 <1128105594.10079.109.camel@bluto.andrew>  <433D9035.6000504@adaptec.com> <1128111290.10079.147.camel@bluto.andrew>
-In-Reply-To: <1128111290.10079.147.camel@bluto.andrew>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Sep 2005 20:32:31.0216 (UTC) FILETIME=[14DA8F00:01C5C5FE]
+	Fri, 30 Sep 2005 16:39:03 -0400
+Date: Fri, 30 Sep 2005 13:38:43 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Chris Wright <chrisw@osdl.org>, Harald Welte <laforge@gnumonks.org>,
+       Sergey Vlasov <vsu@altlinux.ru>, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, security@linux.kernel.org,
+       vendor-sec@lst.de
+Subject: Re: [linux-usb-devel] Re: [Security] [vendor-sec] [BUG/PATCH/RFC] Oops while completing async USB via usbdevio
+Message-ID: <20050930203843.GG16352@shell0.pdx.osdl.net>
+References: <20050925151330.GL731@sunbeam.de.gnumonks.org> <Pine.LNX.4.58.0509270746200.3308@g5.osdl.org> <20050927160029.GA20466@master.mivlgu.local> <Pine.LNX.4.58.0509270904140.3308@g5.osdl.org> <20050927165206.GB20466@master.mivlgu.local> <Pine.LNX.4.58.0509270959380.3308@g5.osdl.org> <20050930104749.GN4168@sunbeam.de.gnumonks.org> <Pine.LNX.4.64.0509300752530.3378@g5.osdl.org> <20050930184433.GF16352@shell0.pdx.osdl.net> <Pine.LNX.4.64.0509301225190.3378@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0509301225190.3378@g5.osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09/30/05 16:14, Andrew Patterson wrote:
-> 
-> Yes you can, which is what I am trying to do.  However, is that library
-> also available on Solaris and Windows? Is it up to date?  These are the
+* Linus Torvalds (torvalds@osdl.org) wrote:
+> Not for this particular USB use, there isn't. Since you can only send a 
+> signal to yourself anyway, the uid/euid check is just testing that you're 
+> still who you were.
 
-Is the kernel the latest one? Is it up to date?
+Ah, I see.
 
-See?  Same argument.
-
->>>Note that a sysfs implementation has problems.  Binary attributes are
->>>discouraged/not-allowed.
->>
->>I've never heard that.  Is this similar to the argument
->>"The sysfs tree would be too deep?"
-> 
-> 
->>From Documentation/filesystes/sysfs.txt
-> 
-> "Attributes should be ASCII text files, preferably with only one value
-> per file. It is noted that it may not be efficient to contain only
-> value per file, so it is socially acceptable to express an array of
-> values of the same type.
-> 
-> Mixing types, expressing multiple lines of data, and doing fancy
-> formatting of data is heavily frowned upon. Doing these things may get
-> you publically humiliated and your code rewritten without notice."
-
-I see this talk _only_ about non-binary attributes.
-
-Plus you have to admit: the SAS sysfs "smp_portal" binary
-attribute is very versatile: you completely control the
-expander from user space _if_ you can see it:  It is 
-almost like "point and click".
-
-I imagine there would be GUIs built on top of it, which would
-actually implement that "point, click, control".
-
-> My understanding is that sysfs is meant to be human-readable.  I do not
-
-But `cat /sysfs/.../smp_portal` _is_ human readable.  See?  Its size is
-0 bytes and when you read it you get 0 data read.
-
-> User space locking can only guarantee atomic operations in user space.  
-
-And user space is the whole audience of this interface.
-
-> Not sure at the moment, can I guarantee this for the future?
-
-How far in the future? 1, 3, 6 months?  1, 3, 6 years?
-Plus if you need an attribute larger than 4K, you've got
-other problems to worry about.
-
-> There are as many as one would want.  We now have 32 bit device numbers.
-> Old technology is fine as long as it works, especially if their is no
-> new technology to replace it.  Note that I don't like the character
-> device solution either. What would really be nice is something that will
-> allow us to pass an arbitrary request buffer, and get an arbitrary
-> response buffer back in a single transaction,
-
-Here:
-
-/* User space lock */
-
-fd = open(smp_portal, ...);
-write(fd, smp_req, smp_req_size);
-read(fd, smp_resp, smp_resp_size);
-close(fd);
-
-/* User space unlock */
-
-> See above.  This stuff works for trivial user-space apps.  It will not
-> suffice for most storage management apps.  
-
-Sorry but I completely fail to see this argument.
-
-How will it "fail for most storage managament apps"?
-
-	Luben
+thanks,
+-chris

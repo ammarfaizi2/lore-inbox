@@ -1,58 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030459AbVI3VqY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030463AbVI3WCE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030459AbVI3VqY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 17:46:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932597AbVI3VqY
+	id S1030463AbVI3WCE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 18:02:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030461AbVI3WCE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 17:46:24 -0400
-Received: from smtp-105-friday.nerim.net ([62.4.16.105]:40720 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S932595AbVI3VqX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 17:46:23 -0400
-Date: Fri, 30 Sep 2005 23:46:43 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: LM Sensors <lm-sensors@lm-sensors.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Request only really used I/O ports in w83627hf driver
-Message-Id: <20050930234643.7a7b06ce.khali@linux-fr.org>
-In-Reply-To: <20050928024956.GA24527@vana.vc.cvut.cz>
-References: <20050907181415.GA468@vana.vc.cvut.cz>
-	<20050907210753.3dbad61b.khali@linux-fr.org>
-	<431F4006.6060901@vc.cvut.cz>
-	<20050925195735.1ef98b40.khali@linux-fr.org>
-	<43371F89.7090704@vc.cvut.cz>
-	<20050928024956.GA24527@vana.vc.cvut.cz>
-X-Mailer: Sylpheed version 2.0.1 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 30 Sep 2005 18:02:04 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:42969 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S932293AbVI3WCB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 18:02:01 -0400
+Message-ID: <433DB5D7.3020806@adaptec.com>
+Date: Fri, 30 Sep 2005 18:01:59 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: andrew.patterson@hp.com
+CC: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>, dougg@torque.net,
+       Linus Torvalds <torvalds@osdl.org>, Luben Tuikov <ltuikov@yahoo.com>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
+ the kernel
+References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01A9FA11@otce2k03.adaptec.com>	 <1128105594.10079.109.camel@bluto.andrew>  <433D9035.6000504@adaptec.com>	 <1128111290.10079.147.camel@bluto.andrew>  <433DA0DF.9080308@adaptec.com> <1128114950.10079.170.camel@bluto.andrew>
+In-Reply-To: <1128114950.10079.170.camel@bluto.andrew>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 30 Sep 2005 22:02:00.0026 (UTC) FILETIME=[94E9F3A0:01C5C60A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Petr,
-
-> This patch changes w83627hf and w83627ehf drivers to reserve only ports
-> 0x295-0x296, instead of full 0x290-0x297 range.  While some other sensors
-> chips respond to all addresses in 0x290-0x297 range, Winbond chips respond
-> to 0x295-0x296 only (this behavior is implied by documentation, and matches
-> behavior observed on real systems).  This is not problem alone, as no
-> BIOS was found to put something at these unused addresses, and sensors
-> chip itself provides nothing there as well.
+On 09/30/05 17:15, Andrew Patterson wrote:
+>>Sorry but I completely fail to see this argument., locks it, then hangs.
+>>
+>>How will it "fail for most storage managament apps"?
 > 
-> But in addition to only respond to these two addresses, also BIOS vendors 
-> report in their ACPI-PnP structures that there is some resource at I/O 
-> address 0x295 of length 2.  And when later this hwmon driver attempts to
-> request region with base 0x290/length 8, it fails as one request_region
-> cannot span more than one device.
 > 
-> Due to this we have to ask only for region this hardware really occupies,
-> otherwise driver cannot be loaded on systems with ACPI-PnP enabled.
+> Let's see, one example:
 > 
-> Signed-off-by:  Petr Vandrovec <vandrove@vc.cvut.cz>
+> Process A opens an attribute and writes to it.  Process B opens another
+> attribute and writes to it, affecting the result that process A will see
+> from its subsequent read. I suppose you could lock every attribute, but
+> that would be very error-prone, and not allow much concurrency.
 
-OK, looks good, applied to my local tree. I'll push it to Greg KH in a
-week or so. Thanks.
+Why should synchronization between Process A and Process B 
+reading storage attributes take place in the kernel?
 
--- 
-Jean Delvare
+They can synchronize in user space.
+
+	Luben

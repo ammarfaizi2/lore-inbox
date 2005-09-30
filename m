@@ -1,55 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030370AbVI3QtU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030363AbVI3Qze@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030370AbVI3QtU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 12:49:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030374AbVI3QtT
+	id S1030363AbVI3Qze (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 12:55:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030374AbVI3Qzd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 12:49:19 -0400
-Received: from extgw-uk.mips.com ([62.254.210.129]:3851 "EHLO
-	bacchus.net.dhis.org") by vger.kernel.org with ESMTP
-	id S1030370AbVI3QtS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 12:49:18 -0400
-Date: Fri, 30 Sep 2005 17:48:45 +0100
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-Cc: stern@rowland.harvard.edu, jim.ramsay@gmail.com,
-       mdharm-kernel@one-eyed-alien.net, linux-usb-users@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [Linux-usb-users] Possible bug in usb storage (2.6.11 kernel)
-Message-ID: <20050930164845.GA14585@linux-mips.org>
-References: <20050927.234616.36922370.anemo@mba.ocn.ne.jp> <Pine.LNX.4.44L0.0509271120370.5703-100000@iolanthe.rowland.org> <20050929.012705.37532453.anemo@mba.ocn.ne.jp>
+	Fri, 30 Sep 2005 12:55:33 -0400
+Received: from qproxy.gmail.com ([72.14.204.202]:52395 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030363AbVI3Qzd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 12:55:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+        b=eW7zP57gpWspJgHEErZC69afMtUj007lDo1P20rnwiA8l3/bqbzPDhTnX35S5FifGT1pVIdl67Ba2YXg4qsFFR5bpgaHbx4JxSAzRq5cJRx3UJlUzRkSoTTVeD7l0PkeBarJ7yGCd3KG4VyyM7YxlFxNC0WLwudP4OTPeAeZxoE=
+Subject: Re: 2.6.14-rc2-mm2
+From: Badari Pulavarty <pbadari@gmail.com>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <14500000.1128090994@[10.10.2.4]>
+References: <20050929143732.59d22569.akpm@osdl.org>
+	 <14500000.1128090994@[10.10.2.4]>
+Content-Type: text/plain
+Date: Fri, 30 Sep 2005 09:54:58 -0700
+Message-Id: <1128099298.16275.80.camel@dyn9047017102.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050929.012705.37532453.anemo@mba.ocn.ne.jp>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 29, 2005 at 01:27:05AM +0900, Atsushi Nemoto wrote:
-
-> >>>>> On Tue, 27 Sep 2005 11:38:35 -0400 (EDT), Alan Stern <stern@rowland.harvard.edu> said:
+On Fri, 2005-09-30 at 07:36 -0700, Martin J. Bligh wrote:
+> Hangs on boot on x86_64 (-mm1 did the same, -git8 is fine)
 > 
-> stern> If that is so, it's a bug in linux-mips.  ARCH_KMALLOC_MINALIGN
-> stern> is supposed to be at least as large as a cacheline.  See this
-> stern> comment in mm/slab.c:
+> http://test.kernel.org/13722/debug/console.log
 > 
-> Thank you for pointing out this.
-> 
-> Some time ago I also supposed so, but I was told to use
-> dma_get_cache_alignment() instead.  The comment was not exist at that
-> time...
+> eth0: Tigon3 [partno(BCM95703A30) rev 1002 PHY(5703)] (PCIX:66MHz:64-bit) 10/100/1000BaseT Ethernet 00:09:3d:00:c9:fe
+> eth0: RXcsums[1] LinkChgREG[0] MIirq[0] ASF[0] Split[0] WireSpeed[1] TSOcap[1] 
+> eth0: dma_rwctrl[769f0000]
+> ACPI: PCI Interrupt 0000:02:03.0[A] -> GSI 26 (level, low) -> IRQ 21
+> eth1: Tigon3 [partno(BCM95703A30) rev 1002 PHY(5703)] (PCIX:66MHz:64-bit) 10/100/1000BaseT Ethernet 00:09:3d:00:c9:ff
+> eth1: RXcsums[1] LinkChgREG[0] MIirq[0] ASF[0] Split[0] WireSpeed[1] TSOcap[1] 
+> eth1: dma_rwctrl[769f0000]
+> Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+> AMD8111: IDE controller at PCI slot 0000:00:07.1
+> AMD8111: chipset revision 3
+> AMD8111: not 100% native mode: will probe irqs later
+> AMD8111: 0000:00:07.1 (rev 03) UDMA133 controller
+>     ide0: BM-DMA at 0x1000-0x1007, BIOS settings: hda:pio, hdb:pio
+>     ide1: BM-DMA at 0x1008-0x100f<4>logips2pp: Detected unknown logitech mouse model 0
+> , BIOS settings: hdc:DMA, hdd:pio
+> input: PS/2 Logitech Mouse on isa0060/serio1
+> -- 0:conmux-control -- time-stamp -- Sep/29/05 15:38:00 --
 
-ARCH_KMALLOC_MINALIGN is set to 8 on MIPS because we used to have 64-bit
-members in struct semaphore but on 32-bit kernels kmalloc would return 4-byte
-allocated memory only.  Whoops, an ooops ;)  Obviously that's been a thinko
-as it was done without consideration for DMA.
+I ran into the same issue earlier on my AMD box and 
+found out that
 
-Coherent I/O isn't affected, also there are a few R3000-class processors where
-8 bytes happens to be just the right value.  For anything else this is a bug
-which we probably get away most of the time and the value should would be
-the largest size of any cacheline in the cache hierarchy, so upto 128 for some
-systems.
+x86_64-no-idle-tick.patch 
 
-  Ralf
+is causing the problem with IDE drives. No idea why.
+Can you back out x86_64-no-idle-tick* patches and
+try ?
+
+Thanks,
+Badari
+

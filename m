@@ -1,39 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030263AbVI3MIc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030283AbVI3MKX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030263AbVI3MIc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 08:08:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030283AbVI3MIc
+	id S1030283AbVI3MKX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 08:10:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030286AbVI3MKX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 08:08:32 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:63954 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030263AbVI3MIb
+	Fri, 30 Sep 2005 08:10:23 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:61915 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S1030285AbVI3MKW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 08:08:31 -0400
-Date: Fri, 30 Sep 2005 13:08:31 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCHSET] 2.6.14-rc2-git8-bird1
-Message-ID: <20050930120831.GI7992@ftp.linux.org.uk>
-References: <20050905035848.GG5155@ZenIV.linux.org.uk> <20050905155522.GA8057@mipter.zuzino.mipt.ru> <20050905160313.GH5155@ZenIV.linux.org.uk> <20050905164712.GI5155@ZenIV.linux.org.uk> <20050905212026.GL5155@ZenIV.linux.org.uk> <20050907183131.GF5155@ZenIV.linux.org.uk> <20050912191744.GN25261@ZenIV.linux.org.uk> <20050912192049.GO25261@ZenIV.linux.org.uk>
-Mime-Version: 1.0
+	Fri, 30 Sep 2005 08:10:22 -0400
+Message-ID: <433D2B21.6040406@namesys.com>
+Date: Fri, 30 Sep 2005 16:10:09 +0400
+From: "Vladimir V. Saveliev" <vs@namesys.com>
+Organization: Namesys
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+References: <432AFB44.9060707@namesys.com> <20050918110658.GA22744@infradead.org> <432E8282.6060905@namesys.com> <20050919092444.GA17501@infradead.org> <43302CF7.2010901@namesys.com> <20050920154711.GA6698@infradead.org>
+In-Reply-To: <20050920154711.GA6698@infradead.org>
+X-Enigmail-Version: 0.91.0.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050912192049.GO25261@ZenIV.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Patchset againts 2.6.14-rc2-git8 (closer to -git9, actually -
-the first part of patchset is delta between -git8 and Linus' tree slightly
-before -git9).
+Hello
 
-	A lot of stuff got through the patchset since the last posting,
-generally it stays pretty close to mainline.
+Christoph Hellwig wrote:
+> ...
+> Looking at the actual code all these point to the spin lock obsufcation
+> SPIN_LOCK_FUNCTIONS/RW_LOCK_FUNCTIONS from spin_macros.h which I told
+> to get rid of in the first round of reviews. 
+> ...
 
-	Builds on the same set of targets.
+reiser4 spinlock macros provide following functionality:
 
-Patch is on ftp.linux.org.uk/pub/people/viro/patch-2.6.14-rc2-git8-bird1.bz2,
-splitup in ftp.linux.org.uk/pub/people/viro/patchset, logs (gcc and sparse)
-in ftp.linux.org.uk/pub/people/viro/logs/*log23e
+    (1) encapsulation of locks: instead of writing spin_lock(&obj->lock),
+    where obj is object of type foo, one writes spin_lock_foo(obj).
 
-Current list of patches is in .../patchset/set*.
+    (2) keeping information about number of locks of particular type currently
+held by thread
+
+    (3) checking that locks are acquired in the proper order.
+
+    (4) collection of spin lock contention statistics
+
+
+I agree that (1) is not very necessary. (2) and (4) helped a lot in early
+debugging. Now we are about to remove it.
+
+However, we would prefer to keep (3). It makes catching spinlock deadlocks very
+easy. Don't you think that makes sence?
+
+Thanks

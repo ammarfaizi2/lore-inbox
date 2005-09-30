@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030395AbVI3Uq7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030386AbVI3Uza@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030395AbVI3Uq7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 16:46:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030389AbVI3Uq7
+	id S1030386AbVI3Uza (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 16:55:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030389AbVI3Uza
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 16:46:59 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:56263 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1030391AbVI3Uq6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 16:46:58 -0400
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
-	the kernel
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Luben Tuikov <luben_tuikov@adaptec.com>
-Cc: Andre Hedrick <andre@linux-ide.org>,
-       "David S. Miller" <davem@davemloft.net>,
-       Jeff Garzik <jgarzik@pobox.com>, willy@w.ods.org,
-       Patrick Mansfield <patmans@us.ibm.com>, ltuikov@yahoo.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <433D8542.1010601@adaptec.com>
-References: <Pine.LNX.4.10.10509300015100.27623-100000@master.linux-ide.org>
-	 <433D8542.1010601@adaptec.com>
-Content-Type: text/plain
-Date: Fri, 30 Sep 2005 15:45:58 -0500
-Message-Id: <1128113158.12267.29.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
-Content-Transfer-Encoding: 7bit
+	Fri, 30 Sep 2005 16:55:30 -0400
+Received: from ns1.limegroup.com ([64.48.93.2]:28428 "EHLO ns1.limegroup.com")
+	by vger.kernel.org with ESMTP id S1030386AbVI3Uz3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 16:55:29 -0400
+Date: Fri, 30 Sep 2005 16:55:19 -0400 (EDT)
+From: Ion Badulescu <ionut@badula.org>
+X-X-Sender: ion@ionlinux.tower-research.com
+To: Hendrik Visage <hvjunk@gmail.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: Starfire (Adaptec) kernel 2.6.13+ panics on AMD64 NFS server
+In-Reply-To: <d93f04c70509301310y4bde1189wbcaef40124af6766@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0509301635020.13733@ionlinux.tower-research.com>
+References: <d93f04c70509292036x269df799y7b51c5be9c3356d6@mail.gmail.com> 
+ <20050929211649.69eaddee.akpm@osdl.org>  <d93f04c70509300901s3836b8afw4792d16c589b4fc4@mail.gmail.com>
+  <20050930104046.4685e975.akpm@osdl.org> <d93f04c70509301310y4bde1189wbcaef40124af6766@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-09-30 at 14:34 -0400, Luben Tuikov wrote:
-> James, Linus, can we have this driver in the kernel now, please?
+On Fri, 30 Sep 2005, Hendrik Visage wrote:
 
-A while ago I told you that if you could show that the transport class
-abstraction could not support both the aic94xx and LSI SAS cards then we
-could look at doing SAS differently.  Since then you have asserted many
-times that a transport class could not work for the aic94xx (mostly by
-making inaccurate statements about what the transport class abstraction
-is) but have never actually provided any evidence for your assertion.
+> Anycase, here is a non-PREEMPT traceback.
 
-In a recent prior email, you said:
+Same trace, pretty much like I expected. Still, starfire must be getting 
+a bad skb from the upper layers, because it gets passed __unmodified__ to 
+skb_checksum_help().
 
-> Now to things more pertinent, which I'm sure people are interested in:
-> 
-> Jeff has been appointed to the role of integrating the SAS code
-> with the Linux SCSI _model_, with James Bottomley's "transport
-> attributes".
-> So you can expect more patches from him.
+Either that, or skb_checksum_help() itself got broken at some point, at 
+least on 64-bit platforms.
 
-So very soon now, with proof by code, we shall have confirmation or
-negation of that assertion.  I'll wait quietly for this to happen, and I
-would suggest you do the same.
+I'll try to reproduce it over the weekend (assumming I can get an x86_64 
+box set up, with a starfire inside) and see where the problem is.
 
-James
+> What makes this one interesting, is that in the preempt case, I had to 
+> push the NFS output to get the panic, but the non-preempt case attached, 
+> sorta just happened, ie. when the clients just checked on the server's 
+> status :(
 
+I'm actually surprised you got your panic from nfsd. skb_checksum_help() 
+is called only when one of the fragments has length == 1, so the easiest 
+way to hit it is to slowly type something into a telnet session.
 
+Thanks,
+Ion
+
+-- 
+   It is better to keep your mouth shut and be thought a fool,
+             than to open it and remove all doubt.

@@ -1,69 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965015AbVI3Jjk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965010AbVI3Jzd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965015AbVI3Jjk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 05:39:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965016AbVI3Jjk
+	id S965010AbVI3Jzd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 05:55:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964975AbVI3Jzd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 05:39:40 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:6570 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S965015AbVI3Jjk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 05:39:40 -0400
-Date: Fri, 30 Sep 2005 11:39:24 +0200 (CEST)
-From: Simon Derr <simon.derr@bull.net>
-X-X-Sender: derr@localhost.localdomain
-To: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
-Cc: Paul Jackson <pj@sgi.com>, taka@valinux.co.jp, magnus.damm@gmail.com,
-       dino@in.ibm.com, linux-kernel@vger.kernel.org,
-       ckrm-tech@lists.sourceforge.net
-Subject: Re: [ckrm-tech] Re: [PATCH 1/3] CPUMETER: add cpumeter framework to
- the CPUSETS
-In-Reply-To: <20050929025328.E4BFC70046@sv1.valinux.co.jp>
-Message-ID: <Pine.LNX.4.58.0509301117500.28042@localhost.localdomain>
-References: <20050908225539.0bc1acf6.pj@sgi.com> <20050909.203849.33293224.taka@valinux.co.jp>
- <20050909063131.64dc8155.pj@sgi.com> <20050910.161145.74742186.taka@valinux.co.jp>
- <20050910015209.4f581b8a.pj@sgi.com> <20050926093432.9975870043@sv1.valinux.co.jp>
- <20050927013751.47cbac8b.pj@sgi.com> <20050927113902.C78A570046@sv1.valinux.co.jp>
- <20050927084905.7d77bdde.pj@sgi.com> <20050928062146.6038E70041@sv1.valinux.co.jp>
- <20050928000839.1d659bfb.pj@sgi.com> <20050928075331.0408A70041@sv1.valinux.co.jp>
- <20050928094932.43a1f650.pj@sgi.com> <20050929025328.E4BFC70046@sv1.valinux.co.jp>
-MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 30/09/2005 11:52:57,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 30/09/2005 11:52:59,
-	Serialize complete at 30/09/2005 11:52:59
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 30 Sep 2005 05:55:33 -0400
+Received: from wproxy.gmail.com ([64.233.184.201]:60768 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965010AbVI3Jzd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 05:55:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=OCluT7FYmc28p9teOahsh3Wpo3XLmCbHTteIHE4QOd3bEILnSlOsRWTPO5g2Ky8oLrTeijGNQjKQfXCtBgZnJYnmmSHbRnmmJTaMfkZRlpLTnmseH6cqQNw6r9pM9INjFfKyAJb178TC05PSxp9MD2NjzOe6otm52zy+UtkNi7o=
+Date: Fri, 30 Sep 2005 14:06:39 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH -mm] s390: fix TIMER_MAGIC breakage
+Message-ID: <20050930100639.GA6936@mipter.zuzino.mipt.ru>
+References: <20050929143732.59d22569.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050929143732.59d22569.akpm@osdl.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sucker is remove-timer-debug-fields.patch
 
+  CC      arch/s390/kernel/vtime.o
+arch/s390/kernel/vtime.c: In function `init_virt_timer':
+arch/s390/kernel/vtime.c:280: error: `TIMER_MAGIC' undeclared
+----------------------------------------------------------------------------
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-On Thu, 29 Sep 2005, KUROSAWA Takahiro wrote:
+ arch/s390/kernel/vtime.c |   18 ++----------------
+ 1 file changed, 2 insertions(+), 16 deletions(-)
 
-> > Oh I think not.  My primary motivation in pushing on this point
-> > of the design was to allow CPUSET 2a and 2b to have a smaller
-> > cpumask than CPUSET 1a.  This is used for example to allow a job
-> > that is running in 1a to setup two child cpusets, 2a and 2b,
-> > to run two subtasks that are constrained to smaller portions of
-> > the CPUs allowed to the job in 1a.
->
-> Maybe I still misunderstand your idea.
-> The guarantee assigned to CPUSET 1a might not be satisfied if
-> tasks are attached to CPUSET 2a only and no tasks are attached to
-> CPUSET 1a nor CPUSET 2b.  Does your idea leave as it is because
-> the user sets up CPUSETs like that?
+--- linux-2.6.14-rc2-mm2-vanilla/arch/s390/kernel/vtime.c
++++ linux-2.6.14-rc2-mm2-s390/arch/s390/kernel/vtime.c
+@@ -24,7 +24,6 @@
+ #include <asm/s390_ext.h>
+ #include <asm/timer.h>
+ 
+-#define VTIMER_MAGIC (TIMER_MAGIC + 1)
+ static ext_int_info_t ext_int_info_timer;
+ DEFINE_PER_CPU(struct vtimer_queue, virt_cpu_timer);
+ 
+@@ -277,20 +276,12 @@ static void do_cpu_timer_interrupt(struc
+ 
+ void init_virt_timer(struct vtimer_list *timer)
+ {
+-	timer->magic = VTIMER_MAGIC;
+ 	timer->function = NULL;
+ 	INIT_LIST_HEAD(&timer->entry);
+ 	spin_lock_init(&timer->lock);
+ }
+ EXPORT_SYMBOL(init_virt_timer);
+ 
+-static inline int check_vtimer(struct vtimer_list *timer)
+-{
+-	if (timer->magic != VTIMER_MAGIC)
+-		return -EINVAL;
+-	return 0;
+-}
+-
+ static inline int vtimer_pending(struct vtimer_list *timer)
+ {
+ 	return (!list_empty(&timer->entry));
+@@ -346,7 +337,7 @@ static void internal_add_vtimer(struct v
+ 
+ static inline int prepare_vtimer(struct vtimer_list *timer)
+ {
+-	if (check_vtimer(timer) || !timer->function) {
++	if (!timer->function) {
+ 		printk("add_virt_timer: uninitialized timer\n");
+ 		return -EINVAL;
+ 	}
+@@ -414,7 +405,7 @@ int mod_virt_timer(struct vtimer_list *t
+ 	unsigned long flags;
+ 	int cpu;
+ 
+-	if (check_vtimer(timer) || !timer->function) {
++	if (!timer->function) {
+ 		printk("mod_virt_timer: uninitialized timer\n");
+ 		return	-EINVAL;
+ 	}
+@@ -481,11 +472,6 @@ int del_virt_timer(struct vtimer_list *t
+ 	unsigned long flags;
+ 	struct vtimer_queue *vt_list;
+ 
+-	if (check_vtimer(timer)) {
+-		printk("del_virt_timer: timer not initialized\n");
+-		return -EINVAL;
+-	}
+-
+ 	/* check if timer is pending */
+ 	if (!vtimer_pending(timer))
+ 		return 0;
 
-Hi Takahiro-san
-
-It seems to me that this "guarantee" can only be guaranteed if the owner
-of cpuset 1a:
--runs enough tasks to use all the cpus of cpuset 1a
--does not tamper with the scheduler decisions by creating other cpusets
-inside cpuset 1a, or by using sched_setaffinity().
-
-Outside of this, he accepts to get less cpu than "guaranteed".
-Sounds acceptable to me.
-
-	Simon.
 

@@ -1,55 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030288AbVI3Mae@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030275AbVI3Mdj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030288AbVI3Mae (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 08:30:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030285AbVI3Mae
+	id S1030275AbVI3Mdj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 08:33:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030277AbVI3Mdj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 08:30:34 -0400
-Received: from galileo.bork.org ([134.117.69.57]:26847 "EHLO galileo.bork.org")
-	by vger.kernel.org with ESMTP id S1030277AbVI3Mad (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 08:30:33 -0400
-Date: Fri, 30 Sep 2005 08:30:32 -0400
-From: Martin Hicks <mort@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Martin J. Bligh" <mbligh@mbligh.org>, rohit.seth@intel.com,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       Martin Hicks <mort@sgi.com>
-Subject: Re: [PATCH] earlier allocation of order 0 pages from pcp in __alloc_pages
-Message-ID: <20050930123031.GZ32494@localhost>
-References: <20050929150155.A15646@unix-os.sc.intel.com> <719460000.1128034108@[10.10.2.4]> <20050929161118.27f9f1eb.akpm@osdl.org>
+	Fri, 30 Sep 2005 08:33:39 -0400
+Received: from ganesha.gnumonks.org ([213.95.27.120]:12184 "EHLO
+	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
+	id S1030275AbVI3Mdi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 08:33:38 -0400
+Date: Fri, 30 Sep 2005 14:33:35 +0200
+From: Harald Welte <laforge@gnumonks.org>
+To: Michael Bellion <mbellion@hipac.org>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: [ANNOUNCE] Release of nf-HiPAC 0.9.0
+Message-ID: <20050930123334.GW4168@sunbeam.de.gnumonks.org>
+References: <200509260445.46740.mbellion@hipac.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="VIdDLDeyEAhJQ0DY"
 Content-Disposition: inline
-In-Reply-To: <20050929161118.27f9f1eb.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <200509260445.46740.mbellion@hipac.org>
+User-Agent: mutt-ng devel-20050619 (Debian)
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, Sep 29, 2005 at 04:11:18PM -0700, Andrew Morton wrote:
-> "Martin J. Bligh" <mbligh@mbligh.org> wrote:
-> >
-> > It looks like we're now dropping into direct reclaim as the first thing
-> > in __alloc_pages before even trying to kick off kswapd. When the hell
-> > did that start? Or is that only meant to trigger if we're already below
-> > the low watermark level?
-> 
-> That's all the numa goop which Martin Hicks added.  It's all disabled if
-> z->reclaim_pages is zero (it is).  However we could be testing that flag a
-> bit earlier, I think.
-> 
-> And yeah, some de-spaghettification would be nice.  Certainly before adding
-> more logic.
-> 
-> Martin, should we take out the early zone reclaim logic?  It's all
-> unreachable at present anyway.
-> 
+--VIdDLDeyEAhJQ0DY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Yes, Please do.
+On Mon, Sep 26, 2005 at 04:45:46AM +0200, Michael Bellion wrote:
+> Hi
+>=20
+> I am happy to announce the release of nf-HiPAC version 0.9.0
 
-mh
+I'm happy to hear this, especially in the advent of the netfilter
+develpoer workshop next week, and after a very long period of silence
+=66rom the nf-hipac project.
 
+I'll make sure to have read through your 0.9.0 version source code until
+then, to be able to give some feedback asap.
 
--- 
-Martin Hicks   ||   Silicon Graphics Inc.   ||   mort@sgi.com
+Looking forward to talking to you about it next week!
+--=20
+- Harald Welte <laforge@gnumonks.org>          	        http://gnumonks.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+"Privacy in residential applications is a desirable marketing option."
+                                                  (ETSI EN 300 175-7 Ch. A6)
+
+--VIdDLDeyEAhJQ0DY
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFDPTCeXaXGVTD0i/8RAk+6AJ9yRqzLPHAw8y6hBTdgM3IvtVcHTQCdFKhz
+g3w+aCg9EjwtfBdsYvfo3fU=
+=rmvC
+-----END PGP SIGNATURE-----
+
+--VIdDLDeyEAhJQ0DY--

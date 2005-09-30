@@ -1,54 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030372AbVI3QqJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030369AbVI3Qr2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030372AbVI3QqJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 12:46:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030370AbVI3QqJ
+	id S1030369AbVI3Qr2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 12:47:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030371AbVI3Qr2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 12:46:09 -0400
-Received: from ns1.limegroup.com ([64.48.93.2]:30739 "EHLO ns1.limegroup.com")
-	by vger.kernel.org with ESMTP id S1030368AbVI3QqH (ORCPT
+	Fri, 30 Sep 2005 12:47:28 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:15505 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S1030369AbVI3Qr1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 12:46:07 -0400
-Date: Fri, 30 Sep 2005 12:46:01 -0400 (EDT)
-From: Ion Badulescu <ionut@badula.org>
-X-X-Sender: ion@ionlinux.tower-research.com
-To: Hendrik Visage <hvjunk@gmail.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Starfire (Adaptec) kernel 2.6.13+ panics on AMD64 NFS server
-In-Reply-To: <d93f04c70509300114i1757cde1x42d9fe7c453a8bbd@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0509301226140.13733@ionlinux.tower-research.com>
-References: <d93f04c70509292036x269df799y7b51c5be9c3356d6@mail.gmail.com> 
- <20050929211649.69eaddee.akpm@osdl.org> <d93f04c70509300114i1757cde1x42d9fe7c453a8bbd@mail.gmail.com>
+	Fri, 30 Sep 2005 12:47:27 -0400
+Message-ID: <433D6C18.2070202@adaptec.com>
+Date: Fri, 30 Sep 2005 12:47:20 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: andrew.patterson@hp.com
+CC: dougg@torque.net, Linus Torvalds <torvalds@osdl.org>,
+       Luben Tuikov <ltuikov@yahoo.com>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
+ the kernel
+References: <20050929232013.95117.qmail@web31810.mail.mud.yahoo.com>	 <Pine.LNX.4.64.0509291730360.3378@g5.osdl.org>	 <433CE961.3040504@torque.net> <1128097576.10079.88.camel@bluto.andrew>
+In-Reply-To: <1128097576.10079.88.camel@bluto.andrew>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 30 Sep 2005 16:47:25.0480 (UTC) FILETIME=[A2CECA80:01C5C5DE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Henrik,
+On 09/30/05 12:26, Andrew Patterson wrote:
+> 
+> I talked to one of the authors of these specs.  SDI is an attempt to
+> create an open standard for the somewhat proprietary CSMI spec developed
+> by HP.  It is currently languishing in t10 due to the IOCTL problem you
+> describe below (the "no new IOCTL's" doctrine caught them by surprise).
+> There is some thought to going to a write()/read() on a character device
+> model, but this has various problems as well.  
 
-On Fri, 30 Sep 2005, Hendrik Visage wrote:
+I think that read/write from a char device is going away too.
 
-> Will do, but check perhaps for some 64bit uncleanes in the scatter gather stuff
-> that got enabled in 2.6.13 because of the GPL'd Adaptec firmware, as I
-> recalled some skb related stuff.
+For this reason I showed the whole picture of the SAS
+domain in sysfs _and_ created a binary file attr to
+send/receive SMP requests/responses to control
+the domain and get attributes ("smp_portal" binary
+attr of each expander).
 
-There is an easy way to disable the firmware and pretty much all the 
-changes that went into 2.6.13: load the starfire with enable_hw_cksum=0. 
-If you can easily reproduce this problem, try doing the above and see if 
-you can still hit it. Maybe it's a newly introduced problem in the upper 
-layer's SG--your other network driver simply isn't using SG so it's 
-not affected.
+It is completely user space driven and a user space library
+is simple to write.
 
-It's very suspicious that the bug would be in skb_checksum_help(), since 
-the starfire driver doesn't do anything with the skb before handing it 
-over to skb_checksum_help(). It would mean that the upper layer handed an 
-invalid skb to the driver, or that we have some random memory corruption 
-somewhere.
+See drivers/scsi/sas/expander_conf.c which is a user
+space utility.  For the output see Announcement 3:
+http://linux.adaptec.com/sas/Announce_2.txt or here:
+http://marc.theaimsgroup.com/?l=linux-scsi&m=112629509318354&w=2
 
-Thanks,
-Ion
+The code which implements it is very tiny, at the bottom
+of drivers/scsi/sas/sas_expander.c
 
--- 
-   It is better to keep your mouth shut and be thought a fool,
-             than to open it and remove all doubt.
+>>Sorry, did I mention "ioctl",
+>>oh that makes SDI unacceptable. Almost a year ago that is what
+>>happened to the first proposed SAS driver for Linux. 
+> 
+> 
+> That was one of the reasons the MPT Fusion and Adaptec drivers were
+> rejected.  There were others as well, such as lack of a SAS transport
+> class.
+
+You mean the first Adaptec SAS "adp94xx" driver.
+
+BTW, neither the original "adp94xx", nor the subsequent "aic94xx"
+Adaptec drivers implmented _any_ ioctls for CSMI/SDI.
+
+	Luben
+
+
+

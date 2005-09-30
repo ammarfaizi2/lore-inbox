@@ -1,116 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030352AbVI3QAF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030353AbVI3QBe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030352AbVI3QAF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 12:00:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030350AbVI3QAF
+	id S1030353AbVI3QBe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 12:01:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030351AbVI3QBe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 12:00:05 -0400
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:8142 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1030348AbVI3QAA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 12:00:00 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Subject: Re: truncate(2) sometimes updates ctime and sometimes ctime and
-	mtime!
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Andrew Morton <akpm@osdl.org>, fsdevel <linux-fsdevel@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0509300823160.3378@g5.osdl.org>
-References: <1128092687.5715.12.camel@imp.csi.cam.ac.uk>
-	 <Pine.LNX.4.64.0509300823160.3378@g5.osdl.org>
-Content-Type: text/plain
-Organization: Computing Service, University of Cambridge, UK
-Date: Fri, 30 Sep 2005 16:59:53 +0100
-Message-Id: <1128095994.3584.12.camel@imp.csi.cam.ac.uk>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 30 Sep 2005 12:01:34 -0400
+Received: from xproxy.gmail.com ([66.249.82.194]:34749 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030353AbVI3QBd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 12:01:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:references;
+        b=IR7nF8pRzO3tcWEm2JdiDAa4TYRzmWsuyl4EyE4i+DuA+3hHOLP9kddVHCNddYh6L1INWaVFkKkePcCJbTZXGeQ6dQ8yrJGAtnEgsRJ/g/FLkyDwuroCEo6Ilrc7sk35+Kk+ATvtm4fPJzEAODb1dVewcQIRFGw/0p2AaLMO8co=
+Message-ID: <d93f04c70509300901s3836b8afw4792d16c589b4fc4@mail.gmail.com>
+Date: Fri, 30 Sep 2005 18:01:32 +0200
+From: Hendrik Visage <hvjunk@gmail.com>
+Reply-To: Hendrik Visage <hvjunk@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: Starfire (Adaptec) kernel 2.6.13+ panics on AMD64 NFS server
+Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Ion Badulescu <ionut@badula.org>
+In-Reply-To: <20050929211649.69eaddee.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_3826_2565404.1128096092335"
+References: <d93f04c70509292036x269df799y7b51c5be9c3356d6@mail.gmail.com>
+	 <20050929211649.69eaddee.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-09-30 at 08:36 -0700, Linus Torvalds wrote:
-> On Fri, 30 Sep 2005, Anton Altaparmakov wrote:
-> > There is an inconsistency in the way truncate works which was introduced
-> > (relatively) recently.
-> > 
-> > fs/open.c::sys_truncate
-> >   -> do_sys_truncate
-> >     -> do_truncate does:
-> > 
-> >         newattrs.ia_size = length;
-> >         newattrs.ia_valid = ATTR_SIZE | ATTR_CTIME;
-> > 
-> >         down(&dentry->d_inode->i_sem);
-> >         err = notify_change(dentry, &newattrs);
-> >         up(&dentry->d_inode->i_sem);
-> > 
-> > This changes the ctime only.
-> 
-> Hmm.. That looks wrong, partly because I don't think it should even set 
-> ATTR_CTIME _either_. However, I don't see any recent changes to that code, 
-> so it must have been logn for a long time. That line in do_truncate() has 
-> been like that since at _least_ 2002.
+------=_Part_3826_2565404.1128096092335
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Indeed.  What _has_ changed recently is that IIRC do_truncate used to
-set ATTR_SIZE | ATTR_CTIME | ATTR_MTIME at which point the two were
-consistent.  But (relatively) recently someone removed the ATTR_MTIME
-from do_truncate and forgot to remove it from inode_setattr...
+On 9/30/05, Andrew Morton <akpm@osdl.org> wrote:
 
-> So what changed to make you notice?
+> The starfire changes in 2.6.12->2.6.13 look fairly innocuous.  Need that
+> trace, please.
 
-I have finished coding the initial cut of ntfs_truncate() (regular files
-only, i.e. uncompressed, unencrypted, and
-not-attribute-list-attribute-containing).  (-:
+See attached :)
 
-Now I am at the testing it stage and I was doing:
+Will do a check without PREEMPT as I've noticed that to be the first
+line of "problem" :(
 
-$ stat ntfs/file
-$ truncate ntfs/file <someval>
-$ stat ntfs/file
+--
+Hendrik Visage
 
-And noticed that the ctime was chaning but not the mtime so I read the
-man page which suggested mtime ought to change so I had a quick look at
-relevant kernel code and the inconsistency stared me in the face.  (-;
+------=_Part_3826_2565404.1128096092335
+Content-Type: application/octet-stream; name="crash2.minicom"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="crash2.minicom"
 
-> The _code_ actually expects the low-level filesystem to just do it when it 
-> does the actual truncate itself. That's certainly what ext3 does, for 
-> example.
-
-Ah, I thought the VFS took care of _all_ {a,c,m} time changes and we
-filesystem developers only ever had to write the changed times to
-disk...
-
-Obviously I was wrong...
-
-I will have a look at ext2/3.
-
-> A comment or two to that effect might be useful, though.
-
-Indeed, it would be useful for unsuspecting fs developers like me.  (-;
-
-> In other words: some attributes are "implicit". For example, mtime is 
-> supposed to be set automatically by the filesystem whenever it sees a 
-> write. The VFS layer will _not_ do a "inode state notify" event for that.
-
-Right.  I seem to remember this being different some time ago.  IIRC the
-kernel did update {a,m,c}time in many places...
-
-> The same is true of truncation.
-> 
-> But I agree that it's inconsistent. Anybody have any deep opinions?
-
-I certainly don't.  It just should be consistent.  (-:
-
-Best regards,
-
-        Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
-
+LS0tLS0tLS0tLS0gW2N1dCBoZXJlIF0gLS0tLS0tLS0tIFtwbGVhc2UgYml0ZSBoZXJlIF0gLS0t
+LS0tLS0tCktlcm5lbCBCVUcgYXQgbmV0L2NvcmUvZGV2LmM6MTA5OQppbnZhbGlkIG9wZXJhbmQ6
+IDAwMDAgWzFdIFBSRUVNUFQgCkNQVSAwIApNb2R1bGVzIGxpbmtlZCBpbjogbnZpZGlhIG5mc2Qg
+ZXhwb3J0ZnMgbG9ja2Qgc3VucnBjIHJmY29tbSBsMmNhcCBoY2lfdXNiIGJsdWV0b290aCBzdGFy
+ZmlyZSBtaWkgc25kX2FjOTdfYnVzIHNvdW5kY29yZSBzbmRfcGFnZV9hbGxvYyBmb3JjZWRldGgg
+aTJjX25mb3JjZTIgZG1fbWlycm9yIGRtX21vZCBzYnAyIG9oY2kxMzk0IGllZWUxMzk0IG9oY2lf
+aGNkIHVoY2lfaGNkIHVzYl9zdG9yYWdlIHVzYmhpZCBlaGNpX2hjZCB1c2Jjb3JlClBpZDogMTEy
+NTIsIGNvbW06IG5mc2QgVGFpbnRlZDogUCAgICAgIDIuNi4xNC1yYzIgIzMKUklQOiAwMDEwOls8
+ZmZmZmZmZmY4MDJjYzdlZD5dIDxmZmZmZmZmZjgwMmNjN2VkPntza2JfY2hlY2tzdW1faGVscCsx
+NTd9ClJTUDogMDAwMDpmZmZmODEwMDNhMGJkOTk4ICBFRkxBR1M6IDAwMDEwMjQ2ClJBWDogZmZm
+ZjgxMDAzZmYwMTYyNCBSQlg6IGZmZmY4MTAwM2NhN2YxODAgUkNYOiAwMDAwMDAwMGI3ZTQyMTk0
+ClJEWDogMDAwMDAwMDBiN2U0MjE5NCBSU0k6IGZmZmY4MTAwM2ZmMDE2MjQgUkRJOiBmZmZmODEw
+MDNiMDI2MDgwClJCUDogZmZmZjgxMDAzYTBiZDliOCBSMDg6IDAwMDAwMDAwMDAwMDAwMDAgUjA5
+OiAwMDAwMDAwMDAwMDAwMDA0ClIxMDogMDAwMDAwMDAwMDAwMDAwMCBSMTE6IDAwMDAwMDAwMDAw
+MDAwMDAgUjEyOiAwMDAwMDAwMDAwMDAwMDAwClIxMzogMDAwMDAwMDAwMDAwMDAwMCBSMTQ6IGZm
+ZmY4MTAwM2NhN2YxODAgUjE1OiBmZmZmODEwMDNkNDYyMjE4CkZTOiAgMDAwMDJhYWFhYWRlNmFl
+MCgwMDAwKSBHUzpmZmZmZmZmZjgwNGZlODAwKDAwMDApIGtubEdTOjAwMDAwMDAwMDAwMDAwMDAK
+Q1M6ICAwMDEwIERTOiAwMDAwIEVTOiAwMDAwIENSMDogMDAwMDAwMDA4MDA1MDAzYgpDUjI6IDAw
+MDAyYWFhYWFhYzIwMDAgQ1IzOiAwMDAwMDAwMDNkNWEyMDAwIENSNDogMDAwMDAwMDAwMDAwMDZl
+MApQcm9jZXNzIG5mc2QgKHBpZDogMTEyNTIsIHRocmVhZGluZm8gZmZmZjgxMDAzYTBiYzAwMCwg
+dGFzayBmZmZmODEwMDNlMGVkMGMwKQpTdGFjazogZmZmZmZmZmY4MDRjZDcyMCBmZmZmODEwMDNk
+NDYyMDAwIGZmZmY4MTAwM2Q0NjIzZTAgZmZmZjgxMDAzY2E3ZjE4MCAKICAgICAgIGZmZmY4MTAw
+M2EwYmRhMDggZmZmZmZmZmY4ODEwNDk0NCBmZmZmODEwMDNkNDYyMjE4IDAwMDAwMDAxM2EyYTg2
+MDAgCiAgICAgICBmZmZmODEwMDNkNDYyMDAwIGZmZmY4MTAwM2Q0NjIwMDAgCkNhbGwgVHJhY2U6
+PGZmZmZmZmZmODgxMDQ5NDQ+ezpzdGFyZmlyZTpzdGFydF90eCsxNjR9IDxmZmZmZmZmZjgwMmRi
+MGZjPntxZGlzY19yZXN0YXJ0KzI2OH0KICAgICAgIDxmZmZmZmZmZjgwMmNjYWQwPntkZXZfcXVl
+dWVfeG1pdCsyODh9IDxmZmZmZmZmZjgwMmQyOWIwPntuZWlnaF9yZXNvbHZlX291dHB1dCs2NzJ9
+CiAgICAgICA8ZmZmZmZmZmY4MDJlYmIyNz57aXBfZmluaXNoX291dHB1dCs0NTV9IDxmZmZmZmZm
+ZjgwMmVjNWZmPntpcF9mcmFnbWVudCs4NjN9CiAgICAgICA8ZmZmZmZmZmY4MDJlYjk2MD57aXBf
+ZmluaXNoX291dHB1dCswfSA8ZmZmZmZmZmY4MDJlY2E2Yz57aXBfb3V0cHV0KzEwOH0KICAgICAg
+IDxmZmZmZmZmZjgwMzVhNzA4Pntfc3Bpbl91bmxvY2tfYmgrMjR9IDxmZmZmZmZmZjgwMmVlMWU3
+PntpcF9wdXNoX3BlbmRpbmdfZnJhbWVzKzkxOX0KICAgICAgIDxmZmZmZmZmZjgwMzA3ZDdlPnt1
+ZHBfcHVzaF9wZW5kaW5nX2ZyYW1lcys1NzR9IDxmZmZmZmZmZjgwMzA4NjU4Pnt1ZHBfc2VuZHBh
+Z2UrMjgwfQogICAgICAgPGZmZmZmZmZmODAzMTAwMWY+e2luZXRfc2VuZHBhZ2UrMTExfSA8ZmZm
+ZmZmZmY4ODE0MTFlYT57OnN1bnJwYzpzdmNfc2VuZHRvKzU1NH0KICAgICAgIDxmZmZmZmZmZjg4
+MThiOGY5Pns6bmZzZDplbmNvZGVfcG9zdF9vcF9hdHRyKzU1M30gPGZmZmZmZmZmODgxNDE4OTM+
+ezpzdW5ycGM6c3ZjX3VkcF9zZW5kdG8rMzV9CiAgICAgICA8ZmZmZmZmZmY4ODE0MjMyNz57OnN1
+bnJwYzpzdmNfc2VuZCsyNDd9IDxmZmZmZmZmZjg4MTQwODU0Pns6c3VucnBjOnN2Y19wcm9jZXNz
+KzExMDh9CiAgICAgICA8ZmZmZmZmZmY4ODE3ZTQzZT57Om5mc2Q6bmZzZCs0NjJ9IDxmZmZmZmZm
+ZjgwMTJlNTI5PntzY2hlZHVsZV90YWlsKzczfQogICAgICAgPGZmZmZmZmZmODAxMGY2MWU+e2No
+aWxkX3JpcCs4fSA8ZmZmZmZmZmY4ODE3ZTI3MD57Om5mc2Q6bmZzZCswfQogICAgICAgPGZmZmZm
+ZmZmODAxMGY2MTY+e2NoaWxkX3JpcCswfSAKCkNvZGU6IDBmIDBiIDY4IDIzIGQ5IDM5IDgwIGMy
+IDRiIDA0IDhiIDkzIDhjIDAwIDAwIDAwIDhkIDQyIDAyIDQ0IApSSVAgPGZmZmZmZmZmODAyY2M3
+ZWQ+e3NrYl9jaGVja3N1bV9oZWxwKzE1N30gUlNQIDxmZmZmODEwMDNhMGJkOTk4PgogPDM+RGVi
+dWc6IHNsZWVwaW5nIGZ1bmN0aW9uIGNhbGxlZCBmcm9tIGludmFsaWQgY29udGV4dCBhdCBpbmNs
+dWRlL2xpbnV4L3J3c2VtLmg6NDMKaW5fYXRvbWljKCk6MSwgaXJxc19kaXNhYmxlZCgpOjAKCkNh
+bGwgVHJhY2U6PGZmZmZmZmZmODAxMmRiN2Y+e19fbWlnaHRfc2xlZXArMTkxfSA8ZmZmZmZmZmY4
+MDEzM2MzYz57cHJvZmlsZV90YXNrX2V4aXQrNDR9CiAgICAgICA8ZmZmZmZmZmY4MDEzNTBmNT57
+ZG9fZXhpdCszN30gPGZmZmZmZmZmODAzNWE1YzM+e19zcGluX3VubG9ja19pcnFyZXN0b3JlKzE5
+fQogICAgICAgPGZmZmZmZmZmODAzNWE1Y2Q+e19zcGluX3VubG9ja19pcnFyZXN0b3JlKzI5fSA8
+ZmZmZmZmZmY4MDExMDI5ND57ZGllKzg0fQogICAgICAgPGZmZmZmZmZmODAzNWFjMWU+e2RvX3Ry
+YXArMzM0fSA8ZmZmZmZmZmY4MDExMDU4Yz57ZG9faW52YWxpZF9vcCsxNzJ9CiAgICAgICA8ZmZm
+ZmZmZmY4MDJjYzdlZD57c2tiX2NoZWNrc3VtX2hlbHArMTU3fSA8ZmZmZmZmZmY4MDEwZjQ2OT57
+ZXJyb3JfZXhpdCswfQogICAgICAgPGZmZmZmZmZmODAyY2M3ZWQ+e3NrYl9jaGVja3N1bV9oZWxw
+KzE1N30gPGZmZmZmZmZmODAyY2M3ZDU+e3NrYl9jaGVja3N1bV9oZWxwKzEzM30KICAgICAgIDxm
+ZmZmZmZmZjg4MTA0OTQ0Pns6c3RhcmZpcmU6c3RhcnRfdHgrMTY0fSA8ZmZmZmZmZmY4MDJkYjBm
+Yz57cWRpc2NfcmVzdGFydCsyNjh9CiAgICAgICA8ZmZmZmZmZmY4MDJjY2FkMD57ZGV2X3F1ZXVl
+X3htaXQrMjg4fSA8ZmZmZmZmZmY4MDJkMjliMD57bmVpZ2hfcmVzb2x2ZV9vdXRwdXQrNjcyfQog
+ICAgICAgPGZmZmZmZmZmODAyZWJiMjc+e2lwX2ZpbmlzaF9vdXRwdXQrNDU1fSA8ZmZmZmZmZmY4
+MDJlYzVmZj57aXBfZnJhZ21lbnQrODYzfQogICAgICAgPGZmZmZmZmZmODAyZWI5NjA+e2lwX2Zp
+bmlzaF9vdXRwdXQrMH0gPGZmZmZmZmZmODAyZWNhNmM+e2lwX291dHB1dCsxMDh9CiAgICAgICA8
+ZmZmZmZmZmY4MDM1YTcwOD57X3NwaW5fdW5sb2NrX2JoKzI0fSA8ZmZmZmZmZmY4MDJlZTFlNz57
+aXBfcHVzaF9wZW5kaW5nX2ZyYW1lcys5MTl9CiAgICAgICA8ZmZmZmZmZmY4MDMwN2Q3ZT57dWRw
+X3B1c2hfcGVuZGluZ19mcmFtZXMrNTc0fSA8ZmZmZmZmZmY4MDMwODY1OD57dWRwX3NlbmRwYWdl
+KzI4MH0KICAgICAgIDxmZmZmZmZmZjgwMzEwMDFmPntpbmV0X3NlbmRwYWdlKzExMX0gPGZmZmZm
+ZmZmODgxNDExZWE+ezpzdW5ycGM6c3ZjX3NlbmR0bys1NTR9CiAgICAgICA8ZmZmZmZmZmY4ODE4
+YjhmOT57Om5mc2Q6ZW5jb2RlX3Bvc3Rfb3BfYXR0cis1NTN9IDxmZmZmZmZmZjg4MTQxODkzPns6
+c3VucnBjOnN2Y191ZHBfc2VuZHRvKzM1fQogICAgICAgPGZmZmZmZmZmODgxNDIzMjc+ezpzdW5y
+cGM6c3ZjX3NlbmQrMjQ3fSA8ZmZmZmZmZmY4ODE0MDg1ND57OnN1bnJwYzpzdmNfcHJvY2Vzcysx
+MTA4fQogICAgICAgPGZmZmZmZmZmODgxN2U0M2U+ezpuZnNkOm5mc2QrNDYyfSA8ZmZmZmZmZmY4
+MDEyZTUyOT57c2NoZWR1bGVfdGFpbCs3M30KICAgICAgIDxmZmZmZmZmZjgwMTBmNjFlPntjaGls
+ZF9yaXArOH0gPGZmZmZmZmZmODgxN2UyNzA+ezpuZnNkOm5mc2QrMH0KICAgICAgIDxmZmZmZmZm
+ZjgwMTBmNjE2PntjaGlsZF9yaXArMH0gCktlcm5lbCBwYW5pYyAtIG5vdCBzeW5jaW5nOiBBaWVl
+LCBraWxsaW5nIGludGVycnVwdCBoYW5kbGVyIQogCg==
+------=_Part_3826_2565404.1128096092335--

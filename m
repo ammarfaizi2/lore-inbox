@@ -1,110 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932570AbVI3HF1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932565AbVI3HJR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932570AbVI3HF1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 03:05:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932569AbVI3HF1
+	id S932565AbVI3HJR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 03:09:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932571AbVI3HJR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 03:05:27 -0400
-Received: from astound-64-85-224-245.ca.astound.net ([64.85.224.245]:63246
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S932567AbVI3HF0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 03:05:26 -0400
-Date: Thu, 29 Sep 2005 23:52:06 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Arjan van de Ven <arjan@infradead.org>, Willy Tarreau <willy@w.ods.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Luben Tuikov <luben_tuikov@adaptec.com>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
- the kernel
-In-Reply-To: <Pine.LNX.4.58.0509291247040.3308@g5.osdl.org>
-Message-ID: <Pine.LNX.4.10.10509292345300.27623-100000@master.linux-ide.org>
+	Fri, 30 Sep 2005 03:09:17 -0400
+Received: from carbon.nocdirect.com ([69.73.156.63]:7610 "EHLO
+	carbon.nocdirect.com") by vger.kernel.org with ESMTP
+	id S932565AbVI3HJQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 03:09:16 -0400
+Message-ID: <433CE491.90305@ipom.com>
+Date: Fri, 30 Sep 2005 00:09:05 -0700
+From: Phil Dibowitz <phil@ipom.com>
+User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Pete Zaitcev <zaitcev@redhat.com>
+CC: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       linux-usb-storage@lists.one-eyed-alien.net
+Subject: Re: [linux-usb-devel] RFC drivers/usb/storage/libusual
+References: <20050927205559.078ba9ed.zaitcev@redhat.com>
+In-Reply-To: <20050927205559.078ba9ed.zaitcev@redhat.com>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig273E7C2CBA6B3FFA193E8E86"
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - carbon.nocdirect.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - ipom.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig273E7C2CBA6B3FFA193E8E86
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Linus,
+Pete Zaitcev wrote:
+> Patch is attached. I would like someone to look it over and challenge it.
+> The thing looks too complex to me, but I see no other way. Anyone?
 
-I have to tip my hat to you sir.
+OK, so I'm not very familiar with a lot of the code affected here, but
+since it diddles with unusual_devs, I feel I should chime in. But I'll
+chime in with a question. ;)
 
-As much as I wanted to believe and tried to make it happen ... ATA/IDE was
-forced to design many exception case events.  Regardless how hard I an
-others tried to invoke/create a driver to mimic the "SPEC", the hardware
-people broke most of the rules and each chipset was littered with
-exception cases.
+A quick look over the patch shows that there are now two kinds of
+unusual_dev entries: unusual_dev() and unusual_dev_fl(), where the
+latter is for entries that don't need to specify SC or PR (i.e., just
+had US_SC_DEVICE, US_PR_DEVICE in them). While I think that's a
+reasonable change, it's not clear to me why that's useful to the rest of
+the patch, or it's just making unusual_devs.h artificially shorter?
 
-It has been 7 years since you and I started butting heads, and in the end
-both of us were right.  A driver could be written to follow the standard
-exactly, and it would never work (alone, as-is) because the hardware was
-not paying attention the rules book.
+-- 
+Phil Dibowitz                             phil@ipom.com
+Freeware and Technical Pages              Insanity Palace of Metallica
+http://www.phildev.net/                   http://www.ipom.com/
 
-Hope you can kick back and laugh about the history, too!
+"They that can give up essential liberty to obtain a little temporary
+safety deserve neither liberty nor safety."
+ - Benjamin Franklin, 1759
 
-Have a great Day!
 
-Andre Hedrick
-LAD Storage Consulting Group
+--------------enig273E7C2CBA6B3FFA193E8E86
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-On Thu, 29 Sep 2005, Linus Torvalds wrote:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-> 
-> 
-> On Thu, 29 Sep 2005, Arjan van de Ven wrote:
-> > 
-> > a spec describes how the hw works... how we do the sw piece is up to
-> > us ;)
-> 
-> How we do the SW is indeed up to us, but I want to step in on your first 
-> point.
-> 
-> Again.
-> 
-> A "spec" is close to useless. I have _never_ seen a spec that was both big 
-> enough to be useful _and_ accurate.
-> 
-> And I have seen _lots_ of total crap work that was based on specs. It's 
-> _the_ single worst way to write software, because it by definition means 
-> that the software was written to match theory, not reality.
-> 
-> So there's two MAJOR reasons to avoid specs:
-> 
->  - they're dangerously wrong. Reality is different, and anybody who thinks 
->    specs matter over reality should get out of kernel programming NOW. 
->    When reality and specs clash, the spec has zero meaning. Zilch. Nada.
->    None.
-> 
->    It's like real science: if you have a theory that doesn't match 
->    experiments, it doesn't matter _how_ much you like that theory. It's
->    wrong. You can use it as an approximation, but you MUST keep in mind 
->    that it's an approximation.
-> 
->  - specs have an inevitably tendency to try to introduce abstractions
->    levels and wording and documentation policies that make sense for a 
->    written spec. Trying to implement actual code off the spec leads to the 
->    code looking and working like CRAP. 
-> 
->    The classic example of this is the OSI network model protocols. Classic 
->    spec-design, which had absolutely _zero_ relevance for the real world. 
->    We still talk about the seven layers model, because it's a convenient 
->    model for _discussion_, but that has absolutely zero to do with any 
->    real-life software engineering. In other words, it's a way to _talk_ 
->    about things, not to implement them.
-> 
->    And that's important. Specs are a basis for _talking_about_ things. But 
->    they are _not_ a basis for implementing software.
-> 
-> So please don't bother talking about specs. Real standards grow up 
-> _despite_ specs, not thanks to them.
-> 
-> 		Linus
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+iD8DBQFDPOSSN5XoxaHnMrsRAtJXAJ47RlB0tGmtDE52C1xKAZlsvyK6BwCfbsn5
+ZjfngZD3pIEAwU/hnxMg9IQ=
+=nC3d
+-----END PGP SIGNATURE-----
 
+--------------enig273E7C2CBA6B3FFA193E8E86--

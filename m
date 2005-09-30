@@ -1,66 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932402AbVI3CHU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932403AbVI3CPN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932402AbVI3CHU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 22:07:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932403AbVI3CHU
+	id S932403AbVI3CPN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 22:15:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932411AbVI3CPN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 22:07:20 -0400
-Received: from xproxy.gmail.com ([66.249.82.192]:19817 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932402AbVI3CHT convert rfc822-to-8bit
+	Thu, 29 Sep 2005 22:15:13 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:32727 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932403AbVI3CPM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 22:07:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=rzSj6JMWtAxqtx+1nxaXNcV6uBlY2rLsQ0+I4ViRWE+DhkHMneIFQ5cHtU1tRqxCXb66ywytij8mnaBDJGXfohkX7qNAB7LQvDANbNWKC7o90wB+kXJnsxjIobH7A7KO4nvIaRsi2K8wnMlKTSijyF5cH4ECxQB2ZIm8kLHYRdY=
-Message-ID: <5bdc1c8b0509291907x77604133oc1d8a64e9e70dd59@mail.gmail.com>
-Date: Thu, 29 Sep 2005 19:07:18 -0700
-From: Mark Knecht <markknecht@gmail.com>
-Reply-To: Mark Knecht <markknecht@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: l2.6.14-rc2-rt7 - build problems - mce?
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 29 Sep 2005 22:15:12 -0400
+Date: Fri, 30 Sep 2005 03:15:08 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Eric Van Hensbergen <ericvh@gmail.com>
+Subject: [PATCH] missing ERR_PTR in 9fs
+Message-ID: <20050930021508.GX7992@ftp.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-   Any ideas how I could configure the kernel to get past this
-problem? Currently the config file says this about MCE:
-
-CONFIG_GART_IOMMU=y
-CONFIG_SWIOTLB=y
-CONFIG_X86_MCE=y
-# CONFIG_X86_MCE_INTEL is not set
-
-Can I safely set CONFIG_X86_MCE to no or not set? Or is this something
-else completely?
-
-Thanks,
-Mark
-
-lightning linux-2.6.14-rc2-rt7 # make
-  CHK     include/linux/version.h
-  CHK     include/linux/compile.h
-  CHK     usr/initramfs_list
-  CC      arch/x86_64/kernel/mce.o
-In file included from arch/x86_64/kernel/mce.c:17:
-include/linux/fs.h: In function `lock_super':
-include/linux/fs.h:847: warning: implicit declaration of function `down'
-include/linux/fs.h: In function `unlock_super':
-include/linux/fs.h:853: warning: implicit declaration of function `up'
-arch/x86_64/kernel/mce.c: In function `mce_read':
-arch/x86_64/kernel/mce.c:392: warning: type defaults to `int' in
-declaration of `DECLARE_MUTEX'
-arch/x86_64/kernel/mce.c:392: warning: parameter names (without types)
-in function declaration
-arch/x86_64/kernel/mce.c:401: error: `mce_read_sem' undeclared (first
-use in this function)
-arch/x86_64/kernel/mce.c:401: error: (Each undeclared identifier is
-reported only once
-arch/x86_64/kernel/mce.c:401: error: for each function it appears in.)
-make[1]: *** [arch/x86_64/kernel/mce.o] Error 1
-make: *** [arch/x86_64/kernel] Error 2
-lightning linux-2.6.14-rc2-rt7 #
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+----
+diff -urN RC14-rc2-git6-base/fs/9p/vfs_super.c current/fs/9p/vfs_super.c
+--- RC14-rc2-git6-base/fs/9p/vfs_super.c	2005-09-28 21:33:37.000000000 -0400
++++ current/fs/9p/vfs_super.c	2005-09-29 15:57:10.000000000 -0400
+@@ -129,7 +129,7 @@
+ 
+ 	if ((newfid = v9fs_session_init(v9ses, dev_name, data)) < 0) {
+ 		dprintk(DEBUG_ERROR, "problem initiating session\n");
+-		return newfid;
++		return ERR_PTR(newfid);
+ 	}
+ 
+ 	sb = sget(fs_type, NULL, v9fs_set_super, v9ses);

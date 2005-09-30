@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030463AbVI3WCE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030461AbVI3WE3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030463AbVI3WCE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 18:02:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030461AbVI3WCE
+	id S1030461AbVI3WE3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 18:04:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932599AbVI3WE3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 18:02:04 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:42969 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S932293AbVI3WCB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 18:02:01 -0400
-Message-ID: <433DB5D7.3020806@adaptec.com>
-Date: Fri, 30 Sep 2005 18:01:59 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+	Fri, 30 Sep 2005 18:04:29 -0400
+Received: from zctfs063.nortelnetworks.com ([47.164.128.120]:35738 "EHLO
+	zctfs063.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S932597AbVI3WE2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 18:04:28 -0400
+Message-ID: <433DB64B.70405@nortel.com>
+Date: Fri, 30 Sep 2005 16:03:55 -0600
+From: "Christopher Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: andrew.patterson@hp.com
-CC: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>, dougg@torque.net,
-       Linus Torvalds <torvalds@osdl.org>, Luben Tuikov <ltuikov@yahoo.com>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
- the kernel
-References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01A9FA11@otce2k03.adaptec.com>	 <1128105594.10079.109.camel@bluto.andrew>  <433D9035.6000504@adaptec.com>	 <1128111290.10079.147.camel@bluto.andrew>  <433DA0DF.9080308@adaptec.com> <1128114950.10079.170.camel@bluto.andrew>
-In-Reply-To: <1128114950.10079.170.camel@bluto.andrew>
-Content-Type: text/plain; charset=ISO-8859-1
+To: linux-kernel@vger.kernel.org
+CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       "Theodore Ts'o" <tytso@mit.edu>, dipankar@in.ibm.com,
+       viro@ftp.linux.org.uk
+Subject: Re: dentry_cache using up all my zone normal memory
+References: <433189B5.3030308@nortel.com>
+In-Reply-To: <433189B5.3030308@nortel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Sep 2005 22:02:00.0026 (UTC) FILETIME=[94E9F3A0:01C5C60A]
+X-OriginalArrivalTime: 30 Sep 2005 22:04:19.0817 (UTC) FILETIME=[E83C5D90:01C5C60A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09/30/05 17:15, Andrew Patterson wrote:
->>Sorry but I completely fail to see this argument., locks it, then hangs.
->>
->>How will it "fail for most storage managament apps"?
-> 
-> 
-> Let's see, one example:
-> 
-> Process A opens an attribute and writes to it.  Process B opens another
-> attribute and writes to it, affecting the result that process A will see
-> from its subsequent read. I suppose you could lock every attribute, but
-> that would be very error-prone, and not allow much concurrency.
+Friesen, Christopher [CAR:VC21:EXCH] wrote:
 
-Why should synchronization between Process A and Process B 
-reading storage attributes take place in the kernel?
+> With a bit of digging the culprit appears to be the dentry_cache.  The 
+> last log I have shows it using 817MB of memory.  Right after that the 
+> oom killer kicked me off the system.  When I logged back in, the cache 
+> usage was back down to normal and everything was fine.
 
-They can synchronize in user space.
+There hasn't been any new suggestions as to the culprit, so I started 
+experimenting a bit.
 
-	Luben
+It turns out that if I limit the memory on the system to 896MB, the 
+dcache slab usage peaks at around 600MB and sits there for the duration 
+of the test.
+
+When I limit the memory to 1024MB, the dcache slab chews up all my zone 
+normal memory and the oom killer runs.
+
+It almost seems like the dcache responds to memory pressure on the 
+system as a whole, but not as well to pressure on zone normal.  Would 
+this make sense?
+
+Chris

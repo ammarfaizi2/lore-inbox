@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030296AbVI3N0K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030303AbVI3N6e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030296AbVI3N0K (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 09:26:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030297AbVI3N0J
+	id S1030303AbVI3N6e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 09:58:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030302AbVI3N6e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 09:26:09 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:15583 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030296AbVI3N0I (ORCPT
+	Fri, 30 Sep 2005 09:58:34 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:46212 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030300AbVI3N6d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 09:26:08 -0400
-Date: Fri, 30 Sep 2005 09:25:44 -0400
-From: Dave Jones <davej@redhat.com>
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Cc: Wes Felter <wesley@felter.org>, linux-kernel@vger.kernel.org
-Subject: Re: em64t speedstep technology not supported in kernel yet?
-Message-ID: <20050930132544.GC15658@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	"Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-	Wes Felter <wesley@felter.org>, linux-kernel@vger.kernel.org
-References: <88056F38E9E48644A0F562A38C64FB6005DECA9D@scsmsx403.amr.corp.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <88056F38E9E48644A0F562A38C64FB6005DECA9D@scsmsx403.amr.corp.intel.com>
-User-Agent: Mutt/1.4.2.1i
+	Fri, 30 Sep 2005 09:58:33 -0400
+Message-ID: <433D447E.9030103@pobox.com>
+Date: Fri, 30 Sep 2005 09:58:22 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Oliver Neukum <oliver@neukum.org>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Junio C Hamano <junkio@cox.net>, git@vger.kernel.org
+Subject: Re: [howto] Kernel hacker's guide to git, updated
+References: <433BC9E9.6050907@pobox.com> <7virwjegb5.fsf@assigned-by-dhcp.cox.net> <433D1E5D.20303@pobox.com> <200509301402.46740.oliver@neukum.org>
+In-Reply-To: <200509301402.46740.oliver@neukum.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 30, 2005 at 06:20:15AM -0700, Pallipadi, Venkatesh wrote:
+Oliver Neukum wrote:
+> Am Freitag, 30. September 2005 13:15 schrieb Jeff Garzik:
+> 
+>>Thanks for all the comments.  I just updated the KHGtG with the feedback 
+>>I received.  Go to
+>>
+>>	http://linux.yyz.us/git-howto.html
+>>
+>>and click reload.  Continued criticism^H^H^Hcomments welcome!
+>>
+> 
+> 
+> The error is still there.
+> 
+> oliver@oenone:~/linux-2.6> git checkout -f master
+> usage: read-tree (<sha> | -m <sha1> [<sha2> <sha3>])
 
- > Actually, speedstep-centrino works in two modes. One OP() 
- > table based mode and the other ACPI table based mode. So, 
- > BIOS ACPI tables do matter for the second mode and things 
- > work without a static OP table.
+Something's wrong with your installation, not the instructions.  Works 
+fine here.
 
-True. Ack, I've spent too much time playing with that driver
-and broken BIOS's lately, that I'd forgotten about this. :)
+	Jeff
 
- > In this particular case though, for Xeon with Enhanced Speedstep, 
- > acpi-cpufreq should be the driver of choice as there is a need 
- > for coordination of HT siblings, which happen in BIOS at the 
- > moment with most BIOSes. That is the reason, I want to make 
- > sure BIOS supports Enhanced Speedstep in this case.
 
-Ok, that makes sense.
-
-		Dave
 

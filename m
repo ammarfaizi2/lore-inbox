@@ -1,142 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030379AbVI3ULB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030381AbVI3UL1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030379AbVI3ULB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 16:11:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030381AbVI3ULB
+	id S1030381AbVI3UL1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 16:11:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030382AbVI3UL1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 16:11:01 -0400
-Received: from xproxy.gmail.com ([66.249.82.196]:10517 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030377AbVI3ULA (ORCPT
+	Fri, 30 Sep 2005 16:11:27 -0400
+Received: from cantor.suse.de ([195.135.220.2]:38325 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030381AbVI3UL0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 16:11:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:references;
-        b=sZQ1v2fg1raPzrDaKiUR1AWW9doM8ejierybLM9JTh/AB1MVt/LjWv9mNwN9M348zDk+ZfOFxdchPIPQTFXy1bFs/rVkXpJ2L3spOvFdgzVhieWwB6ly9gq5kL/9mKEgKdP4mQ5JnETqeZItX2h7YNaIlqcLLieiTLHql5Iv49A=
-Message-ID: <d93f04c70509301310y4bde1189wbcaef40124af6766@mail.gmail.com>
-Date: Fri, 30 Sep 2005 22:10:59 +0200
-From: Hendrik Visage <hvjunk@gmail.com>
-Reply-To: Hendrik Visage <hvjunk@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: Starfire (Adaptec) kernel 2.6.13+ panics on AMD64 NFS server
-Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org, ionut@badula.org,
-       Jeff Garzik <jgarzik@pobox.com>
-In-Reply-To: <20050930104046.4685e975.akpm@osdl.org>
+	Fri, 30 Sep 2005 16:11:26 -0400
+From: Andi Kleen <ak@suse.de>
+To: "Bryan O'Sullivan" <bos@serpentine.com>
+Subject: Re: 2.6.14-rc1-git-now still dying in mm/slab - this time line 1849
+Date: Fri, 30 Sep 2005 22:11:15 +0200
+User-Agent: KMail/1.8
+Cc: Ravikiran G Thirumalai <kiran@scalex86.org>, Andrew Morton <akpm@osdl.org>,
+       vandrove@vc.cvut.cz, clameter@engr.sgi.com, alokk@calsoftinc.com,
+       linux-kernel@vger.kernel.org, manfred@colorfullife.com,
+       shai@scalex86.org, ananth@in.ibm.com
+References: <20050919112912.18daf2eb.akpm@osdl.org> <20050930062853.GB3599@localhost.localdomain> <1128093382.10913.92.camel@serpentine.pathscale.com>
+In-Reply-To: <1128093382.10913.92.camel@serpentine.pathscale.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_5494_20145003.1128111059493"
-References: <d93f04c70509292036x269df799y7b51c5be9c3356d6@mail.gmail.com>
-	 <20050929211649.69eaddee.akpm@osdl.org>
-	 <d93f04c70509300901s3836b8afw4792d16c589b4fc4@mail.gmail.com>
-	 <20050930104046.4685e975.akpm@osdl.org>
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509302211.16259.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_5494_20145003.1128111059493
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-On 9/30/05, Andrew Morton <akpm@osdl.org> wrote:
-> > ----------- [cut here ] --------- [please bite here ] ---------
-> > Kernel BUG at net/core/dev.c:1099
-> > invalid operand: 0000 [1] PREEMPT
+On Friday 30 September 2005 17:16, Bryan O'Sullivan wrote:
+> On Thu, 2005-09-29 at 23:28 -0700, Ravikiran G Thirumalai wrote:
+> > Yes.
 >
-> yep, there's something wrong with the skb which starfire fed into
-> skb_checksum_help().
+> Kiran, your patch works for me, too.  I can boot 2.6.14-rc2 with your
+> patch, but not without it.
 >
-<snip>
->
-> And that's a post-2.6.12 driver change.  You can probably work around
-> it by deleting the #define ZEROCOPY line.
+> Thanks for your help.
 
-:)
-Anycase, here is a non-PREEMPT traceback. What makes this one
-interesting, is that
-in the preempt case, I had to push the NFS output to get the panic, but the
-non-preempt case attached, sorta just happened, ie. when the clients
-just checked on the server's status :(
+It's already on its way to Linus. Thanks Kiran.
 
+BTW for my defense: my NUMA boxes booted just fine with the original patchkit.
 
---
-Hendrik Visage
-
-------=_Part_5494_20145003.1128111059493
-Content-Type: application/octet-stream; name="non-prempt"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="non-prempt"
-
-S2VybmVsIEJVRyBhdCBuZXQvY29yZS9kZXYuYzoxMDk5CmludmFsaWQgb3BlcmFuZDogMDAwMCBb
-MV0gCkNQVSAwIApNb2R1bGVzIGxpbmtlZCBpbjogbmZzIG5mc2QgZXhwb3J0ZnMgbG9ja2Qgc3Vu
-cnBjIHJmY29tbSBsMmNhcCBoY2lfdXNiIGJsdWV0b290aCBzdGFyZmlyZSBtaWkgc25kX2FjOTdf
-YnVzIHNvdW5kY29yZSBzbmRfcGFnZV9hbGxvYyBmb3JjZWRldGggaTJjX25mb3JjZTIgZG1fbWly
-cm9yIGRtX21vZCBzYnAyIG9oY2kxMzk0IGllZWUxMzk0IG9oY2lfaGNkIHVoY2lfaGNkIHVzYl9z
-dG9yYWdlIHVzYmhpZCBlaGNpX2hjZCB1c2Jjb3JlClBpZDogMTExNjksIGNvbW06IG5mc2QgTm90
-IHRhaW50ZWQgMi42LjE0LXJjMiAjNApSSVA6IDAwMTA6WzxmZmZmZmZmZjgwMmM4MDNkPl0gPGZm
-ZmZmZmZmODAyYzgwM2Q+e3NrYl9jaGVja3N1bV9oZWxwKzE1N30KUlNQOiAwMDE4OmZmZmY4MTAw
-M2QzYmRhMDggIEVGTEFHUzogMDAwMTAyNDYKUkFYOiBmZmZmODEwMDNhYzUxYzI0IFJCWDogZmZm
-ZjgxMDAzYWM0Y2Q4MCBSQ1g6IDAwMDAwMDAwNTQ1OWNkMGIKUkRYOiAwMDAwMDAwMDU0NTljZDBi
-IFJTSTogZmZmZjgxMDAzYWM1MWMyNCBSREk6IGZmZmY4MTAwM2QyNzIwODAKUkJQOiBmZmZmODEw
-MDNkM2JkYTI4IFIwODogMDAwMDAwMDAwMDAwMDAwMCBSMDk6IDAwMDAwMDAwMDAwMDAwMDYKUjEw
-OiAwMDAwMDAwMDAwMDAwMDAwIFIxMTogMDAwMDAwMDAwMDAwMDAwMCBSMTI6IDAwMDAwMDAwMDAw
-MDAwMDAKUjEzOiAwMDAwMDAwMDAwMDAwMDAwIFIxNDogZmZmZjgxMDAzYWM0Y2Q4MCBSMTU6IGZm
-ZmY4MTAwM2EzMWMyMTgKRlM6ICAwMDAwMmFhYWFhZGU2YWUwKDAwMDApIEdTOmZmZmZmZmZmODA0
-Zjc4MDAoMDAwMCkga25sR1M6MDAwMDAwMDAwMDAwMDAwMApDUzogIDAwMTAgRFM6IDAwMDAgRVM6
-IDAwMDAgQ1IwOiAwMDAwMDAwMDgwMDUwMDNiCkNSMjogMDAwMDJhYWFhYWJjMTE5MCBDUjM6IDAw
-MDAwMDAwM2IyMmIwMDAgQ1I0OiAwMDAwMDAwMDAwMDAwNmUwClByb2Nlc3MgbmZzZCAocGlkOiAx
-MTE2OSwgdGhyZWFkaW5mbyBmZmZmODEwMDNkM2JjMDAwLCB0YXNrIGZmZmY4MTAwM2Y3YzUxMDAp
-ClN0YWNrOiBmZmZmODEwMDNkM2JkYTQ4IGZmZmY4MTAwM2EzMWMwMDAgZmZmZjgxMDAzYTMxYzNl
-MCBmZmZmODEwMDNhYzRjZDgwIAogICAgICAgZmZmZjgxMDAzZDNiZGE3OCBmZmZmZmZmZjg4MTA0
-OTQ0IGZmZmY4MTAwYjAwMDAwZDAgMDAwMDAwMDEwMDAwMDAwMCAKICAgICAgIGZmZmY4MTAwM2Ez
-MWMwMDAgZmZmZjgxMDAzYTMxYzAwMCAKQ2FsbCBUcmFjZTo8ZmZmZmZmZmY4ODEwNDk0ND57OnN0
-YXJmaXJlOnN0YXJ0X3R4KzE2NH0gPGZmZmZmZmZmODAyZDY1ODM+e3FkaXNjX3Jlc3RhcnQrMjQz
-fQogICAgICAgPGZmZmZmZmZmODAyYzgzMjU+e2Rldl9xdWV1ZV94bWl0KzI5M30gPGZmZmZmZmZm
-ODAyZTY0Yzc+e2lwX2ZpbmlzaF9vdXRwdXQrNDU1fQogICAgICAgPGZmZmZmZmZmODAyZTZmOWY+
-e2lwX2ZyYWdtZW50Kzg2M30gPGZmZmZmZmZmODAyZTYzMDA+e2lwX2ZpbmlzaF9vdXRwdXQrMH0K
-ICAgICAgIDxmZmZmZmZmZjgwMmU3NDBjPntpcF9vdXRwdXQrMTA4fSA8ZmZmZmZmZmY4MDM1NDA0
-ZT57X3NwaW5fdW5sb2NrX2JoKzE0fQogICAgICAgPGZmZmZmZmZmODAyZThiODc+e2lwX3B1c2hf
-cGVuZGluZ19mcmFtZXMrOTE5fSA8ZmZmZmZmZmY4MDMwMjRkZT57dWRwX3B1c2hfcGVuZGluZ19m
-cmFtZXMrNTc0fQogICAgICAgPGZmZmZmZmZmODAzMDJkYjg+e3VkcF9zZW5kcGFnZSsyODB9IDxm
-ZmZmZmZmZjgwMzBhMzlmPntpbmV0X3NlbmRwYWdlKzExMX0KICAgICAgIDxmZmZmZmZmZjg4MTQx
-MWNhPns6c3VucnBjOnN2Y19zZW5kdG8rNTU0fSA8ZmZmZmZmZmY4ODE4Yjg3OT57Om5mc2Q6ZW5j
-b2RlX3Bvc3Rfb3BfYXR0cis1NTN9CiAgICAgICA8ZmZmZmZmZmY4ODE0MTg3Mz57OnN1bnJwYzpz
-dmNfdWRwX3NlbmR0byszNX0gPGZmZmZmZmZmODgxNDIzMDc+ezpzdW5ycGM6c3ZjX3NlbmQrMjQ3
-fQogICAgICAgPGZmZmZmZmZmODgxNDA4MzQ+ezpzdW5ycGM6c3ZjX3Byb2Nlc3MrMTEwOH0gPGZm
-ZmZmZmZmODgxN2UzYzA+ezpuZnNkOm5mc2QrNDQ4fQogICAgICAgPGZmZmZmZmZmODAxMmRmYTk+
-e3NjaGVkdWxlX3RhaWwrNzN9IDxmZmZmZmZmZjgwMTBmNTBlPntjaGlsZF9yaXArOH0KICAgICAg
-IDxmZmZmZmZmZjg4MTdlMjAwPns6bmZzZDpuZnNkKzB9IDxmZmZmZmZmZjgwMTBmNTA2PntjaGls
-ZF9yaXArMH0KICAgICAgIAoKQ29kZTogMGYgMGIgNjggMGIgNmYgMzkgODAgYzIgNGIgMDQgOGIg
-OTMgOGMgMDAgMDAgMDAgOGQgNDIgMDIgNDQgClJJUCA8ZmZmZmZmZmY4MDJjODAzZD57c2tiX2No
-ZWNrc3VtX2hlbHArMTU3fSBSU1AgPGZmZmY4MTAwM2QzYmRhMDg+CiA8Mz5EZWJ1Zzogc2xlZXBp
-bmcgZnVuY3Rpb24gY2FsbGVkIGZyb20gaW52YWxpZCBjb250ZXh0IGF0IGluY2x1ZGUvbGludXgv
-cndzZW0uaDo0Mwppbl9hdG9taWMoKToxLCBpcnFzX2Rpc2FibGVkKCk6MAoKQ2FsbCBUcmFjZTo8
-ZmZmZmZmZmY4MDEyZDZhZj57X19taWdodF9zbGVlcCsxOTF9IDxmZmZmZmZmZjgwMTMzM2RjPntw
-cm9maWxlX3Rhc2tfZXhpdCs0NH0KICAgICAgIDxmZmZmZmZmZjgwMTM0ODk1Pntkb19leGl0KzM3
-fSA8ZmZmZmZmZmY4MDM1M2ZmMz57X3NwaW5fdW5sb2NrX2lycXJlc3RvcmUrMTl9CiAgICAgICA8
-ZmZmZmZmZmY4MDExMDE4ND57ZGllKzg0fSA8ZmZmZmZmZmY4MDM1NDMxZT57ZG9fdHJhcCszMzR9
-CiAgICAgICA8ZmZmZmZmZmY4MDExMDQ3Yz57ZG9faW52YWxpZF9vcCsxNzJ9IDxmZmZmZmZmZjgw
-MmM4MDNkPntza2JfY2hlY2tzdW1faGVscCsxNTd9CiAgICAgICA8ZmZmZmZmZmY4MDJjMjdlNT57
-X19hbGxvY19za2IrMTMzfSA8ZmZmZmZmZmY4MDJjMDZkZD57c29ja19hbGxvY19zZW5kX3NrYisx
-MDl9CiAgICAgICA8ZmZmZmZmZmY4MDJlMTc5ZD57X19pcF9yb3V0ZV9vdXRwdXRfa2V5KzE1MTd9
-IDxmZmZmZmZmZjgwMTBmMzU5PntlcnJvcl9leGl0KzB9CiAgICAgICA8ZmZmZmZmZmY4MDJjODAz
-ZD57c2tiX2NoZWNrc3VtX2hlbHArMTU3fSA8ZmZmZmZmZmY4MDJjODAyNT57c2tiX2NoZWNrc3Vt
-X2hlbHArMTMzfQogICAgICAgPGZmZmZmZmZmODgxMDQ5NDQ+ezpzdGFyZmlyZTpzdGFydF90eCsx
-NjR9IDxmZmZmZmZmZjgwMmQ2NTgzPntxZGlzY19yZXN0YXJ0KzI0M30KICAgICAgIDxmZmZmZmZm
-ZjgwMmM4MzI1PntkZXZfcXVldWVfeG1pdCsyOTN9IDxmZmZmZmZmZjgwMmU2NGM3PntpcF9maW5p
-c2hfb3V0cHV0KzQ1NX0KICAgICAgIDxmZmZmZmZmZjgwMmU2ZjlmPntpcF9mcmFnbWVudCs4NjN9
-IDxmZmZmZmZmZjgwMmU2MzAwPntpcF9maW5pc2hfb3V0cHV0KzB9CiAgICAgICA8ZmZmZmZmZmY4
-MDJlNzQwYz57aXBfb3V0cHV0KzEwOH0gPGZmZmZmZmZmODAzNTQwNGU+e19zcGluX3VubG9ja19i
-aCsxNH0KICAgICAgIDxmZmZmZmZmZjgwMmU4Yjg3PntpcF9wdXNoX3BlbmRpbmdfZnJhbWVzKzkx
-OX0gPGZmZmZmZmZmODAzMDI0ZGU+e3VkcF9wdXNoX3BlbmRpbmdfZnJhbWVzKzU3NH0KICAgICAg
-IDxmZmZmZmZmZjgwMzAyZGI4Pnt1ZHBfc2VuZHBhZ2UrMjgwfSA8ZmZmZmZmZmY4MDMwYTM5Zj57
-aW5ldF9zZW5kcGFnZSsxMTF9CiAgICAgICA8ZmZmZmZmZmY4ODE0MTFjYT57OnN1bnJwYzpzdmNf
-c2VuZHRvKzU1NH0gPGZmZmZmZmZmODgxOGI4Nzk+ezpuZnNkOmVuY29kZV9wb3N0X29wX2F0dHIr
-NTUzfQogICAgICAgPGZmZmZmZmZmODgxNDE4NzM+ezpzdW5ycGM6c3ZjX3VkcF9zZW5kdG8rMzV9
-IDxmZmZmZmZmZjg4MTQyMzA3Pns6c3VucnBjOnN2Y19zZW5kKzI0N30KICAgICAgIDxmZmZmZmZm
-Zjg4MTQwODM0Pns6c3VucnBjOnN2Y19wcm9jZXNzKzExMDh9IDxmZmZmZmZmZjg4MTdlM2MwPns6
-bmZzZDpuZnNkKzQ0OH0KICAgICAgIDxmZmZmZmZmZjgwMTJkZmE5PntzY2hlZHVsZV90YWlsKzcz
-fSA8ZmZmZmZmZmY4MDEwZjUwZT57Y2hpbGRfcmlwKzh9CiAgICAgICA8ZmZmZmZmZmY4ODE3ZTIw
-MD57Om5mc2Q6bmZzZCswfSA8ZmZmZmZmZmY4MDEwZjUwNj57Y2hpbGRfcmlwKzB9CiAgICAgICAK
-S2VybmVsIHBhbmljIC0gbm90IHN5bmNpbmc6IEFpZWUsIGtpbGxpbmcgaW50ZXJydXB0IGhhbmRs
-ZXIhCiAK
-------=_Part_5494_20145003.1128111059493--
+-Andi

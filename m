@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030344AbVI3PuU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030345AbVI3Pwv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030344AbVI3PuU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 11:50:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030345AbVI3PuU
+	id S1030345AbVI3Pwv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 11:52:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030346AbVI3Pwv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 11:50:20 -0400
-Received: from [65.195.187.51] ([65.195.187.51]:50370 "EHLO candi.us")
-	by vger.kernel.org with ESMTP id S1030344AbVI3PuT (ORCPT
+	Fri, 30 Sep 2005 11:52:51 -0400
+Received: from mx2.suse.de ([195.135.220.15]:13781 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030345AbVI3Pwu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 11:50:19 -0400
-Message-ID: <433D5E9C.2030708@lorez.org>
-Date: Fri, 30 Sep 2005 08:49:48 -0700
-From: Bob Richmond <bob@lorez.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20050923 Fedora/1.7.12-1.5.1
+	Fri, 30 Sep 2005 11:52:50 -0400
+Message-ID: <433D4428.3050906@suse.de>
+Date: Fri, 30 Sep 2005 15:56:56 +0200
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050715 Thunderbird/1.0.6 Mnenhy/0.7.2.0
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: kernel-stuff@comcast.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Immediate general protection errors on Tyan board
-References: <431BE71F.2040901@lorez.org> <431BE9CE.8080302@comcast.net>
-In-Reply-To: <431BE9CE.8080302@comcast.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Dave Jones <davej@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, cpufreq@lists.linux.org.uk,
+       alex-kernel@digriz.org.uk, Alexander Clouter <alex@digriz.org.uk>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Blaisorblade <blaisorblade@yahoo.it>
+Subject: Re: [patch 1/1] cpufreq_conservative: invert meaning of   'ignore_nice'
+References: <20050929084435.GC3169@inskipp.digriz.org.uk>	<200509291346.33855.blaisorblade@yahoo.it> <20050929215153.GF31516@redhat.com>
+In-Reply-To: <20050929215153.GF31516@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just got it working over the weekend. The machine had an Adaptec 29320 
-64-bit PCI card driving a SCSI HD. It was removed, and the drive 
-replaced with a Serial ATA drive, and it came up fine.
+Dave Jones wrote:
+> On Thu, Sep 29, 2005 at 01:46:33PM +0200, Blaisorblade wrote:
 
-There were probably a lot of variables that were changed by removing the 
-card, but I'm wondering if anyone has experienced the same symptoms with 
-any 64-bit PCI card installed on this board.
+>  > So userspace tools will error out rather than do the reverse of what they were 
+>  > doing, and the user will fix the thing according to the (new) docs.
+> 
+> Agreed. If we change this, we change it completely.
+> Stefan already mentioned his app will break, and we typically don't
+> find out about widespread breakage until after we ship a release.
 
-Parag Warudkar wrote:
+I can live with the change - powersaved has a setting "consider_nice" to
+configure this and i can put out a support article telling people to
+"invert" this setting if they are running custom kernels, so it is not
+really a showstopper for me. Most of the users don't understand thos
+settings anyway ;-)
 
-> Bob Richmond wrote:
-> 
->> Immediately upon boot on this system, most userland programs will 
->> segfault, including mount. This causes the system to come up in a 
->> bizarre state with the root filesystem mounted read-only, and nothing 
->> runs without segfault. There have been numerous similar posts about 
->> this problem, but they also seem to point to an associated kernel 
->> message, "Bad page state" that I don't observe. dmesg (which runs 
->> without segfault) returns many similar messages to:
->>
->> start_udev[576] general protection rip:2aaaaae0fc70 rsp:7fffffb23d90 
->> error:0
-> 
-> 
-> echo 0 > /proc/sys/kernel/randomize_va_space - Seems to fix it for most 
-> people.
-> 
-> See http://bugzilla.kernel.org/show_bug.cgi?id=4851 for more details.
-> 
-> Parag
+I'm not sure what is better for me - a nice short name or a clear
+indication on which version we are running ;-)
+-- 
+Stefan Seyfried                  \ "I didn't want to write for pay. I
+QA / R&D Team Mobile Devices      \ wanted to be paid for what I write."
+SUSE LINUX Products GmbH, Nürnberg \                    -- Leonard Cohen
+

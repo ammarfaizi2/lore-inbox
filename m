@@ -1,111 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751400AbVI3DU7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751415AbVI3DYc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751400AbVI3DU7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 23:20:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751415AbVI3DU7
+	id S1751415AbVI3DYc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 23:24:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751419AbVI3DYb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 23:20:59 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:39579 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751400AbVI3DU6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 23:20:58 -0400
-Date: Fri, 30 Sep 2005 04:20:57 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
-Subject: [PATCH] missing qualifiers in readb() et.al. on ppc
-Message-ID: <20050930032057.GE7992@ftp.linux.org.uk>
+	Thu, 29 Sep 2005 23:24:31 -0400
+Received: from [205.233.219.253] ([205.233.219.253]:673 "EHLO
+	conifer.conscoop.ottawa.on.ca") by vger.kernel.org with ESMTP
+	id S1751415AbVI3DYb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 23:24:31 -0400
+Date: Thu, 29 Sep 2005 23:23:13 -0400
+From: Jody McIntyre <scjody@modernduck.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Emmanuel Fleury <fleury@cs.aau.dk>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Framework for automatic Configuration of a Kernel
+Message-ID: <20050930032313.GG8095@conscoop.ottawa.on.ca>
+References: <20050927125300.24574.qmail@web51014.mail.yahoo.com> <43396A6A.30104@cs.aau.dk> <20050929200938.779ce6e2.rdunlap@xenotime.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20050929200938.779ce6e2.rdunlap@xenotime.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-----
-diff -urN RC14-rc2-git6-base/include/asm-ppc/io.h current/include/asm-ppc/io.h
---- RC14-rc2-git6-base/include/asm-ppc/io.h	2005-06-17 15:48:29.000000000 -0400
-+++ current/include/asm-ppc/io.h	2005-09-29 22:47:06.000000000 -0400
-@@ -56,7 +56,7 @@
-  * is actually performed (i.e. the data has come back) before we start
-  * executing any following instructions.
-  */
--extern inline int in_8(volatile unsigned char __iomem *addr)
-+extern inline int in_8(const volatile unsigned char __iomem *addr)
- {
- 	int ret;
- 
-@@ -72,7 +72,7 @@
- 	__asm__ __volatile__("stb%U0%X0 %1,%0; eieio" : "=m" (*addr) : "r" (val));
- }
- 
--extern inline int in_le16(volatile unsigned short __iomem *addr)
-+extern inline int in_le16(const volatile unsigned short __iomem *addr)
- {
- 	int ret;
- 
-@@ -83,7 +83,7 @@
- 	return ret;
- }
- 
--extern inline int in_be16(volatile unsigned short __iomem *addr)
-+extern inline int in_be16(const volatile unsigned short __iomem *addr)
- {
- 	int ret;
- 
-@@ -104,7 +104,7 @@
- 	__asm__ __volatile__("sth%U0%X0 %1,%0; eieio" : "=m" (*addr) : "r" (val));
- }
- 
--extern inline unsigned in_le32(volatile unsigned __iomem *addr)
-+extern inline unsigned in_le32(const volatile unsigned __iomem *addr)
- {
- 	unsigned ret;
- 
-@@ -115,7 +115,7 @@
- 	return ret;
- }
- 
--extern inline unsigned in_be32(volatile unsigned __iomem *addr)
-+extern inline unsigned in_be32(const volatile unsigned __iomem *addr)
- {
- 	unsigned ret;
- 
-@@ -139,7 +139,7 @@
- #define readb(addr) in_8((volatile u8 *)(addr))
- #define writeb(b,addr) out_8((volatile u8 *)(addr), (b))
- #else
--static inline __u8 readb(volatile void __iomem *addr)
-+static inline __u8 readb(const volatile void __iomem *addr)
- {
- 	return in_8(addr);
- }
-@@ -150,11 +150,11 @@
- #endif
- 
- #if defined(CONFIG_APUS)
--static inline __u16 readw(volatile void __iomem *addr)
-+static inline __u16 readw(const volatile void __iomem *addr)
- {
- 	return *(__force volatile __u16 *)(addr);
- }
--static inline __u32 readl(volatile void __iomem *addr)
-+static inline __u32 readl(const volatile void __iomem *addr)
- {
- 	return *(__force volatile __u32 *)(addr);
- }
-@@ -173,11 +173,11 @@
- #define writew(b,addr) out_le16((volatile u16 *)(addr),(b))
- #define writel(b,addr) out_le32((volatile u32 *)(addr),(b))
- #else
--static inline __u16 readw(volatile void __iomem *addr)
-+static inline __u16 readw(const volatile void __iomem *addr)
- {
- 	return in_le16(addr);
- }
--static inline __u32 readl(volatile void __iomem *addr)
-+static inline __u32 readl(const volatile void __iomem *addr)
- {
- 	return in_le32(addr);
- }
+On Thu, Sep 29, 2005 at 08:09:38PM -0700, Randy.Dunlap wrote:
+
+> There's probably a ieee1394/firewire enumeration program.
+
+Not that I know of, other than gscanbus (unsuitable because it's a GUI
+app.)  I'm slowly working on one but it's nowhere close to releasable
+and really not a high priority...
+
+Jody

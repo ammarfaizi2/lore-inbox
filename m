@@ -1,61 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030328AbVI3PSp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030333AbVI3PYH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030328AbVI3PSp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 11:18:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030333AbVI3PSp
+	id S1030333AbVI3PYH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 11:24:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030334AbVI3PYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 11:18:45 -0400
-Received: from quark.didntduck.org ([69.55.226.66]:23178 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id S1030328AbVI3PSo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 11:18:44 -0400
-Message-ID: <433D57AE.9080103@didntduck.org>
-Date: Fri, 30 Sep 2005 11:20:14 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arijit Das <Arijit.Das@synopsys.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: RH30: Virtual Mem shot heavily by locale-archive...
-References: <7EC22963812B4F40AE780CF2F140AFE9168304@IN01WEMBX1.internal.synopsys.com>
-In-Reply-To: <7EC22963812B4F40AE780CF2F140AFE9168304@IN01WEMBX1.internal.synopsys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 30 Sep 2005 11:24:07 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:20865 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030333AbVI3PYE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 11:24:04 -0400
+Subject: Re: [PATCH 00/07][RFC] i386: NUMA emulation
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Magnus Damm <magnus@valinux.co.jp>
+Cc: linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050930073232.10631.63786.sendpatchset@cherry.local>
+References: <20050930073232.10631.63786.sendpatchset@cherry.local>
+Content-Type: text/plain
+Date: Fri, 30 Sep 2005 08:23:44 -0700
+Message-Id: <1128093825.6145.26.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arijit Das wrote:
-> I have RH3.0 installed in an AMD64 machine. 
->  
-> In this system, when I look at the virtual address space mappings of a process (say a sleep process), I find that almost 80% of its virtual address space has been taken by a private copy of /usr/lib/locale/locale-archive mapped to its virtual address space by default. Check this:
->  
->      31396 KB    r--p    /usr/lib/locale/locale-archive
->  
+On Fri, 2005-09-30 at 16:33 +0900, Magnus Damm wrote:
+> These patches implement NUMA memory node emulation for regular i386 PC:s.
+> 
+> NUMA emulation could be used to provide coarse-grained memory resource control
+> using CPUSETS. Another use is as a test environment for NUMA memory code or
+> CPUSETS using an i386 emulator such as QEMU.
 
-Only the pages of the file that are actually accessed are loaded into 
-physical memory.  This mapping just reserves a slot of virtual memory 
-for those demand loaded pages to be mapped.
+This patch set basically allows the "NUMA depends on SMP" dependency to
+be removed.  I'm not sure this is the right approach.  There will likely
+never be a real-world NUMA system without SMP.  So, this set would seem
+to include some increased (#ifdef) complexity for supporting SMP && !
+NUMA, which will likely never happen in the real world.
 
-> Total Virtual Memory = 38816 KB
-> On the other hand, when I look at the same info in a RH7.2 system, I see that a few small set of essential locale files have been mapped whose overall summed up size is around 236KB (way smaller than RH3.0)...Check this: 
->          4    r--p    /usr/lib/locale/en_US/LC_IDENTIFICATION
->          4    r--p    /usr/lib/locale/en_US/LC_MEASUREMENT
->          4    r--p    /usr/lib/locale/en_US/LC_TELEPHONE
->          4    r--p    /usr/lib/locale/en_US/LC_ADDRESS
->          4    r--p    /usr/lib/locale/en_US/LC_NAME
->          4    r--p    /usr/lib/locale/en_US/LC_PAPER
->          4    r--p    /usr/lib/locale/en_US/LC_MESSAGES/SYS_LC_MESSAGES
->          4    r--p    /usr/lib/locale/en_US/LC_MONETARY
->         24    r--p    /usr/lib/locale/en_US/LC_COLLATE
->          4    r--p    /usr/lib/locale/en_US/LC_TIME
->          4    r--p    /usr/lib/locale/en_US/LC_NUMERIC
->        172    r--p    /usr/lib/locale/en_US/LC_CTYPE
-> This seems like a huge requirement of memory for each small process executed in the RH3.0 system and hence, shots up the memory requirement of the entire system because the mapped region /usr/lib/locale/locale-archive is privately mapped.
+Also, I worry that simply #ifdef'ing things out like CPUsets' update
+means that CPUsets lacks some kind of abstraction that it should have
+been using in the first place.  An #ifdef just papers over the real
+problem.  
 
-Private mapping means copy-on-write.  But since these mappings are 
-read-only they will still be shared by other users of that file.  So no 
-extra physical memory for each process mapping the file.
+I think it would likely be cleaner if the approach was to emulate an SMP
+NUMA system where each NUMA node simply doesn't have all of its CPUs
+online.
 
---
-				Brian Gerst
+-- Dave
+

@@ -1,38 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932553AbVI3C3L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964842AbVI3CfL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932553AbVI3C3L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 22:29:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932544AbVI3C3K
+	id S964842AbVI3CfL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 22:35:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932544AbVI3CfK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 22:29:10 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:26013 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932419AbVI3C3J
+	Thu, 29 Sep 2005 22:35:10 -0400
+Received: from xproxy.gmail.com ([66.249.82.206]:20985 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932419AbVI3CfJ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 22:29:09 -0400
-Date: Fri, 30 Sep 2005 03:29:05 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] uml get_user() NULL noise removal
-Message-ID: <20050930022905.GB7992@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 29 Sep 2005 22:35:09 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=bNW1OP2llT1EqDJBhkGRiYpPlX3YyzwV1J7KG+UqIVS2BDgtj4z5EEIa2Ijvg42DRTRRsR1Q4Mb6gyVRgrnDX/W7n05AAjMRgaYBBizr/dZguWlk5demXjgDvIla6pEFgJ5CTnWmScdWuL2/RRflXO8Sgt1SZRKk1tYrsaL7GYs=
+Message-ID: <b1df7a2c0509291935u79df2643p@mail.gmail.com>
+Date: Fri, 30 Sep 2005 10:35:09 +0800
+From: zhuang zhuanghou <zhuanghou@gmail.com>
+Reply-To: zhuang zhuanghou <zhuanghou@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: How can I control the network package
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-----
-diff -urN RC14-rc2-git6-base/include/asm-um/uaccess.h current/include/asm-um/uaccess.h
---- RC14-rc2-git6-base/include/asm-um/uaccess.h	2005-09-26 00:02:29.000000000 -0400
-+++ current/include/asm-um/uaccess.h	2005-09-24 01:43:27.000000000 -0400
-@@ -44,7 +44,7 @@
-         const __typeof__(ptr) __private_ptr = ptr; \
-         __typeof__(*(__private_ptr)) __private_val; \
-         int __private_ret = -EFAULT; \
--        (x) = 0; \
-+        (x) = (__typeof__(*(__private_ptr)))0; \
- 	if (__copy_from_user(&__private_val, (__private_ptr), \
- 	    sizeof(*(__private_ptr))) == 0) {\
-         	(x) = (__typeof__(*(__private_ptr))) __private_val; \
+Hi All,
+
+     I have a linux server  with two GE nics configured as follows:
+    eth0   10.10.12.1       netmask 255.255.255.0
+    eth1   10.10.12.111   netmask  255.255.255.0
+
+    One service application running on it (as a kernel module) and accepts
+all the requests from clients on the same subnet (i.e. with subnet 10.10.12.x),
+and all the clients will send requests to these two nic round-robinly.
+when eth0
+accept the request, the corresponding result will be sent back from eth0 too,
+but when eth1 accepted the request, its result still go back from eth0, not eth1
+due to network route, but I need it go back through where it came from,
+so how can I do that?
+   BTW: the server has two listen sockets bind to these two ips
+respectively, use
+            UDP protocol
+
+  Thanks!

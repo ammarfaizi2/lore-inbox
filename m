@@ -1,69 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030292AbVI3NFD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030294AbVI3NJs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030292AbVI3NFD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 09:05:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030293AbVI3NFD
+	id S1030294AbVI3NJs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 09:09:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030295AbVI3NJs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 09:05:03 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:50385 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030292AbVI3NFA (ORCPT
+	Fri, 30 Sep 2005 09:09:48 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:41406 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S1030294AbVI3NJr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 09:05:00 -0400
-Date: Fri, 30 Sep 2005 09:04:46 -0400
-From: Dave Jones <davej@redhat.com>
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Cc: Wes Felter <wesley@felter.org>, linux-kernel@vger.kernel.org
-Subject: Re: em64t speedstep technology not supported in kernel yet?
-Message-ID: <20050930130446.GA15658@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	"Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-	Wes Felter <wesley@felter.org>, linux-kernel@vger.kernel.org
-References: <88056F38E9E48644A0F562A38C64FB6005DECA92@scsmsx403.amr.corp.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <88056F38E9E48644A0F562A38C64FB6005DECA92@scsmsx403.amr.corp.intel.com>
-User-Agent: Mutt/1.4.2.1i
+	Fri, 30 Sep 2005 09:09:47 -0400
+Message-ID: <433D391A.70607@vc.cvut.cz>
+Date: Fri, 30 Sep 2005 15:09:46 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+CC: linux-kernel@vger.kernel.org, ak@suse.de, akpm@osdl.org
+Subject: Re: [Patch] x86, x86_64: fix cpu model for family 0x6
+References: <20050929190419.C15943@unix-os.sc.intel.com>
+In-Reply-To: <20050929190419.C15943@unix-os.sc.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 30, 2005 at 05:20:03AM -0700, Pallipadi, Venkatesh wrote:
- > 
- > >-----Original Message-----
- > >From: linux-kernel-owner@vger.kernel.org 
- > >[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Wes Felter
- > >Sent: Thursday, September 29, 2005 11:58 AM
- > >To: linux-kernel@vger.kernel.org
- > >Subject: Re: em64t speedstep technology not supported in kernel yet?
- > >
- > >Richard Wohlstadter wrote:
- > >> Hello all,
- > >> 
- > >> We recently had Intel give our company a roadmap 
- > >presentation where they 
- > >> told us that their enhanced speedstep technology was 
- > >supported by linux 
- > >> kernels 2.6.9+.  I have since tried to get cpufreq speedstep 
- > >driver to 
- > >> work with no luck on our em64t Xeon 3.6g processors.  Intel 
- > >even has a 
- > >> webpage describing the technology and how to get it working at url: 
- > >> http://www.intel.com/cd/ids/developer/asmo-na/eng/195910.htm?prn=Y
- > >
- > >I think this is a BIOS problem; the BIOS needs to provide the proper 
- > >ACPI frequency/voltage tables for cpufreq to use. You might want to 
- > >harass your system/motherboard vendor.
- > >
- > >Alternately maybe you can find someone who can give you the 
- > >secret table and then you can just hardcode it into the driver.
- > 
- > Yes. Make sure speedstep is  supported and enabled in BIOS. Typically,
- > there will be a BIOS config option under CPU section, called Speedstep, 
- > Enhanced Speedstep or EIST or something like that. 
+Siddha, Suresh B wrote:
+> Andi, please pickup this patch and push to Andrew/Linus.
+> 
+> thanks,
+> suresh
+> 
+> --
+> According to cpuid instruction in IA32 SDM-Vol2, when computing cpu model,
+> we need to consider extended model ID for family 0x6 also.
+> 
+> Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
+> 
+> --- linux-2.6.14-rc2-git7/arch/i386/kernel/cpu/common.c~	2005-09-29 17:44:12.030688920 -0700
+> +++ linux-2.6.14-rc2-git7/arch/i386/kernel/cpu/common.c	2005-09-29 17:44:30.967810040 -0700
+> @@ -233,10 +233,10 @@ static void __init early_cpu_detect(void
+>  		cpuid(0x00000001, &tfms, &misc, &junk, &cap0);
+>  		c->x86 = (tfms >> 8) & 15;
+>  		c->x86_model = (tfms >> 4) & 15;
+> -		if (c->x86 == 0xf) {
+> +		if (c->x86 == 0xf)
+>  			c->x86 += (tfms >> 20) & 0xff;
+> +		if (c->x86 == 0x6 || c->x86 == 0xf)
 
-The BIOS tables make no difference at all however to the speedstep-centrino
-module  (which in retrospect really should have been speedstep-est or something)
-as it has no OP() tables or cpu recognition for Xeons.
+Are you sure this is correct?  You just incremented c->x86 by extended
+family, so I believe test should be
 
-		Dave
+                 if (c->x86 == 0x6 || c->x86 >= 0xf)
+
+or maybe just
+
+                 if (c->x86 >= 0x6)
+
+as chips with family 7..14 will either never appear, or they'll follow
+existing rules (I believe all chips ever built return upper bits of tfms
+zeroed, so maybe we could get rid of all these 'if' completely).
+						Petr Vandrovec
 

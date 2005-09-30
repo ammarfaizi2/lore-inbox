@@ -1,101 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965070AbVI3SkF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932258AbVI3So2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965070AbVI3SkF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 14:40:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965071AbVI3SkF
+	id S932258AbVI3So2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 14:44:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932580AbVI3So2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 14:40:05 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:60572 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S965070AbVI3SkD (ORCPT
+	Fri, 30 Sep 2005 14:44:28 -0400
+Received: from mail.gmx.net ([213.165.64.20]:58250 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932258AbVI3So1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 14:40:03 -0400
-Subject: RE: I request inclusion of SAS Transport Layer and AIC-94xx into
-	the kernel
-From: Andrew Patterson <andrew.patterson@hp.com>
-Reply-To: andrew.patterson@hp.com
-To: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-Cc: "Tuikov, Luben" <Luben_Tuikov@adaptec.com>, dougg@torque.net,
-       Linus Torvalds <torvalds@osdl.org>, Luben Tuikov <ltuikov@yahoo.com>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <547AF3BD0F3F0B4CBDC379BAC7E4189F01A9FA11@otce2k03.adaptec.com>
-References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01A9FA11@otce2k03.adaptec.com>
-Content-Type: text/plain
-Date: Fri, 30 Sep 2005 12:39:54 -0600
-Message-Id: <1128105594.10079.109.camel@bluto.andrew>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Fri, 30 Sep 2005 14:44:27 -0400
+X-Authenticated: #8834078
+From: Dominik Karall <dominik.karall@gmx.net>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: 2.6.14-rc2-mm2 (PHY reset until link up)
+Date: Fri, 30 Sep 2005 20:49:35 +0200
+User-Agent: KMail/1.8.91
+Cc: linux-kernel@vger.kernel.org
+References: <20050929143732.59d22569.akpm@osdl.org>
+In-Reply-To: <20050929143732.59d22569.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1295553.BOe6icmaHn";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200509302049.45143.dominik.karall@gmx.net>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-09-30 at 13:07 -0400, Salyzyn, Mark wrote:
-> At the SAS BOF, I indicated that it would not be much trouble to
-> translate the CSMI handler in the aacraid driver to a similar sysfs
-> arrangement. If such info can be mined from a firmware based RAID card,
-> every driver should be able to do so. The spec writers really need to
-> consider rewriting SDI for sysfs (if they have not already) and move
-> away from an ABI.
+--nextPart1295553.BOe6icmaHn
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-SDI is supposed to be a cross-platform spec, so mandating sysfs would
-not work.  I suggested to the author to use a library like HPAAPI (used
-by Fibre channel), so you could hide OS implementation details.  I am in
-fact working on such a beasty (http://libsdi.berlios.de).  He thinks
-that library solutions tend to not work, because the library version is
-never in synch with the standard/LLDD's. Given Linux vendor lead-times,
-he does have a valid point.
+On Thursday 29 September 2005 23:37, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc2/=
+2.
+>6.14-rc2-mm2/
 
-Note that a sysfs implementation has problems.  Binary attributes are
-discouraged/not-allowed.  There is no atomic request/response
-operations, buffers limited to page size, etc. Other alternatives are
-configfs, SG_IO, and the above mentioned character device.  None are a
-complete replacement for the transactional nature of IOCTL's.  A group
-of us are looking into this.  We probably should be taking it to
-linux-scsi, but didn't want to get it caught up in the current flamewar.
+hi,
+I'm not sure if this bug is in 2.6.14-rc2 too. I get hundreds of these=20
+messages:
+Sep 30 20:12:28 amd64box eth2: PHY reset until link up
+Sep 30 20:12:38 amd64box eth2: PHY reset until link up
+Sep 30 20:12:48 amd64box eth2: PHY reset until link up
+Sep 30 20:12:58 amd64box eth2: PHY reset until link up
 
-Andrew
+eth2 uses the r8169 driver. _No_ network cable was connected at that moment!
+here is lspci output:
+0000:00:0e.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8169=
+=20
+Gigabit Ethernet (rev 10)
+        Subsystem: Realtek Semiconductor Co., Ltd. RTL-8169 Gigabit Ethernet
+        Flags: 66Mhz, medium devsel, IRQ 217
+        I/O ports at b000 [size=3D256]
+        Memory at fde00000 (32-bit, non-prefetchable) [size=3D256]
+        Expansion ROM at fdd00000 [disabled] [size=3D128K]
+        Capabilities: [dc] Power Management version 2
 
-> 
-> Sincerely -- Mark Salyzyn
-> 
-> -----Original Message-----
-> From: Tuikov, Luben
-> Sent: Friday, September 30, 2005 12:47 PM
-> To: andrew.patterson@hp.com
-> Cc: dougg@torque.net; Linus Torvalds; Luben Tuikov; SCSI Mailing List;
-> Linux Kernel Mailing List
-> Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx
-> into the kernel
-> 
-> On 09/30/05 12:26, Andrew Patterson wrote:
-> > 
-> > I talked to one of the authors of these specs.  SDI is an attempt to 
-> > create an open standard for the somewhat proprietary CSMI spec 
-> > developed by HP.  It is currently languishing in t10 due to the IOCTL 
-> > problem you describe below (the "no new IOCTL's" doctrine caught them 
-> > by surprise). There is some thought to going to a write()/read() on a 
-> > character device model, but this has various problems as well.
-> 
-> I think that read/write from a char device is going away too.
-> 
-> For this reason I showed the whole picture of the SAS
-> domain in sysfs _and_ created a binary file attr to send/receive SMP
-> requests/responses to control the domain and get attributes
-> ("smp_portal" binary attr of each expander).
-> 
-> It is completely user space driven and a user space library
-> is simple to write.
-> 
-> See drivers/scsi/sas/expander_conf.c which is a user
-> space utility.  For the output see Announcement 3:
-> http://linux.adaptec.com/sas/Announce_2.txt or here:
-> http://marc.theaimsgroup.com/?l=linux-scsi&m=112629509318354&w=2
-> 
-> The code which implements it is very tiny, at the bottom
-> of drivers/scsi/sas/sas_expander.c
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+and dmesg:
+r8169 Gigabit Ethernet driver 2.2LK-NAPI loaded
+ACPI: PCI Interrupt 0000:00:0e.0[A] -> GSI 19 (level, low) -> IRQ 217
+eth2: Identified chip type is 'RTL8169s/8110s'.
+eth2: RTL8169 at 0xffffc200009ca000, 00:0c:f6:04:87:c0, IRQ 217
+r8169: eth2: link down
 
+hth,
+dominik
+
+--nextPart1295553.BOe6icmaHn
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2-ecc0.1.6 (GNU/Linux)
+
+iQCVAwUAQz2IyQvcoSHvsHMnAQIRxAP+M7wrqaYEFl1ev2lKXI/qt6o2oPSN33y4
+HZ2bDT7p+EDvR08vpjHPSFmapThiUFsxAWDGxZIHUJdttzFhWi4Xyl29WNqwxwsp
+1cocRGk8ASTIJTHnJ3cx9O5unY1j7jz8vDaKnkiHcM3LlJfd7nmpQMfvDZUl6jBs
+g4UzrdW+IwU=
+=His/
+-----END PGP SIGNATURE-----
+
+--nextPart1295553.BOe6icmaHn--

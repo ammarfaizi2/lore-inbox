@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932532AbVI3Ayz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932529AbVI3A5B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932532AbVI3Ayz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 20:54:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932531AbVI3Ayy
+	id S932529AbVI3A5B (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 20:57:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932142AbVI3A5B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 20:54:54 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:34704 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932528AbVI3Ayx (ORCPT
+	Thu, 29 Sep 2005 20:57:01 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:1987 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932529AbVI3A5A (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 20:54:53 -0400
-Date: Thu, 29 Sep 2005 19:54:51 -0500
+	Thu, 29 Sep 2005 20:57:00 -0400
+Date: Thu, 29 Sep 2005 19:56:50 -0500
 To: paulus@samba.org
 Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 3/7] ppc64: EEH Add event/internal state statistics
-Message-ID: <20050930005451.GC6173@austin.ibm.com>
+Subject: [PATCH 4/7] ppc64: EEH PCI slot error details abstraction
+Message-ID: <20050930005650.GD6173@austin.ibm.com>
 References: <20050930004800.GL29826@austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -25,126 +25,98 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-03-eeh-statistics.patch
+04-eeh-slot-error-detail.patch
 
-This minor patch adds some statistics-gathering counters that allow the 
-behaviour of the EEH subsystem o be monitored. While far from perfect,
-it does provide a rudimentary device that makes understanding of the 
-current state of the system a bit easier.
+This patch encapsulates a section of code that reports the EEH event.
+The new subroutine can be used in several places to report the eror.
 
 Signed-off-by: Linas Vepstas <linas@linas.org>
 
 
 Index: linux-2.6.14-rc2-git6/arch/ppc64/kernel/eeh.c
 ===================================================================
---- linux-2.6.14-rc2-git6.orig/arch/ppc64/kernel/eeh.c	2005-09-29 13:52:08.188222887 -0500
-+++ linux-2.6.14-rc2-git6/arch/ppc64/kernel/eeh.c	2005-09-29 16:05:53.025549160 -0500
-@@ -102,6 +102,10 @@
- static int eeh_error_buf_size;
+--- linux-2.6.14-rc2-git6.orig/arch/ppc64/kernel/eeh.c	2005-09-29 16:05:53.025549160 -0500
++++ linux-2.6.14-rc2-git6/arch/ppc64/kernel/eeh.c	2005-09-29 16:06:25.583986100 -0500
+@@ -397,6 +397,28 @@
+ /* --------------------------------------------------------------- */
+ /* Above lies the PCI Address Cache. Below lies the EEH event infrastructure */
  
- /* System monitoring statistics */
-+static DEFINE_PER_CPU(unsigned long, no_device);
-+static DEFINE_PER_CPU(unsigned long, no_dn);
-+static DEFINE_PER_CPU(unsigned long, no_cfg_addr);
-+static DEFINE_PER_CPU(unsigned long, ignored_check);
- static DEFINE_PER_CPU(unsigned long, total_mmio_ffs);
- static DEFINE_PER_CPU(unsigned long, false_positives);
- static DEFINE_PER_CPU(unsigned long, ignored_failures);
-@@ -493,8 +497,6 @@
- 		notifier_call_chain (&eeh_notifier_chain,
- 				     EEH_NOTIFY_FREEZE, event);
- 
--		__get_cpu_var(slot_resets)++;
--
- 		pci_dev_put(event->dev);
- 		kfree(event);
- 	}
-@@ -546,17 +548,24 @@
- 	if (!eeh_subsystem_enabled)
- 		return 0;
- 
--	if (!dn)
-+	if (!dn) {
-+		__get_cpu_var(no_dn)++;
- 		return 0;
++void eeh_slot_error_detail (struct pci_dn *pdn, int severity)
++{
++	unsigned long flags;
++	int rc;
++
++	/* Log the error with the rtas logger */
++	spin_lock_irqsave(&slot_errbuf_lock, flags);
++	memset(slot_errbuf, 0, eeh_error_buf_size);
++
++	rc = rtas_call(ibm_slot_error_detail,
++	               8, 1, NULL, pdn->eeh_config_addr,
++	               BUID_HI(pdn->phb->buid),
++	               BUID_LO(pdn->phb->buid), NULL, 0,
++	               virt_to_phys(slot_errbuf),
++	               eeh_error_buf_size,
++	               severity);
++
++	if (rc == 0)
++		log_error(slot_errbuf, ERR_TYPE_RTAS_LOG, 0);
++	spin_unlock_irqrestore(&slot_errbuf_lock, flags);
++}
++
+ /**
+  * eeh_register_notifier - Register to find out about EEH events.
+  * @nb: notifier block to callback on events
+@@ -454,9 +476,12 @@
+ 	 * Since the panic_on_oops sysctl is used to halt the system
+ 	 * in light of potential corruption, we can use it here.
+ 	 */
+-	if (panic_on_oops)
++	if (panic_on_oops) {
++		struct device_node *dn = pci_device_to_OF_node(dev);
++		eeh_slot_error_detail (PCI_DN(dn), 2 /* Permanent Error */);
+ 		panic("EEH: MMIO failure (%d) on device:%s\n", reset_state,
+ 		      pci_name(dev));
 +	}
- 	pdn = PCI_DN(dn);
+ 	else {
+ 		__get_cpu_var(ignored_failures)++;
+ 		printk(KERN_INFO "EEH: Ignored MMIO failure (%d) on device:%s\n",
+@@ -539,7 +564,7 @@
+ 	int ret;
+ 	int rets[3];
+ 	unsigned long flags;
+-	int rc, reset_state;
++	int reset_state;
+ 	struct eeh_event  *event;
+ 	struct pci_dn *pdn;
  
- 	/* Access to IO BARs might get this far and still not want checking. */
- 	if (!pdn->eeh_capable || !(pdn->eeh_mode & EEH_MODE_SUPPORTED) ||
- 	    pdn->eeh_mode & EEH_MODE_NOCHECK) {
-+		__get_cpu_var(ignored_check)++;
-+#ifdef DEBUG
-+		printk ("EEH:ignored check for %s %s\n", pci_name (dev), dn->full_name);
-+#endif
- 		return 0;
- 	}
- 
- 	if (!pdn->eeh_config_addr) {
-+		__get_cpu_var(no_cfg_addr)++;
- 		return 0;
- 	}
- 
-@@ -590,6 +599,7 @@
- 
- 	/* prevent repeated reports of this failure */
- 	pdn->eeh_mode |= EEH_MODE_ISOLATED;
-+	 __get_cpu_var(slot_resets)++;
+@@ -603,20 +628,7 @@
  
  	reset_state = rets[0];
  
-@@ -657,8 +667,10 @@
- 	/* Finding the phys addr + pci device; this is pretty quick. */
- 	addr = eeh_token_to_phys((unsigned long __force) token);
- 	dev = pci_get_device_by_addr(addr);
--	if (!dev)
-+	if (!dev) {
-+		__get_cpu_var(no_device)++;
- 		return val;
-+	}
+-	spin_lock_irqsave(&slot_errbuf_lock, flags);
+-	memset(slot_errbuf, 0, eeh_error_buf_size);
+-
+-	rc = rtas_call(ibm_slot_error_detail,
+-	               8, 1, NULL, pdn->eeh_config_addr,
+-	               BUID_HI(pdn->phb->buid),
+-	               BUID_LO(pdn->phb->buid), NULL, 0,
+-	               virt_to_phys(slot_errbuf),
+-	               eeh_error_buf_size,
+-	               1 /* Temporary Error */);
+-
+-	if (rc == 0)
+-		log_error(slot_errbuf, ERR_TYPE_RTAS_LOG, 0);
+-	spin_unlock_irqrestore(&slot_errbuf_lock, flags);
++	eeh_slot_error_detail (pdn, 1 /* Temporary Error */);
  
- 	dn = pci_device_to_OF_node(dev);
- 	eeh_dn_check_failure (dn, dev);
-@@ -903,12 +915,17 @@
- 	unsigned int cpu;
- 	unsigned long ffs = 0, positives = 0, failures = 0;
- 	unsigned long resets = 0;
-+	unsigned long no_dev = 0, no_dn = 0, no_cfg = 0, no_check = 0;
+ 	printk(KERN_INFO "EEH: MMIO failure (%d) on device: %s %s\n",
+ 	       rets[0], dn->name, dn->full_name);
+@@ -783,6 +795,8 @@
+ 	struct device_node *phb, *np;
+ 	struct eeh_early_enable_info info;
  
- 	for_each_cpu(cpu) {
- 		ffs += per_cpu(total_mmio_ffs, cpu);
- 		positives += per_cpu(false_positives, cpu);
- 		failures += per_cpu(ignored_failures, cpu);
- 		resets += per_cpu(slot_resets, cpu);
-+		no_dev += per_cpu(no_device, cpu);
-+		no_dn += per_cpu(no_dn, cpu);
-+		no_cfg += per_cpu(no_cfg_addr, cpu);
-+		no_check += per_cpu(ignored_check, cpu);
- 	}
- 
- 	if (0 == eeh_subsystem_enabled) {
-@@ -916,13 +933,17 @@
- 		seq_printf(m, "eeh_total_mmio_ffs=%ld\n", ffs);
- 	} else {
- 		seq_printf(m, "EEH Subsystem is enabled\n");
--		seq_printf(m, "eeh_total_mmio_ffs=%ld\n"
--			   "eeh_false_positives=%ld\n"
--			   "eeh_ignored_failures=%ld\n"
--			   "eeh_slot_resets=%ld\n"
--				"eeh_fail_count=%d\n",
--			   ffs, positives, failures, resets,
--				eeh_fail_count.counter);
-+		seq_printf(m,
-+				"no device=%ld\n"
-+				"no device node=%ld\n"
-+				"no config address=%ld\n"
-+				"check not wanted=%ld\n"
-+				"eeh_total_mmio_ffs=%ld\n"
-+				"eeh_false_positives=%ld\n"
-+				"eeh_ignored_failures=%ld\n"
-+				"eeh_slot_resets=%ld\n",
-+				no_dev, no_dn, no_cfg, no_check,
-+				ffs, positives, failures, resets);
- 	}
- 
- 	return 0;
++	spin_lock_init(&slot_errbuf_lock);
++
+ 	np = of_find_node_by_path("/rtas");
+ 	if (np == NULL)
+ 		return;

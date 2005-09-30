@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030304AbVI3OFK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030306AbVI3OIE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030304AbVI3OFK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 10:05:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030306AbVI3OFJ
+	id S1030306AbVI3OIE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 10:08:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030308AbVI3OID
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 10:05:09 -0400
-Received: from wproxy.gmail.com ([64.233.184.196]:35736 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030304AbVI3OFI (ORCPT
+	Fri, 30 Sep 2005 10:08:03 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:61132 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S1030306AbVI3OIC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 10:05:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=EScwZk31UZkYv7uwySF3kJQx2FWTJr3jX02I2lUCe2J6hs+gx2hOxrBsi3dbdNwmp+llLBAc5WTaIWdCp11R7h4Aauxi2v6L/NMtoltlR/JsTosS2fM9TcGGapWF9RytpiNT9Jy7PFjWHcdfBMJ2ZlvfQdkRkIAZq8uVKSwdvzg=
-Date: Fri, 30 Sep 2005 18:16:11 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: "Aaron M. Ucko" <ucko@debian.org>
-Subject: Fwd: [PATCH] cpufreq: honor cpu_sibling_map in speedstep-centrino.c
-Message-ID: <20050930141603.GA26810@mipter.zuzino.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+	Fri, 30 Sep 2005 10:08:02 -0400
+Message-ID: <433D46B6.1090608@adaptec.com>
+Date: Fri, 30 Sep 2005 10:07:50 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Luben Tuikov <ltuikov@yahoo.com>, Arjan van de Ven <arjan@infradead.org>,
+       Willy Tarreau <willy@w.ods.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
+ the kernel
+References: <20050929232013.95117.qmail@web31810.mail.mud.yahoo.com> <Pine.LNX.4.64.0509291730360.3378@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0509291730360.3378@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 30 Sep 2005 14:08:00.0384 (UTC) FILETIME=[5D90F800:01C5C5C8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-To: kernel-janitors@lists.osdl.org
+On 09/29/05 20:35, Linus Torvalds wrote:
+> And that's my point. Specs are not only almost invariably badly written, 
+> they also never actually match reality. 
 
-speedstep-centrino.c should honor cpu_sibling_map for the sake of
-recent Intel processors, which support both Centrino-style Enhanced
-SpeedStep and hyperthreading; even newer dual-core chips may need the
-same fix.
+Linus, the world has changed around you.
 
---- linux-source-2.6.13.2/arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c~	2005-08-28 19:41:01.000000000 -0400
-+++ linux-source-2.6.13.2/arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c	2005-09-28 17:23:37.000000000 -0400
-@@ -498,6 +498,10 @@
- 	if (cpu->x86_vendor != X86_VENDOR_INTEL || !cpu_has(cpu, X86_FEATURE_EST))
- 		return -ENODEV;
- 
-+#ifdef CONFIG_SMP
-+	policy->cpus = cpu_sibling_map[policy->cpu];
-+#endif
-+
- 	for (i = 0; i < N_IDS; i++)
- 		if (centrino_verify_cpu_id(cpu, &cpu_ids[i]))
- 			break;
+Take a look at the SAS spec and then at a SAS chip
+implementation, for example.
 
+(We're talking abou T10 specs, right?)
 
+> And that's way _way_ too common. People who ignore reality are sadly not 
+> at all unusual.
+
+You are saying I ignored reality?
+
+> Talk about working code that is _readable_ and _works_.
+
+http://linux.adaptec.com/sas/
+
+	Luben

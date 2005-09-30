@@ -1,51 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030484AbVI3Whl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030485AbVI3Wjr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030484AbVI3Whl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 18:37:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030485AbVI3Whl
+	id S1030485AbVI3Wjr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 18:39:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030487AbVI3Wjr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 18:37:41 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:15535 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S1030484AbVI3Whl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 18:37:41 -0400
-Message-ID: <433DBE33.7090700@vc.cvut.cz>
-Date: Sat, 01 Oct 2005 00:37:39 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [Patch] x86, x86_64: fix cpu model for family 0x6
-References: <20050929190419.C15943@unix-os.sc.intel.com> <433D391A.70607@vc.cvut.cz> <20050930112310.A28092@unix-os.sc.intel.com> <200510010002.16382.ak@suse.de> <20050930152358.D28092@unix-os.sc.intel.com>
-In-Reply-To: <20050930152358.D28092@unix-os.sc.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 30 Sep 2005 18:39:47 -0400
+Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:20243 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1030485AbVI3Wjq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 18:39:46 -0400
+Date: Sat, 1 Oct 2005 08:39:15 +1000
+To: Hendrik Visage <hvjunk@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org, ionut@badula.org,
+       Jeff Garzik <jgarzik@pobox.com>, netdev@vger.kernel.org
+Subject: Re: Starfire (Adaptec) kernel 2.6.13+ panics on AMD64 NFS server
+Message-ID: <20050930223915.GA17562@gondor.apana.org.au>
+References: <d93f04c70509292036x269df799y7b51c5be9c3356d6@mail.gmail.com> <20050929211649.69eaddee.akpm@osdl.org> <d93f04c70509300901s3836b8afw4792d16c589b4fc4@mail.gmail.com> <20050930104046.4685e975.akpm@osdl.org> <d93f04c70509301310y4bde1189wbcaef40124af6766@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="fdj2RfSjLxBAspz7"
+Content-Disposition: inline
+In-Reply-To: <d93f04c70509301310y4bde1189wbcaef40124af6766@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Siddha, Suresh B wrote:
-> On Sat, Oct 01, 2005 at 12:02:16AM +0200, Andi Kleen wrote:
-> 
->>I applied an earlier mix of your original one and Petr's suggestions. Hope 
->>it's ok. 
-> 
-> 
-> Andi I prefer to follow the SDM guidelines. Who knows if future families
-> comeup with a different rule or use/initialize these extended model/family
-> bits differently. I am just being paranoid.
 
-And which chance is bigger - that such hypothetical processor will use
-extended model, and your code will get incorrect answer everywhere, or
-that such hypothetical processor will not use extended model, and your
-code will be right?
+--fdj2RfSjLxBAspz7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
->>+		if (c->x86 >= 0xf) 
-> 
-> 
-> And also you have a typo. It should be 0x6.
+On Fri, Sep 30, 2005 at 08:10:59PM +0000, Hendrik Visage wrote:
+>
+> Anycase, here is a non-PREEMPT traceback. What makes this one
+> interesting, is that
+> in the preempt case, I had to push the NFS output to get the panic, but the
+> non-preempt case attached, sorta just happened, ie. when the clients
+> just checked on the server's status :(
 
-It is intentional.  Maybe it could do BUG_ON(c->x86 < 0xf).
-								Petr
+You must never call skb_checksum_help unless the packet is meant to
+be checksummed by the hardware.  So starfire is the guilty party here.
 
+This patch makes it do the check and also check for errors from
+skb_checksum_help.
+
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+--fdj2RfSjLxBAspz7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=p
+
+diff --git a/drivers/net/starfire.c b/drivers/net/starfire.c
+--- a/drivers/net/starfire.c
++++ b/drivers/net/starfire.c
+@@ -1333,7 +1333,7 @@ static int start_tx(struct sk_buff *skb,
+ 	}
+ 
+ #if defined(ZEROCOPY) && defined(HAS_BROKEN_FIRMWARE)
+-	{
++	if (skb->ip_summed == CHECKSUM_HW) {
+ 		int has_bad_length = 0;
+ 
+ 		if (skb_first_frag_len(skb) == 1)
+@@ -1346,8 +1346,10 @@ static int start_tx(struct sk_buff *skb,
+ 				}
+ 		}
+ 
+-		if (has_bad_length)
+-			skb_checksum_help(skb, 0);
++		if (has_bad_length && unlikely(skb_checksum_help(skb, 0))) {
++			dev_kfree_skb(skb);
++			return NETDEV_TX_OK;
++		}
+ 	}
+ #endif /* ZEROCOPY && HAS_BROKEN_FIRMWARE */
+ 
+
+--fdj2RfSjLxBAspz7--

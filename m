@@ -1,47 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030314AbVI3TO0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932276AbVI3TQc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030314AbVI3TO0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 15:14:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030322AbVI3TO0
+	id S932276AbVI3TQc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 15:16:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932583AbVI3TQb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 15:14:26 -0400
-Received: from [64.162.99.240] ([64.162.99.240]:4821 "EHLO
-	spamtest2.viacore.net") by vger.kernel.org with ESMTP
-	id S1030314AbVI3TOZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 15:14:25 -0400
-Message-ID: <433D8E22.9060505@spamtest.viacore.net>
-Date: Fri, 30 Sep 2005 12:12:34 -0700
-From: Joe Bob Spamtest <joebob@spamtest.viacore.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050923 Fedora/1.7.12-1.5.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marcin Dalecki <dalecki.marcin@neostrada.pl>
-CC: Linus Torvalds <torvalds@osdl.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
- the kernel
-References: <20050929232013.95117.qmail@web31810.mail.mud.yahoo.com> <Pine.LNX.4.64.0509291730360.3378@g5.osdl.org> <92154686-787B-4254-B404-482E234B245D@neostrada.pl>
-In-Reply-To: <92154686-787B-4254-B404-482E234B245D@neostrada.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 30 Sep 2005 15:16:31 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:65324 "EHLO
+	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
+	id S932276AbVI3TQb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 15:16:31 -0400
+Subject: Re: [PATCH 3/7] CART - an advanced page replacement policy
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Marcelo <marcelo.tosatti@cyclades.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+In-Reply-To: <20050930184404.GA16812@xeon.cnet>
+References: <20050929180845.910895444@twins>
+	 <20050929181622.780879649@twins>  <20050930184404.GA16812@xeon.cnet>
+Content-Type: text/plain
+Date: Fri, 30 Sep 2005 21:16:20 +0200
+Message-Id: <1128107781.14695.32.camel@twins>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcin Dalecki wrote:
-> On 2005-09-30, at 02:35, Linus Torvalds wrote:
->> A scientific theory is an approximation of observed behaviour WITH NO
->> KNOWN HOLES.
+On Fri, 2005-09-30 at 15:44 -0300, Marcelo wrote:
+> Hi Peter,
 > 
-> Since "approximation" is equivalent to a "known hole", there is no  
-> single scientific theory without known holes out there?! Well that's  a 
-> segfault in brain - unless you don't consider math science of course.
+> On Thu, Sep 29, 2005 at 08:08:48PM +0200, Peter Zijlstra wrote:
+> > The flesh of the CART implementation. Again comments in the file should be
+> > clear.
 > 
-> A scientific theory is just a set of axioms and deduction rules. Not  
-> much more by definition...
+> Having per-zone "B1" target accounted at fault-time instead of a global target
+> strikes me.
+> 
+> The ARC algorithm adjusts the B1 target based on the fact that being-faulted-pages
+> were removed from the same memory region where such pages will reside.
+> 
+> The per-zone "B1" target as you implement it means that the B1 target accounting
+> happens for the zone in which the page for the faulting data has been allocated,
+> _not_ on the zone from which the data has been evicted. Seems quite unfair.
+> 
+> So for example, if a page gets removed from the HighMem zone while in the 
+> B1 list, and the same data gets faulted in later on a page from the normal
+> zone, Normal will have its "B1" target erroneously increased.
+> 
+> A global inactive target scaled to the zone size would get rid of that problem.
 
-I think a better explanation of 'scientific theory' is:
+Good, good, I'll think this though, this probably means the other
+targets: 'p' and 'r' would similarly benefit.
 
-an explanation or definition of observed behaviour with no known error
+> Another issue is testing: You had some very interesting numbers before, 
+> how are things now?
 
-which, is what I believe Linus was trying to say
+I managed to reproduce that 10% gain on the kernel build time once more,
+however it seems very unstable, I generally get only 2-3%.
+
+> > Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+> > 
+> >  mm/cart.c                  |  631 +++++++++++++++++++++++++++++++++++++++++++++
+> >  7 files changed, 682 insertions(+), 35 deletions(-)
+> > 
+> > Index: linux-2.6-git/mm/cart.c
+> > ===================================================================
+> > --- /dev/null
+> > +++ linux-2.6-git/mm/cart.c
+> > @@ -0,0 +1,639 @@
+> 
+> <snip>
+> 
+> > +#define cart_cT ((zone)->nr_active + (zone)->nr_inactive + (zone)->free_pages)
+> > +#define cart_cB ((zone)->present_pages)
+> > +
+> > +#define T2B(x) (((x) * cart_cB) / cart_cT)
+> > +#define B2T(x) (((x) * cart_cT) / cart_cB)
+> > +
+> > +#define size_T1 ((zone)->nr_active)
+> > +#define size_T2 ((zone)->nr_inactive)
+> > +
+> > +#define list_T1 (&(zone)->active_list)
+> > +#define list_T2 (&(zone)->inactive_list)
+> > +
+> > +#define cart_p ((zone)->nr_p)
+> > +#define cart_q ((zone)->nr_q)
+> > +
+> > +#define size_B1 ((zone)->nr_evicted_active)
+> > +#define size_B2 ((zone)->nr_evicted_inactive)
+> > +
+> > +#define nr_Ns ((zone)->nr_shortterm)
+> > +#define nr_Nl (size_T1 + size_T2 - nr_Ns)
+> 
+> These defines are not not easy to read inside the code which
+> uses them, I personally think that "zone->nr_.." explicitly is 
+> much clearer.
+
+Yes, I plan to replace them by explicit referenced, however they were
+handy while playing with the definitions. And since nobody outside of
+the cart code still refers to them I plan to rename the struct zone
+members to match these names; zone->nr_active to zone->size_T1 and
+zone->active_list to zone->list_T1.
+
+-- 
+Peter Zijlstra <a.p.zijlstra@chello.nl>
+

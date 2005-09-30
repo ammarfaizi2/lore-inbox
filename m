@@ -1,107 +1,167 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932276AbVI3TQc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030322AbVI3TUu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932276AbVI3TQc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 15:16:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932583AbVI3TQb
+	id S1030322AbVI3TUu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 15:20:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932588AbVI3TUu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 15:16:31 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:65324 "EHLO
-	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
-	id S932276AbVI3TQb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 15:16:31 -0400
-Subject: Re: [PATCH 3/7] CART - an advanced page replacement policy
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Marcelo <marcelo.tosatti@cyclades.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
-In-Reply-To: <20050930184404.GA16812@xeon.cnet>
-References: <20050929180845.910895444@twins>
-	 <20050929181622.780879649@twins>  <20050930184404.GA16812@xeon.cnet>
-Content-Type: text/plain
-Date: Fri, 30 Sep 2005 21:16:20 +0200
-Message-Id: <1128107781.14695.32.camel@twins>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Fri, 30 Sep 2005 15:20:50 -0400
+Received: from [82.148.30.74] ([82.148.30.74]:57616 "EHLO abc.pervushin.pp.ru")
+	by vger.kernel.org with ESMTP id S932587AbVI3TUt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 15:20:49 -0400
+From: <dpervushin@gmail.com>
+To: "'David Brownell'" <david-b@pacbell.net>
+Cc: <linux-kernel@vger.kernel.org>, <spi-devel-general@lists.sourceforge.net>
+Subject: RE: [PATCH] SPI
+Date: Fri, 30 Sep 2005 23:20:29 +0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+In-Reply-To: <20050930175923.F3C89E9E25@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Thread-Index: AcXF6MIhbpZLxDlAQUO1c6BZ4j971wACHkpg
+Message-Id: <20050930192044.96FE34C4D2@abc.pervushin.pp.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-09-30 at 15:44 -0300, Marcelo wrote:
-> Hi Peter,
+Hello all,
+> around the I/O model of a queue of async messages; and even 
+> names for some data structures.
+It seems we are talking about similar things, aren't we ?
+> 	<linux/spi/spi.h>	... main header
+> 	<linux/spi/CHIP.h>	... platform_data, for CHIP.c driver
 > 
-> On Thu, Sep 29, 2005 at 08:08:48PM +0200, Peter Zijlstra wrote:
-> > The flesh of the CART implementation. Again comments in the file should be
-> > clear.
+> Not all chips would need them, but it might be nice to have 
+> some place other than <linux/CHIP.h> for such things.  The 
+> platform_data would have various important data that can't be 
+> ... chip variants, initialization data, and similar stuff 
+> that differs between boards is knowable only by 
+> board-specific init code, yet is needed by board-agnostic driver code.
+I would prefer not to have subdirectory spi in include/linux. Take a look to
+pci, for example. I guess that chip data are spi-bus specific, and should
+not be exported to world.
+> that way internally.  But other drivers shouldn't be forced 
+> to allocate kernel threads when they don't need them.
+Really :) ? I'd like to have the worker thread for bus (and all devices on
+the bus) instead of several workqueues (one per each device on bus, right ?)
+> Hmm, this seems to be missing a few important things ... from 
+> the last SPI patch I posted to this list (see the URL right above):
 > 
-> Having per-zone "B1" target accounted at fault-time instead of a global target
-> strikes me.
+> 	struct bus_type spi_bus_type = {
+> 		.name           = "spi",
+> 		.dev_attrs      = spi_dev_attrs,
+> 		.match          = spi_match_device,
+> 		.hotplug        = spi_hotplug,
+> 		.suspend        = spi_suspend,
+> 		.resume         = spi_resume,
+> 	};
 > 
-> The ARC algorithm adjusts the B1 target based on the fact that being-faulted-pages
-> were removed from the same memory region where such pages will reside.
-> 
-> The per-zone "B1" target as you implement it means that the B1 target accounting
-> happens for the zone in which the page for the faulting data has been allocated,
-> _not_ on the zone from which the data has been evicted. Seems quite unfair.
-> 
-> So for example, if a page gets removed from the HighMem zone while in the 
-> B1 list, and the same data gets faulted in later on a page from the normal
-> zone, Normal will have its "B1" target erroneously increased.
-> 
-> A global inactive target scaled to the zone size would get rid of that problem.
+> That supports new-school "modprobe $MODALIAS" hotplugging and 
+> .../modalias style coldplugging, as well as passing PM calls 
+> down to the drivers.  (Those last recently got some tweaking, 
+> to work better through sysfs.)  And the core is STILL only 
+> about 2 KB on ARM; significantly less than yours.
+Are you counting bytes on your sources ? Or bytes in object files ? As for
+spi_bus_type, I agree. Hotplu/suspend/resume have to be included.
 
-Good, good, I'll think this though, this probably means the other
-targets: 'p' and 'r' would similarly benefit.
-
-> Another issue is testing: You had some very interesting numbers before, 
-> how are things now?
-
-I managed to reproduce that 10% gain on the kernel build time once more,
-however it seems very unstable, I generally get only 2-3%.
-
-> > Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
-> > 
-> >  mm/cart.c                  |  631 +++++++++++++++++++++++++++++++++++++++++++++
-> >  7 files changed, 682 insertions(+), 35 deletions(-)
-> > 
-> > Index: linux-2.6-git/mm/cart.c
-> > ===================================================================
-> > --- /dev/null
-> > +++ linux-2.6-git/mm/cart.c
-> > @@ -0,0 +1,639 @@
+> You don't seem to have any ability to record essential 
+> board-specific information that the drivers will need.  I 
+> hope you're not planning on making that stuff clutter up the 
+> driver files??  board-specific.c files seem the better model, 
+> with a way to pass that data to the drivers that need it 
+> (using the driver model).
 > 
-> <snip>
+> That minimally includes stuff like the IRQ used by that chip, 
+> the clock rate it supports on this board, and the SPI 
+> clocking mode (0, 1, 2, 3) used to get data in and out of the 
+> chip.  But there seem to be a few other things needed too, 
+> given the ways SPI chips tweak the protocol.
+This is responsibility of bus driver. The driver for device on the SPI bus
+might request the hardware info from the bus driver, which is referenced via
+spi_device->device->parent.
 > 
-> > +#define cart_cT ((zone)->nr_active + (zone)->nr_inactive + (zone)->free_pages)
-> > +#define cart_cB ((zone)->present_pages)
-> > +
-> > +#define T2B(x) (((x) * cart_cB) / cart_cT)
-> > +#define B2T(x) (((x) * cart_cT) / cart_cB)
-> > +
-> > +#define size_T1 ((zone)->nr_active)
-> > +#define size_T2 ((zone)->nr_inactive)
-> > +
-> > +#define list_T1 (&(zone)->active_list)
-> > +#define list_T2 (&(zone)->inactive_list)
-> > +
-> > +#define cart_p ((zone)->nr_p)
-> > +#define cart_q ((zone)->nr_q)
-> > +
-> > +#define size_B1 ((zone)->nr_evicted_active)
-> > +#define size_B2 ((zone)->nr_evicted_inactive)
-> > +
-> > +#define nr_Ns ((zone)->nr_shortterm)
-> > +#define nr_Nl (size_T1 + size_T2 - nr_Ns)
 > 
-> These defines are not not easy to read inside the code which
-> uses them, I personally think that "zone->nr_.." explicitly is 
-> much clearer.
+> > +				/*
+> > +				 * all messages for current 
+> selected_device
+> > +				 * are processed.
+> > +				 * let's switch to another device
+> > +				 */
+> 
+> Why are you hard-wiring such an unfair scheduling policy ... 
+> and preventing use of better ones?  I'd use FIFO rather than 
+> something as unfair as that; and FIFO is much simpler to code, too.
+OK, the policy is hardcoded and seems to be not the only available. This can
+be solved by adding a function to pull out the message that is "next by
+current". Does this sound reasonable ? 
+> 
+> 
+> > +{
+> > +	int ret;
+> > +	struct spimsg *msg = spimsg_alloc(dev, SPI_M_RD, len, NULL);
+> > +
+> > +	ret = spi_transfer(msg, NULL);
+> > +	memcpy(buf, spimsg_buffer_rd(msg), len);
+> 
+> I don't really understand why you'd want to make this so 
+> expensive though.  Why not just do the IO directly into the 
+> buffer provided for that purpose?  One controller might 
+> require dma bounce buffers; but don't penalize all others by 
+> imposing those same costs.
+Drivers might want to allocate theyr own buffers, for example, using
+dma_alloc_coherent. Such drivers also need to store the dma handle
+somewhere. Drivers might use pre-allocated buffers. 
+> 
+> Also, spimsg_alloc() is huge ... even if you expect the 
+> inliner will remove some of it.  It's doing several dynamic 
+> allocations.  I honestly don't understand why there's a need 
+> for even _one_ dynamic allocation in this "core" code path 
+> (much less the memcpy).
+The allocations might be avoided if drivers provide their callback to
+"allocate" buffer. Then, there is the only alloc -- for spi_msg itself
+> Also, you don't have any "board specific init" component in 
+> this code...
+spi_bus_populate calls the callback to initialize device with void* context.
 
-Yes, I plan to replace them by explicit referenced, however they were
-handy while playing with the definitions. And since nobody outside of
-the cart code still refers to them I plan to rename the struct zone
-members to match these names; zone->nr_active to zone->size_T1 and
-zone->active_list to zone->list_T1.
+> 
+> 
+> > +  +--------------+                    +---------+
+> > +  | platform_bus |                    | spi_bus |
+> > +  +--------------+                    +---------+
+> > +       |..|                                |
+> > +       |..|--------+               +---------------+
+> > +     +------------+| is parent to  |  SPI devices  |
+> > +     | SPI busses |+-------------> |               |
+> > +     +------------+                +---------------+
+> > +           |                               |
+> > +     +----------------+          +----------------------+
+> > +     | SPI bus driver |          |    SPI device driver |
+> > +     +----------------+          +----------------------+
+> 
+> That seems wierd even if I assume "platform_bus" is just an example.
+> For example there are two rather different "spi bus" notions 
+> there, and it looks like neither one is the physical parent 
+> of any SPI device ...
+"SPI busses" means several 'struct device' that corresponds to real device
+that acts as spi controller. "spi_bus" is the variable of type "bus_type"
 
--- 
-Peter Zijlstra <a.p.zijlstra@chello.nl>
+> > +		msg->devbuf_rd = drv->alloc ?
+> > +		    drv->alloc(len, GFP_KERNEL) : kmalloc(len, 
+> GFP_KERNEL);
+> > +		msg->databuf_rd = drv->get_buffer ?
+> > +		    drv->get_buffer(device, msg->devbuf_rd) : 
+> msg->devbuf_rd;
+> 
+> Oy.  More dynamic allocation.  (Repeated for write buffers 
+> too ...) See above; don't force such costs on all drivers, 
+> few will ever need it.
+That's not necessarily allocation. That depends on driver that uses
+spimsg_alloc, and possibly provides callback for allocating
+buffers/accessing them
+> > +#define SPI_MAJOR	153
+
+--
+cheers, dmitry pervushin
 

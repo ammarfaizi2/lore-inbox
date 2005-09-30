@@ -1,165 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932548AbVI3JJ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932554AbVI3JTf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932548AbVI3JJ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 05:09:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932549AbVI3JJ0
+	id S932554AbVI3JTf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 05:19:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932556AbVI3JTf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 05:09:26 -0400
-Received: from gw1.cosmosbay.com ([62.23.185.226]:18623 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S932548AbVI3JJZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 05:09:25 -0400
-Message-ID: <433D00BC.2070001@cosmosbay.com>
-Date: Fri, 30 Sep 2005 11:09:16 +0200
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: fr, en
+	Fri, 30 Sep 2005 05:19:35 -0400
+Received: from ns1.trc-odintsovo.ru ([213.85.88.5]:34978 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S932554AbVI3JTe convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 05:19:34 -0400
+From: Alexander Zarochentsev <zam@namesys.com>
+Organization: namesys
+To: reiserfs-dev@namesys.com
+Subject: Re: 2.6.14-rc2-mm2
+Date: Fri, 30 Sep 2005 13:20:37 +0400
+User-Agent: KMail/1.8
+Cc: Laurent Riffard <laurent.riffard@free.fr>,
+       Brice Goglin <Brice.Goglin@ens-lyon.org>,
+       Alexandre Buisse <alexandre.buisse@ens-lyon.fr>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20050929143732.59d22569.akpm@osdl.org> <433C7EC9.4000604@ens-lyon.org> <433CFB32.4030105@free.fr>
+In-Reply-To: <433CFB32.4030105@free.fr>
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [NUMA , x86_64] Why memnode_shift is chosen with the lowest possible
- value ?
-References: <1127939141.26401.32.camel@localhost.localdomain> <1127939593.26401.38.camel@localhost.localdomain> <20050928232027.28e1bb93.akpm@osdl.org> <p73k6h0jjh3.fsf@verdi.suse.de> <433BEED6.6000008@cosmosbay.com> <20050929134337.GF2720@wotan.suse.de> <433C1D6F.1030605@cosmosbay.com>
-In-Reply-To: <433C1D6F.1030605@cosmosbay.com>
-Content-Type: multipart/mixed;
- boundary="------------090308050008010906000909"
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Fri, 30 Sep 2005 11:09:19 +0200 (CEST)
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200509301320.38161.zam@namesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090308050008010906000909
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+On Friday 30 September 2005 12:45, Laurent Riffard wrote:
+> Le 30.09.2005 01:54, Brice Goglin a écrit :
+> > Le 30.09.2005 01:40, Michal Piotrowski a écrit :
+> >>It maybe a problem with gentoo gcc.
+> >
+> > I'm seeing the same error with Debian gcc4.
+> >
+> > bgoglin@puligny:/usr/src/linux-mm$ gcc --version
+> > gcc (GCC) 4.0.1 (Debian 4.0.1-2)
+> >
+> > By the way, the error appears when compiling
+> >   CC [M]  fs/reiser4/debug.o
+> > while DEBUG is disabled for REISER4.
+> >
+> > My .config attached
+> > Note that Alexandre forgot to reenable Reiser4 in the .config he sent.
+> >
+> > Regards,
+> > Brice
+>
+> It seems to appear when CONFIG_SMP=N and CONFIG_DEBUG_SPINLOCK=N and
+> CONFIG_REISER4_DEBUG=N.
+>
+> In this case, spinlock_t is an empty struct (see
+> include/linux/spinlock_types.h and
+> include/linux/spinlock_types_up.h). Then sizeof(spinlock_t) _is_ 0,
+> and this breaks some code like cassert calls from
+> fs/reiser4/spin_macros.h line 85 (FIELD is a spinlock_t) :
+>      82 static inline void spin_ ## NAME ## _init(TYPE *x)      \
+>      83 {                                                       \
+>
+>      84         __ODCA("nikita-2987", x != NULL);               \
+>      85         cassert(sizeof(x->FIELD) != 0);                 \
+>
+>      86         memset(& x->FIELD, 0, sizeof x->FIELD);         \
+>
+>      87         spin_lock_init(& x->FIELD.lock);                \
+>
+>      88 }                                                       \
+>
+>      89
 
-Eric Dumazet a écrit :
-> Andi Kleen a écrit :
-> 
->>> Using memnode_shift=33 would access only 2 bytes from this 
->>> memnodemap[], touching fewer cache lines (well , one cache line). 
->>> kfree() and friends would be slightly faster, at least cache friendly.
->>
->>
->>
->> Agreed. Please send a patch.
-> 
+correct. 
 
-My previous patch was not correct. Couly you please review this second version.
-
-[PATCH] NUMA,x86_64 :
-     Compute the highest possible value for memnode_shift,
-     in order to reduce footprint of memnodemap[] to the minimum, thus
-     making all users (phys_to_nid(), kfree()), more cache friendly.
-
-Before the patch :
-
-Node 0 MemBase 0000000000000000 Limit 00000001ffffffff
-Node 1 MemBase 0000000200000000 Limit 00000003ffffffff
-Using 23 for the hash shift. Max adder is 3ffffffff
-
-After the patch :
-
-Node 0 MemBase 0000000000000000 Limit 00000001ffffffff
-Node 1 MemBase 0000000200000000 Limit 00000003ffffffff
-Using 33 for the hash shift.
-
-In this case, only 2 bytes of memnodemap[] are used, instead of 2048
-
-Thank you
-
-Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
-
-
---------------090308050008010906000909
-Content-Type: text/plain;
- name="compute_hash_shift"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="compute_hash_shift"
-
---- linux-2.6.14-rc2/arch/x86_64/mm/numa.c	2005-09-20 05:00:41.000000000 +0200
-+++ linux-2.6.14-rc2-ed/arch/x86_64/mm/numa.c	2005-09-30 11:04:18.000000000 +0200
-@@ -38,38 +38,57 @@
+the code will be reworked soon,
+a hot fix for now is:
  
- int numa_off __initdata;
- 
--int __init compute_hash_shift(struct node *nodes, int numnodes)
-+
-+/*
-+ * Given a shift value, try to populate memnodemap[]
-+ * Returns :
-+ * 1 if OK
-+ * 0 if memnodmap[] too small (of shift too small)
-+ * -1 if node overlap or lost ram (shift too big)
-+ */
-+static int __init populate_memnodemap(
-+	const struct node *nodes, int numnodes, int shift)
- {
- 	int i; 
--	int shift = 20;
--	unsigned long addr,maxend=0;
--	
--	for (i = 0; i < numnodes; i++)
--		if ((nodes[i].start != nodes[i].end) && (nodes[i].end > maxend))
--				maxend = nodes[i].end;
-+	int res = -1;
-+	unsigned long addr, end;
- 
--	while ((1UL << shift) <  (maxend / NODEMAPSIZE))
--		shift++;
--
--	printk (KERN_DEBUG"Using %d for the hash shift. Max adder is %lx \n",
--			shift,maxend);
--	memset(memnodemap,0xff,sizeof(*memnodemap) * NODEMAPSIZE);
-+	memset(memnodemap, 0xff, sizeof(memnodemap));
- 	for (i = 0; i < numnodes; i++) {
--		if (nodes[i].start == nodes[i].end)
-+		addr = nodes[i].start;
-+		end = nodes[i].end;
-+		if (addr >= end)
- 			continue;
--		for (addr = nodes[i].start;
--		     addr < nodes[i].end;
--		     addr += (1UL << shift)) {
--			if (memnodemap[addr >> shift] != 0xff) {
--				printk(KERN_INFO
--	"Your memory is not aligned you need to rebuild your kernel "
--	"with a bigger NODEMAPSIZE shift=%d adder=%lu\n",
--					shift,addr);
-+		if ((end >> shift) >= NODEMAPSIZE)
-+			return 0;
-+		do {
-+			if (memnodemap[addr >> shift] != 0xff)
- 				return -1;
--			} 
- 			memnodemap[addr >> shift] = i;
--		} 
-+			addr += (1 << shift);
-+		} while (addr < end);
-+		res = 1;
- 	} 
-+	return res;
-+}
-+
-+int __init compute_hash_shift(struct node *nodes, int numnodes)
-+{
-+	int shift = 20;
-+
-+	while (populate_memnodemap(nodes, numnodes, shift + 1) >= 0)
-+		shift++;
-+
-+	printk(KERN_DEBUG "Using %d for the hash shift.\n",
-+		shift);
-+
-+	if (populate_memnodemap(nodes, numnodes, shift) != 1) {
-+		printk(KERN_INFO
-+	"Your memory is not aligned you need to rebuild your kernel "
-+	"with a bigger NODEMAPSIZE shift=%d\n",
-+			shift);
-+		return -1;
-+	}
- 	return shift;
- }
- 
+-----------------------------------
+diff --git a/spin_macros.h b/spin_macros.h
+--- a/spin_macros.h
++++ b/spin_macros.h
+@@ -82,8 +82,6 @@ typedef struct reiser4_rw_data {
+ static inline void spin_ ## NAME ## _init(TYPE *x)				\
+ {										\
+ 	__ODCA("nikita-2987", x != NULL);					\
+-	cassert(sizeof(x->FIELD) != 0);						\
+-	memset(& x->FIELD, 0, sizeof x->FIELD);					\
+ 	spin_lock_init(& x->FIELD.lock);					\
+ }										\
+ 										\
+@@ -236,7 +234,6 @@ typedef struct { int foo; } NAME ## _spi
+ static inline void rw_ ## NAME ## _init(TYPE *x)				\
+ {										\
+ 	__ODCA("nikita-2988", x != NULL);					\
+-	memset(& x->FIELD, 0, sizeof x->FIELD);					\
+ 	rwlock_init(& x->FIELD.lock);						\
+ }										\
+ 										\
+-----------------------------------
 
---------------090308050008010906000909--
+>
+> ~~
+> laurent

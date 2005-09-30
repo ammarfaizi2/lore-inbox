@@ -1,44 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030476AbVI3WYV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030482AbVI3WYM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030476AbVI3WYV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 18:24:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030479AbVI3WYV
+	id S1030482AbVI3WYM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 18:24:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030479AbVI3WYL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 18:24:21 -0400
-Received: from fmr23.intel.com ([143.183.121.15]:43185 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1030476AbVI3WYT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 18:24:19 -0400
-Date: Fri, 30 Sep 2005 15:23:59 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Andi Kleen <ak@suse.de>
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [Patch] x86, x86_64: fix cpu model for family 0x6
-Message-ID: <20050930152358.D28092@unix-os.sc.intel.com>
-References: <20050929190419.C15943@unix-os.sc.intel.com> <433D391A.70607@vc.cvut.cz> <20050930112310.A28092@unix-os.sc.intel.com> <200510010002.16382.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200510010002.16382.ak@suse.de>; from ak@suse.de on Sat, Oct 01, 2005 at 12:02:16AM +0200
+	Fri, 30 Sep 2005 18:24:11 -0400
+Received: from fmr16.intel.com ([192.55.52.70]:38314 "EHLO
+	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1030476AbVI3WYK convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 18:24:10 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] cpufreq: honor cpu_sibling_map in speedstep-centrino.c
+Date: Fri, 30 Sep 2005 15:24:02 -0700
+Message-ID: <88056F38E9E48644A0F562A38C64FB6005DED44E@scsmsx403.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] cpufreq: honor cpu_sibling_map in speedstep-centrino.c
+Thread-Index: AcXFyGwgcH+oGrsIRya267GJgaX4awAREqMQ
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "Alexey Dobriyan" <adobriyan@gmail.com>, <linux-kernel@vger.kernel.org>
+Cc: "Aaron M. Ucko" <ucko@debian.org>
+X-OriginalArrivalTime: 30 Sep 2005 22:24:05.0394 (UTC) FILETIME=[AAE50F20:01C5C60D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 01, 2005 at 12:02:16AM +0200, Andi Kleen wrote:
-> I applied an earlier mix of your original one and Petr's suggestions. Hope 
-> it's ok. 
 
-Andi I prefer to follow the SDM guidelines. Who knows if future families
-comeup with a different rule or use/initialize these extended model/family
-bits differently. I am just being paranoid.
+>-----Original Message-----
+>From: linux-kernel-owner@vger.kernel.org 
+>[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
+>Alexey Dobriyan
+>Sent: Friday, September 30, 2005 7:16 AM
+>To: linux-kernel@vger.kernel.org
+>Cc: Aaron M. Ucko
+>Subject: Fwd: [PATCH] cpufreq: honor cpu_sibling_map in 
+>speedstep-centrino.c
+>
+>To: kernel-janitors@lists.osdl.org
+>
+>speedstep-centrino.c should honor cpu_sibling_map for the sake of
+>recent Intel processors, which support both Centrino-style Enhanced
+>SpeedStep and hyperthreading; even newer dual-core chips may need the
+>same fix.
+>
 
-> +		if (c->x86 >= 0xf) 
+Just this patch is not enough for Enhanced speedstep processors to use 
+Centrino style driver.
 
-And also you have a typo. It should be 0x6.
+- ACPI 3.0 has interfaces that says which all CPUs share a common 
+frequency. Using that will help us avoid assumptions in OS about HT 
+siblings share a freq or cores share a freq or anything like that.
+- OS also should tell BIOS that it understands about multiple CPUs 
+Sharing freq. Otherwise BIOS may try to do the coordination across 
+the CPUs sharing freq and OS also will try to do something similar 
+inside OS. Actually, speedstep-centrino driver will not work on such 
+CPUs until BIOS is made aware of this fact.
+- All this based on ACPI helps in general to make less assumptions 
+about the actual processor itself inside the kernel. It will also 
+help the current kernel to work on newer processors without specific 
+changes like this.
 
-Anyhow, I prefer my second patch.
+The patch to support this whole software coordination is here 
+http://sourceforge.net/mailarchive/forum.php?forum_id=6102&max_rows=100&
+style=threaded&viewmonth=200509&viewday=13
 
-thanks,
-suresh
+Thanks,
+Venki
+
+
+
+
+>--- 
+>linux-source-2.6.13.2/arch/i386/kernel/cpu/cpufreq/speedstep-ce
+>ntrino.c~	2005-08-28 19:41:01.000000000 -0400
+>+++ 
+>linux-source-2.6.13.2/arch/i386/kernel/cpu/cpufreq/speedstep-ce
+>ntrino.c	2005-09-28 17:23:37.000000000 -0400
+>@@ -498,6 +498,10 @@
+> 	if (cpu->x86_vendor != X86_VENDOR_INTEL || 
+>!cpu_has(cpu, X86_FEATURE_EST))
+> 		return -ENODEV;
+> 
+>+#ifdef CONFIG_SMP
+>+	policy->cpus = cpu_sibling_map[policy->cpu];
+>+#endif
+>+
+> 	for (i = 0; i < N_IDS; i++)
+> 		if (centrino_verify_cpu_id(cpu, &cpu_ids[i]))
+> 			break;
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe 
+>linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>

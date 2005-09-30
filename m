@@ -1,66 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751234AbVI3RSX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751151AbVI3R1J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751234AbVI3RSX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 13:18:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751296AbVI3RSX
+	id S1751151AbVI3R1J (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 13:27:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751221AbVI3R1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 13:18:23 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:12248 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751234AbVI3RSW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 13:18:22 -0400
-Date: Fri, 30 Sep 2005 10:18:02 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-cc: Roland McGrath <roland@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix TASK_STOPPED vs TASK_NONINTERACTIVE interaction
-In-Reply-To: <433D6CFB.C1BA3F1F@tv-sign.ru>
-Message-ID: <Pine.LNX.4.64.0509301006580.3378@g5.osdl.org>
-References: <20050929215442.74EE0180E20@magilla.sf.frob.com>
- <433D6CFB.C1BA3F1F@tv-sign.ru>
+	Fri, 30 Sep 2005 13:27:09 -0400
+Received: from moraine.clusterfs.com ([66.96.26.190]:23522 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S1751151AbVI3R1I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 13:27:08 -0400
+From: Nikita Danilov <nikita@clusterfs.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17213.30072.553155.302230@gargle.gargle.HOWL>
+Date: Fri, 30 Sep 2005 21:27:20 +0400
+To: "Vladimir V. Saveliev" <vs@namesys.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+Newsgroups: gmane.linux.kernel
+In-Reply-To: <433D2B21.6040406@namesys.com>
+References: <432AFB44.9060707@namesys.com>
+	<20050918110658.GA22744@infradead.org>
+	<432E8282.6060905@namesys.com>
+	<20050919092444.GA17501@infradead.org>
+	<43302CF7.2010901@namesys.com>
+	<20050920154711.GA6698@infradead.org>
+	<433D2B21.6040406@namesys.com>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Vladimir V. Saveliev writes:
+ > Hello
+ > 
+ > Christoph Hellwig wrote:
+ > > ...
+ > > Looking at the actual code all these point to the spin lock obsufcation
+ > > SPIN_LOCK_FUNCTIONS/RW_LOCK_FUNCTIONS from spin_macros.h which I told
+ > > to get rid of in the first round of reviews. 
+ > > ...
+ > 
+ > reiser4 spinlock macros provide following functionality:
+ > 
+ >     (1) encapsulation of locks: instead of writing spin_lock(&obj->lock),
+ >     where obj is object of type foo, one writes spin_lock_foo(obj).
+ > 
+ >     (2) keeping information about number of locks of particular type currently
+ > held by thread
+ > 
+ >     (3) checking that locks are acquired in the proper order.
+ > 
+ >     (4) collection of spin lock contention statistics
+ > 
+ > 
+ > I agree that (1) is not very necessary. (2) and (4) helped a lot in early
+ > debugging. Now we are about to remove it.
 
+This was already discussed during earlier attempts to merge reiser4. The
+proper solution purportedly is to make useful features of reiser4
+spin-lock code generic and merge them so that the rest of kernel can
+enjoy their superiority.
 
-On Fri, 30 Sep 2005, Oleg Nesterov wrote:
->
-> Roland, could you please explain this code in wait_task_stopped()
-> 
-> 	if (!exit_code || p->state > TASK_STOPPED)
-> 		goto bail_ref;
+ > 
+ > However, we would prefer to keep (3). It makes catching spinlock deadlocks very
+ > easy. Don't you think that makes sence?
 
-Regardless of any other explanations, it turns out that "p->state" can be 
-something like "TASK_RUNNING | TASK_NONINTERACTIVE", and then this would 
-trigger totally incorrectly.
+Lock-ordering monitoring was _immensely_ useful. For one thing it forces
+one to have complete and up to date description of lock ordering.
 
-> It looks like "WSTOPPED | WNOWAIT is illegal for TASK_TRACED child"
-> to me. Is this correct? I think no.
+ > 
+ > Thanks
 
-No, I think it's correct. If you have a traced child, you can't just wait 
-for it. You need to use ptrace to release it first.
-
-> Actually, I don't understand why we are checking p->state at all, we
-> already dropped tasklist_lock, the state can change at any monent.
-
-If it's TASK_TRACED, and it's our child, then it shouldn't be changing. 
-
-Besides, even if it does, we had a perfectly fine race, and we'll have 
-been woken up again and we'll just go through the do_wait() loop once 
-more.
-
-So I think the code is mostly correct. But that ">" is definitely 
-incorrect.
-
-Maybe it should just be
-
-	if (!exit_code || (p->state & TASK_TRACED))
-
-instead?
-
-Roland?
-
-		Linus
+Nikita.

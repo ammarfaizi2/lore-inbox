@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932566AbVI3GvE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932564AbVI3Gvc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932566AbVI3GvE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 02:51:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932565AbVI3GvD
+	id S932564AbVI3Gvc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 02:51:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932567AbVI3Gvb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 02:51:03 -0400
-Received: from web30315.mail.mud.yahoo.com ([68.142.201.233]:923 "HELO
-	web30315.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932564AbVI3GvB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 02:51:01 -0400
+	Fri, 30 Sep 2005 02:51:31 -0400
+Received: from web30311.mail.mud.yahoo.com ([68.142.201.229]:29860 "HELO
+	web30311.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932564AbVI3Gva (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 02:51:30 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.com;
   h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=36nYAG3ru7PRy1utmQpkOYQEs7aXZOi5DJtpjtp+XFgRED8FRKmZGqylNgmPlQr7uK+i7iB38jkTrwAukxshUeCU8+fDdhYFg2u0ENcjZHT38K4HJC1WP1nz4TclXwIqJWu+QLxsegbRxtnIKtNYv11dE5+Vy3S9OqTMqMtKYT8=  ;
-Message-ID: <20050930065058.84446.qmail@web30315.mail.mud.yahoo.com>
-Date: Thu, 29 Sep 2005 23:50:58 -0700 (PDT)
+  b=Tijvq7UmNKnSIW03+UsejeSrWFJcM/VqdU8MBn7T0BR5RaPqISYujJuHn2CD+Zw6HD8Rs/lBwWBihxLvEsJE7jzU8B9rZvPY0YsJzJKfcQpiL5srbdqSvFI9bqomhuAprd1r7g55tBm2JRbC+mywKEpO67CNeCQc5khdkf12CLM=  ;
+Message-ID: <20050930065129.61961.qmail@web30311.mail.mud.yahoo.com>
+Date: Thu, 29 Sep 2005 23:51:29 -0700 (PDT)
 From: subbie subbie <subbie_subbie@yahoo.com>
 Subject: 3Ware 9500S-12 RAID controller -- poor performance
 To: linux-kernel@vger.kernel.org

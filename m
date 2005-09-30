@@ -1,83 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932565AbVI3HJR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932568AbVI3HKd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932565AbVI3HJR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 03:09:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932571AbVI3HJR
+	id S932568AbVI3HKd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 03:10:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932571AbVI3HKd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 03:09:17 -0400
-Received: from carbon.nocdirect.com ([69.73.156.63]:7610 "EHLO
-	carbon.nocdirect.com") by vger.kernel.org with ESMTP
-	id S932565AbVI3HJQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 03:09:16 -0400
-Message-ID: <433CE491.90305@ipom.com>
-Date: Fri, 30 Sep 2005 00:09:05 -0700
-From: Phil Dibowitz <phil@ipom.com>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pete Zaitcev <zaitcev@redhat.com>
-CC: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       linux-usb-storage@lists.one-eyed-alien.net
-Subject: Re: [linux-usb-devel] RFC drivers/usb/storage/libusual
-References: <20050927205559.078ba9ed.zaitcev@redhat.com>
-In-Reply-To: <20050927205559.078ba9ed.zaitcev@redhat.com>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig273E7C2CBA6B3FFA193E8E86"
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - carbon.nocdirect.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - ipom.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Fri, 30 Sep 2005 03:10:33 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:19615
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932568AbVI3HKd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 03:10:33 -0400
+Date: Fri, 30 Sep 2005 00:10:25 -0700 (PDT)
+Message-Id: <20050930.001025.86739685.davem@davemloft.net>
+To: chuckw@quantumlinux.com
+Cc: chrisw@osdl.org, linux-kernel@vger.kernel.org, stable@kernel.org,
+       jmforbes@linuxtx.org, zwane@arm.linux.org.uk, tytso@mit.edu,
+       rdunlap@xenotime.net, torvalds@osdl.org, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, mk@linux-ipv6.org
+Subject: Re: [PATCH 07/10] [PATCH] check connect(2) status for IPv6 UDP
+ socket
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.63.0509292318320.29997@localhost.localdomain>
+References: <20050930022016.640197000@localhost.localdomain>
+	<20050930022239.411732000@localhost.localdomain>
+	<Pine.LNX.4.63.0509292318320.29997@localhost.localdomain>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig273E7C2CBA6B3FFA193E8E86
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+From: Chuck Wolber <chuckw@quantumlinux.com>
+Date: Thu, 29 Sep 2005 23:25:14 -0700 (PDT)
 
-Pete Zaitcev wrote:
-> Patch is attached. I would like someone to look it over and challenge it.
-> The thing looks too complex to me, but I see no other way. Anyone?
+> Does this really qualify as a necessary bug fix?
 
-OK, so I'm not very familiar with a lot of the code affected here, but
-since it diddles with unusual_devs, I feel I should chime in. But I'll
-chime in with a question. ;)
-
-A quick look over the patch shows that there are now two kinds of
-unusual_dev entries: unusual_dev() and unusual_dev_fl(), where the
-latter is for entries that don't need to specify SC or PR (i.e., just
-had US_SC_DEVICE, US_PR_DEVICE in them). While I think that's a
-reasonable change, it's not clear to me why that's useful to the rest of
-the patch, or it's just making unusual_devs.h artificially shorter?
-
--- 
-Phil Dibowitz                             phil@ipom.com
-Freeware and Technical Pages              Insanity Palace of Metallica
-http://www.phildev.net/                   http://www.ipom.com/
-
-"They that can give up essential liberty to obtain a little temporary
-safety deserve neither liberty nor safety."
- - Benjamin Franklin, 1759
-
-
---------------enig273E7C2CBA6B3FFA193E8E86
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFDPOSSN5XoxaHnMrsRAtJXAJ47RlB0tGmtDE52C1xKAZlsvyK6BwCfbsn5
-ZjfngZD3pIEAwU/hnxMg9IQ=
-=nC3d
------END PGP SIGNATURE-----
-
---------------enig273E7C2CBA6B3FFA193E8E86--
+Yes.  Without this unconnected ipv6 UDP sockets end up using the wrong
+route or IPSEC path.

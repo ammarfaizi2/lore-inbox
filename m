@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751398AbVI3BUP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932387AbVI3BZq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751398AbVI3BUP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 21:20:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbVI3BUO
+	id S932387AbVI3BZq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 21:25:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbVI3BZq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 21:20:14 -0400
-Received: from smtp5.wanadoo.fr ([193.252.22.26]:46579 "EHLO smtp5.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S1751398AbVI3BUN convert rfc822-to-8bit
+	Thu, 29 Sep 2005 21:25:46 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:58561 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932387AbVI3BZp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 21:20:13 -0400
-X-ME-UUID: 20050930012010554.8762A1C00284@mwinf0509.wanadoo.fr
-From: <contact@speare.biz>
-To: JazzSoulGrooveFunkFans <contact@speare.biz>
-Reply-To: <contact@speare.biz>
-Subject: =?ISO-8859-1?Q?SPEARE en concert =E0 Paris?=
-Date: Fri, 30 sep 2005 02:39:28 +0200
-Importance: normal
-X-Mailer: GOTO Software Sarbacane Vs P1.13b
+	Thu, 29 Sep 2005 21:25:45 -0400
+Date: Thu, 29 Sep 2005 18:26:22 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix PREEMPT_RT compile error on NUMA-Q
+Message-ID: <20050930012621.GA9734@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <20050930012010.8762A1C00284@mwinf0509.wanadoo.fr>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-SPEARE en concert
-"To groove or not to groove"
- 
-Le Jeudi 6 octobre 2005 à 21h
-La Java - 105 rue du Faubourg du temple 10ème Paris- M°Goncourt
- 
-Quelques invitations pour deux personnes sont disponibles. 
-Réservation : contact@speare.biz
-Préciser impérativement: votre nom, prénom, téléphone, nombres de personnes. Un e-mail confirmera votre réservation.
+The following patch fixes a fatal compile-time error on NUMA-Q, and
+probably on any other NUMA machine, involving kmem_cache_alloc_node()'s
+"flags" argument.
 
-Au delà du quota d'invitation, vous disposez de places à 8 euros à l'entrée de la Java.
+Signed-off-by: <paulmck@us.ibm.com>
+---
 
-Des places réservées sont accessibles à 9,50 Euros sur les sites de billeterie www.fnac.com www.ticketnet.fr ou points de vente habituels : Carrefour, Leclerc, Virgin, BHV, Galeries Lafayette, Virgin...
+ slab.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-SPEARE en résumé:
-
-Groupe de 6 musiciens, Speare met en musique des textes anglais de grands auteurs (Shakespeare / lrkins / Heaney...) sur des adaptations musicales funk, acidjazz, ou encore electro (avec bande son). 
-Des enchaînements harmoniques riches soutenus par une basse virtuose (Laurent David) mettent en valeur la voix (Guillaume de Home au chant) et laissent libre cours aux improvisations des musiciens de haut niveau comme Sebastien Jarrousse au sax, Philippe Figueras à la guitare, Karim Majhoub à la batterie et  Nico Morelli au piano. 
-Un son funky, des compositions magnifiques, des impros grandioses... les fans de Stevie Wonder,  George Benson ou encore Sixun vont adorer!!! 
-
- 
-Le site du groupe : http://www.speare.biz
-
-
-
-
-
+diff -urpNa -X dontdiff linux-2.6.14-rc2-rt7/mm/slab.c linux-2.6.14-rc2-rt7-NUMA/mm/slab.c
+--- linux-2.6.14-rc2-rt7/mm/slab.c	2005-09-29 13:57:16.000000000 -0700
++++ linux-2.6.14-rc2-rt7-NUMA/mm/slab.c	2005-09-29 17:40:28.000000000 -0700
+@@ -2400,7 +2400,7 @@ out:
+  * and can sleep. And it will allocate memory on the given node, which
+  * can improve the performance for cpu bound structures.
+  */
+-void *kmem_cache_alloc_node(kmem_cache_t *cachep, int flags, int nodeid)
++void *kmem_cache_alloc_node(kmem_cache_t *cachep, unsigned int __nocast flags, int nodeid)
+ {
+ 	int loop;
+ 	void *objp;

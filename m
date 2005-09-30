@@ -1,165 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932527AbVI3Axl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932528AbVI3Ay7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932527AbVI3Axl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 20:53:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbVI3Axl
+	id S932528AbVI3Ay7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 20:54:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932534AbVI3Ay6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 20:53:41 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:23766 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932527AbVI3AxP
+	Thu, 29 Sep 2005 20:54:58 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:31692
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932528AbVI3Ay5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 20:53:15 -0400
-Date: Thu, 29 Sep 2005 19:53:14 -0500
-To: paulus@samba.org
-Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/7] ppc64: EEH PCI address cache cleanups
-Message-ID: <20050930005313.GB6173@austin.ibm.com>
-References: <20050930004800.GL29826@austin.ibm.com>
+	Thu, 29 Sep 2005 20:54:57 -0400
+Subject: Re: [PATCH] RT: update rcurefs for RT
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Daniel Walker <dwalker@mvista.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <1128007259.11511.4.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+References: <1127845926.4004.22.camel@dhcp153.mvista.com>
+	 <20050929114235.GA638@elte.hu>
+	 <1128007259.11511.4.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+Content-Type: text/plain
+Organization: linutronix
+Date: Fri, 30 Sep 2005 02:55:50 +0200
+Message-Id: <1128041750.15115.367.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050930004800.GL29826@austin.ibm.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: linas <linas@austin.ibm.com>
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2005-09-29 at 08:20 -0700, Daniel Walker wrote:
+> +static inline void init_rcurefs(void)
+> +{
+> +	int i;
+> +	for (i=0; i < RCUREF_HASH_SIZE; i++) 
+> +		__rcuref_hash[i] = SPIN_LOCK_UNLOCKED(__rcuref_hash[i]);
 
-02-eeh-addr-cache-cleanup.patch
+Maybe a simple 
 
-This is a minor patch to clean up a buglet related to the PCI address cache.
-(The buglet doesn't manifes itself unless there are also bugs elsewhere,
-which is why its minor.).  Also:
+	spin_lock_init(&__rcuref_hash[i]);
 
--- Improved debug printing.
--- Declare some private routines as static
--- Adds reference counting to struct pci_dn->pcidev structure
+would work all over tha place ?
 
-Signed-off-by: Linas Vepstas <linas@linas.org>
+tglx
 
-Index: linux-2.6.14-rc2-git6/arch/ppc64/kernel/eeh.c
-===================================================================
---- linux-2.6.14-rc2-git6.orig/arch/ppc64/kernel/eeh.c	2005-09-29 13:09:10.306972480 -0500
-+++ linux-2.6.14-rc2-git6/arch/ppc64/kernel/eeh.c	2005-09-29 13:41:44.868689967 -0500
-@@ -219,9 +219,9 @@
- 	while (*p) {
- 		parent = *p;
- 		piar = rb_entry(parent, struct pci_io_addr_range, rb_node);
--		if (alo < piar->addr_lo) {
-+		if (ahi < piar->addr_lo) {
- 			p = &parent->rb_left;
--		} else if (ahi > piar->addr_hi) {
-+		} else if (alo > piar->addr_hi) {
- 			p = &parent->rb_right;
- 		} else {
- 			if (dev != piar->pcidev ||
-@@ -240,6 +240,11 @@
- 	piar->pcidev = dev;
- 	piar->flags = flags;
- 
-+#ifdef DEBUG
-+	printk(KERN_DEBUG "PIAR: insert range=[%lx:%lx] dev=%s\n",
-+	                  alo, ahi, pci_name (dev));
-+#endif
-+
- 	rb_link_node(&piar->rb_node, parent, p);
- 	rb_insert_color(&piar->rb_node, &pci_io_addr_cache_root.rb_root);
- 
-@@ -301,7 +306,7 @@
-  * we maintain a cache of devices that can be quickly searched.
-  * This routine adds a device to that cache.
-  */
--void pci_addr_cache_insert_device(struct pci_dev *dev)
-+static void pci_addr_cache_insert_device(struct pci_dev *dev)
- {
- 	unsigned long flags;
- 
-@@ -344,7 +349,7 @@
-  * the tree multiple times (once per resource).
-  * But so what; device removal doesn't need to be that fast.
-  */
--void pci_addr_cache_remove_device(struct pci_dev *dev)
-+static void pci_addr_cache_remove_device(struct pci_dev *dev)
- {
- 	unsigned long flags;
- 
-@@ -366,6 +371,9 @@
- {
- 	struct pci_dev *dev = NULL;
- 
-+	if (!eeh_subsystem_enabled)
-+		return;
-+
- 	spin_lock_init(&pci_io_addr_cache_root.piar_lock);
- 
- 	while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
-@@ -837,7 +845,7 @@
- 	info.buid_lo = BUID_LO(phb->buid);
- 	early_enable_eeh(dn, &info);
- }
--EXPORT_SYMBOL(eeh_add_device_early);
-+EXPORT_SYMBOL_GPL(eeh_add_device_early);
- 
- /**
-  * eeh_add_device_late - perform EEH initialization for the indicated pci device
-@@ -848,6 +856,8 @@
-  */
- void eeh_add_device_late(struct pci_dev *dev)
- {
-+	struct device_node *dn;
-+
- 	if (!dev || !eeh_subsystem_enabled)
- 		return;
- 
-@@ -855,9 +865,13 @@
- 	printk(KERN_DEBUG "EEH: adding device %s\n", pci_name(dev));
- #endif
- 
-+	pci_dev_get (dev);
-+	dn = pci_device_to_OF_node(dev);
-+	PCI_DN(dn)->pcidev = dev;
-+
- 	pci_addr_cache_insert_device (dev);
- }
--EXPORT_SYMBOL(eeh_add_device_late);
-+EXPORT_SYMBOL_GPL(eeh_add_device_late);
- 
- /**
-  * eeh_remove_device - undo EEH setup for the indicated pci device
-@@ -868,6 +882,7 @@
-  */
- void eeh_remove_device(struct pci_dev *dev)
- {
-+	struct device_node *dn;
- 	if (!dev || !eeh_subsystem_enabled)
- 		return;
- 
-@@ -876,8 +891,12 @@
- 	printk(KERN_DEBUG "EEH: remove device %s\n", pci_name(dev));
- #endif
- 	pci_addr_cache_remove_device(dev);
-+
-+	dn = pci_device_to_OF_node(dev);
-+	PCI_DN(dn)->pcidev = NULL;
-+	pci_dev_put (dev);
- }
--EXPORT_SYMBOL(eeh_remove_device);
-+EXPORT_SYMBOL_GPL(eeh_remove_device);
- 
- static int proc_eeh_show(struct seq_file *m, void *v)
- {
-Index: linux-2.6.14-rc2-git6/arch/ppc64/kernel/pci.h
-===================================================================
---- linux-2.6.14-rc2-git6.orig/arch/ppc64/kernel/pci.h	2005-09-29 13:09:10.306972480 -0500
-+++ linux-2.6.14-rc2-git6/arch/ppc64/kernel/pci.h	2005-09-29 13:36:08.550882158 -0500
-@@ -39,10 +39,6 @@
- void pci_devs_phb_init(void);
- void pci_devs_phb_init_dynamic(struct pci_controller *phb);
- 
--/* PCI address cache management routines */
--void pci_addr_cache_insert_device(struct pci_dev *dev);
--void pci_addr_cache_remove_device(struct pci_dev *dev);
--
- /* From rtas_pci.h */
- void init_pci_config_tokens (void);
- unsigned long get_phb_buid (struct device_node *);
+

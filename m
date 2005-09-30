@@ -1,77 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932404AbVI3AXJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbVI3A3H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932404AbVI3AXJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 20:23:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbVI3AXJ
+	id S932407AbVI3A3H (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 20:29:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932410AbVI3A3H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 20:23:09 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:27324 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932404AbVI3AXH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 20:23:07 -0400
-Date: Thu, 29 Sep 2005 17:23:46 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Suzanne Wood <suzannew@cs.pdx.edu>
-Cc: herbert@gondor.apana.org.au, Robert.Olsson@data.slu.se,
-       davem@davemloft.net, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       walpole@cs.pdx.edu
-Subject: Re: [RFC][PATCH] identify in_dev_get rcu read-side critical sections
-Message-ID: <20050930002346.GP8177@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <200509292330.j8TNUSmH019572@rastaban.cs.pdx.edu>
+	Thu, 29 Sep 2005 20:29:07 -0400
+Received: from gate.crashing.org ([63.228.1.57]:33921 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932407AbVI3A3F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 20:29:05 -0400
+Subject: Re: iMac G5: experimental thermal & cpufreq support
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Geoff Levand <geoffrey.levand@am.sony.com>
+Cc: linuxppc64-dev@ozlabs.org, linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       "debian-powerpc@lists.debian.org" <debian-powerpc@lists.debian.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <433C7882.20000@am.sony.com>
+References: <1127978432.6102.53.camel@gaston>  <433C7882.20000@am.sony.com>
+Content-Type: text/plain
+Date: Fri, 30 Sep 2005 10:26:59 +1000
+Message-Id: <1128040019.31197.3.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200509292330.j8TNUSmH019572@rastaban.cs.pdx.edu>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 29, 2005 at 04:30:28PM -0700, Suzanne Wood wrote:
-> > Date: Fri, 30 Sep 2005 07:28:36 +1000
-> > From: Herbert Xu <herbert@gondor.apana.org.au>
+On Thu, 2005-09-29 at 16:28 -0700, Geoff Levand wrote:
+> Benjamin Herrenschmidt wrote:
+> > The algorithm itself is extracted from darwin. However, it's a rather
+> > complex modified version of the PID algorithm, and thus it could use
+> > some review to make sure I got everything right.
+> > 
 > 
-> > On Thu, Sep 29, 2005 at 09:02:29AM -0700, Suzanne Wood wrote:
-> > > 
-> > > The exchange below suggests that it is equally important 
-> > > to have the rcu_dereference() in __in_dev_get(), so the 
-> > > idea of the only difference between in_dev_get and 
-> > > __in_dev_get being the refcnt may be accepted.
-> 
-> > With __in_dev_get() it's the caller's responsibility to ensure
-> > that RCU works correctly.  Therefore if any rcu_dereference is
-> > needed it should be done by the caller.
-> 
-> This sounds reasonable to me.  Does everyone agree? 
+> As we are already in the digital domain, I would think it would be 
+> more savvy to use a digital controller than try to simulate an
+> analog controller...  Why don't you abstract the control algorithm 
+> such that you can plug in others as they are developed.
 
-Is there any case where __in_dev_get() might be called without
-needing to be wrapped with rcu_dereference()?  If so, then I
-agree (FWIW, given my meagre knowledge of Linux networking).
+Because I don't know much about those control algorithms, and all the
+calibration data provided by the firmware is in the form of factors for
+these algorithms, I wouldn't know how to "unmangle" them to use with
+different ones.
 
-If all __in_dev_get() invocations need to be wrapped in
-rcu_dereference(), then it seems to me that there would be
-motivation to bury rcu_dereference() in __in_dev_get().
+Actually, the control algorithms (PID and modified PID) are in a
+"helper", so it's fairly easy for the platform module to use whatever it
+wants, feel free to submit other algorithms :) But for Apple machines,
+I'd rather use what I have calibration data for, unless you can produce
+something that works without any...
 
-> > Some callers of __in_dev_get() don't need rcu_dereference at all
-> > because they're protected by the rtnl.
-> 
-> > BTW, could you please move the rcu_dereference in in_dev_get()
-> > into the if clause? The barrier is not needed when ip_ptr is
-> > NULL.
-> 
-> The trouble with that may be that there are three events, the
-> dereference, the assignment, and the conditional test.  The
-> rcu_dereference() is meant to assure deferred destruction
-> throughout.
+Ben.
 
-One only needs an rcu_dereference() once on the data-flow path from
-fetching the RCU-protected pointer to dereferencing that pointer.
-If the pointer is NULL, there is no way you can dereference it,
-so, technically, Herbert is quite correct.
-
-However, rcu_dereference() only generates a memory barrier on DEC
-Alpha, so there is normally no penalty for using it in the NULL-pointer
-case.  So, when using rcu_dereference() unconditionally simplifies
-the code, it may make sense to "just do it".
-
-							Thanx, Paul

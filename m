@@ -1,53 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030477AbVI3WTs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030475AbVI3WXo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030477AbVI3WTs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 18:19:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030476AbVI3WTs
+	id S1030475AbVI3WXo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 18:23:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030476AbVI3WXo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 18:19:48 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:3037 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S1030473AbVI3WTr (ORCPT
+	Fri, 30 Sep 2005 18:23:44 -0400
+Received: from hera.kernel.org ([140.211.167.34]:54503 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1030475AbVI3WXn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 18:19:47 -0400
-Message-ID: <433DB9F2.6040300@adaptec.com>
-Date: Fri, 30 Sep 2005 18:19:30 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kyle Moffett <mrmacman_g4@mac.com>
-CC: Greg Freemyer <greg.freemyer@gmail.com>,
-       Andre Hedrick <andre@linux-ide.org>,
-       "David S. Miller" <davem@davemloft.net>, jgarzik@pobox.com,
-       willy@w.ods.org, patmans@us.ibm.com, ltuikov@yahoo.com,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org,
-       linux-scsi@vger.kernel.org,
-       James Bottomley <James.Bottomley@steeleye.com>
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
- the kernel
-References: <Pine.LNX.4.10.10509300015100.27623-100000@master.linux-ide.org>	 <433D8542.1010601@adaptec.com>	 <A0262C6F-6B0E-4790-BA42-FAFD6F026E0A@mac.com>	 <433D8D1F.1030005@adaptec.com>	 <0F03AA4B-D2D1-4C57-B81B-FC95CB863A98@mac.com> <87f94c370509301510nba59ac2m59f507f70de6e46b@mail.gmail.com>
-In-Reply-To: <87f94c370509301510nba59ac2m59f507f70de6e46b@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Fri, 30 Sep 2005 18:23:43 -0400
+To: linux-kernel@vger.kernel.org
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: reiser4 compilation fix [ was: 2.6.14-rc2-mm2]
+Date: Fri, 30 Sep 2005 15:23:56 -0700
+Organization: OSDL
+Message-ID: <20050930152356.35597449@dxpl.pdx.osdl.net>
+References: <20050929143732.59d22569.akpm@osdl.org>
+	<200510010202.32667.zam@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Sep 2005 22:19:30.0865 (UTC) FILETIME=[07434210:01C5C60D]
+X-Trace: build.pdx.osdl.net 1128119016 17453 10.8.0.74 (30 Sep 2005 22:23:36 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Fri, 30 Sep 2005 22:23:36 +0000 (UTC)
+X-Newsreader: Sylpheed-Claws 1.9.14 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09/30/05 18:10, Greg Freemyer wrote:
-> 
-> Luben has more than once called for adding a small number of
-> additional calls to the existing SCSI core.  These calls would
-> implement the new (reduced) functionallity.  The old calls would
-> continue to support the full SPI functionallity.  No existing  LLDD
-> would need modification.
-> 
-> Then, over time, more radical restructuring could be done that pulls
-> SPI out of SCSI core.
-> 
-> I believe this proposal is what he was talking about, not the brand
-> new simplified SCSI core that has been discussed recently in this
-> thread.
 
-See?  There _are_ smart people out there.
+> 
+> Andrew, please add this reiser4 compilation fix :
+> ---------------------------------------------------
+> --- a/fs/reiser4/spin_macros.h
+> +++ b/fs/reiser4/spin_macros.h
+> @@ -82,8 +82,6 @@ typedef struct reiser4_rw_data {
+>  static inline void spin_ ## NAME ## _init(TYPE *x)				\
+>  {										\
+>  	__ODCA("nikita-2987", x != NULL);					\
+> -	cassert(sizeof(x->FIELD) != 0);						\
+> -	memset(& x->FIELD, 0, sizeof x->FIELD);					\
+>  	spin_lock_init(& x->FIELD.lock);					\
+>  }										\
+>  										\
+> @@ -236,7 +234,6 @@ typedef struct { int foo; } NAME ## _spi
+>  static inline void rw_ ## NAME ## _init(TYPE *x)				\
+>  {										\
+>  	__ODCA("nikita-2988", x != NULL);					\
+> -	memset(& x->FIELD, 0, sizeof x->FIELD);					\
+>  	rwlock_init(& x->FIELD.lock);						\
+>  }										\
+>  										\
 
-	Luben
+These are just the kind of bogus macro's that block reiser4 from
+getting merged.
+
+-- 
+Stephen Hemminger <shemminger@osdl.org>
+OSDL http://developer.osdl.org/~shemminger

@@ -1,77 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751361AbVI3RHe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbVI3RMz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751361AbVI3RHe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 13:07:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751307AbVI3RHe
+	id S1750790AbVI3RMz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 13:12:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbVI3RMz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 13:07:34 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:8598 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S1751221AbVI3RHe convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 13:07:34 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-content-class: urn:content-classes:message
+	Fri, 30 Sep 2005 13:12:55 -0400
+Received: from ns1.coraid.com ([65.14.39.133]:41574 "EHLO coraid.com")
+	by vger.kernel.org with ESMTP id S1750790AbVI3RMy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 13:12:54 -0400
+To: "David S. Miller" <davem@davemloft.net>
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: [PATCH 2.6.14-rc2] aoe [1/3]: explicitly set minimum packet
+ length to ETH_ZLEN
+References: <87wtkzbz5z.fsf@coraid.com>
+	<1128032491.9290.1.camel@localhost.localdomain>
+	<874q83tsk9.fsf@coraid.com>
+	<20050929.164545.109612016.davem@davemloft.net>
+From: Ed L Cashin <ecashin@coraid.com>
+Date: Fri, 30 Sep 2005 12:58:09 -0400
+In-Reply-To: <20050929.164545.109612016.davem@davemloft.net> (David S.
+ Miller's message of "Thu, 29 Sep 2005 16:45:45 -0700 (PDT)")
+Message-ID: <87d5mqlcgu.fsf@coraid.com>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: I request inclusion of SAS Transport Layer and AIC-94xx into the kernel
-Date: Fri, 30 Sep 2005 13:07:27 -0400
-Message-ID: <547AF3BD0F3F0B4CBDC379BAC7E4189F01A9FA11@otce2k03.adaptec.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: I request inclusion of SAS Transport Layer and AIC-94xx into the kernel
-Thread-Index: AcXF3sC1lEiP2iBXS9+mGa6OR529mQAAgZRA
-From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-To: "Tuikov, Luben" <Luben_Tuikov@adaptec.com>, <andrew.patterson@hp.com>
-Cc: <dougg@torque.net>, "Linus Torvalds" <torvalds@osdl.org>,
-       "Luben Tuikov" <ltuikov@yahoo.com>,
-       "SCSI Mailing List" <linux-scsi@vger.kernel.org>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At the SAS BOF, I indicated that it would not be much trouble to
-translate the CSMI handler in the aacraid driver to a similar sysfs
-arrangement. If such info can be mined from a firmware based RAID card,
-every driver should be able to do so. The spec writers really need to
-consider rewriting SDI for sysfs (if they have not already) and move
-away from an ABI.
+"David S. Miller" <davem@davemloft.net> writes:
 
-Sincerely -- Mark Salyzyn
+> From: Ed L Cashin <ecashin@coraid.com>
+> Date: Thu, 29 Sep 2005 18:31:02 -0400
+>
+>> We suspect that the e1000 driver is misbehaving when given short
+>> packets, but we have not had time to pinpoint what part of the e1000
+>> driver is involved or what the specific problem is.
+>
+> Then the e1000 driver is where the fix belongs, not the
+> aoe driver.
 
------Original Message-----
-From: Tuikov, Luben
-Sent: Friday, September 30, 2005 12:47 PM
-To: andrew.patterson@hp.com
-Cc: dougg@torque.net; Linus Torvalds; Luben Tuikov; SCSI Mailing List;
-Linux Kernel Mailing List
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx
-into the kernel
+OK, then I guess this one of the three patches can be dropped.
 
-On 09/30/05 12:26, Andrew Patterson wrote:
-> 
-> I talked to one of the authors of these specs.  SDI is an attempt to 
-> create an open standard for the somewhat proprietary CSMI spec 
-> developed by HP.  It is currently languishing in t10 due to the IOCTL 
-> problem you describe below (the "no new IOCTL's" doctrine caught them 
-> by surprise). There is some thought to going to a write()/read() on a 
-> character device model, but this has various problems as well.
+-- 
+  Ed L Cashin <ecashin@coraid.com>
 
-I think that read/write from a char device is going away too.
-
-For this reason I showed the whole picture of the SAS
-domain in sysfs _and_ created a binary file attr to send/receive SMP
-requests/responses to control the domain and get attributes
-("smp_portal" binary attr of each expander).
-
-It is completely user space driven and a user space library
-is simple to write.
-
-See drivers/scsi/sas/expander_conf.c which is a user
-space utility.  For the output see Announcement 3:
-http://linux.adaptec.com/sas/Announce_2.txt or here:
-http://marc.theaimsgroup.com/?l=linux-scsi&m=112629509318354&w=2
-
-The code which implements it is very tiny, at the bottom
-of drivers/scsi/sas/sas_expander.c

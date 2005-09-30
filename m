@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932558AbVI3IeP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932571AbVI3IgR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932558AbVI3IeP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 04:34:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932571AbVI3IeP
+	id S932571AbVI3IgR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 04:36:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932572AbVI3IgR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 04:34:15 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:24809 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932558AbVI3IeO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 04:34:14 -0400
-Date: Fri, 30 Sep 2005 10:34:40 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] RT: update rcurefs for RT
-Message-ID: <20050930083440.GA20905@elte.hu>
-References: <1127845926.4004.22.camel@dhcp153.mvista.com> <20050929114235.GA638@elte.hu> <1128007259.11511.4.camel@c-67-188-6-232.hsd1.ca.comcast.net> <1128041750.15115.367.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 30 Sep 2005 04:36:17 -0400
+Received: from mail.metronet.co.uk ([213.162.97.75]:49131 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S932571AbVI3IgQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 04:36:16 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: jmerkey <jmerkey@utah-nac.org>
+Subject: Re: Linux SATA S.M.A.R.T. and SLEEP?
+Date: Fri, 30 Sep 2005 09:36:50 +0100
+User-Agent: KMail/1.8.91
+Cc: Grant Coady <grant_lkml@dodo.com.au>,
+       Justin Piszcz <jpiszcz@lucidpixels.com>,
+       Nuno Silva <nuno.silva@vgertech.com>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.63.0509290916450.20827@p34> <p8goj1h0a6g0oje8uijpi5r2b95l7sj8n4@4ax.com> <433C3043.6020607@utah-nac.org>
+In-Reply-To: <433C3043.6020607@utah-nac.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1128041750.15115.367.camel@tglx.tec.linutronix.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Message-Id: <200509300936.50185.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 29 September 2005 19:19, jmerkey wrote:
+> Grant Coady wrote:
+> >On Thu, 29 Sep 2005 11:53:21 -0600, jmerkey <jmerkey@utah-nac.org> wrote:
+> >>Someone needs to fix SATA drive ordering in the kernel so it matches
+> >>GRUBs ordering, or perhaps GRUB needs fixing. I have run into
+> >
+> >                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+> >User-space issue?  Four of the last five drives I buy are SATA, I
+> >don't see this problem 'cos I use lilo :o)
+> >
+> >Cheers
+>
+> Seems to show up on FC2/3/4 installs on Piix motherboards. The drive
+> parameters reported for /dev/sda, /dev/sdb are inverted based on the
+> BIOS ordering of the SATA devices. It's more a BIOS issues I think. I
+> have noted that IDE doesn't change the ordering, but the current Linux
+> drivers do.
 
-* Thomas Gleixner <tglx@linutronix.de> wrote:
+It's a BIOS issue. I had problems on my MSI nForce3 mainboard because when you 
+select the "bootable SATA harddrive", it swaps round the ports so that the 
+one you selected is hd0, and the others follow. I couldn't fix it, so in the 
+end I just installed grub on both HDs separately, then use the BIOS toggle to 
+switch between them.
 
-> On Thu, 2005-09-29 at 08:20 -0700, Daniel Walker wrote:
-> > +static inline void init_rcurefs(void)
-> > +{
-> > +	int i;
-> > +	for (i=0; i < RCUREF_HASH_SIZE; i++) 
-> > +		__rcuref_hash[i] = SPIN_LOCK_UNLOCKED(__rcuref_hash[i]);
-> 
-> Maybe a simple 
-> 
-> 	spin_lock_init(&__rcuref_hash[i]);
-> 
-> would work all over the place ?
+-- 
+Cheers,
+Alistair.
 
-yep.
-
-	Ingo
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

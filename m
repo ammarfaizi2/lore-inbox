@@ -1,88 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932370AbVI3Fcy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932383AbVI3FcV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932370AbVI3Fcy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 01:32:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932314AbVI3Fcy
+	id S932383AbVI3FcV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 01:32:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932314AbVI3FcU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 01:32:54 -0400
-Received: from smtp107.sbc.mail.mud.yahoo.com ([68.142.198.206]:52053 "HELO
-	smtp107.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932370AbVI3Fcx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 01:32:53 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH] nesting class_device in sysfs to solve world peace
-Date: Fri, 30 Sep 2005 00:32:49 -0500
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org, Kay Sievers <kay.sievers@vrfy.org>,
-       Vojtech Pavlik <vojtech@suse.cz>, Hannes Reinecke <hare@suse.de>,
-       Patrick Mochel <mochel@digitalimplant.org>, airlied@linux.ie
-References: <20050928233114.GA27227@suse.de>
-In-Reply-To: <20050928233114.GA27227@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 30 Sep 2005 01:32:20 -0400
+Received: from thunk.org ([69.25.196.29]:61394 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S932291AbVI3FcT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 01:32:19 -0400
+Date: Fri, 30 Sep 2005 01:31:49 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Luben Tuikov <ltuikov@yahoo.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
+       Willy Tarreau <willy@w.ods.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Luben Tuikov <luben_tuikov@adaptec.com>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into the kernel
+Message-ID: <20050930053149.GA22199@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Luben Tuikov <ltuikov@yahoo.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Willy Tarreau <willy@w.ods.org>,
+	SCSI Mailing List <linux-scsi@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Luben Tuikov <luben_tuikov@adaptec.com>,
+	Jeff Garzik <jgarzik@pobox.com>
+References: <Pine.LNX.4.58.0509291247040.3308@g5.osdl.org> <20050929232013.95117.qmail@web31810.mail.mud.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200509300032.50408.dtor_core@ameritech.net>
+In-Reply-To: <20050929232013.95117.qmail@web31810.mail.mud.yahoo.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 28 September 2005 18:31, Greg KH wrote:
-> Alright, here's a patch that will add the ability to nest struct
-> class_device structures in sysfs.  This should give everyone the ability
-> to model what they need to in the class directory (input, video, etc.).
-> 
-> Dmitry, care to update your input patchset to take advantage of this?
-> It should work out for what you want to do, and if not, please let me
-> know.
-> 
-> udev will have to be changed to properly support this, but I think that
-> Kay already has that taken care of, and is just waiting for some kernel
-> code to take advantage of this.
-> 
-> Comments?
-> 
+On Thu, Sep 29, 2005 at 04:20:13PM -0700, Luben Tuikov wrote:
+>
+> A spec defines how a protocol works and behaves.  All SCSI specs
+> are currently very layered and defined by FSMs.
 
-Hi Greg,
+A spec defines how a protocol works and behaves --- *if* it is
+well-specified and unambiguous, and *if* vendors actually implement
+the spec correctly.  (And sometimes vendors have major economic
+incentives to cheat and either intentionally violate the
+specification, or simply not bother to test to make sure whether or
+not they implemented their hardware correctly.)
 
-I still do not believe it is the solution we want:
+Computing history has been literred with specifications that were
+incompentently written and/or incompentently implemented --- from the
+disaster known as ACPI, to FDDI (early FDDI networking gear was
+interoperable only if you bought all of your gear from one vendor,
+natch), consumer-grade disks which lied about when data had been
+safely written to iron oxide to garner better Winbench scores, and
+many, many, many others.
 
-1. It does not allow installing separate hotplug handlers for devices
-   and their sub-devices. This will cause hotplug handlers to resort to
-   having some flags or otherwise detect the king of class device hotplug
-   hanlder is being called for and change behavior accordingly - YUCK!
+This is one of the reasons why the IETF doesn't bless a networking
+standard until there are multiple independent, interoperable
+implementations --- and even _then_ there will be edge cases that
+won't be caught until much, much later.
 
-2. It does not allow user/program to scan for devices of given subclass.
-   I understand that you want to tech udev about all existing handlers
-   and having hotplug events allows to filter out unneeded names but for
-   other programs I do not think we want to do that. Again, consider task
-   of wanting to know all input interfaces, ot all available partiotions
-   in a system. Do not say that the program has to know that there are hdX
-   and sdX and ubX and adopt every time new type of device comes along
-   since you would need to determine whether the name you see is an
-   ordinary attribute or attribute group or the subdevice you are interested
-   in. You can't really rely on presence of 'dev' attribute since subdevice
-   does not have to have it. A better way would be to do
-   "ls /sys/class/block/partitions/" or "ls /sys/class/input/interfaces"
-   and get all this information.
+In those cases, if you implement something which is religiously
+adherent to the specification, and it doesn't interoperate with the
+real world (i.e., everybody else, or some large part of the industry)
+--- do you claim that you are right because you are following the
+specification, and everyone else in the world is wrong?  Or do you
+adapt to reality?  People who are too in love with specifications so
+that they are not willing to be flexible will generally not be able to
+achieve complete interoperability.  This is the reason for the IETF
+Maxim --- be conservative in what you send, liberal in what you will
+accept.  And it's why interoperability testing and reference
+implementations are critical.
 
-3. It does not work well when you have an object that in your model is a
-   logical subdevice but does not have a parent (or has multiple parents).
-   Consider 'mice' multiplexor. Where would you put it? Together with
-   inputX? But it is not an input_dev, it should not be there.
+But it's also important to remember when there is a reference
+implementation, or pseudo-code in the specification, it's not the only
+way you can implement things.  Very often, as Linus has pointed out,
+there are reasons why the pseudo-code in the specification is wholely
+inappropriate for a particular implementation.  But that's OK; the
+implementation can use a different implementastion, as long as the
+result is interoperable.
 
-4. subdevice should have only one parent, your implementation allows to
-   link subdevice to a class device and a real device at the same time,
-   which IMHO is wrong. Only top-level class devices should be linked with
-   physical /sys/devices/ device. 
+Regards,
 
-I firmly believe that creating sub-classes (which solves hotplug issues)
-and linking sub-class devices to their parent via 'device' link, much like
-we link top-level class device to their physical parent devices (which
-solves 2, 3 and 4) is much cleanier way. It provides everything that your
-implementation does plus allows different views useful for other tasks
-besides udev.
-
--- 
-Dmitry
+						- Ted

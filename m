@@ -1,167 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030322AbVI3TUu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932590AbVI3TVa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030322AbVI3TUu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 15:20:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932588AbVI3TUu
+	id S932590AbVI3TVa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 15:21:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932588AbVI3TV3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 15:20:50 -0400
-Received: from [82.148.30.74] ([82.148.30.74]:57616 "EHLO abc.pervushin.pp.ru")
-	by vger.kernel.org with ESMTP id S932587AbVI3TUt (ORCPT
+	Fri, 30 Sep 2005 15:21:29 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:46775 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S932587AbVI3TV2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 15:20:49 -0400
-From: <dpervushin@gmail.com>
-To: "'David Brownell'" <david-b@pacbell.net>
-Cc: <linux-kernel@vger.kernel.org>, <spi-devel-general@lists.sourceforge.net>
-Subject: RE: [PATCH] SPI
-Date: Fri, 30 Sep 2005 23:20:29 +0400
+	Fri, 30 Sep 2005 15:21:28 -0400
+Message-ID: <433D9035.6000504@adaptec.com>
+Date: Fri, 30 Sep 2005 15:21:25 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+To: andrew.patterson@hp.com
+CC: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>, dougg@torque.net,
+       Linus Torvalds <torvalds@osdl.org>, Luben Tuikov <ltuikov@yahoo.com>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
+ the kernel
+References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01A9FA11@otce2k03.adaptec.com> <1128105594.10079.109.camel@bluto.andrew>
+In-Reply-To: <1128105594.10079.109.camel@bluto.andrew>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-In-Reply-To: <20050930175923.F3C89E9E25@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-Thread-Index: AcXF6MIhbpZLxDlAQUO1c6BZ4j971wACHkpg
-Message-Id: <20050930192044.96FE34C4D2@abc.pervushin.pp.ru>
+X-OriginalArrivalTime: 30 Sep 2005 19:21:25.0138 (UTC) FILETIME=[2612B720:01C5C5F4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
-> around the I/O model of a queue of async messages; and even 
-> names for some data structures.
-It seems we are talking about similar things, aren't we ?
-> 	<linux/spi/spi.h>	... main header
-> 	<linux/spi/CHIP.h>	... platform_data, for CHIP.c driver
+On 09/30/05 14:39, Andrew Patterson wrote:
 > 
-> Not all chips would need them, but it might be nice to have 
-> some place other than <linux/CHIP.h> for such things.  The 
-> platform_data would have various important data that can't be 
-> ... chip variants, initialization data, and similar stuff 
-> that differs between boards is knowable only by 
-> board-specific init code, yet is needed by board-agnostic driver code.
-I would prefer not to have subdirectory spi in include/linux. Take a look to
-pci, for example. I guess that chip data are spi-bus specific, and should
-not be exported to world.
-> that way internally.  But other drivers shouldn't be forced 
-> to allocate kernel threads when they don't need them.
-Really :) ? I'd like to have the worker thread for bus (and all devices on
-the bus) instead of several workqueues (one per each device on bus, right ?)
-> Hmm, this seems to be missing a few important things ... from 
-> the last SPI patch I posted to this list (see the URL right above):
-> 
-> 	struct bus_type spi_bus_type = {
-> 		.name           = "spi",
-> 		.dev_attrs      = spi_dev_attrs,
-> 		.match          = spi_match_device,
-> 		.hotplug        = spi_hotplug,
-> 		.suspend        = spi_suspend,
-> 		.resume         = spi_resume,
-> 	};
-> 
-> That supports new-school "modprobe $MODALIAS" hotplugging and 
-> .../modalias style coldplugging, as well as passing PM calls 
-> down to the drivers.  (Those last recently got some tweaking, 
-> to work better through sysfs.)  And the core is STILL only 
-> about 2 KB on ARM; significantly less than yours.
-Are you counting bytes on your sources ? Or bytes in object files ? As for
-spi_bus_type, I agree. Hotplu/suspend/resume have to be included.
+> SDI is supposed to be a cross-platform spec, so mandating sysfs would
+> not work.
 
-> You don't seem to have any ability to record essential 
-> board-specific information that the drivers will need.  I 
-> hope you're not planning on making that stuff clutter up the 
-> driver files??  board-specific.c files seem the better model, 
-> with a way to pass that data to the drivers that need it 
-> (using the driver model).
-> 
-> That minimally includes stuff like the IRQ used by that chip, 
-> the clock rate it supports on this board, and the SPI 
-> clocking mode (0, 1, 2, 3) used to get data in and out of the 
-> chip.  But there seem to be a few other things needed too, 
-> given the ways SPI chips tweak the protocol.
-This is responsibility of bus driver. The driver for device on the SPI bus
-might request the hardware info from the bus driver, which is referenced via
-spi_device->device->parent.
-> 
-> 
-> > +				/*
-> > +				 * all messages for current 
-> selected_device
-> > +				 * are processed.
-> > +				 * let's switch to another device
-> > +				 */
-> 
-> Why are you hard-wiring such an unfair scheduling policy ... 
-> and preventing use of better ones?  I'd use FIFO rather than 
-> something as unfair as that; and FIFO is much simpler to code, too.
-OK, the policy is hardcoded and seems to be not the only available. This can
-be solved by adding a function to pull out the message that is "next by
-current". Does this sound reasonable ? 
-> 
-> 
-> > +{
-> > +	int ret;
-> > +	struct spimsg *msg = spimsg_alloc(dev, SPI_M_RD, len, NULL);
-> > +
-> > +	ret = spi_transfer(msg, NULL);
-> > +	memcpy(buf, spimsg_buffer_rd(msg), len);
-> 
-> I don't really understand why you'd want to make this so 
-> expensive though.  Why not just do the IO directly into the 
-> buffer provided for that purpose?  One controller might 
-> require dma bounce buffers; but don't penalize all others by 
-> imposing those same costs.
-Drivers might want to allocate theyr own buffers, for example, using
-dma_alloc_coherent. Such drivers also need to store the dma handle
-somewhere. Drivers might use pre-allocated buffers. 
-> 
-> Also, spimsg_alloc() is huge ... even if you expect the 
-> inliner will remove some of it.  It's doing several dynamic 
-> allocations.  I honestly don't understand why there's a need 
-> for even _one_ dynamic allocation in this "core" code path 
-> (much less the memcpy).
-The allocations might be avoided if drivers provide their callback to
-"allocate" buffer. Then, there is the only alloc -- for spi_msg itself
-> Also, you don't have any "board specific init" component in 
-> this code...
-spi_bus_populate calls the callback to initialize device with void* context.
+True, sysfs is a Linux only thing.
 
-> 
-> 
-> > +  +--------------+                    +---------+
-> > +  | platform_bus |                    | spi_bus |
-> > +  +--------------+                    +---------+
-> > +       |..|                                |
-> > +       |..|--------+               +---------------+
-> > +     +------------+| is parent to  |  SPI devices  |
-> > +     | SPI busses |+-------------> |               |
-> > +     +------------+                +---------------+
-> > +           |                               |
-> > +     +----------------+          +----------------------+
-> > +     | SPI bus driver |          |    SPI device driver |
-> > +     +----------------+          +----------------------+
-> 
-> That seems wierd even if I assume "platform_bus" is just an example.
-> For example there are two rather different "spi bus" notions 
-> there, and it looks like neither one is the physical parent 
-> of any SPI device ...
-"SPI busses" means several 'struct device' that corresponds to real device
-that acts as spi controller. "spi_bus" is the variable of type "bus_type"
+But you can write a user space library which uses sysfs or whatever
+_that_ OS uses to represent an SDI spec-ed out picture.
 
-> > +		msg->devbuf_rd = drv->alloc ?
-> > +		    drv->alloc(len, GFP_KERNEL) : kmalloc(len, 
-> GFP_KERNEL);
-> > +		msg->databuf_rd = drv->get_buffer ?
-> > +		    drv->get_buffer(device, msg->devbuf_rd) : 
-> msg->devbuf_rd;
-> 
-> Oy.  More dynamic allocation.  (Repeated for write buffers 
-> too ...) See above; don't force such costs on all drivers, 
-> few will ever need it.
-That's not necessarily allocation. That depends on driver that uses
-spimsg_alloc, and possibly provides callback for allocating
-buffers/accessing them
-> > +#define SPI_MAJOR	153
+So a user space program would call (uniformly across all OSs)
+a libsdi library which will use whatever OS dependent way there is
+to get the information (be it sysfs or ioctl).
 
---
-cheers, dmitry pervushin
+> I suggested to the author to use a library like HPAAPI (used
+> by Fibre channel), so you could hide OS implementation details.  I am in
+> fact working on such a beasty (http://libsdi.berlios.de).  He thinks
+> that library solutions tend to not work, because the library version is
+> never in synch with the standard/LLDD's. Given Linux vendor lead-times,
+> he does have a valid point.
 
+Yes, but it would be the best of all the current ways there are
+to do it.
+
+> Note that a sysfs implementation has problems.  Binary attributes are
+> discouraged/not-allowed.
+
+I've never heard that.  Is this similar to the argument
+"The sysfs tree would be too deep?"
+
+> There is no atomic request/response operations
+
+For a reason: let user space do it, there is plenty of ways to
+do it, some assisted by the kernel.
+
+> buffers limited to page size, etc.
+
+"You have an attribute larger than 4k?  What is it?"
+
+As to SMP response/request is more than 4K/8K?  The largest
+I'm aware of is 64 bytes.
+
+> Other alternatives are
+> configfs, SG_IO, and the above mentioned character device.  None are a
+
+Again, char devices for controlling are discouraged.  There are not enough
+around and it is old technology.
+
+> complete replacement for the transactional nature of IOCTL's.  A group
+
+Here:
+
+/* User space lock */
+
+fd = open(smp_portal, ...);
+write(fd, smp_req, smp_req_size);
+read(fd, smp_resp, smp_resp_size);
+close(fd);
+
+/* User space unlock */
+
+	Luben

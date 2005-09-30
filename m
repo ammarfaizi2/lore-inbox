@@ -1,82 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932530AbVI3A6f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932533AbVI3A6P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932530AbVI3A6f (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 20:58:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932531AbVI3A6f
+	id S932533AbVI3A6P (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 20:58:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932531AbVI3A6O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 20:58:35 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:9186 "EHLO e36.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932530AbVI3A62 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 20:58:28 -0400
-Date: Thu, 29 Sep 2005 19:58:27 -0500
-To: paulus@samba.org
-Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 5/7] ppc64: EEH handle empty PCI slot failure 
-Message-ID: <20050930005827.GE6173@austin.ibm.com>
-References: <20050930004800.GL29826@austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050930004800.GL29826@austin.ibm.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: linas <linas@austin.ibm.com>
+	Thu, 29 Sep 2005 20:58:14 -0400
+Received: from web34113.mail.mud.yahoo.com ([66.163.178.111]:15032 "HELO
+	web34113.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932533AbVI3A6N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 20:58:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=ITuenYuBDQFFrUyX117gy18PVno1Au1mo9v8qTrmz7Kejnb+MkN7TU3rQa+gj+wEwMUH+VxHI2RadE24gZ4yrPFlzi4EI5zZE4xqlELb6SQC0nn7UwhPloBslXqlHu+/DFWe52uZNmiHlRuHw49m7Zz0Zqa3Gkrz3uLAWKJRrCg=  ;
+Message-ID: <20050930005812.24028.qmail@web34113.mail.mud.yahoo.com>
+Date: Thu, 29 Sep 2005 17:58:12 -0700 (PDT)
+From: Wilson Li <yongshenglee@yahoo.com>
+Subject: Re: Slow loading big kernel module in 2.6 on PPC platform
+To: Wilson Li <yongshenglee@yahoo.com>,
+       Samuel Masham <Samuel.Masham@jp.sony.com>,
+       Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: "Yamaguchi, Yohei" <Yohei.Yamaguchi@jp.sony.com>,
+       Tim Bird <tim.bird@am.sony.com>
+In-Reply-To: <20050929234641.26843.qmail@web34109.mail.mud.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I think I got what you are trying to do in your patch. This is really
+a smart workaround. At least it works for me for now, it just need
+the module to be loaded first to generate all the infos which takes
+time. And then use the infos pre-calculated to load the module just
+like
+#>insmod mrbig.ko elf_plt_info=25,27,322144,160
+
+Thanks and really appreciate your help.
+Wilson Li 
+
+--- Wilson Li <yongshenglee@yahoo.com> wrote:
+
+> 
+> 
+> --- Samuel Masham <Samuel.Masham@jp.sony.com> wrote:
+> 
+> > I assume you are on a slow ppc32 platform.
+> > 
+> > The time taken is a function of the number of symbols, you can
+> work
+> > around it 
+> > as shown in the patch below. Obviously this is just an example
+> > patch and is
+> > NOT signed off for anything but reading :)
+> > 
+> > I would really like do some work on a pre-link for modules but
+> > don't really know 
+> > where to start.
+> > 
+> > Any hints?
+> > 
+> > Samuel
+> > 
+> > ps Not subscribed, just  so please cc me
+> > 
+> 
+> Appreciate your help. 
+> I applied your patch manually since something was wrong during
+> patching. I guess we might not use same version of kernel. Mine is
+> 2.6.8. 
+> 
+> But the function parse_args_reloc() still failed even though I have
+> passed a module param like elf_plt_info=1 during insmod. Here's the
+> command to load the module.
+> 
+> #>insmod mrbig.ko elf_plt_info=1
+> 
+> And console output is: 
+> init_module: consider insmod mrbig elf_plt_info=25,27,322144,160
+> 
+> I have no idea what the plt section is and what is going on in
+> module_frob_arch_sections() function. Any hints or documents I can
+> refer to?
+> 
+> Thanks,
+> Wilson Li
+> 
+> 
+> 
+> 
+> 		
+> __________________________________ 
+> Yahoo! Mail - PC Magazine Editors' Choice 2005 
+> http://mail.yahoo.com
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 
-05-eeh-empty-slot-error.patch
 
-Performing PCI config-space reads to empty PCI slots can lead to reports of 
-"permanent failure" from the firmware. Ignore permanent failures on empty slots.
-
-Signed-off-by: Linas Vepstas <linas@linas.org>
-
-Index: linux-2.6.14-rc2-git6/arch/ppc64/kernel/eeh.c
-===================================================================
---- linux-2.6.14-rc2-git6.orig/arch/ppc64/kernel/eeh.c	2005-09-29 16:06:25.583986100 -0500
-+++ linux-2.6.14-rc2-git6/arch/ppc64/kernel/eeh.c	2005-09-29 16:06:33.567867154 -0500
-@@ -617,7 +617,32 @@
- 	 * In any case they must share a common PHB.
- 	 */
- 	ret = read_slot_reset_state(pdn, rets);
--	if (!(ret == 0 && rets[1] == 1 && (rets[0] == 2 || rets[0] == 4))) {
-+
-+	/* If the call to firmware failed, punt */
-+	if (ret != 0) {
-+		printk(KERN_WARNING "EEH: read_slot_reset_state() failed; rc=%d dn=%s\n",
-+		       ret, dn->full_name);
-+		__get_cpu_var(false_positives)++;
-+		return 0;
-+	}
-+
-+	/* If EEH is not supported on this device, punt. */
-+	if (rets[1] != 1) {
-+		printk(KERN_WARNING "EEH: event on unsupported device, rc=%d dn=%s\n",
-+		       ret, dn->full_name);
-+		__get_cpu_var(false_positives)++;
-+		return 0;
-+	}
-+
-+	/* If not the kind of error we know about, punt. */
-+	if (rets[0] != 2 && rets[0] != 4 && rets[0] != 5) {
-+		__get_cpu_var(false_positives)++;
-+		return 0;
-+	}
-+
-+	/* Note that config-io to empty slots may fail;
-+	 * we recognize empty because they don't have children. */
-+	if ((rets[0] == 5) && (dn->child == NULL)) {
- 		__get_cpu_var(false_positives)++;
- 		return 0;
- 	}
-@@ -650,7 +675,7 @@
- 	/* Most EEH events are due to device driver bugs.  Having
- 	 * a stack trace will help the device-driver authors figure
- 	 * out what happened.  So print that out. */
--	dump_stack();
-+	if (rets[0] != 5) dump_stack();
- 	schedule_work(&eeh_event_wq);
- 
- 	return 0;
+		
+__________________________________ 
+Yahoo! Mail - PC Magazine Editors' Choice 2005 
+http://mail.yahoo.com

@@ -1,48 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030259AbVI3Kr7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030236AbVI3Kry@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030259AbVI3Kr7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 06:47:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030261AbVI3Kr7
+	id S1030236AbVI3Kry (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 06:47:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030259AbVI3Kry
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 06:47:59 -0400
-Received: from web26902.mail.ukl.yahoo.com ([217.146.176.91]:51640 "HELO
-	web26902.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1030259AbVI3Kr6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 06:47:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.fr;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=B7jEDJx1qgeHgZrXuiE/edhZIah9bs5EWbP7y65ImQF0vGeq3SIxvmyfbl0GgUEm4uayrbHt1lwOD5UerJGid4IA1BYsqMPEDTQ1BuhMO51jApmbl8NkObIdciouIcu0PIG4u1MSPKPnbbitIQY6UsBYJTGUurNj7qEcfzTpZqw=  ;
-Message-ID: <20050930104751.47898.qmail@web26902.mail.ukl.yahoo.com>
-Date: Fri, 30 Sep 2005 12:47:51 +0200 (CEST)
-From: Etienne Lorrain <etienne_lorrain@yahoo.fr>
-Subject: Re: Linux SATA S.M.A.R.T. and SLEEP?
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Fri, 30 Sep 2005 06:47:54 -0400
+Received: from ganesha.gnumonks.org ([213.95.27.120]:6049 "EHLO
+	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
+	id S1030236AbVI3Krx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 06:47:53 -0400
+Date: Fri, 30 Sep 2005 12:47:49 +0200
+From: Harald Welte <laforge@gnumonks.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Sergey Vlasov <vsu@altlinux.ru>, linux-usb-devel@lists.sourceforge.net,
+       vendor-sec@lst.de, linux-kernel@vger.kernel.org, greg@kroah.com,
+       security@linux.kernel.org
+Subject: Re: [linux-usb-devel] Re: [Security] [vendor-sec] [BUG/PATCH/RFC] Oops while completing async USB via usbdevio
+Message-ID: <20050930104749.GN4168@sunbeam.de.gnumonks.org>
+References: <20050925151330.GL731@sunbeam.de.gnumonks.org> <Pine.LNX.4.58.0509270746200.3308@g5.osdl.org> <20050927160029.GA20466@master.mivlgu.local> <Pine.LNX.4.58.0509270904140.3308@g5.osdl.org> <20050927165206.GB20466@master.mivlgu.local> <Pine.LNX.4.58.0509270959380.3308@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="zsp0GYBMzHfleR3l"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0509270959380.3308@g5.osdl.org>
+User-Agent: mutt-ng devel-20050619 (Debian)
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grant Coady wrote:
-> jmerkey wrote:
-> >Someone needs to fix SATA drive ordering in the kernel so it matches 
-> >GRUBs ordering, or perhaps GRUB needs fixing. I have run into
->                     ^^^^^^^^^^^^^^^^^^^^^^^^^
-> User-space issue?  Four of the last five drives I buy are SATA, I 
-> don't see this problem 'cos I use lilo :o)
 
-  Lilo is not the only bootloader which do not make random assumptions
- on the order of the drives - you should also try Gujin...
-http://gujin.org
+--zsp0GYBMzHfleR3l
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-  Etienne.
+On Tue, Sep 27, 2005 at 10:02:16AM -0700, Linus Torvalds wrote:
+> On Tue, 27 Sep 2005, Sergey Vlasov wrote:
+> >=20
+> > The initial patch added get_task_struct()/put_task_struct() calls to
+> > fix this - are they forbidden too?
+>=20
+> They are sure as hell not something that a _driver_ is supposed to use.
+>=20
+> > It at least has sigio_perm(), which prevents exploiting it to send
+> > signals to tasks you don't have access to.
+>=20
+> And the point is, you can do that _too_.
+>=20
+> Do it right. Don't cache pointers to threads. Use the pid.
 
+So what happened to this thread?  Was I simply removed from the Cc, or
+did the thread cease?  Or is there a "secret" fix on vendor-sec?
 
-	
+I'm probably the person in this thread who understands the least about
+the USB stack and the scheduler, but if there is no implementation of
+Linus' suggested "PID approach" yet, I'd be willing to write a patch and
+test it. Please let me know.
 
-	
-		
-___________________________________________________________________________ 
-Appel audio GRATUIT partout dans le monde avec le nouveau Yahoo! Messenger 
-Téléchargez cette version sur http://fr.messenger.yahoo.com
+Please also understand that I never argued that my initial patch was a
+good solution, or that I wanted it to have merged.  I just wanted to
+show that there is a real-world problem, and it somehow needs to be fixed.
+
+Cheers,
+
+--=20
+- Harald Welte <laforge@gnumonks.org>          	        http://gnumonks.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+"Privacy in residential applications is a desirable marketing option."
+                                                  (ETSI EN 300 175-7 Ch. A6)
+
+--zsp0GYBMzHfleR3l
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFDPRfVXaXGVTD0i/8RAle0AJ9vWRUaXN8CIm6ngi8B8y+Yr0e0oQCgopVt
+mbHuWwcYCHh2Q7Fi8Jhl2fY=
+=UMox
+-----END PGP SIGNATURE-----
+
+--zsp0GYBMzHfleR3l--

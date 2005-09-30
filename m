@@ -1,75 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965071AbVI3SuM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030350AbVI3Sva@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965071AbVI3SuM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 14:50:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965076AbVI3SuM
+	id S1030350AbVI3Sva (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 14:51:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030307AbVI3Sva
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 14:50:12 -0400
-Received: from smtpout.mac.com ([17.250.248.73]:17099 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S965066AbVI3SuJ (ORCPT
+	Fri, 30 Sep 2005 14:51:30 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:5553 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S965074AbVI3Sv3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 14:50:09 -0400
-In-Reply-To: <433D8542.1010601@adaptec.com>
-References: <Pine.LNX.4.10.10509300015100.27623-100000@master.linux-ide.org> <433D8542.1010601@adaptec.com>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <A0262C6F-6B0E-4790-BA42-FAFD6F026E0A@mac.com>
-Cc: Andre Hedrick <andre@linux-ide.org>,
-       "David S. Miller" <davem@davemloft.net>, jgarzik@pobox.com,
+	Fri, 30 Sep 2005 14:51:29 -0400
+Message-ID: <433D892E.4090407@adaptec.com>
+Date: Fri, 30 Sep 2005 14:51:26 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andre Hedrick <andre@linux-ide.org>
+CC: "David S. Miller" <davem@davemloft.net>, jgarzik@pobox.com,
        willy@w.ods.org, patmans@us.ibm.com, ltuikov@yahoo.com,
        linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org,
-       linux-scsi@vger.kernel.org,
-       James Bottomley <James.Bottomley@steeleye.com>
+       linux-scsi@vger.kernel.org
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
+ the kernel
+References: <Pine.LNX.4.10.10509300015100.27623-100000@master.linux-ide.org>
+In-Reply-To: <Pine.LNX.4.10.10509300015100.27623-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into the kernel
-Date: Fri, 30 Sep 2005 14:50:27 -0400
-To: Luben Tuikov <luben_tuikov@adaptec.com>
-X-Mailer: Apple Mail (2.734)
+X-OriginalArrivalTime: 30 Sep 2005 18:51:26.0795 (UTC) FILETIME=[F62D59B0:01C5C5EF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 30, 2005, at 14:34:42, Luben Tuikov wrote:
-> This is how we have the SPI-centric EH methods in the scsi host  
-> template right now:
->     int (* eh_abort_handler)(struct scsi_cmnd *);
->     int (* eh_device_reset_handler)(struct scsi_cmnd *);
->     int (* eh_bus_reset_handler)(struct scsi_cmnd *);
->     int (* eh_host_reset_handler)(struct scsi_cmnd *);
+On 09/30/05 03:36, Andre Hedrick wrote:
+> I stated I would help with SAS adoption because there is a SAS-Transport
+> model.  I asked about a possible libadaptec + libsas, and still waiting to
+> see if you and adaptec are up for the task.  Right now the only path open
+> is the one Jeff Garzik is putting forward along with James and Christop.
+> I have a vested interest in seeing SAS-Transport, otherwise I would have
+> cut and run a long time ago.
 
-So submit patches to fix it!  You clearly understand what is wrong,  
-so why not help change it?
+Hi Andre,
 
-> But we should _not_ break legacy drivers and backward support,
+Let me know if this satisfies:
 
-WRONG.  This is not the way Linux works.  We break internal APIs all  
-the time.  If you need to change one _thats_OK_.  Userspace ABI is  
-mostly another matter, but that's different from the internal data  
-structures and functions.
+The infrastructure is broken into
+	* SAS LLDD,
+	* SAS Layer.
 
-> The way we do this is we slowly, without disruption to older  
-> drivers introduce, in parallel, emerge a new, simpler, slimmer,  
-> faster SCSI Core, whereby we accommodate new infrastructures, yet,  
-> have 100% backward compatibility, via the current older SCSI Core.   
-> After all, both would be a bunch of functions in a bunch of files.
+The SAS LLDD does phy/OOB management, and generates SAS events
+to the SAS Layer.  Those events are *the only way* a SAS LLDD
+communicates with the SAS Layer.  If you can generate 2 types
+of event, then you can use this infrastructure.  The first two
+are, loosely, "link was severed", "bytes were dmaed".  The third
+kind is "received a primitive", used for domain revalidation.
 
-Except this introduces bloat and multiplies maintainer load.  Fix the  
-existing one.  If it breaks other in-core drivers, fix those to  
-match.  If it breaks out-of-tree drivers, too bad!  They should get  
-their code upstream and then they wouldn't need to worry.
+A SAS LLDD should implement the Execute Command SCSI RPC and
+at least one SCSI TMF (Task Management Function), in order for
+the SAS Layer to communicate with the SAS LLDD.
 
-> If X works with Y, do not disrupt it.  Fix it if it's broken.   
-> Introduce innovation, functionality, better design, but not at the  
-> expense of breaking legacy.
+The SAS Layer is concerned with
+      * SAS Phy/Port/HA event management (LLDD generates,
+        SAS Layer processes),
+      * SAS Port management (creation/destruction),
+      * SAS Domain discovery and revalidation,
+      * SAS Domain device management,
+      * SCSI Host registration/deregistration,
+      * Device registration with SCSI Core (SAS) or libata
+        (SATA/PI), and
+      * Expander management and exporting expander control
+        to user space.
 
-This is not the way Linux works.  It may be the way Adaptec works,  
-but that's not relevant here.
+The SAS Layer uses the Execute Command SCSI RPC, and the TMFs
+implemented by the SAS LLDD in order to manage the domain and
+the domain devices.
 
-> Section 4: Politics
-> -------------------
+For details please see drivers/scsi/sas/README.
 
-s/Politics.*//g;  I hate politics.  Keep it off this list.
+The SAS Layer represents the SAS domain in sysfs.  For each
+object represented, its parent is the physical entity it attaches
+to in the physical world.  So in effect, kobject_get, gets
+the whole chain up on which that object depends on.
 
-Cheers,
-Kyle Moffett
+In effect, the sysfs representation of the SAS domain(s)
+is what you'd see in the physical world.
+
+Hot plugging and hot unplugging of devices, domains and subdomains
+is supported.  Repeated hot plugging and hot unplugging is
+also supported, naturally.
+
+SAS introduces a new physical entity, an expander.
+Expanders are _not_ SAS devices, and thus are _not_ SCSI devices.
+Expanders are part of the Service Delivery Subsystem, in this case
+SAS.
+
+Expanders are controlled using the Serial Management Protocol (SMP).
+Complete control is given to user space of all expanders found
+in the domain, using an "smp_portal".  More of this in the second
+and third email in this series.
+
+A user space program, "expander_conf.c" is also presented to show
+how one controls expanders in the domain.  It is located here:
+drivers/scsi/sas/expanders_conf.c
+
+Thank you,
+	Luben
+
+> 
+> These long email threads where everyone is shout from the top of their
+> hill never wins anything.  After a while the hill becomes flat (from all
+> the stomping), and you become old and tired.
+> 
+> LSI pointed out they mask there SAS in firmware and make it show up in a
+> scsi-like or scsi state.  They also pointed out other vendors have taken
+> this road.  Even if Adaptec did not go this way in hardware, there still
+> has to be a way to map into SCSI ... sheesh this is Adaptec known for
+> SCSI.
+> 
+> Just an FYI, would suggest you cool your heels and listen for the quiet
+> responses.  There is more heat than light right now; maybe this thread
+> will offset some of the cost in the energy criss.  Will pass on advice
+> handed to me (when I was a maintainer) relax and listen, nobody is out to
+> get you (and they were right).
+> 
+> Cheers,
+> 
+> Andre
+> 
+> PS I didn't listen to that advice back then, don't make the same mistake.
+> 
+> 
+> 
 

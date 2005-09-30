@@ -1,86 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932314AbVI3Fqn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932419AbVI3FtJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932314AbVI3Fqn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 01:46:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751424AbVI3Fqm
+	id S932419AbVI3FtJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 01:49:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932443AbVI3FtJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 01:46:42 -0400
-Received: from serv01.siteground.net ([70.85.91.68]:9405 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S1751361AbVI3Fqm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 01:46:42 -0400
-Date: Thu, 29 Sep 2005 22:45:56 -0700
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: Andrew Morton <akpm@osdl.org>, Christoph Lameter <clameter@engr.sgi.com>,
-       alokk@calsoftinc.com, linux-kernel@vger.kernel.org,
-       manfred@colorfullife.com,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
-       ananth@in.ibm.com, Andi Kleen <ak@suse.de>
-Subject: Re: 2.6.14-rc1-git-now still dying in mm/slab - this time line 1849
-Message-ID: <20050930054556.GA3599@localhost.localdomain>
-References: <20050916230809.789d6b0b.akpm@osdl.org> <432EE103.5020105@vc.cvut.cz> <20050919112912.18daf2eb.akpm@osdl.org> <Pine.LNX.4.62.0509191141380.26105@schroedinger.engr.sgi.com> <20050919122847.4322df95.akpm@osdl.org> <Pine.LNX.4.62.0509191351440.26388@schroedinger.engr.sgi.com> <20050919221614.6c01c2d1.akpm@osdl.org> <43301578.8040305@vc.cvut.cz> <20050928210245.GA3760@localhost.localdomain> <433C1999.2060201@vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <433C1999.2060201@vc.cvut.cz>
-User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Fri, 30 Sep 2005 01:49:09 -0400
+Received: from silver.veritas.com ([143.127.12.111]:46414 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S932419AbVI3FtI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 01:49:08 -0400
+Date: Fri, 30 Sep 2005 06:48:18 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Chris Wright <chrisw@osdl.org>
+cc: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH 05/10] [PATCH]: Missing acct/mm calls in compat_do_execve()
+In-Reply-To: <20050930022228.946664000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0509300645530.7129@goblin.wat.veritas.com>
+References: <20050930022016.640197000@localhost.localdomain>
+ <20050930022228.946664000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 30 Sep 2005 05:49:05.0733 (UTC) FILETIME=[AB1FB750:01C5C582]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 29, 2005 at 06:43:05PM +0200, Petr Vandrovec wrote:
-> Ravikiran G Thirumalai wrote:
+On Thu, 29 Sep 2005, Chris Wright wrote:
+
+> -stable review patch.  If anyone has any objections, please let us know.
+> ------------------
 > 
-> Unfortunately I must confirm that it does not fix problem.  But it pointed
-> out to me another thing - proc_inode_cache stuff is put into caches
-> BEFORE this code is executed.  So if anything in mm/slab.c relies
-> on node_to_mask[] being valid (and if it relies on some other things
-> which are set this late), it probably won't work.
+> As I do periodically, I checked to see how far out of sync
+> compat_do_execve() has gotten from do_execve().  And as usual there
+> was some missing stuff in the former.  Perhaps we need some tighter
+> consolidation of these two routines to make this less likely to happen
+> in the future.
+> 
+> Anyways, on the success path of compat_do_execve() we forget
+> to call acct_update_integrals() and update_mem_hiwater(), as
+> is done in do_execve().
 
-The tests Alok carried out on Petr's box confirmed that cpu_to_node[BP] 
-is not setup early enough by numa_init_array due to the x86_64 changes in
- 2.6.14-rc*, and unfortunately set wrongly by the work around code in 
-numa_init_array(). cpu_to_node[0] gets set with 1 early and later gets set 
-properly to 0 during identify_cpu() when all cpus are brought up, but 
-confusing the numa slab in the process.
+The patch is good, but for -stable?  Spelling corrections next?
 
-Here is a quick fix for this.  The right fix obviously is to have
-cpu_to_node[bsp] setup early for numa_init_array().  The following patch
-will fix the problem now, and the code can stay on even when cpu_to_node{BP] 
-gets fixed early correctly.
-
-Thanks to Petr for access to his box.
-
-Signed off by: Ravikiran Thirumalai <kiran@scalex86.org>
-Signed-off-by: Alok N Kataria <alokk@calsoftinc.com>
-
-Index: slab-x86_64-fix-2.6.14-rc2/arch/x86_64/mm/numa.c
-===================================================================
---- slab-x86_64-fix-2.6.14-rc2.orig/arch/x86_64/mm/numa.c	2005-09-29 20:39:25.000000000 -0700
-+++ slab-x86_64-fix-2.6.14-rc2/arch/x86_64/mm/numa.c	2005-09-29 21:38:05.000000000 -0700
-@@ -167,15 +167,14 @@
- 	   mapping. To avoid this fill in the mapping for all possible
- 	   CPUs, as the number of CPUs is not known yet. 
- 	   We round robin the existing nodes. */
--	rr = 0;
-+	rr = first_node(node_online_map);
- 	for (i = 0; i < NR_CPUS; i++) {
- 		if (cpu_to_node[i] != NUMA_NO_NODE)
- 			continue;
-+		cpu_to_node[i] = rr;
- 		rr = next_node(rr, node_online_map);
- 		if (rr == MAX_NUMNODES)
- 			rr = first_node(node_online_map);
--		cpu_to_node[i] = rr;
--		rr++; 
- 	}
- 
- }
+Hugh

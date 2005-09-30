@@ -1,47 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964857AbVI3Cgw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932200AbVI3Cn7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964857AbVI3Cgw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 22:36:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932549AbVI3Cgw
+	id S932200AbVI3Cn7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 22:43:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932208AbVI3Cn7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 22:36:52 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:42468 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932419AbVI3Cgv
+	Thu, 29 Sep 2005 22:43:59 -0400
+Received: from xproxy.gmail.com ([66.249.82.196]:9264 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932200AbVI3Cn6 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 22:36:51 -0400
-Date: Fri, 30 Sep 2005 03:36:50 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org
-Subject: [PATCH] bogus BUILD_BUG_ON() in bpa_iommu
-Message-ID: <20050930023650.GC7992@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 29 Sep 2005 22:43:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=q/3Cyy/AT9oT7UQL9oNqiH7Ewug08PnVSwqwRG/4+Ja/GMWPqQhiGcrHlrEgT3koRThfNic1640J7fTgFL5WTaJrYoYfLKOFCpoET2spd3rrzz4HumKz6NQOjDbBW2+QbG1xPMuRTAkA+4hDHuZsvEiB7KaFAlPSS8i2Va5mJ54=
+Message-ID: <5bdc1c8b0509291943j10d382f4y36178f4c171f878c@mail.gmail.com>
+Date: Thu, 29 Sep 2005 19:43:57 -0700
+From: Mark Knecht <markknecht@gmail.com>
+Reply-To: Mark Knecht <markknecht@gmail.com>
+To: dwalker@mvista.com
+Subject: Re: l2.6.14-rc2-rt7 - build problems - mce?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <5bdc1c8b0509291936u2d2036e6ic91f68f33db5342d@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+References: <5bdc1c8b0509291907x77604133oc1d8a64e9e70dd59@mail.gmail.com>
+	 <1128046979.987.36.camel@dhcp153.mvista.com>
+	 <5bdc1c8b0509291936u2d2036e6ic91f68f33db5342d@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	BUILD_BUG_ON(1) is asking for trouble (and getting it) when used
-in that manner - dead code elimination happens after we parse it and
-invalid type is invalid type, dead code or not.
-	It might be version-dependent, but at least 4.0.1 refuses to
-accept that.
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-----
-diff -urN RC14-rc2-git6-base/arch/ppc64/kernel/bpa_iommu.c current/arch/ppc64/kernel/bpa_iommu.c
---- RC14-rc2-git6-base/arch/ppc64/kernel/bpa_iommu.c	2005-09-26 00:02:29.000000000 -0400
-+++ current/arch/ppc64/kernel/bpa_iommu.c	2005-09-15 14:22:33.000000000 -0400
-@@ -99,7 +99,11 @@
- 		break;
- 
- 	default: /* not a known compile time constant */
--		BUILD_BUG_ON(1);
-+		{
-+			/* BUILD_BUG_ON() is not usable here */
-+			extern void __get_iost_entry_bad_page_size(void);
-+			__get_iost_entry_bad_page_size();
-+		}
- 		break;
- 	}
- 
+On 9/29/05, Mark Knecht <markknecht@gmail.com> wrote:
+> On 9/29/05, Daniel Walker <dwalker@mvista.com> wrote:
+> > I think it's something else completely .. You would be better off
+> > turning on complete preemption .
+> >
+> > Daniel
+>
+> Thanks.
+>
+> make allnoconfig   builds
+> make defconfig fails as per my earlier message
+>
+> make defconfig and then turning on complete preemption is doing this:
+>
+>   CC      mm/fadvise.o
+>   CC      mm/page_alloc.o
+>   CC      mm/page-writeback.o
+>   CC      mm/pdflush.o
+>   CC      mm/readahead.o
+>   CC      mm/slab.o
+> mm/slab.c:2404: error: conflicting types for 'kmem_cache_alloc_node'
+> include/linux/slab.h:122: error: previous declaration of
+> 'kmem_cache_alloc_node' was here
+> mm/slab.c:2404: error: conflicting types for 'kmem_cache_alloc_node'
+> include/linux/slab.h:122: error: previous declaration of
+> 'kmem_cache_alloc_node' was here
+> make[1]: *** [mm/slab.o] Error 1
+> make: *** [mm] Error 2
+> lightning linux-2.6.14-rc2-rt7 #
+>
+> I will continue on. Thanks very much for your help.
+>
+> Thanks,
+> Mark
+>
+
+Great! It still failed but built after I turned NUMA off.
+
+Thanks VERY much!!
+
+- Mark

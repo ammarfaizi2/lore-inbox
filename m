@@ -1,90 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030300AbVI3SqS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030309AbVI3Stp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030300AbVI3SqS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 14:46:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965066AbVI3SqS
+	id S1030309AbVI3Stp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 14:49:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030307AbVI3Stp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 14:46:18 -0400
-Received: from hera.kernel.org ([140.211.167.34]:38864 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S965062AbVI3SqR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 14:46:17 -0400
-Date: Fri, 30 Sep 2005 15:44:04 -0300
-From: Marcelo <marcelo.tosatti@cyclades.com>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
-Subject: Re: [PATCH 3/7] CART - an advanced page replacement policy
-Message-ID: <20050930184404.GA16812@xeon.cnet>
-References: <20050929180845.910895444@twins> <20050929181622.780879649@twins>
+	Fri, 30 Sep 2005 14:49:45 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:43174 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965062AbVI3Sto (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 14:49:44 -0400
+Subject: RE: I request inclusion of SAS Transport Layer and AIC-94xx
+	intothe kernel
+From: Arjan van de Ven <arjan@infradead.org>
+To: James.Smart@Emulex.Com
+Cc: mark_salyzyn@adaptec.com, Luben_Tuikov@adaptec.com,
+       andrew.patterson@hp.com, dougg@torque.net, torvalds@osdl.org,
+       ltuikov@yahoo.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <9BB4DECD4CFE6D43AA8EA8D768ED51C20F46D5@xbl3.ma.emulex.com>
+References: <9BB4DECD4CFE6D43AA8EA8D768ED51C20F46D5@xbl3.ma.emulex.com>
+Content-Type: text/plain
+Date: Fri, 30 Sep 2005 20:49:25 +0200
+Message-Id: <1128106165.3012.17.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050929181622.780879649@twins>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hi Peter,
-
-On Thu, Sep 29, 2005 at 08:08:48PM +0200, Peter Zijlstra wrote:
-> The flesh of the CART implementation. Again comments in the file should be
-> clear.
-
-Having per-zone "B1" target accounted at fault-time instead of a global target
-strikes me.
-
-The ARC algorithm adjusts the B1 target based on the fact that being-faulted-pages
-were removed from the same memory region where such pages will reside.
-
-The per-zone "B1" target as you implement it means that the B1 target accounting
-happens for the zone in which the page for the faulting data has been allocated,
-_not_ on the zone from which the data has been evicted. Seems quite unfair.
-
-So for example, if a page gets removed from the HighMem zone while in the 
-B1 list, and the same data gets faulted in later on a page from the normal
-zone, Normal will have its "B1" target erroneously increased.
-
-A global inactive target scaled to the zone size would get rid of that problem.
-
-Another issue is testing: You had some very interesting numbers before, 
-how are things now?
-
-> Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+On Fri, 2005-09-30 at 14:36 -0400, James.Smart@Emulex.Com wrote:
+> > On Fri, 2005-09-30 at 13:07 -0400, Salyzyn, Mark wrote:
+> > > At the SAS BOF, I indicated that it would not be much trouble to
+> > > translate the CSMI handler in the aacraid driver to a similar sysfs
+> > > arrangement. If such info can be mined from a firmware 
+> > based RAID card,
+> > > every driver should be able to do so. The spec writers 
+> > really need to
+> > > consider rewriting SDI for sysfs (if they have not already) and move
+> > > away from an ABI.
+> > 
+> > that makes me wonder... why and how does T10 control linux abi's ??
 > 
->  mm/cart.c                  |  631 +++++++++++++++++++++++++++++++++++++++++++++
->  7 files changed, 682 insertions(+), 35 deletions(-)
-> 
-> Index: linux-2.6-git/mm/cart.c
-> ===================================================================
-> --- /dev/null
-> +++ linux-2.6-git/mm/cart.c
-> @@ -0,0 +1,639 @@
+> Agreed. The most they should be doing is defining a library interface, and
+> letting the library hide the system specifics (like t11 and hbaapi, who
+> still got parts wrong).  It also changes the argument from being a "linux abi"
+> to being "a defacto application/library abi". 
 
-<snip>
+and not an ABI but an API. Which is important to allow the OS designers
+deal with architecture differences better.
 
-> +#define cart_cT ((zone)->nr_active + (zone)->nr_inactive + (zone)->free_pages)
-> +#define cart_cB ((zone)->present_pages)
-> +
-> +#define T2B(x) (((x) * cart_cB) / cart_cT)
-> +#define B2T(x) (((x) * cart_cT) / cart_cB)
-> +
-> +#define size_T1 ((zone)->nr_active)
-> +#define size_T2 ((zone)->nr_inactive)
-> +
-> +#define list_T1 (&(zone)->active_list)
-> +#define list_T2 (&(zone)->inactive_list)
-> +
-> +#define cart_p ((zone)->nr_p)
-> +#define cart_q ((zone)->nr_q)
-> +
-> +#define size_B1 ((zone)->nr_evicted_active)
-> +#define size_B2 ((zone)->nr_evicted_inactive)
-> +
-> +#define nr_Ns ((zone)->nr_shortterm)
-> +#define nr_Nl (size_T1 + size_T2 - nr_Ns)
 
-These defines are not not easy to read inside the code which
-uses them, I personally think that "zone->nr_.." explicitly is 
-much clearer.

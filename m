@@ -1,36 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbVI3ILJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932443AbVI3ILu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932267AbVI3ILJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 04:11:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932443AbVI3ILJ
+	id S932443AbVI3ILu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 04:11:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932572AbVI3ILt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 04:11:09 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:37000 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932267AbVI3ILH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 04:11:07 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Subject: Re: [Patch] x86, x86_64: fix cpu model for family 0x6
-Date: Fri, 30 Sep 2005 10:11:08 +0200
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <20050929190419.C15943@unix-os.sc.intel.com>
-In-Reply-To: <20050929190419.C15943@unix-os.sc.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 30 Sep 2005 04:11:49 -0400
+Received: from mail.parbin.co.uk ([213.162.111.43]:13195 "EHLO
+	mail.parbin.co.uk") by vger.kernel.org with ESMTP id S932443AbVI3ILs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 04:11:48 -0400
+Date: Fri, 30 Sep 2005 09:09:26 +0100
+From: Alexander Clouter <alex@digriz.org.uk>
+To: Blaisorblade <blaisorblade@yahoo.it>
+Cc: LKML <linux-kernel@vger.kernel.org>, cpufreq@lists.linux.org.uk,
+       Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>
+Subject: Re: [patch 1/1] cpufreq_conservative: invert meaning of 'ignore_nice'
+Message-ID: <20050930080926.GA3033@inskipp.digriz.org.uk>
+References: <20050929084435.GC3169@inskipp.digriz.org.uk> <200509291346.33855.blaisorblade@yahoo.it>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2fHTh5uZTiUOsy+g"
 Content-Disposition: inline
-Message-Id: <200509301011.09065.ak@suse.de>
+In-Reply-To: <200509291346.33855.blaisorblade@yahoo.it>
+Organization: diGriz
+X-URL: http://www.digriz.org.uk/
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 30 September 2005 04:04, Siddha, Suresh B wrote:
 
-> According to cpuid instruction in IA32 SDM-Vol2, when computing cpu model,
-> we need to consider extended model ID for family 0x6 also.
+--2fHTh5uZTiUOsy+g
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I'm confused. Is there any 64bit capable CPU with family == 6? 
+Blaisorblade <blaisorblade@yahoo.it> [20050929 13:46:33 +0200]:
+>
+> On Thursday 29 September 2005 10:44, Alexander Clouter wrote:
+>=20
+> > WARNING: this obvious breaks any userland tools that expect things to be
+> > the other way round.  This patch clears up the confusion but should go =
+in
+> > ASAP as at the moment it seems very few tools even make use of this
+> > functionality; all I could find was a Gentoo Wiki entry.
+>=20
+> My suggestion on this is to rename the flag too, as ignore_nice_load (or=
+=20
+> ignore_nice_tasks, choose your way). Don't forget to do it in docs too.
+>=20
+'ignore_nice_tasks' gets my vote..
 
--Andi
+> So userspace tools will error out rather than do the reverse of what they=
+ were=20
+> doing, and the user will fix the thing according to the (new) docs.
+>=20
+> This is the way we avoid problems in kernel code, when changing APIs (I r=
+ead=20
+> Linus talking about this), so I assume it's ok?
+>=20
+Makes a lot of sense.  I'll roll out some new patches this evening and subm=
+it=20
+them.
+
+Regards
+
+Alex
+
+> --=20
+> Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+> Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 2156218=
+94)
+> http://www.user-mode-linux.org/~blaisorblade
+>=20
+>=20
+> =09
+>=20
+> =09
+> 	=09
+> ___________________________________=20
+> Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB=20
+> http://mail.yahoo.it
+
+--=20
+ ________________________________________=20
+< An idle mind is worth two in the bush. >
+ ----------------------------------------=20
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+
+--2fHTh5uZTiUOsy+g
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDPPK2Nv5Ugh/sRBYRAlcYAJ0Z9R2BQu1tkJphBvjm2weFh3wjTwCgjgis
+sfKIC5ou8mMh4XlWM1fSAR4=
+=OK3Q
+-----END PGP SIGNATURE-----
+
+--2fHTh5uZTiUOsy+g--

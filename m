@@ -1,134 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932450AbVI3S1a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964917AbVI3S3I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932450AbVI3S1a (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 14:27:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932580AbVI3S1a
+	id S964917AbVI3S3I (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 14:29:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965017AbVI3S3I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 14:27:30 -0400
-Received: from mail27.sea5.speakeasy.net ([69.17.117.29]:41453 "EHLO
-	mail27.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S932450AbVI3S13 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 14:27:29 -0400
-Date: Fri, 30 Sep 2005 14:24:34 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-X-X-Sender: jmorris@excalibur.intercode
-To: Linus Torvalds <torvalds@osdl.org>,
-       "David S. Miller" <davem@davemloft.net>
-cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] SELinux - fix SCTP socket bug and general IP protocol handling
-Message-ID: <Pine.LNX.4.63.0509301408270.3733@excalibur.intercode>
+	Fri, 30 Sep 2005 14:29:08 -0400
+Received: from 216-54-166-16.gen.twtelecom.net ([216.54.166.16]:61653 "EHLO
+	mx1.compro.net") by vger.kernel.org with ESMTP id S964917AbVI3S3H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 14:29:07 -0400
+Message-ID: <433D83EF.8090501@compro.net>
+Date: Fri, 30 Sep 2005 14:29:03 -0400
+From: Mark Hounschell <markh@compro.net>
+Reply-To: markh@compro.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050317
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: Opterons and setting the pci bus master bit
+References: <433D71A0.1040104@compro.net> <1128104342.17099.67.camel@localhost.localdomain>
+In-Reply-To: <1128104342.17099.67.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-PMX-Version: 5.0.3.165339, Antispam-Engine: 2.1.0.0, Antispam-Data: 2005.9.30.19
+X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='IP_HTTP_ADDR 0, __CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0, __USER_AGENT 0'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch updates the way SELinux classifies and handles IP 
-based protocols.
+Alan Cox wrote:
+> On Gwe, 2005-09-30 at 13:10 -0400, Mark Hounschell wrote:
+>>everything is fine. When we connect the same chassis to an Intel P4 box 
+>>everything is fine. It looks like it is the kernel that sets this bit 
+>>because we have never set it in any of our drivers, yet on the intel 
+>>boxes it gets set. Why would this bit not be set when the chassis is 
+>>connected to an Opteron. We are running 32-bit mode BTW. I am using a 
+>>2.6.11.9 kernel. Is this a motherboard problem or could this be a kernel 
+>>problem?
+> 
+> If your device needs to bus master you need to call
+> pci_set_master(pci_dev). The bus mastering setup prior to that really
+> depends on the BIOS and phase of the moon.
+> 
+> See Documentation/pci.txt
+> 
+> Alan
+> 
+> 
 
-Currently, IP sockets are classified by SELinux as being either TCP, UDP 
-or 'Raw', the latter being a default for IP socket that is not TCP or UDP.
+Ok, thats what I'll do then.
 
-The classification code is out of date and uses only the socket type 
-parameter to socket(2) to determine the class of IP socket.  So, any 
-socket created with SOCK_STREAM will be classified by SELinux as TCP, and 
-SOCK_DGRAM as UDP.  Also, other socket types such as SOCK_SEQPACKET and 
-SOCK_DCCP are currently ignored by SELinux, which classifies them as 
-generic sockets, which means they don't even get basic IP level checking.
+Thanks for the info.
+Mark
 
-This patch changes the SELinux IP socket classification logic, so that 
-only an IPPROTO_IP protocol value passed to socket(2) classify the socket 
-as TCP or UDP.  The patch also drops the check for SOCK_RAW and converts 
-it into a default, so that socket types like SOCK_DCCP and SOCK_SEQPACKET 
-are classified as SECCLASS_RAWIP_SOCKET (instead of generic sockets).
-
-Note that protocol-specific support for SCTP, DCCP etc. is not addressed 
-here, we're just getting these protocols checked at the IP layer.  
-
-This fixes a reported problem where SCTP sockets were being recognized as 
-generic SELinux sockets yet still being passed in one case to an IP level 
-check, which then fails for generic sockets.
-
-It will also fix bugs where any SOCK_STREAM socket is classified as TCP or 
-any SOCK_DGRAM socket is classified as UDP.
-
-This patch also unifies the way IP sockets classes are determined in
-selinux_socket_bind(), so we use the already calculated value instead of
-trying to recalculate it.
-
-Please apply.
-
-Signed-off-by: James Morris <jmorris@namei.org>
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-
----
-
- security/selinux/hooks.c |   30 ++++++++++++++++++++++++------
- 1 files changed, 24 insertions(+), 6 deletions(-)
-
-diff -X dontdiff -purN linux-2.6.14-rc2.s1/security/selinux/hooks.c linux-2.6.14-rc2.t/security/selinux/hooks.c
---- linux-2.6.14-rc2.s1/security/selinux/hooks.c	2005-09-24 10:08:25.000000000 -0400
-+++ linux-2.6.14-rc2.t/security/selinux/hooks.c	2005-09-30 02:24:44.000000000 -0400
-@@ -630,6 +630,16 @@ static inline u16 inode_mode_to_security
- 	return SECCLASS_FILE;
- }
- 
-+static inline int default_protocol_stream(int protocol)
-+{
-+	return (protocol == IPPROTO_IP || protocol == IPPROTO_TCP);
-+}
-+
-+static inline int default_protocol_dgram(int protocol)
-+{
-+	return (protocol == IPPROTO_IP || protocol == IPPROTO_UDP);
-+}
-+
- static inline u16 socket_type_to_security_class(int family, int type, int protocol)
- {
- 	switch (family) {
-@@ -646,10 +656,16 @@ static inline u16 socket_type_to_securit
- 	case PF_INET6:
- 		switch (type) {
- 		case SOCK_STREAM:
--			return SECCLASS_TCP_SOCKET;
-+			if (default_protocol_stream(protocol))
-+				return SECCLASS_TCP_SOCKET;
-+			else
-+				return SECCLASS_RAWIP_SOCKET;
- 		case SOCK_DGRAM:
--			return SECCLASS_UDP_SOCKET;
--		case SOCK_RAW:
-+			if (default_protocol_dgram(protocol))
-+				return SECCLASS_UDP_SOCKET;
-+			else
-+				return SECCLASS_RAWIP_SOCKET;
-+		default:
- 			return SECCLASS_RAWIP_SOCKET;
- 		}
- 		break;
-@@ -2970,6 +2986,8 @@ static int selinux_socket_bind(struct so
- 
- 	/*
- 	 * If PF_INET or PF_INET6, check name_bind permission for the port.
-+	 * Multiple address binding for SCTP is not supported yet: we just
-+	 * check the first address now.
- 	 */
- 	family = sock->sk->sk_family;
- 	if (family == PF_INET || family == PF_INET6) {
-@@ -3014,12 +3032,12 @@ static int selinux_socket_bind(struct so
- 				goto out;
- 		}
- 		
--		switch(sk->sk_protocol) {
--		case IPPROTO_TCP:
-+		switch(isec->sclass) {
-+		case SECCLASS_TCP_SOCKET:
- 			node_perm = TCP_SOCKET__NODE_BIND;
- 			break;
- 			
--		case IPPROTO_UDP:
-+		case SECCLASS_UDP_SOCKET:
- 			node_perm = UDP_SOCKET__NODE_BIND;
- 			break;
- 			
 
 

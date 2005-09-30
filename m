@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030388AbVI3UWq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030384AbVI3UXd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030388AbVI3UWq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 16:22:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030387AbVI3UWq
+	id S1030384AbVI3UXd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 16:23:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030387AbVI3UXd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 16:22:46 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:4790 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S1030386AbVI3UWp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 16:22:45 -0400
-Date: Fri, 30 Sep 2005 14:22:34 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Andrew Patterson <andrew.patterson@hp.com>
-Cc: Luben Tuikov <luben_tuikov@adaptec.com>,
-       "Salyzyn, Mark" <mark_salyzyn@adaptec.com>, dougg@torque.net,
-       Linus Torvalds <torvalds@osdl.org>, Luben Tuikov <ltuikov@yahoo.com>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into the kernel
-Message-ID: <20050930202234.GA2571@parisc-linux.org>
-References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01A9FA11@otce2k03.adaptec.com> <1128105594.10079.109.camel@bluto.andrew> <433D9035.6000504@adaptec.com> <1128111290.10079.147.camel@bluto.andrew>
+	Fri, 30 Sep 2005 16:23:33 -0400
+Received: from serv01.siteground.net ([70.85.91.68]:8350 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S1030384AbVI3UXc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 16:23:32 -0400
+Date: Fri, 30 Sep 2005 13:23:21 -0700
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Andi Kleen <ak@suse.de>
+Cc: "Bryan O'Sullivan" <bos@serpentine.com>, Andrew Morton <akpm@osdl.org>,
+       vandrove@vc.cvut.cz, clameter@engr.sgi.com, alokk@calsoftinc.com,
+       linux-kernel@vger.kernel.org, manfred@colorfullife.com,
+       shai@scalex86.org, ananth@in.ibm.com
+Subject: Re: 2.6.14-rc1-git-now still dying in mm/slab - this time line 1849
+Message-ID: <20050930202321.GB3669@localhost.localdomain>
+References: <20050919112912.18daf2eb.akpm@osdl.org> <20050930062853.GB3599@localhost.localdomain> <1128093382.10913.92.camel@serpentine.pathscale.com> <200509302211.16259.ak@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1128111290.10079.147.camel@bluto.andrew>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <200509302211.16259.ak@suse.de>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 30, 2005 at 02:14:50PM -0600, Andrew Patterson wrote:
-> > > Note that a sysfs implementation has problems.  Binary attributes are
-> > > discouraged/not-allowed.
-> > 
-> > I've never heard that.  Is this similar to the argument
-> > "The sysfs tree would be too deep?"
+On Fri, Sep 30, 2005 at 10:11:15PM +0200, Andi Kleen wrote:
+> On Friday 30 September 2005 17:16, Bryan O'Sullivan wrote:
+> > On Thu, 2005-09-29 at 23:28 -0700, Ravikiran G Thirumalai wrote:
+> > > Yes.
+> >
+> > Kiran, your patch works for me, too.  I can boot 2.6.14-rc2 with your
+> > patch, but not without it.
+> >
+> > Thanks for your help.
 > 
-> >From Documentation/filesystes/sysfs.txt
-> 
-> "Attributes should be ASCII text files, preferably with only one value
-> per file. It is noted that it may not be efficient to contain only
-> value per file, so it is socially acceptable to express an array of
-> values of the same type.
-> 
-> Mixing types, expressing multiple lines of data, and doing fancy
-> formatting of data is heavily frowned upon. Doing these things may get
-> you publically humiliated and your code rewritten without notice."
-> 
-> My understanding is that sysfs is meant to be human-readable.  I do not
-> know if this is a hard and fast rule or just a convention.  Configfs is
-> probably a better fit at least for writeable attributes, but may not be
-> cooked yet.
+> It's already on its way to Linus. Thanks Kiran.
 
-There's precedent for binary data in sysfs -- pci config space is one.
+Thanks are also due to Alok for spending long hours trying out all combinations
+on Petr's box.  Thanks Alok.
+
+Kiran

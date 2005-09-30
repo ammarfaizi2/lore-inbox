@@ -1,43 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030495AbVI3W4I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030502AbVI3Xnn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030495AbVI3W4I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 18:56:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030500AbVI3W4H
+	id S1030502AbVI3Xnn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 19:43:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030503AbVI3Xnn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 18:56:07 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:50117 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S1030498AbVI3W4F
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 18:56:05 -0400
-Date: Sat, 1 Oct 2005 00:52:07 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
-Subject: Re: [howto] Kernel hacker's guide to git, updated
-Message-ID: <20050930225207.GC24548@electric-eye.fr.zoreil.com>
-References: <433BC9E9.6050907@pobox.com> <20050929200252.GA31516@redhat.com> <433C4B6D.6030701@pobox.com> <7virwjegb5.fsf@assigned-by-dhcp.cox.net> <433D1E5D.20303@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <433D1E5D.20303@pobox.com>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+	Fri, 30 Sep 2005 19:43:43 -0400
+Received: from outgoing.tpinternet.pl ([193.110.120.20]:28705 "EHLO
+	outgoing.tpinternet.pl") by vger.kernel.org with ESMTP
+	id S1030502AbVI3Xnn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 19:43:43 -0400
+In-Reply-To: <433DB5D7.3020806@adaptec.com>
+References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01A9FA11@otce2k03.adaptec.com>	 <1128105594.10079.109.camel@bluto.andrew>  <433D9035.6000504@adaptec.com>	 <1128111290.10079.147.camel@bluto.andrew>  <433DA0DF.9080308@adaptec.com> <1128114950.10079.170.camel@bluto.andrew> <433DB5D7.3020806@adaptec.com>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <9B90AC8A-A678-4FFE-B42D-796C8D87D65B@neostrada.pl>
+Cc: andrew.patterson@hp.com, "Salyzyn, Mark" <mark_salyzyn@adaptec.com>,
+       dougg@torque.net, Linus Torvalds <torvalds@osdl.org>,
+       Luben Tuikov <ltuikov@yahoo.com>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+From: Marcin Dalecki <dalecki.marcin@neostrada.pl>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into the kernel
+Date: Sat, 1 Oct 2005 01:42:06 +0200
+To: Luben Tuikov <luben_tuikov@adaptec.com>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> :
-[...]
-> Thanks for all the comments.  I just updated the KHGtG with the feedback 
-> I received.  Go to
-> 
-> 	http://linux.yyz.us/git-howto.html
-> 
-> and click reload.  Continued criticism^H^H^Hcomments welcome!
 
-The basic tasks make no use of git-whatchanged.
+On 2005-10-01, at 00:01, Luben Tuikov wrote:
+> Why should synchronization between Process A and Process B
+> reading storage attributes take place in the kernel?
+>
+> They can synchronize in user space.
 
-Even if it is a CVSism, it is quite handful to retrieve the history of
-the patchsets by aiming at a specific file.
+In a mandatory and transparent way? How?
 
---
-Ueimor

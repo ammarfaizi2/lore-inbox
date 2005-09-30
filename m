@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751423AbVI3BwQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbVI3B4v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751423AbVI3BwQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 21:52:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751420AbVI3BwQ
+	id S932397AbVI3B4v (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 21:56:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932398AbVI3B4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 21:52:16 -0400
-Received: from fmr13.intel.com ([192.55.52.67]:31425 "EHLO
-	fmsfmr001.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1751423AbVI3BwP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 21:52:15 -0400
-Subject: Re: [PATCH] earlier allocation of order 0 pages from pcp in
-	__alloc_pages
-From: Rohit Seth <rohit.seth@intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Martin J. Bligh" <mbligh@mbligh.org>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, Martin Hicks <mort@sgi.com>
-In-Reply-To: <20050929161118.27f9f1eb.akpm@osdl.org>
-References: <20050929150155.A15646@unix-os.sc.intel.com>
-	 <719460000.1128034108@[10.10.2.4]>  <20050929161118.27f9f1eb.akpm@osdl.org>
-Content-Type: text/plain
-Organization: Intel 
-Date: Thu, 29 Sep 2005 18:58:25 -0700
-Message-Id: <1128045505.3735.31.camel@akash.sc.intel.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Sep 2005 01:50:54.0241 (UTC) FILETIME=[64BB1910:01C5C561]
+	Thu, 29 Sep 2005 21:56:50 -0400
+Received: from fed1rmmtao02.cox.net ([68.230.241.37]:65276 "EHLO
+	fed1rmmtao02.cox.net") by vger.kernel.org with ESMTP
+	id S932397AbVI3B4u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 21:56:50 -0400
+From: Junio C Hamano <junkio@cox.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into the kernel
+References: <Pine.LNX.4.10.10509271604510.14637-100000@master.linux-ide.org>
+	<20050928113703.65626.qmail@web31806.mail.mud.yahoo.com>
+	<20050928123235.GJ1459@parisc-linux.org>
+	<Pine.LNX.4.58.0509280748460.3308@g5.osdl.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Date: Thu, 29 Sep 2005 18:56:47 -0700
+Message-ID: <7vhdc3b9nk.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-09-29 at 16:11 -0700, Andrew Morton wrote:
-> "Martin J. Bligh" <mbligh@mbligh.org> wrote:
-> >
-> > It looks like we're now dropping into direct reclaim as the first thing
-> > in __alloc_pages before even trying to kick off kswapd. When the hell
-> > did that start? Or is that only meant to trigger if we're already below
-> > the low watermark level?
-> 
-> That's all the numa goop which Martin Hicks added.  It's all disabled if
-> z->reclaim_pages is zero (it is).  However we could be testing that flag a
-> bit earlier, I think.
-> 
-> And yeah, some de-spaghettification would be nice.  Certainly before adding
-> more logic.
-> 
-> Martin, should we take out the early zone reclaim logic?  It's all
-> unreachable at present anyway.
-> 
-...yeah just like sys_set_zone_reclaim.  was it intended to be added as
-a system call?
+Linus Torvalds <torvalds@osdl.org> writes:
 
--rohit
+> On Wed, 28 Sep 2005, Matthew Wilcox wrote:
+>> 
+>> Dude, that document is written in a very tongue-in-cheek style.
+>
+> True, true. But sometimes you can say painful truths more easily if you do 
+> it as a joke. Most of the ManagementStyle document is perfectly valid.
+
+Yes, I thought I understood it when I read it first, but I later
+realized that my understanding was very superficial.
+
+When I re-read it now, I cannot help chuckling, remembering how
+you kept saying "go wild", "make it so", "That is good, but it
+strikes me that there is no fundamental reason to limit
+ourselves to ..."  on the git list ;-).
 

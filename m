@@ -1,49 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932580AbVI3SpF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030300AbVI3SqS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932580AbVI3SpF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 14:45:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932587AbVI3SpF
+	id S1030300AbVI3SqS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 14:46:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965066AbVI3SqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 14:45:05 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:39915 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932580AbVI3SpD (ORCPT
+	Fri, 30 Sep 2005 14:46:18 -0400
+Received: from hera.kernel.org ([140.211.167.34]:38864 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S965062AbVI3SqR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 14:45:03 -0400
-Date: Fri, 30 Sep 2005 11:44:33 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Harald Welte <laforge@gnumonks.org>, Sergey Vlasov <vsu@altlinux.ru>,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       security@linux.kernel.org, vendor-sec@lst.de
-Subject: Re: [linux-usb-devel] Re: [Security] [vendor-sec] [BUG/PATCH/RFC] Oops while completing async USB via usbdevio
-Message-ID: <20050930184433.GF16352@shell0.pdx.osdl.net>
-References: <20050925151330.GL731@sunbeam.de.gnumonks.org> <Pine.LNX.4.58.0509270746200.3308@g5.osdl.org> <20050927160029.GA20466@master.mivlgu.local> <Pine.LNX.4.58.0509270904140.3308@g5.osdl.org> <20050927165206.GB20466@master.mivlgu.local> <Pine.LNX.4.58.0509270959380.3308@g5.osdl.org> <20050930104749.GN4168@sunbeam.de.gnumonks.org> <Pine.LNX.4.64.0509300752530.3378@g5.osdl.org>
+	Fri, 30 Sep 2005 14:46:17 -0400
+Date: Fri, 30 Sep 2005 15:44:04 -0300
+From: Marcelo <marcelo.tosatti@cyclades.com>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+Subject: Re: [PATCH 3/7] CART - an advanced page replacement policy
+Message-ID: <20050930184404.GA16812@xeon.cnet>
+References: <20050929180845.910895444@twins> <20050929181622.780879649@twins>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0509300752530.3378@g5.osdl.org>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20050929181622.780879649@twins>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Linus Torvalds (torvalds@osdl.org) wrote:
-> Here's a totally untested patch. It's guaranteed not to do the "right 
-> thing", simply because it doesn't _use_ the uid/euid information. But it's 
-> in the right kind of direction.
-> 
-> If you change the "kill_proc_info()" into a "kill_proc_info_as_uid()" 
-> call, and add that to kernel/signal.c (which is basically kill_proc_info() 
-> except it uses the passed-in uid/euid for the "check_kill_permission()" 
-> tests instead), it should be correct.
-> 
-> As-is, it won't work, because it will use a _random_ uid (whatever is the 
-> currently running process) for the kill permission. So this really is just 
-> a "use this as a template" kind of patch, DO NOT APPLY!
 
-Sorry, I missed the thread up to this, but this looks fundamentally
-broken.  The kill_proc_info_as_uid() idea is not sufficient because more
-than uid/euid are needed for permission check.  There's capabilities and
-security labels.  Is there a reason not to do normal async here?
+Hi Peter,
 
-thanks,
--chris
+On Thu, Sep 29, 2005 at 08:08:48PM +0200, Peter Zijlstra wrote:
+> The flesh of the CART implementation. Again comments in the file should be
+> clear.
+
+Having per-zone "B1" target accounted at fault-time instead of a global target
+strikes me.
+
+The ARC algorithm adjusts the B1 target based on the fact that being-faulted-pages
+were removed from the same memory region where such pages will reside.
+
+The per-zone "B1" target as you implement it means that the B1 target accounting
+happens for the zone in which the page for the faulting data has been allocated,
+_not_ on the zone from which the data has been evicted. Seems quite unfair.
+
+So for example, if a page gets removed from the HighMem zone while in the 
+B1 list, and the same data gets faulted in later on a page from the normal
+zone, Normal will have its "B1" target erroneously increased.
+
+A global inactive target scaled to the zone size would get rid of that problem.
+
+Another issue is testing: You had some very interesting numbers before, 
+how are things now?
+
+> Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+> 
+>  mm/cart.c                  |  631 +++++++++++++++++++++++++++++++++++++++++++++
+>  7 files changed, 682 insertions(+), 35 deletions(-)
+> 
+> Index: linux-2.6-git/mm/cart.c
+> ===================================================================
+> --- /dev/null
+> +++ linux-2.6-git/mm/cart.c
+> @@ -0,0 +1,639 @@
+
+<snip>
+
+> +#define cart_cT ((zone)->nr_active + (zone)->nr_inactive + (zone)->free_pages)
+> +#define cart_cB ((zone)->present_pages)
+> +
+> +#define T2B(x) (((x) * cart_cB) / cart_cT)
+> +#define B2T(x) (((x) * cart_cT) / cart_cB)
+> +
+> +#define size_T1 ((zone)->nr_active)
+> +#define size_T2 ((zone)->nr_inactive)
+> +
+> +#define list_T1 (&(zone)->active_list)
+> +#define list_T2 (&(zone)->inactive_list)
+> +
+> +#define cart_p ((zone)->nr_p)
+> +#define cart_q ((zone)->nr_q)
+> +
+> +#define size_B1 ((zone)->nr_evicted_active)
+> +#define size_B2 ((zone)->nr_evicted_inactive)
+> +
+> +#define nr_Ns ((zone)->nr_shortterm)
+> +#define nr_Nl (size_T1 + size_T2 - nr_Ns)
+
+These defines are not not easy to read inside the code which
+uses them, I personally think that "zone->nr_.." explicitly is 
+much clearer.

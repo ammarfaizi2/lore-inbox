@@ -1,103 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbVJACkA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932595AbVI3WCK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750715AbVJACkA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 22:40:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750716AbVJACkA
+	id S932595AbVI3WCK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 18:02:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbVI3WCG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 22:40:00 -0400
-Received: from mail.tmr.com ([64.65.253.246]:52121 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S1750715AbVJACj7 (ORCPT
+	Fri, 30 Sep 2005 18:02:06 -0400
+Received: from ns1.suse.de ([195.135.220.2]:55752 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932595AbVI3WCD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 22:39:59 -0400
-Message-ID: <433DF76C.9010400@tmr.com>
-Date: Fri, 30 Sep 2005 22:41:48 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
+	Fri, 30 Sep 2005 18:02:03 -0400
+From: Andi Kleen <ak@suse.de>
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Subject: Re: [Patch] x86, x86_64: fix cpu model for family 0x6
+Date: Sat, 1 Oct 2005 00:02:16 +0200
+User-Agent: KMail/1.8
+Cc: Petr Vandrovec <vandrove@vc.cvut.cz>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+References: <20050929190419.C15943@unix-os.sc.intel.com> <433D391A.70607@vc.cvut.cz> <20050930112310.A28092@unix-os.sc.intel.com>
+In-Reply-To: <20050930112310.A28092@unix-os.sc.intel.com>
 MIME-Version: 1.0
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-CC: Paul.McKenney@us.ibm.com, linux-mm@kvack.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/7] CART - an advanced page replacement policy
-References: <20050929180845.910895444@twins>  <433C4343.20205@tmr.com> <1128093992.14695.22.camel@twins>
-In-Reply-To: <1128093992.14695.22.camel@twins>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510010002.16382.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Zijlstra wrote:
+On Friday 30 September 2005 20:23, Siddha, Suresh B wrote:
+> On Fri, Sep 30, 2005 at 03:09:46PM +0200, Petr Vandrovec wrote:
+> > Siddha, Suresh B wrote:
+> > > -		if (c->x86 == 0xf) {
+> > > +		if (c->x86 == 0xf)
+> > >  			c->x86 += (tfms >> 20) & 0xff;
+> > > +		if (c->x86 == 0x6 || c->x86 == 0xf)
+> >
+> > Are you sure this is correct?  You just incremented c->x86 by extended
+> > family, so I believe test should be
+> >
+> >                  if (c->x86 == 0x6 || c->x86 >= 0xf)
+>
+> My bad. Your suggestion might work. But let me just follow what SDM Vol-2a
+> says here. New patch appended.
+>
+> Andi, please apply.
+I applied an earlier mix of your original one and Petr's suggestions. Hope 
+it's ok. 
 
->On Thu, 2005-09-29 at 15:40 -0400, Bill Davidsen wrote:
->  
->
->>Peter Zijlstra wrote:
->>    
->>
->>>Multiple memory zone CART implementation for Linux.
->>>An advanced page replacement policy.
->>>
->>>http://www.almaden.ibm.com/cs/people/dmodha/clockfast.pdf
->>>(IBM does hold patent rights to the base algorithm ARC)
->>>      
->>>
->>Peter, this is a large patch, perhaps you could describe what configs 
->>benefit, 
->>    
->>
->
->All those that use swap. Those that exploit the weak side of LRU more
->than others.
->
->CART is an adaptive algorithm that will act like LFU on one side and LRU
->on the other, capturing both behaviours. Therefore it is also scan
->proof, eg. 'use once' scans should not flush the full cache.
->
->Hence people with LFU friendly applications will see an improvement
->while those who have an LRU friendly application should see no decrease
->in swap performance.
->
->Non of the algorithms handle cyclic access very well, that is what patch
->5 tries to tackle.
->
->  
->
->>how much, 
->>    
->>
->
->In the cyclic case (n+a: a << n) I've seen speedups of over 300%. Other
->cases much less. However I've yet to encounter a case where it gives
->worse performance.
->
->I'm still constructing some corner case tests to give more hard numbers.
->
->  
->
->>and what the right to use status of the patent might 
->>be. 
->>    
->>
->
->AFAIK IBM allows Linux implementation of their patents.
->See: http://news.com.com/IBM+pledges+no+patent+attacks+against+Linux/2100-7344_3-5296787.html
->
->  
->
->>In other words, why would a reader of LKML put in this patch and try it?
->>The description of how it works is clear, but the problem solved isn't.
->>    
->>
->
->I hope to have answered these questions. If any questions still remain,
->please let me know.
->
+x86-64/i386: Fix CPU model for family 6
 
-Thanks, you have cleared up all of the issues which I felt were unclear.
+From: Suresh Siddha <suresh.b.siddha@intel.com>
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO TMR Associates, Inc
-  Doing interesting things with small computers since 1979
+According to cpuid instruction in IA32 SDM-Vol2, when computing cpu model,      
+we need to consider extended model ID for family 0x6 also.                      
+
+AK: Also added fixes/simplifcation from Petr Vandrovec
+                                                                                
+Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>        
+Signed-off-by: Andi Kleen <ak@suse.de>
+
+Index: linux/arch/i386/kernel/cpu/common.c
+===================================================================
+--- linux.orig/arch/i386/kernel/cpu/common.c
++++ linux/arch/i386/kernel/cpu/common.c
+@@ -233,10 +233,10 @@ static void __init early_cpu_detect(void
+ 		cpuid(0x00000001, &tfms, &misc, &junk, &cap0);
+ 		c->x86 = (tfms >> 8) & 15;
+ 		c->x86_model = (tfms >> 4) & 15;
+-		if (c->x86 == 0xf) {
++		if (c->x86 == 0xf)
+ 			c->x86 += (tfms >> 20) & 0xff;
++		if (c->x86 >= 0x6)
+ 			c->x86_model += ((tfms >> 16) & 0xF) << 4;
+-		}
+ 		c->x86_mask = tfms & 15;
+ 		if (cap0 & (1<<19))
+ 			c->x86_cache_alignment = ((misc >> 8) & 0xff) * 8;
+Index: linux/arch/x86_64/kernel/setup.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/setup.c
++++ linux/arch/x86_64/kernel/setup.c
+@@ -1059,10 +1059,10 @@ void __cpuinit early_identify_cpu(struct
+ 		c->x86 = (tfms >> 8) & 0xf;
+ 		c->x86_model = (tfms >> 4) & 0xf;
+ 		c->x86_mask = tfms & 0xf;
+-		if (c->x86 == 0xf) {
++		if (c->x86 == 0xf)
+ 			c->x86 += (tfms >> 20) & 0xff;
++		if (c->x86 >= 0xf) 
+ 			c->x86_model += ((tfms >> 16) & 0xF) << 4;
+-		} 
+ 		if (c->x86_capability[0] & (1<<19)) 
+ 			c->x86_clflush_size = ((misc >> 8) & 0xff) * 8;
+ 	} else {
 

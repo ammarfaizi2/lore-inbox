@@ -1,53 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbVI3A3H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932414AbVI3A3l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932407AbVI3A3H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Sep 2005 20:29:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932410AbVI3A3H
+	id S932414AbVI3A3l (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Sep 2005 20:29:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932410AbVI3A3l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Sep 2005 20:29:07 -0400
-Received: from gate.crashing.org ([63.228.1.57]:33921 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932407AbVI3A3F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Sep 2005 20:29:05 -0400
-Subject: Re: iMac G5: experimental thermal & cpufreq support
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Geoff Levand <geoffrey.levand@am.sony.com>
-Cc: linuxppc64-dev@ozlabs.org, linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       "debian-powerpc@lists.debian.org" <debian-powerpc@lists.debian.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <433C7882.20000@am.sony.com>
-References: <1127978432.6102.53.camel@gaston>  <433C7882.20000@am.sony.com>
-Content-Type: text/plain
-Date: Fri, 30 Sep 2005 10:26:59 +1000
-Message-Id: <1128040019.31197.3.camel@gaston>
+	Thu, 29 Sep 2005 20:29:41 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:63882
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932411AbVI3A3j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Sep 2005 20:29:39 -0400
+Date: Thu, 29 Sep 2005 17:29:24 -0700 (PDT)
+Message-Id: <20050929.172924.06476420.davem@davemloft.net>
+To: kuznet@ms2.inr.ac.ru
+Cc: lists@limebrokerage.com, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org, netdev@vger.kernel.org, gautran@mrv.com
+Subject: Re: Possible BUG in IPv4 TCP window handling, all recent
+ 2.4.x/2.6.x kernels
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20050929151729.GA2158@ms2.inr.ac.ru>
+References: <20050902183656.GA16537@yakov.inr.ac.ru>
+	<Pine.LNX.4.61.0509281223560.30951@ionlinux.tower-research.com>
+	<20050929151729.GA2158@ms2.inr.ac.ru>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-09-29 at 16:28 -0700, Geoff Levand wrote:
-> Benjamin Herrenschmidt wrote:
-> > The algorithm itself is extracted from darwin. However, it's a rather
-> > complex modified version of the PID algorithm, and thus it could use
-> > some review to make sure I got everything right.
-> > 
-> 
-> As we are already in the digital domain, I would think it would be 
-> more savvy to use a digital controller than try to simulate an
-> analog controller...  Why don't you abstract the control algorithm 
-> such that you can plug in others as they are developed.
+From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Date: Thu, 29 Sep 2005 19:17:29 +0400
 
-Because I don't know much about those control algorithms, and all the
-calibration data provided by the firmware is in the form of factors for
-these algorithms, I wouldn't know how to "unmangle" them to use with
-different ones.
+> Good. I think the patch is to be applied to all mainstream kernels.
 
-Actually, the control algorithms (PID and modified PID) are in a
-"helper", so it's fairly easy for the platform module to use whatever it
-wants, feel free to submit other algorithms :) But for Apple machines,
-I'd rather use what I have calibration data for, unless you can produce
-something that works without any...
-
-Ben.
-
+Done, thanks everyone.

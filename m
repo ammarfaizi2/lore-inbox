@@ -1,66 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030392AbVI3UZo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030387AbVI3Ucd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030392AbVI3UZo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 16:25:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030391AbVI3UZn
+	id S1030387AbVI3Ucd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 16:32:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030391AbVI3Ucd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 16:25:43 -0400
-Received: from fmr21.intel.com ([143.183.121.13]:47851 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1030390AbVI3UZm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 16:25:42 -0400
-Date: Fri, 30 Sep 2005 13:24:41 -0700
-From: Rajesh Shah <rajesh.shah@intel.com>
-To: Rajat Jain <rajat.noida.india@gmail.com>
-Cc: Kristen Accardi <kristen.c.accardi@intel.com>,
-       Linux-newbie@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net,
-       acpi-devel@lists.sourceforge.net, pcihpd-discuss@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org,
-       greg@kroah.com, dkumar@noida.hcltech.com, sanjayku@noida.hcltech.com
-Subject: Re: [Pcihpd-discuss] Re: ACPI problem with PCI Express Native Hot-plug driver
-Message-ID: <20050930132440.C28328@unix-os.sc.intel.com>
-Reply-To: Rajesh Shah <rajesh.shah@intel.com>
-References: <b115cb5f0509020057741365dc@mail.gmail.com> <b115cb5f050902005877607db1@mail.gmail.com> <1125683188.13185.5.camel@whizzy> <b115cb5f05090418583abfc73@mail.gmail.com> <b115cb5f0509292257j395d60f8j53d1afa967caa263@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <b115cb5f0509292257j395d60f8j53d1afa967caa263@mail.gmail.com>; from rajat.noida.india@gmail.com on Fri, Sep 30, 2005 at 02:57:07PM +0900
+	Fri, 30 Sep 2005 16:32:33 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:22470 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S1030387AbVI3Ucc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 16:32:32 -0400
+Message-ID: <433DA0DF.9080308@adaptec.com>
+Date: Fri, 30 Sep 2005 16:32:31 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: andrew.patterson@hp.com
+CC: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>, dougg@torque.net,
+       Linus Torvalds <torvalds@osdl.org>, Luben Tuikov <ltuikov@yahoo.com>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
+ the kernel
+References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01A9FA11@otce2k03.adaptec.com>	 <1128105594.10079.109.camel@bluto.andrew>  <433D9035.6000504@adaptec.com> <1128111290.10079.147.camel@bluto.andrew>
+In-Reply-To: <1128111290.10079.147.camel@bluto.andrew>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 30 Sep 2005 20:32:31.0216 (UTC) FILETIME=[14DA8F00:01C5C5FE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 30, 2005 at 02:57:07PM +0900, Rajat Jain wrote:
+On 09/30/05 16:14, Andrew Patterson wrote:
 > 
-> pciehp: pfar:cannot locate acpi bridge of PCI 0xb.
-> ......
-> pciehp: pfar:cannot locate acpi bridge of PCI 0xe.
+> Yes you can, which is what I am trying to do.  However, is that library
+> also available on Solaris and Windows? Is it up to date?  These are the
 
-This is saying that the driver's probe function was called for
-these pciehp capable bridges, but it didn't find them in the
-ACPI namespace. 
+Is the kernel the latest one? Is it up to date?
 
+See?  Same argument.
+
+>>>Note that a sysfs implementation has problems.  Binary attributes are
+>>>discouraged/not-allowed.
+>>
+>>I've never heard that.  Is this similar to the argument
+>>"The sysfs tree would be too deep?"
 > 
-> I am not sure where the problem lies. But the fact that the entries
-> are appearing correctly when I disable ACPI, combined with above error
-> messages, I suspect that there is a problem with ACPI namespace
-> (probably the resources cannot be found using ACPI).
 > 
-At init time, the pciehp driver scans the ACPI namespace and tries
-to collect resources for all bridges - host as well as PCI. It's
-pretty rare for BIOS to describe PCI bridge resources in ACPI
-namespace, so that's not unusual. What's unexpected is that these
-pciehp bridges weren't even listed in the namespace.
+>>From Documentation/filesystes/sysfs.txt
+> 
+> "Attributes should be ASCII text files, preferably with only one value
+> per file. It is noted that it may not be efficient to contain only
+> value per file, so it is socially acceptable to express an array of
+> values of the same type.
+> 
+> Mixing types, expressing multiple lines of data, and doing fancy
+> formatting of data is heavily frowned upon. Doing these things may get
+> you publically humiliated and your code rewritten without notice."
 
-With the pciehp version that has acpi disabled, it's not going to
-try to get bridge resources and other information from acpi. In
-that case, it simply reads the bridge config space to determine
-resource ranges it is decoding. This is what the acpi version of
-pciehp also defaults to for PCI bridges that are listed without
-resource descriptions in the acpi namespace. So, the error you
-are running into is somewhat bogus. The proper long term fix
-is to change pciehp to not depend so much on acpi and just use
-the pci core for resource management. In the meantime, you should
-just use the non-acpi version of pciehp. 
+I see this talk _only_ about non-binary attributes.
 
-Rajesh
+Plus you have to admit: the SAS sysfs "smp_portal" binary
+attribute is very versatile: you completely control the
+expander from user space _if_ you can see it:  It is 
+almost like "point and click".
 
+I imagine there would be GUIs built on top of it, which would
+actually implement that "point, click, control".
+
+> My understanding is that sysfs is meant to be human-readable.  I do not
+
+But `cat /sysfs/.../smp_portal` _is_ human readable.  See?  Its size is
+0 bytes and when you read it you get 0 data read.
+
+> User space locking can only guarantee atomic operations in user space.  
+
+And user space is the whole audience of this interface.
+
+> Not sure at the moment, can I guarantee this for the future?
+
+How far in the future? 1, 3, 6 months?  1, 3, 6 years?
+Plus if you need an attribute larger than 4K, you've got
+other problems to worry about.
+
+> There are as many as one would want.  We now have 32 bit device numbers.
+> Old technology is fine as long as it works, especially if their is no
+> new technology to replace it.  Note that I don't like the character
+> device solution either. What would really be nice is something that will
+> allow us to pass an arbitrary request buffer, and get an arbitrary
+> response buffer back in a single transaction,
+
+Here:
+
+/* User space lock */
+
+fd = open(smp_portal, ...);
+write(fd, smp_req, smp_req_size);
+read(fd, smp_resp, smp_resp_size);
+close(fd);
+
+/* User space unlock */
+
+> See above.  This stuff works for trivial user-space apps.  It will not
+> suffice for most storage management apps.  
+
+Sorry but I completely fail to see this argument.
+
+How will it "fail for most storage managament apps"?
+
+	Luben

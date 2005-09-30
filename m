@@ -1,42 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030374AbVI3Q4N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750788AbVI3RLB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030374AbVI3Q4N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 12:56:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030376AbVI3Q4N
+	id S1750788AbVI3RLB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 13:11:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbVI3RLB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 12:56:13 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:40890 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030374AbVI3Q4M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 12:56:12 -0400
-Date: Fri, 30 Sep 2005 09:55:40 -0700 (PDT)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-cc: Petr Vandrovec <vandrove@vc.cvut.cz>, Andrew Morton <akpm@osdl.org>,
-       alokk@calsoftinc.com, linux-kernel@vger.kernel.org,
-       manfred@colorfullife.com,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
-       ananth@in.ibm.com, Andi Kleen <ak@suse.de>
-Subject: Re: 2.6.14-rc1-git-now still dying in mm/slab - this time line 1849
-In-Reply-To: <20050930054556.GA3599@localhost.localdomain>
-Message-ID: <Pine.LNX.4.62.0509300955070.29430@schroedinger.engr.sgi.com>
-References: <20050916230809.789d6b0b.akpm@osdl.org> <432EE103.5020105@vc.cvut.cz>
- <20050919112912.18daf2eb.akpm@osdl.org> <Pine.LNX.4.62.0509191141380.26105@schroedinger.engr.sgi.com>
- <20050919122847.4322df95.akpm@osdl.org> <Pine.LNX.4.62.0509191351440.26388@schroedinger.engr.sgi.com>
- <20050919221614.6c01c2d1.akpm@osdl.org> <43301578.8040305@vc.cvut.cz>
- <20050928210245.GA3760@localhost.localdomain> <433C1999.2060201@vc.cvut.cz>
- <20050930054556.GA3599@localhost.localdomain>
+	Fri, 30 Sep 2005 13:11:01 -0400
+Received: from 216-54-166-16.gen.twtelecom.net ([216.54.166.16]:28372 "EHLO
+	mx1.compro.net") by vger.kernel.org with ESMTP id S1750788AbVI3RLA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 13:11:00 -0400
+Message-ID: <433D71A0.1040104@compro.net>
+Date: Fri, 30 Sep 2005 13:10:56 -0400
+From: Mark Hounschell <markh@compro.net>
+Reply-To: markh@compro.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050317
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Opterons and setting the pci bus master bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-PMX-Version: 5.0.3.165339, Antispam-Engine: 2.1.0.0, Antispam-Data: 2005.9.30.17
+X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='IP_HTTP_ADDR 0, __CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0, __USER_AGENT 0'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Sep 2005, Ravikiran G Thirumalai wrote:
+Problem, I have a number of dual processor Opterons that do not work 
+with pci expansion chassis'. The reason that they do not work is because 
+none of the cards discovered in the chassis get the pci bus master bit 
+set in their command register. If I manually set this bit in our cards 
+everything is fine. When we connect the same chassis to an Intel P4 box 
+everything is fine. It looks like it is the kernel that sets this bit 
+because we have never set it in any of our drivers, yet on the intel 
+boxes it gets set. Why would this bit not be set when the chassis is 
+connected to an Opteron. We are running 32-bit mode BTW. I am using a 
+2.6.11.9 kernel. Is this a motherboard problem or could this be a kernel 
+problem?
 
-> Here is a quick fix for this.  The right fix obviously is to have
-> cpu_to_node[bsp] setup early for numa_init_array().  The following patch
-> will fix the problem now, and the code can stay on even when cpu_to_node{BP] 
-> gets fixed early correctly.
-
-This fixes the problem that I can produce by booting with numa=fake=2
+Thanks
+Mark
 

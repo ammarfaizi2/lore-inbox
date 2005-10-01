@@ -1,39 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030502AbVI3Xnn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbVJAAcE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030502AbVI3Xnn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 19:43:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030503AbVI3Xnn
+	id S1750703AbVJAAcE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 20:32:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750704AbVJAAcE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 19:43:43 -0400
-Received: from outgoing.tpinternet.pl ([193.110.120.20]:28705 "EHLO
-	outgoing.tpinternet.pl") by vger.kernel.org with ESMTP
-	id S1030502AbVI3Xnn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 19:43:43 -0400
-In-Reply-To: <433DB5D7.3020806@adaptec.com>
-References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01A9FA11@otce2k03.adaptec.com>	 <1128105594.10079.109.camel@bluto.andrew>  <433D9035.6000504@adaptec.com>	 <1128111290.10079.147.camel@bluto.andrew>  <433DA0DF.9080308@adaptec.com> <1128114950.10079.170.camel@bluto.andrew> <433DB5D7.3020806@adaptec.com>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <9B90AC8A-A678-4FFE-B42D-796C8D87D65B@neostrada.pl>
-Cc: andrew.patterson@hp.com, "Salyzyn, Mark" <mark_salyzyn@adaptec.com>,
-       dougg@torque.net, Linus Torvalds <torvalds@osdl.org>,
-       Luben Tuikov <ltuikov@yahoo.com>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+	Fri, 30 Sep 2005 20:32:04 -0400
+Received: from zproxy.gmail.com ([64.233.162.193]:3809 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750703AbVJAAcD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 20:32:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=NP246Id2O7NNFlyVyuXpR37kD3Q7NI1mgTzFyF+eflUe/IC1IBTK3BBh5UMDOUUNyVC9Mfkq8GK1Cuma8dqwJbg6e0DQZM6fVFsCsN1ILn2Y76i5jPHZiHAd8OHJgu7FP/+mupVZRKhPefMNjUywCEDI2OvEmLD4edIfLzHMb60=
+Message-ID: <aec7e5c30509301732n1b611d45qb137a14b7b621df8@mail.gmail.com>
+Date: Sat, 1 Oct 2005 09:32:02 +0900
+From: Magnus Damm <magnus.damm@gmail.com>
+Reply-To: Magnus Damm <magnus.damm@gmail.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [PATCH 05/07] i386: sparsemem on pc
+Cc: Magnus Damm <magnus@valinux.co.jp>, linux-mm <linux-mm@kvack.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Transfer-Encoding: 7bit
-From: Marcin Dalecki <dalecki.marcin@neostrada.pl>
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into the kernel
-Date: Sat, 1 Oct 2005 01:42:06 +0200
-To: Luben Tuikov <luben_tuikov@adaptec.com>
-X-Mailer: Apple Mail (2.734)
+In-Reply-To: <1128093929.6145.27.camel@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050930073232.10631.63786.sendpatchset@cherry.local>
+	 <20050930073258.10631.74982.sendpatchset@cherry.local>
+	 <1128093929.6145.27.camel@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 2005-10-01, at 00:01, Luben Tuikov wrote:
-> Why should synchronization between Process A and Process B
-> reading storage attributes take place in the kernel?
+On 10/1/05, Dave Hansen <haveblue@us.ibm.com> wrote:
+> On Fri, 2005-09-30 at 16:33 +0900, Magnus Damm wrote:
+> > This patch for enables and fixes sparsemem support on i386. This is the
+> > same patch that was sent to linux-kernel on September 6:th 2005, but this
+> > patch includes up-porting to fit on top of the patches written by Dave Hansen.
 >
-> They can synchronize in user space.
+> I'll post a more comprehensive way to do this in just a moment.
+>
+>         Subject: memhotplug testing: hack for flat systems
 
-In a mandatory and transparent way? How?
+Looks much better, will compile and test on Monday. Thanks.
 
+/ magnus

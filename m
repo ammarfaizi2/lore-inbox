@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbVJAPC0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbVJAPCY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750719AbVJAPC0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Oct 2005 11:02:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750720AbVJAPC0
+	id S1750718AbVJAPCY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Oct 2005 11:02:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750719AbVJAPCY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Oct 2005 11:02:26 -0400
-Received: from mta1.srv.hcvlny.cv.net ([167.206.4.196]:53588 "EHLO
-	mta1.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S1750719AbVJAPCZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Oct 2005 11:02:25 -0400
-Date: Sat, 01 Oct 2005 11:01:24 -0400
-From: Mathieu Chouquet-Stringer <ml2news@optonline.net>
-X-Face: %JOeya=Dg!}[/#Go&*&cQ+)){p1c8}u\Fg2Q3&)kothIq|JnWoVzJtCFo~4X<uJ\9cHK'.w
- 3:{EoxBR
-Subject: Re: Audigy2 renamed, grrr...
-In-reply-to: <s5hachun2rk.wl%tiwai@suse.de>
-To: tiwai@suse.de (Takashi Iwai)
-Cc: rlrevell@joe-job.com (Lee Revell), linux-kernel@vger.kernel.org,
-       Stl <stlman@poczta.fm>
-Message-id: <m31x35gu2j.fsf@mcs.bigip.mine.nu>
-Organization: Uh?
-MIME-version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 8BIT
-References: <4338EF9A.1080906@poczta.fm> <1127832555.1326.5.camel@mindpipe>
- <s5hachun2rk.wl%tiwai@suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+	Sat, 1 Oct 2005 11:02:24 -0400
+Received: from qproxy.gmail.com ([72.14.204.203]:41312 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750718AbVJAPCY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Oct 2005 11:02:24 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=n7yeDp7gUo9FYXBSVsgKFFRbZ8nLWA9qMnn0/NNvppuUJKCpQEpVzl1JAArTLQ6NksEiz1VFtZLKkrWpTkcDMCTnB1kbArTXRZ6yYO9VcVSNzpjrY8hsaNYZ1pMSmr169UbhGHQdc6cgwhpH5wtNe1bBOKXVe9MlzTRLZO9QLEI=
+Date: Sat, 1 Oct 2005 17:00:48 +0200
+From: Diego Calleja <diegocg@gmail.com>
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] trivial #if -> #ifdef
+Message-Id: <20051001170048.354e2bdb.diegocg@gmail.com>
+X-Mailer: Sylpheed version 2.1.1 (GTK+ 2.8.3; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tiwai@suse.de (Takashi Iwai) writes:
-> The patch below should fix the problem.  Give it a try.
-> [...]
+Self-explanatory patch fixing bug #5340 (isn't easier to send a fix than 
+report the bug?!)
 
-Works great, thanks.
--- 
-Mathieu Chouquet-Stringer
-    "Le disparu, si l'on vénère sa mémoire, est plus présent et
-                 plus puissant que le vivant".
-           -- Antoine de Saint-Exupéry, Citadelle --
+
+Signed-off-by: Diego Calleja <diegocg@gmail.com>
+
+--- stable/include/linux/mod_devicetable.h.BAK	2005-10-01 16:11:39.000000000 +0200
++++ stable/include/linux/mod_devicetable.h	2005-10-01 16:22:15.000000000 +0200
+@@ -183,7 +183,7 @@ struct of_device_id
+ 	char	name[32];
+ 	char	type[32];
+ 	char	compatible[128];
+-#if __KERNEL__
++#ifdef __KERNEL__
+ 	void	*data;
+ #else
+ 	kernel_ulong_t data;

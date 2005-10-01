@@ -1,66 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbVJAAit@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbVJABPX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750711AbVJAAit (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 20:38:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750706AbVJAAis
+	id S1750709AbVJABPX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 21:15:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750712AbVJABPX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 20:38:48 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:26505 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750705AbVJAAis (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 20:38:48 -0400
-Message-ID: <433DDA8F.6050203@pobox.com>
-Date: Fri, 30 Sep 2005 20:38:39 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
+	Fri, 30 Sep 2005 21:15:23 -0400
+Received: from pimout5-ext.prodigy.net ([207.115.63.73]:21149 "EHLO
+	pimout5-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S1750709AbVJABPW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 21:15:22 -0400
+X-ORBL: [69.107.75.50]
+DomainKey-Signature: a=rsa-sha1; s=sbc01; d=pacbell.net; c=nofws; q=dns;
+	h=received:date:from:to:subject:cc:references:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:message-id;
+	b=bvaurSXxC/GZ/ZpV4folSe5PIdufQvNA9Lsw9TaeHRjax8DlT2ZOiOL0IwiyBjF5F
+	RKjbbi0RSqUIFVH47PFMw==
+Date: Fri, 30 Sep 2005 18:15:08 -0700
+From: David Brownell <david-b@pacbell.net>
+To: greg@kroah.com, daniel.ritz@gmx.ch
+Subject: Re: [PATCH] usb/core/hcd-pci.c: don't free_irq() on suspend
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <200509302101.j8UL1Htj026067@hera.kernel.org>
+ <20050930233833.GA19471@kroah.com>
+In-Reply-To: <20050930233833.GA19471@kroah.com>
 MIME-Version: 1.0
-To: Luben Tuikov <luben_tuikov@adaptec.com>
-CC: James Bottomley <James.Bottomley@SteelEye.com>,
-       Andre Hedrick <andre@linux-ide.org>,
-       "David S. Miller" <davem@davemloft.net>, willy@w.ods.org,
-       Patrick Mansfield <patmans@us.ibm.com>, ltuikov@yahoo.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
- the kernel
-References: <Pine.LNX.4.10.10509300015100.27623-100000@master.linux-ide.org>	 <433D8542.1010601@adaptec.com> <1128113158.12267.29.camel@mulgrave> <433DB6BE.4020706@adaptec.com>
-In-Reply-To: <433DB6BE.4020706@adaptec.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Message-Id: <20051001011508.7B01BEA4D4@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luben Tuikov wrote:
-> I'm sure you'll do whatever humanly possible to show
-> that _your_ idea can be applied: you can do this now:
-> just use a big if () { ... } else { ... } statement and
-> you're done.
+> David, this conflicts with your usb/usb-pm-06.patch in my quilt tree.
+> I'll try to resolve the merge with my best guess, but you should check
+> that I got it right...
 
-This is not how we do things in Linux.  You're doubling the maintenance 
-burden.
+The patch is OK with me, I was going to ack it just in case it
+grew little penguin fins ... I see it already has, and swam all
+the way into 2.6.14-rc3, so little point ... ;)
 
-If you really want to do this, at least don't fill up drivers/scsi/ with 
-an additional, completely unrelated codepath.
+Yes, I'll double check your merge.
 
-
-> Furthermore I do not see the reasons to umbrella both
-> "aic94xx and LSI cards" when they are _completely different_
-> in architecture: MPT and open transport (ala USB Storage and SBP).
-
-There is commonality between aic94xx and MPT/LSI stuff.  aic94xx SAS 
-transport layer is a superset of MPT/LSI SAS transport:  it clearly 
-needs far more management code.
-
-We understand this.  The part you don't understand is that we want to 
-emphasize the commonality, rather than let aic94xx and MPT/LSI go in 
-completely different directions.
-
-Read it again:  aic94xx/BCMxxx is a superset of functionality, not 
-completely different.
-
-	Jeff
-
+- Dave
 

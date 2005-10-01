@@ -1,123 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750847AbVJAVCn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750849AbVJAVPt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750847AbVJAVCn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Oct 2005 17:02:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750848AbVJAVCn
+	id S1750849AbVJAVPt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Oct 2005 17:15:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750850AbVJAVPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Oct 2005 17:02:43 -0400
-Received: from smtpout1.uol.com.br ([200.221.4.192]:7851 "EHLO smtp.uol.com.br")
-	by vger.kernel.org with ESMTP id S1750845AbVJAVCm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Oct 2005 17:02:42 -0400
-Date: Sat, 1 Oct 2005 18:02:34 -0300
+	Sat, 1 Oct 2005 17:15:49 -0400
+Received: from smtpout6.uol.com.br ([200.221.4.197]:10701 "EHLO
+	smtp.uol.com.br") by vger.kernel.org with ESMTP id S1750848AbVJAVPs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Oct 2005 17:15:48 -0400
+Date: Sat, 1 Oct 2005 18:15:43 -0300
 From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
-To: Grzegorz Kulewski <kangur@polcom.net>
-Cc: linux-kernel@vger.kernel.org
+To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Cc: Grzegorz Kulewski <kangur@polcom.net>, linux-kernel@vger.kernel.org
 Subject: Re: Strange disk corruption with Linux >= 2.6.13
-Message-ID: <20051001210234.GA6397@ime.usp.br>
-Mail-Followup-To: Grzegorz Kulewski <kangur@polcom.net>,
-	linux-kernel@vger.kernel.org
-References: <20050927111038.GA22172@ime.usp.br> <Pine.LNX.4.63.0509271331590.21130@alpha.polcom.net> <204F8530-3DAD-4B20-AC24-2CBA776CC2C2@ime.usp.br> <Pine.LNX.4.63.0509271425500.21130@alpha.polcom.net>
+Message-ID: <20051001211543.GB6397@ime.usp.br>
+Mail-Followup-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
+	Grzegorz Kulewski <kangur@polcom.net>, linux-kernel@vger.kernel.org
+References: <20050927111038.GA22172@ime.usp.br> <Pine.LNX.4.63.0509271331590.21130@alpha.polcom.net> <204F8530-3DAD-4B20-AC24-2CBA776CC2C2@ime.usp.br> <Pine.LNX.4.63.0509271425500.21130@alpha.polcom.net> <Pine.LNX.4.60.0509272139220.18464@poirot.grange>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.63.0509271425500.21130@alpha.polcom.net>
+In-Reply-To: <Pine.LNX.4.60.0509272139220.18464@poirot.grange>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Grzegorz. Thank you again for your response.
+Hi, Guennadi.
 
-I haven't been up with linux kernel since I have been experimenting with
-my motherboard to see if I could make it stable.
+On Sep 27 2005, Guennadi Liakhovetski wrote:
+> Version B here. It first had only 128MB, worked fine, I added 256MB,
+> system become unstable, memtest86 found "bad memory" around the last
+> megabytes.
 
-On Sep 27 2005, Grzegorz Kulewski wrote:
-> On Tue, 27 Sep 2005, Rogério Brito wrote:
-> >The southbridge is a VIA VT82C686.
-> 
-> I know. I had the same southbridge in my Abit KG7 but I don't know if
-> you have version A or version B. I had version B and it has several
-> disk problems fixed. For version A there are some workarounds in the
-> kernel.
+This is *quite* similar to what I am seeing.
 
-Didn't know that until I saw the following in the dmesg log:
+> Then I bought 512MB, hoping to use it with 256MB - no way.
 
-- - - - - - - - - - - - - - - - -- - - - - - - - - - - - - - - - - - - -
-rbrito@dumont:~$ dmesg | grep -i via
-Disabling VIA memory write queue (PCI ID 0305, rev 02): [55] 89 & 1f -> 09
-PCI: Disabling Via external APIC routing
-agpgart: Detected VIA Twister-K/KT133x/KM133 chipset
-parport_pc: VIA 686A/8231 detected
-parport_pc: VIA parallel port: io=0x378, irq=7
-VP_IDE: VIA vt82c686a (rev 22) IDE UDMA66 controller on pci0000:00:04.1
-- - - - - - - - - - - - - - - - -- - - - - - - - - - - - - - - - - - - -
+Again, similar to what I see.
 
-This also answers the question of my motherboard having the revision A
-of the southbridge.
+> Every module alone works, but not together. But in my case memtest86
+> did find errors.
 
-> >Nothing in the logs. No oops, no stack trace, no nothing. :-( Oh, now
-> >that
-> 
-> I don't think that there will be any oops or something like that. But 
-> maybe some IDE messages - like failed commands or something. But if there 
-> are no such messages then chance is that this is some memory/mb
-> problem.
+This is something puzzling: when I first installed the modules to get
+1.25GB, things "worked", but I had problems with memtest86+ (not
+memtest86).
 
-Yes, I found some of them. See below.
+I changed things (removing modules), got frustrated having only 512MB on
+the system with all the other modules laying around here and put them
+back.
 
-> >you mention it, I remember that I also made my Matrox G400 use speed
-> >4x. I will try slowing it down to see if there is any influence on
-> >what I see.
-> 
-> Yes, slowing down your graphics card could help.
+This second time, I reduced the latency on the BIOS from 2-2-2 to 3-3-3
+and it booted and memtest86+ did't find any errors. Yet, I saw some
+corruption, which was what prompted me to send the original mail to
+linux-kernel (since I didn't know if it was a hardware or a software
+problem, as memtest86+ had not found any errors).
 
-This is something that I still have not tried, because I lost a good
-amount of time using Gold Memory (already mentioned in this thread) to
-scan for bad memory.
+> Try removing the 256MB module?...
 
-Even though GM is shareware and only limited its tests to the "quick
-tests", it did a *much* better job than memtest86+ finding errors (i.e.,
-Gold Memory found errors with my system even when memtest86+ didn't).
-Perhaps some of those tests could be included in memtest86+.
+Right now, I'm only using one 512MB module, but after I have already
+paid for the second one, and it wasn't cheap. :-(
 
-Oh, and the fact that we have both memtest86{,+} doesn't help one when
-choosing what to use. :-(
+I suspect that the system is stable now, but I am not sure. If I
+reinstall some packages with apt, it still gets some problems with the
+md5sum signatures of *other* packages, which is highly weird. But I
+don't see any other problems.
 
-> >>I will bet that you have some hardware problem there. You can try to 
-> >>remove the 256MB DDR module and turn HIGHMEM off. You can also try to 
-> >>check each module separately.
-> >
-> >I already checked each module separately, but I didn't see any corruption. 
-> >I guess that I maybe wasn't paying too much attention. I will try it 
-> >again. Thanks for the suggestion.
-> 
-> Hmm... What did you change before the system started not working?
+Puzzling, huh? I already run a SMART offline/long self-test on the disk
+(to rule out it being a problem) and it passed with flying colors. I
+also already used badblocks on this very disk (but in read-only mode),
+and it also didn't find any problems.
 
-It had 256MB + 128MB running at PC100 speed (even though both were rated
-to work at PC133 speeds).
-
-> Maybe try with only 256MB module installed if that was the working
-> configuration...
-
-The catch is that the problem seems to be transient and not that easy to
-reproduce. For instance, I had 2 x 512MB + 256MB installed and it
-"worked" (meaning that it booted Linux and the system was useable, even
-though I saw some problems with md5sums on my system).
-
-Then, just removing the 256MB module made the computer not even POST
-anymore! Weird, isn't it? Beyond anything that I can explain yet.
-
-> >It sucks not to be in the US, where things are cheaper. :-(
-> 
-> Yeah, it sucks. I live in Poland and we have really big prices for 
-> computer parts here. :-(
-
-So, you know what I am talking about when I want to keep what I have
-just for the moment.
+I have a Quantum FIREBALLlct15 drive here.
 
 
-Regards,
+Thanks,
 
 -- 
 Rogério Brito : rbrito@ime.usp.br : http://www.ime.usp.br/~rbrito

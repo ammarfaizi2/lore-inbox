@@ -1,104 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750820AbVJAQrk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbVJARq5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750820AbVJAQrk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Oct 2005 12:47:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750821AbVJAQrk
+	id S1750734AbVJARq5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Oct 2005 13:46:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbVJARq5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Oct 2005 12:47:40 -0400
-Received: from mail.gmx.net ([213.165.64.20]:8871 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750820AbVJAQrj (ORCPT
+	Sat, 1 Oct 2005 13:46:57 -0400
+Received: from mail.kroah.org ([69.55.234.183]:46787 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750723AbVJARq4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Oct 2005 12:47:39 -0400
-X-Authenticated: #8834078
-From: Dominik Karall <dominik.karall@gmx.net>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.14-rc2-mm2 (dma_timer_expiry)
-Date: Sat, 1 Oct 2005 18:52:10 +0200
-User-Agent: KMail/1.8.91
-Cc: linux-kernel@vger.kernel.org
-References: <20050929143732.59d22569.akpm@osdl.org>
-In-Reply-To: <20050929143732.59d22569.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1930131.MX7rHKzEGG";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200510011852.24094.dominik.karall@gmx.net>
-X-Y-GMX-Trusted: 0
+	Sat, 1 Oct 2005 13:46:56 -0400
+Date: Sat, 1 Oct 2005 10:46:09 -0700
+From: Greg KH <greg@kroah.com>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Andrew Patterson <andrew.patterson@hp.com>,
+       Luben Tuikov <luben_tuikov@adaptec.com>,
+       "Salyzyn, Mark" <mark_salyzyn@adaptec.com>, dougg@torque.net,
+       Linus Torvalds <torvalds@osdl.org>, Luben Tuikov <ltuikov@yahoo.com>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into the kernel
+Message-ID: <20051001174609.GA13084@kroah.com>
+References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01A9FA11@otce2k03.adaptec.com> <1128105594.10079.109.camel@bluto.andrew> <433D9035.6000504@adaptec.com> <1128111290.10079.147.camel@bluto.andrew> <20050930202234.GA2571@parisc-linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050930202234.GA2571@parisc-linux.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1930131.MX7rHKzEGG
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Fri, Sep 30, 2005 at 02:22:34PM -0600, Matthew Wilcox wrote:
+> There's precedent for binary data in sysfs -- pci config space is one.
 
-On Thursday 29 September 2005 23:37, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc2/=
-2.
->6.14-rc2-mm2/
+binary data in sysfs is for stuff that is just a "pass through" for the
+kernel.  Copying the pci config space, in raw form from the device to
+userspace is one such example.  Firmware blobs is another one.
 
-Since 2.6.14-rc2-mm2 these errors make my system hang, I didn't get such=20
-errors before on this system.
+Binary data in sysfs is _not_ for exporting kernel structures or other
+data that the kernel "understands" and manipulates.
 
-hda: dma_timer_expiry: dma status =3D=3D 0x21
-hda: DMA timeout error
-hda: dma timeout error: status=3D0x50 { DriveReady SeekComplete }
-ide: failed opcode was: unknown
-hda: task_in_intr: status=3D0x59 { DriveReady SeekComplete DataRequest Erro=
-r }
-hda: task_in_intr: error=3D0x04 { DriveStatusError }
-ide: failed opcode was: unknown
-hda: task_in_intr: status=3D0x59 { DriveReady SeekComplete DataRequest Erro=
-r }
-hda: task_in_intr: error=3D0x04 { DriveStatusError }
-ide: failed opcode was: unknown
-hda: task_in_intr: status=3D0x59 { DriveReady SeekComplete DataRequest Erro=
-r }
-hda: task_in_intr: error=3D0x04 { DriveStatusError }
-ide: failed opcode was: unknown
-hda: task_in_intr: status=3D0x59 { DriveReady SeekComplete DataRequest Erro=
-r }
-hda: task_in_intr: error=3D0x04 { DriveStatusError }
-ide: failed opcode was: unknown
-ide0: reset: success
-hda: dma_timer_expiry: dma status =3D=3D 0x21
-hda: DMA timeout error
-hda: dma timeout error: status=3D0x58 { DriveReady SeekComplete DataRequest=
- }
-ide: failed opcode was: unknown
-hda: dma_timer_expiry: dma status =3D=3D 0x21
-hda: DMA timeout error
-hda: dma timeout error: status=3D0x58 { DriveReady SeekComplete DataRequest=
- }
-ide: failed opcode was: unknown
-hda: dma_intr: status=3D0x58 { DriveReady SeekComplete DataRequest }
-ide: failed opcode was: unknown
-hda: dma_intr: status=3D0x58 { DriveReady SeekComplete DataRequest }
-ide: failed opcode was: unknown
-hda: dma_intr: status=3D0x58 { DriveReady SeekComplete DataRequest }
-ide: failed opcode was: unknown
-hda: dma_intr: status=3D0x58 { DriveReady SeekComplete DataRequest }
-ide: failed opcode was: unknown
-hda: DMA disabled
-ide0: reset: success
+Hope this helps,
 
-
-domink
-
---nextPart1930131.MX7rHKzEGG
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2-ecc0.1.6 (GNU/Linux)
-
-iQCVAwUAQz6+yAvcoSHvsHMnAQKS1wP/fIL/F/llxn4p7ud/MiROafaCnet+3v4F
-oh2u9xzykcQaA66mgSgRV6YYepLZ4ge7TJAoQFOvCSlccQZpggVP5ttGLS1oMbtI
-5R+vwqesLpf7/lvMiHr6QwsguYn4wKvUTHqCR8RqGm5CfXcVMN0jA8OJ0BQwnRK9
-radaxvIvTZo=
-=lLoT
------END PGP SIGNATURE-----
-
---nextPart1930131.MX7rHKzEGG--
+greg k-h

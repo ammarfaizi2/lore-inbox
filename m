@@ -1,40 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbVJATpX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750838AbVJAUJW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750835AbVJATpX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Oct 2005 15:45:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbVJATpX
+	id S1750838AbVJAUJW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Oct 2005 16:09:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbVJAUJW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Oct 2005 15:45:23 -0400
-Received: from ns2.suse.de ([195.135.220.15]:17030 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750835AbVJATpX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Oct 2005 15:45:23 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [RFC][PATCH][Fix] swsusp: Yet another attempt to fix Bug #4959
-Date: Sat, 1 Oct 2005 21:45:29 +0200
-User-Agent: KMail/1.8.2
-Cc: "Discuss x86-64" <discuss@x86-64.org>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
-References: <200510011813.54755.rjw@sisk.pl>
-In-Reply-To: <200510011813.54755.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Sat, 1 Oct 2005 16:09:22 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:52742 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1750838AbVJAUJW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Oct 2005 16:09:22 -0400
+Date: Sat, 1 Oct 2005 22:02:57 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH-2.4] Fix jiffies overflow in delay.h
+Message-ID: <20051001200257.GA28113@alpha.home.local>
+References: <20050925222527.GB998@alpha.home.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200510012145.30067.ak@suse.de>
+In-Reply-To: <20050925222527.GB998@alpha.home.local>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 01 October 2005 18:13, Rafael J. Wysocki wrote:
 
->
-> This function allocates twice as much memory as needed for the direct
-> mapping page tables and assigns the second half of it to the resume page
-> tables.  This area is later marked with PG_nosave by swsusp, so that it is
-> not overwritten during resume.
->
-I prefered it when the additional page tables were allocated only on demand.
+Hi Marcelo,
 
--Andi
+please forget my previous patch, it would produce tons of warnings on
+64-bit architectures. Moreover, I discovered that it was incomplete
+and that it was necessary to explicitly cast to unsigned long in the
+multiplies.
+
+This one is fine and the equivalent to the one I sent Andrew for 2.6.
+Please use it instead.
+
+Thanks,
+Willy
+
+
+
+Signed-off-by: Willy Tarreau <willy@w.ods.org>
+
+diff -urN linux-2.4.31/include/linux/delay.h linux-2.4.31-jiffies/include/linux/delay.h
+--- linux-2.4.31/include/linux/delay.h	Sun Sep 25 19:55:55 2005
++++ linux-2.4.31-jiffies/include/linux/delay.h	Sat Oct  1 21:25:33 2005
+@@ -14,6 +14,24 @@
+ #include <asm/delay.h>
+ 
+ /*
++ * We define MAX_MSEC_OFFSET as the maximal value that can be accepted by
++ * msecs_to_jiffies() without risking a multiply overflow. This function
++ * returns MAX_JIFFY_OFFSET for arguments above those values.
++ */
++
++#if HZ <= 1000 && !(1000 % HZ)
++#  define MAX_MSEC_OFFSET \
++	(ULONG_MAX - (1000 / HZ) + 1)
++#elif HZ > 1000 && !(HZ % 1000)
++#  define MAX_MSEC_OFFSET \
++	(ULONG_MAX / (HZ / 1000))
++#else
++#  define MAX_MSEC_OFFSET \
++	((ULONG_MAX - 999) / HZ)
++#endif
++
++
++/*
+  * Convert jiffies to milliseconds and back.
+  *
+  * Avoid unnecessary multiplications/divisions in the
+@@ -43,14 +61,14 @@
+ 
+ static inline unsigned long msecs_to_jiffies(const unsigned int m)
+ {
+-	if (m > jiffies_to_msecs(MAX_JIFFY_OFFSET))
++	if (MAX_MSEC_OFFSET < UINT_MAX && m > (unsigned int)MAX_MSEC_OFFSET)
+ 		return MAX_JIFFY_OFFSET;
+ #if HZ <= 1000 && !(1000 % HZ)
+-	return (m + (1000 / HZ) - 1) / (1000 / HZ);
++	return ((unsigned long)m + (1000 / HZ) - 1) / (1000 / HZ);
+ #elif HZ > 1000 && !(HZ % 1000)
+-	return m * (HZ / 1000);
++	return (unsigned long)m * (HZ / 1000);
+ #else
+-	return (m * HZ + 999) / 1000;
++	return ((unsigned long)m * HZ + 999) / 1000;
+ #endif
+ }
+ 
+

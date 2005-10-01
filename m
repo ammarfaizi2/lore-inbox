@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750867AbVJAVkF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750869AbVJAVqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750867AbVJAVkF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Oct 2005 17:40:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750869AbVJAVkE
+	id S1750869AbVJAVqE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Oct 2005 17:46:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750871AbVJAVqE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Oct 2005 17:40:04 -0400
-Received: from goliat.kalisz.mm.pl ([217.96.42.226]:64645 "EHLO kalisz.mm.pl")
-	by vger.kernel.org with ESMTP id S1750867AbVJAVkB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Oct 2005 17:40:01 -0400
-Message-ID: <433F0228.6000304@gorzow.mm.pl>
-Date: Sat, 01 Oct 2005 23:39:52 +0200
-From: Radoslaw Szkodzinski <astralstorm@gorzow.mm.pl>
-User-Agent: Thunderbird 1.4 (X11/20050930)
+	Sat, 1 Oct 2005 17:46:04 -0400
+Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:39064 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S1750869AbVJAVqC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Oct 2005 17:46:02 -0400
+From: Grant Coady <grant_lkml@dodo.com.au>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Deepak Saxena <dsaxena@plexity.net>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [HWMON] kmalloc + memset -> kzalloc conversion
+Date: Sun, 02 Oct 2005 07:45:36 +1000
+Organization: http://bugsplatter.mine.nu/
+Message-ID: <ln0uj11mbrnrrah1amu53dmno6bprf560g@4ax.com>
+References: <20051001072630.GJ25424@plexity.net> <20051001224604.484ef912.khali@linux-fr.org>
+In-Reply-To: <20051001224604.484ef912.khali@linux-fr.org>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
-To: Patrick McHardy <kaber@trash.net>
-CC: linux-kernel@vger.kernel.org,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>
-Subject: Re: 2.6.13-rc2+ - problem with DHCP
-References: <433EBBEC.4050203@gorzow.mm.pl> <433ECE42.2070400@trash.net>
-In-Reply-To: <433ECE42.2070400@trash.net>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sat, 1 Oct 2005 22:46:04 +0200, Jean Delvare <khali@linux-fr.org> wrote:
 
-Patrick McHardy wrote:
-|
-| Are you sure? The patch was supposed to fix problems with DHCP clients
-| using regular UDP sockets for sending DHCP requests. Which client are
-| you using?
-|
+>Hi Deepak,
+>
+>> Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
+>> 
+>> diff --git a/drivers/hwmon/adm1021.c b/drivers/hwmon/adm1021.c
+>> --- a/drivers/hwmon/adm1021.c
+>> +++ b/drivers/hwmon/adm1021.c
+>> @@ -204,11 +204,10 @@ static int adm1021_detect(struct i2c_ada
+>>  	   client structure, even though we cannot fill it completely yet.
+>>  	   But it allows us to access adm1021_{read,write}_value. */
+>>  
+>> -	if (!(data = kmalloc(sizeof(struct adm1021_data), GFP_KERNEL))) {
+>> +	if (!(data = kzalloc(sizeof(struct adm1021_data), GFP_KERNEL))) {
 
-udhcpcd, version 0.9.9-pre (Gentoo ebuild
-net-misc/udhcp-0.9.9_pre20041216-r1, no crazy optimisations, stock init
-script, IP release disabled)
+	if (!(data = kzalloc(sizeof(*data), GFP_KERNEL))) {
 
-2.6.13, 2.6.14-rc1 (up to the patch) both work fine.
-2.6.14-rc2 and 2.6.14-rc3 do not. (they can't discover IP address)
-The window is between that commit and rc2.
-(about 180 changesets)
+instead?  Though lkml opinion seems to be split...
 
-I only suspect that patch, it could be something else but I highly doubt
-it. I'll check the current kernel with the patch backed out when I have
-to restart.
+Cheers,
+Grant.
 
-- --
-GPG Key id:  0xD1F10BA2
-Fingerprint: 96E2 304A B9C4 949A 10A0  9105 9543 0453 D1F1 0BA2
-
-AstralStorm
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFDPwIolUMEU9HxC6IRAit8AJ0TXQv+BO3rn0L39JsCad7UqyUMRACeIf+U
-cvzDCU1x9oTP2V4AjELJUvY=
-=hp5I
------END PGP SIGNATURE-----

@@ -1,87 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbVJAVhI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750866AbVJAVjW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750863AbVJAVhI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Oct 2005 17:37:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750865AbVJAVhH
+	id S1750866AbVJAVjW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Oct 2005 17:39:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750867AbVJAVjW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Oct 2005 17:37:07 -0400
-Received: from smtpout3.uol.com.br ([200.221.4.194]:32667 "EHLO
-	smtp.uol.com.br") by vger.kernel.org with ESMTP id S1750863AbVJAVhG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Oct 2005 17:37:06 -0400
-Date: Sat, 1 Oct 2005 18:36:55 -0300
-From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Strange disk corruption with Linux >= 2.6.13
-Message-ID: <20051001213655.GE6397@ime.usp.br>
-Mail-Followup-To: Nigel Cunningham <ncunningham@cyclades.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20050927111038.GA22172@ime.usp.br> <1127863912.4802.52.camel@localhost>
+	Sat, 1 Oct 2005 17:39:22 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:11916 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750865AbVJAVjW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Oct 2005 17:39:22 -0400
+Subject: Re: A possible idea for Linux: Save running programs to disk
+From: Arjan van de Ven <arjan@infradead.org>
+To: lokum spand <lokumsspand@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <BAY105-F35A25DA28443029610815DA48E0@phx.gbl>
+References: <BAY105-F35A25DA28443029610815DA48E0@phx.gbl>
+Content-Type: text/plain
+Date: Sat, 01 Oct 2005 23:39:14 +0200
+Message-Id: <1128202754.8153.0.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1127863912.4802.52.camel@localhost>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 28 2005, Nigel Cunningham wrote:
-> Hi Rogerio.
-
-Hi, Nigel.
-
-> On Tue, 2005-09-27 at 21:10, Rogério Brito wrote:
-> > Hi there. I'm seeing a really strange problem on my system lately and I
-> > am not really sure that it has anything to do with the kernels.
+On Sat, 2005-10-01 at 13:30 -0800, lokum spand wrote:
+> I allow myself to suggest the following, although not sure if I post in
+> the right group:
 > 
-> I've seen the thread mostly following the hardware line. I'd like to
-> enquire down the kernel path because I've seen occasional, impossible
-> to reproduce problems too.
+> Suppose Linux could save the total state of a program to disk, for
+> instance, imagine a program like mozilla with many open windows. I give
+> it a SIGNAL-SAVETODISK and the process memory image is dropped to a
+> file. I can then turn off the computer and later continue using the
+> program where I left it, by loading it back into memory.
+> 
+> Would that be possible? At least a program can be given a ctrl-z and is
 
-Nice. I also don't want to rule out anything before I really understand
-what's going on.
+there is a LOT of state though.. the moment you add networking in the
+picture the amount of state just isn't funny anymore. Your X example is
+a good one as well...
 
-> Can I ask first a few questions:
-
-Of course.
-
-> 1) Are you using vanilla kernels, or do you have other patches applied?
-
-Yes, all the kernels that I use are just plain vanilla kernels taken
-straight from kernel.org. No other patches applied.
-
-> 2) Are you using ext3 only?
-
-Yes, I am.
-
-> 3) Is the corruption only ever in memory, or seen on disk too?
-
-I have noticed the problem mostly on disk. One strange situation was
-when I was untarring a kernel tree (compressed with bzip2) and in the
-middle of the extraction, bzip2 complained that the thing was
-corrupted.
-
-I removed what was extracted right away and tried again to extract the
-tree (at this point, suspecting even that something in software had
-problems). The problem with bzip2 occurred again. Then, I rebooted the
-system an the problem magically went away.
-
-> 4) Is the corruption only in one filesystem or spread across several
-> (if applicable)? (ie in / but not /home or others?)
-
-I only have one filesystem right now, but given the difficulties that
-I'm seeing, I do plan to go back to a multiple filesystem setup (which I
-always used but thought that was overkill---nothing like time to teach
-us something what is safest).
-
-If you want to know anything else, don't hesistate to ask.
-
-
-Regards,
-
--- 
-Rogério Brito : rbrito@ime.usp.br : http://www.ime.usp.br/~rbrito
-Homepage of the algorithms package : http://algorithms.berlios.de
-Homepage on freshmeat:  http://freshmeat.net/projects/algorithms/

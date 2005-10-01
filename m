@@ -1,36 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbVJABhm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbVJACSl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750713AbVJABhm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 21:37:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750714AbVJABhm
+	id S1750714AbVJACSl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 22:18:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbVJACSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 21:37:42 -0400
-Received: from fmr23.intel.com ([143.183.121.15]:57048 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1750713AbVJABhm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 21:37:42 -0400
-Date: Fri, 30 Sep 2005 18:37:30 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Andi Kleen <ak@suse.de>
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [Patch] x86, x86_64: fix cpu model for family 0x6
-Message-ID: <20050930183730.F28092@unix-os.sc.intel.com>
-References: <20050929190419.C15943@unix-os.sc.intel.com> <200510010002.16382.ak@suse.de> <20050930152358.D28092@unix-os.sc.intel.com> <200510010046.48964.ak@suse.de>
+	Fri, 30 Sep 2005 22:18:41 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:15838
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1750714AbVJACSl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 22:18:41 -0400
+Date: Fri, 30 Sep 2005 19:18:36 -0700 (PDT)
+Message-Id: <20050930.191836.56628745.davem@davemloft.net>
+To: chrisw@osdl.org
+Cc: hugh@veritas.com, linux-kernel@vger.kernel.org, stable@kernel.org,
+       jmforbes@linuxtx.org, zwane@arm.linux.org.uk, tytso@mit.edu,
+       rdunlap@xenotime.net, chuckw@quantumlinux.com, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH 05/10] [PATCH]: Missing acct/mm calls in
+ compat_do_execve()
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20050930212406.GH16352@shell0.pdx.osdl.net>
+References: <20050930022228.946664000@localhost.localdomain>
+	<Pine.LNX.4.61.0509300645530.7129@goblin.wat.veritas.com>
+	<20050930212406.GH16352@shell0.pdx.osdl.net>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200510010046.48964.ak@suse.de>; from ak@suse.de on Sat, Oct 01, 2005 at 12:46:48AM +0200
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 01, 2005 at 12:46:48AM +0200, Andi Kleen wrote:
-> On Saturday 01 October 2005 00:23, Siddha, Suresh B wrote:
-> 
-> > And also you have a typo. It should be 0x6.
-> 
-> Fixed.
+From: Chris Wright <chrisw@osdl.org>
+Date: Fri, 30 Sep 2005 14:24:06 -0700
 
-Thanks. Lets go ahead with Petrs suggestion then.
+> * Hugh Dickins (hugh@veritas.com) wrote:
+> > The patch is good, but for -stable?  Spelling corrections next?
+> 
+> Heh, I think you've got a good point.  This one doesn't have any real
+> nasty side-effects that I can see.  David do you have objections to
+> dropping this one from -stable?
+
+No objections, you can drop it.

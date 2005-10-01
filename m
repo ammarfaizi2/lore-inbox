@@ -1,65 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030520AbVJAARb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbVJAA00@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030520AbVJAARb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 20:17:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030519AbVJAARb
+	id S1750700AbVJAA00 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 20:26:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750701AbVJAA00
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 20:17:31 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:11913 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030517AbVJAARa (ORCPT
+	Fri, 30 Sep 2005 20:26:26 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:62395 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750700AbVJAA0Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 20:17:30 -0400
-Message-ID: <433DD595.4070508@pobox.com>
-Date: Fri, 30 Sep 2005 20:17:25 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Junio C Hamano <junkio@cox.net>, git@vger.kernel.org
-Subject: Re: [howto] Kernel hacker's guide to git, updated
-References: <200509301813.j8UIDXr5015488@laptop11.inf.utfsm.cl>
-In-Reply-To: <200509301813.j8UIDXr5015488@laptop11.inf.utfsm.cl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 30 Sep 2005 20:26:25 -0400
+Date: Fri, 30 Sep 2005 17:26:00 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Phil Dibowitz <phil@ipom.com>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       usb-storage@lists.one-eyed-alien.net, zaitcev@redhat.com
+Subject: Re: RFC drivers/usb/storage/libusual
+Message-Id: <20050930172600.298b7cac.zaitcev@redhat.com>
+In-Reply-To: <433CE491.90305@ipom.com>
+References: <20050927205559.078ba9ed.zaitcev@redhat.com>
+	<433CE491.90305@ipom.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.8.4; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand wrote:
-> Jeff Garzik <jgarzik@pobox.com> wrote:
-> 
->>Thanks for all the comments.  I just updated the KHGtG with the
->>feedback I received.  Go to
->>
->>	http://linux.yyz.us/git-howto.html
->>
->>and click reload.  Continued criticism^H^H^Hcomments welcome!
-> 
-> 
-> - To know the current branch, "git branch" is enough (the one '*'-ed)
+On Fri, 30 Sep 2005 00:09:05 -0700, Phil Dibowitz <phil@ipom.com> wrote:
 
-Click reload, this is already mentioned.
+> A quick look over the patch shows that there are now two kinds of
+> unusual_dev entries: unusual_dev() and unusual_dev_fl(), where the
+> latter is for entries that don't need to specify SC or PR (i.e., just
+> had US_SC_DEVICE, US_PR_DEVICE in them). While I think that's a
+> reasonable change, it's not clear to me why that's useful to the rest of
+> the patch, or it's just making unusual_devs.h artificially shorter?
 
+Greg asked that too and I skipped his question because I needed an
+explanation. So here it is now.
 
-> - rsync(1) a repository is dangerous, it might catch it in the middle of
->   a update and give you an incomplete/messed up copy. Repeat rsync until no
->   change, perhaps?
+I thought that the match list for USB core and the shadow list that
+usb-storage had were separate. So, libusual receives the first but
+not the second, which remains in usb-storage. Once they are split
+like that, I thought it unsafe to continue to use an index to
+correlate them, so I added extra fields into the list of information
+specific list to usb-storage, for matching. These fields use more
+memory, so I thought it would cost nothing to move flags over
+into driver_info. The resultant savings make usb-storage somewhat
+shorter than it was before. It is shorter even when libusual is
+configured off. This is because the second list is about twice
+shorter now.
 
-Usually that's just unlucky.  I have caught kernel.org in the middle of 
-a sync once, maybe twice.
+I can drop that part of the patch, I just thought it would be safer.
+If you prefer that, I would suggest moving "normal" devices at the
+bottom of the list into the unusual_devs.h, to make sure that
+indexes stay the same. In such case, we won't need dropping commas.
 
-
-> - I understand "git checkout -f" blows away any local changes, no questions
->   asked. Not very nice to suggest that to a newbie...
-
-I constantly run into problems if I -do not- use the "-f" flag.  I 
-habitually use it at all times, now.
-
-Thanks,
-
-	Jeff
-
-
-
+-- Pete

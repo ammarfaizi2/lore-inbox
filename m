@@ -1,168 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750758AbVJAHHR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbVJAHI6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750758AbVJAHHR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Oct 2005 03:07:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbVJAHHQ
+	id S1750759AbVJAHI6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Oct 2005 03:08:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbVJAHI6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Oct 2005 03:07:16 -0400
-Received: from sccrmhc13.comcast.net ([63.240.76.28]:4320 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S1750758AbVJAHHP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Oct 2005 03:07:15 -0400
-Date: Sat, 1 Oct 2005 00:07:17 -0700
-From: Deepak Saxena <dsaxena@plexity.net>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] [drivers/fc4] kmalloc + memset -> kzalloc conversion
-Message-ID: <20051001070717.GH25424@plexity.net>
-Reply-To: dsaxena@plexity.net
+	Sat, 1 Oct 2005 03:08:58 -0400
+Received: from main.gmane.org ([80.91.229.2]:13187 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1750759AbVJAHI5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Oct 2005 03:08:57 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Re: Blanky rivafb vs snowy nvidiafb with 2.6.12
+Date: Sat, 1 Oct 2005 09:07:33 +0200
+Message-ID: <15vft1mw0n773.w7bplfheyl29.dlg@40tude.net>
+References: <1hcq27fp0wwd6.1xosn5xgejhhn$.dlg@40tude.net> <433B049B.1090502@gmail.com> <1gie1vr78iijd$.qcvoypipyouu.dlg@40tude.net> <433BE0D1.1070501@gmail.com> <dsq9rvr3xni3.1py6wljnelhp0.dlg@40tude.net> <433C52F0.6000401@gmail.com> <1hk58zmy4sz0x.kyzvnh8u4ia2.dlg@40tude.net> <433E2387.2090608@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: Plexity Networks
-User-Agent: Mutt/1.5.10i
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: host-84-220-49-122.cust-adsl.tiscali.it
+User-Agent: 40tude_Dialog/2.0.15.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 01 Oct 2005 13:49:59 +0800, Antonino A. Daplas wrote:
 
-Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
+> Looks like the nv driver just ignored the EDID and used one of
+> its built-in VESA modes.  If you notice, X's EDID ouput is the same
+> as nvidiafb's. But the resulting timings are different.
+> 
+> In contrast, nvidiafb will attempt to use the EDID, and only as a last
+> resort, use one of the timings in the global mode database.
 
-diff --git a/drivers/fc4/fc.c b/drivers/fc4/fc.c
---- a/drivers/fc4/fc.c
-+++ b/drivers/fc4/fc.c
-@@ -266,13 +266,12 @@ static void fcp_report_map_done(fc_chann
- 			printk ("FC: Bad magic from REPORT_AL_MAP on %s - %08x\n", fc->name, p->magic);
- 			fc->state = FC_STATE_OFFLINE;
- 		} else {
--			fc->posmap = (fcp_posmap *)kmalloc(sizeof(fcp_posmap)+p->len, GFP_KERNEL);
-+			fc->posmap = (fcp_posmap *)kzalloc(sizeof(fcp_posmap)+p->len, GFP_KERNEL);
- 			if (!fc->posmap) {
- 				printk("FC: Not enough memory, offlining channel\n");
- 				fc->state = FC_STATE_OFFLINE;
- 			} else {
- 				int k;
--				memset(fc->posmap, 0, sizeof(fcp_posmap)+p->len);
- 				/* FIXME: This is where SOCAL transfers our AL-PA.
- 				   Keep it here till we found out what other cards do... */
- 				fc->sid = (p->magic & 0xff);
-@@ -351,14 +350,12 @@ void fcp_register(fc_channel *fc, u8 typ
- 			fc->dma_scsi_rsp = fc->dma_scsi_cmd + slots * sizeof (fcp_cmd);
- 			fc->scsi_bitmap_end = (slots + 63) & ~63;
- 			size = fc->scsi_bitmap_end / 8;
--			fc->scsi_bitmap = kmalloc (size, GFP_KERNEL);
--			memset (fc->scsi_bitmap, 0, size);
-+			fc->scsi_bitmap = kzalloc (size, GFP_KERNEL);
- 			set_bit (0, fc->scsi_bitmap);
- 			for (i = fc->can_queue; i < fc->scsi_bitmap_end; i++)
- 				set_bit (i, fc->scsi_bitmap);
- 			fc->scsi_free = fc->can_queue;
--			fc->cmd_slots = (fcp_cmnd **)kmalloc(slots * sizeof(fcp_cmnd*), GFP_KERNEL);
--			memset(fc->cmd_slots, 0, slots * sizeof(fcp_cmnd*));
-+			fc->cmd_slots = (fcp_cmnd **)kzalloc(slots * sizeof(fcp_cmnd*), GFP_KERNEL);
- 			fc->abort_count = 0;
- 		} else {
- 			fc->scsi_name[0] = 0;
-@@ -541,12 +538,11 @@ int fcp_initialize(fc_channel *fcchain, 
- 	FCND(("fcp_inititialize %08lx\n", (long)fcp_init))
- 	FCND(("fc_channels %08lx\n", (long)fc_channels))
- 	FCND((" SID %d DID %d\n", fcchain->sid, fcchain->did))
--	l = kmalloc(sizeof (ls) + count, GFP_KERNEL);
-+	l = kzalloc(sizeof (ls) + count, GFP_KERNEL);
- 	if (!l) {
- 		printk ("FC: Cannot allocate memory for initialization\n");
- 		return -ENOMEM;
- 	}
--	memset (l, 0, sizeof(ls) + count);
- 	l->magic = LSMAGIC;
- 	l->count = count;
- 	FCND(("FCP Init for %d channels\n", count))
-@@ -555,8 +551,8 @@ int fcp_initialize(fc_channel *fcchain, 
- 	l->timer.function = fcp_login_timeout;
- 	l->timer.data = (unsigned long)l;
- 	atomic_set (&l->todo, count);
--	l->logi = kmalloc (count * 3 * sizeof(logi), GFP_KERNEL);
--	l->fcmds = kmalloc (count * sizeof(fcp_cmnd), GFP_KERNEL);
-+	l->logi = kzalloc (count * 3 * sizeof(logi), GFP_KERNEL);
-+	l->fcmds = kzalloc (count * sizeof(fcp_cmnd), GFP_KERNEL);
- 	if (!l->logi || !l->fcmds) {
- 		if (l->logi) kfree (l->logi);
- 		if (l->fcmds) kfree (l->fcmds);
-@@ -564,8 +560,6 @@ int fcp_initialize(fc_channel *fcchain, 
- 		printk ("FC: Cannot allocate DMA memory for initialization\n");
- 		return -ENOMEM;
- 	}
--	memset (l->logi, 0, count * 3 * sizeof(logi));
--	memset (l->fcmds, 0, count * sizeof(fcp_cmnd));
- 	for (fc = fcchain, i = 0; fc && i < count; fc = fc->next, i++) {
- 		fc->state = FC_STATE_UNINITED;
- 		fc->rst_pkt = NULL;	/* kmalloc when first used */
-@@ -678,13 +672,12 @@ int fcp_forceoffline(fc_channel *fcchain
- 	l.timer.function = fcp_login_timeout;
- 	l.timer.data = (unsigned long)&l;
- 	atomic_set (&l.todo, count);
--	l.fcmds = kmalloc (count * sizeof(fcp_cmnd), GFP_KERNEL);
-+	l.fcmds = kzalloc (count * sizeof(fcp_cmnd), GFP_KERNEL);
- 	if (!l.fcmds) {
- 		kfree (l.fcmds);
- 		printk ("FC: Cannot allocate memory for forcing offline\n");
- 		return -ENOMEM;
- 	}
--	memset (l.fcmds, 0, count * sizeof(fcp_cmnd));
- 	FCND(("Initializing OFFLINE packets\n"))
- 	for (fc = fcchain, i = 0; fc && i < count; fc = fc->next, i++) {
- 		fc->state = FC_STATE_UNINITED;
-@@ -1114,9 +1107,8 @@ int fc_do_plogi(fc_channel *fc, unsigned
- 	logi *l;
- 	int status;
- 
--	l = (logi *)kmalloc(2 * sizeof(logi), GFP_KERNEL);
-+	l = (logi *)kzalloc(2 * sizeof(logi), GFP_KERNEL);
- 	if (!l) return -ENOMEM;
--	memset(l, 0, 2 * sizeof(logi));
- 	l->code = LS_PLOGI;
- 	memcpy (&l->nport_wwn, &fc->wwn_nport, sizeof(fc_wwn));
- 	memcpy (&l->node_wwn, &fc->wwn_node, sizeof(fc_wwn));
-@@ -1149,9 +1141,8 @@ int fc_do_prli(fc_channel *fc, unsigned 
- 	prli *p;
- 	int status;
- 
--	p = (prli *)kmalloc(2 * sizeof(prli), GFP_KERNEL);
-+	p = (prli *)kzalloc(2 * sizeof(prli), GFP_KERNEL);
- 	if (!p) return -ENOMEM;
--	memset(p, 0, 2 * sizeof(prli));
- 	p->code = LS_PRLI;
- 	p->params[0] = 0x08002000;
- 	p->params[3] = 0x00000022;
-diff --git a/drivers/fc4/soc.c b/drivers/fc4/soc.c
---- a/drivers/fc4/soc.c
-+++ b/drivers/fc4/soc.c
-@@ -556,10 +556,9 @@ static inline void soc_init(struct sbus_
- 	int size, i;
- 	int irq;
- 	
--	s = kmalloc (sizeof (struct soc), GFP_KERNEL);
-+	s = kzalloc (sizeof (struct soc), GFP_KERNEL);
- 	if (s == NULL)
- 		return;
--	memset (s, 0, sizeof(struct soc));
- 	spin_lock_init(&s->lock);
- 	s->soc_no = no;
- 
-diff --git a/drivers/fc4/socal.c b/drivers/fc4/socal.c
---- a/drivers/fc4/socal.c
-+++ b/drivers/fc4/socal.c
-@@ -665,9 +665,8 @@ static inline void socal_init(struct sbu
- 	int size, i;
- 	int irq, node;
- 	
--	s = kmalloc (sizeof (struct socal), GFP_KERNEL);
-+	s = kzalloc (sizeof (struct socal), GFP_KERNEL);
- 	if (!s) return;
--	memset (s, 0, sizeof(struct socal));
- 	spin_lock_init(&s->lock);
- 	s->socal_no = no;
- 
+I see. And when EDID is enabled for the module, it won't let me touch
+those timings at all. Maybe a "noddc" or "noedid" module option for
+when EDID support is compiled in and one wants to work without it?
+
+>> D'oh. D'oh. D'oh.
+>> 
+>> I *really* need someone to repeatedly and savagely hit me on the head
+>> with a gigantic, purple-and-yellow CLUEBAT. *sigh*
+>> 
+>> Somehow, I just assumed that modprobing for the framebuffer driver
+>> just loaded everything. But fbcon was *not* automatically load.
+>> Indeed, modprobing for fbcon allows me to load nvidiafb OR rivafb
+>> without any more screen garbling/blanking problems!
+> 
+> :-) Yes, many have been burned by this assumption.  If you do want
+> 2.4 behavior, you can compile fbcon statically, nvidiafb as a module.
+> Doing modprobe nvidiafb will automatically give you a framebuffer
+> console.
+
+Yes, after I got the idea that came as an obvious conclusion ... maybe
+this should be a FAQ? Documented in the help for fbmod?
+
+>> Notice how rivafb can't read the EDID from DDC/I2C -- and remark that
+>> I also have problems reading the EDID with get-edid. Also interesting
+> 
+> read-edid though uses the Video BIOS to grab the EDID.  So even your
+> card's BIOS is having problems doing i2c/ddc.
+
+Yep, and as I already said it's a known problem with my configuration
+(it's not clear whether the problem is the video card, with the
+montitor, or somewhere inbetween).
+
+>> is that rivafb won't let me get to 16 bit depth or higher. By
+> 
+> Hmm, I'll check on that again.
+
+That'd be nice.
+
+> Oh well, I think rivafb and nvidiafb have different i2c timeouts.  I believe
+> the timeouts in nvidiafb are more correct.
+
+Given that nvidiafb manages to read the edid and rivafb doesn't, I
+would say so too :) maybe get-edid needs fixes in that direction too?
+
+Anyway, it looks like I won't have problems using nvidiafb at 16 bits
+depth without EDID for the moment ... can I still use X.org's nv at 24
+bits at the same time? Can they cooperate on the framebuffer? IIRC
+there was an option to let nv use the Linux-managed framebuffer ...
+
+Oh yes:
+"""
+	Option		"UseFBDev"		"true" 
+"""
+
+Will this create problems when the FBDev is at a different bitdepth?
+WIll this slow down either of the sides?
+
 -- 
-Deepak Saxena - dsaxena@plexity.net - http://www.plexity.net
+Giuseppe "Oblomov" Bilotta
 
-Even a stopped clock gives the right time twice a day.
+"Da grande lotterò per la pace"
+"A me me la compra il mio babbo"
+(Altan)
+("When I grow up, I will fight for peace"
+ "I'll have my daddy buy it for me")
+

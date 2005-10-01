@@ -1,65 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbVJATk6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbVJATpX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750837AbVJATk6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Oct 2005 15:40:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750835AbVJATk5
+	id S1750835AbVJATpX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Oct 2005 15:45:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbVJATpX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Oct 2005 15:40:57 -0400
-Received: from bizon.gios.gov.pl ([212.244.124.8]:2485 "EHLO bizon.gios.gov.pl")
-	by vger.kernel.org with ESMTP id S1750767AbVJATk5 (ORCPT
+	Sat, 1 Oct 2005 15:45:23 -0400
+Received: from ns2.suse.de ([195.135.220.15]:17030 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750835AbVJATpX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Oct 2005 15:40:57 -0400
-Date: Sat, 1 Oct 2005 21:40:01 +0200 (CEST)
-From: Krzysztof Oledzki <olel@ans.pl>
-X-X-Sender: olel@bizon.gios.gov.pl
-To: Herbert Xu <herbert@gondor.apana.org.au>
-cc: Andrew Morton <akpm@osdl.org>, netdev@vger.kernel.org,
-       "bugme-daemon@kernel-bugs.osdl.org" 
-	<bugme-daemon@kernel-bugs.osdl.org>,
-       Matt LaPlante <laplam@rpi.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: Fw: [Bugme-new] [Bug 5194] New: IPSec related OOps in 2.6.13
-In-Reply-To: <20050906122029.GB4594@gondor.apana.org.au>
-Message-ID: <Pine.LNX.4.62.0510012136140.11416@bizon.gios.gov.pl>
-References: <20050906040856.4e38419f.akpm@osdl.org> <20050906122029.GB4594@gondor.apana.org.au>
+	Sat, 1 Oct 2005 15:45:23 -0400
+From: Andi Kleen <ak@suse.de>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [RFC][PATCH][Fix] swsusp: Yet another attempt to fix Bug #4959
+Date: Sat, 1 Oct 2005 21:45:29 +0200
+User-Agent: KMail/1.8.2
+Cc: "Discuss x86-64" <discuss@x86-64.org>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
+References: <200510011813.54755.rjw@sisk.pl>
+In-Reply-To: <200510011813.54755.rjw@sisk.pl>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-187430788-555099434-1128195601=:11416"
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510012145.30067.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Saturday 01 October 2005 18:13, Rafael J. Wysocki wrote:
 
----187430788-555099434-1128195601=:11416
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-
-
-
-On Tue, 6 Sep 2005, Herbert Xu wrote:
-
-> On Tue, Sep 06, 2005 at 04:08:56AM -0700, Andrew Morton wrote:
->>
->> Problem Description:
->>
->> Oops: 0000 [#1]
->> PREEMPT
->> Modules linked in:
->> CPU:    0
->> EIP:    0060:[<c01f562c>]    Not tainted VLI
->> EFLAGS: 00010216   (2.6.13)
->> EIP is at sha1_update+0x7c/0x160
 >
-> Thanks for the report.  Matt LaPlante had exactly the same problem
-> a couple of days ago.  I've tracked down now to my broken crypto
-> cipher wrapper functions which will step over a page boundary if
-> it's not aligned correctly.
+> This function allocates twice as much memory as needed for the direct
+> mapping page tables and assigns the second half of it to the resume page
+> tables.  This area is later marked with PG_nosave by swsusp, so that it is
+> not overwritten during resume.
+>
+I prefered it when the additional page tables were allocated only on demand.
 
-This bug is resolved. I believe we can close it.
-
-Best regards,
-
-
- =09=09=09Krzysztof Ol=EAdzki
----187430788-555099434-1128195601=:11416--
+-Andi

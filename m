@@ -1,140 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbVJAA1I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbVJAAdo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750701AbVJAA1I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 20:27:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750702AbVJAA1I
+	id S1750710AbVJAAdo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 20:33:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750706AbVJAAdo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 20:27:08 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:10138 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750701AbVJAA1G
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 20:27:06 -0400
-Subject: Re: 2.6.14-rc2-mm1 - ext3 wedging up
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Valdis.Kletnieks@vt.edu, Con Kolivas <kernel@kolivas.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050928223829.GH10408@opteron.random>
-References: <200509221959.j8MJxJsY010193@turing-police.cc.vt.edu>
-	 <200509231036.16921.kernel@kolivas.org>
-	 <200509230720.j8N7KYGX023826@turing-police.cc.vt.edu>
-	 <20050923153158.GA4548@x30.random>
-	 <1127509047.8880.4.camel@kleikamp.austin.ibm.com>
-	 <1127509155.8875.6.camel@kleikamp.austin.ibm.com>
-	 <1127511979.8875.11.camel@kleikamp.austin.ibm.com>
-	 <20050928223829.GH10408@opteron.random>
-Content-Type: text/plain
-Date: Fri, 30 Sep 2005 19:27:04 -0500
-Message-Id: <1128126424.10237.7.camel@kleikamp.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Fri, 30 Sep 2005 20:33:44 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:22409 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750704AbVJAAdm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 20:33:42 -0400
+Message-ID: <433DD95C.5050209@pobox.com>
+Date: Fri, 30 Sep 2005 20:33:32 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Luben Tuikov <luben_tuikov@adaptec.com>
+CC: Kyle Moffett <mrmacman_g4@mac.com>, Andre Hedrick <andre@linux-ide.org>,
+       "David S. Miller" <davem@davemloft.net>, willy@w.ods.org,
+       patmans@us.ibm.com, ltuikov@yahoo.com, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, torvalds@osdl.org, linux-scsi@vger.kernel.org,
+       James Bottomley <James.Bottomley@steeleye.com>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
+ the kernel
+References: <Pine.LNX.4.10.10509300015100.27623-100000@master.linux-ide.org> <433D8542.1010601@adaptec.com> <A0262C6F-6B0E-4790-BA42-FAFD6F026E0A@mac.com> <433D8D1F.1030005@adaptec.com> <0F03AA4B-D2D1-4C57-B81B-FC95CB863A98@mac.com> <433DB8AF.4090207@adaptec.com>
+In-Reply-To: <433DB8AF.4090207@adaptec.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-09-29 at 00:38 +0200, Andrea Arcangeli wrote:
-> On Fri, Sep 23, 2005 at 04:46:19PM -0500, Dave Kleikamp wrote:
-> > On Fri, 2005-09-23 at 15:59 -0500, Dave Kleikamp wrote:
-> > I'd guess that it's spinning in balance_dirty_pages.
-> > /proc/<pid>/future_dirty is 25650 for fsx.  It appears that
-> > nr_reclaimable is not going to zero for some reason.
+Luben Tuikov wrote:
+> But none of the ideas: 64 bit LUN, HCIL removal, etc.,
+> were accepted with "submit a patch".
 
-I tracked down my problem to a bug in jfs.  jfs is explicitly setting
-I_DIRTY in the i_state for a special inode that is preventing it from
-being put on the s_dirty list.  This must have been something I did a
-long time ago when I was a newbie.  I'm embarrassed I hadn't noticed it
-until now.
+I concede this may have been the response in the past.  Its not, now.
 
-I still had the problem even with your latest patch, but it's fixed with
-this patch to jfs.  I haven't yet tried the jfs patch with the earlier
-versions of your patch to see if there is really a problem with them.
 
-I don't have anything to say about the original problem reported on
-ext3, since I only saw the problem on jfs.
 
-> Even if nr_reclaimable isn't going to zero, eventually the loop should
-> break out because pages_written must increase.
+>>So you're saying fixing the current SCSI subsystem once *now* costs  
+>>more than applying all *future* SCSI fixes to _two_ SCSI subsystems,  
+>>handling bug reports for _two_ SCSI subsystems, etc.
 > 
-> So this make me think it might be the nr_unstable that destabilizes it,
-> and whatever it is, it is a bug in mainline as well, except it was well
-> hidden until now, because the dirty levels never approached zero during
-> heavy write-IO like it can happen with this feature enabled.
 > 
-> Basically whatever we account as "reclaimable" must be _written_out_ and
-> accounted as well in the "pages_written" otherwise it'll just hang. 
-> If there's a problem, it shall be a longstanding one.
-
-Yep.  My bad.
-
-> Can you try with this new patch that stops accounting "unstable" as
-> "reclaimable". It should be possible to flush the dirty pages to disk so
-> "nr_dirty" should be safe because they should always increase the
-> "pages_written". I'm not sure if this fixes it, but this at least rule
-> out the nfs from the equation (perhaps nfs will never be accounted as
-> "pages_written" and that would be a possible explanation of the infinite
-> loop).
+> I'm saying that the current "old" one is already obsolete,
+> when all you have is a SAS chip on your mainboard.
 > 
-> This new update also makes sure to never account rewrites (except for
-> reiserfs where it's more difficult to change the code for this).
-> 
-> I tried with fsx (no params) but I couldn't reproduce any problem yet,
-> but I've no nfs workload involved in my test box.
-> 
-> http://www.kernel.org/pub/linux/kernel/people/andrea/patches/v2.6/2.6.14-rc1/per-task-predictive-write-throttling-4
-> 
-> thanks for the help!
+> All you need is a small, tiny, fast, slim SCSI Core.
 
-JFS: jfs should not be playing with i_state
+Then don't use it at all.  Write a block driver, if you really feel we 
+need two SCSI cores.
 
-jfs has been explicitly setting i_state |= I_DIRTY on a special inode.
-This prevented it from being put on the s_dirty list.  Very stupid.
 
-Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
+> Politics: "Nah, whatever you say, specs are *crap* and we'll
+> do it our way.  We are not interested in your way, even if it
+> were better.  Oh, and BTW, REQUEST SENSE clears ACA and LUN
+> is a u64."
 
-diff --git a/fs/jfs/jfs_dmap.c b/fs/jfs/jfs_dmap.c
---- a/fs/jfs/jfs_dmap.c
-+++ b/fs/jfs/jfs_dmap.c
-@@ -305,7 +305,6 @@ int dbSync(struct inode *ipbmap)
- 	filemap_fdatawrite(ipbmap->i_mapping);
- 	filemap_fdatawait(ipbmap->i_mapping);
- 
--	ipbmap->i_state |= I_DIRTY;
- 	diWriteSpecial(ipbmap, 0);
- 
- 	return (0);
-diff --git a/fs/jfs/jfs_imap.c b/fs/jfs/jfs_imap.c
---- a/fs/jfs/jfs_imap.c
-+++ b/fs/jfs/jfs_imap.c
-@@ -514,8 +514,6 @@ void diWriteSpecial(struct inode *ip, in
- 	ino_t inum = ip->i_ino;
- 	struct metapage *mp;
- 
--	ip->i_state &= ~I_DIRTY;
--
- 	if (secondary)
- 		address = addressPXD(&sbi->ait2) >> sbi->l2nbperpage;
- 	else
-diff --git a/fs/jfs/jfs_txnmgr.c b/fs/jfs/jfs_txnmgr.c
---- a/fs/jfs/jfs_txnmgr.c
-+++ b/fs/jfs/jfs_txnmgr.c
-@@ -2396,7 +2396,6 @@ static void txUpdateMap(struct tblock * 
- 	 */
- 	if (tblk->xflag & COMMIT_CREATE) {
- 		diUpdatePMap(ipimap, tblk->ino, FALSE, tblk);
--		ipimap->i_state |= I_DIRTY;
- 		/* update persistent block allocation map
- 		 * for the allocation of inode extent;
- 		 */
-@@ -2407,7 +2406,6 @@ static void txUpdateMap(struct tblock * 
- 	} else if (tblk->xflag & COMMIT_DELETE) {
- 		ip = tblk->u.ip;
- 		diUpdatePMap(ipimap, ip->i_ino, TRUE, tblk);
--		ipimap->i_state |= I_DIRTY;
- 		iput(ip);
- 	}
- }
+This is a misrepresentation.  -We- understand the stuff you have posted.
 
--- 
-David Kleikamp
-IBM Linux Technology Center
+But you continue to demonstrate that you simply do not understand the 
+existing SCSI core code.
+
+The SAS transport class supports commonality across all SAS 
+implementations.  This includes both MPT and Adaptec 94xx.
+
+SAS transport class + libsas supports software implementations of SAS, 
+including transport layer management.  This includes Adaptec 94xx but 
+NOT MPT.
+
+	Jeff
+
+
 

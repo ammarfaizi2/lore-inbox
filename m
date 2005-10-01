@@ -1,45 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbVJAT37@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbVJATk6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750772AbVJAT37 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Oct 2005 15:29:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbVJAT37
+	id S1750837AbVJATk6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Oct 2005 15:40:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750835AbVJATk5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Oct 2005 15:29:59 -0400
-Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:58118 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1750772AbVJAT37
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Oct 2005 15:29:59 -0400
-Date: Sun, 2 Oct 2005 05:29:34 +1000
-To: Suzanne Wood <suzannew@cs.pdx.edu>
-Cc: Robert.Olsson@data.slu.se, davem@davemloft.net,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, paulmck@us.ibm.com,
-       walpole@cs.pdx.edu
-Subject: Re: [RFC][PATCH] identify in_dev_get rcu read-side critical sections
-Message-ID: <20051001192934.GA20741@gondor.apana.org.au>
-References: <200510011837.j91IbE01012915@rastaban.cs.pdx.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200510011837.j91IbE01012915@rastaban.cs.pdx.edu>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Sat, 1 Oct 2005 15:40:57 -0400
+Received: from bizon.gios.gov.pl ([212.244.124.8]:2485 "EHLO bizon.gios.gov.pl")
+	by vger.kernel.org with ESMTP id S1750767AbVJATk5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Oct 2005 15:40:57 -0400
+Date: Sat, 1 Oct 2005 21:40:01 +0200 (CEST)
+From: Krzysztof Oledzki <olel@ans.pl>
+X-X-Sender: olel@bizon.gios.gov.pl
+To: Herbert Xu <herbert@gondor.apana.org.au>
+cc: Andrew Morton <akpm@osdl.org>, netdev@vger.kernel.org,
+       "bugme-daemon@kernel-bugs.osdl.org" 
+	<bugme-daemon@kernel-bugs.osdl.org>,
+       Matt LaPlante <laplam@rpi.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: Fw: [Bugme-new] [Bug 5194] New: IPSec related OOps in 2.6.13
+In-Reply-To: <20050906122029.GB4594@gondor.apana.org.au>
+Message-ID: <Pine.LNX.4.62.0510012136140.11416@bizon.gios.gov.pl>
+References: <20050906040856.4e38419f.akpm@osdl.org> <20050906122029.GB4594@gondor.apana.org.au>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-187430788-555099434-1128195601=:11416"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 01, 2005 at 11:37:14AM -0700, Suzanne Wood wrote:
-> 
-> But the following may be worth considering.
-> 
->   > It is also probably good to retain the old __in_dev_get()
-> and deprecate it.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-I think it's better to get rid of it actually so that if there are
-external modules using this they can make sure that they're using
-the right function.
+---187430788-555099434-1128195601=:11416
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+
+On Tue, 6 Sep 2005, Herbert Xu wrote:
+
+> On Tue, Sep 06, 2005 at 04:08:56AM -0700, Andrew Morton wrote:
+>>
+>> Problem Description:
+>>
+>> Oops: 0000 [#1]
+>> PREEMPT
+>> Modules linked in:
+>> CPU:    0
+>> EIP:    0060:[<c01f562c>]    Not tainted VLI
+>> EFLAGS: 00010216   (2.6.13)
+>> EIP is at sha1_update+0x7c/0x160
+>
+> Thanks for the report.  Matt LaPlante had exactly the same problem
+> a couple of days ago.  I've tracked down now to my broken crypto
+> cipher wrapper functions which will step over a page boundary if
+> it's not aligned correctly.
+
+This bug is resolved. I believe we can close it.
+
+Best regards,
+
+
+ =09=09=09Krzysztof Ol=EAdzki
+---187430788-555099434-1128195601=:11416--

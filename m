@@ -1,103 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbVJAFAF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbVJAGUz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750730AbVJAFAF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Oct 2005 01:00:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbVJAFAF
+	id S1750739AbVJAGUz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Oct 2005 02:20:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbVJAGUz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Oct 2005 01:00:05 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:17370 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S1750730AbVJAFAC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Oct 2005 01:00:02 -0400
-Date: Fri, 30 Sep 2005 22:00:03 -0700
-From: Deepak Saxena <dsaxena@plexity.net>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] [MTD] kmalloc + memzero -> kzalloc conversion
-Message-ID: <20051001050003.GD11137@plexity.net>
-Reply-To: dsaxena@plexity.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: Plexity Networks
-User-Agent: Mutt/1.5.10i
+	Sat, 1 Oct 2005 02:20:55 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:39908 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750739AbVJAGUy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Oct 2005 02:20:54 -0400
+Date: Fri, 30 Sep 2005 23:20:43 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+cc: LKML <linux-kernel@vger.kernel.org>, Deepak Saxena <dsaxena@plexity.net>
+Subject: Re: Strange commit?
+In-Reply-To: <20051001141548.6f26f4e5.sfr@canb.auug.org.au>
+Message-ID: <Pine.LNX.4.64.0509302255390.3378@g5.osdl.org>
+References: <20051001141548.6f26f4e5.sfr@canb.auug.org.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-We have the API, so use it.
 
-Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
+On Sat, 1 Oct 2005, Stephen Rothwell wrote:
+> 
+> The first commit after v2.6.14-rc3 in your git tree seem to refer to the same tree object
+> ast the v2.6.14-rc3 commit does.  Is this expected?
 
-diff --git a/drivers/mtd/maps/bast-flash.c b/drivers/mtd/maps/bast-flash.c
---- a/drivers/mtd/maps/bast-flash.c
-+++ b/drivers/mtd/maps/bast-flash.c
-@@ -123,14 +123,13 @@ static int bast_flash_probe(struct devic
- 	struct resource *res;
- 	int err = 0;
- 
--	info = kmalloc(sizeof(*info), GFP_KERNEL);
-+	info = kzalloc(sizeof(*info), GFP_KERNEL);
- 	if (info == NULL) {
- 		printk(KERN_ERR PFX "no memory for flash info\n");
- 		err = -ENOMEM;
- 		goto exit_error;
- 	}
- 
--	memzero(info, sizeof(*info));
- 	dev_set_drvdata(dev, info);
- 
- 	res = pdev->resource;  /* assume that the flash has one resource */
-diff --git a/drivers/mtd/maps/epxa10db-flash.c b/drivers/mtd/maps/epxa10db-flash.c
---- a/drivers/mtd/maps/epxa10db-flash.c
-+++ b/drivers/mtd/maps/epxa10db-flash.c
-@@ -142,8 +142,7 @@ static int __init epxa_default_partition
- 
- 	printk("Using default partitions for %s\n",BOARD_NAME);
- 	npartitions=1;
--	parts = kmalloc(npartitions*sizeof(*parts)+strlen(name), GFP_KERNEL);
--	memzero(parts,npartitions*sizeof(*parts)+strlen(name));
-+	parts = kzalloc(npartitions*sizeof(*parts)+strlen(name), GFP_KERNEL);
- 	if (!parts) {
- 		ret = -ENOMEM;
- 		goto out;
-diff --git a/drivers/mtd/maps/ixp2000.c b/drivers/mtd/maps/ixp2000.c
---- a/drivers/mtd/maps/ixp2000.c
-+++ b/drivers/mtd/maps/ixp2000.c
-@@ -168,12 +168,11 @@ static int ixp2000_flash_probe(struct de
- 		return -EIO;
- 	}
- 
--	info = kmalloc(sizeof(struct ixp2000_flash_info), GFP_KERNEL);
-+	info = kzalloc(sizeof(struct ixp2000_flash_info), GFP_KERNEL);
- 	if(!info) {
- 		err = -ENOMEM;
- 		goto Error;
- 	}	
--	memzero(info, sizeof(struct ixp2000_flash_info));
- 
- 	dev_set_drvdata(&dev->dev, info);
- 
-diff --git a/drivers/mtd/maps/ixp4xx.c b/drivers/mtd/maps/ixp4xx.c
---- a/drivers/mtd/maps/ixp4xx.c
-+++ b/drivers/mtd/maps/ixp4xx.c
-@@ -153,12 +153,11 @@ static int ixp4xx_flash_probe(struct dev
- 			return err;
- 	}
- 
--	info = kmalloc(sizeof(struct ixp4xx_flash_info), GFP_KERNEL);
-+	info = kzalloc(sizeof(struct ixp4xx_flash_info), GFP_KERNEL);
- 	if(!info) {
- 		err = -ENOMEM;
- 		goto Error;
- 	}	
--	memzero(info, sizeof(struct ixp4xx_flash_info));
- 
- 	dev_set_drvdata(&dev->dev, info);
- 
+Drat. No. It is missing the actual diff ;)
 
+The cause is that the patch was corrupted, but in a way that git-apply 
+didn't notice. The diff looked like this:
 
--- 
-Deepak Saxena - dsaxena@plexity.net - http://www.plexity.net
+	diff --git a/arch/arm/mach-ixp2000/core.c b/arch/arm/mach-ixp2000/core.c
+	--- a/arch/arm/mach-ixp2000/core.c
+	+++ b/arch/arm/mach-ixp2000/core.c
+	 static struct resource ixp2000_uart_resource = {
+	...
 
-Even a stopped clock gives the right time twice a day.
+and it's actually missing the line numbers (and an empty line). Which ends 
+up meaning that it's interpreted as an empty patch with just garbage 
+following, so I ended up committing an empty change.
+
+I've pushed out the real patch.
+
+Thanks for noticing. I'll make "git-apply" flag empty patches as errors.
+
+		Linus

@@ -1,59 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbVJAA00@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbVJAA1I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750700AbVJAA00 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Sep 2005 20:26:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750701AbVJAA00
+	id S1750701AbVJAA1I (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Sep 2005 20:27:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750702AbVJAA1I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Sep 2005 20:26:26 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:62395 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750700AbVJAA0Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Sep 2005 20:26:25 -0400
-Date: Fri, 30 Sep 2005 17:26:00 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Phil Dibowitz <phil@ipom.com>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       usb-storage@lists.one-eyed-alien.net, zaitcev@redhat.com
-Subject: Re: RFC drivers/usb/storage/libusual
-Message-Id: <20050930172600.298b7cac.zaitcev@redhat.com>
-In-Reply-To: <433CE491.90305@ipom.com>
-References: <20050927205559.078ba9ed.zaitcev@redhat.com>
-	<433CE491.90305@ipom.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.8.4; i686-pc-linux-gnu)
+	Fri, 30 Sep 2005 20:27:08 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:10138 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750701AbVJAA1G
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Sep 2005 20:27:06 -0400
+Subject: Re: 2.6.14-rc2-mm1 - ext3 wedging up
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Valdis.Kletnieks@vt.edu, Con Kolivas <kernel@kolivas.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050928223829.GH10408@opteron.random>
+References: <200509221959.j8MJxJsY010193@turing-police.cc.vt.edu>
+	 <200509231036.16921.kernel@kolivas.org>
+	 <200509230720.j8N7KYGX023826@turing-police.cc.vt.edu>
+	 <20050923153158.GA4548@x30.random>
+	 <1127509047.8880.4.camel@kleikamp.austin.ibm.com>
+	 <1127509155.8875.6.camel@kleikamp.austin.ibm.com>
+	 <1127511979.8875.11.camel@kleikamp.austin.ibm.com>
+	 <20050928223829.GH10408@opteron.random>
+Content-Type: text/plain
+Date: Fri, 30 Sep 2005 19:27:04 -0500
+Message-Id: <1128126424.10237.7.camel@kleikamp.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Sep 2005 00:09:05 -0700, Phil Dibowitz <phil@ipom.com> wrote:
+On Thu, 2005-09-29 at 00:38 +0200, Andrea Arcangeli wrote:
+> On Fri, Sep 23, 2005 at 04:46:19PM -0500, Dave Kleikamp wrote:
+> > On Fri, 2005-09-23 at 15:59 -0500, Dave Kleikamp wrote:
+> > I'd guess that it's spinning in balance_dirty_pages.
+> > /proc/<pid>/future_dirty is 25650 for fsx.  It appears that
+> > nr_reclaimable is not going to zero for some reason.
 
-> A quick look over the patch shows that there are now two kinds of
-> unusual_dev entries: unusual_dev() and unusual_dev_fl(), where the
-> latter is for entries that don't need to specify SC or PR (i.e., just
-> had US_SC_DEVICE, US_PR_DEVICE in them). While I think that's a
-> reasonable change, it's not clear to me why that's useful to the rest of
-> the patch, or it's just making unusual_devs.h artificially shorter?
+I tracked down my problem to a bug in jfs.  jfs is explicitly setting
+I_DIRTY in the i_state for a special inode that is preventing it from
+being put on the s_dirty list.  This must have been something I did a
+long time ago when I was a newbie.  I'm embarrassed I hadn't noticed it
+until now.
 
-Greg asked that too and I skipped his question because I needed an
-explanation. So here it is now.
+I still had the problem even with your latest patch, but it's fixed with
+this patch to jfs.  I haven't yet tried the jfs patch with the earlier
+versions of your patch to see if there is really a problem with them.
 
-I thought that the match list for USB core and the shadow list that
-usb-storage had were separate. So, libusual receives the first but
-not the second, which remains in usb-storage. Once they are split
-like that, I thought it unsafe to continue to use an index to
-correlate them, so I added extra fields into the list of information
-specific list to usb-storage, for matching. These fields use more
-memory, so I thought it would cost nothing to move flags over
-into driver_info. The resultant savings make usb-storage somewhat
-shorter than it was before. It is shorter even when libusual is
-configured off. This is because the second list is about twice
-shorter now.
+I don't have anything to say about the original problem reported on
+ext3, since I only saw the problem on jfs.
 
-I can drop that part of the patch, I just thought it would be safer.
-If you prefer that, I would suggest moving "normal" devices at the
-bottom of the list into the unusual_devs.h, to make sure that
-indexes stay the same. In such case, we won't need dropping commas.
+> Even if nr_reclaimable isn't going to zero, eventually the loop should
+> break out because pages_written must increase.
+> 
+> So this make me think it might be the nr_unstable that destabilizes it,
+> and whatever it is, it is a bug in mainline as well, except it was well
+> hidden until now, because the dirty levels never approached zero during
+> heavy write-IO like it can happen with this feature enabled.
+> 
+> Basically whatever we account as "reclaimable" must be _written_out_ and
+> accounted as well in the "pages_written" otherwise it'll just hang. 
+> If there's a problem, it shall be a longstanding one.
 
--- Pete
+Yep.  My bad.
+
+> Can you try with this new patch that stops accounting "unstable" as
+> "reclaimable". It should be possible to flush the dirty pages to disk so
+> "nr_dirty" should be safe because they should always increase the
+> "pages_written". I'm not sure if this fixes it, but this at least rule
+> out the nfs from the equation (perhaps nfs will never be accounted as
+> "pages_written" and that would be a possible explanation of the infinite
+> loop).
+> 
+> This new update also makes sure to never account rewrites (except for
+> reiserfs where it's more difficult to change the code for this).
+> 
+> I tried with fsx (no params) but I couldn't reproduce any problem yet,
+> but I've no nfs workload involved in my test box.
+> 
+> http://www.kernel.org/pub/linux/kernel/people/andrea/patches/v2.6/2.6.14-rc1/per-task-predictive-write-throttling-4
+> 
+> thanks for the help!
+
+JFS: jfs should not be playing with i_state
+
+jfs has been explicitly setting i_state |= I_DIRTY on a special inode.
+This prevented it from being put on the s_dirty list.  Very stupid.
+
+Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
+
+diff --git a/fs/jfs/jfs_dmap.c b/fs/jfs/jfs_dmap.c
+--- a/fs/jfs/jfs_dmap.c
++++ b/fs/jfs/jfs_dmap.c
+@@ -305,7 +305,6 @@ int dbSync(struct inode *ipbmap)
+ 	filemap_fdatawrite(ipbmap->i_mapping);
+ 	filemap_fdatawait(ipbmap->i_mapping);
+ 
+-	ipbmap->i_state |= I_DIRTY;
+ 	diWriteSpecial(ipbmap, 0);
+ 
+ 	return (0);
+diff --git a/fs/jfs/jfs_imap.c b/fs/jfs/jfs_imap.c
+--- a/fs/jfs/jfs_imap.c
++++ b/fs/jfs/jfs_imap.c
+@@ -514,8 +514,6 @@ void diWriteSpecial(struct inode *ip, in
+ 	ino_t inum = ip->i_ino;
+ 	struct metapage *mp;
+ 
+-	ip->i_state &= ~I_DIRTY;
+-
+ 	if (secondary)
+ 		address = addressPXD(&sbi->ait2) >> sbi->l2nbperpage;
+ 	else
+diff --git a/fs/jfs/jfs_txnmgr.c b/fs/jfs/jfs_txnmgr.c
+--- a/fs/jfs/jfs_txnmgr.c
++++ b/fs/jfs/jfs_txnmgr.c
+@@ -2396,7 +2396,6 @@ static void txUpdateMap(struct tblock * 
+ 	 */
+ 	if (tblk->xflag & COMMIT_CREATE) {
+ 		diUpdatePMap(ipimap, tblk->ino, FALSE, tblk);
+-		ipimap->i_state |= I_DIRTY;
+ 		/* update persistent block allocation map
+ 		 * for the allocation of inode extent;
+ 		 */
+@@ -2407,7 +2406,6 @@ static void txUpdateMap(struct tblock * 
+ 	} else if (tblk->xflag & COMMIT_DELETE) {
+ 		ip = tblk->u.ip;
+ 		diUpdatePMap(ipimap, ip->i_ino, TRUE, tblk);
+-		ipimap->i_state |= I_DIRTY;
+ 		iput(ip);
+ 	}
+ }
+
+-- 
+David Kleikamp
+IBM Linux Technology Center
+

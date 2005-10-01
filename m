@@ -1,93 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbVJASD5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbVJASFs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750762AbVJASD5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Oct 2005 14:03:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbVJASD4
+	id S1750740AbVJASFs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Oct 2005 14:05:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbVJASFs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Oct 2005 14:03:56 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:17540 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750762AbVJASD4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Oct 2005 14:03:56 -0400
-Date: Sat, 1 Oct 2005 11:04:41 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Suzanne Wood <suzannew@cs.pdx.edu>, Robert.Olsson@data.slu.se,
-       davem@davemloft.net, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       walpole@cs.pdx.edu
-Subject: Re: [RFC][PATCH] identify in_dev_get rcu read-side critical sections
-Message-ID: <20051001180441.GA1578@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <200510010656.j916ufhT007410@rastaban.cs.pdx.edu> <20051001071248.GA15990@gondor.apana.org.au>
+	Sat, 1 Oct 2005 14:05:48 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:15115 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750740AbVJASFs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Oct 2005 14:05:48 -0400
+Date: Sat, 1 Oct 2005 19:05:31 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Patrick McHardy <kaber@trash.net>
+Cc: Radoslaw Szkodzinski <astralstorm@gorzow.mm.pl>,
+       linux-kernel@vger.kernel.org,
+       Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>
+Subject: Re: 2.6.13-rc2+ - problem with DHCP
+Message-ID: <20051001180530.GB11254@flint.arm.linux.org.uk>
+Mail-Followup-To: Patrick McHardy <kaber@trash.net>,
+	Radoslaw Szkodzinski <astralstorm@gorzow.mm.pl>,
+	linux-kernel@vger.kernel.org,
+	Netfilter Development Mailinglist <netfilter-devel@lists.netfilter.org>
+References: <433EBBEC.4050203@gorzow.mm.pl> <433ECE42.2070400@trash.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051001071248.GA15990@gondor.apana.org.au>
+In-Reply-To: <433ECE42.2070400@trash.net>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 01, 2005 at 05:12:48PM +1000, Herbert Xu wrote:
-> On Fri, Sep 30, 2005 at 11:56:41PM -0700, Suzanne Wood wrote:
-> > 
-> > But it is interesting to have discarded what was developed yesterday
-> > to minimize rcu_dereference impact:
+On Sat, Oct 01, 2005 at 07:58:26PM +0200, Patrick McHardy wrote:
+> Radoslaw Szkodzinski wrote:
+> >These kernels just do not get the IP from DHCP.
+> >I think the problem is caused by Mercurial tree changeset 8919 (more
+> >likely) or 8918.
 > >
-> > >> ----- Original message  -----
-> > >> From: Herbert Xu <herbert@gondor.apana.org.au>
-> > >> Date: Fri, 30 Sep 2005 11:19:07 +1000
-> > >> 
-> > >> On Thu, Sep 29, 2005 at 06:16:03PM -0700, Paul E. McKenney wrote:
-> > >>> 
-> > >>> OK, how about this instead?
-> > >>> 
-> > >>> rcu_read_lock();
-> > >>> in_dev = dev->ip_ptr;
-> > >>> if (in_dev) {
-> > >>> atomic_inc(&rcu_dereference(in_dev)->refcnt);
-> > >>> }
-> > >>> rcu_read_unlock();
-> > >>> return in_dev;
-> > >> 
-> > >> Looks great. 
-> > 
-> > while adding a function call level by wrapping  __in_dev_get_rcu
-> > with in_dev_get as suggested here.
+> >At least the last tested working one is:
+> >changeset:   8917:07c96175a75e
+> >user:        Patrick McHardy <kaber@trash.net>
+> >date:        Tue Sep 13 21:00:14 2005 +0011
+> >summary:     [NETFILTER]: Simplify netbios helper
+> >
+> >Probably the culprit is:
+> >changeset:   8919:61b9c3185973
+> >user:        Patrick McHardy <kaber@trash.net>
+> >date:        Tue Sep 13 21:00:55 2005 +0011
+> >summary:     [NETFILTER]: Fix DHCP + MASQUERADE problem
 > 
-> It might look different, but it should compile to the same result.
-> GCC should be smart enough to combine the two branches and produce a
-> memory barrier only when in_dev is not NULL.
->  
-> > The other thing I'd hoped to address in pktgen.c was 
-> > removing the __in_dev_put() which decrements refcnt 
-> > while __in_dev_get_rcu() does not increment.
-> 
-> Well spotted.
-> 
-> Here is a patch on top of the last one to fix this bogus decrement.
+> Are you sure? The patch was supposed to fix problems with DHCP clients
+> using regular UDP sockets for sending DHCP requests. Which client are
+> you using?
 
-Both this and Herbert's prior patch look good to me!
+I tried booting 2.6.14-rc2 on my firewall last Wednesday and it failed
+to get its IP address via bootp.  I did not see any packets being
+transmitted from the machine.
 
-							Thanx, Paul
+I was going to do some investigation this weekend until I also found
+that it would mean that PCMCIA on the box would be busted, which,
+unfortunately, means it's useless to run a later kernel.  Hence the
+investigation is shelved until I've sorted out PCMCIA userland.
 
-> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-> 
-> Thanks,
-> -- 
-> Visit Openswan at http://www.openswan.org/
-> Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-> Home Page: http://gondor.apana.org.au/~herbert/
-> PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
-
-> diff --git a/net/core/pktgen.c b/net/core/pktgen.c
-> --- a/net/core/pktgen.c
-> +++ b/net/core/pktgen.c
-> @@ -1673,7 +1673,6 @@ static void pktgen_setup_inject(struct p
->  					pkt_dev->saddr_min = in_dev->ifa_list->ifa_address;
->  					pkt_dev->saddr_max = pkt_dev->saddr_min;
->  				}
-> -				__in_dev_put(in_dev);	
->  			}
->  			rcu_read_unlock();
->  		}
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

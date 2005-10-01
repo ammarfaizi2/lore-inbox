@@ -1,72 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750873AbVJAWWX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750878AbVJAWZd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750873AbVJAWWX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Oct 2005 18:22:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750875AbVJAWWX
+	id S1750878AbVJAWZd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Oct 2005 18:25:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750877AbVJAWZd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Oct 2005 18:22:23 -0400
-Received: from rrcs-67-78-243-58.se.biz.rr.com ([67.78.243.58]:5008 "EHLO
-	mail.concannon.net") by vger.kernel.org with ESMTP id S1750873AbVJAWWW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Oct 2005 18:22:22 -0400
-Message-ID: <433F0BF1.2020900@concannon.net>
-Date: Sat, 01 Oct 2005 18:21:37 -0400
-From: Michael Concannon <mike@concannon.net>
-User-Agent: Mozilla Thunderbird 1.0.6-1.4.1.centos4 (X11/20050721)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: lokum spand <lokumsspand@hotmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: A possible idea for Linux: Save running programs to disk
-References: <BAY105-F35A25DA28443029610815DA48E0@phx.gbl> <1128202754.8153.0.camel@laptopd505.fenrus.org>
-In-Reply-To: <1128202754.8153.0.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 1 Oct 2005 18:25:33 -0400
+Received: from qproxy.gmail.com ([72.14.204.196]:46702 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750876AbVJAWZc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Oct 2005 18:25:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=C0bO618PK9nnmRxsNmaxdVpP8d/R71+0bNxQc6pfO4VyQjlvQLAlrU7woNfeaTbUVvC3KVKLqVMu6vdgFI7S9KzJ5fY01BeEgsQMElPYV96/Zn9aNdGxAGDZx2YAejdVon/gHdk73DT4M8tML1uQUpwM0LHSHAisiUyev8w3XFI=
+Date: Sun, 2 Oct 2005 02:36:40 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Grant Coady <grant_lkml@dodo.com.au>
+Cc: Jean Delvare <khali@linux-fr.org>, Deepak Saxena <dsaxena@plexity.net>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [HWMON] kmalloc + memset -> kzalloc conversion
+Message-ID: <20051001223640.GA18641@mipter.zuzino.mipt.ru>
+References: <20051001072630.GJ25424@plexity.net> <20051001224604.484ef912.khali@linux-fr.org> <ln0uj11mbrnrrah1amu53dmno6bprf560g@4ax.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ln0uj11mbrnrrah1amu53dmno6bprf560g@4ax.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
+On Sun, Oct 02, 2005 at 07:45:36AM +1000, Grant Coady wrote:
+> On Sat, 1 Oct 2005 22:46:04 +0200, Jean Delvare <khali@linux-fr.org> wrote:
+> >> -	if (!(data = kmalloc(sizeof(struct adm1021_data), GFP_KERNEL))) {
+> >> +	if (!(data = kzalloc(sizeof(struct adm1021_data), GFP_KERNEL))) {
+> 
+> 	if (!(data = kzalloc(sizeof(*data), GFP_KERNEL))) {
+> 
+> instead?
 
->On Sat, 2005-10-01 at 13:30 -0800, lokum spand wrote:
->  
->
->>I allow myself to suggest the following, although not sure if I post in
->>the right group:
->>
->>Suppose Linux could save the total state of a program to disk, for
->>instance, imagine a program like mozilla with many open windows. I give
->>it a SIGNAL-SAVETODISK and the process memory image is dropped to a
->>file. I can then turn off the computer and later continue using the
->>program where I left it, by loading it back into memory.
->>
->>Would that be possible? At least a program can be given a ctrl-z and is
->>    
->>
->
->there is a LOT of state though.. the moment you add networking in the
->picture the amount of state just isn't funny anymore. Your X example is
->a good one as well...
->  
->
-There are a few cluster/parallel computing libraries out there that are 
-starting to allow "process migration"...
-
-One would assume that "saving it to a disk" is simply a degenerate case 
-of migrating the process...
-
-Presuming they have process migration working (and it seemed close a 
-while ago when I last looked), saving to a file might already be 
-supported...  I'd google "process migration" and you are likely to find 
-a lot of discussion on this topic...
-
-/mike
-
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
+One thing at a time. And leave sizeof(*p) vs sizeof(struct foo) to
+maintainer, OK?
 

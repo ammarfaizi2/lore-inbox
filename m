@@ -1,68 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750819AbVJASjL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750766AbVJAShm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750819AbVJASjL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Oct 2005 14:39:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750824AbVJASjK
+	id S1750766AbVJAShm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Oct 2005 14:37:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbVJAShm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Oct 2005 14:39:10 -0400
-Received: from xenotime.net ([66.160.160.81]:16864 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750772AbVJASjI (ORCPT
+	Sat, 1 Oct 2005 14:37:42 -0400
+Received: from iron.cat.pdx.edu ([131.252.208.92]:23995 "EHLO iron.cat.pdx.edu")
+	by vger.kernel.org with ESMTP id S1750766AbVJAShm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Oct 2005 14:39:08 -0400
-Date: Sat, 1 Oct 2005 11:39:06 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Mark Lord <lkml@rtr.ca>
-Cc: jgarzik@pobox.com, joshk@triplehelix.org, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org, axboe@suse.de,
-       torvalds@osdl.org
-Subject: Re: SATA suspend/resume (was Re: [PATCH] updated version of Jens'
- SATA suspend-to-ram patch)
-Message-Id: <20051001113906.2105f152.rdunlap@xenotime.net>
-In-Reply-To: <433ED44C.3060805@rtr.ca>
-References: <20050923163334.GA13567@triplehelix.org>
-	<433B79D8.9080305@pobox.com>
-	<433ED44C.3060805@rtr.ca>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 1 Oct 2005 14:37:42 -0400
+Date: Sat, 1 Oct 2005 11:37:14 -0700 (PDT)
+From: Suzanne Wood <suzannew@cs.pdx.edu>
+Message-Id: <200510011837.j91IbE01012915@rastaban.cs.pdx.edu>
+To: herbert@gondor.apana.org.au
+Cc: Robert.Olsson@data.slu.se, davem@davemloft.net,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, paulmck@us.ibm.com,
+       walpole@cs.pdx.edu
+Subject: Re: [RFC][PATCH] identify in_dev_get rcu read-side critical sections
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 01 Oct 2005 14:24:12 -0400 Mark Lord wrote:
+Please excuse this restatement of an earlier concern.
 
-> Jeff Garzik wrote:
-> ..
-> > Ah hah!  I found the other SCSI suspend patch:
-> >     http://lwn.net/Articles/97453/
-> > Anybody (Joshua?) up for reconciling and testing the two?
-> 
-> I just now tried out *only* "the other SCSI suspend patch",
-> and by itself it hangs on resume.  Laptop computer, blank screen,
-> no serial ports, no printk()s visible.
-> 
-> And there's one minor bug in that patch:  it uses GFP_KERNEL to
-> alloc a buffer, but on resume it really should use GFP_ATOMIC instead,
-> since the swap device is the same drive we're trying to resume..
-> 
-> > 2) sd should call START STOP UNIT on resume
-> 
-> That's probably why it hangs when used as-is by itself.
-> I may do some further testing.
-> 
-> Anyone else out there playing with this yet?
+  > From suzannew Sat Oct  1 11:00:28 2005
 
-Not playing with it yet, just making some changes as suggested
-by Jeff and Christoph.  Patches are in
-  http://www.xenotime.net/linux/scsi/
+  > With the spotlight leaving in_dev_get, we have the parallel question 
+  > of in_dev_put() and __in_dev_put()  both defined with refcnt 
+  > decrement, but the preceding underscore may lend itself to an
+  > inadvertant pairing and refcnt inaccuracy.
 
-1.  http://www.xenotime.net/linux/scsi/scsi-suspend-resume.patch
-2.  http://www.xenotime.net/linux/scsi/scsi-susres-startstop2.patch
+Dave Miller already addressed this question in 
+http://www.ussg.iu.edu/hypermail/linux/kernel/0509.3/0757.html 
 
-and work-in-progress:  adding <spindown> ok/allowed to scsi
-targets:  http://www.xenotime.net/linux/scsi/scsi-susres-stst-spin.patch
-(this patch file includes 1. and 2. above)
+  > It may not be reasonable to rename __in_dev_put for its parallel definition
+  > since its current usage is with __in_dev_get_rtnl() which does not increment 
+  > refcnt. 
 
----
-~Randy
+But the following may be worth considering.
+
+  > It is also probably good to retain the old __in_dev_get()
+and deprecate it.
+
+Thank you.

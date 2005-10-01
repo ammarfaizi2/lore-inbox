@@ -1,69 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750839AbVJAWuQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750884AbVJAWvT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750839AbVJAWuQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Oct 2005 18:50:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750882AbVJAWuQ
+	id S1750884AbVJAWvT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Oct 2005 18:51:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750885AbVJAWvS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Oct 2005 18:50:16 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:36113 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750839AbVJAWuP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Oct 2005 18:50:15 -0400
-Date: Sun, 2 Oct 2005 00:50:12 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Alexander Nyberg <alexn@telia.com>
-Cc: Neil Brown <neilb@suse.de>, Nathan Scott <nathans@sgi.com>,
-       Chris Wedgwood <cw@f00f.org>, linux-kernel@vger.kernel.org,
-       linux-xfs@oss.sgi.com
-Subject: Re: RFC: i386: kill !4KSTACKS
-Message-ID: <20051001225012.GE4212@stusta.de>
-References: <20050902003915.GI3657@stusta.de> <20050902053356.GA20603@taniwha.stupidest.org> <20050902162931.A4496772@wobbly.melbourne.sgi.com> <17175.62454.623678.209697@cse.unsw.edu.au> <20050913080552.GA1815@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050913080552.GA1815@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+	Sat, 1 Oct 2005 18:51:18 -0400
+Received: from bay105-f22.bay105.hotmail.com ([65.54.224.32]:30003 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S1750882AbVJAWvS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Oct 2005 18:51:18 -0400
+Message-ID: <BAY105-F2270EEA37B83483AE53063A48E0@phx.gbl>
+X-Originating-IP: [62.79.29.130]
+X-Originating-Email: [lokumsspand@hotmail.com]
+In-Reply-To: <433F0BF1.2020900@concannon.net>
+From: "lokum spand" <lokumsspand@hotmail.com>
+To: mike@concannon.net, arjan@infradead.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: A possible idea for Linux: Save running programs to disk
+Date: Sat, 01 Oct 2005 14:51:17 -0800
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 01 Oct 2005 22:51:17.0955 (UTC) FILETIME=[A263D930:01C5C6DA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 13, 2005 at 10:05:52AM +0200, Alexander Nyberg wrote:
-> On Fri, Sep 02, 2005 at 04:40:54PM +1000 Neil Brown wrote:
-> 
-> > On Friday September 2, nathans@sgi.com wrote:
-> > > On Thu, Sep 01, 2005 at 10:33:56PM -0700, Chris Wedgwood wrote:
-> > > > On Fri, Sep 02, 2005 at 02:39:15AM +0200, Adrian Bunk wrote:
-> > > > 
-> > > > > 4Kb kernel stacks are the future on i386, and it seems the problems
-> > > > > it initially caused are now sorted out.
-> > > > 
-> > > > Not entirely.
-> > > > 
-> > > > XFS when mixed with raid/lvm/nfs still blows up.  It's probably not
-> > > > alone in this respect but worse than ext2/3.
-> > > 
-> > > To clarify, you mean AND not OR (/) there -- in other words,
-> > > raid[+raid]+dm[+dm]+xfs+nfs can be fatal, yes.
-> > 
-> > It should be reasonably simple to remove this problem of stacked
-> > drivers.
-> > There really isn't any need for md and dm (or md and md or ..) to use
-> > the stack and the same time.
-> > 
-> 
-> Sorry to bump in so late - but there seems to be a reporter who is
-> suffering from these issues now:
-> 
-> http://bugzilla.kernel.org/show_bug.cgi?id=5210
 
-Nathan, can you look into this bug?
 
-TIA
-Adrian
 
--- 
+>From: Michael Concannon <mike@concannon.net>
+>To: Arjan van de Ven <arjan@infradead.org>
+>CC: lokum spand <lokumsspand@hotmail.com>, linux-kernel@vger.kernel.org
+>Subject: Re: A possible idea for Linux: Save running programs to disk
+>Date: Sat, 01 Oct 2005 18:21:37 -0400
+>
+>Arjan van de Ven wrote:
+>
+>>On Sat, 2005-10-01 at 13:30 -0800, lokum spand wrote:
+>>
+>>
+>>>I allow myself to suggest the following, although not sure if I post in
+>>>the right group:
+>>>
+>>>Suppose Linux could save the total state of a program to disk, for
+>>>instance, imagine a program like mozilla with many open windows. I give
+>>>it a SIGNAL-SAVETODISK and the process memory image is dropped to a
+>>>file. I can then turn off the computer and later continue using the
+>>>program where I left it, by loading it back into memory.
+>>>
+>>>Would that be possible? At least a program can be given a ctrl-z and is
+>>>
+>>>
+>>
+>>there is a LOT of state though.. the moment you add networking in the
+>>picture the amount of state just isn't funny anymore. Your X example is
+>>a good one as well...
+>>
+>>
+>There are a few cluster/parallel computing libraries out there that are 
+>starting to allow "process migration"...
+>
+>One would assume that "saving it to a disk" is simply a degenerate case of 
+>migrating the process...
+>
+>Presuming they have process migration working (and it seemed close a while 
+>ago when I last looked), saving to a file might already be supported...  
+>I'd google "process migration" and you are likely to find a lot of 
+>discussion on this topic...
+>
+>/mike
+>
+>>-
+>>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>>the body of a message to majordomo@vger.kernel.org
+>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>Please read the FAQ at  http://www.tux.org/lkml/
+>>
+>>
+>>
+>
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+In fact moving processes from one machine to another would be a brilliant 
+feature at my work, since we run fairly large and time-consuming simulations 
+on electronic circuits. If the kernel could natively support bouncing jobs 
+back and forth, that would really be something. Since we simulate with 
+proprietary software, I suppose we can't rely on the simulator being 
+rewritten to support such special libraries.
+
+Does any other Unix variant have process bouncing already?
+
+_________________________________________________________________
+On the road to retirement? Check out MSN Life Events for advice on how to 
+get there! http://lifeevents.msn.com/category.aspx?cid=Retirement
 

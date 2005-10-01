@@ -1,131 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbVJAKtW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750795AbVJALI4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750791AbVJAKtW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Oct 2005 06:49:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbVJAKtV
+	id S1750795AbVJALI4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Oct 2005 07:08:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbVJALIz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Oct 2005 06:49:21 -0400
-Received: from zproxy.gmail.com ([64.233.162.202]:64228 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750791AbVJAKtV (ORCPT
+	Sat, 1 Oct 2005 07:08:55 -0400
+Received: from wscnet.wsc.cz ([212.80.64.118]:14728 "EHLO wscnet.wsc.cz")
+	by vger.kernel.org with ESMTP id S1750785AbVJALIz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Oct 2005 06:49:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=VsujfXLZlxirwY0JABqCOLqS+vaBmNE/RO+AUtg8CSIrxgltiOipGnrnDvXF8npdQnH4ScmfRWhBmjlMvPZgc7EgKOr51Ci+6Rx4Aku6nlzMnnedR63z9CO8Kjs4/X8HWCmKFlyT6jyloXsCcsnYIBQxZR7aAA3cMcRBIvT4FFY=
-Message-ID: <433E69A4.5050502@gmail.com>
-Date: Sat, 01 Oct 2005 18:49:08 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
+	Sat, 1 Oct 2005 07:08:55 -0400
+Message-ID: <433E6E26.5030305@gmail.com>
+Date: Sat, 01 Oct 2005 13:08:22 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: cs, en-us, en
 MIME-Version: 1.0
-To: Giuseppe Bilotta <bilotta78@hotpop.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Blanky rivafb vs snowy nvidiafb with 2.6.12
-References: <1hcq27fp0wwd6.1xosn5xgejhhn$.dlg@40tude.net> <433B049B.1090502@gmail.com> <1gie1vr78iijd$.qcvoypipyouu.dlg@40tude.net> <433BE0D1.1070501@gmail.com> <dsq9rvr3xni3.1py6wljnelhp0.dlg@40tude.net> <433C52F0.6000401@gmail.com> <1hk58zmy4sz0x.kyzvnh8u4ia2.dlg@40tude.net> <433E2387.2090608@gmail.com> <15vft1mw0n773.w7bplfheyl29.dlg@40tude.net>
-In-Reply-To: <15vft1mw0n773.w7bplfheyl29.dlg@40tude.net>
+To: dsaxena@plexity.net
+CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [IDE] kmalloc + memset -> kzalloc conversion
+References: <20051001074415.GL25424@plexity.net>
+In-Reply-To: <20051001074415.GL25424@plexity.net>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Giuseppe Bilotta wrote:
-> On Sat, 01 Oct 2005 13:49:59 +0800, Antonino A. Daplas wrote:
+Deepak Saxena napsal(a):
+
+>Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
+>
+>diff --git a/drivers/ide/ide-cd.c b/drivers/ide/ide-cd.c
+>--- a/drivers/ide/ide-cd.c
+>+++ b/drivers/ide/ide-cd.c
+>@@ -3449,7 +3449,7 @@ static int ide_cd_probe(struct device *d
+> 		printk(KERN_INFO "ide-cd: passing drive %s to ide-scsi emulation.\n", drive->name);
+> 		goto failed;
+> 	}
+>-	info = (struct cdrom_info *) kmalloc (sizeof (struct cdrom_info), GFP_KERNEL);
+>+	info = (struct cdrom_info *) kzalloc (sizeof (struct cdrom_info), GFP_KERNEL);
+>  
+>
+no need to cast and 80 chars on a line is upper bound.
+
+> 	if (info == NULL) {
+> 		printk(KERN_ERR "%s: Can't allocate a cdrom structure\n", drive->name);
+> 		goto failed;
+>@@ -3463,8 +3463,6 @@ static int ide_cd_probe(struct device *d
 > 
->> Looks like the nv driver just ignored the EDID and used one of
->> its built-in VESA modes.  If you notice, X's EDID ouput is the same
->> as nvidiafb's. But the resulting timings are different.
->>
->> In contrast, nvidiafb will attempt to use the EDID, and only as a last
->> resort, use one of the timings in the global mode database.
+> 	ide_register_subdriver(drive, &ide_cdrom_driver);
 > 
-> I see. And when EDID is enabled for the module, it won't let me touch
-> those timings at all.
-
-Yes. But if the EDID block specified a usable hsync and vsync range, the
-timings can be customized.  In your case it does not.
-
-> Maybe a "noddc" or "noedid" module option for 
-> when EDID support is compiled in and one wants to work without it?
-
-It is a good idea.  Especially since I've already encountered a lot of
-crappy EDID blocks.
-
+>-	memset(info, 0, sizeof (struct cdrom_info));
+>-
+> 	kref_init(&info->kref);
 > 
->>> D'oh. D'oh. D'oh.
->>>
->>> I *really* need someone to repeatedly and savagely hit me on the head
->>> with a gigantic, purple-and-yellow CLUEBAT. *sigh*
->>>
->>> Somehow, I just assumed that modprobing for the framebuffer driver
->>> just loaded everything. But fbcon was *not* automatically load.
->>> Indeed, modprobing for fbcon allows me to load nvidiafb OR rivafb
->>> without any more screen garbling/blanking problems!
->> :-) Yes, many have been burned by this assumption.  If you do want
->> 2.4 behavior, you can compile fbcon statically, nvidiafb as a module.
->> Doing modprobe nvidiafb will automatically give you a framebuffer
->> console.
+> 	info->drive = drive;
+>diff --git a/drivers/ide/ide-disk.c b/drivers/ide/ide-disk.c
+>--- a/drivers/ide/ide-disk.c
+>+++ b/drivers/ide/ide-disk.c
+>@@ -1215,7 +1215,7 @@ static int ide_disk_probe(struct device 
+> 	if (drive->media != ide_disk)
+> 		goto failed;
 > 
-> Yes, after I got the idea that came as an obvious conclusion ... maybe
-> this should be a FAQ? Documented in the help for fbmod?
+>-	idkp = kmalloc(sizeof(*idkp), GFP_KERNEL);
+>+	idkp = kzalloc(sizeof(*idkp), GFP_KERNEL);
+> 	if (!idkp)
+> 		goto failed;
 > 
-
-I documented it in feature-list-2.6.txt, but it is still in the -mm tree.
-
->>> Notice how rivafb can't read the EDID from DDC/I2C -- and remark that
->>> I also have problems reading the EDID with get-edid. Also interesting
->> read-edid though uses the Video BIOS to grab the EDID.  So even your
->> card's BIOS is having problems doing i2c/ddc.
+>@@ -1228,8 +1228,6 @@ static int ide_disk_probe(struct device 
 > 
-> Yep, and as I already said it's a known problem with my configuration
-> (it's not clear whether the problem is the video card, with the
-> montitor, or somewhere inbetween).
+> 	ide_register_subdriver(drive, &idedisk_driver);
 > 
->>> is that rivafb won't let me get to 16 bit depth or higher. By
->> Hmm, I'll check on that again.
+>-	memset(idkp, 0, sizeof(*idkp));
+>-
+> 	kref_init(&idkp->kref);
 > 
-> That'd be nice.
+> 	idkp->drive = drive;
+>diff --git a/drivers/ide/ide-floppy.c b/drivers/ide/ide-floppy.c
+>--- a/drivers/ide/ide-floppy.c
+>+++ b/drivers/ide/ide-floppy.c
+>@@ -2146,7 +2146,7 @@ static int ide_floppy_probe(struct devic
+> 		printk("ide-floppy: passing drive %s to ide-scsi emulation.\n", drive->name);
+> 		goto failed;
+> 	}
+>-	if ((floppy = (idefloppy_floppy_t *) kmalloc (sizeof (idefloppy_floppy_t), GFP_KERNEL)) == NULL) {
+>+	if ((floppy = (idefloppy_floppy_t *) kzalloc (sizeof (idefloppy_floppy_t), GFP_KERNEL)) == NULL) {
+>  
+>
+detto
+
+> 		printk (KERN_ERR "ide-floppy: %s: Can't allocate a floppy structure\n", drive->name);
+> 		goto failed;
+> 	}
+>@@ -2159,8 +2159,6 @@ static int ide_floppy_probe(struct devic
 > 
->> Oh well, I think rivafb and nvidiafb have different i2c timeouts.  I believe
->> the timeouts in nvidiafb are more correct.
+> 	ide_register_subdriver(drive, &idefloppy_driver);
 > 
-> Given that nvidiafb manages to read the edid and rivafb doesn't, I
-> would say so too :) maybe get-edid needs fixes in that direction too?
-
-get-edid is meant to be a generic reader, that's why it uses the BIOS.
-nvidiafb uses i2c/ddc and the method is different from manufacturer to 
-manufacturer, chipset to chipset.
-
+>-	memset(floppy, 0, sizeof(*floppy));
+>-
+> 	kref_init(&floppy->kref);
 > 
-> Anyway, it looks like I won't have problems using nvidiafb at 16 bits
-> depth without EDID for the moment ... can I still use X.org's nv at 24
-> bits at the same time? Can they cooperate on the framebuffer? IIRC
-
-Yes, you can have nvidiafb and nv with differing visuals. This should
-not be a problem.
-
-> there was an option to let nv use the Linux-managed framebuffer ...
+> 	floppy->drive = drive;
+>diff --git a/drivers/ide/ide-probe.c b/drivers/ide/ide-probe.c
+>--- a/drivers/ide/ide-probe.c
+>+++ b/drivers/ide/ide-probe.c
+>@@ -596,14 +596,13 @@ static inline u8 probe_for_drive (ide_dr
+> 	 *	Also note that 0 everywhere means "can't do X"
+> 	 */
+>  
+>-	drive->id = kmalloc(SECTOR_WORDS *4, GFP_KERNEL);
+>+	drive->id = kzalloc(SECTOR_WORDS *4, GFP_KERNEL);
+> 	drive->id_read = 0;
+> 	if(drive->id == NULL)
+> 	{
+> 		printk(KERN_ERR "ide: out of memory for id data.\n");
+> 		return 0;
+> 	}
+>-	memset(drive->id, 0, SECTOR_WORDS * 4);
+> 	strcpy(drive->id->model, "UNKNOWN");
+> 	
+> 	/* skip probing? */
+>@@ -1097,14 +1096,13 @@ static int init_irq (ide_hwif_t *hwif)
+> 		hwgroup->hwif->next = hwif;
+> 		spin_unlock_irq(&ide_lock);
+> 	} else {
+>-		hwgroup = kmalloc_node(sizeof(ide_hwgroup_t), GFP_KERNEL,
+>+		hwgroup = kzalloc_node(sizeof(ide_hwgroup_t), GFP_KERNEL,
+> 					hwif_to_node(hwif->drives[0].hwif));
+> 		if (!hwgroup)
+> 	       		goto out_up;
 > 
-> Oh yes:
-> """
-> 	Option		"UseFBDev"		"true" 
-> """
-
-The "UseFBDev" option was meant to restore the framebuffer console when
-switching from X to vt. This option is unnecessary in 2.6 kernels. The
-console layer now detects an X<->console switch, so it can properly
-inform fbcon and the drivers that it needs to restore the state, or not
-touch the hardware when X owns the vt.
-
+> 		hwif->hwgroup = hwgroup;
 > 
-> Will this create problems when the FBDev is at a different bitdepth?
+>-		memset(hwgroup, 0, sizeof(ide_hwgroup_t));
+> 		hwgroup->hwif     = hwif->next = hwif;
+> 		hwgroup->rq       = NULL;
+> 		hwgroup->handler  = NULL;
+>diff --git a/drivers/ide/ide-tape.c b/drivers/ide/ide-tape.c
+>--- a/drivers/ide/ide-tape.c
+>+++ b/drivers/ide/ide-tape.c
+>@@ -4844,7 +4844,7 @@ static int ide_tape_probe(struct device 
+> 		printk(KERN_WARNING "ide-tape: Use drive %s with ide-scsi emulation and osst.\n", drive->name);
+> 		printk(KERN_WARNING "ide-tape: OnStream support will be removed soon from ide-tape!\n");
+> 	}
+>-	tape = (idetape_tape_t *) kmalloc (sizeof (idetape_tape_t), GFP_KERNEL);
+>+	tape = (idetape_tape_t *) kzalloc (sizeof (idetape_tape_t), GFP_KERNEL);
+>  
+>
+... and so on
 
-It will only slow down the console switch.  But it's preferrable to set
-it to false.
+regards,
 
-> WIll this slow down either of the sides?
-> 
+-- 
+Jiri Slaby         www.fi.muni.cz/~xslaby
+~\-/~      jirislaby@gmail.com      ~\-/~
+241B347EC88228DE51EE A49C4A73A25004CB2A10
 
-It should not.
-
-Tony

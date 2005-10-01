@@ -1,66 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750843AbVJAUpr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750842AbVJAUq5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750843AbVJAUpr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Oct 2005 16:45:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750842AbVJAUpr
+	id S1750842AbVJAUq5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Oct 2005 16:46:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbVJAUq5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Oct 2005 16:45:47 -0400
-Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:5383 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S1750840AbVJAUpr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Oct 2005 16:45:47 -0400
-Date: Sat, 1 Oct 2005 22:46:04 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Deepak Saxena <dsaxena@plexity.net>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [HWMON] kmalloc + memset -> kzalloc conversion
-Message-Id: <20051001224604.484ef912.khali@linux-fr.org>
-In-Reply-To: <20051001072630.GJ25424@plexity.net>
-References: <20051001072630.GJ25424@plexity.net>
-X-Mailer: Sylpheed version 2.0.1 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 1 Oct 2005 16:46:57 -0400
+Received: from pop.gmx.de ([213.165.64.20]:10184 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750842AbVJAUq5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Oct 2005 16:46:57 -0400
+X-Authenticated: #2813124
+From: Daniel Ritz <daniel.ritz@gmx.ch>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] usb/core/hcd-pci.c: don't free_irq() on suspend
+Date: Sat, 1 Oct 2005 22:46:56 +0200
+User-Agent: KMail/1.7.2
+Cc: David Brownell <david-b@pacbell.net>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net, rjw@sisk.pl, akpm@osdl.org,
+       Linus Torvalds <torvalds@osdl.org>
+References: <200509302101.j8UL1Htj026067@hera.kernel.org> <20050930233833.GA19471@kroah.com>
+In-Reply-To: <20050930233833.GA19471@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510012246.57783.daniel.ritz@gmx.ch>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Deepak,
+[ restored some of the cc: list of the original thread ]
 
-> Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
+On Saturday 01 October 2005 01.38, Greg KH wrote:
+> <top-post on purpose...>
 > 
-> diff --git a/drivers/hwmon/adm1021.c b/drivers/hwmon/adm1021.c
-> --- a/drivers/hwmon/adm1021.c
-> +++ b/drivers/hwmon/adm1021.c
-> @@ -204,11 +204,10 @@ static int adm1021_detect(struct i2c_ada
->  	   client structure, even though we cannot fill it completely yet.
->  	   But it allows us to access adm1021_{read,write}_value. */
->  
-> -	if (!(data = kmalloc(sizeof(struct adm1021_data), GFP_KERNEL))) {
-> +	if (!(data = kzalloc(sizeof(struct adm1021_data), GFP_KERNEL))) {
->  		err = -ENOMEM;
->  		goto error0;
->  	}
-> -	memset(data, 0, sizeof(struct adm1021_data));
-> (...)
+> Daniel, are you sure about this patch (the second part specifically)?
 
-OK, I'll pick that patch. Three comments however:
+well, the first hunk doesn't make sense without the second and vice versa,
+isn't it? to answer your question: yes.
 
-1* Please exclude adm9240, it is already updated in my tree.
+> It directly conflicts with a set of patches in my current tree in this
+> area that fix all of the reported suspend/resume issues with usb host
+> controllers (that patch series written by David Brownell.)
+> 
+> Yeah, I see that we shouldn't have been dropping the irq on suspend and
+> getting a new one on resume, that's not good and could have caused
+> problems for people.
+> 
+> But could you at least drop the linux-usb-devel mailing list a note that
+> you are having issues, and post the proposed patch?  Directly sending it
 
-2* Please add some comment before your Signed-off-line, explaining what
-the patch is all about. It doesn't need to be long, but it needs to
-exist.
+i don't have problems, it was rafael...i just happend to look at it because
+yenta_socket was involved...see the following link for more background:
+	http://marc.theaimsgroup.com/?t=112275164900002&r=1&w=4
 
-3* Please include diffstat output in the patch header.
+> to Linus is a bit rude, it's not like the USB developers aren't
 
-Care to respin your patch?
+sorry for that, but i actually asked for a round in -mm. it just happend
+that linus was on to: and the rest on cc: by pressing reply-to-all in kmail
 
-As a side note, I don't think it was worth sending this to Linus,
-Andrew and two mailing lists. There's nothing ground breaking here.
-Send this kind of patches to me as the subsystem maintainer, CC LKML
-for comments if you want, and that should be sufficient.
+the original thread
+	http://marc.theaimsgroup.com/?t=112618280600003&r=1&w=4
 
-Thanks,
--- 
-Jean Delvare
+> responsive to emails (yeah, I've been a bit slow at times these past few
+> weeks, but my traveling all over the place for the past month is now
+> over, and I'm not going anywhere for a long time...)
+> 
+> David, this conflicts with your usb/usb-pm-06.patch in my quilt tree.
+> I'll try to resolve the merge with my best guess, but you should check
+> that I got it right...
+> 
+> thanks,
+> 
+> greg k-h
+> 
+
+rgds
+-daniel

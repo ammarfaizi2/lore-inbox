@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbVJAPCY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbVJAPIr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750718AbVJAPCY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Oct 2005 11:02:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750719AbVJAPCY
+	id S1750736AbVJAPIr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Oct 2005 11:08:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750753AbVJAPIr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Oct 2005 11:02:24 -0400
-Received: from qproxy.gmail.com ([72.14.204.203]:41312 "EHLO qproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750718AbVJAPCY (ORCPT
+	Sat, 1 Oct 2005 11:08:47 -0400
+Received: from wproxy.gmail.com ([64.233.184.199]:53003 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750736AbVJAPIr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Oct 2005 11:02:24 -0400
+	Sat, 1 Oct 2005 11:08:47 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=n7yeDp7gUo9FYXBSVsgKFFRbZ8nLWA9qMnn0/NNvppuUJKCpQEpVzl1JAArTLQ6NksEiz1VFtZLKkrWpTkcDMCTnB1kbArTXRZ6yYO9VcVSNzpjrY8hsaNYZ1pMSmr169UbhGHQdc6cgwhpH5wtNe1bBOKXVe9MlzTRLZO9QLEI=
-Date: Sat, 1 Oct 2005 17:00:48 +0200
-From: Diego Calleja <diegocg@gmail.com>
-To: torvalds@osdl.org
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=qHFcE51gjA6VgUODA55dnkIt05g//g9p76mQl76OFvDKPdTxxAvAarJZljLlnnwbUZWprIWmlZ27Q3A5ACR7qRoY0Yq3M2O0XgTFU6lWtUP7FLxNkKtMLtJ+ncwvyn7yPvS5c1L4ORr69Dkk4/rRLGZsLQOHVJ+rpEcTnXs2owc=
+Date: Sat, 1 Oct 2005 19:19:57 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: kernel-janitors@lists.osdl.org
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] trivial #if -> #ifdef
-Message-Id: <20051001170048.354e2bdb.diegocg@gmail.com>
-X-Mailer: Sylpheed version 2.1.1 (GTK+ 2.8.3; i486-pc-linux-gnu)
+Subject: 2.6.14-rc3-kj1
+Message-ID: <20051001151957.GA5148@mipter.zuzino.mipt.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Self-explanatory patch fixing bug #5340 (isn't easier to send a fix than 
-report the bug?!)
+2.6.14-rc3-kj1 aka "Kaffeine Albatross" is out. You can grab it from
+http://coderock.org/kj/2.6.14-rc3-kj1/
 
+Full shortlog is at
+http://coderock.org/kj/2.6.14-rc3-kj1/shortlog
 
-Signed-off-by: Diego Calleja <diegocg@gmail.com>
+New in this release
+-------------------
+Christophe Lucas
+  arch/alpha/kernel/*: use KERN_*       (continued)
+  arch/i386/kernel/apic.c: use KERN_*
 
---- stable/include/linux/mod_devicetable.h.BAK	2005-10-01 16:11:39.000000000 +0200
-+++ stable/include/linux/mod_devicetable.h	2005-10-01 16:22:15.000000000 +0200
-@@ -183,7 +183,7 @@ struct of_device_id
- 	char	name[32];
- 	char	type[32];
- 	char	compatible[128];
--#if __KERNEL__
-+#ifdef __KERNEL__
- 	void	*data;
- #else
- 	kernel_ulong_t data;
+Dropped
+-------
+Remove_DRM_ARRAY_SIZE.patch
+	DRM people want to keep code of BSD and Linux drivers the same.
+
+Merged
+------
+drivers_ieee1394_hosts_c_use_time_before.patch
+

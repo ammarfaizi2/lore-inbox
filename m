@@ -1,99 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbVJALcc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbVJALjq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750798AbVJALcc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Oct 2005 07:32:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbVJALcc
+	id S1750801AbVJALjq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Oct 2005 07:39:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750802AbVJALjq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Oct 2005 07:32:32 -0400
-Received: from wproxy.gmail.com ([64.233.184.202]:36489 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750798AbVJALcb convert rfc822-to-8bit
+	Sat, 1 Oct 2005 07:39:46 -0400
+Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:1299 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S1750801AbVJALjp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Oct 2005 07:32:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=i+Jq1QvhsFRWtiU11LhIf3I/EKOgT0r5wE4ltkT/CEmFKsTQtSx6Ydj9iJQAiJHYi4D/IQYkx7db0JckYILS2wUMaIbFZ1yupsmy+XMvFg8H8t6p5GlxK2BYyTrbpGcJxfjfKihkVY2cV1/KYO0prtPKBhhnC+wi/fjVEJOsvk0=
-Message-ID: <3888a5cd0510010432h52ede401g6fe34b7f93a3c342@mail.gmail.com>
-Date: Sat, 1 Oct 2005 13:32:30 +0200
-From: Jiri Slaby <lnx4us@gmail.com>
-Reply-To: Jiri Slaby <lnx4us@gmail.com>
-To: dsaxena@plexity.net
-Subject: Re: [PATCH] [I2C] kmalloc + memset -> kzalloc conversion
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20051001073631.GK25424@plexity.net>
-MIME-Version: 1.0
+	Sat, 1 Oct 2005 07:39:45 -0400
+Date: Sat, 1 Oct 2005 13:39:58 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Andrew Morton <akpm@osdl.org>, "J.A. Magallon" <jamagallon@able.es>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: one more oops on sensor modules removal
+Message-Id: <20051001133958.522c85d6.khali@linux-fr.org>
+In-Reply-To: <20050920225647.167325f7.akpm@osdl.org>
+References: <20050916022319.12bf53f3.akpm@osdl.org>
+	<20050921004230.64ed395d@werewolf.able.es>
+	<20050920225647.167325f7.akpm@osdl.org>
+X-Mailer: Sylpheed version 2.0.1 (GTK+ 2.6.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051001073631.GK25424@plexity.net>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/1/05, Deepak Saxena <dsaxena@plexity.net> wrote:
->
-> Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
->
-[snip]
-> --- a/drivers/i2c/busses/i2c-keywest.c
-> +++ b/drivers/i2c/busses/i2c-keywest.c
-> @@ -535,13 +535,12 @@ create_iface(struct device_node *np, str
->
->         tsize = sizeof(struct keywest_iface) +
->                 (sizeof(struct keywest_chan) + 4) * nchan;
-> -       iface = (struct keywest_iface *) kmalloc(tsize, GFP_KERNEL);
-> +       iface = (struct keywest_iface *) kzalloc(tsize, GFP_KERNEL);
-cast isn't needed
->         if (iface == NULL) {
->                 printk(KERN_ERR "i2c-keywest: can't allocate inteface !\n");
->                 pmac_low_i2c_unlock(np);
->                 return -ENOMEM;
->         }
-> -       memset(iface, 0, tsize);
->         spin_lock_init(&iface->lock);
->         init_completion(&iface->complete);
->         iface->node = of_node_get(np);
-> diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-> --- a/drivers/i2c/busses/i2c-mpc.c
-> +++ b/drivers/i2c/busses/i2c-mpc.c
-> @@ -296,10 +296,9 @@ static int fsl_i2c_probe(struct device *
->
->         pdata = (struct fsl_i2c_platform_data *) pdev->dev.platform_data;
->
-> -       if (!(i2c = kmalloc(sizeof(*i2c), GFP_KERNEL))) {
-> +       if (!(i2c = kzalloc(sizeof(*i2c), GFP_KERNEL))) {
->                 return -ENOMEM;
->         }
-> -       memset(i2c, 0, sizeof(*i2c));
->
->         i2c->irq = platform_get_irq(pdev, 0);
->         i2c->flags = pdata->device_flags;
-> diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
-> --- a/drivers/i2c/busses/i2c-mv64xxx.c
-> +++ b/drivers/i2c/busses/i2c-mv64xxx.c
-> @@ -500,13 +500,11 @@ mv64xxx_i2c_probe(struct device *dev)
->         if ((pd->id != 0) || !pdata)
->                 return -ENODEV;
->
-> -       drv_data = kmalloc(sizeof(struct mv64xxx_i2c_data), GFP_KERNEL);
-> +       drv_data = kzalloc(sizeof(struct mv64xxx_i2c_data), GFP_KERNEL);
->
->         if (!drv_data)
->                 return -ENOMEM;
->
-> -       memset(drv_data, 0, sizeof(struct mv64xxx_i2c_data));
-> -
->         if (mv64xxx_i2c_map_regs(pd, drv_data)) {
->                 rc = -ENODEV;
->                 goto exit_kfree;
-> diff --git a/drivers/i2c/busses/i2c-nforce2.c b/drivers/i2c/busses/i2c-nforce2.c
-> --- a/drivers/i2c/busses/i2c-nforce2.c
-> +++ b/drivers/i2c/busses/i2c-nforce2.c
-> @@ -313,10 +313,9 @@ static int __devinit nforce2_probe(struc
->         int res1, res2;
->
->         /* we support 2 SMBus adapters */
-> -       if (!(smbuses = (void *)kmalloc(2*sizeof(struct nforce2_smbus),
-> +       if (!(smbuses = (void *)kzalloc(2*sizeof(struct nforce2_smbus),
->                                         GFP_KERNEL)))
-cast from (void*) to (void*)? No...
+Hi Andrew, J.A.,
+
+> Is 2.6.14-rc2 OK?
+> 
+> Please send the .config.
+
+No follow-up? I wasn't able to reproduce the problem (tried on two
+different systems, with several kernels each time). I consider it
+solved until someone can reproduce it and explain exactly how to
+trigger it.
+
+-- 
+Jean Delvare

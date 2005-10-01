@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750866AbVJAVjW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750867AbVJAVkF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750866AbVJAVjW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Oct 2005 17:39:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750867AbVJAVjW
+	id S1750867AbVJAVkF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Oct 2005 17:40:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750869AbVJAVkE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Oct 2005 17:39:22 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:11916 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750865AbVJAVjW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Oct 2005 17:39:22 -0400
-Subject: Re: A possible idea for Linux: Save running programs to disk
-From: Arjan van de Ven <arjan@infradead.org>
-To: lokum spand <lokumsspand@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <BAY105-F35A25DA28443029610815DA48E0@phx.gbl>
-References: <BAY105-F35A25DA28443029610815DA48E0@phx.gbl>
-Content-Type: text/plain
-Date: Sat, 01 Oct 2005 23:39:14 +0200
-Message-Id: <1128202754.8153.0.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sat, 1 Oct 2005 17:40:04 -0400
+Received: from goliat.kalisz.mm.pl ([217.96.42.226]:64645 "EHLO kalisz.mm.pl")
+	by vger.kernel.org with ESMTP id S1750867AbVJAVkB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Oct 2005 17:40:01 -0400
+Message-ID: <433F0228.6000304@gorzow.mm.pl>
+Date: Sat, 01 Oct 2005 23:39:52 +0200
+From: Radoslaw Szkodzinski <astralstorm@gorzow.mm.pl>
+User-Agent: Thunderbird 1.4 (X11/20050930)
+MIME-Version: 1.0
+To: Patrick McHardy <kaber@trash.net>
+CC: linux-kernel@vger.kernel.org,
+       Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>
+Subject: Re: 2.6.13-rc2+ - problem with DHCP
+References: <433EBBEC.4050203@gorzow.mm.pl> <433ECE42.2070400@trash.net>
+In-Reply-To: <433ECE42.2070400@trash.net>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-10-01 at 13:30 -0800, lokum spand wrote:
-> I allow myself to suggest the following, although not sure if I post in
-> the right group:
-> 
-> Suppose Linux could save the total state of a program to disk, for
-> instance, imagine a program like mozilla with many open windows. I give
-> it a SIGNAL-SAVETODISK and the process memory image is dropped to a
-> file. I can then turn off the computer and later continue using the
-> program where I left it, by loading it back into memory.
-> 
-> Would that be possible? At least a program can be given a ctrl-z and is
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-there is a LOT of state though.. the moment you add networking in the
-picture the amount of state just isn't funny anymore. Your X example is
-a good one as well...
+Patrick McHardy wrote:
+|
+| Are you sure? The patch was supposed to fix problems with DHCP clients
+| using regular UDP sockets for sending DHCP requests. Which client are
+| you using?
+|
 
+udhcpcd, version 0.9.9-pre (Gentoo ebuild
+net-misc/udhcp-0.9.9_pre20041216-r1, no crazy optimisations, stock init
+script, IP release disabled)
+
+2.6.13, 2.6.14-rc1 (up to the patch) both work fine.
+2.6.14-rc2 and 2.6.14-rc3 do not. (they can't discover IP address)
+The window is between that commit and rc2.
+(about 180 changesets)
+
+I only suspect that patch, it could be something else but I highly doubt
+it. I'll check the current kernel with the patch backed out when I have
+to restart.
+
+- --
+GPG Key id:  0xD1F10BA2
+Fingerprint: 96E2 304A B9C4 949A 10A0  9105 9543 0453 D1F1 0BA2
+
+AstralStorm
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDPwIolUMEU9HxC6IRAit8AJ0TXQv+BO3rn0L39JsCad7UqyUMRACeIf+U
+cvzDCU1x9oTP2V4AjELJUvY=
+=hp5I
+-----END PGP SIGNATURE-----

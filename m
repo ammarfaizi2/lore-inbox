@@ -1,92 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750838AbVJAUJW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750843AbVJAUpr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750838AbVJAUJW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Oct 2005 16:09:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbVJAUJW
+	id S1750843AbVJAUpr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Oct 2005 16:45:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750842AbVJAUpr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Oct 2005 16:09:22 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:52742 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1750838AbVJAUJW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Oct 2005 16:09:22 -0400
-Date: Sat, 1 Oct 2005 22:02:57 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH-2.4] Fix jiffies overflow in delay.h
-Message-ID: <20051001200257.GA28113@alpha.home.local>
-References: <20050925222527.GB998@alpha.home.local>
+	Sat, 1 Oct 2005 16:45:47 -0400
+Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:5383 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S1750840AbVJAUpr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Oct 2005 16:45:47 -0400
+Date: Sat, 1 Oct 2005 22:46:04 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Deepak Saxena <dsaxena@plexity.net>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [HWMON] kmalloc + memset -> kzalloc conversion
+Message-Id: <20051001224604.484ef912.khali@linux-fr.org>
+In-Reply-To: <20051001072630.GJ25424@plexity.net>
+References: <20051001072630.GJ25424@plexity.net>
+X-Mailer: Sylpheed version 2.0.1 (GTK+ 2.6.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050925222527.GB998@alpha.home.local>
-User-Agent: Mutt/1.5.10i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Deepak,
 
-Hi Marcelo,
+> Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
+> 
+> diff --git a/drivers/hwmon/adm1021.c b/drivers/hwmon/adm1021.c
+> --- a/drivers/hwmon/adm1021.c
+> +++ b/drivers/hwmon/adm1021.c
+> @@ -204,11 +204,10 @@ static int adm1021_detect(struct i2c_ada
+>  	   client structure, even though we cannot fill it completely yet.
+>  	   But it allows us to access adm1021_{read,write}_value. */
+>  
+> -	if (!(data = kmalloc(sizeof(struct adm1021_data), GFP_KERNEL))) {
+> +	if (!(data = kzalloc(sizeof(struct adm1021_data), GFP_KERNEL))) {
+>  		err = -ENOMEM;
+>  		goto error0;
+>  	}
+> -	memset(data, 0, sizeof(struct adm1021_data));
+> (...)
 
-please forget my previous patch, it would produce tons of warnings on
-64-bit architectures. Moreover, I discovered that it was incomplete
-and that it was necessary to explicitly cast to unsigned long in the
-multiplies.
+OK, I'll pick that patch. Three comments however:
 
-This one is fine and the equivalent to the one I sent Andrew for 2.6.
-Please use it instead.
+1* Please exclude adm9240, it is already updated in my tree.
+
+2* Please add some comment before your Signed-off-line, explaining what
+the patch is all about. It doesn't need to be long, but it needs to
+exist.
+
+3* Please include diffstat output in the patch header.
+
+Care to respin your patch?
+
+As a side note, I don't think it was worth sending this to Linus,
+Andrew and two mailing lists. There's nothing ground breaking here.
+Send this kind of patches to me as the subsystem maintainer, CC LKML
+for comments if you want, and that should be sufficient.
 
 Thanks,
-Willy
-
-
-
-Signed-off-by: Willy Tarreau <willy@w.ods.org>
-
-diff -urN linux-2.4.31/include/linux/delay.h linux-2.4.31-jiffies/include/linux/delay.h
---- linux-2.4.31/include/linux/delay.h	Sun Sep 25 19:55:55 2005
-+++ linux-2.4.31-jiffies/include/linux/delay.h	Sat Oct  1 21:25:33 2005
-@@ -14,6 +14,24 @@
- #include <asm/delay.h>
- 
- /*
-+ * We define MAX_MSEC_OFFSET as the maximal value that can be accepted by
-+ * msecs_to_jiffies() without risking a multiply overflow. This function
-+ * returns MAX_JIFFY_OFFSET for arguments above those values.
-+ */
-+
-+#if HZ <= 1000 && !(1000 % HZ)
-+#  define MAX_MSEC_OFFSET \
-+	(ULONG_MAX - (1000 / HZ) + 1)
-+#elif HZ > 1000 && !(HZ % 1000)
-+#  define MAX_MSEC_OFFSET \
-+	(ULONG_MAX / (HZ / 1000))
-+#else
-+#  define MAX_MSEC_OFFSET \
-+	((ULONG_MAX - 999) / HZ)
-+#endif
-+
-+
-+/*
-  * Convert jiffies to milliseconds and back.
-  *
-  * Avoid unnecessary multiplications/divisions in the
-@@ -43,14 +61,14 @@
- 
- static inline unsigned long msecs_to_jiffies(const unsigned int m)
- {
--	if (m > jiffies_to_msecs(MAX_JIFFY_OFFSET))
-+	if (MAX_MSEC_OFFSET < UINT_MAX && m > (unsigned int)MAX_MSEC_OFFSET)
- 		return MAX_JIFFY_OFFSET;
- #if HZ <= 1000 && !(1000 % HZ)
--	return (m + (1000 / HZ) - 1) / (1000 / HZ);
-+	return ((unsigned long)m + (1000 / HZ) - 1) / (1000 / HZ);
- #elif HZ > 1000 && !(HZ % 1000)
--	return m * (HZ / 1000);
-+	return (unsigned long)m * (HZ / 1000);
- #else
--	return (m * HZ + 999) / 1000;
-+	return ((unsigned long)m * HZ + 999) / 1000;
- #endif
- }
- 
-
+-- 
+Jean Delvare

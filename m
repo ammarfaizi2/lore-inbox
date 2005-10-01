@@ -1,80 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750842AbVJAUq5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750833AbVJAUpd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750842AbVJAUq5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Oct 2005 16:46:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbVJAUq5
+	id S1750833AbVJAUpd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Oct 2005 16:45:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbVJAUpc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Oct 2005 16:46:57 -0400
-Received: from pop.gmx.de ([213.165.64.20]:10184 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750842AbVJAUq5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Oct 2005 16:46:57 -0400
-X-Authenticated: #2813124
-From: Daniel Ritz <daniel.ritz@gmx.ch>
-To: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] usb/core/hcd-pci.c: don't free_irq() on suspend
-Date: Sat, 1 Oct 2005 22:46:56 +0200
-User-Agent: KMail/1.7.2
-Cc: David Brownell <david-b@pacbell.net>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, rjw@sisk.pl, akpm@osdl.org,
-       Linus Torvalds <torvalds@osdl.org>
-References: <200509302101.j8UL1Htj026067@hera.kernel.org> <20050930233833.GA19471@kroah.com>
-In-Reply-To: <20050930233833.GA19471@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 1 Oct 2005 16:45:32 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:53766 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1750833AbVJAUpc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Oct 2005 16:45:32 -0400
+Date: Sat, 1 Oct 2005 22:39:03 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Davide Libenzi <davidel@xmailserver.org>, Andrew Morton <akpm@osdl.org>
+Cc: Nishanth Aravamudan <nacc@us.ibm.com>,
+       Nish Aravamudan <nish.aravamudan@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 3/3] 2.6.14-rc2-mm1 : fixes for overflow in sys_poll()
+Message-ID: <20051001203903.GB28113@alpha.home.local>
+References: <Pine.LNX.4.63.0509231108140.10222@localhost.localdomain> <20050924040534.GB18716@alpha.home.local> <29495f1d05092321447417503@mail.gmail.com> <20050924061500.GA24628@alpha.home.local> <20050924171928.GF3950@us.ibm.com> <Pine.LNX.4.63.0509241120380.31327@localhost.localdomain> <20050924193839.GB26197@alpha.home.local> <20050924195205.GE26197@alpha.home.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200510012246.57783.daniel.ritz@gmx.ch>
-X-Y-GMX-Trusted: 0
+In-Reply-To: <20050924195205.GE26197@alpha.home.local>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ restored some of the cc: list of the original thread ]
+Hi,
 
-On Saturday 01 October 2005 01.38, Greg KH wrote:
-> <top-post on purpose...>
+On Sat, Sep 24, 2005 at 09:52:05PM +0200, Willy Tarreau wrote:
+> This patch simplifies the overflow fix which was applied to sys_poll() in
+> 2.6.14-rc2-mm1 by relying on the overflow detection code added to jiffies.h
+> by patch 1/3. This also removes a useless divide for HZ <= 1000.
 > 
-> Daniel, are you sure about this patch (the second part specifically)?
+> It might be worth applying too. It's only for -mm1, and does *not* apply
+> to 2.6.14-rc2 because this code has already received patches in -mm1.
 
-well, the first hunk doesn't make sense without the second and vice versa,
-isn't it? to answer your question: yes.
+I noticed that the overflow check in the original code is either useless or
+buggy, so this patch is even more worth applying. Look below at original
+code : if HZ <= 1000, the overflow is set only when
+msecs_to_jiffies() >= MAX_SCHEDULE_TIMEOUT.
 
-> It directly conflicts with a set of patches in my current tree in this
-> area that fix all of the reported suspend/resume issues with usb host
-> controllers (that patch series written by David Brownell.)
+But the maximal value that msecs_to_jiffies() can return is MAX_JIFFY_OFFSET.
+Guess what ?
+
+  include/linux/jiffies.h:#define MAX_JIFFY_OFFSET ((~0UL >> 1)-1)
+  include/linux/sched.h:#define    MAX_SCHEDULE_TIMEOUT    LONG_MAX
+  include/linux/kernel.h:#define LONG_MAX  ((long)(~0UL>>1))
+
+=> MAX_JIFFY_OFFSET == (MAX_SCHEDULE_TIMEOUT - 1)
+
+=> So msecs_to_jiffies() cannot be >= MAX_SCHEDULE_TIMEOUT, and 'overflow'
+   can never be set for HZ <= 1000.
+
+Given how msecs_to_jiffies() is used everywhere, I wonder if we should not
+provide a separate overflow detection function which would be used where
+needed, and possibly remove the test from msecs_to_jiffies() which is mostly
+called with constants or small delays which will never overflow.
+
+Has anyone an opinion on this ?
+
+Regards,
+Willy
+
+> diff -purN linux-2.6.14-rc2-mm1/fs/select.c linux-2.6.14-rc2-mm1-poll/fs/select.c
+> --- linux-2.6.14-rc2-mm1/fs/select.c	Sat Sep 24 21:12:36 2005
+> +++ linux-2.6.14-rc2-mm1-poll/fs/select.c	Sat Sep 24 21:23:21 2005
+> @@ -469,7 +469,6 @@ asmlinkage long sys_poll(struct pollfd _
+>  {
+>  	struct poll_wqueues table;
+>  	int fdcount, err;
+> -	int overflow;
+>   	unsigned int i;
+>  	struct poll_list *head;
+>   	struct poll_list *walk;
+> @@ -486,22 +485,11 @@ asmlinkage long sys_poll(struct pollfd _
+>  		return -EINVAL;
+>  
+>  	/*
+> -	 * We compare HZ with 1000 to work out which side of the
+> -	 * expression needs conversion.  Because we want to avoid
+> -	 * converting any value to a numerically higher value, which
+> -	 * could overflow.
+> -	 */
+> -#if HZ > 1000
+> -	overflow = timeout_msecs >= jiffies_to_msecs(MAX_SCHEDULE_TIMEOUT);
+> -#else
+> -	overflow = msecs_to_jiffies(timeout_msecs) >= MAX_SCHEDULE_TIMEOUT;
+> -#endif
+> -
+> -	/*
+>  	 * If we would overflow in the conversion or a negative timeout
+> -	 * is requested, sleep indefinitely.
+> +	 * is requested, sleep indefinitely. Note: msecs_to_jiffies checks
+> +	 * for the overflow.
+>  	 */
+> -	if (overflow || timeout_msecs < 0)
+> +	if (timeout_msecs < 0)
+>  		timeout_jiffies = MAX_SCHEDULE_TIMEOUT;
+>  	else
+>  		timeout_jiffies = msecs_to_jiffies(timeout_msecs) + 1;
 > 
-> Yeah, I see that we shouldn't have been dropping the irq on suspend and
-> getting a new one on resume, that's not good and could have caused
-> problems for people.
 > 
-> But could you at least drop the linux-usb-devel mailing list a note that
-> you are having issues, and post the proposed patch?  Directly sending it
-
-i don't have problems, it was rafael...i just happend to look at it because
-yenta_socket was involved...see the following link for more background:
-	http://marc.theaimsgroup.com/?t=112275164900002&r=1&w=4
-
-> to Linus is a bit rude, it's not like the USB developers aren't
-
-sorry for that, but i actually asked for a round in -mm. it just happend
-that linus was on to: and the rest on cc: by pressing reply-to-all in kmail
-
-the original thread
-	http://marc.theaimsgroup.com/?t=112618280600003&r=1&w=4
-
-> responsive to emails (yeah, I've been a bit slow at times these past few
-> weeks, but my traveling all over the place for the past month is now
-> over, and I'm not going anywhere for a long time...)
-> 
-> David, this conflicts with your usb/usb-pm-06.patch in my quilt tree.
-> I'll try to resolve the merge with my best guess, but you should check
-> that I got it right...
-> 
-> thanks,
-> 
-> greg k-h
-> 
-
-rgds
--daniel

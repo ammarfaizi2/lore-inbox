@@ -1,40 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750778AbVJAIFE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750781AbVJAJUA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750778AbVJAIFE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Oct 2005 04:05:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750779AbVJAIFE
+	id S1750781AbVJAJUA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Oct 2005 05:20:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbVJAJUA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Oct 2005 04:05:04 -0400
-Received: from [195.209.228.254] ([195.209.228.254]:49289 "EHLO
-	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP
-	id S1750778AbVJAIFD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Oct 2005 04:05:03 -0400
-Message-ID: <433E432B.7010406@yandex.ru>
-Date: Sat, 01 Oct 2005 12:04:59 +0400
-From: "Artem B. Bityutskiy" <dedekind@yandex.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-2
-X-Accept-Language: en, ru, en-us
+	Sat, 1 Oct 2005 05:20:00 -0400
+Received: from vaxjo.synopsys.com ([198.182.60.75]:12207 "EHLO
+	vaxjo.synopsys.com") by vger.kernel.org with ESMTP id S1750781AbVJAJT7 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Oct 2005 05:19:59 -0400
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: dsaxena@plexity.net
-Cc: "Artem B. Bityutskiy" <dedekind@infradead.org>,
-       Linus Torvalds <torvalds@osdl.org>, linux-mtd@lists.infradead.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [MTD] kmalloc + memzero -> kzalloc conversion
-References: <20051001050003.GD11137@plexity.net> <1128152797.3546.15.camel@sauron.oktetlabs.ru> <20051001080027.GM25424@plexity.net>
-In-Reply-To: <20051001080027.GM25424@plexity.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
+Subject: RE: RH30: Virtual Mem shot heavily by locale-archive...
+Date: Sat, 1 Oct 2005 14:49:48 +0530
+Message-ID: <7EC22963812B4F40AE780CF2F140AFE916831E@IN01WEMBX1.internal.synopsys.com>
+Thread-Topic: RH30: Virtual Mem shot heavily by locale-archive...
+Thread-Index: AcXFwQqV68WIIDVURNqSXzKxYqL0qwAp6qJQ
+From: "Arijit Das" <Arijit.Das@synopsys.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Arijit Das" <Arijit.Das@synopsys.com>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 01 Oct 2005 09:19:55.0566 (UTC) FILETIME=[496CCCE0:01C5C669]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Deepak Saxena wrote:
-> I see it more as an API usage cleanup then a "fix" of any sort. 
-> 
-Well, actually it may be helpful in only future, for example, if it is 
-known that the allocated memory is zero-filled already, memzero() may be 
-avoided at all.
+Shared mappings are represented in /proc/<pid>/maps file as having 's'
+as its last permission field like r-xs (shared readable and executable
+region)
 
--- 
-Best Regards,
-Artem B. Bityuckiy,
-St.-Petersburg, Russia.
+But in this case, the perm bits are r--p which says that it is private
+rather than shared. Any idea whatz happening here...?
+
+-Arijit
+
+-----Original Message-----
+From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk] 
+Sent: Friday, September 30, 2005 7:13 PM
+To: Arijit Das
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RH30: Virtual Mem shot heavily by locale-archive...
+
+> This seems like a huge requirement of memory for each small process
+executed in the RH3.0 system and hence, shots up the memory requirement
+of the entire system because the mapped region
+/usr/lib/locale/locale-archive is privately mapped.
+
+There is no RH 3.0 for AMD64 - if you mean RHEL 3 then the mappings are
+shared between processes.
+

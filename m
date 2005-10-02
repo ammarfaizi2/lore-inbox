@@ -1,55 +1,56 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750805AbVJAMer (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sat, 1 Oct 2005 08:34:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbVJAMer
+	id S1751117AbVJBQBo (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sun, 2 Oct 2005 12:01:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751120AbVJBQBn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Oct 2005 08:34:47 -0400
-Received: from [66.235.184.42] ([66.235.184.42]:59865 "EHLO
-	sls-db6p18.econonethosting.com") by vger.kernel.org with ESMTP
-	id S1750805AbVJAMer (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Oct 2005 08:34:47 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Amazon.com Inquiry
-From: Amazon <service@amazon.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E1ELgZZ-0007S5-4A@sls-db6p18.econonethosting.com>
-Date: Sat, 01 Oct 2005 07:34:37 -0500
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - sls-db6p18.econonethosting.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [99 99] / [47 12]
-X-AntiAbuse: Sender Address Domain - sls-db6p18.econonethosting.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Sun, 2 Oct 2005 12:01:43 -0400
+Received: from vsmtp12.tin.it ([212.216.176.206]:41425 "EHLO vsmtp12.tin.it")
+	by vger.kernel.org with ESMTP id S1751117AbVJBQBm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Oct 2005 12:01:42 -0400
+Message-ID: <16667320.1128268830715.JavaMail.root@pswm15.cp.tin.it>
+Date: Sun, 2 Oct 2005 17:00:30 +0100 (GMT+01:00)
+From: "alfonsopinochet@virgilio.it" <alfonsopinochet@virgilio.it>
+Reply-To: "alfonsopinochet@virgilio.it" <alfonsopinochet@virgilio.it>
+To: alfonsopinochet@aley.net
+Subject: PROPERTIES.
+Mime-Version: 1.0
+Content-Type: text/plain;charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: 196.2.124.250
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750805AbVJAMer@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751117AbVJBQBo@vger.kernel.org>
 
-Dear Amazon member, 
+Good Day,
 
-Due to concerns we have for the safety and integrity of the Amazon community we have issued this warning. 
+I wish to introduce myself to you. I am Col. Alfonso
+Pinochet (rtd).I am the brother to the exiled President of
+hile.Due to 
+the revolution against the goverment of my brother caused by our
+political opponents in Chile, we had to flee the Country for the
+Safety 
+of our lives.My wife, children and I managed to enter a red cross
+airplane that was evacuating foreigners and we are presently in Port
+Elizaberth, South Africa .We wish to invest in commercial,equine,
+residencial properties, hotels and equally start a new life in your 
+country with
+your assistance and cooperation.If you are in a good 
+position to help
+my family, please send an e-mail to the e-mail address 
+below
+indicating your desire to help my family invest
+this funds in 
+your country and beyond.
 
-Per the User Agreement, Section 9, we may immediately issue a warning, temporarily suspend, indefinitely suspend or terminate your membership and refuse to provide our services to you if we believe that your actions may cause financial loss or legal liability for you, our users or us. We may also take these actions if we are unable to verify or authenticate any information you provide to us. 
+I urgently await your e-mail letter.
 
-Please follow the link below: 
+best 
+regards and hope to meet you soon.
 
-http://www.amazon.com.encrypted-inquiry.cn?/exec/obidos
+God bless,
 
-and update your account information. 
+Col.Alfonso Pinochet 
+(Rtd)
 
-We apreciate your support and understanding, as we work together to keep Amazon market a safe place to trade. 
-
-Thank you for your attention on this serious matter.
-
-Regards,
-Amazon Safety Department
-
-
-NOTE: This message was sent to you by an automated e-mail system. Please don't reply to it. Amazon treats your personal information with the utmost care, and our Privacy Policy is designed to protect you and your information.
-
-
-
-
+E-mail:alfonsopinochet@aley.net

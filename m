@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751014AbVJBNvU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751031AbVJBNxk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751014AbVJBNvU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Oct 2005 09:51:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751029AbVJBNvU
+	id S1751031AbVJBNxk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Oct 2005 09:53:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751037AbVJBNxk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Oct 2005 09:51:20 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:60104 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751014AbVJBNvT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Oct 2005 09:51:19 -0400
-Subject: Re: 2.6.14-rc2-mm1 - ext3 wedging up
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Valdis.Kletnieks@vt.edu, Con Kolivas <kernel@kolivas.org>,
+	Sun, 2 Oct 2005 09:53:40 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:54790 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1751029AbVJBNxj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Oct 2005 09:53:39 -0400
+Date: Sun, 2 Oct 2005 15:47:02 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: James Courtier-Dutton <James@superbug.co.uk>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Ahmad Reza Cheraghi <a_r_cheraghi@yahoo.com>,
        linux-kernel@vger.kernel.org
-In-Reply-To: <20051002102726.GB26677@opteron.random>
-References: <200509221959.j8MJxJsY010193@turing-police.cc.vt.edu>
-	 <200509231036.16921.kernel@kolivas.org>
-	 <200509230720.j8N7KYGX023826@turing-police.cc.vt.edu>
-	 <20050923153158.GA4548@x30.random>
-	 <1127509047.8880.4.camel@kleikamp.austin.ibm.com>
-	 <1127509155.8875.6.camel@kleikamp.austin.ibm.com>
-	 <1127511979.8875.11.camel@kleikamp.austin.ibm.com>
-	 <20050928223829.GH10408@opteron.random>
-	 <1128126424.10237.7.camel@kleikamp.austin.ibm.com>
-	 <20051002102726.GB26677@opteron.random>
-Content-Type: text/plain
-Date: Sun, 02 Oct 2005 08:51:12 -0500
-Message-Id: <1128261072.9382.4.camel@kleikamp.austin.ibm.com>
+Subject: Re: Why no XML in the Kernel?
+Message-ID: <20051002134702.GA22601@alpha.home.local>
+References: <20051002094142.65022.qmail@web51012.mail.yahoo.com> <433FAD57.7090106@yahoo.com.au> <433FBE59.8000806@superbug.co.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <433FBE59.8000806@superbug.co.uk>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-10-02 at 12:27 +0200, Andrea Arcangeli wrote:
-> On Fri, Sep 30, 2005 at 07:27:04PM -0500, Dave Kleikamp wrote:
-> > I tracked down my problem to a bug in jfs.  jfs is explicitly setting
+On Sun, Oct 02, 2005 at 12:02:49PM +0100, James Courtier-Dutton wrote:
+> Nick Piggin wrote:
 > 
-> Ok great this explain things, so perhaps my last hack attempt of not
-> accounting the unstable pages in the "nr_reclaimable" isn't needed.
+> >Ahmad Reza Cheraghi wrote:
+> >
+> >>Can somebody tell me why the Kernel-Development dont
+> >>wanne have XML is being used in the Kernel??
+> >>
+> >
+> >Because nobody has come up with a good reason why it
+> >should be. Same as anything that isn't in the kernel.
+> >
+> >Nick
+> >
+> I have a requirement to pass information from the kernel to user space. 
+> The information is passed fairly rarely, but over time extra parameters 
+> are added. At the moment we just use a struct, but that means that the 
+> kernel and the userspace app have to both keep in step. If something 
+> like XML was used, we could implement new parameters in the kernel, and 
+> the user space could just ignore them, until the user space is upgraded.
+> XML would initially seem a good idea for this, but are there any methods 
+> currently used in the kernel that could handle these parameter changes 
+> over time.
 
-Maybe it is.  I just retested the fixed jfs on 2.6.14-rc2-mm1, and I
-still see the hang.  I can probably debug it further on Monday if
-necessary.
+Yes, look at /proc/meminfo for instance. Everytime you need to return
+multiple values from a single file, you can easily do it with one key
+per line using the following syntax :
 
-> What about Valids, were you using jfs too along with ext3? If a single
-> fs has a bug the loop can happen (it could happen in mainline too,
-> except it was less likely to be visible there).
-> 
-> Note Valids, your smtp server bounces back my emails.
-> 
--- 
-David Kleikamp
-IBM Linux Technology Center
+   key: value [value ...]
+
+It's also how SMTP and HTTP works and servers often send data that most
+clients simply ignore.
+
+Regards,
+Willy
 

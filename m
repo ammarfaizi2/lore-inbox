@@ -1,49 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbVJBUwZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbVJBUz3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932068AbVJBUwZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Oct 2005 16:52:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932069AbVJBUwZ
+	id S932072AbVJBUz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Oct 2005 16:55:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932069AbVJBUz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Oct 2005 16:52:25 -0400
-Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:55057 "EHLO
-	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
-	id S932068AbVJBUwY convert rfc822-to-8bit (ORCPT
+	Sun, 2 Oct 2005 16:55:29 -0400
+Received: from mail.kroah.org ([69.55.234.183]:60893 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932072AbVJBUz2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Oct 2005 16:52:24 -0400
-From: Felix Oxley <lkml@oxley.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc3-rt1
-Date: Sun, 2 Oct 2005 21:51:49 +0100
-User-Agent: KMail/1.8.2
-References: <20050913100040.GA13103@elte.hu> <20050926070210.GA5157@elte.hu> <20051002151817.GA7228@elte.hu>
-In-Reply-To: <20051002151817.GA7228@elte.hu>
-Cc: Ingo Molnar <mingo@elte.hu>, ralf@linux-mips.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+	Sun, 2 Oct 2005 16:55:28 -0400
+Date: Sun, 2 Oct 2005 13:52:57 -0700
+From: Greg KH <greg@kroah.com>
+To: Frieder B??rzele <linux-stuff@arcor.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: oops in ohci_hcd with kernel 2.6.12 - 2.6.14-rc3-git2
+Message-ID: <20051002205257.GB28154@kroah.com>
+References: <433FFEA2.3050103@arcor.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200510022151.51133.lkml@oxley.org>
+In-Reply-To: <433FFEA2.3050103@arcor.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Oct 02, 2005 at 05:37:06PM +0200, Frieder B??rzele wrote:
+> Hi,
+> 
+> since kernel version ~2.6.12 I occasionally get oopes with the ohci_hcd
+> modul during boot.
+> I need to reboot 5 times or more until the machine works.
+> 
+> mainboard is a Asus A7N266-C with nforce chipset
 
-I have a compile error in drivers/net/hamradio/mkiss.c
+Care to file this in a bug at bugzilla.kernel.org?
 
-	CC [M]  drivers/net/hamradio/mkiss.o
-	drivers/net/hamradio/mkiss.c:625: error: 
-	RW_LOCK_UNLOCKED’ undeclared here (not in a function)
+thanks,
 
-Due to the fact that
-
-	RW_LOCK_UNLOCKED 
-
-has not been converted to the form
-
-	RW_LOCK_UNLOCKED(name.lock)
-
-by the RT patch.
-
-But I don't actually need this module anyway. :-)
-regards,
-Felix
+greg k-h

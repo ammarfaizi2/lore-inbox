@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751152AbVJBTE3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbVJBTPJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751152AbVJBTE3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Oct 2005 15:04:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbVJBTE3
+	id S1751153AbVJBTPJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Oct 2005 15:15:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbVJBTPJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Oct 2005 15:04:29 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:44731 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751152AbVJBTE3 (ORCPT
+	Sun, 2 Oct 2005 15:15:09 -0400
+Received: from ra.sai.msu.su ([158.250.29.2]:10155 "EHLO ra.sai.msu.su")
+	by vger.kernel.org with ESMTP id S1751153AbVJBTPI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Oct 2005 15:04:29 -0400
-Date: Sun, 2 Oct 2005 12:04:18 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Paul Jackson <pj@sgi.com>
-cc: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
-       Coywolf Qi Hunt <coywolf@gmail.com>, Greg KH <greg@kroah.com>
-Subject: Re: [PATCHv2] Document from line in patch format
-In-Reply-To: <20051002163244.17502.15351.sendpatchset@jackhammer.engr.sgi.com>
-Message-ID: <Pine.LNX.4.64.0510021158260.31407@g5.osdl.org>
-References: <20051002163244.17502.15351.sendpatchset@jackhammer.engr.sgi.com>
+	Sun, 2 Oct 2005 15:15:08 -0400
+Date: Sun, 2 Oct 2005 23:14:59 +0400 (MSD)
+From: Evgeny Rodichev <er@sai.msu.su>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.14-rc2] libata: Marvell SATA support (DMA mode)
+Message-ID: <Pine.GSO.4.63.0510022307280.5120@ra.sai.msu.su>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+this patch doesn't work for me. Controller is
 
-On Sun, 2 Oct 2005, Paul Jackson wrote:
->
-> Document more details of patch format such as the "from" line
-> used to specify the patch author, and provide more references
-> for patch guidelines.
+03:04.0 RAID bus controller: Marvell MV88SX6041 4-port SATA II PCI-X Controller (rev 03)
+         Subsystem: Super Micro Computer Inc: Unknown device 6880
+         Flags: bus master, fast Back2Back, 66Mhz, medium devsel, latency 64, IRQ 20
+         Memory at dd300000 (64-bit, non-prefetchable) [size=1M]
+         I/O ports at 3000 [size=256]
+         Capabilities: [40] Power Management version 2
+         Capabilities: [50] Message Signalled Interrupts: 64bit+ Queue=0/0 Enable-
+         Capabilities: [60] PCI-X non-bridge device.
 
-One more issue: I'd really prefer that the "---" not be documented as 
-"optional".
+After modprobe sata_mv I got in dmesg:
 
-Yes, my tools will also notice "diff -" and "Index: " at the start of the 
-line as being markers for where the real patch starts, but that's a hack 
-because people haven't been following the "---" rule. I'd much rather make 
-it clear that the "---" is supposed to be there, to mark where the end of 
-the comments are.
+sata_mv version 0.22
+ACPI: PCI Interrupt 0000:03:04.0[A] -> GSI 56 (level, low) -> IRQ 20
+sata_mv(0000:03:04.0) 32 slots 4 ports unknown mode IRQ via INTx
+ata3: SATA max UDMA/133 cmd 0x0 ctl 0xF8A22120 bmdma 0x0 irq 20
+ata4: SATA max UDMA/133 cmd 0x0 ctl 0xF8A24120 bmdma 0x0 irq 20
+ata5: SATA max UDMA/133 cmd 0x0 ctl 0xF8A26120 bmdma 0x0 irq 20
+ata6: SATA max UDMA/133 cmd 0x0 ctl 0xF8A28120 bmdma 0x0 irq 20
+ATA: abnormal status 0x80 on port 0xF8A2211C
+ATA: abnormal status 0x80 on port 0xF8A2211C
 
-Note that after the "---" you can have any amount of explanations that are 
-not to be committed as comments on why. Not just a "diffstat", but in 
-general it's an area for explaining why I should commit it or random notes 
-on the patch. Things that don't necessarily make sense once the patch _is_ 
-committed.
+modprobe did not finished, and it is impossible to kill the modprobe
+process.
 
-For example, a submitter might want to note that he's working on a better 
-patch, but that this patch is the minimal one before a release. Things he 
-wants to tell the maintainer, but that don't necessarily make sense to 
-anybody else.
-
-So the _diffstat_ is optional (although much preferred, especially for 
-bigger patches), but the marker of "this is the end of the comments for 
-the changelog" is not.
-
-		Linus
+Regards,
+E.R.
+_________________________________________________________________________
+Evgeny Rodichev                          Sternberg Astronomical Institute
+email: er@sai.msu.su                              Moscow State University
+Phone: 007 (095) 939 2383
+Fax:   007 (095) 932 8841                       http://www.sai.msu.su/~er

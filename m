@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751043AbVJBJyE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751051AbVJBKC4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751043AbVJBJyE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Oct 2005 05:54:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751047AbVJBJyE
+	id S1751051AbVJBKC4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Oct 2005 06:02:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751052AbVJBKC4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Oct 2005 05:54:04 -0400
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:28393 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S1751043AbVJBJyD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Oct 2005 05:54:03 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Subject: Re: [discuss] Re: [PATCH][Fix][Resend] Fix Bug #4959: Page tables corrupted during resume on x86-64 (take 3)
-Date: Sun, 2 Oct 2005 11:54:59 +0200
-User-Agent: KMail/1.8.2
-Cc: discuss@x86-64.org, ak@suse.de, Pavel Machek <pavel@ucw.cz>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-References: <200509281624.29256.rjw@sisk.pl> <200510011203.20828.rjw@sisk.pl> <20051001180804.A12268@unix-os.sc.intel.com>
-In-Reply-To: <20051001180804.A12268@unix-os.sc.intel.com>
+	Sun, 2 Oct 2005 06:02:56 -0400
+Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:57356 "EHLO
+	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
+	id S1751050AbVJBKC4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Oct 2005 06:02:56 -0400
+Message-ID: <433FBE59.8000806@superbug.co.uk>
+Date: Sun, 02 Oct 2005 12:02:49 +0100
+From: James Courtier-Dutton <James@superbug.co.uk>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050930)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Ahmad Reza Cheraghi <a_r_cheraghi@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Why no XML in the Kernel?
+References: <20051002094142.65022.qmail@web51012.mail.yahoo.com> <433FAD57.7090106@yahoo.com.au>
+In-Reply-To: <433FAD57.7090106@yahoo.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510021154.59804.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday, 2 of October 2005 03:08, Siddha, Suresh B wrote:
-> On Sat, Oct 01, 2005 at 12:03:20PM +0200, Rafael J. Wysocki wrote:
-> > It shows that there's something wrong with get_smp_config(), but it shouldn't
-> > have been called in the first place, as it was a non-SMP kernel.
-> > 
-> > The appended patch fixes the issue for me, but still if I run an SMP kernel on this
-> > box, it crashes in get_smp_config().
-> > 
-> > If you want me to debug this further, please tell me what to do next.
-> 
-> Rafael, can you check if the appended patch fixes your issue.
+Nick Piggin wrote:
 
-Yes, it does.
+> Ahmad Reza Cheraghi wrote:
+>
+>> Can somebody tell me why the Kernel-Development dont
+>> wanne have XML is being used in the Kernel??
+>>
+>
+> Because nobody has come up with a good reason why it
+> should be. Same as anything that isn't in the kernel.
+>
+> Nick
+>
+I have a requirement to pass information from the kernel to user space. 
+The information is passed fairly rarely, but over time extra parameters 
+are added. At the moment we just use a struct, but that means that the 
+kernel and the userspace app have to both keep in step. If something 
+like XML was used, we could implement new parameters in the kernel, and 
+the user space could just ignore them, until the user space is upgraded.
+XML would initially seem a good idea for this, but are there any methods 
+currently used in the kernel that could handle these parameter changes 
+over time.
 
-Thanks,
-Rafael
+For example, should the sysfs be used for this?
+
+Any comments?
+
+James
+

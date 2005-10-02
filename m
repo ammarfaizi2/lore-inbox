@@ -1,101 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750986AbVJBGVp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750989AbVJBGeS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750986AbVJBGVp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Oct 2005 02:21:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750987AbVJBGVp
+	id S1750989AbVJBGeS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Oct 2005 02:34:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750991AbVJBGeS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Oct 2005 02:21:45 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:19645 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750985AbVJBGVp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Oct 2005 02:21:45 -0400
-Date: Sat, 1 Oct 2005 23:21:35 -0700 (PDT)
-From: Paul Jackson <pj@sgi.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org,
-       "Randy.Dunlap" <rdunlap@xenotime.net>
-Message-Id: <20051002062135.32334.32895.sendpatchset@jackhammer.engr.sgi.com>
-Subject: [PATCH] Document from line in patch format
+	Sun, 2 Oct 2005 02:34:18 -0400
+Received: from ms-smtp-03-qfe0.socal.rr.com ([66.75.162.135]:58039 "EHLO
+	ms-smtp-03-eri0.socal.rr.com") by vger.kernel.org with ESMTP
+	id S1750989AbVJBGeS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Oct 2005 02:34:18 -0400
+Date: Sat, 1 Oct 2005 23:32:44 -0700 (PDT)
+From: Kernel Enthusiast <kernel@clones.net>
+To: linux-kernel@vger.kernel.org
+Subject: LVM Compilation error on 2.6.13.2
+Message-ID: <Pine.NEB.4.61.0510012327430.451@resurrection.clones.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Document more details of patch format such as the "from" line
-used to specify the patch author, and provide more references
-for patch guidelines.
+I ran into a problem building LVM on a new 2.6.13.2 kernel I built 
+yesterday.   I built the kernel on an older Mandrake 8 system after 
+updating to the latest gnu binutils.  It's very fast... much faster than 
+my previous 2.4 kernel.  I have no complaints about performance.
+I was able to build the kernel with the stock gcc-2.96. Disk access is 
+much quieter than with previous kernels.
 
-Signed-off-by: Paul Jackson <pj@sgi.com>
+I'm not sure if this problem was due to a kernel customization error, but
+I got the error "BLKBSZGET undefined (first use this function)" in
+LVM2.2.0.14/lib/device/dev-io.c.  I added the following definition to the 
+LVM code in order to enable LVM to compile:
 
-Index: 2.6.14-rc2-mm2/Documentation/SubmittingPatches
-===================================================================
---- 2.6.14-rc2-mm2.orig/Documentation/SubmittingPatches
-+++ 2.6.14-rc2-mm2/Documentation/SubmittingPatches
-@@ -301,8 +301,47 @@ now, but you can do this to mark interna
- point out some special detail about the sign-off. 
- 
- 
-+12) The canonical patch format
- 
--12) More references for submitting patches
-+The canonical patch subject line is:
-+
-+    Subject: [PATCH 001/123] [<area>:] <explanation>
-+
-+The canonical patch message body contains the following:
-+
-+    The first line of the body contains a "from" line specifying
-+    the author of the patch:
-+
-+        From: Original Author <author@email.com>
-+
-+    If the "from" line is missing, then the author of the patch will
-+    be recorded in the source code revision history as whomever is
-+    listed in the last "Signed-off-by:" line in the message when Linus
-+    receives it.
-+
-+    The "from" line is followed by an empty line and then the body
-+    of the explanation.
-+
-+    After the body of the explanation comes the "Signed-off-by:"
-+    lines, and then a simple "---" line, and below that comes the
-+    diffstat of the patch and then the patch itself.  The "---" line
-+    and diffstat are optional, but helpful to readers of non-trivial
-+    patches.
-+
-+The Subject line format makes it very easy to sort the emails
-+alphabetically by subject line - pretty much any email reader will
-+support that - since because the sequence number is zero-padded,
-+the numerical and alphabetic sort is the same.
-+
-+See further details on how to phrase the "<explanation>" in
-+the "Subject:" line in Andrew Morton's "The perfect patch",
-+referenced below.
-+
-+See more details on the proper patch format in the following
-+references.
-+
-+
-+13) More references for submitting patches
- 
- Andrew Morton, "The perfect patch" (tpp).
-   <http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt>
-@@ -310,6 +349,14 @@ Andrew Morton, "The perfect patch" (tpp)
- Jeff Garzik, "Linux kernel patch submission format."
-   <http://linux.yyz.us/patch-format.html>
- 
-+Jeff Garzik, "How to piss off a kernel subsystem maintainer"
-+  <http://www.kroah.com/log/2005/03/31/>
-+
-+Kernel Documentation/CodingStyle
-+  <http://lxr.linux.no/source/Documentation/CodingStyle>
-+
-+Linus Torvald's mail on the canonical patch format:
-+  <http://lkml.org/lkml/2005/4/7/183>
- 
- 
- -----------------------------------
+#define BLKBSZGET _IO(0x12,104)
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+after the #INCLUDE statements in dev-io.c and then LVM 2.2.0.14 compiled 
+without errors.
+
+My question is this:   Was the above problem due to a non-standard kernel 
+config file, i.e. a kernel lacking support for BLKBSZGET? Or is gcc-2.96 
+too old, or a bad version?  This fix feels like a kludge and before I
+configure LVM, I would like to make sure I didn't cause a problem for myself
+by adding the above definition to the LVM source code.
+I don't want to hard-code a definition in the LVM sources if the same
+parameter is supposed to be defined in my environment elsewhere.
+
+>From a theoretical standpoint, I am hoping it will not matter, but if anyone
+on the list is familiar with BLKBSZGET and knows whether it is supposed to be
+a kernel function, I would be delighted to hear your thoughts on the matter.
+I'm not sure what effect hard-coding the definition of Block Size will have,
+but if there is a standard way to define it, I would like to know about 
+it.
+
+Regards,
+
+Glendon Gross
+
+

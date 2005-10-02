@@ -1,39 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750941AbVJBB0Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750938AbVJBBrE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750941AbVJBB0Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Oct 2005 21:26:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750938AbVJBB0Z
+	id S1750938AbVJBBrE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Oct 2005 21:47:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750943AbVJBBrE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Oct 2005 21:26:25 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:23979
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750936AbVJBB0Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Oct 2005 21:26:24 -0400
-Date: Sat, 01 Oct 2005 18:26:20 -0700 (PDT)
-Message-Id: <20051001.182620.32883151.davem@davemloft.net>
-To: bunk@stusta.de
-Cc: wli@holomorphy.com, sparclinux@vger.kernel.org,
+	Sat, 1 Oct 2005 21:47:04 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:12767 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1750938AbVJBBrC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Oct 2005 21:47:02 -0400
+Date: Sat, 1 Oct 2005 18:46:47 -0700 (PDT)
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Al Viro <viro@zeniv.linux.org.uk>,
+       Simon Derr <Simon.Derr@bull.net>, Paul Jackson <pj@sgi.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] sparc: "extern inline" -> "static inline"
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20051001230628.GF4212@stusta.de>
-References: <20050902202444.GS3657@stusta.de>
-	<20050902.132754.118393946.davem@davemloft.net>
-	<20051001230628.GF4212@stusta.de>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <20051002014647.26511.84451.sendpatchset@jackhammer.engr.sgi.com>
+Subject: [PATCH] cpuset one more crapectomy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Adrian Bunk <bunk@stusta.de>
-Date: Sun, 2 Oct 2005 01:06:28 +0200
+Remove one more useless line from cpuset_common_file_read().
 
-> I just tried 2.6.14-rc3 and 2.6.14-rc2-mm2, and it applied against both.
+Signed-off-by: Paul Jackson <pj@sgi.com>
 
-'patch' and friends are much more lenient about white space
-and other types of "fuzz" than the git patch application code
-is.  So that can often be the reason.
+Index: 2.6.14-rc2-mm2/kernel/cpuset.c
+===================================================================
+--- 2.6.14-rc2-mm2.orig/kernel/cpuset.c
++++ 2.6.14-rc2-mm2/kernel/cpuset.c
+@@ -995,7 +995,6 @@ static ssize_t cpuset_common_file_read(s
+ 		goto out;
+ 	}
+ 	*s++ = '\n';
+-	*s = '\0';
+ 
+ 	retval = simple_read_from_buffer(buf, nbytes, ppos, page, s - page);
+ out:
 
-But this version applies properly, thanks a lot Adrian.
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

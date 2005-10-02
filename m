@@ -1,113 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750952AbVJBTZ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751060AbVJBTys@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750952AbVJBTZ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Oct 2005 15:25:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751020AbVJBTZ1
+	id S1751060AbVJBTys (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Oct 2005 15:54:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751061AbVJBTys
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Oct 2005 15:25:27 -0400
-Received: from xproxy.gmail.com ([66.249.82.195]:38467 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750952AbVJBTZ0 convert rfc822-to-8bit
+	Sun, 2 Oct 2005 15:54:48 -0400
+Received: from lakshmi.addtoit.com ([198.99.130.6]:19212 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S1751056AbVJBTyr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Oct 2005 15:25:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ekRw4KMwss7KnVd+niDiVJBKVnqjmcTbVoOq2fLrc2O2tTJE1S0jjQGcgYPBqa+u+auwKhccVWpEqeBcyRJTCSRbZpOv4gaI6gIPyJLucersYKM1i11JCZwLnNjJivdQNpMO3cE97VFM3X8aQg7ChgvsqwygzSdJFDlndwutoPs=
-Message-ID: <5bdc1c8b0510021225y951caf3p3240a05dd2d0247c@mail.gmail.com>
-Date: Sun, 2 Oct 2005 12:25:26 -0700
-From: Mark Knecht <markknecht@gmail.com>
-Reply-To: Mark Knecht <markknecht@gmail.com>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.14-rc3-rt1
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <5bdc1c8b0510020842p6035b4c0ibbe9aaa76789187d@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 2 Oct 2005 15:54:47 -0400
+Date: Sun, 2 Oct 2005 15:13:59 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: Bernard Blackham <bernard@blackham.com.au>
+Cc: 7eggert@gmx.de, Ed Tomlinson <tomlins@cam.org>,
+       lokum spand <lokumsspand@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: A possible idea for Linux: Save running programs to disk
+Message-ID: <20051002191359.GA26847@ccure.user-mode-linux.org>
+References: <4SXfo-7hM-9@gated-at.bofh.it> <4T47e-5E-1@gated-at.bofh.it> <4TbLq-2VG-5@gated-at.bofh.it> <4TcR9-4sS-9@gated-at.bofh.it> <E1EM7KO-00014G-CK@be1.lrz> <20051002175116.GE5211@blackham.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20050913100040.GA13103@elte.hu> <20050926070210.GA5157@elte.hu>
-	 <20051002151817.GA7228@elte.hu>
-	 <5bdc1c8b0510020842p6035b4c0ibbe9aaa76789187d@mail.gmail.com>
+In-Reply-To: <20051002175116.GE5211@blackham.com.au>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.14-rc3-rt1 up and running for me. No problems at all building it.
-I've got Jack running at <5mS and doing light streaming from 1394
-drives. I'm using realtime-lsm.
+On Mon, Oct 03, 2005 at 01:51:16AM +0800, Bernard Blackham wrote:
+> Interesting idea though - it'd be somewhat akin to porting
+> suspend-to-disk to UML (which has been on suspend2's todo list for a
+> while though :)
 
-The only problem I had over the last few days happened with
-2.6.14-rc2-rt7. One time, when attempting to shutdown, the machine
-hung after the 'Unloading Alsa modules...[OK]' step.
+It would be exactly that.  Note that external network connections are still
+going to cause problems.
 
-I'm going to be doing some composition/recording in Ardour this week.
-I'll use one of these two RC kernels and see how it goes.
-
-Cheers,
-Mark
-
-On 10/2/05, Mark Knecht <markknecht@gmail.com> wrote:
-> Thanks Ingo. 2.6.14-rc2-rt7 on AMD64 has been working well for me the
-> last few days. (After finally getting it to build!) I expect that I'll
-> build 2.6.14-rc3-rt1 today.
->
-> Cheers,
-> Mark
->
-> On 10/2/05, Ingo Molnar <mingo@elte.hu> wrote:
-> >
-> > i have released the 2.6.14-rc3-rt1 tree, which can be downloaded from
-> > the usual place:
-> >
-> >   http://redhat.com/~mingo/realtime-preempt/
-> >
-> > the biggest change is the merge of the generic ARM-irq patches into the
-> > -rt tree, and a port of -rt to the ARM platform, by Thomas Gleixner and
-> > John Cooper.  There are also lots of updates and cleanups in the ktimer
-> > code.  Also, x64 should work again.  Plus smaller changes all around.
-> >
-> > Changes since 2.6.14-rc2-rt2:
-> >
-> >  - ARM-genirq code (Thomas Gleixner, me - testing by lots of people)
-> >
-> >  - latency tracing on ARM (John Cooper)
-> >
-> >  - port of -rt to ARM (Thomas Gleixner)
-> >
-> >  - lots of ktimer updates/cleanups (Thomas Gleixner)
-> >
-> >  - NTFS bit-spinlock fix (Eran Mann)
-> >
-> >  - gcc4 build fix (Daniel Walker)
-> >
-> >  - fix "No Forced Preemption (Server)" build problems
-> >    (reported by Mark Knecht)
-> >
-> >  - convert epca_lock to the new syntax (Daniel Walker)
-> >
-> >  - typo fix in latency-hist prototype (Clark Williams)
-> >
-> >  - netlink build fix (Eran Mann)
-> >
-> >  - dccp build fix (Eran Mann)
-> >
-> >  - x64 build fixes
-> >
-> >  - fix audit.c compilation error
-> >
-> >  - merge to 2.6.14-rc3
-> >
-> >  - cpufreq build fix
-> >
-> >  - pcmcia build fix
-> >
-> >  - XFS build fix
-> >
-> > to build a 2.6.14-rc3-rt1 tree, the following patches should be applied:
-> >
-> >   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.13.tar.bz2
-> >   http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.14-rc3.bz2
-> >   http://redhat.com/~mingo/realtime-preempt/patch-2.6.14-rc3-rt1
-> >
-> >         Ingo
-> >
->
+				Jeff

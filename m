@@ -1,36 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751060AbVJBTys@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751059AbVJBTwM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751060AbVJBTys (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Oct 2005 15:54:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751061AbVJBTys
+	id S1751059AbVJBTwM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Oct 2005 15:52:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751060AbVJBTwM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Oct 2005 15:54:48 -0400
-Received: from lakshmi.addtoit.com ([198.99.130.6]:19212 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S1751056AbVJBTyr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Oct 2005 15:54:47 -0400
-Date: Sun, 2 Oct 2005 15:13:59 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Bernard Blackham <bernard@blackham.com.au>
-Cc: 7eggert@gmx.de, Ed Tomlinson <tomlins@cam.org>,
-       lokum spand <lokumsspand@hotmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: A possible idea for Linux: Save running programs to disk
-Message-ID: <20051002191359.GA26847@ccure.user-mode-linux.org>
-References: <4SXfo-7hM-9@gated-at.bofh.it> <4T47e-5E-1@gated-at.bofh.it> <4TbLq-2VG-5@gated-at.bofh.it> <4TcR9-4sS-9@gated-at.bofh.it> <E1EM7KO-00014G-CK@be1.lrz> <20051002175116.GE5211@blackham.com.au>
+	Sun, 2 Oct 2005 15:52:12 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:21417 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1751058AbVJBTwL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Oct 2005 15:52:11 -0400
+Date: Sun, 2 Oct 2005 12:51:51 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: akpm@osdl.org, jgarzik@pobox.com, rdunlap@xenotime.net,
+       linux-kernel@vger.kernel.org, coywolf@gmail.com, greg@kroah.com
+Subject: Re: [PATCHv2] Document from line in patch format
+Message-Id: <20051002125151.486a5347.pj@sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0510021158260.31407@g5.osdl.org>
+References: <20051002163244.17502.15351.sendpatchset@jackhammer.engr.sgi.com>
+	<Pine.LNX.4.64.0510021158260.31407@g5.osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051002175116.GE5211@blackham.com.au>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 03, 2005 at 01:51:16AM +0800, Bernard Blackham wrote:
-> Interesting idea though - it'd be somewhat akin to porting
-> suspend-to-disk to UML (which has been on suspend2's todo list for a
-> while though :)
+Linus wrote:
+> One more issue: I'd really prefer that the "---" not be documented as 
+> "optional".
 
-It would be exactly that.  Note that external network connections are still
-going to cause problems.
+Makes sense.  Thanks for taking the time to spell it out
 
-				Jeff
+PATCHv3 coming up soon.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

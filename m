@@ -1,124 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751097AbVJBOjM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbVJBOlT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751097AbVJBOjM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Oct 2005 10:39:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbVJBOjM
+	id S1751096AbVJBOlT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Oct 2005 10:41:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbVJBOlT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Oct 2005 10:39:12 -0400
-Received: from mo00.iij4u.or.jp ([210.130.0.19]:61931 "EHLO mo00.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S1751097AbVJBOjL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Oct 2005 10:39:11 -0400
-Date: Sun, 2 Oct 2005 23:39:04 +0900
-From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-To: Andrew Morton <akpm@osdl.org>
-Cc: yuasa@hh.iij4u.or.jp, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] mips: fix build error about TANBAC TB0226
-Message-Id: <20051002233904.7d297203.yuasa@hh.iij4u.or.jp>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 2 Oct 2005 10:41:19 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:1287 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751096AbVJBOlS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Oct 2005 10:41:18 -0400
+Date: Sun, 2 Oct 2005 16:41:13 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: David Miller <davem@davemloft.net>, neilb@cse.unsw.edu.au,
+       trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org,
+       nfs@lists.sourceforge.net, netdev@vger.kernel.org
+Subject: Re: [RFC: 2.6 patch] net/sunrpc/: possible cleanups
+Message-ID: <20051002144113.GM4212@stusta.de>
+References: <20051001142041.GB4212@stusta.de> <20051001164019.GB8633@mipter.zuzino.mipt.ru>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051001164019.GB8633@mipter.zuzino.mipt.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, Oct 01, 2005 at 08:40:19PM +0400, Alexey Dobriyan wrote:
+> On Sat, Oct 01, 2005 at 04:20:41PM +0200, Adrian Bunk wrote:
+> > -/* Just increments the mechanism's reference count and returns its input: */
+> > -struct gss_api_mech * gss_mech_get(struct gss_api_mech *);
+> > -
+> 
+> > -struct gss_api_mech *
+> > +static struct gss_api_mech *
+> >  gss_mech_get(struct gss_api_mech *gm)
+> 
+> Comment is lost.
 
-This patch has fixed the following build error about TANBAC TB0226.
-Please apply.
 
-arch/mips/pci/fixup-tb0226.c: In function `pcibios_map_irq':
-arch/mips/pci/fixup-tb0226.c:31: warning: implicit declaration of function `vr41xx_set_irq_trigger'
-arch/mips/pci/fixup-tb0226.c:32: error: `TRIGGER_LEVEL' undeclared (first use in this function)
-arch/mips/pci/fixup-tb0226.c:32: error: (Each undeclared identifier is reported only once
-arch/mips/pci/fixup-tb0226.c:32: error: for each function it appears in.)
-arch/mips/pci/fixup-tb0226.c:33: error: `SIGNAL_THROUGH' undeclared (first use in this function)
-arch/mips/pci/fixup-tb0226.c:34: warning: implicit declaration of function `vr41xx_set_irq_level'
-arch/mips/pci/fixup-tb0226.c:34: error: `LEVEL_LOW' undeclared (first use in this function)
-make[1]: *** [arch/mips/pci/fixup-tb0226.o] Error 1
-make: *** [arch/mips/pci] Error 2
+The comment made sense for the prototype at the header, but the function 
+now has only one caller in the file where it's defined.
 
-Yoichi
 
-Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+If someone needs a comment to figure out what a function whose complete 
+contents is
 
-diff -urN -X dontdiff rc3-orig/arch/mips/pci/fixup-tb0226.c rc3/arch/mips/pci/fixup-tb0226.c
---- rc3-orig/arch/mips/pci/fixup-tb0226.c	2005-10-01 06:17:35.000000000 +0900
-+++ rc3/arch/mips/pci/fixup-tb0226.c	2005-10-02 22:50:42.000000000 +0900
-@@ -1,7 +1,7 @@
- /*
-  *  fixup-tb0226.c, The TANBAC TB0226 specific PCI fixups.
-  *
-- *  Copyright (C) 2002-2004  Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-+ *  Copyright (C) 2002-2005  Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-  *
-  *  This program is free software; you can redistribute it and/or modify
-  *  it under the terms of the GNU General Public License as published by
-@@ -20,6 +20,7 @@
- #include <linux/init.h>
- #include <linux/pci.h>
- 
-+#include <asm/vr41xx/giu.h>
- #include <asm/vr41xx/tb0226.h>
- 
- int __init pcibios_map_irq(struct pci_dev *dev, u8 slot, u8 pin)
-@@ -29,42 +30,42 @@
- 	switch (slot) {
- 	case 12:
- 		vr41xx_set_irq_trigger(GD82559_1_PIN,
--				       TRIGGER_LEVEL,
--				       SIGNAL_THROUGH);
--		vr41xx_set_irq_level(GD82559_1_PIN, LEVEL_LOW);
-+				       IRQ_TRIGGER_LEVEL,
-+				       IRQ_SIGNAL_THROUGH);
-+		vr41xx_set_irq_level(GD82559_1_PIN, IRQ_LEVEL_LOW);
- 		irq = GD82559_1_IRQ;
- 		break;
- 	case 13:
- 		vr41xx_set_irq_trigger(GD82559_2_PIN,
--				       TRIGGER_LEVEL,
--				       SIGNAL_THROUGH);
--		vr41xx_set_irq_level(GD82559_2_PIN, LEVEL_LOW);
-+				       IRQ_TRIGGER_LEVEL,
-+				       IRQ_SIGNAL_THROUGH);
-+		vr41xx_set_irq_level(GD82559_2_PIN, IRQ_LEVEL_LOW);
- 		irq = GD82559_2_IRQ;
- 		break;
- 	case 14:
- 		switch (pin) {
- 		case 1:
- 			vr41xx_set_irq_trigger(UPD720100_INTA_PIN,
--					       TRIGGER_LEVEL,
--					       SIGNAL_THROUGH);
-+					       IRQ_TRIGGER_LEVEL,
-+					       IRQ_SIGNAL_THROUGH);
- 			vr41xx_set_irq_level(UPD720100_INTA_PIN,
--					     LEVEL_LOW);
-+					     IRQ_LEVEL_LOW);
- 			irq = UPD720100_INTA_IRQ;
- 			break;
- 		case 2:
- 			vr41xx_set_irq_trigger(UPD720100_INTB_PIN,
--					       TRIGGER_LEVEL,
--					       SIGNAL_THROUGH);
-+					       IRQ_TRIGGER_LEVEL,
-+					       IRQ_SIGNAL_THROUGH);
- 			vr41xx_set_irq_level(UPD720100_INTB_PIN,
--					     LEVEL_LOW);
-+					     IRQ_LEVEL_LOW);
- 			irq = UPD720100_INTB_IRQ;
- 			break;
- 		case 3:
- 			vr41xx_set_irq_trigger(UPD720100_INTC_PIN,
--					       TRIGGER_LEVEL,
--					       SIGNAL_THROUGH);
-+					       IRQ_TRIGGER_LEVEL,
-+					       IRQ_SIGNAL_THROUGH);
- 			vr41xx_set_irq_level(UPD720100_INTC_PIN,
--					     LEVEL_LOW);
-+					     IRQ_LEVEL_LOW);
- 			irq = UPD720100_INTC_IRQ;
- 			break;
- 		default:
+static struct gss_api_mech *
+gss_mech_get(struct gss_api_mech *gm)
+{
+        __module_get(gm->gm_owner);
+        return gm;
+}
 
+does, the problem is not a missing comment.
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

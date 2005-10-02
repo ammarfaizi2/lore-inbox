@@ -1,96 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751109AbVJBPSP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbVJBPdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751109AbVJBPSP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Oct 2005 11:18:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751110AbVJBPSP
+	id S1751106AbVJBPdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Oct 2005 11:33:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751110AbVJBPdJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Oct 2005 11:18:15 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:15838 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751109AbVJBPSO (ORCPT
+	Sun, 2 Oct 2005 11:33:09 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:9377 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751106AbVJBPdI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Oct 2005 11:18:14 -0400
-Date: Sun, 2 Oct 2005 17:18:17 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: ARM Kernel <linux-arm-kernel@lists.arm.linux.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       Robert Schwebel <r.schwebel@pengutronix.de>,
-       Manfred Gruber <manfred.gruber@contec.at>,
-       john cooper <john.cooper@timesys.com>,
-       Russell King - ARM Linux <linux@arm.linux.org.uk>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Clark Williams <williams@redhat.com>, Eran Mann <emann@mrv.com>,
-       dwalker@mvista.com, Mark Knecht <markknecht@gmail.com>
-Subject: 2.6.14-rc3-rt1
-Message-ID: <20051002151817.GA7228@elte.hu>
-References: <20050913100040.GA13103@elte.hu> <20050926070210.GA5157@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050926070210.GA5157@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Sun, 2 Oct 2005 11:33:08 -0400
+Date: Sun, 2 Oct 2005 08:33:00 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Paul Jackson <pj@sgi.com>
+cc: "Antonino A. Daplas" <adaplas@gmail.com>, akpm@osdl.org, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org, rdunlap@xenotime.net
+Subject: Re: [PATCH] Document from line in patch format
+In-Reply-To: <20051002000712.4689bbb2.pj@sgi.com>
+Message-ID: <Pine.LNX.4.64.0510020831290.31407@g5.osdl.org>
+References: <20051002062135.32334.32895.sendpatchset@jackhammer.engr.sgi.com>
+ <433F860C.7050807@gmail.com> <20051002000712.4689bbb2.pj@sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-i have released the 2.6.14-rc3-rt1 tree, which can be downloaded from 
-the usual place:
 
-  http://redhat.com/~mingo/realtime-preempt/
+On Sun, 2 Oct 2005, Paul Jackson wrote:
 
-the biggest change is the merge of the generic ARM-irq patches into the 
--rt tree, and a port of -rt to the ARM platform, by Thomas Gleixner and 
-John Cooper.  There are also lots of updates and cleanups in the ktimer 
-code.  Also, x64 should work again.  Plus smaller changes all around.
- 
-Changes since 2.6.14-rc2-rt2:
+> Tony wrote:
+> > > +    listed in the last "Signed-off-by:" line in the message when Linus
+> >                      ^^^^ 
+> > Shouldn't this be the first?
+> 
+> When I sent a patch with no "from" line, and two "Signed-off-by"
+> lines (the patch that prompted this excursion into documentation
+> excellence) Linus stated that the patch author ended up coming from
+> the second "Signed-off-by" line.
+> 
+> Perhaps it "should" be the first (actually - I tend to agree),
+> but it seems that it "is" the last.
 
- - ARM-genirq code (Thomas Gleixner, me - testing by lots of people)
+No. If there is no "From:" at the top of the body, the authorship is taken 
+from the "From:" from the _email_.
 
- - latency tracing on ARM (John Cooper)
+Which _usually_ matches the last Signed-off-line:, of course. But can be 
+anything.
 
- - port of -rt to ARM (Thomas Gleixner)
-
- - lots of ktimer updates/cleanups (Thomas Gleixner)
-
- - NTFS bit-spinlock fix (Eran Mann)
-
- - gcc4 build fix (Daniel Walker)
-
- - fix "No Forced Preemption (Server)" build problems
-   (reported by Mark Knecht)
-
- - convert epca_lock to the new syntax (Daniel Walker)
-
- - typo fix in latency-hist prototype (Clark Williams)
-
- - netlink build fix (Eran Mann)
-
- - dccp build fix (Eran Mann)
-
- - x64 build fixes
-
- - fix audit.c compilation error
-
- - merge to 2.6.14-rc3
-
- - cpufreq build fix
-
- - pcmcia build fix
-
- - XFS build fix
-
-to build a 2.6.14-rc3-rt1 tree, the following patches should be applied:
-
-  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.13.tar.bz2
-  http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.14-rc3.bz2
-  http://redhat.com/~mingo/realtime-preempt/patch-2.6.14-rc3-rt1
-
-	Ingo
+		Linus

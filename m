@@ -1,63 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbVJBX0Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbVJBXcD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751091AbVJBX0Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Oct 2005 19:26:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbVJBX0Y
+	id S1751098AbVJBXcD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Oct 2005 19:32:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbVJBXcD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Oct 2005 19:26:24 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:3721 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751091AbVJBX0Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Oct 2005 19:26:24 -0400
-Date: Sun, 2 Oct 2005 19:26:21 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@cuia.boston.redhat.com
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-cc: linux-kernel@vger.kernel.org
+	Sun, 2 Oct 2005 19:32:03 -0400
+Received: from vms042pub.verizon.net ([206.46.252.42]:45819 "EHLO
+	vms042pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1751098AbVJBXcC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Oct 2005 19:32:02 -0400
+Date: Sun, 02 Oct 2005 19:32:00 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
 Subject: Re: what's next for the linux kernel?
-In-Reply-To: <20051002230545.GI6290@lkcl.net>
-Message-ID: <Pine.LNX.4.63.0510021922290.27456@cuia.boston.redhat.com>
-References: <20051002204703.GG6290@lkcl.net> <Pine.LNX.4.63.0510021704210.27456@cuia.boston.redhat.com>
- <20051002230545.GI6290@lkcl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-reply-to: <4340627F.6010303@shaw.ca>
+To: linux-kernel@vger.kernel.org
+Message-id: <200510021932.00969.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <4TiWy-4HQ-3@gated-at.bofh.it> <4340627F.6010303@shaw.ca>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Oct 2005, Luke Kenneth Casson Leighton wrote:
-> On Sun, Oct 02, 2005 at 05:05:42PM -0400, Rik van Riel wrote:
+On Sunday 02 October 2005 18:43, Robert Hancock wrote:
+>Luke Kenneth Casson Leighton wrote:
+>> and, what is the linux kernel?
+>>
+>> it's a daft, monolithic design that is suitable and faster on
+>> single-processor systems, and that design is going to look _really_
+>> outdated, really soon.
+>
+>Well, it sounds like it works pretty well on such things as 512 CPU
+>Altix systems, so it sounds like the suggestion that Linux is designed
+>solely for single-processor systems and isn't suitable for multicore,
+>hyperthreaded CPUs doesn't hold much water..
 
-> > Linux already has a number of scalable SMP synchronisation
-> > mechanisms. 
-> 
->  ... and you are tied in to the decisions made by the linux kernel
->  developers.
-> 
->  whereas, if you allow something like a message-passing design (such as
->  in the port of the linux kernel to l4), you have the option to try out
->  different underlying structures - _without_ having to totally redesign
->  the infrastructure.
+Ahh, yes and no, Robert.  The un-answered question, for that
+512 processor Altix system, would be "but does it run things 512
+times faster?"  Methinks not, by a very wide margin.  Yes, do a lot
+of unrelated things fast maybe, but render a 30 megabyte page with
+ghostscript in 10 milliseconds?  Never happen IMO.
 
-Infrastructure is not what matters when it comes to SMP
-scalability on modern systems, since lock contention is
-not the primary SMP scalability problem.
-
-Due to the large latency ratio between L1/L2 cache and
-RAM, the biggest scalability problem is cache invalidation
-and cache bounces.
-
-Those are not solvable by using another underlying
-infrastructure - they require a reorganization of the
-datastructures on top, the data structures in Linux.
-
-Note that message passing is by definition less efficient
-than SMP synchronisation mechanisms that do not require
-data to be exchanged between CPUs, eg. RCU or the use of
-cpu-local data structures.
-
->  p.s. yes i do know of a company that has improved on SMP.
-
-SGI ?  IBM ?
+And Christoph in the next msg, calls him 1/2 drunk.  He doesn't come
+across to me as being more than 1 beer drunk.  And he does make some
+interesting points, so if they aren't valid, lets use proveable logic
+to shoot them down, not name calling and pointless rhetoric.
 
 -- 
-All Rights Reversed
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.35% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+
+

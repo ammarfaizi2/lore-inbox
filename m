@@ -1,71 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750980AbVJBGEw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750986AbVJBGVp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750980AbVJBGEw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Oct 2005 02:04:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750981AbVJBGEv
+	id S1750986AbVJBGVp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Oct 2005 02:21:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750987AbVJBGVp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Oct 2005 02:04:51 -0400
-Received: from zctfs063.nortelnetworks.com ([47.164.128.120]:5812 "EHLO
-	zctfs063.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S1750979AbVJBGEv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Oct 2005 02:04:51 -0400
-Message-ID: <433F7877.1060707@nortel.com>
-Date: Sun, 02 Oct 2005 00:04:39 -0600
-From: "Christopher Friesen" <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marcelo <marcelo.tosatti@cyclades.com>
-CC: linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       "Theodore Ts'o" <tytso@mit.edu>, dipankar@in.ibm.com,
-       viro@ftp.linux.org.uk
-Subject: Re: dentry_cache using up all my zone normal memory
-References: <433189B5.3030308@nortel.com> <433DB64B.70405@nortel.com> <20051001232211.GA21518@xeon.cnet>
-In-Reply-To: <20051001232211.GA21518@xeon.cnet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Oct 2005 06:04:41.0902 (UTC) FILETIME=[2DF344E0:01C5C717]
+	Sun, 2 Oct 2005 02:21:45 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:19645 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750985AbVJBGVp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Oct 2005 02:21:45 -0400
+Date: Sat, 1 Oct 2005 23:21:35 -0700 (PDT)
+From: Paul Jackson <pj@sgi.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org,
+       "Randy.Dunlap" <rdunlap@xenotime.net>
+Message-Id: <20051002062135.32334.32895.sendpatchset@jackhammer.engr.sgi.com>
+Subject: [PATCH] Document from line in patch format
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo wrote:
+Document more details of patch format such as the "from" line
+used to specify the patch author, and provide more references
+for patch guidelines.
 
-> How can this be reproduced? (point to a URL if you already explained
-> that in detail).
+Signed-off-by: Paul Jackson <pj@sgi.com>
 
-I mentioned this earlier in the thread.  I'm running 2.6.14-rc4 on a 
-pentium-M based atca blade with a bit over 3GB of memory.  When I run 
-the "rename14" test from LTP with /tmp mounted on tmpfs, the system runs 
-out of zone normal memory and the OOM killer starts killing processes.
+Index: 2.6.14-rc2-mm2/Documentation/SubmittingPatches
+===================================================================
+--- 2.6.14-rc2-mm2.orig/Documentation/SubmittingPatches
++++ 2.6.14-rc2-mm2/Documentation/SubmittingPatches
+@@ -301,8 +301,47 @@ now, but you can do this to mark interna
+ point out some special detail about the sign-off. 
+ 
+ 
++12) The canonical patch format
+ 
+-12) More references for submitting patches
++The canonical patch subject line is:
++
++    Subject: [PATCH 001/123] [<area>:] <explanation>
++
++The canonical patch message body contains the following:
++
++    The first line of the body contains a "from" line specifying
++    the author of the patch:
++
++        From: Original Author <author@email.com>
++
++    If the "from" line is missing, then the author of the patch will
++    be recorded in the source code revision history as whomever is
++    listed in the last "Signed-off-by:" line in the message when Linus
++    receives it.
++
++    The "from" line is followed by an empty line and then the body
++    of the explanation.
++
++    After the body of the explanation comes the "Signed-off-by:"
++    lines, and then a simple "---" line, and below that comes the
++    diffstat of the patch and then the patch itself.  The "---" line
++    and diffstat are optional, but helpful to readers of non-trivial
++    patches.
++
++The Subject line format makes it very easy to sort the emails
++alphabetically by subject line - pretty much any email reader will
++support that - since because the sequence number is zero-padded,
++the numerical and alphabetic sort is the same.
++
++See further details on how to phrase the "<explanation>" in
++the "Subject:" line in Andrew Morton's "The perfect patch",
++referenced below.
++
++See more details on the proper patch format in the following
++references.
++
++
++13) More references for submitting patches
+ 
+ Andrew Morton, "The perfect patch" (tpp).
+   <http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt>
+@@ -310,6 +349,14 @@ Andrew Morton, "The perfect patch" (tpp)
+ Jeff Garzik, "Linux kernel patch submission format."
+   <http://linux.yyz.us/patch-format.html>
+ 
++Jeff Garzik, "How to piss off a kernel subsystem maintainer"
++  <http://www.kroah.com/log/2005/03/31/>
++
++Kernel Documentation/CodingStyle
++  <http://lxr.linux.no/source/Documentation/CodingStyle>
++
++Linus Torvald's mail on the canonical patch format:
++  <http://lkml.org/lkml/2005/4/7/183>
+ 
+ 
+ -----------------------------------
 
-If I have /tmp mounted nfs, the problem doesn't occur.  If I use the 
-boot args to limit the memory to 896MB the problem doesn't occur.  If I 
-run the testcase on a dual Xeon with multiple gigs of memory, the 
-problem doesn't occur.
-
-> Someone else on the thread said you had zillions of file descriptors
-> open?
-
-This does not appear to be the case.  The testcase has two threads.
-
-thread 1 loops doing the following:
-fd = creat("./rename14", 0666);
-unlink("./rename14");
-close(fd);
-
-thread 2 loops doing:
-rename("./rename14", "./rename14xyz");
-
-> Need to figure out they can't be freed. The kernel is surely trying it
-> (also a problem if it is not trying). How does the "slabs_scanned" field
-> of /proc/vmstats looks like?
-
-That's something I haven't checked...will have to get back to you.
-
-> Bharata maintains a patch to record additional statistics, haven't 
-> you tried it already?
-
-Already tried.  You should be able to find results earlier in this thread.
-
-Chris
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

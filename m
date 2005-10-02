@@ -1,56 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbVJBTPJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750952AbVJBTZ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751153AbVJBTPJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Oct 2005 15:15:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbVJBTPJ
+	id S1750952AbVJBTZ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Oct 2005 15:25:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751020AbVJBTZ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Oct 2005 15:15:09 -0400
-Received: from ra.sai.msu.su ([158.250.29.2]:10155 "EHLO ra.sai.msu.su")
-	by vger.kernel.org with ESMTP id S1751153AbVJBTPI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Oct 2005 15:15:08 -0400
-Date: Sun, 2 Oct 2005 23:14:59 +0400 (MSD)
-From: Evgeny Rodichev <er@sai.msu.su>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.14-rc2] libata: Marvell SATA support (DMA mode)
-Message-ID: <Pine.GSO.4.63.0510022307280.5120@ra.sai.msu.su>
+	Sun, 2 Oct 2005 15:25:27 -0400
+Received: from xproxy.gmail.com ([66.249.82.195]:38467 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750952AbVJBTZ0 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Oct 2005 15:25:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ekRw4KMwss7KnVd+niDiVJBKVnqjmcTbVoOq2fLrc2O2tTJE1S0jjQGcgYPBqa+u+auwKhccVWpEqeBcyRJTCSRbZpOv4gaI6gIPyJLucersYKM1i11JCZwLnNjJivdQNpMO3cE97VFM3X8aQg7ChgvsqwygzSdJFDlndwutoPs=
+Message-ID: <5bdc1c8b0510021225y951caf3p3240a05dd2d0247c@mail.gmail.com>
+Date: Sun, 2 Oct 2005 12:25:26 -0700
+From: Mark Knecht <markknecht@gmail.com>
+Reply-To: Mark Knecht <markknecht@gmail.com>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.14-rc3-rt1
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <5bdc1c8b0510020842p6035b4c0ibbe9aaa76789187d@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050913100040.GA13103@elte.hu> <20050926070210.GA5157@elte.hu>
+	 <20051002151817.GA7228@elte.hu>
+	 <5bdc1c8b0510020842p6035b4c0ibbe9aaa76789187d@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+2.6.14-rc3-rt1 up and running for me. No problems at all building it.
+I've got Jack running at <5mS and doing light streaming from 1394
+drives. I'm using realtime-lsm.
 
-this patch doesn't work for me. Controller is
+The only problem I had over the last few days happened with
+2.6.14-rc2-rt7. One time, when attempting to shutdown, the machine
+hung after the 'Unloading Alsa modules...[OK]' step.
 
-03:04.0 RAID bus controller: Marvell MV88SX6041 4-port SATA II PCI-X Controller (rev 03)
-         Subsystem: Super Micro Computer Inc: Unknown device 6880
-         Flags: bus master, fast Back2Back, 66Mhz, medium devsel, latency 64, IRQ 20
-         Memory at dd300000 (64-bit, non-prefetchable) [size=1M]
-         I/O ports at 3000 [size=256]
-         Capabilities: [40] Power Management version 2
-         Capabilities: [50] Message Signalled Interrupts: 64bit+ Queue=0/0 Enable-
-         Capabilities: [60] PCI-X non-bridge device.
+I'm going to be doing some composition/recording in Ardour this week.
+I'll use one of these two RC kernels and see how it goes.
 
-After modprobe sata_mv I got in dmesg:
+Cheers,
+Mark
 
-sata_mv version 0.22
-ACPI: PCI Interrupt 0000:03:04.0[A] -> GSI 56 (level, low) -> IRQ 20
-sata_mv(0000:03:04.0) 32 slots 4 ports unknown mode IRQ via INTx
-ata3: SATA max UDMA/133 cmd 0x0 ctl 0xF8A22120 bmdma 0x0 irq 20
-ata4: SATA max UDMA/133 cmd 0x0 ctl 0xF8A24120 bmdma 0x0 irq 20
-ata5: SATA max UDMA/133 cmd 0x0 ctl 0xF8A26120 bmdma 0x0 irq 20
-ata6: SATA max UDMA/133 cmd 0x0 ctl 0xF8A28120 bmdma 0x0 irq 20
-ATA: abnormal status 0x80 on port 0xF8A2211C
-ATA: abnormal status 0x80 on port 0xF8A2211C
-
-modprobe did not finished, and it is impossible to kill the modprobe
-process.
-
-Regards,
-E.R.
-_________________________________________________________________________
-Evgeny Rodichev                          Sternberg Astronomical Institute
-email: er@sai.msu.su                              Moscow State University
-Phone: 007 (095) 939 2383
-Fax:   007 (095) 932 8841                       http://www.sai.msu.su/~er
+On 10/2/05, Mark Knecht <markknecht@gmail.com> wrote:
+> Thanks Ingo. 2.6.14-rc2-rt7 on AMD64 has been working well for me the
+> last few days. (After finally getting it to build!) I expect that I'll
+> build 2.6.14-rc3-rt1 today.
+>
+> Cheers,
+> Mark
+>
+> On 10/2/05, Ingo Molnar <mingo@elte.hu> wrote:
+> >
+> > i have released the 2.6.14-rc3-rt1 tree, which can be downloaded from
+> > the usual place:
+> >
+> >   http://redhat.com/~mingo/realtime-preempt/
+> >
+> > the biggest change is the merge of the generic ARM-irq patches into the
+> > -rt tree, and a port of -rt to the ARM platform, by Thomas Gleixner and
+> > John Cooper.  There are also lots of updates and cleanups in the ktimer
+> > code.  Also, x64 should work again.  Plus smaller changes all around.
+> >
+> > Changes since 2.6.14-rc2-rt2:
+> >
+> >  - ARM-genirq code (Thomas Gleixner, me - testing by lots of people)
+> >
+> >  - latency tracing on ARM (John Cooper)
+> >
+> >  - port of -rt to ARM (Thomas Gleixner)
+> >
+> >  - lots of ktimer updates/cleanups (Thomas Gleixner)
+> >
+> >  - NTFS bit-spinlock fix (Eran Mann)
+> >
+> >  - gcc4 build fix (Daniel Walker)
+> >
+> >  - fix "No Forced Preemption (Server)" build problems
+> >    (reported by Mark Knecht)
+> >
+> >  - convert epca_lock to the new syntax (Daniel Walker)
+> >
+> >  - typo fix in latency-hist prototype (Clark Williams)
+> >
+> >  - netlink build fix (Eran Mann)
+> >
+> >  - dccp build fix (Eran Mann)
+> >
+> >  - x64 build fixes
+> >
+> >  - fix audit.c compilation error
+> >
+> >  - merge to 2.6.14-rc3
+> >
+> >  - cpufreq build fix
+> >
+> >  - pcmcia build fix
+> >
+> >  - XFS build fix
+> >
+> > to build a 2.6.14-rc3-rt1 tree, the following patches should be applied:
+> >
+> >   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.13.tar.bz2
+> >   http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.14-rc3.bz2
+> >   http://redhat.com/~mingo/realtime-preempt/patch-2.6.14-rc3-rt1
+> >
+> >         Ingo
+> >
+>

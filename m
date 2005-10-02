@@ -1,64 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751010AbVJBIFE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751019AbVJBIOi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751010AbVJBIFE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Oct 2005 04:05:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751012AbVJBIFE
+	id S1751019AbVJBIOi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Oct 2005 04:14:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751017AbVJBIOi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Oct 2005 04:05:04 -0400
-Received: from gate.crashing.org ([63.228.1.57]:24979 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751010AbVJBIFD (ORCPT
+	Sun, 2 Oct 2005 04:14:38 -0400
+Received: from news.cistron.nl ([62.216.30.38]:35238 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S1751014AbVJBIOh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Oct 2005 04:05:03 -0400
-Subject: Re: [PATCH] nvidiafb: PPC & mode setting fixes (#2)
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-Cc: linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-fbdev-devel@lists.sourceforge.net
-In-Reply-To: <433F8774.6000301@gmail.com>
-References: <1128225462.8267.24.camel@gaston>
-	 <1128232186.8267.31.camel@gaston>  <433F8774.6000301@gmail.com>
-Content-Type: text/plain
-Date: Sun, 02 Oct 2005 18:02:06 +1000
-Message-Id: <1128240126.8267.37.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Sun, 2 Oct 2005 04:14:37 -0400
+From: dth@cistron.nl (Danny ter Haar)
+Subject: report: 2.6.14-rc2-git8 crashed with scsi error after 40 hours
+Date: Sun, 2 Oct 2005 08:14:36 +0000 (UTC)
+Organization: Cistron
+Message-ID: <dho4tc$ilc$1@news.cistron.nl>
+X-Trace: ncc1701.cistron.net 1128240876 19116 62.216.30.70 (2 Oct 2005 08:14:36 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: dth@cistron.nl (Danny ter Haar)
+To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-10-02 at 15:08 +0800, Antonino A. Daplas wrote:
-> Benjamin Herrenschmidt wrote:
-> > (This version removes a useless bit that slipped in the previous one)
-> > 
-> > This patch fixes a couple of things in nvidiafb:
-> > 
-> >  - The code for retreiving the mode from Open Firmware was broken. It
-> > would crash at boot and was copied from the old rivafb code that didn't
-> > work very well (I'll update rivafb too one of these days).
-> 
-> What do you think of making EDID retrieval from the OF generic?  Or is
-> it too much hassle?
+Here is the more than weekly error report about our usenetgateway.
+2.6.12-mm1 keeps running for weeks.
+2.6.1[34] keeps crashing within days
+Hardware isn't the problem, software is (my guess is acpi/irq)
+ethernet is doing >200megabit/s average on 2 cards simultanious.
 
-Well, at this point, it only really concerns nvidia and ati's and their
-respective firmwares seem to expose some properties a bit differently...
-The radeon code would probably work for nvidia though as I'm not trying
-to get the connector type for nvidiafb yet, but if I ever try, it seems
-the stuff is a bit different.
+hardware:
+tyan amd64 - opteron 250 (dual cpu, but UP kernel)
+4Gig ram
+dual scsi controller
+8 x scsi disks
+acenic gig-E (FO)
+onboard gig-E (cupper)
 
-I'd say let's keep them separate for now, I may put them in a common
-place some day ..
+software:
+debian-pure64 amd
 
-Ben.
 
-> Thanks for the fix :-)  
-> 
-> Acked-by: Antonino Daplas <adaplas@pol.net>
+config/crash/dmesg @
+http://newsgate.newsserver.nl/kernel/2.6.14-rc2-git8
 
-Ok, if you confirm it doesn't seem to do any regression on other
-hardware (I don't have any other nvidia hw to test with), I'd like it
-upstream asap (probably too late for 2.6.14 though).
+Currently trying 2.6.14-rc2-mm2.
+When that fails i will try rc3-git[latest]
 
-Ben.
+Let me know when someone wants to have more info or a test
+setup.
 
+Danny
 

@@ -1,46 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750951AbVJBDTY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750945AbVJBDSw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750951AbVJBDTY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Oct 2005 23:19:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbVJBDTY
+	id S1750945AbVJBDSw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Oct 2005 23:18:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750949AbVJBDSw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Oct 2005 23:19:24 -0400
-Received: from mail-in-07.arcor-online.net ([151.189.21.47]:3292 "EHLO
-	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1750949AbVJBDTX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Oct 2005 23:19:23 -0400
-From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
-Subject: Re: A possible idea for Linux: Save running programs to disk
-To: lokum spand <lokumsspand@hotmail.com>, linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Sun, 02 Oct 2005 05:19:10 +0200
-References: <4SXfo-7hM-9@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Sat, 1 Oct 2005 23:18:52 -0400
+Received: from mail.ctyme.com ([69.50.231.10]:8646 "EHLO newton.ctyme.com")
+	by vger.kernel.org with ESMTP id S1750945AbVJBDSw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Oct 2005 23:18:52 -0400
+Message-ID: <433F519B.5070505@perkel.com>
+Date: Sat, 01 Oct 2005 20:18:51 -0700
+From: Marc Perkel <marc@perkel.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.10) Gecko/20050716
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1ELuNb-0001HV-OQ@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
+To: linux-kernel@vger.kernel.org
+Subject: Re: Making nice niser for system hogging programs
+References: <433F4563.5060700@perkel.com> <200510021307.10372.kernel@kolivas.org>
+In-Reply-To: <200510021307.10372.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spamfilter-host: newton.ctyme.com - http://www.junkemailfilter.com"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lokum spand <lokumsspand@hotmail.com> wrote:
 
-> I allow myself to suggest the following, although not sure if I post in
-> the right group:
-> 
-> Suppose Linux could save the total state of a program to disk, for
-> instance, imagine a program like mozilla with many open windows. I give
-> it a SIGNAL-SAVETODISK and the process memory image is dropped to a
-> file. I can then turn off the computer and later continue using the
-> program where I left it, by loading it back into memory.
 
-What about the open file descriptors? If the program uses temporary files,
-closing them will destroy the data in the temp files. Therefore you can't
-close these fds, and this prevents you from doing a shutdown.
-Use suspend-to-disk instead.
+Con Kolivas wrote:
+
+>On Sun, 2 Oct 2005 12:26, Marc Perkel wrote:
+>  
+>
+>>Just a thought -----
+>>
+>>Programs like cp -a /bigdir /backup and rsync usually bring the server
+>>to a crawl no matter how much "nice" you put on them. Is there any way
+>>to make "nice" smarter in that it limits io as well as processor usage?
+>>If cp and rsyne ran a little slower IO wise then everything else could
+>>run too.
+>>    
+>>
+>
+>The latest cfq io scheduler supports io nice levels. By default it links the 
+>io nice levels to the cpu nice levels so if you use cfq and set your file 
+>commands nice 19 they will use as little io priority as possible. Note this 
+>only works on the read side but that makes a dramatic difference already.
+>
+>Cheers
+>Con
+>  
+>
+
+Kewl - so - what version is it in?
+
+
 -- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+Marc Perkel - marc@perkel.com
+
+Spam Filter: http://www.junkemailfilter.com
+    My Blog: http://marc.perkel.com
+

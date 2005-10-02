@@ -1,53 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751019AbVJBIOi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751018AbVJBIay@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751019AbVJBIOi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Oct 2005 04:14:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751017AbVJBIOi
+	id S1751018AbVJBIay (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Oct 2005 04:30:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751020AbVJBIay
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Oct 2005 04:14:38 -0400
-Received: from news.cistron.nl ([62.216.30.38]:35238 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S1751014AbVJBIOh (ORCPT
+	Sun, 2 Oct 2005 04:30:54 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:5906 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP
+	id S1751017AbVJBIay convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Oct 2005 04:14:37 -0400
-From: dth@cistron.nl (Danny ter Haar)
-Subject: report: 2.6.14-rc2-git8 crashed with scsi error after 40 hours
-Date: Sun, 2 Oct 2005 08:14:36 +0000 (UTC)
-Organization: Cistron
-Message-ID: <dho4tc$ilc$1@news.cistron.nl>
-X-Trace: ncc1701.cistron.net 1128240876 19116 62.216.30.70 (2 Oct 2005 08:14:36 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: dth@cistron.nl (Danny ter Haar)
-To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+	Sun, 2 Oct 2005 04:30:54 -0400
+Date: Sun, 2 Oct 2005 10:30:42 +0200
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: lokum spand <lokumsspand@hotmail.com>
+Cc: mike@concannon.net, arjan@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: A possible idea for Linux: Save running programs to disk
+Message-ID: <20051002083042.GA3804@irc.pl>
+Mail-Followup-To: lokum spand <lokumsspand@hotmail.com>,
+	mike@concannon.net, arjan@infradead.org, linux-kernel@vger.kernel.org
+References: <433F0BF1.2020900@concannon.net> <BAY105-F2270EEA37B83483AE53063A48E0@phx.gbl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <BAY105-F2270EEA37B83483AE53063A48E0@phx.gbl>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is the more than weekly error report about our usenetgateway.
-2.6.12-mm1 keeps running for weeks.
-2.6.1[34] keeps crashing within days
-Hardware isn't the problem, software is (my guess is acpi/irq)
-ethernet is doing >200megabit/s average on 2 cards simultanious.
+On Sat, Oct 01, 2005 at 02:51:17PM -0800, lokum spand wrote:
+> Does any other Unix variant have process bouncing already?
 
-hardware:
-tyan amd64 - opteron 250 (dual cpu, but UP kernel)
-4Gig ram
-dual scsi controller
-8 x scsi disks
-acenic gig-E (FO)
-onboard gig-E (cupper)
+ DragonflyBSD supports (or plan to - I'm not sure) process checkpointing.
 
-software:
-debian-pure64 amd
-
-
-config/crash/dmesg @
-http://newsgate.newsserver.nl/kernel/2.6.14-rc2-git8
-
-Currently trying 2.6.14-rc2-mm2.
-When that fails i will try rc3-git[latest]
-
-Let me know when someone wants to have more info or a test
-setup.
-
-Danny
+-- 
+Tomasz Torcz                Only gods can safely risk perfection,
+zdzichu@irc.-nie.spam-.pl     it's a dangerous thing for a man.  -- Alia
 

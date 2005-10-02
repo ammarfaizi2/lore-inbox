@@ -1,66 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbVJBPOY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751109AbVJBPSP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751108AbVJBPOY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Oct 2005 11:14:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751109AbVJBPOY
+	id S1751109AbVJBPSP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Oct 2005 11:18:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751110AbVJBPSP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Oct 2005 11:14:24 -0400
-Received: from main.gmane.org ([80.91.229.2]:62880 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751108AbVJBPOY (ORCPT
+	Sun, 2 Oct 2005 11:18:15 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:15838 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751109AbVJBPSO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Oct 2005 11:14:24 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Sun, 2 Oct 2005 11:18:14 -0400
+Date: Sun, 2 Oct 2005 17:18:17 +0200
+From: Ingo Molnar <mingo@elte.hu>
 To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Re: Blanky rivafb vs snowy nvidiafb with 2.6.12
-Date: Sun, 2 Oct 2005 17:13:29 +0200
-Message-ID: <1l32ctqb3wuk8$.xbs0uj9dx0k$.dlg@40tude.net>
-References: <1hcq27fp0wwd6.1xosn5xgejhhn$.dlg@40tude.net> <433B049B.1090502@gmail.com> <1gie1vr78iijd$.qcvoypipyouu.dlg@40tude.net> <433BE0D1.1070501@gmail.com> <dsq9rvr3xni3.1py6wljnelhp0.dlg@40tude.net> <433C52F0.6000401@gmail.com> <1hk58zmy4sz0x.kyzvnh8u4ia2.dlg@40tude.net> <433E2387.2090608@gmail.com> <15vft1mw0n773.w7bplfheyl29.dlg@40tude.net> <433E69A4.5050502@gmail.com>
+Cc: ARM Kernel <linux-arm-kernel@lists.arm.linux.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       Robert Schwebel <r.schwebel@pengutronix.de>,
+       Manfred Gruber <manfred.gruber@contec.at>,
+       john cooper <john.cooper@timesys.com>,
+       Russell King - ARM Linux <linux@arm.linux.org.uk>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Clark Williams <williams@redhat.com>, Eran Mann <emann@mrv.com>,
+       dwalker@mvista.com, Mark Knecht <markknecht@gmail.com>
+Subject: 2.6.14-rc3-rt1
+Message-ID: <20051002151817.GA7228@elte.hu>
+References: <20050913100040.GA13103@elte.hu> <20050926070210.GA5157@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: host-84-220-49-122.cust-adsl.tiscali.it
-User-Agent: 40tude_Dialog/2.0.15.1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050926070210.GA5157@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 01 Oct 2005 18:49:08 +0800, Antonino A. Daplas wrote:
 
-> Giuseppe Bilotta wrote:
->> On Sat, 01 Oct 2005 13:49:59 +0800, Antonino A. Daplas wrote:
->> 
->>> Looks like the nv driver just ignored the EDID and used one of
->>> its built-in VESA modes.  If you notice, X's EDID ouput is the same
->>> as nvidiafb's. But the resulting timings are different.
->>>
->>> In contrast, nvidiafb will attempt to use the EDID, and only as a last
->>> resort, use one of the timings in the global mode database.
->> 
->> I see. And when EDID is enabled for the module, it won't let me touch
->> those timings at all.
-> 
-> Yes. But if the EDID block specified a usable hsync and vsync range, the
-> timings can be customized.  In your case it does not.
+i have released the 2.6.14-rc3-rt1 tree, which can be downloaded from 
+the usual place:
 
-/me is wondering if it would be possible to hack the EDID block and
-fix it ... and whether it's worth the risk.
+  http://redhat.com/~mingo/realtime-preempt/
 
->> Maybe a "noddc" or "noedid" module option for 
->> when EDID support is compiled in and one wants to work without it?
-> 
-> It is a good idea.  Especially since I've already encountered a lot of
-> crappy EDID blocks.
+the biggest change is the merge of the generic ARM-irq patches into the 
+-rt tree, and a port of -rt to the ARM platform, by Thomas Gleixner and 
+John Cooper.  There are also lots of updates and cleanups in the ktimer 
+code.  Also, x64 should work again.  Plus smaller changes all around.
+ 
+Changes since 2.6.14-rc2-rt2:
 
-That'd be nice :)
+ - ARM-genirq code (Thomas Gleixner, me - testing by lots of people)
 
-Thank you very much for all your help and information. I can now
-exploit my eye-destroying 133dpi in console too :)
+ - latency tracing on ARM (John Cooper)
 
--- 
-Giuseppe "Oblomov" Bilotta
+ - port of -rt to ARM (Thomas Gleixner)
 
-"They that can give up essential liberty to obtain
-a little temporary safety deserve neither liberty
-nor safety." Benjamin Franklin
+ - lots of ktimer updates/cleanups (Thomas Gleixner)
 
+ - NTFS bit-spinlock fix (Eran Mann)
+
+ - gcc4 build fix (Daniel Walker)
+
+ - fix "No Forced Preemption (Server)" build problems
+   (reported by Mark Knecht)
+
+ - convert epca_lock to the new syntax (Daniel Walker)
+
+ - typo fix in latency-hist prototype (Clark Williams)
+
+ - netlink build fix (Eran Mann)
+
+ - dccp build fix (Eran Mann)
+
+ - x64 build fixes
+
+ - fix audit.c compilation error
+
+ - merge to 2.6.14-rc3
+
+ - cpufreq build fix
+
+ - pcmcia build fix
+
+ - XFS build fix
+
+to build a 2.6.14-rc3-rt1 tree, the following patches should be applied:
+
+  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.13.tar.bz2
+  http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.14-rc3.bz2
+  http://redhat.com/~mingo/realtime-preempt/patch-2.6.14-rc3-rt1
+
+	Ingo

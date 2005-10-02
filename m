@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750922AbVJBAbA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750927AbVJBAeR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750922AbVJBAbA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Oct 2005 20:31:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750927AbVJBAbA
+	id S1750927AbVJBAeR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Oct 2005 20:34:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750929AbVJBAeR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Oct 2005 20:31:00 -0400
-Received: from hulk.vianw.pt ([195.22.31.43]:451 "EHLO hulk.vianw.pt")
-	by vger.kernel.org with ESMTP id S1750922AbVJBAa7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Oct 2005 20:30:59 -0400
-Message-ID: <433F2A30.6080308@esoterica.pt>
-Date: Sun, 02 Oct 2005 01:30:40 +0100
-From: Paulo da Silva <psdasilva@esoterica.pt>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: LVM and lilo: a problem!
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 1 Oct 2005 20:34:17 -0400
+Received: from smtp.terra.es ([213.4.129.129]:1924 "EHLO tsmtp1.mail.isp")
+	by vger.kernel.org with ESMTP id S1750927AbVJBAeR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Oct 2005 20:34:17 -0400
+Date: Sun, 2 Oct 2005 02:34:05 +0200
+From: grundig@teleline.es
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: lokumsspand@hotmail.com, linux-kernel@vger.kernel.org
+Subject: Re: A possible idea for Linux: Save running programs to disk
+Message-Id: <20051002023405.3f63945e.grundig@teleline.es>
+In-Reply-To: <1128202754.8153.0.camel@laptopd505.fenrus.org>
+References: <BAY105-F35A25DA28443029610815DA48E0@phx.gbl>
+	<1128202754.8153.0.camel@laptopd505.fenrus.org>
+X-Mailer: Sylpheed version 2.1.1 (GTK+ 2.8.3; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am using LVM for a couple of weeks.
-No functional problems at all.
+El Sat, 01 Oct 2005 23:39:14 +0200,
+Arjan van de Ven <arjan@infradead.org> escribió:
 
-However, I needed to run lilo and got the
-following message:
 
-Warning: '/proc/partitions' does not match '/dev' directory structure.
-    Name change: '/dev/dm-0' -> '/dev/VSDB/gtpalma'
+> there is a LOT of state though.. the moment you add networking in the
+> picture the amount of state just isn't funny anymore. Your X example is
+> a good one as well...
 
-'/dev/VSDB/gtpalma' is a logical volume I created and is
-working fine anyway.
+If X allowed to disconnect an app from the server and re-connect it again
+(and it seems there's people in X.org looking into things like this since
+its neccesary for people using X's networkin through wireless connections)
+it'd be easier to support it.
 
-What does this mean?
-Should I do anything to avoid the message?
+Some operative systems already have something like this and call
+it "process checkpointing": "Checkpointing allows you to freeze a copy of an
+application, and then at a later time, it can be restored."
+http://kerneltrap.org/node/1042
 
-Thanks.
-
+Desktops users would love it: Instead of "exiting" your desktop session,
+just dump all your running apps to disk, restore them the next time
+you start your desktop, just like you left. This is already doable with some
+support from apps, but doesn't seem to be implemented in the real world :/

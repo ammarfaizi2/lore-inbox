@@ -1,35 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751068AbVJBKc5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751071AbVJBKgZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751068AbVJBKc5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Oct 2005 06:32:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751070AbVJBKc5
+	id S1751071AbVJBKgZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Oct 2005 06:36:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751072AbVJBKgY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Oct 2005 06:32:57 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:8519
-	"EHLO opteron.random") by vger.kernel.org with ESMTP
-	id S1751065AbVJBKc4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Oct 2005 06:32:56 -0400
-Date: Sun, 2 Oct 2005 12:32:55 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-Cc: Valdis.Kletnieks@vt.edu, Con Kolivas <kernel@kolivas.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc2-mm1 - ext3 wedging up
-Message-ID: <20051002103255.GD26677@opteron.random>
-References: <200509221959.j8MJxJsY010193@turing-police.cc.vt.edu> <200509231036.16921.kernel@kolivas.org> <200509230720.j8N7KYGX023826@turing-police.cc.vt.edu> <20050923153158.GA4548@x30.random> <1127509047.8880.4.camel@kleikamp.austin.ibm.com> <1127509155.8875.6.camel@kleikamp.austin.ibm.com> <1127511979.8875.11.camel@kleikamp.austin.ibm.com> <20050928223829.GH10408@opteron.random> <1128126424.10237.7.camel@kleikamp.austin.ibm.com> <20051002102726.GB26677@opteron.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051002102726.GB26677@opteron.random>
+	Sun, 2 Oct 2005 06:36:24 -0400
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:2440 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1751070AbVJBKgY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Oct 2005 06:36:24 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=lX1/qJqpzcqoiatn398Z8Fd/ML4kRy30tDQezu3NXZMZkDYOi36lQeIZgZsz+kJI0hcj980Vs1VOk4tvJ/lONoc3IfwxUJEOOidkS32Y1Vx5eJ1XahnosXVeNpjPw63SJC8dIg1u8wXk18QF7pv/bnnWY2A9NsfAmd0OZsUv6s4=  ;
+Message-ID: <433FB863.5070009@yahoo.com.au>
+Date: Sun, 02 Oct 2005 20:37:23 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: James Courtier-Dutton <James@superbug.co.uk>
+CC: Ahmad Reza Cheraghi <a_r_cheraghi@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Why no XML in the Kernel?
+References: <20051002094142.65022.qmail@web51012.mail.yahoo.com> <433FAD57.7090106@yahoo.com.au> <433FBE59.8000806@superbug.co.uk>
+In-Reply-To: <433FBE59.8000806@superbug.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 02, 2005 at 12:27:26PM +0200, Andrea Arcangeli wrote:
-> Note Valids, your smtp server bounces back my emails.
+James Courtier-Dutton wrote:
 
-here we go again:
+> I have a requirement to pass information from the kernel to user space. 
+> The information is passed fairly rarely, but over time extra parameters 
+> are added. At the moment we just use a struct, but that means that the 
+> kernel and the userspace app have to both keep in step. If something 
+> like XML was used, we could implement new parameters in the kernel, and 
+> the user space could just ignore them, until the user space is upgraded.
+> XML would initially seem a good idea for this, but are there any methods 
+> currently used in the kernel that could handle these parameter changes 
+> over time.
+> 
+> For example, should the sysfs be used for this?
+> 
+> Any comments?
+> 
 
-<Valdis.Kletnieks@vt.edu>: host smtp.vt.edu[198.82.161.8] said: 550 This domain
-    is blacklisted,consult your postmaster (in reply to MAIL FROM command)
+Yes use sysfs (or procfs if the information is related to a process).
+Using ASCII text representation, and a single value per file is
+noramlly the preferred method to do this I think.
 
-If you blacklist 0.0.0.0/0 as well you won't risk getting any more spam ;)
+Nick
+
+-- 
+SUSE Labs, Novell Inc.
+
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

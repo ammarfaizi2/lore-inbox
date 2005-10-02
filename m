@@ -1,81 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751099AbVJBOQ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbVJBOT7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751099AbVJBOQ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Oct 2005 10:16:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbVJBOQ5
+	id S1751100AbVJBOT7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Oct 2005 10:19:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbVJBOT7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Oct 2005 10:16:57 -0400
-Received: from oracle.bridgewayconsulting.com.au ([203.56.14.38]:33506 "EHLO
-	oracle.bridgewayconsulting.com.au") by vger.kernel.org with ESMTP
-	id S1751099AbVJBOQ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Oct 2005 10:16:56 -0400
-Date: Sun, 2 Oct 2005 22:16:37 +0800
-From: Bernard Blackham <bernard@blackham.com.au>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: lokum spand <lokumsspand@hotmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: A possible idea for Linux: Save running programs to disk
-Message-ID: <20051002141637.GC5211@blackham.com.au>
-References: <BAY105-F35A25DA28443029610815DA48E0@phx.gbl> <20051002045315.GA20946@ucc.gu.uwa.edu.au> <200510020857.27065.tomlins@cam.org>
+	Sun, 2 Oct 2005 10:19:59 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:53218
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1751100AbVJBOT7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Oct 2005 10:19:59 -0400
+Subject: [ANNOUNCE] ARM integration into generic interrupt system
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: ARM Kernel <linux-arm-kernel@lists.arm.linux.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       Robert Schwebel <r.schwebel@pengutronix.de>,
+       Ingo Molnar <mingo@elte.hu>, Manfred Gruber <manfred.gruber@contec.at>,
+       john cooper <john.cooper@timesys.com>,
+       Russell King - ARM Linux <linux@arm.linux.org.uk>
+Content-Type: text/plain
+Organization: linutronix
+Date: Sun, 02 Oct 2005 16:21:05 +0200
+Message-Id: <1128262865.15115.575.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200510020857.27065.tomlins@cam.org>
-Organization: Dagobah Systems
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 02, 2005 at 08:57:26AM -0400, Ed Tomlinson wrote:
-> Is there any kernel api that adding would make cryopid more
-> dependable/cleaner?
+Hi,
 
-Currently a fair bit of information is obtained by injecting code
-into the process's memory space, executing it, and reaping out the
-results (eg, termcaps, file offsets, fcntl states, locks, signal
-actions, etc).  Can't think of ways to make it cleaner off the top
-of my head, but I'm open to ideas.
+During a lengthy discussion on arm-linux-kernel mailing list, ARM
+maintainer Russell King posted a list of requirements that any
+integration of ARM into the generic interrupt layer would have to
+implement:
 
-Seeing as you asked though, here's my wishlist :) I don't expect all
-of these to be implemented, but every bit would help. Issues I
-haven't been able to address so far:
+http://marc.theaimsgroup.com/?l=linux-arm-kernel&m=110693029912801&w=2
 
- - Processes that cache their PID and need it, or rely on PIDs of
-   their children.
+The background of the discussion was an attempt to modify the ARM
+interrupt handling code to make adaption of Ingo's Realtime Preemption
+patches for ARM possible. The proposed changes were unacceptable from
+Russell's point of view and also Ingo was reluctant to accept a 
+non-generic version of his interrupt preemption work open-coded into the
+ARM architecture.
 
-   Some way to request a given PID when cloning/forking (or on the
-   fly even) would make life easier.
+After analysing the ARM specific interrupt code a conversion model was
+integrated into the generic interrupt layer. The central point is the
+seperate entry level handling of the different interrupt types in
+contrast to the "all in one super handler" __do_IRQ(). The reasons and
+lots of details for this seperate handling are described in the DocBook
+docs of the patch along with the documentation of the resulting API. An 
+online version is available here: 
 
- - UNIX sockets aren't currently supported but figuring out what is
-   connected to what seems a little shaky. Some old code used to
-   take a guess that socketpairs had inodes k and k+1 with k odd,
-   which seemed to work in all cases I saw. It certainly didn't feel
-   reliable though.
-   
-   An extra field in /proc/net/unix saying what inode socket was on
-   the other end (only needed for the connect() end) would be great.
+  http://www.tglx.de/projects/armirq/DocBook/index.html
 
- - Setting cmdline as appears in /proc/$pid/cmdline. argv and
-   environ point somewhere into the process's stack determined by
-   the size of argv and environ at exec time. Without va space
-   randomisation in the picture, it's not too difficult to reproduce
-   this and get it back where it should be (it's a hack though), but
-   with va space randomisation it's pretty much impossible.
+The patch has been tested on a broad range of ARM platforms and the
+feature set requested by Russell has been verified. There is no
+functional change to the other architectures which use the generic
+interrupt layer, but the type dependent entry level handler seperation
+also has possible benefits for those users.
 
-   An API to change the actual memory location of this (task's
-   mm->arg_start) would be handy (prctl maybe?)
+The patch allows a clean porting of Ingo's Preempt-RT patches to the ARM
+platform.
 
- - Merging tcpcp for TCP connection saving support.
+The patch is not intended for immediate inclusion into mainline, as
+there are plans in place to get rid of a small number of quirks that are
+present for the sake of 1:1 conversion of the ARM platform. If the ARM
+platform iterates the first few steps alone then we can get rid of these
+quirks and the generic code is not burdened with them.
 
- - I haven't put a great deal of thought into the multithreading
-   side of things, but a non-intrusive way to determine which
-   threads share filesystem contexts, FDs, namespaces, VMAs, and so
-   on would be infinitely useful. My current plan of attack was to
-   tinker with one and see if I could observe it from the others.
+The patch is published to give it a broader test base and for
+integration into Ingos Realtime Preemption patch set.
 
-That's all I can think of for now. If any of these look even
-remotely plausible to incorporate, I'd be quite happy to prepare
-patches (2 and 3 seem trivial enough :)
+Russell King committed recently a broken out set of conversion macros
+and name changes which reduced the patch size significantly. He also has
+some cleanups of the current ARM irq layer in mind which will solve
+some 
+of the quirks, and the armirq patch can provide a good test environment
+for verification without breaking the whole ARM subsystem in the
+mainline kernel.
 
-Kind regards,
+There is broad consensus that the final conversion can only be done in
+fine grained steps with intermediate testing periods.
 
-Bernard.
+The patch is available at:
+
+http://www.tglx.de/projects/armirq/patch-2.6.14-rc3-armirq1.diff
+
+along with a broken out patch series:
+
+http://www.tglx.de/projects/armirq/broken-out/
+
+http://www.tglx.de/projects/armirq/patch-2.6.14-rc3-armirq1.patches.tar.bz2
+
+Thanks to all the people who helped with review, testing and comments
+especially to Russell King, John Cooper, Robert Schwebel, Manfred Gruber
+and the ARM kernel hacker folks.
+
+  tglx, Ingo
+
+

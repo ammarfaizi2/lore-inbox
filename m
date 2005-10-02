@@ -1,390 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750960AbVJBEAl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750962AbVJBEUn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750960AbVJBEAl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Oct 2005 00:00:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750961AbVJBEAl
+	id S1750962AbVJBEUn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Oct 2005 00:20:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750963AbVJBEUn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Oct 2005 00:00:41 -0400
-Received: from gate.crashing.org ([63.228.1.57]:44946 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1750959AbVJBEAl (ORCPT
+	Sun, 2 Oct 2005 00:20:43 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:50594 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750961AbVJBEUm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Oct 2005 00:00:41 -0400
-Subject: [PATCH] nvidiafb: PPC & mode setting fixes
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-Cc: linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-fbdev-devel@lists.sourceforge.net
-Content-Type: text/plain
-Date: Sun, 02 Oct 2005 13:57:42 +1000
-Message-Id: <1128225462.8267.24.camel@gaston>
+	Sun, 2 Oct 2005 00:20:42 -0400
+Date: Sat, 1 Oct 2005 21:20:26 -0700
+From: Paul Jackson <pj@sgi.com>
+To: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
+Cc: taka@valinux.co.jp, magnus.damm@gmail.com, dino@in.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/3] CPUMETER (Re: [PATCH 0/5] SUBCPUSETS: a resource
+ control functionality using CPUSETS)
+Message-Id: <20051001212026.1d39222a.pj@sgi.com>
+In-Reply-To: <20050926093432.626D07003D@sv1.valinux.co.jp>
+References: <20050908225539.0bc1acf6.pj@sgi.com>
+	<20050909.203849.33293224.taka@valinux.co.jp>
+	<20050909063131.64dc8155.pj@sgi.com>
+	<20050910.161145.74742186.taka@valinux.co.jp>
+	<20050910015209.4f581b8a.pj@sgi.com>
+	<20050926093432.626D07003D@sv1.valinux.co.jp>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+Takahiro-san,
 
-This patch fixes a couple of things in nvidiafb:
+I spent a little more reading the cpuset side of your cpumeter patches.
 
- - The code for retreiving the mode from Open Firmware was broken. It
-would crash at boot and was copied from the old rivafb code that didn't
-work very well (I'll update rivafb too one of these days).
+I am hopeful that some substantial restructuring of the code would
+integrate it better with the existing cpuset structure, reducing the
+size of new code substantially.
 
- - The mode setting code produced weird results on the 5200 card in the
-iMac G5 here. X "nv" code works fine though. After comparing them, I
-found out that we aren't really manipulating some VGA bits the same way
-and X code seemed better, so I slightly changed the mode setting to do
-the same and that fixed the problem. (The display was strangely shifted
-with garbage in the margin but not on all lines, and not in bpp 32)
+I noticed not one, but two, nested CONFIG options added for CPUMETER:
+CONFIG_CPUMETER and CONFIG_CPU_RC.  If this CPUMETER patch only
+affected the cpuset code, I'd be tempted to have no additional CONFIG_*
+options, however since the affect on the scheduler might be more
+interesting (I am not a scheduler guru), it might make sense to have
+one new such option - say the CONFIG_CPUMETER one, that covers it all.
+Two seems at least one too many.
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+I am surprised to see fixed length arrays of size CPUMETER_CTRLS_MAX,
+rather than having the cpumeter struct be dynamically allocated,
+reference counted and locked.   I hope we do not have to have a small
+fixed upper limit on the number of distinct cpu controllers.
 
-Index: linux-work/drivers/video/Kconfig
-===================================================================
---- linux-work.orig/drivers/video/Kconfig	2005-09-23 12:53:23.000000000 +1000
-+++ linux-work/drivers/video/Kconfig	2005-09-30 18:33:21.000000000 +1000
-@@ -662,7 +662,7 @@
- 
- config FB_NVIDIA_I2C
-        bool "Enable DDC Support"
--       depends on FB_NVIDIA && !PPC_OF
-+       depends on FB_NVIDIA
-        help
- 	  This enables I2C support for nVidia Chipsets.  This is used
- 	  only for getting EDID information from the attached display
-Index: linux-work/drivers/video/fbmon.c
-===================================================================
---- linux-work.orig/drivers/video/fbmon.c	2005-09-23 12:44:00.000000000 +1000
-+++ linux-work/drivers/video/fbmon.c	2005-09-30 18:28:53.000000000 +1000
-@@ -574,8 +574,9 @@
- 
- 	*dbsize = num;
- 	m = kmalloc(num * sizeof(struct fb_videomode), GFP_KERNEL);
--	if (!m)
-+	if (!m) {
- 		return mode;
-+	}
- 	memmove(m, mode, num * sizeof(struct fb_videomode));
- 	kfree(mode);
- 	return m;
-Index: linux-work/drivers/video/nvidia/nv_of.c
-===================================================================
---- linux-work.orig/drivers/video/nvidia/nv_of.c	2005-09-23 12:44:01.000000000 +1000
-+++ linux-work/drivers/video/nvidia/nv_of.c	2005-10-02 13:37:48.000000000 +1000
-@@ -27,34 +27,60 @@
- #include "nv_local.h"
- #include "nv_proto.h"
- 
--void nvidia_create_i2c_busses(struct nvidia_par *par) {}
--void nvidia_delete_i2c_busses(struct nvidia_par *par) {}
-+#include "../edid.h"
- 
--int nvidia_probe_i2c_connector(struct fb_info *info, int conn, u8 **out_edid)
-+int nvidia_probe_of_connector(struct fb_info *info, int conn, u8 **out_edid)
- {
- 	struct nvidia_par *par = info->par;
--	struct device_node *dp;
-+	struct device_node *parent, *dp;
- 	unsigned char *pedid = NULL;
--	unsigned char *disptype = NULL;
- 	static char *propnames[] = {
--		"DFP,EDID", "LCD,EDID", "EDID", "EDID1", "EDID,B", "EDID,A", NULL };
-+		"DFP,EDID", "LCD,EDID", "EDID", "EDID1",
-+		"EDID,B", "EDID,A", NULL };
- 	int i;
- 
--	dp = pci_device_to_OF_node(par->pci_dev);
--	for (; dp != NULL; dp = dp->child) {
--		disptype = (unsigned char *)get_property(dp, "display-type", NULL);
--		if (disptype == NULL)
--			continue;
--		if (strncmp(disptype, "LCD", 3) != 0)
--			continue;
-+	parent = pci_device_to_OF_node(par->pci_dev);
-+	if (parent == NULL)
-+		return 1;
-+	if (par->twoHeads) {
-+		char *pname;
-+		int len;
-+
-+		for (dp = NULL;
-+		     (dp = of_get_next_child(parent, dp)) != NULL;) {
-+			pname = (char *)get_property(dp, "name", NULL);
-+			if (!pname)
-+				continue;
-+			len = strlen(pname);
-+			if ((pname[len-1] == 'A' && conn == 1) ||
-+			    (pname[len-1] == 'B' && conn == 2)) {
-+				for (i = 0; propnames[i] != NULL; ++i) {
-+					pedid = (unsigned char *)
-+						get_property(dp, propnames[i],
-+							     NULL);
-+					if (pedid != NULL)
-+						break;
-+				}
-+				of_node_put(dp);
-+				break;
-+			}
-+		}
-+	}
-+	if (pedid == NULL) {
- 		for (i = 0; propnames[i] != NULL; ++i) {
- 			pedid = (unsigned char *)
--				get_property(dp, propnames[i], NULL);
--			if (pedid != NULL) {
--				*out_edid = pedid;
--				return 0;
--			}
-+				get_property(parent, propnames[i], NULL);
-+			if (pedid != NULL)
-+				break;
- 		}
- 	}
-+	if (pedid) {
-+		*out_edid = kmalloc(EDID_LENGTH, GFP_KERNEL);
-+		if (*out_edid == NULL)
-+			return 1;
-+		memcpy(*out_edid, pedid, EDID_LENGTH);
-+		printk(KERN_DEBUG "nvidia: Found OF EDID for head %d\n", conn);
-+		return 0;
-+	}
- 	return 1;
- }
-Index: linux-work/drivers/video/nvidia/nv_proto.h
-===================================================================
---- linux-work.orig/drivers/video/nvidia/nv_proto.h	2005-09-23 12:44:01.000000000 +1000
-+++ linux-work/drivers/video/nvidia/nv_proto.h	2005-09-30 18:42:46.000000000 +1000
-@@ -31,7 +31,7 @@
- void NVLockUnlock(struct nvidia_par *par, int);
- 
- /* in nvidia-i2c.c */
--#if defined(CONFIG_FB_NVIDIA_I2C) || defined (CONFIG_PPC_OF)
-+#ifdef CONFIG_FB_NVIDIA_I2C
- void nvidia_create_i2c_busses(struct nvidia_par *par);
- void nvidia_delete_i2c_busses(struct nvidia_par *par);
- int nvidia_probe_i2c_connector(struct fb_info *info, int conn,
-@@ -45,6 +45,16 @@
- } while(0)
- #endif
- 
-+#ifdef CONFIG_FB_OF
-+int nvidia_probe_of_connector(struct fb_info *info, int conn,
-+			      u8 ** out_edid);
-+#else
-+#define nvidia_probe_of_connector(p, c, edid)  \
-+do {                                           \
-+	*(edid) = NULL;                        \
-+} while(0)
-+#endif
-+
- /* in nv_accel.c */
- extern void NVResetGraphics(struct fb_info *info);
- extern void nvidiafb_copyarea(struct fb_info *info,
-Index: linux-work/drivers/video/nvidia/nv_setup.c
-===================================================================
---- linux-work.orig/drivers/video/nvidia/nv_setup.c	2005-09-23 12:44:01.000000000 +1000
-+++ linux-work/drivers/video/nvidia/nv_setup.c	2005-09-30 18:47:56.000000000 +1000
-@@ -190,9 +190,9 @@
- 	present = (NV_RD32(PRAMDAC, 0x0608) & (1 << 28)) ? 1 : 0;
- 
- 	if (present)
--		printk("nvidiafb: CRTC%i found\n", output);
-+		printk("nvidiafb: CRTC%i analog found\n", output);
- 	else
--		printk("nvidiafb: CRTC%i not found\n", output);
-+		printk("nvidiafb: CRTC%i analog not found\n", output);
- 
- 	NV_WR32(par->PRAMDAC0, 0x0608, NV_RD32(par->PRAMDAC0, 0x0608) &
- 		0x0000EFFF);
-@@ -305,6 +305,9 @@
- 	int FlatPanel = -1;	/* really means the CRTC is slaved */
- 	int Television = 0;
- 
-+	memset(&monitorA, 0, sizeof(struct fb_monspecs));
-+	memset(&monitorB, 0, sizeof(struct fb_monspecs));
-+
- 	par->PRAMIN = par->REGS + (0x00710000 / 4);
- 	par->PCRTC0 = par->REGS + (0x00600000 / 4);
- 	par->PRAMDAC0 = par->REGS + (0x00680000 / 4);
-@@ -401,7 +404,8 @@
- 	nvidia_create_i2c_busses(par);
- 	if (!par->twoHeads) {
- 		par->CRTCnumber = 0;
--		nvidia_probe_i2c_connector(info, 1, &edidA);
-+		if (nvidia_probe_i2c_connector(info, 1, &edidA))
-+			nvidia_probe_of_connector(info, 1, &edidA);
- 		if (edidA && !fb_parse_edid(edidA, &var)) {
- 			printk("nvidiafb: EDID found from BUS1\n");
- 			monA = &monitorA;
-@@ -488,14 +492,16 @@
- 		oldhead = NV_RD32(par->PCRTC0, 0x00000860);
- 		NV_WR32(par->PCRTC0, 0x00000860, oldhead | 0x00000010);
- 
--		nvidia_probe_i2c_connector(info, 1, &edidA);
-+		if (nvidia_probe_i2c_connector(info, 1, &edidA))
-+			nvidia_probe_of_connector(info, 1, &edidA);
- 		if (edidA && !fb_parse_edid(edidA, &var)) {
- 			printk("nvidiafb: EDID found from BUS1\n");
- 			monA = &monitorA;
- 			fb_edid_to_monspecs(edidA, monA);
- 		}
- 
--		nvidia_probe_i2c_connector(info, 2, &edidB);
-+		if (nvidia_probe_i2c_connector(info, 2, &edidB))
-+			nvidia_probe_of_connector(info, 2, &edidB);
- 		if (edidB && !fb_parse_edid(edidB, &var)) {
- 			printk("nvidiafb: EDID found from BUS2\n");
- 			monB = &monitorB;
-Index: linux-work/drivers/video/nvidia/nvidia.c
-===================================================================
---- linux-work.orig/drivers/video/nvidia/nvidia.c	2005-09-23 12:53:23.000000000 +1000
-+++ linux-work/drivers/video/nvidia/nvidia.c	2005-10-02 13:21:44.000000000 +1000
-@@ -619,41 +619,85 @@
- 	NVTRACE_LEAVE();
- }
- 
-+#undef DUMP_REG
-+
- static void nvidia_write_regs(struct nvidia_par *par)
- {
- 	struct _riva_hw_state *state = &par->ModeReg;
- 	int i;
- 
- 	NVTRACE_ENTER();
--	NVWriteCrtc(par, 0x11, 0x00);
--
--	NVLockUnlock(par, 0);
- 
- 	NVLoadStateExt(par, state);
- 
- 	NVWriteMiscOut(par, state->misc_output);
- 
-+	for (i = 1; i < NUM_SEQ_REGS; i++) {
-+#ifdef DUMP_REG
-+		printk(" SEQ[%02x] = %08x\n", i, state->seq[i]);
-+#endif
-+		NVWriteSeq(par, i, state->seq[i]);
-+	}
-+
-+	/* Ensure CRTC registers 0-7 are unlocked by clearing bit 7 of CRTC[17] */
-+	NVWriteCrtc(par, 0x11, state->crtc[0x11] & ~0x80);
-+
- 	for (i = 0; i < NUM_CRT_REGS; i++) {
- 		switch (i) {
- 		case 0x19:
- 		case 0x20 ... 0x40:
- 			break;
- 		default:
-+#ifdef DUMP_REG
-+			printk("CRTC[%02x] = %08x\n", i, state->crtc[i]);
-+#endif
- 			NVWriteCrtc(par, i, state->crtc[i]);
- 		}
- 	}
- 
--	for (i = 0; i < NUM_ATC_REGS; i++)
--		NVWriteAttr(par, i, state->attr[i]);
--
--	for (i = 0; i < NUM_GRC_REGS; i++)
-+	for (i = 0; i < NUM_GRC_REGS; i++) {
-+#ifdef DUMP_REG
-+		printk(" GRA[%02x] = %08x\n", i, state->gra[i]);
-+#endif
- 		NVWriteGr(par, i, state->gra[i]);
-+	}
-+
-+	for (i = 0; i < NUM_ATC_REGS; i++) {
-+#ifdef DUMP_REG
-+		printk("ATTR[%02x] = %08x\n", i, state->attr[i]);
-+#endif
-+		NVWriteAttr(par, i, state->attr[i]);
-+	}
- 
--	for (i = 0; i < NUM_SEQ_REGS; i++)
--		NVWriteSeq(par, i, state->seq[i]);
- 	NVTRACE_LEAVE();
- }
- 
-+static void nvidia_vga_protect(struct nvidia_par *par, int on)
-+{
-+	unsigned char tmp;
-+
-+	if (on) {
-+		/*
-+		 * Turn off screen and disable sequencer.
-+		 */
-+		tmp = NVReadSeq(par, 0x01);
-+
-+		NVWriteSeq(par, 0x00, 0x01);		/* Synchronous Reset */
-+		NVWriteSeq(par, 0x01, tmp | 0x20);	/* disable the display */
-+	} else {
-+		/*
-+		 * Reenable sequencer, then turn on screen.
-+		 */
-+
-+		tmp = NVReadSeq(par, 0x01);
-+
-+		NVWriteSeq(par, 0x01, tmp & ~0x20);	/* reenable display */
-+		NVWriteSeq(par, 0x00, 0x03);		/* End Reset */
-+	}
-+}
-+
-+
-+
- static int nvidia_calc_regs(struct fb_info *info)
- {
- 	struct nvidia_par *par = info->par;
-@@ -860,7 +904,7 @@
- 	for (i = 0; i < 0x10; i++)
- 		state->attr[i] = i;
- 	state->attr[0x10] = 0x41;
--	state->attr[0x11] = 0x01;
-+	state->attr[0x11] = 0xff;
- 	state->attr[0x12] = 0x0f;
- 	state->attr[0x13] = 0x00;
- 	state->attr[0x14] = 0x00;
-@@ -983,7 +1027,6 @@
- 
- 	nvidia_init_vga(info);
- 	nvidia_calc_regs(info);
--	nvidia_write_regs(par);
- 
- 	NVLockUnlock(par, 0);
- 	if (par->twoHeads) {
-@@ -992,7 +1035,22 @@
- 		NVLockUnlock(par, 0);
- 	}
- 
--	NVWriteCrtc(par, 0x11, 0x00);
-+	nvidia_vga_protect(par, 1);
-+
-+	nvidia_write_regs(par);
-+
-+#if defined (__BIG_ENDIAN)
-+	/* turn on LFB swapping */
-+	{
-+		unsigned char tmp;
-+
-+		VGA_WR08(par->PCIO, 0x3d4, 0x46);
-+		tmp = VGA_RD08(par->PCIO, 0x3d5);
-+		tmp |= (1 << 7);
-+		VGA_WR08(par->PCIO, 0x3d5, tmp);
-+    }
-+#endif
-+
- 	info->fix.line_length = (info->var.xres_virtual *
- 				 info->var.bits_per_pixel) >> 3;
- 	if (info->var.accel_flags) {
-@@ -1014,7 +1072,7 @@
- 
- 	par->cursor_reset = 1;
- 
--	NVWriteCrtc(par, 0x11, 0xff);
-+	nvidia_vga_protect(par, 0);
- 
- 	NVTRACE_LEAVE();
- 	return 0;
+I suspect that we should have a single additional pointer to cpu
+resource controller (rc) domain structure, referenced from both
+cpusets and tasks, where that structure is reference counted and
+has its own lock.  All tasks and all cpuses in a given cpu rc domain
+would point to the same structure.  This would remove any need in the
+critical scheduler code to reference a tasks cpuset or the parent
+of that cpuset, and it would allow the cpusets in such a domain to
+have child cpusets, which would inherit another reference to the same
+cpumeter rc domain, as I have been hoping would be possible.
 
+So the code now added to struct cpuset:
 
+	#ifdef CONFIG_CPUMETER
+		/*
+		 * rcdomains: used for the recource control domains
+		 *            to keep track of total ammount of resources.
+		 * meters:    used for metering resources assigned for
+		 *            the cpuset.
+		 */
+		void *rcdomains[CPUMETER_CTLRS_MAX];
+		struct cpumeter meters[CPUMETER_CTLRS_MAX];
+	#endif /* CONFIG_CPUMETER */
+
+might collapse to simply:
+
+	struct cpumeter *cpumeter;
+
+The use of the last CPUMETER_CTLRS_MAX (16) bits, starting at offset
+CS_METER_OFFSET, of the typedef enum cpuset_flagbigs_t for one bit per
+controller instance is creative, but hopefully unnecessary.  Rather,
+if the struct cpumeters are dynamically allocated, then whether the
+cpuset->cpumeter pointer is non-NULL will determine if that cpuset
+is metered, and the pointer will reference the information about that
+metered domain, shared by all cpusets in that domain, and hence by all
+tasks in those cpusets.  Be sure to update which cpumeter rc domain a
+task is in, if that task is moved to another cpuset, by attach_task().
+
+The cpumeter_destroy_meters() routine should not be called from
+cpuset_diput().  Rather the reference count on the meter structure
+should be incremented and decremented each time a cpuset or task
+attaches to or detached from it, and it should be free'd when the
+count goes to zero.
+
+There are 736 lines of code added to the end of kernel/cpuset.c,
+with many snippets closely resembling existing code from the rest
+of kernel/cpuset.c.   This is too much duplicated, parallel code,
+and too much duplicate, parallel data structures.  I am hoping
+that this can be collapsed into the existing cpuset.c code, adding
+perhaps 100 or 200 lines instead of 736 lines.  But I have not
+thought about it too hard - this hope might be wishful thinking.
+Seeing routines such as "cpumeter_file_read_common()", along side
+the existing "cpuset_common_file_read()", worries me.  Way too much
+duplication of code.  And I hope we don't need a whole different
+set of file_operations for the guar and lim files.
+
+This code provides a basis for other forms of metering besides just
+cpu metering.  I wonder if perhaps it would be better to just do
+cpu metering here, and remove a bit of the generality that supports
+other types of controllers.  If the addition of this cpuset based
+controller were sufficiently integrated with the existing cpuset
+code, and kept simple enough, then adding another controller type,
+such as for memory, could just do the same sort of thing easy enough.
+It would be easier to read the code if lines such as the following:
+
+		sprintf(name, "%s%s%s", cpumeter_meter_prefix, c->name,
+			cpumeter_guar_suffix);
+
+were instead:
+
+		name = "meter_cpu_guar";
+
+You have been most gracious in your consideration of my suggestions
+so far.  I hope the above thoughts will benefit your work.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

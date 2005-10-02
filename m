@@ -1,112 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751005AbVJBHU0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751007AbVJBH65@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751005AbVJBHU0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Oct 2005 03:20:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751006AbVJBHU0
+	id S1751007AbVJBH65 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Oct 2005 03:58:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751008AbVJBH65
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Oct 2005 03:20:26 -0400
-Received: from nproxy.gmail.com ([64.233.182.206]:54956 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751003AbVJBHUZ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Oct 2005 03:20:25 -0400
+	Sun, 2 Oct 2005 03:58:57 -0400
+Received: from web35515.mail.mud.yahoo.com ([66.163.179.139]:18090 "HELO
+	web35515.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751006AbVJBH64 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Oct 2005 03:58:56 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Tz+DaDGuqUTNIDOK4Gt1r7gx2NlIDMq9eZUOGVscUlpspU1jAOX3X/sM2mohGW6UZC5ssTCt//kZuCckxhiShtfIJR9pPo+Hb5uldAzVhlKyLkv44Ps8CV853gKSoPtkVHLJJzYxGL3XkotEjHYFimb31lZGsK2VyB+oFtTSm3c=
-Message-ID: <2cd57c900510020020i564d473fx95c608bcac93bea@mail.gmail.com>
-Date: Sun, 2 Oct 2005 15:20:23 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: Coywolf Qi Hunt <coywolf@gmail.com>
-To: Paul Jackson <pj@sgi.com>
-Subject: Re: [PATCH] Document from line in patch format
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
-       "Randy.Dunlap" <rdunlap@xenotime.net>
-In-Reply-To: <20051002062135.32334.32895.sendpatchset@jackhammer.engr.sgi.com>
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=4DSlMv1UymfQj+a45wkpqjldyaiRc/LY7uHkqWuJe4IhMvdZS4O7k2PkiHF+UHpCK81gfMlnTT5hc1rM9oA/H/5JHXw85VtB1U6C7ZVDXEVw5M2u5uBh9EbGJVmdhtXP3REIgI7n9RLRVsNDNaE2VwYVig1kAprv1uZVgNNPnZQ=  ;
+Message-ID: <20051002075855.1277.qmail@web35515.mail.mud.yahoo.com>
+Date: Sun, 2 Oct 2005 00:58:55 -0700 (PDT)
+From: salman khan <madat_ye_khuda@yahoo.com>
+Subject: KGDB Problem on Mandrake 10.0 ...............
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051002062135.32334.32895.sendpatchset@jackhammer.engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/2/05, Paul Jackson <pj@sgi.com> wrote:
-> Document more details of patch format such as the "from" line
-> used to specify the patch author, and provide more references
-> for patch guidelines.
->
-> Signed-off-by: Paul Jackson <pj@sgi.com>
->
-> Index: 2.6.14-rc2-mm2/Documentation/SubmittingPatches
-> ===================================================================
-> --- 2.6.14-rc2-mm2.orig/Documentation/SubmittingPatches
-> +++ 2.6.14-rc2-mm2/Documentation/SubmittingPatches
-> @@ -301,8 +301,47 @@ now, but you can do this to mark interna
->  point out some special detail about the sign-off.
->
->
-> +12) The canonical patch format
->
-> -12) More references for submitting patches
-> +The canonical patch subject line is:
-> +
-> +    Subject: [PATCH 001/123] [<area>:] <explanation>
-> +
-> +The canonical patch message body contains the following:
-> +
-> +    The first line of the body contains a "from" line specifying
-> +    the author of the patch:
-> +
-> +        From: Original Author <author@email.com>
-> +
-> +    If the "from" line is missing, then the author of the patch will
-> +    be recorded in the source code revision history as whomever is
-> +    listed in the last "Signed-off-by:" line in the message when Linus
-> +    receives it.
-> +
-> +    The "from" line is followed by an empty line and then the body
-> +    of the explanation.
-> +
-> +    After the body of the explanation comes the "Signed-off-by:"
-> +    lines, and then a simple "---" line, and below that comes the
-> +    diffstat of the patch and then the patch itself.  The "---" line
-> +    and diffstat are optional, but helpful to readers of non-trivial
-> +    patches.
-> +
-> +The Subject line format makes it very easy to sort the emails
-> +alphabetically by subject line - pretty much any email reader will
-> +support that - since because the sequence number is zero-padded,
-> +the numerical and alphabetic sort is the same.
-> +
-> +See further details on how to phrase the "<explanation>" in
-> +the "Subject:" line in Andrew Morton's "The perfect patch",
-> +referenced below.
-> +
-> +See more details on the proper patch format in the following
-> +references.
-> +
-> +
-> +13) More references for submitting patches
->
->  Andrew Morton, "The perfect patch" (tpp).
->    <http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt>
-> @@ -310,6 +349,14 @@ Andrew Morton, "The perfect patch" (tpp)
->  Jeff Garzik, "Linux kernel patch submission format."
->    <http://linux.yyz.us/patch-format.html>
->
-> +Jeff Garzik, "How to piss off a kernel subsystem maintainer"
-> +  <http://www.kroah.com/log/2005/03/31/>
-> +
-> +Kernel Documentation/CodingStyle
-> +  <http://lxr.linux.no/source/Documentation/CodingStyle>
+Sir,
+   I am using kernel 2.6.10 (mandrake 10.0) & same
+KGDB patch . I have 
+made all connection proper (verified ) , also tested
+simple program 
+(just using bt , next , step commands ). while using
+KGDB for Module i 
+have downloaded gdb patch "gdbmod.bz2" from 
+www.linsyssoft.com & had 
+installed it , i have placed that "gdbmod" file
+(extracted file) in ' /bin 
+' . After giving gdbmod
+command it shows me   "Permission denied " message so
+then i changed 
+the rights & made it executable. while giving gdbmod
+command to 'vmlinux' 
+on
+developement m/c i got sementation fault .      
+ 
+[root@localhost linux-2.6.10]# gdbmod vmlinux
+GNU gdb 6.0
+Copyright 2003 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General
+Public License, and you are
+welcome to change it and/or distribute copies of it
+under certain conditions.
+Type "show copying" to see the conditions.
+There is absolutely no warranty for GDB.  Type "show
+warranty" for details.
+This GDB was configured as
+"i686-pc-linux-gnu"...Segmentation fault (core dumped)
+What is wrong with this ?
+Please help me.
+ 
+mail me : shashank_pict@yahoo.com
+ 
+                                    - Shashank K.
+                                      PICT , PUNE 
 
-There's another one more updated at http://sosdg.org/~coywolf/lxr/source/
 
-> +
-> +Linus Torvald's mail on the canonical patch format:
-> +  <http://lkml.org/lkml/2005/4/7/183>
->
 
---
-Coywolf Qi Hunt
+		
+
+
+		
+__________________________________ 
+Yahoo! Mail - PC Magazine Editors' Choice 2005 
+http://mail.yahoo.com

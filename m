@@ -1,74 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751007AbVJBH65@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751010AbVJBIFE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751007AbVJBH65 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Oct 2005 03:58:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751008AbVJBH65
+	id S1751010AbVJBIFE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Oct 2005 04:05:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751012AbVJBIFE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Oct 2005 03:58:57 -0400
-Received: from web35515.mail.mud.yahoo.com ([66.163.179.139]:18090 "HELO
-	web35515.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751006AbVJBH64 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Oct 2005 03:58:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=4DSlMv1UymfQj+a45wkpqjldyaiRc/LY7uHkqWuJe4IhMvdZS4O7k2PkiHF+UHpCK81gfMlnTT5hc1rM9oA/H/5JHXw85VtB1U6C7ZVDXEVw5M2u5uBh9EbGJVmdhtXP3REIgI7n9RLRVsNDNaE2VwYVig1kAprv1uZVgNNPnZQ=  ;
-Message-ID: <20051002075855.1277.qmail@web35515.mail.mud.yahoo.com>
-Date: Sun, 2 Oct 2005 00:58:55 -0700 (PDT)
-From: salman khan <madat_ye_khuda@yahoo.com>
-Subject: KGDB Problem on Mandrake 10.0 ...............
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 2 Oct 2005 04:05:04 -0400
+Received: from gate.crashing.org ([63.228.1.57]:24979 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751010AbVJBIFD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Oct 2005 04:05:03 -0400
+Subject: Re: [PATCH] nvidiafb: PPC & mode setting fixes (#2)
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Cc: linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-fbdev-devel@lists.sourceforge.net
+In-Reply-To: <433F8774.6000301@gmail.com>
+References: <1128225462.8267.24.camel@gaston>
+	 <1128232186.8267.31.camel@gaston>  <433F8774.6000301@gmail.com>
+Content-Type: text/plain
+Date: Sun, 02 Oct 2005 18:02:06 +1000
+Message-Id: <1128240126.8267.37.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sir,
-   I am using kernel 2.6.10 (mandrake 10.0) & same
-KGDB patch . I have 
-made all connection proper (verified ) , also tested
-simple program 
-(just using bt , next , step commands ). while using
-KGDB for Module i 
-have downloaded gdb patch "gdbmod.bz2" from 
-www.linsyssoft.com & had 
-installed it , i have placed that "gdbmod" file
-(extracted file) in ' /bin 
-' . After giving gdbmod
-command it shows me   "Permission denied " message so
-then i changed 
-the rights & made it executable. while giving gdbmod
-command to 'vmlinux' 
-on
-developement m/c i got sementation fault .      
- 
-[root@localhost linux-2.6.10]# gdbmod vmlinux
-GNU gdb 6.0
-Copyright 2003 Free Software Foundation, Inc.
-GDB is free software, covered by the GNU General
-Public License, and you are
-welcome to change it and/or distribute copies of it
-under certain conditions.
-Type "show copying" to see the conditions.
-There is absolutely no warranty for GDB.  Type "show
-warranty" for details.
-This GDB was configured as
-"i686-pc-linux-gnu"...Segmentation fault (core dumped)
-What is wrong with this ?
-Please help me.
- 
-mail me : shashank_pict@yahoo.com
- 
-                                    - Shashank K.
-                                      PICT , PUNE 
+On Sun, 2005-10-02 at 15:08 +0800, Antonino A. Daplas wrote:
+> Benjamin Herrenschmidt wrote:
+> > (This version removes a useless bit that slipped in the previous one)
+> > 
+> > This patch fixes a couple of things in nvidiafb:
+> > 
+> >  - The code for retreiving the mode from Open Firmware was broken. It
+> > would crash at boot and was copied from the old rivafb code that didn't
+> > work very well (I'll update rivafb too one of these days).
+> 
+> What do you think of making EDID retrieval from the OF generic?  Or is
+> it too much hassle?
+
+Well, at this point, it only really concerns nvidia and ati's and their
+respective firmwares seem to expose some properties a bit differently...
+The radeon code would probably work for nvidia though as I'm not trying
+to get the connector type for nvidiafb yet, but if I ever try, it seems
+the stuff is a bit different.
+
+I'd say let's keep them separate for now, I may put them in a common
+place some day ..
+
+Ben.
+
+> Thanks for the fix :-)  
+> 
+> Acked-by: Antonino Daplas <adaplas@pol.net>
+
+Ok, if you confirm it doesn't seem to do any regression on other
+hardware (I don't have any other nvidia hw to test with), I'd like it
+upstream asap (probably too late for 2.6.14 though).
+
+Ben.
 
 
-
-		
-
-
-		
-__________________________________ 
-Yahoo! Mail - PC Magazine Editors' Choice 2005 
-http://mail.yahoo.com

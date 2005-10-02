@@ -1,74 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751136AbVJBSXg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbVJBSq3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751136AbVJBSXg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Oct 2005 14:23:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbVJBSXg
+	id S1751140AbVJBSq3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Oct 2005 14:46:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751141AbVJBSq3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Oct 2005 14:23:36 -0400
-Received: from goliat.kalisz.mm.pl ([217.96.42.226]:4286 "EHLO kalisz.mm.pl")
-	by vger.kernel.org with ESMTP id S1751136AbVJBSXf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Oct 2005 14:23:35 -0400
-Message-ID: <434025B5.5010208@gorzow.mm.pl>
-Date: Sun, 02 Oct 2005 20:23:49 +0200
-From: Radoslaw Szkodzinski <astralstorm@gorzow.mm.pl>
-User-Agent: Thunderbird 1.4 (X11/20050930)
+	Sun, 2 Oct 2005 14:46:29 -0400
+Received: from zproxy.gmail.com ([64.233.162.204]:32114 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751140AbVJBSq2 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Oct 2005 14:46:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=dfMyRBsj9q/KQmFOmjY5gGJezEhpNo3vAW2r47OzUMYbdGU1WLYwgV88XfS+cmS8CPOjTXx+kcQm9MSYu0LQKzFdQpL0y1B3aAHIPEIFsPHdJJb4r4xj0VgHWBW5Dn/MXP63v2aK2AjaZQn/DQZMHeerSxIEVwn151DamweZiA8=
+Message-ID: <35fb2e590510021146m43badbe4xb6f8e3f63d6328ea@mail.gmail.com>
+Date: Sun, 2 Oct 2005 19:46:25 +0100
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: lokum spand <lokumsspand@hotmail.com>
+Subject: Re: A possible idea for Linux: Save running programs to disk
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <BAY105-F35A25DA28443029610815DA48E0@phx.gbl>
 MIME-Version: 1.0
-To: Patrick McHardy <kaber@trash.net>
-CC: linux-kernel@vger.kernel.org
-Subject: [SOLVED?] Re: 2.6.13-rc2+ - problem with DHCP
-References: <433EBBEC.4050203@gorzow.mm.pl> <433ECE42.2070400@trash.net> <433F0228.6000304@gorzow.mm.pl> <433F6FF3.1040706@trash.net>
-In-Reply-To: <433F6FF3.1040706@trash.net>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <BAY105-F35A25DA28443029610815DA48E0@phx.gbl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On 10/1/05, lokum spand <lokumsspand@hotmail.com> wrote:
 
-Patrick McHardy wrote:
-| Radoslaw Szkodzinski wrote:
+> I allow myself to suggest the following, although not sure if I post in
+> the right group:
 
-<snip>
+I've looked at similar, would have been my PhD area of interest.
 
-| I can't reproduce the problem, it reliably works for me using pump,
-| dhclient or udhcpc. One thing I've noticed is that udhcpc 0.98
-| doesn't set the interface up itself and fails if it is down. Please
-| make sure that it is up in your tests.
-|
-|> 2.6.13, 2.6.14-rc1 (up to the patch) both work fine.
-|> 2.6.14-rc2 and 2.6.14-rc3 do not. (they can't discover IP address)
-|> The window is between that commit and rc2.
-|> (about 180 changesets)
-|>
-|> I only suspect that patch, it could be something else but I highly doubt
-|> it. I'll check the current kernel with the patch backed out when I have
-|> to restart.
-|
-| Thanks. You mentioned you're setting up your ruleset after DHCP, which
-| means the patch can't be responsible because the codepath is never
-| taken for DHCP queries, so you probably need to do a binary search
-| over the remaining 180 changesets.
+> Suppose Linux could save the total state of a program to disk, for
+> instance, imagine a program like mozilla with many open windows. I give
+> it a SIGNAL-SAVETODISK and the process memory image is dropped to a
+> file. I can then turn off the computer and later continue using the
+> program where I left it, by loading it back into memory.
 
-Which didn't work out. The bug disappeared... Probably my ISP messed
-something up in their config and fixed it afterwards.
-Really weird.
-Before, I've tried 10 times each:
-2.6.13 and changeset 8917 were getting IP address correctly, while
-2.6.14-rc1 after the changeset not. Now all versions work fine.
-Including 2.6.14-rc3.
+My interest is in having journalled processes at the system call level
+so you can do full forward error recovery and resume on another node.
+But in this day and age of webby stuff it's often not necessary for
+the enterprise and a lot of hassle for everyone else (especially
+preserving and handling network state). In any case, at OLS, I asked
+the Xen folks about this and was told some people are apparently
+looking into somehow "transactionalising" Xen so you'll be able to
+checkpoint as you go and handle failover.
 
-- --
-GPG Key id:  0xD1F10BA2
-Fingerprint: 96E2 304A B9C4 949A 10A0  9105 9543 0453 D1F1 0BA2
+> Would that be possible? At least a program can be given a ctrl-z and is
+> swapped out if physical memory is needed. This is somewhat similar (?)
+> Would that need kernel parameters to be included in the process image
+> file? What about X-windows resources? Is this simply to easy to exploit
+> by having altered process images loaded back into the memory? ('virus')
 
-AstralStorm
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
+I think that for very specific applications it would be possible,
+others would make it much harder and necessary to have userland
+support (even if not in the application itself). It's something I'd
+recommend as a research topic due to it's open ended nature but I'm
+not so sure we'll see this in Linux any time soon :-)
 
-iD8DBQFDQCW1lUMEU9HxC6IRAg90AJ0SJwehNFeHJw40BJ/zaLyU/tY7yQCgjRaO
-/U2kAFrHr1z8v+ep456ij0Y=
-=jUlW
------END PGP SIGNATURE-----
+Jon.

@@ -1,42 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbVJBUz3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbVJBVF6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932070AbVJBUz3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Oct 2005 16:55:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932069AbVJBUz3
+	id S932075AbVJBVF6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Oct 2005 17:05:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932076AbVJBVF6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Oct 2005 16:55:29 -0400
-Received: from mail.kroah.org ([69.55.234.183]:62173 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932070AbVJBUz2 (ORCPT
+	Sun, 2 Oct 2005 17:05:58 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:59847 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932075AbVJBVF6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Oct 2005 16:55:28 -0400
-Date: Sun, 2 Oct 2005 13:45:47 -0700
-From: Greg KH <greg@kroah.com>
-To: Dominik Karall <dominik.karall@gmx.net>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc2-mm2 (NULL pointer)
-Message-ID: <20051002204547.GA28154@kroah.com>
-References: <20050929143732.59d22569.akpm@osdl.org> <200510022206.36291.dominik.karall@gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200510022206.36291.dominik.karall@gmx.net>
-User-Agent: Mutt/1.5.11
+	Sun, 2 Oct 2005 17:05:58 -0400
+Date: Sun, 2 Oct 2005 17:05:42 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@cuia.boston.redhat.com
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel?
+In-Reply-To: <20051002204703.GG6290@lkcl.net>
+Message-ID: <Pine.LNX.4.63.0510021704210.27456@cuia.boston.redhat.com>
+References: <20051002204703.GG6290@lkcl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 02, 2005 at 10:06:22PM +0200, Dominik Karall wrote:
-> On Thursday 29 September 2005 23:37, Andrew Morton wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc2/2.
-> >6.14-rc2-mm2/
+On Sun, 2 Oct 2005, Luke Kenneth Casson Leighton wrote:
+
+> and, what is the linux kernel?
 > 
-> hi,
-> I'm not sure if this error depends on the loaded quickcam module, which isn't 
-> in standard kernels.
+> it's a daft, monolithic design that is suitable and faster on
+> single-processor systems, and that design is going to look _really_
+> outdated, really soon.
 
-Go bug the authors of that driver, it seems to be dependant on them
-(numberous reports of this issue...)
+Linux already has a number of scalable SMP synchronisation
+mechanisms. The main scalability effort nowadays is about
+the avoidance of so-called "cache line bouncing".
 
-thanks,
+http://wiki.kernelnewbies.org/wiki/SMPSynchronisation
 
-greg k-h
-
+-- 
+All Rights Reversed

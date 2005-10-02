@@ -1,68 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbVJBOlT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbVJBPOY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751096AbVJBOlT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Oct 2005 10:41:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbVJBOlT
+	id S1751108AbVJBPOY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Oct 2005 11:14:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751109AbVJBPOY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Oct 2005 10:41:19 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:1287 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751096AbVJBOlS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Oct 2005 10:41:18 -0400
-Date: Sun, 2 Oct 2005 16:41:13 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: David Miller <davem@davemloft.net>, neilb@cse.unsw.edu.au,
-       trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org,
-       nfs@lists.sourceforge.net, netdev@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] net/sunrpc/: possible cleanups
-Message-ID: <20051002144113.GM4212@stusta.de>
-References: <20051001142041.GB4212@stusta.de> <20051001164019.GB8633@mipter.zuzino.mipt.ru>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051001164019.GB8633@mipter.zuzino.mipt.ru>
-User-Agent: Mutt/1.5.11
+	Sun, 2 Oct 2005 11:14:24 -0400
+Received: from main.gmane.org ([80.91.229.2]:62880 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751108AbVJBPOY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Oct 2005 11:14:24 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Re: Blanky rivafb vs snowy nvidiafb with 2.6.12
+Date: Sun, 2 Oct 2005 17:13:29 +0200
+Message-ID: <1l32ctqb3wuk8$.xbs0uj9dx0k$.dlg@40tude.net>
+References: <1hcq27fp0wwd6.1xosn5xgejhhn$.dlg@40tude.net> <433B049B.1090502@gmail.com> <1gie1vr78iijd$.qcvoypipyouu.dlg@40tude.net> <433BE0D1.1070501@gmail.com> <dsq9rvr3xni3.1py6wljnelhp0.dlg@40tude.net> <433C52F0.6000401@gmail.com> <1hk58zmy4sz0x.kyzvnh8u4ia2.dlg@40tude.net> <433E2387.2090608@gmail.com> <15vft1mw0n773.w7bplfheyl29.dlg@40tude.net> <433E69A4.5050502@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: host-84-220-49-122.cust-adsl.tiscali.it
+User-Agent: 40tude_Dialog/2.0.15.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 01, 2005 at 08:40:19PM +0400, Alexey Dobriyan wrote:
-> On Sat, Oct 01, 2005 at 04:20:41PM +0200, Adrian Bunk wrote:
-> > -/* Just increments the mechanism's reference count and returns its input: */
-> > -struct gss_api_mech * gss_mech_get(struct gss_api_mech *);
-> > -
+On Sat, 01 Oct 2005 18:49:08 +0800, Antonino A. Daplas wrote:
+
+> Giuseppe Bilotta wrote:
+>> On Sat, 01 Oct 2005 13:49:59 +0800, Antonino A. Daplas wrote:
+>> 
+>>> Looks like the nv driver just ignored the EDID and used one of
+>>> its built-in VESA modes.  If you notice, X's EDID ouput is the same
+>>> as nvidiafb's. But the resulting timings are different.
+>>>
+>>> In contrast, nvidiafb will attempt to use the EDID, and only as a last
+>>> resort, use one of the timings in the global mode database.
+>> 
+>> I see. And when EDID is enabled for the module, it won't let me touch
+>> those timings at all.
 > 
-> > -struct gss_api_mech *
-> > +static struct gss_api_mech *
-> >  gss_mech_get(struct gss_api_mech *gm)
+> Yes. But if the EDID block specified a usable hsync and vsync range, the
+> timings can be customized.  In your case it does not.
+
+/me is wondering if it would be possible to hack the EDID block and
+fix it ... and whether it's worth the risk.
+
+>> Maybe a "noddc" or "noedid" module option for 
+>> when EDID support is compiled in and one wants to work without it?
 > 
-> Comment is lost.
+> It is a good idea.  Especially since I've already encountered a lot of
+> crappy EDID blocks.
 
+That'd be nice :)
 
-The comment made sense for the prototype at the header, but the function 
-now has only one caller in the file where it's defined.
-
-
-If someone needs a comment to figure out what a function whose complete 
-contents is
-
-static struct gss_api_mech *
-gss_mech_get(struct gss_api_mech *gm)
-{
-        __module_get(gm->gm_owner);
-        return gm;
-}
-
-does, the problem is not a missing comment.
-
-
-cu
-Adrian
+Thank you very much for all your help and information. I can now
+exploit my eye-destroying 133dpi in console too :)
 
 -- 
+Giuseppe "Oblomov" Bilotta
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+"They that can give up essential liberty to obtain
+a little temporary safety deserve neither liberty
+nor safety." Benjamin Franklin
 

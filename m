@@ -1,58 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751001AbVJBHIn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751005AbVJBHU0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751001AbVJBHIn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Oct 2005 03:08:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751002AbVJBHIn
+	id S1751005AbVJBHU0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Oct 2005 03:20:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751006AbVJBHU0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Oct 2005 03:08:43 -0400
-Received: from zproxy.gmail.com ([64.233.162.194]:19067 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751000AbVJBHIm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Oct 2005 03:08:42 -0400
+	Sun, 2 Oct 2005 03:20:26 -0400
+Received: from nproxy.gmail.com ([64.233.182.206]:54956 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751003AbVJBHUZ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Oct 2005 03:20:25 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=F+O2eep6mu4Ta81ltJJoRR8SkAmxa55En7RXoTdkEV/2KqTHn1CeTFZudgXxFZfZO/KAraQcPBzd113T9Vs9OVh6JOmb/0E2hiEAymV1M4/t2Dd6CEulSbnTRz2j8/k0ShiQ8QVUzJ0zA5wpjLOmpoLJ6XAc5e7z+ZTayNYrG7A=
-Message-ID: <433F8774.6000301@gmail.com>
-Date: Sun, 02 Oct 2005 15:08:36 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Tz+DaDGuqUTNIDOK4Gt1r7gx2NlIDMq9eZUOGVscUlpspU1jAOX3X/sM2mohGW6UZC5ssTCt//kZuCckxhiShtfIJR9pPo+Hb5uldAzVhlKyLkv44Ps8CV853gKSoPtkVHLJJzYxGL3XkotEjHYFimb31lZGsK2VyB+oFtTSm3c=
+Message-ID: <2cd57c900510020020i564d473fx95c608bcac93bea@mail.gmail.com>
+Date: Sun, 2 Oct 2005 15:20:23 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+Reply-To: Coywolf Qi Hunt <coywolf@gmail.com>
+To: Paul Jackson <pj@sgi.com>
+Subject: Re: [PATCH] Document from line in patch format
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       "Randy.Dunlap" <rdunlap@xenotime.net>
+In-Reply-To: <20051002062135.32334.32895.sendpatchset@jackhammer.engr.sgi.com>
 MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: [PATCH] nvidiafb: PPC & mode setting fixes (#2)
-References: <1128225462.8267.24.camel@gaston> <1128232186.8267.31.camel@gaston>
-In-Reply-To: <1128232186.8267.31.camel@gaston>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051002062135.32334.32895.sendpatchset@jackhammer.engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
-> (This version removes a useless bit that slipped in the previous one)
-> 
-> This patch fixes a couple of things in nvidiafb:
-> 
->  - The code for retreiving the mode from Open Firmware was broken. It
-> would crash at boot and was copied from the old rivafb code that didn't
-> work very well (I'll update rivafb too one of these days).
+On 10/2/05, Paul Jackson <pj@sgi.com> wrote:
+> Document more details of patch format such as the "from" line
+> used to specify the patch author, and provide more references
+> for patch guidelines.
+>
+> Signed-off-by: Paul Jackson <pj@sgi.com>
+>
+> Index: 2.6.14-rc2-mm2/Documentation/SubmittingPatches
+> ===================================================================
+> --- 2.6.14-rc2-mm2.orig/Documentation/SubmittingPatches
+> +++ 2.6.14-rc2-mm2/Documentation/SubmittingPatches
+> @@ -301,8 +301,47 @@ now, but you can do this to mark interna
+>  point out some special detail about the sign-off.
+>
+>
+> +12) The canonical patch format
+>
+> -12) More references for submitting patches
+> +The canonical patch subject line is:
+> +
+> +    Subject: [PATCH 001/123] [<area>:] <explanation>
+> +
+> +The canonical patch message body contains the following:
+> +
+> +    The first line of the body contains a "from" line specifying
+> +    the author of the patch:
+> +
+> +        From: Original Author <author@email.com>
+> +
+> +    If the "from" line is missing, then the author of the patch will
+> +    be recorded in the source code revision history as whomever is
+> +    listed in the last "Signed-off-by:" line in the message when Linus
+> +    receives it.
+> +
+> +    The "from" line is followed by an empty line and then the body
+> +    of the explanation.
+> +
+> +    After the body of the explanation comes the "Signed-off-by:"
+> +    lines, and then a simple "---" line, and below that comes the
+> +    diffstat of the patch and then the patch itself.  The "---" line
+> +    and diffstat are optional, but helpful to readers of non-trivial
+> +    patches.
+> +
+> +The Subject line format makes it very easy to sort the emails
+> +alphabetically by subject line - pretty much any email reader will
+> +support that - since because the sequence number is zero-padded,
+> +the numerical and alphabetic sort is the same.
+> +
+> +See further details on how to phrase the "<explanation>" in
+> +the "Subject:" line in Andrew Morton's "The perfect patch",
+> +referenced below.
+> +
+> +See more details on the proper patch format in the following
+> +references.
+> +
+> +
+> +13) More references for submitting patches
+>
+>  Andrew Morton, "The perfect patch" (tpp).
+>    <http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt>
+> @@ -310,6 +349,14 @@ Andrew Morton, "The perfect patch" (tpp)
+>  Jeff Garzik, "Linux kernel patch submission format."
+>    <http://linux.yyz.us/patch-format.html>
+>
+> +Jeff Garzik, "How to piss off a kernel subsystem maintainer"
+> +  <http://www.kroah.com/log/2005/03/31/>
+> +
+> +Kernel Documentation/CodingStyle
+> +  <http://lxr.linux.no/source/Documentation/CodingStyle>
 
-What do you think of making EDID retrieval from the OF generic?  Or is
-it too much hassle?
+There's another one more updated at http://sosdg.org/~coywolf/lxr/source/
 
-> 
->  - The mode setting code produced weird results on the 5200 card in the
-> iMac G5 here. X "nv" code works fine though. After comparing them, I
-> found out that we aren't really manipulating some VGA bits the same way
-> and X code seemed better, so I slightly changed the mode setting to do
-> the same and that fixed the problem. (The display was strangely shifted
-> with garbage in the margin but not on all lines, and not in bpp 32)
-> 
-> Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> +
+> +Linus Torvald's mail on the canonical patch format:
+> +  <http://lkml.org/lkml/2005/4/7/183>
+>
 
-Thanks for the fix :-)  
-
-Acked-by: Antonino Daplas <adaplas@pol.net>
+--
+Coywolf Qi Hunt

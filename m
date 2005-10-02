@@ -1,59 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbVJBXfk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbVJBXhy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751124AbVJBXfk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Oct 2005 19:35:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751141AbVJBXfk
+	id S1751155AbVJBXhy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Oct 2005 19:37:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbVJBXhy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Oct 2005 19:35:40 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:8911 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751124AbVJBXfk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Oct 2005 19:35:40 -0400
-Date: Mon, 3 Oct 2005 01:35:16 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Jan Spitalnik <lkml@spitalnik.net>,
-       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de
-Subject: Re: thinkpad suspend to ram and backlight
-Message-ID: <20051002233516.GB6035@elf.ucw.cz>
-References: <20051002175703.GA3141@elf.ucw.cz> <200510022007.29660.lkml@spitalnik.net> <20051002182354.GA2031@elf.ucw.cz> <1128294674.8267.65.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1128294674.8267.65.camel@gaston>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Sun, 2 Oct 2005 19:37:54 -0400
+Received: from mail22.sea5.speakeasy.net ([69.17.117.24]:10933 "EHLO
+	mail22.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1751141AbVJBXhy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Oct 2005 19:37:54 -0400
+Date: Sun, 2 Oct 2005 16:37:52 -0700 (PDT)
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+cc: Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel?
+In-Reply-To: <20051002230545.GI6290@lkcl.net>
+Message-ID: <Pine.LNX.4.58.0510021637260.28193@shell2.speakeasy.net>
+References: <20051002204703.GG6290@lkcl.net> <Pine.LNX.4.63.0510021704210.27456@cuia.boston.redhat.com>
+ <20051002230545.GI6290@lkcl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, 3 Oct 2005, Luke Kenneth Casson Leighton wrote:
 
-> > > > When I suspend to RAM on x32, backlight is not turned off. (And, IIRC,
-> > > > video chips is not turned off, too). Unfortunately, backlight is not
-> > > > turned even when lid is closed. I know some patches were floating
-> > > > around to solve that... but I can't find them now. Any ideas?
-> > > 
-> > > if your thinkpad has ati radeon, you can use this:
-> > > 
-> > > http://www.thinkwiki.org/wiki/Radeontool
-> > 
-> > radeontool light off before suspend indeed works, but I'd like to
-> > solve it properly.
-> 
-> Well, it depends what you call "properly". 
+> On Sun, Oct 02, 2005 at 05:05:42PM -0400, Rik van Riel wrote:
+> > On Sun, 2 Oct 2005, Luke Kenneth Casson Leighton wrote:
+> >
+> > > and, what is the linux kernel?
+> > >
+> > > it's a daft, monolithic design that is suitable and faster on
+> > > single-processor systems, and that design is going to look _really_
+> > > outdated, really soon.
+> >
+> > Linux already has a number of scalable SMP synchronisation
+> > mechanisms.
+>
+>  ... and you are tied in to the decisions made by the linux kernel
+>  developers.
+>
+>  whereas, if you allow something like a message-passing design (such as
+>  in the port of the linux kernel to l4), you have the option to try out
+>  different underlying structures - _without_ having to totally redesign
+>  the infrastructure.
+>
+>  several people involved with the l4linux project have already done
+>  that: as i mentioned in the original post, there are about three or
+>  four different and separate l4 microkernels available for download
+>  (GPL) and one of them is ported to stacks of different architectures,
+>  and one of them is SMP capable and even includes a virtual machine
+>  environment.
+>
+>  and they're only approx 30-40,000 lines each, btw.
+>
+>
+>  also, what about architectures that have features over-and-above SMP?
+>
+>  in the original design of SMP it was assumed that if you have
+>  N processors that you have N-way access to memory.
+>
+>  what if, therefore, someone comes up with an architecture that is
+>  better than or improves greatly upon SMP?
 
-I'd like it to work as well as it does for PPC :-).
+Like NUMA?
 
-> There are indeed some patches
-> floating around that put the radeon chip in D2 state, that seem to
-> help.
+>  they will need to make _significant_ inroads into the linux kernel
+>  code, whereas if, say, you oh i dunno provide hardware-accelerated
+>  parallel support for a nanokernel (such as l4) which just _happens_
+>  to be better than SMP then running anything which is l4 compliant gets
+>  the benefit.
+>
+>
+>  the reason i mention this is because arguments about saying "SMP is it,
+>  SMP is great, SMP is everything, we're improving our SMP design" don't
+>  entirely cut it, because SMP has limitations that don't scale properly
+>  to say 64 or 128 processors: sooner or later someone's going to come up
+>  with something better than SMP and all the efforts focussed on making
+>  SMP better in the linux kernel are going to look lame.
+>
+>  l.
+>
+>  p.s. yes i do know of a company that has improved on SMP.
+>
+> -
 
-I found that patch with a little help from the list. Unfortunately, it
-makes things worse (not better) on my X32. [There was another
-regression here. With 2.6.8 or so, backlight was off during S3 sleep
-(but chip still running and eating power). With 2.6.14-rc3, not only
-chip is running, but backlight is forced to max to add an insult to
-the injury].
-								Pavel
--- 
-if you have sharp zaurus hardware you don't need... you know my address
+-Vadim Lobanov

@@ -1,54 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932475AbVJCSbl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932316AbVJCSeE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932475AbVJCSbl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 14:31:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932524AbVJCSbk
+	id S932316AbVJCSeE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 14:34:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932512AbVJCSeE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 14:31:40 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:25809 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S932475AbVJCSbk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 14:31:40 -0400
-Message-Id: <200510031831.j93IVQJT019379@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, Con Kolivas <kernel@kolivas.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc2-mm1 - ext3 wedging up 
-In-Reply-To: Your message of "Mon, 03 Oct 2005 13:06:08 CDT."
-             <1128362768.8967.10.camel@kleikamp.austin.ibm.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <200509221959.j8MJxJsY010193@turing-police.cc.vt.edu> <200509231036.16921.kernel@kolivas.org> <200509230720.j8N7KYGX023826@turing-police.cc.vt.edu> <20050923153158.GA4548@x30.random> <1127509047.8880.4.camel@kleikamp.austin.ibm.com> <1127509155.8875.6.camel@kleikamp.austin.ibm.com> <1127511979.8875.11.camel@kleikamp.austin.ibm.com> <20050928223829.GH10408@opteron.random> <1128126424.10237.7.camel@kleikamp.austin.ibm.com> <20051002102726.GB26677@opteron.random> <1128261072.9382.4.camel@kleikamp.austin.ibm.com>
-            <1128362768.8967.10.camel@kleikamp.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1128364286_5142P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Mon, 3 Oct 2005 14:34:04 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:42727 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S932316AbVJCSeC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 14:34:02 -0400
+Subject: Re: [PATCH 1/7] AMD Geode GX/LX support
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jordan Crouse <jordan.crouse@amd.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20051003174738.GC29264@cosmic.amd.com>
+References: <20051003174738.GC29264@cosmic.amd.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Mon, 03 Oct 2005 14:31:26 -0400
+Date: Mon, 03 Oct 2005 20:01:49 +0100
+Message-Id: <1128366109.26992.27.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1128364286_5142P
-Content-Type: text/plain; charset=us-ascii
+On Llu, 2005-10-03 at 11:47 -0600, Jordan Crouse wrote:
+> +	  - "Geode GX" for AMD Geode GX processors
+>  	  - "Crusoe" for the Transmeta Crusoe series.
+>  	  - "Efficeon" for the Transmeta Efficeon series.
+>  	  - "Winchip-C6" for original IDT Winchip.
 
-On Mon, 03 Oct 2005 13:06:08 CDT, Dave Kleikamp said:
+Whats wrong with the existing MGEODEGX1 define (other than it doesn't
+say AMD)
 
-> Unfortunately, this doesn't solve Valdis' problem, as he isn't using
-> jfs.  Valdis, do you have any other file systems mounted besides ext3?
-> I wonder if another file system has a similar problem.
 
-Nope, all ext3 here..
 
---==_Exmh_1128364286_5142P
-Content-Type: application/pgp-signature
+>  config X86_USE_3DNOW
+>  	bool
+> -	depends on MCYRIXIII || MK7
+> +	depends on MCYRIXIII || MK7 || MGEODE_GX
+>  	default y
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Is this correct - last time I benchmarked it the older GEODE was better
+off using non MMX copies ?
 
-iD8DBQFDQXj+cC3lWbTT17ARAqZSAKDB9ymw1kScEuZxqgiN4LFLTNUBwgCg2cId
-N1+R+tdsG1sR5jh5KjRRoG4=
-=k2u7
------END PGP SIGNATURE-----
+>  
+>  config X86_OOSTORE
+> @@ -532,7 +539,7 @@ source "kernel/Kconfig.preempt"
+>  
+>  config X86_UP_APIC
+>  	bool "Local APIC support on uniprocessors"
+> -	depends on !SMP && !(X86_VISWS || X86_VOYAGER)
+> +	depends on !SMP && !(X86_VISWS || X86_VOYAGER || MGEODE_GX)
+>  	help
 
---==_Exmh_1128364286_5142P--
+This is wrong - a GEODE kernel can support APIC even if the Geode itself
+doesn't. Remeber it is *optimised for at least... * not "xyz only"
+
+> +	depends on !MGEODE_GX
+>  	help
+>  	  Select this if you have a 32-bit processor and more than 4
+>  	  gigabytes of physical RAM.
+
+Ditto
+
+> +                           clear_bit(0*32+16, &c->x86_capability);
+> +                           clear_bit(0*32+24, &c->x86_capability);
+> +
+> +                           since I don't think the kernel supports
+> +                           FPU-CMOV or Cyrix MMX.  Unsure tho.
+
+Kernel space enables Cyrix MMX on the processors it knows about that it
+can. Some userspace will use the extensions if present. The Cyrix init
+code you unplugged it from knows how to do this which your unfinished
+patch doesn't.
+
+
+

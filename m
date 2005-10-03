@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbVJCRpI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbVJCRra@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932315AbVJCRpI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 13:45:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932485AbVJCRpI
+	id S1750810AbVJCRra (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 13:47:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbVJCRr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 13:45:08 -0400
-Received: from amdext4.amd.com ([163.181.251.6]:43705 "EHLO amdext4.amd.com")
-	by vger.kernel.org with ESMTP id S932315AbVJCRpG (ORCPT
+	Mon, 3 Oct 2005 13:47:29 -0400
+Received: from amdext4.amd.com ([163.181.251.6]:16058 "EHLO amdext4.amd.com")
+	by vger.kernel.org with ESMTP id S1750810AbVJCRr2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 13:45:06 -0400
+	Mon, 3 Oct 2005 13:47:28 -0400
 X-Server-Uuid: 8C3DB987-180B-4465-9446-45C15473FD3E
-Date: Mon, 3 Oct 2005 12:02:00 -0600
+Date: Mon, 3 Oct 2005 12:04:23 -0600
 From: "Jordan Crouse" <jordan.crouse@amd.com>
 To: linux-kernel@vger.kernel.org
-cc: info-linux@ldcmail.amd.com
-Subject: [PATCH 6/7] AMD Geode GX/LX support
-Message-ID: <20051003180200.GH29264@cosmic.amd.com>
+cc: info-linux@ldcmail.amd.com, linux-ide@vger.kernel.org
+Subject: [PATCH 7/7] AMD Geode GX/LX support
+Message-ID: <20051003180423.GI29264@cosmic.amd.com>
 MIME-Version: 1.0
 User-Agent: Mutt/1.5.11
-X-WSS-ID: 6F5FB19C2RW1376369-01-01
+X-WSS-ID: 6F5FB12C2RW1376778-01-01
 Content-Type: text/plain;
  charset=us-ascii
 Content-Disposition: inline
@@ -26,139 +26,58 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds support for the hardware RNG device on the Geode LX
-processor.  As a side note, the LX processor also includes a hardware
-AES encryption engine, support for which is not included here because
-I'm not one to increase the kernel source size if it doesn't need to be.
-If the list believes that this support is interesting to the mainstream
-kernel, I will push that up as well.  Please apply against 
-linux-2.6.13-rc2-mm2.
+The core IDE engine on the CS5536 is the same as the other AMD southbridges,
+so unlike the CS5535, we can simply add the appropriate PCI headers to
+the existing amd74xx code.  Please apply against linux-2.6.14-rc2-mm2.
 
 Signed off by:  Jordan Crouse (jordan.crouse@amd.com)
 
-Index: linux-2.6.14-rc2-mm2/drivers/char/hw_random.c
+Index: linux-2.6.14-rc2-mm2/drivers/ide/pci/amd74xx.c
 ===================================================================
---- linux-2.6.14-rc2-mm2.orig/drivers/char/hw_random.c
-+++ linux-2.6.14-rc2-mm2/drivers/char/hw_random.c
-@@ -1,4 +1,9 @@
- /*
-+        Added support for the AMD Geode LX RNG
-+	(c) Copyright 2004-2005 Advanced Micro Devices, Inc.
-+
-+	derived from
-+
-  	Hardware driver for the Intel/AMD/VIA Random Number Generators (RNG)
- 	(c) Copyright 2003 Red Hat Inc <jgarzik@redhat.com>
-  
-@@ -95,6 +100,13 @@ static unsigned int via_data_present (vo
- static u32 via_data_read (void);
- #endif
- 
-+#ifdef CONFIG_MGEODE_LX
-+static int __init geode_init(struct pci_dev *dev);
-+static void geode_cleanup(void);
-+static unsigned int geode_data_present (void);
-+static u32 geode_data_read (void);
-+#endif
-+
- struct rng_operations {
- 	int (*init) (struct pci_dev *dev);
- 	void (*cleanup) (void);
-@@ -122,6 +134,9 @@ enum {
- 	rng_hw_intel,
- 	rng_hw_amd,
- 	rng_hw_via,
-+#ifdef CONFIG_MGEODE_LX
-+	rng_hw_geode,
-+#endif
+--- linux-2.6.14-rc2-mm2.orig/drivers/ide/pci/amd74xx.c
++++ linux-2.6.14-rc2-mm2/drivers/ide/pci/amd74xx.c
+@@ -74,6 +74,7 @@ static struct amd_ide_chip {
+ 	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_IDE,	0x50, AMD_UDMA_133 },
+ 	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP51_IDE,	0x50, AMD_UDMA_133 },
+ 	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_IDE,	0x50, AMD_UDMA_133 },
++	{ PCI_DEVICE_ID_AMD_CS5536_IDE,             0x40, AMD_UDMA_100 },
+ 	{ 0 }
  };
  
- static struct rng_operations rng_vendor_ops[] = {
-@@ -139,6 +154,11 @@ static struct rng_operations rng_vendor_
- 	/* rng_hw_via */
- 	{ via_init, via_cleanup, via_data_present, via_data_read, 1 },
- #endif
-+
-+#ifdef CONFIG_MGEODE_LX
-+	/* rng_hw_geode */
-+	{ geode_init, geode_cleanup, geode_data_present, geode_data_read, 4 }
-+#endif
+@@ -491,6 +492,7 @@ static ide_pci_device_t amd74xx_chipsets
+ 	/* 14 */ DECLARE_NV_DEV("NFORCE-MCP04"),
+ 	/* 15 */ DECLARE_NV_DEV("NFORCE-MCP51"),
+ 	/* 16 */ DECLARE_NV_DEV("NFORCE-MCP55"),
++	/* 17 */ DECLARE_AMD_DEV("AMD5536"),
  };
  
- /*
-@@ -159,6 +179,10 @@ static struct pci_device_id rng_pci_tbl[
- 	{ 0x8086, 0x244e, PCI_ANY_ID, PCI_ANY_ID, 0, 0, rng_hw_intel },
- 	{ 0x8086, 0x245e, PCI_ANY_ID, PCI_ANY_ID, 0, 0, rng_hw_intel },
- 
-+#ifdef CONFIG_MGEODE_LX
-+	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_LX_AES,
-+	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, rng_hw_geode },
-+#endif
- 	{ 0, },	/* terminate list */
+ static int __devinit amd74xx_probe(struct pci_dev *dev, const struct pci_device_id *id)
+@@ -527,6 +529,7 @@ static struct pci_device_id amd74xx_pci_
+ 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_IDE,	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 14 },
+ 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP51_IDE,	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 15 },
+ 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_IDE,	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 16 },
++	{ PCI_VENDOR_ID_AMD,    PCI_DEVICE_ID_AMD_CS5536_IDE, 	        PCI_ANY_ID, PCI_ANY_ID, 0, 0, 17 },
+ 	{ 0, },
  };
- MODULE_DEVICE_TABLE (pci, rng_pci_tbl);
-@@ -460,6 +484,54 @@ static void via_cleanup(void)
- }
- #endif
+ MODULE_DEVICE_TABLE(pci, amd74xx_pci_tbl);
+Index: linux-2.6.14-rc2-mm2/include/linux/pci_ids.h
+===================================================================
+--- linux-2.6.14-rc2-mm2.orig/include/linux/pci_ids.h
++++ linux-2.6.14-rc2-mm2/include/linux/pci_ids.h
+@@ -549,6 +549,15 @@
+ #define PCI_DEVICE_ID_AMD_LX_VIDEO  0x2081
+ #define PCI_DEVICE_ID_AMD_LX_AES    0x2082
  
-+#ifdef CONFIG_MGEODE_LX
++#define PCI_DEVICE_ID_AMD_CS5536_ISA    0x2090
++#define PCI_DEVICE_ID_AMD_CS5536_FLASH  0x2091
++#define PCI_DEVICE_ID_AMD_CS5536_AUDIO  0x2093
++#define PCI_DEVICE_ID_AMD_CS5536_OHC    0x2094
++#define PCI_DEVICE_ID_AMD_CS5536_EHC    0x2095
++#define PCI_DEVICE_ID_AMD_CS5536_UDC    0x2096
++#define PCI_DEVICE_ID_AMD_CS5536_UOC    0x2097
++#define PCI_DEVICE_ID_AMD_CS5536_IDE    0x209A
 +
-+/***********************************************************************
-+ *
-+ * AMD Geode RNG operations
-+ *
-+ */
-+
-+static void __iomem *geode_rng_base = 0x0;
-+
-+#define GEODE_RNG_DATA_REG   0x50
-+#define GEODE_RNG_STATUS_REG 0x54
-+
-+static u32 geode_data_read(void) {
-+	u32 val;
-+
-+	val = *((u32 *) (geode_rng_base + GEODE_RNG_DATA_REG));
-+	return val;
-+}
-+
-+static unsigned int geode_data_present(void) {
-+	u32 val;
-+
-+	val = *((u32 *) (geode_rng_base + GEODE_RNG_STATUS_REG));
-+	return val;
-+}
-+
-+static void geode_cleanup(void) {
-+	iounmap(geode_rng_base);
-+  	geode_rng_base = NULL;
-+}
-+
-+static int geode_init(struct pci_dev *dev) {
-+	u32 rng_base = pci_resource_start(dev, 0);
-+	if (!rng_base) return 1;
-+
-+	geode_rng_base = ioremap(rng_base, 0x58);
-+
-+	if (geode_rng_base == NULL) {
-+		printk(KERN_ERR PFX "Cannot ioremap RNG memory\n");
-+		return -EBUSY;
-+	}
-+
-+	printk(KERN_INFO PFX "Geode RNG registers at %p\n", geode_rng_base);
-+	return 0;
-+}
-+
-+#endif
- 
- /***********************************************************************
-  *
-@@ -574,7 +646,7 @@ static int __init rng_init (void)
- 
- 	DPRINTK ("ENTER\n");
- 
--	/* Probe for Intel, AMD RNGs */
-+	/* Probe for Intel, AMD, Geode RNGs */
- 	for_each_pci_dev(pdev) {
- 		ent = pci_match_id(rng_pci_tbl, pdev);
- 		if (ent) {
+ #define PCI_VENDOR_ID_TRIDENT		0x1023
+ #define PCI_DEVICE_ID_TRIDENT_4DWAVE_DX	0x2000
+ #define PCI_DEVICE_ID_TRIDENT_4DWAVE_NX	0x2001
 

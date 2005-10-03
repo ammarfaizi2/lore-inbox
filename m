@@ -1,43 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbVJCR64@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbVJCSCi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751169AbVJCR64 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 13:58:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbVJCR64
+	id S932206AbVJCSCi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 14:02:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932485AbVJCSCi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 13:58:56 -0400
-Received: from [64.162.99.240] ([64.162.99.240]:41021 "EHLO
-	spamtest2.viacore.net") by vger.kernel.org with ESMTP
-	id S1751169AbVJCR6z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 13:58:55 -0400
-Message-ID: <434170E1.60208@spamtest.viacore.net>
-Date: Mon, 03 Oct 2005 10:56:49 -0700
-From: Joe Bob Spamtest <joebob@spamtest.viacore.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050923 Fedora/1.7.12-1.5.1
-X-Accept-Language: en-us, en
+	Mon, 3 Oct 2005 14:02:38 -0400
+Received: from fsmlabs.com ([168.103.115.128]:52407 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S932206AbVJCSCi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 14:02:38 -0400
+Date: Mon, 3 Oct 2005 11:08:17 -0700 (PDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Jordan Crouse <jordan.crouse@amd.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/7] AMD Geode GX/LX support
+In-Reply-To: <20051003174738.GC29264@cosmic.amd.com>
+Message-ID: <Pine.LNX.4.61.0510031104210.1684@montezuma.fsmlabs.com>
+References: <20051003174738.GC29264@cosmic.amd.com>
 MIME-Version: 1.0
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-References: <20051002204703.GG6290@lkcl.net> <Pine.LNX.4.63.0510021704210.27456@cuia.boston.redhat.com> <20051002230545.GI6290@lkcl.net> <54300000.1128297891@[10.10.2.4]> <20051003011041.GN6290@lkcl.net>
-In-Reply-To: <20051003011041.GN6290@lkcl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luke Kenneth Casson Leighton wrote:
->  p.s. martin.  _don't_ do that again.  i don't care who you are:
->  internet archives are forever and your rudeness will be noted
->  by google-users and other search-users - long after you are dead.
+Hello Jordan,
 
-and who are you, the thought police? Get off your high horse.
+On Mon, 3 Oct 2005, Jordan Crouse wrote:
 
-I'm sure he's well aware of the consequences of posting to this list, as 
-I'm sure we all are. Hell, even *I* know all my mails to this list are 
-going to be archived for eternity.
+> @@ -532,7 +539,7 @@ source "kernel/Kconfig.preempt"
+>  
+>  config X86_UP_APIC
+>  	bool "Local APIC support on uniprocessors"
+> -	depends on !SMP && !(X86_VISWS || X86_VOYAGER)
+> +	depends on !SMP && !(X86_VISWS || X86_VOYAGER || MGEODE_GX)
 
-Look, if you want to be a productive member of our community, stop 
-bitching about the way things *should* be, and submit some patches like 
-everyone else. Code talks. Bullshit ... well, it doesn't do much but sit 
-around stinking the place up.
+Can't the Geode boot with a local APIC enabled kernel, albeit without 
+using it? If it doesn't halt during boot then you don't need this change.
 
+> @@ -749,6 +756,7 @@ config HIGHMEM4G
+>  
+>  config HIGHMEM64G
+>  	bool "64GB"
+> +	depends on !MGEODE_GX
+
+As above.
+
+> +static void __init init_nsc(struct cpuinfo_x86 *c)
+> +{
+> +
+> +
+> +	/* Handle the National Semiconductor models with non-Cyrix init */
+> +	if ( (c->x86 == 5) && (c->x86_model >= 4 && c->x86_model <= 5)) {
+> +		/* Bit 31 in normal CPUID used for nonstandard 3DNow ID;
+> +		   3DNow is IDd by bit 31 in extended CPUID (1*32+31) anyway */
+> +		clear_bit(0*32+31, c->x86_capability);
+
+Please create a define.

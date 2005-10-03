@@ -1,74 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932484AbVJCRiK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932487AbVJCRi5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932484AbVJCRiK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 13:38:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932486AbVJCRiK
+	id S932487AbVJCRi5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 13:38:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932489AbVJCRi5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 13:38:10 -0400
-Received: from everest.sosdg.org ([66.93.203.161]:65511 "EHLO mail.sosdg.org")
-	by vger.kernel.org with ESMTP id S932484AbVJCRiJ (ORCPT
+	Mon, 3 Oct 2005 13:38:57 -0400
+Received: from amdext3.amd.com ([139.95.251.6]:24794 "EHLO amdext3.amd.com")
+	by vger.kernel.org with ESMTP id S932487AbVJCRi4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 13:38:09 -0400
-From: "Coywolf Qi Hunt" <coywolf@sosdg.org>
-Date: Tue, 4 Oct 2005 01:41:31 +0800
-To: nickpiggin@yahoo.com.au
-Cc: kernel@kolivas.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [patch] zone_watermark_ok() rework
-Message-ID: <20051003174131.GA2865@gmail.com>
+	Mon, 3 Oct 2005 13:38:56 -0400
+X-Server-Uuid: 89466532-923C-4A88-82C1-66ACAA0041DF
+Date: Mon, 3 Oct 2005 11:55:47 -0600
+From: "Jordan Crouse" <jordan.crouse@amd.com>
+To: linux-kernel@vger.kernel.org
+cc: info-linux@ldcmail.amd.com
+Subject: [PATCH 4/7] AMD Geode GX/LX support
+Message-ID: <20051003175547.GF29264@cosmic.amd.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 User-Agent: Mutt/1.5.11
-X-Scan-Signature: 44e89aee28cb3977aa72b7ef3649eedf
-X-SA-Exim-Connect-IP: 66.93.203.161
-X-SA-Exim-Mail-From: coywolf@sosdg.org
+X-WSS-ID: 6F5FB3282OC692134-01-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+The 5535 has a muxed serial port that can either be used to drive GPIO pins
+or a second 16550 UART.  This code enables that UART via a command line option.
+This is most often used with a dongle attached to the VGA port to provide a
+a serial port on boards with no dedicated serial goesouta. Please apply
+against linux-2.6.13-rc2-mm2.
 
-In zone_watermark_ok(), the original algorithm seems not logical. This is a
-rework. Comments?
-
-		Coywolf
-
-
-Signed-off-by: Coywolf Qi Hunt <coywolf@sosdg.org>
----
-
- page_alloc.c |   15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
-
---- 2.6.14-rc2-mm1/mm/page_alloc.c~orig	2005-09-29 20:37:07.000000000 +0800
-+++ 2.6.14-rc2-mm1/mm/page_alloc.c	2005-10-04 01:19:31.000000000 +0800
-@@ -772,7 +772,7 @@
- int zone_watermark_ok(struct zone *z, int order, unsigned long mark,
- 		      int classzone_idx, int can_try_harder, int gfp_high)
- {
--	/* free_pages my go negative - that's OK */
-+	/* free_pages may go negative - that's OK */
- 	long min = mark, free_pages = z->free_pages - (1 << order) + 1;
- 	int o;
+Signed off by:  Jordan Crouse (jordan.crouse@amd.com)
  
-@@ -783,17 +783,12 @@
+Index: linux-2.6.14-rc2-mm2/drivers/serial/Kconfig
+===================================================================
+--- linux-2.6.14-rc2-mm2.orig/drivers/serial/Kconfig
++++ linux-2.6.14-rc2-mm2/drivers/serial/Kconfig
+@@ -608,6 +608,17 @@ config SERIAL_AU1X00_CONSOLE
+ 	  If you have an Alchemy AU1X00 processor (MIPS based) and you want
+ 	  to use a console on a serial port, say Y.  Otherwise, say N.
  
- 	if (free_pages <= min + z->lowmem_reserve[classzone_idx])
- 		return 0;
--	for (o = 0; o < order; o++) {
--		/* At the next order, this order's pages become unavailable */
--		free_pages -= z->free_area[o].nr_free << o;
++config SERIAL_GEODE_UART2
++	bool "Enable AMD CS5535 UART2 as a serial port"
++	depends on MGEODE_GX || MGEODE_LX
++	default y
++	select SERIAL_CORE
++	help
++	  Select this to allow the user to select the secondary CS5535 UART
++	  as a 16550 serial port instead of the default DDC interface. The
++	  UART2 can be selected by specifying geodeuart2 on the command
++	  line.
++
+ config SERIAL_CORE
+ 	tristate
  
--		/* Require fewer higher order pages to be free */
--		min >>= 1;
--
--		if (free_pages <= min)
--			return 0;
-+	for (o = order; o < MAX_ORDER; o++) {
-+		if (z->free_area[o].nr_free)
-+			return 1;
- 	}
--	return 1;
-+	return 0;
- }
- 
- static inline int
+Index: linux-2.6.14-rc2-mm2/drivers/serial/Makefile
+===================================================================
+--- linux-2.6.14-rc2-mm2.orig/drivers/serial/Makefile
++++ linux-2.6.14-rc2-mm2/drivers/serial/Makefile
+@@ -56,3 +56,4 @@ obj-$(CONFIG_SERIAL_JSM) += jsm/
+ obj-$(CONFIG_SERIAL_TXX9) += serial_txx9.o
+ obj-$(CONFIG_SERIAL_VR41XX) += vr41xx_siu.o
+ obj-$(CONFIG_SERIAL_SGI_IOC4) += ioc4_serial.o
++obj-$(CONFIG_SERIAL_GEODE_UART2) += cs5535_uart.o
+Index: linux-2.6.14-rc2-mm2/drivers/serial/cs5535_uart.c
+===================================================================
+--- /dev/null
++++ linux-2.6.14-rc2-mm2/drivers/serial/cs5535_uart.c
+@@ -0,0 +1,83 @@
++/*
++ * Copyright (c) 2004-2005 Advanced Micro Devices, Inc.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ * The full GNU General Public License is included in this distribution in the
++ * file called COPYING
++ */
++
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <asm/msr.h>
++#include <asm/io.h>
++
++/* The CS5535 companion chip has two UARTs.  This code enables the second
++   UART so other devices can use it.  We do it here so we can expose the
++   port early enough for serial debugging
++*/
++
++/* Note - this does not check to see if the CS5535 actually exists */
++
++#define LO(b)  (((1 << b) << 16) | 0x0000)
++#define HI(b)  ((0x0000 << 16) | (1 << b))
++
++static u32 outtab[16] __initdata =
++{
++	0x00,HI(4), 0x04,HI(4), 0x08,HI(4),
++	0x0c,LO(4), 0x10,HI(4), 0x14,LO(4),
++	0x18,LO(4), 0x1C,LO(4)
++};
++
++static u32 intab[16] __initdata = {
++	0x20,HI(3), 0x24,LO(3), 0x28,LO(3),
++	0x2C,LO(3), 0x34,HI(3), 0x38,LO(3),
++     0x40,LO(3), 0x44,LO(3)
++};
++
++static int __init init_cs5535_uart2(char *str)
++{
++	u32 lo = 0, hi = 0;
++	u32 base; u32 i;
++
++	/* Enable UART2 instead of DDC */
++
++	rdmsr(0x51400014, lo, hi);
++	lo &= 0xFF8FFFFF;
++	lo |= 0x00500000;   /* 0x2F8 ttyS1 */
++	wrmsr(0x51400014, lo, hi);
++
++	/* Set up the UART registers */
++	wrmsr(0x5140003E, 0x12, 0x00);
++
++	rdmsr(0x5140000C, lo, hi);
++	base = (u32)(lo & 0xFF00);
++
++	/* Enable the GPIO pins (in and out) */
++
++	for(i = 0; i < 16; i += 2) {
++		outl(outtab[i + 1], base + outtab[i]);
++		outl(intab[i + 1], base + intab[i]);
++	}
++
++	/* Enable the IRQ */
++
++	rdmsr(0x51400021,lo,hi);
++	lo &= 0x0FFFFFFF;
++	lo |= 0x30000000; /* IRQ 3 */
++	wrmsr(0x51400021,lo,hi);
++}
++
++__setup("geodeuart2", init_cs5535_uart2);
+

@@ -1,68 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932177AbVJCHuT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbVJCHyM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932177AbVJCHuT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 03:50:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932179AbVJCHuS
+	id S932180AbVJCHyM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 03:54:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbVJCHyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 03:50:18 -0400
-Received: from omta01ps.mx.bigpond.com ([144.140.82.153]:1614 "EHLO
-	omta01ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S932177AbVJCHuR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 03:50:17 -0400
-Message-ID: <4340E2B7.8090603@bigpond.net.au>
-Date: Mon, 03 Oct 2005 17:50:15 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
+	Mon, 3 Oct 2005 03:54:12 -0400
+Received: from web8410.mail.in.yahoo.com ([202.43.219.158]:53849 "HELO
+	web8410.mail.in.yahoo.com") by vger.kernel.org with SMTP
+	id S932180AbVJCHyL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 03:54:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.co.in;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=d62YnN5a6zxTn3EIJFai7iHg1tRQmyArRPlBS06x5Kq9U0KtK8RI329g2CLicaR/F46qNIAiqN2VEnamu/PaNDLsOo7KQvc9JuxihS5EoPMmOK57FX0Te/TNzgT321s+/x/uDD6pt4kB2MgWhM9g7MVxxSpLEXmARyebJ/WF/6w=  ;
+Message-ID: <20051003075407.34855.qmail@web8410.mail.in.yahoo.com>
+Date: Mon, 3 Oct 2005 08:54:06 +0100 (BST)
+From: vikas gupta <vikas_gupta51013@yahoo.co.in>
+Subject: AIO Support for kernel 2.6.11 ?????? 
+To: linux-aio@kvack.org, linux-kernel@vger.kernel.org, suparna@in.ibm.com,
+       bcrl@kvack.org, sebastien.dugue@bull.net
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Jake Moilanen <moilanen@austin.ibm.com>
-Subject: [ANNOUNCE][RFC] PlugSched-6.1.2 for 2.6.13 and 2.6.14-rc3
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Mon, 3 Oct 2005 07:50:15 +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This version contains minor modifications to the spa_ws scheduler to 
-improve its interactive responsiveness.
+hi All
 
-A patch for 2.6.14-rc3 is available at:
+1) I like to ask why patch support is not provided for
+2.6.11 kernel....
 
-<http://prdownloads.sourceforge.net/cpuse/plugsched-6.1.2-for-2.6.14-rc3.patch?download>
+2) What needs to be done in order to use 2.6.11 kernel
+with full AIO Support
 
-and a patch to upgrade the 6.1.1 version for 2.6.13 to 6.1.2 is 
-available at:
+3) Is it possible to apply 2.6.13-rc6-B0-all.diff
+patch provided by ben to2.6.11 kernel after some
+modification,and if that is done whether i be able to
+get full kernel AIO Support
 
-<http://prdownloads.sourceforge.net/cpuse/plugsched-6.1.1-to-6.1.2-for-2.6.13.patch?download>
+4) if i applied suparna's patches with
+linux-2.6.12-PAIO-0.6.tar on linux-2.6.12-rc6 kernel,I
+am getting Some errors with respect to suparna's
+patches.Thay are not getting applied cleanly... 
+So i am trying to manually applied them ...but will i
+be able to Full AIO Support after
+applying those patches on linux-2.6.12-rc6 .
 
-Very Brief Documentation:
 
-You can select a default scheduler at kernel build time.  If you wish to
-boot with a scheduler other than the default it can be selected at boot
-time by adding:
+ vikas
 
-cpusched=<scheduler>
 
-to the boot command line where <scheduler> is one of: ingosched,
-nicksched, staircase, spa_no_frills, spa_ws or zaphod.  If you don't
-change the default when you build the kernel the default scheduler will
-be ingosched (which is the normal scheduler).
 
-The scheduler in force on a running system can be determined by the
-contents of:
 
-/proc/scheduler
 
-Control parameters for the scheduler can be read/set via files in:
 
-/sys/cpusched/<scheduler>/
-
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+		
+__________________________________________________________ 
+Yahoo! India Matrimony: Find your partner now. Go to http://yahoo.shaadi.com

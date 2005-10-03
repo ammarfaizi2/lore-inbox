@@ -1,63 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751045AbVJCPIt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751022AbVJCPJO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751045AbVJCPIt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 11:08:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751049AbVJCPIs
+	id S1751022AbVJCPJO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 11:09:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbVJCPJN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 11:08:48 -0400
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:29960 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1751045AbVJCPIs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 11:08:48 -0400
-To: jonathan@jonmasters.org
-Cc: Ahmad Reza Cheraghi <a_r_cheraghi@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Why no XML in the Kernel?
-References: <20051002094142.65022.qmail@web51012.mail.yahoo.com>
-	<35fb2e590510021153r254b7eb0haf9f9e365bed051e@mail.gmail.com>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: or perhaps you'd prefer Russian Roulette, after all?
-Date: Mon, 03 Oct 2005 16:08:43 +0100
-In-Reply-To: <35fb2e590510021153r254b7eb0haf9f9e365bed051e@mail.gmail.com> (Jon
- Masters's message of "2 Oct 2005 19:53:50 +0100")
-Message-ID: <87oe66r62s.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Mon, 3 Oct 2005 11:09:13 -0400
+Received: from dvhart.com ([64.146.134.43]:58770 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S1751022AbVJCPI5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 11:08:57 -0400
+Date: Mon, 03 Oct 2005 08:08:59 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: David Lang <david.lang@digitalinsight.com>
+Cc: Magnus Damm <magnus.damm@gmail.com>, Dave Hansen <haveblue@us.ibm.com>,
+       Magnus Damm <magnus@valinux.co.jp>, linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 00/07][RFC] i386: NUMA emulation
+Message-ID: <83890000.1128352138@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.62.0510030802090.11541@qynat.qvtvafvgr.pbz>
+References: dlang@dlang.diginsite.com <Pine.LNX.4.62.0510030802090.11541@qynat.qvtvafvgr.pbz>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2 Oct 2005, Jon Masters suggested tentatively:
-> Besides, having a *fully* XML parser/generator in the kernel is
-> extremely braindead, even if it's called libkernelxml ("I'm not really
-> quite in the kernel really") or something. What's so wrong with really
-> simple files being exposed to userspace? Most of these are less than a
-> single page of data and it's just dandy like that.
-
-I beat off a suggestion last week[1] that the kernel should `not bother
-with any of this /proc and /sys stuff' but just export a single vast
-heap of XML, because XML is `properly structured'.
-
-(As opposed to, oh, a filesystem, which is apparently not structured
-enough.)
-
-Considerations of ugliness and difficulty of implementing the equivalent
-of writes to procs files did not shift the twit: but starting top on a
-busy system and showing said twit the CPU load spikes as /proc/[0-9]*
-got iterated over, and asking `how severe would this be if *all* of
-/proc and /sys had to be generated for every single request?' seems to
-have imparted enough clue.
 
 
-I have a large notice by my desk at work reading simply `XML is not a
-panacea'. It's amazing how few people wandering by read it.
+--David Lang <david.lang@digitalinsight.com> wrote (on Monday, October 03, 2005 08:03:44 -0700):
 
+> On Mon, 3 Oct 2005, Martin J. Bligh wrote:
+> 
+>> But that's not the same at all! ;-) PAE memory is the same speed as
+>> the other stuff. You just have a 3rd level of pagetables for everything.
+>> One could (correctly) argue it made *all* memory slower, but it does so
+>> in a uniform fashion.
+> 
+> is it? I've seen during the memory self-test at boot that machines slow down noticably as they pass the 4G mark.
 
-[1] by someone who couldn't have implemented it in a month of Sundays,
-    thankfully
+Not noticed that, and I can't see why it should be the case in general,
+though I suppose some machines might be odd. Got any numbers?
 
--- 
-`Next: FEMA neglects to take into account the possibility of
-fire in Old Balsawood Town (currently in its fifth year of drought
-and home of the General Grant Home for Compulsive Arsonists).'
-            --- James Nicoll
+M.
+

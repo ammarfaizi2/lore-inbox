@@ -1,115 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbVJCElN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbVJCErn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932150AbVJCElN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 00:41:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbVJCElN
+	id S932153AbVJCErn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 00:47:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbVJCErn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 00:41:13 -0400
-Received: from gold.veritas.com ([143.127.12.110]:59536 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S932150AbVJCElN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 00:41:13 -0400
-Date: Mon, 3 Oct 2005 05:40:39 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Christian Seiler <christian.seiler@selfhtml.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Bug at mm/rmap.c:493, Kernel 2.6.13.2
-In-Reply-To: <4340108F.7030604@selfhtml.org>
-Message-ID: <Pine.LNX.4.61.0510030532340.3832@goblin.wat.veritas.com>
-References: <4340108F.7030604@selfhtml.org>
+	Mon, 3 Oct 2005 00:47:43 -0400
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:46519 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S932153AbVJCErm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 00:47:42 -0400
+X-ORBL: [69.107.75.50]
+Date: Sun, 02 Oct 2005 21:47:37 -0700
+From: David Brownell <david-b@pacbell.net>
+To: linux-kernel@vger.kernel.org, basicmark@yahoo.com
+Subject: Re: [RFC][PATCH] SPI subsystem
+Cc: dpervushin@ru.mvista.com
+References: <20051002123618.37423.qmail@web33009.mail.mud.yahoo.com>
+In-Reply-To: <20051002123618.37423.qmail@web33009.mail.mud.yahoo.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 03 Oct 2005 04:41:12.0768 (UTC) FILETIME=[AEAFD400:01C5C7D4]
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20051003044737.7B86CEA568@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2 Oct 2005, Christian Seiler wrote:
-> 
-> In the kernel log of a computer I'm administrating a strange message
-> appeared stating there was a kernel bug in mm/rmap.c, line 493. I put
-> together the kernel log message (including the stack trace), the kernel
-> configuration, the output of lspci -v, lsmod, uname -a and gcc/ld
-> -version here:
-> 
-> http://src.selfhtml.org/lkml/
-> 
-> Although the message says a reboot is needed, the server still seems to
-> work after that message (login using SSH is possible, all services still
-> respond normally). After a reboot the same message reappears inside the
-> log after some time.
-> 
-> The distribution is Gentoo Linux, but the kernel is built from vanilla
-> sources. The system is entirely 64bit - no 32bit libraries are
-> installed. The server itself is a Sun Fire V20z with two Opteron 244, 2
-> GiB of RAM and hardware RAID-1 with two U320 SCSI disks.
-
-Please try Linus' patch at the bottom: on dual Opteron, our best guess
-is that yours is a different manifestation of the same underlying issue.  
-(I believe there's now a more finely targetted version of the patch in
--rc3, but this will do if it is your problem).  Please get back to me
-if you find this doesn't fix it - thanks.
-
-Here's what Linus said on 20 Sep:
-
-On Tue, 20 Sep 2005, Charles McCreary wrote:
+> > > I notice that there is no bus lock. Are you expecting the adapter
+> > > driver to handle the fact that its transfer routine could be called
+> > > before a previous call returns?
+> > 
+> > Yes.  The transfer routine is purely async, and its responsibility
+> > is to append that spi_message to the current queue.  (Assuming
+> > the driver isn't a simple pure-PIO driver without a queue...)
+> > 
+> > That's a simple matter of a spin_lock_irqsave/list_add_tail/unlock.
+> > 
 >
-> Another datapoint for this thread. The box spewing the bad pmds messages is a 
-> dual opteron 246 on a TYAN S2885 Thunder K8W motherboard. Kernel is 
-> 2.6.11.4-20a-smp.
+> OK. Thought so. I think that in the documentation (when it gets written ;)
+> we need to warn people that they can only do quick work (adding message
+> to a queue or waking up a kthread) in the transfer routine
 
-This is quite possibly the result of an Opteron errata (tlb flush
-filtering is broken on SMP) that we worked around as of 2.6.14-rc4.
+The documented constraint -- right by the declaration of that
+particular method!! -- is that it may not sleep.  That suffices.
 
-So either just try 2.6.14-rc2, or try the appended patch (it has since 
-been confirmed by many more people).
 
-		Linus
+>	as it would
+> not be fair for a PIO driver to transfer several KB in what might be
+> interrupt context.
 
----
-diff-tree bc5e8fdfc622b03acf5ac974a1b8b26da6511c99 (from 61ffcafafb3d985e1ab8463be0187b421614775c)
-Author: Linus Torvalds <torvalds@g5.osdl.org>
-Date:   Sat Sep 17 15:41:04 2005 -0700
+That's a "quality of implementation" issue.  There are a lot of
+different SPI drivers floating around today that are pure PIO;
+they're used for sensor access, and work in exactly that way.
+(And without any buslock.)
 
-    x86-64/smp: fix random SIGSEGV issues
-    
-    They seem to have been due to AMD errata 63/122; the fix is to disable
-    TLB flush filtering in SMP configurations.
-    
-    Confirmed to fix the problem by Andrew Walrond <andrew@walrond.org>
-    
-    [ Let's see if we'll have a better fix eventually, this is the Q&D
-      "let's get this fixed and out there" version ]
-    
-    Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+When the driver is only reading/writing a handful of bytes, PIO
+can easily be "quick" ... and may well be quicker than going
+through a queue manager.  Example:  if SPI is clocked at 8 MHz,
+that's a microsecond per byte.  Add a smidgeon of overhead,
+and call it 5 usecs to read a sensor that way.
 
-diff --git a/arch/x86_64/kernel/setup.c b/arch/x86_64/kernel/setup.c
---- a/arch/x86_64/kernel/setup.c
-+++ b/arch/x86_64/kernel/setup.c
-@@ -831,11 +831,26 @@ static void __init amd_detect_cmp(struct
- #endif
- }
- 
-+#define HWCR 0xc0010015
-+
- static int __init init_amd(struct cpuinfo_x86 *c)
- {
- 	int r;
- 	int level;
- 
-+#ifdef CONFIG_SMP
-+	unsigned long value;
-+
-+	// Disable TLB flush filter by setting HWCR.FFDIS:
-+	// bit 6 of msr C001_0015
-+	//
-+	// Errata 63 for SH-B3 steppings
-+	// Errata 122 for all(?) steppings
-+	rdmsrl(HWCR, value);
-+	value |= 1 << 6;
-+	wrmsrl(HWCR, value);
-+#endif
-+
- 	/* Bit 31 in normal CPUID used for nonstandard 3DNow ID;
- 	   3DNow is IDd by bit 31 in extended CPUID (1*32+31) anyway */
- 	clear_bit(0*32+31, &c->x86_capability);
+One point of standardizing an API is to support a broad range
+of different controller driver optimization points.  They should
+all work correctly of course.  A DMA driver may be the ticket for
+running from SPI flash ... but setting up DMA for just a couple
+bytes is likely not a win.
+
+
+> So your asking the adapter to keep a 'personality' for each device on
+> that bus (clock speed, cs & clock mode etc) and then just before the
+> transfer to/from a device is started the adapter takes the 'personality'
+> of that device (i.e. sets clock speed registers if needed etc)?
+
+As you noted later, yes.  Most of the SPI controllers I've looked
+at will do that in hardware, for that matter.  PCI drivers don't
+need to arbitrate bus access themselves; neither should SPI drivers.
+
+
+> > > > +EXPORT_SYMBOL_GPL(spi_new_device);
+> > >
+> > > I think we should have a bus lock (in the adapter structure) for
+> > > safety, and in the remove routine as well.
+> > 
+> > Why?  I don't see any need for one, at least in the "all drivers
+> > must use this one" category.  Persuade me; what problems would such
+> > a lock solve? 
+> > 
+>
+> Problems with parallel calls to register spi device/unregister
+> spi device/transfer?
+
+Only an issue if the driver core had bugs ... bugs that would break
+many more things than just SPI.  :)
+
+
+> > The parallel port adapter wouldn't use that interface.  It would
+> > instead be using spi_new_device() with board_info matching the
+> > device (Ethernet, EEPROM, USB controller, etc) ...
+>
+> OK. So if I had an array of devices then I have to go though that array
+> and call  spi_new_device() for each one?  Where do I get spi_master
+> from? I need a function to which I can pass the name/bus number to and
+> get a spi_master pointer in return.
+
+You're the one who's defining the "parallel port adapter with device"
+thing ... so you've got the spi_master that you created.  In fact you
+probably used dev_set_drvdata(dev, master) to keep it handy.
+
+
+
+> Sorry I didn't make myself clear. I mean check the complete element in
+> the spi_message structure when spi_transfer is called. So:
+>
+> int spi_transfer(struct spi_device *spi, struct spi_message *message)
+> {
+>         if (message->complete)
+>                 /* We have callback so transfer is async */
+>         else
+>                 /* We have no callback so transfer is sync */
+> }
+>
+> Although thinking about it this is probably a bad idea as it could b
+> prone to errors
+
+That's a large part of why I would never support that model.  :)
+
+
+> > > Hmm, using local variables for messages, so DMA adapter drivers have
+> > > to check if this is non-kmalloc'ed space (how?)
+> > 
+> > They can't check that.  It turns out that most current Linuxes
+> > have no issues DMAing a few bytes from the stack.
+>
+> Will the DMA remapping calls work with data from the stack?
+
+On "most current Linuxes" yes.  All I know about, in fact.
+But it's not guaranteed.
+
+- Dave
+

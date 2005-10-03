@@ -1,59 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbVJCPZ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbVJCPZ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932284AbVJCPZ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 11:25:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbVJCPZ2
+	id S932283AbVJCPZ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 11:25:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbVJCPZ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 11:25:28 -0400
-Received: from dvhart.com ([64.146.134.43]:61074 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S932284AbVJCPZ1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 11:25:27 -0400
-Date: Mon, 03 Oct 2005 08:25:28 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: Magnus Damm <magnus.damm@gmail.com>, Dave Hansen <haveblue@us.ibm.com>,
-       Magnus Damm <magnus@valinux.co.jp>, linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 00/07][RFC] i386: NUMA emulation
-Message-ID: <86300000.1128353125@[10.10.2.4]>
-In-Reply-To: <Pine.LNX.4.62.0510030810290.11541@qynat.qvtvafvgr.pbz>
-References: dlang@dlang.diginsite.com <Pine.LNX.4.62.0510030802090.11541@qynat.qvtvafvgr.pbz> <83890000.1128352138@[10.10.2.4]> <Pine.LNX.4.62.0510030810290.11541@qynat.qvtvafvgr.pbz>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Mon, 3 Oct 2005 11:25:26 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:52873 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932283AbVJCPZZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 11:25:25 -0400
+Date: Mon, 3 Oct 2005 08:26:02 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       dipankar@in.ibm.com, vatsa@in.ibm.com, rusty@au1.ibm.com, mingo@elte.hu,
+       manfred@colorfullife.com
+Subject: Re: [PATCH] RCU torture testing
+Message-ID: <20051003152602.GD1300@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20051001182056.GA1613@us.ibm.com> <20051002210549.GA8503@elf.ucw.cz> <20051003143009.GB1300@us.ibm.com> <1128350188.17024.14.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <1128350188.17024.14.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
---David Lang <david.lang@digitalinsight.com> wrote (on Monday, October 03, 2005 08:13:09 -0700):
-
-> On Mon, 3 Oct 2005, Martin J. Bligh wrote:
+On Mon, Oct 03, 2005 at 04:36:28PM +0200, Arjan van de Ven wrote:
+> On Mon, 2005-10-03 at 07:30 -0700, Paul E. McKenney wrote:
+> > On Sun, Oct 02, 2005 at 11:05:49PM +0200, Pavel Machek wrote:
+> > > Can you just run the tests from time to time inside IBM?
+> > 
+> > In principle, I could, but in practice it is appropriate for non-IBMers to
+> > be able to test the RCU infrastructure easily and thoroughly when they
+> > work on it.
 > 
->> --David Lang <david.lang@digitalinsight.com> wrote (on Monday, October 03, 2005 08:03:44 -0700):
->> 
->>> On Mon, 3 Oct 2005, Martin J. Bligh wrote:
->>> 
->>>> But that's not the same at all! ;-) PAE memory is the same speed as
->>>> the other stuff. You just have a 3rd level of pagetables for everything.
->>>> One could (correctly) argue it made *all* memory slower, but it does so
->>>> in a uniform fashion.
->>> 
->>> is it? I've seen during the memory self-test at boot that machines slow down noticably as they pass the 4G mark.
->> 
->> Not noticed that, and I can't see why it should be the case in general,
->> though I suppose some machines might be odd. Got any numbers?
-> 
-> just the fact that the system boot memory test takes 3-4 times as long with 8G or ram then with 4G of ram. I then boot a 64 bit kernel on the system and never use PAE mode again :-)
-> 
-> if you can point me at a utility that will test the speed of the memory in different chunks I'll do some testing on the Opteron systems I have available. unfortunantly I don't have any Xeon systems to test this on.
+> how hard would it be to make the few parameters just be module
+> options... and then fail module load if the test fails or something?
+> (and spew loudly in dmesg :)
 
-Mmm. 64-bit uniproc systems, with > 4GB of RAM, running a 32 bit kernel
-don't really strike me as a huge market segment ;-)
+Good point -- all I really need for module parameters is the number
+of readers.  I should be able to have module load start the test and
+module unload stop it (any problems with this approach?).  And doing
+a module should remove the intrusions into rcupdate.c and rcupdate.h,
+which would be good.
 
-M.
+I would rather avoid dmesg.  But perhaps a read-only debugfs for output
+(as Greg suggested) combined with module parameters for input could make
+this straightforward.
 
+> I'd be all in favor of having such a module in the kernel; in fact it
+> would be nice if we roughly could standardize on an way to load/start
+> and then find the result, I'd love to have a "make runtests" or
+> something that would load such modules one by one
+
+Which would mean that each test needs to give unambiguous machine-readable
+indication of failure.  I guess I will nominate the string "!!!".  ;-)
+
+> (and no that's not the task of ltp, ltp should test userspace; things
+> that test in kernel code should really be part of the kernel)
+
+I agree that there is definitely a need for both user-level and in-kernel
+testing.  User-level testing is needed to make sure that user programs get
+what they need, but there is no substitute for in-kernel testing when you
+need to apply maximum conceiveable stress on some kernel component.
+
+							Thanx, Paul

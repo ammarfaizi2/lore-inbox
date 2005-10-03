@@ -1,199 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbVJCE5E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750830AbVJCE4G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750831AbVJCE5E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 00:57:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbVJCE5E
+	id S1750830AbVJCE4G (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 00:56:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbVJCE4G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 00:57:04 -0400
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:45472 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP
-	id S1750831AbVJCE5C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 00:57:02 -0400
-X-ORBL: [69.107.75.50]
-DomainKey-Signature: a=rsa-sha1; s=sbc01; d=pacbell.net; c=nofws; q=dns;
-	h=received:date:from:to:subject:cc:mime-version:
-	content-type:content-transfer-encoding:message-id;
-	b=ayNJEUT4GOWz7dSpQalVX9tZwVpDGxTy64g5dv5htRcQbOYrMCYl9b0yYUKD+Glkr
-	IBBhig4ZE/6HYHabakktA==
-Date: Sun, 02 Oct 2005 21:56:58 -0700
-From: David Brownell <david-b@pacbell.net>
-To: dmitry pervushin <dpervushin@gmail.com>
-Subject: Re: [PATCH] SPI
-Cc: linux-kernel@vger.kernel.org, dpervushin@ru.mvista.com
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20051003045658.3D592EA568@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
+	Mon, 3 Oct 2005 00:56:06 -0400
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:2011 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S1750830AbVJCE4F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 00:56:05 -0400
+Subject: Re: Strange disk corruption with Linux >= 2.6.13
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: =?ISO-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051001213655.GE6397@ime.usp.br>
+References: <20050927111038.GA22172@ime.usp.br>
+	 <1127863912.4802.52.camel@localhost>  <20051001213655.GE6397@ime.usp.br>
+Content-Type: text/plain; charset=iso-8859-1
+Organization: Cyclades
+Message-Id: <1128315323.7234.9.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Mon, 03 Oct 2005 14:55:23 +1000
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dmitry,
+Hi.
 
-> > around the I/O model of a queue of async messages; and even 
-> > names for some data structures.
+On Sun, 2005-10-02 at 07:36, Rogério Brito wrote:
+> On Sep 28 2005, Nigel Cunningham wrote:
+> > Hi Rogerio.
 > 
-> It seems we are talking about similar things, aren't we ?
-
-Sometimes, yes.  :)
-
-
-> > 	<linux/spi/spi.h>	... main header
-> > 	<linux/spi/CHIP.h>	... platform_data, for CHIP.c driver
+> Hi, Nigel.
+> 
+> > On Tue, 2005-09-27 at 21:10, Rogério Brito wrote:
+> > > Hi there. I'm seeing a really strange problem on my system lately and I
+> > > am not really sure that it has anything to do with the kernels.
 > > 
-> > Not all chips would need them, but it might be nice to have 
-> > some place other than <linux/CHIP.h> for such things.  The 
-> > platform_data would have various important data that can't be 
-> > ... chip variants, initialization data, and similar stuff 
-> > that differs between boards is knowable only by 
-> > board-specific init code, yet is needed by board-agnostic driver code.
+> > I've seen the thread mostly following the hardware line. I'd like to
+> > enquire down the kernel path because I've seen occasional, impossible
+> > to reproduce problems too.
 > 
-> I would prefer not to have subdirectory spi in include/linux. Take a look to
-> pci, for example. I guess that chip data are spi-bus specific, and should
-> not be exported to world.
-
-You misunderstand.  Consider something like a touchscreen driver, where
-different boards may use the same controller (accessed using SPI) but
-with different touchscreens and wiring.
-
-That driver may need to know about those differences, much like it needs
-to know about using a different IRQ number or clock rate.  Details like
-"X plate resistance is 430 ohms" are not bus-specific, neither are
-details like rise time (if any) for the reference voltage which affect
-timings for some requests.  (Real world examples!)
-
-Those are the sort of thing that board-specific.c files publish.
-They have to be exported from arch/.../mach-.../board-specific.c into
-somewhere in drivers/.../*.c; that's not really different from "exported
-to world".
-
-
-> > that way internally.  But other drivers shouldn't be forced 
-> > to allocate kernel threads when they don't need them.
+> Nice. I also don't want to rule out anything before I really understand
+> what's going on.
 > 
-> Really :) ? I'd like to have the worker thread for bus (and all devices on
-> the bus) instead of several workqueues (one per each device on bus, right ?)
-
-That is: you want to force each SPI Master Controller driver to allocate
-a kernel thread (one per workqueue).  And I'm saying I'd rather not; the
-API would be much more flexible without imposing that particular style.
-
-
-> > Hmm, this seems to be missing a few important things ... from 
-> > the last SPI patch I posted to this list (see the URL right above):
-> > 
-> > 	struct bus_type spi_bus_type = {
-> > 		.name           = "spi",
-> > 		.dev_attrs      = spi_dev_attrs,
-> > 		.match          = spi_match_device,
-> > 		.hotplug        = spi_hotplug,
-> > 		.suspend        = spi_suspend,
-> > 		.resume         = spi_resume,
-> > 	};
-> > 
-> > That supports new-school "modprobe $MODALIAS" hotplugging and 
-> > .../modalias style coldplugging, as well as passing PM calls 
-> > down to the drivers.  (Those last recently got some tweaking, 
-> > to work better through sysfs.)  And the core is STILL only 
-> > about 2 KB on ARM; significantly less than yours.
+> > Can I ask first a few questions:
 > 
-> Are you counting bytes on your sources ? Or bytes in object files ? As for
-> spi_bus_type, I agree. Hotplu/suspend/resume have to be included.
-
-Object code in the ".text" segment of whatever "core" code everyone
-would need to keep in-memory.  The other numbers don't much matter.
-
-You should be able to snarf the next version of suspend/resume code
-pretty directly.
-
-The hotplug stuff will require your init model to accumulate enough
-description about each SPI device to identify the driver that should
-be bound to it.  The last patch you posted didn't seem to have any
-support for such things.
-
-
-
-> > You don't seem to have any ability to record essential 
-> > board-specific information that the drivers will need.  I 
-> > hope you're not planning on making that stuff clutter up the 
-> > driver files??  board-specific.c files seem the better model, 
-> > with a way to pass that data to the drivers that need it 
-> > (using the driver model).
-> > 
-> > ...
+> Of course.
 > 
-> This is responsibility of bus driver. The driver for device on the SPI bus
-> might request the hardware info from the bus driver, which is referenced via
-> spi_device->device->parent.
-
-Sounds like you're just shifting clutter from one driver to another.
-I'd rather see it in _neither_ driver.  :)
-
-What you're talking about would normally be spi_device->dev.platform_data;
-I hope we can agree on that much.  Getting it there is a separate issue.
-It's something I see as a basic role of the "SPI core", using information
-from a board-specific.c file.
-
-
-> > Why are you hard-wiring such an unfair scheduling policy ... 
-> > and preventing use of better ones?  I'd use FIFO rather than 
-> > something as unfair as that; and FIFO is much simpler to code, too.
+> > 1) Are you using vanilla kernels, or do you have other patches applied?
 > 
-> OK, the policy is hardcoded and seems to be not the only available. This can
-> be solved by adding a function to pull out the message that is "next by
-> current". Does this sound reasonable ? 
+> Yes, all the kernels that I use are just plain vanilla kernels taken
+> straight from kernel.org. No other patches applied.
 
-My preference is different:  all queue management policies should be 
-the responsibility of that controller driver.  You're assuming that
-it's the core's responsibility (it would call that function).
+Ok. That's helpful.
 
-   http://marc.theaimsgroup.com/?l=linux-kernel&m=112684135722116&w=2
-
-
-> > I don't really understand why you'd want to make this so 
-> > expensive though.  Why not just do the IO directly into the 
-> > buffer provided for that purpose?  One controller might 
-> > require dma bounce buffers; but don't penalize all others by 
-> > imposing those same costs.
+> > 2) Are you using ext3 only?
 > 
-> Drivers might want to allocate theyr own buffers, for example, using
-> dma_alloc_coherent. Such drivers also need to store the dma handle
-> somewhere. Drivers might use pre-allocated buffers. 
-
-The simple solution is to just have the driver provide both CPU and DMA
-pointers for each buffer ... which implies using the spi_message level
-API, not the CPU-pointer-only single buffer spi_read()/spi_write() calls
-I was referring to.
-
-A PIO controller driver would use the CPU pointer; a DMA one would use
-the dma_addr_t.  The DMA pointers may have come from DMA mapping calls,
-or from dma_alloc_coherent().  Each of those cases can be implemented
-without that needless memcpy().  Only drivers on hardware that really
-needs bounce buffers should pay those costs.
-
-
-> > > +		msg->devbuf_rd = drv->alloc ?
-> > > +		    drv->alloc(len, GFP_KERNEL) : kmalloc(len, GFP_KERNEL);
-> > > +		msg->databuf_rd = drv->get_buffer ?
-> > > +		    drv->get_buffer(device, msg->devbuf_rd) : msg->devbuf_rd;
-> > 
-> > Oy.  More dynamic allocation.  (Repeated for write buffers 
-> > too ...) See above; don't force such costs on all drivers, 
-> > few will ever need it.
+> Yes, I am.
 > 
-> That's not necessarily allocation. That depends on driver that uses
-> spimsg_alloc, and possibly provides callback for allocating
-> buffers/accessing them
+> > 3) Is the corruption only ever in memory, or seen on disk too?
+> 
+> I have noticed the problem mostly on disk. One strange situation was
+> when I was untarring a kernel tree (compressed with bzip2) and in the
+> middle of the extraction, bzip2 complained that the thing was
+> corrupted.
+> 
+> I removed what was extracted right away and tried again to extract the
+> tree (at this point, suspecting even that something in software had
+> problems). The problem with bzip2 occurred again. Then, I rebooted the
+> system an the problem magically went away.
 
-Still, it's dynamic ... and it's quite indirect, since it's too early.
-Simpler to have the driver stuff the right pointers into that "msg" in
-its next steps. The driver has lots of relevant task context (say, in
-stack frames) that's hidden from those alloc() or get_buffer() calls.
+If you see it in a form where you can see the amount of corruption, can
+you see if it is just four bytes?
 
-Plus it's still allocating something that's _always_ used as a bounce
-buffer, even for drivers that doesn't need it.  Maybe they're PIO, or
-maybe normal DMA mappings work ... no matter, most hardware doesn't
-need bounce buffers.
+I'm asking because I have recently started seeing
+impossible-to-reliably-reproduce corruption here, which seems to be only
+four bytes at a time, in memory originally but possibly also appearing
+on disk (probably because of syncing). I originally wondered if it might
+be Suspend2 related (in the first instance, assume I messed up :)), but
+I haven't been sure. The corruption I'm seeing only affects the root
+filesystem. None of this makes much sense if I assume it's a Suspend2
+bug. I could have a bad pointer access somewhere, but the rest is just
+confusing.
 
-- Dave
+Regards,
+
+Nigel
+
+> > 4) Is the corruption only in one filesystem or spread across several
+> > (if applicable)? (ie in / but not /home or others?)
+> 
+> I only have one filesystem right now, but given the difficulties that
+> I'm seeing, I do plan to go back to a multiple filesystem setup (which I
+> always used but thought that was overkill---nothing like time to teach
+> us something what is safest).
+> 
+> If you want to know anything else, don't hesistate to ask.
+> 
+> 
+> Regards,
+-- 
 
 

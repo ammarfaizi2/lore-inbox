@@ -1,107 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750830AbVJCE4G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbVJCFBs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750830AbVJCE4G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 00:56:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbVJCE4G
+	id S1750767AbVJCFBs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 01:01:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750829AbVJCFBs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 00:56:06 -0400
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:2011 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S1750830AbVJCE4F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 00:56:05 -0400
-Subject: Re: Strange disk corruption with Linux >= 2.6.13
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: =?ISO-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051001213655.GE6397@ime.usp.br>
-References: <20050927111038.GA22172@ime.usp.br>
-	 <1127863912.4802.52.camel@localhost>  <20051001213655.GE6397@ime.usp.br>
-Content-Type: text/plain; charset=iso-8859-1
-Organization: Cyclades
-Message-Id: <1128315323.7234.9.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Mon, 03 Oct 2005 14:55:23 +1000
-Content-Transfer-Encoding: 8bit
+	Mon, 3 Oct 2005 01:01:48 -0400
+Received: from pimout7-ext.prodigy.net ([207.115.63.58]:1271 "EHLO
+	pimout7-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S1750767AbVJCFBs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 01:01:48 -0400
+X-ORBL: [69.107.75.50]
+DomainKey-Signature: a=rsa-sha1; s=sbc01; d=pacbell.net; c=nofws; q=dns;
+	h=received:date:from:to:subject:cc:mime-version:
+	content-type:content-transfer-encoding:message-id;
+	b=DrKZuynMz9stDwAw/Wez3lDDwZpruST20x6BI1EJ8rpq7PiaMXyxE2qH2Q+Vq+gBo
+	XsHtJpR9TlOAk9tQUbCCg==
+Date: Sun, 02 Oct 2005 22:01:30 -0700
+From: David Brownell <david-b@pacbell.net>
+To: Vitaly Wool <vwool@ru.mvista.com>
+Subject: Re: [PATCH] SPI
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20051003050130.EE003EA55B@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+> >	<linux/spi/spi.h>	... main header
+> >	<linux/spi/CHIP.h>	... platform_data, for CHIP.c driver
+> >
+> >Not all chips would need them, but it might be nice to have some place
+> >other than <linux/CHIP.h> for such things.  The platform_data would have
+> >various important data that can't be ... chip variants, initialization
+> >data, and similar stuff that differs between boards is knowable only by
+> >board-specific init code, yet is needed by board-agnostic driver code.
+> >  
+>
+> What about SPI busses that are common for different boards?
 
-On Sun, 2005-10-02 at 07:36, Rogério Brito wrote:
-> On Sep 28 2005, Nigel Cunningham wrote:
-> > Hi Rogerio.
-> 
-> Hi, Nigel.
-> 
-> > On Tue, 2005-09-27 at 21:10, Rogério Brito wrote:
-> > > Hi there. I'm seeing a really strange problem on my system lately and I
-> > > am not really sure that it has anything to do with the kernels.
-> > 
-> > I've seen the thread mostly following the hardware line. I'd like to
-> > enquire down the kernel path because I've seen occasional, impossible
-> > to reproduce problems too.
-> 
-> Nice. I also don't want to rule out anything before I really understand
-> what's going on.
-> 
-> > Can I ask first a few questions:
-> 
-> Of course.
-> 
-> > 1) Are you using vanilla kernels, or do you have other patches applied?
-> 
-> Yes, all the kernels that I use are just plain vanilla kernels taken
-> straight from kernel.org. No other patches applied.
+I don't understand your question.  It's simple enough to clone
+the board-specific.c files for related designs; that's the only
+sense I can imagine in which two boards might have the "same"
+bus.  (Using the same controller is a different topic.)
 
-Ok. That's helpful.
 
-> > 2) Are you using ext3 only?
-> 
-> Yes, I am.
-> 
-> > 3) Is the corruption only ever in memory, or seen on disk too?
-> 
-> I have noticed the problem mostly on disk. One strange situation was
-> when I was untarring a kernel tree (compressed with bzip2) and in the
-> middle of the extraction, bzip2 complained that the thing was
-> corrupted.
-> 
-> I removed what was extracted right away and tried again to extract the
-> tree (at this point, suspecting even that something in software had
-> problems). The problem with bzip2 occurred again. Then, I rebooted the
-> system an the problem magically went away.
+> >You're imposing the same implementation strategy Mark Underwood was.
+> >I believe I persuaded him not to want that, pointing out three other
+> >implementation strategies that can be just as reasonable:
+> >
+> >   http://marc.theaimsgroup.com/?l=linux-kernel&m=112684135722116&w=2
+> >
+> >It'd be fine if for example your PNX controller driver worked that way
+> >internally.  But other drivers shouldn't be forced to allocate kernel
+> >threads when they don't need them.
+>
+>
+> Hm, so does that imply that the whole -rt patches from 
+> Ingo/Sven/Daniel/etc. are implementing wrong strategy (interrupts in 
+> threads)?
 
-If you see it in a form where you can see the amount of corruption, can
-you see if it is just four bytes?
+In an RT context, it may make sense to impose a policy like that.
 
-I'm asking because I have recently started seeing
-impossible-to-reliably-reproduce corruption here, which seems to be only
-four bytes at a time, in memory originally but possibly also appearing
-on disk (probably because of syncing). I originally wondered if it might
-be Suspend2 related (in the first instance, assume I messed up :)), but
-I haven't been sure. The corruption I'm seeing only affects the root
-filesystem. None of this makes much sense if I assume it's a Suspend2
-bug. I could have a bad pointer access somewhere, but the rest is just
-confusing.
+But I recall those folk have said they're making things so that sanely
+behaved kernel code will work with no changes.  And also that not all
+kernels should be enabling RT support ...
 
-Regards,
 
-Nigel
+> How will your strategy work with that BTW?
 
-> > 4) Is the corruption only in one filesystem or spread across several
-> > (if applicable)? (ie in / but not /home or others?)
-> 
-> I only have one filesystem right now, but given the difficulties that
-> I'm seeing, I do plan to go back to a multiple filesystem setup (which I
-> always used but thought that was overkill---nothing like time to teach
-> us something what is safest).
-> 
-> If you want to know anything else, don't hesistate to ask.
-> 
-> 
-> Regards,
--- 
+If they meet their goals, it'll work just fine.  Sanely behaved
+implementations will continue to work, and not even notice.
 
+
+
+> >>+  [ picture deleted ]
+> >
+> >That seems wierd even if I assume "platform_bus" is just an example.
+> >For example there are two rather different "spi bus" notions there,
+> >and it looks like neither one is the physical parent of any SPI device ...
+>
+>
+> Not sure if I understand you :(
+
+Why couldn't for example SPI sit on a PCI bus?
+
+And call the two boxes different things, if they're really different.
+The framework I've posted has "spi_master" as a class implmented
+by certain controller drivers.  (Others might use "spi_slave", and
+both would be types of "SPI bus".)  That would at least clarify
+the confusion on the left half of that picture.
+
+
+
+> >>+3.2 How do the SPI devices gets discovered and probed ?
+> >>    
+> >
+> >Better IMO to have tables that get consulted when the SPI master controller
+> >drivers register the parent ... tables that are initialized by the board
+> >specific __init section code, early on.  (Or maybe by __setup commandline
+> >parameters.)
+> >
+> >Doing it the way you are prevents you from declaring all the SPI devices in
+> >a single out-of-the-way location like the arch/.../board-specific.c file,
+> >which is normally responsible for declaring devices that are hard-wired on
+> >a given board and can't be probed.
+> >  
+> >
+> By what means does it prevent that?
+
+Well "prevent" may be a bit strong, if you like hopping levels in
+the software stack.  I don't; without such hopping (or without a
+separate out-of-band mechanism like device tables), I don't see
+a way to solve that problem.
+
+
+> >>+#define SPI_MAJOR	153
+> >>+
+> >>+...
+> >>+
+> >>+#define SPI_DEV_CHAR "spi-char"
+> >>    
+> >>
+> I thought 153 was the official SPI device number.
+
+So it is (at least for minors 0..15, so long as they use some
+API I can't find a spec for), but that wasn't the point.  The
+point is to keep that sort of driver-specific information from
+cluttering headers which are addressed to _every_ driver.
+
+- Dave
 

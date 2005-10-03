@@ -1,86 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932643AbVJCWFt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932704AbVJCWFy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932643AbVJCWFt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 18:05:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932704AbVJCWFs
+	id S932704AbVJCWFy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 18:05:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932708AbVJCWFy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 18:05:48 -0400
-Received: from mail.autoweb.net ([198.172.237.26]:16302 "EHLO mail.autoweb.net")
-	by vger.kernel.org with ESMTP id S932643AbVJCWFr (ORCPT
+	Mon, 3 Oct 2005 18:05:54 -0400
+Received: from amdext3.amd.com ([139.95.251.6]:13722 "EHLO amdext3.amd.com")
+	by vger.kernel.org with ESMTP id S932704AbVJCWFx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 18:05:47 -0400
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
-	the kernel
-From: Ryan Anderson <ryan@autoweb.net>
-To: Tomasz =?iso-8859-2?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
-Cc: Luben Tuikov <luben_tuikov@adaptec.com>, andrew.patterson@hp.com,
-       Marcin Dalecki <dalecki.marcin@neostrada.pl>,
-       "Salyzyn, Mark" <mark_salyzyn@adaptec.com>, dougg@torque.net,
-       Linus Torvalds <torvalds@osdl.org>, Luben Tuikov <ltuikov@yahoo.com>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.BSO.4.62.0510032103380.28198@rudy.mif.pg.gda.pl>
-References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01A9FA11@otce2k03.adaptec.com>
-	 <1128105594.10079.109.camel@bluto.andrew>  <433D9035.6000504@adaptec.com>
-	 <1128111290.10079.147.camel@bluto.andrew>  <433DA0DF.9080308@adaptec.com>
-	 <1128114950.10079.170.camel@bluto.andrew> <433DB5D7.3020806@adaptec.com>
-	 <9B90AC8A-A678-4FFE-B42D-796C8D87D65B@neostrada.pl>
-	 <4341381D.2060807@adaptec.com>
-	 <E93AC7D5-4CC0-4872-A5B8-115D2BF3C1A9@neostrada.pl>
-	 <1128357350.10079.239.camel@bluto.andrew> <43415EC0.1010506@adaptec.com>
-	 <Pine.BSO.4.62.0510032103380.28198@rudy.mif.pg.gda.pl>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-lYZfKBnkTQpkkNuDH3l1"
-Date: Mon, 03 Oct 2005 18:04:35 -0400
-Message-Id: <1128377075.23932.5.camel@ryan2.internal.autoweb.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Mon, 3 Oct 2005 18:05:53 -0400
+X-Server-Uuid: 519AC16A-9632-469E-B354-112C592D09E8
+Date: Mon, 3 Oct 2005 16:22:51 -0600
+From: "Jordan Crouse" <jordan.crouse@amd.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: AMD Geode GX/LX support
+Message-ID: <20051003222251.GG30975@cosmic.amd.com>
+References: <20051003174738.GC29264@cosmic.amd.com>
+ <1128366109.26992.27.camel@localhost.localdomain>
+ <20051003195531.GB30975@cosmic.amd.com>
+ <1128372369.26992.48.camel@localhost.localdomain>
+MIME-Version: 1.0
+In-Reply-To: <1128372369.26992.48.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
+X-WSS-ID: 6F5F74BD354758454-01-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 03/10/05 21:46 +0100, Alan Cox wrote:
+> On Llu, 2005-10-03 at 13:55 -0600, Jordan Crouse wrote:
+> > As I mentioned in the previous e-mail, the GEODEGX1 define as it stands
+> > is incorrect - the cache line size should be 16 bytes for the GX1.  The 
+> > GX and LX share a newer core, so it stands, I think that they should have
+> > a different define.
+> 
+> What makes the cores different ? Cache line size ? If they share the
+> same kernel options and build then they don't need a new define, the
+> existing one just need generalising.
 
---=-lYZfKBnkTQpkkNuDH3l1
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: quoted-printable
+After thinking about this a bit more, I think we should keep the GEODEGX1
+define because it was for a different core, but consolidate the GX and LX
+defines into a single define.  Originally, we added the defines for
+ease-of-use in the configuration realm, for example, not allowing the user to
+build the LX TRNG for a GX kernel.  Based on the other comments regarding
+similar things, I now think that we should avoid it all together.
 
-On Mon, 2005-10-03 at 23:26 +0200, Tomasz K=B3oczko wrote:
-> If (cytation from Linus) "a 'spec' is close to useless" ..
-> Q: why the hell in kernel tree is included Documentation/ subdirectory ?
-> Is it raly content of this directory is "close to useless" or maybe it no=
-t
-> contains some specyfications ? :>
+I'm going to keep the GEODE_LX define, and send GEODE_GX to the briny deep.
+I guess technically, we could use the codename for the core, but I think
+that would be more confusing.  Best to stick with the marketing names, I think.
 
-Let me rephrase what Linus said, to help remove the misreading that
-seems so common today.  I think a fair rewording would be, "A spec is a
-guideline.  When it fails to match reality, continuing to follow it is a
-tremendous mistake."
+> > I suppose that I should come with something more solid then a gut feeling, 
+> > though, substantial as my gut may be.
+> 
+> Indeed. With gcc 3.x I ended up with -m486 -falign-functions=0 and that
+> used to be the settings. I don't know who changed it to pentium-mmx in
+> the end but I objected to about four different patches that did this
+> over time and people still kept submitting them.
 
-Additionally, I think the overall LKML feeling on hardware specs and the
-corresponding software abstractions to deal with it can be summarized
-something like this:
+I'll remove the defines for now until we can prove that its better to have 
+them turned on.
 
-When the spec provides a software design that doesn't fit into the
-overall structure of the Linux kernel, the spec should be treated as a
-suggestion for a software design.  The *interface* that the spec
-documents should be followed, where it moves out of the overall
-structure, but internally, a design that fits into the Linux kernel is
-more important than following a spec that doesn't fit.
+Thanks for your comments,
+Jordan
 
---=20
-Ryan Anderson
-AutoWeb Communications, Inc.
-email: ryan@autoweb.net
+-- 
+Jordan Crouse
+Senior Linux Engineer
+AMD - Personal Connectivity Solutions Group
+<www.amd.com/embeddedprocessors>
 
-
---=-lYZfKBnkTQpkkNuDH3l1
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDQarzIEfEr9d71YgRAnWLAKCS5Mjwkk2A6AfQ/FWYMjyl4cUJjQCeJP7r
-AHaVJ/elXKe3OrF136lWhQQ=
-=AzW1
------END PGP SIGNATURE-----
-
---=-lYZfKBnkTQpkkNuDH3l1--

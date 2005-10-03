@@ -1,62 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932135AbVJCDvF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbVJCEKZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932135AbVJCDvF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Oct 2005 23:51:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932136AbVJCDvF
+	id S932144AbVJCEKZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 00:10:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbVJCEKZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Oct 2005 23:51:05 -0400
-Received: from vms048pub.verizon.net ([206.46.252.48]:60293 "EHLO
-	vms048pub.verizon.net") by vger.kernel.org with ESMTP
-	id S932135AbVJCDvE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Oct 2005 23:51:04 -0400
-Date: Sun, 02 Oct 2005 23:50:54 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: what's next for the linux kernel?
-In-reply-to: <Pine.LNX.4.63.0510021948180.27456@cuia.boston.redhat.com>
-To: linux-kernel@vger.kernel.org
-Message-id: <200510022350.54640.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <4TiWy-4HQ-3@gated-at.bofh.it>
- <200510021932.00969.gene.heskett@verizon.net>
- <Pine.LNX.4.63.0510021948180.27456@cuia.boston.redhat.com>
-User-Agent: KMail/1.7
+	Mon, 3 Oct 2005 00:10:25 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:8073 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932144AbVJCEKY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 00:10:24 -0400
+Date: Sun, 2 Oct 2005 21:10:14 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Christopher Li <usb-devel@chrisli.org>
+Cc: chrisl@vmware.com, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, zaitcev@redhat.com
+Subject: Re: PATCH] incrase usbdevfs bulk buffer size
+Message-Id: <20051002211014.195ff1c3.zaitcev@redhat.com>
+In-Reply-To: <20051002193422.GH3453@64m.dyndns.org>
+References: <20051001202059.GE3453@64m.dyndns.org>
+	<20051002150829.35107f91.zaitcev@redhat.com>
+	<20051002193422.GH3453@64m.dyndns.org>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.8.4; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 02 October 2005 19:48, Rik van Riel wrote:
->On Sun, 2 Oct 2005, Gene Heskett wrote:
->> Ahh, yes and no, Robert.  The un-answered question, for that
->> 512 processor Altix system, would be "but does it run things 512
->> times faster?"  Methinks not, by a very wide margin.  Yes, do a lot
->> of unrelated things fast maybe, but render a 30 megabyte page with
->> ghostscript in 10 milliseconds?  Never happen IMO.
->
->You haven't explained us why you think your proposal
->would allow Linux to circumvent Amdahl's law...
+On Sun, 2 Oct 2005 15:34:22 -0400, Christopher Li <usb-devel@chrisli.org> wrote:
 
-Amdahl's Law?
+> > 16K is an order 2 allocation on systems with 4KB pages, such as
+> > Opteron. It kinda sorta works, but not really.
+> > 
+> > This looks like a requirement to think about a better API. []
+> 
+> I think the API is kind of fine in this aspect. The usbdevfs should be
+> able to take bigger than 16K, but the internal copy of the urb does not
+> have to use kmalloc on data buffers.
 
-Thats a reference I don't believe I've been made aware of.  Can you
-elaborate?
-  
-Besides, it isn't my proposal, just a question in that I chose a
-scenario (ghostscripts rendering of a page of text) that in fact only
-runs maybe 10x faster on an XP-2800 Athlon with a gig of dram than it
-did on my old 25 mhz 68040 equipt amiga with 64 megs of dram.  
-With 64 megs of dram, so it wasn't nearly as memory bound doing that
-as most of the Amiga's were.
+You miss an important detail here, namely that single URBs do not have
+a capability to transfer to a discotiguous buffer. As long as you try
+to map one transfer insive VMware to one URB, one and only one kmalloc
+has to be done. But if splitting the transfer is acceptable, there is
+no reason to up the maximum buffer size in usbfs. But the above is IMHO
+only, and perhaps I miss something as well.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.35% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
-
+-- Pete

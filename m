@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932365AbVJCViG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932694AbVJCVpK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932365AbVJCViG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 17:38:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932442AbVJCViG
+	id S932694AbVJCVpK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 17:45:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932696AbVJCVpJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 17:38:06 -0400
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:59265 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S932365AbVJCViF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 17:38:05 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [swsusp] separate snapshot functionality to separate file
-Date: Mon, 3 Oct 2005 23:39:07 +0200
-User-Agent: KMail/1.8.2
-Cc: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
-References: <20051002231332.GA2769@elf.ucw.cz>
-In-Reply-To: <20051002231332.GA2769@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 3 Oct 2005 17:45:09 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:11194 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932694AbVJCVpI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 17:45:08 -0400
+Date: Mon, 3 Oct 2005 23:43:03 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@osdl.org>, rpurdie@rpsys.net, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>
+Subject: [zaurus] fix compilation with cpufreq disabled
+Message-ID: <20051003214303.GA7187@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200510032339.08217.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This fixes compilation with CPU_FREQ disabled.
 
-On Monday, 3 of October 2005 01:13, Pavel Machek wrote:
-> Split swsusp.c into swsusp.c and snapshot.c. Snapshot only cares
-> provides system snapshot/restore functionality, while swsusp.c will
-> provide disk i/o. It should enable untangling of the code in future;
-> swsusp.c parts can mostly be done in userspace.
-> 
-> No code changes.
+Signed-off-by: Pavel Machek <pavel@suse.cz>
 
-I think that the functions:
+diff --git a/drivers/video/sa1100fb.c b/drivers/video/sa1100fb.c
+--- a/drivers/video/sa1100fb.c
++++ b/drivers/video/sa1100fb.c
+@@ -592,6 +592,7 @@ sa1100fb_setcolreg(u_int regno, u_int re
+ 	return ret;
+ }
+ 
++#ifdef CONFIG_CPU_FREQ
+ /*
+  *  sa1100fb_display_dma_period()
+  *    Calculate the minimum period (in picoseconds) between two DMA
+@@ -606,6 +607,7 @@ static inline unsigned int sa1100fb_disp
+ 	 */
+ 	return var->pixclock * 8 * 16 / var->bits_per_pixel;
+ }
++#endif
+ 
+ /*
+  *  sa1100fb_check_var():
 
-read_suspend_image()
-read_pagedir()
-swsusp_pagedir_relocate() (BTW, why there's "swsusp_"?)
-check_pagedir() (BTW, misleading name)
-data_read()
-eat_page()
-get_usable_page()
-free_eaten_memory()
-
-should be moved to snapshot.c as well, because they are in fact
-symmetrical to what's there (they perform the reverse of creating
-the snapshot and use analogous data structures).  IMO the code
-change required would not be so drammatic and all of the functions
-that _operate_ on the snapshot would be in the same file.
-
-Greetings,
-Rafael
+-- 
+if you have sharp zaurus hardware you don't need... you know my address

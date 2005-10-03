@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbVJCHyM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbVJCHzY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932180AbVJCHyM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 03:54:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbVJCHyM
+	id S932182AbVJCHzY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 03:55:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbVJCHzY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 03:54:12 -0400
-Received: from web8410.mail.in.yahoo.com ([202.43.219.158]:53849 "HELO
-	web8410.mail.in.yahoo.com") by vger.kernel.org with SMTP
-	id S932180AbVJCHyL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 03:54:11 -0400
+	Mon, 3 Oct 2005 03:55:24 -0400
+Received: from web8409.mail.in.yahoo.com ([202.43.219.157]:27989 "HELO
+	web8409.mail.in.yahoo.com") by vger.kernel.org with SMTP
+	id S932182AbVJCHzX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 03:55:23 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.co.in;
   h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=d62YnN5a6zxTn3EIJFai7iHg1tRQmyArRPlBS06x5Kq9U0KtK8RI329g2CLicaR/F46qNIAiqN2VEnamu/PaNDLsOo7KQvc9JuxihS5EoPMmOK57FX0Te/TNzgT321s+/x/uDD6pt4kB2MgWhM9g7MVxxSpLEXmARyebJ/WF/6w=  ;
-Message-ID: <20051003075407.34855.qmail@web8410.mail.in.yahoo.com>
-Date: Mon, 3 Oct 2005 08:54:06 +0100 (BST)
+  b=Wa5/k06vP7Ow75SIA3vXUDOBD/Md/XjpjS/TXgJHt/eASScs5R2UjOE4m+OLyMO3Xqi2ukGrd1Yl/rAadye0Aos7Qu26zlgCjVNHka3flC0tbwI9ATi2sKs0xbdzQu7JkIvq/+mO01ia5a01fqlbYvZ2G8cybFytoZzxVjyGHrI=  ;
+Message-ID: <20051003075519.98008.qmail@web8409.mail.in.yahoo.com>
+Date: Mon, 3 Oct 2005 08:55:19 +0100 (BST)
 From: vikas gupta <vikas_gupta51013@yahoo.co.in>
 Subject: AIO Support for kernel 2.6.11 ?????? 
 To: linux-aio@kvack.org, linux-kernel@vger.kernel.org, suparna@in.ibm.com,

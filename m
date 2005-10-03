@@ -1,67 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932626AbVJCTMN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932649AbVJCTTm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932626AbVJCTMN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 15:12:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932642AbVJCTMN
+	id S932649AbVJCTTm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 15:19:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932644AbVJCTTm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 15:12:13 -0400
-Received: from free.hands.com ([83.142.228.128]:39902 "EHLO free.hands.com")
-	by vger.kernel.org with ESMTP id S932626AbVJCTML (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 15:12:11 -0400
-Date: Mon, 3 Oct 2005 20:12:02 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: jonathan@jonmasters.org, linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-Message-ID: <20051003191202.GD8548@lkcl.net>
-References: <20051002204703.GG6290@lkcl.net> <35fb2e590510030720t416dc210xc4e4eb11b3972822@mail.gmail.com> <E1EMSkK-00028o-00@dorka.pomaz.szeredi.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1EMSkK-00028o-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-MailScanner-From: lkcl@lkcl.net
+	Mon, 3 Oct 2005 15:19:42 -0400
+Received: from outgoing.tpinternet.pl ([193.110.120.20]:15059 "EHLO
+	outgoing.tpinternet.pl") by vger.kernel.org with ESMTP
+	id S932606AbVJCTTl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 15:19:41 -0400
+In-Reply-To: <43415EC0.1010506@adaptec.com>
+References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01A9FA11@otce2k03.adaptec.com>	 <1128105594.10079.109.camel@bluto.andrew>  <433D9035.6000504@adaptec.com>	 <1128111290.10079.147.camel@bluto.andrew>  <433DA0DF.9080308@adaptec.com>	 <1128114950.10079.170.camel@bluto.andrew> <433DB5D7.3020806@adaptec.com>	 <9B90AC8A-A678-4FFE-B42D-796C8D87D65B@neostrada.pl>	 <4341381D.2060807@adaptec.com>	 <E93AC7D5-4CC0-4872-A5B8-115D2BF3C1A9@neostrada.pl> <1128357350.10079.239.camel@bluto.andrew> <43415EC0.1010506@adaptec.com>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <0D927995-1605-4AA7-B213-2AE7F3C6CD69@neostrada.pl>
+Cc: andrew.patterson@hp.com, "Salyzyn, Mark" <mark_salyzyn@adaptec.com>,
+       dougg@torque.net, Linus Torvalds <torvalds@osdl.org>,
+       Luben Tuikov <ltuikov@yahoo.com>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+From: Marcin Dalecki <dalecki.marcin@neostrada.pl>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into the kernel
+Date: Mon, 3 Oct 2005 21:16:28 +0200
+To: Luben Tuikov <luben_tuikov@adaptec.com>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 03, 2005 at 06:00:56PM +0200, Miklos Szeredi wrote:
-> > But you /know/ this because you're a microprocessor designer as well
-> > as a contributor to the FUSE project?
-> 
-> AFAIK Luke never contributed to the FUSE project.  Hopefully that
-> answers your question.
- 
- wrong.
 
- i added xattr support to fuse, for use in selinux.  it's a long story.
+On 2005-10-03, at 18:39, Luben Tuikov wrote:
 
-	 http://www.ussg.iu.edu/hypermail/linux/kernel/0409.2/1441.html
+> On 10/03/05 12:35, Andrew Patterson wrote:
+>
+>> On Mon, 2005-10-03 at 18:29 +0200, Marcin Dalecki wrote:
+>>
+>>> They give a means of possible synchronization between beneviolent
+>>> users, but not a mandatory lock on the shared resource.
+>>
+>> Nor do they protect against external events, such as disk
+>> insertion/removals, and someone kicking a cable.
+>
+> As has _always_ been the case in UNIX:  Provide capability,
+> not policy.
 
- and yes, for the record, i am just as comfortable with hardware
- designs as with software, having designed a massively parallel
- encryption algorithm capable of doing up to about 16384-bit
- block sizes with key sizes of up to around 8192-bits, (which
- unfortunately wasn't very fast in software - you can't have
- everything), came up with some significant improvements to
- the plessey/imperial-uni/man-uni ALICE parallel transputer
- network as a third year project, and also provided aspex,
- the massively-parallel SIMD processor company, with enough
- new material and ideas in four months for them to have to
- register six new patents.
+This is at least arguable and not applicable, since we are talking  
+about Linux and not UNIX here. UNIX is just fine using IOCTL or  
+SYSCTL instead of a crude pseudo file system for this kind of things.
 
- ... why are you people bothering to attempt to go "oh, this
- guy must not know anything therefore we'll waste the list's
- time with our opinions on whether he cannot do anything",
- such that i have to refute you, and look like a complete
- egg-head jumped-up i'm-better-than-you horn-blowing tosser?
+> The more things are off loaded to userspace the better.
 
- stop it!
+That is not the question at hand and an invalid statement per se.  
+It's not a design goal in itself to have everything in user space.  
+However you admitt indirectly that the problem in question is valid  
+and that it exists on the design level of the interface at hand and  
+that it's an inherent error in this interface, since you don't know a  
+solution to it.
 
- everyone has their level and areas of expertise: instead of
- turning this into a pissing contest, be glad and humbled for
- an opportunity to learn from each other.
+> Look at it this way: the deadbolt on your house door does
+> not _eliminate_ the possibility of someone cleaning out
+> your house, even if you have a security system and/or
+> a guard dog.
 
- l.
-
+Problems which can be solved by proper solutions easly and without  
+cost should be solved and not talked away to justify someones idee  
+fixe about interface desing.

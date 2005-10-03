@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932269AbVJCO7m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750993AbVJCPBh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932269AbVJCO7m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 10:59:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750994AbVJCO7m
+	id S1750993AbVJCPBh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 11:01:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750994AbVJCPBh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 10:59:42 -0400
-Received: from dvhart.com ([64.146.134.43]:56978 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S1750987AbVJCO7l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 10:59:41 -0400
-Date: Mon, 03 Oct 2005 07:59:43 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: David Lang <dlang@digitalinsight.com>, Magnus Damm <magnus.damm@gmail.com>
-Cc: Dave Hansen <haveblue@us.ibm.com>, Magnus Damm <magnus@valinux.co.jp>,
-       linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 00/07][RFC] i386: NUMA emulation
-Message-ID: <79580000.1128351582@[10.10.2.4]>
-In-Reply-To: <Pine.LNX.4.62.0510030628150.11541@qynat.qvtvafvgr.pbz>
-References: <20050930073232.10631.63786.sendpatchset@cherry.local><1128093825.6145.26.camel@localhost><aec7e5c30510021908la86daf9je0584fb0107f833a@mail.gmail.com><Pine.LNX.4.62.0510030031170.11095@qynat.qvtvafvgr.pbz><aec7e5c30510030302u8186cfer642c7b9337613de@mail.gmail.com> <Pine.LNX.4.62.0510030628150.11541@qynat.qvtvafvgr.pbz>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Mon, 3 Oct 2005 11:01:37 -0400
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:45572 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1750916AbVJCPBg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 11:01:36 -0400
+To: Paulo da Silva <psdasilva@esoterica.pt>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: LVM and lilo: a problem!
+References: <433F2A30.6080308@esoterica.pt>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: if it payed rent for disk space, you'd be rich.
+Date: Mon, 03 Oct 2005 16:01:11 +0100
+In-Reply-To: <433F2A30.6080308@esoterica.pt> (Paulo da Silva's message of "2
+ Oct 2005 01:33:44 +0100")
+Message-ID: <87slvir6fc.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> if nothing else preferential use of 'local' (non PAE) memory over 
-> 'remote' (PAE) memory for programs, while still useing it all as needed.
+On 2 Oct 2005, Paulo da Silva gibbered uncontrollably:
+> However, I needed to run lilo and got the
+> following message:
+> 
+> Warning: '/proc/partitions' does not match '/dev' directory structure.
+>     Name change: '/dev/dm-0' -> '/dev/VSDB/gtpalma'
+> 
+> '/dev/VSDB/gtpalma' is a logical volume I created and is
+> working fine anyway.
+> 
+> What does this mean?
 
-Why would you want to do that? ;-)
+LILO assumes that names in /proc/partitions correspond one-to-one with
+names in /dev. This assumption isn't true under LVM (and need not be
+true in any circumstances: you can rearrange disks in any way you
+like with udev, and a number of distributions do).
 
-> this may be done already, but this type of difference between the access 
-> speed of different chunks of ram seems to be exactly the type of thing 
-> that the NUMA code solves the general case for.
+> Should I do anything to avoid the message?
 
-It is! 
+As far as I know, it's harmless.
 
-> I'm thinking that it 
-> may end up simplifying things if the same general-purpose logic will 
-> work for the specific case of PAE instead of it being hard coded as 
-> a special case.
-
-But that's not the same at all! ;-) PAE memory is the same speed as
-the other stuff. You just have a 3rd level of pagetables for everything.
-One could (correctly) argue it made *all* memory slower, but it does so
-in a uniform fashion.
-
-M.
-
+-- 
+`Next: FEMA neglects to take into account the possibility of
+fire in Old Balsawood Town (currently in its fifth year of drought
+and home of the General Grant Home for Compulsive Arsonists).'
+            --- James Nicoll

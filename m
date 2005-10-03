@@ -1,67 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932351AbVJCQRk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbVJCQU3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932351AbVJCQRk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 12:17:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932350AbVJCQRk
+	id S1751079AbVJCQU3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 12:20:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbVJCQU3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 12:17:40 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:12523 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S932274AbVJCQRi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 12:17:38 -0400
-Message-ID: <4341599D.70904@adaptec.com>
-Date: Mon, 03 Oct 2005 12:17:33 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Arjan van de Ven <arjan@infradead.org>,
-       "Salyzyn, Mark" <mark_salyzyn@adaptec.com>, andrew.patterson@hp.com,
-       dougg@torque.net, Linus Torvalds <torvalds@osdl.org>,
-       Luben Tuikov <ltuikov@yahoo.com>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
- the kernel
-References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01A9FA11@otce2k03.adaptec.com>	 <1128102837.3012.15.camel@laptopd505.fenrus.org> <1128210952.17099.73.camel@localhost.localdomain>
-In-Reply-To: <1128210952.17099.73.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 03 Oct 2005 16:17:34.0705 (UTC) FILETIME=[F6A97610:01C5C835]
+	Mon, 3 Oct 2005 12:20:29 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:44172 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S1751079AbVJCQU2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 12:20:28 -0400
+Date: Mon, 3 Oct 2005 12:20:27 -0400
+To: Grant Coady <grant_lkml@dodo.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: Strange disk corruption with Linux >= 2.6.13
+Message-ID: <20051003162027.GF7949@csclub.uwaterloo.ca>
+References: <20050927111038.GA22172@ime.usp.br> <9ncij11fqb4l70qrhb0a8nri5moohnkaaf@4ax.com> <20050927140434.GL28578@csclub.uwaterloo.ca> <20051001212806.GD6397@ime.usp.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051001212806.GD6397@ime.usp.br>
+User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/01/05 19:55, Alan Cox wrote:
-> On Gwe, 2005-09-30 at 19:53 +0200, Arjan van de Ven wrote:
+On Sat, Oct 01, 2005 at 06:28:06PM -0300, Rog?rio Brito wrote:
+> Right now, I'm using just a single 512MB module, but it is single-sided
+> (I guess that by double-sided you guys mean that it has chips on both
+> sides of the module, right?). The only double-sided module that I have
+> here is the 256MB module.
 > 
->>that makes me wonder... why and how does T10 control linux abi's ??
+> OTOH, with just one 512MB everything *seems* to be working fine, but,
+> honestly, I'm not sure.
+
+Well maybe a single sided 512M can still have the same interface as a
+double sided.  Depends how it is wired I suppose.
+
+> Hummm, nice to see that you have also experienced this. With 256 + 128,
+> I had to use PC100 to have it work stably.
 > 
-> 
-> Indirectly the standards do define APIs at the very least. A good
-> example is taskfile. ACPI methods (which we don't yet use) allow get/set
-> mode, get features on the motherboard ATA controller if you don't know
-> how to drive it. The objects they work in are taskfiles. No taskfiles,
-> no ACPI.
+> I'd obviously prefer to have everything working at PC133 speed, but
+> wouldn't mind running at PC100 speed if I could use everything, since I
+> sometimes need to use some large programs (for some dynamic programming
+> problems).
 
-Yes, that's true.
+Actually you probably DON'T want the ram to run PC133 since at PC133 the
+latency is a bit higher (in clock counts) than at PC100, so overall the
+latency stays about the same.  On the other hand running the ram
+asynchrounous from the front side bus of the cpu makes getting memory
+access aligned more complicated and inserts different delays.  So most
+likely the system really runs fastest when the ram matches the cpu bus
+speed which on an A7V is 100MHz (since it never did actually support any
+133FSB cpus, you needed the fixed KT133A chipset for that that the A7V-E
+had on it).  I also only run a 700MHz cpu so heat isn't a problem.  I
+know the 1GHz cpu made a lot of heat and really needed good cooling.  I
+don't remember what cpu speed you have.
 
-Even more is true.  Standards and specs define the
-_layering infrastructure_ which if implemented, 
-allows for layer intersection.
-
-For example, if one needs to insert a SATL later just because
-the underlaying transport was found able to transport it,
-since the layering is well defined and _so_ implemented, it wouldn't
-be hard to interface antother well defined layer in.
-
-If, OTOH, things are conglomerated into a blob, just because
-the kernel engineers (not (storage) engineers per se) found _no_ current
-use of the layering infrastructure and separating the layers
-was found do add  "more maintenance", then this will turn around
-sooner or later to bite back.
-
-After all, things are what they are.
-
-	Luben
-
+Len Sorensen

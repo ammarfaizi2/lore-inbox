@@ -1,68 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751101AbVJCPTm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932277AbVJCPT6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751101AbVJCPTm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 11:19:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932270AbVJCPTm
+	id S932277AbVJCPT6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 11:19:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751148AbVJCPTy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 11:19:42 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:5079 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S1751101AbVJCPTl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 11:19:41 -0400
-Message-ID: <43414C06.2030501@adaptec.com>
-Date: Mon, 03 Oct 2005 11:19:34 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
+	Mon, 3 Oct 2005 11:19:54 -0400
+Received: from zproxy.gmail.com ([64.233.162.207]:9536 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751105AbVJCPTw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 11:19:52 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=YoGhy37hnQ0g4Ryh8QUBa06bia1r/X7juu4UAtG4LIj+/c3WYSL3jjUnmx89OR3fHG/hjpExHqJSlalLMk9a0xNEsg8WzzIHCNgU9vGbu7DxnsOXaw12hIFaS8X2c6hxbOZ+YnTX4303cMGod0W9oUI0kRZSE6h+wCiupLeaEks=
+Message-ID: <355e5e5e0510030819od4ef8e5l93708588990081da@mail.gmail.com>
+Date: Mon, 3 Oct 2005 11:19:51 -0400
+From: Lukasz Kosewski <lkosewsk@gmail.com>
+Reply-To: Lukasz Kosewski <lkosewsk@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH 2/3] Add disk hotswap support to libata RESEND #5
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org
+In-Reply-To: <1127949651.26686.11.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: David Lang <david.lang@digitalinsight.com>
-CC: Jeff Garzik <jgarzik@pobox.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Andre Hedrick <andre@linux-ide.org>,
-       "David S. Miller" <davem@davemloft.net>, willy@w.ods.org,
-       patmans@us.ibm.com, ltuikov@yahoo.com, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, torvalds@osdl.org, linux-scsi@vger.kernel.org,
-       James Bottomley <James.Bottomley@steeleye.com>
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx intothe
- kernel
-References: dlang@dlang.diginsite.com <Pine.LNX.4.62.0510030721540.11541@qynat.qvtvafvgr.pbz>
-In-Reply-To: <Pine.LNX.4.62.0510030721540.11541@qynat.qvtvafvgr.pbz>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 03 Oct 2005 15:19:35.0069 (UTC) FILETIME=[DCA324D0:01C5C82D]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <355e5e5e05092618018840fc3@mail.gmail.com>
+	 <433AEAAE.2070003@pobox.com>
+	 <1127949651.26686.11.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/03/05 10:26, David Lang wrote:
-> in this case wouldn't it be trivial to write a 'null transport' driver 
-> that just passed things down to the card to let the firmware deal with it?
-> (reformatting the data if needed)
+Hey Alan,
 
-Hi David,
+On 9/28/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> For PATA the requirements I'm aware of are
+>
+> -       Interface for user to say "am about to swap"
 
-I think it is trivial.
+You mean something like "echo scsi-remove-single-device a b c d" >
+/proc/scsi/scsi?  I guess the sysfs equivalent?
 
-Your LLDD would define the host template and register it
-with SCSI Core.  This way you _bypass_ the Transport Layer.
-(This is what you call null driver -- as is traditionally done
-in SCSI Core due to the legacy LLDDs (to which MPT caters
-for 100% backward software compatibility))
+> -       Interface for user to say "have swapped"
 
-Else if your LLDD is just an inteface to the interconnect:
-i.e. it only implements Execute SCSI RPC and TMFs, then
-you'd register with the Transport Layer (SBP or USB or SAS)
-which will do all Transport related tasks, and then that
-Transport Layer (USB, SBP or SAS) would register a scsi host
-with SCSI Core.
+I suppose ditto.
 
-	Luben
+> -       Must quiesce both master and slave before swap (or one per cable)
 
-> having a null driver for a layer for some hardware, and a much more 
-> complex driver for the same layer for other hardware is fairly common in 
-> Linux. I believe ti was Linus that said in an interview that Linux is now 
-> largely designed for an ideal abstracted CPU, with code put in on the 
-> architectures that don't have a feature to simulate that feature in 
-> software.
-> 
-> David Lang
-> 
+The way I've written my infrastructure, this seems as if it'll just
+require another carefully placed hook function.
 
+> -       Must reset to PIO_SLOW and then recompute modes for both devices
+> becuse it is possible that changing one changes the other timings
+
+This shouldn't be hard since I already do a similar reset by resetting
+udma_flags to a pre-init state.  Probably in an if (!(ap->flags &
+ATA_FLAG_SATA)).
+
+> -       The above is true for *unplug* too. A straight unplug may speed up the
+> other drive!
+> -       Post hotswap need to reconfigure both drives as if from scratch
+
+Hmm, this seems far more complicated... basically during a swap
+operation, we have to shut down all I/O to the other drive on the
+cable (if there is one), if I read you correctly, and then reconfigure
+both drives once one is plugged in.
+
+>From what you're saying, it seems to me that the infrastructure I put
+forth will work as is, plus some if statements and extraneous
+PATA-only functions (and functionality like shutting down the other
+disk on the cable until the user calls the 'warm-swap complete'
+function').
+
+How about this; I want this SATA hotswapping stuff to be tested, so
+I'll commit my patches for 'SATA only' for the time being.  I'll stare
+at them for a while and then see what kind of PATA-specific if
+statements and hooks are necessary in the code?
+
+Luke

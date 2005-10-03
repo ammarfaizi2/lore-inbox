@@ -1,42 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbVJCQBi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932321AbVJCQEe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932337AbVJCQBi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 12:01:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbVJCQBi
+	id S932321AbVJCQEe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 12:04:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbVJCQEe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 12:01:38 -0400
-Received: from 223-177.adsl.pool.ew.hu ([193.226.223.177]:58125 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S932337AbVJCQBh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 12:01:37 -0400
-To: jonathan@jonmasters.org
-CC: lkcl@lkcl.net, linux-kernel@vger.kernel.org
-In-reply-to: <35fb2e590510030720t416dc210xc4e4eb11b3972822@mail.gmail.com>
-	(message from Jon Masters on Mon, 3 Oct 2005 15:20:46 +0100)
-Subject: Re: what's next for the linux kernel?
-References: <20051002204703.GG6290@lkcl.net> <35fb2e590510030720t416dc210xc4e4eb11b3972822@mail.gmail.com>
-Message-Id: <E1EMSkK-00028o-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Mon, 03 Oct 2005 18:00:56 +0200
+	Mon, 3 Oct 2005 12:04:34 -0400
+Received: from hulk.vianw.pt ([195.22.31.43]:38875 "EHLO hulk.vianw.pt")
+	by vger.kernel.org with ESMTP id S932321AbVJCQEd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 12:04:33 -0400
+Message-ID: <4341567E.4050603@esoterica.pt>
+Date: Mon, 03 Oct 2005 17:04:14 +0100
+From: Paulo da Silva <psdasilva@esoterica.pt>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: util-linux and data encryption
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But you /know/ this because you're a microprocessor designer as well
-> as a contributor to the FUSE project?
+If this is not the right place to post about
+util-linux, please tell me where to post.
+I'm posting here because util-linux is at kernel.org.
+_____________________________
+I had a loop filesystem encrypted with twofish
+algorithm.
 
-AFAIK Luke never contributed to the FUSE project.  Hopefully that
-answers your question.
+Today, trying to mount the file, 'mount' claimed
+I needed to enter a password of 20 chars or more!
+Since I used less chars to encrypt, I was not able
+to recover the information!!!
+I tried CFLAGS="-DLOOP_PASSWORD_MIN_LENGTH=8"
+without any success. This causes 'mount' to accept
+the password, but, somehow, the decryption failled
+because the fs type remained unrecognized!
 
-FUSE and microkernels are sometimes mentioned together, but I believe
-there's a very important philosophical difference:
+BTW, I am using gentoo and I also tried USE=old-crypt.
+No way!
 
-FUSE was created to ease the development and use of a very _special_
-group of filesystems.  It was never meant to replace (and never will)
-the fantastically efficient and flexible internal filesystem
-interfaces in Linux and other monolithic kernels.
+I needed to install the version 2.12i to recover
+my information.
 
-On the other hand, the microkernel approach is to restrict _all_
-filesystems to the more secure, but less efficient and less flexible
-interface.  Which is stupid IMO.
+Is this related with util-linux or has something
+to do with gentoo patches or something?
 
-Miklos
+This should not happen! Changing things like this
+must keep some kind of compatibility with old ones.
+
+How do I encrypt important data for the future?
+
+Thank you for any comments.
+

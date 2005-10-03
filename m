@@ -1,113 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932668AbVJCTpb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbVJCTr5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932668AbVJCTpb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 15:45:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932661AbVJCTpb
+	id S932332AbVJCTr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 15:47:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932648AbVJCTr5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 15:45:31 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:38814 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932393AbVJCTpa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 15:45:30 -0400
-Message-ID: <43418A54.8080709@pobox.com>
-Date: Mon, 03 Oct 2005 15:45:24 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Mon, 3 Oct 2005 15:47:57 -0400
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:39690 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S932332AbVJCTr4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 15:47:56 -0400
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: jonathan@jonmasters.org, Ahmad Reza Cheraghi <a_r_cheraghi@yahoo.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Why no XML in the Kernel?
+References: <20051002094142.65022.qmail@web51012.mail.yahoo.com>
+	<35fb2e590510021153r254b7eb0haf9f9e365bed051e@mail.gmail.com>
+	<87oe66r62s.fsf@amaterasu.srvr.nix>
+	<20051003153515.GW7992@ftp.linux.org.uk>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: a learning curve that you can use as a plumb line.
+Date: Mon, 03 Oct 2005 20:47:47 +0100
+In-Reply-To: <20051003153515.GW7992@ftp.linux.org.uk> (Al Viro's message of
+ "Mon, 3 Oct 2005 16:35:15 +0100")
+Message-ID: <87zmpqbcws.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-To: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-CC: SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] libata: improve device scan
-Content-Type: multipart/mixed;
- boundary="------------090501050800040601080002"
-X-Spam-Score: 0.5 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  The attached patch changes libata device scanning from
-	using the legacy "bang at the door" method of probing devices, to one
-	that calls scsi_scan_target() for each target (ATA device) that the
-	libata transport layer found. [...] 
-	Content analysis details:   (0.5 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.5 TO_ADDRESS_EQ_REAL     To: repeats address as real name
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090501050800040601080002
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Mon, 3 Oct 2005, Al Viro moaned:
+> Another fun consideration in that area is that XML (or s-exp, or trees,
+> whatever representation you prefer) has nothing to help with dynamic data
+> structures.  Exporting snapshots does not work since the real state
+> includes the information about locks being held - without that you
+> can't tell which invariants hold at the moment, since the real ones
+> include lock state.
 
+Oh yes; the only practical way to get the system into a consistent state
+would be to take out the BKL (the old, non-preemptible variant),
+generate all that XML (for all of /proc and all of /sys!) and then
+release it again.
 
-The attached patch changes libata device scanning from using the legacy 
-"bang at the door" method of probing devices, to one that calls 
-scsi_scan_target() for each target (ATA device) that the libata 
-transport layer found.
+Efficient this is *not*.
 
-Completely untested, feedback welcome.  This should improve the speed of 
-SATA probing a tad, and certainly makes it quite a bit less ugly.
+(at least, not the loony everything-in-one-big-file variant. Keeping the
+current smaller files but making them XML is possible, but pointless:
+the filesystem already provides the hierarchical structure in /sys, and
+nothing can make /proc regular, so what's the point of adding an extra
+layer of hierarchy that serves only to complicate parsing and make it
+hard for *humans* to use?)
 
-This might get moved, eventually, into an ATA transport class, depending 
-on how things shape up in the future.
+>                      And forcing all locks involved into known state
+> is nowhere near feasible, of course.  OTOH, exporting dynamic state
+> including locks and walking the damn thing is
+> 	a) not feasible with XML
 
-	Jeff
+It's feasible, if you don't mind ps(1) becoming a DoS attack, and one
+running instance of top(1) damn-nearly freezing the system.
 
+It's just not *sane*.
 
+> 	b) would require giving userland way too much access to locking,
+> creating a nightmare wrt deadlock potential.
 
+Indeed.
 
---------------090501050800040601080002
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
+(Current rant: DRM churn, forcing one of abandonment of decent 3D
+support, or upgrading of the X server to the bleeding-edge, or using an
+old kernel with known security holes, or becoming enough of a DRI
+developer to backport the changes, or using nothing but distro kernels
+<=2.6.11. Most of these are not terribly feasible for me right now. Ah
+well, my 3D card is total crap anyway. It's just a shame the X server
+crashes whenever asked to do in-software 3D rendering...  time to
+debug. I thought I might actually get some work done this evening. Fat
+chance.)
 
-diff --git a/drivers/scsi/libata-core.c b/drivers/scsi/libata-core.c
---- a/drivers/scsi/libata-core.c
-+++ b/drivers/scsi/libata-core.c
-@@ -4113,7 +4113,7 @@ int ata_device_add(struct ata_probe_ent 
- 	for (i = 0; i < count; i++) {
- 		struct ata_port *ap = host_set->ports[i];
- 
--		scsi_scan_host(ap->host);
-+		ata_scsi_scan_host(ap);
- 	}
- 
- 	dev_set_drvdata(dev, host_set);
-diff --git a/drivers/scsi/libata-scsi.c b/drivers/scsi/libata-scsi.c
---- a/drivers/scsi/libata-scsi.c
-+++ b/drivers/scsi/libata-scsi.c
-@@ -1678,3 +1678,15 @@ void ata_scsi_simulate(u16 *id,
- 	}
- }
- 
-+void ata_scsi_scan_host(struct ata_port *ap)
-+{
-+	unsigned int i;
-+
-+	if (ap->flags & ATA_FLAG_PORT_DISABLED)
-+		return;
-+
-+	for (i = 0; i < ATA_MAX_DEVICES; i++)
-+		if (ata_dev_present(&ap->device[i]))
-+			scsi_scan_target(&ap->host->shost_gendev, 0, i, ~0, 0);
-+}
-+
-diff --git a/drivers/scsi/libata.h b/drivers/scsi/libata.h
---- a/drivers/scsi/libata.h
-+++ b/drivers/scsi/libata.h
-@@ -51,6 +51,7 @@ extern void swap_buf_le16(u16 *buf, unsi
- 
- 
- /* libata-scsi.c */
-+extern void ata_scsi_scan_host(struct ata_port *ap);
- extern void ata_to_sense_error(struct ata_queued_cmd *qc, u8 drv_stat);
- extern int ata_scsi_error(struct Scsi_Host *host);
- extern unsigned int ata_scsiop_inq_std(struct ata_scsi_args *args, u8 *rbuf,
-
---------------090501050800040601080002--
+-- 
+`Next: FEMA neglects to take into account the possibility of
+fire in Old Balsawood Town (currently in its fifth year of drought
+and home of the General Grant Home for Compulsive Arsonists).'
+            --- James Nicoll

@@ -1,70 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750786AbVJCL6E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750793AbVJCMnz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750786AbVJCL6E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 07:58:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbVJCL6E
+	id S1750793AbVJCMnz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 08:43:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750824AbVJCMny
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 07:58:04 -0400
-Received: from leo.gold.ac.uk ([158.223.1.4]:28810 "EHLO leo.gold.ac.uk")
-	by vger.kernel.org with ESMTP id S1750786AbVJCL6D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 07:58:03 -0400
-Date: Mon, 3 Oct 2005 12:56:20 +0100 (BST)
-From: Martin Drallew <m.drallew@fatsquirrel.org>
-To: linux-kernel@vger.kernel.org
-Subject: Connection reset by peer - TCP window size oddity ?
-Message-ID: <Pine.GSO.4.61.0510031241580.29231@scorpio.gold.ac.uk>
+	Mon, 3 Oct 2005 08:43:54 -0400
+Received: from nproxy.gmail.com ([64.233.182.207]:5454 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750793AbVJCMny convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 08:43:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:sender:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=SRjtfyX1HZFO5OhlbROOGEQRrdk+RNE7j9VSzIrUHzKjV6C5uZdyvkBDYx5uezzuGwF0zlB8vEDVUv12URz2aj8382OmwLcOoX9DhmUlUNIkru/iiq3C95d738VHjIzORyO6y9nsM/YiOHdFbLNRraKP5tK2p6Mj/71ZAg2e9xc=
+Message-ID: <84144f020510030543q10ff4fd2g138de4d06eddc440@mail.gmail.com>
+Date: Mon, 3 Oct 2005 15:43:50 +0300
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+Reply-To: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Jesper Juhl <jesper.juhl@gmail.com>, Ben Dooks <ben-linux@fluff.org>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] release_resource() check for NULL resource
+In-Reply-To: <20051003100431.GA16717@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-Goldsmiths-MailScanner-Information: See http://www.gold.ac.uk/infos/cs/mailscanner/ for more information
-X-Goldsmiths-MailScanner: Found to be clean
-X-MailScanner-From: m.drallew@fatsquirrel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051002170318.GA22074@home.fluff.org>
+	 <20051002103922.34dd287d.rdunlap@xenotime.net>
+	 <20051003094803.GC3500@home.fluff.org>
+	 <9a8748490510030259o43646cbbo22b37f1791d267e@mail.gmail.com>
+	 <20051003100431.GA16717@flint.arm.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gurus,
-apologies if this is a PEBKAC but I'm at my wits end with this one and 
-have come to the conclusion, probably erroneously, that this may be a 
-kernel bug.
-In a nutshell, mail transactions from our SMTP server to a handful of 
-remote servers consistently fail with a 'connection reset by peer' during 
-the transfer. Usually only larger messages (ie with attachments) are 
-affected.  A tcpdump follows and, unless I'm 
-misunderstanding the output (quite possible) it looks like the kernel is 
-sending outside of the peer's TCP window, to which the peer responds by 
-resetting the connection.
-Things to note:
-'leo' is our server and 'otter' is the remote. Leo is a dual processor 
-3GHz Xeon machine running 2.6.13.2. The problem was also there in 2.4.
-The owners of otter claim that we are the only site that they have 
-problems with.
-The problem occurs less frequently if we force a stupidly small window 
-size however otter seems immune.
-The "interesting" part of the session begins at timestamp 624177. 
-Everything up to that point is a healthy SMTP session.
+On 10/3/05, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> It makes sense for kfree() to ignore NULL pointers, but does it really
+> make sense for *_unregister() to do so too?  Surely you want to only
+> unregister things which you know have previously been registered?
 
-Please could you CC me in on any replies as my mailbox takes enough of a 
-daily beating already and lkml might just finish it off...
+Usually yes but it makes releasing partial initialization much simpler
+because you can  reuse the normal release counterpart. For example,
 
-Many thanks in advance,
-Martin
+static int driver_init(void)
+{
+     dev->resource1 = request_region(...);
+     if (!dev->resource1)
+             goto failed;
 
-12:06:32.511347 leo.60039 > otter.smtp: S 3150703603:3150703603(0) win 5840 <mss 1460,sackOK,timestamp 41540072 0,nop,wscale 2> (DF)
-12:06:32.519091 otter.smtp > leo.60039: S 1132102034:1132102034(0) ack 3150703604 win 1380 <mss 1380,sackOK,timestamp 2259256377 41540072,nop,wscale 2> (DF)
-12:06:32.519103 leo.60039 > otter.smtp: . ack 1 win 1460 <nop,nop,timestamp 41540074 2259256377> (DF)
-12:06:32.568277 otter.smtp > leo.60039: P 1:71(70) ack 1 win 1448 <nop,nop,timestamp 2259256425 41540074> (DF)
-12:06:32.568284 leo.60039 > otter.smtp: . ack 71 win 1460 <nop,nop,timestamp 41540086 2259256425> (DF)
-12:06:32.568306 leo.60039 > otter.smtp: P 1:22(21) ack 71 win 1460 <nop,nop,timestamp 41540086 2259256425> (DF)
-12:06:32.575440 otter.smtp > leo.60039: . ack 22 win 1448 <nop,nop,timestamp 2259256433 41540086> (DF)
-12:06:32.575481 otter.smtp > leo.60039: P 71:195(124) ack 22 win 1448 <nop,nop,timestamp 2259256433 41540086> (DF)
-12:06:32.575514 leo.60039 > otter.smtp: P 22:107(85) ack 195 win 1460 <nop,nop,timestamp 41540088 2259256433> (DF)
-12:06:32.616051 otter.smtp > leo.60039: P 195:273(78) ack 107 win 1448 <nop,nop,timestamp 2259256473 41540088> (DF)
-12:06:32.616075 leo.60039 > otter.smtp: P 107:616(509) ack 273 win 1460 <nop,nop,timestamp 41540098 2259256473> (DF)
-12:06:32.616095 leo.60039 > otter.smtp: P 616:1125(509) ack 273 win 1460 <nop,nop,timestamp 41540098 2259256473> (DF)
-12:06:32.624177 otter.smtp > leo.60039: . ack 1125 win 1984 <nop,nop,timestamp 2259256481 41540098> (DF)
-12:06:32.624183 leo.60039 > otter.smtp: P 1125:2493(1368) ack 273 win 1460 <nop,nop,timestamp 41540100 2259256481> (DF)
-12:06:32.624200 leo.60039 > otter.smtp: P 2493:2652(159) ack 273 win 1460 <nop,nop,timestamp 41540100 2259256481> (DF)
-12:06:32.624209 leo.60039 > otter.smtp: P 2652:3161(509) ack 273 win 1460 <nop,nop,timestamp 41540100 2259256481> (DF)
-12:06:32.624540 otter.smtp > leo.60039: R 1132102307:1132102307(0) win 0
-12:06:32.634407 otter.smtp > leo.60039: . ack 2652 win 3352 <nop,nop,timestamp 2259256490 41540100> (DF)
-12:06:32.634437 leo.60039 > otter.smtp: R 3150706255:3150706255(0) win 0 (DF)
+     dev->resource2 = request_region(...);
+     if (!dev->resource2)
+             goto failed;
+
+     return 0;
+
+failed:
+     driver_release(dev);
+     return -1;
+}
+
+static void driver_release(struct device * dev)
+{
+     release_resource(dev->resource1);
+     release_resource(dev->resource2);
+     kfree(dev);
+}
+
+Many drivers have the release function copy-pasted to init with lots
+of goto labels exactly because release_region, iounmap, and friends
+aren't NULL safe.
+
+                                       Pekka

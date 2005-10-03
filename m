@@ -1,103 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932698AbVJCVtn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932701AbVJCVu6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932698AbVJCVtn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 17:49:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932702AbVJCVtn
+	id S932701AbVJCVu6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 17:50:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932702AbVJCVu6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 17:49:43 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:62693 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932698AbVJCVtm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 17:49:42 -0400
-Date: Mon, 3 Oct 2005 16:49:40 -0500
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: paulus@samba.org, linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       johnrose@austin.ibm.com
-Subject: Re: [PATCH] ppc64: Crash in DLPAR code on PCI hotplug add
-Message-ID: <20051003214940.GT29826@austin.ibm.com>
-References: <20051003185739.GR29826@austin.ibm.com> <20051003213430.GD7554@mipter.zuzino.mipt.ru>
-Mime-Version: 1.0
+	Mon, 3 Oct 2005 17:50:58 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:17414 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932701AbVJCVu5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 17:50:57 -0400
+Date: Mon, 3 Oct 2005 23:50:53 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Tony Luck <tony.luck@gmail.com>
+Cc: Patrick Mochel <mochel@digitalimplant.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] kill include/linux/platform.h
+Message-ID: <20051003215053.GI3652@stusta.de>
+References: <20050902205204.GU3657@stusta.de> <Pine.LNX.4.50.0509291106520.29808-100000@monsoon.he.net> <20051001233414.GG4212@stusta.de> <12c511ca0510031201x1f66300bucaff6410e7b675bb@mail.gmail.com> <20051003190345.GH3652@stusta.de> <12c511ca0510031407i5266cf4ak5082ec54f60a3d17@mail.gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051003213430.GD7554@mipter.zuzino.mipt.ru>
-User-Agent: Mutt/1.5.6+20040907i
-From: linas <linas@austin.ibm.com>
+In-Reply-To: <12c511ca0510031407i5266cf4ak5082ec54f60a3d17@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 04, 2005 at 01:34:30AM +0400, Alexey Dobriyan was heard to remark:
+On Mon, Oct 03, 2005 at 02:07:12PM -0700, Tony Luck wrote:
+> > The default_idle() prototype should stay inside some header file.
 > 
-> Please, add docs in a proper way:
+> That would be best, yes.
+> 
+> > @Patrick:
+> > Any suggestion where it should move to?
+> 
+> Of the include files already included directly by arch/ia64/kernel/setup.c,
+> <linux/sched.h> looks the most promising.  There's lots of .*idle.* things
+> already in there.
+> 
+> Looking at existing precedent: ppc64 has a definition of default_idle()
+> in <asm/machdep.h>
 
-Done, new patch attached.
+The question whether linux/ or asm/ is the best place for the definition 
+boils down to the question whether it is expected that default_idle() is 
+present on all architectures or whether it's an architecture-specific 
+implementation detail.
 
---linas
+In the first case, I'm surprised that there is no platform independent 
+code using it.
 
-08-hotplug-bugfix.patch
+In the second case, it seems we can kill the default_idle() functions on 
+mips (empty) and parisk.
 
-In the current 2.6.14-rc2-git6 kernel, performing a Dynamic LPAR Add 
-of a hotplug slot will crash the system, with the following (abbreviated) 
-stack trace:
+> i396, cris and um already have gone along the route of adding extern
+> definitions for default_idle() to ".c" files ... so cleanup creates more
+> opportunities for cleanup (but you are probably very experienced in
+> this phenomenom :-)
 
-cpu 0x3: Vector: 700 (Program Check) at [c000000053dff7f0]
-    pc: c0000000004f5974: .__alloc_bootmem+0x0/0xb0
-    lr: c0000000000258a0: .update_dn_pci_info+0x108/0x118
-        c0000000000257c8 .update_dn_pci_info+0x30/0x118 (unreliable)
-        c0000000000258fc .pci_dn_reconfig_notifier+0x4c/0x64
-        c000000000060754 .notifier_call_chain+0x68/0x9c
+I stumbled across the question whether include/linux/platform.h is still 
+required by cleaning up warnings with the -Wmissing-prototypes compiler 
+flag I plan to add to the kernel CFLAGS soon that generates warnings 
+for such extern constructs...
 
-The root cause was that the phb was not marked "dynamic", and so instead
-of having kmalloc() being called, the __init __alloc_bootmem() was called,
-resulting in access of garage data.  The patch below fixes this crash,
-and adds some docs to clarify the code.
+> -Tony
 
-Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
+cu
+Adrian
 
-Index: linux-2.6.14-rc2-git6/arch/ppc64/kernel/pci_dn.c
-===================================================================
---- linux-2.6.14-rc2-git6.orig/arch/ppc64/kernel/pci_dn.c	2005-10-03 13:45:58.000000000 -0500
-+++ linux-2.6.14-rc2-git6/arch/ppc64/kernel/pci_dn.c	2005-10-03 16:46:33.816658976 -0500
-@@ -121,6 +121,14 @@
- 	return NULL;
- }
- 
-+/** 
-+ * pci_devs_phb_init_dynamic - setup pci devices under this PHB
-+ * phb: pci-to-host bridge (top-level bridge connecting to cpu)
-+ *
-+ * This routine is called both during boot, (before the memory
-+ * subsystem is set up, before kmalloc is valid) and during the 
-+ * dynamic lpar operation of adding a PHB to a running system.
-+ */
- void __devinit pci_devs_phb_init_dynamic(struct pci_controller *phb)
- {
- 	struct device_node * dn = (struct device_node *) phb->arch_data;
-@@ -201,17 +209,24 @@
- 	.notifier_call = pci_dn_reconfig_notifier,
- };
- 
--/*
-- * Actually initialize the phbs.
-- * The buswalk on this phb has not happened yet.
-+/** 
-+ * pci_devs_phb_init - Initialize phbs and pci devs under them.
-+ * 
-+ * This routine walks over all phb's (pci-host bridges) on the
-+ * system, and sets up assorted pci-related structures 
-+ * (including pci info in the device node structs) for each
-+ * pci device found underneath.  This routine runs once,
-+ * early in the boot sequence.
-  */
- void __init pci_devs_phb_init(void)
- {
- 	struct pci_controller *phb, *tmp;
- 
- 	/* This must be done first so the device nodes have valid pci info! */
--	list_for_each_entry_safe(phb, tmp, &hose_list, list_node)
-+	list_for_each_entry_safe(phb, tmp, &hose_list, list_node) {
- 		pci_devs_phb_init_dynamic(phb);
-+		phb->is_dynamic = 1;
-+	}
- 
- 	pSeries_reconfig_notifier_register(&pci_dn_reconfig_nb);
- }
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,44 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932497AbVJCS1S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932499AbVJCS21@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932497AbVJCS1S (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 14:27:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932499AbVJCS1S
+	id S932499AbVJCS21 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 14:28:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932505AbVJCS21
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 14:27:18 -0400
-Received: from xproxy.gmail.com ([66.249.82.196]:28395 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932497AbVJCS1R convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 14:27:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=t/P7BLJEwSF8I2IlL7P8a2+sKBtdUhQ20tQA1Z9LfmCJ1irOrJ11AxdGROaLGPcpcZhfOyiKL+I8/+4cl02yVIL5jzZi2MFcG3J+voYADg4MoqTr8Faig1nYWf+NtvaQ8LubARpMhCuSqgYwQW28J4PntqZd2pAphO0kcDnJ63M=
-Message-ID: <1af196280510031127l1189dcf7of2d39f0a1a658202@mail.gmail.com>
-Date: Mon, 3 Oct 2005 14:27:16 -0400
-From: Abhijeet More <abhijeet.more@gmail.com>
-Reply-To: Abhijeet More <abhijeet.more@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: nforce3 lockup problem
-In-Reply-To: <1af196280510021416m36cbdc22q3ae796698a49c561@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1af196280510021416m36cbdc22q3ae796698a49c561@mail.gmail.com>
+	Mon, 3 Oct 2005 14:28:27 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:48276 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932499AbVJCS20 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 14:28:26 -0400
+Message-Id: <200510031828.j93ISITM019190@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Jordan Crouse <jordan.crouse@amd.com>
+Cc: linux-kernel@vger.kernel.org, info-linux@ldcmail.amd.com
+Subject: Re: [PATCH 6/7] AMD Geode GX/LX support 
+In-Reply-To: Your message of "Mon, 03 Oct 2005 12:02:00 MDT."
+             <20051003180200.GH29264@cosmic.amd.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <20051003180200.GH29264@cosmic.amd.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1128364098_5142P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 03 Oct 2005 14:28:18 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I've found a solution to this:
+--==_Exmh_1128364098_5142P
+Content-Type: text/plain; charset=us-ascii
 
-On 10/2/05, Abhijeet More <abhijeet.more@gmail.com> wrote:
+On Mon, 03 Oct 2005 12:02:00 MDT, Jordan Crouse said:
 
-> I have a new system with an Asus K8N mainboard (nforce3 250 chipset)
-> which locks up every time there
-> is heightened hard disk activity.
+> +static u32 geode_data_read(void) {
+> +	u32 val;
+> +
+> +	val = *((u32 *) (geode_rng_base + GEODE_RNG_DATA_REG));
+> +	return val;
+> +}
+> +
+> +static unsigned int geode_data_present(void) {
+> +	u32 val;
+> +
+> +	val = *((u32 *) (geode_rng_base + GEODE_RNG_STATUS_REG));
+> +	return val;
+> +}
 
-A Bios update seems to have fixed this. It has passed all of my hard
-drive activity tests (copying big files across filesystems, grep
-etc.).
-Regards
-Abhijeet
+Yowza.
+
+At least the intel_* routines do this sort of thing to semi-check that the
+sucker exists:
+
+        assert (rng_mem != NULL);
+        writeb (hw_status, rng_mem + INTEL_RNG_HW_STATUS);
+
+What does your code do if geode_init() manages to fail somehow?
+
+--==_Exmh_1128364098_5142P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFDQXhCcC3lWbTT17ARAtlHAJ9UxW1LYJiCUmo/wRfYv1J4MtngjQCfQh2m
+erC5CmjFjT+joKgoTa1nf+k=
+=KPWz
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1128364098_5142P--

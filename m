@@ -1,58 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbVJCPnu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbVJCPql@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932299AbVJCPnu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 11:43:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751112AbVJCPnu
+	id S932282AbVJCPql (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 11:46:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbVJCPql
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 11:43:50 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:4759 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S1751104AbVJCPns (ORCPT
+	Mon, 3 Oct 2005 11:46:41 -0400
+Received: from geryon.wsm.com ([12.163.128.2]:11454 "EHLO geryon.wsm.com")
+	by vger.kernel.org with ESMTP id S932282AbVJCPqk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 11:43:48 -0400
-Subject: Re: [PATCH 2/3] Add disk hotswap support to libata RESEND #5
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Lukasz Kosewski <lkosewsk@gmail.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org
-In-Reply-To: <355e5e5e0510030819od4ef8e5l93708588990081da@mail.gmail.com>
-References: <355e5e5e05092618018840fc3@mail.gmail.com>
-	 <433AEAAE.2070003@pobox.com>
-	 <1127949651.26686.11.camel@localhost.localdomain>
-	 <355e5e5e0510030819od4ef8e5l93708588990081da@mail.gmail.com>
-Content-Type: text/plain
+	Mon, 3 Oct 2005 11:46:40 -0400
+Message-ID: <43415265.7000908@wsm.com>
+Date: Mon, 03 Oct 2005 08:46:45 -0700
+From: Jeff Johnson <jeff.johnson@wsm.com>
+Organization: Western Scientific, Inc
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: "Kernel panic: VRKADINT" under heavy I/O.  What is the source or
+ location of VRKADINT
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Mon, 03 Oct 2005 17:09:31 +0100
-Message-Id: <1128355771.26992.1.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Scan-Signature: 3c1be6617017a38cff1032ecd9727baf
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2005-10-03 at 11:19 -0400, Lukasz Kosewski wrote:
-> You mean something like "echo scsi-remove-single-device a b c d" >
-> /proc/scsi/scsi?  I guess the sysfs equivalent?
-> 
-> > -       Interface for user to say "have swapped"
-> 
-> I suppose ditto.
+Greetings,
 
-Yes. A lot of PATA does swapping only if you tell it first so it can
-kill IORDY or tristate the bus.
+    I have several systems that will hang under heavy i/o. This usually 
+occurs during a Pallas AllToAll test over Infiniband. Is anyone able to 
+point me to where I can find VRKADINT or what general area of the kernel 
+this is coming from? Everything runs fine otherwise. When I start the 
+AllToAll across 32 machines and get 128 cores all talking to each other 
+at once random machines will panic with the VRKADINT. I cannot seem to 
+find this message anywhere in kernel source.
 
-> > -       Post hotswap need to reconfigure both drives as if from scratch
-> 
-> Hmm, this seems far more complicated... basically during a swap
-> operation, we have to shut down all I/O to the other drive on the
-> cable (if there is one), if I read you correctly, and then reconfigure
-> both drives once one is plugged in.
+details:
+arch   x86_64
+kernel  2.6.5-7.193-smp (SuSE Ent9)
+proc  2x dual core Opteron 275
+ram 16GB
 
-Yes.
-
-> How about this; I want this SATA hotswapping stuff to be tested, so
-> I'll commit my patches for 'SATA only' for the time being.  I'll stare
-> at them for a while and then see what kind of PATA-specific if
-> statements and hooks are necessary in the code?
-
-Makes sense to me - the PATA stuff is slowly developing and its getting
-closer to submittable as bits of the core code get merged.
-
+--Jeff

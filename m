@@ -1,62 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbVJCAPA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbVJCASk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751161AbVJCAPA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Oct 2005 20:15:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbVJCAPA
+	id S932082AbVJCASk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Oct 2005 20:18:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbVJCASk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Oct 2005 20:15:00 -0400
-Received: from xenotime.net ([66.160.160.81]:64975 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751161AbVJCAO7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Oct 2005 20:14:59 -0400
-Date: Sun, 2 Oct 2005 17:14:57 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: lkcl@lkcl.net, riel@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-Message-Id: <20051002171457.6bb13672.rdunlap@xenotime.net>
-In-Reply-To: <54300000.1128297891@[10.10.2.4]>
-References: <20051002204703.GG6290@lkcl.net>
-	<Pine.LNX.4.63.0510021704210.27456@cuia.boston.redhat.com>
-	<20051002230545.GI6290@lkcl.net>
-	<54300000.1128297891@[10.10.2.4]>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 2 Oct 2005 20:18:40 -0400
+Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:42507 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S932082AbVJCASj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Oct 2005 20:18:39 -0400
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: yzcorp@gmail.com (Yan Zheng)
+Subject: Re: [PATCH] fix ipv6 fragment ID selection at slow path
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, roque@di.fc.ul.pt
+Organization: Core
+In-Reply-To: <433FED06.8070806@gmail.com>
+X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
+Message-Id: <E1EME2E-0006dR-00@gondolin.me.apana.org.au>
+Date: Mon, 03 Oct 2005 10:18:26 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 02 Oct 2005 17:04:51 -0700 Martin J. Bligh wrote:
-
-> --Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote (on Monday, October 03, 2005 00:05:45 +0100):
+Yan Zheng <yzcorp@gmail.com> wrote:
 > 
-> > On Sun, Oct 02, 2005 at 05:05:42PM -0400, Rik van Riel wrote:
-> >> On Sun, 2 Oct 2005, Luke Kenneth Casson Leighton wrote:
-> >> 
-> >> > and, what is the linux kernel?
-> >> > 
-> >> > it's a daft, monolithic design that is suitable and faster on
-> >> > single-processor systems, and that design is going to look _really_
-> >> > outdated, really soon.
-> >> 
-> >> Linux already has a number of scalable SMP synchronisation
-> >> mechanisms. 
-> > 
-> >  ... and you are tied in to the decisions made by the linux kernel
-> >  developers.
-> 
-> Yes. As are the rest of us. So if you want to implement something 
-> different, that's your perogative. So feel free to go do it 
-> somewhere else, and quit whining on this list. 
-> 
-> We are not your implementation bitches. If you think it's such a great
-> idea, do it yourself.
+> --- linux-2.6.13.2/net/ipv6/ip6_output.c        2005-09-17 09:02:12.000000000 +0800
+> +++ linux/net/ipv6/ip6_output.c 2005-10-02 22:12:54.000000000 +0800
+> @@ -701,7 +701,7 @@
+>                 */
+>                fh->nexthdr = nexthdr;
+>                fh->reserved = 0;
+> -               if (frag_id) {
+> +               if (!frag_id) {
+>                        ipv6_select_ident(skb, fh);
+>                        frag_id = fh->identification;
+>                } else
 
-IOW, -ENOPATCH.  where's your patch?
+This patch makes sense to me.
 
----
-~Randy
-You can't do anything without having to do something else first.
--- Belefant's Law
+Please add a Signed-off-by line and send the patch to
+davem@davemloft.net and yoshfuji@linux-ipv6.org.
+
+Thanks,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

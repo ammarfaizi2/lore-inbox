@@ -1,52 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750857AbVJCFTr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbVJCFbA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750857AbVJCFTr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 01:19:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbVJCFTr
+	id S932087AbVJCFbA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 01:31:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932088AbVJCFbA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 01:19:47 -0400
-Received: from bay104-f41.bay104.hotmail.com ([65.54.175.51]:5748 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S1750836AbVJCFTr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 01:19:47 -0400
-Message-ID: <BAY104-F41A96EAB08C0ED655EBA34DF800@phx.gbl>
-X-Originating-IP: [67.177.1.243]
-X-Originating-Email: [paveraware@hotmail.com]
-From: "Christensen Tom" <paveraware@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: tg3 and or pci-e bug
-Date: Mon, 03 Oct 2005 05:19:44 +0000
+	Mon, 3 Oct 2005 01:31:00 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:4777 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932087AbVJCFa7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 01:30:59 -0400
+Date: Sun, 2 Oct 2005 22:30:50 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCHv4] Document from line in patch format
+Message-Id: <20051002223050.11a287eb.zaitcev@redhat.com>
+In-Reply-To: <mailman.1128301576.22577.linux-kernel2news@redhat.com>
+References: <mailman.1128301576.22577.linux-kernel2news@redhat.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.8.4; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 03 Oct 2005 05:19:46.0979 (UTC) FILETIME=[12106730:01C5C7DA]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have 3 supermicro systems based on the x6dal-tb2 motherboard.  It has 
-built in broadcom 5721 gig-e pci-e nics.  eth0 on these boxes fails whenever 
-a decent amount of data is pushed across them (decent being ~100Mb).  At 
-this point I can say when it fails I get these error messages in 
-/var/log/messages:
-Oct  2 19:08:53 office kernel: NETDEV WATCHDOG: eth0: transmit timed out
-Oct  2 19:08:53 office kernel: tg3: eth0: transmit timed out, resetting
-Oct  2 19:08:53 office kernel: tg3: tg3_stop_block timed out, ofs=1400 
-enable_bit=2
-Oct  2 19:08:53 office kernel: tg3: tg3_stop_block timed out, ofs=c00 
-enable_bit=2
-Oct  2 19:08:53 office kernel: tg3: tg3_stop_block timed out, ofs=4800 
-enable_bit=2
-Oct  2 19:08:53 office kernel: tg3: eth0: Link is down.
+On Sun, 2 Oct 2005 18:01:42 -0700 (PDT), Paul Jackson <pj@sgi.com> wrote:
 
-I made a cron job to log ifconfig output to a file every minute.  This shows 
-that the NIC resets itself at least every couple minutes when data is being 
-passed.  The TX/RX stats in ifconfig reset to 0.  The above message in 
-/var/log/messages doesn't happen every time the NIC resets like this.  I 
-think that the NIC is resetting because of some bug, and sometimes, the 
-reset fails and locks the NIC, creating the above messages.  The above only 
-happens once or twice a day, the other nic resets happen as I said every 2-3 
-minutes.  Is there any information that would be helpful in debugging this 
-problem?  Let me know what to run and I'll do it.  Eth1 never has this 
-problem, I have pushed 5GB+ onto the box over eth1 and it doesn't blink.
-Tom
+> +    Subject: [PATCH 001/123] [<area>:] <explanation>
 
+An attack of rabid square brackets! :-)
 
+Linus' original e-mail made it quite clear that the area does not
+need its own brackets, but this detail seems to have been lost.
+
+-- Pete

@@ -1,68 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbVJCFF7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbVJCFFg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750783AbVJCFF7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 01:05:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbVJCFF6
+	id S1750702AbVJCFFg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 01:05:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbVJCFFg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 01:05:58 -0400
-Received: from smtpout1.uol.com.br ([200.221.4.192]:30594 "EHLO
-	smtp.uol.com.br") by vger.kernel.org with ESMTP id S1750783AbVJCFF5
+	Mon, 3 Oct 2005 01:05:36 -0400
+Received: from zproxy.gmail.com ([64.233.162.197]:59458 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750702AbVJCFFf convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 01:05:57 -0400
-Date: Mon, 3 Oct 2005 02:05:55 -0300
-From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: vherva@vianova.fi, linux-kernel@vger.kernel.org
-Subject: Re: Strange disk corruption with Linux >= 2.6.13
-Message-ID: <20051003050555.GC5576@ime.usp.br>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, vherva@vianova.fi,
-	linux-kernel@vger.kernel.org
-References: <20050927111038.GA22172@ime.usp.br> <20050928084330.GC24760@viasys.com> <1127949809.26686.14.camel@localhost.localdomain> <20050929062937.GY24719@viasys.com> <1128010484.5774.13.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Mon, 3 Oct 2005 01:05:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=JD2tHLhmYr3NwO68LT3MRbepqw0aCAqD8uXvJ3bFdmfyf3Py/TmAUePHrqHnf51AahSeYx5+fHxvGLet9h4feeutVoYwKx2i3E7qo8jqPEWE7BtIcZX0ZkJXRjfZ61hxqP0XuTPhdMGetrQHLJ2hGKSxxBSca3QupsTuC7u5mA8=
+Message-ID: <aec7e5c30510022205o770b6335o96d9a9d9cc5d7397@mail.gmail.com>
+Date: Mon, 3 Oct 2005 14:05:34 +0900
+From: Magnus Damm <magnus.damm@gmail.com>
+Reply-To: Magnus Damm <magnus.damm@gmail.com>
+To: Paul Jackson <pj@sgi.com>
+Subject: Re: [PATCH 00/07][RFC] i386: NUMA emulation
+Cc: Dave Hansen <haveblue@us.ibm.com>, magnus@valinux.co.jp,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20051002202157.7b54253d.pj@sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1128010484.5774.13.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
+References: <20050930073232.10631.63786.sendpatchset@cherry.local>
+	 <1128093825.6145.26.camel@localhost>
+	 <20051002202157.7b54253d.pj@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 29 2005, Alan Cox wrote:
-> Some fixes went in early 2.4 and they got refined later on. See the
-> function quirk_vialatency). There is a brief summary at the first URL
-> listed still. Essentially the chip has a flaw where it can lose a
-> transfer.
-> 
-> If people see this behaviour on a KT133 can you please check the quirk
-> is being run and displaying
-> 
->    printk(KERN_INFO "Applying VIA southbridge workaround.\n");
+On 10/3/05, Paul Jackson <pj@sgi.com> wrote:
+> Dave wrote:
+> > Also, I worry that simply #ifdef'ing things out like CPUsets' update
+> > means that CPUsets lacks some kind of abstraction that it should have
+> > been using in the first place.
+>
+> In the abstract, cpusets should just assume that the system has one or
+> more CPUs, and one or more Memory Nodes.  Ideally, it should not
+> require either SMP nor NUMA.  Indeed, if you (Magnus) can get it
+> to compile with just one or the other of those two:
+>
+>      config CPUSETS
+>             bool "Cpuset support"
+>     -       depends on SMP
+>     +       depends on SMP || NUMA
+>
+> then I would hope that it would compile with neither.  The cpuset
+> hierarchy on such a system would be rather boring, with all cpusets
+> having the same one CPU and one Memory Node, but it should work ... in
+> theory of course.
 
-Just as an information, I get the following messages on my system:
+I just tested this on top of my patches:
+@@ -245,7 +245,6 @@ config IKCONFIG_PROC
 
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-rbrito@dumont:~$ dmesg | grep -i via
-Disabling VIA memory write queue (PCI ID 0305, rev 02): [55] 89 & 1f -> 09
-PCI: Disabling Via external APIC routing
-agpgart: Detected VIA Twister-K/KT133x/KM133 chipset
-parport_pc: VIA 686A/8231 detected
-parport_pc: VIA parallel port: io=0x378, irq=7
-VP_IDE: VIA vt82c686a (rev 22) IDE UDMA66 controller on pci0000:00:04.1
-Netfilter messages via NETLINK v0.30.
-rbrito@dumont:~$ dmesg | grep -i memor
-Memory: 775776k/786352k available (1847k kernel code, 10076k reserved, 733k data, 148k init, 0k highmem)
-Disabling VIA memory write queue (PCI ID 0305, rev 02): [55] 89 & 1f -> 09
-Non-volatile memory driver v1.2
-Freeing unused kernel memory: 148k freed
-rbrito@dumont:~$
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ config CPUSETS
+        bool "Cpuset support"
+-       depends on SMP || NUMA
+        help
 
-Is this what is supposed to appear when one is using a 2.6.1x kernel?
+and it seems to work ok in practice too. On a regular !SMP !NUMA PC
+anyway. As you note, the hierarchy is not that exciting. =) Anyway,
+both SMP || NUMA or nothing seems to work as dependencies. After
+partition_sched_domain() gets fixed that is.
 
+> In practice of course, there may be details on the edges that depend on
+> the current SMP/NUMA limitations, such as:
+>
+> Magnus wrote:
+> > Regarding the #ifdef, it
+> > was added because partition_sched_domain() is only implemented for
+> > SMP. That symbol has no prototype or implementation when CONFIG_SMP is
+> > not set. Maybe it is better to add an empty inline function in
+> > linux/sched.h for !SMP?
+>
+> An empty inline partition_sched_domain() would be better than ifdef's
+> in cpuset.c, yes.  Or at least, that's usually the case.  Probably here
+> too.
 
-Thanks for any hints, Rogério Brito.
+I agree.
 
--- 
-Rogério Brito : rbrito@ime.usp.br : http://www.ime.usp.br/~rbrito
-Homepage of the algorithms package : http://algorithms.berlios.de
-Homepage on freshmeat:  http://freshmeat.net/projects/algorithms/
+> In theory at least, I applaud Magnus's work here.  The assymetry of the
+> SMP/NUMA define structure has always annoyed me slightly, and only been
+> explainable in my view as a consequence of the historical order of
+> development.  I had a PC with a second memory board in an ISA slot,
+> which would qualify as a one CPU, two Memory Node system.
+>
+> Or what byte us in the future (that PC was a long time ago), the kinks
+> in the current setup might be a hitch in our side as we extend to
+> increasingly interesting architectures.
+
+Nice to hear that you like the idea.
+
+Maybe I should have broken down my patches into three smaller sets:
+
+1) i386: NUMA without SMP
+2) CPUSETS: NUMA || SMP
+3) i386: NUMA emulation
+
+If people like 1) then it's probably a good idea to convert other
+architectures too. Both 2) and 3) above are separate but related
+issues. And now seems like a good time to solve 2).
+
+So, Paul, please let me know if you prefer SMP || NUMA or no
+depencencies in the Kconfig. When I know that I will create a new
+patch that hopefully can get into -mm later on.
+
+> Aside - for those reading this thread on lkml, it originated
+> on linux-mm.  It looks like Dave added lkml to the cc list.
+
+Huh? I sent my patches both to lkml and linux-mm...
+
+Thank you for the feedback!
+
+/ magnus

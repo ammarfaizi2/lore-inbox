@@ -1,164 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932156AbVJCGTR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbVJCGXw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932156AbVJCGTR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 02:19:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbVJCGTR
+	id S932159AbVJCGXw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 02:23:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbVJCGXw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 02:19:17 -0400
-Received: from [85.21.88.2] ([85.21.88.2]:22980 "HELO mail.dev.rtsoft.ru")
-	by vger.kernel.org with SMTP id S932156AbVJCGTQ (ORCPT
+	Mon, 3 Oct 2005 02:23:52 -0400
+Received: from paegas2.mail-atlas.net ([212.47.13.187]:7443 "EHLO
+	paegas2.mail-atlas.net") by vger.kernel.org with ESMTP
+	id S932159AbVJCGXv convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 02:19:16 -0400
-Message-ID: <4340CDB8.2060204@ru.mvista.com>
-Date: Mon, 03 Oct 2005 10:20:40 +0400
-From: Vitaly Wool <vwool@ru.mvista.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Mon, 3 Oct 2005 02:23:51 -0400
+From: "Peter Zubaj" <pzad@pobox.sk>
+To: "Dave Jones" <davej@redhat.com>
+CC: alsa-devel@alsa-project.org, James@superbug.co.uk,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       perex@suse.cz
+Message-ID: <7a5967f2d895440aa1ca2fa1d201c380@pobox.sk>
+Date: Mon, 03 Oct 2005 08:23:28 +0200
+X-Priority: 3 (Normal)
+Subject: Re: [Alsa-devel] Re: [ALSA] snd-emu10k1: ALSA bug#1297: Fix a error recognising the SB Live Platinum.
 MIME-Version: 1.0
-To: David Brownell <david-b@pacbell.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SPI
-References: <20051003050130.EE003EA55B@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
-In-Reply-To: <20051003050130.EE003EA55B@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Brownell wrote:
+AFAIK this was fixed in CVS. Two cards have same model id (one has AC97, one not).
 
->>>You're imposing the same implementation strategy Mark Underwood was.
->>>I believe I persuaded him not to want that, pointing out three other
->>>implementation strategies that can be just as reasonable:
->>>
->>>  http://marc.theaimsgroup.com/?l=linux-kernel&m=112684135722116&w=2
->>>
->>>It'd be fine if for example your PNX controller driver worked that way
->>>internally.  But other drivers shouldn't be forced to allocate kernel
->>>threads when they don't need them.
->>>      
->>>
->>Hm, so does that imply that the whole -rt patches from 
->>Ingo/Sven/Daniel/etc. are implementing wrong strategy (interrupts in 
->>threads)?
->>    
->>
->
->In an RT context, it may make sense to impose a policy like that.
->
->But I recall those folk have said they're making things so that sanely
->behaved kernel code will work with no changes.  And also that not all
->kernels should be enabling RT support ...
->
->  
->
-FYI in brief: for PREEMPT_RT case all the interrupt handlers are working 
-in a separate thread each unless explicitly specified otherwise.
-This strategy proven itself to be quite functional and not significantly 
-impacting the performance.
-So, typically this means allocation of five to eight threads for 
-interrupt handlers.
-We will definitely have less SPI busses => less kernel threads, so I 
-doubt there's a rationale in your opinion.
+Fix:
 
->>How will your strategy work with that BTW?
->>    
->>
->
->If they meet their goals, it'll work just fine.  Sanely behaved
->implementations will continue to work, and not even notice.
->  
->
-Hm. How are you going to call something from an interrupt context? I 
-guess that's gonna happen from an interrupt handler.
-So there're 2 ways for PREEMPT_RT:
-1) you're playing according to the rules  and don't specify SA_NODELAY 
-=> the interrupt handler is in thread => bigger latencies for SPI than 
-if we had separate kernel threads for each bus
-2) you're not following the rules as specify SA_NODELAY => you're 
-working in interrupt context creating a significant load to the 
-interrupt context and slowing down everything that *is* following the rules.
-So either SPI performance suffers, or RT performance does. :(
+http://sourceforge.net/mailarchive/forum.php?thread_id=8360485&forum_id=33141
 
->
->
->  
->
->>>>+  [ picture deleted ]
->>>>        
->>>>
->>>That seems wierd even if I assume "platform_bus" is just an example.
->>>For example there are two rather different "spi bus" notions there,
->>>and it looks like neither one is the physical parent of any SPI device ...
->>>      
->>>
->>Not sure if I understand you :(
->>    
->>
->
->Why couldn't for example SPI sit on a PCI bus?
->
->And call the two boxes different things, if they're really different.
->The framework I've posted has "spi_master" as a class implmented
->by certain controller drivers.  (Others might use "spi_slave", and
->both would be types of "SPI bus".)  That would at least clarify
->the confusion on the left half of that picture.
->
->
->
->  
->
->>>>+3.2 How do the SPI devices gets discovered and probed ?
->>>>   
->>>>        
->>>>
->>>Better IMO to have tables that get consulted when the SPI master controller
->>>drivers register the parent ... tables that are initialized by the board
->>>specific __init section code, early on.  (Or maybe by __setup commandline
->>>parameters.)
->>>
->>>Doing it the way you are prevents you from declaring all the SPI devices in
->>>a single out-of-the-way location like the arch/.../board-specific.c file,
->>>which is normally responsible for declaring devices that are hard-wired on
->>>a given board and can't be probed.
->>> 
->>>
->>>      
->>>
->>By what means does it prevent that?
->>    
->>
->
->Well "prevent" may be a bit strong, if you like hopping levels in
->the software stack.  I don't; without such hopping (or without a
->separate out-of-band mechanism like device tables), I don't see
->a way to solve that problem.
->  
->
-Aren't the tables you're suggesting also kinda out-of-band stuff?
+Peter Zubaj
 
+>-----P?vodn? spr?va-----
+>Od: Dave Jones [mailto:davej@redhat.com]
+>Odoslan?: 3. okt?bra 2005 1:28
+>Komu: Linux Kernel Mailing List
+>K?pia: alsa-devel@alsa-project.org; James@superbug.co.uk; perex@suse.cz
+>Predmet: [Alsa-devel] Re: [ALSA] snd-emu10k1: ALSA bug#1297: Fix a error recognising the SB Live Platinum.
 >
->  
 >
->>>>+#define SPI_MAJOR	153
->>>>+
->>>>+...
->>>>+
->>>>+#define SPI_DEV_CHAR "spi-char"
->>>>   
->>>>
->>>>        
->>>>
->>I thought 153 was the official SPI device number.
->>    
+>On Tue, Sep 13, 2005 at 12:07:43PM -0700, Linux Kernel wrote:
+>> tree b885c7a937061624c7f7e34444122b96cced5c16
+>> parent 1b44c28dc180f4d0ea109e1fe4339b3403c2d530
+>> author James Courtier-Dutton <James@superbug.co.uk> Sat, 10 Sep 2005 10:24:10 +0200
+>> committer Jaroslav Kysela <perex@suse.cz> Mon, 12 Sep 2005 10:48:32 +0200
 >>
+>> [ALSA] snd-emu10k1: ALSA bug#1297: Fix a error recognising the SB Live Platinum.
+>>
+>> EMU10K1/EMU10K2 driver
+>> The card does not have an AC97 chip.
+>> .subsystem = 0x80611102
+>>
+>> Signed-off-by: James Courtier-Dutton <James@superbug.co.uk>
+>>
+>>  sound/pci/emu10k1/emu10k1_main.c |    5 ++---
+>>  1 files changed, 2 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/sound/pci/emu10k1/emu10k1_main.c b/sound/pci/emu10k1/emu10k1_main.c
+>> --- a/sound/pci/emu10k1/emu10k1_main.c
+>> +++ b/sound/pci/emu10k1/emu10k1_main.c
+>> @@ -754,12 +754,11 @@ static emu_chip_details_t emu_chip_detai
+>>  	 .emu10k1_chip = 1,
+>>  	 .ac97_chip = 1,
+>>  	 .sblive51 = 1} ,
+>> -	/* Tested by alsa bugtrack user "hus" 12th Sept 2005 */
+>> +	/* Tested by alsa bugtrack user "hus" bug #1297 12th Aug 2005 */
+>>  	{.vendor = 0x1102, .device = 0x0002, .subsystem = 0x80611102,
+>> -	 .driver = "EMU10K1", .name = "SBLive! Player 5.1 [SB0060]",
+>> +	 .driver = "EMU10K1", .name = "SBLive! Platinum 5.1 [SB0060]",
+>>  	 .id = "Live",
+>>  	 .emu10k1_chip = 1,
+>> -	 .ac97_chip = 1,
+>>  	 .sblive51 = 1} ,
+>>  	{.vendor = 0x1102, .device = 0x0002, .subsystem = 0x80511102,
+>>  	 .driver = "EMU10K1", .name = "SBLive! Value [CT4850]",
 >
->So it is (at least for minors 0..15, so long as they use some
->API I can't find a spec for), but that wasn't the point.  The
->point is to keep that sort of driver-specific information from
->cluttering headers which are addressed to _every_ driver.
->  
+>That last line change reverts..
 >
-Yup, thanks for clarifications.
+>tree efc4e418c80bf61beb2e1cfd1b2db405b471111f
+>parent 9970dce56686d7b71310388025d8925d3d29e6ec
+>author Takashi Iwai <tiwai@suse.de> Fri, 26 Aug 2005 17:26:40 +0200
+>committer Jaroslav Kysela <perex@suse.cz> Tue, 30 Aug 2005 08:47:46 +0200
+>
+>[ALSA] emu10k1 - Add missing ac97 support on SBLive! Player 5.1
+>
+>EMU10K1/EMU10K2 driver
+>Added the missing ac97 support on SBLive! Player 5.1.
+>
+>And makes peoples volume sliders disappear, which tends to upset folks.
+>See https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=169152
+>for reference.
+>
+>Signed-off-by: Dave Jones <davej@redhat.com>
+>
+>--- linux-2.6.13/sound/pci/emu10k1/emu10k1_main.c~	2005-10-02 21:26:40.000000000 -0400
+>+++ linux-2.6.13/sound/pci/emu10k1/emu10k1_main.c	2005-10-02 21:26:57.000000000 -0400
+>@@ -759,6 +759,7 @@ static emu_chip_details_t emu_chip_detai
+>.driver = "EMU10K1", .name = "SBLive! Platinum 5.1 [SB0060]",
+>.id = "Live",
+>.emu10k1_chip = 1,
+>+	 .ac97_chip = 1,
+>.sblive51 = 1} ,
+>{.vendor = 0x1102, .device = 0x0002, .subsystem = 0x80511102,
+>.driver = "EMU10K1", .name = "SBLive! Value [CT4850]",
+>
+>
+>
+>-------------------------------------------------------
+>This SF.Net email is sponsored by:
+>Power Architecture Resource Center: Free content, downloads, discussions,
+>and more. http://solutions.newsforge.com/ibmarch.tmpl
+>_______________________________________________
+>Alsa-devel mailing list
+>Alsa-devel@lists.sourceforge.net
+>https://lists.sourceforge.net/lists/listinfo/alsa-devel
 
-Vitaly
+
+
+Aktivujte si neobmedzenu mailovu schranku na www.pobox.sk!
+
+

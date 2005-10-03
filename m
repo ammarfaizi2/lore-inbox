@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932374AbVJCXV6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932465AbVJCXXE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932374AbVJCXV6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 19:21:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932695AbVJCXV6
+	id S932465AbVJCXXE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 19:23:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932695AbVJCXXD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 19:21:58 -0400
-Received: from [67.137.28.189] ([67.137.28.189]:20610 "EHLO vger.utah-nac.org")
-	by vger.kernel.org with ESMTP id S932374AbVJCXV5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 19:21:57 -0400
-Message-ID: <4341A8A7.9060607@utah-nac.org>
-Date: Mon, 03 Oct 2005 15:54:47 -0600
-From: jmerkey <jmerkey@utah-nac.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Nuno Silva <nuno.silva@vgertech.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux SATA S.M.A.R.T. and SLEEP?
-References: <Pine.LNX.4.63.0509290916450.20827@p34> <433C31C8.1030901@vgertech.com> <Pine.LNX.4.63.0509291433340.13272@p34> <433C2A11.9090506@utah-nac.org> <43415D14.5070909@tmr.com>
-In-Reply-To: <43415D14.5070909@tmr.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 3 Oct 2005 19:23:03 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:25753 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932465AbVJCXXB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 19:23:01 -0400
+Date: Tue, 4 Oct 2005 00:22:44 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ryan Anderson <ryan@autoweb.net>,
+       Tomasz K?oczko <kloczek@rudy.mif.pg.gda.pl>,
+       Luben Tuikov <luben_tuikov@adaptec.com>, andrew.patterson@hp.com,
+       Marcin Dalecki <dalecki.marcin@neostrada.pl>,
+       "Salyzyn, Mark" <mark_salyzyn@adaptec.com>, dougg@torque.net,
+       Luben Tuikov <ltuikov@yahoo.com>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into the kernel
+Message-ID: <20051003232244.GZ7992@ftp.linux.org.uk>
+References: <1128114950.10079.170.camel@bluto.andrew> <433DB5D7.3020806@adaptec.com> <9B90AC8A-A678-4FFE-B42D-796C8D87D65B@neostrada.pl> <4341381D.2060807@adaptec.com> <E93AC7D5-4CC0-4872-A5B8-115D2BF3C1A9@neostrada.pl> <1128357350.10079.239.camel@bluto.andrew> <43415EC0.1010506@adaptec.com> <Pine.BSO.4.62.0510032103380.28198@rudy.mif.pg.gda.pl> <1128377075.23932.5.camel@ryan2.internal.autoweb.net> <Pine.LNX.4.64.0510031531170.31407@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0510031531170.31407@g5.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
+On Mon, Oct 03, 2005 at 03:56:50PM -0700, Linus Torvalds wrote:
+> For example, Al Viro pointed out privately that the C preprocessor spec 
+> actually matches what a C preprocessor is supposed to do, and that it was 
+> easy to generate code from the spec. The reason? The code existed first, 
+> the spec was written from that. Writing it back into software "just 
+> works", because the spec really _was_ software to begin with, just 
+> re-written as a spec.
 
-> jmerkey wrote:
->
->>
->> Someone needs to fix SATA drive ordering in the kernel so it matches 
->> GRUBs ordering, or perhaps GRUB needs fixing. I have run into
->> several situation where hd0,hd1 are in reverse order from what is 
->> reported when the Intel PII drivers load from the kernel, making in
->> necessary to swap the two values in the grub config.
->
->
-> There's more to it than that. With PATA drives I see issues with order 
-> as well, and they date back to the Redhat 7.x days, where the install 
-> chose one order for the scsi drivers and the boot chose another. With 
-> IDE the order in which drivers are loaded affects the drive naming.
->
-> It would be great to have some way to match drives with names, but 
-> there doesn't seem to be a single solution for PATA, SATA, SCSI and 
-> hotplug. Something like mounts using UUID of the filesystem, but for 
-> the drives.
->
-> I do use pluggable drives for backup, load modules for various 
-> controllers on demand, etc, so I'm aware that the most reliable 
-> solutions seem to involve either reduced flexibility, human 
-> intervention at boot, or both.
-
-Have the IDE and SATA driver layer check the BIOS ordering and preserve 
-it during registration of the IDE and SATA devices for boot.
-
-Jeff
+Not quite, AFAIK.  Existing code was a fscking mess of subtly incompatible
+implementations; the thing that had helped was simple - the people who
+would have to implement the damn thing had a lot of presense in the
+committee.  So it boiled down to
+	* observation: attempt to describe it as text transformation leads
+to horrors; it really acts on token stream; give up treating it like a text
+filter.
+	* after figuring out what it should do to sequences of tokens they
+ended up with a reasonably simple algorithm that matched the existing
+behaviour sans the nasty corner cases everyone handled differently.
+	* _that_ had been turned into spec.

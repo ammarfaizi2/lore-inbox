@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932442AbVJCViR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932365AbVJCViG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932442AbVJCViR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 17:38:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932693AbVJCViR
+	id S932365AbVJCViG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 17:38:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932442AbVJCViG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 17:38:17 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:55206 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932442AbVJCViP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 17:38:15 -0400
-Subject: Re: what's next for the linux kernel?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Vadim Lobanov <vlobanov@speakeasy.net>, Rik van Riel <riel@redhat.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20051003210722.GI8548@lkcl.net>
-References: <20051002204703.GG6290@lkcl.net>
-	 <Pine.LNX.4.63.0510021704210.27456@cuia.boston.redhat.com>
-	 <20051002230545.GI6290@lkcl.net>
-	 <Pine.LNX.4.58.0510021637260.28193@shell2.speakeasy.net>
-	 <20051003005400.GM6290@lkcl.net>
-	 <1128367120.26992.44.camel@localhost.localdomain>
-	 <20051003210722.GI8548@lkcl.net>
-Content-Type: text/plain
+	Mon, 3 Oct 2005 17:38:06 -0400
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:59265 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S932365AbVJCViF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 17:38:05 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [swsusp] separate snapshot functionality to separate file
+Date: Mon, 3 Oct 2005 23:39:07 +0200
+User-Agent: KMail/1.8.2
+Cc: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
+References: <20051002231332.GA2769@elf.ucw.cz>
+In-Reply-To: <20051002231332.GA2769@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Mon, 03 Oct 2005 23:05:45 +0100
-Message-Id: <1128377145.26992.53.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Disposition: inline
+Message-Id: <200510032339.08217.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2005-10-03 at 22:07 +0100, Luke Kenneth Casson Leighton wrote:
->  made?  _cool_.  actual hardware.  new knowledge for me.  do you know
->  of any online references, papers or stuff?  [btw just to clarify:
->  you're saying you have a NUMA bus or you're saying you have an
->  augmented SMP+NUMA+separate-parallel-message-passing-bus er .. thing]
+Hi,
 
-Its a standard current Intel feature. See "mwait" in the processor
-manual. The CPUs are also smart enough to do cache to cache transfers.
-No special hardware no magic.
+On Monday, 3 of October 2005 01:13, Pavel Machek wrote:
+> Split swsusp.c into swsusp.c and snapshot.c. Snapshot only cares
+> provides system snapshot/restore functionality, while swsusp.c will
+> provide disk i/o. It should enable untangling of the code in future;
+> swsusp.c parts can mostly be done in userspace.
+> 
+> No code changes.
 
-And unless I want my messages to cause interrupts and wake events (in
-which case the APIC does it nicely) then any locked operation on memory
-will do the job just fine. I don't need funky hardware on a system. The
-first point I need funky hardware is between boards and that isn't
-consumer any more.
+I think that the functions:
 
-Alan
+read_suspend_image()
+read_pagedir()
+swsusp_pagedir_relocate() (BTW, why there's "swsusp_"?)
+check_pagedir() (BTW, misleading name)
+data_read()
+eat_page()
+get_usable_page()
+free_eaten_memory()
 
+should be moved to snapshot.c as well, because they are in fact
+symmetrical to what's there (they perform the reverse of creating
+the snapshot and use analogous data structures).  IMO the code
+change required would not be so drammatic and all of the functions
+that _operate_ on the snapshot would be in the same file.
+
+Greetings,
+Rafael

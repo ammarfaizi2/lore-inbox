@@ -1,41 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932480AbVJCReR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932483AbVJCReg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932480AbVJCReR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 13:34:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932484AbVJCReQ
+	id S932483AbVJCReg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 13:34:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932479AbVJCReg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 13:34:16 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:25107 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932480AbVJCReP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 13:34:15 -0400
-Date: Mon, 3 Oct 2005 19:34:14 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: christer@weinigel.se
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] arch/i386/kernel/scx200.c should #include <linux/scx200_gpio.h>
-Message-ID: <20051003173414.GC3652@stusta.de>
+	Mon, 3 Oct 2005 13:34:36 -0400
+Received: from geryon.wsm.com ([12.163.128.2]:33219 "EHLO geryon.wsm.com")
+	by vger.kernel.org with ESMTP id S932486AbVJCRee (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 13:34:34 -0400
+Message-ID: <43416BAF.5090800@wsm.com>
+Date: Mon, 03 Oct 2005 10:34:39 -0700
+From: Jeff Johnson <jeff.johnson@wsm.com>
+Organization: Western Scientific, Inc
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+To: linux-kernel@vger.kernel.org
+Subject: Re: "Kernel panic: VRKADINT" under heavy I/O.  It is really BRKADRINT
+ from Adaptec source
+References: <43415265.7000908@wsm.com>
+In-Reply-To: <43415265.7000908@wsm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Scan-Signature: bf268a032b43baa16c0d83e6a0eec0a6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Every file should #include the header files containing the prototypes of 
-it's global functions
+Forgive my typo. The KP error was "Kernel panic: BRKADRINT" and is 
+located in the Adaptec aic7xxx/aic79xx driver sources.
 
+Now I just have to figure out why it is occurring. The motherboards have 
+Adaptec 7902W onboard, attached to a separate PCI-X bus from the 
+Infiniband HCA.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Apologies for the confusion
 
---- linux-2.6.14-rc2-mm2-full/arch/i386/kernel/scx200.c.old	2005-10-02 02:16:57.000000000 +0200
-+++ linux-2.6.14-rc2-mm2-full/arch/i386/kernel/scx200.c	2005-10-02 02:17:10.000000000 +0200
-@@ -12,6 +12,7 @@
- #include <linux/pci.h>
- 
- #include <linux/scx200.h>
-+#include <linux/scx200_gpio.h>
- 
- /* Verify that the configuration block really is there */
- #define scx200_cb_probe(base) (inw((base) + SCx200_CBA) == (base))
+--Jeff
 
+Jeff Johnson wrote:
+
+> Greetings,
+>
+>    I have several systems that will hang under heavy i/o. This usually 
+> occurs during a Pallas AllToAll test over Infiniband. Is anyone able 
+> to point me to where I can find VRKADINT or what general area of the 
+> kernel this is coming from? Everything runs fine otherwise. When I 
+> start the AllToAll across 32 machines and get 128 cores all talking to 
+> each other at once random machines will panic with the VRKADINT. I 
+> cannot seem to find this message anywhere in kernel source.
+>
+> details:
+> arch   x86_64
+> kernel  2.6.5-7.193-smp (SuSE Ent9)
+> proc  2x dual core Opteron 275
+> ram 16GB
+>
+> --Jeff
+>

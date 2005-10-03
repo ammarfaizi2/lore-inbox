@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbVJCKhX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932221AbVJCKjv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932220AbVJCKhX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 06:37:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbVJCKhX
+	id S932221AbVJCKjv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 06:39:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbVJCKju
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 06:37:23 -0400
-Received: from ns2.suse.de ([195.135.220.15]:52644 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932220AbVJCKhW (ORCPT
+	Mon, 3 Oct 2005 06:39:50 -0400
+Received: from main.gmane.org ([80.91.229.2]:17853 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932221AbVJCKju (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 06:37:22 -0400
-Date: Mon, 3 Oct 2005 12:37:21 +0200
-From: Olaf Hering <olh@suse.de>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] remove module.h include from zlib_inflate
-Message-ID: <20051003103721.GA23664@suse.de>
+	Mon, 3 Oct 2005 06:39:50 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Re: what's next for the linux kernel?
+Date: Mon, 3 Oct 2005 12:36:26 +0200
+Message-ID: <miugmw9sanku.1uvunkelucxjd$.dlg@40tude.net>
+References: <20051002204703.GG6290@lkcl.net> <Pine.LNX.4.63.0510021704210.27456@cuia.boston.redhat.com> <20051002230545.GI6290@lkcl.net> <Pine.LNX.4.58.0510021637260.28193@shell2.speakeasy.net> <20051003005400.GM6290@lkcl.net> <Pine.LNX.4.58.0510021800240.19613@shell2.speakeasy.net> <20051003015302.GP6290@lkcl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: oblomov.dmi.unict.it
+User-Agent: 40tude_Dialog/2.0.15.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 3 Oct 2005 02:53:02 +0100, Luke Kenneth Casson Leighton wrote:
 
-There is no need to include module.h in inflate.c
-compile-tested with 2.6.13
+> On Sun, Oct 02, 2005 at 06:20:38PM -0700, Vadim Lobanov wrote:
+>> The beauty of capitalization is that it makes it easier for others to
+>> read what you have to say.
+>  
+>  sorry, vadim: haven't touched a shift key in over 20 years.
+> 
 
-Signed-off-by: Olaf Hering <olh@suse.de>
+[snip]
 
- lib/zlib_inflate/inflate.c |    1 -
- 1 files changed, 1 deletion(-)
+>  *sigh* - i _so_ hope we don't need degrees in physics to program
+>  them...
 
-Index: linux-2.6.14-rc3/lib/zlib_inflate/inflate.c
-===================================================================
---- linux-2.6.14-rc3.orig/lib/zlib_inflate/inflate.c
-+++ linux-2.6.14-rc3/lib/zlib_inflate/inflate.c
-@@ -3,7 +3,6 @@
-  * For conditions of distribution and use, see copyright notice in zlib.h 
-  */
- 
--#include <linux/module.h>
- #include <linux/zutil.h>
- #include "infblock.h"
- #include "infutil.h"
+[snip]
+
+>  ah, i'm not: i just left out mentioning it :)
+
+I'd *love* a keyboard layout where * _ : ) are accesible without
+shift! Can you send me yours?
+
 -- 
-short story of a lazy sysadmin:
- alias appserv=wotan
+Giuseppe "Oblomov" Bilotta
+
+Hic manebimus optime
+

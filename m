@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932355AbVJCQbY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932324AbVJCQcL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932355AbVJCQbY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 12:31:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbVJCQbY
+	id S932324AbVJCQcL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 12:32:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbVJCQcK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 12:31:24 -0400
-Received: from outgoing.tpinternet.pl ([193.110.120.20]:19149 "EHLO
-	outgoing.tpinternet.pl") by vger.kernel.org with ESMTP
-	id S1751164AbVJCQbX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 12:31:23 -0400
-In-Reply-To: <4341381D.2060807@adaptec.com>
-References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01A9FA11@otce2k03.adaptec.com>	 <1128105594.10079.109.camel@bluto.andrew>  <433D9035.6000504@adaptec.com>	 <1128111290.10079.147.camel@bluto.andrew>  <433DA0DF.9080308@adaptec.com> <1128114950.10079.170.camel@bluto.andrew> <433DB5D7.3020806@adaptec.com> <9B90AC8A-A678-4FFE-B42D-796C8D87D65B@neostrada.pl> <4341381D.2060807@adaptec.com>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <E93AC7D5-4CC0-4872-A5B8-115D2BF3C1A9@neostrada.pl>
-Cc: andrew.patterson@hp.com, "Salyzyn, Mark" <mark_salyzyn@adaptec.com>,
-       dougg@torque.net, Linus Torvalds <torvalds@osdl.org>,
-       Luben Tuikov <ltuikov@yahoo.com>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Mon, 3 Oct 2005 12:32:10 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:47364 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1751167AbVJCQcJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 12:32:09 -0400
+Message-ID: <43415D14.5070909@tmr.com>
+Date: Mon, 03 Oct 2005 12:32:20 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: jmerkey <jmerkey@utah-nac.org>
+CC: Nuno Silva <nuno.silva@vgertech.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux SATA S.M.A.R.T. and SLEEP?
+References: <Pine.LNX.4.63.0509290916450.20827@p34> <433C31C8.1030901@vgertech.com> <Pine.LNX.4.63.0509291433340.13272@p34> <433C2A11.9090506@utah-nac.org>
+In-Reply-To: <433C2A11.9090506@utah-nac.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Marcin Dalecki <dalecki.marcin@neostrada.pl>
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into the kernel
-Date: Mon, 3 Oct 2005 18:29:02 +0200
-To: Luben Tuikov <luben_tuikov@adaptec.com>
-X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+jmerkey wrote:
+> 
+> Someone needs to fix SATA drive ordering in the kernel so it matches 
+> GRUBs ordering, or perhaps GRUB needs fixing. I have run into
+> several situation where hd0,hd1 are in reverse order from what is 
+> reported when the Intel PII drivers load from the kernel, making in
+> necessary to swap the two values in the grub config.
 
-On 2005-10-03, at 15:54, Luben Tuikov wrote:
+There's more to it than that. With PATA drives I see issues with order 
+as well, and they date back to the Redhat 7.x days, where the install 
+chose one order for the scsi drivers and the boot chose another. With 
+IDE the order in which drivers are loaded affects the drive naming.
 
-> On 09/30/05 19:42, Marcin Dalecki wrote:
->
->> On 2005-10-01, at 00:01, Luben Tuikov wrote:
->>
->>
->>> Why should synchronization between Process A and Process B
->>> reading storage attributes take place in the kernel?
->>>
->>> They can synchronize in user space.
->>>
->>
->>
->> In a mandatory and transparent way? How?
->
-> Futex, userspace mutex, etc.  All through a user
-> space library interface.
+It would be great to have some way to match drives with names, but there 
+doesn't seem to be a single solution for PATA, SATA, SCSI and hotplug. 
+Something like mounts using UUID of the filesystem, but for the drives.
 
-They give a means of possible synchronization between beneviolent  
-users, but not a mandatory lock on the shared resource.
+I do use pluggable drives for backup, load modules for various 
+controllers on demand, etc, so I'm aware that the most reliable 
+solutions seem to involve either reduced flexibility, human intervention 
+at boot, or both.
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

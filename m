@@ -1,90 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932705AbVJCV5b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932643AbVJCWFt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932705AbVJCV5b (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 17:57:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932713AbVJCV5b
+	id S932643AbVJCWFt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 18:05:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932704AbVJCWFs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 17:57:31 -0400
-Received: from ns.tasking.nl ([195.193.207.2]:45545 "EHLO ns.tasking.nl")
-	by vger.kernel.org with ESMTP id S932705AbVJCV51 (ORCPT
+	Mon, 3 Oct 2005 18:05:48 -0400
+Received: from mail.autoweb.net ([198.172.237.26]:16302 "EHLO mail.autoweb.net")
+	by vger.kernel.org with ESMTP id S932643AbVJCWFr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 17:57:27 -0400
-To: linux-kernel@vger.kernel.org
+	Mon, 3 Oct 2005 18:05:47 -0400
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
+	the kernel
+From: Ryan Anderson <ryan@autoweb.net>
+To: Tomasz =?iso-8859-2?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
+Cc: Luben Tuikov <luben_tuikov@adaptec.com>, andrew.patterson@hp.com,
+       Marcin Dalecki <dalecki.marcin@neostrada.pl>,
+       "Salyzyn, Mark" <mark_salyzyn@adaptec.com>, dougg@torque.net,
+       Linus Torvalds <torvalds@osdl.org>, Luben Tuikov <ltuikov@yahoo.com>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.BSO.4.62.0510032103380.28198@rudy.mif.pg.gda.pl>
+References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01A9FA11@otce2k03.adaptec.com>
+	 <1128105594.10079.109.camel@bluto.andrew>  <433D9035.6000504@adaptec.com>
+	 <1128111290.10079.147.camel@bluto.andrew>  <433DA0DF.9080308@adaptec.com>
+	 <1128114950.10079.170.camel@bluto.andrew> <433DB5D7.3020806@adaptec.com>
+	 <9B90AC8A-A678-4FFE-B42D-796C8D87D65B@neostrada.pl>
+	 <4341381D.2060807@adaptec.com>
+	 <E93AC7D5-4CC0-4872-A5B8-115D2BF3C1A9@neostrada.pl>
+	 <1128357350.10079.239.camel@bluto.andrew> <43415EC0.1010506@adaptec.com>
+	 <Pine.BSO.4.62.0510032103380.28198@rudy.mif.pg.gda.pl>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-lYZfKBnkTQpkkNuDH3l1"
+Date: Mon, 03 Oct 2005 18:04:35 -0400
+Message-Id: <1128377075.23932.5.camel@ryan2.internal.autoweb.net>
 Mime-Version: 1.0
-X-Newsreader: knews 1.0b.1
-Reply-To: dick.streefland@altium.nl (Dick Streefland)
-Organization: Altium BV
-X-Face: "`*@3nW;mP[=Z(!`?W;}cn~3M5O_/vMjX&Pe!o7y?xi@;wnA&Tvx&kjv'N\P&&5Xqf{2CaT 9HXfUFg}Y/TT^?G1j26Qr[TZY%v-1A<3?zpTYD5E759Q?lEoR*U1oj[.9\yg_o.~O.$wj:t(B+Q_?D XX57?U,#b,iM$[zX'I(!'VCQM)N)x~knSj>M*@l}y9(tK\rYwdv%~+&*jV"epphm>|q~?ys:g:K#R" 2PuAzy-N9cKM<Ml/%yPQxpq"Ttm{GzBn-*:;619QM2HLuRX4]~361+,[uFp6f"JF5R`y
-From: spam@altium.nl (Dick Streefland)
-Subject: PowerNow! frequency scaling causes stalls
-Content-Type: text/plain; charset=us-ascii
-NNTP-Posting-Host: 172.17.1.66
-Message-ID: <7484.4341a91e.3c3d8@altium.nl>
-Date: Mon, 03 Oct 2005 21:56:46 -0000
+X-Mailer: Evolution 2.2.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a new laptop with an AMD Mobile Sempron, and I'm experimenting
-with the PowerNow! frequency scaling. It seems to work, but on every
-frequency change, everything stalls for 3-4 seconds, even the X mouse
-pointer! Keyboard input seems to be buffered though. Is this normal?
 
-I'm currently using the builtin frequency scaling "governors" of the
-kernel with the following settings:
+--=-lYZfKBnkTQpkkNuDH3l1
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: quoted-printable
 
-echo ondemand > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor 
-echo 15000000 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/sampling_rate
-echo 1        > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/ignore_nice
+On Mon, 2005-10-03 at 23:26 +0200, Tomasz K=B3oczko wrote:
+> If (cytation from Linus) "a 'spec' is close to useless" ..
+> Q: why the hell in kernel tree is included Documentation/ subdirectory ?
+> Is it raly content of this directory is "close to useless" or maybe it no=
+t
+> contains some specyfications ? :>
 
-However, using the powernow daemon results in the same behavior.
+Let me rephrase what Linus said, to help remove the misreading that
+seems so common today.  I think a fair rewording would be, "A spec is a
+guideline.  When it fails to match reality, continuing to follow it is a
+tremendous mistake."
 
-Here are the relevant kernel (2.6.13.2) options:
+Additionally, I think the overall LKML feeling on hardware specs and the
+corresponding software abstractions to deal with it can be summarized
+something like this:
 
-#
-# CPU Frequency scaling
-#
-CONFIG_CPU_FREQ=y
-CONFIG_CPU_FREQ_TABLE=y
-CONFIG_CPU_FREQ_DEBUG=y
-CONFIG_CPU_FREQ_STAT=y
-CONFIG_CPU_FREQ_STAT_DETAILS=y
-# CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE is not set
-CONFIG_CPU_FREQ_DEFAULT_GOV_USERSPACE=y
-CONFIG_CPU_FREQ_GOV_PERFORMANCE=y
-CONFIG_CPU_FREQ_GOV_POWERSAVE=y
-CONFIG_CPU_FREQ_GOV_USERSPACE=y
-CONFIG_CPU_FREQ_GOV_ONDEMAND=y
-CONFIG_CPU_FREQ_GOV_CONSERVATIVE=y
+When the spec provides a software design that doesn't fit into the
+overall structure of the Linux kernel, the spec should be treated as a
+suggestion for a software design.  The *interface* that the spec
+documents should be followed, where it moves out of the overall
+structure, but internally, a design that fits into the Linux kernel is
+more important than following a spec that doesn't fit.
 
-#
-# CPUFreq processor drivers
-#
-CONFIG_X86_ACPI_CPUFREQ=y
-# CONFIG_X86_POWERNOW_K6 is not set
-# CONFIG_X86_POWERNOW_K7 is not set
-CONFIG_X86_POWERNOW_K8=y
-CONFIG_X86_POWERNOW_K8_ACPI=y
-# CONFIG_X86_GX_SUSPMOD is not set
-# CONFIG_X86_SPEEDSTEP_CENTRINO is not set
-# CONFIG_X86_SPEEDSTEP_ICH is not set
-# CONFIG_X86_SPEEDSTEP_SMI is not set
-# CONFIG_X86_P4_CLOCKMOD is not set
-# CONFIG_X86_CPUFREQ_NFORCE2 is not set
-# CONFIG_X86_LONGRUN is not set
-# CONFIG_X86_LONGHAUL is not set
+--=20
+Ryan Anderson
+AutoWeb Communications, Inc.
+email: ryan@autoweb.net
 
-This is reported in /var/log/messages:
 
-Oct  3 22:04:35 acer kernel: CPU: AMD Mobile AMD Sempron(tm) Processor 3000+ stepping 02
-[...]
-Oct  3 22:04:35 acer kernel: powernow-k8: Found 1 AMD Athlon 64 / Opteron processors (version 1.50.3)
-Oct  3 22:04:35 acer kernel: powernow-k8:    0 : fid 0xa (1800 MHz), vid 0xa (1300 mV)
-Oct  3 22:04:35 acer kernel: powernow-k8:    1 : fid 0x8 (1600 MHz), vid 0xc (1250 mV)
-Oct  3 22:04:35 acer kernel: powernow-k8:    2 : fid 0x0 (800 MHz), vid 0x13 (1075 mV)
-Oct  3 22:04:35 acer kernel: cpu_init done, current fid 0xa, vid 0xa
+--=-lYZfKBnkTQpkkNuDH3l1
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
--- 
-Dick Streefland                      ////                      Altium BV
-dick.streefland@altium.nl           (@ @)          http://www.altium.com
---------------------------------oOO--(_)--OOo---------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
+iD8DBQBDQarzIEfEr9d71YgRAnWLAKCS5Mjwkk2A6AfQ/FWYMjyl4cUJjQCeJP7r
+AHaVJ/elXKe3OrF136lWhQQ=
+=AzW1
+-----END PGP SIGNATURE-----
+
+--=-lYZfKBnkTQpkkNuDH3l1--

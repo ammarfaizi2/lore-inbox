@@ -1,67 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932649AbVJCTTm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932642AbVJCTVX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932649AbVJCTTm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 15:19:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932644AbVJCTTm
+	id S932642AbVJCTVX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 15:21:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932644AbVJCTVX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 15:19:42 -0400
-Received: from outgoing.tpinternet.pl ([193.110.120.20]:15059 "EHLO
-	outgoing.tpinternet.pl") by vger.kernel.org with ESMTP
-	id S932606AbVJCTTl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 15:19:41 -0400
-In-Reply-To: <43415EC0.1010506@adaptec.com>
-References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01A9FA11@otce2k03.adaptec.com>	 <1128105594.10079.109.camel@bluto.andrew>  <433D9035.6000504@adaptec.com>	 <1128111290.10079.147.camel@bluto.andrew>  <433DA0DF.9080308@adaptec.com>	 <1128114950.10079.170.camel@bluto.andrew> <433DB5D7.3020806@adaptec.com>	 <9B90AC8A-A678-4FFE-B42D-796C8D87D65B@neostrada.pl>	 <4341381D.2060807@adaptec.com>	 <E93AC7D5-4CC0-4872-A5B8-115D2BF3C1A9@neostrada.pl> <1128357350.10079.239.camel@bluto.andrew> <43415EC0.1010506@adaptec.com>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <0D927995-1605-4AA7-B213-2AE7F3C6CD69@neostrada.pl>
-Cc: andrew.patterson@hp.com, "Salyzyn, Mark" <mark_salyzyn@adaptec.com>,
-       dougg@torque.net, Linus Torvalds <torvalds@osdl.org>,
-       Luben Tuikov <ltuikov@yahoo.com>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Mon, 3 Oct 2005 15:21:23 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:53510 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932642AbVJCTVW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 15:21:22 -0400
+Message-ID: <434184CA.7000106@tmr.com>
+Date: Mon, 03 Oct 2005 15:21:46 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: James Courtier-Dutton <James@superbug.co.uk>
+CC: Ahmad Reza Cheraghi <a_r_cheraghi@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Why no XML in the Kernel?
+References: <20051002094142.65022.qmail@web51012.mail.yahoo.com> <433FAD57.7090106@yahoo.com.au> <433FBE59.8000806@superbug.co.uk>
+In-Reply-To: <433FBE59.8000806@superbug.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Marcin Dalecki <dalecki.marcin@neostrada.pl>
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into the kernel
-Date: Mon, 3 Oct 2005 21:16:28 +0200
-To: Luben Tuikov <luben_tuikov@adaptec.com>
-X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 2005-10-03, at 18:39, Luben Tuikov wrote:
-
-> On 10/03/05 12:35, Andrew Patterson wrote:
->
->> On Mon, 2005-10-03 at 18:29 +0200, Marcin Dalecki wrote:
+James Courtier-Dutton wrote:
+> Nick Piggin wrote:
+> 
+>> Ahmad Reza Cheraghi wrote:
 >>
->>> They give a means of possible synchronization between beneviolent
->>> users, but not a mandatory lock on the shared resource.
+>>> Can somebody tell me why the Kernel-Development dont
+>>> wanne have XML is being used in the Kernel??
+>>>
 >>
->> Nor do they protect against external events, such as disk
->> insertion/removals, and someone kicking a cable.
->
-> As has _always_ been the case in UNIX:  Provide capability,
-> not policy.
+>> Because nobody has come up with a good reason why it
+>> should be. Same as anything that isn't in the kernel.
+>>
+>> Nick
+>>
+> I have a requirement to pass information from the kernel to user space. 
+> The information is passed fairly rarely, but over time extra parameters 
+> are added. At the moment we just use a struct, but that means that the 
+> kernel and the userspace app have to both keep in step. If something 
+> like XML was used, we could implement new parameters in the kernel, and 
+> the user space could just ignore them, until the user space is upgraded.
+> XML would initially seem a good idea for this, but are there any methods 
+> currently used in the kernel that could handle these parameter changes 
+> over time.
+> 
+> For example, should the sysfs be used for this?
+> 
+> Any comments?
 
-This is at least arguable and not applicable, since we are talking  
-about Linux and not UNIX here. UNIX is just fine using IOCTL or  
-SYSCTL instead of a crude pseudo file system for this kind of things.
+For decades people have been solving this with key:value, ignoring 
+unknown keys. And using nice text format eliminates any endian and word 
+size issues.
 
-> The more things are off loaded to userspace the better.
+XML sounds like overkill for problems of this type.
 
-That is not the question at hand and an invalid statement per se.  
-It's not a design goal in itself to have everything in user space.  
-However you admitt indirectly that the problem in question is valid  
-and that it exists on the design level of the interface at hand and  
-that it's an inherent error in this interface, since you don't know a  
-solution to it.
-
-> Look at it this way: the deadbolt on your house door does
-> not _eliminate_ the possibility of someone cleaning out
-> your house, even if you have a security system and/or
-> a guard dog.
-
-Problems which can be solved by proper solutions easly and without  
-cost should be solved and not talked away to justify someones idee  
-fixe about interface desing.
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

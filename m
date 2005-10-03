@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbVJCJ7E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932217AbVJCKAq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932215AbVJCJ7E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 05:59:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbVJCJ7E
+	id S932217AbVJCKAq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 06:00:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbVJCKAq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 05:59:04 -0400
-Received: from qproxy.gmail.com ([72.14.204.202]:22394 "EHLO qproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932215AbVJCJ7C convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 05:59:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=coGALT0yRLn7baFIVcXVJLAAH4BWHJ9R7f56cyZst1YsnRPWKaMsYePJQN1AH+DH8qIb9EwfiL9ekr52GvJlCpLWcFKLDq25MrESt5k2SK1HmKghAEJA29nJQ41BvZSYbkVujvtbjSTQAKWs0qtA+pc3o7mPHHe1WUx2gFqFMWU=
-Message-ID: <9a8748490510030259o43646cbbo22b37f1791d267e@mail.gmail.com>
-Date: Mon, 3 Oct 2005 11:59:01 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: Ben Dooks <ben-linux@fluff.org>
-Subject: Re: [PATCH] release_resource() check for NULL resource
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <20051003094803.GC3500@home.fluff.org>
+	Mon, 3 Oct 2005 06:00:46 -0400
+Received: from mx2.suse.de ([195.135.220.15]:53409 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932217AbVJCKAp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 06:00:45 -0400
+Message-ID: <43410149.9070007@suse.de>
+Date: Mon, 03 Oct 2005 12:00:41 +0200
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050715 Thunderbird/1.0.6 Mnenhy/0.7.2.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051002170318.GA22074@home.fluff.org>
-	 <20051002103922.34dd287d.rdunlap@xenotime.net>
-	 <20051003094803.GC3500@home.fluff.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       =?ISO-8859-1?Q?Timo_H=F6nig?= <thoenig@suse.de>
+Subject: Re: thinkpad suspend to ram and backlight
+References: <20051002175703.GA3141@elf.ucw.cz>
+In-Reply-To: <20051002175703.GA3141@elf.ucw.cz>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/3/05, Ben Dooks <ben-linux@fluff.org> wrote:
-> On Sun, Oct 02, 2005 at 10:39:22AM -0700, Randy.Dunlap wrote:
-> > On Sun, 2 Oct 2005 18:03:18 +0100 Ben Dooks wrote:
-> >
-> > > If release_resource() is passed a NULL resource
-> > > the kernel will OOPS.
-> >
-> > does this actually happen?  you are fixing a real oops?
-> > if so, what driver caused it?
->
-> I was developing a couple of new drivers, and found
-> that this does not behave like kfree() which does check
-> for NULL paramemters. I belive it would be helpful if
-> functions like this followed the example of kfree().
->
-I would agree that it makes sense for resource release functions to be
-written defensively and be able to cope with being passed a NULL
-resource, just like kfree(), vfree(), crypto_free_tfm() and others are
-already doing.
-Seems safer and allows us to get rid of checks for NULL before calling
-such functions thus making code simpler, more readable and in some
-cases smaller.
+Pavel Machek wrote:
+> Hi!
+> 
+> When I suspend to RAM on x32, backlight is not turned off. (And, IIRC,
+> video chips is not turned off, too). Unfortunately, backlight is not
+> turned even when lid is closed. I know some patches were floating
+> around to solve that... but I can't find them now. Any ideas?
 
-Just my 0.02euro
-
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Which framebuffer driver? Vesafb works for Timo, at least he did not
+complain lately ;-)
+-- 
+Stefan Seyfried                  \ "I didn't want to write for pay. I
+QA / R&D Team Mobile Devices      \ wanted to be paid for what I write."
+SUSE LINUX Products GmbH, Nürnberg \                    -- Leonard Cohen

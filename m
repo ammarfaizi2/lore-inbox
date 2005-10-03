@@ -1,60 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751055AbVJCPOO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751069AbVJCPPB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751055AbVJCPOO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 11:14:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751057AbVJCPON
+	id S1751069AbVJCPPB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 11:15:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbVJCPPB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 11:14:13 -0400
-Received: from warden2-p.diginsite.com ([209.195.52.120]:50605 "HELO
-	warden2.diginsite.com") by vger.kernel.org with SMTP
-	id S1750987AbVJCPON (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 11:14:13 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Magnus Damm <magnus.damm@gmail.com>, Dave Hansen <haveblue@us.ibm.com>,
-       Magnus Damm <magnus@valinux.co.jp>, linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-X-X-Sender: dlang@dlang.diginsite.com
-In-Reply-To: <83890000.1128352138@[10.10.2.4]>
-References: dlang@dlang.diginsite.com <Pine.LNX.4.62.0510030802090.11541@qynat.qvtvafvgr.pbz> <83890000.1128352138@[10.10.2.4]>
-Date: Mon, 3 Oct 2005 08:13:09 -0700 (PDT)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: [PATCH 00/07][RFC] i386: NUMA emulation
-In-Reply-To: <83890000.1128352138@[10.10.2.4]>
-Message-ID: <Pine.LNX.4.62.0510030810290.11541@qynat.qvtvafvgr.pbz>
-References: dlang@dlang.diginsite.com <Pine.LNX.4.62.0510030802090.11541@qynat.qvtvafvgr.pbz>
- <83890000.1128352138@[10.10.2.4]>
+	Mon, 3 Oct 2005 11:15:01 -0400
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:60819 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP
+	id S1751057AbVJCPPA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 11:15:00 -0400
+X-ORBL: [69.107.75.50]
+Date: Mon, 03 Oct 2005 08:14:57 -0700
+From: David Brownell <david-b@pacbell.net>
+To: basicmark@yahoo.com, arjan@infradead.org
+Subject: Re: [RFC][PATCH] SPI subsystem
+Cc: linux-kernel@vger.kernel.org
+References: <20051003105748.213.qmail@web33014.mail.mud.yahoo.com>
+ <1128337656.17024.10.camel@laptopd505.fenrus.org>
+In-Reply-To: <1128337656.17024.10.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20051003151457.AD64FEE8CE@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Oct 2005, Martin J. Bligh wrote:
-
-> --David Lang <david.lang@digitalinsight.com> wrote (on Monday, October 03, 2005 08:03:44 -0700):
+> From: Arjan van de Ven <arjan@infradead.org>
+> Date: Mon, 03 Oct 2005 13:07:36 +0200
 >
->> On Mon, 3 Oct 2005, Martin J. Bligh wrote:
->>
->>> But that's not the same at all! ;-) PAE memory is the same speed as
->>> the other stuff. You just have a 3rd level of pagetables for everything.
->>> One could (correctly) argue it made *all* memory slower, but it does so
->>> in a uniform fashion.
->>
->> is it? I've seen during the memory self-test at boot that machines slow down noticably as they pass the 4G mark.
->
-> Not noticed that, and I can't see why it should be the case in general,
-> though I suppose some machines might be odd. Got any numbers?
+> please NEVER EVER do dma from or to a stack variable. It's not allowed
+> on all architectures and it is really really bad practice in general
+> anyway. 
 
-just the fact that the system boot memory test takes 3-4 times as long 
-with 8G or ram then with 4G of ram. I then boot a 64 bit kernel on the 
-system and never use PAE mode again :-)
+Arjan, could you mention some Linuxes which don't allow it?
 
-if you can point me at a utility that will test the speed of the memory in 
-different chunks I'll do some testing on the Opteron systems I have 
-available. unfortunantly I don't have any Xeon systems to test this on.
+Every time the topic of DMA to/from stack comes up, the advice is
+always to avoid it ... but so far as I recall, nobody's yet provided
+us with an example where it actually doesn't work.
 
-David Lang
+Failing such examples, it's normal to discount such dire warnings and
+just plan to apply the relevant minor tweaks if/when they're needed.
 
--- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
+- Dave
+
+

@@ -1,75 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932704AbVJCWFy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932719AbVJCWHd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932704AbVJCWFy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 18:05:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932708AbVJCWFy
+	id S932719AbVJCWHd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 18:07:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932718AbVJCWHd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 18:05:54 -0400
-Received: from amdext3.amd.com ([139.95.251.6]:13722 "EHLO amdext3.amd.com")
-	by vger.kernel.org with ESMTP id S932704AbVJCWFx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 18:05:53 -0400
-X-Server-Uuid: 519AC16A-9632-469E-B354-112C592D09E8
-Date: Mon, 3 Oct 2005 16:22:51 -0600
-From: "Jordan Crouse" <jordan.crouse@amd.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: AMD Geode GX/LX support
-Message-ID: <20051003222251.GG30975@cosmic.amd.com>
-References: <20051003174738.GC29264@cosmic.amd.com>
- <1128366109.26992.27.camel@localhost.localdomain>
- <20051003195531.GB30975@cosmic.amd.com>
- <1128372369.26992.48.camel@localhost.localdomain>
+	Mon, 3 Oct 2005 18:07:33 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:27910 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932719AbVJCWHc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 18:07:32 -0400
+Date: Tue, 4 Oct 2005 00:07:29 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Paulo da Silva <psdasilva@esoterica.pt>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: util-linux and data encryption
+Message-ID: <20051003220729.GJ3652@stusta.de>
+References: <4341567E.4050603@esoterica.pt>
 MIME-Version: 1.0
-In-Reply-To: <1128372369.26992.48.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
-X-WSS-ID: 6F5F74BD354758454-01-01
-Content-Type: text/plain;
- charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <4341567E.4050603@esoterica.pt>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 03/10/05 21:46 +0100, Alan Cox wrote:
-> On Llu, 2005-10-03 at 13:55 -0600, Jordan Crouse wrote:
-> > As I mentioned in the previous e-mail, the GEODEGX1 define as it stands
-> > is incorrect - the cache line size should be 16 bytes for the GX1.  The 
-> > GX and LX share a newer core, so it stands, I think that they should have
-> > a different define.
+On Mon, Oct 03, 2005 at 05:04:14PM +0100, Paulo da Silva wrote:
+
+> If this is not the right place to post about
+> util-linux, please tell me where to post.
+> I'm posting here because util-linux is at kernel.org.
+>...
+
+If you have problems with some software shipped with a distribution the
+best choice is usually the support / bug tracking system of your
+distribution.
+
+In your case, the problem seems to be already reported as Gentoo
+bug #107680 [1].
+
+> BTW, I am using gentoo and I also tried USE=old-crypt.
+> No way!
 > 
-> What makes the cores different ? Cache line size ? If they share the
-> same kernel options and build then they don't need a new define, the
-> existing one just need generalising.
-
-After thinking about this a bit more, I think we should keep the GEODEGX1
-define because it was for a different core, but consolidate the GX and LX
-defines into a single define.  Originally, we added the defines for
-ease-of-use in the configuration realm, for example, not allowing the user to
-build the LX TRNG for a GX kernel.  Based on the other comments regarding
-similar things, I now think that we should avoid it all together.
-
-I'm going to keep the GEODE_LX define, and send GEODE_GX to the briny deep.
-I guess technically, we could use the codename for the core, but I think
-that would be more confusing.  Best to stick with the marketing names, I think.
-
-> > I suppose that I should come with something more solid then a gut feeling, 
-> > though, substantial as my gut may be.
+> I needed to install the version 2.12i to recover
+> my information.
 > 
-> Indeed. With gcc 3.x I ended up with -m486 -falign-functions=0 and that
-> used to be the settings. I don't know who changed it to pentium-mmx in
-> the end but I objected to about four different patches that did this
-> over time and people still kept submitting them.
+> Is this related with util-linux or has something
+> to do with gentoo patches or something?
+>...
 
-I'll remove the defines for now until we can prove that its better to have 
-them turned on.
+You are using features not present in the upstream util-linux but added 
+by patches Gentoo applies.
 
-Thanks for your comments,
-Jordan
+> Thank you for any comments.
+
+cu
+Adrian
+
+[1] http://bugs.gentoo.org/107680
 
 -- 
-Jordan Crouse
-Senior Linux Engineer
-AMD - Personal Connectivity Solutions Group
-<www.amd.com/embeddedprocessors>
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

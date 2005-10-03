@@ -1,60 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932359AbVJCQmx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932437AbVJCQpK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932359AbVJCQmx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 12:42:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbVJCQmx
+	id S932437AbVJCQpK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 12:45:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932436AbVJCQpJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 12:42:53 -0400
-Received: from fmr15.intel.com ([192.55.52.69]:34740 "EHLO
-	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
-	id S932359AbVJCQmw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 12:42:52 -0400
-Subject: Re: [PATCH]: Clean up of __alloc_pages
-From: Rohit Seth <rohit.seth@intel.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: akpm@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
-In-Reply-To: <433F4F67.4090800@yahoo.com.au>
-References: <20051001120023.A10250@unix-os.sc.intel.com>
-	 <433F4F67.4090800@yahoo.com.au>
-Content-Type: text/plain
-Organization: Intel 
-Date: Mon, 03 Oct 2005 09:50:01 -0700
-Message-Id: <1128358201.8472.7.camel@akash.sc.intel.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 03 Oct 2005 16:42:37.0234 (UTC) FILETIME=[763D3120:01C5C839]
+	Mon, 3 Oct 2005 12:45:09 -0400
+Received: from warden2-p.diginsite.com ([209.195.52.120]:63711 "HELO
+	warden2.diginsite.com") by vger.kernel.org with SMTP
+	id S932430AbVJCQpH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 12:45:07 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: Magnus Damm <magnus.damm@gmail.com>, Dave Hansen <haveblue@us.ibm.com>,
+       Magnus Damm <magnus@valinux.co.jp>, linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+X-X-Sender: dlang@dlang.diginsite.com
+In-Reply-To: <93300000.1128354870@[10.10.2.4]>
+References: dlang@dlang.diginsite.com <Pine.LNX.4.62.0510030802090.11541@qynat.qvtvafvgr.pbz> <83890000.1128352138@[10.10.2.4]> <Pine.LNX.4.62.0510030810290.11541@qynat.qvtvafvgr.pbz> <86300000.1128353125@[10.10.2.4]> <Pine.LNX.4.62.0510030831550.11541@qynat.qvtvafvgr.pbz> <93300000.1128354870@[10.10.2.4]>
+Date: Mon, 3 Oct 2005 09:44:26 -0700 (PDT)
+X-X-Sender: dlang@dlang.diginsite.com
+Subject: Re: [PATCH 00/07][RFC] i386: NUMA emulation
+In-Reply-To: <93300000.1128354870@[10.10.2.4]>
+Message-ID: <Pine.LNX.4.62.0510030942551.11541@qynat.qvtvafvgr.pbz>
+References: dlang@dlang.diginsite.com <Pine.LNX.4.62.0510030802090.11541@qynat.qvtvafvgr.pbz>
+ <83890000.1128352138@[10.10.2.4]> <Pine.LNX.4.62.0510030810290.11541@qynat.qvtvafvgr.pbz>
+ <86300000.1128353125@[10.10.2.4]> <Pine.LNX.4.62.0510030831550.11541@qynat.qvtvafvgr.pbz>
+ <93300000.1128354870@[10.10.2.4]>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-10-02 at 13:09 +1000, Nick Piggin wrote:
+On Mon, 3 Oct 2005, Martin J. Bligh wrote:
 
-> Perhaps splitting it into 2 would be a good idea - ie. first
-> patch does the cleanup, second does the direct pcp list alloc.
-> 
-> Regarding the direct pcp list allocation - I think it is a good
-> idea, because we're currently already accounting pcp list pages
-> as being 'allocated' for the purposes of the reclaim watermarks.
-> 
+>>>>>
+>>>>> Not noticed that, and I can't see why it should be the case in general,
+>>>>> though I suppose some machines might be odd. Got any numbers?
+>>>>
+>>>> just the fact that the system boot memory test takes 3-4 times as long with 8G or ram then with 4G of ram. I then boot a 64 bit kernel on the system and never use PAE mode again :-)
+>>>>
+>>>> if you can point me at a utility that will test the speed of the memory in different chunks I'll do some testing on the Opteron systems I have available. unfortunantly I don't have any Xeon systems to test this on.
+>>>
+>>> Mmm. 64-bit uniproc systems, with > 4GB of RAM, running a 32 bit kernel
+>>> don't really strike me as a huge market segment ;-)
+>>
+>> true, but there are a lot of 32-bit uniproc systems sold by Intel that have (or can have) more then 4G of ram. These are the machines I was thinking of.
+>
+> Does your opteron box have more than 1 socket? that'd explain it.
 
-Right.  
+yes, but I see the same 4G breakpoint no matter what the memory config 
+(including one dual proc machine with 16G, if it was a matter of hitting 
+memory connected to the other socket I would expect the slowdown at 8G, 
+not at 4G)
 
-> Also, the structure is there to avoid touching cachelines whenever
-> possible so it makes sense to use it early here. Do you have any
-> performance numbers or allocation statistics (e.g. %pcp hits) to
-> show?
-> 
+> Anyway, it shouldn't happen on any normal platform. Until we get
+> numbers that prove that it does (and understand why), I don't think
+> we need NUMA for PAE.
 
-No, I don't have any data at this point to share.
+Ok, if nobody else is seeing any slowdown.
 
-> Also, I would really think about uninlining get_page_from_freelist,
-> and inlining buffered_rmqueue, so that the constant 'replenish'
-> argument can be propogated into buffered_rmqueue and should allow
-> for some nice optimisations. While not bloating the code too much
-> because your get_page_from_freelist becomes out of line.
+David Lang
 
-I will do that.
-
-Thanks for your feedback,
--rohit
-
+-- 
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare

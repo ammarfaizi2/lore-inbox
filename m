@@ -1,71 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbVJCH12@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbVJCH1O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932170AbVJCH12 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 03:27:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932171AbVJCH12
+	id S932164AbVJCH1O (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 03:27:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbVJCH1O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 03:27:28 -0400
-Received: from us02smtp1.synopsys.com ([198.182.60.75]:14808 "EHLO
-	vaxjo.synopsys.com") by vger.kernel.org with ESMTP id S932170AbVJCH11 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 03:27:27 -0400
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
-Subject: RE: Shared library holes in x86_64
-Date: Mon, 3 Oct 2005 12:57:17 +0530
-Message-ID: <7EC22963812B4F40AE780CF2F140AFE9168367@IN01WEMBX1.internal.synopsys.com>
-Thread-Topic: Shared library holes in x86_64
-Thread-Index: AcXH6qR6GWAPK4uNRBKKHWabNwx7CAAADdug
-From: "Arijit Das" <Arijit.Das@synopsys.com>
-To: "Jakub Jelinek" <jakub@redhat.com>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 03 Oct 2005 07:27:26.0137 (UTC) FILETIME=[E7472A90:01C5C7EB]
+	Mon, 3 Oct 2005 03:27:14 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:56018 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S932164AbVJCH1N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 03:27:13 -0400
+Date: Mon, 3 Oct 2005 00:26:47 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Magnus Damm <magnus.damm@gmail.com>
+Cc: haveblue@us.ibm.com, magnus@valinux.co.jp, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 00/07][RFC] i386: NUMA emulation
+Message-Id: <20051003002647.25dccc47.pj@sgi.com>
+In-Reply-To: <aec7e5c30510022259v46316af2wff1ee92f1ce3d288@mail.gmail.com>
+References: <20050930073232.10631.63786.sendpatchset@cherry.local>
+	<1128093825.6145.26.camel@localhost>
+	<20051002202157.7b54253d.pj@sgi.com>
+	<aec7e5c30510022205o770b6335o96d9a9d9cc5d7397@mail.gmail.com>
+	<20051002223352.6d21a8bc.pj@sgi.com>
+	<aec7e5c30510022259v46316af2wff1ee92f1ce3d288@mail.gmail.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Jakub...
+Magnus wrote:
+> I think I will stick with the advice from Takahashi-san
 
-I didn't get the exact reason in the previous thread...so rephrased my
-question to make it more specific this time.
+Yes - Takahashi-san gives much better advice than an eight-ball.
 
-> x86-64 binaries and shared libraries are required to handle page sizes
-up
-> to 1MB and as RE and RW segments can't be on the same page, this means
-they 
-> must not share the same 1MB page.
-
-This is what I was looking at...
-
-Thanks a lot.
-
--Arijit
-
-
------Original Message-----
-From: Jakub Jelinek [mailto:jakub@redhat.com] 
-Sent: Monday, October 03, 2005 12:48 PM
-To: Arijit Das
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Shared library holes in x86_64
-
-On Mon, Oct 03, 2005 at 12:00:05PM +0530, Arijit Das wrote:
-> If I strace a "/bin/sleep 23" command in a RHAS3.0/x86-AMD64 machine,
-I
-> see that holes are being created in some of the mapped shared
-libraries
-> using the mprotect system call like this:
-
-I explained it 3 days ago, so once again:
-x86-64 binaries and shared libraries are required to handle page sizes
-up
-to 1MB and as RE and RW segments can't be on the same page, this means
-they
-must not share the same 1MB page.
-Just google for ELF_MAXPAGESIZE or look at the libraries using readelf
--Wl.
-
-	Jakub
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

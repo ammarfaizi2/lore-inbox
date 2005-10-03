@@ -1,40 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932094AbVJCAfQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbVJCAoz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932094AbVJCAfQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Oct 2005 20:35:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbVJCAfQ
+	id S932096AbVJCAoz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Oct 2005 20:44:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932098AbVJCAoz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Oct 2005 20:35:16 -0400
-Received: from dsl017-059-136.wdc2.dsl.speakeasy.net ([69.17.59.136]:56763
-	"EHLO luther.kurtwerks.com") by vger.kernel.org with ESMTP
-	id S932094AbVJCAfP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Oct 2005 20:35:15 -0400
-Date: Sun, 2 Oct 2005 20:38:01 -0400
-From: Kurt Wall <kwall@kurtwerks.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-Message-ID: <20051003003801.GB2440@kurtwerks.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20051002204703.GG6290@lkcl.net> <20051002224957.GA19408@infradead.org>
+	Sun, 2 Oct 2005 20:44:55 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:28327 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S932096AbVJCAoy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Oct 2005 20:44:54 -0400
+Date: Sun, 2 Oct 2005 17:44:17 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Coywolf Qi Hunt <coywolf@gmail.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, jgarzik@pobox.com, rdunlap@xenotime.net,
+       linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: [PATCHv3] Document from line in patch format
+Message-Id: <20051002174417.5819f619.pj@sgi.com>
+In-Reply-To: <2cd57c900510021728w61030c65n1dd965dc224ebdd7@mail.gmail.com>
+References: <20051002215222.4444.51101.sendpatchset@jackhammer.engr.sgi.com>
+	<2cd57c900510021728w61030c65n1dd965dc224ebdd7@mail.gmail.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051002224957.GA19408@infradead.org>
-User-Agent: Mutt/1.4.2.1i
-X-Operating-System: Linux 2.6.12.3
-X-Woot: Woot!
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 02, 2005 at 11:49:57PM +0100, Christoph Hellwig took 8 lines to write:
-> Let's hope these posts will stop when the UK starts to allow serving
-> drinks after 23:00.  Post from half-drunk people that need to get a life
-> don't really help a lot.
+coywolf wrote:
+> I guess you mean
+> <http://sosdg.org/~coywolf/lxr/source/Documentation/CodingStyle> here.
 
-As posts from fully drunk people will help, either, albeit they might be
-more entertaining.
+Yup.
 
-Kurt
+I got distracted looking around your reincarnated lxr site,
+and loss track of what I came there for.
+
 -- 
-Violence is the last refuge of the incompetent.
-		-- Salvor Hardin
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

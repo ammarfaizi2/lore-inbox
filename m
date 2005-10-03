@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751168AbVJCR5B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbVJCR64@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751168AbVJCR5B (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 13:57:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbVJCR5B
+	id S1751169AbVJCR64 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 13:58:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbVJCR64
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 13:57:01 -0400
-Received: from dvhart.com ([64.146.134.43]:6291 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S1751168AbVJCR5A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 13:57:00 -0400
-Date: Mon, 03 Oct 2005 10:56:57 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Rohit Seth <rohit.seth@intel.com>
-Cc: Paul Jackson <pj@sgi.com>, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc2-mm1 (Oops, possibly Netfilter related?)
-Message-ID: <102290000.1128362217@[10.10.2.4]>
-In-Reply-To: <1128360043.8472.23.camel@akash.sc.intel.com>
-References: <20050921222839.76c53ba1.akpm@osdl.org> <4338F136.1020404@reub.net><20050927004410.29ab9c03.akpm@osdl.org> <925820000.1127847556@flay> <20051002101319.659afcde.pj@sgi.com> <48080000.1128288669@[10.10.2.4]> <1128360043.8472.23.camel@akash.sc.intel.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Mon, 3 Oct 2005 13:58:56 -0400
+Received: from [64.162.99.240] ([64.162.99.240]:41021 "EHLO
+	spamtest2.viacore.net") by vger.kernel.org with ESMTP
+	id S1751169AbVJCR6z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 13:58:55 -0400
+Message-ID: <434170E1.60208@spamtest.viacore.net>
+Date: Mon, 03 Oct 2005 10:56:49 -0700
+From: Joe Bob Spamtest <joebob@spamtest.viacore.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050923 Fedora/1.7.12-1.5.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel?
+References: <20051002204703.GG6290@lkcl.net> <Pine.LNX.4.63.0510021704210.27456@cuia.boston.redhat.com> <20051002230545.GI6290@lkcl.net> <54300000.1128297891@[10.10.2.4]> <20051003011041.GN6290@lkcl.net>
+In-Reply-To: <20051003011041.GN6290@lkcl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> mm-try-to-allocate-higher-order-pages-in-rmqueue_bulk patch tries to
-> allocate more physical contiguous pages for pcp.  This would cause some
-> extra fragmentation at the higher orders but has the potential benefit
-> of spreading more uniformly across caches.  I agree though that for this
-> scheme to work nicely we should have the capability of draining the pcps
-> so that higher order requests can be serviced whenever possible.
+Luke Kenneth Casson Leighton wrote:
+>  p.s. martin.  _don't_ do that again.  i don't care who you are:
+>  internet archives are forever and your rudeness will be noted
+>  by google-users and other search-users - long after you are dead.
 
-Unfortunately, I don't think it's that simple. We'll end up taking the
-higher order elements from the buddy into the caches, and using them
-all piecemeal - ie fragmenting it all. 
+and who are you, the thought police? Get off your high horse.
 
-If we take lists of 0 order pages from the buddy, we're trying to use
-whatever dross was left over in there (from a fragmentation point of view)
-up first, before breaking into the more precious stuff (phys contig bits).
+I'm sure he's well aware of the consequences of posting to this list, as 
+I'm sure we all are. Hell, even *I* know all my mails to this list are 
+going to be archived for eternity.
 
-That was why I wrote it that way in the first place - it wasn't 
-accidental ;-)
-
->From the direction the thread was going in previously, it sounded like
-you were finding other ways to alleviate the colouring issue you were
-seeing ... I was hoping that would fix it up enough the desire for higher
-order allocations would disappear.
-
-To be blunt about it ... making sure that we don't fall over on higher 
-order allocs seems to me to be more important than a bit of variability 
-in benchmark runs ...
-
-M.
-
+Look, if you want to be a productive member of our community, stop 
+bitching about the way things *should* be, and submit some patches like 
+everyone else. Code talks. Bullshit ... well, it doesn't do much but sit 
+around stinking the place up.
 

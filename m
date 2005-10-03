@@ -1,56 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932459AbVJCXQw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932655AbVJCXRl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932459AbVJCXQw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 19:16:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932655AbVJCXQw
+	id S932655AbVJCXRl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 19:17:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932695AbVJCXRl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 19:16:52 -0400
-Received: from smtp-out-01.utu.fi ([130.232.202.171]:11221 "EHLO
-	smtp-out-01.utu.fi") by vger.kernel.org with ESMTP id S932459AbVJCXQw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 19:16:52 -0400
-Date: Tue, 04 Oct 2005 02:16:36 +0300
-From: Jan Knutar <jk-lkml@sci.fi>
-Subject: Re: CD writer is burning with open tray
-In-reply-to: <20050929162836.GA20178@csclub.uwaterloo.ca>
-To: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
-Cc: linux-kernel@vger.kernel.org
-Message-id: <200510040216.36796.jk-lkml@sci.fi>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-References: <20050929141924.GA6512@kestrel>
- <20050929162836.GA20178@csclub.uwaterloo.ca>
-User-Agent: KMail/1.6.2
+	Mon, 3 Oct 2005 19:17:41 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:3483 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932655AbVJCXRl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 19:17:41 -0400
+Date: Tue, 4 Oct 2005 01:17:15 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [swsusp] separate snapshot functionality to separate file
+Message-ID: <20051003231715.GA17458@elf.ucw.cz>
+References: <20051002231332.GA2769@elf.ucw.cz> <200510032339.08217.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200510032339.08217.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 29 September 2005 19:28, you wrote:
-> You should never need to use
-> the emergency eject option unless you have a power failure and need a
-> disc out badly, or the drive is broken and no longer installed in a
-> machine and you need a disc removed from it.  It should not be used
-> while the drive is powered.
+Hi!
 
-Actually that is not quite true under Linux in all circumstances. There seems
-to be no way to interrupt a mount attempt under Linux. I've sent a kill -9 to
-the mount process, went to bed, and it was still attempting to read the disc
-when I woke up 8 hours later. I'm not sure if it was due to bad firmware, or
-due to Linux retrying failed read requests too many times. Somehow I would
-except though, that sending kill -9 to the process in question would also try
-abort the pending request rather than retrying it indefinitely.
-Ejecting the disc with needle in emergency eject hole always made Linux give up
-and mount fail, though, luckily saving me from reboot.
+> > Split swsusp.c into swsusp.c and snapshot.c. Snapshot only cares
+> > provides system snapshot/restore functionality, while swsusp.c will
+> > provide disk i/o. It should enable untangling of the code in future;
+> > swsusp.c parts can mostly be done in userspace.
+> > 
+> > No code changes.
+> 
+> I think that the functions:
+> 
+> read_suspend_image()
+> read_pagedir()
+> swsusp_pagedir_relocate() (BTW, why there's "swsusp_"?)
+> check_pagedir() (BTW, misleading name)
+> data_read()
+> eat_page()
+> get_usable_page()
+> free_eaten_memory()
+> 
+> should be moved to snapshot.c as well, because they are in fact
+> symmetrical to what's there (they perform the reverse of creating
+> the snapshot and use analogous data structures).  IMO the code
+> change required would not be so drammatic and all of the functions
+> that _operate_ on the snapshot would be in the same file.
 
-It's even worse on IDE where it can block all devices on the same channel, then
-you have some pages on another device on same channel which are needed in
-order to execute kill -9 or advance the cursor in your xterm :) Then you don't even
-have choice of trying a kill -9 first...
-Call me impatient, I usually give it a day or two after ^C and kill -9 before I resort
-to emergency eject on the drive. I had a system once where even that didn't unwedge
-things, I had to unplug the power from the IDE device in question before things unlocked.
-Sure, it resulted in lots of nasty messages in dmesg and in the smartd log on the other
-device on same IDE channel, but no data corruption luckily.
+No. read_suspend_image/read_pagedir/data_read is image reading. That
+does not belong to snaphost. The rest is notthat clear, but I have it
+working in userspace.
 
-Hardware kinda sucks.
+Image creation is still done in kernel space, but I think that kernel
+<-> user interface is going to be cleaner that way, and I do not think
+pushing it to user is so huge win.
+
+Yes, names are not ideal, but that will be followup patch.
+								Pavel
+-- 
+if you have sharp zaurus hardware you don't need... you know my address

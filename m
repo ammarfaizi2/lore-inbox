@@ -1,67 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932145AbVJCELq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbVJCER0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932145AbVJCELq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 00:11:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbVJCELq
+	id S932146AbVJCER0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 00:17:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbVJCERZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 00:11:46 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:56582 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S932145AbVJCELq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 00:11:46 -0400
-Date: Mon, 3 Oct 2005 06:04:43 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-Message-ID: <20051003040443.GB22601@alpha.home.local>
-References: <20051002204703.GG6290@lkcl.net> <20051002224957.GA19408@infradead.org> <20051002232416.GK6290@lkcl.net>
+	Mon, 3 Oct 2005 00:17:25 -0400
+Received: from smtpout4.uol.com.br ([200.221.4.195]:17911 "EHLO
+	smtp.uol.com.br") by vger.kernel.org with ESMTP id S932146AbVJCERZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 00:17:25 -0400
+Date: Mon, 3 Oct 2005 01:17:19 -0300
+From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
+To: Grant Coady <grant_lkml@dodo.com.au>
+Cc: Nigel Cunningham <ncunningham@cyclades.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Strange disk corruption with Linux >= 2.6.13
+Message-ID: <20051003041719.GA5576@ime.usp.br>
+Mail-Followup-To: Grant Coady <grant_lkml@dodo.com.au>,
+	Nigel Cunningham <ncunningham@cyclades.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20050927111038.GA22172@ime.usp.br> <1127863912.4802.52.camel@localhost> <20051001213655.GE6397@ime.usp.br> <oh8uj15lvipg3bshv7j82j27j11l67ds49@4ax.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20051002232416.GK6290@lkcl.net>
-User-Agent: Mutt/1.5.10i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <oh8uj15lvipg3bshv7j82j27j11l67ds49@4ax.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 03, 2005 at 12:24:16AM +0100, Luke Kenneth Casson Leighton wrote:
-> On Sun, Oct 02, 2005 at 11:49:57PM +0100, Christoph Hellwig wrote:
-> > Let's hope these posts will stop when the UK starts to allow serving
-> > drinks after 23:00.  Post from half-drunk people that need to get a life
-> > don't really help a lot.
+Hi, Grant, Nigel and others following this thread.
+
+On Oct 02 2005, Grant Coady wrote:
+> On Sat, 1 Oct 2005 18:36:55 -0300, Rogério Brito <rbrito@ime.usp.br> wrote:
+> >I removed what was extracted right away and tried again to extract
+> >the tree (at this point, suspecting even that something in software
+> >had problems). The problem with bzip2 occurred again. Then, I
+> >rebooted the system an the problem magically went away.
 > 
->  hi, christoph,
-> 
->  i assume that your global world-wide distribution of this message
->  was a mistake on your part.  but, seeing as it _has_ gone out to
->  literally thousands of extremely busy people, i can only apologise
->  to them on your behalf for the mistake of wasting their valuable
->  time.
+> This rings a bell, recently I reported a problem:
+>   http://www.uwsg.iu.edu/hypermail/linux/kernel/0508.1/1332.html
 
-If you think this, you don't know Christoph then. We all know him
-for his "warm words" and his frankness. Sometimes he may be quite
-a bit excessive, but here I tend to agree with him. He simply meant
-that these long threads are often totally useless and consume a lot
-of time to real developers. Generally speaking, calling developers
-to tell them "hey, you work the wrong way" is not productive. If you
-tell them that you can improve their work and show some code, it's
-often more appreciated. Yes I know you provided some links to sites,
-but without proposing one real guideline nor project. You'd better
-have posted something like "announce: merging of l4linux into
-mainline" and telling people that you will start a slow, non-intrusive
-merging work of one of your favorite project. You'd have got lots
-of opposition but this would have been more productive than just
-speaking about philosophy.
+Thanks for the information. I am on-and-off experimenting with
+goldmemory and memtester86+ to see if I can find something with more
+than 512MB that is stable.
 
->  let's also hope that people who believe that comments such as the one
->  that you have made are useful and productive also think about the
->  consequences of doing so, bear in mind that internet archives are
->  forever, and also that they check whether the person that they are
->  criticising drinks at _all_.
+I am, right now, using 512MB + 256MB slowed down to PC100 speeds. It
+seems to be stable with this configuration (having survived some memory
+tests, the decoding of lots of FLAC files in a row and using the machine
+as usual---with low consumption things like mutt and browsing with
+lynx).
 
-[ cut all the uninteresting info about your drinking habits that you
-  sent to the whole world and which will be archived forever ]
+> Turned out to be bad memory stick :o)
 
-Regards,
-Willy
+The thing is that any stick alone doesn't seem to generate a problem.
+Only when they are used simultaneously
 
+I will test it more to see what may be wrong with my setup. :-( I still
+have not isolated and understood the problem completely. :-(
+
+
+Thanks for the feedback, Rogério.
+
+-- 
+Rogério Brito : rbrito@ime.usp.br : http://www.ime.usp.br/~rbrito
+Homepage of the algorithms package : http://algorithms.berlios.de
+Homepage on freshmeat:  http://freshmeat.net/projects/algorithms/

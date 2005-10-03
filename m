@@ -1,75 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbVJCFPw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750857AbVJCFTr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750834AbVJCFPw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 01:15:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750836AbVJCFPw
+	id S1750857AbVJCFTr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 01:19:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbVJCFTr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 01:15:52 -0400
-Received: from smtpout6.uol.com.br ([200.221.4.197]:754 "EHLO smtp.uol.com.br")
-	by vger.kernel.org with ESMTP id S1750834AbVJCFPv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 01:15:51 -0400
-Date: Mon, 3 Oct 2005 02:15:49 -0300
-From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
+	Mon, 3 Oct 2005 01:19:47 -0400
+Received: from bay104-f41.bay104.hotmail.com ([65.54.175.51]:5748 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S1750836AbVJCFTr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 01:19:47 -0400
+Message-ID: <BAY104-F41A96EAB08C0ED655EBA34DF800@phx.gbl>
+X-Originating-IP: [67.177.1.243]
+X-Originating-Email: [paveraware@hotmail.com]
+From: "Christensen Tom" <paveraware@hotmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Strange disk corruption with Linux >= 2.6.13
-Message-ID: <20051003051549.GD5576@ime.usp.br>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20050927111038.GA22172@ime.usp.br> <20050928084330.GC24760@viasys.com>
+Subject: tg3 and or pci-e bug
+Date: Mon, 03 Oct 2005 05:19:44 +0000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050928084330.GC24760@viasys.com>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 03 Oct 2005 05:19:46.0979 (UTC) FILETIME=[12106730:01C5C7DA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Ville.
+I have 3 supermicro systems based on the x6dal-tb2 motherboard.  It has 
+built in broadcom 5721 gig-e pci-e nics.  eth0 on these boxes fails whenever 
+a decent amount of data is pushed across them (decent being ~100Mb).  At 
+this point I can say when it fails I get these error messages in 
+/var/log/messages:
+Oct  2 19:08:53 office kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Oct  2 19:08:53 office kernel: tg3: eth0: transmit timed out, resetting
+Oct  2 19:08:53 office kernel: tg3: tg3_stop_block timed out, ofs=1400 
+enable_bit=2
+Oct  2 19:08:53 office kernel: tg3: tg3_stop_block timed out, ofs=c00 
+enable_bit=2
+Oct  2 19:08:53 office kernel: tg3: tg3_stop_block timed out, ofs=4800 
+enable_bit=2
+Oct  2 19:08:53 office kernel: tg3: eth0: Link is down.
 
-On Sep 28 2005, Ville Herva wrote:
-> You may be running into this problem:
-> 
-> http://www.uwsg.iu.edu/hypermail/linux/kernel/0207.2/0574.html
-> http://www.cs.helsinki.fi/linux/linux-kernel/2002-02/1727.html
-> http://www.cs.helsinki.fi/linux/linux-kernel/2002-01/1048.html
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=99889965423508&w=2               
-> 
-> (A google search will turn up more.)
-
-Thank you very much for these links. It seems that I may be not alone
-here, unfortunately. :-(
-
-> Placing network card to a different PCI slot helped somewhat as did
-> upgrading the bios.
-
-I have not played with the network cards, but I have already upgraded
-the BIOS firmware to the latest version that I could find (in the hope
-that I could get the Duron 1.3GHz being actually identified as such,
-instead of operating at 1.1GHz).
-
-> It seemed to be a KT133 Northbridge DMA issue. My impression is that
-> KT133 is utter crap period.
-
-Well, is this a problem particular with KT133 or is this a generic thing
-with VIA chipsets?
-
-I'm interested because I don't know the other chipset options that are
-Open Source friendly---it seems that Nvidia-based ones have to have
-reverse-engineered drivers (e.g., forcedeth), which is quite bad, IMO.
-
-I'm intenging to get another system as soon as the dust settles and
-x86_64 and SATA drives become mainstream enough to be readily available
-here in Brazil for reasonable prices.
-
-But, then, I'd be concerned in getting a chipset from an company that
-plays nice with Linux (and the *BSDs too, for that matter). Opinions are
-more than welcome.
+I made a cron job to log ifconfig output to a file every minute.  This shows 
+that the NIC resets itself at least every couple minutes when data is being 
+passed.  The TX/RX stats in ifconfig reset to 0.  The above message in 
+/var/log/messages doesn't happen every time the NIC resets like this.  I 
+think that the NIC is resetting because of some bug, and sometimes, the 
+reset fails and locks the NIC, creating the above messages.  The above only 
+happens once or twice a day, the other nic resets happen as I said every 2-3 
+minutes.  Is there any information that would be helpful in debugging this 
+problem?  Let me know what to run and I'll do it.  Eth1 never has this 
+problem, I have pushed 5GB+ onto the box over eth1 and it doesn't blink.
+Tom
 
 
-Thanks, Rogério Brito.
-
--- 
-Rogério Brito : rbrito@ime.usp.br : http://www.ime.usp.br/~rbrito
-Homepage of the algorithms package : http://algorithms.berlios.de
-Homepage on freshmeat:  http://freshmeat.net/projects/algorithms/

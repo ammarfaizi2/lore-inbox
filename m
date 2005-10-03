@@ -1,70 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932318AbVJCPxd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932311AbVJCPyC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932318AbVJCPxd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 11:53:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbVJCPxd
+	id S932311AbVJCPyC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 11:54:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbVJCPyC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 11:53:33 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:21916 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932310AbVJCPxc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 11:53:32 -0400
-Message-ID: <434153F6.2050405@pobox.com>
-Date: Mon, 03 Oct 2005 11:53:26 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Mon, 3 Oct 2005 11:54:02 -0400
+Received: from tiere.net.avaya.com ([198.152.12.100]:3513 "EHLO
+	tiere.net.avaya.com") by vger.kernel.org with ESMTP id S932311AbVJCPyA convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 11:54:00 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Lukasz Kosewski <lkosewsk@gmail.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH 2/3] Add disk hotswap support to libata RESEND #5
-References: <355e5e5e05092618018840fc3@mail.gmail.com>	 <433AEAAE.2070003@pobox.com>	 <1127949651.26686.11.camel@localhost.localdomain> <355e5e5e0510030819od4ef8e5l93708588990081da@mail.gmail.com>
-In-Reply-To: <355e5e5e0510030819od4ef8e5l93708588990081da@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [RFC PATCH] New SA_NOPRNOTIF sigaction flag
+Date: Mon, 3 Oct 2005 09:21:00 -0600
+Message-ID: <21FFE0795C0F654FAD783094A9AE1DFC0874921D@cof110avexu4.global.avaya.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [RFC PATCH] New SA_NOPRNOTIF sigaction flag
+Thread-Index: AcXHsTnUpYqU2fehT460YLtee0E1twAfDxkw
+From: "Davda, Bhavesh P \(Bhavesh\)" <bhavesh@avaya.com>
+To: "Daniel Jacobowitz" <dan@debian.org>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lukasz Kosewski wrote:
-> How about this; I want this SATA hotswapping stuff to be tested, so
-> I'll commit my patches for 'SATA only' for the time being.  I'll stare
-> at them for a while and then see what kind of PATA-specific if
-> statements and hooks are necessary in the code?
+> Hmm, the only problem with this is that it requires consensus on the
+> format of kernel sigsets.  Think about the 32-vs-64-bit compatibility
+> issues.
+> 
+> It should be cleared on PTRACE_DETACH, of course.  Do we even need the
+> GET functionality?  If not, is PTRACE_SET_IGNORE_SIGNAL 
+> taking a single
+> signal number sufficient?
 
-Ideally we should just create hooks for any SATA-specific behavior, and 
-ensure that nothing SATA-specific is written into any of the core paths.
+Thanks for reminding me about handling PTRACE_DETACH!
 
-One of the SATA controllers, Intel ICH5 & ICH6, does not have a hotplug 
-interrupt, but yet supports "coldplug":
+Yeah, we could go with PTRACE_SET_IGNORE_SIGNAL (signum), but we'll
+still need a sigset_t like structure in struct task_struct {}. I figured
+the PTRACE_SET_SIGIGN_MASK interface would be more flexible and
+efficient if someone wanted to have the debugger ignore a whole bunch of
+signals at once for a debuggee child.
 
-	* user indicates to kernel, to disable the SATA port
-	* kernel says "OK, it's disabled"
-	* user disconnects hard drive
-and
-	* SATA port is disabled
-	* user connects hard drive
-	* user indicates to kernel, to enable SATA port
-	* kernel says "OK, I've turned it on" and probes it
+But I agree, the GET interface is perhaps not required.
 
-This is a real-world, high-volume SATA case, yet it functionally behaves 
-like PATA.
+Okay, I'll whip out a preliminary patch, and you can all rip it apart if
+you find issues with it. Stay tuned...
 
-So that causes us to consider various entry points:
+Thanks for your comments, Daniel!
 
-* {something}, be it a hot-unplug interrupt or user write(2) to sysfs, 
-tells us a device is gone
-* {something}, be it a hot-plug interrupt or user write(2) to sysfs, 
-tells us a new device appeared
-
-So for either SATA or PATA, it should look similar in the core:  we just 
-need a "kick", a function call that triggers one of these two actions. 
-The handling of those actions [your code] should hopefully be pretty 
-generic.  ;-)
-
-Thanks for working on this!
-
-	Jeff
+- Bhavesh
 
 
+
+Bhavesh P. Davda | Distinguished Member of Technical Staff | Avaya |
+1300 West 120th Avenue | B3-B03 | Westminster, CO 80234 | U.S.A. |
+Voice/Fax: 303.538.4438 | bhavesh@avaya.com

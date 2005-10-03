@@ -1,64 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964774AbVJCVWl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932603AbVJCVWd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964774AbVJCVWl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 17:22:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964780AbVJCVWl
+	id S932603AbVJCVWd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 17:22:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932629AbVJCVWd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 17:22:41 -0400
-Received: from news.cistron.nl ([62.216.30.38]:13252 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S964772AbVJCVWj (ORCPT
+	Mon, 3 Oct 2005 17:22:33 -0400
+Received: from free.hands.com ([83.142.228.128]:39905 "EHLO free.hands.com")
+	by vger.kernel.org with ESMTP id S932603AbVJCVWc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 17:22:39 -0400
-From: dth@cistron.nl (Danny ter Haar)
-Subject: 2.6.14-rc2-mm2 barfed as well, was:  2.6.14-rc2-git8 crashed with scsi error after 40 hours
-Date: Mon, 3 Oct 2005 21:22:33 +0000 (UTC)
-Organization: Cistron
-Message-ID: <dhs7ep$i4l$1@news.cistron.nl>
-References: <dho4tc$ilc$1@news.cistron.nl>
-X-Trace: ncc1701.cistron.net 1128374553 18581 62.216.30.70 (3 Oct 2005 21:22:33 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: dth@cistron.nl (Danny ter Haar)
-To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+	Mon, 3 Oct 2005 17:22:32 -0400
+Date: Mon, 3 Oct 2005 22:22:27 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Valdis.Kletnieks@vt.edu
+Cc: Vadim Lobanov <vlobanov@speakeasy.net>, Rik van Riel <riel@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel?
+Message-ID: <20051003212227.GK8548@lkcl.net>
+References: <20051002204703.GG6290@lkcl.net> <Pine.LNX.4.63.0510021704210.27456@cuia.boston.redhat.com> <20051002230545.GI6290@lkcl.net> <Pine.LNX.4.58.0510021637260.28193@shell2.speakeasy.net> <20051003005400.GM6290@lkcl.net> <200510030255.j932toIK012248@turing-police.cc.vt.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200510030255.j932toIK012248@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-hands-com-MailScanner: Found to be clean
+X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Oct 02, 2005 at 10:55:49PM -0400, Valdis.Kletnieks@vt.edu wrote:
+> On Mon, 03 Oct 2005 01:54:00 BST, Luke Kenneth Casson Leighton said:
+> 
+> >  in the mid-80s), hardware cache line lookups (which means
+> >  instead of linked list searching, the hardware does it for
+> >  you in a single cycle), stuff like that.
+> 
+> OK.. I'll bite.  How do you find the 5th or 6th entry in the linked list,
+> when only the first entry is in cache, in a single cycle, when a cache line
+> miss is more than a single cycle penalty, and you have several "These are not
+> the droids you're looking for" checks and go on to the next entry - and do it
+> in one clock cycle?
+ 
+  i was not privy to the design discussions: unfortunately i was only
+  given brief conclusions and hints by the designer.
 
-2.6.14-rc2-mm2 just any other 2.6.1[34] kernel so far didn't get _my_
-sign of aproval ;-)
+  my guess is that yes, as the later messages in this thread
+  hint at, CAM is probably the key: 256 blocks of 32-bit CAM,
+  something like that.
 
-reboot   system boot  2.6.14-rc2-mm2   Sun Oct  2 10:05 - crash (1+13:15)
+  CAM is known to help dramatically decrease execution time
+  by orders of magnitude in linked list algorithms such as
+  searching and sorting, esp. where each CAM cell has built-in
+  processing, like the aspex.net massively-deep SIMD architecture has.
 
-----------
-scsi0:0:0:0: Attempting to queue an ABORT message:CDB: 0x2a 0x0 0x1 0xdc 0x49 0xca 0x0 0x0 0x8 0x0
-scsi0: At time of recovery, card was not paused
->>>>>>>>>>>>>>>>>> Dump Card State Begins <<<<<<<<<<<<<<<<<
-scsi0: Dumping Card State at program address 0x26 Mode 0x22
-Card was paused
-HS_MAILBOX[0x0] INTCTL[0xc0]:(SWTMINTEN|SWTMINTMASK)
-SEQINTSTAT[0x10]:(SEQ_SWTMRTO) SAVED_MODE[0x11]
-DFFSTAT[0x33]:(CURRFIFO_NONE|FIFO0FREE|FIFO1FREE)
-SCSISIGI[0x0]:(P_DATAOUT) SCSIPHASE[0x0] SCSIBUS[0x0]
-LASTPHASE[0x1]:(P_DATAOUT|P_BUSFREE) SCSISEQ0[0x0]
-SCSISEQ1[0x12]:(ENAUTOATNP|ENRSELI) SEQCTL0[0x0]
-SEQINTCTL[0x0] SEQ_FLAGS[0x0] SEQ_FLAGS2[0x0] SSTAT0[0x0]
-SSTAT1[0x0] SSTAT2[0x0] SSTAT3[0x0] PERRDIAG[0x0]
-SIMODE1[0xa4]:(ENSCSIPERR|ENSCSIRST|ENSELTIMO)
-LQISTAT0[0x0] LQISTAT1[0x0] LQISTAT2[0x0] LQOSTAT0[0x0]
-LQOSTAT1[0x0] LQOSTAT2[0xe1]:(LQOSTOP0|LQOPKT)
-
-SCB Count = 128 CMDS_PENDING = 32 LASTSCB 0x1a CURRSCB 0x1a NEXTSCB 0xff00
-qinstart = 27585 qinfifonext = 27585
-QINFIFO:
-WAITING_TID_QUEUES:
-Pending list:
- 36 FIFO_USE[0x0] SCB_CONTROL[0x60]:(TAG_ENB|DISCENB) SCB_SCSIID[0x7]
- 23 FIFO_USE[0x0] SCB_CONTROL[0x60]:(TAG_ENB|DISCENB) SCB_SCSIID[0x7]
-------------
-
-Full crash, dmesg/config etc @ http://newsgate.newsserver.nl/kernel/2.6.14-rc2-mm2/
-
-Now compiling 2.6.14-rc3-git3 ...
-
-Danny
+  l.
 

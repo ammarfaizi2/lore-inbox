@@ -1,94 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964771AbVJCTBl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932627AbVJCTDJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964771AbVJCTBl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 15:01:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932621AbVJCTBl
+	id S932627AbVJCTDJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 15:03:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932622AbVJCTDI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 15:01:41 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:44045 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932620AbVJCTBk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 15:01:40 -0400
-Message-ID: <43418036.9040501@tmr.com>
-Date: Mon, 03 Oct 2005 15:02:14 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kasper Sandberg <lkml@metanurb.dk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: error in 2.6.14-rc2/rc3 ipw2200 driver
-References: <1128140307.13334.6.camel@localhost>
-In-Reply-To: <1128140307.13334.6.camel@localhost>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 3 Oct 2005 15:03:08 -0400
+Received: from free.hands.com ([83.142.228.128]:19934 "EHLO free.hands.com")
+	by vger.kernel.org with ESMTP id S932626AbVJCTDH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 15:03:07 -0400
+Date: Mon, 3 Oct 2005 20:02:55 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Valdis.Kletnieks@vt.edu
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Vadim Lobanov <vlobanov@speakeasy.net>, Rik van Riel <riel@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel?
+Message-ID: <20051003190255.GC8548@lkcl.net>
+References: <200510030212.j932CcKT025910@laptop11.inf.utfsm.cl> <200510031632.j93GWZbY012554@turing-police.cc.vt.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200510031632.j93GWZbY012554@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-hands-com-MailScanner: Found to be clean
+X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kasper Sandberg wrote:
-> hello... i have a problem with the ipw2200 driver now merged into
-> 2.6.14-rc2..
+On Mon, Oct 03, 2005 at 12:32:35PM -0400, Valdis.Kletnieks@vt.edu wrote:
+> On Sun, 02 Oct 2005 22:12:38 EDT, Horst von Brand said:
 > 
-> it says in dmesg many things..
+> > >                                                                     some
+> > >  operating system primitives, such as message passing (based on a
+> > >  derivative by thompson of the "alice" project from plessey, imperial and
+> > >  manchester university in the mid-80s), hardware cache line lookups
+> > >  (which means instead of linked list searching, the hardware does it for
+> > >  you in a single cycle), stuff like that.
+> > 
+> > Single CPU cycle for searching data in memory? Impossible.
 > 
-> eth1 (WE) : Driver using old /proc/net/wireless support, please fix
-> driver !
-> ipw2200: failed to send RTS_THRESHOLD command
-> ipw2200: failed to send FRAG_THRESHOLD command
-> fglrx: Unknown symbol verify_area
-> ipw2200: failed to send POWER_MODE command
-> ipw2200: failed to send TX_POWER command
-> ipw2200: failed to send RTS_THRESHOLD command
-> ipw2200: No space for Tx
-> ipw2200: failed to send FRAG_THRESHOLD command
-> ipw2200: No space for Tx
-> ipw2200: failed to send POWER_MODE command
-> ipw2200: No space for Tx
-> ipw2200: failed to send TX_POWER command
-> 
-> the thing about using /proc/net/wireless comes a million times :) but
-> that doesent matter..
-> 
-> however, i also get more messages, i am unable to connect to a wireless
-> network right now, but whenever i do, it says that a firmware error
-> occurs, and that it restarts - it works fine, however i get this.. i
-> didnt using the ipw2200 module when it wasnt merged..
-> 
-> 
-> also, why merge version 1.0.0? this release gives many headaches, it
-> doesent work right, and doesent have monitor mode..
-> 
-> also, how come when i even myself replace ieee80211 and ipw2200 with
-> latest release, and compile, monitor mode doesent work? this seems odd..
-> 
-> 
-> i dont mean to be annoying or complain, but there are alot out there
-> with ipw2200.. and it just doesent work with all features in 2.6.14-rc2
-> (and i dont see any ipw2200/ieee80211 changes in rc3)
-> 
-> i would be very happy if you could update/fix the driver in the kernel,
-> it does not matter to me which version, just that it works, and monitor
-> mode would be really nice too..
+> Well... if it was content-addressable RAM similar to what's already used for
+> the hardware TLB's and the like - just that it's one thing to make a 32 or 256
+> location content-addressable RAM, and totally another to have multiple megabytes
+> of the stuff. :)
 
-If you look back in the list you will see that I asked a similar 
-question, and the answer was that v1.0.6 hasn't been sprinkled with holy 
-penguin pee by all the right people. There was an explanation of some 
-path the code has to take before it goes in the kernel, someone hasn't 
-pushed it, or signed it, or something I don't remember. The code follows 
-a signoff path through several people or groups, which is good for 
-tracking and QC, and bad for fix it now. In any case the base answer to 
-your question is "paperwork" and the fix is to pull the working driver 
-and latest wireless tools if you don't have them, and put them in yourself.
+ aspex microelectronics 4096 2-bit massively parallel SIMD
+ processor (does 1 terabit-ops / sec @ 250mhz which sounds a
+ lot until you try to do FPU emulation on it).
 
-After that I get a message that it could not load the firmware, followed 
-by the stream of crap you mentioned. I put it on the back burner about a 
-week ago, every month or so I check to see if I can get rid of Windows, 
-and every month the answer is "not without a lot of do it yourself 
-applied to each kernel update."
+ each 2-bit processor has 256 bits of content-addressable memory,
+ which can be 8-bit, 16-bit or 32-bit addressed (to make 4096 parallel
+ memory searches - in a single cycle).
 
-Drop-in ipw2200 support is getting closer, but it's not quite there yet. 
-Be patient or do it yourself, it is being worked on.
+ absolutely friggin blindingly fast for certain issues (video
+ processing, certain kinds of audio processing - e.g. FFTs,
+ XML and HTTP parsing), and pissed all over for others such
+ as doing floating point arithmetic.
+
+ but anyway: that's a side issue.  thanks for reminding me about CAM,
+ valdis.
+
+ l.
+
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+--
+<a href="http://lkcl.net">http://lkcl.net</a>
+--

@@ -1,76 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbVJDAOt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932729AbVJDAca@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932193AbVJDAOt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 20:14:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932731AbVJDAOt
+	id S932729AbVJDAca (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 20:32:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932732AbVJDAca
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 20:14:49 -0400
-Received: from gambit.vianw.pt ([195.22.31.34]:5315 "EHLO gambit.vianw.pt")
-	by vger.kernel.org with ESMTP id S932193AbVJDAOs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 20:14:48 -0400
-Message-ID: <4341C965.7020400@esoterica.pt>
-Date: Tue, 04 Oct 2005 01:14:29 +0100
-From: Paulo da Silva <psdasilva@esoterica.pt>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: util-linux and data encryption
-References: <4341567E.4050603@esoterica.pt> <20051003220729.GJ3652@stusta.de>
-In-Reply-To: <20051003220729.GJ3652@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 3 Oct 2005 20:32:30 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:62872 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932729AbVJDAca
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 20:32:30 -0400
+Subject: Re: [PATCH 1/3] Process Notification / pnotify
+From: Matt Helsley <matthltc@us.ibm.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: Erik Jacobson <erikj@sgi.com>, LKML <linux-kernel@vger.kernel.org>,
+       pagg@oss.sgi.com, "Chandra S. Seetharaman" <sekharan@us.ibm.com>
+In-Reply-To: <20051003124918.2a65ef41.pj@sgi.com>
+References: <20051003184644.GA19106@sgi.com>
+	 <20051003124918.2a65ef41.pj@sgi.com>
+Content-Type: text/plain
+Date: Mon, 03 Oct 2005 16:19:26 -0700
+Message-Id: <1128381567.12346.2569.camel@stark>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
+On Mon, 2005-10-03 at 12:49 -0700, Paul Jackson wrote:
+> Hmmm ... I notice with interest two notification patches posted in
+> the last few days to lkml:
+> 
+>   Matthew Helsley's Process Events Connector (posted 28 Sep 2005)
+>   Erik Jacobson's pnotify (posted 3 Oct 2005)
+> 
+> I suspect Matthew and Erik will both instantly hate me for asking, but
+> does it make sense to integrate these two?
+> 
+> If I understand these two proposals correctly:
+> 
+>     Helsley adds hooks in fork, exec, id change, and exit, to pass
+>     events to userspace.
+> 
+>     Jacobson adds hooks in fork, exec and exit, to pass events to
+>     kernel routines and loadable modules.
+> 
+> Perhaps, just brainstorming here, it would make sense for Halsley to
+> register with pnotify instead of adding his own hooks in parallel.
+> This presumes that pnotify is accepted into the kernel, and that
+> pnotify adds the id change hook that Helsley requires.
 
->On Mon, Oct 03, 2005 at 05:04:14PM +0100, Paulo da Silva wrote:
->
->  
->
->>If this is not the right place to post about
->>util-linux, please tell me where to post.
->>I'm posting here because util-linux is at kernel.org.
->>...
->>    
->>
->
->If you have problems with some software shipped with a distribution the
->best choice is usually the support / bug tracking system of your
->distribution.
->
->In your case, the problem seems to be already reported as Gentoo
->bug #107680 [1].
->
->  
->
->>BTW, I am using gentoo and I also tried USE=old-crypt.
->>No way!
->>
->>I needed to install the version 2.12i to recover
->>my information.
->>
->>Is this related with util-linux or has something
->>to do with gentoo patches or something?
->>...
->>    
->>
->
->You are using features not present in the upstream util-linux but added 
->by patches Gentoo applies.
->
->  
->
-*I am very sorry*.
-At first I did not think this could be a problem of gentoo.
-It just came up to my mind when I was writing this post.
-That's why I added the lines refering 'gentoo'!
-I should have looked at gentoo first ...
-I'll be more carefull next time, if there is a next time :-(
+Paul,
 
-Thank you anyway for your answer.
+	pnotify is extreme overkill for the process events connector. The
+per-task subscriber lists, data, inheritance of those lists, tasklist
+locking, and iteration over the lists are all overhead compared to the
+process events connector patch.
 
-Paulo
+	For the process events connector it makes more sense to have a global
+list of subscribers interested all tasks. If there are M kernel modules
+interested in getting events for all N tasks this would save space
+proportional to M*N compared to pnotify. Of course this means the
+elements of this list could not have per-task data.
+
+	I think per-task data should be split out from pnotify and submitted as
+a separate system used by pnotify. Maybe with a *_PER_TASK API similar
+to *_PER_CPU.
+
+Cheers,
+	-Matt Helsley
 

@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932687AbVJCUaq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932426AbVJCUkP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932687AbVJCUaq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 16:30:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932688AbVJCUap
+	id S932426AbVJCUkP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 16:40:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932522AbVJCUkP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 16:30:45 -0400
-Received: from free.hands.com ([83.142.228.128]:22496 "EHLO free.hands.com")
-	by vger.kernel.org with ESMTP id S932687AbVJCUao (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 16:30:44 -0400
-Date: Mon, 3 Oct 2005 21:30:37 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Joe Bob Spamtest <joebob@spamtest.viacore.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: what's next for the linux kernel?
-Message-ID: <20051003203037.GG8548@lkcl.net>
-References: <20051002204703.GG6290@lkcl.net> <Pine.LNX.4.63.0510021704210.27456@cuia.boston.redhat.com> <20051002230545.GI6290@lkcl.net> <54300000.1128297891@[10.10.2.4]> <20051003011041.GN6290@lkcl.net> <434170E1.60208@spamtest.viacore.net> <20051003185804.GB8548@lkcl.net> <43418834.6070400@spamtest.viacore.net>
+	Mon, 3 Oct 2005 16:40:15 -0400
+Received: from smtp-101-monday.nerim.net ([62.4.16.101]:64268 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S932426AbVJCUkO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 16:40:14 -0400
+Date: Mon, 3 Oct 2005 22:40:10 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Paul Jackson <pj@sgi.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Jeff Garzik <jgarzik@pobox.com>, Randy Dunlap <rdunlap@xenotime.net>,
+       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] Document patch subject line better
+Message-Id: <20051003224010.4920b10e.khali@linux-fr.org>
+In-Reply-To: <20051003085414.05468a2b.pj@sgi.com>
+References: <20051003072910.14726.10100.sendpatchset@jackhammer.engr.sgi.com>
+	<Pine.LNX.4.64.0510030805380.31407@g5.osdl.org>
+	<20051003085414.05468a2b.pj@sgi.com>
+X-Mailer: Sylpheed version 2.0.1 (GTK+ 2.6.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43418834.6070400@spamtest.viacore.net>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-MailScanner-From: lkcl@lkcl.net
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 03, 2005 at 12:36:20PM -0700, Joe Bob Spamtest wrote:
-> The point being: If and when the industry switches its focus to highly 
-> parallel systems, Linux will shortly follow. 
+Hi Paul,
 
- joe: hi, thanks for responding.  i believe this to be a very
- sound strategy, and given the technical expertise of the kernel
- developers i have confidence in their abilities to pull that off.
+> I send patches directly from my quilt patches directory.  The patches
+> file ends up being -exactly- the email message body.  I did put in a
+> "---", with a short comment about how this patch fit in with the
+> earlier ones of yesterday, and removed the "Index: " and "========="
+> lines that quilt adds.
 
- personally i find that i like a bit of a run-up and/or advance notice
- of major paradigm shifts.  on the basis that other people might also
- want to know, i initiated this discussion yesterday and it seems like
- forever already! :)
+FYI, quilt 0.41 and above have a --no-index option to the refresh
+command, which will avoid this second annoyance. You can simply add the
+following to ~/.quiltrc:
 
- l.
+QUILT_NO_DIFF_INDEX=1
 
- oh, and joe?  my wife is the one with the high horse, not me.
- she qualified for the national british dressage championships which
- was last month, and came 17th in the country, at elementary
- level, on her beautiful pony, blue.  i am very proud of her.
+And the default behavior will be changed to match Linus' requirements.
 
- http://www.bdchampionships.co.uk
+-- 
+Jean Delvare

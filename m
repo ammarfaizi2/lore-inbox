@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932642AbVJCTVX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932644AbVJCT1F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932642AbVJCTVX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 15:21:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932644AbVJCTVX
+	id S932644AbVJCT1F (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 15:27:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932650AbVJCT1F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 15:21:23 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:53510 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932642AbVJCTVW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 15:21:22 -0400
-Message-ID: <434184CA.7000106@tmr.com>
-Date: Mon, 03 Oct 2005 15:21:46 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: James Courtier-Dutton <James@superbug.co.uk>
-CC: Ahmad Reza Cheraghi <a_r_cheraghi@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Why no XML in the Kernel?
-References: <20051002094142.65022.qmail@web51012.mail.yahoo.com> <433FAD57.7090106@yahoo.com.au> <433FBE59.8000806@superbug.co.uk>
-In-Reply-To: <433FBE59.8000806@superbug.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 3 Oct 2005 15:27:05 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:17366 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S932644AbVJCT1E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 15:27:04 -0400
+Date: Mon, 3 Oct 2005 12:27:14 -0700
+From: Deepak Saxena <dsaxena@plexity.net>
+To: Jiri Slaby <lnx4us@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [I2C] kmalloc + memset -> kzalloc conversion
+Message-ID: <20051003192714.GA3686@plexity.net>
+Reply-To: dsaxena@plexity.net
+References: <20051001073631.GK25424@plexity.net> <3888a5cd0510010432h52ede401g6fe34b7f93a3c342@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3888a5cd0510010432h52ede401g6fe34b7f93a3c342@mail.gmail.com>
+Organization: Plexity Networks
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Courtier-Dutton wrote:
-> Nick Piggin wrote:
-> 
->> Ahmad Reza Cheraghi wrote:
->>
->>> Can somebody tell me why the Kernel-Development dont
->>> wanne have XML is being used in the Kernel??
->>>
->>
->> Because nobody has come up with a good reason why it
->> should be. Same as anything that isn't in the kernel.
->>
->> Nick
->>
-> I have a requirement to pass information from the kernel to user space. 
-> The information is passed fairly rarely, but over time extra parameters 
-> are added. At the moment we just use a struct, but that means that the 
-> kernel and the userspace app have to both keep in step. If something 
-> like XML was used, we could implement new parameters in the kernel, and 
-> the user space could just ignore them, until the user space is upgraded.
-> XML would initially seem a good idea for this, but are there any methods 
-> currently used in the kernel that could handle these parameter changes 
-> over time.
-> 
-> For example, should the sysfs be used for this?
-> 
-> Any comments?
+On Oct 01 2005, at 13:32, Jiri Slaby was caught saying:
+> On 10/1/05, Deepak Saxena <dsaxena@plexity.net> wrote:
+> > +       iface = (struct keywest_iface *) kzalloc(tsize, GFP_KERNEL);
+> cast isn't needed
+> > +       if (!(smbuses = (void *)kzalloc(2*sizeof(struct nforce2_smbus),
+> >                                         GFP_KERNEL)))
+> cast from (void*) to (void*)? No...
 
-For decades people have been solving this with key:value, ignoring 
-unknown keys. And using nice text format eliminates any endian and word 
-size issues.
+Agree...but I'm just doing kzalloc changes for now and if I started
+cleaning every piece of ugly or bloated code in the kernel, I would 
+spend the rest of my life looking at drivers/ACPI.
 
-XML sounds like overkill for problems of this type.
+~Deepak
 
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Deepak Saxena - dsaxena@plexity.net - http://www.plexity.net
+
+Even a stopped clock gives the right time twice a day.

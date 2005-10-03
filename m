@@ -1,45 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932670AbVJCTs6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932674AbVJCTt2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932670AbVJCTs6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 15:48:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932665AbVJCTs6
+	id S932674AbVJCTt2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 15:49:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932663AbVJCTt1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 15:48:58 -0400
-Received: from qproxy.gmail.com ([72.14.204.201]:32789 "EHLO qproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932663AbVJCTs5 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 15:48:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=oIOWlIMO4sO0+xG5AAU4/U1NQa9zdvMGNRC/ruSHr0fKpO4DTV5uyMuxjNyYz9lN3yTZSQrWJfXOmmuQz1wUvFqXG80XyGNeoVlptvdp9jebnRDHBkl++HzdVi4ZYjaRBBnGNWvzHpHQ5zb3XLNStMUYHallyZGbl4IIUZcT/Mk=
-Message-ID: <105c793f0510031248p4fe5ce7dyd110e17f5e182eaf@mail.gmail.com>
-Date: Mon, 3 Oct 2005 15:48:56 -0400
-From: Andrew Haninger <ahaning@gmail.com>
-Reply-To: Andrew Haninger <ahaning@gmail.com>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: A possible idea for Linux: Save running programs to disk
-Cc: lokum spand <lokumsspand@hotmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20051003185923.GG3652@stusta.de>
-MIME-Version: 1.0
+	Mon, 3 Oct 2005 15:49:27 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:53649 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932665AbVJCTt0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 15:49:26 -0400
+Date: Mon, 3 Oct 2005 12:49:18 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Erik Jacobson <erikj@sgi.com>, Matthew Helsley <matthltc@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, pagg@oss.sgi.com
+Subject: Re: [PATCH 1/3] Process Notification / pnotify
+Message-Id: <20051003124918.2a65ef41.pj@sgi.com>
+In-Reply-To: <20051003184644.GA19106@sgi.com>
+References: <20051003184644.GA19106@sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <BAY105-F35A25DA28443029610815DA48E0@phx.gbl>
-	 <105c793f0510012236j16033efbh400f6f2a8495d03e@mail.gmail.com>
-	 <20051003174122.GD3652@stusta.de>
-	 <105c793f0510031152v76225bc7r83e5e2170f3434d5@mail.gmail.com>
-	 <20051003185923.GG3652@stusta.de>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/3/05, Adrian Bunk <bunk@stusta.de> wrote:
-> These are all software problems, not hardware problems.
->
-Okay. You're correct. I should have used the word "driver" instead of
-"hardware" in my original post.
+Hmmm ... I notice with interest two notification patches posted in
+the last few days to lkml:
 
-An idea as presented in the original post would be helpful with
-avoiding driver issues involved with software suspension.
+  Matthew Helsley's Process Events Connector (posted 28 Sep 2005)
+  Erik Jacobson's pnotify (posted 3 Oct 2005)
 
--Andy
+I suspect Matthew and Erik will both instantly hate me for asking, but
+does it make sense to integrate these two?
+
+If I understand these two proposals correctly:
+
+    Helsley adds hooks in fork, exec, id change, and exit, to pass
+    events to userspace.
+
+    Jacobson adds hooks in fork, exec and exit, to pass events to
+    kernel routines and loadable modules.
+
+Perhaps, just brainstorming here, it would make sense for Halsley to
+register with pnotify instead of adding his own hooks in parallel.
+This presumes that pnotify is accepted into the kernel, and that
+pnotify adds the id change hook that Helsley requires.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

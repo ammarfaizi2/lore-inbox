@@ -1,71 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbVJCPya@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbVJCP5J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932319AbVJCPya (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 11:54:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932321AbVJCPya
+	id S932323AbVJCP5J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 11:57:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbVJCP5J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 11:54:30 -0400
-Received: from dvhart.com ([64.146.134.43]:64146 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S932319AbVJCPy3 (ORCPT
+	Mon, 3 Oct 2005 11:57:09 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:53956 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S932323AbVJCP5I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 11:54:29 -0400
-Date: Mon, 03 Oct 2005 08:54:31 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: Magnus Damm <magnus.damm@gmail.com>, Dave Hansen <haveblue@us.ibm.com>,
-       Magnus Damm <magnus@valinux.co.jp>, linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 00/07][RFC] i386: NUMA emulation
-Message-ID: <93300000.1128354870@[10.10.2.4]>
-In-Reply-To: <Pine.LNX.4.62.0510030831550.11541@qynat.qvtvafvgr.pbz>
-References: dlang@dlang.diginsite.com <Pine.LNX.4.62.0510030802090.11541@qynat.qvtvafvgr.pbz> <83890000.1128352138@[10.10.2.4]> <Pine.LNX.4.62.0510030810290.11541@qynat.qvtvafvgr.pbz> <86300000.1128353125@[10.10.2.4]> <Pine.LNX.4.62.0510030831550.11541@qynat.qvtvafvgr.pbz>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 3 Oct 2005 11:57:08 -0400
+Subject: Re: [patch] drivers/ide/pci/alim15x3.c SMP fix
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Rui Nuno Capela <rncbc@rncbc.org>
+In-Reply-To: <20051003065032.GA23777@elte.hu>
+References: <20050901072430.GA6213@elte.hu>
+	 <1125571335.15768.21.camel@localhost.localdomain>
+	 <20051003065032.GA23777@elte.hu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Date: Mon, 03 Oct 2005 17:24:48 +0100
+Message-Id: <1128356688.26992.6.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Llu, 2005-10-03 at 08:50 +0200, Ingo Molnar wrote:
+> so perhaps part of the solution would be to do the initialization under 
+> the IDE lock, via the patch below? It boots fine on my box so the basic 
+> codepaths seem to be OK. Then the retuning codepaths need to be checked 
+> to make sure they are holding the IDE lock.
 
+The initialisation can take several seconds. Some controller paths may
+also sleep so you would need to do a full audit first.
 
---David Lang <david.lang@digitalinsight.com> wrote (on Monday, October 03, 2005 08:32:47 -0700):
-
-> On Mon, 3 Oct 2005, Martin J. Bligh wrote:
-> 
->> --David Lang <david.lang@digitalinsight.com> wrote (on Monday, October 03, 2005 08:13:09 -0700):
->> 
->>> On Mon, 3 Oct 2005, Martin J. Bligh wrote:
->>> 
->>>> --David Lang <david.lang@digitalinsight.com> wrote (on Monday, October 03, 2005 08:03:44 -0700):
->>>> 
->>>>> On Mon, 3 Oct 2005, Martin J. Bligh wrote:
->>>>> 
->>>>>> But that's not the same at all! ;-) PAE memory is the same speed as
->>>>>> the other stuff. You just have a 3rd level of pagetables for everything.
->>>>>> One could (correctly) argue it made *all* memory slower, but it does so
->>>>>> in a uniform fashion.
->>>>> 
->>>>> is it? I've seen during the memory self-test at boot that machines slow down noticably as they pass the 4G mark.
->>>> 
->>>> Not noticed that, and I can't see why it should be the case in general,
->>>> though I suppose some machines might be odd. Got any numbers?
->>> 
->>> just the fact that the system boot memory test takes 3-4 times as long with 8G or ram then with 4G of ram. I then boot a 64 bit kernel on the system and never use PAE mode again :-)
->>> 
->>> if you can point me at a utility that will test the speed of the memory in different chunks I'll do some testing on the Opteron systems I have available. unfortunantly I don't have any Xeon systems to test this on.
->> 
->> Mmm. 64-bit uniproc systems, with > 4GB of RAM, running a 32 bit kernel
->> don't really strike me as a huge market segment ;-)
-> 
-> true, but there are a lot of 32-bit uniproc systems sold by Intel that have (or can have) more then 4G of ram. These are the machines I was thinking of.
-
-Does your opteron box have more than 1 socket? that'd explain it.
-
-Anyway, it shouldn't happen on any normal platform. Until we get 
-numbers that prove that it does (and understand why), I don't think
-we need NUMA for PAE.
-
-M.
+Alan
 

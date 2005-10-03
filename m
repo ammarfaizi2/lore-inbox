@@ -1,39 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbVJCO6g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932269AbVJCO7m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932261AbVJCO6g (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 10:58:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750987AbVJCO6g
+	id S932269AbVJCO7m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 10:59:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750994AbVJCO7m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 10:58:36 -0400
-Received: from quark.didntduck.org ([69.55.226.66]:15240 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id S1750971AbVJCO6f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 10:58:35 -0400
-Message-ID: <4341476A.80809@didntduck.org>
-Date: Mon, 03 Oct 2005 10:59:54 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: en-us, en
+	Mon, 3 Oct 2005 10:59:42 -0400
+Received: from dvhart.com ([64.146.134.43]:56978 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S1750987AbVJCO7l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 10:59:41 -0400
+Date: Mon, 03 Oct 2005 07:59:43 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: David Lang <dlang@digitalinsight.com>, Magnus Damm <magnus.damm@gmail.com>
+Cc: Dave Hansen <haveblue@us.ibm.com>, Magnus Damm <magnus@valinux.co.jp>,
+       linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 00/07][RFC] i386: NUMA emulation
+Message-ID: <79580000.1128351582@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.62.0510030628150.11541@qynat.qvtvafvgr.pbz>
+References: <20050930073232.10631.63786.sendpatchset@cherry.local><1128093825.6145.26.camel@localhost><aec7e5c30510021908la86daf9je0584fb0107f833a@mail.gmail.com><Pine.LNX.4.62.0510030031170.11095@qynat.qvtvafvgr.pbz><aec7e5c30510030302u8186cfer642c7b9337613de@mail.gmail.com> <Pine.LNX.4.62.0510030628150.11541@qynat.qvtvafvgr.pbz>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: Paul Mundt <paul.mundt@nokia.com>
-CC: mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] mempool_alloc() pre-allocated object usage
-References: <20051003143634.GA1702@nokia.com>
-In-Reply-To: <20051003143634.GA1702@nokia.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Mundt wrote:
-> The downside to this is that some people may be expecting that
-> pre-allocated elements are used as reserve space for when regular
-> allocations aren't possible. In which case, this would break that
-> behaviour.
+> if nothing else preferential use of 'local' (non PAE) memory over 
+> 'remote' (PAE) memory for programs, while still useing it all as needed.
 
-This is the original intent of the mempool.  There must be objects in 
-reserve so that the machine doesn't deadlock on critical allocations 
-(ie. disk writes) under memory pressure.
+Why would you want to do that? ;-)
 
---
-				Brian Gerst
+> this may be done already, but this type of difference between the access 
+> speed of different chunks of ram seems to be exactly the type of thing 
+> that the NUMA code solves the general case for.
+
+It is! 
+
+> I'm thinking that it 
+> may end up simplifying things if the same general-purpose logic will 
+> work for the specific case of PAE instead of it being hard coded as 
+> a special case.
+
+But that's not the same at all! ;-) PAE memory is the same speed as
+the other stuff. You just have a 3rd level of pagetables for everything.
+One could (correctly) argue it made *all* memory slower, but it does so
+in a uniform fashion.
+
+M.
+

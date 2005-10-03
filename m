@@ -1,81 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932277AbVJCPT6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbVJCPXc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932277AbVJCPT6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 11:19:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751148AbVJCPTy
+	id S932279AbVJCPXc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 11:23:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932283AbVJCPXc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 11:19:54 -0400
-Received: from zproxy.gmail.com ([64.233.162.207]:9536 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751105AbVJCPTw convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 11:19:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=YoGhy37hnQ0g4Ryh8QUBa06bia1r/X7juu4UAtG4LIj+/c3WYSL3jjUnmx89OR3fHG/hjpExHqJSlalLMk9a0xNEsg8WzzIHCNgU9vGbu7DxnsOXaw12hIFaS8X2c6hxbOZ+YnTX4303cMGod0W9oUI0kRZSE6h+wCiupLeaEks=
-Message-ID: <355e5e5e0510030819od4ef8e5l93708588990081da@mail.gmail.com>
-Date: Mon, 3 Oct 2005 11:19:51 -0400
-From: Lukasz Kosewski <lkosewsk@gmail.com>
-Reply-To: Lukasz Kosewski <lkosewsk@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH 2/3] Add disk hotswap support to libata RESEND #5
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org
-In-Reply-To: <1127949651.26686.11.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 3 Oct 2005 11:23:32 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:35592 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932279AbVJCPXb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 11:23:31 -0400
+Date: Mon, 3 Oct 2005 16:23:12 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: David Brownell <david-b@pacbell.net>
+Cc: basicmark@yahoo.com, arjan@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] SPI subsystem
+Message-ID: <20051003152312.GH16717@flint.arm.linux.org.uk>
+Mail-Followup-To: David Brownell <david-b@pacbell.net>, basicmark@yahoo.com,
+	arjan@infradead.org, linux-kernel@vger.kernel.org
+References: <20051003105748.213.qmail@web33014.mail.mud.yahoo.com> <1128337656.17024.10.camel@laptopd505.fenrus.org> <20051003151457.AD64FEE8CE@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <355e5e5e05092618018840fc3@mail.gmail.com>
-	 <433AEAAE.2070003@pobox.com>
-	 <1127949651.26686.11.camel@localhost.localdomain>
+In-Reply-To: <20051003151457.AD64FEE8CE@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey Alan,
+On Mon, Oct 03, 2005 at 08:14:57AM -0700, David Brownell wrote:
+> > From: Arjan van de Ven <arjan@infradead.org>
+> > Date: Mon, 03 Oct 2005 13:07:36 +0200
+> >
+> > please NEVER EVER do dma from or to a stack variable. It's not allowed
+> > on all architectures and it is really really bad practice in general
+> > anyway. 
+> 
+> Arjan, could you mention some Linuxes which don't allow it?
+> 
+> Every time the topic of DMA to/from stack comes up, the advice is
+> always to avoid it ... but so far as I recall, nobody's yet provided
+> us with an example where it actually doesn't work.
+> 
+> Failing such examples, it's normal to discount such dire warnings and
+> just plan to apply the relevant minor tweaks if/when they're needed.
 
-On 9/28/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> For PATA the requirements I'm aware of are
->
-> -       Interface for user to say "am about to swap"
+I believe the issue is that you can't properly control the alignment
+to ensure that you don't inadvertantly dirty the cache lines
+corresponding with the memory you're performing DMA to/from.
 
-You mean something like "echo scsi-remove-single-device a b c d" >
-/proc/scsi/scsi?  I guess the sysfs equivalent?
+Eg, on ARM, if the memory you're DMAing to/from is just above the
+next stack location which will be used when you call a sub-function,
+you'll have just undone the effects of the DMA API.  Provided GCC
+decided to arrange the stack that way.
 
-> -       Interface for user to say "have swapped"
+Or maybe there's a local variable right next to the DMA region.
+Same effect.
 
-I suppose ditto.
+However, who knows how different gcc versions will lay out the
+stack?  That's completely up to the compilers whims.
 
-> -       Must quiesce both master and slave before swap (or one per cable)
+So, if you want portable code and don't want random failures,
+avoid DMA to/from the stack.
 
-The way I've written my infrastructure, this seems as if it'll just
-require another carefully placed hook function.
-
-> -       Must reset to PIO_SLOW and then recompute modes for both devices
-> becuse it is possible that changing one changes the other timings
-
-This shouldn't be hard since I already do a similar reset by resetting
-udma_flags to a pre-init state.  Probably in an if (!(ap->flags &
-ATA_FLAG_SATA)).
-
-> -       The above is true for *unplug* too. A straight unplug may speed up the
-> other drive!
-> -       Post hotswap need to reconfigure both drives as if from scratch
-
-Hmm, this seems far more complicated... basically during a swap
-operation, we have to shut down all I/O to the other drive on the
-cable (if there is one), if I read you correctly, and then reconfigure
-both drives once one is plugged in.
-
->From what you're saying, it seems to me that the infrastructure I put
-forth will work as is, plus some if statements and extraneous
-PATA-only functions (and functionality like shutting down the other
-disk on the cable until the user calls the 'warm-swap complete'
-function').
-
-How about this; I want this SATA hotswapping stuff to be tested, so
-I'll commit my patches for 'SATA only' for the time being.  I'll stare
-at them for a while and then see what kind of PATA-specific if
-statements and hooks are necessary in the code?
-
-Luke
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,56 +1,32 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751117AbVJBQBo (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sun, 2 Oct 2005 12:01:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751120AbVJBQBn
+	id S932330AbVJCP5O (ORCPT <rfc822;ralf@linux-mips.org>);
+	Mon, 3 Oct 2005 11:57:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932327AbVJCP5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Oct 2005 12:01:43 -0400
-Received: from vsmtp12.tin.it ([212.216.176.206]:41425 "EHLO vsmtp12.tin.it")
-	by vger.kernel.org with ESMTP id S1751117AbVJBQBm (ORCPT
+	Mon, 3 Oct 2005 11:57:12 -0400
+Received: from [63.243.179.3] ([63.243.179.3]:24845 "HELO moh-clan.de")
+	by vger.kernel.org with SMTP id S932324AbVJCP5L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Oct 2005 12:01:42 -0400
-Message-ID: <16667320.1128268830715.JavaMail.root@pswm15.cp.tin.it>
-Date: Sun, 2 Oct 2005 17:00:30 +0100 (GMT+01:00)
-From: "alfonsopinochet@virgilio.it" <alfonsopinochet@virgilio.it>
-Reply-To: "alfonsopinochet@virgilio.it" <alfonsopinochet@virgilio.it>
-To: alfonsopinochet@aley.net
-Subject: PROPERTIES.
+	Mon, 3 Oct 2005 11:57:11 -0400
+Message-ID: <8b1c01c5c82a$c651c56c$c3187536@moh-clan.de>
+From: "Angie Walker" <awalker_qv@ember.ca>
+To: linux-kernel@vger.kernel.org
+Subject: lasts for 36 hours
+Date: Mon, 03 Oct 2005 15:53:50 +0100
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
 Mime-Version: 1.0
-Content-Type: text/plain;charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: 196.2.124.250
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751117AbVJBQBo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932330AbVJCP5O@vger.kernel.org>
 
-Good Day,
 
-I wish to introduce myself to you. I am Col. Alfonso
-Pinochet (rtd).I am the brother to the exiled President of
-hile.Due to 
-the revolution against the goverment of my brother caused by our
-political opponents in Chile, we had to flee the Country for the
-Safety 
-of our lives.My wife, children and I managed to enter a red cross
-airplane that was evacuating foreigners and we are presently in Port
-Elizaberth, South Africa .We wish to invest in commercial,equine,
-residencial properties, hotels and equally start a new life in your 
-country with
-your assistance and cooperation.If you are in a good 
-position to help
-my family, please send an e-mail to the e-mail address 
-below
-indicating your desire to help my family invest
-this funds in 
-your country and beyond.
+Be ERECT in less than 15 mins
 
-I urgently await your e-mail letter.
+PRlCE: $ 2 / use
 
-best 
-regards and hope to meet you soon.
+visit us: bookold.com
 
-God bless,
-
-Col.Alfonso Pinochet 
-(Rtd)
-
-E-mail:alfonsopinochet@aley.net

@@ -1,55 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932608AbVJCS4m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932609AbVJCS5m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932608AbVJCS4m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 14:56:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932609AbVJCS4l
+	id S932609AbVJCS5m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 14:57:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932610AbVJCS5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 14:56:41 -0400
-Received: from free.hands.com ([83.142.228.128]:6110 "EHLO free.hands.com")
-	by vger.kernel.org with ESMTP id S932608AbVJCS4l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 14:56:41 -0400
-Date: Mon, 3 Oct 2005 19:56:24 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-Cc: Meelis Roos <mroos@linux.ee>, linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-Message-ID: <20051003185624.GA8548@lkcl.net>
-References: <20051003004442.GL6290@lkcl.net> <20051003075000.28A8C13ED9@rhn.tartu-labor> <20051003180858.GA8011@csclub.uwaterloo.ca>
+	Mon, 3 Oct 2005 14:57:42 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:46816 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932609AbVJCS5l
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 14:57:41 -0400
+Date: Mon, 3 Oct 2005 13:57:39 -0500
+To: paulus@samba.org
+Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       johnrose@austin.ibm.com
+Subject: [PATCH] ppc64: Crash in DLPAR code on PCI hotplug add
+Message-ID: <20051003185739.GR29826@austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051003180858.GA8011@csclub.uwaterloo.ca>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-MailScanner-From: lkcl@lkcl.net
+User-Agent: Mutt/1.5.6+20040907i
+From: linas <linas@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 03, 2005 at 02:08:58PM -0400, Lennart Sorensen wrote:
-> On Mon, Oct 03, 2005 at 10:50:00AM +0300, Meelis Roos wrote:
-> > LKCL>  the code for oskit has been available for some years, now,
-> > LKCL>  and is regularly maintained.  the l4linux people have had to
-> > 
-> > My experience with oskit (trying to let students use it for OS course
-> > homework) is quite ... underwhelming. It works as long as you try to use
-> > it exactly like the developers did and breaks on a slightest sidestep
-> > from that road. And there's not much documentation so it's hard to learn
-> > where that road might be.
 
-analysis, verification, debugging and adoption of oskit by
-the linux kernel maintainers would help enormously there,
-i believe, which is why i invited the kernel maintainers to
-give it some thought.
+08-hotplug-bugfix.patch
 
-there are other reasons: not least is that oskit _is_ the
-linux kernel source code - with the kernel/* bits removed and
-the device drivers and support infrastructure remaining.
+In the current 2.6.14-rc2-git6 kernel, performing a Dynamic LPAR Add 
+of a hotplug slot will crash the system, with the following (abbreviated) 
+stack trace:
+
+cpu 0x3: Vector: 700 (Program Check) at [c000000053dff7f0]
+    pc: c0000000004f5974: .__alloc_bootmem+0x0/0xb0
+    lr: c0000000000258a0: .update_dn_pci_info+0x108/0x118
+        c0000000000257c8 .update_dn_pci_info+0x30/0x118 (unreliable)
+        c0000000000258fc .pci_dn_reconfig_notifier+0x4c/0x64
+        c000000000060754 .notifier_call_chain+0x68/0x9c
+
+The root cause was that the phb was not marked "dynamic", and so instead
+of having kmalloc() being called, the __init __alloc_bootmem() was called,
+resulting in access of garage data.  The patch below fixes this crash,
+and adds some docs to clarify the code.
+
+Signed-off-by: Linas Vepstas <linas@linas.org>
 
 
-so the developers who split the linux source code out into oskit did
-not, in your opinion and experience, meelis, do a very good job: so
-educate them and tell them how to do it better.
-
-l.
-
+Index: linux-2.6.14-rc2-git6/arch/ppc64/kernel/pci_dn.c
+===================================================================
+--- linux-2.6.14-rc2-git6.orig/arch/ppc64/kernel/pci_dn.c	2005-10-03 13:45:58.011393833 -0500
++++ linux-2.6.14-rc2-git6/arch/ppc64/kernel/pci_dn.c	2005-10-03 13:52:26.421786761 -0500
+@@ -121,6 +121,12 @@
+ 	return NULL;
+ }
+ 
++/** pci_devs_phb_init_dynamic -- setup pci devices under this PHB
++ *
++ * This routine is called both during boot, (before the memory
++ * subsystem is set up, before kmalloc is valid) and during the 
++ * dynamic lpar operation of adding a PHB to a running system.
++ */
+ void __devinit pci_devs_phb_init_dynamic(struct pci_controller *phb)
+ {
+ 	struct device_node * dn = (struct device_node *) phb->arch_data;
+@@ -201,17 +207,19 @@
+ 	.notifier_call = pci_dn_reconfig_notifier,
+ };
+ 
+-/*
+- * Actually initialize the phbs.
+- * The buswalk on this phb has not happened yet.
++/** pci_devs_phb_init -- Initialize phbs and pci devs under them.
++ * 
++ * When this is called, the buswalk of PHB's has not happened yet.
+  */
+ void __init pci_devs_phb_init(void)
+ {
+ 	struct pci_controller *phb, *tmp;
+ 
+ 	/* This must be done first so the device nodes have valid pci info! */
+-	list_for_each_entry_safe(phb, tmp, &hose_list, list_node)
++	list_for_each_entry_safe(phb, tmp, &hose_list, list_node) {
+ 		pci_devs_phb_init_dynamic(phb);
++		phb->is_dynamic = 1;
++	}
+ 
+ 	pSeries_reconfig_notifier_register(&pci_dn_reconfig_nb);
+ }

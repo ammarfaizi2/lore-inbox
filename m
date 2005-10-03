@@ -1,59 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbVJCHzY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbVJCIIX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932182AbVJCHzY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 03:55:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbVJCHzY
+	id S932181AbVJCIIX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 04:08:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbVJCIIW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 03:55:24 -0400
-Received: from web8409.mail.in.yahoo.com ([202.43.219.157]:27989 "HELO
-	web8409.mail.in.yahoo.com") by vger.kernel.org with SMTP
-	id S932182AbVJCHzX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 03:55:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.co.in;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=Wa5/k06vP7Ow75SIA3vXUDOBD/Md/XjpjS/TXgJHt/eASScs5R2UjOE4m+OLyMO3Xqi2ukGrd1Yl/rAadye0Aos7Qu26zlgCjVNHka3flC0tbwI9ATi2sKs0xbdzQu7JkIvq/+mO01ia5a01fqlbYvZ2G8cybFytoZzxVjyGHrI=  ;
-Message-ID: <20051003075519.98008.qmail@web8409.mail.in.yahoo.com>
-Date: Mon, 3 Oct 2005 08:55:19 +0100 (BST)
-From: vikas gupta <vikas_gupta51013@yahoo.co.in>
-Subject: AIO Support for kernel 2.6.11 ?????? 
-To: linux-aio@kvack.org, linux-kernel@vger.kernel.org, suparna@in.ibm.com,
-       bcrl@kvack.org, sebastien.dugue@bull.net
+	Mon, 3 Oct 2005 04:08:22 -0400
+Received: from fed1rmmtao10.cox.net ([68.230.241.29]:14018 "EHLO
+	fed1rmmtao10.cox.net") by vger.kernel.org with ESMTP
+	id S932181AbVJCIIW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 04:08:22 -0400
+From: Junio C Hamano <junkio@cox.net>
+To: Paul Jackson <pj@sgi.com>
+Subject: Re: [PATCHv4] Document from line in patch format
+References: <mailman.1128301576.22577.linux-kernel2news@redhat.com>
+	<20051002223050.11a287eb.zaitcev@redhat.com>
+	<20051002225734.73dba354.pj@sgi.com>
+cc: linux-kernel@vger.kernel.org
+Date: Mon, 03 Oct 2005 01:08:20 -0700
+In-Reply-To: <20051002225734.73dba354.pj@sgi.com> (Paul Jackson's message of
+	"Sun, 2 Oct 2005 22:57:34 -0700")
+Message-ID: <7vfyrjt43v.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi All
+> +    Subject: [PATCH 001/123] [<area>:] <explanation>
 
-1) I like to ask why patch support is not provided for
-2.6.11 kernel....
+What's funny is that the first pair is literal and the second
+one is syntactic.  Perhaps you may want to do an EBNF ;-)?
 
-2) What needs to be done in order to use 2.6.11 kernel
-with full AIO Support
+SUBJECT ::= "Subject: [PATCH" NUMBER "/" NUMBER "]" [ AREA ":" ] EXPLANATION
 
-3) Is it possible to apply 2.6.13-rc6-B0-all.diff
-patch provided by ben to2.6.11 kernel after some
-modification,and if that is done whether i be able to
-get full kernel AIO Support
+Although the current explanation tells careful readers that
+"From: " in the body is optional, by mentioning what happens if
+it is not found, I think it is clearer if you said it upfront.
 
-4) if i applied suparna's patches with
-linux-2.6.12-PAIO-0.6.tar on linux-2.6.12-rc6 kernel,I
-am getting Some errors with respect to suparna's
-patches.Thay are not getting applied cleanly... 
-So i am trying to manually applied them ...but will i
-be able to Full AIO Support after
-applying those patches on linux-2.6.12-rc6 .
+Maybe something along the lines of:
 
+    The body of the message should be structured as follows.
 
- vikas
+    - an optional in-body "From: " line (plus an empty line for
+      readability), if the author is different from the e-mail
+      patch forwarder/sender; followed by
 
+    - the explanation to be recorded as the commit log message;
+      followed by
 
+    - an empty line, and signed-off-by lines; followed by
 
+    - mandatory three-dash '---' line; followed by
 
+    - optional non-diff metainformation -- justification message
+      to the maintainer, diffstat etc.
 
+    - actual patch material.
 
-		
-__________________________________________________________ 
-Yahoo! India Matrimony: Find your partner now. Go to http://yahoo.shaadi.com
+I do not know if Linus wants to advertise this, but in addition
+to the in-body "From: ", the e-mail patch application tool from
+GIT also understands in-body "Date: ", if the patch forwarder
+wants to preserve original authorship datestamp in the commit
+the maintainer eventually makes out of your e-mail.  Without it,
+the "Date: " of the forwarder's e-mail is used as the authorship
+datestamp.
+

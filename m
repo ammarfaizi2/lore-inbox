@@ -1,75 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932701AbVJCVu6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932702AbVJCVx7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932701AbVJCVu6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 17:50:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932702AbVJCVu6
+	id S932702AbVJCVx7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 17:53:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932704AbVJCVx6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 17:50:58 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:17414 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932701AbVJCVu5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 17:50:57 -0400
-Date: Mon, 3 Oct 2005 23:50:53 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Tony Luck <tony.luck@gmail.com>
-Cc: Patrick Mochel <mochel@digitalimplant.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] kill include/linux/platform.h
-Message-ID: <20051003215053.GI3652@stusta.de>
-References: <20050902205204.GU3657@stusta.de> <Pine.LNX.4.50.0509291106520.29808-100000@monsoon.he.net> <20051001233414.GG4212@stusta.de> <12c511ca0510031201x1f66300bucaff6410e7b675bb@mail.gmail.com> <20051003190345.GH3652@stusta.de> <12c511ca0510031407i5266cf4ak5082ec54f60a3d17@mail.gmail.com>
+	Mon, 3 Oct 2005 17:53:58 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:29707 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932702AbVJCVx6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 17:53:58 -0400
+Message-ID: <4341A880.3060000@tmr.com>
+Date: Mon, 03 Oct 2005 17:54:08 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <12c511ca0510031407i5266cf4ak5082ec54f60a3d17@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+To: Mark Lord <lkml@rtr.ca>
+CC: jmerkey <jmerkey@utah-nac.org>, Nuno Silva <nuno.silva@vgertech.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux SATA S.M.A.R.T. and SLEEP?
+References: <Pine.LNX.4.63.0509290916450.20827@p34> <433C31C8.1030901@vgertech.com> <Pine.LNX.4.63.0509291433340.13272@p34> <433C2A11.9090506@utah-nac.org> <43415D14.5070909@tmr.com> <43419D0C.4010002@rtr.ca>
+In-Reply-To: <43419D0C.4010002@rtr.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 03, 2005 at 02:07:12PM -0700, Tony Luck wrote:
-> > The default_idle() prototype should stay inside some header file.
+Mark Lord wrote:
+> Bill Davidsen wrote:
 > 
-> That would be best, yes.
+>>
+>> It would be great to have some way to match drives with names, but 
+>> there doesn't seem to be a single solution for PATA, SATA, SCSI and 
+>> hotplug. Something like mounts using UUID of the filesystem, but for 
+>> the drives.
 > 
-> > @Patrick:
-> > Any suggestion where it should move to?
 > 
-> Of the include files already included directly by arch/ia64/kernel/setup.c,
-> <linux/sched.h> looks the most promising.  There's lots of .*idle.* things
-> already in there.
-> 
-> Looking at existing precedent: ppc64 has a definition of default_idle()
-> in <asm/machdep.h>
+> I believe it would be pretty easy for userspace hotplug scripts
+> (udev and pals) to assign drives names by matching model/serialno,
+> if that's what you had in mind.
 
-The question whether linux/ or asm/ is the best place for the definition 
-boils down to the question whether it is expected that default_idle() is 
-present on all architectures or whether it's an architecture-specific 
-implementation detail.
+That's the functionality I have in mind, the problem is finding the 
+model and serial number info for all the various types. In some "really 
+works" plug and play world there would be software to generate something 
+like the UUID, and a nice table of what to call it. That doesn't quite 
+seem to be the case yet, and it makes life a bit dificult if you need 
+raw partitions on plugable devices.
 
-In the first case, I'm surprised that there is no platform independent 
-code using it.
-
-In the second case, it seems we can kill the default_idle() functions on 
-mips (empty) and parisk.
-
-> i396, cris and um already have gone along the route of adding extern
-> definitions for default_idle() to ".c" files ... so cleanup creates more
-> opportunities for cleanup (but you are probably very experienced in
-> this phenomenom :-)
-
-I stumbled across the question whether include/linux/platform.h is still 
-required by cleaning up warnings with the -Wmissing-prototypes compiler 
-flag I plan to add to the kernel CFLAGS soon that generates warnings 
-for such extern constructs...
-
-> -Tony
-
-cu
-Adrian
-
+Not impossible, but PITA right now. Anyone looking for a topic for their 
+thesis? ;-)
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

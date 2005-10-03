@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932691AbVJCVe4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932442AbVJCViR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932691AbVJCVe4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 17:34:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932693AbVJCVe4
+	id S932442AbVJCViR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 17:38:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932693AbVJCViR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 17:34:56 -0400
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:50700 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S932691AbVJCVez
+	Mon, 3 Oct 2005 17:38:17 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:55206 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932442AbVJCViP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 17:34:55 -0400
-To: Giuseppe Bilotta <bilotta78@hotpop.com>
-Cc: linux-kernel@vger.kernel.org
+	Mon, 3 Oct 2005 17:38:15 -0400
 Subject: Re: what's next for the linux kernel?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: Vadim Lobanov <vlobanov@speakeasy.net>, Rik van Riel <riel@redhat.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20051003210722.GI8548@lkcl.net>
 References: <20051002204703.GG6290@lkcl.net>
-	<Pine.LNX.4.63.0510021704210.27456@cuia.boston.redhat.com>
-	<20051002230545.GI6290@lkcl.net>
-	<Pine.LNX.4.58.0510021637260.28193@shell2.speakeasy.net>
-	<20051003005400.GM6290@lkcl.net>
-	<Pine.LNX.4.58.0510021800240.19613@shell2.speakeasy.net>
-	<20051003015302.GP6290@lkcl.net>
-	<miugmw9sanku.1uvunkelucxjd$.dlg@40tude.net>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: where editing text is like playing Paganini on a glass harmonica.
-Date: Mon, 03 Oct 2005 22:34:39 +0100
-In-Reply-To: <miugmw9sanku.1uvunkelucxjd$.dlg@40tude.net> (Giuseppe
- Bilotta's message of "3 Oct 2005 11:41:04 +0100")
-Message-ID: <87r7b28ets.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	 <Pine.LNX.4.63.0510021704210.27456@cuia.boston.redhat.com>
+	 <20051002230545.GI6290@lkcl.net>
+	 <Pine.LNX.4.58.0510021637260.28193@shell2.speakeasy.net>
+	 <20051003005400.GM6290@lkcl.net>
+	 <1128367120.26992.44.camel@localhost.localdomain>
+	 <20051003210722.GI8548@lkcl.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 03 Oct 2005 23:05:45 +0100
+Message-Id: <1128377145.26992.53.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3 Oct 2005, Giuseppe Bilotta prattled cheerily:
-> I'd *love* a keyboard layout where * _ : ) are accesible without
-> shift! Can you send me yours?
+On Llu, 2005-10-03 at 22:07 +0100, Luke Kenneth Casson Leighton wrote:
+>  made?  _cool_.  actual hardware.  new knowledge for me.  do you know
+>  of any online references, papers or stuff?  [btw just to clarify:
+>  you're saying you have a NUMA bus or you're saying you have an
+>  augmented SMP+NUMA+separate-parallel-message-passing-bus er .. thing]
 
-<http://www.maltron.co.uk/images/press/maltron-ergonomic-english-trackball-tq-hr1.jpg>
+Its a standard current Intel feature. See "mwait" in the processor
+manual. The CPUs are also smart enough to do cache to cache transfers.
+No special hardware no magic.
 
-(downside: cost. Upside: feels lovely.)
+And unless I want my messages to cause interrupts and wake events (in
+which case the APIC does it nicely) then any locked operation on memory
+will do the job just fine. I don't need funky hardware on a system. The
+first point I need funky hardware is between boards and that isn't
+consumer any more.
 
--- 
-`Next: FEMA neglects to take into account the possibility of
-fire in Old Balsawood Town (currently in its fifth year of drought
-and home of the General Grant Home for Compulsive Arsonists).'
-            --- James Nicoll
+Alan
+

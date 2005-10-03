@@ -1,83 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbVJCRra@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751168AbVJCR5B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750810AbVJCRra (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 13:47:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbVJCRr3
+	id S1751168AbVJCR5B (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 13:57:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbVJCR5B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 13:47:29 -0400
-Received: from amdext4.amd.com ([163.181.251.6]:16058 "EHLO amdext4.amd.com")
-	by vger.kernel.org with ESMTP id S1750810AbVJCRr2 (ORCPT
+	Mon, 3 Oct 2005 13:57:01 -0400
+Received: from dvhart.com ([64.146.134.43]:6291 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S1751168AbVJCR5A (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 13:47:28 -0400
-X-Server-Uuid: 8C3DB987-180B-4465-9446-45C15473FD3E
-Date: Mon, 3 Oct 2005 12:04:23 -0600
-From: "Jordan Crouse" <jordan.crouse@amd.com>
-To: linux-kernel@vger.kernel.org
-cc: info-linux@ldcmail.amd.com, linux-ide@vger.kernel.org
-Subject: [PATCH 7/7] AMD Geode GX/LX support
-Message-ID: <20051003180423.GI29264@cosmic.amd.com>
+	Mon, 3 Oct 2005 13:57:00 -0400
+Date: Mon, 03 Oct 2005 10:56:57 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Rohit Seth <rohit.seth@intel.com>
+Cc: Paul Jackson <pj@sgi.com>, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-rc2-mm1 (Oops, possibly Netfilter related?)
+Message-ID: <102290000.1128362217@[10.10.2.4]>
+In-Reply-To: <1128360043.8472.23.camel@akash.sc.intel.com>
+References: <20050921222839.76c53ba1.akpm@osdl.org> <4338F136.1020404@reub.net><20050927004410.29ab9c03.akpm@osdl.org> <925820000.1127847556@flay> <20051002101319.659afcde.pj@sgi.com> <48080000.1128288669@[10.10.2.4]> <1128360043.8472.23.camel@akash.sc.intel.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-User-Agent: Mutt/1.5.11
-X-WSS-ID: 6F5FB12C2RW1376778-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The core IDE engine on the CS5536 is the same as the other AMD southbridges,
-so unlike the CS5535, we can simply add the appropriate PCI headers to
-the existing amd74xx code.  Please apply against linux-2.6.14-rc2-mm2.
+> mm-try-to-allocate-higher-order-pages-in-rmqueue_bulk patch tries to
+> allocate more physical contiguous pages for pcp.  This would cause some
+> extra fragmentation at the higher orders but has the potential benefit
+> of spreading more uniformly across caches.  I agree though that for this
+> scheme to work nicely we should have the capability of draining the pcps
+> so that higher order requests can be serviced whenever possible.
 
-Signed off by:  Jordan Crouse (jordan.crouse@amd.com)
+Unfortunately, I don't think it's that simple. We'll end up taking the
+higher order elements from the buddy into the caches, and using them
+all piecemeal - ie fragmenting it all. 
 
-Index: linux-2.6.14-rc2-mm2/drivers/ide/pci/amd74xx.c
-===================================================================
---- linux-2.6.14-rc2-mm2.orig/drivers/ide/pci/amd74xx.c
-+++ linux-2.6.14-rc2-mm2/drivers/ide/pci/amd74xx.c
-@@ -74,6 +74,7 @@ static struct amd_ide_chip {
- 	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_IDE,	0x50, AMD_UDMA_133 },
- 	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP51_IDE,	0x50, AMD_UDMA_133 },
- 	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_IDE,	0x50, AMD_UDMA_133 },
-+	{ PCI_DEVICE_ID_AMD_CS5536_IDE,             0x40, AMD_UDMA_100 },
- 	{ 0 }
- };
- 
-@@ -491,6 +492,7 @@ static ide_pci_device_t amd74xx_chipsets
- 	/* 14 */ DECLARE_NV_DEV("NFORCE-MCP04"),
- 	/* 15 */ DECLARE_NV_DEV("NFORCE-MCP51"),
- 	/* 16 */ DECLARE_NV_DEV("NFORCE-MCP55"),
-+	/* 17 */ DECLARE_AMD_DEV("AMD5536"),
- };
- 
- static int __devinit amd74xx_probe(struct pci_dev *dev, const struct pci_device_id *id)
-@@ -527,6 +529,7 @@ static struct pci_device_id amd74xx_pci_
- 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_IDE,	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 14 },
- 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP51_IDE,	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 15 },
- 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_IDE,	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 16 },
-+	{ PCI_VENDOR_ID_AMD,    PCI_DEVICE_ID_AMD_CS5536_IDE, 	        PCI_ANY_ID, PCI_ANY_ID, 0, 0, 17 },
- 	{ 0, },
- };
- MODULE_DEVICE_TABLE(pci, amd74xx_pci_tbl);
-Index: linux-2.6.14-rc2-mm2/include/linux/pci_ids.h
-===================================================================
---- linux-2.6.14-rc2-mm2.orig/include/linux/pci_ids.h
-+++ linux-2.6.14-rc2-mm2/include/linux/pci_ids.h
-@@ -549,6 +549,15 @@
- #define PCI_DEVICE_ID_AMD_LX_VIDEO  0x2081
- #define PCI_DEVICE_ID_AMD_LX_AES    0x2082
- 
-+#define PCI_DEVICE_ID_AMD_CS5536_ISA    0x2090
-+#define PCI_DEVICE_ID_AMD_CS5536_FLASH  0x2091
-+#define PCI_DEVICE_ID_AMD_CS5536_AUDIO  0x2093
-+#define PCI_DEVICE_ID_AMD_CS5536_OHC    0x2094
-+#define PCI_DEVICE_ID_AMD_CS5536_EHC    0x2095
-+#define PCI_DEVICE_ID_AMD_CS5536_UDC    0x2096
-+#define PCI_DEVICE_ID_AMD_CS5536_UOC    0x2097
-+#define PCI_DEVICE_ID_AMD_CS5536_IDE    0x209A
-+
- #define PCI_VENDOR_ID_TRIDENT		0x1023
- #define PCI_DEVICE_ID_TRIDENT_4DWAVE_DX	0x2000
- #define PCI_DEVICE_ID_TRIDENT_4DWAVE_NX	0x2001
+If we take lists of 0 order pages from the buddy, we're trying to use
+whatever dross was left over in there (from a fragmentation point of view)
+up first, before breaking into the more precious stuff (phys contig bits).
+
+That was why I wrote it that way in the first place - it wasn't 
+accidental ;-)
+
+>From the direction the thread was going in previously, it sounded like
+you were finding other ways to alleviate the colouring issue you were
+seeing ... I was hoping that would fix it up enough the desire for higher
+order allocations would disappear.
+
+To be blunt about it ... making sure that we don't fall over on higher 
+order allocs seems to me to be more important than a bit of variability 
+in benchmark runs ...
+
+M.
+
 

@@ -1,49 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbVJCASk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbVJCASq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932082AbVJCASk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Oct 2005 20:18:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbVJCASk
+	id S932083AbVJCASq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Oct 2005 20:18:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbVJCASp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Oct 2005 20:18:40 -0400
-Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:42507 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S932082AbVJCASj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Oct 2005 20:18:39 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: yzcorp@gmail.com (Yan Zheng)
-Subject: Re: [PATCH] fix ipv6 fragment ID selection at slow path
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, roque@di.fc.ul.pt
-Organization: Core
-In-Reply-To: <433FED06.8070806@gmail.com>
-X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1EME2E-0006dR-00@gondolin.me.apana.org.au>
-Date: Mon, 03 Oct 2005 10:18:26 +1000
+	Sun, 2 Oct 2005 20:18:45 -0400
+Received: from gate.crashing.org ([63.228.1.57]:8600 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932083AbVJCASp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Oct 2005 20:18:45 -0400
+Subject: Re: thinkpad suspend to ram and backlight
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Jan Spitalnik <lkml@spitalnik.net>,
+       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de
+In-Reply-To: <20051002233516.GB6035@elf.ucw.cz>
+References: <20051002175703.GA3141@elf.ucw.cz>
+	 <200510022007.29660.lkml@spitalnik.net> <20051002182354.GA2031@elf.ucw.cz>
+	 <1128294674.8267.65.camel@gaston>  <20051002233516.GB6035@elf.ucw.cz>
+Content-Type: text/plain
+Date: Mon, 03 Oct 2005 10:15:32 +1000
+Message-Id: <1128298532.8267.73.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yan Zheng <yzcorp@gmail.com> wrote:
-> 
-> --- linux-2.6.13.2/net/ipv6/ip6_output.c        2005-09-17 09:02:12.000000000 +0800
-> +++ linux/net/ipv6/ip6_output.c 2005-10-02 22:12:54.000000000 +0800
-> @@ -701,7 +701,7 @@
->                 */
->                fh->nexthdr = nexthdr;
->                fh->reserved = 0;
-> -               if (frag_id) {
-> +               if (!frag_id) {
->                        ipv6_select_ident(skb, fh);
->                        frag_id = fh->identification;
->                } else
+On Mon, 2005-10-03 at 01:35 +0200, Pavel Machek wrote:
 
-This patch makes sense to me.
+> I found that patch with a little help from the list. Unfortunately, it
+> makes things worse (not better) on my X32. [There was another
+> regression here. With 2.6.8 or so, backlight was off during S3 sleep
+> (but chip still running and eating power). With 2.6.14-rc3, not only
+> chip is running, but backlight is forced to max to add an insult to
+> the injury].
 
-Please add a Signed-off-by line and send the patch to
-davem@davemloft.net and yoshfuji@linux-ipv6.org.
+You may have one of those setups with the backlight working backward...
 
-Thanks,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Ben.
+
+

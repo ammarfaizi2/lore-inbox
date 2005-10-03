@@ -1,66 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932481AbVJCQqd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932618AbVJCQs6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932481AbVJCQqd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 12:46:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932484AbVJCQqc
+	id S932618AbVJCQs6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 12:48:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932626AbVJCQs6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 12:46:32 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:41996 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S932481AbVJCQqa convert rfc822-to-8bit (ORCPT
+	Mon, 3 Oct 2005 12:48:58 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:53404 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932618AbVJCQs4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 12:46:30 -0400
+	Mon, 3 Oct 2005 12:48:56 -0400
+Message-ID: <434160ED.7050803@pobox.com>
+Date: Mon, 03 Oct 2005 12:48:45 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <20051003153527.53128.qmail@web32909.mail.mud.yahoo.com>
-References: <20051003153527.53128.qmail@web32909.mail.mud.yahoo.com>
-X-OriginalArrivalTime: 03 Oct 2005 16:46:27.0639 (UTC) FILETIME=[FF923470:01C5C839]
-Content-class: urn:content-classes:message
-Subject: Re: ppc boot entry point
-Date: Mon, 3 Oct 2005 12:46:26 -0400
-Message-ID: <Pine.LNX.4.61.0510031240190.22248@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: ppc boot entry point
-Thread-Index: AcXIOf+zuMqQ3xfFS1G9Nj8rl1PnZw==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Dave B. Sharp" <daveb_sharp@yahoo.ca>
-Cc: <kernelnewbies@nl.linux.org>, <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: Luben Tuikov <luben_tuikov@adaptec.com>
+CC: Andre Hedrick <andre@linux-ide.org>,
+       "David S. Miller" <davem@davemloft.net>, willy@w.ods.org,
+       patmans@us.ibm.com, ltuikov@yahoo.com, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, torvalds@osdl.org, linux-scsi@vger.kernel.org,
+       James Bottomley <James.Bottomley@steeleye.com>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
+ the kernel
+References: <Pine.LNX.4.10.10509300015100.27623-100000@master.linux-ide.org> <433D8542.1010601@adaptec.com> <433DD0F8.4000501@pobox.com> <43413CE8.1090306@adaptec.com> <434154F0.9070105@pobox.com> <43415AFC.5080501@adaptec.com>
+In-Reply-To: <43415AFC.5080501@adaptec.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Luben Tuikov wrote:
+> On 10/03/05 11:57, Jeff Garzik wrote:
+> 
+>>>From what I see, because of its *layering* position
+>>
+>>>JB's "transport attributes" cannot satisfy open transport.
+>>
+>>
+>>Repeating verbatim the above quote:  a transport class is more than just 
+>>transport attributes.
+> 
+> 
+> a) "Transport Attributes" _is_ its name,
 
-On Mon, 3 Oct 2005, Dave B. Sharp wrote:
+No, transport class is its name.  Think about a standard object-oriented 
+paradigm.  Each transport has unique characteristics.  The proper place 
+to export these and manage these characteristics is the transport layer, 
+as SAM agrees.  The manifestation of the transport layer is the 
+transport class.
 
-> Hey there,
-> Can anyone tell me how to find te entry point (i.e.
-> address) into the kernel, when control is passed from
-> the boot loader?
+You have to look beyond the current code, to see this.
 
-Look at System.map. phys_startup_32 and startup_32. The
-former is the physical (bus) address where it must be
-loaded, the latter is the virtual address after it
-starts.
-
-> Where are the arguements such as the boot parameters.
-> I am compiling for a generic ppc kernel at this point.
->  Cheers
->   Dave Sharp
->
-
-Look at address, boot_params, also shown in System.map. That's
-where they end up being relocated.
+An implementation of a transport class, in conjunction with helper 
+functions common to all transports (SCSI core), combines to form the 
+transport layer for a specific transport.
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13 on an i686 machine (5589.55 BogoMips).
-Warning : 98.36% of all statistics are fiction.
+> b) It sits across SCSI Core, i.e. on the same level.
+> c) It was never intended to add management.
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+SCSI core is nothing but a set of helper functions and support code that 
+enable the transport class and LLDD to implement the transport layer.
 
-Thank you.
+
+> d) Its inteface to SCSI Core is badly defined and an "invention",
+>    (and very poor at that).
+
+Strongly disagree.  This invention is defined by -needs-, as is other 
+code in Linux.  If we have new needs, we change the code.
+
+
+> The reason for d) is that
+> 2) does _not_ follow _any_ spec or standard.
+
+That's fine, since its an internal kernel API.
+
+	Jeff
+
+

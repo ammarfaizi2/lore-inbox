@@ -1,57 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbVJCOSY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbVJCOSL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932243AbVJCOSY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 10:18:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932246AbVJCOSY
+	id S932241AbVJCOSL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 10:18:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932246AbVJCOSL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 10:18:24 -0400
-Received: from smtp.innovsys.com ([66.115.232.196]:2689 "EHLO
-	mail.innovsys.com") by vger.kernel.org with ESMTP id S932243AbVJCOSY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 10:18:24 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 3 Oct 2005 10:18:11 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:25027 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S932241AbVJCOSJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 10:18:09 -0400
+Message-ID: <43413D9C.2050904@adaptec.com>
+Date: Mon, 03 Oct 2005 10:18:04 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: clock skew on B/W G3
-Date: Mon, 3 Oct 2005 09:18:14 -0500
-Message-ID: <DCEAAC0833DD314AB0B58112AD99B93B859476@ismail.innsys.innovsys.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: clock skew on B/W G3
-thread-index: AcXHcNP+cpPD46M5R1C09vz0su3p1gAs4Hsg
-From: "Rune Torgersen" <runet@innovsys.com>
-To: "Marc" <marvin24@gmx.de>, <linuxppc-dev@ozlabs.org>,
-       <linux-kernel@vger.kernel.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Kyle Moffett <mrmacman_g4@mac.com>, Andre Hedrick <andre@linux-ide.org>,
+       "David S. Miller" <davem@davemloft.net>, willy@w.ods.org,
+       patmans@us.ibm.com, ltuikov@yahoo.com, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, torvalds@osdl.org, linux-scsi@vger.kernel.org,
+       James Bottomley <James.Bottomley@steeleye.com>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
+ the kernel
+References: <Pine.LNX.4.10.10509300015100.27623-100000@master.linux-ide.org> <433D8542.1010601@adaptec.com> <A0262C6F-6B0E-4790-BA42-FAFD6F026E0A@mac.com> <433D8D1F.1030005@adaptec.com> <0F03AA4B-D2D1-4C57-B81B-FC95CB863A98@mac.com> <433DB8AF.4090207@adaptec.com> <433DD95C.5050209@pobox.com>
+In-Reply-To: <433DD95C.5050209@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 03 Oct 2005 14:18:05.0772 (UTC) FILETIME=[45A518C0:01C5C825]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From:  Marc
-> Sent: Sunday, October 02, 2005 11:46
+On 09/30/05 20:33, Jeff Garzik wrote:
+> Luben Tuikov wrote:
 > 
-> Some additions to the previous mail: I was able to isolate 
-> the problem to the 
-> introduction of a user specificable value of HZ (in 
-> include/asm-ppc/parm.h). 
-> I used a value of 250 while the former default was 1000. 
-> Setting it back to 
-> 1000 makes the clock tick right again.
+>>But none of the ideas: 64 bit LUN, HCIL removal, etc.,
+>>were accepted with "submit a patch".
 > 
-> Is the CONFIG_HZ known to be broken on PPC ?
 > 
+> I concede this may have been the response in the past.  Its not, now.
+> 
+> 
+> 
+> 
+>>>So you're saying fixing the current SCSI subsystem once *now* costs  
+>>>more than applying all *future* SCSI fixes to _two_ SCSI subsystems,  
+>>>handling bug reports for _two_ SCSI subsystems, etc.
+>>
+>>
+>>I'm saying that the current "old" one is already obsolete,
+>>when all you have is a SAS chip on your mainboard.
+>>
+>>All you need is a small, tiny, fast, slim SCSI Core.
+> 
+> 
+> Then don't use it at all.  Write a block driver, if you really feel we 
+> need two SCSI cores.
+> 
+> 
+> 
+>>Politics: "Nah, whatever you say, specs are *crap* and we'll
+>>do it our way.  We are not interested in your way, even if it
+>>were better.  Oh, and BTW, REQUEST SENSE clears ACA and LUN
+>>is a u64."
+> 
+> 
+> This is a misrepresentation.  -We- understand the stuff you have posted.
+> 
+> But you continue to demonstrate that you simply do not understand the 
+> existing SCSI core code.
+> 
+> The SAS transport class supports commonality across all SAS 
+> implementations.  This includes both MPT and Adaptec 94xx.
+> 
+> SAS transport class + libsas supports software implementations of SAS, 
+> including transport layer management.  This includes Adaptec 94xx but 
+> NOT MPT.
 
-CONFIG_HZ is not broken, but the whole clock configuration is.
-(I poseded something about it for 8260 earlier this summer)
+You almost get it right, other than the layering infrastructure.
 
-Basic problem is that CLOCK_TICK_RATE which is used for setting up the
-variables used for advancing the clock, is hardcoded to a value that
-only makes sence for an i386. (it is default set at 1193180Hz which
-happens to be the timer clock for timer1 on an i386 machine)
+The SAS Transport Layer is a layer in its own right.  It is not
+a "libsas".
 
-Another problem here is that that value apparently hve to be #define'd
-which means you cannot insert the decrementer frequency from the
-boot-loader either.
+MPT and open transport a very different, one hides the transport,
+i.e. the transport layer is in firmware; the other exposes it
+and needs a transport layer. See the pictures here:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=112810649712793&w=2
+
+	Luben
+
 

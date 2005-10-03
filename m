@@ -1,58 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932165AbVJCGgg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbVJCGtw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932165AbVJCGgg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 02:36:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbVJCGgg
+	id S932154AbVJCGtw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 02:49:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbVJCGtv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 02:36:36 -0400
-Received: from sccrmhc12.comcast.net ([63.240.76.22]:42726 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S932165AbVJCGgf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 02:36:35 -0400
-Date: Sun, 2 Oct 2005 23:05:24 -0400
-From: Christopher Li <usb-devel@chrisli.org>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: chrisl@vmware.com, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: PATCH] incrase usbdevfs bulk buffer size
-Message-ID: <20051003030524.GA678@64m.dyndns.org>
-References: <20051001202059.GE3453@64m.dyndns.org> <20051002150829.35107f91.zaitcev@redhat.com> <20051002193422.GH3453@64m.dyndns.org> <20051002211014.195ff1c3.zaitcev@redhat.com>
+	Mon, 3 Oct 2005 02:49:51 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:52116 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932154AbVJCGtv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 02:49:51 -0400
+Date: Mon, 3 Oct 2005 08:50:32 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [patch] drivers/ide/pci/alim15x3.c SMP fix
+Message-ID: <20051003065032.GA23777@elte.hu>
+References: <20050901072430.GA6213@elte.hu> <1125571335.15768.21.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051002211014.195ff1c3.zaitcev@redhat.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1125571335.15768.21.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 02, 2005 at 09:10:14PM -0700, Pete Zaitcev wrote:
-> On Sun, 2 Oct 2005 15:34:22 -0400, Christopher Li <usb-devel@chrisli.org> wrote:
-> > 
-> > I think the API is kind of fine in this aspect. The usbdevfs should be
-> > able to take bigger than 16K, but the internal copy of the urb does not
-> > have to use kmalloc on data buffers.
+
+* Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+
+> On Iau, 2005-09-01 at 09:24 +0200, Ingo Molnar wrote:
+> > is this the right way to fix the UP assumption below?
 > 
-> You miss an important detail here, namely that single URBs do not have
-> a capability to transfer to a discotiguous buffer. As long as you try
+> Probably not. The ide_lock may already be held (randomly depending on 
+> the code path) at the point we retune a drive on error. Actually you 
+> probably crash before this anyway.
+> 
+> The ALi code in question was written knowing the system would be
+> uniprocessor and making various related assumptions. You also have to
+> get this locking right just to make it more fun - loading the timings
+> for one channel while another is doing I/O corrupts your data silently
+> in some cases. Fixing the ide_lock to be consistent in usage when the
+> tuning calls are made (ie fix the reset path and other offenders) might
+> be possible and would make using ide_lock ok, but it would still be
+> wrong with pre-emption and/or SMP.
 
-That is exactly my point that the kernel should not limit itself on only
-using contiguous buffers. Every USB controller can handle discrete DMA
-buffer why shouldn't the kernel? Obviously it should be nice to address
-the contiguous buffer restriction before bump up the bulk transfer limit.
+so perhaps part of the solution would be to do the initialization under 
+the IDE lock, via the patch below? It boots fine on my box so the basic 
+codepaths seem to be OK. Then the retuning codepaths need to be checked 
+to make sure they are holding the IDE lock.
 
-> to map one transfer insive VMware to one URB, one and only one kmalloc
+	Ingo
 
-The current usbdevfs does a extra copy between from the user space urb
-to the kernel space urb. So it does not matter if the user space urb is
-contiguous or not. If the kernel can handle discrete dma internally,
-the usbdevfs could use it and maintain it's current API.
-
-BTW, That is not VMware choice how the data buffer was arranged. It is the guest.
-
-> has to be done. But if splitting the transfer is acceptable, there is
-
-I still think fixing the kernel to allow address scatter-getter buffer and
-allow bigger buffer size is the right thing to do.
-
-Chris
-
+Index: linux/drivers/ide/setup-pci.c
+===================================================================
+--- linux.orig/drivers/ide/setup-pci.c
++++ linux/drivers/ide/setup-pci.c
+@@ -665,8 +665,11 @@ static int do_ide_setup_pci_device(struc
+ {
+ 	static ata_index_t ata_index = { .b = { .low = 0xff, .high = 0xff } };
+ 	int tried_config = 0;
++	unsigned long flags;
+ 	int pciirq, ret;
+ 
++	spin_lock_irqsave(&ide_lock, flags);
++
+ 	ret = ide_setup_pci_controller(dev, d, noisy, &tried_config);
+ 	if (ret < 0)
+ 		goto out;
+@@ -721,6 +724,8 @@ static int do_ide_setup_pci_device(struc
+ 	*index = ata_index;
+ 	ide_pci_setup_ports(dev, d, pciirq, index);
+ out:
++	spin_unlock_irqrestore(&ide_lock, flags);
++
+ 	return ret;
+ }
+ 

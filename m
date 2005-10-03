@@ -1,27 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbVJCGaZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbVJCGdN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932161AbVJCGaZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 02:30:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbVJCGaZ
+	id S932162AbVJCGdN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 02:33:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932165AbVJCGdN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 02:30:25 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:52666 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932161AbVJCGaY (ORCPT
+	Mon, 3 Oct 2005 02:33:13 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:29669 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932162AbVJCGdM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 02:30:24 -0400
-Date: Mon, 3 Oct 2005 08:30:38 +0200
+	Mon, 3 Oct 2005 02:33:12 -0400
+Date: Mon, 3 Oct 2005 08:33:53 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: "Paul E. McKenney" <paulmck@us.ibm.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, dipankar@in.ibm.com, vatsa@in.ibm.com, rusty@au1.ibm.com,
-       manfred@colorfullife.com
-Subject: Re: [PATCH] RCU torture testing
-Message-ID: <20051003063038.GB23241@elte.hu>
-References: <20051001182056.GA1613@us.ibm.com> <20051002210549.GA8503@elf.ucw.cz>
+To: Felix Oxley <lkml@oxley.org>
+Cc: linux-kernel@vger.kernel.org, ralf@linux-mips.org
+Subject: Re: 2.6.14-rc3-rt1
+Message-ID: <20051003063353.GC23241@elte.hu>
+References: <20050913100040.GA13103@elte.hu> <20050926070210.GA5157@elte.hu> <20051002151817.GA7228@elte.hu> <200510022151.51133.lkml@oxley.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20051002210549.GA8503@elf.ucw.cz>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200510022151.51133.lkml@oxley.org>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamScore: 0.0
 X-ELTE-SpamLevel: 
@@ -34,33 +33,41 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Pavel Machek <pavel@ucw.cz> wrote:
+* Felix Oxley <lkml@oxley.org> wrote:
 
-> > The attached patch adds CONFIG_RCU_TORTURE_TEST, which enables a /proc-based
-> > intense torture test of the RCU infrastructure.  This is needed due to the
-> > continued changes to RCU infrastructure to accommodate dynamic ticks, CPU
-> > hotplug, and so on.  Most of the code is in a separate file that is compiled
-> > only if the CONFIG variable is set.  Documentation on how to run the test
-> > and interpret the output is also included.
-> > 
-> > This code has been tested on i386 and ppc64, and an earlier version of the
-> > code has seen extensive testing on a number of architectures as part of the
-> > PREEMPT_RT patchset.
-> > 
-> > Signed-off-by: <paulmck@us.ibm.com>
+> I have a compile error in drivers/net/hamradio/mkiss.c
 > 
-> Can you just run the tests from time to time inside IBM?
+> 	CC [M]  drivers/net/hamradio/mkiss.o
+> 	drivers/net/hamradio/mkiss.c:625: error: 
+> 	RW_LOCK_UNLOCKED’ undeclared here (not in a function)
+> 
+> Due to the fact that
+> 
+> 	RW_LOCK_UNLOCKED 
+> 
+> has not been converted to the form
+> 
+> 	RW_LOCK_UNLOCKED(name.lock)
+> 
+> by the RT patch.
 
-actually, i think RCU_TORTURE_TEST is a prime example of why this should 
-be in the main kernel. The torture-test found RCU bugs that never popped 
-up during normal use, and RCU bugs are hillariously hard to debug.  
-Having that code outside of the main kernel will most certainly result 
-in a degradation of the test - while it's role for the development of 
-new architectures (and changes to the rcu code) is very important. I 
-agree it should move to debugfs, and maybe in the future we'll need some 
-better framework for a 'in-kernel integrated testsuite'. I think we 
-should encourage such testsuites. I was thinking about writing something 
-similar for spinlocks and rwlocks and semaphores. (we occasionally break 
-them and they are hard to debug too)
+i've applied the cleanup below to my tree - it might as well go upstream 
+too, it's slightly more compact than the explicit initializer.
 
 	Ingo
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+Index: linux/drivers/net/hamradio/mkiss.c
+===================================================================
+--- linux.orig/drivers/net/hamradio/mkiss.c
++++ linux/drivers/net/hamradio/mkiss.c
+@@ -622,7 +622,7 @@ static void ax_setup(struct net_device *
+  * best way to fix this is to use a rwlock in the tty struct, but for now we
+  * use a single global rwlock for all ttys in ppp line discipline.
+  */
+-static rwlock_t disc_data_lock = RW_LOCK_UNLOCKED;
++static DEFINE_RWLOCK(disc_data_lock);
+ 
+ static struct mkiss *mkiss_get(struct tty_struct *tty)
+ {

@@ -1,69 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbVJCPZ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbVJCP1a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932283AbVJCPZ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 11:25:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbVJCPZ0
+	id S932285AbVJCP1a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 11:27:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbVJCP1a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 11:25:26 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:52873 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932283AbVJCPZZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 11:25:25 -0400
-Date: Mon, 3 Oct 2005 08:26:02 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       dipankar@in.ibm.com, vatsa@in.ibm.com, rusty@au1.ibm.com, mingo@elte.hu,
-       manfred@colorfullife.com
-Subject: Re: [PATCH] RCU torture testing
-Message-ID: <20051003152602.GD1300@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20051001182056.GA1613@us.ibm.com> <20051002210549.GA8503@elf.ucw.cz> <20051003143009.GB1300@us.ibm.com> <1128350188.17024.14.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1128350188.17024.14.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.1i
+	Mon, 3 Oct 2005 11:27:30 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:62941 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S932285AbVJCP12 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 11:27:28 -0400
+Message-ID: <43414DDE.4050804@adaptec.com>
+Date: Mon, 03 Oct 2005 11:27:26 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: James Bottomley <James.Bottomley@SteelEye.com>,
+       Andre Hedrick <andre@linux-ide.org>,
+       "David S. Miller" <davem@davemloft.net>, willy@w.ods.org,
+       Patrick Mansfield <patmans@us.ibm.com>, ltuikov@yahoo.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
+ the kernel
+References: <Pine.LNX.4.10.10509300015100.27623-100000@master.linux-ide.org>	 <433D8542.1010601@adaptec.com> <1128113158.12267.29.camel@mulgrave> <433DB6BE.4020706@adaptec.com> <433DDA8F.6050203@pobox.com>
+In-Reply-To: <433DDA8F.6050203@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 03 Oct 2005 15:27:26.0831 (UTC) FILETIME=[F5D44FF0:01C5C82E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 03, 2005 at 04:36:28PM +0200, Arjan van de Ven wrote:
-> On Mon, 2005-10-03 at 07:30 -0700, Paul E. McKenney wrote:
-> > On Sun, Oct 02, 2005 at 11:05:49PM +0200, Pavel Machek wrote:
-> > > Can you just run the tests from time to time inside IBM?
-> > 
-> > In principle, I could, but in practice it is appropriate for non-IBMers to
-> > be able to test the RCU infrastructure easily and thoroughly when they
-> > work on it.
+On 09/30/05 20:38, Jeff Garzik wrote:
+> Luben Tuikov wrote:
 > 
-> how hard would it be to make the few parameters just be module
-> options... and then fail module load if the test fails or something?
-> (and spew loudly in dmesg :)
+>>I'm sure you'll do whatever humanly possible to show
+>>that _your_ idea can be applied: you can do this now:
+>>just use a big if () { ... } else { ... } statement and
+>>you're done.
+> 
+> 
+> This is not how we do things in Linux.  You're doubling the maintenance 
+> burden.
 
-Good point -- all I really need for module parameters is the number
-of readers.  I should be able to have module load start the test and
-module unload stop it (any problems with this approach?).  And doing
-a module should remove the intrusions into rcupdate.c and rcupdate.h,
-which would be good.
+No necessarily.  See below.
 
-I would rather avoid dmesg.  But perhaps a read-only debugfs for output
-(as Greg suggested) combined with module parameters for input could make
-this straightforward.
+> If you really want to do this, at least don't fill up drivers/scsi/ with 
+> an additional, completely unrelated codepath.
 
-> I'd be all in favor of having such a module in the kernel; in fact it
-> would be nice if we roughly could standardize on an way to load/start
-> and then find the result, I'd love to have a "make runtests" or
-> something that would load such modules one by one
+How do you say it is unrelated?
 
-Which would mean that each test needs to give unambiguous machine-readable
-indication of failure.  I guess I will nominate the string "!!!".  ;-)
+Is USB storage unrelated? (other than the fact that it doesn't live
+in drivers/scsi/)
 
-> (and no that's not the task of ltp, ltp should test userspace; things
-> that test in kernel code should really be part of the kernel)
+> There is commonality between aic94xx and MPT/LSI stuff.  aic94xx SAS 
+> transport layer is a superset of MPT/LSI SAS transport:  it clearly 
+> needs far more management code.
 
-I agree that there is definitely a need for both user-level and in-kernel
-testing.  User-level testing is needed to make sure that user programs get
-what they need, but there is no substitute for in-kernel testing when you
-need to apply maximum conceiveable stress on some kernel component.
+And MPT/LSI SAS does not need this managament as this layer
+is completely implemented in FW and not exposed (and for a reason).
 
-							Thanx, Paul
+> We understand this.  The part you don't understand is that we want to 
+> emphasize the commonality, rather than let aic94xx and MPT/LSI go in 
+> completely different directions.
+
+But this was LSI's decision, remember?  We did work together,
+until LSI and Dell decided that they'd rather let Christoph do it.
+(Since who cares about the technological merit of the code when it
+will be accepted into the kernel?)
+
+Now you want to integrate the two?  Apparently LSI and Dell haven't
+made up their mind.
+
+As I said: Vendors are completely playing to the tune of a couple
+of people at linux-scsi, for this reason we haven't seen _any_
+SCSI or Storage _innovation_ in SCSI Core.
+
+As opposed to those vendors saying: We _really_ need 64 bit LUNS
+and it would be really nice to get rid of HCIL, etc, etc.
+
+If all vendors pushed for that and were not afraid to speak
+up (because they have drivers to write and patches to submit
+and want acceptance), then SCSI Core would be a better place.
+
+IMO, 64 bit LUNs and no HCIL is more important than "transport
+attributes" and should've _preceded_ them.
+
+The fact that you're trying to umbrella them together, doesn't
+make it _technologically_ correct.
+
+Remember, a person's fall starts when they're surrounded by "Yes" men.
+
+> Read it again:  aic94xx/BCMxxx is a superset of functionality, not 
+> completely different.
+
+One implements all transport related tasks in FW and exposes only LUs
+to the LLDD, the other implements only the interface to the transport
+in the chip (the interconnect), and the rest is handed to upper layers.
+
+If you sit down with a clean sheet of _paper and a pencil_ and try
+to draw out the layering infrastructure for both and how they
+interface with SCSI Core, you'll see that with MPT, things are
+_upside_ down compared to USB/SBP/SAS.  Now trying to reconcile both,
+while possible, would be extremely _ugly_, unless say, you can fake out
+event formation in an MPT based LLDD, but then again, you'd need to
+resolve the host template thing...
+
+It would just be extremely ugly and not as flowing and straightforward
+as the current code is.
+
+	Luben
+

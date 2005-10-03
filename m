@@ -1,81 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932689AbVJCUaa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932687AbVJCUaq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932689AbVJCUaa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 16:30:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932687AbVJCUaa
+	id S932687AbVJCUaq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 16:30:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932688AbVJCUap
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 16:30:30 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:4838 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S932394AbVJCUa3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 16:30:29 -0400
-Subject: Re: Infinite interrupt loop, INTSTAT = 0
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Olivier Galibert <galibert@pobox.com>
-Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       "Hack inc." <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051003134210.GA10641@dspnet.fr.eu.org>
-References: <20050928134514.GA19734@dspnet.fr.eu.org>
-	 <1127919909.4852.7.camel@mulgrave>
-	 <20050928160744.GA37975@dspnet.fr.eu.org>
-	 <1127924686.4852.11.camel@mulgrave>
-	 <20050928171052.GA45082@dspnet.fr.eu.org>
-	 <1127929909.4852.34.camel@mulgrave>
-	 <20050928183324.GA51793@dspnet.fr.eu.org>
-	 <1128175434.4921.9.camel@mulgrave>
-	 <20051003134210.GA10641@dspnet.fr.eu.org>
-Content-Type: text/plain
-Date: Mon, 03 Oct 2005 12:15:44 -0400
-Message-Id: <1128356144.4606.11.camel@mulgrave>
+	Mon, 3 Oct 2005 16:30:45 -0400
+Received: from free.hands.com ([83.142.228.128]:22496 "EHLO free.hands.com")
+	by vger.kernel.org with ESMTP id S932687AbVJCUao (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 16:30:44 -0400
+Date: Mon, 3 Oct 2005 21:30:37 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Joe Bob Spamtest <joebob@spamtest.viacore.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: what's next for the linux kernel?
+Message-ID: <20051003203037.GG8548@lkcl.net>
+References: <20051002204703.GG6290@lkcl.net> <Pine.LNX.4.63.0510021704210.27456@cuia.boston.redhat.com> <20051002230545.GI6290@lkcl.net> <54300000.1128297891@[10.10.2.4]> <20051003011041.GN6290@lkcl.net> <434170E1.60208@spamtest.viacore.net> <20051003185804.GB8548@lkcl.net> <43418834.6070400@spamtest.viacore.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43418834.6070400@spamtest.viacore.net>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-hands-com-MailScanner: Found to be clean
+X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-10-03 at 15:42 +0200, Olivier Galibert wrote:
-> Well, retriggering the DV blows:
-> 
-> Oct  3 15:39:03 m82 kernel:  target1:0:0: Beginning Domain Validation
-> Oct  3 15:39:03 m82 kernel:  target1:0:0: asynchronous.
-> Oct  3 15:39:03 m82 kernel: scsi1: Returning to Idle Loop
-> Oct  3 15:39:13 m82 kernel: scsi1:0:0:0: Attempting to queue an ABORT message:CDB: 0x12 0x0 0x0 0x0 0x62 0x0
-> Oct  3 15:39:13 m82 kernel: scsi1: At time of recovery, card was not paused
-> Oct  3 15:39:13 m82 kernel: >>>>>>>>>>>>>>>>>> Dump Card State Begins <<<<<<<<<<<<<<<<<
-> Oct  3 15:39:13 m82 kernel: scsi1: Dumping Card State at program address 0x26 Mode 0x22
-> Oct  3 15:39:13 m82 kernel: Card was paused
+On Mon, Oct 03, 2005 at 12:36:20PM -0700, Joe Bob Spamtest wrote:
+> The point being: If and when the industry switches its focus to highly 
+> parallel systems, Linux will shortly follow. 
 
-Oh, that's not pretty.  It means that the sequencer (or possibly the
-bus) was wedged as it exited domain validation and it won't even recover
-if we drop down to fully async.
+ joe: hi, thanks for responding.  i believe this to be a very
+ sound strategy, and given the technical expertise of the kernel
+ developers i have confidence in their abilities to pull that off.
 
-What type of array is this, by the way?  I don't recognise the vendor.
-But anyway, let's proceed on the theory that the array is having a hard
-time.  What I need you to do is lower the speed of the array target in
-the aic bios.  Unfortunately, the driver won't honour that setting at
-the moment:  I'll see if I can work up the code that will do it.  The
-attached patch will perform this artificially (for every device on every
-aic79xx).
+ personally i find that i like a bit of a run-up and/or advance notice
+ of major paradigm shifts.  on the basis that other people might also
+ want to know, i initiated this discussion yesterday and it seems like
+ forever already! :)
 
-James
+ l.
 
-diff --git a/drivers/scsi/aic7xxx/aic79xx_osm.c b/drivers/scsi/aic7xxx/aic79xx_osm.c
---- a/drivers/scsi/aic7xxx/aic79xx_osm.c
-+++ b/drivers/scsi/aic7xxx/aic79xx_osm.c
-@@ -499,11 +499,13 @@ ahd_linux_target_alloc(struct scsi_targe
- 	ahd_compile_devinfo(&devinfo, ahd->our_id, starget->id,
- 			    CAM_LUN_WILDCARD, channel,
- 			    ROLE_INITIATOR);
--	spi_min_period(starget) = AHD_SYNCRATE_MAX; /* We can do U320 */
-+	//spi_min_period(starget) = AHD_SYNCRATE_MAX; /* We can do U320 */
-+	spi_min_period(starget) = AHD_SYNCRATE_DT;
- 	if ((ahd->bugs & AHD_PACED_NEGTABLE_BUG) != 0)
- 		spi_max_offset(starget) = MAX_OFFSET_PACED_BUG;
- 	else
- 		spi_max_offset(starget) = MAX_OFFSET_PACED;
-+	spi_max_offset(starget) = 63;
- 	spi_max_width(starget) = ahd->features & AHD_WIDE;
- 
- 	ahd_set_syncrate(ahd, &devinfo, 0, 0, 0,
+ oh, and joe?  my wife is the one with the high horse, not me.
+ she qualified for the national british dressage championships which
+ was last month, and came 17th in the country, at elementary
+ level, on her beautiful pony, blue.  i am very proud of her.
 
-
+ http://www.bdchampionships.co.uk

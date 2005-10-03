@@ -1,46 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbVJCIcn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932192AbVJCIfl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932190AbVJCIcn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 04:32:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbVJCIcn
+	id S932192AbVJCIfl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 04:35:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932195AbVJCIfl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 04:32:43 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:30336 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S932190AbVJCIcn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 04:32:43 -0400
-Date: Mon, 3 Oct 2005 01:32:31 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Junio C Hamano <junkio@cox.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCHv4] Document from line in patch format
-Message-Id: <20051003013231.0162ee90.pj@sgi.com>
-In-Reply-To: <7vfyrjt43v.fsf@assigned-by-dhcp.cox.net>
-References: <mailman.1128301576.22577.linux-kernel2news@redhat.com>
-	<20051002223050.11a287eb.zaitcev@redhat.com>
-	<20051002225734.73dba354.pj@sgi.com>
-	<7vfyrjt43v.fsf@assigned-by-dhcp.cox.net>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 3 Oct 2005 04:35:41 -0400
+Received: from wg.technophil.ch ([213.189.149.230]:56450 "HELO
+	hydrogenium.schottelius.org") by vger.kernel.org with SMTP
+	id S932192AbVJCIfl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 04:35:41 -0400
+Date: Mon, 3 Oct 2005 10:35:37 +0200
+From: Nico Schottelius <nico-kernel@schottelius.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: 2.6.13.2 - menuconfig: raid support wrong place?
+Message-ID: <20051003083537.GB1746@schottelius.org>
+Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
+	LKML <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="PmA2V3Z32TCmWXqI"
+Content-Disposition: inline
+User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
+X-Linux-Info: http://linux.schottelius.org/
+X-Operating-System: Linux 2.6.13.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Junio wrote:
-> Perhaps you may want to do an EBNF ;-)?
 
-Hopefully not required here.
+--PmA2V3Z32TCmWXqI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-See my subsequent patch - I think it is simple and clear:
+Hello!
 
-  [PATCH] Document patch subject line better
+Is it wanted, that some hardware raids are listed below
+"Block devices" and not IDE or SCSI support?
 
-I started a new patch series, since Linus had already picked
-up my prior changes.
+And will SATA devices in general stay below SCSI?
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Both things aren't really intuitive to find and I would expect
+the raid drivers below IDE or SCSI and I was searching for SATA
+not below SCSI some times.
+
+Nico
+
+--=20
+Latest project: cconfig (http://nico.schotteli.us/papers/linux/cconfig/)
+Open Source nutures open minds and free, creative developers.
+
+--PmA2V3Z32TCmWXqI
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iQIVAwUBQ0DtWLOTBMvCUbrlAQKLOQ/+JNCKZir1pWIHSyBtsyKX0mCixK7x23HD
+Qg3TgIXcbooO/p9TnSFm2DI8asybQMEPgIdwRkUmg+Pkxszym3XEzXaecyrmOX9k
+XiECEApRP8MdjqPzONBtCoSM6excDZO4Bdm3Xjqn6Go3kPgv4P7G4ZR6JCy/eC8g
+Wi5tN8FzWaa8ur0mNVx+INNGvaoNIoH0kQHeXchtIHbZ6p2UBP3l9V2FG0EPNWB7
+xufYI8pN68Gn2QnI4T3D4AvzPVQqlLEJWVygxk3cctDn7QRTLWNC6CaKfetggix/
+v31xzweMN1AfDCV5rMRgZ5NT11l9GzubkOFCaiKOr9XAV7pIf5w9Ms3kWeHFCGY8
+3q1LCKoWyF/dbc60OsqdIdLuBtppy6CMByChdnzb48ir1NEX6H9E060fkmih2meG
+QrHZAWWDl+SWGb8WO7mw6R4ZzDJvFcJrmbUu9y/evlbFMGzbCTTKrrLn5Eti9fwd
+QnpPMk/sOncVZ9QaHUt6cXCtWD2HEk9StOHCLerSH/yqNIoy2jpQx5z9lCMVURX4
+zjEkStS555Vq6YLpJyd6eBTGG4wSUpAOddu8hYY9YeZflN4hFKAY20LYnx062wz4
+EBZLRd/TXlznlchGiBn5IazQCaty6gv3up4W40q3PADGWHTwSTvu95jNEuRZ5JkP
+faynDAeTJE8=
+=9BgX
+-----END PGP SIGNATURE-----
+
+--PmA2V3Z32TCmWXqI--

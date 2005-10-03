@@ -1,110 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932665AbVJCT5G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932669AbVJCUA6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932665AbVJCT5G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 15:57:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932669AbVJCT5F
+	id S932669AbVJCUA6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 16:00:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932681AbVJCUA5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 15:57:05 -0400
-Received: from spirit.analogic.com ([204.178.40.4]:9232 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S932665AbVJCT5E convert rfc822-to-8bit
+	Mon, 3 Oct 2005 16:00:57 -0400
+Received: from zproxy.gmail.com ([64.233.162.199]:21550 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932669AbVJCUA5 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 15:57:04 -0400
+	Mon, 3 Oct 2005 16:00:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=nfKzeqajpveuxjcq4s9latgmm8jiHITpHnGFdOdZJHFQjtqUAtGvJMZ5uzXLdC35PCAS8cSnJX4HHNHvXTSM0vxTrBfDCZfr18fq7IWYW6RTUNVAKLn7ZgG5Oqi5Z9RzvdbUOrCdN9DH6wBcv+CikKQp8qXeWYjyDMCafjSEArc=
+Message-ID: <35fb2e590510031300h3c991795l807b5de265c9d9d6@mail.gmail.com>
+Date: Mon, 3 Oct 2005 21:00:55 +0100
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Subject: Re: what's next for the linux kernel?
+Cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+       Meelis Roos <mroos@linux.ee>, lkcl@lkcl.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0510031416560.24845@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <87zmpqbcws.fsf@amaterasu.srvr.nix>
-References: <20051002094142.65022.qmail@web51012.mail.yahoo.com><35fb2e590510021153r254b7eb0haf9f9e365bed051e@mail.gmail.com><87oe66r62s.fsf@amaterasu.srvr.nix><20051003153515.GW7992@ftp.linux.org.uk> <87zmpqbcws.fsf@amaterasu.srvr.nix>
-X-OriginalArrivalTime: 03 Oct 2005 19:56:59.0536 (UTC) FILETIME=[9D834100:01C5C854]
-Content-class: urn:content-classes:message
-Subject: Re: Why no XML in the Kernel?
-Date: Mon, 3 Oct 2005 15:56:59 -0400
-Message-ID: <Pine.LNX.4.61.0510031553030.25096@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Why no XML in the Kernel?
-Thread-Index: AcXIVJ2M84t7l0PFSlS+hihrPMbR7w==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Nix" <nix@esperi.org.uk>
-Cc: "Al Viro" <viro@ftp.linux.org.uk>, <jonathan@jonmasters.org>,
-       "Ahmad Reza Cheraghi" <a_r_cheraghi@yahoo.com>,
-       <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Disposition: inline
+References: <20051003004442.GL6290@lkcl.net>
+	 <20051003075000.28A8C13ED9@rhn.tartu-labor>
+	 <20051003180858.GA8011@csclub.uwaterloo.ca>
+	 <Pine.LNX.4.61.0510031416560.24845@chaos.analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 10/3/05, linux-os (Dick Johnson) <linux-os@analogic.com> wrote:
+>
+> On Mon, 3 Oct 2005, Lennart Sorensen wrote:
 
-On Mon, 3 Oct 2005, Nix wrote:
+> > I suspect most 'simple' OS teaching tools are awful.  Of course writing
+> > a complete OS from scratch is a serious pain and makes debuging much
+> > harder than if you can do your work on top of a working OS that can
+> > print debug messages.
 
-> On Mon, 3 Oct 2005, Al Viro moaned:
->> Another fun consideration in that area is that XML (or s-exp, or trees,
->> whatever representation you prefer) has nothing to help with dynamic data
->> structures.  Exporting snapshots does not work since the real state
->> includes the information about locks being held - without that you
->> can't tell which invariants hold at the moment, since the real ones
->> include lock state.
->
-> Oh yes; the only practical way to get the system into a consistent state
-> would be to take out the BKL (the old, non-preemptible variant),
-> generate all that XML (for all of /proc and all of /sys!) and then
-> release it again.
->
-> Efficient this is *not*.
->
-> (at least, not the loony everything-in-one-big-file variant. Keeping the
-> current smaller files but making them XML is possible, but pointless:
-> the filesystem already provides the hierarchical structure in /sys, and
-> nothing can make /proc regular, so what's the point of adding an extra
-> layer of hierarchy that serves only to complicate parsing and make it
-> hard for *humans* to use?)
->
->>                      And forcing all locks involved into known state
->> is nowhere near feasible, of course.  OTOH, exporting dynamic state
->> including locks and walking the damn thing is
->> 	a) not feasible with XML
->
-> It's feasible, if you don't mind ps(1) becoming a DoS attack, and one
-> running instance of top(1) damn-nearly freezing the system.
->
-> It's just not *sane*.
->
->> 	b) would require giving userland way too much access to locking,
->> creating a nightmare wrt deadlock potential.
->
-> Indeed.
->
-> (Current rant: DRM churn, forcing one of abandonment of decent 3D
-> support, or upgrading of the X server to the bleeding-edge, or using an
-> old kernel with known security holes, or becoming enough of a DRI
-> developer to backport the changes, or using nothing but distro kernels
-> <=2.6.11. Most of these are not terribly feasible for me right now. Ah
-> well, my 3D card is total crap anyway. It's just a shame the X server
-> crashes whenever asked to do in-software 3D rendering...  time to
-> debug. I thought I might actually get some work done this evening. Fat
-> chance.)
->
+> But the first thing you must do in a 'roll-your-own' OS is to make
+> provisions to write text to (sometimes a temporary) output device
+> and get some input from same.
 
-...could get rid of all the kernel function codes and just put a
-XML interpreter inside the kernel. That way, web-page designers
-could become kernel developers overnight.
+Indeed. I started work on a microkernel for a final year University
+project. Didn't get very far beyond minimal memory management and a
+vague handy-wavy concept of a process in the end as it's easy to get
+unstuck figuring out random blackbox hardware. Makes you respect some
+of these people who really figured it out for real and got it working.
 
-> --
-> `Next: FEMA neglects to take into account the possibility of
-> fire in Old Balsawood Town (currently in its fifth year of drought
-> and home of the General Grant Home for Compulsive Arsonists).'
->            --- James Nicoll
-> -
+> Writing such basic stuff is getting harder because many embedded
+> systems don't have UARTS, screen-cards, keyboards, or any useful
+> method of doing I/O.
 
-XML inside the kernel is like BASIC inside the kernel. It
-just doesn't belong there, even though it would work.
+It's easier now that we have a growing number of cheaper ARM/PPC
+boards on the market. But in order to do much of this, you really need
+a hardware debugger. In my case, I tried to do this on an Apple
+powerbook but once you've broken the BAT/page mapping for your
+framebuffer you're rapidly running out of ways of debugging, e.g. a
+VM. It's difficult enough even with a UART, or an LED, or whatever.
 
+> This is where an existing OS (Like Linux) can help you get some I/O
+> running, perhaps through a USB bus. You debug and make it work
+> as a Linux Driver, then you link the working stuff into your headless
+> CPU board.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13 on an i686 machine (5589.55 BogoMips).
-Warning : 98.36% of all statistics are fiction.
+A lot of people end up doing that - I've heard of some interesting
+stories which I'm sure aren't widespread. One case, the guy had
+basically bolted a small realtime module on to Linux (not really quite
+like RTLinux) but had been able to do a lot of testing through
+existing APIs. Another trick is to write as much as you can to sit
+right atop the existing firmware - OpenFirmware, U-Boot, whatever and
+perhaps even forgo trying to handle exceptions/VM for yourself in the
+beginning.
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+Jon.

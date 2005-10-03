@@ -1,139 +1,199 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbVJCErn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbVJCE5E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932153AbVJCErn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 00:47:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbVJCErn
+	id S1750831AbVJCE5E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 00:57:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbVJCE5E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 00:47:43 -0400
-Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:46519 "EHLO
-	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S932153AbVJCErm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 00:47:42 -0400
+	Mon, 3 Oct 2005 00:57:04 -0400
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:45472 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP
+	id S1750831AbVJCE5C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 00:57:02 -0400
 X-ORBL: [69.107.75.50]
-Date: Sun, 02 Oct 2005 21:47:37 -0700
+DomainKey-Signature: a=rsa-sha1; s=sbc01; d=pacbell.net; c=nofws; q=dns;
+	h=received:date:from:to:subject:cc:mime-version:
+	content-type:content-transfer-encoding:message-id;
+	b=ayNJEUT4GOWz7dSpQalVX9tZwVpDGxTy64g5dv5htRcQbOYrMCYl9b0yYUKD+Glkr
+	IBBhig4ZE/6HYHabakktA==
+Date: Sun, 02 Oct 2005 21:56:58 -0700
 From: David Brownell <david-b@pacbell.net>
-To: linux-kernel@vger.kernel.org, basicmark@yahoo.com
-Subject: Re: [RFC][PATCH] SPI subsystem
-Cc: dpervushin@ru.mvista.com
-References: <20051002123618.37423.qmail@web33009.mail.mud.yahoo.com>
-In-Reply-To: <20051002123618.37423.qmail@web33009.mail.mud.yahoo.com>
+To: dmitry pervushin <dpervushin@gmail.com>
+Subject: Re: [PATCH] SPI
+Cc: linux-kernel@vger.kernel.org, dpervushin@ru.mvista.com
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <20051003044737.7B86CEA568@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
+Message-Id: <20051003045658.3D592EA568@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > I notice that there is no bus lock. Are you expecting the adapter
-> > > driver to handle the fact that its transfer routine could be called
-> > > before a previous call returns?
+Hi Dmitry,
+
+> > around the I/O model of a queue of async messages; and even 
+> > names for some data structures.
+> 
+> It seems we are talking about similar things, aren't we ?
+
+Sometimes, yes.  :)
+
+
+> > 	<linux/spi/spi.h>	... main header
+> > 	<linux/spi/CHIP.h>	... platform_data, for CHIP.c driver
 > > 
-> > Yes.  The transfer routine is purely async, and its responsibility
-> > is to append that spi_message to the current queue.  (Assuming
-> > the driver isn't a simple pure-PIO driver without a queue...)
+> > Not all chips would need them, but it might be nice to have 
+> > some place other than <linux/CHIP.h> for such things.  The 
+> > platform_data would have various important data that can't be 
+> > ... chip variants, initialization data, and similar stuff 
+> > that differs between boards is knowable only by 
+> > board-specific init code, yet is needed by board-agnostic driver code.
+> 
+> I would prefer not to have subdirectory spi in include/linux. Take a look to
+> pci, for example. I guess that chip data are spi-bus specific, and should
+> not be exported to world.
+
+You misunderstand.  Consider something like a touchscreen driver, where
+different boards may use the same controller (accessed using SPI) but
+with different touchscreens and wiring.
+
+That driver may need to know about those differences, much like it needs
+to know about using a different IRQ number or clock rate.  Details like
+"X plate resistance is 430 ohms" are not bus-specific, neither are
+details like rise time (if any) for the reference voltage which affect
+timings for some requests.  (Real world examples!)
+
+Those are the sort of thing that board-specific.c files publish.
+They have to be exported from arch/.../mach-.../board-specific.c into
+somewhere in drivers/.../*.c; that's not really different from "exported
+to world".
+
+
+> > that way internally.  But other drivers shouldn't be forced 
+> > to allocate kernel threads when they don't need them.
+> 
+> Really :) ? I'd like to have the worker thread for bus (and all devices on
+> the bus) instead of several workqueues (one per each device on bus, right ?)
+
+That is: you want to force each SPI Master Controller driver to allocate
+a kernel thread (one per workqueue).  And I'm saying I'd rather not; the
+API would be much more flexible without imposing that particular style.
+
+
+> > Hmm, this seems to be missing a few important things ... from 
+> > the last SPI patch I posted to this list (see the URL right above):
 > > 
-> > That's a simple matter of a spin_lock_irqsave/list_add_tail/unlock.
+> > 	struct bus_type spi_bus_type = {
+> > 		.name           = "spi",
+> > 		.dev_attrs      = spi_dev_attrs,
+> > 		.match          = spi_match_device,
+> > 		.hotplug        = spi_hotplug,
+> > 		.suspend        = spi_suspend,
+> > 		.resume         = spi_resume,
+> > 	};
 > > 
->
-> OK. Thought so. I think that in the documentation (when it gets written ;)
-> we need to warn people that they can only do quick work (adding message
-> to a queue or waking up a kthread) in the transfer routine
+> > That supports new-school "modprobe $MODALIAS" hotplugging and 
+> > .../modalias style coldplugging, as well as passing PM calls 
+> > down to the drivers.  (Those last recently got some tweaking, 
+> > to work better through sysfs.)  And the core is STILL only 
+> > about 2 KB on ARM; significantly less than yours.
+> 
+> Are you counting bytes on your sources ? Or bytes in object files ? As for
+> spi_bus_type, I agree. Hotplu/suspend/resume have to be included.
 
-The documented constraint -- right by the declaration of that
-particular method!! -- is that it may not sleep.  That suffices.
+Object code in the ".text" segment of whatever "core" code everyone
+would need to keep in-memory.  The other numbers don't much matter.
 
+You should be able to snarf the next version of suspend/resume code
+pretty directly.
 
->	as it would
-> not be fair for a PIO driver to transfer several KB in what might be
-> interrupt context.
-
-That's a "quality of implementation" issue.  There are a lot of
-different SPI drivers floating around today that are pure PIO;
-they're used for sensor access, and work in exactly that way.
-(And without any buslock.)
-
-When the driver is only reading/writing a handful of bytes, PIO
-can easily be "quick" ... and may well be quicker than going
-through a queue manager.  Example:  if SPI is clocked at 8 MHz,
-that's a microsecond per byte.  Add a smidgeon of overhead,
-and call it 5 usecs to read a sensor that way.
-
-One point of standardizing an API is to support a broad range
-of different controller driver optimization points.  They should
-all work correctly of course.  A DMA driver may be the ticket for
-running from SPI flash ... but setting up DMA for just a couple
-bytes is likely not a win.
+The hotplug stuff will require your init model to accumulate enough
+description about each SPI device to identify the driver that should
+be bound to it.  The last patch you posted didn't seem to have any
+support for such things.
 
 
-> So your asking the adapter to keep a 'personality' for each device on
-> that bus (clock speed, cs & clock mode etc) and then just before the
-> transfer to/from a device is started the adapter takes the 'personality'
-> of that device (i.e. sets clock speed registers if needed etc)?
 
-As you noted later, yes.  Most of the SPI controllers I've looked
-at will do that in hardware, for that matter.  PCI drivers don't
-need to arbitrate bus access themselves; neither should SPI drivers.
-
-
-> > > > +EXPORT_SYMBOL_GPL(spi_new_device);
-> > >
-> > > I think we should have a bus lock (in the adapter structure) for
-> > > safety, and in the remove routine as well.
+> > You don't seem to have any ability to record essential 
+> > board-specific information that the drivers will need.  I 
+> > hope you're not planning on making that stuff clutter up the 
+> > driver files??  board-specific.c files seem the better model, 
+> > with a way to pass that data to the drivers that need it 
+> > (using the driver model).
 > > 
-> > Why?  I don't see any need for one, at least in the "all drivers
-> > must use this one" category.  Persuade me; what problems would such
-> > a lock solve? 
+> > ...
+> 
+> This is responsibility of bus driver. The driver for device on the SPI bus
+> might request the hardware info from the bus driver, which is referenced via
+> spi_device->device->parent.
+
+Sounds like you're just shifting clutter from one driver to another.
+I'd rather see it in _neither_ driver.  :)
+
+What you're talking about would normally be spi_device->dev.platform_data;
+I hope we can agree on that much.  Getting it there is a separate issue.
+It's something I see as a basic role of the "SPI core", using information
+from a board-specific.c file.
+
+
+> > Why are you hard-wiring such an unfair scheduling policy ... 
+> > and preventing use of better ones?  I'd use FIFO rather than 
+> > something as unfair as that; and FIFO is much simpler to code, too.
+> 
+> OK, the policy is hardcoded and seems to be not the only available. This can
+> be solved by adding a function to pull out the message that is "next by
+> current". Does this sound reasonable ? 
+
+My preference is different:  all queue management policies should be 
+the responsibility of that controller driver.  You're assuming that
+it's the core's responsibility (it would call that function).
+
+   http://marc.theaimsgroup.com/?l=linux-kernel&m=112684135722116&w=2
+
+
+> > I don't really understand why you'd want to make this so 
+> > expensive though.  Why not just do the IO directly into the 
+> > buffer provided for that purpose?  One controller might 
+> > require dma bounce buffers; but don't penalize all others by 
+> > imposing those same costs.
+> 
+> Drivers might want to allocate theyr own buffers, for example, using
+> dma_alloc_coherent. Such drivers also need to store the dma handle
+> somewhere. Drivers might use pre-allocated buffers. 
+
+The simple solution is to just have the driver provide both CPU and DMA
+pointers for each buffer ... which implies using the spi_message level
+API, not the CPU-pointer-only single buffer spi_read()/spi_write() calls
+I was referring to.
+
+A PIO controller driver would use the CPU pointer; a DMA one would use
+the dma_addr_t.  The DMA pointers may have come from DMA mapping calls,
+or from dma_alloc_coherent().  Each of those cases can be implemented
+without that needless memcpy().  Only drivers on hardware that really
+needs bounce buffers should pay those costs.
+
+
+> > > +		msg->devbuf_rd = drv->alloc ?
+> > > +		    drv->alloc(len, GFP_KERNEL) : kmalloc(len, GFP_KERNEL);
+> > > +		msg->databuf_rd = drv->get_buffer ?
+> > > +		    drv->get_buffer(device, msg->devbuf_rd) : msg->devbuf_rd;
 > > 
->
-> Problems with parallel calls to register spi device/unregister
-> spi device/transfer?
+> > Oy.  More dynamic allocation.  (Repeated for write buffers 
+> > too ...) See above; don't force such costs on all drivers, 
+> > few will ever need it.
+> 
+> That's not necessarily allocation. That depends on driver that uses
+> spimsg_alloc, and possibly provides callback for allocating
+> buffers/accessing them
 
-Only an issue if the driver core had bugs ... bugs that would break
-many more things than just SPI.  :)
+Still, it's dynamic ... and it's quite indirect, since it's too early.
+Simpler to have the driver stuff the right pointers into that "msg" in
+its next steps. The driver has lots of relevant task context (say, in
+stack frames) that's hidden from those alloc() or get_buffer() calls.
 
-
-> > The parallel port adapter wouldn't use that interface.  It would
-> > instead be using spi_new_device() with board_info matching the
-> > device (Ethernet, EEPROM, USB controller, etc) ...
->
-> OK. So if I had an array of devices then I have to go though that array
-> and call  spi_new_device() for each one?  Where do I get spi_master
-> from? I need a function to which I can pass the name/bus number to and
-> get a spi_master pointer in return.
-
-You're the one who's defining the "parallel port adapter with device"
-thing ... so you've got the spi_master that you created.  In fact you
-probably used dev_set_drvdata(dev, master) to keep it handy.
-
-
-
-> Sorry I didn't make myself clear. I mean check the complete element in
-> the spi_message structure when spi_transfer is called. So:
->
-> int spi_transfer(struct spi_device *spi, struct spi_message *message)
-> {
->         if (message->complete)
->                 /* We have callback so transfer is async */
->         else
->                 /* We have no callback so transfer is sync */
-> }
->
-> Although thinking about it this is probably a bad idea as it could b
-> prone to errors
-
-That's a large part of why I would never support that model.  :)
-
-
-> > > Hmm, using local variables for messages, so DMA adapter drivers have
-> > > to check if this is non-kmalloc'ed space (how?)
-> > 
-> > They can't check that.  It turns out that most current Linuxes
-> > have no issues DMAing a few bytes from the stack.
->
-> Will the DMA remapping calls work with data from the stack?
-
-On "most current Linuxes" yes.  All I know about, in fact.
-But it's not guaranteed.
+Plus it's still allocating something that's _always_ used as a bounce
+buffer, even for drivers that doesn't need it.  Maybe they're PIO, or
+maybe normal DMA mappings work ... no matter, most hardware doesn't
+need bounce buffers.
 
 - Dave
+
 

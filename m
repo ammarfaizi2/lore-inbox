@@ -1,100 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbVJCN2w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbVJCNeG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932183AbVJCN2w (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 09:28:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbVJCN2w
+	id S932214AbVJCNeG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 09:34:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbVJCNeF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 09:28:52 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:64965 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S932183AbVJCN2v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 09:28:51 -0400
-Message-Id: <200510030212.j932CcKT025910@laptop11.inf.utfsm.cl>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-cc: Vadim Lobanov <vlobanov@speakeasy.net>, Rik van Riel <riel@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel? 
-In-Reply-To: Message from Luke Kenneth Casson Leighton <lkcl@lkcl.net> 
-   of "Mon, 03 Oct 2005 01:54:00 +0100." <20051003005400.GM6290@lkcl.net> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Sun, 02 Oct 2005 22:12:38 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Mon, 03 Oct 2005 09:28:16 -0400 (CLT)
+	Mon, 3 Oct 2005 09:34:05 -0400
+Received: from warden2-p.diginsite.com ([209.195.52.120]:20938 "HELO
+	warden2.diginsite.com") by vger.kernel.org with SMTP
+	id S932214AbVJCNeE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 09:34:04 -0400
+Date: Mon, 3 Oct 2005 06:33:04 -0700 (PDT)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Magnus Damm <magnus.damm@gmail.com>
+cc: Dave Hansen <haveblue@us.ibm.com>, Magnus Damm <magnus@valinux.co.jp>,
+       linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 00/07][RFC] i386: NUMA emulation
+In-Reply-To: <aec7e5c30510030302u8186cfer642c7b9337613de@mail.gmail.com>
+Message-ID: <Pine.LNX.4.62.0510030628150.11541@qynat.qvtvafvgr.pbz>
+References: <20050930073232.10631.63786.sendpatchset@cherry.local><1128093825.6145.26.camel@localhost><aec7e5c30510021908la86daf9je0584fb0107f833a@mail.gmail.com><Pine.LNX.4.62.0510030031170.11095@qynat.qvtvafvgr.pbz>
+ <aec7e5c30510030302u8186cfer642c7b9337613de@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> On Sun, Oct 02, 2005 at 04:37:52PM -0700, Vadim Lobanov wrote:
-> > >  what if, therefore, someone comes up with an architecture that is
-> > >  better than or improves greatly upon SMP?
+On Mon, 3 Oct 2005, Magnus Damm wrote:
 
-> > Like NUMA?
-
->  yes, like numa, and there is more.
+> Date: Mon, 3 Oct 2005 19:02:08 +0900
+> From: Magnus Damm <magnus.damm@gmail.com>
+> To: David Lang <david.lang@digitalinsight.com>
+> Cc: Dave Hansen <haveblue@us.ibm.com>, Magnus Damm <magnus@valinux.co.jp>,
+>     linux-mm <linux-mm@kvack.org>,
+>     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+> Subject: Re: [PATCH 00/07][RFC] i386: NUMA emulation
 > 
->  i had the honour to work with someone who came up with a radical
->  enhancement even to _that_.
+> On 10/3/05, David Lang <david.lang@digitalinsight.com> wrote:
+>> On Mon, 3 Oct 2005, Magnus Damm wrote:
+>>
+>>> On 10/1/05, Dave Hansen <haveblue@us.ibm.com> wrote:
+>>>> On Fri, 2005-09-30 at 16:33 +0900, Magnus Damm wrote:
+>>>>> These patches implement NUMA memory node emulation for regular i386 PC:s.
+>>>>>
+>>>>> NUMA emulation could be used to provide coarse-grained memory resource control
+>>>>> using CPUSETS. Another use is as a test environment for NUMA memory code or
+>>>>> CPUSETS using an i386 emulator such as QEMU.
+>>>>
+>>>> This patch set basically allows the "NUMA depends on SMP" dependency to
+>>>> be removed.  I'm not sure this is the right approach.  There will likely
+>>>> never be a real-world NUMA system without SMP.  So, this set would seem
+>>>> to include some increased (#ifdef) complexity for supporting SMP && !
+>>>> NUMA, which will likely never happen in the real world.
+>>>
+>>> Yes, this patch set removes "NUMA depends on SMP". It also adds some
+>>> simple NUMA emulation code too, but I am sure you are aware of that!
+>>> =)
+>>>
+>>> I agree that it is very unlikely to find a single-processor NUMA
+>>> system in the real world. So yes, "[PATCH 02/07] i386: numa on
+>>> non-smp" adds _some_ extra complexity. But because SMP is set when
+>>> supporting more than one cpu, and NUMA is set when supporting more
+>>> than one memory node, I see no reason why they should be dependent on
+>>> each other. Except that they depend on each other today and breaking
+>>> them loose will increase complexity a bit.
+>>
+>> hmm, observation from the peanut gallery, would it make sene to look at
+>> useing the NUMA code on single proc machines that use PAE to access more
+>> then 4G or ram on a 32 bit system?
+>
+> Hm, maybe? =) What would you like to accomplish by that?
 
-Any papers to look at?
+if nothing else preferential use of 'local' (non PAE) memory over 'remote' 
+(PAE) memory for programs, while still useing it all as needed.
 
->  basically the company has implemented, in hardware (a nanokernel),
+this may be done already, but this type of difference between the access 
+speed of different chunks of ram seems to be exactly the type of thing 
+that the NUMA code solves the general case for. I'm thinking that it may 
+end up simplifying things if the same general-purpose logic will work for 
+the specific case of PAE instead of it being hard coded as a special case.
 
-A nanokernel is a piece of software in my book?
+it also just struck me as the most obvious example of where a UP box could 
+have a NUMA-like memory arrangement (and therefor a case to justify 
+decoupling the SMP and NUMA options)
 
->                                                                     some
->  operating system primitives, such as message passing (based on a
->  derivative by thompson of the "alice" project from plessey, imperial and
->  manchester university in the mid-80s), hardware cache line lookups
->  (which means instead of linked list searching, the hardware does it for
->  you in a single cycle), stuff like that.
+David Lang
 
-Single CPU cycle for searching data in memory? Impossible.
+> / magnus
+>
 
->  the message passing system is designed as a parallel message bus -
->  completely separate from the SMP and NUMA memory architecture, and as
->  such it is perfect for use in microkernel OSes.
-
-Something must shuffle the data from "regular memory" into "message
-memory", so I bet that soon becomes the bottleneck. And the duplicate data
-paths add to the cost, money that could be spent on making memory access
-faster, so...
-
->  (these sorts of things are unlikely to make it into the linux kernel, no
->  matter how much persuasion and how many patches they would write).
-
-Your head would apin when looking at how fast this gets into Linux if there
-were such machines around, and it is worth it.
-
->  _however_, a much _better_ target would be to create an L4 microkernel
->  on top of their hardware kernel.
-
-Not yet another baroque CISC design, this time around with 1/3 of an OS in
-it!
-
->  this company's hardware is kinda a bit difficult for most people to get
->  their heads round: it's basically parallelised hardware-acceleration for
->  operating systems, and very few people see the point in that.
-
-Perhaps most people that don't see the point do have a point?
-
->  however, as i pointed out, 90nm and approx-2Ghz is pretty much _it_,
->  and to get any faster you _have_ to go parallel.
-
-Sorry, all this has been doomsayed (with different numbers) from 1965 or
-so.
-
->  and the drive for "faster", "better", "more sales" means more and more
->  parallelism.
-
-Right.
-
->  it's _happening_ - and SMP ain't gonna cut it (which is why
->  these multi-core chips are coming out and why hyperthreading
->  is coming out).
-
-Hyperthreading and multi-core /are/ SMP, just done a bit differently.
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare

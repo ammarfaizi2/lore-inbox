@@ -1,140 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932089AbVJCA2x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbVJCAda@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932089AbVJCA2x (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Oct 2005 20:28:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932090AbVJCA2w
+	id S932090AbVJCAda (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Oct 2005 20:33:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932094AbVJCAda
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Oct 2005 20:28:52 -0400
-Received: from nproxy.gmail.com ([64.233.182.200]:56697 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932089AbVJCA2w convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Oct 2005 20:28:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Icv8wS3KkVcmIUjtg6EkpbTymU+diEYDni//c79TJTOlcCkjlMhc98wS7Nwskl7F6wgAx0HgbF+TB4hqyXGpHLQQuicPx1h7dpdMIcfUuj7bNPH/AXazHjvnVJowF2l0Km+N6WjBCUVKYhOyHjmeIUF9F3trqfU19DxRNLtsT6w=
-Message-ID: <2cd57c900510021728w61030c65n1dd965dc224ebdd7@mail.gmail.com>
-Date: Mon, 3 Oct 2005 08:28:50 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: Coywolf Qi Hunt <coywolf@gmail.com>
-To: Paul Jackson <pj@sgi.com>
-Subject: Re: [PATCHv3] Document from line in patch format
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-In-Reply-To: <20051002215222.4444.51101.sendpatchset@jackhammer.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 2 Oct 2005 20:33:30 -0400
+Received: from dsl017-059-136.wdc2.dsl.speakeasy.net ([69.17.59.136]:17614
+	"EHLO luther.kurtwerks.com") by vger.kernel.org with ESMTP
+	id S932090AbVJCAd3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Oct 2005 20:33:29 -0400
+Date: Sun, 2 Oct 2005 20:36:15 -0400
+From: Kurt Wall <kwall@kurtwerks.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel?
+Message-ID: <20051003003615.GA2440@kurtwerks.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20051002204703.GG6290@lkcl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20051002215222.4444.51101.sendpatchset@jackhammer.engr.sgi.com>
+In-Reply-To: <20051002204703.GG6290@lkcl.net>
+User-Agent: Mutt/1.4.2.1i
+X-Operating-System: Linux 2.6.12.3
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/3/05, Paul Jackson <pj@sgi.com> wrote:
-> Document more details of patch format such as the "from" line
-> and the "---" marker line, and provide more references for
-> patch guidelines.
->
-> Signed-off-by: Paul Jackson <pj@sgi.com>
->
-> ---
->
-> How's this, Linus?  I made "---" mandatory, and buffed
-> the text some more.
->
-> --- 2.6.14-rc2-mm2.orig/Documentation/SubmittingPatches
-> +++ 2.6.14-rc2-mm2/Documentation/SubmittingPatches
-> @@ -301,8 +301,71 @@ now, but you can do this to mark interna
->  point out some special detail about the sign-off.
->
->
-> +12) The canonical patch format
->
-> -12) More references for submitting patches
-> +The canonical patch subject line is:
-> +
-> +    Subject: [PATCH 001/123] [<area>:] <explanation>
-> +
-> +The canonical patch message body contains the following:
-> +
-> +  - A "from" line specifying the patch author.
-> +
-> +  - An empty line.
-> +
-> +  - The body of the explanation, which will be copied to the
-> +    permanent changelog to describe this patch.
-> +
-> +  - The "Signed-off-by:" lines, described above, which will
-> +    also go in the changelog.
-> +
-> +  - A marker line containing simply "---".
-> +
-> +  - Any additional comments not suitable for the changelog.
-> +
-> +  - The actual patch (diff output).
-> +
-> +The Subject line format makes it very easy to sort the emails
-> +alphabetically by subject line - pretty much any email reader will
-> +support that - since because the sequence number is zero-padded,
-> +the numerical and alphabetic sort is the same.
-> +
-> +See further details on how to phrase the "<explanation>" in the
-> +"Subject:" line in Andrew Morton's "The perfect patch", referenced
-> +below.
-> +
-> +The "from" line must be the very first line in the message body,
-> +and has the form:
-> +
-> +        From: Original Author <author@example.com>
-> +
-> +The "from" line specifies who will be credited as the author of the
-> +patch in the permanent changelog.  If the "from" line is missing,
-> +then the "From:" line from the email header will be used to determine
-> +the patch author in the changelog.
-> +
-> +The explanation body will be committed to the permanent source
-> +changelog, so should make sense to a competent reader who has long
-> +since forgotten the immediate details of the discussion that might
-> +have led to this patch.
-> +
-> +The "---" marker line serves the essential purpose of marking for patch
-> +handling tools where the changelog message ends.  As a compatibility
-> +hack, some of the patch handling tools take lines beginning with
-> +"diff -" or "Index: " as alternative forms of the "---" marker.
-> +The recommended form is "---".
-> +
-> +One good use for the additional comments after the "---" marker is for
-> +a diffstat, to show what files have changed, and the number of inserted
-> +and deleted lines per file.  A diffstat is especially useful on bigger
-> +patches.  Other comments relevant only to the moment or the maintainer,
-> +not suitable for the permanent changelog, should also go here.
-> +
-> +See more details on the proper patch format in the following
-> +references.
-> +
-> +
-> +13) More references for submitting patches
->
->  Andrew Morton, "The perfect patch" (tpp).
->    <http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt>
-> @@ -310,6 +373,14 @@ Andrew Morton, "The perfect patch" (tpp)
->  Jeff Garzik, "Linux kernel patch submission format."
->    <http://linux.yyz.us/patch-format.html>
->
-> +Greg KH, "How to piss off a kernel subsystem maintainer"
-> +  <http://www.kroah.com/log/2005/03/31/>
-> +
-> +Kernel Documentation/CodingStyle
-> +  <http://sosdg.org/~coywolf/lxr/source/>
 
-I guess you mean
-<http://sosdg.org/~coywolf/lxr/source/Documentation/CodingStyle> here.
+[...]
 
-> +
-> +Linus Torvald's mail on the canonical patch format:
-> +  <http://lkml.org/lkml/2005/4/7/183>
+> with me so far? :)
 
---
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+Yes, and getting more annoyed at your condescending tone with each
+paragraph.
+ 
+> and, what is the linux kernel?
+> 
+> it's a daft, monolithic design that is suitable and faster on
+> single-processor systems, and that design is going to look _really_
+> outdated, really soon.
+
+Andrew Tannenbaum said the same thing in the early 1990s. That we're
+here still having this discussion >10 years later is telling. Dr.
+Tannenbaum might have been acadmeically and theoretically correct,
+but, with a nod to OS X, the Linux kernel has proven itself by
+implementation and has proven to be remarkably adaptable.
+
+Check back in ten years. Or just come back when you've completed
+implementing all the beauteous features you're selling.
+
+> in short, basically, if you follow and agree with the logic, the
+> linux kernel - as maintained by linus - is far from complete.
+> 
+> i therefore invite you to consider the following strategy:
+
+And the e.e. cummings affectation is even *more* annoying than your
+condescension.
+
+Kurt
+-- 
+Blood flows down one leg and up the other.

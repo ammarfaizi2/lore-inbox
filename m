@@ -1,64 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932173AbVJCHfU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbVJCHuR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932173AbVJCHfU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 03:35:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbVJCHfU
+	id S932174AbVJCHuR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 03:50:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932179AbVJCHuR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 03:35:20 -0400
-Received: from warden3-p.diginsite.com ([208.147.64.186]:34504 "HELO
-	warden3.diginsite.com") by vger.kernel.org with SMTP
-	id S932173AbVJCHfT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 03:35:19 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Magnus Damm <magnus.damm@gmail.com>
-Cc: Dave Hansen <haveblue@us.ibm.com>, Magnus Damm <magnus@valinux.co.jp>,
-       linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-X-X-Sender: dlang@dlang.diginsite.com
-In-Reply-To: dlang@dlang.diginsite.com
-References: dlang@dlang.diginsite.com
-Date: Mon, 3 Oct 2005 00:34:40 -0700 (PDT)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: [PATCH 00/07][RFC] i386: NUMA emulation
-In-Reply-To: <aec7e5c30510021908la86daf9je0584fb0107f833a@mail.gmail.com>
-Message-ID: <Pine.LNX.4.62.0510030031170.11095@qynat.qvtvafvgr.pbz>
-References: <20050930073232.10631.63786.sendpatchset@cherry.local><1128093825.6145.26.camel@localhost>
- <aec7e5c30510021908la86daf9je0584fb0107f833a@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 3 Oct 2005 03:50:17 -0400
+Received: from tartu.cyber.ee ([193.40.6.68]:28690 "EHLO tartu.cyber.ee")
+	by vger.kernel.org with ESMTP id S932174AbVJCHuQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 03:50:16 -0400
+From: Meelis Roos <mroos@linux.ee>
+To: lkcl@lkcl.net, linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel?
+In-Reply-To: <20051003004442.GL6290@lkcl.net>
+User-Agent: tin/1.7.10-20050815 ("Grimsay") (UNIX) (Linux/2.6.14-rc2-ga44fe13e (i686))
+Message-Id: <20051003075000.28A8C13ED9@rhn.tartu-labor>
+Date: Mon,  3 Oct 2005 10:50:00 +0300 (EEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Oct 2005, Magnus Damm wrote:
+LKCL>  the code for oskit has been available for some years, now,
+LKCL>  and is regularly maintained.  the l4linux people have had to
 
-> On 10/1/05, Dave Hansen <haveblue@us.ibm.com> wrote:
->> On Fri, 2005-09-30 at 16:33 +0900, Magnus Damm wrote:
->>> These patches implement NUMA memory node emulation for regular i386 PC:s.
->>>
->>> NUMA emulation could be used to provide coarse-grained memory resource control
->>> using CPUSETS. Another use is as a test environment for NUMA memory code or
->>> CPUSETS using an i386 emulator such as QEMU.
->>
->> This patch set basically allows the "NUMA depends on SMP" dependency to
->> be removed.  I'm not sure this is the right approach.  There will likely
->> never be a real-world NUMA system without SMP.  So, this set would seem
->> to include some increased (#ifdef) complexity for supporting SMP && !
->> NUMA, which will likely never happen in the real world.
->
-> Yes, this patch set removes "NUMA depends on SMP". It also adds some
-> simple NUMA emulation code too, but I am sure you are aware of that!
-> =)
->
-> I agree that it is very unlikely to find a single-processor NUMA
-> system in the real world. So yes, "[PATCH 02/07] i386: numa on
-> non-smp" adds _some_ extra complexity. But because SMP is set when
-> supporting more than one cpu, and NUMA is set when supporting more
-> than one memory node, I see no reason why they should be dependent on
-> each other. Except that they depend on each other today and breaking
-> them loose will increase complexity a bit.
+My experience with oskit (trying to let students use it for OS course
+homework) is quite ... underwhelming. It works as long as you try to use
+it exactly like the developers did and breaks on a slightest sidestep
+from that road. And there's not much documentation so it's hard to learn
+where that road might be.
 
-hmm, observation from the peanut gallery, would it make sene to look at 
-useing the NUMA code on single proc machines that use PAE to access more 
-then 4G or ram on a 32 bit system?
+Switched to Linux/BSD code hacking with students, the code that actually
+works.
 
-David Lang
+YMMV.
+
+-- 
+Meelis Roos

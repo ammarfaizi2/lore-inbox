@@ -1,118 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932622AbVJCTIX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932645AbVJCTLZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932622AbVJCTIX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 15:08:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932626AbVJCTIX
+	id S932645AbVJCTLZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 15:11:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932642AbVJCTLZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 15:08:23 -0400
-Received: from c-24-10-253-213.hsd1.ut.comcast.net ([24.10.253.213]:13696 "EHLO
-	linux.site") by vger.kernel.org with ESMTP id S932622AbVJCTIX (ORCPT
+	Mon, 3 Oct 2005 15:11:25 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:47840 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932626AbVJCTLX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 15:08:23 -0400
-Subject: [patch 1/1] ES7000 platform update (i386)
-To: akpm@osdl.org
-Cc: zwane@arm.linux.org.uk, ak@suse.de, linux-kernel@vger.kernel.org,
-       Natalie.Protasevich@unisys.com
-From: Natalie.Protasevich@unisys.com
-Date: Sun, 02 Oct 2005 17:01:29 -0700
-Message-Id: <20051003000130.601D243F57@linux.site>
+	Mon, 3 Oct 2005 15:11:23 -0400
+Message-ID: <43418238.1030000@cs.wisc.edu>
+Date: Mon, 03 Oct 2005 14:10:48 -0500
+From: Mike Christie <michaelc@cs.wisc.edu>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Luben Tuikov <luben_tuikov@adaptec.com>
+CC: Jeff Garzik <jgarzik@pobox.com>, Andre Hedrick <andre@linux-ide.org>,
+       "David S. Miller" <davem@davemloft.net>, willy@w.ods.org,
+       patmans@us.ibm.com, ltuikov@yahoo.com, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, torvalds@osdl.org, linux-scsi@vger.kernel.org,
+       James Bottomley <James.Bottomley@steeleye.com>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
+ the kernel
+References: <Pine.LNX.4.10.10509300015100.27623-100000@master.linux-ide.org> <433D8542.1010601@adaptec.com> <433DD0F8.4000501@pobox.com> <43413CE8.1090306@adaptec.com>
+In-Reply-To: <43413CE8.1090306@adaptec.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Luben Tuikov wrote:
+> On 09/30/05 19:57, Jeff Garzik wrote:
+> 
+>>Luben Tuikov wrote:
+>>
+>>
+>>>MPT-based drivers + James Bottomley's "transport attributes"
+>>
+>>
+>>You continue to fail to see that a transport class is more than just 
+>>transport attributes.
+>>
+>>You continue to fail to see that working on transport class support IS a 
+>>transport layer, that includes management.
+>>
+>>Is you don't understand this fundamental stuff, how can we expect you to 
+>>get it right?
+> 
+> 
+>>From what I see, because of its *layering* position
+> JB's "transport attributes" cannot satisfy open transport.
+> 
+> The reason is that MPT-based drivers indeed do need host template
+> in the LLDD.
+> 
+> Open Transport (SBP/USB/SAS) do not, since the chip is only
+> an interface to the transport.
+> 
+> The host template is implemented by a transport layer,
+> say USB Storage or the SAS Transport Layer.
+> 
 
-This is platform code update for ES7000: 
-disables IRQ overrides for the recent ES7000 (Rascal/Zorro),
-cleans up the compile warning.
-The patch only affects the ES7000 subarch.
+I think I can understand some of Luben's reasons for the layering. We 
+are facing similar problems with software iscsi and hw iscsi. For 
+software iscsi it would be nice to consolodate some of the common 
+software iscsi code into a layer or lib. Following Luben's path for 
+example our queuecommand would be:
 
-Signed-off-by: <Natalie.Protasevich@unisys.com>
----
+scsi-ml -> scsi_host_template->queuecommand -> iscsi transport common 
+queuecommand (do things like check session state, that we are not in 
+session level recovery, scsi to iscsi pdu prep like setting the data 
+direction, and other iSCSI PDU prep) -> iscsi_transport module -> 
+iscsi_transport->queuepdu (you can probably reccomend a better name) -> 
+tcp, sctp, iwarp, or some iSCSI HW that exposes a iSCSI interface rather 
+than SCSI (note that qla4xxx would use its own 
+scsi_host_template->queuecommand since it does not expose enough iSCSI 
+internals for it to be useful to plug in here).
 
- arch/i386/mach-es7000/es7000.h              |   11 ++++++++++-
- arch/i386/mach-es7000/es7000plat.c          |   11 +++++++----
- include/asm-i386/mach-es7000/mach_mpparse.h |    2 +-
- 3 files changed, 18 insertions(+), 6 deletions(-)
+However, HW iscsi cards and software/partial-software iscsi solutions 
+can share code for things like session and connection creation where we 
+would have transport class lib functions: 
+iscsi_add_session/iscsi_remove_session which both the HW iscsi cards 
+like qla4xxx and software/partial-software iscsi drivers could use to 
+setup things like a common sysfs representation. 
+iscsi_add_session/iscsi_remove_session would work similar to the 
+fc_rport code where the midlayer doesn't really know they exist (this is 
+similar to our session and connection code today but it is bound to the 
+scsi host which prevents qla4xxx from using it).
 
-diff -puN arch/i386/mach-es7000/es7000.h~es7000_plat_update arch/i386/mach-es7000/es7000.h
---- linux-2.6.14-rc2-mm2/arch/i386/mach-es7000/es7000.h~es7000_plat_update	2005-10-02 15:06:09.523620888 -0700
-+++ linux-2.6.14-rc2-mm2-root/arch/i386/mach-es7000/es7000.h	2005-10-02 16:43:47.857018840 -0700
-@@ -24,6 +24,15 @@
-  * http://www.unisys.com
-  */
- 
-+/*
-+ * ES7000 chipsets
-+ */	
-+
-+#define NON_UNISYS		0
-+#define ES7000_CLASSIC		1
-+#define ES7000_ZORRO		2
-+
-+
- #define	MIP_REG			1
- #define	MIP_PSAI_REG		4
- 
-@@ -106,6 +115,6 @@ struct mip_reg {
- 
- extern int parse_unisys_oem (char *oemptr);
- extern int find_unisys_acpi_oem_table(unsigned long *oem_addr);
--extern void setup_unisys ();
-+extern void setup_unisys(void);
- extern int es7000_start_cpu(int cpu, unsigned long eip);
- extern void es7000_sw_apic(void);
-diff -puN arch/i386/mach-es7000/es7000plat.c~es7000_plat_update arch/i386/mach-es7000/es7000plat.c
---- linux-2.6.14-rc2-mm2/arch/i386/mach-es7000/es7000plat.c~es7000_plat_update	2005-10-02 15:06:09.558615568 -0700
-+++ linux-2.6.14-rc2-mm2-root/arch/i386/mach-es7000/es7000plat.c	2005-10-02 16:45:32.410124352 -0700
-@@ -62,6 +62,9 @@ static unsigned int base;
- static int
- es7000_rename_gsi(int ioapic, int gsi)
- {
-+	if (es7000_plat == ES7000_ZORRO)
-+		return gsi;
-+
- 	if (!base) {
- 		int i;
- 		for (i = 0; i < nr_ioapics; i++)
-@@ -76,7 +79,7 @@ es7000_rename_gsi(int ioapic, int gsi)
- #endif	/* (CONFIG_X86_IO_APIC) && (CONFIG_ACPI) */
- 
- void __init
--setup_unisys ()
-+setup_unisys(void)
- {
- 	/*
- 	 * Determine the generation of the ES7000 currently running.
-@@ -86,9 +89,9 @@ setup_unisys ()
- 	 *
- 	 */
- 	if (!(boot_cpu_data.x86 <= 15 && boot_cpu_data.x86_model <= 2))
--		es7000_plat = 2;
-+		es7000_plat = ES7000_ZORRO;
- 	else
--		es7000_plat = 1;
-+		es7000_plat = ES7000_CLASSIC;
- 	ioapic_renumber_irq = es7000_rename_gsi;
- }
- 
-@@ -151,7 +154,7 @@ parse_unisys_oem (char *oemptr)
- 	}
- 
- 	if (success < 2) {
--		es7000_plat = 0;
-+		es7000_plat = NON_UNISYS;
- 	} else
- 		setup_unisys();
- 	return es7000_plat;
-diff -puN include/asm-i386/mach-es7000/mach_mpparse.h~es7000_plat_update include/asm-i386/mach-es7000/mach_mpparse.h
---- linux-2.6.14-rc2-mm2/include/asm-i386/mach-es7000/mach_mpparse.h~es7000_plat_update	2005-10-02 15:06:09.594610096 -0700
-+++ linux-2.6.14-rc2-mm2-root/include/asm-i386/mach-es7000/mach_mpparse.h	2005-10-02 15:11:41.029224376 -0700
-@@ -16,7 +16,7 @@ static inline void mpc_oem_pci_bus(struc
- 
- extern int parse_unisys_oem (char *oemptr);
- extern int find_unisys_acpi_oem_table(unsigned long *oem_addr);
--extern void setup_unisys();
-+extern void setup_unisys(void);
- 
- static inline int mps_oem_check(struct mp_config_table *mpc, char *oem,
- 		char *productid)
-_
+Is the direction we are going where iscsi would have to put the "iscsi 
+transport common queuecommand" code into something similar to libata? Or 
+  is it that Luben's transport layer code is performing something 
+different than software/partial-software iscsi?

@@ -1,42 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbVJCH1O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbVJCH3c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932164AbVJCH1O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 03:27:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbVJCH1O
+	id S932171AbVJCH3c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 03:29:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932172AbVJCH3c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 03:27:14 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:56018 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S932164AbVJCH1N (ORCPT
+	Mon, 3 Oct 2005 03:29:32 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:57827 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932171AbVJCH3b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 03:27:13 -0400
-Date: Mon, 3 Oct 2005 00:26:47 -0700
+	Mon, 3 Oct 2005 03:29:31 -0400
+Date: Mon, 3 Oct 2005 00:29:10 -0700 (PDT)
 From: Paul Jackson <pj@sgi.com>
-To: Magnus Damm <magnus.damm@gmail.com>
-Cc: haveblue@us.ibm.com, magnus@valinux.co.jp, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 00/07][RFC] i386: NUMA emulation
-Message-Id: <20051003002647.25dccc47.pj@sgi.com>
-In-Reply-To: <aec7e5c30510022259v46316af2wff1ee92f1ce3d288@mail.gmail.com>
-References: <20050930073232.10631.63786.sendpatchset@cherry.local>
-	<1128093825.6145.26.camel@localhost>
-	<20051002202157.7b54253d.pj@sgi.com>
-	<aec7e5c30510022205o770b6335o96d9a9d9cc5d7397@mail.gmail.com>
-	<20051002223352.6d21a8bc.pj@sgi.com>
-	<aec7e5c30510022259v46316af2wff1ee92f1ce3d288@mail.gmail.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
+       Pete Zaitcev <zaitcev@redhat.com>, Coywolf Qi Hunt <coywolf@gmail.com>,
+       Greg KH <greg@kroah.com>, Paul Jackson <pj@sgi.com>
+Message-Id: <20051003072910.14726.10100.sendpatchset@jackhammer.engr.sgi.com>
+Subject: [PATCH] Document patch subject line better
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Magnus wrote:
-> I think I will stick with the advice from Takahashi-san
+Improve explanation of the Subject line fields in
+Documentation/SubmittingPatches Canonical Patch Format.
 
-Yes - Takahashi-san gives much better advice than an eight-ball.
+Signed-off-by: Paul Jackson <pj@sgi.com>
+
+Index: 2.6.14-rc2-mm2/Documentation/SubmittingPatches
+===================================================================
+--- 2.6.14-rc2-mm2.orig/Documentation/SubmittingPatches
++++ 2.6.14-rc2-mm2/Documentation/SubmittingPatches
+@@ -305,7 +305,7 @@ point out some special detail about the 
+ 
+ The canonical patch subject line is:
+ 
+-    Subject: [PATCH 001/123] [<area>:] <explanation>
++    Subject: [PATCH 001/123] subsystem: summary phrase
+ 
+ The canonical patch message body contains the following:
+ 
+@@ -330,9 +330,25 @@ alphabetically by subject line - pretty 
+ support that - since because the sequence number is zero-padded,
+ the numerical and alphabetic sort is the same.
+ 
+-See further details on how to phrase the "<explanation>" in the
+-"Subject:" line in Andrew Morton's "The perfect patch", referenced
+-below.
++The "subsystem" in the email's Subject should identify which
++area or subsystem of the kernel is being patched.
++
++The "summary phrase" in the email's Subject should concisely
++describe the patch which that email contains.  The "summary
++phrase" should not be a filename.  Do not use the same "summary
++phrase" for every patch in a whole patch series.
++
++Bear in mind that the "summary phrase" of your email becomes
++a globally-unique identifier for that patch.  It propagates
++all the way into the git changelog.  The "summary phrase" may
++later be used in developer discussions which refer to the patch.
++People will want to google for the "summary phrase" to read
++discussion regarding that patch.
++
++A couple of example Subjects:
++
++    Subject: [patch 2/5] ext2: improve scalability of bitmap searching
++    Subject: [PATCHv2 001/207] x86: fix eflags tracking
+ 
+ The "from" line must be the very first line in the message body,
+ and has the form:
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

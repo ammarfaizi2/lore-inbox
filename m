@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbVJCILW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbVJCIM0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932186AbVJCILW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 04:11:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932189AbVJCILW
+	id S932191AbVJCIM0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 04:12:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932190AbVJCIM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 04:11:22 -0400
-Received: from sv1.valinux.co.jp ([210.128.90.2]:27528 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S932186AbVJCILV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 04:11:21 -0400
-From: Magnus Damm <magnus@valinux.co.jp>
-To: linux-kernel@vger.kernel.org
-Cc: Magnus Damm <magnus@valinux.co.jp>
-Message-Id: <20051003081045.29997.88069.sendpatchset@cherry.local>
-Subject: [PATCH] CPUSETS: remove SMP dependency
-Date: Mon,  3 Oct 2005 17:11:21 +0900 (JST)
+	Mon, 3 Oct 2005 04:12:26 -0400
+Received: from amsfep13-int.chello.nl ([213.46.243.23]:13861 "EHLO
+	amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
+	id S932191AbVJCIMZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 04:12:25 -0400
+Subject: Re: [PATCH] Document patch subject line better
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Paul Jackson <pj@sgi.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Jeff Garzik <jgarzik@pobox.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       linux-kernel@vger.kernel.org, Pete Zaitcev <zaitcev@redhat.com>,
+       Coywolf Qi Hunt <coywolf@gmail.com>, Greg KH <greg@kroah.com>
+In-Reply-To: <20051003072910.14726.10100.sendpatchset@jackhammer.engr.sgi.com>
+References: <20051003072910.14726.10100.sendpatchset@jackhammer.engr.sgi.com>
+Content-Type: text/plain
+Date: Mon, 03 Oct 2005 10:12:06 +0200
+Message-Id: <1128327126.14695.40.camel@twins>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove the SMP dependency from CPUSETS.
+On Mon, 2005-10-03 at 00:29 -0700, Paul Jackson wrote:
 
-Signed-off-by: Magnus Damm <magnus@valinux.co.jp>
----
+> +The "summary phrase" in the email's Subject should concisely
+> +describe the patch which that email contains.  The "summary
+> +phrase" should not be a filename.  Do not use the same "summary
+> +phrase" for every patch in a whole patch series.
 
- include/linux/sched.h |    4 ++++
- init/Kconfig          |    1 -
- 2 files changed, 4 insertions(+), 1 deletion(-)
+On that last sentence, does quilt support having different subjects for
+different patches?
 
---- from-0002/include/linux/sched.h
-+++ to-work/include/linux/sched.h	2005-10-03 16:18:15.000000000 +0900
-@@ -590,6 +590,10 @@ struct sched_domain {
- 
- extern void partition_sched_domains(cpumask_t *partition1,
- 				    cpumask_t *partition2);
-+#else /* CONFIG_SMP */
-+
-+static inline void partition_sched_domains(cpumask_t *partition1,
-+					   cpumask_t *partition2) {}
- #endif /* CONFIG_SMP */
- 
- 
---- from-0002/init/Kconfig
-+++ to-work/init/Kconfig	2005-10-03 15:40:51.000000000 +0900
-@@ -245,7 +245,6 @@ config IKCONFIG_PROC
- 
- config CPUSETS
- 	bool "Cpuset support"
--	depends on SMP
- 	help
- 	  This option will let you create and manage CPUSETs which
- 	  allow dynamically partitioning a system into sets of CPUs and
+
+-- 
+Peter Zijlstra <a.p.zijlstra@chello.nl>
+

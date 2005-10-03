@@ -1,65 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbVJCNw2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbVJCNyx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932231AbVJCNw2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 09:52:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932232AbVJCNw2
+	id S932234AbVJCNyx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 09:54:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932233AbVJCNyx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 09:52:28 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:13018 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932231AbVJCNw2 (ORCPT
+	Mon, 3 Oct 2005 09:54:53 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:64955 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S932071AbVJCNyw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 09:52:28 -0400
-Date: Mon, 3 Oct 2005 19:30:32 +0530
-From: Dinakar Guniguntala <dino@in.ibm.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: kurosawa@valinux.co.jp, taka@valinux.co.jp, magnus.damm@gmail.com,
-       linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
-Subject: Re: Ok to change cpuset flags for sched domains? (was [PATCH 1/3] CPUMETER ...)
-Message-ID: <20051003140032.GA6629@in.ibm.com>
-Reply-To: dino@in.ibm.com
-References: <20050908225539.0bc1acf6.pj@sgi.com> <20050909.203849.33293224.taka@valinux.co.jp> <20050909063131.64dc8155.pj@sgi.com> <20050910.161145.74742186.taka@valinux.co.jp> <20050910015209.4f581b8a.pj@sgi.com> <20050926093432.9975870043@sv1.valinux.co.jp> <20050927013751.47cbac8b.pj@sgi.com> <20050927113902.C78A570046@sv1.valinux.co.jp> <20050927084905.7d77bdde.pj@sgi.com> <20051002000159.3f15bf7a.pj@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051002000159.3f15bf7a.pj@sgi.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 3 Oct 2005 09:54:52 -0400
+Message-ID: <4341381D.2060807@adaptec.com>
+Date: Mon, 03 Oct 2005 09:54:37 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Marcin Dalecki <dalecki.marcin@neostrada.pl>
+CC: andrew.patterson@hp.com, "Salyzyn, Mark" <mark_salyzyn@adaptec.com>,
+       dougg@torque.net, Linus Torvalds <torvalds@osdl.org>,
+       Luben Tuikov <ltuikov@yahoo.com>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
+ the kernel
+References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01A9FA11@otce2k03.adaptec.com>	 <1128105594.10079.109.camel@bluto.andrew>  <433D9035.6000504@adaptec.com>	 <1128111290.10079.147.camel@bluto.andrew>  <433DA0DF.9080308@adaptec.com> <1128114950.10079.170.camel@bluto.andrew> <433DB5D7.3020806@adaptec.com> <9B90AC8A-A678-4FFE-B42D-796C8D87D65B@neostrada.pl>
+In-Reply-To: <9B90AC8A-A678-4FFE-B42D-796C8D87D65B@neostrada.pl>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 03 Oct 2005 13:54:38.0392 (UTC) FILETIME=[FEC7F380:01C5C821]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been wanting to follow the cpumeter discussion more closely,
-but currently am tied up. I hope to have more time towards the end of
-this week.
-
-I had a few queries below, though
-
-On Sun, Oct 02, 2005 at 12:01:59AM -0700, Paul Jackson wrote:
-> Dinikar,
+On 09/30/05 19:42, Marcin Dalecki wrote:
+> On 2005-10-01, at 00:01, Luben Tuikov wrote:
 > 
-> How much grief will it cause you if I make the following incompatible
-> change to the special boolean files in each cpuset directory?
+>>Why should synchronization between Process A and Process B
+>>reading storage attributes take place in the kernel?
+>>
+>>They can synchronize in user space.
 > 
-> I think I goofed in encouraging you to overload "cpu_exclusive"
-> with defining dynamic scheduler domains.  I should have asked for a
-> separate flag to be added for that, say "sched_domain", which would
-> require "cpu_exclusive=1" as a precondition.  Other attributes that
-> require cpu_exclusive or mem_exclusive are showing up, and it makes
-> more sense for each of them to get their own boolean, and leave the
-> "*_exclusive" flags to specify just the exclusive (no overlap with
-> sibling) attribute.
+> 
+> In a mandatory and transparent way? How?
 
+Futex, userspace mutex, etc.  All through a user
+space library interface.
 
-One of the reasons for overloading the cpu_exclusive flag was to
-ensure that the rebalance code does not try to pull tasks unnecessarily
+	Luben
 
-With the scheme that you are proposing that is a possibility if
-you turn on the cpu_exclusive and meter_cpu for example and not
-turn on sched_domain. Is there a reason why we would want to have
-exclusive cpusets not attached to sched domains at all?
-
-I am not entirely convinced that we can compare sched_domains and 
-meter_cpus.
-
-However I am still open if there is a convincing reason to have
-exclusive cpusets that dont form sched domains.
-
-	-Dinakar

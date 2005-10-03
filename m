@@ -1,77 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbVJCPe1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbVJCPfU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932298AbVJCPe1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 11:34:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932299AbVJCPe0
+	id S932301AbVJCPfU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 11:35:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbVJCPfU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 11:34:26 -0400
-Received: from herkules.vianova.fi ([194.100.28.129]:56539 "HELO
-	mail.vianova.fi") by vger.kernel.org with SMTP id S932298AbVJCPe0
+	Mon, 3 Oct 2005 11:35:20 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:13757 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932301AbVJCPfS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 11:34:26 -0400
-Date: Mon, 3 Oct 2005 17:34:19 +0300
-From: Ville Herva <vherva@vianova.fi>
-To: subbie subbie <subbie_subbie@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 3Ware 9500S-12 RAID controller -- poor performance
-Message-ID: <20051003143419.GF24760@viasys.com>
-Reply-To: vherva@vianova.fi
-References: <20050930065058.84446.qmail@web30315.mail.mud.yahoo.com>
+	Mon, 3 Oct 2005 11:35:18 -0400
+Date: Mon, 3 Oct 2005 16:35:15 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Nix <nix@esperi.org.uk>
+Cc: jonathan@jonmasters.org, Ahmad Reza Cheraghi <a_r_cheraghi@yahoo.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Why no XML in the Kernel?
+Message-ID: <20051003153515.GW7992@ftp.linux.org.uk>
+References: <20051002094142.65022.qmail@web51012.mail.yahoo.com> <35fb2e590510021153r254b7eb0haf9f9e365bed051e@mail.gmail.com> <87oe66r62s.fsf@amaterasu.srvr.nix>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050930065058.84446.qmail@web30315.mail.mud.yahoo.com>
-X-Operating-System: Linux herkules.vianova.fi 2.4.27
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <87oe66r62s.fsf@amaterasu.srvr.nix>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 29, 2005 at 11:50:58PM -0700, you [subbie subbie] wrote:
-> Dear list,
-> 
-> After almost two weeks of experimentation, google
-> searches and reading of posts, bug reports and
-> discussions I'm still far from an answer.  I'm hoping
-> someone on this list could shed some light on the
-> subject.
+On Mon, Oct 03, 2005 at 04:08:43PM +0100, Nix wrote:
+> Considerations of ugliness and difficulty of implementing the equivalent
+> of writes to procs files did not shift the twit: but starting top on a
+> busy system and showing said twit the CPU load spikes as /proc/[0-9]*
+> got iterated over, and asking `how severe would this be if *all* of
+> /proc and /sys had to be generated for every single request?' seems to
+> have imparted enough clue.
 
-Hi,
-
-We're having similar problems with 9500S-4LP and two Hitachi 250GB SATA
-disks. 
-
-Currently we are running 2.6.12.5 and its 3w-9xxx driver. We have tried
-numerous 2.4 (Red Hat and kernel.org) and 2.6 kernels and 3w-9xxx drivers
-(kernel and 3ware.com). 
-
-The results it more or less the same: on 2.4 it corrupts data and is slow,
-on 2.6 it doesn't corrupt data, but is slow.
-
-Our workload is VMWare GSX server. Multiple readers/writers will grind the
-performance to halt.
-
-We've tried:
- 
--     http://216.239.59.104/search?q=cache:08R-x7y-Kn8J:xn.pinkhamster.net/blog/tech/3ware_9500_notes.html+blockdev+stra+3w-9xxx&hl=en
-      http://www.linux-mag.com/index2.php?option=com_content&task=view&id=2033&Itemid=2304&pop=1&page=0
-
-             blockdev -setra 16384 /dev/sda
-
--     different kernel IO schedulers
-
--     parameters such as
-                blockdev --setra 8192 /dev/vg0/root 
-                echo 300 > /sys/block/sda/queue/iosched/read_expire 
-                echo 5 > /sys/block/sda/queue/iosched/writes_starved
-
-None of this seems to make much difference.
-
-Please drop me a note if you ever get any light on this issue...
-
-
-
-
--- v -- 
-
-v@iki.fi
-
+Another fun consideration in that area is that XML (or s-exp, or trees,
+whatever representation you prefer) has nothing to help with dynamic data
+structures.  Exporting snapshots does not work since the real state
+includes the information about locks being held - without that you
+can't tell which invariants hold at the moment, since the real ones
+include lock state.  And forcing all locks involved into known state
+is nowhere near feasible, of course.  OTOH, exporting dynamic state
+including locks and walking the damn thing is
+	a) not feasible with XML
+	b) would require giving userland way too much access to locking,
+creating a nightmare wrt deadlock potential.

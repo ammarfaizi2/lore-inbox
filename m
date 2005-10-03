@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932555AbVJCSkq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932575AbVJCSmS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932555AbVJCSkq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 14:40:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932559AbVJCSkp
+	id S932575AbVJCSmS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 14:42:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932559AbVJCSmS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 14:40:45 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:6149 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932555AbVJCSkn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 14:40:43 -0400
-Message-ID: <43417B3E.4020807@tmr.com>
-Date: Mon, 03 Oct 2005 14:41:02 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
+	Mon, 3 Oct 2005 14:42:18 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:37380 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932586AbVJCSmR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 14:42:17 -0400
+Date: Mon, 3 Oct 2005 20:42:14 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: "alpha @ steudten Engineering" <alpha@steudten.com>
+Cc: LinuxAlpha <linux-alpha@vger.kernel.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: kernel-2.6.13.2: MISSING: asm-alpha/diskdump.h
+Message-ID: <20051003184214.GF3652@stusta.de>
+References: <434177A4.8070101@steudten.org>
 MIME-Version: 1.0
-To: Robert Kesterson <robertk@robertk.com>
-CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: [PATCH 2.6.13] drivers/ide: Enable basic VIA VT6410 IDE functionality
-References: <op.sxg2dxd5wc4mme@new.robertk.com>
-In-Reply-To: <op.sxg2dxd5wc4mme@new.robertk.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <434177A4.8070101@steudten.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Kesterson wrote:
-> This patch enables plain IDE functionality on the VIA VT6410 IDE controller
-> (such as used on the Asus P4P800 Deluxe motherboard).  This is not a RAID
-> driver, but you can use Linux's software RAID once the drives are visible.
-> I did not write the original version of this patch, which I found on the
-> internet back in the days of kernel 2.6.2.  I have been unable to identify
-> the original author to give him/her proper credit.  I have been maintaining
-> and updating this patch since then and have released several updates which
-> have been successfully used by others who have downloaded it from my
-> website.
+On Mon, Oct 03, 2005 at 08:25:40PM +0200, alpha @ steudten Engineering wrote:
 > 
-> It seems appropriate that this minimal functionality should be in the
-> mainstream kernel.
+> The file asm-alpha/diskdump.h is missing in the 2.6.13 patch .2
+> build for alpha arch.
+> 
+> The build breaks also with # CONFIG_DISKDUMP is not set
 
-After using this patch (it works), it comes to me that the 2.4 version 
-was in a separate driver, so I can control my order of controller 
-recognition. Just having access to the devices is useful, but it would 
-be more useful in the module version.
+I don't know what you call "2.6.13 patch .2", but it's not kernel 
+2.6.13.2 from ftp.kernel.org which doesn't contain diskdump support.
+
+Therefore, your email off-topic on these lists.
+
+> Thomas
+
+cu
+Adrian
+
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

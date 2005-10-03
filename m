@@ -1,63 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbVJCQ0v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932352AbVJCQ2V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932340AbVJCQ0v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 12:26:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbVJCQ0v
+	id S932352AbVJCQ2V (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 12:28:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbVJCQ2V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 12:26:51 -0400
-Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:3274 "EHLO
-	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP
-	id S1751107AbVJCQ0v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 12:26:51 -0400
-X-ORBL: [69.107.75.50]
-Date: Mon, 03 Oct 2005 09:26:46 -0700
-From: David Brownell <david-b@pacbell.net>
-To: vwool@ru.mvista.com
-Subject: Re: [PATCH] SPI
-Cc: linux-kernel@vger.kernel.org
+	Mon, 3 Oct 2005 12:28:21 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:41116 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751118AbVJCQ2U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 12:28:20 -0400
+Message-ID: <43415C1C.70202@pobox.com>
+Date: Mon, 03 Oct 2005 12:28:12 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Luben Tuikov <luben_tuikov@adaptec.com>
+CC: James Bottomley <James.Bottomley@SteelEye.com>,
+       Andre Hedrick <andre@linux-ide.org>,
+       "David S. Miller" <davem@davemloft.net>, willy@w.ods.org,
+       Patrick Mansfield <patmans@us.ibm.com>, ltuikov@yahoo.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
+ the kernel
+References: <Pine.LNX.4.10.10509300015100.27623-100000@master.linux-ide.org>	 <433D8542.1010601@adaptec.com> <1128113158.12267.29.camel@mulgrave> <433DB6BE.4020706@adaptec.com> <433DDA8F.6050203@pobox.com> <43414DDE.4050804@adaptec.com>
+In-Reply-To: <43414DDE.4050804@adaptec.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <20051003162646.17F09EE8D2@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >>>It'd be fine if for example your PNX controller driver worked that way
-> >>>internally.  But other drivers shouldn't be forced to allocate kernel
-> >>>threads when they don't need them.
-> ...
-> FYI in brief: for PREEMPT_RT case all the interrupt handlers are working 
-> in a separate thread each unless explicitly specified otherwise.
+Luben Tuikov wrote:
+> As opposed to those vendors saying: We _really_ need 64 bit LUNS
+> and it would be really nice to get rid of HCIL, etc, etc.
 
-I'm fully aware of that; not that it matters much for folk who aren't
-building and deploying systems with PREEMPT_RT.
+Everybody agrees with this 100%
 
-
-> We will definitely have less SPI busses => less kernel threads, so I 
-> doubt there's a rationale in your opinion.
-
-The rationale is simple:  you're trying to force one implementation
-strategy.  Needlessly forcing one strategy, even when others may be
-better (I already gave three examples), is a bad idea.  QED.  :)
+Note that James submitted a sdev_printk() patch in the past few days, 
+which assists in removing HCIL from the SCSI core.
 
 
-> >Well "prevent" may be a bit strong, if you like hopping levels in
-> >the software stack.  I don't; without such hopping (or without a
-> >separate out-of-band mechanism like device tables), I don't see
-> >a way to solve that problem.
->
-> Aren't the tables you're suggesting also kinda out-of-band stuff?
+> IMO, 64 bit LUNs and no HCIL is more important than "transport
+> attributes" and should've _preceded_ them.
 
-I just described them that way; yes.  They're not layer hopping though;
-they preserve the distinctions in roles and responsibilities which help
-keep components from interfering with each other.
+Agreed.  But that's a lot of work, and I doubt people want to delay SAS 
+further to wait for complete HCIL elimination.
 
-One general point is that when hardware doesn't support autoconfiguration,
-something out-of-band is required to plug that hole.  In this case,
-those tables can be segmented to handle SPI devices on both mainboards
-and add-on boards.  Ditto for SPI controllers, but that mostly matters
-for developer tools like parport adapters.
 
-- Dave
+> The fact that you're trying to umbrella them together, doesn't
+> make it _technologically_ correct.
+
+It's muddled together, yes.  That doesn't make it any less correct. 
+It's just not a clean, immediate separation.  Its a separation that 
+takes time.
+
+	Jeff
 
 

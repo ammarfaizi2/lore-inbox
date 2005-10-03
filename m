@@ -1,45 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbVJCNMo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbVJCN2w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932179AbVJCNMo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 09:12:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbVJCNMo
+	id S932183AbVJCN2w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 09:28:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbVJCN2w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 09:12:44 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:47596 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932179AbVJCNMn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 09:12:43 -0400
-Date: Mon, 3 Oct 2005 16:12:41 +0300 (EEST)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: Jesper Juhl <jesper.juhl@gmail.com>, Ben Dooks <ben-linux@fluff.org>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] release_resource() check for NULL resource
-In-Reply-To: <20051003130048.GE16717@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.58.0510031610050.25136@sbz-30.cs.Helsinki.FI>
-References: <20051002170318.GA22074@home.fluff.org> <20051002103922.34dd287d.rdunlap@xenotime.net>
- <20051003094803.GC3500@home.fluff.org> <9a8748490510030259o43646cbbo22b37f1791d267e@mail.gmail.com>
- <20051003100431.GA16717@flint.arm.linux.org.uk>
- <84144f020510030543q10ff4fd2g138de4d06eddc440@mail.gmail.com>
- <20051003124950.GD16717@flint.arm.linux.org.uk>
- <Pine.LNX.4.58.0510031552450.24263@sbz-30.cs.Helsinki.FI>
- <20051003130048.GE16717@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 3 Oct 2005 09:28:52 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:64965 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S932183AbVJCN2v (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 09:28:51 -0400
+Message-Id: <200510030212.j932CcKT025910@laptop11.inf.utfsm.cl>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+cc: Vadim Lobanov <vlobanov@speakeasy.net>, Rik van Riel <riel@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel? 
+In-Reply-To: Message from Luke Kenneth Casson Leighton <lkcl@lkcl.net> 
+   of "Mon, 03 Oct 2005 01:54:00 +0100." <20051003005400.GM6290@lkcl.net> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Sun, 02 Oct 2005 22:12:38 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Mon, 03 Oct 2005 09:28:16 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Oct 2005, Russell King wrote:
-> However, I think you missed my point though.  release_resource() is
-> _not_ the counterpart of request_region().  It's the counter-part of
-> request_resource() which does not allocate any memory itself.
+Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> On Sun, Oct 02, 2005 at 04:37:52PM -0700, Vadim Lobanov wrote:
+> > >  what if, therefore, someone comes up with an architecture that is
+> > >  better than or improves greatly upon SMP?
 
-So what is the counter-part for request_region if it's not 
-release_resource? As far as I can tell, release_region is marked as 
-compatability cruft.
+> > Like NUMA?
 
-But anyway, my point is that dealing with NULL in many release functions 
-is beneficial for releasing a partially initialized state.
+>  yes, like numa, and there is more.
+> 
+>  i had the honour to work with someone who came up with a radical
+>  enhancement even to _that_.
 
-			Pekka
+Any papers to look at?
+
+>  basically the company has implemented, in hardware (a nanokernel),
+
+A nanokernel is a piece of software in my book?
+
+>                                                                     some
+>  operating system primitives, such as message passing (based on a
+>  derivative by thompson of the "alice" project from plessey, imperial and
+>  manchester university in the mid-80s), hardware cache line lookups
+>  (which means instead of linked list searching, the hardware does it for
+>  you in a single cycle), stuff like that.
+
+Single CPU cycle for searching data in memory? Impossible.
+
+>  the message passing system is designed as a parallel message bus -
+>  completely separate from the SMP and NUMA memory architecture, and as
+>  such it is perfect for use in microkernel OSes.
+
+Something must shuffle the data from "regular memory" into "message
+memory", so I bet that soon becomes the bottleneck. And the duplicate data
+paths add to the cost, money that could be spent on making memory access
+faster, so...
+
+>  (these sorts of things are unlikely to make it into the linux kernel, no
+>  matter how much persuasion and how many patches they would write).
+
+Your head would apin when looking at how fast this gets into Linux if there
+were such machines around, and it is worth it.
+
+>  _however_, a much _better_ target would be to create an L4 microkernel
+>  on top of their hardware kernel.
+
+Not yet another baroque CISC design, this time around with 1/3 of an OS in
+it!
+
+>  this company's hardware is kinda a bit difficult for most people to get
+>  their heads round: it's basically parallelised hardware-acceleration for
+>  operating systems, and very few people see the point in that.
+
+Perhaps most people that don't see the point do have a point?
+
+>  however, as i pointed out, 90nm and approx-2Ghz is pretty much _it_,
+>  and to get any faster you _have_ to go parallel.
+
+Sorry, all this has been doomsayed (with different numbers) from 1965 or
+so.
+
+>  and the drive for "faster", "better", "more sales" means more and more
+>  parallelism.
+
+Right.
+
+>  it's _happening_ - and SMP ain't gonna cut it (which is why
+>  these multi-core chips are coming out and why hyperthreading
+>  is coming out).
+
+Hyperthreading and multi-core /are/ SMP, just done a bit differently.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

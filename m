@@ -1,66 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbVJCQX3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbVJCQYB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932350AbVJCQX3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 12:23:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932310AbVJCQX2
+	id S932310AbVJCQYB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 12:24:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbVJCQYA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 12:23:28 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:47852 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S1751105AbVJCQX1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 12:23:27 -0400
-Message-ID: <43415AFC.5080501@adaptec.com>
-Date: Mon, 03 Oct 2005 12:23:24 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Andre Hedrick <andre@linux-ide.org>,
-       "David S. Miller" <davem@davemloft.net>, willy@w.ods.org,
-       patmans@us.ibm.com, ltuikov@yahoo.com, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, torvalds@osdl.org, linux-scsi@vger.kernel.org,
-       James Bottomley <James.Bottomley@steeleye.com>
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
- the kernel
-References: <Pine.LNX.4.10.10509300015100.27623-100000@master.linux-ide.org> <433D8542.1010601@adaptec.com> <433DD0F8.4000501@pobox.com> <43413CE8.1090306@adaptec.com> <434154F0.9070105@pobox.com>
-In-Reply-To: <434154F0.9070105@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 03 Oct 2005 16:23:24.0980 (UTC) FILETIME=[C7712F40:01C5C836]
+	Mon, 3 Oct 2005 12:24:00 -0400
+Received: from mgw-ext04.nokia.com ([131.228.20.96]:33180 "EHLO
+	mgw-ext04.nokia.com") by vger.kernel.org with ESMTP id S932310AbVJCQX7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 12:23:59 -0400
+Date: Mon, 3 Oct 2005 19:21:22 +0300
+From: Paul Mundt <paul.mundt@nokia.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] mempool_alloc() pre-allocated object usage
+Message-ID: <20051003162122.GB1844@nokia.com>
+References: <20051003143634.GA1702@nokia.com> <1128350953.17024.17.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1128350953.17024.17.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.5.6i
+X-OriginalArrivalTime: 03 Oct 2005 16:23:43.0771 (UTC) FILETIME=[D2A476B0:01C5C836]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/03/05 11:57, Jeff Garzik wrote:
->>From what I see, because of its *layering* position
->>JB's "transport attributes" cannot satisfy open transport.
+On Mon, Oct 03, 2005 at 04:49:13PM +0200, Arjan van de Ven wrote:
+> On Mon, 2005-10-03 at 17:36 +0300, Paul Mundt wrote:
+> > Both usage patterns seem valid from my point of view, would you be open
+> > to something that would accomodate both? (ie, possibly adding in a flag
+> > to determine pre-allocated object usage?) Or should I not be using
+> > mempool for contiguity purposes?
 > 
+> a similar dillema was in the highmem bounce code in 2.4; what worked
+> really well back then was to do it both; eg use half the pool for
+> "immediate" use, then try a VM alloc, and use the second half of the
+> pool for the really emergency cases.
 > 
-> Repeating verbatim the above quote:  a transport class is more than just 
-> transport attributes.
+Unfortunately this won't work very well in our case since it's
+specifically high order allocations that we are after, and we don't have
+the extra RAM to allow for this.
 
-a) "Transport Attributes" _is_ its name,
-b) It sits across SCSI Core, i.e. on the same level.
-c) It was never intended to add management.
-d) Its inteface to SCSI Core is badly defined and an "invention",
-   (and very poor at that).
+> Technically a mempool is there ONLY for the fallback, but I can see some
+> value in making it also a fastpath by means of a small scratch pool
 
-The reason for d) is that
-1) it tries to unify different _transports_,
-2) does _not_ follow _any_ spec or standard.
+I haven't been able to think of any really good way to implement this, so
+here's my current half-assed solution..
 
-Look at this, while you repeat verbaitm a single
-quote, I give you technical arguments, then you just
-repeat a single quote verbatim... Sad.
+This adds a mempool_alloc_from_pool() to do the allocation directly from
+the pool first if there are elements available, otherwise it defaults to
+the mempool_alloc() behaviour (and no, I haven't commented it yet, since
+it would be futile if no one likes this approach). It's at least fairly
+minimalistic, and saves us from doing stupid things with the gfp_mask in
+mempool_alloc().
 
-> Every chip is ultimately an interface to the transport, regardless of 
-> whether the transport layer is largely managed by software (aic94xx) or 
-> firmware (MPT).  SCSI host template can work just fine with open 
-> transport hardware.
+--
 
-Maybe the picures and the write up here will help:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=112810649712793&w=2
+ include/linux/mempool.h |    2 ++
+ mm/mempool.c            |   16 ++++++++++++++++
+ 2 files changed, 18 insertions(+)
 
-	Luben
-
-
+diff --git a/include/linux/mempool.h b/include/linux/mempool.h
+--- a/include/linux/mempool.h
++++ b/include/linux/mempool.h
+@@ -30,6 +30,8 @@ extern int mempool_resize(mempool_t *poo
+ 			unsigned int __nocast gfp_mask);
+ extern void mempool_destroy(mempool_t *pool);
+ extern void * mempool_alloc(mempool_t *pool, unsigned int __nocast gfp_mask);
++extern void * mempool_alloc_from_pool(mempool_t *pool,
++			unsigned int __nocast gfp_mask);
+ extern void mempool_free(void *element, mempool_t *pool);
+ 
+ /*
+diff --git a/mm/mempool.c b/mm/mempool.c
+--- a/mm/mempool.c
++++ b/mm/mempool.c
+@@ -246,6 +246,22 @@ repeat_alloc:
+ }
+ EXPORT_SYMBOL(mempool_alloc);
+ 
++void *mempool_alloc_from_pool(mempool_t *pool, unsigned int __nocast gfp_mask)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&pool->lock, flags);
++	if (likely(pool->curr_nr)) {
++		void *element = remove_element(pool);
++		spin_unlock_irqrestore(&pool->lock, flags);
++		return element;
++	}
++	spin_unlock_irqrestore(&pool->lock, flags);
++
++	return mempool_alloc(pool, gfp_mask);
++}
++EXPORT_SYMBOL(mempool_alloc_from_pool);
++
+ /**
+  * mempool_free - return an element to the pool.
+  * @element:   pool element pointer.

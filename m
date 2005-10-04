@@ -1,56 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965013AbVJDWWM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965016AbVJDWYq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965013AbVJDWWM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 18:22:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965016AbVJDWWM
+	id S965016AbVJDWYq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 18:24:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965017AbVJDWYp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 18:22:12 -0400
-Received: from h80ad254c.async.vt.edu ([128.173.37.76]:38863 "EHLO
-	h80ad254c.async.vt.edu") by vger.kernel.org with ESMTP
-	id S965013AbVJDWWL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 18:22:11 -0400
-Message-Id: <200510042221.j94MLv3P006180@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: Martin Drab <drab@kepler.fjfi.cvut.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4 in-kernel file opening 
-In-Reply-To: Your message of "Tue, 04 Oct 2005 13:41:49 EDT."
-             <Pine.LNX.4.61.0510041329180.29678@chaos.analogic.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.60.0510041924520.8210@kepler.fjfi.cvut.cz>
-            <Pine.LNX.4.61.0510041329180.29678@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1128464516_2752P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 04 Oct 2005 18:21:56 -0400
+	Tue, 4 Oct 2005 18:24:45 -0400
+Received: from web35511.mail.mud.yahoo.com ([66.163.179.135]:25257 "HELO
+	web35511.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S965016AbVJDWYp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 18:24:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=piKjeFFiMBAhU6KAc35yvm4IPcCEk3kzr9TOMJ+QPslDlxS49XeaOqUvAHFly7D6Y14WbKTMh4XfSqXk6ptM6OP5y2EFY9jP9O3gWjQWQrQidNVaGkOITLiV26V9g0ZzpBwgqnaMlX/btUjR8SEYtfepgP8S/nog1m3/X/FCBms=  ;
+Message-ID: <20051004222445.7563.qmail@web35511.mail.mud.yahoo.com>
+Date: Tue, 4 Oct 2005 15:24:44 -0700 (PDT)
+From: Dan C Marinescu <dan_c_marinescu@yahoo.com>
+Subject: Re: The price of SELinux (CPU)
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <4342E7B6.7050500@tmr.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1128464516_2752P
-Content-Type: text/plain; charset=us-ascii
+> Any results not based on actual measurement are
+> called "guesses" rather 
+> than "data." Such deep knowlege is useful to
+> determine what to measure, 
+> not what you would measure if you thought it were
+> necessary.
 
-On Tue, 04 Oct 2005 13:41:49 EDT, "linux-os (Dick Johnson)" said:
+in my world, we design stuff, calculate bigO, then
+implement and finally measure. we don't write code at
+inspiration and then measure and if kinda s*x we apply
+patches then measure again, etc etc etc, that's _all_
+i meant... (keep measuring something not really
+designed for this O or that O may be a huge waste of
+time). even in qa, the best engineers find
+short-cuts... even in black box testing, but then you
+get gray box, and white box testing and finally us
+(r&d).
 
-> You are never supposed to use files inside the kernel; period!
+> The measurements are very useful, in that they show
+> the magnitude of the 
+> performance impact using a benchmark which was
+> constructed to emulate 
+> certain real world loads. Since no one number or
+> even series of numbers 
+> can fully describe what *will* happen, but these
+> numbers show what 
+> *could* happen.
 
-Usually true.  However, feel free to look at kernel/acct.c and suggest
-a way of implementing it in a backward-compatible way that doesn't use
-filp_open() and filp_close().  Keep in mind you can't use the 'connector'
-framework the way auditd and friends do, because the sys_acct() call has
-semantics of writing directly to a file without a listening daemon....
+correct, but you should measure something which you
+first designed then implemented... not the other way
+around...
 
---==_Exmh_1128464516_2752P
-Content-Type: application/pgp-signature
+> > very same elementary I/O, linus would have
+> accepted
+> > this degradation... my $0.02... :-)
+> 
+> For some applications the issue isn't how fast the
+> O/S runs, but if it 
+> is secure enough to be run at all. Given the speed
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+hey, absolutely... i was about to add that too (last
+night) but it was kinda late... but how would you
+define "secure"... it's kinda like huge, eh? in my
+$0.02, secure means secure enough for the purpose
+(whatever that may be...) and it's way over the scope
+of this email... when this is equivalated with "oh,
+it's kinda slow, but it's worth cause it's safer"...
+well, i kinda have doubts on that... (check for a
+second oppinion in your sec strategy, etc...)
 
-iD8DBQFDQwCEcC3lWbTT17ARArkTAJ9gQUgQVN0UEpLMxehBjouIjcl3rgCg4qCP
-hTRSFZdZqK+JJrDi2W4IFVE=
-=fyc2
------END PGP SIGNATURE-----
+> of even commodity 
+> computers, it's probable that even a 2:1 slowdown
+> would still result in 
+> useful operation, compared to doing the work without
+> a computer.
 
---==_Exmh_1128464516_2752P--
+well, yes and now... it's a long story...
+
+> I can't speak for Linus' thinking of course, but I
+> have worked in secure 
+> environments before, both DOD and DOE, and
+> information control is vital.
+
+yeah... remember the old days (running around with
+floppies because networking was "unsafe" blah blah
+blah...)
+
+nice talking 2u bill,
+   d
+
+> 
+> -- 
+>     -bill davidsen (davidsen@tmr.com)
+> "The secret to procrastination is to put things off
+> until the
+>   last possible moment - but no longer"  -me
+> 
+
+
+
+		
+__________________________________ 
+Yahoo! Mail - PC Magazine Editors' Choice 2005 
+http://mail.yahoo.com

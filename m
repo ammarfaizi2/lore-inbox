@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964992AbVJDVug@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964995AbVJDV7a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964992AbVJDVug (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 17:50:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964993AbVJDVug
+	id S964995AbVJDV7a (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 17:59:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965001AbVJDV7a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 17:50:36 -0400
-Received: from ns.tasking.nl ([195.193.207.2]:59330 "EHLO ns.tasking.nl")
-	by vger.kernel.org with ESMTP id S964992AbVJDVuf (ORCPT
+	Tue, 4 Oct 2005 17:59:30 -0400
+Received: from gate.crashing.org ([63.228.1.57]:50100 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S964995AbVJDV73 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 17:50:35 -0400
-To: linux-kernel@vger.kernel.org
+	Tue, 4 Oct 2005 17:59:29 -0400
+Subject: Re: [PATCH] ppc64: Thermal control for SMU based machines
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Nish Aravamudan <nish.aravamudan@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>
+In-Reply-To: <29495f1d0510040944i6d8eb36aud85b63ff12608e8a@mail.gmail.com>
+References: <1128404215.31063.32.camel@gaston>
+	 <29495f1d0510040944i6d8eb36aud85b63ff12608e8a@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 05 Oct 2005 07:59:10 +1000
+Message-Id: <1128463151.6417.18.camel@gaston>
 Mime-Version: 1.0
-X-Newsreader: knews 1.0b.1
-Reply-To: dick.streefland@altium.nl (Dick Streefland)
-Organization: Altium BV
-X-Face: "`*@3nW;mP[=Z(!`?W;}cn~3M5O_/vMjX&Pe!o7y?xi@;wnA&Tvx&kjv'N\P&&5Xqf{2CaT 9HXfUFg}Y/TT^?G1j26Qr[TZY%v-1A<3?zpTYD5E759Q?lEoR*U1oj[.9\yg_o.~O.$wj:t(B+Q_?D XX57?U,#b,iM$[zX'I(!'VCQM)N)x~knSj>M*@l}y9(tK\rYwdv%~+&*jV"epphm>|q~?ys:g:K#R" 2PuAzy-N9cKM<Ml/%yPQxpq"Ttm{GzBn-*:;619QM2HLuRX4]~361+,[uFp6f"JF5R`y
-References: <7484.4341a91e.3c3d8@altium.nl> <d88.4342f0f2.78c40@altium.nl>
-From: dick.streefland@altium.nl (Dick Streefland)
-Subject: Re: PowerNow! frequency scaling causes stalls
-Content-Type: text/plain; charset=us-ascii
-NNTP-Posting-Host: 172.17.1.66
-Message-ID: <1bb0.4342f8e9.4e62@altium.nl>
-Date: Tue, 04 Oct 2005 21:49:29 -0000
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dick.streefland@altium.nl (Dick Streefland) wrote:
-| I found out that the pauses only occur when the X server is running,
-| not when I work on the console, or remotely. I can easily reproduce
-| the problem by playing an mp3 file in a console with mpg321, and then
-| running burnK7 to force frequency scaling. Without X server running,
-| everything works fine, but when the X server is running, the music
-| skips on frequency changes. However, when I start the X server, but
-| switch back to the console with CTRL-ALT-F1, there are no skips.
+On Tue, 2005-10-04 at 09:44 -0700, Nish Aravamudan wrote:
 
-It's me again :-). I solved the problem by changing the X.org video
-driver from "vesa" to "sis". So it looks like the vesa driver (or
-frame buffer?) is doing something funky.
+> 
+> This can be schedule_timeout_interruptible(delay); and then you can
+> get rid of the set_current_state(TASK_RUNNING);
 
--- 
-Dick Streefland                      ////                      Altium BV
-dick.streefland@altium.nl           (@ @)          http://www.altium.com
---------------------------------oOO--(_)--OOo---------------------------
+Ah, those lovely new "do-it-all" helpers :) Thanks.
+
+Ben.
+
 

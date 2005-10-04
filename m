@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964807AbVJDPb5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932507AbVJDPdB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964807AbVJDPb5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 11:31:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964808AbVJDPb5
+	id S932507AbVJDPdB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 11:33:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932510AbVJDPdB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 11:31:57 -0400
-Received: from mx1.suse.de ([195.135.220.2]:61602 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964807AbVJDPb4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 11:31:56 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH 1/2] x86_64 nmi_watchdog: Make check_nmi_watchdog static
-Date: Tue, 4 Oct 2005 17:32:06 +0200
-User-Agent: KMail/1.8.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       fastboot@osdl.org
-References: <m17jct8ggh.fsf@ebiederm.dsl.xmission.com> <200510041721.09736.ak@suse.de> <m1y859716y.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1y859716y.fsf@ebiederm.dsl.xmission.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 4 Oct 2005 11:33:01 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:33160
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932507AbVJDPdA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 11:33:00 -0400
+Subject: Re: 2.6.14-rc3-rt2
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: dino@in.ibm.com
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <20051004151635.GA8866@in.ibm.com>
+References: <20051004084405.GA24296@elte.hu> <43427AD9.9060104@cybsft.com>
+	 <20051004130009.GB31466@elte.hu>
+	 <Pine.LNX.4.58.0510040943540.13294@localhost.localdomain>
+	 <20051004142718.GA3195@elte.hu>  <20051004151635.GA8866@in.ibm.com>
+Content-Type: text/plain
+Organization: linutronix
+Date: Tue, 04 Oct 2005 17:34:10 +0200
+Message-Id: <1128440050.13057.33.camel@tglx.tec.linutronix.de>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510041732.07007.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 04 October 2005 17:26, Eric W. Biederman wrote:
-> Andi Kleen <ak@suse.de> writes:
-> > On Tuesday 04 October 2005 17:11, Eric W. Biederman wrote:
-> >> By using a late_initcall as i386 does we don't need to call
-> >> check_nmi_watchdog manually after SMP startup, and we don't
-> >> need different code paths for SMP and non SMP.
-> >>
-> >> This paves the way for moving apic initialization into init_IRQ,
-> >> where it belongs.
-> >
-> > I don't like it. I want to see a clear message in the log when
-> > the NMI watchdog doesn't work and with your patch that comes too late.
->
-> Why is it to late?
+On Tue, 2005-10-04 at 20:46 +0530, Dinakar Guniguntala wrote:
 
-It's after too much of the boot. e.g. consider analyzing log with a boot hang.
-It's important to know if the NMI watchdog runs or not. For that it is
-best when the test of it happens as early as possible.
+> I get a lot of these with -rt7 (One every minute)
+> 
+> BUG: auditd:3596, possible softlockup detected on CPU#3!
+>  [<c0144c48>] softlockup_detected+0x39/0x46 (8)
+>  [<c0144d26>] softlockup_tick+0xd1/0xd3 (20)
+>  [<c0111252>] smp_apic_timer_ipi_interrupt+0x4d/0x56 (24)
+>  [<c010396c>] apic_timer_ipi_interrupt+0x1c/0x24 (12)
+>  [<c0102e7f>] sysenter_past_esp+0x24/0x75 (44)
+> 
 
->
-> > -Andi (who has rejected similar patches before)
->
-> Would it be more appropriate to make this a per cpu check?
+Can you send me your .config please ?
 
-That would be fine as long as it's as early as possible.
-But I suspect you'll always need special cases for the BP
-because it needs the timer running first.
+tglx
 
--Andi
+

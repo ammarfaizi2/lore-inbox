@@ -1,61 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbVJDKNy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbVJDKbb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751213AbVJDKNy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 06:13:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751214AbVJDKNy
+	id S932202AbVJDKbb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 06:31:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbVJDKbb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 06:13:54 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:14554 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751213AbVJDKNx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 06:13:53 -0400
-Date: Tue, 4 Oct 2005 12:14:34 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: tsc_c3_compensate undefined since patch-2.6.13-rt13
-Message-ID: <20051004101434.GA26882@elte.hu>
-References: <20050901072430.GA6213@elte.hu> <1125571335.15768.21.camel@localhost.localdomain> <20051003065032.GA23777@elte.hu> <43424B7C.9020508@rncbc.org>
+	Tue, 4 Oct 2005 06:31:31 -0400
+Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:12245 "EHLO
+	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S932202AbVJDKba (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 06:31:30 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Subject: [PATCH 2.6] Do not set ATTR_CTIME in do_truncate(). - was: Re:
+	truncate(2) sometimes updates ctime and sometimes ctime and mtime!
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       fsdevel <linux-fsdevel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <1128095994.3584.12.camel@imp.csi.cam.ac.uk>
+References: <1128092687.5715.12.camel@imp.csi.cam.ac.uk>
+	 <Pine.LNX.4.64.0509300823160.3378@g5.osdl.org>
+	 <1128095994.3584.12.camel@imp.csi.cam.ac.uk>
+Content-Type: text/plain
+Organization: Computing Service, University of Cambridge, UK
+Date: Tue, 04 Oct 2005 11:31:19 +0100
+Message-Id: <1128421880.3785.0.camel@imp.csi.cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43424B7C.9020508@rncbc.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Linus,
 
-* Rui Nuno Capela <rncbc@rncbc.org> wrote:
+Here is a (tested) patch to remove the setting of ATTR_CTIME in
+do_truncate() as you suggested.
 
-> Ingo,
-> 
-> I'll take this late opportunity to report something that have been 
-> looking suspicious since 2.6.13-rt13, inclusive, about this symbol of 
-> tsc_c3_compensate being undefined and causing some noise on all kernel 
-> builds since then.
-> 
-> To put things in brief, here follows a small exchange that took place 
-> on the linux-audio-user list, regarding this thingie. Apparently for 
-> Mark, it was a kernel build showstopper.
+Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
 
-thanks for the reminder!
+---
 
-> WARNING: 
-> /lib/modules/2.6.13.1-rt13.0mdk/kernel/drivers/char/hangcheck-timer.ko 
-> needs unknown symbol do_monotonic_clock
-> WARNING: 
-> /lib/modules/2.6.13.1-rt13.0mdk/kernel/drivers/acpi/processor.ko needs 
-> unknown symbol tsc_c3_compensate
+On Fri, 2005-09-30 at 08:36 -0700, Linus Torvalds wrote:
+> On Fri, 30 Sep 2005, Anton Altaparmakov wrote:
+> > There is an inconsistency in the way truncate works which was introduced
+> > (relatively) recently.
+> > 
+> > fs/open.c::sys_truncate
+> >   -> do_sys_truncate
+> >     -> do_truncate does:
+> > 
+> >         newattrs.ia_size = length;
+> >         newattrs.ia_valid = ATTR_SIZE | ATTR_CTIME;
+> > 
+> > Hmm.. That looks wrong, partly because I don't think it should even set 
+> > ATTR_CTIME _either_. However, I don't see any recent changes to that code, 
+> > so it must have been logn for a long time. That line in do_truncate() has 
+> > been like that since at _least_ 2002.
 
-back then i fixed do_monotonic_clock, but forgot to export 
-tsc_c3_compensate. I have fixed this in my tree, and have uploaded the 
-2.6.14-rc3-rt3 patch. Does it build without warnings for you now?
+Having gone through looking at ext2/3 and having made ntfs_truncate()
+behave the same way as ext2/3_truncate() wrt m/ctime, I now agree with
+you.  do_truncate() should only set ATTR_SIZE, not ATTR_CTIME.  The file
+system will set ATTR_CTIME and ATTR_MTIME anyway so it's a waste for the
+attribute to also set ATTR_CTIME.  That way it happens twice.
 
-	Ingo
+Below is a patch to remove it...
+
+Best regards,
+
+        Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+
+diff --git a/fs/open.c b/fs/open.c
+--- a/fs/open.c
++++ b/fs/open.c
+@@ -204,7 +204,7 @@ int do_truncate(struct dentry *dentry, l
+ 		return -EINVAL;
+ 
+ 	newattrs.ia_size = length;
+-	newattrs.ia_valid = ATTR_SIZE | ATTR_CTIME;
++	newattrs.ia_valid = ATTR_SIZE;
+ 
+ 	down(&dentry->d_inode->i_sem);
+ 	err = notify_change(dentry, &newattrs);
+
+

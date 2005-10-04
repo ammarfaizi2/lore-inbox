@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932734AbVJDAyr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751171AbVJDAzL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932734AbVJDAyr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 20:54:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751175AbVJDAyr
+	id S1751171AbVJDAzL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 20:55:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751176AbVJDAzL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 20:54:47 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:27594 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751171AbVJDAyq (ORCPT
+	Mon, 3 Oct 2005 20:55:11 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:42920 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1751171AbVJDAzJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 20:54:46 -0400
-Date: Mon, 3 Oct 2005 20:54:01 -0400
-From: Dave Jones <davej@redhat.com>
-To: Peter Zubaj <pzad@pobox.sk>
-Cc: alsa-devel@alsa-project.org, James@superbug.co.uk,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, perex@suse.cz
-Subject: Re: [Alsa-devel] Re: [ALSA] snd-emu10k1: ALSA bug#1297: Fix a error recognising the SB Live Platinum.
-Message-ID: <20051004005401.GC10697@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Peter Zubaj <pzad@pobox.sk>, alsa-devel@alsa-project.org,
-	James@superbug.co.uk,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	perex@suse.cz
-References: <7a5967f2d895440aa1ca2fa1d201c380@pobox.sk>
+	Mon, 3 Oct 2005 20:55:09 -0400
+Date: Mon, 3 Oct 2005 17:54:38 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: greg@kroah.com, torvalds@osdl.org, akpm@osdl.org, jgarzik@pobox.com,
+       rdunlap@xenotime.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Document patch subject line better
+Message-Id: <20051003175438.6803539c.pj@sgi.com>
+In-Reply-To: <20051003230235.55516671.khali@linux-fr.org>
+References: <20051003072910.14726.10100.sendpatchset@jackhammer.engr.sgi.com>
+	<Pine.LNX.4.64.0510030805380.31407@g5.osdl.org>
+	<20051003085414.05468a2b.pj@sgi.com>
+	<20051003160452.GA9107@kroah.com>
+	<20051003230235.55516671.khali@linux-fr.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7a5967f2d895440aa1ca2fa1d201c380@pobox.sk>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 03, 2005 at 08:23:28AM +0200, Peter Zubaj wrote:
- > AFAIK this was fixed in CVS. Two cards have same model id (one has AC97, one not).
- > 
- > Fix:
- > 
- > http://sourceforge.net/mailarchive/forum.php?thread_id=8360485&forum_id=33141
- > 
+Jean wrote:
+> This only prevents quilt from stripping the "---" line
 
->From the look of that patch, this will just print
-"emu10k1: AC97 is optional on this board Proceeding without ac97 mixers..."
-and do nothing about actually making things work for people again,
-or even to suggest what they can do to work around this situation
-when their volume control breaks.  At the least this sounds like it
-needs to mention a module parameter to force ac97 support.
+This patch, plus the ~/.quiltrc option:
 
-What actually happens if we set ac97_chip=1 on the boards that
-don't have it ? Is it purely a cosmetic thing, showing some
-sliders that do nothing?
+	QUILT_NO_DIFF_INDEX=1
 
-		Dave
+do what I need.  Thanks for the quick response.
 
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

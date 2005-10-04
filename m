@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbVJDL6r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbVJDL74@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932388AbVJDL6r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 07:58:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932387AbVJDL6r
+	id S932390AbVJDL74 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 07:59:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932383AbVJDL74
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 07:58:47 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:61862 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932378AbVJDL6p (ORCPT
+	Tue, 4 Oct 2005 07:59:56 -0400
+Received: from zproxy.gmail.com ([64.233.162.204]:6092 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932377AbVJDL7z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 07:58:45 -0400
-Message-ID: <43426E6F.60500@pobox.com>
-Date: Tue, 04 Oct 2005 07:58:39 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+	Tue, 4 Oct 2005 07:59:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:content-type:content-transfer-encoding;
+        b=q3M0qq7krpR7DFCrZuk6DU+V/YG2aK7YFSkMTWZ0VaOH80F5x3MwQILsBpCKC2ZEo4v1XcPXeR/ODDbbCzZUYWbKaZAcM5a+hKp6guyDspMebj8Bsv1/O1lukln7BVaoEKlm/z45NWWNbtCyTYXBrvRPhYWkSHNhTXmoQmGROjs=
+Message-ID: <43426EB4.6080703@gmail.com>
+Date: Tue, 04 Oct 2005 20:59:48 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Debian Thunderbird 1.0.6 (X11/20050803)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "John W. Linville" <linville@tuxdriver.com>
-CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       bonding-devel@lists.sourceforge.net, ctindel@users.sourceforge.net,
-       fubar@us.ibm.com
-Subject: Re: [patch 2.6.14-rc2] bonding: replicate IGMP traffic in activebackup
- mode
-References: <09282005175053.11150@bilbo.tuxdriver.com>
-In-Reply-To: <09282005175053.11150@bilbo.tuxdriver.com>
+To: Andi Kleen <ak@suse.de>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Question regarding x86_64 __PHYSICAL_MASK_SHIFT
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John W. Linville wrote:
-> Replicate IGMP frames across all slaves in activebackup mode. This
-> ensures fail-over is rapid for multicast traffic as well. Otherwise,
-> multicast traffic will be lost until the next IGMP membership report
-> poll timeout.
-> 
-> Signed-off-by: John W. Linville <linville@tuxdriver.com>
-> ---
-> This is conceptually similar to the treatment of IGMP traffic in
-> bond_alb_xmit. In that case, IGMP traffic transmitted on any slave
-> is re-routed to the active slave in order to ensure that multicast
-> traffic continues to be directed to the active receiver.
-> 
->  drivers/net/bonding/bond_main.c |   53 ++++++++++++++++++++++++++++++++++++++--
->  1 files changed, 51 insertions(+), 2 deletions(-)
 
-Applied.  For future patches, please
+  Hello, Andi.
 
-* don't include description following the signed-off-by line
+  In include/asm-x86_64/page.h, __VIRTUAL_MASK_SHIFT is defined as 48 
+bits which is the size of virtual address space on current x86_64 
+machines as used as such.  OTOH, __PHYSICAL_MASK_SHIFT is defined as 46 
+and used as mask shift for physical page address (i.e. physaddr >> 12).
 
-* if you are willing to special-case me, I actually don't like seeing a 
-diffstat; I have to manually remove it before applying
+  In addition to being a bit confusing due to similar names but 
+different meanings, this means that we assume processors can physically 
+address 58 (46 + 12) bits, but both amd64 and IA-32e manuals say that 
+current architectural limit is 52 bits and bits 52-62 are reserved in 
+all page table entries.  This currently (and in foreseeable future) 
+doesn't cause any problem but it's still a bit weird.
 
+  Am I missing something?
 
+  Thanks.
+
+-- 
+tejun

@@ -1,60 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751034AbVJDBNL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751146AbVJDBQd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751034AbVJDBNL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 21:13:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbVJDBNL
+	id S1751146AbVJDBQd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 21:16:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbVJDBQd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 21:13:11 -0400
-Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:39173 "EHLO
-	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
-	id S1751034AbVJDBNK convert rfc822-to-8bit (ORCPT
+	Mon, 3 Oct 2005 21:16:33 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:39041 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751105AbVJDBQc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 21:13:10 -0400
-From: Felix Oxley <lkml@oxley.org>
-To: zippel@linux-m68k.org
-Subject: make xconfig fails for older kernels
-Date: Tue, 4 Oct 2005 02:13:03 +0100
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+	Mon, 3 Oct 2005 21:16:32 -0400
+Date: Mon, 3 Oct 2005 18:16:20 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, torvalds@osdl.org, stable@kernel.org
+Subject: Linux 2.6.13.3
+Message-ID: <20051004011620.GO16352@shell0.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200510040213.05361.lkml@oxley.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+We (the -stable team) are announcing the release of the 2.6.13.3 kernel.
 
-I have downloaded 2.6.0 + patches up to 2.6.13 from kernel.org.
+The diffstat and short summary of the fixes are below.
 
-When I try to configure the kernel using 'make xconfig' I get the following 
-error:
+I'll also be replying to this message with a copy of the patch between
+2.6.13.2 and 2.6.13.3, as it is small enough to do so.
 
-scripts/kconfig/mconf.c:91: error: static declaration of ‘current_menu’ 
-follows non-static declaration
-scripts/kconfig/lkc.h:63: error: previous declaration of ‘current_menu’ was 
-here
-make[1]: *** [scripts/kconfig/mconf.o] Error 1
-make: *** [xconfig] Error 2
-
-I attempted make menuconfig, make config, and make oldconfig but each failed 
-with the same error,
-
-This happens on 2.6.0, 2.6.1, 2.6.2 2.6.3, 2.6.4.
-I have previously built newer kernels such as 2.6.13-rc2-rt7 without a 
-problem.
-
-I was able to overcome the error by commenting out the declaration of 
-current_menu in mconf.c. But I am concerned as to the cause of this problem.
-
-Does anyone have an explanation?
+The updated 2.6.13.y git tree can be found at:
+	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/chrisw/linux-2.6.13.y.git
+and can be browsed at the normal kernel.org git web browser:
+	www.kernel.org/git/
 
 thanks,
-Felix
+-chris
 
+----------
 
+ Makefile                               |    2 -
+ arch/um/kernel/skas/include/mmu-skas.h |    4 +++
+ arch/um/kernel/skas/mmu.c              |    9 ++++++-
+ drivers/net/skge.c                     |   24 ++++++++++++-------
+ drivers/pcmcia/yenta_socket.c          |   13 +++++++++-
+ fs/exec.c                              |    5 +---
+ include/asm-um/pgalloc.h               |   12 +++++----
+ include/asm-um/pgtable-3level.h        |    9 ++-----
+ include/net/ip_vs.h                    |    3 ++
+ net/ipv4/ipvs/ip_vs_conn.c             |   41 ++++++++++++++++++++++++++++++---
+ net/ipv4/ipvs/ip_vs_core.c             |   16 ++++++------
+ net/ipv4/ipvs/ip_vs_sync.c             |   20 +++++++++++-----
+ net/ipv4/tcp_input.c                   |    2 -
+ net/ipv4/tcp_minisocks.c               |    2 -
+ net/ipv6/udp.c                         |    5 +---
+ 15 files changed, 119 insertions(+), 48 deletions(-)
 
+Summary of changes from v2.6.13.2 to v2.6.13.3
+============================================
 
+Alexander Nyberg:
+  Fix fs/exec.c:788 (de_thread()) BUG_ON
 
+Alexey Kuznetsov:
+  Don't over-clamp window in tcp_clamp_window()
 
+Chris Wright:
+  Linux 2.6.13.3
+
+David Stevens:
+  fix IPv6 per-socket multicast filtering in exact-match case
+
+Ivan Kokshaysky:
+  yenta oops fix
+
+Julian Anastasov:
+  ipvs: ip_vs_ftp breaks connections using persistence
+
+Paolo 'Blaisorblade' Giarrusso:
+  uml - Fix x86_64 page leak
+
+Stephen Hemminger:
+  skge: set mac address oops with bonding
+  tcp: set default congestion control correctly for incoming connections

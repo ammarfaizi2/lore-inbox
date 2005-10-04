@@ -1,58 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932338AbVJDDYy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932341AbVJDD2d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932338AbVJDDYy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 23:24:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbVJDDYy
+	id S932341AbVJDD2d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 23:28:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbVJDD2d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 23:24:54 -0400
-Received: from zproxy.gmail.com ([64.233.162.206]:2394 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932338AbVJDDYx convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 23:24:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Bv8GKLRZCb9InBf1IrRTLjBD7fuoznlOElOBl/8UPtG4E4v+BfBnh/PcbI0FmCZbQTVimb7kZKm3W9tqU3qeuIobJVeZHH01d9Zgm8LbuObIBnJ9bTvd48x58osvpcUmUgQPb/vOoEu2+Cd98q3bwgSGrXtDlR/vv9SvyY7Cj9A=
-Message-ID: <aec7e5c30510032024t6d48643fma875c917acb69d92@mail.gmail.com>
-Date: Tue, 4 Oct 2005 12:24:52 +0900
-From: Magnus Damm <magnus.damm@gmail.com>
-Reply-To: Magnus Damm <magnus.damm@gmail.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCHv2] Document from line in patch format
-Cc: Paul Jackson <pj@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       linux-kernel@vger.kernel.org, Coywolf Qi Hunt <coywolf@gmail.com>,
-       Greg KH <greg@kroah.com>
-In-Reply-To: <Pine.LNX.4.64.0510021158260.31407@g5.osdl.org>
-MIME-Version: 1.0
+	Mon, 3 Oct 2005 23:28:33 -0400
+Received: from xenotime.net ([66.160.160.81]:37282 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932341AbVJDD2c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 23:28:32 -0400
+Date: Mon, 3 Oct 2005 20:28:31 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Diego de Estrada <diego1609@gmail.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] release_resource() check for NULL resource
+Message-Id: <20051003202831.64d6e5a6.rdunlap@xenotime.net>
+In-Reply-To: <5dc44ec70510031959w1f4adfcbh395535ade34a357d@mail.gmail.com>
+References: <20051002170318.GA22074@home.fluff.org>
+	<20051002103922.34dd287d.rdunlap@xenotime.net>
+	<5dc44ec70510031959w1f4adfcbh395535ade34a357d@mail.gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051002163244.17502.15351.sendpatchset@jackhammer.engr.sgi.com>
-	 <Pine.LNX.4.64.0510021158260.31407@g5.osdl.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/3/05, Linus Torvalds <torvalds@osdl.org> wrote:
-> On Sun, 2 Oct 2005, Paul Jackson wrote:
+On Mon, 3 Oct 2005 23:59:16 -0300 Diego de Estrada wrote:
+
+> On 10/2/05, Randy.Dunlap <rdunlap@xenotime.net> wrote:
+> > On Sun, 2 Oct 2005 18:03:18 +0100 Ben Dooks wrote:
 > >
-> > Document more details of patch format such as the "from" line
-> > used to specify the patch author, and provide more references
-> > for patch guidelines.
->
-> One more issue: I'd really prefer that the "---" not be documented as
-> "optional".
->
-> Yes, my tools will also notice "diff -" and "Index: " at the start of the
-> line as being markers for where the real patch starts, but that's a hack
-> because people haven't been following the "---" rule. I'd much rather make
-> it clear that the "---" is supposed to be there, to mark where the end of
-> the comments are.
+> > > If release_resource() is passed a NULL resource
+> > > the kernel will OOPS.
+> >
+> > does this actually happen?  you are fixing a real oops?
+> > if so, what driver caused it?
+> 
+> The point is: no driver should make the kernel OOPS. Thanks Ben.
 
-Huh, I thought that the first line in a unified patch started with
-"---", and that the lines above were treated as garbage. Relying on
-"diff -" or "Index: " seems wrong. Try diffing two files by "diff -u
-file1 file2" and look at the output - the first line is "---"... This
-extra "---" you are proposing seems like a workaround to me.
+I understand that sentiment, but if a driver is bad,
+we generally want to know about that rather than paste
+(or paper) over it on a continuous basis.
 
-/ magnus
+
+---
+~Randy
+You can't do anything without having to do something else first.
+-- Belefant's Law

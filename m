@@ -1,69 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964777AbVJDHEA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932448AbVJDHGP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964777AbVJDHEA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 03:04:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932448AbVJDHEA
+	id S932448AbVJDHGP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 03:06:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbVJDHGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 03:04:00 -0400
-Received: from tumsa.unibanka.lv ([193.178.151.91]:17322 "EHLO fax.unibanka.lv")
-	by vger.kernel.org with ESMTP id S932446AbVJDHD7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 03:03:59 -0400
-From: Aivils Stoss <aivils@unibanka.lv>
+	Tue, 4 Oct 2005 03:06:15 -0400
+Received: from s-smtp-osl-01.bluecom.no ([62.101.193.35]:65200 "EHLO
+	s-smtp-osl-01.bluecom.no") by vger.kernel.org with ESMTP
+	id S932448AbVJDHGO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 03:06:14 -0400
+Message-ID: <2484.81.191.59.180.1128409573.squirrel@webmail.bluecom.no>
+Date: Tue, 4 Oct 2005 09:06:13 +0200 (CEST)
+Subject: it87x / buggy bios workaround
+From: "Marius Schrecker" <marius@schrecker.org>
 To: linux-kernel@vger.kernel.org
-Subject: faketty - another input module for TTY emulation
-Date: Tue, 4 Oct 2005 10:06:35 +0300
-User-Agent: KMail/1.7.2
-Cc: linuxconsole-dev@lists.sourceforge.net
+Reply-To: marius@schrecker.org
+User-Agent: SquirrelMail/1.4.0-1
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510041006.37147.aivils@unibanka.lv>
+Content-Type: text/plain;charset=iso-8859-1
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,All!
+Hi,
 
-Current X server uses TTY mostly to get character on
-keyboard key press. I was decide to merge evdev.c,
-keyboard.c, vt_ioctl.c and create simple handler, which
-is capable send character from keyboard to X server.
+   I'm sorry to bother the list with stupid end-use questions, but am
+stuck trying to find the patch to work around this. I'll disappear
+quietly if someone gan help me ;-).
 
-Input layer allow us register unlimited count of
-handlers. All these handlers recieve events from input
-device drivers and send output to device files or
-kernel subsytems. faketty register new input handler
-named ftty and send characters from keyboard to
-device files /dev/input/fttyXX. fttyXX device files
-is created for X server. All unnecessary features
-are deleted:
-No VT switch,
-No text mode,
-No terminal-io or VT ioctl's.
-ftty ioctl's will work for keyboard rate and beeper.
-Files /dev/input/fttyXX will be created for each
-keyboard or speaker device. On fttyXX open keyboard
-disconnected from normal text console and send keypress
-events to fttyXX opener application only. So each
-keyboard is separate now.
+I have a Biostar K8NBD-S9 motherboard with the IT8712F super i/o chip.
 
-faketty is designed for peoples which will run multiple
-X servers, each for another user, at same time on one linux box.
-You can cheat X very simple:
-modprobe faketty
-rm -f /dev/tty50
-ln -s /dev/input/ftty0 /dev/tty50
-startx -- vt50
-Now X uses keyboard via ftty. If multiple keyboards are
-pluged in, just choose right fttyXX file. Take a look into
-/proc/bus/input/devices.
+The board suffers from the buggy BIOS which causes the manual PWM feature
+of the chip to be unreliable to initialize.
 
-http://www.ltn.lv/~aivils/files/faketty-0.04.tar.bz2
+After much googling I found this thread which indicates that Jonas Munsin
+and Jean Delvare were working on a workaround for this back in January:
 
-Of course You can reach same result if X server does not
-touch /dev/ttyXX at all, but uses his own evdev drivers.
-Current X allways uses TTY.
+ http://lkml.org/lkml/2005/1/14/94
 
-Aivils Stoss
+The thread also suggests that the patch was destined for the -mm tree.
+
+I have looked as well as I can at the 2.6.14 -mm patches, but can't see
+any reference to it87.
+
+Currently running 2.6.13 vanilla (with some patches). The it87 driver
+seems to implement the bug testing function which Jonas and Jean were
+talking about in the 2.6.10 /2.6.11 days, but doesn't conatin any
+workaround beyond disabling PWM once the problem is identified.
+
+Can anyone tell me if a patch against 2.6.13 exists (or whether it is
+implemented in some flavour of 2.6.13 / 2.6.14), or how possibly to
+customize my own module code to initialize pwm for my board (this will be
+a htpc frontend box so I really need the quietness)?
+
+
+Many thanks
+
+
+Marius Schrecker
+

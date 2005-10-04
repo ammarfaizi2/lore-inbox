@@ -1,82 +1,267 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932433AbVJDGwh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964776AbVJDG5i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932433AbVJDGwh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 02:52:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932429AbVJDGwh
+	id S964776AbVJDG5i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 02:57:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbVJDG5i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 02:52:37 -0400
-Received: from astound-64-85-224-245.ca.astound.net ([64.85.224.245]:64772
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S932427AbVJDGwg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 02:52:36 -0400
-Date: Mon, 3 Oct 2005 23:51:51 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Luben Tuikov <luben_tuikov@adaptec.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arjan van de Ven <arjan@infradead.org>,
-       "Salyzyn, Mark" <mark_salyzyn@adaptec.com>, andrew.patterson@hp.com,
-       dougg@torque.net, Linus Torvalds <torvalds@osdl.org>,
-       Luben Tuikov <ltuikov@yahoo.com>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
- the kernel
-In-Reply-To: <4341599D.70904@adaptec.com>
-Message-ID: <Pine.LNX.4.10.10510032345090.410-100000@master.linux-ide.org>
+	Tue, 4 Oct 2005 02:57:38 -0400
+Received: from web35509.mail.mud.yahoo.com ([66.163.179.133]:5228 "HELO
+	web35509.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932428AbVJDG5h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 02:57:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=iZgOpXVdMTKK6nX54Hy7yrutBfPQiUx8Of3Zlk0XEcsHBw5TiZ64L61RxHfJhC8avZgrFx+ZfdRp5N9VDfZP0sTHSn1iP0rI4XGrWz2G577D+ZDz0BbA8GQXw6AnncSTn/sc6+yCLLhacgLMejfmcwOdDzVVXcyLXL5OieK6M6U=  ;
+Message-ID: <20051004065737.43941.qmail@web35509.mail.mud.yahoo.com>
+Date: Mon, 3 Oct 2005 23:57:37 -0700 (PDT)
+From: Dan C Marinescu <dan_c_marinescu@yahoo.com>
+Subject: Re: The price of SELinux (CPU)
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <43421F46.8030202@comcast.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+the following link:
 
-On Mon, 3 Oct 2005, Luben Tuikov wrote:
+http://www.nsa.gov/selinux/list-archive/0505/11459.cfm
 
-> On 10/01/05 19:55, Alan Cox wrote:
-> > On Gwe, 2005-09-30 at 19:53 +0200, Arjan van de Ven wrote:
-> > 
-> >>that makes me wonder... why and how does T10 control linux abi's ??
-> > 
-> > 
-> > Indirectly the standards do define APIs at the very least. A good
-> > example is taskfile. ACPI methods (which we don't yet use) allow get/set
-> > mode, get features on the motherboard ATA controller if you don't know
-> > how to drive it. The objects they work in are taskfiles. No taskfiles,
-> > no ACPI.
+describes _some_ particular cases... among the over
+100,000,000,000 factors involved are:
+
+1. fs type (block-size, etc) // not sure on this one
+:-(
+2. number of processors
+3. nature of processes // they are relatively vague on
+this one
+4. kernel configuration (they mentioned about
+2.6.12-rc2 or something) but then again, they didn't
+post their kernel .config (maybe it's a fedora stock
+.config, maybe not...)
+...
+...
+...
+etc
+
+And even then, to draw the line at 7% sounds more like
+a quick and dirty conclusion (@ least 2 me)... 
+
+   d
+
+--- John Richard Moser <nigelenki@comcast.net> wrote:
+
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> Yes, that's true.
-
-Luben,
-
-Here was your entry point to state SCSI uses "taskfiles" in the packet
-transport.
-
-> Even more is true.  Standards and specs define the
-> _layering infrastructure_ which if implemented, 
-> allows for layer intersection.
+> I'm not an expert in this kind of stuff.  I wonder
+> where the numbers
+> come from; i.e. is 7% from policy?  A O(1) policy
+> lookup would be immune
+> to big policies; a O(n) would probably not have that
+> much impact from a
+> typical policy lookup.  Still perhaps interpreting
+> the policy is a chore
+> in itself, which still says bigger policy means
+> bigger hit.  Or is 7%
+> constant?
 > 
-> For example, if one needs to insert a SATL later just because
-> the underlaying transport was found able to transport it,
-> since the layering is well defined and _so_ implemented, it wouldn't
-> be hard to interface antother well defined layer in.
+> I don't know what the frame of reference is or was. 
+> I'm sure with
+> selinux with no policy it's rather 0ish; what I
+> don't know is what I'm
+> supposed to be looking at for benchmarking.  Just
+> randomly turning
+> SELinux on and off and looking might give me an
+> invalid measure.
 > 
-> If, OTOH, things are conglomerated into a blob, just because
-> the kernel engineers (not (storage) engineers per se) found _no_ current
-> use of the layering infrastructure and separating the layers
-> was found do add  "more maintenance", then this will turn around
-> sooner or later to bite back.
+> Dan C Marinescu wrote:
+> > i suggested you to disable selinux in order to
+> have
+> > something to compare to... (engineers compare,
+> > measure, instead of believing in rummors...)
+> > 
+> >    d
+> > 
+> > --- John Richard Moser <nigelenki@comcast.net>
+> wrote:
+> > 
+> > 
+> > I'm not an abortionist; if I hear something has an
+> > ugly side, I try to
+> > find out if it can be fixed, and if the trade-off
+> is
+> > worth getting rid
+> > of it.  SELinux and LSM are quite useful you know;
+> > the overhead is
+> > probably not even that significant on the desktop
+> to
+> > gamers (although if
+> > you TELL them about it they'll piss themselves),
+> > from a practical
+> > viewpoint considering their excessive hardware.
+> > 
+> > Dan C Marinescu wrote:
+> > 
+> >>try selinux=0, _if u feel that way :-)
+> > 
+> >>about big o:
+> > 
+> > 
+> > 
+> >>
+>
+http://www.maththinking.com/boat/compsciBooksIndex.html
+> > 
+> >>   daniel
+> > 
+> > 
+> > 
+> >>--- John Richard Moser <nigelenki@comcast.net>
+> > 
+> > wrote:
+> > 
+> > 
+> >>I've heard that SELinux has produced benchmarks
+> > 
+> > such
+> > 
+> >>as 7% increased CPU
+> >>load.  Is this true and current?  Is it dependent
+> > 
+> > on
+> > 
+> >>policy?  What is
+> >>the policy lookup complexity ( O(1), O(n),
+> >>O(nlogn)...)?  Are there
+> >>other places where a bottleneck may exist aside
+> > 
+> > from
+> > 
+> >>gruffing with the
+> >>policy?  Isn't the policy actually in xattrs so
+> > 
+> > it's
+> > 
+> >>O(1)?  Where else
+> >>would an overhead that big come from aside from a
+> >>lookup in a table?
+> > 
+> >>....
+> > 
+> >>Why is the sky blue?  Why do you have a mustach? 
+> >>Why doesn't mommy have
+> >>one?  Does she shave it?
+> > 
+> >>At any rate, my personal end goal is a secure
+> >>high-performance operating
+> >>system, as user friendly as Ubuntu, Mandriva, or
+> >>Win----.  To this end,
+> >>I'm (still; a lot of you have seen me before)
+> >>evaluating the performance
+> >>hit of various user and kernel security
+> > 
+> > enhancements
+> > 
+> >>like PaX,
+> >>ProPolice, various OpenWall/GrSecurity niceness
+> > 
+> > that
+> > 
+> >>needs to be divided
+> >>out, and of course LSM/SELinux.  Also wondering
+> >>about that PHKMalloc
+> >>thing on openbsd; is it really all that, is it
+> > 
+> > junk,
+> > 
+> >>how's it compare to
+> >>the recent ptmalloc work, and can it run on Linux
+> >>for direct benching .
+> >>. . but that's off topic.
+> > 
+> >>--
+> >>All content of all messages exchanged herein are
+> >>left in the
+> >>Public Domain, unless otherwise explicitly stated.
+> > 
+> >>    Creative brains are a valuable, limited
+> >>resource. They shouldn't be
+> >>    wasted on re-inventing the wheel when there
+> > 
+> > are
+> > 
+> >>so many fascinating
+> >>    new problems waiting out there.
+> > 
+> > 
+> > --
+> > 
+> >>Eric Steven Raymond
+> > 
+> > -
+> > To unsubscribe from this list: send the line
+> > "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at
+> > http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> > 
+> > 
+> >>__________________________________ 
+> >>Yahoo! Mail - PC Magazine Editors' Choice 2005 
+> >>http://mail.yahoo.com
+> > 
+> > 
+> > --
+> > All content of all messages exchanged herein are
+> > left in the
+> > Public Domain, unless otherwise explicitly stated.
+> > 
+> >     Creative brains are a valuable, limited
+> > resource. They shouldn't be
+> >     wasted on re-inventing the wheel when there
+> are
+> > so many fascinating
+> >     new problems waiting out there.
+> >                                                 
+> --
+> > Eric Steven Raymond
+> - -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> > __________________________________ 
+> > Yahoo! Mail - PC Magazine Editors' Choice 2005 
+> > http://mail.yahoo.com
+> 
+> 
+> - --
+> All content of all messages exchanged herein are
+> left in the
+> Public Domain, unless otherwise explicitly stated.
+> 
+>     Creative brains are a valuable, limited
+> resource. They shouldn't be
+>     wasted on re-inventing the wheel when there are
+> so many fascinating
+>     new problems waiting out there.
+>                                                  --
+> Eric Steven Raymond
+> -----BEGIN PGP SIGNATURE-----
+> 
+=== message truncated ===
 
-Not everyone has to be a "storage engineer", but a "storage engineer" must
-be able to explain to any OS developer/engineer the scope of the transport
-and work within the OS or explain why a change is required.
-
-A lot of both has happened so ... to quote Elmo:
-
-"ARE WE THERE YETTTTTTTTTTTTTTTTTTTT!"
-
-This process is moving like rush hours in the SF-Bay area.
-
-Cheers,
-
-Andre
 
 
+		
+__________________________________ 
+Yahoo! Mail - PC Magazine Editors' Choice 2005 
+http://mail.yahoo.com

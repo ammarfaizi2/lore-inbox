@@ -1,80 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751116AbVJDDw0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751179AbVJDELz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751116AbVJDDw0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 23:52:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751175AbVJDDw0
+	id S1751179AbVJDELz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 00:11:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbVJDELz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 23:52:26 -0400
-Received: from h80ad24d0.async.vt.edu ([128.173.36.208]:19140 "EHLO
-	h80ad24d0.async.vt.edu") by vger.kernel.org with ESMTP
-	id S1751116AbVJDDw0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 23:52:26 -0400
-Message-Id: <200510040351.j943pe6B015123@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Vadim Lobanov <vlobanov@speakeasy.net>, Rik van Riel <riel@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel? 
-In-Reply-To: Your message of "Mon, 03 Oct 2005 22:07:22 BST."
-             <20051003210722.GI8548@lkcl.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <20051002204703.GG6290@lkcl.net> <Pine.LNX.4.63.0510021704210.27456@cuia.boston.redhat.com> <20051002230545.GI6290@lkcl.net> <Pine.LNX.4.58.0510021637260.28193@shell2.speakeasy.net> <20051003005400.GM6290@lkcl.net> <1128367120.26992.44.camel@localhost.localdomain>
-            <20051003210722.GI8548@lkcl.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1128397899_3613P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 03 Oct 2005 23:51:39 -0400
+	Tue, 4 Oct 2005 00:11:55 -0400
+Received: from mx2.palmsource.com ([12.7.175.14]:63877 "EHLO
+	mx2.palmsource.com") by vger.kernel.org with ESMTP id S1751179AbVJDELy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 00:11:54 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: what's next for the linux kernel?
+Date: Mon, 3 Oct 2005 21:11:52 -0700
+Message-ID: <DE88BDF02F4319469812588C7950A97E9312A0@ussunex1.palmsource.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: what's next for the linux kernel?
+Thread-Index: AcXIWa68GAAyBbBNSCGpB/biCeDhbgAP0Rug
+From: "Martin Fouts" <Martin.Fouts@palmsource.com>
+To: "Luke Kenneth Casson Leighton" <lkcl@lkcl.net>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1128397899_3613P
-Content-Type: text/plain; charset=us-ascii
+ 
 
-On Mon, 03 Oct 2005 22:07:22 BST, Luke Kenneth Casson Leighton said:
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org 
+> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Luke 
+> Kenneth Casson Leighton
+> Sent: Monday, October 03, 2005 1:31 PM
+> To: Joe Bob Spamtest
+> Cc: linux-kernel
+> Subject: Re: what's next for the linux kernel?
+> 
+> On Mon, Oct 03, 2005 at 12:36:20PM -0700, Joe Bob Spamtest wrote:
+> > The point being: If and when the industry switches its focus to 
+> > highly parallel systems, Linux will shortly follow.
+> 
+> 
+> personally i find that i like a bit of a run-up and/or 
+> advance notice  of major paradigm shifts.  on the basis that 
+> other people might also  want to know, i initiated this 
+> discussion yesterday and it seems like  forever already! :)
 
->  whereas, would you see it more reasonable for a commodity-level
->  chip to be something like 32- or even 64- ultra-RISC cores of
->  between 5000 and 10,000 gates each, resulting in a processor
->  of about 50% cache memory and 50% processing plus associated
->  parallel bus architecture at around 1 million gates?
+There's no real need to hurry.  The industry isn't going to shift its
+focus to highly parallel systems in the near future.  Highly parallel
+systems have been around since the 60s, (when 'highly parallel' meant a
+lot less than it does today, but was still parallel compared to typical
+von neumann machines of the period.)
 
-Read your history - especially IBM's 801 chipset, which became the RT,
-and why they then replaced that with the Power architecture...
+It's been fifteen years since I last played with them, and there's not
+much chance that they'll get interesting in the near future.
 
->  running at oh say 1ghz or with careful design effort focussed on the
->  RISC cores maybe even 2ghz, resulting in 128 total GigaOps if you
->  go for 64 cpus @ 2ghz.  that's a friggin lot of processing power
->  for a 1m gates processor!!
-
-Good.  Were you planning to run the ucLinux branch on this, or include all
-the pieces needed to support virtual memory?  And do it inside that 10K gate
-budget, too (hint - how many gates will you burn just doing a TLB big enough
-to get the performance of mapping a virtual->real address to be good enough?)
-
-You might want to read up on all the fun that IBM went through in designing
-memory subsystems that can keep even the Power4 and Power5 chipsets fed too,
-or the interesting stuff that SGI has to do to allow 64/128/512 processors
-to beat up on a memory system - I'm sure there's some pretty high gate count
-involved there..
-
-If you're doing 64 10K-gate cores, you've blown 64% of your 1M gate budget.
-You've got only 320K gates left to build cache *and* virtual memory support to
-make that 1M gate budget.  And yes, you need a cache, as IBM found out on
-their RT processor.....
-
-
---==_Exmh_1128397899_3613P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFDQfxLcC3lWbTT17ARAnBLAJ9/YvG2U5h9lewcNvn1eCCTFuZsFgCeNTsq
-eQMF8jN7ou01I/V/HlOmluU=
-=Oi8O
------END PGP SIGNATURE-----
-
---==_Exmh_1128397899_3613P--
+They'll never go completely away, because there'll always be niches
+where they make sense, but they'll never break out into the mainstream,
+because those niches tend to get smaller, not larger, over time.

@@ -1,65 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932506AbVJDOeL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964793AbVJDOiY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932506AbVJDOeL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 10:34:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932504AbVJDOeK
+	id S964793AbVJDOiY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 10:38:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964787AbVJDOiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 10:34:10 -0400
-Received: from mail23.sea5.speakeasy.net ([69.17.117.25]:57756 "EHLO
-	mail23.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S932506AbVJDOeJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 10:34:09 -0400
-Date: Tue, 4 Oct 2005 10:34:07 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-X-X-Sender: jmorris@excalibur.intercode
-To: John Richard Moser <nigelenki@comcast.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: The price of SELinux (CPU)
-In-Reply-To: <434204F8.2030209@comcast.net>
-Message-ID: <Pine.LNX.4.63.0510041026180.18246@excalibur.intercode>
-References: <434204F8.2030209@comcast.net>
+	Tue, 4 Oct 2005 10:38:24 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:24767 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S964779AbVJDOiX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 10:38:23 -0400
+Message-ID: <434293D8.50300@adaptec.com>
+Date: Tue, 04 Oct 2005 10:38:16 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Ryan Anderson <ryan@autoweb.net>,
+       =?ISO-8859-1?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>,
+       andrew.patterson@hp.com, Marcin Dalecki <dalecki.marcin@neostrada.pl>,
+       "Salyzyn, Mark" <mark_salyzyn@adaptec.com>, dougg@torque.net,
+       Luben Tuikov <ltuikov@yahoo.com>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
+ the kernel
+References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01A9FA11@otce2k03.adaptec.com>  <1128105594.10079.109.camel@bluto.andrew>  <433D9035.6000504@adaptec.com>  <1128111290.10079.147.camel@bluto.andrew>  <433DA0DF.9080308@adaptec.com>  <1128114950.10079.170.camel@bluto.andrew> <433DB5D7.3020806@adaptec.com>  <9B90AC8A-A678-4FFE-B42D-796C8D87D65B@neostrada.pl>  <4341381D.2060807@adaptec.com>  <E93AC7D5-4CC0-4872-A5B8-115D2BF3C1A9@neostrada.pl>  <1128357350.10079.239.camel@bluto.andrew> <43415EC0.1010506@adaptec.com>  <Pine.BSO.4.62.0510032103380.28198@rudy.mif.pg.gda.pl> <1128377075.23932.5.camel@ryan2.internal.autoweb.net> <Pine.LNX.4.64.0510031531170.31407@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0510031531170.31407@g5.osdl.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 04 Oct 2005 14:38:17.0797 (UTC) FILETIME=[427B2F50:01C5C8F1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Oct 2005, John Richard Moser wrote:
+On 10/03/05 18:56, Linus Torvalds wrote:
+> So when the SAS people say that the SCSI layer should conform to their 
+> needs, next time they should remember that it _also_ needs to conform to 
+> the needs of things like USB storage. Which has totally different goals, 
+> implementation issues, and bugs. 
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> I've heard that SELinux has produced benchmarks such as 7% increased CPU
-> load.
+It does, Linus, it does.
 
-The overall performance hit across several micro and macro benchmarks, 
-when last measured last year sometime, was around 7%, depending on 
-workload and what you were testing.  It's a very rough figure and any 
-serious benchmarking needs to be done for the intended workload.
+SAS/USB/SBP all implement pretty close to SAM architecture
+whereby the transport layer (SAS/USB/SBP) sits between
+SCSI Core (SAM to be) and the interconnect (USB bus, SAS link,
+Infiniband, IEEE1394, TCP/IP, FC, etc).
 
-The AVC is now linearly scalable (measured up to 32 processors) thanks to 
-RCU and work by NEC.
+The reason of all this hoopla is that James B, wants to decree
+that LSI/MPT is the norm and everything else (USB/SAS/SBP) is
+the exception, while in fact it is the other way around.
 
->  Is this true and current?  Is it dependent on policy?  What is
-> the policy lookup complexity ( O(1), O(n), O(nlogn)...)?  Are there
-> other places where a bottleneck may exist aside from gruffing with the
-> policy?  Isn't the policy actually in xattrs so it's O(1)?  Where else
-> would an overhead that big come from aside from a lookup in a table?
+This is because 10 years ago, all there was was Parallel SCSI,
+and all LLDD implemented Parallel SCSI and above them was SCSI Core.
+So in effect there was no need for Parallel SCSI Transport _layer_
+between an SPI LLDD and SCSI Core.
 
-The overhead is generally independent of policy size, as policy is cached 
-in the AVC and most workloads use a trivial number of policy rules in a 
-steady state (often less than 20).
+What you see in my SAS Code is what you see in USB Storage (sans EH)
+and what you see in SBP.  It is the same architecture: layered.
 
-So, generally, you'll only have a very small number of AVC entries active, 
-although you could have some longish hash chains if policy has not been 
-reloaded since boot.
-
-Look in /selinux/avc for stats.
-
-Googling for "selinux performance" will guide you to:
-http://www.livejournal.com/users/james_morris/2153.html
-
-
-- James
--- 
-James Morris
-<jmorris@namei.org>
+	Luben

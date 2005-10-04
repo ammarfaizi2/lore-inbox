@@ -1,88 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964889AbVJDSFy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964896AbVJDSLe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964889AbVJDSFy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 14:05:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964894AbVJDSFy
+	id S964896AbVJDSLe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 14:11:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964899AbVJDSLe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 14:05:54 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:18605 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964889AbVJDSFx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 14:05:53 -0400
-Date: Tue, 4 Oct 2005 23:41:25 +0530
-From: Dinakar Guniguntala <dino@in.ibm.com>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+	Tue, 4 Oct 2005 14:11:34 -0400
+Received: from xproxy.gmail.com ([66.249.82.199]:42053 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964896AbVJDSLd convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 14:11:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=LKJAJe+ClLt5VfNgme+e6oACwCBcb0bIK2mVQ24g/67Up2X1+LxqpA6j2uX2MrKUJkvcaprxYjEvjFlunbaBp8yq2q0VsvuzM14E/Rb08q04xuy9+pmkU4+r5GZijKydtAvR3woM3UQP8wdSSac6T1qwFiq/VoPbTq9xsTmP23E=
+Message-ID: <5bdc1c8b0510041111n188b8e14lf5a1398406d30ec4@mail.gmail.com>
+Date: Tue, 4 Oct 2005 11:11:32 -0700
+From: Mark Knecht <markknecht@gmail.com>
+Reply-To: Mark Knecht <markknecht@gmail.com>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.14-rc3-rt2
+Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
        Thomas Gleixner <tglx@linutronix.de>,
        david singleton <dsingleton@mvista.com>, Todd.Kneisel@bull.com,
        Felix Oxley <lkml@oxley.org>
-Subject: Re: 2.6.14-rc3-rt2
-Message-ID: <20051004181125.GB5072@in.ibm.com>
-Reply-To: dino@in.ibm.com
-References: <20051004084405.GA24296@elte.hu> <43427AD9.9060104@cybsft.com> <20051004130009.GB31466@elte.hu> <Pine.LNX.4.58.0510040943540.13294@localhost.localdomain> <20051004142718.GA3195@elte.hu> <20051004151635.GA8866@in.ibm.com> <1128442180.4252.0.camel@c-67-188-6-232.hsd1.ca.comcast.net> <20051004175842.GA5072@in.ibm.com> <1128448471.4252.6.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <5bdc1c8b0510040944q233f14e6g17d53963a4496c1f@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1128448471.4252.6.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-User-Agent: Mutt/1.4.1i
+References: <20051004084405.GA24296@elte.hu> <43427AD9.9060104@cybsft.com>
+	 <20051004130009.GB31466@elte.hu>
+	 <5bdc1c8b0510040944q233f14e6g17d53963a4496c1f@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 04, 2005 at 10:54:30AM -0700, Daniel Walker wrote:
-> On Tue, 2005-10-04 at 23:28 +0530, Dinakar Guniguntala wrote:
-> 
-> > Nope doesnt help. I booted with this code change and I get the
-> > same message. 
-> > 
-> > I saw that the code change is in #ifdef CONFIG_HIGH_RES_TIMERS.
-> > I have already disabled CONFIG_HIGH_RES_TIMERS as Thomas Gleixner 
-> > suggested
-> 
-> Which code is #ifdef'd ?
+On 10/4/05, Mark Knecht <markknecht@gmail.com> wrote:
+> On 10/4/05, Ingo Molnar <mingo@elte.hu> wrote:
+<SNIP>
+> >
+> > ugh. uploaded -rt6.
+> >
+> >         Ingo
+>
+> Hi Ingo,
+>    OK, I'm up and running 2.6.14-rc3-rt7. I see no run-time problems yet...
+<SNIP>
 
-Your code was in function smp_apic_timer_ipi_interrupt (right?) that
-is under CONFIG_HIGH_RES_TIMERS which was disabled.
+I have now had one burst of xruns. As best I can tell I was
+downloading some video files for mplayer to look at, or possibly
+running one of them. I see this in qjackctl:
 
-> 
-> Is there any diversity in these messages , or is it always the same? Is
-> the CPU# ever different?
-> 
+configuring for 44100Hz, period = 128 frames, buffer = 2 periods
+nperiods = 2 for capture
+nperiods = 2 for playback
+09:59:12.079 Server configuration saved to "/home/mark/.jackdrc".
+09:59:12.079 Statistics reset.
+09:59:12.224 Client activated.
+09:59:12.226 Audio connection change.
+09:59:12.242 Audio connection graph change.
+09:59:17.819 Audio connection graph change.
+09:59:17.927 Audio connection change.
+09:59:19.985 Audio connection graph change.
+10:09:22.377 XRUN callback (1).
+**** alsa_pcm: xrun of at least 0.336 msecs
+10:09:28.450 XRUN callback (2).
+**** alsa_pcm: xrun of at least 0.306 msecs
+10:11:33.241 XRUN callback (3).
+**** alsa_pcm: xrun of at least 4.058 msecs
+subgraph starting at qjackctl-8560 timed out (subgraph_wait_fd=17,
+status = 0, state = Finished)
+10:12:02.490 XRUN callback (4).
+**** alsa_pcm: xrun of at least 3.135 msecs
+subgraph starting at qjackctl-8560 timed out (subgraph_wait_fd=17,
+status = 0, state = Finished)
+10:16:22.910 XRUN callback (5).
+**** alsa_pcm: xrun of at least 1.848 msecs
 
-Sorry I should have put this up before.
+There have been no more xruns since that burst about an hour ago.
+
+Looking in the logs there is a suspicious 1394 access problem:
+
+Oct  4 10:00:40 lightning ieee1394.agent[8630]: ... no drivers for
+IEEE1394 product 0x/0x/0x
+Oct  4 10:04:32 lightning kjournald starting.  Commit interval 5 seconds
+Oct  4 10:04:32 lightning EXT3 FS on sdc2, internal journal
+Oct  4 10:04:32 lightning EXT3-fs: mounted filesystem with ordered data mode.
+Oct  4 10:09:05 lightning attempt to access beyond end of device
+Oct  4 10:09:05 lightning sdb1: rw=0, want=5621502224, limit=117210177
+Oct  4 10:09:05 lightning attempt to access beyond end of device
+Oct  4 10:09:05 lightning sdb1: rw=0, want=8263631504, limit=117210177
+Oct  4 10:09:05 lightning attempt to access beyond end of device
+Oct  4 10:09:05 lightning sdb1: rw=0, want=27135269176, limit=117210177
+Oct  4 10:09:05 lightning attempt to access beyond end of device
+Oct  4 10:09:05 lightning sdb1: rw=0, want=25260813976, limit=117210177
+Oct  4 10:09:05 lightning attempt to access beyond end of device
+Oct  4 10:09:05 lightning sdb1: rw=0, want=5621502224, limit=117210177
+Oct  4 10:10:02 lightning cron[8737]: (root) CMD (test -x
+/usr/sbin/run-crons && /usr/sbin/run-crons )
+Oct  4 10:20:01 lightning cron[8762]: (root) CMD (test -x
+/usr/sbin/run-crons && /usr/sbin/run-crons )
+Oct  4 10:30:01 lightning cron[8800]: (root) CMD (test -x
+/usr/sbin/run-crons && /usr/sbin/run-crons )
+Oct  4 10:40:01 lightning cron[8847]: (root) CMD (test -x
+/usr/sbin/run-crons && /usr/sbin/run-crons )
 
 
-BUG: auditd:3587, possible softlockup detected on CPU#2!
- [<c0144448>] softlockup_detected+0x39/0x46 (8)
- [<c0144526>] softlockup_tick+0xd1/0xd3 (20)
- [<c01112c7>] smp_apic_timer_interrupt+0xc0/0xcc (24)
- [<c010396c>] apic_timer_interrupt+0x1c/0x24 (24)
- [<c0102e8a>] sysenter_past_esp+0x2f/0x75 (44)
-BUG: auditd:3587, possible softlockup detected on CPU#3!
- [<c0144448>] softlockup_detected+0x39/0x46 (8)
- [<c0144526>] softlockup_tick+0xd1/0xd3 (20)
- [<c01112c7>] smp_apic_timer_interrupt+0xc0/0xcc (24)
- [<c010396c>] apic_timer_interrupt+0x1c/0x24 (24)
-BUG: auditd:3587, possible softlockup detected on CPU#2!
- [<c0144448>] softlockup_detected+0x39/0x46 (8)
- [<c0144526>] softlockup_tick+0xd1/0xd3 (20)
- [<c01112c7>] smp_apic_timer_interrupt+0xc0/0xcc (24)
- [<c010396c>] apic_timer_interrupt+0x1c/0x24 (24)
-BUG: auditd:3587, possible softlockup detected on CPU#3!
- [<c0144448>] softlockup_detected+0x39/0x46 (8)
- [<c0144526>] softlockup_tick+0xd1/0xd3 (20)
- [<c01112c7>] smp_apic_timer_interrupt+0xc0/0xcc (24)
- [<c010396c>] apic_timer_interrupt+0x1c/0x24 (24)
-BUG: auditd:3587, possible softlockup detected on CPU#2!
- [<c0144448>] softlockup_detected+0x39/0x46 (8)
- [<c0144526>] softlockup_tick+0xd1/0xd3 (20)
- [<c01112c7>] smp_apic_timer_interrupt+0xc0/0xcc (24)
- [<c010396c>] apic_timer_interrupt+0x1c/0x24 (24)
-BUG: auditd:3587, possible softlockup detected on CPU#3!
- [<c0144448>] softlockup_detected+0x39/0x46 (8)
- [<c0144526>] softlockup_tick+0xd1/0xd3 (20)
- [<c01112c7>] smp_apic_timer_interrupt+0xc0/0xcc (24)
- [<c010396c>] apic_timer_interrupt+0x1c/0x24 (24)
+/dev/sdb1 in this case holds a 50GB ogg-based music library. It's been
+streaming since I brought the kernel up.
 
+1394 problems????
 
-	-Dinakar
+Thanks,
+Mark

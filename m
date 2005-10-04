@@ -1,50 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932411AbVJDMm7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932402AbVJDMn0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932411AbVJDMm7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 08:42:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbVJDMm7
+	id S932402AbVJDMn0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 08:43:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932407AbVJDMnJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 4 Oct 2005 08:43:09 -0400
+Received: from [203.171.93.254] ([203.171.93.254]:27079 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S932402AbVJDMm7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 4 Oct 2005 08:42:59 -0400
-Received: from mailgate2.urz.uni-halle.de ([141.48.3.8]:29923 "EHLO
-	mailgate2.uni-halle.de") by vger.kernel.org with ESMTP
-	id S932411AbVJDMm6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 08:42:58 -0400
-Date: Tue, 04 Oct 2005 14:41:43 +0200 (MEST)
-From: Clemens Ladisch <clemens@ladisch.de>
-Subject: [PATCH 3/7] HPET: fix division by zero in HPET_INFO
-In-reply-to: <20051004124126.23057.75614.schnuffi@turing>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, Bob Picco <bob.picco@hp.com>,
-       Clemens Ladisch <clemens@ladisch.de>
-Message-id: <20051004124143.23057.56237.schnuffi@turing>
-Content-transfer-encoding: 7BIT
-References: <20051004124126.23057.75614.schnuffi@turing>
-X-Scan-Signature: ddcb1167275539a271faf4605d0b8e77
+Subject: Re: Strange disk corruption with Linux >= 2.6.13
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: sander@humilis.net
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051004102834.GA16755@favonius>
+References: <20050927111038.GA22172@ime.usp.br>
+	 <1127863912.4802.52.camel@localhost> <20051001213655.GE6397@ime.usp.br>
+	 <20051004102834.GA16755@favonius>
+Content-Type: text/plain
+Organization: Cyclades
+Message-Id: <1128429739.6611.2.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Tue, 04 Oct 2005 22:42:20 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Clemens Ladisch <clemens@ladisch.de>
+Hi
 
-Fix a division by zero that happened when the HPET_INFO ioctl was
-called before a timer frequency had been set.
+On Tue, 2005-10-04 at 20:28, Sander wrote:
+> Rog?rio Brito wrote (ao):
+> > On Sep 28 2005, Nigel Cunningham wrote:
+> > > 3) Is the corruption only ever in memory, or seen on disk too?
+> > 
+> > I have noticed the problem mostly on disk. One strange situation was
+> > when I was untarring a kernel tree (compressed with bzip2) and in the
+> > middle of the extraction, bzip2 complained that the thing was
+> > corrupted.
+> > 
+> > I removed what was extracted right away and tried again to extract the
+> > tree (at this point, suspecting even that something in software had
+> > problems). The problem with bzip2 occurred again. Then, I rebooted the
+> > system an the problem magically went away.
+> 
+> That would mean the corruption existed in memory only. The kernel
+> tarball got sucked into memory and got corrupted. On reboot, the tarball
+> gets read in again, and this time no corruption. The on disk tarball was
+> oke it seems.
+> 
+> If you run memtest86+ (latest version) for at least 24 hours it _should_
+> find something.
 
-Signed-off-by: Clemens Ladisch <clemens@ladisch.de>
+Assuming that it really is a memory issue. Don't discount the
+possibility of a kernel bug too quickly, especially when it apparently
+worked fine in the past.
 
-Index: linux-2.6.13/drivers/char/hpet.c
-===================================================================
---- linux-2.6.13.orig/drivers/char/hpet.c	2005-10-03 22:53:12.000000000 +0200
-+++ linux-2.6.13/drivers/char/hpet.c	2005-10-03 22:53:15.000000000 +0200
-@@ -494,8 +494,11 @@ hpet_ioctl_common(struct hpet_dev *devp,
- 		{
- 			struct hpet_info info;
- 
--			info.hi_ireqfreq = hpet_time_div(hpetp,
--							 devp->hd_ireqfreq);
-+			if (devp->hd_ireqfreq)
-+				info.hi_ireqfreq =
-+					hpet_time_div(hpetp, devp->hd_ireqfreq);
-+			else
-+				info.hi_ireqfreq = 0;
- 			info.hi_flags =
- 			    readq(&timer->hpet_config) & Tn_PER_INT_CAP_MASK;
- 			info.hi_hpet = devp->hd_hpets->hp_which;
+Just my 2c, feel free to discount anyway :)
+
+Regards,
+
+Nigel
+

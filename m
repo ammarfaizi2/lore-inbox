@@ -1,38 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964859AbVJDRQ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964860AbVJDRXv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964859AbVJDRQ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 13:16:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964860AbVJDRQ3
+	id S964860AbVJDRXv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 13:23:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964861AbVJDRXv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 13:16:29 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:56580 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S964859AbVJDRQ2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 13:16:28 -0400
-Date: Tue, 4 Oct 2005 18:16:36 +0100 (BST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       fastboot@osdl.org
-Subject: Re: [PATCH] i386: move apic init in init_IRQs
-In-Reply-To: <m1psql707i.fsf@ebiederm.dsl.xmission.com>
-Message-ID: <Pine.LNX.4.61L.0510041811590.10696@blysk.ds.pg.gda.pl>
-References: <m1fyrh8gro.fsf@ebiederm.dsl.xmission.com>
- <Pine.LNX.4.61L.0510041628160.10696@blysk.ds.pg.gda.pl>
- <m1psql707i.fsf@ebiederm.dsl.xmission.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 4 Oct 2005 13:23:51 -0400
+Received: from free.hands.com ([83.142.228.128]:37262 "EHLO free.hands.com")
+	by vger.kernel.org with ESMTP id S964860AbVJDRXv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 13:23:51 -0400
+Date: Tue, 4 Oct 2005 18:23:38 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Nikita Danilov <nikita@clusterfs.com>
+Cc: "Martin J. Bligh" <mbligh@mbligh.org>, Rik van Riel <riel@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel?
+Message-ID: <20051004172338.GZ10538@lkcl.net>
+References: <20051002204703.GG6290@lkcl.net> <54300000.1128297891@[10.10.2.4]> <20051003011041.GN6290@lkcl.net> <200510022028.07930.chase.venters@clientec.com> <20051004125955.GQ10538@lkcl.net> <17218.39427.421249.448094@gargle.gargle.HOWL> <20051004161702.GU10538@lkcl.net> <17218.47309.332739.836271@gargle.gargle.HOWL>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17218.47309.332739.836271@gargle.gargle.HOWL>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-hands-com-MailScanner: Found to be clean
+X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Oct 2005, Eric W. Biederman wrote:
+On Tue, Oct 04, 2005 at 09:15:57PM +0400, Nikita Danilov wrote:
+> Luke Kenneth Casson Leighton writes:
+> 
+> [...]
+> 
+>  > 
+>  >  assuming that you have an intelligent programmer (or some really good
+>  >  and working parallelisation tools) who really knows his threads?
+> 
+> Well, I'd like to have a hardware with CAS-n operation for one
+> thing. 
 
-> lapic_disable() already does this.  I am just testing the results.
+ CAS - compare and swap - by CAS-n i presume that you mean effectively a
+ SIMD CAS instruction?
 
- I see -- this just proves how big a mess the current code is. ;-)
+> But what would this buy us? 
 
-> So what should the capitalization be? "APIC disabled\n" ?
+ you do not say :)  i am genuinely interested to hear what it would buy.
 
- Obviously.  Thanks for your tidy-up!
+> Having different kernel algorithms
+> for x86 and mythical cas-n-able hardware is not viable.
 
-  Maciej
+ if i can get an NPTL .deb package for glibc for x86 only it would tend
+ to imply that that isn't a valid conclusion: am i missing something?
+
+ cheers,
+
+ l.
+ 
+ 

@@ -1,41 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964862AbVJDRlj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932534AbVJDRp1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964862AbVJDRlj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 13:41:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964863AbVJDRli
+	id S932534AbVJDRp1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 13:45:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932535AbVJDRp1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 13:41:38 -0400
-Received: from kepler.fjfi.cvut.cz ([147.32.6.11]:5532 "EHLO
-	kepler.fjfi.cvut.cz") by vger.kernel.org with ESMTP id S964862AbVJDRli
+	Tue, 4 Oct 2005 13:45:27 -0400
+Received: from quark.didntduck.org ([69.55.226.66]:56761 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP id S932534AbVJDRp1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 13:41:38 -0400
-Date: Tue, 4 Oct 2005 19:41:37 +0200 (CEST)
-From: Martin Drab <drab@kepler.fjfi.cvut.cz>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4 in-kernel file opening
-In-Reply-To: <Pine.LNX.4.60.0510041933310.8210@kepler.fjfi.cvut.cz>
-Message-ID: <Pine.LNX.4.60.0510041940070.8210@kepler.fjfi.cvut.cz>
-References: <Pine.LNX.4.60.0510041924520.8210@kepler.fjfi.cvut.cz>
- <Pine.LNX.4.60.0510041933310.8210@kepler.fjfi.cvut.cz>
+	Tue, 4 Oct 2005 13:45:27 -0400
+Message-ID: <4342C007.6020809@didntduck.org>
+Date: Tue, 04 Oct 2005 13:46:47 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Martin Drab <drab@kepler.fjfi.cvut.cz>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4 in-kernel file opening
+References: <Pine.LNX.4.60.0510041924520.8210@kepler.fjfi.cvut.cz>
+In-Reply-To: <Pine.LNX.4.60.0510041924520.8210@kepler.fjfi.cvut.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Oct 2005, Martin Drab wrote:
-
-> On Tue, 4 Oct 2005, Martin Drab wrote:
+Martin Drab wrote:
+> Hi,
 > 
-> > Hi,
-> > 
-> > can anybody tell me why there is no sys_open() exported in kernel/ksyms.c 
-> > in 2.4 kernels while the sys_close() is there? And what is then the 
-> > preferred way of opening files from within a 2.4 kernel module?
-> 
-> Is it just pure filp_open()/filp_close() ?
+> can anybody tell me why there is no sys_open() exported in kernel/ksyms.c 
+> in 2.4 kernels while the sys_close() is there? And what is then the 
+> preferred way of opening files from within a 2.4 kernel module?
 
-Now I see sys_open() is doing a strncpy_from_user() conversion, so that's 
-why it's not good for in-kernel use. So I assume the 
-filp_open()/filp_close() is OK then.
+Why do you need to open files from kernel space?  There are usually 
+better alternatives like the firmware loader interface.
 
-Martin
+--
+				Brian Gerst

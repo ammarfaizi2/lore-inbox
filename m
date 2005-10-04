@@ -1,129 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbVJDCW0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbVJDC1b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932286AbVJDCW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 22:22:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932289AbVJDCW0
+	id S932289AbVJDC1b (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 22:27:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbVJDC1b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 22:22:26 -0400
-Received: from fsmlabs.com ([168.103.115.128]:28875 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S932286AbVJDCWZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 22:22:25 -0400
-Date: Mon, 3 Oct 2005 19:28:28 -0700 (PDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Natalie.Protasevich@unisys.com
-cc: akpm@osdl.org, ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/1] ES7000 platform update (i386)
-In-Reply-To: <20051003000130.601D243F57@linux.site>
-Message-ID: <Pine.LNX.4.61.0510031927440.1684@montezuma.fsmlabs.com>
-References: <20051003000130.601D243F57@linux.site>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 3 Oct 2005 22:27:31 -0400
+Received: from xenotime.net ([66.160.160.81]:19139 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932289AbVJDC1a convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 22:27:30 -0400
+Date: Mon, 3 Oct 2005 19:27:28 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Felix Oxley <lkml@oxley.org>
+Cc: zippel@linux-m68k.org, linux-kernel@vger.kernel.org
+Subject: Re: make xconfig fails for older kernels
+Message-Id: <20051003192728.5f0c11c7.rdunlap@xenotime.net>
+In-Reply-To: <200510040213.05361.lkml@oxley.org>
+References: <200510040213.05361.lkml@oxley.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2 Oct 2005 Natalie.Protasevich@unisys.com wrote:
+On Tue, 4 Oct 2005 02:13:03 +0100 Felix Oxley wrote:
 
 > 
-> This is platform code update for ES7000: 
-> disables IRQ overrides for the recent ES7000 (Rascal/Zorro),
-> cleans up the compile warning.
-> The patch only affects the ES7000 subarch.
+> I have downloaded 2.6.0 + patches up to 2.6.13 from kernel.org.
 > 
-> Signed-off-by: <Natalie.Protasevich@unisys.com>
+> When I try to configure the kernel using 'make xconfig' I get the following 
+> error:
+> 
+> scripts/kconfig/mconf.c:91: error: static declaration of ___current_menu___ 
+> follows non-static declaration
+> scripts/kconfig/lkc.h:63: error: previous declaration of ___current_menu___ was 
+> here
+> make[1]: *** [scripts/kconfig/mconf.o] Error 1
+> make: *** [xconfig] Error 2
+> 
+> I attempted make menuconfig, make config, and make oldconfig but each failed 
+> with the same error,
+> 
+> This happens on 2.6.0, 2.6.1, 2.6.2 2.6.3, 2.6.4.
+> I have previously built newer kernels such as 2.6.13-rc2-rt7 without a 
+> problem.
+> 
+> I was able to overcome the error by commenting out the declaration of 
+> current_menu in mconf.c. But I am concerned as to the cause of this problem.
+> 
+> Does anyone have an explanation?
 
-Thanks Natalie.
+Sorry, not really, other than to say that make menuconfig and
+make xconfig work fine for me on 2.6.4.
+I just downloaded the 2.6.4 tarball and tested/verified them.
 
-Acked-by: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-
-> ---
-> 
->  arch/i386/mach-es7000/es7000.h              |   11 ++++++++++-
->  arch/i386/mach-es7000/es7000plat.c          |   11 +++++++----
->  include/asm-i386/mach-es7000/mach_mpparse.h |    2 +-
->  3 files changed, 18 insertions(+), 6 deletions(-)
-> 
-> diff -puN arch/i386/mach-es7000/es7000.h~es7000_plat_update arch/i386/mach-es7000/es7000.h
-> --- linux-2.6.14-rc2-mm2/arch/i386/mach-es7000/es7000.h~es7000_plat_update	2005-10-02 15:06:09.523620888 -0700
-> +++ linux-2.6.14-rc2-mm2-root/arch/i386/mach-es7000/es7000.h	2005-10-02 16:43:47.857018840 -0700
-> @@ -24,6 +24,15 @@
->   * http://www.unisys.com
->   */
->  
-> +/*
-> + * ES7000 chipsets
-> + */	
-> +
-> +#define NON_UNISYS		0
-> +#define ES7000_CLASSIC		1
-> +#define ES7000_ZORRO		2
-> +
-> +
->  #define	MIP_REG			1
->  #define	MIP_PSAI_REG		4
->  
-> @@ -106,6 +115,6 @@ struct mip_reg {
->  
->  extern int parse_unisys_oem (char *oemptr);
->  extern int find_unisys_acpi_oem_table(unsigned long *oem_addr);
-> -extern void setup_unisys ();
-> +extern void setup_unisys(void);
->  extern int es7000_start_cpu(int cpu, unsigned long eip);
->  extern void es7000_sw_apic(void);
-> diff -puN arch/i386/mach-es7000/es7000plat.c~es7000_plat_update arch/i386/mach-es7000/es7000plat.c
-> --- linux-2.6.14-rc2-mm2/arch/i386/mach-es7000/es7000plat.c~es7000_plat_update	2005-10-02 15:06:09.558615568 -0700
-> +++ linux-2.6.14-rc2-mm2-root/arch/i386/mach-es7000/es7000plat.c	2005-10-02 16:45:32.410124352 -0700
-> @@ -62,6 +62,9 @@ static unsigned int base;
->  static int
->  es7000_rename_gsi(int ioapic, int gsi)
->  {
-> +	if (es7000_plat == ES7000_ZORRO)
-> +		return gsi;
-> +
->  	if (!base) {
->  		int i;
->  		for (i = 0; i < nr_ioapics; i++)
-> @@ -76,7 +79,7 @@ es7000_rename_gsi(int ioapic, int gsi)
->  #endif	/* (CONFIG_X86_IO_APIC) && (CONFIG_ACPI) */
->  
->  void __init
-> -setup_unisys ()
-> +setup_unisys(void)
->  {
->  	/*
->  	 * Determine the generation of the ES7000 currently running.
-> @@ -86,9 +89,9 @@ setup_unisys ()
->  	 *
->  	 */
->  	if (!(boot_cpu_data.x86 <= 15 && boot_cpu_data.x86_model <= 2))
-> -		es7000_plat = 2;
-> +		es7000_plat = ES7000_ZORRO;
->  	else
-> -		es7000_plat = 1;
-> +		es7000_plat = ES7000_CLASSIC;
->  	ioapic_renumber_irq = es7000_rename_gsi;
->  }
->  
-> @@ -151,7 +154,7 @@ parse_unisys_oem (char *oemptr)
->  	}
->  
->  	if (success < 2) {
-> -		es7000_plat = 0;
-> +		es7000_plat = NON_UNISYS;
->  	} else
->  		setup_unisys();
->  	return es7000_plat;
-> diff -puN include/asm-i386/mach-es7000/mach_mpparse.h~es7000_plat_update include/asm-i386/mach-es7000/mach_mpparse.h
-> --- linux-2.6.14-rc2-mm2/include/asm-i386/mach-es7000/mach_mpparse.h~es7000_plat_update	2005-10-02 15:06:09.594610096 -0700
-> +++ linux-2.6.14-rc2-mm2-root/include/asm-i386/mach-es7000/mach_mpparse.h	2005-10-02 15:11:41.029224376 -0700
-> @@ -16,7 +16,7 @@ static inline void mpc_oem_pci_bus(struc
->  
->  extern int parse_unisys_oem (char *oemptr);
->  extern int find_unisys_acpi_oem_table(unsigned long *oem_addr);
-> -extern void setup_unisys();
-> +extern void setup_unisys(void);
->  
->  static inline int mps_oem_check(struct mp_config_table *mpc, char *oem,
->  		char *productid)
-> _
-> 
+---
+~Randy
+You can't do anything without having to do something else first.
+-- Belefant's Law

@@ -1,40 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbVJDJta@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbVJDKNy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751188AbVJDJta (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 05:49:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbVJDJta
+	id S1751213AbVJDKNy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 06:13:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751214AbVJDKNy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 05:49:30 -0400
-Received: from zproxy.gmail.com ([64.233.162.193]:41041 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751188AbVJDJt3 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 05:49:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=lwTCERzqjGk4zlCvnBCCtYo5LrVSEbQWa8Gen5BMvP87opPwoS0/JeUkrvlG0T5LC5l7JaFtAV+KZSXZCdTcbcA8pkIpNJ3pXAR0OGbVpgMuWx5+d57F/CZ2prmUeS/5uugYASOjJEPiHJId9axFup7kQmesEbBhH5X5Nq+O/UA=
-Message-ID: <aec7e5c30510040249x7246284fv26e1f281a690a087@mail.gmail.com>
-Date: Tue, 4 Oct 2005 18:49:29 +0900
-From: Magnus Damm <magnus.damm@gmail.com>
-Reply-To: Magnus Damm <magnus.damm@gmail.com>
-To: Hirokazu Takahashi <taka@valinux.co.jp>
-Subject: Re: [PATCH 07/07] i386: numa emulation on pc
-Cc: magnus@valinux.co.jp, linux-mm@kvack.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20051004.165216.94769788.taka@valinux.co.jp>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 4 Oct 2005 06:13:54 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:14554 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751213AbVJDKNx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 06:13:53 -0400
+Date: Tue, 4 Oct 2005 12:14:34 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: tsc_c3_compensate undefined since patch-2.6.13-rt13
+Message-ID: <20051004101434.GA26882@elte.hu>
+References: <20050901072430.GA6213@elte.hu> <1125571335.15768.21.camel@localhost.localdomain> <20051003065032.GA23777@elte.hu> <43424B7C.9020508@rncbc.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20050930073232.10631.63786.sendpatchset@cherry.local>
-	 <20050930073308.10631.24247.sendpatchset@cherry.local>
-	 <20051004.165216.94769788.taka@valinux.co.jp>
+In-Reply-To: <43424B7C.9020508@rncbc.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/4/05, Hirokazu Takahashi <taka@valinux.co.jp> wrote:
-> It seems like you've forgot to bind cpus with emulated nodes as linux for
-> x86_64 does. I don't think it's your intention.
 
-True, not my intention. I will have a look at that. Thanks.
+* Rui Nuno Capela <rncbc@rncbc.org> wrote:
 
-/ magnus
+> Ingo,
+> 
+> I'll take this late opportunity to report something that have been 
+> looking suspicious since 2.6.13-rt13, inclusive, about this symbol of 
+> tsc_c3_compensate being undefined and causing some noise on all kernel 
+> builds since then.
+> 
+> To put things in brief, here follows a small exchange that took place 
+> on the linux-audio-user list, regarding this thingie. Apparently for 
+> Mark, it was a kernel build showstopper.
+
+thanks for the reminder!
+
+> WARNING: 
+> /lib/modules/2.6.13.1-rt13.0mdk/kernel/drivers/char/hangcheck-timer.ko 
+> needs unknown symbol do_monotonic_clock
+> WARNING: 
+> /lib/modules/2.6.13.1-rt13.0mdk/kernel/drivers/acpi/processor.ko needs 
+> unknown symbol tsc_c3_compensate
+
+back then i fixed do_monotonic_clock, but forgot to export 
+tsc_c3_compensate. I have fixed this in my tree, and have uploaded the 
+2.6.14-rc3-rt3 patch. Does it build without warnings for you now?
+
+	Ingo

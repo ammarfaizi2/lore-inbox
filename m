@@ -1,64 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964944AbVJDTwr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964945AbVJDTz3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964944AbVJDTwr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 15:52:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964945AbVJDTwr
+	id S964945AbVJDTz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 15:55:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964946AbVJDTz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 15:52:47 -0400
-Received: from zproxy.gmail.com ([64.233.162.205]:46603 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964944AbVJDTwq convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 15:52:46 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=k2UNAUfLDHUz0g1uN4ERL14sABhoClQt//4fazhS1wi5YsC6YHnITCiAh5zWWu+vd/DBeZ8wnH5XOT6U1RKJhYj9lZ4dPs1cJ+7j9oaJTnA8smAT/Bw8K9mXFyPty6Hvtkdmf2S2rNbhSR7YO9Itw1ag82KzUfItAFPaoqWtNDc=
-Message-ID: <3e1162e60510041252u286cb069jcfd589b9a0320232@mail.gmail.com>
-Date: Tue, 4 Oct 2005 12:52:45 -0700
-From: David Leimbach <leimy2k@gmail.com>
-Reply-To: David Leimbach <leimy2k@gmail.com>
-To: Christoph Hellwig <hch@infradead.org>, David Leimbach <leimy2k@gmail.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: /etc/mtab and per-process namespaces
-In-Reply-To: <20051004191818.GA31328@infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 4 Oct 2005 15:55:29 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:6344 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964945AbVJDTz3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 15:55:29 -0400
+Date: Wed, 5 Oct 2005 01:33:26 +0530
+From: Dinakar Guniguntala <dino@in.ibm.com>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>,
+       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>,
+       david singleton <dsingleton@mvista.com>, Todd.Kneisel@bull.com,
+       Felix Oxley <lkml@oxley.org>
+Subject: Re: 2.6.14-rc3-rt2
+Message-ID: <20051004200326.GC5072@in.ibm.com>
+Reply-To: dino@in.ibm.com
+References: <43427AD9.9060104@cybsft.com> <20051004130009.GB31466@elte.hu> <Pine.LNX.4.58.0510040943540.13294@localhost.localdomain> <20051004142718.GA3195@elte.hu> <20051004151635.GA8866@in.ibm.com> <1128442180.4252.0.camel@c-67-188-6-232.hsd1.ca.comcast.net> <20051004175842.GA5072@in.ibm.com> <1128448471.4252.6.camel@c-67-188-6-232.hsd1.ca.comcast.net> <20051004181125.GB5072@in.ibm.com> <1128450466.4252.15.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <3e1162e60510021508r6ef8e802p9f01f40fcf62faae@mail.gmail.com>
-	 <3e1162e60510041214t3afd803re27b742705d27900@mail.gmail.com>
-	 <20051004191818.GA31328@infradead.org>
+In-Reply-To: <1128450466.4252.15.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/4/05, Christoph Hellwig <hch@infradead.org> wrote:
-> I suspect not one cares about /etc/mtab.  It's a pretty horrible
-> interface.  Use /proc/self/mounts if your care about the mount table
-> for your current namespace, it's guranteed uptodate.
->
->
+On Tue, Oct 04, 2005 at 11:27:46AM -0700, Daniel Walker wrote:
+> 
+> This patch should handle both cases . I would think if this doesn't
+> silence it, then it's something else..
 
-Hmmm that works pretty well, but it's lacking in some ways.
 
-/dev/hdc3 /root/slash reiserfs rw 0 0
-/dev/hdc3 /home/dave/blah resierfs rw 0 0
+Daniel, This works for me !
+Thanks for fixing this
 
-The above is not very descriptive.
+	-Dinakar
 
-/etc/mtab has:
-/ /root/slash none rw,bind 0 0
-/home/dave/public_html /home/dave/blah none rw,bind 0 0
 
-Which tells me more about what I care about for 'bind' mounts.
-
-However it does violate the "privacy" of the namespace by telling
-everyone on the system how I have my stuff mounted :).
-
-/proc/self/mounts does a much better job respecting this privacy but
-doesn't give the information I really care about.
-
-I think I'm looking for something like "ns" on Plan 9 or Inferno that
-dumps out how my current namespace is constructed.  Each process with
-a private namespace should get different results for "ns".
-
-Dave
+> 
+> Index: linux-2.6.13/arch/i386/kernel/apic.c
+> ===================================================================
+> --- linux-2.6.13.orig/arch/i386/kernel/apic.c
+> +++ linux-2.6.13/arch/i386/kernel/apic.c
+> @@ -1153,6 +1153,14 @@ fastcall notrace void smp_apic_timer_ipi
+>  #if 0
+>  	profile_tick(CPU_PROFILING, regs);
+>  #endif
+> +	/*
+> +	 * If the task is currently running in user mode, don't
+> +	 * detect soft lockups.  If CONFIG_DETECT_SOFTLOCKUP is not
+> +	 * configured, this should be optimized out.
+> +	 */
+> +	if (user_mode(regs))
+> +		touch_light_softlockup_watchdog();
+> +
+>  	update_process_times(user_mode_vm(regs));
+>  	irq_exit();
+>  
+> @@ -1247,6 +1255,14 @@ inline void smp_local_timer_interrupt(st
+>  						per_cpu(prof_counter, cpu);
+>  		}
+>  #ifdef CONFIG_SMP
+> +		/*
+> +		 * If the task is currently running in user mode, don't
+> +		 * detect soft lockups.  If CONFIG_DETECT_SOFTLOCKUP is not
+> +		 * configured, this should be optimized out.
+> +		 */
+> +		if (user_mode(regs))
+> +			touch_light_softlockup_watchdog();
+> +
+>  		update_process_times(user_mode_vm(regs));
+>  #endif
+>  	}
+> 
+> 

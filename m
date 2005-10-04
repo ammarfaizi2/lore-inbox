@@ -1,54 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932455AbVJDQes@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964846AbVJDQgI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932455AbVJDQes (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 12:34:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932523AbVJDQes
+	id S964846AbVJDQgI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 12:36:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964843AbVJDQgH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 12:34:48 -0400
-Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:50102 "EHLO
-	mta09-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S932455AbVJDQer (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 12:34:47 -0400
-Message-ID: <4342AF23.6000907@gentoo.org>
-Date: Tue, 04 Oct 2005 17:34:43 +0100
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050820)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arthur Cosma <tux_fan@yahoo.ca>
-CC: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: Any news on PATA support for Promise PDC 20375?
-References: <20051004160913.42155.qmail@web30513.mail.mud.yahoo.com>
-In-Reply-To: <20051004160913.42155.qmail@web30513.mail.mud.yahoo.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 4 Oct 2005 12:36:07 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:30644 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S964826AbVJDQgF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 12:36:05 -0400
+Date: Tue, 4 Oct 2005 17:36:04 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] missing include in megaraid_sas
+Message-ID: <20051004163604.GE7992@ftp.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arthur Cosma wrote:
-> Please CC me only any reply to this message, as I am not a mailing list
-> subscriber.
-> 
-> This was my last resort, as all searches on the subject topic yield
-> messages from 2004, many of which mention Jeff Garzik's name.
-> 
-> After trying 2.6.13.2, I still don't get the PATA drives recognized, so I
-> believe it's still not there yet.
-> 
-> The question is, will it ever be, or has it been dropped?
-
-I'm attaching the patch included in Gentoo's 2.6.13 kernels, which originally
-came from Jeff's repo.
-
-I asked Jeff about this patch previously, and his comment was:
-
-> However, this patch in particular is safe and OK -- it just needs cleaning
-> up before including in 2.6.13, and I haven't figured out how to clean it up
-> yet.  The port_flags[] array this patch adds is a hack.
-> 
-> I need to separate the port settings from the host settings, which would be
-> the proper fix.
-
-So I guess the answer is just wait a while longer (and patch manually for now) :)
-
-Daniel
+	megaraid_sas depends on arch-specific indirect includes pulling
+fs.h in; on alpha they do not.
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+----
+diff -urN RC14-rc3-git4-base/drivers/scsi/megaraid/megaraid_sas.c current/drivers/scsi/megaraid/megaraid_sas.c
+--- RC14-rc3-git4-base/drivers/scsi/megaraid/megaraid_sas.c	2005-10-04 00:41:36.000000000 -0400
++++ current/drivers/scsi/megaraid/megaraid_sas.c	2005-10-04 02:43:31.000000000 -0400
+@@ -34,6 +34,7 @@
+ #include <linux/delay.h>
+ #include <linux/uio.h>
+ #include <asm/uaccess.h>
++#include <linux/fs.h>
+ #include <linux/compat.h>
+ 
+ #include <scsi/scsi.h>

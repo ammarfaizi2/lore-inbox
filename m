@@ -1,202 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964852AbVJDQob@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964855AbVJDQoN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964852AbVJDQob (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 12:44:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964850AbVJDQob
+	id S964855AbVJDQoN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 12:44:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964853AbVJDQoN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 12:44:31 -0400
-Received: from xproxy.gmail.com ([66.249.82.206]:16977 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964851AbVJDQoa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 12:44:30 -0400
+	Tue, 4 Oct 2005 12:44:13 -0400
+Received: from zproxy.gmail.com ([64.233.162.205]:14255 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964851AbVJDQoL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 12:44:11 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:references;
-        b=LF4Pr6WAI96snyDRWpP+qKweMTkHTCqyx6UP1x2a3Hhh+0iFe6+mjbcwJx4irckzLtZjkiPmYvQ7vBCQjQStVbX9iI8TX7z+sO1GwBjPj74E/xQIGVm82rlpZS8RMVIzuE3uDN14MroPL0x5h9wDTPujeI/7QS+lF31IP4U1N9E=
-Message-ID: <5bdc1c8b0510040944q233f14e6g17d53963a4496c1f@mail.gmail.com>
-Date: Tue, 4 Oct 2005 09:44:29 -0700
-From: Mark Knecht <markknecht@gmail.com>
-Reply-To: Mark Knecht <markknecht@gmail.com>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.14-rc3-rt2
-Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>,
-       david singleton <dsingleton@mvista.com>, Todd.Kneisel@bull.com,
-       Felix Oxley <lkml@oxley.org>
-In-Reply-To: <20051004130009.GB31466@elte.hu>
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=G5M5LSyxvoNHKKRrQDTle0sV07EgkwB5JeDv9D5Jc6UJPDOl869gdcRP3b+e6M+iHhH3bzR3s6iaxQc440FqL57dY+42h6WUrxbz53eVW63TTvjPyIsE9S13wpBR0ij5+af2vhjnv0/5HQ5fygCa6NvdeGt0IbsJjXfU4y7HiUs=
+Message-ID: <29495f1d0510040944i6d8eb36aud85b63ff12608e8a@mail.gmail.com>
+Date: Tue, 4 Oct 2005 09:44:10 -0700
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH] ppc64: Thermal control for SMU based machines
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>
+In-Reply-To: <1128404215.31063.32.camel@gaston>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_2299_13579494.1128444269797"
-References: <20051004084405.GA24296@elte.hu> <43427AD9.9060104@cybsft.com>
-	 <20051004130009.GB31466@elte.hu>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1128404215.31063.32.camel@gaston>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_2299_13579494.1128444269797
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On 10/3/05, Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> This is the actual thermal control support for PowerMac8,1, PowerMac8,2
+> and PowerMac9,1 machines (SMU based), that is iMac G5 and single CPU desktop.
+> It requires CPUFREQ to be enabled to properly deal with overtemp conditions.
+> The new thermal control code implements a new framework (nicknamed "windfarm")
+> to which I expect to port the old G5 thermal control, and possibly some of the
+> powerbook thermal control drivers as well in the future.
 
-On 10/4/05, Ingo Molnar <mingo@elte.hu> wrote:
->
-> * K.R. Foley <kr@cybsft.com> wrote:
->
-> > Ingo Molnar wrote:
-> > >i have released the 2.6.14-rc3-rt2 tree, which can be downloaded from
-> > >the usual place:
-> > >
-> > >  http://redhat.com/~mingo/realtime-preempt/
-> > >
-> >
-> > Ingo,
-> >
-> > This one seems to be missing some pieces :-)
-> >
-> > http://people.redhat.com/mingo/realtime-preempt/patch-2.6.14-rc3-rt5
->
-> ugh. uploaded -rt6.
->
->         Ingo
+<snip>
 
-Hi Ingo,
-   OK, I'm up and running 2.6.14-rc3-rt7. I see no run-time problems
-yet, but I am seeing the machine hang when shutting down. It seems to
-happen about 50% of the time and happened also on 2.6.14-rc3-rt1,
-always at:
+> --- /dev/null   1970-01-01 00:00:00.000000000 +0000
+> +++ linux-work/drivers/macintosh/windfarm_core.c        2005-10-04 15:17:33.000000000 +1000
 
-Unloading Alsa modules
+<snip>
 
-   It just sits there and never moves on. If I power cycle the box
-then I sometimes have to do an fsck on the next boot.
+> +static int wf_thread_func(void *data)
+> +{
+> +       unsigned long next, delay;
+> +
+> +       next = jiffies;
+> +
+> +       DBG("wf: thread started\n");
+> +
+> +       while(!kthread_should_stop()) {
+> +               try_to_freeze();
+> +
+> +               if (time_after_eq(jiffies, next)) {
+> +                       wf_notify(WF_EVENT_TICK, NULL);
+> +                       if (wf_overtemp) {
+> +                               wf_overtemp_counter++;
+> +                               /* 10 seconds overtemp, notify userland */
+> +                               if (wf_overtemp_counter > 10)
+> +                                       wf_critical_overtemp();
+> +                               /* 30 seconds, shutdown */
+> +                               if (wf_overtemp_counter > 30) {
+> +                                       printk(KERN_ERR "windfarm: Overtemp "
+> +                                              "for more than 30"
+> +                                              " seconds, shutting down\n");
+> +                                       machine_power_off();
+> +                               }
+> +                       }
+> +                       next += HZ;
+> +               }
+> +
+> +               set_current_state(TASK_INTERRUPTIBLE);
+> +               delay = next - jiffies;
+> +               if (delay <= HZ)
+> +                       schedule_timeout(delay);
+> +               set_current_state(TASK_RUNNING);
 
-   This may possibly be caused by some stranded Jack process or
-something I haven't noticed yet. I'll keep looking.
+This can be schedule_timeout_interruptible(delay); and then you can
+get rid of the set_current_state(TASK_RUNNING);
 
-   My working config is attached. Maybe it will help when looking at
-someone's who's isn't working yet. Comments on better config are
-always welcome from anyone reading this.
-
-Cheers,
-Mark
-
-------=_Part_2299_13579494.1128444269797
-Content-Type: application/x-bzip2; name="knecht.config-2.6.14-rc3-rt7.bz2"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="knecht.config-2.6.14-rc3-rt7.bz2"
-
-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
-4u5IpwoSDJmLtGA=
-------=_Part_2299_13579494.1128444269797--
+Thanks,
+NIsh

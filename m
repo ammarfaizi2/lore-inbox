@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932393AbVJDGn3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932394AbVJDGvu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932393AbVJDGn3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 02:43:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932394AbVJDGn3
+	id S932394AbVJDGvu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 02:51:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbVJDGvu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 02:43:29 -0400
-Received: from web35506.mail.mud.yahoo.com ([66.163.179.130]:8361 "HELO
-	web35506.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932393AbVJDGn2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 02:43:28 -0400
+	Tue, 4 Oct 2005 02:51:50 -0400
+Received: from web35505.mail.mud.yahoo.com ([66.163.179.129]:53657 "HELO
+	web35505.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932394AbVJDGvt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 02:51:49 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.com;
   h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=vT9PiZrFybLbw5JAtEDn90rFNHJM70qAZ/365iduRmNGxQVyZ1RzznFe7HEdF44PhqavsOwrH30Na0M7GZILU/N9Fjps/gGD5pyoxcr6vEVqO3ByvIQVEGt8qPc8whKg1YZw/FSgbE6Tyv539s+uhDJ7c1NvoAwGETOgnbzBIJQ=  ;
-Message-ID: <20051004064328.61792.qmail@web35506.mail.mud.yahoo.com>
-Date: Mon, 3 Oct 2005 23:43:27 -0700 (PDT)
+  b=PlSp78nPsXdXO4JDCb60xOkO1ywyfIPpBLs1E8+2dwsEHNBbvj24Wyj8yO2sUzAHX79VgALvsonxxxkAvPKC2NkOujTDrLfzj/6qchhhKcWPy+Ib9AKLSZO5uJNkjs7d/uKESqrnX48qZtbdcgvS436QiLBE/fLdiOJnFcDo8Dc=  ;
+Message-ID: <20051004065149.23426.qmail@web35505.mail.mud.yahoo.com>
+Date: Mon, 3 Oct 2005 23:51:49 -0700 (PDT)
 From: Dan C Marinescu <dan_c_marinescu@yahoo.com>
 Subject: Re: The price of SELinux (CPU)
 To: John Richard Moser <nigelenki@comcast.net>
@@ -26,18 +26,16 @@ Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-my answer is "does not compute, insuficient data"
+John,
 
-this is like saying "light travels fast but there is a
-7% trajectory distortion in certain conditions"...
+Try this link:
 
-*** it _depends_ on so many factors... the answer
-_may_ be somewhere in fs, look at the source... etc...
+http://www.nsa.gov/selinux/list-archive/0505/11459.cfm
 
-i would rathere doubt the source... (tell me it's
-slashdot or msdn or something :-)
+It's from NSA... Hope this helps somehow...
 
-    d
+   Daniel
+
 
 --- John Richard Moser <nigelenki@comcast.net> wrote:
 

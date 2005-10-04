@@ -1,71 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965023AbVJDWcd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965024AbVJDWfL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965023AbVJDWcd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 18:32:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965024AbVJDWcd
+	id S965024AbVJDWfL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 18:35:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965025AbVJDWfL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 18:32:33 -0400
-Received: from h80ad254c.async.vt.edu ([128.173.37.76]:48357 "EHLO
-	h80ad254c.async.vt.edu") by vger.kernel.org with ESMTP
-	id S965023AbVJDWcc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 18:32:32 -0400
-Message-Id: <200510042232.j94MWQR4006568@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: The price of SELinux (CPU) 
-In-Reply-To: Your message of "Tue, 04 Oct 2005 16:10:10 EDT."
-             <4342E1A2.7080008@comcast.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <434204F8.2030209@comcast.net> <200510041539.j94FdJmO028772@turing-police.cc.vt.edu> <4342C9F1.2000005@comcast.net> <200510041943.j94Jhj4C007314@turing-police.cc.vt.edu>
-            <4342E1A2.7080008@comcast.net>
+	Tue, 4 Oct 2005 18:35:11 -0400
+Received: from [203.171.93.254] ([203.171.93.254]:34775 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S965024AbVJDWfJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 18:35:09 -0400
+Subject: Re: [swsusp] separate snapshot functionality to separate file
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Pavel Machek <pavel@ucw.cz>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051004205334.GC18481@elf.ucw.cz>
+References: <20051002231332.GA2769@elf.ucw.cz>
+	 <200510032339.08217.rjw@sisk.pl> <20051003231715.GA17458@elf.ucw.cz>
+	 <200510041711.13408.rjw@sisk.pl>  <20051004205334.GC18481@elf.ucw.cz>
+Content-Type: text/plain
+Organization: Cyclades
+Message-Id: <1128465272.6611.75.camel@localhost>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1128465145_2752P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Wed, 05 Oct 2005 08:34:33 +1000
 Content-Transfer-Encoding: 7bit
-Date: Tue, 04 Oct 2005 18:32:25 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1128465145_2752P
-Content-Type: text/plain; charset=us-ascii
+Hi.
 
-On Tue, 04 Oct 2005 16:10:10 EDT, John Richard Moser said:
-
-> > And the other users are users as well - what if the other user's "idiotic
-> > action" is to nuke your 500Mbyte archive of alt.binaries.pictures.llama.sex
-> > that's taking up the disk space that is keeping him from running the payroll
-> > software?  In your world, rather than him being able to fix the problem, he has
-> > to go find a sysadmin with the root password to fix it, causing delays and
-> > being less friendly....
-
-> Oh sure, except that. . .
+On Wed, 2005-10-05 at 06:53, Pavel Machek wrote:
+> > > That does not belong to snaphost. The rest is notthat clear, but I have it
+> > > working in userspace.
+> > 
+> > Of course it is doable in the userland, but this does not mean it should be
+> > done in the userland.  Personally I don't think so (please see
+> > below).
 > 
-> 1)  You shouldn't be screwing with the payroll system
-> 2)  You're quota'd on any good setup
+> Even if you don't agree with putting it to userland (and that's
+> neccessary -- if we want some features from suspend2), split still
+> makes sense.
 
-Ahem.  You're adding in more "user unfriendly" constraints again. :)
- 
-> In the end, massive, intrusive security is not exactly the best thing
-> for security's sake; but anything you can get away with significantly
-> cleanly (i.e. you don't break 99% of the applications on 99% of home
-> users' desktops) is worth immediate focus for those who are so inclined.
+Not necessary, but desirable in your eyes. I can see that you can make
+it work if you're only talking about implementing eye candy, but if
+you're serious about adding the substantial improvements from Suspend2
+(support for multiple swap partitions, swap files, block sizes != 4096,
+asynchronous I/O, readhead where I/O must be synchronous, support for
+writing to a network or a generic file (again with block size != 4096)
+etc, - let alone support for saving a full image of memory - this is
+just going to get uglier and uglier. We can see this already because
+you've already dropped swap support, obviously because it's too hard
+from userspace.
 
-Good.  Now hand me that crystal ball that lets us know for sure which of
-those two categories any given security measure falls into.  How often do
-we see "this shouldn't break anything" patches on this list that do, in fact,
-manage to break something anyhow?
+The tidy up you're proposing is a nice step. But it seems to me to be 
+the only good thing and really useful thing to come of this so far.
 
---==_Exmh_1128465145_2752P
-Content-Type: application/pgp-signature
+Pavel, at the PM summit, we agreed to work toward getting Suspend2
+merged. I've been working since then on cleaning up the code, splitting
+the patches up nicely and so on. In the meantime, you seem to have gone
+off on a completely different tangent, going right against what we
+agreed then. Can I get you to at least try to come back from that? I'd
+be more than willing to help you with cherry picking some changes and
+getting them in ahead of the rest of the code. Would you consider
+working together to do that? In particular, I'm thinking that I could
+send you the refrigerator patches as I have them at the moment, and a
+patch to remove the reliance on PageReserved, at least for a start. Any
+willingness on your part to give that a try?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Regards,
 
-iD8DBQFDQwL5cC3lWbTT17ARAgLOAJ0XFB9Kd2278SGOIMpQtzhS+fUAhQCgvOFj
-fm0HGq3nfPR2mn2Wh04qXkU=
-=KRov
------END PGP SIGNATURE-----
+Nigel
+-- 
 
---==_Exmh_1128465145_2752P--
+

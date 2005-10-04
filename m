@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932422AbVJDNAK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbVJDNGQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932422AbVJDNAK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 09:00:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932424AbVJDNAK
+	id S932439AbVJDNGQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 09:06:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932441AbVJDNGQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 09:00:10 -0400
-Received: from free.hands.com ([83.142.228.128]:8582 "EHLO free.hands.com")
-	by vger.kernel.org with ESMTP id S932422AbVJDNAH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 09:00:07 -0400
-Date: Tue, 4 Oct 2005 13:59:55 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Chase Venters <chase.venters@clientec.com>
-Cc: "Martin J. Bligh" <mbligh@mbligh.org>, Rik van Riel <riel@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-Message-ID: <20051004125955.GQ10538@lkcl.net>
-References: <20051002204703.GG6290@lkcl.net> <54300000.1128297891@[10.10.2.4]> <20051003011041.GN6290@lkcl.net> <200510022028.07930.chase.venters@clientec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200510022028.07930.chase.venters@clientec.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-MailScanner-From: lkcl@lkcl.net
+	Tue, 4 Oct 2005 09:06:16 -0400
+Received: from smtpa1.netcabo.pt ([212.113.174.16]:60697 "EHLO
+	exch01smtp03.hdi.tvcabo") by vger.kernel.org with ESMTP
+	id S932439AbVJDNGP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 09:06:15 -0400
+Message-ID: <43427E7E.9080205@rncbc.org>
+Date: Tue, 04 Oct 2005 14:07:10 +0100
+From: Rui Nuno Capela <rncbc@rncbc.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: tsc_c3_compensate undefined since patch-2.6.13-rt13
+References: <20050901072430.GA6213@elte.hu> <1125571335.15768.21.camel@localhost.localdomain> <20051003065032.GA23777@elte.hu> <43424B7C.9020508@rncbc.org> <20051004101434.GA26882@elte.hu>
+In-Reply-To: <20051004101434.GA26882@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 04 Oct 2005 13:06:04.0289 (UTC) FILETIME=[6040DF10:01C5C8E4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 02, 2005 at 08:27:45PM -0500, Chase Venters wrote:
+Ingo Molnar wrote:
+> * Rui Nuno Capela <rncbc@rncbc.org> wrote:
+> 
+>>WARNING: 
+>>/lib/modules/2.6.13.1-rt13.0mdk/kernel/drivers/char/hangcheck-timer.ko 
+>>needs unknown symbol do_monotonic_clock
+>>WARNING: 
+>>/lib/modules/2.6.13.1-rt13.0mdk/kernel/drivers/acpi/processor.ko needs 
+>>unknown symbol tsc_c3_compensate
+> 
+> 
+> back then i fixed do_monotonic_clock, but forgot to export 
+> tsc_c3_compensate. I have fixed this in my tree, and have uploaded the 
+> 2.6.14-rc3-rt3 patch. Does it build without warnings for you now?
+> 
 
-> The bottom line is that the application developers need to start being clever 
-> with threads. 
+OK. Just built 2.6.14-rc3-rt4 and it got thru. Thermal-zone sensor is 
+back in town :)
 
- yep!  ah.  but.  see this:
-
- http://lists.samba.org/archive/samba-technical/2004-December/038300.html
-
- and think what would happen if glibc had hardware-support for
- semaphores and mutexes.
-
-> I think I remember some interesting rumors about Perl 6, for 
-> example, including 'autothreading' support - the idea that your optimizer 
-> could be smart enough to identify certain work that can go parallel.
-
- http://www.ics.ele.tue.nl/~sander/publications.php
- http://portal.acm.org/citation.cfm?id=582068
- http://csdl.computer.org/comp/proceedings/acsd/2003/1887/00/18870237.pdf
-
- to get the above references, put in "holland parallel code
- analysis tools" into google.com.
-
- put in "parallel code analysis tools" into google.com for a different
- set.
-
- l.
+Tks.
+-- 
+rncbc aka Rui Nuno Capela
+rncbc@rncbc.org
 
 

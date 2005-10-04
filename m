@@ -1,56 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751174AbVJDDtK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751116AbVJDDw0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751174AbVJDDtK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 23:49:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751175AbVJDDtK
+	id S1751116AbVJDDw0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 23:52:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751175AbVJDDw0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 23:49:10 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:8062 "EHLO
-	pd4mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1751174AbVJDDtJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 23:49:09 -0400
-Date: Mon, 03 Oct 2005 21:48:56 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: make xconfig fails for older kernels
-In-reply-to: <4TJDn-2mm-3@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <4341FBA8.3020208@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=UTF-8; format=flowed
-Content-transfer-encoding: 8BIT
-X-Accept-Language: en-us, en
-References: <4TJDn-2mm-3@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+	Mon, 3 Oct 2005 23:52:26 -0400
+Received: from h80ad24d0.async.vt.edu ([128.173.36.208]:19140 "EHLO
+	h80ad24d0.async.vt.edu") by vger.kernel.org with ESMTP
+	id S1751116AbVJDDw0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 23:52:26 -0400
+Message-Id: <200510040351.j943pe6B015123@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Vadim Lobanov <vlobanov@speakeasy.net>, Rik van Riel <riel@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel? 
+In-Reply-To: Your message of "Mon, 03 Oct 2005 22:07:22 BST."
+             <20051003210722.GI8548@lkcl.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <20051002204703.GG6290@lkcl.net> <Pine.LNX.4.63.0510021704210.27456@cuia.boston.redhat.com> <20051002230545.GI6290@lkcl.net> <Pine.LNX.4.58.0510021637260.28193@shell2.speakeasy.net> <20051003005400.GM6290@lkcl.net> <1128367120.26992.44.camel@localhost.localdomain>
+            <20051003210722.GI8548@lkcl.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1128397899_3613P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 03 Oct 2005 23:51:39 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Felix Oxley wrote:
-> I have downloaded 2.6.0 + patches up to 2.6.13 from kernel.org.
-> 
-> When I try to configure the kernel using 'make xconfig' I get the following 
-> error:
-> 
-> scripts/kconfig/mconf.c:91: error: static declaration of ‘current_menu’ 
-> follows non-static declaration
-> scripts/kconfig/lkc.h:63: error: previous declaration of ‘current_menu’ was 
-> here
-> make[1]: *** [scripts/kconfig/mconf.o] Error 1
-> make: *** [xconfig] Error 2
-> 
-> I attempted make menuconfig, make config, and make oldconfig but each failed 
-> with the same error,
-> 
-> This happens on 2.6.0, 2.6.1, 2.6.2 2.6.3, 2.6.4.
-> I have previously built newer kernels such as 2.6.13-rc2-rt7 without a 
-> problem.
+--==_Exmh_1128397899_3613P
+Content-Type: text/plain; charset=us-ascii
 
-What gcc version? The configuration program may have had some compile 
-bugs with newer compilers that were fixed in later kernels. In 
-particular I think gcc4 is stricter about those "static declaration 
-follows non-static" problems.
+On Mon, 03 Oct 2005 22:07:22 BST, Luke Kenneth Casson Leighton said:
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+>  whereas, would you see it more reasonable for a commodity-level
+>  chip to be something like 32- or even 64- ultra-RISC cores of
+>  between 5000 and 10,000 gates each, resulting in a processor
+>  of about 50% cache memory and 50% processing plus associated
+>  parallel bus architecture at around 1 million gates?
 
+Read your history - especially IBM's 801 chipset, which became the RT,
+and why they then replaced that with the Power architecture...
+
+>  running at oh say 1ghz or with careful design effort focussed on the
+>  RISC cores maybe even 2ghz, resulting in 128 total GigaOps if you
+>  go for 64 cpus @ 2ghz.  that's a friggin lot of processing power
+>  for a 1m gates processor!!
+
+Good.  Were you planning to run the ucLinux branch on this, or include all
+the pieces needed to support virtual memory?  And do it inside that 10K gate
+budget, too (hint - how many gates will you burn just doing a TLB big enough
+to get the performance of mapping a virtual->real address to be good enough?)
+
+You might want to read up on all the fun that IBM went through in designing
+memory subsystems that can keep even the Power4 and Power5 chipsets fed too,
+or the interesting stuff that SGI has to do to allow 64/128/512 processors
+to beat up on a memory system - I'm sure there's some pretty high gate count
+involved there..
+
+If you're doing 64 10K-gate cores, you've blown 64% of your 1M gate budget.
+You've got only 320K gates left to build cache *and* virtual memory support to
+make that 1M gate budget.  And yes, you need a cache, as IBM found out on
+their RT processor.....
+
+
+--==_Exmh_1128397899_3613P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFDQfxLcC3lWbTT17ARAnBLAJ9/YvG2U5h9lewcNvn1eCCTFuZsFgCeNTsq
+eQMF8jN7ou01I/V/HlOmluU=
+=Oi8O
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1128397899_3613P--

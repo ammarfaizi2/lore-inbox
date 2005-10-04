@@ -1,45 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751171AbVJDAzL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbVJDBGv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751171AbVJDAzL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 20:55:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751176AbVJDAzL
+	id S1751032AbVJDBGv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 21:06:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751034AbVJDBGv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 20:55:11 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:42920 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1751171AbVJDAzJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 20:55:09 -0400
-Date: Mon, 3 Oct 2005 17:54:38 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: greg@kroah.com, torvalds@osdl.org, akpm@osdl.org, jgarzik@pobox.com,
-       rdunlap@xenotime.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Document patch subject line better
-Message-Id: <20051003175438.6803539c.pj@sgi.com>
-In-Reply-To: <20051003230235.55516671.khali@linux-fr.org>
-References: <20051003072910.14726.10100.sendpatchset@jackhammer.engr.sgi.com>
-	<Pine.LNX.4.64.0510030805380.31407@g5.osdl.org>
-	<20051003085414.05468a2b.pj@sgi.com>
-	<20051003160452.GA9107@kroah.com>
-	<20051003230235.55516671.khali@linux-fr.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Mon, 3 Oct 2005 21:06:51 -0400
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:65437 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1750892AbVJDBGu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 21:06:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Subject:From:To:Cc:In-Reply-To:References:Content-Type:Date:Message-Id:Mime-Version:X-Mailer:Content-Transfer-Encoding;
+  b=XWyrlX8ppauClzSB1hyBVKbFnAtRTC7rR/On1uNyOK+NEULZ0uh83hA5/gM03eYmp0Iy9AXAcUKxZX4gfmbQVQMbm4pvO/lrDDngVe5Tsx4IlugUvknIj5E/nPSt8TbSdSMjimPzeHMm6CBGwOStS7zLxLAtRZqlGoVrMFAc0Mg=  ;
+Subject: Re: [RFC] mempool_alloc() pre-allocated object usage
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: Paul Mundt <paul.mundt@nokia.com>, Ingo Molnar <mingo@elte.hu>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <4341476A.80809@didntduck.org>
+References: <20051003143634.GA1702@nokia.com> <4341476A.80809@didntduck.org>
+Content-Type: text/plain
+Date: Tue, 04 Oct 2005 11:06:16 +1000
+Message-Id: <1128387976.12501.12.camel@npiggin-nld.site>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean wrote:
-> This only prevents quilt from stripping the "---" line
+On Mon, 2005-10-03 at 10:59 -0400, Brian Gerst wrote:
+> Paul Mundt wrote:
+> > The downside to this is that some people may be expecting that
+> > pre-allocated elements are used as reserve space for when regular
+> > allocations aren't possible. In which case, this would break that
+> > behaviour.
+> 
+> This is the original intent of the mempool.  There must be objects in 
+> reserve so that the machine doesn't deadlock on critical allocations 
+> (ie. disk writes) under memory pressure.
+> 
 
-This patch, plus the ~/.quiltrc option:
+No, the semantics are that at least 'min' objects must be able to
+be allocated at one time. The user must be able to proceed far enough
+to release its objects in this case, and that ensures no deadlock.
 
-	QUILT_NO_DIFF_INDEX=1
+The problem with using the pool first is that it requires the lock
+to be taken and is also not NUMA aware. So from a scalability point of
+view, I don't think it is a good idea.
 
-do what I need.  Thanks for the quick response.
+Perhaps you could introduce a new mempool allocation interface to do
+it your way?
+
+Nick
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+SUSE Labs, Novell Inc.
+
+
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

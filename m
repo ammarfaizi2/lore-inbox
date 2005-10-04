@@ -1,67 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbVJDNVh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932456AbVJDNXM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932449AbVJDNVh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 09:21:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbVJDNVh
+	id S932456AbVJDNXM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 09:23:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932431AbVJDNXM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 09:21:37 -0400
-Received: from mgw-ext03.nokia.com ([131.228.20.95]:14503 "EHLO
-	mgw-ext03.nokia.com") by vger.kernel.org with ESMTP id S932449AbVJDNVh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 09:21:37 -0400
-Date: Tue, 4 Oct 2005 16:21:44 +0300
-From: Jarkko Lavinen <jarkko.lavinen@nokia.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CMD7 failing on ATP & Transcend MMC cards
-Message-ID: <20051004132144.GA13048@angel.research.nokia.com>
-Reply-To: Jarkko Lavinen <jarkko.lavinen@nokia.com>
-References: <20051003135445.GA6560@angel.research.nokia.com> <20051003140252.GG16717@flint.arm.linux.org.uk>
+	Tue, 4 Oct 2005 09:23:12 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:33664 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S932454AbVJDNXL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 09:23:11 -0400
+Subject: Re: Infinite interrupt loop, INTSTAT = 0
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Olivier Galibert <galibert@pobox.com>
+Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       "Hack inc." <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051004084533.GA59492@dspnet.fr.eu.org>
+References: <20050928134514.GA19734@dspnet.fr.eu.org>
+	 <1127919909.4852.7.camel@mulgrave>
+	 <20050928160744.GA37975@dspnet.fr.eu.org>
+	 <1127924686.4852.11.camel@mulgrave>
+	 <20050928171052.GA45082@dspnet.fr.eu.org>
+	 <1127929909.4852.34.camel@mulgrave>
+	 <20050928183324.GA51793@dspnet.fr.eu.org>
+	 <1128175434.4921.9.camel@mulgrave>
+	 <20051003134210.GA10641@dspnet.fr.eu.org>
+	 <1128356144.4606.11.camel@mulgrave>
+	 <20051004084533.GA59492@dspnet.fr.eu.org>
+Content-Type: text/plain
+Date: Tue, 04 Oct 2005 09:23:01 -0400
+Message-Id: <1128432181.4782.3.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051003140252.GG16717@flint.arm.linux.org.uk>
-X-Operating-System: GNU/Linux angel.research.nokia.com
-User-Agent: Mutt/1.5.9i
-X-OriginalArrivalTime: 04 Oct 2005 13:21:26.0709 (UTC) FILETIME=[860EFE50:01C5C8E6]
+X-Mailer: Evolution 2.0.4 (2.0.4-6) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 03, 2005 at 03:02:52PM +0100, Russell King wrote:
-> I'm not surprised.  CMD2 is part way through the initialisation
-> sequence, so no one should be sending a CMD7.
+On Tue, 2005-10-04 at 10:45 +0200, Olivier Galibert wrote:
+> > But anyway, let's proceed on the theory that the array is having a hard
+> > time.  What I need you to do is lower the speed of the array target in
+> > the aic bios.  Unfortunately, the driver won't honour that setting at
+> > the moment:  I'll see if I can work up the code that will do it.  The
+> > attached patch will perform this artificially (for every device on every
+> > aic79xx).
+> 
+> The mounts worked with your patch.  I'm going to start actually using
+> the raid, that's going to tell us how stable it actually is.  I have
+> no problems with doing other tests.
 
-The command sequence in the initial card detection is:
+OK, that sort of confirms the theory that there's a bad interaction at
+u320.  What I'll try to do is to implement the bios parameter routines
+for the aic79xx and you can set it to u160 in the bios.  Since I can't
+test this, would you be a guinea pig when I come up with it?
 
-  CMD1      card send its operation conditions
-  CMD2      card sends its CID
-  CMD3(rca) Card is given relative call address. Card enters standby and 
-            switches to push pull mode and won't respond to CMD1-3 anymore.
-  CMD2      Check for other cards. None responds. All cards have been
-            identified. CMD2 is sent many times.  
-  CMD7(rca) The card is addressed with its RCA and enters transfer state.
-
-The card is then accessed normally and everything works and also
-ATP and Transcend cards work up to this.
-
-Problems appear when mmc_detect_change() is called from switch_handler().
-This happens when cover switch interrupt comes but the card has not been
-removed. Old cards are checked with CMD13 and new cards if any are 
-detected:
-
-   CMD7(0)    Deselect currently selected card. Its RCA remains the
-              same.
-   CMD1       
-   CMD2       CMD2 sent many times, but no card replies. 
-   CMD7(rca)  The selected card should respond. ATP and Transcend
-              give illegal instruction instead and retries with CMD7
-	      fail.
+James
 
 
-> After a CMD2, the next expected command is a CMD3 for MMC cards (maybe
-> not SD cards).
-
-Does this apply when threre are no new cards and no card replied to
-CMD2?
-
-Jarkko Lavinen

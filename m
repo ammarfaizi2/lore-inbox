@@ -1,216 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbVJDGWa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932392AbVJDGds@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932369AbVJDGWa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 02:22:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbVJDGWa
+	id S932392AbVJDGds (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 02:33:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932380AbVJDGds
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 02:22:30 -0400
-Received: from rwcrmhc11.comcast.net ([216.148.227.117]:38810 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S932369AbVJDGWa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 02:22:30 -0400
-Message-ID: <43421F46.8030202@comcast.net>
-Date: Tue, 04 Oct 2005 02:20:54 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050912)
-X-Accept-Language: en-us, en
+	Tue, 4 Oct 2005 02:33:48 -0400
+Received: from astound-64-85-224-245.ca.astound.net ([64.85.224.245]:61188
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S932371AbVJDGdr convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 02:33:47 -0400
+Date: Mon, 3 Oct 2005 23:30:49 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Ryan Anderson <ryan@autoweb.net>
+cc: Tomasz =?iso-8859-2?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>,
+       Luben Tuikov <luben_tuikov@adaptec.com>, andrew.patterson@hp.com,
+       Marcin Dalecki <dalecki.marcin@neostrada.pl>,
+       "Salyzyn, Mark" <mark_salyzyn@adaptec.com>, dougg@torque.net,
+       Linus Torvalds <torvalds@osdl.org>, Luben Tuikov <ltuikov@yahoo.com>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
+ the kernel
+In-Reply-To: <1128377075.23932.5.camel@ryan2.internal.autoweb.net>
+Message-ID: <Pine.LNX.4.10.10510032319070.410-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: Dan C Marinescu <dan_c_marinescu@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: The price of SELinux (CPU)
-References: <20051004050602.10057.qmail@web35501.mail.mud.yahoo.com>
-In-Reply-To: <20051004050602.10057.qmail@web35501.mail.mud.yahoo.com>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-I'm not an expert in this kind of stuff.  I wonder where the numbers
-come from; i.e. is 7% from policy?  A O(1) policy lookup would be immune
-to big policies; a O(n) would probably not have that much impact from a
-typical policy lookup.  Still perhaps interpreting the policy is a chore
-in itself, which still says bigger policy means bigger hit.  Or is 7%
-constant?
-
-I don't know what the frame of reference is or was.  I'm sure with
-selinux with no policy it's rather 0ish; what I don't know is what I'm
-supposed to be looking at for benchmarking.  Just randomly turning
-SELinux on and off and looking might give me an invalid measure.
-
-Dan C Marinescu wrote:
-> i suggested you to disable selinux in order to have
-> something to compare to... (engineers compare,
-> measure, instead of believing in rummors...)
-> 
->    d
-> 
-> --- John Richard Moser <nigelenki@comcast.net> wrote:
-> 
-> 
-> I'm not an abortionist; if I hear something has an
-> ugly side, I try to
-> find out if it can be fixed, and if the trade-off is
-> worth getting rid
-> of it.  SELinux and LSM are quite useful you know;
-> the overhead is
-> probably not even that significant on the desktop to
-> gamers (although if
-> you TELL them about it they'll piss themselves),
-> from a practical
-> viewpoint considering their excessive hardware.
-> 
-> Dan C Marinescu wrote:
-> 
->>try selinux=0, _if u feel that way :-)
-> 
->>about big o:
-> 
-> 
-> 
->> http://www.maththinking.com/boat/compsciBooksIndex.html
-> 
->>   daniel
-> 
-> 
-> 
->>--- John Richard Moser <nigelenki@comcast.net>
-> 
-> wrote:
-> 
-> 
->>I've heard that SELinux has produced benchmarks
-> 
-> such
-> 
->>as 7% increased CPU
->>load.  Is this true and current?  Is it dependent
-> 
-> on
-> 
->>policy?  What is
->>the policy lookup complexity ( O(1), O(n),
->>O(nlogn)...)?  Are there
->>other places where a bottleneck may exist aside
-> 
-> from
-> 
->>gruffing with the
->>policy?  Isn't the policy actually in xattrs so
-> 
-> it's
-> 
->>O(1)?  Where else
->>would an overhead that big come from aside from a
->>lookup in a table?
-> 
->>....
-> 
->>Why is the sky blue?  Why do you have a mustach? 
->>Why doesn't mommy have
->>one?  Does she shave it?
-> 
->>At any rate, my personal end goal is a secure
->>high-performance operating
->>system, as user friendly as Ubuntu, Mandriva, or
->>Win----.  To this end,
->>I'm (still; a lot of you have seen me before)
->>evaluating the performance
->>hit of various user and kernel security
-> 
-> enhancements
-> 
->>like PaX,
->>ProPolice, various OpenWall/GrSecurity niceness
-> 
-> that
-> 
->>needs to be divided
->>out, and of course LSM/SELinux.  Also wondering
->>about that PHKMalloc
->>thing on openbsd; is it really all that, is it
-> 
-> junk,
-> 
->>how's it compare to
->>the recent ptmalloc work, and can it run on Linux
->>for direct benching .
->>. . but that's off topic.
-> 
->>--
->>All content of all messages exchanged herein are
->>left in the
->>Public Domain, unless otherwise explicitly stated.
-> 
->>    Creative brains are a valuable, limited
->>resource. They shouldn't be
->>    wasted on re-inventing the wheel when there
-> 
-> are
-> 
->>so many fascinating
->>    new problems waiting out there.
-> 
-> 
-> --
-> 
->>Eric Steven Raymond
-> 
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
->>__________________________________ 
->>Yahoo! Mail - PC Magazine Editors' Choice 2005 
->>http://mail.yahoo.com
-> 
-> 
-> --
-> All content of all messages exchanged herein are
-> left in the
-> Public Domain, unless otherwise explicitly stated.
-> 
->     Creative brains are a valuable, limited
-> resource. They shouldn't be
->     wasted on re-inventing the wheel when there are
-> so many fascinating
->     new problems waiting out there.
->                                                  --
-> Eric Steven Raymond
-- -
-To unsubscribe from this list: send the line
-"unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at
-http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-> __________________________________ 
-> Yahoo! Mail - PC Magazine Editors' Choice 2005 
-> http://mail.yahoo.com
 
 
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
+On Mon, 3 Oct 2005, Ryan Anderson wrote:
 
-    Creative brains are a valuable, limited resource. They shouldn't be
-    wasted on re-inventing the wheel when there are so many fascinating
-    new problems waiting out there.
-                                                 -- Eric Steven Raymond
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+> On Mon, 2005-10-03 at 23:26 +0200, Tomasz K³oczko wrote:
+> > If (cytation from Linus) "a 'spec' is close to useless" ..
+> > Q: why the hell in kernel tree is included Documentation/ subdirectory ?
+> > Is it raly content of this directory is "close to useless" or maybe it not
+> > contains some specyfications ? :>
+> 
+> Let me rephrase what Linus said, to help remove the misreading that
+> seems so common today.  I think a fair rewording would be, "A spec is a
+> guideline.  When it fails to match reality, continuing to follow it is a
+> tremendous mistake."
+> 
+> Additionally, I think the overall LKML feeling on hardware specs and the
+> corresponding software abstractions to deal with it can be summarized
+> something like this:
+> 
+> When the spec provides a software design that doesn't fit into the
+> overall structure of the Linux kernel, the spec should be treated as a
+> suggestion for a software design.  The *interface* that the spec
+> documents should be followed, where it moves out of the overall
+> structure, but internally, a design that fits into the Linux kernel is
+> more important than following a spec that doesn't fit.
 
-iD8DBQFDQh9FhDd4aOud5P8RAt30AJ9Tj2VZJwWh8EfzPocOcTkAIY/kOACfe03m
-wwtaci0G/aXWXok9NiWJR8E=
-=78tr
------END PGP SIGNATURE-----
+Please lets design against the transport or FSM of the storage transport
+and never see data again.  NCITS specs generally (used loosely) define the
+boundary conditions for stable operations.  One of jewels of linux in the
+past which (hopefully was fixed, was 1.2.X-2.5.X thingy) was buffer_head
+walking and release to satisfy transfer of data-blocks of a spindle
+against the data-blocks of the kernel.  Spindle must win or one can not
+insure data integrity, thus the advent of BIO's from BH.
+
+Linux changed to conform to data integrity issues.
+
+Somedays, Linux's API's or designs are OTS (Over The Shoulder).
+
+You get crap all over your back, if you reach OTS to finish your washroom
+business.  It is functional but ends up stinky and messy.
+
+This thread is getting longer and I just added to piles ...
+
+Sigh
+
+Andre
+

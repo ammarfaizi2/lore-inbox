@@ -1,118 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964977AbVJDVKy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964978AbVJDVMN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964977AbVJDVKy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 17:10:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964978AbVJDVKx
+	id S964978AbVJDVMN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 17:12:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964979AbVJDVMN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 17:10:53 -0400
-Received: from rwcrmhc11.comcast.net ([216.148.227.117]:28854 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S964977AbVJDVKx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 17:10:53 -0400
-Message-ID: <4342EFDB.4040101@namesys.com>
-Date: Tue, 04 Oct 2005 14:10:51 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
+	Tue, 4 Oct 2005 17:12:13 -0400
+Received: from mf01.sitadelle.com ([212.94.174.68]:40022 "EHLO
+	smtp.cegetel.net") by vger.kernel.org with ESMTP id S964978AbVJDVMM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 17:12:12 -0400
+Message-ID: <4342F022.3060509@cosmosbay.com>
+Date: Tue, 04 Oct 2005 23:12:02 +0200
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: "Vladimir V. Saveliev" <vs@namesys.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ReiserFS Mailing List <reiserfs-list@namesys.com>
-Subject: Re: I request inclusion of reiser4 in the mainline kernel
-References: <432AFB44.9060707@namesys.com> <20050916174028.GA32745@infradead.org> <43380DD8.8010200@namesys.com> <20051004190048.GA30832@infradead.org>
-In-Reply-To: <20051004190048.GA30832@infradead.org>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
+Subject: Re: [NUMA , x86_64] Why memnode_shift is chosen with the lowest possible
+ value ?
+References: <1127939141.26401.32.camel@localhost.localdomain> <433C1D6F.1030605@cosmosbay.com> <433D00BC.2070001@cosmosbay.com> <200510041913.26332.ak@suse.de>
+In-Reply-To: <200510041913.26332.ak@suse.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
+Andi Kleen a écrit :
+> On Friday 30 September 2005 11:09, Eric Dumazet wrote:
+> 
+>>+       while (populate_memnodemap(nodes, numnodes, shift + 1) >= 0)
+>>+               shift++;
+> 
+> 
+> 
+> Why shift+1 here? 
 
->On Mon, Sep 26, 2005 at 07:03:52PM +0400, Vladimir V. Saveliev wrote:
->  
->
->>> - you still do your plugin mess in ->readpage.  honsetly could you
->>>   please explain why mpage_readpage{,s} don't work for you?
->>>      
->>>
->>The reason is performance. Reiser4 uses a search through the filesystem tree to
->>access metadata of a file.
->>If reiser4 implemented its read/write via generic functions it would have to
->>repeat the search for every page being read/written.
->>It is especially disappointing because reiser4 uses extents with which it is
->>able in most cases to find all file pointers to data blocks with only one search
->>through the tree.
->>Another reason is multithread load.
->>Tree search includes complex part of providing correct concurrent read/write
->>access to the tree including deadlock avoidance algorithm. On multithread
->>filesystem load minimizing of a number of tree searches should have improved
->>filesystem throughput.
->>
->>These are on todo list yet.
->>    
->>
->
->Let's start with the read side.  You are using the generic sendfile now
->which is the same as the generic read routine as far as the filesystem
->is concerned.
->
-I am not sure that is the right thing for us to be doing actually.  We
-need to abstract things our own way to create a proper abstraction
-underneath sys_reiser4() and the general naming system that we are
-headed towards.  That means we need the "flow" abstraction as the basis
-of our code.  The flow abstraction is based on the idea that we should
-be able to connect to and read or write any stream of bytes, in user or
-kernel space.  A flow is a stream of bytes.  That is useful for
-constructing sys_reiser4() and other semantic enhancements that we
-plan.  If you would like to generalize the vfs interface such that it
-reads and writes to and from flows, and user space buffers are just a
-special case used by read() and write(), and it is not done page at a
-time, that could be good for vfs.
+Thank you Andi fo r reviewing this stuff
 
->  What more do you need for read performance than a proper
->mpage_readpage(s) that can use the extent-enabled
->
-what does extent enabled mean?  Do you mean that it passes more than one
-page to the fs?  Or do you mean that readahead windows are set by the fs
-because readahead is affected by file layout?  Or both?
+The idea it to find the highest shift value, and to break the loop as soon as 
+the (shift + 1) value gives us an "shift too big" error.
 
-> get_blocks callback?
->I'll post a patch for that ASAP, it benefits the other filesystems aswell.
->
->I know the write path is more complex, and doing your on ->writepage(s)
->is fine because that may need to do a lot of FS-specific things.  I'd
->really like to see you use generic_file_write or at least the major
->routines it's built from.  What's missing for you to do that?
->
-Well, to start with, reiser4_write is plugin specific.  Writing to a
-file might require modifying a file that it inherits its contents from,
-for instance.
+Maybe you want to write :
 
-I think though that there is another consideration, which is that
-reiser4 is not licensed just for Linux.  We need to create a coherent
-body of code that can be ported to operating systems that don't have vfs
-layers specially modified for us.  The easiest way to do that is to
-write our own code for the key things like read and write.
+         while (populate_memnodemap(nodes, numnodes, ++shift) >= 0) ;
+	shift--;
 
-VFS is supposed to allow filesystems to have their own read and write
-implementations.  That is its defined interface.  You should allow us to
-use it.  Other filesystems that are less ambitious might well want to
-use generic code, but reiser4 is not a yellow package with black lettering.
+Well, thats only style...
 
->  Note
->that you read/write path will need a major rewrite anyway due to the
->flaws I pointed out, and I think it would benefit both you (less
->maintaince overhead, feature and bug parity) and the other
->filesystem/vfs/vm hackers (less duplicate functionality to worry about,
->improvement you make shared by every filesystem) if you tried to
->converge to use common code.
->
->
->
->
->  
->
 
+> 
+> 
+>>+               if ((end >> shift) >= NODEMAPSIZE)
+>>+                       return 0;
+> 
+> 
+> This should be >, not >= shouldn't it?
+
+Let's take an example
+
+end   = 0xffffffff;
+start = 0xfff00000;
+shift = 20
+Suppose that NODEMAPSIZE == (end >> shift) == 0xfff
+
+If the test is changed to :
+
+if ((end >> shift) > NODEMAPSIZE)
+	return 0;
+
+We could do one of the iteration with (addr < end) but (addr >> shift) == 
+NODEMAPSIZE
+
+if (memnodemap[NODEMAPSIZE] != 0xff)
+	return -1;
+memnodemap[NODMAPSIZE] = i;
+
+Thats bound violation of memnodemap[]
+
+AFAIK, I wonder why NODEMAPSIZE is 0xfff and not 0x1000, because this off by 
+one make half of memnodemap[] to be unused for power of two ram size.
+
+
+> 
+> -Andi
+> 
+> P.S.: Please cc x86-64 patches to discuss@x86-64.org
+
+Ah thank you
+
+Eric

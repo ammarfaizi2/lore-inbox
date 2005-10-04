@@ -1,40 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932329AbVJDLpF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932386AbVJDLwK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932329AbVJDLpF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 07:45:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbVJDLpE
+	id S932386AbVJDLwK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 07:52:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932383AbVJDLwJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 07:45:04 -0400
-Received: from mail.sysgo.com ([62.8.134.5]:53189 "EHLO mail.sysgo.com")
-	by vger.kernel.org with ESMTP id S932329AbVJDLpB (ORCPT
+	Tue, 4 Oct 2005 07:52:09 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:56230 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932362AbVJDLwI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 07:45:01 -0400
-From: Rolf Offermanns <roffermanns@sysgo.com>
-Subject: Re: [howto] Kernel hacker's guide to git, updated
-To: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Date: Tue, 04 Oct 2005 13:44:58 +0200
-References: <433BC9E9.6050907@pobox.com>
-Organization: SYSGO AG
-User-Agent: KNode/0.9.2
+	Tue, 4 Oct 2005 07:52:08 -0400
+Message-ID: <43426CDC.1050807@pobox.com>
+Date: Tue, 04 Oct 2005 07:51:56 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <20051004114458.2DEE5192B79@donald.sysgo.com>
-X-AntiVirus: checked by AntiVir MailGate (version: 2.0.2-8; AVE: 6.32.0.6; VDF: 6.32.0.57; host: mailgate2.sysgo.com)
+To: "John W. Linville" <linville@tuxdriver.com>
+CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       leonid.grossman@neterion.com
+Subject: Re: [patch 2.6.14-rc2 2/2] s2io: add MODULE_VERSION to s2io driver
+References: <09282005175052.10818@bilbo.tuxdriver.com>
+In-Reply-To: <09282005175052.10818@bilbo.tuxdriver.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Comments, corrections, and notes of omission welcome.  This document
-> mainly reflects my typical day-to-day git activities, and may not be
-> very applicable outside of kernel work.
-
-Hi!
-I tried to follow the instructions step by step, but I do not have a
-"git-update-cache" command. The closest thing I found (comparing to the
-"Short Git Tutorial" [1] ) is "git-update-index"...
-
--Rolf
-
-[1] http://www.kernel.org/pub/software/scm/git/docs/tutorial.html
+applied patches 1-2
 

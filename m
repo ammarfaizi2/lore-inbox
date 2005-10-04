@@ -1,58 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbVJDHNE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932467AbVJDHaJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932453AbVJDHNE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 03:13:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbVJDHNE
+	id S932467AbVJDHaJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 03:30:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932468AbVJDHaJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 03:13:04 -0400
-Received: from Core.CC.UBBCluj.Ro ([193.231.20.3]:50676 "EHLO cc.ubbcluj.ro")
-	by vger.kernel.org with ESMTP id S932453AbVJDHND (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 03:13:03 -0400
-Message-ID: <43422CD4.5000509@cc.ubbcluj.ro>
-Date: Tue, 04 Oct 2005 10:18:44 +0300
-From: Dragomir Andrei <andrei@cc.ubbcluj.ro>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
+	Tue, 4 Oct 2005 03:30:09 -0400
+Received: from wg.technophil.ch ([213.189.149.230]:5808 "HELO
+	hydrogenium.schottelius.org") by vger.kernel.org with SMTP
+	id S932467AbVJDHaH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 03:30:07 -0400
+Date: Tue, 4 Oct 2005 09:30:07 +0200
+From: Nico Schottelius <nico-kernel@schottelius.org>
+To: coywolf@lovecn.org
+Cc: Nico Schottelius <nico-kernel@schottelius.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: halt: init exits/panic
+Message-ID: <20051004073007.GA2032@schottelius.org>
+Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
+	coywolf@lovecn.org, linux-kernel@vger.kernel.org
+References: <20050709151227.GM1322@schottelius.org> <2cd57c9005070910091f1051f7@mail.gmail.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Linux kernel hooks
-Content-Type: multipart/mixed;
- boundary="------------070509090802050602090406"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="VS++wcV0S1rZb1Fb"
+Content-Disposition: inline
+In-Reply-To: <2cd57c9005070910091f1051f7@mail.gmail.com>
+User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
+X-Linux-Info: http://linux.schottelius.org/
+X-Operating-System: Linux 2.6.13.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070509090802050602090406
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Do you know of any good linux kernel hooks sites or books ... I have 
-google searched for this topic and found some interesting sites but I 
-need a more in-depth analisys
+--VS++wcV0S1rZb1Fb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-thank you in advance
+Sorry for the delay.
+
+Coywolf Qi Hunt [Sun, Jul 10, 2005 at 01:09:22AM +0800]:
+> On 7/9/05, Nico Schottelius <nico-kernel@schottelius.org> wrote:
+> > Hello!
+> >=20
+> > What's the 'correct behaviour' of an init system, if someone wants
+> > to shutdown the system?
+> >=20
+> > I currently do:
+> >=20
+> > - call reboot(RB_POWER_OFF/RB_AUTOBOOT/RB_HALT_SYSTEM)
+> > - _exit(0)
+> >=20
+> > Is this exit() call wrong? If I do RB_HALT_SYSTEM and _exit(0) after,
+> > the kernel panics.
+>=20
+> What the panic shows?
+
+"Attempted to kill init!"
+
+--> Panic.
+
+Nico
 
 
---------------070509090802050602090406
-Content-Type: text/x-vcard; charset=utf-8;
- name="andrei.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="andrei.vcf"
+--=20
+Latest project: cconfig (http://nico.schotteli.us/papers/linux/cconfig/)
+Open Source nutures open minds and free, creative developers.
 
-begin:vcard
-fn:Andrei Dragomir
-n:Dragomir;Andrei
-org:Universitatea Babes-Bolyai;Centrul de Comunicatii
-adr:;;;Cluj-Napoca;Cluj;;Romania
-email;internet:andrei@cc.ubbcluj.ro
-title:Tehnician III
-tel;work:0264-405333
-tel;cell:0740135768
-url:http://artemis.cc.ubbcluj.ro
-version:2.1
-end:vcard
+--VS++wcV0S1rZb1Fb
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
---------------070509090802050602090406--
+iQIVAwUBQ0IvfrOTBMvCUbrlAQLKshAAlMrejTbJHFW8smB9nNINngJlwb7vC0yK
+O3YLWvWKV3bfgrVWo0aly0F3yi14D45JtsICXhGy7qH1nFpJ2kO2ytMV1pCNUsE+
+AegRzNMOYRrYCO8O0cdja7cRyw5uFzIVhVHrQYVYPqfUrJ2WPZ2xpvkwIcTVbbJf
+E3ycYDh9cdtMHgq4t9IjA4RcCHPTdBZRkC/rzfMcD7foLmI+O2yOSWT2+3far0Eu
+8JMUFPYXdYG8INSNsiyHj9+hesd/KgbukeMkOGl38XbHh18m6wG4Z6PClywdQSmL
+06a9vXF6ecVWS2S/YZZQmM9oGMn/hrxo0HRWkTRU5HFL5PN2DaSonXjaUwEmI7Br
+l28Y8hc2L9RNZL4Fu6K1huKOfffWtUbzLOMy3Q6ybZr0za5FvuuqSTvhRKaV83/w
+E5ZuvspMxvnyvab0jOLuCLvDkuXYJseNv9KUakmH434T2AI6sSnKsyPYJiOkNn9B
+v+TjNBgxt5DnTZoaoOoDE1OGuIUE9P6jkFfpStXfMgXy0hPytvnkFP9r7mbNj+0B
+xwhGhXglMidvR38ufu4kUVr4MlhuSU+OwhtC9N8k31+Tpfqur0mOZB1wGpAKv0TX
+8090OsP/hS7XfgH/j0CZWwDtbgQ+6qA81agOY/hxz16ws6yRrAipv0F6OdojWqXX
+oLpuRVc3OYE=
+=+h3f
+-----END PGP SIGNATURE-----
+
+--VS++wcV0S1rZb1Fb--

@@ -1,79 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932392AbVJDGds@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932389AbVJDGkQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932392AbVJDGds (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 02:33:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932380AbVJDGds
+	id S932389AbVJDGkQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 02:40:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbVJDGkQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 02:33:48 -0400
-Received: from astound-64-85-224-245.ca.astound.net ([64.85.224.245]:61188
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S932371AbVJDGdr convert rfc822-to-8bit (ORCPT
+	Tue, 4 Oct 2005 02:40:16 -0400
+Received: from paegas.mail-atlas.net ([212.47.13.186]:56071 "EHLO
+	paegas.mail-atlas.net") by vger.kernel.org with ESMTP
+	id S932389AbVJDGkO convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 02:33:47 -0400
-Date: Mon, 3 Oct 2005 23:30:49 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Ryan Anderson <ryan@autoweb.net>
-cc: Tomasz =?iso-8859-2?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>,
-       Luben Tuikov <luben_tuikov@adaptec.com>, andrew.patterson@hp.com,
-       Marcin Dalecki <dalecki.marcin@neostrada.pl>,
-       "Salyzyn, Mark" <mark_salyzyn@adaptec.com>, dougg@torque.net,
-       Linus Torvalds <torvalds@osdl.org>, Luben Tuikov <ltuikov@yahoo.com>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
- the kernel
-In-Reply-To: <1128377075.23932.5.camel@ryan2.internal.autoweb.net>
-Message-ID: <Pine.LNX.4.10.10510032319070.410-100000@master.linux-ide.org>
+	Tue, 4 Oct 2005 02:40:14 -0400
+From: "Peter Zubaj" <pzad@pobox.sk>
+To: "Dave Jones" <davej@redhat.com>
+CC: alsa-devel@alsa-project.org, James@superbug.co.uk,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       perex@suse.cz
+Message-ID: <dc7e3d7c111741a991e11a1a39ca9262@pobox.sk>
+Date: Tue, 04 Oct 2005 08:39:36 +0200
+X-Priority: 3 (Normal)
+Subject: Re: Re: [Alsa-devel] Re: [ALSA] snd-emu10k1: ALSA bug#1297: Fix a error recognising the SB Live Platinum.
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+If ac97_chip=1 and ac97 doesn't exists - driver will refuse to load.
+If ac97_chip=2 and ac97 doesn't exists - driver should ignore ac97
 
-On Mon, 3 Oct 2005, Ryan Anderson wrote:
+But I don't know if this is correct (I am not author of patch and I not tested it).
+if message is printed then there is
+goto no_ac97; /* FIXME: get rid of ugly gotos.. */
+this will skip ac97 mixer creation (if ac97 is not there this will fail and driver refuses to load)
+But I don't know if snd_ac97_bus will fail if there is no ac97 codec (I think - not, and this is not correct), then test should be done on snd_ac97_mixer and not on snd_ac97_bus creation.
 
-> On Mon, 2005-10-03 at 23:26 +0200, Tomasz K³oczko wrote:
-> > If (cytation from Linus) "a 'spec' is close to useless" ..
-> > Q: why the hell in kernel tree is included Documentation/ subdirectory ?
-> > Is it raly content of this directory is "close to useless" or maybe it not
-> > contains some specyfications ? :>
-> 
-> Let me rephrase what Linus said, to help remove the misreading that
-> seems so common today.  I think a fair rewording would be, "A spec is a
-> guideline.  When it fails to match reality, continuing to follow it is a
-> tremendous mistake."
-> 
-> Additionally, I think the overall LKML feeling on hardware specs and the
-> corresponding software abstractions to deal with it can be summarized
-> something like this:
-> 
-> When the spec provides a software design that doesn't fit into the
-> overall structure of the Linux kernel, the spec should be treated as a
-> suggestion for a software design.  The *interface* that the spec
-> documents should be followed, where it moves out of the overall
-> structure, but internally, a design that fits into the Linux kernel is
-> more important than following a spec that doesn't fit.
+Peter Zubaj
 
-Please lets design against the transport or FSM of the storage transport
-and never see data again.  NCITS specs generally (used loosely) define the
-boundary conditions for stable operations.  One of jewels of linux in the
-past which (hopefully was fixed, was 1.2.X-2.5.X thingy) was buffer_head
-walking and release to satisfy transfer of data-blocks of a spindle
-against the data-blocks of the kernel.  Spindle must win or one can not
-insure data integrity, thus the advent of BIO's from BH.
+>-----P?vodn? spr?va-----
+>Od: Dave Jones [mailto:davej@redhat.com]
+>Odoslan?: 4. okt?bra 2005 0:54
+>Komu: Peter Zubaj
+>K?pia: alsa-devel@alsa-project.org; James@superbug.co.uk; Linux Kernel Mailing List; perex@suse.cz
+>Predmet: Re: [Alsa-devel] Re: [ALSA] snd-emu10k1: ALSA bug#1297: Fix a error recognising the SB Live Platinum.
+>
+>
+>On Mon, Oct 03, 2005 at 08:23:28AM +0200, Peter Zubaj wrote:
+>> AFAIK this was fixed in CVS. Two cards have same model id (one has AC97, one not).
+>>
+>> Fix:
+>>
+>> http://sourceforge.net/mailarchive/forum.php?thread_id=8360485&forum_id=33141
+>>
+>
+>From the look of that patch, this will just print
+>"emu10k1: AC97 is optional on this board Proceeding without ac97 mixers..."
+>and do nothing about actually making things work for people again,
+>or even to suggest what they can do to work around this situation
+>when their volume control breaks.  At the least this sounds like it
+>needs to mention a module parameter to force ac97 support.
+>
+>What actually happens if we set ac97_chip=1 on the boards that
+>don't have it ? Is it purely a cosmetic thing, showing some
+>sliders that do nothing?
+>
+>Dave
+>
+>
+>
+>-------------------------------------------------------
+>This SF.Net email is sponsored by:
+>Power Architecture Resource Center: Free content, downloads, discussions,
+>and more. http://solutions.newsforge.com/ibmarch.tmpl
+>_______________________________________________
+>Alsa-devel mailing list
+>Alsa-devel@lists.sourceforge.net
+>https://lists.sourceforge.net/lists/listinfo/alsa-devel
 
-Linux changed to conform to data integrity issues.
 
-Somedays, Linux's API's or designs are OTS (Over The Shoulder).
 
-You get crap all over your back, if you reach OTS to finish your washroom
-business.  It is functional but ends up stinky and messy.
+Aktivujte si neobmedzenu mailovu schranku na www.pobox.sk!
 
-This thread is getting longer and I just added to piles ...
-
-Sigh
-
-Andre
 

@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbVJDCuD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932313AbVJDDAn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932302AbVJDCuD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 22:50:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932306AbVJDCuB
+	id S932313AbVJDDAn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 23:00:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932317AbVJDDAn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 22:50:01 -0400
-Received: from sv1.valinux.co.jp ([210.128.90.2]:23716 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S932302AbVJDCuB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 22:50:01 -0400
-Date: Tue, 4 Oct 2005 11:49:59 +0900
-From: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
-To: Paul Jackson <pj@sgi.com>
-Cc: taka@valinux.co.jp, magnus.damm@gmail.com, dino@in.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/3] CPUMETER (Re: [PATCH 0/5] SUBCPUSETS: a resource
- control functionality using CPUSETS)
-In-Reply-To: <20051001212026.1d39222a.pj@sgi.com>
-References: <20050908225539.0bc1acf6.pj@sgi.com>
-	<20050909.203849.33293224.taka@valinux.co.jp>
-	<20050909063131.64dc8155.pj@sgi.com>
-	<20050910.161145.74742186.taka@valinux.co.jp>
-	<20050910015209.4f581b8a.pj@sgi.com>
-	<20050926093432.626D07003D@sv1.valinux.co.jp>
-	<20051001212026.1d39222a.pj@sgi.com>
-X-Mailer: Sylpheed version 2.1.3 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Mon, 3 Oct 2005 23:00:43 -0400
+Received: from zproxy.gmail.com ([64.233.162.207]:2844 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932313AbVJDDAn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 23:00:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=o4bLZCqnmOF6cLcHDuZj4WjtFoJDyX82dw8ePDo7qEjknt5uHa1NWAbkbAhmzsXrILpYz/S7zGRZ7LvmOShMvJpkDdHzBySzYqm9REB3ERpNRUZqRddJ2Qi6WMoyBMhVdHXjg135hIFea1Ihw+CauzDZ54s0t9qDsqwywRN19+E=
+Message-ID: <5dc44ec70510032000s79e12bc8l2ea4e69af6f32ee7@mail.gmail.com>
+Date: Tue, 4 Oct 2005 00:00:41 -0300
+From: Diego de Estrada <diego1609@gmail.com>
+Reply-To: Diego de Estrada <diego1609@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] release_resource() check for NULL resource
+In-Reply-To: <5dc44ec70510031959w1f4adfcbh395535ade34a357d@mail.gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <20051004025000.07DC470040@sv1.valinux.co.jp>
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051002170318.GA22074@home.fluff.org>
+	 <20051002103922.34dd287d.rdunlap@xenotime.net>
+	 <5dc44ec70510031959w1f4adfcbh395535ade34a357d@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 1 Oct 2005 21:20:26 -0700
-Jackson-san wrote:
+On 10/2/05, Randy.Dunlap <rdunlap@xenotime.net> wrote:
+> On Sun, 2 Oct 2005 18:03:18 +0100 Ben Dooks wrote:
+>
+> > If release_resource() is passed a NULL resource
+> > the kernel will OOPS.
+>
+> does this actually happen?  you are fixing a real oops?
+> if so, what driver caused it?
 
-> I spent a little more reading the cpuset side of your cpumeter patches.
-> 
-> I am hopeful that some substantial restructuring of the code would
-> integrate it better with the existing cpuset structure, reducing the
-> size of new code substantially.
-
-Thanks for the suggestion.
-I'll update my patch and send it when I finish updating.
+The point is: no driver should make the kernel OOPS. Thanks Ben.

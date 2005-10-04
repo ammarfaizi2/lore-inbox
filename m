@@ -1,92 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964978AbVJDVMN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964973AbVJDVOU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964978AbVJDVMN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 17:12:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964979AbVJDVMN
+	id S964973AbVJDVOU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 17:14:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964980AbVJDVOT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 17:12:13 -0400
-Received: from mf01.sitadelle.com ([212.94.174.68]:40022 "EHLO
-	smtp.cegetel.net") by vger.kernel.org with ESMTP id S964978AbVJDVMM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 17:12:12 -0400
-Message-ID: <4342F022.3060509@cosmosbay.com>
-Date: Tue, 04 Oct 2005 23:12:02 +0200
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: fr, en
+	Tue, 4 Oct 2005 17:14:19 -0400
+Received: from keskus.netlab.hut.fi ([130.233.154.176]:21956 "EHLO
+	keskus.netlab.hut.fi") by vger.kernel.org with ESMTP
+	id S964973AbVJDVOT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 17:14:19 -0400
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
-Subject: Re: [NUMA , x86_64] Why memnode_shift is chosen with the lowest possible
- value ?
-References: <1127939141.26401.32.camel@localhost.localdomain> <433C1D6F.1030605@cosmosbay.com> <433D00BC.2070001@cosmosbay.com> <200510041913.26332.ak@suse.de>
-In-Reply-To: <200510041913.26332.ak@suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17218.61609.178742.824607@keskus.netlab.hut.fi>
+Date: Wed, 5 Oct 2005 00:14:17 +0300
+From: Jouni Karvo <jouni.karvo@tkk.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PROBLEM] mtrr's not set, 2.6.13
+X-Mailer: VM 7.19 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen a écrit :
-> On Friday 30 September 2005 11:09, Eric Dumazet wrote:
-> 
->>+       while (populate_memnodemap(nodes, numnodes, shift + 1) >= 0)
->>+               shift++;
-> 
-> 
-> 
-> Why shift+1 here? 
 
-Thank you Andi fo r reviewing this stuff
+hi,
 
-The idea it to find the highest shift value, and to break the loop as soon as 
-the (shift + 1) value gives us an "shift too big" error.
+I have the same problem of MTRR:s and kernel 2.6.13.2
 
-Maybe you want to write :
+With 2.6.9, the system says:
 
-         while (populate_memnodemap(nodes, numnodes, ++shift) >= 0) ;
-	shift--;
+kex@vdr:~$ cat /proc/mtrr
+reg00: base=0x00000000 (   0MB), size= 512MB: write-back, count=1
+reg01: base=0xd0000000 (3328MB), size= 128MB: write-combining, count=1
 
-Well, thats only style...
+but with 2.6.13.2:
 
+kex@vdr:/var/log$ cat /proc/mtrr
+reg00: base=0x00000000 (   0MB), size=983552MB: write-back, count=1
 
-> 
-> 
->>+               if ((end >> shift) >= NODEMAPSIZE)
->>+                       return 0;
-> 
-> 
-> This should be >, not >= shouldn't it?
+Processor type: (I added the mask printouts to void __init
+mtrr_bp_init(void) in mtrr/main.c)
 
-Let's take an example
+eck reporting enabled on CPU#0.
+CPU0: Intel P4/Xeon Extended MCE MSRs (12) available
+CPU0: Thermal monitoring enabled
+mtrr: v2.0 (20020519)
+MTRR: size_or_mask = 0xf0000000, size_and_mask = 0xff00000
+CPU: Intel(R) Pentium(R) 4 CPU 2.40GHz stepping 03
 
-end   = 0xffffffff;
-start = 0xfff00000;
-shift = 20
-Suppose that NODEMAPSIZE == (end >> shift) == 0xfff
+Please let me know what info would help tracking this down...
 
-If the test is changed to :
+yours,
+		Jouni
 
-if ((end >> shift) > NODEMAPSIZE)
-	return 0;
-
-We could do one of the iteration with (addr < end) but (addr >> shift) == 
-NODEMAPSIZE
-
-if (memnodemap[NODEMAPSIZE] != 0xff)
-	return -1;
-memnodemap[NODMAPSIZE] = i;
-
-Thats bound violation of memnodemap[]
-
-AFAIK, I wonder why NODEMAPSIZE is 0xfff and not 0x1000, because this off by 
-one make half of memnodemap[] to be unused for power of two ram size.
-
-
-> 
-> -Andi
-> 
-> P.S.: Please cc x86-64 patches to discuss@x86-64.org
-
-Ah thank you
-
-Eric
+Btw. sorry I did not have the references for the earlier postings.
+-- 
+http://www.tkk.fi/%7ekex

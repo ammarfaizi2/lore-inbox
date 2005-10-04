@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932158AbVJDOK0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932469AbVJDOMF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932158AbVJDOK0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 10:10:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932469AbVJDOK0
+	id S932469AbVJDOMF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 10:12:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932470AbVJDOMF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 10:10:26 -0400
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:14469 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S932158AbVJDOKZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 10:10:25 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: [RFC][PATCH][Fix] swsusp: Yet another attempt to fix Bug #4959
-Date: Tue, 4 Oct 2005 16:11:28 +0200
-User-Agent: KMail/1.8.2
-Cc: "Discuss x86-64" <discuss@x86-64.org>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
-References: <200510011813.54755.rjw@sisk.pl> <200510012145.30067.ak@suse.de> 
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510041611.28763.rjw@sisk.pl>
+	Tue, 4 Oct 2005 10:12:05 -0400
+Received: from mta7.srv.hcvlny.cv.net ([167.206.4.202]:16775 "EHLO
+	mta7.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S932469AbVJDOME (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 10:12:04 -0400
+Date: Tue, 04 Oct 2005 10:11:52 -0400
+From: Mathieu Chouquet-Stringer <ml2news@optonline.net>
+X-Face: %JOeya=Dg!}[/#Go&*&cQ+)){p1c8}u\Fg2Q3&)kothIq|JnWoVzJtCFo~4X<uJ\9cHK'.w
+ 3:{EoxBR
+Subject: Re: Linux 2.6.13.3 (inconsistent KALLSYMS)
+In-reply-to: <43428D0B.5000205@grupopie.com>
+To: pmarques@grupopie.com (Paulo Marques)
+Cc: Mathieu Chouquet-Stringer <ml2news@optonline.net>,
+       Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org
+Message-id: <m3psqljrrr.fsf@mcs.bigip.mine.nu>
+Organization: Uh?
+MIME-version: 1.0
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 8BIT
+References: <20051004011620.GO16352@shell0.pdx.osdl.net>
+ <43428D0B.5000205@grupopie.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday, 2 of October 2005 12:06, Rafael J. Wysocki wrote:
-> On Saturday, 1 of October 2005 21:45, Andi Kleen wrote:
-> > On Saturday 01 October 2005 18:13, Rafael J. Wysocki wrote:
-> > 
-> > >
-> > > This function allocates twice as much memory as needed for the direct
-> > > mapping page tables and assigns the second half of it to the resume page
-> > > tables.  This area is later marked with PG_nosave by swsusp, so that it is
-> > > not overwritten during resume.
-> > >
-> > I prefered it when the additional page tables were allocated only on demand.
+pmarques@grupopie.com (Paulo Marques) writes:
+> Mathieu Chouquet-Stringer wrote:
+> > chrisw@osdl.org (Chris Wright) writes:
+> >
+> >>We (the -stable team) are announcing the release of the 2.6.13.3 kernel.
+> >>[...]
+> > With the attached configuration [1], I get the following error:
+> > Inconsistent kallsyms data
+> > Try setting CONFIG_KALLSYMS_EXTRA_PASS
 > 
-> Me too.  Let's get back to that patch, then. :-)
+> This is probably a known problem that is already fixed in 2.6.14 :(
 > 
-> Comments etc. will be appreciated.
+> The attached patch should fix it for you.
 
-I haven't got any comments since I posted it on Saturday, so I gather there are
-no objections.  Or are there any?
-
-Greetings,
-Rafael
+Thanks Paulo, I'm giving it a shot, will keep you posted...
+ 
+-- 
+Mathieu Chouquet-Stringer
+    "Le disparu, si l'on vénère sa mémoire, est plus présent et
+                 plus puissant que le vivant".
+           -- Antoine de Saint-Exupéry, Citadelle --

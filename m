@@ -1,123 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964779AbVJDPKL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964795AbVJDPNQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964779AbVJDPKL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 11:10:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbVJDPKL
+	id S964795AbVJDPNQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 11:13:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964797AbVJDPNQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 11:10:11 -0400
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:32901 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S964791AbVJDPKJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 11:10:09 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [swsusp] separate snapshot functionality to separate file
-Date: Tue, 4 Oct 2005 17:11:12 +0200
-User-Agent: KMail/1.8.2
-Cc: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
-References: <20051002231332.GA2769@elf.ucw.cz> <200510032339.08217.rjw@sisk.pl> <20051003231715.GA17458@elf.ucw.cz>
-In-Reply-To: <20051003231715.GA17458@elf.ucw.cz>
+	Tue, 4 Oct 2005 11:13:16 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:63707 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S964795AbVJDPNQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 11:13:16 -0400
+To: Andrew Morton <akpm@osdl.org>
+cc: <linux-kernel@vger.kernel.org>, <fastboot@osdl.org>,
+       Andi Kleen <ak@suse.de>
+Subject: [PATCH 1/2] x86_64 nmi_watchdog: Make check_nmi_watchdog static
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 04 Oct 2005 09:11:42 -0600
+Message-ID: <m17jct8ggh.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510041711.13408.rjw@sisk.pl>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Tuesday, 4 of October 2005 01:17, Pavel Machek wrote:
-> Hi!
-> 
-> > > Split swsusp.c into swsusp.c and snapshot.c. Snapshot only cares
-> > > provides system snapshot/restore functionality, while swsusp.c will
-> > > provide disk i/o. It should enable untangling of the code in future;
-> > > swsusp.c parts can mostly be done in userspace.
-> > > 
-> > > No code changes.
-> > 
-> > I think that the functions:
-> > 
-> > read_suspend_image()
-> > read_pagedir()
-> > swsusp_pagedir_relocate() (BTW, why there's "swsusp_"?)
-> > check_pagedir() (BTW, misleading name)
-> > data_read()
-> > eat_page()
-> > get_usable_page()
-> > free_eaten_memory()
-> > 
-> > should be moved to snapshot.c as well, because they are in fact
-> > symmetrical to what's there (they perform the reverse of creating
-> > the snapshot and use analogous data structures).  IMO the code
-> > change required would not be so drammatic and all of the functions
-> > that _operate_ on the snapshot would be in the same file.
-> 
-> No. read_suspend_image/read_pagedir/data_read is image reading.
+By using a late_initcall as i386 does we don't need to call
+check_nmi_watchdog manually after SMP startup, and we don't
+need different code paths for SMP and non SMP.
 
-Yes, they are, but they use the same data structures and even call the same
-functions that are used in snapshot.c (eg. alloc_pagedir).
+This paves the way for moving apic initialization into init_IRQ,
+where it belongs.
 
-> That does not belong to snaphost. The rest is notthat clear, but I have it
-> working in userspace.
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 
-Of course it is doable in the userland, but this does not mean it should be
-done in the userland.  Personally I don't think so (please see below).
 
-> Image creation is still done in kernel space, but I think that kernel
-> <-> user interface is going to be cleaner that way, and I do not think
-> pushing it to user is so huge win.
-> 
-> Yes, names are not ideal, but that will be followup patch.
+---
 
-Having considered it for a while I think it's too early for the splitting,
-because:
-1) we have bug fixes pending (viz. the x86-64 resume problem),
-2) we can simplify swsusp quite a bit thanks to the rework-memory-freeing
-patch (eg. we can get rid of eat_page(), free_eaten_memory() and
-some complicated error paths in the resume code), which I'd prefer to do
-before the code is split,
-3) some cleanups are due before the splitting (eg. function names, the removal
-of prepare_suspend_image() etc.),
-4) we could make swsusp consist of two functionally independent parts (ie. such
-that they use different data structures etc.) while it is in the single file
-and _then_ split.
+ arch/x86_64/kernel/apic.c    |    1 -
+ arch/x86_64/kernel/nmi.c     |    7 ++++++-
+ arch/x86_64/kernel/smpboot.c |    2 --
+ include/asm-x86_64/nmi.h     |    2 --
+ 4 files changed, 6 insertions(+), 6 deletions(-)
 
-IMHO there could be the snapshot-handling part and the storage-handling
-part interfacing via some functions (called by the snapshot-handling part)
-like:
-1) prepare_to_save(n, m) - initializing the data structures of the storage-handling
-part and the storage itself,
-2) save_page(*addr, nr) - with addr being the addres of the page to save and nr
-the number of the page, where:
-- nr = 0 for the first pagedir page,
-- nr = (n - 1) for the last pagedir page,
-- nr = n for the first image page (ie. the page pointed to by the first pagedir
-entry)
-- nr = (n + m - 1) for the last image page (ie. the page pointed to by the
-last pagedir entry)
-3) finish_saving() - removing the storage-handling part data structures,
-4) prepare_to_load(*n, *m),
-5) load_page(*addr, nr) - now addr being the address where to store the page,
-6) finish_loading()
-
-Then the storage-handling part would only have to save/load individual pages
-and associate the page numbers given by the snapshot-handling part
-with swap offsets or equivalent storage addresses.  In that case the
-storage-handling could be moved (at leas partially) to the userland
-_without_ reimplementing the swsusp's data structures in there.
-
-Also, we could use more memory-efficient representation of the PBE, as the
-only component of it that we really _need_ to save is the .orig_address field.
-Namely, the snapshot-handling part could use PBEs consisting of .address,
-.orig_address and .next internally, passing only the .orig_address fields
-to the storage-handling part (the original order of them could be recreated
-based on nr in save_page() and load_page()).
-
-Even if that sounds complicated, I think I can implement it in two weeks,
-so please give me a chance.
-
-Greetings,
-Rafael
+b80634473f58ddea568a41e9a779676bed64dc9c
+diff --git a/arch/x86_64/kernel/apic.c b/arch/x86_64/kernel/apic.c
+--- a/arch/x86_64/kernel/apic.c
++++ b/arch/x86_64/kernel/apic.c
+@@ -1061,7 +1061,6 @@ int __init APIC_init_uniprocessor (void)
+ 		nr_ioapics = 0;
+ #endif
+ 	setup_boot_APIC_clock();
+-	check_nmi_watchdog();
+ 	return 0;
+ }
+ 
+diff --git a/arch/x86_64/kernel/nmi.c b/arch/x86_64/kernel/nmi.c
+--- a/arch/x86_64/kernel/nmi.c
++++ b/arch/x86_64/kernel/nmi.c
+@@ -139,12 +139,15 @@ static __init void nmi_cpu_busy(void *da
+ }
+ #endif
+ 
+-int __init check_nmi_watchdog (void)
++static int __init check_nmi_watchdog (void)
+ {
+ 	volatile int endflag = 0;
+ 	int *counts;
+ 	int cpu;
+ 
++	if (nmi_watchdog == NMI_NONE)
++		return 0;
++
+ 	counts = kmalloc(NR_CPUS * sizeof(int), GFP_KERNEL);
+ 	if (!counts)
+ 		return -1;
+@@ -186,6 +189,8 @@ int __init check_nmi_watchdog (void)
+ 	kfree(counts);
+ 	return 0;
+ }
++/* This needs to happen later in boot so counters are working */
++late_initcall(check_nmi_watchdog);
+ 
+ int __init setup_nmi_watchdog(char *str)
+ {
+diff --git a/arch/x86_64/kernel/smpboot.c b/arch/x86_64/kernel/smpboot.c
+--- a/arch/x86_64/kernel/smpboot.c
++++ b/arch/x86_64/kernel/smpboot.c
+@@ -1077,8 +1077,6 @@ void __init smp_cpus_done(unsigned int m
+ #endif
+ 
+ 	time_init_gtod();
+-
+-	check_nmi_watchdog();
+ }
+ 
+ #ifdef CONFIG_HOTPLUG_CPU
+diff --git a/include/asm-x86_64/nmi.h b/include/asm-x86_64/nmi.h
+--- a/include/asm-x86_64/nmi.h
++++ b/include/asm-x86_64/nmi.h
+@@ -54,6 +54,4 @@ extern void die_nmi(char *str, struct pt
+ extern int panic_on_timeout;
+ extern int unknown_nmi_panic;
+ 
+-extern int check_nmi_watchdog(void);
+- 
+ #endif /* ASM_NMI_H */

@@ -1,45 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932457AbVJDN6A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbVJDOBt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932457AbVJDN6A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 09:58:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932460AbVJDN6A
+	id S932136AbVJDOBt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 10:01:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932454AbVJDOBt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 09:58:00 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:17322 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932457AbVJDN57
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 09:57:59 -0400
-Date: Tue, 4 Oct 2005 08:57:48 -0500
-From: serue@us.ibm.com
-To: Dan C Marinescu <dan_c_marinescu@yahoo.com>
-Cc: John Richard Moser <nigelenki@comcast.net>, linux-kernel@vger.kernel.org,
-       Stephen Smalley <sds@epoch.ncsc.mil>, gcwilson@us.ibm.com,
-       James Morris <jmorris@redhat.com>
-Subject: Re: The price of SELinux (CPU)
-Message-ID: <20051004135748.GA7518@sergelap.austin.ibm.com>
-References: <43421F46.8030202@comcast.net> <20051004065149.23426.qmail@web35505.mail.mud.yahoo.com>
-Mime-Version: 1.0
+	Tue, 4 Oct 2005 10:01:49 -0400
+Received: from mx2.suse.de ([195.135.220.15]:24006 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932136AbVJDOBs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 10:01:48 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Vadim Lobanov <vlobanov@speakeasy.net>, Rik van Riel <riel@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel?
+References: <20051002204703.GG6290@lkcl.net>
+	<Pine.LNX.4.63.0510021704210.27456@cuia.boston.redhat.com>
+	<20051002230545.GI6290@lkcl.net>
+	<Pine.LNX.4.58.0510021637260.28193@shell2.speakeasy.net>
+	<20051003005400.GM6290@lkcl.net>
+	<1128367120.26992.44.camel@localhost.localdomain>
+	<20051003210722.GI8548@lkcl.net>
+	<1128377145.26992.53.camel@localhost.localdomain>
+From: Andi Kleen <ak@suse.de>
+Date: 04 Oct 2005 16:01:46 +0200
+In-Reply-To: <1128377145.26992.53.camel@localhost.localdomain>
+Message-ID: <p73y859z8hh.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051004065149.23426.qmail@web35505.mail.mud.yahoo.com>
-User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Dan C Marinescu (dan_c_marinescu@yahoo.com):
-> John,
-> 
-> Try this link:
-> 
-> http://www.nsa.gov/selinux/list-archive/0505/11459.cfm
-> 
-> It's from NSA... Hope this helps somehow...
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-Note that these benchmarks were done quite some time ago.  Among
-many other changes, selinux's memory overhead was recently significantly
-reduced which should help these benchmarks quite a bit.
+> On Llu, 2005-10-03 at 22:07 +0100, Luke Kenneth Casson Leighton wrote:
+> >  made?  _cool_.  actual hardware.  new knowledge for me.  do you know
+> >  of any online references, papers or stuff?  [btw just to clarify:
+> >  you're saying you have a NUMA bus or you're saying you have an
+> >  augmented SMP+NUMA+separate-parallel-message-passing-bus er .. thing]
+> 
+> Its a standard current Intel feature. See "mwait" in the processor
+> manual. The CPUs are also smart enough to do cache to cache transfers.
+> No special hardware no magic.
 
-Hopefully we can do another round of benchmarks soon, but we were
-waiting for particular machine to become available.
+It's unfortunately useless for anything but kernels right now because
+Intel has disabled it in ring 3 (and AMD doesn't support it yet)
+And the only good use the kernel found for it so far is fast wakeup
+from the idle loop.
 
--serge
+> And unless I want my messages to cause interrupts and wake events (in
+> which case the APIC does it nicely) then any locked operation on memory
+> will do the job just fine. I don't need funky hardware on a system. The
+> first point I need funky hardware is between boards and that isn't
+> consumer any more.
+
+Firewire + CLFLUSH should do the job.
+
+-Andi
+ 

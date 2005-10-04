@@ -1,62 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964792AbVJDItN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750815AbVJDI7l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964792AbVJDItN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 04:49:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbVJDItN
+	id S1750815AbVJDI7l (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 04:59:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbVJDI7l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 04:49:13 -0400
-Received: from vulpecula.futurs.inria.fr ([195.83.212.5]:64916 "EHLO
-	vulpecula.futurs.inria.fr") by vger.kernel.org with ESMTP
-	id S964792AbVJDItM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 04:49:12 -0400
-Message-ID: <43424202.7070600@lifl.fr>
-Date: Tue, 04 Oct 2005 10:49:06 +0200
-From: Eric Piel <Eric.Piel@lifl.fr>
-User-Agent: Mozilla Thunderbird 1.0.6-7mdk (X11/20050322)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>
-Subject: Re: [PATCH] ppc64: Add cpufreq support for SMU based G5
-References: <1128403842.31063.24.camel@gaston>
-In-Reply-To: <1128403842.31063.24.camel@gaston>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Tue, 4 Oct 2005 04:59:41 -0400
+Received: from frankvm.xs4all.nl ([80.126.170.174]:8368 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S1750815AbVJDI7k
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 04:59:40 -0400
+Date: Tue, 4 Oct 2005 10:59:39 +0200
+From: Frank van Maarseveen <frankvm@frankvm.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Jay Lan <jlan@engr.sgi.com>, Frank van Maarseveen <frankvm@frankvm.com>,
+       Christoph Lameter <clameter@engr.sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.14-rc2] fix incorrect mm->hiwater_vm and mm->hiwater_rss
+Message-ID: <20051004085939.GA6672@janus>
+References: <Pine.LNX.4.61.0509211802150.8880@goblin.wat.veritas.com> <4331990A.80904@engr.sgi.com> <Pine.LNX.4.61.0509211835190.9340@goblin.wat.veritas.com> <4331A0DA.5030801@engr.sgi.com> <20050921182627.GB17272@janus> <Pine.LNX.4.61.0509211958410.10449@goblin.wat.veritas.com> <4339AED4.8030108@engr.sgi.com> <Pine.LNX.4.61.0509281337420.6830@goblin.wat.veritas.com> <433AD359.8070509@engr.sgi.com> <Pine.LNX.4.61.0510032030320.13179@goblin.wat.veritas.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0510032030320.13179@goblin.wat.veritas.com>
+User-Agent: Mutt/1.4.1i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-10/04/2005 07:30 AM, Benjamin Herrenschmidt wrote/a écrit:
-> iMac G5 and latest single CPU desktop G5 (SMU based machines) have a
-> 970FX DD3 CPU that supports frequency & vooltage switching. This patch
-> adds support for simple dual frequency switch. It is required for the
-> upcoming thermal control patch for these machines.
+On Mon, Oct 03, 2005 at 08:53:09PM +0100, Hugh Dickins wrote:
 > 
+> Christoph, Frank, Jay: does this patch look like it fits your needs?
 
-Hello,
+Yes.  Thanks.
 
-I know only very little about cpufreq, probably you could post your 
-patch to the cpufreq mailing list for better review : 
-cpufreq@lists.linux.org.uk (you may have to subscride before posting, 
-don't remember).
 
-For what have seen, your patch looks pretty good in general. However, is 
-this kind of CPU only in one CPU machines? Your patch doesn't seem 
-support SMP, then it's probably safer to prevent compilation on an SMP 
-kernel in the Makefile? Or you can add SMP support (shouldn't be so hard 
-in theory, but with no hardware to test it might be pointless), you can 
-have a look at other drivers that support it, like in 
-arch/i386/kernel/cpu/cpufreq/p4-clockmod.c .
-
-Just a little more thing, concerning:
-+	policy->cpuinfo.transition_latency = CPUFREQ_ETERNAL;
-Could you have a look if you could find the real info about how long it 
-takes to change the speed (put the worse case latency)? Maybe the info 
-can be found in some parts of the ROM you read? I don't know if 
-conservative or ondemand governors are supposed to be able to mix with 
-your code (especially wrt Windfarm) but not putting this info will 
-prevent them from ever working...
-
-Cheers,
-Eric
+-- 
+Frank

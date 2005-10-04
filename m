@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbVJDL74@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932383AbVJDMBI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932390AbVJDL74 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 07:59:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932383AbVJDL74
+	id S932383AbVJDMBI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 08:01:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932387AbVJDMBI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 07:59:56 -0400
-Received: from zproxy.gmail.com ([64.233.162.204]:6092 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932377AbVJDL7z (ORCPT
+	Tue, 4 Oct 2005 08:01:08 -0400
+Received: from mx2.suse.de ([195.135.220.15]:6072 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932383AbVJDMBG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 07:59:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:content-type:content-transfer-encoding;
-        b=q3M0qq7krpR7DFCrZuk6DU+V/YG2aK7YFSkMTWZ0VaOH80F5x3MwQILsBpCKC2ZEo4v1XcPXeR/ODDbbCzZUYWbKaZAcM5a+hKp6guyDspMebj8Bsv1/O1lukln7BVaoEKlm/z45NWWNbtCyTYXBrvRPhYWkSHNhTXmoQmGROjs=
-Message-ID: <43426EB4.6080703@gmail.com>
-Date: Tue, 04 Oct 2005 20:59:48 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Question regarding x86_64 __PHYSICAL_MASK_SHIFT
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 4 Oct 2005 08:01:06 -0400
+Subject: Re: thinkpad suspend to ram and backlight
+From: Timo Hoenig <thoenig@suse.de>
+To: Stefan Seyfried <seife@suse.de>
+Cc: Pavel Machek <pavel@suse.cz>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <43410149.9070007@suse.de>
+References: <20051002175703.GA3141@elf.ucw.cz>  <43410149.9070007@suse.de>
+Content-Type: text/plain
+Date: Tue, 04 Oct 2005 14:00:14 +0200
+Message-Id: <1128427214.14551.15.camel@nouse.suse.de>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-  Hello, Andi.
+On Mon, 2005-10-03 at 12:00 +0200, Stefan Seyfried wrote:
 
-  In include/asm-x86_64/page.h, __VIRTUAL_MASK_SHIFT is defined as 48 
-bits which is the size of virtual address space on current x86_64 
-machines as used as such.  OTOH, __PHYSICAL_MASK_SHIFT is defined as 46 
-and used as mask shift for physical page address (i.e. physaddr >> 12).
+> Pavel Machek wrote:
+> > Hi!
+> > 
+> > When I suspend to RAM on x32, backlight is not turned off. (And, IIRC,
+> > video chips is not turned off, too). Unfortunately, backlight is not
+> > turned even when lid is closed. I know some patches were floating
+> > around to solve that... but I can't find them now. Any ideas?
+> 
+> Which framebuffer driver? Vesafb works for Timo, at least he did not
+> complain lately ;-)
 
-  In addition to being a bit confusing due to similar names but 
-different meanings, this means that we assume processors can physically 
-address 58 (46 + 12) bits, but both amd64 and IA-32e manuals say that 
-current architectural limit is 52 bits and bits 52-62 are reserved in 
-all page table entries.  This currently (and in foreseeable future) 
-doesn't cause any problem but it's still a bit weird.
+It's never too late to complain: I just gave it a try with vesfb.
+Backlight stays on.
 
-  Am I missing something?
+When eying the display precisely it seems to be switched off for a short
+moment once the system enters S3 but then gets turned on again.
 
-  Thanks.
+   Timo
 
--- 
-tejun

@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbVJDMsj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932416AbVJDMv4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932406AbVJDMsj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 08:48:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbVJDMsj
+	id S932416AbVJDMv4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 08:51:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932417AbVJDMv4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 08:48:39 -0400
-Received: from ozlabs.org ([203.10.76.45]:1474 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932406AbVJDMsj (ORCPT
+	Tue, 4 Oct 2005 08:51:56 -0400
+Received: from mail2.utc.com ([192.249.46.191]:12285 "EHLO mail2.utc.com")
+	by vger.kernel.org with ESMTP id S932416AbVJDMvz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 08:48:39 -0400
+	Tue, 4 Oct 2005 08:51:55 -0400
+Message-ID: <43427AD9.9060104@cybsft.com>
+Date: Tue, 04 Oct 2005 07:51:37 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       david singleton <dsingleton@mvista.com>, Todd.Kneisel@bull.com,
+       Felix Oxley <lkml@oxley.org>
+Subject: Re: 2.6.14-rc3-rt2
+References: <20051004084405.GA24296@elte.hu>
+In-Reply-To: <20051004084405.GA24296@elte.hu>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17218.31264.61421.415716@cargo.ozlabs.ibm.com>
-Date: Tue, 4 Oct 2005 22:48:32 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: "Rune Torgersen" <runet@innovsys.com>
-Cc: "Marc" <marvin24@gmx.de>, <linuxppc-dev@ozlabs.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: clock skew on B/W G3
-In-Reply-To: <DCEAAC0833DD314AB0B58112AD99B93B859476@ismail.innsys.innovsys.com>
-References: <DCEAAC0833DD314AB0B58112AD99B93B859476@ismail.innsys.innovsys.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rune Torgersen writes:
-
-> CONFIG_HZ is not broken, but the whole clock configuration is.
-> (I poseded something about it for 8260 earlier this summer)
+Ingo Molnar wrote:
+> i have released the 2.6.14-rc3-rt2 tree, which can be downloaded from 
+> the usual place:
 > 
-> Basic problem is that CLOCK_TICK_RATE which is used for setting up the
-> variables used for advancing the clock, is hardcoded to a value that
-> only makes sence for an i386. (it is default set at 1193180Hz which
-> happens to be the timer clock for timer1 on an i386 machine)
+>   http://redhat.com/~mingo/realtime-preempt/
+> 
 
-I do not believe CLOCK_TICK_RATE affects timekeeping at all on ppc or
-ppc64 machines, but I could be wrong.  Can you show us where and how
-CLOCK_TICK_RATE affects things?
+Ingo,
 
-Paul.
+This one seems to be missing some pieces :-)
+
+http://people.redhat.com/mingo/realtime-preempt/patch-2.6.14-rc3-rt5
+
+-- 
+    kr

@@ -1,238 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964951AbVJDUFw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964950AbVJDUHv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964951AbVJDUFw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 16:05:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964952AbVJDUFw
+	id S964950AbVJDUHv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 16:07:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964953AbVJDUHv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 16:05:52 -0400
-Received: from spirit.analogic.com ([204.178.40.4]:58375 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S964951AbVJDUFv convert rfc822-to-8bit
+	Tue, 4 Oct 2005 16:07:51 -0400
+Received: from zproxy.gmail.com ([64.233.162.206]:11109 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964950AbVJDUHu convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 16:05:51 -0400
+	Tue, 4 Oct 2005 16:07:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=azRlM+GLzDAih8h2YHK23J6sCW0DF3A7teHyzQAC47pJSQYvfPOK3nyxuxYfPWCySWSfrMEUQpPJDZAOVr7GHDB+U93wyVL5fvc8sIuIcQkIq77KhPSyjRwpiRhn+AziOoSVL0akzK4+yG6u2Atc/w3Be7I4MtsUX7x0fume0WA=
+Message-ID: <3e1162e60510041307q3fc900e7tdcf96eb268816eac@mail.gmail.com>
+Date: Tue, 4 Oct 2005 13:07:48 -0700
+From: David Leimbach <leimy2k@gmail.com>
+Reply-To: David Leimbach <leimy2k@gmail.com>
+To: Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: /etc/mtab and per-process namespaces
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051004194301.GO7992@ftp.linux.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <94e67edf0510041223x2dca3215tee29b80c5f9738cf@mail.gmail.com>
-References: <94e67edf0510041223x2dca3215tee29b80c5f9738cf@mail.gmail.com>
-X-OriginalArrivalTime: 04 Oct 2005 20:05:49.0887 (UTC) FILETIME=[040A24F0:01C5C91F]
-Content-class: urn:content-classes:message
-Subject: Re: Linker Problem
-Date: Tue, 4 Oct 2005 16:05:49 -0400
-Message-ID: <Pine.LNX.4.61.0510041538220.30786@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Linker Problem
-Thread-Index: AcXJHwQRBNCfUzeGTfmmA/rILiZ4UQ==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Sreeni" <sreeni.pulichi@gmail.com>
-Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Disposition: inline
+References: <3e1162e60510021508r6ef8e802p9f01f40fcf62faae@mail.gmail.com>
+	 <3e1162e60510041214t3afd803re27b742705d27900@mail.gmail.com>
+	 <20051004194301.GO7992@ftp.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 10/4/05, Al Viro <viro@ftp.linux.org.uk> wrote:
+> On Tue, Oct 04, 2005 at 12:14:47PM -0700, David Leimbach wrote:
+> > Hmm no responses on this thread a couple days now.  I guess:
+> >
+> > 1) No one cares about private namespaces or the fact that they make
+> > /etc/mtab totally inconsistent.
+> > 2) Private Namespaces aren't important to anyone and will never be
+> > robust unless someone who cares, like me, takes it over somehow.
+> > 3) Everyone is busy with their own shit and doesn't want to deal with
+> > me or mine right now.
+>
+> 4) If you insist on having /etc/mtab the same file in all namespaces,
+> you obviously will have its contents not matching at least some
+> of them.  Either have it separate in each namespace where you want
+> to see it, or simply use /proc/self/mounts instead.
 
-On Tue, 4 Oct 2005, Sreeni wrote:
+Well I guess it's my fault to some extent with the subject line.  I
+don't really care about /etc/mtab so much except that I'd like it to
+be consistent if it is going to be there.  I'd rather it do one of two
+things.  Show me my current process's namespace accurately or just the
+stuff that's global to all namespaces.  Right now it's kind of in
+between.
 
-> Hi,
-> I have been strugling with this linker script problem. Any help
-> towards this is highly appreciate.
->
-> My static kernel module demands the text/data to be placed at an
-> absolute address. For this I have tried to modify the kernel  linker
-> script (arch/arm/vmlinux.lds).
->
->
->   /**** MY KERNEL MODULE - START ***?
->    . = 0xc024c000; /* c0280000 */
->    .text5 : {
->        sree/sree.o(.text)
->    }
-> /**** MY KERNEL MODULE - END ***?
->
+Also since when I type "mount" it just spits out what's in "mtab" it
+seems like that should be made more accurate... not /proc/self/mounts.
 
-It's not a linker-script problem. As previously explained, it's
-an attempt by you to do the impossible. When the kernel is loaded
-at it's correct one-megabyte address, the page-tables are set
-so that there is a fixed offset between the bus address and
-the virtual address. You can't just change the load address
-without modifying the whole scheme and have the kernel work.
-With the ix86 machines, there must be unity-address mapping
-existing at any time a transition is made from linear address-
-mode to paged mode (or else the CPU will fetch bogus code).
-That means that for the first few megabytes, the tables are
-set so that a fetch from address 0xnnnnnnnn in linear
-address-mode and 0xnnnnnnnn | PAGE_OFFSET in paged mode
-will fetch the same instructions.
+(it looks like you can just edit the file and stick whatever you want
+in there...  I just stuck the line:
+ "blah blah blah"
+in there and got:
+"blah on blah type blah ()"
+ from "mount" with no arguments)
 
-That fixed offset becomes PAGE_OFFSET (look that up in the
-kernel headers). You are attempting to load the kernel right
-on top of 0xc0000000, the PAGE_OFFSET. Also, the "spaces"
-inside the linked module are filled because it is the final
-relocation. That's why the result gets so big. The physical
-to virtual mapping will fail because the resulting address
-would be 0xc0000000 * 2 = 0x180000000, outside of the 32-bit
-address space and wrapped back around to 0x80000000.
-
-As previously explained; "My application demands that I
-place the kernel at some fixed address....." Means that
-the demand is invalid, bogus, bad, incomprehensible,
-wrong, and otherwise defective. Tell your hardware
-designers that memory must be addressable and valid
-for at least the first 8 megabytes of address-space.
-
-In the unlikely event that you attempt to perform
-EIP (execute in place) from some NVRAM in high memory,
-that's not how you do it. You make a "boot-loader"
-that copies the data from such a place to the
-correct 1 megabyte offset and then you jump to the
-relocated code. The code has already been linked
-(relocated) to run at the correct address, you do
-not link it to run at the PROM or NVRAM storage
-address.
-
-> The System.map shows that the kernel is occupying the address space
-> till c024_bfff. when i add this code to the linker script and force it
-> to place the text at c024_c000, the System.map shows that the
-> placement is correct. But the kernel image grows from 1.8MB(without my
-> module) to 2.6 MB. My kernel module size is just 10 bytes (testing
-> purpose). And this newly created kernel doesn't boot up.
 >
-> I am new to this linker script. Any help is highly appreciated.
-> The complete linker script is given below...
->
-> Thanks
-> Sreeni
->
-> ========================================
-> / * Based on arch/arm/vmlinux-armv.lds.in
-> *
-> * taken from the i386 version by Russell King
-> * Written by Martin Mares <mj@atrey.karlin.mff.cuni.cz>
-> */
-> OUTPUT_ARCH(arm)
-> ENTRY(stext)
-> SECTIONS
-> {
->
->   /**** MY KERNEL MODULE - START ***?
->    . = 0xc024c000; /* c0280000 */
->    .text5 : {
->        sree/sree.o(.text)
->    }
-> /**** MY KERNEL MODULE - END ***?
->
-> /**** KERNEL IMAGE - START ***/
->    . = 0xc0010000;
->    .init : {           /* Init code and data       */
->        _stext = .;
->        __init_begin = .;
->            *(.text.init)
->        __proc_info_begin = .;
->            *(.proc.info)
->        __proc_info_end = .;
->        __arch_info_begin = .;
->            *(.arch.info)
->        __arch_info_end = .;
->        __tagtable_begin = .;
->            *(.taglist)
->        __tagtable_end = .;
->        . = ALIGN(16);
->        __setup_start = .;
->            *(.setup.init)
->        __setup_end = .;
->        __initcall_start = .;
->            *(.initcall.init)
->       __tagtable_begin = .;
->            *(.taglist)
->        __tagtable_end = .;
->        . = ALIGN(16);
->        __setup_start = .;
->            *(.setup.init)
->        __setup_end = .;
->        __initcall_start = .;
->            *(.initcall.init)
->        __initcall_end = .;
->        . = ALIGN(4096);
->        __init_end = .;
->    }
->
->    /DISCARD/ : {           /* Exit code and data       */
->        *(.text.exit)
->        *(.data.exit)
->        *(.exitcall.exit)
->    }
->
->
->    .text : {           /* Real text segment        */
->        _text = .;      /* Text and read-only data  */
->            KEEP (*(EXCLUDE_FILE (*sree.o) .text))
->            *(.text)
->            *(.fixup)
->            *(.gnu.warning)
->            *(.text.lock)   /* out-of-line lock text */
->            *(.rodata)
->            *(.rodata.*)
->            *(.glue_7)
->            *(.glue_7t)
->            *(.kstrtab)
->        *(.got)         /* Global offset table      */
->        *(.got.plt)
->
->        _etext = .;     /* End of text section      */
->    }
->
->    . = ALIGN(16);
->    __ex_table : {          /* Exception table      */
->        __start___ex_table = .;
->            *(__ex_table)
->        __stop___ex_table = .;
->    }
->
->    __ksymtab : {           /* Kernel symbol table      */
->        __start___ksymtab = .;
->            *(__ksymtab)
->        __stop___ksymtab = .;
->    }
->
->  .....
-> .....
-> .....
-> ====================================
-> On 9/23/05, Sreeni <sreeni.pulichi@gmail.com> wrote:
->> Hi,
->>
->> I have a kernel module on Montavista Linux (ARM-MontavistaLinux-XIP). My
->> application demands me placing/running this kernel module at a known fixed
->> virtual/physical address. I can make this module a static one.  For this I
->> need the following -
->>
->> ***** Placing text,data, heap, stack at a known fixed address *****
->>
->> May I know the possible ways of achieving this. I have tried playing around
->> arch/arm/vmlinux.lds linker script file. But when i try to force the linker
->> to place my module at a particular address, the System.map shows me the
->> correct address but the kernel image size is getting very large (when add 10
->> words of my module, kernel image size is getting increased by 800KB).
->>
->> Any help in this is highly appreciated.
->>
->> Thanks
->> Sreeni
->>
->
->
-> --
-> ~Sreeni
->       -iDream
+> BTW, "private" is an odd term - they are all on the same footing; "system"
+> one is just the namespace of init (and those of its descendents that share
+> the namespace with it).  Nothing special about it...
 >
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13 on an i686 machine (5589.55 BogoMips).
-Warning : 98.36% of all statistics are fiction.
+It's actually a bit more like "protected" I suppose [in an OO
+inheritance sense].  If I use clone with the right flags my new
+process has a namespace that doesn't get reflected in the other
+process's.  Sure I still inherit the parent's namespace, but I'm free
+to bind to my hearts content in ways that other processes will not see
+[unless they are children of the currently clone'd process].
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+Even in this "protected" namespace other processes can clearly see
+what I'm doing via /etc/mtab.  It seems there will always be a way to
+sniff out this information though since all the files of the form
+/proc/<pid>/mounts are read accessible by everyone.
 
-Thank you.
+Dave

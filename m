@@ -1,108 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbVJDCuU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbVJDCuD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932306AbVJDCuU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 22:50:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932313AbVJDCuU
+	id S932302AbVJDCuD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 22:50:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932306AbVJDCuB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 22:50:20 -0400
-Received: from web35513.mail.mud.yahoo.com ([66.163.179.137]:28040 "HELO
-	web35513.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932306AbVJDCuT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 22:50:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=hd5sK4QIV5nuHpcDN4YNlvuYHe8MEvI03aIejvFgVL+Oq9o37KsOXkDjv6c6j67J50QjWgqGPhiQy8dhtuvXXWba7YLlunZkPNoxcOXzjiH/SiPzuhXPmmWtbx7q/WB0K75mXg1hEwL/fmhN/lr8DsvlYnHYNcFv4MLtWXujC8M=  ;
-Message-ID: <20051004025016.78963.qmail@web35513.mail.mud.yahoo.com>
-Date: Mon, 3 Oct 2005 19:50:16 -0700 (PDT)
-From: Dan C Marinescu <dan_c_marinescu@yahoo.com>
-Subject: Re: make xconfig fails for older kernels
-To: "Randy.Dunlap" <rdunlap@xenotime.net>, Felix Oxley <lkml@oxley.org>
-Cc: zippel@linux-m68k.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20051003192728.5f0c11c7.rdunlap@xenotime.net>
-MIME-Version: 1.0
+	Mon, 3 Oct 2005 22:50:01 -0400
+Received: from sv1.valinux.co.jp ([210.128.90.2]:23716 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S932302AbVJDCuB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 22:50:01 -0400
+Date: Tue, 4 Oct 2005 11:49:59 +0900
+From: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
+To: Paul Jackson <pj@sgi.com>
+Cc: taka@valinux.co.jp, magnus.damm@gmail.com, dino@in.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/3] CPUMETER (Re: [PATCH 0/5] SUBCPUSETS: a resource
+ control functionality using CPUSETS)
+In-Reply-To: <20051001212026.1d39222a.pj@sgi.com>
+References: <20050908225539.0bc1acf6.pj@sgi.com>
+	<20050909.203849.33293224.taka@valinux.co.jp>
+	<20050909063131.64dc8155.pj@sgi.com>
+	<20050910.161145.74742186.taka@valinux.co.jp>
+	<20050910015209.4f581b8a.pj@sgi.com>
+	<20050926093432.626D07003D@sv1.valinux.co.jp>
+	<20051001212026.1d39222a.pj@sgi.com>
+X-Mailer: Sylpheed version 2.1.3 (GTK+ 2.6.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
+Message-Id: <20051004025000.07DC470040@sv1.valinux.co.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-make oldconfig, menuconfig, gconfig work fine with me
-(_but_ using a 2.6.13.2 .config -- so the jump is
-smaller...)
-make xconfig gives me troubles 2 (static parser...)
-another way to go would be to explicitly save your old
-(2.6.4) .config into something like .config-randy...
-then consume it... (xconfig will not find a .config /
-implicitly work, then you fool it by loading
-.config-randy) that _should_ do it... if still not
-working, mrproper the old 6.4 then goto
-.config-randy... my $.02
+On Sat, 1 Oct 2005 21:20:26 -0700
+Jackson-san wrote:
 
-
-   daniel
-
-
-
---- "Randy.Dunlap" <rdunlap@xenotime.net> wrote:
-
-> On Tue, 4 Oct 2005 02:13:03 +0100 Felix Oxley wrote:
+> I spent a little more reading the cpuset side of your cpumeter patches.
 > 
-> > 
-> > I have downloaded 2.6.0 + patches up to 2.6.13
-> from kernel.org.
-> > 
-> > When I try to configure the kernel using 'make
-> xconfig' I get the following 
-> > error:
-> > 
-> > scripts/kconfig/mconf.c:91: error: static
-> declaration of ___current_menu___ 
-> > follows non-static declaration
-> > scripts/kconfig/lkc.h:63: error: previous
-> declaration of ___current_menu___ was 
-> > here
-> > make[1]: *** [scripts/kconfig/mconf.o] Error 1
-> > make: *** [xconfig] Error 2
-> > 
-> > I attempted make menuconfig, make config, and make
-> oldconfig but each failed 
-> > with the same error,
-> > 
-> > This happens on 2.6.0, 2.6.1, 2.6.2 2.6.3, 2.6.4.
-> > I have previously built newer kernels such as
-> 2.6.13-rc2-rt7 without a 
-> > problem.
-> > 
-> > I was able to overcome the error by commenting out
-> the declaration of 
-> > current_menu in mconf.c. But I am concerned as to
-> the cause of this problem.
-> > 
-> > Does anyone have an explanation?
-> 
-> Sorry, not really, other than to say that make
-> menuconfig and
-> make xconfig work fine for me on 2.6.4.
-> I just downloaded the 2.6.4 tarball and
-> tested/verified them.
-> 
-> ---
-> ~Randy
-> You can't do anything without having to do something
-> else first.
-> -- Belefant's Law
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> I am hopeful that some substantial restructuring of the code would
+> integrate it better with the existing cpuset structure, reducing the
+> size of new code substantially.
 
-
-
-		
-__________________________________ 
-Yahoo! Mail - PC Magazine Editors' Choice 2005 
-http://mail.yahoo.com
+Thanks for the suggestion.
+I'll update my patch and send it when I finish updating.

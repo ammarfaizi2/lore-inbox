@@ -1,62 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbVJDBGv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751034AbVJDBNL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751032AbVJDBGv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 21:06:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751034AbVJDBGv
+	id S1751034AbVJDBNL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 21:13:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbVJDBNL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 21:06:51 -0400
-Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:65437 "HELO
-	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1750892AbVJDBGu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 21:06:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Subject:From:To:Cc:In-Reply-To:References:Content-Type:Date:Message-Id:Mime-Version:X-Mailer:Content-Transfer-Encoding;
-  b=XWyrlX8ppauClzSB1hyBVKbFnAtRTC7rR/On1uNyOK+NEULZ0uh83hA5/gM03eYmp0Iy9AXAcUKxZX4gfmbQVQMbm4pvO/lrDDngVe5Tsx4IlugUvknIj5E/nPSt8TbSdSMjimPzeHMm6CBGwOStS7zLxLAtRZqlGoVrMFAc0Mg=  ;
-Subject: Re: [RFC] mempool_alloc() pre-allocated object usage
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: Paul Mundt <paul.mundt@nokia.com>, Ingo Molnar <mingo@elte.hu>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <4341476A.80809@didntduck.org>
-References: <20051003143634.GA1702@nokia.com> <4341476A.80809@didntduck.org>
-Content-Type: text/plain
-Date: Tue, 04 Oct 2005 11:06:16 +1000
-Message-Id: <1128387976.12501.12.camel@npiggin-nld.site>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 3 Oct 2005 21:13:11 -0400
+Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:39173 "EHLO
+	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
+	id S1751034AbVJDBNK convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 21:13:10 -0400
+From: Felix Oxley <lkml@oxley.org>
+To: zippel@linux-m68k.org
+Subject: make xconfig fails for older kernels
+Date: Tue, 4 Oct 2005 02:13:03 +0100
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200510040213.05361.lkml@oxley.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-10-03 at 10:59 -0400, Brian Gerst wrote:
-> Paul Mundt wrote:
-> > The downside to this is that some people may be expecting that
-> > pre-allocated elements are used as reserve space for when regular
-> > allocations aren't possible. In which case, this would break that
-> > behaviour.
-> 
-> This is the original intent of the mempool.  There must be objects in 
-> reserve so that the machine doesn't deadlock on critical allocations 
-> (ie. disk writes) under memory pressure.
-> 
 
-No, the semantics are that at least 'min' objects must be able to
-be allocated at one time. The user must be able to proceed far enough
-to release its objects in this case, and that ensures no deadlock.
+I have downloaded 2.6.0 + patches up to 2.6.13 from kernel.org.
 
-The problem with using the pool first is that it requires the lock
-to be taken and is also not NUMA aware. So from a scalability point of
-view, I don't think it is a good idea.
+When I try to configure the kernel using 'make xconfig' I get the following 
+error:
 
-Perhaps you could introduce a new mempool allocation interface to do
-it your way?
+scripts/kconfig/mconf.c:91: error: static declaration of ‘current_menu’ 
+follows non-static declaration
+scripts/kconfig/lkc.h:63: error: previous declaration of ‘current_menu’ was 
+here
+make[1]: *** [scripts/kconfig/mconf.o] Error 1
+make: *** [xconfig] Error 2
 
-Nick
+I attempted make menuconfig, make config, and make oldconfig but each failed 
+with the same error,
 
--- 
-SUSE Labs, Novell Inc.
+This happens on 2.6.0, 2.6.1, 2.6.2 2.6.3, 2.6.4.
+I have previously built newer kernels such as 2.6.13-rc2-rt7 without a 
+problem.
+
+I was able to overcome the error by commenting out the declaration of 
+current_menu in mconf.c. But I am concerned as to the cause of this problem.
+
+Does anyone have an explanation?
+
+thanks,
+Felix
 
 
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+
+
+

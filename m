@@ -1,89 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932444AbVJDNS1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbVJDNVh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932444AbVJDNS1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 09:18:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbVJDNS1
+	id S932449AbVJDNVh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 09:21:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbVJDNVh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 09:18:27 -0400
-Received: from mx2.suse.de ([195.135.220.15]:37313 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932444AbVJDNS0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 09:18:26 -0400
-To: "Jordan Crouse" <jordan.crouse@amd.com>
+	Tue, 4 Oct 2005 09:21:37 -0400
+Received: from mgw-ext03.nokia.com ([131.228.20.95]:14503 "EHLO
+	mgw-ext03.nokia.com") by vger.kernel.org with ESMTP id S932449AbVJDNVh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 09:21:37 -0400
+Date: Tue, 4 Oct 2005 16:21:44 +0300
+From: Jarkko Lavinen <jarkko.lavinen@nokia.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 6/7] AMD Geode GX/LX support
-References: <20051003180200.GH29264@cosmic.amd.com>
-From: Andi Kleen <ak@suse.de>
-Date: 04 Oct 2005 15:18:23 +0200
-In-Reply-To: <20051003180200.GH29264@cosmic.amd.com>
-Message-ID: <p737jct1kv4.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+Subject: Re: CMD7 failing on ATP & Transcend MMC cards
+Message-ID: <20051004132144.GA13048@angel.research.nokia.com>
+Reply-To: Jarkko Lavinen <jarkko.lavinen@nokia.com>
+References: <20051003135445.GA6560@angel.research.nokia.com> <20051003140252.GG16717@flint.arm.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051003140252.GG16717@flint.arm.linux.org.uk>
+X-Operating-System: GNU/Linux angel.research.nokia.com
+User-Agent: Mutt/1.5.9i
+X-OriginalArrivalTime: 04 Oct 2005 13:21:26.0709 (UTC) FILETIME=[860EFE50:01C5C8E6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jordan Crouse" <jordan.crouse@amd.com> writes:
+On Mon, Oct 03, 2005 at 03:02:52PM +0100, Russell King wrote:
+> I'm not surprised.  CMD2 is part way through the initialisation
+> sequence, so no one should be sending a CMD7.
 
-> This patch adds support for the hardware RNG device on the Geode LX
-> processor.  As a side note, the LX processor also includes a hardware
+The command sequence in the initial card detection is:
 
-Interesting. Wish the mainstream AMD K8 CPUs had one too :)
+  CMD1      card send its operation conditions
+  CMD2      card sends its CID
+  CMD3(rca) Card is given relative call address. Card enters standby and 
+            switches to push pull mode and won't respond to CMD1-3 anymore.
+  CMD2      Check for other cards. None responds. All cards have been
+            identified. CMD2 is sent many times.  
+  CMD7(rca) The card is addressed with its RCA and enters transfer state.
 
-> AES encryption engine, support for which is not included here because
-> I'm not one to increase the kernel source size if it doesn't need to be.
+The card is then accessed normally and everything works and also
+ATP and Transcend cards work up to this.
 
-If it's faster than the i386 assembly version I think you
-should add it.
+Problems appear when mmc_detect_change() is called from switch_handler().
+This happens when cover switch interrupt comes but the card has not been
+removed. Old cards are checked with CMD13 and new cards if any are 
+detected:
 
-> +#ifdef CONFIG_MGEODE_LX
-> +static int __init geode_init(struct pci_dev *dev);
-> +static void geode_cleanup(void);
-> +static unsigned int geode_data_present (void);
-> +static u32 geode_data_read (void);
-> +#endif
-
-Declarations don't need ifdefs.
-
-> +static u32 geode_data_read(void) {
-> +	u32 val;
-> +
-> +	val = *((u32 *) (geode_rng_base + GEODE_RNG_DATA_REG));
-
-This should use readl
-
-> +	return val;
-> +}
-> +
-> +static unsigned int geode_data_present(void) {
-
-The bracket should be on an own line. Further occurrences.
+   CMD7(0)    Deselect currently selected card. Its RCA remains the
+              same.
+   CMD1       
+   CMD2       CMD2 sent many times, but no card replies. 
+   CMD7(rca)  The selected card should respond. ATP and Transcend
+              give illegal instruction instead and retries with CMD7
+	      fail.
 
 
-> +}
-> +
-> +static int geode_init(struct pci_dev *dev) {
-> +	u32 rng_base = pci_resource_start(dev, 0);
+> After a CMD2, the next expected command is a CMD3 for MMC cards (maybe
+> not SD cards).
 
-This should be unsigned long
+Does this apply when threre are no new cards and no card replied to
+CMD2?
 
-> +	if (!rng_base) return 1;
-> +
-> +	geode_rng_base = ioremap(rng_base, 0x58);
-
-This should be ioremap_nocache() 
-
-> +
-> +	if (geode_rng_base == NULL) {
-> +		printk(KERN_ERR PFX "Cannot ioremap RNG memory\n");
-> +		return -EBUSY;
-> +	}
-> +
-> +	printk(KERN_INFO PFX "Geode RNG registers at %p\n", geode_rng_base);
-
-I would advise to not print virtual addresses into the kernel log.
-They are usually completely useless to the user. Either physical
-or nothing.
-
-
--Andi
+Jarkko Lavinen

@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932134AbVJDDjI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751174AbVJDDtK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932134AbVJDDjI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 23:39:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932136AbVJDDjH
+	id S1751174AbVJDDtK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 23:49:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751175AbVJDDtK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 23:39:07 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:38319 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932134AbVJDDjG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 23:39:06 -0400
-Date: Mon, 3 Oct 2005 20:38:26 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Magnus Damm <magnus.damm@gmail.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, jgarzik@pobox.com, rdunlap@xenotime.net,
-       linux-kernel@vger.kernel.org, coywolf@gmail.com, greg@kroah.com
-Subject: Re: [PATCHv2] Document from line in patch format
-Message-Id: <20051003203826.514ea047.pj@sgi.com>
-In-Reply-To: <aec7e5c30510032024t6d48643fma875c917acb69d92@mail.gmail.com>
-References: <20051002163244.17502.15351.sendpatchset@jackhammer.engr.sgi.com>
-	<Pine.LNX.4.64.0510021158260.31407@g5.osdl.org>
-	<aec7e5c30510032024t6d48643fma875c917acb69d92@mail.gmail.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 3 Oct 2005 23:49:10 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:8062 "EHLO
+	pd4mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1751174AbVJDDtJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 23:49:09 -0400
+Date: Mon, 03 Oct 2005 21:48:56 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: make xconfig fails for older kernels
+In-reply-to: <4TJDn-2mm-3@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <4341FBA8.3020208@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=UTF-8; format=flowed
+Content-transfer-encoding: 8BIT
+X-Accept-Language: en-us, en
+References: <4TJDn-2mm-3@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Magnus wrote:
-> Huh, I thought that the first line in a unified patch started with
-> "---",
+Felix Oxley wrote:
+> I have downloaded 2.6.0 + patches up to 2.6.13 from kernel.org.
+> 
+> When I try to configure the kernel using 'make xconfig' I get the following 
+> error:
+> 
+> scripts/kconfig/mconf.c:91: error: static declaration of ‘current_menu’ 
+> follows non-static declaration
+> scripts/kconfig/lkc.h:63: error: previous declaration of ‘current_menu’ was 
+> here
+> make[1]: *** [scripts/kconfig/mconf.o] Error 1
+> make: *** [xconfig] Error 2
+> 
+> I attempted make menuconfig, make config, and make oldconfig but each failed 
+> with the same error,
+> 
+> This happens on 2.6.0, 2.6.1, 2.6.2 2.6.3, 2.6.4.
+> I have previously built newer kernels such as 2.6.13-rc2-rt7 without a 
+> problem.
 
-Yes, it does.  But then the next character is a space, and there
-is at least one more space-separated field on the line.
-
-That is, Linus's marker marches
-
-    /^---$/
-
-and the first line of a unified patch matches:
-
-    /^--- .*[^ ].*$/
-
-It ain't fancy, but it works.  These patterns
-are easily distinguished.
-
-> Relying on "diff -" or "Index: " seems wrong.
-
-I don't think anyone is relying on those patterns.
+What gcc version? The configuration program may have had some compile 
+bugs with newer compilers that were fixed in later kernels. In 
+particular I think gcc4 is stricter about those "static declaration 
+follows non-static" problems.
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+

@@ -1,114 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964896AbVJDSLe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964895AbVJDSLE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964896AbVJDSLe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 14:11:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964899AbVJDSLe
+	id S964895AbVJDSLE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 14:11:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964896AbVJDSLE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 14:11:34 -0400
-Received: from xproxy.gmail.com ([66.249.82.199]:42053 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964896AbVJDSLd convert rfc822-to-8bit
+	Tue, 4 Oct 2005 14:11:04 -0400
+Received: from spirit.analogic.com ([204.178.40.4]:25605 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP id S964895AbVJDSLC convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 14:11:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=LKJAJe+ClLt5VfNgme+e6oACwCBcb0bIK2mVQ24g/67Up2X1+LxqpA6j2uX2MrKUJkvcaprxYjEvjFlunbaBp8yq2q0VsvuzM14E/Rb08q04xuy9+pmkU4+r5GZijKydtAvR3woM3UQP8wdSSac6T1qwFiq/VoPbTq9xsTmP23E=
-Message-ID: <5bdc1c8b0510041111n188b8e14lf5a1398406d30ec4@mail.gmail.com>
-Date: Tue, 4 Oct 2005 11:11:32 -0700
-From: Mark Knecht <markknecht@gmail.com>
-Reply-To: Mark Knecht <markknecht@gmail.com>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.14-rc3-rt2
-Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>,
-       david singleton <dsingleton@mvista.com>, Todd.Kneisel@bull.com,
-       Felix Oxley <lkml@oxley.org>
-In-Reply-To: <5bdc1c8b0510040944q233f14e6g17d53963a4496c1f@mail.gmail.com>
+	Tue, 4 Oct 2005 14:11:02 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051004084405.GA24296@elte.hu> <43427AD9.9060104@cybsft.com>
-	 <20051004130009.GB31466@elte.hu>
-	 <5bdc1c8b0510040944q233f14e6g17d53963a4496c1f@mail.gmail.com>
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <Pine.LNX.4.60.0510042001210.8210@kepler.fjfi.cvut.cz>
+References: <Pine.LNX.4.60.0510041924520.8210@kepler.fjfi.cvut.cz> <Pine.LNX.4.61.0510041329180.29678@chaos.analogic.com> <Pine.LNX.4.60.0510041945260.8210@kepler.fjfi.cvut.cz> <Pine.LNX.4.60.0510041957590.8210@kepler.fjfi.cvut.cz> <Pine.LNX.4.60.0510042001210.8210@kepler.fjfi.cvut.cz>
+X-OriginalArrivalTime: 04 Oct 2005 18:11:00.0528 (UTC) FILETIME=[F9A96300:01C5C90E]
+Content-class: urn:content-classes:message
+Subject: Re: 2.4 in-kernel file opening
+Date: Tue, 4 Oct 2005 14:11:00 -0400
+Message-ID: <Pine.LNX.4.61.0510041408500.29815@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.4 in-kernel file opening
+Thread-Index: AcXJDvmwR47wB8E/RiiIKl8U/etwYg==
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Martin Drab" <drab@kepler.fjfi.cvut.cz>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/4/05, Mark Knecht <markknecht@gmail.com> wrote:
-> On 10/4/05, Ingo Molnar <mingo@elte.hu> wrote:
-<SNIP>
-> >
-> > ugh. uploaded -rt6.
-> >
-> >         Ingo
+
+On Tue, 4 Oct 2005, Martin Drab wrote:
+
+> On Tue, 4 Oct 2005, Martin Drab wrote:
 >
-> Hi Ingo,
->    OK, I'm up and running 2.6.14-rc3-rt7. I see no run-time problems yet...
-<SNIP>
+>> On Tue, 4 Oct 2005, Martin Drab wrote:
+>> ...
+>>> things within the driver before the mmap() - I guess that should be
+>>> possibble to do from within the fops->mmap(), but I also need to do
+>>> something upon munmap()ping. Where should I place that? There doesn't seem
+>>> to be any function that would be called upon user munmap(). :(
+>>
+>> Should this be placed at vmops->close()?
+>
+> Or does there have to be a separate ioctl call for that after the munmap()
+> anyway?
+>
+> Martin
 
-I have now had one burst of xruns. As best I can tell I was
-downloading some video files for mplayer to look at, or possibly
-running one of them. I see this in qjackctl:
+Just grin and bear it. Do the right things at the right time. If you
+need ioctl() just do it. It will save you loads of development and
+debugging time. Further, somebody else will be able to maintain the
+code when you get promoted.
 
-configuring for 44100Hz, period = 128 frames, buffer = 2 periods
-nperiods = 2 for capture
-nperiods = 2 for playback
-09:59:12.079 Server configuration saved to "/home/mark/.jackdrc".
-09:59:12.079 Statistics reset.
-09:59:12.224 Client activated.
-09:59:12.226 Audio connection change.
-09:59:12.242 Audio connection graph change.
-09:59:17.819 Audio connection graph change.
-09:59:17.927 Audio connection change.
-09:59:19.985 Audio connection graph change.
-10:09:22.377 XRUN callback (1).
-**** alsa_pcm: xrun of at least 0.336 msecs
-10:09:28.450 XRUN callback (2).
-**** alsa_pcm: xrun of at least 0.306 msecs
-10:11:33.241 XRUN callback (3).
-**** alsa_pcm: xrun of at least 4.058 msecs
-subgraph starting at qjackctl-8560 timed out (subgraph_wait_fd=17,
-status = 0, state = Finished)
-10:12:02.490 XRUN callback (4).
-**** alsa_pcm: xrun of at least 3.135 msecs
-subgraph starting at qjackctl-8560 timed out (subgraph_wait_fd=17,
-status = 0, state = Finished)
-10:16:22.910 XRUN callback (5).
-**** alsa_pcm: xrun of at least 1.848 msecs
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13 on an i686 machine (5589.55 BogoMips).
+Warning : 98.36% of all statistics are fiction.
 
-There have been no more xruns since that burst about an hour ago.
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
-Looking in the logs there is a suspicious 1394 access problem:
-
-Oct  4 10:00:40 lightning ieee1394.agent[8630]: ... no drivers for
-IEEE1394 product 0x/0x/0x
-Oct  4 10:04:32 lightning kjournald starting.  Commit interval 5 seconds
-Oct  4 10:04:32 lightning EXT3 FS on sdc2, internal journal
-Oct  4 10:04:32 lightning EXT3-fs: mounted filesystem with ordered data mode.
-Oct  4 10:09:05 lightning attempt to access beyond end of device
-Oct  4 10:09:05 lightning sdb1: rw=0, want=5621502224, limit=117210177
-Oct  4 10:09:05 lightning attempt to access beyond end of device
-Oct  4 10:09:05 lightning sdb1: rw=0, want=8263631504, limit=117210177
-Oct  4 10:09:05 lightning attempt to access beyond end of device
-Oct  4 10:09:05 lightning sdb1: rw=0, want=27135269176, limit=117210177
-Oct  4 10:09:05 lightning attempt to access beyond end of device
-Oct  4 10:09:05 lightning sdb1: rw=0, want=25260813976, limit=117210177
-Oct  4 10:09:05 lightning attempt to access beyond end of device
-Oct  4 10:09:05 lightning sdb1: rw=0, want=5621502224, limit=117210177
-Oct  4 10:10:02 lightning cron[8737]: (root) CMD (test -x
-/usr/sbin/run-crons && /usr/sbin/run-crons )
-Oct  4 10:20:01 lightning cron[8762]: (root) CMD (test -x
-/usr/sbin/run-crons && /usr/sbin/run-crons )
-Oct  4 10:30:01 lightning cron[8800]: (root) CMD (test -x
-/usr/sbin/run-crons && /usr/sbin/run-crons )
-Oct  4 10:40:01 lightning cron[8847]: (root) CMD (test -x
-/usr/sbin/run-crons && /usr/sbin/run-crons )
-
-
-/dev/sdb1 in this case holds a 50GB ogg-based music library. It's been
-streaming since I brought the kernel up.
-
-1394 problems????
-
-Thanks,
-Mark
+Thank you.

@@ -1,74 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964790AbVJDInn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964792AbVJDItN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964790AbVJDInn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 04:43:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964792AbVJDInn
+	id S964792AbVJDItN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 04:49:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbVJDItN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 04:43:43 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:17597 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964790AbVJDInm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 04:43:42 -0400
-Date: Tue, 4 Oct 2005 10:44:05 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>,
-       david singleton <dsingleton@mvista.com>, Todd.Kneisel@bull.com,
-       Felix Oxley <lkml@oxley.org>
-Subject: 2.6.14-rc3-rt2
-Message-ID: <20051004084405.GA24296@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Tue, 4 Oct 2005 04:49:13 -0400
+Received: from vulpecula.futurs.inria.fr ([195.83.212.5]:64916 "EHLO
+	vulpecula.futurs.inria.fr") by vger.kernel.org with ESMTP
+	id S964792AbVJDItM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 04:49:12 -0400
+Message-ID: <43424202.7070600@lifl.fr>
+Date: Tue, 04 Oct 2005 10:49:06 +0200
+From: Eric Piel <Eric.Piel@lifl.fr>
+User-Agent: Mozilla Thunderbird 1.0.6-7mdk (X11/20050322)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>
+Subject: Re: [PATCH] ppc64: Add cpufreq support for SMU based G5
+References: <1128403842.31063.24.camel@gaston>
+In-Reply-To: <1128403842.31063.24.camel@gaston>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+10/04/2005 07:30 AM, Benjamin Herrenschmidt wrote/a écrit:
+> iMac G5 and latest single CPU desktop G5 (SMU based machines) have a
+> 970FX DD3 CPU that supports frequency & vooltage switching. This patch
+> adds support for simple dual frequency switch. It is required for the
+> upcoming thermal control patch for these machines.
+> 
 
-i have released the 2.6.14-rc3-rt2 tree, which can be downloaded from 
-the usual place:
+Hello,
 
-  http://redhat.com/~mingo/realtime-preempt/
+I know only very little about cpufreq, probably you could post your 
+patch to the cpufreq mailing list for better review : 
+cpufreq@lists.linux.org.uk (you may have to subscride before posting, 
+don't remember).
 
-the biggest change in this release is the long-anticipated merge of a 
-streamlined version of the "robust futexes/mutexes with priority 
-queueing and priority inheritance" code into the -rt tree. The original 
-upstream patch is from Todd Kneisel, with further improvements, cleanups 
-and -RT integration done by David Singleton.
+For what have seen, your patch looks pretty good in general. However, is 
+this kind of CPU only in one CPU machines? Your patch doesn't seem 
+support SMP, then it's probably safer to prevent compilation on an SMP 
+kernel in the Makefile? Or you can add SMP support (shouldn't be so hard 
+in theory, but with no hardware to test it might be pointless), you can 
+have a look at other drivers that support it, like in 
+arch/i386/kernel/cpu/cpufreq/p4-clockmod.c .
 
-robustness is handled by extending the futex framework with 
-registering/unregistering ops and extended wait/wake ops. Priority 
-queueing and inheritance is implemented by embedding the rt_mutex object 
-into the robust-futex structure. This approach made the patches 
-significantly simpler and smaller (but still not trivial at all) than 
-e.g. the fusyn patchset was.
+Just a little more thing, concerning:
++	policy->cpuinfo.transition_latency = CPUFREQ_ETERNAL;
+Could you have a look if you could find the real info about how long it 
+takes to change the speed (put the worse case latency)? Maybe the info 
+can be found in some parts of the ROM you read? I don't know if 
+conservative or ondemand governors are supposed to be able to mix with 
+your code (especially wrt Windfarm) but not putting this info will 
+prevent them from ever working...
 
-the intent of this merge is to provide a testing basis for the new futex 
-code, with a goal of merging it upstream. The userspace APIs might still 
-change. These changes should not affect existing futex users. (To make 
-use of the new capabilities, additional glibc patches are needed.)
-
-Changes since 2.6.14-rc2-rt1:
-
- - robust/PI mutexes/futexes (Todd Kneisel, David Singleton)
-
- - ktimer update (Thomas Gleixner)
-
- - change boot-time locking in the IDE layer, to make mode-setting safer
-
- - mkiss.c build fix (reported by Felix Oxley)
-
-to build a 2.6.14-rc3-rt2 tree, the following patches should be applied:
-
-  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.13.tar.bz2
-  http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.14-rc3.bz2
-  http://redhat.com/~mingo/realtime-preempt/patch-2.6.14-rc3-rt2
-
-	Ingo
+Cheers,
+Eric

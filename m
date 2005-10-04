@@ -1,68 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbVJDDMy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932338AbVJDDYy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932317AbVJDDMy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 23:12:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932338AbVJDDMy
+	id S932338AbVJDDYy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 23:24:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbVJDDYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 23:12:54 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:19691 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S932317AbVJDDMx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 23:12:53 -0400
-Date: Mon, 3 Oct 2005 20:12:37 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Greg KH <greg@kroah.com>
-Cc: khali@linux-fr.org, torvalds@osdl.org, akpm@osdl.org, jgarzik@pobox.com,
-       rdunlap@xenotime.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Document patch subject line better
-Message-Id: <20051003201237.4c4b16f1.pj@sgi.com>
-In-Reply-To: <20051003212200.GA28300@kroah.com>
-References: <20051003072910.14726.10100.sendpatchset@jackhammer.engr.sgi.com>
-	<Pine.LNX.4.64.0510030805380.31407@g5.osdl.org>
-	<20051003085414.05468a2b.pj@sgi.com>
-	<20051003160452.GA9107@kroah.com>
-	<20051003230235.55516671.khali@linux-fr.org>
-	<20051003212200.GA28300@kroah.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Mon, 3 Oct 2005 23:24:54 -0400
+Received: from zproxy.gmail.com ([64.233.162.206]:2394 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932338AbVJDDYx convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 23:24:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Bv8GKLRZCb9InBf1IrRTLjBD7fuoznlOElOBl/8UPtG4E4v+BfBnh/PcbI0FmCZbQTVimb7kZKm3W9tqU3qeuIobJVeZHH01d9Zgm8LbuObIBnJ9bTvd48x58osvpcUmUgQPb/vOoEu2+Cd98q3bwgSGrXtDlR/vv9SvyY7Cj9A=
+Message-ID: <aec7e5c30510032024t6d48643fma875c917acb69d92@mail.gmail.com>
+Date: Tue, 4 Oct 2005 12:24:52 +0900
+From: Magnus Damm <magnus.damm@gmail.com>
+Reply-To: Magnus Damm <magnus.damm@gmail.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCHv2] Document from line in patch format
+Cc: Paul Jackson <pj@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       Jeff Garzik <jgarzik@pobox.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       linux-kernel@vger.kernel.org, Coywolf Qi Hunt <coywolf@gmail.com>,
+       Greg KH <greg@kroah.com>
+In-Reply-To: <Pine.LNX.4.64.0510021158260.31407@g5.osdl.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051002163244.17502.15351.sendpatchset@jackhammer.engr.sgi.com>
+	 <Pine.LNX.4.64.0510021158260.31407@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg wrote (of the "---" line):
-> No, my fix just always added it.
+On 10/3/05, Linus Torvalds <torvalds@osdl.org> wrote:
+> On Sun, 2 Oct 2005, Paul Jackson wrote:
+> >
+> > Document more details of patch format such as the "from" line
+> > used to specify the patch author, and provide more references
+> > for patch guidelines.
+>
+> One more issue: I'd really prefer that the "---" not be documented as
+> "optional".
+>
+> Yes, my tools will also notice "diff -" and "Index: " at the start of the
+> line as being markers for where the real patch starts, but that's a hack
+> because people haven't been following the "---" rule. I'd much rather make
+> it clear that the "---" is supposed to be there, to mark where the end of
+> the comments are.
 
-My preference would be to only add the "---" line
-when starting with a brand new, empty patch file.
+Huh, I thought that the first line in a unified patch started with
+"---", and that the lines above were treated as garbage. Relying on
+"diff -" or "Index: " seems wrong. Try diffing two files by "diff -u
+file1 file2" and look at the output - the first line is "---"... This
+extra "---" you are proposing seems like a workaround to me.
 
-If an existing version of the patch file exists,
-then just copy over the entire header (up to the
-first actual patch) as is, no change.  If I choose
-to edit the patch file header and remove the "---"
-line, or do any other edit to it (short of creating
-a line that looks like the start of a patch) then
-quilt should respect that.
-
-The following patch seems to accomplish this.
-
---- refresh.old	2005-10-03 17:31:41.000000000 -0700
-+++ refresh	2005-10-03 20:02:04.000000000 -0700
-@@ -247,7 +247,9 @@ fi
- 
- mkdir -p $(dirname $patch_file)
- 
--if ! cat_file $patch_file | patch_header > $tmp_header
-+[ -s $patch_file ] || echo -e "\n---\n" > $tmp_header
-+
-+if ! cat_file $patch_file | patch_header >> $tmp_header
- then
- 	die 1
- fi
-
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+/ magnus

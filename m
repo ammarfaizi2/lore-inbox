@@ -1,77 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964835AbVJDQB7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbVJDQC5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964835AbVJDQB7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 12:01:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964836AbVJDQB7
+	id S964836AbVJDQC5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 12:02:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964841AbVJDQC5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 12:01:59 -0400
-Received: from smtp-102-tuesday.noc.nerim.net ([62.4.17.102]:10764 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S964835AbVJDQB6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 12:01:58 -0400
-Date: Tue, 4 Oct 2005 18:02:02 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Marius Schrecker <marius@schrecker.org>
-Subject: Re: it87x / buggy bios workaround
-Message-Id: <20051004180202.7434ae85.khali@linux-fr.org>
-In-Reply-To: <2484.81.191.59.180.1128409573.squirrel@webmail.bluecom.no>
-References: <2484.81.191.59.180.1128409573.squirrel@webmail.bluecom.no>
-X-Mailer: Sylpheed version 2.0.1 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 4 Oct 2005 12:02:57 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:35036 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S964836AbVJDQC4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 12:02:56 -0400
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       fastboot@osdl.org
+Subject: Re: [PATCH 1/2] x86_64 nmi_watchdog: Make check_nmi_watchdog static
+References: <m17jct8ggh.fsf@ebiederm.dsl.xmission.com>
+	<200510041721.09736.ak@suse.de>
+	<m1y859716y.fsf@ebiederm.dsl.xmission.com>
+	<200510041732.07007.ak@suse.de>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 04 Oct 2005 10:01:28 -0600
+In-Reply-To: <200510041732.07007.ak@suse.de> (Andi Kleen's message of "Tue,
+ 4 Oct 2005 17:32:06 +0200")
+Message-ID: <m1ll196zl3.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all, Marius,
+Andi Kleen <ak@suse.de> writes:
 
-> I have a Biostar K8NBD-S9 motherboard with the IT8712F super i/o chip.
-> 
-> The board suffers from the buggy BIOS which causes the manual PWM feature
-> of the chip to be unreliable to initialize.
-> 
-> After much googling I found this thread which indicates that Jonas Munsin
-> and Jean Delvare were working on a workaround for this back in January:
-> 
->  http://lkml.org/lkml/2005/1/14/94
-> 
-> The thread also suggests that the patch was destined for the -mm tree.
-> 
-> I have looked as well as I can at the 2.6.14 -mm patches, but can't see
-> any reference to it87.
-> 
-> Currently running 2.6.13 vanilla (with some patches). The it87 driver
-> seems to implement the bug testing function which Jonas and Jean were
-> talking about in the 2.6.10 /2.6.11 days, but doesn't contain any
-> workaround beyond disabling PWM once the problem is identified.
+> On Tuesday 04 October 2005 17:26, Eric W. Biederman wrote:
+>> Andi Kleen <ak@suse.de> writes:
+>> > On Tuesday 04 October 2005 17:11, Eric W. Biederman wrote:
+>> >> By using a late_initcall as i386 does we don't need to call
+>> >> check_nmi_watchdog manually after SMP startup, and we don't
+>> >> need different code paths for SMP and non SMP.
+>> >>
+>> >> This paves the way for moving apic initialization into init_IRQ,
+>> >> where it belongs.
+>> >
+>> > I don't like it. I want to see a clear message in the log when
+>> > the NMI watchdog doesn't work and with your patch that comes too late.
+>>
+>> Why is it to late?
+>
+> It's after too much of the boot. e.g. consider analyzing log with a boot hang.
+> It's important to know if the NMI watchdog runs or not. For that it is
+> best when the test of it happens as early as possible.
 
-I already replied to Marius in private, but as he asked here too, I
-think I should answer here as well if others are interested in the
-solution.
+That make sense.
 
-The feature Marius is asking for does exist in 2.6.13 already, in the
-form of the fix_pwm_polarity parameter to the it87 driver. Setting this
-to 1 did work for Marius.
+>> > -Andi (who has rejected similar patches before)
+>>
+>> Would it be more appropriate to make this a per cpu check?
+>
+> That would be fine as long as it's as early as possible.
+> But I suspect you'll always need special cases for the BP
+> because it needs the timer running first.
 
-More generally, if you have an IT8705F or IT8712F chip and loading the
-it87 driver complains about suspicious PWM polarity, here are the things
-to try in order:
+Well a special call site certainly but I can probably get away
+with a single function called from the appropriate CPU.  I
+might even be able to remove nmi_cpu_busy :)
 
-1* Look for a BIOS upgrade, which might fix it.
+It will take me a bit to get my head back into that part of the
+code.  late_initcall was a nice solution from a correctness
+and simplicity point of view.  But obviously it had other issues :)
 
-2* Try modprobe it87 fix_pwm_polarity=1 and physically ensure that the
-fans still spin.
+There is the whole late_timer_init() which is probably where
+the test needs to happen for the boot processor.
 
-3* Experiment with manual PWM. Higher PWM values (up to 254) should make
-the fan spin faster, lower PWM values should make it slower.
-
-4* - If PWM works now, you should complain to your motherboard
-manufacturer and ask them for a fixed BIOS.
-- If PWM still doesn't work, this means that the motherboard was simply
-not wired for PWM operations, which explains why the BIOS did not take
-care of properly initializing the PWM polarity.
-
-Hope that helps,
--- 
-Jean Delvare
+Eric

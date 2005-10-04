@@ -1,87 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964826AbVJDRI6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964856AbVJDRMS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964826AbVJDRI6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 13:08:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964854AbVJDRI6
+	id S964856AbVJDRMS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 13:12:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964854AbVJDRMS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 13:08:58 -0400
-Received: from mx1.suse.de ([195.135.220.2]:18350 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964826AbVJDRI6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 13:08:58 -0400
-From: Andi Kleen <ak@suse.de>
-To: discuss@x86-64.org
-Subject: Re: [discuss] [RFC][PATCH][Fix] swsusp: Yet another attempt to fix Bug #4959
-Date: Tue, 4 Oct 2005 19:09:00 +0200
-User-Agent: KMail/1.8.2
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
-References: <200510011813.54755.rjw@sisk.pl>
-In-Reply-To: <200510011813.54755.rjw@sisk.pl>
+	Tue, 4 Oct 2005 13:12:18 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:49423 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S964858AbVJDRMS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 13:12:18 -0400
+Message-ID: <4342B812.6080600@tmr.com>
+Date: Tue, 04 Oct 2005 13:12:50 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: what's next for the linux kernel?
+References: <20051002204703.GG6290@lkcl.net> <Pine.LNX.4.63.0510021704210.27456@cuia.boston.redhat.com> <20051002230545.GI6290@lkcl.net> <Pine.LNX.4.58.0510021637260.28193@shell2.speakeasy.net> <20051003005400.GM6290@lkcl.net> <Pine.LNX.4.58.0510021800240.19613@shell2.speakeasy.net> <20051003015302.GP6290@lkcl.net> <20051003181924.GB8011@csclub.uwaterloo.ca> <20051004125354.GO10538@lkcl.net> <20051004134705.GQ7949@csclub.uwaterloo.ca>
+In-Reply-To: <20051004134705.GQ7949@csclub.uwaterloo.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510041909.00714.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Lennart Sorensen wrote:
+> On Tue, Oct 04, 2005 at 01:53:54PM +0100, Luke Kenneth Casson Leighton wrote:
+> 
 
-On Saturday 01 October 2005 18:13, Rafael J. Wysocki wrote:
+>> at 45nm the current leakage is so insane that the heat
+>> dissipation, through the oxide layer which covers the chip,
+>> ends up blowing the chip up.
+> 
+> 
+> Unless someone finds a way to reduce the leakage.  It is worth a lot of
+> money to some companies to solve that problem after all.
 
-> Your comments, criticisms and (preferably) suggestions will be appreciated.
+That's one way, the other is to find a way to cool such a chip. I see 
+references to diamond substrate from time to time, good thermal 
+conductor. So are other carbon forms, Fullerines, etc.
 
-First always write a full description of the problem and the rationale
-of the change and a overview what it changes. Also please add Signed-off-by 
-lines.
-
-> +#ifdef CONFIG_SOFTWARE_SUSPEND
-> +extern unsigned long resume_table_start, resume_table_end;
-
-These should be all in some include. Adding externs in C files is near
-always wrong because it avoids cross file type checking.
-
-Also the convention is to add _pfn to variables that are in PFNs,
-otherwise it's full addresses.
-
-
-> 10:40:03.000000000 +0200 +++
-> linux-2.6.14-rc3/arch/x86_64/mm/init.c	2005-10-01 14:31:34.000000000 +0200
-> @@ -260,6 +260,9 @@
->  	pmds = (end + PMD_SIZE - 1) >> PMD_SHIFT;
->  	tables = round_up(puds * sizeof(pud_t), PAGE_SIZE) +
->  		 round_up(pmds * sizeof(pmd_t), PAGE_SIZE);
-> +#ifdef CONFIG_SOFTWARE_SUSPEND
-> +	tables += tables;
-> +#endif
-
-This needs a comment. Also I would still prefer if it was allocated
-only when suspend is actually attempted.
-
-
->  	table_start = find_e820_area(0x8000, __pa_symbol(&_text), tables);
->  	if (table_start == -1UL)
-> @@ -272,6 +275,7 @@
->  /* Setup the direct mapping of the physical memory at PAGE_OFFSET.
->     This runs before bootmem is initialized and gets pages directly from
-> the physical memory. To access them they are temporarily mapped. */
-> +#ifndef CONFIG_SOFTWARE_SUSPEND
->  void __init init_memory_mapping(unsigned long start, unsigned long end)
->  {
->  	unsigned long next;
-> @@ -307,6 +311,69 @@
->  	       table_start<<PAGE_SHIFT,
->  	       table_end<<PAGE_SHIFT);
->  }
-> +#else
-> +
-> +extern pgd_t resume_level4_pgt[];
-
-These should be in some include again.
-
-I don't like it that you duplicated the function fully. Is that really 
-needed?
-
-
--Andi
+Clearly reducing leakage is the optimal solution, "deal with the heat" 
+is the other.

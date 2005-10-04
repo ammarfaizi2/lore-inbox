@@ -1,66 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964837AbVJDQDf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964839AbVJDQFO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964837AbVJDQDf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 12:03:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964839AbVJDQDe
+	id S964839AbVJDQFO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 12:05:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964840AbVJDQFO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 12:03:34 -0400
-Received: from qproxy.gmail.com ([72.14.204.196]:5956 "EHLO qproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964837AbVJDQDd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 12:03:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=THVv5M+JR/1vYVavH7hxG/wLG+aEmqBs56CSHITQaf0FN4jBfjmk71c+3AVVHQphhFf4A9DVivoUdNgaWqzDPkvmh71fX7pFAklXggJTdhBskoPDHUFQ4Ojf96gR9JevNL3LE05ug6Ux30bWyh6WV8rBDnpbiZkJqIS21XBzCEQ=
-Message-ID: <6bffcb0e0510040903i406e6870n@mail.gmail.com>
-Date: Tue, 4 Oct 2005 16:03:32 +0000
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Reply-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: 2.6.14-rc3-git-current xfs compilation warnings
+	Tue, 4 Oct 2005 12:05:14 -0400
+Received: from amdext4.amd.com ([163.181.251.6]:1744 "EHLO amdext4.amd.com")
+	by vger.kernel.org with ESMTP id S964839AbVJDQFL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 12:05:11 -0400
+X-Server-Uuid: 8C3DB987-180B-4465-9446-45C15473FD3E
+From: "Ray Bryant" <raybry@mpdtxmail.amd.com>
+To: "Andi Kleen" <ak@suse.de>
+Subject: Re: [PATCH]: Clean up of __alloc_pages
+Date: Tue, 4 Oct 2005 11:26:52 -0500
+User-Agent: KMail/1.8
+cc: "Rohit Seth" <rohit.seth@intel.com>, akpm@osdl.org, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+References: <20051001120023.A10250@unix-os.sc.intel.com>
+ <1128361714.8472.44.camel@akash.sc.intel.com>
+ <p733bnh1kgj.fsf@verdi.suse.de>
+In-Reply-To: <p733bnh1kgj.fsf@verdi.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Message-ID: <200510041126.53247.raybry@mpdtxmail.amd.com>
+X-WSS-ID: 6F5C77852RW1613985-01-01
+Content-Type: text/plain;
+ charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I have noticed this warnings while compiling xfs as module.
+On Tuesday 04 October 2005 08:27, Andi Kleen wrote:
+> Rohit Seth <rohit.seth@intel.com> writes:
+> > I think conceptually this ask for a new flag __GFP_NODEONLY that
+> > indicate allocations to come from current node only.
+> >
+> > This definitely though means I will need to separate out the allocation
+> > from pcp patch (as Nick suggested earlier).
+>
+> This reminds me - the current logic is currently a bit suboptimal on
+> many NUMA systems. Often it would be better to be a bit more
+> aggressive at freeing memory (maybe do a very low overhead light try to
+> free pages) in the first node before falling back to other nodes. What
+> right now happens is that when you have even minor memory pressure
+> because e.g. you node is filled up with disk cache the local memory
+> affinity doesn't work too well anymore.
+>
+> -Andi
+>
+That's exactly what Martin Hick's additions to __alloc_pages() were trying to 
+achieve.   However, we've never figured out how to make the "very low 
+overhead light try to free pages" thing work with low enough overhead that it 
+can be left on all of the time.    As soon as we make this the least bit more 
+expensive, then this hurts those workloads (file servers being one example) 
+who don't care about local, but who need the fastest possible allocations. 
 
-  CC [M]  fs/xfs/xfs_acl.o
-fs/xfs/xfs_acl.c: In function 'xfs_acl_access':
-fs/xfs/xfs_acl.c:445: warning: 'matched.ae_perm' may be used
-uninitialized in this function
+This problem is often a showstopper on larger NUMA systems, at least for HPC 
+type applications, where the inability to guarantee local storage allocation 
+when it is requested can make the application run significantly slower.
+-- 
+Ray Bryant
+AMD Performance Labs                   Austin, Tx
+512-602-0038 (o)                 512-507-7807 (c)
 
-  CC [M]  fs/xfs/xfs_alloc_btree.o
-fs/xfs/xfs_alloc_btree.c: In function 'xfs_alloc_insrec':
-fs/xfs/xfs_alloc_btree.c:622: warning: 'nrec.ar_startblock' may be
-used uninitialized in this function
-fs/xfs/xfs_alloc_btree.c:622: warning: 'nrec.ar_blockcount' may be
-used uninitialized in this function
-
-  CC [M]  fs/xfs/xfs_dir2_sf.o
-fs/xfs/xfs_dir2_sf.c: In function 'xfs_dir2_block_sfsize':
-fs/xfs/xfs_dir2_sf.c:110: warning: 'parent' may be used uninitialized
-in this function
-  CC [M]  fs/xfs/xfs_dir_leaf.o
-fs/xfs/xfs_dir_leaf.c: In function 'xfs_dir_leaf_to_shortform':
-fs/xfs/xfs_dir_leaf.c:653: warning: 'parent' may be used uninitialized
-in this function
-
-  CC [M]  fs/xfs/xfs_ialloc_btree.o
-fs/xfs/xfs_ialloc_btree.c: In function 'xfs_inobt_insrec':
-fs/xfs/xfs_ialloc_btree.c:750: warning: 'nrec.ir_free' is used
-uninitialized in this function
-fs/xfs/xfs_ialloc_btree.c:750: warning: 'nrec.ir_freecount' is used
-uninitialized in this function
-fs/xfs/xfs_ialloc_btree.c:567: warning: 'nrec.ir_startino' may be used
-uninitialized in this function
-
-michal@debian:/usr/src/linux-git$ gcc --version
-gcc (GCC) 4.0.2 (Debian 4.0.2-2)
-
-Regards,
-Michal Piotrowski

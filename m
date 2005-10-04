@@ -1,87 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932533AbVJDRkP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964864AbVJDRl4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932533AbVJDRkP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 13:40:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932535AbVJDRkP
+	id S964864AbVJDRl4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 13:41:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964866AbVJDRl4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 13:40:15 -0400
-Received: from H190.C26.B96.tor.eicat.ca ([66.96.26.190]:48534 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S932533AbVJDRkN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 13:40:13 -0400
-From: Nikita Danilov <nikita@clusterfs.com>
+	Tue, 4 Oct 2005 13:41:56 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:12294 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S964864AbVJDRlz convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 13:41:55 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17218.48779.282910.692785@gargle.gargle.HOWL>
-Date: Tue, 4 Oct 2005 21:40:27 +0400
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: "Martin J. Bligh" <mbligh@mbligh.org>, Rik van Riel <riel@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-In-Reply-To: <20051004172338.GZ10538@lkcl.net>
-References: <20051002204703.GG6290@lkcl.net>
-	<54300000.1128297891@[10.10.2.4]>
-	<20051003011041.GN6290@lkcl.net>
-	<200510022028.07930.chase.venters@clientec.com>
-	<20051004125955.GQ10538@lkcl.net>
-	<17218.39427.421249.448094@gargle.gargle.HOWL>
-	<20051004161702.GU10538@lkcl.net>
-	<17218.47309.332739.836271@gargle.gargle.HOWL>
-	<20051004172338.GZ10538@lkcl.net>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <Pine.LNX.4.60.0510041924520.8210@kepler.fjfi.cvut.cz>
+References: <Pine.LNX.4.60.0510041924520.8210@kepler.fjfi.cvut.cz>
+X-OriginalArrivalTime: 04 Oct 2005 17:41:49.0310 (UTC) FILETIME=[E5DAB9E0:01C5C90A]
+Content-class: urn:content-classes:message
+Subject: Re: 2.4 in-kernel file opening
+Date: Tue, 4 Oct 2005 13:41:49 -0400
+Message-ID: <Pine.LNX.4.61.0510041329180.29678@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.4 in-kernel file opening
+Thread-Index: AcXJCuXhLjGoTEoISsuNnYtjsn9JNA==
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Martin Drab" <drab@kepler.fjfi.cvut.cz>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luke Kenneth Casson Leighton writes:
- > On Tue, Oct 04, 2005 at 09:15:57PM +0400, Nikita Danilov wrote:
- > > Luke Kenneth Casson Leighton writes:
- > > 
- > > [...]
- > > 
- > >  > 
- > >  >  assuming that you have an intelligent programmer (or some really good
- > >  >  and working parallelisation tools) who really knows his threads?
- > > 
- > > Well, I'd like to have a hardware with CAS-n operation for one
- > > thing. 
- > 
- >  CAS - compare and swap - by CAS-n i presume that you mean effectively a
- >  SIMD CAS instruction?
 
-An instruction that atomically compares and swaps n independent memory
-locations with n given values. cas-1 (traditional compare-and-swap) is
-enough to implement lock-less queue, cas-2 is enough to implement
-double-linked lists, and was used by Synthesis lock-free kernel
-(http://citeseer.ist.psu.edu/massalin91lockfree.html).
+On Tue, 4 Oct 2005, Martin Drab wrote:
 
-To be precise, cas-1 is theoretically enough to implement double-linked
-lists too, but resulting algorithms are not pretty at all.
+> Hi,
+>
+> can anybody tell me why there is no sys_open() exported in kernel/ksyms.c
+> in 2.4 kernels while the sys_close() is there? And what is then the
+> preferred way of opening files from within a 2.4 kernel module?
+>
+> Thank you,
+> Martin
 
- > 
- > > But what would this buy us? 
- > 
- >  you do not say :)  i am genuinely interested to hear what it would buy.
+There is no way to open files within the kernel. Any attempt is
+just a hack. The kernel is designed to perform tasks on behalf
+of the caller. It doesn't have a context. It uses the caller's
+context. A file-descriptor is a number that relates to the
+current context. i.e., STDIN_FILENO is __different__ for you
+and somebody else, even though it has the same numerical value.
 
-Nothing. That was an instance of "rhetorical question", sorry that I
-made not this clear enough.
+To open a file in the kernel requires either a task with a
+context (like a kernel thread) or you have to steal the context
+of somebody which can destroy some innocent task's context.
 
- > 
- > > Having different kernel algorithms
- > > for x86 and mythical cas-n-able hardware is not viable.
- > 
- >  if i can get an NPTL .deb package for glibc for x86 only it would tend
- >  to imply that that isn't a valid conclusion: am i missing something?
+You are never supposed to use files inside the kernel; period!
+If you need to obtain file-data for a driver or receive file-
+data from a driver, we have read(), write(), mmap(), and ioctl()
+to accomplish these things from user-mode. A user-mode program can
+write data directly to your driver using mmap(), for instance.
+Or it can use a function-code you define to upload/download data
+using ioctl().
 
-Yes: this is Linux _Kernel_ mailing list, and I was talking about kernel
-code and kernel algorithms.
+This is a FAQ. Many persons have rejected this advice, only
+to later on modify their drivers to correspond to the correct
+way of writing Unix/Linux device drivers. This, after they've
+trashed many innocent tasks.
 
- > 
- >  cheers,
- > 
- >  l.
- >  
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13 on an i686 machine (5589.55 BogoMips).
+Warning : 98.36% of all statistics are fiction.
 
-Nikita.
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
- >  
+Thank you.

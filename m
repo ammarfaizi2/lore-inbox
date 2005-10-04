@@ -1,267 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964776AbVJDG5i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932428AbVJDG7P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964776AbVJDG5i (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 02:57:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbVJDG5i
+	id S932428AbVJDG7P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 02:59:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbVJDG7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 02:57:38 -0400
-Received: from web35509.mail.mud.yahoo.com ([66.163.179.133]:5228 "HELO
-	web35509.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932428AbVJDG5h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 02:57:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=iZgOpXVdMTKK6nX54Hy7yrutBfPQiUx8Of3Zlk0XEcsHBw5TiZ64L61RxHfJhC8avZgrFx+ZfdRp5N9VDfZP0sTHSn1iP0rI4XGrWz2G577D+ZDz0BbA8GQXw6AnncSTn/sc6+yCLLhacgLMejfmcwOdDzVVXcyLXL5OieK6M6U=  ;
-Message-ID: <20051004065737.43941.qmail@web35509.mail.mud.yahoo.com>
-Date: Mon, 3 Oct 2005 23:57:37 -0700 (PDT)
-From: Dan C Marinescu <dan_c_marinescu@yahoo.com>
-Subject: Re: The price of SELinux (CPU)
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <43421F46.8030202@comcast.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 4 Oct 2005 02:59:15 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:13903 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932428AbVJDG7O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 02:59:14 -0400
+Date: Tue, 4 Oct 2005 08:59:46 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Paul Mundt <paul.mundt@nokia.com>, mingo@elte.hu,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] mempool_alloc() pre-allocated object usage
+Message-ID: <20051004065945.GG3511@suse.de>
+References: <20051003143634.GA1702@nokia.com> <1128350953.17024.17.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1128350953.17024.17.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-the following link:
-
-http://www.nsa.gov/selinux/list-archive/0505/11459.cfm
-
-describes _some_ particular cases... among the over
-100,000,000,000 factors involved are:
-
-1. fs type (block-size, etc) // not sure on this one
-:-(
-2. number of processors
-3. nature of processes // they are relatively vague on
-this one
-4. kernel configuration (they mentioned about
-2.6.12-rc2 or something) but then again, they didn't
-post their kernel .config (maybe it's a fedora stock
-.config, maybe not...)
-...
-...
-...
-etc
-
-And even then, to draw the line at 7% sounds more like
-a quick and dirty conclusion (@ least 2 me)... 
-
-   d
-
---- John Richard Moser <nigelenki@comcast.net> wrote:
-
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On Mon, Oct 03 2005, Arjan van de Ven wrote:
+> On Mon, 2005-10-03 at 17:36 +0300, Paul Mundt wrote:
 > 
-> I'm not an expert in this kind of stuff.  I wonder
-> where the numbers
-> come from; i.e. is 7% from policy?  A O(1) policy
-> lookup would be immune
-> to big policies; a O(n) would probably not have that
-> much impact from a
-> typical policy lookup.  Still perhaps interpreting
-> the policy is a chore
-> in itself, which still says bigger policy means
-> bigger hit.  Or is 7%
-> constant?
+> > Both usage patterns seem valid from my point of view, would you be open
+> > to something that would accomodate both? (ie, possibly adding in a flag
+> > to determine pre-allocated object usage?) Or should I not be using
+> > mempool for contiguity purposes?
 > 
-> I don't know what the frame of reference is or was. 
-> I'm sure with
-> selinux with no policy it's rather 0ish; what I
-> don't know is what I'm
-> supposed to be looking at for benchmarking.  Just
-> randomly turning
-> SELinux on and off and looking might give me an
-> invalid measure.
+> a similar dillema was in the highmem bounce code in 2.4; what worked
+> really well back then was to do it both; eg use half the pool for
+> "immediate" use, then try a VM alloc, and use the second half of the
+> pool for the really emergency cases.
 > 
-> Dan C Marinescu wrote:
-> > i suggested you to disable selinux in order to
-> have
-> > something to compare to... (engineers compare,
-> > measure, instead of believing in rummors...)
-> > 
-> >    d
-> > 
-> > --- John Richard Moser <nigelenki@comcast.net>
-> wrote:
-> > 
-> > 
-> > I'm not an abortionist; if I hear something has an
-> > ugly side, I try to
-> > find out if it can be fixed, and if the trade-off
-> is
-> > worth getting rid
-> > of it.  SELinux and LSM are quite useful you know;
-> > the overhead is
-> > probably not even that significant on the desktop
-> to
-> > gamers (although if
-> > you TELL them about it they'll piss themselves),
-> > from a practical
-> > viewpoint considering their excessive hardware.
-> > 
-> > Dan C Marinescu wrote:
-> > 
-> >>try selinux=0, _if u feel that way :-)
-> > 
-> >>about big o:
-> > 
-> > 
-> > 
-> >>
->
-http://www.maththinking.com/boat/compsciBooksIndex.html
-> > 
-> >>   daniel
-> > 
-> > 
-> > 
-> >>--- John Richard Moser <nigelenki@comcast.net>
-> > 
-> > wrote:
-> > 
-> > 
-> >>I've heard that SELinux has produced benchmarks
-> > 
-> > such
-> > 
-> >>as 7% increased CPU
-> >>load.  Is this true and current?  Is it dependent
-> > 
-> > on
-> > 
-> >>policy?  What is
-> >>the policy lookup complexity ( O(1), O(n),
-> >>O(nlogn)...)?  Are there
-> >>other places where a bottleneck may exist aside
-> > 
-> > from
-> > 
-> >>gruffing with the
-> >>policy?  Isn't the policy actually in xattrs so
-> > 
-> > it's
-> > 
-> >>O(1)?  Where else
-> >>would an overhead that big come from aside from a
-> >>lookup in a table?
-> > 
-> >>....
-> > 
-> >>Why is the sky blue?  Why do you have a mustach? 
-> >>Why doesn't mommy have
-> >>one?  Does she shave it?
-> > 
-> >>At any rate, my personal end goal is a secure
-> >>high-performance operating
-> >>system, as user friendly as Ubuntu, Mandriva, or
-> >>Win----.  To this end,
-> >>I'm (still; a lot of you have seen me before)
-> >>evaluating the performance
-> >>hit of various user and kernel security
-> > 
-> > enhancements
-> > 
-> >>like PaX,
-> >>ProPolice, various OpenWall/GrSecurity niceness
-> > 
-> > that
-> > 
-> >>needs to be divided
-> >>out, and of course LSM/SELinux.  Also wondering
-> >>about that PHKMalloc
-> >>thing on openbsd; is it really all that, is it
-> > 
-> > junk,
-> > 
-> >>how's it compare to
-> >>the recent ptmalloc work, and can it run on Linux
-> >>for direct benching .
-> >>. . but that's off topic.
-> > 
-> >>--
-> >>All content of all messages exchanged herein are
-> >>left in the
-> >>Public Domain, unless otherwise explicitly stated.
-> > 
-> >>    Creative brains are a valuable, limited
-> >>resource. They shouldn't be
-> >>    wasted on re-inventing the wheel when there
-> > 
-> > are
-> > 
-> >>so many fascinating
-> >>    new problems waiting out there.
-> > 
-> > 
-> > --
-> > 
-> >>Eric Steven Raymond
-> > 
-> > -
-> > To unsubscribe from this list: send the line
-> > "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at
-> > http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> > 
-> >>__________________________________ 
-> >>Yahoo! Mail - PC Magazine Editors' Choice 2005 
-> >>http://mail.yahoo.com
-> > 
-> > 
-> > --
-> > All content of all messages exchanged herein are
-> > left in the
-> > Public Domain, unless otherwise explicitly stated.
-> > 
-> >     Creative brains are a valuable, limited
-> > resource. They shouldn't be
-> >     wasted on re-inventing the wheel when there
-> are
-> > so many fascinating
-> >     new problems waiting out there.
-> >                                                 
-> --
-> > Eric Steven Raymond
-> - -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> > __________________________________ 
-> > Yahoo! Mail - PC Magazine Editors' Choice 2005 
-> > http://mail.yahoo.com
-> 
-> 
-> - --
-> All content of all messages exchanged herein are
-> left in the
-> Public Domain, unless otherwise explicitly stated.
-> 
->     Creative brains are a valuable, limited
-> resource. They shouldn't be
->     wasted on re-inventing the wheel when there are
-> so many fascinating
->     new problems waiting out there.
->                                                  --
-> Eric Steven Raymond
-> -----BEGIN PGP SIGNATURE-----
-> 
-=== message truncated ===
+> Technically a mempool is there ONLY for the fallback, but I can see some
+> value in making it also a fastpath by means of a small scratch pool
 
+The reason it works the way it does is because of performance, you don't
+want to touch the pool lock until you have to. If the page allocations
+that happen before falling into the mempool, I would suggest looking at
+that specific issue first. I think Nick recently did some changes in
+that area, there might be more low hanging fruit.
 
+-- 
+Jens Axboe
 
-		
-__________________________________ 
-Yahoo! Mail - PC Magazine Editors' Choice 2005 
-http://mail.yahoo.com

@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964809AbVJDPeX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964806AbVJDPg2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964809AbVJDPeX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 11:34:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbVJDPeX
+	id S964806AbVJDPg2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 11:36:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964813AbVJDPg2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 11:34:23 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:52634 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964809AbVJDPeW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 11:34:22 -0400
-Date: Tue, 4 Oct 2005 10:34:14 -0500
-From: serue@us.ibm.com
-To: Erik Jacobson <erikj@sgi.com>
-Cc: pagg@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/3] Process Notification / pnotify user: Job
-Message-ID: <20051004153414.GA9154@sergelap.austin.ibm.com>
-References: <20051003184644.GA19106@sgi.com> <20051003185155.GB19106@sgi.com> <20051003190219.GA20154@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051003190219.GA20154@sgi.com>
-User-Agent: Mutt/1.5.8i
+	Tue, 4 Oct 2005 11:36:28 -0400
+Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:17624 "EHLO
+	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S964806AbVJDPg1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 11:36:27 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Tue, 4 Oct 2005 16:36:10 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
+Subject: [2.6.14-rc3-git] NTFS: Two final bug fixes.
+Message-ID: <Pine.LNX.4.60.0510041634180.28800@hermes-1.csi.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Erik Jacobson (erikj@sgi.com):
-> Index: linux/init/Kconfig
-> ===================================================================
-> --- linux.orig/init/Kconfig	2005-09-30 12:14:10.989916853 -0500
-> +++ linux/init/Kconfig	2005-09-30 13:59:19.749826026 -0500
-> @@ -170,6 +170,35 @@
->       Linux Jobs module and the Linux Array Sessions module.  If you will not
->       be using such modules, say N.
->  
-> +config JOB
-> +	tristate "  Process Notification (pnotify) based jobs"
+Hi Linus, please pull from
 
-Should it be possible to compile job as a module, or should
-this not be "tristate"?
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/aia21/ntfs-2.6.git/HEAD
 
-It makes use of send_group_sig_info, which is not EXPORTed.
+ fs/ntfs/ChangeLog |    3 +++
+ fs/ntfs/bitmap.c  |    5 +++--
+ fs/ntfs/layout.h  |    2 +-
+ fs/ntfs/mft.c     |    3 ++-
+ fs/ntfs/unistr.c  |    2 +-
+ 5 files changed, 10 insertions(+), 5 deletions(-)
 
-thanks,
--serge
+This contains two more bugfixes for NTFS that need to go in before 2.6.14 
+is released.  - Please apply.  Thanks!  - There should really, really not 
+be any more for 2.6.14!  Famous really, really, last words...
+
+Diff style patches generated with git format-patch follow as replies to
+this email.
+
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

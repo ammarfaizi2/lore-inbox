@@ -1,47 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932387AbVJDMCS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932391AbVJDMEA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932387AbVJDMCS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 08:02:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932391AbVJDMCS
+	id S932391AbVJDMEA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 08:04:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbVJDMEA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 08:02:18 -0400
-Received: from zproxy.gmail.com ([64.233.162.197]:20740 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932387AbVJDMCR (ORCPT
+	Tue, 4 Oct 2005 08:04:00 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:45291 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932391AbVJDMD7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 08:02:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=mSDgfdPMKW93OMbUZGKj20kwmlcX10ZnINB7Jf6YKLBTH9pw9x1ji5kqbIdzVM9PVdmn8FwO9ySYHz0g/uqwtBFaAW4KyEbGIiPPUQT8fCp8fQe/ozWT/0itfGRwikZn05uTyyR1ObUOSXW377VXhEY6GFnHEwPrbbJw9R5durU=
-Date: Tue, 4 Oct 2005 21:02:10 +0900
-From: Tejun Heo <htejun@gmail.com>
-To: Andi Kleen <ak@suse.de>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Question regarding x86_64 __PHYSICAL_MASK_SHIFT
-Message-ID: <20051004120210.GA2622@htj.dyndns.org>
-References: <43426EB4.6080703@gmail.com>
-MIME-Version: 1.0
+	Tue, 4 Oct 2005 08:03:59 -0400
+Date: Tue, 4 Oct 2005 14:03:34 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Timo Hoenig <thoenig@suse.de>
+Cc: Stefan Seyfried <seife@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: thinkpad suspend to ram and backlight
+Message-ID: <20051004120334.GE17458@elf.ucw.cz>
+References: <20051002175703.GA3141@elf.ucw.cz> <43410149.9070007@suse.de> <1128427214.14551.15.camel@nouse.suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43426EB4.6080703@gmail.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <1128427214.14551.15.camel@nouse.suse.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Sorry, corrections.
+Hi!
 
-On Tue, Oct 04, 2005 at 08:59:48PM +0900, Tejun Heo wrote:
+> > > When I suspend to RAM on x32, backlight is not turned off. (And, IIRC,
+> > > video chips is not turned off, too). Unfortunately, backlight is not
+> > > turned even when lid is closed. I know some patches were floating
+> > > around to solve that... but I can't find them now. Any ideas?
+> > 
+> > Which framebuffer driver? Vesafb works for Timo, at least he did not
+> > complain lately ;-)
 > 
->  Hello, Andi.
+> It's never too late to complain: I just gave it a try with vesfb.
+> Backlight stays on.
 > 
->  In include/asm-x86_64/page.h, __VIRTUAL_MASK_SHIFT is defined as 48 
-> bits which is the size of virtual address space on current x86_64 
-> machines as used as such.  OTOH, __PHYSICAL_MASK_SHIFT is defined as 46 
-           and used as such.
-> and used as mask shift for physical page address (i.e. physaddr >> 12).
-                             physical page number (i.e. physaddr >> 12).
+> When eying the display precisely it seems to be switched off for a short
+> moment once the system enters S3 but then gets turned on again.
 
- Sorry about extra noise, I gotta eat something, feeling dizzy.  :-)
+Yes, same with radeonfb here.
 
+I use
+
+#!/bin/bash
+radeontool light off
+echo 3 > /proc/acpi/sleep
+radeontool light on
+
+...and it works most of the time. Sometimes screen is corrupted after
+resume, another suspend/resume cycle cures that. (Strange!)
+
+								Pavel
 -- 
-tejun
+if you have sharp zaurus hardware you don't need... you know my address

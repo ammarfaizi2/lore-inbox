@@ -1,69 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbVJDQKs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964842AbVJDQRM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964845AbVJDQKs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 12:10:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964843AbVJDQKr
+	id S964842AbVJDQRM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 12:17:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964846AbVJDQRM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 12:10:47 -0400
-Received: from dvhart.com ([64.146.134.43]:63891 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S964842AbVJDQKr (ORCPT
+	Tue, 4 Oct 2005 12:17:12 -0400
+Received: from free.hands.com ([83.142.228.128]:23436 "EHLO free.hands.com")
+	by vger.kernel.org with ESMTP id S964842AbVJDQRL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 12:10:47 -0400
-Date: Tue, 04 Oct 2005 09:10:48 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Ray Bryant <raybry@mpdtxmail.amd.com>, Andi Kleen <ak@suse.de>
-Cc: Rohit Seth <rohit.seth@intel.com>, akpm@osdl.org, linux-mm@kvack.org,
+	Tue, 4 Oct 2005 12:17:11 -0400
+Date: Tue, 4 Oct 2005 17:17:02 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Nikita Danilov <nikita@clusterfs.com>
+Cc: "Martin J. Bligh" <mbligh@mbligh.org>, Rik van Riel <riel@redhat.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: Clean up of __alloc_pages
-Message-ID: <138020000.1128442248@[10.10.2.4]>
-In-Reply-To: <200510041126.53247.raybry@mpdtxmail.amd.com>
-References: <20051001120023.A10250@unix-os.sc.intel.com><1128361714.8472.44.camel@akash.sc.intel.com><p733bnh1kgj.fsf@verdi.suse.de> <200510041126.53247.raybry@mpdtxmail.amd.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+Subject: Re: what's next for the linux kernel?
+Message-ID: <20051004161702.GU10538@lkcl.net>
+References: <20051002204703.GG6290@lkcl.net> <54300000.1128297891@[10.10.2.4]> <20051003011041.GN6290@lkcl.net> <200510022028.07930.chase.venters@clientec.com> <20051004125955.GQ10538@lkcl.net> <17218.39427.421249.448094@gargle.gargle.HOWL>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <17218.39427.421249.448094@gargle.gargle.HOWL>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-hands-com-MailScanner: Found to be clean
+X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
---Ray Bryant <raybry@mpdtxmail.amd.com> wrote (on Tuesday, October 04, 2005 11:26:52 -0500):
-
-> On Tuesday 04 October 2005 08:27, Andi Kleen wrote:
->> Rohit Seth <rohit.seth@intel.com> writes:
->> > I think conceptually this ask for a new flag __GFP_NODEONLY that
->> > indicate allocations to come from current node only.
->> > 
->> > This definitely though means I will need to separate out the allocation
->> > from pcp patch (as Nick suggested earlier).
->> 
->> This reminds me - the current logic is currently a bit suboptimal on
->> many NUMA systems. Often it would be better to be a bit more
->> aggressive at freeing memory (maybe do a very low overhead light try to
->> free pages) in the first node before falling back to other nodes. What
->> right now happens is that when you have even minor memory pressure
->> because e.g. you node is filled up with disk cache the local memory
->> affinity doesn't work too well anymore.
->> 
->> -Andi
->> 
-> That's exactly what Martin Hick's additions to __alloc_pages() were trying to 
-> achieve.   However, we've never figured out how to make the "very low 
-> overhead light try to free pages" thing work with low enough overhead that it 
-> can be left on all of the time.    As soon as we make this the least bit more 
-> expensive, then this hurts those workloads (file servers being one example) 
-> who don't care about local, but who need the fastest possible allocations. 
+On Tue, Oct 04, 2005 at 07:04:35PM +0400, Nikita Danilov wrote:
+> Luke Kenneth Casson Leighton writes:
+>  > On Sun, Oct 02, 2005 at 08:27:45PM -0500, Chase Venters wrote:
+>  > 
+>  > > The bottom line is that the application developers need to start being clever 
+>  > > with threads. 
+>  > 
+>  >  yep!  ah.  but.  see this:
+>  > 
+>  >  http://lists.samba.org/archive/samba-technical/2004-December/038300.html
+>  > 
+>  >  and think what would happen if glibc had hardware-support for
+>  >  semaphores and mutexes.
 > 
-> This problem is often a showstopper on larger NUMA systems, at least for HPC 
-> type applications, where the inability to guarantee local storage allocation 
-> when it is requested can make the application run significantly slower.
+> Let me guess... nothing? 
 
-Can we not do some migration / more targeted pressure balancing in kswapd?
-Ie if we had a constant measure of per-node pressure, we could notice an
-imbalance, and start migrating the least recently used pages from the node
-under most pressure to the node under least ...
+ interesting.
 
-M.
+> Overhead of locking depends on data-structures
+> used by application/library and their access patterns: one thread has to
+> wait for another to finish with the shared resource.
+
+ yes.
+
+> locking in hardware is going to change nothing here (barring really
+> stupid implementations of locking primitives). Especially as we are
+> talking about blocking primitives, like pthread semaphore or mutex: an
+> entry into the scheduler will by far outweigh any advantages of
+> raw-metal synchronization.
+ 
+ so what would, in your opinion, be a good optimisation?
+ 
+ the references i found (just below) are to tool chains or research
+ projects for code or linker-level analysis and parallelisation tools.
+
+ what would, in your opinion, be a good way for hardware to assist
+ thread optimisation, at this level (glibc)?
+
+ assuming that you have an intelligent programmer (or some really good
+ and working parallelisation tools) who really knows his threads?
+
+
+
+>  >  http://www.ics.ele.tue.nl/~sander/publications.php
+>  >  http://portal.acm.org/citation.cfm?id=582068
+>  >  http://csdl.computer.org/comp/proceedings/acsd/2003/1887/00/18870237.pdf
+>  > 
+>  >  to get the above references, put in "holland parallel code
+>  >  analysis tools" into google.com.
+> 
+> PS: I wonder why Luke Kenneth Casson Leighton, Esq., while failing to
+
+ can i invite you to consider, when replying to these lists, to consider
+ instead of treating it as a location where you can piss over anyone
+ that you do not believe to be in any way your equal or in fact the equal
+ of anyone, to instead consider the following template for your replies:
+
+ 	okay, right.
+	* i do/don't get what this guy is saying.
+	* i do/don't have an alternative idea (here it is / sorry)
+	* here's what's wrong / right with what he's saying.
+	* here's where it can/can't be done better.
+
+ the bits that are missing from your reply are:
+ 
+ * "you do/don't get where i'm going with this"
+ * you haven't specified an alternative idea
+ * you've outlined what's wrong but not what's right
+ * you haven't specified how it can be done better.
+
+ i therefore conclude that you are bully.  a snob.
+
+ i _really_ detest bullying - and that's what you are doing.
+
+ intellectual bullying.
+
+ stop it.
+
+ so i sent some messages saying "i think the kernel developers could be
+ wrong in their design strategy" so FRIGGIN what?
+
+ prove me right or prove me wrong.
+
+ or shut up, or add my email address to your killfile.
+
+ _don't_ be an intellectual snob.
+
+ l.
 

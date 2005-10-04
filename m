@@ -1,74 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbVJDFG5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751189AbVJDFPE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751186AbVJDFG5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 01:06:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751189AbVJDFG5
+	id S1751189AbVJDFPE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 01:15:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751190AbVJDFPD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 01:06:57 -0400
-Received: from zproxy.gmail.com ([64.233.162.198]:50278 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751186AbVJDFG4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 01:06:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=bqHgY2E1gLg9ZpVK+oajrddpMGxu/lyniAxMtE8nGYnbCxcheeP9+pmwGWkrj7hiSX72ULAQjnZ2tjMWQYsLkUaVWX6a1Rdq5E29umZJLXdbRvEqhuxxSU6GAmPKT4tEECy4g2QfZ4dfxMVEj4WwZO2hkCgtOO1bnsFrrnVizps=
-Message-ID: <aec7e5c30510032206l12f666a0lef42ba7919d860fe@mail.gmail.com>
-Date: Tue, 4 Oct 2005 14:06:55 +0900
-From: Magnus Damm <magnus.damm@gmail.com>
-Reply-To: Magnus Damm <magnus.damm@gmail.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [PATCH 07/07] i386: numa emulation on pc
-Cc: Magnus Damm <magnus@valinux.co.jp>,
-       Isaku Yamahata <yamahata@valinux.co.jp>, linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1128356192.10290.10.camel@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050930073232.10631.63786.sendpatchset@cherry.local>
-	 <20050930073308.10631.24247.sendpatchset@cherry.local>
-	 <1128106512.8123.26.camel@localhost>
-	 <aec7e5c30510030259j2698f982ue7169768730f3d53@mail.gmail.com>
-	 <1128356192.10290.10.camel@localhost>
+	Tue, 4 Oct 2005 01:15:03 -0400
+Received: from mail.tnnet.fi ([217.112.240.26]:58323 "EHLO mail.tnnet.fi")
+	by vger.kernel.org with ESMTP id S1751189AbVJDFPC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 01:15:02 -0400
+Message-ID: <43420F92.ABE3C821@users.sourceforge.net>
+Date: Tue, 04 Oct 2005 08:13:54 +0300
+From: Jari Ruusu <jariruusu@users.sourceforge.net>
+To: Paulo da Silva <psdasilva@esoterica.pt>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: util-linux and data encryption
+References: <4341567E.4050603@esoterica.pt>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/4/05, Dave Hansen <haveblue@us.ibm.com> wrote:
-> On Mon, 2005-10-03 at 18:59 +0900, Magnus Damm wrote:
-> > > > +#ifdef CONFIG_NUMA_EMU
-> > > ...
-> > > > +#endif
-> > >
-> > > Ewwwwww :)  No real need to put new function in a big #ifdef like that.
-> > > Can you just create a new file for NUMA emulation?
-> >
-> > Hehe, what is this, a beauty contest? =) I agree, but I guess the
-> > reason for this code to be here is that a similar arrangement is done
-> > by x86_64...
->
-> If that's really the case, can they _actually_ share code?  Maybe we can
-> do this NUMA emulation thing in non-arch code.  Just guessing...
+Paulo da Silva wrote:
+> I had a loop filesystem encrypted with twofish
+> algorithm.
+> 
+> Today, trying to mount the file, 'mount' claimed
+> I needed to enter a password of 20 chars or more!
+> Since I used less chars to encrypt, I was not able
+> to recover the information!!!
+> I tried CFLAGS="-DLOOP_PASSWORD_MIN_LENGTH=8"
+> without any success. This causes 'mount' to accept
+> the password, but, somehow, the decryption failled
+> because the fs type remained unrecognized!
+> 
+> BTW, I am using gentoo and I also tried USE=old-crypt.
+> No way!
+> 
+> I needed to install the version 2.12i to recover
+> my information.
+> 
+> Is this related with util-linux or has something
+> to do with gentoo patches or something?
 
-I'd like to avoid duplication as much as you, but at a quick glance
-the x86_64 and i386 architecture looked pretty different. But I will
-see what I can do.
+Seems like gentoo has merged loop-AES' util-linux patch which has always
+used better defaults.
 
-> > I will create a new file. Is arch/i386/mm/numa_emu.c good?
->
-> > But first, you have written lots and lots of patches, and I am
-> > confused. Could you please tell me on which patches I should base my
-> > code to make things as easy as possible?
->
-> This is the staging ground for my memory hotplug work.  But, it contains
-> all of my work on other stuff, too.  If you build on top of this, it
-> would be great:
->
-> http://sr71.net/patches/2.6.14/2.6.14-rc2-git8-mhp1/
+Mainline util-linux compatible mount options for /etc/fstab
 
-I will build on top of that then.
+    encryption=twofish256,phash=unhashed2
 
-Thanks,
+Mainline util-linux compatible losetup command options
 
-/ magnus
+    losetup -e twofish256 -H unhashed2 ......
+
+kerneli.org compatible mount options for /etc/fstab
+
+    encryption=twofish256,phash=rmd160
+
+kerneli.org compatible losetup command options
+
+    losetup -e twofish256 -H rmd160 ......
+
+mount and losetup programs don't enforce 20 character minimum passphrase
+length when using 'rmd160' or 'unhashed2' hash functions.
+
+Both mainline util-linux and kerneli.org compatible setups are broken
+securitywise. If there still are file systems using such broken setups, now
+is good time to re-encrypt them using stronger crypto.
+
+-- 
+Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD

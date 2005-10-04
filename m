@@ -1,105 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964920AbVJDTP0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964934AbVJDTOt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964920AbVJDTP0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 15:15:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964935AbVJDTP0
+	id S964934AbVJDTOt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 15:14:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964935AbVJDTOt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 15:15:26 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:3573 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S964920AbVJDTPY
+	Tue, 4 Oct 2005 15:14:49 -0400
+Received: from zproxy.gmail.com ([64.233.162.204]:27353 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964934AbVJDTOs convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 15:15:24 -0400
-Message-ID: <4342D490.5020409@mvista.com>
-Date: Tue, 04 Oct 2005 12:14:24 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en-us, en
+	Tue, 4 Oct 2005 15:14:48 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=XUsgG6PANeCbrT+5YlZtyvbcCG4UKPEUfMOIBnKhDwZ/f2Q/rnGNOiIbEuTh11zLQ62UDXVbW6n/xMsGobnC1pkx9ztuhHKCjHKPqdCOS0rzNePsq25rSExfHElBUixIsnPfGwTI89zR4UTam8q0xoZpdmbWP8bwUGd7ew9mM/o=
+Message-ID: <3e1162e60510041214t3afd803re27b742705d27900@mail.gmail.com>
+Date: Tue, 4 Oct 2005 12:14:47 -0700
+From: David Leimbach <leimy2k@gmail.com>
+Reply-To: David Leimbach <leimy2k@gmail.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: /etc/mtab and per-process namespaces
+In-Reply-To: <3e1162e60510021508r6ef8e802p9f01f40fcf62faae@mail.gmail.com>
 MIME-Version: 1.0
-To: Rune Torgersen <runet@innovsys.com>
-Cc: Paul Mackerras <paulus@samba.org>, Marc <marvin24@gmx.de>,
-       linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: Re: clock skew on B/W G3
-References: <DCEAAC0833DD314AB0B58112AD99B93B859479@ismail.innsys.innovsys.com>
-In-Reply-To: <DCEAAC0833DD314AB0B58112AD99B93B859479@ismail.innsys.innovsys.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <3e1162e60510021508r6ef8e802p9f01f40fcf62faae@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rune Torgersen wrote:
->  
-> 
-> 
->>-----Original Message-----
->>From: Paul Mackerras [mailto:paulus@samba.org] 
->>Sent: Tuesday, October 04, 2005 07:49
->>Subject: RE: clock skew on B/W G3
->>
->>I do not believe CLOCK_TICK_RATE affects timekeeping at all on ppc or
->>ppc64 machines, but I could be wrong.  Can you show us where and how
->>CLOCK_TICK_RATE affects things?
-> 
-> 
-> I looked very closely at htis thing earlier this summer because of an
-> embedded board that drifted quite severly (15sec a day) with a very
-> accureate BITS clock as clock source.
-> 
-> Here goes:
-> In arch/ppc/kernel/time.c
-> timer_interrupt() gets called every decrementer timeout (about every
-> 1/CONFIG_HZ seconds, accuracy depends on how easily your decrementer
-> cliock can be divided by CONFIG_HZ)
-> this calls do_timer() to do the timer increment.
-> 
-> do_timer is in kernel/timer.c and calls update_times().
-> update_times() calls update_wall_time() which in turns calls
-> update_wall_time_one_tick()
-> 
-> update_wall_time_one_tick()uses tick_nsec to increment xtime.
-> 
-> tick_nsec is defined as: (kernel/timer.c:561)
-> unsigned long tick_nsec = TICK_NSEC;
-> 
-> TICK_NSEC is defined as: (include/linux/jiffies.h:64)
-> #define TICK_NSEC (SH_DIV (1000000UL * 1000, ACTHZ, 8))
-> 
-> ACTHZ is defined as: (include/linux/jiffies.h:61)
-> #define ACTHZ (SH_DIV (CLOCK_TICK_RATE, LATCH, 8))
-> 
-> LATCH is defined as: (include/linux/jiffies.h:46)
-> #define LATCH  ((CLOCK_TICK_RATE + HZ/2) / HZ)
-> 
-> which means that tick_nsec depends on CLOCK_TICK_RATE to get its value.
-> 
-> defined as:
-> #define CLOCK_TICK_RATE	1193180 /* Underlying HZ */
+Hmm no responses on this thread a couple days now.  I guess:
 
-But this is defined in include/asm/???.h  so you should be able to set something more to your liking 
-(or rather to your archs liking).  It is true that it SHOULD be defined as it is used to define 
-TICK_NSEC which is used to define the jiffies<-->timeval/timespec conversions which would be VERY 
-slow it it were a variable.
+1) No one cares about private namespaces or the fact that they make
+/etc/mtab totally inconsistent.
+2) Private Namespaces aren't important to anyone and will never be
+robust unless someone who cares, like me, takes it over somehow.
+3) Everyone is busy with their own shit and doesn't want to deal with
+me or mine right now.
 
-George
--- 
+I'm seriously hoping it's 3 :).  2 Is acceptable too of course.  I
+think this is important and I want to know more about the innards
+anyway.  1 would make me sad as I think Linux can really show other
+Unix's what-for here when it comes to showing off how good the VFS can
+be.
 
-> 
-> this clock is completely wrong for most/all ppc. 
-> It happens to generate a tick_nsec of 999848 which is close enough to
-> 1000000 that most people does not notice.
-> (tick_nsec is number of nsec per timer tick)
-> 
-> When HZ is 250, TICK_NSEC becomes 4000250.
-> While this might not completely explain a 20% change in clock sped, it
-> it clearly not acurate either.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Linux has always been a bit of DIY, so I guess I just need to accept
+that.  It's not unlike the KDE development model.  People who want
+certain things done either motivate others to help or make a run for
+it on their own, even in the face of adversity.  Kind of more noble
+that way I guess.
 
--- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+Dave

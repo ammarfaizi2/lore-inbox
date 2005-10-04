@@ -1,68 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932726AbVJCX4T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbVJDAOt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932726AbVJCX4T (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 19:56:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932727AbVJCX4T
+	id S932193AbVJDAOt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 20:14:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932731AbVJDAOt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 19:56:19 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:57745
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932726AbVJCX4T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 19:56:19 -0400
-Date: Mon, 03 Oct 2005 16:56:16 -0700 (PDT)
-Message-Id: <20051003.165616.70305022.davem@davemloft.net>
-To: jmacbaine@gmail.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: 2.6.13 crash on sparc64 in sunsu_kbd_ms_interrupt
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20051003.165046.126193591.davem@davemloft.net>
-References: <3afbacad050831085155914ef6@mail.gmail.com>
-	<20051003.165046.126193591.davem@davemloft.net>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Mon, 3 Oct 2005 20:14:49 -0400
+Received: from gambit.vianw.pt ([195.22.31.34]:5315 "EHLO gambit.vianw.pt")
+	by vger.kernel.org with ESMTP id S932193AbVJDAOs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Oct 2005 20:14:48 -0400
+Message-ID: <4341C965.7020400@esoterica.pt>
+Date: Tue, 04 Oct 2005 01:14:29 +0100
+From: Paulo da Silva <psdasilva@esoterica.pt>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: util-linux and data encryption
+References: <4341567E.4050603@esoterica.pt> <20051003220729.GJ3652@stusta.de>
+In-Reply-To: <20051003220729.GJ3652@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "David S. Miller" <davem@davemloft.net>
-Date: Mon, 03 Oct 2005 16:50:46 -0700 (PDT)
+Adrian Bunk wrote:
 
-> Please turn off CONFIG_PREEMPT on sparc64, it really doesn't
-> get very much testing on this platform.
+>On Mon, Oct 03, 2005 at 05:04:14PM +0100, Paulo da Silva wrote:
+>
+>  
+>
+>>If this is not the right place to post about
+>>util-linux, please tell me where to post.
+>>I'm posting here because util-linux is at kernel.org.
+>>...
+>>    
+>>
+>
+>If you have problems with some software shipped with a distribution the
+>best choice is usually the support / bug tracking system of your
+>distribution.
+>
+>In your case, the problem seems to be already reported as Gentoo
+>bug #107680 [1].
+>
+>  
+>
+>>BTW, I am using gentoo and I also tried USE=old-crypt.
+>>No way!
+>>
+>>I needed to install the version 2.12i to recover
+>>my information.
+>>
+>>Is this related with util-linux or has something
+>>to do with gentoo patches or something?
+>>...
+>>    
+>>
+>
+>You are using features not present in the upstream util-linux but added 
+>by patches Gentoo applies.
+>
+>  
+>
+*I am very sorry*.
+At first I did not think this could be a problem of gentoo.
+It just came up to my mind when I was writing this post.
+That's why I added the lines refering 'gentoo'!
+I should have looked at gentoo first ...
+I'll be more carefull next time, if there is a next time :-(
 
-Nevermind, there is a real bug there in the sunsu driver.
-We drop/retake the lock when it's not actually held.
+Thank you anyway for your answer.
 
-The preempt debugging was good at catching this. :-)
+Paulo
 
-Please try this fix, thanks.
-
-diff-tree 62ba86fc7c72edc77a67e04b6fb593db5046cc92 (from baaf9033270c9cb10c1441195bc1a0a7665bee7e)
-Author: David S. Miller <davem@sunset.davemloft.net>
-Date:   Mon Oct 3 16:55:10 2005 -0700
-
-    [SUNSU]: Fix bogus locking in sunsu_change_mouse_baud()
-    
-    The lock is not held when calling this function, so we
-    shouldn't drop then reacquire it.
-    
-    Based upon a report from Jim MacBaine.
-    
-    Signed-off-by: David S. Miller <davem@davemloft.net>
-
-diff --git a/drivers/serial/sunsu.c b/drivers/serial/sunsu.c
---- a/drivers/serial/sunsu.c
-+++ b/drivers/serial/sunsu.c
-@@ -518,11 +518,7 @@ static void sunsu_change_mouse_baud(stru
- 
- 	quot = up->port.uartclk / (16 * new_baud);
- 
--	spin_unlock(&up->port.lock);
--
- 	sunsu_change_speed(&up->port, up->cflag, 0, quot);
--
--	spin_lock(&up->port.lock);
- }
- 
- static void receive_kbd_ms_chars(struct uart_sunsu_port *up, struct pt_regs *regs, int is_break)

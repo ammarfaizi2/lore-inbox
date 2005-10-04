@@ -1,67 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964941AbVJDTs6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964942AbVJDTty@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964941AbVJDTs6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 15:48:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964942AbVJDTs6
+	id S964942AbVJDTty (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 15:49:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964944AbVJDTtx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 15:48:58 -0400
-Received: from hobbit.corpit.ru ([81.13.94.6]:50513 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S964941AbVJDTs5 (ORCPT
+	Tue, 4 Oct 2005 15:49:53 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:29904 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964942AbVJDTtx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 15:48:57 -0400
-Message-ID: <4342DCB1.7080405@tls.msk.ru>
-Date: Tue, 04 Oct 2005 23:49:05 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
-Organization: Telecom Service, JSC
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050817)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: David Leimbach <leimy2k@gmail.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: /etc/mtab and per-process namespaces
-References: <3e1162e60510021508r6ef8e802p9f01f40fcf62faae@mail.gmail.com> <3e1162e60510041214t3afd803re27b742705d27900@mail.gmail.com> <20051004191818.GA31328@infradead.org>
-In-Reply-To: <20051004191818.GA31328@infradead.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 4 Oct 2005 15:49:53 -0400
+Date: Wed, 5 Oct 2005 01:13:49 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: "Christopher Friesen" <cfriesen@nortel.com>
+Cc: Al Viro <viro@ftp.linux.org.uk>, Roland Dreier <rolandd@cisco.com>,
+       Sonny Rao <sonny@burdell.org>, linux-kernel@vger.kernel.org,
+       "Theodore Ts'o" <tytso@mit.edu>, bharata@in.ibm.com,
+       trond.myklebust@fys.uio.no
+Subject: Re: dentry_cache using up all my zone normal memory -- also seen on 2.6.14-rc2
+Message-ID: <20051004194349.GA6039@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <4331B89B.3080107@nortel.com> <20050921200758.GA25362@kevlar.burdell.org> <4331C9B2.5070801@nortel.com> <20050921210019.GF4569@in.ibm.com> <4331CFAD.6020805@nortel.com> <52ll1qkrii.fsf@cisco.com> <20050922031136.GE7992@ftp.linux.org.uk> <43322AE6.1080408@nortel.com> <20050922041733.GF7992@ftp.linux.org.uk> <4332CAEA.1010509@nortel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4332CAEA.1010509@nortel.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> I suspect not one cares about /etc/mtab.  It's a pretty horrible
-> interface.  Use /proc/self/mounts if your care about the mount table
-> for your current namespace, it's guranteed uptodate.
+On Thu, Sep 22, 2005 at 09:16:58AM -0600, Christopher Friesen wrote:
+> Al Viro wrote:
+> 
+> >Umm...   How many RCU callbacks are pending?
+> 
+> I added an atomic counter that is incremented just before call_rcu() in 
+> d_free(), and decremented just after kmem_cache_free() in d_callback().
+> 
+> According to this we had 4127306 pending rcu callbacks.  A few seconds 
+> later it was down to 0.
+> 
+> 
+> /proc/sys/fs/dentry-state:
+> 1611    838     45      0       0       0
+> 
 
-Well, it's uptodate, but it isn't the same as mtab.  Like:
+Hmm.. This clearly indicates that there are very few allocated dentries
+and they are just not returned to slab by RCU.
 
-   /tmp/test on /mnt/test type ext2 (rw,loop=/dev/loop/0)
-(mtab), vs
-   /dev/loop/0 /mnt/test ext2 rw 0 0
+Since then, I have done some testing myself, but I can't reproduce
+this problem in two of my systems - x86 and x86_64. I ran rename14
+in a loop too, but after exhausting a lot of free memory, dcache
+does get shrunk and I don't see dentries stuck in RCU queues at all.
+I tried UP kernel too.
 
-or:
+So, there must be something else in your system that I
+am missing in my setup. Could you please mail me your .config ?
 
-  tmpfs on /dev type tmpfs (rw,size=10M,mode=0755)
-vs
-  tmpfs /dev tmpfs rw 0 0
-
-ie, sometimes, mtab format is more useful.  Also, with the
-above example with loop device, umount is able to delete the
-loop device for loop-mounts.
-
-Another funky example:
-
-   losetup /dev/loop/0 /tmp/test
-   cd /dev/loop
-   mount 0 /mnt/test
-
-now, mtab shows:
-
-   /dev/loop/0 /mnt/test ext2 rw 0 0
-
-while /proc/mounts shows
-
-   0 /mnt/test ext2 rw 0 0
-
-which is rather useless.
-
-/mjt
+Thanks
+Dipankar

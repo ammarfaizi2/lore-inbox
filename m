@@ -1,100 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750921AbVJDJQc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751200AbVJDJ2h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750921AbVJDJQc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 05:16:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751188AbVJDJQc
+	id S1751200AbVJDJ2h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 05:28:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbVJDJ2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 05:16:32 -0400
-Received: from gate.crashing.org ([63.228.1.57]:24749 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1750921AbVJDJQc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 05:16:32 -0400
-Subject: Re: [PATCH] ppc64: Add cpufreq support for SMU based G5
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Eric Piel <Eric.Piel@lifl.fr>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>
-In-Reply-To: <43424202.7070600@lifl.fr>
-References: <1128403842.31063.24.camel@gaston>  <43424202.7070600@lifl.fr>
-Content-Type: text/plain
-Date: Tue, 04 Oct 2005 19:12:24 +1000
-Message-Id: <1128417145.6291.25.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Tue, 4 Oct 2005 05:28:37 -0400
+Received: from smtpa1.netcabo.pt ([212.113.174.16]:12209 "EHLO
+	exch01smtp03.hdi.tvcabo") by vger.kernel.org with ESMTP
+	id S1751200AbVJDJ2g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 05:28:36 -0400
+Message-ID: <43424B7C.9020508@rncbc.org>
+Date: Tue, 04 Oct 2005 10:29:32 +0100
+From: Rui Nuno Capela <rncbc@rncbc.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org
+Subject: tsc_c3_compensate undefined since patch-2.6.13-rt13
+References: <20050901072430.GA6213@elte.hu> <1125571335.15768.21.camel@localhost.localdomain> <20051003065032.GA23777@elte.hu>
+In-Reply-To: <20051003065032.GA23777@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 04 Oct 2005 09:28:24.0450 (UTC) FILETIME=[F7FB9620:01C5C8C5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I know only very little about cpufreq, probably you could post your 
-> patch to the cpufreq mailing list for better review : 
-> cpufreq@lists.linux.org.uk (you may have to subscride before posting, 
-> don't remember).
+Ingo,
 
-I should probably have CC'd it... oh well, this isn't terribly important
-at this point but I'll do if I post a new release. It's powermac
-specific anyway.
+I'll take this late opportunity to report something that have been 
+looking suspicious since 2.6.13-rt13, inclusive, about this symbol of 
+tsc_c3_compensate being undefined and causing some noise on all kernel 
+builds since then.
 
-> For what have seen, your patch looks pretty good in general. However, is 
-> this kind of CPU only in one CPU machines? 
+To put things in brief, here follows a small exchange that took place on 
+the linux-audio-user list, regarding this thingie. Apparently for Mark, 
+it was a kernel build showstopper.
 
-So far, only single CPU machines shipped with an SMU.
 
-> Your patch doesn't seem 
-> support SMP, then it's probably safer to prevent compilation on an SMP 
-> kernel in the Makefile? Or you can add SMP support (shouldn't be so hard 
-> in theory, but with no hardware to test it might be pointless), you can 
-> have a look at other drivers that support it, like in 
-> arch/i386/kernel/cpu/cpufreq/p4-clockmod.c .
+Mark Knecht wrote:
+ > Hi there,
+ >   I have a newish AMD64 machine. NForce4 chipset. Asus A8N-E
+ > motherboard. PCI-Express 16x graphics, etc. No matter what I try I've
+ > been constantly stopped from building a 2.6.13 kernel with Ingo's rt14
+ > patch.
+ >
+ > Here's the error message:
+ >
+ >  AS      arch/x86_64/lib/copy_user.o
+ >   AS      arch/x86_64/lib/csum-copy.o
+ >   CC      arch/x86_64/lib/csum-partial.o
+ >   CC      arch/x86_64/lib/csum-wrappers.o
+ >  CC      arch/x86_64/lib/dec_and_lock.o
+ >  CC      arch/x86_64/lib/delay.o
+ >   AS      arch/x86_64/lib/getuser.o
+ >   AS      arch/x86_64/lib/putuser.o
+ >  AS      arch/x86_64/lib/thunk.o
+ >   CC      arch/x86_64/lib/usercopy.o
+ >  AR      arch/x86_64/lib/lib.a
+ >  GEN     .version
+ >   CHK     include/linux/compile.h
+ >   UPD     include/linux/compile.h
+ >   CC      init/version.o
+ >   LD      init/built-in.o
+ >   LD      .tmp_vmlinux1
+ > drivers/built-in.o(.text+0x24acc): In function `acpi_processor_idle':
+ > : undefined reference to `tsc_c3_compensate'
+ > make: *** [.tmp_vmlinux1] Error 1
+ > lightning linux #
+ >
+ > The 2.6.13 kernel builds fine before I apply the patch but fails 
+afterward.
+ >
+ > I do not find the error message
+ >
+ > undefined reference to `tsc_c3_compensate'
+ >
+ > in Google so maybe it's just me and my kernel config. I've attached
+ > the config file zipped. I've tried some obvious stuff like completely
+ > disabling ACPI, etc., but I haven't found anything that works yet.
+ >
+ > Thanks in advance for any ideas. This has held up my new AMD64 machine
+ > being useful for a few weeks now.
+ >
 
-There are several problems (and that leads to problems in the cpufreq
-core too btw). The problem with the cpufreq core is that it disables
-adjusting of loops_per_jiffies when CONFIG_SMP is set. That can lead to
-pretty disastrous results when running an SMP kernel on a laptop...
-Fortunately, the driver provided by this patch doesn't need it as ppc64
-has constants loops_per_jiffies (it uses the HW timebase which doesn't
-change frequency).
+I'm spotting a very similar message when building 2.6.13.x-rt14, but as 
+a module linkage warning, not a fatal build error.
 
-The other problem is that the 970FX "PowerTune" mecanism will actually
-broadcast messages to the bus that sync all CPUs to the same speed. That
-is, all CPUs in the machine will always change frequency simultaneously,
-thus the whole SMP stuff doesn't make that much sense, and I'm not sure
-how to "inform" the cpufreq core of that fact (that changing one CPU
-actually triggered a change of all of them).
+Maybe that's because I try to configure _everything_ I can as a module, 
+not as built-in. As this has been just a warning on the module install 
+phase I got along and all seems to boot and run fine -- except for some 
+acpi stuff e.g. I've lost thermal zone sensor on my laptop, but that 
+didn't look like a big deal.
 
-But as I wrote earlier, there is currently no PowerMac SMP machine that
-has an SMU chip and a 970FX to which this driver would apply.
+Yep, that's it... I found the exact messages in my attic, although from 
+an erlier build:
 
-Finally, as for preventing build with CONFIG_SMP, I think distros would
-kill me as I don't know any of them who intends to ship a G5 kernel with
-CONFIG_SMP disabled :)
+WARNING: 
+/lib/modules/2.6.13.1-rt13.0mdk/kernel/drivers/char/hangcheck-timer.ko 
+needs unknown symbol do_monotonic_clock
+WARNING: 
+/lib/modules/2.6.13.1-rt13.0mdk/kernel/drivers/acpi/processor.ko needs 
+unknown symbol tsc_c3_compensate
 
-> Just a little more thing, concerning:
-> +	policy->cpuinfo.transition_latency = CPUFREQ_ETERNAL;
-> Could you have a look if you could find the real info about how long it 
-> takes to change the speed (put the worse case latency)?
 
-I didn't find. Apple didn't bother putting it in the OF device-tree
-afaik, and while it might be in one of the undocumented SMU data
-partitions, I have no way to know. The problem isn't the frequency
-switch per-se which is extremely fast (and I could know), but the
-voltage switch that goes with it. I suppose I could measure and put an
-overestimated value in there, but that isn't critical for now. userland
-powernowd & friends work fine and I need the reduced frequency mostly
-for the thermal control driver so it can clamp it down when the CPU
-overtemps.
+How about reporting to Ingo and/or the lkml? As you can see its not an 
+AMD64 issue, because I don't have such a beast here.
 
->  Maybe the info 
-> can be found in some parts of the ROM you read? I don't know if 
-> conservative or ondemand governors are supposed to be able to mix with 
-> your code (especially wrt Windfarm) but not putting this info will 
-> prevent them from ever working...
+Bye.
+-- 
+rncbc aka Rui Nuno Capela
+rncbc@rncbc.org
 
-Which is what I want for now, until I find out more about how well I can
-make them to work with those machines :)
-
-Let's call that a "conservative" approach ;)
-
-Ben.
 
 

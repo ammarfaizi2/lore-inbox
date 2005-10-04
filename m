@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932511AbVJDO5J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932521AbVJDO57@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932511AbVJDO5J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 10:57:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932521AbVJDO5I
+	id S932521AbVJDO57 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 10:57:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932524AbVJDO57
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 10:57:08 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:48347 "EHLO
+	Tue, 4 Oct 2005 10:57:59 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:49371 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932511AbVJDO5H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 10:57:07 -0400
+	id S932521AbVJDO56 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 10:57:58 -0400
 To: Andrew Morton <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>
-Subject: Subject: [PATCH] i386 io_apic.c: Memorize at bootup where the i8259
- is connected
+Subject: [PATCH] x86_64 io_apic.c: Memorize at bootup where the i8259 is
+ connected
 From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 04 Oct 2005 08:55:40 -0600
-Message-ID: <m1slvh8h77.fsf@ebiederm.dsl.xmission.com>
+Date: Tue, 04 Oct 2005 08:56:35 -0600
+Message-ID: <m1oe658h5o.fsf@ebiederm.dsl.xmission.com>
 User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -25,8 +25,8 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Currently we attempt to restore virtual wire mode on reboot, which
 only works if we can figure out where the i8259 is connected.  This
-is very useful when we kexec another kernel and likely helpful
-when dealing with a BIOS that make assumptions about how the system is setup.
+is very useful when we are kexec another kernel and likely helpful
+to an peculiar BIOS that make assumptions about how the system is setup.
 
 Since the acpi MADT table does not provide the location where the i8259
 is connected we have to look at the hardware to figure it out.
@@ -37,7 +37,7 @@ should be able to use kexec now.
 
 In addition this patch removes the hard coded assumption that the
 io_apic that delivers isa interrups is always known to the kernel
-as io_apic 0.  As there does not appear to be anything to guarantee
+as io_apic 0.  There does not appear to be anything to guarantee
 that assumption is true.
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
@@ -45,16 +45,16 @@ Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 
 ---
 
- arch/i386/kernel/io_apic.c |  146 +++++++++++++++++++++++++++++++++-----------
- 1 files changed, 111 insertions(+), 35 deletions(-)
+ arch/x86_64/kernel/io_apic.c |  140 ++++++++++++++++++++++++++++++++----------
+ 1 files changed, 105 insertions(+), 35 deletions(-)
 
-8fa6b5d66cb7adbc9298a378e292b9f2bfcd7c19
-diff --git a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
---- a/arch/i386/kernel/io_apic.c
-+++ b/arch/i386/kernel/io_apic.c
-@@ -46,6 +46,9 @@
- int (*ioapic_renumber_irq)(int ioapic, int irq);
- atomic_t irq_mis_count;
+a25d18a4d21556b3485731956fc768052967630c
+diff --git a/arch/x86_64/kernel/io_apic.c b/arch/x86_64/kernel/io_apic.c
+--- a/arch/x86_64/kernel/io_apic.c
++++ b/arch/x86_64/kernel/io_apic.c
+@@ -46,6 +46,9 @@ static int no_timer_check;
+ 
+ int disable_timer_pin_1 __initdata;
  
 +/* Where if anywhere is the i8259 connect in external int mode */
 +static struct { int pin, apic; } ioapic_i8259 = { -1, -1 };
@@ -62,7 +62,7 @@ diff --git a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
  static DEFINE_SPINLOCK(ioapic_lock);
  
  /*
-@@ -738,7 +741,7 @@ static int find_irq_entry(int apic, int 
+@@ -359,7 +362,7 @@ static int find_irq_entry(int apic, int 
  /*
   * Find the pin to which IRQ[irq] (ISA) is connected
   */
@@ -71,7 +71,7 @@ diff --git a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
  {
  	int i;
  
-@@ -758,6 +761,33 @@ static int find_isa_irq_pin(int irq, int
+@@ -377,6 +380,31 @@ static int find_isa_irq_pin(int irq, int
  	return -1;
  }
  
@@ -84,9 +84,7 @@ diff --git a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
 +
 +		if ((mp_bus_id_to_type[lbus] == MP_BUS_ISA ||
 +		     mp_bus_id_to_type[lbus] == MP_BUS_EISA ||
-+		     mp_bus_id_to_type[lbus] == MP_BUS_MCA ||
-+		     mp_bus_id_to_type[lbus] == MP_BUS_NEC98
-+		    ) &&
++		     mp_bus_id_to_type[lbus] == MP_BUS_MCA) &&
 +		    (mp_irqs[i].mpc_irqtype == type) &&
 +		    (mp_irqs[i].mpc_srcbusirq == irq))
 +			break;
@@ -105,16 +103,16 @@ diff --git a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
  /*
   * Find a specific PCI IRQ entry.
   * Not an __init, possibly needed by modules
-@@ -1253,7 +1283,7 @@ static void __init setup_IO_APIC_irqs(vo
- /*
-  * Set up the 8259A-master output pin:
+@@ -809,7 +837,7 @@ static void __init setup_IO_APIC_irqs(vo
+  * Set up the 8259A-master output pin as broadcast to all
+  * CPUs.
   */
 -static void __init setup_ExtINT_IRQ0_pin(unsigned int pin, int vector)
 +static void __init setup_ExtINT_IRQ0_pin(unsigned int apic, unsigned int pin, int vector)
  {
  	struct IO_APIC_route_entry entry;
  	unsigned long flags;
-@@ -1287,8 +1317,8 @@ static void __init setup_ExtINT_IRQ0_pin
+@@ -843,8 +871,8 @@ static void __init setup_ExtINT_IRQ0_pin
  	 * Add it to the IO-APIC irq-routing table:
  	 */
  	spin_lock_irqsave(&ioapic_lock, flags);
@@ -125,7 +123,7 @@ diff --git a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
  	spin_unlock_irqrestore(&ioapic_lock, flags);
  
  	enable_8259A_irq(0);
-@@ -1595,7 +1625,8 @@ void /*__init*/ print_PIC(void)
+@@ -1123,7 +1151,8 @@ void __apicdebuginit print_PIC(void)
  static void __init enable_IO_APIC(void)
  {
  	union IO_APIC_reg_01 reg_01;
@@ -135,7 +133,7 @@ diff --git a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
  	unsigned long flags;
  
  	for (i = 0; i < PIN_MAP_SIZE; i++) {
-@@ -1609,11 +1640,52 @@ static void __init enable_IO_APIC(void)
+@@ -1137,11 +1166,48 @@ static void __init enable_IO_APIC(void)
  	/*
  	 * The number of IO-APIC IRQ registers (== #pins):
  	 */
@@ -171,10 +169,6 @@ diff --git a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
 +	}
 + found_i8259:
 +	/* Look to see what if the MP table has reported the ExtINT */
-+	/* If we could not find the appropriate pin by looking at the ioapic
-+	 * the i8259 probably is not connected the ioapic but give the
-+	 * mptable a chance anyway.
-+	 */
 +	i8259_pin  = find_isa_irq_pin(0, mp_ExtINT);
 +	i8259_apic = find_isa_irq_apic(0, mp_ExtINT);
 +	/* Trust the MP table if nothing is setup in the hardware */
@@ -191,7 +185,7 @@ diff --git a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
  	}
  
  	/*
-@@ -1627,7 +1699,6 @@ static void __init enable_IO_APIC(void)
+@@ -1155,7 +1221,6 @@ static void __init enable_IO_APIC(void)
   */
  void disable_IO_APIC(void)
  {
@@ -199,7 +193,7 @@ diff --git a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
  	/*
  	 * Clear the IO-APIC before rebooting:
  	 */
-@@ -1638,8 +1709,7 @@ void disable_IO_APIC(void)
+@@ -1166,8 +1231,7 @@ void disable_IO_APIC(void)
  	 * Put that IOAPIC in virtual wire mode
  	 * so legacy interrupts can be delivered.
  	 */
@@ -209,7 +203,7 @@ diff --git a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
  		struct IO_APIC_route_entry entry;
  		unsigned long flags;
  
-@@ -1650,7 +1720,7 @@ void disable_IO_APIC(void)
+@@ -1178,21 +1242,22 @@ void disable_IO_APIC(void)
  		entry.polarity        = 0; /* High */
  		entry.delivery_status = 0;
  		entry.dest_mode       = 0; /* Physical */
@@ -218,24 +212,26 @@ diff --git a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
  		entry.vector          = 0;
  		entry.dest.physical.physical_dest = 0;
  
-@@ -1659,11 +1729,13 @@ void disable_IO_APIC(void)
+-
+ 		/*
  		 * Add it to the IO-APIC irq-routing table:
  		 */
  		spin_lock_irqsave(&ioapic_lock, flags);
 -		io_apic_write(0, 0x11+2*pin, *(((int *)&entry)+1));
 -		io_apic_write(0, 0x10+2*pin, *(((int *)&entry)+0));
-+		io_apic_write(ioapic_i8259.apic, 0x11+2*ioapic_i8259.pin,
++		io_apic_write(ioapic_i8259.apic, 0x11+2*ioapic_i8259.pin, 
 +			*(((int *)&entry)+1));
-+		io_apic_write(ioapic_i8259.apic, 0x10+2*ioapic_i8259.pin,
++		io_apic_write(ioapic_i8259.apic, 0x10+2*ioapic_i8259.pin, 
 +			*(((int *)&entry)+0));
  		spin_unlock_irqrestore(&ioapic_lock, flags);
  	}
+ 
 -	disconnect_bsp_APIC(pin != -1);
 +	disconnect_bsp_APIC(ioapic_i8259.pin != -1);
  }
  
  /*
-@@ -2113,20 +2185,21 @@ static void setup_nmi (void)
+@@ -1561,20 +1626,21 @@ static void setup_nmi (void)
   */
  static inline void unlock_ExtINT_logic(void)
  {
@@ -262,7 +258,7 @@ diff --git a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
  
  	memset(&entry1, 0, sizeof(entry1));
  
-@@ -2139,8 +2212,8 @@ static inline void unlock_ExtINT_logic(v
+@@ -1587,8 +1653,8 @@ static inline void unlock_ExtINT_logic(v
  	entry1.vector = 0;
  
  	spin_lock_irqsave(&ioapic_lock, flags);
@@ -273,7 +269,7 @@ diff --git a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
  	spin_unlock_irqrestore(&ioapic_lock, flags);
  
  	save_control = CMOS_READ(RTC_CONTROL);
-@@ -2158,11 +2231,11 @@ static inline void unlock_ExtINT_logic(v
+@@ -1606,11 +1672,11 @@ static inline void unlock_ExtINT_logic(v
  
  	CMOS_WRITE(save_control, RTC_CONTROL);
  	CMOS_WRITE(save_freq_select, RTC_FREQ_SELECT);
@@ -288,7 +284,7 @@ diff --git a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
  	spin_unlock_irqrestore(&ioapic_lock, flags);
  }
  
-@@ -2174,7 +2247,7 @@ static inline void unlock_ExtINT_logic(v
+@@ -1622,7 +1688,7 @@ static inline void unlock_ExtINT_logic(v
   */
  static inline void check_timer(void)
  {
@@ -297,24 +293,24 @@ diff --git a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
  	int vector;
  
  	/*
-@@ -2196,10 +2269,13 @@ static inline void check_timer(void)
- 	timer_ack = 1;
+@@ -1643,10 +1709,13 @@ static inline void check_timer(void)
+ 	init_8259A(1);
  	enable_8259A_irq(0);
  
 -	pin1 = find_isa_irq_pin(0, mp_INT);
 -	pin2 = find_isa_irq_pin(0, mp_ExtINT);
-+	pin1  = find_isa_irq_pin(0, mp_INT);
++	pin1  = find_isa_irq_pin(0, mp_INT); 
 +	apic1 = find_isa_irq_apic(0, mp_INT);
 +	pin2  = ioapic_i8259.pin;
 +	apic2 = ioapic_i8259.apic;
  
--	printk(KERN_INFO "..TIMER: vector=0x%02X pin1=%d pin2=%d\n", vector, pin1, pin2);
-+	printk(KERN_INFO "..TIMER: vector=0x%02X apic1=%d pin1=%d apic2=%d pin2=%d\n", 
+-	apic_printk(APIC_VERBOSE,KERN_INFO "..TIMER: vector=0x%02X pin1=%d pin2=%d\n", vector, pin1, pin2);
++	apic_printk(APIC_VERBOSE,KERN_INFO "..TIMER: vector=0x%02X apic1=%d pin1=%d apic2=%d pin2=%d\n", 
 +		vector, apic1, pin1, apic2, pin2);
  
  	if (pin1 != -1) {
  		/*
-@@ -2213,10 +2289,10 @@ static inline void check_timer(void)
+@@ -1661,20 +1730,21 @@ static inline void check_timer(void)
  				enable_8259A_irq(0);
  			}
  			if (disable_timer_pin_1 > 0)
@@ -324,10 +320,14 @@ diff --git a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
  		}
 -		clear_IO_APIC_pin(0, pin1);
 +		clear_IO_APIC_pin(apic1, pin1);
- 		printk(KERN_ERR "..MP-BIOS bug: 8254 timer not connected to IO-APIC\n");
+ 		apic_printk(APIC_QUIET,KERN_ERR "..MP-BIOS bug: 8254 timer not connected to IO-APIC\n");
  	}
  
-@@ -2226,13 +2302,13 @@ static inline void check_timer(void)
+ 	apic_printk(APIC_VERBOSE,KERN_INFO "...trying to set up timer (IRQ0) through the 8259A ... ");
+ 	if (pin2 != -1) {
+-		apic_printk(APIC_VERBOSE,"\n..... (found pin %d) ...", pin2);
++		apic_printk(APIC_VERBOSE,"\n..... (found apic %d pin %d) ...", 
++			apic2, pin2);
  		/*
  		 * legacy devices should be connected to IO APIC #0
  		 */
@@ -335,16 +335,8 @@ diff --git a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
 +		setup_ExtINT_IRQ0_pin(apic2, pin2, vector);
  		if (timer_irq_works()) {
  			printk("works.\n");
- 			if (pin1 != -1)
--				replace_pin_at_irq(0, 0, pin1, 0, pin2);
-+				replace_pin_at_irq(0, apic1, pin1, apic2, pin2);
- 			else
--				add_pin_to_irq(0, 0, pin2);
-+				add_pin_to_irq(0, apic2, pin2);
- 			if (nmi_watchdog == NMI_IO_APIC) {
- 				setup_nmi();
- 			}
-@@ -2241,7 +2317,7 @@ static inline void check_timer(void)
+ 			nmi_watchdog_default();
+@@ -1686,7 +1756,7 @@ static inline void check_timer(void)
  		/*
  		 * Cleanup, just in case ...
  		 */

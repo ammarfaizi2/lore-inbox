@@ -1,74 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964921AbVJDTAw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964897AbVJDTBg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964921AbVJDTAw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 15:00:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964922AbVJDTAw
+	id S964897AbVJDTBg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 15:01:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964920AbVJDTBg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 15:00:52 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:60049 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964920AbVJDTAv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 15:00:51 -0400
-Date: Tue, 4 Oct 2005 20:00:48 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: "Vladimir V. Saveliev" <vs@namesys.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ReiserFS Mailing List <reiserfs-list@namesys.com>,
-       Hans Reiser <reiser@namesys.com>
-Subject: Re: I request inclusion of reiser4 in the mainline kernel
-Message-ID: <20051004190048.GA30832@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Vladimir V. Saveliev" <vs@namesys.com>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	ReiserFS Mailing List <reiserfs-list@namesys.com>,
-	Hans Reiser <reiser@namesys.com>
-References: <432AFB44.9060707@namesys.com> <20050916174028.GA32745@infradead.org> <43380DD8.8010200@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 4 Oct 2005 15:01:36 -0400
+Received: from mx2.suse.de ([195.135.220.15]:16103 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964897AbVJDTBf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 15:01:35 -0400
+From: Andi Kleen <ak@suse.de>
+To: Tejun Heo <htejun@gmail.com>
+Subject: Re: Question regarding x86_64 __PHYSICAL_MASK_SHIFT
+Date: Tue, 4 Oct 2005 21:01:44 +0200
+User-Agent: KMail/1.8.2
+Cc: lkml <linux-kernel@vger.kernel.org>, discuss@x86-64.org
+References: <43426EB4.6080703@gmail.com> <200510041924.56772.ak@suse.de> <20051004185230.GA8431@htj.dyndns.org>
+In-Reply-To: <20051004185230.GA8431@htj.dyndns.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <43380DD8.8010200@namesys.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200510042101.44946.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 26, 2005 at 07:03:52PM +0400, Vladimir V. Saveliev wrote:
-> >  - you still do your plugin mess in ->readpage.  honsetly could you
-> >    please explain why mpage_readpage{,s} don't work for you?
-> 
-> The reason is performance. Reiser4 uses a search through the filesystem tree to
-> access metadata of a file.
-> If reiser4 implemented its read/write via generic functions it would have to
-> repeat the search for every page being read/written.
-> It is especially disappointing because reiser4 uses extents with which it is
-> able in most cases to find all file pointers to data blocks with only one search
-> through the tree.
-> Another reason is multithread load.
-> Tree search includes complex part of providing correct concurrent read/write
-> access to the tree including deadlock avoidance algorithm. On multithread
-> filesystem load minimizing of a number of tree searches should have improved
-> filesystem throughput.
-> 
-> These are on todo list yet.
+On Tuesday 04 October 2005 20:52, Tejun Heo wrote:
+>  Hello, Andi.
+>
+> On Tue, Oct 04, 2005 at 07:24:56PM +0200, Andi Kleen wrote:
+> > You're right - PHYSICAL_MASK shouldn't be applied to PFNs, only to full
+> > addresses. Fixed with appended patch.
+> >
+> > The 46bits limit is because half of the 48bit virtual space
+> > is used for user space and the other 47 bit half is divided into
+> > direct mapping and other mappings (ioremap, vmalloc etc.). All
+> > physical memory has to fit into the direct mapping, so you
+> > end with a 46 bit limit.
+>
+>  __PHYSICAL_MASK is only used to mask out non-pfn bits from page table
+> entries.  I don't really see how it's related to virtual space
+> construction.
 
-Let's start with the read side.  You are using the generic sendfile now
-which is the same as the generic read routine as far as the filesystem
-is concerned.  What more do you need for read performance than a proper
-mpage_readpage(s) that can use the extent-enabled get_blocks callback?
-I'll post a patch for that ASAP, it benefits the other filesystems aswell.
+Any other bits are not needed and should be pte_bad()ed.
 
-I know the write path is more complex, and doing your on ->writepage(s)
-is fine because that may need to do a lot of FS-specific things.  I'd
-really like to see you use generic_file_write or at least the major
-routines it's built from.  What's missing for you to do that?  Note
-that you read/write path will need a major rewrite anyway due to the
-flaws I pointed out, and I think it would benefit both you (less
-maintaince overhead, feature and bug parity) and the other
-filesystem/vfs/vm hackers (less duplicate functionality to worry about,
-improvement you make shared by every filesystem) if you tried to
-converge to use common code.
+Ok there could be IO mappings beyond 46bits in theory, but I will worry about
+these when they happen. For now it's better to error out to easier detect
+memory corruptions in page tables (some x86-64 CPUs tend to machine
+check when presented with unmapped physical addresses, which 
+is nasty to track down) 
 
+>
+> > See also Documentation/x86-64/mm.txt
+>
+>  Thanks.  :-)
+>
+>  I think PHYSICAL_PAGE_MASK and PTE_FILE_MAX_BITS should also be
+> updated.  How about the following patch?  Compile & boot tested.
 
+No, I think the existing code with my patch is fine.
+
+-Andi

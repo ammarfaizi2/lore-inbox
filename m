@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbVJDN0r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932371AbVJDN1R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932293AbVJDN0r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 09:26:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbVJDN0r
+	id S932371AbVJDN1R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 09:27:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbVJDN1R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 09:26:47 -0400
-Received: from ns.solnet.cz ([193.165.198.50]:23745 "EHLO solnet.cz")
-	by vger.kernel.org with ESMTP id S932293AbVJDN0q (ORCPT
+	Tue, 4 Oct 2005 09:27:17 -0400
+Received: from cantor.suse.de ([195.135.220.2]:39060 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932371AbVJDN1Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 09:26:46 -0400
-X-AntiVirus: scanned for viruses by soLNet AVirCheck 2.0.31 (http://www.solnet.cz/avircheck)
-Message-ID: <43428305.9060106@solnet.cz>
-Date: Tue, 04 Oct 2005 15:26:29 +0200
-From: Martin <martin.povolny@solnet.cz>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050912)
-X-Accept-Language: en-us, en
+	Tue, 4 Oct 2005 09:27:16 -0400
+To: Rohit Seth <rohit.seth@intel.com>
+Cc: akpm@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: Clean up of __alloc_pages
+References: <20051001120023.A10250@unix-os.sc.intel.com>
+	<Pine.LNX.4.62.0510030828400.7812@schroedinger.engr.sgi.com>
+	<1128358558.8472.13.camel@akash.sc.intel.com>
+	<Pine.LNX.4.62.0510030952520.8266@schroedinger.engr.sgi.com>
+	<1128361714.8472.44.camel@akash.sc.intel.com>
+From: Andi Kleen <ak@suse.de>
+Date: 04 Oct 2005 15:27:08 +0200
+In-Reply-To: <1128361714.8472.44.camel@akash.sc.intel.com>
+Message-ID: <p733bnh1kgj.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Andreas Gruenbacher <agruen@suse.de>
-Subject: NFSACL protocol extension for NFSv3
-Face: iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAAGFBMVEUgICCWlpbU1NRhYWFC
- QkK1tbV8fHz///86/WVWAAAAAWJLR0QAiAUdSAAAAfdJREFUeJyNk0Fv2zAMhZlZSK4T7HLXYZdd
- bVDQrgIk+O4NTa8hpHLXbFiRvz/KbR2l24ApQA78TPKReoLLPw78BzjD38EZ6nn4A3xc4wRvAbyc
- AIcbcAaz/hTALUihBpW9przyGk0uGU1qwRmShg2ElELYHTagSpNxWszU9vtwBaEW78iLS4Hi2GTU
- 2l6EUFFqMjSevGRRlOFZMLyITTF7YZ5EQgO0dyQFerLQW6Dfo2X2AvBhA8F09Xu2yJLHdURYRYUQ
- tYOV9biwAdUaBZEtI0o+NRkGaoK9s9bqJA3Q6bJ4XpZ7a31peyiImfydzbpieLeBBFT4HkULWetu
- MsQjdJF7l3zewAVm48ml2U8DQSgN2DkvdYopSy9l3EAnhTzqcv2gCxiu9wFLIUHRdfS6/NJcFA8k
- Wgy9/rP7fgUykFe5NCFZLI0Z5iF6e+Q8fSNuwWV/nLUrCqk6boFJ3mtrQl2LtADMrJqEF01ighZE
- ecyJUnTdXQvOXURmevz09H6ypQWawUsfSBwfx6bHL3PS+Sz2FC2OjdsBTh1mW/fICDcAzZTZ9ip6
- aIBeOrp9X0estroBLJAnWY7q0OuL+rnaqphZPZpD+zgB9urOoprRta+2+kq1sgahg8PTBurD3y2L
- GlS3C5fPz+Drj1CBqe5E8SOYLyv4DQWvW+fLp0dWAAAAAElFTkSuQmCC
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo,
+Rohit Seth <rohit.seth@intel.com> writes:
+> 
+> I think conceptually this ask for a new flag __GFP_NODEONLY that
+> indicate allocations to come from current node only. 
+> 
+> This definitely though means I will need to separate out the allocation
+> from pcp patch (as Nick suggested earlier).
 
-sorry for bothering, just a question: is there a chance for NFSACL
-from -mm tree to be merged into main tree soon?
+This reminds me - the current logic is currently a bit suboptimal on
+many NUMA systems. Often it would be better to be a bit more
+aggressive at freeing memory (maybe do a very low overhead light try to
+free pages) in the first node before falling back to other nodes. What
+right now happens is that when you have even minor memory pressure
+because e.g. you node is filled up with disk cache the local memory
+affinity doesn't work too well anymore.
 
-I am especially interested in the nfsacl-umask.diff part (ignoring
-umask in directories with default ACL).
-
-Regards,
-
--- 
-Mgr. Martin Povolný, soLNet, s.r.o.,
-+420777714458, <martin.povolny@solnet.cz>
-
+-Andi

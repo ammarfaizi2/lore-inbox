@@ -1,60 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964942AbVJDTty@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964944AbVJDTwr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964942AbVJDTty (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 15:49:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964944AbVJDTtx
+	id S964944AbVJDTwr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 15:52:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964945AbVJDTwr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 15:49:53 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:29904 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964942AbVJDTtx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 15:49:53 -0400
-Date: Wed, 5 Oct 2005 01:13:49 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: "Christopher Friesen" <cfriesen@nortel.com>
-Cc: Al Viro <viro@ftp.linux.org.uk>, Roland Dreier <rolandd@cisco.com>,
-       Sonny Rao <sonny@burdell.org>, linux-kernel@vger.kernel.org,
-       "Theodore Ts'o" <tytso@mit.edu>, bharata@in.ibm.com,
-       trond.myklebust@fys.uio.no
-Subject: Re: dentry_cache using up all my zone normal memory -- also seen on 2.6.14-rc2
-Message-ID: <20051004194349.GA6039@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <4331B89B.3080107@nortel.com> <20050921200758.GA25362@kevlar.burdell.org> <4331C9B2.5070801@nortel.com> <20050921210019.GF4569@in.ibm.com> <4331CFAD.6020805@nortel.com> <52ll1qkrii.fsf@cisco.com> <20050922031136.GE7992@ftp.linux.org.uk> <43322AE6.1080408@nortel.com> <20050922041733.GF7992@ftp.linux.org.uk> <4332CAEA.1010509@nortel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 4 Oct 2005 15:52:47 -0400
+Received: from zproxy.gmail.com ([64.233.162.205]:46603 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964944AbVJDTwq convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 15:52:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=k2UNAUfLDHUz0g1uN4ERL14sABhoClQt//4fazhS1wi5YsC6YHnITCiAh5zWWu+vd/DBeZ8wnH5XOT6U1RKJhYj9lZ4dPs1cJ+7j9oaJTnA8smAT/Bw8K9mXFyPty6Hvtkdmf2S2rNbhSR7YO9Itw1ag82KzUfItAFPaoqWtNDc=
+Message-ID: <3e1162e60510041252u286cb069jcfd589b9a0320232@mail.gmail.com>
+Date: Tue, 4 Oct 2005 12:52:45 -0700
+From: David Leimbach <leimy2k@gmail.com>
+Reply-To: David Leimbach <leimy2k@gmail.com>
+To: Christoph Hellwig <hch@infradead.org>, David Leimbach <leimy2k@gmail.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: /etc/mtab and per-process namespaces
+In-Reply-To: <20051004191818.GA31328@infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <4332CAEA.1010509@nortel.com>
-User-Agent: Mutt/1.5.10i
+References: <3e1162e60510021508r6ef8e802p9f01f40fcf62faae@mail.gmail.com>
+	 <3e1162e60510041214t3afd803re27b742705d27900@mail.gmail.com>
+	 <20051004191818.GA31328@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 22, 2005 at 09:16:58AM -0600, Christopher Friesen wrote:
-> Al Viro wrote:
-> 
-> >Umm...   How many RCU callbacks are pending?
-> 
-> I added an atomic counter that is incremented just before call_rcu() in 
-> d_free(), and decremented just after kmem_cache_free() in d_callback().
-> 
-> According to this we had 4127306 pending rcu callbacks.  A few seconds 
-> later it was down to 0.
-> 
-> 
-> /proc/sys/fs/dentry-state:
-> 1611    838     45      0       0       0
-> 
+On 10/4/05, Christoph Hellwig <hch@infradead.org> wrote:
+> I suspect not one cares about /etc/mtab.  It's a pretty horrible
+> interface.  Use /proc/self/mounts if your care about the mount table
+> for your current namespace, it's guranteed uptodate.
+>
+>
 
-Hmm.. This clearly indicates that there are very few allocated dentries
-and they are just not returned to slab by RCU.
+Hmmm that works pretty well, but it's lacking in some ways.
 
-Since then, I have done some testing myself, but I can't reproduce
-this problem in two of my systems - x86 and x86_64. I ran rename14
-in a loop too, but after exhausting a lot of free memory, dcache
-does get shrunk and I don't see dentries stuck in RCU queues at all.
-I tried UP kernel too.
+/dev/hdc3 /root/slash reiserfs rw 0 0
+/dev/hdc3 /home/dave/blah resierfs rw 0 0
 
-So, there must be something else in your system that I
-am missing in my setup. Could you please mail me your .config ?
+The above is not very descriptive.
 
-Thanks
-Dipankar
+/etc/mtab has:
+/ /root/slash none rw,bind 0 0
+/home/dave/public_html /home/dave/blah none rw,bind 0 0
+
+Which tells me more about what I care about for 'bind' mounts.
+
+However it does violate the "privacy" of the namespace by telling
+everyone on the system how I have my stuff mounted :).
+
+/proc/self/mounts does a much better job respecting this privacy but
+doesn't give the information I really care about.
+
+I think I'm looking for something like "ns" on Plan 9 or Inferno that
+dumps out how my current namespace is constructed.  Each process with
+a private namespace should get different results for "ns".
+
+Dave

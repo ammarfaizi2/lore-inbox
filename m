@@ -1,63 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964891AbVJDSM2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbVJDSTO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964891AbVJDSM2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 14:12:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964897AbVJDSM2
+	id S964898AbVJDSTO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 14:19:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964899AbVJDSTN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 14:12:28 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:14476 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964891AbVJDSM1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 14:12:27 -0400
-Date: Tue, 4 Oct 2005 19:12:26 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: "Vladimir V. Saveliev" <vs@namesys.com>
-Cc: Christoph Hellwig <hch@infradead.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: I request inclusion of reiser4 in the mainline kernel
-Message-ID: <20051004181226.GA30125@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Vladimir V. Saveliev" <vs@namesys.com>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <432AFB44.9060707@namesys.com> <20050918110658.GA22744@infradead.org> <432E8282.6060905@namesys.com> <20050919092444.GA17501@infradead.org> <43302CF7.2010901@namesys.com> <20050920154711.GA6698@infradead.org> <433D2B21.6040406@namesys.com>
+	Tue, 4 Oct 2005 14:19:13 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:64649
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S964898AbVJDSTN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 14:19:13 -0400
+Subject: Re: 2.6.14-rc3-rt2
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Mark Knecht <markknecht@gmail.com>
+Cc: Steven Rostedt <rostedt@kihontech.com>, Ingo Molnar <mingo@elte.hu>,
+       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       david singleton <dsingleton@mvista.com>, Todd.Kneisel@bull.com,
+       Felix Oxley <lkml@oxley.org>
+In-Reply-To: <5bdc1c8b0510041111n188b8e14lf5a1398406d30ec4@mail.gmail.com>
+References: <20051004084405.GA24296@elte.hu> <43427AD9.9060104@cybsft.com>
+	 <20051004130009.GB31466@elte.hu>
+	 <5bdc1c8b0510040944q233f14e6g17d53963a4496c1f@mail.gmail.com>
+	 <5bdc1c8b0510041111n188b8e14lf5a1398406d30ec4@mail.gmail.com>
+Content-Type: text/plain
+Organization: linutronix
+Date: Tue, 04 Oct 2005 20:20:29 +0200
+Message-Id: <1128450029.13057.60.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <433D2B21.6040406@namesys.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 30, 2005 at 04:10:09PM +0400, Vladimir V. Saveliev wrote:
-> > Looking at the actual code all these point to the spin lock obsufcation
-> > SPIN_LOCK_FUNCTIONS/RW_LOCK_FUNCTIONS from spin_macros.h which I told
-> > to get rid of in the first round of reviews. 
-> > ...
-> 
-> reiser4 spinlock macros provide following functionality:
-> 
->     (1) encapsulation of locks: instead of writing spin_lock(&obj->lock),
->     where obj is object of type foo, one writes spin_lock_foo(obj).
-> 
->     (2) keeping information about number of locks of particular type currently
-> held by thread
-> 
->     (3) checking that locks are acquired in the proper order.
-> 
->     (4) collection of spin lock contention statistics
-> 
-> 
-> I agree that (1) is not very necessary. (2) and (4) helped a lot in early
-> debugging. Now we are about to remove it.
-> 
-> However, we would prefer to keep (3). It makes catching spinlock deadlocks very
-> easy. Don't you think that makes sence?
+On Tue, 2005-10-04 at 11:11 -0700, Mark Knecht wrote:
 
-(4) is provided by the lockmeter patch which is or has been in -mm.
-(1) is not just unessecary but actually considered obsfucation
-(2) and (3) sounds useful and it would be cool if you could integrate
-them into the core spinlock code.  I'd suggest to remove the feature
-temporarily and reimplement it so further reiser4 progress isn't blocked
-on that.
+> I have now had one burst of xruns. As best I can tell I was
+> downloading some video files for mplayer to look at, or possibly
+> running one of them. I see this in qjackctl:
+> 
+
+I guess its related to the priority leak I'm tracking down right now.
+Can you please set following config options and check if you get a bug
+similar to this ?
+
+BUG: init/1: leaked RT prio 98 (116)?
+
+Steven, it goes away when deadlock detection is enabled. Any pointers ?
+
+tglx
+
+
+# Kernel hacking
+#
+# CONFIG_PRINTK_TIME is not set
+# CONFIG_PRINTK_IGNORE_LOGLEVEL is not set
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_LOG_BUF_SHIFT=17
+# CONFIG_DETECT_SOFTLOCKUP is not set
+# CONFIG_SCHEDSTATS is not set
+# CONFIG_DEBUG_SLAB is not set
+CONFIG_DEBUG_PREEMPT=y
+CONFIG_DEBUG_IRQ_FLAGS=y
+# CONFIG_WAKEUP_TIMING is not set
+CONFIG_PREEMPT_TRACE=y
+# CONFIG_CRITICAL_PREEMPT_TIMING is not set
+# CONFIG_CRITICAL_IRQSOFF_TIMING is not set
+# CONFIG_RT_DEADLOCK_DETECT is not set
+# CONFIG_DEBUG_RT_LOCKING_MODE is not set
+# CONFIG_DEBUG_KOBJECT is not set
+CONFIG_DEBUG_BUGVERBOSE=y
+CONFIG_DEBUG_INFO=y
+# CONFIG_DEBUG_FS is not set
+# CONFIG_USE_FRAME_POINTER is not set
+# CONFIG_EARLY_PRINTK is not set
+# CONFIG_DEBUG_STACKOVERFLOW is not set
+# CONFIG_KPROBES is not set
+# CONFIG_DEBUG_STACK_USAGE is not set
+# CONFIG_DEBUG_PAGEALLOC is not set
+# CONFIG_4KSTACKS is not set
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+
 

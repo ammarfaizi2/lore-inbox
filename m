@@ -1,40 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964808AbVJDPe3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964809AbVJDPeX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964808AbVJDPe3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 11:34:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbVJDPe3
+	id S964809AbVJDPeX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 11:34:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbVJDPeX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 11:34:29 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:3338 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S964810AbVJDPe2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 11:34:28 -0400
-Date: Tue, 4 Oct 2005 16:34:35 +0100 (BST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       fastboot@osdl.org
-Subject: Re: [PATCH] i386: move apic init in init_IRQs
-In-Reply-To: <m1fyrh8gro.fsf@ebiederm.dsl.xmission.com>
-Message-ID: <Pine.LNX.4.61L.0510041628160.10696@blysk.ds.pg.gda.pl>
-References: <m1fyrh8gro.fsf@ebiederm.dsl.xmission.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 4 Oct 2005 11:34:23 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:52634 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964809AbVJDPeW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 11:34:22 -0400
+Date: Tue, 4 Oct 2005 10:34:14 -0500
+From: serue@us.ibm.com
+To: Erik Jacobson <erikj@sgi.com>
+Cc: pagg@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/3] Process Notification / pnotify user: Job
+Message-ID: <20051004153414.GA9154@sergelap.austin.ibm.com>
+References: <20051003184644.GA19106@sgi.com> <20051003185155.GB19106@sgi.com> <20051003190219.GA20154@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051003190219.GA20154@sgi.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Oct 2005, Eric W. Biederman wrote:
+Quoting Erik Jacobson (erikj@sgi.com):
+> Index: linux/init/Kconfig
+> ===================================================================
+> --- linux.orig/init/Kconfig	2005-09-30 12:14:10.989916853 -0500
+> +++ linux/init/Kconfig	2005-09-30 13:59:19.749826026 -0500
+> @@ -170,6 +170,35 @@
+>       Linux Jobs module and the Linux Array Sessions module.  If you will not
+>       be using such modules, say N.
+>  
+> +config JOB
+> +	tristate "  Process Notification (pnotify) based jobs"
 
-> -	if (enable_local_apic < 0)
-> -		clear_bit(X86_FEATURE_APIC, boot_cpu_data.x86_capability);
+Should it be possible to compile job as a module, or should
+this not be "tristate"?
 
- I think this should stay.
+It makes use of send_group_sig_info, which is not EXPORTed.
 
-> +	if (enable_local_apic < 0) {
-> +		printk(KERN_INFO "Apic disabled\n");
-
- Capitalisation. ;-)
-
- Otherwise it seems reasonable -- provided it works for you. ;-)
-
-  Maciej
+thanks,
+-serge

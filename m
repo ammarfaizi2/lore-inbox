@@ -1,75 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964810AbVJDPj3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964816AbVJDPkc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964810AbVJDPj3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 11:39:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964812AbVJDPj3
+	id S964816AbVJDPkc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 11:40:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964817AbVJDPkb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 11:39:29 -0400
-Received: from h80ad24ca.async.vt.edu ([128.173.36.202]:29841 "EHLO
-	h80ad24ca.async.vt.edu") by vger.kernel.org with ESMTP
-	id S964810AbVJDPj2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 11:39:28 -0400
-Message-Id: <200510041539.j94FdJmO028772@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: The price of SELinux (CPU) 
-In-Reply-To: Your message of "Tue, 04 Oct 2005 00:28:40 EDT."
-             <434204F8.2030209@comcast.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <434204F8.2030209@comcast.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1128440359_2862P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Tue, 4 Oct 2005 11:40:31 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:64977 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S964812AbVJDPka (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 11:40:30 -0400
+Message-ID: <4342A261.1040808@adaptec.com>
+Date: Tue, 04 Oct 2005 11:40:17 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Linus Torvalds <torvalds@osdl.org>, Ryan Anderson <ryan@autoweb.net>,
+       =?ISO-8859-1?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>,
+       andrew.patterson@hp.com, Marcin Dalecki <dalecki.marcin@neostrada.pl>,
+       "Salyzyn, Mark" <mark_salyzyn@adaptec.com>, dougg@torque.net,
+       Luben Tuikov <ltuikov@yahoo.com>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: I request inclusion of SAS Transport Layer and AIC-94xx into
+ the kernel
+References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01A9FA11@otce2k03.adaptec.com>  <1128105594.10079.109.camel@bluto.andrew>  <433D9035.6000504@adaptec.com>  <1128111290.10079.147.camel@bluto.andrew>  <433DA0DF.9080308@adaptec.com>  <1128114950.10079.170.camel@bluto.andrew> <433DB5D7.3020806@adaptec.com>  <9B90AC8A-A678-4FFE-B42D-796C8D87D65B@neostrada.pl>  <4341381D.2060807@adaptec.com>  <E93AC7D5-4CC0-4872-A5B8-115D2BF3C1A9@neostrada.pl>  <1128357350.10079.239.camel@bluto.andrew> <43415EC0.1010506@adaptec.com>  <Pine.BSO.4.62.0510032103380.28198@rudy.mif.pg.gda.pl> <1128377075.23932.5.camel@ryan2.internal.autoweb.net> <Pine.LNX.4.64.0510031531170.31407@g5.osdl.org> <434293D8.50300@adaptec.com> <43429789.8020102@pobox.com> <43429D6C.8070909@adaptec.com> <43429F1B.1000002@pobox.com>
+In-Reply-To: <43429F1B.1000002@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Date: Tue, 04 Oct 2005 11:39:19 -0400
+X-OriginalArrivalTime: 04 Oct 2005 15:40:18.0057 (UTC) FILETIME=[EBEDCF90:01C5C8F9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1128440359_2862P
-Content-Type: text/plain; charset=us-ascii
+On 10/04/05 11:26, Jeff Garzik wrote:
+> You continue to misunderstand everyone else's opinion.
 
-On Tue, 04 Oct 2005 00:28:40 EDT, John Richard Moser said:
+Internet mailing lists are one such thing where anyone
+can write anything they want and sound smart.  Like
+the statement above.
 
-> At any rate, my personal end goal is a secure high-performance operating
-> system, as user friendly as 
+Did you talk to "everyone else"?  Or is this just you,
+James B and Christoph?
 
-Step 0: Sooner or later, "secure" and "user friendly" *will* come into conflict.
-At that point, you have to make a choice. Note that in many cases, we *made* the
-choice years or even decades ago, and we've gotten used to the choices made.
-For instance, you'd certainly get better performance and user friendliness if
-you just stubbed out permission() in fs/namei.c and capable(), and just had them
-return "let the guy do it".  But somehow, I don't think anybody would find that
-very palatable.
+How do you know everyone else's opinion?
 
-Similarly, the stuff that comes out of Redmond, in general, has security issues
-precisely because they chose "user friendly" when they got to Step 0.  Being
-able to put Javascript and/or executable binaries in e-mail for automatic
-execution is certainly user-friendly - but it's not secure.
+Maybe because you're telling them what they should think?
 
-In any case, the overhead isn't 7%.  If anything, it's probably closer to 0.7%,
-and dropping with each kernel release as the code gets tuned and optimized even
-more.  And beware the impact of micro-optimizations and macro-performance - there
-was recently a code change to reduce the number and size of avtab entries.  That
-slowed down the actual code path slightly, but overall was actually a performance
-win, especially on smaller memory-constrained machines, due to the drastic drop
-in overall slab consumption.
+> The claim is that the transport class is the method through which a 
+> transport layer is plugged into the SCSI stack.  Pluggable transport 
 
-And remember - the first time that a security system prevents (for example) an
-exploit against an Apache bug from being used to take over a system, it's paid
-for itself.  When the FBI faxes you that "Hold Evidence" order, it means you may
-not be seeing that server again for weeks, if ever.....
+No.  This isn't currently the case.  You're maybe making it now
+to be like this, but it is currently not the case.
 
---==_Exmh_1128440359_2862P
-Content-Type: application/pgp-signature
+> classes means that SAS transport layer details go into the SAS transport 
+> class (or a helper lib).  SPI (parallel/legacy SCSI) transport layer 
+> details should move to the SPI transport class.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+"should", "will".
 
-iD8DBQFDQqIncC3lWbTT17ARAsUqAKDXOYxL1PWsFFPnuBtpv/dBYZ7iqwCg6u1B
-JpK5u42qBpJjdA0alwcxxpI=
-=iZNh
------END PGP SIGNATURE-----
+The question is then: Where were you Jeff all this time?
 
---==_Exmh_1128440359_2862P--
+Why did the SAS code had to be posted for SCSI Core to see how many
+things it needs to repair.
+
+I've been pointing those things out since, oh well, for many years
+now.
+
+> You misunderstood that everybody, but you, has moved on to the "what do 
+> we do about this" phase.
+
+If SCSI Core had seen the necessary over the years changes,
+it wouldn't be in this situation now.
+
+> Nothing is upside down.  Transport details plug into an obvious location 
+> -- the transport class, and associated helper libs (if any).
+
+USB/SAS/SBP:
+HW -> LLDD -> Transport Layer -> SCSI Core
+
+MPT:
+HW -> Transport Layer (FW) -> LLDD -> SCSI Core.
+
+	Luben
+
+

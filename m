@@ -1,34 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932523AbVJDReJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932533AbVJDRkP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932523AbVJDReJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 13:34:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932533AbVJDReI
+	id S932533AbVJDRkP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 13:40:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932535AbVJDRkP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 13:34:08 -0400
-Received: from kepler.fjfi.cvut.cz ([147.32.6.11]:5020 "EHLO
-	kepler.fjfi.cvut.cz") by vger.kernel.org with ESMTP id S932523AbVJDReI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 13:34:08 -0400
-Date: Tue, 4 Oct 2005 19:34:06 +0200 (CEST)
-From: Martin Drab <drab@kepler.fjfi.cvut.cz>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4 in-kernel file opening
-In-Reply-To: <Pine.LNX.4.60.0510041924520.8210@kepler.fjfi.cvut.cz>
-Message-ID: <Pine.LNX.4.60.0510041933310.8210@kepler.fjfi.cvut.cz>
-References: <Pine.LNX.4.60.0510041924520.8210@kepler.fjfi.cvut.cz>
+	Tue, 4 Oct 2005 13:40:15 -0400
+Received: from H190.C26.B96.tor.eicat.ca ([66.96.26.190]:48534 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S932533AbVJDRkN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 13:40:13 -0400
+From: Nikita Danilov <nikita@clusterfs.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17218.48779.282910.692785@gargle.gargle.HOWL>
+Date: Tue, 4 Oct 2005 21:40:27 +0400
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: "Martin J. Bligh" <mbligh@mbligh.org>, Rik van Riel <riel@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel?
+In-Reply-To: <20051004172338.GZ10538@lkcl.net>
+References: <20051002204703.GG6290@lkcl.net>
+	<54300000.1128297891@[10.10.2.4]>
+	<20051003011041.GN6290@lkcl.net>
+	<200510022028.07930.chase.venters@clientec.com>
+	<20051004125955.GQ10538@lkcl.net>
+	<17218.39427.421249.448094@gargle.gargle.HOWL>
+	<20051004161702.GU10538@lkcl.net>
+	<17218.47309.332739.836271@gargle.gargle.HOWL>
+	<20051004172338.GZ10538@lkcl.net>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Oct 2005, Martin Drab wrote:
+Luke Kenneth Casson Leighton writes:
+ > On Tue, Oct 04, 2005 at 09:15:57PM +0400, Nikita Danilov wrote:
+ > > Luke Kenneth Casson Leighton writes:
+ > > 
+ > > [...]
+ > > 
+ > >  > 
+ > >  >  assuming that you have an intelligent programmer (or some really good
+ > >  >  and working parallelisation tools) who really knows his threads?
+ > > 
+ > > Well, I'd like to have a hardware with CAS-n operation for one
+ > > thing. 
+ > 
+ >  CAS - compare and swap - by CAS-n i presume that you mean effectively a
+ >  SIMD CAS instruction?
 
-> Hi,
-> 
-> can anybody tell me why there is no sys_open() exported in kernel/ksyms.c 
-> in 2.4 kernels while the sys_close() is there? And what is then the 
-> preferred way of opening files from within a 2.4 kernel module?
+An instruction that atomically compares and swaps n independent memory
+locations with n given values. cas-1 (traditional compare-and-swap) is
+enough to implement lock-less queue, cas-2 is enough to implement
+double-linked lists, and was used by Synthesis lock-free kernel
+(http://citeseer.ist.psu.edu/massalin91lockfree.html).
 
-Is it just pure filp_open()/filp_close() ?
+To be precise, cas-1 is theoretically enough to implement double-linked
+lists too, but resulting algorithms are not pretty at all.
 
-Martin
+ > 
+ > > But what would this buy us? 
+ > 
+ >  you do not say :)  i am genuinely interested to hear what it would buy.
+
+Nothing. That was an instance of "rhetorical question", sorry that I
+made not this clear enough.
+
+ > 
+ > > Having different kernel algorithms
+ > > for x86 and mythical cas-n-able hardware is not viable.
+ > 
+ >  if i can get an NPTL .deb package for glibc for x86 only it would tend
+ >  to imply that that isn't a valid conclusion: am i missing something?
+
+Yes: this is Linux _Kernel_ mailing list, and I was talking about kernel
+code and kernel algorithms.
+
+ > 
+ >  cheers,
+ > 
+ >  l.
+ >  
+
+Nikita.
+
+ >  

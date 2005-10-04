@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932469AbVJDOMF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932470AbVJDOMe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932469AbVJDOMF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 10:12:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932470AbVJDOMF
+	id S932470AbVJDOMe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 10:12:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932488AbVJDOMe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 10:12:05 -0400
-Received: from mta7.srv.hcvlny.cv.net ([167.206.4.202]:16775 "EHLO
-	mta7.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S932469AbVJDOME (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 10:12:04 -0400
-Date: Tue, 04 Oct 2005 10:11:52 -0400
-From: Mathieu Chouquet-Stringer <ml2news@optonline.net>
-X-Face: %JOeya=Dg!}[/#Go&*&cQ+)){p1c8}u\Fg2Q3&)kothIq|JnWoVzJtCFo~4X<uJ\9cHK'.w
- 3:{EoxBR
-Subject: Re: Linux 2.6.13.3 (inconsistent KALLSYMS)
-In-reply-to: <43428D0B.5000205@grupopie.com>
-To: pmarques@grupopie.com (Paulo Marques)
-Cc: Mathieu Chouquet-Stringer <ml2news@optonline.net>,
-       Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org
-Message-id: <m3psqljrrr.fsf@mcs.bigip.mine.nu>
-Organization: Uh?
-MIME-version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 8BIT
-References: <20051004011620.GO16352@shell0.pdx.osdl.net>
- <43428D0B.5000205@grupopie.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+	Tue, 4 Oct 2005 10:12:34 -0400
+Received: from anchor-post-31.mail.demon.net ([194.217.242.89]:25360 "EHLO
+	anchor-post-31.mail.demon.net") by vger.kernel.org with ESMTP
+	id S932470AbVJDOMd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 10:12:33 -0400
+Message-ID: <43428DCC.7030808@oxley.org>
+Date: Tue, 04 Oct 2005 15:12:28 +0100
+From: Felix Oxley <lkml@oxley.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (Macintosh/20050923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: make xconfig fails for older kernels
+References: <4TJDn-2mm-3@gated-at.bofh.it> <4341FBA8.3020208@shaw.ca> <200510041034.07837.lkml@oxley.org> <43428BD3.9090407@oxley.org>
+In-Reply-To: <43428BD3.9090407@oxley.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pmarques@grupopie.com (Paulo Marques) writes:
-> Mathieu Chouquet-Stringer wrote:
-> > chrisw@osdl.org (Chris Wright) writes:
-> >
-> >>We (the -stable team) are announcing the release of the 2.6.13.3 kernel.
-> >>[...]
-> > With the attached configuration [1], I get the following error:
-> > Inconsistent kallsyms data
-> > Try setting CONFIG_KALLSYMS_EXTRA_PASS
-> 
-> This is probably a known problem that is already fixed in 2.6.14 :(
-> 
-> The attached patch should fix it for you.
 
-Thanks Paulo, I'm giving it a shot, will keep you posted...
- 
--- 
-Mathieu Chouquet-Stringer
-    "Le disparu, si l'on vénère sa mémoire, est plus présent et
-                 plus puissant que le vivant".
-           -- Antoine de Saint-Exupéry, Citadelle --
+> Felix Oxley wrote:
+> 
+>> I think you have nailed it.  I'm using GCC 4.0.2. Incidentally the 
+>> first 2.6 kernel in which this issue was resolved is 2.6.9.
+> 
+> 
+> For the record, the first version of the stock kernel which will build 
+> for me with GCC 4.0.2 is 2.16.12. (Using a minimal .config)
+> 
+
+To clarify, using GCC 4.0.2 I get the following:
+
+	<= 2.6.9 	cannot make config/menuconfig/xconfig
+	2.6.10 + 11	build fails in i386/asm(?)
+	2.6.12		builds ok
+
+
+Felix

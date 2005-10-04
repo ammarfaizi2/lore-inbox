@@ -1,42 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964904AbVJDUX3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964961AbVJDUaM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964904AbVJDUX3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 16:23:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964959AbVJDUX3
+	id S964961AbVJDUaM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 16:30:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964962AbVJDUaM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 16:23:29 -0400
-Received: from mail-in-05.arcor-online.net ([151.189.21.45]:64229 "EHLO
-	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
-	id S964904AbVJDUX2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 16:23:28 -0400
-From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
-Subject: Re: Linker Problem
-To: Sreeni <sreeni.pulichi@gmail.com>, linux-os@analogic.com,
-       linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Tue, 04 Oct 2005 22:23:15 +0200
-References: <4U0Ek-3gT-5@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1EMtJl-0000vD-Ce@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
+	Tue, 4 Oct 2005 16:30:12 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:17829 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S964961AbVJDUaK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 16:30:10 -0400
+Date: Tue, 4 Oct 2005 21:30:09 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCHSET] 2.6.14-rc3-git4-bird1
+Message-ID: <20051004203009.GQ7992@ftp.linux.org.uk>
+References: <20050905035848.GG5155@ZenIV.linux.org.uk> <20050905155522.GA8057@mipter.zuzino.mipt.ru> <20050905160313.GH5155@ZenIV.linux.org.uk> <20050905164712.GI5155@ZenIV.linux.org.uk> <20050905212026.GL5155@ZenIV.linux.org.uk> <20050907183131.GF5155@ZenIV.linux.org.uk> <20050912191744.GN25261@ZenIV.linux.org.uk> <20050912192049.GO25261@ZenIV.linux.org.uk> <20050930120831.GI7992@ftp.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050930120831.GI7992@ftp.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sreeni <sreeni.pulichi@gmail.com> wrote:
+Patchset againts 2.6.14-rc3-git4
+ 
+ 	* a pile of patches merged upstream
+	* usual build regression fixes traffic.
+	* ibmtr.c: bogus kfree() on some failure exits.
+	* more UML makefiles cleanups (for post-2.6.14)
+	* BFS: endianness annotations (Alexey) and killing iget() abuses (me).
+ 
+Patch is on ftp.linux.org.uk/pub/people/viro/patch-2.6.14-rc3-git4-bird1.bz2,
+splitup in ftp.linux.org.uk/pub/people/viro/patchset, logs (gcc and sparse)
+in ftp.linux.org.uk/pub/people/viro/logs/*log24a
 
-> My static kernel module demands the text/data to be placed at an
-> absolute address.
-
-This is a bug. Look at other drivers (e.g. drivers/video/hgafb.c)
-on how to do that correctly.
-
-Hint: This driver accesses 0x8000 bytes of memory starting at 0xb0000.
-
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+Current list of patches is in .../patchset/set*.

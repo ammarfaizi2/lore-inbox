@@ -1,88 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964923AbVJDTJG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964925AbVJDTJk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964923AbVJDTJG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 15:09:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964925AbVJDTJG
+	id S964925AbVJDTJk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 15:09:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964926AbVJDTJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 15:09:06 -0400
-Received: from [85.21.88.2] ([85.21.88.2]:59070 "HELO mail.dev.rtsoft.ru")
-	by vger.kernel.org with SMTP id S964923AbVJDTJF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 15:09:05 -0400
-Message-ID: <4342D34A.8040408@ru.mvista.com>
-Date: Tue, 04 Oct 2005 23:08:58 +0400
-From: Vitaly Wool <vwool@ru.mvista.com>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
+	Tue, 4 Oct 2005 15:09:40 -0400
+Received: from spirit.analogic.com ([204.178.40.4]:61966 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP id S964925AbVJDTJj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 15:09:39 -0400
 MIME-Version: 1.0
-To: David Brownell <david-b@pacbell.net>
-CC: linux-kernel@vger.kernel.org, spi-devel-general@lists.sourceforge.net,
-       basicmark@yahoo.com, stephen@streetfiresound.com, dpervushin@gmail.com
-Subject: Re: [PATCH/RFC 0/2] simple SPI framework, refresh + ads7864 driver
-References: <20051004180237.9B4FDEE8F2@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
-In-Reply-To: <20051004180237.9B4FDEE8F2@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <20051004185520.9489.qmail@web35905.mail.mud.yahoo.com>
+References: <20051004185520.9489.qmail@web35905.mail.mud.yahoo.com>
+X-OriginalArrivalTime: 04 Oct 2005 19:09:38.0266 (UTC) FILETIME=[2A659BA0:01C5C917]
+Content-class: urn:content-classes:message
+Subject: Re: error during compiling the kernel 2.6.10 on FC3 
+Date: Tue, 4 Oct 2005 15:09:38 -0400
+Message-ID: <Pine.LNX.4.61.0510041506100.30366@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: error during compiling the kernel 2.6.10 on FC3 
+Thread-Index: AcXJFyqHD++b2bwsSm2S022dZmVJqA==
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "umesh chandak" <chandak_pict@yahoo.com>
+Cc: <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-can you please describe the data flow in case of DMA transfer? Thanks!
+On Tue, 4 Oct 2005, umesh chandak wrote:
 
-Vitaly
+> hi ,
+>    I am compiling kernel 2.6.10 on FC3 as usual
+> using following steps
+>
+> 1) make Menuconfig
+> 2) make bzImage
+> 3) make modules
+>           These 3 steps work properly.
+> 4) make modules_install
+>
+>        But in 4 th step i got error after some moules
+>
+> are installed
+>
+> Error Message  is like this
+> if [ -r System.map ]; then /sbin/depmod -ae -F
+> System.map  2.6.10; fi /bin/sh: line 1: 11366
+> Terminated              /sbin/depmod -ae -F System.map
+> 2.6.10
+> make: *** [_modinst_post] Error 143
+>
+> Due to this error initrd is not made in step
+> 5) make install
+>
+>     I also want to know what  Error 143 indicates.
+>
+> What should i do. How to overcome this error
+>
+>              Thanks in advance
 
-David Brownell wrote:
+Install new Module-Init-tools package as shown in
+../linux-`uname -r`/Documentation/Changes...
 
->Following this will be two patches, refreshing the minimalist SPI stack
->I've sent before.  Notable changes are:
->
->  - Various updates to support real hardware, including reporting the
->    IRQ associated with an SPI slave chip, providing void* handles for
->    various flavors of board and controller state, dma_addr_t for I/O
->    buffers, some control over protocol delays, and more.
->
->  - New spi_alloc_master().  The driver model is happier if drivers
->    don't allocate the class devices; this helps "rmmod" and friends,
->    kind of handy for debugging drivers.  It allocates controller
->    specific memory not unlike alloc_netdev().
->
->  - Various cleanup, notably removing Kconfig for all those drivers
->    that don't yet exist.  That was added purely to illustrate the
->    potential scope of an SPI framework, when more folk were asking
->    just why a Serial Peripheral Interface (*) was useful.
->
->  - More kerneldoc.  No Documentation/DocBook/spi.html though.
->
->  - Now there's a real ADS7864 touchscreen/sensor driver; lightly
->    tested, but it emits the right sort of input events and gives
->    syfs access to the temperature, battery, and voltage sensors.
->
->This version seems real enough to integrate with.
->
->One goal is promote reuse of driver code -- for SPI controllers and
->slave chips connected using SPI -- while fitting them better into the
->driver model framework.  Today, SPI devices only seem to get drivers
->that are board-specific; there's a fair amount of reinvent-the-wheel,
->and drivers that are unsuitable for upstream merging.
->
->I can now report this seems to be working with real controllers and
->real slave chips ... two of each to start with, but as yet there's no
->mix'n'match (with e.g. that touchscreen driver being used with a PXA
->SSP controller, not just OMAP MicroWire).  That should just take a
->little bit of time and debugging.
->
->- Dave
->
->(*) And distinguish it from Singapore Paranormal Investigators.  ;)
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
->  
->
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13 on an i686 machine (5589.55 BogoMips).
+Warning : 98.36% of all statistics are fiction.
 
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

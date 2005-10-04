@@ -1,85 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbVJDSTO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964899AbVJDS07@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964898AbVJDSTO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 14:19:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964899AbVJDSTN
+	id S964899AbVJDS07 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 14:26:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbVJDS07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 14:19:13 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:64649
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S964898AbVJDSTN
+	Tue, 4 Oct 2005 14:26:59 -0400
+Received: from kepler.fjfi.cvut.cz ([147.32.6.11]:12444 "EHLO
+	kepler.fjfi.cvut.cz") by vger.kernel.org with ESMTP id S964899AbVJDS06
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 14:19:13 -0400
-Subject: Re: 2.6.14-rc3-rt2
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Mark Knecht <markknecht@gmail.com>
-Cc: Steven Rostedt <rostedt@kihontech.com>, Ingo Molnar <mingo@elte.hu>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       david singleton <dsingleton@mvista.com>, Todd.Kneisel@bull.com,
-       Felix Oxley <lkml@oxley.org>
-In-Reply-To: <5bdc1c8b0510041111n188b8e14lf5a1398406d30ec4@mail.gmail.com>
-References: <20051004084405.GA24296@elte.hu> <43427AD9.9060104@cybsft.com>
-	 <20051004130009.GB31466@elte.hu>
-	 <5bdc1c8b0510040944q233f14e6g17d53963a4496c1f@mail.gmail.com>
-	 <5bdc1c8b0510041111n188b8e14lf5a1398406d30ec4@mail.gmail.com>
-Content-Type: text/plain
-Organization: linutronix
-Date: Tue, 04 Oct 2005 20:20:29 +0200
-Message-Id: <1128450029.13057.60.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Tue, 4 Oct 2005 14:26:58 -0400
+Date: Tue, 4 Oct 2005 20:26:55 +0200 (CEST)
+From: Martin Drab <drab@kepler.fjfi.cvut.cz>
+To: Brian Gerst <bgerst@didntduck.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4 in-kernel file opening
+In-Reply-To: <4342C007.6020809@didntduck.org>
+Message-ID: <Pine.LNX.4.60.0510042010170.8210@kepler.fjfi.cvut.cz>
+References: <Pine.LNX.4.60.0510041924520.8210@kepler.fjfi.cvut.cz>
+ <4342C007.6020809@didntduck.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-10-04 at 11:11 -0700, Mark Knecht wrote:
+On Tue, 4 Oct 2005, Brian Gerst wrote:
 
-> I have now had one burst of xruns. As best I can tell I was
-> downloading some video files for mplayer to look at, or possibly
-> running one of them. I see this in qjackctl:
+> Martin Drab wrote:
+> > Hi,
+> > 
+> > can anybody tell me why there is no sys_open() exported in kernel/ksyms.c in
+> > 2.4 kernels while the sys_close() is there? And what is then the preferred
+> > way of opening files from within a 2.4 kernel module?
 > 
+> Why do you need to open files from kernel space?  There are usually better
+> alternatives like the firmware loader interface.
 
-I guess its related to the priority leak I'm tracking down right now.
-Can you please set following config options and check if you get a bug
-similar to this ?
+I was kind of working this out here a while ago. I am collecting data from 
+RTLinux driver (in Real-Time). I am filing DMA buffers and I need to 
+transfer their contents (preferably by mmap()ping) to the user space.
 
-BUG: init/1: leaked RT prio 98 (116)?
+My first problem (that I was solving a while ago) was that I was unable to 
+mmap() the buffer using mmap() through the /dev/mem. I solved that by 
+creating my own device with its own fops->mmap() using vmops->nopage().
+Problem is that this is not RT safe. So I wanted to do it all from 
+within the ioctl call to the RT-FIFOs, which are RT safe, since the 
+RT-FIFOs do not provide for the safe mmap() operation redefinition. I'm 
+not very sure it can be done in a safe way by calling the mmap() on that 
+new device from the user space.
 
-Steven, it goes away when deadlock detection is enabled. Any pointers ?
+Perhaps the only way then may be to do (from the user space):
 
-tglx
+	0) read() from RT-FIFO the info about next available DMA buffer.
+	1) ioctl() to RT-FIFO to block the buffer and dispose it for the 
+	   user-space mmap() via the unsafe interface.
+	2) mmap() it from user space.
+	3) use the data from the mmap()ped buffer
+	4) munmap() the buffer.
+	5) ioctl() to the RT-FIFO to release the buffer for further reuse
 
+Is that so?
+Before I was kind of hoping I could do 2) from within 1) and 4) from 
+within 5), but evidently this was not a good idea.
 
-# Kernel hacking
-#
-# CONFIG_PRINTK_TIME is not set
-# CONFIG_PRINTK_IGNORE_LOGLEVEL is not set
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_LOG_BUF_SHIFT=17
-# CONFIG_DETECT_SOFTLOCKUP is not set
-# CONFIG_SCHEDSTATS is not set
-# CONFIG_DEBUG_SLAB is not set
-CONFIG_DEBUG_PREEMPT=y
-CONFIG_DEBUG_IRQ_FLAGS=y
-# CONFIG_WAKEUP_TIMING is not set
-CONFIG_PREEMPT_TRACE=y
-# CONFIG_CRITICAL_PREEMPT_TIMING is not set
-# CONFIG_CRITICAL_IRQSOFF_TIMING is not set
-# CONFIG_RT_DEADLOCK_DETECT is not set
-# CONFIG_DEBUG_RT_LOCKING_MODE is not set
-# CONFIG_DEBUG_KOBJECT is not set
-CONFIG_DEBUG_BUGVERBOSE=y
-CONFIG_DEBUG_INFO=y
-# CONFIG_DEBUG_FS is not set
-# CONFIG_USE_FRAME_POINTER is not set
-# CONFIG_EARLY_PRINTK is not set
-# CONFIG_DEBUG_STACKOVERFLOW is not set
-# CONFIG_KPROBES is not set
-# CONFIG_DEBUG_STACK_USAGE is not set
-# CONFIG_DEBUG_PAGEALLOC is not set
-# CONFIG_4KSTACKS is not set
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-
-
+Martin

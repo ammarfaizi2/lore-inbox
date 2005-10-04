@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932341AbVJDD2d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932134AbVJDDjI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932341AbVJDD2d (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Oct 2005 23:28:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbVJDD2d
+	id S932134AbVJDDjI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Oct 2005 23:39:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932136AbVJDDjH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Oct 2005 23:28:33 -0400
-Received: from xenotime.net ([66.160.160.81]:37282 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932341AbVJDD2c (ORCPT
+	Mon, 3 Oct 2005 23:39:07 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:38319 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932134AbVJDDjG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Oct 2005 23:28:32 -0400
-Date: Mon, 3 Oct 2005 20:28:31 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Diego de Estrada <diego1609@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] release_resource() check for NULL resource
-Message-Id: <20051003202831.64d6e5a6.rdunlap@xenotime.net>
-In-Reply-To: <5dc44ec70510031959w1f4adfcbh395535ade34a357d@mail.gmail.com>
-References: <20051002170318.GA22074@home.fluff.org>
-	<20051002103922.34dd287d.rdunlap@xenotime.net>
-	<5dc44ec70510031959w1f4adfcbh395535ade34a357d@mail.gmail.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 3 Oct 2005 23:39:06 -0400
+Date: Mon, 3 Oct 2005 20:38:26 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Magnus Damm <magnus.damm@gmail.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, jgarzik@pobox.com, rdunlap@xenotime.net,
+       linux-kernel@vger.kernel.org, coywolf@gmail.com, greg@kroah.com
+Subject: Re: [PATCHv2] Document from line in patch format
+Message-Id: <20051003203826.514ea047.pj@sgi.com>
+In-Reply-To: <aec7e5c30510032024t6d48643fma875c917acb69d92@mail.gmail.com>
+References: <20051002163244.17502.15351.sendpatchset@jackhammer.engr.sgi.com>
+	<Pine.LNX.4.64.0510021158260.31407@g5.osdl.org>
+	<aec7e5c30510032024t6d48643fma875c917acb69d92@mail.gmail.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Oct 2005 23:59:16 -0300 Diego de Estrada wrote:
+Magnus wrote:
+> Huh, I thought that the first line in a unified patch started with
+> "---",
 
-> On 10/2/05, Randy.Dunlap <rdunlap@xenotime.net> wrote:
-> > On Sun, 2 Oct 2005 18:03:18 +0100 Ben Dooks wrote:
-> >
-> > > If release_resource() is passed a NULL resource
-> > > the kernel will OOPS.
-> >
-> > does this actually happen?  you are fixing a real oops?
-> > if so, what driver caused it?
-> 
-> The point is: no driver should make the kernel OOPS. Thanks Ben.
+Yes, it does.  But then the next character is a space, and there
+is at least one more space-separated field on the line.
 
-I understand that sentiment, but if a driver is bad,
-we generally want to know about that rather than paste
-(or paper) over it on a continuous basis.
+That is, Linus's marker marches
 
+    /^---$/
 
----
-~Randy
-You can't do anything without having to do something else first.
--- Belefant's Law
+and the first line of a unified patch matches:
+
+    /^--- .*[^ ].*$/
+
+It ain't fancy, but it works.  These patterns
+are easily distinguished.
+
+> Relying on "diff -" or "Index: " seems wrong.
+
+I don't think anyone is relying on those patterns.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

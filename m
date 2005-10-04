@@ -1,21 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964970AbVJDUtq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964969AbVJDUtM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964970AbVJDUtq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 16:49:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964971AbVJDUtq
+	id S964969AbVJDUtM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 16:49:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964970AbVJDUtL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 16:49:46 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:27531
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S964970AbVJDUtp
+	Tue, 4 Oct 2005 16:49:11 -0400
+Received: from xproxy.gmail.com ([66.249.82.206]:51888 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964969AbVJDUtK convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 16:49:45 -0400
+	Tue, 4 Oct 2005 16:49:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=MXnTQ25wHEzHR8jl8HkAjIuq4E3m+1tQHFIgEWm5GEDJqsnIXNXAoEKbIwzDKtZu16HOgq9BvfDJRll8R1S7b535HGTLwMW+xdgdIoO6P4x9SZPMOp3J5h9jABHbg11ydUMBc9Bs74SGJB3FneB7H1pZsmTn3JObwCtNx4kpBvc=
+Message-ID: <5bdc1c8b0510041349g1a4f2484qd17a11812c8ccac3@mail.gmail.com>
+Date: Tue, 4 Oct 2005 13:49:09 -0700
+From: Mark Knecht <markknecht@gmail.com>
+Reply-To: Mark Knecht <markknecht@gmail.com>
+To: tglx@linutronix.de
 Subject: Re: 2.6.14-rc3-rt2
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Mark Knecht <markknecht@gmail.com>
 Cc: Steven Rostedt <rostedt@kihontech.com>, Ingo Molnar <mingo@elte.hu>,
        linux-kernel@vger.kernel.org
 In-Reply-To: <1128458707.13057.68.camel@tglx.tec.linutronix.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 References: <20051004084405.GA24296@elte.hu> <43427AD9.9060104@cybsft.com>
 	 <20051004130009.GB31466@elte.hu>
 	 <5bdc1c8b0510040944q233f14e6g17d53963a4496c1f@mail.gmail.com>
@@ -23,17 +33,10 @@ References: <20051004084405.GA24296@elte.hu> <43427AD9.9060104@cybsft.com>
 	 <1128450029.13057.60.camel@tglx.tec.linutronix.de>
 	 <5bdc1c8b0510041158m3620f5dcy2dafda545ad3cd5e@mail.gmail.com>
 	 <1128458707.13057.68.camel@tglx.tec.linutronix.de>
-Content-Type: text/plain
-Organization: linutronix
-Date: Tue, 04 Oct 2005 22:51:01 +0200
-Message-Id: <1128459061.13057.71.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-10-04 at 22:45 +0200, Thomas Gleixner wrote:
+On 10/4/05, Thomas Gleixner <tglx@linutronix.de> wrote:
 > On Tue, 2005-10-04 at 11:58 -0700, Mark Knecht wrote:
 > > > I guess its related to the priority leak I'm tracking down right now.
 > > > Can you please set following config options and check if you get a bug
@@ -41,123 +44,18 @@ On Tue, 2005-10-04 at 22:45 +0200, Thomas Gleixner wrote:
 > > >
 > > > BUG: init/1: leaked RT prio 98 (116)?
 > > >
-> > > Steven, it goes away when deadlock detection is enabled. Any pointers 
-> 
+> > > Steven, it goes away when deadlock detection is enabled. Any pointers
+>
 > Thats actually a red hering caused by asymetric accounting which only
 > happens when
-> 
-> CONFIG_DEBUG_PREEMPT=y 
-> and 
+>
+> CONFIG_DEBUG_PREEMPT=y
+> and
 > # CONFIG_RT_DEADLOCK_DETECT is not set
 
-Sorry, did not refresh before sending
+OK. I'll keep testing then.
 
-tglx
+Are you asking me to apply the code you sent or is that for someone else?
 
----
-
-Index: linux-2.6.14-rc3-rt8-ep/kernel/rt.c
-===================================================================
---- linux-2.6.14-rc3-rt8-ep.orig/kernel/rt.c
-+++ linux-2.6.14-rc3-rt8-ep/kernel/rt.c
-@@ -295,6 +295,22 @@ void check_preempt_wakeup(struct task_st
- 			dump_stack();
- 		}
- }
-+
-+static inline void account_mutex_owner_down(struct rt_mutex *lock)
-+{
-+	current->owned_lock[current->lock_count] = lock;
-+	current->lock_count++;
-+}
-+
-+static inline void account_mutex_owner_up(struct rt_mutex *lock)
-+{
-+	current->lock_count--;
-+	current->owned_lock[current->lock_count] = NULL;
-+}
-+
-+#else
-+#define account_mutex_owner_down(l) do { } while(0)
-+#define account_mutex_owner_up(l) do { } while(0)
- #endif
- 
- #ifdef CONFIG_RT_DEADLOCK_DETECT
-@@ -1241,13 +1257,13 @@ static int __grab_lock(struct rt_mutex *
- 	list_del_init(&lock->held_list);
- #endif
- #if defined(CONFIG_DEBUG_PREEMPT) && defined(CONFIG_PREEMPT_RT)
-+	owner->lock_count--;
- 	if (owner->lock_count < 0 || owner->lock_count >= MAX_LOCK_STACK) {
- 		TRACE_OFF();
- 		printk("BUG: %s/%d: lock count of %u\n",
- 			owner->comm, owner->pid, owner->lock_count);
- 		dump_stack();
- 	}
--	owner->lock_count--;
- 	owner->owned_lock[owner->lock_count] = NULL;
- #endif
- 	return 1;
-@@ -1579,13 +1595,13 @@ ____up_mutex(struct rt_mutex *lock, int 
- 		lock->owner = NULL;
- 	_raw_spin_unlock(&lock->wait_lock);
- #if defined(CONFIG_DEBUG_PREEMPT) && defined(CONFIG_PREEMPT_RT)
-+	current->lock_count--;
- 	if (current->lock_count < 0 || current->lock_count >= MAX_LOCK_STACK) {
- 		TRACE_OFF();
- 		printk("BUG: %s/%d: lock count of %u\n",
- 			current->comm, current->pid, current->lock_count);
- 		dump_stack();
- 	}
--	current->lock_count--;
- 	current->owned_lock[current->lock_count] = NULL;
- 	if (!current->lock_count && !rt_prio(current->normal_prio) &&
- 					rt_prio(current->prio)) {
-@@ -1638,6 +1654,8 @@ static inline void __down_mutex_inline(s
- 
- 	if (unlikely(cmpxchg(&lock->owner, NULL, ti)))
- 		___down_mutex(lock __EIP__);
-+	else
-+		account_mutex_owner_down(lock);
- }
- 
- static inline void __down_inline(struct rt_mutex *lock __EIP_DECL__)
-@@ -1646,6 +1664,8 @@ static inline void __down_inline(struct 
- 
- 	if (unlikely(cmpxchg(&lock->owner, NULL, ti)))
- 		___down(lock __EIP__);
-+	else
-+		account_mutex_owner_down(lock);
- }
- 
- void __sched __down_mutex(struct rt_mutex *lock __EIP_DECL__)
-@@ -1697,6 +1717,8 @@ static inline void
- 
- 	if (unlikely(cmpxchg(&lock->owner, ti, NULL) != ti))
- 		___up_mutex_savestate(lock __EIP__);
-+	else
-+		account_mutex_owner_up(lock);
- }
- 
- void __sched __up_mutex_savestate(struct rt_mutex *lock __EIP_DECL__)
-@@ -1711,6 +1733,8 @@ __up_mutex_nosavestate_inline(struct rt_
- 
- 	if (unlikely(cmpxchg(&lock->owner, ti, NULL) != ti))
- 		___up_mutex_nosavestate(lock __EIP__);
-+	else
-+		account_mutex_owner_up(lock);
- }
- 
- void __sched __up_mutex_nosavestate(struct rt_mutex *lock __EIP_DECL__)
-@@ -2869,6 +2893,9 @@ void fastcall rt_mutex_set_owner(struct 
- 	 */
- #ifdef CONFIG_DEBUG_PREEMPT
- 	current->lock_count--;
-+	current->owned_lock[current->lock_count] = NULL;
-+	t->task->owned_lock[t->task->lock_count] = lock;
-+	t->task->lock_count++;
- #endif
- 	lock->owner = t;
- }
-
-
+Thanks,
+Mark

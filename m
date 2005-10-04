@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932470AbVJDOMe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932488AbVJDO0Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932470AbVJDOMe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 10:12:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932488AbVJDOMe
+	id S932488AbVJDO0Y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 10:26:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932494AbVJDO0Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 10:12:34 -0400
-Received: from anchor-post-31.mail.demon.net ([194.217.242.89]:25360 "EHLO
-	anchor-post-31.mail.demon.net") by vger.kernel.org with ESMTP
-	id S932470AbVJDOMd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 10:12:33 -0400
-Message-ID: <43428DCC.7030808@oxley.org>
-Date: Tue, 04 Oct 2005 15:12:28 +0100
-From: Felix Oxley <lkml@oxley.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (Macintosh/20050923)
+	Tue, 4 Oct 2005 10:26:24 -0400
+Received: from mx1.cdacindia.com ([203.199.132.35]:26040 "HELO
+	mailx.cdac.ernet.in") by vger.kernel.org with SMTP id S932488AbVJDO0X
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 10:26:23 -0400
+Message-ID: <434288E9.3090108@cdac.in>
+Date: Tue, 04 Oct 2005 19:21:37 +0530
+From: Karthik Sarangan <karthiks@cdac.in>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: make xconfig fails for older kernels
-References: <4TJDn-2mm-3@gated-at.bofh.it> <4341FBA8.3020208@shaw.ca> <200510041034.07837.lkml@oxley.org> <43428BD3.9090407@oxley.org>
-In-Reply-To: <43428BD3.9090407@oxley.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Subject: Using DMA in read/write, setting block size for I/O
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In my application, I have the following code.
 
-> Felix Oxley wrote:
-> 
->> I think you have nailed it.  I'm using GCC 4.0.2. Incidentally the 
->> first 2.6 kernel in which this issue was resolved is 2.6.9.
-> 
-> 
-> For the record, the first version of the stock kernel which will build 
-> for me with GCC 4.0.2 is 2.16.12. (Using a minimal .config)
-> 
+int main(void)
+{
+    char *pcBuffer;
 
-To clarify, using GCC 4.0.2 I get the following:
+    posix_memalign((void **) pcBuffer, 512, 262144);
+    int ifd = open("/dev/sdb", O_DIRECT | O_RDWR);
+    long lLen;
 
-	<= 2.6.9 	cannot make config/menuconfig/xconfig
-	2.6.10 + 11	build fails in i386/asm(?)
-	2.6.12		builds ok
+    lLen = read(ifd, pcBuffer, 262144);
+   
+    close(ifd);
+    return 0;
+}
 
+Will the underlying block device read a single 256KB block from the hdd 
+into pcBuffer
+or will it read 256KB as a set of smaller blocks?
 
-Felix
+Since the buffer is memory aligned will it enable DMA?
+
+scsi disk driver is adaptec aic79xx.o
+distro is RedHat Enterprise Linux WS 4 (kernel-2.6.9-11)

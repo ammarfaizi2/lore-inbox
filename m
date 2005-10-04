@@ -1,65 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbVJDIMn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbVJDIPN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964785AbVJDIMn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 04:12:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964787AbVJDIMn
+	id S964786AbVJDIPN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 04:15:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964787AbVJDIPM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 04:12:43 -0400
-Received: from nproxy.gmail.com ([64.233.182.195]:44662 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964785AbVJDIMm convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 04:12:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=gxKq7+X6V6JBQ000X+3Zz1NWi0aXt06tZ6MODHLAhstHMZ5GSmSG26XIYqQlE29QOJ3cCRZET2N5/t3B9rbyEJdpm3Tz+w13yN8jiGcP0lZ7IKrvUJyRZcuTw5E0vEyIC6sh3SBFSAo/uwks+UzzuYtf4PUsRiCflBBIv1tfxPo=
-Message-ID: <2cd57c900510040112q10eb5cdbya2ef62689e8f90f2@mail.gmail.com>
-Date: Tue, 4 Oct 2005 16:12:40 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: Coywolf Qi Hunt <coywolf@gmail.com>
-To: Nico Schottelius <nico-kernel@schottelius.org>
-Subject: Re: halt: init exits/panic
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051004073740.GA1498@schottelius.org>
+	Tue, 4 Oct 2005 04:15:12 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:18580 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S964786AbVJDIPL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 04:15:11 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Fernando Rocha <frocha@student.dei.uc.pt>
+Subject: Re: [KORG] Kernel Panic
+Date: Tue, 4 Oct 2005 11:14:05 +0300
+User-Agent: KMail/1.8.2
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <43414E0A.3090506@student.dei.uc.pt>
+In-Reply-To: <43414E0A.3090506@student.dei.uc.pt>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20050709151227.GM1322@schottelius.org>
-	 <2cd57c9005070910091f1051f7@mail.gmail.com>
-	 <20051004073740.GA1498@schottelius.org>
+Message-Id: <200510041114.05094.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/4/05, Nico Schottelius <nico-kernel@schottelius.org> wrote:
-> Coywolf Qi Hunt [Sun, Jul 10, 2005 at 01:09:22AM +0800]:
-> > On 7/9/05, Nico Schottelius <nico-kernel@schottelius.org> wrote:
-> > > Hello!
-> > >
-> > > What's the 'correct behaviour' of an init system, if someone wants
-> > > to shutdown the system?
-> > >
-> > > I currently do:
-> > >
-> > > - call reboot(RB_POWER_OFF/RB_AUTOBOOT/RB_HALT_SYSTEM)
-> > > - _exit(0)
-> > >
-> > > Is this exit() call wrong? If I do RB_HALT_SYSTEM and _exit(0) after,
-> > > the kernel panics.
-> >
-> > What the panic shows?
->
-> To be fully correct:
->
-> "Kernel panic - not syncing: Attempted to kill init" (from the last time
-> I tried, 2.6.13.2)
->
-> Perhaps _exit(0) is not correct for an init system?
-> This at least explains why it always looks like nothing is synced.
+On Monday 03 October 2005 18:28, Fernando Rocha wrote:
+> Hi linux-kernel staff.
+> 
+>     I have a big problem!
+>     Each time I try to intall an Linux OS, on my machine, it crashes
+> with "Kernel Panic"!
+>     I tried to install
+>     - "Fedora 4"
+>     - "Kurumin 4.0"
+>     - "Kurumin 5.0"
+> 
+>     In fact, "Kurumin" is a Live CD, and worked as an Live CD ONLY,
+> although,
+> when I tried to install it on my hard drive, it failed the
+> initialization after the LILO run!!!
 
-Right. init(8) should not call _exit() or exit(). Otherwise you'll get
-that panic. It's OK for *another* process, reboot(8) to call reboot(2)
-and then exit(). You should follow this way.
+Wrong list.
+
+I suggest going to http://kernel.org/, scrolling donw to "New to Linux?"
+and reading from there.
+
+>     None of the Linux OS were able to detect the best "window size" of
+> the screen,
+> so I had to manually input it!!
+
+Beware that moving to new OS is hard for many people. LOTS of things
+to learn.
 --
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+vda

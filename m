@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964856AbVJDRMS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964858AbVJDRNP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964856AbVJDRMS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 13:12:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964854AbVJDRMS
+	id S964858AbVJDRNP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 13:13:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964859AbVJDRNO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 13:12:18 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:49423 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S964858AbVJDRMS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 13:12:18 -0400
-Message-ID: <4342B812.6080600@tmr.com>
-Date: Tue, 04 Oct 2005 13:12:50 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
+	Tue, 4 Oct 2005 13:13:14 -0400
+Received: from ns1.suse.de ([195.135.220.2]:58798 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964858AbVJDRNO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 13:13:14 -0400
+From: Andi Kleen <ak@suse.de>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Subject: Re: [NUMA , x86_64] Why memnode_shift is chosen with the lowest possible value ?
+Date: Tue, 4 Oct 2005 19:13:25 +0200
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
+References: <1127939141.26401.32.camel@localhost.localdomain> <433C1D6F.1030605@cosmosbay.com> <433D00BC.2070001@cosmosbay.com>
+In-Reply-To: <433D00BC.2070001@cosmosbay.com>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: what's next for the linux kernel?
-References: <20051002204703.GG6290@lkcl.net> <Pine.LNX.4.63.0510021704210.27456@cuia.boston.redhat.com> <20051002230545.GI6290@lkcl.net> <Pine.LNX.4.58.0510021637260.28193@shell2.speakeasy.net> <20051003005400.GM6290@lkcl.net> <Pine.LNX.4.58.0510021800240.19613@shell2.speakeasy.net> <20051003015302.GP6290@lkcl.net> <20051003181924.GB8011@csclub.uwaterloo.ca> <20051004125354.GO10538@lkcl.net> <20051004134705.GQ7949@csclub.uwaterloo.ca>
-In-Reply-To: <20051004134705.GQ7949@csclub.uwaterloo.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200510041913.26332.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lennart Sorensen wrote:
-> On Tue, Oct 04, 2005 at 01:53:54PM +0100, Luke Kenneth Casson Leighton wrote:
-> 
+On Friday 30 September 2005 11:09, Eric Dumazet wrote:
+> +       while (populate_memnodemap(nodes, numnodes, shift + 1) >= 0)
+> +               shift++;
 
->> at 45nm the current leakage is so insane that the heat
->> dissipation, through the oxide layer which covers the chip,
->> ends up blowing the chip up.
-> 
-> 
-> Unless someone finds a way to reduce the leakage.  It is worth a lot of
-> money to some companies to solve that problem after all.
 
-That's one way, the other is to find a way to cool such a chip. I see 
-references to diamond substrate from time to time, good thermal 
-conductor. So are other carbon forms, Fullerines, etc.
+Why shift+1 here? 
 
-Clearly reducing leakage is the optimal solution, "deal with the heat" 
-is the other.
+
+>+               if ((end >> shift) >= NODEMAPSIZE)
+>+                       return 0;
+
+This should be >, not >= shouldn't it?
+
+-Andi
+
+P.S.: Please cc x86-64 patches to discuss@x86-64.org

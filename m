@@ -1,85 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932468AbVJDHhj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbVJDHho@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932468AbVJDHhj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 03:37:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbVJDHhj
+	id S932119AbVJDHho (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 03:37:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932469AbVJDHhn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 03:37:39 -0400
-Received: from wnx-5a.seeweb.it ([212.25.170.113]:20658 "EHLO wnx-5a.seeweb.it")
-	by vger.kernel.org with ESMTP id S932468AbVJDHhj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 03:37:39 -0400
-From: Giulio Orsero <giulioo@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.x: big problems with md over sata 
-Date: Tue, 04 Oct 2005 09:37:30 +0200
-Reply-To: giulioo@pobox.com
-X-Mailer: Forte Agent 3.1/32.783
+	Tue, 4 Oct 2005 03:37:43 -0400
+Received: from wg.technophil.ch ([213.189.149.230]:4048 "HELO
+	hydrogenium.schottelius.org") by vger.kernel.org with SMTP
+	id S932119AbVJDHhn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 03:37:43 -0400
+Date: Tue, 4 Oct 2005 09:37:40 +0200
+From: Nico Schottelius <nico-kernel@schottelius.org>
+To: coywolf@lovecn.org
+Cc: Nico Schottelius <nico-kernel@schottelius.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: halt: init exits/panic
+Message-ID: <20051004073740.GA1498@schottelius.org>
+Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
+	coywolf@lovecn.org, linux-kernel@vger.kernel.org
+References: <20050709151227.GM1322@schottelius.org> <2cd57c9005070910091f1051f7@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20051004073730.3C4D0128BC@mail.golden.dom>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="HlL+5n6rz5pIUxbD"
+Content-Disposition: inline
+In-Reply-To: <2cd57c9005070910091f1051f7@mail.gmail.com>
+User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
+X-Linux-Info: http://linux.schottelius.org/
+X-Operating-System: Linux 2.6.13.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm writing here since I didn't receive any answer when I posted the very
-same questions to linux-ide (2.4 MAINTAINERS file says to use linux-ide for
-sata issues), then to the kernel 2.4 maintainer and then to the sata
-maintainer.
 
-I hope that since this list has more readers someone can give me a clue
-about what's happening.
+--HlL+5n6rz5pIUxbD
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-===============
-I have 2 problems with md over sata in kernel 2.4 (2.4.32rc1) when using
-md/raid1 over two 120GB sata disks:
-1) sata (both ata_piix and ahci) thinks one of the sata disks has a problem,
-but:
-- the hd diag utilities both from the hd manufacturer (seagate) and ibm say
-that both disks are fine (I've run them in advanced/complete mode many times
-over).
-- If I boot from floppy and do not load raid1.o and do
-cat /dev/sda > /dev/null
-cat /dev/sdb > /dev/null
-both commands complete without any error
-2) Even if we assume that one disk is bad, which I don't think it's the
-case, the machine hangs when sata starts spewing messages about hd problems
-(with ide the disk/partition would be kicked out and operations would
-continue on the remaining disk/partition). Machine is pingable but you
-cannot login and open terminal sessions hang.
+Coywolf Qi Hunt [Sun, Jul 10, 2005 at 01:09:22AM +0800]:
+> On 7/9/05, Nico Schottelius <nico-kernel@schottelius.org> wrote:
+> > Hello!
+> >=20
+> > What's the 'correct behaviour' of an init system, if someone wants
+> > to shutdown the system?
+> >=20
+> > I currently do:
+> >=20
+> > - call reboot(RB_POWER_OFF/RB_AUTOBOOT/RB_HALT_SYSTEM)
+> > - _exit(0)
+> >=20
+> > Is this exit() call wrong? If I do RB_HALT_SYSTEM and _exit(0) after,
+> > the kernel panics.
+>=20
+> What the panic shows?
 
+To be fully correct:
 
-Here are the posts I made to linux-ide with detailed info about hardware and
-dmesg: 
-	 "ata_piix: "abnormal status 0xD0", but disks are OK"
-	http://marc.theaimsgroup.com/?l=linux-ide&m=112783255913496&w=2
+"Kernel panic - not syncing: Attempted to kill init" (from the last time
+I tried, 2.6.13.2)
 
-	"ata1: BUG: timeout without command"
-	http://marc.theaimsgroup.com/?l=linux-ide&m=112790056405309&w=2
-The problems occurs both with and w/o apic.
+Perhaps _exit(0) is not correct for an init system?
+This at least explains why it always looks like nothing is synced.
 
+Nico
 
-While searching for possible hints I found this redhat bugzilla entry which
-describes a similar issues
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=127813
-they say they think they have it fixed in an errata, so I tried the latest
-rhel3 kernel september2005 errata and I get the same 2 problems above (I
-tried that kernel since I know the main sata developer is from redhat and so
-I thought the rhel3 kernel should be the best avail 2.4 kernel as far as
-sata goes).
+--=20
+Latest project: cconfig (http://nico.schotteli.us/papers/linux/cconfig/)
+Open Source nutures open minds and free, creative developers.
 
+--HlL+5n6rz5pIUxbD
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-So, the questions are:
-1) Are there any known problems with sata in 2.4.x?
-2) Do you know whether md over sata is a big no-no in 2.4.x? If this is a
-known fact, then we can buy an hardware raid controller.
-3) Do you know where to find new sata patches for 2.4?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
-We intentionally stay with 2.4 because we value stability above
-all (ie: above performance), we understand you, as developers, would
-probably just say "upgrade to latest 2.6.x", but this is not an option for
-us right now.
+iQIVAwUBQ0IxQ7OTBMvCUbrlAQLQRw//SP4YEcSZBIJKP0UKkD+Fgo9g/qEKXw0u
+C4rJW8A5buLE4ld1pBT9XLu57pg+RT/1auemBUUdNC2TbT5oIHNz1tcjZrXtUk62
+cnjLFwgy7lwFT/opr2I2yl0nY0PVVvX8aBgXYXCutEtqBXaVKrHs1ipbDMf0cCyu
+05jQWl/qjBfXoV8hUOppaFb8wMd7xnVWkIYg/cq1D7rmIGwzOZsZlUWG58zjaVKx
+AkxRcTzo0SXOJY2v+A7MEPK8OayD/qDoecPbXOPeDllPF+sFd4I3+E8XrEstbTTy
+QYoM/4rbuuIlYV7XLfqLyYyiuHnHEVn4uPLGmXpxqZczF+OLIITmJmtdOZOAEfol
+DEpSsLAHBzGNwGJC8XxY3kc/prebX2p8TkMWJcNUhm2ndPDjsM9r/TN7RoFddazX
++3legSp2nCYy7pMx7f+xqRJEEs9FXjq0p2Pkifzf0sXoNVwHwBxkBaJifMwULKVz
+ckYjbX8e4lIaz7OlCoI1YSEhR5kqTmL90NqYFR02FXZkPP8rcv1ruzi4wHjQpuTj
+3MvelEiv//VTePVjyXpr5m1a+B10fI7Byd7VgBSf9nM+Vm4QWQ7SpD834hgSTq5u
+mK80/sLIpm/wOZDg3InE7N635ZNd7NN6LhnpyP4q8oB9caWTOT/KV7FReFVb99Za
+A7pKmdzgHag=
+=OiNI
+-----END PGP SIGNATURE-----
 
-Thanks
--- 
-giulioo@pobox.com
+--HlL+5n6rz5pIUxbD--

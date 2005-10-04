@@ -1,48 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932507AbVJDPdB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964811AbVJDPe4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932507AbVJDPdB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 11:33:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932510AbVJDPdB
+	id S964811AbVJDPe4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 11:34:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbVJDPe4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 11:33:01 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:33160
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932507AbVJDPdA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 11:33:00 -0400
-Subject: Re: 2.6.14-rc3-rt2
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: dino@in.ibm.com
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <20051004151635.GA8866@in.ibm.com>
-References: <20051004084405.GA24296@elte.hu> <43427AD9.9060104@cybsft.com>
-	 <20051004130009.GB31466@elte.hu>
-	 <Pine.LNX.4.58.0510040943540.13294@localhost.localdomain>
-	 <20051004142718.GA3195@elte.hu>  <20051004151635.GA8866@in.ibm.com>
-Content-Type: text/plain
-Organization: linutronix
-Date: Tue, 04 Oct 2005 17:34:10 +0200
-Message-Id: <1128440050.13057.33.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Tue, 4 Oct 2005 11:34:56 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:27403 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S964811AbVJDPez convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 11:34:55 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <434288E9.3090108@cdac.in>
+References: <434288E9.3090108@cdac.in>
+X-OriginalArrivalTime: 04 Oct 2005 15:34:52.0999 (UTC) FILETIME=[2A2DE570:01C5C8F9]
+Content-class: urn:content-classes:message
+Subject: Re: Using DMA in read/write, setting block size for I/O
+Date: Tue, 4 Oct 2005 11:34:52 -0400
+Message-ID: <Pine.LNX.4.61.0510041127550.28393@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Using DMA in read/write, setting block size for I/O
+Thread-Index: AcXI+SpU3yXXIPxyQwieG3E+aiqK9Q==
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Karthik Sarangan" <karthiks@cdac.in>
+Cc: <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-10-04 at 20:46 +0530, Dinakar Guniguntala wrote:
 
-> I get a lot of these with -rt7 (One every minute)
-> 
-> BUG: auditd:3596, possible softlockup detected on CPU#3!
->  [<c0144c48>] softlockup_detected+0x39/0x46 (8)
->  [<c0144d26>] softlockup_tick+0xd1/0xd3 (20)
->  [<c0111252>] smp_apic_timer_ipi_interrupt+0x4d/0x56 (24)
->  [<c010396c>] apic_timer_ipi_interrupt+0x1c/0x24 (12)
->  [<c0102e7f>] sysenter_past_esp+0x24/0x75 (44)
-> 
+On Tue, 4 Oct 2005, Karthik Sarangan wrote:
 
-Can you send me your .config please ?
+> In my application, I have the following code.
+>
+> int main(void)
+> {
+>    char *pcBuffer;
+>
+>    posix_memalign((void **) pcBuffer, 512, 262144);
+>    int ifd = open("/dev/sdb", O_DIRECT | O_RDWR);
+>    long lLen;
+>
+>    lLen = read(ifd, pcBuffer, 262144);
+>
+>    close(ifd);
+>    return 0;
+> }
+>
+> Will the underlying block device read a single 256KB block from the hdd
+> into pcBuffer
 
-tglx
+No. It might read 512 bytes! You can't assume that a read will
+always return the value requested. That's a bug. You need code
+that will make as many reads as necessary to satisfy your
+request.
+
+> or will it read 256KB as a set of smaller blocks?
+>
+
+You (your code) may have to read multiple times. The
+kernel code may even read ahead.
+
+> Since the buffer is memory aligned will it enable DMA?
+>
+> scsi disk driver is adaptec aic79xx.o
+
+This Adaptec SCSI driver always uses DMA.
+
+> distro is RedHat Enterprise Linux WS 4 (kernel-2.6.9-11)
+> -
 
 
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13 on an i686 machine (5589.55 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

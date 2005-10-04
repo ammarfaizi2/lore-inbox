@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964960AbVJDUUt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964904AbVJDUX3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964960AbVJDUUt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 16:20:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964959AbVJDUUs
+	id S964904AbVJDUX3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 16:23:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964959AbVJDUX3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 16:20:48 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:23493 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S964960AbVJDUUs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 16:20:48 -0400
-Date: Tue, 4 Oct 2005 21:20:47 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: David Leimbach <leimy2k@gmail.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: /etc/mtab and per-process namespaces
-Message-ID: <20051004202047.GP7992@ftp.linux.org.uk>
-References: <3e1162e60510021508r6ef8e802p9f01f40fcf62faae@mail.gmail.com> <3e1162e60510041214t3afd803re27b742705d27900@mail.gmail.com> <20051004194301.GO7992@ftp.linux.org.uk> <3e1162e60510041307q3fc900e7tdcf96eb268816eac@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3e1162e60510041307q3fc900e7tdcf96eb268816eac@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 4 Oct 2005 16:23:29 -0400
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:64229 "EHLO
+	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
+	id S964904AbVJDUX2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 16:23:28 -0400
+From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
+Subject: Re: Linker Problem
+To: Sreeni <sreeni.pulichi@gmail.com>, linux-os@analogic.com,
+       linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Tue, 04 Oct 2005 22:23:15 +0200
+References: <4U0Ek-3gT-5@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1EMtJl-0000vD-Ce@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 04, 2005 at 01:07:48PM -0700, David Leimbach wrote:
-> On 10/4/05, Al Viro <viro@ftp.linux.org.uk> wrote:
-> > On Tue, Oct 04, 2005 at 12:14:47PM -0700, David Leimbach wrote:
-> > > Hmm no responses on this thread a couple days now.  I guess:
-> > >
-> > > 1) No one cares about private namespaces or the fact that they make
-> > > /etc/mtab totally inconsistent.
-> > > 2) Private Namespaces aren't important to anyone and will never be
-> > > robust unless someone who cares, like me, takes it over somehow.
-> > > 3) Everyone is busy with their own shit and doesn't want to deal with
-> > > me or mine right now.
-> >
-> > 4) If you insist on having /etc/mtab the same file in all namespaces,
-> > you obviously will have its contents not matching at least some
-> > of them.  Either have it separate in each namespace where you want
-> > to see it, or simply use /proc/self/mounts instead.
-> 
-> Well I guess it's my fault to some extent with the subject line.  I
-> don't really care about /etc/mtab so much except that I'd like it to
-> be consistent if it is going to be there.  I'd rather it do one of two
-> things.  Show me my current process's namespace accurately or just the
-> stuff that's global to all namespaces.  Right now it's kind of in
-> between.
+Sreeni <sreeni.pulichi@gmail.com> wrote:
 
-/etc/mtab is just a regular file; no more, no less.  It's a place used by
-mount(8) and several other programs.  Kernel has nothing to do with it...
+> My static kernel module demands the text/data to be placed at an
+> absolute address.
 
-Obns: that can get tough.  Note that Plan 9 one is an approximation that
-works well enough for most uses; if you play with mounting/unmounting/renaming
-in sufficiently perverted ways, you'll get unusable /proc/<pid>/ns.  The
-trouble being, they are luckier - they don't have to deal with many classes
-of perversion we do, so their soluition wouldn't work well for Linux.
+This is a bug. Look at other drivers (e.g. drivers/video/hgafb.c)
+on how to do that correctly.
+
+Hint: This driver accesses 0x8000 bytes of memory starting at 0xb0000.
+
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

@@ -1,160 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030228AbVJEQkX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030234AbVJEQlO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030228AbVJEQkX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 12:40:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030230AbVJEQkX
+	id S1030234AbVJEQlO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 12:41:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030230AbVJEQlN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 12:40:23 -0400
-Received: from amdext4.amd.com ([163.181.251.6]:18397 "EHLO amdext4.amd.com")
-	by vger.kernel.org with ESMTP id S1030228AbVJEQkW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 12:40:22 -0400
-X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
-Date: Wed, 5 Oct 2005 10:57:52 -0600
-From: "Jordan Crouse" <jordan.crouse@amd.com>
-To: linux-kernel@vger.kernel.org
-cc: info-linux@ldcmail.amd.com
-Subject: [PATCH 3/5] AMD Geode GX/LX support V2
-Message-ID: <20051005165752.GC24950@cosmic.amd.com>
-References: <20051005164626.GA25189@cosmic.amd.com>
+	Wed, 5 Oct 2005 12:41:13 -0400
+Received: from zproxy.gmail.com ([64.233.162.203]:13985 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030234AbVJEQlM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 12:41:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=EJPYWE5sbqOjqmX61fPWOWfq6fVoUbfcO6T7UiFC2aodvneJvMbWhpnQJ9GQ+B7hhZtnALbBI141hHgZkf5aK9+fgv2uvtADuerwJ+B2j7cqYnAw1PMoQsBr+jBTCBBft7cK+8Bt4ytJ0pBQFAiy2Vn37NnJQaEgVOvHLKL1PFI=
+Message-ID: <3e1162e60510050941l55485cbdgf6135e314a015d8f@mail.gmail.com>
+Date: Wed, 5 Oct 2005 09:41:10 -0700
+From: David Leimbach <leimy2k@gmail.com>
+Reply-To: David Leimbach <leimy2k@gmail.com>
+To: Bodo Eggert <7eggert@gmx.de>
+Subject: Re: what's next for the linux kernel?
+Cc: Nix <nix@esperi.org.uk>, Marc Perkel <marc@perkel.com>,
+       Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0510051744480.2279@be1.lrz>
 MIME-Version: 1.0
-In-Reply-To: <20051005164626.GA25189@cosmic.amd.com>
-User-Agent: Mutt/1.5.11
-X-WSS-ID: 6F5ADE7A07G1826653-01-01
-Content-Type: text/plain;
- charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+References: <4TiWy-4HQ-3@gated-at.bofh.it> <4U0XH-3Gp-39@gated-at.bofh.it>
+	 <E1EMutG-0001Hd-7U@be1.lrz> <87k6gsjalu.fsf@amaterasu.srvr.nix>
+	 <3e1162e60510050755l590a696bx655eb0b7ac05aab6@mail.gmail.com>
+	 <Pine.LNX.4.58.0510051744480.2279@be1.lrz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No changes to this patch from the previous version, but included to
-keep from confusing anybody.
+ss, is gone, so is the file.
+>
+> > Back on topic...
+> >
+> > The problem with private namespaces on Linux is that they really
+> > aren't so much.  mount will update /etc/mtab for all to see and even
+>
+> Userspace problem.-)
 
-The 5535 has a muxed serial port that can either be used to drive GPIO pins
-or a second 16550 UART.  This code enables that UART via a command line
-option.
-This is most often used with a dongle attached to the VGA port to provide a
-a serial port on boards with no dedicated serial goesouta. Please apply
-against linux-2.6.13-rc2-mm2.
+Sure is, which is why I think it's easier to fork a BSD to make it do
+what someone wants than to roll my own linux distribution :-).  
+Perhaps that's a problem of perception and not a really good
+measurement of the amount of energy involved in either alternative.
 
-Index: linux-2.6.14-rc2-mm2/drivers/serial/Kconfig
-===================================================================
---- linux-2.6.14-rc2-mm2.orig/drivers/serial/Kconfig
-+++ linux-2.6.14-rc2-mm2/drivers/serial/Kconfig
-@@ -608,6 +608,17 @@ config SERIAL_AU1X00_CONSOLE
- 	  If you have an Alchemy AU1X00 processor (MIPS based) and you want
- 	  to use a console on a serial port, say Y.  Otherwise, say N.
- 
-+config SERIAL_GEODE_UART2
-+	bool "Enable AMD CS5535 UART2 as a serial port"
-+	depends on MGEODE_LX
-+	default y
-+	select SERIAL_CORE
-+	help
-+	  Select this to allow the user to select the secondary CS5535 UART
-+	  as a 16550 serial port instead of the default DDC interface. The
-+	  UART2 can be selected by specifying geodeuart2 on the command
-+	  line.
-+
- config SERIAL_CORE
- 	tristate
- 
-Index: linux-2.6.14-rc2-mm2/drivers/serial/Makefile
-===================================================================
---- linux-2.6.14-rc2-mm2.orig/drivers/serial/Makefile
-+++ linux-2.6.14-rc2-mm2/drivers/serial/Makefile
-@@ -56,3 +56,4 @@ obj-$(CONFIG_SERIAL_JSM) += jsm/
- obj-$(CONFIG_SERIAL_TXX9) += serial_txx9.o
- obj-$(CONFIG_SERIAL_VR41XX) += vr41xx_siu.o
- obj-$(CONFIG_SERIAL_SGI_IOC4) += ioc4_serial.o
-+obj-$(CONFIG_SERIAL_GEODE_UART2) += cs5535_uart.o
-Index: linux-2.6.14-rc2-mm2/drivers/serial/cs5535_uart.c
-===================================================================
---- /dev/null
-+++ linux-2.6.14-rc2-mm2/drivers/serial/cs5535_uart.c
-@@ -0,0 +1,83 @@
-+/*
-+ * Copyright (c) 2004-2005 Advanced Micro Devices, Inc.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ * The full GNU General Public License is included in this distribution in the
-+ * file called COPYING
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <asm/msr.h>
-+#include <asm/io.h>
-+
-+/* The CS5535 companion chip has two UARTs.  This code enables the second
-+   UART so other devices can use it.  We do it here so we can expose the
-+   port early enough for serial debugging
-+*/
-+
-+/* Note - this does not check to see if the CS5535 actually exists */
-+
-+#define LO(b)  (((1 << b) << 16) | 0x0000)
-+#define HI(b)  ((0x0000 << 16) | (1 << b))
-+
-+static u32 outtab[16] __initdata =
-+{
-+	0x00,HI(4), 0x04,HI(4), 0x08,HI(4),
-+	0x0c,LO(4), 0x10,HI(4), 0x14,LO(4),
-+	0x18,LO(4), 0x1C,LO(4)
-+};
-+
-+static u32 intab[16] __initdata = {
-+	0x20,HI(3), 0x24,LO(3), 0x28,LO(3),
-+	0x2C,LO(3), 0x34,HI(3), 0x38,LO(3),
-+     0x40,LO(3), 0x44,LO(3)
-+};
-+
-+static int __init init_cs5535_uart2(char *str)
-+{
-+	u32 lo = 0, hi = 0;
-+	u32 base; u32 i;
-+
-+	/* Enable UART2 instead of DDC */
-+
-+	rdmsr(0x51400014, lo, hi);
-+	lo &= 0xFF8FFFFF;
-+	lo |= 0x00500000;   /* 0x2F8 ttyS1 */
-+	wrmsr(0x51400014, lo, hi);
-+
-+	/* Set up the UART registers */
-+	wrmsr(0x5140003E, 0x12, 0x00);
-+
-+	rdmsr(0x5140000C, lo, hi);
-+	base = (u32)(lo & 0xFF00);
-+
-+	/* Enable the GPIO pins (in and out) */
-+
-+	for(i = 0; i < 16; i += 2) {
-+		outl(outtab[i + 1], base + outtab[i]);
-+		outl(intab[i + 1], base + intab[i]);
-+	}
-+
-+	/* Enable the IRQ */
-+
-+	rdmsr(0x51400021,lo,hi);
-+	lo &= 0x0FFFFFFF;
-+	lo |= 0x30000000; /* IRQ 3 */
-+	wrmsr(0x51400021,lo,hi);
-+}
-+
-+__setup("geodeuart2", init_cs5535_uart2);
+Sometimes it sure seems easier to keep the userspace stuff with the kernel.
 
+> > I think private namespaces could actually be made more-so but the rest
+> > of the system has to cooperate and I doubt that I have the energy to
+> > do the evangelism and requisite proofs of concept for Linux.  It's far
+> > easier for me to just use Plan 9 and Inferno instead of trying to
+> > assimilate Linux, even though I think I'd prefer Linux if it were more
+> > like the former two.
+>
+> The plan is:
+>
+> 1) make namespaces joinable
+> 2) ???
+> 3) profit
+>
+> No, that's wrong. The plan is (should be?):
+>
+> 1) make namespaces joinable in a sane way
+> 2) wait for the shared subtree patch
+> 3) make pam join the per-user-namespace
+> 4) make pam automount tmpfs on the private /tmp
+
+I'm not sure what you mean by a joinable namespace.  I also am not
+sure I want them :-).
+
+I think of namespaces as being fundamental to the process model and
+that they are inherited from the parent and new ones are created in a
+sort of COW fashion [or at least have similar behavior].
+
+You might want a session namespace instead of a joinable per-process
+namespace but I think that might be a slightly different point of
+view.
+
+Dave

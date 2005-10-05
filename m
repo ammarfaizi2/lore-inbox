@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030284AbVJERc3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030286AbVJERff@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030284AbVJERc3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 13:32:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030289AbVJERc3
+	id S1030286AbVJERff (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 13:35:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030287AbVJERff
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 13:32:29 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:62617 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1030284AbVJERc3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 13:32:29 -0400
-Date: Wed, 5 Oct 2005 18:32:27 +0100 (IST)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: linux-mm <linux-mm@kvack.org>, Andrew Morton <akpm@osdl.org>,
-       kravetz@us.ibm.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       jschopp@austin.ibm.com, lhms <lhms-devel@lists.sourceforge.net>
-Subject: Re: [PATCH 5/7] Fragmentation Avoidance V16: 005_fallback
-In-Reply-To: <1128532859.26009.41.camel@localhost>
-Message-ID: <Pine.LNX.4.58.0510051831270.16421@skynet>
-References: <20051005144546.11796.1154.sendpatchset@skynet.csn.ul.ie> 
- <20051005144612.11796.35309.sendpatchset@skynet.csn.ul.ie> 
- <1128531115.26009.32.camel@localhost>  <Pine.LNX.4.58.0510051815370.16421@skynet>
- <1128532859.26009.41.camel@localhost>
+	Wed, 5 Oct 2005 13:35:35 -0400
+Received: from web35908.mail.mud.yahoo.com ([66.163.179.192]:3511 "HELO
+	web35908.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1030286AbVJERff (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 13:35:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=Vl+v1q9vm+AMW3NDJkIWg0TW6Y9p4iweR/1Ec9FIYOTWoedrAxGR70CyTsOSurw5sO6H4btMbPJSkBKsuqzVmzpGvSh8al/AKKWStIx8oQHnZETFgDQel94S7JfoZ4r5OVUAPpqzvmRWdqTSqLgMojpLN+pAXq6wOv3DuxTXUUU=  ;
+Message-ID: <20051005173534.32907.qmail@web35908.mail.mud.yahoo.com>
+Date: Wed, 5 Oct 2005 10:35:34 -0700 (PDT)
+From: umesh chandak <chandak_pict@yahoo.com>
+Subject: Kernel Panic Error in 2.6.10 !!!!
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Oct 2005, Dave Hansen wrote:
+hi,
+         I have compiled the kernel 2.6.10 with KGDB
+patches on FC3 .My KGDB connetion are made correct .
+I have copied bzImage and System.map on test machine .
+but when i press C for continuig no devlopment m/c
+after  connection are made.It gives me kernel panic
+error like this 
 
-> On Wed, 2005-10-05 at 18:16 +0100, Mel Gorman wrote:
-> >
-> > +               reserve_type=RCLM_NORCLM;
-> >
-> > (Ignore the whitespace damage, cutting and pasting just so you can see
-> > it)
->
-> Sorry, should have been more specific.  You need spaces around the '='.
->
+VFS: Cannot open root device "hda6" or
+unknown-block(3,6)
+Please append a correct "root=" boot option Kernel
+panic - not syncing: VFS: Unable to mount root fs on
+unknown-block(3,6)
+ 
 
-Ah. It's now added to my growing list of "Highlight bad style in red"
-list of vim macros. Sholdn't happen again.
+my root partion  is on /dev/hda6.
+My grub entry is like this.
 
--- 
-Mel Gorman
-Part-time Phd Student                          Java Applications Developer
-University of Limerick                         IBM Dublin Software Lab
+
+title 2.6.10 kgdb
+         root (hd0,5)
+         kernel /boot/vmlinuz-2.6.10 ro root=/dev/hda6
+rootfstype=ext3 kgdbwait kgdb8250=1,57600
+
+
+		
+__________________________________ 
+Yahoo! Mail - PC Magazine Editors' Choice 2005 
+http://mail.yahoo.com

@@ -1,92 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030303AbVJERxv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030302AbVJER6A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030303AbVJERxv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 13:53:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030301AbVJERxv
+	id S1030302AbVJER6A (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 13:58:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030304AbVJER6A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 13:53:51 -0400
-Received: from ns.firmix.at ([62.141.48.66]:50844 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S1030303AbVJERxv (ORCPT
+	Wed, 5 Oct 2005 13:58:00 -0400
+Received: from imag.imag.fr ([129.88.30.1]:28590 "EHLO imag.imag.fr")
+	by vger.kernel.org with ESMTP id S1030302AbVJER57 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 13:53:51 -0400
-Subject: Re: kernel error in system call accept() under kernel 2.6.8
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Peter Duellings <Peter.Duellings@wincor-nixdorf.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <4343F412.8070208@wincor-nixdorf.com>
-References: <43301BC4.9080305@wincor-nixdorf.com>
-	 <1127230327.6276.1.camel@localhost.localdomain>
-	 <4343F412.8070208@wincor-nixdorf.com>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Date: Wed, 05 Oct 2005 19:53:48 +0200
-Message-Id: <1128534828.16804.91.camel@tara.firmix.at>
+	Wed, 5 Oct 2005 13:57:59 -0400
+Date: Wed, 5 Oct 2005 19:57:32 +0200
+From: Pierre Michon <pierre@no-spam.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: freebox possible GPL violation
+Message-ID: <20051005175732.GA2333@linux.ensimag.fr>
+Reply-To: 434403B1.8000506@cs.aau.dk
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040722i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (imag.imag.fr [129.88.30.1]); Wed, 05 Oct 2005 19:57:33 +0200 (CEST)
+X-IMAG-MailScanner: Found to be clean
+X-IMAG-MailScanner-Information: Please contact the ISP for more information
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-10-05 at 17:41 +0200, Peter Duellings wrote:
-[....]
-> meanwhile we could generate a strace for the problem.
-> However, I guess that the strace does not give the desired
-> information (see parts below).
+Hi,
 
-Yup. Where exactly does the kernel return -512 in the strace output?
-I can see only 40 and 43 which are valid file descriptors.
+>Not complex enough so that a network boot protocol can't fit on a BIOS 
+>chip, believe me.
 
-> Additionally we added in the program the output of the return
-> value of the accept() system call . The return value is -512
-> and the errno value is 0!
->
-> Usually the return value should be -1 and the errno  should
-> contain the value without the sign of the error.
-> 
-> 
-> Any idea or comment on this ?
+So _why_ the freebox act _differently_ in the boot process when there is 
+a firmware update ?
+Just for the fun ?
 
-You are doing somewhere else something wrong so post a minimalistic
-piece of source code of how you get to it.
-Or show the *failing* case in the strace output.
+> he only wrong assumptions that I see here are yours.
+I provide facts and arguments, you provide nothing.
 
-> Thanks,
+>I don't understand why you cannot accept that the Freebox is part of the 
+>Free network infrastructure and that you are not using directly the OS 
+>but only the service that they provide.
+So what about _my_ wifi pcmcia card ?
+What about the people who had to paid 400 euros and receive a letter
+from free telling them that according to CGV there are the onwer of the
+freebox (ok this one need some checks).
 
-[...]
-> ---------<strace>------------
-> 2682  09:25:29.238663 accept(21,  <unfinished ...>
-> 2688  09:25:29.263486 accept(33, {sa_family=AF_INET, sin_port=htons(32811),
-> sin_addr=inet_addr("127.0.0.1")}, [16]) = 40 <27.171270>
-> 2688  09:25:56.589969 accept(33, 0x82fa7e0, [16]) = ? ERESTARTSYS (To be
-> restarted) <0.385453>
-> 2688  09:25:56.975563 --- SIGCHLD (Child exited) @ 0 (0) ---
-> 2688  09:25:56.975676 accept(33, 0x82fa7e0, [16]) = ? ERESTARTSYS (To be
-> restarted) <0.205963>
-> 2688  09:25:57.181770 --- SIGCHLD (Child exited) @ 0 (0) ---
-> 2688  09:25:57.181842 accept(33,  <unfinished ...>
-> 2682  09:25:57.231961 <... accept resumed> {sa_family=AF_INET, 
-> sin_port=htons
-> (32882), sin_addr=inet_addr("127.0.0.1")}, [16]) = 43 <27.993066>
-> 2682  09:25:57.234320 accept(21,  <unfinished ...>
-> 2688  09:25:57.538314 <... accept resumed> 0x82fa7e0, [16]) = ? ERESTARTSYS
-> (To be restarted) <0.356435>
-> 2688  09:25:57.538429 --- SIGCHLD (Child exited) @ 0 (0) ---
-> 2688  09:25:57.538488 accept(33, 0x82fa7e0, [16]) = ? ERESTARTSYS (To be
-> restarted) <0.015688>
-> 2688  09:25:57.554315 --- SIGCHLD (Child exited) @ 0 (0) ---
-> 2688  09:25:57.554370 accept(33, 0x82fa7e0, [16]) = ? ERESTARTSYS (To be
-> restarted) <0.192660>
-> 2688  09:25:57.747151 --- SIGCHLD (Child exited) @ 0 (0) ---
-> 2688  09:25:57.747236 accept(33, 0x82fa7e0, [16]) = ? ERESTARTSYS (To be
-> restarted) <0.097813>
-> ....
-> .
-> ---------</strace>------------
-[...]
+Again in my first post I provide facts for this (with links), you provide 
+nothing than replying always the same things without arguments against
+mine.
 
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
 
+Please take my first post and reply to point A, B, C with arguments.
+
+>'Got it, now ?
+No, because you didn't answer to my questions...
+
+Pierre
+
+Please let's continue on legal gpl-violations.org ML.

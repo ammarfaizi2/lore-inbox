@@ -1,72 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965146AbVJEMhE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965154AbVJEMnA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965146AbVJEMhE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 08:37:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965153AbVJEMhE
+	id S965154AbVJEMnA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 08:43:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965155AbVJEMm7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 08:37:04 -0400
-Received: from free.hands.com ([83.142.228.128]:9384 "EHLO free.hands.com")
-	by vger.kernel.org with ESMTP id S965146AbVJEMhB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 08:37:01 -0400
-Date: Wed, 5 Oct 2005 13:36:46 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Nikita Danilov <nikita@clusterfs.com>
-Cc: Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-Message-ID: <20051005123646.GY10538@lkcl.net>
-References: <20051002204703.GG6290@lkcl.net> <4342DC4D.8090908@perkel.com> <200510050122.39307.dhazelton@enter.net> <4343694F.5000709@perkel.com> <17219.39868.493728.141642@gargle.gargle.HOWL> <20051005095653.GK10538@lkcl.net> <17219.43860.610103.628963@gargle.gargle.HOWL> <20051005111305.GS10538@lkcl.net> <17219.50271.962920.26612@gargle.gargle.HOWL>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17219.50271.962920.26612@gargle.gargle.HOWL>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-MailScanner-From: lkcl@lkcl.net
+	Wed, 5 Oct 2005 08:42:59 -0400
+Received: from gw1.cosmosbay.com ([62.23.185.226]:36491 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S965154AbVJEMm7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 08:42:59 -0400
+Message-ID: <4343CA4F.8030003@cosmosbay.com>
+Date: Wed, 05 Oct 2005 14:42:55 +0200
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: devesh sharma <devesh28@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [NUMA x86_64] problem accessing global Node List pgdat_list
+References: <309a667c0510042240y1dcc75c4l83abc7fe430e4f05@mail.gmail.com>
+In-Reply-To: <309a667c0510042240y1dcc75c4l83abc7fe430e4f05@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Wed, 05 Oct 2005 14:42:56 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 05, 2005 at 04:17:35PM +0400, Nikita Danilov wrote:
-> Luke Kenneth Casson Leighton writes:
+Hi Devesh
+
+devesh sharma a écrit :
+> Hi all,
+> On an dual opteron machine and 2.6.9 kernel, I am accessing the global
+> node list pgdat_list but I am not getting the desired results
 > 
-> [...]
+> #include<linux/module.h>
+> #include<linux/config.h>
+> #include<linux/kernel.h>
+> #include<linux/mmzone.h>
 > 
->  > > That's exactly the point: Unix file system model is more flexible than
->  > > alternatives. 
->  > 
->  >  *grin*.  sorry - i have to disagree with you (but see below).
->  > 
->  >  i was called in to help a friend of mine at EDS to do a bastion sftp
->  >  server to write some selinux policy files because POSIX filepermissions
->  >  could not fulfil the requirements.
+> struct pglist_data *pgdat_list ;
+
+What are you doing here ? You declare a local variable on this module.
+You should instead write :
+
+extern struct pglist_data *pgdat_list ;
+(But it seems already declared in mmzone.h)
+
+But pgdat_list is an exported symbol of linux kernel : a module cannot access it.
+
+So I suspect you will have to add in mm/page_alloc.c  (and recompile your kernel)
+
+EXPORT_SYMBOL(pgdat_list);
+
+
+And please use a recent kernel (2.6.13 at least) or few people will answer you.
+
+
 > 
-> First, I was talking about flexibility attained through the separation
-> of notions of file and index. 
-
- oh, right.
-
-> You just claimed elsewhere that this is
-> the direction ntfs took 
-
- with a leap of a few steps, possibly: certainly directly i don't
- remember doing so.
-
-> (with the introduction of hard-links).
-
- 
-> Then, every security model has its weakness and corner cases. Try to
-> express
+> int init_module( void )
+> {
 > 
->         rw-r-xrw- (0656)
+>   pg_data_t *pg_dat ;
 > 
-> POSIX bits with canonical NT ACLs (hint: in NT allow-ACEs are
-> accumulated).
- 
- they used not to be.  accumulative inherited ACLs were introduced
- in NT 5.0.
+>   printk ("<1>****Module initialized to retrive the information of
+> pgdat_list list in the Kernel****\n" ) ;
+> 
+> 
+>   for_each_pgdat(pg_dat)
+>   {
+>     printk ("<1>The number of zones on this node are %x\n", pg_dat ->
+> nr_zones ) ;
+> 
+>     printk ("<1>The Node Id of this node is %d\n", pg_dat -> node_id ) ;
+> 
+>   }
+> 
+>   return 0 ;
+> }
+> 
+> void cleanup_module ( void )
+> {
+>     printk ("<1>********Module Exiting***********\n" ) ;
+> }
+> 
+> MODULE_LICENSE("GPL") ;
+> 
+> How I can access this list any body tell me the solution.
 
- and is accumulated ACLs such a bad thing?  it's certainly more
- space-efficient and administrative-efficient.
+Eric
 
- l.
 

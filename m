@@ -1,75 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030268AbVJERQJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030272AbVJERTm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030268AbVJERQJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 13:16:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030272AbVJERQJ
+	id S1030272AbVJERTm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 13:19:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030274AbVJERTl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 13:16:09 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:64920 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1030268AbVJERQH (ORCPT
+	Wed, 5 Oct 2005 13:19:41 -0400
+Received: from spirit.analogic.com ([204.178.40.4]:21515 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP
+	id S1030272AbVJERTl convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 13:16:07 -0400
-Date: Wed, 5 Oct 2005 18:16:06 +0100 (IST)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: linux-mm <linux-mm@kvack.org>, Andrew Morton <akpm@osdl.org>,
-       kravetz@us.ibm.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       jschopp@austin.ibm.com, lhms <lhms-devel@lists.sourceforge.net>
-Subject: Re: [PATCH 5/7] Fragmentation Avoidance V16: 005_fallback
-In-Reply-To: <1128531115.26009.32.camel@localhost>
-Message-ID: <Pine.LNX.4.58.0510051815370.16421@skynet>
-References: <20051005144546.11796.1154.sendpatchset@skynet.csn.ul.ie> 
- <20051005144612.11796.35309.sendpatchset@skynet.csn.ul.ie>
- <1128531115.26009.32.camel@localhost>
+	Wed, 5 Oct 2005 13:19:41 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <4343FEDF.3020002@perkel.com>
+References: <4343FEDF.3020002@perkel.com>
+X-OriginalArrivalTime: 05 Oct 2005 17:19:29.0534 (UTC) FILETIME=[F1B2E1E0:01C5C9D0]
+Content-class: urn:content-classes:message
+Subject: Re: Why is this list using Majordomo?
+Date: Wed, 5 Oct 2005 13:19:29 -0400
+Message-ID: <Pine.LNX.4.61.0510051318001.5727@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Why is this list using Majordomo?
+Thread-Index: AcXJ0PHPzQn6pvOfTyaaoNGxuxXIkQ==
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Marc Perkel" <marc@perkel.com>
+Cc: <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Oct 2005, Dave Hansen wrote:
 
-> On Wed, 2005-10-05 at 15:46 +0100, Mel Gorman wrote:
-> >
-> > + */
-> > +static inline struct free_area *
-> > +fallback_buddy_reserve(int start_alloctype, struct zone *zone,
-> > +                       unsigned int current_order, struct page *page,
-> > +                       struct free_area *area)
-> > +{
-> > +       if (start_alloctype != RCLM_NORCLM)
-> > +               return area;
-> > +
-> > +       area = &(zone->free_area_lists[RCLM_NORCLM][current_order]);
-> > +
-> > +       /* Reserve the whole block if this is a large split */
-> > +       if (current_order >= MAX_ORDER / 2) {
-> > +               int reserve_type=RCLM_NORCLM;
->
-> -EBADCODINGSTYLE.
+On Wed, 5 Oct 2005, Marc Perkel wrote:
+
+> Instead of a smarter more modern list software package like Mailman?
 >
 
-Changed to;
+Because the maintainer of the list invented it and it's better than
+all the other clones.
 
-+static inline struct free_area *
-+fallback_buddy_reserve(int start_alloctype, struct zone *zone,
-+                       unsigned int current_order, struct page *page,
-+                       struct free_area *area)
-+{
-+       int reserve_type;
-+       if (start_alloctype != RCLM_NORCLM)
-+               return area;
-+
-+       area = &(zone->free_area_lists[RCLM_NORCLM][current_order]);
-+
-+       /* Reserve the whole block if this is a large split */
-+       if (current_order >= MAX_ORDER / 2) {
-+               reserve_type=RCLM_NORCLM;
+> --
+> Marc Perkel - marc@perkel.com
+>
 
-(Ignore the whitespace damage, cutting and pasting just so you can see it)
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13 on an i686 machine (5589.55 BogoMips).
+Warning : 98.36% of all statistics are fiction.
 
--- 
-Mel Gorman
-Part-time Phd Student                          Java Applications Developer
-University of Limerick                         IBM Dublin Software Lab
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

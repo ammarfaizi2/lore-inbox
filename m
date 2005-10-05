@@ -1,60 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030430AbVJEXSo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030431AbVJEXXh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030430AbVJEXSo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 19:18:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030431AbVJEXSo
+	id S1030431AbVJEXXh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 19:23:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030433AbVJEXXh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 19:18:44 -0400
-Received: from postman.ripe.net ([193.0.0.199]:60586 "EHLO postman.ripe.net")
-	by vger.kernel.org with ESMTP id S1030430AbVJEXSo (ORCPT
+	Wed, 5 Oct 2005 19:23:37 -0400
+Received: from free.hands.com ([83.142.228.128]:13752 "EHLO free.hands.com")
+	by vger.kernel.org with ESMTP id S1030431AbVJEXXg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 19:18:44 -0400
-Message-ID: <43445F51.7090403@colitti.com>
-Date: Thu, 06 Oct 2005 01:18:41 +0200
-From: Lorenzo Colitti <lorenzo@colitti.com>
-User-Agent: Thunderbird 1.4 (X11/20050908)
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Nigel Cunningham <ncunningham@cyclades.com>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [swsusp] separate snapshot functionality to separate file
-References: <200510032339.08217.rjw@sisk.pl> <20051003231715.GA17458@elf.ucw.cz> <200510041711.13408.rjw@sisk.pl> <20051004205334.GC18481@elf.ucw.cz> <1128465272.6611.75.camel@localhost> <20051005084141.GB22034@elf.ucw.cz> <434443D9.3010501@colitti.com> <20051005224418.GA22781@elf.ucw.cz> <4344599B.7060308@colitti.com> <20051005225727.GE22781@elf.ucw.cz> <20051005230045.GA22906@elf.ucw.cz>
-In-Reply-To: <20051005230045.GA22906@elf.ucw.cz>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-RIPE-Spam-Level: 
-X-RIPE-Spam-Tests: ALL_TRUSTED,BAYES_20
-X-RIPE-Spam-Status: U 0.284903 / -5.3
-X-RIPE-Signature: 7766324298fc01aa05818794246580fb
+	Wed, 5 Oct 2005 19:23:36 -0400
+Date: Thu, 6 Oct 2005 00:23:30 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: David Leimbach <leimy2k@gmail.com>
+Cc: Bodo Eggert <7eggert@gmx.de>, Nix <nix@esperi.org.uk>,
+       Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel?
+Message-ID: <20051005232330.GS10538@lkcl.net>
+References: <4TiWy-4HQ-3@gated-at.bofh.it> <4U0XH-3Gp-39@gated-at.bofh.it> <E1EMutG-0001Hd-7U@be1.lrz> <87k6gsjalu.fsf@amaterasu.srvr.nix> <3e1162e60510050755l590a696bx655eb0b7ac05aab6@mail.gmail.com> <Pine.LNX.4.58.0510051744480.2279@be1.lrz> <3e1162e60510050941l55485cbdgf6135e314a015d8f@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3e1162e60510050941l55485cbdgf6135e314a015d8f@mail.gmail.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-hands-com-MailScanner: Found to be clean
+X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> "Cool, so you have done 100% of work and now it is stable, fast and
-> tested. You only need to do 200% more work to get it merged".
-> 
-> Merging into kernel is not easy, sorry.
+> > 1) make namespaces joinable in a sane way
+> > 2) wait for the shared subtree patch
+> > 3) make pam join the per-user-namespace
+> > 4) make pam automount tmpfs on the private /tmp
+ 
+ per-user namespaces on /tmp would solve a lot of the problems faced by
+ selinux with respect to directory permissions on /tmp/.font-unix
+ and /tmp/.X11-unix.
+ 
+ there are a lot of legacy apps that no-one wants to modify to get them
+ to create/read /tmp/x-windows/.X11-unix.
 
-Of course. I was just saying that it might be better for users if you, 
-Nigel and the other parties involved collaborated on getting suspend2 
-merged instead of working on 2 or 3 separate implementations. My gut 
-feeling is that it would be quicker to do that than to nail the sucky 
-low-level bugs that are bound to come up when developing the new uswsusp 
-framework.
+ oops.
 
-And now, since there's nothing I can actually do to help this - you 
-can't learn to be a kernel hacker in two weeks - I'll shut up. But I 
-just wanted to remind everyone involved that from a user's perspective, 
-it would be great if suspend2 were merged.
-
-It works, it's fast, it's stable, and it does what users want. That's a 
-strong combination. It would be really good if you could work together 
-to merge it.
-
-
-Cheers,
-Lorenzo
-
--- 
-http://www.colitti.com/lorenzo/

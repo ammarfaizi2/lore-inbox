@@ -1,70 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932303AbVJEFgX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932541AbVJEFkS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932303AbVJEFgX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 01:36:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932541AbVJEFgX
+	id S932541AbVJEFkS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 01:40:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932544AbVJEFkS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 01:36:23 -0400
-Received: from h80ad258b.async.vt.edu ([128.173.37.139]:1952 "EHLO
-	h80ad258b.async.vt.edu") by vger.kernel.org with ESMTP
-	id S932303AbVJEFgX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 01:36:23 -0400
-Message-Id: <200510050535.j955ZwVE021603@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Chase Venters <chase.venters@clientec.com>
-Cc: Marc Perkel <marc@perkel.com>,
-       Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel? 
-In-Reply-To: Your message of "Tue, 04 Oct 2005 18:40:33 CDT."
-             <200510041840.55820.chase.venters@clientec.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <20051002204703.GG6290@lkcl.net> <4342DC4D.8090908@perkel.com>
-            <200510041840.55820.chase.venters@clientec.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1128490557_2752P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Wed, 05 Oct 2005 01:35:57 -0400
+	Wed, 5 Oct 2005 01:40:18 -0400
+Received: from xproxy.gmail.com ([66.249.82.194]:50146 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932541AbVJEFkQ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 01:40:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Fok9cDysSkAKz9fyiA3kBOi2Cee8EGhAFm3vHYv6OUdUGSZhAdSlwuEpblyTWPk23AW1JpvBHUqL6WjCX1mgkKpSj2FbTso2NDFMdGYfGoMBWD8FOCmNKCWL5Ys2KV2JgIW+ijyZU3G3mOERnb2qcxMBKRWTf+bf/rjWn5/i0ZM=
+Message-ID: <309a667c0510042240y1dcc75c4l83abc7fe430e4f05@mail.gmail.com>
+Date: Wed, 5 Oct 2005 11:10:15 +0530
+From: devesh sharma <devesh28@gmail.com>
+Reply-To: devesh sharma <devesh28@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [NUMA x86_64] problem accessing global Node List pgdat_list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1128490557_2752P
-Content-Type: text/plain; charset=us-ascii
+Hi all,
+On an dual opteron machine and 2.6.9 kernel, I am accessing the global
+node list pgdat_list but I am not getting the desired results
 
-On Tue, 04 Oct 2005 18:40:33 CDT, Chase Venters said:
-> Work on dbus and HAL should give us good improvements in these areas. One
-> remaining challenge I see is system configuration - each daemon tends to
-> adopt its own syntax for configuration, which means that providing a GUI for
-> novice users to manage these systems means attacking each problem separately 
-> and in full. Now I certainly wouldn't advocate a Windows-style registry,
-> because I think it's full of obvious problems. Nevertheless, it would be nice
-> to have some kind of configuration editor abstraction library that had some
-> sort of syntax definition database to allow for some interesting work on
-> GUIs.
+#include<linux/module.h>
+#include<linux/config.h>
+#include<linux/kernel.h>
+#include<linux/mmzone.h>
 
-Anybody who tries to do this without at least understanding the design choices
-made by AIX's SMIT tool deserves to re-invent it, poorly.
+struct pglist_data *pgdat_list ;
 
-> In any case, I think pretty much all of this work lives outside the kernel.
+int init_module( void )
+{
 
-Amen to that - although the whole hotplug/udev/sysfs aggregation has at least
-made a semi-sane way to find out from userspace what the kernel thinks is going on...
+  pg_data_t *pg_dat ;
 
-Are there any drivers out there that don't play nice with sysfs? If so, should
-a mention of them be added to http://kerneljanitors.org/TODO ?
+  printk ("<1>****Module initialized to retrive the information of
+pgdat_list list in the Kernel****\n" ) ;
 
 
---==_Exmh_1128490557_2752P
-Content-Type: application/pgp-signature
+  for_each_pgdat(pg_dat)
+  {
+    printk ("<1>The number of zones on this node are %x\n", pg_dat ->
+nr_zones ) ;
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+    printk ("<1>The Node Id of this node is %d\n", pg_dat -> node_id ) ;
 
-iD8DBQFDQ2Y9cC3lWbTT17ARAtr+AKD0QTbMdvgrNyqu+qIWVSN5QOshFACfVX6Z
-m6obBzLt4FEeTbei8fCyR9I=
-=HnXY
------END PGP SIGNATURE-----
+  }
 
---==_Exmh_1128490557_2752P--
+  return 0 ;
+}
+
+void cleanup_module ( void )
+{
+    printk ("<1>********Module Exiting***********\n" ) ;
+}
+
+MODULE_LICENSE("GPL") ;
+
+How I can access this list any body tell me the solution.

@@ -1,38 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030235AbVJEQnM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030241AbVJEQoL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030235AbVJEQnM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 12:43:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030236AbVJEQnM
+	id S1030241AbVJEQoL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 12:44:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030245AbVJEQoL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 12:43:12 -0400
-Received: from ns.firmix.at ([62.141.48.66]:45212 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S1030235AbVJEQnL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 12:43:11 -0400
-Subject: Re: Why is this list using Majordomo?
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Marc Perkel <marc@perkel.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4343FEDF.3020002@perkel.com>
-References: <4343FEDF.3020002@perkel.com>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Date: Wed, 05 Oct 2005 18:42:51 +0200
-Message-Id: <1128530571.16804.82.camel@tara.firmix.at>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Wed, 5 Oct 2005 12:44:11 -0400
+Received: from mail21.sea5.speakeasy.net ([69.17.117.23]:26527 "EHLO
+	mail21.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1030241AbVJEQoJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 12:44:09 -0400
+Date: Wed, 5 Oct 2005 12:44:07 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@excalibur.intercode
+To: David Howells <dhowells@redhat.com>
+cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       keyrings@linux-nfs.org, linux-kernel@vger.kernel.org,
+       Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [Keyrings] [PATCH] Keys: Add LSM hooks for key management
+In-Reply-To: <29942.1128529714@warthog.cambridge.redhat.com>
+Message-ID: <Pine.LNX.4.63.0510051241580.23070@excalibur.intercode>
+References: <29942.1128529714@warthog.cambridge.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-10-05 at 09:27 -0700, Marc Perkel wrote:
-> Instead of a smarter more modern list software package like Mailman?
+On Wed, 5 Oct 2005, David Howells wrote:
 
-Because the list-admins decided that way.
+> Key management access control through LSM is enabled by CONFIG_SECURITY_KEYS.
 
-	Bernd
+Any reason why this is configurable?  Why wouldn't someone want this?
+
+
+- James
 -- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
-
+James Morris
+<jmorris@namei.org>

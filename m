@@ -1,379 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030337AbVJETik@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030338AbVJETj2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030337AbVJETik (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 15:38:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030339AbVJETik
+	id S1030338AbVJETj2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 15:39:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030339AbVJETj2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 15:38:40 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:60396 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1030337AbVJETij (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 15:38:39 -0400
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       fastboot@osdl.org, "Maciej W. Rozycki" <macro@linux-mips.org>
-Subject: [PATCH] x86_64: move apic init in init_IRQs (take 2)
-References: <m13bnh8gdo.fsf@ebiederm.dsl.xmission.com>
-	<200510041724.36535.ak@suse.de>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Wed, 05 Oct 2005 13:36:57 -0600
-In-Reply-To: <200510041724.36535.ak@suse.de> (Andi Kleen's message of "Tue,
- 4 Oct 2005 17:24:36 +0200")
-Message-ID: <m1achn7o2u.fsf_-_@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Wed, 5 Oct 2005 15:39:28 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:36868 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1030338AbVJETj1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 15:39:27 -0400
+Message-ID: <43442C14.2040206@tmr.com>
+Date: Wed, 05 Oct 2005 15:40:04 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Newsgroups: gmane.linux.kernel
+To: Valdis.Kletnieks@vt.edu
+CC: linux-kernel@vger.kernel.org
+Subject: Re: The price of SELinux (CPU)
+References: <434204F8.2030209@comcast.net> <200510041539.j94FdJmO028772@turing-police.cc.vt.edu>            <4342C9F1.2000005@comcast.net> <200510041943.j94Jhj4C007314@turing-police.cc.vt.edu>
+In-Reply-To: <200510041943.j94Jhj4C007314@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Valdis.Kletnieks@vt.edu wrote:
+> On Tue, 04 Oct 2005 14:29:05 EDT, John Richard Moser said:
+> 
+> 
+>>Aside from this, viruses and spyware and worms can now run rampant and
+>>do what they want to his system, and other users' idiotic actions on a
+>>multi-user system affect him.  This is more user friendly?  No, I think
+>>it's going in the opposite direction. . . .
+> 
+> 
+> Virus writers are users too, you know.  :)
+> 
+> And the other users are users as well - what if the other user's "idiotic
+> action" is to nuke your 500Mbyte archive of alt.binaries.pictures.llama.sex
+> that's taking up the disk space that is keeping him from running the payroll
+> software?  In your world, rather than him being able to fix the problem, he has
+> to go find a sysadmin with the root password to fix it, causing delays and
+> being less friendly....
+> 
+> You seem to be intentionally trying to miss the basic point, which is that
+> any additional security ends up trading off against other things.
+> 
+> Non-execute stack is a Good Thing security-wise - but it breaks some code,
+> forcing upgrades and/or having to track down binaries and flag them as
+> "don't enforce NX stack".  And then those binaries are still vulnerable....
+> 
+> SELinux is, in general, also a Good Thing.  However, the fact that the policy
+> restricts what stuff can happen in the security context associated with
+> mail delivery (after all, you *don't* want arbitrary binaries running then, right?)
+> did some serious damage to the way I use procmail, which in some cases ended
+> up running other binaries.  OK, so my .procmailrc *is* a 600-line monster that
+> does a lot of odd stuff - the point was that I had to add even *more* contortions
+> to the way it works, which is even less user-friendly....
+> 
+> 
+Doesn't everyone have executables in their .procmailrc? Mine starts with 
+a filter which may add one line to the mail header, quantifying exactly 
+how badly it sucks. That's then used to take preemptive action against 
+spam and other stuff I don't wnat or need to see.
 
-Ok here is the x86_64 version again without moving check_nmi_watchdog.
-
-There is a lot that could be done to move check_nmi_watchdog earlier
-or to make it per cpu.  Unfortunately when I tried a per cpu
-version of check_nmi_watchdog the code failed miserably,
-on my dual processor hyperthreaded Xeon.  Despite everything being
-setup properly.  And it isn't reasonable to call check_nmi_watchdog
-twice during boot because the second time will take 10 seconds.
-
-All kinds of ugliness exists because we don't initialize
-the apics during init_IRQs.
-- We calibrate jiffies in non apic mode even when we are using apics.
-- We have to have special code to initialize the apics when non-smp.
-- The legacy i8259 must exist and be setup correctly, even
-  we won't use it past initialization.
-- The kexec on panic code must restore the state of the io_apics.
-- init/main.c needs a special case for !smp smp_init on x86
-
-In addition to code movement I needed a couple of non-obvious changes:
-- Move setup_boot_APIC_clock into APIC_late_time_init for
-  simplicity.
-- Use cpu_khz to generate a better approximation of loops_per_jiffies
-  so I can verify the timer interrupt is working.
-- Call setup_apic_nmi_watchdog again after cpu_khz is initialized on
-  the boot cpu.
-
-Plus APIC is now capitalized properly in kernel informational messages.
-
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
-
-
----
-
- arch/x86_64/kernel/apic.c    |   72 +++++++++++++++++++++++++++++++++---------
- arch/x86_64/kernel/i8259.c   |    4 ++
- arch/x86_64/kernel/io_apic.c |    6 +++-
- arch/x86_64/kernel/smpboot.c |   61 +-----------------------------------
- arch/x86_64/kernel/time.c    |    6 ++++
- include/asm-x86_64/apic.h    |    3 +-
- include/asm-x86_64/hw_irq.h  |    1 +
- 7 files changed, 76 insertions(+), 77 deletions(-)
-
-635bab0ceddb7f630750dfb48533d0298f02e8bc
-diff --git a/arch/x86_64/kernel/apic.c b/arch/x86_64/kernel/apic.c
---- a/arch/x86_64/kernel/apic.c
-+++ b/arch/x86_64/kernel/apic.c
-@@ -601,6 +601,7 @@ static int __init detect_init_APIC (void
- 
- void __init init_apic_mappings(void)
- {
-+	unsigned int orig_boot_cpu_id;
- 	unsigned long apic_phys;
- 
- 	/*
-@@ -621,7 +622,11 @@ void __init init_apic_mappings(void)
- 	 * Fetch the APIC ID of the BSP in case we have a
- 	 * default configuration (or the MP table is broken).
- 	 */
-+	orig_boot_cpu_id = boot_cpu_id;
- 	boot_cpu_id = GET_APIC_ID(apic_read(APIC_ID));
-+	if ((orig_boot_cpu_id != -1U) && (orig_boot_cpu_id != boot_cpu_id))
-+		printk(KERN_WARNING "Boot APIC ID in local APIC unexpected (%d vs %d)",
-+			orig_boot_cpu_id, boot_cpu_id);
- 
- #ifdef CONFIG_X86_IO_APIC
- 	{
-@@ -759,6 +764,7 @@ static unsigned int calibration_result;
- 
- void __init setup_boot_APIC_clock (void)
- {
-+	unsigned long flags;
- 	if (disable_apic_timer) { 
- 		printk(KERN_INFO "Disabling APIC timer\n"); 
- 		return; 
-@@ -767,6 +773,7 @@ void __init setup_boot_APIC_clock (void)
- 	printk(KERN_INFO "Using local APIC timer interrupts.\n");
- 	using_apic_timer = 1;
- 
-+	local_save_flags(flags);
- 	local_irq_disable();
- 
- 	calibration_result = calibrate_APIC_clock();
-@@ -775,7 +782,7 @@ void __init setup_boot_APIC_clock (void)
- 	 */
- 	setup_APIC_timer(calibration_result);
- 
--	local_irq_enable();
-+	local_irq_restore(flags);
- }
- 
- void __cpuinit setup_secondary_APIC_clock(void)
-@@ -1029,40 +1036,73 @@ asmlinkage void smp_error_interrupt(void
- 
- int disable_apic; 
- 
-+
- /*
-- * This initializes the IO-APIC and APIC hardware if this is
-- * a UP kernel.
-+ * This initializes the IO-APIC and APIC hardware.
-  */
--int __init APIC_init_uniprocessor (void)
-+int __init APIC_init(void)
- {
--	if (disable_apic) { 
--		printk(KERN_INFO "Apic disabled\n");
--		return -1; 
-+	if (disable_apic) {
-+		printk(KERN_INFO "APIC disabled\n");
-+		return -1;
- 	}
--	if (!cpu_has_apic) { 
-+	if (!cpu_has_apic) {
- 		disable_apic = 1;
--		printk(KERN_INFO "Apic disabled by BIOS\n");
-+		printk(KERN_INFO "APIC disabled by BIOS\n");
- 		return -1;
- 	}
- 
- 	verify_local_APIC();
- 
-+	/*
-+	 * Should not be necessary because the MP table should list the boot
-+	 * CPU too, but we do it for the sake of robustness anyway.
-+	 */
-+	if (!physid_isset(boot_cpu_id, phys_cpu_present_map)) {
-+		printk(KERN_NOTICE "weird, boot CPU (#%d) not listed by the BIOS.\n",
-+			boot_cpu_id);
-+		physid_set(boot_cpu_id, phys_cpu_present_map);
-+	}
-+
-+	/*
-+	 * Switch from PIC to APIC mode.
-+	 */
- 	connect_bsp_APIC();
-+	setup_local_APIC();
- 
--	phys_cpu_present_map = physid_mask_of_physid(boot_cpu_id);
--	apic_write_around(APIC_ID, boot_cpu_id);
-+#ifdef CONFIG_X86_IO_APIC
-+	/*
-+	 * Now start the IO-APICs
-+	 */
-+	if (smp_found_config && !skip_ioapic_setup && nr_ioapics)
-+		setup_IO_APIC();
-+#endif
-+	return 0;
-+}
- 
--	setup_local_APIC();
-+void __init APIC_late_time_init(void)
-+{
-+	/* Improve our loops per jiffy estimate */
-+	loops_per_jiffy = ((1000 + HZ - 1)/HZ)*cpu_khz;
-+	boot_cpu_data.loops_per_jiffy = loops_per_jiffy;
-+	cpu_data[0].loops_per_jiffy = loops_per_jiffy;
-+
-+	/* setup_apic_nmi_watchdog doesn't work properly before cpu_khz is
-+	 * initialized.  So redo it here to ensure the boot cpu is setup
-+	 * properly.  
-+	 */
-+	if (nmi_watchdog == NMI_LOCAL_APIC)
-+		setup_apic_nmi_watchdog();
- 
- #ifdef CONFIG_X86_IO_APIC
- 	if (smp_found_config && !skip_ioapic_setup && nr_ioapics)
--			setup_IO_APIC();
--	else
--		nr_ioapics = 0;
-+		IO_APIC_late_time_init();
- #endif
- 	setup_boot_APIC_clock();
-+#ifndef CONFIG_SMP
-+	/* SMP kernels perform this check after cpu startup */
- 	check_nmi_watchdog();
--	return 0;
-+#endif
- }
- 
- static __init int setup_disableapic(char *str) 
-diff --git a/arch/x86_64/kernel/i8259.c b/arch/x86_64/kernel/i8259.c
---- a/arch/x86_64/kernel/i8259.c
-+++ b/arch/x86_64/kernel/i8259.c
-@@ -598,4 +598,8 @@ void __init init_IRQ(void)
- 
- 	if (!acpi_ioapic)
- 		setup_irq(2, &irq2);
-+
-+#ifdef CONFIG_X86_LOCAL_APIC
-+	APIC_init();
-+#endif
- }
-diff --git a/arch/x86_64/kernel/io_apic.c b/arch/x86_64/kernel/io_apic.c
---- a/arch/x86_64/kernel/io_apic.c
-+++ b/arch/x86_64/kernel/io_apic.c
-@@ -1760,11 +1760,15 @@ void __init setup_IO_APIC(void)
- 	sync_Arb_IDs();
- 	setup_IO_APIC_irqs();
- 	init_IO_APIC_traps();
--	check_timer();
- 	if (!acpi_ioapic)
- 		print_IO_APIC();
- }
- 
-+void __init IO_APIC_late_time_init(void)
-+{
-+	check_timer();
-+}
-+
- struct sysfs_ioapic_data {
- 	struct sys_device dev;
- 	struct IO_APIC_route_entry entry[0];
-diff --git a/arch/x86_64/kernel/smpboot.c b/arch/x86_64/kernel/smpboot.c
---- a/arch/x86_64/kernel/smpboot.c
-+++ b/arch/x86_64/kernel/smpboot.c
-@@ -871,10 +871,6 @@ static __init void disable_smp(void)
- {
- 	cpu_present_map = cpumask_of_cpu(0);
- 	cpu_possible_map = cpumask_of_cpu(0);
--	if (smp_found_config)
--		phys_cpu_present_map = physid_mask_of_physid(boot_cpu_id);
--	else
--		phys_cpu_present_map = physid_mask_of_physid(0);
- 	cpu_set(0, cpu_sibling_map[0]);
- 	cpu_set(0, cpu_core_map[0]);
- }
-@@ -917,40 +913,14 @@ static int __init smp_sanity_check(unsig
- 	 */
- 	if (!smp_found_config) {
- 		printk(KERN_NOTICE "SMP motherboard not detected.\n");
--		disable_smp();
--		if (APIC_init_uniprocessor())
--			printk(KERN_NOTICE "Local APIC not detected."
--					   " Using dummy APIC emulation.\n");
--		return -1;
--	}
--
--	/*
--	 * Should not be necessary because the MP table should list the boot
--	 * CPU too, but we do it for the sake of robustness anyway.
--	 */
--	if (!physid_isset(boot_cpu_id, phys_cpu_present_map)) {
--		printk(KERN_NOTICE "weird, boot CPU (#%d) not listed by the BIOS.\n",
--								 boot_cpu_id);
--		physid_set(hard_smp_processor_id(), phys_cpu_present_map);
--	}
--
--	/*
--	 * If we couldn't find a local APIC, then get out of here now!
--	 */
--	if (APIC_INTEGRATED(apic_version[boot_cpu_id]) && !cpu_has_apic) {
--		printk(KERN_ERR "BIOS bug, local APIC #%d not detected!...\n",
--			boot_cpu_id);
--		printk(KERN_ERR "... forcing use of dummy APIC emulation. (tell your hw vendor)\n");
--		nr_ioapics = 0;
- 		return -1;
- 	}
- 
- 	/*
- 	 * If SMP should be disabled, then really disable it!
- 	 */
--	if (!max_cpus) {
--		printk(KERN_INFO "SMP mode deactivated, forcing use of dummy APIC emulation.\n");
--		nr_ioapics = 0;
-+	if (!max_cpus || disable_apic) {
-+		printk(KERN_INFO "SMP mode deactivated\n");
- 		return -1;
- 	}
- 
-@@ -976,33 +946,6 @@ void __init smp_prepare_cpus(unsigned in
- 		disable_smp();
- 		return;
- 	}
--
--
--	/*
--	 * Switch from PIC to APIC mode.
--	 */
--	connect_bsp_APIC();
--	setup_local_APIC();
--
--	if (GET_APIC_ID(apic_read(APIC_ID)) != boot_cpu_id) {
--		panic("Boot APIC ID in local APIC unexpected (%d vs %d)",
--		      GET_APIC_ID(apic_read(APIC_ID)), boot_cpu_id);
--		/* Or can we switch back to PIC here? */
--	}
--
--	/*
--	 * Now start the IO-APICs
--	 */
--	if (!skip_ioapic_setup && nr_ioapics)
--		setup_IO_APIC();
--	else
--		nr_ioapics = 0;
--
--	/*
--	 * Set up local APIC timer on boot CPU.
--	 */
--
--	setup_boot_APIC_clock();
- }
- 
- /*
-diff --git a/arch/x86_64/kernel/time.c b/arch/x86_64/kernel/time.c
---- a/arch/x86_64/kernel/time.c
-+++ b/arch/x86_64/kernel/time.c
-@@ -884,6 +884,7 @@ static struct irqaction irq0 = {
- 
- extern void __init config_acpi_tables(void);
- 
-+extern void (*late_time_init)(void);
- void __init time_init(void)
- {
- 	char *timename;
-@@ -941,6 +942,11 @@ void __init time_init(void)
- 
- 	set_cyc2ns_scale(cpu_khz / 1000);
- 
-+#if CONFIG_X86_LOCAL_APIC
-+	if (!disable_apic) {
-+		late_time_init = APIC_late_time_init;
-+	}
-+#endif
- #ifndef CONFIG_SMP
- 	time_init_gtod();
- #endif
-diff --git a/include/asm-x86_64/apic.h b/include/asm-x86_64/apic.h
---- a/include/asm-x86_64/apic.h
-+++ b/include/asm-x86_64/apic.h
-@@ -94,7 +94,8 @@ extern void release_lapic_nmi(void);
- extern void disable_timer_nmi_watchdog(void);
- extern void enable_timer_nmi_watchdog(void);
- extern void nmi_watchdog_tick (struct pt_regs * regs, unsigned reason);
--extern int APIC_init_uniprocessor (void);
-+extern int APIC_init(void);
-+extern void APIC_late_time_init(void);
- extern void disable_APIC_timer(void);
- extern void enable_APIC_timer(void);
- extern void clustered_apic_check(void);
-diff --git a/include/asm-x86_64/hw_irq.h b/include/asm-x86_64/hw_irq.h
---- a/include/asm-x86_64/hw_irq.h
-+++ b/include/asm-x86_64/hw_irq.h
-@@ -97,6 +97,7 @@ extern void init_8259A(int aeoi);
- extern void FASTCALL(send_IPI_self(int vector));
- extern void init_VISWS_APIC_irqs(void);
- extern void setup_IO_APIC(void);
-+extern void IO_APIC_late_time_init(void);
- extern void disable_IO_APIC(void);
- extern void print_IO_APIC(void);
- extern int IO_APIC_get_PCI_irq_vector(int bus, int slot, int fn);
+That's a lot to give up.

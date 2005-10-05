@@ -1,79 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030247AbVJEQ5A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030251AbVJEQ6l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030247AbVJEQ5A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 12:57:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030249AbVJEQ5A
+	id S1030251AbVJEQ6l (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 12:58:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030258AbVJEQ6l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 12:57:00 -0400
-Received: from amdext3.amd.com ([139.95.251.6]:40335 "EHLO amdext3.amd.com")
-	by vger.kernel.org with ESMTP id S1030247AbVJEQ47 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 12:56:59 -0400
-X-Server-Uuid: 89466532-923C-4A88-82C1-66ACAA0041DF
-Date: Wed, 5 Oct 2005 10:56:01 -0600
-From: "Jordan Crouse" <jordan.crouse@amd.com>
-To: linux-kernel@vger.kernel.org
-cc: info-linux@ldcmail.amd.com
-Subject: [PATCH 2/5] AMD Geode GX/LX support V2
-Message-ID: <20051005165601.GB24950@cosmic.amd.com>
-References: <20051005164626.GA25189@cosmic.amd.com>
+	Wed, 5 Oct 2005 12:58:41 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:41883 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S1030251AbVJEQ6k convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 12:58:40 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-In-Reply-To: <20051005164626.GA25189@cosmic.amd.com>
-User-Agent: Mutt/1.5.11
-X-WSS-ID: 6F5ADE0D2OC1438555-01-01
 Content-Type: text/plain;
- charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: 2.6.13.2 aacraid regression
+Date: Wed, 5 Oct 2005 12:58:38 -0400
+Message-ID: <547AF3BD0F3F0B4CBDC379BAC7E4189F01B02355@otce2k03.adaptec.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.13.2 aacraid regression
+Thread-Index: AcXIZKFZsBTK1dnsSwKmNSJmN2l7mgAdkaMgADwwCIA=
+From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <linux-scsi@vger.kernel.org>, "Juan D Ch" <jchimienti@most.com.ar>,
+       "Mark Haverkamp" <markh@osdl.org>,
+       "Martin Drab" <drab@kepler.fjfi.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No changes to this patch from V1, but included to keep from confusing
-anybody.
+Juan was kind enough to linger on site, and work on a production
+machine, to try the parameter to make the system stable. He discovered
+that reducing the maximum transfer size issued to the adapter to 128KB
+stabilized his system. This is related to an earlier change for the
+2.6.13 tree resulting from Martin Drab's testing where the transfer size
+was reduced from 4G to 256KB; we needed to go still further in scaling
+back the request size.
 
-This is a simple patch that fixes console APM blanking on the GX/LX
-platforms with BIOSes that still support APM.  Please apply against
-linux-2.4.14-rc2-mm2.
+Here is the patch that tames this regression.
 
-Index: linux-2.6.14-rc2-mm2/arch/i386/kernel/apm.c
+Applies to the 2.6.13.2 tree.
+
+Signed-off-by: Mark Salyzyn <aacraid@adaptec.com>
+
+Index: linux-2.6.13.2/drivers/scsi/aacraid/aacraid.h
 ===================================================================
---- linux-2.6.14-rc2-mm2.orig/arch/i386/kernel/apm.c
-+++ linux-2.6.14-rc2-mm2/arch/i386/kernel/apm.c
-@@ -1057,22 +1057,23 @@ static int apm_engage_power_management(u
-  
- static int apm_console_blank(int blank)
- {
--	int	error;
--	u_short	state;
-+	int error, i;
-+	u_short state;
-+	u_short dev[3] = { 0x100, 0x1FF, 0x101 };
- 
- 	state = blank ? APM_STATE_STANDBY : APM_STATE_READY;
--	/* Blank the first display device */
--	error = set_power_state(0x100, state);
--	if ((error != APM_SUCCESS) && (error != APM_NO_ERROR)) {
--		/* try to blank them all instead */
--		error = set_power_state(0x1ff, state);
--		if ((error != APM_SUCCESS) && (error != APM_NO_ERROR))
--			/* try to blank device one instead */
--			error = set_power_state(0x101, state);
-+
-+	for (i = 0; i < 3; i++) {
-+		error = set_power_state(dev[i], state);
-+
-+		if ((error == APM_SUCCESS) || (error == APM_NO_ERROR))
-+			return 1;
-+
-+		if (error == APM_NOT_ENGAGED)
-+			break;
- 	}
--	if ((error == APM_SUCCESS) || (error == APM_NO_ERROR))
--		return 1;
--	if (error == APM_NOT_ENGAGED) {
-+
-+	if (error == APM_NOT_ENGAGED && state != APM_STATE_READY) {
- 		static int tried;
- 		int eng_error;
- 		if (tried++ == 0) {
+--- linux-2.6.13.2/drivers/scsi/aacraid/aacraid.h       2005-10-05
+12:45:16 -0400
++++ linux-2.6.13.2-aacraid-fix/drivers/scsi/aacraid/aacraid.h
+2005-09-16 21:02:12 -0400
+@@ -15,7 +15,7 @@
+ #define AAC_MAX_LUN            (8)
 
+ #define AAC_MAX_HOSTPHYSMEMPAGES (0xfffff)
+-#define AAC_MAX_32BIT_SGBCOUNT ((unsigned short)512)
++#define AAC_MAX_32BIT_SGBCOUNT ((unsigned short)256)
+
+ /*
+  * These macros convert from physical channels to virtual channels
+
+Sincerely -- Mark Salyzyn

@@ -1,146 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750867AbVJFM62@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbVJFM6A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750867AbVJFM62 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 08:58:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750870AbVJFM62
+	id S1750863AbVJFM6A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 08:58:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750866AbVJFM57
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 08:58:28 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:19856 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1750856AbVJFM6V (ORCPT
+	Thu, 6 Oct 2005 08:57:59 -0400
+Received: from hera.kernel.org ([140.211.167.34]:16096 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1750856AbVJFM57 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 08:58:21 -0400
-Message-ID: <434520FF.8050100@sw.ru>
-Date: Thu, 06 Oct 2005 17:05:03 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, xemul@sw.ru,
-       "Andrey Savochkin" <saw@sawoct.com>, st@sw.ru
-Subject: SMP syncronization on AMD processors (broken?)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 6 Oct 2005 08:57:59 -0400
+Date: Wed, 5 Oct 2005 18:35:40 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Paul Mundt <paul.mundt@nokia.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, mingo@elte.hu,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] mempool_alloc() pre-allocated object usage
+Message-ID: <20051005213540.GA10123@logos.cnet>
+References: <20051003143634.GA1702@nokia.com> <1128350953.17024.17.camel@laptopd505.fenrus.org> <20051003162122.GB1844@nokia.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051003162122.GB1844@nokia.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Linus, Andrew and others,
+Hi Paul,
 
-Please help with a not simple question about spin_lock/spin_unlock on 
-SMP archs. The question is whether concurrent spin_lock()'s should 
-acquire it in more or less "fair" fashinon or one of CPUs can starve any 
-arbitrary time while others do reacquire it in a loop.
+On Mon, Oct 03, 2005 at 07:21:22PM +0300, Paul Mundt wrote:
+> On Mon, Oct 03, 2005 at 04:49:13PM +0200, Arjan van de Ven wrote:
+> > On Mon, 2005-10-03 at 17:36 +0300, Paul Mundt wrote:
+> > > Both usage patterns seem valid from my point of view, would you be open
+> > > to something that would accomodate both? (ie, possibly adding in a flag
+> > > to determine pre-allocated object usage?) Or should I not be using
+> > > mempool for contiguity purposes?
+> > 
+> > a similar dillema was in the highmem bounce code in 2.4; what worked
+> > really well back then was to do it both; eg use half the pool for
+> > "immediate" use, then try a VM alloc, and use the second half of the
+> > pool for the really emergency cases.
+> > 
+> Unfortunately this won't work very well in our case since it's
+> specifically high order allocations that we are after, and we don't have
+> the extra RAM to allow for this.
 
-The question raised because the situation we observe on AMD processors 
-is really strange and makes us believe that something is wrong in 
-kerne/in processor or our minds. Below goes an explanation:
-
-The whole story started when we wrote the following code:
-
-void XXX(void)
-{
-	/* ints disabled */
-restart:
-	spin_lock(&lock);
-	do_something();
-	if (!flag)
-		need_restart = 1;
-	spin_unlock(&lock);
-	if (need_restart)
-		goto restart;	<<<< LOOPS 4EVER ON AMD!!!
-}
-
-void YYY(void)
-{
-	spin_lock(&lock);	<<<< SPINS 4EVER ON AMD!!!
-	flag = 1;
-	spin_unlock(&lock);
-}
-
-function XXX() starts on CPU0 and begins to loop since flag is not set, 
-then CPU1 calls function YYY() and it turns out that it can't take the 
-lock any arbitrary time.
-
-Other observations:
-- This does not happen on Intel processors, more over on Intel 2 CPUs 
-take locks in a fair manner, exactly one by one!
-- If do_something() = usleep(3) we observed that XXX() loops forever, 
-while YYY spins 4EVER on the same lock...
-- cpu_relax() doesn't help after spin_unlock()...
-- wbinvd() after spin_unlock() helpes and 2 CPUs began to take the lock 
-in a fair manner.
-
-How can this happen? Is it regulated somehow by SMP specifications?
-
-Kirill
-P.S. Below is provided /proc/cpuinfo of machines affected.
-
------------------------------------------------------------------------------
-
-[root@ts25 ~]# cat /proc/cpuinfo
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 15
-model           : 35
-model name      : AMD Athlon(tm) 64 X2 Dual Core Processor 3800+
-stepping        : 2
-cpu MHz         : 2010.433
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge 
-mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext lm 
-3dnowext 3dnow pni
-bogomips        : 3981.31
-
-processor       : 1
-vendor_id       : AuthenticAMD
-cpu family      : 15
-model           : 35
-model name      : AMD Athlon(tm) 64 X2 Dual Core Processor 3800+
-stepping        : 2
-cpu MHz         : 2010.433
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge 
-mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext lm 
-3dnowext 3dnow pni
-bogomips        : 3964.92
-
------------------------------------------------------------------------------
-
-[root@opteron root]# cat /proc/cpuinfo
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 15
-model           : 5
-model name      : AMD Opteron(tm) Processor 246
-stepping        : 10
-cpu MHz         : 1992.595
-cache size      : 1024 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge 
-mca cmov pat pse36 clflush mmx fxsr sse sse2 syscall nx mmxext lm 
-3dnowext 3dnow
-bogomips        : 3915.77
+Out of curiosity, what is the requirement for higher order pages?
 

@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965124AbVJEMMx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965138AbVJEMPp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965124AbVJEMMx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 08:12:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965147AbVJEMMx
+	id S965138AbVJEMPp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 08:15:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965143AbVJEMPp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 08:12:53 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:41445 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S965124AbVJEMMw (ORCPT
+	Wed, 5 Oct 2005 08:15:45 -0400
+Received: from darwin.snarc.org ([81.56.210.228]:54931 "EHLO darwin.snarc.org")
+	by vger.kernel.org with ESMTP id S965138AbVJEMPp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 08:12:52 -0400
-Date: Wed, 5 Oct 2005 14:12:22 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Free swap suspend from depending upon PageReserved.
-Message-ID: <20051005121222.GA22580@elf.ucw.cz>
-References: <1128506536.5514.13.camel@localhost>
+	Wed, 5 Oct 2005 08:15:45 -0400
+Date: Wed, 5 Oct 2005 14:15:42 +0200
+From: Vincent Hanquez <vincent@snarc.org>
+To: Emmanuel Fleury <fleury@cs.aau.dk>, Arjan van de Ven <arjan@infradead.org>,
+       Pierre Michon <pierre@no-spam.org>
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: freebox possible GPL violation
+Message-ID: <20051005121542.GA13284@snarc.org>
+References: <20051005111329.GA31087@linux.ensimag.fr> <4343B779.8030200@cs.aau.dk> <1128511676.2920.19.camel@laptopd505.fenrus.org> <4343BB04.7090204@cs.aau.dk> <1128513584.2920.23.camel@laptopd505.fenrus.org> <4343C0DB.9080506@cs.aau.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1128506536.5514.13.camel@localhost>
-X-Warning: Reading this can be dangerous to your mental health.
+In-Reply-To: <4343C0DB.9080506@cs.aau.dk>
+X-Warning: Email may contain unsmilyfied humor and/or satire.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, Oct 05, 2005 at 02:02:35PM +0200, Emmanuel Fleury wrote:
+> Arjan van de Ven wrote:
+> > 
+> > that's not enough to satisfy the GPL conditions. 
+> 
+> It is.
 
-> Here's the patch we've previously discussed, which removes the
-> dependancy of swap suspend on PageReserved.
+>From the GPL FAQ:
+==================================================
+Is making and using multiple copies within one organization or company "distribution"?
 
-This ends up in Linus' changelog, so "we've previously discussed"
-is not okay here. Missing signed-off. What is benefit of this?
+No, in that case the organization is just making the copies for itself.
+As a consequence, a company or other organization can develop a modified
+version and install that version through its own facilities, without
+giving the staff permission to release that modified version to
+outsiders.
+==================================================
 
-swsusp part looks okay, but will Andrew like the generic part? I guess
-I'd prefer to postpone this one (unless we are last user of
-PageReserved) -- I do not see too big benefit and there's potential
-for breakage.
+The bottom line is the Freebox is still owned by Free when you are using
+it. It you "buy" it (by not giving it back and paying 400 EUR), you
+don't have the right anymore to plug it into free network, thus don't
+have access to freebox's firmware.
 
-> @@ -353,7 +357,7 @@ static void __init pagetable_init (void)
->  #endif
->  }
->  
-> -#ifdef CONFIG_SOFTWARE_SUSPEND
-> +#ifdef CONFIG_PM
->  /*
->   * Swap suspend & friends need this for resume because things like the intel-agp
->   * driver might have split up a kernel 4MB mapping.
-
-This is wrong, right? It 
-
-> @@ -540,6 +544,7 @@ void __init mem_init(void)
->  	int codesize, reservedpages, datasize, initsize;
->  	int tmp;
->  	int bad_ppro;
-> +	void * addr;
-
-Please make it void *addr;.
-								Pavel
-
+but please keep that away from the LKML, this is *offtopic* here.
+This list is about *developement* of the linux kernel..
 -- 
-if you have sharp zaurus hardware you don't need... you know my address
+Vincent Hanquez

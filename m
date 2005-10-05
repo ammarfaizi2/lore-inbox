@@ -1,114 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932544AbVJEK1S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932589AbVJEKaz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932544AbVJEK1S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 06:27:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932589AbVJEK1S
+	id S932589AbVJEKaz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 06:30:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932595AbVJEKaz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 06:27:18 -0400
-Received: from free.hands.com ([83.142.228.128]:10404 "EHLO free.hands.com")
-	by vger.kernel.org with ESMTP id S932544AbVJEK1R (ORCPT
+	Wed, 5 Oct 2005 06:30:55 -0400
+Received: from xproxy.gmail.com ([66.249.82.196]:29614 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932589AbVJEKay (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 06:27:17 -0400
-Date: Wed, 5 Oct 2005 11:26:50 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Chase Venters <chase.venters@clientec.com>
-Cc: Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-Message-ID: <20051005102650.GO10538@lkcl.net>
-References: <20051002204703.GG6290@lkcl.net> <4342DC4D.8090908@perkel.com> <200510041840.55820.chase.venters@clientec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200510041840.55820.chase.venters@clientec.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-MailScanner-From: lkcl@lkcl.net
+	Wed, 5 Oct 2005 06:30:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type:content-transfer-encoding;
+        b=Nu4sywj5YLN44McfXqt/R7lLnnMLN5s/ZFWJcNBnhuhbUvNoti2FKtPS2yi+5jBMGmYwK8SsXMnNNV7F//OCnd0tl4En/3E4sXtOOr5VYPGHvtTg1YXqhmOeyDRJxVTyp0lRSyxhzLpSFQoWbU1OLi+dGgHS04PLRG2nzkwMHcA=
+Message-ID: <4343AA81.3030208@gmail.com>
+Date: Wed, 05 Oct 2005 12:27:13 +0200
+From: Igor Popik <igor.popik@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fix oops when reading /proc/ioports
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 04, 2005 at 06:40:33PM -0500, Chase Venters wrote:
+Hi,
 
-> Work on dbus and HAL should give us good improvements in these areas. One 
+I have noticed that in recent kernels (2.6.13 and newer) I got an oops
+every time I tried to read /proc/ioports after trying to load i82365
+pcmcia driver module:
 
- dbus.  total waste of several man-years of effort that could have been
- better spent in e.g. removing the dependency of posix draft 4 threads
- from freedce (which i finally did last month) and e.g. adding an ultra-fast
- shared-memory transport plugin.
+root@alien2:~# modprobe i82365
+FATAL: Error inserting i82365
+(/lib/modules/2.6.14-rc3/kernel/drivers/pcmcia/i82365.ko): No such
+device
 
- hal.  _excellent_.  look forward to it being ported to win32 so that
- it's useful for the kde-win32 port etc. etc.
+root@alien2:~# cat /proc/ioports
+<1>Unable to handle kernel paging request at virtual address cff10802
+printing eip:
+c01c09bc
+*pde = 0eec3067
+*pte = 00000000
+Oops: 0000 [#4]
+Modules linked in: rsrc_nonstatic pcmcia_core snd_via82xx gameport
+snd_ac97_codec snd_ac97_bus snd_pcm snd_timer
+snd_page_alloc
+snd_mpu401_uart snd_rawmidi snd soundcore psmouse
+CPU:    0
+EIP:    0060:[<c01c09bc>]    Not tainted VLI
+EFLAGS: 00010297   (2.6.14-rc3)
+EIP is at vsnprintf+0x33c/0x4d0
+eax: cff10802   ebx: 0000000a   ecx: cff10802   edx: fffffffe
+esi: ce525122   edi: 00000000   ebp: ce525fff   esp: c70e5eb4
+ds: 007b   es: 007b   ss: 0068
+Process cat (pid: 3365, threadinfo=c70e4000 task=c13b1030)
+Stack: ce52511b ce525fff 000003e1 00000000 00000010 00000004 00000002 
+00000001
+     ffffffff ffffffff c30747e0 c7f6efc0 c30747e0 00000116 c01723d5 
+ce525116
+     00000eea c0333dc8 c70e5f2c 00000004 c011cc87 c30747e0 c0333db6 
+00000000
+Call Trace:
+[<c01723d5>] seq_printf+0x35/0x60
+[<c011cc87>] r_show+0x77/0x80
+[<c0171ed6>] seq_read+0x1d6/0x2d0
+[<c01521a7>] vfs_read+0xa7/0x180
+[<c0152561>] sys_read+0x51/0x80
+[<c0103095>] syscall_call+0x7/0xb
+Code: 24 08 00 00 00 83 cf 01 eb bb 8b 44 24 48 8b 54 24 20 83 44 24
+48 04 8b 08 b8 ac ed 33 c0 81 f9 ff 0f 00 00 0f 46 c8
+89 c8 eb 06 <80> 38 00 74 07 40 4a 83 fa ff 75 f4 29 c8 83 e7 10 89 c3 
+75 20
+Segmentation fault
 
-> remaining challenge I see is system configuration - each daemon tends to 
-> adopt its own syntax for configuration, which means that providing a GUI for 
-> novice users to manage these systems means attacking each problem separately 
-> and in full. 
+This oops is caused by broken i82365 PCMCIA driver. Someone tried to
+remove deprecated check_region()  but after the changes the driver
+does not release its memory regions correctly.
 
- that's quite straightforward to deal with but it _does_ mean using a
- unified approach to writing APIs.
+I've attached patch that fixes that oops. This driver looks really
+dirty, and I do not know if it still works.
 
- NT solved this problem by writing graphical tools in c and then
- adopting dce/rpc as the means to administer the services both locally
- _and_ remotely.
+Cheers,
+Igor
 
- wholesale.  utterly.  everything.  right from the simplest things like
- rebooting the machine, through checking the MAC addresses of cards
- (NetTransportEnum) all the way up to DNS administration - yes,
- dnsadmin.exe will write out DNS zone files in proper bind format.
+Signed-off-by: Igor Popik <igor.popik@gmail.com>
 
- it's quite a brave choice to take.
+--- a/drivers/pcmcia/i82365.c   2005-08-29 01:41:01.000000000 +0200
++++ b/drivers/pcmcia/i82365.c   2005-10-05 00:07:04.000000000 +0200
+@@ -697,6 +697,11 @@
+   struct i82365_socket *t = &socket[sockets-ns];
 
-> Now I certainly wouldn't advocate a Windows-style registry, 
-> because I think it's full of obvious problems. 
+   base = sockets-ns;
++    if (t->ioaddr > 0) {
++       if (!request_region(t->ioaddr, 2, "i82365"))
++           printk(KERN_WARNING "port conflict at %#lx\n", t->ioaddr);
++    }
++
+   if (base == 0) printk("\n");
+   printk(KERN_INFO "  %s", pcic[type].name);
+   printk(" ISA-to-PCMCIA at port %#lx ofs 0x%02x",
+@@ -806,7 +811,8 @@
+      if (sockets == 0)
+          printk("port conflict at %#lx\n", i365_base);
+      return;
+-    }
++    } else
++       release_region(i365_base, 2);
 
- such as? :)
+   id = identify(i365_base, 0);
+   if ((id == IS_I82365DF) && (identify(i365_base, 1) != id)) {
+@@ -1440,7 +1446,6 @@
+      i365_set(i, I365_CSCINT, 0);
+      release_region(socket[i].ioaddr, 2);
+   }
+-    release_region(i365_base, 2);
+#ifdef CONFIG_PNP
+   if (i82365_pnpdev)
+              pnp_disable_dev(i82365_pnpdev);
 
- they're not obvious to me.  at the risk of in-for-penny, in-for-pound
- _radically_ off-topic discussion encouragement here, and also for
- completeness should someone come back to the archives in some years or
- months and go "what obvious problems", could you kindly elaborate?
-
- one i can think of is "eek, my system's broken, eek, i can't even use
- vi to edit the configs".
-
- and having described the problem, then.. .. well... actually...
- it's simply dealt with:
-
- http://www.bindview.com/Services/RAZOR/Utilities/Unix_Linux/ntreg_readme.cfm
-
- todd sabin wrote a linux filesystem driver which is read-only, so at
- least half the work's done.
-
- (and the reactos people have written a complete implementation
- of a registry, btw).
-
-> Nevertheless, it would be nice 
-> to have some kind of configuration editor abstraction library that had some 
-> sort of syntax definition database to allow for some interesting work on 
-> GUIs.
- 
- i have to say this: it's almost too radical, dude :)
-
- he he.
-
-
-> In any case, I think pretty much all of this work lives outside the kernel. 
-
- ACK!
-
- ... well... not entirely.
-
- a "registry" - god help us - would need to be stored on a filesystem.
- and then, ideally, made accessible a la todd sabin's ntreg driver - via
- a POSIX interface (because the linux kernel doesn't _do_ anything other
- than POSIX filesystems *sigh*).  and that makes it also convenient to
- access from kernelspace, too.
-
- hey, you know what?  if linux got a registry, it would be possible for
- the kernel to access - and store, and communicate - persistent
- information.
-
- conveniently.
-
- hurrah.
-
- 

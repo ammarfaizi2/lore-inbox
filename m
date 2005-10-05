@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030340AbVJETkt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030344AbVJETlr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030340AbVJETkt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 15:40:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030342AbVJETkt
+	id S1030344AbVJETlr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 15:41:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030343AbVJETlr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 15:40:49 -0400
-Received: from web35906.mail.mud.yahoo.com ([66.163.179.190]:36489 "HELO
-	web35906.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1030340AbVJETks (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 15:40:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=ZsUvIx1vBmDsiGSc/RQuAZRKUFCvuzti4a4EAgiXjNd2h0Cc/PjmmAknmYji7ruymy21qx5ueZkzJPj5VKyMmTjnw8U4L5nIDmkfU6nC5s9JcQar/eSPvPuDgY3VPkD/RQOmq56M9w1H28gNR7l3/j6qn9KsQvP98GNcMzGj5k4=  ;
-Message-ID: <20051005194047.85060.qmail@web35906.mail.mud.yahoo.com>
-Date: Wed, 5 Oct 2005 12:40:47 -0700 (PDT)
-From: umesh chandak <chandak_pict@yahoo.com>
-Subject: warning while booting kernel 2.6.10 on FC3
-To: linux-kernel@vger.kernel.org
+	Wed, 5 Oct 2005 15:41:47 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:25092 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1030344AbVJETlq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 15:41:46 -0400
+Message-ID: <43442C9D.6070103@tmr.com>
+Date: Wed, 05 Oct 2005 15:42:21 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Valdis.Kletnieks@vt.edu
+CC: linux-kernel@vger.kernel.org
+Subject: Re: The price of SELinux (CPU)
+References: <434204F8.2030209@comcast.net> <200510041539.j94FdJmO028772@turing-police.cc.vt.edu> <4342C9F1.2000005@comcast.net> <200510041943.j94Jhj4C007314@turing-police.cc.vt.edu>            <4342E1A2.7080008@comcast.net> <200510042232.j94MWQR4006568@turing-police.cc.vt.edu>
+In-Reply-To: <200510042232.j94MWQR4006568@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
-           I have compiled a kernel 2.6.10 on FC3 it.
-When i restart in 2.6.10 it gives me warning like this
+Valdis.Kletnieks@vt.edu wrote:
+> On Tue, 04 Oct 2005 16:10:10 EDT, John Richard Moser said:
 
+>>Oh sure, except that. . .
+>>
+>>1)  You shouldn't be screwing with the payroll system
+>>2)  You're quota'd on any good setup
+> 
+> 
+> Ahem.  You're adding in more "user unfriendly" constraints again. :)
 
-Warning: unable to open an initial console.
+I don't think promising a user that s/he can have N MB of disk is 
+unfriendly at all.
 
-
-          Plz help me out
-    Thanks in advance
-
-
-
-
-
-	
-		
-______________________________________________________ 
-Yahoo! for Good 
-Donate to the Hurricane Katrina relief effort. 
-http://store.yahoo.com/redcross-donate3/ 
-
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

@@ -1,104 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030208AbVJEQVm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030216AbVJEQYF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030208AbVJEQVm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 12:21:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030216AbVJEQVm
+	id S1030216AbVJEQYF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 12:24:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030217AbVJEQYF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 12:21:42 -0400
-Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:15850 "EHLO
-	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP
-	id S1030208AbVJEQVl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 12:21:41 -0400
-X-ORBL: [69.107.75.50]
-DomainKey-Signature: a=rsa-sha1; s=sbc01; d=pacbell.net; c=nofws; q=dns;
-	h=received:date:from:to:subject:cc:mime-version:
-	content-type:content-transfer-encoding:message-id;
-	b=pAGOjIrfIs3GDitYdfq0AWdfNNcs38OWDA8Be/+z4ckSbqSwIXr0KmdmaTUeBRro8
-	SQQLB6Rnlu+mX4AnWmbRg==
-Date: Wed, 05 Oct 2005 09:21:17 -0700
-From: David Brownell <david-b@pacbell.net>
-To: vwool@ru.mvista.com
-Subject: Re: [PATCH/RFC 0/2] simple SPI framework, refresh + ads7864 driver
-Cc: linux-kernel@vger.kernel.org
+	Wed, 5 Oct 2005 12:24:05 -0400
+Received: from 10.ctyme.com ([69.50.231.10]:15240 "EHLO newton.ctyme.com")
+	by vger.kernel.org with ESMTP id S1030215AbVJEQYE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 12:24:04 -0400
+Message-ID: <4343FE1C.7090700@perkel.com>
+Date: Wed, 05 Oct 2005 09:23:56 -0700
+From: Marc Perkel <marc@perkel.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.10) Gecko/20050716
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Al Viro <viro@ftp.linux.org.uk>
+CC: Rik van Riel <riel@redhat.com>,
+       Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel?
+References: <20051002204703.GG6290@lkcl.net> <4342DC4D.8090908@perkel.com> <Pine.LNX.4.63.0510051150570.3798@cuia.boston.redhat.com> <4343F815.4000208@perkel.com> <20051005161527.GU7992@ftp.linux.org.uk>
+In-Reply-To: <20051005161527.GU7992@ftp.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <20051005162117.24DDBEE95B@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
+X-Spamfilter-host: newton.ctyme.com - http://www.junkemailfilter.com"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Of course we want to use scatter-gather lists.
-
-The only way "of course" applies is if you're accepting requests
-from the block layer, which talks in terms of "struct scatterlist".
-
-In my investigations of SPI, I don't happen to have come across any
-SPI slave device that would naturally be handled as a block device.
-There's lots of flash (and dataflash); that's MTD, not block.
 
 
->	The DMA controller 
-> mentioned above can handle only 0xFFF transfer units at a transfer so we 
-> have to split the large transfers into SG lists.
+Al Viro wrote:
 
-Odd, I've seen plenty other drivers that just segment large buffers
-into multiple DMA transfers ... without wanting "struct scatterlist".
+>On Wed, Oct 05, 2005 at 08:58:13AM -0700, Marc Perkel wrote:
+>  
+>
+>>This stuff I'm talking about is not theoretical. It's been in Novell 
+>>Netware since 1990 and it works great. Netware with DOS in 1990 is still 
+>>far superior to Linux today. Once you've had Netware - Linux is 
+>>laughable. All youhave to do is look ate Netware and copy it. Or the 
+>>mars-nwe netware emulator for that matter. The code to do this already 
+>>exists.
+>>    
+>>
+>
+>Novell will happily sell you Netware if you are so inclined, I suppose.
+>As long as its consentual, it's really your business - one of three is
+>not that bad, even if "sane" and "safe" are missing...
+>  
+>
 
-  - Sometimes they turn them into lists of DMA descriptors handled
-    by their DMA controller.  Even the silicon designers who talk
-    to Linux developers wouldn't choose "struct scatterlist" to
-    hold those descriptors
-
-  - More often they just break big buffers into lots of little
-    transfers.  Just like PIO, but faster.  (And in fact, they may
-    need to prime the pump with some PIO to align the buffer.)
-
-  - Sometimes they just reject segments that are too large to
-    handle cleanly at a low level, and require higher level code
-    to provide more byte-sized blocks of I/O.
-
-If "now" _were_ the point we need to handle scatterlists, I've shown
-a nice efficient way to handle them, already well proven in the context
-of another serial bus protocol (USB).
-
-
-> Moreover, that looks like it may imply redundant data copying.
-
-Absolutely not.  Everything was aimed at zero-copy I/O; why do
-you think I carefully described "DMA mapping" everywhere, rather
-than "memcpy"?
+That's not the point. The point is that Netware has a far superior 
+permission system and I am suggesting the the Linux community learn from 
+it and take advantage of seeing what better looks like and improving itself.
 
 
-> Can you please elaborate what you meant by 'readiness to accept DMA 
-> addresses' for the controller drivers?
+-- 
+Marc Perkel - marc@perkel.com
 
-Go look at the parts of the USB stack I mentioned.  That's what I mean.
-
- - In the one case, DMA-aware controller drivers look at each buffer
-   to determine whether they have to manage the mappings themselves.
-   If the caller provided the DMA address, they won't set up mappings.
-
- - In the other case, they always expect their caller to have set
-   up the DMA mappings.  (Where "caller" is infrastructure code,
-   not the actual driver issuing the I/O request.)
-
-The guts of such drivers would only talk in terms of DMA; the way those
-cases differ is how the driver entry/exit points ensure that can be done.
-
-
-> As far as I see it now, the whole thing looks wrong. The thing that we 
-> suggest (i. e. abstract handles for memory allocation set to kmalloc by 
-> default) is looking far better IMHO and doesn't require any flags which 
-> usage increases uncertainty in the core.
-
-You are conflating memory allocation with DMA mapping.  Those notions
-are quite distinct, except for dma_alloc_coherent() where one operation
-does both.
-
-The normal goal for drivers is to accept buffers allocated from anywhere
-that Documentation/DMA-mapping.txt describes as being DMA-safe ... and
-less often, message passing frameworks will do what USB does and accept
-DMA addresses rather than CPU addresses.
-
-- Dave
+Spam Filter: http://www.junkemailfilter.com
+    My Blog: http://marc.perkel.com
 

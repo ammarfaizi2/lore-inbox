@@ -1,86 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030358AbVJEUHq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030362AbVJEULp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030358AbVJEUHq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 16:07:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030360AbVJEUHq
+	id S1030362AbVJEULp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 16:11:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030363AbVJEULp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 16:07:46 -0400
-Received: from uucp.cistron.nl ([62.216.30.38]:40170 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S1030358AbVJEUHq (ORCPT
+	Wed, 5 Oct 2005 16:11:45 -0400
+Received: from free.hands.com ([83.142.228.128]:42931 "EHLO free.hands.com")
+	by vger.kernel.org with ESMTP id S1030362AbVJEULo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 16:07:46 -0400
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: 3Ware 9500S-12 RAID controller -- poor performance
-Date: Wed, 5 Oct 2005 20:07:44 +0000 (UTC)
-Organization: Cistron
-Message-ID: <di1bqg$te6$1@news.cistron.nl>
-References: <20050930065058.84446.qmail@web30315.mail.mud.yahoo.com>
+	Wed, 5 Oct 2005 16:11:44 -0400
+Date: Wed, 5 Oct 2005 21:11:32 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Rik van Riel <riel@redhat.com>
+Cc: Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel?
+Message-ID: <20051005201132.GL10538@lkcl.net>
+References: <20051002204703.GG6290@lkcl.net> <4342DC4D.8090908@perkel.com> <Pine.LNX.4.63.0510051150570.3798@cuia.boston.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1128542864 30150 194.109.0.112 (5 Oct 2005 20:07:44 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: mikevs@zahadum.xs4all.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.63.0510051150570.3798@cuia.boston.redhat.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-hands-com-MailScanner: Found to be clean
+X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20050930065058.84446.qmail@web30315.mail.mud.yahoo.com>,
-subbie subbie  <subbie_subbie@yahoo.com> wrote:
->I'm using a 3Ware 9500S-12 card and am able to produce
->up to 400MB/s sustained read from my 12-disk 4.1TB
->RAID5 SATA array, 128MB cache onboard, ext3 formatted.
->  All is well when performing a single read -- it
->works nice and fast.
->
->The system is a web server, serving mid-size files
->(50MB, each, on average).  All hell breaks loose when
->doing many concurrent reads, anywhere between 200 to
->400 concurrent streams things simply grind to a halt
->and the system transfers a maximum of 12-14MB/s.
+please can we move this discussion _to_ the linux visionaries
+mailing list?
 
-There are a couple of things you should do:
+i for one would actually like a place where linux kernel developers can
+say, instead of "get lost, xxxxhead, you're wasting our time" or
+patronise people with IQs > 140 with "go read the kernel newbies faq":
 
-1. Use the CFQ I/O scheduler, and increase nr-requests:
-   echo cfq > /sys/block/hda/queue/scheduler
-   echo 1024 > /sys/block/hda/queue/nr_requests
+	"Hmm, sounds like you have a baad case of linux vision, son.
+	Go Preach it on LVML, and may you ever love the Penguin."
 
-2. Make sure that your filesystem knows about the stripe size
-   and number of disks in the array. E.g. for a raid5 array
-   with a stripe size of 64K and 6 disks (effectively 5,
-   because in every stripe-set there is on disk doing parity):
+anyone willing to host such a list at a _real_ server please
+speak up now or forever hold your peace.
 
-   # ext3 fs, 5 disks, 64K stripe, units in 4K blocks
-   mkfs -text3 -E stride=$((64/4))
+l.
 
-   # xfs, 5 disks, 64K stripe, units in 512 bytes
-   mkfs -txfs -d sunit=$((64*2)) -d swidth=$((5*64*2))
+On Wed, Oct 05, 2005 at 11:54:03AM -0400, Rik van Riel wrote:
 
-3. Don't use partitions. Partions do not start on a multiple of
-   the (stripe_size * nr_disks), so your I/O will be misaligned
-   and the settings in (2) will have no or an adverse effect.
-   If you must use partitions, either build them manually
-   with sfdisk so that partitions do start on that multiple,
-   or use LVM.
+> On Tue, 4 Oct 2005, Marc Perkel wrote:
+> 
+> > Marc Perkel
+> > Linux Visionary
+> 
+> The problem I have with most visionaries is that while 
+> they see lots of stuff, they never show anything to the
+> rest of the world.
+> 
+> Unless you can explain to other people why your idea
+> makes sense, or unless you implement your idea, it won't
+> happen.
+> 
+> If the idea is good enough, either of explanation or
+> implementation should be enough.
+> 
+> Preaching, OTOH, does not convince people.
+> 
+> -- 
+> All Rights Reversed
 
-4. Reconsider your stripe size for streaming large files.
-   If you have say 4 disks, and a 64K
-   stripe size, then a read of a block of 256K will busy all 4 disks.
-   Many simultaneous threads reading blocks of 256K will result in
-   trashings disks as they all want to read from all 4 disks .. so
-   in that case, using a stripesize of 256K will make things better.
-   One read of 256K (in the ideal, aligned case) will just keep one
-   disk busy. 4 reads can happen in parallel without trashing. Esp.
-   in this case, you need the alignment I talked about in (3).
-
-5. Defragment the files.
-   If the files are written sequentially, they will not be fragmented.
-   But if they were stored by writing to thousands of them appending
-   a few K at a time in round-robin fashion, you need to defragment..
-   in the case of XFS, run xfs_fsr every so often.
-
-Good luck,
-
-Mike.
-
+-- 
+--
+<a href="http://lkcl.net">http://lkcl.net</a>
+--

@@ -1,89 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030359AbVJEUFj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030358AbVJEUHq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030359AbVJEUFj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 16:05:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030358AbVJEUFj
+	id S1030358AbVJEUHq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 16:07:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030360AbVJEUHq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 16:05:39 -0400
-Received: from 10.ctyme.com ([69.50.231.10]:45984 "EHLO newton.ctyme.com")
-	by vger.kernel.org with ESMTP id S1030359AbVJEUFi (ORCPT
+	Wed, 5 Oct 2005 16:07:46 -0400
+Received: from uucp.cistron.nl ([62.216.30.38]:40170 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S1030358AbVJEUHq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 16:05:38 -0400
-Message-ID: <4344320A.7090007@perkel.com>
-Date: Wed, 05 Oct 2005 13:05:30 -0700
-From: Marc Perkel <marc@perkel.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.10) Gecko/20050716
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-CC: Florin Malita <fmalita@gmail.com>, nix@esperi.org.uk, 7eggert@gmx.de,
-       lkcl@lkcl.net, linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-References: <4TiWy-4HQ-3@gated-at.bofh.it> <4U0XH-3Gp-39@gated-at.bofh.it> <E1EMutG-0001Hd-7U@be1.lrz> <87k6gsjalu.fsf@amaterasu.srvr.nix> <4343E611.1000901@perkel.com> <20051005144441.GC8011@csclub.uwaterloo.ca> <4343E7AC.6000607@perkel.com> <20051005153727.994c4709.fmalita@gmail.com> <43442D19.4050005@perkel.com> <20051005195212.GJ7949@csclub.uwaterloo.ca>
-In-Reply-To: <20051005195212.GJ7949@csclub.uwaterloo.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spamfilter-host: newton.ctyme.com - http://www.junkemailfilter.com"
+	Wed, 5 Oct 2005 16:07:46 -0400
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: 3Ware 9500S-12 RAID controller -- poor performance
+Date: Wed, 5 Oct 2005 20:07:44 +0000 (UTC)
+Organization: Cistron
+Message-ID: <di1bqg$te6$1@news.cistron.nl>
+References: <20050930065058.84446.qmail@web30315.mail.mud.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1128542864 30150 194.109.0.112 (5 Oct 2005 20:07:44 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: mikevs@zahadum.xs4all.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Lennart Sorensen wrote:
-
->On Wed, Oct 05, 2005 at 12:44:25PM -0700, Marc Perkel wrote:
->  
+In article <20050930065058.84446.qmail@web30315.mail.mud.yahoo.com>,
+subbie subbie  <subbie_subbie@yahoo.com> wrote:
+>I'm using a 3Ware 9500S-12 card and am able to produce
+>up to 400MB/s sustained read from my 12-disk 4.1TB
+>RAID5 SATA array, 128MB cache onboard, ext3 formatted.
+>  All is well when performing a single read -- it
+>works nice and fast.
 >
->>What you don't get is that if you don't have rights to write to a file 
->>then you shouldn't have the right to delete the file.  Once you get past 
->>the "inside the box" Unix thinking you'll see the logic in this. So what 
->>if the process of deleting a file involves writing to it. That's not 
->>relevant.
->>    
->>
->
->When a system supports hardlinks, it IS relevant.
->
->So if I decide I want a link to a file like say /etc/group in my home
->dir (let us pretend they are on the same partition) so I make a hardlink
->to it in my home dir and end up with a file still owned by root (since I
->shouldn't be able to add me as owner to the file just by linking to it
->after all).  Should I now have to go bother the admin about deleting the
->file from my home dir if I decide that wasn't really what I wanted?  If
->I didn't have write permissions to the dir I wouldn't have been able to
->make the link in the first place, so since I made it I should be able to
->delete it, and I can with the unix way of doing things.  I still can't
->edit it anymore than I could in the original place since it linked with
->the new link to the file having the excact same permissions as the
->original.  Only someone like root can go chance the owner of a hardlink
->to someone else and start setting up some interesting file permissions
->using multiple hardlinks to one file.
->
->I suspect you can't do that on netware, so you would have to add
->explicit permissions for each user to a single copy of the file instead,
->and you would probably want them all to have read/write access but in
->fact NOT have delete permissions.
->
->Len Sorensen
->  
->
-What you don't understand is that Netware's permissions mechanish is 
-totally different that Linux. A hard link in Netware wouldn't inherit 
-rights the way Linux does. So the user would have rights to their hard 
-link to delete that link without having rights to unlink the file.
+>The system is a web server, serving mid-size files
+>(50MB, each, on average).  All hell breaks loose when
+>doing many concurrent reads, anywhere between 200 to
+>400 concurrent streams things simply grind to a halt
+>and the system transfers a maximum of 12-14MB/s.
 
-This is an important concept so pay attention. Linux stores all the 
-permission to a file with that file entry. Netware doesn't. Netware 
-calculates effective rights from the parent directories and it is all 
-inherited unless files or directoies are explicitly set differently. So 
-if files are added to other people folders then those people get rights 
-to it automatically without having to go to the second step of changing 
-the file's permissions.
+There are a couple of things you should do:
 
+1. Use the CFQ I/O scheduler, and increase nr-requests:
+   echo cfq > /sys/block/hda/queue/scheduler
+   echo 1024 > /sys/block/hda/queue/nr_requests
 
--- 
-Marc Perkel - marc@perkel.com
+2. Make sure that your filesystem knows about the stripe size
+   and number of disks in the array. E.g. for a raid5 array
+   with a stripe size of 64K and 6 disks (effectively 5,
+   because in every stripe-set there is on disk doing parity):
 
-Spam Filter: http://www.junkemailfilter.com
-    My Blog: http://marc.perkel.com
+   # ext3 fs, 5 disks, 64K stripe, units in 4K blocks
+   mkfs -text3 -E stride=$((64/4))
+
+   # xfs, 5 disks, 64K stripe, units in 512 bytes
+   mkfs -txfs -d sunit=$((64*2)) -d swidth=$((5*64*2))
+
+3. Don't use partitions. Partions do not start on a multiple of
+   the (stripe_size * nr_disks), so your I/O will be misaligned
+   and the settings in (2) will have no or an adverse effect.
+   If you must use partitions, either build them manually
+   with sfdisk so that partitions do start on that multiple,
+   or use LVM.
+
+4. Reconsider your stripe size for streaming large files.
+   If you have say 4 disks, and a 64K
+   stripe size, then a read of a block of 256K will busy all 4 disks.
+   Many simultaneous threads reading blocks of 256K will result in
+   trashings disks as they all want to read from all 4 disks .. so
+   in that case, using a stripesize of 256K will make things better.
+   One read of 256K (in the ideal, aligned case) will just keep one
+   disk busy. 4 reads can happen in parallel without trashing. Esp.
+   in this case, you need the alignment I talked about in (3).
+
+5. Defragment the files.
+   If the files are written sequentially, they will not be fragmented.
+   But if they were stored by writing to thousands of them appending
+   a few K at a time in round-robin fashion, you need to defragment..
+   in the case of XFS, run xfs_fsr every so often.
+
+Good luck,
+
+Mike.
 

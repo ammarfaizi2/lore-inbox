@@ -1,83 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965216AbVJEP0V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965221AbVJEP0t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965216AbVJEP0V (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 11:26:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965217AbVJEP0V
+	id S965221AbVJEP0t (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 11:26:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965217AbVJEP0t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 11:26:21 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:5785 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S965216AbVJEP0U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 11:26:20 -0400
-Date: Wed, 5 Oct 2005 11:26:18 -0400
-To: Marc Perkel <marc@perkel.com>
-Cc: Nix <nix@esperi.org.uk>, 7eggert@gmx.de,
-       Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
-       linux-kernel@vger.kernel.org
+	Wed, 5 Oct 2005 11:26:49 -0400
+Received: from spirit.analogic.com ([204.178.40.4]:38162 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP id S965221AbVJEP0s convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 11:26:48 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <20051005145736.GB7949@csclub.uwaterloo.ca>
+References: <4TiWy-4HQ-3@gated-at.bofh.it> <4U0XH-3Gp-39@gated-at.bofh.it> <E1EMutG-0001Hd-7U@be1.lrz> <87k6gsjalu.fsf@amaterasu.srvr.nix> <4343E611.1000901@perkel.com> <20051005144441.GC8011@csclub.uwaterloo.ca> <Pine.LNX.4.61.0510051048090.5182@chaos.analogic.com> <20051005145736.GB7949@csclub.uwaterloo.ca>
+X-OriginalArrivalTime: 05 Oct 2005 15:26:37.0477 (UTC) FILETIME=[2D3CFD50:01C5C9C1]
+Content-class: urn:content-classes:message
 Subject: Re: what's next for the linux kernel?
-Message-ID: <20051005152618.GC7949@csclub.uwaterloo.ca>
-References: <4TiWy-4HQ-3@gated-at.bofh.it> <4U0XH-3Gp-39@gated-at.bofh.it> <E1EMutG-0001Hd-7U@be1.lrz> <87k6gsjalu.fsf@amaterasu.srvr.nix> <4343E611.1000901@perkel.com> <20051005144441.GC8011@csclub.uwaterloo.ca> <4343E7AC.6000607@perkel.com> <20051005145606.GA7949@csclub.uwaterloo.ca> <4343EC6A.70603@perkel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4343EC6A.70603@perkel.com>
-User-Agent: Mutt/1.5.9i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+Date: Wed, 5 Oct 2005 11:26:36 -0400
+Message-ID: <Pine.LNX.4.61.0510051108560.5318@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: what's next for the linux kernel?
+Thread-Index: AcXJwS1ErqarrUzwQT+WcNYjAO2Sdg==
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Lennart Sorensen" <lsorense@csclub.uwaterloo.ca>
+Cc: "Marc Perkel" <marc@perkel.com>, "Nix" <nix@esperi.org.uk>,
+       <7eggert@gmx.de>, "Luke Kenneth Casson Leighton" <lkcl@lkcl.net>,
+       <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 05, 2005 at 08:08:26AM -0700, Marc Perkel wrote:
-> Agian - thinking outside the box.
-> 
-> If the permissions were don'e right in your own directories your 
-> inherited rights would give your permissions automatically to your home 
-> directory and all directories uner it. Netware has a concept called an 
-> inherited rights mask - something Linux lacks. Windows also has rights 
-> like this and Samba emulates it. So unless root put files in your 
-> directory and specifically denied you rights to them, you would have 
-> full rights to your own directory.
 
-Well I could have setup my home dirs with ACL to have inherited rights
-to all files created under it for the owner.  Well I didn't but then
-again I don't allow other people to write to my home dir so it hasn't
-been a problem.
+On Wed, 5 Oct 2005, Lennart Sorensen wrote:
 
-> However - if you were browsing the /etc directory and there were files 
-> there that you had no read or write access to - then you wouldn't even 
-> be able to list them. If you went to the home directory and lets say 
-> everyone had 700 permissions on all the directories withing home, you 
-> would only see your own directory. You wouldn't even be able to know 
-> what other directories existed there.
+> On Wed, Oct 05, 2005 at 10:52:59AM -0400, linux-os (Dick Johnson) wrote:
+>> Also it has nothing at all to do with the kernel. It's what `ls`
+>> or some other directory-reading program provides for the user.
+>> People often forget that PATH, `pwd`, etc., are just filter
+>> components!
+>>
+>> When you `cd` to somewhere, your location hasn't changed at
+>> all!
+>
+> So what does bash do that makes the new location 'busy' when you cd to
+> it such that you can't unmount it?
 
-Well I don't have write access to /etc so who cares.  I do have write
-access to /tmp and there is matters that I can list files I have no
-access to.  Hence why /tmp IS readable by all.  If I couldn't list files
-there I would have to randomly try filenames until I found one that
-wasn't already in use but invisible to me due to idiot magic.
 
-What error does netware return if you try to create a file in a
-directory that already exists but which you can't see?  Any error would
-be indirectly a way to see the file, so it should have just been visible
-in the first place.
+Well it doesn't make a file-system location busy! It's only files
+that are open-for-write that prevent a file-system from being un-mounted!
 
-> If you want to start thinking about DOING IT RIGHT you need to think 
-> beyond the Unix model and start looking at Netware. Maybe in 5 years 
-> Linux will evolve to where Netware was in 1990.
+You can properly shut down a system with the following commands from
+a dumb terminal (ctrl-ALT F1,F2, etc).
 
-NetWare was not the be all and end all of filesystems.  Far from it.  It
-had some good points, but it certainly didn't solve everything.
+kill -TERM -1	# Kill everybody but me and 'init'
+sleep 1		# Wait a bit
+kill -9 -1	# Really kick the hangers-on
+sleep 1		# Wait again
+umount -a	# Umount all file systems
 
-> Unix permissions totally suck but it's old baggage that you're stuck 
-> with somewhat. Are you going to be stuck forever and is Linux ever going 
-> to grow up and move on to better things? Linux is crippled when it comes 
-> to permissions. The Windows people are laughing at you and you don't 
-> even get it why they are laughing.
+After you execute `umount -a`, you can still read the file-system
+because `umount` only made it R/O.
 
-I find unix permissions work great in general, and for complex things
-posix ACL has done everything I wanted it to and works great with samba.
+`>foo`
+shows that the file-system is R/O, you can hit the reset or power
+switch now.
 
-The behaviours you claim are so great in netware to me seem like things
-I would very much NOT want to have to deal with.  I like things simple
-enough to understand them so I can make sure they are right.
+Certain distros create a file in the top directory that is supposed
+to tell startup that the system was not properly shut down, "/.autofsck",
+if you deleted that before the above sequence, the machine can
+be restarted with no informational error messages about the shutdown.
 
-Len Sorensen
+`cd` executes function-code 12 which makes all opens() start from the
+input string "path" if it doesn't have a full path. It's just a filter.
+Same for opendir() if a directory listing is to be obtained.
+
+>
+>> Without involving the kernel, one can make any kind of filter
+>> to cause any sort of display that you want.
+>
+> An it certainly is something that should be done in user space.
+>
+
+Could be done from user-space but opening an ordinary file
+would require that the full path be obtained from somewhere
+because the kernel wouldn't "know" where to create it if the
+full path wasn't part of the open. `cd` is a kernel-call that
+conveniently stores the part of the path-name that you don't
+want to have to repeat for every open.
+
+> Len Sorensen
+>
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13 on an i686 machine (5589.55 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

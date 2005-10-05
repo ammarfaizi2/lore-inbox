@@ -1,68 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932541AbVJEFkS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932546AbVJEFtJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932541AbVJEFkS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 01:40:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932544AbVJEFkS
+	id S932546AbVJEFtJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 01:49:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbVJEFtJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 01:40:18 -0400
-Received: from xproxy.gmail.com ([66.249.82.194]:50146 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932541AbVJEFkQ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 01:40:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=Fok9cDysSkAKz9fyiA3kBOi2Cee8EGhAFm3vHYv6OUdUGSZhAdSlwuEpblyTWPk23AW1JpvBHUqL6WjCX1mgkKpSj2FbTso2NDFMdGYfGoMBWD8FOCmNKCWL5Ys2KV2JgIW+ijyZU3G3mOERnb2qcxMBKRWTf+bf/rjWn5/i0ZM=
-Message-ID: <309a667c0510042240y1dcc75c4l83abc7fe430e4f05@mail.gmail.com>
-Date: Wed, 5 Oct 2005 11:10:15 +0530
-From: devesh sharma <devesh28@gmail.com>
-Reply-To: devesh sharma <devesh28@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [NUMA x86_64] problem accessing global Node List pgdat_list
+	Wed, 5 Oct 2005 01:49:09 -0400
+Received: from 10.ctyme.com ([69.50.231.10]:16336 "EHLO newton.ctyme.com")
+	by vger.kernel.org with ESMTP id S932546AbVJEFtI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 01:49:08 -0400
+Message-ID: <4343694F.5000709@perkel.com>
+Date: Tue, 04 Oct 2005 22:49:03 -0700
+From: Marc Perkel <marc@perkel.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.10) Gecko/20050716
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+To: "D. Hazelton" <dhazelton@enter.net>
+CC: Luke Kenneth Casson Leighton <lkcl@lkcl.net>, linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel?
+References: <20051002204703.GG6290@lkcl.net> <4342DC4D.8090908@perkel.com> <200510050122.39307.dhazelton@enter.net>
+In-Reply-To: <200510050122.39307.dhazelton@enter.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spamfilter-host: newton.ctyme.com - http://www.junkemailfilter.com"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-On an dual opteron machine and 2.6.9 kernel, I am accessing the global
-node list pgdat_list but I am not getting the desired results
-
-#include<linux/module.h>
-#include<linux/config.h>
-#include<linux/kernel.h>
-#include<linux/mmzone.h>
-
-struct pglist_data *pgdat_list ;
-
-int init_module( void )
-{
-
-  pg_data_t *pg_dat ;
-
-  printk ("<1>****Module initialized to retrive the information of
-pgdat_list list in the Kernel****\n" ) ;
 
 
-  for_each_pgdat(pg_dat)
-  {
-    printk ("<1>The number of zones on this node are %x\n", pg_dat ->
-nr_zones ) ;
+D. Hazelton wrote:
 
-    printk ("<1>The Node Id of this node is %d\n", pg_dat -> node_id ) ;
+>  
+>
+>>Novell Netware type permissions. ACLs are a step in the right
+>>direction but Linux isn't any where near where Novell was back in
+>>1990. Linux lets you - for example - to delete files that you have
+>>no read or write access rights to. 
+>>    
+>>
+>
+>As someone else pointed out, this is because unlinking is related to 
+>your access permissions on the parent directory and not the file.
+>
+>  
+>
+Right - that's Unix "inside the box" thinking. The idea is to make the 
+operating system smarter so that the user doesn't have to deal with 
+what's computer friendly - but reather what makes sense to the user. 
+ From a user's perspective if you have not rights to access a file then 
+why should you be allowed to delete it?
 
-  }
+Now - the idea is to create choice. If you need to emulate Unix nehavior 
+for compatibility that's fine. But I would migrate away from that into a 
+permissions paradygme that worked like Netware.
 
-  return 0 ;
-}
+I started with Netware and I'm spoiled. They had it right 15 years ago 
+and Linux isn't any where near what I was with Netware and DOS in 1990. 
+Once you've had this kind of permission power Linux is a real big step down.
 
-void cleanup_module ( void )
-{
-    printk ("<1>********Module Exiting***********\n" ) ;
-}
+So - the thread is about the future so I say - time to fix Unix.
 
-MODULE_LICENSE("GPL") ;
 
-How I can access this list any body tell me the solution.

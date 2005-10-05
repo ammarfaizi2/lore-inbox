@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965211AbVJEPSx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965214AbVJEPZE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965211AbVJEPSx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 11:18:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965212AbVJEPSw
+	id S965214AbVJEPZE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 11:25:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965216AbVJEPZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 11:18:52 -0400
-Received: from imag.imag.fr ([129.88.30.1]:15518 "EHLO imag.imag.fr")
-	by vger.kernel.org with ESMTP id S965211AbVJEPSw (ORCPT
+	Wed, 5 Oct 2005 11:25:04 -0400
+Received: from free.hands.com ([83.142.228.128]:31660 "EHLO free.hands.com")
+	by vger.kernel.org with ESMTP id S965214AbVJEPZB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 11:18:52 -0400
-Date: Wed, 5 Oct 2005 17:18:46 +0200
-From: Pierre Michon <pierreno-spam!org@ensilinx1.imag.fr>
-To: linux-kernel@vger.kernel.org
-Subject: Re: freebox possible GPL violation
-Message-ID: <20051005151846.GA760@linux.ensimag.fr>
-Reply-To: 20051005121542.GA13284@snarc.org
+	Wed, 5 Oct 2005 11:25:01 -0400
+Date: Wed, 5 Oct 2005 16:24:47 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Marc Perkel <marc@perkel.com>
+Cc: Nix <nix@esperi.org.uk>, 7eggert@gmx.de, linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel?
+Message-ID: <20051005152447.GD10538@lkcl.net>
+References: <4TiWy-4HQ-3@gated-at.bofh.it> <4U0XH-3Gp-39@gated-at.bofh.it> <E1EMutG-0001Hd-7U@be1.lrz> <87k6gsjalu.fsf@amaterasu.srvr.nix> <4343E611.1000901@perkel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040722i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (imag.imag.fr [129.88.30.1]); Wed, 05 Oct 2005 17:18:47 +0200 (CEST)
-X-IMAG-MailScanner: Found to be clean
-X-IMAG-MailScanner-Information: Please contact the ISP for more information
+In-Reply-To: <4343E611.1000901@perkel.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-hands-com-MailScanner: Found to be clean
+X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Oct 05, 2005 at 07:41:21AM -0700, Marc Perkel wrote:
+> If you were going to do it right here's what you would do:
+> 
+> People who had files in /tmp would have no rights at all to other users 
+> /tmp files.
+> Listing the dirtectory would only display the files you had some access 
+> to. If you have no rights you don't even see that the file is there.
+> The effect would be like giving people their own tmp directories.
+ 
+  ahh, *sigh*, i remember the days.
 
->The bottom line is the Freebox is still owned by Free when you are using
->it. It you "buy" it (by not giving it back and paying 400 EUR), you
->don't have the right anymore to plug it into free network, thus don't
->have access to freebox's firmware.
-So how do you explain my point B ?
+  in 1989 i looked in /tmp on our sunos 4.1.3 server at
+  imperial, which was running a bit slow, went "eek, that's
+  a lot of files in /tmp" and did am rm -fr /tmp.
 
-Why does it need to reboot when there is a new firmware ?
+  a few minutes later the sysadmins quite literally stormed in.
 
-How they manage to download the firmware (need led driver, ppp, http,
-adsl driver, atm stack, ...)
+  apparently the printer queue temp files were stored in /tmp and 100
+  third year students were all trying to print out their course-work,
+  last minute.
 
->but please keep that away from the LKML, this is *offtopic* here.
->This list is about *developement* of the linux kernel..
-Please suggest other mailling lists.
+  oops.
 
+  yes, imperial college third year theory of computing students of
+  1987-1990, it was me.
 
-Pierre
+  l.
+

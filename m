@@ -1,62 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030368AbVJEUXV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030369AbVJEUYq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030368AbVJEUXV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 16:23:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030369AbVJEUXU
+	id S1030369AbVJEUYq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 16:24:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030370AbVJEUYq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 16:23:20 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:63681 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S1030368AbVJEUXU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 16:23:20 -0400
-Date: Wed, 5 Oct 2005 16:23:19 -0400
-To: Marc Perkel <marc@perkel.com>
-Cc: Florin Malita <fmalita@gmail.com>, nix@esperi.org.uk, 7eggert@gmx.de,
-       lkcl@lkcl.net, linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-Message-ID: <20051005202319.GM7949@csclub.uwaterloo.ca>
-References: <4U0XH-3Gp-39@gated-at.bofh.it> <E1EMutG-0001Hd-7U@be1.lrz> <87k6gsjalu.fsf@amaterasu.srvr.nix> <4343E611.1000901@perkel.com> <20051005144441.GC8011@csclub.uwaterloo.ca> <4343E7AC.6000607@perkel.com> <20051005153727.994c4709.fmalita@gmail.com> <43442D19.4050005@perkel.com> <20051005195212.GJ7949@csclub.uwaterloo.ca> <4344320A.7090007@perkel.com>
+	Wed, 5 Oct 2005 16:24:46 -0400
+Received: from lirs02.phys.au.dk ([130.225.28.43]:682 "EHLO lirs02.phys.au.dk")
+	by vger.kernel.org with ESMTP id S1030369AbVJEUYp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 16:24:45 -0400
+Date: Wed, 5 Oct 2005 22:24:16 +0200 (METDST)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       david singleton <dsingleton@mvista.com>, Todd.Kneisel@bull.com,
+       Felix Oxley <lkml@oxley.org>
+Subject: Re: 2.6.14-rc3-rt2
+In-Reply-To: <20051004084405.GA24296@elte.hu>
+Message-Id: <Pine.OSF.4.05.10510042303580.23734-100000@da410.phys.au.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4344320A.7090007@perkel.com>
-User-Agent: Mutt/1.5.9i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 05, 2005 at 01:05:30PM -0700, Marc Perkel wrote:
-> What you don't understand is that Netware's permissions mechanish is 
-> totally different that Linux. A hard link in Netware wouldn't inherit 
-> rights the way Linux does. So the user would have rights to their hard 
-> link to delete that link without having rights to unlink the file.
+
+
+On Tue, 4 Oct 2005, Ingo Molnar wrote:
+
 > 
-> This is an important concept so pay attention. Linux stores all the 
-> permission to a file with that file entry. Netware doesn't. Netware 
-> calculates effective rights from the parent directories and it is all 
-> inherited unless files or directoies are explicitly set differently. So 
-> if files are added to other people folders then those people get rights 
-> to it automatically without having to go to the second step of changing 
-> the file's permissions.
+> i have released the 2.6.14-rc3-rt2 tree, which can be downloaded from 
+> the usual place:
+> 
+>   http://redhat.com/~mingo/realtime-preempt/
+> 
+> the biggest change in this release is the long-anticipated merge of a 
+> streamlined version of the "robust futexes/mutexes with priority 
+> queueing and priority inheritance" code into the -rt tree. The original 
+> upstream patch is from Todd Kneisel, with further improvements, cleanups 
+> and -RT integration done by David Singleton.
+> 
+> robustness is handled by extending the futex framework with 
+> registering/unregistering ops and extended wait/wake ops. Priority 
+> queueing and inheritance is implemented by embedding the rt_mutex object 
+> into the robust-futex structure. This approach made the patches 
+> significantly simpler and smaller (but still not trivial at all) than 
+> e.g. the fusyn patchset was.
+> 
 
-So if you were to moint a partition on /mnt, does the mounted thing now
-have to inherit permissions from / and /mnt or from it's own root or
-what?
+This is great! Priority inheritance in user-space!
+I try to follow this development a little when I get time. You might
+already have addresses this on the list, but let me raise these two "buts"
+anyway:
+1) The rt_mutex can promote mutex-deadlocks to raw_spinlock deadlocks
+according to the comment in the top of rt.c). Doesn't that mean that a
+user-space mutex deadlock can become a raw_spinlock deadlock?
+2) The PI traversal for nested interrupts is done with interrupts
+disabled. I.e. you can increase the overall system latency by an arbitrary 
+amount of time by constructing a code with deep enough lock-nesting.
 
-If you chroot something, does it have access to checking permissions
-past it's 'virtual' root?
+A year ago, roughly, I worked on PI-mutex for the -RT branch. I didn't
+finish  it fast enough for Ingo not to do his own. It was based on some of
+the first principles as Ingo's. One of the ideas (which wasn't included in
+the patch I send to the list) was to do the PI traversal in steps while
+unlocking all the held spinlocks before going to the next depth in the
+chain. I used get_task_struct() and put_task_struct() to make sure the
+next task in the  traversal didn't get deleted during the periods where no
+locks where held.
+I'll try to cook something up based on this idea, but to be honest I don't
+have any time for it :-(
 
-Can users make hardlinks themselves on netware or does an admin have to
-do it?
+Esben
 
-It seems rather inefficient to have to read 8 directories worth of
-permissions and calculate them together if you have a file 8 directories
-deep compared to doing a single read and compare against a 16bit value +
-uid/gid check (ACL of course makes this more complex, but still only
-involves reading permissions in one place since inherited permissions
-are for create time, not access time).
-
-Unix offers features netware doesn't and some of them require
-permissions to work a certain way.
-
-Len Sorensen

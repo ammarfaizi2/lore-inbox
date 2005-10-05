@@ -1,70 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030304AbVJESCK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030310AbVJESUF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030304AbVJESCK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 14:02:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030306AbVJESCJ
+	id S1030310AbVJESUF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 14:20:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030309AbVJESUF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 14:02:09 -0400
-Received: from smtprelay04.ispgateway.de ([80.67.18.16]:63183 "EHLO
-	smtprelay04.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1030304AbVJESCI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 14:02:08 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] vm - swap prefetch v14
-Date: Wed, 5 Oct 2005 20:01:51 +0200
-User-Agent: KMail/1.7.2
-References: <200510052257.15713.kernel@kolivas.org>
-In-Reply-To: <200510052257.15713.kernel@kolivas.org>
-Cc: Con Kolivas <kernel@kolivas.org>
+	Wed, 5 Oct 2005 14:20:05 -0400
+Received: from wproxy.gmail.com ([64.233.184.206]:14769 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030308AbVJESUD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 14:20:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=mI5KW90htaIx44+dH9peOZKmunxvBxldjSZpiX38i7XswQF+Df0A0nfn1cwNnVPEV2dfCQKWCefJUsTXsMb3FfBSarrmPO1cRB9qzCMvDl0/nXWyEHKbiDwExfTPvYubbWtWorAJT5TiySb3A189FTbqTRXB0WtA2Suf6X4z7+0=
+Message-ID: <3888a5cd0510051120q1b307b5bg157aa3581c94c479@mail.gmail.com>
+Date: Wed, 5 Oct 2005 20:20:02 +0200
+From: Jiri Slaby <lnx4us@gmail.com>
+Reply-To: Jiri Slaby <lnx4us@gmail.com>
+To: umesh chandak <chandak_pict@yahoo.com>
+Subject: Re: Kernel Panic Error in 2.6.10 !!!!
+Cc: Badari Pulavarty <pbadari@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20051005174803.70134.qmail@web35905.mail.mud.yahoo.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1738669.CmxCxXHZ4R";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200510052002.04173.ioe-lkml@rameria.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1128534181.4754.68.camel@dyn9047017102.beaverton.ibm.com>
+	 <20051005174803.70134.qmail@web35905.mail.mud.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1738669.CmxCxXHZ4R
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-Hi Con,
-
-your patch still contains a serious BUG :-)
-
-On Wednesday 05 October 2005 14:57, Con Kolivas wrote:
-> -The tunable to determine the amount of data retrieved per prefetch was a=
-dded
-> /proc/sys/vm/swap_prefetch=20
-> is used to decide how many groups of 128kb to prefetch per 1 second inter=
-val=20
-> and is set to 2 by default. It can be disabled by setting it to 0
-
-swap_prefetch is not documented at Documentation/sysctl/vm.txt
-
-This simple text would suffice I think. Maybe comment about disabling it
-for laptop usage.
-
-
-Regards
-
-Ingo Oeser
-
-
---nextPart1738669.CmxCxXHZ4R
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDRBUcU56oYWuOrkARAjRQAJ4zkSKLMrelNSJIZc6UW0BCwVTI1ACg3lyV
-UQI7KDxT1zSBar2tNUIU6zk=
-=aqUh
------END PGP SIGNATURE-----
-
---nextPart1738669.CmxCxXHZ4R--
+On 10/5/05, umesh chandak <chandak_pict@yahoo.com> wrote:
+> hi,
+> thanks for reply .
+>
+> But as i am using  gbdb patches on my test machine .i
+> don't need initrd ,i am sure about it .and I can enter
+> in my other kernel options . So I have my ide
+> configured ,is this correct ?
+Do you have /dev/console and /dev/null in /dev (not udev's files, but
+spec files on /dev/hda6), this is known problem on fcs.
+read http://www.fi.muni.cz/~xslaby/unpr/kernel.html, it's all in
+czech, i haven't translate it yet, sorry, but find mkdir /tmp/dev

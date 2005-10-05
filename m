@@ -1,49 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030408AbVJEWgI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030405AbVJEWpE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030408AbVJEWgI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 18:36:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030405AbVJEWgH
+	id S1030405AbVJEWpE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 18:45:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030406AbVJEWpE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 18:36:07 -0400
-Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:58264 "EHLO
-	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP
-	id S1030408AbVJEWgF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 18:36:05 -0400
-X-ORBL: [69.225.172.73]
-Subject: Re: [PATCH 2.6.14-rc2 1/2] libata: Marvell spinlock fixes and
-	simplification
-From: Michael Madore <Michael.Madore@aslab.com>
-To: Brett Russ <russb@emc.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Pasi Pirhonen <upi@papat.org>,
-       Bogdan Costescu <Bogdan.Costescu@iwr.uni-heidelberg.de>,
-       "Mr. Berkley Shands" <bshands@exegy.com>,
-       Jim Edwards <jim@networkdesigning.com>,
-       scott olson <scotto701@yahoo.com>,
-       Lars Magne Ingebrigtsen <larsi@gnus.org>,
-       Evgeny Rodichev <er@sai.msu.su>
-In-Reply-To: <20051005210842.F366B26369@lns1058.lss.emc.com>
-References: <20051005210610.EC31826369@lns1058.lss.emc.com>
-	 <20051005210842.F366B26369@lns1058.lss.emc.com>
-Content-Type: text/plain
-Date: Wed, 05 Oct 2005 15:35:44 -0700
-Message-Id: <1128551744.4041.7.camel@drevil.aslab.com>
+	Wed, 5 Oct 2005 18:45:04 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:35721 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1030405AbVJEWpC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 18:45:02 -0400
+Date: Thu, 6 Oct 2005 00:44:18 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Lorenzo Colitti <lorenzo@colitti.com>
+Cc: Nigel Cunningham <ncunningham@cyclades.com>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [swsusp] separate snapshot functionality to separate file
+Message-ID: <20051005224418.GA22781@elf.ucw.cz>
+References: <20051002231332.GA2769@elf.ucw.cz> <200510032339.08217.rjw@sisk.pl> <20051003231715.GA17458@elf.ucw.cz> <200510041711.13408.rjw@sisk.pl> <20051004205334.GC18481@elf.ucw.cz> <1128465272.6611.75.camel@localhost> <20051005084141.GB22034@elf.ucw.cz> <434443D9.3010501@colitti.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <434443D9.3010501@colitti.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-10-05 at 17:08 -0400, Brett Russ wrote:
-> This patch should fix up lockups that people were seeing due to
-> improper spinlock placement.  Also, the start/stop DMA routines put
-> guarded trust in the cached state of DMA.
+Hi!
 
-Hi Brett,
+> >>Pavel, at the PM summit, we agreed to work toward getting Suspend2
+> >>merged. I've been working since then on cleaning up the code, splitting
+> >>the patches up nicely and so on. In the meantime, you seem to have gone
+> >>off on a completely different tangent, going right against what we
+> >>agreed then.
+> >Sorry about that. At pm summit, I did not know if uswsusp was
+> >feasible. Now I'm pretty sure it is (code works and is stable).
+> 
+> Ok, excuse me for butting in.
+> 
+> I would just like to give the point of view of a user.
+> 
+> I have been using suspend2 probably at least once a day for about a year 
+> now, and I love it. I have had zero cases of data corruption, and it's 
+> fast, effective, and reliable. I can't say the same about the in-kernel 
+> swsusp. When I tried it (once), a few months ago:
+> 
+> - It was dog slow because it doesn't use compression
+> - Even though it's dog slow, it doesn't save all RAM
+>   - Therefore the machine is dog slow after resume
+> - It doesn't have a decent UI
+> - There is no way to abort suspend once it's started. (Whatever others
+>   may say, this /is/ useful, especially when you've forgotten something
+>   and you're in a hurry and don't have two more minutes to waste waiting
+>   for a suspend/resume cycle.)
 
-I assume this patch doesn't address the 'abnormal status 0x80' issue on
-the 6081.  On the 5081, I still get two machine checks followed by a
-hard lockup when I load the driver.
+With uswsusp (aka swsusp3), you can do all this in userland. Stop
+whining, start hacking... Code is at kernel.org/git/.../linux-sw3.
 
-Mike
-
+								Pavel
+-- 
+if you have sharp zaurus hardware you don't need... you know my address

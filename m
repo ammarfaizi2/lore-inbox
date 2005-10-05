@@ -1,68 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030266AbVJEQ7V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030258AbVJERBf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030266AbVJEQ7V (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 12:59:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030261AbVJEQ7V
+	id S1030258AbVJERBf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 13:01:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030262AbVJERBf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 12:59:21 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:63948 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030266AbVJEQ7T
+	Wed, 5 Oct 2005 13:01:35 -0400
+Received: from wproxy.gmail.com ([64.233.184.196]:32312 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030258AbVJERBe convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 12:59:19 -0400
-Subject: Re: [PATCH 1/5] AMD Geode GX/LX support V2
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Jordan Crouse <jordan.crouse@amd.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       info-linux@ldcmail.amd.com
-In-Reply-To: <20051005165405.GB25189@cosmic.amd.com>
-References: <20051005164626.GA25189@cosmic.amd.com>
-	 <20051005165405.GB25189@cosmic.amd.com>
-Content-Type: text/plain
-Date: Wed, 05 Oct 2005 09:59:08 -0700
-Message-Id: <1128531548.26009.37.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+	Wed, 5 Oct 2005 13:01:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:sender:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=prDSvd794hFm3COePBCveT2j2xf5xpWSWIp6a1slSV5EfxPJMMT/LY2/kOnH6utd+N8MpRxSmQ4KaY732lEnMrNDYMN5Cbyy4dwQW7IVkfaTWNYLmo3TZQqaiURukuwRJ65rx2incyk3xx+4FRsnUYVDG0hgxoic5b4mFX8r0lU=
+Message-ID: <161717d50510051001r59b13e35x270fccd48fd87fda@mail.gmail.com>
+Date: Wed, 5 Oct 2005 13:01:33 -0400
+From: Dave Neuer <mr.fred.smoothie@pobox.com>
+Reply-To: Dave Neuer <mr.fred.smoothie@pobox.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel?
+In-Reply-To: <20051005120727.GV10538@lkcl.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <mail.linux.kernel/20051003203037.GG8548@lkcl.net>
+	 <05Oct4.173802edt.33143@gpu.utcc.utoronto.ca>
+	 <20051005120727.GV10538@lkcl.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-10-05 at 10:54 -0600, Jordan Crouse wrote:
-> +/* This function handles National Semiconductor branded processors */
-> +
-> +static void __init init_nsc(struct cpuinfo_x86 *c)
-> +{
-> +       int r;
-> +
-> +       /* There may be GX1 processors in the wild that are branded
-> +        * NSC and not Cyrix.
-> +        *
-> +        * This function only handles the GX processor, and kicks
-> every
-> +        * thing else to the Cyrix init function above - that should
-> +        * cover any processors that might have been branded
-> differently
-> +        * after NSC aquired Cyrix.
-> +        *
-> +        * If this breaks your GX1 horribly, please e-mail
-> +        * info-linux@ldcmail.amd.com to tell us.
-> +        */
-> +
-> +       /* Handle the GX (Formally known as the GX2) */
-> +
-> +       if ((c->x86 == 5) && (c->x86_model == 5)) {
-> +               r = get_model_name(c);
-> +               display_cacheinfo(c);
-> +       }
-> +       else
-> +               init_cyrix(c);
-> +}
+On 10/5/05, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+>
+>  where it all goes a bit pearshaped with that chicken-and-egg vicious
+>  cycle is if the bottom drops out of 65nm and 45nm processes, such that
+>  _even_ the top uniprocessor mass-market chip manufacturers are forced
+>  down a parallel processing line.
+>
+>  my point is: we're starting to see evidence of that happening
+>  (small-scale, 2-cores, 2-hyperthreads, talk of 4-cores, etc.
+>  even the X-Box 360 PPC 3x2)
+>
+>  _therefore_, i invite people who do linux kernel development
+>  to think ahead - to take a _lead_ for once instead of waiting
+>  for hardware to drop into their laps, at which point it is once
+>  again too late, the hardware design decisions will have
+>  already been made by someone else, and you will be treated
+>  like second class citizens.  again.
 
-CodingStyle.  Please keep the bracket and the else on the same line:
+With all due respect (and I do believe some is due); your comment
+above makes no sense. Operating system designers design software to
+operate on existing systems -- often doing as much as possible to
+ensure that the design supports lots of different systems. However, _a
+neccessary prerequisite_ for that activity is "hardware dropping into
+their laps." You warn that "the hardware design decisions will have
+already been made by someone else;" but that is the order in which it
+_neccessarily_ works! What hardware designer out there spends his day
+looking around for as-yet-unused (and hence untested) operating
+systems that run on some hypothetical yet-to-be-designed hardware and
+say to themselves, "ah, that looks nice -- I think I can design some
+hardware that will run that software _really well_?"
 
-        if {
-        	foo();
-        } else
-        	bar();
-        
--- Dave
+Your argument defies logic, and it's that fact -- not your intentions
+-- that makes this thread so tiresome.
 
+Dave

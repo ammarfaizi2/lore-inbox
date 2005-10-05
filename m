@@ -1,70 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030314AbVJEVcA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030388AbVJEVip@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030314AbVJEVcA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 17:32:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030315AbVJEVb7
+	id S1030388AbVJEVip (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 17:38:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030386AbVJEVip
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 17:31:59 -0400
-Received: from [194.90.79.130] ([194.90.79.130]:9232 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S1030314AbVJEVb7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 17:31:59 -0400
-Message-ID: <43444647.4040401@argo.co.il>
-Date: Thu, 06 Oct 2005 00:31:51 +0300
-From: avi <avi@argo.co.il>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Wed, 5 Oct 2005 17:38:45 -0400
+Received: from fed1rmmtao05.cox.net ([68.230.241.34]:65183 "EHLO
+	fed1rmmtao05.cox.net") by vger.kernel.org with ESMTP
+	id S1030384AbVJEVio (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 17:38:44 -0400
+From: Junio C Hamano <junkio@cox.net>
+To: git@vger.kernel.org
+Subject: Re: clone: I'm only doing a max of 256 requests
+References: <20051005191300.GC17475@hexapodia.org>
+	<7virwbu4wz.fsf@assigned-by-dhcp.cox.net>
+	<7vhdbvk6ln.fsf@assigned-by-dhcp.cox.net>
+cc: linux-kernel@vger.kernel.org
+Date: Wed, 05 Oct 2005 14:38:42 -0700
+In-Reply-To: <7vhdbvk6ln.fsf@assigned-by-dhcp.cox.net> (Junio C. Hamano's
+	message of "Wed, 05 Oct 2005 14:16:04 -0700")
+Message-ID: <7vy857iqzh.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PAE causing failure to run various executables.
-References: <20051005204035.GB10640@redhat.com>
-In-Reply-To: <20051005204035.GB10640@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Oct 2005 21:31:55.0193 (UTC) FILETIME=[35370A90:01C5C9F4]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
+Junio C Hamano <junkio@cox.net> writes:
 
->A fedora user recently filed a puzzling bug at
->https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=169741
->
->The system being reported has exactly 4GB, and its E820
->tables seem to concur that there is in fact 4GB.
->
->When run in non-PAE mode, it triggers the
->"Warning only 4GB will be used. Use a PAE enabled kernel."
->message, which is odd, but the system does actually run.
->
->  
->
-if there's a hole in the physical address space (for pci devices), you 
-would need more than 32 bits to address 4GB RAM.
+> 1. As a stop gap measure, so that your Linux kernel work can
+>    continue, please bump MAX_NEEDS definition in upload-pack.c
+>    from 256 to a bit higher.  That controls the number of
+>    40-letter SHA1 given to underlying rev-list via execvp(), so
+>    it cannot be _too_ big like 1M, lest it exceeds the exec
+>    argument buffer limit.
 
->When run in PAE mode, it seems to lose its mind, and it
->fails to run various binaries.
->
->Booting with mem=4G causes the machine to boot fine
->(though for some reason, it finds only 3042M of RAM).
->
->  
->
-looks like a 1GB hole.
-
-
->The reporter of this bug has tested on 2.6.14-rc3-git4, and found the
->same issue exists as he saw on the original FC3 kernel, thus ruling out
->any Fedora-specific patches.
->
->Anyone have any ideas what's wrong here?
->
->		
->
-maybe the last 1GB is bad. since it can only be accessed by pae, only 
-the pae kernel fails.
-
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+Hmph.  I was reading linux-2.6/fs/exec.c::copy_strings(), but I
+do not see any such size limit (other than exceeding the total
+machine memory size, probably reported by alloc_page() failing)
+imposed there.  Am I looking at the wrong place?
 

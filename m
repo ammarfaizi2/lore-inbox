@@ -1,91 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965094AbVJEJZb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964996AbVJEJlD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965094AbVJEJZb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 05:25:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965095AbVJEJZb
+	id S964996AbVJEJlD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 05:41:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965091AbVJEJlB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 05:25:31 -0400
-Received: from HELIOUS.MIT.EDU ([18.248.3.87]:31150 "EHLO neo.rr.com")
-	by vger.kernel.org with ESMTP id S965094AbVJEJZa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 05:25:30 -0400
-Date: Wed, 5 Oct 2005 05:30:11 -0400
-From: Adam Belay <ambx1@neo.rr.com>
-To: Vitaly Wool <vwool@ru.mvista.com>, David Brownell <david-b@pacbell.net>
-Cc: linux-kernel@vger.kernel.org, spi-devel-general@lists.sourceforge.net,
-       basicmark@yahoo.com, stephen@streetfiresound.com, dpervushin@gmail.com,
-       Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH/RFC 1/2] simple SPI framework
-Message-ID: <20051005093011.GC14734@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	Vitaly Wool <vwool@ru.mvista.com>,
-	David Brownell <david-b@pacbell.net>, linux-kernel@vger.kernel.org,
-	spi-devel-general@lists.sourceforge.net, basicmark@yahoo.com,
-	stephen@streetfiresound.com, dpervushin@gmail.com,
-	Pavel Machek <pavel@ucw.cz>
-References: <20051004180241.0EAA5EE8D1@adsl-69-107-32-110.dsl.pltn13.pacbell.net> <4343898D.1060904@ru.mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4343898D.1060904@ru.mvista.com>
-User-Agent: Mutt/1.5.9i
+	Wed, 5 Oct 2005 05:41:01 -0400
+Received: from ranger.systems.pipex.net ([62.241.162.32]:2957 "EHLO
+	ranger.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S964996AbVJEJlB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 05:41:01 -0400
+Date: Wed, 5 Oct 2005 10:41:31 +0100 (BST)
+From: Tigran Aivazian <tigran_aivazian@symantec.com>
+X-X-Sender: tigran@ezer.homenet
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] bfs iget() abuses
+In-Reply-To: <20051004164844.GH7992@ftp.linux.org.uk>
+Message-ID: <Pine.LNX.4.61.0510051040300.4478@ezer.homenet>
+References: <20051004164844.GH7992@ftp.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 05, 2005 at 12:06:37PM +0400, Vitaly Wool wrote:
-> David,
-> 
-> >+#ifdef	CONFIG_PM
-> >+
-> >+/* Suspend/resume in "struct device_driver" don't really need that
-> >+ * strange third parameter, so we just make it a constant and expect
-> >+ * SPI drivers to ignore it just like most platform drivers do.
-> >+ *
-> > 
-> >
-> So you just ignored my letter on that subject :(
-> The fact that you don't need it doesn't mean that other people won't.
-> The fact that there's no clean way to suspend USB doesn't mean that 
-> there shouldn't be one for SPI.
-> 
-> >+ * NOTE:  the suspend() method for an spi_master controller driver
-> >+ * should verify that all its child devices are marked as suspended;
-> >+ * suspend requests delivered through sysfs power/state files don't
-> >+ * enforce such constraints.
+Hi Al,
 
-But we should, right?  It seems like a child device should never be in a
-higher suspend state than its parents.  The rule doesn't have to hold with
-driver-initiated runtime power management, but when the user requests a
-suspend via power/state, it's reasonable to assume every child should
-be suspended first.
+Yes, looks good to me and also I confirm that ->i_dsk_ino is only zero for 
+deletes inodes.
 
-> >+ */
-> >+static int spi_suspend(struct device *dev, pm_message_t message)
-> >+{
-> >+	int	value;
-> >+
-> >+	if (!dev->driver || !dev->driver->suspend)
-> >+		return 0;
-> >+
-> >+	/* suspend will stop irqs and dma; no more i/o */
-> >+	value = dev->driver->suspend(dev, message, SUSPEND_POWER_DOWN);
-> > 
-> >
-> So driver->suspend is going to be called 3 timer with SUSPEND_POWER_DOWN 
-> parameter, right?
-> I'm afraid that won't work :(
-> Especially in our case, where we *do need* preparation steps that are 
-> taken in *normal* suspend sequence - i. e. we need to set up the wakeup 
-> credentials for the *SPI* since the wakeup's gonna happen from a call 
-> incoming through the network module residing on the SPI bus!
+Kind regards
+Tigran
 
-So...
+On Tue, 4 Oct 2005, Al Viro wrote:
 
-1.) suspend all child devices
-2.) calculate their wake requirements
-3.) suspend the parent to a degree compatible with those requirements
-
-Right?
-
-Thanks,
-Adam
+> 	bfs_fill_super() walks the inode table to get the bitmap of
+> free inodes and collect stats.  It has no business using iget() for
+> that - it's a lot of extra work, extra icache pollution and more
+> complex code.  Switched to walking the damn thing directly.
+>
+> 	Note: that also allows to kill ->i_dsk_ino in there - separate
+> patch if Tigran can confirm that this field can be zero only for deleted
+> inodes (i.e. something that could only be found during that scan and not
+> by normal lookups).
+>
+> Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+> ----
+> [this is a followup to Alexey's bfs annotations patch]
+>
+> diff -urN RC14-rc3-git4-base/fs/bfs/inode.c current/fs/bfs/inode.c
+> --- RC14-rc3-git4-base/fs/bfs/inode.c	2005-10-04 12:30:06.000000000 -0400
+> +++ current/fs/bfs/inode.c	2005-10-04 05:57:46.000000000 -0400
+> @@ -362,23 +362,41 @@
+> 	info->si_lf_eblk = 0;
+> 	info->si_lf_sblk = 0;
+> 	info->si_lf_ioff = 0;
+> +	bh = NULL;
+> 	for (i=BFS_ROOT_INO; i<=info->si_lasti; i++) {
+> -		inode = iget(s,i);
+> -		if (BFS_I(inode)->i_dsk_ino == 0)
+> +		struct bfs_inode *di;
+> +		int block = (i - BFS_ROOT_INO)/BFS_INODES_PER_BLOCK + 1;
+> +		int off = (i - BFS_ROOT_INO) % BFS_INODES_PER_BLOCK;
+> +		unsigned long sblock, eblock;
+> +
+> +		if (!off) {
+> +			brelse(bh);
+> +			bh = sb_bread(s, block);
+> +		}
+> +
+> +		if (!bh)
+> +			continue;
+> +
+> +		di = (struct bfs_inode *)bh->b_data + off;
+> +
+> +		if (!di->i_ino) {
+> 			info->si_freei++;
+> -		else {
+> -			set_bit(i, info->si_imap);
+> -			info->si_freeb -= inode->i_blocks;
+> -			if (BFS_I(inode)->i_eblock > info->si_lf_eblk) {
+> -				info->si_lf_eblk = BFS_I(inode)->i_eblock;
+> -				info->si_lf_sblk = BFS_I(inode)->i_sblock;
+> -				info->si_lf_ioff = BFS_INO2OFF(i);
+> -			}
+> +			continue;
+> +		}
+> +		set_bit(i, info->si_imap);
+> +		info->si_freeb -= BFS_FILEBLOCKS(di);
+> +
+> +		sblock =  le32_to_cpu(di->i_sblock);
+> +		eblock =  le32_to_cpu(di->i_eblock);
+> +		if (eblock > info->si_lf_eblk) {
+> +			info->si_lf_eblk = eblock;
+> +			info->si_lf_sblk = sblock;
+> +			info->si_lf_ioff = BFS_INO2OFF(i);
+> 		}
+> -		iput(inode);
+> 	}
+> +	brelse(bh);
+> 	if (!(s->s_flags & MS_RDONLY)) {
+> -		mark_buffer_dirty(bh);
+> +		mark_buffer_dirty(info->si_sbh);
+> 		s->s_dirt = 1;
+> 	}
+> 	dump_imap("read_super", s);
+>

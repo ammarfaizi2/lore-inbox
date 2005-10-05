@@ -1,81 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932537AbVJECaI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbVJEC1h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932537AbVJECaI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 22:30:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751209AbVJECaI
+	id S932410AbVJEC1h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 22:27:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751175AbVJEC1g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 22:30:08 -0400
-Received: from oky139.okanagan.bc.ca ([142.231.70.139]:58631 "HELO moerbel.de")
-	by vger.kernel.org with SMTP id S1751193AbVJECaG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 22:30:06 -0400
-Message-ID: <dfcd01c5c94b$2989258c$b112fbed@moerbel.de>
-From: "Oscar Flowers" <oscarflowers_up@cies.co.kr>
+	Tue, 4 Oct 2005 22:27:36 -0400
+Received: from qproxy.gmail.com ([72.14.204.206]:53212 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751159AbVJEC1g convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 22:27:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=JOgXvzuLDk/qeopEOId46GzbJGl2aTxiEccBrEiuWbyrF8AjpS9HmI09wZpRWg/V8Yn6vC/157U+rwR06KN8hf7b32mfsXeiLAvE2xg2dcmLZ531j9RZwY7YIZZodR4C6nGSWVRZz3TniiAiT5a2SgmtFTxNy9aZUXUpsziR83g=
+Message-ID: <89c400ad0510041927r120284beg4e63568f6f9935ae@mail.gmail.com>
+Date: Wed, 5 Oct 2005 07:57:35 +0530
+From: Krishnakumar R <rkrishnakumar@gmail.com>
+Reply-To: Krishnakumar R <rkrishnakumar@gmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: MibcroCap Profile
-Date: Wed, 05 Oct 2005 02:26:52 +0100
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=iso-8859-1
+Subject: [PATCH][HugeTLB] Remove repeated code
+Cc: akpm@osdl.org, rohit.seth@intel.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ATTENTION INVESTING PUBLIC
+Hi,
 
- 
+The following patch cleans up some repeated code related to HugeTLB.
+hugetlb_zero_setup would have already allocated the file->f_op.
 
-ASCE . PK
-Recent Trading Range: $.80 - $.90
-Expected Trading Range: $1.50 - $2.00
-ASCE . PK
+Thanks and Regards,
+KK.
 
- 
-BELLEVUE, WA. September 14, 2005 . Ascentia Biomedical Corporation (OTC Pink Sheets; ASCE), a leading researcher and developer of efficacious 
-pharmaceuticals, compounds and other products, announces it has received an initial commitment for up to $1 million in funding for continued research 
-particularly in anti-cancer compounds and for organizational growth.
+PS: Ack-ed by Rohit
 
 
-BELLEVUE, WA. September 27th, 2005 . Ascentia Biomedical Corporation (OTC Pink Sheets; ASCE), a leading researcher and developer of efficacious 
-pharmaceuticals, compounds and other products, announces the addition of Dr. Philip Mease to its Scientific Advisory Board. Dr. James Clagett, 
-President and CEO of Ascentia said, .We are privileged to have such an internationally recognized rheumatologist who has a distinguished career in the 
-clinical development of therapies for rheumatic diseases.  Dr. Mease.s experience in clinical drug discovery along with his respected relationship with 
-drug regulatory agencies will greatly assist Ascentia in its drug discovery and commercialization program..
+    Signed-off-by: Krishnakumar. R <rkrishnakumar@gmail.com>
 
-
-Dr. Mease is Chief of the Rheumatology Clinical Research Division at Swedish Hospital, Clinical Professor at the University of Washington, and founder 
-of Seattle Rheumatology Associates.  Dr. Mease graduated from Stanford University Medical School and completed his medical training at University of 
-Washington, Seattle.
-
- 
-About Ascentia Biomedical Corporation
-
-Our focus is SOLUTIONS through RESEARCH and DISCOVERY. Ascentia is developing and commercializing new pharmaceutical and biomedical products for 
-application in a number of areas, including treatment for asthma, arthritis, psoriasis and cancer.  Initially, a majority of these products will be 
-secured through direct purchase or through licensing. As the Company grows and evolves, more products will be developed internally. Ascentia is focused 
-on therapies for cancer and diseases of inflammation.
-
-
-Forward-Looking Statements
-
- 
-
-This release may contain forward-looking statements that involve risks
-
-and uncertainties. These statements do not constitute representations
-
-or promises. Rather, these statements express opinions, hopes and
-
-desires that may not be based on objective or factual criteria or
-
-measurable results. No one should rely on such statements for any
-
-purpose except as specifically stated
-
- 
-
-To get taken off the list email NOSTK@Yahoo.com
-
+--- linux-2.6.14-rc2-mm1/ipc/shm.orig.c 2005-10-04 23:15:01.000000000 +0530
++++ linux-2.6.14-rc2-mm1/ipc/shm.c      2005-10-05 01:09:03.000000000 +0530
+@@ -233,10 +233,11 @@ static int newseg (key_t key, int shmflg
+        shp->id = shm_buildid(id,shp->shm_perm.seq);
+        shp->shm_file = file;
+        file->f_dentry->d_inode->i_ino = shp->id;
+-       if (shmflg & SHM_HUGETLB)
+-               set_file_hugepages(file);
+-       else
++
++       /* Hugetlb ops would have already been assigned. */
++       if (!(shmflg & SHM_HUGETLB))
+                file->f_op = &shm_file_operations;
++
+        shm_tot += numpages;
+        shm_unlock(shp);
+        return shp->id;

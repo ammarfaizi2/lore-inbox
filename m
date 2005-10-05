@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965224AbVJEPaK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965222AbVJEP3q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965224AbVJEPaK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 11:30:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965223AbVJEPaK
+	id S965222AbVJEP3q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 11:29:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965223AbVJEP3q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 11:30:10 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:31129 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S965224AbVJEPaI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 11:30:08 -0400
-Date: Wed, 5 Oct 2005 11:30:06 -0400
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Marc Perkel <marc@perkel.com>, Nix <nix@esperi.org.uk>, 7eggert@gmx.de,
-       linux-kernel@vger.kernel.org
+	Wed, 5 Oct 2005 11:29:46 -0400
+Received: from free.hands.com ([83.142.228.128]:42156 "EHLO free.hands.com")
+	by vger.kernel.org with ESMTP id S965222AbVJEP3q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 11:29:46 -0400
+Date: Wed, 5 Oct 2005 16:29:35 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: what's next for the linux kernel?
-Message-ID: <20051005153006.GD8011@csclub.uwaterloo.ca>
-References: <4TiWy-4HQ-3@gated-at.bofh.it> <4U0XH-3Gp-39@gated-at.bofh.it> <E1EMutG-0001Hd-7U@be1.lrz> <87k6gsjalu.fsf@amaterasu.srvr.nix> <4343E611.1000901@perkel.com> <20051005152447.GD10538@lkcl.net>
+Message-ID: <20051005152935.GE10538@lkcl.net>
+References: <mail.linux.kernel/20051003203037.GG8548@lkcl.net> <05Oct4.173802edt.33143@gpu.utcc.utoronto.ca> <20051005120727.GV10538@lkcl.net> <20051005123113.GO3511@suse.de> <20051005133549.GB10538@lkcl.net> <20051005134041.GR3511@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051005152447.GD10538@lkcl.net>
-User-Agent: Mutt/1.5.9i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+In-Reply-To: <20051005134041.GR3511@suse.de>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-hands-com-MailScanner: Found to be clean
+X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 05, 2005 at 04:24:47PM +0100, Luke Kenneth Casson Leighton wrote:
->   ahh, *sigh*, i remember the days.
+On Wed, Oct 05, 2005 at 03:40:43PM +0200, Jens Axboe wrote:
+> On Wed, Oct 05 2005, Luke Kenneth Casson Leighton wrote:
+> > On Wed, Oct 05, 2005 at 02:31:14PM +0200, Jens Axboe wrote:
+> > 
+> > > [i know better criticism and accusations deleted and not commented on]
+> > 
+> > > Why is that so hard to understand? Succesful contributions start at the
+> > > technical level, always have.
+> >  
+> >  then we will have to agree to disagree, because i believe that
+> >  successful contributions start with "what creative thing shall
+> >  we do now / what problem shall we tackle today in a creative
+> >  way?" and work their way down to the technical level, which,
+> >  as you rightly point out, requires successful _technical_
+> >  contributions.
 > 
->   in 1989 i looked in /tmp on our sunos 4.1.3 server at
->   imperial, which was running a bit slow, went "eek, that's
->   a lot of files in /tmp" and did am rm -fr /tmp.
+> It's not my opinion, I'm stating historical fact. I honestly can't
+> remember when a succesfull contribution was made based on a long
+> non-technical thread. I can, however, remember oodles of cases where the
+> reverse is quite true.
+ 
+ ah.
 
-Why would /tmp allow you to delete files there you didn't own unless you
-were root?  Why would someone with root blindly delete things they
-didn't know what were?
+ who's hosting the linux-visionaries mailing list, then?
 
->   a few minutes later the sysadmins quite literally stormed in.
-
-And promptly removed root access from the person that wasn't qualified
-to have it in the first place? :)
-
->   apparently the printer queue temp files were stored in /tmp and 100
->   third year students were all trying to print out their course-work,
->   last minute.
-> 
-And why would the printer queue use /tmp in the first place?
-
->   oops.
-> 
->   yes, imperial college third year theory of computing students of
->   1987-1990, it was me.
-
-Did they ever let you have root again?
-
-Len Sorensen

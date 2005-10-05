@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030363AbVJEUOM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030364AbVJEUO2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030363AbVJEUOM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 16:14:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030364AbVJEUOM
+	id S1030364AbVJEUO2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 16:14:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030366AbVJEUO2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 16:14:12 -0400
-Received: from streetfiresound.liquidweb.com ([64.91.233.29]:55271 "EHLO
+	Wed, 5 Oct 2005 16:14:28 -0400
+Received: from streetfiresound.liquidweb.com ([64.91.233.29]:57831 "EHLO
 	host.streetfiresound.liquidweb.com") by vger.kernel.org with ESMTP
-	id S1030363AbVJEUOK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 16:14:10 -0400
-Date: Wed, 05 Oct 2005 13:14:06 -0700
+	id S1030364AbVJEUOU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 16:14:20 -0400
+Date: Wed, 05 Oct 2005 13:14:16 -0700
 From: stephen@streetfiresound.com
 To: linux-kernel@vger.kernel.org
 Cc: david-b@pacbell.net
-Subject: [PATCH/RFC 1/2] simple SPI controller on PXA2xx SSP port
-Message-ID: <4344340e.UjaTSbE9cLTo9kFO%stephen@streetfiresound.com>
+Subject: [PATCH/RFC 2/2] simple SPI controller on PXA2xx SSP port
+Message-ID: <43443418.iFtzmi3B9GGDv89Z%stephen@streetfiresound.com>
 User-Agent: nail 11.25 7/29/05
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -30,72 +30,19 @@ X-Source-Dir:
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a prototype interrupt driven SPI "controller" for Intel's PXA2xx 
-series SOC. The driver plugs into the lightweight SPI framework developed by
-David Brownell. Hardwired configuration information is provided via
-spi_board_info structures initialized in arch/arm/mach_pxa board
-initialization code (see include/linux/spi.h for details). 
+This is a preliminary "SPI protocol" driver for the Cirrus Logic CS8415A 
+SPD/IF decoder chip.  This driver demostrates some but not all of the 
+features of David Brownell's "simple SPI framework" and is intended to
+demonstrate and test the PXA SSP driver posted previously.
 
-The driver is built around a spi_message fifo serviced by two tasklets. The
-first tasklet (pump_messages) is responsible for queuing SPI transactions 
-and scheduling SPI transfers.  The second tasklet (pump_transfers) is 
-responsible to setting up and launching the interrupt driven transfers.
-Per transfer chip select and delay control is available.
+ drivers/spi/cs8415a.c       |  561 ++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/spi/cirrus.h  |  200 +++++++++++++++
+ include/linux/spi/cs8415a.h |  156 ++++++++++++
+ 3 files changed, 917 insertions(+)
 
-This is a prototype driver, so you mileage will vary. It has only been
-tested on the NSSP port.
-
- drivers/spi/Kconfig                       |   12 
- drivers/spi/Makefile                      |    2 
- drivers/spi/pxa2xx_spi_ssp.c              |  741 ++++++++++++++++++++++++++++++
- include/asm-arm/arch-pxa/pxa2xx_spi_ssp.h |   36 +
- 4 files changed, 791 insertions(+)
-
---- linux-2.6.12-spi/drivers/spi/Kconfig	2005-10-04 14:07:18.000000000 -0700
-+++ linux-2.6.12-spi-pxa/drivers/spi/Kconfig	2005-10-04 14:00:12.279449000 -0700
-@@ -65,6 +65,12 @@
- comment "SPI Master Controller Drivers"
- 
- 
-+config SPI_PXA_SSP
-+       tristate "PXA SSP controller as SPI master"
-+       depends on ARCH_PXA
-+       help
-+         This implements SPI master mode using an SSP controller.
-+
- #
- # Add new SPI master controllers in alphabetical order above this line
- #
-@@ -77,6 +83,12 @@
- comment "SPI Protocol Masters"
- 
- 
-+config SPI_CS8415A
-+       tristate "CS8415A SPD/IF decoder"
-+       help
-+         This chip provides an 8 channel SPD/IF switcher with complete
-+         SPD/IF decoding.
-+
- #
- # Add new SPI protocol masters in alphabetical order above this line
- #
---- linux-2.6.12-spi/drivers/spi/Makefile	2005-10-04 14:07:18.000000000 -0700
-+++ linux-2.6.12-spi-pxa/drivers/spi/Makefile	2005-10-04 14:00:12.279449000 -0700
-@@ -11,9 +11,11 @@
- obj-$(CONFIG_SPI_MASTER)               += spi.o
- 
- # SPI master controller drivers (bus)
-+obj-$(CONFIG_SPI_PXA_SSP)              += pxa2xx_spi_ssp.o
- #      ... add above this line ...
- 
- # SPI protocol drivers (device/link on bus)
-+obj-$(CONFIG_SPI_CS8415A)              += cs8415a.o
- #      ... add above this line ...
- 
- # SPI slave controller drivers (upstream link)
---- linux-2.6.12-spi/drivers/spi/pxa2xx_spi_ssp.c	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.12-spi-pxa/drivers/spi/pxa2xx_spi_ssp.c	2005-10-04 12:50:10.699272000 -0700
-@@ -0,0 +1,741 @@
+--- linux-2.6.12-spi/include/linux/spi/cirrus.h	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.12-spi-pxa/include/linux/spi/cirrus.h	2005-10-04 13:05:06.897768000 -0700
+@@ -0,0 +1,200 @@
 +/*
 + * Copyright (C) 2005 Stephen Street / StreetFire Sound Labs
 + *
@@ -114,733 +61,194 @@ tested on the NSSP port.
 + * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 + */
 +
-+/* 
-+ * This is a prototype interrupt driven SPI "controller" for Intel's PXA2xx 
-+ * series SOC. The driver plugs into the lightweight SPI framework developed by
-+ * David Brownell. Hardwired configuration information is provided via
-+ * spi_board_info structures initialized in arch/arm/mach_pxa board
-+ * initialization code (see include/linux/spi.h for details). NEED TO ADD
-+ * PXA SPECIFIED INITIALIZATION INFORMATION.
-+ * 
-+ * This follow code snippet demostrates a sample board configuration using
-+ * the PXA255 NSSP port connect to a CS8415A chip via GPIO chip select 2.
-+ * 
-+ * static struct cs8415a_platform_data cs8415a_platform_info = {
-+ *	.enabled = 1,
-+ *	.muted = 1,
-+ *	.channel = 0,
-+ *	.mask_interrupt = cs8415a_mask_interrupt,
-+ *	.unmask_interrupt = cs8415a_unmask_interrupt,
-+ *	.service_requested = cs8415a_service_requested,
-+ * };
-+ *
-+ * static struct pxa2xx_spi_chip cs8415a_chip_info = {
-+ *	.mode = SPI_MODE_3,
-+ *	.tx_threshold = 12,
-+ *	.rx_threshold = 4,
-+ *	.bits_per_word = 8,
-+ *	.chip_select_gpio = 2,
-+ *	.timeout_microsecs = 64,
-+ * };
-+ *
-+ * static struct spi_board_info streetracer_spi_board_info[] __initdata = {
-+ *	{
-+ *		.modalias = "cs8415a",
-+ *		.max_speed_hz = 3686400,
-+ *		.bus_num = 2,
-+ *		.chip_select = 0,
-+ *		.platform_data = &cs8415a_platform_info,
-+ *		.controller_data = &cs8415a_chip_info,
-+ *		.irq = STREETRACER_APCI_IRQ,
-+ *	},
-+ * };
-+ *
-+ * static struct resource pxa_spi_resources[] = {
-+ *	[0] = {
-+ *		.start	= __PREG(SSCR0_P(2)),
-+ *		.end	= __PREG(SSCR0_P(2)) + 0x2c,
-+ *		.flags	= IORESOURCE_MEM,
-+ *	},
-+ *	[1] = {
-+ *		.start	= IRQ_NSSP,
-+ *		.end	= IRQ_NSSP,
-+ *		.flags	= IORESOURCE_IRQ,
-+ *	},
-+ * };
-+ *
-+ * static struct pxa2xx_spi_master pxa_nssp_master_info = {
-+ *	.bus_num = 2,
-+ *	.clock_enable = CKEN9_NSSP,
-+ *	.num_chipselect = 3,
-+ * };
-+ *
-+ * static struct platform_device pxa_spi_ssp = {
-+ *	.name = "pxa2xx-spi-ssp",
-+ *	.id = -1,
-+ *	.resource = pxa_spi_resources,
-+ *	.num_resources = ARRAY_SIZE(pxa_spi_resources),
-+ *	.dev = {
-+ *		.platform_data = &pxa_nssp_master_info,
-+ *	},
-+ * }; 
-+ *
-+ * static void __init streetracer_init(void)
-+ * {
-+ *	platform_device_register(&pxa_spi_ssp);
-+ *	spi_register_board_info(streetracer_spi_board_info, 
-+ * 				ARRAY_SIZE(streetracer_spi_board_info));
-+ * } 
-+ *
-+ * The driver is built around a spi_message fifo serviced by two tasklets. The
-+ * first tasklet (pump_messages) is responsible for queuing SPI transactions 
-+ * and scheduling SPI transfers.  The second tasklet (pump_transfers) is 
-+ * responsible to setting up and launching the interrupt driven transfers.
-+ * Per transfer chip select and delay control is available.
-+ * 
-+ * This is a prototype driver, so you mileage will vary. It has only been
-+ * tested on the NSSP port.
-+ * 
-+ * Known Limitations:
-+ * 	Does not handle invert chip select polarity.
-+ * 	Heavy loaded systems may see transaction failures.
-+ * 	Wordsize support is untested.
-+ * 	Internal NSSP chip select is not support (i.e. NSSPSRFM)
-+ * 	Module hangs during unload.
-+ * 
-+ */
-+ 
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/device.h>
++#ifndef CIRRUS_H_
++#define CIRRUS_H_
++
++#include <linux/list.h>
 +#include <linux/spi.h>
-+#include <linux/ioport.h>
-+#include <linux/errno.h>
-+#include <linux/interrupt.h>
++#include <linux/spinlock.h>
++#include <linux/device.h>
 +
-+#include <asm/io.h>
-+#include <asm/irq.h>
-+#include <asm/hardware.h>
-+#include <asm/delay.h>
++#define READ_CMD 0x21
++#define WRITE_CMD 0x20
++#define TO_MAP(x) ((x & 0x7f) | 0x80)
++#define MAX_POOL_NAME_SIZE 64
 +
-+#include <asm/arch/hardware.h>
-+#include <asm/arch/pxa-regs.h>
-+#include <asm/arch/pxa2xx_spi_ssp.h>
-+
-+MODULE_AUTHOR("Stephen Street");
-+MODULE_DESCRIPTION("PXA2xx SSP SPI Contoller");
-+MODULE_LICENSE("GPL");
-+
-+#define MAX_SPEED_HZ 3686400
-+#define MAX_BUSES 3
-+
-+#define GET_IRQ_STATUS(x) (__REG(sssr)&(SSSR_TINT|SSSR_RFS|SSSR_TFS|SSSR_ROR))
-+
-+struct transfer_state {
-+	int index;
-+	int len;
-+	u32 gpio;
-+	void *tx;
-+	void *tx_end;
-+	void *rx;
-+	void *rx_end;
-+	void (*write)(u32 sssr, u32 ssdr, struct transfer_state *state);
-+	void (*read)(u32 sssr, u32 ssdr, struct transfer_state *state);
++struct cirrus_message_pool {
 +};
 +
-+struct master_data {
-+	spinlock_t lock;
-+	struct spi_master *master;
-+	struct list_head queue;
-+	struct tasklet_struct pump_messages;
-+	struct tasklet_struct pump_transfers;
-+	struct spi_message* cur_msg;
-+	struct transfer_state cur_state;
-+	u32 sscr0;
-+	u32 sscr1;
-+	u32 sssr;
-+	u32 ssitr;
-+	u32 ssdr;
-+	u32 ssto;
-+	u32 sspsp;
++struct cirrus_notification {
 +};
 +
-+struct chip_data {
-+	u32 cr0;
-+	u32 cr1;
-+	u32 to;
-+	u32 psp;
-+	u16 cs_gpio;
-+	u32 timeout;
-+	u8 n_bytes;
-+	void (*write)(u32 sssr, u32 ssdr, struct transfer_state *state);
-+	void (*read)(u32 sssr, u32 ssdr, struct transfer_state *state);
++struct cirrus_pooled_message {
 +};
 +
-+static inline void flush(struct master_data *drv_data)
++inline void _cirrus_setup_async(struct spi_message *message, 
++					void (*chip_callback)(void *context), 
++					void (*user_callback)(int length))
 +{
-+	u32 sssr = drv_data->sssr;
-+	u32 ssdr = drv_data->ssdr;
-+	
-+	do {
-+		while (__REG(sssr) & SSSR_RNE) {
-+			(void)__REG(ssdr);
-+		}
-+	} while (__REG(sssr) & SSSR_BSY);
-+	__REG(sssr) = SSSR_ROR ;
-+}
-+
-+static inline void save_state(struct master_data *drv_data, 
-+				struct chip_data *chip)
-+{
-+	/* Save critical register */
-+	chip->cr0 = __REG(drv_data->sscr0);
-+	chip->cr1 = __REG(drv_data->sscr1);
-+	chip->to = __REG(drv_data->ssto);
-+	chip->psp = __REG(drv_data->sspsp);
-+	
-+	/* Disable clock */
-+	__REG(drv_data->sscr0) &= ~SSCR0_SSE;
-+}
-+
-+static inline void restore_state(struct master_data *drv_data, 
-+					struct chip_data *chip)
-+{
-+	/* Clear status and disable clock*/
-+	__REG(drv_data->sssr) = SSSR_ROR | SSSR_TUR | SSSR_BCE;
-+	__REG(drv_data->sscr0) = chip->cr0 & ~SSCR0_SSE;
-+	
-+	/* Load the registers */
-+	__REG(drv_data->sscr1) = chip->cr1;
-+	__REG(drv_data->ssto) = chip->to;
-+	__REG(drv_data->sspsp) = chip->psp;
-+	__REG(drv_data->sscr0) = chip->cr0;
-+}
-+
-+static inline void dump_state(struct master_data* drv_data)
-+{
-+	u32 sscr0 = drv_data->sscr0;
-+	u32 sscr1 = drv_data->sscr1;
-+	u32 sssr = drv_data->sssr;
-+	u32 ssto = drv_data->ssto;
-+	u32 sspsp = drv_data->sspsp;
-+	
-+	pr_debug("SSP dump: sscr0=0x%08x, sscr1=0x%08x, "
-+			"ssto=0x%08x, sspsp=0x%08x, sssr=0x%08x\n",
-+			__REG(sscr0), __REG(sscr1), __REG(ssto), 
-+			__REG(sspsp), __REG(sssr));
-+}
-+
-+static void null_writer(u32 sssr, u32 ssdr, struct transfer_state *state)
-+{
-+	while ((__REG(sssr) & SSSR_TNF) && (state->tx < state->tx_end)) {
-+		__REG(ssdr) = 0;
-+		++state->tx;
-+	}
-+}
-+
-+static void null_reader(u32 sssr, u32 ssdr, struct transfer_state *state)
-+{
-+	while ((__REG(sssr) & SSSR_RNE) && (state->rx < state->rx_end)) {
-+		(void)(__REG(ssdr));
-+		++state->rx;
-+	}
-+}
-+
-+static void u8_writer(u32 sssr, u32 ssdr, struct transfer_state *state)
-+{
-+	while ((__REG(sssr) & SSSR_TNF) && (state->tx < state->tx_end)) {
-+		__REG(ssdr) = *(u8 *)(state->tx);
-+		++state->tx;
-+	}
-+}
-+
-+static void u8_reader(u32 sssr, u32 ssdr, struct transfer_state *state)
-+{
-+	while ((__REG(sssr) & SSSR_RNE) && (state->rx < state->rx_end)) {
-+		*(u8 *)(state->rx) = __REG(ssdr);
-+		++state->rx;
-+	}
-+}
-+
-+static void u16_writer(u32 sssr, u32 ssdr, struct transfer_state *state)
-+{
-+	while ((__REG(sssr) & SSSR_TNF) && (state->tx < state->tx_end)) {
-+		__REG(ssdr) = *(u16 *)(state->tx);
-+		state->tx += 2;
-+	}
-+}
-+
-+static void u16_reader(u32 sssr, u32 ssdr, struct transfer_state *state)
-+{
-+	while ((__REG(sssr) & SSSR_RNE) && (state->rx < state->rx_end)) {
-+		*(u16 *)(state->rx) = __REG(ssdr);
-+		state->rx += 2;
-+	}
-+}
-+static void u32_writer(u32 sssr, u32 ssdr, struct transfer_state *state)
-+{
-+	while ((__REG(sssr) & SSSR_TNF) && (state->tx < state->tx_end)) {
-+		__REG(ssdr) = *(u32 *)(state->tx);
-+		state->tx += 4;
-+	}
-+}
-+
-+static void u32_reader(u32 sssr, u32 ssdr, struct transfer_state *state)
-+{
-+	while ((__REG(sssr) & SSSR_RNE) && (state->rx < state->rx_end)) {
-+		*(u32 *)(state->rx) = __REG(ssdr);
-+		state->rx += 4;
-+	}
-+}
-+
-+static irqreturn_t ssp_int(int irq, void *dev_id, struct pt_regs *regs)
-+{
-+	struct master_data *drv_data = (struct master_data *)dev_id;
-+	struct transfer_state *state;
-+	u32 sssr = drv_data->sssr;
-+	u32 ssdr = drv_data->ssdr;
-+	u32 sscr1 = drv_data->sscr1;
-+	u32 ssto = drv_data->ssto;
-+	u32 irq_status;
-+	struct spi_message *msg;
-+	
-+	if (!drv_data->cur_msg || !drv_data->cur_msg->state) {
-+		printk(KERN_ERR "pxs2xx_spi_ssp: bad message or message "
-+				"state in interrupt handler\n");
-+	}
-+	state = (struct transfer_state *)drv_data->cur_msg->state;
-+	msg = drv_data->cur_msg;
-+
-+	while ((irq_status = GET_IRQ_STATUS(sssr))) {
-+
-+		if (irq_status & SSSR_ROR) {
-+
-+			/* Clear and disable interrupts */
-+			__REG(ssto) = 0;
-+			__REG(sssr) = SSSR_TINT | SSSR_ROR;
-+			__REG(sscr1) &= ~(SSCR1_TIE | SSCR1_RIE | SSCR1_TINTE);
-+			
-+			flush(drv_data);
-+			
-+			printk(KERN_WARNING "fifo overun: "
-+					"index=%d tx_len=%d rx_len%d\n", 
-+					state->index, 
-+					(state->tx_end - state->tx), 
-+					(state->rx_end - state->rx)); 
-+
-+			state->index = -2;
-+			tasklet_schedule(&drv_data->pump_transfers);
-+
-+			return IRQ_HANDLED;
-+		}
-+
-+		
-+		/* Pump data */
-+		state->read(sssr, ssdr, state);
-+		state->write(sssr, ssdr, state);
-+		
-+		if ((irq_status & SSSR_TINT) || (state->rx <= state->rx_end)) {
-+			
-+			/* Look for false positive timeout */
-+			if (state->rx < state->rx_end) {
-+				__REG(sssr) = SSSR_TINT;
-+				break;
-+			}
-+			
-+			/* Clear timeout */
-+			__REG(ssto) = 0;
-+			__REG(sssr) = SSSR_TINT | SSSR_ROR ;
-+			__REG(sscr1) &= ~(SSCR1_TIE | SSCR1_RIE | SSCR1_TINTE);
-+			
-+			msg->actual_length += msg->transfers[state->index].len;
-+	
-+			if (msg->transfers[state->index].cs_change)	
-+				/* Fix me, need to handle cs polarity */
-+				GPSR(state->gpio) = GPIO_bit(state->gpio);
-+
-+			/* Schedule transfer tasklet */
-+			++state->index;
-+			tasklet_schedule(&drv_data->pump_transfers);
-+			
-+			return IRQ_HANDLED;
-+		}
-+	}
-+	
-+	return IRQ_HANDLED;
-+} 
-+
-+static void pump_transfers(unsigned long data)
-+{
-+	struct master_data *drv_data = (struct master_data *)data;
-+	struct spi_message *message = drv_data->cur_msg;
-+	struct chip_data *chip;
-+	struct transfer_state * state;
-+	struct spi_transfer *transfer;
-+	u32 sscr1 = drv_data->sscr1;
-+	u32 ssto = drv_data->ssto;
-+	
-+	if (!message) {
-+		printk(KERN_ERR "pxs2xx_spi_ssp: bad pump_transfers "
-+				"schedule\n");
-+		tasklet_schedule(&drv_data->pump_messages);
-+		return;
-+	}
-+	
-+	state = (struct transfer_state *)message->state;
-+	if (!state) {
-+		printk(KERN_ERR "pxs2xx_spi_ssp: bad message state\n");
-+		drv_data->cur_msg = NULL;
-+		tasklet_schedule(&drv_data->pump_messages);
-+		return;
-+	}
-+	
-+	chip = spi_get_ctldata(message->dev);
-+	if (!chip) {
-+		printk(KERN_ERR "pxs2xx_spi_ssp: bad chip data\n");
-+		drv_data->cur_msg = NULL;
-+		tasklet_schedule(&drv_data->pump_messages);
-+		return;
-+	}
-+	
-+	/* Handle for abort */
-+	if (state->index == -2) {
-+		
-+		message->status = -EIO;
-+		if (message->complete)
-+			message->complete(message->context);
-+
-+		drv_data->cur_msg = NULL;
-+		save_state(drv_data, chip);
-+
-+		tasklet_schedule(&drv_data->pump_messages);		
-+		
-+		return;
-+	}
-+
-+	/* Handle end of message */
-+	if (state->index == message->n_transfer) {
-+		
-+		if (!message->transfers[state->index].cs_change)	
-+			/* Fix me, need to handle cs polarity */
-+			GPSR(state->gpio) = GPIO_bit(state->gpio);
-+			
-+		message->status = 0;
-+		if (message->complete)
-+			message->complete(message->context);
-+
-+		drv_data->cur_msg = NULL;
-+		save_state(drv_data, chip);
-+
-+		tasklet_schedule(&drv_data->pump_messages);		
-+		
-+		return;
-+	}
-+	
-+	/* Handle start of message */
-+	if (state->index == -1) {
-+		
-+		restore_state(drv_data, chip);
-+
-+		flush(drv_data);
-+
-+		++state->index;
-+	}
-+	
-+	/* Delay if requested at end of transfer*/
-+	if (state->index > 1) {
-+		transfer = message->transfers + (state->index - 1);
-+		if (transfer->delay_usecs)
-+			udelay(transfer->delay_usecs);
-+	}
-+
-+	/* Setup the transfer state */	
-+	transfer = message->transfers + state->index;
-+	state->gpio = chip->cs_gpio;		
-+	state->tx = (void *)transfer->tx_buf;
-+	state->tx_end = state->tx + (transfer->len * chip->n_bytes);
-+	state->rx = transfer->rx_buf;
-+	state->rx_end = state->rx + (transfer->len * chip->n_bytes);
-+	state->write = state->tx ? chip->write : null_writer;
-+	state->read = state->rx ? chip->read : null_reader;
-+	
-+	/* Fix me, need to handle cs polarity */
-+	GPCR(chip->cs_gpio) = GPIO_bit(chip->cs_gpio);
-+	
-+	/* Go baby, go */
-+	__REG(ssto) = chip->timeout;
-+	__REG(sscr1) |= (SSCR1_TIE | SSCR1_RIE | SSCR1_TINTE);
-+}
-+
-+
-+static void pump_messages(unsigned long data)
-+{
-+	struct master_data *drv_data = (struct master_data *)data;
-+
-+	spin_lock(&drv_data->lock);
-+
-+	/* Check for list empty */	
-+	if (list_empty(&drv_data->queue)) {
-+		spin_unlock(&drv_data->lock);
-+		return;
-+	}
-+	
-+	/* Check to see if we are already running */
-+	if (drv_data->cur_msg) {
-+		spin_unlock(&drv_data->lock);
-+		return;
-+	}		
-+
-+	/* Extract head of queue and check for tasklet reschedule */
-+	drv_data->cur_msg = list_entry(drv_data->queue.next, 
-+					struct spi_message, queue);
-+	list_del_init(&drv_data->cur_msg->queue);
-+	
-+	/* Setup message transfer and schedule transfer pump */
-+	drv_data->cur_msg->state = &drv_data->cur_state;
-+	drv_data->cur_state.index = -1;
-+	drv_data->cur_state.len = 0;
-+	tasklet_schedule(&drv_data->pump_transfers);
-+			
-+	spin_unlock(&drv_data->lock);
-+}
-+
-+static int transfer(struct spi_device *spi, struct spi_message *msg)
-+{
-+	struct master_data *drv_data = class_get_devdata(&spi->master->cdev);
-+
-+	msg->actual_length = 0;
-+	msg->status = 0;
-+		
-+	spin_lock_bh(&drv_data->lock);
-+	list_add_tail(&msg->queue, &drv_data->queue);
-+	spin_unlock_bh(&drv_data->lock);
-+	
-+	tasklet_schedule(&drv_data->pump_messages);
-+	
-+	return 0;
-+}
-+
-+static int setup(struct spi_device *spi)
-+{
-+	struct pxa2xx_spi_chip *chip_info;
-+	struct chip_data *chip;
-+	
-+	chip_info = (struct pxa2xx_spi_chip *)spi->platform_data;
-+	
-+	/* Only alloc on first setup */
-+	chip = spi_get_ctldata(spi);
-+	if (chip == NULL) {
-+		chip = kcalloc(1, sizeof(struct chip_data), GFP_KERNEL);
-+		if (!chip)
-+			return -ENOMEM;
-+
-+		spi->mode = chip_info->mode;
-+		spi->bits_per_word = chip_info->bits_per_word;
-+	}
-+	
-+	chip->cs_gpio = chip_info->chip_select_gpio;
-+	chip->cr0 = SSCR0_SerClkDiv((MAX_SPEED_HZ / spi->max_speed_hz) + 2) 
-+			| SSCR0_Motorola 
-+			| SSCR0_DataSize(spi->bits_per_word) 
-+			| SSCR0_SSE
-+			| (spi->bits_per_word > 16 ? SSCR0_EDSS : 0);
-+	chip->cr1 = SSCR1_RxTresh(chip_info->rx_threshold) 
-+			| SSCR1_TxTresh(chip_info->tx_threshold) 
-+			| (((spi->mode & SPI_CPHA) != 0) << 4) 
-+			| (((spi->mode & SPI_CPOL) != 0) << 3);
-+	chip->to = 0;
-+	chip->psp = 0;
-+	chip->timeout = (chip_info->timeout_microsecs * 10000) / 2712;
-+	
-+	if (spi->bits_per_word <= 8) {
-+		chip->n_bytes = 1;
-+		chip->read = u8_reader;
-+		chip->write = u8_writer;
-+	}
-+	else if (spi->bits_per_word <= 16) {
-+		chip->n_bytes = 2;
-+		chip->read = u16_reader;
-+		chip->write = u16_writer;
-+	}
-+	else if (spi->bits_per_word <= 32) {
-+		chip->n_bytes = 4;
-+		chip->read = u32_reader;
-+		chip->write = u32_writer;
-+	}
-+	else {
-+		printk(KERN_ERR "pxa2xx_spi_ssp: invalid wordsize\n");
-+		kfree(chip);
-+		return -ENODEV;
-+	}
-+		
-+	spi_set_ctldata(spi, chip);
-+	
-+	dev_dbg(&spi->dev, "gpio=%u sscr0=0x%08x sscr1=0x%08x "
-+				"ssto=0x%08x sspsp=0x%08x\n", 
-+				chip->cs_gpio, chip->cr0, 
-+				chip->cr1, chip->to, chip->psp);
-+			
-+	return 0;
-+}
-+
-+static void cleanup(const struct spi_device *spi)
-+{
-+	struct chip_data *chip = spi_get_ctldata((struct spi_device *)spi);
-+	
-+	if (chip)
-+		kfree(chip);
-+	
-+	dev_dbg(&spi->dev, "spi_device %u.%u cleanup\n", 
-+				spi->master->bus_num, spi->chip_select);
-+}
-+
-+static int probe(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct pxa2xx_spi_master *platform_info;
-+	struct spi_master *master;
-+	struct master_data *drv_data = 0;
-+	struct resource *memory_resource;
-+	int irq;
-+	int status = 0;
-+
-+	platform_info = (struct pxa2xx_spi_master *)pdev->dev.platform_data;
-+	
-+	master = spi_alloc_master(dev, sizeof(struct master_data));
-+	if (!master)
-+		return -ENOMEM;
-+	drv_data = class_get_devdata(&master->cdev);
-+	drv_data->master = master;	
-+		
-+	INIT_LIST_HEAD(&drv_data->queue);
-+	spin_lock_init(&drv_data->lock);
-+
-+	tasklet_init(&drv_data->pump_messages, 
-+			pump_messages, 
-+			(unsigned long)drv_data);
-+
-+	tasklet_init(&drv_data->pump_transfers, 
-+			pump_transfers, 
-+			(unsigned long)drv_data);
-+	
-+	master->bus_num = platform_info->bus_num;
-+	master->num_chipselect = platform_info->num_chipselect;
-+	master->cleanup = cleanup;
-+	master->setup = setup;
-+	master->transfer = transfer;
-+	
-+	/* Setup register addresses */
-+	memory_resource = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!memory_resource) {
-+		dev_dbg(dev, "can not find platform io memory\n");
-+		status = -ENODEV;
-+		goto out_error_memory;
-+	}
-+	
-+	drv_data->sscr0 = memory_resource->start + 0x00000000;
-+	drv_data->sscr1 = memory_resource->start + 0x00000004;
-+	drv_data->sssr = memory_resource->start + 0x00000008;
-+	drv_data->ssitr = memory_resource->start + 0x0000000c;
-+	drv_data->ssdr = memory_resource->start + 0x00000010;
-+	drv_data->ssto = memory_resource->start + 0x00000028;
-+	drv_data->sspsp = memory_resource->start + 0x0000002c;
-+	
-+	/* Attach to IRQ */
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq == 0) {
-+		dev_dbg(dev, "problem getting IORESOURCE_IRQ[0]\n");
-+		status = -ENODEV;
-+		goto out_error_memory;
-+	}
-+	
-+	status = request_irq(irq, ssp_int, SA_INTERRUPT, dev->bus_id, drv_data);
-+	if (status < 0) {
-+		dev_dbg(dev, "problem requesting IORESOURCE_IRQ %u\n", irq);
-+		goto out_error_memory;
-+	}
-+	
-+	/* Enable SOC clock */
-+	pxa_set_cken(platform_info->clock_enable, 1);
-+		
-+	/* Load default SSP configuration */
-+	__REG(drv_data->sscr0) = 0;
-+	__REG(drv_data->sscr1) = SSCR1_RxTresh(4) | SSCR1_TxTresh(12);
-+	__REG(drv_data->sscr0) = SSCR0_SerClkDiv(2) 
-+					| SSCR0_Motorola 
-+					| SSCR0_DataSize(8);
-+	__REG(drv_data->ssto) = 0;
-+	__REG(drv_data->sspsp) = 0;
-+	
-+	dev_set_drvdata(dev, master);
-+	status = spi_register_master(master);
-+	if (status != 0) {
-+		goto out_error_irq;
-+	}
-+		
-+	return status;
-+
-+out_error_irq:
-+	free_irq(irq, drv_data);
-+	
-+out_error_memory:
-+	class_device_put(&master->cdev);
-+
-+	return status;
-+}
-+
-+static int remove(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct spi_master *master = dev_get_drvdata(dev);
-+	struct master_data *drv_data = class_get_devdata(&master->cdev);
-+	struct pxa2xx_spi_master *platform_info;
-+	
-+	int irq;
-+	unsigned long flags;
-+	
-+	platform_info = (struct pxa2xx_spi_master *)pdev->dev.platform_data;
-+
-+	spin_lock_irqsave(&drv_data->lock, flags);
-+
-+	__REG(drv_data->sscr0) = 0;
-+	pxa_set_cken(platform_info->clock_enable, 0);
-+
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq != 0)
-+		free_irq(irq, drv_data);
-+	
-+	spin_unlock_irqrestore(&drv_data->lock, flags);
-+
-+	spi_unregister_master(master);
-+	
-+	return 0;
-+}
-+
-+static struct device_driver driver = {
-+	.name = "pxa2xx-spi-ssp",
-+	.bus = &platform_bus_type,
-+	.owner = THIS_MODULE,
-+	.probe = probe,
-+	.remove = remove,
 +};
 +
-+static int pxa2xx_spi_ssp_init(void)
++inline void *__cirrus_pool_alloc(struct cirrus_message_pool *pool)
 +{
-+	driver_register(&driver);
-+	
-+	return 0;
++	return NULL;	
 +}
-+module_init(pxa2xx_spi_ssp_init);
 +
-+static void pxa2xx_spi_ssp_exit(void)
++inline void __cirrus_pool_free(struct cirrus_message_pool *pool, void* ptr)
 +{
-+	driver_unregister(&driver);
 +}
-+module_exit(pxa2xx_spi_ssp_exit);
---- linux-2.6.12-spi/include/asm-arm/arch-pxa/pxa2xx_spi_ssp.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.12-spi-pxa/include/asm-arm/arch-pxa/pxa2xx_spi_ssp.h	2005-10-04 12:50:22.922007000 -0700
-@@ -0,0 +1,36 @@
-+/* Copyright (C) 2005 Stephen Street / StreetFire Sound Labs
++
++inline struct spi_message *_cirrus_alloc_read(struct cirrus_message_pool *pool, 
++							u8 address, 
++							const char* buffer, 
++							size_t length)
++{
++	return NULL;
++}
++
++inline struct spi_message *_cirrus_alloc_write(struct cirrus_message_pool *pool,
++							u8 address, 
++							unsigned char* buffer, 
++							unsigned int length)
++{
++	return NULL;
++}
++
++inline void _cirrus_free(struct cirrus_message_pool *pool, 
++				struct spi_message* message)
++{
++}
++
++inline struct cirrus_message_pool *_cirrus_create_pool(const char* name, 
++							size_t pool_size, 
++							size_t max_message_size)
++{
++	return NULL;
++}
++
++inline void _cirrus_release_pool(struct cirrus_message_pool *pool)
++{
++}
++
++inline ssize_t _cirrus_read_sync(struct device *dev, u8 address, 
++					const char *buffer, size_t length)
++{
++	u8 map_buffer[] = { WRITE_CMD,	TO_MAP(address) };
++	u8 read_cmd_buffer[] = { READ_CMD };
++	struct spi_transfer transfers[3];
++	struct spi_message message;
++	
++	transfers[0].tx_buf = map_buffer;
++	transfers[0].rx_buf = NULL;
++	transfers[0].len = ARRAY_SIZE(map_buffer);
++	transfers[0].cs_change = 0;
++	transfers[0].delay_usecs = 0;
++
++	transfers[1].tx_buf = read_cmd_buffer;
++	transfers[1].rx_buf = NULL;
++	transfers[1].len = ARRAY_SIZE(read_cmd_buffer);
++	transfers[1].cs_change = 1;
++	transfers[1].delay_usecs = 0;
++	
++	transfers[2].tx_buf = NULL;
++	transfers[2].rx_buf = (void *)buffer;
++	transfers[2].len = length;
++	transfers[2].cs_change = 0;
++	transfers[2].delay_usecs = 0;
++
++	message.transfers = transfers;
++	message.n_transfer = ARRAY_SIZE(transfers);
++
++	spi_sync(to_spi_device(dev), &message);
++	
++	return message.status < 0 ? message.status : message.actual_length;
++}
++
++inline int _cirrus_write_sync(struct device *dev, u8 address, 
++				const unsigned char *buffer, 
++				unsigned int length)
++{
++	u8 map_buffer[] = { WRITE_CMD, TO_MAP(address) };
++	struct spi_transfer transfers[2];
++	struct spi_message message;
++	
++	transfers[0].tx_buf = map_buffer,
++	transfers[0].rx_buf = NULL;
++	transfers[0].len = ARRAY_SIZE(map_buffer),
++	transfers[0].cs_change = 1;
++	transfers[0].delay_usecs = 0;
++	
++	transfers[1].tx_buf = (unsigned char *)buffer,
++	transfers[1].rx_buf = NULL;
++	transfers[1].len = length,
++	transfers[1].cs_change = 0;
++	transfers[1].delay_usecs = 0;
++
++	message.transfers = transfers;
++	message.n_transfer = ARRAY_SIZE(transfers);
++
++	spi_sync(to_spi_device(dev), &message);
++	
++	return message.status < 0 ? message.status : message.actual_length;
++}
++
++inline int _cirrus_read_register_sync(struct device* dev, u8 address)
++{
++	u8 map_buffer[] = { WRITE_CMD, TO_MAP(address) };
++	u8 read_buffer[] = { READ_CMD, 0 };
++	struct spi_transfer transfers[2];
++	struct spi_message message;
++	int status;
++	
++	transfers[0].tx_buf = map_buffer,
++	transfers[0].rx_buf = NULL;
++	transfers[0].len = ARRAY_SIZE(map_buffer),
++	transfers[0].cs_change = 1;
++	transfers[0].delay_usecs = 0;
++
++	transfers[1].tx_buf = read_buffer,
++	transfers[1].rx_buf = read_buffer,
++	transfers[1].len = ARRAY_SIZE(read_buffer),
++	transfers[1].cs_change = 0;
++	transfers[1].delay_usecs = 0;
++
++	message.transfers = transfers;
++	message.n_transfer = ARRAY_SIZE(transfers);
++	
++	status = spi_sync(to_spi_device(dev), &message);
++	if (status < 0)
++		return status;
++	
++	return message.status < 0 ? message.status : read_buffer[1];
++}
++
++inline int _cirrus_write_register_sync(struct device* dev, u8 address, u8 data)
++{
++	u8 write_buffer[] = { WRITE_CMD, TO_MAP(address), data };
++	struct spi_transfer transfers[1];
++	struct spi_message message;
++
++	transfers[0].tx_buf = write_buffer,
++	transfers[0].rx_buf = NULL;
++	transfers[0].len = ARRAY_SIZE(write_buffer),
++	transfers[0].cs_change = 0;
++	transfers[0].delay_usecs = 0;
++
++	message.transfers = transfers;
++	message.n_transfer = ARRAY_SIZE(transfers);
++	
++	spi_sync(to_spi_device(dev), &message);
++	
++	return message.status;
++}
++
++#endif /*CIRRUS_H_*/
+--- linux-2.6.12-spi/include/linux/spi/cs8415a.h	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.12-spi-pxa/include/linux/spi/cs8415a.h	2005-10-04 14:19:40.422850000 -0700
+@@ -0,0 +1,156 @@
++/* cs8415a.h - Definitions for the CS8415A chip
++ *
++ * Copyright (C) 2005 Stephen Street / StreetFire Sound Labs
 + *
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License as published by
@@ -857,22 +265,704 @@ tested on the NSSP port.
 + * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 + */
 +
-+#ifndef PXA2XX_SPI_SSP_H_
-+#define PXA2XX_SPI_SSP_H_
++#ifndef CS8415A_H_
++#define CS8415A_H_
 +
-+struct pxa2xx_spi_master {
-+	u16 bus_num;
-+	u32 clock_enable;
-+	u16 num_chipselect;
++#include <linux/list.h>
++
++#define CS8415A_CTL1    0x01
++#define CS8415A_CTL2    0x02
++#define CS8415A_CSC     0x04
++#define CS8415A_SOF     0x06
++#define CS8415A_I1S     0x07
++#define CS8415A_I2S     0x08
++#define CS8415A_I1MK    0x09
++#define CS8415A_I1MM    0x0a
++#define CS8415A_I1ML    0x0b
++#define CS8415A_I2MK    0x0c
++#define CS8415A_I2MM    0x0d
++#define CS8415A_I2ML    0x0e
++#define CS8415A_RCS     0x0f
++#define CS8415A_RER     0x10
++#define CS8415A_REM     0x11
++#define CS8415A_CSDBC   0x12
++#define CS8415A_UDBC    0x13
++#define CS8415A_QCSB    0x14
++#define CS8415A_ORR     0x1e
++#define CS8415A_CUDB    0x20
++#define CS8415A_VER     0x7f
++
++#define CS8415A_SWCLK    (1<<7)
++#define CS8415A_MUTESAO  (1<<5)
++#define CS8415A_INT(x)   ((x&3)<<1)
++#define CS8415A_HOLD(x)  ((x&3)<<5)
++#define CS8415A_RMCKF    (1<<4)
++#define CS8415A_MMR      (1<<3)
++#define CS8415A_MUX(x)   (x&7)
++#define CS8415A_RUN      (1<<6)
++#define CS8415A_SOMS     (1<<7)
++#define CS8415A_SOSF     (1<<6)
++#define CS8415A_SORES(x) ((x&3)<<4)
++#define CS8415A_SOJUST   (1<<3)
++#define CS8415A_SODEL    (1<<2)
++#define CS8415A_SOSPOL   (1<<1)
++#define CS8415A_SOLRPOL  (1)
++#define CS8415A_OSLIP    (1<<6)
++#define CS8415A_DETC     (1<<2)
++#define CS8415A_RERR     (1)
++#define CS8415A_DETU     (1<<3)
++#define CS8415A_QCH      (1<<1)
++#define CS8415A_AUX(x)   ((x&f)<<4)
++#define CS8415A_PRO      (1<<3)
++#define CS8415A_AUDIO    (1<<2)
++#define CS8415A_COPY     (1<<1)
++#define CS8415A_ORIG     (1)
++#define CS8415A_QCRC     (1<<6)
++#define CS8415A_CCRC     (1<<5)
++#define CS8415A_UNLOCK   (1<<4)
++#define CS8415A_V        (1<<3)
++#define CS8415A_CONF     (1<<2)
++#define CS8415A_BIP      (1<<1)
++#define CS8415A_PAR      (1)
++#define CS8415A_BSEL     (1<<5)
++#define CS8415A_CBMR     (1<<4)
++#define CS8415A_DETCI    (1<<3)
++#define CS8415A_CAM      (1<<1)
++#define CS8415A_CHS      (1)
++#define CS8415A_DETUI    (1<<1)
++
++struct cs8415a_platform_data {
++	int enabled;
++	int muted;
++	int channel;
++	void (*mask_interrupt)(void);
++	void (*unmask_interrupt)(void);
++	int (*service_requested)(void);
 +};
 +
-+struct pxa2xx_spi_chip {
-+	u8 mode;
-+	u8 tx_threshold;
-+	u8 rx_threshold;
-+	u8 bits_per_word;
-+	u16 chip_select_gpio;
-+	u32 timeout_microsecs;
++struct cs8415a_event {
++	u16 events;
++	void (*event_handler)(u8 event, unsigned char *buffer, unsigned int length);
++	struct list_head event_list;
 +};
 +
-+#endif /*PXA2XX_SPI_SSP_H_*/
++extern int cs8415a_get_version(struct device *dev);
++
++extern int cs8415a_get_enabled(struct device *dev);
++
++extern int cs8415a_set_enabled(struct device *dev, int value);
++
++extern int cs8415a_get_muted(struct device *dev);
++
++extern int cs8415a_set_muted(struct device *dev, int value);
++
++extern int cs8415a_get_channel(struct device *dev);
++
++extern int cs8415a_set_channel(struct device *dev, int value);
++
++extern int cs8415a_is_pll_locked(struct device *dev);
++
++extern int cs8415a_get_channel_status(struct device *dev);
++
++extern int cs8415a_read_qch(struct device *dev, unsigned char *buffer);
++
++extern int cs8415a_read_ubit(struct device *dev, unsigned char *buffer);
++
++extern int cs8415a_read_cbit(struct device *dev, unsigned char* buffer);
++
++extern int cs8415a_add_event_handler(struct device *dev, 
++					struct cs8415a_event *event);
++extern int cs8415a_remove_event_handler(struct device *dev, 
++						struct cs8415a_event *event);
++
++extern int _cs8415a_read_register(struct device *dev, u8 address);
++
++extern int _cs8415a_write_register(struct device *dev, u8 address, u8 value);
++
++extern int _cs8415a_read(struct device *dev, u8 address, 
++				unsigned char *buffer, unsigned int length);
++
++extern int _cs8415a_write(struct device *dev, u8 address, 
++				unsigned char *buffer, unsigned int length);
++
++extern int _cs8415a_read_register_async(struct device *dev, u8 address, 
++						void (*done)(int value));
++
++extern int _cs8415a_write_register_async(struct device *dev, u8 address, 
++						u8 value, 
++						void (*done)(int status));
++extern int _cs8415a_read_async(struct device *dev, u8 address, 
++					unsigned char *buffer, 
++					unsigned int length, 
++					void (*done)(int length));
++
++extern int _cs8415a_write_async(struct device *dev, u8 address, 
++					unsigned char *buffer, 
++					unsigned int length, 
++					void (*done)(int length));
++
++#endif /*CS8415A_H_*/
+--- linux-2.6.12-spi/drivers/spi/cs8415a.c	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.12-spi-pxa/drivers/spi/cs8415a.c	2005-10-04 14:00:12.279449000 -0700
+@@ -0,0 +1,561 @@
++/*
++ * Copyright (C) 2005 Stephen Street / StreetFire Sound Labs
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/device.h>
++#include <linux/spi.h>
++#include <linux/list.h>
++#include <linux/errno.h>
++#include <linux/interrupt.h>
++#include <linux/spi.h>
++#include <linux/spi/cs8415a.h>
++#include <linux/spi/cirrus.h>
++
++#include <asm/hardirq.h>
++#include <asm/semaphore.h>
++#include <asm/arch/streetracer.h>
++
++MODULE_AUTHOR("Stephen Street");
++MODULE_DESCRIPTION("CS8415A SPI Protocol Driver");
++MODULE_LICENSE("GPL");
++
++#define VALID_CS8415A_VERSION (0x41)
++
++struct cs8415a_driver_data {
++	spinlock_t lock;
++	struct semaphore user_lock;
++	struct cirrus_message_pool *read_async_pool;
++	struct cirrus_message_pool *write_async_pool;
++	struct list_head event_handlers;
++	int chip_version;
++	int enabled;
++	int muted;
++	int channel;
++};
++
++int _cs8415a_read_register(struct device *dev, u8 address)
++{
++	return _cirrus_read_register_sync(dev, address);
++}
++EXPORT_SYMBOL(_cs8415a_read_register);
++
++int _cs8415a_write_register(struct device *dev, u8 address, u8 value)
++{
++	return _cirrus_write_register_sync(dev, address, value);
++}
++EXPORT_SYMBOL(_cs8415a_write_register);
++
++int _cs8415a_read(struct device *dev, u8 address, 
++			unsigned char *buffer, unsigned int length)
++{
++	return _cirrus_read_sync(dev, address, buffer, length);
++}
++EXPORT_SYMBOL(_cs8415a_read);
++
++int _cs8415a_write(struct device *dev, u8 address, 
++			unsigned char *buffer, unsigned int length)
++{
++	return _cirrus_write_sync(dev, address, buffer, length);
++}
++EXPORT_SYMBOL(_cs8415a_write);
++
++int _cs8415a_read_register_async(struct device *dev, u8 address, 
++					void (*done)(int value))
++{
++	return -1;
++}
++EXPORT_SYMBOL(_cs8415a_read_register_async);
++
++int _cs8415a_write_register_async(struct device *dev, u8 address, 
++					u8 value, void (*done)(int status))
++{
++	return -1;
++}
++EXPORT_SYMBOL(_cs8415a_write_register_async);
++
++int _cs8415a_read_async(struct device *dev, u8 address, 
++				unsigned char *buffer, unsigned int length, 
++				void (*done)(int length))
++{
++	return -1;
++}
++EXPORT_SYMBOL(_cs8415a_read_async);
++
++int _cs8415a_write_async(struct device *dev, u8 address, 
++				unsigned char *buffer, unsigned int length, 
++				void (*done)(int length))
++{
++	return -1;
++}
++EXPORT_SYMBOL(_cs8415a_write_async);
++
++static int cs8415a_reset(struct device *dev)
++{
++	unsigned char clear[6];
++	struct cs8415a_driver_data *driver_data = dev_get_drvdata(dev);
++	int status;
++	
++	memset(clear, 0, sizeof(clear));
++	
++	status = _cs8415a_write_register(dev, CS8415A_CSC, 0);
++	if (status < 0)
++		return status;
++		
++	status = _cs8415a_write_register(dev, CS8415A_CTL1, 
++						CS8415A_INT(0)
++						|CS8415A_MUTESAO);
++	if (status < 0)
++		return status;
++
++	status = _cs8415a_write_register(dev, CS8415A_CTL2, CS8415A_HOLD(1));
++	if (status < 0)
++		return status;
++
++	status = _cs8415a_write_register(dev, CS8415A_SOF, 
++						CS8415A_SOMS 
++						| CS8415A_SODEL 
++						| CS8415A_SOLRPOL);
++	if (status < 0)
++		return status;
++
++	status = _cs8415a_write(dev, CS8415A_I1MK, clear, sizeof(clear));
++	if (status < 0)
++		return status;
++
++	status = _cs8415a_read_register(dev, CS8415A_RER);
++	if (status < 0)
++		return status;
++
++	status = _cs8415a_read(dev, CS8415A_I1S, clear, 2);
++	if (status < 0)
++		return status;
++	
++	driver_data->enabled = 0;
++	driver_data->channel = 0;
++	driver_data->muted = 1;
++	
++	return 0;
++}
++
++static irqreturn_t cs8415a_int(int irq, void *dev_id, struct pt_regs *regs)
++{
++	struct cs8415a_driver_data *driver_data;
++	
++	driver_data = dev_get_drvdata((struct device *)dev_id);
++
++	spin_lock(&driver_data->lock);
++	
++	spin_unlock(&driver_data->lock);
++	
++	return IRQ_HANDLED;
++}
++
++int cs8415a_get_version(struct device *dev)
++{
++	struct cs8415a_driver_data *driver_data = dev_get_drvdata(dev);
++	
++	return driver_data->chip_version;
++}
++EXPORT_SYMBOL(cs8415a_get_version);
++
++static ssize_t version_show(struct device *dev, char *buf)
++{
++	return sprintf(buf, "0x%02x\n", cs8415a_get_version(dev));
++}
++
++DEVICE_ATTR(version, 0444, version_show, NULL);
++
++extern int cs8415a_get_enabled(struct device *dev)
++{
++	struct cs8415a_driver_data *driver_data = dev_get_drvdata(dev);
++	int value;
++
++	if (down_interruptible(&driver_data->user_lock))
++		return -ERESTARTSYS;
++		
++	value = driver_data->enabled;
++	
++	up(&driver_data->user_lock);
++	
++	return value;
++}
++EXPORT_SYMBOL(cs8415a_get_enabled);
++
++extern int cs8415a_set_enabled(struct device *dev, int value)
++{
++	struct cs8415a_driver_data *driver_data = dev_get_drvdata(dev);
++	int status;
++	
++	if (down_interruptible(&driver_data->user_lock))
++		return -ERESTARTSYS;
++		
++	status = _cs8415a_write_register(dev, CS8415A_CSC, 
++						(u8)(value ? CS8415A_RUN : 0));
++	if (status == 0)
++		driver_data->enabled = value ? 1 : 0;
++		
++	up(&driver_data->user_lock);
++
++	return status;
++}
++EXPORT_SYMBOL(cs8415a_set_enabled);
++
++static ssize_t enabled_show(struct device *dev, char *buf)
++{
++	return snprintf(buf, PAGE_SIZE, "%d\n", cs8415a_get_enabled(dev));
++}
++
++static ssize_t enabled_store(struct device *dev, const char *buf, size_t count)
++{
++	int status;
++	unsigned int value;
++	
++	status = sscanf(buf, "%u", &value);
++	
++	if (status != 1 || (value != 0 && value != 1)) {
++		return -EINVAL;
++	}
++	
++	cs8415a_set_enabled(dev, value);
++	
++	return 1;
++}
++
++DEVICE_ATTR(enabled, 0644, enabled_show, enabled_store);
++
++int cs8415a_get_muted(struct device *dev)
++{
++	struct cs8415a_driver_data *driver_data = dev_get_drvdata(dev);
++	int value;
++
++	if (down_interruptible(&driver_data->user_lock))
++		return -ERESTARTSYS;
++	
++	value = driver_data->muted;
++	
++	up(&driver_data->user_lock);
++	
++	return value;
++}
++EXPORT_SYMBOL(cs8415a_get_muted);
++
++int cs8415a_set_muted(struct device *dev, int value)
++{
++	struct cs8415a_driver_data *driver_data = dev_get_drvdata(dev);
++	int status;
++	
++	if (down_interruptible(&driver_data->user_lock))
++		return -ERESTARTSYS;
++		
++	status = _cs8415a_write_register(dev, CS8415A_CTL1, 
++						(u8)(value?CS8415A_MUTESAO:0));
++	if (status == 0)
++		driver_data->muted = value ? 1 : 0;
++	
++	up(&driver_data->user_lock);
++	
++	return status;
++}
++EXPORT_SYMBOL(cs8415a_set_muted);
++
++static ssize_t muted_show(struct device *dev, char *buf)
++{
++	return snprintf(buf, PAGE_SIZE, "%d\n", cs8415a_get_muted(dev));
++}
++
++static ssize_t muted_store(struct device *dev, const char *buf, size_t count)
++{
++	int status;
++	unsigned int value;
++	
++	status = sscanf(buf, "%u", &value);
++	
++	if (status != 1 || (value != 0 && value != 1)) {
++		return -EINVAL;
++	}
++	
++	cs8415a_set_muted(dev, value);
++	
++	return 1;
++}
++DEVICE_ATTR(muted, 0644, muted_show, muted_store);
++
++int cs8415a_get_channel(struct device *dev)
++{
++	struct cs8415a_driver_data *driver_data = dev_get_drvdata(dev);
++	int value;
++	
++	if (down_interruptible(&driver_data->user_lock))
++		return -ERESTARTSYS;
++	
++	value = driver_data->channel;
++	
++	up(&driver_data->user_lock);
++	
++	return value;
++}
++EXPORT_SYMBOL(cs8415a_get_channel);
++
++int cs8415a_set_channel(struct device *dev, int value)
++{
++	struct cs8415a_driver_data *driver_data = dev_get_drvdata(dev);
++	int status;
++	
++	if (down_interruptible(&driver_data->user_lock))
++		return -ERESTARTSYS;
++	
++	status = _cs8415a_write_register(dev, CS8415A_CTL2, 
++						(u8)(CS8415A_HOLD(1) 
++							| CS8415A_MUX(value)));
++	if (status == 0)
++		driver_data->channel = value;
++		
++	up(&driver_data->user_lock);
++
++	return status;
++}
++EXPORT_SYMBOL(cs8415a_set_channel);
++
++static ssize_t channel_show(struct device *dev, char *buf)
++{
++	return snprintf(buf, PAGE_SIZE, "%d\n", cs8415a_get_channel(dev));
++}
++
++static ssize_t channel_store(struct device *dev, const char *buf, size_t count)
++{
++	int status;
++	unsigned int value;
++	
++	status = sscanf(buf, "%u", &value);
++	
++	if (status != 1 || value < 0 || value > 7) {
++		return -EINVAL;
++	}
++	
++	cs8415a_set_channel(dev, value);
++	
++	return 1;
++}
++DEVICE_ATTR(channel, 0644, channel_show, channel_store);
++
++int cs8415a_get_channel_status(struct device *dev)
++{
++	struct cs8415a_driver_data *driver_data = dev_get_drvdata(dev);
++	int value;
++	
++	if (down_interruptible(&driver_data->user_lock))
++		return -ERESTARTSYS;
++	
++	value = _cs8415a_read_register(dev, CS8415A_RCS);
++	
++	up(&driver_data->user_lock);
++	
++	return value;
++}
++static ssize_t channel_status_show(struct device *dev, char *buf)
++{
++	return snprintf(buf, PAGE_SIZE, "0x%01x\n", 
++				cs8415a_get_channel_status(dev));
++}
++DEVICE_ATTR(channel_status, 0444, channel_status_show, NULL);
++
++static int cs8415a_spi_probe(struct device *dev)
++{
++	struct spi_device *spi_dev;
++	struct cs8415a_driver_data *driver_data;
++	int status;
++
++	/* Allocate driver data */
++	driver_data = kcalloc(1, sizeof(struct cs8415a_driver_data), 
++				GFP_KERNEL);
++	if (!driver_data) {
++		dev_err(dev, "problem allocating driver memory\n");
++		status = -ENOMEM;
++		goto out_error;
++	}
++	
++	spin_lock_init(&driver_data->lock);
++	init_MUTEX(&driver_data->user_lock);
++	INIT_LIST_HEAD(&driver_data->event_handlers);
++	
++	dev_set_drvdata(dev, driver_data);
++	
++	/* Initialize the message pool */
++/*
++	driver_data->read_async_pool = _cirrus_create_pool(0);
++	driver_data->write_async_pool = _cirrus_create_pool(0);
++	if (!driver_data->read_async_pool || !driver_data->write_async_pool) {
++		dev_err(dev, "problem creating pools\n");
++		status = -ENOMEM;
++		goto out_error_memalloc;
++	}
++*/
++	
++	/* Read and validate version number */
++	driver_data->chip_version = _cs8415a_read_register(dev, CS8415A_VER);
++	if (driver_data->chip_version < 0) {
++		dev_err(dev, "problem reading chip version\n");
++		status = -ENODEV;
++		goto out_error_memalloc;
++	}
++
++	if (driver_data->chip_version != VALID_CS8415A_VERSION) {
++		dev_err(dev, "problem reading chip version "
++				"found version 0x%02x\n", 
++				driver_data->chip_version);
++		status = -ENODEV;
++		goto out_error_memalloc;
++	}
++	
++	spi_dev = to_spi_device(dev);
++
++	/* Attach to IRQ  */	
++	if (spi_dev->irq == 0) {
++		dev_err(dev, "problem getting irq\n");
++		status = -ENODEV;
++		goto out_error_memalloc;
++	}
++
++	status = request_irq(spi_dev->irq, cs8415a_int, 
++				SA_SHIRQ, dev->bus_id, dev);
++	if (status < 0) {
++		dev_err(dev, "problem requesting IRQ %u\n", spi_dev->irq);
++		status = -ENODEV;
++		goto out_error_memalloc;
++	}
++	
++	status = cs8415a_reset(dev);
++	if (status != 0) {
++		dev_err(dev, "problem resetting\n");
++		status = -ENODEV;
++		goto out_error_irqalloc;
++	}
++	
++	status = device_create_file(dev, &dev_attr_version);
++	if (status < 0) {
++		dev_err(dev, "problem creating attribute %s\n", 
++				dev_attr_version.attr.name);
++		goto out_error_attralloc;
++	}
++	
++	status = device_create_file(dev, &dev_attr_enabled);
++	if (status < 0) {
++		dev_err(dev, "problem creating attribute %s\n", 
++				dev_attr_enabled.attr.name);
++		goto out_error_attralloc;
++	}
++	
++	status = device_create_file(dev, &dev_attr_muted);
++	if (status < 0) {
++		dev_err(dev, "problem creating attribute %s\n", 
++				dev_attr_muted.attr.name);
++		goto out_error_attralloc;
++	}
++	
++	status = device_create_file(dev, &dev_attr_channel);
++	if (status < 0) {
++		dev_err(dev, "problem creating attribute %s\n", 
++				dev_attr_channel.attr.name);
++		goto out_error_attralloc;
++	}
++
++	status = device_create_file(dev, &dev_attr_channel_status);
++	if (status < 0) {
++		dev_err(dev, "problem creating attribute %s\n", 
++				dev_attr_channel_status.attr.name);
++		goto out_error_attralloc;
++	}
++
++	dev_dbg(dev, "found chip version 0x%02x\n", driver_data->chip_version);
++
++	return 0;
++out_error_attralloc:
++	device_remove_file(dev, &dev_attr_version);
++	device_remove_file(dev, &dev_attr_enabled);
++	device_remove_file(dev, &dev_attr_muted);
++	device_remove_file(dev, &dev_attr_channel);
++	device_remove_file(dev, &dev_attr_channel_status);
++	
++out_error_irqalloc:
++	free_irq(spi_dev->irq, dev);
++
++out_error_memalloc:
++	if (driver_data->read_async_pool) 
++		_cirrus_release_pool(driver_data->read_async_pool);
++		
++	if (driver_data->write_async_pool)
++		_cirrus_release_pool(driver_data->read_async_pool);
++	
++	dev_set_drvdata(dev, NULL);
++
++	kfree(driver_data);
++	
++out_error:
++	
++	return status;
++}
++
++static int cs8415a_spi_remove(struct device *dev)
++{
++	struct spi_device *spi_dev = to_spi_device(dev);
++	struct cs8415a_driver_data *driver_data = dev_get_drvdata(dev);
++	unsigned long flags;
++
++	cs8415a_reset(dev);
++
++	spin_lock_irqsave(&driver_data->lock, flags);
++
++	if (spi_dev->irq != 0)
++		free_irq(spi_dev->irq, dev);
++	
++	spin_unlock_irqrestore(&driver_data->lock, flags);
++
++	device_remove_file(dev, &dev_attr_version);
++	device_remove_file(dev, &dev_attr_enabled);
++	device_remove_file(dev, &dev_attr_muted);
++	device_remove_file(dev, &dev_attr_channel);
++	device_remove_file(dev, &dev_attr_channel_status);
++
++	_cirrus_release_pool(driver_data->read_async_pool);	
++	_cirrus_release_pool(driver_data->write_async_pool);	
++	
++	kfree(driver_data);
++	
++	return 0;
++}
++
++struct device_driver cs8415a_spi = {
++	.name = "cs8415a",
++	.bus = &spi_bus_type,
++	.owner = THIS_MODULE,
++	.probe = cs8415a_spi_probe,
++	.remove = cs8415a_spi_remove,
++};
++
++static int __init cs8415a_spi_init(void)
++{
++	return driver_register(&cs8415a_spi);
++}
++module_init(cs8415a_spi_init);
++
++static void __exit cs8415a_spi_exit(void)
++{
++	driver_unregister(&cs8415a_spi);
++}
++module_exit(cs8415a_spi_exit);

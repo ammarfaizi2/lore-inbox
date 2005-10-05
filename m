@@ -1,118 +1,286 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932200AbVJEVFp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964783AbVJEVGr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932200AbVJEVFp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 17:05:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932233AbVJEVFp
+	id S964783AbVJEVGr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 17:06:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964974AbVJEVGr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 17:05:45 -0400
-Received: from mail-in-02.arcor-online.net ([151.189.21.42]:5856 "EHLO
-	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
-	id S932200AbVJEVFo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 17:05:44 -0400
-Date: Wed, 5 Oct 2005 23:05:34 +0200 (CEST)
-From: Bodo Eggert <7eggert@gmx.de>
-To: Marc Perkel <marc@perkel.com>
-cc: Florin Malita <fmalita@gmail.com>, lsorense@csclub.uwaterloo.ca,
-       nix@esperi.org.uk, 7eggert@gmx.de, lkcl@lkcl.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-In-Reply-To: <43442D19.4050005@perkel.com>
-Message-ID: <Pine.LNX.4.58.0510052208130.4308@be1.lrz>
-References: <4TiWy-4HQ-3@gated-at.bofh.it> <4U0XH-3Gp-39@gated-at.bofh.it>
- <E1EMutG-0001Hd-7U@be1.lrz> <87k6gsjalu.fsf@amaterasu.srvr.nix>
- <4343E611.1000901@perkel.com> <20051005144441.GC8011@csclub.uwaterloo.ca>
- <4343E7AC.6000607@perkel.com> <20051005153727.994c4709.fmalita@gmail.com>
- <43442D19.4050005@perkel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
+	Wed, 5 Oct 2005 17:06:47 -0400
+Received: from [203.171.93.254] ([203.171.93.254]:25002 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S964783AbVJEVGr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 17:06:47 -0400
+Subject: [PATCH] Free swap suspend from dependency on PageReserved
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: Cyclades
+Message-Id: <1128546263.10363.14.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 06 Oct 2005 07:04:23 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Oct 2005, Marc Perkel wrote:
+From: Nigel Cunningham <nigel@suspend2.net>
 
-> What you don't get is that if you don't have rights to write to a file 
-> then you shouldn't have the right to delete the file.
+This patch removes the dependency that swap suspend currently has on
+PageReserved. In the places where PageReserved is currently set and
+cleared, we also set and clear PageNosave, and in swap suspend itself,
+we only reference PageNosave. The ongoing effort at freeing PageReserved
+thus achieves another step forward.
 
-In unix, nobody but the kernel has the right to *delete* a file. Therefore 
-nobody can delete a file without write permission.
+Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
-Files are deleted if the last reference is gone. If you play a music file
-and unlink it while it's playing, it won't be deleted untill the player
-closes the file, since an open filehandle is a reference.
+ arch/i386/mm/init.c   |   36 ++++++++++++++++++++++++++++--------
+ arch/ppc/mm/init.c    |   22 +++++++++++++++++++---
+ arch/x86_64/mm/init.c |    2 ++
+ kernel/power/swsusp.c |    7 +++----
+ mm/bootmem.c          |    4 ++++
+ 5 files changed, 56 insertions(+), 15 deletions(-)
+diff -ruNp 3120-e820-table-support.patch-old/arch/i386/mm/init.c 3120-e820-table-support.patch-new/arch/i386/mm/init.c
+--- 3120-e820-table-support.patch-old/arch/i386/mm/init.c	2005-10-03 09:50:10.000000000 +1000
++++ 3120-e820-table-support.patch-new/arch/i386/mm/init.c	2005-10-04 21:41:12.000000000 +1000
+@@ -27,6 +27,7 @@
+ #include <linux/slab.h>
+ #include <linux/proc_fs.h>
+ #include <linux/efi.h>
++#include <linux/suspend.h>
+ 
+ #include <asm/processor.h>
+ #include <asm/system.h>
+@@ -270,11 +271,14 @@ void __init one_highpage_init(struct pag
+ {
+ 	if (page_is_ram(pfn) && !(bad_ppro && page_kills_ppro(pfn))) {
+ 		ClearPageReserved(page);
++		ClearPageNosave(page);
+ 		set_page_count(page, 1);
+ 		__free_page(page);
+ 		totalhigh_pages++;
+-	} else
++	} else {
+ 		SetPageReserved(page);
++		SetPageNosave(page);
++	}
+ }
+ 
+ #ifdef CONFIG_NUMA
+@@ -353,7 +357,7 @@ static void __init pagetable_init (void)
+ #endif
+ }
+ 
+-#ifdef CONFIG_SOFTWARE_SUSPEND
++#ifdef CONFIG_PM
+ /*
+  * Swap suspend & friends need this for resume because things like the intel-agp
+  * driver might have split up a kernel 4MB mapping.
+@@ -540,6 +544,7 @@ void __init mem_init(void)
+ 	int codesize, reservedpages, datasize, initsize;
+ 	int tmp;
+ 	int bad_ppro;
++	void * addr;
+ 
+ #ifdef CONFIG_FLATMEM
+ 	if (!mem_map)
+@@ -570,12 +575,25 @@ void __init mem_init(void)
+ 	totalram_pages += free_all_bootmem();
+ 
+ 	reservedpages = 0;
+-	for (tmp = 0; tmp < max_low_pfn; tmp++)
+-		/*
+-		 * Only count reserved RAM pages
+-		 */
+-		if (page_is_ram(tmp) && PageReserved(pfn_to_page(tmp)))
+-			reservedpages++;
++	addr = __va(0);
++	for (tmp = 0; tmp < max_low_pfn; tmp++, addr += PAGE_SIZE) {
++		if (page_is_ram(tmp)) {
++			/*
++			 * Only count reserved RAM pages
++			 */
++			if (PageReserved(mem_map+tmp))
++				reservedpages++;
++			/*
++			 * Mark nosave pages
++			 */
++			if (addr >= (void *)&__nosave_begin && addr < (void *)&__nosave_end)
++				SetPageNosave(mem_map+tmp);
++		} else
++			/*
++			 * Non-RAM pages are always nosave
++			 */
++			SetPageNosave(mem_map+tmp);
++	}
+ 
+ 	set_highmem_pages_init(bad_ppro);
+ 
+@@ -674,6 +692,7 @@ void free_initmem(void)
+ 	addr = (unsigned long)(&__init_begin);
+ 	for (; addr < (unsigned long)(&__init_end); addr += PAGE_SIZE) {
+ 		ClearPageReserved(virt_to_page(addr));
++		ClearPageNosave(virt_to_page(addr));
+ 		set_page_count(virt_to_page(addr), 1);
+ 		memset((void *)addr, 0xcc, PAGE_SIZE);
+ 		free_page(addr);
+@@ -689,6 +708,7 @@ void free_initrd_mem(unsigned long start
+ 		printk (KERN_INFO "Freeing initrd memory: %ldk freed\n", (end - start) >> 10);
+ 	for (; start < end; start += PAGE_SIZE) {
+ 		ClearPageReserved(virt_to_page(start));
++		ClearPageNosave(virt_to_page(start));
+ 		set_page_count(virt_to_page(start), 1);
+ 		free_page(start);
+ 		totalram_pages++;
+diff -ruNp 3120-e820-table-support.patch-old/arch/ppc/mm/init.c 3120-e820-table-support.patch-new/arch/ppc/mm/init.c
+--- 3120-e820-table-support.patch-old/arch/ppc/mm/init.c	2005-10-03 09:50:18.000000000 +1000
++++ 3120-e820-table-support.patch-new/arch/ppc/mm/init.c	2005-10-06 06:49:04.000000000 +1000
+@@ -32,6 +32,7 @@
+ #include <linux/highmem.h>
+ #include <linux/initrd.h>
+ #include <linux/pagemap.h>
++#include <linux/suspend.h>
+ 
+ #include <asm/pgalloc.h>
+ #include <asm/prom.h>
+@@ -147,6 +148,7 @@ static void free_sec(unsigned long start
+ 
+ 	while (start < end) {
+ 		ClearPageReserved(virt_to_page(start));
++		ClearPageNosave(virt_to_page(start));
+ 		set_page_count(virt_to_page(start), 1);
+ 		free_page(start);
+ 		cnt++;
+@@ -187,6 +189,7 @@ void free_initrd_mem(unsigned long start
+ 
+ 	for (; start < end; start += PAGE_SIZE) {
+ 		ClearPageReserved(virt_to_page(start));
++		ClearPageNosave(virt_to_page(start));
+ 		set_page_count(virt_to_page(start), 1);
+ 		free_page(start);
+ 		totalram_pages++;
+@@ -422,8 +425,10 @@ void __init mem_init(void)
+ 	/* if we are booted from BootX with an initial ramdisk,
+ 	   make sure the ramdisk pages aren't reserved. */
+ 	if (initrd_start) {
+-		for (addr = initrd_start; addr < initrd_end; addr += PAGE_SIZE)
++		for (addr = initrd_start; addr < initrd_end; addr += PAGE_SIZE) {
+ 			ClearPageReserved(virt_to_page(addr));
++			ClearPageNosave(virt_to_page(addr));
++		}
+ 	}
+ #endif /* CONFIG_BLK_DEV_INITRD */
+ 
+@@ -432,17 +437,27 @@ void __init mem_init(void)
+ 	if ( rtas_data )
+ 		for (addr = (ulong)__va(rtas_data);
+ 		     addr < PAGE_ALIGN((ulong)__va(rtas_data)+rtas_size) ;
+-		     addr += PAGE_SIZE)
++		     addr += PAGE_SIZE) {
+ 			SetPageReserved(virt_to_page(addr));
++			SetPageNosave(virt_to_page(addr));
++		}
+ #endif
+ #ifdef CONFIG_PPC_PMAC
+-	if (agp_special_page)
++	if (agp_special_page) {
+ 		SetPageReserved(virt_to_page(agp_special_page));
++		SetPageNosave(virt_to_page(agp_special_page));
++	}
+ #endif
+ 	for (addr = PAGE_OFFSET; addr < (unsigned long)high_memory;
+ 	     addr += PAGE_SIZE) {
+ 		if (!PageReserved(virt_to_page(addr)))
+ 			continue;
++		/*
++		 * Mark nosave pages
++		 */
++		if (addr >= (void *)&__nosave_begin && addr < (void *)&__nosave_end)
++			SetPageNosave(virt_to_page(addr));
++
+ 		if (addr < (ulong) etext)
+ 			codepages++;
+ 		else if (addr >= (unsigned long)&__init_begin
+@@ -460,6 +475,7 @@ void __init mem_init(void)
+ 			struct page *page = mem_map + pfn;
+ 
+ 			ClearPageReserved(page);
++			ClearPageNosave(page);
+ 			set_page_count(page, 1);
+ 			__free_page(page);
+ 			totalhigh_pages++;
+diff -ruNp 3120-e820-table-support.patch-old/arch/x86_64/mm/init.c 3120-e820-table-support.patch-new/arch/x86_64/mm/init.c
+--- 3120-e820-table-support.patch-old/arch/x86_64/mm/init.c	2005-10-03 09:50:25.000000000 +1000
++++ 3120-e820-table-support.patch-new/arch/x86_64/mm/init.c	2005-10-06 06:51:25.000000000 +1000
+@@ -458,6 +458,7 @@ void free_initmem(void)
+ 	addr = (unsigned long)(&__init_begin);
+ 	for (; addr < (unsigned long)(&__init_end); addr += PAGE_SIZE) {
+ 		ClearPageReserved(virt_to_page(addr));
++		ClearPageNosave(virt_to_page(addr));
+ 		set_page_count(virt_to_page(addr), 1);
+ 		memset((void *)(addr & ~(PAGE_SIZE-1)), 0xcc, PAGE_SIZE); 
+ 		free_page(addr);
+@@ -475,6 +476,7 @@ void free_initrd_mem(unsigned long start
+ 	printk ("Freeing initrd memory: %ldk freed\n", (end - start) >> 10);
+ 	for (; start < end; start += PAGE_SIZE) {
+ 		ClearPageReserved(virt_to_page(start));
++		ClearPageNosave(virt_to_page(start));
+ 		set_page_count(virt_to_page(start), 1);
+ 		free_page(start);
+ 		totalram_pages++;
+diff -ruNp 3120-e820-table-support.patch-old/kernel/power/swsusp.c 3120-e820-table-support.patch-new/kernel/power/swsusp.c
+--- 3120-e820-table-support.patch-old/kernel/power/swsusp.c	2005-10-03 09:51:29.000000000 +1000
++++ 3120-e820-table-support.patch-new/kernel/power/swsusp.c	2005-10-06 06:51:22.000000000 +1000
+@@ -672,13 +672,12 @@ static int saveable(struct zone * zone, 
+ 		return 0;
+ 
+ 	page = pfn_to_page(pfn);
+-	BUG_ON(PageReserved(page) && PageNosave(page));
+-	if (PageNosave(page))
+-		return 0;
+-	if (PageReserved(page) && pfn_is_nosave(pfn)) {
++	if (pfn_is_nosave(pfn)) {
+ 		pr_debug("[nosave pfn 0x%lx]", pfn);
+ 		return 0;
+ 	}
++	if (PageNosave(page))
++		return 0;
+ 	if (PageNosaveFree(page))
+ 		return 0;
+ 
+diff -ruNp 3120-e820-table-support.patch-old/mm/bootmem.c 3120-e820-table-support.patch-new/mm/bootmem.c
+--- 3120-e820-table-support.patch-old/mm/bootmem.c	2005-10-03 09:51:29.000000000 +1000
++++ 3120-e820-table-support.patch-new/mm/bootmem.c	2005-10-04 21:41:12.000000000 +1000
+@@ -291,12 +291,14 @@ static unsigned long __init free_all_boo
+ 			page = pfn_to_page(pfn);
+ 			count += BITS_PER_LONG;
+ 			__ClearPageReserved(page);
++			ClearPageNosave(page);
+ 			order = ffs(BITS_PER_LONG) - 1;
+ 			set_page_refs(page, order);
+ 			for (j = 1; j < BITS_PER_LONG; j++) {
+ 				if (j + 16 < BITS_PER_LONG)
+ 					prefetchw(page + j + 16);
+ 				__ClearPageReserved(page + j);
++				ClearPageNosave(page + j);
+ 			}
+ 			__free_pages(page, order);
+ 			i += BITS_PER_LONG;
+@@ -309,6 +311,7 @@ static unsigned long __init free_all_boo
+ 				if (v & m) {
+ 					count++;
+ 					__ClearPageReserved(page);
++					ClearPageNosave(page);
+ 					set_page_refs(page, 0);
+ 					__free_page(page);
+ 				}
+@@ -329,6 +332,7 @@ static unsigned long __init free_all_boo
+ 	for (i = 0; i < ((bdata->node_low_pfn-(bdata->node_boot_start >> PAGE_SHIFT))/8 + PAGE_SIZE-1)/PAGE_SIZE; i++,page++) {
+ 		count++;
+ 		__ClearPageReserved(page);
++		ClearPageNosave(page);
+ 		set_page_count(page, 1);
+ 		__free_page(page);
+ 	}
 
 
-If you like, you can think of it as a kind of instant garbage collection:
-
-Files are the objects referenced by these lists, and if you own 
-the object, you can change it. However, as long as there is a reference, 
-you can't destroy it, since this would invalidate all references.
-Instead, you must remove all references.
-
-Directories are lists of references, and these lists are independent from
-the referenced file-objects. If you own the list, you can change it by 
-adding or removing files. You can even link files not owned or accessable 
-by you:
-
-7eggert@be1:~/tmp > ls -l /tmp/foo/foo
-----------    1 7eggert_b users           0 2005-10-05 22:32 /tmp/foo/foo
-7eggert@be1:~/tmp > ln /tmp/foo/foo .
-7eggert@be1:~/tmp > ls -l
-total 0
-----------    2 7eggert_b users           0 2005-10-05 22:32 foo
-<snip>
-
-Do you notice the link count in the second column?
-
-Let's remove a link:
-
-<snip>
-*switch*
-7eggert_b@be1:/tmp/foo> rm foo
-rm: remove write-protected regular empty file `foo'? y
-*switch*
-7eggert@be1:~/tmp > ls -l
-total 0
-----------    1 7eggert_b users           0 2005-10-05 22:32 foo
-<snip>
-
-As you can see, each directory-owner can independantly unlink the file.
-
-BTW: The owner can change the permissions on the linked file anytime, so
-even if you couldn't link non-accessable files, you could end up with
-entries in your private directory you could neither access nor delete.
-
-
-I can also open the file as 7eggert_b, delete it from another tty and 
-still access it's contents:
-
-<snip>
-7eggert_b@be1:/tmp/foo> cat > foo
-as
-*switch*
-be1:/home/7eggert/tmp # rm /tmp/foo/foo
-be1:/home/7eggert/tmp # ll /proc/4820/fd/1
-l-wx------    1 7eggert_b users          64 Oct  5 22:43 /proc/4820/fd/1 
--> /tmp/foo/foo (deleted)
-be1:/home/7eggert/tmp # cat /proc/4820/fd/1
-as
-*switch*
-df
-be1:/home/7eggert/tmp # cat /proc/4820/fd/1
-as
-df
-<snip>
-
-As you can see, the directory entry is deleted, but the file is still
-there. However, making a hard link from a /proc/pid/fd entry is not (yet?)
-possible: "ln: creating hard link `baz' to `/proc/4927/fd/1':  Invalid
-cross-device link".
-
-
--- 
-Fun things to slip into your budget
-Not in a budget, but in an annual report:
-An employee stole 500,000+. They accounted for it on the annual report as
-'involountary employee relations expense'

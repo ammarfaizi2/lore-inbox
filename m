@@ -1,92 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965154AbVJEMnA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965153AbVJEMpj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965154AbVJEMnA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 08:43:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965155AbVJEMm7
+	id S965153AbVJEMpj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 08:45:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965157AbVJEMpj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 08:42:59 -0400
-Received: from gw1.cosmosbay.com ([62.23.185.226]:36491 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S965154AbVJEMm7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 08:42:59 -0400
-Message-ID: <4343CA4F.8030003@cosmosbay.com>
-Date: Wed, 05 Oct 2005 14:42:55 +0200
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: fr, en
+	Wed, 5 Oct 2005 08:45:39 -0400
+Received: from sanosuke.troilus.org ([66.92.173.88]:29634 "EHLO
+	sanosuke.troilus.org") by vger.kernel.org with ESMTP
+	id S965153AbVJEMpi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 08:45:38 -0400
+To: Emmanuel Fleury <fleury@cs.aau.dk>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: freebox possible GPL violation
+From: Michael Poole <mdpoole@troilus.org>
+Date: Wed, 05 Oct 2005 08:45:36 -0400
+In-Reply-To: <4343C73E.9000507@cs.aau.dk> (Emmanuel Fleury's message of "Wed,
+	05 Oct 2005 14:29:50 +0200")
+Message-ID: <873bngcetr.fsf@sanosuke.troilus.org>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+References: <20051005111329.GA31087@linux.ensimag.fr>
+	<4343B779.8030200@cs.aau.dk>
+	<1128511676.2920.19.camel@laptopd505.fenrus.org>
+	<4343BB04.7090204@cs.aau.dk>
+	<1128513584.2920.23.camel@laptopd505.fenrus.org>
+	<4343C0DB.9080506@cs.aau.dk>
+	<1128514062.2920.27.camel@laptopd505.fenrus.org>
+	<4343C73E.9000507@cs.aau.dk>
 MIME-Version: 1.0
-To: devesh sharma <devesh28@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [NUMA x86_64] problem accessing global Node List pgdat_list
-References: <309a667c0510042240y1dcc75c4l83abc7fe430e4f05@mail.gmail.com>
-In-Reply-To: <309a667c0510042240y1dcc75c4l83abc7fe430e4f05@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Wed, 05 Oct 2005 14:42:56 +0200 (CEST)
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Devesh
+Emmanuel Fleury writes:
 
-devesh sharma a écrit :
-> Hi all,
-> On an dual opteron machine and 2.6.9 kernel, I am accessing the global
-> node list pgdat_list but I am not getting the desired results
-> 
-> #include<linux/module.h>
-> #include<linux/config.h>
-> #include<linux/kernel.h>
-> #include<linux/mmzone.h>
-> 
-> struct pglist_data *pgdat_list ;
+> First, it is very arguable to say that they are "distributing" the
+> software as it does not comes with the FreeBox but is automatically
+> downloaded at each boot through the DSLAM network (which the user is not
+> supposed to know about).
 
-What are you doing here ? You declare a local variable on this module.
-You should instead write :
+In the US, copyright law's definitive use of "distribution" says that
+"to distribute copies or phonorecords of the copyrighted work to the
+public by sale or other stranfer of ownership, or by rental, lease, or
+lending" is a right reserved to the copyright owner.  Saying "it's
+only a loan" or "it's only temporary" does not relieve any obligation
+under the GPL.  I would imagine that law across the EU is similar.
 
-extern struct pglist_data *pgdat_list ;
-(But it seems already declared in mmzone.h)
-
-But pgdat_list is an exported symbol of linux kernel : a module cannot access it.
-
-So I suspect you will have to add in mm/page_alloc.c  (and recompile your kernel)
-
-EXPORT_SYMBOL(pgdat_list);
-
-
-And please use a recent kernel (2.6.13 at least) or few people will answer you.
-
-
-> 
-> int init_module( void )
-> {
-> 
->   pg_data_t *pg_dat ;
-> 
->   printk ("<1>****Module initialized to retrive the information of
-> pgdat_list list in the Kernel****\n" ) ;
-> 
-> 
->   for_each_pgdat(pg_dat)
->   {
->     printk ("<1>The number of zones on this node are %x\n", pg_dat ->
-> nr_zones ) ;
-> 
->     printk ("<1>The Node Id of this node is %d\n", pg_dat -> node_id ) ;
-> 
->   }
-> 
->   return 0 ;
-> }
-> 
-> void cleanup_module ( void )
-> {
->     printk ("<1>********Module Exiting***********\n" ) ;
-> }
-> 
-> MODULE_LICENSE("GPL") ;
-> 
-> How I can access this list any body tell me the solution.
-
-Eric
-
-
+Michael Poole

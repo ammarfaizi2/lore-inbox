@@ -1,44 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965122AbVJELjh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965121AbVJELlH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965122AbVJELjh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 07:39:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965123AbVJELjh
+	id S965121AbVJELlH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 07:41:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965123AbVJELlH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 07:39:37 -0400
-Received: from smtp.cs.aau.dk ([130.225.194.6]:41918 "EHLO smtp.cs.aau.dk")
-	by vger.kernel.org with ESMTP id S965122AbVJELjg (ORCPT
+	Wed, 5 Oct 2005 07:41:07 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:1949 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965121AbVJELlF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 07:39:36 -0400
-Message-ID: <4343BB04.7090204@cs.aau.dk>
-Date: Wed, 05 Oct 2005 13:37:40 +0200
-From: Emmanuel Fleury <fleury@cs.aau.dk>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051001)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: freebox possible GPL violation
-References: <20051005111329.GA31087@linux.ensimag.fr>	 <4343B779.8030200@cs.aau.dk> <1128511676.2920.19.camel@laptopd505.fenrus.org>
-In-Reply-To: <1128511676.2920.19.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+	Wed, 5 Oct 2005 07:41:05 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1128510159.2920.15.camel@laptopd505.fenrus.org> 
+References: <1128510159.2920.15.camel@laptopd505.fenrus.org>  <OF7208B0E9.0AB77A04-ON87257090.007A1D4E-05257090.007A2207@us.ibm.com> <28129.1128509939@warthog.cambridge.redhat.com> 
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
+       Michael C Thompson <mcthomps@us.ibm.com>, keyrings@linux-nfs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Keys: Export user-defined keyring operations 
+X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
+Date: Wed, 05 Oct 2005 12:40:32 +0100
+Message-ID: <29094.1128512432@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> 
-> why?
-> 
-> The GPL holds modified or not...
-> 
-> (and that includes drivers if they are distributed together with the gpl
-> kernel as part of a bigger work)
+Arjan van de Ven <arjan@infradead.org> wrote:
 
-Because they can just add a link to www.kernel.org on the kernel 2.4.20
-(as refered in http://www.f-b-x.net/#firm). I would be a quick fix for them.
+> since this is new unique-to-linux functionality, could you please
+> consider making the exports _GPL please?
 
-Regards
--- 
-Emmanuel Fleury
+I have.
 
-Reality continues to ruin my life.
-  -- Calvin & Hobbes (Bill Waterson)
+David

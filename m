@@ -1,38 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965098AbVJEKH5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965104AbVJEKJF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965098AbVJEKH5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 06:07:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965100AbVJEKH5
+	id S965104AbVJEKJF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 06:09:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965100AbVJEKJF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 06:07:57 -0400
-Received: from free.hands.com ([83.142.228.128]:22435 "EHLO free.hands.com")
-	by vger.kernel.org with ESMTP id S965098AbVJEKH5 (ORCPT
+	Wed, 5 Oct 2005 06:09:05 -0400
+Received: from imag.imag.fr ([129.88.30.1]:27382 "EHLO imag.imag.fr")
+	by vger.kernel.org with ESMTP id S965102AbVJEKJC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 06:07:57 -0400
-Date: Wed, 5 Oct 2005 11:07:48 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Valdis.Kletnieks@vt.edu
-Cc: Chase Venters <chase.venters@clientec.com>, Marc Perkel <marc@perkel.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-Message-ID: <20051005100748.GM10538@lkcl.net>
-References: <20051002204703.GG6290@lkcl.net> <4342DC4D.8090908@perkel.com> <200510041840.55820.chase.venters@clientec.com> <200510050535.j955ZwVE021603@turing-police.cc.vt.edu>
+	Wed, 5 Oct 2005 06:09:02 -0400
+Date: Wed, 5 Oct 2005 12:08:48 +0200
+From: Pierre Michon <pierre@no-spam.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: freebox possible GPL violation
+Message-ID: <20051005100848.GA30563@linux.ensimag.fr>
+Reply-To: 43439FF0.9050506@aitel.hist.no
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200510050535.j955ZwVE021603@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-MailScanner-From: lkcl@lkcl.net
+User-Agent: Mutt/1.5.6+20040722i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (imag.imag.fr [129.88.30.1]); Wed, 05 Oct 2005 12:08:49 +0200 (CEST)
+X-IMAG-MailScanner: Found to be clean
+X-IMAG-MailScanner-Information: Please contact the ISP for more information
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 05, 2005 at 01:35:57AM -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Tue, 04 Oct 2005 18:40:33 CDT, Chase Venters said:
-> > Work on dbus and HAL should give us good improvements in these areas. One
 
- HAL is great.  dbus should have been shot at birth and the people who
- initiated it without looking at freedce should have been fired.
 
- l.
+Hi,
 
+>Well, the wifi driver may or may not be under the GPL licence.
+>Check that first.  The linux kernel itself is GPL of course.
+For the prism card, they should use hostap driver, but there no way to
+check that (we can't log in on it). At least [2] list hostap in their
+drivers.
+
+>Check where it is downloaded from, that is where linux
+>is being distributed from.
+According to [1] it is downloaded from the company server. But as we
+can't log in the freebox, there no way to check it. Also sniffing adsl
+is a bit harder...
+
+>Of course they can still
+>keep their scripts secret, their (non-GPL) userland utilities secret,
+>their proprietary drivers secret and the hw specs secret.
+If you look at [2], their drivers are in the kernel tree. Don't they fall
+to GPL ?
+
+
+
+[1] http://www.f-b-x.net/
+[2]
+http://openlogging.org:8080/sakura.(none)/max-20040524220224-60268-baea416b9b2da5c2/src/drivers/freebox?nav=index.html|src/|src/drivers

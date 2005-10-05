@@ -1,74 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030291AbVJERqF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030297AbVJERsG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030291AbVJERqF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 13:46:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030295AbVJERqF
+	id S1030297AbVJERsG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 13:48:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030298AbVJERsG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 13:46:05 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:37018 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1030291AbVJERqB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 13:46:01 -0400
-Date: Wed, 5 Oct 2005 18:45:59 +0100 (IST)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: linux-mm <linux-mm@kvack.org>, Andrew Morton <akpm@osdl.org>,
-       kravetz@us.ibm.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       jschopp@austin.ibm.com, lhms <lhms-devel@lists.sourceforge.net>
-Subject: Re: [PATCH 3/7] Fragmentation Avoidance V16: 003_fragcore
-In-Reply-To: <1128532920.26009.43.camel@localhost>
-Message-ID: <Pine.LNX.4.58.0510051834250.16421@skynet>
-References: <20051005144546.11796.1154.sendpatchset@skynet.csn.ul.ie> 
- <20051005144602.11796.53850.sendpatchset@skynet.csn.ul.ie> 
- <1128530908.26009.28.camel@localhost>  <Pine.LNX.4.58.0510051812040.16421@skynet>
- <1128532920.26009.43.camel@localhost>
+	Wed, 5 Oct 2005 13:48:06 -0400
+Received: from web35905.mail.mud.yahoo.com ([66.163.179.189]:22141 "HELO
+	web35905.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1030297AbVJERsE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 13:48:04 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=K5FF1gdvh834quelKQOq9PxHVAVwAkhFLCp61mKpKONGjFjF6mvw4t4tDt8KJX0wuiediZM5MwywYP7KovzzTXrfogJOB9zPcRnvFNw+tKZetCzlRSLY81GzHwpT5zpVARIacaVuIyoz21COXv5sJ5SfThb4nFbrHYqS4AA3nxQ=  ;
+Message-ID: <20051005174803.70134.qmail@web35905.mail.mud.yahoo.com>
+Date: Wed, 5 Oct 2005 10:48:03 -0700 (PDT)
+From: umesh chandak <chandak_pict@yahoo.com>
+Subject: Re: Kernel Panic Error in 2.6.10 !!!!
+To: Badari Pulavarty <pbadari@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1128534181.4754.68.camel@dyn9047017102.beaverton.ibm.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Oct 2005, Dave Hansen wrote:
+hi,
+thanks for reply . 
+ 
+But as i am using  gbdb patches on my test machine .i
+don't need initrd ,i am sure about it .and I can enter
+in my other kernel options . So I have my ide
+configured ,is this correct ?  
+--- Badari Pulavarty <pbadari@gmail.com> wrote:
 
-> On Wed, 2005-10-05 at 18:14 +0100, Mel Gorman wrote:
-> > On Wed, 5 Oct 2005, Dave Hansen wrote:
-> > > On Wed, 2005-10-05 at 15:46 +0100, Mel Gorman wrote:
-> > > >
-> > > > @@ -1483,8 +1540,10 @@ void show_free_areas(void)
-> > > >
-> > > >                 spin_lock_irqsave(&zone->lock, flags);
-> > > >                 for (order = 0; order < MAX_ORDER; order++) {
-> > > > -                       nr = zone->free_area[order].nr_free;
-> > > > -                       total += nr << order;
-> > > > +                       for (type=0; type < RCLM_TYPES; type++) {
-> > > > +                               nr = zone->free_area_lists[type][order].nr_free;
-> > > > +                               total += nr << order;
-> > > > +                       }
-> > >
-> > > Can that use the new for_each_ macro?
-> >
-> > Now I remember why, it's because of the printf below "for (type=0" . The
-> > printf has to happen once for each order. With the for_each_macro, it
-> > would happen for each type *and* order.
->
-> Actually, that's for debugging, so we might want to do that anyway.  Can
-> you put it in a separate patch and explain?
->
+> On Wed, 2005-10-05 at 10:35 -0700, umesh chandak
+> wrote:
+> > hi,
+> >          I have compiled the kernel 2.6.10 with
+> KGDB
+> > patches on FC3 .My KGDB connetion are made correct
+> .
+> > I have copied bzImage and System.map on test
+> machine .
+> > but when i press C for continuig no devlopment m/c
+> > after  connection are made.It gives me kernel
+> panic
+> > error like this 
+> > 
+> > VFS: Cannot open root device "hda6" or
+> > unknown-block(3,6)
+> > Please append a correct "root=" boot option Kernel
+> > panic - not syncing: VFS: Unable to mount root fs
+> on
+> > unknown-block(3,6)
+> 
+> You might need initrd or make sure "ide" is
+> configured
+> in your kernel.
+> 
+> Thanks,
+> Badari
+> 
+> 
 
-To print out for each type and order, I'll need the type_names[] array
-from 007_stats but I don't see it as a problem.
 
-The problem is that by putting all the changes to this function in another
-patch, the kernel will not build after applying 003_fragcore. I am
-assuming that is bad. I think it makes sense to leave this patch as it is,
-but have a 004_showfree patch that adds the type_names[] array and a more
-detailed printout in show_free_areas. The remaining patches get bumped up
-a number.
-
-Would you be happy with that?
-
--- 
-Mel Gorman
-Part-time Phd Student                          Java Applications Developer
-University of Limerick                         IBM Dublin Software Lab
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

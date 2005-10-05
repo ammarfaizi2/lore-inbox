@@ -1,68 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965165AbVJENSF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965166AbVJENVr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965165AbVJENSF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 09:18:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965166AbVJENSF
+	id S965166AbVJENVr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 09:21:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965167AbVJENVr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 09:18:05 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:43724 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965165AbVJENSE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 09:18:04 -0400
-Date: Wed, 5 Oct 2005 14:18:04 +0100
-From: "Dr. David Alan Gilbert" <dave@treblig.org>
-To: subbie subbie <subbie_subbie@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 3Ware 9500S-12 RAID controller -- poor performance
-Message-ID: <20051005131804.GD18448@gallifrey>
-References: <20051005112558.GC18448@gallifrey> <20051005130817.98406.qmail@web30311.mail.mud.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051005130817.98406.qmail@web30311.mail.mud.yahoo.com>
-User-Agent: Mutt/1.4.1i
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/2.6.11-1.14_FC3 (i686)
-X-Uptime: 14:14:19 up 33 days,  1:40, 60 users,  load average: 0.00, 0.00, 0.00
+	Wed, 5 Oct 2005 09:21:47 -0400
+Received: from 10.ctyme.com ([69.50.231.10]:12006 "EHLO newton.ctyme.com")
+	by vger.kernel.org with ESMTP id S965166AbVJENVq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 09:21:46 -0400
+Message-ID: <4343D367.5030608@perkel.com>
+Date: Wed, 05 Oct 2005 06:21:43 -0700
+From: Marc Perkel <marc@perkel.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.10) Gecko/20050716
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nikita Danilov <nikita@clusterfs.com>
+CC: Luke Kenneth Casson Leighton <lkcl@lkcl.net>, linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel?
+References: <20051002204703.GG6290@lkcl.net>	<4342DC4D.8090908@perkel.com>	<200510050122.39307.dhazelton@enter.net>	<4343694F.5000709@perkel.com> <17219.39868.493728.141642@gargle.gargle.HOWL>
+In-Reply-To: <17219.39868.493728.141642@gargle.gargle.HOWL>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spamfilter-host: newton.ctyme.com - http://www.junkemailfilter.com"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* subbie subbie (subbie_subbie@yahoo.com) wrote:
-> A single thread writing at 30MB/s is still not on par
-> with 3ware's specs.
-> 
-> I see that you're also running RAID5 and in this case
-> 3ware did report bad write performance on RAID5 and
-> that was fixed with recent firmwares. 
-> 
-> The latest linux driver off their website also
-> includes the latest firmware inside it and flashes the
-> card upon load, make sure to use that.
 
-I've got driver/firmware that is about 2months old that
-certainly helped; prior to that I was getting card
-timeouts (although I also upgraded the e1000 driver
-at the same time so it might have been that rather
-than the 3ware that helped).
-(Note: I don't expect a driver to perform a dangerous
-operation like firmware flashing on boot!)
 
-> I'm getting a little over 50MB/s when writing to my
-> RAID volume when completely idle, there's no reason
-> why you should get less.
+Nikita Danilov wrote:
 
-Well my ~30MB/s is sucking over gig ether and writing
-in 10MB chunks; but still 50MB/s for RAID5 feels like
-it sucks.
+>Marc Perkel writes:
+>
+>[...]
+>
+> > Right - that's Unix "inside the box" thinking. The idea is to make the 
+> > operating system smarter so that the user doesn't have to deal with 
+> > what's computer friendly - but reather what makes sense to the user. 
+> >  From a user's perspective if you have not rights to access a file then 
+> > why should you be allowed to delete it?
+>
+>Because in Unix a name is not an attribute of a file.
+>
+>Files are objects that you read, write and truncate. They are
+>represented by inodes.
+>
+>Separately from that, there is an indexing structure: directory
+>tree. Directories map symbolical names to inodes. Obviously, adding a
+>reference to an index, or removing it from one requires access
+>permission to the _index_ rather then to the object being referenced.
+>
+>That two-level model of files and indexing on top of them is essential
+>to Unix due to the flexibility and conceptual economy it provides.
+>  
+>
+Now of you think "outside" the Linux box" you can see where people in 
+the real world would expect that if you have no rights to a file to read 
+or write to it that you shouldn't be able to delete it. In the outside 
+world it's "duh - of course"! but for thouse that are in the "Unix Cult" 
+you can't think past inodes.
 
-> I'll let you guys know once I try JBOD (as soon as all
-> the data is moved away).
+> > 
+> > Now - the idea is to create choice. If you need to emulate Unix nehavior 
+> > for compatibility that's fine. But I would migrate away from that into a 
+> > permissions paradygme that worked like Netware.
+>
+>And there are people believing that ITS (or VMS, or <insert your first
+>passion here>...) set the standard to follow. :-)
+>
+>[...]
+>
+> > 
+> > So - the thread is about the future so I say - time to fix Unix.
+>
+>One thing is clear: it's too late to fix Netware. Why should Unix
+>emulate its lethal defects?
+>
+>Nikita.
+>  
+>
 
-Nod.
+Once you'be had Netware permissions - even 1990 Netware permission - you 
+are spoiled and everything else isn't even close.
 
-Dave
---
- -----Open up your eyes, open up your mind, open up your code -------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+-- 
+Marc Perkel - marc@perkel.com
+
+Spam Filter: http://www.junkemailfilter.com
+    My Blog: http://marc.perkel.com
+

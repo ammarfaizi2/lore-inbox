@@ -1,54 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030196AbVJEP6b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030193AbVJEP6P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030196AbVJEP6b (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 11:58:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030195AbVJEP6a
+	id S1030193AbVJEP6P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 11:58:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030194AbVJEP6P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 11:58:30 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:40398 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1030194AbVJEP6V (ORCPT
+	Wed, 5 Oct 2005 11:58:15 -0400
+Received: from 10.ctyme.com ([69.50.231.10]:55941 "EHLO newton.ctyme.com")
+	by vger.kernel.org with ESMTP id S1030193AbVJEP6O (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 11:58:21 -0400
-Date: Wed, 5 Oct 2005 17:58:36 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Steven Rostedt <rostedt@goodmis.org>, john stultz <johnstul@us.ibm.com>,
-       linux-kernel@vger.kernel.org, david singleton <dsingleton@mvista.com>
-Subject: Re: 2.6.14-rc3-rt2
-Message-ID: <20051005155836.GA3626@elte.hu>
-References: <20051004084405.GA24296@elte.hu> <Pine.LNX.4.58.0510050928440.23350@localhost.localdomain> <Pine.LNX.4.58.0510051023460.23350@localhost.localdomain> <1128527319.13057.139.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1128527319.13057.139.camel@tglx.tec.linutronix.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Wed, 5 Oct 2005 11:58:14 -0400
+Message-ID: <4343F815.4000208@perkel.com>
+Date: Wed, 05 Oct 2005 08:58:13 -0700
+From: Marc Perkel <marc@perkel.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.10) Gecko/20050716
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Rik van Riel <riel@redhat.com>
+CC: Luke Kenneth Casson Leighton <lkcl@lkcl.net>, linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel?
+References: <20051002204703.GG6290@lkcl.net> <4342DC4D.8090908@perkel.com> <Pine.LNX.4.63.0510051150570.3798@cuia.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.63.0510051150570.3798@cuia.boston.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spamfilter-host: newton.ctyme.com - http://www.junkemailfilter.com"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Thomas Gleixner <tglx@linutronix.de> wrote:
 
-> On Wed, 2005-10-05 at 10:29 -0400, Steven Rostedt wrote:
-> > Hmm, Ingo,
-> > 
-> > Do you know why time goes backwards when I run hackbench as a realtime
-> > process?  I added the output of start and stop and it does seem to go
-> > backwards.
-> > 
-> > Thomas?
-> 
-> Yes. Thats happening. I moved the priority of softirq-timer above 
-> hackbench priority and the problem goes away. I look into this 
-> further.
+Rik van Riel wrote:
 
-wouldnt hackbench then permanently starve run_timer_softirq(), and 
-update_times() in particular?
+>On Tue, 4 Oct 2005, Marc Perkel wrote:
+>
+>  
+>
+>>Marc Perkel
+>>Linux Visionary
+>>    
+>>
+>
+>The problem I have with most visionaries is that while 
+>they see lots of stuff, they never show anything to the
+>rest of the world.
+>
+>Unless you can explain to other people why your idea
+>makes sense, or unless you implement your idea, it won't
+>happen.
+>
+>If the idea is good enough, either of explanation or
+>implementation should be enough.
+>
+>Preaching, OTOH, does not convince people.
+>
+>  
+>
+This stuff I'm talking about is not theoretical. It's been in Novell 
+Netware since 1990 and it works great. Netware with DOS in 1990 is still 
+far superior to Linux today. Once you've had Netware - Linux is 
+laughable. All youhave to do is look ate Netware and copy it. Or the 
+mars-nwe netware emulator for that matter. The code to do this already 
+exists.
 
-	Ingo
+-- 
+Marc Perkel - marc@perkel.com
+
+Spam Filter: http://www.junkemailfilter.com
+    My Blog: http://marc.perkel.com
+

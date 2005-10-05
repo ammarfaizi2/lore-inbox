@@ -1,59 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030197AbVJEPzV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030192AbVJEP6I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030197AbVJEPzV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 11:55:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030196AbVJEPzU
+	id S1030192AbVJEP6I (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 11:58:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030193AbVJEP6I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 11:55:20 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:20636 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S1030194AbVJEPzT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 11:55:19 -0400
-Date: Wed, 5 Oct 2005 11:55:16 -0400
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Marc Perkel <marc@perkel.com>, Nix <nix@esperi.org.uk>, 7eggert@gmx.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-Message-ID: <20051005155516.GF7949@csclub.uwaterloo.ca>
-References: <4TiWy-4HQ-3@gated-at.bofh.it> <4U0XH-3Gp-39@gated-at.bofh.it> <E1EMutG-0001Hd-7U@be1.lrz> <87k6gsjalu.fsf@amaterasu.srvr.nix> <4343E611.1000901@perkel.com> <20051005152447.GD10538@lkcl.net> <20051005153006.GD8011@csclub.uwaterloo.ca> <20051005154226.GI10538@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051005154226.GI10538@lkcl.net>
-User-Agent: Mutt/1.5.9i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+	Wed, 5 Oct 2005 11:58:08 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:20982 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S1030192AbVJEP6H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 11:58:07 -0400
+In-Reply-To: <1128527319.13057.139.camel@tglx.tec.linutronix.de>
+References: <20051004084405.GA24296@elte.hu> <Pine.LNX.4.58.0510050928440.23350@localhost.localdomain> <Pine.LNX.4.58.0510051023460.23350@localhost.localdomain> <1128527319.13057.139.camel@tglx.tec.linutronix.de>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <D0B94C2C-35B8-11DA-A5C0-000A959BB91E@mvista.com>
+Content-Transfer-Encoding: 7bit
+Cc: Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>,
+       linux-kernel@vger.kernel.org, john stultz <johnstul@us.ibm.com>
+From: david singleton <dsingleton@mvista.com>
+Subject: Re: 2.6.14-rc3-rt2
+Date: Wed, 5 Oct 2005 08:58:05 -0700
+To: tglx@linutronix.de
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 05, 2005 at 04:42:26PM +0100, Luke Kenneth Casson Leighton wrote:
->  i have no idea.  as a user, i just did rm -fr /tmp/* (sorry - not
->  rm -fr /tmp) and it worked.
-> 
->  as a user.
-> 
->  not root.
 
-Then some admin didn't qualify for root having apparently removed the t
-bit from /tmp making it a world writeable dir.  Ouch.
+On Oct 5, 2005, at 8:48 AM, Thomas Gleixner wrote:
 
->  they weren't dumb enough to give it to me.
+> On Wed, 2005-10-05 at 10:29 -0400, Steven Rostedt wrote:
+>> Hmm, Ingo,
+>>
+>> Do you know why time goes backwards when I run hackbench as a realtime
+>> process?  I added the output of start and stop and it does seem to go
+>> backwards.
+>>
+>> Thomas?
+>
+> Yes. Thats happening. I moved the priority of softirq-timer above
+> hackbench priority and the problem goes away. I look into this further.
 
-But they made /tmp world writeable it seems.  Impresive. :)
+I had to set the threaded softirqs to real time priorities with the hi 
+thread at 24,
+the timer thread at 23, net_rx at 22, etc.    I wanted their priorities 
+  just below the IRQ threads.
 
->  ahh, that would answer the implicit question as to why they
->  jumped up and down at me rather than frog-marched me off campus.
+  The problem was the timer thread.  Other real time threads got in its 
+way and held off timers.
 
-Yep.  What you did should have been prevented by the system.  So the
-system was misconfigured.
+And I had to make a note if any higher priority apps depended on timers 
+that the timer
+thread had to be boosted in priority to match that real time threads 
+priority.   It's like
+the softirqd's timer thread needs priority inheritance.
 
->  i was a student there.  they didn't let _anyone_ like me have root.
->  
->  someone got into trouble for even demonstrating a security
->  vulnerability.
+David
+>
+> tglx
+>
+>
 
-Well this one sounds more liek a major misconfiguration than a security
-problem.  Well allowing people to mess with temp could be seen as a
-security problem but only until the permissions were fixed back to what
-they would have originally been when the system was installed.
-
-Len Sorensen

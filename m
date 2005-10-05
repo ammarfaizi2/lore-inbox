@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965107AbVJELYa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965116AbVJEL0A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965107AbVJELYa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 07:24:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932632AbVJELYa
+	id S965116AbVJEL0A (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 07:26:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965118AbVJEL0A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 07:24:30 -0400
-Received: from smtp.cs.aau.dk ([130.225.194.6]:36028 "EHLO smtp.cs.aau.dk")
-	by vger.kernel.org with ESMTP id S932624AbVJELY3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 07:24:29 -0400
-Message-ID: <4343B779.8030200@cs.aau.dk>
-Date: Wed, 05 Oct 2005 13:22:33 +0200
-From: Emmanuel Fleury <fleury@cs.aau.dk>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051001)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: freebox possible GPL violation
-References: <20051005111329.GA31087@linux.ensimag.fr>
-In-Reply-To: <20051005111329.GA31087@linux.ensimag.fr>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 5 Oct 2005 07:26:00 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:18841 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965116AbVJELZ7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 07:25:59 -0400
+Date: Wed, 5 Oct 2005 12:25:58 +0100
+From: "Dr. David Alan Gilbert" <dave@treblig.org>
+To: subbie subbie <subbie_subbie@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 3Ware 9500S-12 RAID controller -- poor performance
+Message-ID: <20051005112558.GC18448@gallifrey>
+References: <Pine.LNX.4.62.0510011957010.26437@dark.webcon.ca> <20051005064339.80683.qmail@web30303.mail.mud.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051005064339.80683.qmail@web30303.mail.mud.yahoo.com>
+User-Agent: Mutt/1.4.1i
+X-Chocolate: 70 percent or better cocoa solids preferably
+X-Operating-System: Linux/2.6.11-1.14_FC3 (i686)
+X-Uptime: 12:23:26 up 32 days, 23:49, 64 users,  load average: 0.01, 0.05, 0.04
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> Something is very wrong with this card / driver /
+> firmware and or kernel combination,  hopefully someone
+> can help out.
 
-Ok, I think this is cristal clear to me, now. :)
+I think I have to agree; see my post from:
 
-Pierre Michon wrote:
-> 
-> The fimware that is used with the freebox is a Linux system.
-> So in the firmware there is the GPL Linux kernel and all the GPL software 
-> listed on [1] (busybox for example).
-> 
-> Users can't download nor binary firmware nor source code of GPL
-> software.
-> 
-> The binary firmware is downloaded by the freebox when a new version is
-> available. This is done on an unknow server with an unknow protocol.
-> 
-> So free keep the Linux kernel modification they have made. You could
-> see some of the log of their modification on [2] and [3].
-> They also don't provide the source for the GPL userspace software they
-> include in the firmware.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=112282837926689&w=2
 
-Your task will be to prove that the kernel they upload to your box is a
-modified Linux kernel (by "modified Linux kernel", I mean no modules but
-the kernel itself).
+I've got about 30MB/s from a single threaded version of my
+backup code - which seems rather on the low side for
+a modern RAID-5; with multiple writers I was seeing sub-5MB/s
+but that might be fair if it is seeking everywhere.
 
-So, the first step would be to catch/sniff this binary image, then
-analyze it.
+I'd be interested to hear how your experiments with jbod'ing them
+go.
 
-But, as long as you cannot prove that Free has done internal
-modifications to the Linux kernel which are not released in any way,
-your case is quite thin.
-
-Regards
--- 
-Emmanuel Fleury
-
-Don't speculate - benchmark.
-  -- Dan Bernstein
+Dave
+--
+ -----Open up your eyes, open up your mind, open up your code -------   
+/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
+\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
+ \ _________________________|_____ http://www.treblig.org   |_______/

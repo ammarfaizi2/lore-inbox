@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965034AbVJDX70@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965044AbVJEABT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965034AbVJDX70 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 19:59:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965039AbVJDX70
+	id S965044AbVJEABT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 20:01:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965045AbVJEABS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 19:59:26 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:439 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965034AbVJDX7Z (ORCPT
+	Tue, 4 Oct 2005 20:01:18 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:24966 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965044AbVJEABS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 19:59:25 -0400
-Date: Tue, 4 Oct 2005 18:59:00 -0500
+	Tue, 4 Oct 2005 20:01:18 -0400
+Date: Tue, 4 Oct 2005 19:01:16 -0500
 To: paulus@samba.org
-Cc: linuxppc64-dev@ozlabs.org, johnrose@linux.ibm.com,
+Cc: linuxppc64-dev@ozlabs.org, johnrose@austin.ibm.com,
        linux-kernel@vger.kernel.org
-Subject: [PATCH 1/2] ppc64: Crash in DLPAR code on PCI hotplug add
-Message-ID: <20051004235900.GW29826@austin.ibm.com>
+Subject: [PATCH 2/2] ppc64: Crash in DLPAR code on remove operation
+Message-ID: <20051005000116.GX29826@austin.ibm.com>
 References: <20051003185739.GR29826@austin.ibm.com> <20051004203019.GV29826@austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -26,77 +26,65 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Paul,
+This patch fixes two bugs related to dlpar slot removal and add.
 
-A new-improved variant of the previous patch in this thread.
-Please apply.
+-- Both crashes are due to the fact the some children 
+   of pci nodes are not pci nodes themselves, and thus do not 
+   have pci_dn structures.  For example:
+        /pci@800000020000002/pci@2,3/usb@1/hub@1
+        /pci@800000020000002/pci@2,3/usb@1,1/hub@1
 
-08-hotplug-bugfix.patch
+   Strangely, though, sometimes the following appears, 
+   and I don't quite understand why.
+        /interrupt-controller@3fe0000a400
 
-In the current 2.6.14-rc2-git6 kernel, performing a Dynamic LPAR Add 
-of a hotplug slot will crash the system, with the following (abbreviated) 
-stack trace:
+   A typical stack trace:
+        Vector: 300 (Data Access) at [c0000000555637d0]
+         pc: c000000000202a50: .dlpar_add_slot+0x108/0x410
+             c000000000202e78 .add_slot_store+0x7c/0xac
+             c000000000202da0 .dlpar_attr_store+0x48/0x64
+             c0000000000f8ee4 .sysfs_write_file+0x100/0x1a0
 
-cpu 0x3: Vector: 700 (Program Check) at [c000000053dff7f0]
-    pc: c0000000004f5974: .__alloc_bootmem+0x0/0xb0
-    lr: c0000000000258a0: .update_dn_pci_info+0x108/0x118
-        c0000000000257c8 .update_dn_pci_info+0x30/0x118 (unreliable)
-        c0000000000258fc .pci_dn_reconfig_notifier+0x4c/0x64
-        c000000000060754 .notifier_call_chain+0x68/0x9c
+   A similar stack trace is involved for the slot remove.
 
-The root cause was that __init __alloc_bootmem() was called long after 
-boot had finished, resulting in a crash because this routine is undefined
-after boot time.  The patch below fixes this crash, and adds some docs to 
-clarify the code.
-
-p.s. congrats to all for getting slashdotted on this yesterday!
+This code survived testing, of adding and removing different slots,
+23 times each, so far, as of this writing.
 
 Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
 
 
+Index: linux-2.6.14-rc2-git6/arch/ppc64/kernel/pSeries_iommu.c
+===================================================================
+--- linux-2.6.14-rc2-git6.orig/arch/ppc64/kernel/pSeries_iommu.c	2005-10-04 16:47:09.175705100 -0500
++++ linux-2.6.14-rc2-git6/arch/ppc64/kernel/pSeries_iommu.c	2005-10-04 17:12:54.123928903 -0500
+@@ -478,10 +478,13 @@
+ {
+ 	int err = NOTIFY_OK;
+ 	struct device_node *np = node;
+-	struct pci_dn *pci = np->data;
++	struct pci_dn *pci;
+ 
+ 	switch (action) {
+ 	case PSERIES_RECONFIG_REMOVE:
++		pci = PCI_DN(np);
++		if (!pci)
++			return NOTIFY_OK;
+ 		if (pci->iommu_table &&
+ 		    get_property(np, "ibm,dma-window", NULL))
+ 			iommu_free_table(np);
 Index: linux-2.6.14-rc2-git6/arch/ppc64/kernel/pci_dn.c
 ===================================================================
---- linux-2.6.14-rc2-git6.orig/arch/ppc64/kernel/pci_dn.c	2005-10-03 13:45:58.000000000 -0500
-+++ linux-2.6.14-rc2-git6/arch/ppc64/kernel/pci_dn.c	2005-10-04 15:37:49.761245845 -0500
-@@ -44,7 +44,7 @@
- 	u32 *regs;
- 	struct pci_dn *pdn;
+--- linux-2.6.14-rc2-git6.orig/arch/ppc64/kernel/pci_dn.c	2005-10-04 15:37:49.761245845 -0500
++++ linux-2.6.14-rc2-git6/arch/ppc64/kernel/pci_dn.c	2005-10-04 17:58:47.344628793 -0500
+@@ -195,7 +195,10 @@
  
--	if (phb->is_dynamic)
-+	if (mem_init_done)
- 		pdn = kmalloc(sizeof(*pdn), GFP_KERNEL);
- 	else
- 		pdn = alloc_bootmem(sizeof(*pdn));
-@@ -121,6 +121,14 @@
- 	return NULL;
- }
- 
-+/** 
-+ * pci_devs_phb_init_dynamic - setup pci devices under this PHB
-+ * phb: pci-to-host bridge (top-level bridge connecting to cpu)
-+ *
-+ * This routine is called both during boot, (before the memory
-+ * subsystem is set up, before kmalloc is valid) and during the 
-+ * dynamic lpar operation of adding a PHB to a running system.
-+ */
- void __devinit pci_devs_phb_init_dynamic(struct pci_controller *phb)
- {
- 	struct device_node * dn = (struct device_node *) phb->arch_data;
-@@ -201,9 +209,14 @@
- 	.notifier_call = pci_dn_reconfig_notifier,
- };
- 
--/*
-- * Actually initialize the phbs.
-- * The buswalk on this phb has not happened yet.
-+/** 
-+ * pci_devs_phb_init - Initialize phbs and pci devs under them.
-+ * 
-+ * This routine walks over all phb's (pci-host bridges) on the
-+ * system, and sets up assorted pci-related structures 
-+ * (including pci info in the device node structs) for each
-+ * pci device found underneath.  This routine runs once,
-+ * early in the boot sequence.
-  */
- void __init pci_devs_phb_init(void)
- {
+ 	switch (action) {
+ 	case PSERIES_RECONFIG_ADD:
+-		pci = np->parent->data;
++		pci = PCI_DN(np->parent);
++		if (!pci)
++			return NOTIFY_OK;
++
+ 		update_dn_pci_info(np, pci->phb);
+ 		break;
+ 	default:

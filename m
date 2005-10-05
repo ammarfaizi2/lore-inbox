@@ -1,82 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030321AbVJEVVd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030371AbVJEVZq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030321AbVJEVVd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 17:21:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030315AbVJEVVd
+	id S1030371AbVJEVZq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 17:25:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030315AbVJEVZq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 17:21:33 -0400
-Received: from postman.ripe.net ([193.0.0.199]:209 "EHLO postman.ripe.net")
-	by vger.kernel.org with ESMTP id S1030314AbVJEVVc (ORCPT
+	Wed, 5 Oct 2005 17:25:46 -0400
+Received: from xproxy.gmail.com ([66.249.82.193]:22588 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030314AbVJEVZp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 17:21:32 -0400
-Message-ID: <434443D9.3010501@colitti.com>
-Date: Wed, 05 Oct 2005 23:21:29 +0200
-From: Lorenzo Colitti <lorenzo@colitti.com>
-User-Agent: Thunderbird 1.4 (X11/20050908)
+	Wed, 5 Oct 2005 17:25:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=FuRv2AS4/bdSSKmP/O3Vy2dlxI7tAwafCZbl7QmtnhMVJs7/Ch4bhHCWGTGRAcY/BP3r/tapLKWszHNgUa+C3fkhIMjE4JdFwjNTUI1c/9SxIrRxqYvHT/r1qVoeRT/78B1vRVpKjXcbFx7B4LnK17DCUOeUCE+4Cp35LloQFXU=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Re: [PATCH] Documentation: ksymoops should no longer be used to decode Oops messages
+Date: Wed, 5 Oct 2005 23:28:22 +0200
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org, Chris Ricker <kaboom@gatech.edu>,
+       chris.ricker@genetics.utah.edu, Linus Torvalds <torvalds@osdl.org>
+References: <200510052239.43492.jesper.juhl@gmail.com> <20051005212850.GD27229@mipter.zuzino.mipt.ru>
+In-Reply-To: <20051005212850.GD27229@mipter.zuzino.mipt.ru>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Nigel Cunningham <ncunningham@cyclades.com>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [swsusp] separate snapshot functionality to separate file
-References: <20051002231332.GA2769@elf.ucw.cz> <200510032339.08217.rjw@sisk.pl> <20051003231715.GA17458@elf.ucw.cz> <200510041711.13408.rjw@sisk.pl> <20051004205334.GC18481@elf.ucw.cz> <1128465272.6611.75.camel@localhost> <20051005084141.GB22034@elf.ucw.cz>
-In-Reply-To: <20051005084141.GB22034@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-RIPE-Spam-Level: 
-X-RIPE-Spam-Tests: ALL_TRUSTED,BAYES_00
-X-RIPE-Spam-Status: N 0.071890 / -5.9
-X-RIPE-Signature: d5eb86812671894d328a0a59a10d981f
+Content-Disposition: inline
+Message-Id: <200510052328.22969.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
->> Pavel, at the PM summit, we agreed to work toward getting Suspend2
->> merged. I've been working since then on cleaning up the code, splitting
->> the patches up nicely and so on. In the meantime, you seem to have gone
->> off on a completely different tangent, going right against what we
->> agreed then.
-> Sorry about that. At pm summit, I did not know if uswsusp was
-> feasible. Now I'm pretty sure it is (code works and is stable).
+On Wednesday 05 October 2005 23:28, Alexey Dobriyan wrote:
+> On Wed, Oct 05, 2005 at 10:39:43PM +0200, Jesper Juhl wrote:
+> > Document the fact that ksymoops should no longer be used to decode Oops
+> > messages.
+> 
+> If it's considered harmful, better remove all references to ksymoops.
+> 2.4 users will happily grab their copy of this file from 2.4 tree.
+> 
 
-Ok, excuse me for butting in.
+I opted to keep the entry but make an explicit note that ksymoops should not
+be used for 2.6 kernels to make it clear. There are still people who use 
+ksymoops on 2.6 Oops messages, so I thought it would make sense to keep the
+entry but make it clear that you should /not/ do that.
 
-I would just like to give the point of view of a user.
+But, I'm fine with removing it as well.
 
-I have been using suspend2 probably at least once a day for about a year 
-now, and I love it. I have had zero cases of data corruption, and it's 
-fast, effective, and reliable. I can't say the same about the in-kernel 
-swsusp. When I tried it (once), a few months ago:
+> >  Ksymoops
+> >  --------
+> >  
+> > -If the unthinkable happens and your kernel oopses, you'll need a 2.4
+> > -version of ksymoops to decode the report; see REPORTING-BUGS in the
+> > -root of the Linux source for more information.
+> > +With a 2.4 kernel you need ksymoops to decode a kernel Oops message. With
+> > +2.6 kernels ksymoops is no longer needed and should not be used.
+> 
 
-- It was dog slow because it doesn't use compression
-- Even though it's dog slow, it doesn't save all RAM
-   - Therefore the machine is dog slow after resume
-- It doesn't have a decent UI
-- There is no way to abort suspend once it's started. (Whatever others
-   may say, this /is/ useful, especially when you've forgotten something
-   and you're in a hurry and don't have two more minutes to waste waiting
-   for a suspend/resume cycle.)
+Here's a patch to remove the Ksymoops entry instead.
 
-These points /do/ matter to users: after all, if we all had time to 
-waste we'd never use suspend or S3, we'd just reboot all the time...
-
-I have been waiting for swsusp2 to be merged ever since I started  using 
-it. When I read about the discussion at the PM summit, I hoped that this 
-would finally happen. Now I see that it's not, and instead work is going 
-to continue on what is - or at least seemed to be when I tried it - an 
-inferior implementation. From my point of view as a user, this seems 
-silly. There may be all the technical reasons in the world to dislike 
-suspend2; on these, I defer to everyone else, since I'm no kernel 
-hacker. But from the point of view of a user, well, suspend2 is much better.
-
-So, instead of working on getting swsusp, which is still far behind in 
-terms of functionality, up to the level of suspend2, why not work 
-together on merging swsusp2, which is fast, stable and provides what 
-users want and need?
+I'll leave it up to the powers that be to sprinkle holy penguin pee on the
+preferred version.
 
 
-Cheers,
-Lorenzo
 
--- 
-http://www.colitti.com/lorenzo/
+Ksymoops should not be used on 2.6 Oops messages, so remove the ksymoops entry
+from Documentation/Changes
+
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
+
+ Documentation/Changes |    9 +--------
+ 1 files changed, 1 insertion(+), 8 deletions(-)
+
+--- linux-2.6.14-rc3-git5-orig/Documentation/Changes	2005-10-03 21:54:50.000000000 +0200
++++ linux-2.6.14-rc3-git5/Documentation/Changes	2005-10-05 23:21:45.000000000 +0200
+@@ -31,7 +31,7 @@
+ Eine deutsche Version dieser Datei finden Sie unter
+ <http://www.stefan-winter.de/Changes-2.4.0.txt>.
+ 
+-Last updated: October 29th, 2002
++Last updated: October 05th, 2005
+ 
+ Chris Ricker (kaboom@gatech.edu or chris.ricker@genetics.utah.edu).
+ 
+@@ -136,13 +136,6 @@
+ types, have a fdformat which works with 2.4 kernels, and similar goodies.
+ You'll probably want to upgrade.
+ 
+-Ksymoops
+---------
+-
+-If the unthinkable happens and your kernel oopses, you'll need a 2.4
+-version of ksymoops to decode the report; see REPORTING-BUGS in the
+-root of the Linux source for more information.
+-
+ Module-Init-Tools
+ -----------------
+ 
+
+

@@ -1,76 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030394AbVJEWRD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030395AbVJEWT4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030394AbVJEWRD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 18:17:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030395AbVJEWRD
+	id S1030395AbVJEWT4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 18:19:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030397AbVJEWT4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 18:17:03 -0400
-Received: from qproxy.gmail.com ([72.14.204.207]:41965 "EHLO qproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030394AbVJEWRB convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 18:17:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=imi+FxE2XlYTl0qIWZ3//hnHzBk6wIMSDMqzt9C8UGTaGsjdXJOEx2Es89xuYX7F+a1CPxEIyntpZZrGhVOar11pPwaB5Vezztqs7FEV457NLU1alXMlKsg1Am0BpYFDjtvHiR8E76oQuifagvY3Qm2J4WkUVb14W7iCo2nqMbY=
-Message-ID: <d120d5000510051517k28bbb1f9v3c7ec7448608926@mail.gmail.com>
-Date: Wed, 5 Oct 2005 17:17:00 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Greg KH <gregkh@suse.de>
-Subject: Re: [patch 08/28] Input: prepare to sysfs integration
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Kay Sievers <kay.sievers@vrfy.org>, Vojtech Pavlik <vojtech@suse.cz>,
-       Hannes Reinecke <hare@suse.de>
-In-Reply-To: <20051005220316.GA2932@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 5 Oct 2005 18:19:56 -0400
+Received: from mail16.bluewin.ch ([195.186.19.63]:8161 "EHLO mail16.bluewin.ch")
+	by vger.kernel.org with ESMTP id S1030395AbVJEWTz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 18:19:55 -0400
+Date: Wed, 5 Oct 2005 18:09:00 -0400
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] small cleanup for kernel/printk.c - CodingStyle, Whitespace, printk() loglevels...
+Message-ID: <20051005220900.GA2559@mars>
+References: <200510052356.49823.jesper.juhl@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20050915070131.813650000.dtor_core@ameritech.net>
-	 <20050915070302.813567000.dtor_core@ameritech.net>
-	 <20051005220316.GA2932@suse.de>
+In-Reply-To: <200510052356.49823.jesper.juhl@gmail.com>
+User-Agent: Mutt/1.5.9i
+From: a.othieno@bluewin.ch (Arthur Othieno)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/5/05, Greg KH <gregkh@suse.de> wrote:
-> On Thu, Sep 15, 2005 at 02:01:39AM -0500, Dmitry Torokhov wrote:
-> > Input: prepare to sysfs integration
-> >
-> > Add struct class_device to input_dev; add input_allocate_dev()
-> > to dynamically allocate input devices; dynamically allocated
-> > devices are automatically registered with sysfs.
-> >
-> > Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
->
-> Ok, I've applied this one, and the other "convert the input drivers to
-> be dynamic" to my tree, as this is all great work.
->
-> I'll work on the last few patches that you have, with regard to how to
-> tie it into sysfs "properly" now, and get back to you, just wanted to
-> apply all of these, so we have a common base to work on.
->
+On Wed, Oct 05, 2005 at 11:56:49PM +0200, Jesper Juhl wrote:
+> Small CodingStyle cleanup for kernel/printk.c
+>   Removes some trailing whitespace
+>   Breaks long lines and make other small changes to conform to CodingStyle
+>   Add explicit printk loglevels in two places.
+> 
+> Linus: Sorry to Cc: you on something as trivial as this, but you /are/ listed as
+> the author of the file and I couldn't find a relevant maintainer (except for
+> perhaps Andrew (so I added him to CC as well)).
+> 
+> 
+> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+> ---
+> 
+> Patch has been compile tested.
+> 
+>  kernel/printk.c |   78 ++++++++++++++++++++++++++++++--------------------------
+>  1 files changed, 42 insertions(+), 36 deletions(-)
+> 
+> --- linux-2.6.14-rc3-git5-orig/kernel/printk.c	2005-10-03 21:55:39.000000000 +0200
+> +++ linux-2.6.14-rc3-git5/kernel/printk.c	2005-10-05 23:46:54.000000000 +0200
+> @@ -169,11 +169,11 @@ static int __init log_buf_len_setup(char
+>  		size = roundup_pow_of_two(size);
+>  	if (size > log_buf_len) {
+>  		unsigned long start, dest_idx, offset;
+> -		char * new_log_buf;
+> +		char *new_log_buf;
+>  
+>  		new_log_buf = alloc_bootmem(size);
+>  		if (!new_log_buf) {
+> -			printk("log_buf_len: allocation failed\n");
+> +			printk(KERN_WARNING "log_buf_len: allocation failed\n");
 
-Greg,
+Wouldn't KERN_ERR be more appropriate here?
 
-Could you please drop these patches for a while? Or maybe just don't
-push them to Linus yet. The reason is that I want to change
-input_allocate_device to take bitmap of supported events. This way I
-could allocate ABS tables dynamically at the same time I allocate
-input_dev itself and it will simplify error handling logic in drivers
-and it will save I think 1260 bytes per input_dev structure which is
-nice. And I don't want to go through all subsystems yet again soI want
-to fold into my input dynalloc patch...
+>  			goto out;
+>  		}
+>  
+> @@ -193,10 +193,9 @@ static int __init log_buf_len_setup(char
+>  		log_end -= offset;
+>  		spin_unlock_irqrestore(&logbuf_lock, flags);
+>  
+> -		printk("log_buf_len: %d\n", log_buf_len);
+> +		printk(KERN_NOTICE "log_buf_len: %d\n", log_buf_len);
+>  	}
+>  out:
+> -
+>  	return 1;
+>  }
+>  
+> @@ -933,9 +938,9 @@ void register_console(struct console * c
+>  }
+>  EXPORT_SYMBOL(register_console);
+>  
+> -int unregister_console(struct console * console)
+> +int unregister_console(struct console *console)
+>  {
+> -        struct console *a,*b;
+> +        struct console *a, *b;
+>  	int res = 1;
 
-> Oh, I did change one thing in this patch:
->
-> >
-> > +EXPORT_SYMBOL(input_allocate_device);
->
-> I made that EXPORT_SYMBOL_GPL().  Let me know if you object to this.
->
+Beep! :)
 
-That's fine with me.
-
---
-Dmitry
+		Arthur

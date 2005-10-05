@@ -1,26 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965132AbVJEL7t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965130AbVJEMAk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965132AbVJEL7t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 07:59:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965128AbVJEL7t
+	id S965130AbVJEMAk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 08:00:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965128AbVJEMAk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 07:59:49 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:32730 "EHLO
+	Wed, 5 Oct 2005 08:00:40 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:35034 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965130AbVJEL7s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 07:59:48 -0400
-Subject: Re: freebox possible GPL violation
+	id S965131AbVJEMAj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 08:00:39 -0400
+Subject: Re: [PATCH] Keys: Export user-defined keyring operations
 From: Arjan van de Ven <arjan@infradead.org>
-To: Emmanuel Fleury <fleury@cs.aau.dk>
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
-In-Reply-To: <4343BB04.7090204@cs.aau.dk>
-References: <20051005111329.GA31087@linux.ensimag.fr>
-	 <4343B779.8030200@cs.aau.dk>
-	 <1128511676.2920.19.camel@laptopd505.fenrus.org>
-	 <4343BB04.7090204@cs.aau.dk>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, Michael C Thompson <mcthomps@us.ibm.com>,
+       keyrings@linux-nfs.org, linux-kernel@vger.kernel.org
+In-Reply-To: <29094.1128512432@warthog.cambridge.redhat.com>
+References: <1128510159.2920.15.camel@laptopd505.fenrus.org>
+	 <OF7208B0E9.0AB77A04-ON87257090.007A1D4E-05257090.007A2207@us.ibm.com>
+	 <28129.1128509939@warthog.cambridge.redhat.com>
+	 <29094.1128512432@warthog.cambridge.redhat.com>
 Content-Type: text/plain
-Date: Wed, 05 Oct 2005 13:59:44 +0200
-Message-Id: <1128513584.2920.23.camel@laptopd505.fenrus.org>
+Date: Wed, 05 Oct 2005 14:00:29 +0200
+Message-Id: <1128513630.2920.25.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
@@ -38,19 +39,17 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-10-05 at 13:37 +0200, Emmanuel Fleury wrote:
-> Arjan van de Ven wrote:
-> > 
-> > why?
-> > 
-> > The GPL holds modified or not...
-> > 
-> > (and that includes drivers if they are distributed together with the gpl
-> > kernel as part of a bigger work)
+On Wed, 2005-10-05 at 12:40 +0100, David Howells wrote:
+> Arjan van de Ven <arjan@infradead.org> wrote:
 > 
-> Because they can just add a link to www.kernel.org on the kernel 2.4.20
-> (as refered in http://www.f-b-x.net/#firm). I would be a quick fix for them.
+> > since this is new unique-to-linux functionality, could you please
+> > consider making the exports _GPL please?
+> 
+> I have.
 
-that's not enough to satisfy the GPL conditions. 
+the patch doesn't show it though ;)
+
+are there any users of this? Is this accidentally for an external
+non-GPL module??? If so sounds like a bad idea.
 
 

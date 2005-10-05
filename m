@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030309AbVJEWDi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030315AbVJEWFG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030309AbVJEWDi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 18:03:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030381AbVJEWDi
+	id S1030315AbVJEWFG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 18:05:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030385AbVJEWFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 18:03:38 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:47847 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030309AbVJEWDi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 18:03:38 -0400
-Subject: Re: [PATCH] Free swap suspend from dependency on PageReserved
-From: Dave Hansen <haveblue@us.ibm.com>
-To: ncunningham@cyclades.com
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1128546263.10363.14.camel@localhost>
-References: <1128546263.10363.14.camel@localhost>
-Content-Type: text/plain
-Date: Wed, 05 Oct 2005 15:03:32 -0700
-Message-Id: <1128549812.18249.8.camel@localhost>
+	Wed, 5 Oct 2005 18:05:05 -0400
+Received: from mail.kroah.org ([69.55.234.183]:49078 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030315AbVJEWFE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 18:05:04 -0400
+Date: Wed, 5 Oct 2005 15:03:17 -0700
+From: Greg KH <gregkh@suse.de>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Kay Sievers <kay.sievers@vrfy.org>, Vojtech Pavlik <vojtech@suse.cz>,
+       Hannes Reinecke <hare@suse.de>
+Subject: Re: [patch 08/28] Input: prepare to sysfs integration
+Message-ID: <20051005220316.GA2932@suse.de>
+References: <20050915070131.813650000.dtor_core@ameritech.net> <20050915070302.813567000.dtor_core@ameritech.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050915070302.813567000.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-10-06 at 07:04 +1000, Nigel Cunningham wrote:
+On Thu, Sep 15, 2005 at 02:01:39AM -0500, Dmitry Torokhov wrote:
+> Input: prepare to sysfs integration
 > 
-> +       for (tmp = 0; tmp < max_low_pfn; tmp++, addr += PAGE_SIZE) {
-> +               if (page_is_ram(tmp)) {
-> +                       /*
-> +                        * Only count reserved RAM pages
-> +                        */
-> +                       if (PageReserved(mem_map+tmp))
-> +                               reservedpages++;
+> Add struct class_device to input_dev; add input_allocate_dev()
+> to dynamically allocate input devices; dynamically allocated
+> devices are automatically registered with sysfs.
+> 
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 
-Please don't reference mem_map[] directly outside of #ifdef
-CONFIG_FLATMEM areas.  It is not defined for all config cases.  Please
-use pfn_to_page(), instead.  It should work in all cases where the page
-is valid.
+Ok, I've applied this one, and the other "convert the input drivers to
+be dynamic" to my tree, as this is all great work.
 
-Also, instead of keeping addr defined like you do, and comparing it
-during each run of the loop, why not just use pfn_is_nosave(), which is
-already defined?  Then, you won't even need the variable.
+I'll work on the last few patches that you have, with regard to how to
+tie it into sysfs "properly" now, and get back to you, just wanted to
+apply all of these, so we have a common base to work on.
 
--- Dave
+Oh, I did change one thing in this patch:
 
+>  
+> +EXPORT_SYMBOL(input_allocate_device);
+
+I made that EXPORT_SYMBOL_GPL().  Let me know if you object to this.
+
+thanks,
+
+greg k-h

@@ -1,64 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030308AbVJESb6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030317AbVJESf5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030308AbVJESb6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 14:31:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030313AbVJESb6
+	id S1030317AbVJESf5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 14:35:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030315AbVJESf4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 14:31:58 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:18924 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1030308AbVJESb5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 14:31:57 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Maciej W. Rozycki" <macro@linux-mips.org>, linux-kernel@vger.kernel.org,
-       fastboot@osdl.org
-Subject: [PATCH] i386 apic: Fix  mispelling of APIC
-References: <m1fyrh8gro.fsf@ebiederm.dsl.xmission.com>
-	<Pine.LNX.4.61L.0510041628160.10696@blysk.ds.pg.gda.pl>
-	<m1psql707i.fsf@ebiederm.dsl.xmission.com>
-	<Pine.LNX.4.61L.0510041811590.10696@blysk.ds.pg.gda.pl>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Wed, 05 Oct 2005 12:30:20 -0600
-In-Reply-To: <Pine.LNX.4.61L.0510041811590.10696@blysk.ds.pg.gda.pl> (Maciej
- W. Rozycki's message of "Tue, 4 Oct 2005 18:16:36 +0100 (BST)")
-Message-ID: <m1ek6z7r5v.fsf_-_@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Wed, 5 Oct 2005 14:35:56 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:58266 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030314AbVJESf4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 14:35:56 -0400
+Subject: [ANNOUNCE] October Release of LTP
+To: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net,
+       ltp-announce@lists.sourceforge.net
+X-Mailer: Lotus Notes Release 6.5.3 September 14, 2004
+Message-ID: <OF168A367A.CE87AB05-ON85257091.0065FF5B-86257091.006625CE@us.ibm.com>
+From: Marty Ridgeway <mridge@us.ibm.com>
+Date: Wed, 5 Oct 2005 13:35:49 -0500
+X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 6.5.4FP1 HF2|August 30, 2005) at
+ 10/05/2005 14:35:54
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Maciej W. Rozycki" <macro@linux-mips.org> writes:
+The October release of LTP is now available:
 
+LTP-20051005
+- this patch touchs up the output of ver_linux if gcc, fdformat, or mount
+is missing
+- New testcases for tpm
+- Fix compile error with strsep on some systems.
+- Add a missing include file and corrects an fprintf
+  format type to eliminate warning messages.  It also performs some minor
+  whitespace cleanup.
+- patch attached fixes it so writetest is rebuilt whenever writetest.c is
+updated
+- patch typecasts in writetest - the values given to printf to (long long
+int)
+- patch initializes some uninitialized variables and adds a
+  return statement (non-void function) to eliminate warning messages.
+- patch process.c adds a missing include file, function return types
+  and returns, cleans up structure initializations, and removes unused
+  variables to eliminate warning messages.  The debug print macro is also
+  modified to handle a variable number of arguments.
+- patch basically stubs out the GetContext function for uClibc and allows
+for any
+  other system to be added accordingly since uClibc doesn't provide the
+function
+  on later builds.
+- Added code to check whether or not "ffffffff" is returned on some 64bit
+  machines.
+- Fix for defect 17215 in nanosleep02
+- patch adds a missing include file, function return types
+  and returns, and typecasts some variables to eliminate warning messages.
+  GNU_SOURCE is also added to CFLAGS in the makefile, since otherwise
+  the 'pselect' declaration is not found in some build environments.
+- Fix for defect 17723 pTrace01.c
+- patch adds missing include files and declares return types
+  to eliminate warning messages for setfsuidxx.c
+- TEST_ERRNO fix to display as a long int.
+- Change sigrelse01 tests to eliminate duplicate function prototypes.
+- Change to sigrelse01 to use time.h vs define in program.
+- Fix for defect 17974, Strace/Ptrace hangs
+- patch adds missing include files, function prototypes and
+  returns, and removes unused variables to eliminate warning messages.
+  It also corrects some sprintf format warnings and replaces 'abortx' with
+  a version that accepts a variable number of arguments.
+- The "generate.sh" script was mistakenly removed...added it back.
+- Updates to check for connection failure vs unauthorized access fail in
+ftp02_s1, ftp03, ftp04, ftp05
+- Cleanup - Removed the datafile directory, because this is created using
+the generate.sh
+  script..which is called in the Makefile
 
->> So what should the capitalization be? "APIC disabled\n" ?
->
->  Obviously.  Thanks for your tidy-up!
+Marty Ridgeway
+Linux Test Project
+Linux Technology Center
+IBM Corporation
 
-Welcome.
-
-Looking a little deeper I just copied the mispelling from x86_64.
-Here is the incremental patch that fixes the i386 version.
-
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
-
-
----
-
- arch/i386/kernel/apic.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-7edc564590555e94268fb73ddf97431b4b9df945
-diff --git a/arch/i386/kernel/apic.c b/arch/i386/kernel/apic.c
---- a/arch/i386/kernel/apic.c
-+++ b/arch/i386/kernel/apic.c
-@@ -1265,7 +1265,7 @@ fastcall void smp_error_interrupt(struct
- int __init APIC_init(void)
- {
- 	if (enable_local_apic < 0) {
--		printk(KERN_INFO "Apic disabled\n");
-+		printk(KERN_INFO "APIC disabled\n");
- 		return -1;
- 	}
- 	
+Internet E-Mail : mridge@us.ibm.com
+IBM, 11501 Burnet Rd, Austin, TX  78758
+Phone (512) 838-1356 - T/L 678-1356 - Bldg. 908/1C005
+Austin, TX.
 

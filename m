@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932604AbVJELE3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932606AbVJELOq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932604AbVJELE3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 07:04:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932605AbVJELE3
+	id S932606AbVJELOq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 07:14:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932612AbVJELOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 07:04:29 -0400
-Received: from qproxy.gmail.com ([72.14.204.192]:43952 "EHLO qproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932604AbVJELE2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 07:04:28 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=RFkCtpcKeL9Hi0fcz2+h5dcKD6Mqp+nesc43d06eQGQrdchkNYpRaWO5ttjM9ivLNmZ+95CFCSemBhjaOEVmWbvWHx2QVff2JVvdYcM0Ozn69b3ma0SaB18DMhjVzd73Uqbokgbw6XWuJMe4zW+uhdH5Igyq2wb0HToXvQ3srPs=
-Date: Wed, 5 Oct 2005 13:04:10 +0200
-From: Diego Calleja <diegocg@gmail.com>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: chase.venters@clientec.com, marc@perkel.com, linux-kernel@vger.kernel.org
+	Wed, 5 Oct 2005 07:14:46 -0400
+Received: from free.hands.com ([83.142.228.128]:60837 "EHLO free.hands.com")
+	by vger.kernel.org with ESMTP id S932606AbVJELOp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 07:14:45 -0400
+Date: Wed, 5 Oct 2005 12:14:38 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Valdis.Kletnieks@vt.edu
+Cc: "D. Hazelton" <dhazelton@enter.net>, Marc Perkel <marc@perkel.com>,
+       linux-kernel@vger.kernel.org
 Subject: Re: what's next for the linux kernel?
-Message-Id: <20051005130410.ddae71b3.diegocg@gmail.com>
-In-Reply-To: <20051005102650.GO10538@lkcl.net>
-References: <20051002204703.GG6290@lkcl.net>
-	<4342DC4D.8090908@perkel.com>
-	<200510041840.55820.chase.venters@clientec.com>
-	<20051005102650.GO10538@lkcl.net>
-X-Mailer: Sylpheed version 2.1.1 (GTK+ 2.8.3; i486-pc-linux-gnu)
+Message-ID: <20051005111437.GT10538@lkcl.net>
+References: <20051002204703.GG6290@lkcl.net> <4342DC4D.8090908@perkel.com> <200510050122.39307.dhazelton@enter.net> <20051005100942.GN10538@lkcl.net> <200510051023.j95ANApC015320@turing-police.cc.vt.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200510051023.j95ANApC015320@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-hands-com-MailScanner: Found to be clean
+X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Wed, 5 Oct 2005 11:26:50 +0100,
-Luke Kenneth Casson Leighton <lkcl@lkcl.net> escribió:
+On Wed, Oct 05, 2005 at 06:23:09AM -0400, Valdis.Kletnieks@vt.edu wrote:
 
-> > Now I certainly wouldn't advocate a Windows-style registry, 
-> > because I think it's full of obvious problems. 
+> >  i trust that POSIX has not been hard-coded into the entire design of
+> >  the linux kernel filesystem architecture _just_ because it's ... POSIX.
 > 
->  such as? :)
+> No, what got hard-coded were the concepts of inodes as the actual description
+> of filesystem objects, directories as lists of name-inode pairs, and the whole
+> user/group/other permission thing.  "unlink depends on the directory
+> permissions not the object unlinked" has been the semantic that people depended
+> on 
 
+ fortunately, selinux has begun the path away from that kind of implicit
+ ruling.
 
-The ugly implementation (inside the kernel and as a big file instead of doing it as a
-userspace in top of NTFS files which would have helped them to avoid lots of problems
-that they were forced to solve in XP/2003, it's clear from their docs that they didn't
-expected that registry could grow _so_ much), the fact that they use it to store at
-the same time userspace configuration and internal kernel structures. The "idea" is
-nice but the way they've implemented and used it is horrible - just take a look
-at how they're using XML configuration files for IIS now... (I've been said that ISS will
-detect when you're editing those configuration files and will reload them to duplicate
-the changes you just made in the registry ..... ugh)
+ l.
 
-
->  hey, you know what?  if linux got a registry, it would be possible for
->  the kernel to access - and store, and communicate - persistent
->  information
-
-right - why you would want to do such thing is another story

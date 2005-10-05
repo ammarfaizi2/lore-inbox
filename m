@@ -1,46 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030365AbVJEURn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030366AbVJEUWE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030365AbVJEURn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 16:17:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030367AbVJEURn
+	id S1030366AbVJEUWE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 16:22:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030368AbVJEUWD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 16:17:43 -0400
-Received: from wproxy.gmail.com ([64.233.184.194]:49926 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030365AbVJEURm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 16:17:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=pkFJjQTr8rrH2BXxfwPuJaR+YchdSXCAbqEEXZCMdWF8+Gsca5UsSvpWrwA6nWAIQlzeyDgQ9WA20gO301czF3CSv/MN55hkipnxpD/Ljvw/DtIyJPD8zoRRNWOpU6mriaT2Y3dbfXZlaRMUSwFmB+c9Y7MbjsdZvbIiXclshYA=
-Date: Thu, 6 Oct 2005 00:29:04 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCHSET] 2.6.14-rc3-git4-bird1
-Message-ID: <20051005202904.GA27229@mipter.zuzino.mipt.ru>
-References: <20050905035848.GG5155@ZenIV.linux.org.uk> <20050905155522.GA8057@mipter.zuzino.mipt.ru> <20050905160313.GH5155@ZenIV.linux.org.uk> <20050905164712.GI5155@ZenIV.linux.org.uk> <20050905212026.GL5155@ZenIV.linux.org.uk> <20050907183131.GF5155@ZenIV.linux.org.uk> <20050912191744.GN25261@ZenIV.linux.org.uk> <20050912192049.GO25261@ZenIV.linux.org.uk> <20050930120831.GI7992@ftp.linux.org.uk> <20051004203009.GQ7992@ftp.linux.org.uk>
+	Wed, 5 Oct 2005 16:22:03 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:45034 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1030366AbVJEUWC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 16:22:02 -0400
+Message-Id: <200510052021.j95KLegA024532@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Marc Perkel <marc@perkel.com>
+Cc: Florin Malita <fmalita@gmail.com>, lsorense@csclub.uwaterloo.ca,
+       nix@esperi.org.uk, 7eggert@gmx.de, lkcl@lkcl.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel? 
+In-Reply-To: Your message of "Wed, 05 Oct 2005 12:44:25 PDT."
+             <43442D19.4050005@perkel.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <4TiWy-4HQ-3@gated-at.bofh.it> <4U0XH-3Gp-39@gated-at.bofh.it> <E1EMutG-0001Hd-7U@be1.lrz> <87k6gsjalu.fsf@amaterasu.srvr.nix> <4343E611.1000901@perkel.com> <20051005144441.GC8011@csclub.uwaterloo.ca> <4343E7AC.6000607@perkel.com> <20051005153727.994c4709.fmalita@gmail.com>
+            <43442D19.4050005@perkel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051004203009.GQ7992@ftp.linux.org.uk>
-User-Agent: Mutt/1.5.8i
+Content-Type: multipart/signed; boundary="==_Exmh_1128543700_3015P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 05 Oct 2005 16:21:40 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> --- RC14-rc3-git4/arch/arm/mm/consistent.c
-> +++ RC14-rc3-git4-final/arch/arm/mm/consistent.c
+--==_Exmh_1128543700_3015P
+Content-Type: text/plain; charset=us-ascii
 
-> -vm_region_alloc(struct vm_region *head, size_t size, int gfp)
-> +vm_region_alloc(struct vm_region *head, size_t size, unsigned int gfp)
+On Wed, 05 Oct 2005 12:44:25 PDT, Marc Perkel said:
+> What you don't get is that if you don't have rights to write to a file 
+> then you shouldn't have the right to delete the file.  Once you get past 
+> the "inside the box" Unix thinking you'll see the logic in this. So what 
+> if the process of deleting a file involves writing to it. That's not 
+> relevant.
 
-> -__dma_alloc(struct device *dev, size_t size, dma_addr_t *handle, int gfp,
-> -	    pgprot_t prot)
-> +__dma_alloc(struct device *dev, size_t size, dma_addr_t *handle,
-> +	    unsigned int gfp, pgprot_t prot)
+Oddly enough, killfiles are *also* based on the concept of removing something
+without the need or ability to look at the contents....
 
-	unsigned int __nocast gfp
+*plonk*
 
-	=> dma_alloc_coherent
-	=> dma_alloc_writecombine
+(Real-world analogy - if you've *ever* thrown away a box of anything without
+opening the box, you understand that you don't need to be able to modify the
+box to discard it.  The space enclosed by your domicile is basically read/write,
+the box can be read-only and still end up in the dumpster.  On the other hand,
+discarding the back staircase is a lot harder, as the frame of the house is
+basically read-only, and you need to make it read-write in order to remove the
+attachment points of the staircase.  Any Joe Sixpack carpenter understands this
+to be entirely intuitive...)
 
+--==_Exmh_1128543700_3015P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFDRDXUcC3lWbTT17ARAq9EAKDoUqviXtn1PBgTnFO6EfMdx6hsRACfT/0F
+TcYHIhGHxxlRBx/dwqlW2QE=
+=8396
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1128543700_3015P--

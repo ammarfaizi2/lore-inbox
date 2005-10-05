@@ -1,40 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932631AbVJEOaE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932632AbVJEOfF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932631AbVJEOaE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 10:30:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932632AbVJEOaE
+	id S932632AbVJEOfF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 10:35:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932634AbVJEOfE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 10:30:04 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:15811 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932631AbVJEOaD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 10:30:03 -0400
-Date: Wed, 5 Oct 2005 10:29:39 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       david singleton <dsingleton@mvista.com>
-Subject: Re: 2.6.14-rc3-rt2
-In-Reply-To: <Pine.LNX.4.58.0510050928440.23350@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0510051023460.23350@localhost.localdomain>
-References: <20051004084405.GA24296@elte.hu> <Pine.LNX.4.58.0510050928440.23350@localhost.localdomain>
+	Wed, 5 Oct 2005 10:35:04 -0400
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:10252 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S932632AbVJEOfD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 10:35:03 -0400
+To: 7eggert@gmx.de
+Cc: Marc Perkel <marc@perkel.com>,
+       Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel?
+References: <4TiWy-4HQ-3@gated-at.bofh.it> <4U0XH-3Gp-39@gated-at.bofh.it>
+	<E1EMutG-0001Hd-7U@be1.lrz>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: a real time environment for simulating molasses-based life forms.
+Date: Wed, 05 Oct 2005 15:34:53 +0100
+In-Reply-To: <E1EMutG-0001Hd-7U@be1.lrz> (Bodo Eggert's message of "4 Oct
+ 2005 23:04:46 +0100")
+Message-ID: <87k6gsjalu.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmm, Ingo,
+On 4 Oct 2005, Bodo Eggert stated:
+> BTW: YANI: That about a tmpfs where all-numerical entries can only be
+> created by the corresponding UID? This would provide a secure, private
+> tmp directory to each user without the possibility of races and denial-of-
+> service attacks. Maybe it should be controlled by a mount flag.
 
-Do you know why time goes backwards when I run hackbench as a realtime
-process?  I added the output of start and stop and it does seem to go
-backwards.
+Wouldn't it be less kludgy to just use the existing private namespace
+stuff to provide each user with its own /tmp? (Or each user's session,
+rather, which is probably much easier, as that corresponds precisely to
+one process tree).
 
-Thomas?
-
-Oh and this is with -rt8.
-
--- Steve
-
-
-
+-- 
+`Next: FEMA neglects to take into account the possibility of
+fire in Old Balsawood Town (currently in its fifth year of drought
+and home of the General Grant Home for Compulsive Arsonists).'
+            --- James Nicoll

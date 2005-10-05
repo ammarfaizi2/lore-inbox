@@ -1,67 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965101AbVJEKXg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932256AbVJEK0V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965101AbVJEKXg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 06:23:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965103AbVJEKXg
+	id S932256AbVJEK0V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 06:26:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932544AbVJEK0V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 06:23:36 -0400
-Received: from h80ad251d.async.vt.edu ([128.173.37.29]:2702 "EHLO
-	h80ad251d.async.vt.edu") by vger.kernel.org with ESMTP
-	id S965101AbVJEKXf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 06:23:35 -0400
-Message-Id: <200510051023.j95ANApC015320@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: "D. Hazelton" <dhazelton@enter.net>, Marc Perkel <marc@perkel.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel? 
-In-Reply-To: Your message of "Wed, 05 Oct 2005 11:09:42 BST."
-             <20051005100942.GN10538@lkcl.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <20051002204703.GG6290@lkcl.net> <4342DC4D.8090908@perkel.com> <200510050122.39307.dhazelton@enter.net>
-            <20051005100942.GN10538@lkcl.net>
+	Wed, 5 Oct 2005 06:26:21 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:50339 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932256AbVJEK0U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 06:26:20 -0400
+Subject: Re: Using DMA in read/write, setting block size for I/O ->
+	max_sectors
+From: Arjan van de Ven <arjan@infradead.org>
+To: Karthik Sarangan <karthiks@cdac.in>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4343A046.1090605@cdac.in>
+References: <434288E9.3090108@cdac.in>
+	 <1128436401.2922.11.camel@laptopd505.fenrus.org> <43437163.1020201@cdac.in>
+	 <1128500135.2920.11.camel@laptopd505.fenrus.org> <4343A046.1090605@cdac.in>
+Content-Type: text/plain
+Date: Wed, 05 Oct 2005 12:26:05 +0200
+Message-Id: <1128507966.2920.13.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1128507789_2910P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Date: Wed, 05 Oct 2005 06:23:09 -0400
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1128507789_2910P
-Content-Type: text/plain; charset=us-ascii
-
-On Wed, 05 Oct 2005 11:09:42 BST, Luke Kenneth Casson Leighton said:
-> On Wed, Oct 05, 2005 at 01:22:33AM +0000, D. Hazelton wrote:
-> > On Tuesday 04 October 2005 19:47, Marc Perkel wrote:
+On Wed, 2005-10-05 at 15:13 +0530, Karthik Sarangan wrote:
+> Arjan van de Ven wrote:
 > 
-> > As someone else pointed out, this is because unlinking is related to 
-> > your access permissions on the parent directory and not the file.
->  
->  that's POSIX.
+> >max_sectors in the host template for scsi
 > 
->  i trust that POSIX has not been hard-coded into the entire design of
->  the linux kernel filesystem architecture _just_ because it's ... POSIX.
+> Can I set this parameter during startup for scsi_mod.ko during load?
 
-No, what got hard-coded were the concepts of inodes as the actual description
-of filesystem objects, directories as lists of name-inode pairs, and the whole
-user/group/other permission thing.  "unlink depends on the directory
-permissions not the object unlinked" has been the semantic that people depended
-on ever since some code at Bell Labs started supporting tree-structured
-directories and multiple hardlinks.  POSIX merely codified existing behavior in
-this case.
+no it's a property of the hardware and as such the DRIVER has to set it.
+Not all hw can deal with really big sizes, so the driver is supposed to
+set what the hw is capable of.
+
+> I actually needed a 256KB transfer size 
+
+needed in what sense? 2x 128Kb isn't too bad either anyway :)
 
 
---==_Exmh_1128507789_2910P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFDQ6mNcC3lWbTT17ARAooJAJ0dptt/PTOPdS3NcNIWlh7HJqTNNQCffNY6
-LvqIer5Zcag/HmMwUWDlSYU=
-=mPIv
------END PGP SIGNATURE-----
-
---==_Exmh_1128507789_2910P--

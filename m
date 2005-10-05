@@ -1,69 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932558AbVJEHMa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932562AbVJEHQ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932558AbVJEHMa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 03:12:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932560AbVJEHMa
+	id S932562AbVJEHQ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 03:16:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932564AbVJEHQ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 03:12:30 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:40322 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932558AbVJEHMa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 03:12:30 -0400
-Date: Wed, 5 Oct 2005 03:12:08 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-To: Thomas Gleixner <tglx@linutronix.de>
-cc: Mark Knecht <markknecht@gmail.com>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc3-rt2
-In-Reply-To: <1128458707.13057.68.camel@tglx.tec.linutronix.de>
-Message-ID: <Pine.LNX.4.58.0510050255410.20622@localhost.localdomain>
-References: <20051004084405.GA24296@elte.hu> <43427AD9.9060104@cybsft.com> 
- <20051004130009.GB31466@elte.hu>  <5bdc1c8b0510040944q233f14e6g17d53963a4496c1f@mail.gmail.com>
-  <5bdc1c8b0510041111n188b8e14lf5a1398406d30ec4@mail.gmail.com> 
- <1128450029.13057.60.camel@tglx.tec.linutronix.de> 
- <5bdc1c8b0510041158m3620f5dcy2dafda545ad3cd5e@mail.gmail.com>
- <1128458707.13057.68.camel@tglx.tec.linutronix.de>
+	Wed, 5 Oct 2005 03:16:28 -0400
+Received: from quark.didntduck.org ([69.55.226.66]:14739 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP id S932562AbVJEHQ2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 03:16:28 -0400
+Message-ID: <43437DEB.4080405@didntduck.org>
+Date: Wed, 05 Oct 2005 03:16:59 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mail/News 1.4 (X11/20050928)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: lkml <linux-kernel@vger.kernel.org>
+CC: Andi Kleen <ak@suse.de>
+Subject: Bogus load average and cpu times on x86_64 SMP kernels
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've been seeing bogus values from /proc/loadavg on an x86-64 SMP kernel 
+(but not UP).
 
-First, Please don't send to my kihontech.com account.  That's my email
-that my customers use and I would really like to keep the spam noise down
-an that account.  Thanks!
+$ cat /proc/loadavg
+-1012098.26 922203.26 -982431.60 1/112 2688
 
-On Tue, 4 Oct 2005, Thomas Gleixner wrote:
+This is in the current git tree.  I'm also seeing strange values in 
+/proc/stat:
 
-> On Tue, 2005-10-04 at 11:58 -0700, Mark Knecht wrote:
-> > > I guess its related to the priority leak I'm tracking down right now.
-> > > Can you please set following config options and check if you get a bug
-> > > similar to this ?
-> > >
-> > > BUG: init/1: leaked RT prio 98 (116)?
-> > >
-> > > Steven, it goes away when deadlock detection is enabled. Any pointers
->
-> Thats actually a red hering caused by asymetric accounting which only
-> happens when
->
-> CONFIG_DEBUG_PREEMPT=y
-> and
-> # CONFIG_RT_DEADLOCK_DETECT is not set
->
+cpu  2489 40 920 60530 9398 171 288 1844674407350
+cpu0 2509 60 940 60550 9418 191 308 0
 
-Yep, I was going let you know but it seems you already figured it out :-)
-The CONFIG_RT_DEADLOCK_DETECT turns on the trace_lock which makes all
-locks run serially.  Without CONFIG_RT_DEADLOCK_DETECT, the importance of
-the pi_lock of the task is greater.  So If something was changed that
-didn't properly lock the pi_lock, then there could be problems with the
-locking.
+The first line is the sum of all cpus (I only have one), so it's picking 
+up up bad data from the non-present cpus.  The last value, stolen time, 
+is completely bogus since that value is only ever used on s390.
 
-So looking at the patch you sent, are you saying that the leak was a false
-positive?
+It looks to me like there is some problem with how the per-cpu 
+structures are being initialized, or are getting corrupted.  I have not 
+been able to test i386 SMP yet to see if the problem is x86_64 specific.
 
-I'm just starting to look at -rt7, and will be testing it today.
-
--- Steve
-
+--
+				Brian Gerst

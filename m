@@ -1,81 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965089AbVJEInK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932580AbVJEIto@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965089AbVJEInK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 04:43:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932580AbVJEInK
+	id S932580AbVJEIto (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 04:49:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932581AbVJEIto
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 04:43:10 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:53921 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932577AbVJEInJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 04:43:09 -0400
-Date: Wed, 5 Oct 2005 10:41:41 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [swsusp] separate snapshot functionality to separate file
-Message-ID: <20051005084141.GB22034@elf.ucw.cz>
-References: <20051002231332.GA2769@elf.ucw.cz> <200510032339.08217.rjw@sisk.pl> <20051003231715.GA17458@elf.ucw.cz> <200510041711.13408.rjw@sisk.pl> <20051004205334.GC18481@elf.ucw.cz> <1128465272.6611.75.camel@localhost>
+	Wed, 5 Oct 2005 04:49:44 -0400
+Received: from metis.extern.pengutronix.de ([83.236.181.26]:5275 "EHLO
+	metis.extern.pengutronix.de") by vger.kernel.org with ESMTP
+	id S932580AbVJEItn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 04:49:43 -0400
+Date: Wed, 5 Oct 2005 10:49:43 +0200
+From: Robert Schwebel <r.schwebel@pengutronix.de>
+To: Stephen Street <stephen@streetfiresound.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH/RFC 0/2] simple SPI controller implementation on PXA2xx SSP port
+Message-ID: <20051005084943.GH24140@pengutronix.de>
+References: <200510041528.17439.stephen@streetfiresound.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-In-Reply-To: <1128465272.6611.75.camel@localhost>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <200510041528.17439.stephen@streetfiresound.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, Oct 04, 2005 at 03:28:17PM -0700, Stephen Street wrote:
+> Following this will be two patches, releasing an initial "SPI
+> controller" implementation running on David Brownell's "simple SPI
+> framework" and a prototype "SPI protocol" driver for the Cirrus Logic
+> CS8415A SPD/IF decoder chip.  The controller should run on any PXA2xx
+> SSP port and has been tested on the PXA255 NSSP port.  Complete board
+> setup and description facilities per the the SPI framework are
+> supported.
+> 
+> Your comments and suggestions encouraged!  You can e-mail me directly
+> if you have any question regarding running SPI controller on your
+> board.
 
-> Not necessary, but desirable in your eyes. I can see that you can make
-> it work if you're only talking about implementing eye candy, but if
-> you're serious about adding the substantial improvements from Suspend2
-> (support for multiple swap partitions, swap files, block sizes != 4096,
-> asynchronous I/O, readhead where I/O must be synchronous, support for
-> writing to a network or a generic file (again with block size != 4096)
-> etc, - let alone support for saving a full image of memory - this is
-> just going to get uglier and uglier. We can see this already because
-> you've already dropped swap support, obviously because it's too hard
-> from userspace.
+Could you reformat this to follow the kernel coding style? 
 
-swap support needs "allocate me swap page" ioctl/syscall/whatever;
-that can be arranged. Then you can have as many swap partition, swap
-files and normal files as you want, and block size will not really
-matter. Network and generic file writing should be possible now.
-
-Full image of memory... No, I can't do that, but Rafael already has
-some patches that get "close enough" -- they keep system responsive
-after resume, without major uglyness/rewrite.
-
-> The tidy up you're proposing is a nice step. But it seems to me to be 
-> the only good thing and really useful thing to come of this so far.
-
-Thanks. There are more nice cleanups coming, and then we may add
-userspace interface.
-
-> Pavel, at the PM summit, we agreed to work toward getting Suspend2
-> merged. I've been working since then on cleaning up the code, splitting
-> the patches up nicely and so on. In the meantime, you seem to have gone
-> off on a completely different tangent, going right against what we
-> agreed then. Can I get you to at least try to come back from that?
-> I'd
-
-Sorry about that. At pm summit, I did not know if uswsusp was
-feasible. Now I'm pretty sure it is (code works and is stable).
-
-> be more than willing to help you with cherry picking some changes and
-> getting them in ahead of the rest of the code. Would you consider
-> working together to do that? In particular, I'm thinking that I could
-> send you the refrigerator patches as I have them at the moment, and a
-> patch to remove the reliance on PageReserved, at least for a start. Any
-> willingness on your part to give that a try?
-
-I'd certainly like to understand mysqld refrigerator failure, and have
-it fixed. (But that should be few lines.) Other than that, I do not
-think refrigerator is broken.
-
-PageReserved... lets see if it is small enough.
-								Pavel
+Robert
 -- 
-if you have sharp zaurus hardware you don't need... you know my address
+ Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de
+ Pengutronix - Linux Solutions for Science and Industry
+   Handelsregister:  Amtsgericht Hildesheim, HRA 2686
+     Hannoversche Str. 2, 31134 Hildesheim, Germany
+   Phone: +49-5121-206917-0 |  Fax: +49-5121-206917-9
+

@@ -1,80 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965123AbVJELnP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965112AbVJELpE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965123AbVJELnP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 07:43:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965124AbVJELnP
+	id S965112AbVJELpE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 07:45:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965125AbVJELpE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 07:43:15 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:39645 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S965123AbVJELnO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 07:43:14 -0400
-Date: Wed, 5 Oct 2005 13:10:44 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Vitaly Wool <vwool@ru.mvista.com>
-Cc: David Brownell <david-b@pacbell.net>, linux-kernel@vger.kernel.org,
-       spi-devel-general@lists.sourceforge.net, basicmark@yahoo.com,
-       stephen@streetfiresound.com, dpervushin@gmail.com
-Subject: Re: [PATCH/RFC 1/2] simple SPI framework
-Message-ID: <20051005111044.GA22374@elf.ucw.cz>
-References: <20051004180241.0EAA5EE8D1@adsl-69-107-32-110.dsl.pltn13.pacbell.net> <4343898D.1060904@ru.mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4343898D.1060904@ru.mvista.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Wed, 5 Oct 2005 07:45:04 -0400
+Received: from spirit.analogic.com ([204.178.40.4]:51728 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP id S965112AbVJELpD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 07:45:03 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <1128511676.2920.19.camel@laptopd505.fenrus.org>
+References: <20051005111329.GA31087@linux.ensimag.fr> <4343B779.8030200@cs.aau.dk> <1128511676.2920.19.camel@laptopd505.fenrus.org>
+X-OriginalArrivalTime: 05 Oct 2005 11:45:02.0285 (UTC) FILETIME=[38AFAFD0:01C5C9A2]
+Content-class: urn:content-classes:message
+Subject: Re: freebox possible GPL violation
+Date: Wed, 5 Oct 2005 07:45:02 -0400
+Message-ID: <Pine.LNX.4.61.0510050738420.1555@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: freebox possible GPL violation
+Thread-Index: AcXJojjMGgczsqahSLWkAMUh2ii1ZA==
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Arjan van de Ven" <arjan@infradead.org>
+Cc: "Emmanuel Fleury" <fleury@cs.aau.dk>, <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> >+#ifdef	CONFIG_PM
-> >+
-> >+/* Suspend/resume in "struct device_driver" don't really need that
-> >+ * strange third parameter, so we just make it a constant and expect
-> >+ * SPI drivers to ignore it just like most platform drivers do.
-> >+ *
-> >
-> So you just ignored my letter on that subject :(
-> The fact that you don't need it doesn't mean that other people won't.
-> The fact that there's no clean way to suspend USB doesn't mean that 
-> there shouldn't be one for SPI.
+On Wed, 5 Oct 2005, Arjan van de Ven wrote:
 
-The third parameter really must die. Just because you *can* use it
-does not mean you should.
+>
+>> Your task will be to prove that the kernel they upload to your box is a
+>> modified Linux kernel (by "modified Linux kernel", I mean no modules but
+>> the kernel itself).
+>>
+>> So, the first step would be to catch/sniff this binary image, then
+>> analyze it.
+>>
+>> But, as long as you cannot prove that Free has done internal
+>> modifications to the Linux kernel which are not released in any way,
+>> your case is quite thin.
+>
+> why?
+>
+> The GPL holds modified or not...
+>
+> (and that includes drivers if they are distributed together with the gpl
+> kernel as part of a bigger work)
 
-> >+ * NOTE:  the suspend() method for an spi_master controller driver
-> >+ * should verify that all its child devices are marked as suspended;
-> >+ * suspend requests delivered through sysfs power/state files don't
-> >+ * enforce such constraints.
-> >+ */
-> >+static int spi_suspend(struct device *dev, pm_message_t message)
-> >+{
-> >+	int	value;
-> >+
-> >+	if (!dev->driver || !dev->driver->suspend)
-> >+		return 0;
-> >+
-> >+	/* suspend will stop irqs and dma; no more i/o */
-> >+	value = dev->driver->suspend(dev, message, SUSPEND_POWER_DOWN);
-> > 
-> >
-> So driver->suspend is going to be called 3 timer with SUSPEND_POWER_DOWN 
-> parameter, right?
-> I'm afraid that won't work :(
+The unmodified kernel and the unmodified drivers are available
+from ftp.kernel.org and other sources, the vendor doesn't have
+to supply them, only tell you where you can get them if you want them.
 
-No, it is going to be called once. You perhaps should not pass it
-"SUSPEND_POWER_DOWN" but something else; but drivers should really
-ignore it. [You are calling it for normal suspend, right? Not just
-before power down.]
+Anything the vendor wrote in user-space is the vendor's own stuff.
+The vendor doesn't have to supply them at all.
 
-> Especially in our case, where we *do need* preparation steps that are 
-> taken in *normal* suspend sequence - i. e. we need to set up the wakeup 
-> credentials for the *SPI* since the wakeup's gonna happen from a call 
-> incoming through the network module residing on the SPI bus!
+Transparently upgrading across the network is a pretty good idea.
+It seems that the "secret" protocol they are using pissed you off
+so you think they must be doing something wrong.
 
-You should not need more than one phase.
-								Pavel
--- 
-if you have sharp zaurus hardware you don't need... you know my address
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13 on an i686 machine (5589.55 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

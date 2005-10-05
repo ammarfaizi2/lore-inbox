@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030245AbVJEQyG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030250AbVJEQ53@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030245AbVJEQyG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 12:54:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030244AbVJEQyG
+	id S1030250AbVJEQ53 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 12:57:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030251AbVJEQ52
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 12:54:06 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:20876 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030245AbVJEQyE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 12:54:04 -0400
-Subject: Re: [PATCH 5/7] Fragmentation Avoidance V16: 005_fallback
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Mel Gorman <mel@csn.ul.ie>
-Cc: linux-mm <linux-mm@kvack.org>, Andrew Morton <akpm@osdl.org>,
-       kravetz@us.ibm.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       jschopp@austin.ibm.com, lhms <lhms-devel@lists.sourceforge.net>
-In-Reply-To: <20051005144612.11796.35309.sendpatchset@skynet.csn.ul.ie>
-References: <20051005144546.11796.1154.sendpatchset@skynet.csn.ul.ie>
-	 <20051005144612.11796.35309.sendpatchset@skynet.csn.ul.ie>
-Content-Type: text/plain
-Date: Wed, 05 Oct 2005 09:53:55 -0700
-Message-Id: <1128531235.26009.35.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Wed, 5 Oct 2005 12:57:28 -0400
+Received: from ns2.suse.de ([195.135.220.15]:39313 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030250AbVJEQ51 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 12:57:27 -0400
+From: Andi Kleen <ak@suse.de>
+To: Patrick McHardy <kaber@trash.net>
+Subject: Re: [PATCH 0/3] netfilter : 3 patches to boost ip_tables performance
+Date: Wed, 5 Oct 2005 18:53:31 +0200
+User-Agent: KMail/1.8.2
+Cc: Harald Welte <laforge@netfilter.org>, netdev@vger.kernel.org,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
+       Henrik Nordstrom <hno@marasystems.com>
+References: <432EF0C5.5090908@cosmosbay.com> <200509281037.03185.ak@suse.de> <4342B575.9090709@trash.net>
+In-Reply-To: <4342B575.9090709@trash.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510051853.32196.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-10-05 at 15:46 +0100, Mel Gorman wrote:
-> +static struct page *
-> +fallback_alloc(int alloctype, struct zone *zone, unsigned int order)
-> {
-...
-> +       /*
-> +        * Here, the alloc type lists has been depleted as well as the global
-> +        * pool, so fallback. When falling back, the largest possible block
-> +        * will be taken to keep the fallbacks clustered if possible
-> +        */
-> +       while ((alloctype = *(++fallback_list)) != -1) {
+On Tuesday 04 October 2005 19:01, Patrick McHardy wrote:
+> Andi Kleen wrote:
+> > In a sense it's even getting worse: For example us losing the CONFIG
+> > option to disable local conntrack (Patrick has disabled it some time ago
+> > without even a comment why he did it) has a really bad impact in some
+> > cases.
+>
+> It was necessary to correctly handle locally generated ICMP errors.
 
-That's a bit obtuse.  Is there no way to simplify it?  Just keeping an
-index instead of a fallback_list pointer should make it quite a bit
-easier to grok.
+Well you most likely wrecked local performance then when it's enabled.
 
--- Dave
+-Andi
 

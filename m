@@ -1,44 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965174AbVJENgD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965171AbVJENhL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965174AbVJENgD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 09:36:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965171AbVJENgC
+	id S965171AbVJENhL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 09:37:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965172AbVJENhL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 09:36:02 -0400
-Received: from free.hands.com ([83.142.228.128]:27561 "EHLO free.hands.com")
-	by vger.kernel.org with ESMTP id S965174AbVJENgA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 09:36:00 -0400
-Date: Wed, 5 Oct 2005 14:35:49 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-Message-ID: <20051005133549.GB10538@lkcl.net>
-References: <mail.linux.kernel/20051003203037.GG8548@lkcl.net> <05Oct4.173802edt.33143@gpu.utcc.utoronto.ca> <20051005120727.GV10538@lkcl.net> <20051005123113.GO3511@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051005123113.GO3511@suse.de>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-MailScanner-From: lkcl@lkcl.net
+	Wed, 5 Oct 2005 09:37:11 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:38802 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S965171AbVJENhK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 09:37:10 -0400
+Date: Wed, 5 Oct 2005 09:36:31 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       david singleton <dsingleton@mvista.com>, Todd.Kneisel@bull.com,
+       Felix Oxley <lkml@oxley.org>
+Subject: Re: 2.6.14-rc3-rt2
+In-Reply-To: <20051004084405.GA24296@elte.hu>
+Message-ID: <Pine.LNX.4.58.0510050928440.23350@localhost.localdomain>
+References: <20051004084405.GA24296@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 05, 2005 at 02:31:14PM +0200, Jens Axboe wrote:
 
-> [i know better criticism and accusations deleted and not commented on]
+Hi Ingo,
 
-> Why is that so hard to understand? Succesful contributions start at the
-> technical level, always have.
- 
- then we will have to agree to disagree, because i believe that
- successful contributions start with "what creative thing shall
- we do now / what problem shall we tackle today in a creative
- way?" and work their way down to the technical level, which,
- as you rightly point out, requires successful _technical_
- contributions.
+I just notice that I get the following output:
 
- l.
+BUG: gdm:4351 task might have lost a preemption check!
+ [<c010433f>] dump_stack+0x1f/0x30 (20)
+ [<c011c06f>] preempt_enable_no_resched+0x5f/0x70 (20)
+ [<c011b6c9>] sys_sched_yield+0x69/0xb0 (24)
+ [<c01033d6>] syscall_call+0x7/0xb (-8116)
+---------------------------
+| preempt count: 00000000 ]
+| 0-level deep critical section nesting:
+----------------------------------------
+
+------------------------------
+| showing all locks held by: |  (gdm/4351 [dbb727a0, 118]):
+------------------------------
+
+
+I looked at this a little and the offending code is here in
+sys_sched_yield:
+
+	/*
+	 * Since we are going to call schedule() anyway, there's
+	 * no need to preempt or enable interrupts:
+	 */
+	spin_unlock_no_resched(&rq->lock);
+
+	__schedule();
+
+So what's the reason for the message?  Is it to detect when a preemption
+count goes to zero and isn't rescheduled?  At least in this part of the
+kernel it's ok because it is just about to call schedule.  So is there
+some way to flag this call to not produce the message?  Since the message
+is only outputed once, it seems useless if it only gets outputted on a
+false positive.
+
+-- Steve
+
 

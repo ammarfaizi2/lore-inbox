@@ -1,79 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbVJEU6B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbVJEU7L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932176AbVJEU6B (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 16:58:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbVJEU6B
+	id S1751163AbVJEU7L (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 16:59:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbVJEU7K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 16:58:01 -0400
-Received: from [63.227.222.140] ([63.227.222.140]:44207 "EHLO
-	smtp.omgwallhack.org") by vger.kernel.org with ESMTP
-	id S1750832AbVJEU6A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 16:58:00 -0400
-Date: Wed, 5 Oct 2005 13:57:04 -0700
-From: Julian Blake Kongslie <jblake@omgwallhack.org>
-To: Bas Westerbaan <bas.westerbaan@gmail.com>
-Cc: Marc Perkel <marc@perkel.com>, 7eggert@gmx.de,
-       Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-Message-ID: <20051005135704.4c1ac407@kolionychia.omgwallhack.org>
-In-Reply-To: <6880bed30510051351ja5bd5dfo5fbec9514a5cbdd7@mail.gmail.com>
-References: <4TiWy-4HQ-3@gated-at.bofh.it>
-	<4U0XH-3Gp-39@gated-at.bofh.it>
-	<E1EMutG-0001Hd-7U@be1.lrz>
-	<43443723.907@perkel.com>
-	<20051005134109.757a5e42@kolionychia.omgwallhack.org>
-	<6880bed30510051351ja5bd5dfo5fbec9514a5cbdd7@mail.gmail.com>
-Organization: Fists of Righteous Harmony
-X-Mailer: Sylpheed-Claws 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
-Pretention: High
+	Wed, 5 Oct 2005 16:59:10 -0400
+Received: from farad.aurel32.net ([82.232.2.251]:17322 "EHLO farad.aurel32.net")
+	by vger.kernel.org with ESMTP id S1751163AbVJEU7J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 16:59:09 -0400
+Date: Wed, 5 Oct 2005 22:59:06 +0200
+From: Aurelien Jarno <aurelien@aurel32.net>
+To: Lionel.Bouton@inet6.fr, linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.14-rc3] sis5513.c: enable ATA133 for the SiS965 southbridge
+Message-ID: <20051005205906.GA4320@farad.aurel32.net>
+Mail-Followup-To: Aurelien Jarno <aurelien@aurel32.net>,
+	Lionel.Bouton@inet6.fr, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: multipart/signed;
- boundary=Signature_Wed__5_Oct_2005_13_57_04_-0700_Buu0ZDYfRcJK_EWA;
- protocol="application/pgp-signature"; micalg=pgp-sha1
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+X-Mailer: Mutt 1.5.9i (2005-03-13)
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature_Wed__5_Oct_2005_13_57_04_-0700_Buu0ZDYfRcJK_EWA
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+Hi,
 
-On Wed, 5 Oct 2005 22:51:32 +0200
-Bas Westerbaan <bas.westerbaan@gmail.com> wrote:
+Here is a patch that enables the ATA133 mode for the SiS965 southbridge 
+in the SiS5513 driver.
 
-> You can delete a directory entry to a file if you have proper
-> permission to the directory.
->=20
-> You cannot read or write the file if the file doesn't give you
-permission to.
->=20
-> A hard link makes an additional directory entry to a certain file. You
-> delete the directory entry to the file, not the file.
->=20
-> And permissions are the same for all instances of the file.
->=20
-> My 2 cents.
+Thanks,
+Aurelien
 
-That is the UNIX model, yes. And I think it makes perfect sense. And as
-a side effect, we can delete links to files which we do not own, and
-cannot write to.
 
-Does NetWare have an equivalent of hardlinks?
+Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
 
---=20
--Julian Blake Kongslie
-<jblake@omgwallhack.org>
+--- linux-2.6.14-rc3-git4.orig/drivers/ide/pci/sis5513.c	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.14-rc3-git4/drivers/ide/pci/sis5513.c	2005-10-05 22:12:30.000000000 +0200
+@@ -87,6 +87,7 @@
+ 	u8 chipset_family;
+ 	u8 flags;
+ } SiSHostChipInfo[] = {
++	{ "SiS965",	PCI_DEVICE_ID_SI_965,	ATA_133  },
+ 	{ "SiS745",	PCI_DEVICE_ID_SI_745,	ATA_100  },
+ 	{ "SiS735",	PCI_DEVICE_ID_SI_735,	ATA_100  },
+ 	{ "SiS733",	PCI_DEVICE_ID_SI_733,	ATA_100  },
+--- linux-2.6.14-rc3-git4.orig/include/linux/pci_ids.h	2005-10-05 22:08:49.000000000 +0200
++++ linux-2.6.14-rc3-git4/include/linux/pci_ids.h	2005-10-05 22:13:35.000000000 +0200
+@@ -672,6 +672,7 @@
+ #define PCI_DEVICE_ID_SI_961		0x0961
+ #define PCI_DEVICE_ID_SI_962		0x0962
+ #define PCI_DEVICE_ID_SI_963		0x0963
++#define PCI_DEVICE_ID_SI_965		0x0965
+ #define PCI_DEVICE_ID_SI_5107		0x5107
+ #define PCI_DEVICE_ID_SI_5300		0x5300
+ #define PCI_DEVICE_ID_SI_5511		0x5511
 
---Signature_Wed__5_Oct_2005_13_57_04_-0700_Buu0ZDYfRcJK_EWA
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Don't have my public key? Email <jblake@omgwallhack.org> and I'll gladly mail it to you.
-
-iD8DBQFDRD4luU009xtCYDURAmhJAKCJNKtr1TIB5O/+w5Va4F2XrTEOiwCZAeV4
-XBlMDyMD0tcsw68zFkKgvJQ=
-=wtRG
------END PGP SIGNATURE-----
-
---Signature_Wed__5_Oct_2005_13_57_04_-0700_Buu0ZDYfRcJK_EWA--
+-- 
+  .''`.  Aurelien Jarno	            | GPG: 1024D/F1BCDB73
+ : :' :  Debian developer           | Electrical Engineer
+ `. `'   aurel32@debian.org         | aurelien@aurel32.net
+   `-    people.debian.org/~aurel32 | www.aurel32.net

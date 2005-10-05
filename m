@@ -1,108 +1,834 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030428AbVJEXP7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030429AbVJEXRZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030428AbVJEXP7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 19:15:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030426AbVJEXP7
+	id S1030429AbVJEXRZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 19:17:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030431AbVJEXRZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 19:15:59 -0400
-Received: from xproxy.gmail.com ([66.249.82.192]:22814 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030428AbVJEXP6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 19:15:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=kd2+h5Q4hqRuxpXrS5m5RIbSZhEdUrWxbpsr/omnYTYIzXXbdjEhYH5Bz/8HtXsbT2U/9+6ahI1BoDlVPpphrMGoQXnhD3AmVcJFmTE+QZdMqu1+mTAiu1CSQo37bytY2WPn5Z+dQW8fykUTSpxQnga4gGHVQ2QH36s3IVUijMs=
-Message-ID: <5bdc1c8b0510051615hfd77ba8pab7ee07bde13ffd4@mail.gmail.com>
-Date: Wed, 5 Oct 2005 16:15:57 -0700
-From: Mark Knecht <markknecht@gmail.com>
-Reply-To: Mark Knecht <markknecht@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.14-rc3-rt9 - a few xruns misses
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 5 Oct 2005 19:17:25 -0400
+Received: from fmr22.intel.com ([143.183.121.14]:11754 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1030429AbVJEXRY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 19:17:24 -0400
+Date: Wed, 5 Oct 2005 16:17:06 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: linux-kernel@vger.kernel.org, discuss@x86-64.org
+Cc: ak@suse.de, akpm@osdl.org
+Subject: [Patch] x86, x86_64: Intel HT, Multi core detection code cleanup
+Message-ID: <20051005161706.B30098@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-   This is nothing particularily new. I'm just presenting it to
-represent what I'm seeign and get some guidance about how to find out
-what's going on.
+Andrew, Please apply this to your tree. This is 2.6.15 material.
 
-   This is my AMD64 machine. It was VERY lightly loaded. Just Gnome
-and Aqualung which was running using Jack. Around 1PM I went to the
-other room to watch a DVD and returned around 3PM. The only thing I
-can think of that would cause an xrun around 1:23 or 1:34 would be
-xscreensaver, or possibly soem updatedb operation that might have
-started.
+Thanks.
+--
 
-   When I returned at 3PM I started copying some audio files across
-the network to a ogg file server. This was about 400MB of data. The
-copies worked fine but during the copies I got a few more xruns:
+This patch cleans up the x86 and x86_64 Intel HT and Multi Core detection code.
+These are the areas that this patch touches.
 
-12:08:46.070 Audio connection change.
-12:08:48.119 Audio connection graph change.
-subgraph starting at qjackctl-8905 timed out (subgraph_wait_fd=17,
-status = 0, state = Finished)
-12:10:27.191 XRUN callback (1).
-**** alsa_pcm: xrun of at least 3.553 msecs
-13:23:38.218 XRUN callback (2).
-**** alsa_pcm: xrun of at least 2.263 msecs
-subgraph starting at qjackctl-8905 timed out (subgraph_wait_fd=17,
-status = 0, state = Finished)
-13:34:39.647 XRUN callback (3).
-**** alsa_pcm: xrun of at least 6.233 msecs
-15:15:46.072 XRUN callback (4).
-**** alsa_pcm: xrun of at least 2.339 msecs
-15:20:08.262 XRUN callback (5).
-**** alsa_pcm: xrun of at least 0.098 msecs
-subgraph starting at qjackctl-8905 timed out (subgraph_wait_fd=17,
-status = 0, state = Finished)
-15:20:40.459 XRUN callback (6).
-**** alsa_pcm: xrun of at least 5.159 msecs
-15:36:21.595 XRUN callback (7).
-**** alsa_pcm: xrun of at least 0.462 msecs
-16:05:41.308 Audio connection graph change.
-16:05:41.430 Audio connection graph change.
+a) Cleanup and merge HT and Mutli Core detection code for x86 and x86_64
 
-After the copies stopped the machine was idle until I wrote this
-email. I'm also running MythTV on here right now. No problems.
+b) Fields obtained through cpuid vector 0x1(ebx[16:23]) and 
+vector 0x4(eax[14:25], eax[26:31]) indicate the maximum values and might not 
+always be the same as what is available and what OS sees.  So make sure 
+"siblings" and "cpu cores" values in /proc/cpuinfo reflect the values as seen 
+by OS instead of what cpuid instruction says. This will also fix the buggy BIOS
+cases (for example where cpuid on a single core cpu says there are "2" siblings,
+even when HT is disabled in the BIOS. http://bugzilla.kernel.org/show_bug.cgi?id=4359)
 
-Just a few xruns I'd like to better understand and get rid of over time.
+c) Fix the cache detection code assumption that number of threads sharing the
+cache will either be equal to number of HT or core siblings.
 
-lightning ~ # lsmod
-Module                  Size  Used by
-realtime               13832  0
-snd_seq_midi           11456  0
-snd_pcm_oss            54304  1
-snd_mixer_oss          20480  2 snd_pcm_oss
-snd_seq_oss            37120  0
-snd_seq_midi_event     11392  2 snd_seq_midi,snd_seq_oss
-snd_seq                58848  8 snd_seq_midi,snd_seq_oss,snd_seq_midi_event
-sbp2                   27652  3
-ohci1394               35532  0
-ieee1394               99888  2 sbp2,ohci1394
-snd_hdsp               54724  4
-snd_rawmidi            27680  2 snd_seq_midi,snd_hdsp
-snd_seq_device         10892  3 snd_seq_midi,snd_seq_oss,snd_rawmidi
-snd_hwdep              12960  1 snd_hdsp
-snd_intel8x0           37408  3
-snd_ac97_codec        107224  1 snd_intel8x0
-snd_ac97_bus            7168  1 snd_ac97_codec
-snd_pcm                92296  6
-snd_pcm_oss,snd_hdsp,snd_intel8x0,snd_ac97_codecsnd_timer             
-26120  2 snd_seq,snd_pcm
-snd                    55752  21
-snd_pcm_oss,snd_mixer_oss,snd_seq_oss,snd_seq,snd_hdsp,snd_rawmidi,snd_seq_device,snd_hwdep,snd_intel8x0,snd_ac97_codec,snd_pcm,snd_timer
-snd_page_alloc         13328  3 snd_hdsp,snd_intel8x0,snd_pcm
-lightning ~ #
+Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
 
-lightning ~ # uname -a
-Linux lightning 2.6.14-rc3-rt9 #1 SMP PREEMPT Wed Oct 5 09:16:16 PDT
-2005 x86_64 AMD Athlon(tm) 64 Processor 3000+ AuthenticAMD GNU/Linux
-lightning ~ #
-
-Thanks,
-Mark
+diff -pNru linux-2.6.14-rc3/arch/i386/kernel/Makefile linux-2.6.14-rc3-core/arch/i386/kernel/Makefile
+--- linux-2.6.14-rc3/arch/i386/kernel/Makefile	2005-09-30 14:17:35.000000000 -0700
++++ linux-2.6.14-rc3-core/arch/i386/kernel/Makefile	2005-10-04 17:27:28.436096192 -0700
+@@ -18,7 +18,7 @@ obj-$(CONFIG_X86_MSR)		+= msr.o
+ obj-$(CONFIG_X86_CPUID)		+= cpuid.o
+ obj-$(CONFIG_MICROCODE)		+= microcode.o
+ obj-$(CONFIG_APM)		+= apm.o
+-obj-$(CONFIG_X86_SMP)		+= smp.o smpboot.o
++obj-$(CONFIG_X86_SMP)		+= smp.o smpboot.o sibling-map.o
+ obj-$(CONFIG_X86_TRAMPOLINE)	+= trampoline.o
+ obj-$(CONFIG_X86_MPPARSE)	+= mpparse.o
+ obj-$(CONFIG_X86_LOCAL_APIC)	+= apic.o nmi.o
+diff -pNru linux-2.6.14-rc3/arch/i386/kernel/cpu/Makefile linux-2.6.14-rc3-core/arch/i386/kernel/cpu/Makefile
+--- linux-2.6.14-rc3/arch/i386/kernel/cpu/Makefile	2005-09-30 14:17:35.000000000 -0700
++++ linux-2.6.14-rc3-core/arch/i386/kernel/cpu/Makefile	2005-10-04 17:27:28.436096192 -0700
+@@ -8,7 +8,7 @@ obj-y	+=	amd.o
+ obj-y	+=	cyrix.o
+ obj-y	+=	centaur.o
+ obj-y	+=	transmeta.o
+-obj-y	+=	intel.o intel_cacheinfo.o
++obj-y	+=	intel.o intel_cacheinfo.o intel_htmc.o
+ obj-y	+=	rise.o
+ obj-y	+=	nexgen.o
+ obj-y	+=	umc.o
+diff -pNru linux-2.6.14-rc3/arch/i386/kernel/cpu/common.c linux-2.6.14-rc3-core/arch/i386/kernel/cpu/common.c
+--- linux-2.6.14-rc3/arch/i386/kernel/cpu/common.c	2005-09-30 14:17:35.000000000 -0700
++++ linux-2.6.14-rc3-core/arch/i386/kernel/cpu/common.c	2005-10-04 17:27:28.437096040 -0700
+@@ -442,61 +442,6 @@ void __devinit identify_cpu(struct cpuin
+ 		mtrr_ap_init();
+ }
+ 
+-#ifdef CONFIG_X86_HT
+-void __devinit detect_ht(struct cpuinfo_x86 *c)
+-{
+-	u32 	eax, ebx, ecx, edx;
+-	int 	index_msb, tmp;
+-	int 	cpu = smp_processor_id();
+-
+-	if (!cpu_has(c, X86_FEATURE_HT) || cpu_has(c, X86_FEATURE_CMP_LEGACY))
+-		return;
+-
+-	cpuid(1, &eax, &ebx, &ecx, &edx);
+-	smp_num_siblings = (ebx & 0xff0000) >> 16;
+-
+-	if (smp_num_siblings == 1) {
+-		printk(KERN_INFO  "CPU: Hyper-Threading is disabled\n");
+-	} else if (smp_num_siblings > 1 ) {
+-		index_msb = 31;
+-
+-		if (smp_num_siblings > NR_CPUS) {
+-			printk(KERN_WARNING "CPU: Unsupported number of the siblings %d", smp_num_siblings);
+-			smp_num_siblings = 1;
+-			return;
+-		}
+-		tmp = smp_num_siblings;
+-		while ((tmp & 0x80000000 ) == 0) {
+-			tmp <<=1 ;
+-			index_msb--;
+-		}
+-		if (smp_num_siblings & (smp_num_siblings - 1))
+-			index_msb++;
+-		phys_proc_id[cpu] = phys_pkg_id((ebx >> 24) & 0xFF, index_msb);
+-
+-		printk(KERN_INFO  "CPU: Physical Processor ID: %d\n",
+-		       phys_proc_id[cpu]);
+-
+-		smp_num_siblings = smp_num_siblings / c->x86_num_cores;
+-
+-		tmp = smp_num_siblings;
+-		index_msb = 31;
+-		while ((tmp & 0x80000000) == 0) {
+-			tmp <<=1 ;
+-			index_msb--;
+-		}
+-
+-		if (smp_num_siblings & (smp_num_siblings - 1))
+-			index_msb++;
+-
+-		cpu_core_id[cpu] = phys_pkg_id((ebx >> 24) & 0xFF, index_msb);
+-
+-		if (c->x86_num_cores > 1)
+-			printk(KERN_INFO  "CPU: Processor Core ID: %d\n",
+-			       cpu_core_id[cpu]);
+-	}
+-}
+-#endif
+ 
+ void __devinit print_cpu_info(struct cpuinfo_x86 *c)
+ {
+diff -pNru linux-2.6.14-rc3/arch/i386/kernel/cpu/intel.c linux-2.6.14-rc3-core/arch/i386/kernel/cpu/intel.c
+--- linux-2.6.14-rc3/arch/i386/kernel/cpu/intel.c	2005-09-30 14:17:35.000000000 -0700
++++ linux-2.6.14-rc3-core/arch/i386/kernel/cpu/intel.c	2005-10-04 17:27:28.437096040 -0700
+@@ -76,25 +76,6 @@ static void __devinit Intel_errata_worka
+ 	}
+ }
+ 
+-
+-/*
+- * find out the number of processor cores on the die
+- */
+-static int __devinit num_cpu_cores(struct cpuinfo_x86 *c)
+-{
+-	unsigned int eax, ebx, ecx, edx;
+-
+-	if (c->cpuid_level < 4)
+-		return 1;
+-
+-	/* Intel has a non-standard dependency on %ecx for this CPUID level. */
+-	cpuid_count(4, 0, &eax, &ebx, &ecx, &edx);
+-	if (eax & 0x1f)
+-		return ((eax >> 26) + 1);
+-	else
+-		return 1;
+-}
+-
+ static void __devinit init_intel(struct cpuinfo_x86 *c)
+ {
+ 	unsigned int l2 = 0;
+@@ -157,7 +138,7 @@ static void __devinit init_intel(struct 
+ 	if ( p )
+ 		strcpy(c->x86_model_id, p);
+ 	
+-	c->x86_num_cores = num_cpu_cores(c);
++	c->x86_num_cores = intel_num_cpu_cores(c);
+ 
+ 	detect_ht(c);
+ 
+diff -pNru linux-2.6.14-rc3/arch/i386/kernel/cpu/intel_cacheinfo.c linux-2.6.14-rc3-core/arch/i386/kernel/cpu/intel_cacheinfo.c
+--- linux-2.6.14-rc3/arch/i386/kernel/cpu/intel_cacheinfo.c	2005-09-30 14:17:35.000000000 -0700
++++ linux-2.6.14-rc3-core/arch/i386/kernel/cpu/intel_cacheinfo.c	2005-10-04 17:27:28.438095888 -0700
+@@ -303,29 +303,45 @@ static struct _cpuid4_info *cpuid4_info[
+ #ifdef CONFIG_SMP
+ static void __devinit cache_shared_cpu_map_setup(unsigned int cpu, int index)
+ {
+-	struct _cpuid4_info	*this_leaf;
++	struct _cpuid4_info	*this_leaf, *sibling_leaf;
+ 	unsigned long num_threads_sharing;
+-#ifdef CONFIG_X86_HT
+-	struct cpuinfo_x86 *c = cpu_data + cpu;
+-#endif
++	int index_msb, i;
++	struct cpuinfo_x86 *c = cpu_data;
+ 
+ 	this_leaf = CPUID4_INFO_IDX(cpu, index);
+ 	num_threads_sharing = 1 + this_leaf->eax.split.num_threads_sharing;
+ 
+ 	if (num_threads_sharing == 1)
+ 		cpu_set(cpu, this_leaf->shared_cpu_map);
+-#ifdef CONFIG_X86_HT
+-	else if (num_threads_sharing == smp_num_siblings)
+-		this_leaf->shared_cpu_map = cpu_sibling_map[cpu];
+-	else if (num_threads_sharing == (c->x86_num_cores * smp_num_siblings))
+-		this_leaf->shared_cpu_map = cpu_core_map[cpu];
+-	else
+-		printk(KERN_DEBUG "Number of CPUs sharing cache didn't match "
+-				"any known set of CPUs\n");
+-#endif
++	else {
++		index_msb = get_count_order(num_threads_sharing);
++
++		for_each_online_cpu(i) {
++			if (c[i].apicid >> index_msb ==
++			    c[cpu].apicid >> index_msb) {
++				cpu_set(i, this_leaf->shared_cpu_map);
++				if (i != cpu && cpuid4_info[i])  {
++					sibling_leaf = CPUID4_INFO_IDX(i, index);
++					cpu_set(cpu, sibling_leaf->shared_cpu_map);
++				}
++			}
++		}
++	}
++}
++static void __devinit cache_remove_shared_cpu_map(unsigned int cpu, int index)
++{
++	struct _cpuid4_info	*this_leaf, *sibling_leaf;
++	int sibling;
++
++	this_leaf = CPUID4_INFO_IDX(cpu, index);
++	for_each_cpu_mask(sibling, this_leaf->shared_cpu_map) {
++		sibling_leaf = CPUID4_INFO_IDX(sibling, index);	
++		cpu_clear(cpu, sibling_leaf->shared_cpu_map);
++	}
+ }
+ #else
+ static void __init cache_shared_cpu_map_setup(unsigned int cpu, int index) {}
++static void __init cache_remove_shared_cpu_map(unsigned int cpu, int index) {}
+ #endif
+ 
+ static void free_cache_attributes(unsigned int cpu)
+@@ -584,8 +600,10 @@ static int __devexit cache_remove_dev(st
+ 	unsigned int cpu = sys_dev->id;
+ 	unsigned long i;
+ 
+-	for (i = 0; i < num_cache_leaves; i++)
++	for (i = 0; i < num_cache_leaves; i++) {
++		cache_remove_shared_cpu_map(cpu, i);
+ 		kobject_unregister(&(INDEX_KOBJECT_PTR(cpu,i)->kobj));
++	}
+ 	kobject_unregister(cache_kobject[cpu]);
+ 	cpuid4_cache_sysfs_exit(cpu);
+ 	return 0;
+diff -pNru linux-2.6.14-rc3/arch/i386/kernel/cpu/intel_htmc.c linux-2.6.14-rc3-core/arch/i386/kernel/cpu/intel_htmc.c
+--- linux-2.6.14-rc3/arch/i386/kernel/cpu/intel_htmc.c	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.14-rc3-core/arch/i386/kernel/cpu/intel_htmc.c	2005-10-04 17:27:28.438095888 -0700
+@@ -0,0 +1,96 @@
++/*
++ *	Copyright (C) 2005 Intel Corp
++ *	Intel Multi Core and Hyper-Threading detection routines
++ *	
++ *	Changes:
++ *	Suresh Siddha		: Merge x86 and x86_64 code with some fixes.
++ */
++#include <linux/config.h>
++#include <linux/init.h>
++
++#include <linux/smp.h>
++#include <asm/processor.h>
++
++
++/*
++ * find out the number of processor cores on the die
++ */
++int __cpuinit intel_num_cpu_cores(struct cpuinfo_x86 *c)
++{
++	unsigned int eax, ebx, ecx, edx;
++
++	if (c->cpuid_level < 4)
++		return 1;
++
++	cpuid_count(4, 0, &eax, &ebx, &ecx, &edx);
++
++	if (eax & 0x1f)
++		return ((eax >> 26) + 1);
++	else
++		return 1;
++}
++
++#ifdef CONFIG_X86_HT
++#ifndef CONFIG_X86_64
++#include <mach_apic.h>
++#else
++#include <asm/mach_apic.h>
++#endif
++void __cpuinit detect_ht(struct cpuinfo_x86 *c)
++{
++	u32 	eax, ebx, ecx, edx;
++	int 	index_msb, core_bits;
++	int 	cpu = smp_processor_id();
++
++	cpuid(1, &eax, &ebx, &ecx, &edx);
++#ifdef CONFIG_X86_64
++	c->apicid = phys_pkg_id(0);
++#else
++	c->apicid = phys_pkg_id((ebx >> 24) & 0xFF, 0);
++#endif
++
++	if (!cpu_has(c, X86_FEATURE_HT) || cpu_has(c, X86_FEATURE_CMP_LEGACY))
++		return;
++
++	smp_num_siblings = (ebx & 0xff0000) >> 16;
++
++	if (smp_num_siblings == 1) {
++		printk(KERN_INFO  "CPU: Hyper-Threading is disabled\n");
++	} else if (smp_num_siblings > 1 ) {
++
++		if (smp_num_siblings > NR_CPUS) {
++			printk(KERN_WARNING "CPU: Unsupported number of the siblings %d", smp_num_siblings);
++			smp_num_siblings = 1;
++			return;
++		}
++
++		index_msb = get_count_order(smp_num_siblings);
++#ifdef CONFIG_X86_64
++		phys_proc_id[cpu] = phys_pkg_id(index_msb);
++#else
++		phys_proc_id[cpu] = phys_pkg_id((ebx >> 24) & 0xFF, index_msb);
++#endif
++
++		printk(KERN_INFO  "CPU: Physical Processor ID: %d\n",
++		       phys_proc_id[cpu]);
++
++		smp_num_siblings = smp_num_siblings / c->x86_num_cores;
++
++		index_msb = get_count_order(smp_num_siblings) ;
++
++		core_bits = get_count_order(c->x86_num_cores);
++
++#ifdef CONFIG_X86_64
++		cpu_core_id[cpu] = phys_pkg_id(index_msb) &
++					       ((1 << core_bits) - 1);
++#else
++		cpu_core_id[cpu] = phys_pkg_id((ebx >> 24) & 0xFF, index_msb) &
++					       ((1 << core_bits) - 1);
++#endif
++
++		if (c->x86_num_cores > 1)
++			printk(KERN_INFO  "CPU: Processor Core ID: %d\n",
++			       cpu_core_id[cpu]);
++	}
++}
++#endif
+diff -pNru linux-2.6.14-rc3/arch/i386/kernel/cpu/proc.c linux-2.6.14-rc3-core/arch/i386/kernel/cpu/proc.c
+--- linux-2.6.14-rc3/arch/i386/kernel/cpu/proc.c	2005-09-30 14:17:35.000000000 -0700
++++ linux-2.6.14-rc3-core/arch/i386/kernel/cpu/proc.c	2005-10-04 17:27:28.439095736 -0700
+@@ -97,9 +97,9 @@ static int show_cpuinfo(struct seq_file 
+ 	if (c->x86_num_cores * smp_num_siblings > 1) {
+ 		seq_printf(m, "physical id\t: %d\n", phys_proc_id[n]);
+ 		seq_printf(m, "siblings\t: %d\n",
+-				c->x86_num_cores * smp_num_siblings);
++				cpus_weight(cpu_core_map[n]));
+ 		seq_printf(m, "core id\t\t: %d\n", cpu_core_id[n]);
+-		seq_printf(m, "cpu cores\t: %d\n", c->x86_num_cores);
++		seq_printf(m, "cpu cores\t: %d\n", c->booted_cores);
+ 	}
+ #endif
+ 	
+diff -pNru linux-2.6.14-rc3/arch/i386/kernel/sibling-map.c linux-2.6.14-rc3-core/arch/i386/kernel/sibling-map.c
+--- linux-2.6.14-rc3/arch/i386/kernel/sibling-map.c	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.14-rc3-core/arch/i386/kernel/sibling-map.c	2005-10-04 17:27:28.439095736 -0700
+@@ -0,0 +1,93 @@
++/*
++ *	Copyright (C) 2005 Intel Corp
++ * 	Setup and Removal of various sibling maps
++ *
++ *	Changes:
++ *	Suresh Siddha 		: Merge x86 and x86_64 code with some fixes
++ */
++#include <linux/config.h>
++#include <linux/init.h>
++
++#include <linux/smp.h>
++
++static cpumask_t cpu_sibling_setup_map;
++
++#ifdef CONFIG_HOTPLUG_CPU
++void
++remove_siblinginfo(int cpu)
++{
++	int sibling;
++	struct cpuinfo_x86 *c = cpu_data;
++
++	for_each_cpu_mask(sibling, cpu_core_map[cpu]) {
++		cpu_clear(cpu, cpu_core_map[sibling]);
++		/*
++		 * last thread sibling in this cpu core going down
++		 */
++		if (cpus_weight(cpu_sibling_map[cpu]) == 1)
++			c[sibling].booted_cores--;
++	}
++			
++	for_each_cpu_mask(sibling, cpu_sibling_map[cpu])
++		cpu_clear(cpu, cpu_sibling_map[sibling]);
++	cpus_clear(cpu_sibling_map[cpu]);
++	cpus_clear(cpu_core_map[cpu]);
++	phys_proc_id[cpu] = BAD_APICID;
++	cpu_core_id[cpu] = BAD_APICID;
++	cpu_clear(cpu, cpu_sibling_setup_map);
++}
++#endif
++
++void __cpuinit
++set_cpu_sibling_map(int cpu)
++{
++	int i;
++	struct cpuinfo_x86 *c = cpu_data;
++
++	cpu_set(cpu, cpu_sibling_setup_map);
++
++	if (smp_num_siblings > 1) {
++		for_each_cpu_mask(i, cpu_sibling_setup_map) {
++			if (phys_proc_id[cpu] == phys_proc_id[i] &&
++			    cpu_core_id[cpu] == cpu_core_id[i]) {
++				cpu_set(i, cpu_sibling_map[cpu]);
++				cpu_set(cpu, cpu_sibling_map[i]);
++				cpu_set(i, cpu_core_map[cpu]);
++				cpu_set(cpu, cpu_core_map[i]);
++			}
++		}
++	} else {
++		cpu_set(cpu, cpu_sibling_map[cpu]);
++	}
++
++	if (current_cpu_data.x86_num_cores == 1) {
++		cpu_core_map[cpu] = cpu_sibling_map[cpu];
++		c[cpu].booted_cores = 1;
++		return;
++	}
++
++	for_each_cpu_mask(i, cpu_sibling_setup_map) {
++		if (phys_proc_id[cpu] == phys_proc_id[i]) {
++			cpu_set(i, cpu_core_map[cpu]);
++			cpu_set(cpu, cpu_core_map[i]);
++			/*
++			 *  Does this new cpu bringup a new core?
++			 */
++			if (cpus_weight(cpu_sibling_map[cpu]) == 1) {
++				/*
++				 * for each core in package, increment
++				 * the booted_cores for this new cpu
++				 */
++				if (first_cpu(cpu_sibling_map[i]) == i)
++					c[cpu].booted_cores++;
++				/*
++				 * increment the core count for all
++				 * the other cpus in this package
++				 */
++				if (i != cpu)
++					c[i].booted_cores++;
++			} else if (i != cpu && !c[cpu].booted_cores)
++				c[cpu].booted_cores = c[i].booted_cores;
++		}
++	}
++}
+diff -pNru linux-2.6.14-rc3/arch/i386/kernel/smpboot.c linux-2.6.14-rc3-core/arch/i386/kernel/smpboot.c
+--- linux-2.6.14-rc3/arch/i386/kernel/smpboot.c	2005-09-30 14:17:35.000000000 -0700
++++ linux-2.6.14-rc3-core/arch/i386/kernel/smpboot.c	2005-10-05 15:23:37.137028880 -0700
+@@ -440,38 +440,6 @@ static void __devinit smp_callin(void)
+ 
+ static int cpucount;
+ 
+-static inline void
+-set_cpu_sibling_map(int cpu)
+-{
+-	int i;
+-
+-	if (smp_num_siblings > 1) {
+-		for (i = 0; i < NR_CPUS; i++) {
+-			if (!cpu_isset(i, cpu_callout_map))
+-				continue;
+-			if (cpu_core_id[cpu] == cpu_core_id[i]) {
+-				cpu_set(i, cpu_sibling_map[cpu]);
+-				cpu_set(cpu, cpu_sibling_map[i]);
+-			}
+-		}
+-	} else {
+-		cpu_set(cpu, cpu_sibling_map[cpu]);
+-	}
+-
+-	if (current_cpu_data.x86_num_cores > 1) {
+-		for (i = 0; i < NR_CPUS; i++) {
+-			if (!cpu_isset(i, cpu_callout_map))
+-				continue;
+-			if (phys_proc_id[cpu] == phys_proc_id[i]) {
+-				cpu_set(i, cpu_core_map[cpu]);
+-				cpu_set(cpu, cpu_core_map[i]);
+-			}
+-		}
+-	} else {
+-		cpu_core_map[cpu] = cpu_sibling_map[cpu];
+-	}
+-}
+-
+ /*
+  * Activate a secondary processor.
+  */
+@@ -1092,11 +1060,7 @@ static void __init smp_boot_cpus(unsigne
+ 
+ 	current_thread_info()->cpu = 0;
+ 	smp_tune_scheduling();
+-	cpus_clear(cpu_sibling_map[0]);
+-	cpu_set(0, cpu_sibling_map[0]);
+-
+-	cpus_clear(cpu_core_map[0]);
+-	cpu_set(0, cpu_core_map[0]);
++	set_cpu_sibling_map(raw_smp_processor_id());
+ 
+ 	/*
+ 	 * If we couldn't find an SMP configuration at boot time,
+@@ -1271,21 +1235,6 @@ void __devinit smp_prepare_boot_cpu(void
+ }
+ 
+ #ifdef CONFIG_HOTPLUG_CPU
+-static void
+-remove_siblinginfo(int cpu)
+-{
+-	int sibling;
+-
+-	for_each_cpu_mask(sibling, cpu_sibling_map[cpu])
+-		cpu_clear(cpu, cpu_sibling_map[sibling]);
+-	for_each_cpu_mask(sibling, cpu_core_map[cpu])
+-		cpu_clear(cpu, cpu_core_map[sibling]);
+-	cpus_clear(cpu_sibling_map[cpu]);
+-	cpus_clear(cpu_core_map[cpu]);
+-	phys_proc_id[cpu] = BAD_APICID;
+-	cpu_core_id[cpu] = BAD_APICID;
+-}
+-
+ int __cpu_disable(void)
+ {
+ 	cpumask_t map = cpu_online_map;
+diff -pNru linux-2.6.14-rc3/arch/x86_64/kernel/Makefile linux-2.6.14-rc3-core/arch/x86_64/kernel/Makefile
+--- linux-2.6.14-rc3/arch/x86_64/kernel/Makefile	2005-09-30 14:17:35.000000000 -0700
++++ linux-2.6.14-rc3-core/arch/x86_64/kernel/Makefile	2005-10-04 17:27:28.440095584 -0700
+@@ -16,7 +16,7 @@ obj-$(CONFIG_ACPI)		+= acpi/
+ obj-$(CONFIG_X86_MSR)		+= msr.o
+ obj-$(CONFIG_MICROCODE)		+= microcode.o
+ obj-$(CONFIG_X86_CPUID)		+= cpuid.o
+-obj-$(CONFIG_SMP)		+= smp.o smpboot.o trampoline.o
++obj-$(CONFIG_SMP)		+= smp.o smpboot.o trampoline.o sibling-map.o
+ obj-$(CONFIG_X86_LOCAL_APIC)	+= apic.o  nmi.o
+ obj-$(CONFIG_X86_IO_APIC)	+= io_apic.o mpparse.o \
+ 		genapic.o genapic_cluster.o genapic_flat.o
+@@ -34,7 +34,7 @@ obj-$(CONFIG_X86_PM_TIMER)	+= pmtimer.o
+ obj-$(CONFIG_MODULES)		+= module.o
+ 
+ obj-y				+= topology.o
+-obj-y				+= intel_cacheinfo.o
++obj-y				+= intel_cacheinfo.o intel_htmc.o
+ 
+ CFLAGS_vsyscall.o		:= $(PROFILING) -g0
+ 
+@@ -47,3 +47,5 @@ intel_cacheinfo-y		+= ../../i386/kernel/
+ quirks-y			+= ../../i386/kernel/quirks.o
+ i8237-y				+= ../../i386/kernel/i8237.o
+ msr-$(subst m,y,$(CONFIG_X86_MSR))  += ../../i386/kernel/msr.o
++sibling-map-y			+= ../../i386/kernel/sibling-map.o
++intel_htmc-y			+= ../../i386/kernel/cpu/intel_htmc.o
+diff -pNru linux-2.6.14-rc3/arch/x86_64/kernel/setup.c linux-2.6.14-rc3-core/arch/x86_64/kernel/setup.c
+--- linux-2.6.14-rc3/arch/x86_64/kernel/setup.c	2005-09-30 14:17:35.000000000 -0700
++++ linux-2.6.14-rc3-core/arch/x86_64/kernel/setup.c	2005-10-04 17:27:28.441095432 -0700
+@@ -885,85 +885,6 @@ static int __init init_amd(struct cpuinf
+ 	return r;
+ }
+ 
+-static void __cpuinit detect_ht(struct cpuinfo_x86 *c)
+-{
+-#ifdef CONFIG_SMP
+-	u32 	eax, ebx, ecx, edx;
+-	int 	index_msb, tmp;
+-	int 	cpu = smp_processor_id();
+-	
+-	if (!cpu_has(c, X86_FEATURE_HT) || cpu_has(c, X86_FEATURE_CMP_LEGACY))
+-		return;
+-
+-	cpuid(1, &eax, &ebx, &ecx, &edx);
+-	smp_num_siblings = (ebx & 0xff0000) >> 16;
+-	
+-	if (smp_num_siblings == 1) {
+-		printk(KERN_INFO  "CPU: Hyper-Threading is disabled\n");
+-	} else if (smp_num_siblings > 1) {
+-		index_msb = 31;
+-		/*
+-		 * At this point we only support two siblings per
+-		 * processor package.
+-		 */
+-		if (smp_num_siblings > NR_CPUS) {
+-			printk(KERN_WARNING "CPU: Unsupported number of the siblings %d", smp_num_siblings);
+-			smp_num_siblings = 1;
+-			return;
+-		}
+-		tmp = smp_num_siblings;
+-		while ((tmp & 0x80000000 ) == 0) {
+-			tmp <<=1 ;
+-			index_msb--;
+-		}
+-		if (smp_num_siblings & (smp_num_siblings - 1))
+-			index_msb++;
+-		phys_proc_id[cpu] = phys_pkg_id(index_msb);
+-		
+-		printk(KERN_INFO  "CPU: Physical Processor ID: %d\n",
+-		       phys_proc_id[cpu]);
+-
+-		smp_num_siblings = smp_num_siblings / c->x86_num_cores;
+-
+-		tmp = smp_num_siblings;
+-		index_msb = 31;
+-		while ((tmp & 0x80000000) == 0) {
+-			tmp <<=1 ;
+-			index_msb--;
+-		}
+-		if (smp_num_siblings & (smp_num_siblings - 1))
+-			index_msb++;
+-
+-		cpu_core_id[cpu] = phys_pkg_id(index_msb);
+-
+-		if (c->x86_num_cores > 1)
+-			printk(KERN_INFO  "CPU: Processor Core ID: %d\n",
+-			       cpu_core_id[cpu]);
+-	}
+-#endif
+-}
+-
+-/*
+- * find out the number of processor cores on the die
+- */
+-static int __cpuinit intel_num_cpu_cores(struct cpuinfo_x86 *c)
+-{
+-	unsigned int eax;
+-
+-	if (c->cpuid_level < 4)
+-		return 1;
+-
+-	__asm__("cpuid"
+-		: "=a" (eax)
+-		: "0" (4), "c" (0)
+-		: "bx", "dx");
+-
+-	if (eax & 0x1f)
+-		return ((eax >> 26) + 1);
+-	else
+-		return 1;
+-}
+-
+ static void srat_detect_node(void)
+ {
+ #ifdef CONFIG_NUMA
+@@ -1276,9 +1197,9 @@ static int show_cpuinfo(struct seq_file 
+ 		int cpu = c - cpu_data;
+ 		seq_printf(m, "physical id\t: %d\n", phys_proc_id[cpu]);
+ 		seq_printf(m, "siblings\t: %d\n",
+-				c->x86_num_cores * smp_num_siblings);
++				cpus_weight(cpu_core_map[cpu]));
+ 		seq_printf(m, "core id\t\t: %d\n", cpu_core_id[cpu]);
+-		seq_printf(m, "cpu cores\t: %d\n", c->x86_num_cores);
++		seq_printf(m, "cpu cores\t: %d\n", c->booted_cores);
+ 	}
+ #endif	
+ 
+diff -pNru linux-2.6.14-rc3/arch/x86_64/kernel/smpboot.c linux-2.6.14-rc3-core/arch/x86_64/kernel/smpboot.c
+--- linux-2.6.14-rc3/arch/x86_64/kernel/smpboot.c	2005-09-30 14:17:35.000000000 -0700
++++ linux-2.6.14-rc3-core/arch/x86_64/kernel/smpboot.c	2005-10-04 17:27:28.442095280 -0700
+@@ -436,33 +436,6 @@ void __cpuinit smp_callin(void)
+ 	cpu_set(cpuid, cpu_callin_map);
+ }
+ 
+-static inline void set_cpu_sibling_map(int cpu)
+-{
+-	int i;
+-
+-	if (smp_num_siblings > 1) {
+-		for_each_cpu(i) {
+-			if (cpu_core_id[cpu] == cpu_core_id[i]) {
+-				cpu_set(i, cpu_sibling_map[cpu]);
+-				cpu_set(cpu, cpu_sibling_map[i]);
+-			}
+-		}
+-	} else {
+-		cpu_set(cpu, cpu_sibling_map[cpu]);
+-	}
+-
+-	if (current_cpu_data.x86_num_cores > 1) {
+-		for_each_cpu(i) {
+-			if (phys_proc_id[cpu] == phys_proc_id[i]) {
+-				cpu_set(i, cpu_core_map[cpu]);
+-				cpu_set(cpu, cpu_core_map[i]);
+-			}
+-		}
+-	} else {
+-		cpu_core_map[cpu] = cpu_sibling_map[cpu];
+-	}
+-}
+-
+ /*
+  * Setup code on secondary processor (after comming out of the trampoline)
+  */
+@@ -966,6 +939,7 @@ void __init smp_prepare_cpus(unsigned in
+ 	nmi_watchdog_default();
+ 	current_cpu_data = boot_cpu_data;
+ 	current_thread_info()->cpu = 0;  /* needed? */
++	set_cpu_sibling_map(0);
+ 
+ #ifdef CONFIG_HOTPLUG_CPU
+ 	prefill_possible_map();
+@@ -1013,8 +987,7 @@ void __init smp_prepare_boot_cpu(void)
+ 	int me = smp_processor_id();
+ 	cpu_set(me, cpu_online_map);
+ 	cpu_set(me, cpu_callout_map);
+-	cpu_set(0, cpu_sibling_map[0]);
+-	cpu_set(0, cpu_core_map[0]);
++
+ 	per_cpu(cpu_state, me) = CPU_ONLINE;
+ }
+ 
+@@ -1083,20 +1056,6 @@ void __init smp_cpus_done(unsigned int m
+ 
+ #ifdef CONFIG_HOTPLUG_CPU
+ 
+-static void remove_siblinginfo(int cpu)
+-{
+-	int sibling;
+-
+-	for_each_cpu_mask(sibling, cpu_sibling_map[cpu])
+-		cpu_clear(cpu, cpu_sibling_map[sibling]);
+-	for_each_cpu_mask(sibling, cpu_core_map[cpu])
+-		cpu_clear(cpu, cpu_core_map[sibling]);
+-	cpus_clear(cpu_sibling_map[cpu]);
+-	cpus_clear(cpu_core_map[cpu]);
+-	phys_proc_id[cpu] = BAD_APICID;
+-	cpu_core_id[cpu] = BAD_APICID;
+-}
+-
+ void remove_cpu_from_maps(void)
+ {
+ 	int cpu = smp_processor_id();
+diff -pNru linux-2.6.14-rc3/include/asm-i386/processor.h linux-2.6.14-rc3-core/include/asm-i386/processor.h
+--- linux-2.6.14-rc3/include/asm-i386/processor.h	2005-09-30 14:17:35.000000000 -0700
++++ linux-2.6.14-rc3-core/include/asm-i386/processor.h	2005-10-04 17:27:28.443095128 -0700
+@@ -66,6 +66,8 @@ struct cpuinfo_x86 {
+ 	int	coma_bug;
+ 	unsigned long loops_per_jiffy;
+ 	unsigned char x86_num_cores;
++	unsigned char booted_cores;
++	unsigned char apicid;
+ } __attribute__((__aligned__(SMP_CACHE_BYTES)));
+ 
+ #define X86_VENDOR_INTEL 0
+@@ -104,6 +106,7 @@ extern char ignore_fpu_irq;
+ extern void identify_cpu(struct cpuinfo_x86 *);
+ extern void print_cpu_info(struct cpuinfo_x86 *);
+ extern unsigned int init_intel_cacheinfo(struct cpuinfo_x86 *c);
++extern int intel_num_cpu_cores(struct cpuinfo_x86 *c);
+ 
+ #ifdef CONFIG_X86_HT
+ extern void detect_ht(struct cpuinfo_x86 *c);
+diff -pNru linux-2.6.14-rc3/include/asm-i386/smp.h linux-2.6.14-rc3-core/include/asm-i386/smp.h
+--- linux-2.6.14-rc3/include/asm-i386/smp.h	2005-09-30 14:17:35.000000000 -0700
++++ linux-2.6.14-rc3-core/include/asm-i386/smp.h	2005-10-05 15:24:59.695478088 -0700
+@@ -37,6 +37,9 @@ extern int smp_num_siblings;
+ extern cpumask_t cpu_sibling_map[];
+ extern cpumask_t cpu_core_map[];
+ 
++extern void set_cpu_sibling_map(int);
++extern void remove_siblinginfo(int);
++
+ extern void (*mtrr_hook) (void);
+ extern void zap_low_mappings (void);
+ extern void lock_ipi_call_lock(void);
+diff -pNru linux-2.6.14-rc3/include/asm-x86_64/processor.h linux-2.6.14-rc3-core/include/asm-x86_64/processor.h
+--- linux-2.6.14-rc3/include/asm-x86_64/processor.h	2005-09-30 14:17:35.000000000 -0700
++++ linux-2.6.14-rc3-core/include/asm-x86_64/processor.h	2005-10-04 17:27:28.443095128 -0700
+@@ -65,6 +65,8 @@ struct cpuinfo_x86 {
+         __u32   x86_power; 	
+ 	__u32   extended_cpuid_level;	/* Max extended CPUID function supported */
+ 	unsigned long loops_per_jiffy;
++	__u8	apicid;
++	__u8	booted_cores;
+ } ____cacheline_aligned;
+ 
+ #define X86_VENDOR_INTEL 0
+@@ -91,6 +93,14 @@ extern char ignore_irq13;
+ extern void identify_cpu(struct cpuinfo_x86 *);
+ extern void print_cpu_info(struct cpuinfo_x86 *);
+ extern unsigned int init_intel_cacheinfo(struct cpuinfo_x86 *c);
++extern int intel_num_cpu_cores(struct cpuinfo_x86 *c);
++
++#ifdef CONFIG_X86_HT
++extern void detect_ht(struct cpuinfo_x86 *c);
++#else
++static inline void detect_ht(struct cpuinfo_x86 *c) {}
++#endif
++
+ 
+ /*
+  * EFLAGS bits
+diff -pNru linux-2.6.14-rc3/include/asm-x86_64/smp.h linux-2.6.14-rc3-core/include/asm-x86_64/smp.h
+--- linux-2.6.14-rc3/include/asm-x86_64/smp.h	2005-09-30 14:17:35.000000000 -0700
++++ linux-2.6.14-rc3-core/include/asm-x86_64/smp.h	2005-10-04 17:27:28.444094976 -0700
+@@ -57,6 +57,9 @@ extern cpumask_t cpu_core_map[NR_CPUS];
+ extern u8 phys_proc_id[NR_CPUS];
+ extern u8 cpu_core_id[NR_CPUS];
+ 
++extern void set_cpu_sibling_map(int);
++extern void remove_siblinginfo(int);
++
+ #define SMP_TRAMPOLINE_BASE 0x6000
+ 
+ /*
+diff -pNru linux-2.6.14-rc3/include/linux/bitops.h linux-2.6.14-rc3-core/include/linux/bitops.h
+--- linux-2.6.14-rc3/include/linux/bitops.h	2005-09-30 14:17:35.000000000 -0700
++++ linux-2.6.14-rc3-core/include/linux/bitops.h	2005-10-04 17:27:28.444094976 -0700
+@@ -84,6 +84,16 @@ static __inline__ int get_bitmask_order(
+ 	return order;	/* We could be slightly more clever with -1 here... */
+ }
+ 
++static __inline__ int get_count_order(unsigned int count)
++{
++	int order;
++	
++	order = fls(count) - 1;
++	if (count & (count - 1))
++		order++;
++	return order;
++}
++
+ /*
+  * hweightN: returns the hamming weight (i.e. the number
+  * of bits set) of a N-bit word

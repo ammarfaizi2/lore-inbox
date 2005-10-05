@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965199AbVJEPAY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965201AbVJEPCf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965199AbVJEPAY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 11:00:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965203AbVJEPAY
+	id S965201AbVJEPCf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 11:02:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965203AbVJEPCf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 11:00:24 -0400
-Received: from vhost12.digitarus.com ([84.234.16.61]:23496 "EHLO
-	vhost12.digitarus.com") by vger.kernel.org with ESMTP
-	id S965199AbVJEPAX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 11:00:23 -0400
-X-ClientAddr: 212.126.40.83
-Message-ID: <4343EA58.2030005@wiggly.org>
-Date: Wed, 05 Oct 2005 15:59:36 +0100
-From: Nigel Rantor <wiggly@wiggly.org>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marc Perkel <marc@perkel.com>
-CC: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>, Nix <nix@esperi.org.uk>,
-       7eggert@gmx.de, Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-References: <4TiWy-4HQ-3@gated-at.bofh.it> <4U0XH-3Gp-39@gated-at.bofh.it> <E1EMutG-0001Hd-7U@be1.lrz> <87k6gsjalu.fsf@amaterasu.srvr.nix> <4343E611.1000901@perkel.com> <20051005144441.GC8011@csclub.uwaterloo.ca> <4343E7AC.6000607@perkel.com>
-In-Reply-To: <4343E7AC.6000607@perkel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 5 Oct 2005 11:02:35 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:27553 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965201AbVJEPCe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 11:02:34 -0400
+Subject: Re: what is the difference between __free_page() &
+	page_cache_release()
+From: Arjan van de Ven <arjan@infradead.org>
+To: yogeshwar sonawane <yogyas@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <b681c62b0510050757n2b3369flfba2d125912d8655@mail.gmail.com>
+References: <b681c62b0510050757n2b3369flfba2d125912d8655@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 05 Oct 2005 17:02:28 +0200
+Message-Id: <1128524548.2920.41.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-Digitarus-vhost12-MailScanner-Information: Please contact Digitarus for more information
-X-Digitarus-vhost12-MailScanner: Not scanned: please contact your Internet E-Mail Service Provider for details
-X-MailScanner-From: wiggly@wiggly.org
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Perkel wrote:
-> 
-> What is incredibly idiotic is a file system that allws you to delete 
-> files that you have no write access to. That is stupid beyond belief and 
-> only the Unix community doesn't get it.
+On Wed, 2005-10-05 at 20:27 +0530, yogeshwar sonawane wrote:
+> hi,
+> I am writing a driver for 2.6 in which i am locking down some pages
+> into the physical memory by manually traversing the page tables. After
+> my work with those pages is finished, i free them using 
+> __free_page(). For some cases it is running fine. But while running
+> some applications, i got the following error:
 
-No.
+you forgot to put in a url to your code
 
-What's idiotic is leaving your property (files) on someone elses desk 
-(directory) and expecting them always to be there when you come back.
-
-   n

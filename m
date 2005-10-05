@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030342AbVJETlR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030340AbVJETkt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030342AbVJETlR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 15:41:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030343AbVJETlR
+	id S1030340AbVJETkt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 15:40:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030342AbVJETkt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 15:41:17 -0400
-Received: from xproxy.gmail.com ([66.249.82.198]:64830 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030342AbVJETlO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 15:41:14 -0400
+	Wed, 5 Oct 2005 15:40:49 -0400
+Received: from web35906.mail.mud.yahoo.com ([66.163.179.190]:36489 "HELO
+	web35906.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1030340AbVJETks (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 15:40:48 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=R0pq/qWyujD+xAtVzO+9u8tAFtM1q6jI5IdvS4uuVKzuiZY9dYzjdpL4kUGXxB/RO+IOjgm4PkwG8TznWtWjOVG/a5Qor3wk+BAUvSHlaPUkiVbjuPeyPO0mIBDMpcL/l2a+9AYiiqYt2e9Y4vD91jc/srFzMjuX6W79Up/UoQo=
-Date: Wed, 5 Oct 2005 15:37:27 -0400
-From: Florin Malita <fmalita@gmail.com>
-To: Marc Perkel <marc@perkel.com>
-Cc: lsorense@csclub.uwaterloo.ca, nix@esperi.org.uk, 7eggert@gmx.de,
-       lkcl@lkcl.net, linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-Message-Id: <20051005153727.994c4709.fmalita@gmail.com>
-In-Reply-To: <4343E7AC.6000607@perkel.com>
-References: <4TiWy-4HQ-3@gated-at.bofh.it>
-	<4U0XH-3Gp-39@gated-at.bofh.it>
-	<E1EMutG-0001Hd-7U@be1.lrz>
-	<87k6gsjalu.fsf@amaterasu.srvr.nix>
-	<4343E611.1000901@perkel.com>
-	<20051005144441.GC8011@csclub.uwaterloo.ca>
-	<4343E7AC.6000607@perkel.com>
-X-Mailer: Sylpheed version 2.1.2 (GTK+ 2.4.13; i686-pc-linux-gnu)
-Mime-Version: 1.0
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=ZsUvIx1vBmDsiGSc/RQuAZRKUFCvuzti4a4EAgiXjNd2h0Cc/PjmmAknmYji7ruymy21qx5ueZkzJPj5VKyMmTjnw8U4L5nIDmkfU6nC5s9JcQar/eSPvPuDgY3VPkD/RQOmq56M9w1H28gNR7l3/j6qn9KsQvP98GNcMzGj5k4=  ;
+Message-ID: <20051005194047.85060.qmail@web35906.mail.mud.yahoo.com>
+Date: Wed, 5 Oct 2005 12:40:47 -0700 (PDT)
+From: umesh chandak <chandak_pict@yahoo.com>
+Subject: warning while booting kernel 2.6.10 on FC3
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 05 Oct 2005 07:48:12 -0700
-Marc Perkel <marc@perkel.com> wrote:
-> What is incredibly idiotic is a file system that allws you to delete 
-> files that you have no write access to. That is stupid beyond belief and 
-> only the Unix community doesn't get it.
+hi,
+           I have compiled a kernel 2.6.10 on FC3 it.
+When i restart in 2.6.10 it gives me warning like this
 
-It stops being idiotic as soon as you realize that _deleting_ a
-file doesn't involve _writing_ to it in any way. It's not about UNIX,
-it's about common sense - try thinking outside of the Netware box for a
-sec ;)
 
-Florin
+Warning: unable to open an initial console.
+
+
+          Plz help me out
+    Thanks in advance
+
+
+
+
+
+	
+		
+______________________________________________________ 
+Yahoo! for Good 
+Donate to the Hurricane Katrina relief effort. 
+http://store.yahoo.com/redcross-donate3/ 
+

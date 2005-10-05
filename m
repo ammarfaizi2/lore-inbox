@@ -1,43 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965046AbVJEAOn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965049AbVJEATh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965046AbVJEAOn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 20:14:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965049AbVJEAOn
+	id S965049AbVJEATh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Oct 2005 20:19:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965050AbVJEATh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 20:14:43 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:14314 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965046AbVJEAOm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 20:14:42 -0400
-Date: Wed, 5 Oct 2005 01:14:41 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: 7eggert@gmx.de
-Cc: David Leimbach <leimy2k@gmail.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: /etc/mtab and per-process namespaces
-Message-ID: <20051005001441.GR7992@ftp.linux.org.uk>
-References: <4TkbZ-6KJ-9@gated-at.bofh.it> <4U0uy-33E-7@gated-at.bofh.it> <4U0XK-3Gp-47@gated-at.bofh.it> <E1EMuCq-0000yq-Dt@be1.lrz>
+	Tue, 4 Oct 2005 20:19:37 -0400
+Received: from sccrmhc11.comcast.net ([63.240.76.21]:35767 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S965049AbVJEATh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Oct 2005 20:19:37 -0400
+Date: Tue, 4 Oct 2005 17:19:47 -0700
+From: Deepak Saxena <dsaxena@plexity.net>
+To: Linus Torvalds <torvalds@osdl.org>, rmk@arm.linux.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] [ARM] Fix IXDP2x01 config files
+Message-ID: <20051005001947.GA17324@plexity.net>
+Reply-To: dsaxena@plexity.net
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E1EMuCq-0000yq-Dt@be1.lrz>
-User-Agent: Mutt/1.4.1i
+Organization: Plexity Networks
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 04, 2005 at 11:20:12PM +0200, Bodo Eggert wrote:
-> Al Viro <viro@ftp.linux.org.uk> wrote:
-> 
-> > 4) If you insist on having /etc/mtab the same file in all namespaces,
-> > you obviously will have its contents not matching at least some
-> > of them.  Either have it separate in each namespace where you want
-> > to see it, or simply use /proc/self/mounts instead.
-> 
-> So /proc/mounts should be a symlink to /proc/self/mounts?
 
-; ls -l /proc/mounts
-lrwxrwxrwx  1 root root 11 Oct  4 20:13 /proc/mounts -> self/mounts
-;
+IXDP2401 config file has wrong baudrate and both boards have 3 UARTs.
 
-like that, perhaps?  IOW, it's been done that way for almost 4 years
-already...
+Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
+
+diff --git a/arch/arm/configs/ixdp2401_defconfig b/arch/arm/configs/ixdp2401_defconfig
+--- a/arch/arm/configs/ixdp2401_defconfig
++++ b/arch/arm/configs/ixdp2401_defconfig
+@@ -152,7 +152,7 @@ CONFIG_ALIGNMENT_TRAP=y
+ #
+ CONFIG_ZBOOT_ROM_TEXT=0x0
+ CONFIG_ZBOOT_ROM_BSS=0x0
+-CONFIG_CMDLINE="console=ttyS0,57600 root=/dev/nfs ip=bootp mem=64M@0x0 pci=firmware"
++CONFIG_CMDLINE="console=ttyS0,115200 root=/dev/nfs ip=bootp mem=64M@0x0 pci=firmware"
+ # CONFIG_XIP_KERNEL is not set
+ 
+ #
+@@ -560,7 +560,7 @@ CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+ #
+ CONFIG_SERIAL_8250=y
+ CONFIG_SERIAL_8250_CONSOLE=y
+-CONFIG_SERIAL_8250_NR_UARTS=2
++CONFIG_SERIAL_8250_NR_UARTS=3
+ # CONFIG_SERIAL_8250_EXTENDED is not set
+ 
+ #
+diff --git a/arch/arm/configs/ixdp2801_defconfig b/arch/arm/configs/ixdp2801_defconfig
+--- a/arch/arm/configs/ixdp2801_defconfig
++++ b/arch/arm/configs/ixdp2801_defconfig
+@@ -560,7 +560,7 @@ CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+ #
+ CONFIG_SERIAL_8250=y
+ CONFIG_SERIAL_8250_CONSOLE=y
+-CONFIG_SERIAL_8250_NR_UARTS=2
++CONFIG_SERIAL_8250_NR_UARTS=3
+ # CONFIG_SERIAL_8250_EXTENDED is not set
+ 
+ #
+
+-- 
+Deepak Saxena - dsaxena@plexity.net - http://www.plexity.net
+
+Even a stopped clock gives the right time twice a day.

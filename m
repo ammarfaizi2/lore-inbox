@@ -1,69 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030322AbVJESsM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030285AbVJETBs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030322AbVJESsM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 14:48:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030323AbVJESsM
+	id S1030285AbVJETBs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 15:01:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030326AbVJETBs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 14:48:12 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:7070 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S1030322AbVJESsL (ORCPT
+	Wed, 5 Oct 2005 15:01:48 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:20169 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030285AbVJETBr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 14:48:11 -0400
-Message-Id: <200510051847.j95IlRTS012444@laptop11.inf.utfsm.cl>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-cc: Nikita Danilov <nikita@clusterfs.com>, Marc Perkel <marc@perkel.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel? 
-In-Reply-To: Message from Luke Kenneth Casson Leighton <lkcl@lkcl.net> 
-   of "Wed, 05 Oct 2005 10:56:53 +0100." <20051005095653.GK10538@lkcl.net> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Wed, 05 Oct 2005 14:47:27 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.19.1]); Wed, 05 Oct 2005 14:47:28 -0400 (CLT)
+	Wed, 5 Oct 2005 15:01:47 -0400
+Date: Wed, 5 Oct 2005 12:00:59 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Mitsuru KANDA / =?utf-8?B?56We55SwIOWFhQ==?= <mk@karaba.org>
+Cc: "David S. Miller" <davem@davemloft.net>, chuckw@quantumlinux.com,
+       chrisw@osdl.org, linux-kernel@vger.kernel.org, stable@kernel.org,
+       jmforbes@linuxtx.org, zwane@arm.linux.org.uk, tytso@mit.edu,
+       rdunlap@xenotime.net, torvalds@osdl.org, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, mk@linux-ipv6.org
+Subject: Re: [PATCH 07/10] [PATCH] check connect(2) status for IPv6 UDP socket
+Message-ID: <20051005190059.GN7991@shell0.pdx.osdl.net>
+References: <20050930022016.640197000@localhost.localdomain> <20050930022239.411732000@localhost.localdomain> <Pine.LNX.4.63.0509292318320.29997@localhost.localdomain> <20050930.001025.86739685.davem@davemloft.net> <87zmpurf2o.wl%mk@karaba.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <87zmpurf2o.wl%mk@karaba.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> On Wed, Oct 05, 2005 at 01:24:12PM +0400, Nikita Danilov wrote:
-> > Marc Perkel writes:
+* Mitsuru KANDA / 神田 充 (mk@karaba.org) wrote:
+> Sorry for log silence, I was on a business trip in last week.
+> 
+> I recreate a patch (of course, which have been tested) ASAP.
 
-> > [...]
-> > 
-> >  > Right - that's Unix "inside the box" thinking. The idea is to make the 
-> >  > operating system smarter so that the user doesn't have to deal with 
-> >  > what's computer friendly - but reather what makes sense to the user. 
-> >  >  From a user's perspective if you have not rights to access a file then 
-> >  > why should you be allowed to delete it?
+BTW, we dropped this one, since it had possible leak in it.  I'll let
+you and DaveM decide when the updated one is ready for -stable.
 
-> > Because in Unix a name is not an attribute of a file.
-
->  there is no excuse.
-
-It's not an excuse, it's part of a coherent view of how things work. Just
-as Netware used to have its, and DOS had its (sort of). As the world view
-underneath Unix, it is darn hard to "fix".
-
-[This discussion sounds quite a lot like it is /you/ who needs "fixing",
- i.e., first wrap your head around Unix' ways...]
-
->  selinux has already provided an alternative that is similar to NW
->  file permissions.
-
-Nope. SELinux provides MAC, i.e., mechanisms by which system-wide policy
-(not the random owner of an object) ultimately decides what operations to
-allow. That is not "file permissions". And yes, this is quite un-Unix-like.
-
-[...]
-
->  in what way is it possible for linux to fully support the NTFS
->  filesystem?
-
-If you ask me, preferably not at all, just let that unholy mess quietly go
-the way of the dinosaurs. Sadly, interoperability is required at times,
-so...
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
-
+thanks,
+-chris

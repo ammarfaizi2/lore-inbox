@@ -1,107 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964996AbVJEJlD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965088AbVJEJkY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964996AbVJEJlD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 05:41:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965091AbVJEJlB
+	id S965088AbVJEJkY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 05:40:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965090AbVJEJkY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 05:41:01 -0400
-Received: from ranger.systems.pipex.net ([62.241.162.32]:2957 "EHLO
-	ranger.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S964996AbVJEJlB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 05:41:01 -0400
-Date: Wed, 5 Oct 2005 10:41:31 +0100 (BST)
-From: Tigran Aivazian <tigran_aivazian@symantec.com>
-X-X-Sender: tigran@ezer.homenet
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] bfs iget() abuses
-In-Reply-To: <20051004164844.GH7992@ftp.linux.org.uk>
-Message-ID: <Pine.LNX.4.61.0510051040300.4478@ezer.homenet>
-References: <20051004164844.GH7992@ftp.linux.org.uk>
+	Wed, 5 Oct 2005 05:40:24 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:11231 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S965088AbVJEJkX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 05:40:23 -0400
+Message-ID: <43439FF0.9050506@aitel.hist.no>
+Date: Wed, 05 Oct 2005 11:42:08 +0200
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Pierre Michon <pierre@no-spam.org>
+CC: linux-kernel@vger.kernel.org, legal@lists.gpl-violations.org
+Subject: Re: freebox possible GPL violation
+References: <20051005084738.GA29944@linux.ensimag.fr>
+In-Reply-To: <20051005084738.GA29944@linux.ensimag.fr>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Al,
+Pierre Michon wrote:
 
-Yes, looks good to me and also I confirm that ->i_dsk_ino is only zero for 
-deletes inodes.
+>==FREE and PRO-FREE CLAIMS (some claims could be find on [6])==
+>
+>A) The freebox is only lended, so the user can't ask for GPL source code.
+>  
+>
+If you lend someone linux, you're _distributing_ linux. The
+GPL is about _distribution_ I believe, it doesn't have to be a _sale_.
 
-Kind regards
-Tigran
+You can't _lend_ someone windows (as a way of doing business) without
+satisfying ms licencing terms either.
 
-On Tue, 4 Oct 2005, Al Viro wrote:
+>-> They forgot that for wifi feature, you have buy a pcmcia card and 
+>that is card works wifi Linux driver. So according to GPL you could ask 
+>for wifi driver source code and all the Linux source code ???
+>  
+>
+Well, the wifi driver may or may not be under the GPL licence.
+Check that first.  The linux kernel itself is GPL of course.
 
-> 	bfs_fill_super() walks the inode table to get the bitmap of
-> free inodes and collect stats.  It has no business using iget() for
-> that - it's a lot of extra work, extra icache pollution and more
-> complex code.  Switched to walking the damn thing directly.
+>Also some people that don't return the freebox in time had to 
+>paid 400 Euros and they became the owner of the freebox. Free send to a 
+>client a letter [7] saying that if the user don't return the freebox, 
+>free could bill it and then it becomes propriety of the user : 
+>'Nous vous rappelons que conformément aux Conditions Générales de Vente , 
+>en cas de non-restitution du modem, Free se réserve le droit de procéder 
+>à la facturation de l'équipement terminal, au prix mentionné dans les CGV, 
+>qui deviendra alors la *propriété* de l'Usager.'
 >
-> 	Note: that also allows to kill ->i_dsk_ino in there - separate
-> patch if Tigran can confirm that this field can be zero only for deleted
-> inodes (i.e. something that could only be found during that scan and not
-> by normal lookups).
 >
-> Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-> ----
-> [this is a followup to Alexey's bfs annotations patch]
+>B) The freebox don't keep the Linux kernel in memory, it is downloaded 
+>at each boot.
+>  
 >
-> diff -urN RC14-rc3-git4-base/fs/bfs/inode.c current/fs/bfs/inode.c
-> --- RC14-rc3-git4-base/fs/bfs/inode.c	2005-10-04 12:30:06.000000000 -0400
-> +++ current/fs/bfs/inode.c	2005-10-04 05:57:46.000000000 -0400
-> @@ -362,23 +362,41 @@
-> 	info->si_lf_eblk = 0;
-> 	info->si_lf_sblk = 0;
-> 	info->si_lf_ioff = 0;
-> +	bh = NULL;
-> 	for (i=BFS_ROOT_INO; i<=info->si_lasti; i++) {
-> -		inode = iget(s,i);
-> -		if (BFS_I(inode)->i_dsk_ino == 0)
-> +		struct bfs_inode *di;
-> +		int block = (i - BFS_ROOT_INO)/BFS_INODES_PER_BLOCK + 1;
-> +		int off = (i - BFS_ROOT_INO) % BFS_INODES_PER_BLOCK;
-> +		unsigned long sblock, eblock;
-> +
-> +		if (!off) {
-> +			brelse(bh);
-> +			bh = sb_bread(s, block);
-> +		}
-> +
-> +		if (!bh)
-> +			continue;
-> +
-> +		di = (struct bfs_inode *)bh->b_data + off;
-> +
-> +		if (!di->i_ino) {
-> 			info->si_freei++;
-> -		else {
-> -			set_bit(i, info->si_imap);
-> -			info->si_freeb -= inode->i_blocks;
-> -			if (BFS_I(inode)->i_eblock > info->si_lf_eblk) {
-> -				info->si_lf_eblk = BFS_I(inode)->i_eblock;
-> -				info->si_lf_sblk = BFS_I(inode)->i_sblock;
-> -				info->si_lf_ioff = BFS_INO2OFF(i);
-> -			}
-> +			continue;
-> +		}
-> +		set_bit(i, info->si_imap);
-> +		info->si_freeb -= BFS_FILEBLOCKS(di);
-> +
-> +		sblock =  le32_to_cpu(di->i_sblock);
-> +		eblock =  le32_to_cpu(di->i_eblock);
-> +		if (eblock > info->si_lf_eblk) {
-> +			info->si_lf_eblk = eblock;
-> +			info->si_lf_sblk = sblock;
-> +			info->si_lf_ioff = BFS_INO2OFF(i);
-> 		}
-> -		iput(inode);
-> 	}
-> +	brelse(bh);
-> 	if (!(s->s_flags & MS_RDONLY)) {
-> -		mark_buffer_dirty(bh);
-> +		mark_buffer_dirty(info->si_sbh);
-> 		s->s_dirt = 1;
-> 	}
-> 	dump_imap("read_super", s);
+Check where it is downloaded from, that is where linux
+is being distributed from. Likely the same company though.
+
+>C) 'Free' is a network operator and needs to keep secret some informations 
+>in order to preserve security on its networks.
+>  
 >
+They don't need to keep the kernel secret for security.  Of course they 
+can still
+keep their scripts secret, their (non-GPL) userland utilities secret, their
+proprietary drivers secret and the hw specs secret. Good or bad, it is
+up to them.  But it seems to me they have to offer the kernel source,
+at least.
+
+Helge Hafting

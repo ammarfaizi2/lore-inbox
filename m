@@ -1,62 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965204AbVJEO5K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965199AbVJEPAY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965204AbVJEO5K (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 10:57:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965203AbVJEO5K
+	id S965199AbVJEPAY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 11:00:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965203AbVJEPAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 10:57:10 -0400
-Received: from xproxy.gmail.com ([66.249.82.206]:4550 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965204AbVJEO5J convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 10:57:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=UgfvFBaRmAw4W7Mm7qr4ZdpHZfbykbrjqXySuNdWKToQizm8dHkgdsMygZao8tmrr8fB/FDzPulnCWC3w776fcDaRXpT+HtP4BpesWZkvfIORE9At0p9Yinmx8l9+tuQT/lEQOtrPW2KusNdIfT59bFgKAXHe7mkVS4L4CpIb8Q=
-Message-ID: <b681c62b0510050757n2b3369flfba2d125912d8655@mail.gmail.com>
-Date: Wed, 5 Oct 2005 20:27:08 +0530
-From: yogeshwar sonawane <yogyas@gmail.com>
-Reply-To: yogeshwar sonawane <yogyas@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: what is the difference between __free_page() & page_cache_release()
+	Wed, 5 Oct 2005 11:00:24 -0400
+Received: from vhost12.digitarus.com ([84.234.16.61]:23496 "EHLO
+	vhost12.digitarus.com") by vger.kernel.org with ESMTP
+	id S965199AbVJEPAX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 11:00:23 -0400
+X-ClientAddr: 212.126.40.83
+Message-ID: <4343EA58.2030005@wiggly.org>
+Date: Wed, 05 Oct 2005 15:59:36 +0100
+From: Nigel Rantor <wiggly@wiggly.org>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+To: Marc Perkel <marc@perkel.com>
+CC: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>, Nix <nix@esperi.org.uk>,
+       7eggert@gmx.de, Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel?
+References: <4TiWy-4HQ-3@gated-at.bofh.it> <4U0XH-3Gp-39@gated-at.bofh.it> <E1EMutG-0001Hd-7U@be1.lrz> <87k6gsjalu.fsf@amaterasu.srvr.nix> <4343E611.1000901@perkel.com> <20051005144441.GC8011@csclub.uwaterloo.ca> <4343E7AC.6000607@perkel.com>
+In-Reply-To: <4343E7AC.6000607@perkel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Digitarus-vhost12-MailScanner-Information: Please contact Digitarus for more information
+X-Digitarus-vhost12-MailScanner: Not scanned: please contact your Internet E-Mail Service Provider for details
+X-MailScanner-From: wiggly@wiggly.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
-I am writing a driver for 2.6 in which i am locking down some pages
-into the physical memory by manually traversing the page tables. After
-my work with those pages is finished, i free them using 
-__free_page(). For some cases it is running fine. But while running
-some applications, i got the following error:
+Marc Perkel wrote:
+> 
+> What is incredibly idiotic is a file system that allws you to delete 
+> files that you have no write access to. That is stupid beyond belief and 
+> only the Unix community doesn't get it.
 
-Bad page state at free_hot_cold_page (in process 'data_lat', page
-0000010003d208e8)
-flags:0x01000074 mapping:0000000000000000 mapcount:0 count:0
-Backtrace:
+No.
 
-Call Trace:<ffffffff801571f7>{bad_page+112}
-<ffffffff801578cf>{free_hot_cold_page+130}
-       <ffffffffa01aa101>{:ccp3k:VipkUnmapAndUnlock+162}
-<ffffffffa01aaba0>{:ccp3k:VipkCloseNic+638}
-       <ffffffffa01a812d>{:ccp3k:VipkClose+30} <ffffffff80173117>{__fput+99}
-       <ffffffff80171d55>{filp_close+103}
-<ffffffff80137771>{put_files_struct+101}
-       <ffffffff80137f76>{do_exit+665} <ffffffff80138a2c>{sys_exit_group+0}
-       <ffffffff8011003e>{system_call+126}
-Trying to fix it up, but a reboot is needed
+What's idiotic is leaving your property (files) on someone elses desk 
+(directory) and expecting them always to be there when you come back.
 
-Then i replaced __free_page() with page_cache_release(). It is working
-fine now. But what is the difference between these two? whether this
-is the correct/safe replacement for __free_page()?
-Can anybody help me out in this scenario? My machine is intel
-xeon(EM64T) dual processor with redhat enterprise linux 4(2.6.9-11)
-running on it.
-
-if anybody knows any link about it, let me share that.
-
-Thanks,
-Yogeshwar
+   n

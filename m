@@ -1,41 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965210AbVJEPR7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965213AbVJEPSW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965210AbVJEPR7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 11:17:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965211AbVJEPR6
+	id S965213AbVJEPSW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 11:18:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965212AbVJEPSW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 11:17:58 -0400
-Received: from ra.sai.msu.su ([158.250.29.2]:26523 "EHLO ra.sai.msu.su")
-	by vger.kernel.org with ESMTP id S965210AbVJEPR6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 11:17:58 -0400
-Date: Wed, 5 Oct 2005 19:17:37 +0400 (MSD)
-From: Evgeny Rodichev <er@sai.msu.su>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.14-rc2] libata: Marvell SATA support (DMA mode)
- (resend: v0.22)
-In-Reply-To: <4341E420.6070808@pobox.com>
-Message-ID: <Pine.GSO.4.63.0510051912230.10241@ra.sai.msu.su>
-References: <20050930053600.F3B821CDD0@lns1058.lss.emc.com> <4341E420.6070808@pobox.com>
+	Wed, 5 Oct 2005 11:18:22 -0400
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:61392 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S965211AbVJEPSU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 11:18:20 -0400
+X-ORBL: [69.107.75.50]
+Date: Wed, 05 Oct 2005 08:18:18 -0700
+From: David Brownell <david-b@pacbell.net>
+To: vwool@ru.mvista.com
+Subject: Re: [PATCH/RFC 0/2] simple SPI framework, refresh + ads7864 driver
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20051005151818.338E1EA551@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Oct 2005, Jeff Garzik wrote:
+> > > can you please describe the data flow in case of DMA transfer? Thanks!
+> >
+> > In the current model, the controller driver handles it (assuming
+> > that it uses DMA not PIO):
+> >
+> >  - Use dma_map_single() at some point between the master->transfer()
+> >    call and the time the DMA address is handed to DMA hardware.
 
-> applied
->
+> So that implies calling dma_map_single() for the memory allocated in stack?
 
-This patch leads to freeze with Marvell MV88SX6041 4-port SATA II PCI-X 
-Controller (rev 03), as I wrote already
-(http://www.uwsg.iu.edu/hypermail/linux/kernel/0510.0/0203.html)
+Calling that for whatever is passed, certainly.
 
-It is impossible to reboot the system without  harware reset (after modprobe).
+But the <linux/spi.h> header does have a comment right next to the
+declarations of spi_transfer.tx_buf and rx_buf, saying that "buffers
+must work with dma_*map_single() calls.
 
-_________________________________________________________________________
-Evgeny Rodichev                          Sternberg Astronomical Institute
-email: er@sai.msu.su                              Moscow State University
-Phone: 007 (095) 939 2383
-Fax:   007 (095) 932 8841                       http://www.sai.msu.su/~er
+In general all APIs that use DMA will follow the rules listed under
+"What memory is DMA'able?" in:
+
+  linux/Documentation/DMA-mapping.txt
+
+The rest of that file is a bit PCI-centric, but that section remains
+the primary description of what can be DMA'd.  I had assumed that went
+without saying; permaps wrongly.
+
+- Dave
+

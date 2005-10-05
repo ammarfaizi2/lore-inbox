@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030416AbVJEW52@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030417AbVJEW6H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030416AbVJEW52 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 18:57:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030417AbVJEW52
+	id S1030417AbVJEW6H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 18:58:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030418AbVJEW6G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 18:57:28 -0400
-Received: from rproxy.gmail.com ([64.233.170.198]:21802 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030416AbVJEW51 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 18:57:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=epWyDJOHGLPXi60kJO3jRDipX8oh6FJ2PpkP/O0qzb9yNWbGp3mKIqXQM5TF9Rk8jdez2PM5SkOj2nWqDHZD1AUwEZdWj0NMsaiUiRK6zTQNIcmVwb7IrOQCrdLR2+ZuTF1NdnUvn7NVAfX8CTMmrxOpeeTru/gI9tdETtDtTRQ=
-Message-ID: <21d7e9970510051557u42ae32f0rca46e951c5da536f@mail.gmail.com>
-Date: Thu, 6 Oct 2005 08:57:26 +1000
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Nix <nix@esperi.org.uk>
-Subject: Re: Why no XML in the Kernel?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <87br23odls.fsf@amaterasu.srvr.nix>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 5 Oct 2005 18:58:06 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:27305 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1030417AbVJEW6F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 18:58:05 -0400
+Date: Thu, 6 Oct 2005 00:57:27 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Lorenzo Colitti <lorenzo@colitti.com>
+Cc: Nigel Cunningham <ncunningham@cyclades.com>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [swsusp] separate snapshot functionality to separate file
+Message-ID: <20051005225727.GE22781@elf.ucw.cz>
+References: <20051002231332.GA2769@elf.ucw.cz> <200510032339.08217.rjw@sisk.pl> <20051003231715.GA17458@elf.ucw.cz> <200510041711.13408.rjw@sisk.pl> <20051004205334.GC18481@elf.ucw.cz> <1128465272.6611.75.camel@localhost> <20051005084141.GB22034@elf.ucw.cz> <434443D9.3010501@colitti.com> <20051005224418.GA22781@elf.ucw.cz> <4344599B.7060308@colitti.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-References: <20051002094142.65022.qmail@web51012.mail.yahoo.com>
-	 <35fb2e590510021153r254b7eb0haf9f9e365bed051e@mail.gmail.com>
-	 <87oe66r62s.fsf@amaterasu.srvr.nix>
-	 <20051003153515.GW7992@ftp.linux.org.uk>
-	 <87zmpqbcws.fsf@amaterasu.srvr.nix>
-	 <21d7e9970510051411y2f2871a7mafa2e96cce277657@mail.gmail.com>
-	 <87br23odls.fsf@amaterasu.srvr.nix>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <4344599B.7060308@colitti.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Čt 06-10-05 00:54:19, Lorenzo Colitti wrote:
+> Pavel Machek wrote:
+> >>- It was dog slow because it doesn't use compression
+> >>- Even though it's dog slow, it doesn't save all RAM
+> >>  - Therefore the machine is dog slow after resume
+> >>- It doesn't have a decent UI
+> >>- There is no way to abort suspend once it's started. [...]
 > >
-> > This is just mach64, we don't have mach64 support in the kernel so it
-> > has nothing to do with the kernel... I've no idea why mach64 broke but
->
-> I misspoke. Some of the non-DRM API changes around 2.6.12 broke the
-> 6.8.2 mach64 module in DRI CVS; the development version builds again,
-> and nearly works.
->
+> >With uswsusp (aka swsusp3), you can do all this in userland. Stop
+> >whining, start hacking... Code is at kernel.org/git/.../linux-sw3.
+> 
+> But that was exactly my point: there's no need to hack!
+> 
+> The code is there. It's well tested, fast, stable, and does what users 
+> need. It's called suspend2. Why work on yet another implementation 
+> instead of just merging that?
 
-But that's my point if you had a previously working mach64 with 6.8.2
-with a DRM from around then, and a kernel upgrade broke the DRM you
-should be just able to upgrade the DRM to the latest DRM CVS, there
-isn't any such thing as a 6.8.2 DRM, you'll only cause much more
-issues trying to fix an issue in the kernel side by also
-simultaneously upgrading userspace... as you've no fixed working point
-to try from..
+Most of that code does not belong it kernel. It can't be "just
+merged". If we had nice "vi" implementation in kernel, we'd have to
+drop it and start again in userland. This is similar.
 
-The mach64 drm is in CVS on cvs.freedesktop.org:/cvs/dri and the module is drm..
-
-Dave.
+								Pavel
+-- 
+if you have sharp zaurus hardware you don't need... you know my address

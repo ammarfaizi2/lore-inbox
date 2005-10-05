@@ -1,101 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965139AbVJEMHs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965141AbVJEMHr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965139AbVJEMHs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 08:07:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965138AbVJEMHs
+	id S965141AbVJEMHr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 08:07:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965140AbVJEMHq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 08:07:48 -0400
-Received: from free.hands.com ([83.142.228.128]:14247 "EHLO free.hands.com")
-	by vger.kernel.org with ESMTP id S965139AbVJEMHp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 08:07:46 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:37334 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965138AbVJEMHp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 5 Oct 2005 08:07:45 -0400
-Date: Wed, 5 Oct 2005 13:07:27 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-Message-ID: <20051005120727.GV10538@lkcl.net>
-References: <mail.linux.kernel/20051003203037.GG8548@lkcl.net> <05Oct4.173802edt.33143@gpu.utcc.utoronto.ca>
+Subject: Re: freebox possible GPL violation
+From: Arjan van de Ven <arjan@infradead.org>
+To: Emmanuel Fleury <fleury@cs.aau.dk>
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
+In-Reply-To: <4343C0DB.9080506@cs.aau.dk>
+References: <20051005111329.GA31087@linux.ensimag.fr>
+	 <4343B779.8030200@cs.aau.dk>
+	 <1128511676.2920.19.camel@laptopd505.fenrus.org>
+	 <4343BB04.7090204@cs.aau.dk>
+	 <1128513584.2920.23.camel@laptopd505.fenrus.org>
+	 <4343C0DB.9080506@cs.aau.dk>
+Content-Type: text/plain
+Date: Wed, 05 Oct 2005 14:07:42 +0200
+Message-Id: <1128514062.2920.27.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <05Oct4.173802edt.33143@gpu.utcc.utoronto.ca>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-MailScanner-From: lkcl@lkcl.net
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 04, 2005 at 05:37:59PM -0400, Chris wrote:
-
-> You write:
-> |  personally i find that i like a bit of a run-up and/or advance notice
-> |  of major paradigm shifts.
+On Wed, 2005-10-05 at 14:02 +0200, Emmanuel Fleury wrote:
+> Arjan van de Ven wrote:
+> > 
+> > that's not enough to satisfy the GPL conditions. 
 > 
->  I maintain that one of the problems is that we simply do not know how
-> to efficiently (in all senses of the word) program multi-processing
-> systems and applications. Various people have various theories about how
-> it should be done, but they are not well-proven.
-> 
->  We do know that the current approach is difficult and error-prone, but
-> terribly attractive because of an at least superficial simplicity. So
-> far none of the alternatives have been convincing enough to supplant it.
-> 
->  Efficient changing of paradigms requires a target paradigm. In this
-> environment, a good target paradigm does not appear to exist yet and
-> may not be clear for years. Starting engineering work seems a little
-> bit premature in that situation.
- 
- chris,
+> It is.
 
- your words paraphrase nicely the issues faced - for software engineers.
+  3. You may copy and distribute the Program (or a work based on it,
+under Section 2) in object code or executable form under the terms of
+Sections 1 and 2 above provided that you also do one of the following:
 
- however, if you were to speak to a hardware engineer - an embedded
- systems designer of ASICs - they would have a completely different
- take on it, because they are dealing with parallelism all the time,
- _and_ they even have some tools to help them do that.
+    a) Accompany it with the complete corresponding machine-readable
+    source code, which must be distributed under the terms of Sections
+    1 and 2 above on a medium customarily used for software interchange;
+or,
 
- what those ASIC designers lack is an off-the-shelf affordable
- multiprocessor chip that makes their parallel algorithms run
- fast enough: they _have_ to go for custom ASIC.
+    b) Accompany it with a written offer, valid for at least three
+    years, to give any third party, for a charge no more than your
+    cost of physically performing source distribution, a complete
+    machine-readable copy of the corresponding source code, to be
+    distributed under the terms of Sections 1 and 2 above on a medium
+    customarily used for software interchange; or,
 
- which is where the pricing of 90nm - $250k mask charges making up most
- of the $2m NREs - is so key.  even .13micron you're looking at $200k
- NREs [non-recoverable expenditure].
- 
- and if you were to do a chip at .13micron you would be
- looking at 120 watts for something running at 800mhz with
- only 1 million gates.
- 
- a pentium 3 800mhz in other words, and that won't exactly get you very
- far.
+    c) Accompany it with the information you received as to the offer
+    to distribute corresponding source code.  (This alternative is
+    allowed only for noncommercial distribution and only if you
+    received the program in object code or executable form with such
+    an offer, in accord with Subsection b above.)
 
 
- what the software engineers you refer to above lack is the toolchain to
- assist them in developing for anything other than uniprocessor targets.
+they don't do a)
 
- such tools and techniques are being researched and developed (i sent
- references to a coupl and also a google search criteria in another
- earlier LKML email): however, yet again, it's chicken-and-egg.
+they don't do b)
 
- until the chips start going multiprocessor, the tools are going to
- remain in research labs.  until the tools come out of research labs,
- the chips are going to remain useless.
+c) is only for noncommerial distribution (not the case here) and only if
+they got it in a type b) before, eg it allows you to transfer a type b)
+in the non-commerical case.
 
- where it all goes a bit pearshaped with that chicken-and-egg vicious
- cycle is if the bottom drops out of 65nm and 45nm processes, such that
- _even_ the top uniprocessor mass-market chip manufacturers are forced
- down a parallel processing line.
 
- my point is: we're starting to see evidence of that happening
- (small-scale, 2-cores, 2-hyperthreads, talk of 4-cores, etc.
-  even the X-Box 360 PPC 3x2)
-
- _therefore_, i invite people who do linux kernel development
- to think ahead - to take a _lead_ for once instead of waiting
- for hardware to drop into their laps, at which point it is once
- again too late, the hardware design decisions will have
- already been made by someone else, and you will be treated
- like second class citizens.  again.
-
- l.
 

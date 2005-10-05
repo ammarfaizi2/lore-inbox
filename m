@@ -1,56 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965168AbVJENdI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965174AbVJENgD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965168AbVJENdI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 09:33:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965169AbVJENdH
+	id S965174AbVJENgD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 09:36:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965171AbVJENgC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 09:33:07 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:53159 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965168AbVJENdG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 09:33:06 -0400
-Subject: Re: [PATCH] Keys: Export user-defined keyring operations
-From: David Woodhouse <dwmw2@infradead.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
-       Michael C Thompson <mcthomps@us.ibm.com>, keyrings@linux-nfs.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1128510159.2920.15.camel@laptopd505.fenrus.org>
-References: <OF7208B0E9.0AB77A04-ON87257090.007A1D4E-05257090.007A2207@us.ibm.com>
-	 <28129.1128509939@warthog.cambridge.redhat.com>
-	 <1128510159.2920.15.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=UTF-8
-Date: Wed, 05 Oct 2005 14:32:58 +0100
-Message-Id: <1128519178.3116.16.camel@hades.cambridge.redhat.com>
+	Wed, 5 Oct 2005 09:36:02 -0400
+Received: from free.hands.com ([83.142.228.128]:27561 "EHLO free.hands.com")
+	by vger.kernel.org with ESMTP id S965174AbVJENgA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 09:36:00 -0400
+Date: Wed, 5 Oct 2005 14:35:49 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel?
+Message-ID: <20051005133549.GB10538@lkcl.net>
+References: <mail.linux.kernel/20051003203037.GG8548@lkcl.net> <05Oct4.173802edt.33143@gpu.utcc.utoronto.ca> <20051005120727.GV10538@lkcl.net> <20051005123113.GO3511@suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 8bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051005123113.GO3511@suse.de>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-hands-com-MailScanner: Found to be clean
+X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-10-05 at 13:02 +0200, Arjan van de Ven wrote:
-> since this is new unique-to-linux functionality, could you please
-> consider making the exports _GPL please?
+On Wed, Oct 05, 2005 at 02:31:14PM +0200, Jens Axboe wrote:
 
-What's the point? There can be no difference between the meaning of
-EXPORT_SYMBOL() and EXPORT_SYMBOL_GPL() anyway.
+> [i know better criticism and accusations deleted and not commented on]
 
-§6 of the GPL says "You may not impose any further restrictions on the
-recipients' exercise of the rights granted herein."
+> Why is that so hard to understand? Succesful contributions start at the
+> technical level, always have.
+ 
+ then we will have to agree to disagree, because i believe that
+ successful contributions start with "what creative thing shall
+ we do now / what problem shall we tackle today in a creative
+ way?" and work their way down to the technical level, which,
+ as you rightly point out, requires successful _technical_
+ contributions.
 
-If there was really a meaningful difference between EXPORT_SYMBOL_GPL()
-and EXPORT_SYMBOL(), then the GPL _itself_ would forbid the use of
-EXPORT_SYMBOL_GPL() within the kernel, because that would impose
-additional restrictions.
-
-We should abolish the meaningless distinction between the two, because
-it only encourages people to believe that EXPORT_SYMBOL() can be used
-for non-GPL code. Either use EXPORT_SYMBOL() for everything, or switch
-to EXPORT_SYMBOL_GPL() for everything. It doesn't really matter.
-
--- 
-dwmw2
+ l.
 

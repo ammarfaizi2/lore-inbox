@@ -1,75 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750799AbVJEUiL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbVJEUko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750799AbVJEUiL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 16:38:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750809AbVJEUiL
+	id S1750809AbVJEUko (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 16:40:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750832AbVJEUko
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 16:38:11 -0400
-Received: from fmr15.intel.com ([192.55.52.69]:27616 "EHLO
-	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1750799AbVJEUiJ convert rfc822-to-8bit (ORCPT
+	Wed, 5 Oct 2005 16:40:44 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:55248 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750809AbVJEUkn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 16:38:09 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH 5/7] HPET-RTC: disable interrupt when no longer needed
-Date: Wed, 5 Oct 2005 13:37:46 -0700
-Message-ID: <88056F38E9E48644A0F562A38C64FB6005EB230A@scsmsx403.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 5/7] HPET-RTC: disable interrupt when no longer needed
-Thread-Index: AcXEv1jmO9fzyUegThuqmuc/dU4bCQFLQJQg
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: "Clemens Ladisch" <clemens@ladisch.de>, "Andrew Morton" <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, "Bob Picco" <bob.picco@hp.com>
-X-OriginalArrivalTime: 05 Oct 2005 20:37:47.0431 (UTC) FILETIME=[A565E370:01C5C9EC]
+	Wed, 5 Oct 2005 16:40:43 -0400
+Date: Wed, 5 Oct 2005 16:40:35 -0400
+From: Dave Jones <davej@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: PAE causing failure to run various executables.
+Message-ID: <20051005204035.GB10640@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+A fedora user recently filed a puzzling bug at
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=169741
 
->-----Original Message-----
->From: aezr4@studcom.urz.uni-halle.de 
->[mailto:aezr4@studcom.urz.uni-halle.de] On Behalf Of Clemens Ladisch
->Sent: Wednesday, September 28, 2005 11:30 PM
->To: Pallipadi, Venkatesh
->Cc: linux-kernel@vger.kernel.org; Bob Picco
->Subject: Re: [PATCH 5/7] HPET-RTC: disable interrupt when no 
->longer needed
->
->Venkatesh Pallipadi wrote:
->> On Wed, Sep 28, 2005 at 09:12:26AM +0200, Clemens Ladisch wrote:
->> > When the emulated RTC interrupt is no longer needed, we 
->better disable
->> > it; otherwise, we get a spurious interrupt whenever the timer has
->> > rolled over and reaches the same comparator value.
->> >
->> > Having a superfluous interrupt every five minutes doesn't 
->hurt much,
->> > but it's bad style anyway.  ;-)
->>
->> Do you really see the interrupt every five minutes once RTC 
->is disabled.
->
->Yes; at least on my Intel chipset.  ;-)
->
->> I had assumed while in one-shot interrupt mode, HPET would 
->automatically unarm
->> after generating the interrupt, so that we won't get 
->interrupts any more.
->
->The spec never mentions this.  What it mentions is that it was
->designed so that it can be implemented in as few gates as possible.
->
+The system being reported has exactly 4GB, and its E820
+tables seem to concur that there is in fact 4GB.
 
-Verified in the latest version of the SPEC. It indeed says that
-one shot timer can happen more than once when the 32 bit counter 
-wraps around. So, this patch is also required. Thanks for all the fixes.
+When run in non-PAE mode, it triggers the
+"Warning only 4GB will be used. Use a PAE enabled kernel."
+message, which is odd, but the system does actually run.
 
-Andrew, Please pick this one as well.
+When run in PAE mode, it seems to lose its mind, and it
+fails to run various binaries.
 
-Thanks,
-venki
+Booting with mem=4G causes the machine to boot fine
+(though for some reason, it finds only 3042M of RAM).
+
+
+The reporter of this bug has tested on 2.6.14-rc3-git4, and found the
+same issue exists as he saw on the original FC3 kernel, thus ruling out
+any Fedora-specific patches.
+
+Anyone have any ideas what's wrong here?
+
+		Dave
+

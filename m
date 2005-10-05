@@ -1,67 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbVJEUwr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbVJEU6B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932152AbVJEUwr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 16:52:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbVJEUwr
+	id S932176AbVJEU6B (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 16:58:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbVJEU6B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 16:52:47 -0400
-Received: from [203.171.93.254] ([203.171.93.254]:7849 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S1750832AbVJEUwq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 16:52:46 -0400
-Subject: Re: [PATCH] Free swap suspend from depending upon PageReserved.
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200510051454.56096.rjw@sisk.pl>
-References: <1128506536.5514.13.camel@localhost>
-	 <20051005121222.GA22580@elf.ucw.cz>  <200510051454.56096.rjw@sisk.pl>
-Content-Type: text/plain
-Organization: Cyclades
-Message-Id: <1128544625.10363.5.camel@localhost>
+	Wed, 5 Oct 2005 16:58:01 -0400
+Received: from [63.227.222.140] ([63.227.222.140]:44207 "EHLO
+	smtp.omgwallhack.org") by vger.kernel.org with ESMTP
+	id S1750832AbVJEU6A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 16:58:00 -0400
+Date: Wed, 5 Oct 2005 13:57:04 -0700
+From: Julian Blake Kongslie <jblake@omgwallhack.org>
+To: Bas Westerbaan <bas.westerbaan@gmail.com>
+Cc: Marc Perkel <marc@perkel.com>, 7eggert@gmx.de,
+       Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel?
+Message-ID: <20051005135704.4c1ac407@kolionychia.omgwallhack.org>
+In-Reply-To: <6880bed30510051351ja5bd5dfo5fbec9514a5cbdd7@mail.gmail.com>
+References: <4TiWy-4HQ-3@gated-at.bofh.it>
+	<4U0XH-3Gp-39@gated-at.bofh.it>
+	<E1EMutG-0001Hd-7U@be1.lrz>
+	<43443723.907@perkel.com>
+	<20051005134109.757a5e42@kolionychia.omgwallhack.org>
+	<6880bed30510051351ja5bd5dfo5fbec9514a5cbdd7@mail.gmail.com>
+Organization: Fists of Righteous Harmony
+X-Mailer: Sylpheed-Claws 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
+Pretention: High
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 06 Oct 2005 06:37:06 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed;
+ boundary=Signature_Wed__5_Oct_2005_13_57_04_-0700_Buu0ZDYfRcJK_EWA;
+ protocol="application/pgp-signature"; micalg=pgp-sha1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+--Signature_Wed__5_Oct_2005_13_57_04_-0700_Buu0ZDYfRcJK_EWA
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, 2005-10-05 at 22:54, Rafael J. Wysocki wrote:
-> Hi,
-> 
-> On Wednesday, 5 of October 2005 14:12, Pavel Machek wrote:
-> > Hi!
-> > 
-> > > Here's the patch we've previously discussed, which removes the
-> > > dependancy of swap suspend on PageReserved.
-> > 
-> > This ends up in Linus' changelog, so "we've previously discussed"
-> > is not okay here. Missing signed-off. What is benefit of this?
-> > 
-> > swsusp part looks okay, but will Andrew like the generic part? I guess
-> > I'd prefer to postpone this one (unless we are last user of
-> > PageReserved) -- I do not see too big benefit and there's potential
-> > for breakage.
-> 
-> Basically, what it does is to make swsusp avoid saving (and restoring)
-> non-RAM pages (like the ISA hole, BIOS etc.).  I think it is a nice thing
-> to do and it does not hurt anyone (it only clears and/or sets PG_nosave
-> at some places).  However, if we decide to do this for i386, it should
-> also be done for x86-64.
+On Wed, 5 Oct 2005 22:51:32 +0200
+Bas Westerbaan <bas.westerbaan@gmail.com> wrote:
 
-True. I wasn't thinking about others arches, and should have. I'll
-modify the patch and seek to repost today.
+> You can delete a directory entry to a file if you have proper
+> permission to the directory.
+>=20
+> You cannot read or write the file if the file doesn't give you
+permission to.
+>=20
+> A hard link makes an additional directory entry to a certain file. You
+> delete the directory entry to the file, not the file.
+>=20
+> And permissions are the same for all instances of the file.
+>=20
+> My 2 cents.
 
-Regards,
+That is the UNIX model, yes. And I think it makes perfect sense. And as
+a side effect, we can delete links to files which we do not own, and
+cannot write to.
 
-Nigel
+Does NetWare have an equivalent of hardlinks?
 
-> Greetings,
-> Rafael
--- 
+--=20
+-Julian Blake Kongslie
+<jblake@omgwallhack.org>
 
+--Signature_Wed__5_Oct_2005_13_57_04_-0700_Buu0ZDYfRcJK_EWA
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Don't have my public key? Email <jblake@omgwallhack.org> and I'll gladly mail it to you.
+
+iD8DBQFDRD4luU009xtCYDURAmhJAKCJNKtr1TIB5O/+w5Va4F2XrTEOiwCZAeV4
+XBlMDyMD0tcsw68zFkKgvJQ=
+=wtRG
+-----END PGP SIGNATURE-----
+
+--Signature_Wed__5_Oct_2005_13_57_04_-0700_Buu0ZDYfRcJK_EWA--

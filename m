@@ -1,47 +1,169 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030333AbVJETa1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030336AbVJETbP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030333AbVJETa1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 15:30:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030334AbVJETa1
+	id S1030336AbVJETbP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 15:31:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030334AbVJETbP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 15:30:27 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:12473 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S1030333AbVJETa0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 15:30:26 -0400
-Date: Wed, 5 Oct 2005 15:30:24 -0400
-To: Marc Perkel <marc@perkel.com>
-Cc: Al Viro <viro@ftp.linux.org.uk>, Rik van Riel <riel@redhat.com>,
+	Wed, 5 Oct 2005 15:31:15 -0400
+Received: from 10.ctyme.com ([69.50.231.10]:55709 "EHLO newton.ctyme.com")
+	by vger.kernel.org with ESMTP id S1030336AbVJETbO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 15:31:14 -0400
+Message-ID: <434429F2.7030400@perkel.com>
+Date: Wed, 05 Oct 2005 12:30:58 -0700
+From: Marc Perkel <marc@perkel.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.10) Gecko/20050716
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nix <nix@esperi.org.uk>
+CC: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>, 7eggert@gmx.de,
        Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
        linux-kernel@vger.kernel.org
 Subject: Re: what's next for the linux kernel?
-Message-ID: <20051005193024.GG8011@csclub.uwaterloo.ca>
-References: <20051002204703.GG6290@lkcl.net> <4342DC4D.8090908@perkel.com> <Pine.LNX.4.63.0510051150570.3798@cuia.boston.redhat.com> <4343F815.4000208@perkel.com> <20051005161527.GU7992@ftp.linux.org.uk> <4343FE1C.7090700@perkel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4343FE1C.7090700@perkel.com>
-User-Agent: Mutt/1.5.9i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+References: <4TiWy-4HQ-3@gated-at.bofh.it> <4U0XH-3Gp-39@gated-at.bofh.it>	<E1EMutG-0001Hd-7U@be1.lrz> <87k6gsjalu.fsf@amaterasu.srvr.nix>	<4343E611.1000901@perkel.com>	<20051005144441.GC8011@csclub.uwaterloo.ca>	<4343E7AC.6000607@perkel.com>	<20051005145606.GA7949@csclub.uwaterloo.ca>	<4343EC6A.70603@perkel.com> <874q7vhj0c.fsf@amaterasu.srvr.nix>
+In-Reply-To: <874q7vhj0c.fsf@amaterasu.srvr.nix>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spamfilter-host: newton.ctyme.com - http://www.junkemailfilter.com"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 05, 2005 at 09:23:56AM -0700, Marc Perkel wrote:
-> That's not the point. The point is that Netware has a far superior 
-> permission system and I am suggesting the the Linux community learn from 
-> it and take advantage of seeing what better looks like and improving itself.
 
-Linux is compatible with unix applications.  Netware is not.  Supporting
-some useless netware feature at the expense of posix/unix compatibility
-would be insane.
 
-If you can't do it with unix permissions or unix permissions + ACL, you
-don't need to do it at all most likely, and even more likely you
-probably don't actually understand what you are trying to accomplish and
-will probably end up making something insecure or broken instead.
+Nix wrote:
 
-Having dealt with netware, trying to administrate that mess was way to
-painful and confusing.  What a horrible interface.  I can't imagine
-anything I would want to borrow from netware.
+>On Wed, 05 Oct 2005, Marc Perkel yowled:
+>  
+>
+>>Agian - thinking outside the box.
+>>    
+>>
+>
+>I hate that phrase. There is no `box'.
+>
+>  
+>
+That's what it looks like when you are inside it.
 
-Len Sorensen
+>>If the permissions were don'e right in your own directories your
+>>inherited rights would give your permissions automatically to your
+>>home directory and all directories uner it. Netware has a concept
+>>called an inherited rights mask - something Linux lacks. Windows also
+>>has rights like this and Samba emulates it. So unless root put files
+>>in your directory and specifically denied you rights to them, you
+>>would have full rights to your own directory.
+>>    
+>>
+>
+>So, um, what happens to these permissions when you copy a file and put
+>it somewhere else? Do the inherited rights go with it or not? In Unix
+>it's pretty intuitive. In this system there seem to be two right
+>answers, both of which seem... risky from a security perspective.
+>  
+>
+You inherit the rights of the new directory.
+
+Also - under Netware not all permissions are stored with the file. The 
+rights are calculated from the file heirachy so you don't store a lot of 
+data with each file unless the file has permissions set that is 
+different than that of the directory it's in. So moving a file to 
+someone's home directory doesn't require any permissions to be set to 
+give the user rights to the file.
+
+>  
+>
+>>However - if you were browsing the /etc directory and there were files
+>>there that you had no read or write access to - then you wouldn't even
+>>be able to list them.
+>>    
+>>
+>
+>/tmp is the problem here, and shows the futility and pointlessness of
+>this feature. If you have an unlistable file in /tmp, *its name is still
+>determinable*, because other users cannot create files with that
+>name. The concept adds *nothing* over some combination of dirs with the
+>execute bit cleared for some set of users and subdirectories which
+>cannot be read by some set of users. There's no need for this profoundly
+>non-Unixlike permission at all. (As usual, ACLs make managing this on
+>a fine-grained scale rather easier.)
+>
+>  
+>
+It doesn't really make sense to use the /tmp directory the way Unix uses 
+it. Why would you want just anyone to even know the names of the 
+temporary files you are using. Users should have their own temp 
+directory or create their own directory within /tmp
+
+But - to address your question - if there were an invisible (to you) 
+file in a directory that you had create rights to then you would get a 
+file creation error.
+
+>>                      If you went to the home directory and lets say
+>>everyone had 700 permissions on all the directories withing home, you
+>>would only see your own directory. You wouldn't even be able to know
+>>what other directories existed there.
+>>    
+>>
+>
+>This is what per-process filesystems are for.
+>
+>  
+>
+>>If you want to start thinking about DOING IT RIGHT you need to think
+>>beyond the Unix model and start looking at Netware. Maybe in 5 years
+>>Linux will evolve to where Netware was in 1990.
+>>    
+>>
+>
+>I think Plan 9 is a better goal than Netware. At least it was designed
+>by people aiming for a better Unix rather than people trying to build a
+>better DOS, and so is more likely to have a compatible philosophy.
+>
+>  
+>
+I'm not familiar with Plan 9.
+
+>>Unix permissions totally suck but it's old baggage that you're stuck
+>>with somewhat. Are you going to be stuck forever and is Linux ever
+>>going to grow up and move on to better things? Linux is crippled when
+>>it comes to permissions.
+>>    
+>>
+>
+>Well, you can't change it drastically without violating POSIX. There's
+>no damned way Linux is going to do *that*.
+>
+>  
+>
+>>                         The Windows people are laughing at you and
+>>you don't even get it why they are laughing.
+>>    
+>>
+>
+>You *do* realise just how incapable the Windows permission-management
+>GUI is, don't you? Any OS where the command-line tools hide half
+>the permissions model and the GUI hides a slightly different half,
+>and where looking at a set of permissions and hitting cancel can
+>*change* those permissions drastically, is not sane.
+>  
+>
+That's why I'm pushing netware as a model rather than windows. But 
+Windows file permissions are superior to Linux.
+
+>(Disclaimer: the last time I bothered to verify the latter behaviour
+>was in NT4. Maybe they've partially fixed it.)
+>
+>  
+>
+
+One place where Windows wins over Linux is in the "easy to use" 
+category. Something the Linux world should look ast.
+
+I am a Linux supporter and love it. I'm saying this to help make it better.
+
+-- 
+Marc Perkel - marc@perkel.com
+
+Spam Filter: http://www.junkemailfilter.com
+    My Blog: http://marc.perkel.com
+

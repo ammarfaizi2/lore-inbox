@@ -1,62 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030349AbVJETrt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030350AbVJETtP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030349AbVJETrt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 15:47:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030350AbVJETrs
+	id S1030350AbVJETtP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 15:49:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030351AbVJETtP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 15:47:48 -0400
-Received: from qproxy.gmail.com ([72.14.204.196]:1907 "EHLO qproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030349AbVJETrs convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 15:47:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=MGup0CjrVoKNSpTWcAr/xiKUxIHScZD3QvOrnkUdrnp/L8nVCLWxcoAxmYS8RQu7Tc9rqotBzOXRTWcMRY9k8MzBtd+mA5tbH0TSk4ytUz4jfzy8aMpmxckIozGxAPQGRuOl2h42ioG21XhJatoFoGJUxVwVIzmti/R8A8cnnbY=
-Message-ID: <9a8748490510051247m477b1693i3fcb65271e500e23@mail.gmail.com>
-Date: Wed, 5 Oct 2005 21:47:47 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: umesh chandak <chandak_pict@yahoo.com>
-Subject: Re: Waring in kernel 2.6.10
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051005192754.11115.qmail@web35905.mail.mud.yahoo.com>
+	Wed, 5 Oct 2005 15:49:15 -0400
+Received: from 10.ctyme.com ([69.50.231.10]:22175 "EHLO newton.ctyme.com")
+	by vger.kernel.org with ESMTP id S1030350AbVJETtO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 15:49:14 -0400
+Message-ID: <43442E38.5050706@perkel.com>
+Date: Wed, 05 Oct 2005 12:49:12 -0700
+From: Marc Perkel <marc@perkel.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.10) Gecko/20050716
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051005192754.11115.qmail@web35905.mail.mud.yahoo.com>
+To: Al Viro <viro@ftp.linux.org.uk>
+CC: Nix <nix@esperi.org.uk>, Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+       7eggert@gmx.de, Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel?
+References: <4TiWy-4HQ-3@gated-at.bofh.it> <4U0XH-3Gp-39@gated-at.bofh.it> <E1EMutG-0001Hd-7U@be1.lrz> <87k6gsjalu.fsf@amaterasu.srvr.nix> <4343E611.1000901@perkel.com> <20051005144441.GC8011@csclub.uwaterloo.ca> <4343E7AC.6000607@perkel.com> <20051005145606.GA7949@csclub.uwaterloo.ca> <4343EC6A.70603@perkel.com> <874q7vhj0c.fsf@amaterasu.srvr.nix> <20051005194002.GV7992@ftp.linux.org.uk>
+In-Reply-To: <20051005194002.GV7992@ftp.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spamfilter-host: newton.ctyme.com - http://www.junkemailfilter.com"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/5/05, umesh chandak <chandak_pict@yahoo.com> wrote:
-> hi,
->            I have compiled a kernel 2.6.10 on FC3 it
-> gives me the warning like this
->
->
->
-> Warning: unable to open an initial console.
->
 
-Did you remember to enable the proper console related options in your
-kernel; like CONFIG_VGA_CONSOLE, CONFIG_FRAMEBUFFER_CONSOLE etc.
-I guess it could also be problem with an old or incorrectly configured
-udev so it can't find /dev/console or it could be a problem with your
-initrd.
 
-And if you could be bothered to stick "Warning: unable to open an
-initial console." in google you'll see that you are not the first to
-have a problem like that and there is *lots* of help available out
-there.
-Do a little research please (and if you've already done some research,
-then letting people know what you've already checked when posting your
-question is usually a good idea).
+Al Viro wrote:
 
-May I recommend this document :
-http://www.catb.org/~esr/faqs/smart-questions.html
+>On Wed, Oct 05, 2005 at 08:16:19PM +0100, Nix wrote:
+>  
+>
+>>On Wed, 05 Oct 2005, Marc Perkel yowled:
+>>    
+>>
+>>>If you want to start thinking about DOING IT RIGHT you need to think
+>>>beyond the Unix model and start looking at Netware. Maybe in 5 years
+>>>Linux will evolve to where Netware was in 1990.
+>>>      
+>>>
+>
+>Ugly as hell and thankfully about to go extinct outside of dark places
+>where its malignant presense still lingers amidst the Shoggoth droppings?
+>
+>  
+>
+The big boys are still running Netware because Linux doesn't do the 
+things they need netware to do. And Netware isn't going away until Linux 
+has the power to replace it. Linux permissions acient and awkward. 
+Netware is wonderful. Linux is crippled. Linux needs to modernize.
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+

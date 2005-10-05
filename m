@@ -1,47 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932632AbVJEOfF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965179AbVJEOkK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932632AbVJEOfF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 10:35:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932634AbVJEOfE
+	id S965179AbVJEOkK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 10:40:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932636AbVJEOkK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 10:35:04 -0400
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:10252 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S932632AbVJEOfD
+	Wed, 5 Oct 2005 10:40:10 -0400
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:45492 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S932635AbVJEOkI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 10:35:03 -0400
-To: 7eggert@gmx.de
-Cc: Marc Perkel <marc@perkel.com>,
-       Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-References: <4TiWy-4HQ-3@gated-at.bofh.it> <4U0XH-3Gp-39@gated-at.bofh.it>
-	<E1EMutG-0001Hd-7U@be1.lrz>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: a real time environment for simulating molasses-based life forms.
-Date: Wed, 05 Oct 2005 15:34:53 +0100
-In-Reply-To: <E1EMutG-0001Hd-7U@be1.lrz> (Bodo Eggert's message of "4 Oct
- 2005 23:04:46 +0100")
-Message-ID: <87k6gsjalu.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Wed, 5 Oct 2005 10:40:08 -0400
+X-ORBL: [69.107.75.50]
+DomainKey-Signature: a=rsa-sha1; s=sbc01; d=pacbell.net; c=nofws; q=dns;
+	h=received:date:from:to:subject:cc:references:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:message-id;
+	b=SegkjgbEE7XHdDwEdHHkRmiawC6i/+SM2h9rwHS9TVo372TTZtzvKvPvPH/LloVu+
+	Ezr7n2pXeTX1NbPCnkTZw==
+Date: Wed, 05 Oct 2005 07:39:46 -0700
+From: David Brownell <david-b@pacbell.net>
+To: vwool@ru.mvista.com, rmk+lkml@arm.linux.org.uk
+Subject: Re: [PATCH/RFC 1/2] simple SPI framework
+Cc: stephen@streetfiresound.com, spi-devel-general@lists.sourceforge.net,
+       pavel@ucw.cz, linux-kernel@vger.kernel.org, dpervushin@gmail.com,
+       basicmark@yahoo.com
+References: <20051004180241.0EAA5EE8D1@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
+ <4343898D.1060904@ru.mvista.com>
+ <20051005090129.GB7208@flint.arm.linux.org.uk>
+In-Reply-To: <20051005090129.GB7208@flint.arm.linux.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20051005143946.7D9C9EE8EC@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4 Oct 2005, Bodo Eggert stated:
-> BTW: YANI: That about a tmpfs where all-numerical entries can only be
-> created by the corresponding UID? This would provide a secure, private
-> tmp directory to each user without the possibility of races and denial-of-
-> service attacks. Maybe it should be controlled by a mount flag.
+> > >+/* Suspend/resume in "struct device_driver" don't really need that
+> > >+ * strange third parameter, so we just make it a constant and expect
+> > >+ * SPI drivers to ignore it just like most platform drivers do.
+> > >+ *
+> >
+> > So you just ignored my letter on that subject :(
+> > The fact that you don't need it doesn't mean that other people won't.
+> > The fact that there's no clean way to suspend USB doesn't mean that 
+> > there shouldn't be one for SPI.
+>
+> The third parameter is obsolete and should only be used to select _one_
+> of the tree suspend calls you will get.
 
-Wouldn't it be less kludgy to just use the existing private namespace
-stuff to provide each user with its own /tmp? (Or each user's session,
-rather, which is probably much easier, as that corresponds precisely to
-one process tree).
+Vitaly ... comments from Russell and Pavel both addresses your comments
+about that obsolete parameter.  What letter?  The one I remember was
+one responding to Mark Underwood (?) where you complained about issuing
+three calls for one suspend event.  You can't have it both ways!!
+Either that parameter should be used in the documented way (call the
+suspend method three times, one right after another) or it should be used
+more sanely (parameter is constant.
 
--- 
-`Next: FEMA neglects to take into account the possibility of
-fire in Old Balsawood Town (currently in its fifth year of drought
-and home of the General Grant Home for Compulsive Arsonists).'
-            --- James Nicoll
+USB can suspend just fine, thank you, though starting with 2.6.12 some
+bugs seem to have crept in; fixes are in the 2.6.15 prepatchces.
+
+
+> Any additional suspend calls should _not_ create extra usage of this
+> parameter.  It's a left over from Pat's first driver model incarnation
+> which is specific to the platform device drivers.  (Mainly it exists
+> because no one can be bothered to clean it up.)
+
+Most folk who've considered the question would like to see it go away.
+Except ... making sure every driver in a few dozen architectures still
+builds after removing that parameter is more than the usual amount of
+janitorial work!
+
+Progress could start by updating Documentation/driver-model/driver.txt to
+say "don't test that parameter", reducing future confusion on this point.
+
+- Dave
+

@@ -1,87 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965068AbVJEEGh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965071AbVJEEKz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965068AbVJEEGh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 00:06:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751219AbVJEEGh
+	id S965071AbVJEEKz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 00:10:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965072AbVJEEKz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 00:06:37 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:17558 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751210AbVJEEGg
+	Wed, 5 Oct 2005 00:10:55 -0400
+Received: from qproxy.gmail.com ([72.14.204.192]:48198 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965071AbVJEEKy convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 00:06:36 -0400
-Date: Wed, 5 Oct 2005 09:30:30 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: "Christopher Friesen" <cfriesen@nortel.com>
-Cc: Al Viro <viro@ftp.linux.org.uk>, Roland Dreier <rolandd@cisco.com>,
-       Sonny Rao <sonny@burdell.org>, linux-kernel@vger.kernel.org,
-       "Theodore Ts'o" <tytso@mit.edu>, bharata@in.ibm.com,
-       trond.myklebust@fys.uio.no, Andi Kleen <ak@suse.de>
-Subject: Re: dentry_cache using up all my zone normal memory -- also seen on 2.6.14-rc2
-Message-ID: <20051005040030.GA24474@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <4331C9B2.5070801@nortel.com> <20050921210019.GF4569@in.ibm.com> <4331CFAD.6020805@nortel.com> <52ll1qkrii.fsf@cisco.com> <20050922031136.GE7992@ftp.linux.org.uk> <43322AE6.1080408@nortel.com> <20050922041733.GF7992@ftp.linux.org.uk> <4332CAEA.1010509@nortel.com> <20051004194349.GA6039@in.ibm.com> <4342DFDF.9010206@nortel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 5 Oct 2005 00:10:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=VLd8oR5ODuZjMGmN5gJvpzUS5vbbuENrV6p935Ll94FcFQrT3HAC4p1JGo0sojglzmK6H18VA7sbwQ3l9IIuXzmeSB9h5WDq9Sb3PjnhqtIBaP2VB9+eR+nws2nLqp3MTrxIdTtTNiCxBWNcGNRtR+nPru18gym2zyQ/nXxHm6k=
+Message-ID: <b115cb5f0510042110j6ff08f9cvd0a3480f175a16ff@mail.gmail.com>
+Date: Wed, 5 Oct 2005 13:10:53 +0900
+From: Rajat Jain <rajat.noida.india@gmail.com>
+Reply-To: Rajat Jain <rajat.noida.india@gmail.com>
+To: Rajesh Shah <rajesh.shah@intel.com>
+Subject: Re: [Pcihpd-discuss] Re: ACPI problem with PCI Express Native Hot-plug driver
+Cc: Kristen Accardi <kristen.c.accardi@intel.com>,
+       Linux-newbie@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net,
+       acpi-devel@lists.sourceforge.net, pcihpd-discuss@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org,
+       greg@kroah.com, dkumar@noida.hcltech.com, sanjayku@noida.hcltech.com
+In-Reply-To: <b115cb5f0510022207k41df0380nfb8b4ee73149f7ea@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <4342DFDF.9010206@nortel.com>
-User-Agent: Mutt/1.5.10i
+References: <b115cb5f0509020057741365dc@mail.gmail.com>
+	 <b115cb5f050902005877607db1@mail.gmail.com>
+	 <1125683188.13185.5.camel@whizzy>
+	 <b115cb5f05090418583abfc73@mail.gmail.com>
+	 <b115cb5f0509292257j395d60f8j53d1afa967caa263@mail.gmail.com>
+	 <20050930132440.C28328@unix-os.sc.intel.com>
+	 <b115cb5f0510022207k41df0380nfb8b4ee73149f7ea@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 04, 2005 at 02:02:39PM -0600, Christopher Friesen wrote:
-> Dipankar Sarma wrote:
-> 
-> >Since then, I have done some testing myself, but I can't reproduce
-> >this problem in two of my systems - x86 and x86_64. I ran rename14
-> >in a loop too, but after exhausting a lot of free memory, dcache
-> >does get shrunk and I don't see dentries stuck in RCU queues at all.
-> >I tried UP kernel too.
-> 
-> I've only managed to reproduce it on a UP system with HIGHMEM.
-> 
-> >So, there must be something else in your system that I
-> >am missing in my setup. Could you please mail me your .config ?
-> 
-> Sent privately.
+> On 10/1/05, Rajesh Shah <rajesh.shah@intel.com> wrote:
+> > On Fri, Sep 30, 2005 at 02:57:07PM +0900, Rajat Jain wrote:
+> > >
+> > > pciehp: pfar:cannot locate acpi bridge of PCI 0xb.
+> > > ......
+> > > pciehp: pfar:cannot locate acpi bridge of PCI 0xe.
+> >
+> > This is saying that the driver's probe function was called for
+> > these pciehp capable bridges, but it didn't find them in the
+> > ACPI namespace.
+> >
 
-Chris pointed out privately that the LTP rename14 test always
-creates a directory in /tmp and runs from there (hidden
-in an ltp library call tst_tmpdir()), not from the current
-working directory. So, my tests weren't really running on
-tmpfs. So, I commented out the tst_tmpdir() call in the test
-forcing it to run on tmpfs and immediately I got the following
-errors -
+Hi Rajesh,
 
-llm22:/test # ./rename14
-Bad page state at prep_new_page (in process 'rename14', page ffff810008000000)
-flags:0x4000000000000090 mapping:0000000000000000 mapcount:0 count:0
-Backtrace:
-Trying to fix it up, but a reboot is needed
-Bad page state at prep_new_page (in process 'syslogd', page ffff8100080002a0)
-flags:0x4000000000000000 mapping:0000000000000000 mapcount:0 count:-26471
-Backtrace:
-Trying to fix it up, but a reboot is needed
+Thanks a lot, for ending my doubts. I am working on a hardware that is
+still under development. So the chances of missing certain things in
+hardware / BIOS are high.  So the solution for this is to ask my
+Hardware vendor to provide the information for these bridges into the
+ACPI namespace (AML / DSDT?)?
 
-Bad page state at prep_new_page (in process 'rename14', page ffff810008001538)
+Thanks a ton,
 
-llm22 kernel: Bflags:0x4000000000000000 mapping:0000005500005555 mapcount:0 count:0
-ad page state atBacktrace:
- prep_new_page (Trying to fix it up, but a reboot is needed
-in process 'renaBad page state at prep_new_page (in process 'rename14', page ffff810008002aa8)
-me14', page ffffflags:0x4000000000000090 mapping:0000000000000000 mapcount:0 count:0
-810008000000)
-Backtrace:
-Trying to fix it up, but a reboot is needed
-
-Message from syslogd@llm22 at Tue Oct  4 19:41:42 2005 ...
-llm22 kernel: fBad page state at prep_new_page (in process 'rename14', page ffff810008005550)
-lags:0x400000000flags:0x4000005500009090 mapping:0000000000000000 mapcount:0 count:0
-0000090 mapping:Backtrace:
-0000000000000000Trying to fix it up, but a reboot is needed
- mapcount:0 count:0
-
-Andi, does this look any familiar ? This is on a 2-CPU x86_64 system
-running 2.6.14-rc3 (UP kernel though).
-
-Thanks
-Dipankar
+Rajat

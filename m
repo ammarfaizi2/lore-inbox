@@ -1,44 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965205AbVJEPNG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965210AbVJEPR7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965205AbVJEPNG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 11:13:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965210AbVJEPNF
+	id S965210AbVJEPR7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 11:17:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965211AbVJEPR6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 11:13:05 -0400
-Received: from imag.imag.fr ([129.88.30.1]:26269 "EHLO imag.imag.fr")
-	by vger.kernel.org with ESMTP id S965205AbVJEPNE (ORCPT
+	Wed, 5 Oct 2005 11:17:58 -0400
+Received: from ra.sai.msu.su ([158.250.29.2]:26523 "EHLO ra.sai.msu.su")
+	by vger.kernel.org with ESMTP id S965210AbVJEPR6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 11:13:04 -0400
-Date: Wed, 5 Oct 2005 17:12:55 +0200
-From: Pierre Michon <pierre@no-spam.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: freebox possible GPL violation
-Message-ID: <20051005151255.GA630@linux.ensimag.fr>
-Reply-To: 4343B779.8030200@cs.aau.dk
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040722i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (imag.imag.fr [129.88.30.1]); Wed, 05 Oct 2005 17:12:55 +0200 (CEST)
-X-IMAG-MailScanner: Found to be clean
-X-IMAG-MailScanner-Information: Please contact the ISP for more information
+	Wed, 5 Oct 2005 11:17:58 -0400
+Date: Wed, 5 Oct 2005 19:17:37 +0400 (MSD)
+From: Evgeny Rodichev <er@sai.msu.su>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.14-rc2] libata: Marvell SATA support (DMA mode)
+ (resend: v0.22)
+In-Reply-To: <4341E420.6070808@pobox.com>
+Message-ID: <Pine.GSO.4.63.0510051912230.10241@ra.sai.msu.su>
+References: <20050930053600.F3B821CDD0@lns1058.lss.emc.com> <4341E420.6070808@pobox.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 3 Oct 2005, Jeff Garzik wrote:
 
->Your task will be to prove that the kernel they upload to your box is a
->modified Linux kernel (by "modified Linux kernel", I mean no modules but
->the kernel itself).
+> applied
+>
 
-Have you read my first comment ?
-I provide the link of their BitKeeper changelog [1] [2]...
-Also GPL state that you need to give GPL source even if you don't do any
-modification...
+This patch leads to freeze with Marvell MV88SX6041 4-port SATA II PCI-X 
+Controller (rev 03), as I wrote already
+(http://www.uwsg.iu.edu/hypermail/linux/kernel/0510.0/0203.html)
 
-Pierre
+It is impossible to reboot the system without  harware reset (after modprobe).
 
-[1]
-http://openlogging.org:8080/sakura.(none)/max-20040524220224-60268-baea416b9b2da5c2/src?nav=index.html
-[2]
-http://openlogging.org:8080/chewbacca.proxad.net/rani-20040112173203-20972-c609c93690b2941a/src?nav=index.html
+_________________________________________________________________________
+Evgeny Rodichev                          Sternberg Astronomical Institute
+email: er@sai.msu.su                              Moscow State University
+Phone: 007 (095) 939 2383
+Fax:   007 (095) 932 8841                       http://www.sai.msu.su/~er

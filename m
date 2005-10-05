@@ -1,37 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964974AbVJEVG4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965097AbVJEVIX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964974AbVJEVG4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 17:06:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965010AbVJEVG4
+	id S965097AbVJEVIX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 17:08:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965095AbVJEVIX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 17:06:56 -0400
-Received: from mailhub.lss.emc.com ([168.159.2.31]:53312 "EHLO
-	mailhub.lss.emc.com") by vger.kernel.org with ESMTP id S965009AbVJEVGz
+	Wed, 5 Oct 2005 17:08:23 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:46771 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S965010AbVJEVIW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 17:06:55 -0400
-From: Brett Russ <russb@emc.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Pasi Pirhonen <upi@papat.org>,
-       Michael Madore <Michael.Madore@aslab.com>,
-       Bogdan Costescu <Bogdan.Costescu@iwr.uni-heidelberg.de>,
-       "Mr. Berkley Shands" <bshands@exegy.com>,
-       Jim Edwards <jim@networkdesigning.com>,
-       scott olson <scotto701@yahoo.com>,
-       Lars Magne Ingebrigtsen <larsi@gnus.org>,
-       Evgeny Rodichev <er@sai.msu.su>
-Subject: [PATCH 2.6.14-rc2 0/2] libata: Marvell SATA support (v0.23-0.24)
-Message-Id: <20051005210610.EC31826369@lns1058.lss.emc.com>
-Date: Wed,  5 Oct 2005 17:06:10 -0400 (EDT)
-X-PMX-Version: 4.7.1.128075, Antispam-Engine: 2.1.0.0, Antispam-Data: 2005.10.5.26
-X-PerlMx-Spam: Gauge=, SPAM=7%, Reasons='__HAS_MSGID 0, __MIME_TEXT_ONLY 0, __SANE_MSGID 0'
+	Wed, 5 Oct 2005 17:08:22 -0400
+Date: Wed, 5 Oct 2005 23:05:52 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Aurelien Jarno <aurelien@aurel32.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.14-rc3] sis190.c: fix multicast MAC filter
+Message-ID: <20051005210552.GA18923@electric-eye.fr.zoreil.com>
+References: <20051005203350.GA3096@farad.aurel32.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051005203350.GA3096@farad.aurel32.net>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch series should fix up lockups that people were seeing due to
-improper spinlock placement (nested==bad).  Additionally, there are
-other changes to simplify things (complex=bad).  The second patch adds
-comment headers to functions that need it.
+Aurelien Jarno <aurelien@aurel32.net> :
+> Here is a patch that changes the way the MAC filter is computed for the
+> multicast addresses. The computation is taken from the SiS GPL driver. 
 
-Thanks,
-BR
+Ok.
+
+[...]
+> This patch is necessary to get IPv6 working.
+
+May I assume that it has been tested on the usual k8s-mx ?
+
+If so, feel free to forward to jgarzik@pobox.com and netdev@vger.kernel.org.
+I've just bought a mobo to test this adapter but it will not be ready before
+this week end.
+
+--
+Ueimor

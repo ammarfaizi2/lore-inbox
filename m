@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965110AbVJEL2I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965115AbVJELdp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965110AbVJEL2I (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 07:28:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965112AbVJEL2I
+	id S965115AbVJELdp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 07:33:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965120AbVJELdp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 07:28:08 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:23016 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965110AbVJEL2G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 07:28:06 -0400
-Subject: Re: freebox possible GPL violation
-From: Arjan van de Ven <arjan@infradead.org>
-To: Emmanuel Fleury <fleury@cs.aau.dk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4343B779.8030200@cs.aau.dk>
-References: <20051005111329.GA31087@linux.ensimag.fr>
-	 <4343B779.8030200@cs.aau.dk>
-Content-Type: text/plain
-Date: Wed, 05 Oct 2005 13:27:56 +0200
-Message-Id: <1128511676.2920.19.camel@laptopd505.fenrus.org>
+	Wed, 5 Oct 2005 07:33:45 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:19789 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S965114AbVJELdo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 07:33:44 -0400
+Date: Wed, 5 Oct 2005 13:34:14 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org, andersen@codepoet.org
+Subject: Re: [PATCH] ide-cd mini cleanup of casts (mainly)
+Message-ID: <20051005113413.GK3511@suse.de>
+References: <200510040017.57168.jesper.juhl@gmail.com> <9a8748490510031557q26f41f78s84ad936d9e78756c@mail.gmail.com> <20051004062146.GD3511@suse.de> <200510050019.44256.jesper.juhl@gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200510050019.44256.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> Your task will be to prove that the kernel they upload to your box is a
-> modified Linux kernel (by "modified Linux kernel", I mean no modules but
-> the kernel itself).
+On Wed, Oct 05 2005, Jesper Juhl wrote:
+> On Tuesday 04 October 2005 08:21, Jens Axboe wrote:
+> [snip]
+> > This is a mess. So NACK on this patch. And why are you changing the
+> [snip]
 > 
-> So, the first step would be to catch/sniff this binary image, then
-> analyze it.
+> Hi Jens,
 > 
-> But, as long as you cannot prove that Free has done internal
-> modifications to the Linux kernel which are not released in any way,
-> your case is quite thin.
+> Sorry about the messy previous patch.  Would you consider something like the
+> one below instead?  It only makes a few changes, not lots of different ones in
+> the same patch and it also only makes changes that I hope you'll agree are 
+> useful. :)
+> 
+> 
+> Remove some unneeded casts.
+> Avoid an assignment in the case of kmalloc failure.
+> Break a few instances of  if (foo) whatever;  into two lines.
 
-why?
+Looks much better, thanks.
 
-The GPL holds modified or not...
-
-(and that includes drivers if they are distributed together with the gpl
-kernel as part of a bigger work)
+-- 
+Jens Axboe
 

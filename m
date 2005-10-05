@@ -1,52 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932602AbVJELDB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932604AbVJELE3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932602AbVJELDB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 07:03:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932604AbVJELDB
+	id S932604AbVJELE3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 07:04:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932605AbVJELE3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 07:03:01 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:11424 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932602AbVJELDA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 07:03:00 -0400
-Subject: Re: [PATCH] Keys: Export user-defined keyring operations
-From: Arjan van de Ven <arjan@infradead.org>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, Michael C Thompson <mcthomps@us.ibm.com>,
-       keyrings@linux-nfs.org, linux-kernel@vger.kernel.org
-In-Reply-To: <28129.1128509939@warthog.cambridge.redhat.com>
-References: <OF7208B0E9.0AB77A04-ON87257090.007A1D4E-05257090.007A2207@us.ibm.com>
-	 <28129.1128509939@warthog.cambridge.redhat.com>
-Content-Type: text/plain
-Date: Wed, 05 Oct 2005 13:02:38 +0200
-Message-Id: <1128510159.2920.15.camel@laptopd505.fenrus.org>
+	Wed, 5 Oct 2005 07:04:29 -0400
+Received: from qproxy.gmail.com ([72.14.204.192]:43952 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932604AbVJELE2 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 07:04:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=RFkCtpcKeL9Hi0fcz2+h5dcKD6Mqp+nesc43d06eQGQrdchkNYpRaWO5ttjM9ivLNmZ+95CFCSemBhjaOEVmWbvWHx2QVff2JVvdYcM0Ozn69b3ma0SaB18DMhjVzd73Uqbokgbw6XWuJMe4zW+uhdH5Igyq2wb0HToXvQ3srPs=
+Date: Wed, 5 Oct 2005 13:04:10 +0200
+From: Diego Calleja <diegocg@gmail.com>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: chase.venters@clientec.com, marc@perkel.com, linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel?
+Message-Id: <20051005130410.ddae71b3.diegocg@gmail.com>
+In-Reply-To: <20051005102650.GO10538@lkcl.net>
+References: <20051002204703.GG6290@lkcl.net>
+	<4342DC4D.8090908@perkel.com>
+	<200510041840.55820.chase.venters@clientec.com>
+	<20051005102650.GO10538@lkcl.net>
+X-Mailer: Sylpheed version 2.1.1 (GTK+ 2.8.3; i486-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-10-05 at 11:58 +0100, David Howells wrote:
-> The attached patch exports user-defined key operations so that those who wish
-> to define their own key type based on the user-defined key operations may do
-> so (as has been requested).
+El Wed, 5 Oct 2005 11:26:50 +0100,
+Luke Kenneth Casson Leighton <lkcl@lkcl.net> escribió:
+
+> > Now I certainly wouldn't advocate a Windows-style registry, 
+> > because I think it's full of obvious problems. 
 > 
-> The header file created has been placed into include/keys/user-type.h, thus
-> creating a directory where other key types may also be placed. Any objections
-> to doing this?
-
-since this is new unique-to-linux functionality, could you please
-consider making the exports _GPL please?
+>  such as? :)
 
 
+The ugly implementation (inside the kernel and as a big file instead of doing it as a
+userspace in top of NTFS files which would have helped them to avoid lots of problems
+that they were forced to solve in XP/2003, it's clear from their docs that they didn't
+expected that registry could grow _so_ much), the fact that they use it to store at
+the same time userspace configuration and internal kernel structures. The "idea" is
+nice but the way they've implemented and used it is horrible - just take a look
+at how they're using XML configuration files for IIS now... (I've been said that ISS will
+detect when you're editing those configuration files and will reload them to duplicate
+the changes you just made in the registry ..... ugh)
+
+
+>  hey, you know what?  if linux got a registry, it would be possible for
+>  the kernel to access - and store, and communicate - persistent
+>  information
+
+right - why you would want to do such thing is another story

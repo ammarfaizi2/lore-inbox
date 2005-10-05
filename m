@@ -1,52 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965182AbVJEOoo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965189AbVJEOrF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965182AbVJEOoo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 10:44:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932636AbVJEOoo
+	id S965189AbVJEOrF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 10:47:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965192AbVJEOqf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 10:44:44 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:51846 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S932635AbVJEOoo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 10:44:44 -0400
-Date: Wed, 5 Oct 2005 10:44:41 -0400
-To: Marc Perkel <marc@perkel.com>
-Cc: Nix <nix@esperi.org.uk>, 7eggert@gmx.de,
-       Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-Message-ID: <20051005144441.GC8011@csclub.uwaterloo.ca>
-References: <4TiWy-4HQ-3@gated-at.bofh.it> <4U0XH-3Gp-39@gated-at.bofh.it> <E1EMutG-0001Hd-7U@be1.lrz> <87k6gsjalu.fsf@amaterasu.srvr.nix> <4343E611.1000901@perkel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4343E611.1000901@perkel.com>
-User-Agent: Mutt/1.5.9i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+	Wed, 5 Oct 2005 10:46:35 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:61582 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S932635AbVJEOqJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 10:46:09 -0400
+From: Mel Gorman <mel@csn.ul.ie>
+To: linux-mm@kvack.org
+Cc: akpm@osdl.org, Mel Gorman <mel@csn.ul.ie>, kravetz@us.ibm.com,
+       linux-kernel@vger.kernel.org, jschopp@austin.ibm.com,
+       lhms-devel@lists.sourceforge.net
+Message-Id: <20051005144607.11796.26661.sendpatchset@skynet.csn.ul.ie>
+In-Reply-To: <20051005144546.11796.1154.sendpatchset@skynet.csn.ul.ie>
+References: <20051005144546.11796.1154.sendpatchset@skynet.csn.ul.ie>
+Subject: [PATCH 4/7] Fragmentation Avoidance V16: 004_largealloc_tryharder
+Date: Wed,  5 Oct 2005 15:46:07 +0100 (IST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 05, 2005 at 07:41:21AM -0700, Marc Perkel wrote:
-> If you were going to do it right here's what you would do:
-> 
-> People who had files in /tmp would have no rights at all to other users 
-> /tmp files.
-> Listing the dirtectory would only display the files you had some access 
-> to. If you have no rights you don't even see that the file is there.
-> The effect would be like giving people their own tmp directories.
+Fragmentation avoidance patches increase our chances of satisfying high
+order allocations.  So this patch takes more than one iteration at trying
+to fulfill those allocations because, unlike before, the extra iterations
+are often useful.
 
-Except it still wouldn't be able to go: Does file xyz exist?  If not,
-create file xyz.  If someone else had xyz that you didn't see, you would
-still not be able to create it.  So what is the point of NOT showing it
-other than to make it much harder to avoid conflicting names?
-
-if you want to not see files that you have no rights to, filter it in
-your user space application when it matters, and let user space see the
-files when they need to in order to avoid name conflicts.
-
-It would be an incredibly idiotic system that auto hides files just
-because you can't use them.  We have ways to hide files in user space
-for the convinience of users.  It would be too inconvinient for
-applications if the OS hid files on us.
-
-Len Sorensen
+Signed-off-by: Mel Gorman <mel@csn.ul.ie>
+diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.14-rc3-003_fragcore/mm/page_alloc.c linux-2.6.14-rc3-004_largealloc_tryharder/mm/page_alloc.c
+--- linux-2.6.14-rc3-003_fragcore/mm/page_alloc.c	2005-10-05 12:14:44.000000000 +0100
++++ linux-2.6.14-rc3-004_largealloc_tryharder/mm/page_alloc.c	2005-10-05 12:15:23.000000000 +0100
+@@ -939,6 +939,7 @@ __alloc_pages(unsigned int __nocast gfp_
+ 	int do_retry;
+ 	int can_try_harder;
+ 	int did_some_progress;
++	int highorder_retry = 3;
+ 
+ 	might_sleep_if(wait);
+ 
+@@ -1087,7 +1088,16 @@ rebalance:
+ 				goto got_pg;
+ 		}
+ 
+-		out_of_memory(gfp_mask, order);
++		if (order < MAX_ORDER/2)
++			out_of_memory(gfp_mask, order);
++
++		/*
++		 * Due to low fragmentation efforts, we should try a little
++		 * harder to satisfy high order allocations
++		 */
++		if (order >= MAX_ORDER/2 && --highorder_retry > 0)
++			goto rebalance;
++
+ 		goto restart;
+ 	}
+ 
+@@ -1104,6 +1114,8 @@ rebalance:
+ 			do_retry = 1;
+ 		if (gfp_mask & __GFP_NOFAIL)
+ 			do_retry = 1;
++		if (order >= MAX_ORDER/2 && --highorder_retry > 0)
++			do_retry = 1;
+ 	}
+ 	if (do_retry) {
+ 		blk_congestion_wait(WRITE, HZ/50);

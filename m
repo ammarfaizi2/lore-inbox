@@ -1,85 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965186AbVJEOxL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965195AbVJEOzd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965186AbVJEOxL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 10:53:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965192AbVJEOxL
+	id S965195AbVJEOzd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 10:55:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965193AbVJEOzd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 10:53:11 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:37130 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S965186AbVJEOxK convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 10:53:10 -0400
+	Wed, 5 Oct 2005 10:55:33 -0400
+Received: from zproxy.gmail.com ([64.233.162.194]:25952 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965195AbVJEOzc convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 10:55:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=O5yoRiZwx1V0ygL1QfMmguARjHxUcVSOIgnps82CW8ehVRFOjHHFNa9IzBFCFASI92tDSyARPUR35XLjyks3pxDpOa0wNnYCR7jwZ2cdKuPmU98i5UgPJDWzBgvtRoosJF89GFzqFJqYU3oyN5G5EXlAun6yus9D37RWsoFNeyk=
+Message-ID: <3e1162e60510050755l590a696bx655eb0b7ac05aab6@mail.gmail.com>
+Date: Wed, 5 Oct 2005 07:55:31 -0700
+From: David Leimbach <leimy2k@gmail.com>
+Reply-To: David Leimbach <leimy2k@gmail.com>
+To: Nix <nix@esperi.org.uk>
+Subject: Re: what's next for the linux kernel?
+Cc: 7eggert@gmx.de, Marc Perkel <marc@perkel.com>,
+       Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <87k6gsjalu.fsf@amaterasu.srvr.nix>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <20051005144441.GC8011@csclub.uwaterloo.ca>
-References: <4TiWy-4HQ-3@gated-at.bofh.it> <4U0XH-3Gp-39@gated-at.bofh.it> <E1EMutG-0001Hd-7U@be1.lrz> <87k6gsjalu.fsf@amaterasu.srvr.nix> <4343E611.1000901@perkel.com> <20051005144441.GC8011@csclub.uwaterloo.ca>
-X-OriginalArrivalTime: 05 Oct 2005 14:52:59.0377 (UTC) FILETIME=[7A5B5E10:01C5C9BC]
-Content-class: urn:content-classes:message
-Subject: Re: what's next for the linux kernel?
-Date: Wed, 5 Oct 2005 10:52:59 -0400
-Message-ID: <Pine.LNX.4.61.0510051048090.5182@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: what's next for the linux kernel?
-Thread-Index: AcXJvHpiq5EhAsgzRyqyUSzBKJPCYg==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Lennart Sorensen" <lsorense@csclub.uwaterloo.ca>
-Cc: "Marc Perkel" <marc@perkel.com>, "Nix" <nix@esperi.org.uk>,
-       <7eggert@gmx.de>, "Luke Kenneth Casson Leighton" <lkcl@lkcl.net>,
-       <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Disposition: inline
+References: <4TiWy-4HQ-3@gated-at.bofh.it> <4U0XH-3Gp-39@gated-at.bofh.it>
+	 <E1EMutG-0001Hd-7U@be1.lrz> <87k6gsjalu.fsf@amaterasu.srvr.nix>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 5 Oct 2005, Lennart Sorensen wrote:
-
-> On Wed, Oct 05, 2005 at 07:41:21AM -0700, Marc Perkel wrote:
->> If you were going to do it right here's what you would do:
->>
->> People who had files in /tmp would have no rights at all to other users
->> /tmp files.
->> Listing the dirtectory would only display the files you had some access
->> to. If you have no rights you don't even see that the file is there.
->> The effect would be like giving people their own tmp directories.
+On 10/5/05, Nix <nix@esperi.org.uk> wrote:
+> On 4 Oct 2005, Bodo Eggert stated:
+> > BTW: YANI: That about a tmpfs where all-numerical entries can only be
+> > created by the corresponding UID? This would provide a secure, private
+> > tmp directory to each user without the possibility of races and denial-of-
+> > service attacks. Maybe it should be controlled by a mount flag.
 >
-> Except it still wouldn't be able to go: Does file xyz exist?  If not,
-> create file xyz.  If someone else had xyz that you didn't see, you would
-> still not be able to create it.  So what is the point of NOT showing it
-> other than to make it much harder to avoid conflicting names?
+> Wouldn't it be less kludgy to just use the existing private namespace
+> stuff to provide each user with its own /tmp? (Or each user's session,
+> rather, which is probably much easier, as that corresponds precisely to
+> one process tree).
 >
-> if you want to not see files that you have no rights to, filter it in
-> your user space application when it matters, and let user space see the
-> files when they need to in order to avoid name conflicts.
->
-> It would be an incredibly idiotic system that auto hides files just
-> because you can't use them.  We have ways to hide files in user space
-> for the convinience of users.  It would be too inconvinient for
-> applications if the OS hid files on us.
->
-> Len Sorensen
-> -
 
-Also it has nothing at all to do with the kernel. It's what `ls`
-or some other directory-reading program provides for the user.
-People often forget that PATH, `pwd`, etc., are just filter
-components!
+It would if the rest of the system really enforced this "privacy".  In
+plan 9 /tmp is really a bind to /usr/$user/tmp.  And if you launch
+something like "ramfs" [a userland 9P server] it binds a ram disk
+device over /tmp by default unless you tell it otherwise, then you
+have a ram-backed directory only for the current process and its
+children in /tmp.  This is useful for pulling things out of the
+encrypted storage like factotum keys [sort of like a keyring for all
+factotum based authentication including 9P mounts and even ssh
+connections that use no ssh-keys].  When your process goes away so
+does the decrypted keyfile, pretty nice.
 
-When you `cd` to somewhere, your location hasn't changed at
-all!
+Back on topic...
 
-Without involving the kernel, one can make any kind of filter
-to cause any sort of display that you want.
+The problem with private namespaces on Linux is that they really
+aren't so much.  mount will update /etc/mtab for all to see and even
+/proc/<pid>/mounts is world readable [though it doesn't give useful
+bind information anyway on linux... just the disk device it appears].
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13 on an i686 machine (5589.55 BogoMips).
-Warning : 98.36% of all statistics are fiction.
+On one hand you've got very specific information in mtab about all the
+binding that's been done and on the other hand you've got not so
+useful information on a per-process basis in /proc.
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+I think private namespaces could actually be made more-so but the rest
+of the system has to cooperate and I doubt that I have the energy to
+do the evangelism and requisite proofs of concept for Linux.  It's far
+easier for me to just use Plan 9 and Inferno instead of trying to
+assimilate Linux, even though I think I'd prefer Linux if it were more
+like the former two.
 
-Thank you.
+Maybe it's time for another BSD fork? [*runs away from the disapproval*]
+
+Dave

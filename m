@@ -1,34 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030435AbVJEXYT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030434AbVJEX2w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030435AbVJEXYT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 19:24:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030433AbVJEXYT
+	id S1030434AbVJEX2w (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 19:28:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030436AbVJEX2w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 19:24:19 -0400
-Received: from free.hands.com ([83.142.228.128]:15288 "EHLO free.hands.com")
-	by vger.kernel.org with ESMTP id S1030435AbVJEXYS (ORCPT
+	Wed, 5 Oct 2005 19:28:52 -0400
+Received: from free.hands.com ([83.142.228.128]:21432 "EHLO free.hands.com")
+	by vger.kernel.org with ESMTP id S1030434AbVJEX2v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 19:24:18 -0400
-Date: Thu, 6 Oct 2005 00:24:10 +0100
+	Wed, 5 Oct 2005 19:28:51 -0400
+Date: Thu, 6 Oct 2005 00:28:44 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+To: Nix <nix@esperi.org.uk>
+Cc: 7eggert@gmx.de, Marc Perkel <marc@perkel.com>,
+       linux-kernel@vger.kernel.org
 Subject: Re: what's next for the linux kernel?
-Message-ID: <20051005232410.GT10538@lkcl.net>
-References: <mail.linux.kernel/20051003203037.GG8548@lkcl.net> <05Oct4.173802edt.33143@gpu.utcc.utoronto.ca> <20051005120727.GV10538@lkcl.net> <20051005123113.GO3511@suse.de> <20051005133549.GB10538@lkcl.net> <20051005134041.GR3511@suse.de> <20051005152935.GE10538@lkcl.net> <20051005155138.GJ3511@suse.de> <Pine.LNX.4.58.0510051233540.23350@localhost.localdomain>
+Message-ID: <20051005232844.GV10538@lkcl.net>
+References: <4TiWy-4HQ-3@gated-at.bofh.it> <4U0XH-3Gp-39@gated-at.bofh.it> <E1EMutG-0001Hd-7U@be1.lrz> <20051005103612.GQ10538@lkcl.net> <871x2zwob2.fsf@amaterasu.srvr.nix>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0510051233540.23350@localhost.localdomain>
+In-Reply-To: <871x2zwob2.fsf@amaterasu.srvr.nix>
 User-Agent: Mutt/1.5.5.1+cvs20040105i
 X-hands-com-MailScanner: Found to be clean
 X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 05, 2005 at 12:38:35PM -0400, Steven Rostedt wrote:
-> At least if it moved to another list I'd be strong enough not to
-> subscribe. :-)
+On Thu, Oct 06, 2005 at 12:12:49AM +0100, Nix wrote:
+> On 5 Oct 2005, Luke Kenneth Casson Leighton murmured woefully:
+> > On Wed, Oct 05, 2005 at 12:04:01AM +0200, Bodo Eggert wrote:
+> >> > You can't even see it in the directory. Netware also
+> >> > has inherited permissions like Windows and Samba has and this is doing
+> >> > it right.
+> >> 
+> >> You can't do that if you have hardlinks. 
+> > 
+> >  nt 5.0 added hardlinks to ntfs.
+> 
+> Actually they've been present from the start, but only accessible
+> through the POSIX subsystem and (IIRC) the Backup API (?!!)
  
- and i'd feel less guilty about replying oh crap.
-
+ *hack* *cough* *choke* someone call 911. *thump* too late.

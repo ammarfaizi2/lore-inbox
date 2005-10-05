@@ -1,63 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbVJEU7L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750832AbVJEU6r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751163AbVJEU7L (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 16:59:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbVJEU7K
+	id S1750832AbVJEU6r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 16:58:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbVJEU6r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 16:59:10 -0400
-Received: from farad.aurel32.net ([82.232.2.251]:17322 "EHLO farad.aurel32.net")
-	by vger.kernel.org with ESMTP id S1751163AbVJEU7J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 16:59:09 -0400
-Date: Wed, 5 Oct 2005 22:59:06 +0200
-From: Aurelien Jarno <aurelien@aurel32.net>
-To: Lionel.Bouton@inet6.fr, linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.14-rc3] sis5513.c: enable ATA133 for the SiS965 southbridge
-Message-ID: <20051005205906.GA4320@farad.aurel32.net>
-Mail-Followup-To: Aurelien Jarno <aurelien@aurel32.net>,
-	Lionel.Bouton@inet6.fr, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+	Wed, 5 Oct 2005 16:58:47 -0400
+Received: from wproxy.gmail.com ([64.233.184.203]:31041 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750832AbVJEU6q convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 16:58:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Krc6G2D1azQLWyhvG2gDiuiTYKfYzUwbvaXfpNPjFFdxzG3oNysxQDHi3MFh/bom3MRLndYyqY44jsWDWTZH2pkC9n03OnbXo5u6FNPADnml78KUvV9ZDF+ETuQdIo8yKz2HAoaL595z5vhPuWhSHAoSIMRXv5CA8vl7p9uUUSM=
+Message-ID: <161717d50510051358q3da37e9en22c2f85e2fa7c7ef@mail.gmail.com>
+Date: Wed, 5 Oct 2005 16:58:45 -0400
+From: Dave Neuer <mr.fred.smoothie@pobox.com>
+Reply-To: Dave Neuer <mr.fred.smoothie@pobox.com>
+To: Marc Perkel <marc@perkel.com>
+Subject: Re: what's next for the linux kernel?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <43442D19.4050005@perkel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-X-Mailer: Mutt 1.5.9i (2005-03-13)
-User-Agent: Mutt/1.5.9i
+References: <4TiWy-4HQ-3@gated-at.bofh.it> <4U0XH-3Gp-39@gated-at.bofh.it>
+	 <E1EMutG-0001Hd-7U@be1.lrz> <87k6gsjalu.fsf@amaterasu.srvr.nix>
+	 <4343E611.1000901@perkel.com>
+	 <20051005144441.GC8011@csclub.uwaterloo.ca>
+	 <4343E7AC.6000607@perkel.com>
+	 <20051005153727.994c4709.fmalita@gmail.com>
+	 <43442D19.4050005@perkel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 10/5/05, Marc Perkel <marc@perkel.com> wrote:
+>
+> What you don't get is that if you don't have rights to write to a file
+> then you shouldn't have the right to delete the file.  Once you get past
+> the "inside the box" Unix thinking you'll see the logic in this. So what
+> if the process of deleting a file involves writing to it. That's not
+> relevant.
+>
 
-Here is a patch that enables the ATA133 mode for the SiS965 southbridge 
-in the SiS5513 driver.
+No. Listen to what other people are saying. If you have the right to
+_create_ the file, you have the right to _delete_ the file. In one
+case you are changing the state of where something is stored --
+leaving your report on a desk. Changing the contents of the report is
+different.
 
-Thanks,
-Aurelien
+You may not like this paradigm, but it is the Unix/POSIX paradigm and
+Linux is not going to suddenly ditch it because it doesn't fit the way
+you think permissions should work. As others (and you yourself) have
+pointed out, there are other mechanisms in Linux to build additional
+policy layers above the basic FS semantics. If you care this much
+about the issue, write your own filesystem w/ its own enhanced
+permissions scheme, but stop asking the Linux development community to
+morph its _Unix-like_ operating system into something else and
+insisting everyone who doesn't share your subjective point of view is
+ignorant.
 
-
-Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
-
---- linux-2.6.14-rc3-git4.orig/drivers/ide/pci/sis5513.c	2005-08-29 01:41:01.000000000 +0200
-+++ linux-2.6.14-rc3-git4/drivers/ide/pci/sis5513.c	2005-10-05 22:12:30.000000000 +0200
-@@ -87,6 +87,7 @@
- 	u8 chipset_family;
- 	u8 flags;
- } SiSHostChipInfo[] = {
-+	{ "SiS965",	PCI_DEVICE_ID_SI_965,	ATA_133  },
- 	{ "SiS745",	PCI_DEVICE_ID_SI_745,	ATA_100  },
- 	{ "SiS735",	PCI_DEVICE_ID_SI_735,	ATA_100  },
- 	{ "SiS733",	PCI_DEVICE_ID_SI_733,	ATA_100  },
---- linux-2.6.14-rc3-git4.orig/include/linux/pci_ids.h	2005-10-05 22:08:49.000000000 +0200
-+++ linux-2.6.14-rc3-git4/include/linux/pci_ids.h	2005-10-05 22:13:35.000000000 +0200
-@@ -672,6 +672,7 @@
- #define PCI_DEVICE_ID_SI_961		0x0961
- #define PCI_DEVICE_ID_SI_962		0x0962
- #define PCI_DEVICE_ID_SI_963		0x0963
-+#define PCI_DEVICE_ID_SI_965		0x0965
- #define PCI_DEVICE_ID_SI_5107		0x5107
- #define PCI_DEVICE_ID_SI_5300		0x5300
- #define PCI_DEVICE_ID_SI_5511		0x5511
-
--- 
-  .''`.  Aurelien Jarno	            | GPG: 1024D/F1BCDB73
- : :' :  Debian developer           | Electrical Engineer
- `. `'   aurel32@debian.org         | aurelien@aurel32.net
-   `-    people.debian.org/~aurel32 | www.aurel32.net
+Dave

@@ -1,59 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbVJEC1h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965067AbVJEEBc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932410AbVJEC1h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Oct 2005 22:27:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751175AbVJEC1g
+	id S965067AbVJEEBc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 00:01:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751219AbVJEEBb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 22:27:36 -0400
-Received: from qproxy.gmail.com ([72.14.204.206]:53212 "EHLO qproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751159AbVJEC1g convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 22:27:36 -0400
+	Wed, 5 Oct 2005 00:01:31 -0400
+Received: from wproxy.gmail.com ([64.233.184.192]:11427 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751210AbVJEEBb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 00:01:31 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=JOgXvzuLDk/qeopEOId46GzbJGl2aTxiEccBrEiuWbyrF8AjpS9HmI09wZpRWg/V8Yn6vC/157U+rwR06KN8hf7b32mfsXeiLAvE2xg2dcmLZ531j9RZwY7YIZZodR4C6nGSWVRZz3TniiAiT5a2SgmtFTxNy9aZUXUpsziR83g=
-Message-ID: <89c400ad0510041927r120284beg4e63568f6f9935ae@mail.gmail.com>
-Date: Wed, 5 Oct 2005 07:57:35 +0530
-From: Krishnakumar R <rkrishnakumar@gmail.com>
-Reply-To: Krishnakumar R <rkrishnakumar@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH][HugeTLB] Remove repeated code
-Cc: akpm@osdl.org, rohit.seth@intel.com
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=GcTDZeJJgQotq1/z2GRLCBsiIr6Zfnhbm6u8sa4ieyvk/VXVxRzqBGN7qMhMpd+PPLkxJIZM60tbHGbaxNCc4MRP0v3YPhSlZ0r6z7aU4Xg/9TXLz7cJ0gW3Y7UpH4Vgiu5zmEZoDzAKICwRhMIFrOv6OjfDLDcGUeL8izouZCo=
+Message-ID: <43435013.6040303@gmail.com>
+Date: Wed, 05 Oct 2005 13:01:23 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051002)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+To: Andi Kleen <ak@suse.de>
+CC: lkml <linux-kernel@vger.kernel.org>, discuss@x86-64.org
+Subject: Re: Question regarding x86_64 __PHYSICAL_MASK_SHIFT
+References: <43426EB4.6080703@gmail.com> <200510042101.44946.ak@suse.de> <4342D5A5.2080902@gmail.com> <200510042127.21238.ak@suse.de>
+In-Reply-To: <200510042127.21238.ak@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-The following patch cleans up some repeated code related to HugeTLB.
-hugetlb_zero_setup would have already allocated the file->f_op.
+  Hello, Andi.
 
-Thanks and Regards,
-KK.
+Andi Kleen wrote:
+> On Tuesday 04 October 2005 21:19, Tejun Heo wrote:
+> 
+> 
+>>  Hmmm.. but, currently
+>>
+>>* PHYSICAL_PAGE_MASK == (~(PAGE_SIZE-1)&(__PHYSICAL_MASK << PAGE_SHIFT)
+>>	== (0xffffffff_fffff000 & (0x00003fff_ffffffff << 12)
+>>  	== 0x03ffffff_fffff000
+>>  while it actually should be 0x00003fff_fffff000
+> 
+> 
+> Right. Fixed now
+> 
+> 
+>>* PTE_FILE_MAX_BITS == __PHYSICAL_MASK_SHIFT == 46, but only 40bits are
+>>available in page table entries.
+> 
+> 
+> The non linear mapping format is independent from the MMU, the number
+> is pretty much arbitary, but it is consistent to make it the same as
+> other ptes for easier sanity checking.
 
-PS: Ack-ed by Rohit
+  Okay, please forgive me if I'm bugging you with something stupid but I 
+still don't quite get it.  When using NONLINEAR mapping, pgoff is stored 
+to pte to use later when faulting in the page.  Storing and reading 
+pgoff are done with the following macros.
 
+#define pte_to_pgoff(pte) \
+	((pte_val(pte) & PHYSICAL_PAGE_MASK) >> PAGE_SHIFT)
+#define pgoff_to_pte(off) \
+	((pte_t) { ((off) << PAGE_SHIFT) | _PAGE_FILE })
 
-    Signed-off-by: Krishnakumar. R <rkrishnakumar@gmail.com>
+  In pte_to_pgoff we're masking pte value with PHYSICAL_PAGE_MASK which 
+gives us 34bits with patches applied.  This means that if a pgoff goes 
+through pgoff_to_pte and then pte_to_pgoff only 34bits survive.
 
---- linux-2.6.14-rc2-mm1/ipc/shm.orig.c 2005-10-04 23:15:01.000000000 +0530
-+++ linux-2.6.14-rc2-mm1/ipc/shm.c      2005-10-05 01:09:03.000000000 +0530
-@@ -233,10 +233,11 @@ static int newseg (key_t key, int shmflg
-        shp->id = shm_buildid(id,shp->shm_perm.seq);
-        shp->shm_file = file;
-        file->f_dentry->d_inode->i_ino = shp->id;
--       if (shmflg & SHM_HUGETLB)
--               set_file_hugepages(file);
--       else
-+
-+       /* Hugetlb ops would have already been assigned. */
-+       if (!(shmflg & SHM_HUGETLB))
-                file->f_op = &shm_file_operations;
-+
-        shm_tot += numpages;
-        shm_unlock(shp);
-        return shp->id;
+  sys_remap_file_pages() checks if required pgoff's fit in pte's using 
+PTE_FILE_MAX_BITS.
+
+#define PTE_FILE_MAX_BITS __PHYSICAL_MASK_SHIFT
+
+  Which is 46 with patches applied.  Meaning that we could end up 
+shoving up value larger than 34bits into pte and losing information when 
+reading back (and it's only 16GB!).
+
+  So, IMHO, we should either shrink PTE_FILE_MAX_BITS to 36 or change 
+pte_to_pgoff/pgoff_to_pte macros to carry more bits (as pte bits 52-62 
+are available, we can shove 46bits easily).
+
+  No?
+
+-- 
+tejun

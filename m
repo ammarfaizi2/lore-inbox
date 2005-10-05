@@ -1,61 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030281AbVJER2Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030280AbVJER2I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030281AbVJER2Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 13:28:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030283AbVJER2Y
+	id S1030280AbVJER2I (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 13:28:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030281AbVJER2H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 13:28:24 -0400
-Received: from van-1-67.lab.dnainternet.fi ([62.78.96.67]:25824 "EHLO
-	mail.zmailer.org") by vger.kernel.org with ESMTP id S1030281AbVJER2X
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 13:28:23 -0400
-Date: Wed, 5 Oct 2005 20:28:22 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Marc Perkel <marc@perkel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why is this list using Majordomo?
-Message-ID: <20051005172822.GD3598@mea-ext.zmailer.org>
-References: <4343FEDF.3020002@perkel.com>
-Mime-Version: 1.0
+	Wed, 5 Oct 2005 13:28:07 -0400
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:9197 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP
+	id S1030280AbVJER2G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 13:28:06 -0400
+X-ORBL: [69.107.75.50]
+DomainKey-Signature: a=rsa-sha1; s=sbc01; d=pacbell.net; c=nofws; q=dns;
+	h=received:date:from:to:subject:cc:references:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:message-id;
+	b=BLEv19tc/PRixx555rrNHLIfKl41JX1TbAIizqJPdjqY9awOhFu1bk6O5PAPzDdxh
+	f3AGf79DYFBYRpNoAwkSA==
+Date: Wed, 05 Oct 2005 10:27:49 -0700
+From: David Brownell <david-b@pacbell.net>
+To: rmk+lkml@arm.linux.org.uk
+Subject: Re: [PATCH/RFC 0/2] simple SPI framework, refresh + ads7864 driver
+Cc: vwool@ru.mvista.com, linux-kernel@vger.kernel.org
+References: <20051005162117.24DDBEE95B@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
+ <20051005162453.GD7761@flint.arm.linux.org.uk>
+In-Reply-To: <20051005162453.GD7761@flint.arm.linux.org.uk>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4343FEDF.3020002@perkel.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <20051005172749.C0BE9EE973@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 05, 2005 at 09:27:11AM -0700, Marc Perkel wrote:
-> Date:	Wed, 05 Oct 2005 09:27:11 -0700
-> From:	Marc Perkel <marc@perkel.com>
-> To:	linux-kernel@vger.kernel.org
-> Subject: Why is this list using Majordomo?
-> 
-> Instead of a smarter more modern list software package like Mailman?
+> Date: Wed, 5 Oct 2005 17:24:53 +0100
+> From: Russell King <rmk+lkml@arm.linux.org.uk>
+>
+> On Wed, Oct 05, 2005 at 09:21:17AM -0700, David Brownell wrote:
+> > In my investigations of SPI, I don't happen to have come across any
+> > SPI slave device that would naturally be handled as a block device.
+> > There's lots of flash (and dataflash); that's MTD, not block.
+>
+> In two words, MMC cards.
 
-  Have you ever tried to run a list with volumes like ours,
-  and opennes (for posting) requirements like ours ?
+With the interesting subcase of DataFlash cards, which are MMC format
+but which only talk SPI protocol.  Dataflash would go through MTD.
 
-  I have had some experience with those "more modern" beasts,
-  and sure they are pretty with web-interfaces, but try to
-  manage them thru that web-junk, when they have several
-  thousand blocked junk messages to be discarded...
-
-  We manage this thing with custom command-line utilities.
-  In the early days there was no such a thing as "web", for
-  example, and we really haven't seen anything so truly
-  worthwhile in any new systems to warrant switching entire
-  system over to them.  (And we have seen so much BAD in
-  those eye-candy things that...)
+(Seems to me that DataFlash cards are now "old tech" not being put
+into many new systems.  Certainly they're not price-competitive with
+MMC/SD ... DigiKey charges $US 28 for an 8 MB card, quantity one,
+and that's the local price of a single 256 MB MMC or SD card.  The
+story with discrete DataFlash chips seems to be different.)
 
 
-  I sure may sound like "if it was good enough for your grandpa,
-  it shall be good enough for you" -- but if one can't send email
-  to the Majordomo (and manage to follow those basic instructions),
-  perhaps they should not subscribe either...
+> They can be used in MMC mode or SPI mode.
+
+Yes, but ... any system with an MMC controller would use them in
+MMC mode; then they'd be "MMC devices".  (Except DataFlash...)
+
+The reason to use them in SPI mode is that that the system might
+not _have_ an MMC controller, yet it might want inexpensive
+removable storage.
+
+(And there's another funky case too.  Most MMC controllers will
+handle SPI protocol directly; I'm not sure how full the support
+is, maybe it's just enough to talk to MMC cards.  But systems
+that want SPI -- say, for sensors -- might do that using their
+MMC controllers on one of the chipselects that's not used for
+an external card slot.)
 
 
-> -- 
-> Marc Perkel - marc@perkel.com
-> Spam Filter: http://www.junkemailfilter.com
->    My Blog: http://marc.perkel.com
+>  	 There have been some queries
+> about using them in SPI mode, but I don't think anyone's written such
+> a driver (yet).
 
-/Matti Aarnio -- one of  <postmaster@vger.kernel.org>
+Nor does the MMC stack yet understand that notion... it'd likely
+help a bit if there were an SPI framework to build on!
+
+Teaching that stack how to work in SPI mode, or even represent
+controllers which only support SPI protocol, would be a lot more
+work than just letting SPI drivers optionally provide DMA addresses
+as well as the CPU addresses for their buffers.  :)
+
+- Dave
+

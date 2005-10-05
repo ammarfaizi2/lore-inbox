@@ -1,90 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965143AbVJEMbw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965142AbVJEMal@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965143AbVJEMbw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 08:31:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965151AbVJEMbw
+	id S965142AbVJEMal (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 08:30:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965143AbVJEMal
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 08:31:52 -0400
-Received: from smtp.cs.aau.dk ([130.225.194.6]:47813 "EHLO smtp.cs.aau.dk")
-	by vger.kernel.org with ESMTP id S965143AbVJEMbw (ORCPT
+	Wed, 5 Oct 2005 08:30:41 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:1799 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S965142AbVJEMak (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 08:31:52 -0400
-Message-ID: <4343C73E.9000507@cs.aau.dk>
-Date: Wed, 05 Oct 2005 14:29:50 +0200
-From: Emmanuel Fleury <fleury@cs.aau.dk>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051001)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: freebox possible GPL violation
-References: <20051005111329.GA31087@linux.ensimag.fr>	 <4343B779.8030200@cs.aau.dk>	 <1128511676.2920.19.camel@laptopd505.fenrus.org>	 <4343BB04.7090204@cs.aau.dk>	 <1128513584.2920.23.camel@laptopd505.fenrus.org>	 <4343C0DB.9080506@cs.aau.dk> <1128514062.2920.27.camel@laptopd505.fenrus.org>
-In-Reply-To: <1128514062.2920.27.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+	Wed, 5 Oct 2005 08:30:40 -0400
+Date: Wed, 5 Oct 2005 14:31:14 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel?
+Message-ID: <20051005123113.GO3511@suse.de>
+References: <mail.linux.kernel/20051003203037.GG8548@lkcl.net> <05Oct4.173802edt.33143@gpu.utcc.utoronto.ca> <20051005120727.GV10538@lkcl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051005120727.GV10538@lkcl.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> 
->   3. You may copy and distribute the Program (or a work based on it,
-> under Section 2) in object code or executable form under the terms of
-> Sections 1 and 2 above provided that you also do one of the following:
-> 
->     a) Accompany it with the complete corresponding machine-readable
->     source code, which must be distributed under the terms of Sections
->     1 and 2 above on a medium customarily used for software interchange;
-> or,
-> 
->     b) Accompany it with a written offer, valid for at least three
->     years, to give any third party, for a charge no more than your
->     cost of physically performing source distribution, a complete
->     machine-readable copy of the corresponding source code, to be
->     distributed under the terms of Sections 1 and 2 above on a medium
->     customarily used for software interchange; or,
-> 
->     c) Accompany it with the information you received as to the offer
->     to distribute corresponding source code.  (This alternative is
->     allowed only for noncommercial distribution and only if you
->     received the program in object code or executable form with such
->     an offer, in accord with Subsection b above.)
-> 
-> 
-> they don't do a)
-> 
-> they don't do b)
-> 
-> c) is only for noncommerial distribution (not the case here) and only if
-> they got it in a type b) before, eg it allows you to transfer a type b)
-> in the non-commerical case.
+On Wed, Oct 05 2005, Luke Kenneth Casson Leighton wrote:
+>  _therefore_, i invite people who do linux kernel development
+>  to think ahead - to take a _lead_ for once instead of waiting
+>  for hardware to drop into their laps, at which point it is once
+>  again too late, the hardware design decisions will have
+>  already been made by someone else, and you will be treated
+>  like second class citizens.  again.
 
-First, it is very arguable to say that they are "distributing" the
-software as it does not comes with the FreeBox but is automatically
-downloaded at each boot through the DSLAM network (which the user is not
-supposed to know about).
+You seem to be suffering the same fate as other 'pocket visionaries'
+with grand visions on this mailing list. The combination of 'listen to
+this awesome idea' (*) and someone who hasn't contributed anything
+interesting is not very good. Add a pinch (or more) of 'I know better'
+and you've got a great cocktail for a lengthy and tiresome thread, but
+not for anything productive.
 
-Second, if you take the example of the LinkSys case, there was an
-indirect way of getting all these informations (their website) and
-_still_ you don't have all the informations you claimed in the boxes
-that LinkSys is selling but on their website.
+Why is that so hard to understand? Succesful contributions start at the
+technical level, always have.
 
-See:
-http://gnumonks.org/~laforge/weblog/2005/06/13#20050613-linksys-adsl2mue
+(*) Such an idea is often described in great text detail, but is often
+greatly lacking in technical detail.
 
-And (LinkSys GPL Code Center):
-http://www.linksys.com/servlet/Satellite?childpagename=US%2FLayout&packedargs=c%3DL_Content_C1%26cid%3D1115416836002&pagename=Linksys%2FCommon%2FVisitorWrapper
-
-If you want to know more about the _usage_ (and in matter of justice and
-laws the usage is often more important than what is written down),
-I would suggest you take a look at the LinkSys case.
-
-See:
-- http://lkml.org/lkml/2003/6/7/164
-- http://lwn.net/Articles/53780/
-
-Regards
 -- 
-Emmanuel Fleury
+Jens Axboe
 
-My life needs a rewind/erase button.
-  -- Calvin & Hobbes (Bill Waterson)

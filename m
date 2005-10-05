@@ -1,64 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932142AbVJEUhL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750799AbVJEUiL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932142AbVJEUhL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 16:37:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932176AbVJEUhK
+	id S1750799AbVJEUiL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 16:38:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750809AbVJEUiL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 16:37:10 -0400
-Received: from xproxy.gmail.com ([66.249.82.197]:63707 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932142AbVJEUhJ (ORCPT
+	Wed, 5 Oct 2005 16:38:11 -0400
+Received: from fmr15.intel.com ([192.55.52.69]:27616 "EHLO
+	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1750799AbVJEUiJ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 16:37:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=qmAiVYtircGxdmW8xYbyFnZwYOIrk0AFgXoBMhW2v7t2iKQ/X+z0Kb4XvXDEyRrmutBikK0NrXx0Ue9qzTvY43jgJnIxNVgRgLvApWFjd3FWLxR1r/ageG450KbejJY1cY5/F0qvF/C6ZE17K6poEuxQZCrndrOnpdui+7zAIkM=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Documentation: ksymoops should no longer be used to decode Oops messages
-Date: Wed, 5 Oct 2005 22:39:43 +0200
-User-Agent: KMail/1.8.2
-Cc: Chris Ricker <kaboom@gatech.edu>, chris.ricker@genetics.utah.edu,
-       Linus Torvalds <torvalds@osdl.org>
+	Wed, 5 Oct 2005 16:38:09 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510052239.43492.jesper.juhl@gmail.com>
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH 5/7] HPET-RTC: disable interrupt when no longer needed
+Date: Wed, 5 Oct 2005 13:37:46 -0700
+Message-ID: <88056F38E9E48644A0F562A38C64FB6005EB230A@scsmsx403.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 5/7] HPET-RTC: disable interrupt when no longer needed
+Thread-Index: AcXEv1jmO9fzyUegThuqmuc/dU4bCQFLQJQg
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "Clemens Ladisch" <clemens@ladisch.de>, "Andrew Morton" <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, "Bob Picco" <bob.picco@hp.com>
+X-OriginalArrivalTime: 05 Oct 2005 20:37:47.0431 (UTC) FILETIME=[A565E370:01C5C9EC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Document the fact that ksymoops should no longer be used to decode Oops
-messages.
 
+>-----Original Message-----
+>From: aezr4@studcom.urz.uni-halle.de 
+>[mailto:aezr4@studcom.urz.uni-halle.de] On Behalf Of Clemens Ladisch
+>Sent: Wednesday, September 28, 2005 11:30 PM
+>To: Pallipadi, Venkatesh
+>Cc: linux-kernel@vger.kernel.org; Bob Picco
+>Subject: Re: [PATCH 5/7] HPET-RTC: disable interrupt when no 
+>longer needed
+>
+>Venkatesh Pallipadi wrote:
+>> On Wed, Sep 28, 2005 at 09:12:26AM +0200, Clemens Ladisch wrote:
+>> > When the emulated RTC interrupt is no longer needed, we 
+>better disable
+>> > it; otherwise, we get a spurious interrupt whenever the timer has
+>> > rolled over and reaches the same comparator value.
+>> >
+>> > Having a superfluous interrupt every five minutes doesn't 
+>hurt much,
+>> > but it's bad style anyway.  ;-)
+>>
+>> Do you really see the interrupt every five minutes once RTC 
+>is disabled.
+>
+>Yes; at least on my Intel chipset.  ;-)
+>
+>> I had assumed while in one-shot interrupt mode, HPET would 
+>automatically unarm
+>> after generating the interrupt, so that we won't get 
+>interrupts any more.
+>
+>The spec never mentions this.  What it mentions is that it was
+>designed so that it can be implemented in as few gates as possible.
+>
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
+Verified in the latest version of the SPEC. It indeed says that
+one shot timer can happen more than once when the 32 bit counter 
+wraps around. So, this patch is also required. Thanks for all the fixes.
 
- Documentation/Changes |    7 +++----
- 1 files changed, 3 insertions(+), 4 deletions(-)
+Andrew, Please pick this one as well.
 
---- linux-2.6.14-rc3-git5-orig/Documentation/Changes	2005-10-03 21:54:50.000000000 +0200
-+++ linux-2.6.14-rc3-git5/Documentation/Changes	2005-10-05 22:35:44.000000000 +0200
-@@ -31,7 +31,7 @@
- Eine deutsche Version dieser Datei finden Sie unter
- <http://www.stefan-winter.de/Changes-2.4.0.txt>.
- 
--Last updated: October 29th, 2002
-+Last updated: October 05th, 2005
- 
- Chris Ricker (kaboom@gatech.edu or chris.ricker@genetics.utah.edu).
- 
-@@ -139,9 +139,8 @@
- Ksymoops
- --------
- 
--If the unthinkable happens and your kernel oopses, you'll need a 2.4
--version of ksymoops to decode the report; see REPORTING-BUGS in the
--root of the Linux source for more information.
-+With a 2.4 kernel you need ksymoops to decode a kernel Oops message. With
-+2.6 kernels ksymoops is no longer needed and should not be used.
- 
- Module-Init-Tools
- -----------------
+Thanks,
+venki

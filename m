@@ -1,71 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965229AbVJETRE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932542AbVJETVk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965229AbVJETRE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 15:17:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965232AbVJETRE
+	id S932542AbVJETVk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 15:21:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932634AbVJETVk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 15:17:04 -0400
-Received: from relay.uni-heidelberg.de ([129.206.100.212]:51145 "EHLO
-	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id S965229AbVJETRC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 15:17:02 -0400
-Date: Wed, 5 Oct 2005 21:14:44 +0200 (CEST)
-From: Bogdan Costescu <Bogdan.Costescu@iwr.uni-heidelberg.de>
-To: Brett Russ <russb@emc.com>
-cc: Jeff Garzik <jgarzik@pobox.com>, <linux-ide@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>, Pasi Pirhonen <upi@papat.org>,
-       Michael Madore <Michael.Madore@aslab.com>,
-       "Mr. Berkley Shands" <bshands@exegy.com>,
-       Jim Edwards <jim@networkdesigning.com>,
-       scott olson <scotto701@yahoo.com>,
-       Lars Magne Ingebrigtsen <larsi@gnus.org>
-Subject: Re: [PATCH 2.6.14-rc2] libata: Marvell SATA support (DMA mode)
- (resend: v0.22)
-In-Reply-To: <20050930053600.F3B821CDD0@lns1058.lss.emc.com>
-Message-ID: <Pine.LNX.4.44.0510052106580.23892-100000@kenzo.iwr.uni-heidelberg.de>
+	Wed, 5 Oct 2005 15:21:40 -0400
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:261 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S932542AbVJETVk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 15:21:40 -0400
+To: David Leimbach <leimy2k@gmail.com>
+Cc: Bodo Eggert <7eggert@gmx.de>, Marc Perkel <marc@perkel.com>,
+       Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel?
+References: <4TiWy-4HQ-3@gated-at.bofh.it> <4U0XH-3Gp-39@gated-at.bofh.it>
+	<E1EMutG-0001Hd-7U@be1.lrz> <87k6gsjalu.fsf@amaterasu.srvr.nix>
+	<3e1162e60510050755l590a696bx655eb0b7ac05aab6@mail.gmail.com>
+	<Pine.LNX.4.58.0510051744480.2279@be1.lrz>
+	<3e1162e60510050941l55485cbdgf6135e314a015d8f@mail.gmail.com>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: freely redistributable; void where prohibited by law.
+Date: Wed, 05 Oct 2005 20:21:22 +0100
+In-Reply-To: <3e1162e60510050941l55485cbdgf6135e314a015d8f@mail.gmail.com> (David
+ Leimbach's message of "Wed, 5 Oct 2005 09:41:10 -0700")
+Message-ID: <87zmpng47h.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Sep 2005, Brett Russ wrote:
+On Wed, 5 Oct 2005, David Leimbach said:
+>> 1) make namespaces joinable in a sane way
+>> 2) wait for the shared subtree patch
+>> 3) make pam join the per-user-namespace
+>> 4) make pam automount tmpfs on the private /tmp
+> 
+> I'm not sure what you mean by a joinable namespace.  I also am not
+> sure I want them :-).
 
-> The 5xxx series parts are not yet DMA capable in this driver because
-> the registers have differences that haven't been accounted for yet.
+They are namespaces which processes can join. Right now you can do
+it by chrooting into /proc/{pid}/root, but this is, as Bodo said,
+not a very sane API.
 
-In my setup with a MV88SX5041, this new driver doesn't recognize any 
-disk connected to the controller. The controller seems to be 
-recognized fine, but nothing else:
+Without this, a user starting two sessions gets two namespaces,
+which is profoundly counterintuitive from the user's POV.
 
-sata_mv version 0.22
-ACPI: PCI interrupt 0000:02:08.0[A] -> GSI 26 (level, low) -> IRQ 209
-MSI INIT SUCCESS
-sata_mv(0000:02:08.0) 32 slots 4 ports SCSI mode IRQ via MSI
-ata3: SATA max PIO4 cmd 0x0 ctl 0xF8A22120 bmdma 0x0 irq 209
-ata4: SATA max PIO4 cmd 0x0 ctl 0xF8A24120 bmdma 0x0 irq 209
-ata5: SATA max PIO4 cmd 0x0 ctl 0xF8A26120 bmdma 0x0 irq 209
-ata6: SATA max PIO4 cmd 0x0 ctl 0xF8A28120 bmdma 0x0 irq 209
-ata3: no device found (phy stat 00000000)
-scsi2 : sata_mv
-ata4: no device found (phy stat 00000000)
-scsi3 : sata_mv
-ata5: no device found (phy stat 00000000)
-scsi4 : sata_mv
-ata6: no device found (phy stat 00000000)
-scsi5 : sata_mv
+> I think of namespaces as being fundamental to the process model and
+> that they are inherited from the parent and new ones are created in a
+> sort of COW fashion [or at least have similar behavior].
 
-(starting at scsi2 'cause the first 2 are on a ata_piix SATA).
-/proc/interrupts shows no interrupts received:
+Yes, but you can change them too (that's what e.g. mount() is for!)
 
-209:          0          0   IO-APIC-level  libata
+> You might want a session namespace instead of a joinable per-process
+> namespace but I think that might be a slightly different point of
+> view.
 
-Thanks!
+I think that's the idea; a filesystem holding namespaces that you're
+allowed to chroot() into.
 
---
-Bogdan Costescu
-
-IWR - Interdisziplinaeres Zentrum fuer Wissenschaftliches Rechnen
-Universitaet Heidelberg, INF 368, D-69120 Heidelberg, GERMANY
-Telephone: +49 6221 54 8869, Telefax: +49 6221 54 8868
-E-mail: Bogdan.Costescu@IWR.Uni-Heidelberg.De
-
+-- 
+`Next: FEMA neglects to take into account the possibility of
+fire in Old Balsawood Town (currently in its fifth year of drought
+and home of the General Grant Home for Compulsive Arsonists).'
+            --- James Nicoll

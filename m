@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932607AbVJELQk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932619AbVJELXY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932607AbVJELQk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 07:16:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932612AbVJELQk
+	id S932619AbVJELXY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 07:23:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932625AbVJELXY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 07:16:40 -0400
-Received: from free.hands.com ([83.142.228.128]:1446 "EHLO free.hands.com")
-	by vger.kernel.org with ESMTP id S932607AbVJELQk (ORCPT
+	Wed, 5 Oct 2005 07:23:24 -0400
+Received: from ozlabs.org ([203.10.76.45]:10889 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S932619AbVJELXX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 07:16:40 -0400
-Date: Wed, 5 Oct 2005 12:16:29 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Nikita Danilov <nikita@clusterfs.com>
-Cc: Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-Message-ID: <20051005111629.GU10538@lkcl.net>
-References: <20051002204703.GG6290@lkcl.net> <4342DC4D.8090908@perkel.com> <200510050122.39307.dhazelton@enter.net> <4343694F.5000709@perkel.com> <17219.39868.493728.141642@gargle.gargle.HOWL>
-Mime-Version: 1.0
+	Wed, 5 Oct 2005 07:23:23 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17219.39868.493728.141642@gargle.gargle.HOWL>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-MailScanner-From: lkcl@lkcl.net
+Content-Transfer-Encoding: 7bit
+Message-ID: <17219.46319.501091.93202@cargo.ozlabs.ibm.com>
+Date: Wed, 5 Oct 2005 21:11:43 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: linas <linas@austin.ibm.com>
+Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/7] ppc64: EEH typos, include files, macros, whitespace
+In-Reply-To: <20050930005141.GA6173@austin.ibm.com>
+References: <20050930004800.GL29826@austin.ibm.com>
+	<20050930005141.GA6173@austin.ibm.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 05, 2005 at 01:24:12PM +0400, Nikita Danilov wrote:
+Linas writes:
 
-> One thing is clear: it's too late to fix Netware. Why should Unix
-> emulate its lethal defects?
- 
- the "lethal defects" of netware i believe could be more fairly
- attributed to it being proprietary software and the consequences
- thereof.
+> 01-eeh-minor-cleanup.patch
 
- that doesn't mean that you can't learn from it - the good bits,
- the bad bits and the ugly bits.
+Some trivial comments on a trivial patch... :)
 
- l.
+> -		printk(KERN_WARNING "PCI: no pci dn found for dev=%s\n",
+> -			pci_name(dev));
+> +		printk(KERN_WARNING "PCI: no pci dn found for dev=%s\n", pci_name(dev));
 
+This makes the line go over 80 columns, which seems unnecessary.
+
+> - * @token i/o token, should be address in the form 0xE....
+> + * @token i/o token, should be address in the form 0xA....
+
+I think the virtual addresses we get from ioremap these days start
+with 0xD00008...
+
+Regards,
+Paul.

@@ -1,50 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932586AbVJEJMS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965093AbVJEJYN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932586AbVJEJMS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 05:12:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932589AbVJEJMR
+	id S965093AbVJEJYN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 05:24:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965094AbVJEJYN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 05:12:17 -0400
-Received: from [85.21.88.2] ([85.21.88.2]:40610 "HELO mail.dev.rtsoft.ru")
-	by vger.kernel.org with SMTP id S932586AbVJEJMR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 05:12:17 -0400
-Message-ID: <4343994B.6060306@ru.mvista.com>
-Date: Wed, 05 Oct 2005 13:13:47 +0400
-From: Vitaly Wool <vwool@ru.mvista.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Wed, 5 Oct 2005 05:24:13 -0400
+Received: from H190.C26.B96.tor.eicat.ca ([66.96.26.190]:44513 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S965093AbVJEJYN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 05:24:13 -0400
+From: Nikita Danilov <nikita@clusterfs.com>
 MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: David Brownell <david-b@pacbell.net>, linux-kernel@vger.kernel.org,
-       spi-devel-general@lists.sourceforge.net, basicmark@yahoo.com,
-       stephen@streetfiresound.com, dpervushin@gmail.com,
-       Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH/RFC 1/2] simple SPI framework
-References: <20051004180241.0EAA5EE8D1@adsl-69-107-32-110.dsl.pltn13.pacbell.net> <4343898D.1060904@ru.mvista.com> <20051005090129.GB7208@flint.arm.linux.org.uk>
-In-Reply-To: <20051005090129.GB7208@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17219.39868.493728.141642@gargle.gargle.HOWL>
+Date: Wed, 5 Oct 2005 13:24:12 +0400
+To: Marc Perkel <marc@perkel.com>
+Cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>, linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel?
+Newsgroups: gmane.linux.kernel
+In-Reply-To: <4343694F.5000709@perkel.com>
+References: <20051002204703.GG6290@lkcl.net>
+	<4342DC4D.8090908@perkel.com>
+	<200510050122.39307.dhazelton@enter.net>
+	<4343694F.5000709@perkel.com>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
+Marc Perkel writes:
 
->The third parameter is obsolete and should only be used to select _one_
->of the tree suspend calls you will get.
->
->Any additional suspend calls should _not_ create extra usage of this
->parameter.  It's a left over from Pat's first driver model incarnation
->which is specific to the platform device drivers.  (Mainly it exists
->because no one can be bothered to clean it up.)
->
->  
->
-Oops... I mixed it with state parameter.
-We need to track down the state parameter to setup wakeups.
-The mixture was mostly provocated by using 'pm_message_t' instead of 
-'state' in David's suspend fucntion which doesn't look right to me by 
-itself.
+[...]
 
-Vitaly
+ > Right - that's Unix "inside the box" thinking. The idea is to make the 
+ > operating system smarter so that the user doesn't have to deal with 
+ > what's computer friendly - but reather what makes sense to the user. 
+ >  From a user's perspective if you have not rights to access a file then 
+ > why should you be allowed to delete it?
 
+Because in Unix a name is not an attribute of a file.
+
+Files are objects that you read, write and truncate. They are
+represented by inodes.
+
+Separately from that, there is an indexing structure: directory
+tree. Directories map symbolical names to inodes. Obviously, adding a
+reference to an index, or removing it from one requires access
+permission to the _index_ rather then to the object being referenced.
+
+That two-level model of files and indexing on top of them is essential
+to Unix due to the flexibility and conceptual economy it provides.
+
+ > 
+ > Now - the idea is to create choice. If you need to emulate Unix nehavior 
+ > for compatibility that's fine. But I would migrate away from that into a 
+ > permissions paradygme that worked like Netware.
+
+And there are people believing that ITS (or VMS, or <insert your first
+passion here>...) set the standard to follow. :-)
+
+[...]
+
+ > 
+ > So - the thread is about the future so I say - time to fix Unix.
+
+One thing is clear: it's too late to fix Netware. Why should Unix
+emulate its lethal defects?
+
+Nikita.

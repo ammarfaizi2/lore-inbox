@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030361AbVJEUOE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030365AbVJEURn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030361AbVJEUOE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 16:14:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030363AbVJEUOD
+	id S1030365AbVJEURn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 16:17:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030367AbVJEURn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 16:14:03 -0400
-Received: from streetfiresound.liquidweb.com ([64.91.233.29]:50151 "EHLO
-	host.streetfiresound.liquidweb.com") by vger.kernel.org with ESMTP
-	id S1030361AbVJEUOB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 16:14:01 -0400
-Subject: [PATCH/RFC 0/2] simple SPI controller on PXA2xx SSP port
-From: Stephen Street <stephen@streetfiresound.com>
-Reply-To: stephen@streetfiresound.com
-To: linux-kernel@vger.kernel.org
-Cc: david-b@pacbell.net
-Content-Type: text/plain
-Organization: StreetFire Sound Labs
-Date: Wed, 05 Oct 2005 13:13:57 -0700
-Message-Id: <1128543237.4871.34.camel@localhost.localdomain>
+	Wed, 5 Oct 2005 16:17:43 -0400
+Received: from wproxy.gmail.com ([64.233.184.194]:49926 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030365AbVJEURm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 16:17:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=pkFJjQTr8rrH2BXxfwPuJaR+YchdSXCAbqEEXZCMdWF8+Gsca5UsSvpWrwA6nWAIQlzeyDgQ9WA20gO301czF3CSv/MN55hkipnxpD/Ljvw/DtIyJPD8zoRRNWOpU6mriaT2Y3dbfXZlaRMUSwFmB+c9Y7MbjsdZvbIiXclshYA=
+Date: Thu, 6 Oct 2005 00:29:04 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCHSET] 2.6.14-rc3-git4-bird1
+Message-ID: <20051005202904.GA27229@mipter.zuzino.mipt.ru>
+References: <20050905035848.GG5155@ZenIV.linux.org.uk> <20050905155522.GA8057@mipter.zuzino.mipt.ru> <20050905160313.GH5155@ZenIV.linux.org.uk> <20050905164712.GI5155@ZenIV.linux.org.uk> <20050905212026.GL5155@ZenIV.linux.org.uk> <20050907183131.GF5155@ZenIV.linux.org.uk> <20050912191744.GN25261@ZenIV.linux.org.uk> <20050912192049.GO25261@ZenIV.linux.org.uk> <20050930120831.GI7992@ftp.linux.org.uk> <20051004203009.GQ7992@ftp.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-16) 
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - host.streetfiresound.liquidweb.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - streetfiresound.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051004203009.GQ7992@ftp.linux.org.uk>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Following this will be two reposted patches (with whitespace correctly
-preserved), releasing an initial "SPI controller" implementation running
-on David Brownell's "simple SPI framework" and a prototype "SPI
-protocol" driver for the Cirrus Logic CS8415A S/PDIF decoder chip.  The
-controller should run on any PXA2xx SSP port and has been tested on the
-PXA255 NSSP port.  Complete board setup and description facilities per
-the SPI framework are supported.
+> --- RC14-rc3-git4/arch/arm/mm/consistent.c
+> +++ RC14-rc3-git4-final/arch/arm/mm/consistent.c
 
-Your comments and suggestions encouraged!  You can e-mail me directly if
-you have any question regarding running SPI controller on your board.
+> -vm_region_alloc(struct vm_region *head, size_t size, int gfp)
+> +vm_region_alloc(struct vm_region *head, size_t size, unsigned int gfp)
 
-Thank you David for helping me make this real!
+> -__dma_alloc(struct device *dev, size_t size, dma_addr_t *handle, int gfp,
+> -	    pgprot_t prot)
+> +__dma_alloc(struct device *dev, size_t size, dma_addr_t *handle,
+> +	    unsigned int gfp, pgprot_t prot)
 
-Stephen Street
+	unsigned int __nocast gfp
 
-"Afflicted by numerous newbie problems"
+	=> dma_alloc_coherent
+	=> dma_alloc_writecombine
 

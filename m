@@ -1,60 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030302AbVJER6A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030305AbVJESAJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030302AbVJER6A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 13:58:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030304AbVJER6A
+	id S1030305AbVJESAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 14:00:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030306AbVJESAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 13:58:00 -0400
-Received: from imag.imag.fr ([129.88.30.1]:28590 "EHLO imag.imag.fr")
-	by vger.kernel.org with ESMTP id S1030302AbVJER57 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 13:57:59 -0400
-Date: Wed, 5 Oct 2005 19:57:32 +0200
-From: Pierre Michon <pierre@no-spam.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: freebox possible GPL violation
-Message-ID: <20051005175732.GA2333@linux.ensimag.fr>
-Reply-To: 434403B1.8000506@cs.aau.dk
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040722i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (imag.imag.fr [129.88.30.1]); Wed, 05 Oct 2005 19:57:33 +0200 (CEST)
-X-IMAG-MailScanner: Found to be clean
-X-IMAG-MailScanner-Information: Please contact the ISP for more information
+	Wed, 5 Oct 2005 14:00:09 -0400
+Received: from quark.didntduck.org ([69.55.226.66]:62874 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id S1030305AbVJESAI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 14:00:08 -0400
+Message-ID: <434414C4.8020109@didntduck.org>
+Date: Wed, 05 Oct 2005 14:00:36 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mail/News 1.4 (X11/20050928)
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Bogus load average and cpu times on x86_64 SMP kernels
+References: <43437DEB.4080405@didntduck.org>
+In-Reply-To: <43437DEB.4080405@didntduck.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Brian Gerst wrote:
+> I've been seeing bogus values from /proc/loadavg on an x86-64 SMP kernel 
+> (but not UP).
+> 
+> $ cat /proc/loadavg
+> -1012098.26 922203.26 -982431.60 1/112 2688
+> 
+> This is in the current git tree.  I'm also seeing strange values in 
+> /proc/stat:
+> 
+> cpu  2489 40 920 60530 9398 171 288 1844674407350
+> cpu0 2509 60 940 60550 9418 191 308 0
+> 
+> The first line is the sum of all cpus (I only have one), so it's picking 
+> up up bad data from the non-present cpus.  The last value, stolen time, 
+> is completely bogus since that value is only ever used on s390.
+> 
+> It looks to me like there is some problem with how the per-cpu 
+> structures are being initialized, or are getting corrupted.  I have not 
+> been able to test i386 SMP yet to see if the problem is x86_64 specific.
 
->Not complex enough so that a network boot protocol can't fit on a BIOS 
->chip, believe me.
+I found the culprit: CPU hotplug.  The problem is that 
+prefill_possible_map() is called after setup_per_cpu_areas().  This 
+leaves the per-cpu data sections for the future cpus uninitialized 
+(still pointing to the original per-cpu data, which is initmem).  Since 
+the cpus exists in cpu_possible_map, for_each_cpu will iterate over them 
+even though the per-cpu data is invalid.
 
-So _why_ the freebox act _differently_ in the boot process when there is 
-a firmware update ?
-Just for the fun ?
-
-> he only wrong assumptions that I see here are yours.
-I provide facts and arguments, you provide nothing.
-
->I don't understand why you cannot accept that the Freebox is part of the 
->Free network infrastructure and that you are not using directly the OS 
->but only the service that they provide.
-So what about _my_ wifi pcmcia card ?
-What about the people who had to paid 400 euros and receive a letter
-from free telling them that according to CGV there are the onwer of the
-freebox (ok this one need some checks).
-
-Again in my first post I provide facts for this (with links), you provide 
-nothing than replying always the same things without arguments against
-mine.
-
-
-Please take my first post and reply to point A, B, C with arguments.
-
->'Got it, now ?
-No, because you didn't answer to my questions...
-
-Pierre
-
-Please let's continue on legal gpl-violations.org ML.
+--
+				Brian Gerst

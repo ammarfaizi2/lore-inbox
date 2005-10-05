@@ -1,54 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030401AbVJEWyY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030402AbVJEWzg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030401AbVJEWyY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 18:54:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030402AbVJEWyY
+	id S1030402AbVJEWzg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 18:55:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030409AbVJEWzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 18:54:24 -0400
-Received: from postman.ripe.net ([193.0.0.199]:53659 "EHLO postman.ripe.net")
-	by vger.kernel.org with ESMTP id S1030401AbVJEWyX (ORCPT
+	Wed, 5 Oct 2005 18:55:35 -0400
+Received: from mail.kroah.org ([69.55.234.183]:24780 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030402AbVJEWzf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 18:54:23 -0400
-Message-ID: <4344599B.7060308@colitti.com>
-Date: Thu, 06 Oct 2005 00:54:19 +0200
-From: Lorenzo Colitti <lorenzo@colitti.com>
-User-Agent: Thunderbird 1.4 (X11/20050908)
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Nigel Cunningham <ncunningham@cyclades.com>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [swsusp] separate snapshot functionality to separate file
-References: <20051002231332.GA2769@elf.ucw.cz> <200510032339.08217.rjw@sisk.pl> <20051003231715.GA17458@elf.ucw.cz> <200510041711.13408.rjw@sisk.pl> <20051004205334.GC18481@elf.ucw.cz> <1128465272.6611.75.camel@localhost> <20051005084141.GB22034@elf.ucw.cz> <434443D9.3010501@colitti.com> <20051005224418.GA22781@elf.ucw.cz>
-In-Reply-To: <20051005224418.GA22781@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-RIPE-Spam-Level: 
-X-RIPE-Spam-Tests: ALL_TRUSTED,BAYES_05
-X-RIPE-Spam-Status: U 0.473544 / -3.7
-X-RIPE-Signature: 102d9dd9c2f98abfff3e939b1dac69cf
+	Wed, 5 Oct 2005 18:55:35 -0400
+Date: Wed, 5 Oct 2005 15:55:04 -0700
+From: Greg KH <gregkh@suse.de>
+To: dtor_core@ameritech.net
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Kay Sievers <kay.sievers@vrfy.org>, Vojtech Pavlik <vojtech@suse.cz>,
+       Hannes Reinecke <hare@suse.de>
+Subject: Re: [patch 08/28] Input: prepare to sysfs integration
+Message-ID: <20051005225504.GA3566@suse.de>
+References: <20050915070131.813650000.dtor_core@ameritech.net> <20050915070302.813567000.dtor_core@ameritech.net> <20051005220316.GA2932@suse.de> <d120d5000510051517k28bbb1f9v3c7ec7448608926@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d120d5000510051517k28bbb1f9v3c7ec7448608926@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
->> - It was dog slow because it doesn't use compression
->> - Even though it's dog slow, it doesn't save all RAM
->>   - Therefore the machine is dog slow after resume
->> - It doesn't have a decent UI
->> - There is no way to abort suspend once it's started. [...]
+On Wed, Oct 05, 2005 at 05:17:00PM -0500, Dmitry Torokhov wrote:
+> On 10/5/05, Greg KH <gregkh@suse.de> wrote:
+> > On Thu, Sep 15, 2005 at 02:01:39AM -0500, Dmitry Torokhov wrote:
+> > > Input: prepare to sysfs integration
+> > >
+> > > Add struct class_device to input_dev; add input_allocate_dev()
+> > > to dynamically allocate input devices; dynamically allocated
+> > > devices are automatically registered with sysfs.
+> > >
+> > > Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> >
+> > Ok, I've applied this one, and the other "convert the input drivers to
+> > be dynamic" to my tree, as this is all great work.
+> >
+> > I'll work on the last few patches that you have, with regard to how to
+> > tie it into sysfs "properly" now, and get back to you, just wanted to
+> > apply all of these, so we have a common base to work on.
+> >
 > 
-> With uswsusp (aka swsusp3), you can do all this in userland. Stop
-> whining, start hacking... Code is at kernel.org/git/.../linux-sw3.
+> Greg,
+> 
+> Could you please drop these patches for a while? Or maybe just don't
+> push them to Linus yet.
 
-But that was exactly my point: there's no need to hack!
+How about I hold on to them, until you send me replacements for them?
+I'm using quilt so I can just drop them and add your new ones very
+easily.  I will not push them to Linus until you and Vojtech say it's ok
+for me to do so.
 
-The code is there. It's well tested, fast, stable, and does what users 
-need. It's called suspend2. Why work on yet another implementation 
-instead of just merging that?
+> The reason is that I want to change input_allocate_device to take
+> bitmap of supported events. This way I could allocate ABS tables
+> dynamically at the same time I allocate input_dev itself and it will
+> simplify error handling logic in drivers and it will save I think 1260
+> bytes per input_dev structure which is nice. And I don't want to go
+> through all subsystems yet again soI want to fold into my input
+> dynalloc patch...
 
+That sounds good.
 
-Cheers,
-Lorenzo
+thanks,
 
--- 
-http://www.colitti.com/lorenzo/
+greg k-h

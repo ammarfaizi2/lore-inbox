@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbVJFJaN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbVJFJds@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750768AbVJFJaN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 05:30:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750770AbVJFJaN
+	id S1750759AbVJFJds (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 05:33:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750770AbVJFJdr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 05:30:13 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:33252 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750768AbVJFJaL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 05:30:11 -0400
-Message-ID: <4344EF0F.90402@aitel.hist.no>
-Date: Thu, 06 Oct 2005 11:31:59 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
+	Thu, 6 Oct 2005 05:33:47 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:51344 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S1750759AbVJFJdr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 05:33:47 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Eric Piel <Eric.Piel@tremplin-utc.net>,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: MTP - Media Transfer Protocol support
+Date: Thu, 6 Oct 2005 11:33:49 +0200
+User-Agent: KMail/1.8
+Cc: Freaky <freaky@bananateam.nl>, linux-kernel@vger.kernel.org
+References: <4344DB73.9020604@bananateam.nl> <4344E08B.1080605@tremplin-utc.net>
+In-Reply-To: <4344E08B.1080605@tremplin-utc.net>
 MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-References: <20051005095653.GK10538@lkcl.net> <200510051847.j95IlRTS012444@laptop11.inf.utfsm.cl>            <20051005230309.GO10538@lkcl.net> <200510060803.j9683aXK026732@turing-police.cc.vt.edu>
-In-Reply-To: <200510060803.j9683aXK026732@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510061133.49628.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
+Am Donnerstag, 6. Oktober 2005 10:30 schrieb Eric Piel:
 
->The part that you managed to miss is that this is MAC - *Mandatory*
->Access Control.  This means that the *sysadmin* gets to say "this user
->can't look at that file" - and there's nothing(*) either the owner of the
->file or the user can do about it.  There's no chmod or chattr or chacl
->command that the owner can issue to let somebody else read it - that's
->the whole *point* of MAC.
->
->(*) Well.. almost nothing.  The owner *may* be able to copy the contents
->of the file to another file that the other user is allowed to read.  On the
->other hand, the ability to do this would generally indicate a buggy policy....
->  
->
-Seems to me there is no use taking away the owners ability to chmod,
-precisely because the owner always can get around that. (Unless
-the owner doesn't even have the right to read his own file.)
+> Did it, nothing to agree or to sign. FWIW, the document converted to 
+> PDF, only with opensource software, is available here (supprisingly, 
+> inside the document it's written that it's a draft):
+> http://pieleric.free.fr/MTP_Enhanced.pdf
 
-You can have a restricted "copy" program, but nothing prevents a
-user from making his own copy program, if he can read the file.
-Or the user can load the file into the intended app, and "save as"
-to some other filename and directory.  Or the user can do a screendump,
-or even take a picture of the screen. 
+Judging by this document your best bet is to enhance gphoto2 which is using
+libusb
 
-Company policy may of course forbid the user to bring a camera, just as it
-might forbid the user to do "chmod o+r" on important files.  I am not
-sure that we need the OS to try to enforce such things. 
+http://www.gphoto.org
 
-Helge Hafting
-
+	Regards
+		Oliver

@@ -1,67 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbVJFI1m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbVJFI3z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750744AbVJFI1m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 04:27:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbVJFI1m
+	id S1750740AbVJFI3z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 04:29:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbVJFI3y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 04:27:42 -0400
-Received: from ncc1701.cistron.net ([62.216.30.38]:59781 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id S1750744AbVJFI1l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 04:27:41 -0400
-From: dth@cistron.nl (Danny ter Haar)
-Subject: report: 2.6.14-rc3-git3 crashed on usenet gateway after 58 hours
-Date: Thu, 6 Oct 2005 08:27:39 +0000 (UTC)
-Organization: Cistron
-Message-ID: <di2n5r$9bt$1@news.cistron.nl>
-X-Trace: ncc1701.cistron.net 1128587259 9597 62.216.30.70 (6 Oct 2005 08:27:39 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: dth@cistron.nl (Danny ter Haar)
-To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+	Thu, 6 Oct 2005 04:29:54 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:29857 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750740AbVJFI3y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 04:29:54 -0400
+Date: Thu, 6 Oct 2005 04:29:44 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+To: Ingo Molnar <mingo@elte.hu>
+cc: Mark Knecht <markknecht@gmail.com>, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@suse.de>
+Subject: Re: 2.6.14-rc3-rt2
+In-Reply-To: <20051006081055.GA20491@elte.hu>
+Message-ID: <Pine.LNX.4.58.0510060425561.28535@localhost.localdomain>
+References: <20051004130009.GB31466@elte.hu>
+ <5bdc1c8b0510040944q233f14e6g17d53963a4496c1f@mail.gmail.com>
+ <5bdc1c8b0510041111n188b8e14lf5a1398406d30ec4@mail.gmail.com>
+ <1128450029.13057.60.camel@tglx.tec.linutronix.de>
+ <5bdc1c8b0510041158m3620f5dcy2dafda545ad3cd5e@mail.gmail.com>
+ <1128458707.13057.68.camel@tglx.tec.linutronix.de>
+ <5bdc1c8b0510041349g1a4f2484qd17a11812c8ccac3@mail.gmail.com>
+ <20051005105605.GA27075@elte.hu> <5bdc1c8b0510051014q3bb02d5bl80d2c88cc884fe35@mail.gmail.com>
+ <Pine.LNX.4.58.0510060403210.28535@localhost.localdomain> <20051006081055.GA20491@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Same thing als previous reports:
-All 2.6.1[34] dont work stable of this machine (for me)
-2.6.12-mm1 survives >> 3 weeks without problems.
 
-Scsi driver is exactly the same as in 2.6.12-mm1, so i don't suspect the
-scsi driver itself, but the acpi/irq routing that changed.
 
-dmesg/config etc is @ http://newsgate.newsserver.nl/kernel/2.6.14-rc3-git3
+On Thu, 6 Oct 2005, Ingo Molnar wrote:
 
-This was part of the barf message before it rebooted
-------------
+>
+> * Steven Rostedt <rostedt@goodmis.org> wrote:
+>
+> > Found the problem.  You're using a 64 bit machine and flags in the
+> > acpi code is defined as u32 and not unsigned long.  Ingo's tests put
+> > some checks in the flags at the MSBs and these are being truncated.
+>
+> ahh ... I would not be surprised if this caused actual problems on x64
+> in the upstream kernel too: using save_flags() over u32 will corrupt a
+> word on the stack ...
+>
+> Andi?
+>
 
-scsi0: ILLEGAL_PHASE 0x80
-(scsi0:A:1:0): Abort Message Sent
-scsi0:0:1:0: Attempting to queue an ABORT message:CDB: 0x2a 0x0 0x1 0xe6 0xf4 0x4a 0x0 0x0 0x48 0x0
-scsi0: At time of recovery, card was not paused
->>>>>>>>>>>>>>>>>> Dump Card State Begins <<<<<<<<<<<<<<<<<
-scsi0: Dumping Card State at program address 0x26 Mode 0x11
-Card was paused
-HS_MAILBOX[0x0] INTCTL[0xc0]:(SWTMINTEN|SWTMINTMASK)
-SEQINTSTAT[0x10]:(SEQ_SWTMRTO) SAVED_MODE[0x11]
-DFFSTAT[0x9]:(CURRFIFO_1) SCSISIGI[0x25]:(P_DATAOUT_DT|ACKI|BSYI)
-SCSIPHASE[0x1]:(DATA_OUT_PHASE) SCSIBUS[0x0] LASTPHASE[0x20]:(P_DATAOUT_DT)
-SCSISEQ0[0x0] SCSISEQ1[0x12]:(ENAUTOATNP|ENRSELI)
-SEQCTL0[0x0] SEQINTCTL[0x0] SEQ_FLAGS[0x20]:(DPHASE)
-SEQ_FLAGS2[0x0] SSTAT0[0x0] SSTAT1[0x9]:(REQINIT|BUSFREE)
-SSTAT2[0x0] SSTAT3[0x80] PERRDIAG[0x0] SIMODE1[0xac]:(ENSCSIPERR|ENBUSFREE|ENSCSIRST|ENSELTIMO)
-LQISTAT0[0x0] LQISTAT1[0x0] LQISTAT2[0x80]:(PACKETIZED)
-LQOSTAT0[0x0] LQOSTAT1[0x8]:(LQOSTOPI2) LQOSTAT2[0x21]:(LQOSTOP0)
+So I guess these patches need to go upstream too?
 
-SCB Count = 128 CMDS_PENDING = 96 LASTSCB 0x7a CURRSCB 0x10 NEXTSCB 0x2
-qinstart = 24642 qinfifonext = 24642
-QINFIFO:
-WAITING_TID_QUEUES:
-       0 ( 0x66 0x69 0x64 0x9 0x34 0x6c 0x46 0x7c 0x5f 0x21 0x62 0x3f 0x52 0x7d 0x39 0x17 0x15 0x41 0x8 0x4c 0x2e 0x44 0x6b 0x36 0x1b 0x54 0x6e 0x53 )
-       3 ( 0x32 )
-Pending list:
- 50 FIFO_USE[0x0] SCB_CONTROL[0x60]:(TAG_ENB|DISCENB) SCB_SCSIID[0x37]
+Here's the rest of the u32 coversions. Not all the u32 flags were used for
+spinlocks. Most were for the flags instance in the structure.
 
-[SNIP]
+Note, this patch does _NOT_ include the previous patch that I sent.  If
+this needs to go upstream, I'll send the two together as one patch.
 
-Danny
+-- Steve
+
+--- linux-2.6.14-rc3-rt9/drivers/acpi/events/evgpe.c.orig	2005-10-06 04:15:40.000000000 -0400
++++ linux-2.6.14-rc3-rt9/drivers/acpi/events/evgpe.c	2005-10-06 04:15:46.000000000 -0400
+@@ -377,7 +377,7 @@ u32 acpi_ev_gpe_detect(struct acpi_gpe_x
+ 	struct acpi_gpe_register_info *gpe_register_info;
+ 	u32 status_reg;
+ 	u32 enable_reg;
+-	u32 flags;
++	unsigned long flags;
+ 	acpi_status status;
+ 	struct acpi_gpe_block_info *gpe_block;
+ 	acpi_native_uint i;
+--- linux-2.6.14-rc3-rt9/drivers/acpi/events/evgpeblk.c.orig	2005-10-06 04:00:34.000000000 -0400
++++ linux-2.6.14-rc3-rt9/drivers/acpi/events/evgpeblk.c	2005-10-06 04:00:58.000000000 -0400
+@@ -136,7 +136,7 @@ acpi_status acpi_ev_walk_gpe_list(ACPI_G
+ 	struct acpi_gpe_block_info *gpe_block;
+ 	struct acpi_gpe_xrupt_info *gpe_xrupt_info;
+ 	acpi_status status = AE_OK;
+-	u32 flags;
++	unsigned long flags;
+
+ 	ACPI_FUNCTION_TRACE("ev_walk_gpe_list");
+
+@@ -479,7 +479,7 @@ static struct acpi_gpe_xrupt_info *acpi_
+ 	struct acpi_gpe_xrupt_info *next_gpe_xrupt;
+ 	struct acpi_gpe_xrupt_info *gpe_xrupt;
+ 	acpi_status status;
+-	u32 flags;
++	unsigned long flags;
+
+ 	ACPI_FUNCTION_TRACE("ev_get_gpe_xrupt_block");
+
+@@ -553,7 +553,7 @@ static acpi_status
+ acpi_ev_delete_gpe_xrupt(struct acpi_gpe_xrupt_info *gpe_xrupt)
+ {
+ 	acpi_status status;
+-	u32 flags;
++	unsigned long flags;
+
+ 	ACPI_FUNCTION_TRACE("ev_delete_gpe_xrupt");
+
+@@ -610,7 +610,7 @@ acpi_ev_install_gpe_block(struct acpi_gp
+ 	struct acpi_gpe_block_info *next_gpe_block;
+ 	struct acpi_gpe_xrupt_info *gpe_xrupt_block;
+ 	acpi_status status;
+-	u32 flags;
++	unsigned long flags;
+
+ 	ACPI_FUNCTION_TRACE("ev_install_gpe_block");
+
+@@ -663,7 +663,7 @@ acpi_ev_install_gpe_block(struct acpi_gp
+ acpi_status acpi_ev_delete_gpe_block(struct acpi_gpe_block_info *gpe_block)
+ {
+ 	acpi_status status;
+-	u32 flags;
++	unsigned long flags;
+
+ 	ACPI_FUNCTION_TRACE("ev_install_gpe_block");
+
+--- linux-2.6.14-rc3-rt9/drivers/acpi/events/evxface.c.orig	2005-10-06 04:16:27.000000000 -0400
++++ linux-2.6.14-rc3-rt9/drivers/acpi/events/evxface.c	2005-10-06 04:16:43.000000000 -0400
+@@ -562,7 +562,7 @@ acpi_install_gpe_handler(acpi_handle gpe
+ 	struct acpi_gpe_event_info *gpe_event_info;
+ 	struct acpi_handler_info *handler;
+ 	acpi_status status;
+-	u32 flags;
++	unsigned long flags;
+
+ 	ACPI_FUNCTION_TRACE("acpi_install_gpe_handler");
+
+@@ -653,7 +653,7 @@ acpi_remove_gpe_handler(acpi_handle gpe_
+ 	struct acpi_gpe_event_info *gpe_event_info;
+ 	struct acpi_handler_info *handler;
+ 	acpi_status status;
+-	u32 flags;
++	unsigned long flags;
+
+ 	ACPI_FUNCTION_TRACE("acpi_remove_gpe_handler");
 

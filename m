@@ -1,46 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750962AbVJFO26@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750989AbVJFO3E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750962AbVJFO26 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 10:28:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750989AbVJFO26
+	id S1750989AbVJFO3E (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 10:29:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751016AbVJFO3E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 10:28:58 -0400
-Received: from qproxy.gmail.com ([72.14.204.192]:56361 "EHLO qproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750877AbVJFO25 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 10:28:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Y6nc88D/w/mquuCRNVl34Eg1XK7Nvj4v7XrJFxZdN7n8eKiboiolIBXKJUbZF1iHVorUAoPZZQJtx7ScfLpVrbsiE2d7vjroXPXlO4Wuib78dSu4Yvi8h1aFoTu4c9YX79P9RK1Pag1rxx5bfCuYMzq4hAgjpqGl+yi8DYSHuVM=
-Message-ID: <9a8748490510060728i30e0ab5do2e6765b952ac343c@mail.gmail.com>
-Date: Thu, 6 Oct 2005 16:28:56 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: madhu.subbaiah@wipro.com
-Subject: Re: select(0,NULL,NULL,NULL,&t1) used for delay
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <9a8748490510060725x34426df0se719458caf9364fe@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1128606546.14385.26.camel@penguin.madhu>
-	 <9a8748490510060725x34426df0se719458caf9364fe@mail.gmail.com>
+	Thu, 6 Oct 2005 10:29:04 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:31716 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750989AbVJFO3B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 10:29:01 -0400
+Subject: Re: PAE causing failure to run various executables.
+From: Arjan van de Ven <arjan@infradead.org>
+To: Avi Kivity <avi@argo.co.il>
+Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <43453433.7000308@argo.co.il>
+References: <88056F38E9E48644A0F562A38C64FB6005EE9110@scsmsx403.amr.corp.intel.com>
+	 <1128604838.2960.42.camel@laptopd505.fenrus.org>
+	 <43453433.7000308@argo.co.il>
+Content-Type: text/plain
+Date: Thu, 06 Oct 2005 16:28:55 +0200
+Message-Id: <1128608936.2960.47.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/6/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> On 10/6/05, Madhu K.S. <madhu.subbaiah@wipro.com> wrote:
-[snip]
-> > +                                usec *= (1000000/HZ);
-> Small style thing:   usec *= (1000000 / HZ);
->
-Ohh and the parenthesis are not needed.
-                                 usec *= 1000000 / HZ;
+On Thu, 2005-10-06 at 17:26 +0300, Avi Kivity wrote:
+> Arjan van de Ven wrote:
+> 
+> >>Another possible reason can be NX(Execute Disable) support, which is 
+> >>active only on a PAE kernel. Trying "noexec=off" on a PAE kernel can be
+> >>tried here.
+> >>    
+> >>
+> >
+> >if that were the case them mem=4096M wouldn't solve the hangs..
+> >
+> >  
+> >
+> then bad memory is more likely. does mem= limit memory size to 4096MB, 
+> or does it limit the maximum physical address?
 
-[snip]
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+highest phys address
+
+
+

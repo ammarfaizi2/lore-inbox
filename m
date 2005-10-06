@@ -1,88 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbVJFIEY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbVJFIG3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750720AbVJFIEY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 04:04:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbVJFIEY
+	id S1750723AbVJFIG3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 04:06:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbVJFIG3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 04:04:24 -0400
-Received: from h80ad2531.async.vt.edu ([128.173.37.49]:28573 "EHLO
-	h80ad2531.async.vt.edu") by vger.kernel.org with ESMTP
-	id S1750720AbVJFIEW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 04:04:22 -0400
-Message-Id: <200510060803.j9683aXK026732@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Nikita Danilov <nikita@clusterfs.com>, Marc Perkel <marc@perkel.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel? 
-In-Reply-To: Your message of "Thu, 06 Oct 2005 00:03:09 BST."
-             <20051005230309.GO10538@lkcl.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <20051005095653.GK10538@lkcl.net> <200510051847.j95IlRTS012444@laptop11.inf.utfsm.cl>
-            <20051005230309.GO10538@lkcl.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1128585815_4102P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 06 Oct 2005 04:03:35 -0400
+	Thu, 6 Oct 2005 04:06:29 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:42636 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750723AbVJFIG2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 04:06:28 -0400
+Date: Thu, 6 Oct 2005 04:06:17 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+To: Mark Knecht <markknecht@gmail.com>
+cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-rc3-rt2
+In-Reply-To: <5bdc1c8b0510051014q3bb02d5bl80d2c88cc884fe35@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0510060403210.28535@localhost.localdomain>
+References: <20051004084405.GA24296@elte.hu> <43427AD9.9060104@cybsft.com> 
+ <20051004130009.GB31466@elte.hu>  <5bdc1c8b0510040944q233f14e6g17d53963a4496c1f@mail.gmail.com>
+  <5bdc1c8b0510041111n188b8e14lf5a1398406d30ec4@mail.gmail.com> 
+ <1128450029.13057.60.camel@tglx.tec.linutronix.de> 
+ <5bdc1c8b0510041158m3620f5dcy2dafda545ad3cd5e@mail.gmail.com> 
+ <1128458707.13057.68.camel@tglx.tec.linutronix.de> 
+ <5bdc1c8b0510041349g1a4f2484qd17a11812c8ccac3@mail.gmail.com> 
+ <20051005105605.GA27075@elte.hu> <5bdc1c8b0510051014q3bb02d5bl80d2c88cc884fe35@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1128585815_4102P
-Content-Type: text/plain; charset=us-ascii
 
-On Thu, 06 Oct 2005 00:03:09 BST, Luke Kenneth Casson Leighton said:
-> On Wed, Oct 05, 2005 at 02:47:27PM -0400, Horst von Brand wrote:
+Found the problem.  You're using a 64 bit machine and flags in the acpi
+code is defined as u32 and not unsigned long.  Ingo's tests put some
+checks in the flags at the MSBs and these are being truncated.
 
-> > Nope. SELinux provides MAC, 
-> 
->  yes.
-> 
-> > i.e., mechanisms by which system-wide policy
-> > (not the random owner of an object) ultimately decides what operations to
-> > allow. 
-> 
->  yes.  the concept is not incompatible with what i said: the only bit
->  that is wrong with what you've said is the word "Nope".
-> 
-> > That is not "file permissions". 
-> 
->  part of the coverage of the MAC is file and directory permissions, and
->  as i mentioned earlier, it so happens that each selinux permission
->  corresponds, i believe one-to-one, with a function in the dnode and
->  inode vfs higher-order-function tables in the linux kernel.
-> 
->  example permissions (from postfix.te, policy source version 18):
-> 
-> 	allow postfix_$1_t { sbin_t bin_t }:dir r_dir_perms;
-> 	allow postfix_$1_t { bin_t usr_t }:lnk_file { getattr read };
-> 	allow postfix_$1_t shell_exec_t:file rx_file_perms;
-> 
->  i am confident enough with selinux to say that those are file
->  and directory permissions.
+Mark,  try this patch against -rt9 and see if the problem goes away, or
+at least moves.  I only did the one file, and there are probable others.
 
-The part that you managed to miss is that this is MAC - *Mandatory*
-Access Control.  This means that the *sysadmin* gets to say "this user
-can't look at that file" - and there's nothing(*) either the owner of the
-file or the user can do about it.  There's no chmod or chattr or chacl
-command that the owner can issue to let somebody else read it - that's
-the whole *point* of MAC.
+-- Steve
 
-(*) Well.. almost nothing.  The owner *may* be able to copy the contents
-of the file to another file that the other user is allowed to read.  On the
-other hand, the ability to do this would generally indicate a buggy policy....
+--- linux-2.6.14-rc3-rt9/drivers/acpi/events/evgpeblk.c.orig	2005-10-06 04:00:34.000000000 -0400
++++ linux-2.6.14-rc3-rt9/drivers/acpi/events/evgpeblk.c	2005-10-06 04:00:58.000000000 -0400
+@@ -136,7 +136,7 @@ acpi_status acpi_ev_walk_gpe_list(ACPI_G
+ 	struct acpi_gpe_block_info *gpe_block;
+ 	struct acpi_gpe_xrupt_info *gpe_xrupt_info;
+ 	acpi_status status = AE_OK;
+-	u32 flags;
++	unsigned long flags;
 
---==_Exmh_1128585815_4102P
-Content-Type: application/pgp-signature
+ 	ACPI_FUNCTION_TRACE("ev_walk_gpe_list");
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+@@ -479,7 +479,7 @@ static struct acpi_gpe_xrupt_info *acpi_
+ 	struct acpi_gpe_xrupt_info *next_gpe_xrupt;
+ 	struct acpi_gpe_xrupt_info *gpe_xrupt;
+ 	acpi_status status;
+-	u32 flags;
++	unsigned long flags;
 
-iD8DBQFDRNpXcC3lWbTT17ARAjntAKCB7H70PMpxqKcvZmXbinxHMv7fbACfYZ8O
-uD7iHdQpCrP9ppmGdI127mY=
-=+eQf
------END PGP SIGNATURE-----
+ 	ACPI_FUNCTION_TRACE("ev_get_gpe_xrupt_block");
 
---==_Exmh_1128585815_4102P--
+@@ -553,7 +553,7 @@ static acpi_status
+ acpi_ev_delete_gpe_xrupt(struct acpi_gpe_xrupt_info *gpe_xrupt)
+ {
+ 	acpi_status status;
+-	u32 flags;
++	unsigned long flags;
+
+ 	ACPI_FUNCTION_TRACE("ev_delete_gpe_xrupt");
+
+@@ -610,7 +610,7 @@ acpi_ev_install_gpe_block(struct acpi_gp
+ 	struct acpi_gpe_block_info *next_gpe_block;
+ 	struct acpi_gpe_xrupt_info *gpe_xrupt_block;
+ 	acpi_status status;
+-	u32 flags;
++	unsigned long flags;
+
+ 	ACPI_FUNCTION_TRACE("ev_install_gpe_block");
+
+@@ -663,7 +663,7 @@ acpi_ev_install_gpe_block(struct acpi_gp
+ acpi_status acpi_ev_delete_gpe_block(struct acpi_gpe_block_info *gpe_block)
+ {
+ 	acpi_status status;
+-	u32 flags;
++	unsigned long flags;
+
+ 	ACPI_FUNCTION_TRACE("ev_install_gpe_block");
+

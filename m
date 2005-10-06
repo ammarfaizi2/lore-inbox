@@ -1,68 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbVJFIhb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbVJFIit@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750753AbVJFIhb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 04:37:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750754AbVJFIha
+	id S1750754AbVJFIit (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 04:38:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbVJFIit
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 04:37:30 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:8359 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1750753AbVJFIh3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 04:37:29 -0400
-Date: Thu, 6 Oct 2005 04:37:16 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-To: Ingo Molnar <mingo@elte.hu>
-cc: Mark Knecht <markknecht@gmail.com>, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@suse.de>
-Subject: Re: 2.6.14-rc3-rt2
-In-Reply-To: <20051006081055.GA20491@elte.hu>
-Message-ID: <Pine.LNX.4.58.0510060433010.28535@localhost.localdomain>
-References: <20051004130009.GB31466@elte.hu>
- <5bdc1c8b0510040944q233f14e6g17d53963a4496c1f@mail.gmail.com>
- <5bdc1c8b0510041111n188b8e14lf5a1398406d30ec4@mail.gmail.com>
- <1128450029.13057.60.camel@tglx.tec.linutronix.de>
- <5bdc1c8b0510041158m3620f5dcy2dafda545ad3cd5e@mail.gmail.com>
- <1128458707.13057.68.camel@tglx.tec.linutronix.de>
- <5bdc1c8b0510041349g1a4f2484qd17a11812c8ccac3@mail.gmail.com>
- <20051005105605.GA27075@elte.hu> <5bdc1c8b0510051014q3bb02d5bl80d2c88cc884fe35@mail.gmail.com>
- <Pine.LNX.4.58.0510060403210.28535@localhost.localdomain> <20051006081055.GA20491@elte.hu>
+	Thu, 6 Oct 2005 04:38:49 -0400
+Received: from mail25.sea5.speakeasy.net ([69.17.117.27]:21217 "EHLO
+	mail25.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1750754AbVJFIis (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 04:38:48 -0400
+Date: Thu, 6 Oct 2005 04:38:46 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@excalibur.intercode
+To: David Howells <dhowells@redhat.com>
+cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       keyrings@linux-nfs.org, linux-kernel@vger.kernel.org,
+       Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [Keyrings] [PATCH] Keys: Add LSM hooks for key management
+In-Reply-To: <29942.1128529714@warthog.cambridge.redhat.com>
+Message-ID: <Pine.LNX.4.63.0510060404141.25593@excalibur.intercode>
+References: <29942.1128529714@warthog.cambridge.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I think this looks ok from an SELinux point of view if keys are treated as 
+opaque objects, i.e. like files.
 
-On Thu, 6 Oct 2005, Ingo Molnar wrote:
+We could do something like create a new object class (kernkey or 
+something) and implement SELinux permissions for the class such as read, 
+write, search, link, setattr and getattr.  Your KEY_VIEW perm could be 
+translated to SELinux getattr.
 
->
-> * Steven Rostedt <rostedt@goodmis.org> wrote:
->
-> > Found the problem.  You're using a 64 bit machine and flags in the
-> > acpi code is defined as u32 and not unsigned long.  Ingo's tests put
-> > some checks in the flags at the MSBs and these are being truncated.
->
-> ahh ... I would not be surprised if this caused actual problems on x64
-> in the upstream kernel too: using save_flags() over u32 will corrupt a
-> word on the stack ...
->
+More thought needs to go into whether we need to implement an SELinux 
+create permission (and add hooks into the code), for control over whether 
+a process can create an anonymous keyring.
 
-Actually, it's still safe upstream.  The locks are taken via a function
-defined as:
+I'm not sure if we need user-level labeling of keys via the set & get 
+security ops, although LSPP may require some form of get_security. If we 
+don't need to manually set security attributes but still view them, they 
+could be displayed via /proc/keys rather than implementing a separate 
+multiplexed syscall.
 
-unsigned long acpi_os_acquire_lock(acpi_handle handle)
-{
-	unsigned long flags;
-	spin_lock_irqsave((spinlock_t *) handle, flags);
-	return flags;
-}
+It seems that there are no LSM checks for the following:
 
-So a u32 flags with
+  keyctl_chown_key()
+  keyctl_setperm_key()
+  keyctl_set_reqkey_keyring()
 
-  flags = acpi_os_acquire_lock(lock);
+  keyctl_join_session_keyring()  [only if we add a 'create' perm]
 
-would be safe, unless a 64 bit machine stored the value of IR in the upper
-word, which I don't know of any archs that do that.
 
--- Steve
+All users of key_permission() need to propagate the error code from the 
+LSM back to the user.
 
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>

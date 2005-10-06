@@ -1,77 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbVJFPyR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbVJFPyp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751113AbVJFPyR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 11:54:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751120AbVJFPyR
+	id S1751121AbVJFPyp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 11:54:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751120AbVJFPyp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 11:54:17 -0400
-Received: from main.gmane.org ([80.91.229.2]:27618 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751113AbVJFPyR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 11:54:17 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Kalin KOZHUHAROV <kalin@thinrope.net>
-Subject: Re: [PATCH] Documentation: ksymoops should no longer be used to decode
- Oops messages
-Date: Fri, 07 Oct 2005 00:49:48 +0900
-Message-ID: <di3h5d$f82$1@sea.gmane.org>
-References: <200510052239.43492.jesper.juhl@gmail.com>
-Mime-Version: 1.0
+	Thu, 6 Oct 2005 11:54:45 -0400
+Received: from gw1.cosmosbay.com ([62.23.185.226]:60055 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S1751122AbVJFPyo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 11:54:44 -0400
+Message-ID: <43454886.6010608@cosmosbay.com>
+Date: Thu, 06 Oct 2005 17:53:42 +0200
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Hugh Dickins <hugh@veritas.com>
+CC: Linus Torvalds <torvalds@osdl.org>, Kirill Korotaev <dev@sw.ru>,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, xemul@sw.ru,
+       Andrey Savochkin <saw@sawoct.com>, st@sw.ru
+Subject: Re: SMP syncronization on AMD processors (broken?)
+References: <434520FF.8050100@sw.ru> <Pine.LNX.4.64.0510060741000.31407@g5.osdl.org> <Pine.LNX.4.61.0510061631260.11029@goblin.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.61.0510061631260.11029@goblin.wat.veritas.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: s175249.ppp.asahi-net.or.jp
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050913)
-X-Accept-Language: en-us, en
-In-Reply-To: <200510052239.43492.jesper.juhl@gmail.com>
-X-Enigmail-Version: 0.92.0.0
+Content-Transfer-Encoding: 8bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Thu, 06 Oct 2005 17:53:41 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
-> Document the fact that ksymoops should no longer be used to decode Oops
-> messages.
+Hugh Dickins a écrit :
+> On Thu, 6 Oct 2005, Linus Torvalds wrote:
+> 
+>>If you want to notify another CPU that you want the spinlock, then you 
+>>need to set the "flag" variable _outside_ of the spinlock.
+>>
+>>Spinlocks are not fair, not by a long shot. They never have been, and they 
+>>never will. Fairness would be extremely expensive indeed.
 > 
 > 
-> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
-> ---
+> That reminds me: ought cond_resched_lock to be doing something more?
 > 
->  Documentation/Changes |    7 +++----
->  1 files changed, 3 insertions(+), 4 deletions(-)
+> int cond_resched_lock(spinlock_t *lock)
+> {
+> 	int ret = 0;
 > 
-> --- linux-2.6.14-rc3-git5-orig/Documentation/Changes	2005-10-03 21:54:50.000000000 +0200
-> +++ linux-2.6.14-rc3-git5/Documentation/Changes	2005-10-05 22:35:44.000000000 +0200
-> @@ -31,7 +31,7 @@
->  Eine deutsche Version dieser Datei finden Sie unter
->  <http://www.stefan-winter.de/Changes-2.4.0.txt>.
->  
-> -Last updated: October 29th, 2002
-> +Last updated: October 05th, 2005
->  
->  Chris Ricker (kaboom@gatech.edu or chris.ricker@genetics.utah.edu).
->  
-> @@ -139,9 +139,8 @@
->  Ksymoops
->  --------
->  
-> -If the unthinkable happens and your kernel oopses, you'll need a 2.4
-> -version of ksymoops to decode the report; see REPORTING-BUGS in the
-> -root of the Linux source for more information.
-> +With a 2.4 kernel you need ksymoops to decode a kernel Oops message. With
-> +2.6 kernels ksymoops is no longer needed and should not be used.
->  
->  Module-Init-Tools
->  -----------------
+> 	if (need_lockbreak(lock)) {
+> 		spin_unlock(lock);
+> 		cpu_relax();
+> 		ret = 1;
+> 		spin_lock(lock);
+> 	}
+> -
 
-OK, but what should I use then with 2.6??
-And since when is ksymoops not usable with it?
-I have reported quite a few times here, alaways with 2.6.x and nobody said anything about it...
+Isnt it funny that some bugs can spot other bugs ? :)
 
-Kalin.
+break_lock should be declared atomic_t and used like that :
 
--- 
-|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
-+-> http://ThinRope.net/ <-+
-|[ ______________________ ]|
+void __lockfunc _##op##_lock(locktype##_t *lock)
+{
+     preempt_disable();
+     for (;;) {
+         if (likely(_raw_##op##_trylock(lock)))
+             break;
+         preempt_enable();
+	atomic_inc(&(lock)->break_lock);
+         while (!op##_can_lock(lock))
+             cpu_relax();
+         preempt_disable();
+	atomic_dec(&(lock)->break_lock);
+     }
+}
 
+
+Eric

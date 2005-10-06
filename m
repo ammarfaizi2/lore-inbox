@@ -1,47 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751282AbVJFSP2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751286AbVJFSVH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751282AbVJFSP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 14:15:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751281AbVJFSP2
+	id S1751286AbVJFSVH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 14:21:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbVJFSVH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 14:15:28 -0400
-Received: from 223-177.adsl.pool.ew.hu ([193.226.223.177]:25356 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S1751279AbVJFSP2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 14:15:28 -0400
-To: jamie@shareable.org
-CC: trond.myklebust@fys.uio.no, miklos@szeredi.hu,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-reply-to: <20051006175940.GA19766@mail.shareable.org> (message from Jamie
-	Lokier on Thu, 6 Oct 2005 18:59:40 +0100)
-Subject: Re: [RFC] atomic create+open
-References: <E1ENWt1-000363-00@dorka.pomaz.szeredi.hu> <1128616864.8396.32.camel@lade.trondhjem.org> <E1ENZ8u-0003JS-00@dorka.pomaz.szeredi.hu> <1128618447.8396.39.camel@lade.trondhjem.org> <E1ENZTJ-0003Mm-00@dorka.pomaz.szeredi.hu> <1128620196.16534.20.camel@lade.trondhjem.org> <20051006175940.GA19766@mail.shareable.org>
-Message-Id: <E1ENaFI-0003W9-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Thu, 06 Oct 2005 20:13:32 +0200
+	Thu, 6 Oct 2005 14:21:07 -0400
+Received: from mail.kroah.org ([69.55.234.183]:54722 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751286AbVJFSVE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 14:21:04 -0400
+Date: Thu, 6 Oct 2005 11:20:22 -0700
+From: Greg KH <greg@kroah.com>
+To: Mark Gross <mgross@linux.intel.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       Sebastien.Bouchard@ca.kontron.com, mark.gross@intel.com
+Subject: Re: Fwd: Telecom Clock Driver for MPCBL0010 ATCA computer blade
+Message-ID: <20051006182022.GA14414@kroah.com>
+References: <200510060803.21470.mgross@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200510060803.21470.mgross@linux.intel.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I think Miklos' point is that it's not an "optimisation" because it's
-> not optional.  Optimisations are things where if you don't do them,
-> the behaviour is still correct but slower.
-> 
-> As far as I can tell from this discussion, the atomic lookup+create is
-> a non-optional requirement.
+On Thu, Oct 06, 2005 at 08:03:21AM -0700, Mark Gross wrote:
+> +#if CONFIG_DEBUG_KERNEL 
+> +#define debug_printk( args... ) printk( args)
+> +#else
+> +#define debug_printk( args... )
+> +#endif
 
-Exactly.
+Please just use the existing dev_dbg() and friend functions instead of
+creating your own.
 
-Trond, you wrote this in an earlier discussion:
+> +DEFINE_SPINLOCK(event_lock);
 
-> > so the filesystem can delay returning the error from the open
-> > operation until the other errors have been sorted out by the lookup
-> > code.
-> 
-> Intents are meant as optimisations, not replacements for existing
-> operations. I'm therefore not really comfortable about having them
-> return errors at all.
+This should be static, right?
 
-The case I described is not an optimization, so in that case you seem
-to agree, that lookup intents are not the solution.
+> +irqreturn_t tlclk_interrupt(int irq, void *dev_id, struct pt_regs *regs);
 
-Miklos
+static?
+
+> +DECLARE_WAIT_QUEUE_HEAD(wq);
+
+static?
+
+> +#ifdef TLCLK_IOCTL
+
+Please just delete this whole section, no new ioctls for 2.6 please.
+
+> +ssize_t
+> +tlclk_read(struct file * filp, char __user * buf, size_t count, loff_t * f_pos)
+
+Return type on the same line as the function name please.
+
+> +{
+> +	int count0 = sizeof(struct tlclk_alarms);
+> +
+> +	wait_event_interruptible(wq, got_event);
+> +	if (copy_to_user(buf, alarm_events, sizeof(struct tlclk_alarms)))
+> +		return -EFAULT;
+> +
+> +	memset(alarm_events, 0, sizeof(struct tlclk_alarms));
+> +	got_event = 0;
+> +
+> +	return count0;
+
+count0 doesn't really need to be here, does it?
+
+What if you get passed less than that size of data?  You will be reading
+in off of the end of the buffer (which is not a nice thing to do...)
+
+> +#ifdef CONFIG_SYSFS
+
+Not needed, just drop this #ifdef please.
+
+> +static ssize_t show_current_ref(struct class_device *d, char * buf)
+> +{
+> +	unsigned long ret_val;
+> +	unsigned long flags;
+> +
+> +	spin_lock_irqsave(&event_lock, flags);
+> +		ret_val = ((inb(TLCLK_REG1) & 0x08) >> 3);
+> +	spin_unlock_irqrestore(&event_lock, flags);
+
+Odd indentation here.  You do this a lot, please fix them all.
+
+> +static int __init tlclk_init(void)
+> +{
+> +	int ret;
+> +#ifdef  CONFIG_SYSFS
+> +	struct class_device *class;
+> +#endif
+
+Again, please drop all of the #ifdefs from this file, they are not
+needed.
+
+> +	alarm_events = kcalloc(1, sizeof(struct tlclk_alarms), GFP_KERNEL);
+
+We have kzalloc() now.
+
+> +
+> +	if (!alarm_events)
+> +		goto out1;
+> +
+> +/* Read telecom clock IRQ number (Set by BIOS) */
+
+Indentation is wrong.
+
+> +	if( 0 > (ret = misc_register(&tlclk_miscdev )) ) {
+
+Try this instead:
+	ret = misc_register(&tlclk_miscdev);
+	if (ret) {
+
+> +		printk(KERN_ERR" misc_register retruns %d \n", ret);
+> +		ret =  -EBUSY;
+> +		goto out3;
+> +	}
+> +	class = tlclk_miscdev.class;
+> +	class_device_create_file(class, &class_device_attr_current_ref);
+
+Try registering a whole attribute group instead.  It's much nicer than
+the 20 lines you have to register and unregister your devices (and you
+don't handle the error condition properly if something goes wrong half
+way through.)
+
+> diff -urN -X dontdiff linux-2.6.14-rc2-mm2/drivers/char/tlclk.h linux-2.6.14-rc2-mm2-tlclk/drivers/char/tlclk.h
+
+Why not just put this stuff into the tlclk.c file itself, as it isn't
+needed anywhere else?
+
+thanks,
+
+greg k-h

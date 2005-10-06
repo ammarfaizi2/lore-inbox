@@ -1,77 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750936AbVJFUSw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751348AbVJFUVt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750936AbVJFUSw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 16:18:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751345AbVJFUSw
+	id S1751348AbVJFUVt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 16:21:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbVJFUVt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 16:18:52 -0400
-Received: from 223-177.adsl.pool.ew.hu ([193.226.223.177]:24068 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S1750936AbVJFUSv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 16:18:51 -0400
-To: trond.myklebust@fys.uio.no
-CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-reply-to: <1128626258.31797.34.camel@lade.trondhjem.org> (message from
-	Trond Myklebust on Thu, 06 Oct 2005 15:17:38 -0400)
-Subject: Re: [RFC] atomic create+open
-References: <E1ENWt1-000363-00@dorka.pomaz.szeredi.hu>
-	 <1128616864.8396.32.camel@lade.trondhjem.org>
-	 <E1ENZ8u-0003JS-00@dorka.pomaz.szeredi.hu>
-	 <E1ENZCQ-0003K3-00@dorka.pomaz.szeredi.hu>
-	 <1128619526.16534.8.camel@lade.trondhjem.org>
-	 <E1ENZZl-0003OO-00@dorka.pomaz.szeredi.hu>
-	 <1128620528.16534.26.camel@lade.trondhjem.org>
-	 <E1ENZu1-0003SP-00@dorka.pomaz.szeredi.hu>
-	 <1128623899.31797.14.camel@lade.trondhjem.org>
-	 <E1ENani-0003c4-00@dorka.pomaz.szeredi.hu> <1128626258.31797.34.camel@lade.trondhjem.org>
-Message-Id: <E1ENcAr-0003jz-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Thu, 06 Oct 2005 22:17:05 +0200
+	Thu, 6 Oct 2005 16:21:49 -0400
+Received: from rrcs-67-78-243-58.se.biz.rr.com ([67.78.243.58]:59280 "EHLO
+	mail.concannon.net") by vger.kernel.org with ESMTP id S1751348AbVJFUVt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 16:21:49 -0400
+Message-ID: <43458778.6060000@concannon.net>
+Date: Thu, 06 Oct 2005 16:22:16 -0400
+From: Michael Concannon <mike@concannon.net>
+User-Agent: Mozilla Thunderbird 1.0.6-1.4.1.centos4 (X11/20050721)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Michael Concannon <mike@concannon.net>
+CC: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+       Chase Venters <chase.venters@clientec.com>,
+       Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel?
+References: <20051002204703.GG6290@lkcl.net> <200510041840.55820.chase.venters@clientec.com> <20051005102650.GO10538@lkcl.net> <200510060005.09121.chase.venters@clientec.com> <43453E7F.5030801@concannon.net> <20051006192857.GV10538@lkcl.net> <4345855B.3@concannon.net>
+In-Reply-To: <4345855B.3@concannon.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 
-> > When open_namei() gets around to following the mounts, it is not there
-> > any more, so the dentry for /mnt/foo (the NFS one is returned) and
-> > NFS's ->open is called on the file, which returns -ENOENT.  But
-> > open(..., O_CREAT, ...) should never return -ENOENT.
-> 
-> ...and so the VFS can recognise the case, and be made to retry the
-> operation.
-> A more difficult race to deal with occurs if you allow a mount while
-> inside d_revalidate(). In that case NFS can end up opening the wrong
-> file.
 
-Yes, in fact all my examples should have been for ->d_revalidate(),
-since it's not possible that ->lookup() be called for a mounted
-dentry.
+>
+> I have booted linux a number of times with an NT drive as a slave and 
+> recovered it.   I have not ever done the inverse...
 
-> Both these two races could, however, be fixed by moving the
-> __follow_mount() in open_namei() inside the section that is protected by
-> the parent directory i_sem.
+ok, that rambled...
 
-No.  Only the namespace semaphore could protect against mount/umount,
-but you don't want to take that in lookup logic.
+I meant that I did not need to do that with linux...  just used a 
+floppy/cd/usb drive and edited files... 
 
-> In any case, all you are doing here is showing that the situation w.r.t.
-> mount races and lookup+create+open is difficult. I see nothing that
-> convinces me that a special atomic create+open will help to resolve
-> those races.
+With NT the only way I "recovered" was with a well timed backup of 
+registry.dat or a binary image of the whole system...
 
-I just think that filesystem code should _never_ need to care about
-mounts.  If you want to do the lookup+open, you somehow will have to
-deal with mounts, which is ugly.
+Nothing incremental about it...
 
-> Nor do I see that adding a special atomic create+open will help me avoid
-> intents for the case of atomic lookup+open(). As far as I'm concerned,
-> the case of lookup+create+open is just a special case of lookup+open.
-
-IMO the lookup+open optimization is not valid, because dealing with
-mounts is the job of the VFS and not the filesystem.
-
-Path lookup usually ends in a sequence of ->lookup (or
-->d_revalidate), then following mounts, then doing the operation.  You
-shouldn't try to merge the ->lookup and the ->fsop into one operation.
-That way leads to madness.
-
-Miklos
+/mike

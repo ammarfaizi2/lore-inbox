@@ -1,44 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751363AbVJFVLd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751371AbVJFVM5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751363AbVJFVLd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 17:11:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751367AbVJFVLd
+	id S1751371AbVJFVM5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 17:12:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbVJFVM5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 17:11:33 -0400
-Received: from qproxy.gmail.com ([72.14.204.194]:8134 "EHLO qproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751363AbVJFVLc convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 17:11:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=JItPkzIhq4N2S68SdY928MkAKP6inkhawLeP79ghsdIWLwB5qHBsjMpZGn06SWjHrb0590C5eUBsRxg96PJk6gRMEmDCIL2jziQyhgUcRQa0fAobcxgv0tcGeicB3YCqDCWLsAZrW3V0wvRlSVtq90nX2gSrQd7GxFiyRksBgUU=
-Message-ID: <fb3f6bf10510061411i7af556a1x8c5f22c478d89229@mail.gmail.com>
-Date: Thu, 6 Oct 2005 17:11:31 -0400
-From: Larry Lindsey <larry.the.pirate@gmail.com>
-Reply-To: Larry Lindsey <larry.the.pirate@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.27 ata_piix support
+	Thu, 6 Oct 2005 17:12:57 -0400
+Received: from mail.tmr.com ([64.65.253.246]:50592 "EHLO gaimboi.tmr.com")
+	by vger.kernel.org with ESMTP id S1751371AbVJFVM4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 17:12:56 -0400
+Message-ID: <4345940C.1080307@tmr.com>
+Date: Thu, 06 Oct 2005 17:15:56 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+Organization: TMR Associates Inc, Schenectady NY
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+To: Guy <bugzilla@watkins-home.com>
+CC: "'Holger Kiehl'" <Holger.Kiehl@dwd.de>,
+       "'Mark Hahn'" <hahn@physics.mcmaster.ca>,
+       "'linux-raid'" <linux-raid@vger.kernel.org>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: Re: Where is the performance bottleneck?
+References: <200509300452.j8U4qKw17804@www.watkins-home.com>
+In-Reply-To: <200509300452.j8U4qKw17804@www.watkins-home.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've created a patch created against Debain's 2.4.27 kernel sources,
-which adds ata_piix support to the 2.4.27 kernel.  Its pretty klugey,
-but at this point it at least *seems* to work.  Here's a link.
+Guy wrote:
 
-http://www.math.gatech.edu/~lindsey/libata-piix-2.4.27.patch.tar.bz2
+>  
+>
+>>-----Original Message-----
+>>From: linux-raid-owner@vger.kernel.org [mailto:linux-raid-
+>>owner@vger.kernel.org] On Behalf Of Bill Davidsen
+>>Sent: Wednesday, September 28, 2005 4:05 PM
+>>To: Guy
+>>Cc: 'Holger Kiehl'; 'Mark Hahn'; 'linux-raid'; 'linux-kernel'
+>>Subject: Re: Where is the performance bottleneck?
+>>
+>>Guy wrote:
+>>
+>>    
+>>
+>>>In most of your results, your CPU usage is very high.  Once you get to
+>>>      
+>>>
+>>about
+>>    
+>>
+>>>90% usage, you really can't do much else, unless you can improve the CPU
+>>>usage.
+>>>
+>>>      
+>>>
+>>That seems one of the problems with software RAID, the calculations are
+>>done in the CPU and not dedicated hardware. As you move to the top end
+>>drive hardware the CPU gets to be a limit. I don't remember off the top
+>>of my head how threaded this code is, and if more CPUs will help.
+>>    
+>>
+>
+>My old 500MHz P3 can xor at 1GB/sec.  I don't think the RAID5 logic is the
+>issue!  Also, I have not seen hardware that fast!  Or even half as fast.
+>But I must admit, I have not seen a hardware RAID5 in a few years.  :(
+>
+>   8regs     :   918.000 MB/sec
+>   32regs    :   469.600 MB/sec
+>   pIII_sse  :   994.800 MB/sec
+>   pII_mmx   :  1102.400 MB/sec
+>   p5_mmx    :  1152.800 MB/sec
+>raid5: using function: pIII_sse (994.800 MB/sec)
+>
+>Humm..  It did not select the fastest?
+>
+Maybe. There was discussion on this previously, but the decision was 
+made to us sse when available because it is nicer to cache, or uses 
+fewer registers, or similar. In any case fewer undesirable side effects.
 
-It is a combination of one of Jeff Garzik's patches and the scsi code
-from the 2.4.31 kernel.  I've probably broken about 2 million
-principles with respect to code maintenance.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO TMR Associates, Inc
+  Doing interesting things with small computers since 1979
 
-I bet some of you are wondering why in the world I would do this.  I
-did find a half dozen patches that were previously posted to this
-list, but I couldn't get any of them to work correctly, starting from
-the 2.4.27 source.  For various reasons, I'm stuck with that
-particular kernel.  I'm posting because I'm hoping that this might be
-useful to other people in a similar situation.

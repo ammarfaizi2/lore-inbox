@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbVJFXaG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932069AbVJFXbL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932068AbVJFXaG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 19:30:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932069AbVJFXaF
+	id S932069AbVJFXbL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 19:31:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932072AbVJFXbK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 19:30:05 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:1741 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932068AbVJFXaB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 19:30:01 -0400
-Date: Thu, 6 Oct 2005 18:29:59 -0500
+	Thu, 6 Oct 2005 19:31:10 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:55196 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932070AbVJFXbI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 19:31:08 -0400
+Date: Thu, 6 Oct 2005 18:31:06 -0500
 To: paulus@samba.org
 Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
        linux-pci@atrey.karlin.mff.cuni.cz
-Subject: [PATCH 5/22] ppc64: Device BAR save and restore
-Message-ID: <20051006232959.GF29826@austin.ibm.com>
+Subject: [PATCH 6/22] ppc64: PCI Error Recovery: documentation patch
+Message-ID: <20051006233106.GG29826@austin.ibm.com>
 References: <20051006232032.GA29826@austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -26,215 +26,286 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-05-eeh-device-bar-save.patch
+PCI Error Recovery: documentation patch
 
-After a PCI device has been resest, the device BAR's and other config
-space info must be restored to the same state as they were in when 
-the firmware first handed us this device.  This will allow the 
-PCI device driver, when restarted, to correctly recognize and set up
-the device.
-
-Tis patch saves the device config space as early as reasonable after
-the firmware has handed over the device.  Te state resore funcion 
-is inteded for use by the EEH recovery routines.
+Various PCI bus errors can be signaled by newer PCI controllers.
+Recovering from those errors requires an infrastructure to notify
+affected device drivers of the error, and a way of walking through
+a reset sequence.  This patch adds documentation describing the
+current error recovery proposal.
 
 Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
 
+ Documentation/pci-error-recovery.txt |  246 +++++++++++++++++++++++++++++++++++
+ MAINTAINERS                          |    7 
+ 2 files changed, 253 insertions(+)
 
-Index: linux-2.6.14-rc2-git6/arch/ppc64/kernel/eeh.c
+Index: linux-2.6.14-rc2-git6/Documentation/pci-error-recovery.txt
 ===================================================================
---- linux-2.6.14-rc2-git6.orig/arch/ppc64/kernel/eeh.c	2005-10-06 17:52:27.908410223 -0500
-+++ linux-2.6.14-rc2-git6/arch/ppc64/kernel/eeh.c	2005-10-06 17:52:37.399078590 -0500
-@@ -78,6 +78,9 @@
-  */
- #define EEH_MAX_FAILS	100000
- 
-+/* Misc forward declaraions */
-+static void eeh_save_bars(struct pci_dev * pdev, struct pci_dn *pdn);
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.14-rc2-git6/Documentation/pci-error-recovery.txt	2005-10-06 17:52:47.274692945 -0500
+@@ -0,0 +1,246 @@
 +
- /* RTAS tokens */
- static int ibm_set_eeh_option;
- static int ibm_set_slot_reset;
-@@ -367,6 +370,7 @@
-  */
- void __init pci_addr_cache_build(void)
- {
-+	struct device_node *dn;
- 	struct pci_dev *dev = NULL;
- 
- 	if (!eeh_subsystem_enabled)
-@@ -380,6 +384,10 @@
- 			continue;
- 		}
- 		pci_addr_cache_insert_device(dev);
++                       PCI Error Recovery
++                       ------------------
++                         May 31, 2005
 +
-+		/* Save the BAR's; firmware doesn't restore these after EEH reset */
-+		dn = pci_device_to_OF_node(dev);
-+		eeh_save_bars(dev, PCI_DN(dn));
- 	}
- 
- #ifdef DEBUG
-@@ -776,6 +784,108 @@
- 	}
- }
- 
-+/* ------------------------------------------------------- */
-+/** Save and restore of PCI BARs
-+ *
-+ * Although firmware will set up BARs during boot, it doesn't
-+ * set up device BAR's after a device reset, although it will,
-+ * if requested, set up bridge configuration. Thus, we need to
-+ * configure the PCI devices ourselves.  
-+ */
++               Current document maintainer:
++           Linas Vepstas <linas@austin.ibm.com>
 +
-+/**
-+ * __restore_bars - Restore the Base Address Registers
-+ * Loads the PCI configuration space base address registers,
-+ * the expansion ROM base address, the latency timer, and etc.
-+ * from the saved values in the device node.
-+ */
-+static inline void __restore_bars (struct pci_dn *pdn)
++
++Some PCI bus controllers are able to detect certain "hard" PCI errors
++on the bus, such as parity errors on the data and address busses, as
++well as SERR and PERR errors.  These chipsets are then able to disable
++I/O to/from the affected device, so that, for example, a bad DMA
++address doesn't end up corrupting system memory.  These same chipsets
++are also able to reset the affected PCI device, and return it to
++working condition.  This document describes a generic API form
++performing error recovery.
++
++The core idea is that after a PCI error has been detected, there must
++be a way for the kernel to coordinate with all affected device drivers
++so that the pci card can be made operational again, possibly after
++performing a full electrical #RST of the PCI card.  The API below
++provides a generic API for device drivers to be notified of PCI
++errors, and to be notified of, and respond to, a reset sequence.
++
++Preliminary sketch of API, cut-n-pasted-n-modified email from
++Ben Herrenschmidt, circa 5 april 2005
++
++The error recovery API support is exposed to the driver in the form of
++a structure of function pointers pointed to by a new field in struct
++pci_driver. The absence of this pointer in pci_driver denotes an
++"non-aware" driver, behaviour on these is platform dependant.
++Platforms like ppc64 can try to simulate pci hotplug remove/add.
++
++The definition of "pci_error_token" is not covered here. It is based on
++Seto's work on the synchronous error detection. We still need to define
++functions for extracting infos out of an opaque error token. This is
++separate from this API.
++
++This structure has the form:
++
++struct pci_error_handlers
 +{
-+	int i;
++	int (*error_detected)(struct pci_dev *dev, pci_error_token error);
++	int (*mmio_enabled)(struct pci_dev *dev);
++	int (*resume)(struct pci_dev *dev);
++	int (*link_reset)(struct pci_dev *dev);
++	int (*slot_reset)(struct pci_dev *dev);
++};
 +
-+	if (NULL==pdn->phb) return;
-+	for (i=4; i<10; i++) {
-+		rtas_write_config(pdn, i*4, 4, pdn->config_space[i]);
-+	}
++A driver doesn't have to implement all of these callbacks. The
++only mandatory one is error_detected(). If a callback is not
++implemented, the corresponding feature is considered unsupported.
++For example, if mmio_enabled() and resume() aren't there, then the
++driver is assumed as not doing any direct recovery and requires
++a reset. If link_reset() is not implemented, the card is assumed as
++not caring about link resets, in which case, if recover is supported,
++the core can try recover (but not slot_reset() unless it really did
++reset the slot). If slot_reset() is not supported, link_reset() can
++be called instead on a slot reset.
 +
-+	/* 12 == Expansion ROM Address */
-+	rtas_write_config(pdn, 12*4, 4, pdn->config_space[12]);
++At first, the call will always be :
 +
-+#define BYTE_SWAP(OFF) (8*((OFF)/4)+3-(OFF))
-+#define SAVED_BYTE(OFF) (((u8 *)(pdn->config_space))[BYTE_SWAP(OFF)])
++	1) error_detected()
 +
-+	rtas_write_config (pdn, PCI_CACHE_LINE_SIZE, 1,
-+	            SAVED_BYTE(PCI_CACHE_LINE_SIZE));
++	Error detected. This is sent once after an error has been detected. At
++this point, the device might not be accessible anymore depending on the
++platform (the slot will be isolated on ppc64). The driver may already
++have "noticed" the error because of a failing IO, but this is the proper
++"synchronisation point", that is, it gives a chance to the driver to
++cleanup, waiting for pending stuff (timers, whatever, etc...) to
++complete; it can take semaphores, schedule, etc... everything but touch
++the device. Within this function and after it returns, the driver
++shouldn't do any new IOs. Called in task context. This is sort of a
++"quiesce" point. See note about interrupts at the end of this doc.
 +
-+	rtas_write_config (pdn, PCI_LATENCY_TIMER, 1,
-+	            SAVED_BYTE(PCI_LATENCY_TIMER));
++	Result codes:
++		- PCIERR_RESULT_CAN_RECOVER:
++		  Driever returns this if it thinks it might be able to recover
++		  the HW by just banging IOs or if it wants to be given
++		  a chance to extract some diagnostic informations (see
++		  below).
++		- PCIERR_RESULT_NEED_RESET:
++		  Driver returns this if it thinks it can't recover unless the
++		  slot is reset.
++		- PCIERR_RESULT_DISCONNECT:
++		  Return this if driver thinks it won't recover at all,
++		  (this will detach the driver ? or just leave it
++		  dangling ? to be decided)
 +
-+	/* max latency, min grant, interrupt pin and line */
-+	rtas_write_config(pdn, 15*4, 4, pdn->config_space[15]);
-+}
++So at this point, we have called error_detected() for all drivers
++on the segment that had the error. On ppc64, the slot is isolated. What
++happens now typically depends on the result from the drivers. If all
++drivers on the segment/slot return PCIERR_RESULT_CAN_RECOVER, we would
++re-enable IOs on the slot (or do nothing special if the platform doesn't
++isolate slots) and call 2). If not and we can reset slots, we go to 4),
++if neither, we have a dead slot. If it's an hotplug slot, we might
++"simulate" reset by triggering HW unplug/replug though.
 +
-+/**
-+ * eeh_restore_bars - restore the PCI config space info
-+ *
-+ * This routine performs a recursive walk to the children
-+ * of this device as well.
-+ */
-+void eeh_restore_bars(struct pci_dn *pdn)
-+{
-+	struct device_node *dn;
-+	if (!pdn) 
-+		return;
-+	
-+	if (! pdn->eeh_is_bridge)
-+		__restore_bars (pdn);
++>>> Current ppc64 implementation assumes that a device driver will
++>>> *not* schedule or semaphore in this routine; the current ppc64
++>>> implementation uses one kernel thread to notify all devices;
++>>> thus, of one device sleeps/schedules, all devices are affected.
++>>> Doing better requires complex multi-threaded logic in the error
++>>> recovery implementation (e.g. waiting for all notification threads
++>>> to "join" before proceeding with recovery.)  This seems excessively
++>>> complex and not worth implementing.
 +
-+	dn = pdn->node->child;
-+	while (dn) {
-+		eeh_restore_bars (PCI_DN(dn));
-+		dn = dn->sibling;
-+	}
-+}
++>>> The current ppc64 implementation doesn't much care if the device
++>>> attempts i/o at this point, or not.  I/O's will fail, returning
++>>> a value of 0xff on read, and writes will be dropped. If the device
++>>> driver attempts more than 10K I/O's to a frozen adapter, it will
++>>> assume that the device driver has gone into an infinite loop, and
++>>> it will panic the the kernel.
 +
-+/**
-+ * eeh_save_bars - save device bars
-+ *
-+ * Save the values of the device bars. Unlike the restore
-+ * routine, this routine is *not* recursive. This is because
-+ * PCI devices are added individuallly; but, for the restore,
-+ * an entire slot is reset at a time.
-+ */
-+static void eeh_save_bars(struct pci_dev * pdev, struct pci_dn *pdn)
-+{
-+	int i;
++	2) mmio_enabled()
 +
-+	if (!pdev || !pdn )
-+		return;
-+	
-+	for (i = 0; i < 16; i++)
-+		pci_read_config_dword(pdev, i * 4, &pdn->config_space[i]);
++	This is the "early recovery" call. IOs are allowed again, but DMA is
++not (hrm... to be discussed, I prefer not), with some restrictions. This
++is NOT a callback for the driver to start operations again, only to
++peek/poke at the device, extract diagnostic information, if any, and
++eventually do things like trigger a device local reset or some such,
++but not restart operations. This is sent if all drivers on a segment
++agree that they can try to recover and no automatic link reset was
++performed by the HW. If the platform can't just re-enable IOs without
++a slot reset or a link reset, it doesn't call this callback and goes
++directly to 3) or 4). All IOs should be done _synchronously_ from
++within this callback, errors triggered by them will be returned via
++the normal pci_check_whatever() api, no new error_detected() callback
++will be issued due to an error happening here. However, such an error
++might cause IOs to be re-blocked for the whole segment, and thus
++invalidate the recovery that other devices on the same segment might
++have done, forcing the whole segment into one of the next states,
++that is link reset or slot reset.
 +
-+	if (pdev->hdr_type == PCI_HEADER_TYPE_BRIDGE)
-+		pdn->eeh_is_bridge = 1;
-+}
++	Result codes:
++		- PCIERR_RESULT_RECOVERED
++		  Driver returns this if it thinks the device is fully
++		  functionnal and thinks it is ready to start
++		  normal driver operations again. There is no
++		  guarantee that the driver will actually be
++		  allowed to proceed, as another driver on the
++		  same segment might have failed and thus triggered a
++		  slot reset on platforms that support it.
 +
-+void
-+rtas_configure_bridge(struct pci_dn *pdn)
-+{
-+	int token = rtas_token ("ibm,configure-bridge");
-+	int rc;
++		- PCIERR_RESULT_NEED_RESET
++		  Driver returns this if it thinks the device is not
++		  recoverable in it's current state and it needs a slot
++		  reset to proceed.
 +
-+	if (token == RTAS_UNKNOWN_SERVICE)
-+		return;
-+	rc = rtas_call(token,3,1, NULL,
-+	               pdn->eeh_config_addr,
-+	               BUID_HI(pdn->phb->buid),
-+	               BUID_LO(pdn->phb->buid));
-+	if (rc) {
-+		printk (KERN_WARNING "EEH: Unable to configure device bridge (%d) for %s\n",
-+		        rc, pdn->node->full_name);
-+	}
-+}
++		- PCIERR_RESULT_DISCONNECT
++		  Same as above. Total failure, no recovery even after
++		  reset driver dead. (To be defined more precisely)
 +
- /* ------------------------------------------------------------- */
- /* The code below deals with enabling EEH for devices during  the
-  * early boot sequence.  EEH must be enabled before any PCI probing
-@@ -978,6 +1088,7 @@
- void eeh_add_device_late(struct pci_dev *dev)
- {
- 	struct device_node *dn;
-+	struct pci_dn *pdn;
- 
- 	if (!dev || !eeh_subsystem_enabled)
- 		return;
-@@ -988,9 +1099,11 @@
- 
- 	pci_dev_get (dev);
- 	dn = pci_device_to_OF_node(dev);
--	PCI_DN(dn)->pcidev = dev;
-+	pdn = PCI_DN(dn);
-+	pdn->pcidev = dev;
- 
- 	pci_addr_cache_insert_device (dev);
-+	eeh_save_bars(dev, pdn);
- }
- EXPORT_SYMBOL_GPL(eeh_add_device_late);
- 
-Index: linux-2.6.14-rc2-git6/arch/ppc64/kernel/pci.h
++>>> The current ppc64 implementation does not implement this callback.
++
++	3) link_reset()
++
++	This is called after the link has been reset. This is typically
++a PCI Express specific state at this point and is done whenever a
++non-fatal error has been detected that can be "solved" by resetting
++the link. This call informs the driver of the reset and the driver
++should check if the device appears to be in working condition.
++This function acts a bit like 2) mmio_enabled(), in that the driver
++is not supposed to restart normal driver I/O operations right away.
++Instead, it should just "probe" the device to check it's recoverability
++status. If all is right, then the core will call resume() once all
++drivers have ack'd link_reset().
++
++	Result codes:
++		(identical to mmio_enabled)
++
++>>> The current ppc64 implementation does not implement this callback.
++
++	4) slot_reset()
++
++	This is called after the slot has been soft or hard reset by the
++platform.  A soft reset consists of asserting the adapter #RST line
++and then restoring the PCI BARs and PCI configuration header. If the
++platform supports PCI hotplug, then it might instead perform a hard
++reset by toggling power on the slot off/on. This call gives drivers
++the chance to re-initialize the hardware (re-download firmware, etc.),
++but drivers shouldn't restart normal I/O processing operations at
++this point.  (See note about interrupts; interrupts aren't guaranteed
++to be delivered until the resume() callback has been called). If all
++device drivers report success on this callback, the patform will call
++resume() to complete the error handling and let the driver restart
++normal I/O processing.
++
++A driver can still return a critical failure for this function if
++it can't get the device operational after reset.  If the platform
++previously tried a soft reset, it migh now try a hard reset (power
++cycle) and then call slot_reset() again.  It the device still can't
++be recovered, there is nothing more that can be done;  the platform
++will typically report a "permanent failure" in such a case.  The
++device will be considered "dead" in this case.
++
++	Result codes:
++		- PCIERR_RESULT_DISCONNECT
++		Same as above.
++
++>>> The current ppc64 implementation does not try a power-cycle reset
++>>> if the driver returned PCIERR_RESULT_DISCONNECT. However, it should.
++
++	5) resume()
++
++	This is called if all drivers on the segment have returned
++PCIERR_RESULT_RECOVERED from one of the 3 prevous callbacks.
++That basically tells the driver to restart activity, tht everything
++is back and running. No result code is taken into account here. If
++a new error happens, it will restart a new error handling process.
++
++That's it. I think this covers all the possibilities. The way those
++callbacks are called is platform policy. A platform with no slot reset
++capability for example may want to just "ignore" drivers that can't
++recover (disconnect them) and try to let other cards on the same segment
++recover. Keep in mind that in most real life cases, though, there will
++be only one driver per segment.
++
++Now, there is a note about interrupts. If you get an interrupt and your
++device is dead or has been isolated, there is a problem :)
++
++After much thinking, I decided to leave that to the platform. That is,
++the recovery API only precies that:
++
++ - There is no guarantee that interrupt delivery can proceed from any
++device on the segment starting from the error detection and until the
++restart callback is sent, at which point interrupts are expected to be
++fully operational.
++
++ - There is no guarantee that interrupt delivery is stopped, that is, ad
++river that gets an interrupts after detecting an error, or that detects
++and error within the interrupt handler such that it prevents proper
++ack'ing of the interrupt (and thus removal of the source) should just
++return IRQ_NOTHANDLED. It's up to the platform to deal with taht
++condition, typically by masking the irq source during the duration of
++the error handling. It is expected that the platform "knows" which
++interrupts are routed to error-management capable slots and can deal
++with temporarily disabling that irq number during error processing (this
++isn't terribly complex). That means some IRQ latency for other devices
++sharing the interrupt, but there is simply no other way. High end
++platforms aren't supposed to share interrupts between many devices
++anyway :)
++
++
++Revised: 31 May 2005 Linas Vepstas <linas@austin.ibm.com>
+Index: linux-2.6.14-rc2-git6/MAINTAINERS
 ===================================================================
---- linux-2.6.14-rc2-git6.orig/arch/ppc64/kernel/pci.h	2005-10-06 17:51:58.844488173 -0500
-+++ linux-2.6.14-rc2-git6/arch/ppc64/kernel/pci.h	2005-10-06 17:52:37.399078590 -0500
-@@ -63,6 +63,29 @@
-  */
- void rtas_set_slot_reset (struct pci_dn *);
+--- linux-2.6.14-rc2-git6.orig/MAINTAINERS	2005-10-06 17:50:30.073943549 -0500
++++ linux-2.6.14-rc2-git6/MAINTAINERS	2005-10-06 17:52:47.296689858 -0500
+@@ -1859,6 +1859,13 @@
+ L:	linux-abi-devel@lists.sourceforge.net
+ S:	Maintained
  
-+/** 
-+ * eeh_restore_bars - Restore device configuration info.
-+ *
-+ * A reset of a PCI device will clear out its config space.
-+ * This routines will restore the config space for this
-+ * device, and is children, to values previously obtained
-+ * from the firmware.
-+ */
-+void eeh_restore_bars(struct pci_dn *);
++PCI ERROR RECOVERY
++P: Linas Vepstas
++M: linas@austin.ibm.com
++L:	linux-kernel@vger.kernel.org
++L:	linux-pci@atrey.karlin.mff.cuni.cz
++S:	Supported
 +
-+/**
-+ * rtas_configure_bridge -- firmware initialization of pci bridge
-+ *
-+ * Ask the firmware to configure all PCI bridges devices
-+ * located behind the indicated node. Required after a
-+ * pci device reset. Does essentially the same hing as
-+ * eeh_restore_bars, but for brdges, and lets firmware 
-+ * do the work.
-+ */
-+void rtas_configure_bridge(struct pci_dn *);
-+
-+int rtas_write_config(struct pci_dn *, int where, int size, u32 val);
-+
- #endif
- 
- #endif /* __PPC_KERNEL_PCI_H__ */
+ PCI SOUND DRIVERS (ES1370, ES1371 and SONICVIBES)
+ P:	Thomas Sailer
+ M:	sailer@ife.ee.ethz.ch

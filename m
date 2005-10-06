@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbVJFXkr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbVJFXoq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932081AbVJFXkr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 19:40:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932083AbVJFXkr
+	id S932082AbVJFXoq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 19:44:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932083AbVJFXoq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 19:40:47 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:26307 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932081AbVJFXkq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 19:40:46 -0400
-Date: Thu, 6 Oct 2005 18:40:44 -0500
+	Thu, 6 Oct 2005 19:44:46 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:17066 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932082AbVJFXop
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 19:44:45 -0400
+Date: Thu, 6 Oct 2005 18:44:43 -0500
 To: paulus@samba.org
 Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
        linux-pci@atrey.karlin.mff.cuni.cz
-Subject: [PATCH 12/22] ppc64: RPA PHP cleanup
-Message-ID: <20051006234044.GM29826@austin.ibm.com>
+Subject: [PATCH 13/22] ppc64: RPAPHP duplicated code removal
+Message-ID: <20051006234443.GN29826@austin.ibm.com>
 References: <20051006232032.GA29826@austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -26,98 +26,128 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-12-rpaphp-cleanup.patch
+13-rpaphp-eliminate-dupe-code.patch
 
-This patch cleans up some rpa dlpar code. Basically, 
-the rpaphp_config_pci_adapter() was a wrapper routine, which
-made two calls, and wrapped a bunch of verbose no-op code
-around it.  This was consolidated wih the routine it called.
+The RPAPHP code contains two routines that appear to be gratiuitous copies
+of very similar pci code.  In particular, 
+   
+   rpaphp_claim_resource ~~ pci_claim_resource
+   rpadlpar_claim_one_bus == pcibios_claim_one_bus
+
+This patch removes the rpaphp versions of the code.
+This patch survived an overnight run of thousands of 
+add/remove of the slots and phb.
 
 Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
 
+
 Index: linux-2.6.14-rc2-git6/drivers/pci/hotplug/rpaphp_pci.c
 ===================================================================
---- linux-2.6.14-rc2-git6.orig/drivers/pci/hotplug/rpaphp_pci.c	2005-10-06 17:53:52.477544359 -0500
-+++ linux-2.6.14-rc2-git6/drivers/pci/hotplug/rpaphp_pci.c	2005-10-06 17:53:55.542114371 -0500
-@@ -219,18 +219,21 @@
-  rpaphp_pci_config_slot() will  configure all devices under the
-  given slot->dn and return the the first pci_dev.
-  *****************************************************************************/
--static struct pci_dev *
--rpaphp_pci_config_slot(struct pci_bus *bus)
-+int
-+rpaphp_config_pci_adapter(struct pci_bus *bus)
- {
- 	struct device_node *dn = pci_bus_to_OF_node(bus);
- 	struct pci_dev *dev = NULL;
-+	int rc = -ENODEV;
- 	int slotno;
- 	int num;
- 
- 	dbg("Enter %s: dn=%s bus=%s\n", __FUNCTION__, dn->full_name, bus->name);
- 	if (!dn || !dn->child)
--		return NULL;
-+		goto exit;
- 
-+	eeh_add_device_tree_early(dn);
-+	
- 	slotno = PCI_SLOT(PCI_DN(dn->child)->devfn);
- 
- 	/* pci_scan_slot should find all children */
-@@ -241,15 +244,23 @@
- 	}
- 	if (list_empty(&bus->devices)) {
- 		err("%s: No new device found\n", __FUNCTION__);
--		return NULL;
-+		goto exit;
- 	}
- 	list_for_each_entry(dev, &bus->devices, bus_list) {
- 		if (dev->hdr_type == PCI_HEADER_TYPE_BRIDGE)
- 			rpaphp_pci_config_bridge(dev);
- 	}
- 
--	return dev;
-+	dbg("%s: pci_devs of slot[%s]\n", __FUNCTION__, dn->full_name);
-+	list_for_each_entry (dev, &bus->devices, bus_list)
-+		dbg("\t%s\n", pci_name(dev));
-+
-+	rc = 0;
-+exit:
-+	dbg("Exit %s:  rc=%d\n", __FUNCTION__, rc);
-+	return rc;
+--- linux-2.6.14-rc2-git6.orig/drivers/pci/hotplug/rpaphp_pci.c	2005-10-06 17:53:55.542114371 -0500
++++ linux-2.6.14-rc2-git6/drivers/pci/hotplug/rpaphp_pci.c	2005-10-06 17:53:57.832792967 -0500
+@@ -60,28 +60,6 @@
  }
-+EXPORT_SYMBOL_GPL(rpaphp_config_pci_adapter);
+ EXPORT_SYMBOL_GPL(rpaphp_find_pci_bus);
  
- static void print_slot_pci_funcs(struct pci_bus *bus)
- {
-@@ -266,30 +277,6 @@
- 	return;
- }
- 
--int rpaphp_config_pci_adapter(struct pci_bus *bus)
+-int rpaphp_claim_resource(struct pci_dev *dev, int resource)
 -{
--	struct device_node *dn = pci_bus_to_OF_node(bus);
--	struct pci_dev *dev;
--	int rc = -ENODEV;
+-	struct resource *res = &dev->resource[resource];
+-	struct resource *root = pci_find_parent_resource(dev, res);
+-	char *dtype = resource < PCI_BRIDGE_RESOURCES ? "device" : "bridge";
+-	int err = -EINVAL;
 -
--	dbg("Entry %s: slot[%s]\n", __FUNCTION__, dn->full_name);
--	if (!dn)
--		goto exit;
--
--	eeh_add_device_tree_early(dn);
--	dev = rpaphp_pci_config_slot(bus);
--	if (!dev) {
--		err("%s: can't find any devices.\n", __FUNCTION__);
--		goto exit;
+-	if (root != NULL) {
+-		err = request_resource(root, res);
 -	}
--	print_slot_pci_funcs(bus);
--	rc = 0;
--exit:
--	dbg("Exit %s:  rc=%d\n", __FUNCTION__, rc);
--	return rc;
--}
--EXPORT_SYMBOL_GPL(rpaphp_config_pci_adapter);
 -
- int rpaphp_unconfig_pci_adapter(struct pci_bus *bus)
+-	if (err) {
+-		err("PCI: %s region %d of %s %s [%lx:%lx]\n",
+-		    root ? "Address space collision on" :
+-		    "No parent found for",
+-		    resource, dtype, pci_name(dev), res->start, res->end);
+-	}
+-	return err;
+-}
+-
+-EXPORT_SYMBOL_GPL(rpaphp_claim_resource);
+-
+ static int rpaphp_get_sensor_state(struct slot *slot, int *state)
  {
- 	struct pci_dev *dev, *tmp;
+ 	int rc;
+@@ -176,7 +154,7 @@
+ 
+ 				if (r->parent || !r->start || !r->flags)
+ 					continue;
+-				rpaphp_claim_resource(dev, i);
++				pci_claim_resource(dev, i);
+ 			}
+ 		}
+ 	}
+Index: linux-2.6.14-rc2-git6/drivers/pci/hotplug/rpadlpar_core.c
+===================================================================
+--- linux-2.6.14-rc2-git6.orig/drivers/pci/hotplug/rpadlpar_core.c	2005-10-06 17:53:50.226860151 -0500
++++ linux-2.6.14-rc2-git6/drivers/pci/hotplug/rpadlpar_core.c	2005-10-06 17:53:57.834792686 -0500
+@@ -109,28 +109,6 @@
+         return NULL;
+ }
+ 
+-static void rpadlpar_claim_one_bus(struct pci_bus *b)
+-{
+-	struct list_head *ld;
+-	struct pci_bus *child_bus;
+-
+-	for (ld = b->devices.next; ld != &b->devices; ld = ld->next) {
+-		struct pci_dev *dev = pci_dev_b(ld);
+-		int i;
+-
+-		for (i = 0; i < PCI_NUM_RESOURCES; i++) {
+-			struct resource *r = &dev->resource[i];
+-
+-			if (r->parent || !r->start || !r->flags)
+-				continue;
+-			rpaphp_claim_resource(dev, i);
+-		}
+-	}
+-
+-	list_for_each_entry(child_bus, &b->children, node)
+-		rpadlpar_claim_one_bus(child_bus);
+-}
+-
+ static int pci_add_secondary_bus(struct device_node *dn,
+ 		struct pci_dev *bridge_dev)
+ {
+@@ -155,7 +133,7 @@
+ 	pcibios_fixup_bus(child);
+ 
+ 	/* Claim new bus resources */
+-	rpadlpar_claim_one_bus(bridge_dev->bus);
++	pcibios_claim_one_bus(bridge_dev->bus);
+ 
+ 	if (hose->last_busno < child->number)
+ 		hose->last_busno = child->number;
+Index: linux-2.6.14-rc2-git6/arch/ppc64/kernel/pci.c
+===================================================================
+--- linux-2.6.14-rc2-git6.orig/arch/ppc64/kernel/pci.c	2005-10-06 17:50:25.899529261 -0500
++++ linux-2.6.14-rc2-git6/arch/ppc64/kernel/pci.c	2005-10-06 17:53:57.836792405 -0500
+@@ -198,7 +198,7 @@
+ 	spin_unlock(&hose_spinlock);
+ }
+ 
+-static void __init pcibios_claim_one_bus(struct pci_bus *b)
++void __devinit pcibios_claim_one_bus(struct pci_bus *b)
+ {
+ 	struct pci_dev *dev;
+ 	struct pci_bus *child_bus;
+Index: linux-2.6.14-rc2-git6/include/asm-ppc64/pci.h
+===================================================================
+--- linux-2.6.14-rc2-git6.orig/include/asm-ppc64/pci.h	2005-10-06 17:50:25.899529261 -0500
++++ linux-2.6.14-rc2-git6/include/asm-ppc64/pci.h	2005-10-06 17:53:57.836792405 -0500
+@@ -160,6 +160,8 @@
+ extern void
+ pcibios_fixup_device_resources(struct pci_dev *dev, struct pci_bus *bus);
+ 
++extern void pcibios_claim_one_bus(struct pci_bus *b);
++
+ extern struct pci_controller *init_phb_dynamic(struct device_node *dn);
+ 
+ extern int pci_read_irq_line(struct pci_dev *dev);

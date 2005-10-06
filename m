@@ -1,71 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751099AbVJFPmz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751102AbVJFPnS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751099AbVJFPmz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 11:42:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751100AbVJFPmz
+	id S1751102AbVJFPnS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 11:43:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbVJFPnS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 11:42:55 -0400
-Received: from over.co.us.ibm.com ([32.97.110.157]:18360 "EHLO
-	bldfb.esmtp.ibm.com") by vger.kernel.org with ESMTP
-	id S1751099AbVJFPmy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 11:42:54 -0400
-Subject: Re: [PATCH 0/3] Demand faulting for huge pages
-From: Adam Litke <agl@us.ibm.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: "David Gibson david"@gibson.dropbear.id.au, Andrew Morton <akpm@osdl.org>,
-       William Irwin <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-In-Reply-To: <Pine.LNX.4.61.0509291420150.27691@goblin.wat.veritas.com>
-References: <1127939141.26401.32.camel@localhost.localdomain>
-	 <Pine.LNX.4.61.0509291420150.27691@goblin.wat.veritas.com>
-Content-Type: text/plain
-Organization: IBM
-Date: Thu, 06 Oct 2005 10:22:49 -0500
-Message-Id: <1128612169.10109.12.camel@localhost.localdomain>
+	Thu, 6 Oct 2005 11:43:18 -0400
+Received: from 30.Red-80-36-33.staticIP.rima-tde.net ([80.36.33.30]:28327 "EHLO
+	linalco.com") by vger.kernel.org with ESMTP id S1751102AbVJFPnR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 11:43:17 -0400
+Date: Thu, 6 Oct 2005 17:41:40 +0200
+From: Ragnar Hojland Espinosa <ragnar.hojland@linalco.com>
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+Cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+       Marc Perkel <marc@perkel.com>, Nix <nix@esperi.org.uk>, 7eggert@gmx.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel?
+Message-ID: <20051006154140.GA4833@linalco.com>
+References: <4TiWy-4HQ-3@gated-at.bofh.it> <4U0XH-3Gp-39@gated-at.bofh.it> <E1EMutG-0001Hd-7U@be1.lrz> <87k6gsjalu.fsf@amaterasu.srvr.nix> <4343E611.1000901@perkel.com> <20051005152447.GD10538@lkcl.net> <20051005153006.GD8011@csclub.uwaterloo.ca> <20051005154226.GI10538@lkcl.net> <20051005155516.GF7949@csclub.uwaterloo.ca>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051005155516.GF7949@csclub.uwaterloo.ca>
+X-Edited-With-Muttmode: muttmail.sl - 2001-09-27
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-09-29 at 14:32 +0100, Hugh Dickins wrote:
-> On Wed, 28 Sep 2005, Adam Litke wrote:
+On Wed, Oct 05, 2005 at 11:55:16AM -0400, Lennart Sorensen wrote:
+> On Wed, Oct 05, 2005 at 04:42:26PM +0100, Luke Kenneth Casson Leighton wrote:
+> >  i have no idea.  as a user, i just did rm -fr /tmp/* (sorry - not
+> >  rm -fr /tmp) and it worked.
+> > 
+> >  as a user.
+> > 
+> >  not root.
 > 
-> > Hi Andrew.  Can we give hugetlb demand faulting a spin in the mm tree?
-> > And could people with alpha, sparc, and ia64 machines give them a good
-> > spin?  I haven't been able to test those arches yet.
+> Then some admin didn't qualify for root having apparently removed the t
+> bit from /tmp making it a world writeable dir.  Ouch.
 > 
-> It's going to be a little confusing if these go in while I'm moving
-> the page_table_lock inwards.  My patches don't make a big difference
-> to hugetlb (I've not attempted splitting the lock at all for hugetlb -
-> there would be per-arch implementation issues and very little point -
-> though more point if we do move to hugetlb faulting).  But I'm ill at
-> ease with changing the locking at one end while it's unclear whether
-> it's right at the other end.
+> >  they weren't dumb enough to give it to me.
 > 
-> Currently Adam's patches don't include my hugetlb changes already in
-> -mm; and I don't see any attention in his patches to the issue of
-> hugetlb file truncation, which I was fixing up in those.
-> 
-> The current hugetlb_prefault guards against this with i_sem held:
-> which _appears_ to be a lock ordering violation, but may not be,
-> since the official lock ordering is determined by the possibility
-> of fault within write, whereas hugetlb mmaps were never faulting.
-> 
-> Presumably on-demand hugetlb faulting would entail truncate_count
-> checking like do_no_page, and corresponding code in hugetlbfs.
-> 
-> I've no experience of hugetlb use.  Personally, I'd be very happy with
-> a decision to disallow truncation of hugetlb files (seems odd to allow
-> ftruncate when read and write are not allowed, and the size normally
-> determined automatically by mmap size); but I have to assume that it's
-> been allowed for good reason.
+> But they made /tmp world writeable it seems.  Impresive. :)
 
-If I were to spend time coding up a patch to remove truncation support
-for hugetlbfs, would it be something other people would want to see
-merged as well?
+Silly accidents like that happen.  A lazy tarballer in action:
+
+# ls -ld foo
+drwxr-xr-x  2 root   root  48 Oct  6 17:34 foo
+# cd foo
+# tar cf ../foo.tar .
+
+And too sleepy root who blindly untars to /tmp
+
+# ls -ld tmp
+drwxrwxrwt  2 root   root  48 Oct  6 17:34 tmp
+# tar xf foo.tar
+# ls -ld tmp
+drwxr-xr-x  2 root   root     72 Oct  6 17:36 tmp
+
+woops.
 
 -- 
-Adam Litke - (agl at us.ibm.com)
-IBM Linux Technology Center
-
+Ragnar Hojland - Project Manager
+Linalco "Specialists in Linux and Free Software"
+http://www.linalco.com  Tel: +34-91-4561700

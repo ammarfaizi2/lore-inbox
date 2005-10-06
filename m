@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750812AbVJFKnV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750813AbVJFKoW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750812AbVJFKnV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 06:43:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750813AbVJFKnV
+	id S1750813AbVJFKoW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 06:44:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbVJFKoW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 06:43:21 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:48326 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750812AbVJFKnU (ORCPT
+	Thu, 6 Oct 2005 06:44:22 -0400
+Received: from free.hands.com ([83.142.228.128]:5829 "EHLO free.hands.com")
+	by vger.kernel.org with ESMTP id S1750813AbVJFKoV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 06:43:20 -0400
-Date: Thu, 6 Oct 2005 12:42:48 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>,
-       Nigel Cunningham <ncunningham@cyclades.com>
-Subject: Re: [swsusp] separate snapshot functionality to separate file
-Message-ID: <20051006104247.GA25255@elf.ucw.cz>
-References: <20051002231332.GA2769@elf.ucw.cz> <200510051020.15400.rjw@sisk.pl> <20051005083341.GA22034@elf.ucw.cz> <200510061023.16016.rjw@sisk.pl>
+	Thu, 6 Oct 2005 06:44:21 -0400
+Date: Thu, 6 Oct 2005 11:44:08 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: jmerkey <jmerkey@utah-nac.org>
+Cc: Chase Venters <chase.venters@clientec.com>, Marc Perkel <marc@perkel.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Wolf Mountain File System [what's next for the linux kernel]
+Message-ID: <20051006104408.GG10538@lkcl.net>
+References: <20051002204703.GG6290@lkcl.net> <200510041840.55820.chase.venters@clientec.com> <20051005102650.GO10538@lkcl.net> <200510060005.09121.chase.venters@clientec.com> <4344A797.9010701@utah-nac.org> <4344A8E6.1070006@utah-nac.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200510061023.16016.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <4344A8E6.1070006@utah-nac.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-hands-com-MailScanner: Found to be clean
+X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+dear mr jmerkley,
 
-> > > OK, but if we decide to move some functions from one file to another,
-> > > we'll have to wait for another "settle down" period, I think.
-> > 
-> > Yes...
-> 
-> Then I'd propose that we wait for the next "settle down" period with the
-> split and apply all of the bugfixes and cleanups now.
+your message would be most welcome on a linux visionaries mailing list,
+if we can twist enough arms to get one created.  my eye is beginning to
+twitch at the number of emails with this subject line, knowing that
+they're going to the LKML...
 
-Nigel's cleanup is not ready yet, and yours is oneliner. I applied
-that oneliner locally. I already have cleanups depending on the
-split. Of course I can redo them, but perhaps it is easier to just
-redo that one line.
-								Pavel
--- 
-if you have sharp zaurus hardware you don't need... you know my address
+> >businesses to grow around it.  I am proposing not just a file system 
+> >or clustering, but a unique architecture and new communication model 
+> >for the internet for collaborative sharing at the kernel level with 
+> >distributed data and routing facilities and disconnectable 
+> >operations.  
+

@@ -1,88 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbVJFIEE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbVJFHyl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750719AbVJFIEE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 04:04:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750720AbVJFIED
+	id S1750717AbVJFHyl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 03:54:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750719AbVJFHyl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 04:04:03 -0400
-Received: from mail22.sea5.speakeasy.net ([69.17.117.24]:50343 "EHLO
-	mail22.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1750719AbVJFIEB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 04:04:01 -0400
-Date: Thu, 6 Oct 2005 04:03:58 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-X-X-Sender: jmorris@excalibur.intercode
-To: Chris Wright <chrisw@osdl.org>
-cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, keyrings@linux-nfs.org,
-       linux-kernel@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [Keyrings] [PATCH] Keys: Add LSM hooks for key management
-In-Reply-To: <20051005211030.GC16352@shell0.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.63.0510060346140.25593@excalibur.intercode>
-References: <29942.1128529714@warthog.cambridge.redhat.com>
- <20051005211030.GC16352@shell0.pdx.osdl.net>
+	Thu, 6 Oct 2005 03:54:41 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:61063 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750717AbVJFHyk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 03:54:40 -0400
+Date: Thu, 6 Oct 2005 03:54:27 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+To: Mark Knecht <markknecht@gmail.com>
+cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-rc3-rt2
+In-Reply-To: <5bdc1c8b0510051014q3bb02d5bl80d2c88cc884fe35@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0510060351340.28535@localhost.localdomain>
+References: <20051004084405.GA24296@elte.hu> <43427AD9.9060104@cybsft.com> 
+ <20051004130009.GB31466@elte.hu>  <5bdc1c8b0510040944q233f14e6g17d53963a4496c1f@mail.gmail.com>
+  <5bdc1c8b0510041111n188b8e14lf5a1398406d30ec4@mail.gmail.com> 
+ <1128450029.13057.60.camel@tglx.tec.linutronix.de> 
+ <5bdc1c8b0510041158m3620f5dcy2dafda545ad3cd5e@mail.gmail.com> 
+ <1128458707.13057.68.camel@tglx.tec.linutronix.de> 
+ <5bdc1c8b0510041349g1a4f2484qd17a11812c8ccac3@mail.gmail.com> 
+ <20051005105605.GA27075@elte.hu> <5bdc1c8b0510051014q3bb02d5bl80d2c88cc884fe35@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Oct 2005, Chris Wright wrote:
 
-> What case causes context != current?
+On Wed, 5 Oct 2005, Mark Knecht wrote:
 
-Indeed, this is critical: we always need to know which task initiated the 
-current action.  If it's not current, then we need the calling task struct 
-passed into the security hook.
+> Hi Ingo,
+>    By the time I go there it was already -rt9. Unfortunately I still
+> get the same message. Possibly the continued discussion is addressing
+> this? I haven't tried to read it all yet.
+>
+> >From dmesg:
+>
+> PCI: Using configuration type 1
+> PCI: Using MMCONFIG at e0000000
+> ACPI: Subsystem revision 20050902
+> BUG: swapper/1: spin-unlock irq flags assymetry?
+>
+> Call Trace:<ffffffff80400d19>{_spin_unlock_irqrestore+89}
+> <ffffffff802694d6>{acpi_ev_create_gpe_block+642}
+>        <ffffffff80263116>{acpi_os_wait_semaphore+135}
+> <ffffffff80269682>{acpi_ev_gpe_initialize+109}
+>        <ffffffff80266cac>{acpi_ev_initialize_events+151}
+> <ffffffff802790a2>{acpi_enable_subsystem+69}
+>        <ffffffff806086de>{acpi_init+86} <ffffffff80604cda>{init_bio+266}
+>        <ffffffff8010b25a>{init+506} <ffffffff8010ed16>{child_rip+8}
+>        <ffffffff8010b060>{init+0} <ffffffff8010ed0e>{child_rip+0}
+>
+> ---------------------------
+> | preempt count: 00000000 ]
+> | 0-level deep critical section nesting:
+> ----------------------------------------
+>
 
-> > +	/* do a final security check before publishing the key */
-> > +	ret = security_key_alloc(key);
-> 
-> This may simply be allocating space for the label (and possibly labelling)
-> not necessarily a security check.
+The acpi code is filled with macro hell (and craziness like using a void
+pointer for a spinlock).  Do you have the following turned on?
 
-Agree, in fact, I think we should always aim to keep housekeeping hooks 
-separate from access control hooks.
-
-Access checks seem to be usually done before this point via 
-lookup_user_key(), which is ideal.
-
-> > - error:
-> > +	/* let the security module know the key has been published */
-> > +	security_key_post_alloc(key);
-> 
-> This is odd, esp since nothing could have failed between alloc and
-> publish.  Only state change is serial number.  Would you expect the
-> security module to update a label based on serial number?
-
-I don't think SELinux would care about this yet.  If so, the hook can be 
-added later.
-
-> > +	/* if we're not the sysadmin, we can only change a key that we own */
-> > +	if (capable(CAP_SYS_ADMIN) || key->uid == current->fsuid)
-> > +		ret = security_key_set_security(key, name, data, dlen);
-> 
-> Are you sure this is right?  Normally I'd expect users can _not_ set the
-> security labels of their own keys.  But perhaps I've missed the point
-> of this one, could you give a use case?
-
-I think this is like xattrs on files, where the user can set and view 
-security attributes.
-
-In any case, I don't see why you'd use a DAC check here at all, as this is 
-a complete passthrough to the security module.
-
-key_get_security() has no DAC check.
+CONFIG_USE_FRAME_POINTER=y
+CONFIG_FRAME_POINTER=y
 
 
-> This would be a whole lot easier if keys were available in keyfs ;-)
+The back trace looks a little suspicious.  But I'm looking into the acpi
+code to see if I can locate the bad flags.
 
-Yes, then standard setxattr() getxattr() syscalls could be used, and we 
-can avoid two new multiplexed syscalls.
+-- Steve
 
-David, admit it, this key stuff is all really a filesystem :-)
-
-
-- James
--- 
-James Morris
-<jmorris@namei.org>

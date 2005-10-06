@@ -1,63 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751241AbVJFRO2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751243AbVJFRSP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751241AbVJFRO2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 13:14:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbVJFRO2
+	id S1751243AbVJFRSP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 13:18:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbVJFRSP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 13:14:28 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:54174 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751241AbVJFRO1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 13:14:27 -0400
-Date: Thu, 6 Oct 2005 13:13:31 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-To: Mark Knecht <markknecht@gmail.com>
-cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       linux-pcmcia@lists.infradead.org
-Subject: Re: 2.6.14-rc3-rt1
-In-Reply-To: <5bdc1c8b0510021225y951caf3p3240a05dd2d0247c@mail.gmail.com>
-Message-ID: <Pine.LNX.4.58.0510061308290.973@localhost.localdomain>
-References: <20050913100040.GA13103@elte.hu> <20050926070210.GA5157@elte.hu>
-  <20051002151817.GA7228@elte.hu>  <5bdc1c8b0510020842p6035b4c0ibbe9aaa76789187d@mail.gmail.com>
- <5bdc1c8b0510021225y951caf3p3240a05dd2d0247c@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 6 Oct 2005 13:18:15 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:2557 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S1751243AbVJFRSO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 13:18:14 -0400
+In-Reply-To: <1c190f10510060947s5e6099d4pe9bed56e360551f4@mail.gmail.com>
+References: <20051004084405.GA24296@elte.hu> <1c190f10510060947s5e6099d4pe9bed56e360551f4@mail.gmail.com>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <2C6B8752-368D-11DA-882A-000A959BB91E@mvista.com>
+Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Felix Oxley <lkml@oxley.org>, Todd.Kneisel@bull.com,
+       Thomas Gleixner <tglx@linutronix.de>
+From: david singleton <dsingleton@mvista.com>
+Subject: Re: 2.6.14-rc3-rt2
+Date: Thu, 6 Oct 2005 10:18:12 -0700
+To: Todd Kneisel <todd.kneisel@gmail.com>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Oct 6, 2005, at 9:47 AM, Todd Kneisel wrote:
 
-On Sun, 2 Oct 2005, Mark Knecht wrote:
+> On 10/4/05, Ingo Molnar <mingo@elte.hu> wrote:
+>>
+>> i have released the 2.6.14-rc3-rt2 tree, which can be downloaded from
+>> the usual place:
+>>
+>>   http://redhat.com/~mingo/realtime-preempt/
+>>
+>> the biggest change in this release is the long-anticipated merge of a
+>> streamlined version of the "robust futexes/mutexes with priority
+>> queueing and priority inheritance" code into the -rt tree. The 
+>> original
+>> upstream patch is from Todd Kneisel, with further improvements, 
+>> cleanups
+>> and -RT integration done by David Singleton.
+>>
+>
+> My original patch implemented robust futexes using the existing futex
+> wait queue mechanisms, because the project I'm working on does not
+> need priority inheritance or other realtime features. David's changes
+> replaced the wait queue mechanisms with rt_mutexes. I'm working on
+> a patch to add my implementation back in, so the kernel will support
+> both robust wait-queue futexes and robust rt_mutex futexes. Does
+> anyone else see the need for this?
+>
+> Also, my patch implemented only shared robust futexes. David's work
+> was based on mine, so the current code only supports shared robust
+> futexes that may or may not be priority inheritance. It doesn't support
+> priority inheritance mutexes that are not robust, or that are not 
+> shared.
+
+
+The latest changes to the 2.6.14-rc3-rt10 patch is to make robust and
+priority inheritance independent.  The code now supports mutexes
+that are robust or priority inheriting or both.
+
+I hope to have glibc patches out soon for the new separation of 
+robustness
+and priority inheritance.
+
+David
+
+Please note that robust mutexes works with other flavors of kernel 
+besides
+realtime.  The code works with all flavors of kernel,  PREEMPT_NONE,  
+PREEMPT_DESKTOP or PREEMPT_RT.
+
+
 
 >
-> The only problem I had over the last few days happened with
-> 2.6.14-rc2-rt7. One time, when attempting to shutdown, the machine
-> hung after the 'Unloading Alsa modules...[OK]' step.
+> Todd.
 
-Acutally it may be the next step.  Do you have pcmcia configured?  I've
-been noticing that my system has been locking up on shutdown of the
-pcmcia.
-
-Ingo, here's the patch.  This should probably go upstream too since it can
-happen there too.  The pccardd thread has a race in it that it can
-shutdown in the TASK_INTERRUPTIBLE state.  Here's the fix.
-
--- Steve
-
-PS. Thanks for the info on quilt ;-)
-
-Index: linux-rt-quilt/drivers/pcmcia/cs.c
-===================================================================
---- linux-rt-quilt.orig/drivers/pcmcia/cs.c	2005-10-06 08:03:56.000000000 -0400
-+++ linux-rt-quilt/drivers/pcmcia/cs.c	2005-10-06 12:48:02.000000000 -0400
-@@ -689,6 +689,9 @@
- 		schedule();
- 		try_to_freeze();
- 	}
-+	/* make sure we are running before we exit */
-+	set_current_state(TASK_RUNNING);
-+
- 	remove_wait_queue(&skt->thread_wait, &wait);
-
- 	/* remove from the device core */

@@ -1,159 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbVJFXdZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbVJFXe1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932076AbVJFXdZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 19:33:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932075AbVJFXdZ
+	id S932075AbVJFXe1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 19:34:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbVJFXe1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 19:33:25 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:15331 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932081AbVJFXdY (ORCPT
+	Thu, 6 Oct 2005 19:34:27 -0400
+Received: from wproxy.gmail.com ([64.233.184.196]:24407 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932075AbVJFXe0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 19:33:24 -0400
-Date: Thu, 6 Oct 2005 18:33:20 -0500
-To: paulus@samba.org
-Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: [PATCH 8/22] ppc64: Slot Marking Bugfix
-Message-ID: <20051006233320.GI29826@austin.ibm.com>
-References: <20051006232032.GA29826@austin.ibm.com>
+	Thu, 6 Oct 2005 19:34:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=FFGxI48IgL4hhIwrWuQThaEa8bp5JOvLU+DtotPs53VlVkFGTg//GX4ZRaWm3UeneadVcb7KaIf10/Xp3mIYIs7++yBWDhOSyC7da1yyoGWO/RkVRhesp53xN6mMoHrU5QwhNFeVpDk6yzpIUX4/Q0S7LCjjQBKplwTYR+93AdY=
+Date: Fri, 7 Oct 2005 03:45:50 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Mark Gross <mgross@linux.intel.com>
+Cc: Greg KH <greg@kroah.com>, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       Sebastien.Bouchard@ca.kontron.com, mark.gross@intel.com
+Subject: Re: Fwd: Telecom Clock Driver for MPCBL0010 ATCA computer blade
+Message-ID: <20051006234550.GF2370@mipter.zuzino.mipt.ru>
+References: <200510060803.21470.mgross@linux.intel.com> <20051006182022.GA14414@kroah.com> <200510061554.35039.mgross@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051006232032.GA29826@austin.ibm.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: linas <linas@austin.ibm.com>
+In-Reply-To: <200510061554.35039.mgross@linux.intel.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Attached is an update that I think addresses your other comments.
 
-08-eeh-slot-marking-bug.patch
+> +config TELCLOCK
+> +	tristate "Telecom clock driver for ATCA"
+> +	depends on EXPERIMENTAL
+> +	default n
+> +	help
+> +	  The telecom clock device allows direct userspace access to the
+> +	  configuration of the telecom clock configuration settings.
+> +	  This device is used for hardware synchronization across the ATCA
+> +	  backplane fabric.
 
-A device that experiences a PCI outage may be just one deivce out 
-of many that was affected. In order to avoid repeated reports of 
-a failure, the entire tree of affected devices should be marked 
-as failed. This patch marks up the entire tree.
+People usually tell here how the module will be called. See plenty
+examples around.
 
-Signed-off-by: Linas Vepstas <linas@linas.org>
+> --- linux-2.6.14-rc2-mm2/drivers/char/tlclk.c
+> +++ linux-2.6.14-rc2-mm2-tlclk/drivers/char/tlclk.c
+> +Uppon loading the driver will create a sysfs directory under class/misc/tlclk.
 
+Upon.
 
-Index: linux-2.6.14-rc2-git6/arch/ppc64/kernel/eeh.c
-===================================================================
---- linux-2.6.14-rc2-git6.orig/arch/ppc64/kernel/eeh.c	2005-10-06 17:52:37.399078590 -0500
-+++ linux-2.6.14-rc2-git6/arch/ppc64/kernel/eeh.c	2005-10-06 17:53:02.164603746 -0500
-@@ -480,32 +480,47 @@
-  *  an interrupt context, which is bad.
-  */
- 
--static inline void __eeh_mark_slot (struct device_node *dn)
-+static inline void __eeh_mark_slot (struct device_node *dn, int mode_flag)
- {
- 	while (dn) {
--		PCI_DN(dn)->eeh_mode |= EEH_MODE_ISOLATED;
-+		if (PCI_DN(dn)) {
-+			PCI_DN(dn)->eeh_mode |= mode_flag;
- 
--		if (dn->child)
--			__eeh_mark_slot (dn->child);
-+			if (dn->child)
-+				__eeh_mark_slot (dn->child, mode_flag);
-+		}
- 		dn = dn->sibling;
- 	}
- }
- 
--static inline void __eeh_clear_slot (struct device_node *dn)
-+void eeh_mark_slot (struct device_node *dn, int mode_flag)
-+{
-+	dn = find_device_pe (dn);
-+	PCI_DN(dn)->eeh_mode |= mode_flag;
-+	__eeh_mark_slot (dn->child, mode_flag);
-+}
-+
-+static inline void __eeh_clear_slot (struct device_node *dn, int mode_flag)
- {
- 	while (dn) {
--		PCI_DN(dn)->eeh_mode &= ~EEH_MODE_ISOLATED;
--		if (dn->child)
--			__eeh_clear_slot (dn->child);
-+		if (PCI_DN(dn)) {
-+			PCI_DN(dn)->eeh_mode &= ~mode_flag;
-+			PCI_DN(dn)->eeh_check_count = 0;
-+			if (dn->child)
-+				__eeh_clear_slot (dn->child, mode_flag);
-+		}
- 		dn = dn->sibling;
- 	}
- }
- 
--static inline void eeh_clear_slot (struct device_node *dn)
-+void eeh_clear_slot (struct device_node *dn, int mode_flag)
- {
- 	unsigned long flags;
- 	spin_lock_irqsave(&confirm_error_lock, flags);
--	__eeh_clear_slot (dn);
-+	dn = find_device_pe (dn);
-+	PCI_DN(dn)->eeh_mode &= ~mode_flag;
-+	PCI_DN(dn)->eeh_check_count = 0;
-+	__eeh_clear_slot (dn->child, mode_flag);
- 	spin_unlock_irqrestore(&confirm_error_lock, flags);
- }
- 
-@@ -530,7 +545,6 @@
- 	int rets[3];
- 	unsigned long flags;
- 	struct pci_dn *pdn;
--	struct device_node *pe_dn;
- 	int rc = 0;
- 
- 	__get_cpu_var(total_mmio_ffs)++;
-@@ -632,8 +646,7 @@
- 	/* Avoid repeated reports of this failure, including problems
- 	 * with other functions on this device, and functions under
- 	 * bridges. */
--	pe_dn = find_device_pe (dn);
--	__eeh_mark_slot (pe_dn);
-+	eeh_mark_slot (dn, EEH_MODE_ISOLATED);
- 	spin_unlock_irqrestore(&confirm_error_lock, flags);
- 
- 	eeh_send_failure_event (dn, dev, rets[0], rets[2]);
-@@ -745,9 +758,6 @@
- 		        rc, state, pdn->node->full_name);
- 		return;
- 	}
--
--	if (state == 0)
--		eeh_clear_slot (pdn->node->parent->child);
- }
- 
- /** rtas_set_slot_reset -- assert the pci #RST line for 1/4 second
-@@ -766,6 +776,12 @@
- 
- #define PCI_BUS_RST_HOLD_TIME_MSEC 250
- 	msleep (PCI_BUS_RST_HOLD_TIME_MSEC);
-+	
-+	/* We might get hit with another EEH freeze as soon as the 
-+	 * pci slot reset line is dropped. Make sure we don't miss
-+	 * these, and clear the flag now. */
-+	eeh_clear_slot (pdn->node, EEH_MODE_ISOLATED);
-+
- 	rtas_pci_slot_reset (pdn, 0);
- 
- 	/* After a PCI slot has been reset, the PCI Express spec requires
-Index: linux-2.6.14-rc2-git6/arch/ppc64/kernel/pci.h
-===================================================================
---- linux-2.6.14-rc2-git6.orig/arch/ppc64/kernel/pci.h	2005-10-06 17:52:37.399078590 -0500
-+++ linux-2.6.14-rc2-git6/arch/ppc64/kernel/pci.h	2005-10-06 17:53:02.165603605 -0500
-@@ -86,6 +86,13 @@
- 
- int rtas_write_config(struct pci_dn *, int where, int size, u32 val);
- 
-+/**
-+ * mark and clear slots: find "partition endpoint" PE and set or 
-+ * clear the flags for each subnode of the PE.
-+ */
-+void eeh_mark_slot (struct device_node *dn, int mode_flag);
-+void eeh_clear_slot (struct device_node *dn, int mode_flag);
-+
- #endif
- 
- #endif /* __PPC_KERNEL_PCI_H__ */
+> +static int __init tlclk_init(void)
+> +{
+
+Missing unregister_chrdev() on error unrolling.
+
+> +		printk(KERN_ERR" misc_register retruns %d\n", ret);
+
+returns.
+
+> +	return 0;
+> +out3:
+> +	release_region(TLCLK_BASE, 8);
+> +out2:
+> +	kfree(alarm_events);
+> +out1:
+> +	return ret;
+> +}
+

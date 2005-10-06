@@ -1,87 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750847AbVJFMgz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750858AbVJFMqf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750847AbVJFMgz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 08:36:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750848AbVJFMgz
+	id S1750858AbVJFMqf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 08:46:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750859AbVJFMqf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 08:36:55 -0400
-Received: from fmr16.intel.com ([192.55.52.70]:58284 "EHLO
-	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1750845AbVJFMgz convert rfc822-to-8bit (ORCPT
+	Thu, 6 Oct 2005 08:46:35 -0400
+Received: from wproxy.gmail.com ([64.233.184.195]:33285 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750856AbVJFMqe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 08:36:55 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: PAE causing failure to run various executables.
-Date: Thu, 6 Oct 2005 05:36:35 -0700
-Message-ID: <88056F38E9E48644A0F562A38C64FB6005EE9110@scsmsx403.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: PAE causing failure to run various executables.
-Thread-Index: AcXJ9K4UZpCWwflGQcept2jCd165EAAfU84g
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: "avi" <avi@argo.co.il>, "Dave Jones" <davej@redhat.com>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 06 Oct 2005 12:36:36.0422 (UTC) FILETIME=[97594660:01C5CA72]
+	Thu, 6 Oct 2005 08:46:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=QYFrv+CLmfhtPEOrL9CUvuNG8lhlT7ItOYPRz+9rQKur83CLLTvbz7X16EPyxFmHh6SXOaoUPcaAKiw/VN+x3nUvokh8b4NPPjAEiR++SqyzCJTHZdIiX5qCH4VajDabBIQH9VmCjmNnXgEMCiExyajvxb3gp2eN4LETl0Eo7RY=
+Date: Thu, 6 Oct 2005 14:46:23 +0200
+From: Diego Calleja <diegocg@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Documenting kernel changes
+Message-Id: <20051006144623.42129a14.diegocg@gmail.com>
+X-Mailer: Sylpheed version 2.1.1 (GTK+ 2.8.3; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, I've always found linux changelogs awful: either you read the (too short)
+official announcement or the (too long) full changelog. 
 
->-----Original Message-----
->From: linux-kernel-owner@vger.kernel.org 
->[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of avi
->Sent: Wednesday, October 05, 2005 2:32 PM
->To: Dave Jones
->Cc: linux-kernel@vger.kernel.org
->Subject: Re: PAE causing failure to run various executables.
->
->Dave Jones wrote:
->
->>A fedora user recently filed a puzzling bug at
->>https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=169741
->>
->>The system being reported has exactly 4GB, and its E820
->>tables seem to concur that there is in fact 4GB.
->>
->>When run in non-PAE mode, it triggers the
->>"Warning only 4GB will be used. Use a PAE enabled kernel."
->>message, which is odd, but the system does actually run.
->>
->>When run in PAE mode, it seems to lose its mind, and it
->>fails to run various binaries.
->>
->>Booting with mem=4G causes the machine to boot fine
->>(though for some reason, it finds only 3042M of RAM).
->>
->>  
->>
->looks like a 1GB hole.
+So I recoleted info from several sources - official announcements, davej's
+"post halloween" doc, Guillaume Boissiere's "linux kernel status", LWN,
+googling, etc and put (me and FrankSorenson) all the 2.5.0 - 2.6.14-rc info
+found in kernelnewbies' wiki:
 
-Yes. E820 map here indeed shows 1GB of memory at higher than 32 bits
-range.
+http://wiki.kernelnewbies.org/LinuxChanges
 
+which is updated even with incoming 2.6.14 features and it's very useful IMO
 
->
->>The reporter of this bug has tested on 2.6.14-rc3-git4, and found the
->>same issue exists as he saw on the original FC3 kernel, thus 
->ruling out
->>any Fedora-specific patches.
->>
->>Anyone have any ideas what's wrong here?
->>
->>		
->>
->maybe the last 1GB is bad. since it can only be accessed by pae, only 
->the pae kernel fails.
->
-
-Another possible reason can be NX(Execute Disable) support, which is 
-active only on a PAE kernel. Trying "noexec=off" on a PAE kernel can be
-tried here.
-
-Thanks,
-Venki
+So I'm sending this message because maybe there's something missing in that
+list. I was hoping that kernel developers could take a look and add it themselves
+or correct it if something is wrong (or anwer this mail if you don't want to add it
+yourself because you hate wikis). I hope you find this useful and can contribute
+to keep it updated.

@@ -1,44 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbVJFP06@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbVJFP1t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751091AbVJFP06 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 11:26:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbVJFP05
+	id S1751092AbVJFP1t (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 11:27:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbVJFP1t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 11:26:57 -0400
-Received: from zctfs063.nortelnetworks.com ([47.164.128.120]:17327 "EHLO
-	zctfs063.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S1751091AbVJFP05 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 11:26:57 -0400
-Message-ID: <43454238.4040907@nortel.com>
-Date: Thu, 06 Oct 2005 09:26:48 -0600
-From: "Christopher Friesen" <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alex Riesen <raa.lkml@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: select(0,NULL,NULL,NULL,&t1) used for delay
-References: <1128606546.14385.26.camel@penguin.madhu> <81b0412b0510060727h35c0fd78i260037ca89f253f9@mail.gmail.com>
-In-Reply-To: <81b0412b0510060727h35c0fd78i260037ca89f253f9@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 06 Oct 2005 15:26:51.0082 (UTC) FILETIME=[5FC2B2A0:01C5CA8A]
+	Thu, 6 Oct 2005 11:27:49 -0400
+Received: from castle.nmd.msu.ru ([193.232.112.53]:5646 "HELO
+	castle.nmd.msu.ru") by vger.kernel.org with SMTP id S1751092AbVJFP1s
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 11:27:48 -0400
+Message-ID: <20051006192106.A13978@castle.nmd.msu.ru>
+Date: Thu, 6 Oct 2005 19:21:06 +0400
+From: Andrey Savochkin <saw@sawoct.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andi Kleen <ak@suse.de>, Kirill Korotaev <dev@sw.ru>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       xemul@sw.ru, st@sw.ru, discuss@x86-64.org
+Subject: Re: SMP syncronization on AMD processors (broken?)
+References: <434520FF.8050100@sw.ru> <p73hdbuzs7l.fsf@verdi.suse.de> <20051006174604.B10342@castle.nmd.msu.ru> <Pine.LNX.4.64.0510060750230.31407@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93.2i
+In-Reply-To: <Pine.LNX.4.64.0510060750230.31407@g5.osdl.org>; from "Linus Torvalds" on Thu, Oct 06, 2005 at 07:52:17AM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Riesen wrote:
+On Thu, Oct 06, 2005 at 07:52:17AM -0700, Linus Torvalds wrote:
+> 
+> 
+> On Thu, 6 Oct 2005, Andrey Savochkin wrote:
+> > 
+> > Well, it's hard to swallow...
+> > It's not about being not fully fair, it's about deadlocks that started
+> > to appear after code changes inside retry loops...
+> 
+> No, it's not about fairness.
+> 
+> It's about BUGS IN YOUR CODE.
+> 
+> If you need fairness, you need to implement that yourself. You can do so 
+> many ways. Either on top of spinlocks, by using an external side-band 
+> channel, or by using semaphores instead of spinlocks (semaphores are much 
+> higher cost, but part of the cost is that they _are_ fair).
 
-> Why don't you just use nanosleep(2) (or usleep)?
+Ok, let it be a bug.
 
-I can think of one main reason...existing code.  Also, nanosleep() 
-rounds up excessively in many kernel versions, so that a request to 
-sleep for less than 1 tick ends up sleeping for 2 ticks.
+I just want to repeat that nobody wanted or expected any fairness in this case.
+But such extremety that on some CPU models one CPU never, not in billion
+cycles, can get the lock if the other CPU repeatedly drops and acquires the
+lock, and that in this scenario memory changes seem to never propagate to
+other CPUs - well, all of that is a surprise.
 
-The select() man page explicitly mentions this usage;
+I start to wonder about existing mainstream code, presumably bug-free, that
+uses spinlocks without any problematic restart.
+If one day some piece starts to be called too often by some legitimate
+reasons, it might fall into the same pattern and completely block others who
+want to take the same spinlock.
+I'm not advocating for changing spinlock implementation, it's just a
+thought...
 
-"Some code calls select with all three sets empty, n zero, and a 
-non-null timeout as a fairly portable way to sleep with subsecond 
-precision."
-
-Chris
-
+	Andrey

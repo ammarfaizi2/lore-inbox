@@ -1,64 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751339AbVJFUDf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751340AbVJFUGk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751339AbVJFUDf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 16:03:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbVJFUDf
+	id S1751340AbVJFUGk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 16:06:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbVJFUGk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 16:03:35 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:4314 "EHLO e36.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751339AbVJFUDf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 16:03:35 -0400
-Message-Id: <200510062003.j96K3In0016900@owlet.beaverton.ibm.com>
-To: Robert Derr <rderr@weatherflow.com>
-cc: linux-kernel@vger.kernel.org, amitarora@in.ibm.com, suzukikp@in.ibm.com
-Subject: Re: 2.6.13.3 Memory leak, names_cache 
-In-reply-to: Your message of "Thu, 06 Oct 2005 14:34:25 EDT."
-             <43456E31.8000906@weatherflow.com> 
-Date: Thu, 06 Oct 2005 13:03:18 -0700
-From: Rick Lindsley <ricklind@us.ibm.com>
+	Thu, 6 Oct 2005 16:06:40 -0400
+Received: from mxfep02.bredband.com ([195.54.107.73]:58578 "EHLO
+	mxfep02.bredband.com") by vger.kernel.org with ESMTP
+	id S1751340AbVJFUGk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 16:06:40 -0400
+Message-ID: <434585D8.4010502@stesmi.com>
+Date: Thu, 06 Oct 2005 22:15:20 +0200
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Emmanuel Fleury <fleury@cs.aau.dk>
+CC: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: freebox possible GPL violation
+References: <20051005111329.GA31087@linux.ensimag.fr> <4343B779.8030200@cs.aau.dk> <1128511676.2920.19.camel@laptopd505.fenrus.org> <4343BB04.7090204@cs.aau.dk> <1128513584.2920.23.camel@laptopd505.fenrus.org> <4343C0DB.9080506@cs.aau.dk> <1128514062.2920.27.camel@laptopd505.fenrus.org> <4343C73E.9000507@cs.aau.dk> <20051006000741.GC18080@aitel.hist.no> <Pine.LNX.4.62.0510051741310.14560@qynat.qvtvafvgr.pbz> <4344EC64.2010400@aitel.hist.no> <4344F39B.10806@cs.aau.dk>
+In-Reply-To: <4344F39B.10806@cs.aau.dk>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira Milter 1.0.7; VAE 6.29.0.5; VDF 6.29.0.100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Are you running with CONFIG_AUDITSYSCALL?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-We ran into what sounds like the same problem and we're testing
-a patch right now for a names_cache growth which only occurs
-with CONFIG_AUDITSYSCALL enabled, and then only every time you
-traverse a symlink.  In open_namei(), in the do_link section, we call
-__do_follow_link() which will bypass the auditing whether it's enabled
-or not.  However at the end of this section, we will call putname(),
-which will *not* actually do a __putname() if auditing is enabled because
-it believes it will happen at syscall return.  So we slowly lose memory
-with each link traversal.
+Emmanuel Fleury wrote:
+> Helge Hafting wrote:
+> 
+>>Interesting argument, but it breaks for at least two reasons: 1. You
+>>can buy that box instead of just hiring it. That moves kernels 
+>>"outside the company", for money even.
+> 
+> 
+> I might have misunderstood but I think that if you buy the hardware you
+> cannot connect it to the DSLAM network anymore. So that only the boxes
+> they own are connected to the DSLAM.
 
-The code in open_namei() is a bit non-intuitive in error conditions,
-but the general fix appears to be pretty straightforward.  Let me know if
-this patch seems to do the trick for you.
+Get the box, turn it on, don't turn it off, pay the 400 EUR, own the box
+LEAVING IT ON.
 
+Result: You have a box that is _NOW_ running Linux and YOU own it.
 
---- linux-2.6.13.3/fs/namei.c	2005-08-28 16:41:01.000000000 -0700
-+++ linux-2.6.13.3-new/fs/namei.c	2005-10-06 12:45:41.996243768 -0700
-@@ -1557,19 +1557,19 @@ do_link:
- 	if (nd->last_type != LAST_NORM)
- 		goto exit;
- 	if (nd->last.name[nd->last.len]) {
--		putname(nd->last.name);
-+		__putname(nd->last.name);
- 		goto exit;
- 	}
- 	error = -ELOOP;
- 	if (count++==32) {
--		putname(nd->last.name);
-+		__putname(nd->last.name);
- 		goto exit;
- 	}
- 	dir = nd->dentry;
- 	down(&dir->d_inode->i_sem);
- 	path.dentry = __lookup_hash(&nd->last, nd->dentry, nd);
- 	path.mnt = nd->mnt;
--	putname(nd->last.name);
-+	__putname(nd->last.name);
- 	goto do_last;
- }
- 
+If them placing the box at your place isn't considered distribution
+(re: your mobile phone thing) then you BUYING it would need to,
+due to transfer of ownership.
+
+The fact that the box can't do what it's supposed to after you buy it
+is irrelevant.
+
+// Stefan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (MingW32)
+
+iD8DBQFDRYXYBrn2kJu9P78RAkOWAJ9WpWueLnpxMJYNqzvP7iguD76VmwCgnbXC
+M7HrIV7fM5vsNXNzP0FY7MI=
+=Yeav
+-----END PGP SIGNATURE-----

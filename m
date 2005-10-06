@@ -1,90 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751208AbVJFDu6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751221AbVJFEVh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751208AbVJFDu6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 23:50:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751210AbVJFDu6
+	id S1751221AbVJFEVh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 00:21:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbVJFEVh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 23:50:58 -0400
-Received: from 10.ctyme.com ([69.50.231.10]:3010 "EHLO newton.ctyme.com")
-	by vger.kernel.org with ESMTP id S1751208AbVJFDu5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 23:50:57 -0400
-Message-ID: <43449F1E.7050802@perkel.com>
-Date: Wed, 05 Oct 2005 20:50:54 -0700
-From: Marc Perkel <marc@perkel.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.10) Gecko/20050716
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-CC: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       Florin Malita <fmalita@gmail.com>, nix@esperi.org.uk, 7eggert@gmx.de,
-       lkcl@lkcl.net, linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-References: <200510060256.j962uXvl008891@inti.inf.utfsm.cl>
-In-Reply-To: <200510060256.j962uXvl008891@inti.inf.utfsm.cl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spamfilter-host: newton.ctyme.com - http://www.junkemailfilter.com"
+	Thu, 6 Oct 2005 00:21:37 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:60934 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1751221AbVJFEVh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 00:21:37 -0400
+Date: Thu, 6 Oct 2005 06:12:57 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Marc Perkel <marc@perkel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Please STOP ! [was: what's next for the linux kernel?]
+Message-ID: <20051006041257.GE22601@alpha.home.local>
+References: <200510060256.j962uXvl008891@inti.inf.utfsm.cl> <43449F1E.7050802@perkel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43449F1E.7050802@perkel.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+[Cc: list purged to save people time]
 
-Horst von Brand wrote:
+On Wed, Oct 05, 2005 at 08:50:54PM -0700, Marc Perkel wrote:
+> If you all think Netware is no more you are under an interesting 
+> illusion. Linux being cheap has cut into the little server market - but 
+> if you have thousands of servers all running off the same shared 
+> permissions systems - you just aren't going to do that off of Linux.
 
->Marc Perkel <marc@perkel.com> wrote:
->
->[...]
->
->  
->
->>What you don't understand is that Netware's permissions mechanish is
->>totally different that Linux. A hard link in Netware wouldn't inherit
->>rights the way Linux does. So the user would have rights to their hard
->>link to delete that link without having rights to unlink the file.
->>    
->>
->
->OK, so a "hard link" isn't (because it has separate permissions than the
->original). Sorry, watered-down symlinks don't cut it. Or just by linking
->the file into my place I now have rights to modify it? The later idea makes
->my skin try to crawl away...
->
->  
->
->>This is an important concept so pay attention. Linux stores all the
->>permission to a file with that file entry.
->>    
->>
->
->You are completely right: This is an extremely central concept to
->everything Unix.
->
->  
->
->>                                           Netware doesn't. Netware
->>calculates effective rights from the parent directories and it is all
->>inherited unless files or directoies are explicitly set
->>differently. So if files are added to other people folders then those
->>people get rights to it automatically without having to go to the
->>second step of changing the file's permissions.
->>    
->>
->
->Which is a very clear explanation of how broken it all is. No wonder
->NetWare is no more. Files whose persmissions change depending on which way
->you look at them is a nightmare. Sure, you /can/ manage that for small(ish)
->setups by brute force, but it soon has to break down.
->  
->
-If you all think Netware is no more you are under an interesting 
-illusion. Linux being cheap has cut into the little server market - but 
-if you have thousands of servers all running off the same shared 
-permissions systems - you just aren't going to do that off of Linux.
+Please will you move those boring threads to another mailing list or
+even to usenet ? This is LKML, we're only the 6th of the month and
+there are already 1250 messages, 200 of which come from this thread,
+and many others coming from other long off-topic threads. 20% noise
+is too high and disturbting. It becomes difficult to find someone
+talking about subjects related to kernel development !
 
--- 
-Marc Perkel - marc@perkel.com
+Thanks in advance
+Willy
 
-Spam Filter: http://www.junkemailfilter.com
-    My Blog: http://marc.perkel.com
+(NB: I'm not interested in your reply, so please don't Cc: me)
 

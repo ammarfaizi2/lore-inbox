@@ -1,69 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751322AbVJFTWb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751316AbVJFTXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751322AbVJFTWb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 15:22:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbVJFTWa
+	id S1751316AbVJFTXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 15:23:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbVJFTXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 15:22:30 -0400
-Received: from free.hands.com ([83.142.228.128]:42963 "EHLO free.hands.com")
-	by vger.kernel.org with ESMTP id S1751322AbVJFTWa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 15:22:30 -0400
-Date: Thu, 6 Oct 2005 20:22:20 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Rik van Riel <riel@redhat.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-Message-ID: <20051006192220.GU10538@lkcl.net>
-References: <20051002204703.GG6290@lkcl.net> <54300000.1128297891@[10.10.2.4]> <20051003011041.GN6290@lkcl.net> <200510022028.07930.chase.venters@clientec.com> <20051004125955.GQ10538@lkcl.net> <17218.39427.421249.448094@gargle.gargle.HOWL> <20051004161702.GU10538@lkcl.net> <Pine.LNX.4.63.0510041329140.23708@cuia.boston.redhat.com> <20051006000744.GD10538@lkcl.net> <Pine.LNX.4.63.0510061322050.4686@cuia.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 6 Oct 2005 15:23:16 -0400
+Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:16033 "HELO
+	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1751316AbVJFTXP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 15:23:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=0AKPUXf6JQjA8bFycCfsvaZOkGaB5WBIvFt4kILVT59kJ/noQ45f5kffnp3rC14/GzAqdRcssch6H0H6TUuLGvGWq0pvmgAYHjDMDhb3kdWz5ji+Ut2ImA/OSZYRkj6tGY3/IoIU81+Yrna2gq6x92m30+HQnYGxhj63y5FU9Bc=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: Daniel Jacobowitz <dan@debian.org>
+Subject: Re: PTRACE_SYSEMU numbering
+Date: Thu, 6 Oct 2005 21:23:30 +0200
+User-Agent: KMail/1.8.2
+Cc: Laurent Vivier <LaurentVivier@wanadoo.fr>, linux-kernel@vger.kernel.org,
+       Jeff Dike <jdike@addtoit.com>,
+       "Paolo 'Blaisorblade' Giarrusso" <blaisorblade_spam@yahoo.it>,
+       Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+References: <20050921172550.GA10332@nevyn.them.org> <200509222146.39172.blaisorblade@yahoo.it> <20050923151017.GA2558@nevyn.them.org>
+In-Reply-To: <20050923151017.GA2558@nevyn.them.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.63.0510061322050.4686@cuia.boston.redhat.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-MailScanner-From: lkcl@lkcl.net
+Message-Id: <200510062123.31525.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 06, 2005 at 01:23:18PM -0400, Rik van Riel wrote:
-> On Thu, 6 Oct 2005, Luke Kenneth Casson Leighton wrote:
-> 
-> > rik, alan, i replied privately seeking your input on a post i was
-> > developing in reply to your earlier comments 
-> 
-> > "PLEASE REVIEW" as part of the subject.
-> 
-> I've got better things to do than saving you from yourself.
-> 
-> I replied to your original email in an attempt to educate
-> some of the other readers on the linux-kernel mailing list.
-> Private email does not have this same benefit, so there
-> was no reason for me to reply.
- 
- oh, right.  okay.
+On Friday 23 September 2005 17:10, Daniel Jacobowitz wrote:
+> On Thu, Sep 22, 2005 at 09:46:38PM +0200, Blaisorblade wrote:
+> > The fix is easy, IMHO, and not even urgent. It suffices to move
+> > PTRACE_SYSEMU def from <linux/ptrace.h> to <asm-i386/ptrace.h>, and we
+> > didn't do that yet for laziness only. There's no architecture that I know
+> > of, apart i386, which implements SYSEMU (except maybe s390, but that
+> > isn't public).
 
- i am disappointed by your response.
- 
- i will therefore, instead of soliciting your input _before_
- sending to the LKLM, such that the quality of information sent
- to the list is much higher, now need to go ahead without the
- benefit of your advice, such that your input will be required
- as a "fait accomplit" in order to educate other LKML readers,
- with the unfortunate side-effect of an increased amount
- of noise.
+> Please either renumber it to something above 0x4200,
 
- should you change your mind on this matter i would be honoured
- to receive review comments prior to responding, which will
- be in the next few days.
+> or make it i386 
+> private.
+I'm going to do this.
+> If you intend for other architectures to implement it in the 
+> future, renumbering it would be better.
+Possibly yes, sooner or later ports will emerge, but this is already in 
+production, so I have ABI issues.
 
- l.
-
-
-
-
-
+For new archs, I'll use the right range.
 -- 
---
-<a href="http://lkcl.net">http://lkcl.net</a>
---
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
+
+	
+
+	
+		
+___________________________________ 
+Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
+http://mail.yahoo.it

@@ -1,75 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751082AbVJFPKr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751081AbVJFPLv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751082AbVJFPKr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 11:10:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751081AbVJFPKr
+	id S1751081AbVJFPLv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 11:11:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751086AbVJFPLv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 11:10:47 -0400
-Received: from rrcs-67-78-243-58.se.biz.rr.com ([67.78.243.58]:56464 "EHLO
-	mail.concannon.net") by vger.kernel.org with ESMTP id S1751078AbVJFPKr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 11:10:47 -0400
-Message-ID: <43453E7F.5030801@concannon.net>
-Date: Thu, 06 Oct 2005 11:10:55 -0400
-From: Michael Concannon <mike@concannon.net>
-User-Agent: Mozilla Thunderbird 1.0.6-1.4.1.centos4 (X11/20050721)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chase Venters <chase.venters@clientec.com>
-CC: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
-       Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-References: <20051002204703.GG6290@lkcl.net> <200510041840.55820.chase.venters@clientec.com> <20051005102650.GO10538@lkcl.net> <200510060005.09121.chase.venters@clientec.com>
-In-Reply-To: <200510060005.09121.chase.venters@clientec.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 6 Oct 2005 11:11:51 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:9425 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751081AbVJFPLu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 11:11:50 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <Pine.LNX.4.63.0510061014540.26656@excalibur.intercode> 
+References: <Pine.LNX.4.63.0510061014540.26656@excalibur.intercode>  <Pine.LNX.4.63.0510060404141.25593@excalibur.intercode> <29942.1128529714@warthog.cambridge.redhat.com> <23641.1128596760@warthog.cambridge.redhat.com> 
+To: James Morris <jmorris@namei.org>
+Cc: David Howells <dhowells@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, keyrings@linux-nfs.org,
+       linux-kernel@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [Keyrings] [PATCH] Keys: Add LSM hooks for key management 
+X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
+Date: Thu, 06 Oct 2005 16:11:34 +0100
+Message-ID: <30054.1128611494@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chase Venters wrote:
+James Morris <jmorris@namei.org> wrote:
 
->On Wednesday 05 October 2005 05:26 am, Luke Kenneth Casson Leighton wrote:
->  
->
->>>Now I certainly wouldn't advocate a Windows-style registry,
->>>because I think it's full of obvious problems.
->>>      
->>>
->> such as? :)
->>    
->>
->
->If such a thing were even going to be attempted on UNIX, it would have to be 
->so different than the NT approach that it would stop looking like a registry 
->altogether.
->  
->
-All good points, but perhaps the most compelling to me is that virtually 
-every successful windows virus out there does its real damage by 
-modifying the registry to replace key actions, associate bad actions 
-with good ones and just generally screw the system up...
+> What about a per process /proc/pid/keys, which contains keyrings and keys, 
+> which can be opened, closed, use xattrs for any special access control 
+> etc. ?
 
-One could argue that this is no different than a hapless victim running 
-as root getting his/her /etc/* files modified but:
-a. the decentralization there makes it easy to distinguish those files 
-which have been touched and how to fix them
-b. they are all ASCII
-c. they are not modified often, most almost never after initial system 
-config
-d. you don't have every app that runs mod'ing those files... (in fact 
-few are even allowed to)
-e. what the !@#$ would I want to cache my most recently visited URLs in 
-the same place I decide where the entry hooks to my video driver live?
+Not a good idea; especially not in /proc. Why are people fixated on using the
+VFS interface when it doesn't fit? Making things into filesystems isn't
+necessarily a good thing.
 
-Anyone suggesting that Linux or Unix in general should inherit this, 
-what I consider, most fatal flaw of all the flaws of windows should be 
-dealt with harshly...
+However, /proc/pid/xxx files for the ID of each keyring would be a good idea;
+I did have a patch to do that once, but it seems have got lost.
 
-Sorry, could not resist responding - I cannot count the hours I have 
-spent searching and clearing registry entries in family and friend's 
-computers after they downloaded the latest cool virus...
+> > Should I expand the permissions mask to include a setattr?
+> 
+> Possibly for setperm and chown.
 
-/mike
+For setperm?
 
+> > > All users of key_permission() need to propagate the error code from the 
+> > > LSM back to the user.
+> > 
+> > Really? Why?
+> 
+> Because the LSM has final say on the error code returned to the caller.  
+> If the LSM runs out of memory, for example, it's silly to return -EACCES.
+> 
+> > Note that the fact that key_permission() fails for a key is sometimes
+> > ignored, such as when I'm doing a search and one potentially matching key
+> > fails, but a subsequent matching key passes.
+> 
+> Ok, that sounds like an internal issue to be resolved, ensuring that if 
+> you are returning to the caller, the LSM's error code is returned.
 
+But which LSM error code?
 
+Let me explain what I mean:
+
+ (1) When the key management code searches for a key (keyring_search_aux) it
+     firstly calls key_permission(SEARCH) on the keyring it's starting with,
+     if this denies permission, it doesn't search further.
+
+ (2) It considers all the non-keyring keys within that keyring and, if any key
+     matches the criteria specified, calls key_permission(SEARCH) on it to see
+     if the key is allowed to be found. If it is, that key is returned; if
+     not, the search continues, and the error code is retained if of higher
+     priority than the one currently set.
+
+ (3) It then considers all the keyring-type keys in the keyring it's currently
+     searching. It calls key_permission(SEARCH) on each keyring, and if this
+     grants permission, it recurses, executing steps (2) and (3) on that
+     keyring.
+
+The process stops immediately a valid key is found with permission granted to
+use it. Any error from a previous match attempt is discarded and the key is
+returned.
+
+When search_process_keyrings() is invoked, it performs the following searches
+until one succeeds:
+
+ (1) If extant, the process's thread keyring is searched.
+
+ (2) If extant, the process's process keyring is searched.
+
+ (3) The process's session keyring is searched.
+
+ (4) If the process has a request_key() authorisation key in its session
+     keyring then:
+
+     (a) If extant, the calling process's thread keyring is searched.
+
+     (b) If extant, the calling process's process keyring is searched.
+
+     (c) The calling process's session keyring is searched.
+
+The moment one succeeds, all pending errors are discarded and the found key is
+returned.
+
+Only if all these fail does the whole thing fail with the highest priority
+error. Note that several errors may have come from LSM.
+
+The error priority should be:
+
+	EKEYREVOKED > EKEYEXPIRED > ENOKEY
+
+EACCES/EPERM should only really be returned on a direct keyring search where
+the basal keyring doesn't have Search permission.
+
+The fact that I couldn't find a key because I didn't have permission to find
+it probably shouldn't cause an immediate abort of the search with an error, or
+any error other than ENOKEY/EKEYREVOKED/EKEYEXPIRED, unless I'm not permitted
+to request a new key.
+
+David

@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030457AbVJFAUT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030459AbVJFA00@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030457AbVJFAUT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 20:20:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030459AbVJFAUT
+	id S1030459AbVJFA00 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 20:26:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030460AbVJFA0Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 20:20:19 -0400
-Received: from mail21.bluewin.ch ([195.186.18.66]:19634 "EHLO
-	mail21.bluewin.ch") by vger.kernel.org with ESMTP id S1030457AbVJFAUS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 20:20:18 -0400
-Date: Wed, 5 Oct 2005 20:09:27 -0400
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] small cleanup for kernel/printk.c - CodingStyle, Whitespace, printk() loglevels...
-Message-ID: <20051006000927.GA5463@mars>
-References: <200510052356.49823.jesper.juhl@gmail.com> <20051005220900.GA2559@mars> <9a8748490510051641m11f554efn5ef13e4fdecbc442@mail.gmail.com>
+	Wed, 5 Oct 2005 20:26:25 -0400
+Received: from mail.kroah.org ([69.55.234.183]:18829 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030459AbVJFA0Z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 20:26:25 -0400
+Date: Wed, 5 Oct 2005 17:26:05 -0700
+From: Greg KH <gregkh@suse.de>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, Kay Sievers <kay.sievers@vrfy.org>,
+       Vojtech Pavlik <vojtech@suse.cz>, Hannes Reinecke <hare@suse.de>,
+       Patrick Mochel <mochel@digitalimplant.org>, airlied@linux.ie
+Subject: Re: [PATCH] nesting class_device in sysfs to solve world peace
+Message-ID: <20051006002605.GA4694@suse.de>
+References: <20050928233114.GA27227@suse.de> <200509300032.50408.dtor_core@ameritech.net> <20051006000951.GA4411@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <9a8748490510051641m11f554efn5ef13e4fdecbc442@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
-From: a.othieno@bluewin.ch (Arthur Othieno)
+In-Reply-To: <20051006000951.GA4411@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 06, 2005 at 01:41:53AM +0200, Jesper Juhl wrote:
-> On 10/6/05, Arthur Othieno <a.othieno@bluewin.ch> wrote:
-> > On Wed, Oct 05, 2005 at 11:56:49PM +0200, Jesper Juhl wrote:
+On Wed, Oct 05, 2005 at 05:09:51PM -0700, Greg KH wrote:
+> -	class_device_create(input_class, NULL,
+> +	class_device_create(&input_dev_class, &dev->cdev,
+>  			MKDEV(INPUT_MAJOR, MOUSEDEV_MINOR_BASE + minor),
+> -			dev->dev, "mouse%d", minor);
+> +			dev->cdev.dev, "mouse%d", minor);
 
-[ snip ]
+Yeah, I know mixing this call with the input_dev_class is a ripe for
+badness, I'll fix it up properly soon, this was just a "proof of
+concept".
 
-> > > -        struct console *a,*b;
-> > > +        struct console *a, *b;
-> > >       int res = 1;
-> >
-> > Beep! :)
-> >
-> huh?
+thanks,
 
-That particular line (struct console *a, *b;) remains indented 8 spaces,
-unlike the surrounding code..
-
-		Arthur
+greg k-h

@@ -1,85 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751324AbVJFTY3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751328AbVJFTZe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751324AbVJFTY3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 15:24:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbVJFTY3
+	id S1751328AbVJFTZe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 15:25:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751329AbVJFTZe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 15:24:29 -0400
-Received: from mail.weatherflow.com ([65.57.243.55]:3345 "EHLO weatherflow.com")
-	by vger.kernel.org with ESMTP id S1751324AbVJFTY2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 15:24:28 -0400
-Message-ID: <434579DD.3000104@weatherflow.com>
-Date: Thu, 06 Oct 2005 15:24:13 -0400
-From: Robert Derr <rderr@weatherflow.com>
-User-Agent: Thunderbird 1.4 (Windows/20050908)
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: 2.6.13.3 Memory leak, names_cache
-References: <43456E31.8000906@weatherflow.com> <Pine.LNX.4.64.0510061150290.31407@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0510061150290.31407@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 6 Oct 2005 15:25:34 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:53707 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1751328AbVJFTZd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 15:25:33 -0400
+Message-Id: <200510061925.j96JPWdA027095@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: umesh chandak <chandak_pict@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: about FC3 2.6.10 .......... 
+In-Reply-To: Your message of "Thu, 06 Oct 2005 11:59:22 PDT."
+             <20051006185922.81946.qmail@web35912.mail.mud.yahoo.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <20051006185922.81946.qmail@web35912.mail.mud.yahoo.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1128626732_4764P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-X-Authenticated-Sender: rderr@weatherflow.com
-X-Spam-Processed: weatherflow.com, Thu, 06 Oct 2005 15:24:17 -0400
-	(not processed: message from valid local sender)
-X-MDRemoteIP: 24.227.114.94
-X-Return-Path: rderr@weatherflow.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Date: Thu, 06 Oct 2005 15:25:32 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> On Thu, 6 Oct 2005, Robert Derr wrote:
->   
->> I'm having a problem with a memory leak in the kernel.  I'm running 2.6.13.3
->> from kernel.org on FC4 on a Dell  Poweredge 2850 Duel Xeon 3ghz with 2GB RAM.
->>     
->
-> Just out of interest, do you have CONFIG_AUDIT_SYSCALL enabled? Does it go 
-> away if you disable it?
->   
-It looks like it is enabled.  CONFIG_AUDITSYSCALL=y in .config, right?
-> Also, what filesystems do you use? And if you run
->
-> 	while : ; do cat /proc/slabinfo | grep names_cache ; sleep 2; done
->
-> in one terminal, can you see if you can find any correlation to some 
-> particular action or behaviour that would seem to be part of leaking it?
->   
-I'm not sure if I can find the action or behavior causing the problem.  
-The server is the master node on a 14 computer cluster running a 
-mesoscale weather forecasting package so there's a million things going 
-on all the time.  I guess I could write a program to compare all the 
-processes running against the names_cache and look for any correlation.
+--==_Exmh_1128626732_4764P
+Content-Type: text/plain; charset=us-ascii
 
-Here's the output of mount.  The drives are all ext3
+On Thu, 06 Oct 2005 11:59:22 PDT, umesh chandak said:
+> Hi,
+>              I have compiled a 2.6.10 on FC3.It
+> compiled successfully .But When i boot to this option
+> ,it gives me warning 
+>         Warning: unable to open an initial console
+> I know this is due to something genromfs . I also read
+> about romfs in documentation .
 
-/dev/sda2 on / type ext3 (rw)
-/dev/proc on /proc type proc (rw)
-/dev/sys on /sys type sysfs (rw)
-/dev/devpts on /dev/pts type devpts (rw,gid=5,mode=620)
-/dev/sda1 on /boot type ext3 (rw)
-/dev/shm on /dev/shm type tmpfs (rw)
-none on /proc/sys/fs/binfmt_misc type binfmt_misc (rw)
-> It really shouldn't grow very big at all normally. Ie the counts are 
-> normally something like a few tens of entries used or whatever - all the 
-> allocations should basically be temporary, and your 200+ _thousand_ 
-> entries are way out of line.
->
-> If you can't find anything obvious, then we can try to figure out a way to 
-> just print out the contents of your name entries, I bet that would give a 
-> clue about who is allocating them. But there's also been various leak 
-> debugging patches out there that may help.  Manfred may have pointers.
->
-> 		Linus
->   
-I'll look for those leak debugging patches.
-Thanks for your time. 
+(Not a kernel question - next time, ask on one of the Fedora lists at redhat.com)
 
-Robert J Derr
-Weatherflow, Inc.
+Getting FC3 to run on on a romfs based system will be a challenge.  In any
+case, romfs has approximately zero to do with your problem.
 
+What you've almost certainly done is forgotten to do a proper 'mkinitrd' -
+FC3 and later need an initrd to get going in most cases.  (Specifically,
+your initrd image needs to have a /dev/console entry in the /dev on the
+initrd filesystem, and you don't have one).
 
+--==_Exmh_1128626732_4764P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFDRXoscC3lWbTT17ARAgxIAJ9sHgXyG7WDHvLpTb1iAHEFRoJ6WwCeIiLX
+8qE19mBCCaZym4262cIZ4l4=
+=Akyl
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1128626732_4764P--

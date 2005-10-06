@@ -1,57 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbVJFJQz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbVJFJSt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750756AbVJFJQz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 05:16:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbVJFJQz
+	id S1750757AbVJFJSt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 05:18:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbVJFJSt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 05:16:55 -0400
-Received: from xproxy.gmail.com ([66.249.82.204]:28088 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750756AbVJFJQz convert rfc822-to-8bit
+	Thu, 6 Oct 2005 05:18:49 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:26340 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750757AbVJFJSt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 05:16:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tLxYd1EpQkcDx+buJ3JRxcN6mfYVGAq+QThbo9sKk2Mo1k2kuUgJ1j6ylokqox1rt/4c0ojgbE1FlmT5+SYhPOGCAa7Re4yleI/j0WTSKNDAOxk6tC++RLpsZBj6FuVrm49/dxX2MNBC/Qhl/+SOl2sZ4swu6rPaS11h2GcW7xg=
-Message-ID: <309a667c0510060216q315d55b0n4a6934d168ebccfb@mail.gmail.com>
-Date: Thu, 6 Oct 2005 14:46:54 +0530
-From: devesh sharma <devesh28@gmail.com>
-Reply-To: devesh sharma <devesh28@gmail.com>
-To: Eric Dumazet <dada1@cosmosbay.com>, linux-kernel@vger.kernel.org
-Subject: Re: [NUMA x86_64] problem accessing global Node List pgdat_list
-In-Reply-To: <309a667c0510050550x68e0c996q51e00e908813b5c1@mail.gmail.com>
+	Thu, 6 Oct 2005 05:18:49 -0400
+Message-ID: <4344EC64.2010400@aitel.hist.no>
+Date: Thu, 06 Oct 2005 11:20:36 +0200
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <309a667c0510042240y1dcc75c4l83abc7fe430e4f05@mail.gmail.com>
-	 <4343CA4F.8030003@cosmosbay.com>
-	 <309a667c0510050550x68e0c996q51e00e908813b5c1@mail.gmail.com>
+To: David Lang <david.lang@digitalinsight.com>
+CC: Helge Hafting <helgehaf@aitel.hist.no>, Emmanuel Fleury <fleury@cs.aau.dk>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: freebox possible GPL violation
+References: <20051005111329.GA31087@linux.ensimag.fr> <4343B779.8030200@cs.aau.dk> <1128511676.2920.19.camel@laptopd505.fenrus.org> <4343BB04.7090204@cs.aau.dk> <1128513584.2920.23.camel@laptopd505.fenrus.org> <4343C0DB.9080506@cs.aau.dk> <1128514062.2920.27.camel@laptopd505.fenrus.org> <4343C73E.9000507@cs.aau.dk> <20051006000741.GC18080@aitel.hist.no> <Pine.LNX.4.62.0510051741310.14560@qynat.qvtvafvgr.pbz>
+In-Reply-To: <Pine.LNX.4.62.0510051741310.14560@qynat.qvtvafvgr.pbz>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Eric,
-I have tried numa=fake=4 on intel xeon with 2.6.13 kernel it is
-working fine and by adding EXPORT_SYMBOL(pgdat_list)  in
-mm/page_alloc.c now I am able to access pgdat_list also. But on
-opteron machine there is some problem in kernel compilation
-at make install stage I am getting following warning
+David Lang wrote:
 
-WARNING: No module mptbase found for kernel 2.6.13, continuing anyway
-WARNING: No module mptscsih found for kernel 2.6.13, continuing anyway
+> On Thu, 6 Oct 2005, Helge Hafting wrote:
+>
+>> If the box downloads a linux kernel through the DSLAM network, then
+>> someone is clearly distributing linux kernels through the DSLAM network.
+>> I would guess it is the same guys, because relying on someone else 
+>> providing
+>> them with kernels is a risky business.  But whoever is on the other end
+>> of the DSLAM net have to offer the source as well, because they _are_
+>> distributing kernels.
+>>
+>> The fact that the user isn't supposed to know how this box work
+>> doesn't change anything, of course.  The GPL says those who
+>> distribute the work - it doesn't matter that they don't tell the
+>> customer that they're given a linux kernel. They still have to offer
+>> the source if asked.
+>
+>
+> the argument that they are making is that they are only moveing the 
+> kernel within their own companies equipment, and therefor it doesn't 
+> count as 'distribution'
 
-now when I boot my kernel, panic is received
+Interesting argument, but it breaks for at least two reasons:
+1. You can buy that box instead of just hiring it. That moves kernels 
+"outside the company",
+    for money even.
+2. It doesn't matter if they only move kernels withing their own 
+companys equipment.
+    If they lend a customer equipment containing a linux kernel, then 
+they're lending
+    them a linux kernel.  Lending is distribution!
 
-Booting the kernel.
-Red Hat nash version 4.1.18 starting
-mkrootdev: lable / not found
-mount: error 2 mounting ext3
-mount: error 2 mounting none
-switchroot: mount failed : 22
-umount : /initrd/dev failed : 22
-kernel panic - not syncing : Attempted to kill init
+>
+> agree with this argument or not, but please acknowledge this point of 
+> view rather then pretending that they have no argument at all and are 
+> just plain refusing.
 
-On the other hand when I complie same source code on XEON machine this
-works fine.
+The argument might be fine, if they were moving linux kernels into 
+company equipment
+used by company personell only.  (I.e. linux-powered 
+desktops/servers/gadgets for their employees.)
+And it might not.  Maybe they actually have to distribute source to 
+employees too, if they
+request it.  The GPL only mentions recipients, no exceptions for 
+"internal company use".  A company
+may perhaps demand that the employees never request the source, though. 
+Or perhaps
+"internal use" is covered by the company being a "legal unit".
 
-what could be the problem?
+People breaking the GPL should be taken seriously.  Fortunately, the 
+solution is easy for
+GPL-breakers.  Break someone else's license, and they have to pay 
+damages.  Break the GPL,
+and all you need to do is to stuff some source code onto a public 
+(web/ftp)server - and all is fine again.
+
+The situation is so cheap and _easy_ to rectify, that is one reason 
+people gets so pissed off at
+a violation.  It is not as if complying with the GPL would be any kind 
+of burden to them.
+
+Helge Hafting

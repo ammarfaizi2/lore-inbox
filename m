@@ -1,63 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751328AbVJFTZe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751329AbVJFT0J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751328AbVJFTZe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 15:25:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751329AbVJFTZe
+	id S1751329AbVJFT0J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 15:26:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbVJFT0I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 15:25:34 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:53707 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1751328AbVJFTZd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 15:25:33 -0400
-Message-Id: <200510061925.j96JPWdA027095@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: umesh chandak <chandak_pict@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: about FC3 2.6.10 .......... 
-In-Reply-To: Your message of "Thu, 06 Oct 2005 11:59:22 PDT."
-             <20051006185922.81946.qmail@web35912.mail.mud.yahoo.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <20051006185922.81946.qmail@web35912.mail.mud.yahoo.com>
+	Thu, 6 Oct 2005 15:26:08 -0400
+Received: from smtp-vbr15.xs4all.nl ([194.109.24.35]:11537 "EHLO
+	smtp-vbr15.xs4all.nl") by vger.kernel.org with ESMTP
+	id S1751329AbVJFT0G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 15:26:06 -0400
+Date: Thu, 6 Oct 2005 21:26:14 +0200
+From: Dick Streefland <dick@streefland.net>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] enable ac97_quirk hp_only for Acer Aspire 3003LCi
+Message-ID: <20051006192614.GA3300@streefland.xs4all.nl>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1128626732_4764P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 06 Oct 2005 15:25:32 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1128626732_4764P
-Content-Type: text/plain; charset=us-ascii
+On my Acer Aspire 3003LCi laptop, the speaker volume is not controlled
+by the master control, but by the headphone control. Enabling the
+"hp_only" quirk corrects this. The patch below adds this device to the
+list of known quirks.
 
-On Thu, 06 Oct 2005 11:59:22 PDT, umesh chandak said:
-> Hi,
->              I have compiled a 2.6.10 on FC3.It
-> compiled successfully .But When i boot to this option
-> ,it gives me warning 
->         Warning: unable to open an initial console
-> I know this is due to something genromfs . I also read
-> about romfs in documentation .
+Signed-off-by: Dick Streefland <dick@streefland.net>
 
-(Not a kernel question - next time, ask on one of the Fedora lists at redhat.com)
-
-Getting FC3 to run on on a romfs based system will be a challenge.  In any
-case, romfs has approximately zero to do with your problem.
-
-What you've almost certainly done is forgotten to do a proper 'mkinitrd' -
-FC3 and later need an initrd to get going in most cases.  (Specifically,
-your initrd image needs to have a /dev/console entry in the /dev on the
-initrd filesystem, and you don't have one).
-
---==_Exmh_1128626732_4764P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFDRXoscC3lWbTT17ARAgxIAJ9sHgXyG7WDHvLpTb1iAHEFRoJ6WwCeIiLX
-8qE19mBCCaZym4262cIZ4l4=
-=Akyl
------END PGP SIGNATURE-----
-
---==_Exmh_1128626732_4764P--
+--- linux-2.6.13.2/sound/pci/intel8x0.c.orig	2005-09-29 21:44:46.000000000 +0200
++++ linux-2.6.13.2/sound/pci/intel8x0.c	2005-10-06 02:06:58.000000000 +0200
+@@ -1750,6 +1750,12 @@ static struct ac97_quirk ac97_quirks[] _
+ 		.type = AC97_TUNE_ALC_JACK
+ 	},
+ 	{
++		.subvendor = 0x1025,
++		.subdevice = 0x0083,
++		.name = "Acer Aspire 3003LCi",
++		.type = AC97_TUNE_HP_ONLY
++	},
++	{
+ 		.subvendor = 0x1028,
+ 		.subdevice = 0x00d8,
+ 		.name = "Dell Precision 530",	/* AD1885 */

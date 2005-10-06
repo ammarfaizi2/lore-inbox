@@ -1,61 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751046AbVJFOlJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751053AbVJFOnc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751046AbVJFOlJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 10:41:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751053AbVJFOlJ
+	id S1751053AbVJFOnc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 10:43:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751054AbVJFOnc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 10:41:09 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:22485 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S1751046AbVJFOlI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 10:41:08 -0400
-Message-Id: <200510061440.j96Eee4e004352@laptop11.inf.utfsm.cl>
-To: Helge Hafting <helge.hafting@aitel.hist.no>
-cc: Valdis.Kletnieks@vt.edu, Marc Perkel <marc@perkel.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel? 
-In-Reply-To: Message from Helge Hafting <helge.hafting@aitel.hist.no> 
-   of "Thu, 06 Oct 2005 11:31:59 +0200." <4344EF0F.90402@aitel.hist.no> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Thu, 06 Oct 2005 10:40:40 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Thu, 06 Oct 2005 10:40:41 -0400 (CLT)
+	Thu, 6 Oct 2005 10:43:32 -0400
+Received: from ns.miraclelinux.com ([219.118.163.66]:36887 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S1751051AbVJFOnb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 10:43:31 -0400
+Date: Thu, 06 Oct 2005 23:39:09 +0900 (JST)
+Message-Id: <20051006.233909.730565127.hyoshiok@miraclelinux.com>
+To: noboru.obata.ar@hitachi.com
+Cc: linux-kernel@vger.kernel.org, hyoshiok@miraclelinux.com
+Subject: Re: Linux Kernel Dump Summit 2005
+From: Hiro Yoshioka <hyoshiok@miraclelinux.com>
+In-Reply-To: <20051006.211718.74749573.noboru.obata.ar@hitachi.com>
+References: <20050921.205550.927509530.hyoshiok@miraclelinux.com>
+	<20051006.211718.74749573.noboru.obata.ar@hitachi.com>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.13 (Rational FORTRAN)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting <helge.hafting@aitel.hist.no> wrote:
-> Valdis.Kletnieks@vt.edu wrote:
-> >The part that you managed to miss is that this is MAC - *Mandatory*
-> >Access Control.  This means that the *sysadmin* gets to say "this user
-> >can't look at that file" - and there's nothing(*) either the owner of the
-> >file or the user can do about it.  There's no chmod or chattr or chacl
-> >command that the owner can issue to let somebody else read it - that's
-> >the whole *point* of MAC.
-> >
-> >(*) Well.. almost nothing.  The owner *may* be able to copy the contents
-> >of the file to another file that the other user is allowed to read.  On the
-> >other hand, the ability to do this would generally indicate a buggy policy....
+Obata san,
 
-> Seems to me there is no use taking away the owners ability to chmod,
-> precisely because the owner always can get around that. (Unless
-> the owner doesn't even have the right to read his own file.)
+Thanks for your comments. I really appreciate your effort.
 
-No. The point is that a (correct, complete) policy will prevent the user
-from copying the contents to a file with less protection, by any means. No,
-I did emphatically /not/ try to imply this is easy to set up (or use).
+Regards,
+  Hiro
 
-[...]
+From: OBATA Noboru <noboru.obata.ar@hitachi.com>
+Subject: Re: Linux Kernel Dump Summit 2005
+Date: Thu, 06 Oct 2005 21:17:18 +0900 (JST)
+Message-ID: <20051006.211718.74749573.noboru.obata.ar@hitachi.com>
 
-> Company policy may of course forbid the user to bring a camera, just as it
-> might forbid the user to do "chmod o+r" on important files.  I am not
-> sure that we need the OS to try to enforce such things.
-
-If you don't trust your (typically fat-fingered) users and sysadmins...
-Besides, the point behind the targeted policy in Red Hat/Fedora is to
-forbid certain daemons to do nasty stuff. It is an additional protection
-against misconfiguration or processes taken over by crackers.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+> Hi, Hiro,
+> 
+> On Wed, 21 Sep 2005, Hiro Yoshioka wrote:
+> > 
+> > We had a Linux Kernel Dump Summit 2005.
+> 
+> > - We need a partial dump
+> > - We have to minimize the down time
+> > 
+> > - We have to dump all memory
+> >     how can we distinguish from the kernel and user if
+> >     kernel data is corrupted
+> 
+> As memory size grows, the time and space for capturing kernel
+> crash dump really matter.
+> 
+> We discussed two strategies in the dump summit.
+> 
+> 	1. Partial dump
+> 	2. Full dump with compression
+> 
+> 
+> PARTIAL DUMP
+> ============
+> 
+> Partial dump captures only pages that are essential for later
+> analysis, possibly by using some mark in mem_map[].
+> 
+> This certainly reduces both time and space of crash dump, but
+> there is a risk because no one can guarantee that a dropped page
+> is really unnecessary in analysis (it can be a tragedy if
+> analysis went unsolved because of the dropped page).
+> 
+> Another risk is a corruption of mem_map[] (or other kernel
+> structure), which makes the identification of necessary pages
+> unreliable.
+> 
+> So there would be best if a user can select the level of partial
+> dump.  A careful user may always choose a full dump, while a
+> user who is tracking the well-reproducible kernel bug may choose
+> fast and small dump.
+> 
+> 
+> FULL DUMP WITH COMPRESSION
+> ==========================
+> 
+> Those who still want a full dump, including me, are interested
+> in dump compression.  For example, the LKCD format (at least v7
+> format) supports pagewise compression with the deflate
+> algorithm.  A dump analyze tool "crash" can transparently
+> analyze the compressed dump file in this format.
+> 
+> The compression will reduce the storage space at certain degree,
+> and may also reduce the time if a dump process were I/O bounded.
+> 
+> 
+> WHICH IS BETTER?
+> ================
+> 
+> I wrote a small compression tool for LKCD v7 format to see how
+> effective the compression is, and it turned out that the time
+> and size of compression were very much similar to that of gzip,
+> not surprisingly.
+> 
+> Compressing a 32GB dump file took about 40 minutes on Pentium 4
+> Xeon 3.0GHz, which is not good enough because the dump without
+> compression took only 5 minutes; eight times slower.
+> 
+> Besides, the compress ratios were somewhat picky.  Some dump
+> files could not be compressed well (the worst case I found was
+> only 10% reduction in size).
+> 
+> 
+> After examining the LKCD compress format, I must conclude that
+> the partial dump is the only way to go when time and size really
+> matter.
+> 
+> Now I'd like to see how effective the existing partial dump
+> functionalities are.
+> 
+> 
+> Regards,
+> 
+> -- 
+> OBATA Noboru (noboru.obata.ar@hitachi.com)

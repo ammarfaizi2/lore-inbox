@@ -1,91 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbVJFDl2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751207AbVJFDmG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751114AbVJFDl2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 23:41:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbVJFDl2
+	id S1751207AbVJFDmG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 23:42:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbVJFDmG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 23:41:28 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:43423 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S1751114AbVJFDl1 (ORCPT
+	Wed, 5 Oct 2005 23:42:06 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:45727 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S1751207AbVJFDmF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 23:41:27 -0400
-Message-Id: <200510060306.j96365YK009019@inti.inf.utfsm.cl>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Nikita Danilov <nikita@clusterfs.com>, Marc Perkel <marc@perkel.com>,
-       linux-kernel@vger.kernel.org
+	Wed, 5 Oct 2005 23:42:05 -0400
+Message-Id: <200510060256.j962uXvl008891@inti.inf.utfsm.cl>
+To: Marc Perkel <marc@perkel.com>
+cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+       Florin Malita <fmalita@gmail.com>, nix@esperi.org.uk, 7eggert@gmx.de,
+       lkcl@lkcl.net, linux-kernel@vger.kernel.org
 Subject: Re: what's next for the linux kernel? 
-In-Reply-To: Message from Luke Kenneth Casson Leighton <lkcl@lkcl.net> 
-   of "Thu, 06 Oct 2005 00:03:09 +0100." <20051005230309.GO10538@lkcl.net> 
+In-Reply-To: Message from Marc Perkel <marc@perkel.com> 
+   of "Wed, 05 Oct 2005 13:05:30 MST." <4344320A.7090007@perkel.com> 
 X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Wed, 05 Oct 2005 23:06:05 -0400
+Date: Wed, 05 Oct 2005 22:56:33 -0400
 From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> On Wed, Oct 05, 2005 at 02:47:27PM -0400, Horst von Brand wrote:
-> > Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> > > On Wed, Oct 05, 2005 at 01:24:12PM +0400, Nikita Danilov wrote:
-> > > > Marc Perkel writes:
+Marc Perkel <marc@perkel.com> wrote:
 
 [...]
 
-> > > > Because in Unix a name is not an attribute of a file.
+> What you don't understand is that Netware's permissions mechanish is
+> totally different that Linux. A hard link in Netware wouldn't inherit
+> rights the way Linux does. So the user would have rights to their hard
+> link to delete that link without having rights to unlink the file.
 
-> > >  there is no excuse.
+OK, so a "hard link" isn't (because it has separate permissions than the
+original). Sorry, watered-down symlinks don't cut it. Or just by linking
+the file into my place I now have rights to modify it? The later idea makes
+my skin try to crawl away...
 
-> > It's not an excuse, it's part of a coherent view of how things work. Just
-> > as Netware used to have its, and DOS had its (sort of). As the world view
-> > underneath Unix, it is darn hard to "fix".
-> > 
-> > [This discussion sounds quite a lot like it is /you/ who needs "fixing",
-> >  i.e., first wrap your head around Unix' ways...]
+> This is an important concept so pay attention. Linux stores all the
+> permission to a file with that file entry.
 
->  asking "ordinary" people to do that is unrealistic: surely you know
->  that?
+You are completely right: This is an extremely central concept to
+everything Unix.
 
-And asking ordinary people to understand the (much more complex and opaque)
-idea of "inheriting permissions from directories (sometimes, unless...)" is
-surely much easier...
+>                                            Netware doesn't. Netware
+> calculates effective rights from the parent directories and it is all
+> inherited unless files or directoies are explicitly set
+> differently. So if files are added to other people folders then those
+> people get rights to it automatically without having to go to the
+> second step of changing the file's permissions.
 
->  i just spent two hours helping a friend who wasn't familiar
->  with the concept of "give root password for maintenance or
->  press ctrl-d" they'd been pressing ctrl-d because it said so
->  and now i'm going to have a 5-hour round-trip journey and possibly
->  an overnight stay to sort out the mess.
-
-Any suggestion for a better message?
-
-[...]
-
->  example permissions (from postfix.te, policy source version 18):
-> 
-> 	allow postfix_$1_t { sbin_t bin_t }:dir r_dir_perms;
-> 	allow postfix_$1_t { bin_t usr_t }:lnk_file { getattr read };
-> 	allow postfix_$1_t shell_exec_t:file rx_file_perms;
-> 
->  i am confident enough with selinux to say that those are file
->  and directory permissions.
-
-OK, now I know for sure you are just an elaborate troll. SELinux is
-/harder/ to grasp than Unix permissions, and /requires/ you to grasp them
-as foundation.
-
-[...]
-
-> > >  in what way is it possible for linux to fully support the NTFS
-> > >  filesystem?
-> > 
-> > If you ask me, preferably not at all, just let that unholy mess quietly go
-> > the way of the dinosaurs. Sadly, interoperability is required at times,
-> > so...
-> 
->  *sigh*, tell me about it.  well, when reactos gets its NTFS driver, i
->  will be sure to let you know.  i promise :)
-
-Great. Just keep in mind that time wasted on LKML is time taken away from
-NTFS for ReactOS.
+Which is a very clear explanation of how broken it all is. No wonder
+NetWare is no more. Files whose persmissions change depending on which way
+you look at them is a nightmare. Sure, you /can/ manage that for small(ish)
+setups by brute force, but it soon has to break down.
 -- 
 Dr. Horst H. von Brand                   User #22616 counter.li.org
 Departamento de Informatica                     Fono: +56 32 654431

@@ -1,144 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751018AbVJFWYs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbVJFWYy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751018AbVJFWYs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 18:24:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751019AbVJFWYs
+	id S1751127AbVJFWYy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 18:24:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbVJFWYx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 18:24:48 -0400
-Received: from free.hands.com ([83.142.228.128]:63961 "EHLO free.hands.com")
-	by vger.kernel.org with ESMTP id S1751015AbVJFWYr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 18:24:47 -0400
-Date: Thu, 6 Oct 2005 23:24:39 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Michael Concannon <mike@concannon.net>
-Cc: Chase Venters <chase.venters@clientec.com>, Marc Perkel <marc@perkel.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-Message-ID: <20051006222439.GE10538@lkcl.net>
-References: <20051002204703.GG6290@lkcl.net> <200510041840.55820.chase.venters@clientec.com> <20051005102650.GO10538@lkcl.net> <200510060005.09121.chase.venters@clientec.com> <43453E7F.5030801@concannon.net> <20051006192857.GV10538@lkcl.net> <4345855B.3@concannon.net> <20051006212001.GZ10538@lkcl.net> <43459CE4.7060509@concannon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 6 Oct 2005 18:24:53 -0400
+Received: from wproxy.gmail.com ([64.233.184.206]:5856 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751098AbVJFWYw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 18:24:52 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=DO0EAMJJdR7ucfcaXnZzne6h7zWiRqgwKtcYvG6kRKaWNyjygFVNmhUKyWxO2GqXB8V6IjxWELi+QybM3Ui4MTMsEZa2t1pCU9CSAvsNuAvI5VWlZzN60R+Gazo0s4oftdJTM8wJ57QLzkukDH3ZlD3mzuIvv0+/Gpkrlo74P/w=
+Message-ID: <4af2d03a0510061524m4611d75bn5b1ce6a4e3ebddf1@mail.gmail.com>
+Date: Fri, 7 Oct 2005 00:24:51 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+Reply-To: Jiri Slaby <jirislaby@gmail.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH] include: pci_find_device remove (include/asm-i386/ide.h)
+Cc: Greg KH <gregkh@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-ide@vger.kernel.org,
+       B.Zolnierkiewicz@elka.pw.edu.pl, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Matthew Wilcox <matthew@wil.cx>,
+       Grant Grundler <grundler@parisc-linux.org>
+In-Reply-To: <4323482E.2090409@pobox.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <43459CE4.7060509@concannon.net>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-MailScanner-From: lkcl@lkcl.net
+References: <200509102032.j8AKWxMC006246@localhost.localdomain>
+	 <4323482E.2090409@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 06, 2005 at 05:53:40PM -0400, Michael Concannon wrote:
+On 9/10/05, Jeff Garzik <jgarzik@pobox.com> wrote:
+> Jiri Slaby wrote:
+> > diff --git a/include/asm-i386/ide.h b/include/asm-i386/ide.h
+> > --- a/include/asm-i386/ide.h
+> > +++ b/include/asm-i386/ide.h
+> > @@ -41,7 +41,12 @@ static __inline__ int ide_default_irq(un
+> >
+> >  static __inline__ unsigned long ide_default_io_base(int index)
+> >  {
+> > -     if (pci_find_device(PCI_ANY_ID, PCI_ANY_ID, NULL) == NULL) {
+> > +     struct pci_dev *pdev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, NULL);
+> > +     unsigned int a = !pdev;
+> > +
+> > +     pci_dev_put(pdev);
+>
+>
+> Looks like we need to resurrect pci_present() from the ancient past.
+So, what was the result of this debate? I can't see any solution in
+that thread, not even in 2.6.14-rc2-mm2.
 
-> I think someone already mentioned that the issue is that the delta 
-> between an idealized NT registry (which has a few notable hurdles - see 
-> above) and what we have to day is simply a matter of "KISS".  What do 
-> you gain from complicating the system that cannot be gained with 
-> visualization tools on top of what is there? 
- 
- it is advocated that storing data in text format is easier
- to recover with a minimum of tools.
-
- if, as todd sabin's driver shows, you can present the binary data via a
- text-editable filesystem driver, then even _that_ argument goes away.
-
-> Someone wants XML in /proc?  Well, that's just fabulous they can write a 
-> virtual filesytem that accomplishes that on top what is there and leave 
-> the rest of us out of it :-)  If what they do becomes indespensible for 
-> a critical mass, then even better, we mount "xmlprocfs" in our future 
-> systems and are fat dumb and happy.
-
- reiserfs already has had an XML plugin written for it, which resulted
- in the person it was written for thanking the author for writing the
- "best xml database they had ever seen".
-
- think structured storage and streams (which NTFS used to support, and
- which explorer.exe in nt 3.51 used to support before
- bill/someone-on-high ordered it to be taken out) and now apply that
- principle to XML instead.
-
-> Back to your original point which seemed to be, at least to me, to try 
-> to re-evaluate the portioning problem between 
-> Hardware/Software/Drive/OS/User/Threads.  
-
- yes.  seems like ages ago.
-
-> I agree, that the system 
-> appears to be strained and chaotic with all OSes chasing an ever 
-> increasing and impossibly large array of hardware and all-the while the 
-> future is even more complex as it seemingly must be a heavily 
-> parallelized future to compensate for the "end of Moore's law".  
-
- what - the constantly revised one, or the original one?
-
-> Given 
-> the hardware in question, though, I am not sure I that I see that Linux 
-> should go to micro-kernels to solve the problem...
-
- i would be delighted to see #ifdef HAVE_L4_MICROKERNEL #endif in the
- linux source code.
-
- AS AN OPTION.
-
- that people could choose "bugger that damn l4 trash" or "bugger that
- monolithic trash" as they see fit.
-
- and the l4linux source code _is_ there for the linux kernel developers
- to pick up and incorporate.
-
- that they have not chosen to do so - even though it is GPL code -
- leaves me a little puzzled.
-
- 
- 
-> <rant>
-> It seems to me that the driver for "correcting" this is actually closer 
-> to the hardware side...  I am flabbergasted as a hardware engineer that 
-> at this point in time with the time elapsed between today and the first 
-> PCs that things have evolved so little...
- 
-  ah _ha_.
-
-  as a hardware engineer, what would _you_ like to see a
-  modern parallel processor design have - that linux for that
-  hardware would have an easy job of knocking the stuffing
-  out of anything remotely attempting to come close to it?
-
-  i.e. if you could have the proverbial cart before the
-  proverbial horse, and could make decisions about the DESIGN
-  of hardware - all of it - BEFORE it was dumped in your lap
-  and you were basically impicitly told "we're giving you
-  this for free and taking advantage of your willingness to go
-  'cool hardware!  let's make it run linux".
-
-
-  we've already had one suggestion: a CAS-n instruction (a SIMD
-  compare-and-store) which can, according to the person who kindly
-  suggested it, be used for managing doubly-linked lists.
-
-  anyone got any more?
-
-  want to send them to me, and i will summarise to those people that
-  express an interest.
-
-  [i _so_ want this thread to die].
-
-> The same applies to the x86 instruction set - waded through that beast 
-> (well all N volumes of it) recently?  WTF?  
-
- even _decoding_ the x86 instruction set, due to the massive
- number of exceptions / extensions, introduces significant
- instruction latency.
- 
- a large amount of an x86 compatible processor is spent
- translating that crap into a simpler _internal_ microcode set
- of instructions.
-
- unberfrigginlievable.
-
- oh, these instructions are too slow.  _let's_ go an' add multimedia
- extensions.  *noooooooo.*
-
--- 
+thanks,
 --
-<a href="http://lkcl.net">http://lkcl.net</a>
---
+Jiri Slaby         www.fi.muni.cz/~xslaby
+~\-/~      jirislaby@gmail.com      ~\-/~
+B67499670407CE62ACC8 22A032CC55C339D47A7E

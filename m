@@ -1,49 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbVJFJzF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbVJFJzR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750775AbVJFJzF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 05:55:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbVJFJzE
+	id S1750776AbVJFJzR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 05:55:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbVJFJzR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 05:55:04 -0400
-Received: from smtp.terra.es ([213.4.129.129]:724 "EHLO tsmtp2.mail.isp")
-	by vger.kernel.org with ESMTP id S1750775AbVJFJzD convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 05:55:03 -0400
-Date: Thu, 6 Oct 2005 11:53:39 +0200
-From: grundig@teleline.es
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: leimy2k@gmail.com, 7eggert@gmx.de, nix@esperi.org.uk, marc@perkel.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-Message-Id: <20051006115339.6fd736a0.grundig@teleline.es>
-In-Reply-To: <20051005232330.GS10538@lkcl.net>
-References: <4TiWy-4HQ-3@gated-at.bofh.it>
-	<4U0XH-3Gp-39@gated-at.bofh.it>
-	<E1EMutG-0001Hd-7U@be1.lrz>
-	<87k6gsjalu.fsf@amaterasu.srvr.nix>
-	<3e1162e60510050755l590a696bx655eb0b7ac05aab6@mail.gmail.com>
-	<Pine.LNX.4.58.0510051744480.2279@be1.lrz>
-	<3e1162e60510050941l55485cbdgf6135e314a015d8f@mail.gmail.com>
-	<20051005232330.GS10538@lkcl.net>
-X-Mailer: Sylpheed version 2.1.1 (GTK+ 2.8.3; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Thu, 6 Oct 2005 05:55:17 -0400
+Received: from smtp.cs.aau.dk ([130.225.194.6]:58062 "EHLO smtp.cs.aau.dk")
+	by vger.kernel.org with ESMTP id S1750776AbVJFJzP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 05:55:15 -0400
+Message-ID: <4344F40D.6030904@cs.aau.dk>
+Date: Thu, 06 Oct 2005 11:53:17 +0200
+From: Emmanuel Fleury <fleury@cs.aau.dk>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051001)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Emmanuel Fleury <fleury@cs.aau.dk>
+CC: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: freebox possible GPL violation
+References: <20051005111329.GA31087@linux.ensimag.fr> <4343B779.8030200@cs.aau.dk> <1128511676.2920.19.camel@laptopd505.fenrus.org> <4343BB04.7090204@cs.aau.dk> <1128513584.2920.23.camel@laptopd505.fenrus.org> <4343C0DB.9080506@cs.aau.dk> <1128514062.2920.27.camel@laptopd505.fenrus.org> <4343C73E.9000507@cs.aau.dk> <20051006000741.GC18080@aitel.hist.no> <Pine.LNX.4.62.0510051741310.14560@qynat.qvtvafvgr.pbz> <4344EC64.2010400@aitel.hist.no> <4344F39B.10806@cs.aau.dk>
+In-Reply-To: <4344F39B.10806@cs.aau.dk>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Thu, 6 Oct 2005 00:23:30 +0100,
-Luke Kenneth Casson Leighton <lkcl@lkcl.net> escribió:
+Emmanuel Fleury wrote:
+> 
+> Are you sure this point has been clarified in court in the past ?
+> If not, I would bet on it (for the specific case of settop boxes).
 
->  there are a lot of legacy apps that no-one wants to modify to get them
->  to create/read /tmp/x-windows/.X11-unix.
+I _wouldn't_ bet on it....
 
-What's the point of caring about security for a legacy app if nobody 
-is going to fix it if a security problema arises?
+Argh.
 
+Regards
+-- 
+Emmanuel Fleury
 
-http://packages.debian.org/unstable/admin/libpam-tmpdir 
-
-is good enought IMO
-
-
+Given that sooner or later we're all just going to die,
+what's the point of learning about integers?
+  -- Calvin & Hobbes (Bill Waterson)

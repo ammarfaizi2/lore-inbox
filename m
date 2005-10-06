@@ -1,35 +1,997 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbVJFWt2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751176AbVJFW5Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751155AbVJFWt2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 18:49:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751157AbVJFWt1
+	id S1751176AbVJFW5Y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 18:57:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751214AbVJFW5Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 18:49:27 -0400
-Received: from seqima.han-solo.net ([83.138.65.243]:24525 "EHLO
-	seqima.han-solo.net") by vger.kernel.org with ESMTP
-	id S1751155AbVJFWt1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 18:49:27 -0400
-Message-ID: <4345A9F4.7040000@uni-bremen.de>
-Date: Fri, 07 Oct 2005 00:49:24 +0200
-From: Georg Lippold <lippold@uni-bremen.de>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050814)
-X-Accept-Language: en-us, en
+	Thu, 6 Oct 2005 18:57:24 -0400
+Received: from fmr20.intel.com ([134.134.136.19]:16574 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751176AbVJFW5X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 18:57:23 -0400
+From: Mark Gross <mgross@linux.intel.com>
+Organization: Intel
+To: Greg KH <greg@kroah.com>
+Subject: Re: Fwd: Telecom Clock Driver for MPCBL0010 ATCA computer blade
+Date: Thu, 6 Oct 2005 15:54:34 -0700
+User-Agent: KMail/1.7.1
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       Sebastien.Bouchard@ca.kontron.com, mark.gross@intel.com
+References: <200510060803.21470.mgross@linux.intel.com> <20051006182022.GA14414@kroah.com>
+In-Reply-To: <20051006182022.GA14414@kroah.com>
 MIME-Version: 1.0
-To: hpa@zytor.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: THE LINUX/I386 BOOT PROTOCOL - Breaking the 256 limit
-References: <4315B668.6030603@gmail.com> <43162148.9040604@zytor.com> <20050831215757.GA10804@taniwha.stupidest.org> <431628D5.1040709@zytor.com> <431DF9E9.5050102@gmail.com> <431DFEC3.1070309@zytor.com> <431E00C8.3060606@gmail.com>
-In-Reply-To: <431E00C8.3060606@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_rsaRDjdi5OL+sDk"
+Message-Id: <200510061554.35039.mgross@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--Boundary-00=_rsaRDjdi5OL+sDk
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-what's the status of this? linux-2.6.14-rc3 still has 256 chars limit. A 
-quick fix to 1024 would help a lot. Other Platforms have up to 4096...
+On Thursday 06 October 2005 11:20, Greg KH wrote:
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0printk(KERN_ERR" misc_register =
+retruns %d \n", ret);
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0ret =3D =A0-EBUSY;
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0goto out3;
+> > +=A0=A0=A0=A0=A0}
+> > +=A0=A0=A0=A0=A0class =3D tlclk_miscdev.class;
+> > +=A0=A0=A0=A0=A0class_device_create_file(class, &class_device_attr_curr=
+ent_ref);
+>=20
+> Try registering a whole attribute group instead. =A0It's much nicer than
+> the 20 lines you have to register and unregister your devices (and you
+> don't handle the error condition properly if something goes wrong half
+> way through.)
+>=20
 
-Greetings,
+I couldn't find such an API that wasn't static to class.c, or described in =
+class.txt.  Any pointers on this would be helpful.
 
-Georg
+
+> > diff -urN -X dontdiff linux-2.6.14-rc2-mm2/drivers/char/tlclk.h linux-2=
+=2E6.14-rc2-mm2-tlclk/drivers/char/tlclk.h
+>=20
+> Why not just put this stuff into the tlclk.c file itself, as it isn't
+> needed anywhere else?
+>=20
+done.
+
+Attached is an update that I think addresses your other comments.
+
+Thanks for looking at this.
+
+=2D-=20
+=2D-mgross
+BTW: This may or may not be the opinion of my employer, more likely not. =20
+
+--Boundary-00=_rsaRDjdi5OL+sDk
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="tlclk-2.6.14-rc2-mm2.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="tlclk-2.6.14-rc2-mm2.patch"
+
+diff -urN -X dontdiff linux-2.6.14-rc2-mm2/drivers/char/Kconfig linux-2.6.14-rc2-mm2-tlclk/drivers/char/Kconfig
+--- linux-2.6.14-rc2-mm2/drivers/char/Kconfig	2005-10-04 14:55:15.000000000 -0700
++++ linux-2.6.14-rc2-mm2-tlclk/drivers/char/Kconfig	2005-10-04 14:57:47.000000000 -0700
+@@ -1001,5 +1001,15 @@
+ 
+ source "drivers/char/tpm/Kconfig"
+ 
++config TELCLOCK
++	tristate "Telecom clock driver for ATCA"
++	depends on EXPERIMENTAL
++	default n
++	help
++	  The telecom clock device allows direct userspace access to the
++	  configuration of the telecom clock configuration settings.
++	  This device is used for hardware synchronization across the ATCA
++	  backplane fabric.
++
+ endmenu
+ 
+diff -urN -X dontdiff linux-2.6.14-rc2-mm2/drivers/char/Makefile linux-2.6.14-rc2-mm2-tlclk/drivers/char/Makefile
+--- linux-2.6.14-rc2-mm2/drivers/char/Makefile	2005-10-04 14:55:15.000000000 -0700
++++ linux-2.6.14-rc2-mm2-tlclk/drivers/char/Makefile	2005-10-04 14:57:47.000000000 -0700
+@@ -82,6 +82,7 @@
+ obj-$(CONFIG_SCx200_GPIO) += scx200_gpio.o
+ obj-$(CONFIG_GPIO_VR41XX) += vr41xx_giu.o
+ obj-$(CONFIG_TANBAC_TB0219) += tb0219.o
++obj-$(CONFIG_TELCLOCK) += tlclk.o
+ 
+ obj-$(CONFIG_SPEAKUP) += speakup/
+ obj-$(CONFIG_WATCHDOG)	+= watchdog/
+diff -urN -X dontdiff linux-2.6.14-rc2-mm2/drivers/char/tlclk.c linux-2.6.14-rc2-mm2-tlclk/drivers/char/tlclk.c
+--- linux-2.6.14-rc2-mm2/drivers/char/tlclk.c	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.14-rc2-mm2-tlclk/drivers/char/tlclk.c	2005-10-06 15:41:56.000000000 -0700
+@@ -0,0 +1,868 @@
++/*
++ * Telecom Clock driver for Intel NetStructure(tm) MPCBL0010
++ *
++ * Copyright (C) 2005 Kontron Canada
++ *
++ * All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or (at
++ * your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
++ * NON INFRINGEMENT.  See the GNU General Public License for more
++ * details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ * Send feedback to <sebastien.bouchard@ca.kontron.com> and the current
++ * Maintainer  <mark.gross@intel.com>
++ *
++ * Description : This is the TELECOM CLOCK module driver for the ATCA
++ * MPCBL0010 ATCA computer.
++ */
++
++#include <linux/config.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/sched.h>
++#include <linux/kernel.h>	/* printk() */
++#include <linux/fs.h>		/* everything... */
++#include <linux/errno.h>	/* error codes */
++#include <linux/delay.h>	/* udelay */
++#include <linux/slab.h>
++#include <linux/ioport.h>
++#include <linux/interrupt.h>
++#include <linux/spinlock.h>
++#include <linux/timer.h>
++#include <linux/sysfs.h>
++#include <linux/device.h>
++#include <linux/miscdevice.h>
++#include <asm/io.h>		/* inb/outb */
++#include <asm/uaccess.h>
++
++MODULE_AUTHOR("Sebastien Bouchard <sebastien.bouchard@ca.kontron.com>");
++MODULE_LICENSE("GPL");
++
++/*Hardware Reset of the PLL */
++#define RESET_ON	0x00
++#define RESET_OFF	0x01
++
++/* MODE SELECT */
++#define NORMAL_MODE 	0x00
++#define HOLDOVER_MODE	0x10
++#define FREERUN_MODE	0x20
++
++/* FILTER SELECT */
++#define FILTER_6HZ	0x04
++#define FILTER_12HZ	0x00
++
++/* SELECT REFERENCE FREQUENCY */
++#define REF_CLK1_8kHz		0x00
++#define REF_CLK2_19_44MHz	0x02
++
++/* Select primary or secondary redundant clock */
++#define PRIMARY_CLOCK	0x00
++#define SECONDARY_CLOCK	0x01
++
++/* CLOCK TRANSMISSION DEFINE */
++#define CLK_8kHz	0xff
++#define CLK_16_384MHz	0xfb
++
++#define CLK_1_544MHz	0x00
++#define CLK_2_048MHz	0x01
++#define CLK_4_096MHz	0x02
++#define CLK_6_312MHz	0x03
++#define CLK_8_192MHz	0x04
++#define CLK_19_440MHz	0x06
++
++#define CLK_8_592MHz	0x08
++#define CLK_11_184MHz	0x09
++#define CLK_34_368MHz	0x0b
++#define CLK_44_736MHz	0x0a
++
++/* RECEIVED REFERENCE */
++#define AMC_B1 0
++#define AMC_B2 1
++
++/* HARDWARE SWITCHING DEFINE */
++#define HW_ENABLE	0x80
++#define HW_DISABLE	0x00
++
++/* HARDWARE SWITCHING MODE DEFINE */
++#define PLL_HOLDOVER	0x40
++#define LOST_CLOCK	0x00
++
++/* ALARMS DEFINE */
++#define UNLOCK_MASK	0x10
++#define HOLDOVER_MASK	0x20
++#define SEC_LOST_MASK	0x40
++#define PRI_LOST_MASK	0x80
++
++/* INTERRUPT CAUSE DEFINE */
++
++#define PRI_LOS_01_MASK		0x01
++#define PRI_LOS_10_MASK		0x02
++
++#define SEC_LOS_01_MASK		0x04
++#define SEC_LOS_10_MASK		0x08
++
++#define HOLDOVER_01_MASK	0x10
++#define HOLDOVER_10_MASK	0x20
++
++#define UNLOCK_01_MASK		0x40
++#define UNLOCK_10_MASK		0x80
++
++struct tlclk_alarms {
++	__u32 lost_clocks;
++	__u32 lost_primary_clock;
++	__u32 lost_secondary_clock;
++	__u32 primary_clock_back;
++	__u32 secondary_clock_back;
++	__u32 switchover_primary;
++	__u32 switchover_secondary;
++	__u32 pll_holdover;
++	__u32 pll_end_holdover;
++	__u32 pll_lost_sync;
++	__u32 pll_sync;
++};
++/* Telecom clock I/O register definition */
++#define TLCLK_BASE 0xa08
++#define TLCLK_REG0 TLCLK_BASE
++#define TLCLK_REG1 (TLCLK_BASE+1)
++#define TLCLK_REG2 (TLCLK_BASE+2)
++#define TLCLK_REG3 (TLCLK_BASE+3)
++#define TLCLK_REG4 (TLCLK_BASE+4)
++#define TLCLK_REG5 (TLCLK_BASE+5)
++#define TLCLK_REG6 (TLCLK_BASE+6)
++#define TLCLK_REG7 (TLCLK_BASE+7)
++
++#define SET_PORT_BITS(port, mask, val) outb(((inb(port) & mask) | val), port)
++
++/* 0 = Dynamic allocation of the major device number */
++#define TLCLK_MAJOR 0
++
++/* sysfs interface definition:
++Uppon loading the driver will create a sysfs directory under class/misc/tlclk.
++
++This directory exports the following interfaces.  There operation is
++documented in the MCPBL0010 TPS under the Telecom Clock API section, 11.4.
++alarms				:
++current_ref			:
++enable_clk3a_output		:
++enable_clk3b_output		:
++enable_clka0_output		:
++enable_clka1_output		:
++enable_clkb0_output		:
++enable_clkb1_output		:
++filter_select			:
++hardware_switching		:
++hardware_switching_mode		:
++interrupt_switch		:
++mode_select			:
++refalign			:
++reset				:
++select_amcb1_transmit_clock	:
++select_amcb2_transmit_clock	:
++select_redundant_clock		:
++select_ref_frequency		:
++test_mode			:
++
++All sysfs interfaces are integers in hex format, i.e echo 99 > refalign
++has the same effect as echo 0x99 > refalign.
++*/
++
++static unsigned int telclk_interrupt;
++
++static int int_events;		/* Event that generate a interrupt */
++static int got_event;		/* if events processing have been done */
++
++static void switchover_timeout(unsigned long data);
++static struct timer_list switchover_timer =
++	TIMER_INITIALIZER(switchover_timeout , 0, 0);
++
++static struct tlclk_alarms *alarm_events;
++
++static DEFINE_SPINLOCK(event_lock);
++
++static int tlclk_major = TLCLK_MAJOR;
++
++static irqreturn_t tlclk_interrupt(int irq, void *dev_id, struct pt_regs *regs);
++
++static DECLARE_WAIT_QUEUE_HEAD(wq);
++
++static int tlclk_open(struct inode *inode, struct file *filp)
++{
++	int result;
++
++	/* Make sure there is no interrupt pending while
++	 * initialising interrupt handler */
++	inb(TLCLK_REG6);
++
++	/* This device is wired through the FPGA IO space of the ATCA blade
++	 * we can't share this IRQ */
++	result = request_irq(telclk_interrupt, &tlclk_interrupt,
++			     SA_INTERRUPT, "telclock", tlclk_interrupt);
++	if (result == -EBUSY) {
++		printk(KERN_ERR "telclock: Interrupt can't be reserved!\n");
++		return -EBUSY;
++	}
++	inb(TLCLK_REG6);	/* Clear interrupt events */
++
++	return 0;
++}
++
++static int tlclk_release(struct inode *inode, struct file *filp)
++{
++	free_irq(telclk_interrupt, tlclk_interrupt);
++
++	return 0;
++}
++
++ssize_t tlclk_read(struct file *filp, char __user *buf, size_t count,
++		loff_t *f_pos)
++{
++	if (count < sizeof(struct tlclk_alarms))
++		return -EIO;
++
++	wait_event_interruptible(wq, got_event);
++	if (copy_to_user(buf, alarm_events, sizeof(struct tlclk_alarms)))
++		return -EFAULT;
++
++	memset(alarm_events, 0, sizeof(struct tlclk_alarms));
++	got_event = 0;
++
++	return  sizeof(struct tlclk_alarms);
++}
++
++ssize_t tlclk_write(struct file *filp, const char __user *buf, size_t count,
++	    loff_t *f_pos)
++{
++	return 0;
++}
++
++static struct file_operations tlclk_fops = {
++	.read = tlclk_read,
++	.write = tlclk_write,
++	.open = tlclk_open,
++	.release = tlclk_release,
++
++};
++
++static struct miscdevice tlclk_miscdev = {
++	.minor = MISC_DYNAMIC_MINOR,
++	.name = "tlclk",
++	.fops = &tlclk_fops,
++};
++
++static ssize_t show_current_ref(struct class_device *d, char *buf)
++{
++	unsigned long ret_val;
++	unsigned long flags;
++
++	spin_lock_irqsave(&event_lock, flags);
++	ret_val = ((inb(TLCLK_REG1) & 0x08) >> 3);
++	spin_unlock_irqrestore(&event_lock, flags);
++
++	return sprintf(buf, "0x%lX\n", ret_val);
++}
++
++static CLASS_DEVICE_ATTR(current_ref, S_IRUGO, show_current_ref, NULL);
++
++
++static ssize_t show_interrupt_switch(struct class_device *d, char *buf)
++{
++	unsigned long ret_val;
++	unsigned long flags;
++
++	spin_lock_irqsave(&event_lock, flags);
++	ret_val = inb(TLCLK_REG6);
++	spin_unlock_irqrestore(&event_lock, flags);
++
++	return sprintf(buf, "0x%lX\n", ret_val);
++}
++
++static CLASS_DEVICE_ATTR(interrupt_switch, S_IRUGO,
++		show_interrupt_switch, NULL);
++
++static ssize_t show_alarms(struct class_device *d, char *buf)
++{
++	unsigned long ret_val;
++	unsigned long flags;
++
++	spin_lock_irqsave(&event_lock, flags);
++	ret_val = (inb(TLCLK_REG2) & 0xf0);
++	spin_unlock_irqrestore(&event_lock, flags);
++
++	return sprintf(buf, "0x%lX\n", ret_val);
++}
++
++static CLASS_DEVICE_ATTR(alarms, S_IRUGO, show_alarms, NULL);
++
++static ssize_t store_enable_clk3b_output(struct class_device *d,
++		const char *buf, size_t count)
++{
++	unsigned long tmp;
++	unsigned char val;
++	unsigned long flags;
++
++	sscanf(buf, "%lX", &tmp);
++	dev_dbg(KERN_ERR "tmp = 0x%lX\n", tmp);
++
++	val = (unsigned char)tmp;
++	spin_lock_irqsave(&event_lock, flags);
++	SET_PORT_BITS(TLCLK_REG3, 0x7f, val << 7);
++	spin_unlock_irqrestore(&event_lock, flags);
++
++	return strnlen(buf, count);
++}
++
++static CLASS_DEVICE_ATTR(enable_clk3b_output, S_IWUGO, NULL,
++		store_enable_clk3b_output);
++
++static ssize_t store_enable_clk3a_output(struct class_device *d,
++		const char *buf, size_t count)
++{
++	unsigned long flags;
++	unsigned long tmp;
++	unsigned char val;
++
++	sscanf(buf, "%lX", &tmp);
++	dev_dbg(KERN_ERR "tmp = 0x%lX\n", tmp);
++
++	val = (unsigned char)tmp;
++	spin_lock_irqsave(&event_lock, flags);
++	SET_PORT_BITS(TLCLK_REG3, 0xbf, val << 6);
++	spin_unlock_irqrestore(&event_lock, flags);
++
++	return strnlen(buf, count);
++}
++
++static CLASS_DEVICE_ATTR(enable_clk3a_output, S_IWUGO, NULL,
++		store_enable_clk3a_output);
++
++static ssize_t store_enable_clkb1_output(struct class_device *d,
++		const char *buf, size_t count)
++{
++	unsigned long flags;
++	unsigned long tmp;
++	unsigned char val;
++
++	sscanf(buf, "%lX", &tmp);
++	dev_dbg(KERN_ERR "tmp = 0x%lX\n", tmp);
++
++	val = (unsigned char)tmp;
++	spin_lock_irqsave(&event_lock, flags);
++	SET_PORT_BITS(TLCLK_REG2, 0xf7, val << 3);
++	spin_unlock_irqrestore(&event_lock, flags);
++
++	return strnlen(buf, count);
++}
++
++static CLASS_DEVICE_ATTR(enable_clkb1_output, S_IWUGO, NULL,
++		store_enable_clkb1_output);
++
++
++static ssize_t store_enable_clka1_output(struct class_device *d,
++		const char *buf, size_t count)
++{
++	unsigned long flags;
++	unsigned long tmp;
++	unsigned char val;
++
++	sscanf(buf, "%lX", &tmp);
++	dev_dbg(KERN_ERR "tmp = 0x%lX\n", tmp);
++
++	val = (unsigned char)tmp;
++	spin_lock_irqsave(&event_lock, flags);
++	SET_PORT_BITS(TLCLK_REG2, 0xfb, val << 2);
++	spin_unlock_irqrestore(&event_lock, flags);
++
++	return strnlen(buf, count);
++}
++
++static CLASS_DEVICE_ATTR(enable_clka1_output, S_IWUGO, NULL,
++		store_enable_clka1_output);
++
++static ssize_t store_enable_clkb0_output(struct class_device *d,
++		const char *buf, size_t count)
++{
++	unsigned long flags;
++	unsigned long tmp;
++	unsigned char val;
++
++	sscanf(buf, "%lX", &tmp);
++	dev_dbg(KERN_ERR "tmp = 0x%lX\n", tmp);
++
++	val = (unsigned char)tmp;
++	spin_lock_irqsave(&event_lock, flags);
++	SET_PORT_BITS(TLCLK_REG2, 0xfd, val << 1);
++	spin_unlock_irqrestore(&event_lock, flags);
++
++	return strnlen(buf, count);
++}
++
++static CLASS_DEVICE_ATTR(enable_clkb0_output, S_IWUGO, NULL,
++		store_enable_clkb0_output);
++
++static ssize_t store_enable_clka0_output(struct class_device *d,
++		const char *buf, size_t count)
++{
++	unsigned long flags;
++	unsigned long tmp;
++	unsigned char val;
++
++	sscanf(buf, "%lX", &tmp);
++	dev_dbg(KERN_ERR "tmp = 0x%lX\n", tmp);
++
++	val = (unsigned char)tmp;
++	spin_lock_irqsave(&event_lock, flags);
++	SET_PORT_BITS(TLCLK_REG2, 0xfe, val);
++	spin_unlock_irqrestore(&event_lock, flags);
++
++	return strnlen(buf, count);
++}
++
++static CLASS_DEVICE_ATTR(enable_clka0_output, S_IWUGO, NULL,
++		store_enable_clka0_output);
++
++static ssize_t store_test_mode(struct class_device *d, const char *buf,
++		size_t count)
++{
++	unsigned long flags;
++	unsigned long tmp;
++	unsigned char val;
++
++	sscanf(buf, "%lX", &tmp);
++	dev_dbg(KERN_ERR "tmp = 0x%lX\n", tmp);
++
++	val = (unsigned char)tmp;
++	spin_lock_irqsave(&event_lock, flags);
++	SET_PORT_BITS(TLCLK_REG4, 0xfd, 2);
++	spin_unlock_irqrestore(&event_lock, flags);
++
++	return strnlen(buf, count);
++}
++
++static CLASS_DEVICE_ATTR(test_mode, S_IWUGO, NULL, store_test_mode);
++
++static ssize_t store_select_amcb2_transmit_clock(struct class_device *d,
++	const char *buf, size_t count)
++{
++	unsigned long flags;
++	unsigned long tmp;
++	unsigned char val;
++
++	sscanf(buf, "%lX", &tmp);
++	dev_dbg(KERN_ERR "tmp = 0x%lX\n", tmp);
++
++	val = (unsigned char)tmp;
++	spin_lock_irqsave(&event_lock, flags);
++		if ((val == CLK_8kHz) || (val == CLK_16_384MHz)) {
++			SET_PORT_BITS(TLCLK_REG3, 0xc7, 0x28);
++			SET_PORT_BITS(TLCLK_REG1, 0xfb, ~val);
++		} else if (val >= CLK_8_592MHz) {
++			SET_PORT_BITS(TLCLK_REG3, 0xc7, 0x38);
++			switch (val) {
++			case CLK_8_592MHz:
++				SET_PORT_BITS(TLCLK_REG0, 0xfc, 1);
++				break;
++			case CLK_11_184MHz:
++				SET_PORT_BITS(TLCLK_REG0, 0xfc, 0);
++				break;
++			case CLK_34_368MHz:
++				SET_PORT_BITS(TLCLK_REG0, 0xfc, 3);
++				break;
++			case CLK_44_736MHz:
++				SET_PORT_BITS(TLCLK_REG0, 0xfc, 2);
++				break;
++			}
++		} else
++			SET_PORT_BITS(TLCLK_REG3, 0xc7, val << 3);
++
++	spin_unlock_irqrestore(&event_lock, flags);
++
++	return strnlen(buf, count);
++}
++
++static CLASS_DEVICE_ATTR(select_amcb2_transmit_clock, S_IWUGO, NULL,
++	store_select_amcb2_transmit_clock);
++
++static ssize_t store_select_amcb1_transmit_clock(struct class_device *d,
++		const char *buf, size_t count)
++{
++	unsigned long tmp;
++	unsigned char val;
++	unsigned long flags;
++
++	sscanf(buf, "%lX", &tmp);
++	dev_dbg(KERN_ERR "tmp = 0x%lX\n", tmp);
++
++	val = (unsigned char)tmp;
++	spin_lock_irqsave(&event_lock, flags);
++		if ((val == CLK_8kHz) || (val == CLK_16_384MHz)) {
++			SET_PORT_BITS(TLCLK_REG3, 0xf8, 0x5);
++			SET_PORT_BITS(TLCLK_REG1, 0xfb, ~val);
++		} else if (val >= CLK_8_592MHz) {
++			SET_PORT_BITS(TLCLK_REG3, 0xf8, 0x7);
++			switch (val) {
++			case CLK_8_592MHz:
++				SET_PORT_BITS(TLCLK_REG0, 0xfc, 1);
++				break;
++			case CLK_11_184MHz:
++				SET_PORT_BITS(TLCLK_REG0, 0xfc, 0);
++				break;
++			case CLK_34_368MHz:
++				SET_PORT_BITS(TLCLK_REG0, 0xfc, 3);
++				break;
++			case CLK_44_736MHz:
++				SET_PORT_BITS(TLCLK_REG0, 0xfc, 2);
++				break;
++			}
++		} else
++			SET_PORT_BITS(TLCLK_REG3, 0xf8, val);
++	spin_unlock_irqrestore(&event_lock, flags);
++
++	return strnlen(buf, count);
++}
++
++static CLASS_DEVICE_ATTR(select_amcb1_transmit_clock, S_IWUGO, NULL,
++		store_select_amcb1_transmit_clock);
++
++static ssize_t store_select_redundant_clock(struct class_device *d,
++		const char *buf, size_t count)
++{
++	unsigned long tmp;
++	unsigned char val;
++	unsigned long flags;
++
++	sscanf(buf, "%lX", &tmp);
++	dev_dbg(KERN_ERR "tmp = 0x%lX\n", tmp);
++
++	val = (unsigned char)tmp;
++	spin_lock_irqsave(&event_lock, flags);
++	SET_PORT_BITS(TLCLK_REG1, 0xfe, val);
++	spin_unlock_irqrestore(&event_lock, flags);
++
++	return strnlen(buf, count);
++}
++
++static CLASS_DEVICE_ATTR(select_redundant_clock, S_IWUGO, NULL,
++		store_select_redundant_clock);
++
++static ssize_t store_select_ref_frequency(struct class_device *d,
++		const char *buf, size_t count)
++{
++	unsigned long tmp;
++	unsigned char val;
++	unsigned long flags;
++
++	sscanf(buf, "%lX", &tmp);
++	dev_dbg(KERN_ERR "tmp = 0x%lX\n", tmp);
++
++	val = (unsigned char)tmp;
++	spin_lock_irqsave(&event_lock, flags);
++	SET_PORT_BITS(TLCLK_REG1, 0xfd, val);
++	spin_unlock_irqrestore(&event_lock, flags);
++
++	return strnlen(buf, count);
++}
++
++static CLASS_DEVICE_ATTR(select_ref_frequency, S_IWUGO, NULL,
++		store_select_ref_frequency);
++
++static ssize_t store_filter_select(struct class_device *d,
++		const char *buf, size_t count)
++{
++	unsigned long tmp;
++	unsigned char val;
++	unsigned long flags;
++
++	sscanf(buf, "%lX", &tmp);
++	dev_dbg(KERN_ERR "tmp = 0x%lX\n", tmp);
++
++	val = (unsigned char)tmp;
++	spin_lock_irqsave(&event_lock, flags);
++	SET_PORT_BITS(TLCLK_REG0, 0xfb, val);
++	spin_unlock_irqrestore(&event_lock, flags);
++
++	return strnlen(buf, count);
++}
++
++static CLASS_DEVICE_ATTR(filter_select, S_IWUGO, NULL, store_filter_select);
++
++static ssize_t store_hardware_switching_mode(struct class_device *d,
++		const char *buf, size_t count)
++{
++	unsigned long tmp;
++	unsigned char val;
++	unsigned long flags;
++
++	sscanf(buf, "%lX", &tmp);
++	dev_dbg(KERN_ERR "tmp = 0x%lX\n", tmp);
++
++	val = (unsigned char)tmp;
++	spin_lock_irqsave(&event_lock, flags);
++	SET_PORT_BITS(TLCLK_REG0, 0xbf, val);
++	spin_unlock_irqrestore(&event_lock, flags);
++
++	return strnlen(buf, count);
++}
++
++static CLASS_DEVICE_ATTR(hardware_switching_mode, S_IWUGO, NULL,
++		store_hardware_switching_mode);
++
++static ssize_t store_hardware_switching(struct class_device *d,
++		const char *buf, size_t count)
++{
++	unsigned long tmp;
++	unsigned char val;
++	unsigned long flags;
++
++	sscanf(buf, "%lX", &tmp);
++	dev_dbg(KERN_ERR "tmp = 0x%lX\n", tmp);
++
++	val = (unsigned char)tmp;
++	spin_lock_irqsave(&event_lock, flags);
++	SET_PORT_BITS(TLCLK_REG0, 0x7f, val);
++	spin_unlock_irqrestore(&event_lock, flags);
++
++	return strnlen(buf, count);
++}
++
++static CLASS_DEVICE_ATTR(hardware_switching, S_IWUGO, NULL,
++		store_hardware_switching);
++
++static ssize_t store_refalign (struct class_device *d,
++		const char *buf, size_t count)
++{
++	unsigned long tmp;
++	unsigned long flags;
++
++	sscanf(buf, "%lX", &tmp);
++	dev_dbg(KERN_ERR "tmp = 0x%lX\n", tmp);
++	spin_lock_irqsave(&event_lock, flags);
++	SET_PORT_BITS(TLCLK_REG0, 0xf7, 0);
++	udelay(2);
++	SET_PORT_BITS(TLCLK_REG0, 0xf7, 0x08);
++	udelay(2);
++	SET_PORT_BITS(TLCLK_REG0, 0xf7, 0);
++	spin_unlock_irqrestore(&event_lock, flags);
++
++	return strnlen(buf, count);
++}
++
++static CLASS_DEVICE_ATTR(refalign, S_IWUGO, NULL, store_refalign);
++
++static ssize_t store_mode_select (struct class_device *d,
++		const char *buf, size_t count)
++{
++	unsigned long tmp;
++	unsigned char val;
++	unsigned long flags;
++
++	sscanf(buf, "%lX", &tmp);
++	dev_dbg(KERN_ERR "tmp = 0x%lX\n", tmp);
++
++	val = (unsigned char)tmp;
++	spin_lock_irqsave(&event_lock, flags);
++	SET_PORT_BITS(TLCLK_REG0, 0xcf, val);
++	spin_unlock_irqrestore(&event_lock, flags);
++
++	return strnlen(buf, count);
++}
++
++static CLASS_DEVICE_ATTR(mode_select, S_IWUGO, NULL, store_mode_select);
++
++static ssize_t store_reset (struct class_device *d,
++		const char *buf, size_t count)
++{
++	unsigned long tmp;
++	unsigned char val;
++	unsigned long flags;
++
++	sscanf(buf, "%lX", &tmp);
++	dev_dbg(KERN_ERR "tmp = 0x%lX\n", tmp);
++
++	val = (unsigned char)tmp;
++	spin_lock_irqsave(&event_lock, flags);
++	SET_PORT_BITS(TLCLK_REG4, 0xfd, val);
++	spin_unlock_irqrestore(&event_lock, flags);
++
++	return strnlen(buf, count);
++}
++
++static CLASS_DEVICE_ATTR(reset, S_IWUGO, NULL, store_reset);
++
++static int __init tlclk_init(void)
++{
++	int ret;
++	struct class_device *class;
++
++	ret = register_chrdev(tlclk_major, "telclock", &tlclk_fops);
++
++	if (ret < 0) {
++		printk(KERN_ERR "telclock: can't get major! %d\n", tlclk_major);
++		return ret;
++	}
++
++	alarm_events = kzalloc( sizeof(struct tlclk_alarms), GFP_KERNEL);
++
++	if (!alarm_events)
++		goto out1;
++
++/* Read telecom clock IRQ number (Set by BIOS) */
++
++	if (!request_region(TLCLK_BASE, 8, "telclock")) {
++		printk(KERN_ERR "tlclk: request_region failed! 0x%X\n",
++			TLCLK_BASE);
++		ret = -EBUSY;
++		goto out2;
++	}
++	telclk_interrupt = (inb(TLCLK_REG7) & 0x0f);
++
++	if (0x0F == telclk_interrupt ) { /* not MCPBL0010 ? */
++		printk(KERN_ERR "telclk_interrup = 0x%x non-mcpbl0010 hw\n",
++			telclk_interrupt);
++		ret = -ENXIO;
++		goto out3;
++	}
++
++	init_timer(&switchover_timer);
++/*	switchover_timer.function = switchover_timeout; */
++/*	switchover_timer.data = 0; */
++
++	ret = misc_register(&tlclk_miscdev);
++	if (ret < 0) {
++		printk(KERN_ERR" misc_register retruns %d\n", ret);
++		ret = -EBUSY;
++		goto out3;
++	}
++
++	class = tlclk_miscdev.class;
++	class_device_create_file(class, &class_device_attr_current_ref);
++	class_device_create_file(class, &class_device_attr_interrupt_switch);
++	class_device_create_file(class, &class_device_attr_alarms);
++	class_device_create_file(class, &class_device_attr_enable_clk3b_output);
++	class_device_create_file(class, &class_device_attr_enable_clk3a_output);
++	class_device_create_file(class, &class_device_attr_enable_clkb1_output);
++	class_device_create_file(class, &class_device_attr_enable_clka1_output);
++	class_device_create_file(class, &class_device_attr_enable_clkb0_output);
++	class_device_create_file(class, &class_device_attr_enable_clka0_output);
++	class_device_create_file(class, &class_device_attr_test_mode);
++	class_device_create_file(class,
++		&class_device_attr_select_amcb2_transmit_clock);
++	class_device_create_file(class,
++		&class_device_attr_select_amcb1_transmit_clock);
++	class_device_create_file(class, &class_device_attr_select_redundant_clock);
++	class_device_create_file(class, &class_device_attr_select_ref_frequency);
++	class_device_create_file(class, &class_device_attr_filter_select);
++	class_device_create_file(class,
++		&class_device_attr_hardware_switching_mode);
++	class_device_create_file(class, &class_device_attr_hardware_switching);
++	class_device_create_file(class, &class_device_attr_refalign);
++	class_device_create_file(class, &class_device_attr_mode_select);
++	class_device_create_file(class, &class_device_attr_reset);
++	
++	return 0;
++out3:
++	release_region(TLCLK_BASE, 8);
++out2:
++	kfree(alarm_events);
++out1:
++	return ret;
++}
++
++static void __exit tlclk_cleanup(void)
++{
++	misc_deregister(&tlclk_miscdev);
++	unregister_chrdev(tlclk_major, "telclock");
++
++	release_region(TLCLK_BASE, 8);
++	del_timer_sync(&switchover_timer);
++	kfree(alarm_events);
++
++}
++
++static void switchover_timeout(unsigned long data)
++{
++	if ((data & 1)) {
++		if ((inb(TLCLK_REG1) & 0x08) != (data & 0x08))
++			alarm_events->switchover_primary++;
++	} else {
++		if ((inb(TLCLK_REG1) & 0x08) != (data & 0x08))
++			alarm_events->switchover_secondary++;
++	}
++
++	/* Alarm processing is done, wake up read task */
++	del_timer(&switchover_timer);
++	got_event = 1;
++	wake_up(&wq);
++}
++
++static irqreturn_t tlclk_interrupt(int irq, void *dev_id, struct pt_regs *regs)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&event_lock, flags);
++	/* Read and clear interrupt events */
++	int_events = inb(TLCLK_REG6);
++
++	/* Primary_Los changed from 0 to 1 ? */
++	if (int_events & PRI_LOS_01_MASK) {
++		if (inb(TLCLK_REG2) & SEC_LOST_MASK)
++			alarm_events->lost_clocks++;
++		else
++			alarm_events->lost_primary_clock++;
++	}
++
++	/* Primary_Los changed from 1 to 0 ? */
++	if (int_events & PRI_LOS_10_MASK) {
++		alarm_events->primary_clock_back++;
++		SET_PORT_BITS(TLCLK_REG1, 0xFE, 1);
++	}
++	/* Secondary_Los changed from 0 to 1 ? */
++	if (int_events & SEC_LOS_01_MASK) {
++		if (inb(TLCLK_REG2) & PRI_LOST_MASK)
++			alarm_events->lost_clocks++;
++		else
++			alarm_events->lost_secondary_clock++;
++	}
++	/* Secondary_Los changed from 1 to 0 ? */
++	if (int_events & SEC_LOS_10_MASK) {
++		alarm_events->secondary_clock_back++;
++		SET_PORT_BITS(TLCLK_REG1, 0xFE, 0);
++	}
++	if (int_events & HOLDOVER_10_MASK)
++		alarm_events->pll_end_holdover++;
++
++	if (int_events & UNLOCK_01_MASK)
++		alarm_events->pll_lost_sync++;
++
++	if (int_events & UNLOCK_10_MASK)
++		alarm_events->pll_sync++;
++
++	/* Holdover changed from 0 to 1 ? */
++	if (int_events & HOLDOVER_01_MASK) {
++		alarm_events->pll_holdover++;
++
++		/* TIMEOUT in ~10ms */
++		switchover_timer.expires = jiffies + msecs_to_jiffies(10);
++		switchover_timer.data = inb(TLCLK_REG1);
++		add_timer(&switchover_timer);
++	} else {
++		got_event = 1;
++		wake_up(&wq);
++	}
++	spin_unlock_irqrestore(&event_lock, flags);
++
++	return IRQ_HANDLED;
++}
++
++module_init(tlclk_init);
++module_exit(tlclk_cleanup);
+diff -urN -X dontdiff linux-2.6.14-rc2-mm2/MAINTAINERS linux-2.6.14-rc2-mm2-tlclk/MAINTAINERS
+--- linux-2.6.14-rc2-mm2/MAINTAINERS	2005-10-04 14:55:18.000000000 -0700
++++ linux-2.6.14-rc2-mm2-tlclk/MAINTAINERS	2005-10-06 10:02:23.000000000 -0700
+@@ -2319,6 +2319,11 @@
+ L:	tpmdd-devel@lists.sourceforge.net
+ S:	Maintained
+ 
++Telecom Clock Driver for MCPL0010
++P: Mark Gross
++M: mark.gross@intel.com
++S: Supported
++
+ TENSILICA XTENSA PORT (xtensa):
+ P:	Chris Zankel
+ M:	chris@zankel.net
+
+--Boundary-00=_rsaRDjdi5OL+sDk--

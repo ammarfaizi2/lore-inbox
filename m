@@ -1,345 +1,171 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751017AbVJFONV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750977AbVJFORs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751017AbVJFONV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 10:13:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751018AbVJFONV
+	id S1750977AbVJFORs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 10:17:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751016AbVJFORs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 10:13:21 -0400
-Received: from mx1.netapp.com ([216.240.18.38]:24611 "EHLO mx1.netapp.com")
-	by vger.kernel.org with ESMTP id S1751008AbVJFONU convert rfc822-to-8bit
+	Thu, 6 Oct 2005 10:17:48 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:21222 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750973AbVJFORr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 10:13:20 -0400
-X-IronPort-AV: i="3.97,182,1125903600"; 
-   d="scan'208"; a="260528095:sNHT21639072"
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Thu, 6 Oct 2005 10:17:47 -0400
+Message-ID: <43453277.9020900@aitel.hist.no>
+Date: Thu, 06 Oct 2005 16:19:35 +0200
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [NFS] [RFC: 2.6 patch] net/sunrpc/: possible cleanups
-Date: Thu, 6 Oct 2005 07:13:14 -0700
-Message-ID: <044B81DE141D7443BCE91E8F44B3C1E288E4FC@exsvl02.hq.netapp.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [NFS] [RFC: 2.6 patch] net/sunrpc/: possible cleanups
-Thread-Index: AcXKOnSkZy9vGgaXSgifY0KCN0LwGgARXefQ
-From: "Lever, Charles" <Charles.Lever@netapp.com>
-To: "Adrian Bunk" <bunk@stusta.de>, "David Miller" <davem@davemloft.net>
-Cc: <neilb@cse.unsw.edu.au>, <trond.myklebust@fys.uio.no>,
-       <linux-kernel@vger.kernel.org>, <nfs@lists.sourceforge.net>,
-       <netdev@vger.kernel.org>
-X-OriginalArrivalTime: 06 Oct 2005 14:13:14.0398 (UTC) FILETIME=[173633E0:01C5CA80]
+To: Emmanuel Fleury <fleury@cs.aau.dk>
+CC: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: freebox possible GPL violation
+References: <20051005111329.GA31087@linux.ensimag.fr> <4343B779.8030200@cs.aau.dk> <1128511676.2920.19.camel@laptopd505.fenrus.org> <4343BB04.7090204@cs.aau.dk> <1128513584.2920.23.camel@laptopd505.fenrus.org> <4343C0DB.9080506@cs.aau.dk> <1128514062.2920.27.camel@laptopd505.fenrus.org> <4343C73E.9000507@cs.aau.dk> <20051006000741.GC18080@aitel.hist.no> <Pine.LNX.4.62.0510051741310.14560@qynat.qvtvafvgr.pbz> <4344EC64.2010400@aitel.hist.no> <4344F39B.10806@cs.aau.dk> <43450CE5.50302@aitel.hist.no> <43452134.4010504@cs.aau.dk>
+In-Reply-To: <43452134.4010504@cs.aau.dk>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-actually, can we hold off on this change?  the RPC transport switch will
-eventually need most of those EXPORT_SYMBOLs.
+Emmanuel Fleury wrote:
 
-the only harmless change i see below is removing xdr_decode_string(). 
+>Helge Hafting wrote:
+>  
+>
+>>If I make a business out of lending windows boxes, then I have to pay
+>>licences
+>>on each box.  If I lend customers linux boxes, I should lend them the
+>>source too if they
+>>requests it.  Remember, even if the average customer doesn't know what
+>>software
+>>is in the box, they still have the right to make a copy of the linux
+>>kernel, because you
+>>cannot take away that right.
+>>    
+>>
+>
+>You got an extremely good point here. At least it shows why this way of
+>doing is not "moral", but, looking at the GPL text, there is nothing
+>stating any obligation to "pay" in any manner (money or contributions)
+>to use and/or modify GPLed softwares.
+>
+>Just to illustrate my point, in the case of an webserver, if the
+>webmaster patch the code of his own webserver to provides his customers
+>with a new service. Has he the obligation to redistribute this code ?
+>  
+>
+No, because he didn't distribute any binary code. 
 
-> -----Original Message-----
-> From: Adrian Bunk [mailto:bunk@stusta.de] 
-> Sent: Saturday, October 01, 2005 10:21 AM
-> To: David Miller
-> Cc: neilb@cse.unsw.edu.au; trond.myklebust@fys.uio.no; 
-> linux-kernel@vger.kernel.org; nfs@lists.sourceforge.net; 
-> netdev@vger.kernel.org
-> Subject: [NFS] [RFC: 2.6 patch] net/sunrpc/: possible cleanups
-> 
-> This patch contains the following possible cleanups:
-> - make needlessly global code static
-> - #if 0 the following unused global function:
->   - xdr.c: xdr_decode_string
-> - remove the following unneeded EXPORT_SYMBOL's:
->   - auth_gss/gss_mech_switch.c: gss_mech_get
->   - auth_gss/gss_mech_switch.c: gss_mech_get_by_name
->   - auth_gss/gss_mech_switch.c: gss_mech_get_by_pseudoflavor
->   - auth_gss/gss_mech_switch.c: gss_pseudoflavor_to_service
->   - auth_gss/gss_mech_switch.c: gss_service_to_auth_domain_name
->   - auth_gss/gss_mech_switch.c: gss_mech_put
->   - sunrpc_syms.c: rpc_wake_up_next
->   - sunrpc_syms.c: rpc_new_child
->   - sunrpc_syms.c: rpc_run_child
->   - sunrpc_syms.c: rpc_new_task
->   - sunrpc_syms.c: rpc_release_task
->   - sunrpc_syms.c: rpc_release_client
->   - sunrpc_syms.c: xprt_udp_slot_table_entries
->   - sunrpc_syms.c: xprt_tcp_slot_table_entries
->   - sunrpc_syms.c: svc_drop
->   - sunrpc_syms.c: svc_authenticate
->   - sunrpc_syms.c: xdr_decode_string
-> 
-> Please review which of these patches do make sense and which conflict 
-> with pending patches.
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> ---
-> 
-> This patch was already sent on:
-> - 30 May 2005
-> - 7 May 2005
-> 
->  include/linux/sunrpc/clnt.h           |    1 -
->  include/linux/sunrpc/gss_api.h        |    3 ---
->  include/linux/sunrpc/xdr.h            |    2 --
->  net/sunrpc/auth_gss/gss_mech_switch.c |   13 +------------
->  net/sunrpc/clnt.c                     |    3 ++-
->  net/sunrpc/sunrpc_syms.c              |   11 -----------
->  net/sunrpc/xdr.c                      |    4 +++-
->  7 files changed, 6 insertions(+), 31 deletions(-)
-> 
-> --- 
-> linux-2.6.12-rc3-mm3-full/include/linux/sunrpc/gss_api.h.old	
-> 2005-05-05 23:05:01.000000000 +0200
-> +++ linux-2.6.12-rc3-mm3-full/include/linux/sunrpc/gss_api.h	
-> 2005-05-05 23:05:10.000000000 +0200
-> @@ -110,9 +110,6 @@
->  /* Similar, but get by pseudoflavor. */
->  struct gss_api_mech *gss_mech_get_by_pseudoflavor(u32);
+>Namely, his patched webserver will never get distributed. The only
+>interaction between the customers and his webserver will be through
+>exchanges of HTML files.
 >  
-> -/* Just increments the mechanism's reference count and 
-> returns its input: */
-> -struct gss_api_mech * gss_mech_get(struct gss_api_mech *);
-> -
->  /* For every succesful gss_mech_get or gss_mech_get_by_* 
-> call there must be a
->   * corresponding call to gss_mech_put. */
->  void gss_mech_put(struct gss_api_mech *);
-> --- 
-> linux-2.6.12-rc3-mm3-full/net/sunrpc/auth_gss/gss_mech_switc
-> h.c.old	2005-05-05 23:05:17.000000000 +0200
-> +++ 
-> linux-2.6.12-rc3-mm3-full/net/sunrpc/auth_gss/gss_mech_s
-> witch.c	2005-05-05 23:19:33.000000000 +0200
-> @@ -133,14 +133,13 @@
+>
+Correct, so only the licence on the html files (if any) will matter.
+
+>Therefore, it would be nice from the webmaster to contribute with his
+>patch, but I do think that it is his own choice to do so.
 >  
->  EXPORT_SYMBOL(gss_mech_unregister);
+>
+Indeed, because he didn't distribute the webserver binary
+in any way. He still only got his own single (modified) copy.
+So he has choice.  But if he starts selling "improved webserver boxes"
+then the GPL kicks in.  Source too - the price of getting the sw for
+no money in the first place.
+
+>Note: Originally, the redistribution of the code was mainly to avoid
+>customers or companies to get stuck with a "no more maintained"
+>binaries. In the case we are looking now, as the hardware is not
+>belonging to the customers, there is no such risk. So the protection
+>seems to be against something else... but what ?
 >  
-> -struct gss_api_mech *
-> +static struct gss_api_mech *
->  gss_mech_get(struct gss_api_mech *gm)
->  {
->  	__module_get(gm->gm_owner);
->  	return gm;
->  }
+>
+The point is forced open source.  If you can do business using
+open-source stuff, then you shall be unable to prevent others from
+doing the same.  This is the "price" of open source, and keeps the
+sw prices way down.  Nobody can charge much for the open software
+component, because the source must be available for free so
+anybody capable of compiling it can create their own product.
+
+Competition and the ability to make money then, is not about
+having the best sw (because it is forcibly not secret) but in
+providing the best service and hardware.
+
+>>There have at least been cases where companies were selling
+>>linux-powered products, and were told that they had to
+>>provide the sources.  I don't know if any of them bothered
+>>going to court, simply making the source available (on a cd
+>>or webserver) is so much cheaper than that.
+>>    
+>>
+>
+>LinkSys is an example. But the customers were owning the machine with
+>everything in it (including the OS). Again, the clause on distributing
+>the sources help to not get stuck with a piece of hardware that you own
+>with no possibility of upgrade (remembers me the famous story of RMS and
+>the laser printer).
 >  
-> -EXPORT_SYMBOL(gss_mech_get);
+>
+Not getting stuck is one thing.  Not needing to reinvent the wheel
+is another.  Nobody need to make another linux kernel from scratch, they
+can instead grab the existing one and build on that.  In the long run, this
+saves a lot of reimplementation cost for society.  Instead, whe can focus on
+improving the software further.
+
+>>An interesting thing about the GPL is that it talks about
+>>"distributing copies", not about "selling or otherwise changing ownership".
+>>
+>>"Distributing" a linux kernel embedded in a product owned by the
+>>company doesn't change that.  Where the binary kernel go, the
+>>source should go too (if requested).
+>>
+>>Fortunately, this licencing term is so easy to satisfy that it'd be silly
+>>to try to fight it. Stick the source on a webserver somewhere.  Provide
+>>the URL in the accompagnying paper (or a README file if appropriate.)
+>>If distributing cd's, consider sticking a tarball there.
+>>    
+>>
+>
+>Well, I'm really sorry to play the Devil Advocate once time more, but as
+>far as I know all these DSL companies have big secrets because of
+>weaknesses in their security. Being hacked at the Internet level is one
+>thing, being hacked at the DSLAM level means a lot. Try to imagine if
+>anybody could upload to you his own modified kernel, this means that you
+>can tape all the internet traffic, all the phone calls, all the TV
+>programs that you are looking at, and also probably having an easy way
+>in to your local network (wired and wifi).
 >  
->  struct gss_api_mech *
->  gss_mech_get_by_name(const char *name)
-> @@ -160,8 +159,6 @@
->  
->  }
->  
-> -EXPORT_SYMBOL(gss_mech_get_by_name);
-> -
->  static inline int
->  mech_supports_pseudoflavor(struct gss_api_mech *gm, u32 pseudoflavor)
->  {
-> @@ -193,8 +190,6 @@
->  	return gm;
->  }
->  
-> -EXPORT_SYMBOL(gss_mech_get_by_pseudoflavor);
-> -
->  u32
->  gss_pseudoflavor_to_service(struct gss_api_mech *gm, u32 
-> pseudoflavor)
->  {
-> @@ -207,8 +202,6 @@
->  	return 0;
->  }
->  
-> -EXPORT_SYMBOL(gss_pseudoflavor_to_service);
-> -
->  char *
->  gss_service_to_auth_domain_name(struct gss_api_mech *gm, u32 service)
->  {
-> @@ -221,16 +214,12 @@
->  	return NULL;
->  }
->  
-> -EXPORT_SYMBOL(gss_service_to_auth_domain_name);
-> -
->  void
->  gss_mech_put(struct gss_api_mech * gm)
->  {
->  	module_put(gm->gm_owner);
->  }
->  
-> -EXPORT_SYMBOL(gss_mech_put);
-> -
->  /* The mech could probably be determined from the token 
-> instead, but it's just
->   * as easy for now to pass it in. */
->  int
-> --- linux-2.6.12-rc3-mm3-full/include/linux/sunrpc/clnt.h.old	
-> 2005-05-05 23:05:45.000000000 +0200
-> +++ linux-2.6.12-rc3-mm3-full/include/linux/sunrpc/clnt.h	
-> 2005-05-05 23:05:50.000000000 +0200
-> @@ -134,7 +134,6 @@
->  void		rpc_clnt_sigunmask(struct rpc_clnt *clnt, 
-> sigset_t *oldset);
->  void		rpc_setbufsize(struct rpc_clnt *, unsigned int, 
-> unsigned int);
->  size_t		rpc_max_payload(struct rpc_clnt *);
-> -int		rpc_ping(struct rpc_clnt *clnt, int flags);
->  
->  static __inline__
->  int rpc_call(struct rpc_clnt *clnt, u32 proc, void *argp, 
-> void *resp, int flags)
-> --- linux-2.6.12-rc3-mm3-full/net/sunrpc/clnt.c.old	
-> 2005-05-05 23:05:58.000000000 +0200
-> +++ linux-2.6.12-rc3-mm3-full/net/sunrpc/clnt.c	
-> 2005-05-05 23:06:21.000000000 +0200
-> @@ -63,6 +63,7 @@
->  static u32 *	call_header(struct rpc_task *task);
->  static u32 *	call_verify(struct rpc_task *task);
->  
-> +static int	rpc_ping(struct rpc_clnt *clnt, int flags);
->  
->  static int
->  rpc_setup_pipedir(struct rpc_clnt *clnt, char *dir_name)
-> @@ -1178,7 +1179,7 @@
->  	.p_decode = rpcproc_decode_null,
->  };
->  
-> -int rpc_ping(struct rpc_clnt *clnt, int flags)
-> +static int rpc_ping(struct rpc_clnt *clnt, int flags)
->  {
->  	struct rpc_message msg = {
->  		.rpc_proc = &rpcproc_null,
-> --- linux-2.6.12-rc3-mm3-full/include/linux/sunrpc/xdr.h.old	
-> 2005-05-05 23:06:40.000000000 +0200
-> +++ linux-2.6.12-rc3-mm3-full/include/linux/sunrpc/xdr.h	
-> 2005-05-05 23:07:23.000000000 +0200
-> @@ -91,7 +91,6 @@
->  u32 *	xdr_encode_opaque_fixed(u32 *p, const void 
-> *ptr, unsigned int len);
->  u32 *	xdr_encode_opaque(u32 *p, const void *ptr, 
-> unsigned int len);
->  u32 *	xdr_encode_string(u32 *p, const char *s);
-> -u32 *	xdr_decode_string(u32 *p, char **sp, int *lenp, 
-> int maxlen);
->  u32 *	xdr_decode_string_inplace(u32 *p, char **sp, 
-> int *lenp, int maxlen);
->  u32 *	xdr_encode_netobj(u32 *p, const struct xdr_netobj *);
->  u32 *	xdr_decode_netobj(u32 *p, struct xdr_netobj *);
-> @@ -147,7 +146,6 @@
->  extern int xdr_buf_subsegment(struct xdr_buf *, struct 
-> xdr_buf *, int, int);
->  extern int xdr_buf_read_netobj(struct xdr_buf *, struct 
-> xdr_netobj *, int);
->  extern int read_bytes_from_xdr_buf(struct xdr_buf *, int, 
-> void *, int);
-> -extern int write_bytes_to_xdr_buf(struct xdr_buf *, int, 
-> void *, int);
->  
->  /*
->   * Helper structure for copying from an sk_buff.
-> --- linux-2.6.12-rc3-mm3-full/net/sunrpc/xdr.c.old	
-> 2005-05-05 23:06:52.000000000 +0200
-> +++ linux-2.6.12-rc3-mm3-full/net/sunrpc/xdr.c	
-> 2005-05-05 23:07:56.000000000 +0200
-> @@ -95,6 +95,7 @@
->  	return xdr_encode_array(p, string, strlen(string));
->  }
->  
-> +#if 0
->  u32 *
->  xdr_decode_string(u32 *p, char **sp, int *lenp, int maxlen)
->  {
-> @@ -115,6 +116,7 @@
->  	*sp = string;
->  	return p + XDR_QUADLEN(len);
->  }
-> +#endif  /*  0  */
->  
->  u32 *
->  xdr_decode_string_inplace(u32 *p, char **sp, int *lenp, int maxlen)
-> @@ -882,7 +884,7 @@
->  }
->  
->  /* obj is assumed to point to allocated memory of size at 
-> least len: */
-> -int
-> +static int
->  write_bytes_to_xdr_buf(struct xdr_buf *buf, int base, void 
-> *obj, int len)
->  {
->  	struct xdr_buf subbuf;
-> --- linux-2.6.12-rc3-mm3-full/net/sunrpc/sunrpc_syms.c.old	
-> 2005-05-05 23:07:30.000000000 +0200
-> +++ linux-2.6.12-rc3-mm3-full/net/sunrpc/sunrpc_syms.c	
-> 2005-05-05 23:36:43.000000000 +0200
-> @@ -29,15 +29,10 @@
->  EXPORT_SYMBOL(rpc_execute);
->  EXPORT_SYMBOL(rpc_init_task);
->  EXPORT_SYMBOL(rpc_sleep_on);
-> -EXPORT_SYMBOL(rpc_wake_up_next);
->  EXPORT_SYMBOL(rpc_wake_up_task);
-> -EXPORT_SYMBOL(rpc_new_child);
-> -EXPORT_SYMBOL(rpc_run_child);
->  EXPORT_SYMBOL(rpciod_down);
->  EXPORT_SYMBOL(rpciod_up);
-> -EXPORT_SYMBOL(rpc_new_task);
->  EXPORT_SYMBOL(rpc_wake_up_status);
-> -EXPORT_SYMBOL(rpc_release_task);
->  
->  /* RPC client functions */
->  EXPORT_SYMBOL(rpc_create_client);
-> @@ -45,7 +40,6 @@
->  EXPORT_SYMBOL(rpc_bind_new_program);
->  EXPORT_SYMBOL(rpc_destroy_client);
->  EXPORT_SYMBOL(rpc_shutdown_client);
-> -EXPORT_SYMBOL(rpc_release_client);
->  EXPORT_SYMBOL(rpc_killall_tasks);
->  EXPORT_SYMBOL(rpc_call_sync);
->  EXPORT_SYMBOL(rpc_call_async);
-> @@ -63,8 +57,6 @@
->  /* Client transport */
->  EXPORT_SYMBOL(xprt_create_proto);
->  EXPORT_SYMBOL(xprt_set_timeout);
-> -EXPORT_SYMBOL(xprt_udp_slot_table_entries);
-> -EXPORT_SYMBOL(xprt_tcp_slot_table_entries);
->  
->  /* Client credential cache */
->  EXPORT_SYMBOL(rpcauth_register);
-> @@ -81,7 +73,6 @@
->  EXPORT_SYMBOL(svc_create_thread);
->  EXPORT_SYMBOL(svc_exit_thread);
->  EXPORT_SYMBOL(svc_destroy);
-> -EXPORT_SYMBOL(svc_drop);
->  EXPORT_SYMBOL(svc_process);
->  EXPORT_SYMBOL(svc_recv);
->  EXPORT_SYMBOL(svc_wake_up);
-> @@ -89,7 +80,6 @@
->  EXPORT_SYMBOL(svc_reserve);
->  EXPORT_SYMBOL(svc_auth_register);
->  EXPORT_SYMBOL(auth_domain_lookup);
-> -EXPORT_SYMBOL(svc_authenticate);
->  EXPORT_SYMBOL(svc_set_client);
->  
->  /* RPC statistics */
-> @@ -122,7 +112,6 @@
->  
->  /* Generic XDR */
->  EXPORT_SYMBOL(xdr_encode_string);
-> -EXPORT_SYMBOL(xdr_decode_string);
->  EXPORT_SYMBOL(xdr_decode_string_inplace);
->  EXPORT_SYMBOL(xdr_decode_netobj);
->  EXPORT_SYMBOL(xdr_encode_netobj);
-> 
-> 
-> 
-> -------------------------------------------------------
-> This SF.Net email is sponsored by:
-> Power Architecture Resource Center: Free content, downloads, 
-> discussions,
-> and more. http://solutions.newsforge.com/ibmarch.tmpl
-> _______________________________________________
-> NFS maillist  -  NFS@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/nfs
-> 
+>
+Well, then they need to secure their DSLAM setup.  If it is at all
+vulnerable this way, then they need to fix it.  Most users may be
+"computer dummies", but there are enough experts among them too.
+It only takes one leak, breakin, or reverse engineering session to
+break through security-by-obscurity.  And when the cat is out of the
+bag, it is out forever.
+
+The internet level is secure enough, when set up by competent people.
+Surely the same can be done at DSLAM level.  This reminds me of ethernet
+many years ago, when people realized the possibilities of a hacked network
+driver.  (A simple way to sniff all traffic, and inject spoofed traffic.)
+Easy to do these days, with a open-source kernel.
+But these problems are solved - mostly with encryption to protect
+what must not be sniffed, and firewall routers preventing the routing
+of spoofed packets. With a good setup, spoofing is limited to
+spoof other machines on the same network, and then the local
+admin can set things straight.
+
+Bad security is not an excuse for disobeying the GPL.  The GPL itself states
+that there are no exceptions. If "other concerns" means you can't obey
+the GPL to the letter, then you _must_ refrain from distributing the
+GPLed software altogether.  In such cases, the open software is not a 
+legal option.
+
+Very similiar to a company that cannot afford to pay licences - in that case
+proprietary sw is not an option.  They can't just pirate anyway and get away
+with it because "otherwise their business model won't work and result in 
+bankrupcy".
+If you can't take the "cost" of open sw, then don't use it.  
+Fortunately, the cost is
+usually low.  And they _can_ keep a linux device driver secret, they 
+merely have to offer
+the source for the rest of the kernel.
+
+Helge Hafting

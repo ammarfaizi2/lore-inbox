@@ -1,92 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751130AbVJFQOR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbVJFQ0W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751130AbVJFQOR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 12:14:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbVJFQOR
+	id S1751129AbVJFQ0W (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 12:26:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbVJFQ0W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 12:14:17 -0400
-Received: from mail28.sea5.speakeasy.net ([69.17.117.30]:46034 "EHLO
-	mail28.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1751130AbVJFQOQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 12:14:16 -0400
-Date: Thu, 6 Oct 2005 12:14:13 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-X-X-Sender: jmorris@excalibur.intercode
-To: David Howells <dhowells@redhat.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       keyrings@linux-nfs.org, linux-kernel@vger.kernel.org,
-       Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [Keyrings] [PATCH] Keys: Add LSM hooks for key management 
-In-Reply-To: <30054.1128611494@warthog.cambridge.redhat.com>
-Message-ID: <Pine.LNX.4.63.0510061204040.26937@excalibur.intercode>
-References: <Pine.LNX.4.63.0510061014540.26656@excalibur.intercode> 
- <Pine.LNX.4.63.0510060404141.25593@excalibur.intercode>
- <29942.1128529714@warthog.cambridge.redhat.com> <23641.1128596760@warthog.cambridge.redhat.com>
-  <30054.1128611494@warthog.cambridge.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 6 Oct 2005 12:26:22 -0400
+Received: from fmr21.intel.com ([143.183.121.13]:10388 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1751129AbVJFQ0V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 12:26:21 -0400
+Date: Thu, 6 Oct 2005 09:25:28 -0700
+From: "Luck, Tony" <tony.luck@intel.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>,
+       Mark Knecht <markknecht@gmail.com>, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: 2.6.14-rc3-rt2
+Message-ID: <20051006162528.GA6006@agluck-lia64.sc.intel.com>
+References: <5bdc1c8b0510041111n188b8e14lf5a1398406d30ec4@mail.gmail.com> <20051006084920.GB22397@elte.hu> <Pine.LNX.4.58.0510060544390.28535@localhost.localdomain> <200510061204.33045.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200510061204.33045.ak@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Oct 2005, David Howells wrote:
+> It's a theoretical only issue for mainline right now. The only architectures 
+> using the ACPI code are i386,x86-64,ia64. The first two are ok with 
+> truncating. The IA64 PSR is longer than 32bit, but unless I'm misreading the 
+> code they only care about the "i" bit which is also in the lower 32bit (Tony 
+> can probably confirm/deny) 
 
-> > > Should I expand the permissions mask to include a setattr?
-> > 
-> > Possibly for setperm and chown.
-> 
-> For setperm?
+Andi is right ... if you follow the "acpi_os_release_lock" trail, you
+eventually get to include/asm-ia64/system.h with the following definition
+for __local_irq_restore:
 
-It changes an attribute of a key, for which you have DAC checks, therefore 
-you could assume that we'd also want MAC checks.
+#define __local_irq_restore(x)  ia64_intrin_local_irq_restore((x) & IA64_PSR_I)
 
-> > > > All users of key_permission() need to propagate the error code from the 
-> > > > LSM back to the user.
-> > > 
-> > > Really? Why?
-> > 
-> > Because the LSM has final say on the error code returned to the caller.  
-> > If the LSM runs out of memory, for example, it's silly to return -EACCES.
-> > 
-> > > Note that the fact that key_permission() fails for a key is sometimes
-> > > ignored, such as when I'm doing a search and one potentially matching key
-> > > fails, but a subsequent matching key passes.
-> > 
-> > Ok, that sounds like an internal issue to be resolved, ensuring that if 
-> > you are returning to the caller, the LSM's error code is returned.
-> 
-> But which LSM error code?
-> 
-> Let me explain what I mean:
+and the IA64_PSR_I bit is bit 14 ... safely in the low 32 bits.  So this is
+a correct fix, but will have no effect on ia64.
 
-[snipped]
-
-Thanks for the detailed explanation.
-
-Not sure yet how we'll avoid generating spurious SELinux denial messages.
-
-> Only if all these fail does the whole thing fail with the highest priority
-> error. Note that several errors may have come from LSM.
-> 
-> The error priority should be:
-> 
-> 	EKEYREVOKED > EKEYEXPIRED > ENOKEY
-> 
-> EACCES/EPERM should only really be returned on a direct keyring search where
-> the basal keyring doesn't have Search permission.
-
-Ok, if a failure of this nature is generated by an LSM, we need to return 
-the LSM's error code (e.g. ask the LSM for search permission and it 
-returns -ENOMEM).
-
-> The fact that I couldn't find a key because I didn't have permission to find
-> it probably shouldn't cause an immediate abort of the search with an error, or
-> any error other than ENOKEY/EKEYREVOKED/EKEYEXPIRED, unless I'm not permitted
-> to request a new key.
-
-Ok.
-
-
-- James
--- 
-James Morris
-<jmorris@namei.org>
+-Tony

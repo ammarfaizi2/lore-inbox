@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbVJFN2a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750920AbVJFNbx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750885AbVJFN2a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 09:28:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750907AbVJFN23
+	id S1750920AbVJFNbx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 09:31:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750918AbVJFNbx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 09:28:29 -0400
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:22673 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S1750885AbVJFN23 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 09:28:29 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [swsusp] separate snapshot functionality to separate file
-Date: Thu, 6 Oct 2005 15:29:35 +0200
-User-Agent: KMail/1.8.2
-Cc: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>,
-       Nigel Cunningham <ncunningham@cyclades.com>
-References: <20051002231332.GA2769@elf.ucw.cz> <200510061023.16016.rjw@sisk.pl> <20051006104247.GA25255@elf.ucw.cz>
-In-Reply-To: <20051006104247.GA25255@elf.ucw.cz>
+	Thu, 6 Oct 2005 09:31:53 -0400
+Received: from mailhub.lss.emc.com ([168.159.2.31]:59206 "EHLO
+	mailhub.lss.emc.com") by vger.kernel.org with ESMTP
+	id S1750913AbVJFNbw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 09:31:52 -0400
+Message-ID: <4345273B.40906@emc.com>
+Date: Thu, 06 Oct 2005 09:31:39 -0400
+From: Brett Russ <russb@emc.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Bogdan Costescu <Bogdan.Costescu@iwr.uni-heidelberg.de>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.14-rc2 0/2] libata: Marvell SATA support (v0.23-0.24)
+References: <20051005210610.EC31826369@lns1058.lss.emc.com> <Pine.LNX.4.63.0510061441050.3140@dingo.iwr.uni-heidelberg.de> <43452315.7050801@pobox.com>
+In-Reply-To: <43452315.7050801@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510061529.36149.rjw@sisk.pl>
+X-PMX-Version: 4.7.1.128075, Antispam-Engine: 2.1.0.0, Antispam-Data: 2005.10.6.10
+X-PerlMx-Spam: Gauge=, SPAM=7%, Reasons='EMC_FROM_00+ 0, __CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0, __USER_AGENT 0'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Jeff Garzik wrote:
+> Staring at the docs a bit, I notice that the 50xx and 60xx have SATA 
+> S{status,control,error} registers at different locations.
 
-On Thursday, 6 of October 2005 12:42, Pavel Machek wrote:
-> Hi!
-> 
-> > > > OK, but if we decide to move some functions from one file to another,
-> > > > we'll have to wait for another "settle down" period, I think.
-> > > 
-> > > Yes...
-> > 
-> > Then I'd propose that we wait for the next "settle down" period with the
-> > split and apply all of the bugfixes and cleanups now.
-> 
-> Nigel's cleanup is not ready yet, and yours is oneliner. I applied
-> that oneliner locally. I already have cleanups depending on the
-> split. Of course I can redo them, but perhaps it is easier to just
-> redo that one line.
 
-OK
+Yes and also even some registers that are at the same location have 
+changed bit definitions.  Aye caramba.
 
-Just to make sure:
-- the rework-image-freeing patch goes first,
-- my x86-64 patch goes second,
-- the splitting patch goes next,
-and any subsequent cleanups are expected to go on top of it?
+Best solution will probably be to create separate enums for each chip 
+generation, in addition to a common enum, and point to the relevant one 
+based on the chip identifier.
 
-Rafael
+No surprise we're seeing so many problems.  I have just not spent any 
+time at all on 5xxx.  Probably should yank it from the pci device table 
+for now.
+
+BR

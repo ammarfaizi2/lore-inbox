@@ -1,75 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbVJFIGl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbVJFIIW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750724AbVJFIGl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 04:06:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbVJFIGl
+	id S1750726AbVJFIIW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 04:08:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbVJFIIW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 04:06:41 -0400
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:52879 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S1750724AbVJFIGk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 04:06:40 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: discuss@x86-64.org
-Subject: Re: [discuss] Re: [PATCH][Fix] swsusp: avoid possible page tables corruption during resume on x86-64
-Date: Thu, 6 Oct 2005 10:07:45 +0200
-User-Agent: KMail/1.8.2
-Cc: Pavel Machek <pavel@suse.cz>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-References: <200510011813.54755.rjw@sisk.pl> <200510052344.52198.rjw@sisk.pl> <20051005224959.GB22781@elf.ucw.cz>
-In-Reply-To: <20051005224959.GB22781@elf.ucw.cz>
+	Thu, 6 Oct 2005 04:08:22 -0400
+Received: from smtp-vbr15.xs4all.nl ([194.109.24.35]:47370 "EHLO
+	smtp-vbr15.xs4all.nl") by vger.kernel.org with ESMTP
+	id S1750726AbVJFIIV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 04:08:21 -0400
+Message-ID: <4344DB73.9020604@bananateam.nl>
+Date: Thu, 06 Oct 2005 10:08:19 +0200
+From: Freaky <freaky@bananateam.nl>
+User-Agent: Thunderbird 1.4 (X11/20050908)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: MTP - Media Transfer Protocol support
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510061007.45698.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hey there,
 
-On Thursday, 6 of October 2005 00:49, Pavel Machek wrote:
-> Hi!
-> 
-> > Summary =========
-> > The following patch makes swsusp avoid the possible temporary corruption of
-> > page translation tables during resume on x86-64.  This is achieved by creating
-> > a copy of the relevant page tables that will not be modified by swsusp and can
-> > be safely used by it on resume.
-> 
-> Andi, this means swsusp fails 50% of time on x86-64. I believe we even
-> have one report in suse bugzilla by now... Could we get this somehow
-> merged?
-> 
-> 
-> > Index: linux-2.6.14-rc3-git5/kernel/power/swsusp.c
-> > ===================================================================
-> > --- linux-2.6.14-rc3-git5.orig/kernel/power/swsusp.c	2005-10-05 21:12:41.000000000 +0200
-> > +++ linux-2.6.14-rc3-git5/kernel/power/swsusp.c	2005-10-05 21:24:50.000000000 +0200
-> > @@ -672,7 +672,6 @@
-> >  		return 0;
-> >  
-> >  	page = pfn_to_page(pfn);
-> > -	BUG_ON(PageReserved(page) && PageNosave(page));
-> >  	if (PageNosave(page))
-> >  		return 0;
-> >  	if (PageReserved(page) && pfn_is_nosave(pfn)) {
-> 
-> Rafael, are you sure?
+I don't know if this is the right place, but I would like to inquire on 
+the status of MTP support in the kernel.
 
-Yes, I am.  The pages allocated in init_memory_mapping() are marked with
-PG_reserved by the init code.
+MTP is a new protocol by Microsoft if I'm not mistaken. It stands for 
+Media Transfer Protocol. It's going to replace the mass storage support 
+on a lot of new MP3 players and from what I've seen, also on other 
+mobile devices like phones and camera's.
 
-> This will clash with snapshot.c split and probably belongs to some other patch.
+MTP, from what I've seen so far, has 2 folders at the moment (atleast on 
+my MP3 device / iRiver T10). Music and Data. Music can only be written 
+by software like Media Player 10, because it has to do with DRM. Data 
+however can be written as a filesystem. The latter is what I would like 
+support for (I don't care about DRM).
 
-I am aware of that.  This will conflict with the Nigel's patch, so we probably can
-arrange to apply that patch before this one, if you prefer.
+Microsoft appearantly publishes the specifications, unfortunately for 
+most of us it's Microsoft word format, in an executable. Would convert 
+this for you, but I don't know how legal that is.
 
-As far as the split is concerned, if you recall my doubts wrt it, the "bugfixes
-pending" is the first point on the list. :-)
+http://www.microsoft.com/downloads/details.aspx?FamilyID=fed98ca6-ca7f-4e60-b88c-c5fce88f3eea&displaylang=en
 
-Greetings,
-Rafael
+Sorry if this is the wrong place to ask. But I figured it needs kernel 
+support first, because the USB device isn't recognized at all. MTP has a 
+general USB interface like mass storage from what I understand, so we'll 
+need drivers for that first I think.
 
+For those interested, PLX appearantly has written something to support 
+MTP on (some?) of their chips for phones. Haven't been able to find the 
+software so far.
+http://www.plxtech.com/products/exp_apps/files/ExApps18_MobilePhone.pdf
 
+As always, all you guys do is really appreciated. Keep up the good work.
+
+TIA
+
+Ferry

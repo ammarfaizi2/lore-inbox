@@ -1,45 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751348AbVJFUVt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751350AbVJFUXi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751348AbVJFUVt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 16:21:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbVJFUVt
+	id S1751350AbVJFUXi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 16:23:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbVJFUXh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 16:21:49 -0400
-Received: from rrcs-67-78-243-58.se.biz.rr.com ([67.78.243.58]:59280 "EHLO
-	mail.concannon.net") by vger.kernel.org with ESMTP id S1751348AbVJFUVt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 16:21:49 -0400
-Message-ID: <43458778.6060000@concannon.net>
-Date: Thu, 06 Oct 2005 16:22:16 -0400
-From: Michael Concannon <mike@concannon.net>
-User-Agent: Mozilla Thunderbird 1.0.6-1.4.1.centos4 (X11/20050721)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Michael Concannon <mike@concannon.net>
-CC: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
-       Chase Venters <chase.venters@clientec.com>,
-       Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-References: <20051002204703.GG6290@lkcl.net> <200510041840.55820.chase.venters@clientec.com> <20051005102650.GO10538@lkcl.net> <200510060005.09121.chase.venters@clientec.com> <43453E7F.5030801@concannon.net> <20051006192857.GV10538@lkcl.net> <4345855B.3@concannon.net>
-In-Reply-To: <4345855B.3@concannon.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 6 Oct 2005 16:23:37 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:5786
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751350AbVJFUXh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 16:23:37 -0400
+Date: Thu, 06 Oct 2005 13:23:22 -0700 (PDT)
+Message-Id: <20051006.132322.85672611.davem@davemloft.net>
+To: torvalds@osdl.org
+Cc: jsmith@drexel.edu, linux-kernel@vger.kernel.org
+Subject: Re: Instability in kernel version 2.6.12.5
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.64.0510061110170.31407@g5.osdl.org>
+References: <43455F33.7020102@drexel.edu>
+	<Pine.LNX.4.64.0510061110170.31407@g5.osdl.org>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Linus Torvalds <torvalds@osdl.org>
+Date: Thu, 6 Oct 2005 11:24:25 -0700 (PDT)
 
->
-> I have booted linux a number of times with an NT drive as a slave and 
-> recovered it.   I have not ever done the inverse...
+> For example, maybe some networking timer just changes its "expires" field 
+> _while_ a timer is active directly rather than using "mod_timer()", which 
+> can screw up the sorting - and that can affect other timers.
 
-ok, that rambled...
+We actually investigated a possible case of this recently.
 
-I meant that I did not need to do that with linux...  just used a 
-floppy/cd/usb drive and edited files... 
+It was thought that perhaps it was possible for the ARP
+generic neighbour cache to double-add a timer, so we added
+a guard by converting it to mod_timer() from add_timer()
+and making sure it always returns "0" (timer not active).
 
-With NT the only way I "recovered" was with a well timed backup of 
-registry.dat or a binary image of the whole system...
+static inline void neigh_add_timer(struct neighbour *n, unsigned long when)
+{
+	if (unlikely(mod_timer(&n->timer, when))) {
+		printk("NEIGH: BUG, double timer add, state is %x\n",
+		       n->nud_state);
+	}
+}
 
-Nothing incremental about it...
+But this new debugging hasn't triggered for anyone yet :-)
 
-/mike
+In general the networking tends to use mod_timer() exclusively, for
+the simple reason that this makes refcounting on the object so much
+simpler.  For example, all of the socket timer helpers do stuff like
+this:
+
+void sk_reset_timer(struct sock *sk, struct timer_list* timer,
+		    unsigned long expires)
+{
+	if (!mod_timer(timer, expires))
+		sock_hold(sk);
+}
+
+void sk_stop_timer(struct sock *sk, struct timer_list* timer)
+{
+	if (timer_pending(timer) && del_timer(timer))
+		__sock_put(sk);
+}
+
+I have no idea what the situation is in the netfilter bits, but
+something similar is likely.
+
+This brings me to a topic I'd like addressed.  add_timer() no longer
+checks whether it is adding a timer twice or not.
+
+This debugging functionality got lost when add_timer() was changed
+to be implemented in terms of __mod_timer().  I really think adding
+back a "BUG_ON(timer_pending(timer)" would be a very good idea.
+I believe Andrew Morton even added this bug check into his -mm tree
+last time I brought this issue up.
+
+Finally, it could be argued that add_timer() is not really a necessary
+interface and that one can do whatever they need to purely using
+mod_timer().  mod_timer() is kind of like a NAND gate I suppose :-)

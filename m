@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750931AbVJFNjg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750930AbVJFNjP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750931AbVJFNjg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 09:39:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750936AbVJFNjg
+	id S1750930AbVJFNjP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 09:39:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750931AbVJFNjP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 09:39:36 -0400
-Received: from mail10.syd.optusnet.com.au ([211.29.132.191]:41903 "EHLO
-	mail10.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1750931AbVJFNjf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 09:39:35 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Ingo Oeser <ioe-lkml@rameria.de>
-Subject: Re: [PATCH] vm - swap prefetch v14
-Date: Thu, 6 Oct 2005 23:42:06 +1000
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
-References: <200510052257.15713.kernel@kolivas.org> <200510052002.04173.ioe-lkml@rameria.de>
-In-Reply-To: <200510052002.04173.ioe-lkml@rameria.de>
+	Thu, 6 Oct 2005 09:39:15 -0400
+Received: from smtp2-g19.free.fr ([212.27.42.28]:39845 "EHLO smtp2-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1750893AbVJFNjP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 09:39:15 -0400
+Message-ID: <3667.192.168.201.6.1128605949.squirrel@pc300>
+Date: Thu, 6 Oct 2005 14:39:09 +0100 (BST)
+From: "Etienne Lorrain" <etienne.lorrain@masroudeau.com>
+To: linux-kernel@vger.kernel.org
+Reply-To: etienne.lorrain@masroudeau.com
+User-Agent: SquirrelMail/1.4.5
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-6"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510062342.06735.kernel@kolivas.org>
+X-Priority: 3 (Normal)
+Importance: Normal
+X-SA-Exim-Connect-IP: 192.168.2.240
+X-SA-Exim-Mail-From: etienne.lorrain@masroudeau.com
+Subject: Re: [PATCH 1/3] Gujin linux.kgz boot format
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
+X-SA-Exim-Scanned: Yes (on cygne.masroudeau.com)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Oct 2005 04:01 am, Ingo Oeser wrote:
-> Hi Con,
->
-> your patch still contains a serious BUG :-)
->
-> On Wednesday 05 October 2005 14:57, Con Kolivas wrote:
-> > -The tunable to determine the amount of data retrieved per prefetch was
-> > added /proc/sys/vm/swap_prefetch
-> > is used to decide how many groups of 128kb to prefetch per 1 second
-> > interval and is set to 2 by default. It can be disabled by setting it to
-> > 0
->
-> swap_prefetch is not documented at Documentation/sysctl/vm.txt
->
-> This simple text would suffice I think. Maybe comment about disabling it
-> for laptop usage.
+  Sorry, it has happen again, some software removed the last newline
+ of the patches during attachement.
+ To rebuild them, just add a newline at end of each file:
 
-Thanks for the suggestion. I'll add the Documentation entry and you reminded 
-me to do something specific with laptop mode which I have for v15 I'm about 
-to announce.
+$ wget
+'http://marc.theaimsgroup.com/?l=linux-kernel&m=112859209607340&q=p3' -O
+patch2614rc3-1
+$ wget
+'http://marc.theaimsgroup.com/?l=linux-kernel&m=112859247823724&q=p3' -O
+patch2614rc3-2
+$ wget
+'http://marc.theaimsgroup.com/?l=linux-kernel&m=112859247807836&q=p3' -O
+patch2614rc3-3
+$ echo >> patch2614rc3-1
+$ echo >> patch2614rc3-2
+$ echo >> patch2614rc3-3
+$ cd linux-2.6.14-rc3
+$ patch -p1 -i ../patch2614rc3-1
+$ patch -p1 -i ../patch2614rc3-2
+$ patch -p1 -i ../patch2614rc3-3
 
-Cheers,
-Con
+ Etienne.
+

@@ -1,70 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbVJFXe1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbVJFXfH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932075AbVJFXe1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 19:34:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbVJFXe1
+	id S932078AbVJFXfH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 19:35:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932079AbVJFXfH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 19:34:27 -0400
-Received: from wproxy.gmail.com ([64.233.184.196]:24407 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932075AbVJFXe0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 19:34:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=FFGxI48IgL4hhIwrWuQThaEa8bp5JOvLU+DtotPs53VlVkFGTg//GX4ZRaWm3UeneadVcb7KaIf10/Xp3mIYIs7++yBWDhOSyC7da1yyoGWO/RkVRhesp53xN6mMoHrU5QwhNFeVpDk6yzpIUX4/Q0S7LCjjQBKplwTYR+93AdY=
-Date: Fri, 7 Oct 2005 03:45:50 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Mark Gross <mgross@linux.intel.com>
-Cc: Greg KH <greg@kroah.com>, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       Sebastien.Bouchard@ca.kontron.com, mark.gross@intel.com
-Subject: Re: Fwd: Telecom Clock Driver for MPCBL0010 ATCA computer blade
-Message-ID: <20051006234550.GF2370@mipter.zuzino.mipt.ru>
-References: <200510060803.21470.mgross@linux.intel.com> <20051006182022.GA14414@kroah.com> <200510061554.35039.mgross@linux.intel.com>
+	Thu, 6 Oct 2005 19:35:07 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:50150 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932078AbVJFXfE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 19:35:04 -0400
+Date: Thu, 6 Oct 2005 18:35:02 -0500
+To: paulus@samba.org
+Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: [PATCH 9/22] ppc64: DLPAR slot add and remove bugfixes
+Message-ID: <20051006233502.GJ29826@austin.ibm.com>
+References: <20051006232032.GA29826@austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200510061554.35039.mgross@linux.intel.com>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <20051006232032.GA29826@austin.ibm.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: linas <linas@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Attached is an update that I think addresses your other comments.
 
-> +config TELCLOCK
-> +	tristate "Telecom clock driver for ATCA"
-> +	depends on EXPERIMENTAL
-> +	default n
-> +	help
-> +	  The telecom clock device allows direct userspace access to the
-> +	  configuration of the telecom clock configuration settings.
-> +	  This device is used for hardware synchronization across the ATCA
-> +	  backplane fabric.
+09-crash-on-pci-slot-remove.patch
 
-People usually tell here how the module will be called. See plenty
-examples around.
+This patch fixes two bugs related to dlpar slot removal and add.
 
-> --- linux-2.6.14-rc2-mm2/drivers/char/tlclk.c
-> +++ linux-2.6.14-rc2-mm2-tlclk/drivers/char/tlclk.c
-> +Uppon loading the driver will create a sysfs directory under class/misc/tlclk.
+-- Both crashes are due to the fact the some children 
+   of pci nodes are not pci nodes themselves, and thus do not 
+   have pci_dn structures.  For example:
+        /pci@800000020000002/pci@2,3/usb@1/hub@1
+        /pci@800000020000002/pci@2,3/usb@1,1/hub@1
 
-Upon.
+   Strangely, though, sometimes the following appears, 
+   and I don't quite understand why.
+        /interrupt-controller@3fe0000a400
 
-> +static int __init tlclk_init(void)
-> +{
+   A typical stack trace:
+        Vector: 300 (Data Access) at [c0000000555637d0]
+         pc: c000000000202a50: .dlpar_add_slot+0x108/0x410
+             c000000000202e78 .add_slot_store+0x7c/0xac
+             c000000000202da0 .dlpar_attr_store+0x48/0x64
+             c0000000000f8ee4 .sysfs_write_file+0x100/0x1a0
 
-Missing unregister_chrdev() on error unrolling.
+   A similar stack trace is involved for the slot remove.
 
-> +		printk(KERN_ERR" misc_register retruns %d\n", ret);
+This code survived testing, of adding and removing different slots,
+23 times each, so far, as of this writing.
 
-returns.
+Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
 
-> +	return 0;
-> +out3:
-> +	release_region(TLCLK_BASE, 8);
-> +out2:
-> +	kfree(alarm_events);
-> +out1:
-> +	return ret;
-> +}
-
+Index: linux-2.6.14-rc2-git6/arch/ppc64/kernel/pSeries_iommu.c
+===================================================================
+--- linux-2.6.14-rc2-git6.orig/arch/ppc64/kernel/pSeries_iommu.c	2005-10-06 17:50:28.197206873 -0500
++++ linux-2.6.14-rc2-git6/arch/ppc64/kernel/pSeries_iommu.c	2005-10-06 17:53:46.650361968 -0500
+@@ -478,10 +478,13 @@
+ {
+ 	int err = NOTIFY_OK;
+ 	struct device_node *np = node;
+-	struct pci_dn *pci = np->data;
++	struct pci_dn *pci;
+ 
+ 	switch (action) {
+ 	case PSERIES_RECONFIG_REMOVE:
++		pci = PCI_DN(np);
++		if (!pci)
++			return NOTIFY_OK;
+ 		if (pci->iommu_table &&
+ 		    get_property(np, "ibm,dma-window", NULL))
+ 			iommu_free_table(np);
+Index: linux-2.6.14-rc2-git6/arch/ppc64/kernel/pci_dn.c
+===================================================================
+--- linux-2.6.14-rc2-git6.orig/arch/ppc64/kernel/pci_dn.c	2005-10-06 17:50:28.198206733 -0500
++++ linux-2.6.14-rc2-git6/arch/ppc64/kernel/pci_dn.c	2005-10-06 17:53:46.660360565 -0500
+@@ -195,7 +195,10 @@
+ 
+ 	switch (action) {
+ 	case PSERIES_RECONFIG_ADD:
+-		pci = np->parent->data;
++		pci = PCI_DN(np->parent);
++		if (!pci)
++			return NOTIFY_OK;
++
+ 		update_dn_pci_info(np, pci->phb);
+ 		break;
+ 	default:

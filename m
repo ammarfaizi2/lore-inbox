@@ -1,25 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbVJFIaG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750752AbVJFIdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750742AbVJFIaG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 04:30:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750750AbVJFIaG
+	id S1750752AbVJFIdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 04:33:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750750AbVJFIdJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 04:30:06 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:36583 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750742AbVJFIaE (ORCPT
+	Thu, 6 Oct 2005 04:33:09 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:17564 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750752AbVJFIdI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 04:30:04 -0400
-Date: Thu, 6 Oct 2005 10:30:43 +0200
+	Thu, 6 Oct 2005 04:33:08 -0400
+Date: Thu, 6 Oct 2005 10:33:39 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: Mark Knecht <markknecht@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc3-rt9 - a few xruns misses
-Message-ID: <20051006083043.GB21800@elte.hu>
-References: <5bdc1c8b0510051615hfd77ba8pab7ee07bde13ffd4@mail.gmail.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Mark Knecht <markknecht@gmail.com>, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@suse.de>
+Subject: Re: 2.6.14-rc3-rt2
+Message-ID: <20051006083339.GA22224@elte.hu>
+References: <5bdc1c8b0510041111n188b8e14lf5a1398406d30ec4@mail.gmail.com> <1128450029.13057.60.camel@tglx.tec.linutronix.de> <5bdc1c8b0510041158m3620f5dcy2dafda545ad3cd5e@mail.gmail.com> <1128458707.13057.68.camel@tglx.tec.linutronix.de> <5bdc1c8b0510041349g1a4f2484qd17a11812c8ccac3@mail.gmail.com> <20051005105605.GA27075@elte.hu> <5bdc1c8b0510051014q3bb02d5bl80d2c88cc884fe35@mail.gmail.com> <Pine.LNX.4.58.0510060403210.28535@localhost.localdomain> <20051006081055.GA20491@elte.hu> <Pine.LNX.4.58.0510060425561.28535@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <5bdc1c8b0510051615hfd77ba8pab7ee07bde13ffd4@mail.gmail.com>
+In-Reply-To: <Pine.LNX.4.58.0510060425561.28535@localhost.localdomain>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamScore: 0.0
 X-ELTE-SpamLevel: 
@@ -32,22 +33,16 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Mark Knecht <markknecht@gmail.com> wrote:
+* Steven Rostedt <rostedt@goodmis.org> wrote:
 
-> Hi,
->    This is nothing particularily new. I'm just presenting it to 
-> represent what I'm seeign and get some guidance about how to find out 
-> what's going on.
+> So I guess these patches need to go upstream too?
+>
+> Here's the rest of the u32 coversions. Not all the u32 flags were used 
+> for spinlocks. Most were for the flags instance in the structure.
+> 
+> Note, this patch does _NOT_ include the previous patch that I sent.  
+> If this needs to go upstream, I'll send the two together as one patch.
 
-lets first check whether all the RT priorities are set up correctly for 
-your audio setup. Could you send me your /proc/interrupts, your .config 
-and the output of:
-
-  ps -eo pid,pri,rtprio,cmd
-
-there are lots of built-in methods in the -rt kernel to figure out the 
-source of latencies. If the default methods do not show anything then 
-worst-case we can activate the kernel's latency tracer to record the 
-actual xrun critical path.
+in any case i've applied both patches to the -rt tree.
 
 	Ingo

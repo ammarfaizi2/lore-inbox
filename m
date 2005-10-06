@@ -1,64 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbVJFIsp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbVJFJQz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750761AbVJFIsp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 04:48:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750758AbVJFIso
+	id S1750756AbVJFJQz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 05:16:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbVJFJQz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 04:48:44 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:38826 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750757AbVJFIsn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 04:48:43 -0400
-Date: Thu, 6 Oct 2005 10:49:20 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Mark Knecht <markknecht@gmail.com>, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@suse.de>
-Subject: Re: 2.6.14-rc3-rt2
-Message-ID: <20051006084920.GB22397@elte.hu>
-References: <5bdc1c8b0510041111n188b8e14lf5a1398406d30ec4@mail.gmail.com> <1128450029.13057.60.camel@tglx.tec.linutronix.de> <5bdc1c8b0510041158m3620f5dcy2dafda545ad3cd5e@mail.gmail.com> <1128458707.13057.68.camel@tglx.tec.linutronix.de> <5bdc1c8b0510041349g1a4f2484qd17a11812c8ccac3@mail.gmail.com> <20051005105605.GA27075@elte.hu> <5bdc1c8b0510051014q3bb02d5bl80d2c88cc884fe35@mail.gmail.com> <Pine.LNX.4.58.0510060403210.28535@localhost.localdomain> <20051006081055.GA20491@elte.hu> <Pine.LNX.4.58.0510060433010.28535@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 6 Oct 2005 05:16:55 -0400
+Received: from xproxy.gmail.com ([66.249.82.204]:28088 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750756AbVJFJQz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 05:16:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=tLxYd1EpQkcDx+buJ3JRxcN6mfYVGAq+QThbo9sKk2Mo1k2kuUgJ1j6ylokqox1rt/4c0ojgbE1FlmT5+SYhPOGCAa7Re4yleI/j0WTSKNDAOxk6tC++RLpsZBj6FuVrm49/dxX2MNBC/Qhl/+SOl2sZ4swu6rPaS11h2GcW7xg=
+Message-ID: <309a667c0510060216q315d55b0n4a6934d168ebccfb@mail.gmail.com>
+Date: Thu, 6 Oct 2005 14:46:54 +0530
+From: devesh sharma <devesh28@gmail.com>
+Reply-To: devesh sharma <devesh28@gmail.com>
+To: Eric Dumazet <dada1@cosmosbay.com>, linux-kernel@vger.kernel.org
+Subject: Re: [NUMA x86_64] problem accessing global Node List pgdat_list
+In-Reply-To: <309a667c0510050550x68e0c996q51e00e908813b5c1@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0510060433010.28535@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+References: <309a667c0510042240y1dcc75c4l83abc7fe430e4f05@mail.gmail.com>
+	 <4343CA4F.8030003@cosmosbay.com>
+	 <309a667c0510050550x68e0c996q51e00e908813b5c1@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Eric,
+I have tried numa=fake=4 on intel xeon with 2.6.13 kernel it is
+working fine and by adding EXPORT_SYMBOL(pgdat_list)  in
+mm/page_alloc.c now I am able to access pgdat_list also. But on
+opteron machine there is some problem in kernel compilation
+at make install stage I am getting following warning
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+WARNING: No module mptbase found for kernel 2.6.13, continuing anyway
+WARNING: No module mptscsih found for kernel 2.6.13, continuing anyway
 
-> > ahh ... I would not be surprised if this caused actual problems on x64
-> > in the upstream kernel too: using save_flags() over u32 will corrupt a
-> > word on the stack ...
-> >
-> 
-> Actually, it's still safe upstream.  The locks are taken via a function
-> defined as:
-> 
-> unsigned long acpi_os_acquire_lock(acpi_handle handle)
-> {
-> 	unsigned long flags;
-> 	spin_lock_irqsave((spinlock_t *) handle, flags);
-> 	return flags;
-> }
-> 
-> So a u32 flags with
-> 
->   flags = acpi_os_acquire_lock(lock);
-> 
-> would be safe, unless a 64 bit machine stored the value of IR in the 
-> upper word, which I don't know of any archs that do that.
+now when I boot my kernel, panic is received
 
-ok. But this still looks very volatile. Nowhere do we guarantee (or can 
-we guarantee) that silently zeroing out the upper 32 bits of flags is 
-safe!
+Booting the kernel.
+Red Hat nash version 4.1.18 starting
+mkrootdev: lable / not found
+mount: error 2 mounting ext3
+mount: error 2 mounting none
+switchroot: mount failed : 22
+umount : /initrd/dev failed : 22
+kernel panic - not syncing : Attempted to kill init
 
-	Ingo
+On the other hand when I complie same source code on XEON machine this
+works fine.
+
+what could be the problem?

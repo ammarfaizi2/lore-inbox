@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbVJFGHw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751237AbVJFGQS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750722AbVJFGHw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 02:07:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751237AbVJFGHw
+	id S1751237AbVJFGQS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 02:16:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751238AbVJFGQS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 02:07:52 -0400
-Received: from iron.cat.pdx.edu ([131.252.208.92]:11772 "EHLO iron.cat.pdx.edu")
-	by vger.kernel.org with ESMTP id S1750722AbVJFGHw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 02:07:52 -0400
-Date: Wed, 5 Oct 2005 23:07:30 -0700 (PDT)
-From: Suzanne Wood <suzannew@cs.pdx.edu>
-Message-Id: <200510060607.j9667UPo027197@rastaban.cs.pdx.edu>
-To: linux-kernel@vger.kernel.org
-Cc: paulmck@us.ibm.com, suzannew@cs.pdx.edu, walpole@cs.pdx.edu
-Subject: [RFC][PATCH] identify rcu-protected ptr
+	Thu, 6 Oct 2005 02:16:18 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:31443 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751237AbVJFGQR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 02:16:17 -0400
+Subject: Re: kernel performance update - 2.6.14-rc3
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200510052115.j95LFgg07836@unix-os.sc.intel.com>
+References: <200510052115.j95LFgg07836@unix-os.sc.intel.com>
+Content-Type: text/plain
+Date: Thu, 06 Oct 2005 08:16:11 +0200
+Message-Id: <1128579372.2960.6.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please consider an addition to the patch to identify
-raid rcu-protected pointer occurences.  All of the
-work in the raid submittals which is correct is that
-of Paul McKenney and any errors and oversights are
-mine.
 
-Also, please consider the effective addition of an
-rcu_dereference() in bpq_get_ax25_dev() in recognition 
-of each use being nested in an rcu critical section.
-Thank you.
+> dbench is catching some attention.  We just ran it with default
+> parameter.  I don't think default parameter is the right one to use
+> on some of our configurations.  For example, it shows +100% improvement
 
- md/md.c                 |    2 +-
- net/hamradio/bpqether.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+never ever consider dbench a serious benchmark; the thing is you can
+make dbench a lot better very easy; just make the kernel run one thread
+at a time until completion. dbench really gives very variable results,
+but it is not really possible to say if +100% or -100% is an improvement
+or a degredation for real life. So please just don't run it, or at least
+don't interpret the results in a "higher is better" way.
 
--------------------------------------------------
-
-diff -urpNa -X dontdiff a/linux-2.6.14-rc3/drivers/md/md.c b/linux-2.6.14-rc3/drivers/md/md.c
---- a/linux-2.6.14-rc3/drivers/md/md.c	2005-09-30 14:17:35.000000000 -0700
-+++ b/linux-2.6.14-rc3/drivers/md/md.c	2005-10-05 22:30:31.000000000 -0700
-@@ -1145,7 +1145,7 @@ static int bind_rdev_to_array(mdk_rdev_t
- 	}
- 			
- 	list_add(&rdev->same_set, &mddev->disks);
--	rdev->mddev = mddev;
-+	rcu_assign_pointer(rdev->mddev, mddev);
- 	printk(KERN_INFO "md: bind<%s>\n", bdevname(rdev->bdev,b));
- 	return 0;
- }
-diff -urpNa -X dontdiff a/linux-2.6.14-rc3/drivers/net/hamradio/bpqether.c b/linux-2.6.14-rc3/drivers/net/hamradio/bpqether.c
---- a/linux-2.6.14-rc3/drivers/net/hamradio/bpqether.c	2005-09-30 14:17:35.000000000 -0700
-+++ b/linux-2.6.14-rc3/drivers/net/hamradio/bpqether.c	2005-10-05 22:32:53.000000000 -0700
-@@ -144,7 +144,7 @@ static inline struct net_device *bpq_get
- {
- 	struct bpqdev *bpq;
- 
--	list_for_each_entry(bpq, &bpq_devices, bpq_list) {
-+	list_for_each_entry_rcu(bpq, &bpq_devices, bpq_list) {
- 		if (bpq->ethdev == dev)
- 			return bpq->axdev;
- 	}

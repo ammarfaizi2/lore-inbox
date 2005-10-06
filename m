@@ -1,61 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbVJFI1F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbVJFI1m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750737AbVJFI1F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 04:27:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbVJFI1E
+	id S1750744AbVJFI1m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 04:27:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbVJFI1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 04:27:04 -0400
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:63631 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S1750737AbVJFI1D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 04:27:03 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: linux-kernel@vger.kernel.org, ncunningham@cyclades.com
-Subject: Re: [PATCH] Free swap suspend from dependency on PageReserved
-Date: Thu, 6 Oct 2005 10:28:09 +0200
-User-Agent: KMail/1.8.2
-Cc: Dave Hansen <haveblue@us.ibm.com>, Pavel Machek <pavel@ucw.cz>
-References: <1128546263.10363.14.camel@localhost> <1128549812.18249.8.camel@localhost> <1128551062.10363.41.camel@localhost>
-In-Reply-To: <1128551062.10363.41.camel@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510061028.10237.rjw@sisk.pl>
+	Thu, 6 Oct 2005 04:27:42 -0400
+Received: from ncc1701.cistron.net ([62.216.30.38]:59781 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id S1750744AbVJFI1l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 04:27:41 -0400
+From: dth@cistron.nl (Danny ter Haar)
+Subject: report: 2.6.14-rc3-git3 crashed on usenet gateway after 58 hours
+Date: Thu, 6 Oct 2005 08:27:39 +0000 (UTC)
+Organization: Cistron
+Message-ID: <di2n5r$9bt$1@news.cistron.nl>
+X-Trace: ncc1701.cistron.net 1128587259 9597 62.216.30.70 (6 Oct 2005 08:27:39 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: dth@cistron.nl (Danny ter Haar)
+To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nigel,
+Same thing als previous reports:
+All 2.6.1[34] dont work stable of this machine (for me)
+2.6.12-mm1 survives >> 3 weeks without problems.
 
-On Thursday, 6 of October 2005 00:24, Nigel Cunningham wrote:
-> Hi Dave.
-> 
-> On Thu, 2005-10-06 at 08:03, Dave Hansen wrote:
-> > On Thu, 2005-10-06 at 07:04 +1000, Nigel Cunningham wrote:
-> > > 
-> > > +       for (tmp = 0; tmp < max_low_pfn; tmp++, addr += PAGE_SIZE) {
-> > > +               if (page_is_ram(tmp)) {
-> > > +                       /*
-> > > +                        * Only count reserved RAM pages
-> > > +                        */
-> > > +                       if (PageReserved(mem_map+tmp))
-> > > +                               reservedpages++;
-> > 
-> > Please don't reference mem_map[] directly outside of #ifdef
-> > CONFIG_FLATMEM areas.  It is not defined for all config cases.  Please
-> > use pfn_to_page(), instead.  It should work in all cases where the page
-> > is valid.
-> > 
-> > Also, instead of keeping addr defined like you do, and comparing it
-> > during each run of the loop, why not just use pfn_is_nosave(), which is
-> > already defined?  Then, you won't even need the variable.
-> 
-> Thanks for the comments. Will revise and resend.
+Scsi driver is exactly the same as in 2.6.12-mm1, so i don't suspect the
+scsi driver itself, but the acpi/irq routing that changed.
 
-There's one more reference to PageReserved() in swsusp.c, which is
-in save_highmem_zone().  You seem to omit this one (or I have missed
-it in your patch in which case please ignore this message).  Is that
-intentional?
+dmesg/config etc is @ http://newsgate.newsserver.nl/kernel/2.6.14-rc3-git3
 
-Rafael
+This was part of the barf message before it rebooted
+------------
+
+scsi0: ILLEGAL_PHASE 0x80
+(scsi0:A:1:0): Abort Message Sent
+scsi0:0:1:0: Attempting to queue an ABORT message:CDB: 0x2a 0x0 0x1 0xe6 0xf4 0x4a 0x0 0x0 0x48 0x0
+scsi0: At time of recovery, card was not paused
+>>>>>>>>>>>>>>>>>> Dump Card State Begins <<<<<<<<<<<<<<<<<
+scsi0: Dumping Card State at program address 0x26 Mode 0x11
+Card was paused
+HS_MAILBOX[0x0] INTCTL[0xc0]:(SWTMINTEN|SWTMINTMASK)
+SEQINTSTAT[0x10]:(SEQ_SWTMRTO) SAVED_MODE[0x11]
+DFFSTAT[0x9]:(CURRFIFO_1) SCSISIGI[0x25]:(P_DATAOUT_DT|ACKI|BSYI)
+SCSIPHASE[0x1]:(DATA_OUT_PHASE) SCSIBUS[0x0] LASTPHASE[0x20]:(P_DATAOUT_DT)
+SCSISEQ0[0x0] SCSISEQ1[0x12]:(ENAUTOATNP|ENRSELI)
+SEQCTL0[0x0] SEQINTCTL[0x0] SEQ_FLAGS[0x20]:(DPHASE)
+SEQ_FLAGS2[0x0] SSTAT0[0x0] SSTAT1[0x9]:(REQINIT|BUSFREE)
+SSTAT2[0x0] SSTAT3[0x80] PERRDIAG[0x0] SIMODE1[0xac]:(ENSCSIPERR|ENBUSFREE|ENSCSIRST|ENSELTIMO)
+LQISTAT0[0x0] LQISTAT1[0x0] LQISTAT2[0x80]:(PACKETIZED)
+LQOSTAT0[0x0] LQOSTAT1[0x8]:(LQOSTOPI2) LQOSTAT2[0x21]:(LQOSTOP0)
+
+SCB Count = 128 CMDS_PENDING = 96 LASTSCB 0x7a CURRSCB 0x10 NEXTSCB 0x2
+qinstart = 24642 qinfifonext = 24642
+QINFIFO:
+WAITING_TID_QUEUES:
+       0 ( 0x66 0x69 0x64 0x9 0x34 0x6c 0x46 0x7c 0x5f 0x21 0x62 0x3f 0x52 0x7d 0x39 0x17 0x15 0x41 0x8 0x4c 0x2e 0x44 0x6b 0x36 0x1b 0x54 0x6e 0x53 )
+       3 ( 0x32 )
+Pending list:
+ 50 FIFO_USE[0x0] SCB_CONTROL[0x60]:(TAG_ENB|DISCENB) SCB_SCSIID[0x37]
+
+[SNIP]
+
+Danny
+

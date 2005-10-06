@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751221AbVJFEVh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751222AbVJFEkS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751221AbVJFEVh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 00:21:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbVJFEVh
+	id S1751222AbVJFEkS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 00:40:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbVJFEkS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 00:21:37 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:60934 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1751221AbVJFEVh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 00:21:37 -0400
-Date: Thu, 6 Oct 2005 06:12:57 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Marc Perkel <marc@perkel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Please STOP ! [was: what's next for the linux kernel?]
-Message-ID: <20051006041257.GE22601@alpha.home.local>
-References: <200510060256.j962uXvl008891@inti.inf.utfsm.cl> <43449F1E.7050802@perkel.com>
+	Thu, 6 Oct 2005 00:40:18 -0400
+Received: from pacific.moreton.com.au ([203.143.235.130]:63938 "EHLO
+	moreton.com.au") by vger.kernel.org with ESMTP id S1751222AbVJFEkQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 00:40:16 -0400
+Date: Thu, 6 Oct 2005 14:40:15 +1000
+From: David McCullough <davidm@snapgear.com>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Cc: dhowells@redhat.com
+Subject: [PATCH] 2.6.13 - output of /proc/maps on nommu systems is incomplete
+Message-ID: <20051006044015.GA31458@beast>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43449F1E.7050802@perkel.com>
-User-Agent: Mutt/1.5.10i
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[Cc: list purged to save people time]
+Hi all,
 
-On Wed, Oct 05, 2005 at 08:50:54PM -0700, Marc Perkel wrote:
-> If you all think Netware is no more you are under an interesting 
-> illusion. Linux being cheap has cut into the little server market - but 
-> if you have thousands of servers all running off the same shared 
-> permissions systems - you just aren't going to do that off of Linux.
+Simple patch against 2.6.13 for /proc/maps on nommu systems.
+Currently you do not get all the map entries because the start
+function doesn't index into the list using the value of "pos".
 
-Please will you move those boring threads to another mailing list or
-even to usenet ? This is LKML, we're only the 6th of the month and
-there are already 1250 messages, 200 of which come from this thread,
-and many others coming from other long off-topic threads. 20% noise
-is too high and disturbting. It becomes difficult to find someone
-talking about subjects related to kernel development !
+Cheers,
+Davidm
 
-Thanks in advance
-Willy
+Signed-off-by: David McCullough <davidm@snapgear.com>
 
-(NB: I'm not interested in your reply, so please don't Cc: me)
-
+Index: fs/proc/nommu.c
+===================================================================
+RCS file: /cvs/sw/linux-2.6.x/fs/proc/nommu.c,v
+retrieving revision 1.1.1.1
+diff -u -p -r1.1.1.1 nommu.c
+--- fs/proc/nommu.c	3 Mar 2005 00:45:41 -0000	1.1.1.1
++++ fs/proc/nommu.c	6 Oct 2005 04:25:30 -0000
+@@ -91,6 +91,7 @@ static void *nommu_vma_list_start(struct
+ 			next = _rb;
+ 			break;
+ 		}
++		pos--;
+ 	}
+ 
+ 	return next;
+-- 
+David McCullough, davidm@cyberguard.com.au, Custom Embedded Solutions + Security
+Ph:+61 734352815 Fx:+61 738913630 http://www.uCdot.org http://www.cyberguard.com

@@ -1,59 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751115AbVJFPn5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751109AbVJFPn0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751115AbVJFPn5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 11:43:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751111AbVJFPn5
+	id S1751109AbVJFPn0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 11:43:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751100AbVJFPn0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 11:43:57 -0400
-Received: from [67.137.28.189] ([67.137.28.189]:21888 "EHLO vger.utah-nac.org")
-	by vger.kernel.org with ESMTP id S1751115AbVJFPn4 (ORCPT
+	Thu, 6 Oct 2005 11:43:26 -0400
+Received: from ns.firmix.at ([62.141.48.66]:22686 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S1751111AbVJFPnY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 11:43:56 -0400
-Message-ID: <434533A5.2010904@utah-nac.org>
-Date: Thu, 06 Oct 2005 08:24:37 -0600
-From: jmerkey <jmerkey@utah-nac.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Chase Venters <chase.venters@clientec.com>, Marc Perkel <marc@perkel.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Wolf Mountain File System [what's next for the linux
- kernel]
-References: <20051002204703.GG6290@lkcl.net> <200510041840.55820.chase.venters@clientec.com> <20051005102650.GO10538@lkcl.net> <200510060005.09121.chase.venters@clientec.com> <4344A797.9010701@utah-nac.org> <4344A8E6.1070006@utah-nac.org> <20051006104408.GG10538@lkcl.net>
-In-Reply-To: <20051006104408.GG10538@lkcl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 6 Oct 2005 11:43:24 -0400
+Subject: Re: select(0,NULL,NULL,NULL,&t1) used for delay
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Christopher Friesen <cfriesen@nortel.com>
+Cc: Alex Riesen <raa.lkml@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <43454238.4040907@nortel.com>
+References: <1128606546.14385.26.camel@penguin.madhu>
+	 <81b0412b0510060727h35c0fd78i260037ca89f253f9@mail.gmail.com>
+	 <43454238.4040907@nortel.com>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Date: Thu, 06 Oct 2005 17:42:50 +0200
+Message-Id: <1128613370.6630.5.camel@tara.firmix.at>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2005-10-06 at 09:26 -0600, Christopher Friesen wrote:
+> Alex Riesen wrote:
+> 
+> > Why don't you just use nanosleep(2) (or usleep)?
+> 
+> I can think of one main reason...existing code.  Also, nanosleep() 
 
-Agreed. Change the name to "Wiki File System" for the project. Wolf 
-Mountain might inflame some folks, and it's more like a
-Wiki system anyway.
+And it's cooler to hack the kernel than to create and use a
+portable_sleep() function and use it.
 
-Jeff
+> rounds up excessively in many kernel versions, so that a request to 
+> sleep for less than 1 tick ends up sleeping for 2 ticks.
+                                                  ^^^^^^^
 
-Luke Kenneth Casson Leighton wrote:
+> The select() man page explicitly mentions this usage;
+> 
+> "Some code calls select with all three sets empty, n zero, and a 
+> non-null timeout as a fairly portable way to sleep with subsecond 
+                                                          ^^^^^^^^^
+> precision."
+  ^^^^^^^^^
 
->dear mr jmerkley,
->
->your message would be most welcome on a linux visionaries mailing list,
->if we can twist enough arms to get one created.  my eye is beginning to
->twitch at the number of emails with this subject line, knowing that
->they're going to the LKML...
->
->  
->
->>>businesses to grow around it.  I am proposing not just a file system 
->>>or clustering, but a unique architecture and new communication model 
->>>for the internet for collaborative sharing at the kernel level with 
->>>distributed data and routing facilities and disconnectable 
->>>operations.  
->>>      
->>>
->
->
->  
->
+You do realize that "subsecond precision" is probably meant as
+improvement to sleep(3) and surely not to nanosleep(2)?
+
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 

@@ -1,150 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751352AbVJFU40@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751358AbVJFU7n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751352AbVJFU40 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 16:56:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751353AbVJFU40
+	id S1751358AbVJFU7n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 16:59:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751356AbVJFU7n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 16:56:26 -0400
-Received: from gate2-sandiego.nmci.navy.mil ([138.163.0.42]:46042 "EHLO
-	Gate2-sandiego.nmci.navy.mil") by vger.kernel.org with ESMTP
-	id S1751352AbVJFU40 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 16:56:26 -0400
-Content-Class: urn:content-classes:message
-Subject: Problems with MPT-Fusion
-MIME-Version: 1.0
-Date: Thu, 6 Oct 2005 13:57:32 -0700
-Content-Type: multipart/signed;
-	protocol="application/x-pkcs7-signature";
-	micalg=SHA1;
-	boundary="----=_NextPart_000_0022_01C5CA7D.E51C7F60"
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-Message-ID: <40B2C613F7E8684B96E5AB2560C9CC5B0134C7FF@NAWESDNSEX01VA.nadsuswe.nads.navy.mil>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: Problems with MPT-Fusion
-Thread-Index: AcXKuJDXbHXXI2JvRlGap1Wz+sKWCQ==
-From: "Kedzierski, Artur CIV NAVSURFWARCENDIV CORONA" 
-	<artur.kedzierski@navy.mil>
-To: "Linux-Kernel \(E-mail\)" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 06 Oct 2005 20:57:33.0021 (UTC) FILETIME=[927A50D0:01C5CAB8]
+	Thu, 6 Oct 2005 16:59:43 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:31935 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751353AbVJFU7m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 16:59:42 -0400
+Date: Thu, 6 Oct 2005 14:00:07 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: netdev@vger.kernel.org
+Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] linux-net wiki
+Message-ID: <20051006140007.43262f04@dxpl.pdx.osdl.net>
+X-Mailer: Sylpheed-Claws 1.9.14 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+There is now a wiki for Linux networking related activities and documentation. 
+	http://linux-net.osdl.org
+This is an experiment to see if it would be more useful to have
+an online and editable documentation source rather than bits and pieces.
 
-------=_NextPart_000_0022_01C5CA7D.E51C7F60
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Also, it should interact well with Wikipedia, since we can link to have
+the generic descriptions of things like protocols (TCP, bridging, bonding,
+VLAN's,...) and the Linux implementation.
 
-	Recently, I've acquired a Dell 1750 PowerEdge with 
-LSI Logic / Symbios Logic 53c1030 PCI-X Fusion-MPT
-Dual Ultra 320 SCSI (rev 07).
-	I booted kernel 2.6.13 and got these results
-with hdparm:
-/dev/sda: 59.25 MB/sec
-/dev/sdb:  3.18 MB/sec
-	These two harddrives are identical so the speed should
-be similar. I tried
-more up-to-date kernels: 2.6.14-rc3-git5 and 2.6.14-rc2-mm2,
-and got the same result.
-	A search on google revealed this thread on Linux kernel
-mailing list: "As of 2.6.13-rc1 Fusion-MPT very slow" (from
-around Aug 1, 2005). Somebody had the same problem as I am
-having right now. In the thread, James Bottomley provided 
-a patch against -mm kernel that solved this problem. I tried that
-patch but it is out-of-date. I then fetched an older kernel,
-2.6.13-rc5-mm1, and applied the patch without a problem. I
-then rebooted and the patch fixed the problem:
-/dev/sda: 62.33 MB/sec
-/dev/sdb: 67.15 MB/sec
-	My question is: is there a version of this patch
-that would work with 2.6.13.3 kernel? Are there any plans
-on fixing this issue in the current kernel (or is this
-a very unique problem)?
-	I appreciate any help.
-	Thank You.
+I filled in my stuff, and Acme and Ian have been adding DCCP and 
+the TODO list.
 
-	Artur Kedzierski.
-
-------=_NextPart_000_0022_01C5CA7D.E51C7F60
-Content-Type: application/x-pkcs7-signature;
-	name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="smime.p7s"
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIM3jCCBBsw
-ggOEoAMCAQICASAwDQYJKoZIhvcNAQEFBQAwYTELMAkGA1UEBhMCVVMxGDAWBgNVBAoTD1UuUy4g
-R292ZXJubWVudDEMMAoGA1UECxMDRG9EMQwwCgYDVQQLEwNQS0kxHDAaBgNVBAMTE0RvRCBDTEFT
-UyAzIFJvb3QgQ0EwHhcNMDMwMzIwMTUwMjUzWhcNMDkwMzE4MTUwMjUzWjBkMQswCQYDVQQGEwJV
-UzEYMBYGA1UEChMPVS5TLiBHb3Zlcm5tZW50MQwwCgYDVQQLEwNEb0QxDDAKBgNVBAsTA1BLSTEf
-MB0GA1UEAxMWRE9EIENMQVNTIDMgRU1BSUwgQ0EtNTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkC
-gYEArs9GG8FYEVBIzCTd6BD/+FyPTb+aH+cfdYTshM1SJNhuxjIKFr8Sekv422eYigX/ly71oSs9
-b17jFhxCYWNgQBZg9ptTjdJy6MmCuBR5D9I8zlklGgfBJQaSvss7HBVgTmlubfaCtgh3Whi8Ysez
-gSnhdVLbBxpAO/J0qR5l2sMCAwEAAaOCAd4wggHaMB0GA1UdDgQWBBT8EPq5amEuT7PXdMYoHmng
-L85U6DAOBgNVHQ8BAf8EBAMCAYYwDwYDVR0TAQH/BAUwAwEB/zAMBgNVHSQEBTADgAEAMB8GA1Ud
-IwQYMBaAFGycpfBcj21BjcQXO5BXwg+jzW3+MDAGA1UdIAQpMCcwCwYJYIZIAWUCAQsFMAsGCWCG
-SAFlAgELCTALBglghkgBZQIBCwowgYMGA1UdEgR8MHqGeGxkYXA6Ly9kcy0zLmMzcGtpLmNoYW1i
-LmRpc2EubWlsL2NuJTNkRG9EJTIwQ0xBU1MlMjAzJTIwUm9vdCUyMENBJTJjb3UlM2RQS0klMmNv
-dSUzZERvRCUyY28lM2RVLlMuJTIwR292ZXJubWVudCUyY2MlM2RVUzCBsAYDVR0fBIGoMIGlMIGi
-oIGfoIGchoGZbGRhcDovL2RzLTMuYzNwa2kuY2hhbWIuZGlzYS5taWwvY24lM2REb0QlMjBDTEFT
-UyUyMDMlMjBSb290JTIwQ0ElMmNvdSUzZFBLSSUyY291JTNkRG9EJTJjbyUzZFUuUy4lMjBHb3Zl
-cm5tZW50JTJjYyUzZFVTP2NlcnRpZmljYXRlcmV2b2NhdGlvbmxpc3Q7YmluYXJ5MA0GCSqGSIb3
-DQEBBQUAA4GBAKvH+EfhJOzPmz/G+TT4MKOSzweG97CS+L4tyX/ntF47FIz7pGfFA8mVWHtWygye
-81jG5ZklO0/gXD3VRiDscUTi4YOfh5yaBvFo04D9Sq2bIAxzPLqG4b+8cyDvldoZZS4ala6jfDeR
-e2go9+fomoLrTh4euT/evpPljk4YyXljMIIENjCCA5+gAwIBAgIDD8NnMA0GCSqGSIb3DQEBBQUA
-MGQxCzAJBgNVBAYTAlVTMRgwFgYDVQQKEw9VLlMuIEdvdmVybm1lbnQxDDAKBgNVBAsTA0RvRDEM
-MAoGA1UECxMDUEtJMR8wHQYDVQQDExZET0QgQ0xBU1MgMyBFTUFJTCBDQS01MB4XDTA0MDMxNjAw
-MDAwMFoXDTA3MDMxNTAwMDAwMFowdzELMAkGA1UEBhMCVVMxGDAWBgNVBAoTD1UuUy4gR292ZXJu
-bWVudDEMMAoGA1UECxMDRG9EMQwwCgYDVQQLEwNQS0kxDDAKBgNVBAsTA1VTTjEkMCIGA1UEAxMb
-S0VEWklFUlNLSS5BUlRVUi4xMjcxMDQ5NDAwMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC8
-t6taR5Ov+/phsMPdNTIVYwyaPWA6BTWkJ9o61dhqIejYdhIyUs62UOE9zWnwvhuXnhIu4EOMjY6A
-ixvCjOy7g2+Ike6ClciHrruzwNSKQnhI7B+pFS7WkVk93YxkhLGCJlSwjdQa1NduWWi9lKqxL5I4
-pf4NLiRGX9/UAV063QIDAQABo4IB4TCCAd0wDgYDVR0PAQH/BAQDAgUgMCUGA1UdEQQeMByBGmFy
-dGh1ci5rZWR6aWVyc2tpQG5hdnkubWlsMB8GA1UdIwQYMBaAFPwQ+rlqYS5Ps9d0xigeaeAvzlTo
-MB0GA1UdDgQWBBQTxkviHRkwq8yuHvMtw4IkbIxRNTAWBgNVHSAEDzANMAsGCWCGSAFlAgELCTCB
-jwYDVR0SBIGHMIGEhoGBbGRhcDovL2VtYWlsLWRzLTMuYzNwa2kuY2hhbWIuZGlzYS5taWwvY24l
-M2RET0QlMjBDTEFTUyUyMDMlMjBFTUFJTCUyMENBLTUlMmNvdSUzZFBLSSUyY291JTNkRG9EJTJj
-byUzZFUuUy4lMjBHb3Zlcm5tZW50JTJjYyUzZFVTMIG5BgNVHR8EgbEwga4wgauggaiggaWGgaJs
-ZGFwOi8vZW1haWwtZHMtMy5jM3BraS5jaGFtYi5kaXNhLm1pbC9jbiUzZERPRCUyMENMQVNTJTIw
-MyUyMEVNQUlMJTIwQ0EtNSUyY291JTNkUEtJJTJjb3UlM2REb0QlMmNvJTNkVS5TLiUyMEdvdmVy
-bm1lbnQlMmNjJTNkVVM/Y2VydGlmaWNhdGVyZXZvY2F0aW9ubGlzdDtiaW5hcnkwDQYJKoZIhvcN
-AQEFBQADgYEALloM9K3U572tsjhvaSi7ePReojtp7OI+TH+3LrxFon4n5agvtfH2fyBN+aFefgT4
-9Dro6otBP5Gdb62GoBm/GBY8IBg3aZv/3Jllu4ONMUUDSkFGTsUv19xYDmq1Qg+JViDWNT1okMt5
-F1g7Jg/0KqYRoULrkZcRhAw+Wg+9MVIwggSBMIID6qADAgECAgMPw2IwDQYJKoZIhvcNAQEFBQAw
-ZDELMAkGA1UEBhMCVVMxGDAWBgNVBAoTD1UuUy4gR292ZXJubWVudDEMMAoGA1UECxMDRG9EMQww
-CgYDVQQLEwNQS0kxHzAdBgNVBAMTFkRPRCBDTEFTUyAzIEVNQUlMIENBLTUwHhcNMDQwMzE2MDAw
-MDAwWhcNMDcwMzE1MDAwMDAwWjB3MQswCQYDVQQGEwJVUzEYMBYGA1UEChMPVS5TLiBHb3Zlcm5t
-ZW50MQwwCgYDVQQLEwNEb0QxDDAKBgNVBAsTA1BLSTEMMAoGA1UECxMDVVNOMSQwIgYDVQQDExtL
-RURaSUVSU0tJLkFSVFVSLjEyNzEwNDk0MDAwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAJ5n
-8xVP7PSrt+CUrbrKmPOvtZ2TRavz7xg+XCoU1A6yn6LdfE/XjOPmZMen2YP9OvnVLCaZFHTFe8S3
-/I3VMD0rS5noHqrndXVMBO9r9EoUyKddTo4VljEPy3wl7Rt+fiJdYE9juwy96huxbQ0bEWN8Pso6
-5rttZxHyNkuRARS7AgMBAAGjggIsMIICKDAOBgNVHQ8BAf8EBAMCBsAwHwYDVR0jBBgwFoAU/BD6
-uWphLk+z13TGKB5p4C/OVOgwHQYDVR0OBBYEFHUTUyb9sKSaana0GUew6f0q7VbtMBYGA1UdIAQP
-MA0wCwYJYIZIAWUCAQsJMIGPBgNVHRIEgYcwgYSGgYFsZGFwOi8vZW1haWwtZHMtMy5jM3BraS5j
-aGFtYi5kaXNhLm1pbC9jbiUzZERPRCUyMENMQVNTJTIwMyUyMEVNQUlMJTIwQ0EtNSUyY291JTNk
-UEtJJTJjb3UlM2REb0QlMmNvJTNkVS5TLiUyMEdvdmVybm1lbnQlMmNjJTNkVVMwgbkGA1UdHwSB
-sTCBrjCBq6CBqKCBpYaBomxkYXA6Ly9lbWFpbC1kcy0zLmMzcGtpLmNoYW1iLmRpc2EubWlsL2Nu
-JTNkRE9EJTIwQ0xBU1MlMjAzJTIwRU1BSUwlMjBDQS01JTJjb3UlM2RQS0klMmNvdSUzZERvRCUy
-Y28lM2RVLlMuJTIwR292ZXJubWVudCUyY2MlM2RVUz9jZXJ0aWZpY2F0ZXJldm9jYXRpb25saXN0
-O2JpbmFyeTApBgNVHSUEIjAgBgorBgEEAYI3FAICBggrBgEFBQcDBAYIKwYBBQUHAwIwRQYDVR0R
-BD4wPIEaYXJ0aHVyLmtlZHppZXJza2lAbmF2eS5taWygHgYKKwYBBAGCNxQCA6AQDA4xMjcxMDQ5
-NDAwQG1pbDANBgkqhkiG9w0BAQUFAAOBgQCMubG2tEwTM4Q84qp6kBZm2bkbEeixDaTd7XTR9lZF
-d8Q2wQ0xPXlbiShLaJVkkuuHBt8UF6CaOMJK1yM8aIRWRbrjXW5q749QbmMyFsdAb0z98JaFUPGg
-AiBiaL8iEu1Vzo7d8hnaM4Q9VUD74ADxQxwGfn1BdivMC0lg4cc8yTGCArcwggKzAgEBMGswZDEL
-MAkGA1UEBhMCVVMxGDAWBgNVBAoTD1UuUy4gR292ZXJubWVudDEMMAoGA1UECxMDRG9EMQwwCgYD
-VQQLEwNQS0kxHzAdBgNVBAMTFkRPRCBDTEFTUyAzIEVNQUlMIENBLTUCAw/DYjAJBgUrDgMCGgUA
-oIIBojAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0wNTEwMDYyMDU3
-MzFaMCMGCSqGSIb3DQEJBDEWBBTWaf56hTpZHTOHfX2Y1cPgdNq6EDBJBgkqhkiG9w0BCQ8xPDA6
-MAoGCCqGSIb3DQMHMA4GCCqGSIb3DQMCAgIAgDAHBgUrDgMCBzAHBgUrDgMCGjAKBggqhkiG9w0C
-BTB6BgkrBgEEAYI3EAQxbTBrMGQxCzAJBgNVBAYTAlVTMRgwFgYDVQQKEw9VLlMuIEdvdmVybm1l
-bnQxDDAKBgNVBAsTA0RvRDEMMAoGA1UECxMDUEtJMR8wHQYDVQQDExZET0QgQ0xBU1MgMyBFTUFJ
-TCBDQS01AgMPw2cwfAYLKoZIhvcNAQkQAgsxbaBrMGQxCzAJBgNVBAYTAlVTMRgwFgYDVQQKEw9V
-LlMuIEdvdmVybm1lbnQxDDAKBgNVBAsTA0RvRDEMMAoGA1UECxMDUEtJMR8wHQYDVQQDExZET0Qg
-Q0xBU1MgMyBFTUFJTCBDQS01AgMPw2cwDQYJKoZIhvcNAQEBBQAEgYAo0SSFUL+pooUalfdhQ1Hx
-4H7gyU4WjOQzh8Gfi38eE/HTm/wwnncrbrJ1iraF87cUHP+huRhsV8chcX/87+S5kQQtkUf6vp0c
-D4N4SwYEv4qkT+2YhBTldmvaJvJZns5cOjrJR2+74Zw44S/hJ+OS6Cq3CfwN9bdOSqo03uwHHgAA
-AAAAAA==
-
-------=_NextPart_000_0022_01C5CA7D.E51C7F60--
+-- 
+Stephen Hemminger <shemminger@osdl.org>
+OSDL http://developer.osdl.org/~shemminger

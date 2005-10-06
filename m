@@ -1,71 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750758AbVJFJ1w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbVJFJ25@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750758AbVJFJ1w (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 05:27:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbVJFJ1w
+	id S1750772AbVJFJ25 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 05:28:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750773AbVJFJ25
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 05:27:52 -0400
-Received: from gw1.cosmosbay.com ([62.23.185.226]:43146 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S1750758AbVJFJ1v
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 05:27:51 -0400
-Message-ID: <4344EE14.2020504@cosmosbay.com>
-Date: Thu, 06 Oct 2005 11:27:48 +0200
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: fr, en
+	Thu, 6 Oct 2005 05:28:57 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:16602 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S1750772AbVJFJ25 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 05:28:57 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Freaky <freaky@bananateam.nl>, linux-usb-devel@lists.sourceforge.net
+Subject: Re: MTP - Media Transfer Protocol support
+Date: Thu, 6 Oct 2005 11:28:48 +0200
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org
+References: <4344DB73.9020604@bananateam.nl>
+In-Reply-To: <4344DB73.9020604@bananateam.nl>
 MIME-Version: 1.0
-To: devesh sharma <devesh28@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [NUMA x86_64] problem accessing global Node List pgdat_list
-References: <309a667c0510042240y1dcc75c4l83abc7fe430e4f05@mail.gmail.com>	 <4343CA4F.8030003@cosmosbay.com>	 <309a667c0510050550x68e0c996q51e00e908813b5c1@mail.gmail.com> <309a667c0510060216q315d55b0n4a6934d168ebccfb@mail.gmail.com>
-In-Reply-To: <309a667c0510060216q315d55b0n4a6934d168ebccfb@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Thu, 06 Oct 2005 11:27:48 +0200 (CEST)
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510061128.48506.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-devesh sharma a écrit :
-> Hi Eric,
-> I have tried numa=fake=4 on intel xeon with 2.6.13 kernel it is
-> working fine and by adding EXPORT_SYMBOL(pgdat_list)  in
-> mm/page_alloc.c now I am able to access pgdat_list also. But on
-> opteron machine there is some problem in kernel compilation
-> at make install stage I am getting following warning
-> 
-> WARNING: No module mptbase found for kernel 2.6.13, continuing anyway
-> WARNING: No module mptscsih found for kernel 2.6.13, continuing anyway
-> 
-> now when I boot my kernel, panic is received
-> 
-> Booting the kernel.
-> Red Hat nash version 4.1.18 starting
-> mkrootdev: lable / not found
-> mount: error 2 mounting ext3
-> mount: error 2 mounting none
-> switchroot: mount failed : 22
-> umount : /initrd/dev failed : 22
-> kernel panic - not syncing : Attempted to kill init
-> 
-> On the other hand when I complie same source code on XEON machine this
-> works fine.
-> 
-> what could be the problem?
+Am Donnerstag, 6. Oktober 2005 10:08 schrieb Freaky:
 
-Hi Devesh
+> Sorry if this is the wrong place to ask. But I figured it needs kernel 
+> support first, because the USB device isn't recognized at all. MTP has a 
+> general USB interface like mass storage from what I understand, so we'll 
+> need drivers for that first I think.
 
-I believe you have basic kernel compilation problem :)
+There is an USB list:
+linux-usb-devel@lists.sourceforge.net
 
-Your kernel cannot mount / because the boot loader was configured to find a 
-root=LABEL=/
-As this is a RedHat kernel extension, your self compiled 2.6.13 kernel cannot 
-understand this.
-You should change your lilo/grub config to match your root device as 
-root=/dev/hda2  (if hda2 is your root device)
+If you want to support this as a true filesystem with permissions,
+you will need a kernel driver. If not, you can access the device by
+libusb.
 
-Also check that your kernel (or initrd) contains the disk driver you need.
+What do you mean by "not recognised at all"? Does lsusb show it?
 
-Eric
-
-
+	Regards
+		Oliver

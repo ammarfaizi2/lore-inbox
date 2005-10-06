@@ -1,130 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751342AbVJFUNK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751343AbVJFUPf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751342AbVJFUNK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 16:13:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751343AbVJFUNJ
+	id S1751343AbVJFUPf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 16:15:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbVJFUPf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 16:13:09 -0400
-Received: from rrcs-67-78-243-58.se.biz.rr.com ([67.78.243.58]:58256 "EHLO
-	mail.concannon.net") by vger.kernel.org with ESMTP id S1751342AbVJFUNH
+	Thu, 6 Oct 2005 16:15:35 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:7884 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751343AbVJFUPe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 16:13:07 -0400
-Message-ID: <4345855B.3@concannon.net>
-Date: Thu, 06 Oct 2005 16:13:15 -0400
-From: Michael Concannon <mike@concannon.net>
-User-Agent: Mozilla Thunderbird 1.0.6-1.4.1.centos4 (X11/20050721)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-CC: Chase Venters <chase.venters@clientec.com>, Marc Perkel <marc@perkel.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-References: <20051002204703.GG6290@lkcl.net> <200510041840.55820.chase.venters@clientec.com> <20051005102650.GO10538@lkcl.net> <200510060005.09121.chase.venters@clientec.com> <43453E7F.5030801@concannon.net> <20051006192857.GV10538@lkcl.net>
-In-Reply-To: <20051006192857.GV10538@lkcl.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 6 Oct 2005 16:15:34 -0400
+Date: Thu, 6 Oct 2005 21:15:34 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: [RFC] gfp flags annotations
+Message-ID: <20051006201534.GX7992@ftp.linux.org.uk>
+References: <20050905155522.GA8057@mipter.zuzino.mipt.ru> <20050905160313.GH5155@ZenIV.linux.org.uk> <20050905164712.GI5155@ZenIV.linux.org.uk> <20050905212026.GL5155@ZenIV.linux.org.uk> <20050907183131.GF5155@ZenIV.linux.org.uk> <20050912191744.GN25261@ZenIV.linux.org.uk> <20050912192049.GO25261@ZenIV.linux.org.uk> <20050930120831.GI7992@ftp.linux.org.uk> <20051004203009.GQ7992@ftp.linux.org.uk> <20051005202904.GA27229@mipter.zuzino.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051005202904.GA27229@mipter.zuzino.mipt.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luke Kenneth Casson Leighton wrote:
-
->On Thu, Oct 06, 2005 at 11:10:55AM -0400, Michael Concannon wrote:
->
->  
->
->>All good points, but perhaps the most compelling to me is that virtually 
->>every successful windows virus out there does its real damage by 
->>modifying the registry to replace key actions, associate bad actions 
->>with good ones and just generally screw the system up...
->>    
->>
+On Thu, Oct 06, 2005 at 12:29:04AM +0400, Alexey Dobriyan wrote:
+> > --- RC14-rc3-git4/arch/arm/mm/consistent.c
+> > +++ RC14-rc3-git4-final/arch/arm/mm/consistent.c
 > 
-> the damage is done because "admin" rights are forced out of the control
-> of the users and sysadmins and into the hands of the dumb-ass app
-> writers, for both the setup stage and then the actual day-to-day
-> usage of the app!
->
-> the registry on NT has ACLs - which are completely irrelevant as far as
-> users running as admin are concerned (because the dumb-ass app writers
-> force them to).
->
-> the nt registry - imagine it to be .... _like_ a filesystem, or _like_
-> an LDAP server.
->
-> except with proper ACLs and access controls [which everyone bypasses
-> because duh it's windows duh, not because it's impossible to do a decent
-> job with the API and its implementation].
->  
->
-No question that one could limit the damage with various tweaks to 
-permissions and access controls, but it is the very centralization of 
-information with such vastly disparate purposes (into a single file) 
-that is the flaw here...
+> > -vm_region_alloc(struct vm_region *head, size_t size, int gfp)
+> > +vm_region_alloc(struct vm_region *head, size_t size, unsigned int gfp)
+> 
+> > -__dma_alloc(struct device *dev, size_t size, dma_addr_t *handle, int gfp,
+> > -	    pgprot_t prot)
+> > +__dma_alloc(struct device *dev, size_t size, dma_addr_t *handle,
+> > +	    unsigned int gfp, pgprot_t prot)
+> 
+> 	unsigned int __nocast gfp
+> 
+> 	=> dma_alloc_coherent
+> 	=> dma_alloc_writecombine
 
-You can view it, think about it and talk about it as a "file-system" and 
-that is fine..  much like /proc or sysfs, but when the system crashes:
+Speaking of that...  IMO we should do the following:
 
-1. It _is_ a file: registry.dat
-2. It is a binary file at that...
-3. That file has become a dumping ground for everything that every app 
-thinks is "important" and of course every app writer thinks everything 
-they write is the most important thing ever - I am sure a have never 
-done such a thing :-)
+a) typedef unsigned int __nocast gfp_t;
+b) replace __nocast uses for gfp flags with gfp_t - it gives exactly the same
+warnings as far as sparse is concerned, doesn't change generated code and
+documents what's going on far better.  If we are using __nocast for anything
+else - sure, let it stay.
+c) then replace __nocast in declaration of gfp_t with __bitwise [*], add
+force cast to gfp_t to definitions of __GFP_... and deal with resulting
+warnings.
 
-I guess you could argue that #3 is the fault of the app writers and not 
-the architecture, but clearly the current state is the  result of those 
-app writers traveling the path of least resistance, so viewed as a whole 
-the architecture is to blame regardless...  While it may be wrong for 
-people to steal money left on a table out in front of the bank, the bank 
-should have  known that this would result and put the money inside...
+Note that unlike __nocast, __bitwise is hard to lose; lossage like the above
+will not go unnoticed.  We will need a couple of inline helpers to deal with
+extraction of zone from gfp, etc., but after that it's basically a matter of
+switching the missed chunks like the above.
 
-#2 is an issue because of the complexity of the system which must be 
-function to perform the most basic functions of system recovery... 
+I've done that several months ago, but that patch series had been killed
+by bitrot (patches fixing the bugs I've found back then had been merged,
+the rest had gone to bitbucket after a while).  It's not hard to reproduce,
+though.
 
-If you can boot a floppy/pendrive/cd and mount it with vi then it is a 
-disk in need of service...
+Objections?
 
-If you cannot, it is a brick in need of re-installation...
 
-I have booted linux a number of times with an NT drive as a slave and 
-recovered it.   I have not ever done the inverse...
+[*] since endainness annotations are nowhere near complete, I suggest
+the following: define __bitwise__ as __attribute__((bitwise)) or empty,
+depending on __CHECKER__, then have
 
-I hate vi with a passion, more often than not, I have to hit :q! a few 
-times before I remember what I have to type, but the fact is, it works 
-when nothing else does and it has saved a lot of systems for me...
+#ifdef __CHECK_ENDIAN__
+#define __bitwise __bitwise__
+#else
+#define __bitwise
+#endif
+typedef unsigned int __bitwise__ gfp_t;
 
-#2 is also an issue of security because with very simple and reliable 
-tools, one can track and monitor changes to key files, one can impose 
-any level of security with any level of granularity (perhaps too many 
-grains with SELinux, but that is your choice).  Before there was 
-tripwire, there were lots of people who wrote basically the same thing 
-in plain simple shell/perl scripts and it worked...
-
-#2 is also an issue of backup and restoration...  If it is a 
-file-system, it does not provide any useful methods of incremental 
-backup and restoration...
-
-There is no equivalent of:
-cd etc/xinet.d ; cvs update -A
-
-/etc _is_ a filesystem with all the benefits that come with it...
-
-/tmp is also a great file-system and a much better place to cache all 
-that "important" application specific temporary data...  If they want to 
-save state, there is:
-
-/etc/<appname>.conf for site-wide setups
-~/.<appname> for user-specific state...
-
-I was trying to stay out this thread - clearly I failed :-)  No value 
-judgement intended for any of the comments made, this thread is a like a 
-car accident on a busy highway...  everyone knows they are slowing 
-things down by looking, but they cannot look away...
-
-/mike
-
-> l.
->
->  
->
-
+with -Wbitwise unconditionally in CHECKFLAGS.  Then normal run will pick
+the places that use __bitwise__ and CF=-D__CHECK_ENDIAN__ will pick all
+endianness warnings on top of that.  Basically, that allows to use
+bitwise annotations while endianness stuff is not finished and do that
+without drowning in warnings.

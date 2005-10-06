@@ -1,62 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbVJFQaj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750839AbVJFQhK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751133AbVJFQaj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 12:30:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbVJFQaj
+	id S1750839AbVJFQhK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 12:37:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbVJFQhJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 12:30:39 -0400
-Received: from xproxy.gmail.com ([66.249.82.195]:65387 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751133AbVJFQai convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 12:30:38 -0400
+	Thu, 6 Oct 2005 12:37:09 -0400
+Received: from wproxy.gmail.com ([64.233.184.199]:19816 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750839AbVJFQhI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 12:37:08 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=pAAzknl6C3CzQmm7QM/U31MV496qa5Q8w1eZqdw+ce24KPR9jwTkapvYT0VPaGDQ7gcnCZExq5k3DmuI+ABWZX40y9+buyX23TqmJiKQgMoERxfp7AI/tJCVQ3yojER6eD9vigXXj+pZY+HYYjKqoi+UhKPXFVjsu4IGCvmsmKM=
-Message-ID: <5bdc1c8b0510060930y5648eacdm376178069dcd3958@mail.gmail.com>
-Date: Thu, 6 Oct 2005 09:30:37 -0700
-From: Mark Knecht <markknecht@gmail.com>
-Reply-To: Mark Knecht <markknecht@gmail.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: 2.6.14-rc3-rt9 - a few xruns misses
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=gXjLXei3qDjhDYXrfIOMBlDTu8BcSvo0BNMtvDnrGKo09OtA9D2IIMEgwTBOjJMUyutxXVF0DGM9+Dy2YudkbbcRfeAH56aKVpbEtPDl0HPWE24IPgt6bpW0ZC9roPnNfl5THtOnu9bOEqAwc7mOFTHfj2nkEGr5sd+yliqsq3Y=
+Date: Thu, 6 Oct 2005 20:48:30 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Kalin KOZHUHAROV <kalin@thinrope.net>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1128615988.14584.38.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Subject: Re: [PATCH] Documentation: ksymoops should no longer be used to decode Oops messages
+Message-ID: <20051006164830.GA22974@mipter.zuzino.mipt.ru>
+References: <200510052239.43492.jesper.juhl@gmail.com> <di3h5d$f82$1@sea.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <5bdc1c8b0510051615hfd77ba8pab7ee07bde13ffd4@mail.gmail.com>
-	 <20051006083043.GB21800@elte.hu>
-	 <5bdc1c8b0510060900m721296h53ac1d0f0fc12351@mail.gmail.com>
-	 <1128615988.14584.38.camel@mindpipe>
+In-Reply-To: <di3h5d$f82$1@sea.gmane.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/6/05, Lee Revell <rlrevell@joe-job.com> wrote:
-> On Thu, 2005-10-06 at 09:00 -0700, Mark Knecht wrote:
-> > Even with Jack running I don't see the jackd process getting any
-> > special priority. Is this correct, or is that part that gets higher
-> > prioity just not listed here.
->
-> ps does not show all threads of multithreaded processes by default.
-> Use:
->
-> ps -Leo pid,pri,rtprio,cmd
->
-> and you should see that 2 JACK threads get RT priority.
->
-> Lee
+On Fri, Oct 07, 2005 at 12:49:48AM +0900, Kalin KOZHUHAROV wrote:
+> > Ksymoops
+> > --------
+> >
+> >-If the unthinkable happens and your kernel oopses, you'll need a 2.4
+> >-version of ksymoops to decode the report; see REPORTING-BUGS in the
+> >-root of the Linux source for more information.
+> >+With a 2.4 kernel you need ksymoops to decode a kernel Oops message. With
+> >+2.6 kernels ksymoops is no longer needed and should not be used.
 
-Thanks Lee. That's what I thought might be happening.
+> OK, but what should I use then with 2.6??
 
-8398  24      - hdspmixer
- 8400  24      - qjackctl
- 8400  49      9 qjackctl
- 8402  20      - /usr/bin/jackd -R -dalsa -dhw:1 -r44100 -p128 -n2
- 8402  20      - /usr/bin/jackd -R -dalsa -dhw:1 -r44100 -p128 -n2
- 8402  23      - /usr/bin/jackd -R -dalsa -dhw:1 -r44100 -p128 -n2
- 8402  60     20 /usr/bin/jackd -R -dalsa -dhw:1 -r44100 -p128 -n2
- 8402  50     10 /usr/bin/jackd -R -dalsa -dhw:1 -r44100 -p128 -n2
+Raw Oops output. From logs, serial console, monitor photoed with
+digital camera, copied to paper with pencil...
 
-Cheers,
-Mark

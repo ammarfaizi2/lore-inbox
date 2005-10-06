@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751261AbVJFXxX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751272AbVJFXyj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751261AbVJFXxX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 19:53:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751264AbVJFXxX
+	id S1751272AbVJFXyj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 19:54:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbVJFXyj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 19:53:23 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:8347 "EHLO e36.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751261AbVJFXxW (ORCPT
+	Thu, 6 Oct 2005 19:54:39 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:7862 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751266AbVJFXyi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 19:53:22 -0400
-Date: Thu, 6 Oct 2005 18:53:18 -0500
+	Thu, 6 Oct 2005 19:54:38 -0400
+Date: Thu, 6 Oct 2005 18:54:36 -0500
 To: paulus@samba.org
 Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
        linux-pci@atrey.karlin.mff.cuni.cz
-Subject: [PATCH 16/22] PCI Address cache lookup code
-Message-ID: <20051006235318.GQ29826@austin.ibm.com>
+Subject: [PATCH 17/22] ppc64: New Partition Endpoin support
+Message-ID: <20051006235436.GR29826@austin.ibm.com>
 References: <20051006232032.GA29826@austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -26,691 +26,91 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-16-pci-address-cache.patch
+17-eeh-partition-endpoint.patch
 
-Architecture-independent PCI address caching code. 
-Performs caching and lookup of pci devices based on the
-I/O addresses that they use. That is, given an I/O address,
-this can be used to find the pci device that uses that address.
-Although it currently lives in teh ppc64 directory, it 
-could potentially be common code.
-
-This code used to live in the overly large EEH file.
-This patch splits it out to its own file.
+New versions of firmware introduce a new method by which the 
+"partition endpoint" (the point at which the pci bus is cut). 
+This code adds the support for this (mandatory) new feature.
 
 Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
 
-Index: linux-2.6.14-rc2-git6/arch/ppc64/kernel/Makefile
-===================================================================
---- linux-2.6.14-rc2-git6.orig/arch/ppc64/kernel/Makefile	2005-10-06 17:54:14.496454897 -0500
-+++ linux-2.6.14-rc2-git6/arch/ppc64/kernel/Makefile	2005-10-06 17:56:42.934627625 -0500
-@@ -37,7 +37,7 @@
- 			 bpa_iic.o spider-pic.o
- 
- obj-$(CONFIG_KEXEC)		+= machine_kexec.o
--obj-$(CONFIG_EEH)		+= eeh.o eeh_driver.o eeh_event.o pci_dlpar.o
-+obj-$(CONFIG_EEH)		+= eeh.o eeh_cache.o eeh_driver.o eeh_event.o pci_dlpar.o
- obj-$(CONFIG_PROC_FS)		+= proc_ppc64.o
- obj-$(CONFIG_RTAS_FLASH)	+= rtas_flash.o
- obj-$(CONFIG_SMP)		+= smp.o
+
 Index: linux-2.6.14-rc2-git6/arch/ppc64/kernel/eeh.c
 ===================================================================
---- linux-2.6.14-rc2-git6.orig/arch/ppc64/kernel/eeh.c	2005-10-06 17:54:14.494455177 -0500
-+++ linux-2.6.14-rc2-git6/arch/ppc64/kernel/eeh.c	2005-10-06 17:56:42.936627345 -0500
-@@ -78,9 +78,6 @@
-  */
- #define EEH_MAX_FAILS	100000
+--- linux-2.6.14-rc2-git6.orig/arch/ppc64/kernel/eeh.c	2005-10-06 17:56:42.936627345 -0500
++++ linux-2.6.14-rc2-git6/arch/ppc64/kernel/eeh.c	2005-10-06 17:56:46.221166493 -0500
+@@ -84,6 +84,7 @@
+ static int ibm_read_slot_reset_state;
+ static int ibm_read_slot_reset_state2;
+ static int ibm_slot_error_detail;
++static int ibm_get_config_addr_info;
  
--/* Misc forward declaraions */
--static void eeh_save_bars(struct pci_dev * pdev, struct pci_dn *pdn);
--
- /* RTAS tokens */
- static int ibm_set_eeh_option;
- static int ibm_set_slot_reset;
-@@ -108,296 +105,8 @@
- static DEFINE_PER_CPU(unsigned long, ignored_failures);
- static DEFINE_PER_CPU(unsigned long, slot_resets);
+ static int eeh_subsystem_enabled;
  
--/**
-- * The pci address cache subsystem.  This subsystem places
-- * PCI device address resources into a red-black tree, sorted
-- * according to the address range, so that given only an i/o
-- * address, the corresponding PCI device can be **quickly**
-- * found. It is safe to perform an address lookup in an interrupt
-- * context; this ability is an important feature.
-- *
-- * Currently, the only customer of this code is the EEH subsystem;
-- * thus, this code has been somewhat tailored to suit EEH better.
-- * In particular, the cache does *not* hold the addresses of devices
-- * for which EEH is not enabled.
-- *
-- * (Implementation Note: The RB tree seems to be better/faster
-- * than any hash algo I could think of for this problem, even
-- * with the penalty of slow pointer chases for d-cache misses).
-- */
--struct pci_io_addr_range
--{
--	struct rb_node rb_node;
--	unsigned long addr_lo;
--	unsigned long addr_hi;
--	struct pci_dev *pcidev;
--	unsigned int flags;
--};
--
--static struct pci_io_addr_cache
--{
--	struct rb_root rb_root;
--	spinlock_t piar_lock;
--} pci_io_addr_cache_root;
--
--static inline struct pci_dev *__pci_get_device_by_addr(unsigned long addr)
--{
--	struct rb_node *n = pci_io_addr_cache_root.rb_root.rb_node;
--
--	while (n) {
--		struct pci_io_addr_range *piar;
--		piar = rb_entry(n, struct pci_io_addr_range, rb_node);
--
--		if (addr < piar->addr_lo) {
--			n = n->rb_left;
--		} else {
--			if (addr > piar->addr_hi) {
--				n = n->rb_right;
--			} else {
--				pci_dev_get(piar->pcidev);
--				return piar->pcidev;
--			}
--		}
--	}
--
--	return NULL;
--}
--
--/**
-- * pci_get_device_by_addr - Get device, given only address
-- * @addr: mmio (PIO) phys address or i/o port number
-- *
-- * Given an mmio phys address, or a port number, find a pci device
-- * that implements this address.  Be sure to pci_dev_put the device
-- * when finished.  I/O port numbers are assumed to be offset
-- * from zero (that is, they do *not* have pci_io_addr added in).
-- * It is safe to call this function within an interrupt.
-- */
--static struct pci_dev *pci_get_device_by_addr(unsigned long addr)
--{
--	struct pci_dev *dev;
--	unsigned long flags;
--
--	spin_lock_irqsave(&pci_io_addr_cache_root.piar_lock, flags);
--	dev = __pci_get_device_by_addr(addr);
--	spin_unlock_irqrestore(&pci_io_addr_cache_root.piar_lock, flags);
--	return dev;
--}
--
--#ifdef DEBUG
--/*
-- * Handy-dandy debug print routine, does nothing more
-- * than print out the contents of our addr cache.
-- */
--static void pci_addr_cache_print(struct pci_io_addr_cache *cache)
--{
--	struct rb_node *n;
--	int cnt = 0;
--
--	n = rb_first(&cache->rb_root);
--	while (n) {
--		struct pci_io_addr_range *piar;
--		piar = rb_entry(n, struct pci_io_addr_range, rb_node);
--		printk(KERN_DEBUG "PCI: %s addr range %d [%lx-%lx]: %s\n",
--		       (piar->flags & IORESOURCE_IO) ? "i/o" : "mem", cnt,
--		       piar->addr_lo, piar->addr_hi, pci_name(piar->pcidev));
--		cnt++;
--		n = rb_next(n);
--	}
--}
--#endif
--
--/* Insert address range into the rb tree. */
--static struct pci_io_addr_range *
--pci_addr_cache_insert(struct pci_dev *dev, unsigned long alo,
--		      unsigned long ahi, unsigned int flags)
--{
--	struct rb_node **p = &pci_io_addr_cache_root.rb_root.rb_node;
--	struct rb_node *parent = NULL;
--	struct pci_io_addr_range *piar;
--
--	/* Walk tree, find a place to insert into tree */
--	while (*p) {
--		parent = *p;
--		piar = rb_entry(parent, struct pci_io_addr_range, rb_node);
--		if (ahi < piar->addr_lo) {
--			p = &parent->rb_left;
--		} else if (alo > piar->addr_hi) {
--			p = &parent->rb_right;
--		} else {
--			if (dev != piar->pcidev ||
--			    alo != piar->addr_lo || ahi != piar->addr_hi) {
--				printk(KERN_WARNING "PIAR: overlapping address range\n");
--			}
--			return piar;
--		}
--	}
--	piar = (struct pci_io_addr_range *)kmalloc(sizeof(struct pci_io_addr_range), GFP_ATOMIC);
--	if (!piar)
--		return NULL;
--
--	piar->addr_lo = alo;
--	piar->addr_hi = ahi;
--	piar->pcidev = dev;
--	piar->flags = flags;
--
--#ifdef DEBUG
--	printk(KERN_DEBUG "PIAR: insert range=[%lx:%lx] dev=%s\n",
--	                  alo, ahi, pci_name (dev));
--#endif
--
--	rb_link_node(&piar->rb_node, parent, p);
--	rb_insert_color(&piar->rb_node, &pci_io_addr_cache_root.rb_root);
--
--	return piar;
--}
--
--static void __pci_addr_cache_insert_device(struct pci_dev *dev)
--{
--	struct device_node *dn;
--	struct pci_dn *pdn;
--	int i;
--	int inserted = 0;
--
--	dn = pci_device_to_OF_node(dev);
--	if (!dn) {
--		printk(KERN_WARNING "PCI: no pci dn found for dev=%s\n", pci_name(dev));
--		return;
--	}
--
--	/* Skip any devices for which EEH is not enabled. */
--	pdn = PCI_DN(dn);
--	if (!(pdn->eeh_mode & EEH_MODE_SUPPORTED) ||
--	    pdn->eeh_mode & EEH_MODE_NOCHECK) {
--#ifdef DEBUG
--		printk(KERN_INFO "PCI: skip building address cache for=%s - %s\n",
--		       pci_name(dev), pdn->node->full_name);
--#endif
--		return;
--	}
--
--	/* The cache holds a reference to the device... */
--	pci_dev_get(dev);
--
--	/* Walk resources on this device, poke them into the tree */
--	for (i = 0; i < DEVICE_COUNT_RESOURCE; i++) {
--		unsigned long start = pci_resource_start(dev,i);
--		unsigned long end = pci_resource_end(dev,i);
--		unsigned int flags = pci_resource_flags(dev,i);
--
--		/* We are interested only bus addresses, not dma or other stuff */
--		if (0 == (flags & (IORESOURCE_IO | IORESOURCE_MEM)))
--			continue;
--		if (start == 0 || ~start == 0 || end == 0 || ~end == 0)
--			 continue;
--		pci_addr_cache_insert(dev, start, end, flags);
--		inserted = 1;
--	}
--
--	/* If there was nothing to add, the cache has no reference... */
--	if (!inserted)
--		pci_dev_put(dev);
--}
--
--/**
-- * pci_addr_cache_insert_device - Add a device to the address cache
-- * @dev: PCI device whose I/O addresses we are interested in.
-- *
-- * In order to support the fast lookup of devices based on addresses,
-- * we maintain a cache of devices that can be quickly searched.
-- * This routine adds a device to that cache.
-- */
--static void pci_addr_cache_insert_device(struct pci_dev *dev)
--{
--	unsigned long flags;
--
--	spin_lock_irqsave(&pci_io_addr_cache_root.piar_lock, flags);
--	__pci_addr_cache_insert_device(dev);
--	spin_unlock_irqrestore(&pci_io_addr_cache_root.piar_lock, flags);
--}
--
--static inline void __pci_addr_cache_remove_device(struct pci_dev *dev)
--{
--	struct rb_node *n;
--	int removed = 0;
--
--restart:
--	n = rb_first(&pci_io_addr_cache_root.rb_root);
--	while (n) {
--		struct pci_io_addr_range *piar;
--		piar = rb_entry(n, struct pci_io_addr_range, rb_node);
--
--		if (piar->pcidev == dev) {
--			rb_erase(n, &pci_io_addr_cache_root.rb_root);
--			removed = 1;
--			kfree(piar);
--			goto restart;
--		}
--		n = rb_next(n);
--	}
--
--	/* The cache no longer holds its reference to this device... */
--	if (removed)
--		pci_dev_put(dev);
--}
--
--/**
-- * pci_addr_cache_remove_device - remove pci device from addr cache
-- * @dev: device to remove
-- *
-- * Remove a device from the addr-cache tree.
-- * This is potentially expensive, since it will walk
-- * the tree multiple times (once per resource).
-- * But so what; device removal doesn't need to be that fast.
-- */
--static void pci_addr_cache_remove_device(struct pci_dev *dev)
--{
--	unsigned long flags;
--
--	spin_lock_irqsave(&pci_io_addr_cache_root.piar_lock, flags);
--	__pci_addr_cache_remove_device(dev);
--	spin_unlock_irqrestore(&pci_io_addr_cache_root.piar_lock, flags);
--}
--
--/**
-- * pci_addr_cache_build - Build a cache of I/O addresses
-- *
-- * Build a cache of pci i/o addresses.  This cache will be used to
-- * find the pci device that corresponds to a given address.
-- * This routine scans all pci busses to build the cache.
-- * Must be run late in boot process, after the pci controllers
-- * have been scaned for devices (after all device resources are known).
-- */
--void __init pci_addr_cache_build(void)
--{
--	struct device_node *dn;
--	struct pci_dev *dev = NULL;
--
--	if (!eeh_subsystem_enabled)
--		return;
--
--	spin_lock_init(&pci_io_addr_cache_root.piar_lock);
--
--	while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
--		/* Ignore PCI bridges ( XXX why ??) */
--		if ((dev->class >> 16) == PCI_BASE_CLASS_BRIDGE) {
--			continue;
--		}
--		pci_addr_cache_insert_device(dev);
--
--		/* Save the BAR's; firmware doesn't restore these after EEH reset */
--		dn = pci_device_to_OF_node(dev);
--		eeh_save_bars(dev, PCI_DN(dn));
--	}
--
--#ifdef DEBUG
--	/* Verify tree built up above, echo back the list of addrs. */
--	pci_addr_cache_print(&pci_io_addr_cache_root);
--#endif
--}
--
- /* --------------------------------------------------------------- */
--/* Above lies the PCI Address Cache. Below lies the EEH event infrastructure */
-+/* Below lies the EEH event infrastructure */
- 
- void eeh_slot_error_detail (struct pci_dn *pdn, int severity)
+@@ -458,6 +459,7 @@
+ static void
+ rtas_pci_slot_reset(struct pci_dn *pdn, int state)
  {
-@@ -881,7 +590,7 @@
-  * PCI devices are added individuallly; but, for the restore,
-  * an entire slot is reset at a time.
-  */
--static void eeh_save_bars(struct pci_dev * pdev, struct pci_dn *pdn)
-+void eeh_save_bars(struct pci_dev * pdev, struct pci_dn *pdn)
- {
- 	int i;
++	int config_addr;
+ 	int rc;
  
-Index: linux-2.6.14-rc2-git6/arch/ppc64/kernel/eeh_cache.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.14-rc2-git6/arch/ppc64/kernel/eeh_cache.c	2005-10-06 17:56:42.937627204 -0500
-@@ -0,0 +1,316 @@
-+/*
-+ * eeh_cache.c
-+ * PCI address cache; allows the lookup of PCI devices based on I/O address
-+ *
-+ * Copyright (C) 2004 Linas Vepstas <linas@austin.ibm.com> IBM Corporation
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-+ */
-+
-+#include <linux/list.h>
-+#include <linux/pci.h>
-+#include <linux/rbtree.h>
-+#include <linux/spinlock.h>
-+#include <asm/atomic.h>
-+#include <asm/systemcfg.h>
-+#include "pci.h"
-+
-+#undef DEBUG
-+
-+/**
-+ * The pci address cache subsystem.  This subsystem places
-+ * PCI device address resources into a red-black tree, sorted
-+ * according to the address range, so that given only an i/o
-+ * address, the corresponding PCI device can be **quickly**
-+ * found. It is safe to perform an address lookup in an interrupt
-+ * context; this ability is an important feature.
-+ *
-+ * Currently, the only customer of this code is the EEH subsystem;
-+ * thus, this code has been somewhat tailored to suit EEH better.
-+ * In particular, the cache does *not* hold the addresses of devices
-+ * for which EEH is not enabled.
-+ *
-+ * (Implementation Note: The RB tree seems to be better/faster
-+ * than any hash algo I could think of for this problem, even
-+ * with the penalty of slow pointer chases for d-cache misses).
-+ */
-+struct pci_io_addr_range
-+{
-+	struct rb_node rb_node;
-+	unsigned long addr_lo;
-+	unsigned long addr_hi;
-+	struct pci_dev *pcidev;
-+	unsigned int flags;
-+};
-+
-+static struct pci_io_addr_cache
-+{
-+	struct rb_root rb_root;
-+	spinlock_t piar_lock;
-+} pci_io_addr_cache_root;
-+
-+static inline struct pci_dev *__pci_get_device_by_addr(unsigned long addr)
-+{
-+	struct rb_node *n = pci_io_addr_cache_root.rb_root.rb_node;
-+
-+	while (n) {
-+		struct pci_io_addr_range *piar;
-+		piar = rb_entry(n, struct pci_io_addr_range, rb_node);
-+
-+		if (addr < piar->addr_lo) {
-+			n = n->rb_left;
-+		} else {
-+			if (addr > piar->addr_hi) {
-+				n = n->rb_right;
-+			} else {
-+				pci_dev_get(piar->pcidev);
-+				return piar->pcidev;
-+			}
-+		}
-+	}
-+
-+	return NULL;
-+}
-+
-+/**
-+ * pci_get_device_by_addr - Get device, given only address
-+ * @addr: mmio (PIO) phys address or i/o port number
-+ *
-+ * Given an mmio phys address, or a port number, find a pci device
-+ * that implements this address.  Be sure to pci_dev_put the device
-+ * when finished.  I/O port numbers are assumed to be offset
-+ * from zero (that is, they do *not* have pci_io_addr added in).
-+ * It is safe to call this function within an interrupt.
-+ */
-+struct pci_dev *pci_get_device_by_addr(unsigned long addr)
-+{
-+	struct pci_dev *dev;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&pci_io_addr_cache_root.piar_lock, flags);
-+	dev = __pci_get_device_by_addr(addr);
-+	spin_unlock_irqrestore(&pci_io_addr_cache_root.piar_lock, flags);
-+	return dev;
-+}
-+
-+#ifdef DEBUG
-+/*
-+ * Handy-dandy debug print routine, does nothing more
-+ * than print out the contents of our addr cache.
-+ */
-+static void pci_addr_cache_print(struct pci_io_addr_cache *cache)
-+{
-+	struct rb_node *n;
-+	int cnt = 0;
-+
-+	n = rb_first(&cache->rb_root);
-+	while (n) {
-+		struct pci_io_addr_range *piar;
-+		piar = rb_entry(n, struct pci_io_addr_range, rb_node);
-+		printk(KERN_DEBUG "PCI: %s addr range %d [%lx-%lx]: %s\n",
-+		       (piar->flags & IORESOURCE_IO) ? "i/o" : "mem", cnt,
-+		       piar->addr_lo, piar->addr_hi, pci_name(piar->pcidev));
-+		cnt++;
-+		n = rb_next(n);
-+	}
-+}
-+#endif
-+
-+/* Insert address range into the rb tree. */
-+static struct pci_io_addr_range *
-+pci_addr_cache_insert(struct pci_dev *dev, unsigned long alo,
-+		      unsigned long ahi, unsigned int flags)
-+{
-+	struct rb_node **p = &pci_io_addr_cache_root.rb_root.rb_node;
-+	struct rb_node *parent = NULL;
-+	struct pci_io_addr_range *piar;
-+
-+	/* Walk tree, find a place to insert into tree */
-+	while (*p) {
-+		parent = *p;
-+		piar = rb_entry(parent, struct pci_io_addr_range, rb_node);
-+		if (ahi < piar->addr_lo) {
-+			p = &parent->rb_left;
-+		} else if (alo > piar->addr_hi) {
-+			p = &parent->rb_right;
-+		} else {
-+			if (dev != piar->pcidev ||
-+			    alo != piar->addr_lo || ahi != piar->addr_hi) {
-+				printk(KERN_WARNING "PIAR: overlapping address range\n");
-+			}
-+			return piar;
-+		}
-+	}
-+	piar = (struct pci_io_addr_range *)kmalloc(sizeof(struct pci_io_addr_range), GFP_ATOMIC);
-+	if (!piar)
-+		return NULL;
-+
-+	piar->addr_lo = alo;
-+	piar->addr_hi = ahi;
-+	piar->pcidev = dev;
-+	piar->flags = flags;
-+
-+#ifdef DEBUG
-+	printk(KERN_DEBUG "PIAR: insert range=[%lx:%lx] dev=%s\n",
-+	                  alo, ahi, pci_name (dev));
-+#endif
-+
-+	rb_link_node(&piar->rb_node, parent, p);
-+	rb_insert_color(&piar->rb_node, &pci_io_addr_cache_root.rb_root);
-+
-+	return piar;
-+}
-+
-+static void __pci_addr_cache_insert_device(struct pci_dev *dev)
-+{
-+	struct device_node *dn;
-+	struct pci_dn *pdn;
-+	int i;
-+	int inserted = 0;
-+
-+	dn = pci_device_to_OF_node(dev);
-+	if (!dn) {
-+		printk(KERN_WARNING "PCI: no pci dn found for dev=%s\n", pci_name(dev));
-+		return;
-+	}
-+
-+	/* Skip any devices for which EEH is not enabled. */
-+	pdn = PCI_DN(dn);
-+	if (!(pdn->eeh_mode & EEH_MODE_SUPPORTED) ||
-+	    pdn->eeh_mode & EEH_MODE_NOCHECK) {
-+#ifdef DEBUG
-+		printk(KERN_INFO "PCI: skip building address cache for=%s - %s\n",
-+		       pci_name(dev), pdn->node->full_name);
-+#endif
-+		return;
-+	}
-+
-+	/* The cache holds a reference to the device... */
-+	pci_dev_get(dev);
-+
-+	/* Walk resources on this device, poke them into the tree */
-+	for (i = 0; i < DEVICE_COUNT_RESOURCE; i++) {
-+		unsigned long start = pci_resource_start(dev,i);
-+		unsigned long end = pci_resource_end(dev,i);
-+		unsigned int flags = pci_resource_flags(dev,i);
-+
-+		/* We are interested only bus addresses, not dma or other stuff */
-+		if (0 == (flags & (IORESOURCE_IO | IORESOURCE_MEM)))
-+			continue;
-+		if (start == 0 || ~start == 0 || end == 0 || ~end == 0)
-+			 continue;
-+		pci_addr_cache_insert(dev, start, end, flags);
-+		inserted = 1;
-+	}
-+
-+	/* If there was nothing to add, the cache has no reference... */
-+	if (!inserted)
-+		pci_dev_put(dev);
-+}
-+
-+/**
-+ * pci_addr_cache_insert_device - Add a device to the address cache
-+ * @dev: PCI device whose I/O addresses we are interested in.
-+ *
-+ * In order to support the fast lookup of devices based on addresses,
-+ * we maintain a cache of devices that can be quickly searched.
-+ * This routine adds a device to that cache.
-+ */
-+void pci_addr_cache_insert_device(struct pci_dev *dev)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&pci_io_addr_cache_root.piar_lock, flags);
-+	__pci_addr_cache_insert_device(dev);
-+	spin_unlock_irqrestore(&pci_io_addr_cache_root.piar_lock, flags);
-+}
-+
-+static inline void __pci_addr_cache_remove_device(struct pci_dev *dev)
-+{
-+	struct rb_node *n;
-+	int removed = 0;
-+
-+restart:
-+	n = rb_first(&pci_io_addr_cache_root.rb_root);
-+	while (n) {
-+		struct pci_io_addr_range *piar;
-+		piar = rb_entry(n, struct pci_io_addr_range, rb_node);
-+
-+		if (piar->pcidev == dev) {
-+			rb_erase(n, &pci_io_addr_cache_root.rb_root);
-+			removed = 1;
-+			kfree(piar);
-+			goto restart;
-+		}
-+		n = rb_next(n);
-+	}
-+
-+	/* The cache no longer holds its reference to this device... */
-+	if (removed)
-+		pci_dev_put(dev);
-+}
-+
-+/**
-+ * pci_addr_cache_remove_device - remove pci device from addr cache
-+ * @dev: device to remove
-+ *
-+ * Remove a device from the addr-cache tree.
-+ * This is potentially expensive, since it will walk
-+ * the tree multiple times (once per resource).
-+ * But so what; device removal doesn't need to be that fast.
-+ */
-+void pci_addr_cache_remove_device(struct pci_dev *dev)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&pci_io_addr_cache_root.piar_lock, flags);
-+	__pci_addr_cache_remove_device(dev);
-+	spin_unlock_irqrestore(&pci_io_addr_cache_root.piar_lock, flags);
-+}
-+
-+/**
-+ * pci_addr_cache_build - Build a cache of I/O addresses
-+ *
-+ * Build a cache of pci i/o addresses.  This cache will be used to
-+ * find the pci device that corresponds to a given address.
-+ * This routine scans all pci busses to build the cache.
-+ * Must be run late in boot process, after the pci controllers
-+ * have been scaned for devices (after all device resources are known).
-+ */
-+void __init pci_addr_cache_build(void)
-+{
-+	struct device_node *dn;
-+	struct pci_dev *dev = NULL;
-+
-+	spin_lock_init(&pci_io_addr_cache_root.piar_lock);
-+
-+	while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
-+		/* Ignore PCI bridges */
-+		if ((dev->class >> 16) == PCI_BASE_CLASS_BRIDGE)
-+			continue;
-+
-+		pci_addr_cache_insert_device(dev);
-+
-+		/* Save the BAR's; firmware doesn't restore these after EEH reset */
-+		dn = pci_device_to_OF_node(dev);
-+		eeh_save_bars(dev, PCI_DN(dn));
-+	}
-+
-+#ifdef DEBUG
-+	/* Verify tree built up above, echo back the list of addrs. */
-+	pci_addr_cache_print(&pci_io_addr_cache_root);
-+#endif
-+}
-+
-Index: linux-2.6.14-rc2-git6/arch/ppc64/kernel/pci.h
-===================================================================
---- linux-2.6.14-rc2-git6.orig/arch/ppc64/kernel/pci.h	2005-10-06 17:54:14.497454757 -0500
-+++ linux-2.6.14-rc2-git6/arch/ppc64/kernel/pci.h	2005-10-06 17:56:42.938627064 -0500
-@@ -53,6 +53,14 @@
+ 	BUG_ON (pdn==NULL); 
+@@ -468,8 +470,13 @@
+ 		return;
+ 	}
  
- /* ---- EEH internal-use-only related routines ---- */
- #ifdef CONFIG_EEH
++	/* Use PE configuration address, if present */
++	config_addr = pdn->eeh_config_addr;
++	if (pdn->eeh_pe_config_addr)
++		config_addr = pdn->eeh_pe_config_addr;
 +
-+void pci_addr_cache_insert_device(struct pci_dev *dev);
-+void pci_addr_cache_remove_device(struct pci_dev *dev);
-+void pci_addr_cache_build(void);
-+struct pci_dev *pci_get_device_by_addr(unsigned long addr);
+ 	rc = rtas_call(ibm_set_slot_reset,4,1, NULL,
+-	               pdn->eeh_config_addr,
++	               config_addr,
+ 	               BUID_HI(pdn->phb->buid),
+ 	               BUID_LO(pdn->phb->buid),
+ 	               state);
+@@ -696,8 +703,22 @@
+ 			eeh_subsystem_enabled = 1;
+ 			pdn->eeh_mode |= EEH_MODE_SUPPORTED;
+ 			pdn->eeh_config_addr = regs[0];
 +
-+void eeh_save_bars(struct pci_dev * pdev, struct pci_dn *pdn);
-+
- /**
-  * eeh_slot_error_detail -- record and EEH error condition to the log
-  * @severity: 1 if temporary, 2 if permanent failure.
++			/* If the newer, better, ibm,get-config-addr-info is supported, 
++			 * then use that instead. */
++			pdn->eeh_pe_config_addr = 0;
++			if (ibm_get_config_addr_info != RTAS_UNKNOWN_SERVICE) {
++				unsigned int rets[2];
++				ret = rtas_call (ibm_get_config_addr_info, 4, 2, rets, 
++					pdn->eeh_config_addr, 
++					info->buid_hi, info->buid_lo,
++					0);
++				if (ret == 0)
++					pdn->eeh_pe_config_addr = rets[0];
++			}
+ #ifdef DEBUG
+-			printk(KERN_DEBUG "EEH: %s: eeh enabled\n", dn->full_name);
++			printk(KERN_DEBUG "EEH: %s: eeh enabled, config=%x pe_config=%x\n",
++			       dn->full_name, pdn->eeh_config_addr, pdn->eeh_pe_config_addr);
+ #endif
+ 		} else {
+ 
+@@ -749,6 +770,7 @@
+ 	ibm_read_slot_reset_state2 = rtas_token("ibm,read-slot-reset-state2");
+ 	ibm_read_slot_reset_state = rtas_token("ibm,read-slot-reset-state");
+ 	ibm_slot_error_detail = rtas_token("ibm,slot-error-detail");
++	ibm_get_config_addr_info = rtas_token("ibm,get-config-addr-info");
+ 
+ 	if (ibm_set_eeh_option == RTAS_UNKNOWN_SERVICE)
+ 		return;
+Index: linux-2.6.14-rc2-git6/include/asm-ppc64/pci-bridge.h
+===================================================================
+--- linux-2.6.14-rc2-git6.orig/include/asm-ppc64/pci-bridge.h	2005-10-06 17:54:00.310445328 -0500
++++ linux-2.6.14-rc2-git6/include/asm-ppc64/pci-bridge.h	2005-10-06 17:56:46.222166353 -0500
+@@ -61,6 +61,7 @@
+ 	int	devfn;			/* for pci devices */
+ 	int	eeh_mode;		/* See eeh.h for possible EEH_MODEs */
+ 	int	eeh_config_addr;
++	int	eeh_pe_config_addr; /* new-style partition endpoint address */
+ 	int 	eeh_check_count;	/* # times driver ignored error */
+ 	int 	eeh_freeze_count;	/* # times this device froze up. */
+ 	int	eeh_is_bridge;		/* device is pci-to-pci bridge */

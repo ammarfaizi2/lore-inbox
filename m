@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbVJFRXi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbVJFRZx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751161AbVJFRXi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 13:23:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbVJFRXh
+	id S1751250AbVJFRZx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 13:25:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751247AbVJFRZx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 13:23:37 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:13248 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751161AbVJFRXh (ORCPT
+	Thu, 6 Oct 2005 13:25:53 -0400
+Received: from pat.uio.no ([129.240.130.16]:43909 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1751246AbVJFRZw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 13:23:37 -0400
-Date: Thu, 6 Oct 2005 13:23:18 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@cuia.boston.redhat.com
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-In-Reply-To: <20051006000744.GD10538@lkcl.net>
-Message-ID: <Pine.LNX.4.63.0510061322050.4686@cuia.boston.redhat.com>
-References: <20051002204703.GG6290@lkcl.net> <54300000.1128297891@[10.10.2.4]>
- <20051003011041.GN6290@lkcl.net> <200510022028.07930.chase.venters@clientec.com>
- <20051004125955.GQ10538@lkcl.net> <17218.39427.421249.448094@gargle.gargle.HOWL>
- <20051004161702.GU10538@lkcl.net> <Pine.LNX.4.63.0510041329140.23708@cuia.boston.redhat.com>
- <20051006000744.GD10538@lkcl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 6 Oct 2005 13:25:52 -0400
+Subject: Re: [RFC] atomic create+open
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <E1ENZCQ-0003K3-00@dorka.pomaz.szeredi.hu>
+References: <E1ENWt1-000363-00@dorka.pomaz.szeredi.hu>
+	 <1128616864.8396.32.camel@lade.trondhjem.org>
+	 <E1ENZ8u-0003JS-00@dorka.pomaz.szeredi.hu>
+	 <E1ENZCQ-0003K3-00@dorka.pomaz.szeredi.hu>
+Content-Type: text/plain
+Date: Thu, 06 Oct 2005 13:25:26 -0400
+Message-Id: <1128619526.16534.8.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.929, required 12,
+	autolearn=disabled, AWL 1.07, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Oct 2005, Luke Kenneth Casson Leighton wrote:
+to den 06.10.2005 Klokka 19:06 (+0200) skreiv Miklos Szeredi:
+> > The reason why we do it as a lookup intent is because this has to be
+> > atomic lookup+create+open in order to be at all useful to NFS.
+> 
+> Oh, and btw there's a problem with atomic lookup+create+open: mounts.
+> Do you want to follow mounts inside ->lookup().  Ugly.
 
-> rik, alan, i replied privately seeking your input on a post i was
-> developing in reply to your earlier comments 
+No. Why do you think you would need to? The VFS is supposed to protect
+you against races with mount and other local objects (dcache races,
+inode races,...). The problem is remote objects.
 
-> "PLEASE REVIEW" as part of the subject.
+Cheers,
+  Trond
 
-I've got better things to do than saving you from yourself.
 
-I replied to your original email in an attempt to educate
-some of the other readers on the linux-kernel mailing list.
-Private email does not have this same benefit, so there
-was no reason for me to reply.
-
--- 
-All Rights Reversed

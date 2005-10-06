@@ -1,75 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751134AbVJFQlh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751142AbVJFQrN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751134AbVJFQlh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 12:41:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbVJFQlh
+	id S1751142AbVJFQrN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 12:47:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751145AbVJFQrN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 12:41:37 -0400
-Received: from pat.uio.no ([129.240.130.16]:26568 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1750951AbVJFQlg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 12:41:36 -0400
-Subject: Re: [RFC] atomic create+open
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <E1ENWt1-000363-00@dorka.pomaz.szeredi.hu>
-References: <E1ENWt1-000363-00@dorka.pomaz.szeredi.hu>
-Content-Type: text/plain
-Date: Thu, 06 Oct 2005 12:41:04 -0400
-Message-Id: <1128616864.8396.32.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-4.1, required 12,
-	autolearn=disabled, AWL 0.90, UIO_MAIL_IS_INTERNAL -5.00)
+	Thu, 6 Oct 2005 12:47:13 -0400
+Received: from xproxy.gmail.com ([66.249.82.193]:31201 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751142AbVJFQrL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 12:47:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=AQie2BUiWDTSvnhpmTHETY5s36SgJhMJ2v0oOXARmqsTH0hPdhzzytor30FwxQIFtnMnSJ6L+6XDX4a9geNnulYSS1aNGqmU01ZINQDm0elX7emapMxr24NWgtsz1XlHSvRgYoA5KJtLXwszp5iMl0nZ8qMTBAm17D4v+NOKlLg=
+Message-ID: <1c190f10510060947s5e6099d4pe9bed56e360551f4@mail.gmail.com>
+Date: Thu, 6 Oct 2005 09:47:11 -0700
+From: Todd Kneisel <todd.kneisel@gmail.com>
+Reply-To: Todd Kneisel <todd.kneisel@gmail.com>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.14-rc3-rt2
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       david singleton <dsingleton@mvista.com>, Todd.Kneisel@bull.com,
+       Felix Oxley <lkml@oxley.org>
+In-Reply-To: <20051004084405.GA24296@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051004084405.GA24296@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-to den 06.10.2005 Klokka 16:38 (+0200) skreiv Miklos Szeredi:
-> Currently it's impossible to implement a network filesystem that is
-> 
->   a) served by an unprivileged userspace process
-> 
->   b) supports "strange" open semantics, e.g.:
-> 
->        open("foo", O_WRONLY | O_CREAT, 0400);
-> 
->   c) not overly "hacky"
-> 
-> The basic problem is that because of a) permission checking cannot be
-> separated from the actual operations.
-> 
-> By the time the ->open method is called, the file has been created
-> with a read-only mode, and the server won't be able to open it in
-> write mode.
-> 
-> Several hacks come to mind for solving this, but these have severe
-> problems and are excluded.
-> 
-> One approach for solving this properly is to add a new atomic
-> create+open method to inode operations.  The prototype would be a
-> merger of ->create() and ->open, like this:
-> 
->   int (*create_open) (struct inode *dir, struct dentry *dentry, int mode,
->                       struct file *filp);
+On 10/4/05, Ingo Molnar <mingo@elte.hu> wrote:
+>
+> i have released the 2.6.14-rc3-rt2 tree, which can be downloaded from
+> the usual place:
+>
+>   http://redhat.com/~mingo/realtime-preempt/
+>
+> the biggest change in this release is the long-anticipated merge of a
+> streamlined version of the "robust futexes/mutexes with priority
+> queueing and priority inheritance" code into the -rt tree. The original
+> upstream patch is from Todd Kneisel, with further improvements, cleanups
+> and -RT integration done by David Singleton.
+>
 
-The reason why we do it as a lookup intent is because this has to be
-atomic lookup+create+open in order to be at all useful to NFS.
+My original patch implemented robust futexes using the existing futex
+wait queue mechanisms, because the project I'm working on does not
+need priority inheritance or other realtime features. David's changes
+replaced the wait queue mechanisms with rt_mutexes. I'm working on
+a patch to add my implementation back in, so the kernel will support
+both robust wait-queue futexes and robust rt_mutex futexes. Does
+anyone else see the need for this?
 
-Just doing create+open atomically is worthless since it leaves you with
-a bunch of races where someone on the server can create, say, a symlink
-between the RPC call to lookup and the RPC call that creates the file.
+Also, my patch implemented only shared robust futexes. David's work
+was based on mine, so the current code only supports shared robust
+futexes that may or may not be priority inheritance. It doesn't support
+priority inheritance mutexes that are not robust, or that are not shared.
 
-> A different approach is to extend the open_intents structure and allow
-> the filesystem to do the open from ->create(), but this is a much less
-> clean interface. Trond Myklebust has a patch that does this (no longer
-> applies):
-> 
->   http://client.linux-nfs.org/Linux-2.6.x/2.6.12/linux-2.6.12-63-open_file_intents.dif
-
-I'm going to fix this up.
-
-Cheers,
-  Trond
-
+Todd.

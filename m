@@ -1,72 +1,404 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751036AbVJFOg5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751040AbVJFOih@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751036AbVJFOg5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 10:36:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751039AbVJFOg5
+	id S1751040AbVJFOih (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 10:38:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751042AbVJFOig
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 10:36:57 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:33958 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751029AbVJFOg4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 10:36:56 -0400
-Subject: Re: 2.6.14-rc3-rt2
-From: Lee Revell <rlrevell@joe-job.com>
-To: tglx@linutronix.de
-Cc: Mark Knecht <markknecht@gmail.com>, Steven Rostedt <rostedt@kihontech.com>,
-       Ingo Molnar <mingo@elte.hu>, "K.R. Foley" <kr@cybsft.com>,
-       linux-kernel@vger.kernel.org, david singleton <dsingleton@mvista.com>,
-       Todd.Kneisel@bull.com, Felix Oxley <lkml@oxley.org>
-In-Reply-To: <1128450029.13057.60.camel@tglx.tec.linutronix.de>
-References: <20051004084405.GA24296@elte.hu> <43427AD9.9060104@cybsft.com>
-	 <20051004130009.GB31466@elte.hu>
-	 <5bdc1c8b0510040944q233f14e6g17d53963a4496c1f@mail.gmail.com>
-	 <5bdc1c8b0510041111n188b8e14lf5a1398406d30ec4@mail.gmail.com>
-	 <1128450029.13057.60.camel@tglx.tec.linutronix.de>
-Content-Type: text/plain
-Date: Thu, 06 Oct 2005 10:31:46 -0400
-Message-Id: <1128609107.14584.4.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+	Thu, 6 Oct 2005 10:38:36 -0400
+Received: from 223-177.adsl.pool.ew.hu ([193.226.223.177]:25350 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S1751039AbVJFOig (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 10:38:36 -0400
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+CC: trond.myklebust@fys.uio.no
+Subject: [RFC] atomic create+open
+Message-Id: <E1ENWt1-000363-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Thu, 06 Oct 2005 16:38:19 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-10-04 at 20:20 +0200, Thomas Gleixner wrote:
-> On Tue, 2005-10-04 at 11:11 -0700, Mark Knecht wrote:
-> 
-> > I have now had one burst of xruns. As best I can tell I was
-> > downloading some video files for mplayer to look at, or possibly
-> > running one of them. I see this in qjackctl:
-> > 
-> 
-> I guess its related to the priority leak I'm tracking down right now.
-> Can you please set following config options and check if you get a bug
-> similar to this ?
-> 
-> BUG: init/1: leaked RT prio 98 (116)?
+Currently it's impossible to implement a network filesystem that is
 
-Sorry if this is old news, but I am getting them with 2.6.13-rt12.
-Unlike previous occurrences, it appears that X does *not* end up
-SCHED_FIFO.
+  a) served by an unprivileged userspace process
 
-BUG: Xorg/4094: leaked RT prio 98 (116)?
- [<c0104919>] dump_stack+0x19/0x20 (20)
- [<c01397fe>] up_mutex+0xbe/0x110 (36)
- [<c02c2c29>] _spin_unlock_irqrestore+0x29/0x60 (12)
- [<c011ab24>] __wake_up+0x34/0x60 (44)
- [<c0130248>] __queue_work+0x48/0x60 (24)
- [<c013029f>] queue_work+0x3f/0x70 (24)
- [<c0130b64>] schedule_work+0x14/0x20 (8)
- [<c0225202>] schedule_console_callback+0x12/0x20 (8)
- [<c0225095>] kbd_event+0x45/0xe0 (16)
- [<c02527db>] input_event+0xdb/0x420 (36)
- [<c0223a6e>] kbd_rate+0x4e/0xb0 (40)
- [<c022020a>] vt_ioctl+0x64a/0x1820 (104)
- [<c021ae50>] tty_ioctl+0xc0/0x430 (40)
- [<c017aeab>] do_ioctl+0x6b/0x80 (36)
- [<c017b05f>] vfs_ioctl+0x5f/0x1f0 (40)
- [<c017b24f>] sys_ioctl+0x5f/0x90 (40)
- [<c01032d6>] syscall_call+0x7/0xb (-4020)
+  b) supports "strange" open semantics, e.g.:
 
-Lee
+       open("foo", O_WRONLY | O_CREAT, 0400);
 
+  c) not overly "hacky"
+
+The basic problem is that because of a) permission checking cannot be
+separated from the actual operations.
+
+By the time the ->open method is called, the file has been created
+with a read-only mode, and the server won't be able to open it in
+write mode.
+
+Several hacks come to mind for solving this, but these have severe
+problems and are excluded.
+
+One approach for solving this properly is to add a new atomic
+create+open method to inode operations.  The prototype would be a
+merger of ->create() and ->open, like this:
+
+  int (*create_open) (struct inode *dir, struct dentry *dentry, int mode,
+                      struct file *filp);
+
+The below patch (against -mm) is a first try at implementing the VFS
+part of this.  But at this stage I'm more interested in opinions about
+the interface, rather than about the implementation.
+
+A different approach is to extend the open_intents structure and allow
+the filesystem to do the open from ->create(), but this is a much less
+clean interface. Trond Myklebust has a patch that does this (no longer
+applies):
+
+  http://client.linux-nfs.org/Linux-2.6.x/2.6.12/linux-2.6.12-63-open_file_intents.dif
+
+Comments about either solution are appreciated.
+
+Thanks,
+Miklos
+
+Index: linux/fs/namei.c
+===================================================================
+--- linux.orig/fs/namei.c	2005-10-05 16:59:46.000000000 +0200
++++ linux/fs/namei.c	2005-10-06 15:18:18.000000000 +0200
+@@ -28,6 +28,7 @@
+ #include <linux/syscalls.h>
+ #include <linux/mount.h>
+ #include <linux/audit.h>
++#include <linux/file.h>
+ #include <asm/namei.h>
+ #include <asm/uaccess.h>
+ 
+@@ -1394,6 +1395,91 @@ int may_open(struct nameidata *nd, int a
+ 	return 0;
+ }
+ 
++static int vfs_create_open(struct inode *dir, struct dentry *dentry, int flag,
++			   int mode, struct nameidata *nd, struct file *f)
++{
++	struct inode *inode;
++	struct nameidata tmpnd;
++	int error = may_create(dir, dentry, nd);
++	if (error)
++		return error;
++
++	mode &= S_IALLUGO;
++	mode |= S_IFREG;
++	error = security_inode_create(dir, dentry, mode);
++	if (error)
++		return error;
++
++	f->f_mode = ((f->f_flags+1) & O_ACCMODE) | FMODE_LSEEK |
++				FMODE_PREAD | FMODE_PWRITE;
++
++	f->f_mapping = NULL;
++	f->f_dentry = dget(dentry);
++	f->f_vfsmnt = mntget(nd->mnt);
++	f->f_pos = 0;
++	f->f_op = NULL;
++	file_move(f, &dir->i_sb->s_files);
++
++	DQUOT_INIT(dir);
++	error = dir->i_op->create_open(dir, dentry, mode, f);
++	if (error)
++		goto out_dput;
++
++	fsnotify_create(dir, dentry->d_name.name);
++	inode = dentry->d_inode;
++	if (!f->f_mapping)
++		f->f_mapping = inode->i_mapping;
++	if (!f->f_op)
++		f->f_op = fops_get(inode->i_fop);
++
++	flag &= ~O_TRUNC;
++	tmpnd = *nd;
++	tmpnd.dentry = dentry;
++
++	/* Shouldn't fail, just go though the motions (security hook, ...) */
++	error = may_open(&tmpnd, 0, flag);
++	if (error)
++		goto out_release;
++
++	if (f->f_mode & FMODE_WRITE) {
++		/* Should not fail */
++		error = get_write_access(inode);
++		if (error)
++			goto out_release;
++	}
++
++	f->f_flags &= ~(O_CREAT | O_EXCL | O_NOCTTY | O_TRUNC);
++
++	file_ra_state_init(&f->f_ra, f->f_mapping->host->i_mapping);
++
++	/* NB: we're sure to have correct a_ops only after f_op->open */
++	if (f->f_flags & O_DIRECT) {
++		if (!f->f_mapping->a_ops ||
++		    ((!f->f_mapping->a_ops->direct_IO) &&
++		    (!f->f_mapping->a_ops->get_xip_page))) {
++			error = -EINVAL;
++			goto out_put_write_access;
++		}
++	}
++	return 0;
++
++ out_put_write_access:
++	if (f->f_mode & FMODE_WRITE)
++		put_write_access(inode);
++ out_release:
++	if (f->f_op && f->f_op->release)
++		f->f_op->release(inode, f);
++
++	fops_put(f->f_op);
++	file_kill(f);
++ out_dput:
++	dput(f->f_dentry);
++	mntput(f->f_vfsmnt);
++	f->f_dentry = NULL;
++	f->f_vfsmnt = NULL;
++	return error;
++}
++
+ /*
+  *	open_namei()
+  *
+@@ -1408,7 +1494,8 @@ int may_open(struct nameidata *nd, int a
+  * for symlinks (where the permissions are checked later).
+  * SMP-safe
+  */
+-int open_namei(const char * pathname, int flag, int mode, struct nameidata *nd)
++static int open_namei(const char * pathname, int flag, int mode,
++		      struct nameidata *nd, struct file *f)
+ {
+ 	int acc_mode, error = 0;
+ 	struct path path;
+@@ -1469,6 +1556,16 @@ do_last:
+ 	if (!path.dentry->d_inode) {
+ 		if (!IS_POSIXACL(dir->d_inode))
+ 			mode &= ~current->fs->umask;
++
++		if (dir->d_inode->i_op && dir->d_inode->i_op->create_open) {
++			error = vfs_create_open(dir->d_inode, path.dentry,
++						flag, mode, nd, f);
++			up(&dir->d_inode->i_sem);
++			dput(nd->dentry);
++			nd->dentry = path.dentry;
++			goto exit;
++		}
++
+ 		error = vfs_create(dir->d_inode, path.dentry, mode, nd);
+ 		up(&dir->d_inode->i_sem);
+ 		dput(nd->dentry);
+@@ -1509,7 +1606,7 @@ ok:
+ 	error = may_open(nd, acc_mode, flag);
+ 	if (error)
+ 		goto exit;
+-	return 0;
++	return __dentry_open(nd->dentry, nd->mnt, f);
+ 
+ exit_dput:
+ 	dput_path(&path, nd);
+@@ -1561,6 +1658,59 @@ do_link:
+ 	goto do_last;
+ }
+ 
++/*
++ * Note that while the flag value (low two bits) for sys_open means:
++ *	00 - read-only
++ *	01 - write-only
++ *	10 - read-write
++ *	11 - special
++ * it is changed into
++ *	00 - no permissions needed
++ *	01 - read-permission
++ *	10 - write-permission
++ *	11 - read-write
++ * for the internal routines (ie open_namei()/follow_link() etc). 00 is
++ * used by symlinks.
++ */
++struct file *filp_open(const char * filename, int flags, int mode)
++{
++	int namei_flags, error;
++	struct nameidata nd;
++	struct file *f;
++	static int warned;
++
++	/*
++	 * Access mode of 3 had some old uses, that are probably not
++	 * applicable anymore.  For now just warn about deprecation.
++	 * Later it can be changed to return -EINVAL.
++	 */
++	if ((flags & O_ACCMODE) == 3 && warned < 5) {
++		warned++;
++		printk(KERN_WARNING "Warning: '%s' (pid=%i) uses deprecated "
++				"open flags, please report!\n",
++			current->comm, current->tgid);
++	}
++	namei_flags = flags;
++	if ((namei_flags+1) & O_ACCMODE)
++		namei_flags++;
++	if (namei_flags & O_TRUNC)
++		namei_flags |= 2;
++
++	error = -ENFILE;
++	f = get_empty_filp();
++	if (f == NULL)
++		return ERR_PTR(error);
++
++	f->f_flags = flags;
++	error = open_namei(filename, namei_flags, mode, &nd, f);
++	if (!error)
++		return f;
++
++	put_filp(f);
++	return ERR_PTR(error);
++}
++EXPORT_SYMBOL(filp_open);
++
+ /**
+  * lookup_create - lookup a dentry, creating it if it doesn't exist
+  * @nd: nameidata info
+Index: linux/include/linux/fs.h
+===================================================================
+--- linux.orig/include/linux/fs.h	2005-10-05 16:59:46.000000000 +0200
++++ linux/include/linux/fs.h	2005-10-05 18:03:22.000000000 +0200
+@@ -1002,6 +1002,8 @@ struct inode_operations {
+ 	ssize_t (*getxattr) (struct dentry *, const char *, void *, size_t);
+ 	ssize_t (*listxattr) (struct dentry *, char *, size_t);
+ 	int (*removexattr) (struct dentry *, const char *);
++	int (*create_open) (struct inode *, struct dentry *, int,
++			    struct file *);
+ };
+ 
+ struct seq_file;
+@@ -1432,7 +1434,8 @@ static inline void allow_write_access(st
+ }
+ extern int do_pipe(int *);
+ 
+-extern int open_namei(const char *, int, int, struct nameidata *);
++extern int __dentry_open(struct dentry *dentry, struct vfsmount *mnt,
++			 struct file *f);
+ extern int may_open(struct nameidata *, int, int);
+ 
+ extern int kernel_read(struct file *, unsigned long, char *, unsigned long);
+Index: linux/fs/open.c
+===================================================================
+--- linux.orig/fs/open.c	2005-10-05 16:59:46.000000000 +0200
++++ linux/fs/open.c	2005-10-05 17:40:22.000000000 +0200
+@@ -738,14 +738,12 @@ asmlinkage long sys_fchown(unsigned int 
+ 	return error;
+ }
+ 
+-static struct file *__dentry_open(struct dentry *dentry, struct vfsmount *mnt,
+-					int flags, struct file *f)
++int __dentry_open(struct dentry *dentry, struct vfsmount *mnt, struct file *f)
+ {
+ 	struct inode *inode;
+ 	int error;
+ 
+-	f->f_flags = flags;
+-	f->f_mode = ((flags+1) & O_ACCMODE) | FMODE_LSEEK |
++	f->f_mode = ((f->f_flags+1) & O_ACCMODE) | FMODE_LSEEK |
+ 				FMODE_PREAD | FMODE_PWRITE;
+ 	inode = dentry->d_inode;
+ 	if (f->f_mode & FMODE_WRITE) {
+@@ -776,11 +774,11 @@ static struct file *__dentry_open(struct
+ 		    ((!f->f_mapping->a_ops->direct_IO) &&
+ 		    (!f->f_mapping->a_ops->get_xip_page))) {
+ 			fput(f);
+-			f = ERR_PTR(-EINVAL);
++			return -EINVAL;
+ 		}
+ 	}
+ 
+-	return f;
++	return 0;
+ 
+ cleanup_all:
+ 	fops_put(f->f_op);
+@@ -790,76 +788,29 @@ cleanup_all:
+ 	f->f_dentry = NULL;
+ 	f->f_vfsmnt = NULL;
+ cleanup_file:
+-	put_filp(f);
+ 	dput(dentry);
+ 	mntput(mnt);
+-	return ERR_PTR(error);
++	return error;
+ }
+ 
+-/*
+- * Note that while the flag value (low two bits) for sys_open means:
+- *	00 - read-only
+- *	01 - write-only
+- *	10 - read-write
+- *	11 - special
+- * it is changed into
+- *	00 - no permissions needed
+- *	01 - read-permission
+- *	10 - write-permission
+- *	11 - read-write
+- * for the internal routines (ie open_namei()/follow_link() etc). 00 is
+- * used by symlinks.
+- */
+-struct file *filp_open(const char * filename, int flags, int mode)
++struct file *dentry_open(struct dentry *dentry, struct vfsmount *mnt, int flags)
+ {
+-	int namei_flags, error;
+-	struct nameidata nd;
++	int error;
+ 	struct file *f;
+-	static int warned;
+-
+-	/*
+-	 * Access mode of 3 had some old uses, that are probably not
+-	 * applicable anymore.  For now just warn about deprecation.
+-	 * Later it can be changed to return -EINVAL.
+-	 */
+-	if ((flags & O_ACCMODE) == 3 && warned < 5) {
+-		warned++;
+-		printk(KERN_WARNING "Warning: '%s' (pid=%i) uses deprecated "
+-				"open flags, please report!\n",
+-			current->comm, current->tgid);
+-	}
+-	namei_flags = flags;
+-	if ((namei_flags+1) & O_ACCMODE)
+-		namei_flags++;
+-	if (namei_flags & O_TRUNC)
+-		namei_flags |= 2;
+ 
+ 	error = -ENFILE;
+ 	f = get_empty_filp();
+ 	if (f == NULL)
+ 		return ERR_PTR(error);
+ 
+-	error = open_namei(filename, namei_flags, mode, &nd);
++	f->f_flags = flags;
++	error = __dentry_open(dentry, mnt, f);
+ 	if (!error)
+-		return __dentry_open(nd.dentry, nd.mnt, flags, f);
++		return f;
+ 
+ 	put_filp(f);
+ 	return ERR_PTR(error);
+ }
+-EXPORT_SYMBOL(filp_open);
+-
+-struct file *dentry_open(struct dentry *dentry, struct vfsmount *mnt, int flags)
+-{
+-	int error;
+-	struct file *f;
+-
+-	error = -ENFILE;
+-	f = get_empty_filp();
+-	if (f == NULL)
+-		return ERR_PTR(error);
+-
+-	return __dentry_open(dentry, mnt, flags, f);
+-}
+ EXPORT_SYMBOL(dentry_open);
+ 
+ /*

@@ -1,37 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750949AbVJFNqJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750954AbVJFNvH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750949AbVJFNqJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 09:46:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750951AbVJFNqJ
+	id S1750954AbVJFNvH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 09:51:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750957AbVJFNvG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 09:46:09 -0400
-Received: from castle.nmd.msu.ru ([193.232.112.53]:55304 "HELO
-	castle.nmd.msu.ru") by vger.kernel.org with SMTP id S1750949AbVJFNqI
+	Thu, 6 Oct 2005 09:51:06 -0400
+Received: from gw1.cosmosbay.com ([62.23.185.226]:59777 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S1750954AbVJFNvF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 09:46:08 -0400
-Message-ID: <20051006174604.B10342@castle.nmd.msu.ru>
-Date: Thu, 6 Oct 2005 17:46:04 +0400
-From: Andrey Savochkin <saw@sawoct.com>
+	Thu, 6 Oct 2005 09:51:05 -0400
+Message-ID: <43452BAC.3000306@cosmosbay.com>
+Date: Thu, 06 Oct 2005 15:50:36 +0200
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
 To: Andi Kleen <ak@suse.de>
-Cc: Kirill Korotaev <dev@sw.ru>, linux-kernel@vger.kernel.org,
+CC: Kirill Korotaev <dev@sw.ru>, linux-kernel@vger.kernel.org,
        Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       xemul@sw.ru, st@sw.ru, discuss@x86-64.org
+       xemul@sw.ru, Andrey Savochkin <saw@sawoct.com>, st@sw.ru,
+       discuss@x86-64.org
 Subject: Re: SMP syncronization on AMD processors (broken?)
 References: <434520FF.8050100@sw.ru> <p73hdbuzs7l.fsf@verdi.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <p73hdbuzs7l.fsf@verdi.suse.de>; from "Andi Kleen" on Thu, Oct 06, 2005 at 03:32:30PM
+In-Reply-To: <p73hdbuzs7l.fsf@verdi.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Thu, 06 Oct 2005 15:50:36 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 06, 2005 at 03:32:30PM +0200, Andi Kleen wrote:
+Andi Kleen a écrit :
 > Kirill Korotaev <dev@sw.ru> writes:
 > 
-> > Please help with a not simple question about spin_lock/spin_unlock on
-> > SMP archs. The question is whether concurrent spin_lock()'s should
-> > acquire it in more or less "fair" fashinon or one of CPUs can starve
-> > any arbitrary time while others do reacquire it in a loop.
+> 
+>>Please help with a not simple question about spin_lock/spin_unlock on
+>>SMP archs. The question is whether concurrent spin_lock()'s should
+>>acquire it in more or less "fair" fashinon or one of CPUs can starve
+>>any arbitrary time while others do reacquire it in a loop.
+> 
 > 
 > They are not fully fair because of the NUMAness of the system.
 > Same on many other NUMA systems.
@@ -41,15 +47,14 @@ On Thu, Oct 06, 2005 at 03:32:30PM +0200, Andi Kleen wrote:
 > 
 > So live with it.
 
-Well, it's hard to swallow...
-It's not about being not fully fair, it's about deadlocks that started
-to appear after code changes inside retry loops...
+Unrelated, but that reminds me that current spinlock implementation on x86 
+imply that NR_CPUS should be < 128.
 
-A practical question is whether there is an "official" way to tell the CPU
-that it should synchronize with memory, or if you have ideas how to make it
-less costly than queued locks.
+Maybe we should reflect this in Kconfig ?
 
-A theoretical question is how many places in the kernel use such retry loops
-that may start to fail some day (or on some machines)...
+config NR_CPUS
+range 2 128
 
-	Andrey
+Or use a plain int for spinlock, instead of a signed char.
+
+Eric

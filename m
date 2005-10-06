@@ -1,75 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbVJFHe1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbVJFIEE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750708AbVJFHe1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 03:34:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750717AbVJFHe1
+	id S1750719AbVJFIEE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 04:04:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750720AbVJFIED
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 03:34:27 -0400
-Received: from web30312.mail.mud.yahoo.com ([68.142.201.230]:32916 "HELO
-	web30312.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750708AbVJFHe0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 03:34:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=zYqq75Hs1FEHA4gzBWuVNFDcwO3xCsvs7Dec5HCrpZnuk24LPnuS5hZmzvOQa6ZlfmuHnHWeFiQd5Plbw+qinfNgrc4/ZBdFbOMBGqTinj5RsUOsrP1uDYR+7ihMp1BVmD42CmGP5R0g3/ctC7my0kvlZ37px3XMHUeBNtzaLz0=  ;
-Message-ID: <20051006073425.42519.qmail@web30312.mail.mud.yahoo.com>
-Date: Thu, 6 Oct 2005 00:34:25 -0700 (PDT)
-From: subbie subbie <subbie_subbie@yahoo.com>
-Subject: Re: 3Ware 9500S-12 RAID controller -- poor performance
-To: "Ian E. Morgan" <imorgan@webcon.ca>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.62.0510050931140.11806@dark.webcon.ca>
+	Thu, 6 Oct 2005 04:04:03 -0400
+Received: from mail22.sea5.speakeasy.net ([69.17.117.24]:50343 "EHLO
+	mail22.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1750719AbVJFIEB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 04:04:01 -0400
+Date: Thu, 6 Oct 2005 04:03:58 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@excalibur.intercode
+To: Chris Wright <chrisw@osdl.org>
+cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, keyrings@linux-nfs.org,
+       linux-kernel@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [Keyrings] [PATCH] Keys: Add LSM hooks for key management
+In-Reply-To: <20051005211030.GC16352@shell0.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.63.0510060346140.25593@excalibur.intercode>
+References: <29942.1128529714@warthog.cambridge.redhat.com>
+ <20051005211030.GC16352@shell0.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 5 Oct 2005, Chris Wright wrote:
 
+> What case causes context != current?
 
---- "Ian E. Morgan" <imorgan@webcon.ca> wrote:
+Indeed, this is critical: we always need to know which task initiated the 
+current action.  If it's not current, then we need the calling task struct 
+passed into the security hook.
 
-> I have seen some systems on which IRQ load balancing
-> can have a detrimental
-> effect on some devices such as gigabit Ethernet etc.
+> > +	/* do a final security check before publishing the key */
+> > +	ret = security_key_alloc(key);
 > 
-> You could try disabling both the irqbalance
-> userspace daemon (if that's part
-> of your distribution), and in-kernel IRQ balancing,
-> if enabled
-> (CONFIG_IRQBALANCE).
+> This may simply be allocating space for the label (and possibly labelling)
+> not necessarily a security check.
 
-I don't have a userspace daemon for that, but I'll try
-the kernel option.
+Agree, in fact, I think we should always aim to keep housekeeping hooks 
+separate from access control hooks.
 
+Access checks seem to be usually done before this point via 
+lookup_user_key(), which is ideal.
+
+> > - error:
+> > +	/* let the security module know the key has been published */
+> > +	security_key_post_alloc(key);
 > 
-> For your NIC, try enabling NAPI interrupt
-> mitigation, if available. This
-> will significantly reduce the interrupt load under
-> high traffic volume.
+> This is odd, esp since nothing could have failed between alloc and
+> publish.  Only state change is serial number.  Would you expect the
+> security module to update a label based on serial number?
 
-It's always enabled in my configs.
+I don't think SELinux would care about this yet.  If so, the hook can be 
+added later.
 
-> I guess there's another obvious question that I
-> forgot: Do you have the
-> 3ware cache enabled or disabled? Are your ext3
-> filesystems mounted with the
-> 'noatime' option?
+> > +	/* if we're not the sysadmin, we can only change a key that we own */
+> > +	if (capable(CAP_SYS_ADMIN) || key->uid == current->fsuid)
+> > +		ret = security_key_set_security(key, name, data, dlen);
+> 
+> Are you sure this is right?  Normally I'd expect users can _not_ set the
+> security labels of their own keys.  But perhaps I've missed the point
+> of this one, could you give a use case?
 
-Write caching is enabled. I don't have much activity
-across thousands of files so noatime is less
-ciritical, but the RAID volume is still mounted
-noatime.
+I think this is like xattrs on files, where the user can set and view 
+security attributes.
 
-So basically I'll try the irq load balancing and see
-whath happens.
+In any case, I don't see why you'd use a DAC check here at all, as this is 
+a complete passthrough to the security module.
 
-Thanks
+key_get_security() has no DAC check.
 
 
+> This would be a whole lot easier if keys were available in keyfs ;-)
 
-		
-__________________________________ 
-Yahoo! Mail - PC Magazine Editors' Choice 2005 
-http://mail.yahoo.com
+Yes, then standard setxattr() getxattr() syscalls could be used, and we 
+can avoid two new multiplexed syscalls.
+
+David, admit it, this key stuff is all really a filesystem :-)
+
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>

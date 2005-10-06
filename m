@@ -1,73 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751070AbVJFPEx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751071AbVJFPGh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751070AbVJFPEx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 11:04:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751071AbVJFPEx
+	id S1751071AbVJFPGh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 11:06:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751073AbVJFPGh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 11:04:53 -0400
-Received: from mail24.sea5.speakeasy.net ([69.17.117.26]:6838 "EHLO
-	mail24.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1751068AbVJFPEw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 11:04:52 -0400
-Date: Thu, 6 Oct 2005 11:04:50 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-X-X-Sender: jmorris@excalibur.intercode
-To: David Howells <dhowells@redhat.com>
-cc: Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, keyrings@linux-nfs.org,
-       linux-kernel@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [Keyrings] [PATCH] Keys: Add LSM hooks for key management 
-In-Reply-To: <23333.1128596048@warthog.cambridge.redhat.com>
-Message-ID: <Pine.LNX.4.63.0510061053180.26758@excalibur.intercode>
-References: <Pine.LNX.4.63.0510060346140.25593@excalibur.intercode> 
- <29942.1128529714@warthog.cambridge.redhat.com> <20051005211030.GC16352@shell0.pdx.osdl.net>
-  <23333.1128596048@warthog.cambridge.redhat.com>
+	Thu, 6 Oct 2005 11:06:37 -0400
+Received: from math.ut.ee ([193.40.36.2]:24786 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S1751071AbVJFPGg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 11:06:36 -0400
+Date: Thu, 6 Oct 2005 18:05:56 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Jens Axboe <axboe@suse.de>
+Subject: Found a new way to hang my IDE CD
+Message-ID: <Pine.SOC.4.61.0510061757580.25809@math.ut.ee>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Oct 2005, David Howells wrote:
+I'm back with my old IDE CD problem - the one that got DMA broken in 2.4 
+(see http://www.ussg.iu.edu/hypermail/linux/kernel/0410.3/0480.html). I 
+again stumped upon a problem that hangs IDE CD access with Sony CDU5211 
+on ICH2. Running 2.6.14-rc3 + yesterdays git.
 
-> > Agree, in fact, I think we should always aim to keep housekeeping hooks 
-> > separate from access control hooks.
-> 
-> What do you mean by separate? And this provides a chance for the LSM to deny
-> the creation of a key before it's published.
+I tried "blktool /dev/hdc id" and it hangs in D state in blk_execute_rq. 
+Dmesg tells
 
-Separate in terms of providing clear semantics in the API, so that you 
-know a hook is either used for housekeeping (allocation, deallocation etc) 
-or for access control.  But this is only an aim, an if it makes sense to 
-combine housekeeping and access control functions in some specific 
-instance, then so be it.
+hdc: CDU5211, ATAPI CD/DVD-ROM drive
+ide1 at 0x170-0x177,0x376 on irq 15
+[...]
+hdc: ATAPI 52X CD-ROM drive, 120kB Cache, UDMA(33)
+[...]
 
+hdc: DMA interrupt recovery
+hdc: lost interrupt
+hdc: status timeout: status=0xd0 { Busy }
+ide: failed opcode was: unknown
+hdc: DMA disabled
+hdc: drive not ready for command
+hdc: ATAPI reset complete
+cdrom_pc_intr, write: dev hdc: flags = REQ_STARTED REQ_PC REQ_QUIET
+sector 0, nr/cnr 0/0
+bio 00000000, biotail 00000000, buffer 00000000, data 00000000, len 0
+cdb: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x02)
+hdc: lost interrupt
+cdrom_pc_intr, write: dev hdc: flags = REQ_STARTED REQ_PC REQ_FAILED REQ_QUIET
+sector 0, nr/cnr 0/0
+bio 00000000, biotail 00000000, buffer 00000000, data 00000000, len 0
+cdb: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x02)
+hdc: lost interrupt
+cdrom_pc_intr, write: dev hdc: flags = REQ_STARTED REQ_PC REQ_FAILED REQ_QUIET
+sector 0, nr/cnr 0/0
+bio 00000000, biotail 00000000, buffer 00000000, data 00000000, len 0
+cdb: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x02)
 
-> > Access checks seem to be usually done before this point via 
-> > lookup_user_key(), which is ideal.
-> 
-> Eh? lookup_user_key()? That's not necessarily called before, not if you're
-> creating a key.
+and so on every now and then.
 
-I thought this was generally called before key operations.
-
-For example, sys_add_key() calls it with KEY_WRITE against the destination 
-keyring.
-
-> > > This is odd, esp since nothing could have failed between alloc and
-> > > publish.  Only state change is serial number.  Would you expect the
-> > > security module to update a label based on serial number?
-> > 
-> > I don't think SELinux would care about this yet.  If so, the hook can be 
-> > added later.
-> 
-> Auditing?
-
-SELinux does not audit object creation, it will sometimes use a _post hook 
-to update its internal state or perform the access control check for 
-creating the object.
-
-
-- James
 -- 
-James Morris
-<jmorris@namei.org>
+Meelis Roos (mroos@linux.ee)

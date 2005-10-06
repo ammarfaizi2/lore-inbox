@@ -1,50 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbVJFJ45@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbVJFKET@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750779AbVJFJ45 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 05:56:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750781AbVJFJ45
+	id S1750780AbVJFKET (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 06:04:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750781AbVJFKET
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 05:56:57 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:34002 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S1750779AbVJFJ44 (ORCPT
+	Thu, 6 Oct 2005 06:04:19 -0400
+Received: from mail.suse.de ([195.135.220.2]:62598 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750780AbVJFKET (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 05:56:56 -0400
-Date: Thu, 6 Oct 2005 11:56:46 +0200
-From: David Weinehall <tao@acc.umu.se>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Rik van Riel <riel@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-Message-ID: <20051006095646.GC5011@khan.acc.umu.se>
-Mail-Followup-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
-	Rik van Riel <riel@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	linux-kernel@vger.kernel.org
-References: <20051002204703.GG6290@lkcl.net> <54300000.1128297891@[10.10.2.4]> <20051003011041.GN6290@lkcl.net> <200510022028.07930.chase.venters@clientec.com> <20051004125955.GQ10538@lkcl.net> <17218.39427.421249.448094@gargle.gargle.HOWL> <20051004161702.GU10538@lkcl.net> <Pine.LNX.4.63.0510041329140.23708@cuia.boston.redhat.com> <20051006000744.GD10538@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 6 Oct 2005 06:04:19 -0400
+From: Andi Kleen <ak@suse.de>
+To: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: 2.6.14-rc3-rt2
+Date: Thu, 6 Oct 2005 12:04:32 +0200
+User-Agent: KMail/1.8
+Cc: Ingo Molnar <mingo@elte.hu>, Mark Knecht <markknecht@gmail.com>,
+       linux-kernel@vger.kernel.org, tony.luck@intel.com,
+       acpi-devel@lists.sourceforge.net
+References: <5bdc1c8b0510041111n188b8e14lf5a1398406d30ec4@mail.gmail.com> <20051006084920.GB22397@elte.hu> <Pine.LNX.4.58.0510060544390.28535@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.58.0510060544390.28535@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051006000744.GD10538@lkcl.net>
-User-Agent: Mutt/1.4.1i
-X-Editor: Vi Improved <http://www.vim.org/>
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pub_dc47ca16.gpg.asc
+Message-Id: <200510061204.33045.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 06, 2005 at 01:07:44AM +0100, Luke Kenneth Casson Leighton wrote:
-[snip]
-> in amongst the pigeons, there's one pigeon that goes "meow":
-> i figured you might have missed it: it's got the words
-> "PLEASE REVIEW" as part of the subject.
+On Thursday 06 October 2005 11:48, Steven Rostedt wrote:
+> On Thu, 6 Oct 2005, Ingo Molnar wrote:
+> > * Steven Rostedt <rostedt@goodmis.org> wrote:
+> > > > ahh ... I would not be surprised if this caused actual problems on
+> > > > x64 in the upstream kernel too: using save_flags() over u32 will
+> > > > corrupt a word on the stack ...
+> > >
+> > > Actually, it's still safe upstream.  The locks are taken via a function
+> > > defined as:
+> > >
+> > > unsigned long acpi_os_acquire_lock(acpi_handle handle)
+> > > {
+> > > 	unsigned long flags;
+> > > 	spin_lock_irqsave((spinlock_t *) handle, flags);
+> > > 	return flags;
+> > > }
+> > >
+> > > So a u32 flags with
+> > >
+> > >   flags = acpi_os_acquire_lock(lock);
+> > >
+> > > would be safe, unless a 64 bit machine stored the value of IR in the
+> > > upper word, which I don't know of any archs that do that.
+> >
+> > ok. But this still looks very volatile. Nowhere do we guarantee (or can
+> > we guarantee) that silently zeroing out the upper 32 bits of flags is
+> > safe!
+>
+> Andi,
+>
+> So, should I send my patch upstream?
 
-Ohhhh, I think your shift key suddenly started to work...
+It's a theoretical only issue for mainline right now. The only architectures 
+using the ACPI code are i386,x86-64,ia64. The first two are ok with 
+truncating. The IA64 PSR is longer than 32bit, but unless I'm misreading the 
+code they only care about the "i" bit which is also in the lower 32bit (Tony 
+can probably confirm/deny) 
 
-[snip]
+Still might be good to clean up, but certainly not a urgent issue.
 
-
-Regards: David Weinehall
--- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+-Andi

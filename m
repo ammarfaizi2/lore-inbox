@@ -1,54 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751222AbVJFEkS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbVJFEqe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751222AbVJFEkS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 00:40:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbVJFEkS
+	id S1750727AbVJFEqe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 00:46:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbVJFEqe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 00:40:18 -0400
-Received: from pacific.moreton.com.au ([203.143.235.130]:63938 "EHLO
-	moreton.com.au") by vger.kernel.org with ESMTP id S1751222AbVJFEkQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 00:40:16 -0400
-Date: Thu, 6 Oct 2005 14:40:15 +1000
-From: David McCullough <davidm@snapgear.com>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Cc: dhowells@redhat.com
-Subject: [PATCH] 2.6.13 - output of /proc/maps on nommu systems is incomplete
-Message-ID: <20051006044015.GA31458@beast>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 6 Oct 2005 00:46:34 -0400
+Received: from [67.137.28.189] ([67.137.28.189]:16512 "EHLO vger.utah-nac.org")
+	by vger.kernel.org with ESMTP id S1750727AbVJFEqd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 00:46:33 -0400
+Message-ID: <434497BF.9020208@utah-nac.org>
+Date: Wed, 05 Oct 2005 21:19:27 -0600
+From: jmerkey <jmerkey@utah-nac.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
+Subject: [VERY-OT SCOX Crap] [was: what's next for the linux kernel?]
+References: <200510060256.j962uXvl008891@inti.inf.utfsm.cl> <43449F1E.7050802@perkel.com> <20051006041257.GE22601@alpha.home.local>
+In-Reply-To: <20051006041257.GE22601@alpha.home.local>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Willy Tarreau wrote:
 
-Hi all,
+>[Cc: list purged to save people time]
+>
+>On Wed, Oct 05, 2005 at 08:50:54PM -0700, Marc Perkel wrote:
+>  
+>
+>>If you all think Netware is no more you are under an interesting 
+>>illusion. Linux being cheap has cut into the little server market - but 
+>>if you have thousands of servers all running off the same shared 
+>>permissions systems - you just aren't going to do that off of Linux.
+>>    
+>>
 
-Simple patch against 2.6.13 for /proc/maps on nommu systems.
-Currently you do not get all the map entries because the start
-function doesn't index into the list using the value of "pos".
+NetWhere? did you say. Oh yeah, that broken down piece of sh_t I rewrote 
+10 years ago?
+The NetWhere-did-its-market-share-go operating system is dead.
 
-Cheers,
-Davidm
+>
+>Please will you move those boring threads to another mailing list or
+>even to usenet ? This is LKML, we're only the 6th of the month and
+>there are already 1250 messages, 200 of which come from this thread,
+>and many others coming from other long off-topic threads. 20% noise
+>is too high and disturbting. It becomes difficult to find someone
+>talking about subjects rouelated to kernel development !
+>
+>  
+>
 
-Signed-off-by: David McCullough <davidm@snapgear.com>
+You should move it to the "entertainment and trolling" section the Linux 
+Community. Just add the
+word "merkey" somewhere in the body of the text and forward it to the 
+SCOX message board.
+The thread will go on for days, and George Bush, Jimbo Wales, and even 
+Sollog will probably join
+the discussion.
 
-Index: fs/proc/nommu.c
-===================================================================
-RCS file: /cvs/sw/linux-2.6.x/fs/proc/nommu.c,v
-retrieving revision 1.1.1.1
-diff -u -p -r1.1.1.1 nommu.c
---- fs/proc/nommu.c	3 Mar 2005 00:45:41 -0000	1.1.1.1
-+++ fs/proc/nommu.c	6 Oct 2005 04:25:30 -0000
-@@ -91,6 +91,7 @@ static void *nommu_vma_list_start(struct
- 			next = _rb;
- 			break;
- 		}
-+		pos--;
- 	}
- 
- 	return next;
--- 
-David McCullough, davidm@cyberguard.com.au, Custom Embedded Solutions + Security
-Ph:+61 734352815 Fx:+61 738913630 http://www.uCdot.org http://www.cyberguard.com
+:-)
+
+>Thanks in advance
+>Willy
+>
+>(NB: I'm not interested in your reply, so please don't Cc: me)
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+

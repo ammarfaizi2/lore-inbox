@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbVJFBLy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbVJFC0M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbVJFBLy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 21:11:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750711AbVJFBLy
+	id S1750712AbVJFC0M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 22:26:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750713AbVJFC0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 21:11:54 -0400
-Received: from vhost12.digitarus.com ([84.234.16.61]:31695 "EHLO
-	vhost12.digitarus.com") by vger.kernel.org with ESMTP
-	id S1750706AbVJFBLx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 21:11:53 -0400
-X-ClientAddr: 212.126.40.83
-Message-ID: <434479CE.1020101@wiggly.org>
-Date: Thu, 06 Oct 2005 02:11:42 +0100
-From: Nigel Rantor <wiggly@wiggly.org>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
+	Wed, 5 Oct 2005 22:26:12 -0400
+Received: from warden2-p.diginsite.com ([209.195.52.120]:4807 "HELO
+	warden2.diginsite.com") by vger.kernel.org with SMTP
+	id S1750712AbVJFC0K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 22:26:10 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: Stefan Smietanowski <stesmi@stesmi.com>
+Cc: Helge Hafting <helgehaf@aitel.hist.no>, Emmanuel Fleury <fleury@cs.aau.dk>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+X-X-Sender: dlang@dlang.diginsite.com
+In-Reply-To: <434479E9.1040704@stesmi.com>
+References: <20051005111329.GA31087@linux.ensimag.fr> <4343B779.8030200@cs.aau.dk> <1128511676.2920.19.camel@laptopd505.fenrus.org> <4343BB04.7090204@cs.aau.dk> <1128513584.2920.23.camel@laptopd505.fenrus.org> <4343C0DB.9080506@cs.aau.dk> <1128514062.2920.27.camel@laptopd505.fenrus.org> <4343C73E.9000507@cs.aau.dk> <20051006000741.GC18080@aitel.hist.no> <Pine.LNX.4.62.0510051741310.14560@qynat.qvtvafvgr.pbz> <434479E9.1040704@stesmi.com>
+Date: Wed, 5 Oct 2005 19:25:38 -0700 (PDT)
+X-X-Sender: dlang@dlang.diginsite.com
+Subject: Re: freebox possible GPL violation
+In-Reply-To: <434479E9.1040704@stesmi.com>
+Message-ID: <Pine.LNX.4.62.0510051924230.14560@qynat.qvtvafvgr.pbz>
+References: <20051005111329.GA31087@linux.ensimag.fr> <4343B779.8030200@cs.aau.dk>
+ <1128511676.2920.19.camel@laptopd505.fenrus.org> <4343BB04.7090204@cs.aau.dk>
+ <1128513584.2920.23.camel@laptopd505.fenrus.org> <4343C0DB.9080506@cs.aau.dk>
+ <1128514062.2920.27.camel@laptopd505.fenrus.org> <4343C73E.9000507@cs.aau.dk>
+ <20051006000741.GC18080@aitel.hist.no> <Pine.LNX.4.62.0510051741310.14560@qynat.qvtvafvgr.pbz>
+ <434479E9.1040704@stesmi.com>
 MIME-Version: 1.0
-To: "David S. Miller" <davem@davemloft.net>
-CC: lkcl@lkcl.net, linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-References: <DE88BDF02F4319469812588C7950A97E9312A6@ussunex1.palmsource.com>	<20051006000340.GC10538@lkcl.net> <20051005.171455.01155506.davem@davemloft.net>
-In-Reply-To: <20051005.171455.01155506.davem@davemloft.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Digitarus-vhost12-MailScanner-Information: Please contact Digitarus for more information
-X-Digitarus-vhost12-MailScanner: Not scanned: please contact your Internet E-Mail Service Provider for details
-X-MailScanner-From: wiggly@wiggly.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
-> From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-> Date: Thu, 6 Oct 2005 01:03:40 +0100
-> 
-> 
->>okay, people: any chance of calming / ending / moving this rather
->>distracting thread?
->>
->>davem - any chance of that LVML?
->>
->>anyone know where dave works who is willing to kick him before
->>everyone goes nuts?
-> 
-> 
-> I still don't see any good reason to make a new mailing list.
-> 
-> People argue here because they get a large audience.  If we
-> create a new mailing list, the vast majority of folks won't
-> take these threads there because they'll get less of the attention
-> they're after.
-> 
-> Why don't we just kill off this silly thread instead? :-)
+On Thu, 6 Oct 2005, Stefan Smietanowski wrote:
 
-Hell no, I need something to read while I'm cogitating on work and 
-waiting for things to compile...any chance we can get all the major 
-participants into a room and televise it as a cage match?
+> If one turns it on, doesn't turn it off, pays the 400 EUR and
+> as a result OWNS it, then what one has is a box that at that point
+> in time is running Linux and one is the owner of it.
 
-*popcorn*
+as I said, feel free to argue against their point, but let's stop having 
+people getting on their high horse pretending that they have no argument 
+at all.
+
+David Lang
+
+-- 
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare

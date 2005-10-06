@@ -1,66 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751102AbVJFPnS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751117AbVJFPpR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751102AbVJFPnS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 11:43:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbVJFPnS
+	id S1751117AbVJFPpR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 11:45:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751111AbVJFPpQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 11:43:18 -0400
-Received: from 30.Red-80-36-33.staticIP.rima-tde.net ([80.36.33.30]:28327 "EHLO
-	linalco.com") by vger.kernel.org with ESMTP id S1751102AbVJFPnR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 11:43:17 -0400
-Date: Thu, 6 Oct 2005 17:41:40 +0200
-From: Ragnar Hojland Espinosa <ragnar.hojland@linalco.com>
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-Cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
-       Marc Perkel <marc@perkel.com>, Nix <nix@esperi.org.uk>, 7eggert@gmx.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-Message-ID: <20051006154140.GA4833@linalco.com>
-References: <4TiWy-4HQ-3@gated-at.bofh.it> <4U0XH-3Gp-39@gated-at.bofh.it> <E1EMutG-0001Hd-7U@be1.lrz> <87k6gsjalu.fsf@amaterasu.srvr.nix> <4343E611.1000901@perkel.com> <20051005152447.GD10538@lkcl.net> <20051005153006.GD8011@csclub.uwaterloo.ca> <20051005154226.GI10538@lkcl.net> <20051005155516.GF7949@csclub.uwaterloo.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051005155516.GF7949@csclub.uwaterloo.ca>
-X-Edited-With-Muttmode: muttmail.sl - 2001-09-27
-User-Agent: Mutt/1.5.8i
+	Thu, 6 Oct 2005 11:45:16 -0400
+Received: from [67.137.28.189] ([67.137.28.189]:23680 "EHLO vger.utah-nac.org")
+	by vger.kernel.org with ESMTP id S1751117AbVJFPpO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 11:45:14 -0400
+Message-ID: <434533F3.50608@utah-nac.org>
+Date: Thu, 06 Oct 2005 08:25:55 -0600
+From: jmerkey <jmerkey@utah-nac.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Valdis.Kletnieks@vt.edu
+Cc: Chase Venters <chase.venters@clientec.com>,
+       Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+       Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Wolf Mountain File System [what's next for the linux
+ kernel]
+References: <20051002204703.GG6290@lkcl.net> <200510041840.55820.chase.venters@clientec.com> <20051005102650.GO10538@lkcl.net> <200510060005.09121.chase.venters@clientec.com>            <4344A797.9010701@utah-nac.org> <200510060808.j9688gQv026869@turing-police.cc.vt.edu>
+In-Reply-To: <200510060808.j9688gQv026869@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 05, 2005 at 11:55:16AM -0400, Lennart Sorensen wrote:
-> On Wed, Oct 05, 2005 at 04:42:26PM +0100, Luke Kenneth Casson Leighton wrote:
-> >  i have no idea.  as a user, i just did rm -fr /tmp/* (sorry - not
-> >  rm -fr /tmp) and it worked.
-> > 
-> >  as a user.
-> > 
-> >  not root.
-> 
-> Then some admin didn't qualify for root having apparently removed the t
-> bit from /tmp making it a world writeable dir.  Ouch.
-> 
-> >  they weren't dumb enough to give it to me.
-> 
-> But they made /tmp world writeable it seems.  Impresive. :)
+Valdis.Kletnieks@vt.edu wrote:
 
-Silly accidents like that happen.  A lazy tarballer in action:
+>On Wed, 05 Oct 2005 22:27:03 MDT, jmerkey said:
+>
+>  
+>
+>>anything that exists today.  This FS will not be released under the GPL 
+>>but the BSD-mod license on Linux with a kicker that contributors can 
+>>retain copyrights.
+>>    
+>>
+>
+>Oh no. Not again.  I thought we pounded a stake through the heart of this
+>"relicense the kernel" vampyre....
+>
+>
+>  
+>
+Keep the Linux kernel, this is a just a freebie thrown over the fence.   
 
-# ls -ld foo
-drwxr-xr-x  2 root   root  48 Oct  6 17:34 foo
-# cd foo
-# tar cf ../foo.tar .
+Jeff
 
-And too sleepy root who blindly untars to /tmp
 
-# ls -ld tmp
-drwxrwxrwt  2 root   root  48 Oct  6 17:34 tmp
-# tar xf foo.tar
-# ls -ld tmp
-drwxr-xr-x  2 root   root     72 Oct  6 17:36 tmp
-
-woops.
-
--- 
-Ragnar Hojland - Project Manager
-Linalco "Specialists in Linux and Free Software"
-http://www.linalco.com  Tel: +34-91-4561700

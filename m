@@ -1,77 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751313AbVJFTPt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbVJFTRw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751313AbVJFTPt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 15:15:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751315AbVJFTPt
+	id S1751315AbVJFTRw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 15:17:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbVJFTRw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 15:15:49 -0400
-Received: from free.hands.com ([83.142.228.128]:14547 "EHLO free.hands.com")
-	by vger.kernel.org with ESMTP id S1751313AbVJFTPs (ORCPT
+	Thu, 6 Oct 2005 15:17:52 -0400
+Received: from pat.uio.no ([129.240.130.16]:26292 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1751315AbVJFTRv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 15:15:48 -0400
-Date: Thu, 6 Oct 2005 20:15:22 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Diego Calleja <diegocg@gmail.com>
-Cc: chase.venters@clientec.com, marc@perkel.com, linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-Message-ID: <20051006191522.GS10538@lkcl.net>
-References: <20051002204703.GG6290@lkcl.net> <4342DC4D.8090908@perkel.com> <200510041840.55820.chase.venters@clientec.com> <20051005102650.GO10538@lkcl.net> <20051005130410.ddae71b3.diegocg@gmail.com>
+	Thu, 6 Oct 2005 15:17:51 -0400
+Subject: Re: [RFC] atomic create+open
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <E1ENani-0003c4-00@dorka.pomaz.szeredi.hu>
+References: <E1ENWt1-000363-00@dorka.pomaz.szeredi.hu>
+	 <1128616864.8396.32.camel@lade.trondhjem.org>
+	 <E1ENZ8u-0003JS-00@dorka.pomaz.szeredi.hu>
+	 <E1ENZCQ-0003K3-00@dorka.pomaz.szeredi.hu>
+	 <1128619526.16534.8.camel@lade.trondhjem.org>
+	 <E1ENZZl-0003OO-00@dorka.pomaz.szeredi.hu>
+	 <1128620528.16534.26.camel@lade.trondhjem.org>
+	 <E1ENZu1-0003SP-00@dorka.pomaz.szeredi.hu>
+	 <1128623899.31797.14.camel@lade.trondhjem.org>
+	 <E1ENani-0003c4-00@dorka.pomaz.szeredi.hu>
+Content-Type: text/plain
+Date: Thu, 06 Oct 2005 15:17:38 -0400
+Message-Id: <1128626258.31797.34.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051005130410.ddae71b3.diegocg@gmail.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-MailScanner-From: lkcl@lkcl.net
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.557, required 12,
+	autolearn=disabled, AWL 1.44, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 05, 2005 at 01:04:10PM +0200, Diego Calleja wrote:
+to den 06.10.2005 Klokka 20:49 (+0200) skreiv Miklos Szeredi:
 
-> El Wed, 5 Oct 2005 11:26:50 +0100,
-> Luke Kenneth Casson Leighton <lkcl@lkcl.net> escribi?:
+> For simplicity case let's omit the creation of simlink, just say, the
+> file is removed.
 > 
-> > > Now I certainly wouldn't advocate a Windows-style registry, 
-> > > because I think it's full of obvious problems. 
-> > 
-> >  such as? :)
+> So NFS calls have_submounts(), which returns true.
 > 
+> Then the bind is umounted.  Nothing prevents this happening
+> concurrently with the lookup.
 > 
-> The ugly implementation (inside the kernel and as a big file instead of doing it as a
+> Then the file is removed on the server.
+> 
+> When open_namei() gets around to following the mounts, it is not there
+> any more, so the dentry for /mnt/foo (the NFS one is returned) and
+> NFS's ->open is called on the file, which returns -ENOENT.  But
+> open(..., O_CREAT, ...) should never return -ENOENT.
 
- the nt 3.51 implementation got it right: userspace service (MSRPC
- service) with LPC (this is NT, based on Mach, so they have LPC which is
- message-passing - joy) communicating from userspace to kernelspace
- where necessary.
+...and so the VFS can recognise the case, and be made to retry the
+operation.
+A more difficult race to deal with occurs if you allow a mount while
+inside d_revalidate(). In that case NFS can end up opening the wrong
+file.
+Both these two races could, however, be fixed by moving the
+__follow_mount() in open_namei() inside the section that is protected by
+the parent directory i_sem.
 
- nooo, it not okay to have registry in kernel.  _access_ to it (via
- ioctl's) yes.  _in_ kernel, friggin'ell'no.
+In any case, all you are doing here is showing that the situation w.r.t.
+mount races and lookup+create+open is difficult. I see nothing that
+convinces me that a special atomic create+open will help to resolve
+those races.
+Nor do I see that adding a special atomic create+open will help me avoid
+intents for the case of atomic lookup+open(). As far as I'm concerned,
+the case of lookup+create+open is just a special case of lookup+open.
 
- regarding the other points: yes, there's a per-user hive key, which is
- "overlaid" onto parts of the sub-tree.
-
- and yes, the previous poster is absolutely right: the benefits cannot
- be felt unless evvverrryyy service under the sun is also using it.
-
- ... but heck - we do configuration of pretty much every major service
- under the sun out of ldap, don't we?
- 
- and openldap itself just got the ability to read its own
- config out of its own database, right?
-
- it's not _that_ far off, not _that_ unachievable, s/ldap/registry.
-
- there's just a few core services missing - initscripts is a good
- example - which nobody's yet had the nerve to tackle (afaik) and dump
- into LDAP.
-
- in that example, mostly because there's not much point unless
- you're also going to do something decent like put in proper
- dependencies (see depinit).
-
- anyway.  how on _earth_ did we get here, and please could
- someone advise me - and everyone else - of a more suitable
- location to discuss these matters?
-
- l.
+Cheers,
+  Trond
 

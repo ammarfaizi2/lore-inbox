@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751143AbVJFWkx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751137AbVJFWk2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751143AbVJFWkx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 18:40:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751145AbVJFWkx
+	id S1751137AbVJFWk2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 18:40:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbVJFWk2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 18:40:53 -0400
-Received: from rrcs-67-78-243-58.se.biz.rr.com ([67.78.243.58]:8337 "EHLO
-	mail.concannon.net") by vger.kernel.org with ESMTP id S1751143AbVJFWkw
+	Thu, 6 Oct 2005 18:40:28 -0400
+Received: from rrcs-67-78-243-58.se.biz.rr.com ([67.78.243.58]:7313 "EHLO
+	mail.concannon.net") by vger.kernel.org with ESMTP id S1751137AbVJFWk2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 18:40:52 -0400
-Message-ID: <4345A81D.3080802@concannon.net>
-Date: Thu, 06 Oct 2005 18:41:33 -0400
+	Thu, 6 Oct 2005 18:40:28 -0400
+Message-ID: <4345A7FF.5010307@concannon.net>
+Date: Thu, 06 Oct 2005 18:41:03 -0400
 From: Michael Concannon <mike@concannon.net>
 User-Agent: Mozilla Thunderbird 1.0.6-1.4.1.centos4 (X11/20050721)
 X-Accept-Language: en-us, en
@@ -57,8 +57,8 @@ lessons learned...
 
 Let's learn from what we already know and take a step above push/pop/mov 
 (ok a leap) and stop working around what is now basically 30 years of 
-crap piled on the 8086 and create some hardware that is actually 
-"Specific to the Application" rather than the other way around... 
+crap piled on the 8086 and create some hardware that is actual "Specific 
+to the Application" rather than the other way around... 
 
 /mike
 

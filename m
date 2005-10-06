@@ -1,72 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750961AbVJFOWe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750998AbVJFOZr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750961AbVJFOWe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 10:22:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750992AbVJFOWe
+	id S1750998AbVJFOZr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 10:25:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751005AbVJFOZr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 10:22:34 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:47537 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750958AbVJFOWe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 10:22:34 -0400
-Subject: Re: SMP syncronization on AMD processors (broken?)
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andrey Savochkin <saw@sawoct.com>
-Cc: Kirill Korotaev <dev@sw.ru>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       xemul@sw.ru, st@sw.ru
-In-Reply-To: <20051006173223.A10342@castle.nmd.msu.ru>
-References: <434520FF.8050100@sw.ru>
-	 <1128604748.2960.40.camel@laptopd505.fenrus.org>
-	 <20051006173223.A10342@castle.nmd.msu.ru>
-Content-Type: text/plain
-Date: Thu, 06 Oct 2005 16:22:18 +0200
-Message-Id: <1128608538.2960.45.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 6 Oct 2005 10:25:47 -0400
+Received: from qproxy.gmail.com ([72.14.204.199]:12304 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750992AbVJFOZq convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 10:25:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=UQ6PyyImS7XrvJU5IkJ6abzz6fnMOPUwwkDchzx0DT6nTmI1p7JkT+vftpoxDc3+6ddvkAzmcd0VMWs+UH7NKvFQxy6KwLpRIhdkykhNexJfo8UxGB3oMuCMGTrpye1fk0BJapkjgOFHONFxFHzPZASbqZ0fnIewCmmENxHle+g=
+Message-ID: <9a8748490510060725x34426df0se719458caf9364fe@mail.gmail.com>
+Date: Thu, 6 Oct 2005 16:25:45 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: madhu.subbaiah@wipro.com
+Subject: Re: select(0,NULL,NULL,NULL,&t1) used for delay
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1128606546.14385.26.camel@penguin.madhu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1128606546.14385.26.camel@penguin.madhu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-10-06 at 17:32 +0400, Andrey Savochkin wrote:
-> On Thu, Oct 06, 2005 at 03:19:07PM +0200, Arjan van de Ven wrote:
-> > On Thu, 2005-10-06 at 17:05 +0400, Kirill Korotaev wrote:
-> > > Hello Linus, Andrew and others,
-> > > 
-> > > Please help with a not simple question about spin_lock/spin_unlock on 
-> > > SMP archs. The question is whether concurrent spin_lock()'s should 
-> > > acquire it in more or less "fair" fashinon or one of CPUs can starve any 
-> > > arbitrary time while others do reacquire it in a loop.
-> > 
-> > spinlocks are designed to not be fair. or rather are allowed to not be.
-> > If you want them to be fair on x86 you need at minimum to put a
-> > cpu_relax() in your busy loop...
-> 
-> The question was raised exactly because cpu_relax() doesn't help on these AMD
-> CPUs.
-> 
-> Some Pentiums do more than expected from them, and the programs works in a
-> very fair manner even without cpu_relax(), so the question boils down to
-> whether there are some new AMD rules how to write such loops, is it a defect
-> of the CPU, or if we are missing something else.
+On 10/6/05, Madhu K.S. <madhu.subbaiah@wipro.com> wrote:
+> Hi all,
+>
+>
+> In many application we use select() system call for delay.
+>
+> example:
+> select(0,NULL,NULL,NULL,&t1);
+>
+>
+> select() for delay is very inefficient. I modified sys_select() code for
+> efficiency .Here are the changes to fs/select.c.
+>
+> Please suggest on these changes.
+>
 
-the rule basically is "don't write such a loop" though; this is only the
-beginning; because if you have two such things on separate cores of a
-dual core cpu you for sure starve anything outside of that core just the
-same. Eg it goes one level up as well.
-
-There is no spin_lock_yield() currently and until there is this is just
-a code pattern you should avoid.
+A few tiny comments below.
 
 
+> I know nanosleep() can be used instead of select(), but please suggest
+> on my changes.
+>
+>
+> file : fs/select.c
+> function : sys_select()
+>
+Submitting an actual applyable patch is preferred. Makes it possible
+to easily apply your changes to test the changes and then the file and
+function is also part of the patch so you won't have to spell that out
+explicitly.
+Use   diff -up
+
+>
+>
+>
+>                           timeout += sec * (unsigned long) HZ;
+>                 }
+>         }
+> -
+> +
+> +
+>         ret = -EINVAL;
+>         if (n < 0)
+>                 goto out_nofds;
+> -
+> +       if ( (n == 0) && (inp == NULL) && (outp == NULL) &&
+>                 (exp==  NULL)){
+No space for the beginning parenthesis and space before the opening
+bracket is preferred:
+       if ((n == 0) && (inp == NULL) && (outp == NULL) &&
+               (exp==  NULL)) {
+
+
+> +                printf("\n I am inside new select condition timeout
+>                         %d\n",timeout);
+Having a printk() here certainly won't help performance.
+
+> +                set_current_state(TASK_INTERRUPTIBLE);
+> +                ret = 0;
+> +                timeout = schedule_timeout(timeout);
+> +                if (signal_pending(current))
+> +                        ret = -ERESTARTNOHAND;
+Wouldn't it make sense to jump out at this point if there's a signal pending?
+                if (signal_pending(current)) {
+                        ret = -ERESTARTNOHAND;
+                        goto out;
+                }
+Or am I missing something?
+
+> +                if (tvp && !(current->personality & STICKY_TIMEOUTS)) {
+> +                        time_t sec = 0, usec = 0;
+> +                        if (timeout) {
+> +                                sec = timeout / HZ;
+> +                                usec = timeout % HZ;
+> +                                usec *= (1000000/HZ);
+Small style thing:   usec *= (1000000 / HZ);
+
+
+> +                        }
+> +                        put_user(sec, &tvp->tv_sec);
+> +                        put_user(usec, &tvp->tv_usec);
+> +                }
+> +                current->state = TASK_RUNNING;
+> +                goto out_nofds;
+> +        }
+> +
+>         /* max_fdset can increase, so grab it once to avoid race */
+>         max_fdset = current->files->max_fdset;
+>         if (n > max_fdset)
+>
+[snip]
+
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

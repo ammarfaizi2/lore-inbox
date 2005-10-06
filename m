@@ -1,25 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750899AbVJFNTR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750903AbVJFNUq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750899AbVJFNTR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 09:19:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750902AbVJFNTR
+	id S1750903AbVJFNUq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 09:20:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750904AbVJFNUq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 09:19:17 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:63674 "EHLO
+	Thu, 6 Oct 2005 09:20:46 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:1211 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750897AbVJFNTQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 09:19:16 -0400
-Subject: Re: SMP syncronization on AMD processors (broken?)
+	id S1750902AbVJFNUp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 09:20:45 -0400
+Subject: RE: PAE causing failure to run various executables.
 From: Arjan van de Ven <arjan@infradead.org>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, xemul@sw.ru,
-       Andrey Savochkin <saw@sawoct.com>, st@sw.ru
-In-Reply-To: <434520FF.8050100@sw.ru>
-References: <434520FF.8050100@sw.ru>
+To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Cc: avi <avi@argo.co.il>, Dave Jones <davej@redhat.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <88056F38E9E48644A0F562A38C64FB6005EE9110@scsmsx403.amr.corp.intel.com>
+References: <88056F38E9E48644A0F562A38C64FB6005EE9110@scsmsx403.amr.corp.intel.com>
 Content-Type: text/plain
-Date: Thu, 06 Oct 2005 15:19:07 +0200
-Message-Id: <1128604748.2960.40.camel@laptopd505.fenrus.org>
+Date: Thu, 06 Oct 2005 15:20:38 +0200
+Message-Id: <1128604838.2960.42.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
@@ -37,16 +36,12 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-10-06 at 17:05 +0400, Kirill Korotaev wrote:
-> Hello Linus, Andrew and others,
-> 
-> Please help with a not simple question about spin_lock/spin_unlock on 
-> SMP archs. The question is whether concurrent spin_lock()'s should 
-> acquire it in more or less "fair" fashinon or one of CPUs can starve any 
-> arbitrary time while others do reacquire it in a loop.
 
-spinlocks are designed to not be fair. or rather are allowed to not be.
-If you want them to be fair on x86 you need at minimum to put a
-cpu_relax() in your busy loop...
+> 
+> Another possible reason can be NX(Execute Disable) support, which is 
+> active only on a PAE kernel. Trying "noexec=off" on a PAE kernel can be
+> tried here.
+
+if that were the case them mem=4096M wouldn't solve the hangs..
 
 

@@ -1,72 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbVJFMAU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750814AbVJFMCH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750803AbVJFMAU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 08:00:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbVJFMAT
+	id S1750814AbVJFMCH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 08:02:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbVJFMCH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 08:00:19 -0400
-Received: from hobbit.corpit.ru ([81.13.94.6]:4958 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S1750803AbVJFMAS (ORCPT
+	Thu, 6 Oct 2005 08:02:07 -0400
+Received: from imag.imag.fr ([129.88.30.1]:12943 "EHLO imag.imag.fr")
+	by vger.kernel.org with ESMTP id S1750814AbVJFMCF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 08:00:18 -0400
-Message-ID: <434511CE.5080004@tls.msk.ru>
-Date: Thu, 06 Oct 2005 16:00:14 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050817)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-CC: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
-       Kay Sievers <kay.sievers@vrfy.org>, Vojtech Pavlik <vojtech@suse.cz>,
-       Hannes Reinecke <hare@suse.de>,
-       Patrick Mochel <mochel@digitalimplant.org>, airlied@linux.ie
-Subject: Re: [PATCH] nesting class_device in sysfs to solve world peace
-References: <20050928233114.GA27227@suse.de> <200509300032.50408.dtor_core@ameritech.net> <20051006000951.GA4411@suse.de> <200510060129.28066.dtor_core@ameritech.net>
-In-Reply-To: <200510060129.28066.dtor_core@ameritech.net>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 6 Oct 2005 08:02:05 -0400
+Date: Thu, 6 Oct 2005 14:01:35 +0200
+From: Pierre Michon <pierre@no-spam.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: freebox possible GPL violation
+Message-ID: <20051006120135.GA1002@linux.ensimag.fr>
+Reply-To: 4344F39B.10806@cs.aau.dk
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040722i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (imag.imag.fr [129.88.30.1]); Thu, 06 Oct 2005 14:01:36 +0200 (CEST)
+X-IMAG-MailScanner: Found to be clean
+X-IMAG-MailScanner-Information: Please contact the ISP for more information
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> On Wednesday 05 October 2005 19:09, Greg KH wrote:
-> 
->>On Fri, Sep 30, 2005 at 12:32:49AM -0500, Dmitry Torokhov wrote:
->>
->>>On Wednesday 28 September 2005 18:31, Greg KH wrote:
->>>
->>>>Alright, here's a patch that will add the ability to nest struct
->>>>class_device structures in sysfs.  This should give everyone the ability
->>>>to model what they need to in the class directory (input, video, etc.).
->>>
->>>I still do not believe it is the solution we want:
->>>
->>>1. It does not allow installing separate hotplug handlers for devices
->>>   and their sub-devices. This will cause hotplug handlers to resort to
->>>   having some flags or otherwise detect the king of class device hotplug
->>>   hanlder is being called for and change behavior accordingly - YUCK!
->>
->>Huh?  I don't understand your complaint here.  Why would we ever want to
->>have separate hotplug handlers for the same class?  If you do want that,
->>then create separate classes.
->>
-> 
-> 
-> Yes. I do want separate [sub]classes. I just want them grouped together
-> under some <subsystem> name. And I want separate hotplug handlers because
-> actions that are needed for these objects are different. When a new
-> input_dev appears you want to match its capabilities with one or more
-> input handlers and load appropriate handler module if it has not been
-> loaded yet. When a new input interface device appears you want to create
-> a new device node for it. The handlers should be diffrent if you want
-> clean implementation, do you see?
+Hi,
 
-How about using current classes, but name them to have common prefix,
-eg input_dev, input_interface etc class names - this way, if a program
-wants to enumerare all input <whatever>, it enumerates /sys/class,
-finds all directories matching input*, and looks inside...
+>I might have misunderstood but I think that if you buy the hardware you
+>cannot connect it to the DSLAM network anymore. So that only the boxes
+>they own are connected to the DSLAM.
 
-Maybe not that elegant, but may work.
+Again have you any proof that there aren't any Linux firmware in the
+flash of the freebox ?
+How do you explain that the boot sequence isn't stateless ?
+Why in case of a firmware update, you have a special state of 10 seconds
+were the freebox seem to download and write some data somewhere ?
 
-/mjt
+So yes may be you can't connect anymore to the free DSLAM, but there is
+may be still GPL data in the flash.
+
+>Are you sure this point has been clarified in court in the past ?
+>If not, I would bet on it (for the specific case of settop boxes).
+
+For french law I don't know, but someone on gpl-violation this is true
+for de and au.
+
+>I mentioned in another mail the case of a mobile phone network
+>infrastructure where the network nodes to which mobile phones are
+>connecting are running Linux. It seems to be an "internal use" (as it
+>never leak out of the company network) and yet providing a service to
+>customers.
+
+No the freebox is more like a dvb box that is lended by a satellite
+provider and could do firmware update via satellite.
+
+I don't know if there are similar case for dvb box.
+
+
+Pierre

@@ -1,64 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751340AbVJFUGk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751341AbVJFUH4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751340AbVJFUGk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 16:06:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbVJFUGk
+	id S1751341AbVJFUH4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 16:07:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbVJFUHz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 16:06:40 -0400
-Received: from mxfep02.bredband.com ([195.54.107.73]:58578 "EHLO
-	mxfep02.bredband.com") by vger.kernel.org with ESMTP
-	id S1751340AbVJFUGk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 16:06:40 -0400
-Message-ID: <434585D8.4010502@stesmi.com>
-Date: Thu, 06 Oct 2005 22:15:20 +0200
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
+	Thu, 6 Oct 2005 16:07:55 -0400
+Received: from xproxy.gmail.com ([66.249.82.205]:8564 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751341AbVJFUHy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 16:07:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=RnUVryhjIqPgmlDN6DPu2SkaZejFu8DSINL/X8V1attLP9XrMPzQ7tnCFbeUyDKUmraRhGITEwFHNNNm34sSnrDlGx8Eus2DDt3ADyDV/SUDcuvqhvXU64veiJpBVCn23yfSuDemcrlCTMbhgCqzBhuGjmyO/o7pELJ8j5HFGiE=
+Message-ID: <5bdc1c8b0510061307saf22655y26dd1e608b33a40c@mail.gmail.com>
+Date: Thu, 6 Oct 2005 13:07:52 -0700
+From: Mark Knecht <markknecht@gmail.com>
+Reply-To: Mark Knecht <markknecht@gmail.com>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.14-rc3-rt10 - xruns & config questions
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20051006195242.GA15448@elte.hu>
 MIME-Version: 1.0
-To: Emmanuel Fleury <fleury@cs.aau.dk>
-CC: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: freebox possible GPL violation
-References: <20051005111329.GA31087@linux.ensimag.fr> <4343B779.8030200@cs.aau.dk> <1128511676.2920.19.camel@laptopd505.fenrus.org> <4343BB04.7090204@cs.aau.dk> <1128513584.2920.23.camel@laptopd505.fenrus.org> <4343C0DB.9080506@cs.aau.dk> <1128514062.2920.27.camel@laptopd505.fenrus.org> <4343C73E.9000507@cs.aau.dk> <20051006000741.GC18080@aitel.hist.no> <Pine.LNX.4.62.0510051741310.14560@qynat.qvtvafvgr.pbz> <4344EC64.2010400@aitel.hist.no> <4344F39B.10806@cs.aau.dk>
-In-Reply-To: <4344F39B.10806@cs.aau.dk>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira Milter 1.0.7; VAE 6.29.0.5; VDF 6.29.0.100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <5bdc1c8b0510061152o686c5774x2d0514a1f1b4e463@mail.gmail.com>
+	 <20051006195242.GA15448@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On 10/6/05, Ingo Molnar <mingo@elte.hu> wrote:
+>
+> * Mark Knecht <markknecht@gmail.com> wrote:
+>
+> >    I am still getting a few xruns even after raising Jack's priority
+> > level to 80. I am wondering whether it's fair to report these when I
+> > have CONFIG_DEBUG_PREEMPT set?
+>
+> >   4559  78     38 [IRQ 58]
+>
+> >   58:     257570   IO-APIC-level  hdsp
+>
+> IRQ 58 is your audio interrupt, right? You should raise that one to prio
+> 80 too. (via chrt)
+>
+> > Since my NIC is getting a higher priority than both my sound card and
+> > my 1394 audio drives (IRQ217 vs. IRQ58/IRQ66) I assume that network
+> > activity might possibly sometimes cause a problem? Or is this not
+> > true?
+>
+> yeah, that could be the case.
+>
+>         Ingo
+>
 
-Emmanuel Fleury wrote:
-> Helge Hafting wrote:
-> 
->>Interesting argument, but it breaks for at least two reasons: 1. You
->>can buy that box instead of just hiring it. That moves kernels 
->>"outside the company", for money even.
-> 
-> 
-> I might have misunderstood but I think that if you buy the hardware you
-> cannot connect it to the DSLAM network anymore. So that only the boxes
-> they own are connected to the DSLAM.
+Thanks Ingo,
+   I've set the HDSP priority to 80 using chrt. I'll continue to test away.
 
-Get the box, turn it on, don't turn it off, pay the 400 EUR, own the box
-LEAVING IT ON.
+lightning ~ # ps -Leo pid,pri,rtprio,cmd | grep 58
+ 4559  78     38 [IRQ 58]
+ 8723  22      - grep 58
+lightning ~ #  chrt -p 4559
+pid 4559's current scheduling policy: SCHED_FIFO
+pid 4559's current scheduling priority: 38
+lightning ~ # chrt -p 80 4559
+lightning ~ # chrt -p 4559
+pid 4559's current scheduling policy: SCHED_RR
+pid 4559's current scheduling priority: 80
+lightning ~ #
 
-Result: You have a box that is _NOW_ running Linux and YOU own it.
+   Can you suggest how I might be able to do this at boot time? Is
+seems that the info is there but it requires figuring out the process
+ID in a script and then running chrt in that script? Or is there a
+simple place to configure how much priority I want to give a specific
+IRQ?
 
-If them placing the box at your place isn't considered distribution
-(re: your mobile phone thing) then you BUYING it would need to,
-due to transfer of ownership.
+   Anyway, thanks for all the help. I'll continue on. Probably I won't
+see too many xruns with this set like this.
 
-The fact that the box can't do what it's supposed to after you buy it
-is irrelevant.
-
-// Stefan
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (MingW32)
-
-iD8DBQFDRYXYBrn2kJu9P78RAkOWAJ9WpWueLnpxMJYNqzvP7iguD76VmwCgnbXC
-M7HrIV7fM5vsNXNzP0FY7MI=
-=Yeav
------END PGP SIGNATURE-----
+cheers,
+Mark

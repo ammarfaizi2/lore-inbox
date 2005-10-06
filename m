@@ -1,83 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751343AbVJFUPf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750935AbVJFURP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751343AbVJFUPf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 16:15:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbVJFUPf
+	id S1750935AbVJFURP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 16:17:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750936AbVJFURP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 16:15:35 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:7884 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751343AbVJFUPe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 16:15:34 -0400
-Date: Thu, 6 Oct 2005 21:15:34 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: [RFC] gfp flags annotations
-Message-ID: <20051006201534.GX7992@ftp.linux.org.uk>
-References: <20050905155522.GA8057@mipter.zuzino.mipt.ru> <20050905160313.GH5155@ZenIV.linux.org.uk> <20050905164712.GI5155@ZenIV.linux.org.uk> <20050905212026.GL5155@ZenIV.linux.org.uk> <20050907183131.GF5155@ZenIV.linux.org.uk> <20050912191744.GN25261@ZenIV.linux.org.uk> <20050912192049.GO25261@ZenIV.linux.org.uk> <20050930120831.GI7992@ftp.linux.org.uk> <20051004203009.GQ7992@ftp.linux.org.uk> <20051005202904.GA27229@mipter.zuzino.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051005202904.GA27229@mipter.zuzino.mipt.ru>
-User-Agent: Mutt/1.4.1i
+	Thu, 6 Oct 2005 16:17:15 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:37537 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1750933AbVJFURO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 16:17:14 -0400
+Date: Thu, 6 Oct 2005 16:17:09 -0400 (EDT)
+From: Jim McQuillan <jam@McQuil.com>
+X-X-Sender: jam@www.mcquillansystems.com
+To: linux-kernel@vger.kernel.org
+Subject: pivot_root doesn't work for me in 2.6.14-rc3
+Message-ID: <Pine.LNX.4.62.0510061555190.12337@www.mcquillansystems.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 06, 2005 at 12:29:04AM +0400, Alexey Dobriyan wrote:
-> > --- RC14-rc3-git4/arch/arm/mm/consistent.c
-> > +++ RC14-rc3-git4-final/arch/arm/mm/consistent.c
-> 
-> > -vm_region_alloc(struct vm_region *head, size_t size, int gfp)
-> > +vm_region_alloc(struct vm_region *head, size_t size, unsigned int gfp)
-> 
-> > -__dma_alloc(struct device *dev, size_t size, dma_addr_t *handle, int gfp,
-> > -	    pgprot_t prot)
-> > +__dma_alloc(struct device *dev, size_t size, dma_addr_t *handle,
-> > +	    unsigned int gfp, pgprot_t prot)
-> 
-> 	unsigned int __nocast gfp
-> 
-> 	=> dma_alloc_coherent
-> 	=> dma_alloc_writecombine
+I've found a problem with pivot_root that worked fine in 2.6.13.3, but
+fails for me, starting in 2.6.14-rc3  (haven't tried rc1 or rc2).
 
-Speaking of that...  IMO we should do the following:
+This is for LTSP.org (Linux Terminal Server Project) thin clients.
 
-a) typedef unsigned int __nocast gfp_t;
-b) replace __nocast uses for gfp flags with gfp_t - it gives exactly the same
-warnings as far as sparse is concerned, doesn't change generated code and
-documents what's going on far better.  If we are using __nocast for anything
-else - sure, let it stay.
-c) then replace __nocast in declaration of gfp_t with __bitwise [*], add
-force cast to gfp_t to definitions of __GFP_... and deal with resulting
-warnings.
+In our initramfs, we have a '/init' script that creates a mountpoint for
+a 2nd ramfs, and i'm trying to pivot_root to that mount point.
 
-Note that unlike __nocast, __bitwise is hard to lose; lossage like the above
-will not go unnoticed.  We will need a couple of inline helpers to deal with
-extraction of zone from gfp, etc., but after that it's basically a matter of
-switching the missed chunks like the above.
+I'm getting:
 
-I've done that several months ago, but that patch series had been killed
-by bitrot (patches fixing the bugs I've found back then had been merged,
-the rest had gone to bitbucket after a while).  It's not hard to reproduce,
-though.
-
-Objections?
+   pivot_root: Invalid Argument
 
 
-[*] since endainness annotations are nowhere near complete, I suggest
-the following: define __bitwise__ as __attribute__((bitwise)) or empty,
-depending on __CHECKER__, then have
+This worked perfectly in 2.6.13.3, so I looked at the 2.6.14-rc3 patch,
+and I found the code in fs/namespace.c that is causing it to fail for
+me:
 
-#ifdef __CHECK_ENDIAN__
-#define __bitwise __bitwise__
-#else
-#define __bitwise
-#endif
-typedef unsigned int __bitwise__ gfp_t;
 
-with -Wbitwise unconditionally in CHECKFLAGS.  Then normal run will pick
-the places that use __bitwise__ and CF=-D__CHECK_ENDIAN__ will pick all
-endianness warnings on top of that.  Basically, that allows to use
-bitwise annotations while endianness stuff is not finished and do that
-without drowning in warnings.
+@@ -1334,8 +1332,12 @@ asmlinkage long sys_pivot_root(const cha
+        error = -EINVAL;
+        if (user_nd.mnt->mnt_root != user_nd.dentry)
+                goto out2; /* not a mountpoint */
++       if (user_nd.mnt->mnt_parent == user_nd.mnt)
++               goto out2; /* not attached */
+        if (new_nd.mnt->mnt_root != new_nd.dentry)
+                goto out2; /* not a mountpoint */
++       if (new_nd.mnt->mnt_parent == new_nd.mnt)
++               goto out2; /* not attached */
+        tmp = old_nd.mnt; /* make sure we can reach put_old from
+new_root */
+        spin_lock(&vfsmount_lock);
+        if (tmp != new_nd.mnt) {
+
+
+The first of the 2 new tests are causing the pivot_root to fail for me.
+If I comment out those lines, it works again.
+
+I'm thinking that somebody put those lines there for a reason, so
+there's possibly something wrong with the way i've been doing this for a
+long time, and the tightening of the code has uncovered my problem.
+
+I'll explain how we use the initramfs/nfsroot:
+
+  1) kernel boots, mounts initramfs
+  2) /init creates and mouts a ramfs on /newroot
+  3) create /newroot/nfsroot mountpoint
+  4) nfsmount /opt/ltsp/i386 from the server on /newroot/nfsroot
+  5) create a bunch of symlinks to things we need on the nfs filesystem
+     such as bin, etc, lib, sbin, usr
+  6) create a bunch of ram-based directories in /newroot, such as
+     tmp, dev, oldroot, proc and sys
+  7) cd /newroot; pivot_root . oldroot
+  8) mount /sys and /proc, start udev
+  9) exec /sbin/init
+
+We don't do the pivot_root directly to the nfs-mounted filesystem,
+because then EVERY file access we do causes NFS traffic.
+
+If you'd like to see a diagram, check out
+
+http://wiki.ltsp.org/twiki/bin/view/Ltsp/WorkInProgress#Diagram_of_initramfs_nfs_layout
+
+Somebody recently told me that pivot_root has been put in the 'evil way
+to do things' category, and that there was a new way, but he couldn't
+remember what that was.
+
+So, if anybody knows the new way, i'd appreciate hearing about it.
+
+Thanks,
+
+Jim McQuillan
+jam@Ltsp.org

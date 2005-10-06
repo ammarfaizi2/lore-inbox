@@ -1,78 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751206AbVJFBDi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751202AbVJFBDZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751206AbVJFBDi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 21:03:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbVJFBDi
+	id S1751202AbVJFBDZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 21:03:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbVJFBDY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 21:03:38 -0400
-Received: from gate.crashing.org ([63.228.1.57]:17603 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751206AbVJFBDg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 21:03:36 -0400
-Subject: Re: IDE issues with  "choose_drive"
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Jens Axboe <axboe@suse.de>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       list linux-ide <linux-ide@vger.kernel.org>
-In-Reply-To: <1128559019.22073.19.camel@gaston>
-References: <1128559019.22073.19.camel@gaston>
-Content-Type: text/plain
-Date: Thu, 06 Oct 2005 11:02:48 +1000
-Message-Id: <1128560569.22073.25.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Wed, 5 Oct 2005 21:03:24 -0400
+Received: from mxfep02.bredband.com ([195.54.107.73]:22725 "EHLO
+	mxfep02.bredband.com") by vger.kernel.org with ESMTP
+	id S1751202AbVJFBDY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 21:03:24 -0400
+Message-ID: <434479E9.1040704@stesmi.com>
+Date: Thu, 06 Oct 2005 03:12:09 +0200
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Lang <david.lang@digitalinsight.com>
+CC: Helge Hafting <helgehaf@aitel.hist.no>, Emmanuel Fleury <fleury@cs.aau.dk>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: freebox possible GPL violation
+References: <20051005111329.GA31087@linux.ensimag.fr> <4343B779.8030200@cs.aau.dk> <1128511676.2920.19.camel@laptopd505.fenrus.org> <4343BB04.7090204@cs.aau.dk> <1128513584.2920.23.camel@laptopd505.fenrus.org> <4343C0DB.9080506@cs.aau.dk> <1128514062.2920.27.camel@laptopd505.fenrus.org> <4343C73E.9000507@cs.aau.dk> <20051006000741.GC18080@aitel.hist.no> <Pine.LNX.4.62.0510051741310.14560@qynat.qvtvafvgr.pbz>
+In-Reply-To: <Pine.LNX.4.62.0510051741310.14560@qynat.qvtvafvgr.pbz>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira Milter 1.0.7; VAE 6.29.0.5; VDF 6.29.0.100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> The first one is the one I'm trying to fix, it's basically a hang on
-> wakeup from sleep. What happens is that both drives are blocked
-> (suspended, drive->blocked is set). Their IO queues contains some
-> requests that haven't been serviced yet. We receive the resume()
-> callback for one of them. We react by inserting a wakeup request at the
-> head of the queue and waiting for it to complete. However, when we reach
-> ide_do_request(), choose_drive() may return the other drive (the one
-> that is still sleeping). In this case, we hit the test for blocked queue
-> and just break out of the loop. We end up never servicing the other
-> drive queue which is the one we are trying to wakeup, thus we hang.
+>> If the box downloads a linux kernel through the DSLAM network, then
+>> someone is clearly distributing linux kernels through the DSLAM network.
+>> I would guess it is the same guys, because relying on someone else
+>> providing
+>> them with kernels is a risky business.  But whoever is on the other end
+>> of the DSLAM net have to offer the source as well, because they _are_
+>> distributing kernels.
+>>
+>> The fact that the user isn't supposed to know how this box work
+>> doesn't change anything, of course.  The GPL says those who
+>> distribute the work - it doesn't matter that they don't tell the
+>> customer that they're given a linux kernel. They still have to offer
+>> the source if asked.
+> 
+> 
+> the argument that they are making is that they are only moveing the
+> kernel within their own companies equipment, and therefor it doesn't
+> count as 'distribution'
+> 
+> agree with this argument or not, but please acknowledge this point of
+> view rather then pretending that they have no argument at all and are
+> just plain refusing.
+> 
+> David Lang
+> 
 
-Oh, and here's the ugly workaround beeing tested by the users who are
-having the problem so far. Not really a proper fix though...
+If one turns it on, doesn't turn it off, pays the 400 EUR and
+as a result OWNS it, then what one has is a box that at that point
+in time is running Linux and one is the owner of it.
 
---- linux-work.orig/drivers/ide/ide-io.c	2005-09-22 14:06:31.000000000 +1000
-+++ linux-work/drivers/ide/ide-io.c	2005-10-06 10:49:53.000000000 +1000
-@@ -1101,6 +1101,7 @@
- 	ide_hwif_t	*hwif;
- 	struct request	*rq;
- 	ide_startstop_t	startstop;
-+	int             loops = 0;
- 
- 	/* for atari only: POSSIBLY BROKEN HERE(?) */
- 	ide_get_lock(ide_intr, hwgroup);
-@@ -1153,6 +1154,7 @@
- 			/* no more work for this hwgroup (for now) */
- 			return;
- 		}
-+	again:
- 		hwif = HWIF(drive);
- 		if (hwgroup->hwif->sharing_irq &&
- 		    hwif != hwgroup->hwif &&
-@@ -1192,8 +1194,14 @@
- 		 * though. I hope that doesn't happen too much, hopefully not
- 		 * unless the subdriver triggers such a thing in its own PM
- 		 * state machine.
-+		 *
-+		 * We count how many times we loop here to make sure we service
-+		 * all drives in the hwgroup without looping for ever
- 		 */
- 		if (drive->blocked && !blk_pm_request(rq) && !(rq->flags & REQ_PREEMPT)) {
-+			drive = drive->next ? drive->next : hwgroup->drive;
-+			if (loops++ < 4 && !blk_queue_plugged(drive->queue))
-+				goto again;
- 			/* We clear busy, there should be no pending ATA command at this point. */
- 			hwgroup->busy = 0;
- 			break;
+// Stefan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (MingW32)
 
-
+iD8DBQFDRHnpBrn2kJu9P78RApviAJ9AwjF8wU+6ao/L61AC7xW/QSBRZwCaA9u1
+yDDXxWQ/0MHeAS7pSg4C4rg=
+=oLR8
+-----END PGP SIGNATURE-----

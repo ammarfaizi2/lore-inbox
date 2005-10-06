@@ -1,85 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750766AbVJFJxV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbVJFJzF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750766AbVJFJxV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 05:53:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750775AbVJFJxV
+	id S1750775AbVJFJzF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 05:55:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbVJFJzE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 05:53:21 -0400
-Received: from smtp.cs.aau.dk ([130.225.194.6]:41422 "EHLO smtp.cs.aau.dk")
-	by vger.kernel.org with ESMTP id S1750766AbVJFJxU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 05:53:20 -0400
-Message-ID: <4344F39B.10806@cs.aau.dk>
-Date: Thu, 06 Oct 2005 11:51:23 +0200
-From: Emmanuel Fleury <fleury@cs.aau.dk>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051001)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: freebox possible GPL violation
-References: <20051005111329.GA31087@linux.ensimag.fr> <4343B779.8030200@cs.aau.dk> <1128511676.2920.19.camel@laptopd505.fenrus.org> <4343BB04.7090204@cs.aau.dk> <1128513584.2920.23.camel@laptopd505.fenrus.org> <4343C0DB.9080506@cs.aau.dk> <1128514062.2920.27.camel@laptopd505.fenrus.org> <4343C73E.9000507@cs.aau.dk> <20051006000741.GC18080@aitel.hist.no> <Pine.LNX.4.62.0510051741310.14560@qynat.qvtvafvgr.pbz> <4344EC64.2010400@aitel.hist.no>
-In-Reply-To: <4344EC64.2010400@aitel.hist.no>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Thu, 6 Oct 2005 05:55:04 -0400
+Received: from smtp.terra.es ([213.4.129.129]:724 "EHLO tsmtp2.mail.isp")
+	by vger.kernel.org with ESMTP id S1750775AbVJFJzD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 05:55:03 -0400
+Date: Thu, 6 Oct 2005 11:53:39 +0200
+From: grundig@teleline.es
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: leimy2k@gmail.com, 7eggert@gmx.de, nix@esperi.org.uk, marc@perkel.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel?
+Message-Id: <20051006115339.6fd736a0.grundig@teleline.es>
+In-Reply-To: <20051005232330.GS10538@lkcl.net>
+References: <4TiWy-4HQ-3@gated-at.bofh.it>
+	<4U0XH-3Gp-39@gated-at.bofh.it>
+	<E1EMutG-0001Hd-7U@be1.lrz>
+	<87k6gsjalu.fsf@amaterasu.srvr.nix>
+	<3e1162e60510050755l590a696bx655eb0b7ac05aab6@mail.gmail.com>
+	<Pine.LNX.4.58.0510051744480.2279@be1.lrz>
+	<3e1162e60510050941l55485cbdgf6135e314a015d8f@mail.gmail.com>
+	<20051005232330.GS10538@lkcl.net>
+X-Mailer: Sylpheed version 2.1.1 (GTK+ 2.8.3; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting wrote:
-> 
-> Interesting argument, but it breaks for at least two reasons: 1. You
-> can buy that box instead of just hiring it. That moves kernels 
-> "outside the company", for money even.
+El Thu, 6 Oct 2005 00:23:30 +0100,
+Luke Kenneth Casson Leighton <lkcl@lkcl.net> escribió:
 
-I might have misunderstood but I think that if you buy the hardware you
-cannot connect it to the DSLAM network anymore. So that only the boxes
-they own are connected to the DSLAM.
+>  there are a lot of legacy apps that no-one wants to modify to get them
+>  to create/read /tmp/x-windows/.X11-unix.
 
-> 2. It doesn't matter if they only move kernels withing their own 
-> companys equipment. If they lend a customer equipment containing a
-> linux kernel, then they're lending them a linux kernel.  Lending is
-> distribution!
+What's the point of caring about security for a legacy app if nobody 
+is going to fix it if a security problema arises?
 
-Are you sure this point has been clarified in court in the past ?
-If not, I would bet on it (for the specific case of settop boxes).
 
-> The argument might be fine, if they were moving linux kernels into 
-> company equipment used by company personell only.  (I.e.
-> linux-powered desktops/servers/gadgets for their employees.) And it
-> might not. Maybe they actually have to distribute source to 
-> employees too, if they request it.  The GPL only mentions recipients,
-> no exceptions for "internal company use".  A company may perhaps
-> demand that the employees never request the source, though. Or
-> perhaps "internal use" is covered by the company being a "legal
-> unit".
+http://packages.debian.org/unstable/admin/libpam-tmpdir 
 
-"internal use" is kind of a buzz word here and should probably be
-clarified for this kind of cases.
+is good enought IMO
 
-For now, I really don't see the flaw in Free's argument.
 
-I mentioned in another mail the case of a mobile phone network
-infrastructure where the network nodes to which mobile phones are
-connecting are running Linux. It seems to be an "internal use" (as it
-never leak out of the company network) and yet providing a service to
-customers.
-
-The only difference in the Freeboxes case is that the node is at the
-customer place (you can compare the customer's mobile phone to the
-customer's computer plugged on the Freebox). But the fact that you don't
-share your node with others and that you have it at home doesn't change
-the fact that the company own it.
-
-Has been any previous similar cases in the past which went in court ?
-
-Maybe the best attack angle would be to say that if a GPL system is
-interacting directly with a customer, then the source code should be
-distributed. But I don't see if this requirement need changes in the GPL
-(I'm ain't no expert).
-
-Regards
--- 
-Emmanuel Fleury
-
-Always program as if the person who will be maintaining your program
-is a violent psychopath that knows where you live.
-  -- Unknown

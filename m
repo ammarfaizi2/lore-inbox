@@ -1,68 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751224AbVJFXZJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751239AbVJFX0R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751224AbVJFXZJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 19:25:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbVJFXZI
+	id S1751239AbVJFX0R (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 19:26:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbVJFX0R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 19:25:08 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:60869 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751224AbVJFXZG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 19:25:06 -0400
-Date: Thu, 6 Oct 2005 18:25:04 -0500
-To: paulus@samba.org
-Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: [PATCH 2/22] ppc64: Enable detection bugfix
-Message-ID: <20051006232504.GC29826@austin.ibm.com>
-References: <20051006232032.GA29826@austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051006232032.GA29826@austin.ibm.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: linas <linas@austin.ibm.com>
+	Thu, 6 Oct 2005 19:26:17 -0400
+Received: from [64.162.99.240] ([64.162.99.240]:2262 "EHLO
+	spamtest2.viacore.net") by vger.kernel.org with ESMTP
+	id S1751239AbVJFX0R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 19:26:17 -0400
+Message-ID: <4345B218.3040309@spamtest.viacore.net>
+Date: Thu, 06 Oct 2005 16:24:08 -0700
+From: Joe Bob Spamtest <joebob@spamtest.viacore.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050923 Fedora/1.7.12-1.5.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: what's next for the linux kernel?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Marc Perkel wrote:
+> Right - that's Unix "inside the box" thinking. The idea is to make the 
+> operating system smarter so that the user doesn't have to deal with 
+> what's computer friendly - but reather what makes sense to the user. 
+>  From a user's perspective if you have not rights to access a file then 
+> why should you be allowed to delete it?
 
-02-EEH-enable-bugfix.patch
+then that file shouldn't be in a directory owned by $otheruser.
 
-Bugfix: With the curent linux-2.6.14-rc2-git6, EEH errors are 
-ignored because thier detection requires an unusued, uninitialized 
-flag to be set.  This patch removes the unused flag.
+> Now - the idea is to create choice. If you need to emulate Unix nehavior 
+> for compatibility that's fine. But I would migrate away from that into a 
+> permissions paradygme that worked like Netware.
 
-Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
+the word is 'paradigm.' anyhow, through posix acls and selinux you can
+achieve the behaviour you so love.
 
+> I started with Netware and I'm spoiled. They had it right 15 years ago 
+> and Linux isn't any where near what I was with Netware and DOS in 1990. 
+> Once you've had this kind of permission power Linux is a real big step 
+> down.
 
-Index: linux-2.6.14-rc2-git6/arch/ppc64/kernel/eeh.c
-===================================================================
---- linux-2.6.14-rc2-git6.orig/arch/ppc64/kernel/eeh.c	2005-10-04 15:32:17.844809875 -0500
-+++ linux-2.6.14-rc2-git6/arch/ppc64/kernel/eeh.c	2005-10-04 15:54:21.769066567 -0500
-@@ -631,11 +631,12 @@
- 	pdn = PCI_DN(dn);
- 
- 	/* Access to IO BARs might get this far and still not want checking. */
--	if (!pdn->eeh_capable || !(pdn->eeh_mode & EEH_MODE_SUPPORTED) ||
-+	if (!(pdn->eeh_mode & EEH_MODE_SUPPORTED) ||
- 	    pdn->eeh_mode & EEH_MODE_NOCHECK) {
- 		__get_cpu_var(ignored_check)++;
- #ifdef DEBUG
--		printk ("EEH:ignored check for %s %s\n", pci_name (dev), dn->full_name);
-+		printk ("EEH:ignored check (%x) for %s %s\n", 
-+		        pdn->eeh_mode, pci_name (dev), dn->full_name);
- #endif
- 		return 0;
- 	}
-Index: linux-2.6.14-rc2-git6/include/asm-ppc64/pci-bridge.h
-===================================================================
---- linux-2.6.14-rc2-git6.orig/include/asm-ppc64/pci-bridge.h	2005-10-04 15:32:17.845809735 -0500
-+++ linux-2.6.14-rc2-git6/include/asm-ppc64/pci-bridge.h	2005-10-04 15:54:21.769066567 -0500
-@@ -61,7 +61,6 @@
- 	int	devfn;			/* for pci devices */
- 	int	eeh_mode;		/* See eeh.h for possible EEH_MODEs */
- 	int	eeh_config_addr;
--	int	eeh_capable;		/* from firmware */
- 	int 	eeh_check_count;	/* # times driver ignored error */
- 	int 	eeh_freeze_count;	/* # times this device froze up. */
- 	int	eeh_is_bridge;		/* device is pci-to-pci bridge */
+if you like netware so much, then fucking use it. nobody here will stop you.
+
+> So - the thread is about the future so I say - time to fix Unix.
+
+UNIX isn't broken. you're just not asking it to do the right things.
+

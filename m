@@ -1,138 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751286AbVJFSVH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbVJFSUt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751286AbVJFSVH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 14:21:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbVJFSVH
+	id S1751281AbVJFSUt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 14:20:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbVJFSUt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 14:21:07 -0400
-Received: from mail.kroah.org ([69.55.234.183]:54722 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751286AbVJFSVE (ORCPT
+	Thu, 6 Oct 2005 14:20:49 -0400
+Received: from [85.21.88.2] ([85.21.88.2]:8861 "HELO mail.dev.rtsoft.ru")
+	by vger.kernel.org with SMTP id S1751281AbVJFSUs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 14:21:04 -0400
-Date: Thu, 6 Oct 2005 11:20:22 -0700
-From: Greg KH <greg@kroah.com>
-To: Mark Gross <mgross@linux.intel.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       Sebastien.Bouchard@ca.kontron.com, mark.gross@intel.com
-Subject: Re: Fwd: Telecom Clock Driver for MPCBL0010 ATCA computer blade
-Message-ID: <20051006182022.GA14414@kroah.com>
-References: <200510060803.21470.mgross@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200510060803.21470.mgross@linux.intel.com>
-User-Agent: Mutt/1.5.11
+	Thu, 6 Oct 2005 14:20:48 -0400
+Message-ID: <43456AF7.1090405@ru.mvista.com>
+Date: Thu, 06 Oct 2005 22:20:39 +0400
+From: Vitaly Wool <vwool@ru.mvista.com>
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mark Underwood <basicmark@yahoo.com>
+CC: David Brownell <david-b@pacbell.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH/RFC 0/2] simple SPI framework, refresh + ads7864 driver
+References: <20051006181332.30906.qmail@web33011.mail.mud.yahoo.com>
+In-Reply-To: <20051006181332.30906.qmail@web33011.mail.mud.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 06, 2005 at 08:03:21AM -0700, Mark Gross wrote:
-> +#if CONFIG_DEBUG_KERNEL 
-> +#define debug_printk( args... ) printk( args)
-> +#else
-> +#define debug_printk( args... )
-> +#endif
+Mark Underwood wrote:
 
-Please just use the existing dev_dbg() and friend functions instead of
-creating your own.
+>--- David Brownell <david-b@pacbell.net> wrote:
+>
+>  
+>
+>>>Of course we want to use scatter-gather lists.
+>>>      
+>>>
+>>The only way "of course" applies is if you're accepting requests
+>>from the block layer, which talks in terms of "struct scatterlist".
+>>    
+>>
+>
+>If you look at the mmci driver (drivers/mcc/mmci.c) then you will see the way that driver
+>transfers data is do to one sg element at a time. I have added DMA support to this driver which
+>also does one element at a time (which uses the ARM PL080 DMAC). sg lists should not be for the
+>SPI layer to worry about. The fact that the PL080 DMAC controller can only transfer (4096-1)K
+>objects (the size of the object being the source size) should be of no concern to the driver that
+>uses DMA (either directly for through the SPI subsystem). It is the job of the PL080 driver to
+>split the requested transfer into several transfers that it can handle.
+>  
+>
+mmci.c is not the only one existing MMC driver ;-)
 
-> +DEFINE_SPINLOCK(event_lock);
+>  
+>
+>>In my investigations of SPI, I don't happen to have come across any
+>>SPI slave device that would naturally be handled as a block device.
+>>There's lots of flash (and dataflash); that's MTD, not block.
+>>
+>>
+>>    
+>>
+>>>The DMA controller 
+>>>mentioned above can handle only 0xFFF transfer units at a transfer so we 
+>>>have to split the large transfers into SG lists.
+>>>      
+>>>
+>>Odd, I've seen plenty other drivers that just segment large buffers
+>>into multiple DMA transfers ... without wanting "struct scatterlist".
+>>
+>>  - Sometimes they turn them into lists of DMA descriptors handled
+>>    by their DMA controller.  Even the silicon designers who talk
+>>    to Linux developers wouldn't choose "struct scatterlist" to
+>>    hold those descriptors
+>>
+>>  - More often they just break big buffers into lots of little
+>>    transfers.  Just like PIO, but faster.  (And in fact, they may
+>>    need to prime the pump with some PIO to align the buffer.)
+>>
+>>  - Sometimes they just reject segments that are too large to
+>>    handle cleanly at a low level, and require higher level code
+>>    to provide more byte-sized blocks of I/O.
+>>
+>>If "now" _were_ the point we need to handle scatterlists, I've shown
+>>a nice efficient way to handle them, already well proven in the context
+>>of another serial bus protocol (USB).
+>>
+>>
+>>    
+>>
+>>>Moreover, that looks like it may imply redundant data copying.
+>>>      
+>>>
+>>Absolutely not.  Everything was aimed at zero-copy I/O; why do
+>>you think I carefully described "DMA mapping" everywhere, rather
+>>than "memcpy"?
+>>
+>>
+>>    
+>>
+>>>Can you please elaborate what you meant by 'readiness to accept DMA 
+>>>addresses' for the controller drivers?
+>>>      
+>>>
+>>Go look at the parts of the USB stack I mentioned.  That's what I mean.
+>>
+>> - In the one case, DMA-aware controller drivers look at each buffer
+>>   to determine whether they have to manage the mappings themselves.
+>>   If the caller provided the DMA address, they won't set up mappings.
+>>
+>> - In the other case, they always expect their caller to have set
+>>   up the DMA mappings.  (Where "caller" is infrastructure code,
+>>   not the actual driver issuing the I/O request.)
+>>
+>>The guts of such drivers would only talk in terms of DMA; the way those
+>>cases differ is how the driver entry/exit points ensure that can be done.
+>>
+>>
+>>    
+>>
+>>>As far as I see it now, the whole thing looks wrong. The thing that we 
+>>>suggest (i. e. abstract handles for memory allocation set to kmalloc by 
+>>>default) is looking far better IMHO and doesn't require any flags which 
+>>>usage increases uncertainty in the core.
+>>>      
+>>>
+>>You are conflating memory allocation with DMA mapping.  Those notions
+>>are quite distinct, except for dma_alloc_coherent() where one operation
+>>does both.
+>>
+>>The normal goal for drivers is to accept buffers allocated from anywhere
+>>that Documentation/DMA-mapping.txt describes as being DMA-safe ... and
+>>less often, message passing frameworks will do what USB does and accept
+>>DMA addresses rather than CPU addresses.
+>>
+>>- Dave
+>>
+>>-
+>>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>>the body of a message to majordomo@vger.kernel.org
+>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>Please read the FAQ at  http://www.tux.org/lkml/
+>>
+>>    
+>>
+>
+>
+>
+>		
+>___________________________________________________________ 
+>How much free photo storage do you get? Store your holiday 
+>snaps for FREE with Yahoo! Photos http://uk.photos.yahoo.com
+>
+>
+>  
+>
 
-This should be static, right?
-
-> +irqreturn_t tlclk_interrupt(int irq, void *dev_id, struct pt_regs *regs);
-
-static?
-
-> +DECLARE_WAIT_QUEUE_HEAD(wq);
-
-static?
-
-> +#ifdef TLCLK_IOCTL
-
-Please just delete this whole section, no new ioctls for 2.6 please.
-
-> +ssize_t
-> +tlclk_read(struct file * filp, char __user * buf, size_t count, loff_t * f_pos)
-
-Return type on the same line as the function name please.
-
-> +{
-> +	int count0 = sizeof(struct tlclk_alarms);
-> +
-> +	wait_event_interruptible(wq, got_event);
-> +	if (copy_to_user(buf, alarm_events, sizeof(struct tlclk_alarms)))
-> +		return -EFAULT;
-> +
-> +	memset(alarm_events, 0, sizeof(struct tlclk_alarms));
-> +	got_event = 0;
-> +
-> +	return count0;
-
-count0 doesn't really need to be here, does it?
-
-What if you get passed less than that size of data?  You will be reading
-in off of the end of the buffer (which is not a nice thing to do...)
-
-> +#ifdef CONFIG_SYSFS
-
-Not needed, just drop this #ifdef please.
-
-> +static ssize_t show_current_ref(struct class_device *d, char * buf)
-> +{
-> +	unsigned long ret_val;
-> +	unsigned long flags;
-> +
-> +	spin_lock_irqsave(&event_lock, flags);
-> +		ret_val = ((inb(TLCLK_REG1) & 0x08) >> 3);
-> +	spin_unlock_irqrestore(&event_lock, flags);
-
-Odd indentation here.  You do this a lot, please fix them all.
-
-> +static int __init tlclk_init(void)
-> +{
-> +	int ret;
-> +#ifdef  CONFIG_SYSFS
-> +	struct class_device *class;
-> +#endif
-
-Again, please drop all of the #ifdefs from this file, they are not
-needed.
-
-> +	alarm_events = kcalloc(1, sizeof(struct tlclk_alarms), GFP_KERNEL);
-
-We have kzalloc() now.
-
-> +
-> +	if (!alarm_events)
-> +		goto out1;
-> +
-> +/* Read telecom clock IRQ number (Set by BIOS) */
-
-Indentation is wrong.
-
-> +	if( 0 > (ret = misc_register(&tlclk_miscdev )) ) {
-
-Try this instead:
-	ret = misc_register(&tlclk_miscdev);
-	if (ret) {
-
-> +		printk(KERN_ERR" misc_register retruns %d \n", ret);
-> +		ret =  -EBUSY;
-> +		goto out3;
-> +	}
-> +	class = tlclk_miscdev.class;
-> +	class_device_create_file(class, &class_device_attr_current_ref);
-
-Try registering a whole attribute group instead.  It's much nicer than
-the 20 lines you have to register and unregister your devices (and you
-don't handle the error condition properly if something goes wrong half
-way through.)
-
-> diff -urN -X dontdiff linux-2.6.14-rc2-mm2/drivers/char/tlclk.h linux-2.6.14-rc2-mm2-tlclk/drivers/char/tlclk.h
-
-Why not just put this stuff into the tlclk.c file itself, as it isn't
-needed anywhere else?
-
-thanks,
-
-greg k-h

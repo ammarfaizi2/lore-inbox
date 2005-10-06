@@ -1,127 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750998AbVJFOZr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750992AbVJFOZu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750998AbVJFOZr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 10:25:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751005AbVJFOZr
+	id S1750992AbVJFOZu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 10:25:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751006AbVJFOZu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 10:25:47 -0400
-Received: from qproxy.gmail.com ([72.14.204.199]:12304 "EHLO qproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750992AbVJFOZq convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 10:25:46 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=UQ6PyyImS7XrvJU5IkJ6abzz6fnMOPUwwkDchzx0DT6nTmI1p7JkT+vftpoxDc3+6ddvkAzmcd0VMWs+UH7NKvFQxy6KwLpRIhdkykhNexJfo8UxGB3oMuCMGTrpye1fk0BJapkjgOFHONFxFHzPZASbqZ0fnIewCmmENxHle+g=
-Message-ID: <9a8748490510060725x34426df0se719458caf9364fe@mail.gmail.com>
-Date: Thu, 6 Oct 2005 16:25:45 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: madhu.subbaiah@wipro.com
-Subject: Re: select(0,NULL,NULL,NULL,&t1) used for delay
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1128606546.14385.26.camel@penguin.madhu>
+	Thu, 6 Oct 2005 10:25:50 -0400
+Received: from mail22.sea5.speakeasy.net ([69.17.117.24]:29576 "EHLO
+	mail22.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1750992AbVJFOZt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 10:25:49 -0400
+Date: Thu, 6 Oct 2005 10:25:46 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@excalibur.intercode
+To: David Howells <dhowells@redhat.com>
+cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       keyrings@linux-nfs.org, linux-kernel@vger.kernel.org,
+       Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [Keyrings] [PATCH] Keys: Add LSM hooks for key management 
+In-Reply-To: <23641.1128596760@warthog.cambridge.redhat.com>
+Message-ID: <Pine.LNX.4.63.0510061014540.26656@excalibur.intercode>
+References: <Pine.LNX.4.63.0510060404141.25593@excalibur.intercode> 
+ <29942.1128529714@warthog.cambridge.redhat.com>  <23641.1128596760@warthog.cambridge.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1128606546.14385.26.camel@penguin.madhu>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/6/05, Madhu K.S. <madhu.subbaiah@wipro.com> wrote:
-> Hi all,
->
->
-> In many application we use select() system call for delay.
->
-> example:
-> select(0,NULL,NULL,NULL,&t1);
->
->
-> select() for delay is very inefficient. I modified sys_select() code for
-> efficiency .Here are the changes to fs/select.c.
->
-> Please suggest on these changes.
->
+On Thu, 6 Oct 2005, David Howells wrote:
 
-A few tiny comments below.
+> James Morris <jmorris@namei.org> wrote:
+> 
+> > I think this looks ok from an SELinux point of view if keys are treated as 
+> > opaque objects, i.e. like files.
+> 
+> I'll make some changes based on the suggestions I've received. Those who
+> request the return of keyfs can go boil their heads.
 
+You know, I was thinking, ext3 could be much more compact if it was just a 
+set of custom syscalls and had no VFS representation.
 
-> I know nanosleep() can be used instead of select(), but please suggest
-> on my changes.
->
->
-> file : fs/select.c
-> function : sys_select()
->
-Submitting an actual applyable patch is preferred. Makes it possible
-to easily apply your changes to test the changes and then the file and
-function is also part of the patch so you won't have to spell that out
-explicitly.
-Use   diff -up
+What about a per process /proc/pid/keys, which contains keyrings and keys, 
+which can be opened, closed, use xattrs for any special access control 
+etc. ?
 
->
->
->
->                           timeout += sec * (unsigned long) HZ;
->                 }
->         }
-> -
-> +
-> +
->         ret = -EINVAL;
->         if (n < 0)
->                 goto out_nofds;
-> -
-> +       if ( (n == 0) && (inp == NULL) && (outp == NULL) &&
->                 (exp==  NULL)){
-No space for the beginning parenthesis and space before the opening
-bracket is preferred:
-       if ((n == 0) && (inp == NULL) && (outp == NULL) &&
-               (exp==  NULL)) {
+> > We could do something like create a new object class (kernkey or 
+> > something) and implement SELinux permissions for the class such as read, 
+> > write, search, link, setattr and getattr.  Your KEY_VIEW perm could be 
+> > translated to SELinux getattr.
+> 
+> Should I expand the permissions mask to include a setattr?
 
+Possibly for setperm and chown.
 
-> +                printf("\n I am inside new select condition timeout
->                         %d\n",timeout);
-Having a printk() here certainly won't help performance.
+> > I'm not sure if we need user-level labeling of keys via the set & get 
+> > security ops, although LSPP may require some form of get_security. If we 
+> > don't need to manually set security attributes but still view them, they 
+> > could be displayed via /proc/keys rather than implementing a separate 
+> > multiplexed syscall.
+> 
+> Would it be worth me adding a key type op by which a security module can ask
+> the type its opinion (or by which key_alloc() can ask the type to give the
+> security module an earful)?
 
-> +                set_current_state(TASK_INTERRUPTIBLE);
-> +                ret = 0;
-> +                timeout = schedule_timeout(timeout);
-> +                if (signal_pending(current))
-> +                        ret = -ERESTARTNOHAND;
-Wouldn't it make sense to jump out at this point if there's a signal pending?
-                if (signal_pending(current)) {
-                        ret = -ERESTARTNOHAND;
-                        goto out;
-                }
-Or am I missing something?
+Well, SELinux is the only significant LSM in the tree and I don't think it 
+needs to set the labels.  So, no.
 
-> +                if (tvp && !(current->personality & STICKY_TIMEOUTS)) {
-> +                        time_t sec = 0, usec = 0;
-> +                        if (timeout) {
-> +                                sec = timeout / HZ;
-> +                                usec = timeout % HZ;
-> +                                usec *= (1000000/HZ);
-Small style thing:   usec *= (1000000 / HZ);
+> >   keyctl_chown_key()
+> >   keyctl_setperm_key()
+> 
+> Okay.
+> 
+> >   keyctl_set_reqkey_keyring()
+> 
+> Should this really be securified? It merely controls the default destination
+> for a key created by request_key(), and is limited to the keyrings the process
+> is subscribed to in any case.
+
+Ok, if needed, it can be added later.
+
+> > All users of key_permission() need to propagate the error code from the 
+> > LSM back to the user.
+> 
+> Really? Why?
+
+Because the LSM has final say on the error code returned to the caller.  
+If the LSM runs out of memory, for example, it's silly to return -EACCES.
+
+> Note that the fact that key_permission() fails for a key is sometimes ignored,
+> such as when I'm doing a search and one potentially matching key fails, but a
+> subsequent matching key passes.
+
+Ok, that sounds like an internal issue to be resolved, ensuring that if 
+you are returning to the caller, the LSM's error code is returned.
 
 
-> +                        }
-> +                        put_user(sec, &tvp->tv_sec);
-> +                        put_user(usec, &tvp->tv_usec);
-> +                }
-> +                current->state = TASK_RUNNING;
-> +                goto out_nofds;
-> +        }
-> +
->         /* max_fdset can increase, so grab it once to avoid race */
->         max_fdset = current->files->max_fdset;
->         if (n > max_fdset)
->
-[snip]
-
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+- James
+-- 
+James Morris
+<jmorris@namei.org>

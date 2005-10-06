@@ -1,80 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751111AbVJFQJw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751130AbVJFQOR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751111AbVJFQJw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 12:09:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbVJFQJw
+	id S1751130AbVJFQOR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 12:14:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbVJFQOR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 12:09:52 -0400
-Received: from qproxy.gmail.com ([72.14.204.200]:3639 "EHLO qproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751111AbVJFQJv convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 12:09:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rfJlxZJm3h6z2RKyQ676BtKp1dHIrAATQ4XcoG7B8qUaFuwozC5S4lPHmSFue9vrVr3+FfDbsccboUTp1UIMUJKYTB1v6Je+fmHzdyRx+AerVfCUgTFuUu4TTk+yk6PMZg5kjlCl7FUYLdGVp215dZbT4ClcH3poWwYvw9R3ksA=
-Message-ID: <9a8748490510060909v33c0a30eobf0cd0b7f1886122@mail.gmail.com>
-Date: Thu, 6 Oct 2005 18:09:50 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: Kalin KOZHUHAROV <kalin@thinrope.net>
-Subject: Re: [PATCH] Documentation: ksymoops should no longer be used to decode Oops messages
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <di3h5d$f82$1@sea.gmane.org>
+	Thu, 6 Oct 2005 12:14:17 -0400
+Received: from mail28.sea5.speakeasy.net ([69.17.117.30]:46034 "EHLO
+	mail28.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1751130AbVJFQOQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 12:14:16 -0400
+Date: Thu, 6 Oct 2005 12:14:13 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@excalibur.intercode
+To: David Howells <dhowells@redhat.com>
+cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       keyrings@linux-nfs.org, linux-kernel@vger.kernel.org,
+       Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [Keyrings] [PATCH] Keys: Add LSM hooks for key management 
+In-Reply-To: <30054.1128611494@warthog.cambridge.redhat.com>
+Message-ID: <Pine.LNX.4.63.0510061204040.26937@excalibur.intercode>
+References: <Pine.LNX.4.63.0510061014540.26656@excalibur.intercode> 
+ <Pine.LNX.4.63.0510060404141.25593@excalibur.intercode>
+ <29942.1128529714@warthog.cambridge.redhat.com> <23641.1128596760@warthog.cambridge.redhat.com>
+  <30054.1128611494@warthog.cambridge.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200510052239.43492.jesper.juhl@gmail.com>
-	 <di3h5d$f82$1@sea.gmane.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/6/05, Kalin KOZHUHAROV <kalin@thinrope.net> wrote:
-> Jesper Juhl wrote:
-> > Document the fact that ksymoops should no longer be used to decode Oops
-> > messages.
-> >
-[snip]
->
-> OK, but what should I use then with 2.6??
+On Thu, 6 Oct 2005, David Howells wrote:
 
-Nothing at all.
-Just post the raw Oops message as-is (from console or dmesg).
+> > > Should I expand the permissions mask to include a setattr?
+> > 
+> > Possibly for setperm and chown.
+> 
+> For setperm?
 
-> And since when is ksymoops not usable with it?
+It changes an attribute of a key, for which you have DAC checks, therefore 
+you could assume that we'd also want MAC checks.
 
-At least since 2003 and the 2.5 kernel series.
-The oldest reference I could find in the archives is an email by Dave
-Jones dating back to Mon Apr 14 2003 - 14:31:44 EST
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0304.1/1533.html
+> > > > All users of key_permission() need to propagate the error code from the 
+> > > > LSM back to the user.
+> > > 
+> > > Really? Why?
+> > 
+> > Because the LSM has final say on the error code returned to the caller.  
+> > If the LSM runs out of memory, for example, it's silly to return -EACCES.
+> > 
+> > > Note that the fact that key_permission() fails for a key is sometimes
+> > > ignored, such as when I'm doing a search and one potentially matching key
+> > > fails, but a subsequent matching key passes.
+> > 
+> > Ok, that sounds like an internal issue to be resolved, ensuring that if 
+> > you are returning to the caller, the LSM's error code is returned.
+> 
+> But which LSM error code?
+> 
+> Let me explain what I mean:
 
-The interresting part of that mail is this bit
+[snipped]
 
-"Merging of kksymoops means that the kernel will now spit out
- automatically decoded oopses (no more feeding them to ksymoops).
- For this reason, you should always enable the option in the
- kernel hacking menu labelled "Load all symbols for debugging/kksymoops".
-"
+Thanks for the detailed explanation.
 
-> I have reported quite a few times here, alaways with 2.6.x and nobody said anything about it...
+Not sure yet how we'll avoid generating spurious SELinux denial messages.
 
-They should have.
+> Only if all these fail does the whole thing fail with the highest priority
+> error. Note that several errors may have come from LSM.
+> 
+> The error priority should be:
+> 
+> 	EKEYREVOKED > EKEYEXPIRED > ENOKEY
+> 
+> EACCES/EPERM should only really be returned on a direct keyring search where
+> the basal keyring doesn't have Search permission.
 
-Please read a recent Documentation/oops-tracing.txt (here's a link:
-http://sosdg.org/~coywolf/lxr/source/Documentation/oops-tracing.txt?v=2.6.14-rc2
-)
+Ok, if a failure of this nature is generated by an LSM, we need to return 
+the LSM's error code (e.g. ask the LSM for search permission and it 
+returns -ENOMEM).
 
-See the note at the top :
+> The fact that I couldn't find a key because I didn't have permission to find
+> it probably shouldn't cause an immediate abort of the search with an error, or
+> any error other than ENOKEY/EKEYREVOKED/EKEYEXPIRED, unless I'm not permitted
+> to request a new key.
 
-"NOTE: ksymoops is useless on 2.6.  Please use the Oops in its original format
- (from dmesg, etc).  Ignore any references in this or other docs to "decoding
- the Oops" or "running it through ksymoops".  If you post an Oops fron 2.6 that
- has been run through ksymoops, people will just tell you to repost it.
-"
+Ok.
 
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+- James
+-- 
+James Morris
+<jmorris@namei.org>

@@ -1,60 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbVJFIIW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbVJFIKd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750726AbVJFIIW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 04:08:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbVJFIIW
+	id S1750734AbVJFIKd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 04:10:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750735AbVJFIKd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 04:08:22 -0400
-Received: from smtp-vbr15.xs4all.nl ([194.109.24.35]:47370 "EHLO
-	smtp-vbr15.xs4all.nl") by vger.kernel.org with ESMTP
-	id S1750726AbVJFIIV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 04:08:21 -0400
-Message-ID: <4344DB73.9020604@bananateam.nl>
-Date: Thu, 06 Oct 2005 10:08:19 +0200
-From: Freaky <freaky@bananateam.nl>
-User-Agent: Thunderbird 1.4 (X11/20050908)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: MTP - Media Transfer Protocol support
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 6 Oct 2005 04:10:33 -0400
+Received: from h80ad2531.async.vt.edu ([128.173.37.49]:21434 "EHLO
+	h80ad2531.async.vt.edu") by vger.kernel.org with ESMTP
+	id S1750734AbVJFIKb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 04:10:31 -0400
+Message-Id: <200510060808.j9688gQv026869@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: jmerkey <jmerkey@utah-nac.org>
+Cc: Chase Venters <chase.venters@clientec.com>,
+       Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+       Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Wolf Mountain File System [what's next for the linux kernel] 
+In-Reply-To: Your message of "Wed, 05 Oct 2005 22:27:03 MDT."
+             <4344A797.9010701@utah-nac.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <20051002204703.GG6290@lkcl.net> <200510041840.55820.chase.venters@clientec.com> <20051005102650.GO10538@lkcl.net> <200510060005.09121.chase.venters@clientec.com>
+            <4344A797.9010701@utah-nac.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1128586115_4102P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Thu, 06 Oct 2005 04:08:36 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey there,
+--==_Exmh_1128586115_4102P
+Content-Type: text/plain; charset=us-ascii
 
-I don't know if this is the right place, but I would like to inquire on 
-the status of MTP support in the kernel.
+On Wed, 05 Oct 2005 22:27:03 MDT, jmerkey said:
 
-MTP is a new protocol by Microsoft if I'm not mistaken. It stands for 
-Media Transfer Protocol. It's going to replace the mass storage support 
-on a lot of new MP3 players and from what I've seen, also on other 
-mobile devices like phones and camera's.
+> anything that exists today.  This FS will not be released under the GPL 
+> but the BSD-mod license on Linux with a kicker that contributors can 
+> retain copyrights.
 
-MTP, from what I've seen so far, has 2 folders at the moment (atleast on 
-my MP3 device / iRiver T10). Music and Data. Music can only be written 
-by software like Media Player 10, because it has to do with DRM. Data 
-however can be written as a filesystem. The latter is what I would like 
-support for (I don't care about DRM).
+Oh no. Not again.  I thought we pounded a stake through the heart of this
+"relicense the kernel" vampyre....
 
-Microsoft appearantly publishes the specifications, unfortunately for 
-most of us it's Microsoft word format, in an executable. Would convert 
-this for you, but I don't know how legal that is.
 
-http://www.microsoft.com/downloads/details.aspx?FamilyID=fed98ca6-ca7f-4e60-b88c-c5fce88f3eea&displaylang=en
 
-Sorry if this is the wrong place to ask. But I figured it needs kernel 
-support first, because the USB device isn't recognized at all. MTP has a 
-general USB interface like mass storage from what I understand, so we'll 
-need drivers for that first I think.
+--==_Exmh_1128586115_4102P
+Content-Type: application/pgp-signature
 
-For those interested, PLX appearantly has written something to support 
-MTP on (some?) of their chips for phones. Haven't been able to find the 
-software so far.
-http://www.plxtech.com/products/exp_apps/files/ExApps18_MobilePhone.pdf
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-As always, all you guys do is really appreciated. Keep up the good work.
+iD8DBQFDRNuDcC3lWbTT17ARAgWaAJ9xg3EHfVLJvzgu/Pi4mEz0Tofu+ACgjWuh
+6jns80cX9txYbyYsOfvHE9I=
+=6v0m
+-----END PGP SIGNATURE-----
 
-TIA
-
-Ferry
+--==_Exmh_1128586115_4102P--

@@ -1,94 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750935AbVJFURP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750936AbVJFUSw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750935AbVJFURP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 16:17:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750936AbVJFURP
+	id S1750936AbVJFUSw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 16:18:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751345AbVJFUSw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 16:17:15 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:37537 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S1750933AbVJFURO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 16:17:14 -0400
-Date: Thu, 6 Oct 2005 16:17:09 -0400 (EDT)
-From: Jim McQuillan <jam@McQuil.com>
-X-X-Sender: jam@www.mcquillansystems.com
-To: linux-kernel@vger.kernel.org
-Subject: pivot_root doesn't work for me in 2.6.14-rc3
-Message-ID: <Pine.LNX.4.62.0510061555190.12337@www.mcquillansystems.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 6 Oct 2005 16:18:52 -0400
+Received: from 223-177.adsl.pool.ew.hu ([193.226.223.177]:24068 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S1750936AbVJFUSv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 16:18:51 -0400
+To: trond.myklebust@fys.uio.no
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-reply-to: <1128626258.31797.34.camel@lade.trondhjem.org> (message from
+	Trond Myklebust on Thu, 06 Oct 2005 15:17:38 -0400)
+Subject: Re: [RFC] atomic create+open
+References: <E1ENWt1-000363-00@dorka.pomaz.szeredi.hu>
+	 <1128616864.8396.32.camel@lade.trondhjem.org>
+	 <E1ENZ8u-0003JS-00@dorka.pomaz.szeredi.hu>
+	 <E1ENZCQ-0003K3-00@dorka.pomaz.szeredi.hu>
+	 <1128619526.16534.8.camel@lade.trondhjem.org>
+	 <E1ENZZl-0003OO-00@dorka.pomaz.szeredi.hu>
+	 <1128620528.16534.26.camel@lade.trondhjem.org>
+	 <E1ENZu1-0003SP-00@dorka.pomaz.szeredi.hu>
+	 <1128623899.31797.14.camel@lade.trondhjem.org>
+	 <E1ENani-0003c4-00@dorka.pomaz.szeredi.hu> <1128626258.31797.34.camel@lade.trondhjem.org>
+Message-Id: <E1ENcAr-0003jz-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Thu, 06 Oct 2005 22:17:05 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've found a problem with pivot_root that worked fine in 2.6.13.3, but
-fails for me, starting in 2.6.14-rc3  (haven't tried rc1 or rc2).
+> > 
+> > When open_namei() gets around to following the mounts, it is not there
+> > any more, so the dentry for /mnt/foo (the NFS one is returned) and
+> > NFS's ->open is called on the file, which returns -ENOENT.  But
+> > open(..., O_CREAT, ...) should never return -ENOENT.
+> 
+> ...and so the VFS can recognise the case, and be made to retry the
+> operation.
+> A more difficult race to deal with occurs if you allow a mount while
+> inside d_revalidate(). In that case NFS can end up opening the wrong
+> file.
 
-This is for LTSP.org (Linux Terminal Server Project) thin clients.
+Yes, in fact all my examples should have been for ->d_revalidate(),
+since it's not possible that ->lookup() be called for a mounted
+dentry.
 
-In our initramfs, we have a '/init' script that creates a mountpoint for
-a 2nd ramfs, and i'm trying to pivot_root to that mount point.
+> Both these two races could, however, be fixed by moving the
+> __follow_mount() in open_namei() inside the section that is protected by
+> the parent directory i_sem.
 
-I'm getting:
+No.  Only the namespace semaphore could protect against mount/umount,
+but you don't want to take that in lookup logic.
 
-   pivot_root: Invalid Argument
+> In any case, all you are doing here is showing that the situation w.r.t.
+> mount races and lookup+create+open is difficult. I see nothing that
+> convinces me that a special atomic create+open will help to resolve
+> those races.
 
+I just think that filesystem code should _never_ need to care about
+mounts.  If you want to do the lookup+open, you somehow will have to
+deal with mounts, which is ugly.
 
-This worked perfectly in 2.6.13.3, so I looked at the 2.6.14-rc3 patch,
-and I found the code in fs/namespace.c that is causing it to fail for
-me:
+> Nor do I see that adding a special atomic create+open will help me avoid
+> intents for the case of atomic lookup+open(). As far as I'm concerned,
+> the case of lookup+create+open is just a special case of lookup+open.
 
+IMO the lookup+open optimization is not valid, because dealing with
+mounts is the job of the VFS and not the filesystem.
 
-@@ -1334,8 +1332,12 @@ asmlinkage long sys_pivot_root(const cha
-        error = -EINVAL;
-        if (user_nd.mnt->mnt_root != user_nd.dentry)
-                goto out2; /* not a mountpoint */
-+       if (user_nd.mnt->mnt_parent == user_nd.mnt)
-+               goto out2; /* not attached */
-        if (new_nd.mnt->mnt_root != new_nd.dentry)
-                goto out2; /* not a mountpoint */
-+       if (new_nd.mnt->mnt_parent == new_nd.mnt)
-+               goto out2; /* not attached */
-        tmp = old_nd.mnt; /* make sure we can reach put_old from
-new_root */
-        spin_lock(&vfsmount_lock);
-        if (tmp != new_nd.mnt) {
+Path lookup usually ends in a sequence of ->lookup (or
+->d_revalidate), then following mounts, then doing the operation.  You
+shouldn't try to merge the ->lookup and the ->fsop into one operation.
+That way leads to madness.
 
-
-The first of the 2 new tests are causing the pivot_root to fail for me.
-If I comment out those lines, it works again.
-
-I'm thinking that somebody put those lines there for a reason, so
-there's possibly something wrong with the way i've been doing this for a
-long time, and the tightening of the code has uncovered my problem.
-
-I'll explain how we use the initramfs/nfsroot:
-
-  1) kernel boots, mounts initramfs
-  2) /init creates and mouts a ramfs on /newroot
-  3) create /newroot/nfsroot mountpoint
-  4) nfsmount /opt/ltsp/i386 from the server on /newroot/nfsroot
-  5) create a bunch of symlinks to things we need on the nfs filesystem
-     such as bin, etc, lib, sbin, usr
-  6) create a bunch of ram-based directories in /newroot, such as
-     tmp, dev, oldroot, proc and sys
-  7) cd /newroot; pivot_root . oldroot
-  8) mount /sys and /proc, start udev
-  9) exec /sbin/init
-
-We don't do the pivot_root directly to the nfs-mounted filesystem,
-because then EVERY file access we do causes NFS traffic.
-
-If you'd like to see a diagram, check out
-
-http://wiki.ltsp.org/twiki/bin/view/Ltsp/WorkInProgress#Diagram_of_initramfs_nfs_layout
-
-Somebody recently told me that pivot_root has been put in the 'evil way
-to do things' category, and that there was a new way, but he couldn't
-remember what that was.
-
-So, if anybody knows the new way, i'd appreciate hearing about it.
-
-Thanks,
-
-Jim McQuillan
-jam@Ltsp.org
+Miklos

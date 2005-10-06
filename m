@@ -1,87 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750820AbVJFLGV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbVJFLI5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750820AbVJFLGV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 07:06:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbVJFLGV
+	id S1750828AbVJFLI5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 07:08:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbVJFLI5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 07:06:21 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:3991 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750820AbVJFLGV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 07:06:21 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <Pine.LNX.4.63.0510060404141.25593@excalibur.intercode> 
-References: <Pine.LNX.4.63.0510060404141.25593@excalibur.intercode>  <29942.1128529714@warthog.cambridge.redhat.com> 
-To: James Morris <jmorris@namei.org>
-Cc: David Howells <dhowells@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, keyrings@linux-nfs.org,
-       linux-kernel@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [Keyrings] [PATCH] Keys: Add LSM hooks for key management 
-X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
-Date: Thu, 06 Oct 2005 12:06:00 +0100
-Message-ID: <23641.1128596760@warthog.cambridge.redhat.com>
+	Thu, 6 Oct 2005 07:08:57 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:1759 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750828AbVJFLI4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 07:08:56 -0400
+Date: Thu, 6 Oct 2005 07:08:14 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+To: Andi Kleen <ak@suse.de>
+cc: Ingo Molnar <mingo@elte.hu>, Mark Knecht <markknecht@gmail.com>,
+       linux-kernel@vger.kernel.org, tony.luck@intel.com,
+       acpi-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH] cleanup u32 flags in acpi spin_lock calls.
+In-Reply-To: <200510061204.33045.ak@suse.de>
+Message-ID: <Pine.LNX.4.58.0510060656490.28535@localhost.localdomain>
+References: <5bdc1c8b0510041111n188b8e14lf5a1398406d30ec4@mail.gmail.com>
+ <20051006084920.GB22397@elte.hu> <Pine.LNX.4.58.0510060544390.28535@localhost.localdomain>
+ <200510061204.33045.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Morris <jmorris@namei.org> wrote:
 
-> I think this looks ok from an SELinux point of view if keys are treated as 
-> opaque objects, i.e. like files.
+This is not an urgent issue, but was noticed in Ingo's RT kernel. There
+are some places in ACPI that save flags as a u32 instead of a unsigned
+long.  This is done indirectly by calling acpi_os_acquire_lock, which uses
+unsigned long, but the flags returned are saved in the acpi code as a u32.
 
-I'll make some changes based on the suggestions I've received. Those who
-request the return of keyfs can go boil their heads.
+Since todays archs that use acpi, only care about the LS 32 bits of the
+word, this is not really an issue.  But if there is an arch in the future
+that changes that assumption, or (as RT does) some internal change in the
+kernel that looks at the MSB of flags on a restore, this will be broken
+for 64 bit machines.
 
-> We could do something like create a new object class (kernkey or 
-> something) and implement SELinux permissions for the class such as read, 
-> write, search, link, setattr and getattr.  Your KEY_VIEW perm could be 
-> translated to SELinux getattr.
+This patch is just to make the ACPI code "clean".  That is, to use the
+proper type for flags.
 
-Should I expand the permissions mask to include a setattr?
+-- Steve
 
-> More thought needs to go into whether we need to implement an SELinux 
-> create permission (and add hooks into the code), for control over whether 
-> a process can create an anonymous keyring.
+Note: You may notice that this patch has an -rt in the names, it does
+      apply cleanly to 2.6.14-rc3.
 
-That's not really a per-key type of thing.
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 
-> I'm not sure if we need user-level labeling of keys via the set & get 
-> security ops, although LSPP may require some form of get_security. If we 
-> don't need to manually set security attributes but still view them, they 
-> could be displayed via /proc/keys rather than implementing a separate 
-> multiplexed syscall.
 
-Would it be worth me adding a key type op by which a security module can ask
-the type its opinion (or by which key_alloc() can ask the type to give the
-security module an earful)?
+--- linux-2.6.14-rc3-rt9/drivers/acpi/events/evgpe.c.orig	2005-10-06 04:15:40.000000000 -0400
++++ linux-2.6.14-rc3-rt9/drivers/acpi/events/evgpe.c	2005-10-06 04:15:46.000000000 -0400
+@@ -377,7 +377,7 @@ u32 acpi_ev_gpe_detect(struct acpi_gpe_x
+ 	struct acpi_gpe_register_info *gpe_register_info;
+ 	u32 status_reg;
+ 	u32 enable_reg;
+-	u32 flags;
++	unsigned long flags;
+ 	acpi_status status;
+ 	struct acpi_gpe_block_info *gpe_block;
+ 	acpi_native_uint i;
+--- linux-2.6.14-rc3-rt9/drivers/acpi/events/evgpeblk.c.orig	2005-10-06 04:00:34.000000000 -0400
++++ linux-2.6.14-rc3-rt9/drivers/acpi/events/evgpeblk.c	2005-10-06 04:00:58.000000000 -0400
+@@ -136,7 +136,7 @@ acpi_status acpi_ev_walk_gpe_list(ACPI_G
+ 	struct acpi_gpe_block_info *gpe_block;
+ 	struct acpi_gpe_xrupt_info *gpe_xrupt_info;
+ 	acpi_status status = AE_OK;
+-	u32 flags;
++	unsigned long flags;
 
->   keyctl_chown_key()
->   keyctl_setperm_key()
+ 	ACPI_FUNCTION_TRACE("ev_walk_gpe_list");
 
-Okay.
+@@ -479,7 +479,7 @@ static struct acpi_gpe_xrupt_info *acpi_
+ 	struct acpi_gpe_xrupt_info *next_gpe_xrupt;
+ 	struct acpi_gpe_xrupt_info *gpe_xrupt;
+ 	acpi_status status;
+-	u32 flags;
++	unsigned long flags;
 
->   keyctl_set_reqkey_keyring()
+ 	ACPI_FUNCTION_TRACE("ev_get_gpe_xrupt_block");
 
-Should this really be securified? It merely controls the default destination
-for a key created by request_key(), and is limited to the keyrings the process
-is subscribed to in any case.
+@@ -553,7 +553,7 @@ static acpi_status
+ acpi_ev_delete_gpe_xrupt(struct acpi_gpe_xrupt_info *gpe_xrupt)
+ {
+ 	acpi_status status;
+-	u32 flags;
++	unsigned long flags;
 
->   keyctl_join_session_keyring()  [only if we add a 'create' perm]
+ 	ACPI_FUNCTION_TRACE("ev_delete_gpe_xrupt");
 
-This does need a security hook, at least for joining an existing session.
+@@ -610,7 +610,7 @@ acpi_ev_install_gpe_block(struct acpi_gp
+ 	struct acpi_gpe_block_info *next_gpe_block;
+ 	struct acpi_gpe_xrupt_info *gpe_xrupt_block;
+ 	acpi_status status;
+-	u32 flags;
++	unsigned long flags;
 
-I wonder if I should treat named sessions on a per-user basis and whether I
-should separate them from keyrings, so that session names refer to keyrings
-and have their own permissions and security, but aren't those keyrings. This
-latter bit is the big stumbling block that I had with the clone-handle
-functionality that Kyle Moffett woulkd like.
+ 	ACPI_FUNCTION_TRACE("ev_install_gpe_block");
 
-> All users of key_permission() need to propagate the error code from the 
-> LSM back to the user.
+@@ -663,7 +663,7 @@ acpi_ev_install_gpe_block(struct acpi_gp
+ acpi_status acpi_ev_delete_gpe_block(struct acpi_gpe_block_info *gpe_block)
+ {
+ 	acpi_status status;
+-	u32 flags;
++	unsigned long flags;
 
-Really? Why?
+ 	ACPI_FUNCTION_TRACE("ev_install_gpe_block");
 
-Note that the fact that key_permission() fails for a key is sometimes ignored,
-such as when I'm doing a search and one potentially matching key fails, but a
-subsequent matching key passes.
+--- linux-2.6.14-rc3-rt9/drivers/acpi/events/evxface.c.orig	2005-10-06 04:16:27.000000000 -0400
++++ linux-2.6.14-rc3-rt9/drivers/acpi/events/evxface.c	2005-10-06 04:16:43.000000000 -0400
+@@ -562,7 +562,7 @@ acpi_install_gpe_handler(acpi_handle gpe
+ 	struct acpi_gpe_event_info *gpe_event_info;
+ 	struct acpi_handler_info *handler;
+ 	acpi_status status;
+-	u32 flags;
++	unsigned long flags;
 
-David
+ 	ACPI_FUNCTION_TRACE("acpi_install_gpe_handler");
+
+@@ -653,7 +653,7 @@ acpi_remove_gpe_handler(acpi_handle gpe_
+ 	struct acpi_gpe_event_info *gpe_event_info;
+ 	struct acpi_handler_info *handler;
+ 	acpi_status status;
+-	u32 flags;
++	unsigned long flags;
+
+ 	ACPI_FUNCTION_TRACE("acpi_remove_gpe_handler");
+

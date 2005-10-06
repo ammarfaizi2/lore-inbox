@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751334AbVJFT3U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbVJFTa0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751334AbVJFT3U (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 15:29:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbVJFT3U
+	id S1751331AbVJFTa0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 15:30:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbVJFTa0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 15:29:20 -0400
-Received: from free.hands.com ([83.142.228.128]:53971 "EHLO free.hands.com")
-	by vger.kernel.org with ESMTP id S1751334AbVJFT3T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 15:29:19 -0400
-Date: Thu, 6 Oct 2005 20:28:57 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Michael Concannon <mike@concannon.net>
-Cc: Chase Venters <chase.venters@clientec.com>, Marc Perkel <marc@perkel.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: what's next for the linux kernel?
-Message-ID: <20051006192857.GV10538@lkcl.net>
-References: <20051002204703.GG6290@lkcl.net> <200510041840.55820.chase.venters@clientec.com> <20051005102650.GO10538@lkcl.net> <200510060005.09121.chase.venters@clientec.com> <43453E7F.5030801@concannon.net>
+	Thu, 6 Oct 2005 15:30:26 -0400
+Received: from 66-23-228-155.clients.speedfactory.net ([66.23.228.155]:20405
+	"EHLO kevlar.burdell.org") by vger.kernel.org with ESMTP
+	id S1751331AbVJFTaZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 15:30:25 -0400
+Date: Thu, 6 Oct 2005 15:24:25 -0400
+From: Sonny Rao <sonny@burdell.org>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: kernel performance update - 2.6.14-rc3
+Message-ID: <20051006192425.GA11871@kevlar.burdell.org>
+References: <4344F6A4.2070707@yahoo.com.au> <200510061836.j96Iamg19185@unix-os.sc.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43453E7F.5030801@concannon.net>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-MailScanner-From: lkcl@lkcl.net
+In-Reply-To: <200510061836.j96Iamg19185@unix-os.sc.intel.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 06, 2005 at 11:10:55AM -0400, Michael Concannon wrote:
+On Thu, Oct 06, 2005 at 11:36:47AM -0700, Chen, Kenneth W wrote:
+> Nick Piggin wrote on Thursday, October 06, 2005 3:04 AM
+> > Arjan van de Ven wrote:
+> > >>dbench is catching some attention.  We just ran it with default
+> > >>parameter.  I don't think default parameter is the right one to use
+> > >>on some of our configurations.  For example, it shows +100% improvement
+> > > 
+> > > never ever consider dbench a serious benchmark; the thing is you can
+> > > make dbench a lot better very easy; just make the kernel run one thread
+> > > at a time until completion. dbench really gives very variable results,
+> > > but it is not really possible to say if +100% or -100% is an improvement
+> > > or a degredation for real life. So please just don't run it, or at least
+> > > don't interpret the results in a "higher is better" way.
+> > > 
+> > 
+> > As a disk IO performance benchmark you are absolutely right.
+> > 
+> > Some people like using it to test VM scalability and throughput
+> > if it is being used on tmpfs. In that case the results are
+> > generally more stable.
+> 
+> Thank you for the suggestion, we will look into the options.  I agree here
+> as well, and I also don't consider dbench as a serious disk I/O performance
+> benchmark.  There are other workloads that we ran (IOzone, aiostress, and my
+> favorite "industry standard database workload") which covers disk I/O side
+> pretty well.
 
-> All good points, but perhaps the most compelling to me is that virtually 
-> every successful windows virus out there does its real damage by 
-> modifying the registry to replace key actions, associate bad actions 
-> with good ones and just generally screw the system up...
- 
- the damage is done because "admin" rights are forced out of the control
- of the users and sysadmins and into the hands of the dumb-ass app
- writers, for both the setup stage and then the actual day-to-day
- usage of the app!
+Also, make sure you are running dbench version 3, it has much much
+better reproducibility and self-consistency than version 2.
 
- the registry on NT has ACLs - which are completely irrelevant as far as
- users running as admin are concerned (because the dumb-ass app writers
- force them to).
-
- the nt registry - imagine it to be .... _like_ a filesystem, or _like_
- an LDAP server.
-
- except with proper ACLs and access controls [which everyone bypasses
- because duh it's windows duh, not because it's impossible to do a decent
- job with the API and its implementation].
-
- l.
-
+Sonny

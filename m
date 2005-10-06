@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751370AbVJFVM3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751363AbVJFVLd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751370AbVJFVM3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 17:12:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbVJFVM2
+	id S1751363AbVJFVLd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 17:11:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751367AbVJFVLd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 17:12:28 -0400
-Received: from pat.uio.no ([129.240.130.16]:43227 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1751370AbVJFVM1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 17:12:27 -0400
-Subject: Re: [RFC] atomic create+open
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <E1ENcAr-0003jz-00@dorka.pomaz.szeredi.hu>
-References: <E1ENWt1-000363-00@dorka.pomaz.szeredi.hu>
-	 <1128616864.8396.32.camel@lade.trondhjem.org>
-	 <E1ENZ8u-0003JS-00@dorka.pomaz.szeredi.hu>
-	 <E1ENZCQ-0003K3-00@dorka.pomaz.szeredi.hu>
-	 <1128619526.16534.8.camel@lade.trondhjem.org>
-	 <E1ENZZl-0003OO-00@dorka.pomaz.szeredi.hu>
-	 <1128620528.16534.26.camel@lade.trondhjem.org>
-	 <E1ENZu1-0003SP-00@dorka.pomaz.szeredi.hu>
-	 <1128623899.31797.14.camel@lade.trondhjem.org>
-	 <E1ENani-0003c4-00@dorka.pomaz.szeredi.hu>
-	 <1128626258.31797.34.camel@lade.trondhjem.org>
-	 <E1ENcAr-0003jz-00@dorka.pomaz.szeredi.hu>
-Content-Type: text/plain
-Date: Thu, 06 Oct 2005 17:12:18 -0400
-Message-Id: <1128633138.31797.52.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.886, required 12,
-	autolearn=disabled, AWL 1.11, UIO_MAIL_IS_INTERNAL -5.00)
+	Thu, 6 Oct 2005 17:11:33 -0400
+Received: from qproxy.gmail.com ([72.14.204.194]:8134 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751363AbVJFVLc convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 17:11:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=JItPkzIhq4N2S68SdY928MkAKP6inkhawLeP79ghsdIWLwB5qHBsjMpZGn06SWjHrb0590C5eUBsRxg96PJk6gRMEmDCIL2jziQyhgUcRQa0fAobcxgv0tcGeicB3YCqDCWLsAZrW3V0wvRlSVtq90nX2gSrQd7GxFiyRksBgUU=
+Message-ID: <fb3f6bf10510061411i7af556a1x8c5f22c478d89229@mail.gmail.com>
+Date: Thu, 6 Oct 2005 17:11:31 -0400
+From: Larry Lindsey <larry.the.pirate@gmail.com>
+Reply-To: Larry Lindsey <larry.the.pirate@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.27 ata_piix support
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-to den 06.10.2005 Klokka 22:17 (+0200) skreiv Miklos Szeredi:
-> I just think that filesystem code should _never_ need to care about
-> mounts.  If you want to do the lookup+open, you somehow will have to
-> deal with mounts, which is ugly.
+I've created a patch created against Debain's 2.4.27 kernel sources,
+which adds ata_piix support to the 2.4.27 kernel.  Its pretty klugey,
+but at this point it at least *seems* to work.  Here's a link.
 
-You appear to think that atomic lookup+open is a question of choice. It
-is not.
+http://www.math.gatech.edu/~lindsey/libata-piix-2.4.27.patch.tar.bz2
 
-Cheers,
-  Trond
+It is a combination of one of Jeff Garzik's patches and the scsi code
+from the 2.4.31 kernel.  I've probably broken about 2 million
+principles with respect to code maintenance.
 
+I bet some of you are wondering why in the world I would do this.  I
+did find a half dozen patches that were previously posted to this
+list, but I couldn't get any of them to work correctly, starting from
+the 2.4.27 source.  For various reasons, I'm stuck with that
+particular kernel.  I'm posting because I'm hoping that this might be
+useful to other people in a similar situation.

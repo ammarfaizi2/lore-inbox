@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750932AbVJFNgQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750931AbVJFNjg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750932AbVJFNgQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 09:36:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750929AbVJFNgQ
+	id S1750931AbVJFNjg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 09:39:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750936AbVJFNjg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 09:36:16 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:52962 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750927AbVJFNgP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 09:36:15 -0400
-Message-ID: <4345284A.5060102@pobox.com>
-Date: Thu, 06 Oct 2005 09:36:10 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Thu, 6 Oct 2005 09:39:36 -0400
+Received: from mail10.syd.optusnet.com.au ([211.29.132.191]:41903 "EHLO
+	mail10.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1750931AbVJFNjf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 09:39:35 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Ingo Oeser <ioe-lkml@rameria.de>
+Subject: Re: [PATCH] vm - swap prefetch v14
+Date: Thu, 6 Oct 2005 23:42:06 +1000
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
+References: <200510052257.15713.kernel@kolivas.org> <200510052002.04173.ioe-lkml@rameria.de>
+In-Reply-To: <200510052002.04173.ioe-lkml@rameria.de>
 MIME-Version: 1.0
-To: Brett Russ <russb@emc.com>
-CC: Bogdan Costescu <Bogdan.Costescu@iwr.uni-heidelberg.de>,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.14-rc2 0/2] libata: Marvell SATA support (v0.23-0.24)
-References: <20051005210610.EC31826369@lns1058.lss.emc.com> <Pine.LNX.4.63.0510061441050.3140@dingo.iwr.uni-heidelberg.de> <43452315.7050801@pobox.com> <4345273B.40906@emc.com>
-In-Reply-To: <4345273B.40906@emc.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-6"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Disposition: inline
+Message-Id: <200510062342.06735.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brett Russ wrote:
-> Jeff Garzik wrote:
-> 
->> Staring at the docs a bit, I notice that the 50xx and 60xx have SATA 
->> S{status,control,error} registers at different locations.
-> 
-> 
-> 
-> Yes and also even some registers that are at the same location have 
-> changed bit definitions.  Aye caramba.
-> 
-> Best solution will probably be to create separate enums for each chip 
-> generation, in addition to a common enum, and point to the relevant one 
-> based on the chip identifier.
-> 
-> No surprise we're seeing so many problems.  I have just not spent any 
-> time at all on 5xxx.  Probably should yank it from the pci device table 
-> for now.
+On Thu, 6 Oct 2005 04:01 am, Ingo Oeser wrote:
+> Hi Con,
+>
+> your patch still contains a serious BUG :-)
+>
+> On Wednesday 05 October 2005 14:57, Con Kolivas wrote:
+> > -The tunable to determine the amount of data retrieved per prefetch was
+> > added /proc/sys/vm/swap_prefetch
+> > is used to decide how many groups of 128kb to prefetch per 1 second
+> > interval and is set to 2 by default. It can be disabled by setting it to
+> > 0
+>
+> swap_prefetch is not documented at Documentation/sysctl/vm.txt
+>
+> This simple text would suffice I think. Maybe comment about disabling it
+> for laptop usage.
 
-I would suggest submitting a patch to put #if 0 around the PCI table 
-entries, so that testers can easily turn it back on...
+Thanks for the suggestion. I'll add the Documentation entry and you reminded 
+me to do something specific with laptop mode which I have for v15 I'm about 
+to announce.
 
-	Jeff
-
-
-
+Cheers,
+Con

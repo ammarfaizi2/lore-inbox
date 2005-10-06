@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750805AbVJFKmU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750812AbVJFKnV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750805AbVJFKmU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 06:42:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbVJFKmU
+	id S1750812AbVJFKnV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 06:43:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750813AbVJFKnV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 06:42:20 -0400
-Received: from mx2.suse.de ([195.135.220.15]:48301 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750805AbVJFKmT (ORCPT
+	Thu, 6 Oct 2005 06:43:21 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:48326 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750812AbVJFKnU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 06:42:19 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Subject: Re: [Patch] x86, x86_64: Intel HT, Multi core detection code cleanup
-Date: Thu, 6 Oct 2005 12:42:25 +0200
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org, akpm@osdl.org
-References: <20051005161706.B30098@unix-os.sc.intel.com>
-In-Reply-To: <20051005161706.B30098@unix-os.sc.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 6 Oct 2005 06:43:20 -0400
+Date: Thu, 6 Oct 2005 12:42:48 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>,
+       Nigel Cunningham <ncunningham@cyclades.com>
+Subject: Re: [swsusp] separate snapshot functionality to separate file
+Message-ID: <20051006104247.GA25255@elf.ucw.cz>
+References: <20051002231332.GA2769@elf.ucw.cz> <200510051020.15400.rjw@sisk.pl> <20051005083341.GA22034@elf.ucw.cz> <200510061023.16016.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200510061242.26563.ak@suse.de>
+In-Reply-To: <200510061023.16016.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 06 October 2005 01:17, Siddha, Suresh B wrote:
+Hi!
 
-> +
-> +#ifdef CONFIG_X86_HT
-> +#ifndef CONFIG_X86_64
-> +#include <mach_apic.h>
-> +#else
-> +#include <asm/mach_apic.h>
-> +#endif
+> > > OK, but if we decide to move some functions from one file to another,
+> > > we'll have to wait for another "settle down" period, I think.
+> > 
+> > Yes...
+> 
+> Then I'd propose that we wait for the next "settle down" period with the
+> split and apply all of the bugfixes and cleanups now.
 
-Having such ifdefs is a clear cue that the code shouldn't be shared
-between architectures.
-
--Andi
+Nigel's cleanup is not ready yet, and yours is oneliner. I applied
+that oneliner locally. I already have cleanups depending on the
+split. Of course I can redo them, but perhaps it is easier to just
+redo that one line.
+								Pavel
+-- 
+if you have sharp zaurus hardware you don't need... you know my address

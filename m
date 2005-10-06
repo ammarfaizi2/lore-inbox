@@ -1,72 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751202AbVJFBDZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbVJFBLy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751202AbVJFBDZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Oct 2005 21:03:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbVJFBDY
+	id S1750706AbVJFBLy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Oct 2005 21:11:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750711AbVJFBLy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Oct 2005 21:03:24 -0400
-Received: from mxfep02.bredband.com ([195.54.107.73]:22725 "EHLO
-	mxfep02.bredband.com") by vger.kernel.org with ESMTP
-	id S1751202AbVJFBDY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Oct 2005 21:03:24 -0400
-Message-ID: <434479E9.1040704@stesmi.com>
-Date: Thu, 06 Oct 2005 03:12:09 +0200
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+	Wed, 5 Oct 2005 21:11:54 -0400
+Received: from vhost12.digitarus.com ([84.234.16.61]:31695 "EHLO
+	vhost12.digitarus.com") by vger.kernel.org with ESMTP
+	id S1750706AbVJFBLx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Oct 2005 21:11:53 -0400
+X-ClientAddr: 212.126.40.83
+Message-ID: <434479CE.1020101@wiggly.org>
+Date: Thu, 06 Oct 2005 02:11:42 +0100
+From: Nigel Rantor <wiggly@wiggly.org>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: David Lang <david.lang@digitalinsight.com>
-CC: Helge Hafting <helgehaf@aitel.hist.no>, Emmanuel Fleury <fleury@cs.aau.dk>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: freebox possible GPL violation
-References: <20051005111329.GA31087@linux.ensimag.fr> <4343B779.8030200@cs.aau.dk> <1128511676.2920.19.camel@laptopd505.fenrus.org> <4343BB04.7090204@cs.aau.dk> <1128513584.2920.23.camel@laptopd505.fenrus.org> <4343C0DB.9080506@cs.aau.dk> <1128514062.2920.27.camel@laptopd505.fenrus.org> <4343C73E.9000507@cs.aau.dk> <20051006000741.GC18080@aitel.hist.no> <Pine.LNX.4.62.0510051741310.14560@qynat.qvtvafvgr.pbz>
-In-Reply-To: <Pine.LNX.4.62.0510051741310.14560@qynat.qvtvafvgr.pbz>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: "David S. Miller" <davem@davemloft.net>
+CC: lkcl@lkcl.net, linux-kernel@vger.kernel.org
+Subject: Re: what's next for the linux kernel?
+References: <DE88BDF02F4319469812588C7950A97E9312A6@ussunex1.palmsource.com>	<20051006000340.GC10538@lkcl.net> <20051005.171455.01155506.davem@davemloft.net>
+In-Reply-To: <20051005.171455.01155506.davem@davemloft.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira Milter 1.0.7; VAE 6.29.0.5; VDF 6.29.0.100
+X-Digitarus-vhost12-MailScanner-Information: Please contact Digitarus for more information
+X-Digitarus-vhost12-MailScanner: Not scanned: please contact your Internet E-Mail Service Provider for details
+X-MailScanner-From: wiggly@wiggly.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
->> If the box downloads a linux kernel through the DSLAM network, then
->> someone is clearly distributing linux kernels through the DSLAM network.
->> I would guess it is the same guys, because relying on someone else
->> providing
->> them with kernels is a risky business.  But whoever is on the other end
->> of the DSLAM net have to offer the source as well, because they _are_
->> distributing kernels.
+David S. Miller wrote:
+> From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+> Date: Thu, 6 Oct 2005 01:03:40 +0100
+> 
+> 
+>>okay, people: any chance of calming / ending / moving this rather
+>>distracting thread?
 >>
->> The fact that the user isn't supposed to know how this box work
->> doesn't change anything, of course.  The GPL says those who
->> distribute the work - it doesn't matter that they don't tell the
->> customer that they're given a linux kernel. They still have to offer
->> the source if asked.
+>>davem - any chance of that LVML?
+>>
+>>anyone know where dave works who is willing to kick him before
+>>everyone goes nuts?
 > 
 > 
-> the argument that they are making is that they are only moveing the
-> kernel within their own companies equipment, and therefor it doesn't
-> count as 'distribution'
+> I still don't see any good reason to make a new mailing list.
 > 
-> agree with this argument or not, but please acknowledge this point of
-> view rather then pretending that they have no argument at all and are
-> just plain refusing.
+> People argue here because they get a large audience.  If we
+> create a new mailing list, the vast majority of folks won't
+> take these threads there because they'll get less of the attention
+> they're after.
 > 
-> David Lang
-> 
+> Why don't we just kill off this silly thread instead? :-)
 
-If one turns it on, doesn't turn it off, pays the 400 EUR and
-as a result OWNS it, then what one has is a box that at that point
-in time is running Linux and one is the owner of it.
+Hell no, I need something to read while I'm cogitating on work and 
+waiting for things to compile...any chance we can get all the major 
+participants into a room and televise it as a cage match?
 
-// Stefan
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (MingW32)
-
-iD8DBQFDRHnpBrn2kJu9P78RApviAJ9AwjF8wU+6ao/L61AC7xW/QSBRZwCaA9u1
-yDDXxWQ/0MHeAS7pSg4C4rg=
-=oLR8
------END PGP SIGNATURE-----
+*popcorn*

@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751273AbVJFR7t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751274AbVJFSAE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751273AbVJFR7t (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 13:59:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbVJFR7t
+	id S1751274AbVJFSAE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 14:00:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751270AbVJFSAE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 13:59:49 -0400
-Received: from mail.shareable.org ([81.29.64.88]:63197 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S1751266AbVJFR7t
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 13:59:49 -0400
-Date: Thu, 6 Oct 2005 18:59:40 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [RFC] atomic create+open
-Message-ID: <20051006175940.GA19766@mail.shareable.org>
-References: <E1ENWt1-000363-00@dorka.pomaz.szeredi.hu> <1128616864.8396.32.camel@lade.trondhjem.org> <E1ENZ8u-0003JS-00@dorka.pomaz.szeredi.hu> <1128618447.8396.39.camel@lade.trondhjem.org> <E1ENZTJ-0003Mm-00@dorka.pomaz.szeredi.hu> <1128620196.16534.20.camel@lade.trondhjem.org>
+	Thu, 6 Oct 2005 14:00:04 -0400
+Received: from mx2.suse.de ([195.135.220.15]:19939 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751257AbVJFSAA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 14:00:00 -0400
+Date: Thu, 6 Oct 2005 19:59:56 +0200
+From: Andi Kleen <ak@suse.de>
+To: Harald Welte <laforge@netfilter.org>, Andi Kleen <ak@suse.de>,
+       Patrick McHardy <kaber@trash.net>, netdev@vger.kernel.org,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
+       Henrik Nordstrom <hno@marasystems.com>
+Subject: Re: [PATCH 0/3] netfilter : 3 patches to boost ip_tables performance
+Message-ID: <20051006175956.GI6642@verdi.suse.de>
+References: <432EF0C5.5090908@cosmosbay.com> <200509281037.03185.ak@suse.de> <4342B575.9090709@trash.net> <200510051853.32196.ak@suse.de> <20051007023801.GA5953@rama>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1128620196.16534.20.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20051007023801.GA5953@rama>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
-> > Earlier you said, that intents are meant to be optional, so this
-> > atomicity requirement is getting further from the "intent" concept.
+On Fri, Oct 07, 2005 at 04:38:02AM +0200, Harald Welte wrote:
+> On Wed, Oct 05, 2005 at 06:53:31PM +0200, Andi Kleen wrote:
+> > On Tuesday 04 October 2005 19:01, Patrick McHardy wrote:
+> > > Andi Kleen wrote:
+> > > > In a sense it's even getting worse: For example us losing the CONFIG
+> > > > option to disable local conntrack (Patrick has disabled it some time ago
+> > > > without even a comment why he did it) has a really bad impact in some
+> > > > cases.
+> > >
+> > > It was necessary to correctly handle locally generated ICMP errors.
+> > 
+> > Well you most likely wrecked local performance then when it's enabled.
 > 
-> No it is not. It is bang right in the middle of the intent concept.
-> 
-> Intents are there in order to allow the filesystem to determine which
-> operation is calling lookup so that it can optimise for that particular
-> operation.
+> so you would favour a system that incorrectly deals with ICMP errors but
+> has higher performance?
 
-I think Miklos' point is that it's not an "optimisation" because it's
-not optional.  Optimisations are things where if you don't do them,
-the behaviour is still correct but slower.
+I would favour a system where development doesn't lose sight of performance.
+Perhaps there would be other ways to fix this problem without impacting
+performance unduly? Can you describe it in detail? 
 
-As far as I can tell from this discussion, the atomic lookup+create is
-a non-optional requirement.
-
--- Jamie
+-Andi

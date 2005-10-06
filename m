@@ -1,61 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750814AbVJFMCH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750842AbVJFMRp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750814AbVJFMCH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 08:02:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbVJFMCH
+	id S1750842AbVJFMRp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 08:17:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750845AbVJFMRp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 08:02:07 -0400
-Received: from imag.imag.fr ([129.88.30.1]:12943 "EHLO imag.imag.fr")
-	by vger.kernel.org with ESMTP id S1750814AbVJFMCF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 08:02:05 -0400
-Date: Thu, 6 Oct 2005 14:01:35 +0200
-From: Pierre Michon <pierre@no-spam.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: freebox possible GPL violation
-Message-ID: <20051006120135.GA1002@linux.ensimag.fr>
-Reply-To: 4344F39B.10806@cs.aau.dk
+	Thu, 6 Oct 2005 08:17:45 -0400
+Received: from mail4.hitachi.co.jp ([133.145.228.5]:21652 "EHLO
+	mail4.hitachi.co.jp") by vger.kernel.org with ESMTP
+	id S1750842AbVJFMRo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 08:17:44 -0400
+Date: Thu, 06 Oct 2005 21:17:18 +0900 (JST)
+Message-Id: <20051006.211718.74749573.noboru.obata.ar@hitachi.com>
+To: hyoshiok@miraclelinux.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux Kernel Dump Summit 2005
+From: OBATA Noboru <noboru.obata.ar@hitachi.com>
+In-Reply-To: <20050921.205550.927509530.hyoshiok@miraclelinux.com>
+References: <20050921.205550.927509530.hyoshiok@miraclelinux.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040722i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (imag.imag.fr [129.88.30.1]); Thu, 06 Oct 2005 14:01:36 +0200 (CEST)
-X-IMAG-MailScanner: Found to be clean
-X-IMAG-MailScanner-Information: Please contact the ISP for more information
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi, Hiro,
 
->I might have misunderstood but I think that if you buy the hardware you
->cannot connect it to the DSLAM network anymore. So that only the boxes
->they own are connected to the DSLAM.
+On Wed, 21 Sep 2005, Hiro Yoshioka wrote:
+> 
+> We had a Linux Kernel Dump Summit 2005.
 
-Again have you any proof that there aren't any Linux firmware in the
-flash of the freebox ?
-How do you explain that the boot sequence isn't stateless ?
-Why in case of a firmware update, you have a special state of 10 seconds
-were the freebox seem to download and write some data somewhere ?
+> - We need a partial dump
+> - We have to minimize the down time
+> 
+> - We have to dump all memory
+>     how can we distinguish from the kernel and user if
+>     kernel data is corrupted
 
-So yes may be you can't connect anymore to the free DSLAM, but there is
-may be still GPL data in the flash.
+As memory size grows, the time and space for capturing kernel
+crash dump really matter.
 
->Are you sure this point has been clarified in court in the past ?
->If not, I would bet on it (for the specific case of settop boxes).
+We discussed two strategies in the dump summit.
 
-For french law I don't know, but someone on gpl-violation this is true
-for de and au.
-
->I mentioned in another mail the case of a mobile phone network
->infrastructure where the network nodes to which mobile phones are
->connecting are running Linux. It seems to be an "internal use" (as it
->never leak out of the company network) and yet providing a service to
->customers.
-
-No the freebox is more like a dvb box that is lended by a satellite
-provider and could do firmware update via satellite.
-
-I don't know if there are similar case for dvb box.
+	1. Partial dump
+	2. Full dump with compression
 
 
-Pierre
+PARTIAL DUMP
+============
+
+Partial dump captures only pages that are essential for later
+analysis, possibly by using some mark in mem_map[].
+
+This certainly reduces both time and space of crash dump, but
+there is a risk because no one can guarantee that a dropped page
+is really unnecessary in analysis (it can be a tragedy if
+analysis went unsolved because of the dropped page).
+
+Another risk is a corruption of mem_map[] (or other kernel
+structure), which makes the identification of necessary pages
+unreliable.
+
+So there would be best if a user can select the level of partial
+dump.  A careful user may always choose a full dump, while a
+user who is tracking the well-reproducible kernel bug may choose
+fast and small dump.
+
+
+FULL DUMP WITH COMPRESSION
+==========================
+
+Those who still want a full dump, including me, are interested
+in dump compression.  For example, the LKCD format (at least v7
+format) supports pagewise compression with the deflate
+algorithm.  A dump analyze tool "crash" can transparently
+analyze the compressed dump file in this format.
+
+The compression will reduce the storage space at certain degree,
+and may also reduce the time if a dump process were I/O bounded.
+
+
+WHICH IS BETTER?
+================
+
+I wrote a small compression tool for LKCD v7 format to see how
+effective the compression is, and it turned out that the time
+and size of compression were very much similar to that of gzip,
+not surprisingly.
+
+Compressing a 32GB dump file took about 40 minutes on Pentium 4
+Xeon 3.0GHz, which is not good enough because the dump without
+compression took only 5 minutes; eight times slower.
+
+Besides, the compress ratios were somewhat picky.  Some dump
+files could not be compressed well (the worst case I found was
+only 10% reduction in size).
+
+
+After examining the LKCD compress format, I must conclude that
+the partial dump is the only way to go when time and size really
+matter.
+
+Now I'd like to see how effective the existing partial dump
+functionalities are.
+
+
+Regards,
+
+-- 
+OBATA Noboru (noboru.obata.ar@hitachi.com)

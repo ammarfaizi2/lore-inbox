@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751262AbVJFRow@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751263AbVJFRrB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751262AbVJFRow (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 13:44:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751263AbVJFRow
+	id S1751263AbVJFRrB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 13:47:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbVJFRrB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 13:44:52 -0400
-Received: from xproxy.gmail.com ([66.249.82.193]:38527 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751262AbVJFRov convert rfc822-to-8bit
+	Thu, 6 Oct 2005 13:47:01 -0400
+Received: from qproxy.gmail.com ([72.14.204.201]:33840 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751263AbVJFRrB convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 13:44:51 -0400
+	Thu, 6 Oct 2005 13:47:01 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=QHnofR1i8vKs3eKwyqFDwHe6hKqXeTAqFod3zCyFPdLyaTg79a00iySICFU571CjYuQ35mvuyqieBOZRmPeAkhcLVf80G4z01h4hST+3zRbhqjX4trWWlsfHUN0SiccL/uMwfJP/TJT9h9ZnbDQQaWdQMxSfc6/c2w+r+o18lAU=
-Message-ID: <5bdc1c8b0510061044l4fc25619j3cdf3d0c1f89a98f@mail.gmail.com>
-Date: Thu, 6 Oct 2005 10:44:50 -0700
-From: Mark Knecht <markknecht@gmail.com>
-Reply-To: Mark Knecht <markknecht@gmail.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: 2.6.14-rc3-rt9 - a few xruns misses
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <1128620286.14584.43.camel@mindpipe>
+        b=FD904YplYZmT7gDw7P6yOuUq3ByKiaa3iwnve7NxTY6toIJ+ZkiaiIRfwYJE/vbtTQKeTlqA3sO8IpacFySePSEMe2gwsbBRCiQB5BgL1M3oY8i3yu/7281oW4IOjMgicKu1zpuxbHtipUTj3g1q/etT7GAApw0PTmM9B/iyVmY=
+Message-ID: <d120d5000510061046y7d36de9cseccbbbd18529678@mail.gmail.com>
+Date: Thu, 6 Oct 2005 12:46:59 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Greg KH <gregkh@suse.de>
+Subject: Re: [patch 08/28] Input: prepare to sysfs integration
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Kay Sievers <kay.sievers@vrfy.org>, Vojtech Pavlik <vojtech@suse.cz>,
+       Hannes Reinecke <hare@suse.de>
+In-Reply-To: <20051005225504.GA3566@suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <5bdc1c8b0510051615hfd77ba8pab7ee07bde13ffd4@mail.gmail.com>
-	 <20051006083043.GB21800@elte.hu>
-	 <5bdc1c8b0510060900m721296h53ac1d0f0fc12351@mail.gmail.com>
-	 <1128615988.14584.38.camel@mindpipe>
-	 <5bdc1c8b0510060930y5648eacdm376178069dcd3958@mail.gmail.com>
-	 <5bdc1c8b0510061006p5339d5f3ke0079c172e15b04f@mail.gmail.com>
-	 <1128620286.14584.43.camel@mindpipe>
+References: <20050915070131.813650000.dtor_core@ameritech.net>
+	 <20050915070302.813567000.dtor_core@ameritech.net>
+	 <20051005220316.GA2932@suse.de>
+	 <d120d5000510051517k28bbb1f9v3c7ec7448608926@mail.gmail.com>
+	 <20051005225504.GA3566@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/6/05, Lee Revell <rlrevell@joe-job.com> wrote:
-> On Thu, 2005-10-06 at 10:06 -0700, Mark Knecht wrote:
-> > Is it that rt priorities are not set up correctly? Or is it something else?
+On 10/5/05, Greg KH <gregkh@suse.de> wrote:
+> On Wed, Oct 05, 2005 at 05:17:00PM -0500, Dmitry Torokhov wrote:
 >
-> Yes.  JACK is running at a lower priority on your system than all the
-> IRQ threads.  So disk activity is likely to cause xruns.  In qjackctl's
-> Setup screen set "Priority" to 80.
+> > The reason is that I want to change input_allocate_device to take
+> > bitmap of supported events. This way I could allocate ABS tables
+> > dynamically at the same time I allocate input_dev itself and it will
+> > simplify error handling logic in drivers and it will save I think 1260
+> > bytes per input_dev structure which is nice. And I don't want to go
+> > through all subsystems yet again soI want to fold into my input
+> > dynalloc patch...
 >
-> Lee
+> That sounds good.
 >
->
-OK, done. Testing will likely take a while to be sure that this is enough.
 
-Is there anything I should be doing with the priority of my HDSP ISR?
-That change back on 2.6.9-rtX was like a light switch for turning off
-xruns at that time.
+Well, I tried implementing the proposal above and interface came out
+pretty awkward to use. My next option is to move abs table into
+"->private" structure, much like keytable was moved, or (for HID-like
+devices) allocate it when actually needed and adjust individual
+drivers. So I guess the patches that you have right now are good after
+all.
 
-Thanks,
-Mark
+--
+Dmitry

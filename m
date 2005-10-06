@@ -1,69 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750819AbVJFLCY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750820AbVJFLGV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750819AbVJFLCY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 07:02:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750821AbVJFLCY
+	id S1750820AbVJFLGV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 07:06:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbVJFLGV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 07:02:24 -0400
-Received: from smtp17.wxs.nl ([195.121.6.13]:28846 "EHLO smtp17.wxs.nl")
-	by vger.kernel.org with ESMTP id S1750819AbVJFLCX (ORCPT
+	Thu, 6 Oct 2005 07:06:21 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:3991 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750820AbVJFLGV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 07:02:23 -0400
-Date: Thu, 06 Oct 2005 13:02:19 +0200 (CEST)
-From: Freaky <freaky@bananateam.nl>
-Subject: Re: MTP - Media Transfer Protocol support
-In-reply-to: <200510061128.48506.oliver@neukum.org>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Message-id: <1069.192.168.0.39.1128596539.squirrel@webmail.bananateam.nl>
-MIME-version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-Importance: Normal
-X-Priority: 3 (Normal)
-User-Agent: SquirrelMail/1.4.4
-References: <4344DB73.9020604@bananateam.nl>
- <200510061128.48506.oliver@neukum.org>
+	Thu, 6 Oct 2005 07:06:21 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <Pine.LNX.4.63.0510060404141.25593@excalibur.intercode> 
+References: <Pine.LNX.4.63.0510060404141.25593@excalibur.intercode>  <29942.1128529714@warthog.cambridge.redhat.com> 
+To: James Morris <jmorris@namei.org>
+Cc: David Howells <dhowells@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, keyrings@linux-nfs.org,
+       linux-kernel@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [Keyrings] [PATCH] Keys: Add LSM hooks for key management 
+X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
+Date: Thu, 06 Oct 2005 12:06:00 +0100
+Message-ID: <23641.1128596760@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can't check now, but what I mean is that syslog will only give one line,
-that an USB device is inserted. Nothing more. I can find the device in
-/sys/usb... so the system sees it, it just doesn't know what to do with
-it.
+James Morris <jmorris@namei.org> wrote:
 
-Will checkup on libusb, I'm not a programmer though. Know a little C++
-syntax, but no API's and this hardware stuff is way beyond me for now.
+> I think this looks ok from an SELinux point of view if keys are treated as 
+> opaque objects, i.e. like files.
 
-Can get you the USB device ID's and such if you would like those.
+I'll make some changes based on the suggestions I've received. Those who
+request the return of keyfs can go boil their heads.
 
-On Thu, October 6, 2005 11:28, Oliver Neukum said:
-> Am Donnerstag, 6. Oktober 2005 10:08 schrieb Freaky:
->
->> Sorry if this is the wrong place to ask. But I figured it needs kernel
->> support first, because the USB device isn't recognized at all. MTP has a
->> general USB interface like mass storage from what I understand, so we'll
->> need drivers for that first I think.
->
-> There is an USB list:
-> linux-usb-devel@lists.sourceforge.net
->
-> If you want to support this as a true filesystem with permissions,
-> you will need a kernel driver. If not, you can access the device by
-> libusb.
->
-> What do you mean by "not recognised at all"? Does lsusb show it?
->
-> 	Regards
-> 		Oliver
->
->
+> We could do something like create a new object class (kernkey or 
+> something) and implement SELinux permissions for the class such as read, 
+> write, search, link, setattr and getattr.  Your KEY_VIEW perm could be 
+> translated to SELinux getattr.
 
+Should I expand the permissions mask to include a setattr?
 
--- 
-Freaky
-------------------------------------------------------
-http://www.gnu.org/philosophy/no-word-attachments.html
-http://www.gnu.org/philosophy/can-you-trust.html
-------------------------------------------------------
+> More thought needs to go into whether we need to implement an SELinux 
+> create permission (and add hooks into the code), for control over whether 
+> a process can create an anonymous keyring.
 
+That's not really a per-key type of thing.
+
+> I'm not sure if we need user-level labeling of keys via the set & get 
+> security ops, although LSPP may require some form of get_security. If we 
+> don't need to manually set security attributes but still view them, they 
+> could be displayed via /proc/keys rather than implementing a separate 
+> multiplexed syscall.
+
+Would it be worth me adding a key type op by which a security module can ask
+the type its opinion (or by which key_alloc() can ask the type to give the
+security module an earful)?
+
+>   keyctl_chown_key()
+>   keyctl_setperm_key()
+
+Okay.
+
+>   keyctl_set_reqkey_keyring()
+
+Should this really be securified? It merely controls the default destination
+for a key created by request_key(), and is limited to the keyrings the process
+is subscribed to in any case.
+
+>   keyctl_join_session_keyring()  [only if we add a 'create' perm]
+
+This does need a security hook, at least for joining an existing session.
+
+I wonder if I should treat named sessions on a per-user basis and whether I
+should separate them from keyrings, so that session names refer to keyrings
+and have their own permissions and security, but aren't those keyrings. This
+latter bit is the big stumbling block that I had with the clone-handle
+functionality that Kyle Moffett woulkd like.
+
+> All users of key_permission() need to propagate the error code from the 
+> LSM back to the user.
+
+Really? Why?
+
+Note that the fact that key_permission() fails for a key is sometimes ignored,
+such as when I'm doing a search and one potentially matching key fails, but a
+subsequent matching key passes.
+
+David

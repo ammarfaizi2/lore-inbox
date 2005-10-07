@@ -1,62 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932373AbVJGL4i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932385AbVJGMGR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932373AbVJGL4i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 07:56:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbVJGL4i
+	id S932385AbVJGMGR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 08:06:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbVJGMGR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 07:56:38 -0400
-Received: from H190.C26.B96.tor.eicat.ca ([66.96.26.190]:21125 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S932373AbVJGL4h (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 07:56:37 -0400
-From: Nikita Danilov <nikita@clusterfs.com>
+	Fri, 7 Oct 2005 08:06:17 -0400
+Received: from rutherford.zen.co.uk ([212.23.3.142]:42388 "EHLO
+	rutherford.zen.co.uk") by vger.kernel.org with ESMTP
+	id S932111AbVJGMGQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 08:06:16 -0400
+Message-ID: <43466453.9070604@dresco.co.uk>
+Date: Fri, 07 Oct 2005 13:04:35 +0100
+From: Jon Escombe <lists@dresco.co.uk>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Jens Axboe <axboe@suse.de>
+CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       hdaps-devel@lists.sourceforge.net
+Subject: Re: [RFC] Hard disk protection revisited
+References: <4345B24A.2080104@dresco.co.uk> <20051007100219.GU2889@suse.de>
+In-Reply-To: <20051007100219.GU2889@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17222.25180.191039.128718@gargle.gargle.HOWL>
-Date: Fri, 7 Oct 2005 15:56:12 +0400
-To: Block Device <blockdevice@gmail.com>
-Cc: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
-Subject: Re: Block I/O Mystery
-In-Reply-To: <64c763540510070436s681a3e00q511fb68c1c876aa9@mail.gmail.com>
-References: <64c763540510062301v2ac65a47p953038b8b674cf1d@mail.gmail.com>
-	<17222.18470.744354.727641@gargle.gargle.HOWL>
-	<64c763540510070436s681a3e00q511fb68c1c876aa9@mail.gmail.com>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+X-Hops: 1
+X-Originating-Rutherford-IP: [82.68.23.174]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Block Device writes:
- > Hi,
- > 
- >    After some more toying around, I have seen that it works correctly
- > on ext2 fs but not
- > on etx3. :) ...
- > 
- >   My questions inline ..
- > 
- > On 10/7/05, Nikita Danilov <nikita@clusterfs.com> wrote:
- > 
- > > Blocks read by bread() and friends are cached in block device (not you
- > > :-) struct address_space. File data are cached in the per-inode struct
- > > address_space.
- > 
- > But even if I'm reading blocks from a device directly, they are
- > finally blocks from  the same inode. Why then are they stored
- > separately ?
+Jens Axboe wrote:
 
-bread() has no idea about "inode". It just reads block number N from
-device D. And this is how it is stored in the cache (and can later be
-found there): "device D, block N".
+>I have to nack this one for now, I still want the generic command types
+>patch to go in first. We have far too many queue hooks already, adding
+>two more for a relatively obscure use such as this one is not a good
+>idea.
+>
+>My suggestion is to maintain this patch out of tree for now, it will be
+>a few kernel release iterations before the command type patch is in.
+>  
+>
 
-read(), on the other hand, reads logical block i from file F, and this
-is how that block (page actually) is cached: "file F, page with logical
-number i within file".
+That's a fair comment (and not entirely unexpected), I don't have a 
+problem with looking after this out of tree for now...
 
-These two caching mechanisms are disjoint and almost no form of
-coherency is maintained between them.
+One issue with the generic command approach occured to me while making 
+this patch - although it's more likely an issue with my understanding ;)
 
-All this, of course, is up to file system to implement, and different
-file systems do this slightly differently.
+I'm assuming that it would work like this -- the block layer still has 
+the sysfs attribute, and queues the new command for the lower driver to 
+pick up. The driver receives the command and does it's custom 
+park/freeze work, then calls a common block layer function to setup the 
+timer (all good so far). Where it gets hazy (for me) is how the block 
+layer starts the queue up again - as this ended up needing to be driver 
+specific & I can't see how the block layer would get another command 
+down if the queue is stopped?
 
-Nikita.
+Regards,
+Jon.
+
+
+
+
+______________________________________________________________
+Email via Mailtraq4Free from Enstar (www.mailtraqdirect.co.uk)

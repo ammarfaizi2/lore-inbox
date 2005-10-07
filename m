@@ -1,71 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030404AbVJGPlj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030458AbVJGPsz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030404AbVJGPlj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 11:41:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030432AbVJGPlj
+	id S1030458AbVJGPsz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 11:48:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030462AbVJGPsz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 11:41:39 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:48092 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030404AbVJGPli (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 11:41:38 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <11615.1128694058@warthog.cambridge.redhat.com> 
-References: <11615.1128694058@warthog.cambridge.redhat.com> 
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: keyrings@linux-nfs.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] Keys: Possessor permissions should be additive
-X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
-Date: Fri, 07 Oct 2005 16:41:24 +0100
-Message-ID: <19008.1128699684@warthog.cambridge.redhat.com>
+	Fri, 7 Oct 2005 11:48:55 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:60606 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1030458AbVJGPsy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 11:48:54 -0400
+Date: Fri, 7 Oct 2005 11:48:42 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+To: John Rigg <lk@sound-man.co.uk>
+cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.14-rc3-rt10 crashes on boot
+In-Reply-To: <E1ENtsV-00018l-5z@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0510071146370.7222@localhost.localdomain>
+References: <E1ENtsV-00018l-5z@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch makes the possessor permissions on a key additive with
-user/group/other permissions on the same key.
+On Fri, 7 Oct 2005, John Rigg wrote:
 
-This permits extra rights to be granted to the possessor of a key without
-taking away any rights conferred by them owning the key or having common group
-membership.
+> On Friday 7 October 2005 Ingo Molnar wrote:
+> >i got overflows in initramfs's gunzip with certain debug options. I have
+> >improved the stack footprint of the worst offenders in -rt11 (see the
+> >standalone patch below) - John, does it boot any better?
+>
+> Ah. I'm using initrd. With CONFIG_LATENCY_TRACE=y my initrd.img is
+> large, > 3.6MB. Maybe it's time to try initramfs.
+>
+> BTW I'm having trouble enabling DEBUG_STACKOVERFLOW. I can see
+> it in arch/i386/Kconfig.debug (and not in arch/x86_64/Kconfig.debug),
+> but it doesn't appear in menuconfig no matter what other kernel hacking
+> options I enable. If I add it manually to .config it just gets removed
+> by `make oldconfig'. Is this an x86_64 issue?
+>
+> For now I'll assume that there is a stack overflow and try initramfs.
+>
 
-This needs to be applied on top of the patch ensubjected:
+Here John,
 
-	[PATCH] Keys: Split key permissions checking into a .c file 
+Add this patch and it will add the option for you in x86_64 (I forgot that
+you were using that).  I even set it to be default on. I didn't add a test
+in do_IRQ, but I believe that the tests in latency.c should be good
+enough.
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
-warthog>diffstat -p1 keys-addperm-2614rc3.diff
- security/keys/permission.c |   12 ++++++------
- 1 files changed, 6 insertions(+), 6 deletions(-)
+-- Steve
 
-diff -uNrp linux-2.6.14-rc3-keys-split/security/keys/permission.c linux-2.6.14-rc3-keys-addperm/security/keys/permission.c
---- linux-2.6.14-rc3-keys-split/security/keys/permission.c	2005-10-07 14:06:35.000000000 +0100
-+++ linux-2.6.14-rc3-keys-addperm/security/keys/permission.c	2005-10-07 16:29:59.000000000 +0100
-@@ -27,12 +27,6 @@ int key_task_permission(const key_ref_t 
- 
- 	key = key_ref_to_ptr(key_ref);
- 
--	/* use the top 8-bits of permissions for keys the caller possesses */
--	if (is_key_possessed(key_ref)) {
--		kperm = key->perm >> 24;
--		goto use_these_perms;
--	}
--
- 	/* use the second 8-bits of permissions for keys the caller owns */
- 	if (key->uid == context->fsuid) {
- 		kperm = key->perm >> 16;
-@@ -61,6 +55,12 @@ int key_task_permission(const key_ref_t 
- 	kperm = key->perm;
- 
- use_these_perms:
-+	/* use the top 8-bits of permissions for keys the caller possesses
-+	 * - possessor permissions are additive with other permissions
-+	 */
-+	if (is_key_possessed(key_ref))
-+		kperm |= key->perm >> 24;
+Index: linux-rt-quilt/arch/x86_64/Kconfig.debug
+===================================================================
+--- linux-rt-quilt.orig/arch/x86_64/Kconfig.debug	2005-08-28 19:41:01.000000000 -0400
++++ linux-rt-quilt/arch/x86_64/Kconfig.debug	2005-10-07 11:43:45.000000000 -0400
+@@ -33,6 +33,14 @@
+ 	 options. See Documentation/x86_64/boot-options.txt for more
+ 	 details.
+
++config DEBUG_STACKOVERFLOW
++        bool "Check for stack overflows"
++        depends on DEBUG_KERNEL
++        default y
++        help
++          This option will cause messages to be printed if free stack space
++          drops below a certain limit.
 +
- 	kperm = kperm & perm & KEY_ALL;
- 
- 	return kperm == perm;
-
+ config KPROBES
+ 	bool "Kprobes"
+ 	depends on DEBUG_KERNEL

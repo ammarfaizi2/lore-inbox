@@ -1,78 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030328AbVJGPXN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030330AbVJGP0V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030328AbVJGPXN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 11:23:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030330AbVJGPXN
+	id S1030330AbVJGP0V (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 11:26:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030391AbVJGP0V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 11:23:13 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:35806 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030328AbVJGPXM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 11:23:12 -0400
-Date: Fri, 7 Oct 2005 10:23:05 -0500
-To: Paul Mackerras <paulus@samba.org>
-Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 6/7] ppc64: EEH Avoid racing reports of errors
-Message-ID: <20051007152305.GY29826@austin.ibm.com>
-References: <20050930004800.GL29826@austin.ibm.com> <20050930010038.GF6173@austin.ibm.com> <17219.47007.44643.148022@cargo.ozlabs.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17219.47007.44643.148022@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: linas <linas@austin.ibm.com>
+	Fri, 7 Oct 2005 11:26:21 -0400
+Received: from quark.didntduck.org ([69.55.226.66]:45730 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id S1030330AbVJGP0V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 11:26:21 -0400
+Message-ID: <434693F8.3070706@didntduck.org>
+Date: Fri, 07 Oct 2005 11:27:52 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+CC: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH] Fix hotplug cpu on x86_64
+References: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04D9C@USRV-EXCH4.na.uis.unisys.com>
+In-Reply-To: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04D9C@USRV-EXCH4.na.uis.unisys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 05, 2005 at 09:23:11PM +1000, Paul Mackerras was heard to remark:
-> Linas writes:
+Protasevich, Natalie wrote:
+>>Brian Gerst wrote:
+>>
+>>>Brian Gerst wrote:
+>>>
+>>>>I've been seeing bogus values from /proc/loadavg on an x86-64 SMP 
+>>>>kernel (but not UP).
+>>>>
+>>>>$ cat /proc/loadavg
+>>>>-1012098.26 922203.26 -982431.60 1/112 2688
+>>>>
+>>>>This is in the current git tree.  I'm also seeing strange values in
+>>>>/proc/stat:
+>>>>
+>>>>cpu  2489 40 920 60530 9398 171 288 1844674407350 cpu0 2509 60 940 
+>>>>60550 9418 191 308 0
+>>>>
+>>>>The first line is the sum of all cpus (I only have one), so it's 
+>>>>picking up up bad data from the non-present cpus.  The last value, 
+>>>>stolen time, is completely bogus since that value is only 
+>>
+>>ever used 
+>>
+>>>>on s390.
+>>>>
+>>>>It looks to me like there is some problem with how the per-cpu 
+>>>>structures are being initialized, or are getting 
+>>
+>>corrupted.  I have 
+>>
+>>>>not been able to test i386 SMP yet to see if the problem is x86_64 
+>>>>specific.
+>>>
+>>>I found the culprit: CPU hotplug.  The problem is that
+>>>prefill_possible_map() is called after setup_per_cpu_areas().  This 
+>>>leaves the per-cpu data sections for the future cpus uninitialized 
+>>>(still pointing to the original per-cpu data, which is initmem).  
+>>>Since the cpus exists in cpu_possible_map, for_each_cpu 
+>>
+>>will iterate 
+>>
+>>>over them even though the per-cpu data is invalid.
+>>
 > 
-> > 06-eeh-report-race.patch
+> I had to do the same in i386, but initially I was trying to avoid the
+> whole situation - allocating per_cpu data for all possible processors.
+> It seemed wasteful that on the system with NR_CPU=256 or 512 and brought
+> up as 4x everything per_cpu is (pre)allocated for all, although it's
+> sure convenient. I though at the time it would be great if
+> alloc_percpu() mechanism was able to dynamically re-create all the
+> per_cpu's for new processors, that way cpu_possible_map woun't probably
+> even be needed. Or is it too much trouble for too little gain...
 > 
-> Shouldn't you pass in pe_dn->child here, or
-> alternatively rearrange __eeh_mark_slot to do the node you give it
-> plus its children (recursively)?
+> Thanks,
+> --Natalie
+> 
 
-Yes; that's right; this gets fixed in a later patch in the series. 
-I guess this one snuck by while I was trying to sync up all the
-different patches I was carrying :-/
+It certainly is possible.  In the hotplug cpu case, don't put the 
+.data.percpu section in __initmem.  It will then be preserved for any 
+cpus that come online after boot.
 
-> Two other comments about __eeh_mark_slot: (1) despite the comment, the
-> function doesn't do anything to any pci_dev or pci_driver 
-
-The comment is also a "back port" of function that shows up in a later
-patch, and so indeed is inappropriate for this patch. Again, my excuse 
-is that I got sloppy while juggling all of these patchlets. Sorry.
-
-> (not that it
-> should be touching any pci_driver), 
-
-One problem I was seeing was that after getting an EEH error, 
-some device drivers would start spinning in thier interrupt handlers.
-I tried to break out of this spin-loop by adding a call to a
-function that asked "am I the victim of an EEH event"?  
-Unfortunately, the first implementation of this call was not 
-interrupt safe (pci_device_to_OF_node calls traverse_pci_devices).
-While scratching my head on to how to best fix this, I decided that 
-the best thing to do would be to mark up the pci driver with a flag;
-that way, the driver can look up te EEH state without any further ado.
-
-One might be able to get rid of this state in pci_driver, 
-although it seemed generically useful to have.  For example,
-later on, I futzed with a version that disabled the irq line 
-for that adapter "as soon as possible", and that seems to also 
-work, at least on an SMP machine. On a non-SMP machine, there 
-is still the danger that the device driver is spinning with 
-interrupts disabled, waiting on a status regiser to change, 
-that will never change. (And because of the deadlock, the 
-code to disable a given irq line never runs).  Its all
-depends on how the device driver got written.
-
-> and (2) a recursive function can't
-> really be inline 
-
-Well, no, but at least the first level call can be inlined; I assumed 
-that gcc would do at least that, but didn't check.
-
---linas
-
+--
+				Brian Gerst

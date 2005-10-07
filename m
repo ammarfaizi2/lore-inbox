@@ -1,82 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932399AbVJGMTK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932417AbVJGMVQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932399AbVJGMTK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 08:19:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932417AbVJGMTK
+	id S932417AbVJGMVQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 08:21:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbVJGMVQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 08:19:10 -0400
-Received: from mail28.syd.optusnet.com.au ([211.29.133.169]:30690 "EHLO
-	mail28.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932399AbVJGMTI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 08:19:08 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Subject: Re: [PATCH] vm - swap_prefetch-15
-Date: Fri, 7 Oct 2005 22:18:57 +1000
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org, ck@vds.kolivas.org
-References: <200510070001.01418.kernel@kolivas.org> <4d8e3fd30510070446gb6d469bn4502b30d1e14c7e8@mail.gmail.com>
-In-Reply-To: <4d8e3fd30510070446gb6d469bn4502b30d1e14c7e8@mail.gmail.com>
+	Fri, 7 Oct 2005 08:21:16 -0400
+Received: from qproxy.gmail.com ([72.14.204.202]:62866 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932417AbVJGMVQ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 08:21:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WA3/dhblWAka7MJzdmys2sNKvdaqW8hyZTkpbmTDJsQUg3UXR62t2aT1Vensyj48tS5Ludg65zd+phBwVd9rlmYcKNo9fLJLK5weOiScwR2BaWYh2K8PTm5r3wfVB/xVYOHEIXofm8qbMyhjr4n7QJ/Fs2sL0lsjLAqs9IyM6/I=
+Message-ID: <9a8748490510070521g66176c9fv6f371697634143e2@mail.gmail.com>
+Date: Fri, 7 Oct 2005 14:21:15 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: Mark Gross <mgross@linux.intel.com>
+Subject: Re: Telecom Clock Driver for MPCBL0010 ATCA computer blade
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       Sebastien.Bouchard@ca.kontron.com, mark.gross@intel.com
+In-Reply-To: <200510061028.00604.mgross@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200510072218.57864.kernel@kolivas.org>
+References: <200510060803.21470.mgross@linux.intel.com>
+	 <9a8748490510060952v71927cadj469c912c13f60400@mail.gmail.com>
+	 <200510061028.00604.mgross@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Oct 2005 21:46, Paolo Ciarrocchi wrote:
-> On 10/6/05, Con Kolivas <kernel@kolivas.org> wrote:
-> > The last known bugs were addressed in this latest version of the swap
-> > prefetching patch. Thanks to the testers out there who helped it get this
-> > far.
-> >
-> > -Prefetched pages weren't handled properly by the lru lists.
-> > -Prefetch groups are now 10 times larger when laptop_mode is enabled thus
-> > decreasing the amount of time spent prefetching and thus the disk
-> > spinning. -Documentation as suggested by Ingo Oeser
-> >
-> > Incremental patches and latest available here:
-> > http://ck.kolivas.org/patches/swap-prefetch/
->
-> Ciao Con,
-> i downloading right now kernel 2.6.14-rc3 and your latest patch (v15),
-> in the weekend I'll update my Ubuntu platform and I'll like to compare
-> performance of vanilla vs vm-swap_prefetch.
+On 10/6/05, Mark Gross <mgross@linux.intel.com> wrote:
+> On Thursday 06 October 2005 09:52, Jesper Juhl wrote:
+> > > +This directory exports the following interfaces.  There opperation is documented
 
-Great!
+Btw, please spell "operation" correctly :)
 
-> Any hint about what kind of instrumentation I could use in order to
-> get interesting and useful numbers ?
+[snip]
+> > > +  printk(KERN_ERR" misc_register retruns %d \n", ret);
 
-To get some useful advantage from it you have to have a workload that swaps on 
-your hardware in the first place. I have a simple mechanism to induce it 
-reliably where I open a few large applications concurrently - browser and 
-office suite come to mind, then create my swap load:
+Space between 'KERN_ERR" and '"' please.
 
-tail -f /dev/zero
-
-works real nice. Either let it run to completion and hope that tail gets 
-oom-killed or ctrl-c it after you've used up half your swapspace.
-Then I usually let vmstat 1 run in the background. Leave the machine for 5 or 
-10 minutes and do simple wallclock time from the moment you click on the 
-application till it is available. Try changing swap_prefetch from 2 to 0 
-in /proc/sys/vm/swap_prefetch to compare the difference. This is a very 
-coarse and somewhat contrived example, but even in real world settings where 
-you hit swapspace during normal usage it is slowly trickling in in the 
-background and I find it makes a noticeable difference.
-
-If you watch vmstat with swap_prefetch enabled, you'll notice it doing SI of 
-256KB (at default setting of swap_prefetch==2) every second when the machine 
-is very idle. Then after all the pages have been prefetched, when you click 
-on the application you shouldn't see anything in SI at all implying no swap 
-in. You can see how many entries are currently in the prefetch swaplist 
-easily enough with
-cat /proc/slabinfo | grep swapped_entry
-
-where the first numeric column of active objects shows the number of pages in 
-the list (not all of them will result in a swapped in page).
-
-Cheers,
-Con
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

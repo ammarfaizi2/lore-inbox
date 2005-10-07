@@ -1,111 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030514AbVJGTgx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030537AbVJGTnG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030514AbVJGTgx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 15:36:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030535AbVJGTgx
+	id S1030537AbVJGTnG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 15:43:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030545AbVJGTnG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 15:36:53 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:54447 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030514AbVJGTgw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 15:36:52 -0400
-Date: Fri, 7 Oct 2005 12:36:41 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: David Howells <dhowells@redhat.com>
-Cc: Chris Wright <chrisw@osdl.org>, torvalds@osdl.org, akpm@osdl.org,
-       keyrings@linux-nfs.org, linux-kernel@vger.kernel.org
-Subject: Re: [Keyrings] [PATCH] Keys: Add LSM hooks for key management
-Message-ID: <20051007193641.GT16352@shell0.pdx.osdl.net>
-References: <20051006231006.GO16352@shell0.pdx.osdl.net> <20051005211030.GC16352@shell0.pdx.osdl.net> <29942.1128529714@warthog.cambridge.redhat.com> <22756.1128594618@warthog.cambridge.redhat.com> <23041.1128679024@warthog.cambridge.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <23041.1128679024@warthog.cambridge.redhat.com>
-User-Agent: Mutt/1.5.6i
+	Fri, 7 Oct 2005 15:43:06 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:54255 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1030537AbVJGTnE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 15:43:04 -0400
+Date: Fri, 7 Oct 2005 15:42:48 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+To: John Rigg <lk@sound-man.co.uk>
+cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.14-rc3-rt10 crashes on boot
+In-Reply-To: <E1ENxei-0001C9-F7@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0510071538380.8980@localhost.localdomain>
+References: <E1ENxei-0001C9-F7@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* David Howells (dhowells@redhat.com) wrote:
-> Chris Wright <chrisw@osdl.org> wrote:
-> 
-> > BTW, /proc/keys should move, esp since it's a debugging interface.
-> 
-> Move where? Actually, it shouldn't exist, except that I need it for debugging.
 
-Debugfs is logical spot.
+John, Please don't strip the CC list.  Ingo may want to see what's
+happening, and besides, it's not proper netiquette for LKML.
 
-> > It means the security modules have to be able to parse the data.  I
-> > think that'd be the rough analog to updating file label based on file
-> > contents, right?  And we definitely don't want that.
-> 
-> Okay, I'll not do that then.
-> 
-> > So this security information is COW?
-> 
-> That's a good point. I need to add a duplicate hook so that the LSM can copy
-> or whatever the security information. Or maybe I should get rid of key
-> duplication entirely since it's not available to userspace.
+On Fri, 7 Oct 2005, John Rigg wrote:
 
-Yes, that's what I was trying to get at.
+> On Friday, October 7 Steve Rostedt wrote:
+>
+> >Add this patch and it will add the option for you in x86_64 (I forgot that
+> >you were using that).  I even set it to be default on. I didn't add a test
+> >in do_IRQ, but I believe that the tests in latency.c should be good
+> >enough.
+>
+> Hi Steve,
+>
+> Thanks for the patch. I applied it to 2.6.14-rc3-rt12, looked in
+> arch/x86_64/Kconfig.debug just to be sure it applied OK to -rt12,
+> then ran make. It failed to compile, with the following message:
+>
+>   CC      kernel/rt.o
+>   CC      kernel/latency.o
+> kernel/latency.c: In function '__print_worst_stack':
+> kernel/latency.c:336: warning: format '%d' expects type 'int', but argument 5 has type 'long unsigned int'
+> kernel/latency.c:384:3: error: #error Poke the author of above asm code line !
+> kernel/latency.c: In function 'debug_stackoverflow':
+> kernel/latency.c:386: error: 'STACK_WARN' undeclared (first use in this function)
+> kernel/latency.c:386: error: (Each undeclared identifier is reported only once
+> kernel/latency.c:386: error: for each function it appears in.)
+> make[1]: *** [kernel/latency.o] Error 1
+> make: *** [kernel] Error 2
+>
+> I wonder if DEBUG_STACKOVERFLOW was left out of x86_64 for this reason.
+>
 
-> > > The problem is that key_ref_t isn't available if CONFIG_KEYS is not defined,
-> > > but it's still referenced in security.h. Would it be reasonable to make all
-> > > the security_key_*() functions contingent on CONFIG_KEYS since they're only
-> > > called from the key management code? That would mean I wouldn't need to do
-> > > this.
-> > 
-> > I see.  I thought they already were conditional on CONFIG_KEYS.
-> 
-> No... You get either one set which works or another set which is a bunch of
-> dummy functions, not neither. I should change that. I could ditch the
-> security_*() stubs entirely; they're just magic fluff to appease those who
-> feel queasy at the sight of #ifdefs in .c files.
+Here's an addon patch to my last one.  I don't know x86_64 very well, but
+I believe the the asm is pretty much the same, so this patch removes the
+check for __i386__ and also defines STACK_WARN.
 
-Typically forward decl is enough, it's just that typedef that's
-problematic.  But, it's not an issue, I was just clarifying that it
-wasn't a core part of the patch, rather prep work.
+I'm leaving for the weekend, so you are now on your own. Unless you get
+help from others. ;-)
 
-> > So this is where 'rka->context = current' is established.  And since
-> > call_usermodehelper is called with wait flag set, you're sure current
-> > won't go away...OK scratch that worry of mine.
-> 
-> Even if that context could go away (say we made it request_key()
-> interruptible), the authorisation key would be revoked _first_ with the key
-> semaphore held, just to make sure there wouldn't be a race.
+-- Steve
 
-I was looking for places where rka->context is referrenced assuming it
-didn't go away (i.e. Oops waiting to happen).  Given the non-interrupitble
-wait, this isn't possible.
+Index: linux-rt-quilt/include/asm-x86_64/page.h
+===================================================================
+--- linux-rt-quilt.orig/include/asm-x86_64/page.h	2005-10-06 08:04:00.000000000 -0400
++++ linux-rt-quilt/include/asm-x86_64/page.h	2005-10-07 15:34:20.000000000 -0400
+@@ -21,6 +21,8 @@
+ #endif
+ #define CURRENT_MASK (~(THREAD_SIZE-1))
 
-> > Ah, I saw that code and didn't grok why that bit was needed, thanks.
-> 
-> I should wrap this outline up and stick it in a document somewhere.
++#define STACK_WARN             (THREAD_SIZE/8)
++
+ #define LARGE_PAGE_MASK (~(LARGE_PAGE_SIZE-1))
+ #define LARGE_PAGE_SIZE (1UL << PMD_SHIFT)
 
-That's a good idea.  I do appreciate the nice explanation.
+Index: linux-rt-quilt/kernel/latency.c
+===================================================================
+--- linux-rt-quilt.orig/kernel/latency.c	2005-10-06 08:04:56.000000000 -0400
++++ linux-rt-quilt/kernel/latency.c	2005-10-07 15:31:20.000000000 -0400
+@@ -377,7 +377,8 @@
+ 	atomic_inc(&tr->disabled);
 
-> > > At some point, I will have to make it so that I don't have to use
-> > > /sbin/request-key, but can instead request an already running daemon assume
-> > > the context from an auth key specified to it, say by passing the key serial
-> > > number over a socket.
-> > 
-> > I can see the appeal, but actually current architecture makes it easier
-> > to do checks against the caller that initiated the request.
-> 
-> It's going to be necessary. I've had requests for this from Trond (NFSv4)
-> amongst others. We discussed it at OLS; it really slows things down to be
-> forking off new processes regularly, so it needs to be done. I thought I
-> should probably do the LSM patch first so I could then work out how to fit in
-> with that - so there may be more key security hooks coming.
-
-Hmm, so we'll need a way for it to assume an identity, label and all.
-
-<snip>
-> > You're right, somehow I thought it was newly introduced.
-> 
-> Well, you (or someone) did comment on the bit of the patch where I removed it
-> from the header file...
-
-Hehe, it was me, I blame overexposure to diapers ;-) 
-
-thanks,
--chris
+ 	/* Debugging check for stack overflow: is there less than 1KB free? */
+-#ifdef __i386__
++#if 1 // def __i386__
++	/* Hopefully this works on x86_64!  */
+ 	__asm__ __volatile__("andl %%esp,%0" :
+ 				"=r" (stack_left) : "0" (THREAD_SIZE - 1));
+ #else

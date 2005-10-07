@@ -1,38 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbVJGGlw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751223AbVJGGrT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750777AbVJGGlw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 02:41:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbVJGGlw
+	id S1751223AbVJGGrT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 02:47:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbVJGGrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 02:41:52 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:46466 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750777AbVJGGlv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 02:41:51 -0400
-Date: Fri, 7 Oct 2005 07:41:44 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Greg KH <gregkh@suse.de>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Kay Sievers <kay.sievers@vrfy.org>, Hannes Reinecke <hare@suse.de>
-Subject: Re: [patch 08/28] Input: prepare to sysfs integration
-Message-ID: <20051007064144.GA7992@ftp.linux.org.uk>
-References: <20050915070131.813650000.dtor_core@ameritech.net> <d120d5000510061046y7d36de9cseccbbbd18529678@mail.gmail.com> <20051006230513.GB6981@midnight.suse.cz> <200510062258.07793.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200510062258.07793.dtor_core@ameritech.net>
-User-Agent: Mutt/1.4.1i
+	Fri, 7 Oct 2005 02:47:19 -0400
+Received: from web35509.mail.mud.yahoo.com ([66.163.179.133]:51084 "HELO
+	web35509.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751223AbVJGGrS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 02:47:18 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=vPp8R/J0CJvOlVjgmzbJYafahcXdVXB63vcLfgmRAvYii/mzGHpLgUijfEn6IdfKX4/V6liov8NdzZEvzaRNB9MLTg/YyPDdO11zhA1+9F2DWJjWIY2nZOORsmhIInZmPCR0x38iaSVxvJoVxelm0ytlNTuwSo33TyVKWt3PeCQ=  ;
+Message-ID: <20051007064718.44670.qmail@web35509.mail.mud.yahoo.com>
+Date: Thu, 6 Oct 2005 23:47:18 -0700 (PDT)
+From: Dan C Marinescu <dan_c_marinescu@yahoo.com>
+Subject: Re: quick (software versus hardware raid) question (cpu)
+To: Dan C Marinescu <dan_c_marinescu@yahoo.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20051007062425.56683.qmail@web35507.mail.mud.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 06, 2005 at 10:58:07PM -0500, Dmitry Torokhov wrote:
-> Not necessarily, you just need to make sure that you don't try to access
-> these fields when input_dev is "half-dead". But we have many issues with
-> locking/lifetime rules in input core so that's just another item that
-> needs to be considered.
-> 
-> I wanted to get basic sysfs support in and then work on locking...
+it seams to me tha SCSI_SATA_SIL works with Sil 3114!
 
-... when the first one to fix should be the lifetime rules.  Both sysfs
-stuff and locking depend on those...
+// happy now :-)
+
+   daniel
+
+--- Dan C Marinescu <dan_c_marinescu@yahoo.com> wrote:
+
+> hi there,
+> 
+> i have a mission critical system with an unsuported
+> raid controller (4 sata channels, sil 3114). so, i
+> set
+> up a software raid... now, the problem is at pick
+> hours, when nics hardware interrupts compete with
+> the
+> software raid kernel thingie... i know you avoid
+> spawning threads but regarless the scheduller's
+> preeptivenes, the two kernel tasks are
+> scheduller-wise
+> competing and this is killing my server (slowing it
+> down, cpu is at 100% user and 40-60% kernel).
+> another
+> issue is that not being able to "see" the "bios"
+> partition (controller is totally unsuported) i
+> cannot
+> boot (unless i go like raid 1 on /boot). so what
+> about
+> performance? what about scalability? if case of 1
+> array (hardware raid) versus n distinct sata
+> connectors, you big o notation goes like O(n)
+> instead
+> of O(1), no matter how smart the scheduller _is_
+> implemented, for the simple reason that hardware
+> interrupts are hardware interrupts... preemptive or
+> not, you have to serve them sooner or later and it's
+> one thing to sever 1 instead of n... another issue
+> is
+> reliability. if you use software raid, and the
+> kernel
+> goes down (for unrelated reasons) your parity
+> calculations and the raid cache go down as well,
+> huh?
+> and the other way around... the raid goes down,
+> taking
+> the sata driver with him... that takes the whole
+> system down, huh? well, maybe i am too pesimistic
+> but
+> still, the scalability concern remains! nics are
+> huge
+> scheduller enamies... they have to do so much with
+> cpu, and transfers to system memory, in order to
+> actually server thier purpose (protocols) it seams
+> to
+> me that there isn't much left for user-land and
+> software raid... (especially when many nics and many
+> satas are involved...)
+> 
+> in short, could you recommend me a peformant (sata
+> connectors) raid controller, which is fully
+> supported?
+> please don't go like "make gconfig" cause i've been
+> there... thanks!
+> 
+> regards,
+>   daniel
+> 
+> 
+> 		
+> __________________________________ 
+> Yahoo! Mail - PC Magazine Editors' Choice 2005 
+> http://mail.yahoo.com
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+
+
+		
+__________________________________ 
+Yahoo! Mail - PC Magazine Editors' Choice 2005 
+http://mail.yahoo.com

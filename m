@@ -1,72 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030409AbVJGP3j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030396AbVJGPdQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030409AbVJGP3j (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 11:29:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030404AbVJGP3j
+	id S1030396AbVJGPdQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 11:33:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030404AbVJGPdQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 11:29:39 -0400
-Received: from 223-177.adsl.pool.ew.hu ([193.226.223.177]:40712 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S1030391AbVJGP3i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 11:29:38 -0400
-To: trond.myklebust@fys.uio.no
-CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-reply-to: <1128698035.8583.36.camel@lade.trondhjem.org> (message from Trond
-	Myklebust on Fri, 07 Oct 2005 11:13:55 -0400)
-Subject: Re: [RFC] atomic create+open
-References: <E1ENWt1-000363-00@dorka.pomaz.szeredi.hu>
-	 <1128616864.8396.32.camel@lade.trondhjem.org>
-	 <E1ENZ8u-0003JS-00@dorka.pomaz.szeredi.hu>
-	 <E1ENZCQ-0003K3-00@dorka.pomaz.szeredi.hu>
-	 <1128619526.16534.8.camel@lade.trondhjem.org>
-	 <E1ENZZl-0003OO-00@dorka.pomaz.szeredi.hu>
-	 <1128620528.16534.26.camel@lade.trondhjem.org>
-	 <E1ENZu1-0003SP-00@dorka.pomaz.szeredi.hu>
-	 <1128623899.31797.14.camel@lade.trondhjem.org>
-	 <E1ENani-0003c4-00@dorka.pomaz.szeredi.hu>
-	 <1128626258.31797.34.camel@lade.trondhjem.org>
-	 <E1ENcAr-0003jz-00@dorka.pomaz.szeredi.hu>
-	 <1128633138.31797.52.camel@lade.trondhjem.org>
-	 <E1ENlI2-0004Gt-00@dorka.pomaz.szeredi.hu>
-	 <1128692289.8519.75.camel@lade.trondhjem.org>
-	 <E1ENslH-00057W-00@dorka.pomaz.szeredi.hu> <1128698035.8583.36.camel@lade.trondhjem.org>
-Message-Id: <E1ENu8h-0005Kd-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Fri, 07 Oct 2005 17:28:03 +0200
+	Fri, 7 Oct 2005 11:33:16 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:8425 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S1030396AbVJGPdP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 11:33:15 -0400
+Message-Id: <200510071533.j97FX9Wp018589@laptop11.inf.utfsm.cl>
+To: =?utf-8?q?Pawe=C5=82_Sikora?= <pluto@agmk.net>
+cc: Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6] binfmt_elf bug (exposed by klibc). 
+In-Reply-To: Message from =?utf-8?q?Pawe=C5=82_Sikora?= <pluto@agmk.net> 
+   of "Fri, 07 Oct 2005 16:21:40 +0200." <200510071621.41249.pluto@agmk.net> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Fri, 07 Oct 2005 11:33:09 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.19.1]); Fri, 07 Oct 2005 11:33:10 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > You can replace the inode in ->create_open() if you want to.
-> 
-> Thinking a bit more clearly after a cup of coffee. This statement isn't
-> even true.
-> 
-> Your pseudo-code offers no guarantees that you are the sole user of the
-> dentry once you get to create_open().
+Paweł Sikora <pluto@agmk.net> wrote:
+> Dnia piątek, 7 października 2005 15:46, Horst von Brand napisał:
 
-You are right.  I meant, replace the dentry.
+[...]
 
-> > Or let the VFS redo the lookup (as if d_revalidate() returned 0).
-> 
-> Which may return yet another result for the dentry and another race.
-> There is no guarantee that you will ever make progress if someone is
-> doing something like.
-> 
-> while true
-> do
->   echo "1" > foo
->   echo "2" > foo
-> done
-> 
-> on the server.
+> > binutils-2.16.91.0.2-4 doesn't. It looks like you are using broken tools.
 
-Not good example. This won't change the file, only the contents.
-Something with rename would be better.
+> I didn't say that is (or not) a binutils bug.
+> I'm only saying that kernel is killng a valid micro application.
 
-We are still pitting two different races against each other.  I can't
-see such a big difference in ugliness...
-
-Miklos
-
-
-
+If binutils generates an invalid executable, it is not a valid application.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

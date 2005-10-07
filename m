@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbVJGKDI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932314AbVJGKFj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932309AbVJGKDI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 06:03:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932314AbVJGKDI
+	id S932314AbVJGKFj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 06:05:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932367AbVJGKFj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 06:03:08 -0400
-Received: from nproxy.gmail.com ([64.233.182.206]:56911 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932309AbVJGKDH convert rfc822-to-8bit
+	Fri, 7 Oct 2005 06:05:39 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:53142 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S932314AbVJGKFi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 06:03:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=fTPWx8w4/gqF2YSaiKtkMZDOO//qff9aY7KUDiC9NJidXIi89iw0r2WKmrIO3bBsn/GRXELfK9yzg6BjGgZmZUlk0EFejBtFYKgep+8ZJ8upuUilWIy6AX6FN4oKV+/Ai4JtlGLh6rp36eiQcQOV5g9yyWLtpqvd9OK2aehoNoM=
-Message-ID: <84144f020510070303u13872f33hb4a40451acea4d5a@mail.gmail.com>
-Date: Fri, 7 Oct 2005 13:03:03 +0300
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-Reply-To: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Con Kolivas <kernel@kolivas.org>
-Subject: Re: [PATCH] vm - swap_prefetch-15
-Cc: linux-kernel@vger.kernel.org, ck@vds.kolivas.org
-In-Reply-To: <200510070001.01418.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 7 Oct 2005 06:05:38 -0400
+Date: Fri, 7 Oct 2005 12:04:46 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Al Viro <viro@ftp.linux.org.uk>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org, Andreas Herrmann <aherrman@de.ibm.com>
+Subject: Re: [PATCH] gfp flags annotations - part 1
+Message-ID: <20051007100446.GA15122@osiris.boeblingen.de.ibm.com>
+References: <20050907183131.GF5155@ZenIV.linux.org.uk> <20050912191744.GN25261@ZenIV.linux.org.uk> <20050912192049.GO25261@ZenIV.linux.org.uk> <20050930120831.GI7992@ftp.linux.org.uk> <20051004203009.GQ7992@ftp.linux.org.uk> <20051005202904.GA27229@mipter.zuzino.mipt.ru> <20051006201534.GX7992@ftp.linux.org.uk> <20051007025644.GA11132@kroah.com> <20051007064604.GB7992@ftp.linux.org.uk> <20051007100145.GA27310@mipter.zuzino.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200510070001.01418.kernel@kolivas.org>
+In-Reply-To: <20051007100145.GA27310@mipter.zuzino.mipt.ru>
+User-Agent: mutt-ng/devel (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Con,
+> > --- RC14-rc3-git4-linus-delta/drivers/s390/scsi/zfcp_aux.c
+> > +++ current/drivers/s390/scsi/zfcp_aux.c
+> 
+> >  static void *
+> > -zfcp_mempool_alloc(unsigned int __nocast gfp_mask, void *size)
+> > +zfcp_mempool_alloc(gfp_t gfp_mask, void *size)
+> >  {
+> >  	return kmalloc((size_t) size, gfp_mask);
+> >  }
+> 
+> Lovely. Yes, they cast sizeof() to void * in all calls.
 
-A teeny-weeny nitpick:
+zfcp_mempool_alloc needs to fit the prototype of mempool_alloc_t.
+If you have a better idea to implement a mempool, please let us
+know. The calls you mention are actually calls to mempool_create
+and not to zfcp_mempool_alloc, or are you talking about
+something different?
 
-On 10/6/05, Con Kolivas <kernel@kolivas.org> wrote:
-> +struct swapped_root_t {
-
-[snip]
-
-> +struct swapped_entry_t {
-
-[snip]
-
-Since these are not typedefs, please drop the _t postfix.
-
-                                  Pekka
+Heiko

@@ -1,68 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030516AbVJGRXk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030522AbVJGRXd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030516AbVJGRXk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 13:23:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030519AbVJGRXj
+	id S1030522AbVJGRXd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 13:23:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030524AbVJGRXd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 13:23:39 -0400
-Received: from ns.suse.de ([195.135.220.2]:4325 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1030516AbVJGRXj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 13:23:39 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Protasevich, Natalie" <Natalie.Protasevich@unisys.com>
-Subject: Re: [PATCH] Fix hotplug cpu on x86_64
-Date: Fri, 7 Oct 2005 19:25:30 +0200
-User-Agent: KMail/1.8
-Cc: "Brian Gerst" <bgerst@didntduck.org>,
-       "lkml" <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>
-References: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04D9E@USRV-EXCH4.na.uis.unisys.com>
-In-Reply-To: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04D9E@USRV-EXCH4.na.uis.unisys.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 7 Oct 2005 13:23:33 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:29352 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1030522AbVJGRXc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 13:23:32 -0400
+Subject: Re: 2.6.14-rc3-rt10 - xruns & config questions
+From: Lee Revell <rlrevell@joe-job.com>
+To: Mark Knecht <markknecht@gmail.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <5bdc1c8b0510070944p5a09f7f2m4965f3e0ddda21f7@mail.gmail.com>
+References: <5bdc1c8b0510061152o686c5774x2d0514a1f1b4e463@mail.gmail.com>
+	 <20051006195242.GA15448@elte.hu>
+	 <5bdc1c8b0510061307saf22655y26dd1e608b33a40c@mail.gmail.com>
+	 <5bdc1c8b0510061338r41e0b51ds2efd435a591d953e@mail.gmail.com>
+	 <5bdc1c8b0510061907w372cb406x45140b01e4011c4a@mail.gmail.com>
+	 <20051007114848.GE857@elte.hu>
+	 <5bdc1c8b0510070944p5a09f7f2m4965f3e0ddda21f7@mail.gmail.com>
+Content-Type: text/plain
+Date: Fri, 07 Oct 2005 13:23:24 -0400
+Message-Id: <1128705805.17981.42.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510071925.30859.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 07 October 2005 18:42, Protasevich, Natalie wrote:
+On Fri, 2005-10-07 at 09:44 -0700, Mark Knecht wrote:
+> Hi Ingo,
+>    OK, I've been running -rt10 for the last couple of hours on a new
+> kernel without SMP. No xruns so far at 64/2. I'm doing all the normal
+> stuff. emerge sync, building some code outside of portage, playing
+> music. Very good so far, but it will likely take 4-6 hours for me to
+> be more sure saying it was just SMP latencies.
 
-> You know Andi, I was imagining something like bitmap or linked list of
-> all per_cpu vars (dynamically updated) and just going through this
-> list... Or something like that (maybe some registration mechanism).
-> There are not too many of them - about two dozens, mostly all sorts of
-> accounting.
+IIRC you posted some traces that implied the migration thread was
+involved.
 
-Finding them is no problem. We have NR_CPUS arrays for this (or other
-per CPU mechanisms).
-
-The problem is initializing them correct. There are currently two ways to do 
-this: 
-
-- (easier one, used by most subsystems) at startup set up state for 
-all possible CPUs.
-- (complex one) register a CPU notifier and watch for CPU_UP/DOWN
-
-Because of the first way the per cpu data is currently preallocated for
-all hotplug CPUs. You cannot copy the state later because it might be 
-undefined then.
-
-To make dynamic changes of possible map work would require to convert all 
-users to the second more complex way. Probably a lot of work.
-
->
-> > I think it is better to try to figure out how many hotplug
-> > CPUs are supported, otherwise use a small default.
->
-> Exactly - such as on ES7000, it can support 32, 64, 128 etc. processors
-> depending on what configuration the customer actually ordered :)... it
-> should be something for that, then NR_CPUS could be either defined as
-> boot parameter or belong to subarchs.
-
-ACPI/mptables has the concept of "disabled" CPUs.  I just bent that a bit
-and use it as the number of possible CPUs.
-
--Andi
+Lee
 

@@ -1,46 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbVJGEmq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbVJGFWR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932110AbVJGEmq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 00:42:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbVJGEmq
+	id S932233AbVJGFWR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 01:22:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932237AbVJGFWR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 00:42:46 -0400
-Received: from koto.vergenet.net ([210.128.90.7]:39591 "EHLO koto.vergenet.net")
-	by vger.kernel.org with ESMTP id S932110AbVJGEmp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 00:42:45 -0400
-Date: Fri, 7 Oct 2005 13:39:27 +0900
-From: Horms <horms@verge.net.au>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Colin Leroy <colin@colino.net>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org, debian-kernel@lists.debian.org
-Subject: Re: [PATCH] hfs, hfsplus: don't leak s_fs_info and fix an oops
-Message-ID: <20051007043924.GA20827@verge.net.au>
-Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
-	Colin Leroy <colin@colino.net>,
-	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	linux-kernel@vger.kernel.org, debian-kernel@lists.debian.org
+	Fri, 7 Oct 2005 01:22:17 -0400
+Received: from xproxy.gmail.com ([66.249.82.203]:12765 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932233AbVJGFWR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 01:22:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=BR0IWIHK/1Yh/Sts9GNPbDVmCQfUmCp5i7GaXdzXVbrK2PW4iBFt3VdNxDsnePANi1RWE92+df4JgAhOm92vCUNs2V87/XznXq27QgrPG/1VCSVmqmfRPe3vJ8tDDfXZ2NxHEH4bNnkR2Mq9Z5AMqngrsdIY0RcDrEB5ON30p+0=
+Message-ID: <4ae3c140510062222r3324c35cpba250612bad48dad@mail.gmail.com>
+Date: Fri, 7 Oct 2005 01:22:16 -0400
+From: Xin Zhao <uszhaoxin@gmail.com>
+Reply-To: Xin Zhao <uszhaoxin@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: how to search file data blocks in kernel 2.6?
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-X-Cluestick: seven
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been looking over CAN-2005-3109, better known as
-the hfs, hfsplus leak and oops, and I am wondering if the 
-problem is present in 2.4
+Hi,
 
-I took a look at making a backport, and it seems that
-some of the problems are there, but without a deeper inspection
-of the code its difficult to tell if the problems manifest or not.
+In 2.4, we have structures like clean_pages to organize various cached
+file data. But in 2.6, these structures disappeared. So how to
+determine whether a file data block exists in cache? Can someone
+kindly give me a brief description and point me to the right function
+or linux source code file? Many thanks!
 
-For reference, here is the 2.6 variant of the change:
-http://www.kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=945b092011c6af71a0107be96e119c8c08776f3f
-
-I can futher my backport effort and post it for inspection if need be.
-
--- 
-Horms
+-x

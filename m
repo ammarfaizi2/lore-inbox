@@ -1,42 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030476AbVJGQQF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030483AbVJGQSZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030476AbVJGQQF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 12:16:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030478AbVJGQQF
+	id S1030483AbVJGQSZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 12:18:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030484AbVJGQSZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 12:16:05 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:49826 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1030476AbVJGQQD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 12:16:03 -0400
-Date: Fri, 7 Oct 2005 12:15:58 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-To: linux-kernel@vger.kernel.org
-Subject: Dell firmware default config options?
-In-Reply-To: <43469A9A.2070104@beezmo.com>
-Message-ID: <Pine.LNX.4.58.0510071209140.8299@localhost.localdomain>
-References: <43469A9A.2070104@beezmo.com>
+	Fri, 7 Oct 2005 12:18:25 -0400
+Received: from zipcon.net ([209.221.136.5]:49624 "HELO zipcon.net")
+	by vger.kernel.org with SMTP id S1030483AbVJGQSX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 12:18:23 -0400
+Message-ID: <43469FB8.50303@beezmo.com>
+Date: Fri, 07 Oct 2005 09:18:00 -0700
+From: William D Waddington <william.waddington@beezmo.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: [RFClue] pci_get_device, new driver model
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+CRAP, I think this one got sent when half written - sorry about that.
 
-I'm just curious why the Dell firmware configuration options are default
-to "m" instead of "n".  Since it only matters if you have a Dell System.
+I'm missing something fundamental, and beg your indulgence.  Read LDD 3,
+googled, and looked around in the code (but not in the right places...)
 
-So for the huge number of systems that are not Dell Systems, they are
-probably wasting CPU cycles compiling these as modules, and taking up
-space in loads of /lib/modules directories throughout the world ;-)
+My current 2.6 drivers support multiple identical PCI boards per host.
+The init code spins on pci_find_device and assigns instance/minor
+numbers as boards are found.  Load script insmods the driver,
+gets the major # from /proc/devices, and creates the /dev/ entries
+on the fly.
 
-DCDBAS explicitly states default of "m", and DELL_RBU has no default which
-just makes it automatically on.
+If I convert to pci_get_device, it looks like subsequent calls in the
+loop "put" the previously "gotten" device.  I need the pci_dev struct
+to persist for later use (DMA, etc).  Do I take an additional bump to
+the ref count for each board found before looping, and "put" each when
+the driver is unloaded?
 
-Is there any reason that these shouldn't be turned off by default?
+If I just give in to the new driver model how/when do I associate
+instance/minor numbers with boards found?  Is it ever possible for
+ordinary PCI boards to be (logically) removed and re-added w/out
+removing the driver?  If so, how to maintain association between
+a particular board and minor number?
 
-Thanks,
+I don't have any control over the tools available on the user's
+target host.
 
--- Steve
+Pointers to code supporting multiple boards per driver would be
+very helpful.
+
+Not subscribed but lurking.  Thanks,
+Bill
+-- 
+--------------------------------------------
+William D Waddington
+Bainbridge Island, WA, USA
+william.waddington@beezmo.com
+--------------------------------------------
+"Even bugs...are unexpected signposts on
+the long road of creativity..." - Ken Burtch
 
 

@@ -1,57 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750848AbVJGHW4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750849AbVJGH3O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750848AbVJGHW4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 03:22:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbVJGHW4
+	id S1750849AbVJGH3O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 03:29:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbVJGH3O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 03:22:56 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:49168 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1750802AbVJGHW4 (ORCPT
+	Fri, 7 Oct 2005 03:29:14 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:21197 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750849AbVJGH3N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 03:22:56 -0400
-Date: Fri, 7 Oct 2005 09:23:33 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] add sysfs to dynamically control blk request tag maintenance
-Message-ID: <20051007072328.GO2889@suse.de>
-References: <200510070246.j972kig22629@unix-os.sc.intel.com>
+	Fri, 7 Oct 2005 03:29:13 -0400
+Date: Fri, 7 Oct 2005 09:28:35 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Suspend to RAM broken with 2.6.13
+Message-ID: <20051007072835.GG27711@elf.ucw.cz>
+References: <1127347633.25357.49.camel@idefix.homelinux.org> <20050923163200.GC8946@openzaurus.ucw.cz> <1128663145.14284.85.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <200510070246.j972kig22629@unix-os.sc.intel.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1128663145.14284.85.camel@localhost.localdomain>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 06 2005, Chen, Kenneth W wrote:
-> blk_queue_start_tag and blk_queue_end_tag are called for tagging
-> I/O to scsi device that is capable of tcq. blk_queue_find_tag is
-> a function that utilizes the tag information built up on every I/O.
+On Pá 07-10-05 15:32:25, Jean-Marc Valin wrote:
+> Hi,
 > 
-> However, there aren't many consumers for blk_queue_find_tag, except
-> NCR53c700 and tekram-dc390.  Vast majority of scsi drivers don't
-> use these tag currently.  So why bother build them at the beginning
-> of an I/O and then tear it all down at the end, all doing hard work
-> but no other functions in the kernel appears to care.
-> 
-> Is there another big scheme in the works to use these tags?  If not,
-> I'd like to propose we add a sysfs attribute to dynamically control
-> whether kernel maintains blk request tag or not.  This has performance
-> advantage that we don't needlessly waste CPU cycle on things we throw
-> away without using them. Would the following patch be acceptable?
-> Comments?
+> I've done some further testing on suspend to RAM and it seems like it
+> got broken for me between 2.6.11 and 2.6.12. Does that help narrowing
+> down the problem?
 
-I don't understand the need for this patch - the generic tagging is only
-used if the SCSI LLD indicated it wanted it by issuing a
-scsi_activate_tcq(). So blk_queue_start_tag() is only called if the LLD
-already did a scsi_activate_tcq(), and blk_queue_end_tag() is only
-called if the rq is block layer tagged. blk_queue_find_tag() is only
-used with direct use of scsi_find_tag(), a function that should (and is)
-only usable by users of the generic tagging already.
+Well, you'd have to track it down in a bit more specific way. If you
+can narrow it down to specific day, or even better with binary search,
+it will help.
+								Pavel
 
-So please, a description of what problem you are trying to solve would
-be appreciated :-)
+> Le vendredi 23 septembre 2005 ? 18:32 +0200, Pavel Machek a écrit :
+> > Hi!
+> > 
+> > > I'm experiencing problems with suspend to RAM on my Dell D600 laptop.
+> > > When I run Ubuntu's 2.6.10 kernel I have no problem with suspend to RAM.
+> > > However, when I run 2.6.13, my laptop sometimes doesn't wake up. It
+> > > seems like the longer my uptime, the more likely the problem is to occur
+> > > (which makes it hard to reproduce sometimes). This happens even with a
+> > > non-preempt kernel.
+> > 
+> > Check if it works with minimal drivers and non-preemptible kernel...
+
+
 
 -- 
-Jens Axboe
-
+if you have sharp zaurus hardware you don't need... you know my address

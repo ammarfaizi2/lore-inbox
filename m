@@ -1,66 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030473AbVJGQAf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030474AbVJGQBn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030473AbVJGQAf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 12:00:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030474AbVJGQAe
+	id S1030474AbVJGQBn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 12:01:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030475AbVJGQBn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 12:00:34 -0400
-Received: from usbb-lacimss3.unisys.com ([192.63.108.53]:38150 "EHLO
-	usbb-lacimss3.unisys.com") by vger.kernel.org with ESMTP
-	id S1030473AbVJGQAe convert rfc822-to-8bit (ORCPT
+	Fri, 7 Oct 2005 12:01:43 -0400
+Received: from pat.uio.no ([129.240.130.16]:34525 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1030474AbVJGQBl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 12:00:34 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH] Fix hotplug cpu on x86_64
-Date: Fri, 7 Oct 2005 11:00:27 -0500
-Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04D9D@USRV-EXCH4.na.uis.unisys.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Fix hotplug cpu on x86_64
-Thread-Index: AcXLU3rmTw4NLerPQMqE71ceV60UnwAA5sig
-From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-To: "Brian Gerst" <bgerst@didntduck.org>
-Cc: "lkml" <linux-kernel@vger.kernel.org>, "Andi Kleen" <ak@suse.de>
-X-OriginalArrivalTime: 07 Oct 2005 16:00:27.0523 (UTC) FILETIME=[3C10ED30:01C5CB58]
+	Fri, 7 Oct 2005 12:01:41 -0400
+Subject: Re: [RFC] atomic create+open
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <E1ENtzt-0005Jb-00@dorka.pomaz.szeredi.hu>
+References: <E1ENWt1-000363-00@dorka.pomaz.szeredi.hu>
+	 <1128616864.8396.32.camel@lade.trondhjem.org>
+	 <E1ENZ8u-0003JS-00@dorka.pomaz.szeredi.hu>
+	 <E1ENZCQ-0003K3-00@dorka.pomaz.szeredi.hu>
+	 <1128619526.16534.8.camel@lade.trondhjem.org>
+	 <E1ENZZl-0003OO-00@dorka.pomaz.szeredi.hu>
+	 <1128620528.16534.26.camel@lade.trondhjem.org>
+	 <E1ENZu1-0003SP-00@dorka.pomaz.szeredi.hu>
+	 <1128623899.31797.14.camel@lade.trondhjem.org>
+	 <E1ENani-0003c4-00@dorka.pomaz.szeredi.hu>
+	 <1128626258.31797.34.camel@lade.trondhjem.org>
+	 <E1ENcAr-0003jz-00@dorka.pomaz.szeredi.hu>
+	 <1128633138.31797.52.camel@lade.trondhjem.org>
+	 <E1ENlI2-0004Gt-00@dorka.pomaz.szeredi.hu>
+	 <1128692289.8519.75.camel@lade.trondhjem.org>
+	 <E1ENslH-00057W-00@dorka.pomaz.szeredi.hu>
+	 <1128696477.8583.17.camel@lade.trondhjem.org>
+	 <E1ENtzt-0005Jb-00@dorka.pomaz.szeredi.hu>
+Content-Type: text/plain
+Date: Fri, 07 Oct 2005 12:01:32 -0400
+Message-Id: <1128700892.8583.46.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.887, required 12,
+	autolearn=disabled, AWL 1.11, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I had to do the same in i386, but initially I was trying to 
-> avoid the 
-> > whole situation - allocating per_cpu data for all possible 
-> processors.
-> > It seemed wasteful that on the system with NR_CPU=256 or 512 and 
-> > brought up as 4x everything per_cpu is (pre)allocated for all, 
-> > although it's sure convenient. I though at the time it 
-> would be great 
-> > if
-> > alloc_percpu() mechanism was able to dynamically re-create all the 
-> > per_cpu's for new processors, that way cpu_possible_map woun't 
-> > probably even be needed. Or is it too much trouble for too 
-> little gain...
-> > 
-> > Thanks,
-> > --Natalie
-> > 
-> 
-> It certainly is possible.  In the hotplug cpu case, don't put 
-> the .data.percpu section in __initmem.  It will then be 
-> preserved for any cpus that come online after boot.
-> 
+fr den 07.10.2005 Klokka 17:18 (+0200) skreiv Miklos Szeredi:
 
-I don't want to confuse Andrew, the patch is definitely correct and
-needed...
- 
-It is more about "cold plug" case, when processors are not present
-initially, but physically added to the systen during runtime. The
-problem was not to preserve, but not to even allocate per_cpu for all
-NR_CPUS, only for physically present processors. Then create per_cpu
-with all the allocated data for the newly added processors. But as I
-said it is probably too much to ask after all... :)
-Thanks,
---Natalie
+> > > You can replace the inode in ->create_open() if you want to.  Or let
+> > > the VFS redo the lookup (as if d_revalidate() returned 0).
+> > 
+> > ...but I cannot do that once I get to dentry_open(). You are ignoring
+> > the case of generic file open without creation.
+> 
+> You can't do open by inode number (or file handle, whatever)?  Only by
+> name?  In that case yes, I see your problem.
+
+As I believe I said earlier, open by inode number/filehandle/... don't
+exist in the NFSv4 protocol due to the potential for races.
+
+> > > NFS does OPEN (O_CREAT), file is opened, dentry replaced (this is not
+> > > ellaborated in the pseudocode).
+> > 
+> > Which again only deals with the case of open(O_CREAT). My point is that
+> > the race exists for the case of generic open().
+> 
+> And so does for setattr() etc.  You can safely return -ENOENT in these
+> cases.  O_CREAT is problematic only because it cannot return -ENOENT
+> if the file was removed between ->lookup and ->open.
+
+No. There is no race for setattr() etc since they only do one lookup
+(and they don't set up any state on the server).
+
+open() is the only case where we currently have to look things up twice
+(and I remind you that the second "lookup" is in fact the OPEN
+operation).
+
+Trond
+

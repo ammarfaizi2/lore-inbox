@@ -1,61 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030485AbVJGQW6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030492AbVJGQYC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030485AbVJGQW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 12:22:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030489AbVJGQW6
+	id S1030492AbVJGQYC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 12:24:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030494AbVJGQYA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 12:22:58 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:47604 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S1030488AbVJGQW6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 12:22:58 -0400
-Message-ID: <4346A0A4.4090303@mvista.com>
-Date: Fri, 07 Oct 2005 09:21:56 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Serge Goodenko <s_goodenko@mail.ru>
-Cc: linux-kernel@vger.kernel.org,
-       "'high-res-timers-discourse@lists.sourceforge.net'" 
-	<high-res-timers-discourse@lists.sourceforge.net>
-Subject: Re: [PATCH] UML + High-Res-Timers on 2.4.25 kernel
-References: <E1ENsDa-0008Y1-00.s_goodenko-mail-ru@f16.mail.ru>
-In-Reply-To: <E1ENsDa-0008Y1-00.s_goodenko-mail-ru@f16.mail.ru>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 7 Oct 2005 12:24:00 -0400
+Received: from pat.uio.no ([129.240.130.16]:29692 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1030492AbVJGQX7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 12:23:59 -0400
+Subject: Re: [RFC] atomic create+open
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <E1ENu8h-0005Kd-00@dorka.pomaz.szeredi.hu>
+References: <E1ENWt1-000363-00@dorka.pomaz.szeredi.hu>
+	 <1128616864.8396.32.camel@lade.trondhjem.org>
+	 <E1ENZ8u-0003JS-00@dorka.pomaz.szeredi.hu>
+	 <E1ENZCQ-0003K3-00@dorka.pomaz.szeredi.hu>
+	 <1128619526.16534.8.camel@lade.trondhjem.org>
+	 <E1ENZZl-0003OO-00@dorka.pomaz.szeredi.hu>
+	 <1128620528.16534.26.camel@lade.trondhjem.org>
+	 <E1ENZu1-0003SP-00@dorka.pomaz.szeredi.hu>
+	 <1128623899.31797.14.camel@lade.trondhjem.org>
+	 <E1ENani-0003c4-00@dorka.pomaz.szeredi.hu>
+	 <1128626258.31797.34.camel@lade.trondhjem.org>
+	 <E1ENcAr-0003jz-00@dorka.pomaz.szeredi.hu>
+	 <1128633138.31797.52.camel@lade.trondhjem.org>
+	 <E1ENlI2-0004Gt-00@dorka.pomaz.szeredi.hu>
+	 <1128692289.8519.75.camel@lade.trondhjem.org>
+	 <E1ENslH-00057W-00@dorka.pomaz.szeredi.hu>
+	 <1128698035.8583.36.camel@lade.trondhjem.org>
+	 <E1ENu8h-0005Kd-00@dorka.pomaz.szeredi.hu>
+Content-Type: text/plain
+Date: Fri, 07 Oct 2005 12:23:47 -0400
+Message-Id: <1128702227.8583.69.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.885, required 12,
+	autolearn=disabled, AWL 1.11, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Serge Goodenko wrote:
-> Hello!
+fr den 07.10.2005 Klokka 17:28 (+0200) skreiv Miklos Szeredi:
+> > 
+> > Which may return yet another result for the dentry and another race.
+> > There is no guarantee that you will ever make progress if someone is
+> > doing something like.
+> > 
+> > while true
+> > do
+> >   echo "1" > foo
+> >   echo "2" > foo
+> > done
+> > 
+> > on the server.
 > 
-> I am trying to compile 2.4.25 UML kernel together with High Resolution Timers patch and it fails to compile saying the following during linking:
-> 
-> gcc -Wl,-T,arch/um/link.ld -static -Wl,--wrap,malloc -Wl,--wrap,free -Wl,--wrap,calloc \
->         -o linux arch/um/main.o vmlinux.o -L/usr/lib -lutil
-> vmlinux.o(.text+0x2688): In function `schedule_timeout':
-> /usr/src/linux-2.4.25/kernel/sched.c:443: undefined reference to `jiffies'
-> vmlinux.o(.text+0x26cd):/usr/src/linux-2.4.25/kernel/sched.c:454: undefined reference to `jiffies'
-> vmlinux.o(.text+0x27a4): In function `schedule':
-> /usr/src/linux-2.4.25/include/linux/sched.h:929: undefined reference to `jiffies'
-> vmlinux.o(.text+0x489e): In function `do_fork':
-> /usr/src/linux-2.4.25/kernel/fork.c:740: undefined reference to `jiffies'
-> vmlinux.o(.text+0xabd5): In function `do_getitimer':
-> /usr/src/linux-2.4.25/kernel/itimer.c:55: undefined reference to `jiffies'
-> vmlinux.o(.text+0xacd3):/usr/src/linux-2.4.25/kernel/itimer.c:103: more undefined references to `jiffies' follow
-> collect2: ld returned 1 exit status
-> make: *** [linux] Error 1
-> 
-> is there any solution to this problem?
-> or HRT patch is not supposed to work under UML at all?
->
-You might do better on the HRT list (cc'ed).
+> Not good example. This won't change the file, only the contents.
+> Something with rename would be better.
 
-I don't know what UML needs.  I would have thought that jiffies would be defined...  especially for 
-things like do_fork.  Which patch are you using?
--- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+Sorry, yes. This tweak should demonstrate what I meant
+
+while true
+do
+  echo "1" > foo
+  echo "2" > bar
+  mv bar foo
+done
+
+> We are still pitting two different races against each other.  I can't
+> see such a big difference in ugliness...
+
+No we're not. I telling you that your open_create is not a solution for
+the problems we have with open in NFSv4.
+
+If it doesn't do atomic lookup+open, then I have an unfixable race. Any
+"solution" that requires NFS to assume that the dcache will remain
+consistent with the server namespace across more than one RPC operation
+is prone to races.
+
+OTOH mount/umount races are fixable since they involve only the local
+namespace. Just add locking.
+
+Trond
+

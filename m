@@ -1,85 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932572AbVJGNnd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932592AbVJGNqM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932572AbVJGNnd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 09:43:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932592AbVJGNnd
+	id S932592AbVJGNqM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 09:46:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932605AbVJGNqL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 09:43:33 -0400
-Received: from webapps.arcom.com ([194.200.159.168]:2571 "EHLO
-	webapps.arcom.com") by vger.kernel.org with ESMTP id S932572AbVJGNnc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 09:43:32 -0400
-Message-ID: <43467B7A.2000903@cantab.net>
-Date: Fri, 07 Oct 2005 14:43:22 +0100
-From: David Vrabel <dvrabel@cantab.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051001)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: [patch] yenta: fix YENTA && !CARDBUS build
-References: <43414BFB.3090206@arcom.com>
-In-Reply-To: <43414BFB.3090206@arcom.com>
-Content-Type: multipart/mixed;
- boundary="------------040606070608060705020007"
-X-OriginalArrivalTime: 07 Oct 2005 13:43:29.0875 (UTC) FILETIME=[19F75A30:01C5CB45]
+	Fri, 7 Oct 2005 09:46:11 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:58828 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S932592AbVJGNqK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 09:46:10 -0400
+Message-Id: <200510071346.j97Dk3va005818@laptop11.inf.utfsm.cl>
+To: =?utf-8?q?Pawe=C5=82_Sikora?= <pluto@agmk.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6] binfmt_elf bug (exposed by klibc). 
+In-Reply-To: Message from =?utf-8?q?Pawe=C5=82_Sikora?= <pluto@agmk.net> 
+   of "Fri, 07 Oct 2005 12:09:05 +0200." <200510071209.05656.pluto@agmk.net> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Fri, 07 Oct 2005 09:46:03 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Fri, 07 Oct 2005 09:46:03 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040606070608060705020007
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Paweł Sikora <pluto@agmk.net> wrote:
+> I've a simple program called empty.c.
+> 
+> $ cat empty.c
+> 
+> int main(int argc, char* argv[])
+> {
+>     return 0;
+> }
+> 
+> $ cat empty410.s
+> 
+>         .file   "empty.c"
+>         .text
+>         .p2align 4,,15
+> .globl main
+>         .type   main, @function
+> main:
+>         xorl    %eax, %eax
+>         ret
+>         .size   main, .-main
+>         .ident  "GCC: (GNU) 4.1.0 20050922 (experimental)"
+>         .section        .note.GNU-stack,"", at progbits
 
-(Previous patch left a warning.)
+I get a substantially different empty.s (gcc-4.0.2, Fedora rawhide on i686):
 
-yenta_socket no longer builds if CONFIG_CARDBUS is disabled.  It doesn't
-look like ene_tune_bridge is relevant in the !CARDBUS configuration so
-I've just disabled it.
+        .file   "empty.c"
+        .text
+        .p2align 2,,3
+.globl main
+        .type   main, @function
+main:
+        pushl   %ebp
+        movl    %esp, %ebp
+        subl    $8, %esp
+        andl    $-16, %esp
+        subl    $16, %esp
+        xorl    %eax, %eax
+        leave
+        ret
+        .size   main, .-main
+        .ident  "GCC: (GNU) 4.0.2 20050928 (Red Hat 4.0.2-1)"
+        .section        .note.GNU-stack,"",@progbits
 
---------------040606070608060705020007
-Content-Type: text/plain;
- name="yenta-not-CARDBUS-build-fix"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="yenta-not-CARDBUS-build-fix"
+> binutils-2.15.94.0.2.2 produces for this code empty .data and .bss
+> sections:
 
-yenta: fix build if YENTA && !CARDBUS
-
-(struct pcmcia_socket).tune_bridge only exists if CONFIG_CARDBUS is set but
-building yenta_socket without CardBus is valid.
-
-Signed-off-by: David Vrabel <dvrabel@arcom.com>
-
-Index: linux-2.6-working/drivers/pcmcia/ti113x.h
-===================================================================
---- linux-2.6-working.orig/drivers/pcmcia/ti113x.h	2005-10-04 15:08:31.000000000 +0100
-+++ linux-2.6-working/drivers/pcmcia/ti113x.h	2005-10-04 15:42:25.000000000 +0100
-@@ -873,6 +873,7 @@
-  * Some fixup code to make everybody happy (TM).
-  */
- 
-+#ifdef CONFIG_CARDBUS
- /**
-  * set/clear various test bits:
-  * Defaults to clear the bit.
-@@ -927,7 +928,6 @@
- 	config_writeb(socket, ENE_TEST_C9, test_c9);
- }
- 
--
- static int ene_override(struct yenta_socket *socket)
- {
- 	/* install tune_bridge() function */
-@@ -935,6 +935,9 @@
- 
- 	return ti1250_override(socket);
- }
-+#else
-+#  define ene_override ti1250_override
-+#endif
- 
- #endif /* _LINUX_TI113X_H */
- 
-
---------------040606070608060705020007--
+binutils-2.16.91.0.2-4 doesn't. It looks like you are using broken tools.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

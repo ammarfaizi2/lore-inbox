@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbVJGKy0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbVJGLIR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751284AbVJGKy0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 06:54:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbVJGKy0
+	id S1751364AbVJGLIR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 07:08:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbVJGLIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 06:54:26 -0400
-Received: from mail01.syd.optusnet.com.au ([211.29.132.182]:25289 "EHLO
-	mail01.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751284AbVJGKy0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 06:54:26 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Subject: Re: [PATCH] vm - swap_prefetch-15
-Date: Fri, 7 Oct 2005 20:54:10 +1000
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org, ck@vds.kolivas.org
-References: <200510070001.01418.kernel@kolivas.org> <84144f020510070303u13872f33hb4a40451acea4d5a@mail.gmail.com>
-In-Reply-To: <84144f020510070303u13872f33hb4a40451acea4d5a@mail.gmail.com>
+	Fri, 7 Oct 2005 07:08:17 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:20618 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751364AbVJGLIQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 07:08:16 -0400
+Date: Fri, 7 Oct 2005 07:08:10 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-rc3-rt2
+In-Reply-To: <Pine.LNX.4.58.0510061122530.418@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0510070706100.6608@localhost.localdomain>
+References: <5bdc1c8b0510041111n188b8e14lf5a1398406d30ec4@mail.gmail.com>
+ <1128450029.13057.60.camel@tglx.tec.linutronix.de>
+ <5bdc1c8b0510041158m3620f5dcy2dafda545ad3cd5e@mail.gmail.com>
+ <1128458707.13057.68.camel@tglx.tec.linutronix.de>
+ <5bdc1c8b0510041349g1a4f2484qd17a11812c8ccac3@mail.gmail.com>
+ <20051005105605.GA27075@elte.hu> <5bdc1c8b0510051014q3bb02d5bl80d2c88cc884fe35@mail.gmail.com>
+ <Pine.LNX.4.58.0510060403210.28535@localhost.localdomain> <20051006081055.GA20491@elte.hu>
+ <Pine.LNX.4.58.0510060433010.28535@localhost.localdomain> <20051006084920.GB22397@elte.hu>
+ <Pine.LNX.4.58.0510061122530.418@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510072054.11145.kernel@kolivas.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Oct 2005 20:03, Pekka Enberg wrote:
-> Hi Con,
->
-> A teeny-weeny nitpick:
->
-> On 10/6/05, Con Kolivas <kernel@kolivas.org> wrote:
-> > +struct swapped_root_t {
->
-> [snip]
->
-> > +struct swapped_entry_t {
->
-> [snip]
->
-> Since these are not typedefs, please drop the _t postfix.
 
-Good point, thanks! Any and all feedback is appreciated.
+Hi Ingo,
 
-Cheers,
-Con
+I was compiling a kernel in a shell that I set to a priority of 20, and it
+locked up on the bit_spin_lock crap of jbd.  Did you want me to send you
+that patch again that adds another spinlock to the buffer head and uses
+that instead of the bit_spins?
+
+-- Steve
+
+

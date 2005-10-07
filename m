@@ -1,90 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932570AbVJGNi0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932572AbVJGNnd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932570AbVJGNi0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 09:38:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932569AbVJGNi0
+	id S932572AbVJGNnd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 09:43:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932592AbVJGNnd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 09:38:26 -0400
-Received: from pat.uio.no ([129.240.130.16]:38370 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932532AbVJGNiZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 09:38:25 -0400
-Subject: Re: [RFC] atomic create+open
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <E1ENlI2-0004Gt-00@dorka.pomaz.szeredi.hu>
-References: <E1ENWt1-000363-00@dorka.pomaz.szeredi.hu>
-	 <1128616864.8396.32.camel@lade.trondhjem.org>
-	 <E1ENZ8u-0003JS-00@dorka.pomaz.szeredi.hu>
-	 <E1ENZCQ-0003K3-00@dorka.pomaz.szeredi.hu>
-	 <1128619526.16534.8.camel@lade.trondhjem.org>
-	 <E1ENZZl-0003OO-00@dorka.pomaz.szeredi.hu>
-	 <1128620528.16534.26.camel@lade.trondhjem.org>
-	 <E1ENZu1-0003SP-00@dorka.pomaz.szeredi.hu>
-	 <1128623899.31797.14.camel@lade.trondhjem.org>
-	 <E1ENani-0003c4-00@dorka.pomaz.szeredi.hu>
-	 <1128626258.31797.34.camel@lade.trondhjem.org>
-	 <E1ENcAr-0003jz-00@dorka.pomaz.szeredi.hu>
-	 <1128633138.31797.52.camel@lade.trondhjem.org>
-	 <E1ENlI2-0004Gt-00@dorka.pomaz.szeredi.hu>
-Content-Type: text/plain
-Date: Fri, 07 Oct 2005 09:38:09 -0400
-Message-Id: <1128692289.8519.75.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-2.707, required 12,
-	autolearn=disabled, AWL 2.11, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
+	Fri, 7 Oct 2005 09:43:33 -0400
+Received: from webapps.arcom.com ([194.200.159.168]:2571 "EHLO
+	webapps.arcom.com") by vger.kernel.org with ESMTP id S932572AbVJGNnc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 09:43:32 -0400
+Message-ID: <43467B7A.2000903@cantab.net>
+Date: Fri, 07 Oct 2005 14:43:22 +0100
+From: David Vrabel <dvrabel@cantab.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051001)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: [patch] yenta: fix YENTA && !CARDBUS build
+References: <43414BFB.3090206@arcom.com>
+In-Reply-To: <43414BFB.3090206@arcom.com>
+Content-Type: multipart/mixed;
+ boundary="------------040606070608060705020007"
+X-OriginalArrivalTime: 07 Oct 2005 13:43:29.0875 (UTC) FILETIME=[19F75A30:01C5CB45]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fr den 07.10.2005 Klokka 08:01 (+0200) skreiv Miklos Szeredi:
-> > > I just think that filesystem code should _never_ need to care about
-> > > mounts.  If you want to do the lookup+open, you somehow will have to
-> > > deal with mounts, which is ugly.
-> > 
-> > You appear to think that atomic lookup+open is a question of choice. It
-> > is not.
-> 
-> Atomic lookup+open is an optimization, and as such a question of
-> choice.  Atomic create+open is not.
+This is a multi-part message in MIME format.
+--------------040606070608060705020007
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Really? Under NFSv4, the one and only OPEN command does an atomic lookup
-+open, It _has to_ in order to deal with all the races.
+(Previous patch left a warning.)
 
-Once that is the case, then separating lookup and open into two
-operations means that you need to worry about namespace changes on the
-server too (since OPEN takes a name argument rather than a filehandle).
-If you end up opening a different file to the one you looked up, things
-can get very interesting.
+yenta_socket no longer builds if CONFIG_CARDBUS is disabled.  It doesn't
+look like ene_tune_bridge is relevant in the !CARDBUS configuration so
+I've just disabled it.
 
-> I know you are thinking of the non-exclusive create case when between
-> the lookup and the open the file is removed or transmuted on the
-> server..
+--------------040606070608060705020007
+Content-Type: text/plain;
+ name="yenta-not-CARDBUS-build-fix"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="yenta-not-CARDBUS-build-fix"
 
-> Yes, it's tricky to sovle, but by no means impossible without atomic
-> lookup+open.  E.g. consider this pseudo-code (only the atomic
-> open+create case) in open_namei():
+yenta: fix build if YENTA && !CARDBUS
 
-Firstly, that pseudo-code doesn't deal at all with the race you describe
-above. It only deals with lookup + file creation.
+(struct pcmcia_socket).tune_bridge only exists if CONFIG_CARDBUS is set but
+building yenta_socket without CardBus is valid.
 
-Secondly, it also fails to deal with the issue of propagation of open
-context.
-If you open a file, then that creates open context/state on the server.
-Most protocols will then have some way of tracking that state using an
-identifier (the equivalent of the POSIX open file descriptor). I see
-absolutely nothing in your proposal that will allow me to save the state
-identifier that results from atomic open+create and then propagate it to
-the struct file.
+Signed-off-by: David Vrabel <dvrabel@arcom.com>
 
-Without that stateid/descriptor, it becomes impossible to actually READ,
-WRITE, lock/unlock the file or even to CLOSE it when done.
+Index: linux-2.6-working/drivers/pcmcia/ti113x.h
+===================================================================
+--- linux-2.6-working.orig/drivers/pcmcia/ti113x.h	2005-10-04 15:08:31.000000000 +0100
++++ linux-2.6-working/drivers/pcmcia/ti113x.h	2005-10-04 15:42:25.000000000 +0100
+@@ -873,6 +873,7 @@
+  * Some fixup code to make everybody happy (TM).
+  */
+ 
++#ifdef CONFIG_CARDBUS
+ /**
+  * set/clear various test bits:
+  * Defaults to clear the bit.
+@@ -927,7 +928,6 @@
+ 	config_writeb(socket, ENE_TEST_C9, test_c9);
+ }
+ 
+-
+ static int ene_override(struct yenta_socket *socket)
+ {
+ 	/* install tune_bridge() function */
+@@ -935,6 +935,9 @@
+ 
+ 	return ti1250_override(socket);
+ }
++#else
++#  define ene_override ti1250_override
++#endif
+ 
+ #endif /* _LINUX_TI113X_H */
+ 
 
-This is why I added the struct file to the intent code in the first
-place.
-
-Trond
-
+--------------040606070608060705020007--

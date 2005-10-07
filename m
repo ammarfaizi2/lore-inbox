@@ -1,42 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030471AbVJGS2x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030527AbVJGSgY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030471AbVJGS2x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 14:28:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030527AbVJGS2w
+	id S1030527AbVJGSgY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 14:36:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030523AbVJGSgY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 14:28:52 -0400
-Received: from twin.jikos.cz ([213.151.79.26]:35262 "EHLO twin.jikos.cz")
-	by vger.kernel.org with ESMTP id S1030471AbVJGS2w (ORCPT
+	Fri, 7 Oct 2005 14:36:24 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:51364 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030527AbVJGSgY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 14:28:52 -0400
-Date: Fri, 7 Oct 2005 20:28:17 +0200
-From: Rudo Thomas <rudo@matfyz.cz>
-To: Gustavo Barbieri <barbieri@gmail.com>
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>, ck@vds.kolivas.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Re: [PATCH] vm - swap_prefetch-15
-Message-ID: <20051007182817.GA8145@jikos.cz>
-Mail-Followup-To: Gustavo Barbieri <barbieri@gmail.com>,
-	Pekka Enberg <penberg@cs.helsinki.fi>, ck@vds.kolivas.org,
-	linux-kernel@vger.kernel.org
-References: <200510070001.01418.kernel@kolivas.org> <84144f020510070303u13872f33hb4a40451acea4d5a@mail.gmail.com> <200510072054.11145.kernel@kolivas.org> <84144f020510070431n3b18250eo9d4777844a448b8a@mail.gmail.com> <9ef20ef30510070744l7ff1f1bbweb4da1ceb513f246@mail.gmail.com>
-MIME-Version: 1.0
+	Fri, 7 Oct 2005 14:36:24 -0400
+Date: Fri, 7 Oct 2005 11:36:05 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: James Morris <jmorris@namei.org>, Chris Wright <chrisw@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       keyrings@linux-nfs.org, linux-kernel@vger.kernel.org,
+       Stephen Smalley <sds@tycho.nsa.gov>, Steve Grubb <sgrubb@redhat.com>
+Subject: Re: [Keyrings] [PATCH] Keys: Add LSM hooks for key management
+Message-ID: <20051007183605.GR16352@shell0.pdx.osdl.net>
+References: <Pine.LNX.4.63.0510061148250.26937@excalibur.intercode> <Pine.LNX.4.63.0510061053180.26758@excalibur.intercode> <Pine.LNX.4.63.0510060346140.25593@excalibur.intercode> <29942.1128529714@warthog.cambridge.redhat.com> <20051005211030.GC16352@shell0.pdx.osdl.net> <23333.1128596048@warthog.cambridge.redhat.com> <30209.1128611882@warthog.cambridge.redhat.com> <21406.1128675035@warthog.cambridge.redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <9ef20ef30510070744l7ff1f1bbweb4da1ceb513f246@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <21406.1128675035@warthog.cambridge.redhat.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Or make it a "const static" variable, so compiler will check types and
-> everything, but the symbol will not be present in the binary, causing
-> no overhead. So it could be:
+* David Howells (dhowells@redhat.com) wrote:
+> James Morris <jmorris@namei.org> wrote:
 > 
-> const unsigned PREFETCH_PAGES = (SWAP_CLUSTER_MAX * swap_prefetch * \
->         (1 + 9 * laptop_mode));
+> > Ok, time to add KEY_CREATE?
+> 
+> But to what? It is possible to request or create a key without linking it to
+> anything, at least for kernel services.
 
-This won't work, AFAICT. swap_prefetch and laptop_mode are variables,
-but with the code above, they would be evaluated only once. And maybe
-the compiler will reject that code immediately...
-
-Rudo.
+I don't see the need.  Write permission to keyring, yes, link permission
+to link a key to a keyring, yes.

@@ -1,90 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932545AbVJGNWa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932548AbVJGNZL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932545AbVJGNWa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 09:22:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932547AbVJGNWa
+	id S932548AbVJGNZL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 09:25:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932553AbVJGNZL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 09:22:30 -0400
-Received: from web30515.mail.mud.yahoo.com ([68.142.201.243]:12131 "HELO
-	web30515.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932545AbVJGNWa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 09:22:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.ca;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=mQTa7hjSUIDzdFMUOD/ueixv3mDjG0xkHKWRqrliXeFRUAgxPIyz3RRzUznJgyRsWo6rz9JXjHNPMOvU+nVRvZp7lFpLeWuYktegdNncrFsH5iUoIVQNy4twyEfINetScTwPJTop5G5yLMgToUAbxDgPjsJgb+fuiQuVcjXRJJM=  ;
-Message-ID: <20051007132227.15252.qmail@web30515.mail.mud.yahoo.com>
-Date: Fri, 7 Oct 2005 09:22:27 -0400 (EDT)
-From: Arthur Cosma <tux_fan@yahoo.ca>
-Subject: Re: Any news on PATA support for Promise PDC 20375?
-To: Daniel Drake <dsd@gentoo.org>
-Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
-In-Reply-To: <4342AF23.6000907@gentoo.org>
-MIME-Version: 1.0
+	Fri, 7 Oct 2005 09:25:11 -0400
+Received: from f16.mail.ru ([194.67.57.46]:27915 "EHLO f16.mail.ru")
+	by vger.kernel.org with ESMTP id S932548AbVJGNZK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 09:25:10 -0400
+From: Serge Goodenko <s_goodenko@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] UML + High-Res-Timers on 2.4.25 kernel
+Mime-Version: 1.0
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: [194.85.70.42]
+Date: Fri, 07 Oct 2005 17:24:58 +0400
+Reply-To: Serge Goodenko <s_goodenko@mail.ru>
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
+Message-Id: <E1ENsDa-0008Y1-00.s_goodenko-mail-ru@f16.mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel,
+Hello!
 
-Thank you very much for taking the time to reply to my
-inquiry. Although I didn't get the attachment, I won't
-bother you to re-send, I will try to find it in the
-Gentoo kernel. If that fails, I will wait for a
-release.
+I am trying to compile 2.4.25 UML kernel together with High Resolution Timers patch and it fails to compile saying the following during linking:
 
-Best regards,
-Arthur
+gcc -Wl,-T,arch/um/link.ld -static -Wl,--wrap,malloc -Wl,--wrap,free -Wl,--wrap,calloc \
+        -o linux arch/um/main.o vmlinux.o -L/usr/lib -lutil
+vmlinux.o(.text+0x2688): In function `schedule_timeout':
+/usr/src/linux-2.4.25/kernel/sched.c:443: undefined reference to `jiffies'
+vmlinux.o(.text+0x26cd):/usr/src/linux-2.4.25/kernel/sched.c:454: undefined reference to `jiffies'
+vmlinux.o(.text+0x27a4): In function `schedule':
+/usr/src/linux-2.4.25/include/linux/sched.h:929: undefined reference to `jiffies'
+vmlinux.o(.text+0x489e): In function `do_fork':
+/usr/src/linux-2.4.25/kernel/fork.c:740: undefined reference to `jiffies'
+vmlinux.o(.text+0xabd5): In function `do_getitimer':
+/usr/src/linux-2.4.25/kernel/itimer.c:55: undefined reference to `jiffies'
+vmlinux.o(.text+0xacd3):/usr/src/linux-2.4.25/kernel/itimer.c:103: more undefined references to `jiffies' follow
+collect2: ld returned 1 exit status
+make: *** [linux] Error 1
 
---- Daniel Drake <dsd@gentoo.org> wrote:
+is there any solution to this problem?
+or HRT patch is not supposed to work under UML at all?
 
-> Arthur Cosma wrote:
-> > Please CC me only any reply to this message, as I
-> am not a mailing list
-> > subscriber.
-> > 
-> > This was my last resort, as all searches on the
-> subject topic yield
-> > messages from 2004, many of which mention Jeff
-> Garzik's name.
-> > 
-> > After trying 2.6.13.2, I still don't get the PATA
-> drives recognized, so I
-> > believe it's still not there yet.
-> > 
-> > The question is, will it ever be, or has it been
-> dropped?
-> 
-> I'm attaching the patch included in Gentoo's 2.6.13
-> kernels, which originally
-> came from Jeff's repo.
-> 
-> I asked Jeff about this patch previously, and his
-> comment was:
-> 
-> > However, this patch in particular is safe and OK
-> -- it just needs cleaning
-> > up before including in 2.6.13, and I haven't
-> figured out how to clean it up
-> > yet.  The port_flags[] array this patch adds is a
-> hack.
-> > 
-> > I need to separate the port settings from the host
-> settings, which would be
-> > the proper fix.
-> 
-> So I guess the answer is just wait a while longer
-> (and patch manually for now) :)
-> 
-> Daniel
-> 
-
-
-
-	
-
-	
-		
-__________________________________________________________ 
-Find your next car at http://autos.yahoo.ca
+thanks in advance,
+Serge, MIPT
+Russia

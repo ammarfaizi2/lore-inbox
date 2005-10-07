@@ -1,67 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbVJGFcx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932242AbVJGFfz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932237AbVJGFcx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 01:32:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbVJGFcx
+	id S932242AbVJGFfz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 01:35:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbVJGFfz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 01:32:53 -0400
-Received: from idefix.CeNTIE.NET.au ([202.9.6.83]:28314 "HELO idefix")
-	by vger.kernel.org with SMTP id S932237AbVJGFcx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 01:32:53 -0400
-Subject: Re: Suspend to RAM broken with 2.6.13
-From: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050923163200.GC8946@openzaurus.ucw.cz>
-References: <1127347633.25357.49.camel@idefix.homelinux.org>
-	 <20050923163200.GC8946@openzaurus.ucw.cz>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-6/jURP4iUKOD4mmDLKE7"
-Organization: =?ISO-8859-1?Q?Universit=E9?= de Sherbrooke
-Date: Fri, 07 Oct 2005 15:32:25 +1000
-Message-Id: <1128663145.14284.85.camel@localhost.localdomain>
+	Fri, 7 Oct 2005 01:35:55 -0400
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:32407 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S932242AbVJGFfz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 01:35:55 -0400
+Subject: Re: [PATCH] Free swap suspend from dependency on PageReserved
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4344F90C.9070001@yahoo.com.au>
+References: <1128546263.10363.14.camel@localhost>
+	 <4344F90C.9070001@yahoo.com.au>
+Content-Type: text/plain
+Organization: Cyclades
+Message-Id: <1128663205.13507.23.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 07 Oct 2005 15:33:25 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Nick.
 
---=-6/jURP4iUKOD4mmDLKE7
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Thu, 2005-10-06 at 20:14, Nick Piggin wrote:
+> Nigel Cunningham wrote:
+> > From: Nigel Cunningham <nigel@suspend2.net>
+> > 
+> > This patch removes the dependency that swap suspend currently has on
+> > PageReserved. In the places where PageReserved is currently set and
+> > cleared, we also set and clear PageNosave, and in swap suspend itself,
+> > we only reference PageNosave. The ongoing effort at freeing PageReserved
+> > thus achieves another step forward.
+> > 
+> 
+> Any reason you can't use page_is_ram directly? I would rather you
+> do this than moving swsusp specific flags out into the wider tree.
+> The reason is that these flags now become just as hard to kill as
+> PageReserved is.
+> 
+> You'll have to slightly modify i386's page_is_ram, because it
+> appears that you'll actually want
+> 
+>    'page_is_ram(pfn) && !(bad_ppro && page_kills_ppro(pfn))'
 
-Hi,
+Thanks for the suggestion!
 
-I've done some further testing on suspend to RAM and it seems like it
-got broken for me between 2.6.11 and 2.6.12. Does that help narrowing
-down the problem?
+I suppose we could do something like what you are suggesting. I'll take
+a look. I'm not promising to do it immediately though - too busy trying
+to finish off Suspend2 at the mo.
 
-	Jean-Marc
+> Thanks, glad someone is looking into this!
 
-Le vendredi 23 septembre 2005 =E0 18:32 +0200, Pavel Machek a =E9crit :
-> Hi!
->=20
-> > I'm experiencing problems with suspend to RAM on my Dell D600 laptop.
-> > When I run Ubuntu's 2.6.10 kernel I have no problem with suspend to RAM=
-.
-> > However, when I run 2.6.13, my laptop sometimes doesn't wake up. It
-> > seems like the longer my uptime, the more likely the problem is to occu=
-r
-> > (which makes it hard to reproduce sometimes). This happens even with a
-> > non-preempt kernel.
->=20
-> Check if it works with minimal drivers and non-preemptible kernel...
+Always glad to be of service!
 
---=-6/jURP4iUKOD4mmDLKE7
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Nigel
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+> Nick
+-- 
 
-iD8DBQBDRghpdXwABdFiRMQRAqn0AJ44ZEpzoAkP5vJ5+Bwy1SO+HbdgFwCfckHW
-5ImZpluNzp+Xwh4Jz6cU5YQ=
-=bQHr
------END PGP SIGNATURE-----
 
---=-6/jURP4iUKOD4mmDLKE7--

@@ -1,50 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932662AbVJGOPe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932663AbVJGOV2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932662AbVJGOPe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 10:15:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932663AbVJGOPe
+	id S932663AbVJGOV2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 10:21:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932666AbVJGOV2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 10:15:34 -0400
-Received: from tentacle.s2s.msu.ru ([193.232.119.109]:8149 "EHLO
-	tentacle.sectorb.msk.ru") by vger.kernel.org with ESMTP
-	id S932662AbVJGOPe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 10:15:34 -0400
-Date: Fri, 7 Oct 2005 18:15:32 +0400
-From: "Vladimir B. Savkin" <master@sectorb.msk.ru>
-To: Andi Kleen <ak@suse.de>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       john stultz <johnstul@us.ibm.com>, discuss@x86-64.org
-Subject: Re: [PATCH] x86-64: Fix bad assumption that dualcore cpus have synced TSCs
-Message-ID: <20051007141532.GA24924@tentacle.sectorb.msk.ru>
-References: <1127157404.3455.209.camel@cog.beaverton.ibm.com> <20051007122624.GA23606@tentacle.sectorb.msk.ru> <200510071431.47245.ak@suse.de>
+	Fri, 7 Oct 2005 10:21:28 -0400
+Received: from main.gmane.org ([80.91.229.2]:65248 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932663AbVJGOV2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 10:21:28 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: 'Undeleting' an open file
+Date: Fri, 7 Oct 2005 16:14:27 +0200
+Message-ID: <8qo997np4h6n.1ihs13ptrx2y2.dlg@40tude.net>
+References: <4TiWy-4HQ-3@gated-at.bofh.it> <4U0XH-3Gp-39@gated-at.bofh.it> <E1EMutG-0001Hd-7U@be1.lrz> <87k6gsjalu.fsf@amaterasu.srvr.nix> <4343E611.1000901@perkel.com> <20051005144441.GC8011@csclub.uwaterloo.ca> <4343E7AC.6000607@perkel.com> <20051005153727.994c4709.fmalita@gmail.com> <43442D19.4050005@perkel.com> <Pine.LNX.4.58.0510052208130.4308@be1.lrz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <200510071431.47245.ak@suse.de>
-X-Organization: Moscow State Univ., Institute of Mechanics
-X-Operating-System: Linux 2.6.11-ac7
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: host-84-220-51-179.cust-adsl.tiscali.it
+User-Agent: 40tude_Dialog/2.0.15.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 07, 2005 at 02:31:46PM +0200, Andi Kleen wrote:
-> > I too have a box that shows the symptoms from bugzilla entry above.
-> > The system is Asus A8V Deluxe MB with
-> > "AMD Athlon(tm) 64 X2 Dual Core Processor 3800+".
-> >
-> > The patch below did not fix the problem, while "idle=poll" did.
-> > Hope this helps, dmesg attached.
-> 
-> Are you running the latest BIOS?
+On Wed, 5 Oct 2005 23:05:34 +0200 (CEST), Bodo Eggert wrote:
 
-Well, I think not.
-Asus file download page is unavailable since yesterday.
+> Files are deleted if the last reference is gone. If you play a music file
+> and unlink it while it's playing, it won't be deleted untill the player
+> closes the file, since an open filehandle is a reference.
 
-> 
-> -Andi
-> 
-~
-:wq
-                                        With best regards, 
-                                           Vladimir Savkin. 
+BTW, I've always wondered: is there a way to un-unlink such a file?
+
+-- 
+Giuseppe "Oblomov" Bilotta
+
+"I weep for our generation" -- Charlie Brown
 

@@ -1,101 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbVJFRac@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbVJFRa4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751247AbVJFRac (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 13:30:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbVJFRac
+	id S1751253AbVJFRa4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 13:30:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751252AbVJFRa4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 13:30:32 -0400
-Received: from pm2.irt.drexel.edu ([144.118.29.82]:37613 "EHLO
-	smtp.mail.drexel.edu") by vger.kernel.org with ESMTP
-	id S1751247AbVJFRab (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 13:30:31 -0400
-Message-ID: <43455F33.7020102@drexel.edu>
-Date: Thu, 06 Oct 2005 13:30:27 -0400
-From: "Justin R. Smith" <jsmith@drexel.edu>
-Organization: Drexel University
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050908)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Instability in kernel version 2.6.12.5
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 6 Oct 2005 13:30:56 -0400
+Received: from [213.95.27.120] ([213.95.27.120]:8406 "EHLO
+	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
+	id S1751249AbVJFRaz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 13:30:55 -0400
+Date: Fri, 7 Oct 2005 04:38:02 +0200
+From: Harald Welte <laforge@netfilter.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Patrick McHardy <kaber@trash.net>, netdev@vger.kernel.org,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
+       Henrik Nordstrom <hno@marasystems.com>
+Subject: Re: [PATCH 0/3] netfilter : 3 patches to boost ip_tables performance
+Message-ID: <20051007023801.GA5953@rama>
+Mail-Followup-To: Harald Welte <laforge@netfilter.org>,
+	Andi Kleen <ak@suse.de>, Patrick McHardy <kaber@trash.net>,
+	netdev@vger.kernel.org, netfilter-devel@lists.netfilter.org,
+	linux-kernel@vger.kernel.org,
+	Henrik Nordstrom <hno@marasystems.com>
+References: <432EF0C5.5090908@cosmosbay.com> <200509281037.03185.ak@suse.de> <4342B575.9090709@trash.net> <200510051853.32196.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="/04w6evG8XlLl3ft"
+Content-Disposition: inline
+In-Reply-To: <200510051853.32196.ak@suse.de>
+User-Agent: mutt-ng devel-20050619 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I recently converted my web server from FreeBSD to Gentoo Linux and am 
-running the 'vanilla' kernel, version 2.5.12.5 (the latest vanilla 
-kernel one can emerge from Gentoon without hacking the package.keywords 
-file).
 
-Info on my system:
---------------------------------------------------------------------------------
-Linux vorpal.math.drexel.edu 2.6.12.5 #1 SMP Wed Oct 5 16:04:20 EDT 2005 
-i686 In
-tel(R) Pentium(R) 4 CPU 2.80GHz GenuineIntel GNU/Linux
- 
-Gnu C                  3.3.6
-Gnu make               3.80
-binutils               2.15.92.0.2
-util-linux             2.12r
-mount                  2.12r
-module-init-tools      3.0
-e2fsprogs              1.38
-reiserfsprogs          3.6.19
-reiser4progs           line
-Linux C Library        2.3.5
-Dynamic linker (ldd)   2.3.5
-Procps                 3.2.5
-Net-tools              1.60
-Kbd                    1.12
-Sh-utils               5.2.1
-udev                   068
-Modules Loaded         ipt_LOG ipt_state iptable_nat lp snd_pcm_oss 
-snd_mixer_os
-s snd_seq_oss snd_seq_midi_event snd_seq snd_seq_device e1000 
-snd_intel8x0 snd_a
-c97_codec snd_pcm snd_timer snd soundcore snd_page_alloc intel_agp 
-iptable_mangl
-e iptable_filter ipt_ttl ipt_tos ipt_tcpmss ipt_sctp ipt_recent 
-ipt_realm ipt_pk
-ttype ipt_owner ipt_multiport ipt_mark ipt_mac ipt_limit ipt_length 
-ipt_iprange 
-ipt_hashlimit ipt_esp ipt_ecn ipt_dscp ipt_comment ipt_ah ipt_addrtype 
-ipt_TOS i
-pt_MARK ipt_ECN ipt_DSCP ipt_CLASSIFY arptable_filter arpt_mangle 
-arp_tables ip_
-conntrack ip_tables
-------------------------------------------------------------
+--/04w6evG8XlLl3ft
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Additional info: I'm running a firewall that closes all ports except 22, 
-80, 443 and high ports (so I can ftp).
+On Wed, Oct 05, 2005 at 06:53:31PM +0200, Andi Kleen wrote:
+> On Tuesday 04 October 2005 19:01, Patrick McHardy wrote:
+> > Andi Kleen wrote:
+> > > In a sense it's even getting worse: For example us losing the CONFIG
+> > > option to disable local conntrack (Patrick has disabled it some time =
+ago
+> > > without even a comment why he did it) has a really bad impact in some
+> > > cases.
+> >
+> > It was necessary to correctly handle locally generated ICMP errors.
+>=20
+> Well you most likely wrecked local performance then when it's enabled.
 
-After running for 24 hours, I discovered that the system was 'funky'.
+so you would favour a system that incorrectly deals with ICMP errors but
+has higher performance?
 
-funky=
+--=20
+- Harald Welte <laforge@netfilter.org>                 http://netfilter.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+  "Fragmentation is like classful addressing -- an interesting early
+   architectural error that shows how much experimentation was going
+   on while IP was being designed."                    -- Paul Vixie
 
-1. the clock is frozen at about 2331 the previous night. Setting it is 
-possible, but it remains frozen at whatever time one set it to.
+--/04w6evG8XlLl3ft
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-2. Any X app one starts hangs.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
-3. Many operations take an extraordinarily long time. Rebooting the 
-system too > 30 minutes (all spent shutting down. The restart was at the 
-normal speed).
+iD8DBQFDRd+JXaXGVTD0i/8RAv8nAJ0VJn1aig7l8IyTAjs4MT5AnphWxQCfUv5E
+k87CKliQJ2YXeGO2lH0cv48=
+=kdbd
+-----END PGP SIGNATURE-----
 
-
-Examining the system logs disclosed that someone attempted to hack my 
-system at 2331 (the time the clock was frozen at) by trying to initiate 
-about 200 ssh connections with randomly generated user ids over a very 
-short time (a few seconds).
-
-
-I can easily modify the firewall to block the incoming connections, but 
-this strikes me as showing an instability in the Linux kernel: 
-initiating a large number of failed ssh connections should not be able 
-to corrupt the kernel.
-
-Any suggestions?
-
-
-Thank you!
+--/04w6evG8XlLl3ft--

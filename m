@@ -1,66 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030294AbVJGO7f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030298AbVJGO7z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030294AbVJGO7f (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 10:59:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030301AbVJGO7f
+	id S1030298AbVJGO7z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 10:59:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030307AbVJGO7z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 10:59:35 -0400
-Received: from fmr20.intel.com ([134.134.136.19]:14727 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1030294AbVJGO7e convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 10:59:34 -0400
-x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Telecom Clock Driver for MPCBL0010 ATCA computer blade
-Date: Fri, 7 Oct 2005 07:59:22 -0700
-Message-ID: <F760B14C9561B941B89469F59BA3A8470B74E1F0@orsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Telecom Clock Driver for MPCBL0010 ATCA computer blade
-Thread-Index: AcXLOZ96aZ4BlHTjQeqzg7CQnh5VngAFcxHw
-From: "Gross, Mark" <mark.gross@intel.com>
-To: "Jesper Juhl" <jesper.juhl@gmail.com>,
-       "Mark Gross" <mgross@linux.intel.com>
-Cc: <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
-       <Sebastien.Bouchard@ca.kontron.com>
-X-OriginalArrivalTime: 07 Oct 2005 14:59:24.0163 (UTC) FILETIME=[B4888D30:01C5CB4F]
+	Fri, 7 Oct 2005 10:59:55 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:62640 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030301AbVJGO7y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 10:59:54 -0400
+Date: Fri, 7 Oct 2005 09:59:52 -0500
+To: Paul Mackerras <paulus@samba.org>
+Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/7] ppc64: EEH Add event/internal state statistics
+Message-ID: <20051007145952.GX29826@austin.ibm.com>
+References: <20050930004800.GL29826@austin.ibm.com> <20050930005451.GC6173@austin.ibm.com> <17219.46514.903283.21680@cargo.ozlabs.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17219.46514.903283.21680@cargo.ozlabs.ibm.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: linas <linas@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->-----Original Message-----
->From: Jesper Juhl [mailto:jesper.juhl@gmail.com]
->Sent: Friday, October 07, 2005 5:21 AM
->To: Mark Gross
->Cc: akpm@osdl.org; linux-kernel@vger.kernel.org;
-Sebastien.Bouchard@ca.kontron.com; Gross, Mark
->Subject: Re: Telecom Clock Driver for MPCBL0010 ATCA computer blade
->
->On 10/6/05, Mark Gross <mgross@linux.intel.com> wrote:
->> On Thursday 06 October 2005 09:52, Jesper Juhl wrote:
->> > > +This directory exports the following interfaces.  There
-opperation is documented
->
->Btw, please spell "operation" correctly :)
->
->[snip]
->> > > +  printk(KERN_ERR" misc_register retruns %d \n", ret);
->
->Space between 'KERN_ERR" and '"' please.
->
+On Wed, Oct 05, 2005 at 09:14:58PM +1000, Paul Mackerras was heard to remark:
+> Linas writes:
+> 
+> > 03-eeh-statistics.patch
+> 
+> > +	if (!dn) {
+> > +		__get_cpu_var(no_dn)++;
+> 
+> We have to make sure we are not preemptible when we use
+> __get_cpu_var, since it uses smp_processor_id().  It's not clear to me
+> that we have ensured that in every case where we use __get_cpu_var.
+> Are you sure that we hold a spinlock, or are at interrupt level, or
+> have explicitly disabled preemption at every point where we use
+> __get_cpu_var?
 
-Ok, I got them both.
+Tese used to be plain-old global variables, but someone submitted 
+a patch that to turn them into the __get_cpu_var() form. I don't 
+know why; there's no real performance reason, since these are almost 
+never incremented, except a bit during boot.  What if we just change 
+them back to global vars?
 
-I'm now fighting with GKH's request to use sysfs_create_group.  I'm not
-sure it will work with a misc class device, as its written for the more
-common bus based device objects in mind.
+I've also day-dreamed about moving these stats to somewhere in
+in the /sys directory. Any suggestions there?
 
-Once I get the Greg issue figured out I'll have a new post with all the
-updates to make folks happy.
-
---mgross
+--linas
 

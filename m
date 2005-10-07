@@ -1,46 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030484AbVJGQU3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030485AbVJGQW6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030484AbVJGQU3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 12:20:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030485AbVJGQU3
+	id S1030485AbVJGQW6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 12:22:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030489AbVJGQW6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 12:20:29 -0400
-Received: from xenotime.net ([66.160.160.81]:9389 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1030484AbVJGQU2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 12:20:28 -0400
-Date: Fri, 7 Oct 2005 09:20:27 -0700 (PDT)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Steven Rostedt <rostedt@goodmis.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Dell firmware default config options?
-In-Reply-To: <Pine.LNX.4.58.0510071209140.8299@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0510070919280.7817@shark.he.net>
-References: <43469A9A.2070104@beezmo.com> <Pine.LNX.4.58.0510071209140.8299@localhost.localdomain>
+	Fri, 7 Oct 2005 12:22:58 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:47604 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S1030488AbVJGQW6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 12:22:58 -0400
+Message-ID: <4346A0A4.4090303@mvista.com>
+Date: Fri, 07 Oct 2005 09:21:56 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Serge Goodenko <s_goodenko@mail.ru>
+Cc: linux-kernel@vger.kernel.org,
+       "'high-res-timers-discourse@lists.sourceforge.net'" 
+	<high-res-timers-discourse@lists.sourceforge.net>
+Subject: Re: [PATCH] UML + High-Res-Timers on 2.4.25 kernel
+References: <E1ENsDa-0008Y1-00.s_goodenko-mail-ru@f16.mail.ru>
+In-Reply-To: <E1ENsDa-0008Y1-00.s_goodenko-mail-ru@f16.mail.ru>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Oct 2005, Steven Rostedt wrote:
+Serge Goodenko wrote:
+> Hello!
+> 
+> I am trying to compile 2.4.25 UML kernel together with High Resolution Timers patch and it fails to compile saying the following during linking:
+> 
+> gcc -Wl,-T,arch/um/link.ld -static -Wl,--wrap,malloc -Wl,--wrap,free -Wl,--wrap,calloc \
+>         -o linux arch/um/main.o vmlinux.o -L/usr/lib -lutil
+> vmlinux.o(.text+0x2688): In function `schedule_timeout':
+> /usr/src/linux-2.4.25/kernel/sched.c:443: undefined reference to `jiffies'
+> vmlinux.o(.text+0x26cd):/usr/src/linux-2.4.25/kernel/sched.c:454: undefined reference to `jiffies'
+> vmlinux.o(.text+0x27a4): In function `schedule':
+> /usr/src/linux-2.4.25/include/linux/sched.h:929: undefined reference to `jiffies'
+> vmlinux.o(.text+0x489e): In function `do_fork':
+> /usr/src/linux-2.4.25/kernel/fork.c:740: undefined reference to `jiffies'
+> vmlinux.o(.text+0xabd5): In function `do_getitimer':
+> /usr/src/linux-2.4.25/kernel/itimer.c:55: undefined reference to `jiffies'
+> vmlinux.o(.text+0xacd3):/usr/src/linux-2.4.25/kernel/itimer.c:103: more undefined references to `jiffies' follow
+> collect2: ld returned 1 exit status
+> make: *** [linux] Error 1
+> 
+> is there any solution to this problem?
+> or HRT patch is not supposed to work under UML at all?
+>
+You might do better on the HRT list (cc'ed).
 
->
-> I'm just curious why the Dell firmware configuration options are default
-> to "m" instead of "n".  Since it only matters if you have a Dell System.
->
-> So for the huge number of systems that are not Dell Systems, they are
-> probably wasting CPU cycles compiling these as modules, and taking up
-> space in loads of /lib/modules directories throughout the world ;-)
->
-> DCDBAS explicitly states default of "m", and DELL_RBU has no default which
-> just makes it automatically on.
->
-> Is there any reason that these shouldn't be turned off by default?
-
-Agreed, and there's already been a patch to do that.
-It's probably sitting in -mm... (just guessing), but could
-easily move upward IMO.
-
+I don't know what UML needs.  I would have thought that jiffies would be defined...  especially for 
+things like do_fork.  Which patch are you using?
 -- 
-~Randy
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/

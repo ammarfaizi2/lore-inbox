@@ -1,48 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030472AbVJGTKt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030468AbVJGTHZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030472AbVJGTKt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 15:10:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030479AbVJGTKt
+	id S1030468AbVJGTHZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 15:07:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030472AbVJGTHY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 15:10:49 -0400
-Received: from mail3.uklinux.net ([80.84.72.33]:28318 "EHLO mail3.uklinux.net")
-	by vger.kernel.org with ESMTP id S1030472AbVJGTKs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 15:10:48 -0400
-Subject: Re: 2.6.14-rc3-rt10 crashes on boot
-From: John Rigg <lk@sound-man.co.uk>
-To: linux-kernel@vger.kernel.org
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Message-Id: <E1ENxhr-0001CH-12@localhost.localdomain>
-Date: Fri, 07 Oct 2005 20:16:35 +0100
+	Fri, 7 Oct 2005 15:07:24 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:15112 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1030468AbVJGTHY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 15:07:24 -0400
+Date: Fri, 7 Oct 2005 20:07:11 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Jiri Slaby <lnx4us@gmail.com>
+Cc: David Vrabel <dvrabel@cantab.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] yenta: fix YENTA && !CARDBUS build
+Message-ID: <20051007190710.GA22608@flint.arm.linux.org.uk>
+Mail-Followup-To: Jiri Slaby <lnx4us@gmail.com>,
+	David Vrabel <dvrabel@cantab.net>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+References: <43414BFB.3090206@arcom.com> <43467B7A.2000903@cantab.net> <3888a5cd0510070934x39288f31m368c58e1dd59d699@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3888a5cd0510070934x39288f31m368c58e1dd59d699@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, October 7 Steve Rostedt wrote:
+On Fri, Oct 07, 2005 at 06:34:15PM +0200, Jiri Slaby wrote:
+> On 10/7/05, David Vrabel <dvrabel@cantab.net> wrote:
+> > (Previous patch left a warning.)
+> >
+> > yenta_socket no longer builds if CONFIG_CARDBUS is disabled.  It doesn't
+> > look like ene_tune_bridge is relevant in the !CARDBUS configuration so
+> > I've just disabled it.
+> >
+> >
+> > yenta: fix build if YENTA && !CARDBUS
+> >
+> > (struct pcmcia_socket).tune_bridge only exists if CONFIG_CARDBUS is set but
+> > building yenta_socket without CardBus is valid.
+> >
+> This is a multi-part message in MIME format.
+> 
+> Are you really sure, that you have read Documentation/SubmittingPatches and
+> http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt
+> Nobody wants MIMEs. Include it as plain text
 
->Add this patch and it will add the option for you in x86_64 (I forgot that
->you were using that).  I even set it to be default on. I didn't add a test
->in do_IRQ, but I believe that the tests in latency.c should be good
->enough.
+You're providing misleading advice.  mimes are acceptable provided
+each part is text/plain.  And some folk need to attach rather than
+inline patches to prevent white space damage from broken mailers.
 
-Hi Steve,
+And indeed David's were text/plain so there isn't a problem.
 
-Thanks for the patch. I applied it to 2.6.14-rc3-rt12, looked in
-arch/x86_64/Kconfig.debug just to be sure it applied OK to -rt12,
-then ran make. It failed to compile, with the following message:
-
-  CC      kernel/rt.o
-  CC      kernel/latency.o
-kernel/latency.c: In function '__print_worst_stack':
-kernel/latency.c:336: warning: format '%d' expects type 'int', but argument 5 has type 'long unsigned int'
-kernel/latency.c:384:3: error: #error Poke the author of above asm code line !
-kernel/latency.c: In function 'debug_stackoverflow':
-kernel/latency.c:386: error: 'STACK_WARN' undeclared (first use in this function)
-kernel/latency.c:386: error: (Each undeclared identifier is reported only once
-kernel/latency.c:386: error: for each function it appears in.)
-make[1]: *** [kernel/latency.o] Error 1
-make: *** [kernel] Error 2
-
-I wonder if DEBUG_STACKOVERFLOW was left out of x86_64 for this reason.
-
-John
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,93 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932516AbVJGMtu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932543AbVJGNDd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932516AbVJGMtu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 08:49:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932528AbVJGMtt
+	id S932543AbVJGNDd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 09:03:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932528AbVJGNDd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 08:49:49 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:43158 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932516AbVJGMtt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 08:49:49 -0400
-Date: Fri, 7 Oct 2005 15:49:47 +0300 (EEST)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: Con Kolivas <kernel@kolivas.org>
-cc: linux-kernel@vger.kernel.org, ck@vds.kolivas.org
-Subject: Re: [PATCH] vm - swap_prefetch-15
-In-Reply-To: <200510072233.12216.kernel@kolivas.org>
-Message-ID: <Pine.LNX.4.58.0510071546540.8703@sbz-30.cs.Helsinki.FI>
-References: <200510070001.01418.kernel@kolivas.org> <200510072208.01357.kernel@kolivas.org>
- <Pine.LNX.4.58.0510071511040.6755@sbz-30.cs.Helsinki.FI>
- <200510072233.12216.kernel@kolivas.org>
+	Fri, 7 Oct 2005 09:03:33 -0400
+Received: from zombie.ncsc.mil ([144.51.88.131]:1687 "EHLO jazzdrum.ncsc.mil")
+	by vger.kernel.org with ESMTP id S932545AbVJGNDd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 09:03:33 -0400
+Subject: Re: [Keyrings] [PATCH] Keys: Add LSM hooks for key management
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: David Howells <dhowells@redhat.com>
+Cc: Chris Wright <chrisw@osdl.org>, James Morris <jmorris@namei.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       keyrings@linux-nfs.org, linux-kernel@vger.kernel.org
+In-Reply-To: <21866.1128676205@warthog.cambridge.redhat.com>
+References: <20051006175817.GK16352@shell0.pdx.osdl.net>
+	 <Pine.LNX.4.63.0510060346140.25593@excalibur.intercode>
+	 <29942.1128529714@warthog.cambridge.redhat.com>
+	 <20051005211030.GC16352@shell0.pdx.osdl.net>
+	 <23333.1128596048@warthog.cambridge.redhat.com>
+	 <21866.1128676205@warthog.cambridge.redhat.com>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Fri, 07 Oct 2005 08:59:34 -0400
+Message-Id: <1128689974.1450.9.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Oct 2005, Con Kolivas wrote:
-> That will end up being far more intrusive than this version and __alloc_pages 
-> would need more tests that affect every call to __alloc_pages which seems 
-> much more expensive to me than exporting buffered_rmqueue and 
-> zone_statistics, and the modified __alloc_pages will still be a much more 
-> complicated function than prefetch_get_page. 
+On Fri, 2005-10-07 at 10:10 +0100, David Howells wrote:
+> I don't know. As far as I know, setxattr and co can be used to set and
+> retrieve security data on files. I thought it would be desirable to have
+> similar for keys. If not, I can remove both calls/hooks for the time being.
 
-Short-term, perhaps. However, what you are doing is inventing your own 
-page allocator which, I suspect, is more expensive in the long term.
+I agree that enabling security-aware applications to separately label
+specific keys is desirable, so I'd suggest retaining that support, not
+dropping it.  We ultimately need the same support for all kernel objects
+(we lost it for sockets and System V IPC when the old SELinux API had to
+be dropped).  
 
-Up to you of course and I am probably the wrong person to talk to about 
-this. Never the less, here's a totally untested patch to do it.
+-- 
+Stephen Smalley
+National Security Agency
 
-			Pekka
-
-Index: 2.6/include/linux/gfp.h
-===================================================================
---- 2.6.orig/include/linux/gfp.h
-+++ 2.6/include/linux/gfp.h
-@@ -41,6 +41,7 @@ struct vm_area_struct;
- #define __GFP_NOMEMALLOC 0x10000u /* Don't use emergency reserves */
- #define __GFP_NORECLAIM  0x20000u /* No realy zone reclaim during allocation */
- #define __GFP_HARDWALL   0x40000u /* Enforce hardwall cpuset memory allocs */
-+#define __GFP_NEVER_RECLAIM 0x80000u /* Never attempt to reclaim */
- 
- #define __GFP_BITS_SHIFT 20	/* Room for 20 __GFP_FOO bits */
- #define __GFP_BITS_MASK ((1 << __GFP_BITS_SHIFT) - 1)
-Index: 2.6/mm/page_alloc.c
-===================================================================
---- 2.6.orig/mm/page_alloc.c
-+++ 2.6/mm/page_alloc.c
-@@ -778,6 +778,7 @@ __alloc_pages(unsigned int __nocast gfp_
- 		struct zonelist *zonelist)
- {
- 	const int wait = gfp_mask & __GFP_WAIT;
-+	const int can_reclaim = !(gfp_mask & __GFP_NEVER_RECLAIM);
- 	struct zone **zones, *z;
- 	struct page *page;
- 	struct reclaim_state reclaim_state;
-@@ -812,7 +813,7 @@ restart:
- 	 * See also cpuset_zone_allowed() comment in kernel/cpuset.c.
- 	 */
- 	for (i = 0; (z = zones[i]) != NULL; i++) {
--		int do_reclaim = should_reclaim_zone(z, gfp_mask);
-+		int do_reclaim = can_reclaim && should_reclaim_zone(z, gfp_mask);
- 
- 		if (!cpuset_zone_allowed(z, __GFP_HARDWALL))
- 			continue;
-@@ -840,6 +841,9 @@ zone_reclaim_retry:
- 			goto got_pg;
- 	}
- 
-+	if (unlikely(!can_reclaim))
-+		goto out;
-+
- 	for (i = 0; (z = zones[i]) != NULL; i++)
- 		wakeup_kswapd(z, order);
- 
-@@ -966,6 +970,7 @@ nopage:
- 		dump_stack();
- 		show_mem();
- 	}
-+out:
- 	return NULL;
- got_pg:
- 	zone_statistics(zonelist, z);

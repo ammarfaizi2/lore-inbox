@@ -1,91 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030330AbVJGP0V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030409AbVJGP3j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030330AbVJGP0V (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 11:26:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030391AbVJGP0V
+	id S1030409AbVJGP3j (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 11:29:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030404AbVJGP3j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 11:26:21 -0400
-Received: from quark.didntduck.org ([69.55.226.66]:45730 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id S1030330AbVJGP0V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 11:26:21 -0400
-Message-ID: <434693F8.3070706@didntduck.org>
-Date: Fri, 07 Oct 2005 11:27:52 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-CC: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH] Fix hotplug cpu on x86_64
-References: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04D9C@USRV-EXCH4.na.uis.unisys.com>
-In-Reply-To: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04D9C@USRV-EXCH4.na.uis.unisys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 7 Oct 2005 11:29:39 -0400
+Received: from 223-177.adsl.pool.ew.hu ([193.226.223.177]:40712 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S1030391AbVJGP3i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 11:29:38 -0400
+To: trond.myklebust@fys.uio.no
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-reply-to: <1128698035.8583.36.camel@lade.trondhjem.org> (message from Trond
+	Myklebust on Fri, 07 Oct 2005 11:13:55 -0400)
+Subject: Re: [RFC] atomic create+open
+References: <E1ENWt1-000363-00@dorka.pomaz.szeredi.hu>
+	 <1128616864.8396.32.camel@lade.trondhjem.org>
+	 <E1ENZ8u-0003JS-00@dorka.pomaz.szeredi.hu>
+	 <E1ENZCQ-0003K3-00@dorka.pomaz.szeredi.hu>
+	 <1128619526.16534.8.camel@lade.trondhjem.org>
+	 <E1ENZZl-0003OO-00@dorka.pomaz.szeredi.hu>
+	 <1128620528.16534.26.camel@lade.trondhjem.org>
+	 <E1ENZu1-0003SP-00@dorka.pomaz.szeredi.hu>
+	 <1128623899.31797.14.camel@lade.trondhjem.org>
+	 <E1ENani-0003c4-00@dorka.pomaz.szeredi.hu>
+	 <1128626258.31797.34.camel@lade.trondhjem.org>
+	 <E1ENcAr-0003jz-00@dorka.pomaz.szeredi.hu>
+	 <1128633138.31797.52.camel@lade.trondhjem.org>
+	 <E1ENlI2-0004Gt-00@dorka.pomaz.szeredi.hu>
+	 <1128692289.8519.75.camel@lade.trondhjem.org>
+	 <E1ENslH-00057W-00@dorka.pomaz.szeredi.hu> <1128698035.8583.36.camel@lade.trondhjem.org>
+Message-Id: <E1ENu8h-0005Kd-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Fri, 07 Oct 2005 17:28:03 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Protasevich, Natalie wrote:
->>Brian Gerst wrote:
->>
->>>Brian Gerst wrote:
->>>
->>>>I've been seeing bogus values from /proc/loadavg on an x86-64 SMP 
->>>>kernel (but not UP).
->>>>
->>>>$ cat /proc/loadavg
->>>>-1012098.26 922203.26 -982431.60 1/112 2688
->>>>
->>>>This is in the current git tree.  I'm also seeing strange values in
->>>>/proc/stat:
->>>>
->>>>cpu  2489 40 920 60530 9398 171 288 1844674407350 cpu0 2509 60 940 
->>>>60550 9418 191 308 0
->>>>
->>>>The first line is the sum of all cpus (I only have one), so it's 
->>>>picking up up bad data from the non-present cpus.  The last value, 
->>>>stolen time, is completely bogus since that value is only 
->>
->>ever used 
->>
->>>>on s390.
->>>>
->>>>It looks to me like there is some problem with how the per-cpu 
->>>>structures are being initialized, or are getting 
->>
->>corrupted.  I have 
->>
->>>>not been able to test i386 SMP yet to see if the problem is x86_64 
->>>>specific.
->>>
->>>I found the culprit: CPU hotplug.  The problem is that
->>>prefill_possible_map() is called after setup_per_cpu_areas().  This 
->>>leaves the per-cpu data sections for the future cpus uninitialized 
->>>(still pointing to the original per-cpu data, which is initmem).  
->>>Since the cpus exists in cpu_possible_map, for_each_cpu 
->>
->>will iterate 
->>
->>>over them even though the per-cpu data is invalid.
->>
+> > You can replace the inode in ->create_open() if you want to.
 > 
-> I had to do the same in i386, but initially I was trying to avoid the
-> whole situation - allocating per_cpu data for all possible processors.
-> It seemed wasteful that on the system with NR_CPU=256 or 512 and brought
-> up as 4x everything per_cpu is (pre)allocated for all, although it's
-> sure convenient. I though at the time it would be great if
-> alloc_percpu() mechanism was able to dynamically re-create all the
-> per_cpu's for new processors, that way cpu_possible_map woun't probably
-> even be needed. Or is it too much trouble for too little gain...
+> Thinking a bit more clearly after a cup of coffee. This statement isn't
+> even true.
 > 
-> Thanks,
-> --Natalie
-> 
+> Your pseudo-code offers no guarantees that you are the sole user of the
+> dentry once you get to create_open().
 
-It certainly is possible.  In the hotplug cpu case, don't put the 
-.data.percpu section in __initmem.  It will then be preserved for any 
-cpus that come online after boot.
+You are right.  I meant, replace the dentry.
 
---
-				Brian Gerst
+> > Or let the VFS redo the lookup (as if d_revalidate() returned 0).
+> 
+> Which may return yet another result for the dentry and another race.
+> There is no guarantee that you will ever make progress if someone is
+> doing something like.
+> 
+> while true
+> do
+>   echo "1" > foo
+>   echo "2" > foo
+> done
+> 
+> on the server.
+
+Not good example. This won't change the file, only the contents.
+Something with rename would be better.
+
+We are still pitting two different races against each other.  I can't
+see such a big difference in ugliness...
+
+Miklos
+
+
+

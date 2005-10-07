@@ -1,35 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbVJGMIk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932401AbVJGMLN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932397AbVJGMIk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 08:08:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbVJGMIk
+	id S932401AbVJGMLN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 08:11:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbVJGMLN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 08:08:40 -0400
-Received: from xproxy.gmail.com ([66.249.82.203]:57623 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932397AbVJGMIj (ORCPT
+	Fri, 7 Oct 2005 08:11:13 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:34113 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932115AbVJGMLM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 08:08:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:from:to:subject:date:mime-version:content-type:content-transfer-encoding:x-priority:x-msmail-priority:x-mailer:x-mimeole;
-        b=sieWF/HNkE41sBInEnjsWj6fEsqGOpr6oibzThkkGlyBXVcw6wBxf/R4rJ9+6QPp+JJCO6SEvfhzb58APeW+Q6A33RzTG+pCeLVqxtkOk/hWiOam/gIwQbWuOIbCFL+QzcWPyAXUuctPzSSXe4mTBkhggEiIfpZjCLp80k/iumM=
-Message-ID: <007701c5cb37$da03d050$c901a8c0@sp>
-From: <sampersy@gmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: What does that "%U0" and "%X0" mean
-Date: Fri, 7 Oct 2005 20:08:35 +0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="big5"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+	Fri, 7 Oct 2005 08:11:12 -0400
+Date: Fri, 7 Oct 2005 14:11:47 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Jon Escombe <lists@dresco.co.uk>
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       hdaps-devel@lists.sourceforge.net
+Subject: Re: [RFC] Hard disk protection revisited
+Message-ID: <20051007121142.GV2889@suse.de>
+References: <4345B24A.2080104@dresco.co.uk> <20051007100219.GU2889@suse.de> <43466453.9070604@dresco.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43466453.9070604@dresco.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What does that "%U0" and "%X0" mean in 
-__asm__ __volatile__("stb%U0%X0 %1,%0; eieio" : "=m" (*addr) : "r" (val));
+On Fri, Oct 07 2005, Jon Escombe wrote:
+> Jens Axboe wrote:
+> 
+> >I have to nack this one for now, I still want the generic command types
+> >patch to go in first. We have far too many queue hooks already, adding
+> >two more for a relatively obscure use such as this one is not a good
+> >idea.
+> >
+> >My suggestion is to maintain this patch out of tree for now, it will be
+> >a few kernel release iterations before the command type patch is in.
+> > 
+> >
+> 
+> That's a fair comment (and not entirely unexpected), I don't have a 
+> problem with looking after this out of tree for now...
+> 
+> One issue with the generic command approach occured to me while making 
+> this patch - although it's more likely an issue with my understanding ;)
+> 
+> I'm assuming that it would work like this -- the block layer still has 
+> the sysfs attribute, and queues the new command for the lower driver to 
+> pick up. The driver receives the command and does it's custom 
+> park/freeze work, then calls a common block layer function to setup the 
+> timer (all good so far). Where it gets hazy (for me) is how the block 
+> layer starts the queue up again - as this ended up needing to be driver 
+> specific & I can't see how the block layer would get another command 
+> down if the queue is stopped?
 
-does any reference existing ?
+It just sends an unfreeze request. It's similar to how we have to allow
+suspend commands on an otherwise suspended queue. Since the block layer
+has control of the frozen queue, it should not be a problem.
+
+-- 
+Jens Axboe
+

@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750849AbVJGH3O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750960AbVJGHeP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750849AbVJGH3O (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 03:29:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbVJGH3O
+	id S1750960AbVJGHeP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 03:34:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbVJGHeP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 03:29:14 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:21197 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750849AbVJGH3N (ORCPT
+	Fri, 7 Oct 2005 03:34:15 -0400
+Received: from koto.vergenet.net ([210.128.90.7]:3242 "EHLO koto.vergenet.net")
+	by vger.kernel.org with ESMTP id S1750960AbVJGHeO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 03:29:13 -0400
-Date: Fri, 7 Oct 2005 09:28:35 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Suspend to RAM broken with 2.6.13
-Message-ID: <20051007072835.GG27711@elf.ucw.cz>
-References: <1127347633.25357.49.camel@idefix.homelinux.org> <20050923163200.GC8946@openzaurus.ucw.cz> <1128663145.14284.85.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Fri, 7 Oct 2005 03:34:14 -0400
+Date: Fri, 7 Oct 2005 16:31:02 +0900
+From: Horms <horms@debian.org>
+To: Colin Leroy <colin@colino.net>
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org, debian-kernel@lists.debian.org
+Subject: Re: [PATCH] hfs, hfsplus: don't leak s_fs_info and fix an oops
+Message-ID: <20051007073102.GB6026@verge.net.au>
+Mail-Followup-To: Colin Leroy <colin@colino.net>,
+	Roman Zippel <zippel@linux-m68k.org>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	linux-kernel@vger.kernel.org, debian-kernel@lists.debian.org
+References: <20051007043924.GA20827@verge.net.au> <20051007071008.CAC4E10334@paperstreet.colino.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1128663145.14284.85.camel@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20051007071008.CAC4E10334@paperstreet.colino.net>
+X-Cluestick: seven
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Pá 07-10-05 15:32:25, Jean-Marc Valin wrote:
-> Hi,
+On Fri, Oct 07, 2005 at 09:10:05AM +0200, Colin Leroy wrote:
+> On 07 Oct 2005 at 13h10, Horms wrote:
 > 
-> I've done some further testing on suspend to RAM and it seems like it
-> got broken for me between 2.6.11 and 2.6.12. Does that help narrowing
-> down the problem?
+> Hi, 
+> 
+> > I took a look at making a backport, and it seems that
+> > some of the problems are there, but without a deeper inspection
+> > of the code its difficult to tell if the problems manifest or not.
+> 
+> That was easy to get the oops:
+> 
+> $ dd if=/dev/zero of=im_not_hfsplus count=10 #for example
+> $ mkdir test_dir
+> $ sudo mount -o loop -t hfsplus ./im_not_hfsplus ./testdir
+> $ dmesg
 
-Well, you'd have to track it down in a bit more specific way. If you
-can narrow it down to specific day, or even better with binary search,
-it will help.
-								Pavel
-
-> Le vendredi 23 septembre 2005 ? 18:32 +0200, Pavel Machek a écrit :
-> > Hi!
-> > 
-> > > I'm experiencing problems with suspend to RAM on my Dell D600 laptop.
-> > > When I run Ubuntu's 2.6.10 kernel I have no problem with suspend to RAM.
-> > > However, when I run 2.6.13, my laptop sometimes doesn't wake up. It
-> > > seems like the longer my uptime, the more likely the problem is to occur
-> > > (which makes it hard to reproduce sometimes). This happens even with a
-> > > non-preempt kernel.
-> > 
-> > Check if it works with minimal drivers and non-preemptible kernel...
-
-
+Silly me, I should have thought of that :-)
 
 -- 
-if you have sharp zaurus hardware you don't need... you know my address
+Horms

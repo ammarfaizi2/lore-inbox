@@ -1,87 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030492AbVJGQYC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030490AbVJGQYr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030492AbVJGQYC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 12:24:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030494AbVJGQYA
+	id S1030490AbVJGQYr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 12:24:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030497AbVJGQYr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 12:24:00 -0400
-Received: from pat.uio.no ([129.240.130.16]:29692 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1030492AbVJGQX7 (ORCPT
+	Fri, 7 Oct 2005 12:24:47 -0400
+Received: from mx2.suse.de ([195.135.220.15]:5001 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030490AbVJGQYq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 12:23:59 -0400
-Subject: Re: [RFC] atomic create+open
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <E1ENu8h-0005Kd-00@dorka.pomaz.szeredi.hu>
-References: <E1ENWt1-000363-00@dorka.pomaz.szeredi.hu>
-	 <1128616864.8396.32.camel@lade.trondhjem.org>
-	 <E1ENZ8u-0003JS-00@dorka.pomaz.szeredi.hu>
-	 <E1ENZCQ-0003K3-00@dorka.pomaz.szeredi.hu>
-	 <1128619526.16534.8.camel@lade.trondhjem.org>
-	 <E1ENZZl-0003OO-00@dorka.pomaz.szeredi.hu>
-	 <1128620528.16534.26.camel@lade.trondhjem.org>
-	 <E1ENZu1-0003SP-00@dorka.pomaz.szeredi.hu>
-	 <1128623899.31797.14.camel@lade.trondhjem.org>
-	 <E1ENani-0003c4-00@dorka.pomaz.szeredi.hu>
-	 <1128626258.31797.34.camel@lade.trondhjem.org>
-	 <E1ENcAr-0003jz-00@dorka.pomaz.szeredi.hu>
-	 <1128633138.31797.52.camel@lade.trondhjem.org>
-	 <E1ENlI2-0004Gt-00@dorka.pomaz.szeredi.hu>
-	 <1128692289.8519.75.camel@lade.trondhjem.org>
-	 <E1ENslH-00057W-00@dorka.pomaz.szeredi.hu>
-	 <1128698035.8583.36.camel@lade.trondhjem.org>
-	 <E1ENu8h-0005Kd-00@dorka.pomaz.szeredi.hu>
-Content-Type: text/plain
-Date: Fri, 07 Oct 2005 12:23:47 -0400
-Message-Id: <1128702227.8583.69.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+	Fri, 7 Oct 2005 12:24:46 -0400
+From: Andi Kleen <ak@suse.de>
+To: "Protasevich, Natalie" <Natalie.Protasevich@unisys.com>
+Subject: Re: [PATCH] Fix hotplug cpu on x86_64
+Date: Fri, 7 Oct 2005 18:24:56 +0200
+User-Agent: KMail/1.8.2
+Cc: "Brian Gerst" <bgerst@didntduck.org>,
+       "lkml" <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>
+References: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04D9C@USRV-EXCH4.na.uis.unisys.com>
+In-Reply-To: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04D9C@USRV-EXCH4.na.uis.unisys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.885, required 12,
-	autolearn=disabled, AWL 1.11, UIO_MAIL_IS_INTERNAL -5.00)
+Content-Disposition: inline
+Message-Id: <200510071824.56464.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fr den 07.10.2005 Klokka 17:28 (+0200) skreiv Miklos Szeredi:
-> > 
-> > Which may return yet another result for the dentry and another race.
-> > There is no guarantee that you will ever make progress if someone is
-> > doing something like.
-> > 
-> > while true
-> > do
-> >   echo "1" > foo
-> >   echo "2" > foo
-> > done
-> > 
-> > on the server.
-> 
-> Not good example. This won't change the file, only the contents.
-> Something with rename would be better.
+On Friday 07 October 2005 17:07, Protasevich, Natalie wrote:
+> > Brian Gerst wrote:
+> > > Brian Gerst wrote:
+> > >> I've been seeing bogus values from /proc/loadavg on an x86-64 SMP
+> > >> kernel (but not UP).
+> > >>
+> > >> $ cat /proc/loadavg
+> > >> -1012098.26 922203.26 -982431.60 1/112 2688
+> > >>
+> > >> This is in the current git tree.  I'm also seeing strange values in
+> > >> /proc/stat:
+> > >>
+> > >> cpu  2489 40 920 60530 9398 171 288 1844674407350 cpu0 2509 60 940
+> > >> 60550 9418 191 308 0
+> > >>
+> > >> The first line is the sum of all cpus (I only have one), so it's
+> > >> picking up up bad data from the non-present cpus.  The last value,
+> > >> stolen time, is completely bogus since that value is only
+> >
+> > ever used
+> >
+> > >> on s390.
+> > >>
+> > >> It looks to me like there is some problem with how the per-cpu
+> > >> structures are being initialized, or are getting
+> >
+> > corrupted.  I have
+> >
+> > >> not been able to test i386 SMP yet to see if the problem is x86_64
+> > >> specific.
+> > >
+> > > I found the culprit: CPU hotplug.  The problem is that
+> > > prefill_possible_map() is called after setup_per_cpu_areas().  This
+> > > leaves the per-cpu data sections for the future cpus uninitialized
+> > > (still pointing to the original per-cpu data, which is initmem).
+> > > Since the cpus exists in cpu_possible_map, for_each_cpu
+> >
+> > will iterate
+> >
+> > > over them even though the per-cpu data is invalid.
+>
+> I had to do the same in i386, but initially I was trying to avoid the
+> whole situation - allocating per_cpu data for all possible processors.
+> It seemed wasteful that on the system with NR_CPU=256 or 512 and brought
+> up as 4x everything per_cpu is (pre)allocated for all, although it's
 
-Sorry, yes. This tweak should demonstrate what I meant
+It's quite. With NR_CPUS==128 the current x86-64 code wastes around 4MB
+in per CPU data :/ 
 
-while true
-do
-  echo "1" > foo
-  echo "2" > bar
-  mv bar foo
-done
+> sure convenient. I though at the time it would be great if
+> alloc_percpu() mechanism was able to dynamically re-create all the
+> per_cpu's for new processors, that way cpu_possible_map woun't probably
+> even be needed. Or is it too much trouble for too little gain...
 
-> We are still pitting two different races against each other.  I can't
-> see such a big difference in ugliness...
+The problem is to tell all subsystems to reinitialize the data for possible
+CPUs (essentially the concept of "possible" CPUs would need to go)  It would 
+need an reaudit of a lot of code. Probably quite some work.
 
-No we're not. I telling you that your open_create is not a solution for
-the problems we have with open in NFSv4.
+I think it is better to try to figure out how many hotplug CPUs are supported,
+otherwise use a small default.  My current code uses disabled CPUs 
+as a heuristic, otherwise half of available CPUs and it can be overwritten
+by the user.
 
-If it doesn't do atomic lookup+open, then I have an unfixable race. Any
-"solution" that requires NFS to assume that the dcache will remain
-consistent with the server namespace across more than one RPC operation
-is prone to races.
-
-OTOH mount/umount races are fixable since they involve only the local
-namespace. Just add locking.
-
-Trond
-
+-Andi

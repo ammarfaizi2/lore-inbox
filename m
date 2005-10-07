@@ -1,38 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964843AbVJGOWP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964870AbVJGOZ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964843AbVJGOWP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 10:22:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964870AbVJGOWP
+	id S964870AbVJGOZ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 10:25:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964875AbVJGOZ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 10:22:15 -0400
-Received: from seanodes.co.fr.clara.net ([212.43.220.11]:1945 "EHLO
-	seanodes.co.fr.clara.net") by vger.kernel.org with ESMTP
-	id S964843AbVJGOWN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 10:22:13 -0400
-Message-ID: <43468482.9070501@seanodes.com>
-Date: Fri, 07 Oct 2005 16:21:54 +0200
-From: Velu Erwan <erwan@seanodes.com>
-User-Agent: Mozilla Thunderbird 1.0.6-6mdk (X11/20050322)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: "Vladimir B. Savkin" <master@sectorb.msk.ru>
-Cc: Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, john stultz <johnstul@us.ibm.com>,
-       discuss@x86-64.org
-Subject: Re: [discuss] Re: [PATCH] x86-64: Fix bad assumption that dualcore
- cpus have synced TSCs
-References: <1127157404.3455.209.camel@cog.beaverton.ibm.com> <20051007122624.GA23606@tentacle.sectorb.msk.ru> <200510071431.47245.ak@suse.de> <20051007141532.GA24924@tentacle.sectorb.msk.ru>
-In-Reply-To: <20051007141532.GA24924@tentacle.sectorb.msk.ru>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 7 Oct 2005 10:25:57 -0400
+Received: from ns.firmix.at ([62.141.48.66]:16800 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S964870AbVJGOZ4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 10:25:56 -0400
+Subject: Re: 'Undeleting' an open file
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Giuseppe Bilotta <bilotta78@hotpop.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <8qo997np4h6n.1ihs13ptrx2y2.dlg@40tude.net>
+References: <4TiWy-4HQ-3@gated-at.bofh.it> <4U0XH-3Gp-39@gated-at.bofh.it>
+	 <E1EMutG-0001Hd-7U@be1.lrz> <87k6gsjalu.fsf@amaterasu.srvr.nix>
+	 <4343E611.1000901@perkel.com> <20051005144441.GC8011@csclub.uwaterloo.ca>
+	 <4343E7AC.6000607@perkel.com> <20051005153727.994c4709.fmalita@gmail.com>
+	 <43442D19.4050005@perkel.com> <Pine.LNX.4.58.0510052208130.4308@be1.lrz>
+	 <8qo997np4h6n.1ihs13ptrx2y2.dlg@40tude.net>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Date: Fri, 07 Oct 2005 16:25:40 +0200
+Message-Id: <1128695140.31606.50.camel@tara.firmix.at>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vladimir B. Savkin a écrit :
+On Fri, 2005-10-07 at 16:14 +0200, Giuseppe Bilotta wrote:
+> On Wed, 5 Oct 2005 23:05:34 +0200 (CEST), Bodo Eggert wrote:
+> 
+> > Files are deleted if the last reference is gone. If you play a music file
+> > and unlink it while it's playing, it won't be deleted untill the player
+> > closes the file, since an open filehandle is a reference.
+> 
+> BTW, I've always wondered: is there a way to un-unlink such a file?
 
->Well, I think not.
->Asus file download page is unavailable since yesterday.
->  
->
-Agreed but ftp://ftp.asus.com:/pub/ASUS/mb/socket939/a8v-deluxe is still 
-available ;)
+Legally not.
+You could turn off the power and do a fsck on a not-journalling
+filesystem. But even then it is not sure ...
+
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
+

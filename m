@@ -1,133 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030529AbVJGRq0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030531AbVJGRr0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030529AbVJGRq0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 13:46:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030528AbVJGRqZ
+	id S1030531AbVJGRr0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 13:47:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030532AbVJGRrZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 13:46:25 -0400
-Received: from fmr19.intel.com ([134.134.136.18]:36009 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1030531AbVJGRqX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 13:46:23 -0400
-Subject: [patch 2/2] acpi: add ability to derive irq when doing a surprise
-	removal of an adapter
-From: Kristen Accardi <kristen.c.accardi@intel.com>
-To: pcihpd-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-Cc: rajesh.shah@intel.com, greg@kroah.com, len.brown@intel.com
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 07 Oct 2005 10:46:14 -0700
-Message-Id: <1128707174.11020.12.camel@whizzy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
-X-OriginalArrivalTime: 07 Oct 2005 17:46:16.0123 (UTC) FILETIME=[042068B0:01C5CB67]
+	Fri, 7 Oct 2005 13:47:25 -0400
+Received: from xproxy.gmail.com ([66.249.82.206]:16040 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030531AbVJGRrY convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 13:47:24 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TEbaYxSytZZfNvPlkBJIdDovhnLMbDDYhB4cmiOEguD7q6L5qN2gM2z9GiReOnWJIPVgF7NRYmstXKcCIduzdWz9rIBzngcjGRM6PQ+0EldIx804HkIr4Xb1vkm5I8vj1/B8UBvNwpP7RD82bVR+9xGZ+G34ZzppShZ1qVgWkec=
+Message-ID: <5bdc1c8b0510071047o741eb4d7vb73ed0e6d9e44aa3@mail.gmail.com>
+Date: Fri, 7 Oct 2005 10:47:23 -0700
+From: Mark Knecht <markknecht@gmail.com>
+Reply-To: Mark Knecht <markknecht@gmail.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: 2.6.14-rc3-rt10 - xruns & config questions
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <1128705805.17981.42.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <5bdc1c8b0510061152o686c5774x2d0514a1f1b4e463@mail.gmail.com>
+	 <20051006195242.GA15448@elte.hu>
+	 <5bdc1c8b0510061307saf22655y26dd1e608b33a40c@mail.gmail.com>
+	 <5bdc1c8b0510061338r41e0b51ds2efd435a591d953e@mail.gmail.com>
+	 <5bdc1c8b0510061907w372cb406x45140b01e4011c4a@mail.gmail.com>
+	 <20051007114848.GE857@elte.hu>
+	 <5bdc1c8b0510070944p5a09f7f2m4965f3e0ddda21f7@mail.gmail.com>
+	 <1128705805.17981.42.camel@mindpipe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If an adapter is surprise removed, the interrupt pin must be guessed, as
-any attempts to read it would obviously be invalid.  cycle through all
-possible interrupt pin values until we can either lookup or derive the
-right irq to disable.
+On 10/7/05, Lee Revell <rlrevell@joe-job.com> wrote:
+> On Fri, 2005-10-07 at 09:44 -0700, Mark Knecht wrote:
+> > Hi Ingo,
+> >    OK, I've been running -rt10 for the last couple of hours on a new
+> > kernel without SMP. No xruns so far at 64/2. I'm doing all the normal
+> > stuff. emerge sync, building some code outside of portage, playing
+> > music. Very good so far, but it will likely take 4-6 hours for me to
+> > be more sure saying it was just SMP latencies.
+>
+> IIRC you posted some traces that implied the migration thread was
+> involved.
+>
+> Lee
 
-Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+No Lee, I don't think I've posted any traces myself. Possibly someone else?
 
-diff -uprN -X linux-2.6.14-rc2/Documentation/dontdiff linux-2.6.14-rc2/drivers/acpi/pci_irq.c linux-2.6.14-rc2-kca1/drivers/acpi/pci_irq.c
---- linux-2.6.14-rc2/drivers/acpi/pci_irq.c	2005-09-27 09:01:28.000000000 -0700
-+++ linux-2.6.14-rc2-kca1/drivers/acpi/pci_irq.c	2005-09-28 10:40:57.000000000 -0700
-@@ -491,6 +491,79 @@ void __attribute__ ((weak)) acpi_unregis
- {
- }
- 
-+
-+
-+/*
-+ * This function will be called only in the case of
-+ * a "surprise" hot plug removal.  For surprise removals,
-+ * the card has either already be yanked out of the slot, or
-+ * the slot's been powered off, so we have to brute force 
-+ * our way through all the possible interrupt pins to derive
-+ * the GSI, then we double check with the value stored in the
-+ * pci_dev structure to make sure we have the GSI that belongs
-+ * to this IRQ.
-+ */
-+void acpi_pci_irq_disable_nodev(struct pci_dev *dev)
-+{
-+	int gsi = 0;
-+	u8  pin = 0;
-+	int edge_level = ACPI_LEVEL_SENSITIVE;
-+	int active_high_low = ACPI_ACTIVE_LOW;
-+	int irq;
-+
-+	/* 
-+	 * since our device is not present, we 
-+	 * can't just read the interrupt pin
-+	 * and use the value to derive the irq.
-+	 * in this case, we are going to check
-+	 * each returned irq value to make
-+	 * sure it matches our already assigned
-+	 * irq before we use it.
-+	 */
-+	for (pin = 0; pin < 4; pin++) {
-+		/*
-+	 	 * First we check the PCI IRQ routing table (PRT) for an IRQ.
-+	 	 */
-+		gsi = acpi_pci_irq_lookup(dev->bus, PCI_SLOT(dev->devfn), pin,
-+				  &edge_level, &active_high_low, NULL,
-+				  acpi_pci_free_irq);
-+
-+		/*
-+	 	 * If no PRT entry was found, we'll try to derive an IRQ from the
-+	 	 * device's parent bridge.
-+	 	 */
-+		if (gsi < 0)
-+ 			gsi = acpi_pci_irq_derive(dev, pin,
-+				&edge_level, &active_high_low, NULL, acpi_pci_free_irq);
-+
-+		/* 
-+		 * If we could not derive the IRQ, give up on this pin number
-+		 * and try a different one.
-+		 */
-+		if (gsi < 0)
-+		 	continue;	
-+		
-+		if (acpi_gsi_to_irq(gsi, &irq) < 0)
-+			continue;
-+
-+		/* 
-+		 * make sure we got the right irq 
-+		 */
-+		if (irq == dev->irq) {
-+			printk(KERN_INFO PREFIX 
-+				"PCI interrupt for device %s disabled\n",
-+	       			pci_name(dev));
-+
-+			acpi_unregister_gsi(gsi);
-+			return_VOID;
-+		}
-+	}
-+	return_VOID;
-+}
-+
-+
-+
-+
- void acpi_pci_irq_disable(struct pci_dev *dev)
- {
- 	int gsi = 0;
-@@ -506,6 +579,14 @@ void acpi_pci_irq_disable(struct pci_dev
- 	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &pin);
- 	if (!pin)
- 		return_VOID;
-+
-+	/* 
-+	 * Check to see if the device was present 
-+	 */
-+	if (pin == 0xff) {
-+		acpi_pci_irq_disable_nodev(dev);
-+		return_VOID;
-+	}
- 	pin--;
- 
- 	/*
+I need to learn how to debug where time is spent by the kernel when an
+xrun occurs. I haven't yet tried some brief instructions you gave me a
+couple of weeks back.
 
+Anyway, I'm now about 3 hours down the road with no xruns now that
+I've turned of SMP support. Is the migration thread part of SMP
+support?
+
+Thanks,
+Mark

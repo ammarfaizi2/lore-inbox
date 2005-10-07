@@ -1,44 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964876AbVJGOam@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964875AbVJGOaS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964876AbVJGOam (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 10:30:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964877AbVJGOal
+	id S964875AbVJGOaS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 10:30:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbVJGOaR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 10:30:41 -0400
-Received: from ncc1701.cistron.net ([62.216.30.38]:21151 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S964874AbVJGOai
+	Fri, 7 Oct 2005 10:30:17 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:40876 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S964872AbVJGOaR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 10:30:38 -0400
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: 'Undeleting' an open file
-Date: Fri, 7 Oct 2005 14:30:37 +0000 (UTC)
-Organization: Cistron
-Message-ID: <di60qd$sbp$1@news.cistron.nl>
-References: <4TiWy-4HQ-3@gated-at.bofh.it> <43442D19.4050005@perkel.com> <Pine.LNX.4.58.0510052208130.4308@be1.lrz> <8qo997np4h6n.1ihs13ptrx2y2.dlg@40tude.net>
+	Fri, 7 Oct 2005 10:30:17 -0400
+Date: Fri, 7 Oct 2005 15:30:13 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: akpm@osdl.org, trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] don't invalidate non-directory mountpoints
+Message-ID: <20051007143012.GC7992@ftp.linux.org.uk>
+References: <E1ENqAg-0004bJ-00@dorka.pomaz.szeredi.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1128695437 29049 194.109.0.112 (7 Oct 2005 14:30:37 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: mikevs@zahadum.xs4all.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1ENqAg-0004bJ-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <8qo997np4h6n.1ihs13ptrx2y2.dlg@40tude.net>,
-Giuseppe Bilotta  <bilotta78@hotpop.com> wrote:
->On Wed, 5 Oct 2005 23:05:34 +0200 (CEST), Bodo Eggert wrote:
->
->> Files are deleted if the last reference is gone. If you play a music file
->> and unlink it while it's playing, it won't be deleted untill the player
->> closes the file, since an open filehandle is a reference.
->
->BTW, I've always wondered: is there a way to un-unlink such a file?
+On Fri, Oct 07, 2005 at 01:13:50PM +0200, Miklos Szeredi wrote:
+> d_invalidate allowed a non-directory mountpoint to be invalidated,
+> which is bad, since the mountpoint becomes unreachable.
+> 
+> I know it's racy wrt attaching/detaching mount, but AFAICS so is
+> everything else that unhashes the dentry.  This seems to be an
+> oversight when splitting out vfsmount_lock from dcache_lock.  To be
+> fixed.
 
-Around 2.4.15 we had the same discussion here - see for example
-http://www.ussg.iu.edu/hypermail/linux/kernel/0201.2/0881.html
-(but be sure to read the whole thread).
-
-Mike.
-
+NAK.  That's a wrong way to deal with the problem and it's much older
+than vfsmount_lock or dcache_lock (and affects directories too).

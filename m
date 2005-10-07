@@ -1,78 +1,310 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030474AbVJGQBn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030475AbVJGQJX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030474AbVJGQBn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 12:01:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030475AbVJGQBn
+	id S1030475AbVJGQJX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 12:09:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030476AbVJGQJX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 12:01:43 -0400
-Received: from pat.uio.no ([129.240.130.16]:34525 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1030474AbVJGQBl (ORCPT
+	Fri, 7 Oct 2005 12:09:23 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:27270 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030475AbVJGQJW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 12:01:41 -0400
-Subject: Re: [RFC] atomic create+open
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <E1ENtzt-0005Jb-00@dorka.pomaz.szeredi.hu>
-References: <E1ENWt1-000363-00@dorka.pomaz.szeredi.hu>
-	 <1128616864.8396.32.camel@lade.trondhjem.org>
-	 <E1ENZ8u-0003JS-00@dorka.pomaz.szeredi.hu>
-	 <E1ENZCQ-0003K3-00@dorka.pomaz.szeredi.hu>
-	 <1128619526.16534.8.camel@lade.trondhjem.org>
-	 <E1ENZZl-0003OO-00@dorka.pomaz.szeredi.hu>
-	 <1128620528.16534.26.camel@lade.trondhjem.org>
-	 <E1ENZu1-0003SP-00@dorka.pomaz.szeredi.hu>
-	 <1128623899.31797.14.camel@lade.trondhjem.org>
-	 <E1ENani-0003c4-00@dorka.pomaz.szeredi.hu>
-	 <1128626258.31797.34.camel@lade.trondhjem.org>
-	 <E1ENcAr-0003jz-00@dorka.pomaz.szeredi.hu>
-	 <1128633138.31797.52.camel@lade.trondhjem.org>
-	 <E1ENlI2-0004Gt-00@dorka.pomaz.szeredi.hu>
-	 <1128692289.8519.75.camel@lade.trondhjem.org>
-	 <E1ENslH-00057W-00@dorka.pomaz.szeredi.hu>
-	 <1128696477.8583.17.camel@lade.trondhjem.org>
-	 <E1ENtzt-0005Jb-00@dorka.pomaz.szeredi.hu>
-Content-Type: text/plain
-Date: Fri, 07 Oct 2005 12:01:32 -0400
-Message-Id: <1128700892.8583.46.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.887, required 12,
-	autolearn=disabled, AWL 1.11, UIO_MAIL_IS_INTERNAL -5.00)
+	Fri, 7 Oct 2005 12:09:22 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <26883.1128700665@warthog.cambridge.redhat.com> 
+References: <26883.1128700665@warthog.cambridge.redhat.com>  <19008.1128699684@warthog.cambridge.redhat.com> <11615.1128694058@warthog.cambridge.redhat.com> 
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: keyrings@linux-nfs.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] Keys: Remove key duplication
+X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
+Date: Fri, 07 Oct 2005 17:08:54 +0100
+Message-ID: <2622.1128701334@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fr den 07.10.2005 Klokka 17:18 (+0200) skreiv Miklos Szeredi:
 
-> > > You can replace the inode in ->create_open() if you want to.  Or let
-> > > the VFS redo the lookup (as if d_revalidate() returned 0).
-> > 
-> > ...but I cannot do that once I get to dentry_open(). You are ignoring
-> > the case of generic file open without creation.
-> 
-> You can't do open by inode number (or file handle, whatever)?  Only by
-> name?  In that case yes, I see your problem.
+The attached patch removes the key duplication stuff since there's nothing
+that uses it, no way to get at it and it's awkward to deal with for LSM
+purposes.
 
-As I believe I said earlier, open by inode number/filehandle/... don't
-exist in the NFSv4 protocol due to the potential for races.
+This patch should be applied on top of the one ensubjected:
 
-> > > NFS does OPEN (O_CREAT), file is opened, dentry replaced (this is not
-> > > ellaborated in the pseudocode).
-> > 
-> > Which again only deals with the case of open(O_CREAT). My point is that
-> > the race exists for the case of generic open().
-> 
-> And so does for setattr() etc.  You can safely return -ENOENT in these
-> cases.  O_CREAT is problematic only because it cannot return -ENOENT
-> if the file was removed between ->lookup and ->open.
+	[PATCH] Keys: Add LSM hooks for key management [try #2] 
 
-No. There is no race for setattr() etc since they only do one lookup
-(and they don't set up any state on the server).
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
+warthog>diffstat -p1 keys-nodup-2614rc3.diff
+ Documentation/keys.txt       |   18 ------------
+ include/keys/user-type.h     |    1 
+ include/linux/key.h          |    8 -----
+ security/keys/key.c          |   56 ++-----------------------------------
+ security/keys/keyring.c      |   64 -------------------------------------------
+ security/keys/user_defined.c |   32 ---------------------
+ 6 files changed, 3 insertions(+), 176 deletions(-)
 
-open() is the only case where we currently have to look things up twice
-(and I remind you that the second "lookup" is in fact the OPEN
-operation).
-
-Trond
-
+diff -uNrp linux-2.6.14-rc3-keys-lsm/Documentation/keys.txt linux-2.6.14-rc3-keys-nodup/Documentation/keys.txt
+--- linux-2.6.14-rc3-keys-lsm/Documentation/keys.txt	2005-10-07 16:33:26.000000000 +0100
++++ linux-2.6.14-rc3-keys-nodup/Documentation/keys.txt	2005-10-07 16:59:59.000000000 +0100
+@@ -860,24 +860,6 @@ The structure has a number of fields, so
+      It is safe to sleep in this method.
+ 
+ 
+- (*) int (*duplicate)(struct key *key, const struct key *source);
+-
+-     If this type of key can be duplicated, then this method should be
+-     provided. It is called to copy the payload attached to the source into the
+-     new key. The data length on the new key will have been updated and the
+-     quota adjusted already.
+-
+-     This method will be called with the source key's semaphore read-locked to
+-     prevent its payload from being changed, thus RCU constraints need not be
+-     applied to the source key.
+-
+-     This method does not have to lock the destination key in order to attach a
+-     payload. The fact that KEY_FLAG_INSTANTIATED is not set in key->flags
+-     prevents anything else from gaining access to the key.
+-
+-     It is safe to sleep in this method.
+-
+-
+  (*) int (*update)(struct key *key, const void *data, size_t datalen);
+ 
+      If this type of key can be updated, then this method should be provided.
+diff -uNrp linux-2.6.14-rc3-keys-lsm/include/keys/user-type.h linux-2.6.14-rc3-keys-nodup/include/keys/user-type.h
+--- linux-2.6.14-rc3-keys-lsm/include/keys/user-type.h	2005-10-05 11:44:54.000000000 +0100
++++ linux-2.6.14-rc3-keys-nodup/include/keys/user-type.h	2005-10-07 17:03:19.000000000 +0100
+@@ -35,7 +35,6 @@ struct user_key_payload {
+ extern struct key_type key_type_user;
+ 
+ extern int user_instantiate(struct key *key, const void *data, size_t datalen);
+-extern int user_duplicate(struct key *key, const struct key *source);
+ extern int user_update(struct key *key, const void *data, size_t datalen);
+ extern int user_match(const struct key *key, const void *criterion);
+ extern void user_destroy(struct key *key);
+diff -uNrp linux-2.6.14-rc3-keys-lsm/include/linux/key.h linux-2.6.14-rc3-keys-nodup/include/linux/key.h
+--- linux-2.6.14-rc3-keys-lsm/include/linux/key.h	2005-10-07 15:46:29.000000000 +0100
++++ linux-2.6.14-rc3-keys-nodup/include/linux/key.h	2005-10-07 17:00:08.000000000 +0100
+@@ -193,14 +193,6 @@ struct key_type {
+ 	 */
+ 	int (*instantiate)(struct key *key, const void *data, size_t datalen);
+ 
+-	/* duplicate a key of this type (optional)
+-	 * - the source key will be locked against change
+-	 * - the new description will be attached
+-	 * - the quota will have been adjusted automatically from
+-	 *   source->quotalen
+-	 */
+-	int (*duplicate)(struct key *key, const struct key *source);
+-
+ 	/* update a key of this type (optional)
+ 	 * - this method should call key_payload_reserve() to recalculate the
+ 	 *   quota consumption
+diff -uNrp linux-2.6.14-rc3-keys-lsm/security/keys/key.c linux-2.6.14-rc3-keys-nodup/security/keys/key.c
+--- linux-2.6.14-rc3-keys-lsm/security/keys/key.c	2005-10-07 16:07:17.000000000 +0100
++++ linux-2.6.14-rc3-keys-nodup/security/keys/key.c	2005-10-07 16:59:20.000000000 +0100
+@@ -241,9 +241,9 @@ static inline void key_alloc_serial(stru
+ /*
+  * allocate a key of the specified type
+  * - update the user's quota to reflect the existence of the key
+- * - called from a key-type operation with key_types_sem read-locked by either
+- *   key_create_or_update() or by key_duplicate(); this prevents unregistration
+- *   of the key type
++ * - called from a key-type operation with key_types_sem read-locked by
++ *   key_create_or_update()
++ *   - this prevents unregistration of the key type
+  * - upon return the key is as yet uninstantiated; the caller needs to either
+  *   instantiate the key or discard it before returning
+  */
+@@ -890,56 +890,6 @@ EXPORT_SYMBOL(key_update);
+ 
+ /*****************************************************************************/
+ /*
+- * duplicate a key, potentially with a revised description
+- * - must be supported by the keytype (keyrings for instance can be duplicated)
+- */
+-struct key *key_duplicate(struct key *source, const char *desc)
+-{
+-	struct key *key;
+-	int ret;
+-
+-	key_check(source);
+-
+-	if (!desc)
+-		desc = source->description;
+-
+-	down_read(&key_types_sem);
+-
+-	ret = -EINVAL;
+-	if (!source->type->duplicate)
+-		goto error;
+-
+-	/* allocate and instantiate a key */
+-	key = key_alloc(source->type, desc, current->fsuid, current->fsgid,
+-			source->perm, 0);
+-	if (IS_ERR(key))
+-		goto error_k;
+-
+-	down_read(&source->sem);
+-	ret = key->type->duplicate(key, source);
+-	up_read(&source->sem);
+-	if (ret < 0)
+-		goto error2;
+-
+-	atomic_inc(&key->user->nikeys);
+-	set_bit(KEY_FLAG_INSTANTIATED, &key->flags);
+-
+- error_k:
+-	up_read(&key_types_sem);
+- out:
+-	return key;
+-
+- error2:
+-	key_put(key);
+- error:
+-	up_read(&key_types_sem);
+-	key = ERR_PTR(ret);
+-	goto out;
+-
+-} /* end key_duplicate() */
+-
+-/*****************************************************************************/
+-/*
+  * revoke a key
+  */
+ void key_revoke(struct key *key)
+diff -uNrp linux-2.6.14-rc3-keys-lsm/security/keys/keyring.c linux-2.6.14-rc3-keys-nodup/security/keys/keyring.c
+--- linux-2.6.14-rc3-keys-lsm/security/keys/keyring.c	2005-10-07 16:11:56.000000000 +0100
++++ linux-2.6.14-rc3-keys-nodup/security/keys/keyring.c	2005-10-07 16:59:30.000000000 +0100
+@@ -48,7 +48,6 @@ static inline unsigned keyring_hash(cons
+  */
+ static int keyring_instantiate(struct key *keyring,
+ 			       const void *data, size_t datalen);
+-static int keyring_duplicate(struct key *keyring, const struct key *source);
+ static int keyring_match(const struct key *keyring, const void *criterion);
+ static void keyring_destroy(struct key *keyring);
+ static void keyring_describe(const struct key *keyring, struct seq_file *m);
+@@ -59,7 +58,6 @@ struct key_type key_type_keyring = {
+ 	.name		= "keyring",
+ 	.def_datalen	= sizeof(struct keyring_list),
+ 	.instantiate	= keyring_instantiate,
+-	.duplicate	= keyring_duplicate,
+ 	.match		= keyring_match,
+ 	.destroy	= keyring_destroy,
+ 	.describe	= keyring_describe,
+@@ -120,68 +118,6 @@ static int keyring_instantiate(struct ke
+ 
+ /*****************************************************************************/
+ /*
+- * duplicate the list of subscribed keys from a source keyring into this one
+- */
+-static int keyring_duplicate(struct key *keyring, const struct key *source)
+-{
+-	struct keyring_list *sklist, *klist;
+-	unsigned max;
+-	size_t size;
+-	int loop, ret;
+-
+-	const unsigned limit =
+-		(PAGE_SIZE - sizeof(*klist)) / sizeof(struct key *);
+-
+-	ret = 0;
+-
+-	/* find out how many keys are currently linked */
+-	rcu_read_lock();
+-	sklist = rcu_dereference(source->payload.subscriptions);
+-	max = 0;
+-	if (sklist)
+-		max = sklist->nkeys;
+-	rcu_read_unlock();
+-
+-	/* allocate a new payload and stuff load with key links */
+-	if (max > 0) {
+-		BUG_ON(max > limit);
+-
+-		max = (max + 3) & ~3;
+-		if (max > limit)
+-			max = limit;
+-
+-		ret = -ENOMEM;
+-		size = sizeof(*klist) + sizeof(struct key *) * max;
+-		klist = kmalloc(size, GFP_KERNEL);
+-		if (!klist)
+-			goto error;
+-
+-		/* set links */
+-		rcu_read_lock();
+-		sklist = rcu_dereference(source->payload.subscriptions);
+-
+-		klist->maxkeys = max;
+-		klist->nkeys = sklist->nkeys;
+-		memcpy(klist->keys,
+-		       sklist->keys,
+-		       sklist->nkeys * sizeof(struct key *));
+-
+-		for (loop = klist->nkeys - 1; loop >= 0; loop--)
+-			atomic_inc(&klist->keys[loop]->usage);
+-
+-		rcu_read_unlock();
+-
+-		rcu_assign_pointer(keyring->payload.subscriptions, klist);
+-		ret = 0;
+-	}
+-
+- error:
+-	return ret;
+-
+-} /* end keyring_duplicate() */
+-
+-/*****************************************************************************/
+-/*
+  * match keyrings on their name
+  */
+ static int keyring_match(const struct key *keyring, const void *description)
+diff -uNrp linux-2.6.14-rc3-keys-lsm/security/keys/user_defined.c linux-2.6.14-rc3-keys-nodup/security/keys/user_defined.c
+--- linux-2.6.14-rc3-keys-lsm/security/keys/user_defined.c	2005-10-05 11:37:04.000000000 +0100
++++ linux-2.6.14-rc3-keys-nodup/security/keys/user_defined.c	2005-10-07 16:59:41.000000000 +0100
+@@ -26,7 +26,6 @@
+ struct key_type key_type_user = {
+ 	.name		= "user",
+ 	.instantiate	= user_instantiate,
+-	.duplicate	= user_duplicate,
+ 	.update		= user_update,
+ 	.match		= user_match,
+ 	.destroy	= user_destroy,
+@@ -73,37 +72,6 @@ EXPORT_SYMBOL(user_instantiate);
+ 
+ /*****************************************************************************/
+ /*
+- * duplicate a user defined key
+- * - both keys' semaphores are locked against further modification
+- * - the new key cannot yet be accessed
+- */
+-int user_duplicate(struct key *key, const struct key *source)
+-{
+-	struct user_key_payload *upayload, *spayload;
+-	int ret;
+-
+-	/* just copy the payload */
+-	ret = -ENOMEM;
+-	upayload = kmalloc(sizeof(*upayload) + source->datalen, GFP_KERNEL);
+-	if (upayload) {
+-		spayload = rcu_dereference(source->payload.data);
+-		BUG_ON(source->datalen != spayload->datalen);
+-
+-		upayload->datalen = key->datalen = spayload->datalen;
+-		memcpy(upayload->data, spayload->data, key->datalen);
+-
+-		key->payload.data = upayload;
+-		ret = 0;
+-	}
+-
+-	return ret;
+-
+-} /* end user_duplicate() */
+-
+-EXPORT_SYMBOL(user_duplicate);
+-
+-/*****************************************************************************/
+-/*
+  * dispose of the old data from an updated user defined key
+  */
+ static void user_update_rcu_disposal(struct rcu_head *rcu)

@@ -1,37 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbVJGFWR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbVJGFcx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932233AbVJGFWR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 01:22:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932237AbVJGFWR
+	id S932237AbVJGFcx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 01:32:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbVJGFcx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 01:22:17 -0400
-Received: from xproxy.gmail.com ([66.249.82.203]:12765 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932233AbVJGFWR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 01:22:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=BR0IWIHK/1Yh/Sts9GNPbDVmCQfUmCp5i7GaXdzXVbrK2PW4iBFt3VdNxDsnePANi1RWE92+df4JgAhOm92vCUNs2V87/XznXq27QgrPG/1VCSVmqmfRPe3vJ8tDDfXZ2NxHEH4bNnkR2Mq9Z5AMqngrsdIY0RcDrEB5ON30p+0=
-Message-ID: <4ae3c140510062222r3324c35cpba250612bad48dad@mail.gmail.com>
-Date: Fri, 7 Oct 2005 01:22:16 -0400
-From: Xin Zhao <uszhaoxin@gmail.com>
-Reply-To: Xin Zhao <uszhaoxin@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: how to search file data blocks in kernel 2.6?
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Fri, 7 Oct 2005 01:32:53 -0400
+Received: from idefix.CeNTIE.NET.au ([202.9.6.83]:28314 "HELO idefix")
+	by vger.kernel.org with SMTP id S932237AbVJGFcx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 01:32:53 -0400
+Subject: Re: Suspend to RAM broken with 2.6.13
+From: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050923163200.GC8946@openzaurus.ucw.cz>
+References: <1127347633.25357.49.camel@idefix.homelinux.org>
+	 <20050923163200.GC8946@openzaurus.ucw.cz>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-6/jURP4iUKOD4mmDLKE7"
+Organization: =?ISO-8859-1?Q?Universit=E9?= de Sherbrooke
+Date: Fri, 07 Oct 2005 15:32:25 +1000
+Message-Id: <1128663145.14284.85.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
+--=-6/jURP4iUKOD4mmDLKE7
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
 Hi,
 
-In 2.4, we have structures like clean_pages to organize various cached
-file data. But in 2.6, these structures disappeared. So how to
-determine whether a file data block exists in cache? Can someone
-kindly give me a brief description and point me to the right function
-or linux source code file? Many thanks!
+I've done some further testing on suspend to RAM and it seems like it
+got broken for me between 2.6.11 and 2.6.12. Does that help narrowing
+down the problem?
 
--x
+	Jean-Marc
+
+Le vendredi 23 septembre 2005 =E0 18:32 +0200, Pavel Machek a =E9crit :
+> Hi!
+>=20
+> > I'm experiencing problems with suspend to RAM on my Dell D600 laptop.
+> > When I run Ubuntu's 2.6.10 kernel I have no problem with suspend to RAM=
+.
+> > However, when I run 2.6.13, my laptop sometimes doesn't wake up. It
+> > seems like the longer my uptime, the more likely the problem is to occu=
+r
+> > (which makes it hard to reproduce sometimes). This happens even with a
+> > non-preempt kernel.
+>=20
+> Check if it works with minimal drivers and non-preemptible kernel...
+
+--=-6/jURP4iUKOD4mmDLKE7
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBDRghpdXwABdFiRMQRAqn0AJ44ZEpzoAkP5vJ5+Bwy1SO+HbdgFwCfckHW
+5ImZpluNzp+Xwh4Jz6cU5YQ=
+=bQHr
+-----END PGP SIGNATURE-----
+
+--=-6/jURP4iUKOD4mmDLKE7--

@@ -1,55 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751276AbVJGBBj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751279AbVJGBK7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751276AbVJGBBj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 21:01:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbVJGBBj
+	id S1751279AbVJGBK7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 21:10:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751280AbVJGBK7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 21:01:39 -0400
-Received: from [64.162.99.240] ([64.162.99.240]:41795 "EHLO
-	spamtest2.viacore.net") by vger.kernel.org with ESMTP
-	id S1751266AbVJGBBi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 21:01:38 -0400
-Message-ID: <4345C873.3020800@spamtest.viacore.net>
-Date: Thu, 06 Oct 2005 17:59:31 -0700
-From: Joe Bob Spamtest <joebob@spamtest.viacore.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050923 Fedora/1.7.12-1.5.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Thu, 6 Oct 2005 21:10:59 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:3017 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751279AbVJGBK7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Oct 2005 21:10:59 -0400
+Date: Fri, 7 Oct 2005 02:10:54 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
 To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-CC: linux-kernel@vger.kernel.org
+Cc: Rik van Riel <riel@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org
 Subject: Re: what's next for the linux kernel?
-References: <20051002204703.GG6290@lkcl.net> <4342DC4D.8090908@perkel.com> <Pine.LNX.4.63.0510051150570.3798@cuia.boston.redhat.com> <4343F815.4000208@perkel.com> <20051005161527.GU7992@ftp.linux.org.uk> <4343FE1C.7090700@perkel.com> <20051005193024.GG8011@csclub.uwaterloo.ca> <20051005224847.GN10538@lkcl.net>
-In-Reply-To: <20051005224847.GN10538@lkcl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20051007011053.GZ7992@ftp.linux.org.uk>
+References: <20051003011041.GN6290@lkcl.net> <200510022028.07930.chase.venters@clientec.com> <20051004125955.GQ10538@lkcl.net> <17218.39427.421249.448094@gargle.gargle.HOWL> <20051004161702.GU10538@lkcl.net> <Pine.LNX.4.63.0510041329140.23708@cuia.boston.redhat.com> <20051006000744.GD10538@lkcl.net> <Pine.LNX.4.63.0510061322050.4686@cuia.boston.redhat.com> <20051006192220.GU10538@lkcl.net> <20051007003841.GK10538@lkcl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051007003841.GK10538@lkcl.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Oct 07, 2005 at 01:38:41AM +0100, Luke Kenneth Casson Leighton wrote:
+> self-disempowering
 
-
-Luke Kenneth Casson Leighton wrote:
->  the bastion sftp example i gave which required selinux on top of a much
->  broader set of POSIX file permissions demonstrates the fallacy of your
->  statement.
-> 
->  try to achieve the same effect with POSIX - even POSIX ACLs
->  (uploader only has create and write, not read, not delete;
->   downloader has read and delete, not write, not create)
-> 
->  and you will fail, miserably, because under POSIX, write implies
->  create.
-
-you, however, seem to be missing the point that these are special 
-circumstances. in 99% of all cases, regular unix file permissions are 
-sufficient. when you start needing special silly permissions for things 
-like this, we have special silly tools to accommodate you. Use them. 
-Deal with it.
-
-adding a permissions schema similar to that found in windows/netware 
-would only unneccessarily complicate things, and most likely end up 
-breaking everything.
-
-bottom line: if you want to see support like this in linux, write a 
-filesystem with these capabilities built-in. If you don't want to/can't 
-write it, then stop complaining and continue to use netware (read: shit 
-or get off the pot).
+*plonk*

@@ -1,108 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030261AbVJGOsN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030265AbVJGO6x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030261AbVJGOsN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 10:48:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030265AbVJGOsM
+	id S1030265AbVJGO6x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 10:58:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030298AbVJGO6x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 10:48:12 -0400
-Received: from pat.uio.no ([129.240.130.16]:55281 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1030261AbVJGOsK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 10:48:10 -0400
-Subject: Re: [RFC] atomic create+open
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <E1ENslH-00057W-00@dorka.pomaz.szeredi.hu>
-References: <E1ENWt1-000363-00@dorka.pomaz.szeredi.hu>
-	 <1128616864.8396.32.camel@lade.trondhjem.org>
-	 <E1ENZ8u-0003JS-00@dorka.pomaz.szeredi.hu>
-	 <E1ENZCQ-0003K3-00@dorka.pomaz.szeredi.hu>
-	 <1128619526.16534.8.camel@lade.trondhjem.org>
-	 <E1ENZZl-0003OO-00@dorka.pomaz.szeredi.hu>
-	 <1128620528.16534.26.camel@lade.trondhjem.org>
-	 <E1ENZu1-0003SP-00@dorka.pomaz.szeredi.hu>
-	 <1128623899.31797.14.camel@lade.trondhjem.org>
-	 <E1ENani-0003c4-00@dorka.pomaz.szeredi.hu>
-	 <1128626258.31797.34.camel@lade.trondhjem.org>
-	 <E1ENcAr-0003jz-00@dorka.pomaz.szeredi.hu>
-	 <1128633138.31797.52.camel@lade.trondhjem.org>
-	 <E1ENlI2-0004Gt-00@dorka.pomaz.szeredi.hu>
-	 <1128692289.8519.75.camel@lade.trondhjem.org>
-	 <E1ENslH-00057W-00@dorka.pomaz.szeredi.hu>
-Content-Type: text/plain
-Date: Fri, 07 Oct 2005 10:47:57 -0400
-Message-Id: <1128696477.8583.17.camel@lade.trondhjem.org>
+	Fri, 7 Oct 2005 10:58:53 -0400
+Received: from [221.158.187.116] ([221.158.187.116]:29650 "EHLO
+	comet.deepsky.org") by vger.kernel.org with ESMTP id S1030265AbVJGO6w
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 10:58:52 -0400
+Message-Id: <200510071458.j97Ewbfv000624@comet.deepsky.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] atkbd: fix mispell of the korean alphabet name
+User-Agent: Mail::Sendmail v0.79
+Content-Disposition: inline
+Date: Fri, 7 Oct 2005 23:58:37 +0900
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.905, required 12,
-	autolearn=disabled, AWL 1.09, UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=us-ascii
+To: kj <kernel-janitors@lists.osdl.org>, linux-input@atrey.karlin.mff.cuni.cz
+Content-Transfer-Encoding: 8bit
+From: Jerome Pinot <ngc891@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fr den 07.10.2005 Klokka 15:59 (+0200) skreiv Miklos Szeredi:
-> So, you are saying OPEN has to do the lookup too.  That's OK, but that
-> _does not_ mean that you have to do the OPEN operation from the
-> ->lookup() or ->d_revalidate() methods.  In fact you cannot do the
-> later without getting into trouble over mounts.
-
-You cannot do anything else without getting into trouble over dentry
-races. Given that choice, I prefer to take my chances with the mounts as
-those are rare.
-
-We can add locking in order to exclude the mount races, or we can just
-ignore them. AFAICS there are 2 cases:
-
-  1) umount races
-	refcounting of any in-use dentry is supposed to prevent trouble here.
-
-  2) mount races. Either
-	Just ignore if the filesystem has already opened the file.
-     or
-	Add locking to prevent races.
-
-> > If you end up opening a different file to the one you looked up, things
-> > can get very interesting.
-> 
-> You can replace the inode in ->create_open() if you want to.  Or let
-> the VFS redo the lookup (as if d_revalidate() returned 0).
-
-...but I cannot do that once I get to dentry_open(). You are ignoring
-the case of generic file open without creation.
-
-> > > I know you are thinking of the non-exclusive create case when between
-> > > the lookup and the open the file is removed or transmuted on the
-> > > server..
-> > 
-> > > Yes, it's tricky to sovle, but by no means impossible without atomic
-> > > lookup+open.  E.g. consider this pseudo-code (only the atomic
-> > > open+create case) in open_namei():
-> > 
-> > Firstly, that pseudo-code doesn't deal at all with the race you describe
-> > above. It only deals with lookup + file creation.
-> 
-> It does deal with the race:
-> 
-> __lookup_hash() returns a positive dentry
-> 
-> file is removed on server
-> 
-> "else if (!(flag & O_EXCL) && may_create(dir))" condition is met
-> 
-> __follow_mount() return false
-> 
-> vfs_create_open() calls ->create_open()
-> 
-> NFS does OPEN (O_CREAT), file is opened, dentry replaced (this is not
-> ellaborated in the pseudocode).
-
-Which again only deals with the case of open(O_CREAT). My point is that
-the race exists for the case of generic open().
-
-If you first lookup the dentry in open_namei(), then end up opening a
-completely different file in dentry_open(), then you are fscked.
-
-Cheers,
-  Trond
+From: Jerome Pinot <ngc891@gmail.com>
+ 
+ Fix a mispell on the korean alphabet name in the atkbd subsystem.
+ See http://en.wikipedia.org/wiki/Hangeul#Names for more details.
+ Will make some korean people happy.
+ 
+ Signed-off-by: Jerome Pinot <ngc891@gmail.com>
+ ---
+ 
+ diff --git a/drivers/char/keyboard.c b/drivers/char/keyboard.c
+ --- a/drivers/char/keyboard.c
+ +++ b/drivers/char/keyboard.c
+ @@ -975,7 +975,7 @@ static int emulate_raw(struct vc_data *v
+  			put_queue(vc, 0x1d | up_flag);
+  			put_queue(vc, 0x45 | up_flag);
+  			return 0;
+ -		case KEY_HANGUEL:
+ +		case KEY_HANGEUL:
+  			if (!up_flag) put_queue(vc, 0xf1);
+  			return 0;
+  		case KEY_HANJA:
+ diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+ --- a/drivers/input/keyboard/atkbd.c
+ +++ b/drivers/input/keyboard/atkbd.c
+ @@ -149,7 +149,7 @@ static unsigned char atkbd_unxlate_table
+  #define ATKBD_RET_EMUL0		0xe0
+  #define ATKBD_RET_EMUL1		0xe1
+  #define ATKBD_RET_RELEASE	0xf0
+ -#define ATKBD_RET_HANGUEL	0xf1
+ +#define ATKBD_RET_HANGEUL	0xf1
+  #define ATKBD_RET_HANJA		0xf2
+  #define ATKBD_RET_ERR		0xff
+  
+ @@ -296,7 +296,7 @@ static irqreturn_t atkbd_interrupt(struc
+  
+  		if (atkbd->emul ||
+  		    !(code == ATKBD_RET_EMUL0 || code == ATKBD_RET_EMUL1 ||
+ -		      code == ATKBD_RET_HANGUEL || code == ATKBD_RET_HANJA ||
+ +		      code == ATKBD_RET_HANGEUL || code == ATKBD_RET_HANJA ||
+  		     (code == ATKBD_RET_ERR && !atkbd->err_xl) ||
+  	             (code == ATKBD_RET_BAT && !atkbd->bat_xl))) {
+  			atkbd->release = code >> 7;
+ @@ -325,8 +325,8 @@ static irqreturn_t atkbd_interrupt(struc
+  		case ATKBD_RET_RELEASE:
+  			atkbd->release = 1;
+  			goto out;
+ -		case ATKBD_RET_HANGUEL:
+ -			atkbd_report_key(&atkbd->dev, regs, KEY_HANGUEL, 3);
+ +		case ATKBD_RET_HANGEUL:
+ +			atkbd_report_key(&atkbd->dev, regs, KEY_HANGEUL, 3);
+  			goto out;
+  		case ATKBD_RET_HANJA:
+  			atkbd_report_key(&atkbd->dev, regs, KEY_HANJA, 3);
+ diff --git a/drivers/macintosh/adbhid.c b/drivers/macintosh/adbhid.c
+ --- a/drivers/macintosh/adbhid.c
+ +++ b/drivers/macintosh/adbhid.c
+ @@ -179,7 +179,7 @@ u8 adb_to_linux_keycodes[128] = {
+  	/* 0x65 */ KEY_F9,		/*  67 */
+  	/* 0x66 */ KEY_HANJA,		/* 123 */
+  	/* 0x67 */ KEY_F11,		/*  87 */
+ -	/* 0x68 */ KEY_HANGUEL,		/* 122 */
+ +	/* 0x68 */ KEY_HANGEUL,		/* 122 */
+  	/* 0x69 */ KEY_SYSRQ,		/*  99 */
+  	/* 0x6a */ 0,
+  	/* 0x6b */ KEY_SCROLLLOCK,	/*  70 */
+ diff --git a/drivers/usb/input/hid-debug.h b/drivers/usb/input/hid-debug.h
+ --- a/drivers/usb/input/hid-debug.h
+ +++ b/drivers/usb/input/hid-debug.h
+ @@ -563,7 +563,7 @@ static char *keys[KEY_MAX + 1] = {
+  	[KEY_VOLUMEUP] = "VolumeUp",		[KEY_POWER] = "Power",
+  	[KEY_KPEQUAL] = "KPEqual",		[KEY_KPPLUSMINUS] = "KPPlusMinus",
+  	[KEY_PAUSE] = "Pause",			[KEY_KPCOMMA] = "KPComma",
+ -	[KEY_HANGUEL] = "Hanguel",		[KEY_HANJA] = "Hanja",
+ +	[KEY_HANGEUL] = "Hangeul",		[KEY_HANJA] = "Hanja",
+  	[KEY_YEN] = "Yen",			[KEY_LEFTMETA] = "LeftMeta",
+  	[KEY_RIGHTMETA] = "RightMeta",		[KEY_COMPOSE] = "Compose",
+  	[KEY_STOP] = "Stop",			[KEY_AGAIN] = "Again",
+ diff --git a/include/linux/input.h b/include/linux/input.h
+ --- a/include/linux/input.h
+ +++ b/include/linux/input.h
+ @@ -229,7 +229,7 @@ struct input_absinfo {
+  #define KEY_PAUSE		119
+  
+  #define KEY_KPCOMMA		121
+ -#define KEY_HANGUEL		122
+ +#define KEY_HANGEUL		122
+  #define KEY_HANJA		123
+  #define KEY_YEN			124
+  #define KEY_LEFTMETA		125
 

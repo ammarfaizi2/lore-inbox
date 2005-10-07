@@ -1,66 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030512AbVJGRT7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030493AbVJGRSj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030512AbVJGRT7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 13:19:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030513AbVJGRT7
+	id S1030493AbVJGRSj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 13:18:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030513AbVJGRSi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 13:19:59 -0400
-Received: from mail.suse.de ([195.135.220.2]:52708 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1030512AbVJGRT6 (ORCPT
+	Fri, 7 Oct 2005 13:18:38 -0400
+Received: from zipcon.net ([209.221.136.5]:25480 "HELO zipcon.net")
+	by vger.kernel.org with SMTP id S1030493AbVJGRSi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 13:19:58 -0400
-From: Andi Kleen <ak@suse.de>
-To: Patrick McHardy <kaber@trash.net>
-Subject: Re: [PATCH 0/3] netfilter : 3 patches to boost ip_tables performance
-Date: Fri, 7 Oct 2005 19:21:39 +0200
-User-Agent: KMail/1.8
-Cc: Harald Welte <laforge@netfilter.org>, netdev@vger.kernel.org,
-       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
-       Henrik Nordstrom <hno@marasystems.com>
-References: <432EF0C5.5090908@cosmosbay.com> <20051006175956.GI6642@verdi.suse.de> <4346AB94.4050006@trash.net>
-In-Reply-To: <4346AB94.4050006@trash.net>
+	Fri, 7 Oct 2005 13:18:38 -0400
+Message-ID: <4346ADD7.9010604@beezmo.com>
+Date: Fri, 07 Oct 2005 10:18:15 -0700
+From: William D Waddington <william.waddington@beezmo.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [RFClue] pci_get_device, new driver model
+References: <43469FB8.50303@beezmo.com> <1128706111.18867.8.camel@localhost.localdomain>
+In-Reply-To: <1128706111.18867.8.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510071921.40343.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 07 October 2005 19:08, Patrick McHardy wrote:
+Alan Cox wrote:
+> On Gwe, 2005-10-07 at 09:18 -0700, William D Waddington wrote:
 
-> There are lots of other hooks and conntrack/NAT already have a
-> quite large negative influence on performance. Do you have numbers
-> that show that enabling this actually causes more than a slight
-> decrease in performance? Besides, most distributors enable all
-> these options anyway, so it only makes a difference for a small
-> group of users.
+>>If I just give in to the new driver model how/when do I associate
+>>instance/minor numbers with boards found?  Is it ever possible for
+>>ordinary PCI boards to be (logically) removed and re-added w/out
+>>removing the driver?  If so, how to maintain association between
+>>a particular board and minor number?
+> 
+> 
+> Its up to you how you implement this. One requirement I suspect would be
+> that the boards have unique serial numbers. Most drivers do not retain
+> state if someone unplugs a board, moves it and plugs it back in. Instead
+> they report the old device as "gone" and let user space sort it out
 
-I don't know about other distributions but SUSE at some point
-found that some web benchmarks dramatically improved in the default 
-configuration when local conntrack was off. It was off then since ever.
+I don't have unique serial #s available, but my question wasn't clear.
 
+Is it ever possible that the hotplug stuff will try to remove and re-add
+one (or all) of my boards when there _hasn't_ been a physical change or
+power cycle/reboot/driver reload/whatever.
 
-> > Perhaps there would be other ways to fix this problem without impacting
-> > performance unduly? Can you describe it in detail?
->
-> When an ICMP error is send by the firewall itself, the inner
-> packet needs to be restored to its original state. That means
-> both DNAT and SNAT which might have been applied need to be
-> reversed. DNAT is reversed at places where we usually do
-> SNAT (POST_ROUTING), SNAT is reversed where usually DNAT is
-> done (PRE_ROUTING/LOCAL_OUT). Since locally generated packets
-> never go through PRE_ROUTING, it is done in LOCAL_OUT, which
-> required enabling NAT in LOCAL_OUT unconditionally. It might
-> be possible to move this to some different hook, I didn't
-> investigate it.
+As long as the driver gets reloaded following any logical or physical
+system change I will just go through the instance/minor assignment
+again.  What I don't want is /dev/idr0 /dev/idr1 turning into /dev/idr2
+/dev/idr3 because someone tickled the hotplug controls.
 
-This sounds wrong anyways. You shouldn't be touching conntrack state for ICMPs 
-generated by routers because they can be temporary errors (e.g. during a 
-routing flap when the route moves). Only safe way to handle this is to wait 
-for the timeout which doesn't need local handling. And the firewall cannot be 
-an endhost here.
+Still not quite clear how to assocuiate instance/minor #s with boards.
+Do I just keep a global counter and bump it each time probe (or init)
+gets called for each board?  Hence my worry above.
 
--Andi
+Thanks for the quick reply.
+
+Bill (not sure if this will thread OK)
+--------------------------------------------
+William D Waddington
+Bainbridge Island, WA, USA
+william.waddington@beezmo.com
+--------------------------------------------
+"Even bugs...are unexpected signposts on
+the long road of creativity..." - Ken Burtch
+
 

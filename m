@@ -1,83 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030487AbVJGTMR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030479AbVJGTR0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030487AbVJGTMR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 15:12:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030510AbVJGTMR
+	id S1030479AbVJGTR0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 15:17:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030495AbVJGTR0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 15:12:17 -0400
-Received: from hobbit.corpit.ru ([81.13.94.6]:2908 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S1030487AbVJGTMQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 15:12:16 -0400
-Message-ID: <4346C8A0.7030807@tls.msk.ru>
-Date: Fri, 07 Oct 2005 23:12:32 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
-Organization: Telecom Service, JSC
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050817)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Steven Rostedt <rostedt@goodmis.org>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kernel freeze (not even an OOPS) on remount-ro+umount when using
- quotas
-References: <4346747C.2080903@tls.msk.ru> <Pine.LNX.4.58.0510071017550.7222@localhost.localdomain> <4346A46D.7010105@tls.msk.ru>
-In-Reply-To: <4346A46D.7010105@tls.msk.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 7 Oct 2005 15:17:26 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:32270 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1030479AbVJGTRZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 15:17:25 -0400
+Date: Fri, 7 Oct 2005 20:17:12 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>,
+       Mark Knecht <markknecht@gmail.com>, linux-kernel@vger.kernel.org,
+       linux-pcmcia@lists.infradead.org, Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [patch] pcmcia-shutdown-fix.patch
+Message-ID: <20051007191712.GB22608@flint.arm.linux.org.uk>
+Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
+	Dominik Brodowski <linux@dominikbrodowski.net>,
+	Mark Knecht <markknecht@gmail.com>, linux-kernel@vger.kernel.org,
+	linux-pcmcia@lists.infradead.org,
+	Steven Rostedt <rostedt@goodmis.org>
+References: <20050913100040.GA13103@elte.hu> <20050926070210.GA5157@elte.hu> <20051002151817.GA7228@elte.hu> <5bdc1c8b0510020842p6035b4c0ibbe9aaa76789187d@mail.gmail.com> <5bdc1c8b0510021225y951caf3p3240a05dd2d0247c@mail.gmail.com> <Pine.LNX.4.58.0510061308290.973@localhost.localdomain> <20051007110914.GA30873@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051007110914.GA30873@elte.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Tokarev wrote:
-> Steven Rostedt wrote:
+On Fri, Oct 07, 2005 at 01:09:14PM +0200, Ingo Molnar wrote:
 > 
->> On Fri, 7 Oct 2005, Michael Tokarev wrote:
->>
->>
->>> This is something that has biten me quite successefully
->>> in last few days... ;)
->>>
->>> To make a long story short:
->>>
->>> # mke2fs -j /dev/hda6
->>> # mount -o usrquota /dev/hda6 /mnt
->>> # cp -a /home /mnt                # to make some files to work with
->>> # quotacheck -uc /mnt
->>> # quotaon /mnt
+> * Steven Rostedt <rostedt@goodmis.org> wrote:
 > 
-> Looks like it's more reproduceable when there's some writing
-> going on at this point - after enabling the quotas and before
-> remointing it read-only.  Maybe there's some unwritten quota
-> data left in memory at the remount, or something like that...
-
-Yes it is:
-   # quotaon /mnt; touch /mnt/file; mount -o remount,ro /mnt; umount /mnt
-and voila, instant freeze.
-
->>> # mount -o remount,ro             # this is the important step!
->>> # ls -l /mnt /mnt/home            # to do "something" (also important)
->>> # umount /mnt
->>>
->>> At this time (attempting to umount the read-only filesystem with quotas
->>> enabled), the machine freezes without any messages on the console.  No
->>> OOPS, no response, no nothing - until a hard reboot (powercycle).
-[]
-> And hee-hoo, sysrq works!  Strange I haven't noticied it before - I think
-> I tried it on the laptop, maybe I pressed some wrong button...
+> > Ingo, here's the patch.  This should probably go upstream too since it 
+> > can happen there too.  The pccardd thread has a race in it that it can 
+> > shutdown in the TASK_INTERRUPTIBLE state.  Here's the fix.
 > 
-> Now, as I don't have another PC here @home, only this machine and an ADSL
-> router (small mips-based device wich is also running linux), and I will
-> not have access to another machine(s) till monday... I'll try netconsole
-> to the router.  Damn, why ShiftPgUp does not work as it worked in 2.4?? :(
+> ah, certainly makes sense. Dominik, does it look good to you too? Patch 
+> below is for upstream.
 
-Nope, my ADSL router is too slow to accept printks from netconsole, or
-my PC is too fast (which isn't at all fast - it's a 900MHz VIA C3 system) --
-sysrq+t output captured by the router (simple recvfrom()+write(tmpfs) loop)
-is *very* incomplete, only shows about 50 lines for all the tasks running...
-The device is 150MHz mips-el, texas instruments ar7 (avalanche/sangam) board.
+Looks correct to me (I'm the author of this code.)  Since it's
+a bug fix, please send it upstream ASAP.
 
-Any suggestions on how to improve the logging? :)
-
-But.  With the above sequence of commands, looks like the problem is pretty
-easy to reproduce...
-
-/mjt
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

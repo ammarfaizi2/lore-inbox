@@ -1,63 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030480AbVJGRK1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030512AbVJGRT7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030480AbVJGRK1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 13:10:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030510AbVJGRK1
+	id S1030512AbVJGRT7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 13:19:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030513AbVJGRT7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 13:10:27 -0400
-Received: from mail.collax.com ([213.164.67.137]:10656 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1030468AbVJGRK0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 13:10:26 -0400
-Message-ID: <4346AB94.4050006@trash.net>
-Date: Fri, 07 Oct 2005 19:08:36 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Harald Welte <laforge@netfilter.org>, netdev@vger.kernel.org,
+	Fri, 7 Oct 2005 13:19:59 -0400
+Received: from mail.suse.de ([195.135.220.2]:52708 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030512AbVJGRT6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 13:19:58 -0400
+From: Andi Kleen <ak@suse.de>
+To: Patrick McHardy <kaber@trash.net>
+Subject: Re: [PATCH 0/3] netfilter : 3 patches to boost ip_tables performance
+Date: Fri, 7 Oct 2005 19:21:39 +0200
+User-Agent: KMail/1.8
+Cc: Harald Welte <laforge@netfilter.org>, netdev@vger.kernel.org,
        netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
        Henrik Nordstrom <hno@marasystems.com>
-Subject: Re: [PATCH 0/3] netfilter : 3 patches to boost ip_tables performance
-References: <432EF0C5.5090908@cosmosbay.com> <200509281037.03185.ak@suse.de> <4342B575.9090709@trash.net> <200510051853.32196.ak@suse.de> <20051007023801.GA5953@rama> <20051006175956.GI6642@verdi.suse.de>
-In-Reply-To: <20051006175956.GI6642@verdi.suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <432EF0C5.5090908@cosmosbay.com> <20051006175956.GI6642@verdi.suse.de> <4346AB94.4050006@trash.net>
+In-Reply-To: <4346AB94.4050006@trash.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510071921.40343.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Fri, Oct 07, 2005 at 04:38:02AM +0200, Harald Welte wrote:
-> 
->>On Wed, Oct 05, 2005 at 06:53:31PM +0200, Andi Kleen wrote:
->>
->>>Well you most likely wrecked local performance then when it's enabled.
+On Friday 07 October 2005 19:08, Patrick McHardy wrote:
 
-There are lots of other hooks and conntrack/NAT already have a
-quite large negative influence on performance. Do you have numbers
-that show that enabling this actually causes more than a slight
-decrease in performance? Besides, most distributors enable all
-these options anyway, so it only makes a difference for a small
-group of users.
+> There are lots of other hooks and conntrack/NAT already have a
+> quite large negative influence on performance. Do you have numbers
+> that show that enabling this actually causes more than a slight
+> decrease in performance? Besides, most distributors enable all
+> these options anyway, so it only makes a difference for a small
+> group of users.
 
->>so you would favour a system that incorrectly deals with ICMP errors but
->>has higher performance?
-> 
-> I would favour a system where development doesn't lose sight of performance.
+I don't know about other distributions but SUSE at some point
+found that some web benchmarks dramatically improved in the default 
+configuration when local conntrack was off. It was off then since ever.
 
-I don't think we do.
 
-> Perhaps there would be other ways to fix this problem without impacting
-> performance unduly? Can you describe it in detail? 
+> > Perhaps there would be other ways to fix this problem without impacting
+> > performance unduly? Can you describe it in detail?
+>
+> When an ICMP error is send by the firewall itself, the inner
+> packet needs to be restored to its original state. That means
+> both DNAT and SNAT which might have been applied need to be
+> reversed. DNAT is reversed at places where we usually do
+> SNAT (POST_ROUTING), SNAT is reversed where usually DNAT is
+> done (PRE_ROUTING/LOCAL_OUT). Since locally generated packets
+> never go through PRE_ROUTING, it is done in LOCAL_OUT, which
+> required enabling NAT in LOCAL_OUT unconditionally. It might
+> be possible to move this to some different hook, I didn't
+> investigate it.
 
-When an ICMP error is send by the firewall itself, the inner
-packet needs to be restored to its original state. That means
-both DNAT and SNAT which might have been applied need to be
-reversed. DNAT is reversed at places where we usually do
-SNAT (POST_ROUTING), SNAT is reversed where usually DNAT is
-done (PRE_ROUTING/LOCAL_OUT). Since locally generated packets
-never go through PRE_ROUTING, it is done in LOCAL_OUT, which
-required enabling NAT in LOCAL_OUT unconditionally. It might
-be possible to move this to some different hook, I didn't
-investigate it.
+This sounds wrong anyways. You shouldn't be touching conntrack state for ICMPs 
+generated by routers because they can be temporary errors (e.g. during a 
+routing flap when the route moves). Only safe way to handle this is to wait 
+for the timeout which doesn't need local handling. And the firewall cannot be 
+an endhost here.
+
+-Andi
+

@@ -1,62 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030558AbVJGXKv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964874AbVJGXea@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030558AbVJGXKv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 19:10:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030556AbVJGXKv
+	id S964874AbVJGXea (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 19:34:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964877AbVJGXea
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 19:10:51 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:22476 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1030558AbVJGXKu (ORCPT
+	Fri, 7 Oct 2005 19:34:30 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:39598 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964874AbVJGXe3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 19:10:50 -0400
-Date: Sat, 8 Oct 2005 01:11:26 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc3-rt10 build problem (now rt12)
-Message-ID: <20051007231126.GA17919@elte.hu>
-References: <1128619072.4593.16.camel@cmn3.stanford.edu> <20051007114126.GC857@elte.hu> <1128714933.23974.3.camel@cmn3.stanford.edu> <20051007211654.GA14996@elte.hu> <1128725801.23974.20.camel@cmn3.stanford.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1128725801.23974.20.camel@cmn3.stanford.edu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Fri, 7 Oct 2005 19:34:29 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20051007220426.GC5856@shell0.pdx.osdl.net> 
+References: <20051007220426.GC5856@shell0.pdx.osdl.net>  <19008.1128699684@warthog.cambridge.redhat.com> <11615.1128694058@warthog.cambridge.redhat.com> <26883.1128700665@warthog.cambridge.redhat.com> 
+To: Chris Wright <chrisw@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
+       keyrings@linux-nfs.org, linux-kernel@vger.kernel.org
+Subject: Re: [Keyrings] [PATCH] Keys: Add LSM hooks for key management [try #2] 
+X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
+Date: Sat, 08 Oct 2005 00:34:00 +0100
+Message-ID: <12605.1128728040@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chris Wright <chrisw@osdl.org> wrote:
 
-* Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
-
-> On Fri, 2005-10-07 at 23:16 +0200, Ingo Molnar wrote:
-> > * Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
-> > 
-> > > On Fri, 2005-10-07 at 13:41 +0200, Ingo Molnar wrote:
-> > > > * Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
-> > > > 
-> > > > > Maybe not related to rt10, but still can't build it, ".config" 
-> > > > > attached:
-> > > > 
-> > > > ok, i fixed this in -rt11, does it build for you now?
-> > > 
-> > > rt12 bombs here on the smp/i686 compile (smp config attached):
-> > 
-> > ok - i have fixed these and have released -rt13 - does it work for you?
+> > +{
+> > +	return -1;
+> > +}
 > 
-> The kernel finally builds but I'm getting these on a depmod -a, will
-> check further:
-> 
-> WARNING: /lib/modules/2.6.13-0.7.rdt.rhfc4.ccrma/kernel/drivers/input/gameport/gameport.ko needs unknown symbol local_irq_restore_nort
-> WARNING: /lib/modules/2.6.13-0.7.rdt.rhfc4.ccrma/kernel/drivers/input/gameport/gameport.ko needs unknown symbol local_irq_save_nort
+> No solid reason on that one, might as well be 0 for consistency.
 
-should go away if you add this to drivers/input/gameport.c:
+Grrr! That needs to be zero otherwise it'll deny everything by default. I'd
+fallen over that one and fixed it, but I must've forgotten to rediff the patch
+before submitting it.
 
-#include <linux/interrupt.h>
-
-	Ingo
+David

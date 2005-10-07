@@ -1,51 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932125AbVJGJAT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbVJGJD4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932125AbVJGJAT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 05:00:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbVJGJAS
+	id S932096AbVJGJD4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 05:03:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbVJGJD4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 05:00:18 -0400
-Received: from laf31-5-82-235-130-100.fbx.proxad.net ([82.235.130.100]:15861
-	"EHLO lexbox.fr") by vger.kernel.org with ESMTP id S932125AbVJGJAR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 05:00:17 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Write file corruption - The next
-Content-class: urn:content-classes:message
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Date: Fri, 7 Oct 2005 10:57:33 +0200
-Message-ID: <17AB476A04B7C842887E0EB1F268111E026FF7@xpserver.intra.lexbox.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Write file corruption - The next
-thread-index: AcXLHSfBGyjzVGtsRbWw/e4IvECJCQ==
-From: "David Sanchez" <david.sanchez@lexbox.fr>
-To: <linux-kernel@vger.kernel.org>
+	Fri, 7 Oct 2005 05:03:56 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:6580 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932096AbVJGJDz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 05:03:55 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <Pine.LNX.4.63.0510061204040.26937@excalibur.intercode> 
+References: <Pine.LNX.4.63.0510061204040.26937@excalibur.intercode>  <Pine.LNX.4.63.0510061014540.26656@excalibur.intercode> <Pine.LNX.4.63.0510060404141.25593@excalibur.intercode> <29942.1128529714@warthog.cambridge.redhat.com> <23641.1128596760@warthog.cambridge.redhat.com> <30054.1128611494@warthog.cambridge.redhat.com> 
+To: James Morris <jmorris@namei.org>
+Cc: David Howells <dhowells@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, keyrings@linux-nfs.org,
+       linux-kernel@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [Keyrings] [PATCH] Keys: Add LSM hooks for key management 
+X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
+Date: Fri, 07 Oct 2005 10:03:36 +0100
+Message-ID: <21699.1128675816@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+James Morris <jmorris@namei.org> wrote:
 
-When I copy big file around (500MB) then sometimes the copied file
-differs from the source!
+> > > > Should I expand the permissions mask to include a setattr?
+> > > 
+> > > Possibly for setperm and chown.
+> > 
+> > For setperm?
+> 
+> It changes an attribute of a key, for which you have DAC checks, therefore 
+> you could assume that we'd also want MAC checks.
 
-I try big copy on an AMD dbau1550 and on an EPIA Mini-ITX board using
-several Sata promise controllers (with DMA and without DMA) and using
-the IDE interface (with DMA and without DMA) and the problem still
-appears!!
-
-More I try busybox 1.0 and 1.01 with kernel 2.4 to 2.6.13 and the
-problem still appears... memtest tool doesn't detect error...
-
-I don't know what to do... According to my test, the problem seems to
-come from a software bug: maybe something wrong in the kernel? But if it
-was a kernel bug why it has NOT been detect before? 
-
-Please help me!
+Does it matter that you can take away your own permission to change the
+permissions?
 
 David
-
-

@@ -1,88 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030307AbVJGPHT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030335AbVJGPO2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030307AbVJGPHT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 11:07:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030316AbVJGPHT
+	id S1030335AbVJGPO2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 11:14:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030328AbVJGPO1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 11:07:19 -0400
-Received: from usbb-lacimss1.unisys.com ([192.63.108.51]:17158 "EHLO
-	usbb-lacimss1.unisys.com") by vger.kernel.org with ESMTP
-	id S1030307AbVJGPHS convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 11:07:18 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Fri, 7 Oct 2005 11:14:27 -0400
+Received: from nproxy.gmail.com ([64.233.182.207]:39624 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030335AbVJGPO0 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 11:14:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=GqGDdjDgKuBoyi0j60BM/ixFGTVkspfmqpYDY8Zr2Mq+Um0OD6/NHdyy5F7EAE5DWjF/cJohGIzdLA69UqNnR/vu2ZZF9SkHj5UiXTIE/MTn/sRUnrVz2c77oR0YhGoU/LUUcTPyLr2UmyEp4Xs8jQZphaqWEc8cxvJR1wnuq6g=
+Message-ID: <81b0412b0510070814v769ddb11n7e0d812a09bdf77b@mail.gmail.com>
+Date: Fri, 7 Oct 2005 17:14:25 +0200
+From: Alex Riesen <raa.lkml@gmail.com>
+Reply-To: Alex Riesen <raa.lkml@gmail.com>
+To: Bernd Petrovitsch <bernd@firmix.at>
+Subject: Re: 'Undeleting' an open file
+Cc: Ian Campbell <ijc@hellion.org.uk>, Giuseppe Bilotta <bilotta78@hotpop.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1128696194.31606.53.camel@tara.firmix.at>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH] Fix hotplug cpu on x86_64
-Date: Fri, 7 Oct 2005 10:07:08 -0500
-Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04D9C@USRV-EXCH4.na.uis.unisys.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Fix hotplug cpu on x86_64
-Thread-Index: AcXK9kQOZXmasxEwQqKedfycnLpELgAWnHHg
-From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-To: "Brian Gerst" <bgerst@didntduck.org>,
-       "lkml" <linux-kernel@vger.kernel.org>
-Cc: "Andrew Morton" <akpm@osdl.org>, "Andi Kleen" <ak@suse.de>
-X-OriginalArrivalTime: 07 Oct 2005 15:07:09.0371 (UTC) FILETIME=[C9D1A8B0:01C5CB50]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4TiWy-4HQ-3@gated-at.bofh.it> <4343E611.1000901@perkel.com>
+	 <20051005144441.GC8011@csclub.uwaterloo.ca>
+	 <4343E7AC.6000607@perkel.com>
+	 <20051005153727.994c4709.fmalita@gmail.com>
+	 <43442D19.4050005@perkel.com>
+	 <Pine.LNX.4.58.0510052208130.4308@be1.lrz>
+	 <8qo997np4h6n.1ihs13ptrx2y2.dlg@40tude.net>
+	 <1128695400.28620.42.camel@icampbell-debian>
+	 <1128696194.31606.53.camel@tara.firmix.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Brian Gerst wrote:
-> > Brian Gerst wrote:
-> >> I've been seeing bogus values from /proc/loadavg on an x86-64 SMP 
-> >> kernel (but not UP).
-> >>
-> >> $ cat /proc/loadavg
-> >> -1012098.26 922203.26 -982431.60 1/112 2688
-> >>
-> >> This is in the current git tree.  I'm also seeing strange values in
-> >> /proc/stat:
-> >>
-> >> cpu  2489 40 920 60530 9398 171 288 1844674407350 cpu0 2509 60 940 
-> >> 60550 9418 191 308 0
-> >>
-> >> The first line is the sum of all cpus (I only have one), so it's 
-> >> picking up up bad data from the non-present cpus.  The last value, 
-> >> stolen time, is completely bogus since that value is only 
-> ever used 
-> >> on s390.
-> >>
-> >> It looks to me like there is some problem with how the per-cpu 
-> >> structures are being initialized, or are getting 
-> corrupted.  I have 
-> >> not been able to test i386 SMP yet to see if the problem is x86_64 
-> >> specific.
-> > 
-> > I found the culprit: CPU hotplug.  The problem is that
-> > prefill_possible_map() is called after setup_per_cpu_areas().  This 
-> > leaves the per-cpu data sections for the future cpus uninitialized 
-> > (still pointing to the original per-cpu data, which is initmem).  
-> > Since the cpus exists in cpu_possible_map, for_each_cpu 
-> will iterate 
-> > over them even though the per-cpu data is invalid.
-> 
+On 10/7/05, Bernd Petrovitsch <bernd@firmix.at> wrote:
+> > > > Files are deleted if the last reference is gone. If you play a music file
+> > > > and unlink it while it's playing, it won't be deleted untill the player
+> > > > closes the file, since an open filehandle is a reference.
+> > > BTW, I've always wondered: is there a way to un-unlink such a file?
+> > Access via /proc/PID/fd/* seems to work:
+> Did you try linking it?
+>
 
-I had to do the same in i386, but initially I was trying to avoid the
-whole situation - allocating per_cpu data for all possible processors.
-It seemed wasteful that on the system with NR_CPU=256 or 512 and brought
-up as 4x everything per_cpu is (pre)allocated for all, although it's
-sure convenient. I though at the time it would be great if
-alloc_percpu() mechanism was able to dynamically re-create all the
-per_cpu's for new processors, that way cpu_possible_map woun't probably
-even be needed. Or is it too much trouble for too little gain...
-
-Thanks,
---Natalie
-
-
-> Initialize cpu_possible_map properly in the hotplug cpu case. 
->  Before this, the map was filled in after the per-cpu areas 
-> were set up.  This left those cpus pointing to initmem and 
-> causing invalid data in /proc/stat and elsewhere.
-> 
-> Signed-off-by: Brian Gerst <bgerst@didntduck.org>
-> 
+ln: creating hard link `testfile2' to `/proc/14282/fd/3': Invalid
+cross-device link
+Pity :)
+"cp" works, btw.

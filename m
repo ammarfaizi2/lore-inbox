@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932548AbVJGNZL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932553AbVJGNZb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932548AbVJGNZL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 09:25:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932553AbVJGNZL
+	id S932553AbVJGNZb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 09:25:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932559AbVJGNZb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 09:25:11 -0400
-Received: from f16.mail.ru ([194.67.57.46]:27915 "EHLO f16.mail.ru")
-	by vger.kernel.org with ESMTP id S932548AbVJGNZK (ORCPT
+	Fri, 7 Oct 2005 09:25:31 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:9169 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932553AbVJGNZ3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 09:25:10 -0400
-From: Serge Goodenko <s_goodenko@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] UML + High-Res-Timers on 2.4.25 kernel
+	Fri, 7 Oct 2005 09:25:29 -0400
+Date: Fri, 7 Oct 2005 15:26:06 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-rc3-rt2
+Message-ID: <20051007132606.GA3662@elte.hu>
+References: <20051005105605.GA27075@elte.hu> <5bdc1c8b0510051014q3bb02d5bl80d2c88cc884fe35@mail.gmail.com> <Pine.LNX.4.58.0510060403210.28535@localhost.localdomain> <20051006081055.GA20491@elte.hu> <Pine.LNX.4.58.0510060433010.28535@localhost.localdomain> <20051006084920.GB22397@elte.hu> <Pine.LNX.4.58.0510061122530.418@localhost.localdomain> <Pine.LNX.4.58.0510070706100.6608@localhost.localdomain> <20051007111544.GB857@elte.hu> <Pine.LNX.4.58.0510070810160.7222@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [194.85.70.42]
-Date: Fri, 07 Oct 2005 17:24:58 +0400
-Reply-To: Serge Goodenko <s_goodenko@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E1ENsDa-0008Y1-00.s_goodenko-mail-ru@f16.mail.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0510070810160.7222@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-I am trying to compile 2.4.25 UML kernel together with High Resolution Timers patch and it fails to compile saying the following during linking:
+* Steven Rostedt <rostedt@goodmis.org> wrote:
 
-gcc -Wl,-T,arch/um/link.ld -static -Wl,--wrap,malloc -Wl,--wrap,free -Wl,--wrap,calloc \
-        -o linux arch/um/main.o vmlinux.o -L/usr/lib -lutil
-vmlinux.o(.text+0x2688): In function `schedule_timeout':
-/usr/src/linux-2.4.25/kernel/sched.c:443: undefined reference to `jiffies'
-vmlinux.o(.text+0x26cd):/usr/src/linux-2.4.25/kernel/sched.c:454: undefined reference to `jiffies'
-vmlinux.o(.text+0x27a4): In function `schedule':
-/usr/src/linux-2.4.25/include/linux/sched.h:929: undefined reference to `jiffies'
-vmlinux.o(.text+0x489e): In function `do_fork':
-/usr/src/linux-2.4.25/kernel/fork.c:740: undefined reference to `jiffies'
-vmlinux.o(.text+0xabd5): In function `do_getitimer':
-/usr/src/linux-2.4.25/kernel/itimer.c:55: undefined reference to `jiffies'
-vmlinux.o(.text+0xacd3):/usr/src/linux-2.4.25/kernel/itimer.c:103: more undefined references to `jiffies' follow
-collect2: ld returned 1 exit status
-make: *** [linux] Error 1
+> On Fri, 7 Oct 2005, Ingo Molnar wrote:
+> >
+> > * Steven Rostedt <rostedt@goodmis.org> wrote:
+> >
+> > > I was compiling a kernel in a shell that I set to a priority of 20,
+> > > and it locked up on the bit_spin_lock crap of jbd.  Did you want me to
+> > > send you that patch again that adds another spinlock to the buffer
+> > > head and uses that instead of the bit_spins?
+> >
+> > yeah, please do.
+> >
+> 
+> OK, here it is.  I tested it out by doing what locked up the first 
+> time. Compiling the kernel under a shell with a priority of 20.
+> 
+> It survived a "make clean; make -j2".
+> 
+> -- Steve
+> 
+> patched against 2.6.14-rc3-rt10
 
-is there any solution to this problem?
-or HRT patch is not supposed to work under UML at all?
+thanks - applied.
 
-thanks in advance,
-Serge, MIPT
-Russia
+	Ingo

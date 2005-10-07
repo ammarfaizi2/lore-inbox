@@ -1,59 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751271AbVJGCIL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751319AbVJGCJk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751271AbVJGCIL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Oct 2005 22:08:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbVJGCIL
+	id S1751319AbVJGCJk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Oct 2005 22:09:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbVJGCJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Oct 2005 22:08:11 -0400
-Received: from xenotime.net ([66.160.160.81]:62849 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751271AbVJGCIK (ORCPT
+	Thu, 6 Oct 2005 22:09:40 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:43245 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751319AbVJGCJj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Oct 2005 22:08:10 -0400
-Date: Thu, 6 Oct 2005 19:08:06 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: devesh sharma <devesh28@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Issues in Booting kernel 2.6.13
-Message-Id: <20051006190806.388289ff.rdunlap@xenotime.net>
-In-Reply-To: <309a667c0510052216n784e229ei69b3a3a2a9e93f4b@mail.gmail.com>
-References: <309a667c0510052216n784e229ei69b3a3a2a9e93f4b@mail.gmail.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 6 Oct 2005 22:09:39 -0400
+Message-ID: <4345D8DB.7070901@engr.sgi.com>
+Date: Thu, 06 Oct 2005 19:09:31 -0700
+From: Jay Lan <jlan@engr.sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040906
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Hugh Dickins <hugh@veritas.com>
+Cc: David Wright <daw@sgi.com>, Frank van Maarseveen <frankvm@frankvm.com>,
+       Christoph Lameter <clameter@engr.sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.14-rc2] fix incorrect mm->hiwater_vm and mm->hiwater_rss
+References: <20050921121915.GA14645@janus> <Pine.LNX.4.61.0509211515330.6114@goblin.wat.veritas.com> <43319111.1050803@engr.sgi.com> <Pine.LNX.4.61.0509211802150.8880@goblin.wat.veritas.com> <4331990A.80904@engr.sgi.com> <Pine.LNX.4.61.0509211835190.9340@goblin.wat.veritas.com> <4331A0DA.5030801@engr.sgi.com> <20050921182627.GB17272@janus> <Pine.LNX.4.61.0509211958410.10449@goblin.wat.veritas.com> <4339AED4.8030108@engr.sgi.com> <Pine.LNX.4.61.0509281337420.6830@goblin.wat.veritas.com> <433AD359.8070509@engr.sgi.com> <Pine.LNX.4.61.0510032030320.13179@goblin.wat.veritas.com> <4342F8BA.8050002@engr.sgi.com>
+In-Reply-To: <4342F8BA.8050002@engr.sgi.com>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Oct 2005 10:46:37 +0530 devesh sharma wrote:
-
-> Hi all,
-> I have compiled 2.6.13 kernel on a opteron machine with 1 GB physical
-> memory, Whole compilation gose well but at the last step
-> make install I am getting a warning
-> WARNING: No module mptbase found for kernel 2.6.13, continuing anyway
-> WARNING: No module mptscsih found for kernel 2.6.13, continuing anyway
-
-If you need mpt drivers, there were some changes in the
-FUSION MPT driver options that may be causing them not to be
-built for you as you were expecting.
-
-> now when I boot my kernel, panic is received
-> Booting the kernel.
-> Red Hat nash version 4.1.18 starting
-> mkrootdev: lable / not found
-> mount: error 2 mounting ext3
-> mount: error 2 mounting none
-> switchroot: mount failed : 22
-> umount : /initrd/dev failed : 22
-> kernel panic - not syncing : Attempted to kill init
+Jay Lan wrote:
+> Hugh Dickins wrote:
 > 
-> What could be the problem?
-> I have RHEL 4 base release already installed on which I have compiled
-> this image.
+>>
+>>
+>> See comment in fs/proc/task_mmu.c for the principle.  Could maintain
+>> hiwater_vm straightforwardly, but I think it's easier to remember if
+>> we handle them both in the same way.
+>>
+>> I did look into doing the total_vm increment and calling vm_stat_account
+>> in insert_vm_struct, but concluded it solved no particular problem, and
+>> raised some questions (where architectures, notably ia64, have special
+>> vmas which they may have good reason to leave out of total_vm).
+>>
+>> I haven't cross-checked the mm_struct cacheline rearrangement yet,
+>> it looks plausible, but could easily turn out to straddle boundaries.
+>>
+>> Christoph, Frank, Jay: does this patch look like it fits your needs?
+> 
+> 
+> I am building a kernel with your patch and am going to run some test
+> to compare the statistics.
 
+My testing showed the same number on hiwater_vm, but hiwater_rss from
+Hugh's version was consistently ~1.5% lower. Where was the loss?
 
----
-~Randy
-You can't do anything without having to do something else first.
--- Belefant's Law
+The fact that i have consistent hiwater_vm and hiwater_rss
+in a few hundreds of processes suggests that that test may not
+be a good test for comparing hiwater_vm and hiwater_rss.
+
+I guess it allocates same amount of memory up front in every sub-tests
+processes and never get over it. However, it also showed the way Hugh
+did hiwater_rss in new code missed something.
+
+Tomorrow i will be very busy at my work. I will be back on this
+next Monday.
+
+Thanks,
+  - jay
+
+> 
+> Thanks,
+>  - jay
+> 
+>>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

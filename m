@@ -1,60 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932666AbVJGOVj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964843AbVJGOWP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932666AbVJGOVj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 10:21:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932667AbVJGOVj
+	id S964843AbVJGOWP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 10:22:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964870AbVJGOWP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 10:21:39 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:43672 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932666AbVJGOVi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 10:21:38 -0400
-Date: Fri, 7 Oct 2005 10:21:17 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-To: Michael Tokarev <mjt@tls.msk.ru>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kernel freeze (not even an OOPS) on remount-ro+umount when using
- quotas
-In-Reply-To: <4346747C.2080903@tls.msk.ru>
-Message-ID: <Pine.LNX.4.58.0510071017550.7222@localhost.localdomain>
-References: <4346747C.2080903@tls.msk.ru>
+	Fri, 7 Oct 2005 10:22:15 -0400
+Received: from seanodes.co.fr.clara.net ([212.43.220.11]:1945 "EHLO
+	seanodes.co.fr.clara.net") by vger.kernel.org with ESMTP
+	id S964843AbVJGOWN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 10:22:13 -0400
+Message-ID: <43468482.9070501@seanodes.com>
+Date: Fri, 07 Oct 2005 16:21:54 +0200
+From: Velu Erwan <erwan@seanodes.com>
+User-Agent: Mozilla Thunderbird 1.0.6-6mdk (X11/20050322)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Vladimir B. Savkin" <master@sectorb.msk.ru>
+Cc: Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, john stultz <johnstul@us.ibm.com>,
+       discuss@x86-64.org
+Subject: Re: [discuss] Re: [PATCH] x86-64: Fix bad assumption that dualcore
+ cpus have synced TSCs
+References: <1127157404.3455.209.camel@cog.beaverton.ibm.com> <20051007122624.GA23606@tentacle.sectorb.msk.ru> <200510071431.47245.ak@suse.de> <20051007141532.GA24924@tentacle.sectorb.msk.ru>
+In-Reply-To: <20051007141532.GA24924@tentacle.sectorb.msk.ru>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Vladimir B. Savkin a écrit :
 
-On Fri, 7 Oct 2005, Michael Tokarev wrote:
-
-> This is something that has biten me quite successefully
-> in last few days... ;)
+>Well, I think not.
+>Asus file download page is unavailable since yesterday.
+>  
 >
-> To make a long story short:
->
->  # mke2fs -j /dev/hda6
->  # mount -o usrquota /dev/hda6 /mnt
->  # cp -a /home /mnt                # to make some files to work with
->  # quotacheck -uc /mnt
->  # quotaon /mnt
->  # mount -o remount,ro             # this is the important step!
->  # ls -l /mnt /mnt/home            # to do "something" (also important)
->  # umount /mnt
->
-> At this time (attempting to umount the read-only filesystem with quotas
-> enabled), the machine freezes without any messages on the console.  No
-> OOPS, no response, no nothing - until a hard reboot (powercycle).
->
-> This happens on 2.6.11, 2.6.12 and 2.6.13 kernels -- ie, with "current"
-> kernel release.
->
-
-I just tried this on 2.6.13.1 and was not able to reproduce your hangup.
-Have you tried turning on the nmi watchdog with "nmi_watchdog=2 lapic"?
-
-If this blocks interrupts while it spins, you might be able to see what's
-happening.  Also if interrupts are not blocked, try out sysrq-t and
-friends.
-
--- Steve
-
+Agreed but ftp://ftp.asus.com:/pub/ASUS/mb/socket939/a8v-deluxe is still 
+available ;)

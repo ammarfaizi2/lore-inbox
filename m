@@ -1,72 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030237AbVJGOoE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030257AbVJGOoh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030237AbVJGOoE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 10:44:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030254AbVJGOoE
+	id S1030257AbVJGOoh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 10:44:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030254AbVJGOoh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 10:44:04 -0400
-Received: from rproxy.gmail.com ([64.233.170.205]:60404 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030237AbVJGOoD convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 10:44:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JJQm0rzEzoFKWgO/SLik8I0Uy5E3lqE8Ko7UkJfs0YjFG9PylY5oM5SN4FjpsplPAWt96IIDN4Dy1FT6QRfNnpHUM0V6/g/MBc5iZKiZyFDyx9gT+/BCTQ5+pReNVFLTP1LKuN11HE2vAedOH+bsGxxxHbRo250drH8knI08tag=
-Message-ID: <9ef20ef30510070744l7ff1f1bbweb4da1ceb513f246@mail.gmail.com>
-Date: Fri, 7 Oct 2005 11:44:00 -0300
-From: Gustavo Barbieri <barbieri@gmail.com>
-Reply-To: Gustavo Barbieri <barbieri@gmail.com>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Subject: Re: [ck] Re: [PATCH] vm - swap_prefetch-15
-Cc: Con Kolivas <kernel@kolivas.org>, ck@vds.kolivas.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <84144f020510070431n3b18250eo9d4777844a448b8a@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200510070001.01418.kernel@kolivas.org>
-	 <84144f020510070303u13872f33hb4a40451acea4d5a@mail.gmail.com>
-	 <200510072054.11145.kernel@kolivas.org>
-	 <84144f020510070431n3b18250eo9d4777844a448b8a@mail.gmail.com>
+	Fri, 7 Oct 2005 10:44:37 -0400
+Received: from ns.firmix.at ([62.141.48.66]:18336 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S1030256AbVJGOog (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 10:44:36 -0400
+Subject: Re: 'Undeleting' an open file
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Ian Campbell <ijc@hellion.org.uk>
+Cc: Giuseppe Bilotta <bilotta78@hotpop.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1128695400.28620.42.camel@icampbell-debian>
+References: <4TiWy-4HQ-3@gated-at.bofh.it> <4U0XH-3Gp-39@gated-at.bofh.it>
+	 <E1EMutG-0001Hd-7U@be1.lrz> <87k6gsjalu.fsf@amaterasu.srvr.nix>
+	 <4343E611.1000901@perkel.com> <20051005144441.GC8011@csclub.uwaterloo.ca>
+	 <4343E7AC.6000607@perkel.com> <20051005153727.994c4709.fmalita@gmail.com>
+	 <43442D19.4050005@perkel.com> <Pine.LNX.4.58.0510052208130.4308@be1.lrz>
+	 <8qo997np4h6n.1ihs13ptrx2y2.dlg@40tude.net>
+	 <1128695400.28620.42.camel@icampbell-debian>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Date: Fri, 07 Oct 2005 16:43:14 +0200
+Message-Id: <1128696194.31606.53.camel@tara.firmix.at>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/7/05, Pekka Enberg <penberg@cs.helsinki.fi> wrote:
-> Hi,
->
-> On 10/7/05, Con Kolivas <kernel@kolivas.org> wrote:
-> > Good point, thanks! Any and all feedback is appreciated.
->
-> Well, since you asked :-)
->
-> > +/*
-> > + * How many pages to prefetch at a time. We prefetch SWAP_CLUSTER_MAX *
-> > + * swap_prefetch per PREFETCH_INTERVAL, but prefetch ten times as much at a
-> > + * time in laptop_mode to minimise the time we keep the disk spinning.
-> > + */
-> > +#define PREFETCH_PAGES()     (SWAP_CLUSTER_MAX * swap_prefetch * \
-> > +                                     (1 + 9 * laptop_mode))
->
-> This looks strange. Please either drop the parenthesis from PREFETCH_PAGES or
-> make it a real static inline function.
+On Fri, 2005-10-07 at 15:30 +0100, Ian Campbell wrote:
+> On Fri, 2005-10-07 at 16:14 +0200, Giuseppe Bilotta wrote:
+> > On Wed, 5 Oct 2005 23:05:34 +0200 (CEST), Bodo Eggert wrote:
+> > 
+> > > Files are deleted if the last reference is gone. If you play a music file
+> > > and unlink it while it's playing, it won't be deleted untill the player
+> > > closes the file, since an open filehandle is a reference.
+> > 
+> > BTW, I've always wondered: is there a way to un-unlink such a file?
+> 
+> Access via /proc/PID/fd/* seems to work:
+> 
+> $ echo "Hello World" > testing
+> $ exec 10>>testing
+> $ rm testing
+> $ ls -l /proc/self/fd/
+> total 5
+> lrwx------  1 icampbell icampbell 64 Oct  7 15:28 0 -> /dev/pts/9
+> lrwx------  1 icampbell icampbell 64 Oct  7 15:28 1 -> /dev/pts/9
+> l-wx------  1 icampbell icampbell 64 Oct  7 15:28 10
+> -> /home/icampbell/testing (deleted)
+> lrwx------  1 icampbell icampbell 64 Oct  7 15:28 2 -> /dev/pts/9
+> lr-x------  1 icampbell icampbell 64 Oct  7 15:28 3 -> /proc/31390/fd/
+> $ cat /proc/self/fd/10
+> Hello World
+> $
 
-Or make it a "const static" variable, so compiler will check types and
-everything, but the symbol will not be present in the binary, causing
-no overhead. So it could be:
+Did you try linking it?
 
-const unsigned PREFETCH_PAGES = (SWAP_CLUSTER_MAX * swap_prefetch * \
-        (1 + 9 * laptop_mode));
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 
---
-Gustavo Sverzut Barbieri
----------------------------------------
-Computer Engineer 2001 - UNICAMP
-GPSL - Grupo Pro Software Livre
-Cell..: +55 (19) 9165 8010
-Jabber: gsbarbieri@jabber.org
-  ICQ#: 17249123
-   MSN: barbieri@gmail.com
- Skype: gsbarbieri
-   GPG: 0xB640E1A2 @ wwwkeys.pgp.net

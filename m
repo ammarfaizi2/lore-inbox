@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030539AbVJGSFm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030541AbVJGSGI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030539AbVJGSFm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 14:05:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030542AbVJGSFm
+	id S1030541AbVJGSGI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 14:06:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030543AbVJGSGH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 14:05:42 -0400
-Received: from xproxy.gmail.com ([66.249.82.203]:48165 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030539AbVJGSFl convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 14:05:41 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=l3rBJ6PDXlHZeCaxwFOPMn5CMqsD1znsF4txPBXeM3KaNriyO0yxoOurYtWv3tNHOuJ44OlMZLVnFGGd+LzHr8Qjz8CQLzsHqZNR8NaB+mM334nQq4zBPozA7FXZGVZ07kaaihwbR0C3hnGIlV6TEmKIp5T8+uGj7A9DKR2Zx14=
-Message-ID: <ed5aea430510071105y5f76b5b6qe4d92c829fc3262e@mail.gmail.com>
-Date: Fri, 7 Oct 2005 11:05:40 -0700
-From: David Mosberger-Tang <David.Mosberger@acm.org>
-Reply-To: David Mosberger-Tang <David.Mosberger@acm.org>
-To: "H. J. Lu" <hjl@lucon.org>
-Subject: Re: PATCH: Fix 2.6 kernel for the new ia64 assembler
-Cc: linux ia64 kernel <linux-ia64@vger.kernel.org>,
-       linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051007180119.GA11645@lucon.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051007180119.GA11645@lucon.org>
+	Fri, 7 Oct 2005 14:06:07 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:473 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1030541AbVJGSGG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 14:06:06 -0400
+Subject: Re: [patch 1/2] acpiphp: allocate resources for adapters with
+	bridges
+From: Kristen Accardi <kristen.c.accardi@intel.com>
+To: Greg KH <greg@kroah.com>
+Cc: pcihpd-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net, rajesh.shah@intel.com,
+       len.brown@intel.com
+In-Reply-To: <20051007175903.GA6925@kroah.com>
+References: <1128707147.11020.10.camel@whizzy>
+	 <20051007175903.GA6925@kroah.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 07 Oct 2005 11:05:44 -0700
+Message-Id: <1128708344.11020.15.camel@whizzy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-6) 
+X-OriginalArrivalTime: 07 Oct 2005 18:05:45.0055 (UTC) FILETIME=[BCDD46F0:01C5CB69]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looks fine to me.
+On Fri, 2005-10-07 at 10:59 -0700, Greg KH wrote:
+> On Fri, Oct 07, 2005 at 10:45:46AM -0700, Kristen Accardi wrote:
+> > Allocate resources for adapters with p2p bridges.
+> > 
+> > Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+> > 
+> > diff -uprN -X linux-2.6.14-rc2/Documentation/dontdiff linux-2.6.14-rc2/drivers/pci/hotplug/acpiphp_glue.c linux-2.6.14-rc2-kca1/drivers/pci/hotplug/acpiphp_glue.c
+> > --- linux-2.6.14-rc2/drivers/pci/hotplug/acpiphp_glue.c	2005-08-28 16:41:01.000000000 -0700
+> > +++ linux-2.6.14-rc2-kca1/drivers/pci/hotplug/acpiphp_glue.c	2005-09-28 10:43:15.000000000 -0700
+> > @@ -58,6 +58,9 @@ static LIST_HEAD(bridge_list);
+> >  
+> >  static void handle_hotplug_event_bridge (acpi_handle, u32, void *);
+> >  static void handle_hotplug_event_func (acpi_handle, u32, void *);
+> > +static void acpiphp_sanitize_bus(struct pci_bus *bus);
+> > +static void acpiphp_set_hpp_values(acpi_handle handle, struct pci_bus *bus);
+> 
+> These are not static functions, but functions somewhere else in the
+> kernel.  Please put their function prototypes in a header file
+> somewhere.  You also need to EXPORT_SYMBOL_GPL() them so that the
+> hotplug driver can use them when it is loaded as a module.
+> 
+> thanks,
+> 
+> greg k-h
 
-  --david
+Actually, these functions are present as static functions in
+acpiphp_glue.c, and only used in acpiphp_glue.c, so I don't believe I
+need to export them or make them non static (they are static currently).
 
-On 10/7/05, H. J. Lu <hjl@lucon.org> wrote:
-> The new ia64 assembler uses slot 1 for the offset of a long (2-slot)
-> instruction and the old assembler uses slot 2. The 2.6 kernel assumes
-> slot 2 and won't boot when the new assembler is used:
->
-> http://sources.redhat.com/bugzilla/show_bug.cgi?id=1433
->
-> This patch will work with either slot 1 or 2.
->
->
-> H.J.
->
->
->
-
-
---
-Mosberger Consulting LLC, voice/fax: 510-744-9372,
-http://www.mosberger-consulting.com/
-35706 Runckel Lane, Fremont, CA 94536

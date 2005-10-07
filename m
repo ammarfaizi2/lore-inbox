@@ -1,44 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932673AbVJGVf7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932612AbVJGVrq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932673AbVJGVf7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 17:35:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932675AbVJGVf7
+	id S932612AbVJGVrq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 17:47:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932623AbVJGVrq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 17:35:59 -0400
-Received: from smarthost1.mail.uk.easynet.net ([212.135.6.11]:38669 "EHLO
-	smarthost1.mail.uk.easynet.net") by vger.kernel.org with ESMTP
-	id S932673AbVJGVf7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 17:35:59 -0400
-Message-ID: <4346EA35.90700@uklinux.net>
-Date: Fri, 07 Oct 2005 22:35:49 +0100
-From: Jon Burgess <jburgess@uklinux.net>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: gilbertd@treblig.org
-CC: subbie_subbie@yahoo.com, vherva@vianova.fi, linux-kernel@vger.kernel.org
-Subject: Re: 3Ware 9500S-12 RAID controller -- poor performance
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 7 Oct 2005 17:47:46 -0400
+Received: from mail.kroah.org ([69.55.234.183]:24994 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932612AbVJGVrq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 17:47:46 -0400
+Date: Fri, 7 Oct 2005 14:45:04 -0700
+From: Greg KH <greg@kroah.com>
+To: William D Waddington <william.waddington@beezmo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFClue] pci_get_device, new driver model
+Message-ID: <20051007214504.GA11545@kroah.com>
+References: <43469FB8.50303@beezmo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43469FB8.50303@beezmo.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You might be interested in trying a small tool I wrote to perform some 
-parallel write tests on different linux filesystems.
+On Fri, Oct 07, 2005 at 09:18:00AM -0700, William D Waddington wrote:
+> CRAP, I think this one got sent when half written - sorry about that.
+> 
+> I'm missing something fundamental, and beg your indulgence.  Read LDD 3,
+> googled, and looked around in the code (but not in the right places...)
+> 
+> My current 2.6 drivers support multiple identical PCI boards per host.
+> The init code spins on pci_find_device and assigns instance/minor
+> numbers as boards are found.  Load script insmods the driver,
+> gets the major # from /proc/devices, and creates the /dev/ entries
+> on the fly.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=107661735307313&w=2
+Ick, don't do that.
 
-At the time that I wrote the tool, 18 months ago, both ext3 and 
-reiserfsV3 performed fairly badly at handling concurrent writes and only 
-JFS and XFS excelled. Since then I believe the ext3 performance has been 
-greatly improved due to the block reservation scheme added in 2.6.10. 
-AFAIK the reiserfs performance is only addressed in reiserfsV4.
+> If I convert to pci_get_device, it looks like subsequent calls in the
+> loop "put" the previously "gotten" device.  I need the pci_dev struct
+> to persist for later use (DMA, etc).  Do I take an additional bump to
+> the ref count for each board found before looping, and "put" each when
+> the driver is unloaded?
 
-The test code is fairly trivial and could be easily adapted to simulate 
-other workloads (like a web server) to help to optimise your filesystem 
-and driver performance.
+When you save the pointer off, you need to increment the count.
 
-tiobench provides another threaded IO test http://tiobench.sourceforge.net/
+> If I just give in to the new driver model how/when do I associate
+> instance/minor numbers with boards found?
 
-	Jon
+It doesn't matter.  Use udev to handle your device naming for you, it
+can associate any type of name with any type of device you have, and you
+can do it by topology, location, serial number, or the phase of the
+moon.
 
+> Is it ever possible for ordinary PCI boards to be (logically) removed
+> and re-added w/out removing the driver?
+
+Yes, on hotplug pci systems.  You can fake this out by testing with the
+fakephp driver if you don't have this kind of hardware.
+
+> If so, how to maintain association between a particular board and
+> minor number?
+
+Again, use udev, that's what it is there for.
+
+Hope this helps,
+
+greg k-h

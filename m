@@ -1,59 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750965AbVJGPvw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030467AbVJGPxm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750965AbVJGPvw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 11:51:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030467AbVJGPvw
+	id S1030467AbVJGPxm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 11:53:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030468AbVJGPxm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 11:51:52 -0400
-Received: from ns.firmix.at ([62.141.48.66]:24736 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S1750965AbVJGPvv (ORCPT
+	Fri, 7 Oct 2005 11:53:42 -0400
+Received: from hqemgate03.nvidia.com ([216.228.112.143]:13840 "EHLO
+	HQEMGATE03.nvidia.com") by vger.kernel.org with ESMTP
+	id S1030467AbVJGPxl convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 11:51:51 -0400
-Subject: Re: 'Undeleting' an open file
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Alex Riesen <raa.lkml@gmail.com>
-Cc: Ian Campbell <ijc@hellion.org.uk>, Giuseppe Bilotta <bilotta78@hotpop.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <81b0412b0510070814v769ddb11n7e0d812a09bdf77b@mail.gmail.com>
-References: <4TiWy-4HQ-3@gated-at.bofh.it> <4343E611.1000901@perkel.com>
-	 <20051005144441.GC8011@csclub.uwaterloo.ca> <4343E7AC.6000607@perkel.com>
-	 <20051005153727.994c4709.fmalita@gmail.com> <43442D19.4050005@perkel.com>
-	 <Pine.LNX.4.58.0510052208130.4308@be1.lrz>
-	 <8qo997np4h6n.1ihs13ptrx2y2.dlg@40tude.net>
-	 <1128695400.28620.42.camel@icampbell-debian>
-	 <1128696194.31606.53.camel@tara.firmix.at>
-	 <81b0412b0510070814v769ddb11n7e0d812a09bdf77b@mail.gmail.com>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Date: Fri, 07 Oct 2005 17:51:26 +0200
-Message-Id: <1128700286.31606.56.camel@tara.firmix.at>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Fri, 7 Oct 2005 11:53:41 -0400
+x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: [PATCH 2.6.14-rc3] Fix sata_nv handling of NVIDIA MCP51/55
+Date: Fri, 7 Oct 2005 08:53:39 -0700
+Message-ID: <8E5ACAE05E6B9E44A2903C693A5D4E8A091D1F10@hqemmail02.nvidia.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 2.6.14-rc3] Fix sata_nv handling of NVIDIA MCP51/55
+Thread-Index: AcXLV0uOdc0l5eaYT9CP08JT/N3MHg==
+From: "Andy Currid" <ACurrid@nvidia.com>
+To: <linux-kernel@vger.kernel.org>, "Jeff Garzik" <jgarzik@pobox.com>
+X-OriginalArrivalTime: 07 Oct 2005 15:53:40.0441 (UTC) FILETIME=[496D2490:01C5CB57]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-10-07 at 17:14 +0200, Alex Riesen wrote:
-> On 10/7/05, Bernd Petrovitsch <bernd@firmix.at> wrote:
-> > > > > Files are deleted if the last reference is gone. If you play a music file
-> > > > > and unlink it while it's playing, it won't be deleted untill the player
-> > > > > closes the file, since an open filehandle is a reference.
-> > > > BTW, I've always wondered: is there a way to un-unlink such a file?
-> > > Access via /proc/PID/fd/* seems to work:
-> > Did you try linking it?
-> >
-> 
-> ln: creating hard link `testfile2' to `/proc/14282/fd/3': Invalid
-> cross-device link
-> Pity :)
-> "cp" works, btw.
 
-Yup.
-<anal>But then it is not un-unlinking and you get another file.</anal>
+Patch to fix sata_nv handling of NVIDIA MCP51/55
 
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
 
+Signed-off-by: Andy Currid <acurrid@nvidia.com>
+
+--- linux-2.6.14-rc3/drivers/scsi/sata_nv.c	2003-01-01
+18:08:23.000000000 -0800
++++ linux-2.6.14-rc3devel/drivers/scsi/sata_nv.c	2003-01-01
+18:19:34.000000000 -0800
+@@ -29,6 +29,8 @@
+  *  NV-specific details such as register offsets, SATA phy location,
+  *  hotplug info, etc.
+  *
++ *  0.09
++ *     - Fixed bug introduced by 0.08's MCP51 and MCP55 support.
+  *
+  *  0.08
+  *     - Added support for MCP51 and MCP55.
+@@ -132,9 +134,7 @@ enum nv_host_type
+ 	GENERIC,
+ 	NFORCE2,
+ 	NFORCE3,
+-	CK804,
+-	MCP51,
+-	MCP55
++	CK804
+ };
+ 
+ static struct pci_device_id nv_pci_tbl[] = {
+@@ -153,13 +153,13 @@ static struct pci_device_id nv_pci_tbl[]
+ 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_SATA2,
+ 		PCI_ANY_ID, PCI_ANY_ID, 0, 0, CK804 },
+ 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP51_SATA,
+-		PCI_ANY_ID, PCI_ANY_ID, 0, 0, MCP51 },
++		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
+ 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP51_SATA2,
+-		PCI_ANY_ID, PCI_ANY_ID, 0, 0, MCP51 },
++		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
+ 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_SATA,
+-		PCI_ANY_ID, PCI_ANY_ID, 0, 0, MCP55 },
++		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
+ 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_SATA2,
+-		PCI_ANY_ID, PCI_ANY_ID, 0, 0, MCP55 },
++		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
+ 	{ PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
+ 		PCI_ANY_ID, PCI_ANY_ID,
+ 		PCI_CLASS_STORAGE_IDE<<8, 0xffff00, GENERIC },

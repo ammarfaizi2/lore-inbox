@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030548AbVJGTqr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030545AbVJGTqV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030548AbVJGTqr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 15:46:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030549AbVJGTqr
+	id S1030545AbVJGTqV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 15:46:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030548AbVJGTqV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 15:46:47 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:13533 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030548AbVJGTqq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 15:46:46 -0400
-Date: Fri, 7 Oct 2005 14:46:44 -0500
-To: Paul Mackerras <paulus@samba.org>
-Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/7] ppc64: EEH typos, include files, macros, whitespace
-Message-ID: <20051007194644.GA29826@austin.ibm.com>
-References: <20050930004800.GL29826@austin.ibm.com> <20050930005141.GA6173@austin.ibm.com> <17219.46319.501091.93202@cargo.ozlabs.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17219.46319.501091.93202@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: linas <linas@austin.ibm.com>
+	Fri, 7 Oct 2005 15:46:21 -0400
+Received: from smtp3.nextra.sk ([195.168.1.142]:45582 "EHLO mailhub3.nextra.sk")
+	by vger.kernel.org with ESMTP id S1030545AbVJGTqV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 15:46:21 -0400
+Message-ID: <4346D087.3020505@rainbow-software.org>
+Date: Fri, 07 Oct 2005 21:46:15 +0200
+From: Ondrej Zary <linux@rainbow-software.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Sanchez <david.sanchez@lexbox.fr>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Write file corruption - The next
+References: <17AB476A04B7C842887E0EB1F268111E026FF7@xpserver.intra.lexbox.org>
+In-Reply-To: <17AB476A04B7C842887E0EB1F268111E026FF7@xpserver.intra.lexbox.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 05, 2005 at 09:11:43PM +1000, Paul Mackerras was heard to remark:
+David Sanchez wrote:
+> Hi,
 > 
-> This makes the line go over 80 columns, which seems unnecessary.
-
-Hm, I code with tabstops set to 3, on a 132-column terminal. 
-It looked goofy there.
-
-> > - * @token i/o token, should be address in the form 0xE....
-> > + * @token i/o token, should be address in the form 0xA....
+> When I copy big file around (500MB) then sometimes the copied file
+> differs from the source!
 > 
-> I think the virtual addresses we get from ioremap these days start
-> with 0xD00008...
+> I try big copy on an AMD dbau1550 and on an EPIA Mini-ITX board using
+> several Sata promise controllers (with DMA and without DMA) and using
+> the IDE interface (with DMA and without DMA) and the problem still
+> appears!!
+> 
+> More I try busybox 1.0 and 1.01 with kernel 2.4 to 2.6.13 and the
+> problem still appears... memtest tool doesn't detect error...
 
-Ah, didn't realize this changed. I was simultaneously debugging
-a 2.4 kernel (for other reasons) when I noticed this.  
+Try GoldMemory - http://www.goldmemory.cz - it can sometimes detect a 
+memory error that memtest can't.
 
---linas
+-- 
+Ondrej Zary

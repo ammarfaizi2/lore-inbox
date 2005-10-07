@@ -1,57 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbVJGJls@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbVJGJuo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932278AbVJGJls (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 05:41:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932275AbVJGJls
+	id S932294AbVJGJuo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 05:50:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932275AbVJGJun
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 05:41:48 -0400
-Received: from farad.aurel32.net ([82.232.2.251]:15311 "EHLO farad.aurel32.net")
-	by vger.kernel.org with ESMTP id S932267AbVJGJlr (ORCPT
+	Fri, 7 Oct 2005 05:50:43 -0400
+Received: from mail.suse.de ([195.135.220.2]:12715 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932274AbVJGJun (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 05:41:47 -0400
-Date: Fri, 7 Oct 2005 11:41:35 +0200
-From: Aurelien Jarno <aurelien@aurel32.net>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: Lionel.Bouton@inet6.fr, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: [PATCH 2.6.14-rc3] sis5513.c: enable ATA133 for the SiS965 southbridge
-Message-ID: <20051007094135.GA16386@farad.aurel32.net>
-Mail-Followup-To: Aurelien Jarno <aurelien@aurel32.net>,
-	Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-	Lionel.Bouton@inet6.fr, linux-kernel@vger.kernel.org,
-	linux-ide@vger.kernel.org
-References: <20051005205906.GA4320@farad.aurel32.net> <58cb370e0510060240x2f2e31c3kd0609a06172d86a4@mail.gmail.com>
+	Fri, 7 Oct 2005 05:50:43 -0400
+Date: Fri, 7 Oct 2005 11:50:41 +0200
+From: Andi Kleen <ak@suse.de>
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH] Fix hotplug cpu on x86_64
+Message-ID: <20051007095041.GK6642@verdi.suse.de>
+References: <43437DEB.4080405@didntduck.org> <434414C4.8020109@didntduck.org> <4345F656.9020601@didntduck.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <58cb370e0510060240x2f2e31c3kd0609a06172d86a4@mail.gmail.com>
-X-Mailer: Mutt 1.5.9i (2005-03-13)
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <4345F656.9020601@didntduck.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 06, 2005 at 11:40:15AM +0200, Bartlomiej Zolnierkiewicz wrote:
-> Hi,
-> 
-> On 10/5/05, Aurelien Jarno <aurelien@aurel32.net> wrote:
-> > Hi,
-> >
-> > Here is a patch that enables the ATA133 mode for the SiS965 southbridge
-> > in the SiS5513 driver.
-> 
-> The patch for SIS965(L) support is already in -mm tree:
-> http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc2/2.6.14-rc2-mm2/broken-out/sis5513-support-sis-965l.patch
-> 
+A similar patch is already queued with Linus.
 
-Oops, I forget to look at the -mm tree for this driver. You're right, it
-works, and it seems the patch is cleaner than mine. So please ignore my
-patch.
+I also have a followon patch to avoid the extreme memory wastage
+currently caused by hotplug CPUs (e.g. with NR_CPUS==128 you currently
+lose 4MB of memory just for preallocated per CPU data). But that is
+something for post 2.6.14.
 
-Thanks,
-Aurelien
+See ftp://ftp.firstfloor.org/pub/ak/x86_64/quilt-current/patches/* 
+for the current queue.
 
--- 
-  .''`.  Aurelien Jarno	            | GPG: 1024D/F1BCDB73
- : :' :  Debian developer           | Electrical Engineer
- `. `'   aurel32@debian.org         | aurelien@aurel32.net
-   `-    people.debian.org/~aurel32 | www.aurel32.net
+-Andi

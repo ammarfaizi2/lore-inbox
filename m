@@ -1,64 +1,163 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161002AbVJGWdb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161005AbVJGWnI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161002AbVJGWdb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 18:33:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932679AbVJGWdb
+	id S1161005AbVJGWnI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 18:43:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030558AbVJGWnI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 18:33:31 -0400
-Received: from free.hands.com ([83.142.228.128]:50060 "EHLO free.hands.com")
-	by vger.kernel.org with ESMTP id S932653AbVJGWdb (ORCPT
+	Fri, 7 Oct 2005 18:43:08 -0400
+Received: from agmk.net ([217.73.31.34]:17668 "EHLO mail.agmk.net")
+	by vger.kernel.org with ESMTP id S1030556AbVJGWnH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 18:33:31 -0400
-Date: Fri, 7 Oct 2005 23:33:16 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: linux-kernel@vger.kernel.org
-Subject: Linux Visionaries Mailing List
-Message-ID: <20051007223316.GO18797@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 7 Oct 2005 18:43:07 -0400
+From: =?utf-8?q?Pawe=C5=82_Sikora?= <pluto@agmk.net>
+To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Subject: Re: [2.6] binfmt_elf bug (exposed by klibc).
+Date: Sat, 8 Oct 2005 00:42:58 +0200
+User-Agent: KMail/1.8.2
+Cc: "Horst von Brand" <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org
+References: <200510071533.j97FX9Wp018589@laptop11.inf.utfsm.cl> <200510072320.18263.pluto@agmk.net> <Pine.LNX.4.61.0510071740040.13291@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0510071740040.13291@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-MailScanner-From: lkcl@lkcl.net
+Message-Id: <200510080042.58408.pluto@agmk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-for those people wishing to keep the signal-to-noise ratio higher on LKML,
-andreas has kindly offered to create LVML - Linux Visionaries list.
+Dnia piątek, 7 października 2005 23:47, linux-os (Dick Johnson) napisał:
+> On Fri, 7 Oct 2005, [UTF-8] Pawe? Sikora wrote:
+> > Dnia pitek, 7 padziernika 2005 18:16, linux-os (Dick Johnson) napisa:
+> >> On Fri, 7 Oct 2005, [UTF-8] Pawe? Sikora wrote:
+> >>> Dnia pitek, 7 padziernika 2005 17:33, Horst von Brand napisa:
+> >>>> Pawe Sikora <pluto@agmk.net> wrote:
+> >>>>> Dnia pitek, 7 padziernika 2005 15:46, Horst von Brand napisa:
+> >>>>
+> >>>> [...]
+> >>>>
+> >>>>>> binutils-2.16.91.0.2-4 doesn't. It looks like you are using broken
+> >>>>>> tools.
+> >>>>>
+> >>>>> I didn't say that is (or not) a binutils bug.
+> >>>>> I'm only saying that kernel is killng a valid micro application.
+> >>>>
+> >>>> If binutils generates an invalid executable, it is not a valid
+> >>>> application.
+> >>>
+> >>> ehh, please look again at my first post :)
+> >>> binutils-2.16 generates VALID app with .text/.interp and *without*
+> >>> .bss. kernel always calls padzero() for the .bss section inside
+> >>> load_elf_binary(). finally it kills a valid app. did i miss something?
+> >>
+> >> The executable created by this:
+> >>
+> >> $ cat <<EOF >xxx.S
+> >> .section	.rodata
+> >> hello:		.string	"Hello World!\n"
+> >> STRLEN = .-hello
+> >> WRITE=4
+> >> EXIT=1
+> >>
+> >> .section	.text
+> >> .global		_start
+> >> .type		_start,@function
+> >> _start:
+> >>  	movl	$WRITE, %eax
+> >>  	movl	$1, %ebx
+> >>  	movl	$hello, %ecx
+> >>  	movl	$STRLEN, %edx
+> >>  	int	$0x80
+> >>  	movl	$EXIT, %eax
+> >>  	movl	$0, %ebx
+> >>  	int	$0x80
+> >> .end
+> >> EOF
+> >>
+> >> $ as -o xxx.o xxx.S
+> >> $ ld -o xxx xxx.o
+> >> $ ./xxx
+> >> Hello World!
+> >> $
+> >>
+> >> ... does not have a .bss section. It also runs fine. The linker
+> >> creates a 0 length .bss section starting at label "_end". There
+> >> is no way to prevent it from happening so the kernel's zeroing
+> >> the zero-length section is perfectly valid. Maybe you have
+> >> executed `strip` and stripped out that section? If so, you
+> >> no longer have a valid executable and the kernel should kill
+> >> it.
+> >
+> > What????????????
+> > Do you suggest that stripped executables are invalid?
+>
+> No, not if you don't strip out sections that are required.
 
-subscription details here:
+Please tell me what requires these useless zero-sized .data/.bss sections?
+Kernel design or something else? (e.g. some standard?)
+Maybe H.J.Lu will know better as we are.
 
-	http://blackwhale.net/cgi-bin/mailman/listinfo/lvml
+> > $ cat xxx.S
+> > .section        .text
+> > .global         _start
+> > .type           _start,@function
+> > _start:
+> >        movl    $1, %eax
+> >        movl    $0, %ebx
+> >        int     $0x80
+> > .end
+> >
+> > $ as xxx.S -o xxx.o; ld xxx.o -o xxx -s; objdump -x xxx
+> >
+> > xxx:     file format elf32-i386
+> > xxx
+> > architecture: i386, flags 0x00000102:
+> > EXEC_P, D_PAGED
+> > start address 0x08048094
+> >
+> > Program Header:
+> >    LOAD off    0x00000000 vaddr 0x08048000 paddr 0x08048000 align 2**12
+> >         filesz 0x000000a0 memsz 0x000000a0 flags r-x
+> > PAX_FLAGS off  0x00000000 vaddr 0x00000000 paddr 0x00000000 align 2**2
+> >         filesz 0x00000000 memsz 0x00000000 flags --- 2800
+> >
+> > Sections:
+> > Idx Name          Size      VMA       LMA       File off  Algn
+> >  0 .text         0000000c  08048094  08048094  00000094  2**2
+> >                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+> >
+> > We have a pure executable, no .data/.rodata/.bss/etc.
+>
+> Your executable works fine on 2.6.14 as it should.
 
-the creation and use of the LVML is neither to be taken seriously
-nor lightly.
+Hmm, it's strange. On my 2.6.14rc3-git6 + binutils-2.16.91.0.3
+it doesn't work (vide -EFAULT). On 2.6.13 + binutils-2.15.94.0.2.2
+it works fine (executable contains zero-sized .data + .bss sections).
+(btw. fs/binfmt_elf.c are the same)
 
-the length of time it took the recent distracting thread to die
-after it went AWOL should be of concern to LKML readers.  having the
-LVML around therefore provides a place where LKML readers can
-gently hint, then firmly push, then forcibly shove aberrant posters
-who don't necessarily have a coding clue but who have lots of enthusiasm
-into their own playground, where they may meet like-minded enthusiastic
-and vocal individuals who like to debate ideas.
+> > $ strace ./xxx
+> > execve("./xxx", ["./xxx"], [/* 24 vars */]) = -1 EFAULT (Bad address)
+> > --- SIGSEGV (Segmentation fault) @ 0 (0) ---
+> > +++ killed by SIGSEGV +++
+> >
+> > With hacked kernel it works pretty fine:
+>
+> What did you hack? Patch please.
 
-i'll be honest with you: i am abivalent as to whether the LVML succeeds.
+Ugly workaround: lkml.org/lkml/2005/10/7/48/
 
-what i care about more is that the LKML is a useful specialist resource
-that stays useful.  if LVML helps keep it that way, and helps reduce
-the hostility towards people meandering in who really shouldn't be
-there: great.
+> Did somebody accidentally 
+> screw up some kernel code between 2.6.13 and 2.6.14?
 
-the key to the LVML: posts should ideally begin "i've been thinking..."
-or "i have an idea." and should really be about the linux kernel.  if
-you have lots of experience with other kernels; if you have lots of
-experiences with many programming languages; if you have used a wide
-range of OSes for a couple of decades, your opinions and insights on the
-LVML would be most welcome.
+I think kernel elf loader doesn't handle binaries without .bss.
+Earlier binutils (<2.16) emits zero-sized .data/.bss and problem
+wasn't exposed. Modern binutils doesn't emit useless zero-sized
+.data/.bss sections and kernel kills these binaries.
 
-let's see for example if we can distract Dave Cutler away from
-his games consoles...
+Regards,
+Paweł.
 
 -- 
---
-<a href="http://lkcl.net">http://lkcl.net</a>
---
+The only thing necessary for the triumph of evil
+  is for good men to do nothing.
+                                           - Edmund Burke

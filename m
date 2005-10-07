@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932118AbVJGEnc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbVJGEmq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932118AbVJGEnc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 00:43:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932116AbVJGEnc
+	id S932110AbVJGEmq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 00:42:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbVJGEmq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 00:43:32 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:58562 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932113AbVJGEnb (ORCPT
+	Fri, 7 Oct 2005 00:42:46 -0400
+Received: from koto.vergenet.net ([210.128.90.7]:39591 "EHLO koto.vergenet.net")
+	by vger.kernel.org with ESMTP id S932110AbVJGEmp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 00:43:31 -0400
-Date: Thu, 6 Oct 2005 21:45:41 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Greg KH <greg@kroah.com>
-Cc: netdev@vger.kernel.org, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] linux-net wiki
-Message-ID: <20051006214541.47ac708e@localhost.localdomain>
-In-Reply-To: <20051007012454.GA9509@kroah.com>
-References: <20051006140007.43262f04@dxpl.pdx.osdl.net>
-	<20051007012454.GA9509@kroah.com>
-X-Mailer: Sylpheed-Claws 1.9.14 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 7 Oct 2005 00:42:45 -0400
+Date: Fri, 7 Oct 2005 13:39:27 +0900
+From: Horms <horms@verge.net.au>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Colin Leroy <colin@colino.net>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org, debian-kernel@lists.debian.org
+Subject: Re: [PATCH] hfs, hfsplus: don't leak s_fs_info and fix an oops
+Message-ID: <20051007043924.GA20827@verge.net.au>
+Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
+	Colin Leroy <colin@colino.net>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	linux-kernel@vger.kernel.org, debian-kernel@lists.debian.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Cluestick: seven
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Oct 2005 18:24:54 -0700
-Greg KH <greg@kroah.com> wrote:
+I have been looking over CAN-2005-3109, better known as
+the hfs, hfsplus leak and oops, and I am wondering if the 
+problem is present in 2.4
 
-> On Thu, Oct 06, 2005 at 02:00:07PM -0700, Stephen Hemminger wrote:
-> > There is now a wiki for Linux networking related activities and documentation. 
-> > 	http://linux-net.osdl.org
-> > This is an experiment to see if it would be more useful to have
-> > an online and editable documentation source rather than bits and pieces.
-> 
-> Why not just work with the existing kernelnewbies wiki:
-> 	http://wiki.kernelnewbies.org
-> instead of creating another site?
+I took a look at making a backport, and it seems that
+some of the problems are there, but without a deeper inspection
+of the code its difficult to tell if the problems manifest or not.
 
-Mainly because I started it out for my own linux networking projects,
-then generalized it.  If you look on kernelnewbies you will see that
-there was already an MM wiki.
+For reference, here is the 2.6 variant of the change:
+http://www.kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=945b092011c6af71a0107be96e119c8c08776f3f
+
+I can futher my backport effort and post it for inspection if need be.
+
+-- 
+Horms

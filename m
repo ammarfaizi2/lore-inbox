@@ -1,49 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932543AbVJGNDd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932528AbVJGNNg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932543AbVJGNDd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 09:03:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932528AbVJGNDd
+	id S932528AbVJGNNg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 09:13:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932532AbVJGNNg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 09:03:33 -0400
-Received: from zombie.ncsc.mil ([144.51.88.131]:1687 "EHLO jazzdrum.ncsc.mil")
-	by vger.kernel.org with ESMTP id S932545AbVJGNDd (ORCPT
+	Fri, 7 Oct 2005 09:13:36 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:52560 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S932528AbVJGNNf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 09:03:33 -0400
-Subject: Re: [Keyrings] [PATCH] Keys: Add LSM hooks for key management
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: David Howells <dhowells@redhat.com>
-Cc: Chris Wright <chrisw@osdl.org>, James Morris <jmorris@namei.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       keyrings@linux-nfs.org, linux-kernel@vger.kernel.org
-In-Reply-To: <21866.1128676205@warthog.cambridge.redhat.com>
-References: <20051006175817.GK16352@shell0.pdx.osdl.net>
-	 <Pine.LNX.4.63.0510060346140.25593@excalibur.intercode>
-	 <29942.1128529714@warthog.cambridge.redhat.com>
-	 <20051005211030.GC16352@shell0.pdx.osdl.net>
-	 <23333.1128596048@warthog.cambridge.redhat.com>
-	 <21866.1128676205@warthog.cambridge.redhat.com>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Fri, 07 Oct 2005 08:59:34 -0400
-Message-Id: <1128689974.1450.9.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 7 Oct 2005 09:13:35 -0400
+Message-ID: <4346747C.2080903@tls.msk.ru>
+Date: Fri, 07 Oct 2005 17:13:32 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050817)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: kernel freeze (not even an OOPS) on remount-ro+umount when using
+ quotas
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-10-07 at 10:10 +0100, David Howells wrote:
-> I don't know. As far as I know, setxattr and co can be used to set and
-> retrieve security data on files. I thought it would be desirable to have
-> similar for keys. If not, I can remove both calls/hooks for the time being.
+This is something that has biten me quite successefully
+in last few days... ;)
 
-I agree that enabling security-aware applications to separately label
-specific keys is desirable, so I'd suggest retaining that support, not
-dropping it.  We ultimately need the same support for all kernel objects
-(we lost it for sockets and System V IPC when the old SELinux API had to
-be dropped).  
+To make a long story short:
 
--- 
-Stephen Smalley
-National Security Agency
+ # mke2fs -j /dev/hda6
+ # mount -o usrquota /dev/hda6 /mnt
+ # cp -a /home /mnt                # to make some files to work with
+ # quotacheck -uc /mnt
+ # quotaon /mnt
+ # mount -o remount,ro             # this is the important step!
+ # ls -l /mnt /mnt/home            # to do "something" (also important)
+ # umount /mnt
 
+At this time (attempting to umount the read-only filesystem with quotas
+enabled), the machine freezes without any messages on the console.  No
+OOPS, no response, no nothing - until a hard reboot (powercycle).
+
+This happens on 2.6.11, 2.6.12 and 2.6.13 kernels -- ie, with "current"
+kernel release.
+
+According to the themperature sensors on my test laptop and CPU fan
+behaviour, the kernel goes to some infinite loop at this point, because
+the fan starts rotating in a few sec after the freeze.
+
+This happens with both quota_v1 and quota_v2.
+
+Note that it isn't 100% reproduceable - sometimes it umounts
+ok, sometimes (rare) there's no need to do that pre-final
+'ls -l', and sometimes more "work" is needed around remount-ro
+to trigger the freeze.
+
+The filesystem is ext3.
+
+Any hints on the way to debug the problem?
+
+Thanks.
+
+/mjt

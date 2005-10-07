@@ -1,63 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030520AbVJGRW1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030516AbVJGRXk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030520AbVJGRW1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 13:22:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030519AbVJGRW1
+	id S1030516AbVJGRXk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 13:23:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030519AbVJGRXj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 13:22:27 -0400
-Received: from 223-177.adsl.pool.ew.hu ([193.226.223.177]:8976 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S1030517AbVJGRW0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 13:22:26 -0400
-To: trond.myklebust@fys.uio.no
-CC: miklos@szeredi.hu, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-In-reply-to: <1128700892.8583.46.camel@lade.trondhjem.org> (message from Trond
-	Myklebust on Fri, 07 Oct 2005 12:01:32 -0400)
-Subject: Re: [RFC] atomic create+open
-References: <E1ENWt1-000363-00@dorka.pomaz.szeredi.hu>
-	 <1128616864.8396.32.camel@lade.trondhjem.org>
-	 <E1ENZ8u-0003JS-00@dorka.pomaz.szeredi.hu>
-	 <E1ENZCQ-0003K3-00@dorka.pomaz.szeredi.hu>
-	 <1128619526.16534.8.camel@lade.trondhjem.org>
-	 <E1ENZZl-0003OO-00@dorka.pomaz.szeredi.hu>
-	 <1128620528.16534.26.camel@lade.trondhjem.org>
-	 <E1ENZu1-0003SP-00@dorka.pomaz.szeredi.hu>
-	 <1128623899.31797.14.camel@lade.trondhjem.org>
-	 <E1ENani-0003c4-00@dorka.pomaz.szeredi.hu>
-	 <1128626258.31797.34.camel@lade.trondhjem.org>
-	 <E1ENcAr-0003jz-00@dorka.pomaz.szeredi.hu>
-	 <1128633138.31797.52.camel@lade.trondhjem.org>
-	 <E1ENlI2-0004Gt-00@dorka.pomaz.szeredi.hu>
-	 <1128692289.8519.75.camel@lade.trondhjem.org>
-	 <E1ENslH-00057W-00@dorka.pomaz.szeredi.hu>
-	 <1128696477.8583.17.camel@lade.trondhjem.org>
-	 <E1ENtzt-0005Jb-00@dorka.pomaz.szeredi.hu> <1128700892.8583.46.camel@lade.trondhjem.org>
-Message-Id: <E1ENvth-0005UC-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Fri, 07 Oct 2005 19:20:41 +0200
+	Fri, 7 Oct 2005 13:23:39 -0400
+Received: from ns.suse.de ([195.135.220.2]:4325 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030516AbVJGRXj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 13:23:39 -0400
+From: Andi Kleen <ak@suse.de>
+To: "Protasevich, Natalie" <Natalie.Protasevich@unisys.com>
+Subject: Re: [PATCH] Fix hotplug cpu on x86_64
+Date: Fri, 7 Oct 2005 19:25:30 +0200
+User-Agent: KMail/1.8
+Cc: "Brian Gerst" <bgerst@didntduck.org>,
+       "lkml" <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>
+References: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04D9E@USRV-EXCH4.na.uis.unisys.com>
+In-Reply-To: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04D9E@USRV-EXCH4.na.uis.unisys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510071925.30859.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> As I believe I said earlier, open by inode number/filehandle/... don't
-> exist in the NFSv4 protocol due to the potential for races.
+On Friday 07 October 2005 18:42, Protasevich, Natalie wrote:
 
-I must have missed this.
+> You know Andi, I was imagining something like bitmap or linked list of
+> all per_cpu vars (dynamically updated) and just going through this
+> list... Or something like that (maybe some registration mechanism).
+> There are not too many of them - about two dozens, mostly all sorts of
+> accounting.
 
-Yes, open(O_CREAT) has race problems.  Plain open() doesn't.  So I
-still don't see why you want to use the open-by-name for the
-non-create case.
+Finding them is no problem. We have NR_CPUS arrays for this (or other
+per CPU mechanisms).
 
-> No. There is no race for setattr() etc since they only do one lookup
-> (and they don't set up any state on the server).
-> 
-> open() is the only case where we currently have to look things up twice
-> (and I remind you that the second "lookup" is in fact the OPEN
-> operation).
+The problem is initializing them correct. There are currently two ways to do 
+this: 
 
-If NFS cannot do open by filehandle, then ->open_create() interface is
-not enough obviously.
+- (easier one, used by most subsystems) at startup set up state for 
+all possible CPUs.
+- (complex one) register a CPU notifier and watch for CPU_UP/DOWN
 
-Miklos
+Because of the first way the per cpu data is currently preallocated for
+all hotplug CPUs. You cannot copy the state later because it might be 
+undefined then.
 
+To make dynamic changes of possible map work would require to convert all 
+users to the second more complex way. Probably a lot of work.
+
+>
+> > I think it is better to try to figure out how many hotplug
+> > CPUs are supported, otherwise use a small default.
+>
+> Exactly - such as on ES7000, it can support 32, 64, 128 etc. processors
+> depending on what configuration the customer actually ordered :)... it
+> should be something for that, then NR_CPUS could be either defined as
+> boot parameter or belong to subarchs.
+
+ACPI/mptables has the concept of "disabled" CPUs.  I just bent that a bit
+and use it as the number of possible CPUs.
+
+-Andi
 

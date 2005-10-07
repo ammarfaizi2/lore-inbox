@@ -1,62 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030468AbVJGTHZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030487AbVJGTMR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030468AbVJGTHZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 15:07:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030472AbVJGTHY
+	id S1030487AbVJGTMR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 15:12:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030510AbVJGTMR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 15:07:24 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:15112 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1030468AbVJGTHY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 15:07:24 -0400
-Date: Fri, 7 Oct 2005 20:07:11 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Jiri Slaby <lnx4us@gmail.com>
-Cc: David Vrabel <dvrabel@cantab.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] yenta: fix YENTA && !CARDBUS build
-Message-ID: <20051007190710.GA22608@flint.arm.linux.org.uk>
-Mail-Followup-To: Jiri Slaby <lnx4us@gmail.com>,
-	David Vrabel <dvrabel@cantab.net>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-References: <43414BFB.3090206@arcom.com> <43467B7A.2000903@cantab.net> <3888a5cd0510070934x39288f31m368c58e1dd59d699@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3888a5cd0510070934x39288f31m368c58e1dd59d699@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 7 Oct 2005 15:12:17 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:2908 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S1030487AbVJGTMQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 15:12:16 -0400
+Message-ID: <4346C8A0.7030807@tls.msk.ru>
+Date: Fri, 07 Oct 2005 23:12:32 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+Organization: Telecom Service, JSC
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050817)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Steven Rostedt <rostedt@goodmis.org>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel freeze (not even an OOPS) on remount-ro+umount when using
+ quotas
+References: <4346747C.2080903@tls.msk.ru> <Pine.LNX.4.58.0510071017550.7222@localhost.localdomain> <4346A46D.7010105@tls.msk.ru>
+In-Reply-To: <4346A46D.7010105@tls.msk.ru>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 07, 2005 at 06:34:15PM +0200, Jiri Slaby wrote:
-> On 10/7/05, David Vrabel <dvrabel@cantab.net> wrote:
-> > (Previous patch left a warning.)
-> >
-> > yenta_socket no longer builds if CONFIG_CARDBUS is disabled.  It doesn't
-> > look like ene_tune_bridge is relevant in the !CARDBUS configuration so
-> > I've just disabled it.
-> >
-> >
-> > yenta: fix build if YENTA && !CARDBUS
-> >
-> > (struct pcmcia_socket).tune_bridge only exists if CONFIG_CARDBUS is set but
-> > building yenta_socket without CardBus is valid.
-> >
-> This is a multi-part message in MIME format.
+Michael Tokarev wrote:
+> Steven Rostedt wrote:
 > 
-> Are you really sure, that you have read Documentation/SubmittingPatches and
-> http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt
-> Nobody wants MIMEs. Include it as plain text
+>> On Fri, 7 Oct 2005, Michael Tokarev wrote:
+>>
+>>
+>>> This is something that has biten me quite successefully
+>>> in last few days... ;)
+>>>
+>>> To make a long story short:
+>>>
+>>> # mke2fs -j /dev/hda6
+>>> # mount -o usrquota /dev/hda6 /mnt
+>>> # cp -a /home /mnt                # to make some files to work with
+>>> # quotacheck -uc /mnt
+>>> # quotaon /mnt
+> 
+> Looks like it's more reproduceable when there's some writing
+> going on at this point - after enabling the quotas and before
+> remointing it read-only.  Maybe there's some unwritten quota
+> data left in memory at the remount, or something like that...
 
-You're providing misleading advice.  mimes are acceptable provided
-each part is text/plain.  And some folk need to attach rather than
-inline patches to prevent white space damage from broken mailers.
+Yes it is:
+   # quotaon /mnt; touch /mnt/file; mount -o remount,ro /mnt; umount /mnt
+and voila, instant freeze.
 
-And indeed David's were text/plain so there isn't a problem.
+>>> # mount -o remount,ro             # this is the important step!
+>>> # ls -l /mnt /mnt/home            # to do "something" (also important)
+>>> # umount /mnt
+>>>
+>>> At this time (attempting to umount the read-only filesystem with quotas
+>>> enabled), the machine freezes without any messages on the console.  No
+>>> OOPS, no response, no nothing - until a hard reboot (powercycle).
+[]
+> And hee-hoo, sysrq works!  Strange I haven't noticied it before - I think
+> I tried it on the laptop, maybe I pressed some wrong button...
+> 
+> Now, as I don't have another PC here @home, only this machine and an ADSL
+> router (small mips-based device wich is also running linux), and I will
+> not have access to another machine(s) till monday... I'll try netconsole
+> to the router.  Damn, why ShiftPgUp does not work as it worked in 2.4?? :(
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Nope, my ADSL router is too slow to accept printks from netconsole, or
+my PC is too fast (which isn't at all fast - it's a 900MHz VIA C3 system) --
+sysrq+t output captured by the router (simple recvfrom()+write(tmpfs) loop)
+is *very* incomplete, only shows about 50 lines for all the tasks running...
+The device is 150MHz mips-el, texas instruments ar7 (avalanche/sangam) board.
+
+Any suggestions on how to improve the logging? :)
+
+But.  With the above sequence of commands, looks like the problem is pretty
+easy to reproduce...
+
+/mjt

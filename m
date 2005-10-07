@@ -1,62 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161003AbVJGWOS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161002AbVJGWdb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161003AbVJGWOS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 18:14:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030558AbVJGWOR
+	id S1161002AbVJGWdb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 18:33:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932679AbVJGWdb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 18:14:17 -0400
-Received: from mail.arava.co.il ([212.29.226.3]:1722 "HELO arava.co.il")
-	by vger.kernel.org with SMTP id S1030556AbVJGWOR (ORCPT
+	Fri, 7 Oct 2005 18:33:31 -0400
+Received: from free.hands.com ([83.142.228.128]:50060 "EHLO free.hands.com")
+	by vger.kernel.org with ESMTP id S932653AbVJGWdb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 18:14:17 -0400
-Date: Sat, 8 Oct 2005 01:14:18 +0300 (IDT)
-From: Matan Ziv-Av <matan@svgalib.org>
-X-X-Sender: matan@matan.home
-To: Dave Airlie <airlied@gmail.com>
-cc: jmerkey <jmerkey@utah-nac.org>, Nix <nix@esperi.org.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Why no XML in the Kernel?
-In-Reply-To: <21d7e9970510051646q4074813cwfa843e6ad1b7ce44@mail.gmail.com>
-Message-ID: <Pine.LNX.4.63.0510080101160.13084@matan.home>
-References: <20051002094142.65022.qmail@web51012.mail.yahoo.com> 
- <87oe66r62s.fsf@amaterasu.srvr.nix>  <20051003153515.GW7992@ftp.linux.org.uk>
-  <87zmpqbcws.fsf@amaterasu.srvr.nix>  <21d7e9970510051411y2f2871a7mafa2e96cce277657@mail.gmail.com>
-  <87br23odls.fsf@amaterasu.srvr.nix>  <21d7e9970510051557u42ae32f0rca46e951c5da536f@mail.gmail.com>
-  <8764sbwoj7.fsf@amaterasu.srvr.nix>  <21d7e9970510051636g29012748o77124c1c1abc9259@mail.gmail.com>
-  <43445238.5030900@utah-nac.org> <21d7e9970510051646q4074813cwfa843e6ad1b7ce44@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 7 Oct 2005 18:33:31 -0400
+Date: Fri, 7 Oct 2005 23:33:16 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: linux-kernel@vger.kernel.org
+Subject: Linux Visionaries Mailing List
+Message-ID: <20051007223316.GO18797@lkcl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-hands-com-MailScanner: Found to be clean
+X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Oct 2005, Dave Airlie wrote:
+for those people wishing to keep the signal-to-noise ratio higher on LKML,
+andreas has kindly offered to create LVML - Linux Visionaries list.
 
->> How about putting the ability to disable graphics mode in the kernel and
->> moving this capability from X, and saving the video state. Would make
->> kernel debuggers work a hell of a lot better when the damn thing crashes
->> in X in the kernel. At least then the screen won;t be locked up (of
->> course you can type "reboot " from memory while the system is still hung
->> in X).
+subscription details here:
 
-You don't need to reboot. You can use some tools to restore text 
-mode - svgalib comes with three such tools, that work in large majority
-of the cases:
-textmode (on all platforms), mode3 and vga_reset (i386 only).
+	http://blackwhale.net/cgi-bin/mailman/listinfo/lvml
 
-> It's been on the todo list for a long while... there's been talks at
-> different events about it, there'll be a talk at LCA from me again
-> about it and what has happened since KS (not a huge amount)....
->
-> We've nearly all agreed on a direction, we haven't found anyone with
-> the bandwidth to actually move things in that direction... (or at
-> least no-one has said to me heres some money  go do this thing... :-)
+the creation and use of the LVML is neither to be taken seriously
+nor lightly.
 
-I intend to put that part of svgalib in kernel (restoring modes), 
-since it would make the most complicated part of svgalib -- console 
-switch handling -- much simpler. The problem is that svgalib only 
-handles video mode, totally ignoring 2D/3D engines, so it might
+the length of time it took the recent distracting thread to die
+after it went AWOL should be of concern to LKML readers.  having the
+LVML around therefore provides a place where LKML readers can
+gently hint, then firmly push, then forcibly shove aberrant posters
+who don't necessarily have a coding clue but who have lots of enthusiasm
+into their own playground, where they may meet like-minded enthusiastic
+and vocal individuals who like to debate ideas.
 
+i'll be honest with you: i am abivalent as to whether the LVML succeeds.
+
+what i care about more is that the LKML is a useful specialist resource
+that stays useful.  if LVML helps keep it that way, and helps reduce
+the hostility towards people meandering in who really shouldn't be
+there: great.
+
+the key to the LVML: posts should ideally begin "i've been thinking..."
+or "i have an idea." and should really be about the linux kernel.  if
+you have lots of experience with other kernels; if you have lots of
+experiences with many programming languages; if you have used a wide
+range of OSes for a couple of decades, your opinions and insights on the
+LVML would be most welcome.
+
+let's see for example if we can distract Dave Cutler away from
+his games consoles...
 
 -- 
-Matan Ziv-Av.                         matan@svgalib.org
-
+--
+<a href="http://lkcl.net">http://lkcl.net</a>
+--

@@ -1,69 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030493AbVJGRSj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030520AbVJGRW1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030493AbVJGRSj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 13:18:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030513AbVJGRSi
+	id S1030520AbVJGRW1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 13:22:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030519AbVJGRW1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 13:18:38 -0400
-Received: from zipcon.net ([209.221.136.5]:25480 "HELO zipcon.net")
-	by vger.kernel.org with SMTP id S1030493AbVJGRSi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 13:18:38 -0400
-Message-ID: <4346ADD7.9010604@beezmo.com>
-Date: Fri, 07 Oct 2005 10:18:15 -0700
-From: William D Waddington <william.waddington@beezmo.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [RFClue] pci_get_device, new driver model
-References: <43469FB8.50303@beezmo.com> <1128706111.18867.8.camel@localhost.localdomain>
-In-Reply-To: <1128706111.18867.8.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 7 Oct 2005 13:22:27 -0400
+Received: from 223-177.adsl.pool.ew.hu ([193.226.223.177]:8976 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S1030517AbVJGRW0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 13:22:26 -0400
+To: trond.myklebust@fys.uio.no
+CC: miklos@szeredi.hu, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+In-reply-to: <1128700892.8583.46.camel@lade.trondhjem.org> (message from Trond
+	Myklebust on Fri, 07 Oct 2005 12:01:32 -0400)
+Subject: Re: [RFC] atomic create+open
+References: <E1ENWt1-000363-00@dorka.pomaz.szeredi.hu>
+	 <1128616864.8396.32.camel@lade.trondhjem.org>
+	 <E1ENZ8u-0003JS-00@dorka.pomaz.szeredi.hu>
+	 <E1ENZCQ-0003K3-00@dorka.pomaz.szeredi.hu>
+	 <1128619526.16534.8.camel@lade.trondhjem.org>
+	 <E1ENZZl-0003OO-00@dorka.pomaz.szeredi.hu>
+	 <1128620528.16534.26.camel@lade.trondhjem.org>
+	 <E1ENZu1-0003SP-00@dorka.pomaz.szeredi.hu>
+	 <1128623899.31797.14.camel@lade.trondhjem.org>
+	 <E1ENani-0003c4-00@dorka.pomaz.szeredi.hu>
+	 <1128626258.31797.34.camel@lade.trondhjem.org>
+	 <E1ENcAr-0003jz-00@dorka.pomaz.szeredi.hu>
+	 <1128633138.31797.52.camel@lade.trondhjem.org>
+	 <E1ENlI2-0004Gt-00@dorka.pomaz.szeredi.hu>
+	 <1128692289.8519.75.camel@lade.trondhjem.org>
+	 <E1ENslH-00057W-00@dorka.pomaz.szeredi.hu>
+	 <1128696477.8583.17.camel@lade.trondhjem.org>
+	 <E1ENtzt-0005Jb-00@dorka.pomaz.szeredi.hu> <1128700892.8583.46.camel@lade.trondhjem.org>
+Message-Id: <E1ENvth-0005UC-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Fri, 07 Oct 2005 19:20:41 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Gwe, 2005-10-07 at 09:18 -0700, William D Waddington wrote:
+> As I believe I said earlier, open by inode number/filehandle/... don't
+> exist in the NFSv4 protocol due to the potential for races.
 
->>If I just give in to the new driver model how/when do I associate
->>instance/minor numbers with boards found?  Is it ever possible for
->>ordinary PCI boards to be (logically) removed and re-added w/out
->>removing the driver?  If so, how to maintain association between
->>a particular board and minor number?
+I must have missed this.
+
+Yes, open(O_CREAT) has race problems.  Plain open() doesn't.  So I
+still don't see why you want to use the open-by-name for the
+non-create case.
+
+> No. There is no race for setattr() etc since they only do one lookup
+> (and they don't set up any state on the server).
 > 
-> 
-> Its up to you how you implement this. One requirement I suspect would be
-> that the boards have unique serial numbers. Most drivers do not retain
-> state if someone unplugs a board, moves it and plugs it back in. Instead
-> they report the old device as "gone" and let user space sort it out
+> open() is the only case where we currently have to look things up twice
+> (and I remind you that the second "lookup" is in fact the OPEN
+> operation).
 
-I don't have unique serial #s available, but my question wasn't clear.
+If NFS cannot do open by filehandle, then ->open_create() interface is
+not enough obviously.
 
-Is it ever possible that the hotplug stuff will try to remove and re-add
-one (or all) of my boards when there _hasn't_ been a physical change or
-power cycle/reboot/driver reload/whatever.
-
-As long as the driver gets reloaded following any logical or physical
-system change I will just go through the instance/minor assignment
-again.  What I don't want is /dev/idr0 /dev/idr1 turning into /dev/idr2
-/dev/idr3 because someone tickled the hotplug controls.
-
-Still not quite clear how to assocuiate instance/minor #s with boards.
-Do I just keep a global counter and bump it each time probe (or init)
-gets called for each board?  Hence my worry above.
-
-Thanks for the quick reply.
-
-Bill (not sure if this will thread OK)
---------------------------------------------
-William D Waddington
-Bainbridge Island, WA, USA
-william.waddington@beezmo.com
---------------------------------------------
-"Even bugs...are unexpected signposts on
-the long road of creativity..." - Ken Burtch
+Miklos
 
 

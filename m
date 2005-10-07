@@ -1,51 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030432AbVJGPlr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030404AbVJGPlj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030432AbVJGPlr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 11:41:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030442AbVJGPlr
+	id S1030404AbVJGPlj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 11:41:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030432AbVJGPlj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 11:41:47 -0400
-Received: from agmk.net ([217.73.31.34]:3857 "EHLO mail.agmk.net")
-	by vger.kernel.org with ESMTP id S1030432AbVJGPlr (ORCPT
+	Fri, 7 Oct 2005 11:41:39 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:48092 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030404AbVJGPli (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 11:41:47 -0400
-From: =?utf-8?q?Pawe=C5=82_Sikora?= <pluto@agmk.net>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Subject: Re: [2.6] binfmt_elf bug (exposed by klibc).
-Date: Fri, 7 Oct 2005 17:41:41 +0200
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
-References: <200510071533.j97FX9Wp018589@laptop11.inf.utfsm.cl>
-In-Reply-To: <200510071533.j97FX9Wp018589@laptop11.inf.utfsm.cl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200510071741.41929.pluto@agmk.net>
+	Fri, 7 Oct 2005 11:41:38 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <11615.1128694058@warthog.cambridge.redhat.com> 
+References: <11615.1128694058@warthog.cambridge.redhat.com> 
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: keyrings@linux-nfs.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] Keys: Possessor permissions should be additive
+X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
+Date: Fri, 07 Oct 2005 16:41:24 +0100
+Message-ID: <19008.1128699684@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dnia piątek, 7 października 2005 17:33, Horst von Brand napisał:
-> Paweł Sikora <pluto@agmk.net> wrote:
-> > Dnia piątek, 7 października 2005 15:46, Horst von Brand napisał:
->
-> [...]
->
-> > > binutils-2.16.91.0.2-4 doesn't. It looks like you are using broken
-> > > tools.
-> >
-> > I didn't say that is (or not) a binutils bug.
-> > I'm only saying that kernel is killng a valid micro application.
->
-> If binutils generates an invalid executable, it is not a valid application.
 
-ehh, please look again at my first post :)
-binutils-2.16 generates VALID app with .text/.interp and *without* .bss.
-kernel always calls padzero() for the .bss section inside load_elf_binary().
-finally it kills a valid app. did i miss something?
+This patch makes the possessor permissions on a key additive with
+user/group/other permissions on the same key.
 
--- 
-The only thing necessary for the triumph of evil
-  is for good men to do nothing.
-                                           - Edmund Burke
+This permits extra rights to be granted to the possessor of a key without
+taking away any rights conferred by them owning the key or having common group
+membership.
+
+This needs to be applied on top of the patch ensubjected:
+
+	[PATCH] Keys: Split key permissions checking into a .c file 
+
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
+warthog>diffstat -p1 keys-addperm-2614rc3.diff
+ security/keys/permission.c |   12 ++++++------
+ 1 files changed, 6 insertions(+), 6 deletions(-)
+
+diff -uNrp linux-2.6.14-rc3-keys-split/security/keys/permission.c linux-2.6.14-rc3-keys-addperm/security/keys/permission.c
+--- linux-2.6.14-rc3-keys-split/security/keys/permission.c	2005-10-07 14:06:35.000000000 +0100
++++ linux-2.6.14-rc3-keys-addperm/security/keys/permission.c	2005-10-07 16:29:59.000000000 +0100
+@@ -27,12 +27,6 @@ int key_task_permission(const key_ref_t 
+ 
+ 	key = key_ref_to_ptr(key_ref);
+ 
+-	/* use the top 8-bits of permissions for keys the caller possesses */
+-	if (is_key_possessed(key_ref)) {
+-		kperm = key->perm >> 24;
+-		goto use_these_perms;
+-	}
+-
+ 	/* use the second 8-bits of permissions for keys the caller owns */
+ 	if (key->uid == context->fsuid) {
+ 		kperm = key->perm >> 16;
+@@ -61,6 +55,12 @@ int key_task_permission(const key_ref_t 
+ 	kperm = key->perm;
+ 
+ use_these_perms:
++	/* use the top 8-bits of permissions for keys the caller possesses
++	 * - possessor permissions are additive with other permissions
++	 */
++	if (is_key_possessed(key_ref))
++		kperm |= key->perm >> 24;
++
+ 	kperm = kperm & perm & KEY_ALL;
+ 
+ 	return kperm == perm;
+

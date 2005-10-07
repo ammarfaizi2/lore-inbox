@@ -1,37 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbVJGJuo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932268AbVJGJuU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932294AbVJGJuo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 05:50:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932275AbVJGJun
+	id S932268AbVJGJuU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 05:50:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932274AbVJGJuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 05:50:43 -0400
-Received: from mail.suse.de ([195.135.220.2]:12715 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932274AbVJGJun (ORCPT
+	Fri, 7 Oct 2005 05:50:20 -0400
+Received: from wproxy.gmail.com ([64.233.184.207]:24753 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932268AbVJGJuT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 05:50:43 -0400
-Date: Fri, 7 Oct 2005 11:50:41 +0200
-From: Andi Kleen <ak@suse.de>
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH] Fix hotplug cpu on x86_64
-Message-ID: <20051007095041.GK6642@verdi.suse.de>
-References: <43437DEB.4080405@didntduck.org> <434414C4.8020109@didntduck.org> <4345F656.9020601@didntduck.org>
+	Fri, 7 Oct 2005 05:50:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=blJpBbL8tCdqivvY6M3SHLk4HfOzdbxfvV/9z83705qnvYr1d7DB6rEAxApPHCthpJaSmdkC0wJg7I0PHp78NKMvLiLWKMgzOdDPkctaJI7aaKMaP031ItuVKvfijkochfRBIwvofYf5rF2sBkHtXLOnz7wy6YDdixykCp245zA=
+Date: Fri, 7 Oct 2005 14:01:45 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] gfp flags annotations - part 1
+Message-ID: <20051007100145.GA27310@mipter.zuzino.mipt.ru>
+References: <20050905212026.GL5155@ZenIV.linux.org.uk> <20050907183131.GF5155@ZenIV.linux.org.uk> <20050912191744.GN25261@ZenIV.linux.org.uk> <20050912192049.GO25261@ZenIV.linux.org.uk> <20050930120831.GI7992@ftp.linux.org.uk> <20051004203009.GQ7992@ftp.linux.org.uk> <20051005202904.GA27229@mipter.zuzino.mipt.ru> <20051006201534.GX7992@ftp.linux.org.uk> <20051007025644.GA11132@kroah.com> <20051007064604.GB7992@ftp.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4345F656.9020601@didntduck.org>
+In-Reply-To: <20051007064604.GB7992@ftp.linux.org.uk>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A similar patch is already queued with Linus.
+On Fri, Oct 07, 2005 at 07:46:04AM +0100, Al Viro wrote:
+> --- RC14-rc3-git4-linus-delta/drivers/s390/scsi/zfcp_aux.c
+> +++ current/drivers/s390/scsi/zfcp_aux.c
 
-I also have a followon patch to avoid the extreme memory wastage
-currently caused by hotplug CPUs (e.g. with NR_CPUS==128 you currently
-lose 4MB of memory just for preallocated per CPU data). But that is
-something for post 2.6.14.
+>  static void *
+> -zfcp_mempool_alloc(unsigned int __nocast gfp_mask, void *size)
+> +zfcp_mempool_alloc(gfp_t gfp_mask, void *size)
+>  {
+>  	return kmalloc((size_t) size, gfp_mask);
+>  }
 
-See ftp://ftp.firstfloor.org/pub/ak/x86_64/quilt-current/patches/* 
-for the current queue.
+Lovely. Yes, they cast sizeof() to void * in all calls.
 
--Andi

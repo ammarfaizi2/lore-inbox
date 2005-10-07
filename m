@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964913AbVJGXzO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964919AbVJGXzy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964913AbVJGXzO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 19:55:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964916AbVJGXzI
+	id S964919AbVJGXzy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 19:55:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964933AbVJGXzr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 19:55:08 -0400
-Received: from mail.kroah.org ([69.55.234.183]:7638 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S964913AbVJGXzE (ORCPT
+	Fri, 7 Oct 2005 19:55:47 -0400
+Received: from mail.kroah.org ([69.55.234.183]:25558 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964919AbVJGXzY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 19:55:04 -0400
-Date: Fri, 7 Oct 2005 16:53:53 -0700
+	Fri, 7 Oct 2005 19:55:24 -0400
+Date: Fri, 7 Oct 2005 16:54:50 -0700
 From: Greg KH <gregkh@suse.de>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
-Subject: [patch 0/7] -stable review
-Message-ID: <20051007235353.GA23111@kroah.com>
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, davej@redhat.com,
+       airlied@gmail.com
+Subject: [patch 4/7] sysfs: Signedness problem
+Message-ID: <20051007235450.GE23111@kroah.com>
+References: <20051007234348.631583000@press.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Disposition: inline; filename="drm-module_param-permissions-fix.patch"
+In-Reply-To: <20051007235353.GA23111@kroah.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the start of the stable review cycle for the 2.6.13.4
-release.  There are 7 patches in this series, all will be posted as a
-response to this one.  If anyone has any issues with these being
-applied, please let us know.  If anyone is a maintainer of the proper
-subsystem, and wants to add a signed-off-by: line to the patch, please
-respond with it.
+From: Dave Jones <davej@redhat.com>
 
-These patches are sent out with a number of different people on the Cc:
-line.  If you wish to be a reviewer, please email stable@kernel.org to
-add your name to the list.  If you want to be off the reviewer list,
-also email us.
+Please consider for next 2.6.13, it is a minor security issue allowing
+users to turn on drm debugging when they shouldn't...
 
-Responses should be made by Sunday, October 9, 24:00:00 UTC.  Anything
-received after that time, might be too late.
+This fell through the cracks. Until Josh pointed me at
+http://bugs.gentoo.org/show_bug.cgi?id=107893
 
-thanks,
+Signed-off-by: Chris Wright <chrisw@osdl.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+---
+ drivers/char/drm/drm_stub.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-the -stable release team (i.e. the ones wearing the joker hat in the corner...)
+--- linux-2.6.13.y.orig/drivers/char/drm/drm_stub.c
++++ linux-2.6.13.y/drivers/char/drm/drm_stub.c
+@@ -47,7 +47,7 @@ MODULE_PARM_DESC(cards_limit, "Maximum n
+ MODULE_PARM_DESC(debug, "Enable debug output");
+ 
+ module_param_named(cards_limit, drm_cards_limit, int, 0444);
+-module_param_named(debug, drm_debug, int, 0666);
++module_param_named(debug, drm_debug, int, 0600);
+ 
+ drm_head_t **drm_heads;
+ struct drm_sysfs_class *drm_class;
+
+--

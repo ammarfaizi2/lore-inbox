@@ -1,65 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932385AbVJGMGR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932382AbVJGMIN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932385AbVJGMGR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 08:06:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbVJGMGR
+	id S932382AbVJGMIN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 08:08:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbVJGMIN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 08:06:17 -0400
-Received: from rutherford.zen.co.uk ([212.23.3.142]:42388 "EHLO
-	rutherford.zen.co.uk") by vger.kernel.org with ESMTP
-	id S932111AbVJGMGQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 08:06:16 -0400
-Message-ID: <43466453.9070604@dresco.co.uk>
-Date: Fri, 07 Oct 2005 13:04:35 +0100
-From: Jon Escombe <lists@dresco.co.uk>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
+	Fri, 7 Oct 2005 08:08:13 -0400
+Received: from mail24.syd.optusnet.com.au ([211.29.133.165]:23958 "EHLO
+	mail24.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932382AbVJGMIM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 08:08:12 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Subject: Re: [PATCH] vm - swap_prefetch-15
+Date: Fri, 7 Oct 2005 22:08:01 +1000
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org, ck@vds.kolivas.org
+References: <200510070001.01418.kernel@kolivas.org> <200510072054.11145.kernel@kolivas.org> <84144f020510070431n3b18250eo9d4777844a448b8a@mail.gmail.com>
+In-Reply-To: <84144f020510070431n3b18250eo9d4777844a448b8a@mail.gmail.com>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       hdaps-devel@lists.sourceforge.net
-Subject: Re: [RFC] Hard disk protection revisited
-References: <4345B24A.2080104@dresco.co.uk> <20051007100219.GU2889@suse.de>
-In-Reply-To: <20051007100219.GU2889@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Hops: 1
-X-Originating-Rutherford-IP: [82.68.23.174]
+Content-Disposition: inline
+Message-Id: <200510072208.01357.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-
->I have to nack this one for now, I still want the generic command types
->patch to go in first. We have far too many queue hooks already, adding
->two more for a relatively obscure use such as this one is not a good
->idea.
+On Fri, 7 Oct 2005 21:31, Pekka Enberg wrote:
+> Hi,
 >
->My suggestion is to maintain this patch out of tree for now, it will be
->a few kernel release iterations before the command type patch is in.
->  
+> On 10/7/05, Con Kolivas <kernel@kolivas.org> wrote:
+> > Good point, thanks! Any and all feedback is appreciated.
 >
+> Well, since you asked :-)
+>
+> > +/*
+> > + * How many pages to prefetch at a time. We prefetch SWAP_CLUSTER_MAX *
+> > + * swap_prefetch per PREFETCH_INTERVAL, but prefetch ten times as much
+> > at a + * time in laptop_mode to minimise the time we keep the disk
+> > spinning. + */
+> > +#define PREFETCH_PAGES()     (SWAP_CLUSTER_MAX * swap_prefetch * \
+> > +                                     (1 + 9 * laptop_mode))
+>
+> This looks strange. Please either drop the parenthesis from PREFETCH_PAGES
+> or make it a real static inline function.
 
-That's a fair comment (and not entirely unexpected), I don't have a 
-problem with looking after this out of tree for now...
+I have seen this sort of macro style before in the kernel where () just makes 
+it clear that it is a function but a real static inline is ok with me.
 
-One issue with the generic command approach occured to me while making 
-this patch - although it's more likely an issue with my understanding ;)
+> > +/*
+> > + * Find the zone with the most free pages, recheck the watermarks and
+> > + * then directly allocate the ram. We don't want prefetch to use
+> > + * __alloc_pages and go calling on reclaim.
+> > + */
+> > +static struct page *prefetch_get_page(void)
+> > +{
+>
+> Should this be put in mm/page_alloc.c? It is, after all, a special-purpose
+> page allocator. That way you wouldn't have to export zone_statistics and
+> buffered_rmqueue.
 
-I'm assuming that it would work like this -- the block layer still has 
-the sysfs attribute, and queues the new command for the lower driver to 
-pick up. The driver receives the command and does it's custom 
-park/freeze work, then calls a common block layer function to setup the 
-timer (all good so far). Where it gets hazy (for me) is how the block 
-layer starts the queue up again - as this ended up needing to be driver 
-specific & I can't see how the block layer would get another command 
-down if the queue is stopped?
+Makes sense but it is only used in the CONFIG_SWAP_PREFETCH case so it would 
+end up as a static inline in swap.h to avoid ending being #ifdefed in 
+page_alloc.c. Do you think that's preferable to having it in 
+swap_prefetch.c ?
 
-Regards,
-Jon.
+>
+> > +/*
+> > + * trickle_swap is the main function that initiates the swap
+> > prefetching. It + * first checks to see if the busy flag is set, and does
+> > not prefetch if it + * is, as the flag implied we are low on memory or
+> > swapping in currently. + * Otherwise it runs till PREFETCH_PAGES() are
+> > prefetched.
+> > + * This function returns 1 if it succeeds in a cycle of prefetching, 0
+> > if it + * is interrupted or -1 if there is nothing left to prefetch.
+> > + */
+> > +static int trickle_swap(void)
+> > +{
+>
+> This could perhaps use a three-state enum as return value. I find return
+> value checks in kprefetchd() slightly confusing.
 
+Good idea.
 
-
-
-______________________________________________________________
-Email via Mailtraq4Free from Enstar (www.mailtraqdirect.co.uk)
+Thanks!
+Con

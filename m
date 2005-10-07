@@ -1,73 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030499AbVJGQg2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030500AbVJGQhu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030499AbVJGQg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 12:36:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030502AbVJGQg2
+	id S1030500AbVJGQhu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 12:37:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030502AbVJGQhu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 12:36:28 -0400
-Received: from vms046pub.verizon.net ([206.46.252.46]:24119 "EHLO
-	vms046pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1030499AbVJGQg1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 12:36:27 -0400
-Date: Fri, 07 Oct 2005 11:36:46 -0500
-From: Wes Newell <w.newell@verizon.net>
-Subject: Re: [PATCH 2.6.14-rc3] sis5513.c: enable ATA133 for the SiS965
- southbridge
-In-reply-to: <20051007094135.GA16386@farad.aurel32.net>
-To: Aurelien Jarno <aurelien@aurel32.net>
-Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, Lionel.Bouton@inet6.fr,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Message-id: <4346A41E.3020505@verizon.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7bit
+	Fri, 7 Oct 2005 12:37:50 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:21839 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S1030500AbVJGQht (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 12:37:49 -0400
+Message-ID: <4346A46D.7010105@tls.msk.ru>
+Date: Fri, 07 Oct 2005 20:38:05 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+Organization: Telecom Service, JSC
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050817)
 X-Accept-Language: en-us, en
-References: <20051005205906.GA4320@farad.aurel32.net>
- <58cb370e0510060240x2f2e31c3kd0609a06172d86a4@mail.gmail.com>
- <20051007094135.GA16386@farad.aurel32.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050322
+MIME-Version: 1.0
+To: Steven Rostedt <rostedt@goodmis.org>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel freeze (not even an OOPS) on remount-ro+umount when using
+ quotas
+References: <4346747C.2080903@tls.msk.ru> <Pine.LNX.4.58.0510071017550.7222@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.58.0510071017550.7222@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aurelien Jarno wrote:
-
->On Thu, Oct 06, 2005 at 11:40:15AM +0200, Bartlomiej Zolnierkiewicz wrote:
->  
->
->>Hi,
+Steven Rostedt wrote:
+> On Fri, 7 Oct 2005, Michael Tokarev wrote:
+> 
+> 
+>>This is something that has biten me quite successefully
+>>in last few days... ;)
 >>
->>On 10/5/05, Aurelien Jarno <aurelien@aurel32.net> wrote:
->>    
+>>To make a long story short:
 >>
->>>Hi,
->>>
->>>Here is a patch that enables the ATA133 mode for the SiS965 southbridge
->>>in the SiS5513 driver.
->>>      
->>>
->>The patch for SIS965(L) support is already in -mm tree:
->>http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc2/2.6.14-rc2-mm2/broken-out/sis5513-support-sis-965l.patch
+>> # mke2fs -j /dev/hda6
+>> # mount -o usrquota /dev/hda6 /mnt
+>> # cp -a /home /mnt                # to make some files to work with
+>> # quotacheck -uc /mnt
+>> # quotaon /mnt
+
+Looks like it's more reproduceable when there's some writing
+going on at this point - after enabling the quotas and before
+remointing it read-only.  Maybe there's some unwritten quota
+data left in memory at the remount, or something like that...
+
+>> # mount -o remount,ro             # this is the important step!
+>> # ls -l /mnt /mnt/home            # to do "something" (also important)
+>> # umount /mnt
 >>
->>    
+>>At this time (attempting to umount the read-only filesystem with quotas
+>>enabled), the machine freezes without any messages on the console.  No
+>>OOPS, no response, no nothing - until a hard reboot (powercycle).
 >>
->
->Oops, I forget to look at the -mm tree for this driver. You're right, it
->works, and it seems the patch is cleaner than mine. So please ignore my
->patch.
->
->Thanks,
->Aurelien
->
->  
->
-It appears to me that this patch will try and apply itself to the real 
-SIS_180 which has the same true_id of 0x180. Can someone tell me what 
-will happen then?
+>>This happens on 2.6.11, 2.6.12 and 2.6.13 kernels -- ie, with "current"
+>>kernel release.
+> 
+> I just tried this on 2.6.13.1 and was not able to reproduce your hangup.
 
+I'm able to reproduce it on almost any my machine.  Tried on several
+production machines first ;)  And on at least two test machines.
+Now I'm at home and my home PC also shows this bug (2.6.13.1 vanilla).
 
--- 
-KT133 MB, CPU @2400MHz (24x100): SIS755 MB CPU @2330MHz (10x233)
-Need good help? Provide all system info with question.
-My server http://wesnewell.no-ip.com/cpu.php
-Verizon server http://mysite.verizon.net/res0exft/cpu.htm
+> Have you tried turning on the nmi watchdog with "nmi_watchdog=2 lapic"?
 
+nmi_watchdog makes no visible difference.  Lapic is already enabled, at
+least on this machine (BTW, the same behaviour happens on SMP and UP
+machines, with and without hyperthreading enabled).
+
+> If this blocks interrupts while it spins, you might be able to see what's
+> happening.  Also if interrupts are not blocked, try out sysrq-t and
+> friends.
+
+And hee-hoo, sysrq works!  Strange I haven't noticied it before - I think
+I tried it on the laptop, maybe I pressed some wrong button...
+
+Now, as I don't have another PC here @home, only this machine and an ADSL
+router (small mips-based device wich is also running linux), and I will
+not have access to another machine(s) till monday... I'll try netconsole
+to the router.  Damn, why ShiftPgUp does not work as it worked in 2.4?? :(
+
+/mjt

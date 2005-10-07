@@ -1,67 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932605AbVJGNr6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932615AbVJGNxX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932605AbVJGNr6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 09:47:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932612AbVJGNr5
+	id S932615AbVJGNxX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 09:53:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932623AbVJGNxW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 09:47:57 -0400
-Received: from newmail.linux4media.de ([193.201.54.81]:3524 "EHLO l4m.mine.nu")
-	by vger.kernel.org with ESMTP id S932605AbVJGNr5 (ORCPT
+	Fri, 7 Oct 2005 09:53:22 -0400
+Received: from pat.uio.no ([129.240.130.16]:36484 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932615AbVJGNxW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 09:47:57 -0400
-From: Bernhard Rosenkraenzer <bero@arklinux.org>
-To: adaplas@users.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Modular i810fb broken, partial fix
-Date: Fri, 7 Oct 2005 15:47:14 +0200
-User-Agent: KMail/1.8.91
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_ixnRDgMOY+QNEon"
-Message-Id: <200510071547.14616.bero@arklinux.org>
+	Fri, 7 Oct 2005 09:53:22 -0400
+Subject: Re: [PATCH] nfs: don't drop dentry in d_revalidate
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: akpm@osdl.org, viro@ftp.linux.org.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <E1ENqHd-0004cW-00@dorka.pomaz.szeredi.hu>
+References: <E1ENqHd-0004cW-00@dorka.pomaz.szeredi.hu>
+Content-Type: text/plain
+Date: Fri, 07 Oct 2005 09:52:55 -0400
+Message-Id: <1128693175.8519.84.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-2.752, required 12,
+	autolearn=disabled, AWL 2.06, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_ixnRDgMOY+QNEon
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+fr den 07.10.2005 Klokka 13:21 (+0200) skreiv Miklos Szeredi:
+> NFS d_revalidate() is doing things that are supposed to be done by
+> d_invalidate().
+> 
+> Dropping the dentry is especially bad, since it will make
+> d_invalidate() bypass all checks.
 
-Hi,
-i810fb as a module is broken (checked with 2.6.13-mm3 and 2.6.14-rc2-mm1).
-It compiles, but the module doesn't actually load because the kernel doesn't 
-recognize the hardware (the MODULE_DEVICE_TABLE statement is missing).
+NAK!
 
-The attached patch fixes this.
+Bypassing the stupid d_invalidate checks is precisely the point here.
 
-However, the resulting module still doesn't work.
-It loads, and then garbles the display (black screen with a couple of yellow 
-lines, no matter what is written into the framebuffer device).
+Unlike local filesystems, we have to deal with the case where someone
+deletes a file on the server and then creates a new one with the same
+name. The d_invalidate checks will keep the wrong dentry hashed for as
+long as some borken process has the file open.
 
-Related .config entries:
-CONFIG_I2C_I810=m
-CONFIG_FB_I810=m
-CONFIG_FB_I810_GTF=y
-CONFIG_FB_I810_I2C=y
+Trond
 
---Boundary-00=_ixnRDgMOY+QNEon
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="2.6.13-mm3-fix-i810fb.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="2.6.13-mm3-fix-i810fb.patch"
+> Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+> ---
+> 
+> Index: linux/fs/nfs/dir.c
+> ===================================================================
+> --- linux.orig/fs/nfs/dir.c	2005-10-04 13:59:57.000000000 +0200
+> +++ linux/fs/nfs/dir.c	2005-10-07 12:53:45.000000000 +0200
+> @@ -762,12 +762,7 @@ out_zap_parent:
+>  	if (inode && S_ISDIR(inode->i_mode)) {
+>  		/* Purge readdir caches. */
+>  		nfs_zap_caches(inode);
+> -		/* If we have submounts, don't unhash ! */
+> -		if (have_submounts(dentry))
+> -			goto out_valid;
+> -		shrink_dcache_parent(dentry);
+>  	}
+> -	d_drop(dentry);
+>  	unlock_kernel();
+>  	dput(parent);
+>  	return 0;
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
---- linux-2.6.13/drivers/video/i810/i810_main.c.ark	2005-09-13 00:31:37.000000000 +0200
-+++ linux-2.6.13/drivers/video/i810/i810_main.c	2005-09-13 00:31:54.000000000 +0200
-@@ -83,6 +83,8 @@
- 	{ 0 },
- };
- 
-+MODULE_DEVICE_TABLE(pci, i810fb_pci_tbl);
-+
- static struct pci_driver i810fb_driver = {
- 	.name     =	"i810fb",
- 	.id_table =	i810fb_pci_tbl,
-
---Boundary-00=_ixnRDgMOY+QNEon--

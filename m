@@ -1,76 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932420AbVJGMaF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932462AbVJGMdm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932420AbVJGMaF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 08:30:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932504AbVJGMaF
+	id S932462AbVJGMdm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 08:33:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932500AbVJGMdm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 08:30:05 -0400
-Received: from cantor.suse.de ([195.135.220.2]:52673 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932420AbVJGMaC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 08:30:02 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Vladimir B. Savkin" <master@sectorb.msk.ru>
-Subject: Re: [PATCH] x86-64: Fix bad assumption that dualcore cpus have synced TSCs
-Date: Fri, 7 Oct 2005 14:31:46 +0200
-User-Agent: KMail/1.8
-Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       john stultz <johnstul@us.ibm.com>, discuss@x86-64.org
-References: <1127157404.3455.209.camel@cog.beaverton.ibm.com> <20051007122624.GA23606@tentacle.sectorb.msk.ru>
-In-Reply-To: <20051007122624.GA23606@tentacle.sectorb.msk.ru>
+	Fri, 7 Oct 2005 08:33:42 -0400
+Received: from mail28.syd.optusnet.com.au ([211.29.133.169]:43434 "EHLO
+	mail28.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932462AbVJGMdl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 08:33:41 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Pekka J Enberg <penberg@cs.helsinki.fi>
+Subject: Re: [PATCH] vm - swap_prefetch-15
+Date: Fri, 7 Oct 2005 22:33:11 +1000
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org, ck@vds.kolivas.org
+References: <200510070001.01418.kernel@kolivas.org> <200510072208.01357.kernel@kolivas.org> <Pine.LNX.4.58.0510071511040.6755@sbz-30.cs.Helsinki.FI>
+In-Reply-To: <Pine.LNX.4.58.0510071511040.6755@sbz-30.cs.Helsinki.FI>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200510071431.47245.ak@suse.de>
+Message-Id: <200510072233.12216.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 07 October 2005 14:26, Vladimir B. Savkin wrote:
-> On Mon, Sep 19, 2005 at 12:16:43PM -0700, john stultz wrote:
-> > Andrew,
-> > 	This patch should resolve the issue seen in bugme bug #5105, where it
-> > is assumed that dualcore x86_64 systems have synced TSCs. This is not
-> > the case, and alternate timesources should be used instead.
-> >
-> > For more details, see:
-> > http://bugzilla.kernel.org/show_bug.cgi?id=5105
+On Fri, 7 Oct 2005 22:26, Pekka J Enberg wrote:
+> On Fri, 7 Oct 2005, Con Kolivas wrote:
+> > Makes sense but it is only used in the CONFIG_SWAP_PREFETCH case so it
+> > would end up as a static inline in swap.h to avoid ending being #ifdefed
+> > in page_alloc.c. Do you think that's preferable to having it in
+> > swap_prefetch.c ?
 >
-> I too have a box that shows the symptoms from bugzilla entry above.
-> The system is Asus A8V Deluxe MB with
-> "AMD Athlon(tm) 64 X2 Dual Core Processor 3800+".
->
-> The patch below did not fix the problem, while "idle=poll" did.
-> Hope this helps, dmesg attached.
+> But then you would still have to open up buffered_rmqueue() and
+> zone_statistics() to everyone, no? 
 
-Are you running the latest BIOS?
+bah of course..  /me slaps forehead
 
--Andi
+> How about you implement a new gfp flag 
+> __GFP_NEVER_RECLAIM similar to __GFP_NORECLAIM instead so you don't have
+> to duplicate __page_alloc()?
 
->
-> > Please consider for inclusion in your tree.
-> >
-> > thanks
-> > -john
-> >
-> > diff --git a/arch/x86_64/kernel/time.c b/arch/x86_64/kernel/time.c
-> > --- a/arch/x86_64/kernel/time.c
-> > +++ b/arch/x86_64/kernel/time.c
-> > @@ -959,9 +959,6 @@ static __init int unsynchronized_tsc(voi
-> >   	   are handled in the OEM check above. */
-> >   	if (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL)
-> >   		return 0;
-> > - 	/* All in a single socket - should be synchronized */
-> > - 	if (cpus_weight(cpu_core_map[0]) == num_online_cpus())
-> > - 		return 0;
-> >  #endif
-> >   	/* Assume multi socket systems are not synchronized */
-> >   	return num_online_cpus() > 1;
->
-> ~
->
-> :wq
->
->                                         With best regards,
->                                            Vladimir Savkin.
+That will end up being far more intrusive than this version and __alloc_pages 
+would need more tests that affect every call to __alloc_pages which seems 
+much more expensive to me than exporting buffered_rmqueue and 
+zone_statistics, and the modified __alloc_pages will still be a much more 
+complicated function than prefetch_get_page. 
+
+Thanks,
+Con

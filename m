@@ -1,106 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932559AbVJGNds@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932570AbVJGNi0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932559AbVJGNds (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 09:33:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932560AbVJGNds
+	id S932570AbVJGNi0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 09:38:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932569AbVJGNi0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 09:33:48 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:41864 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932559AbVJGNdr (ORCPT
+	Fri, 7 Oct 2005 09:38:26 -0400
+Received: from pat.uio.no ([129.240.130.16]:38370 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932532AbVJGNiZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 09:33:47 -0400
-Message-ID: <43467C2B.14D992B4@tv-sign.ru>
-Date: Fri, 07 Oct 2005 17:46:19 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: Roland McGrath <roland@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] fix do_coredump() vs SIGSTOP race
-Content-Type: text/plain; charset=us-ascii
+	Fri, 7 Oct 2005 09:38:25 -0400
+Subject: Re: [RFC] atomic create+open
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <E1ENlI2-0004Gt-00@dorka.pomaz.szeredi.hu>
+References: <E1ENWt1-000363-00@dorka.pomaz.szeredi.hu>
+	 <1128616864.8396.32.camel@lade.trondhjem.org>
+	 <E1ENZ8u-0003JS-00@dorka.pomaz.szeredi.hu>
+	 <E1ENZCQ-0003K3-00@dorka.pomaz.szeredi.hu>
+	 <1128619526.16534.8.camel@lade.trondhjem.org>
+	 <E1ENZZl-0003OO-00@dorka.pomaz.szeredi.hu>
+	 <1128620528.16534.26.camel@lade.trondhjem.org>
+	 <E1ENZu1-0003SP-00@dorka.pomaz.szeredi.hu>
+	 <1128623899.31797.14.camel@lade.trondhjem.org>
+	 <E1ENani-0003c4-00@dorka.pomaz.szeredi.hu>
+	 <1128626258.31797.34.camel@lade.trondhjem.org>
+	 <E1ENcAr-0003jz-00@dorka.pomaz.szeredi.hu>
+	 <1128633138.31797.52.camel@lade.trondhjem.org>
+	 <E1ENlI2-0004Gt-00@dorka.pomaz.szeredi.hu>
+Content-Type: text/plain
+Date: Fri, 07 Oct 2005 09:38:09 -0400
+Message-Id: <1128692289.8519.75.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-2.707, required 12,
+	autolearn=disabled, AWL 2.11, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Let's suppose we have 2 threads in thread group:
-	A - does coredump
-	B - has pending SIGSTOP
+fr den 07.10.2005 Klokka 08:01 (+0200) skreiv Miklos Szeredi:
+> > > I just think that filesystem code should _never_ need to care about
+> > > mounts.  If you want to do the lookup+open, you somehow will have to
+> > > deal with mounts, which is ugly.
+> > 
+> > You appear to think that atomic lookup+open is a question of choice. It
+> > is not.
+> 
+> Atomic lookup+open is an optimization, and as such a question of
+> choice.  Atomic create+open is not.
 
-thread A						thread B
+Really? Under NFSv4, the one and only OPEN command does an atomic lookup
++open, It _has to_ in order to deal with all the races.
 
-do_coredump:						get_signal_to_deliver:
+Once that is the case, then separating lookup and open into two
+operations means that you need to worry about namespace changes on the
+server too (since OPEN takes a name argument rather than a filehandle).
+If you end up opening a different file to the one you looked up, things
+can get very interesting.
 
-  lock(->sighand)
-  ->signal->flags = SIGNAL_GROUP_EXIT
-  unlock(->sighand)
+> I know you are thinking of the non-exclusive create case when between
+> the lookup and the open the file is removed or transmuted on the
+> server..
 
-							lock(->sighand)
-							signr = dequeue_signal()
-								->signal->flags |= SIGNAL_STOP_DEQUEUED
-								return SIGSTOP;
+> Yes, it's tricky to sovle, but by no means impossible without atomic
+> lookup+open.  E.g. consider this pseudo-code (only the atomic
+> open+create case) in open_namei():
 
-							do_signal_stop:
-							    unlock(->sighand)
+Firstly, that pseudo-code doesn't deal at all with the race you describe
+above. It only deals with lookup + file creation.
 
-  coredump_wait:
+Secondly, it also fails to deal with the issue of propagation of open
+context.
+If you open a file, then that creates open context/state on the server.
+Most protocols will then have some way of tracking that state using an
+identifier (the equivalent of the POSIX open file descriptor). I see
+absolutely nothing in your proposal that will allow me to save the state
+identifier that results from atomic open+create and then propagate it to
+the struct file.
 
-      zap_threads:
-          lock(tasklist_lock)
-          send SIGKILL to B
-              // signal_wake_up() does nothing
-          unlock(tasklist_lock)
+Without that stateid/descriptor, it becomes impossible to actually READ,
+WRITE, lock/unlock the file or even to CLOSE it when done.
 
-							    lock(tasklist_lock)
-							    lock(->sighand)
-							    re-check sig->flags & SIGNAL_STOP_DEQUEUED, yes
-							    set_current_state(TASK_STOPPED);
-							    finish_stop:
-							        schedule();
-							            // ->state == TASK_STOPPED
+This is why I added the struct file to the intent code in the first
+place.
 
-      wait_for_completion(&startup_done)
-         // waits for complete() from B,
-         // ->state == TASK_UNINTERRUPTIBLE
+Trond
 
-
-
-We can't wake up 'B' in any way:
-
-	SIGCONT will be ignored because handle_stop_signal() sees
-	->signal->flags & SIGNAL_GROUP_EXIT.
-
-	sys_kill(SIGKILL)->__group_complete_signal() will choose
-	uninterruptible 'A', so it can't help.
-
-	sys_tkill(B, SIGKILL) will be ignored by specific_send_sig_info()
-	because B already has pending SIGKILL.
-
-
-This scenario is not possbile if 'A' does do_group_exit(), because
-it sets sig->flags = SIGNAL_GROUP_EXIT and delivers SIGKILL to
-subthreads atomically, holding both tasklist_lock and sighand->lock.
-That means that do_signal_stop() will notice !SIGNAL_STOP_DEQUEUED
-after re-locking ->sighand. And it is not possible to any other
-thread to re-add SIGNAL_STOP_DEQUEUED later, because dequeue_signal()
-can only return SIGKILL.
-
-I think it is better to change do_coredump() to do sigaddset(SIGKILL)
-and signal_wake_up() under sighand->lock, but this patch is much
-simpler.
-
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-
---- 2.6.14-rc3/kernel/signal.c~	2005-10-01 17:01:52.000000000 +0400
-+++ 2.6.14-rc3/kernel/signal.c	2005-10-07 21:31:56.000000000 +0400
-@@ -578,7 +578,8 @@ int dequeue_signal(struct task_struct *t
-  		 * is to alert stop-signal processing code when another
-  		 * processor has come along and cleared the flag.
-  		 */
-- 		tsk->signal->flags |= SIGNAL_STOP_DEQUEUED;
-+ 		if (!(tsk->signal->flags & SIGNAL_GROUP_EXIT))
-+ 			tsk->signal->flags |= SIGNAL_STOP_DEQUEUED;
-  	}
- 	if ( signr &&
- 	     ((info->si_code & __SI_MASK) == __SI_TIMER) &&

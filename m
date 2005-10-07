@@ -1,69 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964872AbVJGOaU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964876AbVJGOam@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964872AbVJGOaU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 10:30:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbVJGOaT
+	id S964876AbVJGOam (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 10:30:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964877AbVJGOal
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 10:30:19 -0400
-Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:38767 "EHLO
-	mta07-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S964872AbVJGOaS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 10:30:18 -0400
-From: Ian Campbell <ijc@hellion.org.uk>
-To: Giuseppe Bilotta <bilotta78@hotpop.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <8qo997np4h6n.1ihs13ptrx2y2.dlg@40tude.net>
-References: <4TiWy-4HQ-3@gated-at.bofh.it> <4U0XH-3Gp-39@gated-at.bofh.it>
-	 <E1EMutG-0001Hd-7U@be1.lrz> <87k6gsjalu.fsf@amaterasu.srvr.nix>
-	 <4343E611.1000901@perkel.com> <20051005144441.GC8011@csclub.uwaterloo.ca>
-	 <4343E7AC.6000607@perkel.com> <20051005153727.994c4709.fmalita@gmail.com>
-	 <43442D19.4050005@perkel.com> <Pine.LNX.4.58.0510052208130.4308@be1.lrz>
-	 <8qo997np4h6n.1ihs13ptrx2y2.dlg@40tude.net>
-Content-Type: text/plain
-Date: Fri, 07 Oct 2005 15:30:00 +0100
-Message-Id: <1128695400.28620.42.camel@icampbell-debian>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 192.168.3.3
-X-SA-Exim-Mail-From: ijc@hellion.org.uk
+	Fri, 7 Oct 2005 10:30:41 -0400
+Received: from ncc1701.cistron.net ([62.216.30.38]:21151 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S964874AbVJGOai
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 10:30:38 -0400
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
 Subject: Re: 'Undeleting' an open file
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
-X-SA-Exim-Scanned: Yes (on hopkins.hellion.org.uk)
+Date: Fri, 7 Oct 2005 14:30:37 +0000 (UTC)
+Organization: Cistron
+Message-ID: <di60qd$sbp$1@news.cistron.nl>
+References: <4TiWy-4HQ-3@gated-at.bofh.it> <43442D19.4050005@perkel.com> <Pine.LNX.4.58.0510052208130.4308@be1.lrz> <8qo997np4h6n.1ihs13ptrx2y2.dlg@40tude.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1128695437 29049 194.109.0.112 (7 Oct 2005 14:30:37 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: mikevs@zahadum.xs4all.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-10-07 at 16:14 +0200, Giuseppe Bilotta wrote:
-> On Wed, 5 Oct 2005 23:05:34 +0200 (CEST), Bodo Eggert wrote:
-> 
-> > Files are deleted if the last reference is gone. If you play a music file
-> > and unlink it while it's playing, it won't be deleted untill the player
-> > closes the file, since an open filehandle is a reference.
-> 
-> BTW, I've always wondered: is there a way to un-unlink such a file?
+In article <8qo997np4h6n.1ihs13ptrx2y2.dlg@40tude.net>,
+Giuseppe Bilotta  <bilotta78@hotpop.com> wrote:
+>On Wed, 5 Oct 2005 23:05:34 +0200 (CEST), Bodo Eggert wrote:
+>
+>> Files are deleted if the last reference is gone. If you play a music file
+>> and unlink it while it's playing, it won't be deleted untill the player
+>> closes the file, since an open filehandle is a reference.
+>
+>BTW, I've always wondered: is there a way to un-unlink such a file?
 
-Access via /proc/PID/fd/* seems to work:
+Around 2.4.15 we had the same discussion here - see for example
+http://www.ussg.iu.edu/hypermail/linux/kernel/0201.2/0881.html
+(but be sure to read the whole thread).
 
-$ echo "Hello World" > testing
-$ exec 10>>testing
-$ rm testing
-$ ls -l /proc/self/fd/
-total 5
-lrwx------  1 icampbell icampbell 64 Oct  7 15:28 0 -> /dev/pts/9
-lrwx------  1 icampbell icampbell 64 Oct  7 15:28 1 -> /dev/pts/9
-l-wx------  1 icampbell icampbell 64 Oct  7 15:28 10
--> /home/icampbell/testing (deleted)
-lrwx------  1 icampbell icampbell 64 Oct  7 15:28 2 -> /dev/pts/9
-lr-x------  1 icampbell icampbell 64 Oct  7 15:28 3 -> /proc/31390/fd/
-$ cat /proc/self/fd/10
-Hello World
-$
-
-Ian.
--- 
-Ian Campbell
-Current Noise: Rotting Christ - In Domine Sathana
-
-I may not be totally perfect, but parts of me are excellent.
-		-- Ashleigh Brilliant
+Mike.
 

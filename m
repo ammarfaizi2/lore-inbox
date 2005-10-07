@@ -1,51 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030479AbVJGTR0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030514AbVJGTgx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030479AbVJGTR0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 15:17:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030495AbVJGTR0
+	id S1030514AbVJGTgx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 15:36:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030535AbVJGTgx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 15:17:26 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:32270 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1030479AbVJGTRZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 15:17:25 -0400
-Date: Fri, 7 Oct 2005 20:17:12 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>,
-       Mark Knecht <markknecht@gmail.com>, linux-kernel@vger.kernel.org,
-       linux-pcmcia@lists.infradead.org, Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [patch] pcmcia-shutdown-fix.patch
-Message-ID: <20051007191712.GB22608@flint.arm.linux.org.uk>
-Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
-	Dominik Brodowski <linux@dominikbrodowski.net>,
-	Mark Knecht <markknecht@gmail.com>, linux-kernel@vger.kernel.org,
-	linux-pcmcia@lists.infradead.org,
-	Steven Rostedt <rostedt@goodmis.org>
-References: <20050913100040.GA13103@elte.hu> <20050926070210.GA5157@elte.hu> <20051002151817.GA7228@elte.hu> <5bdc1c8b0510020842p6035b4c0ibbe9aaa76789187d@mail.gmail.com> <5bdc1c8b0510021225y951caf3p3240a05dd2d0247c@mail.gmail.com> <Pine.LNX.4.58.0510061308290.973@localhost.localdomain> <20051007110914.GA30873@elte.hu>
+	Fri, 7 Oct 2005 15:36:53 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:54447 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030514AbVJGTgw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 15:36:52 -0400
+Date: Fri, 7 Oct 2005 12:36:41 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: Chris Wright <chrisw@osdl.org>, torvalds@osdl.org, akpm@osdl.org,
+       keyrings@linux-nfs.org, linux-kernel@vger.kernel.org
+Subject: Re: [Keyrings] [PATCH] Keys: Add LSM hooks for key management
+Message-ID: <20051007193641.GT16352@shell0.pdx.osdl.net>
+References: <20051006231006.GO16352@shell0.pdx.osdl.net> <20051005211030.GC16352@shell0.pdx.osdl.net> <29942.1128529714@warthog.cambridge.redhat.com> <22756.1128594618@warthog.cambridge.redhat.com> <23041.1128679024@warthog.cambridge.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051007110914.GA30873@elte.hu>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <23041.1128679024@warthog.cambridge.redhat.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 07, 2005 at 01:09:14PM +0200, Ingo Molnar wrote:
+* David Howells (dhowells@redhat.com) wrote:
+> Chris Wright <chrisw@osdl.org> wrote:
 > 
-> * Steven Rostedt <rostedt@goodmis.org> wrote:
+> > BTW, /proc/keys should move, esp since it's a debugging interface.
 > 
-> > Ingo, here's the patch.  This should probably go upstream too since it 
-> > can happen there too.  The pccardd thread has a race in it that it can 
-> > shutdown in the TASK_INTERRUPTIBLE state.  Here's the fix.
-> 
-> ah, certainly makes sense. Dominik, does it look good to you too? Patch 
-> below is for upstream.
+> Move where? Actually, it shouldn't exist, except that I need it for debugging.
 
-Looks correct to me (I'm the author of this code.)  Since it's
-a bug fix, please send it upstream ASAP.
+Debugfs is logical spot.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+> > It means the security modules have to be able to parse the data.  I
+> > think that'd be the rough analog to updating file label based on file
+> > contents, right?  And we definitely don't want that.
+> 
+> Okay, I'll not do that then.
+> 
+> > So this security information is COW?
+> 
+> That's a good point. I need to add a duplicate hook so that the LSM can copy
+> or whatever the security information. Or maybe I should get rid of key
+> duplication entirely since it's not available to userspace.
+
+Yes, that's what I was trying to get at.
+
+> > > The problem is that key_ref_t isn't available if CONFIG_KEYS is not defined,
+> > > but it's still referenced in security.h. Would it be reasonable to make all
+> > > the security_key_*() functions contingent on CONFIG_KEYS since they're only
+> > > called from the key management code? That would mean I wouldn't need to do
+> > > this.
+> > 
+> > I see.  I thought they already were conditional on CONFIG_KEYS.
+> 
+> No... You get either one set which works or another set which is a bunch of
+> dummy functions, not neither. I should change that. I could ditch the
+> security_*() stubs entirely; they're just magic fluff to appease those who
+> feel queasy at the sight of #ifdefs in .c files.
+
+Typically forward decl is enough, it's just that typedef that's
+problematic.  But, it's not an issue, I was just clarifying that it
+wasn't a core part of the patch, rather prep work.
+
+> > So this is where 'rka->context = current' is established.  And since
+> > call_usermodehelper is called with wait flag set, you're sure current
+> > won't go away...OK scratch that worry of mine.
+> 
+> Even if that context could go away (say we made it request_key()
+> interruptible), the authorisation key would be revoked _first_ with the key
+> semaphore held, just to make sure there wouldn't be a race.
+
+I was looking for places where rka->context is referrenced assuming it
+didn't go away (i.e. Oops waiting to happen).  Given the non-interrupitble
+wait, this isn't possible.
+
+> > Ah, I saw that code and didn't grok why that bit was needed, thanks.
+> 
+> I should wrap this outline up and stick it in a document somewhere.
+
+That's a good idea.  I do appreciate the nice explanation.
+
+> > > At some point, I will have to make it so that I don't have to use
+> > > /sbin/request-key, but can instead request an already running daemon assume
+> > > the context from an auth key specified to it, say by passing the key serial
+> > > number over a socket.
+> > 
+> > I can see the appeal, but actually current architecture makes it easier
+> > to do checks against the caller that initiated the request.
+> 
+> It's going to be necessary. I've had requests for this from Trond (NFSv4)
+> amongst others. We discussed it at OLS; it really slows things down to be
+> forking off new processes regularly, so it needs to be done. I thought I
+> should probably do the LSM patch first so I could then work out how to fit in
+> with that - so there may be more key security hooks coming.
+
+Hmm, so we'll need a way for it to assume an identity, label and all.
+
+<snip>
+> > You're right, somehow I thought it was newly introduced.
+> 
+> Well, you (or someone) did comment on the bit of the patch where I removed it
+> from the header file...
+
+Hehe, it was me, I blame overexposure to diapers ;-) 
+
+thanks,
+-chris

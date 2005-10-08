@@ -1,61 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161018AbVJHAO7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161019AbVJHATE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161018AbVJHAO7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 20:14:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161020AbVJHAO7
+	id S1161019AbVJHATE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 20:19:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161020AbVJHATD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 20:14:59 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:43455 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161018AbVJHAO6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 20:14:58 -0400
-Date: Fri, 7 Oct 2005 20:14:04 -0400
-From: Dave Jones <davej@redhat.com>
-To: Greg KH <greg@kroah.com>
-Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, stable@kernel.org,
+	Fri, 7 Oct 2005 20:19:03 -0400
+Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:56297 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S1161019AbVJHATB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 20:19:01 -0400
+From: Grant Coady <grant_lkml@dodo.com.au>
+To: Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
        Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, airlied@gmail.com
-Subject: Re: [stable] Re: [patch 4/7] sysfs: Signedness problem
-Message-ID: <20051008001404.GP31529@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Greg KH <greg@kroah.com>,
-	Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
-	stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
-	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-	Theodore Ts'o <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-	Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-	akpm@osdl.org, alan@lxorguk.ukuu.org.uk, airlied@gmail.com
-References: <20051007234348.631583000@press.kroah.org> <20051007235450.GE23111@kroah.com> <20051008000252.GO31529@redhat.com> <20051008000720.GC23609@kroah.com>
-Mime-Version: 1.0
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, stefanr@s5r6.in-berlin.de,
+       bcollins@debian.org
+Subject: Re: [patch 1/7] ieee1394/sbp2: fixes for hot-unplug and module unloading
+Date: Sat, 08 Oct 2005 10:18:21 +1000
+Organization: http://bugsplatter.mine.nu/
+Message-ID: <004ek192bmh6t6ei08cpnusf8dmpi0dk6d@4ax.com>
+References: <20051007234348.631583000@press.kroah.org> <20051007235353.GA23111@kroah.com> <20051007235422.GB23111@kroah.com>
+In-Reply-To: <20051007235422.GB23111@kroah.com>
+X-Mailer: Forte Agent 2.0/32.652
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051008000720.GC23609@kroah.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 07, 2005 at 05:07:20PM -0700, Greg Kroah-Hartman wrote:
- > On Fri, Oct 07, 2005 at 08:02:52PM -0400, Dave Jones wrote:
- > > On Fri, Oct 07, 2005 at 04:54:50PM -0700, Greg KH wrote:
- > > 
- > >  > Please consider for next 2.6.13, it is a minor security issue allowing
- > >  > users to turn on drm debugging when they shouldn't...
- > >  > 
- > >  > This fell through the cracks. Until Josh pointed me at
- > >  > http://bugs.gentoo.org/show_bug.cgi?id=107893
- > >  > 
- > >  > Signed-off-by: Chris Wright <chrisw@osdl.org>
- > >  > Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
- > > 
- > > For those scratching their heads, the subject line came
- > > about as a result of my following up an older issue.
- > > This has nothing to do with signedness of course :-)
- > 
- > Heh, ok, care to suggest a better Subject: ?
+On Fri, 7 Oct 2005 16:54:22 -0700, Greg KH <gregkh@suse.de> wrote:
 
-"Fix incorrect permissions on DRM debug sysfs entry"  ?
+>+static inline int sbp2util_node_is_available(struct scsi_id_instance_data *scsi_id)
+>+{
+>+	return scsi_id && scsi_id->ne && !scsi_id->ne->in_limbo;
+>+}
+>+
+> 
+^^^^^ How did that 0x0c character sneak in there?
 
-		Dave
-
+Grant.

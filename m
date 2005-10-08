@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161038AbVJHBRU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbVJHB1d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161038AbVJHBRU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 21:17:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161036AbVJHBRU
+	id S932105AbVJHB1d (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 21:27:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbVJHB1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 21:17:20 -0400
-Received: from gate.crashing.org ([63.228.1.57]:26585 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1161035AbVJHBRT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 21:17:19 -0400
-Subject: Re: IDE issues with  "choose_drive"
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Jens Axboe <axboe@suse.de>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       list linux-ide <linux-ide@vger.kernel.org>
-In-Reply-To: <1128560569.22073.25.camel@gaston>
-References: <1128559019.22073.19.camel@gaston>
-	 <1128560569.22073.25.camel@gaston>
-Content-Type: text/plain
-Date: Sat, 08 Oct 2005 11:15:03 +1000
-Message-Id: <1128734104.17365.73.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Fri, 7 Oct 2005 21:27:33 -0400
+Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:44381 "HELO
+	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932105AbVJHB1c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 21:27:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=UDAcpa4YvMIqFxxm96Nn2gSOrdNk3hnyBmiIDn1lX8xmo1f/799vhKPSRp+MC36NDiRIMbGwWlzBYR+O9c6K6JIqOvy4EldJkxHbyai1cPq0uWL1ax59+GRxARSUHWGlJGViKIVNbcgwgaB61DVFUFaraUN6ESAOtBTD5ciI87Y=  ;
+Message-ID: <434720B6.5060600@yahoo.com.au>
+Date: Sat, 08 Oct 2005 11:28:22 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kernel compiling performance challenge
+References: <43464F62.8010503@yahoo.com.au>
+In-Reply-To: <43464F62.8010503@yahoo.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-10-06 at 11:02 +1000, Benjamin Herrenschmidt wrote:
-> > The first one is the one I'm trying to fix, it's basically a hang on
-> > wakeup from sleep. What happens is that both drives are blocked
-> > (suspended, drive->blocked is set). Their IO queues contains some
-> > requests that haven't been serviced yet. We receive the resume()
-> > callback for one of them. We react by inserting a wakeup request at the
-> > head of the queue and waiting for it to complete. However, when we reach
-> > ide_do_request(), choose_drive() may return the other drive (the one
-> > that is still sleeping). In this case, we hit the test for blocked queue
-> > and just break out of the loop. We end up never servicing the other
-> > drive queue which is the one we are trying to wakeup, thus we hang.
+Nick Piggin wrote:
+
+> Attached is a rollup against 2.6.14-rc3. I don't currently have any
+> webspace handy, so I can't host a broken-out tarball anywhere yet.
 > 
-> Oh, and here's the ugly workaround beeing tested by the users who are
-> having the problem so far. Not really a proper fix though...
 
-No reply ... it's a bit urgent as it may bite any system trying to
-suspend with a slave IDE disk at least (not including the other possible
-problems I've spotted  with this code).
+Hmm, a wayward hunk to net/core/skbuff.c slipped in there - it
+is wrong. Just delete the net/core/skbuff.c part of the patch
+before applying it.
 
-I'm tempted to just send my workaround patch to Linus & Andrew (might
-still make it into 2.6.14). That would at least fix the bug with resume
-from sleep. What do you think ?
+-- 
+SUSE Labs, Novell Inc.
 
-Ben.
-
-
+Send instant messages to your online friends http://au.messenger.yahoo.com 

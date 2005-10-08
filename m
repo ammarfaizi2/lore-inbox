@@ -1,71 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbVJHNDi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbVJHNCr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932115AbVJHNDi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Oct 2005 09:03:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932111AbVJHNDi
+	id S932092AbVJHNCr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Oct 2005 09:02:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932098AbVJHNCr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Oct 2005 09:03:38 -0400
-Received: from zproxy.gmail.com ([64.233.162.201]:47522 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932115AbVJHNDh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Oct 2005 09:03:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
-        b=XhgLoIr8MyOBazK28CoixZ+rWULkR2oThs1Io7wX3BHd5hZpTbfbu7PuLEW6OWC84i2kEikiGf1DHaRb2vvgdRu45b+lHfjgtBD70SByyPDlHbtpaJcaGHi2RGvPKmUceFrRS+YTY5RRaQw02aRgrBAilWhxIj1HGC+vOGD6Wsk=
-Message-ID: <4347C39F.2020703@pol.net>
-Date: Sat, 08 Oct 2005 21:03:27 +0800
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Manuel Lauss <mano@roarinelk.homelinux.net>
-CC: "Antonino A. Daplas" <adaplas@gmail.com>,
-       Bernhard Rosenkraenzer <bero@arklinux.org>,
-       adaplas@users.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Modular i810fb broken, partial fix
-References: <200510071547.14616.bero@arklinux.org> <4347A1E7.2050201@pol.net> <4347B3D6.5060700@roarinelk.homelinux.net>
-In-Reply-To: <4347B3D6.5060700@roarinelk.homelinux.net>
-Content-Type: text/plain; charset=ISO-8859-1
+	Sat, 8 Oct 2005 09:02:47 -0400
+Received: from host245-95.pool217223.interbusiness.it ([217.223.95.245]:53197
+	"EHLO rc-vaio.rcdiostrouska.com") by vger.kernel.org with ESMTP
+	id S932092AbVJHNCr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Oct 2005 09:02:47 -0400
+Subject: Re: oops in 2.6.14-rc3
+From: Sasa Ostrouska <sasa.ostrouska@volja.net>
+Reply-To: sasa.ostrouska@volja.net
+To: Grant Coady <grant_lkml@dodo.com.au>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <a49ek19jmmihflqguh7s2df2bvc6896f3n@4ax.com>
+References: <1128731551.8004.2.camel@rc-vaio.rcdiostrouska.com>
+	 <a49ek19jmmihflqguh7s2df2bvc6896f3n@4ax.com>
+Content-Type: text/plain
+Date: Sat, 08 Oct 2005 15:04:08 +0200
+Message-Id: <1128776649.8149.5.camel@rc-vaio.rcdiostrouska.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 Dropline GNOME 
 Content-Transfer-Encoding: 7bit
-From: "Antonino A. Daplas" <adaplas@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manuel Lauss wrote:
-> Antonino A. Daplas wrote:
->> Bernhard Rosenkraenzer wrote:
->>
->>> Hi,
->>> i810fb as a module is broken (checked with 2.6.13-mm3 and
->>> 2.6.14-rc2-mm1).
->>> It compiles, but the module doesn't actually load because the kernel
->>> doesn't recognize the hardware (the MODULE_DEVICE_TABLE statement is
->>> missing).
->>
->>
->>
->>> The attached patch fixes this.
->>>
->>> However, the resulting module still doesn't work.
->>> It loads, and then garbles the display (black screen with a couple of
->>> yellow lines, no matter what is written into the framebuffer device).
->>
->>
->> Did you compile CONFIG_FRAMEBUFFER_CONSOLE statically, or did a
->> modprobe fbcon?
->> Does i810fb work if compiled statically?
+On Sat, 2005-10-08 at 11:48 +1000, Grant Coady wrote:
+> On Sat, 08 Oct 2005 02:32:31 +0200, Sasa Ostrouska <sasa.ostrouska@volja.net> wrote:
 > 
-> I tried the module on my i815 laptop, after modprobe the module does
-> nothing.
-> The call to pci_register_driver() returns 0, and thats it; the probe
-> function
-> does not get called. Same thing with Bernhard's patch applied. No problems
-> when compiled-in. Kernel 2.6.14-rc2-mm1, AGP compiled in, no DRM.
+> >Hi ppl, 
+> >
+> >	After some playing with my new slackware 10.2 and 
+> >kernel 2.6.14-rc3 I noted this oops when shutting down the machine.
+> >Can somebody tell me why ?
+> >
+> >Oct  8 02:20:33 rc-vaio kernel: Unable to handle kernel paging request
+> >at virtual address f8c19706
+> 
+> What does 'grep swap /var/log/dmesg' have to say about it?
+> 
+> Grant.
 
-That's weird.  Can you find out why the probe function is not called? Can
-you trace the pci_register_driver call starting in drivers/pci/pci-driver.c, then
-in drivers/base/*.c?
+Dear MR. Grant, many thanks for your answer. Here is what I have on 
+dmesg:
 
-(Or you can #define DEBUG somewhere, perhaps in include/linux/device.h?)
- 
-Tony 
+root@rc-vaio:/home/sasa# grep swap /var/log/dmesg
+Adding 1839376k swap on /dev/hda3.  Priority:-1 extents:1
+across:1839376k
+root@rc-vaio:/home/sasa#
+
+Rgds
+Sasa
+

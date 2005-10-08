@@ -1,17 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161016AbVJHAJU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161017AbVJHANP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161016AbVJHAJU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 20:09:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161017AbVJHAJU
+	id S1161017AbVJHANP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 20:13:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161018AbVJHANP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 20:09:20 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:31467 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161016AbVJHAJT (ORCPT
+	Fri, 7 Oct 2005 20:13:15 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:13548 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161017AbVJHANO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 20:09:19 -0400
-Date: Fri, 7 Oct 2005 17:08:22 -0700
+	Fri, 7 Oct 2005 20:13:14 -0400
+Date: Fri, 7 Oct 2005 17:12:34 -0700
 From: Chris Wright <chrisw@osdl.org>
-To: Dave Jones <davej@redhat.com>, Greg KH <gregkh@suse.de>,
+To: Greg KH <greg@kroah.com>
+Cc: Dave Jones <davej@redhat.com>, Greg KH <gregkh@suse.de>,
        linux-kernel@vger.kernel.org, stable@kernel.org,
        Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
@@ -19,23 +20,19 @@ To: Dave Jones <davej@redhat.com>, Greg KH <gregkh@suse.de>,
        Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
        akpm@osdl.org, alan@lxorguk.ukuu.org.uk, airlied@gmail.com
 Subject: Re: [stable] Re: [patch 4/7] sysfs: Signedness problem
-Message-ID: <20051008000822.GK5856@shell0.pdx.osdl.net>
-References: <20051007234348.631583000@press.kroah.org> <20051007235450.GE23111@kroah.com> <20051008000252.GO31529@redhat.com>
+Message-ID: <20051008001234.GL5856@shell0.pdx.osdl.net>
+References: <20051007234348.631583000@press.kroah.org> <20051007235450.GE23111@kroah.com> <20051008000252.GO31529@redhat.com> <20051008000720.GC23609@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051008000252.GO31529@redhat.com>
+In-Reply-To: <20051008000720.GC23609@kroah.com>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Dave Jones (davej@redhat.com) wrote:
-> For those scratching their heads, the subject line came
-> about as a result of my following up an older issue.
-> This has nothing to do with signedness of course :-)
+* Greg KH (greg@kroah.com) wrote:
+> Heh, ok, care to suggest a better Subject: ?
 
-Yes, you're right.  That's my fault for not editing the patch better
-before adding it to the queue.
+Let's go with what's upstream:
 
-thanks,
--chris
+[PATCH] Fix drm 'debug' sysfs permissions

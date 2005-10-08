@@ -1,40 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161027AbVJHAxU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161030AbVJHAxg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161027AbVJHAxU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 20:53:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161026AbVJHAxT
+	id S1161030AbVJHAxg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 20:53:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161028AbVJHAxg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 20:53:19 -0400
-Received: from ozlabs.org ([203.10.76.45]:46771 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1161027AbVJHAxT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 20:53:19 -0400
-Date: Sat, 8 Oct 2005 10:50:16 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Brian Gerst <bgerst@didntduck.org>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Fix hotplug cpu on x86_64
-Message-ID: <20051008005016.GG5210@krispykreme>
-References: <43437DEB.4080405@didntduck.org> <434414C4.8020109@didntduck.org> <4345F656.9020601@didntduck.org> <20051007095041.GK6642@verdi.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 7 Oct 2005 20:53:36 -0400
+Received: from zproxy.gmail.com ([64.233.162.203]:24208 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161026AbVJHAxe convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 20:53:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=PWKDcCJKRmPrXhIPd4toRjsOjI/YnwOo5SgKgjHo2BUAG7EOgXagKJ9wM414c09ohJbQi5pziBtyZMTqlnykIHN9pAv/6KqqYtg74D71LpCKWvDezsgGqVgUByMED1ew3nG85FQweIrlDhbHsyFLyrfEYqbTrGMtwuIOvy77kjg=
+Message-ID: <bda6d13a0510071753h80ed0fdoa35f3b39a3079ef1@mail.gmail.com>
+Date: Fri, 7 Oct 2005 17:53:34 -0700
+From: Joshua Hudson <joshudson@gmail.com>
+Reply-To: Joshua Hudson <joshudson@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: How to interpret a kernel bug output from dmesg?
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051007095041.GK6642@verdi.suse.de>
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I got this. Probably I caused it. Kernel is 2.6.13, slightly modified
+(weird new psuedo filesystem).
+Problem is I don't know how to read it.  I wouldn't recommend looking
+for it yourself: I doubt
+you will find anything.
+Yes, I compiled with DEBUG_DCACHE (or something similar, uncommented the
+debug define at the top of dcache.c). I ran dmesg -c just before the ls that
+crashed, and dmesg right afterwards. Nothing else present.
 
-Hi,
-
-> I also have a followon patch to avoid the extreme memory wastage
-> currently caused by hotplug CPUs (e.g. with NR_CPUS==128 you currently
-> lose 4MB of memory just for preallocated per CPU data). But that is
-> something for post 2.6.14.
-
-Im interested in doing that on ppc64 too. Are you currently only
-creating per cpu data areas for possible cpus? The generic code does
-NR_CPUS worth, we should change that in 2.6.15.
-
-Anton
+------------[ cut here ]------------
+kernel BUG at include/linux/dcache.h:294!
+invalid operand: 0000 [#1]
+PREEMPT
+Modules linked in:
+CPU:    0
+EIP:    0060:[<c0160723>]    Not tainted VLI
+EFLAGS: 00010246   (2.6.13c1)
+EIP is at __link_path_walk+0xd03/0xe60
+eax: 00000000   ebx: ce054014   ecx: 00000001   edx: cdd392fc
+esi: ce1b7000   edi: ce1ffecc   ebp: ce1b7f10   esp: ce1b7e24
+ds: 007b   es: 007b   ss: 0068
+Process ls (pid: 258, threadinfo=ce1b7000 task=ce2eaae0)
+Stack: 00000001 ce1b7e50 ce1b7e48 cdd392fc ce1b7e5c ce1b7e54 c02ac704 00000000
+       00000000 cfee48c0 ce1ffecc 00017c88 00000002 ce054012 c0169a73 ce1b7f10
+       ce1b7f50 ce1b7ebc ce1b7e7c c01608c7 ce00b294 ce054000 ce00b294 cfee48c0
+Call Trace:
+ [<c0169a73>] dput+0x33/0x280
+ [<c01608c7>] link_path_walk+0x47/0xe0
+ [<c0160c1c>] path_lookup+0x8c/0x160
+ [<c0160eb3>] __user_walk+0x33/0x60
+ [<c015ae9c>] vfs_lstat+0x1c/0x60
+ [<c015b5cb>] sys_lstat64+0x1b/0x40
+ [<c016416d>] sys_fcntl+0x2d/0x60
+ [<c0102ab5>] syscall_call+0x7/0xb
+Code: 2a ff 02 89 55 00 b8 01 00 00 00 e8 78 de fa ff 8b 46 08 a8 08
+75 0d 89 3c 24 e8 29 93 00 00 e9 75 ff ff ff e8 8f 22 11 00 eb ec <0f>
+0b 26 01 8e e6 27 c0 eb cc e8 7e 22 11 00 e9 97 fe ff ff 8b
+ <6>note: ls[258] exited with preempt_count 1

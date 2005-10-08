@@ -1,62 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbVJHOzj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbVJHPB1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932112AbVJHOzj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Oct 2005 10:55:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbVJHOzj
+	id S932148AbVJHPB1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Oct 2005 11:01:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbVJHPB1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Oct 2005 10:55:39 -0400
-Received: from main.gmane.org ([80.91.229.2]:21913 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932112AbVJHOzi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Oct 2005 10:55:38 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Re: Modular i810fb broken, partial fix
-Date: Sat, 8 Oct 2005 16:51:28 +0200
-Message-ID: <1pfuqilz0eim.1n6ig5c3s2r3.dlg@40tude.net>
-References: <200510071547.14616.bero@arklinux.org> <4347A1E7.2050201@pol.net> <1308gutgj0dx4$.1ie66adezdlua$.dlg@40tude.net> <4347C393.5090304@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: host-84-220-51-179.cust-adsl.tiscali.it
-User-Agent: 40tude_Dialog/2.0.15.1
+	Sat, 8 Oct 2005 11:01:27 -0400
+Received: from zproxy.gmail.com ([64.233.162.197]:35356 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932148AbVJHPB0 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Oct 2005 11:01:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=orr0KS7d/6FnVLZnUShND9LkdzcJmqAO7FXRJRz6E977QweW9YVyZcooA5WJIUCe5iU7LWMravzNgIWqQmS6s3gZkZ73w6K8Qh4V3YrSmdqRazTqEfTZIurPr6pSc3rNbzgYQZHXtz7jKd9zx2sVlFudcg+yCl4M2DtBwua7WYU=
+Message-ID: <355e5e5e0510080801p88f04c7x7992c3d75f20e65c@mail.gmail.com>
+Date: Sat, 8 Oct 2005 11:01:25 -0400
+From: Lukasz Kosewski <lkosewsk@gmail.com>
+Reply-To: Lukasz Kosewski <lkosewsk@gmail.com>
+To: Andrew Walrond <andrew@walrond.org>
+Subject: Re: Anybody know about nforce4 SATA II hot swapping + linux raid?
+Cc: linux-kernel@vger.kernel.org, Molle Bestefich <molle.bestefich@gmail.com>,
+       htejun@gmail.com, linux-raid@vger.kernel.org,
+       Jeff Garzik <jgarzik@pobox.com>
+In-Reply-To: <200510081555.41159.andrew@walrond.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200510071111.46788.andrew@walrond.org>
+	 <43477836.6020107@gmail.com>
+	 <62b0912f0510080726ge2436e9ra6d7e8d17d1001ee@mail.gmail.com>
+	 <200510081555.41159.andrew@walrond.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 08 Oct 2005 21:03:15 +0800, Antonino A. Daplas wrote:
+On 10/8/05, Andrew Walrond <andrew@walrond.org> wrote:
+> The lack of hot swapping does seem to be a serious weakness in linux, at least
+> for resilient server applications. It would really complete the linux raid
+> picture, and make it quite compelling.
+>
+> But I'm in no position to do it myself; I can only hope this thread inspires
+> some capable person to plug the gap :)
 
-> Giuseppe Bilotta wrote:
->> On Sat, 08 Oct 2005 18:39:35 +0800, Antonino A. Daplas wrote:
->> 
->>> Bernhard Rosenkraenzer wrote:
->>>> Hi,
->>>> i810fb as a module is broken (checked with 2.6.13-mm3 and 2.6.14-rc2-mm1).
->>>> It compiles, but the module doesn't actually load because the kernel doesn't 
->>>> recognize the hardware (the MODULE_DEVICE_TABLE statement is missing).
->>>> The attached patch fixes this.
->>>>
->>>> However, the resulting module still doesn't work.
->>>> It loads, and then garbles the display (black screen with a couple of yellow 
->>>> lines, no matter what is written into the framebuffer device).
->>> Did you compile CONFIG_FRAMEBUFFER_CONSOLE statically, or did a modprobe fbcon?
->>> Does i810fb work if compiled statically?
->> 
->> Since this is *really* coming out often: is there a specific reason
->> why the fb modules do not depend on fbcon?
->> 
-> 
-> Some need fbdev only, without fbcon, ie, embedded.
+Hey Andrew,
 
-And does fbcon make sense *without* fbdevs?
+I've actually been working on implementing the core set of routines
+that will allow for hot-swapping SATA drives in Linux.  The core is
+not quite ready yet, but you can expect the next iteration within the
+week.  Once the core is integrated, someone will have to implement
+capturing hotswap events on the nForce4 SATA controller, and using the
+core functions.  I don't know how long that will take, but if the
+Linux SATA maintainer, Jeff Garzik (CCed on this email) knows how to
+do it, then it might be just a few weeks' time.
 
--- 
-Giuseppe "Oblomov" Bilotta
+That said, if you want to use this for servers you might still want to
+wait a bit before committing your resources to this :)
 
-"Da grande lotterò per la pace"
-"A me me la compra il mio babbo"
-(Altan)
-("When I grow up, I will fight for peace"
- "I'll have my daddy buy it for me")
-
+Luke Kosewski

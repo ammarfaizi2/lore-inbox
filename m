@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750896AbVJHKTl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750909AbVJHK0q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750896AbVJHKTl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Oct 2005 06:19:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750909AbVJHKTl
+	id S1750909AbVJHK0q (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Oct 2005 06:26:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750921AbVJHK0q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Oct 2005 06:19:41 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:26818 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1750891AbVJHKTl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Oct 2005 06:19:41 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <43479CF2.80408@s5r6.in-berlin.de>
-Date: Sat, 08 Oct 2005 12:18:26 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
-X-Accept-Language: de, en
+	Sat, 8 Oct 2005 06:26:46 -0400
+Received: from ns2.suse.de ([195.135.220.15]:27617 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750892AbVJHK0q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Oct 2005 06:26:46 -0400
+From: Andi Kleen <ak@suse.de>
+To: discuss@x86-64.org
+Subject: Re: [discuss] Re: [Patch] x86, x86_64: Intel HT, Multi core detection code cleanup
+Date: Sat, 8 Oct 2005 12:28:38 +0200
+User-Agent: KMail/1.8
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <20051005161706.B30098@unix-os.sc.intel.com> <20051007095200.GL6642@verdi.suse.de> <20051007175240.A2354@unix-os.sc.intel.com>
+In-Reply-To: <20051007175240.A2354@unix-os.sc.intel.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-CC: Chris Wright <chrisw@osdl.org>, Grant Coady <grant_lkml@dodo.com.au>,
-       Greg KH <gregkh@suse.de>, torvalds@osdl.org,
-       "Theodore Ts'o" <tytso@mit.edu>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Randy Dunlap <rdunlap@xenotime.net>, bcollins@debian.org,
-       Chuck Wolber <chuckw@quantumlinux.com>, alan@lxorguk.ukuu.org.uk
-Subject: Re: [stable] Re: [patch 1/7] ieee1394/sbp2: fixes for hot-unplug
- and module unloading
-References: <20051007234348.631583000@press.kroah.org> <20051007235353.GA23111@kroah.com> <20051007235422.GB23111@kroah.com> <004ek192bmh6t6ei08cpnusf8dmpi0dk6d@4ax.com> <20051008002109.GM5856@shell0.pdx.osdl.net>
-In-Reply-To: <20051008002109.GM5856@shell0.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: (-1.479) AWL,BAYES_00
+Content-Disposition: inline
+Message-Id: <200510081228.39492.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright wrote:
-> * Grant Coady (grant_lkml@dodo.com.au) wrote:
->>^^^^^ How did that 0x0c character sneak in there?
-> 
-> It's from the patched file (predating the patch, yes it should go, but
-> that's another story).
+On Saturday 08 October 2005 02:52, Siddha, Suresh B wrote:
+> On Fri, Oct 07, 2005 at 11:52:00AM +0200, Andi Kleen wrote:
+> > > I can fix the API mess. Is there anything else you want me to do?
+> >
+> > I think you overdid the sharing. Can you limit it to one file
+> > and copy the stuff that doesn't fit easily?
+>
+> Andi, This stuff is very much common to x86 and x86_64. Shared code is
+> split into two files because setting up sibling map code is generic and
+> HT/core detection code is very specific to Intel.
+>
+> How about the appended patch?
 
-Thanks. A code formatting cleanup is on my todo list.
--- 
-Stefan Richter
--=====-=-=-= =-=- -=---
-http://arcgraph.de/sr/
+I would prefer if the Intel CPU detection support wasn't distributed over so 
+many small files. If you prefer to share it put it all into a single file and 
+share that. But please only for code that can be cleanly shared without 
+ifdefs.
+
+Also in general it would be better if you first did the cleanup and then 
+as separate patches the various functionality enhancements.That makes
+the changes easier to be reviewed and it helps in binary search when something 
+goes wrong.
+
+-Andi

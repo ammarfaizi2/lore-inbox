@@ -1,78 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750872AbVJHKMY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750896AbVJHKTl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750872AbVJHKMY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Oct 2005 06:12:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750891AbVJHKMY
+	id S1750896AbVJHKTl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Oct 2005 06:19:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750909AbVJHKTl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Oct 2005 06:12:24 -0400
-Received: from tentacle.b.gz.ru ([217.67.124.4]:31367 "EHLO
-	tentacle.sectorb.msk.ru") by vger.kernel.org with ESMTP
-	id S1750862AbVJHKMY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Oct 2005 06:12:24 -0400
-Date: Sat, 8 Oct 2005 14:11:53 +0400
-From: "Vladimir B. Savkin" <master@sectorb.msk.ru>
-To: Andi Kleen <ak@suse.de>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       john stultz <johnstul@us.ibm.com>, discuss@x86-64.org
-Subject: Re: [PATCH] x86-64: Fix bad assumption that dualcore cpus have synced TSCs
-Message-ID: <20051008101153.GA1541@tentacle.sectorb.msk.ru>
-References: <1127157404.3455.209.camel@cog.beaverton.ibm.com> <20051007122624.GA23606@tentacle.sectorb.msk.ru> <200510071431.47245.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <200510071431.47245.ak@suse.de>
-X-Organization: Moscow State Univ., Institute of Mechanics
-X-Operating-System: Linux 2.6.11-ac7
-User-Agent: Mutt/1.5.9i
+	Sat, 8 Oct 2005 06:19:41 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:26818 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1750891AbVJHKTl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Oct 2005 06:19:41 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <43479CF2.80408@s5r6.in-berlin.de>
+Date: Sat, 08 Oct 2005 12:18:26 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+CC: Chris Wright <chrisw@osdl.org>, Grant Coady <grant_lkml@dodo.com.au>,
+       Greg KH <gregkh@suse.de>, torvalds@osdl.org,
+       "Theodore Ts'o" <tytso@mit.edu>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Randy Dunlap <rdunlap@xenotime.net>, bcollins@debian.org,
+       Chuck Wolber <chuckw@quantumlinux.com>, alan@lxorguk.ukuu.org.uk
+Subject: Re: [stable] Re: [patch 1/7] ieee1394/sbp2: fixes for hot-unplug
+ and module unloading
+References: <20051007234348.631583000@press.kroah.org> <20051007235353.GA23111@kroah.com> <20051007235422.GB23111@kroah.com> <004ek192bmh6t6ei08cpnusf8dmpi0dk6d@4ax.com> <20051008002109.GM5856@shell0.pdx.osdl.net>
+In-Reply-To: <20051008002109.GM5856@shell0.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: (-1.479) AWL,BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 07, 2005 at 02:31:46PM +0200, Andi Kleen wrote:
-> On Friday 07 October 2005 14:26, Vladimir B. Savkin wrote:
-> > On Mon, Sep 19, 2005 at 12:16:43PM -0700, john stultz wrote:
-> > > Andrew,
-> > > 	This patch should resolve the issue seen in bugme bug #5105, where it
-> > > is assumed that dualcore x86_64 systems have synced TSCs. This is not
-> > > the case, and alternate timesources should be used instead.
-> > >
-> > > For more details, see:
-> > > http://bugzilla.kernel.org/show_bug.cgi?id=5105
-> >
-> > I too have a box that shows the symptoms from bugzilla entry above.
-> > The system is Asus A8V Deluxe MB with
-> > "AMD Athlon(tm) 64 X2 Dual Core Processor 3800+".
-> >
-> > The patch below did not fix the problem, while "idle=poll" did.
-> > Hope this helps, dmesg attached.
+Chris Wright wrote:
+> * Grant Coady (grant_lkml@dodo.com.au) wrote:
+>>^^^^^ How did that 0x0c character sneak in there?
 > 
-> Are you running the latest BIOS?
+> It's from the patched file (predating the patch, yes it should go, but
+> that's another story).
 
-Just upgraded to the lastest BIOS (revision 1014), nothing changed.
-Only with "idle=poll" timers run normally.
-
-> 
-> > > Please consider for inclusion in your tree.
-> > >
-> > > thanks
-> > > -john
-> > >
-> > > diff --git a/arch/x86_64/kernel/time.c b/arch/x86_64/kernel/time.c
-> > > --- a/arch/x86_64/kernel/time.c
-> > > +++ b/arch/x86_64/kernel/time.c
-> > > @@ -959,9 +959,6 @@ static __init int unsynchronized_tsc(voi
-> > >   	   are handled in the OEM check above. */
-> > >   	if (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL)
-> > >   		return 0;
-> > > - 	/* All in a single socket - should be synchronized */
-> > > - 	if (cpus_weight(cpu_core_map[0]) == num_online_cpus())
-> > > - 		return 0;
-> > >  #endif
-> > >   	/* Assume multi socket systems are not synchronized */
-> > >   	return num_online_cpus() > 1;
-> >
-> > ~
-~
-:wq
-                                        With best regards, 
-                                           Vladimir Savkin. 
-
+Thanks. A code formatting cleanup is on my todo list.
+-- 
+Stefan Richter
+-=====-=-=-= =-=- -=---
+http://arcgraph.de/sr/

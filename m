@@ -1,282 +1,398 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030485AbWBPKXu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751276AbWBPKb6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030485AbWBPKXu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 05:23:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751088AbWBPKXu
+	id S1751276AbWBPKb6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 05:31:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751252AbWBPKb6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 05:23:50 -0500
-Received: from ip-center-pc4.mts-nn.ru ([213.177.107.5]:15254 "EHLO
-	vaso.ip-center.ru") by vger.kernel.org with ESMTP id S1750824AbWBPKXu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 05:23:50 -0500
-Date: Thu, 16 Feb 2006 13:19:19 +0300 (MSK)
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: "rmmod snd_cmipci" cause an Oops
-From: <gaa@mail.nnov.ru>
-X-Mailer: InfoMail v.4pre2
-Message-ID: <43F4519F0005CE06.FFF7@mail.nnov.ru>
-X-Originating-IP: 62.76.114.33
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 8bit
+	Thu, 16 Feb 2006 05:31:58 -0500
+Received: from [202.75.186.170] ([202.75.186.170]:17668 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S1751222AbWBPKb5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 05:31:57 -0500
+Date: Sat, 8 Oct 2005 17:14:43 +0800
+From: jayakumar.ide@gmail.com
+Message-Id: <200510080914.j989Ehbk007247@localhost.localdomain>
+To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.13.1 1/1] Updated CS5535 IDE driver
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Bartlomiej, IDE, kernel folk,
 
+As per thread with Jordan Crouse and Bartlomiej on lkml, this merges 
+AMD's changes with the changes from the following threads.
 
-"rmmod snd_cmipci" cause an Oops.
-Linux-2.6.14 does not have this bug.
+http://marc.theaimsgroup.com/?l=linux-ide&m=112832700817260&w=2
 
-# rmmod snd_cmipci
-Unable to handle kernel NULL pointer dereference at virtual address 
-00000018
- printing eip:
-c011b9da
-*pde = 00000000
-Oops: 0000 [#1]
-PREEMPT
-Modules linked in: lp snd_cmipci snd_pcm_oss snd_mixer_oss snd_pcm 
-snd_page_alloc snd_opl3_lib snd_timer snd_hwdep 
-snd_mpu401_uart snd_rawmidi snd_seq_device snd soundcore pl2303 usbserial 
-ohci_hcd usbcore sis_agp agpgart nls_cp866 
-vfat fat fuse parport_pc parport psmouse 8250 serial_core unix
-CPU:    0
-EIP:    0060:[<c011b9da>]    Not tainted VLI
-EFLAGS: 00010202   (2.6.15.4-gaa)
-EIP is at __release_resource+0xa/0x50
-eax: 00000000   ebx: c145c000   ecx: 00000018   edx: c2f5f3a0
-esi: c2c7e540   edi: 00001fff   ebp: c2c7e400   esp: c145de64
-ds: 007b   es: 007b   ss: 0068
-Process rmmod (pid: 2685, threadinfo=c145c000 task=c34d7560)
-Stack: c011bae1 c2f5f3a0 c2f5f3a0 c2c7e540 c4a67914 c2f5f3a0 c3655400 
-c49ed65f
-       c2f5f3a0 c2f5f3e0 c4a679fd c3655400 00001000 c4a67c72 c2c7e400 
-c3655400
-       c145c000 c2c7e400 c4a9c548 c4a9c548 c4a62de9 c2c7e400 00000001 
-c01ec0cf
-Call Trace:
- [<c011bae1>] release_resource+0x21/0x50
- [<c4a67914>] release_and_free_resource+0x14/0x30 [snd]
- [<c49ed65f>] snd_opl3_free+0x1f/0x40 [snd_opl3_lib]
- [<c4a679fd>] snd_device_free+0x5d/0xb0 [snd]
- [<c4a67c72>] snd_device_free_all+0x62/0x70 [snd]
- [<c4a62de9>] snd_card_free+0x109/0x210 [snd]
- [<c01ec0cf>] kref_put+0x2f/0x80
- [<c4a97bf9>] snd_cmipci_remove+0x19/0x24 [snd_cmipci]
- [<c01f621e>] pci_device_remove+0x1e/0x40
- [<c0227522>] __device_release_driver+0x62/0xa0
- [<c0227634>] driver_detach+0xa4/0xbe
- [<c0226e83>] bus_remove_driver+0x53/0x80
- [<c0227950>] driver_unregister+0x10/0x20
- [<c01f64a3>] pci_unregister_driver+0x13/0x20
- [<c4a97c9f>] alsa_card_cmipci_exit+0xf/0x11 [snd_cmipci]
- [<c0131425>] sys_delete_module+0x155/0x1a0
- [<c014c9d4>] sys_munmap+0x44/0x70
- [<c0102f21>] syscall_call+0x7/0xb
-Code: 0c c3 89 47 14 89 3a 89 77 10 31 f6 89 f0 8b 1c 24 8b 74 24 04 8b 7c 
-24 08 83 c4 0c c3 8d 74 26 00 8b 54 24 04 8b 
-42 10 8d 48 18 <8b> 40 18 85 c0 74 2f 39 c2 75 13 8b 42 14 89 01 31 c0 c7 
-42 10
- <6>note: rmmod[2685] exited with preempt_count 1
-Segmentation fault
+The specific changes merged from AMD:
+- removes interface serialization (hwif->serialized) per Jordan and Alan
+- set doc source, copyright and author to AMD as per Jordan. I assume 
+  this is okay with Jens, also from AMD.
+- removes debug code
+- updates Kconfig description
 
-# cat /proc/version
-Linux version 2.6.15.4-gaa (root@gaa) (gcc version 4.0.3 20060115 
-(prerelease) (Debian 4.0.2-7)) #1 PREEMPT Sat Feb 11 22:11:07 MSK 2006
+Thanks,
+Jaya Kumar
 
-# ./ver_linux
-If some fields are empty or look unusual you may have an old version.
-Compare to the current minimal requirements in Documentation/Changes.
+Signed-off-by: Jaya Kumar <jayakumar.ide@gmail.com>
+
+---
+
+ drivers/ide/Kconfig      |    9 +
+ drivers/ide/pci/Makefile |    1 
+ drivers/ide/pci/cs5535.c |  308 +++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/pci_ids.h  |    1 
+ 4 files changed, 319 insertions(+)
+diff -uprN -X dontdiff.13.1 linux-2.6.13.1-vanilla/drivers/ide/Kconfig linux-2.6.13.1-ide/drivers/ide/Kconfig
+--- linux-2.6.13.1-vanilla/drivers/ide/Kconfig	2005-09-15 14:35:09.000000000 +0800
++++ linux-2.6.13.1-ide/drivers/ide/Kconfig	2005-10-08 15:35:06.000000000 +0800
+@@ -539,6 +539,15 @@ config BLK_DEV_CS5530
  
-Linux gaa 2.6.15.4-gaa #1 PREEMPT Sat Feb 11 22:11:07 MSK 2006 i686 GNU/
-Linux
+ 	  It is safe to say Y to this question.
  
-Gnu C                  4.0.3
-Gnu make               3.80
-binutils               2.16.91
-util-linux             2.11z
-mount                  2.12
-module-init-tools      3.2-pre1
-e2fsprogs              1.38
-reiserfsprogs          line
-reiser4progs           line
-PPP                    2.4.3
-Linux C Library        2.3.5
-Dynamic linker (ldd)   2.3.5
-Procps                 3.1.9
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               5.2.1
-udev                   056
-Modules Loaded         lp snd_cmipci snd_pcm_oss snd_mixer_oss snd_pcm 
-snd_page_alloc snd_opl3_lib snd_timer snd_hwdep snd_mpu401_uart 
-snd_rawmidi snd_seq_device snd soundcore pl2303 usbserial ohci_hcd usbcore 
-sis_agp agpgart nls_cp866 vfat fat fuse parport_pc parport psmouse 8250 
-serial_core unix
-
-# cat /proc/cpuinfo
-processor: 0
-vendor_id: CyrixInstead
-cpu family: 6
-model: 2
-model name: M II 3.5x Core/Bus Clock
-stepping: 4
-cpu MHz: 292.363
-fdiv_bug: no
-hlt_bug: no
-f00f_bug: no
-coma_bug: no
-fpu: yes
-fpu_exception: yes
-cpuid level: 1
-wp: yes
-flags: fpu de tsc msr cx8 pge cmov mmx cyrix_arr
-bogomips: 585.45
-
-# cat /proc/modules
-lp 12904 0 - Live 0xc4a2e000
-snd_cmipci 34720 0 - Unloading 0xc4a94000
-snd_pcm_oss 55680 0 - Live 0xc4ab7000
-snd_mixer_oss 19968 1 snd_pcm_oss, Live 0xc4a82000
-snd_pcm 95176 2 snd_cmipci,snd_pcm_oss, Live 0xc4a9e000
-snd_page_alloc 10952 1 snd_pcm, Live 0xc4a3b000
-snd_opl3_lib 11104 1 snd_cmipci, Live 0xc49ed000
-snd_timer 26212 2 snd_pcm,snd_opl3_lib, Live 0xc4a7a000
-snd_hwdep 9504 1 snd_opl3_lib, Live 0xc4a2a000
-snd_mpu401_uart 7840 1 snd_cmipci, Live 0xc4981000
-snd_rawmidi 26272 1 snd_mpu401_uart, Live 0xc4a33000
-snd_seq_device 8748 2 snd_opl3_lib,snd_rawmidi, Live 0xc49f1000
-snd 55492 10 snd_cmipci,snd_pcm_oss,snd_mixer_oss,snd_pcm,snd_opl3_lib,
-snd_timer,snd_hwdep,snd_mpu401_uart,snd_rawmidi,snd_seq_device, Live 
-0xc4a62000
-soundcore 10304 1 snd, Live 0xc49bd000
-pl2303 21540 0 - Live 0xc4a17000
-usbserial 29056 1 pl2303, Live 0xc4a21000
-ohci_hcd 22340 0 - Live 0xc49f5000
-usbcore 135748 4 pl2303,usbserial,ohci_hcd, Live 0xc4a3f000
-sis_agp 8740 0 - Live 0xc49b9000
-agpgart 35816 1 sis_agp, Live 0xc4a0d000
-nls_cp866 5088 1 - Live 0xc4984000
-vfat 14144 1 - Live 0xc49b4000
-fat 53788 1 vfat, Live 0xc49fe000
-fuse 40428 0 - Live 0xc49e2000
-parport_pc 37124 1 - Live 0xc49d7000
-parport 39592 2 lp,parport_pc, Live 0xc49cc000
-psmouse 39268 0 - Live 0xc49c1000
-8250 23924 0 - Live 0xc49ad000
-serial_core 22688 1 8250, Live 0xc49a6000
-unix 29424 8 - Live 0xc498b000
-
-# cat /proc/ioports
-0000-001f : dma1
-0020-0021 : pic1
-0040-0043 : timer0
-0050-0053 : timer1
-0060-006f : keyboard
-0070-0077 : rtc
-0080-008f : dma page reg
-00a0-00a1 : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-0170-0177 : ide1
-01f0-01f7 : ide0
-0376-0376 : ide1
-0378-037a : parport0
-037b-037f : parport0
-03c0-03df : vesafb
-03f6-03f6 : ide0
-03f8-03ff : serial
-0cf8-0cff : PCI conf1
-4000-400f : 0000:00:01.1
-  4000-4007 : ide0
-  4008-400f : ide1
-f400-f47f : 0000:00:14.0
-f600-f6ff : 0000:00:0d.0
-  f600-f6ff : CMI8738
-
-# cat /proc/iomem
-00000000-0009fbff : System RAM
-0009fc00-0009ffff : reserved
-000a0000-000bffff : Video RAM area
-000c0000-000c7fff : Video ROM
-000f0000-000fffff : System ROM
-00100000-03bfffff : System RAM
-  00100000-002c0126 : Kernel code
-  002c0127-00333eff : Kernel data
-08000000-083fffff : vesafb
-fec00000-fec00fff : reserved
-fee00000-fee00fff : reserved
-ff400000-ff7fffff : 0000:00:14.0
-ffadf000-ffadffff : 0000:00:01.2
-  ffadf000-ffadffff : ohci_hcd
-ffae0000-ffae7fff : 0000:00:14.0
-ffaf0000-ffafffff : 0000:00:14.0
-fffe0000-ffffffff : reserved
-
-# lspci -vvv
-0000:00:00.0 Host bridge: Silicon Integrated Systems [SiS] 5597 [SiS5582] 
-(rev 10)
-Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-Status: Cap- 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort+ >SERR- <PERR-
-Latency: 64
-
-0000:00:01.0 ISA bridge: Silicon Integrated Systems [SiS] SiS85C503/5513 
-(LPC Bridge) (rev 01)
-Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-Status: Cap- 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-Latency: 0
-
-0000:00:01.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] 
-(rev d0) (prog-if 8a [Master SecP PriP])
-Subsystem: Unknown device 2841:a212
-Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-Status: Cap- 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-Latency: 128
-Interrupt: pin A routed to IRQ 0
-Region 0: I/O ports at <ignored>
-Region 1: I/O ports at <ignored>
-Region 2: I/O ports at <ignored>
-Region 3: I/O ports at <ignored>
-Region 4: I/O ports at 4000 [size=16]
-
-0000:00:01.2 USB Controller: Silicon Integrated Systems [SiS] USB 1.0 
-Controller (rev 10) (prog-if 10 [OHCI])
-Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- 
-Stepping- SERR+ FastB2B-
-Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR+
-Latency: 32, Cache Line Size: 0x08 (32 bytes)
-Interrupt: pin A routed to IRQ 11
-Region 0: Memory at ffadf000 (32-bit, non-prefetchable) [size=4K]
-
-0000:00:0d.0 Multimedia audio controller: C-Media Electronics Inc CM8738 
-(rev 10)
-Subsystem: C-Media Electronics Inc CMI8738/C3DX PCI Audio Device
-Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR+ FastB2B-
-Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-Latency: 32 (500ns min, 6000ns max)
-Interrupt: pin A routed to IRQ 10
-Region 0: I/O ports at f600 [size=256]
-Capabilities: [c0] Power Management version 2
-Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-0000:00:14.0 VGA compatible controller: Silicon Integrated Systems [SiS] 
-5597/5598/6326 VGA (rev 68) (prog-if 00 [VGA])
-Subsystem: Silicon Integrated Systems [SiS] 5597/5598/6326 VGA
-Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-Status: Cap- 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-Interrupt: pin A routed to IRQ 0
-Region 0: Memory at ff400000 (32-bit, prefetchable) [size=4M]
-Region 1: Memory at ffaf0000 (32-bit, non-prefetchable) [size=64K]
-Region 2: I/O ports at f400 [size=128]
-Expansion ROM at ffae0000 [disabled] [size=32K]
++config BLK_DEV_CS5535
++	tristate "AMD CS5535 chipset support"
++	depends on X86 && !X86_64
++	help
++	  Include support for UDMA on the NSC/AMD CS5535 companion chipset. 
++	  This will automatically be detected and configured if found. 
++
++	  It is safe to say Y to this question.
++
+ config BLK_DEV_HPT34X
+ 	tristate "HPT34X chipset support"
+ 	help
+diff -uprN -X dontdiff.13.1 linux-2.6.13.1-vanilla/drivers/ide/pci/cs5535.c linux-2.6.13.1-ide/drivers/ide/pci/cs5535.c
+--- linux-2.6.13.1-vanilla/drivers/ide/pci/cs5535.c	1970-01-01 07:30:00.000000000 +0730
++++ linux-2.6.13.1-ide/drivers/ide/pci/cs5535.c	2005-10-08 16:45:10.000000000 +0800
+@@ -0,0 +1,308 @@
++/*
++ * linux/drivers/ide/pci/cs5535.c       
++ *
++ * Copyright (C) 2004-2005 Advanced Micro Devices, Inc.
++ *
++ * History:
++ * 09/20/2005 - Jaya Kumar <jayakumar.ide@gmail.com>
++ * - Reworked tuneproc, set_drive, misc mods to prep for mainline 
++ * - Work was sponsored by CIS (M) Sdn Bhd.
++ * Ported to Kernel 2.6.11 on June 26, 2005 by
++ *   Wolfgang Zuleger <wolfgang.zuleger@gmx.de>
++ *   Alexander Kiausch <alex.kiausch@t-online.de>
++ * Originally developed by AMD for 2.4   
++ *
++ * Development of this chipset driver was funded
++ * by the nice folks at National Semiconductor.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
++ *
++ * Documentation:
++ *  CS5535 documentation available from AMD
++ */
++
++#include <linux/config.h>
++#include <linux/module.h>
++#include <linux/pci.h>
++#include <linux/ide.h>
++
++#include "ide-timing.h"
++
++#define MSR_ATAC_BASE    	0x51300000
++#define ATAC_GLD_MSR_CAP 	(MSR_ATAC_BASE+0)
++#define ATAC_GLD_MSR_CONFIG	(MSR_ATAC_BASE+0x01)
++#define ATAC_GLD_MSR_SMI	(MSR_ATAC_BASE+0x02)
++#define ATAC_GLD_MSR_ERROR	(MSR_ATAC_BASE+0x03)
++#define ATAC_GLD_MSR_PM		(MSR_ATAC_BASE+0x04)
++#define ATAC_GLD_MSR_DIAG	(MSR_ATAC_BASE+0x05)
++#define ATAC_IO_BAR		(MSR_ATAC_BASE+0x08)
++#define ATAC_RESET		(MSR_ATAC_BASE+0x10)
++#define ATAC_CH0D0_PIO		(MSR_ATAC_BASE+0x20)
++#define ATAC_CH0D0_DMA		(MSR_ATAC_BASE+0x21)
++#define ATAC_CH0D1_PIO		(MSR_ATAC_BASE+0x22)
++#define ATAC_CH0D1_DMA		(MSR_ATAC_BASE+0x23) 
++#define ATAC_PCI_ABRTERR	(MSR_ATAC_BASE+0x24)
++#define ATAC_BM0_CMD_PRIM	0x00
++#define ATAC_BM0_STS_PRIM	0x02
++#define ATAC_BM0_PRD		0x04
++#define CS5535_CABLE_DETECT	0x48
++
++/* Format I PIO settings. We seperate out cmd and data for safer timings */
++
++static unsigned int cs5535_pio_cmd_timings[5] = 
++{ 0xF7F4, 0x53F3, 0x13F1, 0x5131, 0x1131 };
++static unsigned int cs5535_pio_dta_timings[5] = 
++{ 0xF7F4, 0xF173, 0x8141, 0x5131, 0x1131 };
++
++static unsigned int cs5535_mwdma_timings[3] = 
++{ 0x7F0FFFF3, 0x7F035352, 0x7f024241 };
++
++static unsigned int cs5535_udma_timings[5] = 
++{ 0x7F7436A1, 0x7F733481, 0x7F723261, 0x7F713161, 0x7F703061 };
++
++/* Macros to check if the register is the reset value -  reset value is an
++   invalid timing and indicates the register has not been set previously */
++
++#define CS5535_BAD_PIO(timings) ( (timings&~0x80000000UL) == 0x00009172 )
++#define CS5535_BAD_DMA(timings) ( (timings & 0x000FFFFF) == 0x00077771 )
++  
++/**
++ *	cs5535_set_speed         -     Configure the chipset to the new speed
++ *	@drive: Drive to set up
++ *	@speed: desired speed
++ *
++ *	cs5535_set_speed() configures the chipset to a new speed.
++ */
++static void cs5535_set_speed(ide_drive_t *drive, u8 speed) 
++{
++	
++	u32 reg = 0, dummy;
++	int unit = drive->select.b.unit;
++
++
++	/* Set the PIO timings */
++	
++	if ((speed & XFER_MODE) == XFER_PIO) {
++		u8 pioa; 
++		u8 piob;
++		u8 cmd; 
++
++		pioa = speed - XFER_PIO_0;
++		piob = ide_get_best_pio_mode(&(drive->hwif->drives[!unit]), 
++						255, 4, NULL);
++		cmd = pioa < piob ? pioa : piob;
++
++		/* Write the speed of the current drive */
++		reg = (cs5535_pio_cmd_timings[cmd] << 16) | 
++			cs5535_pio_dta_timings[pioa];	
++		wrmsr(unit ? ATAC_CH0D1_PIO : ATAC_CH0D0_PIO, reg, 0);
++		
++		/* And if nessesary - change the speed of the other drive */
++		rdmsr(unit ?  ATAC_CH0D0_PIO : ATAC_CH0D1_PIO, reg, dummy);    
++		
++		if (((reg >> 16) & cs5535_pio_cmd_timings[cmd]) != 
++			cs5535_pio_cmd_timings[cmd]) {
++			reg &= 0x0000FFFF;
++			reg |= cs5535_pio_cmd_timings[cmd] << 16;
++			wrmsr(unit ? ATAC_CH0D0_PIO : ATAC_CH0D1_PIO, reg, 0);
++		}
++
++		/* Set bit 31 of the DMA register for PIO format 1 timings */
++		rdmsr(unit ?  ATAC_CH0D1_DMA : ATAC_CH0D0_DMA, reg, dummy);    
++		wrmsr(unit ? ATAC_CH0D1_DMA : ATAC_CH0D0_DMA, 
++					reg | 0x80000000UL, 0);
++	} else {
++		rdmsr(unit ? ATAC_CH0D1_DMA : ATAC_CH0D0_DMA, reg, dummy);
++		
++		reg &= 0x80000000UL;  /* Preserve the PIO format bit */
++
++		if (speed >= XFER_UDMA_0 && speed <= XFER_UDMA_7) 
++			reg |= cs5535_udma_timings[speed - XFER_UDMA_0];
++		else if (speed >= XFER_MW_DMA_0 && speed <= XFER_MW_DMA_2) 
++			reg |= cs5535_mwdma_timings[speed - XFER_MW_DMA_0];
++		else 
++			return;
++		
++		wrmsr(unit ? ATAC_CH0D1_DMA : ATAC_CH0D0_DMA, reg, 0);
++	}
++}
++
++static u8 cs5535_ratemask(ide_drive_t *drive)
++{
++	/* eighty93 will return 1 if it's 80core and capable of
++	exceeding udma2, 0 otherwise. we need ratemask to set
++	the max speed and if we can > udma2 then we return 2
++	which selects speed_max as udma4 which is the 5535's max
++	speed, and 1 selects udma2 which is the max for 40c */
++	if (!eighty_ninty_three(drive))
++		return 1;
++
++	return 2;
++}
++
++
++/**
++ *	cs5535_set_drive         -     Configure the drive to the new speed
++ *	@drive: Drive to set up
++ *	@speed: desired speed
++ *
++ *	cs5535_set_drive() configures the drive and the chipset to a
++ *	new speed. It also can be called by upper layers.
++ */
++static int cs5535_set_drive(ide_drive_t *drive, u8 speed) 
++{
++	
++
++	speed = ide_rate_filter(cs5535_ratemask(drive), speed);
++	ide_config_drive_speed(drive, speed);
++	cs5535_set_speed(drive, speed);	
++
++	return 0;
++}
++
++/**
++ *	cs5535_tuneproc    -       PIO setup
++ *	@drive: drive to set up
++ *	@pio: mode to use (255 for 'best possible')
++ *
++ *	A callback from the upper layers for PIO-only tuning.
++ */
++static void cs5535_tuneproc(ide_drive_t *drive, u8 xferspeed) 
++{ 	
++	u8 modes[] = { 	XFER_PIO_0, XFER_PIO_1, XFER_PIO_2, XFER_PIO_3,
++			XFER_PIO_4 };
++
++	/* cs5535 max pio is pio 4, best_pio will check the blacklist. 
++	i think we don't need to rate_filter the incoming xferspeed 
++	since we know we're only going to choose pio */
++	xferspeed = ide_get_best_pio_mode(drive, xferspeed, 4, NULL);
++	ide_config_drive_speed(drive, modes[xferspeed]);
++	cs5535_set_speed(drive, xferspeed);
++}
++
++static int cs5535_config_drive_for_dma(ide_drive_t *drive)
++{
++	u8 speed;
++
++	speed = ide_dma_speed(drive, cs5535_ratemask(drive));
++
++	/* If no DMA speed was available then let dma_check hit pio */
++	if (!speed) {
++		return 0;
++	}
++
++	cs5535_set_drive(drive, speed);
++	return ide_dma_enable(drive);
++}
++
++static int cs5535_dma_check(ide_drive_t *drive)
++{
++	ide_hwif_t *hwif	= drive->hwif;
++	struct hd_driveid *id	= drive->id;
++	u8 speed;
++
++	drive->init_speed = 0;
++
++	if ((id->capability & 1) && drive->autodma) {
++		if (ide_use_dma(drive)) {
++			if (cs5535_config_drive_for_dma(drive))
++				return hwif->ide_dma_on(drive);
++		}
++
++		goto fast_ata_pio;
++
++	} else if ((id->capability & 8) || (id->field_valid & 2)) {
++fast_ata_pio:
++		speed = ide_get_best_pio_mode(drive, 255, 4, NULL);
++		cs5535_set_drive(drive, speed);
++		return hwif->ide_dma_off_quietly(drive);
++	}
++	/* IORDY not supported */
++	return 0;
++}
++
++static u8 __devinit cs5535_cable_detect(struct pci_dev *dev)
++{
++	u8 bit;
++	
++	/* if a 80 wire cable was detected */
++	pci_read_config_byte(dev, CS5535_CABLE_DETECT, &bit);
++	return (bit & 1);
++}
++
++/**
++ * 	init_hwif_cs5535        -       Initialize one ide cannel
++ *	@hwif: Channel descriptor
++ *
++ *	This gets invoked by the IDE driver once for each channel. It
++ *	performs channel-specific pre-initialization before drive probing.
++ *
++ */
++static void __devinit init_hwif_cs5535(ide_hwif_t *hwif)
++{
++	int i;
++
++	hwif->autodma = 0;
++
++	hwif->tuneproc = &cs5535_tuneproc;
++	hwif->speedproc = &cs5535_set_drive;
++	hwif->ide_dma_check = &cs5535_dma_check;
++
++	hwif->atapi_dma = 1;
++	hwif->ultra_mask = 0x1F;
++	hwif->mwdma_mask = 0x07;
++
++
++	hwif->udma_four = cs5535_cable_detect(hwif->pci_dev);
++
++	if (!noautodma) 
++		hwif->autodma = 1;
++
++	/* just setting autotune and not worrying about bios timings */
++	for (i = 0; i < 2; i++) {
++		hwif->drives[i].autotune = 1;
++		hwif->drives[i].autodma = hwif->autodma;
++	}
++}
++
++static ide_pci_device_t cs5535_chipset __devinitdata = {
++	.name		= "CS5535",
++	.init_hwif	= init_hwif_cs5535,
++	.channels	= 1,
++	.autodma	= AUTODMA,
++	.bootable	= ON_BOARD,
++};
++
++static int __devinit cs5535_init_one(struct pci_dev *dev, 
++					const struct pci_device_id *id)
++{
++	return ide_setup_pci_device(dev, &cs5535_chipset);
++}
++
++static struct pci_device_id cs5535_pci_tbl[] = 
++{
++	{ PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_CS5535_IDE, PCI_ANY_ID, 
++		PCI_ANY_ID, 0, 0, 0},
++	{ 0, },
++};
++
++MODULE_DEVICE_TABLE(pci, cs5535_pci_tbl);
++
++static struct pci_driver driver = {
++	.name       = "CS5535_IDE",
++	.id_table   = cs5535_pci_tbl,
++	.probe      = cs5535_init_one,
++};
++
++static int __init cs5535_ide_init(void)
++{
++	return ide_pci_register_driver(&driver);
++}
++
++module_init(cs5535_ide_init);
++
++MODULE_AUTHOR("AMD");
++MODULE_DESCRIPTION("PCI driver module for AMD/NS CS5535 IDE");
++MODULE_LICENSE("GPL");
+diff -uprN -X dontdiff.13.1 linux-2.6.13.1-vanilla/drivers/ide/pci/Makefile linux-2.6.13.1-ide/drivers/ide/pci/Makefile
+--- linux-2.6.13.1-vanilla/drivers/ide/pci/Makefile	2005-09-15 14:35:10.000000000 +0800
++++ linux-2.6.13.1-ide/drivers/ide/pci/Makefile	2005-09-19 15:22:13.000000000 +0800
+@@ -6,6 +6,7 @@ obj-$(CONFIG_BLK_DEV_ATIIXP)		+= atiixp.
+ obj-$(CONFIG_BLK_DEV_CMD64X)		+= cmd64x.o
+ obj-$(CONFIG_BLK_DEV_CS5520)		+= cs5520.o
+ obj-$(CONFIG_BLK_DEV_CS5530)		+= cs5530.o
++obj-$(CONFIG_BLK_DEV_CS5535)		+= cs5535.o
+ obj-$(CONFIG_BLK_DEV_SC1200)		+= sc1200.o
+ obj-$(CONFIG_BLK_DEV_CY82C693)		+= cy82c693.o
+ obj-$(CONFIG_BLK_DEV_HPT34X)		+= hpt34x.o
+diff -uprN -X dontdiff.13.1 linux-2.6.13.1-vanilla/include/linux/pci_ids.h linux-2.6.13.1-ide/include/linux/pci_ids.h
+--- linux-2.6.13.1-vanilla/include/linux/pci_ids.h	2005-09-15 14:36:19.000000000 +0800
++++ linux-2.6.13.1-ide/include/linux/pci_ids.h	2005-09-19 15:22:13.000000000 +0800
+@@ -402,6 +402,7 @@
+ #define PCI_DEVICE_ID_NS_SC1100_SMI	0x0511
+ #define PCI_DEVICE_ID_NS_SC1100_XBUS	0x0515
+ #define PCI_DEVICE_ID_NS_87410		0xd001
++#define PCI_DEVICE_ID_NS_CS5535_IDE	0x002d
+ 
+ #define PCI_VENDOR_ID_TSENG		0x100c
+ #define PCI_DEVICE_ID_TSENG_W32P_2	0x3202

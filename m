@@ -1,99 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161028AbVJHA5I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161026AbVJHA5E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161028AbVJHA5I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 20:57:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161029AbVJHA5H
+	id S1161026AbVJHA5E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 20:57:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161028AbVJHA5E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 20:57:07 -0400
-Received: from fmr20.intel.com ([134.134.136.19]:58526 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1161028AbVJHA5F convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 20:57:05 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Fri, 7 Oct 2005 20:57:04 -0400
+Received: from smtp1.Stanford.EDU ([171.67.16.123]:47821 "EHLO
+	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S1161026AbVJHA5B
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 20:57:01 -0400
+Date: Fri, 7 Oct 2005 17:56:57 -0700 (PDT)
+From: Nickolai Zeldovich <nickolai@cs.stanford.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Reproducible kernel panic on NFS unmount
+Message-ID: <Pine.LNX.4.44.0510071742240.27324-300000@cardinal3.Stanford.EDU>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [patch 2/2] acpi: add ability to derive irq when doing a surpriseremoval of an adapter
-Date: Sat, 8 Oct 2005 08:56:55 +0800
-Message-ID: <59D45D057E9702469E5775CBB56411F190A57F@pdsmsx406>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch 2/2] acpi: add ability to derive irq when doing a surpriseremoval of an adapter
-Thread-Index: AcXLZzwOdcfuzhRmTy2goDJxYFOv9wAO1arQ
-From: "Li, Shaohua" <shaohua.li@intel.com>
-To: "Accardi, Kristen C" <kristen.c.accardi@intel.com>,
-       <pcihpd-discuss@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>,
-       <acpi-devel@lists.sourceforge.net>
-Cc: "Shah, Rajesh" <rajesh.shah@intel.com>, <greg@kroah.com>,
-       "Brown, Len" <len.brown@intel.com>
-X-OriginalArrivalTime: 08 Oct 2005 00:56:58.0223 (UTC) FILETIME=[2F37EFF0:01C5CBA3]
+Content-Type: MULTIPART/MIXED; BOUNDARY="1085012751-1936467436-1128733017=:27324"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
->
->If an adapter is surprise removed, the interrupt pin must be guessed,
-as
->any attempts to read it would obviously be invalid.  cycle through all
->possible interrupt pin values until we can either lookup or derive the
->right irq to disable.
->
->Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
->
->diff -uprN -X linux-2.6.14-rc2/Documentation/dontdiff linux-2.6.14-
->rc2/drivers/acpi/pci_irq.c linux-2.6.14-rc2-kca1/drivers/acpi/pci_irq.c
->--- linux-2.6.14-rc2/drivers/acpi/pci_irq.c	2005-09-27
->09:01:28.000000000 -0700
->+++ linux-2.6.14-rc2-kca1/drivers/acpi/pci_irq.c	2005-09-28
->10:40:57.000000000 -0700
->@@ -491,6 +491,79 @@ void __attribute__ ((weak)) acpi_unregis
-> {
-> }
->
->+
->+
->+/*
->+ * This function will be called only in the case of
->+ * a "surprise" hot plug removal.  For surprise removals,
->+ * the card has either already be yanked out of the slot, or
->+ * the slot's been powered off, so we have to brute force
->+ * our way through all the possible interrupt pins to derive
->+ * the GSI, then we double check with the value stored in the
->+ * pci_dev structure to make sure we have the GSI that belongs
->+ * to this IRQ.
->+ */
->+void acpi_pci_irq_disable_nodev(struct pci_dev *dev)
->+{
->+	int gsi = 0;
->+	u8  pin = 0;
->+	int edge_level = ACPI_LEVEL_SENSITIVE;
->+	int active_high_low = ACPI_ACTIVE_LOW;
->+	int irq;
->+
->+	/*
->+	 * since our device is not present, we
->+	 * can't just read the interrupt pin
->+	 * and use the value to derive the irq.
->+	 * in this case, we are going to check
->+	 * each returned irq value to make
->+	 * sure it matches our already assigned
->+	 * irq before we use it.
->+	 */
->+	for (pin = 0; pin < 4; pin++) {
->+		/*
->+	 	 * First we check the PCI IRQ routing table (PRT) for an
-IRQ.
->+	 	 */
->+		gsi = acpi_pci_irq_lookup(dev->bus,
-PCI_SLOT(dev->devfn), pin,
->+				  &edge_level, &active_high_low, NULL,
->+				  acpi_pci_free_irq);
-acpi_pci_free_irq has side effect. In the link device case, it
-deferences a count. The blind guess will mass the reference count. Could
-you introduce something like 'acpi_pci_find_irq'?
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Thanks,
-Shaohua 
+--1085012751-1936467436-1128733017=:27324
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+
+There seems to be some bug in the 2.6.12-1.1447_FC4 kernel NFS client: if
+you unmount at the right time, when the TCP connection to the NFS server
+is closed, and there's an outstanding request, the reconnect timer doesn't
+seem to be deleted(?), and RPC_REESTABLISH_TIMEOUT/HZ seconds later, the
+kernel panics with something like:
+
+    kernel BUG at kernel/timer.c:418!
+    invalid operand: 0000 [#1]
+    ...
+    Kernel panic - not syncing: Fatal exception in interrupt
+
+and the call trace is different every time.
+
+The attached shell script (and funmount.c program) reproduce the problem.
+Run the shell script with one argument (nfs-server:/exported/path) and it
+will do the following:
+
+ * mount the NFS server
+ * set up iptables to RST the TCP connection
+ * create an outstanding request to the NFS server (statvfs)
+ * call umount2(/mountpoint, MNT_FORCE | MNT_DETACH)
+ * 15 seconds later, the kernel panics
+
+-- kolya
+
+--1085012751-1936467436-1128733017=:27324
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="funmount.c"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0510071756570.27324@cardinal3.Stanford.EDU>
+Content-Description: 
+Content-Disposition: attachment; filename="funmount.c"
+
+I2luY2x1ZGUgPHN0ZGlvLmg+DQojaW5jbHVkZSA8c3RkbGliLmg+DQojaW5j
+bHVkZSA8c3lzL21vdW50Lmg+DQoNCmludCBtYWluKGludCBhYywgY2hhciAq
+KmF2KSB7DQogICAgaWYgKGFjICE9IDIpIHsNCglmcHJpbnRmKHN0ZGVyciwg
+IlVzYWdlOiAlcyBtb3VudHBvaW50XG4iLCBhdlswXSk7DQoJcmV0dXJuIDE7
+DQogICAgfQ0KDQogICAgY2hhciAqcG4gPSBhdlsxXTsNCiAgICBpZiAodW1v
+dW50MihwbiwgTU5UX0ZPUkNFIHwgLyogTU5UX0RFVEFDSCAqLyAyKSA8IDAp
+IHsNCglwZXJyb3IoInVtb3VudDIiKTsNCglyZXR1cm4gMTsNCiAgICB9DQoN
+CiAgICByZXR1cm4gMDsNCn0NCg==
+--1085012751-1936467436-1128733017=:27324
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="nfs-crash.sh"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0510071756571.27324@cardinal3.Stanford.EDU>
+Content-Description: 
+Content-Disposition: attachment; filename="nfs-crash.sh"
+
+IyEvYmluL3NoIC14DQoNCmlmIFsgIiQxIiA9ICIiIF07IHRoZW4NCiAgICBl
+Y2hvICJVc2FnZTogJDAgbmZzLXNlcnZlcjovc29tZS9wYXRoIg0KICAgIGV4
+aXQgMQ0KZmkNCg0KaXB0YWJsZXMgLUYgT1VUUFVUDQppcHRhYmxlcyAtUCBP
+VVRQVVQgQUNDRVBUDQppcHRhYmxlcyAtTiBuZnMtb3V0LWJsb2NrDQppcHRh
+YmxlcyAtQSBuZnMtb3V0LWJsb2NrIC1wIHRjcCAtLWRwb3J0IDIwNDkgLWog
+UkVKRUNUIC0tcmVqZWN0LXdpdGggdGNwLXJlc2V0DQoNCm1rZGlyIC1wIC9t
+bnQvbmZzLWNyYXNoLXRlc3QNCm1vdW50IC1uICIkMSIgL21udC9uZnMtY3Jh
+c2gtdGVzdA0KDQppcHRhYmxlcyAtQSBPVVRQVVQgLWogbmZzLW91dC1ibG9j
+aw0KZGYgLWsgL21udC9uZnMtY3Jhc2gtdGVzdCAmDQoNCiggVD0wOyB3aGls
+ZSBbICIkVCIgIT0gMjAgXTsgZG8gVD1gZXhwciAkVCArIDFgOyBzbGVlcCAx
+OyBkb25lICkgJg0KDQpzbGVlcCAxDQouL2Z1bm1vdW50IC9tbnQvbmZzLWNy
+YXNoLXRlc3QNCg0K
+--1085012751-1936467436-1128733017=:27324--

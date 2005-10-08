@@ -1,79 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbVJHQaL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932149AbVJHQji@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932167AbVJHQaL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Oct 2005 12:30:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbVJHQaK
+	id S932149AbVJHQji (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Oct 2005 12:39:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbVJHQji
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Oct 2005 12:30:10 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:31665 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S932167AbVJHQaJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Oct 2005 12:30:09 -0400
-Message-ID: <4347F3DE.8070505@vc.cvut.cz>
-Date: Sat, 08 Oct 2005 18:29:18 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686 (x86_64); en-US; rv:1.7.11) Gecko/20050914 Debian/1.7.11-1
-X-Accept-Language: en
+	Sat, 8 Oct 2005 12:39:38 -0400
+Received: from host62-24-231-115.dsl.vispa.com ([62.24.231.115]:10476 "EHLO
+	orac.walrond.org") by vger.kernel.org with ESMTP id S932133AbVJHQjh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Oct 2005 12:39:37 -0400
+From: Andrew Walrond <andrew@walrond.org>
+To: "John Stoffel" <john@stoffel.org>
+Subject: Re: Anybody know about nforce4 SATA II hot swapping + linux raid?
+Date: Sat, 8 Oct 2005 17:39:35 +0100
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org, Molle Bestefich <molle.bestefich@gmail.com>,
+       htejun@gmail.com, linux-raid@vger.kernel.org
+References: <200510071111.46788.andrew@walrond.org> <200510081555.41159.andrew@walrond.org> <17223.61190.917668.850611@smtp.charter.net>
+In-Reply-To: <17223.61190.917668.850611@smtp.charter.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc2-almost-rc3, ext3 and memory corruption
-References: <20051001030027.GA8784@vana.vc.cvut.cz>
-In-Reply-To: <20051001030027.GA8784@vana.vc.cvut.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510081739.35566.andrew@walrond.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr Vandrovec wrote:
-> Hello,
->   I was so happy that 2.6.13-rc3 was released that I tried to grab it,
-> and while I was doing that, box said:
-> 
-> Slab corruption: start=ffff8100005e5bf8, len=96
-> Redzone: 0x5a2cf071/0x5a2cf071.
-> Last user: [<ffffffff801ec42d>](journal_remove_journal_head+0x6d/0xb0)
-> 000: 6b 6b 6b 6b 6b 6b 6b 6b 01 00 00 00 6b 6b 6b 6b
-> Prev obj: start=ffff8100005e5b80, len=96
-> Redzone: 0x5a2cf071/0x5a2cf071.
-> Last user: [<ffffffff801ec42d>](journal_remove_journal_head+0x6d/0xb0)
-> 000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-> 010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-> Next obj: start=ffff8100005e5c70, len=96
-> Redzone: 0x5a2cf071/0x5a2cf071.
-> Last user: [<ffffffff801ec42d>](journal_remove_journal_head+0x6d/0xb0)
-> 000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-> 010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+On Saturday 08 October 2005 17:08, John Stoffel wrote:
+>
+> Hmm... I've been watching those 3ware discussions with interest as
+> well, but I haven't seen any commments on how well they work as JBOD
+> controllers, esp if you get smaller ones with fewer channels and
+> stripe/mirror between controllers.  If you pair disks between
+> controllers, then that should limit the downtime, and also improve
+> performance.
 
-Hello,
-   so I've enabled JBD-DEBUG, and unfortunately somebody corrupted inode instead 
-of journal head this time :-(  But corruption looks same - somebody wrote 32bit 
-value 1 somewhere it should not...  Does anybody have something like 
-CONFIG_DEBUG_PAGE_ALLOC for x86-64?
+My application has hundreds/thousands of threads doing simultaneous small 
+reads, with infrequent small writes. Any problems would probably be mitigated 
+by having loads of ram for linux to use as disk cache, but this does seem to 
+be an access model at which the 3ware hardware is not good at handling. Of 
+course, it never hurts to remind them in a public forum; nothing focuses the 
+corporate mind better than bad press ;)
 
-Slab corruption: start=ffff8100005e7c00, len=976
-Redzone: 0x5a2cf071/0x5a2cf071.
-Last user: [<ffffffff801aa690>](destroy_inode+0x30/0x50)
-080: 01 00 00 00 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-Prev obj: start=ffff8100005e7818, len=976
-Redzone: 0x5a2cf071/0x5a2cf071.
-Last user: [<ffffffff801aa690>](destroy_inode+0x30/0x50)
-000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-ppc:~$ uname -a
-Linux ppc 2.6.14-rc3-dd72 #1 SMP PREEMPT Tue Oct 4 21:12:16 CEST 2005 x86_64 
-GNU/Linux
-ppc:~$
-
-This time I was not doing anything special, just building new kernel & browsing web.
-						Thanks,
-							Petr Vandrovec
-
-> Box in question has single Athlon64 processor, runs SMP PREEMPT kernel
-> with almost all debugging options set (but not CONFIG_JBD_DEBUG).  Box 
-> has 2GB of ECC RAM.  Root filesystem is on pata disk connected to the 
-> pata port on Promise's 20378 (using sata_promise).  Disk with git repository 
-> is plugged to pata port on Via's VT8237.  Kernel's configuration is 
-> at http://platan.vc.cvut.cz/vana_at_home_config.txt, dmesg at 
-> http://platan.vc.cvut.cz/vana_at_home_dmesg.txt.
-
-
+Andrew Walrond

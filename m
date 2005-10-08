@@ -1,122 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbVJHH6b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbVJHI3Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750738AbVJHH6b (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Oct 2005 03:58:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbVJHH6b
+	id S1750810AbVJHI3Z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Oct 2005 04:29:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbVJHI3Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Oct 2005 03:58:31 -0400
-Received: from fmr24.intel.com ([143.183.121.16]:41904 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1750738AbVJHH6b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Oct 2005 03:58:31 -0400
-Message-Id: <200510080758.j987w0g06343@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "Seth, Rohit" <rohit.seth@intel.com>, <hugh@veritas.com>, <agl@us.ibm.com>,
-       <linux-kernel@vger.kernel.org>
-Cc: <linux-mm@kvack.org>, <akpm@osdl.org>
-Subject: RE: FW: [PATCH 0/3] Demand faulting for huge pages
-Date: Sat, 8 Oct 2005 00:57:59 -0700
+	Sat, 8 Oct 2005 04:29:25 -0400
+Received: from nproxy.gmail.com ([64.233.182.201]:28954 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750793AbVJHI3Y convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Oct 2005 04:29:24 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=diluw6vTjH4QmenaUDixi+/km/5jynYojCy/qLFdbVTHyQ4iJIRPVy3u41IWPavSiVaAG5uz+jbw7Oge2fNBMnmapr0AoPZDhFwIe64g2I+iZWW4yG5YtFN8SJuTWmRgvyuAivgGwlIPiNtHOTQ5tVy6sd8cczZAWIqqdmBnmbU=
+Message-ID: <58cb370e0510080129i80710c7gc2178b9330a1ee19@mail.gmail.com>
+Date: Sat, 8 Oct 2005 10:29:22 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: IDE issues with "choose_drive"
+Cc: Jens Axboe <axboe@suse.de>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       list linux-ide <linux-ide@vger.kernel.org>
+In-Reply-To: <1128734104.17365.73.camel@gaston>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcXLhTD/dngZ3/qjS+KfldOFWp0/9AAVbeCA
-In-Reply-To: <1128720518.32679.15.camel@akash.sc.intel.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1128559019.22073.19.camel@gaston>
+	 <1128560569.22073.25.camel@gaston> <1128734104.17365.73.camel@gaston>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rohit Seth wrote on Friday, October 07, 2005 2:29 PM
-> On Fri, 2005-10-07 at 10:47 -0700, Adam Litke wrote:
-> > If I were to spend time coding up a patch to remove truncation
-> > support for hugetlbfs, would it be something other people would
-> > want to see merged as well?
-> 
-> In its current form, there is very little use of huegtlb truncate
-> functionality.  Currently it only allows reducing the size of hugetlb
-> backing file.   
-> 
-> IMO it will be useful to keep and enhance this capability so that
-> apps can dynamically reduce or increase the size of backing files
-> (for example based on availability of memory at any time).
+On 10/8/05, Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> On Thu, 2005-10-06 at 11:02 +1000, Benjamin Herrenschmidt wrote:
+> > > The first one is the one I'm trying to fix, it's basically a hang on
+> > > wakeup from sleep. What happens is that both drives are blocked
+> > > (suspended, drive->blocked is set). Their IO queues contains some
+> > > requests that haven't been serviced yet. We receive the resume()
+> > > callback for one of them. We react by inserting a wakeup request at the
+> > > head of the queue and waiting for it to complete. However, when we reach
+> > > ide_do_request(), choose_drive() may return the other drive (the one
+> > > that is still sleeping). In this case, we hit the test for blocked queue
+> > > and just break out of the loop. We end up never servicing the other
+> > > drive queue which is the one we are trying to wakeup, thus we hang.
+> >
+> > Oh, and here's the ugly workaround beeing tested by the users who are
+> > having the problem so far. Not really a proper fix though...
+>
+> No reply ... it's a bit urgent as it may bite any system trying to
+> suspend with a slave IDE disk at least (not including the other possible
+> problems I've spotted  with this code).
 
-Yup, here is a patch to enhance that capability.  It is more of bring
-ftruncate on hugetlbfs file a step closer to the same semantics for
-file on other file systems.
+It is a old problem from what I understand.
+However it would still be nice to have it fixed for 2.6.14.
 
+> I'm tempted to just send my workaround patch to Linus & Andrew (might
+> still make it into 2.6.14). That would at least fix the bug with resume
+> from sleep. What do you think ?
 
----
-Add expanding ftruncate to hugetlbfs.
+It seems we need internal ide_dev_do_request(ide_drive_t *, int)
+which will explicitly state which device we want to service as I see
+no sane way to fix the problem in choose_drive().
 
-Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
+Your workaround is OK for 2.6.14 given that you will document it
+now and later fix it properly for 2.6.15.
 
---- linux-2.6.14-rc3/fs/hugetlbfs/inode.c.orig	2005-10-07 18:07:38.131373873 -0700
-+++ linux-2.6.14-rc3/fs/hugetlbfs/inode.c	2005-10-08 00:31:15.951404405 -0700
-@@ -327,20 +327,20 @@ hugetlb_vmtruncate_list(struct prio_tree
- 	}
- }
- 
--/*
-- * Expanding truncates are not allowed.
-- */
- static int hugetlb_vmtruncate(struct inode *inode, loff_t offset)
- {
- 	unsigned long pgoff;
- 	struct address_space *mapping = inode->i_mapping;
--
--	if (offset > inode->i_size)
--		return -EINVAL;
-+	struct vm_area_struct *vma;
-+	struct prio_tree_iter iter;
-+	int ret = 0;
- 
- 	BUG_ON(offset & ~HPAGE_MASK);
- 	pgoff = offset >> HPAGE_SHIFT;
- 
-+	if (offset > inode->i_size)
-+		goto do_expand;
-+
- 	inode->i_size = offset;
- 	spin_lock(&mapping->i_mmap_lock);
- 	if (!prio_tree_empty(&mapping->i_mmap))
-@@ -348,6 +348,18 @@ static int hugetlb_vmtruncate(struct ino
- 	spin_unlock(&mapping->i_mmap_lock);
- 	truncate_hugepages(mapping, offset);
- 	return 0;
-+
-+do_expand:
-+	spin_lock(&mapping->i_mmap_lock);
-+	vma_prio_tree_foreach(vma, &iter, &mapping->i_mmap, pgoff, ULONG_MAX) {
-+		ret = hugetlb_prefault(mapping, vma);
-+		if (ret == 0)
-+			inode->i_size = offset;
-+		else
-+			break;
-+	}
-+	spin_unlock(&mapping->i_mmap_lock);
-+	return ret;
- }
- 
- static int hugetlbfs_setattr(struct dentry *dentry, struct iattr *attr)
---- linux-2.6.14-rc3/mm/hugetlb.c.orig	2005-10-07 23:16:42.789349826 -0700
-+++ linux-2.6.14-rc3/mm/hugetlb.c	2005-10-07 23:25:04.175085872 -0700
-@@ -340,7 +340,7 @@ void zap_hugepage_range(struct vm_area_s
- 
- int hugetlb_prefault(struct address_space *mapping, struct vm_area_struct *vma)
- {
--	struct mm_struct *mm = current->mm;
-+	struct mm_struct *mm = vma->vm_mm;
- 	unsigned long addr;
- 	int ret = 0;
- 
-@@ -360,6 +360,8 @@ int hugetlb_prefault(struct address_spac
- 			ret = -ENOMEM;
- 			goto out;
- 		}
-+		if (pte_present(*pte))
-+			continue;
- 
- 		idx = ((addr - vma->vm_start) >> HPAGE_SHIFT)
- 			+ (vma->vm_pgoff >> (HPAGE_SHIFT - PAGE_SHIFT));
-
+Bartlomiej

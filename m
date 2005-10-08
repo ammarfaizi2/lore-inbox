@@ -1,66 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161030AbVJHAxg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161028AbVJHA5I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161030AbVJHAxg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 20:53:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161028AbVJHAxg
+	id S1161028AbVJHA5I (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 20:57:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161029AbVJHA5H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 20:53:36 -0400
-Received: from zproxy.gmail.com ([64.233.162.203]:24208 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161026AbVJHAxe convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 20:53:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=PWKDcCJKRmPrXhIPd4toRjsOjI/YnwOo5SgKgjHo2BUAG7EOgXagKJ9wM414c09ohJbQi5pziBtyZMTqlnykIHN9pAv/6KqqYtg74D71LpCKWvDezsgGqVgUByMED1ew3nG85FQweIrlDhbHsyFLyrfEYqbTrGMtwuIOvy77kjg=
-Message-ID: <bda6d13a0510071753h80ed0fdoa35f3b39a3079ef1@mail.gmail.com>
-Date: Fri, 7 Oct 2005 17:53:34 -0700
-From: Joshua Hudson <joshudson@gmail.com>
-Reply-To: Joshua Hudson <joshudson@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: How to interpret a kernel bug output from dmesg?
+	Fri, 7 Oct 2005 20:57:07 -0400
+Received: from fmr20.intel.com ([134.134.136.19]:58526 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1161028AbVJHA5F convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 20:57:05 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [patch 2/2] acpi: add ability to derive irq when doing a surpriseremoval of an adapter
+Date: Sat, 8 Oct 2005 08:56:55 +0800
+Message-ID: <59D45D057E9702469E5775CBB56411F190A57F@pdsmsx406>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch 2/2] acpi: add ability to derive irq when doing a surpriseremoval of an adapter
+Thread-Index: AcXLZzwOdcfuzhRmTy2goDJxYFOv9wAO1arQ
+From: "Li, Shaohua" <shaohua.li@intel.com>
+To: "Accardi, Kristen C" <kristen.c.accardi@intel.com>,
+       <pcihpd-discuss@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>,
+       <acpi-devel@lists.sourceforge.net>
+Cc: "Shah, Rajesh" <rajesh.shah@intel.com>, <greg@kroah.com>,
+       "Brown, Len" <len.brown@intel.com>
+X-OriginalArrivalTime: 08 Oct 2005 00:56:58.0223 (UTC) FILETIME=[2F37EFF0:01C5CBA3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got this. Probably I caused it. Kernel is 2.6.13, slightly modified
-(weird new psuedo filesystem).
-Problem is I don't know how to read it.  I wouldn't recommend looking
-for it yourself: I doubt
-you will find anything.
-Yes, I compiled with DEBUG_DCACHE (or something similar, uncommented the
-debug define at the top of dcache.c). I ran dmesg -c just before the ls that
-crashed, and dmesg right afterwards. Nothing else present.
+Hi,
+>
+>If an adapter is surprise removed, the interrupt pin must be guessed,
+as
+>any attempts to read it would obviously be invalid.  cycle through all
+>possible interrupt pin values until we can either lookup or derive the
+>right irq to disable.
+>
+>Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+>
+>diff -uprN -X linux-2.6.14-rc2/Documentation/dontdiff linux-2.6.14-
+>rc2/drivers/acpi/pci_irq.c linux-2.6.14-rc2-kca1/drivers/acpi/pci_irq.c
+>--- linux-2.6.14-rc2/drivers/acpi/pci_irq.c	2005-09-27
+>09:01:28.000000000 -0700
+>+++ linux-2.6.14-rc2-kca1/drivers/acpi/pci_irq.c	2005-09-28
+>10:40:57.000000000 -0700
+>@@ -491,6 +491,79 @@ void __attribute__ ((weak)) acpi_unregis
+> {
+> }
+>
+>+
+>+
+>+/*
+>+ * This function will be called only in the case of
+>+ * a "surprise" hot plug removal.  For surprise removals,
+>+ * the card has either already be yanked out of the slot, or
+>+ * the slot's been powered off, so we have to brute force
+>+ * our way through all the possible interrupt pins to derive
+>+ * the GSI, then we double check with the value stored in the
+>+ * pci_dev structure to make sure we have the GSI that belongs
+>+ * to this IRQ.
+>+ */
+>+void acpi_pci_irq_disable_nodev(struct pci_dev *dev)
+>+{
+>+	int gsi = 0;
+>+	u8  pin = 0;
+>+	int edge_level = ACPI_LEVEL_SENSITIVE;
+>+	int active_high_low = ACPI_ACTIVE_LOW;
+>+	int irq;
+>+
+>+	/*
+>+	 * since our device is not present, we
+>+	 * can't just read the interrupt pin
+>+	 * and use the value to derive the irq.
+>+	 * in this case, we are going to check
+>+	 * each returned irq value to make
+>+	 * sure it matches our already assigned
+>+	 * irq before we use it.
+>+	 */
+>+	for (pin = 0; pin < 4; pin++) {
+>+		/*
+>+	 	 * First we check the PCI IRQ routing table (PRT) for an
+IRQ.
+>+	 	 */
+>+		gsi = acpi_pci_irq_lookup(dev->bus,
+PCI_SLOT(dev->devfn), pin,
+>+				  &edge_level, &active_high_low, NULL,
+>+				  acpi_pci_free_irq);
+acpi_pci_free_irq has side effect. In the link device case, it
+deferences a count. The blind guess will mass the reference count. Could
+you introduce something like 'acpi_pci_find_irq'?
 
-------------[ cut here ]------------
-kernel BUG at include/linux/dcache.h:294!
-invalid operand: 0000 [#1]
-PREEMPT
-Modules linked in:
-CPU:    0
-EIP:    0060:[<c0160723>]    Not tainted VLI
-EFLAGS: 00010246   (2.6.13c1)
-EIP is at __link_path_walk+0xd03/0xe60
-eax: 00000000   ebx: ce054014   ecx: 00000001   edx: cdd392fc
-esi: ce1b7000   edi: ce1ffecc   ebp: ce1b7f10   esp: ce1b7e24
-ds: 007b   es: 007b   ss: 0068
-Process ls (pid: 258, threadinfo=ce1b7000 task=ce2eaae0)
-Stack: 00000001 ce1b7e50 ce1b7e48 cdd392fc ce1b7e5c ce1b7e54 c02ac704 00000000
-       00000000 cfee48c0 ce1ffecc 00017c88 00000002 ce054012 c0169a73 ce1b7f10
-       ce1b7f50 ce1b7ebc ce1b7e7c c01608c7 ce00b294 ce054000 ce00b294 cfee48c0
-Call Trace:
- [<c0169a73>] dput+0x33/0x280
- [<c01608c7>] link_path_walk+0x47/0xe0
- [<c0160c1c>] path_lookup+0x8c/0x160
- [<c0160eb3>] __user_walk+0x33/0x60
- [<c015ae9c>] vfs_lstat+0x1c/0x60
- [<c015b5cb>] sys_lstat64+0x1b/0x40
- [<c016416d>] sys_fcntl+0x2d/0x60
- [<c0102ab5>] syscall_call+0x7/0xb
-Code: 2a ff 02 89 55 00 b8 01 00 00 00 e8 78 de fa ff 8b 46 08 a8 08
-75 0d 89 3c 24 e8 29 93 00 00 e9 75 ff ff ff e8 8f 22 11 00 eb ec <0f>
-0b 26 01 8e e6 27 c0 eb cc e8 7e 22 11 00 e9 97 fe ff ff 8b
- <6>note: ls[258] exited with preempt_count 1
+Thanks,
+Shaohua 

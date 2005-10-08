@@ -1,93 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932145AbVJHOfN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbVJHOzp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932145AbVJHOfN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Oct 2005 10:35:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbVJHOfN
+	id S932146AbVJHOzp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Oct 2005 10:55:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbVJHOzp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Oct 2005 10:35:13 -0400
-Received: from xproxy.gmail.com ([66.249.82.197]:43932 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932145AbVJHOfL convert rfc822-to-8bit
+	Sat, 8 Oct 2005 10:55:45 -0400
+Received: from host62-24-231-115.dsl.vispa.com ([62.24.231.115]:49305 "EHLO
+	orac.walrond.org") by vger.kernel.org with ESMTP id S932146AbVJHOzo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Oct 2005 10:35:11 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JfbRcAgyf3koTvo4QV2U83+WfCrQIhB0J5quvmPTCQDh2V+nxLoA/1ojH7cMvAI3y24ZyLhZ/aPfv1RnzP/79l64IKoINwx1RmkmS6vSBqp45uR5iSTatWc2ULqyQ+OUNpJVT7IJ84gNRivbyoQeVnDzSZZWTX/6ZQIaVKj+v60=
-Message-ID: <4ae3c140510080735q5842d686u2f023b47f7930586@mail.gmail.com>
-Date: Sat, 8 Oct 2005 10:35:11 -0400
-From: Xin Zhao <uszhaoxin@gmail.com>
-Reply-To: Xin Zhao <uszhaoxin@gmail.com>
-To: Willy Tarreau <willy@w.ods.org>
-Subject: Re: why is NFS performance poor when decompress linux kernel
-Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20051008071936.GF22601@alpha.home.local>
+	Sat, 8 Oct 2005 10:55:44 -0400
+From: Andrew Walrond <andrew@walrond.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Anybody know about nforce4 SATA II hot swapping + linux raid?
+Date: Sat, 8 Oct 2005 15:55:40 +0100
+User-Agent: KMail/1.8.2
+Cc: Molle Bestefich <molle.bestefich@gmail.com>, htejun@gmail.com,
+       linux-raid@vger.kernel.org
+References: <200510071111.46788.andrew@walrond.org> <43477836.6020107@gmail.com> <62b0912f0510080726ge2436e9ra6d7e8d17d1001ee@mail.gmail.com>
+In-Reply-To: <62b0912f0510080726ge2436e9ra6d7e8d17d1001ee@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <4ae3c140510072139n68b9b2eeyc0a400be32d958fe@mail.gmail.com>
-	 <1128751189.17981.62.camel@mindpipe>
-	 <20051008071936.GF22601@alpha.home.local>
+Message-Id: <200510081555.41159.andrew@walrond.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think the stat might be one reason. cuz when I do 'nfsstat', I
-noticed that "getattr" and "setattr" are executed about 40000 times
-while other operations are executed for less than 10000 times. That
-gave me a feeling that some optimization can be considered to reduce
-the getattr and setattr requests.
+On Saturday 08 October 2005 15:26, Molle Bestefich wrote:
+>
+> IDE hotswap has never worked (OOTB at least) in Linux, and based on my
+> experience it never will.  Seems the IDE folks doesn't care a bit
+> about it.  (No offence meant.  Just keeping it real.)
 
-async and sync options affect write performance on large files more
-significantly. But decompress kernel involves a lot of small files.
-Because nfs will force data sync to disk before file close. async and
-sync do not behave quite different.
+Fair enough. What about SCSI? Do any of the in-kernel scsi drivers support 
+hotswap? And if so, how well does it cooperate with linux raid?
 
-Anyone has exeprience with NFS4? I don't know whether it improves in this parts
+>
+> Tejun Heo wrote:
+> > If you're looking for stability/resilience for production machine,
+> > IMHO libata isn't still quite ready.
+>
+> I disagree...
+> I've used it for TBs of data without any problems.
 
-Xin
+Likewise. I've been using exclusively SATA with linux raid for quite a while 
+now, with great success. But for the super resilient zero downtime servers I 
+now need to deploy, I must be able to swap dead drives without taking the 
+server down. Hence my query.
 
-On 10/8/05, Willy Tarreau <willy@w.ods.org> wrote:
-> Hi,
->
-> On Sat, Oct 08, 2005 at 01:59:48AM -0400, Lee Revell wrote:
-> > On Sat, 2005-10-08 at 00:39 -0400, Xin Zhao wrote:
-> > > I noticed that when doing large file copy or linux kernel compilation
-> > > in a NFS direcotry, the performance is not bad compared to local disk
-> > > filesystem such as ext2. However, if I do linux kernel tarball
-> > > decompression on a NFS directory, the performance is much worse than
-> > > local disk filesystem (over 3 times slower). Anybody know the reason?
-> >
-> > Because NFS requires all writes to be synchronous by default, and
-> > uncompressing the kernel is the most write intensive of those three
-> > operations.  Mount with the async option and the performance should be
-> > closer to a local disk.  Obviously this is more dangerous.
->
-> I don't agree with you, Lee. My NFS is mounted with async by default,
-> and what takes the most time when extracting a kernel archive is that
-> tar does a stat() on every file before writing it. And THAT stat()
-> prevents writes from being buffered. A better solution might be to
-> process several files in parallel (multi-process/multi-thread).
-> Perhaps a project for a new tar ?
->
-> Just for a test, I tried extracting multiple files in parallel. The
-> method is completely crappy, but I could saturate my NFS server this
-> way :
->
-> $ tar ztf /tmp/linux-2.6.9.tar.gz >/tmp/file-list
-> $ sed -n '1~4p' < /tmp/file-list >/tmp/file-list1
-> $ sed -n '2~4p' < /tmp/file-list >/tmp/file-list2
-> $ sed -n '3~4p' < /tmp/file-list >/tmp/file-list3
-> $ sed -n '4~4p' < /tmp/file-list >/tmp/file-list4
->
-> $ tar zxf /tmp/linux-2.6.9.tar.gz -T /tmp/file-list1 & tar zxf /tmp/linux-2.6.9.tar.gz -T /tmp/file-list2 & tar zxf /tmp/linux-2.6.9.tar.gz -T /tmp/file-list3 & tar zxf /tmp/linux-2.6.9.tar.gz -T /tmp/file-list4 & wait
->
-> OK, it finally took more time, although the server was saturated (maybe
-> it crawled under seeks at the end, I did not check). This may constitute
-> a starting point for people having more time to research in this area.
->
-> > Lee
->
-> Cheers,
-> Willy
->
->
+Off-list respondants have recommended 3ware hardware raid products, but 
+throughput concerns on another thread here have really put me off that idea. 
+So unless linux SCSI provides a useful solution, I'll stick with what seems 
+the only reliable solution out there; hardware scsi raid ( = small expensive 
+drives ).
+
+The lack of hot swapping does seem to be a serious weakness in linux, at least 
+for resilient server applications. It would really complete the linux raid 
+picture, and make it quite compelling.
+
+But I'm in no position to do it myself; I can only hope this thread inspires 
+some capable person to plug the gap :)
+
+Thanks to all who responded.
+
+Andrew Walrond

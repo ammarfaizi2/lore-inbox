@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751069AbVJHTJb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751107AbVJHTRf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751069AbVJHTJb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Oct 2005 15:09:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbVJHTJb
+	id S1751107AbVJHTRf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Oct 2005 15:17:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbVJHTRf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Oct 2005 15:09:31 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:6446 "EHLO
-	pd3mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1751069AbVJHTJa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Oct 2005 15:09:30 -0400
-Date: Sat, 08 Oct 2005 13:09:13 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Anybody know about nforce4 SATA II hot swapping + linux raid?
-In-reply-to: <4VnSe-hv-15@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <43481959.2080807@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <4UXuH-EU-31@gated-at.bofh.it> <4VhD6-79H-7@gated-at.bofh.it>
- <4VnSe-hv-15@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+	Sat, 8 Oct 2005 15:17:35 -0400
+Received: from hqemgate01.nvidia.com ([216.228.112.170]:25626 "EHLO
+	HQEMGATE01.nvidia.com") by vger.kernel.org with ESMTP
+	id S1751096AbVJHTRe convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Oct 2005 15:17:34 -0400
+x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Anybody know about nforce4 SATA II hot swapping + linux raid?
+Date: Sat, 8 Oct 2005 12:16:59 -0700
+Message-ID: <DBFABB80F7FD3143A911F9E6CFD477B00B41CA30@hqemmail02.nvidia.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Anybody know about nforce4 SATA II hot swapping + linux raid?
+Thread-Index: AcXL28tuFSO9LbBVTvWFtf38HJU6bQAYKtTA
+From: "Allen Martin" <AMartin@nvidia.com>
+To: "Tejun Heo" <htejun@gmail.com>, "Andrew Walrond" <andrew@walrond.org>
+Cc: <linux-raid@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 08 Oct 2005 19:16:51.0880 (UTC) FILETIME=[D680DA80:01C5CC3C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Molle Bestefich wrote:
-> IDE hotswap has never worked (OOTB at least) in Linux, and based on my
-> experience it never will.  Seems the IDE folks doesn't care a bit
-> about it.  (No offence meant.  Just keeping it real.)
+>   One more thing to note is that nVidia cannot supply information
+> regarding SATA part (I think network part too) of its chipset to open
+> source community.  So, it is possible that not everything goes
+smoothly
+> with nf4 hotplug support even after other pieces come together
+eventually.
 
-If you mean IDE as in PATA, it's not supported in the kernel because 
-PATA hardware does not generally support hotswap, the controllers and 
-drives are not designed for it.
+The sata_nv libata driver has had full support for hotplug for a while.
+When the rest of libata supports hotplug nForce4 SATA hotplug should
+just work.
 
-SATA is very different in regards to hardware capabilities and kernel 
-support for hotswap..
-
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
-
+-Allen

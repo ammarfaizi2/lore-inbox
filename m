@@ -1,94 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbVJHQty@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751069AbVJHTJb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932157AbVJHQty (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Oct 2005 12:49:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932161AbVJHQty
+	id S1751069AbVJHTJb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Oct 2005 15:09:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbVJHTJb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Oct 2005 12:49:54 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:59098 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S932157AbVJHQtx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Oct 2005 12:49:53 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Marc Perkel <marc@perkel.com>
-Subject: Re: what's next for the linux kernel?
-Date: Sat, 8 Oct 2005 19:49:39 +0300
-User-Agent: KMail/1.8.2
-Cc: Nix <nix@esperi.org.uk>, Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       7eggert@gmx.de, Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
-       linux-kernel@vger.kernel.org
-References: <4TiWy-4HQ-3@gated-at.bofh.it> <874q7vhj0c.fsf@amaterasu.srvr.nix> <434429F2.7030400@perkel.com>
-In-Reply-To: <434429F2.7030400@perkel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510081949.40028.vda@ilport.com.ua>
+	Sat, 8 Oct 2005 15:09:31 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:6446 "EHLO
+	pd3mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1751069AbVJHTJa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Oct 2005 15:09:30 -0400
+Date: Sat, 08 Oct 2005 13:09:13 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Anybody know about nforce4 SATA II hot swapping + linux raid?
+In-reply-to: <4VnSe-hv-15@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <43481959.2080807@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <4UXuH-EU-31@gated-at.bofh.it> <4VhD6-79H-7@gated-at.bofh.it>
+ <4VnSe-hv-15@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 05 October 2005 22:30, Marc Perkel wrote:
-> >So, um, what happens to these permissions when you copy a file and put
-> >it somewhere else? Do the inherited rights go with it or not? In Unix
-> >it's pretty intuitive. In this system there seem to be two right
-> >answers, both of which seem... risky from a security perspective.
-> >  
-> >
-> You inherit the rights of the new directory.
-> 
-> Also - under Netware not all permissions are stored with the file. The 
-> rights are calculated from the file heirachy so you don't store a lot of 
-> data with each file unless the file has permissions set that is 
+Molle Bestefich wrote:
+> IDE hotswap has never worked (OOTB at least) in Linux, and based on my
+> experience it never will.  Seems the IDE folks doesn't care a bit
+> about it.  (No offence meant.  Just keeping it real.)
 
-Since when 16 bits is a lot of data?
+If you mean IDE as in PATA, it's not supported in the kernel because 
+PATA hardware does not generally support hotswap, the controllers and 
+drives are not designed for it.
 
-> different than that of the directory it's in. So moving a file to 
-> someone's home directory doesn't require any permissions to be set to 
-> give the user rights to the file.
-> 
-> >/tmp is the problem here, and shows the futility and pointlessness of
-> >this feature. If you have an unlistable file in /tmp, *its name is still
-> >determinable*, because other users cannot create files with that
-> >name. The concept adds *nothing* over some combination of dirs with the
-> >execute bit cleared for some set of users and subdirectories which
-> >cannot be read by some set of users. There's no need for this profoundly
-> >non-Unixlike permission at all. (As usual, ACLs make managing this on
-> >a fine-grained scale rather easier.)
-> >
-> It doesn't really make sense to use the /tmp directory the way Unix uses 
-> it. Why would you want just anyone to even know the names of the 
-> temporary files you are using. Users should have their own temp 
-> directory or create their own directory within /tmp
+SATA is very different in regards to hardware capabilities and kernel 
+support for hotswap..
 
-Then use ~/tmp in your homedir. What's the problem?
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-> >You *do* realise just how incapable the Windows permission-management
-> >GUI is, don't you? Any OS where the command-line tools hide half
-> >the permissions model and the GUI hides a slightly different half,
-> >and where looking at a set of permissions and hitting cancel can
-> >*change* those permissions drastically, is not sane.
-> >  
-> >
-> That's why I'm pushing netware as a model rather than windows. But 
-> Windows file permissions are superior to Linux.
-> 
-> >(Disclaimer: the last time I bothered to verify the latter behaviour
-> >was in NT4. Maybe they've partially fixed it.)
-> 
-> One place where Windows wins over Linux is in the "easy to use" 
-> category. Something the Linux world should look ast.
-
-"Easy to use" to whom?
-
-Command line tools for changing permissions under Windows are anything
-but "easy to use". They are also feature incomplete. Tools for changing
-ownership do not exist at all. Tools for changing permissions/ownership
-on registry do not exist also. Maybe third party ones exist, dunno.
-Every one that I saw on the Inet, was either buggy, incomplete, or both.
-
-For admins, this is a huge hole in usability.
-
-> I am a Linux supporter and love it. I'm saying this to help make it better.
---
-vda

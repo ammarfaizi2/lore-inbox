@@ -1,120 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbVJHPEQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbVJHPGe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932151AbVJHPEQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Oct 2005 11:04:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932153AbVJHPEQ
+	id S932154AbVJHPGe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Oct 2005 11:06:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932153AbVJHPGe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Oct 2005 11:04:16 -0400
-Received: from zproxy.gmail.com ([64.233.162.196]:14414 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932151AbVJHPEP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Oct 2005 11:04:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type;
-        b=qqKVGTAyIMTkuF0RVXq2CEUw9g+fr9lKjLXZFZiYHZBZz+jnqMkojvxH/dpi0VRVmeO89G5gbKPl03MTEBi1hqa+ijbLwC2D3iegiIBang3FzFQTTK58BoMp9O2ZFe3lzqWjVRHDtChgseWfiPIUVyVPQJWLSQudhbmJ8eOFg9s=
-Message-ID: <bac30fa90510080804n27f9264dm@mail.gmail.com>
-Date: Sat, 8 Oct 2005 12:04:14 -0300
-From: Redes II <redes2k@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: kthread_stop give me an error (kernel 2.6.13 gentoo-sources)
+	Sat, 8 Oct 2005 11:06:34 -0400
+Received: from pantene.yandex.ru ([213.180.200.35]:50607 "EHLO
+	pantene.yandex.ru") by vger.kernel.org with ESMTP id S932154AbVJHPGe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Oct 2005 11:06:34 -0400
+Date: Sat, 8 Oct 2005 19:06:17 +0400 (MSD)
+From: "Ivan S. Dubrov" <WFrag@yandex.ru>
+Message-Id: <4347E069.000001.31814@pantene.yandex.ru>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_2367_6952396.1128783854640"
+X-Mailer: Yamail [ http://yandex.ru ]
+To: linux-kernel@vger.kernel.org
+Subject: Problems with iPaq synchronization
+Reply-To: WFrag@yandex.ru
+X-Source-Ip: 217.117.80.2
+Content-Type: text/plain;
+  charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_2367_6952396.1128783854640
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hello,
 
-Hi!!!
+I'm trying to synchronize with my iPaq (rx3715) and get the following error
+(in dmesg):
 
-I'm trying to make a module for the university, on kernel 2.6.13.
+usb 1-1: new full speed USB device using ohci_hcd and address 9
+ipaq 1-1:2.0: PocketPC PDA converter detected
+drivers/usb/serial/ipaq.c: active config #2 != 1 ??
+ipaq: probe of 1-1:2.0 failed with error -5
 
+I have kernel 2.6.12-1-amd64-k8 from the Debian/AMD64 Etch distribution.
 
-Its a Backdoor - telnet......
-but when i try to unload the module, kthread_stop give me this error:
+P.S. I've read sources a bit and found that the USB active configuration
+can be selected by the hotplug, but it is not clear how (and if it can solve
+the problem).
 
-Unable to handle kernel NULL pointer dereference at virtual address 0000000=
-0
-
-
-i attached the code....
-
-
-Help Me!!!!
-Sebastian
-
-Sorry for my bad English.
-
-------=_Part_2367_6952396.1128783854640
-Content-Type: text/x-csrc; name="backdoor.c"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="backdoor.c"
-
-I2luY2x1ZGUgPGxpbnV4L2tlcm5lbC5oPgojaW5jbHVkZSA8bGludXgvaW5pdC5oPgojaW5jbHVk
-ZSA8bGludXgvbW9kdWxlLmg+CiNpbmNsdWRlIDxuZXQvdGNwLmg+CiNpbmNsdWRlIDxsaW51eC9r
-dGhyZWFkLmg+CgojZGVmaW5lIFBPUlQgMTk5OTMKI2RlZmluZSBNQVggMTAwMApNT0RVTEVfREVT
-Q1JJUFRJT04oIkJhY2tkb29yIE1vZHVsZSIpOwpNT0RVTEVfQVVUSE9SKCJTZWJhcywgVXJ1Z3Vh
-eW8geSBRdWluY2hvIik7Ck1PRFVMRV9MSUNFTlNFKCIkTElDRU5TRSQiKTsKCnZvaWQqIHRocmVh
-ZCAodm9pZCopOwppbnQgcmVjdmZyb21fYmFja2Rvb3Ioc3RydWN0IHNvY2tldCAqc29jaywgc3Ry
-dWN0IHNvY2thZGRyX2luICphZGRyLCB1bnNpZ25lZCBjaGFyICpidWYpOwppbnQgc2VuZHRvX2Jh
-Y2tkb29yIChzdHJ1Y3Qgc29ja2V0ICpzb2NrLCBzdHJ1Y3Qgc29ja2FkZHJfaW4gKnRvLCB1bnNp
-Z25lZCBjaGFyICpidWYsaW50IGxlbik7CgpzdHJ1Y3QgdGFza19zdHJ1Y3QgKnA7CnN0cnVjdCBz
-b2NrZXQgKnNvY2ssICpuZXdzb2NrOwoKc3RhdGljIGludCBiYWNrZG9vcl9pbml0X21vZHVsZSh2
-b2lkKQp7Ci8vCWludCBhdXg7Ci8vCWF1eCA9IGtlcm5lbF90aHJlYWQgKCZ0aHJlYWQsTlVMTCxD
-TE9ORV9LRVJORUwpOwoJcCA9IGt0aHJlYWRfY3JlYXRlICh0aHJlYWQsMCwiQmFja2Rvb3IiKTsK
-CXdha2VfdXBfcHJvY2VzcyAocCk7CglwcmludGsoIk1vZHVsZSBiYWNrZG9vciBpbml0XG4iICk7
-CglyZXR1cm4gMDsKfQoKc3RhdGljIHZvaWQgYmFja2Rvb3JfZXhpdF9tb2R1bGUodm9pZCkKewoJ
-Cglzb2NrX3JlbGVhc2UgKHNvY2spOwoJc29ja19yZWxlYXNlIChuZXdzb2NrKTsKCWt0aHJlYWRf
-c3RvcCAocCk7CglwcmludGsgKCJDZXJybyBTb2NrZXRcblxuXG4iKTsKCXByaW50ayggS0VSTl9E
-RUJVRyAiTW9kdWxlIGJhY2tkb29yIGV4aXRcbiIgKTsKCn0KCgoKCnZvaWQqIHRocmVhZCAodm9p
-ZCogZ2cpewoJaW50IFNvY2tldFNlcnYsIGVycjsKCXN0cnVjdCBzb2NrYWRkcl9pbiBzZXJ2YWRk
-cjsKCWNoYXIgYnVmZiBbTUFYXTsKCXVuc2lnbmVkIHNob3J0IHB1ZXJ0bzsKCWludCBieXRlczsK
-CW5ld3NvY2sgPSBOVUxMOwoJcHVlcnRvID0gUE9SVDsKCWlmICgoU29ja2V0U2VydiA9IHNvY2tf
-Y3JlYXRlIChQRl9JTkVULCBTT0NLX1NUUkVBTSwgSVBQUk9UT19UQ1AsJnNvY2spKTwgMCkKCQlw
-cmludGsgKCJob2xhMyIpOwoJbWVtc2V0KCZzZXJ2YWRkciwgMCwgc2l6ZW9mKHNlcnZhZGRyKSk7
-CglzZXJ2YWRkci5zaW5fZmFtaWx5ID0gQUZfSU5FVDsKCXNlcnZhZGRyLnNpbl9hZGRyLnNfYWRk
-ciA9IElOQUREUl9BTlk7CglzZXJ2YWRkci5zaW5fcG9ydCA9IGh0b25zKHB1ZXJ0byk7Cglwcmlu
-dGsgKCIgY3JlbyBzb2NrZXRcbiIpOwoJaWYgKChlcnI9c29jay0+b3BzLT5iaW5kIChzb2NrLCAo
-c3RydWN0IHNvY2thZGRyICopICZzZXJ2YWRkciwgc2l6ZW9mKHNlcnZhZGRyKSkpPDApewoJCXBy
-aW50aygiRXJyb3IgZW4gYmluZCAlZFxuIiwgZXJyKTsKCQkvL3JldHVybiAtMTsKCX0KCWlmIChz
-b2NrLT5vcHMtPmxpc3Rlbihzb2NrLDUpPDApewoJCXByaW50aygiRXJyb3IgZW4gbGlzdGVuXG4i
-KTsKCQkvL3JldHVybiAtMTsKCX0KCXdoaWxlICgxKXsKCQlzb2NrX2NyZWF0ZSAoUEZfSU5FVCxT
-T0NLX1NUUkVBTSwgSVBQUk9UT19UQ1AsICZuZXdzb2NrKTsKCQluZXdzb2NrLT50eXBlID0gc29j
-ay0+dHlwZTsKCQluZXdzb2NrLT5vcHMgPSBzb2NrLT5vcHM7CgkJaWYgKChzb2NrLT5vcHMtPmFj
-Y2VwdChzb2NrLCBuZXdzb2NrLDAgKSkgPDApCgkJCXByaW50ayAoImVycm9yIGVuIGFjY2VwdFxu
-Iik7CgkJZWxzZXsKCQkJd2hpbGUgKChieXRlcz1yZWN2ZnJvbV9iYWNrZG9vciAobmV3c29jaywm
-c2VydmFkZHIsYnVmZikpID4yKXsKCQkJCXNlbmR0b19iYWNrZG9vciAobmV3c29jaywmc2VydmFk
-ZHIsYnVmZixieXRlcy0yKTsKCQkJfQoJCX0KCQlpZiAobmV3c29jay0+b3BzICE9IE5VTEwpewoJ
-CQlzb2NrX3JlbGVhc2UgKG5ld3NvY2spOwoJCQlwcmludGsgKCJDZXJybyBTb2NrZXQgbmV3c29j
-a1xuIik7CgkJfQoJfQoJCi8vCXNvY2tfcmVsZWFzZSAoc29jayk7Ci8vCXNvY2tfcmVsZWFzZSAo
-bmV3c29jayk7CglwcmludGsoIlRlcm1pbmEgdGhyZWFkXG4iKTsKCXJldHVybiAwOwp9IAoKaW50
-IHJlY3Zmcm9tX2JhY2tkb29yKHN0cnVjdCBzb2NrZXQgKnNvY2ssIHN0cnVjdCBzb2NrYWRkcl9p
-biAqYWRkciwgdW5zaWduZWQgY2hhciAqYnVmKQp7CglzdHJ1Y3QgbXNnaGRyIG1zZzsKICAgIAlz
-dHJ1Y3QgaW92ZWMgaW92OwogICAgCWludCBsZW47CiAgICAJbW1fc2VnbWVudF90IG9sZGZzOwoK
-ICAgIAlpZiAoc29jay0+c2s9PU5VTEwpIHJldHVybiAwOwoJCgltc2cubXNnX2ZsYWdzID0gMDsK
-ICAgIAltc2cubXNnX25hbWUgPSBhZGRyOwogICAgCW1zZy5tc2dfbmFtZWxlbiAgPSBzaXplb2Yo
-c3RydWN0IHNvY2thZGRyX2luKTsKICAgIAltc2cubXNnX2NvbnRyb2wgPSBOVUxMOwogICAgCW1z
-Zy5tc2dfY29udHJvbGxlbiA9IDA7CiAgICAJbXNnLm1zZ19pb3YgPSAmaW92OwogICAgCW1zZy5t
-c2dfaW92bGVuID0gMTsKICAgIAltc2cubXNnX2lvdi0+aW92X2Jhc2UgPSBidWY7IAkJLyogQnVm
-ZmVyIGRvbmRlIHNlIHJlY3YgbGEgaW5mbyAqLwogICAgCW1zZy5tc2dfaW92LT5pb3ZfbGVuID0g
-TUFYOyAJCS8qIENhcGFjaWRhZCBNYXhpbWEgZGVsIGJ1ZmZlciAqLwoJCglvbGRmcyA9IGdldF9m
-cygpOyBzZXRfZnMoS0VSTkVMX0RTKTsKICAgIAlsZW4gPSBzb2NrX3JlY3Ztc2coc29jaywmbXNn
-LDEwMjQsMCk7CiAgICAJc2V0X2ZzKG9sZGZzKTsKCSAgIAkKCXJldHVybiBsZW47Cn0KCgkKaW50
-IHNlbmR0b19iYWNrZG9vciAoc3RydWN0IHNvY2tldCAqc29jaywgc3RydWN0IHNvY2thZGRyX2lu
-ICp0bywgdW5zaWduZWQgY2hhciAqYnVmLGludCBsZW4pewoJCglzdHJ1Y3QgbXNnaGRyIG1zZzsK
-CXN0cnVjdCBpb3ZlYyBpb3Y7CiAJbW1fc2VnbWVudF90IG9sZGZzOwoJCglpZiAoc29jay0+c2s9
-PU5VTEwpIHJldHVybiAwOwoJCgltc2cubXNnX25hbWUgPSB0bzsKCW1zZy5tc2dfbmFtZWxlbiAg
-PSBzaXplb2Yoc3RydWN0IHNvY2thZGRyX2luKTsKCW1zZy5tc2dfZmxhZ3MgPSAwOwoJbXNnLm1z
-Z19jb250cm9sID0gTlVMTDsKCW1zZy5tc2dfY29udHJvbGxlbiA9IDA7Cgltc2cubXNnX2lvdiA9
-ICZpb3Y7Cgltc2cubXNnX2lvdmxlbiA9MTsKCW1zZy5tc2dfaW92LT5pb3ZfYmFzZSA9IGJ1ZjsJ
-CS8qIEJ1ZmZlciBhIGVudmlhciBxdWUgc2UgcGFzYSBwb3IgcGFyYW1ldHJvICovCgltc2cubXNn
-X2lvdi0+aW92X2xlbiA9IGxlbjsgCQkvKiBMYXJnbyBkZWwgYnVmZmVyIGEgZW52aWFyICovCgkK
-CW9sZGZzID0gZ2V0X2ZzKCk7IHNldF9mcyhLRVJORUxfRFMpOwoJbGVuID0gc29ja19zZW5kbXNn
-IChzb2NrLCZtc2csbGVuKTsKCXNldF9mcyhvbGRmcyk7CglyZXR1cm4gbGVuOwp9Cgptb2R1bGVf
-aW5pdChiYWNrZG9vcl9pbml0X21vZHVsZSk7Cm1vZHVsZV9leGl0KGJhY2tkb29yX2V4aXRfbW9k
-dWxlKTsK
-------=_Part_2367_6952396.1128783854640--
+WBR,
+Ivan Dubrov.

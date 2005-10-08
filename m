@@ -1,91 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751101AbVJHTZI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbVJHT3W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751101AbVJHTZI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Oct 2005 15:25:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbVJHTZI
+	id S1751103AbVJHT3W (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Oct 2005 15:29:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbVJHT3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Oct 2005 15:25:08 -0400
-Received: from scipost.dolphinics.no ([193.71.152.3]:17874 "EHLO
-	scipost.dolphinics.no") by vger.kernel.org with ESMTP
-	id S1751101AbVJHTZG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Oct 2005 15:25:06 -0400
-Message-ID: <43481D0F.9020407@dolphinics.no>
-Date: Sat, 08 Oct 2005 21:25:03 +0200
-From: Simen Thoresen <simentt@dolphinics.no>
-Organization: Dolphin ICS
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
+	Sat, 8 Oct 2005 15:29:22 -0400
+Received: from agmk.net ([217.73.31.34]:45586 "EHLO mail.agmk.net")
+	by vger.kernel.org with ESMTP id S1751103AbVJHT3V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Oct 2005 15:29:21 -0400
+From: =?utf-8?q?Pawe=C5=82_Sikora?= <pluto@agmk.net>
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+Subject: Re: [2.6] binfmt_elf bug (exposed by klibc).
+Date: Sat, 8 Oct 2005 21:29:13 +0200
+User-Agent: KMail/1.8.2
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org
+References: <200510071533.j97FX9Wp018589@laptop11.inf.utfsm.cl> <200510080042.58408.pluto@agmk.net> <20051008143014.GX14750@lug-owl.de>
+In-Reply-To: <20051008143014.GX14750@lug-owl.de>
 MIME-Version: 1.0
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-CC: devesh sharma <devesh28@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Issues in Booting kernel 2.6.13
-References: <309a667c0510052216n784e229ei69b3a3a2a9e93f4b@mail.gmail.com> <20051006190806.388289ff.rdunlap@xenotime.net>
-In-Reply-To: <20051006190806.388289ff.rdunlap@xenotime.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200510082129.13955.pluto@agmk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Randy,
+Dnia sobota, 8 października 2005 16:30, Jan-Benedict Glaw napisał:
+> On Sat, 2005-10-08 00:42:58 +0200, Paweł Sikora <pluto@agmk.net> wrote:
+> > > Did somebody accidentally
+> > > screw up some kernel code between 2.6.13 and 2.6.14?
+> >
+> > I think kernel elf loader doesn't handle binaries without .bss.
+> > Earlier binutils (<2.16) emits zero-sized .data/.bss and problem
+> > wasn't exposed. Modern binutils doesn't emit useless zero-sized
+> > .data/.bss sections and kernel kills these binaries.
+>
+> I had this problem at some time, too. This was when I started to redo
+> the uClibc port to vax-linux, which I started with a hand-crafted
+> assembly file. It also crashed upon execution, though I was sure the
+> program was technically okay.
 
-Randy.Dunlap wrote:
-> On Thu, 6 Oct 2005 10:46:37 +0530 devesh sharma wrote:
-> 
-> 
->>Hi all,
->>I have compiled 2.6.13 kernel on a opteron machine with 1 GB physical
->>memory, Whole compilation gose well but at the last step
->>make install I am getting a warning
->>WARNING: No module mptbase found for kernel 2.6.13, continuing anyway
->>WARNING: No module mptscsih found for kernel 2.6.13, continuing anyway
-> 
-> 
-> If you need mpt drivers, there were some changes in the
-> FUSION MPT driver options that may be causing them not to be
-> built for you as you were expecting.
-
-I ran into this (2.6.13.3) on Friday as well, but I have not yet examined it 
-in detail.
-
-Do you have any pointers to the relevant postings or information?
-
-I've used the 'mkinitrd' tool to generate a 'proper' initrd, and I see both 
-mptbase and mptscsih loading, but mptscsih never picks up any actual 
-controllers or disks. Thus the same problem on my system.
-
-To me, this signifies that RHs mkinitrd is broken for this kernel, but I 
-don't know the details of why yet.
-
-Yours,
--S
-
-
->>now when I boot my kernel, panic is received
->>Booting the kernel.
->>Red Hat nash version 4.1.18 starting
->>mkrootdev: lable / not found
->>mount: error 2 mounting ext3
->>mount: error 2 mounting none
->>switchroot: mount failed : 22
->>umount : /initrd/dev failed : 22
->>kernel panic - not syncing : Attempted to kill init
->>
->>What could be the problem?
->>I have RHEL 4 base release already installed on which I have compiled
->>this image.
-> 
-> 
-> 
-> ---
-> ~Randy
-> You can't do anything without having to do something else first.
-> -- Belefant's Law
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I think kernel wrongly assumes that all binaries in the world have
+.text and at least .data/.bss. E.g. in embedded world software are
+often pure, minimalistic and technically okay.
 
 -- 
-Simen Thoresen, Wulfkit Support, Dolphin ICS
-http://www.tysland.com/~simentt/cluster
+The only thing necessary for the triumph of evil
+  is for good men to do nothing.
+                                           - Edmund Burke

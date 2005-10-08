@@ -1,60 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbVJHO0Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbVJHOaR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932091AbVJHO0Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Oct 2005 10:26:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbVJHO0Q
+	id S932140AbVJHOaR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Oct 2005 10:30:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbVJHOaR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Oct 2005 10:26:16 -0400
-Received: from nproxy.gmail.com ([64.233.182.207]:6032 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932091AbVJHO0Q convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Oct 2005 10:26:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=b3CKzQpdiUPNjrIpQ2d+Eko4emgCG+lfwJxF4ePvITx+CPEKjkbipPdoAc7j8Y2uVrRFyUvNq0DQyrxpqaXvZrPBaU/bB46JhmfgQnCC285jPdSpGmNZEhOqAp22HTlTD+trBFU4ZMEwsCHPzTdWotz5ur8fTVP3kfDGTbdnulE=
-Message-ID: <62b0912f0510080726ge2436e9ra6d7e8d17d1001ee@mail.gmail.com>
-Date: Sat, 8 Oct 2005 14:26:14 +0000
-From: Molle Bestefich <molle.bestefich@gmail.com>
-To: andrew@walrond.org
-Subject: Re: Anybody know about nforce4 SATA II hot swapping + linux raid?
-Cc: htejun@gmail.com, linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <43477836.6020107@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sat, 8 Oct 2005 10:30:17 -0400
+Received: from lug-owl.de ([195.71.106.12]:33733 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S932140AbVJHOaQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Oct 2005 10:30:16 -0400
+Date: Sat, 8 Oct 2005 16:30:14 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: =?utf-8?B?UGF3ZcWC?= Sikora <pluto@agmk.net>
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6] binfmt_elf bug (exposed by klibc).
+Message-ID: <20051008143014.GX14750@lug-owl.de>
+Mail-Followup-To: =?utf-8?B?UGF3ZcWC?= Sikora <pluto@agmk.net>,
+	"linux-os (Dick Johnson)" <linux-os@analogic.com>,
+	Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org
+References: <200510071533.j97FX9Wp018589@laptop11.inf.utfsm.cl> <200510072320.18263.pluto@agmk.net> <Pine.LNX.4.61.0510071740040.13291@chaos.analogic.com> <200510080042.58408.pluto@agmk.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="c1qHkdEbEbCG94PZ"
 Content-Disposition: inline
-References: <200510071111.46788.andrew@walrond.org>
-	 <43477836.6020107@gmail.com>
+In-Reply-To: <200510080042.58408.pluto@agmk.net>
+X-Operating-System: Linux mail 2.6.12.3lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Walrond wrote:
-> I need to deploy some very resilient servers with hot swapable drives.
-[snip]
-> Before I place an order, I need to know whether sata II hot swapping is up to
-> scratch in the linux kernel, and whether it works nicely with linux software
-> raid (which I already use/am familiar with).
->
-> Any knowledge greatfully accepted :)
 
-IDE hotswap has never worked (OOTB at least) in Linux, and based on my
-experience it never will.  Seems the IDE folks doesn't care a bit
-about it.  (No offence meant.  Just keeping it real.)
+--c1qHkdEbEbCG94PZ
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-So if you really need this, here's the opportunity to make a whole lot
-of people happy by implementing it yourself.  You'll probably need a
-lot of time on your hands - there's a very real chance that the IDE
-maintainers are too busy or whatever to answer any newbie questions
-you might have about how to attack the IDE layer.
+On Sat, 2005-10-08 00:42:58 +0200, Pawe=C5=82 Sikora <pluto@agmk.net> wrote:
+> > Did somebody accidentally=20
+> > screw up some kernel code between 2.6.13 and 2.6.14?
+>=20
+> I think kernel elf loader doesn't handle binaries without .bss.
+> Earlier binutils (<2.16) emits zero-sized .data/.bss and problem
+> wasn't exposed. Modern binutils doesn't emit useless zero-sized
+> .data/.bss sections and kernel kills these binaries.
 
+I had this problem at some time, too. This was when I started to redo
+the uClibc port to vax-linux, which I started with a hand-crafted
+assembly file. It also crashed upon execution, though I was sure the
+program was technically okay.
 
-Tejun Heo wrote:
-> If you're looking for stability/resilience for production machine,
-> IMHO libata isn't still quite ready.
+However, I haven't looked up any paper or standard to verify either
+position. So I don't know for *sure* if it's legal to omit these
+(empty) sections.
 
-I disagree...
-I've used it for TBs of data without any problems.
+MfG, JBG
 
-OTOH, with the regular ATA stuff I've experienced loads of IRQ
-problems, crashes and hangups.
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
+m Irak!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
+
+--c1qHkdEbEbCG94PZ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFDR9f2Hb1edYOZ4bsRAgwlAJ4zqiFNcUVLDHi2Yh13mpuBlPt9NgCeMIGj
+es7JxMNwwx/OtadZbb2u334=
+=WVBj
+-----END PGP SIGNATURE-----
+
+--c1qHkdEbEbCG94PZ--

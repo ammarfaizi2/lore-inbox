@@ -1,63 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbVJHMSW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbVJHMdv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932085AbVJHMSW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Oct 2005 08:18:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932087AbVJHMSW
+	id S932088AbVJHMdv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Oct 2005 08:33:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932091AbVJHMdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Oct 2005 08:18:22 -0400
-Received: from wproxy.gmail.com ([64.233.184.196]:11125 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932085AbVJHMSV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Oct 2005 08:18:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=WBY+Zc51RkE1SRbfW4vXQ5mj2f9mBEs8R2qTzv2HoXZiKp68FziMAmcRpOPqZBYtRcHxlsY1EJ0QuyWzqs0e+fo2lQ5kBElXIg/S3tMgF31goGArBOEOQdu7UBXZrKu4DxckpaC9mpMYQafvq84CTGEmUMP1sGYEnSLOoT5XNyg=
-Message-ID: <253000f70510080518m15e2613do@mail.gmail.com>
-Date: Sat, 8 Oct 2005 14:18:20 +0200
-From: Igor Popik <igor.popik@gmail.com>
-To: sasa.ostrouska@volja.net
-Subject: Re: oops in 2.6.14-rc3 (pcmcia i82365 patch)
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Sat, 8 Oct 2005 08:33:50 -0400
+Received: from uucp.cistron.nl ([62.216.30.38]:49584 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S932088AbVJHMdt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Oct 2005 08:33:49 -0400
+From: dth@cistron.nl (Danny ter Haar)
+Subject: Re: 2.6.13-rt12: irqs hard off for 657 usecs
+Date: Sat, 8 Oct 2005 12:33:48 +0000 (UTC)
+Organization: Cistron
+Message-ID: <di8ebc$b9k$1@news.cistron.nl>
+References: <1128724690.17981.57.camel@mindpipe> <20051008115828.GA29042@elte.hu>
+X-Trace: ncc1701.cistron.net 1128774828 11572 62.216.30.70 (8 Oct 2005 12:33:48 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: dth@cistron.nl (Danny ter Haar)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2005/10/8, Sasa Ostrouska <sasa.ostrouska@volja.net>:
-> Hi ppl,
->
->         After some playing with my new slackware 10.2 and
-> kernel 2.6.14-rc3 I noted this oops when shutting down the machine.
-> Can somebody tell me why ?
+Ingo Molnar  <mingo@elte.hu> wrote:
+>> Something appears to have disabled IRQs for 657 usecs.
+>hm ... i fixed one such bug in rt.c recently, but more could be lurking.  
+>Could you send me your .config?
 
-This may be caused by bug in i83265 pcmcia module which seems not to
-have one release_region() call. It reserves region during init and
-does not release it when it fails to probe for the hardware.
+Ingo, 
+could this be the same bug that's been hitting me since 2.6.13* ?
+usenetgateway (heavy used server) with scsi/gig-E ethernet which
+crashes within couple of days.
 
-That driver is loaded in rc.pcmcia script during boot and usually
-fails to load because You do not have such hardware (the script probes
-for different pcmcia drivers).
+Last kernel i tried was 2.6.14-rc3-git5  and that was the first kernel
+which also reported:
 
-During shutdown one of the shutdown scripts greps through
-/proc/ioports file which causes an oops (reserverd region name points
-to unloaded driver).
+------------
+warning: many lost ticks.
+Your time source seems to be instable or some driver is hogging interupts
+rip release_console_sem+0x151/0x210
+Falling back to HPET
+printk: 4 messages suppressed.
 
-Attached patch is my second attempt to fix this bug :-)
+------------
+The crash itself:
 
-Cheers,
-Igor
+scsi0:0:0:0: Attempting to queue an ABORT message:CDB: 0x2a 0x0 0x1 0x79 0x80 0x72 0x0 0x0 0x28 0x0
+scsi0: At time of recovery, card was not paused
+>>>>>>>>>>>>>>>>>> Dump Card State Begins <<<<<<<<<<<<<<<<<
+scsi0: Dumping Card State at program address 0x26 Mode 0x33
+Card was paused
+HS_MAILBOX[0x0] INTCTL[0xc0]:(SWTMINTEN|SWTMINTMASK)
+SEQINTSTAT[0x10]:(SEQ_SWTMRTO) SAVED_MODE[0x11]
+DFFSTAT[0x33]:(CURRFIFO_NONE|FIFO0FREE|FIFO1FREE)
+SCSISIGI[0x0]:(P_DATAOUT) SCSIPHASE[0x0] SCSIBUS[0x0]
+LASTPHASE[0x1]:(P_DATAOUT|P_BUSFREE) SCSISEQ0[0x0]
+SCSISEQ1[0x12]:(ENAUTOATNP|ENRSELI) SEQCTL0[0x0]
+SEQINTCTL[0x0] SEQ_FLAGS[0x0] SEQ_FLAGS2[0x0] SSTAT0[0x0]
+SSTAT1[0x0] SSTAT2[0x0] SSTAT3[0x0] PERRDIAG[0x0]
+SIMODE1[0xa4]:(ENSCSIPERR|ENSCSIRST|ENSELTIMO)
+LQISTAT0[0x0] LQISTAT1[0x0] LQISTAT2[0x0] LQOSTAT0[0x0]
+LQOSTAT1[0x0] LQOSTAT2[0xe1]:(LQOSTOP0|LQOPKT)
 
-Signed-off-by: Igor Popik <igor.popik at gmail.com>
+SCB Count = 128 CMDS_PENDING = 32 LASTSCB 0x6 CURRSCB 0x1c NEXTSCB 0xff80
+qinstart = 44079 qinfifonext = 44079
+QINFIFO:
+WAITING_TID_QUEUES:
+Pending list:
+ 14 FIFO_USE[0x0] SCB_CONTROL[0x60]:(TAG_ENB|DISCENB) SCB_SCSIID[0x7]
 
---- a/drivers/pcmcia/i82365.c   2005-10-06 20:30:52.000000000 +0200
-+++ b/drivers/pcmcia/i82365.c   2005-10-06 20:05:46.000000000 +0200
-@@ -1383,6 +1383,7 @@
-        printk("not found.\n");
-        platform_device_unregister(&i82365_device);
-        driver_unregister(&i82365_driver);
-+       release_region(i365_base, 2);
-        return -ENODEV;
-     }
+[SNIP]
+
+------------
+On all previous kernel crashes either scsi or ethernet suddenly quit working.
+Since scsi driver is exact same version as 2.6.12-mm1 which for me keeps working 
+perfectly, it sounds logic that if the IRQ system gets fedup some driver is likely
+to grind the kernel to a painfull halt.
+
+Just my feedback
+
+Danny
+
+

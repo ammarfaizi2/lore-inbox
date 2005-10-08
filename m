@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751004AbVJHLUa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbVJHLfH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751004AbVJHLUa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Oct 2005 07:20:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751025AbVJHLU3
+	id S1751032AbVJHLfH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Oct 2005 07:35:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751037AbVJHLfH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Oct 2005 07:20:29 -0400
-Received: from main.gmane.org ([80.91.229.2]:56228 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751004AbVJHLU3 (ORCPT
+	Sat, 8 Oct 2005 07:35:07 -0400
+Received: from main.gmane.org ([80.91.229.2]:52650 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751032AbVJHLfF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Oct 2005 07:20:29 -0400
+	Sat, 8 Oct 2005 07:35:05 -0400
 X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
 From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Re: MTP - Media Transfer Protocol support
-Date: Sat, 8 Oct 2005 13:16:41 +0200
-Message-ID: <1rhqxilg38ksi$.5bwqc3ge2si8$.dlg@40tude.net>
-References: <4346B587.9000306@tremplin-utc.net>
+Subject: Re: Modular i810fb broken, partial fix
+Date: Sat, 8 Oct 2005 13:31:12 +0200
+Message-ID: <1308gutgj0dx4$.1ie66adezdlua$.dlg@40tude.net>
+References: <200510071547.14616.bero@arklinux.org> <4347A1E7.2050201@pol.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -25,36 +25,31 @@ User-Agent: 40tude_Dialog/2.0.15.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 07 Oct 2005 19:51:03 +0200, Eric Piel wrote:
+On Sat, 08 Oct 2005 18:39:35 +0800, Antonino A. Daplas wrote:
 
-> Deep deep apologies, I've just checked again, and in fact it seems like
-> yesterday I probably pressed the button without noticing I was agreeing
-> the license (too many "yes" buttons in my life) (or there was a nasty
-> bug in wine?). IANAL, so even after carefully reading it I didn't manage
-> to understand if it was illegal for me to read the Specification and do
-> a backup on my ftp server (and then give a link to it). Anyway, I've
-> removed it from there. I'd probably advise people who've downloaded it
-> to delete it.
+> Bernhard Rosenkraenzer wrote:
+>> Hi,
+>> i810fb as a module is broken (checked with 2.6.13-mm3 and 2.6.14-rc2-mm1).
+>> It compiles, but the module doesn't actually load because the kernel doesn't 
+>> recognize the hardware (the MODULE_DEVICE_TABLE statement is missing).
+> 
+>> 
+>> The attached patch fixes this.
+>> 
+>> However, the resulting module still doesn't work.
+>> It loads, and then garbles the display (black screen with a couple of yellow 
+>> lines, no matter what is written into the framebuffer device).
+> 
+> Did you compile CONFIG_FRAMEBUFFER_CONSOLE statically, or did a modprobe fbcon?
+> Does i810fb work if compiled statically?
 
-I was able to extract the .doc file from the executable without
-running it[1] so I am not bound by any license (there is no license
-involved in downloading it, nor in the document itself). I produced a
-.pdf using OOo 1.9.122. I would put it online, but the document's
-first page reads:
-
-"""
-For Review and Discussion Only
-Draft Document Subject to Revision or Rejection
-Not For Publication or General Distribution
-"""
-
-so I'm still not sure if I can pass it on or not.
-
-[1] using the appropriate packer plugin in Total Commander
+Since this is *really* coming out often: is there a specific reason
+why the fb modules do not depend on fbcon?
 
 -- 
 Giuseppe "Oblomov" Bilotta
 
-"I'm never quite so stupid
- as when I'm being smart" --Linus van Pelt
+"They that can give up essential liberty to obtain
+a little temporary safety deserve neither liberty
+nor safety." Benjamin Franklin
 

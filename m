@@ -1,70 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161024AbVJHAuM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161027AbVJHAxU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161024AbVJHAuM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Oct 2005 20:50:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161025AbVJHAuM
+	id S1161027AbVJHAxU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Oct 2005 20:53:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161026AbVJHAxT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Oct 2005 20:50:12 -0400
-Received: from smarthost4.mail.uk.easynet.net ([212.135.6.14]:47375 "EHLO
-	smarthost4.mail.uk.easynet.net") by vger.kernel.org with ESMTP
-	id S1161024AbVJHAuK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Oct 2005 20:50:10 -0400
-Message-ID: <434717B7.30505@uklinux.net>
-Date: Sat, 08 Oct 2005 01:49:59 +0100
-From: Jon Burgess <jburgess@uklinux.net>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: kenneth.w.chen@intel.com
-CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       linux-netdev@vger.kernel.org
-Subject: Re: kernel performance update - 2.6.14-rc3
-Content-Type: multipart/mixed;
- boundary="------------090901020903010106040408"
+	Fri, 7 Oct 2005 20:53:19 -0400
+Received: from ozlabs.org ([203.10.76.45]:46771 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1161027AbVJHAxT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Oct 2005 20:53:19 -0400
+Date: Sat, 8 Oct 2005 10:50:16 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Brian Gerst <bgerst@didntduck.org>, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Fix hotplug cpu on x86_64
+Message-ID: <20051008005016.GG5210@krispykreme>
+References: <43437DEB.4080405@didntduck.org> <434414C4.8020109@didntduck.org> <4345F656.9020601@didntduck.org> <20051007095041.GK6642@verdi.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051007095041.GK6642@verdi.suse.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090901020903010106040408
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-"Chen, Kenneth W" <kenneth.w.chen@intel.com> writes:
+Hi,
 
- > Even though
- > softirq is invoked at the end of dev_queue_xmit() via local_bh_enable(),
- > not all execution of softirq will result a __wake_up().  With higher
- > HZ rate, timer interrupt is more frequent and thus more softirq
- > invocation and leads to more __wake_up(), which then takes us to higher
- > throughput because cpu spend less time in idle.
+> I also have a followon patch to avoid the extreme memory wastage
+> currently caused by hotplug CPUs (e.g. with NR_CPUS==128 you currently
+> lose 4MB of memory just for preallocated per CPU data). But that is
+> something for post 2.6.14.
 
-Since the loopback xmit->rx path probably isn't being called in 
-interrupt context might something like the patch below be needed?
+Im interested in doing that on ppc64 too. Are you currently only
+creating per cpu data areas for possible cpus? The generic code does
+NR_CPUS worth, we should change that in 2.6.15.
 
-Please forgive me if this is wrong, i've not even tried compiling this 
-change let alone tested it.
-
-	Jon
-
-
-
---------------090901020903010106040408
-Content-Type: text/x-patch;
- name="loopback-netif_rx.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="loopback-netif_rx.patch"
-
---- linux-2.6.13/drivers/net/loopback.c-orig	2005-10-08 01:32:50.000000000 +0100
-+++ linux-2.6.13/drivers/net/loopback.c	2005-10-08 01:33:32.000000000 +0100
-@@ -153,7 +153,7 @@ static int loopback_xmit(struct sk_buff 
- 	lb_stats->tx_packets++;
- 	put_cpu();
- 
--	netif_rx(skb);
-+	netif_rx_ni(skb);
- 
- 	return(0);
- }
-
---------------090901020903010106040408--
+Anton

@@ -1,59 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932093AbVJHMu6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbVJHNDi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932093AbVJHMu6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Oct 2005 08:50:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932098AbVJHMu6
+	id S932115AbVJHNDi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Oct 2005 09:03:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932111AbVJHNDi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Oct 2005 08:50:58 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:31158 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932093AbVJHMu5 (ORCPT
+	Sat, 8 Oct 2005 09:03:38 -0400
+Received: from zproxy.gmail.com ([64.233.162.201]:47522 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932115AbVJHNDh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Oct 2005 08:50:57 -0400
-From: Jeff Moyer <jmoyer@redhat.com>
+	Sat, 8 Oct 2005 09:03:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
+        b=XhgLoIr8MyOBazK28CoixZ+rWULkR2oThs1Io7wX3BHd5hZpTbfbu7PuLEW6OWC84i2kEikiGf1DHaRb2vvgdRu45b+lHfjgtBD70SByyPDlHbtpaJcaGHi2RGvPKmUceFrRS+YTY5RRaQw02aRgrBAilWhxIj1HGC+vOGD6Wsk=
+Message-ID: <4347C39F.2020703@pol.net>
+Date: Sat, 08 Oct 2005 21:03:27 +0800
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Manuel Lauss <mano@roarinelk.homelinux.net>
+CC: "Antonino A. Daplas" <adaplas@gmail.com>,
+       Bernhard Rosenkraenzer <bero@arklinux.org>,
+       adaplas@users.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Modular i810fb broken, partial fix
+References: <200510071547.14616.bero@arklinux.org> <4347A1E7.2050201@pol.net> <4347B3D6.5060700@roarinelk.homelinux.net>
+In-Reply-To: <4347B3D6.5060700@roarinelk.homelinux.net>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Message-ID: <17223.49311.723163.216415@segfault.boston.redhat.com>
-Date: Sat, 8 Oct 2005 08:50:39 -0400
-To: Ian Kent <raven@themaw.net>
-Cc: autofs@linux.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: autofs4 looks up wrong path element when ghosting is enabled
-In-Reply-To: <Pine.LNX.4.63.0510081341460.2069@donald.themaw.net>
-References: <17200.23724.686149.394150@segfault.boston.redhat.com>
-	<Pine.LNX.4.58.0509210916040.26144@wombat.indigo.net.au>
-	<17203.7543.949262.883138@segfault.boston.redhat.com>
-	<Pine.LNX.4.63.0509241644420.2069@donald.themaw.net>
-	<17205.48192.180623.885538@segfault.boston.redhat.com>
-	<Pine.LNX.4.63.0509250918150.2191@donald.themaw.net>
-	<17208.24786.729632.221157@segfault.boston.redhat.com>
-	<Pine.LNX.4.63.0510081341460.2069@donald.themaw.net>
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Reply-To: jmoyer@redhat.com
-X-PGP-KeyID: 1F78E1B4
-X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
-X-PCLoadLetter: What the f**k does that mean?
+From: "Antonino A. Daplas" <adaplas@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-==> Regarding Re: autofs4 looks up wrong path element when ghosting is enabled; Ian Kent <raven@themaw.net> adds:
+Manuel Lauss wrote:
+> Antonino A. Daplas wrote:
+>> Bernhard Rosenkraenzer wrote:
+>>
+>>> Hi,
+>>> i810fb as a module is broken (checked with 2.6.13-mm3 and
+>>> 2.6.14-rc2-mm1).
+>>> It compiles, but the module doesn't actually load because the kernel
+>>> doesn't recognize the hardware (the MODULE_DEVICE_TABLE statement is
+>>> missing).
+>>
+>>
+>>
+>>> The attached patch fixes this.
+>>>
+>>> However, the resulting module still doesn't work.
+>>> It loads, and then garbles the display (black screen with a couple of
+>>> yellow lines, no matter what is written into the framebuffer device).
+>>
+>>
+>> Did you compile CONFIG_FRAMEBUFFER_CONSOLE statically, or did a
+>> modprobe fbcon?
+>> Does i810fb work if compiled statically?
+> 
+> I tried the module on my i815 laptop, after modprobe the module does
+> nothing.
+> The call to pci_register_driver() returns 0, and thats it; the probe
+> function
+> does not get called. Same thing with Bernhard's patch applied. No problems
+> when compiled-in. Kernel 2.6.14-rc2-mm1, AGP compiled in, no DRM.
 
-raven> On Mon, 26 Sep 2005, Jeff Moyer wrote:
->> I put together a different patch, but I want to get your input on the
->> approach before I post it.  It requires both user-space and kernel-space
->> changes.
->> 
->> Basically, you identify that a given automount tree is a direct map
->> tree.  This information is passed along to the kernel (I did this via a
->> mount option), and recorded (in the super block info).  Then, when a
->> directory lookup occurs, if we are in a direct map tree, and ghosting is
->> enabled, then we pass the lookup on to the real lookup code.
->> 
->> I'm not sold on the approach, as I haven't thought through all of the
->> implications.  Care to comment?
+That's weird.  Can you find out why the probe function is not called? Can
+you trace the pci_register_driver call starting in drivers/pci/pci-driver.c, then
+in drivers/base/*.c?
 
-raven> Can you post your patch please Jeff.
-
-I would, if it worked!  I'm away until the 17th.  I'll see what I can
-come up with when I get back.  Sorry!
-
--Jeff
+(Or you can #define DEBUG somewhere, perhaps in include/linux/device.h?)
+ 
+Tony 

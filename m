@@ -1,67 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbVJHOzp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbVJHOzj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932146AbVJHOzp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Oct 2005 10:55:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbVJHOzp
+	id S932112AbVJHOzj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Oct 2005 10:55:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbVJHOzj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Oct 2005 10:55:45 -0400
-Received: from host62-24-231-115.dsl.vispa.com ([62.24.231.115]:49305 "EHLO
-	orac.walrond.org") by vger.kernel.org with ESMTP id S932146AbVJHOzo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Oct 2005 10:55:44 -0400
-From: Andrew Walrond <andrew@walrond.org>
+	Sat, 8 Oct 2005 10:55:39 -0400
+Received: from main.gmane.org ([80.91.229.2]:21913 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932112AbVJHOzi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Oct 2005 10:55:38 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: Re: Anybody know about nforce4 SATA II hot swapping + linux raid?
-Date: Sat, 8 Oct 2005 15:55:40 +0100
-User-Agent: KMail/1.8.2
-Cc: Molle Bestefich <molle.bestefich@gmail.com>, htejun@gmail.com,
-       linux-raid@vger.kernel.org
-References: <200510071111.46788.andrew@walrond.org> <43477836.6020107@gmail.com> <62b0912f0510080726ge2436e9ra6d7e8d17d1001ee@mail.gmail.com>
-In-Reply-To: <62b0912f0510080726ge2436e9ra6d7e8d17d1001ee@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510081555.41159.andrew@walrond.org>
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Re: Modular i810fb broken, partial fix
+Date: Sat, 8 Oct 2005 16:51:28 +0200
+Message-ID: <1pfuqilz0eim.1n6ig5c3s2r3.dlg@40tude.net>
+References: <200510071547.14616.bero@arklinux.org> <4347A1E7.2050201@pol.net> <1308gutgj0dx4$.1ie66adezdlua$.dlg@40tude.net> <4347C393.5090304@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: host-84-220-51-179.cust-adsl.tiscali.it
+User-Agent: 40tude_Dialog/2.0.15.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 08 October 2005 15:26, Molle Bestefich wrote:
->
-> IDE hotswap has never worked (OOTB at least) in Linux, and based on my
-> experience it never will.  Seems the IDE folks doesn't care a bit
-> about it.  (No offence meant.  Just keeping it real.)
+On Sat, 08 Oct 2005 21:03:15 +0800, Antonino A. Daplas wrote:
 
-Fair enough. What about SCSI? Do any of the in-kernel scsi drivers support 
-hotswap? And if so, how well does it cooperate with linux raid?
+> Giuseppe Bilotta wrote:
+>> On Sat, 08 Oct 2005 18:39:35 +0800, Antonino A. Daplas wrote:
+>> 
+>>> Bernhard Rosenkraenzer wrote:
+>>>> Hi,
+>>>> i810fb as a module is broken (checked with 2.6.13-mm3 and 2.6.14-rc2-mm1).
+>>>> It compiles, but the module doesn't actually load because the kernel doesn't 
+>>>> recognize the hardware (the MODULE_DEVICE_TABLE statement is missing).
+>>>> The attached patch fixes this.
+>>>>
+>>>> However, the resulting module still doesn't work.
+>>>> It loads, and then garbles the display (black screen with a couple of yellow 
+>>>> lines, no matter what is written into the framebuffer device).
+>>> Did you compile CONFIG_FRAMEBUFFER_CONSOLE statically, or did a modprobe fbcon?
+>>> Does i810fb work if compiled statically?
+>> 
+>> Since this is *really* coming out often: is there a specific reason
+>> why the fb modules do not depend on fbcon?
+>> 
+> 
+> Some need fbdev only, without fbcon, ie, embedded.
 
->
-> Tejun Heo wrote:
-> > If you're looking for stability/resilience for production machine,
-> > IMHO libata isn't still quite ready.
->
-> I disagree...
-> I've used it for TBs of data without any problems.
+And does fbcon make sense *without* fbdevs?
 
-Likewise. I've been using exclusively SATA with linux raid for quite a while 
-now, with great success. But for the super resilient zero downtime servers I 
-now need to deploy, I must be able to swap dead drives without taking the 
-server down. Hence my query.
+-- 
+Giuseppe "Oblomov" Bilotta
 
-Off-list respondants have recommended 3ware hardware raid products, but 
-throughput concerns on another thread here have really put me off that idea. 
-So unless linux SCSI provides a useful solution, I'll stick with what seems 
-the only reliable solution out there; hardware scsi raid ( = small expensive 
-drives ).
+"Da grande lotterò per la pace"
+"A me me la compra il mio babbo"
+(Altan)
+("When I grow up, I will fight for peace"
+ "I'll have my daddy buy it for me")
 
-The lack of hot swapping does seem to be a serious weakness in linux, at least 
-for resilient server applications. It would really complete the linux raid 
-picture, and make it quite compelling.
-
-But I'm in no position to do it myself; I can only hope this thread inspires 
-some capable person to plug the gap :)
-
-Thanks to all who responded.
-
-Andrew Walrond

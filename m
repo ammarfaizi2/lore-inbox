@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbVJHQDf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbVJHQIq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932162AbVJHQDf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Oct 2005 12:03:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbVJHQDf
+	id S932169AbVJHQIq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Oct 2005 12:08:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932167AbVJHQIq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Oct 2005 12:03:35 -0400
-Received: from host62-24-231-115.dsl.vispa.com ([62.24.231.115]:44942 "EHLO
-	orac.walrond.org") by vger.kernel.org with ESMTP id S932162AbVJHQDe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Oct 2005 12:03:34 -0400
-From: Andrew Walrond <andrew@walrond.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Anybody know about nforce4 SATA II hot swapping + linux raid?
-Date: Sat, 8 Oct 2005 17:03:32 +0100
-User-Agent: KMail/1.8.2
-Cc: Gordon Henderson <gordon@drogon.net>, linux-raid@vger.kernel.org
-References: <200510071111.46788.andrew@walrond.org> <200510081555.41159.andrew@walrond.org> <Pine.LNX.4.56.0510081600080.7326@lion.drogon.net>
-In-Reply-To: <Pine.LNX.4.56.0510081600080.7326@lion.drogon.net>
+	Sat, 8 Oct 2005 12:08:46 -0400
+Received: from mxsf33.cluster1.charter.net ([209.225.28.158]:18060 "EHLO
+	mxsf33.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S932133AbVJHQIq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Oct 2005 12:08:46 -0400
+X-IronPort-AV: i="3.97,189,1125892800"; 
+   d="scan'208"; a="1498987317:sNHT14467902"
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510081703.32873.andrew@walrond.org>
+Message-ID: <17223.61190.917668.850611@smtp.charter.net>
+Date: Sat, 8 Oct 2005 12:08:38 -0400
+From: "John Stoffel" <john@stoffel.org>
+To: Andrew Walrond <andrew@walrond.org>
+Cc: linux-kernel@vger.kernel.org, Molle Bestefich <molle.bestefich@gmail.com>,
+       htejun@gmail.com, linux-raid@vger.kernel.org
+Subject: Re: Anybody know about nforce4 SATA II hot swapping + linux raid?
+In-Reply-To: <200510081555.41159.andrew@walrond.org>
+References: <200510071111.46788.andrew@walrond.org>
+	<43477836.6020107@gmail.com>
+	<62b0912f0510080726ge2436e9ra6d7e8d17d1001ee@mail.gmail.com>
+	<200510081555.41159.andrew@walrond.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Gordon,
+>>>>> "Andrew" == Andrew Walrond <andrew@walrond.org> writes:
 
-On Saturday 08 October 2005 16:23, Gordon Henderson wrote:
-> On Sat, 8 Oct 2005, Andrew Walrond wrote:
-> > On Saturday 08 October 2005 15:26, Molle Bestefich wrote:
-> > > IDE hotswap has never worked (OOTB at least) in Linux, and based on my
->
-> Ideally you want hardware that will power the drive down nicely before you
-> take it out (and power it up nicely after you plug it back in again) to
-> avoid any glitches on the SCSI bus, etc...
+Andrew> Likewise. I've been using exclusively SATA with linux raid for
+Andrew> quite a while now, with great success. But for the super
+Andrew> resilient zero downtime servers I now need to deploy, I must
+Andrew> be able to swap dead drives without taking the server
+Andrew> down. Hence my query.
 
-Sounds hairy! Are you aware of any linux scsi drivers which support this 
-powering up/down, via /proc or some userspace tools perhaps?
+Andrew> Off-list respondants have recommended 3ware hardware raid
+Andrew> products, but throughput concerns on another thread here have
+Andrew> really put me off that idea.
 
->
-> One thing to watch out for - if you reboot after taking the drive out the
-> scsi drive letters will be logically renumbered, so if you take out sda,
-> then reboot, what was sdb will now become sda, and so on, so if you then
-> subsequently hot plug a drive in, it will still have the same scsi host,
-> channel, id, lun numbers, but it'll be the last device in the array (eg.
-> it will be sdf if it was a 6-disk array) Reboot again and the original
-> numbering/lettering would be restored.
->
-> Good job the RAID code doesn't really care about this...
+Hmm... I've been watching those 3ware discussions with interest as
+well, but I haven't seen any commments on how well they work as JBOD
+controllers, esp if you get smaller ones with fewer channels and
+stripe/mirror between controllers.  If you pair disks between
+controllers, then that should limit the downtime, and also improve
+performance.
 
-Indeed. Linux raid is very fine. If we can just fixup this hotplug weakness, 
-it would be peerless.
+I've been thinking that getting a pair of the two or four change old
+74xx series 3ware controllers and then striping across RAID pairs done
+between controllers.
 
->
-> Good luck!
->
-
-Thanks, and good to hear from you ;)
-
-Andrew
+John

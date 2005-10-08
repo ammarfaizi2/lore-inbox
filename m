@@ -1,46 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932149AbVJHQji@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbVJHQpY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932149AbVJHQji (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Oct 2005 12:39:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbVJHQji
+	id S932147AbVJHQpY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Oct 2005 12:45:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbVJHQpY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Oct 2005 12:39:38 -0400
-Received: from host62-24-231-115.dsl.vispa.com ([62.24.231.115]:10476 "EHLO
-	orac.walrond.org") by vger.kernel.org with ESMTP id S932133AbVJHQjh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Oct 2005 12:39:37 -0400
-From: Andrew Walrond <andrew@walrond.org>
-To: "John Stoffel" <john@stoffel.org>
-Subject: Re: Anybody know about nforce4 SATA II hot swapping + linux raid?
-Date: Sat, 8 Oct 2005 17:39:35 +0100
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org, Molle Bestefich <molle.bestefich@gmail.com>,
-       htejun@gmail.com, linux-raid@vger.kernel.org
-References: <200510071111.46788.andrew@walrond.org> <200510081555.41159.andrew@walrond.org> <17223.61190.917668.850611@smtp.charter.net>
-In-Reply-To: <17223.61190.917668.850611@smtp.charter.net>
+	Sat, 8 Oct 2005 12:45:24 -0400
+Received: from smtp05.web.de ([217.72.192.209]:7560 "EHLO smtp05.web.de")
+	by vger.kernel.org with ESMTP id S932147AbVJHQpX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Oct 2005 12:45:23 -0400
+Message-ID: <4347F78E.2050109@web.de>
+Date: Sat, 08 Oct 2005 18:45:02 +0200
+From: Enrico Bartky <DOSProfi@web.de>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: SiS96x SMBus
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510081739.35566.andrew@walrond.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 08 October 2005 17:08, John Stoffel wrote:
->
-> Hmm... I've been watching those 3ware discussions with interest as
-> well, but I haven't seen any commments on how well they work as JBOD
-> controllers, esp if you get smaller ones with fewer channels and
-> stripe/mirror between controllers.  If you pair disks between
-> controllers, then that should limit the downtime, and also improve
-> performance.
+Hello,
 
-My application has hundreds/thousands of threads doing simultaneous small 
-reads, with infrequent small writes. Any problems would probably be mitigated 
-by having loads of ram for linux to use as disk cache, but this does seem to 
-be an access model at which the 3ware hardware is not good at handling. Of 
-course, it never hurts to remind them in a public forum; nothing focuses the 
-corporate mind better than bad press ;)
+the quirks for enabling the SiS96x SMBus doesn't work for the x86_64. 
+For the i386 architecture it works. I thought the pci/quirks.c is 
+architecture independ!? Can anyone fix it?
 
-Andrew Walrond
+Thanx
+EnricoB

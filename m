@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbVJILoR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932273AbVJIMCi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932279AbVJILoR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Oct 2005 07:44:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbVJILoR
+	id S932273AbVJIMCi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Oct 2005 08:02:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932280AbVJIMCi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Oct 2005 07:44:17 -0400
-Received: from mailfe10.tele2.fr ([212.247.155.44]:49568 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S932259AbVJILoQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Oct 2005 07:44:16 -0400
-X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
-Date: Sun, 9 Oct 2005 13:44:06 +0200
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: akpm@osdl.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org
-Subject: Re: [patch 3/4] new serial flow control
-Message-ID: <20051009114406.GE5104@bouh.residence.ens-lyon.fr>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	akpm@osdl.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org
-References: <200501052341.j05Nfod27823@mail.osdl.org> <20050105235301.B26633@flint.arm.linux.org.uk> <20051008222711.GA5150@bouh.residence.ens-lyon.fr> <20051009000153.GA23083@flint.arm.linux.org.uk> <20051009002129.GJ5150@bouh.residence.ens-lyon.fr> <20051009083724.GA14335@flint.arm.linux.org.uk> <20051009100909.GF5150@bouh.residence.ens-lyon.fr> <20051009111718.GA13144@flint.arm.linux.org.uk> <20051009113313.GD5104@bouh.residence.ens-lyon.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Sun, 9 Oct 2005 08:02:38 -0400
+Received: from qproxy.gmail.com ([72.14.204.201]:65113 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932273AbVJIMCh convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Oct 2005 08:02:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=EX5A+Z5OHqHoDywMcVULhe5fecEahdrbMRKgB4wUAq1tYElSDRsJjXrJPbAYiY+yDaXnW/bMSyQSLcEKf6+oEBcYYoyi8IOEncD6bywyUIeqaiGnQgc1F0HXz0GV69auDxJWPWh6up15VQf1g/Q6mNNaK6K150tvKDRlkHgA954=
+Message-ID: <b9a245c10510090502r4e87696fqe111c0071e7f2a03@mail.gmail.com>
+Date: Sun, 9 Oct 2005 17:32:36 +0530
+From: Vivek Kutal <vivek.kutal@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Need for SHIFT and MASK
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20051009113313.GD5104@bouh.residence.ens-lyon.fr>
-User-Agent: Mutt/1.5.9i-nntp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Samuel Thibault, le Sun 09 Oct 2005 13:33:13 +0200, a écrit :
-> 
-> Russell King, le Sun 09 Oct 2005 12:17:18 +0100, a écrit :
-> > > Hardward flow control is usually performed in software. Can't their
-> > > hardware implementation of hardware flow control be disabled when
-> > > control method is not usual RTS/CTS?
-> > 
-> > You missed the point.  Of course the hardware flow control can be
-> > disabled.  However, if you do have on-chip CTS flow control disabled
-> > with UARTs with large FIFOs,
-> > etc..
-> 
-> Yes, of course. But can't this be disabled too?
+Hi ,
+While browsing through the code i came across macros like SHIFT , MASK
+, SIZE which are used in conversion from linear address to physical
+address
+but this is the job of the processor (address translation) then why do
+we have these macros
+can anyone please explain.
 
-(I mean, the FIFOs)
+
+
+--
+Thanks and Regards
+Vivek Kutal
+http://vivekkutal.blogspot.com
+
+"Live as if you were to die tomorrow. Learn as if you were to live forever."

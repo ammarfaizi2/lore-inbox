@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932137AbVJIRN6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbVJIRVz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932137AbVJIRN6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Oct 2005 13:13:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbVJIRN6
+	id S932139AbVJIRVz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Oct 2005 13:21:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932161AbVJIRVz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Oct 2005 13:13:58 -0400
-Received: from fnoeppeil48.netpark.at ([217.175.205.176]:64530 "EHLO
+	Sun, 9 Oct 2005 13:21:55 -0400
+Received: from fnoeppeil48.netpark.at ([217.175.205.176]:24850 "EHLO
 	roarinelk.homelinux.net") by vger.kernel.org with ESMTP
-	id S932137AbVJIRN5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Oct 2005 13:13:57 -0400
-Message-ID: <43494FD0.8080501@roarinelk.homelinux.net>
-Date: Sun, 09 Oct 2005 19:13:52 +0200
+	id S932139AbVJIRVz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Oct 2005 13:21:55 -0400
+Message-ID: <434951AF.9070201@roarinelk.homelinux.net>
+Date: Sun, 09 Oct 2005 19:21:51 +0200
 From: Manuel Lauss <mano@roarinelk.homelinux.net>
 User-Agent: Thunderbird/1.0 Mnenhy/0.7
 X-Accept-Language: en-us, en
@@ -37,12 +37,9 @@ Bernhard Rosenkraenzer wrote:
 > Can you try with 1024x768-16@60? That's what we're using in the installer (and 
 > what people reported to gable the display).
 
-tried with -16 and -32, with/without accel=1, mtrr=1, extvga=1,
-no problems. I _do_ see problems with >8 bpp when
-warm-rebooting from windows. Cursor is a 8 character long
-random pixelpile or a 3x3 ch blinking block of text.
- Cold boot and warm-rebooting from linux
-are okay though (I suspect bios does not reset accel engine).
+Are you using bootsplash in your installer kernels?
+Last time I tried that (2.4.22 iirc), it garbled
+the display horribly.
 
 -- 
- mano
+ Manuel Lauss

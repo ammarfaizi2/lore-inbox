@@ -1,68 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbVJIQJW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbVJIQW5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750711AbVJIQJW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Oct 2005 12:09:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbVJIQJW
+	id S1750800AbVJIQW5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Oct 2005 12:22:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbVJIQW5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Oct 2005 12:09:22 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:4753 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S1750711AbVJIQJW (ORCPT
+	Sun, 9 Oct 2005 12:22:57 -0400
+Received: from mail3.uklinux.net ([80.84.72.33]:13271 "EHLO mail3.uklinux.net")
+	by vger.kernel.org with ESMTP id S1750800AbVJIQW5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Oct 2005 12:09:22 -0400
-Message-ID: <434943A5.BD5440AC@tv-sign.ru>
-Date: Sun, 09 Oct 2005 20:21:57 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	Sun, 9 Oct 2005 12:22:57 -0400
+Subject: Re: 2.6.14-rc3-rt10 crashes on boot
+From: John Rigg <lk@sound-man.co.uk>
 To: linux-kernel@vger.kernel.org
-Cc: Ingo Molnar <mingo@elte.hu>, Roland McGrath <roland@redhat.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] coredump_wait() cleanup
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Message-Id: <E1EOe2Z-000187-Ow@localhost.localdomain>
+Date: Sun, 09 Oct 2005 17:28:47 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch deletes pointless (please correct me if I am wrong)
-code from coredump_wait().
+On Friday, October 7 Steven Rostedt wrote:
 
-1. It does useless mm->core_waiters inc/dec under mm->mmap_sem,
-   but any changes to ->core_waiters have no effect until we drop
-   ->mmap_sem.
+>Here's an addon patch to my last one.  I don't know x86_64 very well, but
+>I believe the the asm is pretty much the same, so this patch removes the
+>check for __i386__ and also defines STACK_WARN.
 
-2. It calls yield() for absolutely unknown reason.
+>Index: linux-rt-quilt/include/asm-x86_64/page.h
+>===================================================================
+>--- linux-rt-quilt.orig/include/asm-x86_64/page.h	2005-10-06 08:04:00.000000000 -0400
+>+++ linux-rt-quilt/include/asm-x86_64/page.h	2005-10-07 15:34:20.000000000 -0400
+>@@ -21,6 +21,8 @@
+> #endif
+> #define CURRENT_MASK (~(THREAD_SIZE-1))
+>
+>+#define STACK_WARN             (THREAD_SIZE/8)
+>+
+> #define LARGE_PAGE_MASK (~(LARGE_PAGE_SIZE-1))
+> #define LARGE_PAGE_SIZE (1UL << PMD_SHIFT)
+>
+>Index: linux-rt-quilt/kernel/latency.c
+>===================================================================
+>--- linux-rt-quilt.orig/kernel/latency.c	2005-10-06 08:04:56.000000000 -0400
+>+++ linux-rt-quilt/kernel/latency.c	2005-10-07 15:31:20.000000000 -0400
+>@@ -377,7 +377,8 @@
+> 	atomic_inc(&tr->disabled);
+>
+> 	/* Debugging check for stack overflow: is there less than 1KB free? */
+>-#ifdef __i386__
+>+#if 1 // def __i386__
+>+	/* Hopefully this works on x86_64!  */
+> 	__asm__ __volatile__("andl %%esp,%0" :
+> 				"=r" (stack_left) : "0" (THREAD_SIZE - 1));
+> #else
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+Steve, thanks for these patches. I got it to compile with 2.6.14-rc3-rt12
+but had to change the assembly lines in (patched) latency.c to
 
---- 2.6.14-rc3/fs/exec.c~	2005-09-21 21:08:33.000000000 +0400
-+++ 2.6.14-rc3/fs/exec.c	2005-10-09 23:54:45.000000000 +0400
-@@ -1422,19 +1422,16 @@ static void zap_threads (struct mm_struc
- static void coredump_wait(struct mm_struct *mm)
- {
- 	DECLARE_COMPLETION(startup_done);
--
--	mm->core_waiters++; /* let other threads block */
--	mm->core_startup_done = &startup_done;
--
--	/* give other threads a chance to run: */
--	yield();
--
--	zap_threads(mm);
--	if (--mm->core_waiters) {
--		up_write(&mm->mmap_sem);
--		wait_for_completion(&startup_done);
--	} else
--		up_write(&mm->mmap_sem);
-+	int core_waiters;
-+
-+	mm->core_startup_done = &startup_done;
-+
-+	zap_threads(mm);
-+	core_waiters = mm->core_waiters;
-+	up_write(&mm->mmap_sem);
-+
-+	if (core_waiters)
-+		wait_for_completion(&startup_done);
- 	BUG_ON(mm->core_waiters);
- }
+__asm__ __volatile__("and %%rsp,%0" :
+ 				"=r" (stack_left) : "0" (THREAD_SIZE - 1));
+
+ie. `and' instead of `andl' and `%%rsp' instead of `%%esp'.
+Somebody who understands x86_64 assembly better than I do should probably check 
+this before anyone tries using it.
+While I was at it I changed a printk arg in line 335 of (patched) latency.c - 
+I think the last %d should be %ld, ie. 
+
+printk("| new stack-footprint maximum: %s/%d, %ld bytes (out of %ld bytes).\n",
+	worst_stack_comm, worst_stack_pid, MAX_STACK-worst_stack_left, MAX_STACK); 
+
+John

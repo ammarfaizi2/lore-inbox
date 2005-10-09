@@ -1,65 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932249AbVJIIiK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932246AbVJIIhd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932249AbVJIIiK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Oct 2005 04:38:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932248AbVJIIiK
+	id S932246AbVJIIhd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Oct 2005 04:37:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932249AbVJIIhd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Oct 2005 04:38:10 -0400
-Received: from nproxy.gmail.com ([64.233.182.205]:17963 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932249AbVJIIiJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Oct 2005 04:38:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=HGvmjgjzg3sLMGV+LP1hnj0hzIwqVZSuYj/+Ja9+z11uGAElCl4SHNIw3A9IBKa0xHma9R+J/IkiRHdrLN6DY3yBiXzReVM+q773z3EBj1lllPp142/oF5Yqt39xZ9i3p73toW9wzDC9C854WwFD01CTz+Xyry1i2EzF/uQt/fc=
-Message-ID: <2cd57c900510090138h664e6c7eyad534f556b464c46@mail.gmail.com>
-Date: Sun, 9 Oct 2005 16:38:07 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-To: "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>
-Subject: Re: "stable" vs "security stable"
-Cc: webmaster@kernel.org, lkml <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, security@kernel.org,
-       stable@kernel.org
-In-Reply-To: <200510090826.j998QG4H012803@turing-police.cc.vt.edu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 9 Oct 2005 04:37:33 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:36111 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932246AbVJIIhc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Oct 2005 04:37:32 -0400
+Date: Sun, 9 Oct 2005 09:37:24 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Samuel Thibault <samuel.thibault@ens-lyon.org>, akpm@osdl.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       linux-serial@vger.kernel.org
+Subject: Re: [patch 3/4] new serial flow control
+Message-ID: <20051009083724.GA14335@flint.arm.linux.org.uk>
+Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
+	akpm@osdl.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org
+References: <200501052341.j05Nfod27823@mail.osdl.org> <20050105235301.B26633@flint.arm.linux.org.uk> <20051008222711.GA5150@bouh.residence.ens-lyon.fr> <20051009000153.GA23083@flint.arm.linux.org.uk> <20051009002129.GJ5150@bouh.residence.ens-lyon.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <2cd57c900510082307q1841ce8dob1dce3b24edf4ad0@mail.gmail.com>
-	 <200510090714.j997Ek2i032551@turing-police.cc.vt.edu>
-	 <2cd57c900510090044o249258cbycf8afab644902e7@mail.gmail.com>
-	 <200510090826.j998QG4H012803@turing-police.cc.vt.edu>
+In-Reply-To: <20051009002129.GJ5150@bouh.residence.ens-lyon.fr>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/9/05, Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
-> On Sun, 09 Oct 2005 15:44:38 +0800, Coywolf Qi Hunt said:
-> > On 10/9/05, Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
->
-> > It is "security stable". Let's take this new notation from now on.
-> > "Security Stable" doesn't have to be all security related.
->
-> Tell you what - you convince the -stable team, and I'll go along with it..
->
+On Sun, Oct 09, 2005 at 02:21:30AM +0200, Samuel Thibault wrote:
+> Russell King, le Sun 09 Oct 2005 01:01:53 +0100, a ?crit :
+> > > How could this look like in userspace?
+> > 
+> > I think they should be termios settings - existing programs know how
+> > to handle termios to get what they want. 
+> 
+> Hence a new field in the termios structure?
+> 
+> There was a discussion about this back in 2000:
+> 
+> http://marc.theaimsgroup.com/?t=96514848800003&r=1&w=2
+> 
+> and more precisely a remind of SVR4's termiox structure with an added
+> x_hflag:
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=96523146720678&w=2
+> 
+> I'm not sure about how we'd want to implement that. The SVR4 approach
+> (orthogonal input/output flow control selection) doesn't seem right to
+> me: there are really peculiar flow controls that involve both ways. A
+> mere enumeration of possible methods might be better.
 
-Better be "stable" and "base". 2.6.13.3 is the latest stable, 2.6.13
-is the latest base.
+What I was thinking of was to use some of the spare termios cflag bits
+to select the flow control.  You'd only want one flow control type at
+one time though.  Eg: define two fields, each to select the signal.
 
-> > (you want stable@kernel.org to replace security@kernel.org too?)
->
-> You're the one who called it "security stable" ;)
+0 - RTS
+1 - DTR
 
-My fault. I didn't realise stable@kernel.org exist, and CCed the wrong
-list security@kernel.org.
+0 - CTS
+1 - DTR
+2 - DSR
 
->
-> > What you did is so stupid to me to to use -R every time. -R implies
-> > something wrong, and need to revert.
->
-> Umm... my diff had *lower case* -r (recursive), not -R (revert)...
+You still want CRTSCTS to enable hardware flow control though - which
+is what programs expect to happen with that flag enabled.  RTS/CTS
+flow control would be type 0 above for compatibility with existing
+programs.
 
-I mean `patch -R'.
---
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+However, bear in mind that the majority of the more inteligent 8250-
+compatible UARTs with large FIFOs only do hardware flow control on
+RTS/CTS - attempting to simulate hardware flow control on the other
+signals could end up with up to 64 or 128 characters being sent after
+the transmit handshake is deasserted.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,61 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932290AbVJIVUj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932295AbVJIVYQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932290AbVJIVUj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Oct 2005 17:20:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932292AbVJIVUj
+	id S932295AbVJIVYQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Oct 2005 17:24:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbVJIVYQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Oct 2005 17:20:39 -0400
-Received: from [67.137.28.189] ([67.137.28.189]:25984 "EHLO vger.utah-nac.org")
-	by vger.kernel.org with ESMTP id S932290AbVJIVUj (ORCPT
+	Sun, 9 Oct 2005 17:24:16 -0400
+Received: from mail.gmx.de ([213.165.64.20]:12203 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932295AbVJIVYP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Oct 2005 17:20:39 -0400
-Message-ID: <43497533.6090106@utah-nac.org>
-Date: Sun, 09 Oct 2005 13:53:23 -0600
-From: jmerkey <jmerkey@utah-nac.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Sun, 9 Oct 2005 17:24:15 -0400
+X-Authenticated: #20450766
+Date: Sun, 9 Oct 2005 23:23:35 +0200 (CEST)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: Peter Osterlund <petero2@telia.com>
+cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: Re: [2.6.13] pktcdvd: IO-errors
+In-Reply-To: <m3k6gw86f0.fsf@telia.com>
+Message-ID: <Pine.LNX.4.60.0510092304550.14767@poirot.grange>
+References: <Pine.LNX.4.60.0509242057001.4899@poirot.grange> <m3slvtzf72.fsf@telia.com>
+ <Pine.LNX.4.60.0509252026290.3089@poirot.grange> <m34q873ccc.fsf@telia.com>
+ <Pine.LNX.4.60.0509262122450.4031@poirot.grange> <m3slvr1ugx.fsf@telia.com>
+ <Pine.LNX.4.60.0509262358020.6722@poirot.grange> <m3hdc4ucrt.fsf@telia.com>
+ <Pine.LNX.4.60.0509292116260.11615@poirot.grange> <m3k6gw86f0.fsf@telia.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix ext3 warning for unused var
-References: <20051009195850.27237.90873.stgit@zion.home.lan> <Pine.LNX.4.64.0510091314200.31407@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0510091314200.31407@g5.osdl.org>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Sun, 2 Oct 2005, Peter Osterlund wrote:
 
->On Sun, 9 Oct 2005, Paolo 'Blaisorblade' Giarrusso wrote:
->  
->
->>Can please someone merge this? It's the 3rd time I send it.
->>    
->>
->
->I don't like #ifdef's in code. 
->
->You could just have split up the quota-specific stuff into a function of 
->their own: "ext3_show_quota_options()". The patch might have been larger, 
->but it would actually clean up the code rather than make it uglier.
->
->Warnings are not a reason for ugly code.
->
->		Linus
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-Someone needs to fix fsck.ext3 while they are at it so it doesn't barf 
-when reading from reisferfs filesystems and return a command return of > 
-2 during scanning of parttions during bootup. This looks like some sort 
-of anti-competitive crap and it doesn't belong in fsck.ext3 since 
-reiserfs is in the kernel.
+> OK, in that case this patch for 2.6.12 should work as well, because
+> all it does compared to the previous patch is to remove the now unused
+> high_prio_read variables. Can you confirm that it works?
 
-J
+Yes, it does.
+
+> With that patch for 2.6.12, the diff compared to 2.6.13 now looks like
+> below. Can you confirm that reverse applying this patch for 2.6.13
+> also works?
+
+Well, I am testing always with 2.6.13 kernel, just replacing the pktcdvd 
+driver sources. So, I just checked that 2.6.13 - your 2nd patch from the 
+last email == 2.6.12 + 1st patch from the same email ( + trivial 
+refrigerator() call compile-fix), so, we may save us this test.
+
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski

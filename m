@@ -1,52 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbVJIWIm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbVJIWdf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932293AbVJIWIm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Oct 2005 18:08:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbVJIWIl
+	id S932299AbVJIWdf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Oct 2005 18:33:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbVJIWdf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Oct 2005 18:08:41 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:33176 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932293AbVJIWIl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Oct 2005 18:08:41 -0400
-Date: Sun, 9 Oct 2005 23:08:38 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: jmerkey <jmerkey@utah-nac.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix ext3 warning for unused var
-Message-ID: <20051009220838.GN7992@ftp.linux.org.uk>
-References: <20051009195850.27237.90873.stgit@zion.home.lan> <Pine.LNX.4.64.0510091314200.31407@g5.osdl.org> <43497533.6090106@utah-nac.org> <20051009212916.GM7992@ftp.linux.org.uk> <43497B09.3020102@utah-nac.org>
+	Sun, 9 Oct 2005 18:33:35 -0400
+Received: from populous.netsplit.com ([62.49.129.34]:35488 "EHLO
+	mailgate.netsplit.com") by vger.kernel.org with ESMTP
+	id S932300AbVJIWde (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Oct 2005 18:33:34 -0400
+Subject: Re: Bug#322309: Debian woody dpkg no longer works with recent
+	linux kernel.
+From: Scott James Remnant <scott@netsplit.com>
+To: Junichi Uekawa <dancer@netfort.gr.jp>, 322309@bugs.debian.org
+Cc: 322309-submitter@bugs.debian.org, 329468@bugs.debian.org,
+       329468-submitter@bugs.debian.org, debian-devel@bugs.debian.org,
+       linux-kernel@vger.kernel.org, 332903-submitter@bugs.debian.org
+In-Reply-To: <87zmpi3ell.dancerj%dancer@netfort.gr.jp>
+References: <87zmpi3ell.dancerj%dancer@netfort.gr.jp>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-+jdALPzI3F1qHCeB32Es"
+Date: Sun, 09 Oct 2005 23:33:16 +0100
+Message-Id: <1128897196.19000.3.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43497B09.3020102@utah-nac.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.4.0 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 09, 2005 at 02:18:17PM -0600, jmerkey wrote:
-> If they all use the same on disk formats as their basic structure,
 
-ext3 and reiserfs?  No, they do not.
+--=-+jdALPzI3F1qHCeB32Es
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> fsck 
-> should not return gt > 1 due to misinterpreting reiser on-disk 
-> structures. It should say "oh not one of mine, skipping". Instead it 
-> returns an error claiming massive corruption, and halts the system. I 
-> just upgraded my wifes computer from Suse to RedHat FC4 and when it hits 
-> the reiser partitions, the whole system explodes due to fsck.ext3 
-> misrecognizing reiser partitions.
+On Mon, 2005-10-10 at 00:16 +0900, Junichi Uekawa wrote:
 
-Since when does fsck run fsck.ext3 on filesystems that are not marked
-as ext3 in /etc/fstab?
+> dpkg in Debian woody (3.0) is broken by recent linux kernels;
+> due to the following command changing behavior (mmap of=20
+> zero-byte length):
+>=20
+>   addr=3Dmmap(NULL, 0, PROT_READ, MAP_SHARED, fd, 0);
+>=20
+> These bugs are caused by mmap changing behavior;=20
+> it used to return NULL when given a length of 0.
+> However, it now returns -1, and gives back an errno=3DEINVAL.
+>=20
+Indeed.  This was the sole change in the 1.13.8 release.
 
->I had to modify rc.sysinit and blank 
-> the partitions with fdisk to get it to install. After it installed, I 
-> recreated the partitions (after writing down what they were in the first 
-> place for block #'s etc.) and disabled rc.sysinit checks. This is 
-> busted. Hans needs to fix fsck.ext3 and submit a patch or redhat does.
+Scott
+--=20
+Have you ever, ever felt like this?
+Had strange things happen?  Are you going round the twist?
 
-Sorry, but I doubt that Hans or anybody in RH knows how to patch wetware,
-let alone one as messed up as yours.
+--=-+jdALPzI3F1qHCeB32Es
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDSZqsIexP3IStZ2wRAsXHAKCE1NH4CaF0luf/iwizjlDI2gOK7gCdH+Ju
+u/MnQFHWzwdylx+iLC74rQk=
+=LaIk
+-----END PGP SIGNATURE-----
+
+--=-+jdALPzI3F1qHCeB32Es--
+

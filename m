@@ -1,73 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbVJIAwI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbVJIAub@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932202AbVJIAwI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Oct 2005 20:52:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbVJIAwI
+	id S932195AbVJIAub (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Oct 2005 20:50:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbVJIAub
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Oct 2005 20:52:08 -0400
-Received: from ams-iport-1.cisco.com ([144.254.224.140]:23325 "EHLO
-	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S932202AbVJIAwG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Oct 2005 20:52:06 -0400
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: tom.l.nguyen@intel.com, akpm <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Doc/MSI-HOWTO: cleanups
-X-Message-Flag: Warning: May contain useful information
-References: <20051008171753.2137fd82.rdunlap@xenotime.net>
-From: Roland Dreier <rolandd@cisco.com>
-Date: Sat, 08 Oct 2005 17:51:57 -0700
-In-Reply-To: <20051008171753.2137fd82.rdunlap@xenotime.net> (Randy Dunlap's
- message of "Sat, 8 Oct 2005 17:17:53 -0700")
-Message-ID: <521x2vldg2.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+	Sat, 8 Oct 2005 20:50:31 -0400
+Received: from nproxy.gmail.com ([64.233.182.200]:51217 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932195AbVJIAua convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Oct 2005 20:50:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iu67WZOyhfoQA7pAQwyLtctLPl/YmHi66iUq1BhSrSRknvrPwclhB6+dbfH7ms26J/H61FuHeHg/aVqrMMeHb8jpC8LVe0St9ZxN8yTsr1F110wbYL4NpFMffxPSJDxmtEWpq2Jods6cHKJbEvp/Tg3BHyGhbkmvwCHkREgymZI=
+Message-ID: <2cd57c900510081750s4512a592oacd651b79f90b9b3@mail.gmail.com>
+Date: Sun, 9 Oct 2005 08:50:29 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+To: com bio <combiofriends@yahoo.com>
+Subject: Re: problem with SU
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051008200301.47923.qmail@web32812.mail.mud.yahoo.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-X-OriginalArrivalTime: 09 Oct 2005 00:51:58.0644 (UTC) FILETIME=[A7118F40:01C5CC6B]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051008200301.47923.qmail@web32812.mail.mud.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This file can definitely use some rewriting, so thanks for doing this
-work.  I'm just picking on some things I notice while reading your patch:
+On 10/9/05, com bio <combiofriends@yahoo.com> wrote:
+> Hello,
+>  I have a strange problem with the su command. When i
+> issue a su command i get the error
+>
+> "setgid: operation not permitted "
+>
+> I get this error in a machine that runs both fedora
+> and debian. Its a dual boot system. The error is from
+> debian sarge. I had disabled selinux in fedora. I dont
+> know if that would be problem with debian. I wonder if
+> debian has selinux. If someone can help, Then thanks
 
-    >  	masking is an optional extension of MSI but a required
-    >  	feature for MSI-X. Per-vector masking provides the kernel
-    >  	the ability to mask/unmask MSI when servicing its software
-    > -	interrupt service routing handler. If per-vector masking is
-    > +	interrupt service routine handler. If per-vector masking is
-    >  	not supported, then the device driver should provide the
-    >  	hardware/software synchronization to ensure that the device
-    >  	generates MSI when the driver wants it to do so.
+run this to see if your debian has selinux
 
-If you're going to touch this at all, it should be rewritten so it
-actually makes sense.  I would rewrite this sentence as either
-
-    "...the ability to mask/unmask a single MSI while servicing its
-     interrupt."
-
-or
-
-    "...the ability to mask/unmask a single MSI while running its
-     interrupt service routine."
-
-     > +With this new API, any existing device driver which wants to have
-     > +MSI enabled on its device function must call this API to enable MSI.
-
-"device function" (which is PCI jargonese) should probably just be
-"device."  Also, perhaps "...a device driver that..." would read
-better than "...any existing device driver which...."
-
-    >  pre-assigned dev->irq with a new MSI vector. To avoid the conflict
-    > -of new assigned vector with existing pre-assigned vector requires
-    > +of the new assigned vector with existing pre-assigned vector requires
-    >  a device driver to call this API before calling request_irq().
-
-"...the conflict..." should probably be "...a conflict..."
-
-    > +software system can set different pages for controlling accesses to the
-    > +MSI-X structure. The implementation of the MSI patch requires the PCI
-
-"...the MSI patch..." should probably be "...MSI support..."
-
-Thanks,
-  Roland
+  dpkg -l selinux
+--
+Coywolf Qi Hunt
+http://sosdg.org/~coywolf/

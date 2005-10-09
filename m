@@ -1,73 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbVJIVNf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932290AbVJIVUj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932288AbVJIVNf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Oct 2005 17:13:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932292AbVJIVNf
+	id S932290AbVJIVUj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Oct 2005 17:20:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932292AbVJIVUj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Oct 2005 17:13:35 -0400
-Received: from anchor-post-36.mail.demon.net ([194.217.242.86]:18450 "EHLO
-	anchor-post-36.mail.demon.net") by vger.kernel.org with ESMTP
-	id S932288AbVJIVNe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Oct 2005 17:13:34 -0400
-From: Felix Oxley <lkml@oxley.org>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: 2.6.14-rc3-rt13: Build Problem
-Date: Sun, 9 Oct 2005 22:13:24 +0100
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
+	Sun, 9 Oct 2005 17:20:39 -0400
+Received: from [67.137.28.189] ([67.137.28.189]:25984 "EHLO vger.utah-nac.org")
+	by vger.kernel.org with ESMTP id S932290AbVJIVUj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Oct 2005 17:20:39 -0400
+Message-ID: <43497533.6090106@utah-nac.org>
+Date: Sun, 09 Oct 2005 13:53:23 -0600
+From: jmerkey <jmerkey@utah-nac.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix ext3 warning for unused var
+References: <20051009195850.27237.90873.stgit@zion.home.lan> <Pine.LNX.4.64.0510091314200.31407@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0510091314200.31407@g5.osdl.org>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510092213.25530.lkml@oxley.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
 
-I built a clean 2.6.14-rc3-rt13, and then did
+>On Sun, 9 Oct 2005, Paolo 'Blaisorblade' Giarrusso wrote:
+>  
+>
+>>Can please someone merge this? It's the 3rd time I send it.
+>>    
+>>
+>
+>I don't like #ifdef's in code. 
+>
+>You could just have split up the quota-specific stuff into a function of 
+>their own: "ext3_show_quota_options()". The patch might have been larger, 
+>but it would actually clean up the code rather than make it uglier.
+>
+>Warnings are not a reason for ugly code.
+>
+>		Linus
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+Someone needs to fix fsck.ext3 while they are at it so it doesn't barf 
+when reading from reisferfs filesystems and return a command return of > 
+2 during scanning of parttions during bootup. This looks like some sort 
+of anti-competitive crap and it doesn't belong in fsck.ext3 since 
+reiserfs is in the kernel.
 
-	make allyesconfig
-	make bzImage > BUILD_MESSAGES 2>&1
-
-After about 5 hours (!) I got the following message:
-
-  CC      lib/prio_tree.o
-  CC      lib/radix-tree.o
-  CC      lib/rbtree.o
-  CC      lib/rwsem-spinlock.o
-  CC      lib/semaphore-sleepers.o
-  CC      lib/sha1.o
-  CC      lib/string.o
-  CC      lib/vsprintf.o
-  AR      lib/lib.a
-  LD      arch/i386/lib/built-in.o
-  CC      arch/i386/lib/bitops.o
-  AS      arch/i386/lib/checksum.o
-  CC      arch/i386/lib/delay.o
-  AS      arch/i386/lib/getuser.o
-  CC      arch/i386/lib/memcpy.o
-  AS      arch/i386/lib/putuser.o
-  CC      arch/i386/lib/strstr.o
-  CC      arch/i386/lib/usercopy.o
-  AR      arch/i386/lib/lib.a
-  GEN     .version
-  CHK     include/linux/compile.h
-  UPD     include/linux/compile.h
-  CC      init/version.o
-  LD      init/built-in.o
-  LD      .tmp_vmlinux1
-drivers/built-in.o: In function `mkiss_open':
-: undefined reference to `there_is_no_init_MUTEX_LOCKED_for_RT_semaphores'
-drivers/built-in.o: In function `sixpack_open':
-: undefined reference to `there_is_no_init_MUTEX_LOCKED_for_RT_semaphores'
-drivers/built-in.o: In function `gameport_measure_speed':
-: undefined reference to `local_irq_save_nort'
-drivers/built-in.o: In function `gameport_measure_speed':
-: undefined reference to `local_irq_restore_nort'
-drivers/built-in.o: In function `mc32_probe1':
-: undefined reference to `there_is_no_init_MUTEX_LOCKED_for_RT_semaphores'
-make: *** [.tmp_vmlinux1] Error 1
-
-regards,
-Felix
+J

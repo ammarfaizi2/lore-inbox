@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751024AbVJIWbw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbVJIWg4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751024AbVJIWbw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Oct 2005 18:31:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbVJIWbw
+	id S932302AbVJIWg4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Oct 2005 18:36:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbVJIWg4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Oct 2005 18:31:52 -0400
-Received: from deliverator7.gatech.edu ([130.207.165.169]:64674 "EHLO
-	deliverator7.gatech.edu") by vger.kernel.org with ESMTP
-	id S1750968AbVJIWbv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Oct 2005 18:31:51 -0400
-Message-ID: <43499A44.2070803@mail.gatech.edu>
-Date: Sun, 09 Oct 2005 18:31:32 -0400
-From: Luke Albers <gtg940r@mail.gatech.edu>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>
-Subject: USB-> bluetooth adapter problem
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 9 Oct 2005 18:36:56 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:14018 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S932298AbVJIWgz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Oct 2005 18:36:55 -0400
+Subject: Re: [patch 3/4] new serial flow control
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org
+In-Reply-To: <20051009114406.GE5104@bouh.residence.ens-lyon.fr>
+References: <200501052341.j05Nfod27823@mail.osdl.org>
+	 <20050105235301.B26633@flint.arm.linux.org.uk>
+	 <20051008222711.GA5150@bouh.residence.ens-lyon.fr>
+	 <20051009000153.GA23083@flint.arm.linux.org.uk>
+	 <20051009002129.GJ5150@bouh.residence.ens-lyon.fr>
+	 <20051009083724.GA14335@flint.arm.linux.org.uk>
+	 <20051009100909.GF5150@bouh.residence.ens-lyon.fr>
+	 <20051009111718.GA13144@flint.arm.linux.org.uk>
+	 <20051009113313.GD5104@bouh.residence.ens-lyon.fr>
+	 <20051009114406.GE5104@bouh.residence.ens-lyon.fr>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Mon, 10 Oct 2005 00:04:20 +0100
+Message-Id: <1128899060.2938.7.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a 3com USB bluetooth adapter, that worked for  me at one time, 
-that I can't get working anymore.
+On Sul, 2005-10-09 at 13:44 +0200, Samuel Thibault wrote:
+> > Yes, of course. But can't this be disabled too?
+> 
+> (I mean, the FIFOs)
 
-The model is 3CREB96B
+In the USB case generally not. Also many high end devices are polled
+with big buffers and have no IRQ support. It works for the 16x50s that
+are most PCs today however and that is enough IMHO to be relevant for
+now (next gen PC's probably won't have serial of course)
 
-Sometimes it isnt even noticed when I plug it in, but after restarting 
-hotplug I get this:
-
-usb 4-1: new full speed USB device using uhci_hcd and address 2
-hci_usb_probe: Can't set isoc interface settings
-usb 4-1: USB disconnect, address 2
-
-I don't think that I have removed any options from the kernel that 
-should cause this, and other USB devices work fine.
-
-Can someone please explain this message in more detail (google turns up 
-very little)?
-
-Thanks

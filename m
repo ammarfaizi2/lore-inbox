@@ -1,41 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbVJIIJu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbVJIIJf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932239AbVJIIJu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Oct 2005 04:09:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbVJIIJu
+	id S932235AbVJIIJf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Oct 2005 04:09:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbVJIIJe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Oct 2005 04:09:50 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:9894 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932239AbVJIIJu (ORCPT
+	Sun, 9 Oct 2005 04:09:34 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:29892 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932235AbVJIIJe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Oct 2005 04:09:50 -0400
-Date: Sun, 9 Oct 2005 01:09:37 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Coywolf Qi Hunt <coywolf@gmail.com>
-Cc: webmaster@kernel.org, security@kernel.org,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [Security] "stable" vs "security stable"
-Message-ID: <20051009080937.GS5856@shell0.pdx.osdl.net>
-References: <2cd57c900510082307q1841ce8dob1dce3b24edf4ad0@mail.gmail.com>
+	Sun, 9 Oct 2005 04:09:34 -0400
+Date: Sun, 9 Oct 2005 01:09:09 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+Cc: greg@kroah.com, usb-storage@lists.one-eyed-alien.net,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       zaitcev@redhat.com
+Subject: Re: [usb-storage] usb: drivers/usb/storage/libusual
+Message-Id: <20051009010909.4b93f9c2.zaitcev@redhat.com>
+In-Reply-To: <20051009021413.GA25979@one-eyed-alien.net>
+References: <20050927205559.078ba9ed.zaitcev@redhat.com>
+	<20050928085159.GA11862@kroah.com>
+	<20051008140132.49f9eec3.zaitcev@redhat.com>
+	<20051009021413.GA25979@one-eyed-alien.net>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2cd57c900510082307q1841ce8dob1dce3b24edf4ad0@mail.gmail.com>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Coywolf Qi Hunt (coywolf@gmail.com) wrote:
-> I find the kernel.org first page inconvenient for some people somehow
-> since the security stable came.
+On Sat, 8 Oct 2005 19:14:13 -0700, Matthew Dharm <mdharm-kernel@one-eyed-alien.net> wrote:
 
-It's stable, not security stable.  It does contain security fixes
-sometimes, but it is generally about patches that improve kernel
-stability.
+> But, I'm not sure this is much better.  It's certainly different, but I
+> fear that we're going to spend a lot of time explaining to end-users a new
+> and less-than-totally-obvious system.
 
-> Now on the kernel.org page, we have 2.6.13.3 and 2.6.14-rc3. If one
-> wants to get 2.6.14-rc3, he shouldn't get 2.6.14-rc3 Full, but
-> 2.6.14-rc3 Patch and 2.6.13 Full, which isn't there unfortunately. I
-> suggest we name 2.6.13.3 "security stable", and 2.6.13 "stable".
+Devices continue to default to usb-storage, regardless if libusual is
+configured. So, no explanations should be necessary at first. Fedora may
+be different if we like how it works in Rawhide and let it into a release.
+Then I would talk to Karsten about documenting this in Fedora handbook.
 
-Perhaps a column B for base.  Or just link to ketchup and be done with it.
+Although... I may be missing something about the behaviour of end users.
+I thought that what we had before was transparent, but I was wrong.
+
+I have some hopes for Gentoo users to tell me if libusual is workable
+actually. They like to try new options as soon as they appear :-)
+
+> And I think I'm totally convinced now that request_module() needs some
+> serious help. []
+
+I think maybe if this use of it gets visible, it may be easier to
+implement changes to request_module(), than if I were just mailing
+to linux-kernel. Patch always speaks louder than words.
+
+Maybe Keith or Rusty will have a look and bust this to bits, from
+the module-init-tools perspective.
+
+-- Pete

@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932341AbVJJEVc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbVJJE3V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932341AbVJJEVc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 00:21:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbVJJEVc
+	id S932342AbVJJE3V (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 00:29:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbVJJE3V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 00:21:32 -0400
-Received: from zproxy.gmail.com ([64.233.162.197]:8587 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932341AbVJJEVb convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 00:21:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=YzUn29eUGlMqfCmL+6QzFSP4QbXbJlc9jcZQuK+KwRlv31eQlJARM4OoP9p/f8FgFKPfad28+Y2tI/6Ez70+LCYtsQVfdAtXALGqIgzoM4twjKOD2NS7N6YbN++ho+Byr+YakUZJoiEeSKuom1uMQC+VSlcxrjSQ4HyEt2mqdnA=
-Message-ID: <3ad486780510092121h78a522cat11f33581dfc670dc@mail.gmail.com>
-Date: Mon, 10 Oct 2005 14:21:31 +1000
-From: spereira <pereira.shaun@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: 32 bit (socket layer) ioctl emulation for 64 bit kernels- Question regarding...
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Mon, 10 Oct 2005 00:29:21 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:52182 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S932342AbVJJE3U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 00:29:20 -0400
+Message-Id: <200510091538.j99FcFmW005439@inti.inf.utfsm.cl>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+cc: linux-kernel@vger.kernel.org,
+       Linux Visionaries Mailing List <lvml@lists.blackwhale.net>
+Subject: Re: Why no XML in the Kernel? 
+In-Reply-To: Message from Luke Kenneth Casson Leighton <lkcl@lkcl.net> 
+   of "Sat, 08 Oct 2005 02:34:57 +0100." <20051008013457.GR18797@lkcl.net> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Sun, 09 Oct 2005 12:38:15 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-I am trying to implement 32 bit userland support for existing x25
-socket layer ioctls in a x86_64 kernel for use in a project for a
-telco.
+Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
 
- It used to be possible to extend the  contents of the
-ioctl32_hash_table(fs/compat.c) for ioctl commands and associated
-handlers (= 64 bit converstion functions) by calling the
-register_ioctl32_conversion() function.
-However this function has now been scheduled for removal. The
-suggested replacement seems to be available only for inode structures
-created for "actual" file systems, where the i_fop points to
-operations for "real" files. When using "socket type" inodes
-i_fop(inode/fs.h) points to operations for sockets which does not
-provide a hook like compat_ioctl for handling such conversions.
+[...]
 
-Is there currently an alternative to register_ioctl32_conversion that
-would help achive 32 bit ioctl emulation at the socket layer?
-Any suggestions/advice whould be much appreciated.
-Many Thanks
-Shaun
+>  it's a friggin sight better than contemplating XML, but it also comes
+>  with a price tag: in this case, nearly 70,000 lines of library code
+>  that "encapsulates" and "extracts" the data structures for you, at
+>  runtime [yes, you can supply your own malloc and free routines]
+
+70 KSLOC is a /lot/, the benefit of having that in kernel would have to be
+very large to justify it. And in the frame of an operating system that
+believes in flat ("just stream of bytes") interfaces throughout and
+hopefully very simple tools on top ("cat", "more", "grep") that are
+combined by the user to do complex stuff I just don't see it.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+

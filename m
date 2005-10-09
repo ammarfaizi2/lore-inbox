@@ -1,56 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbVJIIU7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbVJII0s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932240AbVJIIU7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Oct 2005 04:20:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbVJIIU7
+	id S932190AbVJII0s (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Oct 2005 04:26:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbVJII0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Oct 2005 04:20:59 -0400
-Received: from nproxy.gmail.com ([64.233.182.194]:12558 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932240AbVJIIU6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Oct 2005 04:20:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=AbWxdg1geCPZCphrINt9B+Y6mCK5j7++Q/vzeXXXCuUxpdrrTJq1/ZrN14bIjzYpCFgKFt+zM61K207pA72jQaLIsq/sev7UNSTR90LXydFXUTlRassHRahMHdVtA0JEgwScxeNGejYiQzHArljws068J2SHRRBmTpd4i19ZHlM=
-Message-ID: <2cd57c900510090120i27de6d0g110a3ee104f7e4a3@mail.gmail.com>
-Date: Sun, 9 Oct 2005 16:20:57 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-To: Chris Wright <chrisw@osdl.org>
-Subject: Re: [Security] "stable" vs "security stable"
-Cc: webmaster@kernel.org, security@kernel.org,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051009080937.GS5856@shell0.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <2cd57c900510082307q1841ce8dob1dce3b24edf4ad0@mail.gmail.com>
-	 <20051009080937.GS5856@shell0.pdx.osdl.net>
+	Sun, 9 Oct 2005 04:26:47 -0400
+Received: from h80ad255d.async.vt.edu ([128.173.37.93]:5340 "EHLO
+	h80ad255d.async.vt.edu") by vger.kernel.org with ESMTP
+	id S932190AbVJII0r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Oct 2005 04:26:47 -0400
+Message-Id: <200510090826.j998QG4H012803@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Coywolf Qi Hunt <coywolf@gmail.com>
+Cc: webmaster@kernel.org, lkml <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, security@kernel.org
+Subject: Re: "stable" vs "security stable" 
+In-Reply-To: Your message of "Sun, 09 Oct 2005 15:44:38 +0800."
+             <2cd57c900510090044o249258cbycf8afab644902e7@mail.gmail.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <2cd57c900510082307q1841ce8dob1dce3b24edf4ad0@mail.gmail.com> <200510090714.j997Ek2i032551@turing-police.cc.vt.edu>
+            <2cd57c900510090044o249258cbycf8afab644902e7@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1128846375_2693P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sun, 09 Oct 2005 04:26:15 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/9/05, Chris Wright <chrisw@osdl.org> wrote:
-> * Coywolf Qi Hunt (coywolf@gmail.com) wrote:
-> > I find the kernel.org first page inconvenient for some people somehow
-> > since the security stable came.
->
-> It's stable, not security stable.  It does contain security fixes
-> sometimes, but it is generally about patches that improve kernel
-> stability.
+--==_Exmh_1128846375_2693P
+Content-Type: text/plain; charset=us-ascii
 
-OK, "stable" vs "base" now. 2.6.13.3 is the latest stable, and 2.6.13
-is the latest base.
+On Sun, 09 Oct 2005 15:44:38 +0800, Coywolf Qi Hunt said:
+> On 10/9/05, Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
 
->
-> > Now on the kernel.org page, we have 2.6.13.3 and 2.6.14-rc3. If one
-> > wants to get 2.6.14-rc3, he shouldn't get 2.6.14-rc3 Full, but
-> > 2.6.14-rc3 Patch and 2.6.13 Full, which isn't there unfortunately. I
-> > suggest we name 2.6.13.3 "security stable", and 2.6.13 "stable".
->
-> Perhaps a column B for base.  Or just link to ketchup and be done with it.
->
+> It is "security stable". Let's take this new notation from now on.
+> "Security Stable" doesn't have to be all security related.
 
---
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+Tell you what - you convince the -stable team, and I'll go along with it..
+
+> (you want stable@kernel.org to replace security@kernel.org too?)
+
+You're the one who called it "security stable" ;)
+
+> What you did is so stupid to me to to use -R every time. -R implies
+> something wrong, and need to revert.
+
+Umm... my diff had *lower case* -r (recursive), not -R (revert)...
+
+
+--==_Exmh_1128846375_2693P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD4DBQFDSNQncC3lWbTT17ARAnkfAJYthJP1fUhUDrPpeEPzgvX81pyyAKDv9MiK
+/K01ySHLcxE3jmhmKsUz/w==
+=GNr9
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1128846375_2693P--

@@ -1,40 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932305AbVJIXrI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbVJIXnb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932305AbVJIXrI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Oct 2005 19:47:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932306AbVJIXrI
+	id S932304AbVJIXnb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Oct 2005 19:43:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932305AbVJIXnb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Oct 2005 19:47:08 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:64403 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932305AbVJIXrH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Oct 2005 19:47:07 -0400
-Date: Mon, 10 Oct 2005 00:47:04 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: jmerkey <jmerkey@utah-nac.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix ext3 warning for unused var
-Message-ID: <20051009234704.GO7992@ftp.linux.org.uk>
-References: <20051009195850.27237.90873.stgit@zion.home.lan> <Pine.LNX.4.64.0510091314200.31407@g5.osdl.org> <43497533.6090106@utah-nac.org> <20051009212916.GM7992@ftp.linux.org.uk> <43497B09.3020102@utah-nac.org> <20051009220838.GN7992@ftp.linux.org.uk> <4349961F.7060109@utah-nac.org>
+	Sun, 9 Oct 2005 19:43:31 -0400
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:47554 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S932304AbVJIXna (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Oct 2005 19:43:30 -0400
+Subject: Re: [swsusp] separate snapshot functionality to separate file
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Alon Bar-Lev <alon.barlev@gmail.com>,
+       Lorenzo Colitti <lorenzo@colitti.com>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051006082050.GA10865@openzaurus.ucw.cz>
+References: <20051004205334.GC18481@elf.ucw.cz>
+	 <1128465272.6611.75.camel@localhost> <20051005084141.GB22034@elf.ucw.cz>
+	 <434443D9.3010501@colitti.com> <20051005224418.GA22781@elf.ucw.cz>
+	 <4344599B.7060308@colitti.com> <20051005225727.GE22781@elf.ucw.cz>
+	 <20051005230045.GA22906@elf.ucw.cz> <43445F51.7090403@colitti.com>
+	 <4344F820.6010701@gmail.com>  <20051006082050.GA10865@openzaurus.ucw.cz>
+Content-Type: text/plain
+Organization: Cyclades
+Message-Id: <1128901281.4747.7.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4349961F.7060109@utah-nac.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Mon, 10 Oct 2005 09:41:22 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 09, 2005 at 04:13:51PM -0600, jmerkey wrote:
-> >Sorry, but I doubt that Hans or anybody in RH knows how to patch 
-> >
-> 
-> ---> wetware, <----
-> 
-> Is this the new "official" non-official slang word for Suse Linux?
+Hi Pavel.
 
-That's fairly old and unless the contents of your skull is even weirder
-than I ever thought, the answer's "no".
+On Thu, 2005-10-06 at 18:20, Pavel Machek wrote:
+> Hi!
+> 
+> > >>"Cool, so you have done 100% of work and now it is stable, fast and
+> > >>tested. You only need to do 200% more work to get it merged".
+> > >>
+> > >>Merging into kernel is not easy, sorry.
+> > >> 
+> > >It works, it's fast, it's stable, and it does what users want. 
+> > >That's a strong combination. It would be really good if you could 
+> > >work together to merge it.
+> 
+> > I've read this thread...
+> > And I want to join this request...
+> > 
+> > It might be that suspend2 is not the best solution, but 
+> > maybe if you merge it and then work together in order to 
+> > maximize the use of user space at next version, it will be 
+> 
+> Merge 10000 lines of code, only to drop them in next version?
 
-> >let alone one as messed up as yours.
+You're assuming your code would get merged.
+
+More than that, though, let me be bold enough to say that your version
+has quite a lot of development to do in order to begin to approach the
+level of Suspend2. If and when it achieves that, I'll happily stop
+maintaining Suspend2 - after all, I've always said I'm just a user who
+wants to suspend. In the meantime, though, I'm happy to carry that can
+while you're developing your userspace implementation. That way, users
+can have the best of both worlds - a stable, reliable, fast and mature
+implementation in kernel space while you're getting userspace working,
+and then whatever advantages you bring once your version becomes  an
+improved version of Suspend2.
+
+Regards,
+
+Nigel
+ 
+
+

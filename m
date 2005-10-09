@@ -1,76 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932252AbVJIKJT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932257AbVJIKmy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932252AbVJIKJT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Oct 2005 06:09:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbVJIKJT
+	id S932257AbVJIKmy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Oct 2005 06:42:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932259AbVJIKmy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Oct 2005 06:09:19 -0400
-Received: from mailfe10.tele2.fr ([212.247.155.44]:24761 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S1750800AbVJIKJS (ORCPT
+	Sun, 9 Oct 2005 06:42:54 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:17555 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S932257AbVJIKmx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Oct 2005 06:09:18 -0400
-X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
-Date: Sun, 9 Oct 2005 12:09:09 +0200
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: akpm@osdl.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org
-Subject: Re: [patch 3/4] new serial flow control
-Message-ID: <20051009100909.GF5150@bouh.residence.ens-lyon.fr>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	akpm@osdl.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org
-References: <200501052341.j05Nfod27823@mail.osdl.org> <20050105235301.B26633@flint.arm.linux.org.uk> <20051008222711.GA5150@bouh.residence.ens-lyon.fr> <20051009000153.GA23083@flint.arm.linux.org.uk> <20051009002129.GJ5150@bouh.residence.ens-lyon.fr> <20051009083724.GA14335@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Sun, 9 Oct 2005 06:42:53 -0400
+From: Nick Warne <nick@linicks.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.31 CONFIG_INPUT_KEYBDEV
+Date: Sun, 9 Oct 2005 11:41:10 +0100
+User-Agent: KMail/1.8.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20051009083724.GA14335@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.9i-nntp
+Message-Id: <200510091141.10987.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+What exactly does CONFIG_INPUT_KEYBDEV do?
 
-Russell King, le Sun 09 Oct 2005 09:37:24 +0100, a écrit :
-> On Sun, Oct 09, 2005 at 02:21:30AM +0200, Samuel Thibault wrote:
-> > Russell King, le Sun 09 Oct 2005 01:01:53 +0100, a ?crit :
-> > > > How could this look like in userspace?
-> > > 
-> > > I think they should be termios settings - existing programs know how
-> > > to handle termios to get what they want. 
-> > 
-> > Hence a new field in the termios structure?
-> > 
-> > There was a discussion about this back in 2000:
-> > 
-> > http://marc.theaimsgroup.com/?t=96514848800003&r=1&w=2
-> 
-> What I was thinking of was to use some of the spare termios cflag bits
-> to select the flow control.  You'd only want one flow control type at
-> one time though.  Eg: define two fields, each to select the signal.
-> 
-> 0 - RTS
-> 1 - DTR
-> 
-> 0 - CTS
-> 1 - DTR
-> 2 - DSR
+I found that _not_setting it, 2.4.31 still looks for keyboard at boot:
 
-It looks fine, but it might not be sufficient for expressing that:
+Oct  9 10:41:49 kernel: keyboard: Timeout - AT keyboard not present?(ed)
+Oct  9 10:41:50 kernel: keyboard: Timeout - AT keyboard not present?(f4)
 
-- some flow control use RTS to indicate that DTE is ready to send data,
-- some other use it to indicate that DTE wants to send data. (and CTS is
-used for acknowledgment of this),
-- some other use it as a strobe for acknowledging characters, some other
-use it as a strobe for acknowledging frames (announced by CTS).
+and doing a find/grep in the code reveals that CONFIG_INPUT_KEYBDEV doesn't 
+seem to do anything anywhere except def/undef itself:
 
-> However, bear in mind that the majority of the more inteligent 8250-
-> compatible UARTs with large FIFOs only do hardware flow control on
-> RTS/CTS
 
-Hardward flow control is usually performed in software. Can't their
-hardware implementation of hardware flow control be disabled when
-control method is not usual RTS/CTS?
+[root@linux-2.4.31]# find . -name \*.h -exec grep -iHn "INPUT_KEYBDEV" {} \;
+./include/linux/autoconf.h:482:#undef  CONFIG_INPUT_KEYBDEV
+./include/config/input/keybdev.h:1:#undef  CONFIG_INPUT_KEYBDEV
 
-Regards,
-Samuel
+
+[root@linux-2.4.31]# find . -name \*.c -exec grep -iHn "INPUT_KEYBDEV" {} \;
+... nothing...
+
+
+Therefore I still have to manually edit include/linux/pc_keyb.h to undef the 
+(no) keyboard timeouts:
+
+?
+
+Nick
+-- 
+http://sourceforge.net/projects/quake2plus
+
+"When you're chewing on life's gristle,
+Don't grumble, Give a whistle..."
+

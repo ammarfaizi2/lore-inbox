@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbVJINac@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbVJINjK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750749AbVJINac (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Oct 2005 09:30:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750711AbVJINab
+	id S1750707AbVJINjK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Oct 2005 09:39:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750711AbVJINjK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Oct 2005 09:30:31 -0400
-Received: from mailfe02.tele2.fr ([212.247.154.44]:26044 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S1750709AbVJINab (ORCPT
+	Sun, 9 Oct 2005 09:39:10 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:10652 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750707AbVJINjJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Oct 2005 09:30:31 -0400
-X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
-Date: Sun, 9 Oct 2005 15:29:52 +0200
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: akpm@osdl.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org
-Subject: Re: [patch 3/4] new serial flow control
-Message-ID: <20051009132952.GH5104@bouh.residence.ens-lyon.fr>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	akpm@osdl.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org
-References: <200501052341.j05Nfod27823@mail.osdl.org> <20050105235301.B26633@flint.arm.linux.org.uk> <20051008222711.GA5150@bouh.residence.ens-lyon.fr> <20051009000153.GA23083@flint.arm.linux.org.uk> <20051009002129.GJ5150@bouh.residence.ens-lyon.fr> <20051009083724.GA14335@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20051009083724.GA14335@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.9i-nntp
+	Sun, 9 Oct 2005 09:39:09 -0400
+Message-ID: <43491D7A.4060705@pobox.com>
+Date: Sun, 09 Oct 2005 09:39:06 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andy Currid <ACurrid@nvidia.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.14-rc3] Fix sata_nv handling of NVIDIA MCP51/55
+References: <8E5ACAE05E6B9E44A2903C693A5D4E8A091D1F10@hqemmail02.nvidia.com>
+In-Reply-To: <8E5ACAE05E6B9E44A2903C693A5D4E8A091D1F10@hqemmail02.nvidia.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King, le Sun 09 Oct 2005 09:37:24 +0100, a écrit :
-> the majority of the more inteligent 8250- compatible UARTs with large
-> FIFOs only do hardware flow control on RTS/CTS
+Andy Currid wrote:
+> Patch to fix sata_nv handling of NVIDIA MCP51/55
+> 
+> 
+> Signed-off-by: Andy Currid <acurrid@nvidia.com>
+> 
+> --- linux-2.6.14-rc3/drivers/scsi/sata_nv.c	2003-01-01
+> 18:08:23.000000000 -0800
+> +++ linux-2.6.14-rc3devel/drivers/scsi/sata_nv.c	2003-01-01
+> 18:19:34.000000000 -0800
 
-BTW, nobody tried to use hardware implementation of software flow
-control? (UART_(XON/XOFF)[12] of TI16C752, ST16650, ST16650A, ST16654
-UARTs).
+Applied, after I manually fixed the wrapped lines above.
 
-Regards
-Samuel
+	Jeff
+
+
+

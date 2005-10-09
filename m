@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbVJIT6c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbVJIUIH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932174AbVJIT6c (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Oct 2005 15:58:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbVJIT6c
+	id S932116AbVJIUIH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Oct 2005 16:08:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbVJIUIH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Oct 2005 15:58:32 -0400
-Received: from ppp-62-11-74-46.dialup.tiscali.it ([62.11.74.46]:42655 "EHLO
-	zion.home.lan") by vger.kernel.org with ESMTP id S932174AbVJIT6b
+	Sun, 9 Oct 2005 16:08:07 -0400
+Received: from lakshmi.addtoit.com ([198.99.130.6]:9743 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S932116AbVJIUIG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Oct 2005 15:58:31 -0400
-From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH] Fix ext3 warning for unused var
-Date: Sun, 09 Oct 2005 21:58:51 +0200
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <20051009195850.27237.90873.stgit@zion.home.lan>
+	Sun, 9 Oct 2005 16:08:06 -0400
+Date: Sun, 9 Oct 2005 16:00:49 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: Junichi Uekawa <dancer@netfort.gr.jp>
+Cc: user-mode-linux-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       blaisorblade@yahoo.it
+Subject: Re: [uml-devel] [PATCH] UML TT-mode-only compile fix.
+Message-ID: <20051009200049.GB6326@ccure.user-mode-linux.org>
+References: <87psqf2s9p.dancerj%dancer@netfort.gr.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87psqf2s9p.dancerj%dancer@netfort.gr.jp>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+On Sun, Oct 09, 2005 at 02:06:42PM +0900, Junichi Uekawa wrote:
+> Hi,
+> 
+> In today's linus's git tree, uml doesn't compile when it's configured for 
+> only TT-mode.
+> 
+> This regression caused by:
+> 	8923648c125421b0fcb240cde607e2748d099ab8
+> 	[PATCH] uml: clear SKAS0/3 flags when running in TT mode
+> 
+> Signed-off-by: Junichi Uekawa <dancer@debian.org>
 
-Fix a gcc warning about an unused var. Introduced in commit
-275abf5b06676ca057cf3e15f0d027eafcb204a0, after 2.6.14-rc2.
-I just verified this is still current as of commit
-829841146878e082613a49581ae252c071057c23.
-Can please someone merge this? It's the 3rd time I send it.
+Can you send this to Linus, with an Acked-by: me?
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
-
- fs/ext3/super.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
-
-diff --git a/fs/ext3/super.c b/fs/ext3/super.c
---- a/fs/ext3/super.c
-+++ b/fs/ext3/super.c
-@@ -513,7 +513,9 @@ static void ext3_clear_inode(struct inod
- static int ext3_show_options(struct seq_file *seq, struct vfsmount *vfs)
- {
- 	struct super_block *sb = vfs->mnt_sb;
-+#if defined(CONFIG_QUOTA)
- 	struct ext3_sb_info *sbi = EXT3_SB(sb);
-+#endif
- 
- 	if (test_opt(sb, DATA_FLAGS) == EXT3_MOUNT_JOURNAL_DATA)
- 		seq_puts(seq, ",data=journal");
-
+				Jeff

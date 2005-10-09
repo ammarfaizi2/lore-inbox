@@ -1,57 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932257AbVJIKmy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbVJILR0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932257AbVJIKmy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Oct 2005 06:42:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932259AbVJIKmy
+	id S932270AbVJILR0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Oct 2005 07:17:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbVJILR0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Oct 2005 06:42:54 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:17555 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S932257AbVJIKmx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Oct 2005 06:42:53 -0400
-From: Nick Warne <nick@linicks.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.31 CONFIG_INPUT_KEYBDEV
-Date: Sun, 9 Oct 2005 11:41:10 +0100
-User-Agent: KMail/1.8.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Sun, 9 Oct 2005 07:17:26 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9747 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932270AbVJILRZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Oct 2005 07:17:25 -0400
+Date: Sun, 9 Oct 2005 12:17:18 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Samuel Thibault <samuel.thibault@ens-lyon.org>, akpm@osdl.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       linux-serial@vger.kernel.org
+Subject: Re: [patch 3/4] new serial flow control
+Message-ID: <20051009111718.GA13144@flint.arm.linux.org.uk>
+Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
+	akpm@osdl.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org
+References: <200501052341.j05Nfod27823@mail.osdl.org> <20050105235301.B26633@flint.arm.linux.org.uk> <20051008222711.GA5150@bouh.residence.ens-lyon.fr> <20051009000153.GA23083@flint.arm.linux.org.uk> <20051009002129.GJ5150@bouh.residence.ens-lyon.fr> <20051009083724.GA14335@flint.arm.linux.org.uk> <20051009100909.GF5150@bouh.residence.ens-lyon.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200510091141.10987.nick@linicks.net>
+In-Reply-To: <20051009100909.GF5150@bouh.residence.ens-lyon.fr>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What exactly does CONFIG_INPUT_KEYBDEV do?
+On Sun, Oct 09, 2005 at 12:09:09PM +0200, Samuel Thibault wrote:
+> Russell King, le Sun 09 Oct 2005 09:37:24 +0100, a ?crit :
+> > What I was thinking of was to use some of the spare termios cflag bits
+> > to select the flow control.  You'd only want one flow control type at
+> > one time though.  Eg: define two fields, each to select the signal.
+> > 
+> > 0 - RTS
+> > 1 - DTR
+> > 
+> > 0 - CTS
+> > 1 - DTR
+> > 2 - DSR
+> 
+> It looks fine, but it might not be sufficient for expressing that:
+> 
+> - some flow control use RTS to indicate that DTE is ready to send data,
+> - some other use it to indicate that DTE wants to send data. (and CTS is
+> used for acknowledgment of this),
 
-I found that _not_setting it, 2.4.31 still looks for keyboard at boot:
+Agreed - and that's one extra bit of control information.
 
-Oct  9 10:41:49 kernel: keyboard: Timeout - AT keyboard not present?(ed)
-Oct  9 10:41:50 kernel: keyboard: Timeout - AT keyboard not present?(f4)
+> - some other use it as a strobe for acknowledging characters, some other
+> use it as a strobe for acknowledging frames (announced by CTS).
 
-and doing a find/grep in the code reveals that CONFIG_INPUT_KEYBDEV doesn't 
-seem to do anything anywhere except def/undef itself:
+The last has no business being in the serial driver though - the driver
+knows nothing about frames of characters.  It's more a userland (in
+which case it's TIOCM* ioctls) or ldisc issue (tty_driver->tiocmset).
 
+> > However, bear in mind that the majority of the more inteligent 8250-
+> > compatible UARTs with large FIFOs only do hardware flow control on
+> > RTS/CTS
+> 
+> Hardward flow control is usually performed in software. Can't their
+> hardware implementation of hardware flow control be disabled when
+> control method is not usual RTS/CTS?
 
-[root@linux-2.4.31]# find . -name \*.h -exec grep -iHn "INPUT_KEYBDEV" {} \;
-./include/linux/autoconf.h:482:#undef  CONFIG_INPUT_KEYBDEV
-./include/config/input/keybdev.h:1:#undef  CONFIG_INPUT_KEYBDEV
+You missed the point.  Of course the hardware flow control can be
+disabled.  However, if you do have on-chip CTS flow control disabled
+with UARTs with large FIFOs, and remote end says "stop sending", the
+characters already in the FIFO will be sent, which may be up to
+64 or even 128 characters instead of the usual 16 or so with the
+16550A.  If the remote end only has room for 32 more characters,
+you're into an overrun condition at every "stop sending" event.
 
+Hence, people must expect a DTR/DSR software-based hardware flow
+control to be less reliable than using RTS/CTS (with an adapter to
+swap the RTS/CTS pins for DTR/DSR) with advanced 8250-based UARTs.
 
-[root@linux-2.4.31]# find . -name \*.c -exec grep -iHn "INPUT_KEYBDEV" {} \;
-... nothing...
-
-
-Therefore I still have to manually edit include/linux/pc_keyb.h to undef the 
-(no) keyboard timeouts:
-
-?
-
-Nick
 -- 
-http://sourceforge.net/projects/quake2plus
-
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

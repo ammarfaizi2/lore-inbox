@@ -1,107 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbVJIU5b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbVJIVE6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932215AbVJIU5b (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Oct 2005 16:57:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbVJIU5b
+	id S932289AbVJIVE6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Oct 2005 17:04:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbVJIVE6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Oct 2005 16:57:31 -0400
-Received: from mail.gmx.de ([213.165.64.20]:15249 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932215AbVJIU5a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Oct 2005 16:57:30 -0400
-X-Authenticated: #815327
-Message-ID: <43498432.8060503@gmx.de>
-Date: Sun, 09 Oct 2005 22:57:22 +0200
-From: =?ISO-8859-1?Q?Malte_Schr=F6der?= <MalteSch@gmx.de>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051002)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Trond Myklebust <Trond.Myklebust@netapp.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Problem with nfs4, kernel 2.6.13.2
-References: <200509251516.23862.MalteSch@gmx.de> <1127737730.8453.5.camel@lade.trondhjem.org> <200509262218.15885.MalteSch@gmx.de>
-In-Reply-To: <200509262218.15885.MalteSch@gmx.de>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig6D34275F9158FAA78BFAF25E"
-X-Y-GMX-Trusted: 0
+	Sun, 9 Oct 2005 17:04:58 -0400
+Received: from tux06.ltc.ic.unicamp.br ([143.106.24.50]:31372 "EHLO
+	tux06.ltc.ic.unicamp.br") by vger.kernel.org with ESMTP
+	id S932209AbVJIVE5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Oct 2005 17:04:57 -0400
+Date: Sun, 9 Oct 2005 18:12:50 -0300
+From: Glauber de Oliveira Costa <glommer@br.ibm.com>
+To: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, adilger@clusterfs.com, akpm@osdl.org,
+       viro@parcelfarce.linux.theplanet.co.uk
+Subject: [PATCH] Locking problems while EXT3FS_DEBUG on
+Message-ID: <20051009211250.GA28213@br.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig6D34275F9158FAA78BFAF25E
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Hi folks,
 
-Malte Schr=F6der wrote:
-> On Monday 26 September 2005 14:28, Trond Myklebust wrote:
->=20
->>Also, is this something that is NFSv4 only, or can you reproduce it on
->>NFSv2/v3 too?
->=20
->=20
-> I have been running my "stress test" for a few hours with nfsv3, withou=
-t=20
-> problems.
-> I tried over nfsv4 again and it crashed after a few minutes.
->=20
+I noticed some problems while running ext3 with the debug flag set on.
+More precisely, I was unable to umount the filesystem. 
+Some investigation took me to the patch that follows.
 
-I had time to try this with 2.6.12.5, I was not able to reproduce the
-error there.
-I also found the following post on LKML:
+At a first glance , the lock/unlock I've taken out seems really not 
+necessary, as the main code (outside debug) does not lock the super. 
+The only additional danger operations that debug code introduces seems
+to be related to bitmap, but bitmap operations tends to be all atomic 
+anyway.
 
-Bret Towe wrote:
-> On 9/8/05, Bret Towe <magnade@gmail.com> wrote:
->
->>On 9/6/05, J. Bruce Fields <bfields@fieldses.org> wrote:
->>
->>>On Mon, Sep 05, 2005 at 08:40:53PM -0700, Bret Towe wrote:
->>>
->>>>Pid: 14169, comm: xmms Tainted: G   M  2.6.13
->>>
->>>Hm, can someone explain what that means?  A proprietary module was
->>>loaded then unloaded, maybe?
->>>
->>>You may also want to retest with
->>>
->>>http://www.citi.umich.edu/projects/nfsv4/linux/kernel-patches/2.6.13-1=
-/linux-2.6.13-001-NFS_ALL_MODIFIED.dif
->>>
->>>applied, to make sure there isn't a patch in Trond's series that alrea=
-dy
->>>fixes the bug.
->>>
->>>--b.
->>>
->>
->>ive been running this since i got the url and so far i havent hit it
->>ive also been a bit busy so i havent been able to make sure its good
->>this weekend i should be able to test it and make sure its solved
->>
->
-> ran it pretty hard over the weekend and i had no crashs at all
-> so i think its safe to say this patch fixes the issues i was seeing
+I also took the opportunity to fix 2 spell errors :-)
 
-The above server is currently unreachable from my part of the net but
-Bret Towe seemed to have the same problem as I have. Since the problem
-also appears when using 2.6.14-rc3 I think the patch should be looked at
-and maybe considered for inclusion. As soon as I gain access to that
-patch I will test it and report my results.
+patch follows
 
 
---------------enig6D34275F9158FAA78BFAF25E
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+diff -up linux-2.6.14-rc2-orig/fs/ext3/balloc.c linux/fs/ext3/balloc.c
+--- linux-2.6.14-rc2-orig/fs/ext3/balloc.c	2005-10-09 19:58:40.000000000 +0000
++++ linux/fs/ext3/balloc.c	2005-10-09 20:24:23.000000000 +0000
+@@ -1010,7 +1010,7 @@ retry:
+  * allocation within the reservation window.
+  *
+  * This will avoid keeping on searching the reservation list again and
+- * again when someboday is looking for a free block (without
++ * again when somebody is looking for a free block (without
+  * reservation), and there are lots of free blocks, but they are all
+  * being reserved.
+  *
+@@ -1416,12 +1416,12 @@ unsigned long ext3_count_free_blocks(str
+ 	unsigned long bitmap_count, x;
+ 	struct buffer_head *bitmap_bh = NULL;
+ 
+-	lock_super(sb);
+ 	es = EXT3_SB(sb)->s_es;
+ 	desc_count = 0;
+ 	bitmap_count = 0;
+ 	gdp = NULL;
+ 
++	smp_rmb();
+ 	for (i = 0; i < ngroups; i++) {
+ 		gdp = ext3_get_group_desc(sb, i, NULL);
+ 		if (!gdp)
+@@ -1440,7 +1440,6 @@ unsigned long ext3_count_free_blocks(str
+ 	brelse(bitmap_bh);
+ 	printk("ext3_count_free_blocks: stored = %u, computed = %lu, %lu\n",
+ 	       le32_to_cpu(es->s_free_blocks_count), desc_count, bitmap_count);
+-	unlock_super(sb);
+ 	return bitmap_count;
+ #else
+ 	desc_count = 0;
+diff -up linux-2.6.14-rc2-orig/fs/ext3/ialloc.c linux/fs/ext3/ialloc.c
+--- linux-2.6.14-rc2-orig/fs/ext3/ialloc.c	2005-09-26 13:58:15.000000000 +0000
++++ linux/fs/ext3/ialloc.c	2005-10-09 20:16:30.000000000 +0000
+@@ -705,7 +705,6 @@ unsigned long ext3_count_free_inodes (st
+ 	unsigned long bitmap_count, x;
+ 	struct buffer_head *bitmap_bh = NULL;
+ 
+-	lock_super (sb);
+ 	es = EXT3_SB(sb)->s_es;
+ 	desc_count = 0;
+ 	bitmap_count = 0;
+@@ -728,7 +727,6 @@ unsigned long ext3_count_free_inodes (st
+ 	brelse(bitmap_bh);
+ 	printk("ext3_count_free_inodes: stored = %u, computed = %lu, %lu\n",
+ 		le32_to_cpu(es->s_free_inodes_count), desc_count, bitmap_count);
+-	unlock_super(sb);
+ 	return desc_count;
+ #else
+ 	desc_count = 0;
+diff -up linux-2.6.14-rc2-orig/fs/ext3/inode.c linux/fs/ext3/inode.c
+--- linux-2.6.14-rc2-orig/fs/ext3/inode.c	2005-09-26 13:58:15.000000000 +0000
++++ linux/fs/ext3/inode.c	2005-10-05 16:39:32.000000000 +0000
+@@ -491,7 +491,7 @@ static unsigned long ext3_find_goal(stru
+  *	the same format as ext3_get_branch() would do. We are calling it after
+  *	we had read the existing part of chain and partial points to the last
+  *	triple of that (one with zero ->key). Upon the exit we have the same
+- *	picture as after the successful ext3_get_block(), excpet that in one
++ *	picture as after the successful ext3_get_block(), except that in one
+  *	place chain is disconnected - *branch->p is still zero (we did not
+  *	set the last link), but branch->key contains the number that should
+  *	be placed into *branch->p to fill that gap.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFDSYQ44q3E2oMjYtURAkcDAJ9SgRqGjnJRHEy+EGcdktUIA/mdyACgmEpQ
-SnvltH69ItXiJJ5UXY75GJM=
-=jbEQ
------END PGP SIGNATURE-----
-
---------------enig6D34275F9158FAA78BFAF25E--
+-- 
+=====================================
+Glauber de Oliveira Costa
+IBM Linux Technology Center - Brazil
+glommer@br.ibm.com
+=====================================

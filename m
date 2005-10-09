@@ -1,90 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932227AbVJIU3U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750974AbVJIUlL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932227AbVJIU3U (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Oct 2005 16:29:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbVJIU3U
+	id S1750974AbVJIUlL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Oct 2005 16:41:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750968AbVJIUlL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Oct 2005 16:29:20 -0400
-Received: from lakshmi.addtoit.com ([198.99.130.6]:15375 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S932227AbVJIU3U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Oct 2005 16:29:20 -0400
-Message-Id: <200510092011.j99KBjq6006572@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
-To: torvalds@osdl.org
-cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
-       blaisorblade@yahoo.it
-Subject: [PATCH] UML - fix x86_64 with !CONFIG_FRAME_POINTER
+	Sun, 9 Oct 2005 16:41:11 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:43527 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1750815AbVJIUlL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Oct 2005 16:41:11 -0400
+Date: Sun, 9 Oct 2005 22:40:08 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Nick Warne <nick@linicks.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.31 CONFIG_INPUT_KEYBDEV
+Message-ID: <20051009204008.GG22601@alpha.home.local>
+References: <200510091141.10987.nick@linicks.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 09 Oct 2005 16:11:44 -0400
-From: Jeff Dike <jdike@addtoit.com>
+Content-Disposition: inline
+In-Reply-To: <200510091141.10987.nick@linicks.net>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a must-fix for 2.6.14.  UML/x86_64 doesn't run when built with 
-frame pointers disabled.  There was an implicit frame pointer assumption
-in the stub segfault handler.  With frame pointers disabled, UML dies on
-handling its first page fault.
+On Sun, Oct 09, 2005 at 11:41:10AM +0100, Nick Warne wrote:
+> What exactly does CONFIG_INPUT_KEYBDEV do?
 
-The container-of part of this is from Paolo Giarrusso <blaisorblade@yahoo.it>.
+It's used to link keybdev.o in drivers/input/Makefile, and to resolve a
+few dependencies for other config options (HIL) in some hil/Config.in.
 
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
+> I found that _not_setting it, 2.4.31 still looks for keyboard at boot:
+> 
+> Oct  9 10:41:49 kernel: keyboard: Timeout - AT keyboard not present?(ed)
+> Oct  9 10:41:50 kernel: keyboard: Timeout - AT keyboard not present?(f4)
 
-Index: linux-2.6.14-rc3/arch/um/sys-x86_64/stub_segv.c
-===================================================================
---- linux-2.6.14-rc3.orig/arch/um/sys-x86_64/stub_segv.c	2005-10-09 15:50:01.000000000 -0400
-+++ linux-2.6.14-rc3/arch/um/sys-x86_64/stub_segv.c	2005-10-09 16:00:52.000000000 -0400
-@@ -10,6 +10,22 @@
- #include "uml-config.h"
- #include "sysdep/sigcontext.h"
- #include "sysdep/faultinfo.h"
-+#include <stddef.h>
-+
-+/* Copied from sys-x86_64/signal.c - Can't find an equivalent definition
-+ * in the libc headers anywhere.
-+ */
-+struct rt_sigframe
-+{
-+	char *pretcode;
-+	struct ucontext uc;
-+	struct siginfo info;
-+};
-+
-+/* Copied here from <linux/kernel.h> - we're userspace. */
-+#define container_of(ptr, type, member) ({                   \
-+	const typeof( ((type *)0)->member ) *__mptr = (ptr); \
-+	(type *)( (char *)__mptr - offsetof(type,member) );})
- 
- void __attribute__ ((__section__ (".__syscall_stub")))
- stub_segv_handler(int sig)
-@@ -17,16 +33,19 @@
- 	struct ucontext *uc;
- 
- 	__asm__("movq %%rdx, %0" : "=g" (uc) :);
--        GET_FAULTINFO_FROM_SC(*((struct faultinfo *) UML_CONFIG_STUB_DATA),
--                              &uc->uc_mcontext);
-+	GET_FAULTINFO_FROM_SC(*((struct faultinfo *) UML_CONFIG_STUB_DATA),
-+			      &uc->uc_mcontext);
- 
--	__asm__("movq %0, %%rax ; syscall": : "g" (__NR_getpid));
-+	__asm__("movq %0, %%rax ; syscall": : "g" (__NR_getpid));	
- 	__asm__("movq %%rax, %%rdi ; movq %0, %%rax ; movq %1, %%rsi ;"
--		"syscall": : "g" (__NR_kill), "g" (SIGUSR1));
--	/* Two popqs to restore the stack to the state just before entering
--	 * the handler, one pops the return address, the other pops the frame
--	 * pointer.
-+		"syscall": : "g" (__NR_kill), "g" (SIGUSR1) : 
-+		"%rdi", "%rax", "%rsi");
-+	/* sys_sigreturn expects that the stack pointer will be 8 bytes into
-+	 * the signal frame.  So, we use the ucontext pointer, which we know
-+	 * already, to get the signal frame pointer, and add 8 to that.
- 	 */
--	__asm__("popq %%rax ; popq %%rax ; movq %0, %%rax ; syscall" : : "g"
--		(__NR_rt_sigreturn));
-+	__asm__("movq %0, %%rsp": : 
-+		"g" ((unsigned long) container_of(uc, struct rt_sigframe, 
-+						  uc) + 8));
-+	__asm__("movq %0, %%rax ; syscall" : : "g" (__NR_rt_sigreturn));
- }
+(...)
+
+> Therefore I still have to manually edit include/linux/pc_keyb.h to undef the 
+> (no) keyboard timeouts:
+
+This option is not used for pc_keyb.c inclusion which is linked unless you
+set CONFIG_DUMMY_KEYB (check drivers/char/Makefile for this), in which case
+you'll use dummy_keyb.c which was made exactly for your usage.
+
+Cheers,
+Willy
 

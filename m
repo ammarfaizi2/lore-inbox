@@ -1,72 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932280AbVJIMXp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbVJIM2T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932280AbVJIMXp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Oct 2005 08:23:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbVJIMXp
+	id S932284AbVJIM2T (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Oct 2005 08:28:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbVJIM2S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Oct 2005 08:23:45 -0400
-Received: from smtprelay03.ispgateway.de ([80.67.18.15]:28891 "EHLO
-	smtprelay03.ispgateway.de") by vger.kernel.org with ESMTP
-	id S932280AbVJIMXo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Oct 2005 08:23:44 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Need for SHIFT and MASK
-Date: Sun, 9 Oct 2005 14:23:10 +0200
-User-Agent: KMail/1.7.2
-Cc: Vivek Kutal <vivek.kutal@gmail.com>
-References: <b9a245c10510090502r4e87696fqe111c0071e7f2a03@mail.gmail.com>
-In-Reply-To: <b9a245c10510090502r4e87696fqe111c0071e7f2a03@mail.gmail.com>
+	Sun, 9 Oct 2005 08:28:18 -0400
+Received: from gold.veritas.com ([143.127.12.110]:13473 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S932284AbVJIM2S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Oct 2005 08:28:18 -0400
+Date: Sun, 9 Oct 2005 13:27:29 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+cc: "Seth, Rohit" <rohit.seth@intel.com>, William Irwin <wli@holomorphy.com>,
+       agl@us.ibm.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       akpm@osdl.org
+Subject: RE: FW: [PATCH 0/3] Demand faulting for huge pages
+In-Reply-To: <200510080758.j987w0g06343@unix-os.sc.intel.com>
+Message-ID: <Pine.LNX.4.61.0510091306440.7878@goblin.wat.veritas.com>
+References: <200510080758.j987w0g06343@unix-os.sc.intel.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1411098.dhbb1Lgboo";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200510091423.24660.ioe-lkml@rameria.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 09 Oct 2005 12:28:11.0637 (UTC) FILETIME=[E9B67250:01C5CCCC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1411098.dhbb1Lgboo
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Sat, 8 Oct 2005, Chen, Kenneth W wrote:
+> Rohit Seth wrote on Friday, October 07, 2005 2:29 PM
+> > On Fri, 2005-10-07 at 10:47 -0700, Adam Litke wrote:
+> > > If I were to spend time coding up a patch to remove truncation
+> > > support for hugetlbfs, would it be something other people would
+> > > want to see merged as well?
+> > 
+> > In its current form, there is very little use of huegtlb truncate
+> > functionality.  Currently it only allows reducing the size of hugetlb
+> > backing file.   
 
-Hi Vivek,
+And is that functionality actually used?
 
-On Sunday 09 October 2005 14:02, Vivek Kutal wrote:
-> While browsing through the code i came across macros like SHIFT , MASK
-> , SIZE which are used in conversion from linear address to physical
-> address
-> but this is the job of the processor (address translation) then why do
-> we have these macros
-> can anyone please explain.
+> > IMO it will be useful to keep and enhance this capability so that
+> > apps can dynamically reduce or increase the size of backing files
+> > (for example based on availability of memory at any time).
 
-This is usally table driven and someone has to set up
-this "Page Translation Tables". That's a job of the Linux kernel.
+And is that functionality actually being asked for?
 
-Just use sth. like Google to find out how it works=20
-or go to the library and read some books on OS design=20
-and virtual memory management.
+> Yup, here is a patch to enhance that capability.  It is more of bring
+> ftruncate on hugetlbfs file a step closer to the same semantics for
+> file on other file systems.
 
-Happy Studying!
+Well, it's peculiar semantics that extending a file slots its pages
+into existing mmaps, as in your patch.  Though that may indeed match
+the existing prefault semantics for hugetlb mmaps and files.  But in
+those existing peculiar semantics, the file can already be extended,
+by mmaping further, so you're not really adding new capability.
 
+But please don't expect me to decide one way or another.  We all seem
+to have different agendas for hugetlb.  I'm interested in fixing the
+existing bugs with truncation (see -mm), and getting the locking to
+fit with my page_table_lock patches.  Prohibiting truncation is an
+attractively easy and efficient way of fixing several such problems.
+Adam is interested in fault on demand, which needs further work if
+truncation is allowed.  You and Rohit are interested in enhancing
+the generality of hugetlbfs.
 
-Regards
+I'd imagine supporting "read" and "write" would be the first priorities
+if you were really trying to make hugetlbfs more like an ordinary fs.
+But I thought it was intentionally kept at the minimum to do its job.
 
-Ingo Oeser
-
-
---nextPart1411098.dhbb1Lgboo
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDSQu8U56oYWuOrkARAuaXAJ40XWw2aBSIcFAXpfkuyR6x0p4e5gCguDjh
-2cXvdHEciyI/vg7GrRv3fP8=
-=ssgx
------END PGP SIGNATURE-----
-
---nextPart1411098.dhbb1Lgboo--
+Hugh

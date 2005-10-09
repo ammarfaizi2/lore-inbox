@@ -1,144 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750915AbVJIQ2h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932077AbVJIQok@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750915AbVJIQ2h (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Oct 2005 12:28:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750926AbVJIQ2h
+	id S932077AbVJIQok (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Oct 2005 12:44:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932116AbVJIQok
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Oct 2005 12:28:37 -0400
-Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:26888 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1750914AbVJIQ2g
+	Sun, 9 Oct 2005 12:44:40 -0400
+Received: from nproxy.gmail.com ([64.233.182.193]:64380 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932077AbVJIQoj convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Oct 2005 12:28:36 -0400
-Message-ID: <4349614F.1010408@frankengul.org>
-Date: Sun, 09 Oct 2005 20:28:31 +0200
-From: =?ISO-8859-1?Q?S=E9bastien_Bernard?= <seb@frankengul.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051002)
-X-Accept-Language: fr, en
+	Sun, 9 Oct 2005 12:44:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=aSjlFmwtix8+5rECdrofyrG/a0l3sh63UZziXn9uPmNCv5DuoaCGxthvS+VSF9HFMaRRPXFOl1J+Qji0nQRskQUsx4JmMX1eGJljS3YK5M6PStNsbNasdpbOPJYS6jUPfPRa9SjsNlzeOTGDDZkD4/nSvIVnxAH6w6CpXKtr/y4=
+Message-ID: <69304d110510090944n72d09568h5549c4b2cad23060@mail.gmail.com>
+Date: Sun, 9 Oct 2005 18:44:34 +0200
+From: Antonio Vargas <windenntw@gmail.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [Question] Some question about Ingo scheduler.
+Cc: liyu <liyu@ccoss.com.cn>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0510090955160.19961@localhost.localdomain>
 MIME-Version: 1.0
-To: debian-sparc@lists.debian.org, netfilter-devel@lists.netfilter.org,
-       linux-kernel@vger.kernel.org
-Subject: Sparc64 U60: no iptables
-References: <4347A731.7010509@frankengul.org> <4348EFF4.3040305@frankengul.org>
-In-Reply-To: <4348EFF4.3040305@frankengul.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <434732DA.20701@ccoss.com.cn>
+	 <Pine.LNX.4.58.0510090955160.19961@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sébastien Bernard a écrit :
-
-> Sébastien Bernard wrote:
+On 10/9/05, Steven Rostedt <rostedt@goodmis.org> wrote:
 >
->> Hi there.
->>
->> Being the owner of a two-way U60, I've been happy with it until 
->> 2.6.11.6.
->>
->> The machine is a 2x300Mhz Uii with 1536Mb of memory and 2 scsi 
->> internal disk.
->>
->> Since 2.6.12, I'm unfortunately unable to use it as gateway box, 
->> since the installation of iptables
->> cause a OOPS in the ipt_mangle.
->>
->> I'm unable to send you the trace now because once it happened, it is 
->> not written on the files, only on the console.
->>
->> This oops happens from the 2.6.12.x to the 2.6.13.x - not tried the 
->> 2.6.14-rc.
->> It is related to the iptables subsystem.
->> It also happen with the official debian kernel (2.6.12-1-smp).
->>
->> I'll try this week-end to setup early 2.6.12-rcx to check when the 
->> problem occured.
->>
->> I will post the oops as soon as I write it down.
->> How can I get the copy of the trace without handwriting ?
->> What is the information relevant in the oops ?  (register + stack 
->> trace ?)
->>
->>    Seb
->>
->>
-> Ok, I reproduced the problem on the 2.6.12-rc1.
-> Here's the backtrace :
+> On Sat, 8 Oct 2005, liyu wrote:
 >
-> Unable to handle kernel NULL pointer dereference.
+> > Hi, Everyone on lkml
 >
-> nmbd: Ooops[#1]
+> Hi Liyu,
 >
-> ip_do_table + 0x21c/0x380
-> ip_do_table + 0x44/0x380
-> ip_local_hook + 0x84/0x120
-> nf_iterate + 0x64/0xc0
-> nf_hook_slow + 0x4c/0x120
-> ip_push_pending_frames + 0x2d8/0x4c0
-> udp_push_pending_frames + 0x118/0x260
-> udp_sendmsg + 0x398/0x6c0
-> inet_sendmsg + 0x30/0x60
-> sock_sendmsg + 0xc8/0x100
+> >
+> >     I am read linux scheduler at home in last vacation.
+> >
+> >     After read , I have some question that want to consult:
+> >
+> >     1.
+> >
+> >     In schedule() function, we can find some code like this:
+> >
+> >
+> >         if (prev->state && !(preempt_count() & PREEMPT_ACTIVE)) {
+> >                 switch_count = &prev->nvcsw;
+> >                 if (unlikely((prev->state & TASK_INTERRUPTIBLE) &&
+> >                                 unlikely(signal_pending(prev))))
+> >                         prev->state = TASK_RUNNING;
+> >                 else {
+> >                         if (prev->state == TASK_UNINTERRUPTIBLE)
+> >                                 rq->nr_uninterruptible++;
+> >                         deactivate_task(prev, rq);
+> >                 }
+> >         }
+> >
+> >     I think I can understand code in two braces: they want to change
+> > status of task which have signal pending when sleep, or remove task
+> > that is 'deep sleeping' from ready queue.
+> >     but my question is why we do not need such code (in both braces)
+> > when preempt is enable?
 >
-I found the culprit for my oops.
-In the iptables, NR_CPUS is set to 4 to get the 2 cpus recognized properly.
-The culprit patch substitute the NR_CPUS by the num_possible_cpus() macro.
-With this patch applied, inserting the iptables modules gets you instant 
-oops...
-With it reverted, everything works as normal.
-I suspect that NR_CPUS == 4 and num_possible_cpus() == 2.
+> I'm sorry I don't quite understand your question, but I can at least
+> explain the logic of what is happening.
+>
+> The first "if" is entered if the prev task is in something other than the
+> TASK_RUNNING state (which is zero).  It also has to not have the
+> PREEMPT_ACTIVE set.  The next "if" checks to see if the prev task is in
+> the TASK_INTERRUPTIBLE state and has a signal pending. Which the
+> TASK_INTERRUPTIBLE state allows to be woken up on signals.
+>
+> If there is no signal or the task is sleeping other than
+> TASK_INTERRUPTIBLE then the task is taken off the run queue.
+>
+> Now the reason for the check against PREEMPT_ACTIVE is very important
+> here.  If PREEMPT_ACTIVE is set, then that means that the task was
+> preempted by something else and did _not_ call schedule directly. Code
+> that usually sets current to something other than TASK_RUNNING usually has
+> logic around it to test if it should call schedule and be taken off the
+> run queue.  If PREEMPT_ACTIVE is set, then that means you don't know where
+> in this logic the task was preempted. If you take it off the run queue
+> now, it may not have been in a position to ever wake up. So you don't
+> ever want a preemption to take a task off the run queue. Only when the
+> task implicitly calls schedule.
+>
+> >
+> >
+> >     2. in scheduler_tick()
+> >
+> >     Before split time slice, we should be check some conditions first, these
+> > check code is copied here:
+> >
+> >                 /*
+> >                  * Prevent a too long timeslice allowing a task to
+> > monopolize
+> >                  * the CPU. We do this by splitting up the timeslice into
+> >                  * smaller pieces.
+> >                  *
+> >                  * Note: this does not mean the task's timeslices expire or
+> >                  * get lost in any way, they just might be preempted by
+> >                  * another task of equal priority. (one with higher
+> >                  * priority would have preempted this task already.) We
+> >                  * requeue this task to the end of the list on this priority
+> >                  * level, which is in essence a round-robin of tasks with
+> >                  * equal priority.
+> >                  *
+> >                  * This only applies to tasks in the interactive
+> >                  * delta range with at least TIMESLICE_GRANULARITY to
+> > requeue.
+> >                  */
+> >                 if (TASK_INTERACTIVE(p) && !((task_timeslice(p) -
+> >                         p->time_slice) % TIMESLICE_GRANULARITY(p)) &&
+> >                         (p->time_slice >= TIMESLICE_GRANULARITY(p)) &&
+> >                         (p->array == rq->active)) {
+> >
+> >
+> >                         requeue_task(p, rq->active);
+> >                         set_tsk_need_resched(p);
+> >                 }
+> >
+> >     My  second question is , what's mean of
+> >
+> >     (task_timeslice(p) - p->time_slice) % TIMESLICE_GRANULARITY(p)
+> >
+>
+> Sorry, I'm not about to even think about what Ingo's doing here ;-) I just
+> trust Ingo knows what he's doing.
+>
+> You need to ask Ingo himself.
+>
 
-Can one explain me why this patch works on other archs, and oops on the 
-sparc64 smp ?
-Can one explain why I'm the only one to have this problem ?
+Hmmm... basic working is: assume that task P and Q are interactive,
+and at the start of the scheduling cycle, both P and Q have got 200
+slices to burn, and also that TIMESLICE_GRANULARITY is 50 for P and
+100 for Q. Then, by starting to schedule P first, P would run for 50
+cycles, Q for 100, P for 50, Q for 100 and P for 50 + 50.
 
-    Seb
+Please note that there are probably more details to take acount of,
+but basic logic is that given some tasks with same priority, they
+don't use all their slice in one go but take turns in using it.
+Probably the granilarity is related to static priority, dynamic
+priority, interactive stimation or whatever else control feature.
 
-Here is the patch I reverted :
---- a/net/ipv4/netfilter/ip_tables.c    2005-03-17 17:35:05 -08:00
-+++ b/net/ipv4/netfilter/ip_tables.c    2005-03-17 17:35:05 -08:00
-@@ -923,7 +923,7 @@
-        }
+--
+Greetz, Antonio Vargas aka winden of network
 
-        /* And one copy for every other CPU */
--       for (i = 1; i < NR_CPUS; i++) {
-+       for (i = 1; i < num_possible_cpus(); i++) {
-                memcpy(newinfo->entries + SMP_ALIGN(newinfo->size)*i,
-                       newinfo->entries,
-                       SMP_ALIGN(newinfo->size));
-@@ -945,7 +945,7 @@
-                struct ipt_entry *table_base;
-                unsigned int i;
+http://wind.codepixel.com/
 
--               for (i = 0; i < NR_CPUS; i++) {
-+               for (i = 0; i < num_possible_cpus(); i++) {
-                        table_base =
-                                (void *)newinfo->entries
-                                + TABLE_OFFSET(newinfo, i);
-@@ -992,7 +992,7 @@
-        unsigned int cpu;
-        unsigned int i;
 
--       for (cpu = 0; cpu < NR_CPUS; cpu++) {
-+       for (cpu = 0; cpu < num_possible_cpus(); cpu++) {
-                i = 0;
-                IPT_ENTRY_ITERATE(t->entries + TABLE_OFFSET(t, cpu),
-                                  t->size,
-@@ -1130,7 +1130,7 @@
-                return -ENOMEM;
-
-        newinfo = vmalloc(sizeof(struct ipt_table_info)
--                         + SMP_ALIGN(tmp.size) * NR_CPUS);
-+                         + SMP_ALIGN(tmp.size) * num_possible_cpus());
-        if (!newinfo)
-                return -ENOMEM;
-
-@@ -1460,7 +1460,7 @@
-                = { 0, 0, 0, { 0 }, { 0 }, { } };
-
-        newinfo = vmalloc(sizeof(struct ipt_table_info)
--                         + SMP_ALIGN(repl->size) * NR_CPUS);
-+                         + SMP_ALIGN(repl->size) * num_possible_cpus());
-        if (!newinfo)
-                return -ENOMEM;
-
--------------------
-
+Every day, every year
+you have to work
+you have to study
+you have to scene.

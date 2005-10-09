@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751165AbVJIToI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932276AbVJITpF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751165AbVJIToI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Oct 2005 15:44:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750964AbVJITmk
+	id S932276AbVJITpF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Oct 2005 15:45:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750968AbVJITmg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Oct 2005 15:42:40 -0400
-Received: from ppp-62-11-74-46.dialup.tiscali.it ([62.11.74.46]:25240 "EHLO
-	zion.home.lan") by vger.kernel.org with ESMTP id S1751027AbVJITmc
+	Sun, 9 Oct 2005 15:42:36 -0400
+Received: from ppp-62-11-74-46.dialup.tiscali.it ([62.11.74.46]:24984 "EHLO
+	zion.home.lan") by vger.kernel.org with ESMTP id S1751025AbVJITmc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 9 Oct 2005 15:42:32 -0400
 From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH 2/6] uml: add mode=skas0 as a synonym of skas0
-Date: Sun, 09 Oct 2005 21:37:18 +0200
+Subject: [PATCH 5/6] uml: cleanup byte order macros for COW driver
+Date: Sun, 09 Oct 2005 21:37:45 +0200
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
        user-mode-linux-devel@lists.sourceforge.net
-Message-Id: <20051009193718.26019.60494.stgit@zion.home.lan>
+Message-Id: <20051009193745.26019.3947.stgit@zion.home.lan>
 In-Reply-To: <200510092118.21032.blaisorblade@yahoo.it>
 References: <200510092118.21032.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -23,39 +23,72 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-Too many people were confused by skas0 and tried using "mode=skas0". And after
-all, they are right - accept this.
+After restoring the existing code, make it work also when included in
+kernelspace code (which isn't currently the case, but at least this will prevent
+people from "fixing" it as just happened).
+Whitespace is fixed in next patch - it cluttered the diff too much.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- arch/um/os-Linux/start_up.c |   11 +++++++++++
- 1 files changed, 11 insertions(+), 0 deletions(-)
+ arch/um/drivers/cow.h      |   27 ++++++++++++++++++++++++++-
+ arch/um/drivers/cow_user.c |    1 -
+ 2 files changed, 26 insertions(+), 2 deletions(-)
 
-diff --git a/arch/um/os-Linux/start_up.c b/arch/um/os-Linux/start_up.c
---- a/arch/um/os-Linux/start_up.c
-+++ b/arch/um/os-Linux/start_up.c
-@@ -143,11 +143,22 @@ static int __init skas0_cmd_param(char *
- 	return 0;
- }
+diff --git a/arch/um/drivers/cow.h b/arch/um/drivers/cow.h
+--- a/arch/um/drivers/cow.h
++++ b/arch/um/drivers/cow.h
+@@ -3,6 +3,26 @@
  
-+/* The two __uml_setup would conflict, without this stupid alias. */
-+
-+static int __init mode_skas0_cmd_param(char *str, int* add)
-+	__attribute__((alias("skas0_cmd_param")));
-+
- __uml_setup("skas0", skas0_cmd_param,
- 		"skas0\n"
- 		"    Disables SKAS3 usage, so that SKAS0 is used, unless \n"
- 	        "    you specify mode=tt.\n\n");
+ #include <asm/types.h>
  
-+__uml_setup("mode=skas0", mode_skas0_cmd_param,
-+		"mode=skas0\n"
-+		"    Disables SKAS3 usage, so that SKAS0 is used, unless you \n"
-+		"    specify mode=tt. Note that this was recently added - on \n"
-+		"    older kernels you must use simply \"skas0\".\n\n");
++#if defined(__KERNEL__)
 +
- static int force_sysemu_disabled = 0;
++# include <asm/byteorder.h>
++
++# if defined(__BIG_ENDIAN)
++#	define ntohll(x) (x)
++#	define htonll(x) (x)
++# elif defined(__LITTLE_ENDIAN)
++#	define ntohll(x)  be64_to_cpu(x)
++#	define htonll(x)  cpu_to_be64(x)
++# else
++#	error "Could not determine byte order"
++# endif
++
++#else
++/* For the definition of ntohl, htonl and __BYTE_ORDER */
++#include <endian.h>
++#include <netinet/in.h>
++#if defined(__BYTE_ORDER)
++
+ #if __BYTE_ORDER == __BIG_ENDIAN
+ # define ntohll(x) (x)
+ # define htonll(x) (x)
+@@ -10,8 +30,13 @@
+ # define ntohll(x)  bswap_64(x)
+ # define htonll(x)  bswap_64(x)
+ #else
+-#error "__BYTE_ORDER not defined"
++# error "Could not determine byte order: __BYTE_ORDER uncorrectly defined"
++#endif
++
++#else  /* ! defined(__BYTE_ORDER) */
++#	error "Could not determine byte order: __BYTE_ORDER not defined"
+ #endif
++#endif /* ! defined(__KERNEL__) */
  
- static int __init nosysemu_cmd_param(char *str, int* add)
+ extern int init_cow_file(int fd, char *cow_file, char *backing_file,
+ 			 int sectorsize, int alignment, int *bitmap_offset_out,
+diff --git a/arch/um/drivers/cow_user.c b/arch/um/drivers/cow_user.c
+--- a/arch/um/drivers/cow_user.c
++++ b/arch/um/drivers/cow_user.c
+@@ -9,7 +9,6 @@
+ #include <sys/time.h>
+ #include <sys/param.h>
+ #include <sys/user.h>
+-#include <netinet/in.h>
+ 
+ #include "os.h"
+ 
 

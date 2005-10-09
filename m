@@ -1,70 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbVJIPQV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750816AbVJIPW0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750791AbVJIPQV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Oct 2005 11:16:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbVJIPQU
+	id S1750816AbVJIPW0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Oct 2005 11:22:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbVJIPW0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Oct 2005 11:16:20 -0400
-Received: from alpha.polcom.net ([217.79.151.115]:5314 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S1750711AbVJIPQU (ORCPT
+	Sun, 9 Oct 2005 11:22:26 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:15280 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1750816AbVJIPWZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Oct 2005 11:16:20 -0400
-Date: Sun, 9 Oct 2005 17:18:11 +0200 (CEST)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: Daniel Drake <dsd@gentoo.org>, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       posting@blx4.net, vsu@altlinux.ru
-Subject: Re: [PATCH] via82cxxx IDE: Remove /proc/via entry
-In-Reply-To: <58cb370e0509290027404f5224@mail.gmail.com>
-Message-ID: <Pine.LNX.4.63.0510091707220.21130@alpha.polcom.net>
-References: <43146CC3.4010005@gentoo.org>  <58cb370e05083008121f2eb783@mail.gmail.com>
-  <43179CC9.8090608@gentoo.org>  <58cb370e050927062049be32f8@mail.gmail.com>
-  <433B16BD.7040409@gentoo.org>  <Pine.LNX.4.63.0509290042160.21130@alpha.polcom.net>
- <58cb370e0509290027404f5224@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sun, 9 Oct 2005 11:22:25 -0400
+Date: Sun, 9 Oct 2005 11:22:21 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: linux-ide@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: libata queue updated
+Message-ID: <20051009152221.GA3034@havoc.gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Sep 2005, Bartlomiej Zolnierkiewicz wrote:
 
-> On 9/29/05, Grzegorz Kulewski <kangur@polcom.net> wrote:
->> On Wed, 28 Sep 2005, Daniel Drake wrote:
->>
->>> This entry adds needless complication to the driver as it requires the use of
->>> global variables to be passed into via_get_info(), making things quite ugly
->>> when we try and make this driver support multiple controllers simultaneously.
->>>
->>> This patch removes /proc/via for simplicity.
->>
->> Is similar data available from sysfs?
->>
->> As a user of this controller, I think that if it is not then this patch
->> should be changed to export it or should be dropped. The data from that
->> file is really helpfull in debugging problems (for example related to bad
->> cables or breaking disks/cdroms).
->
-> Could you please give some details (which data is useful)?
+Below is the contents of the current 'upstream' branch of
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
 
-Sorry for delay - I was very busy during past week.
+All this will be pushed upstream as soon as 2.6.14 is released.
 
-Well, I guess that thanks to this file I am able to know that the drive is 
-connected to via chipset and not to some pseudo raid controller (it is 
-important if I am working remotely), if it has 80w cables attached, what 
-is attached where, what are controller parameters, dma rate and timings 
-(if they are strange I can suspect that something bad is happening with 
-the drive / controler).
-
-I am not saying that these data are not available elsewhere (but some are 
-not for sure). But they are presented nicely in one standard place and 
-this is in my opinion good.
-
-But I understand the desire to remove all files that can be removed from 
-/proc. So I am just suggesting to move some of the data (like type of 
-cable detected for example) to sysfs if they are not already there.
+The SATA status pages should also reflects the latest changes,
+	http://linux.yyz.us/sata/
 
 
-Thanks,
+Alan Cox:
+  ata: re-order speeds sensibly.
+  libata: bitmask based pci init functions for one or two ports
 
-Grzegorz Kulewski
+Albert Lee:
+  [libata] C/H/S support, for older devices
+  libata: indent and whitespace change
+  libata: rename host states
+  libata: minor whitespace, comment, debug message updates
+  [libata scsi] tidy up SCSI lba and xfer len calculations
+  [libata scsi] add CHS support to ata_scsi_start_stop_xlat()
+
+Andy Currid:
+  Fix sata_nv handling of NVIDIA MCP51/55
+
+Brett Russ:
+  libata: Marvell SATA support (DMA mode) (resend: v0.22)
+  libata: Marvell spinlock fixes and simplification
+  libata: Marvell function headers
+
+Douglas Gilbert:
+  [libata scsi] add ata_scsi_set_sense helper
+  [libata scsi] improve scsi error handling with ata_scsi_set_sense()
+
+Jeff Garzik:
+  libata: move EH docs to separate DocBook chapter
+  [libata] improve device scan
+  [libata] improve device scan even more
+  libata: add ata_ratelimit(), use it in AHCI driver irq handler
+  libata: ATAPI command completion tweaks and notes
+  libata: move atapi_request_sense() to libata-scsi module
+  [libata sata_mv] fix warning
+  libata: minor cleanups
+
+Tejun Heo:
+  SATA: rewritten sil24 driver
+  sil24: add FIXME comment above ata_device_add
+  sil24: remove irq disable code on spurious interrupt
+  sil24: add testing for PCI fault
+  sil24: move error handling out of hot interrupt path
+  sil24: remove PORT_TF
+  sil24: replace pp->port w/ ap->ioaddr.cmd_addr
+  sil24: fix PORT_CTRL_STAT constants
+  sil24: add more comments for constants
+  sil24: initialization fix
+  libata EH document update
+  libata: add ATA exceptions chapter to doc
+  sil24: ignore non-error exception irqs
+  sil24: remove CMDERR clearing
+  sil24: implement proper TF register reading & caching
+  sil24: implement tf_read callback
+  [libata sata_sil24] nit pickings
+  [libata sata_sil24] add support for 3131/3531
+

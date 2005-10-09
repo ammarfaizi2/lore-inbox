@@ -1,123 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932281AbVJIUN0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbVJIUQf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932281AbVJIUN0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Oct 2005 16:13:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbVJIUNZ
+	id S932285AbVJIUQf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Oct 2005 16:16:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbVJIUQf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Oct 2005 16:13:25 -0400
-Received: from waste.org ([216.27.176.166]:64413 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S932281AbVJIUNZ (ORCPT
+	Sun, 9 Oct 2005 16:16:35 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:19608 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932285AbVJIUQf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Oct 2005 16:13:25 -0400
-Date: Sun, 9 Oct 2005 13:12:42 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: linux-tiny@selenic.com, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.13.3-tiny1 for small systems
-Message-ID: <20051009201241.GZ26160@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Sun, 9 Oct 2005 16:16:35 -0400
+Date: Sun, 9 Oct 2005 13:16:33 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix ext3 warning for unused var
+In-Reply-To: <20051009195850.27237.90873.stgit@zion.home.lan>
+Message-ID: <Pine.LNX.4.64.0510091314200.31407@g5.osdl.org>
+References: <20051009195850.27237.90873.stgit@zion.home.lan>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a resync of the -tiny tree against 2.6.13.3. The latest patch
-can be found at:
 
- http://selenic.com/tiny/2.6.13.3-tiny1.patch.bz2
- http://selenic.com/tiny/2.6.13.3-tiny1-broken-out.tar.bz2
 
-A Mercurial repository containing the latest broken out patches can be
-found at:
+On Sun, 9 Oct 2005, Paolo 'Blaisorblade' Giarrusso wrote:
+>
+> Can please someone merge this? It's the 3rd time I send it.
 
- http://selenic.com/repo/tiny
+I don't like #ifdef's in code. 
 
-There's a mailing list for linux-tiny development at:
- 
- linux-tiny at selenic.com
- http://selenic.com/mailman/listinfo/linux-tiny
+You could just have split up the quota-specific stuff into a function of 
+their own: "ext3_show_quota_options()". The patch might have been larger, 
+but it would actually clean up the code rather than make it uglier.
 
-Webpage for your bookmarking pleasure:
+Warnings are not a reason for ugly code.
 
- http://selenic.com/linux-tiny
-
-Changes in this release:
-
-+kbuild-fix-make-clean-damaging-hg-repos.patch
-
-'make clean' damages Mercurial repositories by indiscriminately
-deleting files starting with ".". Fixed in upstream.
-
--core-small.patch 
--pid-max.patch 
--user-hash.patch 
--futex-queues.patch 
--tvec_bases.patch 
--con_buf.patch 
-
-Merged upstream
-
--06-crypto-sleep.patch 
-
-No longer necessary
-
--kill-printk.patch 
-
-Merged upstream
-
--nobug.patch 
-
-Merged upstream
-
--no-kcore.patch 
-
-Alternate version upstream
-
--semaphore-inline.patch 
-
-Needs reworking
-
-+kill-kmem_cache_name.patch
-
-Fix a recent change that broke SLOB
-
--posix-timers.patch 
-
-Needs reworking, may no longer be practical
-
--change-hz.patch 
-
-Alternate version merged upstream
-
--inflate-killglobals.patch 
--inflate-initramfs.patch 
--inflate-initrd.patch 
--inflate-i386.patch 
--inflate-arm.patch 
--inflate-x86_64.patch 
-
-This part of the inflate rework is refactored
-
-+inflate-killmemzero.patch
-+inflate-killdecls.patch
-+inflate-killmarkrelease.patch
-+inflate-makecrc.patch
-+inflate-readbyte.patch
-+inflate-flush.patch
-+inflate-killsillytypes.patch
-+inflate-error.patch
-+inflate-tidyusers.patch
-+inflate-killdebug.patch
-+inflate-initdata.patch
-+inflate-constdef.patch
-+inflate-linkage.patch
-+inflate-share-crc.patch
-
-Extend the inflate changes to all architectures
-
--netpoll-timeout.patch 
-
-Merged upstream
-
--- 
-Mathematics is the supreme nostalgia of our time.
+		Linus

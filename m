@@ -1,618 +1,375 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751042AbVJITmd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750914AbVJITmp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751042AbVJITmd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Oct 2005 15:42:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbVJITmd
+	id S1750914AbVJITmp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Oct 2005 15:42:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751043AbVJITmm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Oct 2005 15:42:33 -0400
-Received: from tirith.ics.muni.cz ([147.251.4.36]:42905 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1751024AbVJITmb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Oct 2005 15:42:31 -0400
-From: "Jiri Slaby" <xslaby@fi.muni.cz>
-Date: Sun,  9 Oct 2005 21:42:22 +0200
-In-reply-to: <20051009193943.943E522AEB1@anxur.fi.muni.cz>
-Subject: [PATCH2 4/6] isicom: Pci probing added
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>
-Message-Id: <20051009194221.38D3522AEAC@anxur.fi.muni.cz>
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Envelope-From: xslaby@fi.muni.cz
-X-Muni-Virus-Test: Clean
+	Sun, 9 Oct 2005 15:42:42 -0400
+Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:22122 "HELO
+	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1750914AbVJITmP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Oct 2005 15:42:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Message-Id;
+  b=tU/Mr6hP6SqgKSt6TveFNbA1vWr5L105BeFCj8kxqNQdFjnkSvV3R9nvye3FijwrjzzuuKJK6I1Qrw8TAhQC7iwkaZHbd3tOxQjmfdI3vrL2XULLwMwNokYa4A+/yzaEGd0mVQ1/s9HthZQIIjFvAqsF3IdPhIZieln9AAhpx68=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] Uml left showstopper bugs for 2.6.14
+Date: Sun, 9 Oct 2005 21:42:32 +0200
+User-Agent: KMail/1.8.2
+Cc: Jeff Dike <jdike@addtoit.com>, LKML <linux-kernel@vger.kernel.org>,
+       "Kai Tan" <mineown@hotmail.com>
+References: <200510092118.21032.blaisorblade@yahoo.it>
+In-Reply-To: <200510092118.21032.blaisorblade@yahoo.it>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_pKXSDot0Ym1KX8M"
+Message-Id: <200510092142.33332.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pci probing added
+--Boundary-00=_pKXSDot0Ym1KX8M
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Pci probing functions added, most of functions rewrited because od it (some
-for cycles are redundant).
-Used PCI_DEVICE macro.
+Kai - go to the end, there are patches for your SKAS0 problem.
 
-Generated in 2.6.14-rc2-mm2 kernel version
+On Sunday 09 October 2005 21:18, Blaisorblade wrote:
+> Here's a short and updated list of showstoppers for 2.6.14 release, from
+> the UML point of view.
 
-Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
+> 2) Someone broke endianness of COW driver macros in a header cleanup. I
+> have fixes.
+Just sent them.
+> 3) SKAS0 is broken on amd64 hosts, when frame pointers are disabled. Jeff
+> has the fix, waiting end of testing.
 
----
- drivers/char/isicom.c |  468 +++++++++++++++++++++++++++----------------------
- 1 files changed, 261 insertions(+), 207 deletions(-)
+> 4) SKAS0 is broken with GCC 3.2.3, and potentially other GCC releases -
+> look at arch/um/include/sysdep-i386/stub.h: stub_syscall*() to see how. I
+> have two fixes, choosing the safer one (it's all just simply reusing code
+> from <asm/unistd.h>).
+Jeff, I've attached patches for this. Also found another problematic piece of 
+code, in stub-segv (same bad idea).
 
-diff --git a/drivers/char/isicom.c b/drivers/char/isicom.c
---- a/drivers/char/isicom.c
-+++ b/drivers/char/isicom.c
-@@ -107,7 +107,6 @@
-  *	Omit those entries for boards you don't have installed.
-  *
-  *	TODO
-- *		Hotplug
-  *		Merge testing
-  *		64-bit verification
-  */
-@@ -146,20 +145,30 @@
- #define isicom_paranoia_check(a, b, c) 0
- #endif
+The patch for that changes a bit more things that strictly needed - complain 
+if that's a problem for merging in 2.6.14.
+
+Kai Tan, the order of the patches is:
+
+uml-fix-misassembling-skas0-stub
+uml-fix-misassembling-skas0-stub-segv
+
+Note that the second is a bit less tested, so if both together cause problems, 
+try with only the first one.
+
+And remember to add "skas0" to the cmd line, to force UML to run in SKAS0 
+mode.
+-- 
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
+
+--Boundary-00=_pKXSDot0Ym1KX8M
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="uml-fix-misassembling-skas0-stub"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="uml-fix-misassembling-skas0-stub"
+
+uml: fix SKAS0 assembly stubs - use proper constraints
+
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+
+Jeff Dike noted that the assembly code for syscall stubs is misassembled with
+GCC 3.2.3: the values copied in registers weren't preserved between one asm()
+and the following one.
+
+So I fixed the thing by rewriting the __asm__ constraints more
+like unistd.h ones.
+
+Note: in syscall6 case I had to add one more instruction (i.e. moving arg6 in
+eax and shuffling things around) - it's needed for the function to be valid in
+general (we can't load the value from the stack, relative to ebp, because we
+change it), but could be avoided since we actually use a constant as param 6.
+
+The only fix would be to turn stub_syscall6 to a macro and use a "i" constraint
+for arg6 (i.e., specify it's a constant value).
+
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+Index: linux-2.6.13/arch/um/include/sysdep-i386/stub.h
+===================================================================
+--- linux-2.6.13.orig/arch/um/include/sysdep-i386/stub.h
++++ linux-2.6.13/arch/um/include/sysdep-i386/stub.h
+@@ -16,45 +16,69 @@ extern void stub_clone_handler(void);
+ #define STUB_MMAP_NR __NR_mmap2
+ #define MMAP_OFFSET(o) ((o) >> PAGE_SHIFT)
  
-+static int isicom_probe(struct pci_dev*, const struct pci_device_id*);
-+static void __devexit isicom_remove(struct pci_dev*);
-+
- static struct pci_device_id isicom_pci_tbl[] = {
--	{ VENDOR_ID, 0x2028, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
--	{ VENDOR_ID, 0x2051, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
--	{ VENDOR_ID, 0x2052, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
--	{ VENDOR_ID, 0x2053, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
--	{ VENDOR_ID, 0x2054, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
--	{ VENDOR_ID, 0x2055, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
--	{ VENDOR_ID, 0x2056, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
--	{ VENDOR_ID, 0x2057, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
--	{ VENDOR_ID, 0x2058, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
-+	{ PCI_DEVICE(VENDOR_ID, 0x2028) },
-+	{ PCI_DEVICE(VENDOR_ID, 0x2051) },
-+	{ PCI_DEVICE(VENDOR_ID, 0x2052) },
-+	{ PCI_DEVICE(VENDOR_ID, 0x2053) },
-+	{ PCI_DEVICE(VENDOR_ID, 0x2054) },
-+	{ PCI_DEVICE(VENDOR_ID, 0x2055) },
-+	{ PCI_DEVICE(VENDOR_ID, 0x2056) },
-+	{ PCI_DEVICE(VENDOR_ID, 0x2057) },
-+	{ PCI_DEVICE(VENDOR_ID, 0x2058) },
- 	{ 0 }
- };
- MODULE_DEVICE_TABLE(pci, isicom_pci_tbl);
- 
-+static struct pci_driver isicom_driver = {
-+	.name		= "isicom",
-+	.id_table	= isicom_pci_tbl,
-+	.probe		= isicom_probe,
-+	.remove		= __devexit_p(isicom_remove)
-+};
-+
- static int prev_card = 3;	/*	start servicing isi_card[0]	*/
- static struct tty_driver *isicom_normal;
- 
-@@ -171,8 +180,6 @@ static int ISILoad_ioctl(struct inode *i
- static void isicom_tx(unsigned long _data);
- static void isicom_start(struct tty_struct *tty);
- 
--static unsigned char *tmp_buf;
--
- /*   baud index mappings from linux defns to isi */
- 
- static signed char linuxb_to_isib[] = {
-@@ -191,6 +198,7 @@ struct	isi_board {
- 	u8			isa;
- 	spinlock_t		card_lock; /* Card wide lock 11/5/00 -sameer */
- 	unsigned long		flags;
-+	struct device		device;
- };
- 
- struct	isi_port {
-@@ -1379,7 +1387,7 @@ static int isicom_write(struct tty_struc
- 	if (isicom_paranoia_check(port, tty->name, "isicom_write"))
- 		return 0;
- 
--	if (!tty || !port->xmit_buf || !tmp_buf)
-+	if (!tty || !port->xmit_buf)
- 		return 0;
- 
- 	spin_lock_irqsave(&card->card_lock, flags);
-@@ -1745,32 +1753,36 @@ static void isicom_flush_buffer(struct t
- 	tty_wakeup(tty);
- }
- 
-+/*
-+ * Driver init and deinit functions
-+ */
- 
--static int __devinit register_ioregion(void)
-+static int __devinit isicom_register_ioregion(struct isi_board *board,
-+	const unsigned int index)
- {
--	int count, done=0;
--	for (count=0; count < BOARD_COUNT; count++ ) {
--		if (isi_card[count].base)
--			if (!request_region(isi_card[count].base,16,ISICOM_NAME)) {
--				printk(KERN_DEBUG "ISICOM: I/O Region 0x%x-0x%x is busy. Card%d will be disabled.\n",
--					isi_card[count].base,isi_card[count].base+15,count+1);
--				isi_card[count].base=0;
--				done++;
--			}
--	}
--	return done;
-+	if (!board->base)
-+		return -EINVAL;
-+
-+	if (!request_region(board->base, 16, ISICOM_NAME)) {
-+		printk(KERN_DEBUG "ISICOM: I/O Region 0x%x-0x%x is busy. "
-+			"Card%d will be disabled.\n", board->base,
-+			board->base + 15, index + 1);
-+		return -EBUSY;
-+ 	}
-+
-+	return 0;
- }
- 
--static void unregister_ioregion(void)
-+static void isicom_unregister_ioregion(struct isi_board *board,
-+	const unsigned int index)
- {
--	int count;
--	for (count=0; count < BOARD_COUNT; count++ )
--		if (isi_card[count].base) {
--			release_region(isi_card[count].base,16);
--#ifdef ISICOM_DEBUG
--			printk(KERN_DEBUG "ISICOM: I/O Region 0x%x-0x%x released for Card%d.\n",isi_card[count].base,isi_card[count].base+15,count+1);
--#endif
--		}
-+	if (!board->base)
-+		return;
-+
-+	release_region(board->base, 16);
-+	board->base = 0;
-+	pr_deb(KERN_DEBUG "ISICOM: I/O Region 0x%x-0x%x released for Card%d.\n",
-+		board->base, board->base + 15, index + 1);
- }
- 
- static struct tty_operations isicom_ops = {
-@@ -1835,207 +1847,243 @@ static void isicom_unregister_tty_driver
- 	put_tty_driver(isicom_normal);
- }
- 
--static int __devinit register_isr(void)
-+static int __devinit isicom_register_isr(struct isi_board *board,
-+	const unsigned int index)
- {
--	int count, done=0;
--	unsigned long irqflags;
-+	unsigned long irqflags = SA_INTERRUPT;
-+	int retval = -EINVAL;
- 
--	for (count=0; count < BOARD_COUNT; count++ ) {
--		if (isi_card[count].base) {
--			irqflags = (isi_card[count].isa == YES) ?
--					SA_INTERRUPT :
--					(SA_INTERRUPT | SA_SHIRQ);
--
--			if (request_irq(isi_card[count].irq,
--					isicom_interrupt,
--					irqflags,
--					ISICOM_NAME, &isi_card[count])) {
--
--				printk(KERN_WARNING "ISICOM: Could not"
--					" install handler at Irq %d."
--					" Card%d will be disabled.\n",
--					isi_card[count].irq, count+1);
-+	if (!board->base)
-+		goto end;
- 
--				release_region(isi_card[count].base,16);
--				isi_card[count].base=0;
--			}
--			else
--				done++;
--		}
--	}
--	return done;
-+	if (board->isa == NO)
-+		irqflags |= SA_SHIRQ;
-+
-+	retval = request_irq(board->irq, isicom_interrupt, irqflags,
-+		ISICOM_NAME, board);
-+	if (retval < 0) {
-+		printk(KERN_WARNING "ISICOM: Could not install handler at Irq "
-+			"%d. Card%d will be disabled.\n", board->irq,
-+			index + 1);
-+ 	} else
-+		retval = 0;
-+end:
-+	return retval;
- }
- 
--static void __exit unregister_isr(void)
-+static void isicom_unregister_isr(struct isi_board *board)
- {
--	int count;
--
--	for (count=0; count < BOARD_COUNT; count++ ) {
--		if (isi_card[count].base)
--			free_irq(isi_card[count].irq, &isi_card[count]);
--	}
-+	if (board->base)
-+		free_irq(board->irq, board);
- }
- 
--static int __devinit isicom_init(void)
-+static int __devinit reset_card(struct isi_board *board,
-+	const unsigned int card, unsigned int *signature)
- {
--	int card, channel, base;
--	struct isi_port *port;
--	unsigned long page;
-+	u16 base = board->base;
-+	unsigned int portcount = 0;
-+	int retval = 0;
- 
--	if (!tmp_buf) {
--		page = get_zeroed_page(GFP_KERNEL);
--		if (!page) {
--#ifdef ISICOM_DEBUG
--			printk(KERN_DEBUG "ISICOM: Couldn't allocate page for tmp_buf.\n");
--#else
--			printk(KERN_ERR "ISICOM: Not enough memory...\n");
--#endif
--			return 0;
--		}
--		tmp_buf = (unsigned char *) page;
--	}
-+	printk(KERN_DEBUG "ISILoad:Resetting Card%d at 0x%x\n", card + 1, base);
- 
--	if (!register_ioregion())
--	{
--		printk(KERN_ERR "ISICOM: All required I/O space found busy.\n");
--		free_page((unsigned long)tmp_buf);
--		return 0;
--	}
--	if (isicom_register_tty_driver())
--	{
--		unregister_ioregion();
--		free_page((unsigned long)tmp_buf);
--		return 0;
--	}
--	if (!register_isr())
--	{
--		isicom_unregister_tty_driver();
--		/*  ioports already uregistered in register_isr */
--		free_page((unsigned long)tmp_buf);
--		return 0;
--	}
-+	inw(base + 0x8);
- 
--	memset(isi_ports, 0, sizeof(isi_ports));
--	for (card = 0; card < BOARD_COUNT; card++) {
--		port = &isi_ports[card * 16];
--		isi_card[card].ports = port;
--		spin_lock_init(&isi_card[card].card_lock);
--		base = isi_card[card].base;
--		for (channel = 0; channel < 16; channel++, port++) {
--			port->magic = ISICOM_MAGIC;
--			port->card = &isi_card[card];
--			port->channel = channel;
--			port->close_delay = 50 * HZ/100;
--			port->closing_wait = 3000 * HZ/100;
--			INIT_WORK(&port->hangup_tq, do_isicom_hangup, port);
--			INIT_WORK(&port->bh_tqueue, isicom_bottomhalf, port);
--			port->status = 0;
--			init_waitqueue_head(&port->open_wait);
--			init_waitqueue_head(&port->close_wait);
--			/*  . . .  */
-+	mdelay(10);
-+
-+	outw(0, base + 0x8); /* Reset */
-+
-+	msleep(3000);
-+
-+	*signature = inw(base + 0x4) & 0xff;
-+
-+	if (board->isa == YES) {
-+		if (!(inw(base + 0xe) & 0x1) || (inw(base + 0x2))) {
-+			pr_deb(KERN_DEBUG "base+0x2=0x%x, base+0xe=0x%x",
-+				inw(base + 0x2), inw(base + 0xe));
-+			printk(KERN_ERR "ISILoad:ISA Card%d reset failure "
-+				"(Possible bad I/O Port Address 0x%x).\n",
-+				card + 1, base);
-+			retval = -EIO;
-+			goto end;
-+		}
-+	} else {
-+		portcount = inw(base + 0x2);
-+		if (!(inw(base + 0xe) & 0x1) || ((portcount != 0) &&
-+				(portcount != 4) && (portcount != 8))) {
-+			pr_deb("\nbase+0x2=0x%x , base+0xe=0x%x",
-+				inw(base + 0x2), inw(base + 0xe));
-+			printk("\nISILoad:PCI Card%d reset failure (Possible "
-+				"bad I/O Port Address 0x%x).\n", card + 1,
-+				base);
-+			retval = -EIO;
-+			goto end;
- 		}
- 	}
- 
--	return 1;
-+	switch (*signature) {
-+	case 0xa5:
-+	case 0xbb:
-+	case 0xdd:
-+		board->port_count = (board->isa == NO && portcount == 4) ? 4 :
-+			8;
-+		board->shift_count = 12;
-+		break;
-+	case 0xcc:
-+		board->port_count = 16;
-+		board->shift_count = 11;
-+		break;
-+	default:
-+		printk(KERN_WARNING "ISILoad:Card%d reset failure (Possible "
-+			"bad I/O Port Address 0x%x).\n", card + 1, base);
-+		pr_deb(KERN_DEBUG "Sig=0x%x\n", signature);
-+		retval = -EIO;
-+	}
-+	printk(KERN_INFO "-Done\n");
-+
-+end:
-+	return retval;
- }
- 
- /*
-  *	Insmod can set static symbols so keep these static
-  */
--
- static int io[4];
- static int irq[4];
-+static int card;
- 
--static int __devinit isicom_setup(void)
-+static int __devinit isicom_probe(struct pci_dev *pdev,
-+	const struct pci_device_id *ent)
- {
--	struct pci_dev *dev = NULL;
--	int retval, card, idx, count;
--	unsigned char pciirq;
--	unsigned int ioaddr;
--
--	card = 0;
--	for (idx=0; idx < BOARD_COUNT; idx++) {
--		if (io[idx]) {
--			isi_card[idx].base=io[idx];
--			isi_card[idx].irq=irq[idx];
--			isi_card[idx].isa=YES;
--			card++;
--		}
--		else {
--			isi_card[idx].base = 0;
--			isi_card[idx].irq = 0;
-+	unsigned int ioaddr, signature, index;
-+	int retval = -EPERM;
-+	u8 pciirq;
-+	struct isi_board *board = NULL;
-+
-+	if (card >= BOARD_COUNT)
-+		goto err;
-+
-+	ioaddr = pci_resource_start(pdev, 3);
-+	/* i.e at offset 0x1c in the PCI configuration register space. */
-+	pciirq = pdev->irq;
-+	printk(KERN_INFO "ISI PCI Card(Device ID 0x%x)\n", ent->device);
-+
-+	/* allot the first empty slot in the array */
-+	for (index = 0; index < BOARD_COUNT; index++)
-+		if (isi_card[index].base == 0) {
-+			board = &isi_card[index];
-+			break;
- 		}
--	}
- 
--	for (idx=0 ;idx < card; idx++) {
--		if (!((isi_card[idx].irq==2)||(isi_card[idx].irq==3)||
--			(isi_card[idx].irq==4)||(isi_card[idx].irq==5)||
--			(isi_card[idx].irq==7)||(isi_card[idx].irq==10)||
--			(isi_card[idx].irq==11)||(isi_card[idx].irq==12)||
--			(isi_card[idx].irq==15))) {
--
--			if (isi_card[idx].base) {
--				printk(KERN_ERR "ISICOM: Irq %d unsupported. Disabling Card%d...\n",
--					isi_card[idx].irq, idx+1);
--				isi_card[idx].base=0;
--				card--;
--			}
--		}
--	}
-+	board->base = ioaddr;
-+	board->irq = pciirq;
-+	board->isa = NO;
-+	board->device = pdev->dev;
-+	card++;
-+
-+	retval = isicom_register_ioregion(board, index);
-+	if (retval < 0)
-+		goto err;
-+
-+	retval = isicom_register_isr(board, index);
-+	if (retval < 0)
-+		goto errunrr;
-+
-+	retval = reset_card(board, index, &signature);
-+	if (retval < 0)
-+		goto errunri;
-+
-+/*	retval = load_firmware(board, index, signature);
-+	if (retval < 0)
-+		goto errunri; */
- 
--	if (card < BOARD_COUNT) {
--		for (idx=0; idx < DEVID_COUNT; idx++) {
--			dev = NULL;
--			for (;;){
--				if (!(dev = pci_find_device(VENDOR_ID, isicom_pci_tbl[idx].device, dev)))
--					break;
--				if (card >= BOARD_COUNT)
--					break;
-+	return 0;
- 
--				if (pci_enable_device(dev))
--					break;
-+errunri:
-+	isicom_unregister_isr(board);
-+errunrr:
-+	isicom_unregister_ioregion(board, index);
-+err:
-+	board->base = 0;
-+	return retval;
-+}
- 
--				/* found a PCI ISI card! */
--				ioaddr = pci_resource_start (dev, 3);
--				/* i.e at offset 0x1c in the
--				 * PCI configuration register
--				 * space.
--				 */
--				pciirq = dev->irq;
--				printk(KERN_INFO "ISI PCI Card(Device ID 0x%x)\n", isicom_pci_tbl[idx].device);
--				/*
--				 * allot the first empty slot in the array
--				 */
--				for (count=0; count < BOARD_COUNT; count++) {
--					if (isi_card[count].base == 0) {
--						isi_card[count].base = ioaddr;
--						isi_card[count].irq = pciirq;
--						isi_card[count].isa = NO;
--						card++;
--						break;
--					}
--				}
--			}
--			if (card >= BOARD_COUNT) break;
--		}
--	}
-+static void __devexit isicom_remove(struct pci_dev *pdev)
++static inline long stub_syscall1(long syscall, long arg1)
 +{
-+	unsigned int idx;
- 
--	if (!(isi_card[0].base || isi_card[1].base || isi_card[2].base || isi_card[3].base)) {
--		printk(KERN_ERR "ISICOM: No valid card configuration. Driver cannot be initialized...\n");
--		return -EIO;
--	}
-+	for (idx = 0; idx < BOARD_COUNT; idx++)
-+		if (isi_card[idx].base == pci_resource_start(pdev, 3))
-+			break;
- 
--	retval = misc_register(&isiloader_device);
-+	if (idx == BOARD_COUNT)
-+		return;
++	long ret;
 +
-+	isicom_unregister_isr(&isi_card[idx]);
-+	isicom_unregister_ioregion(&isi_card[idx], idx);
++	__asm__ volatile ("int $0x80" : "=a" (ret) : "0" (syscall), "b" (arg1));
++
++	return ret;
 +}
 +
-+static int __devinit isicom_setup(void)
+ static inline long stub_syscall2(long syscall, long arg1, long arg2)
+ {
+ 	long ret;
+ 
+-	__asm__("movl %0, %%ecx; " : : "g" (arg2) : "%ecx");
+-	__asm__("movl %0, %%ebx; " : : "g" (arg1) : "%ebx");
+-	__asm__("movl %0, %%eax; " : : "g" (syscall) : "%eax");
+-	__asm__("int $0x80;" : : : "%eax");
+-	__asm__ __volatile__("movl %%eax, %0; " : "=g" (ret) :);
+-	return(ret);
++	__asm__ volatile ("int $0x80" : "=a" (ret) : "0" (syscall), "b" (arg1),
++			"c" (arg2));
++
++	return ret;
+ }
+ 
+ static inline long stub_syscall3(long syscall, long arg1, long arg2, long arg3)
+ {
+-	__asm__("movl %0, %%edx; " : : "g" (arg3) : "%edx");
+-	return(stub_syscall2(syscall, arg1, arg2));
++	long ret;
++
++	__asm__ volatile ("int $0x80" : "=a" (ret) : "0" (syscall), "b" (arg1),
++			"c" (arg2), "d" (arg3));
++
++	return ret;
+ }
+ 
+ static inline long stub_syscall4(long syscall, long arg1, long arg2, long arg3,
+ 				 long arg4)
+ {
+-	__asm__("movl %0, %%esi; " : : "g" (arg4) : "%esi");
+-	return(stub_syscall3(syscall, arg1, arg2, arg3));
++	long ret;
++
++	__asm__ volatile ("int $0x80" : "=a" (ret) : "0" (syscall), "b" (arg1),
++			"c" (arg2), "d" (arg3), "S" (arg4));
++
++	return ret;
++}
++
++static inline long stub_syscall5(long syscall, long arg1, long arg2, long arg3,
++				 long arg4, long arg5)
 +{
-+	int retval, idx, channel;
-+	struct isi_port *port;
++	long ret;
 +
-+	card = 0;
-+	memset(isi_ports, 0, sizeof(isi_ports));
++	__asm__ volatile ("int $0x80" : "=a" (ret) : "0" (syscall), "b" (arg1),
++			"c" (arg2), "d" (arg3), "S" (arg4), "D" (arg5));
 +
-+	for(idx = 0; idx < BOARD_COUNT; idx++) {
-+		port = &isi_ports[idx * 16];
-+		isi_card[idx].ports = port;
-+		spin_lock_init(&isi_card[idx].card_lock);
-+		for (channel = 0; channel < 16; channel++, port++) {
-+			port->magic = ISICOM_MAGIC;
-+			port->card = &isi_card[idx];
-+			port->channel = channel;
-+			port->close_delay = 50 * HZ/100;
-+			port->closing_wait = 3000 * HZ/100;
-+			INIT_WORK(&port->hangup_tq, do_isicom_hangup, port);
-+			INIT_WORK(&port->bh_tqueue, isicom_bottomhalf, port);
-+			port->status = 0;
-+			init_waitqueue_head(&port->open_wait);
-+			init_waitqueue_head(&port->close_wait);
-+			/*  . . .  */
-+ 		}
-+		isi_card[idx].base = 0;
-+		isi_card[idx].irq = 0;
-+
-+		if (!io[idx])
-+			continue;
-+
-+		if (irq[idx] == 2 || irq[idx] == 3 || irq[idx] == 4	||
-+				irq[idx] == 5	|| irq[idx] == 7	||
-+				irq[idx] == 10	|| irq[idx] == 11	||
-+				irq[idx] == 12	|| irq[idx] == 15) {
-+			printk(KERN_ERR "ISICOM: ISA not supported yet.\n");
-+			return -EIO;
-+/*			isi_card[idx].base = io[idx];
-+			isi_card[idx].irq = irq[idx];
-+			isi_card[idx].isa = YES;
-+ FIXME: which device for request_firmware use? if you know, uncomment this and
-+ delete printk and return
-+			isi_card[idx].device = ???;
-+			card++;*/
-+		} else
-+			printk(KERN_ERR "ISICOM: Irq %d unsupported. "
-+				"Disabling Card%d...\n", irq[idx], idx + 1);
-+	}
-+
-+	retval = isicom_register_tty_driver();
-+	if (retval < 0)
-+		goto error;
-+
-+	retval = pci_register_driver(&isicom_driver);
- 	if (retval < 0) {
--		printk(KERN_ERR "ISICOM: Unable to register firmware loader driver.\n");
--		return retval;
-+		printk(KERN_ERR "ISICOM: Unable to register pci driver.\n");
-+		goto errtty;
- 	}
- 
--	if (!isicom_init()) {
--		if (misc_deregister(&isiloader_device))
--			printk(KERN_ERR "ISICOM: Unable to unregister Firmware Loader driver\n");
--		return -EIO;
--	}
-+	retval = misc_register(&isiloader_device);
-+	if (retval < 0)
-+		goto errpci;
- 
- 	init_timer(&tx);
- 	tx.expires = jiffies + 1;
-@@ -2045,6 +2093,12 @@ static int __devinit isicom_setup(void)
- 	add_timer(&tx);
- 
- 	return 0;
-+errpci:
-+	pci_unregister_driver(&isicom_driver);
-+errtty:
-+	isicom_unregister_tty_driver();
-+error:
-+	return retval;
++	return ret;
  }
  
- static void __exit isicom_exit(void)
-@@ -2056,13 +2110,13 @@ static void __exit isicom_exit(void)
- 	while (re_schedule != 2 && index++ < 100)
- 		msleep(10);
- 
--	unregister_isr();
-+	pci_unregister_driver(&isicom_driver);
- 	isicom_unregister_tty_driver();
--	unregister_ioregion();
--	if (tmp_buf)
--		free_page((unsigned long)tmp_buf);
--	if (misc_deregister(&isiloader_device))
--		printk(KERN_ERR "ISICOM: Unable to unregister Firmware Loader driver\n");
+ static inline long stub_syscall6(long syscall, long arg1, long arg2, long arg3,
+ 				 long arg4, long arg5, long arg6)
+ {
+ 	long ret;
+-	__asm__("movl %0, %%eax; " : : "g" (syscall) : "%eax");
+-	__asm__("movl %0, %%ebx; " : : "g" (arg1) : "%ebx");
+-	__asm__("movl %0, %%ecx; " : : "g" (arg2) : "%ecx");
+-	__asm__("movl %0, %%edx; " : : "g" (arg3) : "%edx");
+-	__asm__("movl %0, %%esi; " : : "g" (arg4) : "%esi");
+-	__asm__("movl %0, %%edi; " : : "g" (arg5) : "%edi");
+-	__asm__ __volatile__("pushl %%ebp ; movl %1, %%ebp; "
+-		"int $0x80; popl %%ebp ; "
+-		"movl %%eax, %0; " : "=g" (ret) : "g" (arg6) : "%eax");
+-	return(ret);
 +
-+	for (index = 0; index < BOARD_COUNT; index++) {
-+		isicom_unregister_isr(&isi_card[index]);
-+		isicom_unregister_ioregion(&isi_card[index], index);
-+	}
++	__asm__ volatile ("push %%ebp ; movl %%eax,%%ebp ; movl %1,%%eax ; "
++			"int $0x80 ; pop %%ebp"
++			: "=a" (ret)
++			: "g" (syscall), "b" (arg1), "c" (arg2), "d" (arg3),
++			  "S" (arg4), "D" (arg5), "0" (arg6));
++
++	return ret;
  }
  
- module_init(isicom_setup);
+ static inline void trap_myself(void)
+Index: linux-2.6.13/arch/um/include/sysdep-x86_64/stub.h
+===================================================================
+--- linux-2.6.13.orig/arch/um/include/sysdep-x86_64/stub.h
++++ linux-2.6.13/arch/um/include/sysdep-x86_64/stub.h
+@@ -17,37 +17,72 @@ extern void stub_clone_handler(void);
+ #define STUB_MMAP_NR __NR_mmap
+ #define MMAP_OFFSET(o) (o)
+ 
++#define __syscall_clobber "r11","rcx","memory"
++#define __syscall "syscall"
++
+ static inline long stub_syscall2(long syscall, long arg1, long arg2)
+ {
+ 	long ret;
+ 
+-	__asm__("movq %0, %%rsi; " : : "g" (arg2) : "%rsi");
+-	__asm__("movq %0, %%rdi; " : : "g" (arg1) : "%rdi");
+-	__asm__("movq %0, %%rax; " : : "g" (syscall) : "%rax");
+-	__asm__("syscall;" : : : "%rax", "%r11", "%rcx");
+-	__asm__ __volatile__("movq %%rax, %0; " : "=g" (ret) :);
+-	return(ret);
++	__asm__ volatile (__syscall
++		: "=a" (ret)
++		: "0" (syscall), "D" (arg1), "S" (arg2) : __syscall_clobber );
++
++	return ret;
+ }
+ 
+ static inline long stub_syscall3(long syscall, long arg1, long arg2, long arg3)
+ {
+-	__asm__("movq %0, %%rdx; " : : "g" (arg3) : "%rdx");
+-	return(stub_syscall2(syscall, arg1, arg2));
++	long ret;
++
++	__asm__ volatile (__syscall
++		: "=a" (ret)
++		: "0" (syscall), "D" (arg1), "S" (arg2), "d" (arg3)
++		: __syscall_clobber );
++
++	return ret;
+ }
+ 
+ static inline long stub_syscall4(long syscall, long arg1, long arg2, long arg3,
+ 				 long arg4)
+ {
+-	__asm__("movq %0, %%r10; " : : "g" (arg4) : "%r10");
+-	return(stub_syscall3(syscall, arg1, arg2, arg3));
++	long ret;
++
++	__asm__ volatile ("movq %5,%%r10 ; " __syscall
++		: "=a" (ret)
++		: "0" (syscall), "D" (arg1), "S" (arg2), "d" (arg3),
++		  "g" (arg4)
++		: __syscall_clobber, "r10" );
++
++	return ret;
++}
++
++static inline long stub_syscall5(long syscall, long arg1, long arg2, long arg3,
++				 long arg4, long arg5)
++{
++	long ret;
++
++	__asm__ volatile ("movq %5,%%r10 ; movq %6,%%r8 ; " __syscall
++		: "=a" (ret)
++		: "0" (syscall), "D" (arg1), "S" (arg2), "d" (arg3),
++		  "g" (arg4), "g" (arg5)
++		: __syscall_clobber, "r10", "r8" );
++
++	return ret;
+ }
+ 
+ static inline long stub_syscall6(long syscall, long arg1, long arg2, long arg3,
+ 				 long arg4, long arg5, long arg6)
+ {
+-	__asm__("movq %0, %%r9; " : : "g" (arg6) : "%r9");
+-	__asm__("movq %0, %%r8; " : : "g" (arg5) : "%r8");
+-	return(stub_syscall4(syscall, arg1, arg2, arg3, arg4));
++	long ret;
++
++	__asm__ volatile ("movq %5,%%r10 ; movq %6,%%r8 ; "
++		"movq %7, %%r9; " __syscall : "=a" (ret)
++		: "0" (syscall), "D" (arg1), "S" (arg2), "d" (arg3),
++		  "g" (arg4), "g" (arg5), "g" (arg6)
++		: __syscall_clobber, "r10", "r8", "r9" );
++
++	return ret;
+ }
+ 
+ static inline void trap_myself(void)
+
+--Boundary-00=_pKXSDot0Ym1KX8M
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="uml-fix-misassembling-skas0-stub-segv"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="uml-fix-misassembling-skas0-stub-segv"
+
+uml: fix assembly stub for segv
+
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+
+Even here, we reuse values from one asm statement to the next without telling
+this to GCC - so fix this.
+
+While at it, a bit of improvements to the generated asm code, with better use of
+constraints. Still TODO: convert all this to the syscall_stub macros we already
+have.
+
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+Index: linux-2.6.13/arch/um/sys-i386/stub_segv.c
+===================================================================
+--- linux-2.6.13.orig/arch/um/sys-i386/stub_segv.c
++++ linux-2.6.13/arch/um/sys-i386/stub_segv.c
+@@ -14,17 +14,19 @@ void __attribute__ ((__section__ (".__sy
+ stub_segv_handler(int sig)
+ {
+ 	struct sigcontext *sc = (struct sigcontext *) (&sig + 1);
++	long pid;
+ 
+ 	GET_FAULTINFO_FROM_SC(*((struct faultinfo *) UML_CONFIG_STUB_DATA),
+ 			      sc);
+ 
+-	__asm__("movl %0, %%eax ; int $0x80": : "g" (__NR_getpid));
+-	__asm__("movl %%eax, %%ebx ; movl %0, %%eax ; movl %1, %%ecx ;"
+-		"int $0x80": : "g" (__NR_kill), "g" (SIGUSR1));
++	__asm__("movl %1, %%eax ; int $0x80": "=&a" (pid): "i" (__NR_getpid));
++	__asm__("movl %0, %%eax ; movl %1, %%ecx ;"
++		"int $0x80": : "i" (__NR_kill), "i" (SIGUSR1), "b" (pid)
++		: "eax", "ecx");
+ 	/* Load pointer to sigcontext into esp, since we need to leave
+ 	 * the stack in its original form when we do the sigreturn here, by
+ 	 * hand.
+ 	 */
+ 	__asm__("mov %0,%%esp ; movl %1, %%eax ; "
+-		"int $0x80" : : "a" (sc), "g" (__NR_sigreturn));
++		"int $0x80" : : "r" (sc), "i" (__NR_sigreturn));
+ }
+Index: linux-2.6.13/arch/um/sys-x86_64/stub_segv.c
+===================================================================
+--- linux-2.6.13.orig/arch/um/sys-x86_64/stub_segv.c
++++ linux-2.6.13/arch/um/sys-x86_64/stub_segv.c
+@@ -30,15 +30,17 @@ void __attribute__ ((__section__ (".__sy
+ stub_segv_handler(int sig)
+ {
+ 	struct ucontext *uc;
++	long pid;
+ 
+ 	__asm__("movq %%rdx, %0" : "=g" (uc) : );
+         GET_FAULTINFO_FROM_SC(*((struct faultinfo *) UML_CONFIG_STUB_DATA),
+                               &uc->uc_mcontext);
+ 
+-	__asm__("movq %0, %%rax ; syscall": : "g" (__NR_getpid) : "%rax");
+-	__asm__("movq %%rax, %%rdi ; movq %0, %%rax ; movq %1, %%rsi ;"
+-		"syscall": : "g" (__NR_kill), "g" (SIGUSR1) :
+-		"%rdi", "%rax", "%rsi");
++	__asm__("movq %0, %%rax ; syscall": "=&a" (pid) : "g" (__NR_getpid)
++			: "rax", __syscall_clobber);
++	__asm__("movq %0, %%rax ; movq %1, %%rsi ;"
++		"syscall": : "i" (__NR_kill), "i" (SIGUSR1), "D" (pid) :
++		"rdi", "rax", "rsi", __syscall_clobber);
+ 	/* sys_sigreturn expects that the stack pointer will be 8 bytes into
+ 	 * the signal frame.  So, we use the ucontext pointer, which we know
+ 	 * already, to get the signal frame pointer, and add 8 to that.
+@@ -46,5 +48,5 @@ stub_segv_handler(int sig)
+ 	__asm__("movq %0, %%rsp": :
+ 		"g" ((unsigned long) container_of(uc, struct rt_sigframe,
+ 						  uc) + 8));
+-	__asm__("movq %0, %%rax ; syscall" : : "g" (__NR_rt_sigreturn) : "%rax");
++	__asm__("movq %0, %%rax ; syscall" : : "g" (__NR_rt_sigreturn) : "rax");
+ }
+
+--Boundary-00=_pKXSDot0Ym1KX8M--
+
+		
+___________________________________
+Yahoo! Agenda ti aiuta a ricordare impegni, appuntamenti e compleanni
+http://agenda.yahoo.it

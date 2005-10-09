@@ -1,79 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932246AbVJIIhd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbVJIIuz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932246AbVJIIhd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Oct 2005 04:37:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932249AbVJIIhd
+	id S932248AbVJIIuz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Oct 2005 04:50:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932251AbVJIIuz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Oct 2005 04:37:33 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:36111 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932246AbVJIIhc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Oct 2005 04:37:32 -0400
-Date: Sun, 9 Oct 2005 09:37:24 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Samuel Thibault <samuel.thibault@ens-lyon.org>, akpm@osdl.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       linux-serial@vger.kernel.org
-Subject: Re: [patch 3/4] new serial flow control
-Message-ID: <20051009083724.GA14335@flint.arm.linux.org.uk>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	akpm@osdl.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org
-References: <200501052341.j05Nfod27823@mail.osdl.org> <20050105235301.B26633@flint.arm.linux.org.uk> <20051008222711.GA5150@bouh.residence.ens-lyon.fr> <20051009000153.GA23083@flint.arm.linux.org.uk> <20051009002129.GJ5150@bouh.residence.ens-lyon.fr>
+	Sun, 9 Oct 2005 04:50:55 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:27348 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932248AbVJIIuy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Oct 2005 04:50:54 -0400
+Date: Sun, 9 Oct 2005 01:50:45 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: <joel.becker@oracle.com>
+Cc: wim.coekaerts@oracle.com, zaitcev@redhat.com, linux-kernel@vger.kernel.org
+Subject: hangcheck-timer parameters
+Message-Id: <20051009015045.75a2d4cf.zaitcev@redhat.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051009002129.GJ5150@bouh.residence.ens-lyon.fr>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 09, 2005 at 02:21:30AM +0200, Samuel Thibault wrote:
-> Russell King, le Sun 09 Oct 2005 01:01:53 +0100, a ?crit :
-> > > How could this look like in userspace?
-> > 
-> > I think they should be termios settings - existing programs know how
-> > to handle termios to get what they want. 
-> 
-> Hence a new field in the termios structure?
-> 
-> There was a discussion about this back in 2000:
-> 
-> http://marc.theaimsgroup.com/?t=96514848800003&r=1&w=2
-> 
-> and more precisely a remind of SVR4's termiox structure with an added
-> x_hflag:
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=96523146720678&w=2
-> 
-> I'm not sure about how we'd want to implement that. The SVR4 approach
-> (orthogonal input/output flow control selection) doesn't seem right to
-> me: there are really peculiar flow controls that involve both ways. A
-> mere enumeration of possible methods might be better.
+Would you mind explaining me what this code in 2.6.14-rc3 is supposed
+to mean:
 
-What I was thinking of was to use some of the spare termios cflag bits
-to select the flow control.  You'd only want one flow control type at
-one time though.  Eg: define two fields, each to select the signal.
+drivers/char/hangcheck-timer.c: ---------------------------
 
-0 - RTS
-1 - DTR
+/* options - modular */
+module_param(hangcheck_tick, int, 0);
 
-0 - CTS
-1 - DTR
-2 - DSR
+/* options - nonmodular */
+#ifndef MODULE
 
-You still want CRTSCTS to enable hardware flow control though - which
-is what programs expect to happen with that flag enabled.  RTS/CTS
-flow control would be type 0 above for compatibility with existing
-programs.
+static int __init hangcheck_parse_tick(char *str)
+{
+	int par;
+	if (get_option(&str,&par))
+		hangcheck_tick = par;
+	return 1;
+}
 
-However, bear in mind that the majority of the more inteligent 8250-
-compatible UARTs with large FIFOs only do hardware flow control on
-RTS/CTS - attempting to simulate hardware flow control on the other
-signals could end up with up to 64 or 128 characters being sent after
-the transmit handshake is deasserted.
+__setup("hcheck_tick", hangcheck_parse_tick);
+#endif /* not MODULE */
+------------------------------------------------------------
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Was anything wrong with using hangcheck-timer.hangcheck_tick=1000 ?
+Too long to type into grub.conf?
+
+-- Pete

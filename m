@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750799AbVJJNyb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750802AbVJJN6E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750799AbVJJNyb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 09:54:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbVJJNyb
+	id S1750802AbVJJN6E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 09:58:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750805AbVJJN6E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 09:54:31 -0400
-Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:26193 "HELO
-	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1750799AbVJJNya (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 09:54:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=n5kyP80Ph6kg2QIFwQZXu6SmYWMUAKDnBgJ7XG6/aztBa40pLBD/ME+DrGevD1za3/ISzM0aq7CiFBnLM2Id2BBLclE4nJSyHq8ZBgek7ie9DjQqYSXGyBuQS1MFTcfTU6QaHXV/pWPjAT4bbWmbEsJXiv6irwmLlo5qy//+fYQ=  ;
-Message-ID: <434A72A8.2000308@yahoo.com.au>
-Date: Mon, 10 Oct 2005 23:54:48 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
-X-Accept-Language: en
+	Mon, 10 Oct 2005 09:58:04 -0400
+Received: from seqima.han-solo.net ([83.138.65.243]:39081 "EHLO
+	seqima.han-solo.net") by vger.kernel.org with ESMTP
+	id S1750802AbVJJN6B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 09:58:01 -0400
+Message-ID: <434A7363.40002@gmx.de>
+Date: Mon, 10 Oct 2005 15:57:55 +0200
+From: Georg Lippold <georg.lippold@gmx.de>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050805)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: WU Fengguang <wfg@mail.ustc.edu.cn>
-CC: linux-kernel@vger.kernel.org, riel@redhat.com
-Subject: Re: [RFC] use radix_tree for non-resident page tracking
-References: <20051010130705.GA5026@mail.ustc.edu.cn>
-In-Reply-To: <20051010130705.GA5026@mail.ustc.edu.cn>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Alon Bar-Lev <alon.barlev@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: THE LINUX/I386 BOOT PROTOCOL - Breaking the 256 limit
+References: <4315B668.6030603@gmail.com> <43162148.9040604@zytor.com>	 <20050831215757.GA10804@taniwha.stupidest.org>	 <431628D5.1040709@zytor.com> <431DF9E9.5050102@gmail.com>	 <431DFEC3.1070309@zytor.com> <431E00C8.3060606@gmail.com>	 <4345A9F4.7040000@uni-bremen.de> <434A6220.3000608@gmx.de>	 <9a8748490510100621x7bc20c42g667cc083d26aaaa2@mail.gmail.com> <9e0cf0bf0510100632i79b4b4cdk24935724d6ab1ed7@mail.gmail.com>
+In-Reply-To: <9e0cf0bf0510100632i79b4b4cdk24935724d6ab1ed7@mail.gmail.com>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-WU Fengguang wrote:
-> Hi Rik,
-> The CLOCK-Pro page replacement is quite appealing, and I'd like to
-> contribute an idea: How about store bookkeeping info of dropped pages
-> in-place in radix_tree?
+Hi,
+
+Alon Bar-Lev wrote:
+> 1. Why don't you put this variable at config, and allow the user to
+> specify the length during configuration? I have a patch that does just
+> that.
+
+If you'd post it, it would probably get more attention :)
+
+> 2. THE MOST IMPORTANT task is to update the documentation at
+> i386/boot.txt so that it will state that boot protocol 2.02+ field
+> cmd_line_ptr should not be truncated and can be up to 4K bytes.
+> Also fix "The kernel command line is null-terminated string up to 255
+> characters long,..." this is good for the old boot protocol, but not
+> for the 2.02+ protocol.
 > 
-> The slots in radix_tree_node can be used for bookkeeping data when
-> the corresponding pages are dropped. When all pages in a radix_tree_node
-> have been dropped, it is registered in an array/list for delayed
-> reclaim.
-> 
-> It would be fast and simple:
-> - no cache-line pollution
-> - no extra lock (with Nick Piggin's great RCU improvement)
+> Without this fix the bootloaders (Lilo, Grub) will not fix their
+> code... So that users will still will not be able to use > 256 command
+> line.
 
-Just a note if you are looking into this - the last version of the
-radix-tree lockless readside patches I made public IIRC had some
-bugs in them which I have since fixed.
+syslinux >=3.09 supports 512 chars.
 
-Thanks,
-Nick
+Greetings,
 
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Georg

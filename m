@@ -1,42 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbVJJNT1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbVJJNUl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750779AbVJJNT1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 09:19:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbVJJNT1
+	id S1750780AbVJJNUl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 09:20:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750787AbVJJNUl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 09:19:27 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:49596 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1750779AbVJJNT0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 09:19:26 -0400
-Date: Mon, 10 Oct 2005 15:19:25 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Etienne Lorrain <etienne.lorrain@masroudeau.com>
+	Mon, 10 Oct 2005 09:20:41 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:61631 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S1750780AbVJJNUk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 09:20:40 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: Manu Abraham <manu@linuxtv.org>
+Subject: Re: PCI driver
+Date: Mon, 10 Oct 2005 15:25:22 +0200
+User-Agent: KMail/1.8.2
+References: <4327EE94.2040405@kromtek.com> <200510101403.02578@bilbo.math.uni-mannheim.de> <434A6334.4090407@linuxtv.org>
+In-Reply-To: <434A6334.4090407@linuxtv.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] Gujin linux.kgz boot format
-Message-ID: <20051010131925.GA19256@atrey.karlin.mff.cuni.cz>
-References: <2031.192.168.201.6.1128591983.squirrel@pc300> <20051007144631.GA1294@elf.ucw.cz> <2520.192.168.201.6.1128943428.squirrel@pc300> <20051010115641.GA2983@elf.ucw.cz> <3125.192.168.201.6.1128949772.squirrel@pc300>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3125.192.168.201.6.1128949772.squirrel@pc300>
-User-Agent: Mutt/1.5.9i
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1210682.eFK5z5qh4X";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200510101525.27913@bilbo.math.uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+--nextPart1210682.eFK5z5qh4X
+Content-Type: text/plain;
+  charset="iso-8859-6"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> > It seems to work okay here. Now, rewriting current boot system into C
-> > may be good goal...
-> 
->   At least that is a way which does not involve modifying assembler
->  files. Slowly everybody switches to the C version which continue
->  to evolve (i.e. removing old BIOS calls), then the tree under
->  arch/i386/boot is removed and we can begin to rearrange the mapping
->  of "struct linux_param".
+Am Montag, 10. Oktober 2005 14:48 schrieben Sie:
+>Rolf Eike Beer wrote:
+>>IIRC the call to pci_enable_device() must be the first thing you do. This
+>> will do the things like assigning memory regions to the device and so on.
+>
+>I fixed this one
+>
+>>Returning 0 in error cases is just wrong. And you free the assignments ev=
+en
+>> in case of success AFAICS. Try the return I introduced above and see what
+>> happens.
+>
+>I fixed this one too ..
+>
+>
+>I have fixed most of the stuff, it is partly working, not ready yet as
+>there are some more things to be added to  ..
+>I have attached what i was working on.
 
-Will your C version work with lilo and grub?
-								Pavel
+If the kmalloc() fails in mantis_pci_probe() you don't call=20
+pci_disable_device(). And you should kzalloc() instead of kmalloc() and=20
+memset().
 
--- 
-Boycott Kodak -- for their patent abuse against Java.
+It looks like you never use "__u16 vendor_id;" and "__u16 device_id;" in=20
+struct mantis_pci.
+
+Eike
+
+--nextPart1210682.eFK5z5qh4X
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBDSmvHXKSJPmm5/E4RAirlAJ0UfDLEvYMBPpZ+PHR2gh14S9HyNQCfeIeD
+YcA08zPH8LuiEJiOAQYuNCc=
+=H4QS
+-----END PGP SIGNATURE-----
+
+--nextPart1210682.eFK5z5qh4X--

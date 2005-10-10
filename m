@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbVJJTVl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbVJJTd2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751108AbVJJTVl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 15:21:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751123AbVJJTVl
+	id S1751125AbVJJTd2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 15:33:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751126AbVJJTd2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 15:21:41 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:2527 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751108AbVJJTVl (ORCPT
+	Mon, 10 Oct 2005 15:33:28 -0400
+Received: from imap.gmx.net ([213.165.64.20]:8152 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751125AbVJJTd1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 15:21:41 -0400
-Date: Mon, 10 Oct 2005 21:21:30 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Etienne Lorrain <etienne.lorrain@masroudeau.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] Gujin linux.kgz boot format
-Message-ID: <20051010192130.GB2204@elf.ucw.cz>
-References: <2031.192.168.201.6.1128591983.squirrel@pc300> <20051007144631.GA1294@elf.ucw.cz> <2520.192.168.201.6.1128943428.squirrel@pc300> <20051010115641.GA2983@elf.ucw.cz> <3125.192.168.201.6.1128949772.squirrel@pc300> <20051010131925.GA19256@atrey.karlin.mff.cuni.cz> <3768.192.168.201.6.1128954688.squirrel@pc300>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3768.192.168.201.6.1128954688.squirrel@pc300>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Mon, 10 Oct 2005 15:33:27 -0400
+X-Authenticated: #815327
+Message-ID: <434AC201.7050904@gmx.de>
+Date: Mon, 10 Oct 2005 21:33:21 +0200
+From: =?UTF-8?B?TWFsdGUgU2NocsO2ZGVy?= <MalteSch@gmx.de>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Trond Myklebust <Trond.Myklebust@netapp.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Problem with nfs4, kernel 2.6.13.2
+References: <200509251516.23862.MalteSch@gmx.de>	 <1127737730.8453.5.camel@lade.trondhjem.org>	 <200509262218.15885.MalteSch@gmx.de>  <43498432.8060503@gmx.de> <1128957945.8451.19.camel@lade.trondhjem.org>
+In-Reply-To: <1128957945.8451.19.camel@lade.trondhjem.org>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> >> > may be good goal...
-> >>
-> >>   At least that is a way which does not involve modifying assembler
-> >>  files. Slowly everybody switches to the C version which continue
-> >>  to evolve (i.e. removing old BIOS calls), then the tree under
-> >>  arch/i386/boot is removed and we can begin to rearrange the mapping
-> >>  of "struct linux_param".
-> >
-> > Will your C version work with lilo and grub?
+Trond Myklebust wrote:
+> su den 09.10.2005 Klokka 22:57 (+0200) skreiv Malte Schröder:
 > 
->   Tricky question. In short no, it cannot.
+>>>>>You may also want to retest with
+>>>>>
+>>>>>http://www.citi.umich.edu/projects/nfsv4/linux/kernel-patches/2.6.13-1/linux-2.6.13-001-NFS_ALL_MODIFIED.dif
+>>>>>
+> I wrote all the elements in that patch so believe me, it has been
+> considered. 8-)
+> 
+> ...however I still need to clean a few things up a bit before I'm ready
+> to send it on to Andrew and Linus. Do not expect it to appear in 2.6.14,
+> but rather in 2.6.15 (and possibly the 2.6.14-mm).
 
-I do not see a point, then. We have bad assembly bootup code. Adding
-good C bootup code, that is incompatible with lilo/grub does nothing
-to clean the mess up.
-								Pavel
--- 
-if you have sharp zaurus hardware you don't need... you know my address
+I have been doing some testing of 2.6.13.2 with that patch applied on
+two different machines and it seems to be working :)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (MingW32)
+Comment: GnuPT 2.6.2.1 by EQUIPMENTE.DE
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFDSsIB4q3E2oMjYtURAo3pAKC7+iJ8LHhV2DuOon4WxyxUtI4+UQCeNkgh
+1OZUcL9q1mmSU8Xj/h2cJJc=
+=s5O2
+-----END PGP SIGNATURE-----

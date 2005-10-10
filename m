@@ -1,40 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750978AbVJJRJB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750986AbVJJRJ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750978AbVJJRJB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 13:09:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750983AbVJJRJB
+	id S1750986AbVJJRJ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 13:09:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750983AbVJJRJ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 13:09:01 -0400
-Received: from zproxy.gmail.com ([64.233.162.207]:64028 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750973AbVJJRJA convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 13:09:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=W9LfnRtErUHY5QGMM+rqhg8+CJ3Q0benrhwNt+msbc3qPO4ai5xTD0f6FbkzZ7DFOdmFTVgWM8WqKQyY4T5kJHH+A/CHo4rCrbKcgQaFs8IpT6LDGgY//Mz5DwYym7562M9t2CGDTYUbeJXAQv0PjshpWWpsFF/s5Q8Aq2fw650=
-Message-ID: <460afdfa0510101008v3ad0b914oa2e557b112dde86b@mail.gmail.com>
-Date: Mon, 10 Oct 2005 19:08:59 +0200
-From: Luca <luca.foppiano@gmail.com>
+	Mon, 10 Oct 2005 13:09:56 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:43699 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750981AbVJJRJz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 13:09:55 -0400
+Date: Mon, 10 Oct 2005 12:09:40 -0500
+From: David Teigland <teigland@redhat.com>
 To: linux-kernel@vger.kernel.org
-Subject: info for alc880
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Cc: akpm@osdl.org, linux-fsdevel@vger.kernel.org
+Subject: [PATCH 00/16] GFS
+Message-ID: <20051010170940.GA22483@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi, I have a audio card Intel HDA with chipset Realteck ALC880.
-I have kernel 2.6.13.3 and I return this error when the pc start:
+Hi, I think we've taken care of all the comments from the last posting.
+As usual, we'd be pleased to get more.  I'll also suggest again that it
+would be useful to add this to -mm.
 
-ACPI: PCI Interrupt 0000:00:1b.0[A] -> GSI 16 (level, low) -> IRQ 169
-PCI: Setting latency timer of device 0000:00:1b.0 to 64
-hda_codec: Unknown model for ALC880, trying auto-probe from BIOS...
-hda_codec: Cannot set up configuration from BIOS.  Using 3-stack mode...
+http://redhat.com/~teigland/gfs2/20051010/gfs2-full.patch
+http://redhat.com/~teigland/gfs2/20051010/broken-out/
 
-This card is not supported?  I must patch the kernel?
+Thanks,
+Dave
 
-Thanks everybody
-
-Luca

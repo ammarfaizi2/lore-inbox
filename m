@@ -1,42 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbVJJA0W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932316AbVJJAeO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932315AbVJJA0W (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Oct 2005 20:26:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbVJJA0W
+	id S932316AbVJJAeO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Oct 2005 20:34:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932317AbVJJAeN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Oct 2005 20:26:22 -0400
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:2199 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S932315AbVJJA0W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Oct 2005 20:26:22 -0400
-From: Grant Coady <grant_lkml@dodo.com.au>
-To: jeff shia <tshxiayu@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: What is the vanilla kernel?
-Date: Mon, 10 Oct 2005 10:25:43 +1000
-Organization: http://bugsplatter.mine.nu/
-Message-ID: <5ucjk1pe2p3lddr5pjdfur03sfdjf0gqsv@4ax.com>
-References: <7cd5d4b40510091648ldabbd22g36ed34139e82fea8@mail.gmail.com>
-In-Reply-To: <7cd5d4b40510091648ldabbd22g36ed34139e82fea8@mail.gmail.com>
-X-Mailer: Forte Agent 2.0/32.652
+	Sun, 9 Oct 2005 20:34:13 -0400
+Received: from jp.dhs.org ([213.84.189.153]:6332 "EHLO debian.jp.dhs.org")
+	by vger.kernel.org with ESMTP id S932316AbVJJAeN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Oct 2005 20:34:13 -0400
+From: Jan Pieter <pptp@jp.dhs.org>
+To: linux-kernel@vger.kernel.org
+Subject: Common symbol support for 2.6 modules
+Date: Mon, 10 Oct 2005 02:34:10 +0200
+User-Agent: KMail/1.8.2
+Cc: pptp@jp.dhs.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510100234.10419.pptp@jp.dhs.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Oct 2005 07:48:27 +0800, jeff shia <tshxiayu@gmail.com> wrote:
+I'm building a 2.6 kernel module from an object file that is compiled
+without -fno-common. I have no source from that object file, so I can
+not recompile it. Does someone have a patch to include common symbol
+support in 2.6 kernels? Or can someone tell me in which kernel that
+support has been first taken out? Or have the patch that removed the
+support for common symbols?
 
->Hi,
->
->I googled it but could not find the answer.
->Is it the standard linux kernel?
+Thank you.
 
-Yes it is, as opposed to modified distro-supplied kernels.
 
-The term 'vanilla' has been used for a long time, sometimes as 
-a synonym for Linus' kernel back when we bounced between vanilla 
-or -acX depending on which flavour booted that week...
-
-Grant.
-
+Jan Pieter. 

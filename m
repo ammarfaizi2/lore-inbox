@@ -1,68 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbVJJMnG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750765AbVJJMoZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750761AbVJJMnG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 08:43:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbVJJMnG
+	id S1750765AbVJJMoZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 08:44:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbVJJMoZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 08:43:06 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:13793 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1750761AbVJJMnF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 08:43:05 -0400
-Date: Mon, 10 Oct 2005 14:42:43 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Ingo Molnar <mingo@elte.hu>
-cc: tglx@linutronix.de, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, george@mvista.com, johnstul@us.ibm.com,
-       paulmck@us.ibm.com, Christoph Hellwig <hch@infradead.org>,
-       oleg@tv-sign.ru, tim.bird@am.sony.com
-Subject: Re: [PATCH]  ktimers subsystem 2.6.14-rc2-kt5
-In-Reply-To: <20051001112233.GA18462@elte.hu>
-Message-ID: <Pine.LNX.4.61.0510100155330.3728@scrub.home>
-References: <20050928224419.1.patchmail@tglx.tec.linutronix.de>
- <Pine.LNX.4.61.0509301825290.3728@scrub.home> <20051001112233.GA18462@elte.hu>
+	Mon, 10 Oct 2005 08:44:25 -0400
+Received: from seqima.han-solo.net ([83.138.65.243]:9709 "EHLO
+	seqima.han-solo.net") by vger.kernel.org with ESMTP
+	id S1750765AbVJJMoY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 08:44:24 -0400
+Message-ID: <434A6220.3000608@gmx.de>
+Date: Mon, 10 Oct 2005 14:44:16 +0200
+From: Georg Lippold <georg.lippold@gmx.de>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050814)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: hpa@zytor.com
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] Re: THE LINUX/I386 BOOT PROTOCOL - Breaking the 256 limit
+References: <4315B668.6030603@gmail.com> <43162148.9040604@zytor.com> <20050831215757.GA10804@taniwha.stupidest.org> <431628D5.1040709@zytor.com> <431DF9E9.5050102@gmail.com> <431DFEC3.1070309@zytor.com> <431E00C8.3060606@gmail.com> <4345A9F4.7040000@uni-bremen.de>
+In-Reply-To: <4345A9F4.7040000@uni-bremen.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello Peter,
 
-On Sat, 1 Oct 2005, Ingo Molnar wrote:
+my first post didn't get any attention, maybe it was too short.
+Here's a longer version:
 
-> > Do you have any numbers (besides maybe microbenchmarks) that show a 
-> > real advantage by using per cpu data? What kind of usage do you expect 
-> > here?
-> 
-> it has countless advantages, and these days we basically only design 
-> per-CPU data structures within the kernel, unless some limitation (such 
-> as API or hw property) forces us to do otherwise. So i turn around the 
-> question: what would be your reason for _not_ doing this clean per-CPU 
-> design for SMP systems?
+hpa@zytor.com wrote on Sept. 6th, 2005:
 
-Did I say I'm against it? No, I was just hoping someone put some more 
-thought into it than just "all the other kids are doing it".
-I was just curious how well it really scales compared to the simple 
-version, e.g. what happens if most timer end up on a single cpu or what 
-happens if we want to start the timer on a different cpu. Is this so wrong 
-that you have to go into attack mode? :(
+[ wrt. COMMAND_LINE_SIZE=256 in linux/include/asm-i386/setup.h and 
+linux/include/asm-i386/param.h ]
 
-> > The other thing is that this assumes, that all time sources are 
-> > programmable per cpu, otherwise it will be more complicated for a time 
-> > source to run the timers for every cpu, I don't know how safe that 
-> > assumption is. Changing the array of structures into an array of 
-> > pointers to the structures would allow to switch between percpu bases 
-> > and a single base.
-> 
-> yeah, and that's an assumption that simplifies things on SMP 
-> significantly. PIT on SMP systems for HRT is so gross that it's not 
-> funny. If anyone wants to revive that notion, please do a separate patch 
-> and make the case convincing enough ...
+>> I would like to push forward the idea to extend the command-line size...
+> [...]
+> Already pushed to Andrew.  I will follow it up with a patch to extend 
+> the command line, at least to 512.
 
-Why do use "PIT on SMP" as an extreme example to reject the general 
-concept completely? This doesn't explain, why first such a (simple) SMP 
-design shouldn't exist and why secondly my suggestion is such a big 
-problem.
+I would like to know the status of this. In linux-2.6.14-rc3 the 
+COMMAND_LINE_SIZE is still 256 chars long.
 
-bye, Roman
+Here's a patch to fix that to 1024.
+
+Signed-off-by: Georg Lippold <lippold@uni-bremen.de>
+
+--- linux/include/asm-i386/param.h~ 2005-09-21 23:32:23.000000000 +0200
++++ linux/include/asm-i386/param.h  2005-10-10 14:39:34.000000000 +0200
+@@ -18,6 +18,6 @@
+  #endif
+
+  #define MAXHOSTNAMELEN 64      /* max length of hostname */
+-#define COMMAND_LINE_SIZE 256
++#define COMMAND_LINE_SIZE 1024
+
+  #endif
+--- linux/include/asm-i386/setup.h~ 2005-10-10 14:39:18.000000000 +0200
++++ linux/include/asm-i386/setup.h  2005-10-10 14:39:45.000000000 +0200
+@@ -17,7 +17,7 @@
+  #define MAX_NONPAE_PFN (1 << 20)
+
+  #define PARAM_SIZE 4096
+-#define COMMAND_LINE_SIZE 256
++#define COMMAND_LINE_SIZE 1024
+
+  #define OLD_CL_MAGIC_ADDR      0x90020
+  #define OLD_CL_MAGIC           0xA33F

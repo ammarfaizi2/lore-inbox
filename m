@@ -1,54 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750869AbVJJPZr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750875AbVJJPi0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750869AbVJJPZr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 11:25:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750870AbVJJPZr
+	id S1750875AbVJJPi0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 11:38:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbVJJPi0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 11:25:47 -0400
-Received: from mx1.netapp.com ([216.240.18.38]:36792 "EHLO mx1.netapp.com")
-	by vger.kernel.org with ESMTP id S1750852AbVJJPZr convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 11:25:47 -0400
-X-IronPort-AV: i="3.97,194,1125903600"; 
-   d="scan'208"; a="261011776:sNHT20485304"
-Subject: Re: Problem with nfs4, kernel 2.6.13.2
-From: Trond Myklebust <Trond.Myklebust@netapp.com>
-To: Malte =?ISO-8859-1?Q?Schr=F6der?= <MalteSch@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <43498432.8060503@gmx.de>
-References: <200509251516.23862.MalteSch@gmx.de>
-	 <1127737730.8453.5.camel@lade.trondhjem.org>
-	 <200509262218.15885.MalteSch@gmx.de>  <43498432.8060503@gmx.de>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-Organization: Network Appliance, Inc
-Date: Mon, 10 Oct 2005 11:25:45 -0400
-Message-Id: <1128957945.8451.19.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-X-OriginalArrivalTime: 10 Oct 2005 15:25:46.0100 (UTC) FILETIME=[E2AE3B40:01C5CDAE]
+	Mon, 10 Oct 2005 11:38:26 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:35250 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750874AbVJJPiZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 11:38:25 -0400
+Date: Mon, 10 Oct 2005 11:37:42 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Ingo Molnar <mingo@elte.hu>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       Mark Knecht <markknecht@gmail.com>, linux-kernel@vger.kernel.org,
+       linux-pcmcia@lists.infradead.org, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [patch] pcmcia-shutdown-fix.patch
+In-Reply-To: <Pine.LNX.4.58.0510101106380.26418@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0510101136060.27939@localhost.localdomain>
+References: <20050913100040.GA13103@elte.hu> <20050926070210.GA5157@elte.hu>
+ <20051002151817.GA7228@elte.hu> <5bdc1c8b0510020842p6035b4c0ibbe9aaa76789187d@mail.gmail.com>
+ <5bdc1c8b0510021225y951caf3p3240a05dd2d0247c@mail.gmail.com>
+ <Pine.LNX.4.58.0510061308290.973@localhost.localdomain> <20051007110914.GA30873@elte.hu>
+ <20051007191712.GB22608@flint.arm.linux.org.uk>
+ <Pine.LNX.4.58.0510101106380.26418@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-su den 09.10.2005 Klokka 22:57 (+0200) skreiv Malte Schröder:
-> >>>
-> >>>You may also want to retest with
-> >>>
-> >>>http://www.citi.umich.edu/projects/nfsv4/linux/kernel-patches/2.6.13-1/linux-2.6.13-001-NFS_ALL_MODIFIED.dif
-> >>>
 
-> The above server is currently unreachable from my part of the net but
-> Bret Towe seemed to have the same problem as I have. Since the problem
-> also appears when using 2.6.14-rc3 I think the patch should be looked at
-> and maybe considered for inclusion. As soon as I gain access to that
-> patch I will test it and report my results.
 
-I wrote all the elements in that patch so believe me, it has been
-considered. 8-)
+On Mon, 10 Oct 2005, Steven Rostedt wrote:
 
-...however I still need to clean a few things up a bit before I'm ready
-to send it on to Andrew and Linus. Do not expect it to appear in 2.6.14,
-but rather in 2.6.15 (and possibly the 2.6.14-mm).
+>
+> On Fri, 7 Oct 2005, Russell King wrote:
+>
+> > On Fri, Oct 07, 2005 at 01:09:14PM +0200, Ingo Molnar wrote:
+> > >
+> > > * Steven Rostedt <rostedt@goodmis.org> wrote:
+> > >
+> > > > Ingo, here's the patch.  This should probably go upstream too since it
+> > > > can happen there too.  The pccardd thread has a race in it that it can
+> > > > shutdown in the TASK_INTERRUPTIBLE state.  Here's the fix.
+> > >
+> > > ah, certainly makes sense. Dominik, does it look good to you too? Patch
+> > > below is for upstream.
+> >
+> > Looks correct to me (I'm the author of this code.)  Since it's
+> > a bug fix, please send it upstream ASAP.
+> >
+>
+> Just in case this was missed and hasn't been incorporated.  Here's the
+> patch once again:
+>
 
-Cheers,
-  Trond
+Oh, and I forgot to add the write-up that Ingo did to explain the patch.
+
+----
+
+The pccardd thread has a race in it that it can shutdown in the
+TASK_INTERRUPTIBLE state. Found on the -rt kernel.
+
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+
+> -- Steve
+>
+> Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+>
+> Index: linux-2.6.14-rc3/drivers/pcmcia/cs.c
+> ===================================================================
+> --- linux-2.6.14-rc3/drivers/pcmcia/cs.c.orig	2005-10-06 06:56:17.000000000 -0400
+> +++ linux-2.6.14-rc3/drivers/pcmcia/cs.c	2005-10-10 11:05:09.000000000 -0400
+> @@ -689,6 +689,9 @@
+>  		schedule();
+>  		try_to_freeze();
+>  	}
+> +	/* make sure we are running before we exit */
+> +	set_current_state(TASK_RUNNING);
+> +
+>  	remove_wait_queue(&skt->thread_wait, &wait);
+>
+>  	/* remove from the device core */
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

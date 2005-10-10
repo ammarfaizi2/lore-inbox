@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbVJJSIJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751136AbVJJSMX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751131AbVJJSIJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 14:08:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbVJJSII
+	id S1751136AbVJJSMX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 14:12:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbVJJSMX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 14:08:08 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:35731 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751131AbVJJSIH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 14:08:07 -0400
-Date: Mon, 10 Oct 2005 11:07:45 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Harald Welte <laforge@gnumonks.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Chris Wright <chrisw@osdl.org>,
-       Sergey Vlasov <vsu@altlinux.ru>, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, security@linux.kernel.org,
-       vendor-sec@lst.de
-Subject: Re: [BUG/PATCH/RFC] Oops while completing async USB via usbdevio
-Message-ID: <20051010180745.GT5856@shell0.pdx.osdl.net>
-References: <Pine.LNX.4.58.0509270904140.3308@g5.osdl.org> <20050927165206.GB20466@master.mivlgu.local> <Pine.LNX.4.58.0509270959380.3308@g5.osdl.org> <20050930104749.GN4168@sunbeam.de.gnumonks.org> <Pine.LNX.4.64.0509300752530.3378@g5.osdl.org> <20050930184433.GF16352@shell0.pdx.osdl.net> <Pine.LNX.4.64.0509301225190.3378@g5.osdl.org> <20050930220808.GE4168@sunbeam.de.gnumonks.org> <Pine.LNX.4.64.0509301514190.3378@g5.osdl.org> <20051010174429.GH5627@rama>
+	Mon, 10 Oct 2005 14:12:23 -0400
+Received: from tentacle.s2s.msu.ru ([193.232.119.109]:22210 "EHLO
+	tentacle.sectorb.msk.ru") by vger.kernel.org with ESMTP
+	id S1751136AbVJJSMX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 14:12:23 -0400
+Date: Mon, 10 Oct 2005 22:12:16 +0400
+From: "Vladimir B. Savkin" <master@sectorb.msk.ru>
+To: john stultz <johnstul@us.ibm.com>
+Cc: Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, discuss@x86-64.org
+Subject: Re: [PATCH] x86-64: Fix bad assumption that dualcore cpus have synced TSCs
+Message-ID: <20051010181216.GA21548@tentacle.sectorb.msk.ru>
+References: <1127157404.3455.209.camel@cog.beaverton.ibm.com> <20051007122624.GA23606@tentacle.sectorb.msk.ru> <200510071431.47245.ak@suse.de> <20051008101153.GA1541@tentacle.sectorb.msk.ru> <1128967404.8195.419.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <20051010174429.GH5627@rama>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <1128967404.8195.419.camel@cog.beaverton.ibm.com>
+X-Organization: Moscow State Univ., Institute of Mechanics
+X-Operating-System: Linux 2.6.13.3
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Harald Welte (laforge@gnumonks.org) wrote:
-> diff --git a/kernel/signal.c b/kernel/signal.c
-> --- a/kernel/signal.c
-> +++ b/kernel/signal.c
-> @@ -1193,6 +1193,40 @@ kill_proc_info(int sig, struct siginfo *
->  	return error;
->  }
->  
-> +/* like kill_proc_info(), but doesn't use uid/euid of "current" */
+On Mon, Oct 10, 2005 at 11:03:24AM -0700, john stultz wrote:
+> >From your dmesg, it appears that there are no other timesources other
+> then the TSC available on your hardware. So I'm guessing idle=poll is
+> keeping the CPUs from halting the TSC and keeping them synched. 
+> 
+> 
+> I would think that the ACPI PM timer would be supported, but I don't see
+> anything about it in your dmesg. Could you make sure it is properly
+> configured in?
 
-Maybe additional comment reminding that you most likely don't want this
-interface.
+Yes, I tried different combinations of PM_TIMER and HPET options.
+In this try, PM_TIMER was definetly enabled in kernel config.
 
-Also, looks like there's same issue again:
+What kind of kernel message did you expect from workibf PM timer?
 
-drivers/usb/core/devio.c::usbdev_open()
-	...
-	ps->disctask = current;
+~
+:wq
+                                        With best regards, 
+                                           Vladimir Savkin. 
 
-drivers/usb/core/inode.c::usbfs_remove_device()
-	...
-			send_sig_info(ds->discsignr, &sinfo, ds->disctask);

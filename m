@@ -1,26 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932348AbVJJGSA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932328AbVJJGRP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932348AbVJJGSA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 02:18:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932350AbVJJGR7
+	id S932328AbVJJGRP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 02:17:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932348AbVJJGRP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 02:17:59 -0400
-Received: from mx1.cdacindia.com ([203.199.132.35]:50940 "HELO
-	mailx.cdac.ernet.in") by vger.kernel.org with SMTP id S932348AbVJJGR7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 02:17:59 -0400
-Message-ID: <434A05F7.20808@cdac.in>
-Date: Mon, 10 Oct 2005 11:41:03 +0530
-From: Karthik Sarangan <karthiks@cdac.in>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en
+	Mon, 10 Oct 2005 02:17:15 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:26081 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932328AbVJJGRO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 02:17:14 -0400
+Date: Mon, 10 Oct 2005 02:17:05 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+To: jeff shia <tshxiayu@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: What is the vanilla kernel?
+In-Reply-To: <7cd5d4b40510091648ldabbd22g36ed34139e82fea8@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0510100213020.23092@localhost.localdomain>
+References: <7cd5d4b40510091648ldabbd22g36ed34139e82fea8@mail.gmail.com>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: SCSI subsystem
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-which books would be a good read on the SCSI subsystem in Linux?
+
+On Mon, 10 Oct 2005, jeff shia wrote:
+
+> Hi,
+>
+> I googled it but could not find the answer.
+> Is it the standard linux kernel?
+> Thank you.
+>
+
+It's the one with no chocolate syrup ;-)
+
+Actually I just tried googling "define vanilla kernel" and the first hit
+was:
+
+"Web definitions for Vanilla kernel" en.wikipedia.org/wiki/Vanilla_kernel
+which does have the definition of the "vanilla" kernel.
+
+Hmm, It also says under Maintainers:
+
+2.2 	Marc-Christian Petersen (formerly Alan Cox)
+
+Did Alan Cox change his name? :-)
+
+-- Steve
+

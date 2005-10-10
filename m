@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750868AbVJJQNU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbVJJQQj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750868AbVJJQNU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 12:13:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750886AbVJJQNU
+	id S1750885AbVJJQQj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 12:16:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750886AbVJJQQj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 12:13:20 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:14602 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id S1750881AbVJJQNT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 12:13:19 -0400
-Message-ID: <434A934B.7050605@tmr.com>
-Date: Mon, 10 Oct 2005 12:14:03 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Coywolf Qi Hunt <coywolf@gmail.com>
-CC: webmaster@kernel.org, lkml <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, stable@kernel.org
-Subject: Re: "stable" vs "security stable"
-References: <2cd57c900510082307q1841ce8dob1dce3b24edf4ad0@mail.gmail.com>	 <200510090714.j997Ek2i032551@turing-police.cc.vt.edu>	 <2cd57c900510090044o249258cbycf8afab644902e7@mail.gmail.com>	 <200510090826.j998QG4H012803@turing-police.cc.vt.edu> <2cd57c900510090138h664e6c7eyad534f556b464c46@mail.gmail.com>
-In-Reply-To: <2cd57c900510090138h664e6c7eyad534f556b464c46@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 10 Oct 2005 12:16:39 -0400
+Received: from [218.22.21.1] ([218.22.21.1]:36840 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S1750882AbVJJQQi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 12:16:38 -0400
+Date: Tue, 11 Oct 2005 00:20:04 +0800
+From: WU Fengguang <wfg@mail.ustc.edu.cn>
+To: linux-kernel@vger.kernel.org
+Cc: Rik van Riel <riel@redhat.com>
+Subject: Re: [RFC] use radix_tree for non-resident page tracking
+Message-ID: <20051010162004.GA7958@mail.ustc.edu.cn>
+Mail-Followup-To: WU Fengguang <wfg@mail.ustc.edu.cn>,
+	linux-kernel@vger.kernel.org, Rik van Riel <riel@redhat.com>
+References: <20051010130705.GA5026@mail.ustc.edu.cn> <Pine.LNX.4.63.0510100959290.20944@cuia.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.63.0510100959290.20944@cuia.boston.redhat.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Coywolf Qi Hunt wrote:
-> On 10/9/05, Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
+On Mon, Oct 10, 2005 at 10:00:30AM -0400, Rik van Riel wrote:
+> How are you going to get the inter-reference distance
+> this way?
 > 
->>On Sun, 09 Oct 2005 15:44:38 +0800, Coywolf Qi Hunt said:
->>
->>>On 10/9/05, Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
->>
->>>It is "security stable". Let's take this new notation from now on.
->>>"Security Stable" doesn't have to be all security related.
->>
->>Tell you what - you convince the -stable team, and I'll go along with it..
->>
-> 
-> 
-> Better be "stable" and "base". 2.6.13.3 is the latest stable, 2.6.13
-> is the latest base.
-
-I think the idea of having the most recent "base release," and -stable, 
-and -rc, and -git, are desirable, with some clear terms. Those of us who 
-started with ftp and never felt the need for using a GUI have long since 
-learned what to keep and where to find it, but I bet most people use the 
-web by now.
+> I do not see how the radix tree provides you with the
+> refault distance, which is needed to estimate the
+> inter-reference distance.
+How about taking down the current sum of `pgfree' in the slot?
 
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+WU Fengguang
+Dept. of Automation
+University of Science and Technology of China
+Hefei, Anhui

@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750880AbVJJPt3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbVJJQC3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750880AbVJJPt3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 11:49:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750881AbVJJPt3
+	id S1750736AbVJJQC3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 12:02:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbVJJQC3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 11:49:29 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:5533 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750879AbVJJPt3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 11:49:29 -0400
-Message-ID: <434A8D70.5060300@zytor.com>
-Date: Mon, 10 Oct 2005 08:49:04 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Georg Lippold <georg.lippold@gmx.de>
-CC: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: THE LINUX/I386 BOOT PROTOCOL - Breaking the 256 limit
-References: <4315B668.6030603@gmail.com> <43162148.9040604@zytor.com>	 <20050831215757.GA10804@taniwha.stupidest.org>	 <431628D5.1040709@zytor.com> <431DF9E9.5050102@gmail.com>	 <431DFEC3.1070309@zytor.com> <431E00C8.3060606@gmail.com>	 <4345A9F4.7040000@uni-bremen.de> <434A6220.3000608@gmx.de> <9a8748490510100621x7bc20c42g667cc083d26aaaa2@mail.gmail.com> <434A8082.9060202@zytor.com> <434A8CE8.2020404@gmx.de>
-In-Reply-To: <434A8CE8.2020404@gmx.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 10 Oct 2005 12:02:29 -0400
+Received: from fed1rmmtao12.cox.net ([68.230.241.27]:24023 "EHLO
+	fed1rmmtao12.cox.net") by vger.kernel.org with ESMTP
+	id S1750736AbVJJQC3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 12:02:29 -0400
+Date: Mon, 10 Oct 2005 09:02:28 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
+       Kai Germaschewski <kai@germaschewski.name>
+Subject: [PATCH 2.6.14-rc3] Export RCS_TAR_IGNORE for rpm targets
+Message-ID: <20051010160228.GN3478@smtp.west.cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Georg Lippold wrote:
-> 
->>At the very least, though, i386 and x86-64 need to be changed together,
->>since they use the same bootstrap.
-> 
-> I think it will take rather long to synchronize all archs. Maybe x86 can
-> fix it fast (it would ease the making of LiveCD's) and then initiate a
-> standardization on lkml? Knoppix has its kernel patch for over a year
-> now and I asked gentoo to do so, too. But they said, I should ask for it
-> here... Until the fix is in the distributions-kernel, probably another
-> month will pass and it obviously needs to be fixed.
-> 
+The variable RCS_TAR_IGNORE is used in scripts/packaging/Makefile, but
+not exported from the main Makefile, so it's never used.
 
-I would suggest updating your patch to include x86-64 and documentation, 
-and submit it.  Other architectures will have to do this as it suits them.
+This results in the rpm targets being very unhappy in quilted trees.
 
-	-hpa
+Signed-off-by: Tom Rini <trini@kernel.crashing.org>
+
+diff --git a/Makefile b/Makefile
+--- a/Makefile
++++ b/Makefile
+@@ -372,7 +372,7 @@ export MODVERDIR := $(if $(KBUILD_EXTMOD
+ # Files to ignore in find ... statements
+ 
+ RCS_FIND_IGNORE := \( -name SCCS -o -name BitKeeper -o -name .svn -o -name CVS -o -name .pc -o -name .hg \) -prune -o
+-RCS_TAR_IGNORE := --exclude SCCS --exclude BitKeeper --exclude .svn --exclude CVS --exclude .pc --exclude .hg
++export RCS_TAR_IGNORE := --exclude SCCS --exclude BitKeeper --exclude .svn --exclude CVS --exclude .pc --exclude .hg
+ 
+ # ===========================================================================
+ # Rules shared between *config targets and build targets
+
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

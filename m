@@ -1,29 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbVJJERN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932341AbVJJEVc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932337AbVJJERN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 00:17:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbVJJERN
+	id S932341AbVJJEVc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 00:21:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbVJJEVc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 00:17:13 -0400
-Received: from zproxy.gmail.com ([64.233.162.204]:24920 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932337AbVJJERN convert rfc822-to-8bit
+	Mon, 10 Oct 2005 00:21:32 -0400
+Received: from zproxy.gmail.com ([64.233.162.197]:8587 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932341AbVJJEVb convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 00:17:13 -0400
+	Mon, 10 Oct 2005 00:21:31 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=UVhy9d0bSqYSe9KZ9Lz2Py+wNIWwxe4ubU5pe5p99VNLDBEVjsEbmlOMdv0zwM44987DlXnZzPqcvWI1KOVRc/Zkzj9hyu4/4L4uTM3863uxbQtgxqSBPt7LdKO7iOhR2N9rnqCt+tRalmOBWLcd8MW8TxIFo8uJ5z0tZNf2olE=
-Message-ID: <3ad486780510092117x1796d8f6m9d1ef4c2dbc56d17@mail.gmail.com>
-Date: Mon, 10 Oct 2005 14:17:12 +1000
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=YzUn29eUGlMqfCmL+6QzFSP4QbXbJlc9jcZQuK+KwRlv31eQlJARM4OoP9p/f8FgFKPfad28+Y2tI/6Ez70+LCYtsQVfdAtXALGqIgzoM4twjKOD2NS7N6YbN++ho+Byr+YakUZJoiEeSKuom1uMQC+VSlcxrjSQ4HyEt2mqdnA=
+Message-ID: <3ad486780510092121h78a522cat11f33581dfc670dc@mail.gmail.com>
+Date: Mon, 10 Oct 2005 14:21:31 +1000
 From: spereira <pereira.shaun@gmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: Fwd: 32 bit (socket layer) ioctl emulation for 64 bit kernels
-In-Reply-To: <3ad486780510092112r518295a5pebc3441674cbae4d@mail.gmail.com>
+Subject: 32 bit (socket layer) ioctl emulation for 64 bit kernels- Question regarding...
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <3ad486780510092112r518295a5pebc3441674cbae4d@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 

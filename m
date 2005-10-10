@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbVJJKmX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbVJJKpp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750725AbVJJKmX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 06:42:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbVJJKmX
+	id S1750733AbVJJKpp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 06:45:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbVJJKpp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 06:42:23 -0400
-Received: from web30305.mail.mud.yahoo.com ([68.142.200.98]:44695 "HELO
-	web30305.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750725AbVJJKmX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 06:42:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=kypA9dZfVanmcpzl90v1BVp8kkNcbNPxcCrFQVMGBIiQLMp00CFKGYT6meUzSMb+7YSUG5dnqpmMEJPUvzu/J0qZtQkCp5vyyE1GmCCQegZ27Zcfk0+kE0m0vy7NKKk5j82yr21ub2hEoHBg/+gTJH3EOt6QVCXv//sTU0D7qKk=  ;
-Message-ID: <20051010104217.20341.qmail@web30305.mail.mud.yahoo.com>
-Date: Mon, 10 Oct 2005 03:42:17 -0700 (PDT)
-From: subbie subbie <subbie_subbie@yahoo.com>
-Subject: Re: 3Ware 9500S-12 RAID controller -- poor performance
-To: Jon Burgess <jburgess@uklinux.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4346EA35.90700@uklinux.net>
+	Mon, 10 Oct 2005 06:45:45 -0400
+Received: from smtp.andrew.cmu.edu ([128.2.10.83]:15799 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP
+	id S1750733AbVJJKpo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 06:45:44 -0400
+Message-ID: <434A4654.40607@andrew.cmu.edu>
+Date: Mon, 10 Oct 2005 06:45:40 -0400
+From: James Bruce <bruce@andrew.cmu.edu>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: jeff shia <tshxiayu@gmail.com>
+CC: Mark Knecht <markknecht@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: What is the vanilla kernel?
+References: <7cd5d4b40510091648ldabbd22g36ed34139e82fea8@mail.gmail.com>	 <5bdc1c8b0510091720m29b638fatf66375fabcecd7f2@mail.gmail.com> <7cd5d4b40510100325q730f710focecd05c05c2f56d@mail.gmail.com>
+In-Reply-To: <7cd5d4b40510100325q730f710focecd05c05c2f56d@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK,
+jeff shia wrote:
+> I still have some questions.
+> The stable kernel is called vanilla?but the file name is linux-version.tar.gz?
+> Such as the kenrel linux-2.6.8.tar.gz can be called a vanilla?
 
-I now dumped RAID5 and am running all of my 12 disks
-separately each partitioned with XFS.
+The term "vanilla" is short for "plain vanilla", which means lacking in 
+adornments or extra features.  It is derived from the use of vanilla as 
+a basic flavor in deserts to which other optional flavors may be added. 
+  For the kernel, vanilla simply refers to Linus' kernel with no extra 
+patches applied to it.
 
-I did a very crude test of reading a single 1GB file
-from each of my disks in parallel by putting 12 dd
-processes into the background. Each file was read at
-approximately 35MB/s giving an aggragate of a little
-over 400MB/s.   According to 3Ware support, 400MB/s is
-the "theoretical maximum" of this controller.  I'm
-very happy with these results.
+Example:
+   2.6.13 is a vanilla kernel
+   2.6.13-rt3 is not (it's vanilla 2.6.13 + rt patches)
 
-I want to run a killer test where 400 files are being
-read in parallel to see what the combined throughput
-would be.   Can anyone recommend a benchmark utility
-that would help me do so?  I tried using bonnie/iozone
-but they (to my limited understanding) won't do this.
-
-Can anyone point me in the right direction?
-
-Thank you
-
-
-	
-		
-__________________________________ 
-Yahoo! Mail - PC Magazine Editors' Choice 2005 
-http://mail.yahoo.com
+  - Jim Bruce

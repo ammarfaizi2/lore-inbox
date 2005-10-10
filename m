@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750820AbVJJOib@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbVJJOiP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750820AbVJJOib (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 10:38:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750818AbVJJOib
+	id S1750807AbVJJOiP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 10:38:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbVJJOiP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 10:38:31 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:3287 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S1750815AbVJJOia (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 10:38:30 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Vivek Kutal <vivek.kutal@gmail.com>
-Subject: Re: Need for SHIFT and MASK
-Date: Mon, 10 Oct 2005 17:37:38 +0300
-User-Agent: KMail/1.8.2
-Cc: Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org
-References: <b9a245c10510090502r4e87696fqe111c0071e7f2a03@mail.gmail.com> <200510091423.24660.ioe-lkml@rameria.de> <b9a245c10510091140q78c2480dqb095a7cdab12932e@mail.gmail.com>
-In-Reply-To: <b9a245c10510091140q78c2480dqb095a7cdab12932e@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 10 Oct 2005 10:38:15 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:9658 "EHLO e36.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750807AbVJJOiO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 10:38:14 -0400
+Date: Mon, 10 Oct 2005 10:37:47 -0400
+From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, anil.s.keshavamurthy@intel.com, davem@davemloft.net,
+       prasanna@in.ibm.com
+Subject: [PATCH 0/9] Kprobes: scalability enhancements
+Message-ID: <20051010143747.GA4389@in.ibm.com>
+Reply-To: ananth@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200510101737.39171.vda@ilport.com.ua>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 09 October 2005 21:40, Vivek Kutal wrote:
-> Hi Ingo,
-> 
-> > This is usally table driven and someone has to set up
-> > this "Page Translation Tables". That's a job of the Linux kernel.
-> 
-> Yes setting up the page table entries is the job of the kernel , but
-> for that we need to put the physical add. of the page and some bits
-> (present,access writes etc) in the entry, once it is done the main job
-> of translation which requires the masking and shifting is done by the
-> processor whenever that page is referenced .
-> so why these macros are present in the kernel?
+Hi,
 
-They are needed. You can remome them.
+The following set of patches are aimed at improving kprobes scalability.
+We currently serialize kprobe registration, unregistration and handler
+execution using a single spinlock - kprobe_lock.
 
-NB: joke tags are invisible, but they are there.
---
-vda
+With these changes, kprobe handlers can run without any locks held.
+It also allows for simultaneous kprobe handler executions on different
+processors as we now track kprobe execution on a per processor basis.
+It is now necessary that the handlers be re-entrant since handlers can
+run concurrently on multiple processors.
+
+All changes have been tested on i386, ia64, ppc64 and x86_64, while
+sparc64 has been compile tested only.
+
+The patches can be viewed as 3 logical chunks:
+
+patch 1: 	Reorder preempt_(dis/en)able calls
+patches 2-7: 	Introduce per_cpu data areas to track kprobe execution
+patches 8-9: 	Use RCU to synchronize kprobe (un)registration and handler
+		execution.
+
+Thanks to Maneesh Soni, James Keniston and Anil Keshavamurthy for their
+review and suggestions. Thanks again to Anil, Hien Nguyen and Kevin Stafford
+for testing the patches.
+
+Ananth

@@ -1,38 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbVJJD0y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbVJJEGF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932334AbVJJD0y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Oct 2005 23:26:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbVJJD0y
+	id S932336AbVJJEGF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 00:06:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932337AbVJJEGF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Oct 2005 23:26:54 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:13757
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932334AbVJJD0x convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Oct 2005 23:26:53 -0400
-Date: Sun, 09 Oct 2005 20:26:46 -0700 (PDT)
-Message-Id: <20051009.202646.70198053.davem@davemloft.net>
-To: seb@frankengul.org
-Cc: debian-sparc@lists.debian.org, netfilter-devel@lists.netfilter.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Sparc64 U60: no iptables
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <4349614F.1010408@frankengul.org>
-References: <4347A731.7010509@frankengul.org>
-	<4348EFF4.3040305@frankengul.org>
-	<4349614F.1010408@frankengul.org>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Mon, 10 Oct 2005 00:06:05 -0400
+Received: from smtp104.sbc.mail.re2.yahoo.com ([68.142.229.101]:48784 "HELO
+	smtp104.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S932336AbVJJEGE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 00:06:04 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH2 6/6] isicom: More whitespaces and coding style
+Date: Sun, 9 Oct 2005 23:05:57 -0500
+User-Agent: KMail/1.8.2
+Cc: "Jiri Slaby" <xslaby@fi.muni.cz>, Andrew Morton <akpm@osdl.org>
+References: <20051009194241.4821E22AF10@anxur.fi.muni.cz>
+In-Reply-To: <20051009194241.4821E22AF10@anxur.fi.muni.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510092305.58010.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Sébastien Bernard <seb@frankengul.org>
-Date: Sun, 09 Oct 2005 20:28:31 +0200
+On Sunday 09 October 2005 14:42, Jiri Slaby wrote:
+> More whitespaces and coding style
+> 
+> Wrap all the code to 80 chars on a line.
+> Some `}\nelse' changed to `} else'.
+> Clean whitespaces in header file.
+> 
+> Generated in 2.6.14-rc2-mm2 kernel version
+> 
+> Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
+> 
+> ---
+>  drivers/char/isicom.c  |  148 +++++++++++++++++++++++-------------------------
+>  include/linux/isicom.h |   21 +++----
+>  2 files changed, 82 insertions(+), 87 deletions(-)
+> 
+> diff --git a/drivers/char/isicom.c b/drivers/char/isicom.c
+> --- a/drivers/char/isicom.c
+> +++ b/drivers/char/isicom.c
+> @@ -467,33 +467,36 @@ static void isicom_tx(unsigned long _dat
+>  		residue = NO;
+>  		wrd = 0;
+>  		while (1) {
+> -			cnt = min_t(int, txcount, (SERIAL_XMIT_SIZE - port->xmit_tail));
+> +			cnt = min_t(int, txcount, (SERIAL_XMIT_SIZE
+> +					- port->xmit_tail));
 
-> Can one explain me why this patch works on other archs, and oops on the 
-> sparc64 smp ?
-> Can one explain why I'm the only one to have this problem ?
+I am sorry but do you really consider the new form more readable?
 
-On your Ultra60 the two physical cpus are numbered "0" and "2".
+> -					wrd |= (port->xmit_buf[port->xmit_tail] << 8);
+> -					port->xmit_tail = (port->xmit_tail + 1) & (SERIAL_XMIT_SIZE - 1);
+> +					wrd |= (port->xmit_buf[port->xmit_tail]
+> +							<< 8);
+
+And this?
+
+> -#ifdef ISICOM_DEBUG
+> -						printk(KERN_DEBUG "ISICOM: interrupt: DCD->low.\n");
+> -#endif
+> +						pr_deb(KERN_DEBUG "ISICOM: "
+> +							"interrupt: "
+> +							"DCD->low.\n");
+
+And this?
+
+Simply limiting line length to 80 is not enough IMHO, you need to
+keep the code readable at the same time.
+
+-- 
+Dmitry

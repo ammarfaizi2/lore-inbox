@@ -1,64 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbVJJIp6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbVJJIj2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750717AbVJJIp6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 04:45:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbVJJIp6
+	id S1750722AbVJJIj2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 04:39:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbVJJIj2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 04:45:58 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:47325 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750717AbVJJIp6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 04:45:58 -0400
-Date: Mon, 10 Oct 2005 10:45:35 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: OBATA Noboru <noboru.obata.ar@hitachi.com>
-Cc: hyoshiok@miraclelinux.com, linux-kernel@vger.kernel.org
-Subject: Re: Linux Kernel Dump Summit 2005
-Message-ID: <20051010084535.GA2298@elf.ucw.cz>
-References: <20050921.205550.927509530.hyoshiok@miraclelinux.com> <20051006.211718.74749573.noboru.obata.ar@hitachi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051006.211718.74749573.noboru.obata.ar@hitachi.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Mon, 10 Oct 2005 04:39:28 -0400
+Received: from web35814.mail.mud.yahoo.com ([66.163.179.183]:15278 "HELO
+	web35814.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750722AbVJJIj1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 04:39:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=N1egOlSGnDy6rX+7ZyVyOL+bX621fN7f6qfreO2Dh1xJe83hKRnxX9fvvioPnbaFaBohzp/z+2bK8+clArRJBgyroho2BhRW+9zjDnk3iTj/HmHXbdEspOhiIZ/pZVqj79Mnr8BrHfH+Yvz4H+Ff6cLbCoYjRq1uCa6hDbrScjI=  ;
+Message-ID: <20051010083927.92193.qmail@web35814.mail.mud.yahoo.com>
+Date: Mon, 10 Oct 2005 01:39:27 -0700 (PDT)
+From: nix noob <nixnoob1618@yahoo.com>
+Subject: some peculiar problem debugging in gdb aswell as ald gdb doesnt stop on instruction or stops in the middle of instruction 
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+to all concerned 
+iam a noob and i had some peculiar problem 
+during debugging of an assembly coded binary 
 
-> FULL DUMP WITH COMPRESSION
-> ==========================
-> 
-> Those who still want a full dump, including me, are interested
-> in dump compression.  For example, the LKCD format (at least v7
-> format) supports pagewise compression with the deflate
-> algorithm.  A dump analyze tool "crash" can transparently
-> analyze the compressed dump file in this format.
-> 
-> The compression will reduce the storage space at certain degree,
-> and may also reduce the time if a dump process were I/O bounded.
+for referance you can visit and glance through this
+thread in fasm board
 
-I'd say that compression does not help much, it can only speed it up
-twice. But...
+http://board.flatassembler.net/forum.php?f=4
 
-> 
-> WHICH IS BETTER?
-> ================
-> 
-> I wrote a small compression tool for LKCD v7 format to see how
-> effective the compression is, and it turned out that the time
-> and size of compression were very much similar to that of gzip,
-> not surprisingly.
-> 
-> Compressing a 32GB dump file took about 40 minutes on Pentium 4
-> Xeon 3.0GHz, which is not good enough because the dump without
-> compression took only 5 minutes; eight times slower.
+and googling around and ircing a bit led me to this
+post in your mailing list
 
-....you probably want to look at suspend2.net project. They have
-special compressor aimed at compressing exactly this kind of data,
-fast enough to be improvement.
-								Pavel
+http://www.ussg.iu.edu/hypermail/linux/kernel/0406.3/1126.html
 
--- 
-if you have sharp zaurus hardware you don't need... you know my address
+i actually wanted to reply to that thread so that the
+questions is continous 
+but i cant find out how i can reply to that thread 
+
+i see linux torvalds himself has replied to that
+thread though i dont understand much of those 
+i sense it is a performance (speed issue)
+but i see the behaviour in gdb due to this 
+is kinda nasty (sigsegvs the binary and executes an
+instruction from the middle :(
+
+hope some one could provide some insightas to how 
+i could still force a break on the test eax,eax 
+and also survive without being sigsegved ??
+
+i give the kernel version of mine atm 
+uname -r
+2.4.21-260-smp4G
+
+
+thanks and regards
+
+nixnoob
+
+
+	
+		
+__________________________________ 
+Yahoo! Mail - PC Magazine Editors' Choice 2005 
+http://mail.yahoo.com

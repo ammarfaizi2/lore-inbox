@@ -1,361 +1,362 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbVJJOpG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750865AbVJJOrq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750826AbVJJOpG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 10:45:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750828AbVJJOpG
+	id S1750865AbVJJOrq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 10:47:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750866AbVJJOrq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 10:45:06 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:57306 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750826AbVJJOpE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 10:45:04 -0400
-Date: Mon, 10 Oct 2005 10:44:30 -0400
+	Mon, 10 Oct 2005 10:47:46 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:41641 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750863AbVJJOrp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 10:47:45 -0400
+Date: Mon, 10 Oct 2005 10:47:20 -0400
 From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
 To: linux-kernel@vger.kernel.org
 Cc: akpm@osdl.org, anil.s.keshavamurthy@intel.com, davem@davemloft.net,
        prasanna@in.ibm.com
-Subject: [PATCH 6/9] Kprobes: Track kprobe on a per_cpu basis - sparc64 changes
-Message-ID: <20051010144430.GG4389@in.ibm.com>
+Subject: [PATCH 8/9] Kprobes: Use RCU for (un)register synchronization - base changes
+Message-ID: <20051010144720.GI4389@in.ibm.com>
 Reply-To: ananth@in.ibm.com
-References: <20051010143747.GA4389@in.ibm.com> <20051010143928.GB4389@in.ibm.com> <20051010144107.GC4389@in.ibm.com> <20051010144206.GD4389@in.ibm.com> <20051010144248.GE4389@in.ibm.com> <20051010144343.GF4389@in.ibm.com>
+References: <20051010143747.GA4389@in.ibm.com> <20051010143928.GB4389@in.ibm.com> <20051010144107.GC4389@in.ibm.com> <20051010144206.GD4389@in.ibm.com> <20051010144248.GE4389@in.ibm.com> <20051010144343.GF4389@in.ibm.com> <20051010144430.GG4389@in.ibm.com> <20051010144515.GH4389@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051010144343.GF4389@in.ibm.com>
+In-Reply-To: <20051010144515.GH4389@in.ibm.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave,
-This patch is similar to the one you reviewed sometime back:
-http://sourceware.org/ml/systemtap/2005-q3/msg00196.html
-
 From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
 
-Sparc64 changes to track kprobe execution on a per-cpu basis. We now track
-the kprobe state machine independently on each cpu using an arch
-specific kprobe control block.
+Changes to the base kprobes infrastructure to use RCU for synchronization
+during kprobe registration and unregistration. These changes coupled with
+the arch kprobe changes (next in series):
+
+a. serialize registration and unregistration of kprobes.
+b. enable lockless execution of handlers. Handlers can now run in parallel.
 
 Signed-off-by: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
 Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
 ---
 
- arch/sparc64/kernel/kprobes.c |  131 +++++++++++++++++++++---------------------
- include/asm-sparc64/kprobes.h |   20 ++++++
- 2 files changed, 87 insertions(+), 64 deletions(-)
+ include/linux/kprobes.h |    9 +---
+ kernel/kprobes.c        |  101 +++++++++++++++++++-----------------------------
+ 2 files changed, 45 insertions(+), 65 deletions(-)
 
-Index: linux-2.6.14-rc3/arch/sparc64/kernel/kprobes.c
+Index: linux-2.6.14-rc3/include/linux/kprobes.h
 ===================================================================
---- linux-2.6.14-rc3.orig/arch/sparc64/kernel/kprobes.c	2005-10-05 15:24:09.000000000 -0400
-+++ linux-2.6.14-rc3/arch/sparc64/kernel/kprobes.c	2005-10-05 16:06:10.000000000 -0400
-@@ -38,6 +38,9 @@
-  * - Mark that we are no longer actively in a kprobe.
-  */
+--- linux-2.6.14-rc3.orig/include/linux/kprobes.h	2005-10-07 21:40:43.000000000 -0400
++++ linux-2.6.14-rc3/include/linux/kprobes.h	2005-10-07 21:40:49.000000000 -0400
+@@ -34,6 +34,8 @@
+ #include <linux/notifier.h>
+ #include <linux/smp.h>
+ #include <linux/percpu.h>
++#include <linux/spinlock.h>
++#include <linux/rcupdate.h>
  
-+DEFINE_PER_CPU(struct kprobe *, current_kprobe) = NULL;
-+DEFINE_PER_CPU(struct kprobe_ctlblk, kprobe_ctlblk);
-+
- int __kprobes arch_prepare_kprobe(struct kprobe *p)
- {
- 	return 0;
-@@ -66,46 +69,39 @@ void __kprobes arch_remove_kprobe(struct
- {
- }
+ #include <asm/kprobes.h>
  
--static struct kprobe *current_kprobe;
--static unsigned long current_kprobe_orig_tnpc;
--static unsigned long current_kprobe_orig_tstate_pil;
--static unsigned int kprobe_status;
--static struct kprobe *kprobe_prev;
--static unsigned long kprobe_orig_tnpc_prev;
--static unsigned long kprobe_orig_tstate_pil_prev;
--static unsigned int kprobe_status_prev;
--
--static inline void save_previous_kprobe(void)
-+static inline void save_previous_kprobe(struct kprobe_ctlblk *kcb)
- {
--	kprobe_status_prev = kprobe_status;
--	kprobe_orig_tnpc_prev = current_kprobe_orig_tnpc;
--	kprobe_orig_tstate_pil_prev = current_kprobe_orig_tstate_pil;
--	kprobe_prev = current_kprobe;
-+	kcb->prev_kprobe.kp = kprobe_running();
-+	kcb->prev_kprobe.status = kcb->kprobe_status;
-+	kcb->prev_kprobe.orig_tnpc = kcb->kprobe_orig_tnpc;
-+	kcb->prev_kprobe.orig_tstate_pil = kcb->kprobe_orig_tstate_pil;
- }
- 
--static inline void restore_previous_kprobe(void)
-+static inline void restore_previous_kprobe(struct kprobe_ctlblk *kcb)
- {
--	kprobe_status = kprobe_status_prev;
--	current_kprobe_orig_tnpc = kprobe_orig_tnpc_prev;
--	current_kprobe_orig_tstate_pil = kprobe_orig_tstate_pil_prev;
--	current_kprobe = kprobe_prev;
-+	__get_cpu_var(current_kprobe) = kcb->prev_kprobe.kp;
-+	kcb->kprobe_status = kcb->prev_kprobe.status;
-+	kcb->kprobe_orig_tnpc = kcb->prev_kprobe.orig_tnpc;
-+	kcb->kprobe_orig_tstate_pil = kcb->prev_kprobe.orig_tstate_pil;
- }
- 
--static inline void set_current_kprobe(struct kprobe *p, struct pt_regs *regs)
-+static inline void set_current_kprobe(struct kprobe *p, struct pt_regs *regs,
-+				struct kprobe_ctlblk *kcb)
- {
--	current_kprobe_orig_tnpc = regs->tnpc;
--	current_kprobe_orig_tstate_pil = (regs->tstate & TSTATE_PIL);
--	current_kprobe = p;
-+	__get_cpu_var(current_kprobe) = p;
-+	kcb->kprobe_orig_tnpc = regs->tnpc;
-+	kcb->kprobe_orig_tstate_pil = (regs->tstate & TSTATE_PIL);
- }
- 
--static inline void prepare_singlestep(struct kprobe *p, struct pt_regs *regs)
-+static inline void prepare_singlestep(struct kprobe *p, struct pt_regs *regs,
-+			struct kprobe_ctlblk *kcb)
- {
- 	regs->tstate |= TSTATE_PIL;
- 
- 	/*single step inline, if it a breakpoint instruction*/
- 	if (p->opcode == BREAKPOINT_INSTRUCTION) {
- 		regs->tpc = (unsigned long) p->addr;
--		regs->tnpc = current_kprobe_orig_tnpc;
-+		regs->tnpc = kcb->kprobe_orig_tnpc;
- 	} else {
- 		regs->tpc = (unsigned long) &p->ainsn.insn[0];
- 		regs->tnpc = (unsigned long) &p->ainsn.insn[1];
-@@ -117,6 +113,7 @@ static int __kprobes kprobe_handler(stru
- 	struct kprobe *p;
- 	void *addr = (void *) regs->tpc;
- 	int ret = 0;
-+	struct kprobe_ctlblk *kcb = get_kprobe_ctlblk();
- 
- 	if (kprobe_running()) {
- 		/* We *are* holding lock here, so this is safe.
-@@ -124,9 +121,9 @@ static int __kprobes kprobe_handler(stru
- 		 */
- 		p = get_kprobe(addr);
- 		if (p) {
--			if (kprobe_status == KPROBE_HIT_SS) {
-+			if (kcb->kprobe_status == KPROBE_HIT_SS) {
- 				regs->tstate = ((regs->tstate & ~TSTATE_PIL) |
--					current_kprobe_orig_tstate_pil);
-+					kcb->kprobe_orig_tstate_pil);
- 				unlock_kprobes();
- 				goto no_kprobe;
- 			}
-@@ -136,14 +133,14 @@ static int __kprobes kprobe_handler(stru
- 			 * just single step on the instruction of the new probe
- 			 * without calling any user handlers.
- 			 */
--			save_previous_kprobe();
--			set_current_kprobe(p, regs);
-+			save_previous_kprobe(kcb);
-+			set_current_kprobe(p, regs, kcb);
- 			p->nmissed++;
--			kprobe_status = KPROBE_REENTER;
--			prepare_singlestep(p, regs);
-+			kcb->kprobe_status = KPROBE_REENTER;
-+			prepare_singlestep(p, regs, kcb);
- 			return 1;
- 		} else {
--			p = current_kprobe;
-+			p = __get_cpu_var(current_kprobe);
- 			if (p->break_handler && p->break_handler(p, regs))
- 				goto ss_probe;
- 		}
-@@ -174,14 +171,14 @@ static int __kprobes kprobe_handler(stru
- 	 * in post_kprobes_handler()
- 	 */
- 	preempt_disable();
--	set_current_kprobe(p, regs);
--	kprobe_status = KPROBE_HIT_ACTIVE;
-+	set_current_kprobe(p, regs, kcb);
-+	kcb->kprobe_status = KPROBE_HIT_ACTIVE;
- 	if (p->pre_handler && p->pre_handler(p, regs))
- 		return 1;
- 
- ss_probe:
--	prepare_singlestep(p, regs);
--	kprobe_status = KPROBE_HIT_SS;
-+	prepare_singlestep(p, regs, kcb);
-+	kcb->kprobe_status = KPROBE_HIT_SS;
- 	return 1;
- 
- no_kprobe:
-@@ -262,11 +259,12 @@ static void __kprobes retpc_fixup(struct
-  * This function prepares to return from the post-single-step
-  * breakpoint trap.
-  */
--static void __kprobes resume_execution(struct kprobe *p, struct pt_regs *regs)
-+static void __kprobes resume_execution(struct kprobe *p,
-+		struct pt_regs *regs, struct kprobe_ctlblk *kcb)
- {
- 	u32 insn = p->ainsn.insn[0];
- 
--	regs->tpc = current_kprobe_orig_tnpc;
-+	regs->tpc = kcb->kprobe_orig_tnpc;
- 	regs->tnpc = relbranch_fixup(insn,
- 				     (unsigned long) p->addr,
- 				     (unsigned long) &p->ainsn.insn[0],
-@@ -274,26 +272,30 @@ static void __kprobes resume_execution(s
- 	retpc_fixup(regs, insn, (unsigned long) p->addr);
- 
- 	regs->tstate = ((regs->tstate & ~TSTATE_PIL) |
--			current_kprobe_orig_tstate_pil);
-+			kcb->kprobe_orig_tstate_pil);
- }
- 
- static inline int post_kprobe_handler(struct pt_regs *regs)
- {
--	if (!kprobe_running())
-+	struct kprobe *cur = kprobe_running();
-+	struct kprobe_ctlblk *kcb = get_kprobe_ctlblk();
-+
-+	if (!cur)
- 		return 0;
- 
--	if ((kprobe_status != KPROBE_REENTER) && current_kprobe->post_handler) {
--		kprobe_status = KPROBE_HIT_SSDONE;
--		current_kprobe->post_handler(current_kprobe, regs, 0);
-+	if ((kcb->kprobe_status != KPROBE_REENTER) && cur->post_handler) {
-+		kcb->kprobe_status = KPROBE_HIT_SSDONE;
-+		cur->post_handler(cur, regs, 0);
- 	}
- 
--	resume_execution(current_kprobe, regs);
-+	resume_execution(cur, regs, kcb);
- 
- 	/*Restore back the original saved kprobes variables and continue. */
--	if (kprobe_status == KPROBE_REENTER) {
--		restore_previous_kprobe();
-+	if (kcb->kprobe_status == KPROBE_REENTER) {
-+		restore_previous_kprobe(kcb);
- 		goto out;
- 	}
-+	reset_current_kprobe();
- 	unlock_kprobes();
- out:
- 	preempt_enable_no_resched();
-@@ -304,13 +306,16 @@ out:
- /* Interrupts disabled, kprobe_lock held. */
- static inline int kprobe_fault_handler(struct pt_regs *regs, int trapnr)
- {
--	if (current_kprobe->fault_handler
--	    && current_kprobe->fault_handler(current_kprobe, regs, trapnr))
-+	struct kprobe *cur = kprobe_running();
-+	struct kprobe_ctlblk *kcb = get_kprobe_ctlblk();
-+
-+	if (cur->fault_handler && cur->fault_handler(cur, regs, trapnr))
- 		return 1;
- 
--	if (kprobe_status & KPROBE_HIT_SS) {
--		resume_execution(current_kprobe, regs);
-+	if (kcb->kprobe_status & KPROBE_HIT_SS) {
-+		resume_execution(cur, regs, kcb);
- 
-+		reset_current_kprobe();
- 		unlock_kprobes();
- 		preempt_enable_no_resched();
- 	}
-@@ -370,24 +375,21 @@ asmlinkage void __kprobes kprobe_trap(un
- }
- 
- /* Jprobes support.  */
--static struct pt_regs jprobe_saved_regs;
--static struct pt_regs *jprobe_saved_regs_location;
--static struct sparc_stackf jprobe_saved_stack;
--
- int __kprobes setjmp_pre_handler(struct kprobe *p, struct pt_regs *regs)
- {
- 	struct jprobe *jp = container_of(p, struct jprobe, kp);
-+	struct kprobe_ctlblk *kcb = get_kprobe_ctlblk();
- 
--	jprobe_saved_regs_location = regs;
--	memcpy(&jprobe_saved_regs, regs, sizeof(*regs));
-+	kcb->jprobe_saved_regs_location = regs;
-+	memcpy(&(kcb->jprobe_saved_regs), regs, sizeof(*regs));
- 
- 	/* Save a whole stack frame, this gets arguments
- 	 * pushed onto the stack after using up all the
- 	 * arg registers.
- 	 */
--	memcpy(&jprobe_saved_stack,
-+	memcpy(&(kcb->jprobe_saved_stack),
- 	       (char *) (regs->u_regs[UREG_FP] + STACK_BIAS),
--	       sizeof(jprobe_saved_stack));
-+	       sizeof(kcb->jprobe_saved_stack));
- 
- 	regs->tpc  = (unsigned long) jp->entry;
- 	regs->tnpc = ((unsigned long) jp->entry) + 0x4UL;
-@@ -411,14 +413,15 @@ extern void __show_regs(struct pt_regs *
- int __kprobes longjmp_break_handler(struct kprobe *p, struct pt_regs *regs)
- {
- 	u32 *addr = (u32 *) regs->tpc;
-+	struct kprobe_ctlblk *kcb = get_kprobe_ctlblk();
- 
- 	if (addr == (u32 *) jprobe_return_trap_instruction) {
--		if (jprobe_saved_regs_location != regs) {
-+		if (kcb->jprobe_saved_regs_location != regs) {
- 			printk("JPROBE: Current regs (%p) does not match "
- 			       "saved regs (%p).\n",
--			       regs, jprobe_saved_regs_location);
-+			       regs, kcb->jprobe_saved_regs_location);
- 			printk("JPROBE: Saved registers\n");
--			__show_regs(jprobe_saved_regs_location);
-+			__show_regs(kcb->jprobe_saved_regs_location);
- 			printk("JPROBE: Current registers\n");
- 			__show_regs(regs);
- 			BUG();
-@@ -427,11 +430,11 @@ int __kprobes longjmp_break_handler(stru
- 		 * first so that UREG_FP is the original one for
- 		 * the stack frame restore.
- 		 */
--		memcpy(regs, &jprobe_saved_regs, sizeof(*regs));
-+		memcpy(regs, &(kcb->jprobe_saved_regs), sizeof(*regs));
- 
- 		memcpy((char *) (regs->u_regs[UREG_FP] + STACK_BIAS),
--		       &jprobe_saved_stack,
--		       sizeof(jprobe_saved_stack));
-+		       &(kcb->jprobe_saved_stack),
-+		       sizeof(kcb->jprobe_saved_stack));
- 
- 		return 1;
- 	}
-Index: linux-2.6.14-rc3/include/asm-sparc64/kprobes.h
-===================================================================
---- linux-2.6.14-rc3.orig/include/asm-sparc64/kprobes.h	2005-09-30 17:17:35.000000000 -0400
-+++ linux-2.6.14-rc3/include/asm-sparc64/kprobes.h	2005-10-05 15:33:35.000000000 -0400
-@@ -3,6 +3,7 @@
- 
- #include <linux/config.h>
- #include <linux/types.h>
-+#include <linux/percpu.h>
- 
- typedef u32 kprobe_opcode_t;
- 
-@@ -18,6 +19,25 @@ struct arch_specific_insn {
- 	kprobe_opcode_t insn[MAX_INSN_SIZE];
+@@ -146,10 +148,7 @@ struct kretprobe_instance {
  };
  
-+struct prev_kprobe {
-+	struct kprobe *kp;
-+	unsigned int status;
-+	unsigned long orig_tnpc;
-+	unsigned long orig_tstate_pil;
-+};
-+
-+/* per-cpu kprobe control block */
-+struct kprobe_ctlblk {
-+	unsigned long kprobe_status;
-+	unsigned long kprobe_orig_tnpc;
-+	unsigned long kprobe_orig_tstate_pil;
-+	long *jprobe_saved_esp;
-+	struct pt_regs jprobe_saved_regs;
-+	struct pt_regs *jprobe_saved_regs_location;
-+	struct sparc_stackf jprobe_saved_stack;
-+	struct prev_kprobe prev_kprobe;
-+};
-+
  #ifdef CONFIG_KPROBES
- extern int kprobe_exceptions_notify(struct notifier_block *self,
- 				    unsigned long val, void *data);
+-/* Locks kprobe: irq must be disabled */
+-void lock_kprobes(void);
+-void unlock_kprobes(void);
+-
++extern spinlock_t kretprobe_lock;
+ extern int arch_prepare_kprobe(struct kprobe *p);
+ extern void arch_copy_kprobe(struct kprobe *p);
+ extern void arch_arm_kprobe(struct kprobe *p);
+@@ -160,7 +159,7 @@ extern void show_registers(struct pt_reg
+ extern kprobe_opcode_t *get_insn_slot(void);
+ extern void free_insn_slot(kprobe_opcode_t *slot);
+ 
+-/* Get the kprobe at this addr (if any).  Must have called lock_kprobes */
++/* Get the kprobe at this addr (if any) - called under a rcu_read_lock() */
+ struct kprobe *get_kprobe(void *addr);
+ struct hlist_head * kretprobe_inst_table_head(struct task_struct *tsk);
+ 
+Index: linux-2.6.14-rc3/kernel/kprobes.c
+===================================================================
+--- linux-2.6.14-rc3.orig/kernel/kprobes.c	2005-10-07 21:40:43.000000000 -0400
++++ linux-2.6.14-rc3/kernel/kprobes.c	2005-10-07 21:41:11.000000000 -0400
+@@ -32,7 +32,6 @@
+  *		<prasanna@in.ibm.com> added function-return probes.
+  */
+ #include <linux/kprobes.h>
+-#include <linux/spinlock.h>
+ #include <linux/hash.h>
+ #include <linux/init.h>
+ #include <linux/module.h>
+@@ -48,8 +47,8 @@
+ static struct hlist_head kprobe_table[KPROBE_TABLE_SIZE];
+ static struct hlist_head kretprobe_inst_table[KPROBE_TABLE_SIZE];
+ 
+-unsigned int kprobe_cpu = NR_CPUS;
+-static DEFINE_SPINLOCK(kprobe_lock);
++static DEFINE_SPINLOCK(kprobe_lock);	/* Protects kprobe_table */
++DEFINE_SPINLOCK(kretprobe_lock);	/* Protects kretprobe_inst_table */
+ static DEFINE_PER_CPU(struct kprobe *, kprobe_instance) = NULL;
+ 
+ /*
+@@ -152,41 +151,6 @@ void __kprobes free_insn_slot(kprobe_opc
+ 	}
+ }
+ 
+-/* Locks kprobe: irqs must be disabled */
+-void __kprobes lock_kprobes(void)
+-{
+-	unsigned long flags = 0;
+-
+-	/* Avoiding local interrupts to happen right after we take the kprobe_lock
+-	 * and before we get a chance to update kprobe_cpu, this to prevent
+-	 * deadlock when we have a kprobe on ISR routine and a kprobe on task
+-	 * routine
+-	 */
+-	local_irq_save(flags);
+-
+-	spin_lock(&kprobe_lock);
+-	kprobe_cpu = smp_processor_id();
+-
+- 	local_irq_restore(flags);
+-}
+-
+-void __kprobes unlock_kprobes(void)
+-{
+-	unsigned long flags = 0;
+-
+-	/* Avoiding local interrupts to happen right after we update
+-	 * kprobe_cpu and before we get a a chance to release kprobe_lock,
+-	 * this to prevent deadlock when we have a kprobe on ISR routine and
+-	 * a kprobe on task routine
+-	 */
+-	local_irq_save(flags);
+-
+-	kprobe_cpu = NR_CPUS;
+-	spin_unlock(&kprobe_lock);
+-
+- 	local_irq_restore(flags);
+-}
+-
+ /* We have preemption disabled.. so it is safe to use __ versions */
+ static inline void set_kprobe_instance(struct kprobe *kp)
+ {
+@@ -198,14 +162,19 @@ static inline void reset_kprobe_instance
+ 	__get_cpu_var(kprobe_instance) = NULL;
+ }
+ 
+-/* You have to be holding the kprobe_lock */
++/*
++ * This routine is called either:
++ * 	- under the kprobe_lock spinlock - during kprobe_[un]register()
++ * 				OR
++ * 	- under an rcu_read_lock() - from arch/xxx/kernel/kprobes.c
++ */
+ struct kprobe __kprobes *get_kprobe(void *addr)
+ {
+ 	struct hlist_head *head;
+ 	struct hlist_node *node;
+ 
+ 	head = &kprobe_table[hash_ptr(addr, KPROBE_HASH_BITS)];
+-	hlist_for_each(node, head) {
++	hlist_for_each_rcu(node, head) {
+ 		struct kprobe *p = hlist_entry(node, struct kprobe, hlist);
+ 		if (p->addr == addr)
+ 			return p;
+@@ -221,7 +190,7 @@ static int __kprobes aggr_pre_handler(st
+ {
+ 	struct kprobe *kp;
+ 
+-	list_for_each_entry(kp, &p->list, list) {
++	list_for_each_entry_rcu(kp, &p->list, list) {
+ 		if (kp->pre_handler) {
+ 			set_kprobe_instance(kp);
+ 			if (kp->pre_handler(kp, regs))
+@@ -237,7 +206,7 @@ static void __kprobes aggr_post_handler(
+ {
+ 	struct kprobe *kp;
+ 
+-	list_for_each_entry(kp, &p->list, list) {
++	list_for_each_entry_rcu(kp, &p->list, list) {
+ 		if (kp->post_handler) {
+ 			set_kprobe_instance(kp);
+ 			kp->post_handler(kp, regs, flags);
+@@ -276,6 +245,7 @@ static int __kprobes aggr_break_handler(
+ 	return ret;
+ }
+ 
++/* Called with kretprobe_lock held */
+ struct kretprobe_instance __kprobes *get_free_rp_inst(struct kretprobe *rp)
+ {
+ 	struct hlist_node *node;
+@@ -285,6 +255,7 @@ struct kretprobe_instance __kprobes *get
+ 	return NULL;
+ }
+ 
++/* Called with kretprobe_lock held */
+ static struct kretprobe_instance __kprobes *get_used_rp_inst(struct kretprobe
+ 							      *rp)
+ {
+@@ -295,6 +266,7 @@ static struct kretprobe_instance __kprob
+ 	return NULL;
+ }
+ 
++/* Called with kretprobe_lock held */
+ void __kprobes add_rp_inst(struct kretprobe_instance *ri)
+ {
+ 	/*
+@@ -313,6 +285,7 @@ void __kprobes add_rp_inst(struct kretpr
+ 	hlist_add_head(&ri->uflist, &ri->rp->used_instances);
+ }
+ 
++/* Called with kretprobe_lock held */
+ void __kprobes recycle_rp_inst(struct kretprobe_instance *ri)
+ {
+ 	/* remove rp inst off the rprobe_inst_table */
+@@ -346,13 +319,13 @@ void __kprobes kprobe_flush_task(struct 
+ 	struct hlist_node *node, *tmp;
+ 	unsigned long flags = 0;
+ 
+-	spin_lock_irqsave(&kprobe_lock, flags);
++	spin_lock_irqsave(&kretprobe_lock, flags);
+         head = kretprobe_inst_table_head(current);
+         hlist_for_each_entry_safe(ri, node, tmp, head, hlist) {
+                 if (ri->task == tk)
+                         recycle_rp_inst(ri);
+         }
+-	spin_unlock_irqrestore(&kprobe_lock, flags);
++	spin_unlock_irqrestore(&kretprobe_lock, flags);
+ }
+ 
+ /*
+@@ -363,9 +336,12 @@ static int __kprobes pre_handler_kretpro
+ 					   struct pt_regs *regs)
+ {
+ 	struct kretprobe *rp = container_of(p, struct kretprobe, kp);
++	unsigned long flags = 0;
+ 
+ 	/*TODO: consider to only swap the RA after the last pre_handler fired */
++	spin_lock_irqsave(&kretprobe_lock, flags);
+ 	arch_prepare_kretprobe(rp, regs);
++	spin_unlock_irqrestore(&kretprobe_lock, flags);
+ 	return 0;
+ }
+ 
+@@ -396,13 +372,13 @@ static int __kprobes add_new_kprobe(stru
+         struct kprobe *kp;
+ 
+ 	if (p->break_handler) {
+-		list_for_each_entry(kp, &old_p->list, list) {
++		list_for_each_entry_rcu(kp, &old_p->list, list) {
+ 			if (kp->break_handler)
+ 				return -EEXIST;
+ 		}
+-		list_add_tail(&p->list, &old_p->list);
++		list_add_tail_rcu(&p->list, &old_p->list);
+ 	} else
+-		list_add(&p->list, &old_p->list);
++		list_add_rcu(&p->list, &old_p->list);
+ 	return 0;
+ }
+ 
+@@ -420,18 +396,18 @@ static inline void add_aggr_kprobe(struc
+ 	ap->break_handler = aggr_break_handler;
+ 
+ 	INIT_LIST_HEAD(&ap->list);
+-	list_add(&p->list, &ap->list);
++	list_add_rcu(&p->list, &ap->list);
+ 
+ 	INIT_HLIST_NODE(&ap->hlist);
+-	hlist_del(&p->hlist);
+-	hlist_add_head(&ap->hlist,
++	hlist_del_rcu(&p->hlist);
++	hlist_add_head_rcu(&ap->hlist,
+ 		&kprobe_table[hash_ptr(ap->addr, KPROBE_HASH_BITS)]);
+ }
+ 
+ /*
+  * This is the second or subsequent kprobe at the address - handle
+  * the intricacies
+- * TODO: Move kcalloc outside the spinlock
++ * TODO: Move kcalloc outside the spin_lock
+  */
+ static int __kprobes register_aggr_kprobe(struct kprobe *old_p,
+ 					  struct kprobe *p)
+@@ -457,7 +433,7 @@ static int __kprobes register_aggr_kprob
+ static inline void cleanup_kprobe(struct kprobe *p, unsigned long flags)
+ {
+ 	arch_disarm_kprobe(p);
+-	hlist_del(&p->hlist);
++	hlist_del_rcu(&p->hlist);
+ 	spin_unlock_irqrestore(&kprobe_lock, flags);
+ 	arch_remove_kprobe(p);
+ }
+@@ -465,11 +441,10 @@ static inline void cleanup_kprobe(struct
+ static inline void cleanup_aggr_kprobe(struct kprobe *old_p,
+ 		struct kprobe *p, unsigned long flags)
+ {
+-	list_del(&p->list);
+-	if (list_empty(&old_p->list)) {
++	list_del_rcu(&p->list);
++	if (list_empty(&old_p->list))
+ 		cleanup_kprobe(old_p, flags);
+-		kfree(old_p);
+-	} else
++	else
+ 		spin_unlock_irqrestore(&kprobe_lock, flags);
+ }
+ 
+@@ -492,9 +467,9 @@ int __kprobes register_kprobe(struct kpr
+ 	if ((ret = arch_prepare_kprobe(p)) != 0)
+ 		goto rm_kprobe;
+ 
++	p->nmissed = 0;
+ 	spin_lock_irqsave(&kprobe_lock, flags);
+ 	old_p = get_kprobe(p->addr);
+-	p->nmissed = 0;
+ 	if (old_p) {
+ 		ret = register_aggr_kprobe(old_p, p);
+ 		goto out;
+@@ -502,7 +477,7 @@ int __kprobes register_kprobe(struct kpr
+ 
+ 	arch_copy_kprobe(p);
+ 	INIT_HLIST_NODE(&p->hlist);
+-	hlist_add_head(&p->hlist,
++	hlist_add_head_rcu(&p->hlist,
+ 		       &kprobe_table[hash_ptr(p->addr, KPROBE_HASH_BITS)]);
+ 
+   	arch_arm_kprobe(p);
+@@ -523,10 +498,16 @@ void __kprobes unregister_kprobe(struct 
+ 	spin_lock_irqsave(&kprobe_lock, flags);
+ 	old_p = get_kprobe(p->addr);
+ 	if (old_p) {
++		/* cleanup_*_kprobe() does the spin_unlock_irqrestore */
+ 		if (old_p->pre_handler == aggr_pre_handler)
+ 			cleanup_aggr_kprobe(old_p, p, flags);
+ 		else
+ 			cleanup_kprobe(p, flags);
++
++		synchronize_sched();
++		if (old_p->pre_handler == aggr_pre_handler &&
++				list_empty(&old_p->list))
++			kfree(old_p);
+ 	} else
+ 		spin_unlock_irqrestore(&kprobe_lock, flags);
+ }
+@@ -603,13 +584,13 @@ void __kprobes unregister_kretprobe(stru
+ 
+ 	unregister_kprobe(&rp->kp);
+ 	/* No race here */
+-	spin_lock_irqsave(&kprobe_lock, flags);
++	spin_lock_irqsave(&kretprobe_lock, flags);
+ 	free_rp_inst(rp);
+ 	while ((ri = get_used_rp_inst(rp)) != NULL) {
+ 		ri->rp = NULL;
+ 		hlist_del(&ri->uflist);
+ 	}
+-	spin_unlock_irqrestore(&kprobe_lock, flags);
++	spin_unlock_irqrestore(&kretprobe_lock, flags);
+ }
+ 
+ static int __init init_kprobes(void)

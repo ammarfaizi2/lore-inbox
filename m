@@ -1,188 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbVJJUfS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbVJJUhF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751212AbVJJUfS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 16:35:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751214AbVJJUfS
+	id S1751216AbVJJUhF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 16:37:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbVJJUhF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 16:35:18 -0400
-Received: from tux06.ltc.ic.unicamp.br ([143.106.24.50]:39585 "EHLO
-	tux06.ltc.ic.unicamp.br") by vger.kernel.org with ESMTP
-	id S1751212AbVJJUfQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 16:35:16 -0400
-Date: Mon, 10 Oct 2005 17:45:17 -0300
-From: Glauber de Oliveira Costa <glommer@br.ibm.com>
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, hirofumi@mail.parknet.co.jp,
-       linux-ntfs-dev@lists.sourceforge.net, aia21@cantab.net,
-       hch@infradead.org, viro@zeniv.linux.org.uk,
-       mikulas@artax.karlin.mff.cuni.cz, akpm@osdl.org
-Subject: [PATCH] Use of getblk differs between locations
-Message-ID: <20051010204517.GA30867@br.ibm.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="6c2NcOVqGQ03X4Wi"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+	Mon, 10 Oct 2005 16:37:05 -0400
+Received: from seqima.han-solo.net ([83.138.65.243]:26559 "EHLO
+	seqima.han-solo.net") by vger.kernel.org with ESMTP
+	id S1751216AbVJJUhD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 16:37:03 -0400
+Message-ID: <434AD0EB.6000405@gmx.de>
+Date: Mon, 10 Oct 2005 22:36:59 +0200
+From: Georg Lippold <georg.lippold@gmx.de>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050805)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alon Bar-Lev <alon.barlev@gmail.com>
+CC: LKML <linux-kernel@vger.kernel.org>, "H. Peter Anvin" <hpa@zytor.com>,
+       Jesper Juhl <jesper.juhl@gmail.com>
+Subject: Re: [PATCH 1/1] 2.6.14-rc3 x86: COMMAND_LINE_SIZE
+References: <431628D5.1040709@zytor.com> <431DF9E9.5050102@gmail.com> <431DFEC3.1070309@zytor.com> <431E00C8.3060606@gmail.com> <4345A9F4.7040000@uni-bremen.de> <434A6220.3000608@gmx.de> <9a8748490510100621x7bc20c42g667cc083d26aaaa2@mail.gmail.com> <434A8082.9060202@zytor.com> <434A8CE8.2020404@gmx.de> <434A8D70.5060300@zytor.com> <20051010171605.GA7793@georg.homeunix.org> <434AB1EB.6070309@gmail.com>
+In-Reply-To: <434AB1EB.6070309@gmail.com>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Alon,
 
---6c2NcOVqGQ03X4Wi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Alon Bar-Lev wrote:
+> For boot protocol <2.02, the kernel command line is a null-terminated
+> string up to 255 characters long, plus the final null. For boot protocol
+>>=2.02 command line that is referred by cmd_line_ptr is null-terminated
+> string, the kernel will truncate this string if it is too large to handle.
 
-Hi all,
+Thus, someone could use bootloaders to "patch" the kernel: If the
+bootloader writes a string of arbitary length to some memory region,
+then there is a fair chance that if you make the string just long
+enough, the kernel image gets (partly) overwritten. It resembles a bit
+"Smashing the stack for fun and profit", but this time, it's "Rewriting
+the kernel to your own needs via the bootloader on x86" :)
 
-I've just noticed that the use of sb_getblk differs between locations
-inside the kernel. To be precise, in some locations there are tests
-against its return value, and in some places there are not.
+Same thing for user defined COMMAND_LINE_SIZE. I think that a common
+interface for boot loaders is required. Especially in uncontrolled multi
+user environments like Universities, everything else could lead to
+undesired results.
 
-According to the comments in __getblk definition, the tests are not
-necessary, as the function always return a buffer_head (maybe a wrong
-one),
+Greetings,
 
-The patch bellow just make it's use homogeneous trough the whole code
-in the various filesystems that use it.
-
-One thing to mention, is that I've kept my hands away from hpfs code.
-That's because sb_getblk is used inside another function, that returns
-NULL in the case sb_getblk does it too (Which does not seem to happen).
-The correct action would be trace down all the uses of that function and
-change it.
-
--- 
-=====================================
-Glauber de Oliveira Costa
-IBM Linux Technology Center - Brazil
-glommer@br.ibm.com
-=====================================
-
---6c2NcOVqGQ03X4Wi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch_getblk
-
-diff -Naurp linux-2.6.14-rc2-orig/fs/ext2/xattr.c linux-2.6.14-rc2-cleanp/fs/ext2/xattr.c
---- linux-2.6.14-rc2-orig/fs/ext2/xattr.c	2005-09-01 14:26:03.000000000 +0000
-+++ linux-2.6.14-rc2-cleanp/fs/ext2/xattr.c	2005-10-10 19:47:27.000000000 +0000
-@@ -679,11 +679,6 @@ ext2_xattr_set2(struct inode *inode, str
- 			ea_idebug(inode, "creating block %d", block);
- 
- 			new_bh = sb_getblk(sb, block);
--			if (!new_bh) {
--				ext2_free_blocks(inode, block, 1);
--				error = -EIO;
--				goto cleanup;
--			}
- 			lock_buffer(new_bh);
- 			memcpy(new_bh->b_data, header, new_bh->b_size);
- 			set_buffer_uptodate(new_bh);
-diff -Naurp linux-2.6.14-rc2-orig/fs/fat/dir.c linux-2.6.14-rc2-cleanp/fs/fat/dir.c
---- linux-2.6.14-rc2-orig/fs/fat/dir.c	2005-09-26 13:58:15.000000000 +0000
-+++ linux-2.6.14-rc2-cleanp/fs/fat/dir.c	2005-10-10 19:37:47.000000000 +0000
-@@ -46,7 +46,7 @@ static inline void fat_dir_readahead(str
- 		return;
- 
- 	bh = sb_getblk(sb, phys);
--	if (bh && !buffer_uptodate(bh)) {
-+	if (!buffer_uptodate(bh)) {
- 		for (sec = 0; sec < sbi->sec_per_clus; sec++)
- 			sb_breadahead(sb, phys + sec);
- 	}
-@@ -978,10 +978,6 @@ static int fat_zeroed_cluster(struct ino
- 	n = nr_used;
- 	while (blknr < last_blknr) {
- 		bhs[n] = sb_getblk(sb, blknr);
--		if (!bhs[n]) {
--			err = -ENOMEM;
--			goto error;
--		}
- 		memset(bhs[n]->b_data, 0, sb->s_blocksize);
- 		set_buffer_uptodate(bhs[n]);
- 		mark_buffer_dirty(bhs[n]);
-@@ -1031,10 +1027,6 @@ int fat_alloc_new_dir(struct inode *dir,
- 
- 	blknr = fat_clus_to_blknr(sbi, cluster);
- 	bhs[0] = sb_getblk(sb, blknr);
--	if (!bhs[0]) {
--		err = -ENOMEM;
--		goto error_free;
--	}
- 
- 	fat_date_unix2dos(ts->tv_sec, &time, &date);
- 
-@@ -1113,10 +1105,6 @@ static int fat_add_new_entries(struct in
- 		last_blknr = start_blknr + sbi->sec_per_clus;
- 		while (blknr < last_blknr) {
- 			bhs[n] = sb_getblk(sb, blknr);
--			if (!bhs[n]) {
--				err = -ENOMEM;
--				goto error_nomem;
--			}
- 
- 			/* fill the directory entry */
- 			copy = min(size, sb->s_blocksize);
-diff -Naurp linux-2.6.14-rc2-orig/fs/fat/fatent.c linux-2.6.14-rc2-cleanp/fs/fat/fatent.c
---- linux-2.6.14-rc2-orig/fs/fat/fatent.c	2005-06-17 19:48:29.000000000 +0000
-+++ linux-2.6.14-rc2-cleanp/fs/fat/fatent.c	2005-10-10 19:38:10.000000000 +0000
-@@ -357,10 +357,6 @@ static int fat_mirror_bhs(struct super_b
- 
- 		for (n = 0; n < nr_bhs; n++) {
- 			c_bh = sb_getblk(sb, backup_fat + bhs[n]->b_blocknr);
--			if (!c_bh) {
--				err = -ENOMEM;
--				goto error;
--			}
- 			memcpy(c_bh->b_data, bhs[n]->b_data, sb->s_blocksize);
- 			set_buffer_uptodate(c_bh);
- 			mark_buffer_dirty(c_bh);
-diff -Naurp linux-2.6.14-rc2-orig/fs/isofs/inode.c linux-2.6.14-rc2-cleanp/fs/isofs/inode.c
---- linux-2.6.14-rc2-orig/fs/isofs/inode.c	2005-09-01 14:26:03.000000000 +0000
-+++ linux-2.6.14-rc2-cleanp/fs/isofs/inode.c	2005-10-10 19:55:40.000000000 +0000
-@@ -994,8 +994,6 @@ int isofs_get_blocks(struct inode *inode
- 			map_bh(*bh, inode->i_sb, firstext + b_off - offset);
- 		} else {
- 			*bh = sb_getblk(inode->i_sb, firstext+b_off-offset);
--			if ( !*bh )
--				goto abort;
- 		}
- 		bh++;	/* Next buffer head */
- 		b_off++;	/* Next buffer offset */
-diff -Naurp linux-2.6.14-rc2-orig/fs/ntfs/compress.c linux-2.6.14-rc2-cleanp/fs/ntfs/compress.c
---- linux-2.6.14-rc2-orig/fs/ntfs/compress.c	2005-09-26 13:58:16.000000000 +0000
-+++ linux-2.6.14-rc2-cleanp/fs/ntfs/compress.c	2005-10-10 19:50:15.000000000 +0000
-@@ -641,8 +641,7 @@ lock_retry_remap:
- 		max_block = block + (vol->cluster_size >> block_size_bits);
- 		do {
- 			ntfs_debug("block = 0x%x.", block);
--			if (unlikely(!(bhs[nr_bhs] = sb_getblk(sb, block))))
--				goto getblk_err;
-+			bhs[nr_bhs] = sb_getblk(sb, block);
- 			nr_bhs++;
- 		} while (++block < max_block);
- 	}
-@@ -938,9 +937,6 @@ rl_err:
- 			"compression block.");
- 	goto err_out;
- 
--getblk_err:
--	up_read(&ni->runlist.lock);
--	ntfs_error(vol->sb, "getblk() failed. Cannot read compression block.");
- 
- err_out:
- 	kfree(bhs);
-diff -Naurp linux-2.6.14-rc2-orig/fs/sysv/balloc.c linux-2.6.14-rc2-cleanp/fs/sysv/balloc.c
---- linux-2.6.14-rc2-orig/fs/sysv/balloc.c	2005-06-17 19:48:29.000000000 +0000
-+++ linux-2.6.14-rc2-cleanp/fs/sysv/balloc.c	2005-10-10 19:52:03.000000000 +0000
-@@ -75,11 +75,6 @@ void sysv_free_block(struct super_block 
- 	if (count == sbi->s_flc_size || count == 0) {
- 		block += sbi->s_block_base;
- 		bh = sb_getblk(sb, block);
--		if (!bh) {
--			printk("sysv_free_block: getblk() failed\n");
--			unlock_super(sb);
--			return;
--		}
- 		memset(bh->b_data, 0, sb->s_blocksize);
- 		*(__fs16*)bh->b_data = cpu_to_fs16(sbi, count);
- 		memcpy(get_chunk(sb,bh), blocks, count * sizeof(sysv_zone_t));
-
---6c2NcOVqGQ03X4Wi--
+Georg

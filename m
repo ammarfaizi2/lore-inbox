@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbVJJUhF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbVJJUq5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751216AbVJJUhF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 16:37:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbVJJUhF
+	id S1751218AbVJJUq5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 16:46:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751219AbVJJUq5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 16:37:05 -0400
-Received: from seqima.han-solo.net ([83.138.65.243]:26559 "EHLO
-	seqima.han-solo.net") by vger.kernel.org with ESMTP
-	id S1751216AbVJJUhD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 16:37:03 -0400
-Message-ID: <434AD0EB.6000405@gmx.de>
-Date: Mon, 10 Oct 2005 22:36:59 +0200
-From: Georg Lippold <georg.lippold@gmx.de>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050805)
-X-Accept-Language: en-us, en
+	Mon, 10 Oct 2005 16:46:57 -0400
+Received: from xproxy.gmail.com ([66.249.82.203]:5728 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751218AbVJJUq5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 16:46:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=Tn5rQ9/maCJO38cEcEUxlZGL34i+u7sMZS93oqZx8OJ0AmaRYATQkir10LNBuJNCR+eLi1Yp9vNTbEd6OpcIWzIb++KaQBdJ0ZYYf0y5lmTr032f/LwCYdusiS70QIerO4pVKp3ysDUCWHs97azJxb2jxR49BG6slj6FvBuOzhQ=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: [PATCH] ask users to provide /proc/cmdline when REPORTING-BUGS
+Date: Mon, 10 Oct 2005 22:49:42 +0200
+User-Agent: KMail/1.8.2
 MIME-Version: 1.0
-To: Alon Bar-Lev <alon.barlev@gmail.com>
-CC: LKML <linux-kernel@vger.kernel.org>, "H. Peter Anvin" <hpa@zytor.com>,
-       Jesper Juhl <jesper.juhl@gmail.com>
-Subject: Re: [PATCH 1/1] 2.6.14-rc3 x86: COMMAND_LINE_SIZE
-References: <431628D5.1040709@zytor.com> <431DF9E9.5050102@gmail.com> <431DFEC3.1070309@zytor.com> <431E00C8.3060606@gmail.com> <4345A9F4.7040000@uni-bremen.de> <434A6220.3000608@gmx.de> <9a8748490510100621x7bc20c42g667cc083d26aaaa2@mail.gmail.com> <434A8082.9060202@zytor.com> <434A8CE8.2020404@gmx.de> <434A8D70.5060300@zytor.com> <20051010171605.GA7793@georg.homeunix.org> <434AB1EB.6070309@gmail.com>
-In-Reply-To: <434AB1EB.6070309@gmail.com>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510102249.43135.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alon,
+The kernel commandline a user uses with his kernel is useful info.
+Time and time again I see mails on lkml asking users if they used some
+commandline option or another when booting the kernel. So it seems to
+me that it would be useful if people who took the time to read 
+REPORTING-BUGS would by default include that info with their bug reports.
 
-Alon Bar-Lev wrote:
-> For boot protocol <2.02, the kernel command line is a null-terminated
-> string up to 255 characters long, plus the final null. For boot protocol
->>=2.02 command line that is referred by cmd_line_ptr is null-terminated
-> string, the kernel will truncate this string if it is too large to handle.
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
 
-Thus, someone could use bootloaders to "patch" the kernel: If the
-bootloader writes a string of arbitary length to some memory region,
-then there is a fair chance that if you make the string just long
-enough, the kernel image gets (partly) overwritten. It resembles a bit
-"Smashing the stack for fun and profit", but this time, it's "Rewriting
-the kernel to your own needs via the bootloader on x86" :)
+ REPORTING-BUGS |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
 
-Same thing for user defined COMMAND_LINE_SIZE. I think that a common
-interface for boot loaders is required. Especially in uncontrolled multi
-user environments like Universities, everything else could lead to
-undesired results.
-
-Greetings,
-
-Georg
+--- linux-2.6.14-rc3-git8-orig/REPORTING-BUGS	2005-10-03 21:54:51.000000000 +0200
++++ linux-2.6.14-rc3-git8/REPORTING-BUGS	2005-10-10 22:43:28.000000000 +0200
+@@ -53,7 +53,8 @@
+ [8.4.] Loaded driver and hardware information (/proc/ioports, /proc/iomem)
+ [8.5.] PCI information ('lspci -vvv' as root)
+ [8.6.] SCSI information (from /proc/scsi/scsi)
+-[8.7.] Other information that might be relevant to the problem
++[8.7.] Kernel commandline (from /proc/cmdline)
++[8.8.] Other information that might be relevant to the problem
+        (please look in /proc and include all information that you
+        think to be relevant):
+ [X.] Other notes, patches, fixes, workarounds:

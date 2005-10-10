@@ -1,70 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751181AbVJJTwM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751185AbVJJT43@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751181AbVJJTwM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 15:52:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbVJJTwM
+	id S1751185AbVJJT43 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 15:56:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbVJJT43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 15:52:12 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:7462 "EHLO
-	pd5mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1751181AbVJJTwM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 15:52:12 -0400
-Date: Mon, 10 Oct 2005 13:55:27 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Dual Xeon Time skips with 2.6
-In-reply-to: <4WbFk-3iC-33@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <434AC72F.8070701@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <4WbFk-3iC-33@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+	Mon, 10 Oct 2005 15:56:29 -0400
+Received: from mail.kroah.org ([69.55.234.183]:27871 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751185AbVJJT43 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 15:56:29 -0400
+Date: Mon, 10 Oct 2005 12:55:42 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: torvalds@osdl.org, akpm@osdl.org
+Subject: Linux 2.6.13.4
+Message-ID: <20051010195542.GA12763@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cornelius Thiele wrote:
-> Hello,
-> 
-> we have a dual xeon 3,0ghz system with hyperthreading running here with 
-> kernel 2.6.13 / 2.6.12 and are experiencing time skips. Meaning, when 
-> you enter 'date' in the shell the result will be different depending on 
-> which cpu the command is scheduled. The longer the system is up the 
-> greater the difference. The increase is approximately 5 minutes per day; 
-> as you can probably imagine this adds up to quite a lot over weeks and 
-> screws up our logging and any other program that needs timing or writes 
-> timestamp to disk somewhere.
-> 
-> $> / # dmesg | grep time
-> time.c: Using 3.579545 MHz PM timer.
-> time.c: Detected 3000.236 MHz processor.
-> Using local APIC timer interrupts.
-> Detected 12.500 MHz APIC timer.
-> time.c: Using PIT/TSC based timekeeping.
-> 
-> [ ... w/o bogomips and pci timing... ]
-> 
-> The CPUs seem to be put in sync only at system startup:
-> 
-> dmesg | grep TSC
-> CPU 1: Syncing TSC to CPU 0.
-> CPU 1: synchronized TSC with CPU 0 (last diff 142 cycles, maxerr 1267 
-> cycles)
-> [... for CPU1-4 ...]
-> 
-> but they drift apart quite heavily after that.
-> 
-> The server runs on a Tyan Mainboard, I'd be happy to provide any more 
-> infos if needed or try out some things, because we really need to have a 
-> server with only _one_ system time :)
+We (the -stable team) are announcing the release of the 2.6.13.3 kernel.
 
-You can probably avoid this problem by using "notsc" on the kernel 
-command line. It would seem that somehow the TSC drift is too small for 
-the kernel to notice on boot, but causes problems anyway..
+The diffstat and short summary of the fixes are below.
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+I'll also be replying to this message with a copy of the patch between
+2.6.13.3 and 2.6.13.4, as it is small enough to do so.
 
+The updated 2.6.13.y git tree can be found at:
+	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/linux-2.6.13.y.git
+and can be browsed at the normal kernel.org git web browser:
+	www.kernel.org/git/
+
+thanks,
+
+greg k-h
+
+--------
+
+ Makefile                         |    2 +-
+ arch/sparc64/kernel/entry.S      |   39 +++++++++++++++++++++------------------
+ arch/sparc64/kernel/rtrap.S      |    7 ++++---
+ arch/sparc64/lib/VISsave.S       |    8 +++++---
+ drivers/char/drm/drm_stub.c      |    2 +-
+ drivers/ieee1394/sbp2.c          |   38 +++++++++++++++++++++++++++++++++++---
+ drivers/net/wireless/orinoco.c   |   14 +++++++++-----
+ fs/namei.c                       |    6 +++---
+ net/ipv4/tcp_bic.c               |    2 +-
+ security/keys/request_key_auth.c |    1 +
+ 10 files changed, 81 insertions(+), 38 deletions(-)
+
+Summary of changes from v2.6.13.3 to v2.6.13.4
+============================================
+
+Dave Jones:
+  Fix drm 'debug' sysfs permissions
+
+David Howells:
+  key: plug request_key_auth memleak (CAN-2005-3119)
+
+David S. Miller:
+  Fix userland FPU state corruption.
+
+Greg Kroah-Hartman:
+  Linux 2.6.13.4
+
+Linus Torvalds:
+  Avoid 'names_cache' memory leak with CONFIG_AUDITSYSCALL
+
+Pavel Roskin:
+  orinoco: Information leakage due to incorrect padding
+
+Stefan Richter:
+  ieee1394/sbp2: fixes for hot-unplug and module unloading
+
+Stephen Hemminger:
+  BIC coding bug in Linux 2.6.13

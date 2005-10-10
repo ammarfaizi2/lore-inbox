@@ -1,59 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932320AbVJJBNM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbVJJB0O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932320AbVJJBNM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Oct 2005 21:13:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932322AbVJJBNM
+	id S932319AbVJJB0O (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Oct 2005 21:26:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932327AbVJJB0O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Oct 2005 21:13:12 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:12512 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932320AbVJJBNL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Oct 2005 21:13:11 -0400
-Date: Sun, 9 Oct 2005 20:13:04 -0500
-From: serue@us.ibm.com
-To: Bernard Blackham <bernard@blackham.com.au>
-Cc: Ed Tomlinson <tomlins@cam.org>, lokum spand <lokumsspand@hotmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: A possible idea for Linux: Save running programs to disk
-Message-ID: <20051010011304.GA28223@sergelap.austin.ibm.com>
-References: <BAY105-F35A25DA28443029610815DA48E0@phx.gbl> <20051002045315.GA20946@ucc.gu.uwa.edu.au> <200510020857.27065.tomlins@cam.org> <20051002141637.GC5211@blackham.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051002141637.GC5211@blackham.com.au>
-User-Agent: Mutt/1.5.8i
+	Sun, 9 Oct 2005 21:26:14 -0400
+Received: from send.forptr.21cn.com ([202.105.45.48]:6801 "HELO 21cn.com")
+	by vger.kernel.org with SMTP id S932319AbVJJB0O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Oct 2005 21:26:14 -0400
+Message-ID: <4349C375.4010106@21cn.com>
+Date: Mon, 10 Oct 2005 09:27:17 +0800
+From: Yan Zheng <yanzheng@21cn.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Question about CONFIG_IPV6_SUBTREES
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AIMC-AUTH: yanzheng
+X-AIMC-MAILFROM: yanzheng@21cn.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Bernard Blackham (bernard@blackham.com.au):
-> On Sun, Oct 02, 2005 at 08:57:26AM -0400, Ed Tomlinson wrote:
-> > Is there any kernel api that adding would make cryopid more
-> > dependable/cleaner?
-> 
-> Currently a fair bit of information is obtained by injecting code
-> into the process's memory space, executing it, and reaping out the
-> results (eg, termcaps, file offsets, fcntl states, locks, signal
-> actions, etc).  Can't think of ways to make it cleaner off the top
-> of my head, but I'm open to ideas.
-> 
-> Seeing as you asked though, here's my wishlist :) I don't expect all
-> of these to be implemented, but every bit would help. Issues I
-> haven't been able to address so far:
-> 
->  - Processes that cache their PID and need it, or rely on PIDs of
->    their children.
-> 
->    Some way to request a given PID when cloning/forking (or on the
->    fly even) would make life easier.
+Hi all
 
-Have you considered any ways of implementing this?  Perhaps the simplest
-way would actually be to allow a process set to be started in some kind
-of job/jail/container/vserver, where any userspace query of or by pid
-uses the virtual pid - which might collide with a virtual pid in some
-other container - but of course the kernel continues to track by real
-pids.  So pid 3728 may be vpid 2287 in job 3.  A process inside job 3
-just asks to kill -9 2287, whereas a process not in a job must ask to
-kill pid 3728, and a process in job 2 can't touch tasks in job 3.  Is
-there another way this could work?
+In ip6_fib.c, fib6_lookup_1() does't make sense to me with 
+CONFIG_IPV6_SUBTREES enable. It seem to only match source address when 
+fib6_node has subtree. So I write a patch to show my opinion. 
+unfortunately, this changes don't cooperate with  BACKTRACK() in route.c.
 
--serge
+Can somebody explain the exact meaning of CONFIG_IPV6_SUBTREES!
+
+Thanks.
+
+
+--- linux-2.6.14-rc3-git8/net/ipv6/ip6_fib.c    2005-10-10 
+08:57:40.000000000 +0800
++++ linux/net/ipv6/ip6_fib.c    2005-10-10 08:53:44.000000000 +0800
+@@ -616,21 +616,6 @@
+       }
+
+       while ((fn->fn_flags & RTN_ROOT) == 0) {
+-#ifdef CONFIG_IPV6_SUBTREES
+-               if (fn->subtree) {
+-                       struct fib6_node *st;
+-                       struct lookup_args *narg;
+-
+-                       narg = args + 1;
+-
+-                       if (narg->addr) {
+-                               st = fib6_lookup_1(fn->subtree, narg);
+-
+-                               if (st && !(st->fn_flags & RTN_ROOT))
+-                                       return st;
+-                       }
+-               }
+-#endif
+
+               if (fn->fn_flags & RTN_RTINFO) {
+                       struct rt6key *key;
+@@ -639,7 +624,24 @@
+                                       args->offset);
+
+                       if (ipv6_prefix_equal(&key->addr, args->addr, 
+key->plen))
+-                               return fn;
++#ifdef CONFIG_IPV6_SUBTREES
++                               if (fn->subtree) {
++                                       struct fib6_node *st;
++                                       struct lookup_args *narg;
++
++                                       narg = args + 1;
++
++                                       if (narg->addr) {
++                                               st = 
+fib6_lookup_1(fn->subtree, narg);
++
++                                               if (st && !(st->fn_flags 
+& RTN_ROOT))
++                                                       return st;
++                                               if (fn->subtree->leaf != 
+&ip6_null_entry)
++                                                       return fn->subtree;
++                                       }
++                               } else
++#endif
++                                       return fn;
+               }
+
+               fn = fn->parent;
+
+

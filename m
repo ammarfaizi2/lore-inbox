@@ -1,95 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbVJJB0O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbVJJBns@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932319AbVJJB0O (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Oct 2005 21:26:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932327AbVJJB0O
+	id S932323AbVJJBns (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Oct 2005 21:43:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbVJJBns
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Oct 2005 21:26:14 -0400
-Received: from send.forptr.21cn.com ([202.105.45.48]:6801 "HELO 21cn.com")
-	by vger.kernel.org with SMTP id S932319AbVJJB0O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Oct 2005 21:26:14 -0400
-Message-ID: <4349C375.4010106@21cn.com>
-Date: Mon, 10 Oct 2005 09:27:17 +0800
-From: Yan Zheng <yanzheng@21cn.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Sun, 9 Oct 2005 21:43:48 -0400
+Received: from vms040pub.verizon.net ([206.46.252.40]:56356 "EHLO
+	vms040pub.verizon.net") by vger.kernel.org with ESMTP
+	id S932323AbVJJBns (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Oct 2005 21:43:48 -0400
+Date: Sun, 09 Oct 2005 21:43:40 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: [PATCH] Fix ext3 warning for unused var
+In-reply-to: <4349961F.7060109@utah-nac.org>
 To: linux-kernel@vger.kernel.org
-Subject: Question about CONFIG_IPV6_SUBTREES
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AIMC-AUTH: yanzheng
-X-AIMC-MAILFROM: yanzheng@21cn.com
+Message-id: <200510092143.40754.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <20051009195850.27237.90873.stgit@zion.home.lan>
+ <20051009220838.GN7992@ftp.linux.org.uk> <4349961F.7060109@utah-nac.org>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all
+On Sunday 09 October 2005 18:13, jmerkey wrote:
+>Al Viro wrote:
+[...]
+>>Sorry, but I doubt that Hans or anybody in RH knows how to patch
+>
+>---> wetware, <----
+>
+>Is this the new "official" non-official slang word for Suse Linux?
 
-In ip6_fib.c, fib6_lookup_1() does't make sense to me with 
-CONFIG_IPV6_SUBTREES enable. It seem to only match source address when 
-fib6_node has subtree. So I write a patch to show my opinion. 
-unfortunately, this changes don't cooperate with  BACKTRACK() in route.c.
+Not hardly Jeff, where have you been?  Wetware refers to the brain of the
+individual being targeted.
 
-Can somebody explain the exact meaning of CONFIG_IPV6_SUBTREES!
-
-Thanks.
-
-
---- linux-2.6.14-rc3-git8/net/ipv6/ip6_fib.c    2005-10-10 
-08:57:40.000000000 +0800
-+++ linux/net/ipv6/ip6_fib.c    2005-10-10 08:53:44.000000000 +0800
-@@ -616,21 +616,6 @@
-       }
-
-       while ((fn->fn_flags & RTN_ROOT) == 0) {
--#ifdef CONFIG_IPV6_SUBTREES
--               if (fn->subtree) {
--                       struct fib6_node *st;
--                       struct lookup_args *narg;
--
--                       narg = args + 1;
--
--                       if (narg->addr) {
--                               st = fib6_lookup_1(fn->subtree, narg);
--
--                               if (st && !(st->fn_flags & RTN_ROOT))
--                                       return st;
--                       }
--               }
--#endif
-
-               if (fn->fn_flags & RTN_RTINFO) {
-                       struct rt6key *key;
-@@ -639,7 +624,24 @@
-                                       args->offset);
-
-                       if (ipv6_prefix_equal(&key->addr, args->addr, 
-key->plen))
--                               return fn;
-+#ifdef CONFIG_IPV6_SUBTREES
-+                               if (fn->subtree) {
-+                                       struct fib6_node *st;
-+                                       struct lookup_args *narg;
-+
-+                                       narg = args + 1;
-+
-+                                       if (narg->addr) {
-+                                               st = 
-fib6_lookup_1(fn->subtree, narg);
-+
-+                                               if (st && !(st->fn_flags 
-& RTN_ROOT))
-+                                                       return st;
-+                                               if (fn->subtree->leaf != 
-&ip6_null_entry)
-+                                                       return fn->subtree;
-+                                       }
-+                               } else
-+#endif
-+                                       return fn;
-               }
-
-               fn = fn->parent;
-
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.35% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
 

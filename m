@@ -1,33 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbVJJVTl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbVJJVUU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751248AbVJJVTl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 17:19:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751250AbVJJVTl
+	id S1751253AbVJJVUU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 17:20:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751252AbVJJVUU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 17:19:41 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:14537 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751248AbVJJVTl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 17:19:41 -0400
-Date: Mon, 10 Oct 2005 14:19:30 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Clem Taylor <clem.taylor@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mq_open() fails with ENOMEM for 'large' message sizes?
-Message-ID: <20051010211921.GO7991@shell0.pdx.osdl.net>
-References: <ecb4efd10510101351q7264f104gdfd1b03085b42062@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ecb4efd10510101351q7264f104gdfd1b03085b42062@mail.gmail.com>
-User-Agent: Mutt/1.5.6i
+	Mon, 10 Oct 2005 17:20:20 -0400
+Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:24216 "EHLO
+	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1751250AbVJJVUS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 17:20:18 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Mon, 10 Oct 2005 22:20:07 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Glauber de Oliveira Costa <glommer@br.ibm.com>
+cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, hirofumi@mail.parknet.co.jp,
+       linux-ntfs-dev@lists.sourceforge.net, aia21@cantab.net,
+       hch@infradead.org, viro@zeniv.linux.org.uk,
+       mikulas@artax.karlin.mff.cuni.cz, akpm@osdl.org
+Subject: Re: [PATCH] Use of getblk differs between locations
+In-Reply-To: <20051010204517.GA30867@br.ibm.com>
+Message-ID: <Pine.LNX.4.64.0510102217200.6247@hermes-1.csi.cam.ac.uk>
+References: <20051010204517.GA30867@br.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Clem Taylor (clem.taylor@gmail.com) wrote:
-> Any ideas where this limit is coming from?
+Hi,
 
-You're probably being clamped by the rlimit.  Default is 800k (ulimit -q).
+On Mon, 10 Oct 2005, Glauber de Oliveira Costa wrote:
+> I've just noticed that the use of sb_getblk differs between locations
+> inside the kernel. To be precise, in some locations there are tests
+> against its return value, and in some places there are not.
+> 
+> According to the comments in __getblk definition, the tests are not
+> necessary, as the function always return a buffer_head (maybe a wrong
+> one),
 
-thanks,
--chris
+If you had read the source code rather than just the comments you would 
+have seen that this is not true.  It can return NULL (see 
+fs/buffer.c::__getblk_slow()).  Certainly I would prefer to keep the 
+checks in NTFS, please.  They may only be good for catching bugs but I 
+like catching bugs rather than segfaulting due to a NULL dereference.
+
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

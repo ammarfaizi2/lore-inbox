@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751267AbVJJVdt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751266AbVJJVgS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751267AbVJJVdt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 17:33:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751270AbVJJVdt
+	id S1751266AbVJJVgS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 17:36:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbVJJVgS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 17:33:49 -0400
-Received: from [139.30.44.2] ([139.30.44.2]:61444 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S1751267AbVJJVds (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 17:33:48 -0400
-Date: Mon, 10 Oct 2005 23:33:47 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Andrew Morton <akpm@osdl.org>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch]Fix copy-and-paste error in BSD accounting
-Message-ID: <Pine.LNX.4.61.0510102330570.24774@gans.physik3.uni-rostock.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 10 Oct 2005 17:36:18 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:21128 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751266AbVJJVgQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 17:36:16 -0400
+Date: Mon, 10 Oct 2005 23:36:07 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: David Teigland <teigland@redhat.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 01/16] GFS: headers
+Message-ID: <20051010213607.GA2475@elf.ucw.cz>
+References: <20051010170948.GB22483@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051010170948.GB22483@redhat.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
+Hi!
 
-Fix copy and paste error in jiffies_to_AHZ conversion which leads
-to wrong BSD accounting information on alpha and ia64 when
-CONFIG_BSD_PROCESS_ACCT_V3 is turned on.
 
-Also update comment to match reorganised header files.
+> +#ifdef WANT_GFS2_CONVERSION_FUNCTIONS
+> +
+> +#define CPIN_08(s1, s2, member, count) {memcpy((s1->member), (s2->member), (count));}
+> +#define CPOUT_08(s1, s2, member, count) {memcpy((s2->member), (s1->member), (count));}
+> +#define CPIN_16(s1, s2, member) {(s1->member) = le16_to_cpu((s2->member));}
+> +#define CPOUT_16(s1, s2, member) {(s2->member) = cpu_to_le16((s1->member));}
+> +#define CPIN_32(s1, s2, member) {(s1->member) = le32_to_cpu((s2->member));}
+> +#define CPOUT_32(s1, s2, member) {(s2->member) = cpu_to_le32((s1->member));}
+> +#define CPIN_64(s1, s2, member) {(s1->member) = le64_to_cpu((s2->member));}
+> +#define CPOUT_64(s1, s2, member) {(s2->member) = cpu_to_le64((s1->member));}
+> +
+> +#define pv(struct, member, fmt) printk("  "#member" = "fmt"\n", struct->member);
+> +#define pa(struct, member, count) print_array(#member, struct->member, count);
 
-Signed-off-by: Tim Schmielau <tim@physik3.uni-rostock.de>
+Nice way to obfuscate code, I'd say. Can you just inline those macros?
+This is very hard to read...
+								Pavel
 
---- linux-2.6.14-rc3/include/linux/acct.h	2005-08-29 01:41:01 +0200
-+++ linux-2.6.14-rc3-ahz/include/linux/acct.h	2005-10-10 23:06:26 +0200
-@@ -162,13 +162,13 @@ typedef struct acct acct_t;
- #ifdef __KERNEL__
- /*
-  * Yet another set of HZ to *HZ helper functions.
-- * See <linux/times.h> for the original.
-+ * See <linux/jiffies.h> for the original.
-  */
- 
- static inline u32 jiffies_to_AHZ(unsigned long x)
- {
- #if (TICK_NSEC % (NSEC_PER_SEC / AHZ)) == 0
--	return x / (HZ / USER_HZ);
-+	return x / (HZ / AHZ);
- #else
-         u64 tmp = (u64)x * TICK_NSEC;
-         do_div(tmp, (NSEC_PER_SEC / AHZ));
+-- 
+if you have sharp zaurus hardware you don't need... you know my address

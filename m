@@ -1,46 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbVJJIGe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbVJJIQ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750705AbVJJIGe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 04:06:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750815AbVJJIGe
+	id S1750756AbVJJIQ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 04:16:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750784AbVJJIQ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 04:06:34 -0400
-Received: from zproxy.gmail.com ([64.233.162.194]:64773 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750705AbVJJIGe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 04:06:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=SrptgatCTn9MxQMcH3TM6n3G/5p6w80WT7VU5Du8ST9rSRI1Tm1i3Z6E94pd/46XAwaFrcLYQvd29SqhnzOje3q7PbI02VS8w7Bj6i3/8T4seg2sg73G4wG9o4KH5FQ/O/A31GQYrWDxFmKwSLG/So9sKunxWaaLUAdSlkxUCTY=
-Message-ID: <434A20FD.10600@gmail.com>
-Date: Mon, 10 Oct 2005 16:06:21 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+	Mon, 10 Oct 2005 04:16:29 -0400
+Received: from scipost.dolphinics.no ([193.71.152.3]:34461 "EHLO
+	scipost.dolphinics.no") by vger.kernel.org with ESMTP
+	id S1750756AbVJJIQ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 04:16:28 -0400
+Message-ID: <434A23A2.1020407@dolphinics.no>
+Date: Mon, 10 Oct 2005 10:17:38 +0200
+From: Simen Thoresen <simentt@dolphinics.no>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Bernhard Rosenkraenzer <bero@arklinux.org>
-CC: Manuel Lauss <mano@roarinelk.homelinux.net>, linux-kernel@vger.kernel.org
-Subject: Re: Modular i810fb broken, partial fix
-References: <200510071547.14616.bero@arklinux.org> <4347C39F.2020703@pol.net> <4347E611.9040705@roarinelk.homelinux.net> <200510091848.19345.bero@arklinux.org>
-In-Reply-To: <200510091848.19345.bero@arklinux.org>
-Content-Type: text/plain; charset=ISO-8859-1
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+CC: devesh28@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: Issues in Booting kernel 2.6.13
+References: <309a667c0510052216n784e229ei69b3a3a2a9e93f4b@mail.gmail.com>	<20051006190806.388289ff.rdunlap@xenotime.net>	<43481D0F.9020407@dolphinics.no> <20051008123131.41d85d45.rdunlap@xenotime.net>
+In-Reply-To: <20051008123131.41d85d45.rdunlap@xenotime.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernhard Rosenkraenzer wrote:
-> On Saturday, 8. October 2005 17:30, Manuel Lauss wrote:
->> for reference:
->> modprobe i810fb mode_option=1024x768-8@60 hsync1=40 hsync2=60 vsync1=50
->> vsync2=70 vram=4
+Hi Randy, Devesh,
+
+Randy.Dunlap wrote:
+> On Sat, 08 Oct 2005 21:25:03 +0200 Simen Thoresen wrote:
 > 
-> Can you try with 1024x768-16@60? That's what we're using in the installer (and 
-> what people reported to gable the display).
 > 
+>>Hi Randy,
+>>
+>>Randy.Dunlap wrote:
+>>
+>>>On Thu, 6 Oct 2005 10:46:37 +0530 devesh sharma wrote:
+>>>
+>>>>Hi all,
+>>>>I have compiled 2.6.13 kernel on a opteron machine with 1 GB physical
+>>>>memory, Whole compilation gose well but at the last step
+>>>>make install I am getting a warning
+>>>>WARNING: No module mptbase found for kernel 2.6.13, continuing anyway
+>>>>WARNING: No module mptscsih found for kernel 2.6.13, continuing anyway
+>>>
+>>>
+>>>If you need mpt drivers, there were some changes in the
+>>>FUSION MPT driver options that may be causing them not to be
+>>>built for you as you were expecting.
+>>
+>>I ran into this (2.6.13.3) on Friday as well, but I have not yet examined it 
+>>in detail.
+>>
+>>Do you have any pointers to the relevant postings or information?
+> 
+> 
+> No, I just recall seeing a few other problem reports and answers about it,
+> and then I compared the 2.6.12 and 2.6.13 .config files following
+> 'make defconfig'.
 
-Try disabling I2C/DDC support of i810fb.  A messed-up EDID block can
-give problems with the display.
+It worked with 2.6.12.6, so I'm happy. It now remains to be seen if 
+there was any point in upgrading .-)
 
-Tony
+> 
+>>I've used the 'mkinitrd' tool to generate a 'proper' initrd, and I see both 
+>>mptbase and mptscsih loading, but mptscsih never picks up any actual 
+>>controllers or disks. Thus the same problem on my system.
+>>
+>>To me, this signifies that RHs mkinitrd is broken for this kernel, but I 
+>>don't know the details of why yet.
+> 
+> 
+> so maybe someone from Red Hat can answer/clarify.
 
+I agree. I'll cross my fingers that this gets fixed 'now' and not in 
+time for RH5 :-)
+
+-S
+
+> 
+>>Yours,
+>>-S
+>>
+>>
+>>
+>>>>now when I boot my kernel, panic is received
+>>>>Booting the kernel.
+>>>>Red Hat nash version 4.1.18 starting
+>>>>mkrootdev: lable / not found
+>>>>mount: error 2 mounting ext3
+>>>>mount: error 2 mounting none
+>>>>switchroot: mount failed : 22
+>>>>umount : /initrd/dev failed : 22
+>>>>kernel panic - not syncing : Attempted to kill init
+>>>>
+>>>>What could be the problem?
+>>>>I have RHEL 4 base release already installed on which I have compiled
+>>>>this image.
+> 
+> 
+> 
+> ---
+> ~Randy
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+Simen Thoresen, Wulfkit Support, Dolphin ICS
+http://www.tysland.com/~simentt/cluster

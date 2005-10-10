@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbVJJLCv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbVJJLH6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750744AbVJJLCv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 07:02:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbVJJLCv
+	id S1750747AbVJJLH6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 07:07:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750748AbVJJLH6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 07:02:51 -0400
-Received: from ns1.suse.de ([195.135.220.2]:24806 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750744AbVJJLCv (ORCPT
+	Mon, 10 Oct 2005 07:07:58 -0400
+Received: from swm.pp.se ([195.54.133.5]:14521 "EHLO uplift.swm.pp.se")
+	by vger.kernel.org with ESMTP id S1750747AbVJJLH6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 07:02:51 -0400
-To: jmerkey <jmerkey@utah-nac.org>
-Cc: Al Viro <viro@ftp.linux.org.uk>, Linus Torvalds <torvalds@osdl.org>,
-       "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix ext3 warning for unused var
-References: <20051009195850.27237.90873.stgit@zion.home.lan>
-	<Pine.LNX.4.64.0510091314200.31407@g5.osdl.org>
-	<43497533.6090106@utah-nac.org>
-	<20051009212916.GM7992@ftp.linux.org.uk>
-	<43497B09.3020102@utah-nac.org>
-	<20051009220838.GN7992@ftp.linux.org.uk>
-	<200510092358.j99NwlQj021703@turing-police.cc.vt.edu>
-	<43499E10.8060502@utah-nac.org>
-From: Andi Kleen <ak@suse.de>
-Date: 10 Oct 2005 13:02:47 +0200
-In-Reply-To: <43499E10.8060502@utah-nac.org>
-Message-ID: <p73psqdy6qw.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Mon, 10 Oct 2005 07:07:58 -0400
+Date: Mon, 10 Oct 2005 13:07:56 +0200 (CEST)
+From: Mikael Abrahamsson <swmike@swm.pp.se>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 3Ware 9500S-12 RAID controller -- poor performance
+In-Reply-To: <20051010105423.GA11982@gallifrey>
+Message-ID: <Pine.LNX.4.62.0510101303310.24341@uplift.swm.pp.se>
+References: <4346EA35.90700@uklinux.net> <20051010104217.20341.qmail@web30305.mail.mud.yahoo.com>
+ <20051010105423.GA11982@gallifrey>
+Organization: People's Front Against WWW
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jmerkey <jmerkey@utah-nac.org> writes:
-> 
-> Yep.   Needs to get fixed because when you upgrade from a reiserfs
-> system and try to keep the reiserfs partitions and add a new hard
-> drive (+1) to
-> an existing system, you run the risk of corrupting resiferfs
-> partitions. Jeff
+On Mon, 10 Oct 2005, Dr. David Alan Gilbert wrote:
 
-Newer mkreiserfs overwrites the beginning of the partition to 
-avoid that. Probably yours was created with a very old one.
+> Nice.  Have you tried Software RAID5 on top of that? I would be very 
+> interested to know how software RAID5 goes relative to the 3Ware 
+> hardware.
 
--Andi
+There have been hundreds of email regarding this on the 
+linux-raid@vger.kernel.org list. Please look in the archives.
+
+It's well known that 3ware hw raid is slow when writing, current theory is 
+that this is due to the lack of buffering meaning that any write makes it 
+read a lot as well, destroying performance. Generally, the performance 
+numbers advertised by 3ware when writing is a dd to the drive itself (I 
+got this number after doing a support request on it a few years back), 
+without a filesystem. This goes very quickly, but writing files on a 
+filesystem is usually very slow (10 megabyte/s or so). When doing SW raid 
+the SW layer has access to the memory block cache and can thus avoid a lot 
+of physical reads on the drives.
+
+I never had any problems getting good read speeds on the HW raid.
+
+My experience is with the 7500 series, the 9500 series has cache as well 
+but this doesn't seem to have solved a lot of the performance problems 
+seen with the 7500 series.
+
+-- 
+Mikael Abrahamsson    email: swmike@swm.pp.se

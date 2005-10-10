@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751221AbVJJUsw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751227AbVJJUtW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751221AbVJJUsw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 16:48:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbVJJUsw
+	id S1751227AbVJJUtW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 16:49:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751226AbVJJUtW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 16:48:52 -0400
-Received: from pop.gmx.de ([213.165.64.20]:59796 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751221AbVJJUsv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 16:48:51 -0400
-X-Authenticated: #20450766
-Date: Mon, 10 Oct 2005 22:48:04 +0200 (CEST)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Peter Osterlund <petero2@telia.com>
-cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
-Subject: Re: [2.6.13] pktcdvd: IO-errors
-In-Reply-To: <Pine.LNX.4.60.0510101947040.6650@poirot.grange>
-Message-ID: <Pine.LNX.4.60.0510102244320.2671@poirot.grange>
-References: <Pine.LNX.4.60.0509242057001.4899@poirot.grange> <m3slvtzf72.fsf@telia.com>
- <Pine.LNX.4.60.0509252026290.3089@poirot.grange> <m34q873ccc.fsf@telia.com>
- <Pine.LNX.4.60.0509262122450.4031@poirot.grange> <m3slvr1ugx.fsf@telia.com>
- <Pine.LNX.4.60.0509262358020.6722@poirot.grange> <m3hdc4ucrt.fsf@telia.com>
- <Pine.LNX.4.60.0509292116260.11615@poirot.grange> <m3k6gw86f0.fsf@telia.com>
- <Pine.LNX.4.60.0510092304550.14767@poirot.grange> <m3psqewe30.fsf@telia.com>
- <Pine.LNX.4.60.0510101947040.6650@poirot.grange>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Y-GMX-Trusted: 0
+	Mon, 10 Oct 2005 16:49:22 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:42991 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S1751223AbVJJUtV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 16:49:21 -0400
+Subject: Re: Latency data - 2.6.14-rc3-rt13
+From: Daniel Walker <dwalker@mvista.com>
+To: Mark Knecht <markknecht@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Lee Revell <rlrevell@joe-job.com>
+In-Reply-To: <5bdc1c8b0510101316k23ff64e2i231cdea7f11e8553@mail.gmail.com>
+References: <5bdc1c8b0510101316k23ff64e2i231cdea7f11e8553@mail.gmail.com>
+Content-Type: text/plain
+Date: Mon, 10 Oct 2005 13:49:18 -0700
+Message-Id: <1128977359.18782.199.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-6) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Oct 2005, Guennadi Liakhovetski wrote:
+On Mon, 2005-10-10 at 13:16 -0700, Mark Knecht wrote:
+> Hi,
 
-> On Sun, 9 Oct 2005, Peter Osterlund wrote:
 > 
-> > In that case, this patch should also work. Does it?
-> 
-> Yes. 2.6.13 + this patch work for me.
+> How can I get data that would be more useful in terms of real debug?
 
-Oops... Things are getting out of control here... A more extensive test of 
-your patch produced the same error again... I'll redo tests with your 
-previous patches more thoroughly... This will take some time though.
+The IRQ off times look like the worst . If you do "make menuconfig"
 
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
+then goto Kernel Hacking and select 
+"Interrupts-off critical section latency timing"
+Then select "Latency tracing"
+
+Then when you boot the system before run the following,
+
+"echo 0 > /proc/sys/kernel/preempt_max_latency"
+
+ 
+That will record a trace for every maximum latency observed for IRQ
+latency . You can view the trace with this command
+"cat /proc/latency_trace" , and you can attach the trace to an email to
+LKML so we can review it (compress it if it's big though) .
+
+Daniel
+

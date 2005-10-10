@@ -1,209 +1,188 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbVJJURA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbVJJUfS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751191AbVJJURA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 16:17:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751199AbVJJUQ7
+	id S1751212AbVJJUfS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 16:35:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751214AbVJJUfS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 16:16:59 -0400
-Received: from xproxy.gmail.com ([66.249.82.200]:52890 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751191AbVJJUQ7 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 16:16:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=XGPcYWN/pc2n9oA9A3mb86boVxffUo2YMl5VeQ+ahibTGBWuKmVje1MUpjU5gkTHKW+qSCW7TnLvQriywXFcN+5tWDRFzVZEn1K345PXn0mAa/biM6w+MdYQB/HW0EN8yYBDr0f0oMHhHFIjRKleGchlauSOsIG/EZlvjO7RbCg=
-Message-ID: <5bdc1c8b0510101316k23ff64e2i231cdea7f11e8553@mail.gmail.com>
-Date: Mon, 10 Oct 2005 13:16:58 -0700
-From: Mark Knecht <markknecht@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Latency data - 2.6.14-rc3-rt13
-Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 10 Oct 2005 16:35:18 -0400
+Received: from tux06.ltc.ic.unicamp.br ([143.106.24.50]:39585 "EHLO
+	tux06.ltc.ic.unicamp.br") by vger.kernel.org with ESMTP
+	id S1751212AbVJJUfQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 16:35:16 -0400
+Date: Mon, 10 Oct 2005 17:45:17 -0300
+From: Glauber de Oliveira Costa <glommer@br.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, hirofumi@mail.parknet.co.jp,
+       linux-ntfs-dev@lists.sourceforge.net, aia21@cantab.net,
+       hch@infradead.org, viro@zeniv.linux.org.uk,
+       mikulas@artax.karlin.mff.cuni.cz, akpm@osdl.org
+Subject: [PATCH] Use of getblk differs between locations
+Message-ID: <20051010204517.GA30867@br.ibm.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="6c2NcOVqGQ03X4Wi"
 Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-   I'm still suffering the occasional xrun using Jack so I'm trying to
-understand what information I can feed back on this. I turned on the
-histogram feature for both IRQ-off and preempt-off. From what I can
-see so far it seems that something is turning IRQs off for long
-periods of time? I think that this is similar to what Lee Revell
-showed the other day, but I don't know how to get the same sort of
-printout he showed.
 
-This is the Jack data:
+--6c2NcOVqGQ03X4Wi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-nperiods = 2 for capture
-nperiods = 2 for playback
-08:16:26.401 Server configuration saved to "/home/mark/.jackdrc".
-08:16:26.401 Statistics reset.
-08:16:26.637 Client activated.
-08:16:26.639 Audio connection change.
-08:16:26.642 Audio connection graph change.
-08:16:28.395 MIDI connection graph change.
-08:16:28.472 MIDI connection change.
-08:16:29.664 Audio connection graph change.
-08:19:50.071 Audio connection graph change.
-08:19:50.263 MIDI connection graph change.
-08:19:50.273 MIDI connection graph change.
-10:04:36.179 Audio connection graph change.
-10:04:36.362 Audio connection change.
-10:04:38.800 Audio connection graph change.
-10:04:38.810 Audio connection graph change.
-12:34:09.601 XRUN callback (1).
-**** alsa_pcm: xrun of at least 0.133 msecs
-13:09:41.344 MIDI connection graph change.
-13:09:41.439 MIDI connection change.
-13:09:42.427 Audio connection graph change.
-13:09:45.919 Audio connection graph change.
-13:09:45.941 Audio connection graph change.
-13:09:45.960 MIDI connection graph change.
+Hi all,
 
-This is what I see for preempt off latency. This looks really good to me:
+I've just noticed that the use of sb_getblk differs between locations
+inside the kernel. To be precise, in some locations there are tests
+against its return value, and in some places there are not.
 
-#Minimum latency: 0 microseconds.
-#Average latency: 0 microseconds.
-#Maximum latency: 1207040 microseconds.
-#Total samples: 196871313
-#There are 2 samples greater or equal than 10240 microseconds
-#usecs           samples
-    0          190504250
-    1            5881275
-    2             379533
-    3              69966
-    4              13858
-    5               5708
-    6               2287
-    7               7726
-    8               1771
-    9                465
-   10                649
-   11                935
-   12                948
-   13                720
-   14                573
-   15                329
-   16                139
-   17                 71
-   18                 46
-   19                 27
-   20                 21
-   21                  7
-   22                  3
-   23                  2
-   24                  1
-   25                  0
-   26                  0
-   27                  0
+According to the comments in __getblk definition, the tests are not
+necessary, as the function always return a buffer_head (maybe a wrong
+one),
 
+The patch bellow just make it's use homogeneous trough the whole code
+in the various filesystems that use it.
 
-However, for IRQ off latency I have far larger numbers. I Assume that
-it's probably pretty bad that interrupts could be turned off for as
-long as 4mS when I'm trying to run sub3mS?
+One thing to mention, is that I've kept my hands away from hpfs code.
+That's because sb_getblk is used inside another function, that returns
+NULL in the case sb_getblk does it too (Which does not seem to happen).
+The correct action would be trace down all the uses of that function and
+change it.
 
-#Minimum latency: 0 microseconds.
-#Average latency: 4 microseconds.
-#Maximum latency: 3998 microseconds.
-#Total samples: 3102665680
-#There are 0 samples greater or equal than 10240 microseconds
-#usecs           samples
-    0         3066905198
-    1            3817807
-    2           15630448
-    3             347330
-    4              55362
-    5              40098
-    6              27080
-    7              27740
-    8              22484
-    9              20298
-   10              15727
-   11              15346
-   12              14870
-   13              15258
-   14             101559
-   15              16152
-<SNIP>
- 1365              18434
- 1366              15529
- 1367              12471
- 1368              11392
- 1369              13927
- 1370              21813
- 1371              39568
- 1372              87654
- 1373             250408
- 1374             535990
- 1375             577197
- 1376             370609
- 1377             120045
- 1378              20431
- 1379               5312
- 1380               5349
- 1381               8203
- 1382              14773
- 1383              15352
- 1384               9515
- 1385               5020
- 1386               3618
- 1387               3738
- 1388               5554
- 1389               8669
- 1390               8244
- 1391               6448
- 1392               4948
- 1393               4151
- 1394               5984
- 1395              10599
- 1396              19058
- 1397              41222
- 1398             109732
- 1399             360362
- 1400             354579
- 1401             113700
- 1402              11014
- 1403               1240
- 1404                754
- 1405                772
- 1406                963
- 1407                850
- 1408                445
- 1409                276
-<SNIP>
- 3976                 62
- 3977                 57
- 3978                 71
- 3979                 70
- 3980                 59
- 3981                 61
- 3982                 69
- 3983                 76
- 3984                 75
- 3985                 72
- 3986                 76
- 3987                 80
- 3988                 65
- 3989                 64
- 3990                 78
- 3991                 70
- 3992                 85
- 3993                128
- 3994                236
- 3995                358
- 3996                 96
- 3997                  0
- 3998                  1
- 3999                  0
- 4000                  0
- 4001                  0
- 4002                  0
+-- 
+=====================================
+Glauber de Oliveira Costa
+IBM Linux Technology Center - Brazil
+glommer@br.ibm.com
+=====================================
 
+--6c2NcOVqGQ03X4Wi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch_getblk
 
-How can I get data that would be more useful in terms of real debug?
+diff -Naurp linux-2.6.14-rc2-orig/fs/ext2/xattr.c linux-2.6.14-rc2-cleanp/fs/ext2/xattr.c
+--- linux-2.6.14-rc2-orig/fs/ext2/xattr.c	2005-09-01 14:26:03.000000000 +0000
++++ linux-2.6.14-rc2-cleanp/fs/ext2/xattr.c	2005-10-10 19:47:27.000000000 +0000
+@@ -679,11 +679,6 @@ ext2_xattr_set2(struct inode *inode, str
+ 			ea_idebug(inode, "creating block %d", block);
+ 
+ 			new_bh = sb_getblk(sb, block);
+-			if (!new_bh) {
+-				ext2_free_blocks(inode, block, 1);
+-				error = -EIO;
+-				goto cleanup;
+-			}
+ 			lock_buffer(new_bh);
+ 			memcpy(new_bh->b_data, header, new_bh->b_size);
+ 			set_buffer_uptodate(new_bh);
+diff -Naurp linux-2.6.14-rc2-orig/fs/fat/dir.c linux-2.6.14-rc2-cleanp/fs/fat/dir.c
+--- linux-2.6.14-rc2-orig/fs/fat/dir.c	2005-09-26 13:58:15.000000000 +0000
++++ linux-2.6.14-rc2-cleanp/fs/fat/dir.c	2005-10-10 19:37:47.000000000 +0000
+@@ -46,7 +46,7 @@ static inline void fat_dir_readahead(str
+ 		return;
+ 
+ 	bh = sb_getblk(sb, phys);
+-	if (bh && !buffer_uptodate(bh)) {
++	if (!buffer_uptodate(bh)) {
+ 		for (sec = 0; sec < sbi->sec_per_clus; sec++)
+ 			sb_breadahead(sb, phys + sec);
+ 	}
+@@ -978,10 +978,6 @@ static int fat_zeroed_cluster(struct ino
+ 	n = nr_used;
+ 	while (blknr < last_blknr) {
+ 		bhs[n] = sb_getblk(sb, blknr);
+-		if (!bhs[n]) {
+-			err = -ENOMEM;
+-			goto error;
+-		}
+ 		memset(bhs[n]->b_data, 0, sb->s_blocksize);
+ 		set_buffer_uptodate(bhs[n]);
+ 		mark_buffer_dirty(bhs[n]);
+@@ -1031,10 +1027,6 @@ int fat_alloc_new_dir(struct inode *dir,
+ 
+ 	blknr = fat_clus_to_blknr(sbi, cluster);
+ 	bhs[0] = sb_getblk(sb, blknr);
+-	if (!bhs[0]) {
+-		err = -ENOMEM;
+-		goto error_free;
+-	}
+ 
+ 	fat_date_unix2dos(ts->tv_sec, &time, &date);
+ 
+@@ -1113,10 +1105,6 @@ static int fat_add_new_entries(struct in
+ 		last_blknr = start_blknr + sbi->sec_per_clus;
+ 		while (blknr < last_blknr) {
+ 			bhs[n] = sb_getblk(sb, blknr);
+-			if (!bhs[n]) {
+-				err = -ENOMEM;
+-				goto error_nomem;
+-			}
+ 
+ 			/* fill the directory entry */
+ 			copy = min(size, sb->s_blocksize);
+diff -Naurp linux-2.6.14-rc2-orig/fs/fat/fatent.c linux-2.6.14-rc2-cleanp/fs/fat/fatent.c
+--- linux-2.6.14-rc2-orig/fs/fat/fatent.c	2005-06-17 19:48:29.000000000 +0000
++++ linux-2.6.14-rc2-cleanp/fs/fat/fatent.c	2005-10-10 19:38:10.000000000 +0000
+@@ -357,10 +357,6 @@ static int fat_mirror_bhs(struct super_b
+ 
+ 		for (n = 0; n < nr_bhs; n++) {
+ 			c_bh = sb_getblk(sb, backup_fat + bhs[n]->b_blocknr);
+-			if (!c_bh) {
+-				err = -ENOMEM;
+-				goto error;
+-			}
+ 			memcpy(c_bh->b_data, bhs[n]->b_data, sb->s_blocksize);
+ 			set_buffer_uptodate(c_bh);
+ 			mark_buffer_dirty(c_bh);
+diff -Naurp linux-2.6.14-rc2-orig/fs/isofs/inode.c linux-2.6.14-rc2-cleanp/fs/isofs/inode.c
+--- linux-2.6.14-rc2-orig/fs/isofs/inode.c	2005-09-01 14:26:03.000000000 +0000
++++ linux-2.6.14-rc2-cleanp/fs/isofs/inode.c	2005-10-10 19:55:40.000000000 +0000
+@@ -994,8 +994,6 @@ int isofs_get_blocks(struct inode *inode
+ 			map_bh(*bh, inode->i_sb, firstext + b_off - offset);
+ 		} else {
+ 			*bh = sb_getblk(inode->i_sb, firstext+b_off-offset);
+-			if ( !*bh )
+-				goto abort;
+ 		}
+ 		bh++;	/* Next buffer head */
+ 		b_off++;	/* Next buffer offset */
+diff -Naurp linux-2.6.14-rc2-orig/fs/ntfs/compress.c linux-2.6.14-rc2-cleanp/fs/ntfs/compress.c
+--- linux-2.6.14-rc2-orig/fs/ntfs/compress.c	2005-09-26 13:58:16.000000000 +0000
++++ linux-2.6.14-rc2-cleanp/fs/ntfs/compress.c	2005-10-10 19:50:15.000000000 +0000
+@@ -641,8 +641,7 @@ lock_retry_remap:
+ 		max_block = block + (vol->cluster_size >> block_size_bits);
+ 		do {
+ 			ntfs_debug("block = 0x%x.", block);
+-			if (unlikely(!(bhs[nr_bhs] = sb_getblk(sb, block))))
+-				goto getblk_err;
++			bhs[nr_bhs] = sb_getblk(sb, block);
+ 			nr_bhs++;
+ 		} while (++block < max_block);
+ 	}
+@@ -938,9 +937,6 @@ rl_err:
+ 			"compression block.");
+ 	goto err_out;
+ 
+-getblk_err:
+-	up_read(&ni->runlist.lock);
+-	ntfs_error(vol->sb, "getblk() failed. Cannot read compression block.");
+ 
+ err_out:
+ 	kfree(bhs);
+diff -Naurp linux-2.6.14-rc2-orig/fs/sysv/balloc.c linux-2.6.14-rc2-cleanp/fs/sysv/balloc.c
+--- linux-2.6.14-rc2-orig/fs/sysv/balloc.c	2005-06-17 19:48:29.000000000 +0000
++++ linux-2.6.14-rc2-cleanp/fs/sysv/balloc.c	2005-10-10 19:52:03.000000000 +0000
+@@ -75,11 +75,6 @@ void sysv_free_block(struct super_block 
+ 	if (count == sbi->s_flc_size || count == 0) {
+ 		block += sbi->s_block_base;
+ 		bh = sb_getblk(sb, block);
+-		if (!bh) {
+-			printk("sysv_free_block: getblk() failed\n");
+-			unlock_super(sb);
+-			return;
+-		}
+ 		memset(bh->b_data, 0, sb->s_blocksize);
+ 		*(__fs16*)bh->b_data = cpu_to_fs16(sbi, count);
+ 		memcpy(get_chunk(sb,bh), blocks, count * sizeof(sysv_zone_t));
 
-Thanks,
-Mark
+--6c2NcOVqGQ03X4Wi--

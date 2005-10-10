@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbVJJJ2z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbVJJJfF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750716AbVJJJ2z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 05:28:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbVJJJ2y
+	id S1750720AbVJJJfF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 05:35:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbVJJJfE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 05:28:54 -0400
-Received: from xproxy.gmail.com ([66.249.82.203]:9132 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750716AbVJJJ2y convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 05:28:54 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=qgFlTUebBIyo3z7iuH8XB39nJwxKFUr9R+yxVeSnJmcEj1bAiQKkknc9OQDj80DzcMbibLptodJ5Fv4XtRCH/mSaB/sQ5yKQItvR7uUYlt6ilxQCl3iHgKcyl/C0Xabb9e/+juiqOxX49hfwJOwvocRpVyVgQiPUAlf4Fx5FB/4=
-Message-ID: <309a667c0510100228s5c9bac7cwaf74548520bba808@mail.gmail.com>
-Date: Mon, 10 Oct 2005 14:58:53 +0530
-From: Devesh Sharma <devesh28@gmail.com>
-Reply-To: Devesh Sharma <devesh28@gmail.com>
-To: linux-kernel@vger.kernel.org, rdunlap@xenotime.net
-Subject: Re: Issues in Booting kernel 2.6.13
-In-Reply-To: <309a667c0510100215wcf311bcr3cc0555cc4557d39@mail.gmail.com>
+	Mon, 10 Oct 2005 05:35:04 -0400
+Received: from mx2.suse.de ([195.135.220.15]:41428 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750720AbVJJJfD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 05:35:03 -0400
+From: Andi Kleen <ak@suse.de>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Subject: Re: FW: [PATCH 0/3] Demand faulting for huge pages
+Date: Mon, 10 Oct 2005 11:32:04 +0200
+User-Agent: KMail/1.8.2
+Cc: "'Hugh Dickins'" <hugh@veritas.com>, "Seth, Rohit" <rohit.seth@intel.com>,
+       "William Irwin" <wli@holomorphy.com>, agl@us.ibm.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org, akpm@osdl.org
+References: <200510100651.j9A6pZg13871@unix-os.sc.intel.com>
+In-Reply-To: <200510100651.j9A6pZg13871@unix-os.sc.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <309a667c0510052216n784e229ei69b3a3a2a9e93f4b@mail.gmail.com>
-	 <20051006190806.388289ff.rdunlap@xenotime.net>
-	 <43481D0F.9020407@dolphinics.no>
-	 <20051008123131.41d85d45.rdunlap@xenotime.net>
-	 <434A23A2.1020407@dolphinics.no>
-	 <309a667c0510100215wcf311bcr3cc0555cc4557d39@mail.gmail.com>
+Message-Id: <200510101132.05620.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-Randy, Simen and list
-I am sorry , I could not reply ur post on 6th oct as I  have noticed
-ur reply today. But I have got the solution for this.
+On Monday 10 October 2005 08:51, Chen, Kenneth W wrote:
 
-During make menuconfig I forgot to include MPT FUSION device support
-in my erlier compilation. But Now this is working fine
+> Demand paging is one aspect of enhancing generality of hugetlb.  Intel
+> initially proposed the feature 18 month ago [* see link below] along
+> with SGI. Christoph Lameter at SGI scratched that subject Oct 2004.
+> And now, Adam at IBM attempts it again.  There is a growing need to
+> make hugetlb easier to use, more transparency in using hugetlb pages
+> etc.  All requires hugetlb code to be more generalized, instead of
+> reducing functionality.
 
-I am sorry If this has created any confusion among the list.
-Or If its really an issue then let me know also.
+It's also badly needed to make hugetlbfs NUMA policy aware. mbind
+requires allocation on demand, because it runs after mmap and
+cannot fix up the policy when the pages are already allocated.
 
-Thanks
+> Granted, the patch I posted on expanding ftruncate will be replaced
+> once demand paging goes in.  I wanted to demonstrate that it is a
+> feature we should implement, instead of cutting back more on current
+> thin functionality in hugetlbfs. (with demand paging, expanding
+> ftruncate should be really easy and clean, instead of "peculiar
+> semantics" all because of prefaulting).
+
+I would like to have it. I remember hating to implement extending 
+truncate by hand when I did the test programs for the hugetlbfs numa policy.
+
+-Andi

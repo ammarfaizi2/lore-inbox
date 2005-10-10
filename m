@@ -1,60 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbVJJOfG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750820AbVJJOib@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750723AbVJJOfG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 10:35:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750762AbVJJOfG
+	id S1750820AbVJJOib (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 10:38:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750818AbVJJOib
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 10:35:06 -0400
-Received: from qproxy.gmail.com ([72.14.204.194]:13884 "EHLO qproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750723AbVJJOfE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 10:35:04 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Tz04Exv37PmKogArt9DNE2oHN/K77pQtB7Vgi9AS6DJmVo6K4ZW+ptqQ4YViXkpZBqZfQURlv0Xu0MN9ZBjKQlGbFXNEwajY3aAWi5Dm1spkumCSZD0ZMoHfbGRKqSYWJOSBQvlaju4VswZ6wJuIywoxTKCu7knsqT9e++ZwdgA=
-Message-ID: <9a8748490510100735k3cabd1csdc2aa332f70f43d5@mail.gmail.com>
-Date: Mon, 10 Oct 2005 16:35:03 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Con Kolivas <kernel@kolivas.org>
-Subject: Re: [PATCH] mm - implement swap prefetching
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, ck list <ck@vds.kolivas.org>
-In-Reply-To: <200510110023.02426.kernel@kolivas.org>
+	Mon, 10 Oct 2005 10:38:31 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:3287 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S1750815AbVJJOia (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 10:38:30 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Vivek Kutal <vivek.kutal@gmail.com>
+Subject: Re: Need for SHIFT and MASK
+Date: Mon, 10 Oct 2005 17:37:38 +0300
+User-Agent: KMail/1.8.2
+Cc: Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org
+References: <b9a245c10510090502r4e87696fqe111c0071e7f2a03@mail.gmail.com> <200510091423.24660.ioe-lkml@rameria.de> <b9a245c10510091140q78c2480dqb095a7cdab12932e@mail.gmail.com>
+In-Reply-To: <b9a245c10510091140q78c2480dqb095a7cdab12932e@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <200510110023.02426.kernel@kolivas.org>
+Message-Id: <200510101737.39171.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/10/05, Con Kolivas <kernel@kolivas.org> wrote:
-> Andrew could you please consider this for -mm
->
-> Small changes to the style after suggestions from Pekka Enberg (thanks), and
-> changed the default size of prefetch to gently increase with size of ram.
-> Functionally this is the same code as vm-swap_prefetch-15 and I believe ready
-> for a wider audience.
->
+On Sunday 09 October 2005 21:40, Vivek Kutal wrote:
+> Hi Ingo,
+> 
+> > This is usally table driven and someone has to set up
+> > this "Page Translation Tables". That's a job of the Linux kernel.
+> 
+> Yes setting up the page table entries is the job of the kernel , but
+> for that we need to put the physical add. of the page and some bits
+> (present,access writes etc) in the entry, once it is done the main job
+> of translation which requires the masking and shifting is done by the
+> processor whenever that page is referenced .
+> so why these macros are present in the kernel?
 
-+	  What this will do on workstations is slowly bring back applications
-+	  that have swapped out after memory intensive workloads back into
-+	  physical ram if you have free ram at a later stage and the machine
-+	  is relatively idle. This means that when you come back to your
-+	  computer after leaving it idle for a while, applications will come
-+	  to life faster. Note that your swap usage will appear to increase
-+	  but these are cached pages, can be dropped freely by the vm, and it
-+	  should stabilise around 50% swap usage.
-+	
-+	  Desktop users will most likely want to say Y.
+They are needed. You can remome them.
 
-How about a little note about the impact for server users as well?
-You recommend that desktop users enable this, but you don't give any
-recommendation for servers.
-
-
+NB: joke tags are invisible, but they are there.
 --
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+vda

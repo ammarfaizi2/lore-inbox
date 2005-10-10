@@ -1,59 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751027AbVJJXdR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751023AbVJJXeW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751027AbVJJXdR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 19:33:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751031AbVJJXdR
+	id S1751023AbVJJXeW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 19:34:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751036AbVJJXeW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 19:33:17 -0400
-Received: from xproxy.gmail.com ([66.249.82.205]:58437 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751023AbVJJXdR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 19:33:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=QaBe4wd5hISOIcgSo13qWM5Oj6u2/7KVDeAOq7bAgPQ/jU7PZDS+PY7a1kUDTwaUeyp7PcU9q6Ea/8ozTfMhbI8YgdAT+wLGyDQG6ToPgu+RAwNg3Kt7wRSZmJjxLP9zlIvrFjdYwOVcH4CQ9rgbc0FloBtCQF63Wqa1OGOZpsc=
-Message-ID: <5bdc1c8b0510101633lc45fbf8gd2677e5646dc6f93@mail.gmail.com>
-Date: Mon, 10 Oct 2005 16:33:15 -0700
-From: Mark Knecht <markknecht@gmail.com>
-To: Daniel Walker <dwalker@mvista.com>
-Subject: Re: Latency data - 2.6.14-rc3-rt13
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Lee Revell <rlrevell@joe-job.com>
-In-Reply-To: <1128983301.18782.215.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+	Mon, 10 Oct 2005 19:34:22 -0400
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:43490 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1751023AbVJJXeV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 19:34:21 -0400
+Date: Tue, 11 Oct 2005 01:34:20 +0200 (CEST)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Glauber de Oliveira Costa <glommer@br.ibm.com>
+Cc: Anton Altaparmakov <aia21@cam.ac.uk>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       hirofumi@mail.parknet.co.jp, linux-ntfs-dev@lists.sourceforge.net,
+       aia21@cantab.net, hch@infradead.org, viro@zeniv.linux.org.uk,
+       akpm@osdl.org
+Subject: Re: [PATCH] Use of getblk differs between locations
+In-Reply-To: <20051010233344.GA13399@br.ibm.com>
+Message-ID: <Pine.LNX.4.62.0510110127130.27454@artax.karlin.mff.cuni.cz>
+References: <20051010204517.GA30867@br.ibm.com>
+ <Pine.LNX.4.64.0510102217200.6247@hermes-1.csi.cam.ac.uk>
+ <20051010214605.GA11427@br.ibm.com> <Pine.LNX.4.62.0510102347220.19021@artax.karlin.mff.cuni.cz>
+ <Pine.LNX.4.64.0510102319100.6247@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.62.0510110035110.19021@artax.karlin.mff.cuni.cz>
+ <20051010231242.GC11427@br.ibm.com> <Pine.LNX.4.62.0510110112310.27454@artax.karlin.mff.cuni.cz>
+ <20051010233344.GA13399@br.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <5bdc1c8b0510101316k23ff64e2i231cdea7f11e8553@mail.gmail.com>
-	 <1128977359.18782.199.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-	 <5bdc1c8b0510101412n714c4798v1482254f6f8e0386@mail.gmail.com>
-	 <5bdc1c8b0510101428o475d9dbct2e9bdcc6b46418c9@mail.gmail.com>
-	 <1128980674.18782.211.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-	 <5bdc1c8b0510101509w4c74028apb6e69746b1b8b65b@mail.gmail.com>
-	 <1128983301.18782.215.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/10/05, Daniel Walker <dwalker@mvista.com> wrote:
-
-> > Yes, already that looks interesting. Do I have something going on with
-> > acpi? This is before running Jack. I'm in Gnome.There are a lot of
-> > these messages, but they've stopped. I suppose the 3997 is the delay?
-> > That would coorespond with the info I sent earlier.
+>>>> What should a filesystem driver do if it can't suddenly read or write any
+>>>> blocks on media?
+>>>
+>>> Maybe stopping gracefully, warn about what happened, and let the system
+>>> keep going. You may be right about your main filesystem, but in the case
+>>> I'm running, for example, my system in an ext3 filesystem, and have a
+>>> vfat from a usb key. Should my system really hang because I'm not able
+>>> to read/write to the device?
+>>
+>> getblk won't fail because of I/O error --- it can fail only because of
+>> memory management bugs. I think it's right to stop the system in that case
+>> --- it's better than silently corrupting data on any device.
+>>
+>> Mikulas
+>>
+> In the code, we see:
 >
-> I think this is a false reading . Sometimes when a system goes idle it
-> will cause interrupt disable latency that isn't real (due to process
-> halting) . You could try turning ACPI off if you can , and turn off
-> power management ..
+> if (unlikely(size & (bdev_hardsect_size(bdev)-1) ||
+>                        (size < 512 || size > PAGE_SIZE))) {
 >
-> Daniel
+> This is where __getblk_slow, and thus, __getblk fails, and it does not
+> seem to be due to any memory management bug.
 
-OK. NO immediate difference with most of the power management stuff
-turned off. I'll just let it run a few hours and see if I get an xrun.
-If I do I'll look at the logs again and report back.
+This is a filesystem bug --- filesystem should set it's blocksize with 
+sb_set_blocksize (and refuse to mount if the device doesn't support it) 
+before using it in requests.
 
-Thanks for the help. I feel like I've got a chance of spotting something.
-
-Cheers,
-Mark
+Mikulas

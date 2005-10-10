@@ -1,56 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbVJJVUU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751252AbVJJVVR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751253AbVJJVUU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 17:20:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751252AbVJJVUU
+	id S1751252AbVJJVVR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 17:21:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbVJJVVR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 17:20:20 -0400
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:24216 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1751250AbVJJVUS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 17:20:18 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Mon, 10 Oct 2005 22:20:07 +0100 (BST)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Glauber de Oliveira Costa <glommer@br.ibm.com>
-cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, hirofumi@mail.parknet.co.jp,
-       linux-ntfs-dev@lists.sourceforge.net, aia21@cantab.net,
-       hch@infradead.org, viro@zeniv.linux.org.uk,
-       mikulas@artax.karlin.mff.cuni.cz, akpm@osdl.org
-Subject: Re: [PATCH] Use of getblk differs between locations
-In-Reply-To: <20051010204517.GA30867@br.ibm.com>
-Message-ID: <Pine.LNX.4.64.0510102217200.6247@hermes-1.csi.cam.ac.uk>
-References: <20051010204517.GA30867@br.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 10 Oct 2005 17:21:17 -0400
+Received: from mail.kroah.org ([69.55.234.183]:5779 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751251AbVJJVVQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 17:21:16 -0400
+Date: Mon, 10 Oct 2005 14:19:18 -0700
+From: Greg KH <greg@kroah.com>
+To: David Teigland <teigland@redhat.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 11/16] GFS: mount and tuning options
+Message-ID: <20051010211918.GA13920@kroah.com>
+References: <20051010171052.GL22483@redhat.com> <20051010210108.GA13457@kroah.com> <20051010211429.GA25691@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051010211429.GA25691@redhat.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Mon, 10 Oct 2005, Glauber de Oliveira Costa wrote:
-> I've just noticed that the use of sb_getblk differs between locations
-> inside the kernel. To be precise, in some locations there are tests
-> against its return value, and in some places there are not.
+On Mon, Oct 10, 2005 at 04:14:29PM -0500, David Teigland wrote:
+> On Mon, Oct 10, 2005 at 02:01:08PM -0700, Greg KH wrote:
+> > On Mon, Oct 10, 2005 at 12:10:52PM -0500, David Teigland wrote:
+> > > +static ssize_t statfs_show(struct gfs2_sbd *sdp, char *buf)
+> > > +{
+> > > +	struct gfs2_statfs_change sc;
+> > > +	int rv;
+> > > +
+> > > +	if (gfs2_tune_get(sdp, gt_statfs_slow))
+> > > +		rv = gfs2_statfs_slow(sdp, &sc);
+> > > +	else
+> > > +		rv = gfs2_statfs_i(sdp, &sc);
+> > > +
+> > > +	if (rv)
+> > > +		goto out;
+> > > +
+> > > +	rv += sprintf(buf + rv, "bsize %u\n", sdp->sd_sb.sb_bsize);
+> > > +	rv += sprintf(buf + rv, "total %lld\n", sc.sc_total);
+> > > +	rv += sprintf(buf + rv, "free %lld\n", sc.sc_free);
+> > > +	rv += sprintf(buf + rv, "dinodes %lld\n", sc.sc_dinodes);
+> > 
+> > No, 1 value per sysfs file please.
 > 
-> According to the comments in __getblk definition, the tests are not
-> necessary, as the function always return a buffer_head (maybe a wrong
-> one),
+> I'm aware of that rule and have followed it everywhere else.  This is a
+> special case where the one statfs produces three results.
 
-If you had read the source code rather than just the comments you would 
-have seen that this is not true.  It can return NULL (see 
-fs/buffer.c::__getblk_slow()).  Certainly I would prefer to keep the 
-checks in NTFS, please.  They may only be good for catching bugs but I 
-like catching bugs rather than segfaulting due to a NULL dereference.
+Then why not have 4 different files, for the result of the last "statfs"
+command?
 
-Best regards,
+thanks,
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+greg k-h

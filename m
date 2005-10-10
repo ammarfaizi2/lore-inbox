@@ -1,78 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbVJJEGF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbVJJERN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932336AbVJJEGF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 00:06:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932337AbVJJEGF
+	id S932337AbVJJERN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 00:17:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbVJJERN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 00:06:05 -0400
-Received: from smtp104.sbc.mail.re2.yahoo.com ([68.142.229.101]:48784 "HELO
-	smtp104.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932336AbVJJEGE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 00:06:04 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
+	Mon, 10 Oct 2005 00:17:13 -0400
+Received: from zproxy.gmail.com ([64.233.162.204]:24920 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932337AbVJJERN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 00:17:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=UVhy9d0bSqYSe9KZ9Lz2Py+wNIWwxe4ubU5pe5p99VNLDBEVjsEbmlOMdv0zwM44987DlXnZzPqcvWI1KOVRc/Zkzj9hyu4/4L4uTM3863uxbQtgxqSBPt7LdKO7iOhR2N9rnqCt+tRalmOBWLcd8MW8TxIFo8uJ5z0tZNf2olE=
+Message-ID: <3ad486780510092117x1796d8f6m9d1ef4c2dbc56d17@mail.gmail.com>
+Date: Mon, 10 Oct 2005 14:17:12 +1000
+From: spereira <pereira.shaun@gmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH2 6/6] isicom: More whitespaces and coding style
-Date: Sun, 9 Oct 2005 23:05:57 -0500
-User-Agent: KMail/1.8.2
-Cc: "Jiri Slaby" <xslaby@fi.muni.cz>, Andrew Morton <akpm@osdl.org>
-References: <20051009194241.4821E22AF10@anxur.fi.muni.cz>
-In-Reply-To: <20051009194241.4821E22AF10@anxur.fi.muni.cz>
+Subject: Fwd: 32 bit (socket layer) ioctl emulation for 64 bit kernels
+In-Reply-To: <3ad486780510092112r518295a5pebc3441674cbae4d@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200510092305.58010.dtor_core@ameritech.net>
+References: <3ad486780510092112r518295a5pebc3441674cbae4d@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 09 October 2005 14:42, Jiri Slaby wrote:
-> More whitespaces and coding style
-> 
-> Wrap all the code to 80 chars on a line.
-> Some `}\nelse' changed to `} else'.
-> Clean whitespaces in header file.
-> 
-> Generated in 2.6.14-rc2-mm2 kernel version
-> 
-> Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
-> 
-> ---
->  drivers/char/isicom.c  |  148 +++++++++++++++++++++++-------------------------
->  include/linux/isicom.h |   21 +++----
->  2 files changed, 82 insertions(+), 87 deletions(-)
-> 
-> diff --git a/drivers/char/isicom.c b/drivers/char/isicom.c
-> --- a/drivers/char/isicom.c
-> +++ b/drivers/char/isicom.c
-> @@ -467,33 +467,36 @@ static void isicom_tx(unsigned long _dat
->  		residue = NO;
->  		wrd = 0;
->  		while (1) {
-> -			cnt = min_t(int, txcount, (SERIAL_XMIT_SIZE - port->xmit_tail));
-> +			cnt = min_t(int, txcount, (SERIAL_XMIT_SIZE
-> +					- port->xmit_tail));
+Hi
+I am trying to implement 32 bit userland support for existing x25
+socket layer ioctls in a x86_64 kernel for use in a project for a
+telco.
 
-I am sorry but do you really consider the new form more readable?
+ It used to be possible to extend the  contents of the
+ioctl32_hash_table(fs/compat.c) for ioctl commands and associated
+handlers (= 64 bit converstion functions) by calling the
+register_ioctl32_conversion() function.
+However this function has now been scheduled for removal. The
+suggested replacement seems to be available only for inode structures
+created for "actual" file systems, where the i_fop points to
+operations for "real" files. When using "socket type" inodes
+i_fop(inode/fs.h) points to operations for sockets which does not
+provide a hook like compat_ioctl for handling such conversions.
 
-> -					wrd |= (port->xmit_buf[port->xmit_tail] << 8);
-> -					port->xmit_tail = (port->xmit_tail + 1) & (SERIAL_XMIT_SIZE - 1);
-> +					wrd |= (port->xmit_buf[port->xmit_tail]
-> +							<< 8);
-
-And this?
-
-> -#ifdef ISICOM_DEBUG
-> -						printk(KERN_DEBUG "ISICOM: interrupt: DCD->low.\n");
-> -#endif
-> +						pr_deb(KERN_DEBUG "ISICOM: "
-> +							"interrupt: "
-> +							"DCD->low.\n");
-
-And this?
-
-Simply limiting line length to 80 is not enough IMHO, you need to
-keep the code readable at the same time.
-
--- 
-Dmitry
+Is there currently an alternative to register_ioctl32_conversion that
+would help achive 32 bit ioctl emulation at the socket layer?
+Any suggestions/advice whould be much appreciated.
+Many Thanks
+Shaun

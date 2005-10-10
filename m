@@ -1,113 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbVJJIQ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750804AbVJJIZK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750756AbVJJIQ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 04:16:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750784AbVJJIQ3
+	id S1750804AbVJJIZK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 04:25:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750809AbVJJIZK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 04:16:29 -0400
-Received: from scipost.dolphinics.no ([193.71.152.3]:34461 "EHLO
-	scipost.dolphinics.no") by vger.kernel.org with ESMTP
-	id S1750756AbVJJIQ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 04:16:28 -0400
-Message-ID: <434A23A2.1020407@dolphinics.no>
-Date: Mon, 10 Oct 2005 10:17:38 +0200
-From: Simen Thoresen <simentt@dolphinics.no>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-CC: devesh28@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: Issues in Booting kernel 2.6.13
-References: <309a667c0510052216n784e229ei69b3a3a2a9e93f4b@mail.gmail.com>	<20051006190806.388289ff.rdunlap@xenotime.net>	<43481D0F.9020407@dolphinics.no> <20051008123131.41d85d45.rdunlap@xenotime.net>
-In-Reply-To: <20051008123131.41d85d45.rdunlap@xenotime.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 10 Oct 2005 04:25:10 -0400
+Received: from calypso.frankengul.org ([62.212.121.50]:53149 "EHLO
+	calypso.frankengul.org") by vger.kernel.org with ESMTP
+	id S1750804AbVJJIZJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 04:25:09 -0400
+Date: Mon, 10 Oct 2005 10:25:07 +0200
+To: "David S. Miller" <davem@davemloft.net>
+Cc: debian-sparc@lists.debian.org, netfilter-devel@lists.netfilter.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Sparc64 U60: no iptables
+Message-ID: <20051010082507.GA5157@frankengul.org>
+References: <4347A731.7010509@frankengul.org> <4348EFF4.3040305@frankengul.org> <4349614F.1010408@frankengul.org> <20051009.202646.70198053.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20051009.202646.70198053.davem@davemloft.net>
+User-Agent: Mutt/1.5.9i
+From: seb@frankengul.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Randy, Devesh,
+On Sun, Oct 09, 2005 at 08:26:46PM -0700, David S. Miller wrote:
+> From: Sébastien Bernard <seb@frankengul.org>
+> Date: Sun, 09 Oct 2005 20:28:31 +0200
+> 
+> > Can one explain me why this patch works on other archs, and oops on the 
+> > sparc64 smp ?
+> > Can one explain why I'm the only one to have this problem ?
+> 
+> On your Ultra60 the two physical cpus are numbered "0" and "2".
+> 
 
-Randy.Dunlap wrote:
-> On Sat, 08 Oct 2005 21:25:03 +0200 Simen Thoresen wrote:
-> 
-> 
->>Hi Randy,
->>
->>Randy.Dunlap wrote:
->>
->>>On Thu, 6 Oct 2005 10:46:37 +0530 devesh sharma wrote:
->>>
->>>>Hi all,
->>>>I have compiled 2.6.13 kernel on a opteron machine with 1 GB physical
->>>>memory, Whole compilation gose well but at the last step
->>>>make install I am getting a warning
->>>>WARNING: No module mptbase found for kernel 2.6.13, continuing anyway
->>>>WARNING: No module mptscsih found for kernel 2.6.13, continuing anyway
->>>
->>>
->>>If you need mpt drivers, there were some changes in the
->>>FUSION MPT driver options that may be causing them not to be
->>>built for you as you were expecting.
->>
->>I ran into this (2.6.13.3) on Friday as well, but I have not yet examined it 
->>in detail.
->>
->>Do you have any pointers to the relevant postings or information?
-> 
-> 
-> No, I just recall seeing a few other problem reports and answers about it,
-> and then I compared the 2.6.12 and 2.6.13 .config files following
-> 'make defconfig'.
+Thanks for the information.
 
-It worked with 2.6.12.6, so I'm happy. It now remains to be seen if 
-there was any point in upgrading .-)
+Indeed they are. Does the patch assume that cpus are numbered in a
+row ?
+Now, I reverted the patch for ip_tables.c, ip6_tables.c and ebtables.c.
+Everything is working ok (11h uptime).
 
-> 
->>I've used the 'mkinitrd' tool to generate a 'proper' initrd, and I see both 
->>mptbase and mptscsih loading, but mptscsih never picks up any actual 
->>controllers or disks. Thus the same problem on my system.
->>
->>To me, this signifies that RHs mkinitrd is broken for this kernel, but I 
->>don't know the details of why yet.
-> 
-> 
-> so maybe someone from Red Hat can answer/clarify.
+Is this problem specific to the Ultra 60 or sparc arch ?
+Will a proper fix be issued for our machines ?
 
-I agree. I'll cross my fingers that this gets fixed 'now' and not in 
-time for RH5 :-)
-
--S
-
-> 
->>Yours,
->>-S
->>
->>
->>
->>>>now when I boot my kernel, panic is received
->>>>Booting the kernel.
->>>>Red Hat nash version 4.1.18 starting
->>>>mkrootdev: lable / not found
->>>>mount: error 2 mounting ext3
->>>>mount: error 2 mounting none
->>>>switchroot: mount failed : 22
->>>>umount : /initrd/dev failed : 22
->>>>kernel panic - not syncing : Attempted to kill init
->>>>
->>>>What could be the problem?
->>>>I have RHEL 4 base release already installed on which I have compiled
->>>>this image.
-> 
-> 
-> 
-> ---
-> ~Randy
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-Simen Thoresen, Wulfkit Support, Dolphin ICS
-http://www.tysland.com/~simentt/cluster
+	Seb

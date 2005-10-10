@@ -1,70 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbVJJIj2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbVJJIyQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750722AbVJJIj2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 04:39:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbVJJIj2
+	id S1750764AbVJJIyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 04:54:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbVJJIyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 04:39:28 -0400
-Received: from web35814.mail.mud.yahoo.com ([66.163.179.183]:15278 "HELO
-	web35814.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750722AbVJJIj1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 04:39:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=N1egOlSGnDy6rX+7ZyVyOL+bX621fN7f6qfreO2Dh1xJe83hKRnxX9fvvioPnbaFaBohzp/z+2bK8+clArRJBgyroho2BhRW+9zjDnk3iTj/HmHXbdEspOhiIZ/pZVqj79Mnr8BrHfH+Yvz4H+Ff6cLbCoYjRq1uCa6hDbrScjI=  ;
-Message-ID: <20051010083927.92193.qmail@web35814.mail.mud.yahoo.com>
-Date: Mon, 10 Oct 2005 01:39:27 -0700 (PDT)
-From: nix noob <nixnoob1618@yahoo.com>
-Subject: some peculiar problem debugging in gdb aswell as ald gdb doesnt stop on instruction or stops in the middle of instruction 
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 10 Oct 2005 04:54:16 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:30429 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750764AbVJJIyQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 04:54:16 -0400
+Date: Mon, 10 Oct 2005 10:54:02 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Suspend to RAM broken with 2.6.13
+Message-ID: <20051010085402.GA2369@elf.ucw.cz>
+References: <1127347633.25357.49.camel@idefix.homelinux.org> <20050923163200.GC8946@openzaurus.ucw.cz> <1128663145.14284.85.camel@localhost.localdomain> <20051007072835.GG27711@elf.ucw.cz> <1128678649.14284.93.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1128678649.14284.93.camel@localhost.localdomain>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-to all concerned 
-iam a noob and i had some peculiar problem 
-during debugging of an assembly coded binary 
+On Pá 07-10-05 19:50:49, Jean-Marc Valin wrote:
+> > > I've done some further testing on suspend to RAM and it seems like it
+> > > got broken for me between 2.6.11 and 2.6.12. Does that help narrowing
+> > > down the problem?
+> > 
+> > Well, you'd have to track it down in a bit more specific way. If you
+> > can narrow it down to specific day, or even better with binary search,
+> > it will help.
+> 
+> Any tip on which version to try first, i.e. when were potentially
+> problematic patches merged? Keep in mind that it can take several
+>days
 
-for referance you can visit and glance through this
-thread in fasm board
-
-http://board.flatassembler.net/forum.php?f=4
-
-and googling around and ircing a bit led me to this
-post in your mailing list
-
-http://www.ussg.iu.edu/hypermail/linux/kernel/0406.3/1126.html
-
-i actually wanted to reply to that thread so that the
-questions is continous 
-but i cant find out how i can reply to that thread 
-
-i see linux torvalds himself has replied to that
-thread though i dont understand much of those 
-i sense it is a performance (speed issue)
-but i see the behaviour in gdb due to this 
-is kinda nasty (sigsegvs the binary and executes an
-instruction from the middle :(
-
-hope some one could provide some insightas to how 
-i could still force a break on the test eax,eax 
-and also survive without being sigsegved ??
-
-i give the kernel version of mine atm 
-uname -r
-2.4.21-260-smp4G
-
-
-thanks and regards
-
-nixnoob
-
-
-	
-		
-__________________________________ 
-Yahoo! Mail - PC Magazine Editors' Choice 2005 
-http://mail.yahoo.com
+No ideas, 2.6.12 is *long* ago :-(.
+								Pavel
+-- 
+if you have sharp zaurus hardware you don't need... you know my address

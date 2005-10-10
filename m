@@ -1,50 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750804AbVJJIZK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbVJJIp6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750804AbVJJIZK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 04:25:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750809AbVJJIZK
+	id S1750717AbVJJIp6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 04:45:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbVJJIp6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 04:25:10 -0400
-Received: from calypso.frankengul.org ([62.212.121.50]:53149 "EHLO
-	calypso.frankengul.org") by vger.kernel.org with ESMTP
-	id S1750804AbVJJIZJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 04:25:09 -0400
-Date: Mon, 10 Oct 2005 10:25:07 +0200
-To: "David S. Miller" <davem@davemloft.net>
-Cc: debian-sparc@lists.debian.org, netfilter-devel@lists.netfilter.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Sparc64 U60: no iptables
-Message-ID: <20051010082507.GA5157@frankengul.org>
-References: <4347A731.7010509@frankengul.org> <4348EFF4.3040305@frankengul.org> <4349614F.1010408@frankengul.org> <20051009.202646.70198053.davem@davemloft.net>
+	Mon, 10 Oct 2005 04:45:58 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:47325 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750717AbVJJIp6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 04:45:58 -0400
+Date: Mon, 10 Oct 2005 10:45:35 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: OBATA Noboru <noboru.obata.ar@hitachi.com>
+Cc: hyoshiok@miraclelinux.com, linux-kernel@vger.kernel.org
+Subject: Re: Linux Kernel Dump Summit 2005
+Message-ID: <20051010084535.GA2298@elf.ucw.cz>
+References: <20050921.205550.927509530.hyoshiok@miraclelinux.com> <20051006.211718.74749573.noboru.obata.ar@hitachi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20051009.202646.70198053.davem@davemloft.net>
+In-Reply-To: <20051006.211718.74749573.noboru.obata.ar@hitachi.com>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
-From: seb@frankengul.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 09, 2005 at 08:26:46PM -0700, David S. Miller wrote:
-> From: Sébastien Bernard <seb@frankengul.org>
-> Date: Sun, 09 Oct 2005 20:28:31 +0200
+Hi!
+
+> FULL DUMP WITH COMPRESSION
+> ==========================
 > 
-> > Can one explain me why this patch works on other archs, and oops on the 
-> > sparc64 smp ?
-> > Can one explain why I'm the only one to have this problem ?
+> Those who still want a full dump, including me, are interested
+> in dump compression.  For example, the LKCD format (at least v7
+> format) supports pagewise compression with the deflate
+> algorithm.  A dump analyze tool "crash" can transparently
+> analyze the compressed dump file in this format.
 > 
-> On your Ultra60 the two physical cpus are numbered "0" and "2".
+> The compression will reduce the storage space at certain degree,
+> and may also reduce the time if a dump process were I/O bounded.
+
+I'd say that compression does not help much, it can only speed it up
+twice. But...
+
 > 
+> WHICH IS BETTER?
+> ================
+> 
+> I wrote a small compression tool for LKCD v7 format to see how
+> effective the compression is, and it turned out that the time
+> and size of compression were very much similar to that of gzip,
+> not surprisingly.
+> 
+> Compressing a 32GB dump file took about 40 minutes on Pentium 4
+> Xeon 3.0GHz, which is not good enough because the dump without
+> compression took only 5 minutes; eight times slower.
 
-Thanks for the information.
+....you probably want to look at suspend2.net project. They have
+special compressor aimed at compressing exactly this kind of data,
+fast enough to be improvement.
+								Pavel
 
-Indeed they are. Does the patch assume that cpus are numbered in a
-row ?
-Now, I reverted the patch for ip_tables.c, ip6_tables.c and ebtables.c.
-Everything is working ok (11h uptime).
-
-Is this problem specific to the Ultra 60 or sparc arch ?
-Will a proper fix be issued for our machines ?
-
-	Seb
+-- 
+if you have sharp zaurus hardware you don't need... you know my address

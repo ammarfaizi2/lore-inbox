@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbVJJSQM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbVJJSUF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751140AbVJJSQM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 14:16:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbVJJSQM
+	id S1751147AbVJJSUF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 14:20:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbVJJSUF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 14:16:12 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:54458
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751140AbVJJSQL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 14:16:11 -0400
-Date: Mon, 10 Oct 2005 11:16:11 -0700 (PDT)
-Message-Id: <20051010.111611.106200571.davem@davemloft.net>
-To: seb@frankengul.org
-Cc: debian-sparc@lists.debian.org, netfilter-devel@lists.netfilter.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Sparc64 U60: no iptables
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20051010082507.GA5157@frankengul.org>
-References: <4349614F.1010408@frankengul.org>
-	<20051009.202646.70198053.davem@davemloft.net>
-	<20051010082507.GA5157@frankengul.org>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 10 Oct 2005 14:20:05 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:18583 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751147AbVJJSUE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 14:20:04 -0400
+Date: Mon, 10 Oct 2005 11:19:43 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Harald Welte <laforge@gnumonks.org>
+cc: Chris Wright <chrisw@osdl.org>, Sergey Vlasov <vsu@altlinux.ru>,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       security@linux.kernel.org, vendor-sec@lst.de
+Subject: Re: [BUG/PATCH/RFC] Oops while completing async USB via usbdevio
+In-Reply-To: <20051010174429.GH5627@rama>
+Message-ID: <Pine.LNX.4.64.0510101052520.14597@g5.osdl.org>
+References: <20050927160029.GA20466@master.mivlgu.local>
+ <Pine.LNX.4.58.0509270904140.3308@g5.osdl.org> <20050927165206.GB20466@master.mivlgu.local>
+ <Pine.LNX.4.58.0509270959380.3308@g5.osdl.org> <20050930104749.GN4168@sunbeam.de.gnumonks.org>
+ <Pine.LNX.4.64.0509300752530.3378@g5.osdl.org> <20050930184433.GF16352@shell0.pdx.osdl.net>
+ <Pine.LNX.4.64.0509301225190.3378@g5.osdl.org> <20050930220808.GE4168@sunbeam.de.gnumonks.org>
+ <Pine.LNX.4.64.0509301514190.3378@g5.osdl.org> <20051010174429.GH5627@rama>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: seb@frankengul.org
-Date: Mon, 10 Oct 2005 10:25:07 +0200
 
-> Indeed they are. Does the patch assume that cpus are numbered in a
-> row ?
 
-Yes, and that assumption is incorrect.
+On Mon, 10 Oct 2005, Harald Welte wrote:
+> 
+> Sorry, I've been busy, mostly with the annual netfilter developer
+> workshop. What about the following proposed fix:
 
-> Now, I reverted the patch for ip_tables.c, ip6_tables.c and ebtables.c.
-> Everything is working ok (11h uptime).
+Yes, looks ok, apart from some small details. Like "uid" adn "euid" is of 
+type "uid_t", not "pid_t", and I think that "kill_proc_info_as_uid()" 
+needs exporting for modules (I assume usbdevio can be one).
 
-Right.
+Chris, others, comments?
+
+		Linus

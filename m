@@ -1,72 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbVJJPOP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750849AbVJJPPV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750732AbVJJPOP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 11:14:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750856AbVJJPOP
+	id S1750849AbVJJPPV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 11:15:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750856AbVJJPPV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 11:14:15 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:27321 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1750855AbVJJPOO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 11:14:14 -0400
-Date: Mon, 10 Oct 2005 11:13:17 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: Ingo Molnar <mingo@elte.hu>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       Mark Knecht <markknecht@gmail.com>, linux-kernel@vger.kernel.org,
-       linux-pcmcia@lists.infradead.org, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [patch] pcmcia-shutdown-fix.patch
-In-Reply-To: <20051007191712.GB22608@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.58.0510101106380.26418@localhost.localdomain>
-References: <20050913100040.GA13103@elte.hu> <20050926070210.GA5157@elte.hu>
- <20051002151817.GA7228@elte.hu> <5bdc1c8b0510020842p6035b4c0ibbe9aaa76789187d@mail.gmail.com>
- <5bdc1c8b0510021225y951caf3p3240a05dd2d0247c@mail.gmail.com>
- <Pine.LNX.4.58.0510061308290.973@localhost.localdomain> <20051007110914.GA30873@elte.hu>
- <20051007191712.GB22608@flint.arm.linux.org.uk>
+	Mon, 10 Oct 2005 11:15:21 -0400
+Received: from [66.45.247.194] ([66.45.247.194]:44754 "EHLO
+	penta.pentaserver.com") by vger.kernel.org with ESMTP
+	id S1750849AbVJJPPU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 11:15:20 -0400
+Message-ID: <434A828C.8080401@linuxtv.org>
+Date: Mon, 10 Oct 2005 19:02:36 +0400
+From: Manu Abraham <manu@linuxtv.org>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jiri Slaby <lnx4us@gmail.com>
+CC: Rolf Eike Beer <eike-kernel@sf-tec.de>, linux-kernel@vger.kernel.org
+Subject: Re: PCI driver
+References: <4327EE94.2040405@kromtek.com> <43287712.3040503@gmail.com>	 <4328A3C8.6010501@linuxtv.org>	 <200510101403.02578@bilbo.math.uni-mannheim.de>	 <434A6334.4090407@linuxtv.org> <3888a5cd0510100725k579809a9o374930df9988bfa3@mail.gmail.com>
+In-Reply-To: <3888a5cd0510100725k579809a9o374930df9988bfa3@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Antivirus-Scanner: Clean mail though you should still use an Antivirus
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - penta.pentaserver.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - linuxtv.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jiri Slaby wrote:
 
-On Fri, 7 Oct 2005, Russell King wrote:
-
-> On Fri, Oct 07, 2005 at 01:09:14PM +0200, Ingo Molnar wrote:
-> >
-> > * Steven Rostedt <rostedt@goodmis.org> wrote:
-> >
-> > > Ingo, here's the patch.  This should probably go upstream too since it
-> > > can happen there too.  The pccardd thread has a race in it that it can
-> > > shutdown in the TASK_INTERRUPTIBLE state.  Here's the fix.
-> >
-> > ah, certainly makes sense. Dominik, does it look good to you too? Patch
-> > below is for upstream.
+>On 10/10/05, Manu Abraham <manu@linuxtv.org> wrote:
+>  
 >
-> Looks correct to me (I'm the author of this code.)  Since it's
-> a bug fix, please send it upstream ASAP.
+>>I have fixed most of the stuff, it is partly working, not ready yet as
+>>there are some more things to be added to  ..
+>>I have attached what i was working on.
+>>    
+>>
+>One more thing.
+>
+>  
+>
+>>static int __devinit mantis_pci_init(void)
+>>{
+>>        return pci_register_driver(&mantis_pci_driver);
+>>}
+>>
+>>static void __devexit mantis_pci_exit(void)
+>>{
+>>        pci_unregister_driver(&mantis_pci_driver);
+>>}
+>>    
+>>
+>These should be __init and __exit, which could be freed in more cases
+>(only few bytes, but...).
+>  
 >
 
-Just in case this was missed and hasn't been incorporated.  Here's the
-patch once again:
+Ack'd..
 
--- Steve
+Thanks,
+Manu
 
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 
-Index: linux-2.6.14-rc3/drivers/pcmcia/cs.c
-===================================================================
---- linux-2.6.14-rc3/drivers/pcmcia/cs.c.orig	2005-10-06 06:56:17.000000000 -0400
-+++ linux-2.6.14-rc3/drivers/pcmcia/cs.c	2005-10-10 11:05:09.000000000 -0400
-@@ -689,6 +689,9 @@
- 		schedule();
- 		try_to_freeze();
- 	}
-+	/* make sure we are running before we exit */
-+	set_current_state(TASK_RUNNING);
-+
- 	remove_wait_queue(&skt->thread_wait, &wait);
-
- 	/* remove from the device core */

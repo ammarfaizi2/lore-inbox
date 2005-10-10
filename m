@@ -1,51 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932209AbVJJGzb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932349AbVJJGxg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932209AbVJJGzb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 02:55:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932350AbVJJGzb
+	id S932349AbVJJGxg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 02:53:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbVJJGxg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 02:55:31 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:23762 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932209AbVJJGza (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 02:55:30 -0400
-Date: Mon, 10 Oct 2005 02:55:04 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-To: Coywolf Qi Hunt <qiyong@fc-cn.com>
-cc: jeff shia <tshxiayu@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: What is the vanilla kernel?
-In-Reply-To: <20051010063839.GA3149@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0510100252040.23092@localhost.localdomain>
-References: <7cd5d4b40510091648ldabbd22g36ed34139e82fea8@mail.gmail.com>
- <Pine.LNX.4.58.0510100213020.23092@localhost.localdomain>
- <20051010063839.GA3149@localhost.localdomain>
+	Mon, 10 Oct 2005 02:53:36 -0400
+Received: from fmr23.intel.com ([143.183.121.15]:13029 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S932349AbVJJGxf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 02:53:35 -0400
+Message-Id: <200510100651.j9A6pZg13871@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Hugh Dickins'" <hugh@veritas.com>
+Cc: "Seth, Rohit" <rohit.seth@intel.com>, "William Irwin" <wli@holomorphy.com>,
+       <agl@us.ibm.com>, <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
+       <akpm@osdl.org>
+Subject: RE: FW: [PATCH 0/3] Demand faulting for huge pages
+Date: Sun, 9 Oct 2005 23:51:11 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcXMzPPpJajF8cq/QnGGwUnEkwmbPgAjnuog
+In-Reply-To: <Pine.LNX.4.61.0510091306440.7878@goblin.wat.veritas.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hugh Dickins wrote on Sunday, October 09, 2005 5:27 AM
+> We all seem
+> to have different agendas for hugetlb.  I'm interested in fixing the
+> existing bugs with truncation (see -mm), and getting the locking to
+> fit with my page_table_lock patches.  Prohibiting truncation is an
+> attractively easy and efficient way of fixing several such problems.
+> Adam is interested in fault on demand, which needs further work if
+> truncation is allowed.  You and Rohit are interested in enhancing
+> the generality of hugetlbfs.
 
-On Mon, 10 Oct 2005, Coywolf Qi Hunt wrote:
+IMO, these three things are not contradictory with each other.  They
+are orthogonal.  Even though maybe we are all touching same lines of
+code, in the end, everyone is working toward better and more robust
+hugetlb code.
 
-> On Mon, Oct 10, 2005 at 02:17:05AM -0400, Steven Rostedt wrote:
-> >
-> > Hmm, It also says under Maintainers:
-> >
-> > 2.2 	Marc-Christian Petersen (formerly Alan Cox)
-> >
-> > Did Alan Cox change his name? :-)
->
-> It means Alan Cox was once the maintainer.
->
+Demand paging is one aspect of enhancing generality of hugetlb.  Intel
+initially proposed the feature 18 month ago [* see link below] along
+with SGI. Christoph Lameter at SGI scratched that subject Oct 2004.
+And now, Adam at IBM attempts it again.  There is a growing need to
+make hugetlb easier to use, more transparency in using hugetlb pages
+etc.  All requires hugetlb code to be more generalized, instead of
+reducing functionality.
 
-:)
+Granted, the patch I posted on expanding ftruncate will be replaced
+once demand paging goes in.  I wanted to demonstrate that it is a
+feature we should implement, instead of cutting back more on current
+thin functionality in hugetlbfs. (with demand paging, expanding
+ftruncate should be really easy and clean, instead of "peculiar
+semantics" all because of prefaulting).
 
-After sending this, I told my coworkers: Now watch, I'm going to actually
-get a response from some guy telling me that "Alan Cox was once the
-maintainer".
+- Ken
 
-I know that! Don't people know what a ":-)" is for?
-
--- Steve
+[*] http://marc.theaimsgroup.com/?l=linux-ia64&m=108189860401704&w=2
 

@@ -1,62 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751299AbVJJWfD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750935AbVJJWnW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751299AbVJJWfD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 18:35:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbVJJWfD
+	id S1750935AbVJJWnW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 18:43:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750934AbVJJWnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 18:35:03 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:18882 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751299AbVJJWfB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 18:35:01 -0400
-Subject: [PATCH] mincore() should return EINVAL for length < 0
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-KcL+i6C3jzWydJHNKPtQ"
-Date: Mon, 10 Oct 2005 15:34:17 -0700
-Message-Id: <1128983657.4896.25.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Mon, 10 Oct 2005 18:43:22 -0400
+Received: from smtpout.mac.com ([17.250.248.85]:31709 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1750828AbVJJWnW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 18:43:22 -0400
+X-PGP-Universal: processed;
+	by AlPB on Mon, 10 Oct 2005 17:43:19 -0500
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Transfer-Encoding: 7bit
+Message-Id: <A7D1D429-D1C7-4FBD-80F2-B3EDFF9E2200@mac.com>
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+To: linux-kernel@vger.kernel.org
+From: Mark Rustad <mrustad@mac.com>
+Subject: KBuild problem (or difference) in 2.6.14-rc3
+Date: Mon, 10 Oct 2005 17:43:06 -0500
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have noticed a change in Kbuild behavior when going from 2.6.13.x  
+to 2.6.14-rc3. I build kernels with a separate objects directory. It  
+has been my practice since beginning with 2.6 kernels last year, to  
+put changed files into the objects directory structure to override an  
+unmodified source tree. Starting with 2.6.14, I find that Makefiles  
+in the objects directory structure area not used. I find that source  
+and Kconfig files do override as they used to, but Makefiles do not.
 
---=-KcL+i6C3jzWydJHNKPtQ
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+I don't really know if this new behavior is intended or not, but it  
+sure messes my kernel build methodology up. It looks to me like the  
+problem was introduced by changes in scripts/Makefile.build. I think  
+that this is the change causing me trouble:
 
-Hi,
+--- a/scripts/Makefile.build
++++ b/scripts/Makefile.build
+@@ -10,8 +10,11 @@ __build:
+# Read .config if it exist, otherwise ignore
+  -include .config
 
-Here is the simple patch to fix mincore() returning
-wrong error. mincore(2) manpage says, it should
-return EINVAL, if length is non-positive.
+-include $(if $(wildcard $(obj)/Kbuild), $(obj)/Kbuild, $(obj)/Makefile)
++# The filename Kbuild has precedence over Makefile
++kbuild-dir := $(if $(filter /%,$(src)),$(src),$(srctree)/$(src))
++include $(if $(wildcard $(kbuild-dir)/Kbuild), $(kbuild-dir)/Kbuild,  
+$(kbuild-dir)/Makefile)
 
-Bug details are in:
++include scripts/Kbuild.include
+  include scripts/Makefile.lib
 
-http://bugme.osdl.org/show_bug.cgi?id=4612
+  ifdef host-progs
 
-Thanks,
-Badari
+Does anyone know if this change in behavior was intended? I realize  
+that I may be doing something a little bit unusual, but I have been  
+doing things this way very successfully since at least 2.6.5.
 
-
-
---=-KcL+i6C3jzWydJHNKPtQ
-Content-Disposition: attachment; filename=mincore-fix.patch
-Content-Type: text/x-patch; name=mincore-fix.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-Signed-off-by: Badari Pulabarty <pbadari@us.ibm.com>
---- linux-2.6.14-rc3.org/mm/mincore.c	2005-10-10 17:14:30.000000000 -0700
-+++ linux-2.6.14-rc3/mm/mincore.c	2005-10-10 17:26:52.000000000 -0700
-@@ -115,7 +115,7 @@ asmlinkage long sys_mincore(unsigned lon
- 	long error;
- 
- 	/* check the arguments */
-- 	if (start & ~PAGE_CACHE_MASK)
-+ 	if ((start & ~PAGE_CACHE_MASK) || ((ssize_t)len < 0))
- 		goto einval;
- 
- 	limit = TASK_SIZE;
-
---=-KcL+i6C3jzWydJHNKPtQ--
+-- 
+Mark Rustad, MRustad@mac.com
 

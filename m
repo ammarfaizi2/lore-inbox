@@ -1,69 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbVJJOch@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbVJJOfG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750719AbVJJOch (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 10:32:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbVJJOch
+	id S1750723AbVJJOfG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 10:35:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750762AbVJJOfG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 10:32:37 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:44503 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750719AbVJJOcg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 10:32:36 -0400
-Date: Mon, 10 Oct 2005 16:32:29 +0200
-From: VMiklos <vmiklos@frugalware.org>
-To: linux-kernel@vger.kernel.org
-Subject: Intresting messages and kernel panic with 2.6.13-mm3
-Message-ID: <20051010143229.GH14425@genesis.frugalware.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 10 Oct 2005 10:35:06 -0400
+Received: from qproxy.gmail.com ([72.14.204.194]:13884 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750723AbVJJOfE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 10:35:04 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Tz04Exv37PmKogArt9DNE2oHN/K77pQtB7Vgi9AS6DJmVo6K4ZW+ptqQ4YViXkpZBqZfQURlv0Xu0MN9ZBjKQlGbFXNEwajY3aAWi5Dm1spkumCSZD0ZMoHfbGRKqSYWJOSBQvlaju4VswZ6wJuIywoxTKCu7knsqT9e++ZwdgA=
+Message-ID: <9a8748490510100735k3cabd1csdc2aa332f70f43d5@mail.gmail.com>
+Date: Mon, 10 Oct 2005 16:35:03 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Con Kolivas <kernel@kolivas.org>
+Subject: Re: [PATCH] mm - implement swap prefetching
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, ck list <ck@vds.kolivas.org>
+In-Reply-To: <200510110023.02426.kernel@kolivas.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: mutt-ng/devel-r475 (Linux)
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,FORGED_RCVD_HELO autolearn=disabled SpamAssassin version=3.0.4
-	0.1 FORGED_RCVD_HELO       Received: contains a forged HELO
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+References: <200510110023.02426.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello there.
+On 10/10/05, Con Kolivas <kernel@kolivas.org> wrote:
+> Andrew could you please consider this for -mm
+>
+> Small changes to the style after suggestions from Pekka Enberg (thanks), and
+> changed the default size of prefetch to gently increase with size of ram.
+> Functionally this is the same code as vm-swap_prefetch-15 and I believe ready
+> for a wider audience.
+>
 
-I got a little problem here, i'm using debian sarge with an own compiled
-kernel. The kernel version is 2.6.13-mm3 . No any extra patches.
++	  What this will do on workstations is slowly bring back applications
++	  that have swapped out after memory intensive workloads back into
++	  physical ram if you have free ram at a later stage and the machine
++	  is relatively idle. This means that when you come back to your
++	  computer after leaving it idle for a while, applications will come
++	  to life faster. Note that your swap usage will appear to increase
++	  but these are cached pages, can be dropped freely by the vm, and it
++	  should stabilise around 50% swap usage.
++	
++	  Desktop users will most likely want to say Y.
 
-I got strange errors in my dmesg:
+How about a little note about the impact for server users as well?
+You recommend that desktop users enable this, but you don't give any
+recommendation for servers.
 
-KERNEL: assertion ((int)tcp_packets_in_flight(tp) >= 0) failed at
-net/ipv4/tcp_input.c (1129)
-KERNEL: assertion ((int)tcp_packets_in_flight(tp) >= 0) failed at
-net/ipv4/tcp_input.c (1129)
-Leak s=1 1
-Leak s=2 3
-KERNEL: assertion ((int)tcp_packets_in_flight(tp) >= 0) failed at
-net/ipv4/tcp_input.c (1129)
-Leak s=1 1
-KERNEL: assertion ((int)tcp_packets_in_flight(tp) >= 0) failed at
-net/ipv4/tcp_input.c (1129)
-KERNEL: assertion ((int)tcp_packets_in_flight(tp) >= 0) failed at
-net/ipv4/tcp_input.c (1129)
 
-^^ like those. I don't know what is that or what cause that.
-And i got segfaults at random time. (4hours.. after 6hours.. after
-1hour..) I think those error messages causes the segfault in my kernel.
-
-See this (shot from kernel-panic message) :
-http://frugalware.org/~krix/panic.jpg
-
-And i uploaded my config.gz to here:
-http://frugalware.org/~krix/config.gz
-
-So please, anyone got any idea about that ? :)
-
-udv / greetings,
-VMiklos
-
--- 
-Developer of Frugalware Linux, to make things frugal - http://frugalware.org
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

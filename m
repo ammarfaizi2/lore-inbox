@@ -1,95 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751285AbVJJWJ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751292AbVJJWZ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751285AbVJJWJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 18:09:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbVJJWJ7
+	id S1751292AbVJJWZ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 18:25:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbVJJWZ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 18:09:59 -0400
-Received: from gate.crashing.org ([63.228.1.57]:19587 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751285AbVJJWJ6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 18:09:58 -0400
-Subject: Re: ide_wait_not_busy oops still with 2.6.14-rc3 (Re: 1GHz pbook
-	15", linux 2.6.14-rc2 oops on resume)
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Soeren Sonnenburg <kernel@nn7.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1128948118.23434.13.camel@localhost>
-References: <1128323544.4602.5.camel@localhost>
-	 <pan.2005.10.06.19.19.22.673915@nn7.de>  <1128720351.17365.48.camel@gaston>
-	 <1128948118.23434.13.camel@localhost>
-Content-Type: text/plain
-Date: Tue, 11 Oct 2005 08:06:42 +1000
-Message-Id: <1128982002.17365.163.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Mon, 10 Oct 2005 18:25:57 -0400
+Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:31122 "EHLO
+	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1751288AbVJJWZ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 18:25:56 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Mon, 10 Oct 2005 23:25:48 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+cc: Glauber de Oliveira Costa <glommer@br.ibm.com>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, hirofumi@mail.parknet.co.jp,
+       linux-ntfs-dev@lists.sourceforge.net, aia21@cantab.net,
+       hch@infradead.org, viro@zeniv.linux.org.uk, akpm@osdl.org
+Subject: Re: [PATCH] Use of getblk differs between locations
+In-Reply-To: <Pine.LNX.4.62.0510102347220.19021@artax.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.64.0510102319100.6247@hermes-1.csi.cam.ac.uk>
+References: <20051010204517.GA30867@br.ibm.com>
+ <Pine.LNX.4.64.0510102217200.6247@hermes-1.csi.cam.ac.uk>
+ <20051010214605.GA11427@br.ibm.com> <Pine.LNX.4.62.0510102347220.19021@artax.karlin.mff.cuni.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 10 Oct 2005, Mikulas Patocka wrote:
+> On Mon, 10 Oct 2005, Glauber de Oliveira Costa wrote:
+> > On Mon, Oct 10, 2005 at 10:20:07PM +0100, Anton Altaparmakov wrote:
+> > > On Mon, 10 Oct 2005, Glauber de Oliveira Costa wrote:
+> > > > I've just noticed that the use of sb_getblk differs between locations
+> > > > inside the kernel. To be precise, in some locations there are tests
+> > > > against its return value, and in some places there are not.
+> > > > 
+> > > > According to the comments in __getblk definition, the tests are not
+> > > > necessary, as the function always return a buffer_head (maybe a wrong
+> > > > one),
+> > > 
+> > > If you had read the source code rather than just the comments you would
+> > > have seen that this is not true.  It can return NULL (see
+> > > fs/buffer.c::__getblk_slow()).  Certainly I would prefer to keep the
+> > > checks in NTFS, please.  They may only be good for catching bugs but I
+> > > like catching bugs rather than segfaulting due to a NULL dereference.
+> 
+> The check should be rather a BUG() than dump_stack() and return NULL --- I
+> think it's not right to write code to recover from programming errors.
 
-> ok, here is the complete one:
-> 
-> BUG: soft lockup detected on CPU#0!
+Why programming errors?  It could be faulty memory or other corruption, 
+perhaps even caused by a different driver altogether (e.g. I found a bug 
+in ntfs last week which caused it to memset() to zero a random location in 
+memory of a random size and it caused a lot of strange effects like my 
+shell suddenly exiting and me being left on the login prompt...).  Also it 
+could be that the function one day changes and it can return NULL.  It is 
+far safer to do checking than to make assumptions about not being able to 
+return NULL.
 
-Gack, the soft lockup thing. Can you disable that ? If you do so, does
-it crashes instead of oopsing or just "pauses" for a little while on
-wakeup ? The problem is that ide_do_request does a synchronous wait for
-the drive to get out of busy state which can take a while with some
-optical drives on wakeup. It might be possible to allow scheduling
-there, I have to look at it. In the meantime, disable the lockup
-detector (CONFIG_DETECT_SOFTLOCKUP) and tell me if that's enough.
+> Filesystem drivers are supposed to pass correct blocksize to getblk(). ---
+> even for users it's better to crash, because user whose machine has locked up
+> on BUG() will report bug more likely than user whose machine has written stack
+> dump into log and corrupted filesystem --- by the time he discovers the
+> corruption and mesage he might not even remember what triggered it.
+> 
+> As comment in buffer.c says, getblk will deadlock if the machine is out of
+> memory. It is questionable whether to deadlock or return NULL and corrupt
+> filesystem in this case --- deadlock is probably better.
 
-Ben.
+What do you mean corrupt filesystem?  If a filesystem is written so badly 
+that it will cause corruption when a NULL is returned somewhere, I 
+certainly don't want to have anything to do with it.
 
-> NIP: C0006FCC LR: C02BC32C SP: EDEF5C00 REGS: edef5b50 TRAP: 0901    Not tainted
-> MSR: 0200b032 EE: 1 PR: 0 FP: 1 ME: 1 IR/DR: 11
-> TASK = ef894780[3425] 'pbbuttonsd' THREAD: edef4000
-> Last syscall: 54 
-> GPR00: 00000080 EDEF5C00 EF894780 00079C96 000088B8 00000000 00000000 C05A8A50 
-> GPR08: C05A8538 EDEF5CC8 00100000 00140040 22004222 
-> NIP [c0006fcc] __delay+0xc/0x14
-> LR [c02bc32c] ide_wait_not_busy+0x4c/0xc0
-> Call trace:
->  [c02ba670] ide_do_request+0x5b0/0x990
->  [c02bab10] ide_do_drive_cmd+0xc0/0x190
->  [c02b72d0] generic_ide_resume+0x80/0xa0
->  [c0294260] resume_device+0x70/0x150
->  [c0294510] dpm_resume+0x100/0x1a0
->  [c02945ec] device_resume+0x3c/0xa0
->  [c05438cc] pmac_wakeup_devices+0xbc/0xe0
->  [c0544adc] pmu_ioctl+0x58c/0x9b0
->  [c008e344] do_ioctl+0x84/0x90
->  [c008e3dc] vfs_ioctl+0x8c/0x450
->  [c008e834] sys_ioctl+0x94/0xb0
->  [c0004820] ret_from_syscall+0x0/0x44
-> hdc: Enabling MultiWord DMA 2
-> adb: starting probe task...
-> adb devices: [2]: 2 c4 [3]: 3 1 [7]: 7 1f
-> ADB keyboard at 2, handler 1
-> ADB mouse at 3, handler set to 4 (trackpad)
-> adb: finished probe task...
-> agpgart: Putting AGP V2 device at 0000:00:0b.0 into 4x mode
-> agpgart: Putting AGP V2 device at 0000:00:10.0 into 4x mode
-> [drm] Loading R200 Microcode
-> hdc: irq timeout: status=0xc0 { Busy }
-> ide: failed opcode was: unknown
-> hdc: DMA disabled
-> eth0: Link is up at 1000 Mbps, full-duplex.
-> eth0: Pause is enabled (rxfifo: 10240 off: 7168 on: 5632)
-> hdc: ATAPI reset complete
-> 
-> > You haven't put the complete oops, what is the trap number ? Does it
-> > help adding a delay in the wakeup code in drivers/ide/ppc/pmac.c ? Also,
-> 
-> are you talking about increasing this delay 
-> #define IDE_WAKEUP_DELAY    (1*HZ) or sth. to pmac_ide_do_resume() ?
-> 
-> > is the problem present without preempt ?
-> 
-> Currently it is:
-> Preemption Model (Voluntary Kernel Preemption (Desktop))
-> 
-> I will try.
-> Soeren
+Going BUG() is generally a bad thing if the error can be recovered from.  
+Certainly all my code attempts to recover from all error conditions it can 
+possibly encounter.
 
+I would much rather see NULL and then handle the error gracefully with an 
+error message than go BUG().  You can then still umount and remove the fs 
+module and everything works fine (you may need an fsck you may not depends 
+on how good your error handling is).  If you do a BUG() you are guaranteed 
+to cause corruption...  I only use BUG() when something really cannot 
+happen unless there is a bug in which case I want to know it...
+
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

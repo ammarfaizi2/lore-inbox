@@ -1,46 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbVJKOvL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbVJKOyE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932106AbVJKOvL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 10:51:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbVJKOvK
+	id S932114AbVJKOyE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 10:54:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbVJKOyE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 10:51:10 -0400
-Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:28863 "HELO
-	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932106AbVJKOvJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 10:51:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=ISSUjGh6MXcuQ7g39MBQGDRtEbrj6AQLyKhRFXUBZWfx65Nt6EHGWSi6KeA0PJxJmFxZJDG/Syq86BI0cQAY5FxuzkeYoxTIlujY36rtqI5AzBkNQUxu6sTrxjvFJXomZ4y8JRx3KUD/pC5r6kULifDahNw2axwMt+mDR9Oal6U=  ;
-Message-ID: <434BCE80.2060405@yahoo.com.au>
-Date: Wed, 12 Oct 2005 00:38:56 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050914 Debian/1.7.11-1
-X-Accept-Language: en
+	Tue, 11 Oct 2005 10:54:04 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:24762 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932110AbVJKOyC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 10:54:02 -0400
+Date: Tue, 11 Oct 2005 07:44:43 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, linux@horizon.com,
+       Kirill Korotaev <dev@sw.ru>
+Subject: Re: i386 spinlock fairness: bizarre test results
+In-Reply-To: <1129035658.23677.46.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0510110740050.14597@g5.osdl.org>
+References: <200510110007_MC3-1-AC4C-97EA@compuserve.com>
+ <1129035658.23677.46.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: Hugh Dickins <hugh@veritas.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.14-rc2-mm2] core remove PageReserved
-References: <434B7F19.5040808@yahoo.com.au> <1129035883.23677.48.camel@localhost.localdomain> <434BC095.4050305@yahoo.com.au> <Pine.LNX.4.61.0510111454530.2950@goblin.wat.veritas.com> <434BCDF5.2080707@yahoo.com.au>
-In-Reply-To: <434BCDF5.2080707@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
 
-> Right. As a security issue it is nothing new, though probably it will
-> be eaiser for big 64-bit systems to _unintentionally_ wrap the ZERO_PAGE
-> refcount.
+
+On Tue, 11 Oct 2005, Alan Cox wrote:
+
+> On Maw, 2005-10-11 at 00:04 -0400, Chuck Ebbert wrote:
+> >   That test machine was a dual 350MHz Pentium II Xeon; on a dual 333MHz Pentium II
+> > Overdrive (with very slow Socket 8 bus) I could not reproduce those results.
+> > However, on that machine the 'xchg' instruction made the test run almost 20%
+> > _faster_ than using 'mov'.
+> > 
+> >   So I think the i386 spinlock code should be changed to always use 'xchg' to do
+> > spin_unlock.
 > 
+> 
+> Using xchg on the spin unlock path is expensive. Really expensive on P4
+> compared to movb. It also doesn't guarantee anything either way around
+> especially as you go to four cores or change CPU (or in some cases quite
+> likely even chipset).
 
-Infinitely more probable in fact, considering it was impossible beforehand.
+Indeed.
 
--- 
-SUSE Labs, Novell Inc.
+I suspect that the behaviour Chuck saw is (a) only present under 
+contention and (b) very much dependent on other timing issues.
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+(a) is the wrong thing to optimize for, and (b) means that Chuck's numbers 
+aren't reliable anyway (as shown by the fact that things like instruction 
+alignment matters, and by Eric's numbers on other machines).
+
+We want the spinlocks to behave well when they are _not_ under heavy 
+contention. If a spinlock gets so much contention that it starts having 
+these kinds of issues, then there's something wrong at higher levels, and 
+the fix is to use a different algorithm, or use a different kind of lock.
+
+Spinlocks by definition are the _simplest_ locks there are. Not the 
+smartest or most fair. Trying to make them anything else is kind of 
+missing the whole point of them.
+
+			Linus

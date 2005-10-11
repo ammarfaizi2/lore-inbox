@@ -1,57 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbVJKVTd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750952AbVJKV0p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750742AbVJKVTd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 17:19:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbVJKVTd
+	id S1750952AbVJKV0p (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 17:26:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751113AbVJKV0p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 17:19:33 -0400
-Received: from xproxy.gmail.com ([66.249.82.202]:52122 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750742AbVJKVTc (ORCPT
+	Tue, 11 Oct 2005 17:26:45 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:17869 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750952AbVJKV0p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 17:19:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=YPDniPlnZGHbXPxLKTeZz0kRfztDo6wWx8+obczwOf2fmKpy8lhLPh5xQmDEbNvmUGbv+4/78XlSSkw8nn4nDsVv95+l8BPtOTrtadFGEtcfydbmiiIm7uh6H4zXw2ikOIqyPsRLc8HJeVhLH+0cKignpySWBcwazNLsS4Kmh8w=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: [PATCH] small Kconfig help text correction for CONFIG_FRAME_POINTER
-Date: Tue, 11 Oct 2005 23:22:21 +0200
-User-Agent: KMail/1.8.2
-Cc: Andrew Morton <akpm@osdl.org>, "Jesper Juhl" <jesper.juhl@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Tue, 11 Oct 2005 17:26:45 -0400
+Date: Tue, 11 Oct 2005 14:26:08 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Machida, Hiroyuki" <machida@sm.sony.co.jp>
+Cc: hirofumi@mail.parknet.co.jp, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] miss-sync changes on attributes (Re: [PATCH
+ 2/2][FAT] miss-sync issues on sync mount (miss-sync on utime))
+Message-Id: <20051011142608.6ff3ca58.akpm@osdl.org>
+In-Reply-To: <433C25D9.9090602@sm.sony.co.jp>
+References: <43288A84.2090107@sm.sony.co.jp>
+	<87oe6uwjy7.fsf@devron.myhome.or.jp>
+	<433C25D9.9090602@sm.sony.co.jp>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510112322.22004.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix-up the CONFIG_FRAME_POINTER help text language a bit.
+"Machida, Hiroyuki" <machida@sm.sony.co.jp> wrote:
+>
+> This patch adds inode-sync after attribute changes, if needed.
+> 
+> * fs-sync-attr.patch for 2.6.13
+> 
+>  fs/fs-writeback.c      |   19 +++++++++++++++++++
+>  fs/open.c              |   12 ++++++++++++
+>  include/linux/fs.h     |    1 +
+>  4 files changed, 32 insertions(+)
+> 
+> Signed-off-by: Hiroyuki Machida <machdia@sm.sony.co.jp>
+> 
+> --- linux-2.6.13/fs/fs-writeback.c	2005-08-29 08:41:01.000000000 +0900
+> +++ linux-2.6.13-sync-attr/fs/fs-writeback.c	2005-09-29 12:56:21.052335295 +0900
+> @@ -593,6 +593,25 @@ int sync_inode(struct inode *inode, stru
+>  EXPORT_SYMBOL(sync_inode);
+>  
+>  /**
+> + * sync_inode_wodata - sync(write and wait) inode to disk, without it's data.
+> + * @inode: the inode to sync
+> + *
+> + * sync_inode_wodata() will write an inode  then wait.  It will also
+> + * correctly update the inode on its superblock's dirty inode lists 
+> + * and will update inode->i_state.
+> + *
+> + * The caller must have a ref on the inode.
+> + */
+> +int sync_inode_wodata(struct inode *inode)
+> +{
+> +	struct writeback_control wbc = {
+> +		.sync_mode = WB_SYNC_ALL, /* wait */
+> +		.nr_to_write = 0,/* no data to be written */
+> +	};
+> +	return sync_inode(inode, &wbc);
+> +}
+> +
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
-
- "on some architectures or you use external debuggers"
-  doesn't sound too good
- "on some architectures or if you use external debuggers"
-  is better.
-
- lib/Kconfig.debug |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
---- linux-2.6.14-rc4-orig/lib/Kconfig.debug	2005-10-11 22:41:32.000000000 +0200
-+++ linux-2.6.14-rc4/lib/Kconfig.debug	2005-10-11 23:16:30.000000000 +0200
-@@ -174,7 +174,7 @@
- 	default y if DEBUG_INFO && UML
- 	help
- 	  If you say Y here the resulting kernel image will be slightly larger
--	  and slower, but it might give very useful debugging information
--	  on some architectures or you use external debuggers.
-+	  and slower, but it might give very useful debugging information on
-+	  some architectures or if you use external debuggers.
- 	  If you don't debug the kernel, you can say N.
- 
-
-
+I think this function duplicates write_inode_now()?

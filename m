@@ -1,173 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbVJKTQw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbVJKTVi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932340AbVJKTQw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 15:16:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbVJKTQw
+	id S932344AbVJKTVi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 15:21:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932346AbVJKTVi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 15:16:52 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:11915 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932340AbVJKTQv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 15:16:51 -0400
-Subject: [PATCH 3/3] hugetlb: Simple overcommit check
-From: Adam Litke <agl@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       david@gibson.dropbear.id.au, ak@suse.de, hugh@veritas.com,
-       agl@us.ibm.com
-In-Reply-To: <20051011113206.77e0fc84.akpm@osdl.org>
-References: <1129055057.22182.8.camel@localhost.localdomain>
-	 <20051011113206.77e0fc84.akpm@osdl.org>
-Content-Type: text/plain
-Organization: IBM
-Date: Tue, 11 Oct 2005 14:16:45 -0500
-Message-Id: <1129058206.22958.1.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Oct 2005 15:21:38 -0400
+Received: from mail.suse.de ([195.135.220.2]:23250 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932344AbVJKTVi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 15:21:38 -0400
+To: Alon Bar-Lev <alon.barlev@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Georg Lippold <georg.lippold@gmx.de>
+Subject: Re: [PATCH 1/1] 2.6.14-rc3 x86: COMMAND_LINE_SIZE
+References: <431628D5.1040709@zytor.com> <4345A9F4.7040000@uni-bremen.de>
+	<434A6220.3000608@gmx.de>
+	<9a8748490510100621x7bc20c42g667cc083d26aaaa2@mail.gmail.com>
+	<434A8082.9060202@zytor.com> <434A8CE8.2020404@gmx.de>
+	<434A8D70.5060300@zytor.com>
+	<20051010171605.GA7793@georg.homeunix.org>
+	<434AB1EB.6070309@gmail.com> <434AD0EB.6000405@gmx.de>
+	<9e0cf0bf0510110132y64c5b42dsb2211d4e75d06f15@mail.gmail.com>
+	<434BED55.10603@gmx.de> <434BF9ED.9090405@gmail.com>
+From: Andi Kleen <ak@suse.de>
+Date: 11 Oct 2005 21:21:34 +0200
+In-Reply-To: <434BF9ED.9090405@gmail.com>
+Message-ID: <p73br1vsvup.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-10-11 at 11:32 -0700, Andrew Morton wrote:
-> Adam Litke <agl@us.ibm.com> wrote:
-> >
-> > Andrew: Did Andi
-> >  Kleen's explanation of huge_pages_needed() satisfy?
+Alon Bar-Lev <alon.barlev@gmail.com> writes:
 > 
-> Spose so.  I trust that it's adequately commented in this version..
+> +config COMMAND_LINE_MAX_SIZE
+> +	int "Maximum kernel command-line size"
+> +	default 512
+> +	help
+> +	  This option allows you to specify maximum kernel command-line
+> +	  for kernel to handle.
 
-Just to be sure, added a comment block at the top of
-huge_pages_needed().
+I think making that a config is a really bad idea. What happens
+when the user specifies a very large value. Or a very small one?
+There are subtle dependencies with the boot loader, so this is
+mostly a lie anyways.  And it doesn't really safe enough memory to 
+bother with a CONFIG.
 
-Initial Post (Thu, 18 Aug 2005)
+Also the last time I tried to increase this all kind of systems
+with old bootloaders exploded (e.g. lilo on systems with large EDID
+information - search the archives). Have these issues been resolved now? 
+If yes then I would suggest to just double the default.
+If not it cannot be changed anyways.
 
-Basic overcommit checking for hugetlb_file_map() based on an implementation
-used with demand faulting in SLES9.
-
-Since we're not prefaulting the pages at mmap time, some extra accounting is
-needed.  This patch implements a basic sanity check to ensure that the number
-of huge pages required to satisfy the mmap are currently available.  Of course
-this method doesn't guarantee that the pages will be available at fault time,
-but I think it is a good start on doing proper accounting and solves 90% of the
-overcommit problems I see in practice.
-
-Huge page shared memory segments are simpler and still maintain their commit on
-shmget semantics.
-
-Signed-off-by: Adam Litke <agl@us.ibm.com>
----
- inode.c |   73 +++++++++++++++++++++++++++++++++++++++++++++++++++++++---------
- 1 files changed, 63 insertions(+), 10 deletions(-)
-diff -upN reference/fs/hugetlbfs/inode.c current/fs/hugetlbfs/inode.c
---- reference/fs/hugetlbfs/inode.c
-+++ current/fs/hugetlbfs/inode.c
-@@ -45,9 +45,67 @@ static struct backing_dev_info hugetlbfs
- 
- int sysctl_hugetlb_shm_group;
- 
-+static void huge_pagevec_release(struct pagevec *pvec)
-+{
-+	int i;
-+
-+	for (i = 0; i < pagevec_count(pvec); ++i)
-+		put_page(pvec->pages[i]);
-+
-+	pagevec_reinit(pvec);
-+}
-+
-+/*
-+ * huge_pages_needed tries to determine the number of new huge pages that
-+ * will be required to fully populate this VMA.  This will be equal to
-+ * the size of the VMA in huge pages minus the number of huge pages 
-+ * (covered by this VMA) that are found in the page cache.
-+ *
-+ * Result is in bytes to be compatible with is_hugepage_mem_enough()
-+ */
-+unsigned long
-+huge_pages_needed(struct address_space *mapping, struct vm_area_struct *vma)
-+{
-+	int i;
-+	struct pagevec pvec;
-+	unsigned long start = vma->vm_start;
-+	unsigned long end = vma->vm_end;
-+	unsigned long hugepages = (end - start) >> HPAGE_SHIFT;
-+	pgoff_t next = vma->vm_pgoff;
-+	pgoff_t endpg = next + ((end - start) >> PAGE_SHIFT);
-+	struct inode *inode = vma->vm_file->f_dentry->d_inode;
-+
-+	/*
-+	 * Shared memory segments are accounted for at shget time,
-+	 * not at shmat (when the mapping is actually created) so 
-+	 * check here if the memory has already been accounted for.
-+	 */
-+	if (inode->i_blocks != 0)
-+		return 0;
-+
-+	pagevec_init(&pvec, 0);
-+	while (next < endpg) {
-+		if (!pagevec_lookup(&pvec, mapping, next, PAGEVEC_SIZE))
-+			break;
-+		for (i = 0; i < pagevec_count(&pvec); i++) {
-+			struct page *page = pvec.pages[i];
-+			if (page->index > next)
-+				next = page->index;
-+			if (page->index >= endpg)
-+				break;
-+			next++;
-+			hugepages--;
-+		}
-+		huge_pagevec_release(&pvec);
-+	}
-+	return hugepages << HPAGE_SHIFT;
-+}
-+
- static int hugetlbfs_file_mmap(struct file *file, struct vm_area_struct *vma)
- {
- 	struct inode *inode = file->f_dentry->d_inode;
-+	struct address_space *mapping = inode->i_mapping;
-+	unsigned long bytes;
- 	loff_t len, vma_len;
- 	int ret;
- 
-@@ -66,6 +124,10 @@ static int hugetlbfs_file_mmap(struct fi
- 	if (vma->vm_end - vma->vm_start < HPAGE_SIZE)
- 		return -EINVAL;
- 
-+	bytes = huge_pages_needed(mapping, vma);
-+	if (!is_hugepage_mem_enough(bytes))
-+		return -ENOMEM;
-+
- 	vma_len = (loff_t)(vma->vm_end - vma->vm_start);
- 
- 	down(&inode->i_sem);
-@@ -167,16 +229,6 @@ static int hugetlbfs_commit_write(struct
- 	return -EINVAL;
- }
- 
--static void huge_pagevec_release(struct pagevec *pvec)
--{
--	int i;
--
--	for (i = 0; i < pagevec_count(pvec); ++i)
--		put_page(pvec->pages[i]);
--
--	pagevec_reinit(pvec);
--}
--
- static void truncate_huge_page(struct page *page)
- {
- 	clear_page_dirty(page);
-@@ -792,6 +844,7 @@ struct file *hugetlb_zero_setup(size_t s
- 	d_instantiate(dentry, inode);
- 	inode->i_size = size;
- 	inode->i_nlink = 0;
-+	inode->i_blocks = 1;
- 	file->f_vfsmnt = mntget(hugetlbfs_vfsmount);
- 	file->f_dentry = dentry;
- 	file->f_mapping = inode->i_mapping;
-
-
--- 
-Adam Litke - (agl at us.ibm.com)
-IBM Linux Technology Center
-
+-Andi

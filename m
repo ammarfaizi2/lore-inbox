@@ -1,91 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751411AbVJKIB1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751410AbVJKIBT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751411AbVJKIB1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 04:01:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751414AbVJKIB0
+	id S1751410AbVJKIBT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 04:01:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751411AbVJKIBT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 04:01:26 -0400
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:63909 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1751411AbVJKIBZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 04:01:25 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Subject: Re: [PATCH] Use of getblk differs between locations
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>, glommer@br.ibm.com,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, hirofumi@mail.parknet.co.jp,
-       linux-ntfs-dev@lists.sourceforge.net, aia21@cantab.net,
-       hch@infradead.org, viro@zeniv.linux.org.uk
-In-Reply-To: <20051010180705.0b0e3920.akpm@osdl.org>
-References: <20051010204517.GA30867@br.ibm.com>
-	 <Pine.LNX.4.64.0510102217200.6247@hermes-1.csi.cam.ac.uk>
-	 <20051010214605.GA11427@br.ibm.com>
-	 <Pine.LNX.4.62.0510102347220.19021@artax.karlin.mff.cuni.cz>
-	 <20051010223636.GB11427@br.ibm.com>
-	 <Pine.LNX.4.64.0510102328110.6247@hermes-1.csi.cam.ac.uk>
-	 <20051010163648.3e305b63.akpm@osdl.org>
-	 <Pine.LNX.4.62.0510110203430.27454@artax.karlin.mff.cuni.cz>
-	 <20051010180705.0b0e3920.akpm@osdl.org>
-Content-Type: text/plain
-Organization: Computing Service, University of Cambridge, UK
-Date: Tue, 11 Oct 2005 09:01:19 +0100
-Message-Id: <1129017679.12336.7.camel@imp.csi.cam.ac.uk>
+	Tue, 11 Oct 2005 04:01:19 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:57049 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751410AbVJKIBS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 04:01:18 -0400
+Date: Tue, 11 Oct 2005 10:01:51 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-rc3-rt2
+Message-ID: <20051011080151.GA27401@elte.hu>
+References: <5bdc1c8b0510041158m3620f5dcy2dafda545ad3cd5e@mail.gmail.com> <1128458707.13057.68.camel@tglx.tec.linutronix.de> <5bdc1c8b0510041349g1a4f2484qd17a11812c8ccac3@mail.gmail.com> <20051005105605.GA27075@elte.hu> <5bdc1c8b0510051014q3bb02d5bl80d2c88cc884fe35@mail.gmail.com> <Pine.LNX.4.58.0510060403210.28535@localhost.localdomain> <20051006081055.GA20491@elte.hu> <Pine.LNX.4.58.0510060433010.28535@localhost.localdomain> <20051006084920.GB22397@elte.hu> <Pine.LNX.4.58.0510061122530.418@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0510061122530.418@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-10-10 at 18:07 -0700, Andrew Morton wrote:
-> Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz> wrote:
-> >
-> >  On Mon, 10 Oct 2005, Andrew Morton wrote:
-> > 
-> >  > Anton Altaparmakov <aia21@cam.ac.uk> wrote:
-> >  >>
-> >  >> > Maybe the best solution is neither one nor another. Testing and failing
-> >  >> > gracefully seems better.
-> >  >> >
-> >  >> > What do you think?
-> >  >>
-> >  >>  I certainly agree with you there.  I neither want a deadlock nor
-> >  >>  corruption.  (-:
-> >  >
-> >  > Yup.  In the present implementation __getblk_slow() "cannot fail".  It's
-> >  > conceivable that at some future stage we'll change __getblk_slow() so that
-> >  > it returns NULL on an out-of-memory condition.
-> > 
-> >  The question is if it is desired --- it will make bread return NULL on 
-> >  out-of-memory condition, callers will treat it like an IO error, skipping 
-> >  access to the affected block, causing damage on perfectly healthy 
-> >  filesystem.
+
+* Steven Rostedt <rostedt@goodmis.org> wrote:
+
+> Ingo, the following bug popped up.
 > 
-> Yes, that is a bit dumb.  A filesystem might indeed want to take different
-> action for ENOMEM versus EIO.
-> 
-> >  I liked what linux-2.0 did in this case --- if the kernel was out of 
-> >  memory, getblk just took another buffer, wrote it if it was dirty and used 
-> >  it. Except for writeable loopback device (where writing one buffer 
-> >  generates more dirty buffers), it couldn't deadlock.
-> 
-> Wouldn't it be better if bread() were to return ERR_PTR(-EIO) or
-> ERR_PTR(-ENOMEM)?    Big change.
+> BUG: scheduling while atomic: modprobe/0x00000001/3083
+> caller is schedule+0x84/0x111
+>  [<c0103fe2>] dump_stack+0x1e/0x20 (20)
+>  [<c0323402>] __schedule+0x742/0xa94 (84)
+>  [<c03237d8>] schedule+0x84/0x111 (28)
+>  [<c0324a7b>] __down_mutex+0x56b/0x83a (116)
+>  [<c0326bcf>] _spin_lock+0x1f/0x44 (28)
+>  [<c0155070>] __kmalloc+0x6c/0x11d (36)
+>  [<c021e989>] soft_cursor+0x61/0x1a8 (76)
+>  [<c02175c4>] bit_cursor+0x2d3/0x588 (164)
+>  [<c0212b4e>] fbcon_cursor+0x1be/0x307 (76)
+>  [<c0213529>] fbcon_scroll+0x84/0xf5d (80)
+>  [<c026bafd>] scrup+0xce/0xd8 (40)
+>  [<c026d1a5>] lf+0x50/0x5d (28)
+>  [<c026f3ad>] vt_console_print+0x116/0x2bb (56)
+>  [<c011e9c4>] __call_console_drivers+0x47/0x56 (32)
+>  [<c011ea4a>] _call_console_drivers+0x77/0x7e (24)
+>  [<c011eaf6>] call_console_drivers+0xa5/0x183 (44)
+>  [<c011f0af>] release_console_sem+0x2e/0xeb (32)
+>  [<c011ef85>] vprintk+0x2aa/0x312 (108)
+>  [<c011ecd9>] printk+0x1b/0x1d (20)
+>  [<f8c2f04a>] usb_register_bus+0xf1/0x137 [usbcore] (36)
 
-It would indeed.  Much better.  And whilst at it, it would be even
-better if we had a lot more error codes like "ERR_PTR(-EDEVUNPLUGGED)"
-for example...  But that would be an even better change.  Anyone feeling
-like touching every block driver in the kernel?  (-;
+> I didn't know that down_mutex could cause the scheduling while atomic.  
+> It seems that the driver inside the vt_console failed to grab a lock, 
+> and this will output, since printk does a raw_spin_lock_irqsave that 
+> seems to also do a preempt_disable. (the kmallocs are GFP_ATOMIC).
 
-Best regards,
+it's vprintk keeping preemption disabled, and then calling the console 
+drivers, which may reschedule. The patch below should solve this.
 
-        Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+	Ingo
 
+Index: linux/kernel/printk.c
+===================================================================
+--- linux.orig/kernel/printk.c
++++ linux/kernel/printk.c
+@@ -545,6 +545,7 @@ asmlinkage int vprintk(const char *fmt, 
+ 	/* This stops the holder of console_sem just where we want him */
+ 	spin_lock_irqsave(&logbuf_lock, flags);
+ 	printk_cpu = smp_processor_id();
++	preempt_enable();
+ 
+ 	/* Emit the output into the temporary buffer */
+ 	printed_len = vscnprintf(printk_buf, sizeof(printk_buf), fmt, args);
+@@ -637,7 +638,6 @@ asmlinkage int vprintk(const char *fmt, 
+ 		spin_unlock_irqrestore(&logbuf_lock, flags);
+ 	}
+ out:
+-	preempt_enable();
+ 	return printed_len;
+ }
+ EXPORT_SYMBOL(printk);

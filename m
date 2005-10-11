@@ -1,77 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751436AbVJKJ0e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751428AbVJKJWe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751436AbVJKJ0e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 05:26:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751438AbVJKJ0e
+	id S1751428AbVJKJWe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 05:22:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751429AbVJKJWe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 05:26:34 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:62698 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S1751436AbVJKJ0d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 05:26:33 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Karthik Sarangan <karthiks@cdac.in>
-Subject: Re: AIO!!
-Date: Tue, 11 Oct 2005 12:25:35 +0300
-User-Agent: KMail/1.8.2
-Cc: Benjamin LaHaise <bcrl@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux SCSI Mailing List <linux-scsi@vger.kernel.org>
-References: <434A6EFC.4010100@cdac.in> <20051010160856.GI13986@kvack.org> <434B47C1.60106@cdac.in>
-In-Reply-To: <434B47C1.60106@cdac.in>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Oct 2005 05:22:34 -0400
+Received: from unthought.net ([212.97.129.88]:12930 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S1751428AbVJKJWe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 05:22:34 -0400
+Date: Tue, 11 Oct 2005 11:22:33 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Leif Nixon <nixon@nsc.liu.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Cache invalidation bug in NFS v3 - trivially reproducible
+Message-ID: <20051011092232.GA1625@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Leif Nixon <nixon@nsc.liu.se>, linux-kernel@vger.kernel.org
+References: <m33bn8bet4.fsf@nammatj.nsc.liu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200510111225.35838.vda@ilport.com.ua>
+In-Reply-To: <m33bn8bet4.fsf@nammatj.nsc.liu.se>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 11 October 2005 08:04, Karthik Sarangan wrote:
->  > Benjamin LaHaise wrote:
-> > O_DIRECT buffers must be aligned on block sized boundaries (minimum 512 
-> > bytes).  Check the actual return code from the aiocb and you'll find that 
-> > it is likely -EINVAL, no -EINPROGRESS.  See the man page for 
-> > posix_memalign() to properly align the pointer.
+On Tue, Oct 11, 2005 at 11:09:27AM +0200, Leif Nixon wrote:
+...
 > 
-> EEP!! I forgot all about buffer alignment!! Thanks for pointing it out
-
-Why do you constantly shout?
-
-> ------------------
-> Two more questions.
+> Now client n2 is stuck in a state where it uses its old cached data
+> forever (or at least for several hours):
 > 
-> 1. Is aio_fsync of any use while 'aio_read'ing and 'aio_write'ing to
->     a 'raw' device or a '/dev/sdb' with O_DIRECT?
-
-I suspect you did not do some research first.
-
-> 2. I have an Ultra320 SCSI disk whose datasheet says it has a max.
->     possible throughput of 78MBps
+>   NFS client n1                NFS client n2
 > 
->     I did a 'aio_write' onto '/dev/sdb' with O_DIRECT.
->     Following are some throughput values.
-> 
->     Buffer for IO   |  Avg Speed
->     (in KBytes)     |
->     ----------------O-----------
->     Upto 512KB      |  69MBps
->     1024KB          |  125MBps
->     2048KB          |  250MBps
->     4096KB          |  500MBps
->     8192KB          |  1GBps		-- What the !! --
+>   $ cat f
+>   2
+> 			       $ cat f
+> 			       1
 
-Most probably bug in your program.
+I can confirm this on NFSv3 UDP export from patched 2.6.11.11 server
+(dual opteron 64-bit kernel) to two different SMP (32-bit x86) clients
+with 2.6.12.4 and 2.6.11.11 kernels.
 
->     Buffer cache does not come into consideration.
-> 
->     Does this mean that the SCSI lower layer (aic79xx) can transfer data
->     only upto 512 KB?
+There are definitely timing issues - in order to reproduce the problem I
+had to use "touch . ; echo 2 > r" and "touch r; cat r" on the clients -
+I couldn't type the commands quickly enough one-by-one.
 
-It means that you are in dire need of reading this:
+But right now I have:
 
-http://www.catb.org/~esr/faqs/smart-questions.html
+[phoenix:joe] $ cat r
+2
 
---
-vda
+[raven:joe] $ cat r
+1
+
+Beautiful :)
+
+-- 
+
+ / jakob
+

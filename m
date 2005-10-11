@@ -1,51 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751408AbVJKHwa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751411AbVJKIB1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751408AbVJKHwa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 03:52:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbVJKHwa
+	id S1751411AbVJKIB1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 04:01:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751414AbVJKIB0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 03:52:30 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:20661 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751408AbVJKHw3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 03:52:29 -0400
-Date: Tue, 11 Oct 2005 09:53:00 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Mark Knecht <markknecht@gmail.com>
-Cc: chaosite@gmail.com, Daniel Walker <dwalker@mvista.com>,
-       linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>
-Subject: Re: Latency data - 2.6.14-rc3-rt13
-Message-ID: <20051011075300.GA27359@elte.hu>
-References: <5bdc1c8b0510101412n714c4798v1482254f6f8e0386@mail.gmail.com> <5bdc1c8b0510101428o475d9dbct2e9bdcc6b46418c9@mail.gmail.com> <1128980674.18782.211.camel@c-67-188-6-232.hsd1.ca.comcast.net> <5bdc1c8b0510101509w4c74028apb6e69746b1b8b65b@mail.gmail.com> <1128983301.18782.215.camel@c-67-188-6-232.hsd1.ca.comcast.net> <5bdc1c8b0510101633lc45fbf8gd2677e5646dc6f93@mail.gmail.com> <5bdc1c8b0510101649s221ab437scc49d6a49269d6b@mail.gmail.com> <434B3803.2030803@gmail.com> <5bdc1c8b0510102145k3b05c00dm8e3e770c5eee2ee4@mail.gmail.com> <20051011061420.GA20074@elte.hu>
+	Tue, 11 Oct 2005 04:01:26 -0400
+Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:63909 "EHLO
+	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1751411AbVJKIBZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 04:01:25 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Subject: Re: [PATCH] Use of getblk differs between locations
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>, glommer@br.ibm.com,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, hirofumi@mail.parknet.co.jp,
+       linux-ntfs-dev@lists.sourceforge.net, aia21@cantab.net,
+       hch@infradead.org, viro@zeniv.linux.org.uk
+In-Reply-To: <20051010180705.0b0e3920.akpm@osdl.org>
+References: <20051010204517.GA30867@br.ibm.com>
+	 <Pine.LNX.4.64.0510102217200.6247@hermes-1.csi.cam.ac.uk>
+	 <20051010214605.GA11427@br.ibm.com>
+	 <Pine.LNX.4.62.0510102347220.19021@artax.karlin.mff.cuni.cz>
+	 <20051010223636.GB11427@br.ibm.com>
+	 <Pine.LNX.4.64.0510102328110.6247@hermes-1.csi.cam.ac.uk>
+	 <20051010163648.3e305b63.akpm@osdl.org>
+	 <Pine.LNX.4.62.0510110203430.27454@artax.karlin.mff.cuni.cz>
+	 <20051010180705.0b0e3920.akpm@osdl.org>
+Content-Type: text/plain
+Organization: Computing Service, University of Cambridge, UK
+Date: Tue, 11 Oct 2005 09:01:19 +0100
+Message-Id: <1129017679.12336.7.camel@imp.csi.cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051011061420.GA20074@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Ingo Molnar <mingo@elte.hu> wrote:
-
-> > Anyway, these latencies seem understood at this point. They are just 
-> > the timer that you set in the kernel hacking section. No big deal. 
-> > However, none of the messages yet give any clues (that I understand) 
-> > as to the cause of the timing misses I'm seeing with 2.6.14-rc3-rt13. 
-> > I shall look into a 2.6.14-rc4-rtX tomorrow.
+On Mon, 2005-10-10 at 18:07 -0700, Andrew Morton wrote:
+> Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz> wrote:
+> >
+> >  On Mon, 10 Oct 2005, Andrew Morton wrote:
+> > 
+> >  > Anton Altaparmakov <aia21@cam.ac.uk> wrote:
+> >  >>
+> >  >> > Maybe the best solution is neither one nor another. Testing and failing
+> >  >> > gracefully seems better.
+> >  >> >
+> >  >> > What do you think?
+> >  >>
+> >  >>  I certainly agree with you there.  I neither want a deadlock nor
+> >  >>  corruption.  (-:
+> >  >
+> >  > Yup.  In the present implementation __getblk_slow() "cannot fail".  It's
+> >  > conceivable that at some future stage we'll change __getblk_slow() so that
+> >  > it returns NULL on an out-of-memory condition.
+> > 
+> >  The question is if it is desired --- it will make bread return NULL on 
+> >  out-of-memory condition, callers will treat it like an IO error, skipping 
+> >  access to the affected block, causing damage on perfectly healthy 
+> >  filesystem.
 > 
-> do you have 64-bit userspace too? If you have 32-bit userspace then 
-> could you try running the x86 kernel? Generally the 64-bit kernel has 
-> less mature debugging options in the -rt tree: e.g. latency tracing 
-> itself doesnt work [...]
+> Yes, that is a bit dumb.  A filesystem might indeed want to take different
+> action for ENOMEM versus EIO.
+> 
+> >  I liked what linux-2.0 did in this case --- if the kernel was out of 
+> >  memory, getblk just took another buffer, wrote it if it was dirty and used 
+> >  it. Except for writeable loopback device (where writing one buffer 
+> >  generates more dirty buffers), it couldn't deadlock.
+> 
+> Wouldn't it be better if bread() were to return ERR_PTR(-EIO) or
+> ERR_PTR(-ENOMEM)?    Big change.
 
-let me take that back - latency tracing does work on x64 too.
+It would indeed.  Much better.  And whilst at it, it would be even
+better if we had a lot more error codes like "ERR_PTR(-EDEVUNPLUGGED)"
+for example...  But that would be an even better change.  Anyone feeling
+like touching every block driver in the kernel?  (-;
 
-	Ingo
+Best regards,
+
+        Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+

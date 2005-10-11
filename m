@@ -1,457 +1,390 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751337AbVJKB0Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750988AbVJKBbS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751337AbVJKB0Y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 21:26:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbVJKB0Y
+	id S1750988AbVJKBbS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 21:31:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbVJKBbS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 21:26:24 -0400
-Received: from ns2.suse.de ([195.135.220.15]:32197 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751337AbVJKB0X (ORCPT
+	Mon, 10 Oct 2005 21:31:18 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:61843 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750988AbVJKBbR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 21:26:23 -0400
-From: Neil Brown <neilb@suse.de>
-To: Steve Dickson <SteveD@redhat.com>
-Date: Tue, 11 Oct 2005 11:26:00 +1000
+	Mon, 10 Oct 2005 21:31:17 -0400
+Date: Mon, 10 Oct 2005 18:31:12 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Linux v2.6.14-rc4
+Message-ID: <Pine.LNX.4.64.0510101824130.14597@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17227.5288.236699.46660@cse.unsw.edu.au>
-Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kNFSD - Allowing rpc.nfsd to setting of the port, transport
- and version the server will use
-In-Reply-To: message from Steve Dickson on Friday October 7
-References: <43469FA7.7020908@RedHat.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: MULTIPART/MIXED; BOUNDARY="21872808-326722431-1128994272=:14597"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday October 7, SteveD@redhat.com wrote:
-> Neil,
-> 
-> Here is a kernel patch that will enable the setting
-> of the port knfsd will listens on, the transport knfsd
-> will support and which NFS version will be advertised.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Thanks.
-The 'version' bit is mostly OK.  The 'port' bit I don't like at all :-(
-
-I've taken the 'version' bit, modified is so:
- 1/ you can read back the current setting (needs an extra patch to
-    restore the ability to read without writing)
-    By looking at this, you can see which versions the kernel
-    supports, and which are enabled.
- 2/ You can only change the setting when there are no active threads. 
-
-New version this part patch follows.  It should be completely
-compatible with your patch. from a user-space perspective.
-
-The 'port' bit I had trouble liking.
-You write:
-
-   family proto proto addr port
-
-to the 'ports' file.
-'family' and 'addr' are completely ignored.
-'port' is effectively ignored (value is stored in a variable which
-isn't used).
-
-That leaves 'proto' and 'proto'.  One should be 'tcp' or 'notcp', the
-other should be 'udp' or 'noudp'.  Which is which?  Udp comes first,
-but it isn't at all obvious from the interface..
-
-If you want an interface like this, I think you should write:
-
- [+-]family proto addr port
-
-and every field must be checked and used.
-So while we only support ipv4, the 'family' must by 'ipv4' or an error
-is returned.
-'+' adds an endpoint.  '-' removes it.
-
-The old nfssvc syscall should add 'ipv4 udp * %port' and 'ipv4 tcp *
-%port' if they don't already exist.
-
-An alternate interface, which would be quite appealing, would be to
-require the user-space program to create and bind a socket and then
-communicate it to the kernel, possibly by writing a file-descriptor
-number to a file in the nfsd filesystem.
-'nfsd' would check it is an appropriate type of socket, take
-an extra reference, and use it.
-This would probably be best done *after* the nfsd threads were
-started, so there would need to be a way to start threads without
-them automatically opening sockets.  I'm not sure what the best
-interface for that would be... Maybe establishing sockets before the
-thread would be ok.
-
-NeilBrown
-
-----
-Two patches.  
- First restores ability to read from and 'nfsd' file without first
- writing.
- Second provides 'version' control file.
+--21872808-326722431-1128994272=:14597
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 
 
+Here's the final -rc before a 2.6.14 release.
 
-Restore functionality to read from file in /proc/fs/nfsd/
+In the diffstat, most of the changes are one-liners, with the main 
+exceptions being some sparc64 work (fix user-space corruption due to FP 
+save/restore) and the new Megaraid SAS driver. There's some networking 
+fixes, and a couple of driver updates (scsi: aacraid, net: cassini, and 
+watchdog: pcwd_pci).
 
-Most files in the nfsd filesystems are transaction files.
-You write a request, and read a response.
-For some (e.g. 'threads') it makes sense to just be able to read
-and get the current value.
-This functionality did exist but was broken recently when someone
-modified nfsctl.c without going through the maintainer.
-This patch fixes the regression.
+Along with a x86-64 suspend/resume page table corruption and some new 
+defconfig files for ARM, that rounds out the bigger chunks.
 
-Signed-off-by: Neil Brown <neilb@suse.de>
+The shortlog (appended) should be a pretty good idea of the rest.
 
-### Diffstat output
- ./fs/nfsd/nfsctl.c |   16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+		Linus
 
-diff ./fs/nfsd/nfsctl.c~current~ ./fs/nfsd/nfsctl.c
---- ./fs/nfsd/nfsctl.c~current~	2005-10-11 09:23:03.000000000 +1000
-+++ ./fs/nfsd/nfsctl.c	2005-10-11 09:30:09.000000000 +1000
-@@ -104,9 +104,23 @@ static ssize_t nfsctl_transaction_write(
- 	return rv;
- }
- 
-+static ssize_t nfsctl_transaction_read(struct file *file, char __user *buf, size_t size, loff_t *pos)
-+{
-+	if (! file->private_data) {
-+		/* An attempt to read a transaction file without writing
-+		 * causes a 0-byte write so that the file can return
-+		 * state information
-+		 */
-+		ssize_t rv = nfsctl_transaction_write(file, buf, 0, pos);
-+		if (rv < 0)
-+			return rv;
-+	}
-+	return simple_transaction_read(file, buf, size, pos);
-+}
-+
- static struct file_operations transaction_ops = {
- 	.write		= nfsctl_transaction_write,
--	.read		= simple_transaction_read,
-+	.read		= nfsctl_transaction_read,
- 	.release	= simple_transaction_release,
- };
- 
+---
+Adam Radford:
+      [SCSI] 3ware 9000: Add support for 9550SX controllers
 
+Adrian Bunk:
+      [SPARC]: "extern inline" doesn't make much sense.
 
+Al Viro:
+      [CASSINI]: Convert to ethtool_ops
+      missing include in megaraid_sas
+      bogus kfree() in ibmtr
+      bfs iget() abuses
+      fix the breakage in sparc headers
+      gfp flags annotations - part 1
 
+Alexey Dobriyan:
+      bfs endianness annotations
 
-Allow run-time selection of NFS versions to export
+Allan Graves:
+      uml: Fix sysrq-r support for skas mode
 
-Provide a file in the NFSD filesystem that allows setting
-and querying of which version of NFS are being exported.
-Changes are only allowed while no server is running.
+Ananth N Mavinakayanahalli:
+      ppc64: fix up()/down() usage for kprobe_mutex
 
-Signed-off-by: Steve Dickson <steved@redhat.com>
-Signed-off-by: Neil Brown <neilb@suse.de>
+Andi Kleen:
+      x86_64: Drop global bit from early low mappings
+      x86_64: Fix change_page_attr cache flushing
+      x86_64: Allocate cpu local data for all possible CPUs
+      i386: Don't discard upper 32bits of HWCR on K8
 
-### Diffstat output
- ./fs/nfsd/nfsctl.c             |   70 ++++++++++++++++++++++++++++++++++++
- ./fs/nfsd/nfssvc.c             |   79 ++++++++++++++++++++++++++---------------
- ./include/linux/nfsd/nfsd.h    |    2 -
- ./include/linux/nfsd/syscall.h |   17 ++++++++
- 4 files changed, 139 insertions(+), 29 deletions(-)
+Andrew Morton:
+      [SCSI] lpfc build fix
 
-diff ./fs/nfsd/nfsctl.c~current~ ./fs/nfsd/nfsctl.c
---- ./fs/nfsd/nfsctl.c~current~	2005-10-11 09:30:09.000000000 +1000
-+++ ./fs/nfsd/nfsctl.c	2005-10-11 10:53:08.000000000 +1000
-@@ -23,6 +23,7 @@
- #include <linux/seq_file.h>
- #include <linux/pagemap.h>
- #include <linux/init.h>
-+#include <linux/string.h>
- 
- #include <linux/nfs.h>
- #include <linux/nfsd_idmap.h>
-@@ -35,6 +36,8 @@
- 
- #include <asm/uaccess.h>
- 
-+unsigned int nfsd_versbits = ~0;
-+
- /*
-  *	We have a single directory with 9 nodes in it.
-  */
-@@ -51,6 +54,7 @@ enum {
- 	NFSD_Fh,
- 	NFSD_Threads,
- 	NFSD_Leasetime,
-+	NFSD_Versions,
- 	NFSD_RecoveryDir,
- };
- 
-@@ -67,6 +71,7 @@ static ssize_t write_getfs(struct file *
- static ssize_t write_filehandle(struct file *file, char *buf, size_t size);
- static ssize_t write_threads(struct file *file, char *buf, size_t size);
- static ssize_t write_leasetime(struct file *file, char *buf, size_t size);
-+static ssize_t write_versions(struct file *file, char *buf, size_t size);
- static ssize_t write_recoverydir(struct file *file, char *buf, size_t size);
- 
- static ssize_t (*write_op[])(struct file *, char *, size_t) = {
-@@ -80,6 +85,7 @@ static ssize_t (*write_op[])(struct file
- 	[NFSD_Fh] = write_filehandle,
- 	[NFSD_Threads] = write_threads,
- 	[NFSD_Leasetime] = write_leasetime,
-+	[NFSD_Versions] = write_versions,
- 	[NFSD_RecoveryDir] = write_recoverydir,
- };
- 
-@@ -343,6 +349,69 @@ static ssize_t write_threads(struct file
- 	return strlen(buf);
- }
- 
-+static ssize_t write_versions(struct file *file, char *buf, size_t size)
-+{
-+	/*
-+	 * Format:
-+	 *   [-/+]vers [-/+]vers ...
-+	 */
-+	char *mesg = buf;
-+	char *vers, sign;
-+	int len, num;
-+	ssize_t tlen = 0;
-+	char *sep;
-+
-+	if (size>0) {
-+		if (nfsd_serv)
-+			return -EBUSY;
-+		if (buf[size-1] != '\n')
-+			return -EINVAL;
-+		buf[size-1] = 0;
-+
-+		vers = mesg;
-+		len = qword_get(&mesg, vers, size);
-+		if (len <= 0) return -EINVAL;
-+		do {
-+			sign = *vers;
-+			if (sign == '+' || sign == '-')
-+				num = simple_strtol((vers+1), NULL, 0);
-+			else
-+				num = simple_strtol(vers, NULL, 0);
-+			switch(num) {
-+			case 2:
-+			case 3:
-+			case 4:
-+				if (sign != '-')
-+					NFSCTL_VERSET(nfsd_versbits, num);
-+				else
-+					NFSCTL_VERUNSET(nfsd_versbits, num);
-+				break;
-+			default:
-+				return -EINVAL;
-+			}
-+			vers += len + 1;
-+			tlen += len;
-+		} while ((len = qword_get(&mesg, vers, size)) > 0);
-+		/* If all get turned off, turn them back on, as
-+		 * having no versions is BAD
-+		 */
-+		if ((nfsd_versbits & NFSCTL_VERALL)==0)
-+			nfsd_versbits = NFSCTL_VERALL;
-+	}
-+	/* Now write current state into reply buffer */
-+	len = 0;
-+	sep = "";
-+	for (num=2 ; num <= 4 ; num++)
-+		if (NFSCTL_VERISSET(NFSCTL_VERALL, num)) {
-+			len += sprintf(buf+len, "%s%c%d", sep,
-+				       NFSCTL_VERISSET(nfsd_versbits, num)?'+':'-',
-+				       num);
-+			sep = " ";
-+		}
-+	len += sprintf(buf+len, "\n");
-+	return len;
-+}
-+
- extern time_t nfs4_leasetime(void);
- 
- static ssize_t write_leasetime(struct file *file, char *buf, size_t size)
-@@ -407,6 +476,7 @@ static int nfsd_fill_super(struct super_
- 		[NFSD_Leasetime] = {"nfsv4leasetime", &transaction_ops, S_IWUSR|S_IRUSR},
- 		[NFSD_RecoveryDir] = {"nfsv4recoverydir", &transaction_ops, S_IWUSR|S_IRUSR},
- #endif
-+		[NFSD_Versions] = {"versions", &transaction_ops, S_IWUSR|S_IRUSR},
- 		/* last one */ {""}
- 	};
- 	return simple_fill_super(sb, 0x6e667364, nfsd_files);
+Andrew Vasquez:
+      [SCSI] qla2xxx: fix remote port timeout with qla2xxx driver
 
-diff ./fs/nfsd/nfssvc.c~current~ ./fs/nfsd/nfssvc.c
---- ./fs/nfsd/nfssvc.c~current~	2005-10-11 09:45:44.000000000 +1000
-+++ ./fs/nfsd/nfssvc.c	2005-10-11 10:16:22.000000000 +1000
-@@ -30,6 +30,7 @@
- #include <linux/nfsd/nfsd.h>
- #include <linux/nfsd/stats.h>
- #include <linux/nfsd/cache.h>
-+#include <linux/nfsd/syscall.h>
- #include <linux/lockd/bind.h>
- #include <linux/nfsacl.h>
- 
-@@ -52,7 +53,7 @@
- extern struct svc_program	nfsd_program;
- static void			nfsd(struct svc_rqst *rqstp);
- struct timeval			nfssvc_boot;
--static struct svc_serv 		*nfsd_serv;
-+       struct svc_serv 		*nfsd_serv;
- static atomic_t			nfsd_busy;
- static unsigned long		nfsd_last_call;
- static DEFINE_SPINLOCK(nfsd_call_lock);
-@@ -63,6 +64,31 @@ struct nfsd_list {
- };
- static struct list_head nfsd_list = LIST_HEAD_INIT(nfsd_list);
- 
-+static struct svc_version *	nfsd_version[] = {
-+	[2] = &nfsd_version2,
-+#if defined(CONFIG_NFSD_V3)
-+	[3] = &nfsd_version3,
-+#endif
-+#if defined(CONFIG_NFSD_V4)
-+	[4] = &nfsd_version4,
-+#endif
-+};
-+
-+#define NFSD_MINVERS    	2
-+#define NFSD_NRVERS		(sizeof(nfsd_version)/sizeof(nfsd_version[0]))
-+static struct svc_version *nfsd_versions[NFSD_NRVERS];
-+
-+struct svc_program		nfsd_program = {
-+	.pg_prog		= NFS_PROGRAM,		/* program number */
-+	.pg_nvers		= NFSD_NRVERS,		/* nr of entries in nfsd_version */
-+	.pg_vers		= nfsd_versions,	/* version table */
-+	.pg_name		= "nfsd",		/* program name */
-+	.pg_class		= "nfsd",		/* authentication class */
-+	.pg_stats		= &nfsd_svcstats,	/* version table */
-+	.pg_authenticate	= &svc_set_client,	/* export authentication */
-+
-+};
-+
- /*
-  * Maximum number of nfsd processes
-  */
-@@ -80,11 +106,12 @@ int
- nfsd_svc(unsigned short port, int nrservs)
- {
- 	int	error;
--	int	none_left;	
-+	int	none_left, found_one, i;
- 	struct list_head *victim;
- 	
- 	lock_kernel();
--	dprintk("nfsd: creating service\n");
-+	dprintk("nfsd: creating service: vers 0x%x\n",
-+		nfsd_versbits);
- 	error = -EINVAL;
- 	if (nrservs <= 0)
- 		nrservs = 0;
-@@ -99,6 +126,27 @@ nfsd_svc(unsigned short port, int nrserv
- 	if (error<0)
- 		goto out;
- 	if (!nfsd_serv) {
-+		/*
-+		 * Use the nfsd_ctlbits to define which
-+		 * versions that will be advertised.
-+		 * If nfsd_ctlbits doesn't list any version,
-+		 * export them all.
-+		 */
-+		found_one = 0;
-+
-+		for (i = NFSD_MINVERS; i < NFSD_NRVERS; i++) {
-+			if (NFSCTL_VERISSET(nfsd_versbits, i)) {
-+				nfsd_program.pg_vers[i] = nfsd_version[i];
-+				found_one = 1;
-+			} else
-+				nfsd_program.pg_vers[i] = NULL;
-+		}
-+
-+		if (!found_one) {
-+			for (i = NFSD_MINVERS; i < NFSD_NRVERS; i++)
-+				nfsd_program.pg_vers[i] = nfsd_version[i];
-+		}
-+
- 		atomic_set(&nfsd_busy, 0);
- 		error = -ENOMEM;
- 		nfsd_serv = svc_create(&nfsd_program, NFSD_BUFSIZE);
-@@ -389,28 +437,3 @@ static struct svc_stat	nfsd_acl_svcstats
- #else
- #define nfsd_acl_program_p	NULL
- #endif /* defined(CONFIG_NFSD_V2_ACL) || defined(CONFIG_NFSD_V3_ACL) */
--
--extern struct svc_version nfsd_version2, nfsd_version3, nfsd_version4;
--
--static struct svc_version *	nfsd_version[] = {
--	[2] = &nfsd_version2,
--#if defined(CONFIG_NFSD_V3)
--	[3] = &nfsd_version3,
--#endif
--#if defined(CONFIG_NFSD_V4)
--	[4] = &nfsd_version4,
--#endif
--};
--
--#define NFSD_NRVERS		(sizeof(nfsd_version)/sizeof(nfsd_version[0]))
--struct svc_program		nfsd_program = {
--	.pg_next		= nfsd_acl_program_p,
--	.pg_prog		= NFS_PROGRAM,		/* program number */
--	.pg_nvers		= NFSD_NRVERS,		/* nr of entries in nfsd_version */
--	.pg_vers		= nfsd_version,		/* version table */
--	.pg_name		= "nfsd",		/* program name */
--	.pg_class		= "nfsd",		/* authentication class */
--	.pg_stats		= &nfsd_svcstats,	/* version table */
--	.pg_authenticate	= &svc_set_client,	/* export authentication */
--
--};
+Anton Altaparmakov:
+      NTFS: Fix a stupid bug in __ntfs_bitmap_set_bits_in_run() which caused the
+      NTFS: Fix a 64-bitness bug where a left-shift could overflow a 32-bit variable
 
-diff ./include/linux/nfsd/nfsd.h~current~ ./include/linux/nfsd/nfsd.h
---- ./include/linux/nfsd/nfsd.h~current~	2005-10-11 10:16:28.000000000 +1000
-+++ ./include/linux/nfsd/nfsd.h	2005-10-11 10:16:41.000000000 +1000
-@@ -60,7 +60,7 @@ typedef int (*nfsd_dirop_t)(struct inode
- extern struct svc_program	nfsd_program;
- extern struct svc_version	nfsd_version2, nfsd_version3,
- 				nfsd_version4;
--
-+extern struct svc_serv		*nfsd_serv;
- /*
-  * Function prototypes.
-  */
+Bagalkote, Sreenivas:
+      [SCSI] MegaRAID SAS RAID: new driver
 
-diff ./include/linux/nfsd/syscall.h~current~ ./include/linux/nfsd/syscall.h
---- ./include/linux/nfsd/syscall.h~current~	2005-10-11 09:45:44.000000000 +1000
-+++ ./include/linux/nfsd/syscall.h	2005-10-11 10:29:56.000000000 +1000
-@@ -39,6 +39,21 @@
- #define NFSCTL_GETFD		7	/* get an fh by path (used by mountd) */
- #define	NFSCTL_GETFS		8	/* get an fh by path with max FH len */
- 
-+/*
-+ * Macros used to set version
-+ */
-+#define NFSCTL_VERSET(_cltbits, _v)   ((_cltbits) |=  (1 << (_v)))
-+#define NFSCTL_VERUNSET(_cltbits, _v) ((_cltbits) &= ~(1 << (_v)))
-+#define NFSCTL_VERISSET(_cltbits, _v) ((_cltbits) & (1 << (_v)))
-+
-+#if defined(CONFIG_NFSD_V4)
-+#define	NFSCTL_VERALL	(0x1c /* 0b011100 */)
-+#elif defined(CONFIG_NFSD_V3)
-+#define	NFSCTL_VERALL	(0x0c /* 0b001100 */)
-+#else
-+#define	NFSCTL_VERALL	(0x04 /* 0b000100 */)
-+#endif
-+
- /* SVC */
- struct nfsctl_svc {
- 	unsigned short		svc_port;
-@@ -120,6 +135,8 @@ extern int		exp_delclient(struct nfsctl_
- extern int		exp_export(struct nfsctl_export *nxp);
- extern int		exp_unexport(struct nfsctl_export *nxp);
- 
-+extern unsigned int nfsd_versbits;
-+
- #endif /* __KERNEL__ */
- 
- #endif /* NFSD_SYSCALL_H */
+Ben Dooks:
+      [ARM] 2963/1: S3C2410 - add .owner field to device_driver
+      [ARM] 2964/1: S3C2410 - serial: add .owner to driver
+
+Benjamin Herrenschmidt:
+      pmac: fix cpufreq for old tipb 550Mhz
+      ppc: Fix timekeeping with HZ=250 on some Mac models
+      ide: Workaround PM problem
+
+Bryan Sutula:
+      [IA64] Avoid kernel hang during CMC interrupt storm
+
+Catalin Marinas:
+      [ARM] 2943/1: Clear the exclusive monitor in v6_early_abort
+      [ARM] 2954/1: Allow D and I cache and branch prediction disabling for ARMv6
+
+Christoph Hellwig:
+      [SCSI] sas: fix remote phy removal
+
+Clemens Ladisch:
+      [ALSA] usb-audio: ignore Hercules DJ Console mixer errors
+      [ALSA] usb-audio: add Roland RD-700SX support
+      [ALSA] usb-audio: add more Yamaha USB MIDI devices
+      [ALSA] usb-audio: add another ID for the TerraTec PHASE26
+      [ALSA] usb-audio: increase max buffer size
+      [ALSA] korg1212: fix typo
+      [ALSA] usb-audio: add another ID for Hercules DJ Console
+      [ALSA] usb-audio: add MIDI quirk for Hercules DJ Console
+
+Daniel Ritz:
+      [ALSA] snd_opl3sa2: add missing pnp_unregister_driver() calls
+
+Dave Jones:
+      Fix drm 'debug' sysfs permissions
+
+David Howells:
+      key: plug request_key_auth memleak
+      Keys: Add request-key process documentation
+      Keys: Split key permissions checking into a .c file
+      Keys: Possessor permissions should be additive
+
+David S. Miller:
+      [IPV6]: Fix leak added by udp connect dst caching fix.
+      [IPV4]: Update icmp sysctl docs and disable broadcast ECHO/TIMESTAMP by default
+      [TG3]: Update driver version and release date.
+      [SUNSU]: Fix bogus locking in sunsu_change_mouse_baud()
+      [SPARC64]: Replace cheetah+ code patching with variables.
+      [SPARC64]: Fix initrd when net booting.
+      [SPARC64]: Probe for power device on ISA bus too.
+      [SPARC64]: Fix userland FPU state corruption.
+      [SPARC64]: Fix Ultra5, Ultra60, et al. boot failures.
+
+David Vrabel:
+      yenta: fix build if YENTA && !CARDBUS
+
+Deepak Saxena:
+      Fix IXP2000 serial port resource range
+      ARM: Fix IXP2000 serial port resource range. For real this time.
+      Fix broken IXP4xx GPIO macro
+
+Diego Calleja:
+      trivial #if -> #ifdef
+
+Dirk Opfer:
+      [ALSA] Fix pm_message_t in PXA2XX-AC97 driver
+
+Eric Dumazet:
+      [INET]: speedup inet (tcp/dccp) lookups
+      [INET]: Shrink struct inet_ehash_bucket on 32 bits UP
+
+Eric Kinzie:
+      [ATM]: add support for LECS addresses learned from network
+
+Francois Romieu:
+      r8169: tone down the r8169 driver
+
+George G. Davis:
+      [ARM] 2959/1: Add test for invalid LDRD/STRD Rd cases in ARM alignment handler
+
+Grant Coady:
+      net/Kconfig: convert pocket_adapter ISA to PARPORT
+
+Harald Welte:
+      Fix signal sending in usbdevio on async URB completion
+
+Herbert Xu:
+      [NET]: Fix packet timestamping.
+      [IPV4]: Fix "Proxy ARP seems broken"
+      [IPV4]: Replace __in_dev_get with __in_dev_get_rcu/rtnl
+      [IPV4]: Get rid of bogus __in_put_dev in pktgen
+      [IPSEC]: Document that policy direction is derived from the index.
+
+Horst H. von Brand:
+      [NETFILTER]: Fix Kconfig typo
+
+Ion Badulescu:
+      [netdrvr starfire] fix highmem and broken firmware issues
+
+Ivan Skytte Jørgensen:
+      [SCTP] Fix sctp_get{pl}addrs() API to work with 32-bit apps on 64-bit kernels.
+
+James Bottomley:
+      [SCSI] allow REPORT LUN scanning even for LUN 0 PQ of 3
+      [SCSI] fix potential panic with proc on module removal
+      [SCSI] aic7xxx/aic79xx: fix module removal path not to panic
+      [SCSI] Legacy MegaRAID: Fix READ CAPACITY
+
+Jay Vosburgh:
+      fix bonding crash, remove old ABI support
+
+Jean-Denis Boyer:
+      [ATM]: [br2684] if we free the skb, we should return 0
+
+Jeff Dike:
+      UML - Fix Al's build tidying
+      uml: fix x86_64 with !CONFIG_FRAME_POINTER
+
+Jens Axboe:
+      scsi_ioctl: only warn for rejected commands
+
+John W. Linville:
+      [ALSA] fix HD audio ALC260 mono (un)mute
+      [ALSA] fix alc880_test_mixer typo
+      [ALSA] fix HD audio ALC882 lfe (un)mute
+
+Komuro:
+      [netdrvr] fix smc91c92_cs multicast bug
+
+Linus Torvalds:
+      Fix inequality comparison against "task->state"
+      Avoid 'names_cache' memory leak with CONFIG_AUDITSYSCALL
+      Use the new "kill_proc_info_as_uid()" for USB disconnect too
+      Linux v2.6.14-rc4
+
+Mark Haverkamp:
+      [SCSI] aacraid: Greater than 2TB capacity support
+      [SCSI] aacraid: aacraid: AIF preallocation (update)
+      [SCSI] aacraid: handle AIF hotplug events (update)
+      [SCSI] aacraid: error return checking
+      [SCSI] aacraid: initialization timeout
+      [SCSI] aacraid: fib size math fix
+      [SCSI] aacraid: remove aac_insert_entry
+
+Markus F.X.J. Oberhumer:
+      i386: fix stack alignment for signal handlers
+
+Martin Habets:
+      [SPARC]: Remove some duplicated sparc32 config items
+
+Michael Chan:
+      [TG3]: Refine AMD K8 write-reorder chipset test.
+
+Michael S. Tsirkin:
+      [IB] mthca: Fix memory leak on device close
+
+Nicolas Pitre:
+      [ARM] 2951/1: fix wrong comment
+      [ARM] 2952/1: fix a register clobber list
+      [ALSA] remove bogus match method for ac97_bus
+      [ALSA] remove redundent assignment to the ac97 device structure
+      [ALSA] clean suspend/resume calls for ac97_bus_type
+      [ARM] 2956/1: fix the "Fix gcc4 build errors in ucb1x00-core.c"
+
+Oleg Nesterov:
+      fix do_coredump() vs SIGSTOP race
+
+Paolo 'Blaisorblade' Giarrusso:
+      Uml: hide commands when not being verbose
+      uml: add mode=skas0 as a synonym of skas0
+      uml: allow building .s/.i/.lst files from userspace files
+      uml: restore include breakage, breaking binary format of COW driver
+      uml: cleanup byte order macros for COW driver
+      uml: cleanup whitespace for COW driver
+
+Paul Jackson:
+      Document from line in patch format
+      Document patch subject line better
+
+Pavel Roskin:
+      orinoco: Information leakage due to incorrect padding
+
+Philippe De Muyter:
+      tulip DC21143 rev 48 10Mbit HDX fix
+
+Rafael J. Wysocki:
+      x86_64: Set up safe page tables during resume
+
+Ralf Baechle:
+      [AX.25]: Fix packet socket crash
+
+Randy Dunlap:
+      ns83820: fix gfp flags type
+      ieee80211: fix gfp flags type
+      ieee80211: fix gfp flags type
+      ns83820: fix gfp flags type
+      sungem: fix gfp flags type
+      [ATM]: fix sparse gfp nocast warnings
+      [BONDING]: fix sparse gfp nocast warnings
+      [CONNECTOR]: fix sparse gfp nocast warnings
+      [DECNET]: fix sparse gfp nocast warnings
+      [IPVS]: fix sparse gfp nocast warnings
+      [NETFILTER]: fix sparse gfp nocast warnings
+      [AF_KEY]: fix sparse gfp nocast warnings
+      [RPC]: fix sparse gfp nocast warnings
+      [TEXTSEARCH]: fix sparse gfp nocast warnings
+      [XFRM]: fix sparse gfp nocast warnings
+
+Ravikiran G Thirumalai:
+      x86_64: Fix numa node topology detection for srat based x86_64 boxes
+
+Richard Henderson:
+      alpha: fix kernel alignment traps
+
+Richard Purdie:
+      [ARM] 2960/1: collie: Add missing scoop call parameters
+      [ARM] 2961/1: corgi: Add missing include
+      [ARM] 2962/1: scoop: Allow GPIO pin suspend state to be specified
+
+Robert Olsson:
+      [IPV4]: fib_trie root-node expansion
+
+Roland Dreier:
+      [IPoIB] Rename IPoIB's path_lookup() to avoid name clashes
+
+Russell King:
+      [ARM] Fix EBSA110 network driver link detection
+      [ARM] Fix init printk for EBSA110 network driver, and link timer
+      [NET]: Fix "sysctl_net.c:36: error: 'core_table' undeclared here"
+      [MFD] Fix gcc4 build errors in ucb1x00-core.c
+      [ARM] Update mach-types
+
+Sascha Hauer:
+      [ARM] 2949/1: Hynix h720x Run mode
+      [ARM] 2950/1: i.MX gpio setup function
+      [ARM] 2957/1: imx UART Error handling
+      [ARM] 2958/1: fix definition in imx-regs.h
+
+Sasha Khapyorsky:
+      [ALSA] no templated index for mc97 controls
+      [ALSA] no templated index for si3036 modem controls
+      [ALSA] hda-codec - 'empty' generic mfg-only codec
+
+Sridhar Samudrala:
+      [SCTP] Fix SCTP socket options to work with 32-bit apps on 64-bit kernels.
+
+Stephen Hemminger:
+      skge: set mac address oops with bonding
+      [TCP]: BIC coding bug in Linux 2.6.13
+
+Steven Rostedt:
+      pcmcia: fix task state at pccard thread exit
+
+Sven Hartge:
+      [SPARC64]: Fix compile error in irq.c
+
+Sven Henkel:
+      pmac/radeonfb: Add suspend support for M11 chip in new iBook 12"
+      ppc32: Add new iBook 12" to PowerMac models table
+
+Takashi Iwai:
+      [ALSA] hda-intel - Disable DMA position auto-correction
+      [ALSA] via82xx - Add a dxs whitelist entry
+      [ALSA] Add iBook 1.33GHz support
+      [ALSA] Fix confliction of capture controls on ALC880 test model
+      [ALSA] via82xx - dxs_support entry for an ASUS mobo
+      [ALSA] emu10k1 - Fix loading of SBLive Game board
+      [ALSA] emu10k1 - Fix handling of ac97_chip=2
+      [ALSA] ali5451 - Don't build non-existing modem PCM
+
+Tom 'spot' Callaway:
+      [SPARC32]: Enable generic IOMAP.
+      [SPARC]: Fix p9100 framebuffer in 2.6
+
+Tom Zanussi:
+      relayfs: fix bogus param value in call to vmap
+
+Ursula Braun:
+      s390: qeth driver fixes
+
+Vincent Sanders:
+      [ARM] 2944/1: GCC 4 mx1ads serial driver compile fix
+      [ARM] 2945/1: ARM fortunet fails to build because of missing include
+      [ARM] 2965/1: defconfig for the ARM Spitz platform
+      [ARM] 2966/1: defconfig for the ARM Poodle platform
+      [ARM] 2967/1: defconfig for the ARM Corgi platform
+      [ARM] 2968/1: defconfig for the ARM Collie platform
+
+Wade Farnsworth:
+      emac: add support for platform-specific unsupported PHY features
+
+Wim Van Sebroeck:
+      [WATCHDOG] pcwd_pci.c control status + boot-code clean-up
+      [WATCHDOG] pcwd_pci.c add debug module_param
+
+Yan Zheng:
+      [IPV6]: Fix ipv6 fragment ID selection at slow path
+      [MCAST] ipv6: Fix address size in grec_size
+
+YOSHIFUJI Hideaki:
+      [IPV6]: Fix infinite loop in udp_v6_get_port().
+      [IPV6]: Fix NS handing for proxy/anycast address
+
+--21872808-326722431-1128994272=:14597--

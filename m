@@ -1,60 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751368AbVJKDTt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750919AbVJKDpc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751368AbVJKDTt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 23:19:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbVJKDTs
+	id S1750919AbVJKDpc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 23:45:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750941AbVJKDpc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 23:19:48 -0400
-Received: from main.gmane.org ([80.91.229.2]:45457 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751368AbVJKDTs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 23:19:48 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Joe Seigh <jseigh_02@xemaps.com>
-Subject: Re: SMP syncronization on AMD processors (broken?)
-Date: Mon, 10 Oct 2005 23:20:23 -0400
-Message-ID: <difarq$c6a$1@sea.gmane.org>
-References: <434520FF.8050100@sw.ru> <20051006192106.A13978@castle.nmd.msu.ru> <20051010175920.21018fac.akpm@osdl.org> <200510110320.28302.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: stenquists.hsd1.ma.comcast.net
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-In-Reply-To: <200510110320.28302.ak@suse.de>
-Cc: discuss@x86-64.org
+	Mon, 10 Oct 2005 23:45:32 -0400
+Received: from xproxy.gmail.com ([66.249.82.202]:2754 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750906AbVJKDpb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 23:45:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=HR6phmDN2Q2QJ4OMBTtsY4S7LgzGSAEuNvqmpYw12NzqNVWiZ3I3f6Y1iIvpTFPw6AZL+l/4SMm+0ZgTixKlfrqfCQ3EFjVX8GJfhUvMoK/FiHCr4ZVqmNX7Mp0b1O1TQiVMnVhiSEudEXRkl2UntQQ1Di0iA8arpsqg6n8QX7E=
+Message-ID: <5bdc1c8b0510102045u7e4bc9eeld5b690b5e96c4a5f@mail.gmail.com>
+Date: Mon, 10 Oct 2005 20:45:30 -0700
+From: Mark Knecht <markknecht@gmail.com>
+To: Daniel Walker <dwalker@mvista.com>
+Subject: Re: Latency data - 2.6.14-rc3-rt13
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Lee Revell <rlrevell@joe-job.com>
+In-Reply-To: <5bdc1c8b0510101649s221ab437scc49d6a49269d6b@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <5bdc1c8b0510101316k23ff64e2i231cdea7f11e8553@mail.gmail.com>
+	 <1128977359.18782.199.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+	 <5bdc1c8b0510101412n714c4798v1482254f6f8e0386@mail.gmail.com>
+	 <5bdc1c8b0510101428o475d9dbct2e9bdcc6b46418c9@mail.gmail.com>
+	 <1128980674.18782.211.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+	 <5bdc1c8b0510101509w4c74028apb6e69746b1b8b65b@mail.gmail.com>
+	 <1128983301.18782.215.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+	 <5bdc1c8b0510101633lc45fbf8gd2677e5646dc6f93@mail.gmail.com>
+	 <5bdc1c8b0510101649s221ab437scc49d6a49269d6b@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Tuesday 11 October 2005 02:59, Andrew Morton wrote:
-> 
-> 
->>> I'm not advocating for changing spinlock implementation, it's just a
->>> thought...
->>
->>It would make sense in these cases if there was some primitive which we
->>could call which says "hey, I expect+want another CPU to grab this lock in
->>preference to this CPU".
-> 
-> 
-> I just don't know how to implement such a primitive given the guarantees
-> of the x86 architecture. It might be possible to do something that
-> works on specific CPUs, but that will likely break later.
-> 
+On 10/10/05, Mark Knecht <markknecht@gmail.com> wrote:
+>
+> ( softirq-timer/0-3    |#0): new 3997 us maximum-latency critical section.
 
-I thought that's what the WBINVD did.  Either the problem is the delayed
-write buffer or the fact that the store makes the lock cache line exclusive
-which gives the processor unfair advantage if it immediately tries to
-reacquire the lock.  WBINVD solves both of those problems.
+So the root cause of this 4mS delay is the 250Hz timer. If I change
+the system to use the 1Khz timer then the time in this section drops,
+as expected, to 1mS.
 
-Or you could use a spin lock implementation that didn't have that problem
-to begin with.
+( softirq-timer/0-3    |#0): new 998 us maximum-latency critical section.
+ => started at timestamp 121040020: <acpi_processor_idle+0x20/0x379>
+ =>   ended at timestamp 121041019: <thread_return+0xb5/0x11a>
 
---
-Joe Seigh
+So, thinking very interesting here I think.
 
+Back to the drawing board as to my xruns.
 
-
+- Mark

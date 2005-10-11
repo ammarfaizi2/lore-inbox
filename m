@@ -1,55 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751417AbVJKQgh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751446AbVJKQum@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751417AbVJKQgh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 12:36:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751446AbVJKQgh
+	id S1751446AbVJKQum (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 12:50:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbVJKQul
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 12:36:37 -0400
-Received: from mf00.sitadelle.com ([212.94.174.67]:5153 "EHLO smtp.cegetel.net")
-	by vger.kernel.org with ESMTP id S1751417AbVJKQgg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 12:36:36 -0400
-Message-ID: <434BEA0D.9010802@cosmosbay.com>
-Date: Tue, 11 Oct 2005 18:36:29 +0200
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: fr, en
+	Tue, 11 Oct 2005 12:50:41 -0400
+Received: from seqima.han-solo.net ([83.138.65.243]:56792 "EHLO
+	seqima.han-solo.net") by vger.kernel.org with ESMTP
+	id S1751446AbVJKQul (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 12:50:41 -0400
+Message-ID: <434BED55.10603@gmx.de>
+Date: Tue, 11 Oct 2005 18:50:29 +0200
+From: Georg Lippold <georg.lippold@gmx.de>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050805)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] i386 spinlocks should use the full 32 bits, not only
- 8 bits
-References: <200510110007_MC3-1-AC4C-97EA@compuserve.com> <1129035658.23677.46.camel@localhost.localdomain> <Pine.LNX.4.64.0510110740050.14597@g5.osdl.org> <434BDB1C.60105@cosmosbay.com> <Pine.LNX.4.64.0510110902130.14597@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0510110902130.14597@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+To: Alon Bar-Lev <alon.barlev@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/1] 2.6.14-rc3 x86: COMMAND_LINE_SIZE
+References: <431628D5.1040709@zytor.com> <4345A9F4.7040000@uni-bremen.de>	 <434A6220.3000608@gmx.de>	 <9a8748490510100621x7bc20c42g667cc083d26aaaa2@mail.gmail.com>	 <434A8082.9060202@zytor.com> <434A8CE8.2020404@gmx.de>	 <434A8D70.5060300@zytor.com>	 <20051010171605.GA7793@georg.homeunix.org>	 <434AB1EB.6070309@gmail.com> <434AD0EB.6000405@gmx.de> <9e0cf0bf0510110132y64c5b42dsb2211d4e75d06f15@mail.gmail.com>
+In-Reply-To: <9e0cf0bf0510110132y64c5b42dsb2211d4e75d06f15@mail.gmail.com>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds a écrit :
-> 
-> On Tue, 11 Oct 2005, Eric Dumazet wrote:
-> 
->>As NR_CPUS might be > 128, and every spining CPU decrements the lock, we need
->>to use more than 8 bits for a spinlock. The current (i386/x86_64)
->>implementations have a (theorical) bug in this area.
-> 
-> 
-> I don't think there are any x86 machines with > 128 CPU's right now.
-> 
-> The advantage of the byte lock is that a "movb $0" is three bytes shorter 
-> than a "movl $0". And that's the unlock sequence.
+Alon Bar-Lev wrote:
+> But the address of cmd_line_ptr is defined to be from the end of the
+> setup to 0xa0000. This is well defined, since the boot loader will
+> load the kernel, initramfs and cmd_line_ptr to the correct place...
+> Nothing is overwritten... Then the kernel is up and takes as much as
+> it needs from cmd_line_ptr.
 
-1) Would you prefer to change arch/i386/Kconfig
+OK, then: Update my patch if you want to and resubmit it. I would like
+to get this through as quickly as possible.
 
-config NR_CPUS
-     int "Maximum number of CPUs (2-255)"
-     range 2 255
+Greetings,
 
-2) The unlock sequence is not anymore inlined. It appears twice or three times 
-in the kernel.
-
-3) i386 code is often taken as the base when a port is done. For example 
-x86_64 has the same problem.
-
-Eric
+Georg

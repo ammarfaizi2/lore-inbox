@@ -1,69 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751304AbVJKAJ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbVJKALj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751304AbVJKAJ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 20:09:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbVJKAJ1
+	id S1751306AbVJKALj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 20:11:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751308AbVJKALj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 20:09:27 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:23524 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1751304AbVJKAJ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 20:09:26 -0400
-Date: Tue, 11 Oct 2005 02:09:25 +0200 (CEST)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Anton Altaparmakov <aia21@cam.ac.uk>, glommer@br.ibm.com,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, hirofumi@mail.parknet.co.jp,
-       linux-ntfs-dev@lists.sourceforge.net, aia21@cantab.net,
-       hch@infradead.org, viro@zeniv.linux.org.uk
-Subject: Re: [PATCH] Use of getblk differs between locations
-In-Reply-To: <20051010163648.3e305b63.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.62.0510110203430.27454@artax.karlin.mff.cuni.cz>
-References: <20051010204517.GA30867@br.ibm.com>
- <Pine.LNX.4.64.0510102217200.6247@hermes-1.csi.cam.ac.uk>
- <20051010214605.GA11427@br.ibm.com> <Pine.LNX.4.62.0510102347220.19021@artax.karlin.mff.cuni.cz>
- <20051010223636.GB11427@br.ibm.com> <Pine.LNX.4.64.0510102328110.6247@hermes-1.csi.cam.ac.uk>
- <20051010163648.3e305b63.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 10 Oct 2005 20:11:39 -0400
+Received: from mail.kroah.org ([69.55.234.183]:64481 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751306AbVJKALi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 20:11:38 -0400
+Date: Mon, 10 Oct 2005 17:10:56 -0700
+From: Greg KH <greg@kroah.com>
+To: linas <linas@austin.ibm.com>
+Cc: paulus@samba.org, linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH 20/22] PCI Error Recovery: e100 network device driver
+Message-ID: <20051011001056.GA16634@kroah.com>
+References: <20051006232032.GA29826@austin.ibm.com> <20051006235729.GU29826@austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051006235729.GU29826@austin.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Oct 2005, Andrew Morton wrote:
+On Thu, Oct 06, 2005 at 06:57:29PM -0500, linas wrote:
+> +config E100_EEH_RECOVERY
+> +	bool "Enable PCI bus error recovery"
+> +	depends on E100 && PPC_PSERIES
+> +   help
+> +      If you say Y here, the driver will be able to recover from
+> +      PCI bus errors on many PowerPC platforms. IBM pSeries users
+> +      should answer Y.
 
-> Anton Altaparmakov <aia21@cam.ac.uk> wrote:
->>
->> > Maybe the best solution is neither one nor another. Testing and failing
->> > gracefully seems better.
->> >
->> > What do you think?
->>
->>  I certainly agree with you there.  I neither want a deadlock nor
->>  corruption.  (-:
->
-> Yup.  In the present implementation __getblk_slow() "cannot fail".  It's
-> conceivable that at some future stage we'll change __getblk_slow() so that
-> it returns NULL on an out-of-memory condition.
+Why make a config option for this at all?  Who would turn it off?
 
-The question is if it is desired --- it will make bread return NULL on 
-out-of-memory condition, callers will treat it like an IO error, skipping 
-access to the affected block, causing damage on perfectly healthy 
-filesystem.
+> @@ -2661,6 +2731,9 @@
+>  	.resume =       e100_resume,
+>  #endif
+>  	.shutdown =	e100_shutdown,
+> +#ifdef CONFIG_E100_EEH_RECOVERY
+> +	.err_handler = &e100_err_handler,
+> +#endif /* CONFIG_E100_EEH_RECOVERY */
 
-I liked what linux-2.0 did in this case --- if the kernel was out of 
-memory, getblk just took another buffer, wrote it if it was dirty and used 
-it. Except for writeable loopback device (where writing one buffer 
-generates more dirty buffers), it couldn't deadlock.
+No, don't put #ifdefs in the middle of a structure, remember we made
+err_handler always present in the .h file for a reason...
 
-Mikukas
+thanks,
 
-> Anyone making such a change
-> would have to audit all callers to make sure that they handle the NULL
-> correctly.
->
-> It is appropriate at this time to fix the callers so that they correctly
-> handle the NULL return.  However, it is non-trivial to actually _test_ such
-> changes, and such changes should be tested.  Or at least, they should be
-> done with considerable care and knowledge of the specific filesystems.
->
+greg k-h

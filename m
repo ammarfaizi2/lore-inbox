@@ -1,113 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932345AbVJKXu0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbVJKXxR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932345AbVJKXu0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 19:50:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932364AbVJKXu0
+	id S932309AbVJKXxR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 19:53:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbVJKXxR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 19:50:26 -0400
-Received: from science.horizon.com ([192.35.100.1]:24114 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S932345AbVJKXuZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 19:50:25 -0400
-Date: 11 Oct 2005 19:50:17 -0400
-Message-ID: <20051011235017.21719.qmail@science.horizon.com>
-From: linux@horizon.com
-To: dev@sw.ru
-Subject: Re: SMP syncronization on AMD processors (broken?)
-Cc: linux-kernel@vger.kernel.org
+	Tue, 11 Oct 2005 19:53:17 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:35796 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932309AbVJKXxQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 19:53:16 -0400
+Subject: Re: [Pcihpd-discuss] [patch 1/2] acpiphp: allocate resources for
+	adapters with bridges
+From: Kristen Accardi <kristen.c.accardi@intel.com>
+To: MUNEDA Takahiro <muneda.takahiro@jp.fujitsu.com>
+Cc: pcihpd-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net, rajesh.shah@intel.com, greg@kroah.com,
+       len.brown@intel.com
+In-Reply-To: <87mzlgkeil.wl%muneda.takahiro@jp.fujitsu.com>
+References: <1128707147.11020.10.camel@whizzy>
+	 <87mzlgkeil.wl%muneda.takahiro@jp.fujitsu.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 11 Oct 2005 16:53:02 -0700
+Message-Id: <1129074782.15526.28.camel@whizzy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-6) 
+X-OriginalArrivalTime: 11 Oct 2005 23:53:04.0218 (UTC) FILETIME=[EBA033A0:01C5CEBE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The whole story started when we wrote the following code:
-> 
-> void XXX(void)
-> {
-> 	/* ints disabled */
-> restart:
-> 	spin_lock(&lock);
-> 	do_something();
-> 	if (!flag)
-> 		need_restart = 1;
-> 	spin_unlock(&lock);
-> 	if (need_restart)
-> 		goto restart;	<<<< LOOPS 4EVER ON AMD!!!
-> }
-> 
-> void YYY(void)
-> {
-> 	spin_lock(&lock);	<<<< SPINS 4EVER ON AMD!!!
-> 	flag = 1;
-> 	spin_unlock(&lock);
-> }
-> 
-> function XXX() starts on CPU0 and begins to loop since flag is not set, 
-> then CPU1 calls function YYY() and it turns out that it can't take the 
-> lock any arbitrary time.
+Allocate resources for adapters with bridges on them.
 
-The right thing to do here is to wait for the flag to be set *outside*
-the lock, and then re-validate inside the lock:
+Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+---
+I changed the patch to not store the acpi_handle in the acpiphp_slot
+structure, but grab it out of the device structure instead.  However, I
+don't have an adapter that will really test to see if this works
+properly, so if your adapter will work, then please give it a try and
+let me know if it fails.
 
-void XXX(void)
-{
-	/* ints disabled */
-restart:
-	spin_lock(&lock);
-	do_something();
-	if (!flag)
-		need_restart = 1;
-	spin_unlock(&lock);
-	if (need_restart) {
-		while (!flag)
-			cpu_relax();
-		goto restart;
-	}
-}
+diff -uprN -X linux-2.6.14-rc3/Documentation/dontdiff linux-2.6.14-rc3.orig/drivers/pci/hotplug/acpiphp_glue.c linux-2.6.14-rc3/drivers/pci/hotplug/acpiphp_glue.c
+--- linux-2.6.14-rc3.orig/drivers/pci/hotplug/acpiphp_glue.c	2005-08-28 16:41:01.000000000 -0700
++++ linux-2.6.14-rc3/drivers/pci/hotplug/acpiphp_glue.c	2005-10-11 16:30:58.000000000 -0700
+@@ -58,6 +58,9 @@ static LIST_HEAD(bridge_list);
+ 
+ static void handle_hotplug_event_bridge (acpi_handle, u32, void *);
+ static void handle_hotplug_event_func (acpi_handle, u32, void *);
++static void acpiphp_sanitize_bus(struct pci_bus *bus);
++static void acpiphp_set_hpp_values(acpi_handle handle, struct pci_bus *bus);
++
+ 
+ /*
+  * initialization & terminatation routines
+@@ -796,9 +799,14 @@ static int enable_device(struct acpiphp_
+ 		}
+ 	}
+ 
++	pci_bus_size_bridges(bus);
+ 	pci_bus_assign_resources(bus);
++	acpiphp_sanitize_bus(bus);
++	pci_enable_bridges(bus);
+ 	pci_bus_add_devices(bus);
+-
++	acpiphp_set_hpp_values(DEVICE_ACPI_HANDLE(&bus->self->dev), bus);
++	acpiphp_configure_ioapics(DEVICE_ACPI_HANDLE(&bus->self->dev));
++		
+ 	/* associate pci_dev to our representation */
+ 	list_for_each (l, &slot->funcs) {
+ 		func = list_entry(l, struct acpiphp_func, sibling);
 
-This way, XXX() keeps the lock dropped for as long as it takes for
-YYY() to notice and grab it.
-
-
-However, I realize that this is of course a simplified case of some real
-code, where even *finding* the flag requires the spin lock.
-
-The generic solution is to have a global "progress" counter, which
-records "I made progress toward setting flag", that XXX() can
-busy-loop on:
-
-int progress;
-
-void XXX(void)
-{
-	int old_progress;
-	/* ints disabled */
-restart:
-	spin_lock(&lock);
-	do_something();
-	if (!flag) {
-		old_progress = progress;
-		need_restart = 1;
-	}
-	spin_unlock(&lock);
-	if (need_restart) {
-		while (progress == old_progress)
-			cpu_relax();
-		goto restart;
-	}
-}
-
-void YYY(void)
-{
-	spin_lock(&lock);
-	flag = 1;
-	progress++;
-	spin_unlock(&lock);
-}
-
-It may be that in your data structure, there is one or a series of
-fields that already exist that you can use for the purpose.  The goal
-is to merely detect *change*, so you can reacquire the lock and test
-definitively.  It's okay to read freed memory while doing this, as long as
-you can be sure that:
-- The memory read won't oops the kernel, and
-- You don't end up depending on the value of the freed memory to
-  get you out of the stall.

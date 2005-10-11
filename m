@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbVJKXRM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbVJKXYY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932095AbVJKXRM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 19:17:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbVJKXRM
+	id S932123AbVJKXYY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 19:24:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbVJKXYX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 19:17:12 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:19354 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S932095AbVJKXRL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 19:17:11 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] 2.6.14-rc4 ACPI/PCI compile problem
-Date: Tue, 11 Oct 2005 17:17:01 -0600
-User-Agent: KMail/1.8.2
-Cc: Adam Litke <agl@us.ibm.com>, linux-kernel@vger.kernel.org
-References: <1129069727.27663.8.camel@localhost.localdomain>
-In-Reply-To: <1129069727.27663.8.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Oct 2005 19:24:23 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:55755 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932123AbVJKXYX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 19:24:23 -0400
+Date: Wed, 12 Oct 2005 00:24:21 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Borislav Petkov <bbpetkov@yahoo.de>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, tgraf@suug.ch,
+       pablo@eurodev.net
+Subject: Re: [was: Linux v2.6.14-rc4] fix textsearch build warning
+Message-ID: <20051011232421.GW7992@ftp.linux.org.uk>
+References: <Pine.LNX.4.64.0510101824130.14597@g5.osdl.org> <20051011145454.GA30786@gollum.tnic> <20051011205949.GU7992@ftp.linux.org.uk> <20051011230233.GA20187@gollum.tnic>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200510111717.01887.bjorn.helgaas@hp.com>
+In-Reply-To: <20051011230233.GA20187@gollum.tnic>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 11 October 2005 4:28 pm, Adam Litke wrote:
-> Ok I'll admit I've known about this since at least 2.6.14-rc2-git5 but
-> it may have been around longer.  Long enough for me to speak up.
-> 
-> I am getting the following compile errors when building 2.6.14-rc4 for
-> i386:
-> 
-> >   LD      .tmp_vmlinux1
-> > drivers/built-in.o(.text+0x235f9): In function `acpi_pci_root_add':
-> > /home/aglitke/views/acpi-compile-fix-2.6.14-rc4/current/drivers/acpi/pci_root.c:274: undefined reference to `pci_acpi_scan_root'
-> > make[1]: *** [.tmp_vmlinux1] Error 1
-> > make: *** [_all] Error 2
+On Wed, Oct 12, 2005 at 01:02:33AM +0200, Borislav Petkov wrote:
+> Hm, I think that this is even merged already, at least the exact same one liner
+> I sent is in Linus' git (see commit id dd0fc66fb33cd610bc1a5db8a5e232d34879b4d7). By the way, how
+> can you see the patch's source by using the commit id? 
+; git-cat-file commit dd0fc66fb33cd610bc1a5db8a5e232d34879b4d7
+tree 51f96a9db96293b352e358f66032e1f4ff79fafb
+parent 3b0e77bd144203a507eb191f7117d2c5004ea1de
+author Al Viro <viro@ftp.linux.org.uk> 1128667564 +0100
+committer Linus Torvalds <torvalds@g5.osdl.org> 1128808857 -0700
 
-Please try the following patch and confirm whether it works.
+[PATCH] gfp flags annotations - part 1
 
+ - added typedef unsigned int __nocast gfp_t;
 
-[i386 kbuild] Don't clobber pci-y when X86_VISWS or X86_NUMAQ
+ - replaced __nocast uses for gfp flags with gfp_t - it gives exactly
+   the same warnings as far as sparse is concerned, doesn't change
+   generated code (from gcc point of view we replaced unsigned int with
+   typedef) and documents what's going on far better.
 
-Previously, enabling CONFIG_X86_VISWS or CONFIG_X86_NUMAQ
-clobbered any previous contents of pci-y, because they used
-":=" instead of "+=".
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Linus Torvalds <torvalds@osdl.org>
 
-Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
-
-diff -r ed3231e577f5 arch/i386/pci/Makefile
---- a/arch/i386/pci/Makefile	Tue Oct 11 19:03:47 2005
-+++ b/arch/i386/pci/Makefile	Tue Oct 11 15:47:09 2005
-@@ -8,7 +8,7 @@
- pci-$(CONFIG_ACPI)		+= acpi.o
- pci-y				+= legacy.o irq.o
- 
--pci-$(CONFIG_X86_VISWS)		:= visws.o fixup.o
--pci-$(CONFIG_X86_NUMAQ)		:= numa.o irq.o
-+pci-$(CONFIG_X86_VISWS)		+= visws.o fixup.o
-+pci-$(CONFIG_X86_NUMAQ)		+= numa.o irq.o
- 
- obj-y				+= $(pci-y) common.o
+and no, that's not it.

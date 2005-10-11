@@ -1,146 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751438AbVJKJor@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751442AbVJKJwW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751438AbVJKJor (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 05:44:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbVJKJor
+	id S1751442AbVJKJwW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 05:52:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbVJKJwW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 05:44:47 -0400
-Received: from gw1.cosmosbay.com ([62.23.185.226]:24455 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S1751438AbVJKJor
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 05:44:47 -0400
-Message-ID: <434B8915.3040706@cosmosbay.com>
-Date: Tue, 11 Oct 2005 11:42:45 +0200
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Chuck Ebbert <76306.1226@compuserve.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>, linux@horizon.com,
-       Linus Torvalds <torvalds@osdl.org>, Kirill Korotaev <dev@sw.ru>
-Subject: Re: i386 spinlock fairness: bizarre test results
-References: <200510110007_MC3-1-AC4C-97EA@compuserve.com>
-In-Reply-To: <200510110007_MC3-1-AC4C-97EA@compuserve.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Tue, 11 Oct 2005 11:42:50 +0200 (CEST)
+	Tue, 11 Oct 2005 05:52:22 -0400
+Received: from gate.crashing.org ([63.228.1.57]:25224 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751442AbVJKJwV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 05:52:21 -0400
+Subject: Re: [PATCH] ppc highmem fix
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Paolo Galtieri <pgaltieri@mvista.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1128987529.16630.14.camel@playin.mvista.com>
+References: <1128986427.16630.6.camel@playin.mvista.com>
+	 <1128987529.16630.14.camel@playin.mvista.com>
+Content-Type: text/plain
+Date: Tue, 11 Oct 2005 19:38:55 +1000
+Message-Id: <1129023535.17365.200.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Ebbert a écrit :
->   After seeing Kirill's message about spinlocks I decided to do my own
-> testing with the userspace program below; the results were very strange.
+On Mon, 2005-10-10 at 16:38 -0700, Paolo Galtieri wrote:
+> On Mon, 2005-10-10 at 16:20 -0700, Paolo Galtieri wrote:
+> > I've noticed that the calculations for seg_size and nr_segs in
+> > __dma_sync_page_highmem() (arch/ppc/kernel/dma-mapping.c) are wrong.
+> > The incorrect calculations can result in either an oops or a panic when
+> > running fsck depending on the size of the partition.  The problem with
+> > the
+> > seg_size calculation is that it can result in a negative number if size
+> > is offset > size.  The problem with the nr_segs caculation is returns
+> > the
+> > wrong number of segments, e.g. it returns 1 when size is 200 and offset
+> > is 4095, when it should return 2 or more.
+> > 
+> > Here is the patch to fix the problem.
+
+Looks good, should probably still make it to 2.6.14, Andrew, Linus ?
+
+(Paolo, can you send them a clean patch ?)
+
+Acked-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+
+
+> > --- linux-2.6.14-rc3-git8/arch/ppc/kernel/dma-mapping.c 2005-10-10
+> > 13:55:37.000000000 -0700
+> > +++ linux-2.6.14/arch/ppc/kernel/dma-mapping.c  2005-10-10
+> > 13:57:51.000000000 -0700
+> > @@ -401,10 +401,10 @@
+> >  static inline void __dma_sync_page_highmem(struct page *page,
+> >                 unsigned long offset, size_t size, int direction)
+> >  {
+> > -       size_t seg_size = min((size_t)PAGE_SIZE, size) - offset;
+> > +       size_t seg_size = min((size_t)(PAGE_SIZE - offset), size);
+> >         size_t cur_size = seg_size;
+> >         unsigned long flags, start, seg_offset = offset;
+> > -       int nr_segs = PAGE_ALIGN(size + (PAGE_SIZE - offset))/PAGE_SIZE;
+> > +       int nr_segs = 1 + ((size - seg_size) + PAGE_SIZE - 1)/PAGE_SIZE;
+> >         int seg_nr = 0;
+> > 
+> >         local_irq_save(flags);
+> > 
+> > 
+> > Paolo Galtieri (pgaltieri@mvista.com)
+> > 
 > 
->   When using the 'mov' instruction to do the unlock I was able to reproduce
-> hogging of the spinlock by a single CPU even on Pentium II under some
-> conditions, while using 'xchg' always allowed the other CPU to get the
-> lock:
+> I want to apologize in advance for the previous post.  When I included
+> the patch inline I dropped the tabs :-(.  Here is the correct patch with
+> tabs:
 > 
+> --- linux-2.6.14-rc3-git8/arch/ppc/kernel/dma-mapping.c	2005-10-10
+> 13:55:37.000000000 -0700
+> +++ linux-2.6.14/arch/ppc/kernel/dma-mapping.c	2005-10-10
+> 13:57:51.000000000 -0700
+> @@ -401,10 +401,10 @@
+>  static inline void __dma_sync_page_highmem(struct page *page,
+>  		unsigned long offset, size_t size, int direction)
+>  {
+> -	size_t seg_size = min((size_t)PAGE_SIZE, size) - offset;
+> +	size_t seg_size = min((size_t)(PAGE_SIZE - offset), size);
+>  	size_t cur_size = seg_size;
+>  	unsigned long flags, start, seg_offset = offset;
+> -	int nr_segs = PAGE_ALIGN(size + (PAGE_SIZE - offset))/PAGE_SIZE;
+> +	int nr_segs = 1 + ((size - seg_size) + PAGE_SIZE - 1)/PAGE_SIZE;
+>  	int seg_nr = 0;
+>  
+>  	local_irq_save(flags);
 > 
-> parent CPU 1, child CPU 0, using mov instruction for unlock
-> parent did: 34534 of 10000001 iterations
-> CPU clocks:     2063591864
+> Paolo
 > 
-> parent CPU 1, child CPU 0, using xchg instruction for unlock
-> parent did: 5169760 of 10000001 iterations
-> CPU clocks:     2164689784
-> 
-Hi Chuck
-
-Thats interesting, because on my machines I get opposite results :
-
-On a Xeon 2.0 GHz, Hyper Threading, I get better results (in the sense of 
-fairness) with the MOV version
-
-    parent CPU 1, child CPU 0, using mov instruction for unlock
-    parent did: 5291346 of 10000001 iterations
-    CPU clocks:     3.437.053.244
-
-    parent CPU 1, child CPU 0, using xchg instruction for unlock
-    parent did: 7732349 of 10000001 iterations
-    CPU clocks:     3.408.285.308
-
-
-On a dual Opteron 248 (2.2GHz) machine, I get bad fairness results regardless 
-of MOV/XCHG (but less cycles per iteration). A lot of variations in the 
-results (maybe because of NUMA effects ?), but xchg gives slightly better 
-fairness.
-
-    parent CPU 1, child CPU 0, using mov instruction for unlock
-    parent did: 256810 of 10000001 iterations
-    CPU clocks:      772.838.640
-
-    parent CPU 1, child CPU 0, using xchg instruction for unlock
-    parent did: 438280 of 10000001 iterations
-    CPU clocks:     1.115.653.346
-
-    parent CPU 1, child CPU 0, using xchg instruction for unlock
-    parent did: 574501 of 10000001 iterations
-    CPU clocks:     1.200.129.428
-
-
-On a dual core Opteron 275 (2.2GHz), xchg is faster but unfair.
-
-(threads running on the same physical CPU)
-    parent CPU 1, child CPU 0, using mov instruction for unlock
-    parent did: 4822270 of 10000001 iterations
-    CPU clocks:      738.438.383
-
-    parent CPU 1, child CPU 0, using xchg instruction for unlock
-    parent did: 9702075 of 10000001 iterations
-    CPU clocks:      561.457.724
-
-Totally different results if affinity changed so that threads run on different 
-physical cpus  : (XCHG is slower)
-
-    parent CPU 0, child CPU 2, using mov instruction for unlock
-    parent did: 1081522 of 10000001 iterations
-    CPU clocks:      508.611.273
-
-    parent CPU 0, child CPU 2, using xchg instruction for unlock
-    parent did: 4310427 of 10000000 iterations
-    CPU clocks:     1.074.170.246
-
-
-
-For reference, if only one thread is running, the MOV version is also faster 
-on both platforms :
-
-[Xeon 2GHz]
-    one thread, using mov instruction for unlock
-    10000000 iterations
-    CPU clocks:     1.278.879.528
-
-[Xeon 2GHz]
-    one thread, using xchg instruction for unlock
-    10000000 iterations
-    CPU clocks:     2.486.912.752
-
-Of course Opterons are faster :) (less cycles per iteration)
-
-[Opteron 248]
-    one thread, using mov instruction for unlock
-    10000000 iterations
-    CPU clocks:      212.514.637
-
-[Opteron 248]
-    one thread, using xchg instruction for unlock
-    10000000 iterations
-    CPU clocks:      383.306.420
-
-[Opteron 275]
-    one thread, using mov instruction for unlock
-    10000000 iterations
-    CPU clocks:      208.472.009
-
-[Opteron 275]
-    one thread, using xchg instruction for unlock
-    10000000 iterations
-    CPU clocks:      417.502.675
-
-In conclusion, I would say that for uncontended locks, MOV is faster. For 
-contended locks, XCHG might be faster on some platforms (dual core Opterons, 
-only if on the same physical CPU)
-
-Eric
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

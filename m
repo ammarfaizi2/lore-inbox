@@ -1,43 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751011AbVJKWJc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbVJKWLy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751011AbVJKWJc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 18:09:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751145AbVJKWJc
+	id S1751153AbVJKWLy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 18:11:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbVJKWLy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 18:09:32 -0400
-Received: from EXCHG2003.microtech-ks.com ([65.16.27.37]:8543 "EHLO
-	EXCHG2003.microtech-ks.com") by vger.kernel.org with ESMTP
-	id S1751011AbVJKWJb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 18:09:31 -0400
-From: "Roger Heflin" <rheflin@atipa.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: AIC79xx fails built into kernel, but works as a module
-Date: Tue, 11 Oct 2005 17:14:43 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Thread-Index: AcXOsS4dQenICsIJSniOppNw8xVnIA==
-Message-ID: <EXCHG2003c0D543Tuyl00000f37@EXCHG2003.microtech-ks.com>
-X-OriginalArrivalTime: 11 Oct 2005 22:05:10.0324 (UTC) FILETIME=[D8E25F40:01C5CEAF]
+	Tue, 11 Oct 2005 18:11:54 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:34947 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S1751153AbVJKWLy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 18:11:54 -0400
+Date: Tue, 11 Oct 2005 15:12:25 -0700
+From: Deepak Saxena <dsaxena@plexity.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] [ARM] Fix ixp2x00 defconfig NR_UARTS options
+Message-ID: <20051011221225.GA26053@plexity.net>
+Reply-To: dsaxena@plexity.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organization: Plexity Networks
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I have a 2.6.13 kernel and if the aic79xx driver is built into
-the kernel it gives odd scsi errors (similar to what you would
-get with a bad cable).     With the same thing build as a module
-all appears to be fine, and the disk appears to function correctly.
+IXDP2[48]00 have only 1 UART on the board.
 
-Is this a known behavior?   The kernel has very few things build
-it, the only one that could be an issue is a Sata Sil driver to
-support a SIL 3114 chip with disks on it.
+Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
 
-I am going to do some more testing on it to verify exactly what
-I see.
+diff --git a/arch/arm/configs/ixdp2400_defconfig b/arch/arm/configs/ixdp2400_defconfig
+--- a/arch/arm/configs/ixdp2400_defconfig
++++ b/arch/arm/configs/ixdp2400_defconfig
+@@ -559,7 +559,7 @@ CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+ #
+ CONFIG_SERIAL_8250=y
+ CONFIG_SERIAL_8250_CONSOLE=y
+-CONFIG_SERIAL_8250_NR_UARTS=2
++CONFIG_SERIAL_8250_NR_UARTS=1
+ # CONFIG_SERIAL_8250_EXTENDED is not set
+ 
+ #
+diff --git a/arch/arm/configs/ixdp2800_defconfig b/arch/arm/configs/ixdp2800_defconfig
+--- a/arch/arm/configs/ixdp2800_defconfig
++++ b/arch/arm/configs/ixdp2800_defconfig
+@@ -559,7 +559,7 @@ CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+ #
+ CONFIG_SERIAL_8250=y
+ CONFIG_SERIAL_8250_CONSOLE=y
+-CONFIG_SERIAL_8250_NR_UARTS=2
++CONFIG_SERIAL_8250_NR_UARTS=1
+ # CONFIG_SERIAL_8250_EXTENDED is not set
+ 
+ #
 
-                             Roger
+-- 
+Deepak Saxena - dsaxena@plexity.net - http://www.plexity.net
 
+Even a stopped clock gives the right time twice a day.

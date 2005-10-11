@@ -1,38 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751450AbVJKQz7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751464AbVJKRpc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751450AbVJKQz7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 12:55:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751461AbVJKQz7
+	id S1751464AbVJKRpc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 13:45:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbVJKRpc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 12:55:59 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:63457 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751450AbVJKQz7 (ORCPT
+	Tue, 11 Oct 2005 13:45:32 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:51799 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932073AbVJKRpb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 12:55:59 -0400
-Date: Tue, 11 Oct 2005 09:55:50 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Eric Dumazet <dada1@cosmosbay.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] i386 spinlocks should use the full 32 bits, not only 8
- bits
-In-Reply-To: <Pine.LNX.4.64.0510110947380.14597@g5.osdl.org>
-Message-ID: <Pine.LNX.4.64.0510110955210.14597@g5.osdl.org>
-References: <200510110007_MC3-1-AC4C-97EA@compuserve.com>
- <1129035658.23677.46.camel@localhost.localdomain> <Pine.LNX.4.64.0510110740050.14597@g5.osdl.org>
- <434BDB1C.60105@cosmosbay.com> <Pine.LNX.4.64.0510110902130.14597@g5.osdl.org>
- <434BEA0D.9010802@cosmosbay.com> <Pine.LNX.4.64.0510110947380.14597@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 11 Oct 2005 13:45:31 -0400
+Date: Tue, 11 Oct 2005 19:46:13 +0200
+From: Jens Axboe <axboe@suse.de>
+To: linux-kernel@vger.kernel.org, linux-btrace@vger.kernel.org
+Subject: [PATCH] Block device io tracing
+Message-ID: <20051011174612.GK3533@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+This is a semi-formal announce of version 0.99 of the blktrace/blkparse
+tools for block queue io tracing. In case you just want to play with it,
+you can pull it from the following git repo:
 
-On Tue, 11 Oct 2005, Linus Torvalds wrote:
-> 
-> Ok, the patch is valid, no arguments.
+git://brick.kernel.dk/data/git/blktrace.git
 
-That said.. It's not like it's critical. So can you please re-send after 
-2.6.14 to remind me?
+or find tar balls here:
 
-		Linus
+http://brick.kernel.dk/snaps
+
+So what does it do? Well it can tell you anything that is going on at
+the queue level for a block device. It will show you io being queued,
+merged, dispatched, and completed - when that happened and on what CPU.
+It will show you if io is being split or bounced, requeue actions,
+sleeping waiting for requests, plugging/unplugging etc. At the end of a
+trace, it can give you stats on a per-process basis and more.
+
+That is the file system side of things. It can also show you SCSI
+commands issued through SG_IO - the CDB sent and what the drive
+completes.
+
+It should be helpful in debugging application problems (eg cdrecord not
+working properly, see what it sent to the drive and where it barfed) or
+generel performance problems in the io stack. Or it can help you find
+out if the io scheduler is doing what you think it is doing.
+
+The package contains three major components:
+
+- A kernel patch for 2.6.14-rc4. It's fairly small, about 20kb. You need
+  to select RELAYFS_FS in the fs section of the config and IO_TRACE in
+  the block layer section.
+
+- blktrace. This is the program responsible for collecting data from a
+  device.
+
+- blkparse. This is the program that will show you what happened.
+
+There are two ways to run this - in live tracing mode, basically piping
+data from blktrace to blkparse. There's a script for this, btrace. For a
+feel for how it works, just run btrace /dev/xxx. Or you can run blktrace
+and collect the data you want and have blkparse process it afterwards.
+
+For more info, see the included README for some simple examples on what
+you can do. For more in depth info, run make docs in the dir and get a
+blktrace.pdf file that contains a lot more info.
+
+As you may have noticed in the mail headers, there's a linux-btrace list
+hosted at vger for this project.
+
+-- 
+Jens Axboe
+

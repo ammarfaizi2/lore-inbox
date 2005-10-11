@@ -1,75 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbVJKRqN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751461AbVJKRtf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932073AbVJKRqN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 13:46:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbVJKRqM
+	id S1751461AbVJKRtf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 13:49:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751466AbVJKRtf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 13:46:12 -0400
-Received: from wproxy.gmail.com ([64.233.184.203]:21693 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751461AbVJKRqK (ORCPT
+	Tue, 11 Oct 2005 13:49:35 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:46987 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S1751462AbVJKRte (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 13:46:10 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=lDx6K7Goog4qx8mFE/4su9g9pAfctuRAVQfXEO9bm9JN/SpTMiVJNWKtvqDu0n7pWR1TkO+wY2GcFSSP/kxo+UqCisojULs85NxH73CydnyCBZ38jUWH9tsnhX+YdHXb/zejsimjS5GPVUYV+PPPBEBAEvPr9y10UVdv342/y74=
-Date: Tue, 11 Oct 2005 21:55:23 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: kernel-janitors@lists.osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.14-rc4-kj1
-Message-ID: <20051011175523.GA2367@mipter.zuzino.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+	Tue, 11 Oct 2005 13:49:34 -0400
+Date: Tue, 11 Oct 2005 19:49:19 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Hareesh Nagarajan <hnagar2@gmail.com>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>, davem@redhat.com
+Subject: Re: [PATCH] Trivial patch to remove list member from struct tcx_par
+ in drivers/video/tcx.c
+In-Reply-To: <434B23CB.7000609@gmail.com>
+Message-ID: <Pine.LNX.4.62.0510111947100.20510@numbat.sonytel.be>
+References: <434B23CB.7000609@gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.14-rc4-kj1 aka "I ran out of bad ideas" patchset is out. You can
-get it from usual place: http://coderock.org/kj/2.6.14-rc4-kj1/
+On Mon, 10 Oct 2005, Hareesh Nagarajan wrote:
+> This patch removes the list_head member 'list' from struct tcx_par in the file
+> drivers/video/tcx.c among other trivial cleanups. The member 'list' is never
+> used. It turns out that other frame buffer code like cg14.c, leo.c, bw2.c,
+> etc. (in drivers/video) seem to have the same extra list_head member in their
+> respective *_par structures.
 
-Full shortlog of who did what is also available:
-http://coderock.org/kj/2.6.14-rc4-kj1/shortlog
+What about the other changes you made (cfr. below)?
 
-* __nocast patches were reworked to use gfp_t facility. Hmm... subject
-  lines were left intact.
-* ext3 + CONFIG_QUOTA=n patch was merged and dropped in between.
+> The patch applies to the 2.6.13.4 kernel sources.
 
-It's nice to see new people sending small things to our list.
+Please send patches inlined in the future. If you send them as an attachment,
+we cannot easily comment on them.
 
-New in this release
--------------------
-Aaron Grothe
-  Remove unreachable code
+> (AFAICT, I am not missing anything; If I am, I'm sorry for wasting your time.)
 
-Alexey Dobriyan
-  Remove select_bits_alloc(), select_bits_free()
-  cris: kgdb: remove double_this()
+> --- linux-2.6.13.4/drivers/video/tcx.c	2005-10-10 13:54:29.000000000 -0500
+> +++ linux-2.6.13.4-edit/drivers/video/tcx.c	2005-10-10 21:05:22.110156000 -0500
+> @@ -174,13 +173,13 @@
+>  			 unsigned red, unsigned green, unsigned blue,
+>  			 unsigned transp, struct fb_info *info)
+>  {
+> +	if (regno >= 256)
+> +		return 1;
+> +
+>  	struct tcx_par *par = (struct tcx_par *) info->par;
+>  	struct bt_regs __iomem *bt = par->bt;
+>  	unsigned long flags;
+>  
+> -	if (regno >= 256)
+> -		return 1;
+> -
+>  	red >>= 8;
+>  	green >>= 8;
+>  	blue >>= 8;
 
-Anton Brondz
-  arch/i386/kernel/irq.c: use KERN_*
+Please don't change this, or it won't compile anymore with gcc 2.95.
 
-Felix Oxley
-  fs/jffs/intrep.c: 255 is unsigned char
+> @@ -442,7 +441,7 @@
+>  
+>  	tcx_reset(&all->info);
+>  
+> -	tcx_blank(0, &all->info);
+> +	tcx_blank(FB_BLANK_UNBLANK, &all->info);
+>  
+>  	if (fb_alloc_cmap(&all->info.cmap, 256, 0)) {
+>  		printk(KERN_ERR "tcx: Could not allocate color map.\n");
 
-Irwan Djajadi
-  pcf8563: remove MOD_INC/DEC_USE_COUNT
-  hotkey.c: fix memory leak on exit path
+What about this change?
 
-Jerome Pinot
-  s/HANGUEL/HANGEUL/
+> @@ -490,8 +489,7 @@
+>  	struct list_head *pos, *tmp;
+>  
+>  	list_for_each_safe(pos, tmp, &tcx_list) {
+> -		struct all_info *all = list_entry(pos, typeof(*all), list);
+> -
+> +		struct all_info *all = list_entry(pos, struct all_info, list);
+>  		unregister_framebuffer(&all->info);
+>  		fb_dealloc_cmap(&all->info.cmap);
+>  		kfree(all);
 
-Milind A Choudhary
-  kernel/timer.c: use KERN_WARNING
+And this one?
 
-Masoud A Sharbiani
-  kernel/audit.o: make size smaller
-  hexdigits definition consolidation
+Gr{oetje,eeting}s,
 
-Merged
-------
-sungem_fix_nocast_type_warnings.patch
-ns83820_fix_nocast_type_warnings.patch
-bond_main_c_fix_nocast_type_warnings.patch
+						Geert
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

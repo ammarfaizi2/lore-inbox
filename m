@@ -1,62 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751445AbVJKTJg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932291AbVJKTNl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751445AbVJKTJg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 15:09:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751466AbVJKTJf
+	id S932291AbVJKTNl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 15:13:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932326AbVJKTNl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 15:09:35 -0400
-Received: from er-systems.de ([217.172.180.163]:13587 "EHLO er-systems.de")
-	by vger.kernel.org with ESMTP id S1751445AbVJKTJf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 15:09:35 -0400
-Date: Tue, 11 Oct 2005 21:09:38 +0200 (CEST)
-From: Thomas Voegtle <tv@lio96.de>
-To: linux-kernel@vger.kernel.org
-Subject: bttv card after swsusp dead
-Message-ID: <Pine.LNX.4.63.0510112104290.16712@er-systems.de>
+	Tue, 11 Oct 2005 15:13:41 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:484 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932291AbVJKTNl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 15:13:41 -0400
+Date: Tue, 11 Oct 2005 15:13:39 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+cc: Paul Jackson <pj@sgi.com>, <laforge@gnumonks.org>, <torvalds@osdl.org>,
+       <chrisw@osdl.org>, <vsu@altlinux.ru>,
+       <linux-usb-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>,
+       <security@linux.kernel.org>, <vendor-sec@lst.de>
+Subject: Re: [linux-usb-devel] Re: [BUG/PATCH/RFC] Oops while completing
+ async USB via usbdevio
+In-Reply-To: <Pine.LNX.4.61.0510111352400.6379@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.44L0.0510111505540.3821-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1395022924-720038107-1129057778=:16712"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Tue, 11 Oct 2005, linux-os (Dick Johnson) wrote:
 
----1395022924-720038107-1129057778=:16712
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+> On Tue, 11 Oct 2005, Paul Jackson wrote:
+> 
+> > Alan asked:
+> >> But why do people go to the
+> >> effort of confusing readers by using "^" instead of "!="?
+> >
+> > My guess - eor (^) was quicker than not-equal (!=) on a PDP-11.
+> >
+> > That code fragment for checking uid's has been around a -long-
+> > time, if my memory serves me.
+> >
+> > It's gotten to be like the infamous "!!" boolean conversion
+> > operator, a bit of vernacular that would be harder to read if
+> > recoded using modern coding style.
 
+Surely Linux uses entirely original code, with no hangovers from the
+original AT&T Unix...  Besides, to the best of my recollection, the two
+operations are equal in speed on a PDP-11.
 
-Hi,
+"!!" makes sense as an idiom.  But "^" for "!=" doesn't, at least not in 
+this context.
 
+> Also, at one time, people used to spend a lot of time
+> minimizing the number of CPU cycles used in the code.
+> 
+> For instance, when it's appropriate, using XOR makes the
+> resulting generated code simpler and usually faster:
+...
 
-with 2.6.13 I could after a software suspend use my bttv card. This is not 
-possible aynmore with 2.6.14-rc3 and 2.6.14-rc4. 
+Yes, sometimes XOR can yield simpler object code.  But not in cases like 
+this, where it's part of a Boolean test:
 
-dmesg part of 2.6.13:
+	if (... && (a1^b1) && (a2^b2) && (a3^b3)) ...
 
-ACPI: PCI Interrupt 0000:01:04.0[A] -> Link [LNKA] -> GSI 11 (level, low) 
--> IRQ 11
-bttv0: reset, reinitialize
-bttv0: PLL: 28636363 => 35468950 . ok
+On any architecture I know of, "^" and "!=" would be equally efficient 
+here.
 
+Alan Stern
 
-
-and now with 2.6.14-rc3/4:
-
-
-ACPI: PCI Interrupt 0000:01:04.0[A] -> Link [LNKA] -> GSI 11 (level, low) 
--> IRQ 11
-ACPI: PCI interrupt for device 0000:01:04.0 disabled
-bttv0: Can't enable device.
-ACPI: PCI Interrupt 0000:01:04.1[A] -> Link [LNKA] -> GSI 11 (level, low) 
--> IRQ 11
-
-
-
-      Thomas
-
--- 
- Thomas Vögtle    email: thomas@voegtle-clan.de
- ----- http://www.voegtle-clan.de/thomas ------
----1395022924-720038107-1129057778=:16712--

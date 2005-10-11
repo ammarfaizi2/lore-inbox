@@ -1,48 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751373AbVJKN6K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbVJKN6F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751373AbVJKN6K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 09:58:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751322AbVJKN6K
+	id S1751310AbVJKN6F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 09:58:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751322AbVJKN6E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 09:58:10 -0400
-Received: from smtp.mailbox.net.uk ([195.82.125.32]:16025 "EHLO
-	smtp.mailbox.co.uk") by vger.kernel.org with ESMTP id S1751373AbVJKN6I
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 09:58:08 -0400
-Date: Tue, 11 Oct 2005 14:57:39 +0100
-From: Jon Masters <jonathan@jonmasters.org>
-To: Tony Lindgren <tony@atomide.com>
-Cc: jonathan@jonmasters.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Nokia 770 kernel sources?
-Message-ID: <20051011135739.GA22484@apogee.jonmasters.org>
-References: <35fb2e590510101708l497a44a5oe71971e9c3c925a9@mail.gmail.com> <20051011134936.GA12462@atomide.com>
+	Tue, 11 Oct 2005 09:58:04 -0400
+Received: from ns.firmix.at ([62.141.48.66]:51367 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S1751310AbVJKN6D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 09:58:03 -0400
+Subject: Re: [BUG/PATCH/RFC] Oops while completing async USB via usbdevio
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Harald Welte <laforge@gnumonks.org>, Linus Torvalds <torvalds@osdl.org>,
+       Sergey Vlasov <vsu@altlinux.ru>, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, security@linux.kernel.org,
+       vendor-sec@lst.de
+In-Reply-To: <20051010180745.GT5856@shell0.pdx.osdl.net>
+References: <Pine.LNX.4.58.0509270904140.3308@g5.osdl.org>
+	 <20050927165206.GB20466@master.mivlgu.local>
+	 <Pine.LNX.4.58.0509270959380.3308@g5.osdl.org>
+	 <20050930104749.GN4168@sunbeam.de.gnumonks.org>
+	 <Pine.LNX.4.64.0509300752530.3378@g5.osdl.org>
+	 <20050930184433.GF16352@shell0.pdx.osdl.net>
+	 <Pine.LNX.4.64.0509301225190.3378@g5.osdl.org>
+	 <20050930220808.GE4168@sunbeam.de.gnumonks.org>
+	 <Pine.LNX.4.64.0509301514190.3378@g5.osdl.org> <20051010174429.GH5627@rama>
+	 <20051010180745.GT5856@shell0.pdx.osdl.net>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Date: Tue, 11 Oct 2005 15:57:19 +0200
+Message-Id: <1129039039.16614.26.camel@tara.firmix.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051011134936.GA12462@atomide.com>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 11, 2005 at 04:49:38PM +0300, Tony Lindgren wrote:
-
-> * Jon Masters <jonmasters@gmail.com> [051011 03:09]:
-> > Hi folks,
-> > 
-> > Anyone know if a vanilla 2.6 omap1 kernel is supposed to "just work" on the 770?
+On Mon, 2005-10-10 at 11:07 -0700, Chris Wright wrote:
+> * Harald Welte (laforge@gnumonks.org) wrote:
+> > diff --git a/kernel/signal.c b/kernel/signal.c
+> > --- a/kernel/signal.c
+> > +++ b/kernel/signal.c
+> > @@ -1193,6 +1193,40 @@ kill_proc_info(int sig, struct siginfo *
+> >  	return error;
+> >  }
+> >  
+> > +/* like kill_proc_info(), but doesn't use uid/euid of "current" */
 > 
-> A lot of the 770 stuff already been merged, but there are
-> still some more patches coming. So you should be able to use
-> the linux-omap tree at some point.
+> Maybe additional comment reminding that you most likely don't want this
+> interface.
 
-I'd like to use it now as I've got a 770 that I'd like to play with.
+Just mark it DEPRECATED since it basically is that?!
 
-> All the core omap stuff we merge with the mainline kernel on
-> regular basis, but some omap specific drivers will probably
-> never make it to the mainline tree because they are only
-> used on development boards etc.
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 
-Sure. I've played with vendor omap kernels in the past.
-
-Jon.

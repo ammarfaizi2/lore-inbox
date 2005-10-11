@@ -1,455 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932258AbVJKSAp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932245AbVJKSPE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932258AbVJKSAp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 14:00:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932255AbVJKSAT
+	id S932245AbVJKSPE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 14:15:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932255AbVJKSPD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 14:00:19 -0400
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:37800 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S932256AbVJKSAN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 14:00:13 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 3/3] swsusp: rework memory freeing on resume
-Date: Tue, 11 Oct 2005 19:56:38 +0200
-User-Agent: KMail/1.8.2
-Cc: LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@suse.cz>
-References: <200510111948.11242.rjw@sisk.pl>
-In-Reply-To: <200510111948.11242.rjw@sisk.pl>
+	Tue, 11 Oct 2005 14:15:03 -0400
+Received: from wproxy.gmail.com ([64.233.184.196]:38858 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932245AbVJKSPB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 14:15:01 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:disposition-notification-to:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=MqIM9ZO/Ta+HUshbhBxTNmlEZfBq/oxvyLcelqzOQf3QW4W2es9oLJkCq92Dy+R8yCY7GHfSl2lO6I8CxaE6shhVQ9bBD7x76esJo6app5MrCM3ZKRSPARHHDhHZixvm1DEWNBfRCH0AT/L0HnN4s8xFBblTBcinycIsWhm1WTI=
+Message-ID: <434BF9ED.9090405@gmail.com>
+Date: Tue, 11 Oct 2005 19:44:13 +0200
+From: Alon Bar-Lev <alon.barlev@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20051008)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+To: Georg Lippold <georg.lippold@gmx.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/1] 2.6.14-rc3 x86: COMMAND_LINE_SIZE
+References: <431628D5.1040709@zytor.com> <4345A9F4.7040000@uni-bremen.de>	 <434A6220.3000608@gmx.de>	 <9a8748490510100621x7bc20c42g667cc083d26aaaa2@mail.gmail.com>	 <434A8082.9060202@zytor.com> <434A8CE8.2020404@gmx.de>	 <434A8D70.5060300@zytor.com>	 <20051010171605.GA7793@georg.homeunix.org>	 <434AB1EB.6070309@gmail.com> <434AD0EB.6000405@gmx.de> <9e0cf0bf0510110132y64c5b42dsb2211d4e75d06f15@mail.gmail.com> <434BED55.10603@gmx.de>
+In-Reply-To: <434BED55.10603@gmx.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510111956.39405.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch makes swsusp use the PG_nosave and PG_nosave_free flags
-to mark pages that should be freed in case of an error during resume.
+Georg Lippold wrote:
+> Alon Bar-Lev wrote:
+> 
+>>But the address of cmd_line_ptr is defined to be from the end of the
+>>setup to 0xa0000. This is well defined, since the boot loader will
+>>load the kernel, initramfs and cmd_line_ptr to the correct place...
+>>Nothing is overwritten... Then the kernel is up and takes as much as
+>>it needs from cmd_line_ptr.
+> 
+> 
+> OK, then: Update my patch if you want to and resubmit it. I would like
+> to get this through as quickly as possible.
+> 
+> Greetings,
+> 
+> Georg
+> 
 
-This allows us to simplify the code and to use swsusp_free() in all of the swsusp's
-resume error paths, which makes them actually work.
+OK...
+Here it goes...
+I don't have git...
+I hope it is enough...
 
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+diff -urNp linux-2.6.13.4.org/Documentation/i386/boot.txt 
+linux-2.6.13.4/Documentation/i386/boot.txt
+--- linux-2.6.13.4.org/Documentation/i386/boot.txt 
+2005-10-10 20:54:29.000000000 +0200
++++ linux-2.6.13.4/Documentation/i386/boot.txt	2005-10-11 
+19:01:40.000000000 +0200
+@@ -230,12 +230,13 @@ loader to communicate with the kernel.
+  relevant to the boot loader itself, see "special command 
+line options"
+  below.
 
-Index: linux-2.6.14-rc4/kernel/power/swsusp.c
-===================================================================
---- linux-2.6.14-rc4.orig/kernel/power/swsusp.c	2005-10-11 19:38:48.000000000 +0200
-+++ linux-2.6.14-rc4/kernel/power/swsusp.c	2005-10-11 19:38:56.000000000 +0200
-@@ -630,6 +630,11 @@
- 	 * execution continues at place where swsusp_arch_suspend was called
-          */
- 	BUG_ON(!error);
-+	/* The only reason why swsusp_arch_resume() can fail is memory being
-+	 * very tight, so we have to free it as soon as we can to avoid
-+	 * subsequent failures
-+	 */
-+	swsusp_free();
- 	restore_processor_state();
- 	restore_highmem();
- 	touch_softlockup_watchdog();
-@@ -645,54 +650,28 @@
-  *
-  *	We don't know which pages are usable until we allocate them.
-  *
-- *	Allocated but unusable (ie eaten) memory pages are linked together
-- *	to create a list, so that we can free them easily
-- *
-- *	We could have used a type other than (void *)
-- *	for this purpose, but ...
-+ *	Allocated but unusable (ie eaten) memory pages are marked so that
-+ *	swsusp_free() can release them
-  */
--static void **eaten_memory = NULL;
--
--static inline void eat_page(void *page)
--{
--	void **c;
--
--	c = eaten_memory;
--	eaten_memory = page;
--	*eaten_memory = c;
--}
- 
--unsigned long get_usable_page(unsigned gfp_mask)
-+unsigned long get_safe_page(unsigned gfp_mask)
- {
- 	unsigned long m;
- 
--	m = get_zeroed_page(gfp_mask);
--	while (!PageNosaveFree(virt_to_page(m))) {
--		eat_page((void *)m);
-+	do {
- 		m = get_zeroed_page(gfp_mask);
--		if (!m)
--			break;
-+		if (m && PageNosaveFree(virt_to_page(m)))
-+			/* This is for swsusp_free() */
-+			SetPageNosave(virt_to_page(m));
-+	} while (m && PageNosaveFree(virt_to_page(m)));
-+	if (m) {
-+		/* This is for swsusp_free() */
-+		SetPageNosave(virt_to_page(m));
-+		SetPageNosaveFree(virt_to_page(m));
- 	}
- 	return m;
- }
- 
--void free_eaten_memory(void)
--{
--	unsigned long m;
--	void **c;
--	int i = 0;
--
--	c = eaten_memory;
--	while (c) {
--		m = (unsigned long)c;
--		c = *c;
--		free_page(m);
--		i++;
--	}
--	eaten_memory = NULL;
--	pr_debug("swsusp: %d unused pages freed\n", i);
--}
--
- /**
-  *	check_pagedir - We ensure here that pages that the PBEs point to
-  *	won't collide with pages where we're going to restore from the loaded
-@@ -710,7 +689,7 @@
- 		p->address = 0UL;
- 
- 	for_each_pbe (p, pblist) {
--		p->address = get_usable_page(GFP_ATOMIC);
-+		p->address = get_safe_page(GFP_ATOMIC);
- 		if (!p->address)
- 			return -ENOMEM;
- 	}
-@@ -729,7 +708,7 @@
- 	unsigned long zone_pfn;
- 	struct pbe *pbpage, *tail, *p;
- 	void *m;
--	int rel = 0, error = 0;
-+	int rel = 0;
- 
- 	if (!pblist) /* a sanity check */
- 		return NULL;
-@@ -737,41 +716,37 @@
- 	pr_debug("swsusp: Relocating pagedir (%lu pages to check)\n",
- 			swsusp_info.pagedir_pages);
- 
--	/* Set page flags */
-+	/* Clear page flags */
- 
- 	for_each_zone (zone) {
-         	for (zone_pfn = 0; zone_pfn < zone->spanned_pages; ++zone_pfn)
--                	SetPageNosaveFree(pfn_to_page(zone_pfn +
-+        		if (pfn_valid(zone_pfn + zone->zone_start_pfn))
-+                		ClearPageNosaveFree(pfn_to_page(zone_pfn +
- 					zone->zone_start_pfn));
- 	}
- 
--	/* Clear orig addresses */
-+	/* Mark orig addresses */
- 
- 	for_each_pbe (p, pblist)
--		ClearPageNosaveFree(virt_to_page(p->orig_address));
-+		SetPageNosaveFree(virt_to_page(p->orig_address));
- 
- 	tail = pblist + PB_PAGE_SKIP;
- 
- 	/* Relocate colliding pages */
- 
- 	for_each_pb_page (pbpage, pblist) {
--		if (!PageNosaveFree(virt_to_page((unsigned long)pbpage))) {
--			m = (void *)get_usable_page(GFP_ATOMIC | __GFP_COLD);
--			if (!m) {
--				error = -ENOMEM;
--				break;
--			}
-+		if (PageNosaveFree(virt_to_page((unsigned long)pbpage))) {
-+			m = (void *)get_safe_page(GFP_ATOMIC | __GFP_COLD);
-+			if (!m)
-+				return NULL;
- 			memcpy(m, (void *)pbpage, PAGE_SIZE);
- 			if (pbpage == pblist)
- 				pblist = (struct pbe *)m;
- 			else
- 				tail->next = (struct pbe *)m;
--
--			eat_page((void *)pbpage);
- 			pbpage = (struct pbe *)m;
- 
- 			/* We have to link the PBEs again */
--
- 			for (p = pbpage; p < pbpage + PB_PAGE_SKIP; p++)
- 				if (p->next) /* needed to save the end */
- 					p->next = p + 1;
-@@ -781,15 +756,13 @@
- 		tail = pbpage + PB_PAGE_SKIP;
- 	}
- 
--	if (error) {
--		printk("\nswsusp: Out of memory\n\n");
--		free_pagedir(pblist);
--		free_eaten_memory();
--		pblist = NULL;
--		/* Is this even worth handling? It should never ever happen, and we
--		   have just lost user's state, anyway... */
--	} else
--		printk("swsusp: Relocated %d pages\n", rel);
-+	/* This is for swsusp_free() */
-+	for_each_pb_page (pbpage, pblist) {
-+		SetPageNosave(virt_to_page(pbpage));
-+		SetPageNosaveFree(virt_to_page(pbpage));
-+	}
+-The kernel command line is a null-terminated string up to 255
+-characters long, plus the final null.
++If the boot protocol version is 2.01 or older, the kernel 
+command line is
++a null-terminated string up to 255 characters long, plus 
+the final null.
+
+  If the boot protocol version is 2.02 or later, the address 
+of the
+  kernel command line is given by the header field 
+cmd_line_ptr (see
+-above.)
++above.), the kernel may truncate this string if it is too long
++for handle.
+
+  If the protocol version is *not* 2.02 or higher, the kernel
+  command line is entered using the following protocol:
+diff -urNp linux-2.6.13.4.org/include/asm-i386/param.h 
+linux-2.6.13.4/include/asm-i386/param.h
+--- linux-2.6.13.4.org/include/asm-i386/param.h	2005-10-10 
+20:54:29.000000000 +0200
++++ linux-2.6.13.4/include/asm-i386/param.h	2005-10-11 
+19:08:42.000000000 +0200
+@@ -20,6 +20,5 @@
+  #endif
+
+  #define MAXHOSTNAMELEN	64	/* max length of hostname */
+-#define COMMAND_LINE_SIZE 256
+
+  #endif
+diff -urNp linux-2.6.13.4.org/include/asm-i386/setup.h 
+linux-2.6.13.4/include/asm-i386/setup.h
+--- linux-2.6.13.4.org/include/asm-i386/setup.h	2005-10-10 
+20:54:29.000000000 +0200
++++ linux-2.6.13.4/include/asm-i386/setup.h	2005-10-11 
+19:10:46.000000000 +0200
+@@ -17,7 +17,10 @@
+  #define MAX_NONPAE_PFN	(1 << 20)
+
+  #define PARAM_SIZE 4096
+-#define COMMAND_LINE_SIZE 256
 +
-+	printk("swsusp: Relocated %d pages\n", rel);
- 
- 	return pblist;
- }
-@@ -1007,9 +980,7 @@
- 			break;
- 	}
- 
--	if (error)
--		free_pagedir(pblist);
--	else
-+	if (!error)
- 		BUG_ON(i != swsusp_info.pagedir_pages);
- 
- 	return error;
-@@ -1052,15 +1023,6 @@
- 	if (!error)
- 		error = data_read(pagedir_nosave);
- 
--	if (error) { /* We fail cleanly */
--		free_eaten_memory();
--		for_each_pbe (p, pagedir_nosave)
--			if (p->address) {
--				free_page(p->address);
--				p->address = 0UL;
--			}
--		free_pagedir(pagedir_nosave);
--	}
- 	return error;
- }
- 
-Index: linux-2.6.14-rc4/kernel/power/disk.c
-===================================================================
---- linux-2.6.14-rc4.orig/kernel/power/disk.c	2005-10-11 19:38:17.000000000 +0200
-+++ linux-2.6.14-rc4/kernel/power/disk.c	2005-10-11 19:38:56.000000000 +0200
-@@ -30,7 +30,6 @@
- extern int swsusp_read(void);
- extern void swsusp_close(void);
- extern int swsusp_resume(void);
--extern int swsusp_free(void);
- 
- 
- static int noresume = 0;
-@@ -252,14 +251,17 @@
- 
- 	pr_debug("PM: Reading swsusp image.\n");
- 
--	if ((error = swsusp_read()))
--		goto Cleanup;
-+	if ((error = swsusp_read())) {
-+		swsusp_free();
-+		goto Thaw;
-+	}
- 
- 	pr_debug("PM: Preparing devices for restore.\n");
- 
- 	if ((error = device_suspend(PMSG_FREEZE))) {
- 		printk("Some devices failed to suspend\n");
--		goto Free;
-+		swsusp_free();
-+		goto Thaw;
- 	}
- 
- 	mb();
-@@ -268,9 +270,7 @@
- 	swsusp_resume();
- 	pr_debug("PM: Restore failed, recovering.n");
- 	device_resume();
-- Free:
--	swsusp_free();
-- Cleanup:
-+ Thaw:
- 	unprepare_processes();
-  Done:
- 	/* For success case, the suspend path will release the lock */
-Index: linux-2.6.14-rc4/kernel/power/power.h
-===================================================================
---- linux-2.6.14-rc4.orig/kernel/power/power.h	2005-10-11 19:38:48.000000000 +0200
-+++ linux-2.6.14-rc4/kernel/power/power.h	2005-10-11 19:38:56.000000000 +0200
-@@ -66,7 +66,7 @@
- extern asmlinkage int swsusp_arch_resume(void);
- 
- extern int restore_highmem(void);
--extern void free_pagedir(struct pbe *pblist);
- extern struct pbe * alloc_pagedir(unsigned nr_pages);
- extern void create_pbe_list(struct pbe *pblist, unsigned nr_pages);
-+extern void swsusp_free(void);
- extern int enough_swap(void);
-Index: linux-2.6.14-rc4/kernel/power/snapshot.c
-===================================================================
---- linux-2.6.14-rc4.orig/kernel/power/snapshot.c	2005-10-11 19:38:48.000000000 +0200
-+++ linux-2.6.14-rc4/kernel/power/snapshot.c	2005-10-11 19:38:56.000000000 +0200
-@@ -239,7 +239,7 @@
-  *	free_pagedir - free pages allocated with alloc_pagedir()
-  */
- 
--void free_pagedir(struct pbe *pblist)
-+static void free_pagedir(struct pbe *pblist)
- {
- 	struct pbe *pbe;
- 
-Index: linux-2.6.14-rc4/arch/x86_64/kernel/suspend.c
-===================================================================
---- linux-2.6.14-rc4.orig/arch/x86_64/kernel/suspend.c	2005-10-11 19:38:17.000000000 +0200
-+++ linux-2.6.14-rc4/arch/x86_64/kernel/suspend.c	2005-10-11 19:38:56.000000000 +0200
-@@ -148,57 +148,7 @@
- 
- pgd_t *temp_level4_pgt;
- 
--static void **pages;
--
--static inline void *__add_page(void)
--{
--	void **c;
--
--	c = (void **)get_usable_page(GFP_ATOMIC);
--	if (c) {
--		*c = pages;
--		pages = c;
--	}
--	return c;
--}
--
--static inline void *__next_page(void)
--{
--	void **c;
--
--	c = pages;
--	if (c) {
--		pages = *c;
--		*c = NULL;
--	}
--	return c;
--}
--
--/*
-- * Try to allocate as many usable pages as needed and daisy chain them.
-- * If one allocation fails, free the pages allocated so far
-- */
--static int alloc_usable_pages(unsigned long n)
--{
--	void *p;
--
--	pages = NULL;
--	do
--		if (!__add_page())
--			break;
--	while (--n);
--	if (n) {
--		p = __next_page();
--		while (p) {
--			free_page((unsigned long)p);
--			p = __next_page();
--		}
--		return -ENOMEM;
--	}
--	return 0;
--}
--
--static void res_phys_pud_init(pud_t *pud, unsigned long address, unsigned long end)
-+static int res_phys_pud_init(pud_t *pud, unsigned long address, unsigned long end)
- {
- 	long i, j;
- 
-@@ -212,7 +162,9 @@
- 		if (paddr >= end)
- 			break;
- 
--		pmd = (pmd_t *)__next_page();
-+		pmd = (pmd_t *)get_safe_page(GFP_ATOMIC);
-+		if (!pmd)
-+			return -ENOMEM;
- 		set_pud(pud, __pud(__pa(pmd) | _KERNPG_TABLE));
- 		for (j = 0; j < PTRS_PER_PMD; pmd++, j++, paddr += PMD_SIZE) {
- 			unsigned long pe;
-@@ -224,13 +176,17 @@
- 			set_pmd(pmd, __pmd(pe));
- 		}
- 	}
-+	return 0;
- }
- 
--static void set_up_temporary_mappings(void)
-+static int set_up_temporary_mappings(void)
- {
- 	unsigned long start, end, next;
-+	int error;
- 
--	temp_level4_pgt = (pgd_t *)__next_page();
-+	temp_level4_pgt = (pgd_t *)get_safe_page(GFP_ATOMIC);
-+	if (!temp_level4_pgt)
-+		return -ENOMEM;
- 
- 	/* It is safe to reuse the original kernel mapping */
- 	set_pgd(temp_level4_pgt + pgd_index(__START_KERNEL_map),
-@@ -241,29 +197,27 @@
- 	end = (unsigned long)pfn_to_kaddr(end_pfn);
- 
- 	for (; start < end; start = next) {
--		pud_t *pud = (pud_t *)__next_page();
-+		pud_t *pud = (pud_t *)get_safe_page(GFP_ATOMIC);
-+		if (!pud)
-+			return -ENOMEM;
- 		next = start + PGDIR_SIZE;
- 		if (next > end)
- 			next = end;
--		res_phys_pud_init(pud, __pa(start), __pa(next));
-+		if ((error = res_phys_pud_init(pud, __pa(start), __pa(next))))
-+			return error;
- 		set_pgd(temp_level4_pgt + pgd_index(start),
- 			mk_kernel_pgd(__pa(pud)));
- 	}
-+	return 0;
- }
- 
- int swsusp_arch_resume(void)
- {
--	unsigned long n;
-+	int error;
- 
--	n = ((end_pfn << PAGE_SHIFT) + PUD_SIZE - 1) >> PUD_SHIFT;
--	n += (n + PTRS_PER_PUD - 1) / PTRS_PER_PUD + 1;
--	pr_debug("swsusp_arch_resume(): pages needed = %lu\n", n);
--	if (alloc_usable_pages(n)) {
--		free_eaten_memory();
--		return -ENOMEM;
--	}
- 	/* We have got enough memory and from now on we cannot recover */
--	set_up_temporary_mappings();
-+	if ((error = set_up_temporary_mappings()))
-+		return error;
- 	restore_image();
- 	return 0;
- }
-Index: linux-2.6.14-rc4/include/linux/suspend.h
-===================================================================
---- linux-2.6.14-rc4.orig/include/linux/suspend.h	2005-10-11 19:38:48.000000000 +0200
-+++ linux-2.6.14-rc4/include/linux/suspend.h	2005-10-11 19:38:56.000000000 +0200
-@@ -71,8 +71,7 @@
- struct saved_context;
- void __save_processor_state(struct saved_context *ctxt);
- void __restore_processor_state(struct saved_context *ctxt);
--extern unsigned long get_usable_page(unsigned gfp_mask);
--extern void free_eaten_memory(void);
-+extern unsigned long get_safe_page(unsigned gfp_mask);
- 
- /*
-  * XXX: We try to keep some more pages free so that I/O operations succeed
++#ifdef CONFIG_COMMAND_LINE_MAX_SIZE
++#define COMMAND_LINE_SIZE CONFIG_COMMAND_LINE_MAX_SIZE
++#endif
+
+  #define OLD_CL_MAGIC_ADDR	0x90020
+  #define OLD_CL_MAGIC		0xA33F
+diff -urNp linux-2.6.13.4.org/include/asm-x86_64/setup.h 
+linux-2.6.13.4/include/asm-x86_64/setup.h
+--- linux-2.6.13.4.org/include/asm-x86_64/setup.h	2005-10-10 
+20:54:29.000000000 +0200
++++ linux-2.6.13.4/include/asm-x86_64/setup.h	2005-10-11 
+19:21:18.000000000 +0200
+@@ -1,6 +1,8 @@
+  #ifndef _x8664_SETUP_H
+  #define _x8664_SETUP_H
+
+-#define COMMAND_LINE_SIZE	256
++#ifdef CONFIG_COMMAND_LINE_MAX_SIZE
++#define COMMAND_LINE_SIZE	CONFIG_COMMAND_LINE_MAX_SIZE
++#endif
+
+  #endif
+diff -urNp linux-2.6.13.4.org/init/Kconfig 
+linux-2.6.13.4/init/Kconfig
+--- linux-2.6.13.4.org/init/Kconfig	2005-10-10 
+20:54:29.000000000 +0200
++++ linux-2.6.13.4/init/Kconfig	2005-10-11 
+19:20:23.000000000 +0200
+@@ -77,6 +77,13 @@ config LOCALVERSION
+  	  object and source tree, in that order.  Your total 
+string can
+  	  be a maximum of 64 characters.
+
++config COMMAND_LINE_MAX_SIZE
++	int "Maximum kernel command-line size"
++	default 512
++	help
++	  This option allows you to specify maximum kernel 
+command-line
++	  for kernel to handle.
++
+  config SWAP
+  	bool "Support for paging of anonymous memory (swap)"
+  	depends on MMU
+
+

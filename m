@@ -1,74 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbVJLACv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932374AbVJLACM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932376AbVJLACv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 20:02:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbVJLACv
+	id S932374AbVJLACM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 20:02:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932373AbVJLACM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 20:02:51 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:27537 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932376AbVJLACu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 20:02:50 -0400
-Subject: Re: Latency data - 2.6.14-rc3-rt13
-From: Lee Revell <rlrevell@joe-job.com>
-To: Mark Knecht <markknecht@gmail.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Daniel Walker <dwalker@mvista.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <5bdc1c8b0510111545n29b77010h8558a1b69c4bf12a@mail.gmail.com>
-References: <5bdc1c8b0510101316k23ff64e2i231cdea7f11e8553@mail.gmail.com>
-	 <5bdc1c8b0510101412n714c4798v1482254f6f8e0386@mail.gmail.com>
-	 <5bdc1c8b0510101428o475d9dbct2e9bdcc6b46418c9@mail.gmail.com>
-	 <1128980674.18782.211.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-	 <5bdc1c8b0510101509w4c74028apb6e69746b1b8b65b@mail.gmail.com>
-	 <1128983301.18782.215.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-	 <5bdc1c8b0510101633lc45fbf8gd2677e5646dc6f93@mail.gmail.com>
-	 <5bdc1c8b0510101649s221ab437scc49d6a49269d6b@mail.gmail.com>
-	 <5bdc1c8b0510102045u7e4bc9eeld5b690b5e96c4a5f@mail.gmail.com>
-	 <20051011111700.GA15892@elte.hu>
-	 <5bdc1c8b0510111545n29b77010h8558a1b69c4bf12a@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 11 Oct 2005 20:02:48 -0400
-Message-Id: <1129075368.7094.3.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Oct 2005 20:02:12 -0400
+Received: from eurogra4543-2.clients.easynet.fr ([212.180.52.86]:48546 "HELO
+	briare1.heliogroup.fr") by vger.kernel.org with SMTP
+	id S932374AbVJLACL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 20:02:11 -0400
+From: Hubert Tonneau <hubert.tonneau@fullpliant.org>
+To: linux-kernel@vger.kernel.org
+Subject: MPT fusion driver, better but still buggy at errors handling under 2.6
+Date: Tue, 11 Oct 2005 23:58:15 GMT
+Message-ID: <05ELX94@briare1.heliogroup.fr>
+X-Mailer: Pliant 94
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-10-11 at 15:45 -0700, Mark Knecht wrote:
-> On 10/11/05, Ingo Molnar <mingo@elte.hu> wrote:
-> >
-> > * Mark Knecht <markknecht@gmail.com> wrote:
-> >
-> > > > ( softirq-timer/0-3    |#0): new 3997 us maximum-latency critical section.
-> > >
-> > > So the root cause of this 4mS delay is the 250Hz timer. If I change
-> > > the system to use the 1Khz timer then the time in this section drops,
-> > > as expected, to 1mS.
-> >
-> > this was a bug in the critical-section-latency measurement code of x64.
-> > The timer irq is the one that leaves userspace running for the longest
-> > time, between two kernel calls.
-> >
-> > I have fixed these bugs in -rc4-rt1, could you try it? It should report
-> > much lower latencies, regardless of PM settings.
-> >
-> >         Ingo
-> >
-> 
-> Ingo,
->    This test now reports much more intersting data:
-> 
-> (           dmesg-8010 |#0): new 13 us maximum-latency critical section.
->  => started at timestamp 117628604: <do_IRQ+0x29/0x50>
->  =>   ended at timestamp 117628618: <do_IRQ+0x39/0x50>
+MPT fusion driver under Linux 2.6 still fails to recover properly from tiny
+SCSI troubles through doing reset then resend pending commands just like
+any good Linux SCSI driver does transparently.
 
-This is the expected, correct behavior - very small maximum latency
-critical sections.  Do you get anything longer (say 300 usecs or more)
-if you leave it running?
+Here is the behaviour of MPT fusion driver I noticed on various Linux kernels:
+2.4.xx  recovers gracefully (only reading the kernel log will enable
+        to discover that a tiny problem did append).
+2.6.xx  xx <= 11, enters an infinit loop attempting to reset the SCSI
+        so the box gets unusable and requires a rough power cycle to recover.
+2.6.12  untested.
+2.6.13  puts the disk offline, so the box continues to run, but Linux
+        software RAID removed the disk. A software reboot is required
+        to get the disk back online, and a 'raidhotadd' will also be to get
+        the all service back online, also this is a remote server, and the
+        box did not came up after the remote sofware reboot request :-(
 
-So far the latency tracer on my much slower system has only gone up to
-123 usecs.  So the bug seems to be fixed at least on i386.
+I reported this bug about Linux 2.6.5 on Fri, 23 Apr 2004,
+about Linux 2.6.9 on Wed, 26 Jan 2005,
+and the bug is still there.
 
-Lee
+
+Here is the 2.6.13 kernel console:
+
+<4>mptscsih: ioc0: >> Attempting task abort! (sc=da1adb00)
+<6>mptbase: ioc0: IOCStatus(0x004a): SCSI Task Management Failed
+<4>mptscsih: ioc0: >> Attempting task abort! (sc=da1adb00)
+<6>mptbase: ioc0: IOCStatus(0x004a): SCSI Task Management Failed
+<4>mptscsih: ioc0: >> Attempting task abort! (sc=da1ad980)
+<6>mptbase: ioc0: IOCStatus(0x004a): SCSI Task Management Failed
+<4>mptscsih: ioc0: >> Attempting task abort! (sc=da1ad980)
+<6>mptbase: ioc0: IOCStatus(0x004a): SCSI Task Management Failed
+<4>mptscsih: ioc0: >> Attempting task abort! (sc=da1ad800)
+<6>mptbase: ioc0: IOCStatus(0x004a): SCSI Task Management Failed
+<4>mptscsih: ioc0: >> Attempting task abort! (sc=da1ad800)
+<6>mptbase: ioc0: IOCStatus(0x004a): SCSI Task Management Failed
+<4>mptscsih: ioc0: >> Attempting task abort! (sc=da1ad680)
+<6>mptbase: ioc0: IOCStatus(0x004a): SCSI Task Management Failed
+<4>mptscsih: ioc0: >> Attempting task abort! (sc=da1ad680)
+<6>mptbase: ioc0: IOCStatus(0x0048): SCSI Task Terminated
+<4>mptscsih: ioc0: >> Attempting task abort! (sc=da1ad500)
+<6>mptbase: ioc0: IOCStatus(0x004a): SCSI Task Management Failed
+<4>mptscsih: ioc0: >> Attempting task abort! (sc=da1ad500)
+<6>mptbase: ioc0: IOCStatus(0x004a): SCSI Task Management Failed
+<4>mptscsih: ioc0: >> Attempting task abort! (sc=da1ad380)
+<6>mptbase: ioc0: IOCStatus(0x004a): SCSI Task Management Failed
+<4>mptscsih: ioc0: >> Attempting task abort! (sc=da1ad380)
+<6>mptbase: ioc0: IOCStatus(0x004a): SCSI Task Management Failed
+<4>mptscsih: ioc0: >> Attempting task abort! (sc=da1ad200)
+<6>mptbase: ioc0: IOCStatus(0x004a): SCSI Task Management Failed
+<4>mptscsih: ioc0: >> Attempting task abort! (sc=da1ad200)
+<6>mptbase: ioc0: IOCStatus(0x0048): SCSI Task Terminated
+<4>mptscsih: ioc0: >> Attempting task abort! (sc=da1ad080)
+<6>mptbase: ioc0: IOCStatus(0x004a): SCSI Task Management Failed
+<4>mptscsih: ioc0: >> Attempting task abort! (sc=da1ad080)
+<6>mptbase: ioc0: IOCStatus(0x004a): SCSI Task Management Failed
+<4>mptscsih: ioc0: >> Attempting task abort! (sc=f39ebe00)
+<6>mptbase: ioc0: IOCStatus(0x004a): SCSI Task Management Failed
+<4>mptscsih: ioc0: >> Attempting task abort! (sc=f39ebe00)
+<6>mptbase: ioc0: IOCStatus(0x0048): SCSI Task Terminated
+<4>mptscsih: ioc0: >> Attempting task abort! (sc=f39ebc80)
+<6>mptbase: ioc0: IOCStatus(0x004a): SCSI Task Management Failed
+<4>mptscsih: ioc0: >> Attempting task abort! (sc=f39ebc80)
+<6>mptbase: ioc0: IOCStatus(0x004a): SCSI Task Management Failed
+<4>mptscsih: ioc0: >> Attempting task abort! (sc=f39ebb00)
+<6>mptbase: ioc0: IOCStatus(0x004a): SCSI Task Management Failed
+<4>mptscsih: ioc0: >> Attempting task abort! (sc=f39ebb00)
+<6>mptbase: ioc0: IOCStatus(0x0048): SCSI Task Terminated
+<4>mptscsih: ioc0: >> Attempting task abort! (sc=f39eb980)
+<6>mptbase: ioc0: IOCStatus(0x004a): SCSI Task Management Failed
+<4>mptscsih: ioc0: >> Attempting task abort! (sc=f39eb980)
+<6>mptbase: ioc0: IOCStatus(0x004a): SCSI Task Management Failed
+<4>mptscsih: ioc0: >> Attempting target reset! (sc=da1adb00)
+<6>mptbase: Initiating ioc0 recovery
+<6>mptbase: ioc0: IOCStatus(0x0047): SCSI Protocol Error
+<4>mptscsih: ioc0: >> Attempting target reset! (sc=da1ad500)
+<4>mptscsih: ioc0: >> Attempting bus reset! (sc=da1adb00)
+<6>mptbase: ioc0: IOCStatus(0x0043): SCSI Device Not There
+<6>mptbase: ioc0: IOCStatus(0x0043): SCSI Device Not There
+<6>mptbase: ioc0: IOCStatus(0x0043): SCSI Device Not There
+<6>mptbase: ioc0: IOCStatus(0x0043): SCSI Device Not There
+<6>mptbase: ioc0: IOCStatus(0x0043): SCSI Device Not There
+<6>mptbase: ioc0: IOCStatus(0x0043): SCSI Device Not There
+<4>mptscsih: ioc0: >> Attempting host reset! (sc=da1adb00)
+<6>mptbase: Initiating ioc0 recovery
+<6>mptbase: ioc0: IOCStatus(0x0043): SCSI Device Not There
+<6>mptbase: ioc0: IOCStatus(0x0043): SCSI Device Not There
+<6>mptbase: ioc0: IOCStatus(0x0043): SCSI Device Not There
+<6>mptbase: ioc0: IOCStatus(0x0043): SCSI Device Not There
+<6>mptbase: ioc0: IOCStatus(0x0043): SCSI Device Not There
+<6>mptbase: ioc0: IOCStatus(0x0043): SCSI Device Not There
+<6>scsi: Device offlined - not ready after error recovery: host 0 channel 0 id 0 lun 0
+<6>scsi: Device offlined - not ready after error recovery: host 0 channel 0 id 0 lun 0
+<6>scsi: Device offlined - not ready after error recovery: host 0 channel 0 id 0 lun 0
+<6>scsi: Device offlined - not ready after error recovery: host 0 channel 0 id 0 lun 0
+<6>scsi: Device offlined - not ready after error recovery: host 0 channel 0 id 0 lun 0
+<6>scsi: Device offlined - not ready after error recovery: host 0 channel 0 id 0 lun 0
+<3>scsi0 (0:0): rejecting I/O to offline device
+<1>raid1: Disk failure on sda1, disabling device. 
+<4> Operation continuing on 1 devices
+<3>scsi0 (0:0): rejecting I/O to offline device
+<3>scsi0 (0:0): rejecting I/O to offline device
+<3>scsi0 (0:0): rejecting I/O to offline device
+<3>scsi0 (0:0): rejecting I/O to offline device
+<3>scsi0 (0:0): rejecting I/O to offline device
+<4>RAID1 conf printout:
+<4> --- wd:1 rd:2
+<4> disk 0, wo:1, o:0, dev:sda1
+<4> disk 1, wo:0, o:1, dev:sdb1
+<4>RAID1 conf printout:
+<4> --- wd:1 rd:2
+<4> disk 1, wo:0, o:1, dev:sdb1
+
+and after an attempt to futher read the disk without rebooting:
+
+<3>scsi0 (0:0): rejecting I/O to offline device
+<3>Buffer I/O error on device sda1, logical block 17649664
+<3>Buffer I/O error on device sda1, logical block 17649665
+<3>Buffer I/O error on device sda1, logical block 17649666
+<3>Buffer I/O error on device sda1, logical block 17649667
+<3>Buffer I/O error on device sda1, logical block 17649668
+<3>scsi0 (0:0): rejecting I/O to offline device
 

@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751014AbVJKWS0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751018AbVJKWX4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751014AbVJKWS0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 18:18:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbVJKWS0
+	id S1751018AbVJKWX4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 18:23:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbVJKWX4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 18:18:26 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:54747 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751014AbVJKWS0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 18:18:26 -0400
-Date: Tue, 11 Oct 2005 15:18:05 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: dsaxena@plexity.net
-Cc: torvalds@osdl.org, marcel@holtmann.org, maxk@qualcomm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [BLUETOOTH] kmalloc + memset -> kzalloc conversion
-Message-Id: <20051011151805.0d32c840.akpm@osdl.org>
-In-Reply-To: <20051001065121.GC25424@plexity.net>
-References: <20051001065121.GC25424@plexity.net>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
+	Tue, 11 Oct 2005 18:23:56 -0400
+Received: from xproxy.gmail.com ([66.249.82.199]:54586 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751018AbVJKWXz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 18:23:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=dW6OQuibY5jBfF0+9/Mg2JlEHH7qVy3k473GBprB+kBQwcIDaibGgtFWgLwx4lHAUzJ/9wjECTTRmf1lApiKtHlOAw60YLZXDKALtTixuPUe533x1KhbkEV+wA3WhqGi674FizwtaK0Crw3tJ5oHQeI6CgaAuKvexY6Py3zB2Mo=
+Message-ID: <5bdc1c8b0510111523h50572348uabb69d056fabd665@mail.gmail.com>
+Date: Tue, 11 Oct 2005 15:23:54 -0700
+From: Mark Knecht <markknecht@gmail.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: 2.6.14-rc4-rt1
+Cc: Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>, dwalker@mvista.com,
+       david singleton <dsingleton@mvista.com>
+In-Reply-To: <1129065696.4718.10.camel@mindpipe>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051011111454.GA15504@elte.hu>
+	 <1129064151.5324.6.camel@cmn3.stanford.edu>
+	 <5bdc1c8b0510111408n4ef45eadv1e12ec4d1271d971@mail.gmail.com>
+	 <5bdc1c8b0510111413q7b1ea391n3bc27924d928b963@mail.gmail.com>
+	 <1129065696.4718.10.camel@mindpipe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Deepak Saxena <dsaxena@plexity.net> wrote:
+On 10/11/05, Lee Revell <rlrevell@joe-job.com> wrote:
+> On Tue, 2005-10-11 at 14:13 -0700, Mark Knecht wrote:
+> > The machine had been essentially 'User space idle' for the previous
+> > two hours. The screen saver had kicked in. Audio was running and the
+> > machine was busy. I woke it up, gave xscreensaver my password, read
+> > email, sent the previous mail, then picked up the telephone to make a
+> > call. Not 2 seconds later the xruns occurred!
 >
+> So what does /proc/latency_trace report?
+>
+> Lee
 
-Confused.  This patch changes lots of block code, not bluetooth.
-
-> diff --git a/drivers/block/DAC960.c b/drivers/block/DAC960.c
-> --- a/drivers/block/DAC960.c
-> +++ b/drivers/block/DAC960.c
-> @@ -4665,7 +4663,6 @@ static void DAC960_V2_ProcessCompletedCo
->  	   */
->  	   DAC960_queue_partial_rw(Command);
->  	   return;
-> -	}
->        else
->  	{
->  	  if (Command->V2.RequestSense->SenseKey != DAC960_SenseKey_NotReady)
-> @@ -4799,10 +4796,10 @@ static void DAC960_V2_ProcessCompletedCo
-
-And that looks rather wrong.
+I have to rebuild the kernel. That just completed but I haven't
+rebooted yet. I wanted to base line test just in case all this latency
+testing capability built into the kernel was the root cause of my
+xruns. Now I know it wasn't.

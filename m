@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751396AbVJKKuo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbVJKKxc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751396AbVJKKuo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 06:50:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbVJKKuo
+	id S1750798AbVJKKxc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 06:53:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbVJKKxc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 06:50:44 -0400
-Received: from prosun.first.fraunhofer.de ([194.95.168.2]:56521 "EHLO
-	prosun.first.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1751396AbVJKKun (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 06:50:43 -0400
-Subject: Re: ide_wait_not_busy oops still with 2.6.14-rc3 (Re: 1GHz pbook
-	15", linux 2.6.14-rc2 oops on resume)
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1129026986.17365.206.camel@gaston>
-References: <1128323544.4602.5.camel@localhost>
-	 <pan.2005.10.06.19.19.22.673915@nn7.de>  <1128720351.17365.48.camel@gaston>
-	 <1128948118.23434.13.camel@localhost>  <1128982002.17365.163.camel@gaston>
-	 <1129026807.21318.15.camel@localhost>  <1129026986.17365.206.camel@gaston>
-Content-Type: text/plain
-Date: Tue, 11 Oct 2005 12:50:33 +0200
-Message-Id: <1129027834.21318.25.camel@localhost>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Oct 2005 06:53:32 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:47043 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750798AbVJKKxc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 06:53:32 -0400
+Date: Tue, 11 Oct 2005 06:53:23 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+To: liyu <liyu@ccoss.com.cn>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [Question] Some question about Ingo scheduler.
+In-Reply-To: <434B8CA8.1080403@ccoss.com.cn>
+Message-ID: <Pine.LNX.4.58.0510110651460.1044@localhost.localdomain>
+References: <434732DA.20701@ccoss.com.cn> <Pine.LNX.4.58.0510090955160.19961@localhost.localdomain>
+ <434B1FBD.3000803@ccoss.com.cn> <Pine.LNX.4.58.0510110147370.30989@localhost.localdomain>
+ <434B6F0D.4040808@ccoss.com.cn> <Pine.LNX.4.58.0510110357560.1044@localhost.localdomain>
+ <434B8CA8.1080403@ccoss.com.cn>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-10-11 at 20:36 +1000, Benjamin Herrenschmidt wrote:
-> On Tue, 2005-10-11 at 12:33 +0200, Soeren Sonnenburg wrote:
-> > On Tue, 2005-10-11 at 08:06 +1000, Benjamin Herrenschmidt wrote:
-> > > > ok, here is the complete one:
-[...]
-> > Hmmhh, I already compiled 2.6.14-rc4 but did not disable
-> > soft-lockup-ing, should I still do it - the oops looks better as it is
-> > not followed by a ATAPI reset anymore:
-> 
-> It's still pretty annoying. I'll see what I can do but it won't be for
-> 2.6.14 timeframe, so in the meantime, just ignore it or remove soft
-> lockup detection.
+On Tue, 11 Oct 2005, liyu wrote:
+>
+> In fact, your first reply already is very clearly, but I read too
+> quickly to ignore something.
+>
+> These code of only six lines imply so many secrets. All interesting came
+> from it.
+>
 
-OK, it is a minor issue anyway as one needs a cd/dvd in the drive (on
-resume) to trigger that.
+Hi liyu,
 
-Thanks
-Soeren.
--- 
-Sometimes, there's a moment as you're waking, when you become aware of
-the real world around you, but you're still dreaming.
+Looks like you understand it now.  Good!
+
+> Happy everyday.
+>
+
+Thank you, same to you. ;-)
+
+
+-- Steve
 

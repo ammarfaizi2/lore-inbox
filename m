@@ -1,143 +1,299 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751375AbVJKFrM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751382AbVJKF7Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751375AbVJKFrM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 01:47:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751378AbVJKFrM
+	id S1751382AbVJKF7Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 01:59:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbVJKF7Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 01:47:12 -0400
-Received: from web35505.mail.mud.yahoo.com ([66.163.179.129]:27742 "HELO
-	web35505.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751375AbVJKFrK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 01:47:10 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=M31cY3YIkLP+U+8JAZJecpuEB/WES2ioV0CI4CkEA4Z9WFUNm67eYFX8vVubDj6OTiv62Ju2UuitBMl+gK1Tp22YlNFup6gja3ySFXOh7g+dkt/l6fXSEJ65y3U2YW5vmNAkYFyfPS78fQSRw2drzmJPUlGgqEijotfEiAZDCyY=  ;
-Message-ID: <20051011052444.26533.qmail@web35505.mail.mud.yahoo.com>
-Date: Mon, 10 Oct 2005 22:24:44 -0700 (PDT)
-From: Dan C Marinescu <dan_c_marinescu@yahoo.com>
-Subject: If anyone needs Adaptec VideOh USB 2 Alpha (32/64-bit) Linux Drivers
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 11 Oct 2005 01:59:16 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:40663 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1751378AbVJKF7P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 01:59:15 -0400
+Date: Tue, 11 Oct 2005 01:59:12 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [git patch] net driver fix
+Message-ID: <20051011055912.GA9288@havoc.gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
 
-We have drivers for Adaptec VideOh USB 2 (working
-great on 32 && 64-bit 2.6.x -- currently running on
-2.6.13.4) They have been in testing for few weeks by
-now, if anyone wants to use this great device in a
-decent (non windowz) environment send us an email and
-we'll send you the drivers. Also, note that Adaptec
-does not provide 64-bit drivers... So, the only 64-bit
-platform you can use this device is... Linux! 
+Please pull from the 'upstream-fixes' branch of
+master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git
 
-Technical details:
+to cure severe performance loss caused by a performance optimization
+(new e100 microcode).  We just revert back to tried-and-true (and full
+speed) behavior, and let the Intel people have another crack at it.
 
-kernel-space: avc2210k.ko
-user-space (control): avcctrl
-user-space (capture) avcap
-
-if you go like cat /dev/avcap00 > mybirthday.mpg
-
-you get 720x480 MPEG-2 (or MPEG-1) with dvdpcm audio.
-of course, both NTSC (29.970FPS) and PAL (25.000FPS)
-are supported. quality settings still need some work
-:-( currently we cannot reduce quality lower than
-BEST. very easy to detach and remultiplex (for VOB
-sectors) with mplayer, mencoder && mplex like:
-
-mplayer $1 -dumpaudio -dumpfile $1.lpcm
-mencoder -of rawvideo -nosound -ovc copy $1 -o $1.m2v
-mplex -V -f 8 -b 400 -o $1.vob.mpg $1.m2v $1.lpcm
-
-it takes about 10 minutes to instert dvdauthor VOB
-sectors for a 1.5 hours production. capture's (both
-video and audio) quality is outstanding (way better
-than any other card for around $100-$130). drivers
-support the entire familly (mainly, all Adaptec USB
-capture devices, with or without tuner). John is
-working on tuner and remote control support // don't
-have that yet, the only available inputs are currently
-s-video and composite :-(
-
-drivers are clean, they've been stress tested 24x7 for
-the last couple of weeks, no hangs, no corruptions, no
-nothing...
-
-you have to use the firmware comming with your box
-cd...
-
-now, few comparative results (very same hardware):
-
-32-bit:
-command line capture latency: linux 0.5%CPU; windowz
-not available
-gui capture latency (using Xine/WinDVR): linux 20%CPU;
-windowz 48%CPU
-max quality: linux >BEST; windowz BEST
-
-64-bit
-linux: even lower CPU usage! windows not available
-
-plus, on user-land, we wrote avcap (acting kinda like
-tee but buffered):
-
-avcap mymovie.mpg < /dev/avcap00 | xine stdin://
-
-note that you can use the player of your choice to
-watch what you are capturing in real-time!
-
-but hey, there is more! if you send avcap USR1 && USR2
-signals, the capture to the file stops while the
-player of your choice is still running! this is
-extremely useful to pause capture during tv adds and
-other cr*p like that... :-) of course, capability not
-currently supported with windvr (windowz). also, you
-don't need to restart the device couple of times a
-day... (like in windowz environments) and, finally,
-when your x runs in dual/multi head configurations,
-the player of your choice will run on every single
-display (windowz limits that to the primary display
-and windvr window takes several secons to wake up
-after migrating from a display to another)
-
-in couple of days (when it's ready) will will have
-full support for remote control and tuner (already
-hacked the protocol, it's just a matter of time for
-implementation). so, in user-land, there will be an
-app like avcchan or avctune to select the desired tv
-input channel. having elementary (thin) modules ofers
-you the flexibility and level of choice you deserve in
-terms of: platform (32/64bit), viewer of your choice
-(can use mplayer, xine, caffeine, etc), standard
-signals for pause control (kill -10 avcap_pid will
-pause capture && kill -12 avcap_pid will resume it)
-and schedulling at your fingertips... well, that
-simply doesn't exist in other platforms... feel free
-to contact us for driver requests (in source code)
-over email:
-
-this email is mine (dr dan) and dr john is reacheable
-at: J.A.Gow@furrybubble.co.uk
-
-we would both like to hear from you... (test drivers
-needed... :-)
-
-ps.
-this is not (yet) a kernel driver admission request...
-however, drivers work without __any__ problems with
-2.6.13.4 and 2.6.14.rc2 (both 32 && 64) -- not tuner
-&& remote ctrl yet :-(
-
-   daniel
+ drivers/net/e100.c |  224 ++++-------------------------------------------------
+ 1 files changed, 18 insertions(+), 206 deletions(-)
 
 
-	
-		
-__________________________________ 
-Yahoo! Mail - PC Magazine Editors' Choice 2005 
-http://mail.yahoo.com
+commit 875521ddccfa90d519cf31dfc8aa472f7f6325bb
+Author: Jeff Garzik <jgarzik@pobox.com>
+Date:   Tue Oct 11 01:38:35 2005 -0400
+
+    e100: revert CPU cycle saver microcode, it causes severe problems
+    for certain NICs
+    
+    Reverting 685fac63f5ca6c5ca06bab641e1a32bbf9287e89:
+    > [PATCH] e100: CPU cycle saver microcode
+    >
+    >
+    > Add cpu cycle saver microcode to 8086:{1209/1229} other than ICH devices.
+    >
+    > Signed-off-by: Mallikarjuna R Chilakala <mallikarjuna.chilakala@intel.com>
+    > Signed-off-by: Ganesh Venkatesan <ganesh.venkatesan@intel.com>
+    > Signed-off-by: John Ronciak <john.ronciak@intel.com>
+    > Signed-off-by: Jeff Garzik <jgarzik@pobox.com>
+
+
+diff --git a/drivers/net/e100.c b/drivers/net/e100.c
+--- a/drivers/net/e100.c
++++ b/drivers/net/e100.c
+@@ -903,8 +903,8 @@ static void mdio_write(struct net_device
+ 
+ static void e100_get_defaults(struct nic *nic)
+ {
+-	struct param_range rfds = { .min = 16, .max = 256, .count = 256 };
+-	struct param_range cbs  = { .min = 64, .max = 256, .count = 128 };
++	struct param_range rfds = { .min = 16, .max = 256, .count = 64 };
++	struct param_range cbs  = { .min = 64, .max = 256, .count = 64 };
+ 
+ 	pci_read_config_byte(nic->pdev, PCI_REVISION_ID, &nic->rev_id);
+ 	/* MAC type is encoded as rev ID; exception: ICH is treated as 82559 */
+@@ -1007,213 +1007,25 @@ static void e100_configure(struct nic *n
+ 		c[16], c[17], c[18], c[19], c[20], c[21], c[22], c[23]);
+ }
+ 
+-/********************************************************/
+-/*  Micro code for 8086:1229 Rev 8                      */
+-/********************************************************/
+-
+-/*  Parameter values for the D101M B-step  */
+-#define D101M_CPUSAVER_TIMER_DWORD		78
+-#define D101M_CPUSAVER_BUNDLE_DWORD		65
+-#define D101M_CPUSAVER_MIN_SIZE_DWORD		126
+-
+-#define D101M_B_RCVBUNDLE_UCODE \
+-{\
+-0x00550215, 0xFFFF0437, 0xFFFFFFFF, 0x06A70789, 0xFFFFFFFF, 0x0558FFFF, \
+-0x000C0001, 0x00101312, 0x000C0008, 0x00380216, \
+-0x0010009C, 0x00204056, 0x002380CC, 0x00380056, \
+-0x0010009C, 0x00244C0B, 0x00000800, 0x00124818, \
+-0x00380438, 0x00000000, 0x00140000, 0x00380555, \
+-0x00308000, 0x00100662, 0x00100561, 0x000E0408, \
+-0x00134861, 0x000C0002, 0x00103093, 0x00308000, \
+-0x00100624, 0x00100561, 0x000E0408, 0x00100861, \
+-0x000C007E, 0x00222C21, 0x000C0002, 0x00103093, \
+-0x00380C7A, 0x00080000, 0x00103090, 0x00380C7A, \
+-0x00000000, 0x00000000, 0x00000000, 0x00000000, \
+-0x0010009C, 0x00244C2D, 0x00010004, 0x00041000, \
+-0x003A0437, 0x00044010, 0x0038078A, 0x00000000, \
+-0x00100099, 0x00206C7A, 0x0010009C, 0x00244C48, \
+-0x00130824, 0x000C0001, 0x00101213, 0x00260C75, \
+-0x00041000, 0x00010004, 0x00130826, 0x000C0006, \
+-0x002206A8, 0x0013C926, 0x00101313, 0x003806A8, \
+-0x00000000, 0x00000000, 0x00000000, 0x00000000, \
+-0x00000000, 0x00000000, 0x00000000, 0x00000000, \
+-0x00080600, 0x00101B10, 0x00050004, 0x00100826, \
+-0x00101210, 0x00380C34, 0x00000000, 0x00000000, \
+-0x0021155B, 0x00100099, 0x00206559, 0x0010009C, \
+-0x00244559, 0x00130836, 0x000C0000, 0x00220C62, \
+-0x000C0001, 0x00101B13, 0x00229C0E, 0x00210C0E, \
+-0x00226C0E, 0x00216C0E, 0x0022FC0E, 0x00215C0E, \
+-0x00214C0E, 0x00380555, 0x00010004, 0x00041000, \
+-0x00278C67, 0x00040800, 0x00018100, 0x003A0437, \
+-0x00130826, 0x000C0001, 0x00220559, 0x00101313, \
+-0x00380559, 0x00000000, 0x00000000, 0x00000000, \
+-0x00000000, 0x00000000, 0x00000000, 0x00000000, \
+-0x00000000, 0x00130831, 0x0010090B, 0x00124813, \
+-0x000CFF80, 0x002606AB, 0x00041000, 0x00010004, \
+-0x003806A8, 0x00000000, 0x00000000, 0x00000000, \
+-}
+-
+-/********************************************************/
+-/*  Micro code for 8086:1229 Rev 9                      */
+-/********************************************************/
+-
+-/*  Parameter values for the D101S  */
+-#define D101S_CPUSAVER_TIMER_DWORD		78
+-#define D101S_CPUSAVER_BUNDLE_DWORD		67
+-#define D101S_CPUSAVER_MIN_SIZE_DWORD		128
+-
+-#define D101S_RCVBUNDLE_UCODE \
+-{\
+-0x00550242, 0xFFFF047E, 0xFFFFFFFF, 0x06FF0818, 0xFFFFFFFF, 0x05A6FFFF, \
+-0x000C0001, 0x00101312, 0x000C0008, 0x00380243, \
+-0x0010009C, 0x00204056, 0x002380D0, 0x00380056, \
+-0x0010009C, 0x00244F8B, 0x00000800, 0x00124818, \
+-0x0038047F, 0x00000000, 0x00140000, 0x003805A3, \
+-0x00308000, 0x00100610, 0x00100561, 0x000E0408, \
+-0x00134861, 0x000C0002, 0x00103093, 0x00308000, \
+-0x00100624, 0x00100561, 0x000E0408, 0x00100861, \
+-0x000C007E, 0x00222FA1, 0x000C0002, 0x00103093, \
+-0x00380F90, 0x00080000, 0x00103090, 0x00380F90, \
+-0x00000000, 0x00000000, 0x00000000, 0x00000000, \
+-0x0010009C, 0x00244FAD, 0x00010004, 0x00041000, \
+-0x003A047E, 0x00044010, 0x00380819, 0x00000000, \
+-0x00100099, 0x00206FFD, 0x0010009A, 0x0020AFFD, \
+-0x0010009C, 0x00244FC8, 0x00130824, 0x000C0001, \
+-0x00101213, 0x00260FF7, 0x00041000, 0x00010004, \
+-0x00130826, 0x000C0006, 0x00220700, 0x0013C926, \
+-0x00101313, 0x00380700, 0x00000000, 0x00000000, \
+-0x00000000, 0x00000000, 0x00000000, 0x00000000, \
+-0x00080600, 0x00101B10, 0x00050004, 0x00100826, \
+-0x00101210, 0x00380FB6, 0x00000000, 0x00000000, \
+-0x002115A9, 0x00100099, 0x002065A7, 0x0010009A, \
+-0x0020A5A7, 0x0010009C, 0x002445A7, 0x00130836, \
+-0x000C0000, 0x00220FE4, 0x000C0001, 0x00101B13, \
+-0x00229F8E, 0x00210F8E, 0x00226F8E, 0x00216F8E, \
+-0x0022FF8E, 0x00215F8E, 0x00214F8E, 0x003805A3, \
+-0x00010004, 0x00041000, 0x00278FE9, 0x00040800, \
+-0x00018100, 0x003A047E, 0x00130826, 0x000C0001, \
+-0x002205A7, 0x00101313, 0x003805A7, 0x00000000, \
+-0x00000000, 0x00000000, 0x00000000, 0x00000000, \
+-0x00000000, 0x00000000, 0x00000000, 0x00130831, \
+-0x0010090B, 0x00124813, 0x000CFF80, 0x00260703, \
+-0x00041000, 0x00010004, 0x00380700  \
+-}
+-
+-/********************************************************/
+-/*  Micro code for the 8086:1229 Rev F/10               */
+-/********************************************************/
+-
+-/*  Parameter values for the D102 E-step  */
+-#define D102_E_CPUSAVER_TIMER_DWORD		42
+-#define D102_E_CPUSAVER_BUNDLE_DWORD		54
+-#define D102_E_CPUSAVER_MIN_SIZE_DWORD		46
+-
+-#define     D102_E_RCVBUNDLE_UCODE \
+-{\
+-0x007D028F, 0x0E4204F9, 0x14ED0C85, 0x14FA14E9, 0x0EF70E36, 0x1FFF1FFF, \
+-0x00E014B9, 0x00000000, 0x00000000, 0x00000000, \
+-0x00E014BD, 0x00000000, 0x00000000, 0x00000000, \
+-0x00E014D5, 0x00000000, 0x00000000, 0x00000000, \
+-0x00000000, 0x00000000, 0x00000000, 0x00000000, \
+-0x00E014C1, 0x00000000, 0x00000000, 0x00000000, \
+-0x00000000, 0x00000000, 0x00000000, 0x00000000, \
+-0x00000000, 0x00000000, 0x00000000, 0x00000000, \
+-0x00000000, 0x00000000, 0x00000000, 0x00000000, \
+-0x00E014C8, 0x00000000, 0x00000000, 0x00000000, \
+-0x00200600, 0x00E014EE, 0x00000000, 0x00000000, \
+-0x0030FF80, 0x00940E46, 0x00038200, 0x00102000, \
+-0x00E00E43, 0x00000000, 0x00000000, 0x00000000, \
+-0x00300006, 0x00E014FB, 0x00000000, 0x00000000, \
+-0x00000000, 0x00000000, 0x00000000, 0x00000000, \
+-0x00000000, 0x00000000, 0x00000000, 0x00000000, \
+-0x00000000, 0x00000000, 0x00000000, 0x00000000, \
+-0x00906E41, 0x00800E3C, 0x00E00E39, 0x00000000, \
+-0x00906EFD, 0x00900EFD, 0x00E00EF8, 0x00000000, \
+-0x00000000, 0x00000000, 0x00000000, 0x00000000, \
+-0x00000000, 0x00000000, 0x00000000, 0x00000000, \
+-0x00000000, 0x00000000, 0x00000000, 0x00000000, \
+-0x00000000, 0x00000000, 0x00000000, 0x00000000, \
+-0x00000000, 0x00000000, 0x00000000, 0x00000000, \
+-0x00000000, 0x00000000, 0x00000000, 0x00000000, \
+-0x00000000, 0x00000000, 0x00000000, 0x00000000, \
+-0x00000000, 0x00000000, 0x00000000, 0x00000000, \
+-0x00000000, 0x00000000, 0x00000000, 0x00000000, \
+-0x00000000, 0x00000000, 0x00000000, 0x00000000, \
+-0x00000000, 0x00000000, 0x00000000, 0x00000000, \
+-0x00000000, 0x00000000, 0x00000000, 0x00000000, \
+-0x00000000, 0x00000000, 0x00000000, 0x00000000, \
+-0x00000000, 0x00000000, 0x00000000, 0x00000000, \
+-}
+-
+ static void e100_load_ucode(struct nic *nic, struct cb *cb, struct sk_buff *skb)
+ {
+-/* *INDENT-OFF* */
+-	static struct {
+-		u32 ucode[UCODE_SIZE + 1];
+-		u8 mac;
+-		u8 timer_dword;
+-		u8 bundle_dword;
+-		u8 min_size_dword;
+-	} ucode_opts[] = {
+-		{ D101M_B_RCVBUNDLE_UCODE,
+-		  mac_82559_D101M,
+-		  D101M_CPUSAVER_TIMER_DWORD,
+-		  D101M_CPUSAVER_BUNDLE_DWORD,
+-		  D101M_CPUSAVER_MIN_SIZE_DWORD },
+-		{ D101S_RCVBUNDLE_UCODE,
+-		  mac_82559_D101S,
+-		  D101S_CPUSAVER_TIMER_DWORD,
+-		  D101S_CPUSAVER_BUNDLE_DWORD,
+-		  D101S_CPUSAVER_MIN_SIZE_DWORD },
+-		{ D102_E_RCVBUNDLE_UCODE,
+-		  mac_82551_F,
+-		  D102_E_CPUSAVER_TIMER_DWORD,
+-		  D102_E_CPUSAVER_BUNDLE_DWORD,
+-		  D102_E_CPUSAVER_MIN_SIZE_DWORD },
+-		{ D102_E_RCVBUNDLE_UCODE,
+-		  mac_82551_10,
+-		  D102_E_CPUSAVER_TIMER_DWORD,
+-		  D102_E_CPUSAVER_BUNDLE_DWORD,
+-		  D102_E_CPUSAVER_MIN_SIZE_DWORD },
+-		{ {0}, 0, 0, 0, 0}
+-	}, *opts;
+-/* *INDENT-ON* */
+-
+-#define BUNDLESMALL 1
+-#define BUNDLEMAX 50
+-#define INTDELAY 15000
+-
+-	opts = ucode_opts;
+-
+-	/* do not load u-code for ICH devices */
+-	if (nic->flags & ich)
+-		return;
+-
+-	/* Search for ucode match against h/w rev_id */
+-	while (opts->mac) {
+-		if (nic->mac == opts->mac) {
+-			int i;
+-			u32 *ucode = opts->ucode;
+-
+-			/* Insert user-tunable settings */
+-			ucode[opts->timer_dword] &= 0xFFFF0000;
+-			ucode[opts->timer_dword] |=
+-				(u16) INTDELAY;
+-			ucode[opts->bundle_dword] &= 0xFFFF0000;
+-			ucode[opts->bundle_dword] |= (u16) BUNDLEMAX;
+-			ucode[opts->min_size_dword] &= 0xFFFF0000;
+-			ucode[opts->min_size_dword] |=
+-				(BUNDLESMALL) ?  0xFFFF : 0xFF80;
+-
+-			for(i = 0; i < UCODE_SIZE; i++)
+-				cb->u.ucode[i] = cpu_to_le32(ucode[i]);
+-			cb->command = cpu_to_le16(cb_ucode);
+-			return;
+-		}
+-		opts++;
+-	}
++	int i;
++	static const u32 ucode[UCODE_SIZE] = {
++		/* NFS packets are misinterpreted as TCO packets and
++		 * incorrectly routed to the BMC over SMBus.  This
++		 * microcode patch checks the fragmented IP bit in the
++		 * NFS/UDP header to distinguish between NFS and TCO. */
++		0x0EF70E36, 0x1FFF1FFF, 0x1FFF1FFF, 0x1FFF1FFF, 0x1FFF1FFF,
++		0x1FFF1FFF, 0x00906E41, 0x00800E3C, 0x00E00E39, 0x00000000,
++		0x00906EFD, 0x00900EFD,	0x00E00EF8,
++	};
+ 
+-	cb->command = cpu_to_le16(cb_nop);
++	if(nic->mac == mac_82551_F || nic->mac == mac_82551_10) {
++		for(i = 0; i < UCODE_SIZE; i++)
++			cb->u.ucode[i] = cpu_to_le32(ucode[i]);
++		cb->command = cpu_to_le16(cb_ucode);
++	} else
++		cb->command = cpu_to_le16(cb_nop);
+ }
+ 
+ static void e100_setup_iaaddr(struct nic *nic, struct cb *cb,

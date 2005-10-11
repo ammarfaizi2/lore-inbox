@@ -1,63 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751428AbVJKJWe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751429AbVJKJfk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751428AbVJKJWe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 05:22:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751429AbVJKJWe
+	id S1751429AbVJKJfk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 05:35:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751435AbVJKJfk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 05:22:34 -0400
-Received: from unthought.net ([212.97.129.88]:12930 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S1751428AbVJKJWe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 05:22:34 -0400
-Date: Tue, 11 Oct 2005 11:22:33 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Leif Nixon <nixon@nsc.liu.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Cache invalidation bug in NFS v3 - trivially reproducible
-Message-ID: <20051011092232.GA1625@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Leif Nixon <nixon@nsc.liu.se>, linux-kernel@vger.kernel.org
-References: <m33bn8bet4.fsf@nammatj.nsc.liu.se>
+	Tue, 11 Oct 2005 05:35:40 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:27155
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1751429AbVJKJfk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 05:35:40 -0400
+Message-Id: <434BA3E5.76F0.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Tue, 11 Oct 2005 11:37:09 +0200
+From: "Jan Beulich" <JBeulich@novell.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Kconfig question
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <m33bn8bet4.fsf@nammatj.nsc.liu.se>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 11, 2005 at 11:09:27AM +0200, Leif Nixon wrote:
-...
-> 
-> Now client n2 is stuck in a state where it uses its old cached data
-> forever (or at least for several hours):
-> 
->   NFS client n1                NFS client n2
-> 
->   $ cat f
->   2
-> 			       $ cat f
-> 			       1
+Is there (or have there been thoughts to add) a way to specify that
+multiple entities can all simultaneously be configured as modules, but
+at most one of them can be built in (with both possibilities of this
+still allowing or disallowing all others to be modules)?
 
-I can confirm this on NFSv3 UDP export from patched 2.6.11.11 server
-(dual opteron 64-bit kernel) to two different SMP (32-bit x86) clients
-with 2.6.12.4 and 2.6.11.11 kernels.
-
-There are definitely timing issues - in order to reproduce the problem I
-had to use "touch . ; echo 2 > r" and "touch r; cat r" on the clients -
-I couldn't type the commands quickly enough one-by-one.
-
-But right now I have:
-
-[phoenix:joe] $ cat r
-2
-
-[raven:joe] $ cat r
-1
-
-Beautiful :)
-
--- 
-
- / jakob
-
+Thanks, Jan

@@ -1,76 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbVJKHkw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751403AbVJKHsa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750718AbVJKHkw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 03:40:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751406AbVJKHkw
+	id S1751403AbVJKHsa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 03:48:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751406AbVJKHsa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 03:40:52 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:53190
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1750718AbVJKHkv
+	Tue, 11 Oct 2005 03:48:30 -0400
+Received: from smtpout2.uol.com.br ([200.221.4.193]:46482 "EHLO
+	smtp.uol.com.br") by vger.kernel.org with ESMTP id S1751403AbVJKHs3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 03:40:51 -0400
-Subject: Re: [PATCH]  ktimers subsystem 2.6.14-rc2-kt5
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, Andrew Morton <akpm@osdl.org>,
-       george@mvista.com, johnstul@us.ibm.com, paulmck@us.ibm.com,
-       Christoph Hellwig <hch@infradead.org>, oleg@tv-sign.ru,
-       tim.bird@am.sony.com
-In-Reply-To: <Pine.LNX.4.61.0510100213480.3728@scrub.home>
-References: <20050928224419.1.patchmail@tglx.tec.linutronix.de>
-	 <Pine.LNX.4.61.0509301825290.3728@scrub.home>
-	 <1128168344.15115.496.camel@tglx.tec.linutronix.de>
-	 <Pine.LNX.4.61.0510100213480.3728@scrub.home>
-Content-Type: text/plain
-Organization: linutronix
-Date: Tue, 11 Oct 2005 09:42:37 +0200
-Message-Id: <1129016558.1728.285.camel@tglx.tec.linutronix.de>
+	Tue, 11 Oct 2005 03:48:29 -0400
+Date: Tue, 11 Oct 2005 04:48:26 -0300
+From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [2.6.14-rc3] BUG: soft lockup detected on CPU#0
+Message-ID: <20051011074825.GA7428@ime.usp.br>
+Mail-Followup-To: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>
+References: <20051010204039.30dc1e0e.akpm@osdl.org> <20051011060652.GB19321@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20051011060652.GB19321@elte.hu>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-10-10 at 19:22 +0200, Roman Zippel wrote:
-> > The above gives a clear distinction between scalar and sec/nsec based
-> > cases. So you cannot mess up without notice. 
-> 
-> There are enough macros to do this anyway. There are a number of 
-> operations which are identical. Separating them artifically makes 
-> everything only more complicated.
 
-I don't see a distinct set of macros around which is providing all the
-functionality.
+Dear Ingo, Andrew and others,
 
-> > As far as I understand SUS timer resolution is equal to clock resolution
-> > and the timer value/interval is rounded up to the resolution.
-> 
-> Please check the rationale about clocks and timers. It talks about clocks 
-> and timer services based on them and their resolutions can be different.
+On Oct 11 2005, Ingo Molnar wrote:
+> does the patch below help?
+> ----
+> should solve false-positive soft lockup messages during IDE init.
 
-clock_settime():
-... Time values that are between two consecutive non-negative integer
-multiples of the resolution of the specified clock shall be truncated
-down to the smaller multiple of the resolution.
+Unfortunately, I haven't been able to reproduce the problem since I
+reported it. It is quite strange to be subject to a transient problem.
 
-timer_settime():
-...Time values that are between two consecutive non-negative integer
-multiples of the resolution of the specified timer shall be rounded up
-to the larger multiple of the resolution. Quantization error shall not
-cause the timer to expire earlier than the rounded time value.
-
-> > Reprogramming interval timers by now + interval is completely wrong.
-> > Reprogramming has to be 
-> > timer->expires + interval and nothing else. 
-> 
-> Where do get the requirement for an explicit rounding from?
-> The point is that the timer should not expire early, but there is more 
-> than one way to do this and can be done implicitly using the timer 
-> resolution.
-
-See above.
-
-tglx
+I will keep this patch safe and post more information as soon as I can
+isolate the problem.
 
 
+Thank you very much, Rogério.
+
+-- 
+Rogério Brito : rbrito@ime.usp.br : http://www.ime.usp.br/~rbrito
+Homepage of the algorithms package : http://algorithms.berlios.de
+Homepage on freshmeat:  http://freshmeat.net/projects/algorithms/

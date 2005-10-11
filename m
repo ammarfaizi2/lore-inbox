@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbVJKVPe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbVJKVTd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932222AbVJKVPe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 17:15:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbVJKVPe
+	id S1750742AbVJKVTd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 17:19:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbVJKVTd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 17:15:34 -0400
-Received: from quark.didntduck.org ([69.55.226.66]:58091 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP id S932222AbVJKVPe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 17:15:34 -0400
-Message-ID: <434C2B4A.7040309@didntduck.org>
-Date: Tue, 11 Oct 2005 17:14:50 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: en-us, en
+	Tue, 11 Oct 2005 17:19:33 -0400
+Received: from xproxy.gmail.com ([66.249.82.202]:52122 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750742AbVJKVTc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 17:19:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=YPDniPlnZGHbXPxLKTeZz0kRfztDo6wWx8+obczwOf2fmKpy8lhLPh5xQmDEbNvmUGbv+4/78XlSSkw8nn4nDsVv95+l8BPtOTrtadFGEtcfydbmiiIm7uh6H4zXw2ikOIqyPsRLc8HJeVhLH+0cKignpySWBcwazNLsS4Kmh8w=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: [PATCH] small Kconfig help text correction for CONFIG_FRAME_POINTER
+Date: Tue, 11 Oct 2005 23:22:21 +0200
+User-Agent: KMail/1.8.2
+Cc: Andrew Morton <akpm@osdl.org>, "Jesper Juhl" <jesper.juhl@gmail.com>
 MIME-Version: 1.0
-To: Alon Bar-Lev <alon.barlev@gmail.com>
-CC: "Jonathan M. McCune" <jonmccune@cmu.edu>, linux-kernel@vger.kernel.org,
-       Arvind Seshadri <arvinds@cs.cmu.edu>, Bryan Parno <parno@cmu.edu>
-Subject: Re: using segmentation in the kernel
-References: <434C1D60.2090901@cmu.edu> <434C2269.5090209@didntduck.org> <434C1F8E.6080405@gmail.com>
-In-Reply-To: <434C1F8E.6080405@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510112322.22004.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alon Bar-Lev wrote:
-> Brian Gerst wrote:
-> 
->> Jonathan M. McCune wrote:
->>
->>> Hello,
->>>
->> Why send the kernel back to the 2.0 days?  There is no valid reason 
->> for doing this with they way x86 segmentation works, which is why it 
->> was done away with in 2.1.
->>
-> 
-> But with segmentation you can set code to be read-only, disallow 
-> execution from stack, separate modules so that they will not affect 
-> kernel and more...
-> 
-> The main problem with segmentation is that it is x86 specific...
+Fix-up the CONFIG_FRAME_POINTER help text language a bit.
 
-Too much pain for for not enough gain.  Segments are not fine-grained 
-enough to work well.  Look at the PaX and execshield hacks for 
-userspace.  You are far better off working at the page-table level (RO 
-and NX pages) which has the advantage of being portable.
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
 
---
-				Brian Gerst
+ "on some architectures or you use external debuggers"
+  doesn't sound too good
+ "on some architectures or if you use external debuggers"
+  is better.
+
+ lib/Kconfig.debug |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+--- linux-2.6.14-rc4-orig/lib/Kconfig.debug	2005-10-11 22:41:32.000000000 +0200
++++ linux-2.6.14-rc4/lib/Kconfig.debug	2005-10-11 23:16:30.000000000 +0200
+@@ -174,7 +174,7 @@
+ 	default y if DEBUG_INFO && UML
+ 	help
+ 	  If you say Y here the resulting kernel image will be slightly larger
+-	  and slower, but it might give very useful debugging information
+-	  on some architectures or you use external debuggers.
++	  and slower, but it might give very useful debugging information on
++	  some architectures or if you use external debuggers.
+ 	  If you don't debug the kernel, you can say N.
+ 
+
+

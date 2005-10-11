@@ -1,53 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbVJKMan@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbVJKMcO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932079AbVJKMan (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 08:30:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932080AbVJKMan
+	id S932090AbVJKMcO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 08:32:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932086AbVJKMcO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 08:30:43 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:54157 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S932079AbVJKMam
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 08:30:42 -0400
-From: Vincent Roqueta <vincent.roqueta@ext.bull.net>
-Organization: BULL SA
+	Tue, 11 Oct 2005 08:32:14 -0400
+Received: from main.gmane.org ([80.91.229.2]:55271 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932082AbVJKMcM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 08:32:12 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: linux 2.6.13.3+ext3: journal block not found
-Date: Tue, 11 Oct 2005 14:33:56 +0200
-User-Agent: KMail/1.8.1
-MIME-Version: 1.0
-Message-Id: <200510111433.56067.vincent.roqueta@ext.bull.net>
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 11/10/2005 14:44:16,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 11/10/2005 14:44:18,
-	Serialize complete at 11/10/2005 14:44:18
+From: Joe Seigh <jseigh_02@xemaps.com>
+Subject: Re: i386 spinlock fairness: bizarre test results
+Date: Tue, 11 Oct 2005 08:31:33 -0400
+Message-ID: <digb50$4bd$1@sea.gmane.org>
+References: <4WjCM-7Aq-7@gated-at.bofh.it> <434B404F.9020508@shaw.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Disposition: inline
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: stenquists.hsd1.ma.comcast.net
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+In-Reply-To: <434B404F.9020508@shaw.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Robert Hancock wrote:
+> Chuck Ebbert wrote:
+> 
+>>   After seeing Kirill's message about spinlocks I decided to do my own
+>> testing with the userspace program below; the results were very strange.
+>>
+>>   When using the 'mov' instruction to do the unlock I was able to 
+>> reproduce
+>> hogging of the spinlock by a single CPU even on Pentium II under some
+>> conditions, while using 'xchg' always allowed the other CPU to get the
+>> lock:
+> 
+> 
+> This might not necessarily be a win in all situations. If two CPUs A and 
+>  B are trying to get into a spinlock-protected critical section to do 5 
+> operations, it may well be more efficient for them to do AAAAABBBBB as 
+> opposed to ABABABABAB, as the second situation may result in cache lines 
+> bouncing between the two CPUs each time, etc.
+> 
+> I don't know that making spinlocks "fairer" is really very worthwhile. 
+> If some spinlocks are so heavily contented that fairness becomes an 
+> issue, it would be better to find a way to reduce that contention.
+> 
 
-I use ext3 a laptop. The only disk intensive application I run is amule.
- After a (short) while running it, the /home filesystem is remounted readonly.
+You're right that it wouldn't be an issue on a system with relatively few
+cpu's since that amount of contention would cripple the system.  Though
+with 100's of cpu's you could get contention hotspots with some spin locks
+being concurrently accessed by some subset of the cpu's for periods of time.
 
- Here are the traces I get :
-Oct 11 08:17:39 localhost kernel: journal_bmap: journal block not found at 
-offset 6156 on hda6
-Oct 11 08:17:39 localhost kernel: Aborting journal on device hda6.
-Oct 11 08:17:39 localhost kernel: __journal_remove_journal_head: freeing 
-b_committed_data
-Oct 11 08:17:39 localhost last message repeated 2 times
-Oct 11 08:17:39 localhost kernel: journal commit I/O error
-Oct 11 08:17:39 localhost kernel: ext3_abort called.
-Oct 11 08:17:39 localhost kernel: EXT3-fs error (device hda6): 
-ext3_journal_start_sb: Detected aborted journal
-Oct 11 08:17:39 localhost kernel: Remounting filesystem read-only       
+The real issue is scalability or how gracefully does a system degrade
+when it starts to hit its contention limits.  It's not a good thing when
+a system appears to run fine and then catastrophically hangs when it
+bumps across its critical limit.  It's better when a system exhibit's
+some sort of linear degradation.  The former exhibits bistable behavior
+which requires a drastic, probably impossible, reduction in work load
+to regain normal performance.  Reboots are the normal course of correction.
+The linearly degrading systems just require moderation of the workload
+to move back into acceptable performance.
 
-Kernel is linux 2.6.13.3
-FS is ext3.
+Anyway, if you want to build a scalable system, it makes sense to build it
+out of scalable components.  Right?
 
-Vincent
+Joe Seigh
+
+

@@ -1,66 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750883AbVJKNj0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbVJKNsN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750883AbVJKNj0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 09:39:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbVJKNjZ
+	id S1751205AbVJKNsN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 09:48:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751210AbVJKNsN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 09:39:25 -0400
-Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:51805 "HELO
-	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1750883AbVJKNjZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 09:39:25 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=MguW/qttmHDEV310DdeeC3ZE1V4N/iv7JqpeFnNjSDhNvX3UwatnqJxoewmouEzfo3NipSKmqqGZe4+jA3cBNTJ/CsWWOgHgXnvC2NSVCTofDXbbWmLT8FDZSyTkWTdBq1pQukXIzKyBJESCrH9I5MysA2P9MkSuDGEra7J2sco=  ;
-Message-ID: <434BC095.4050305@yahoo.com.au>
-Date: Tue, 11 Oct 2005 23:39:33 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050914 Debian/1.7.11-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Andrew Morton <akpm@osdl.org>, Hugh Dickins <hugh@veritas.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.14-rc2-mm2] core remove PageReserved
-References: <434B7F19.5040808@yahoo.com.au> <1129035883.23677.48.camel@localhost.localdomain>
-In-Reply-To: <1129035883.23677.48.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Oct 2005 09:48:13 -0400
+Received: from ganesha.gnumonks.org ([213.95.27.120]:48865 "EHLO
+	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
+	id S1751205AbVJKNsM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 09:48:12 -0400
+Date: Tue, 11 Oct 2005 10:28:38 +0200
+From: Harald Welte <laforge@gnumonks.org>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Linus Torvalds <torvalds@osdl.org>, Chris Wright <chrisw@osdl.org>,
+       Sergey Vlasov <vsu@altlinux.ru>, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, security@linux.kernel.org,
+       vendor-sec@lst.de
+Subject: Re: [linux-usb-devel] Re: [BUG/PATCH/RFC] Oops while completing async USB via usbdevio
+Message-ID: <20051011082838.GD4290@rama>
+References: <20051010174429.GH5627@rama> <Pine.LNX.4.44L0.0510101559330.10768-100000@netrider.rowland.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Y5rl02BVI9TCfPar"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.0510101559330.10768-100000@netrider.rowland.org>
+User-Agent: mutt-ng devel-20050619 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Maw, 2005-10-11 at 19:00 +1000, Nick Piggin wrote:
-> 
->>A last caveat: the ZERO_PAGE is now refcounted and managed with rmap
->>(and thus mapcounted and count towards shared rss).
-> 
-> 
-> 32000 processes each with 2G mapped as zero pages appears to allow the
-> refcount to overflow ?
-> 
 
-That's right (though I count only 8192 required with 4K page size) -
-close to impossible on 32-bit architectures, though not so the 64-bit
-ones, which still use 32-bits for count and mapcount.
+--Y5rl02BVI9TCfPar
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I was a bit worried about this too, but Hugh didn't think it was a
-really big a deal - I guess because the real solution for the refcount
-overflow on 64-bit is to expand the refcount type.
+On Mon, Oct 10, 2005 at 04:03:13PM -0400, Alan Stern wrote:
+> On Mon, 10 Oct 2005, Harald Welte wrote:
+>=20
+> > +	if ((!info || ((unsigned long)info !=3D 1 &&
+> > +			(unsigned long)info !=3D 2 && SI_FROMUSER(info)))
+> > +	    && (euid ^ p->suid) && (euid ^ p->uid)
+> > +	    && (uid ^ p->suid) && (uid ^ p->uid)) {
+>=20
+> No doubt this was copied from somewhere else.  But why do people go to the
+> effort of confusing readers by using "^" instead of "!=3D"?  These aren't=
+=20
+> bit-oriented values.
 
-Note also that we can exclude ZERO_PAGE from being refcounted, which
-may be desirable for a scalability perspective on big NUMA machines.
+Well, I'd rather keep the new code as close as possible to the original
+check_permission() code, to make it obvious that it's basically doing
+the same thing.  I think if you want to clean this up, it could be an
+additional patch on top of mine (once there is a final version and it
+gets merged.
 
-The aim with this patch is to provide a patch which is as simple as
-possible in order to get the mechanism right. But you raise a valid
-concern and we do need to discuss these peripheral issues and sort
-them out before it gets merged upstream.
+> Alan Stern
 
-Thanks,
-Nick
+--=20
+- Harald Welte <laforge@gnumonks.org>          	        http://gnumonks.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+"Privacy in residential applications is a desirable marketing option."
+                                                  (ETSI EN 300 175-7 Ch. A6)
 
--- 
-SUSE Labs, Novell Inc.
+--Y5rl02BVI9TCfPar
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDS3e2XaXGVTD0i/8RAi53AJ9lyKy17tjK99aaw7MuZP0E5ab/lgCeIYuY
+yRYLLu11ncDErpOSG6o7b7I=
+=1LXD
+-----END PGP SIGNATURE-----
+
+--Y5rl02BVI9TCfPar--

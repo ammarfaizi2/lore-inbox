@@ -1,61 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbVJKN6F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbVJKN7t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751310AbVJKN6F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 09:58:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751322AbVJKN6E
+	id S932099AbVJKN7t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 09:59:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbVJKN7t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 09:58:04 -0400
-Received: from ns.firmix.at ([62.141.48.66]:51367 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S1751310AbVJKN6D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 09:58:03 -0400
-Subject: Re: [BUG/PATCH/RFC] Oops while completing async USB via usbdevio
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Harald Welte <laforge@gnumonks.org>, Linus Torvalds <torvalds@osdl.org>,
-       Sergey Vlasov <vsu@altlinux.ru>, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, security@linux.kernel.org,
-       vendor-sec@lst.de
-In-Reply-To: <20051010180745.GT5856@shell0.pdx.osdl.net>
-References: <Pine.LNX.4.58.0509270904140.3308@g5.osdl.org>
-	 <20050927165206.GB20466@master.mivlgu.local>
-	 <Pine.LNX.4.58.0509270959380.3308@g5.osdl.org>
-	 <20050930104749.GN4168@sunbeam.de.gnumonks.org>
-	 <Pine.LNX.4.64.0509300752530.3378@g5.osdl.org>
-	 <20050930184433.GF16352@shell0.pdx.osdl.net>
-	 <Pine.LNX.4.64.0509301225190.3378@g5.osdl.org>
-	 <20050930220808.GE4168@sunbeam.de.gnumonks.org>
-	 <Pine.LNX.4.64.0509301514190.3378@g5.osdl.org> <20051010174429.GH5627@rama>
-	 <20051010180745.GT5856@shell0.pdx.osdl.net>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Date: Tue, 11 Oct 2005 15:57:19 +0200
-Message-Id: <1129039039.16614.26.camel@tara.firmix.at>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Oct 2005 09:59:49 -0400
+Received: from web8402.mail.in.yahoo.com ([202.43.219.150]:45720 "HELO
+	web8402.mail.in.yahoo.com") by vger.kernel.org with SMTP
+	id S932099AbVJKN7s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 09:59:48 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.co.in;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=YmcPwqU6a7BerFCGo0fgbCWlRzn17GOvxGumR7e4bmZ2Uer4BQuzd3nLE/2+1IyMRmvyihifsI5zgsOd5sP0FTnv92HV/XLTp777k1CVL02EnOfJcmIM4IEnUrYYiNfz8oqnsHe1/ENSitHlpGDkaXTV4HGlqdqD1ah2xQkFuoM=  ;
+Message-ID: <20051011135944.22612.qmail@web8402.mail.in.yahoo.com>
+Date: Tue, 11 Oct 2005 14:59:44 +0100 (BST)
+From: vinay hegde <thisismevinay@yahoo.co.in>
+Subject: Regarding - unresolved symbol
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-10-10 at 11:07 -0700, Chris Wright wrote:
-> * Harald Welte (laforge@gnumonks.org) wrote:
-> > diff --git a/kernel/signal.c b/kernel/signal.c
-> > --- a/kernel/signal.c
-> > +++ b/kernel/signal.c
-> > @@ -1193,6 +1193,40 @@ kill_proc_info(int sig, struct siginfo *
-> >  	return error;
-> >  }
-> >  
-> > +/* like kill_proc_info(), but doesn't use uid/euid of "current" */
-> 
-> Maybe additional comment reminding that you most likely don't want this
-> interface.
+Hi, 
+I am developing a device driver module related to the
+real time clock on Linux 2.4 kernel. [This is done
+with regard to changing one of the existing timer chip
+on the  system.] For some reason, I am getting into an
+unresolved symbol.
 
-Just mark it DEPRECATED since it basically is that?!
+I am following sequence of code in the module (not
+necessarily in the sequential manner though).
 
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
+----------
+extern void *sys_call_table[];
+static int (*timer_mknod)(const char *, ... ); 
+timer_mknod = sys_call_table[__NR_mknod];
+----------
 
+Whenever I try to insert the module into the kernel, I
+get the following error:
+timer.o: unresolved symbol sys_call_table
+
+All the necessary headers are present and I am able to
+see the symbol 'sys_call_table' in System.map. I do
+not see any error in this regard. Can somebody help me
+in pointing out the flaw? 
+
+[I am able to fix this problem by simply using the
+'sys_mknod()' call in my module, but I really would
+like to know why the above piece of code can not
+work!]
+
+Thank you,
+Vinay Hegde
+
+
+		
+__________________________________________________________ 
+Yahoo! India Matrimony: Find your partner now. Go to http://yahoo.shaadi.com

@@ -1,94 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751404AbVJKHWp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751402AbVJKHfj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751404AbVJKHWp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 03:22:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751403AbVJKHWp
+	id S1751402AbVJKHfj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 03:35:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751405AbVJKHfj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 03:22:45 -0400
-Received: from spc1-leed3-6-0-cust185.seac.broadband.ntl.com ([80.7.68.185]:33427
-	"EHLO fentible.pjc.net") by vger.kernel.org with ESMTP
-	id S1751404AbVJKHWo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 03:22:44 -0400
-Message-ID: <434B6839.30600@tykepenguin.com>
-Date: Tue, 11 Oct 2005 08:22:33 +0100
-From: Patrick Caulfield <patrick@tykepenguin.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: davem@davemloft.net
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] DECnet tidy
-X-Enigmail-Version: 0.92.0.0
-Face: iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAAHlBMVEXmxsMFAgCWmaJAJSmo
- bWgJBADGoakXEBRfXFQIBAjp3NUzAAACaElEQVQ4jVXTQWvbMBQHcNFBtqsoIeRWRsm22zYV5F2z
- h9HVFJH5VooRO654QfWtxV6n3ma64Pnb7v8kJ01fSGL003t6z9jCFvwp7KD01lpbevxKhMCynRd2
- U/P6XNrBHwG+tW8aXrDWbwv8z4WNMSjvSyxg18bLlBGjBmzj1c56bJhPsFFK+x3XLEfr+5ixSwlK
- ee7JWsBNBI+Sc8UA2URoImhdyAWDbgaGsvR8SCGU6uXApVTjUxImQtcitL30PtXyvvYDdqG/AiAX
- WJgg03zNjQsyctEMMQVx8dXrCd6+lwPXyDKsBzLMEdz3BCpw5FVqvJCAJRf3KgvBkKsCYKNupBBv
- eu8HX+eOOnKuot/eb3SEseZ2sOYQBCgv6RfgFaBWnUsBaOzl+QG4SgyUKu236nGCjEJH+ZWYVcgY
- 7N/ZBDozwYQud86EVmv7Z3YPeM0QciLKXWU6auvtDzGByrrKBABRIFLNHp7aDPsNUUXrNpDyHycY
- sNvxdoyI0P5sDxRyADrqmNtbIT4B3o2DQ3keASdgxPbzHsYEtIezA6DXCI6haq8SfBjHhz2YmPEM
- P19AEEKMCf6dEx+dA+gY+tMKsyHi+PQA6BMsuzwCR053Qsw443Ec5VOcO3acE84+SdDL0zg30tAv
- odKJjCDlYo3dbuau+Z6IQ4aUy26F6YWokLU+BnnBtbgDV929gFtaudQTnR1gCVh069hxFcc7ypCB
- 0oymjRn9M3RpjqDVag9cahn4jqOBFk97tjpkLOvOoOP82mRtfIF0L8T9iHXV8bNIBq9I22ahVVqI
- L318sPhkfkMMUgJekv/6D1oqiFUyQgAAAABJRU5ErkJggg==
-Content-Type: multipart/mixed;
- boundary="------------010301080408060503050908"
+	Tue, 11 Oct 2005 03:35:39 -0400
+Received: from tentacle.b.gz.ru ([217.67.124.4]:42957 "EHLO
+	tentacle.sectorb.msk.ru") by vger.kernel.org with ESMTP
+	id S1751402AbVJKHfi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 03:35:38 -0400
+Date: Tue, 11 Oct 2005 11:35:32 +0400
+From: "Vladimir B. Savkin" <master@sectorb.msk.ru>
+To: Jonas Oreland <jonas@mysql.com>
+Cc: john stultz <johnstul@us.ibm.com>, Andi Kleen <ak@suse.de>,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       discuss@x86-64.org
+Subject: Re: [PATCH] x86-64: Fix bad assumption that dualcore cpus have synced TSCs
+Message-ID: <20051011073532.GA29254@tentacle.sectorb.msk.ru>
+References: <1127157404.3455.209.camel@cog.beaverton.ibm.com> <20051007122624.GA23606@tentacle.sectorb.msk.ru> <200510071431.47245.ak@suse.de> <20051008101153.GA1541@tentacle.sectorb.msk.ru> <1128967404.8195.419.camel@cog.beaverton.ibm.com> <20051010181216.GA21548@tentacle.sectorb.msk.ru> <434AB0BE.3080206@mysql.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <434AB0BE.3080206@mysql.com>
+X-Organization: Moscow State Univ., Institute of Mechanics
+X-Operating-System: Linux 2.6.13.3
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010301080408060503050908
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Mon, Oct 10, 2005 at 08:19:42PM +0200, Jonas Oreland wrote:
+> Hi,
+> 
+> check http://bugzilla.kernel.org/show_bug.cgi?id=5283
 
-This just removes some redundant ifdeffed code:
+Excuse me for possibly dumb question, but is it safe to leave TSCs
+unsynchronized when using other time source?
+How will other subsystems e.g. traffic queueing disciplines react?
 
+~
+:wq
+                                        With best regards, 
+                                           Vladimir Savkin. 
 
--- 
-
-patrick
-
---------------010301080408060503050908
-Content-Type: message/rfc822;
- name="Another small patch.eml"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="Another small patch.eml"
-
-
-
-Signed-off-by: Steven Whitehouse <steve@chygwyn.com>
-Signed-off-by: Patrick Caulfield <patrick@tykepenguin.com>
-
-diff -Nru linux-2.6.13/net/decnet/af_decnet.c linux/net/decnet/af_decnet.c
---- linux-2.6.13/net/decnet/af_decnet.c	2005-10-03 21:16:48.000000000 +0100
-+++ linux/net/decnet/af_decnet.c	2005-10-07 11:21:25.000000000 +0100
-@@ -719,22 +719,9 @@
- 	if (saddr->sdn_flags & ~SDF_WILD)
- 		return -EINVAL;
- 
--#if 1
- 	if (!capable(CAP_NET_BIND_SERVICE) && (saddr->sdn_objnum ||
- 	    (saddr->sdn_flags & SDF_WILD)))
- 		return -EACCES;
--#else
--	/*
--	 * Maybe put the default actions in the default security ops for
--	 * dn_prot_sock ? Would be nice if the capable call would go there
--	 * too.
--	 */
--	if (security_dn_prot_sock(saddr) &&
--	    !capable(CAP_NET_BIND_SERVICE) || 
--	    saddr->sdn_objnum || (saddr->sdn_flags & SDF_WILD))
--		return -EACCES;
--#endif
--
- 
- 	if (!(saddr->sdn_flags & SDF_WILD)) {
- 		if (dn_ntohs(saddr->sdn_nodeaddrl)) {
-
-
-
-
---------------010301080408060503050908--

@@ -1,84 +1,70 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S964907AbVJDSkP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751226AbVJKN4t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964907AbVJDSkP (ORCPT <rfc822;akpm@zip.com.au>);
-	Tue, 4 Oct 2005 14:40:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964908AbVJDSkP
+	id S1751226AbVJKN4t (ORCPT <rfc822;akpm@zip.com.au>);
+	Tue, 11 Oct 2005 09:56:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751310AbVJKN4t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Oct 2005 14:40:15 -0400
-Received: from [66.18.69.78] ([66.18.69.78]:32492 "EHLO sentechsa.net")
-	by vger.kernel.org with ESMTP id S964907AbVJDSkN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Oct 2005 14:40:13 -0400
-X-SpamCatcher-Score: 2 [X]
-From: "jacque tanoh" <jacob@jmail.co.za>
-Subject: Jacque ET Marie 
-X-Mailer: CommuniGate Pro WebUser Interface v.4.3.5
-Date: Tue, 04 Oct 2005 20:40:01 +0200
-Message-ID: <web-7569634@cgp7.sentechsa.net>
+	Tue, 11 Oct 2005 09:56:49 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:24244 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S1751226AbVJKN4s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 09:56:48 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: etienne.lorrain@masroudeau.com
+Subject: Re: [PATCH 1/3] Gujin linux.kgz boot format
+Date: Tue, 11 Oct 2005 16:56:30 +0300
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
+References: <2031.192.168.201.6.1128591983.squirrel@pc300>
+In-Reply-To: <2031.192.168.201.6.1128591983.squirrel@pc300>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 8bit
-To: unlisted-recipients:;;@localhost.localdomain (no To-header on input)
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510111656.30403.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jacque ET Marie BONJOUR
-Abidjan(Cote D'Ivoire).
+On Thursday 06 October 2005 12:46, Etienne Lorrain wrote:
+>   Hello,
+> 
+>  This is following that set of patch:
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=112557274910448&w=4
+>  to get a simpler structure of the vmlinux boot file, named like:
+> /boot/linux-2.6.14.kgz
+> 
+>  This linux-*.kgz format is the "native" format of the Gujin
+> bootloader which can be found here:
+> http://gujin.org
 
-Bonjour,
-Je viens par la présente solliciter de votre haute
-bienveillance, une assistance de grande importance.
+/me looking at the site
+Wow. Isn't this overdesigned by wide margin?
 
-Je me nomme Monsieur Jacque Aka je suis le fils de feu
-Dr.Divine Blaise Aka ex Directeur des Mines de la
-république de Sierra-Leone.
+>  The main change of this set of patch is the rewrite of nearly all
+> the ia16/ia32 assembler of Linux into a C file named "realmode.c",
+> and its include "realmode.h". The mapping of the 4 Kbytes memory
+> page exchanged in between real mode and protected mode is exactly
+> the same, but is described in a C structure - a lot cleaner.
+>  Another big change is that the GZIP compressed file produced during
+> Linux compilation now contains a comment describing some important
+> information: which processor this kernel has been compiled for (so
+> no invalid instruction crash when running a Athlon compiled kernel
+> on a Pentium - but a nice error message from the bootloader), which
+> video mode the kernel support (VGA text or VESA, and which VESA)...
+>
+>  If you apply this set of patch, you still can use the old method
+> to boot a kernel with LILO, Loadlin, Grub or SYSLINUX, and this
+> patch will not modify any assembler instruction executed on this
+> boot path when you use "make bzImage" or the like.
+>  To produce the new format you just have to apply at least the
+> first two patch and type "make /boot/linux-gujin.kgz ROOT=auto",
+> or apply the 3rd patch to get root autodetection (based on the
+> partition/directory of the linux*.kgz file loaded) and type
+> "make /boot/linux-gujin.kgz". (also see "make help")
 
-Mon père était assassiné par des rebelles de Bockary lors
-d'une visite sur un site d'exploitation d'or et de diamant
-situé à 230 KM de FREETOWN,la capitale de notre pays.
-
-Après le décès de notre père,la vie est devenue très
-difficile pour nous comme on était constamment menacé par
-les rebelles.Compte tenu de cette situation difficile, ma
-mère s'est arrangée avec un des meilleurs amis de mon
-défunt père pour nous faire quitter le pays.
-
-Ma mère a donc pris sur elle tous les biens de mon père qui
-étaient dans son coffre fort qui sont deux caisses
-metallique et tous ses documents importants  qu'elle a
-emmené avec moi en Côte d'Ivoire .
-
-Nous sommes présentement en Côte d'Ivoire avec des biens y
-compris la somme de 19 millions des dollar Américains.Comme
-nous ne connaissons personne en Côte d'Ivoire,ma mère a
-décidé de déposer les deux caisses metallique dans une
-compagnie privée de sécurité de la place afin de les
-sauvegarder et protéger cette importante somme d'argent que
-nous ne pouvons garder sur nous à l'hôtel.
-
-Compte tenu du climat politique instable en Cote D'Ivoire
-et que notre famille est très connue dans la sous région,
-ma mère a décidé de chercher un partenaire afin d'investir
-cette somme hors du continent dans des domaines
-rentables,c'est donc la raison pour laquelle nous 
-venons vers vous pour solliciter votre assistance et nous
-aider à investir dans votre pays.
-
-La meilleure méthode pour conclu cette transaction vue la
-tention politique en cote D'Ivoire, serai d'expédier les
-fonds en dans votre pays .
-
-Dès l'arrivée de ces fonds en dans votre pays, vous allez
-les récupéreret les sauvegarder et engager les démarches
-pour nous aider à venir s'établir dans votre pays.
-
-Nous avons prevu pour vous les 15 % du montant total de mes
-biens.Répondez-moi le plus tôt possible al'adresse
-suivante:jacque_aka@yahoo.fr pour que nous puissions
-conlure cette affaire .
-
-Merci Que Dieu vous benisse
-
-Jacque ET Marie Aka
-
-
+Apart from shaving a few kb's from kernel image (which are discarded
+anyway after boot, IIRC), what advantages does this bring?
+Do they outweigh effort needed to maintain it?
+--
+vda

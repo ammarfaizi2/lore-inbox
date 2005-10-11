@@ -1,261 +1,284 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbVJKPNF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbVJKPNh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932105AbVJKPNF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 11:13:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751439AbVJKPNE
+	id S932132AbVJKPNh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 11:13:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbVJKPNL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 11:13:04 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:6094 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1751416AbVJKPM6 (ORCPT
+	Tue, 11 Oct 2005 11:13:11 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:7630 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S1751441AbVJKPND (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 11:12:58 -0400
+	Tue, 11 Oct 2005 11:13:03 -0400
 From: Mel Gorman <mel@csn.ul.ie>
 To: akpm@osdl.org
 Cc: jschopp@austin.ibm.com, Mel Gorman <mel@csn.ul.ie>, kravetz@us.ibm.com,
        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
        lhms-devel@lists.sourceforge.net
-Message-Id: <20051011151257.16178.80389.sendpatchset@skynet.csn.ul.ie>
+Message-Id: <20051011151302.16178.46089.sendpatchset@skynet.csn.ul.ie>
 In-Reply-To: <20051011151221.16178.67130.sendpatchset@skynet.csn.ul.ie>
 References: <20051011151221.16178.67130.sendpatchset@skynet.csn.ul.ie>
-Subject: [PATCH 7/8] Fragmentation Avoidance V17: 007_percpu
-Date: Tue, 11 Oct 2005 16:12:57 +0100 (IST)
+Subject: [PATCH 8/8] Fragmentation Avoidance V17: 008_stats
+Date: Tue, 11 Oct 2005 16:13:02 +0100 (IST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The freelists for each allocation type can slowly become corrupted due to
-the per-cpu list. Consider what happens when the following happens
-
-1. A 2^(MAX_ORDER-1) list is reserved for __GFP_USER pages
-2. An order-0 page is allocated from the newly reserved block
-3. The page is freed and placed on the per-cpu list
-4. alloc_page() is called with GFP_KERNEL as the gfp_mask
-5. The per-cpu list is used to satisfy the allocation
-
-Now, a kernel page is in the middle of a __GFP_USER page. This means that over
-long periods of the time, the anti-fragmentation scheme slowly degrades to the
-standard allocator.
-
-This patch divides the per-cpu lists into Kernel and User lists. RCLM_NORCLM
-and RCLM_KERN use the Kernel list and RCLM_USER uses the user list. Strictly
-speaking, there should be three lists but as little effort is made to reclaim
-RCLM_KERN pages, it is not worth the overhead *yet*.
+It is not necessary to apply this patch to get all the anti-fragmentation
+code. This patch adds a new config option called CONFIG_ALLOCSTATS. If
+set, a number of new bean counters are added that are related to the
+anti-fragmentation code. The information is exported via /proc/buddyinfo. This
+is very useful when debugging why high-order pages are not available for
+allocation.
 
 Signed-off-by: Mel Gorman <mel@csn.ul.ie>
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.14-rc3-006_largealloc_tryharder/include/linux/mmzone.h linux-2.6.14-rc3-007_percpu/include/linux/mmzone.h
---- linux-2.6.14-rc3-006_largealloc_tryharder/include/linux/mmzone.h	2005-10-11 12:09:27.000000000 +0100
-+++ linux-2.6.14-rc3-007_percpu/include/linux/mmzone.h	2005-10-11 12:12:12.000000000 +0100
-@@ -59,12 +59,17 @@ struct zone_padding {
- #define ZONE_PADDING(name)
- #endif
+diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.14-rc3-007_percpu/include/linux/mmzone.h linux-2.6.14-rc3-008_stats/include/linux/mmzone.h
+--- linux-2.6.14-rc3-007_percpu/include/linux/mmzone.h	2005-10-11 12:12:12.000000000 +0100
++++ linux-2.6.14-rc3-008_stats/include/linux/mmzone.h	2005-10-11 12:12:57.000000000 +0100
+@@ -180,6 +180,19 @@ struct zone {
+ 	unsigned long		fallback_reserve;
+ 	long			fallback_balance;
  
-+/* Indices into pcpu_list */
-+#define PCPU_KERNEL 0
-+#define PCPU_USER   1
-+#define PCPU_TYPES  2
-+
- struct per_cpu_pages {
--	int count;		/* number of pages in the list */
-+	int count[PCPU_TYPES];  /* Number of pages on each list */
- 	int low;		/* low watermark, refill needed */
- 	int high;		/* high watermark, emptying needed */
- 	int batch;		/* chunk size for buddy add/remove */
--	struct list_head list;	/* the list of pages */
-+	struct list_head list[PCPU_TYPES]; /* the lists of pages */
- };
- 
- struct per_cpu_pageset {
-@@ -79,6 +84,10 @@ struct per_cpu_pageset {
- #endif
- } ____cacheline_aligned_in_smp;
- 
-+/* Helpers for per_cpu_pages */
-+#define pset_count(pset) (pset.count[PCPU_KERNEL] + pset.count[PCPU_USER])
-+#define for_each_pcputype(pindex) \
-+	for (pindex=0; pindex < PCPU_TYPES; pindex++)
- #ifdef CONFIG_NUMA
- #define zone_pcp(__z, __cpu) ((__z)->pageset[(__cpu)])
- #else
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.14-rc3-006_largealloc_tryharder/mm/page_alloc.c linux-2.6.14-rc3-007_percpu/mm/page_alloc.c
---- linux-2.6.14-rc3-006_largealloc_tryharder/mm/page_alloc.c	2005-10-11 12:11:31.000000000 +0100
-+++ linux-2.6.14-rc3-007_percpu/mm/page_alloc.c	2005-10-11 12:12:12.000000000 +0100
-@@ -783,7 +783,7 @@ static int rmqueue_bulk(struct zone *zon
- void drain_remote_pages(void)
- {
- 	struct zone *zone;
--	int i;
-+	int i, pindex;
- 	unsigned long flags;
- 
- 	local_irq_save(flags);
-@@ -799,9 +799,16 @@ void drain_remote_pages(void)
- 			struct per_cpu_pages *pcp;
- 
- 			pcp = &pset->pcp[i];
--			if (pcp->count)
--				pcp->count -= free_pages_bulk(zone, pcp->count,
--						&pcp->list, 0);
-+			for_each_pcputype(pindex) {
-+				if (!pcp->count[pindex])
-+					continue;
-+
-+				/* Try remove all pages from the pcpu list */
-+				pcp->count[pindex] -= 
-+					free_pages_bulk(zone, 
-+						pcp->count[pindex],
-+						&pcp->list[pindex], 0);
-+			}
- 		}
- 	}
- 	local_irq_restore(flags);
-@@ -812,7 +819,7 @@ void drain_remote_pages(void)
- static void __drain_pages(unsigned int cpu)
- {
- 	struct zone *zone;
--	int i;
-+	int i, pindex;
- 
- 	for_each_zone(zone) {
- 		struct per_cpu_pageset *pset;
-@@ -822,8 +829,16 @@ static void __drain_pages(unsigned int c
- 			struct per_cpu_pages *pcp;
- 
- 			pcp = &pset->pcp[i];
--			pcp->count -= free_pages_bulk(zone, pcp->count,
--						&pcp->list, 0);
-+			for_each_pcputype(pindex) {
-+				if (!pcp->count[pindex])
-+					continue;
-+
-+				/* Try remove all pages from the pcpu list */
-+				pcp->count[pindex] -= 
-+					free_pages_bulk(zone, 
-+						pcp->count[pindex],
-+						&pcp->list[pindex], 0);
-+			}
- 		}
- 	}
- }
-@@ -902,6 +917,7 @@ static void fastcall free_hot_cold_page(
- 	struct zone *zone = page_zone(page);
- 	struct per_cpu_pages *pcp;
- 	unsigned long flags;
-+	int pindex;
- 
- 	arch_free_page(page, 0);
- 
-@@ -911,11 +927,21 @@ static void fastcall free_hot_cold_page(
- 		page->mapping = NULL;
- 	free_pages_check(__FUNCTION__, page);
- 	pcp = &zone_pcp(zone, get_cpu())->pcp[cold];
-+
++#ifdef CONFIG_ALLOCSTATS
 +	/*
-+	 * Strictly speaking, we should not be accessing the zone information
-+	 * here. In this case, it does not matter if the read is incorrect
++	 * These are beancounters that track how the placement policy
++	 * of the buddy allocator is performing
 +	 */
-+	if (get_pageblock_type(zone, page) == RCLM_USER)
-+		pindex = PCPU_USER;
-+	else
-+		pindex = PCPU_KERNEL;
- 	local_irq_save(flags);
--	list_add(&page->lru, &pcp->list);
--	pcp->count++;
--	if (pcp->count >= pcp->high)
--		pcp->count -= free_pages_bulk(zone, pcp->batch, &pcp->list, 0);
-+	list_add(&page->lru, &pcp->list[pindex]);
-+	pcp->count[pindex]++;
-+	if (pcp->count[pindex] >= pcp->high)
-+		pcp->count[pindex] -= free_pages_bulk(zone, pcp->batch, 
-+				&pcp->list[pindex], 0);
- 	local_irq_restore(flags);
- 	put_cpu();
- }
-@@ -954,18 +980,25 @@ buffered_rmqueue(struct zone *zone, int 
- 	
- 	if (order == 0) {
- 		struct per_cpu_pages *pcp;
--
-+		int pindex = PCPU_KERNEL;
-+		if (alloctype == RCLM_USER)
-+			pindex = PCPU_USER;
-+		
- 		pcp = &zone_pcp(zone, get_cpu())->pcp[cold];
- 		local_irq_save(flags);
--		if (pcp->count <= pcp->low)
--			pcp->count += rmqueue_bulk(zone, 0,
--						pcp->batch, &pcp->list,
--						alloctype);
--		if (pcp->count) {
--			page = list_entry(pcp->list.next, struct page, lru);
-+		if (pcp->count[pindex] <= pcp->low)
-+			pcp->count[pindex] += rmqueue_bulk(zone,
-+					0, pcp->batch,
-+					&(pcp->list[pindex]),
-+					alloctype);
++	unsigned long fallback_count[RCLM_TYPES];
++	unsigned long alloc_count[RCLM_TYPES];
++	unsigned long reserve_count[RCLM_TYPES];
++	unsigned long kernnorclm_full_steal;
++	unsigned long kernnorclm_partial_steal;
++#endif
 +
-+		if (pcp->count[pindex]) {
-+			page = list_entry(pcp->list[pindex].next,
-+					struct page, lru);
- 			list_del(&page->lru);
--			pcp->count--;
-+			pcp->count[pindex]--;
- 		}
 +
- 		local_irq_restore(flags);
- 		put_cpu();
- 	}
-@@ -1603,7 +1636,7 @@ void show_free_areas(void)
- 					pageset->pcp[temperature].low,
- 					pageset->pcp[temperature].high,
- 					pageset->pcp[temperature].batch,
--					pageset->pcp[temperature].count);
-+					pset_count(pageset->pcp[temperature]));
- 		}
- 	}
+ 	ZONE_PADDING(_pad1_)
  
-@@ -2055,18 +2088,22 @@ inline void setup_pageset(struct per_cpu
- 	struct per_cpu_pages *pcp;
+ 	/* Fields commonly accessed by the page reclaim scanner */
+@@ -269,6 +282,17 @@ struct zone {
+ 	char			*name;
+ } ____cacheline_maxaligned_in_smp;
  
- 	pcp = &p->pcp[0];		/* hot */
--	pcp->count = 0;
-+	pcp->count[PCPU_KERNEL] = 0;
-+	pcp->count[PCPU_USER] = 0;
- 	pcp->low = 2 * batch;
--	pcp->high = 6 * batch;
-+	pcp->high = 3 * batch;
- 	pcp->batch = max(1UL, 1 * batch);
--	INIT_LIST_HEAD(&pcp->list);
-+	INIT_LIST_HEAD(&pcp->list[PCPU_KERNEL]);
-+	INIT_LIST_HEAD(&pcp->list[PCPU_USER]);
++#ifdef CONFIG_ALLOCSTATS
++#define inc_fallback_count(zone, type) zone->fallback_count[type]++
++#define inc_alloc_count(zone, type) zone->alloc_count[type]++
++#define inc_kernnorclm_partial_steal(zone) zone->kernnorclm_partial_steal++
++#define inc_kernnorclm_full_steal(zone) zone->kernnorclm_full_steal++
++#else
++#define inc_fallback_count(zone, type) do {} while (0)
++#define inc_alloc_count(zone, type) do {} while (0)
++#define inc_kernnorclm_partial_steal(zone) do {} while (0)
++#define inc_kernnorclm_full_steal(zone) do {} while (0)
++#endif
  
- 	pcp = &p->pcp[1];		/* cold*/
--	pcp->count = 0;
-+	pcp->count[PCPU_KERNEL] = 0;
-+	pcp->count[PCPU_USER] = 0;
- 	pcp->low = 0;
--	pcp->high = 2 * batch;
-+	pcp->high = batch;
- 	pcp->batch = max(1UL, 1 * batch);
--	INIT_LIST_HEAD(&pcp->list);
-+	INIT_LIST_HEAD(&pcp->list[PCPU_KERNEL]);
-+	INIT_LIST_HEAD(&pcp->list[PCPU_USER]);
+ /*
+  * The "priority" of VM scanning is how much of the queues we will scan in one
+@@ -296,12 +320,19 @@ static inline void inc_reserve_count(str
+ {
+ 	if (type == RCLM_FALLBACK)
+ 		zone->fallback_reserve++;
++#ifdef CONFIG_ALLOCSTATS
++	zone->reserve_count[type]++;
++#endif
  }
  
- #ifdef CONFIG_NUMA
-@@ -2476,7 +2513,7 @@ static int zoneinfo_show(struct seq_file
+ static inline void dec_reserve_count(struct zone* zone, int type)
+ {
+ 	if (type == RCLM_FALLBACK && zone->fallback_reserve)
+ 		zone->fallback_reserve--;
++#ifdef CONFIG_ALLOCSTATS
++	if (zone->reserve_count[type] > 0)
++		zone->reserve_count[type]--;
++#endif
+ }
  
- 			pageset = zone_pcp(zone, i);
- 			for (j = 0; j < ARRAY_SIZE(pageset->pcp); j++) {
--				if (pageset->pcp[j].count)
-+				if (pset_count(pageset->pcp[j]))
- 					break;
- 			}
- 			if (j == ARRAY_SIZE(pageset->pcp))
-@@ -2489,7 +2526,7 @@ static int zoneinfo_show(struct seq_file
- 					   "\n              high:  %i"
- 					   "\n              batch: %i",
- 					   i, j,
--					   pageset->pcp[j].count,
-+					   pset_count(pageset->pcp[j]),
- 					   pageset->pcp[j].low,
- 					   pageset->pcp[j].high,
- 					   pageset->pcp[j].batch);
+ /*
+diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.14-rc3-007_percpu/lib/Kconfig.debug linux-2.6.14-rc3-008_stats/lib/Kconfig.debug
+--- linux-2.6.14-rc3-007_percpu/lib/Kconfig.debug	2005-10-04 22:58:34.000000000 +0100
++++ linux-2.6.14-rc3-008_stats/lib/Kconfig.debug	2005-10-11 12:12:57.000000000 +0100
+@@ -77,6 +77,17 @@ config SCHEDSTATS
+ 	  application, you can say N to avoid the very slight overhead
+ 	  this adds.
+ 
++config ALLOCSTATS
++	bool "Collection buddy allocator statistics"
++	depends on DEBUG_KERNEL && PROC_FS
++	help
++	  If you say Y here, additional code will be inserted into the
++	  page allocator routines to collect statistics on the allocator
++	  behavior and provide them in /proc/buddyinfo. These stats are
++	  useful for measuring fragmentation in the buddy allocator. If
++	  you are not debugging or measuring the allocator, you can say N
++	  to avoid the slight overhead this adds.
++
+ config DEBUG_SLAB
+ 	bool "Debug memory allocations"
+ 	depends on DEBUG_KERNEL
+diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.14-rc3-007_percpu/mm/page_alloc.c linux-2.6.14-rc3-008_stats/mm/page_alloc.c
+--- linux-2.6.14-rc3-007_percpu/mm/page_alloc.c	2005-10-11 12:12:12.000000000 +0100
++++ linux-2.6.14-rc3-008_stats/mm/page_alloc.c	2005-10-11 12:12:57.000000000 +0100
+@@ -191,6 +191,11 @@ EXPORT_SYMBOL(zone_table);
+ static char *zone_names[MAX_NR_ZONES] = { "DMA", "Normal", "HighMem" };
+ int min_free_kbytes = 1024;
+ 
++#ifdef CONFIG_ALLOCSTATS
++static char *type_names[RCLM_TYPES] = { "KernNoRclm", "UserRclm",
++					"KernRclm", "Fallback"};
++#endif /* CONFIG_ALLOCSTATS */
++
+ unsigned long __initdata nr_kernel_pages;
+ unsigned long __initdata nr_all_pages;
+ 
+@@ -675,6 +680,9 @@ fallback_buddy_reserve(int start_allocty
+ 
+ 		set_pageblock_type(zone, page, (unsigned long)reserve_type);
+ 		inc_reserve_count(zone, reserve_type);
++		inc_kernnorclm_full_steal(zone);
++	} else {
++		inc_kernnorclm_partial_steal(zone);
+ 	}
+ 	return area;
+ }
+@@ -717,6 +725,15 @@ fallback_alloc(int alloctype, struct zon
+ 					current_order, area);
+ 
+ 		}
++
++		/*
++		 * If the current alloctype is RCLM_FALLBACK, it means
++		 * that the requested pool and fallback pool are both
++		 * depleted and we are falling back to other pools.
++		 * At this point, pools are starting to get fragmented
++		 */
++		if (alloctype == RCLM_FALLBACK)
++			inc_fallback_count(zone, start_alloctype);
+ 	}
+ 
+ 	return NULL;
+@@ -733,6 +750,8 @@ static struct page *__rmqueue(struct zon
+ 	unsigned int current_order;
+ 	struct page *page;
+ 
++	inc_alloc_count(zone, alloctype);
++
+ 	for (current_order = order; current_order < MAX_ORDER; ++current_order) {
+ 		area = &(zone->free_area_lists[alloctype][current_order]);
+ 		if (list_empty(&area->free_list))
+@@ -2335,6 +2354,20 @@ static void __init free_area_init_core(s
+ 		zone_start_pfn += size;
+ 
+ 		zone_init_free_lists(pgdat, zone, zone->spanned_pages);
++
++#ifdef CONFIG_ALLOCSTAT
++		memset((unsigned long *)zone->fallback_count, 0,
++				sizeof(zone->fallback_count));
++		memset((unsigned long *)zone->alloc_count, 0,
++				sizeof(zone->alloc_count));
++		memset((unsigned long *)zone->alloc_count, 0,
++				sizeof(zone->alloc_count));
++		zone->kernnorclm_partial_steal=0;
++		zone->kernnorclm_full_steal=0;
++		zone->reserve_count[RCLM_NORCLM] =
++				realsize >> (MAX_ORDER-1);
++#endif
++
+ 	}
+ }
+ 
+@@ -2431,6 +2464,18 @@ static int frag_show(struct seq_file *m,
+ 	int order, type;
+ 	struct free_area *area;
+ 	unsigned long nr_bufs = 0;
++#ifdef CONFIG_ALLOCSTATS
++	int i;
++	unsigned long kernnorclm_full_steal=0;
++	unsigned long kernnorclm_partial_steal=0;
++	unsigned long reserve_count[RCLM_TYPES];
++	unsigned long fallback_count[RCLM_TYPES];
++	unsigned long alloc_count[RCLM_TYPES];
++
++	memset(reserve_count, 0, sizeof(reserve_count));
++	memset(fallback_count, 0, sizeof(fallback_count));
++	memset(alloc_count, 0, sizeof(alloc_count));
++#endif
+ 
+ 	for (zone = node_zones; zone - node_zones < MAX_NR_ZONES; ++zone) {
+ 		if (!zone->present_pages)
+@@ -2451,6 +2496,79 @@ static int frag_show(struct seq_file *m,
+ 		spin_unlock_irqrestore(&zone->lock, flags);
+ 		seq_putc(m, '\n');
+ 	}
++
++#ifdef CONFIG_ALLOCSTATS
++ 	/* Show statistics for each allocation type */
++ 	seq_printf(m, "\nPer-allocation-type statistics");
++ 	for (zone = node_zones; zone - node_zones < MAX_NR_ZONES; ++zone) {
++ 		if (!zone->present_pages)
++ 			continue;
++ 
++ 		spin_lock_irqsave(&zone->lock, flags);
++ 		for (type=0; type < RCLM_TYPES; type++) {
++			struct list_head *elem;
++ 			seq_printf(m, "\nNode %d, zone %8s, type %10s ", 
++ 					pgdat->node_id, zone->name,
++ 					type_names[type]);
++ 			for (order = 0; order < MAX_ORDER; ++order) {
++ 				nr_bufs = 0;
++
++ 				list_for_each(elem, &(zone->free_area_lists[type][order].free_list))
++ 					++nr_bufs;
++ 				seq_printf(m, "%6lu ", nr_bufs);
++ 			}
++		}
++ 
++ 		/* Scan global list */
++ 		seq_printf(m, "\n");
++ 		seq_printf(m, "Node %d, zone %8s, type %10s", 
++ 					pgdat->node_id, zone->name,
++ 					"MAX_ORDER");
++		nr_bufs = 0;
++		for (type=0; type < RCLM_TYPES; type++) {
++			nr_bufs += zone->free_area_lists[type][MAX_ORDER-1].nr_free;
++		}
++ 		seq_printf(m, "%6lu ", nr_bufs);
++		seq_printf(m, "\n");
++
++ 		seq_printf(m, "%s Zone beancounters\n", zone->name);
++		seq_printf(m, "Fallback balance: %d\n", (int)zone->fallback_balance);
++		seq_printf(m, "Fallback reserve: %d\n", (int)zone->fallback_reserve);
++		seq_printf(m, "Partial steal:    %lu\n", zone->kernnorclm_partial_steal);
++		seq_printf(m, "Full steal:       %lu\n", zone->kernnorclm_full_steal);
++
++		kernnorclm_partial_steal += zone->kernnorclm_partial_steal;
++		kernnorclm_full_steal += zone->kernnorclm_full_steal;
++		seq_putc(m, '\n');
++
++		for (i=0; i< RCLM_TYPES; i++) {
++			seq_printf(m, "%-10s Allocs: %-10lu Reserve: %-10lu Fallbacks: %-10lu\n",
++					type_names[i],
++					zone->alloc_count[i],
++					zone->reserve_count[i],
++					zone->fallback_count[i]);
++			alloc_count[i] += zone->alloc_count[i];
++			reserve_count[i] += zone->reserve_count[i];
++			fallback_count[i] += zone->fallback_count[i];
++		}
++
++		spin_unlock_irqrestore(&zone->lock, flags);
++	}
++
++
++ 	/* Show bean counters */
++ 	seq_printf(m, "\nGlobal beancounters\n");
++	seq_printf(m, "Partial steal:    %lu\n", kernnorclm_partial_steal);
++	seq_printf(m, "Full steal:       %lu\n", kernnorclm_full_steal);
++
++	for (i=0; i< RCLM_TYPES; i++) {
++ 		seq_printf(m, "%-10s Allocs: %-10lu Reserve: %-10lu Fallbacks: %-10lu\n", 
++				type_names[i], 
++				alloc_count[i],
++				reserve_count[i],
++				fallback_count[i]);
++	}
++#endif /* CONFIG_ALLOCSTATS */
+ 	return 0;
+ }
+ 

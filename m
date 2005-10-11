@@ -1,36 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750795AbVJKKsM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751396AbVJKKuo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750795AbVJKKsM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 06:48:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbVJKKsM
+	id S1751396AbVJKKuo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 06:50:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbVJKKuo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 06:48:12 -0400
-Received: from newton.gmurray.org.uk ([81.2.114.237]:7808 "EHLO
-	newton.gmurray.org.uk") by vger.kernel.org with ESMTP
-	id S1750795AbVJKKsL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 06:48:11 -0400
-X-DKIM: Sendmail DKIM Filter v0.1.1 newton.gmurray.org.uk j9BAmAhP015754
-From: Graham Murray <graham@gmurray.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: freebox possible GPL violation
-References: <MDEHLPKNGKAHNMBLJOLKIEECHDAB.davids@webmaster.com>
-X-Hashcash: 1:22:051011:linux-kernel@vger.kernel.org::7DUnzoA6yGo2qPSt:000000000000000000000000000000000DqEe
-Date: Tue, 11 Oct 2005 11:48:10 +0100
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKIEECHDAB.davids@webmaster.com> (David
-	Schwartz's message of "Mon, 10 Oct 2005 19:27:05 -0700")
-Message-ID: <87vf04uy6t.fsf@newton.gmurray.org.uk>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 11 Oct 2005 06:50:44 -0400
+Received: from prosun.first.fraunhofer.de ([194.95.168.2]:56521 "EHLO
+	prosun.first.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1751396AbVJKKun (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 06:50:43 -0400
+Subject: Re: ide_wait_not_busy oops still with 2.6.14-rc3 (Re: 1GHz pbook
+	15", linux 2.6.14-rc2 oops on resume)
+From: Soeren Sonnenburg <kernel@nn7.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1129026986.17365.206.camel@gaston>
+References: <1128323544.4602.5.camel@localhost>
+	 <pan.2005.10.06.19.19.22.673915@nn7.de>  <1128720351.17365.48.camel@gaston>
+	 <1128948118.23434.13.camel@localhost>  <1128982002.17365.163.camel@gaston>
+	 <1129026807.21318.15.camel@localhost>  <1129026986.17365.206.camel@gaston>
+Content-Type: text/plain
+Date: Tue, 11 Oct 2005 12:50:33 +0200
+Message-Id: <1129027834.21318.25.camel@localhost>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David Schwartz" <davids@webmaster.com> writes:
+On Tue, 2005-10-11 at 20:36 +1000, Benjamin Herrenschmidt wrote:
+> On Tue, 2005-10-11 at 12:33 +0200, Soeren Sonnenburg wrote:
+> > On Tue, 2005-10-11 at 08:06 +1000, Benjamin Herrenschmidt wrote:
+> > > > ok, here is the complete one:
+[...]
+> > Hmmhh, I already compiled 2.6.14-rc4 but did not disable
+> > soft-lockup-ing, should I still do it - the oops looks better as it is
+> > not followed by a ATAPI reset anymore:
+> 
+> It's still pretty annoying. I'll see what I can do but it won't be for
+> 2.6.14 timeframe, so in the meantime, just ignore it or remove soft
+> lockup detection.
 
-> However, now that the Internet is the most popular medium for
-> software interchange, offering a URL is actually the *best* way to
-> make the source code available.
+OK, it is a minor issue anyway as one needs a cd/dvd in the drive (on
+resume) to trigger that.
 
-As long as you can guarantee that the URL remains valid for the
-required 3 years, and that the exact source code used to build each
-released binary version is available, not just the latest source.
+Thanks
+Soeren.
+-- 
+Sometimes, there's a moment as you're waking, when you become aware of
+the real world around you, but you're still dreaming.
+

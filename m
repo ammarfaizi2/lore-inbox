@@ -1,126 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751407AbVJKHve@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751413AbVJKHww@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751407AbVJKHve (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 03:51:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751408AbVJKHve
+	id S1751413AbVJKHww (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 03:52:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751412AbVJKHww
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 03:51:34 -0400
-Received: from [210.76.114.20] ([210.76.114.20]:45486 "EHLO ccoss.com.cn")
-	by vger.kernel.org with ESMTP id S1751407AbVJKHvd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 03:51:33 -0400
-Message-ID: <434B6F0D.4040808@ccoss.com.cn>
-Date: Tue, 11 Oct 2005 15:51:41 +0800
-From: liyu <liyu@ccoss.com.cn>
-Reply-To: liyu@ccoss.com.cn
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: zh-cn,zh
-MIME-Version: 1.0
-To: Steven Rostedt <rostedt@goodmis.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [Question] Some question about Ingo scheduler.
-References: <434732DA.20701@ccoss.com.cn> <Pine.LNX.4.58.0510090955160.19961@localhost.localdomain> <434B1FBD.3000803@ccoss.com.cn> <Pine.LNX.4.58.0510110147370.30989@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.58.0510110147370.30989@localhost.localdomain>
-Content-Type: text/plain; charset=gb18030; format=flowed
+	Tue, 11 Oct 2005 03:52:52 -0400
+Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:34457 "EHLO
+	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1751409AbVJKHwu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 03:52:50 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Subject: Re: [PATCH] Use of getblk differs between locations
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+Cc: Glauber de Oliveira Costa <glommer@br.ibm.com>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, hirofumi@mail.parknet.co.jp,
+       linux-ntfs-dev@lists.sourceforge.net, aia21@cantab.net,
+       hch@infradead.org, viro@zeniv.linux.org.uk, akpm@osdl.org
+In-Reply-To: <Pine.LNX.4.62.0510110035110.19021@artax.karlin.mff.cuni.cz>
+References: <20051010204517.GA30867@br.ibm.com>
+	 <Pine.LNX.4.64.0510102217200.6247@hermes-1.csi.cam.ac.uk>
+	 <20051010214605.GA11427@br.ibm.com>
+	 <Pine.LNX.4.62.0510102347220.19021@artax.karlin.mff.cuni.cz>
+	 <Pine.LNX.4.64.0510102319100.6247@hermes-1.csi.cam.ac.uk>
+	 <Pine.LNX.4.62.0510110035110.19021@artax.karlin.mff.cuni.cz>
+Content-Type: text/plain
+Organization: Computing Service, University of Cambridge, UK
+Date: Tue, 11 Oct 2005 08:52:35 +0100
+Message-Id: <1129017155.12336.4.camel@imp.csi.cam.ac.uk>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt Wrote:
+On Tue, 2005-10-11 at 00:49 +0200, Mikulas Patocka wrote:
+> On Mon, 10 Oct 2005, Anton Altaparmakov wrote:
+> > On Mon, 10 Oct 2005, Mikulas Patocka wrote:
+> >> On Mon, 10 Oct 2005, Glauber de Oliveira Costa wrote:
+> >> As comment in buffer.c says, getblk will deadlock if the machine is out of
+> >> memory. It is questionable whether to deadlock or return NULL and corrupt
+> >> filesystem in this case --- deadlock is probably better.
+> >
+> > What do you mean corrupt filesystem?  If a filesystem is written so badly
+> > that it will cause corruption when a NULL is returned somewhere, I
+> > certainly don't want to have anything to do with it.
+> 
+> What should a filesystem driver do if it can't suddenly read or write any 
+> blocks on media?
 
->[added back the LKML since others might learn from this too]
->
->On Tue, 11 Oct 2005, liyu wrote:
->
->  
->
->>For first question, I have a few confused yet.
->>As Steven said, if PREEMPT_ACTIVE is set, we cann't preempt current task,
->>because of
->>we can not wake up it later, however, the process of task switch will
->>save information
->>of the task context to task_struct (also thread_info), why we cann't wake
->>up it?
->>    
->>
->
->First let me corrent that statement.  I said that if PREEMPT_ACTIVE is
->set, we can't take the task off the run queue.  I didn't say we can't
->preempt that task, since that _is_ what is about to happen.
->
->OK I worded it wrong.  I shouldn't say we "can't" wake it up. What I
->should have said is that we may not know to wake it up.  You are right,
->all the information is there to wake it up but the case might happen where
->we just don't know to do it.
->
->Here's some common code to look at.
->
->add_wait_queue(q, wait);
->set_current_state(TASK_UNINTERRUPTIBLE);
->if (!some_event)
->	schedule();
->set_current_state(TASK_RUNNING);
->remove_wait_queue(q, wait);
->
->
->This above code isn't directly from the kernel but the logic of it is all
->over the place.  So the task is going to wait for some event, and when
->that event happens, it will wake up all the tasks that are on the wait
->queue.  Now what happens if the event happened before the
->set_current_state(TASK_UNINTERRUPTIBLE)?  Normally that would be OK
->because of the check to see if some_event happened, and if it did then
->don't call schedule.
->
->Now back to that PREEMPT_ACTIVE check. If the above case happens, and then
->the task is preempted before it set itself back to TASK_RUNNING, without
->the PREEMPT_ACTIVE check in schedule, the process would be removed from
->the task run queue.  That means it is no longer in the queue to be
->scheduled. But the event already happened that would have woken it back
->up.  So this task would forever stay in the TASK_UNINTERRUPTIBLE state and
->never wake up.  The PREEMPT_ACTIVE check is to allow the task to stay on
->the run queue until it gets to a point that itself calls schedule. As the
->above logic might allow (if the event has not happened yet).
->
->So what determines what can be scheduled, is the fact that the task is on
->the run queue, _not_ whether or not the task is in the TASK_RUNNING state.
->At least with preemption enabled.  Not being in TASK_RUNNING will take the
->task off the run queue when that task calls schedule itself, not when it
->is preempted.
->
->Does this make more sense?
->
->-- Steve
->
->
->  
->
-Hi, Steve:
+Two clear choices:
 
-    Thanks for so detailed explain.
+1) Switch to read-only and use the cached data to fulfil requests and
+fail all others.
 
-    It seem I am not understand what is sleep and wakeup truly.
+2) Ask the user to insert the media/plug the device back in (this is by
+far the most likely cause of all requests suddenly failing) and then
+continue where they left off.
 
-    What's your mean of "in runqueue"? I think you mean the
-task_struct is in one priority array (active or expired)
-of one queue. the schedule() only can process task in runqueue.
-In deactivate_task(), it will reset task_struct->array to NULL,
-After call it, we can not wake up that task.
+It is unfortunate that Linux does not allow for 2) so you need to do 1).
 
-    However, I read try_to_wake_up(), and found it can handle that case
-which task_struct->array is NULL, it will be call activate_task()
-to insert task to one runqueue. and default_wake_function() will
-call try_to_wake_up(), so we still can wake up it.
+I completely disagree with people who want the system to panic() or even
+BUG() in such case.  I don't want "me accidentally knocking the
+flashdrive attached to my keyboard's usb ports" to panic() my system
+thank you very much!  And I don't want it to go BUG() either!
 
-    I am confused again. this quesion is more interesting and more.
+Best regards,
 
-    Wait for reply.
-
-    Good luck.
-
-
---liyu
-   
-
-
-
+        Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932361AbVJKXef@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932362AbVJKXi3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932361AbVJKXef (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 19:34:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbVJKXef
+	id S932362AbVJKXi3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 19:38:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbVJKXi3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 19:34:35 -0400
-Received: from mx.laposte.net ([81.255.54.11]:59902 "EHLO mx.laposte.net")
-	by vger.kernel.org with ESMTP id S932361AbVJKXee (ORCPT
+	Tue, 11 Oct 2005 19:38:29 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:60290 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932362AbVJKXi2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 19:34:34 -0400
-Subject: Re: Direct Rendering drivers for ATI X300 ?
-From: Nicolas Mailhot <nicolas.mailhot@laposte.net>
-To: Dave Airlie <airlied@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-67j9fJ7Es+eAu1iWN89m"
-Organization: Perso
-Date: Wed, 12 Oct 2005 01:34:16 +0200
-Message-Id: <1129073664.5116.93.camel@rousalka.dyndns.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 (2.4.0-2) 
+	Tue, 11 Oct 2005 19:38:28 -0400
+Date: Tue, 11 Oct 2005 16:38:14 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Borislav Petkov <bbpetkov@yahoo.de>
+cc: Al Viro <viro@ftp.linux.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, tgraf@suug.ch,
+       pablo@eurodev.net
+Subject: Re: [was: Linux v2.6.14-rc4] fix textsearch build warning
+In-Reply-To: <Pine.LNX.4.64.0510111629490.14597@g5.osdl.org>
+Message-ID: <Pine.LNX.4.64.0510111634070.14597@g5.osdl.org>
+References: <Pine.LNX.4.64.0510101824130.14597@g5.osdl.org>
+ <20051011145454.GA30786@gollum.tnic> <20051011205949.GU7992@ftp.linux.org.uk>
+ <20051011230233.GA20187@gollum.tnic> <Pine.LNX.4.64.0510111629490.14597@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-67j9fJ7Es+eAu1iWN89m
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-Dave Airlie wrote :
+On Tue, 11 Oct 2005, Linus Torvalds wrote:
+> 
+> HOWEVER. What you actually want to see is probably
+> 
+> 	git-diff-tree -p --pretty dd0fc66
+> 
+> which shows the commit as "patch" (-p) and a "pretty header" (--pretty).
 
-> For PCI Express Radeon cards:
+Oh, and in the (more common) case when you don't actually know the commit 
+ID, just the file that was changed, do
 
-> The kernel portions are in my -git tree ready for pushing to Linus
-> after the next release is made,
+	git-whatchanged -p include/linux/textsearch.h
 
-> The userspace portions requires X.org/Mesa/DRM CVS trees.
+which shows only the commits (and the _parts_ of those commits) that 
+change that particular file (or list of files: you don't have to limit 
+yourself to just one file - you can track a whole directory or an 
+arbitrary list of files/directories).
 
-Does this include all PCIE Radeon card, not just X300-based ?
-I have a X700
+And no, my tree doesn't contain your patch. My tree just contains Al's 
+first part, that added the typedef and replaced the existing users of 
+"unsigned int __nocast gfp_mask" to use that typedef.
 
-Regards,
+I'll merge the full series after 2.6.14..
 
---=20
-Nicolas Mailhot
-
---=-67j9fJ7Es+eAu1iWN89m
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iEYEABECAAYFAkNMS/gACgkQI2bVKDsp8g2UJQCglM1CDq5vu347nXvFE+MRCP48
-iUsAni+yN8WvyzMJx69qovaZGKQ4cInj
-=er7C
------END PGP SIGNATURE-----
-
---=-67j9fJ7Es+eAu1iWN89m--
-
+			Linus

@@ -1,39 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751239AbVJKWvj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbVJKXCf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751239AbVJKWvj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 18:51:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbVJKWvj
+	id S1751257AbVJKXCf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 19:02:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbVJKXCf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 18:51:39 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:17893 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S1751239AbVJKWvj
+	Tue, 11 Oct 2005 19:02:35 -0400
+Received: from host-84-9-201-81.bulldogdsl.com ([84.9.201.81]:41094 "EHLO
+	aeryn.fluff.org.uk") by vger.kernel.org with ESMTP id S1751257AbVJKXCe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 18:51:39 -0400
-Subject: Re: [PATCH] [BLUETOOTH] kmalloc + memset -> kzalloc conversion
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: dsaxena@plexity.net, torvalds@osdl.org, maxk@qualcomm.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20051011151805.0d32c840.akpm@osdl.org>
-References: <20051001065121.GC25424@plexity.net>
-	 <20051011151805.0d32c840.akpm@osdl.org>
-Content-Type: text/plain
-Date: Wed, 12 Oct 2005 00:52:02 +0200
-Message-Id: <1129071122.6487.6.camel@localhost.localdomain>
+	Tue, 11 Oct 2005 19:02:34 -0400
+Date: Wed, 12 Oct 2005 00:02:31 +0100
+From: Ben Dooks <ben@fluff.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 8250_early.c passing 0 instead of NULL
+Message-ID: <20051011230231.GA19085@home.fluff.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="ew6BAiZeqk4r7MaW"
+Content-Disposition: inline
+X-Disclaimer: I speak for me, myself, and the other one of me.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
 
-> Confused.  This patch changes lots of block code, not bluetooth.
+--ew6BAiZeqk4r7MaW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I know. This is what I already mailed Deepak, but he never replied.
+Fix sparse warning about passing `0` to 
+simple_strtoul()
 
-Regards
+Signed-off-by: Ben Dooks <ben-linux@fluff.org>
 
-Marcel
+--ew6BAiZeqk4r7MaW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="8250-fix-null.patch"
 
+--- linux-2.6.14-rc4/drivers/serial/8250_early.c	2005-06-17 20:48:29.000000000 +0100
++++ linux-2.6.14-rc4-bjd1/drivers/serial/8250_early.c	2005-10-12 00:01:02.000000000 +0100
+@@ -164,7 +164,7 @@ static int __init parse_options(struct e
+ 
+ 	if ((options = strchr(options, ','))) {
+ 		options++;
+-		device->baud = simple_strtoul(options, 0, 0);
++		device->baud = simple_strtoul(options, NULL, 0);
+ 		length = min(strcspn(options, " "), sizeof(device->options));
+ 		strncpy(device->options, options, length);
+ 	} else {
 
+--ew6BAiZeqk4r7MaW--

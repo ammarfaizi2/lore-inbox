@@ -1,87 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751398AbVJKHJK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751399AbVJKHNn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751398AbVJKHJK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 03:09:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751402AbVJKHJK
+	id S1751399AbVJKHNn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 03:13:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbVJKHNn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 03:09:10 -0400
-Received: from zproxy.gmail.com ([64.233.162.204]:17124 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751398AbVJKHJI convert rfc822-to-8bit
+	Tue, 11 Oct 2005 03:13:43 -0400
+Received: from rproxy.gmail.com ([64.233.170.195]:55445 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751399AbVJKHNm convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 03:09:08 -0400
+	Tue, 11 Oct 2005 03:13:42 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=dW/1AilfTqGY6Xs+7uY6SV+932mFdBVEWWyeoB3Vneck83gZlyZ87e/crphSGApb5uUyurNN8PS97LeEwlC8JBvk+oLOyRmWahJXe5ytkU+7MzTsUKbC0BF4AT2+59lyRVAHfinFVb09UMhE//TGiaWcQHdbyg7CnF5NcjpQ6RI=
-Message-ID: <3ad486780510110009s2de65e68vf19e283edf997e89@mail.gmail.com>
-Date: Tue, 11 Oct 2005 17:09:07 +1000
-From: spereira <pereira.shaun@gmail.com>
-To: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: 32 bit (socket layer) ioctl emulation for 64 bit kernels- Question regarding...
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-In-Reply-To: <200510101348.49598.arnd@arndb.de>
+        b=dS/+P2MuzUHQicfO+PzeuMs0aI5hKY5S1SrTlg3owc619LtmL1JdGsnUratygFN+0ZvnPgrZD5dMHDrQ5jnQwXa6njzvk4dHqqZKniK4zfbPf8nQfROfEy9pThfzNoCLuaLoG4Q1WSzQFlw59KyTMGVqiQ5j1YUPVGMD8iE2mvs=
+Message-ID: <21d7e9970510110013q830adf4n5e9a27b4ff25d510@mail.gmail.com>
+Date: Tue, 11 Oct 2005 17:13:41 +1000
+From: Dave Airlie <airlied@gmail.com>
+To: Xavier Bestel <xavier.bestel@free.fr>
+Subject: Re: Direct Rendering drivers for ATI X300 ?
+Cc: Lars Roland <lroland@gmail.com>, Gerhard Mack <gmack@innerfire.net>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1129010221.6277.6.camel@bip.parateam.prv>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <3ad486780510092121h78a522cat11f33581dfc670dc@mail.gmail.com>
-	 <200510101348.49598.arnd@arndb.de>
+References: <Pine.LNX.4.64.0510101230360.8804@innerfire.net>
+	 <4ad99e050510101200m6f3e1abh7ff8fb6b08b3c0e6@mail.gmail.com>
+	 <21d7e9970510101726h5bf920f0y3b7c42a6ff98734e@mail.gmail.com>
+	 <1129010221.6277.6.camel@bip.parateam.prv>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Arnd
-If I have understood correctly the following would be the changes I
-would have to make in the kernel...Please correct me if I am wrong.
-
-It seems to me step (d) would be as you say a little tricky but I
-could attempt it
-depending on the amount of time I have in the project I am on at the moment.
-Proposed modifications...
-a) Struct file_operations(include/linux/fs.h) has a compat_ioctl hook for file
-ioctls. Include a compat_proto_ioctl hook in proto_ops(include/net.h) for
-modular socket ioctls.
-
-b) socket.c has a 'file_operations' type struct socket_file_ops where the
-.compat_ioctl member is currently not used. Define compat_sock_ioctl in
-socket.c and assign to .compat_ioctl member of socket_file_ops
-This is ifdef'd with CONFIG_COMPAT
-
-c) compat_sock_ioctl will by default call the protocol's ioctl
- currently supporting the socket interface when handling modular socket ioctls,
-like so. socket->ops->compat_proto_ioctl(...)
-which in this case is x25_compat_ioctl.
-
-d)If compat_sock_ioctl has to perform a function similar to
-sock_ioctl(socket.c)
-where in SIOC* commands are handled, then introduce a newly defined
-compat_dev_ioctl that would have stuff like dev_ifsioc that would have
-previously
-been removed from fs/compat_ioctl.c.
-Then the protocol's ioctl (called by default in the step c above) would itself
-default to compat_dev_ioctl ensuring other socket layer
-ioctls are handled by the device layer function, compat_dev_ioctl
-
-regards,
-Shaun
-
-
-On 10/10/05, Arnd Bergmann <arnd@arndb.de> wrote:
-> On Maandag 10 Oktober 2005 06:21, spereira wrote:
+> Le mardi 11 o
+> > For PCI Express Radeon cards:
 > >
-> > Is there currently an alternative to register_ioctl32_conversion that
-> > would help achive 32 bit ioctl emulation at the socket layer?
-> > Any suggestions/advice whould be much appreciated.
+> > The kernel portions are in my -git tree ready for pushing to Linus
+> > after the next release is made,
 >
-> The correct solution would be to add the missing functionality to
-> net/socket.c and move over the implementation of SIOC* from
-> fs/compat_ioctl.c. Getting the code path right is a little tricky,
-> but I think a patch to fix this up would be appreciated.
+> Is the kernel support for AGP R300 already in the kernel, or is it
+> scheduled to go later ?
 >
-> As a start, you could define a compat_sock_ioctl along the
-> lines of compat_blkdev_ioctl and add your own handlers to the
-> x25_proto_ops, but IMHO it would makes sense to get rid of stuff
-> like dev_ifsioc from fs/compat_ioctl.c at the same time by
-> introducing a new compat_dev_ioctl called from compat_sock_ioctl.
->
->         Arnd <><
->
+
+Should be there since 2.6.13....
+
+Dave.

@@ -1,177 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751289AbVJKEno@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751293AbVJKEp2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751289AbVJKEno (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 00:43:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbVJKEnn
+	id S1751293AbVJKEp2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 00:45:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbVJKEp2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 00:43:43 -0400
-Received: from xenotime.net ([66.160.160.81]:33421 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751289AbVJKEnn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 00:43:43 -0400
-Date: Mon, 10 Oct 2005 21:43:41 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>
-Subject: [PATCH] sparse cleanups: NULL pointers, C99 struct init.
-Message-Id: <20051010214341.6e2a1805.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 11 Oct 2005 00:45:28 -0400
+Received: from ns.miraclelinux.com ([219.118.163.66]:13951 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S1751293AbVJKEp2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 00:45:28 -0400
+Date: Tue, 11 Oct 2005 13:41:03 +0900 (JST)
+Message-Id: <20051011.134103.02441615.hyoshiok@miraclelinux.com>
+To: akpm@osdl.org
+Cc: noboru.obata.ar@hitachi.com, linux-kernel@vger.kernel.org,
+       hyoshiok@miraclelinux.com
+Subject: Re: Linux Kernel Dump Summit 2005
+From: Hiro Yoshioka <hyoshiok@miraclelinux.com>
+In-Reply-To: <20051010174931.223310de.akpm@osdl.org>
+References: <20050921.205550.927509530.hyoshiok@miraclelinux.com>
+	<20051006.211718.74749573.noboru.obata.ar@hitachi.com>
+	<20051010174931.223310de.akpm@osdl.org>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.13 (Rational FORTRAN)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+Hi Andrew,
 
-Convert most of the remaining "Using plain integer as NULL pointer"
-sparse warnings to use NULL.
-(Not duplicating patches that are already in -mm, -bird, or -kj.)
+From: Andrew Morton <akpm@osdl.org>
+> OBATA Noboru <noboru.obata.ar@hitachi.com> wrote:
+> >
+> > > We had a Linux Kernel Dump Summit 2005.
+> 
+> I was rather expecting that the various groups which are interested in
+> crash dumping would converge around kdump once it was merged.  But it seems
+> that this is not the case and that work continues on other strategies.
 
-Convert isdn driver struct initializer to use C99 syntax.
+My impression is that most of crash dump developers would like
+to converge kexec/kdump approach. However they are developing
+dump tools.
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
+The reasons are
+1) They have to maintain the dump tools and support their users.
+   Many users are still using 2.4 kernels so merging kdump into 2.6
+   kernel does not help them.
+2) Commercial Linux Distros (Red Hat/Suse/MIRACLE(Asianux)/Turbo etc) use
+   LKCD/diskdump/netdump etc.
+   Almost no users use a vanilla kernel so kdump does not have users yet.
 
- drivers/isdn/hisax/hfc4s8s_l1.c     |   10 +++++-----
- arch/i386/kernel/reboot_fixups.c    |    2 +-
- drivers/char/drm/drm_context.c      |    4 ++--
- drivers/char/tpm/tpm_atmel.c        |    2 +-
- drivers/char/tpm/tpm_nsc.c          |    2 +-
- drivers/media/dvb/dvb-usb/dtt200u.c |    4 ++--
- drivers/media/dvb/dvb-usb/vp7045.c  |    2 +-
- drivers/net/skfp/smt.c              |    2 +-
- 8 files changed, 14 insertions(+), 14 deletions(-)
+> Is that a correct impression?  If so, what shortcoming(s) in kdump are
+> causing people to be reluctant to use it?
 
-diff -Naurp linux-2614-rc3-g7/drivers/char/drm/drm_context.c~char_drm_null linux-2614-rc3-g7/drivers/char/drm/drm_context.c
---- linux-2614-rc3-g7/drivers/char/drm/drm_context.c~char_drm_null	2005-10-08 11:44:11.000000000 -0700
-+++ linux-2614-rc3-g7/drivers/char/drm/drm_context.c	2005-10-09 20:32:23.000000000 -0700
-@@ -226,14 +226,14 @@ int drm_getsareactx(struct inode *inode,
- 	map = dev->context_sareas[request.ctx_id];
- 	up(&dev->struct_sem);
- 
--	request.handle = 0;
-+	request.handle = NULL;
- 	list_for_each_entry(_entry, &dev->maplist->head,head) {
- 		if (_entry->map == map) {
- 			request.handle = (void *)(unsigned long)_entry->user_token;
- 			break;
- 		}
- 	}
--	if (request.handle == 0)
-+	if (request.handle == NULL)
- 		return -EINVAL;
- 
- 
-diff -Naurp linux-2614-rc3-g7/drivers/char/tpm/tpm_nsc.c~char_tpm_null linux-2614-rc3-g7/drivers/char/tpm/tpm_nsc.c
---- linux-2614-rc3-g7/drivers/char/tpm/tpm_nsc.c~char_tpm_null	2005-08-28 16:41:01.000000000 -0700
-+++ linux-2614-rc3-g7/drivers/char/tpm/tpm_nsc.c	2005-10-09 20:33:31.000000000 -0700
-@@ -239,7 +239,7 @@ static struct attribute * nsc_attrs[] = 
- 	&dev_attr_pcrs.attr,
- 	&dev_attr_caps.attr,
- 	&dev_attr_cancel.attr,
--	0,
-+	NULL,
- };
- 
- static struct attribute_group nsc_attr_grp = { .attrs = nsc_attrs };
-diff -Naurp linux-2614-rc3-g7/drivers/char/tpm/tpm_atmel.c~char_tpm_null linux-2614-rc3-g7/drivers/char/tpm/tpm_atmel.c
---- linux-2614-rc3-g7/drivers/char/tpm/tpm_atmel.c~char_tpm_null	2005-10-08 11:44:11.000000000 -0700
-+++ linux-2614-rc3-g7/drivers/char/tpm/tpm_atmel.c	2005-10-09 20:33:38.000000000 -0700
-@@ -137,7 +137,7 @@ static struct attribute* atmel_attrs[] =
- 	&dev_attr_pcrs.attr,
- 	&dev_attr_caps.attr,
- 	&dev_attr_cancel.attr,
--	0,
-+	NULL,
- };
- 
- static struct attribute_group atmel_attr_grp = { .attrs = atmel_attrs };
-diff -Naurp linux-2614-rc3-g7/arch/i386/kernel/reboot_fixups.c~i386_reboot_null linux-2614-rc3-g7/arch/i386/kernel/reboot_fixups.c
---- linux-2614-rc3-g7/arch/i386/kernel/reboot_fixups.c~i386_reboot_null	2005-08-28 16:41:01.000000000 -0700
-+++ linux-2614-rc3-g7/arch/i386/kernel/reboot_fixups.c	2005-10-09 20:30:18.000000000 -0700
-@@ -44,7 +44,7 @@ void mach_reboot_fixups(void)
- 
- 	for (i=0; i < (sizeof(fixups_table)/sizeof(fixups_table[0])); i++) {
- 		cur = &(fixups_table[i]);
--		dev = pci_get_device(cur->vendor, cur->device, 0);
-+		dev = pci_get_device(cur->vendor, cur->device, NULL);
- 		if (!dev)
- 			continue;
- 
-diff -Naurp linux-2614-rc3-g7/drivers/media/dvb/dvb-usb/dtt200u.c~media_dvb_null linux-2614-rc3-g7/drivers/media/dvb/dvb-usb/dtt200u.c
---- linux-2614-rc3-g7/drivers/media/dvb/dvb-usb/dtt200u.c~media_dvb_null	2005-10-08 11:44:11.000000000 -0700
-+++ linux-2614-rc3-g7/drivers/media/dvb/dvb-usb/dtt200u.c	2005-10-09 20:37:49.000000000 -0700
-@@ -151,7 +151,7 @@ static struct dvb_usb_properties dtt200u
- 		  .cold_ids = { &dtt200u_usb_table[0], NULL },
- 		  .warm_ids = { &dtt200u_usb_table[1], NULL },
- 		},
--		{ 0 },
-+		{ NULL },
- 	}
- };
- 
-@@ -192,7 +192,7 @@ static struct dvb_usb_properties wt220u_
- 		  .cold_ids = { &dtt200u_usb_table[2], NULL },
- 		  .warm_ids = { &dtt200u_usb_table[3], NULL },
- 		},
--		{ 0 },
-+		{ NULL },
- 	}
- };
- 
-diff -Naurp linux-2614-rc3-g7/drivers/media/dvb/dvb-usb/vp7045.c~media_dvb_null linux-2614-rc3-g7/drivers/media/dvb/dvb-usb/vp7045.c
---- linux-2614-rc3-g7/drivers/media/dvb/dvb-usb/vp7045.c~media_dvb_null	2005-10-08 11:44:11.000000000 -0700
-+++ linux-2614-rc3-g7/drivers/media/dvb/dvb-usb/vp7045.c	2005-10-09 20:37:58.000000000 -0700
-@@ -247,7 +247,7 @@ static struct dvb_usb_properties vp7045_
- 		  .cold_ids = { &vp7045_usb_table[2], NULL },
- 		  .warm_ids = { &vp7045_usb_table[3], NULL },
- 		},
--		{ 0 },
-+		{ NULL },
- 	}
- };
- 
-diff -Naurp linux-2614-rc3-g7/drivers/net/skfp/smt.c~net_skfp_null linux-2614-rc3-g7/drivers/net/skfp/smt.c
---- linux-2614-rc3-g7/drivers/net/skfp/smt.c~net_skfp_null	2005-08-28 16:41:01.000000000 -0700
-+++ linux-2614-rc3-g7/drivers/net/skfp/smt.c	2005-10-09 20:38:55.000000000 -0700
-@@ -1896,7 +1896,7 @@ void smt_swap_para(struct smt_header *sm
- 
- static void smt_string_swap(char *data, const char *format, int len)
- {
--	const char	*open_paren = 0 ;
-+	const char	*open_paren = NULL ;
- 	int	x ;
- 
- 	while (len > 0  && *format) {
+I think the way to go is the kdump however it may take time.
 
-diff -Naurp ./drivers/isdn/hisax/hfc4s8s_l1.c~isdn_hfcssll_clean ./drivers/isdn/hisax/hfc4s8s_l1.c
---- ./drivers/isdn/hisax/hfc4s8s_l1.c~isdn_hfcssll_clean	2005-03-26 21:48:11.000000000 -0800
-+++ ./drivers/isdn/hisax/hfc4s8s_l1.c	2005-03-27 21:17:01.000000000 -0800
-@@ -1062,7 +1062,7 @@ tx_b_frame(struct hfc4s8s_btype *bch)
- 				Write_hfc8(l1->hw, A_INC_RES_FIFO, 1);
- 			}
- 			ack_len += skb->truesize;
--			bch->tx_skb = 0;
-+			bch->tx_skb = NULL;
- 			bch->tx_cnt = 0;
- 			dev_kfree_skb(skb);
- 		} else
-@@ -1658,10 +1658,10 @@ hfc4s8s_remove(struct pci_dev *pdev)
- }
- 
- static struct pci_driver hfc4s8s_driver = {
--      name:"hfc4s8s_l1",
--      probe:hfc4s8s_probe,
--      remove:__devexit_p(hfc4s8s_remove),
--      id_table:hfc4s8s_ids,
-+      .name	= "hfc4s8s_l1",
-+      .probe	= hfc4s8s_probe,
-+      .remove	= __devexit_p(hfc4s8s_remove),
-+      .id_table	= hfc4s8s_ids,
- };
- 
- /**********************/
-
----
+Regards,
+  Hiro

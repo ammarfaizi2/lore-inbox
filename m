@@ -1,81 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751365AbVJKDLL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751368AbVJKDTt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751365AbVJKDLL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 23:11:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbVJKDLL
+	id S1751368AbVJKDTt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 23:19:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbVJKDTs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 23:11:11 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:18083 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751365AbVJKDLK (ORCPT
+	Mon, 10 Oct 2005 23:19:48 -0400
+Received: from main.gmane.org ([80.91.229.2]:45457 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751368AbVJKDTs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 23:11:10 -0400
-Date: Mon, 10 Oct 2005 20:10:24 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Adam Litke <agl@us.ibm.com>
-Cc: hugh@veritas.com, kenneth.w.chen@intel.com, rohit.seth@intel.com,
-       wli@holomorphy.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: FW: [PATCH 0/3] Demand faulting for huge pages
-Message-Id: <20051010201024.081aeff1.akpm@osdl.org>
-In-Reply-To: <1128961046.8453.11.camel@localhost.localdomain>
-References: <200510080758.j987w0g06343@unix-os.sc.intel.com>
-	<Pine.LNX.4.61.0510091306440.7878@goblin.wat.veritas.com>
-	<1128961046.8453.11.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 10 Oct 2005 23:19:48 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Joe Seigh <jseigh_02@xemaps.com>
+Subject: Re: SMP syncronization on AMD processors (broken?)
+Date: Mon, 10 Oct 2005 23:20:23 -0400
+Message-ID: <difarq$c6a$1@sea.gmane.org>
+References: <434520FF.8050100@sw.ru> <20051006192106.A13978@castle.nmd.msu.ru> <20051010175920.21018fac.akpm@osdl.org> <200510110320.28302.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: stenquists.hsd1.ma.comcast.net
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+In-Reply-To: <200510110320.28302.ak@suse.de>
+Cc: discuss@x86-64.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Litke <agl@us.ibm.com> wrote:
->
->  Honestly, I think there is an even more fundamental issue at hand.  If
->  the goal is transparent and flexible use of huge pages it seems to me
->  that there is two ways to go:
+Andi Kleen wrote:
+> On Tuesday 11 October 2005 02:59, Andrew Morton wrote:
 > 
->  1) Continue with hugetlbfs and work to finish implementing all of the
->  operations (that make sense) properly (like read, write, truncate, etc).
+> 
+>>> I'm not advocating for changing spinlock implementation, it's just a
+>>> thought...
+>>
+>>It would make sense in these cases if there was some primitive which we
+>>could call which says "hey, I expect+want another CPU to grab this lock in
+>>preference to this CPU".
+> 
+> 
+> I just don't know how to implement such a primitive given the guarantees
+> of the x86 architecture. It might be possible to do something that
+> works on specific CPUs, but that will likely break later.
+> 
 
-hugetlbfs provides the API by which applications may obtain
-hugetlb-page-backed memory.  In fact the filesystem didn't even exist in the
-initial version of the patch - the first version used specific syscalls to
-obtain the hugepage memory.
+I thought that's what the WBINVD did.  Either the problem is the delayed
+write buffer or the fact that the store makes the lock cache line exclusive
+which gives the processor unfair advantage if it immediately tries to
+reacquire the lock.  WBINVD solves both of those problems.
 
-So.  Given that hugetlbfs is purely there as a means by which applications
-can access (and share) hugepage memory, it doesn't make sense to flesh that
-filesystem out any further.  IOW: no need for read() and write().
+Or you could use a spin lock implementation that didn't have that problem
+to begin with.
 
->  2) Recognize that trying to use hugetlbfs files to transparently replace
->  normal memory is ultimately a hack.  Normal memory is not implemented as
->  a file system so using hugetlb pages here will always cause headaches as
->  implemented.  So work towards removing filesystem-like behaviour and
->  treating huge pages more like regular memory.
+--
+Joe Seigh
 
-Early Linus diktat was that we shouldn't attempt to make the core MM aware
-of multiple page sizes in the manner which you suggest.  Trying to sneak
-this in via "improved integration of hugepage support" would likely create
-a mess.
 
-The design approach for hugepage integration was that the MM would continue
-to be focussed on a fixed page size and that hugepages would be some
-non-intrusive thing off to the side - more like a mmappable device driver
-than some core part of the MM system.
 
-This is not all meant to say "don't do it".  But I am saying that you'll
-need to review several years worth of discussion on the topic and
-understand the downsides and objections, and be prepared for a big project.
-One which risks causing Hugh a ton of grief in ongoing core MM
-improvements.
-
-Aside: one problem with the kernel's hugepage support is that it doesn't
-have a single person who performs the overall maintenance function.  Bill
-Irwin was doing this for a while, but now seems to have gone quiet. 
-
-Consequently various people come in and attempt various
-this-is-a-change-i-need operations.  Problem is, with no single person
-keeping track of who the affected stakeholders are, and what the likely
-effects of each change upon the stakeholders will be, things proceed slowly
-and various people end up maintaining various out-of-tree things (I think).
-
-I attempt to plug the gaps, but the time interval between flurries of
-hugetlb activity are long and I forget who's doing what.

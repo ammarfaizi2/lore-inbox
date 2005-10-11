@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932217AbVJKQ2L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751417AbVJKQgh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932217AbVJKQ2L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 12:28:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932208AbVJKQ2L
+	id S1751417AbVJKQgh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 12:36:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751446AbVJKQgh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 12:28:11 -0400
-Received: from mailgate2.mysql.com ([213.136.52.47]:3815 "EHLO
-	mailgate.mysql.com") by vger.kernel.org with ESMTP id S932217AbVJKQ2K
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 12:28:10 -0400
-Message-ID: <434BE7E9.8000501@mysql.com>
-Date: Tue, 11 Oct 2005 18:27:21 +0200
-From: Jonas Oreland <jonas@mysql.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050911
-X-Accept-Language: en-us, en
+	Tue, 11 Oct 2005 12:36:37 -0400
+Received: from mf00.sitadelle.com ([212.94.174.67]:5153 "EHLO smtp.cegetel.net")
+	by vger.kernel.org with ESMTP id S1751417AbVJKQgg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 12:36:36 -0400
+Message-ID: <434BEA0D.9010802@cosmosbay.com>
+Date: Tue, 11 Oct 2005 18:36:29 +0200
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-To: "Vladimir B. Savkin" <master@sectorb.msk.ru>
-CC: john stultz <johnstul@us.ibm.com>, Andi Kleen <ak@suse.de>,
-       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       discuss@x86-64.org
-Subject: Re: [PATCH] x86-64: Fix bad assumption that dualcore cpus have synced
- TSCs
-References: <1127157404.3455.209.camel@cog.beaverton.ibm.com> <20051007122624.GA23606@tentacle.sectorb.msk.ru> <200510071431.47245.ak@suse.de> <20051008101153.GA1541@tentacle.sectorb.msk.ru> <1128967404.8195.419.camel@cog.beaverton.ibm.com> <20051010181216.GA21548@tentacle.sectorb.msk.ru> <434AB0BE.3080206@mysql.com> <20051011073532.GA29254@tentacle.sectorb.msk.ru>
-In-Reply-To: <20051011073532.GA29254@tentacle.sectorb.msk.ru>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] i386 spinlocks should use the full 32 bits, not only
+ 8 bits
+References: <200510110007_MC3-1-AC4C-97EA@compuserve.com> <1129035658.23677.46.camel@localhost.localdomain> <Pine.LNX.4.64.0510110740050.14597@g5.osdl.org> <434BDB1C.60105@cosmosbay.com> <Pine.LNX.4.64.0510110902130.14597@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0510110902130.14597@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vladimir B. Savkin wrote:
-> On Mon, Oct 10, 2005 at 08:19:42PM +0200, Jonas Oreland wrote:
+Linus Torvalds a écrit :
 > 
->>Hi,
->>
->>check http://bugzilla.kernel.org/show_bug.cgi?id=5283
+> On Tue, 11 Oct 2005, Eric Dumazet wrote:
+> 
+>>As NR_CPUS might be > 128, and every spining CPU decrements the lock, we need
+>>to use more than 8 bits for a spinlock. The current (i386/x86_64)
+>>implementations have a (theorical) bug in this area.
 > 
 > 
-> Excuse me for possibly dumb question, but is it safe to leave TSCs
-> unsynchronized when using other time source?
-> How will other subsystems e.g. traffic queueing disciplines react?
+> I don't think there are any x86 machines with > 128 CPU's right now.
+> 
+> The advantage of the byte lock is that a "movb $0" is three bytes shorter 
+> than a "movl $0". And that's the unlock sequence.
 
-Excuse me for possibly dumb answer: (i'm not a kernel hacker)
+1) Would you prefer to change arch/i386/Kconfig
 
-yes, I would guess that this will be handled as any other 
-SMP machine where TSCs arent in sync.
+config NR_CPUS
+     int "Maximum number of CPUs (2-255)"
+     range 2 255
 
-/Jonas
+2) The unlock sequence is not anymore inlined. It appears twice or three times 
+in the kernel.
+
+3) i386 code is often taken as the base when a port is done. For example 
+x86_64 has the same problem.
+
+Eric

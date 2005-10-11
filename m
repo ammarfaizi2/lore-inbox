@@ -1,76 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751464AbVJKRpc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932200AbVJKRiS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751464AbVJKRpc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 13:45:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbVJKRpc
+	id S932200AbVJKRiS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 13:38:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbVJKRiS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 13:45:32 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:51799 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932073AbVJKRpb (ORCPT
+	Tue, 11 Oct 2005 13:38:18 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:44516 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932200AbVJKRiR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 13:45:31 -0400
-Date: Tue, 11 Oct 2005 19:46:13 +0200
-From: Jens Axboe <axboe@suse.de>
-To: linux-kernel@vger.kernel.org, linux-btrace@vger.kernel.org
-Subject: [PATCH] Block device io tracing
-Message-ID: <20051011174612.GK3533@suse.de>
+	Tue, 11 Oct 2005 13:38:17 -0400
+Date: Tue, 11 Oct 2005 10:37:46 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: laforge@gnumonks.org, torvalds@osdl.org, chrisw@osdl.org, vsu@altlinux.ru,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       security@linux.kernel.org, vendor-sec@lst.de
+Subject: Re: [linux-usb-devel] Re: [BUG/PATCH/RFC] Oops while completing
+ async USB via usbdevio
+Message-Id: <20051011103746.61598183.pj@sgi.com>
+In-Reply-To: <Pine.LNX.4.44L0.0510101559330.10768-100000@netrider.rowland.org>
+References: <20051010174429.GH5627@rama>
+	<Pine.LNX.4.44L0.0510101559330.10768-100000@netrider.rowland.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Alan asked:
+> But why do people go to the
+> effort of confusing readers by using "^" instead of "!="? 
 
-This is a semi-formal announce of version 0.99 of the blktrace/blkparse
-tools for block queue io tracing. In case you just want to play with it,
-you can pull it from the following git repo:
+My guess - eor (^) was quicker than not-equal (!=) on a PDP-11.
 
-git://brick.kernel.dk/data/git/blktrace.git
+That code fragment for checking uid's has been around a -long-
+time, if my memory serves me.
 
-or find tar balls here:
-
-http://brick.kernel.dk/snaps
-
-So what does it do? Well it can tell you anything that is going on at
-the queue level for a block device. It will show you io being queued,
-merged, dispatched, and completed - when that happened and on what CPU.
-It will show you if io is being split or bounced, requeue actions,
-sleeping waiting for requests, plugging/unplugging etc. At the end of a
-trace, it can give you stats on a per-process basis and more.
-
-That is the file system side of things. It can also show you SCSI
-commands issued through SG_IO - the CDB sent and what the drive
-completes.
-
-It should be helpful in debugging application problems (eg cdrecord not
-working properly, see what it sent to the drive and where it barfed) or
-generel performance problems in the io stack. Or it can help you find
-out if the io scheduler is doing what you think it is doing.
-
-The package contains three major components:
-
-- A kernel patch for 2.6.14-rc4. It's fairly small, about 20kb. You need
-  to select RELAYFS_FS in the fs section of the config and IO_TRACE in
-  the block layer section.
-
-- blktrace. This is the program responsible for collecting data from a
-  device.
-
-- blkparse. This is the program that will show you what happened.
-
-There are two ways to run this - in live tracing mode, basically piping
-data from blktrace to blkparse. There's a script for this, btrace. For a
-feel for how it works, just run btrace /dev/xxx. Or you can run blktrace
-and collect the data you want and have blkparse process it afterwards.
-
-For more info, see the included README for some simple examples on what
-you can do. For more in depth info, run make docs in the dir and get a
-blktrace.pdf file that contains a lot more info.
-
-As you may have noticed in the mail headers, there's a linux-btrace list
-hosted at vger for this project.
+It's gotten to be like the infamous "!!" boolean conversion
+operator, a bit of vernacular that would be harder to read if
+recoded using modern coding style.
 
 -- 
-Jens Axboe
-
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

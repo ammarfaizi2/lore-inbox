@@ -1,83 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751322AbVJKPxX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932125AbVJKQDr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751322AbVJKPxX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 11:53:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbVJKPxX
+	id S932125AbVJKQDr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 12:03:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbVJKQDr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 11:53:23 -0400
-Received: from kirby.webscope.com ([204.141.84.57]:14293 "EHLO
-	kirby.webscope.com") by vger.kernel.org with ESMTP id S1751322AbVJKPxW
+	Tue, 11 Oct 2005 12:03:47 -0400
+Received: from xproxy.gmail.com ([66.249.82.194]:4315 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751133AbVJKQDq convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 11:53:22 -0400
-Message-ID: <434BDFDB.1090800@linuxtv.org>
-Date: Tue, 11 Oct 2005 11:52:59 -0400
-From: Mike Krufky <mkrufky@linuxtv.org>
-Reply-To: Michael Krufky <mkrufky@linuxtv.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
+	Tue, 11 Oct 2005 12:03:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=NvRb4JUkxU1R+8nRB7gwC0gtPbO9N5KpGVwRdotv1edCcKsAQr+TDLa0/4p/eL05fnjo4sWH5bz5nbJPP36kMzQQSUgDP/gXjYFu08VDAn5e0w54Gk0S05DCKl7xYCD02Wi64eivf7Dnpc/7JEhTHmf/amepidzwYjIRxe9SzQc=
+Message-ID: <5bdc1c8b0510110903p250566dfs575768033029acff@mail.gmail.com>
+Date: Tue, 11 Oct 2005 09:03:45 -0700
+From: Mark Knecht <markknecht@gmail.com>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.14-rc4-rt1
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20051011111454.GA15504@elte.hu>
 MIME-Version: 1.0
-To: akpm@osdl.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] V4L: Enable s-video input on DViCO FusionHDTV5 Lite
-References: <43471b1c.4Ogrwj8f6ZKHb7Uq%mchehab@brturbo.com.br>
-In-Reply-To: <43471b1c.4Ogrwj8f6ZKHb7Uq%mchehab@brturbo.com.br>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051011111454.GA15504@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mchehab@brturbo.com.br wrote:
-
->From: Michael Krufky <mkrufky@linuxtv.org>
+On 10/11/05, Ingo Molnar <mingo@elte.hu> wrote:
 >
->    * bttv-cards.c:
->    - Enable S-Video input on DViCO FusionHDTV5 Lite
+> i have released the 2.6.14-rc4-rt1 tree, which can be downloaded from
+> the usual place:
 >
->    Signed-off-by: Michael Krufky <mkrufky@m1k.net>
->    Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+>   http://redhat.com/~mingo/realtime-preempt/
 >
-> bttv-cards.c |    4 ++--
-> 1 files changed, 2 insertions(+), 2 deletions(-)
+> lots of fixes all across the spectrum. x64 support and debugging
+> features on x64 should be in a much better shape now. Same for ARM.
 >
->------------------
->
->diff -upr linux-2.6.14-rc3-git7/drivers/media/video/bttv-cards.c linux/drivers/media/video/bttv-cards.c
->--- linux-2.6.14-rc3-git7/drivers/media/video/bttv-cards.c	2005-10-07 14:54:38.915668669 -0500
->+++ linux/drivers/media/video/bttv-cards.c	2005-10-07 15:46:58.019236100 -0500
->@@ -2393,10 +2393,10 @@ struct tvcard bttv_tvcards[] = {
-> 	.tuner          = 0,
-> 	.tuner_type     = TUNER_LG_TDVS_H062F,
-> 	.tuner_addr	= ADDR_UNSET,
->-	.video_inputs   = 2,
->+	.video_inputs   = 3,
-> 	.audio_inputs   = 1,
-> 	.svhs           = 2,
->-	.muxsel		= { 2, 3 },
->+	.muxsel		= { 2, 3, 1 },
-> 	.gpiomask       = 0x00e00007,
-> 	.audiomux       = { 0x00400005, 0, 0x00000001, 0, 0x00c00007, 0 },
-> 	.no_msp34xx     = 1,
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->  
->
-Andrew-
+>         Ingo
 
-I hate to be a nudge... This patch corrects an oversight when I had 
-originally programmed this board.  This 2-line change adds support for 
-s-video input on this card. Everything works without this patch, except 
-for s-video.   It would be silly for this to be missing from 2.6.14.
+2.6.14-rc4-rt1 is up and running here. I'm starting without debug
+disabled to look at whether I get xruns at all. It's been a while
+since I've done that so I want to get a baseline. I'll do some latency
+testing no matter what later this morning (a kernel recompile) to make
+sure your fix for 64-bit processors is working.
 
-Please apply this patch and send it over to Linus before he releases 2.6.14.
+I am seeing one strange thing in the 1394 area. dmesg didn't tell me
+what device a newly mounted 1394 drive became. This makes it harder to
+mount drives with partitions that cannot be labeled.
 
-DVB support for this board is ready now too, but we will send that in 
-our 2.6.15 patchset, as it makes some larger changes to dvb-bt8xx.c
+ACPI: PCI Interrupt Link [APC3] enabled at IRQ 18
+ACPI: PCI Interrupt 0000:05:08.0[A] -> Link [APC3] -> GSI 18 (level,
+low) -> IRQ 66
+ohci1394: fw-host0: OHCI-1394 1.1 (PCI): IRQ=[66] 
+MMIO=[da014000-da0147ff]  Max Packet=[4096]
+sbp2: $Rev: 1306 $ Ben Collins <bcollins@debian.org>
+ieee1394: Host added: ID:BUS[0-00:1023]  GUID[0800286410000f43]
+eth0: no IPv6 routers present
+ieee1394: Error parsing configrom for node 0-00:1023
+ieee1394: Node changed: 0-00:1023 -> 0-01:1023
+ieee1394: Node added: ID:BUS[0-00:1023]  GUID[0050c504e0006463]
+scsi4 : SCSI emulation for IEEE-1394 SBP-2 Devices
+lightning ~ #
 
-Thank you.
+I believe it used to say after a mount that the partition became
+/dev/sdb2, etc. This makes it harder to mount drives with partitions
+that cannot be labeled. For mounted partitions I can find it in df:
 
-Michael Krufky
+lightning ~ # df
+Filesystem           1K-blocks      Used Available Use% Mounted on
+/dev/sda3              9614148   7967288   1158484  88% /
+udev                    255228       304    254924   1% /dev
+shm                     255228         0    255228   0% /dev/shm
+myth14:/video        225373664 142751296  71174080  67% /video
+/dev/sdb2             48070504  42864832   2763792  94% /home/mark/Gigs
+/dev/sdc1             57685532  47539424   7215856  87% /home/mark/music
+lightning ~ #
 
+Thanks. Everything else looks great so far.
 
+Cheers,
+Mark

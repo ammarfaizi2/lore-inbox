@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751336AbVJKBUS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbVJKBUH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751336AbVJKBUS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 21:20:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751337AbVJKBUS
+	id S1751308AbVJKBUH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 21:20:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751337AbVJKBUH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 21:20:18 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:965 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751336AbVJKBUR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 21:20:17 -0400
-From: Andi Kleen <ak@suse.de>
+	Mon, 10 Oct 2005 21:20:07 -0400
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:48360 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1751308AbVJKBUF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 21:20:05 -0400
+Date: Tue, 11 Oct 2005 03:20:04 +0200 (CEST)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
 To: Andrew Morton <akpm@osdl.org>
-Subject: Re: SMP syncronization on AMD processors (broken?)
-Date: Tue, 11 Oct 2005 03:20:27 +0200
-User-Agent: KMail/1.8.2
-Cc: Andrey Savochkin <saw@sawoct.com>, torvalds@osdl.org, dev@sw.ru,
-       linux-kernel@vger.kernel.org, xemul@sw.ru, st@sw.ru, discuss@x86-64.org
-References: <434520FF.8050100@sw.ru> <20051006192106.A13978@castle.nmd.msu.ru> <20051010175920.21018fac.akpm@osdl.org>
-In-Reply-To: <20051010175920.21018fac.akpm@osdl.org>
+Cc: aia21@cam.ac.uk, glommer@br.ibm.com, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       hirofumi@mail.parknet.co.jp, linux-ntfs-dev@lists.sourceforge.net,
+       aia21@cantab.net, hch@infradead.org, viro@zeniv.linux.org.uk
+Subject: Re: [PATCH] Use of getblk differs between locations
+In-Reply-To: <20051010180705.0b0e3920.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.62.0510110310100.16036@artax.karlin.mff.cuni.cz>
+References: <20051010204517.GA30867@br.ibm.com>
+ <Pine.LNX.4.64.0510102217200.6247@hermes-1.csi.cam.ac.uk>
+ <20051010214605.GA11427@br.ibm.com> <Pine.LNX.4.62.0510102347220.19021@artax.karlin.mff.cuni.cz>
+ <20051010223636.GB11427@br.ibm.com> <Pine.LNX.4.64.0510102328110.6247@hermes-1.csi.cam.ac.uk>
+ <20051010163648.3e305b63.akpm@osdl.org> <Pine.LNX.4.62.0510110203430.27454@artax.karlin.mff.cuni.cz>
+ <20051010180705.0b0e3920.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510110320.28302.ak@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 11 October 2005 02:59, Andrew Morton wrote:
-
-> >  I'm not advocating for changing spinlock implementation, it's just a
-> >  thought...
+>>  I liked what linux-2.0 did in this case --- if the kernel was out of
+>>  memory, getblk just took another buffer, wrote it if it was dirty and used
+>>  it. Except for writeable loopback device (where writing one buffer
+>>  generates more dirty buffers), it couldn't deadlock.
 >
-> It would make sense in these cases if there was some primitive which we
-> could call which says "hey, I expect+want another CPU to grab this lock in
-> preference to this CPU".
+> Wouldn't it be better if bread() were to return ERR_PTR(-EIO) or
+> ERR_PTR(-ENOMEM)?    Big change.
 
-I just don't know how to implement such a primitive given the guarantees
-of the x86 architecture. It might be possible to do something that
-works on specific CPUs, but that will likely break later.
+No. Out of memory condition can happen even under normal circumstances 
+under lightly loaded system. Think of a situation when dirty file-mapped 
+pages fill up the whole memory, now a burst of packets from network comes 
+that fills up kernel atomic reserve, you have zero pages free --- and what 
+now? --- returning ENOMEM and dropping dirty pages without writing them is 
+wrong, deadlocking (filesystem waits until memory manager frees some pages 
+and memory manager waits until filesystem writes the dirty pages) is wrong 
+too.
 
+The filesystem must make sure that it doesn't need any memory to do block 
+allocation and data write. Linux-2.0 got this right, it could do getblk 
+and bread even if get_free_pages constantly failed.
 
--Andi
+Mikulas

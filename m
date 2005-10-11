@@ -1,119 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932069AbVJKLak@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbVJKMPs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932069AbVJKLak (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 07:30:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932070AbVJKLak
+	id S932081AbVJKMPs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 08:15:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932080AbVJKMPs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 07:30:40 -0400
-Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:31391 "EHLO
-	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
-	id S932069AbVJKLaj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 07:30:39 -0400
-X-SBRSScore: None
-X-IronPort-AV: i="3.97,198,1125871200"; 
-   d="scan'208"; a="17612379:sNHT49186592"
-Message-ID: <434BA25C.2040309@fujitsu-siemens.com>
-Date: Tue, 11 Oct 2005 13:30:36 +0200
-From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
+	Tue, 11 Oct 2005 08:15:48 -0400
+Received: from cimice0.lam.cz ([212.71.168.90]:57791 "EHLO cimice.yo.cz")
+	by vger.kernel.org with ESMTP id S932078AbVJKMPr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 08:15:47 -0400
+Date: Tue, 11 Oct 2005 14:15:25 +0200
+From: Jan Hudec <bulb@ucw.cz>
+To: David Teigland <teigland@redhat.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 03/16] GFS: core fs
+Message-ID: <20051011121525.GC16249@djinn>
+References: <20051010171002.GD22483@redhat.com> <20051010213928.GB2475@elf.ucw.cz>
 MIME-Version: 1.0
-To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Errors while initializing mptspi on 53C1030
-Content-Type: multipart/mixed;
- boundary="------------020008030609090604000303"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="da4uJneut+ArUgXk"
+Content-Disposition: inline
+In-Reply-To: <20051010213928.GB2475@elf.ucw.cz>
+User-Agent: Mutt/1.5.11
+X-Spam-Score: -4.5 (----)
+X-Spam-Report: Spam detection software, running on "shpek.cybernet.src", has inspected this
+	incomming email and gave it -4.5 points (spam is above 5.0)
+	Content analysis details:
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.9 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-1.7 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020008030609090604000303
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Hi,
+--da4uJneut+ArUgXk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I have a server running SuSE-SLES9 from a RAID1 on 53C1030. There are two
-physical disks configured to make up one logical drive. Now I upgraded the
-machine to kernel 2.6.14-rc3.
+On Mon, Oct 10, 2005 at 23:39:28 +0200, Pavel Machek wrote:
+> Hi!
+>=20
+> > Signed-off-by: Ken Preslan <ken@preslan.org>
+> > Signed-off-by: David Teigland <teigland@redhat.com>
+>=20
+> > +	for (; blks; gfs2_replay_incr_blk(sdp, &start), blks--) {
+>=20
+> > +		for (head =3D &ai->ai_ail1_list, tmp =3D head->prev, prev =3D tmp->p=
+rev;
+> > +		     tmp !=3D head;
+> > +		     tmp =3D prev, prev =3D tmp->prev) {
+>=20
+>=20
+> > +	for (head =3D &ai->ai_ail1_list, tmp =3D head->prev, prev =3D tmp->pr=
+ev;
+> > +	     tmp !=3D head;
+> > +	     tmp =3D prev, prev =3D tmp->prev) {
+>=20
+>=20
+> Can you get less creative in the for loops? [There are more examples
+> at other patches, for (i=3Dsomething; i--; ) was "nicest" example].
 
-With 2.6.14-rc3 on each boot some errors occur while mptspi (mptscsih,
-mptbase) is initializing. AFAICS, having done some unsuccessful retries the
-driver resets the HW again and after that the system seems to run normally.
+The later two are good examples of where list_for_each_safe is
+appropriate.
 
-I've attached the relevant part of the logging.
+--
+						 Jan 'Bulb' Hudec <bulb@ucw.cz>
 
-Please CC me, I'm not on the lists.
+--da4uJneut+ArUgXk
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-Regards
-	Bodo
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
+iD8DBQFDS6zdRel1vVwhjGURApTDAJ4hsxRGFVNqQOOcW6Ix3fsL2f+VVwCg1+9K
+qjRqoXM/ufayzpSrU9CNP3c=
+=9NSE
+-----END PGP SIGNATURE-----
 
-BTW, the "Release failed" messages in the driver are missing the '\n'.
-
---------------020008030609090604000303
-Content-Type: text/plain;
- name="dmesg_mpt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="dmesg_mpt"
-
-Linux version 2.6.14-rc3 (root@abg4507s) (gcc version 3.3.3 (SuSE Linux)) #1 SMP Tue Oct 11 11:34:10 CEST 2005
-
-... snip ...
-
-SCSI subsystem initialized
-Fusion MPT base driver 3.03.03
-Copyright (c) 1999-2005 LSI Logic Corporation
-Fusion MPT SPI Host driver 3.03.03
-ACPI: PCI Interrupt 0000:02:08.0[A] -> GSI 24 (level, low) -> IRQ 19
-mptbase: Initiating ioc0 bringup
-ioc0: 53C1030: Capabilities={Initiator}
-scsi0 : ioc0: LSI53C1030, FwRev=01032571h, Ports=1, MaxQ=222, IRQ=19
-  Vendor: LSILOGIC  Model: 1030          IM  Rev: 1000
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-SCSI device sda: 142131200 512-byte hdwr sectors (72771 MB)
-SCSI device sda: drive cache: write back
-SCSI device sda: 142131200 512-byte hdwr sectors (72771 MB)
-SCSI device sda: drive cache: write back
- sda: sda1 sda2
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-  Vendor: SDR       Model: GEM318P           Rev: 1   
-  Type:   Processor                          ANSI SCSI revision: 02
-ACPI: PCI Interrupt 0000:02:08.1[B] -> GSI 25 (level, low) -> IRQ 20
-mptbase: Initiating ioc1 bringup
-mptscsih: ioc0: DV: Release failed. id 0<6>ioc1: 53C1030: Capabilities={Initiator}
-scsi1 : ioc1: LSI53C1030, FwRev=01032571h, Ports=1, MaxQ=222, IRQ=20
-mptscsih: ioc0: attempting task abort! (sc=f748b380)
-scsi0 : destination target 0, lun 0
-        command: Read (10): 28 00 00 80 34 4d 00 00 02 00
-mptscsih: ioc0: task abort: SUCCESS (sc=f748b380)
-mptscsih: ioc0: attempting task abort! (sc=f748b380)
-scsi0 : destination target 0, lun 0
-        command: Test Unit Ready: 00 00 00 00 00 00
-mptscsih: ioc0: task abort: SUCCESS (sc=f748b380)
-mptscsih: ioc0: attempting target reset! (sc=f748b380)
-scsi0 : destination target 0, lun 0
-        command: Read (10): 28 00 00 80 34 4d 00 00 02 00
-mptbase: ioc0: IOCStatus(0x0048): SCSI Task Terminated
-mptbase: ioc0: IOCStatus(0x0048): SCSI Task Terminated
-mptscsih: ioc0: target reset: SUCCESS (sc=f748b380)
-mptscsih: ioc0: attempting task abort! (sc=f748b380)
-scsi0 : destination target 0, lun 0
-        command: Test Unit Ready: 00 00 00 00 00 00
-mptscsih: ioc0: task abort: SUCCESS (sc=f748b380)
-mptscsih: ioc0: attempting bus reset! (sc=f748b380)
-scsi0 : destination target 0, lun 0
-        command: Read (10): 28 00 00 80 34 4d 00 00 02 00
-mptbase: ioc0: IOCStatus(0x0048): SCSI Task Terminated
-mptscsih: ioc0: bus reset: SUCCESS (sc=f748b380)
-mptscsih: ioc0: attempting task abort! (sc=f748b380)
-scsi0 : destination target 0, lun 0
-        command: Test Unit Ready: 00 00 00 00 00 00
-mptscsih: ioc0: task abort: SUCCESS (sc=f748b380)
-mptscsih: ioc0: Attempting host reset! (sc=f748b380)
-mptbase: Initiating ioc0 recovery
-EXT2-fs warning (device sda2): ext2_fill_super: mounting ext3 filesystem as ext2
-
-... snip ... (now the system runs fine! AFAICS ...)
-
---------------020008030609090604000303--
+--da4uJneut+ArUgXk--

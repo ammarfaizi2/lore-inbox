@@ -1,60 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbVJKWLy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751014AbVJKWS0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751153AbVJKWLy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 18:11:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbVJKWLy
+	id S1751014AbVJKWS0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 18:18:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbVJKWS0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 18:11:54 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:34947 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S1751153AbVJKWLy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 18:11:54 -0400
-Date: Tue, 11 Oct 2005 15:12:25 -0700
-From: Deepak Saxena <dsaxena@plexity.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] [ARM] Fix ixp2x00 defconfig NR_UARTS options
-Message-ID: <20051011221225.GA26053@plexity.net>
-Reply-To: dsaxena@plexity.net
+	Tue, 11 Oct 2005 18:18:26 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:54747 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751014AbVJKWS0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 18:18:26 -0400
+Date: Tue, 11 Oct 2005 15:18:05 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: dsaxena@plexity.net
+Cc: torvalds@osdl.org, marcel@holtmann.org, maxk@qualcomm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [BLUETOOTH] kmalloc + memset -> kzalloc conversion
+Message-Id: <20051011151805.0d32c840.akpm@osdl.org>
+In-Reply-To: <20051001065121.GC25424@plexity.net>
+References: <20051001065121.GC25424@plexity.net>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: Plexity Networks
-User-Agent: Mutt/1.5.10i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Deepak Saxena <dsaxena@plexity.net> wrote:
+>
 
-IXDP2[48]00 have only 1 UART on the board.
+Confused.  This patch changes lots of block code, not bluetooth.
 
-Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
+> diff --git a/drivers/block/DAC960.c b/drivers/block/DAC960.c
+> --- a/drivers/block/DAC960.c
+> +++ b/drivers/block/DAC960.c
+> @@ -4665,7 +4663,6 @@ static void DAC960_V2_ProcessCompletedCo
+>  	   */
+>  	   DAC960_queue_partial_rw(Command);
+>  	   return;
+> -	}
+>        else
+>  	{
+>  	  if (Command->V2.RequestSense->SenseKey != DAC960_SenseKey_NotReady)
+> @@ -4799,10 +4796,10 @@ static void DAC960_V2_ProcessCompletedCo
 
-diff --git a/arch/arm/configs/ixdp2400_defconfig b/arch/arm/configs/ixdp2400_defconfig
---- a/arch/arm/configs/ixdp2400_defconfig
-+++ b/arch/arm/configs/ixdp2400_defconfig
-@@ -559,7 +559,7 @@ CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
- #
- CONFIG_SERIAL_8250=y
- CONFIG_SERIAL_8250_CONSOLE=y
--CONFIG_SERIAL_8250_NR_UARTS=2
-+CONFIG_SERIAL_8250_NR_UARTS=1
- # CONFIG_SERIAL_8250_EXTENDED is not set
- 
- #
-diff --git a/arch/arm/configs/ixdp2800_defconfig b/arch/arm/configs/ixdp2800_defconfig
---- a/arch/arm/configs/ixdp2800_defconfig
-+++ b/arch/arm/configs/ixdp2800_defconfig
-@@ -559,7 +559,7 @@ CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
- #
- CONFIG_SERIAL_8250=y
- CONFIG_SERIAL_8250_CONSOLE=y
--CONFIG_SERIAL_8250_NR_UARTS=2
-+CONFIG_SERIAL_8250_NR_UARTS=1
- # CONFIG_SERIAL_8250_EXTENDED is not set
- 
- #
-
--- 
-Deepak Saxena - dsaxena@plexity.net - http://www.plexity.net
-
-Even a stopped clock gives the right time twice a day.
+And that looks rather wrong.

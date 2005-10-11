@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbVJKO4O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbVJKO7V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932119AbVJKO4O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 10:56:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbVJKO4O
+	id S932117AbVJKO7V (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 10:59:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbVJKO7V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 10:56:14 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:16557 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932110AbVJKO4L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 10:56:11 -0400
-Date: Tue, 11 Oct 2005 09:55:52 -0500
-From: David Teigland <teigland@redhat.com>
-To: Jan Hudec <bulb@ucw.cz>, Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 03/16] GFS: core fs
-Message-ID: <20051011145552.GA8812@redhat.com>
-References: <20051010171002.GD22483@redhat.com> <20051010213928.GB2475@elf.ucw.cz> <20051011121525.GC16249@djinn>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 11 Oct 2005 10:59:21 -0400
+Received: from qproxy.gmail.com ([72.14.204.197]:3984 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932117AbVJKO7U convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 10:59:20 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=h+aVkgC5s6gDzkQe3oEpDpFcBAMINDMiOg+UcHhxkXL8G668hqbf+GujdbC6bl3FdTuH/EIlrKDU7rwgJTH+rJ2BFz+HFeh8lH9soEeCX+VrseFQjmUnAYTemELURgze17ilX3v0ZYfHTJpIQbiD+zpN1W6QX9//Re9woFDh7xQ=
+Message-ID: <6bffcb0e0510110759h1c6c2082v@mail.gmail.com>
+Date: Tue, 11 Oct 2005 14:59:19 +0000
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.14-rc3-git-current IDE disc problem
+Cc: bzolnier@gmail.com
+In-Reply-To: <6bffcb0e0510091300q58e6cf76y@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051011121525.GC16249@djinn>
-User-Agent: Mutt/1.4.1i
+References: <6bffcb0e0510091300q58e6cf76y@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 11, 2005 at 02:15:25PM +0200, Jan Hudec wrote:
-> On Mon, Oct 10, 2005 at 23:39:28 +0200, Pavel Machek wrote:
+Hi,
+it looks similar.
 
-> > > + for (head = &ai->ai_ail1_list, tmp = head->prev, prev = tmp->prev;
-> > > +      tmp != head;
-> > > +      tmp = prev, prev = tmp->prev) {
-> > 
-> > 
+hdd: LITE-ON LTR-52327S, ATAPI CD/DVD-ROM drive
+Badness in enable_irq at kernel/irq/manage.c:113
+ [<c013f523>] enable_irq+0x6f/0xc4
+ [<f885c7c3>] probe_hwif+0x3f6/0x4dc [ide_core]
+ [<c0115f5b>] try_to_wake_up+0x69/0x353
+ [<f885d59a>] ideprobe_init+0x66/0x145 [ide_core]
+ [<f88b2005>] ide_generic_init+0x5/0xd [ide_generic]
+ [<c0138346>] sys_init_module+0xc5/0x221
+ [<c0102e1f>] sysenter_past_esp+0x54/0x75
+register_blkdev: cannot get major 3 for ide0
+register_blkdev: cannot get major 22 for ide1
 
-> > > + for (head = &ai->ai_ail1_list, tmp = head->prev, prev = tmp->prev;
-> > > +      tmp != head;
-> > > +      tmp = prev, prev = tmp->prev) {
-> > 
-> > 
-> > Can you get less creative in the for loops? [There are more examples
-> > at other patches, for (i=something; i--; ) was "nicest" example].
-> 
-> The later two are good examples of where list_for_each_safe is
-> appropriate.
+debian:/home/michal# uname -r
+2.6.14-rc3-gdd0fc66f
 
-There are multiple places like this that need either a
-list_for_each_entry_reverse_safe or list_for_each_prev_safe, neither of
-which exist.  I'll send a patch to add one.
-
-I've just converted to a macro in ail2_empty() -- I'm not sure why I'd
-left it out in that spot, maybe to be consistent with ail1_empty above.
-
-Thanks,
-Dave
-
+Regards,
+Michal Piotrowski

@@ -1,66 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751372AbVJKFKo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751231AbVJKFmS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751372AbVJKFKo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 01:10:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbVJKFKo
+	id S1751231AbVJKFmS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 01:42:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbVJKFmS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 01:10:44 -0400
-Received: from mx1.cdacindia.com ([203.199.132.35]:9909 "HELO
-	mailx.cdac.ernet.in") by vger.kernel.org with SMTP id S1751358AbVJKFKn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 01:10:43 -0400
-Message-ID: <434B47C1.60106@cdac.in>
-Date: Tue, 11 Oct 2005 10:34:01 +0530
-From: Karthik Sarangan <karthiks@cdac.in>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en
+	Tue, 11 Oct 2005 01:42:18 -0400
+Received: from smtp111.sbc.mail.re2.yahoo.com ([68.142.229.94]:25166 "HELO
+	smtp111.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1751231AbVJKFmR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 01:42:17 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: PS/2 Keyboard under 2.6.x
+Date: Tue, 11 Oct 2005 00:42:12 -0500
+User-Agent: KMail/1.8.2
+Cc: Mark Knecht <markknecht@gmail.com>, mkrufky@m1k.net,
+       Robert Crocombe <rwcrocombe@raytheon.com>
+References: <434B121A.3000705@raytheon.com> <434B3C82.5080409@m1k.net> <5bdc1c8b0510102148l7faae4c7ke0ce4137b175dfcb@mail.gmail.com>
+In-Reply-To: <5bdc1c8b0510102148l7faae4c7ke0ce4137b175dfcb@mail.gmail.com>
 MIME-Version: 1.0
-To: Benjamin LaHaise <bcrl@kvack.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: AIO!!
-References: <434A6EFC.4010100@cdac.in> <20051010160856.GI13986@kvack.org>
-In-Reply-To: <20051010160856.GI13986@kvack.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510110042.13325.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > Benjamin LaHaise wrote:
-> O_DIRECT buffers must be aligned on block sized boundaries (minimum 512 
-> bytes).  Check the actual return code from the aiocb and you'll find that 
-> it is likely -EINVAL, no -EINPROGRESS.  See the man page for 
-> posix_memalign() to properly align the pointer.
+On Monday 10 October 2005 23:48, Mark Knecht wrote:
+> On 10/10/05, Michael Krufky <mkrufky@m1k.net> wrote:
+> 
+> > >My keyboard is a wireless thing that had a little dongle to make it
+> > >into ps2. I took that off and used the keyboard as a USB keyboard and
+> > >it works fine under SMP.
+> > >
+> > >This was on 2.6.13-gentoo-r3 for me.
+> > >
+> > Have either of you tried the kernel boot option usb=handoff ?  I had
+> > similar problems, and this fixed it for me.
+> >
+> > --
+> > Michael Krufky
+> 
+> I have not, but in my case simply using the keyboard as a USB keyboard
+> was enough to make it work. What doesn't work is when I use it through
+> a dongle as a ps2 keyboard. I'm puzzled as to why usb=handoff would
+> fix the ps2 keyboard, but I'm willing to try it tomorrow.
 > 
 
-EEP!! I forgot all about buffer alignment!! Thanks for pointing it out
+It is "usb-handoff", not "usb=handoff". It instructs BIOS to disable USB
+Legacy emulation mode which turns USB keyboard/mouse into emulated PS/2
+devices...
 
-:)
-
-------------------
-
-Two more questions.
-
-1. Is aio_fsync of any use while 'aio_read'ing and 'aio_write'ing to
-    a 'raw' device or a '/dev/sdb' with O_DIRECT?
-
-2. I have an Ultra320 SCSI disk whose datasheet says it has a max.
-    possible throughput of 78MBps
-
-    I did a 'aio_write' onto '/dev/sdb' with O_DIRECT.
-    Following are some throughput values.
-
-    Buffer for IO   |  Avg Speed
-    (in KBytes)     |
-    ----------------O-----------
-    Upto 512KB      |  69MBps
-    1024KB          |  125MBps
-    2048KB          |  250MBps
-    4096KB          |  500MBps
-    8192KB          |  1GBps		-- What the !! --
-
-    Buffer cache does not come into consideration.
-
-    Does this mean that the SCSI lower layer (aic79xx) can transfer data
-    only upto 512 KB?
-
+-- 
+Dmitry

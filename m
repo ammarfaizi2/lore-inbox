@@ -1,104 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbVJKPQV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751279AbVJKPTX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932176AbVJKPQV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 11:16:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932126AbVJKPQV
+	id S1751279AbVJKPTX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 11:19:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751322AbVJKPTW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 11:16:21 -0400
-Received: from spirit.analogic.com ([204.178.40.4]:36114 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S932163AbVJKPQT convert rfc822-to-8bit
+	Tue, 11 Oct 2005 11:19:22 -0400
+Received: from zproxy.gmail.com ([64.233.162.203]:11902 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751279AbVJKPTV convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 11:16:19 -0400
+	Tue, 11 Oct 2005 11:19:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iBeib6j49VFw6sN2u32LRjxj4vwYTiEtesaKCPXGZHdE0mXPNeIaN5os/jtrfF//A8O+xu7uPrndyXUdtKjV4LSX79iVSxqp7GZSaDV2E4PtYjrzUNymGUrb5UCE1SOix0ZoyRw4Ige7z6uFKHTgIqY+wTqe/FaDo0Nf3M3WrH0=
+Message-ID: <35fb2e590510110819v8d1febfo74f0fe5bd89ef8c4@mail.gmail.com>
+Date: Tue, 11 Oct 2005 16:19:21 +0100
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: Junichi Uekawa <dancer@netfort.gr.jp>
+Subject: Re: Bug#322309: Debian woody dpkg no longer works with recent linux kernel.
+Cc: Scott James Remnant <scott@netsplit.com>, 322309@bugs.debian.org,
+       329468@bugs.debian.org, debian-devel@bugs.debian.org,
+       linux-kernel@vger.kernel.org, 332903@bugs.debian.org
+In-Reply-To: <87achg9lnl.dancerj%dancer@netfort.gr.jp>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <20051011135944.22612.qmail@web8402.mail.in.yahoo.com>
-References: <20051011135944.22612.qmail@web8402.mail.in.yahoo.com>
-X-OriginalArrivalTime: 11 Oct 2005 15:16:17.0860 (UTC) FILETIME=[BA657040:01C5CE76]
-Content-class: urn:content-classes:message
-Subject: Re: Regarding - unresolved symbol
-Date: Tue, 11 Oct 2005 11:16:17 -0400
-Message-ID: <Pine.LNX.4.61.0510111104390.32115@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Regarding - unresolved symbol
-Thread-Index: AcXOdrpsVRaWY7vRR76fXL43zct9yw==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "vinay hegde" <thisismevinay@yahoo.co.in>
-Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Disposition: inline
+References: <87zmpi3ell.dancerj%dancer@netfort.gr.jp>
+	 <1128897196.19000.3.camel@localhost.localdomain>
+	 <87achg9lnl.dancerj%dancer@netfort.gr.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 10/11/05, Junichi Uekawa <dancer@netfort.gr.jp> wrote:
 
-On Tue, 11 Oct 2005, vinay hegde wrote:
+> > > dpkg in Debian woody (3.0) is broken by recent linux kernels;
+> > > due to the following command changing behavior (mmap of
+> > > zero-byte length):
+> > >
+> > >   addr=mmap(NULL, 0, PROT_READ, MAP_SHARED, fd, 0);
+> > >
+> > > These bugs are caused by mmap changing behavior;
+> > > it used to return NULL when given a length of 0.
+> > > However, it now returns -1, and gives back an errno=EINVAL.
 
-> Hi,
-> I am developing a device driver module related to the
-> real time clock on Linux 2.4 kernel. [This is done
-> with regard to changing one of the existing timer chip
-> on the  system.] For some reason, I am getting into an
-> unresolved symbol.
->
-> I am following sequence of code in the module (not
-> necessarily in the sequential manner though).
->
-> ----------
-> extern void *sys_call_table[];
-> static int (*timer_mknod)(const char *, ... );
-> timer_mknod = sys_call_table[__NR_mknod];
-> ----------
->
-> Whenever I try to insert the module into the kernel, I
-> get the following error:
-> timer.o: unresolved symbol sys_call_table
->
+> I'm seeing several potential solutions.
 
-sys_call_table isn't an exported symbol.
+> Backport dpkg change to woody and update woody
+> (maybe impossible due to Debian oldstable
+> update infrastructure)
 
-> All the necessary headers are present and I am able to
-> see the symbol 'sys_call_table' in System.map. I do
-> not see any error in this regard. Can somebody help me
-> in pointing out the flaw?
->
+That's probably the best fix.
 
-The flaw is in attempting to modify the sys_call_table
-with a module.
+> write a kernel patch to return 0 when mmap is
+> called with length=0
 
-> [I am able to fix this problem by simply using the
-> 'sys_mknod()' call in my module, but I really would
-> like to know why the above piece of code can not
-> work!]
->
+Bad idea. I'm not the greatest authority on what the standards say
+mmap should be doing, but this change seems logical and there's no
+point in changing the kernel to revert the behaviour just for Debian
+systems. It'd be another pointless Debian kernel patch :-)
 
-Even sys_mknod() should not work from a module; Who's
-context did you steal to create that device-file? What
-happens next to that poor sucker? Who's data-space
-did you corrupt for the file-name string? I note that,
-from the names, it's likely that you intend to do this
-dastardly deed from a timer-queue!!!
+> Create a LD_PRELOAD or ptrace hack to return
+> 0 when mmap is called with length=0
 
-File operations require a process context. The kernel doesn't
-have one. All file operations should (read must) be done
-from user space. The kernel is designed to do things
-on behalf of user-space callers. Executing sys_* from
-a module will result in somebody saying; "See, you are
-wrong... It works fine!". Later on mysterious errors
-occur which are un-trackable.
+Yummy. Better than the previous hack.
 
-> Thank you,
-> Vinay Hegde
->
->
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13 on an i686 machine (5589.54 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+Jon.

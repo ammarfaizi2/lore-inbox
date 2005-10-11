@@ -1,50 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751263AbVJKE3A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751276AbVJKEkY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751263AbVJKE3A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 00:29:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbVJKE3A
+	id S1751276AbVJKEkY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 00:40:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751288AbVJKEkY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 00:29:00 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:19149 "EHLO
-	pd3mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1751036AbVJKE27 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 00:28:59 -0400
-Date: Mon, 10 Oct 2005 22:32:15 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: i386 spinlock fairness: bizarre test results
-In-reply-to: <4WjCM-7Aq-7@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <434B404F.9020508@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <4WjCM-7Aq-7@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+	Tue, 11 Oct 2005 00:40:24 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:25322
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751276AbVJKEkX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 00:40:23 -0400
+Date: Mon, 10 Oct 2005 21:40:21 -0700 (PDT)
+Message-Id: <20051010.214021.29518148.davem@davemloft.net>
+To: viro@ftp.linux.org.uk
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, tcallawa@redhat.com
+Subject: Re: Linux v2.6.14-rc4
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20051011042412.GT7992@ftp.linux.org.uk>
+References: <20051011034127.GS7992@ftp.linux.org.uk>
+	<20051010.205827.122179808.davem@davemloft.net>
+	<20051011042412.GT7992@ftp.linux.org.uk>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Ebbert wrote:
->   After seeing Kirill's message about spinlocks I decided to do my own
-> testing with the userspace program below; the results were very strange.
-> 
->   When using the 'mov' instruction to do the unlock I was able to reproduce
-> hogging of the spinlock by a single CPU even on Pentium II under some
-> conditions, while using 'xchg' always allowed the other CPU to get the
-> lock:
+From: Al Viro <viro@ftp.linux.org.uk>
+Date: Tue, 11 Oct 2005 05:24:12 +0100
 
-This might not necessarily be a win in all situations. If two CPUs A and 
-  B are trying to get into a spinlock-protected critical section to do 5 
-operations, it may well be more efficient for them to do AAAAABBBBB as 
-opposed to ABABABABAB, as the second situation may result in cache lines 
-bouncing between the two CPUs each time, etc.
+> For sparc32 ioread*/iowrite* are _trivial_.  Look, the only defining
+> properties are
 
-I don't know that making spinlocks "fairer" is really very worthwhile. 
-If some spinlocks are so heavily contented that fairness becomes an 
-issue, it would be better to find a way to reduce that contention.
-
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
-
+I understand, we can implement this in 2.6.15

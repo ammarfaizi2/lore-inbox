@@ -1,91 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751349AbVJKCWn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751355AbVJKC1k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751349AbVJKCWn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 22:22:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbVJKCWn
+	id S1751355AbVJKC1k (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 22:27:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751353AbVJKC1k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 22:22:43 -0400
-Received: from mtl.rackplans.net ([65.39.167.249]:63980 "HELO innerfire.net")
-	by vger.kernel.org with SMTP id S1751349AbVJKCWn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 22:22:43 -0400
-Date: Mon, 10 Oct 2005 22:22:37 -0400 (EDT)
-From: Gerhard Mack <gmack@innerfire.net>
-To: Lars Roland <lroland@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Direct Rendering drivers for ATI X300 ?
-In-Reply-To: <4ad99e050510101200m6f3e1abh7ff8fb6b08b3c0e6@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0510102221320.26127@innerfire.net>
-References: <Pine.LNX.4.64.0510101230360.8804@innerfire.net>
- <4ad99e050510101200m6f3e1abh7ff8fb6b08b3c0e6@mail.gmail.com>
+	Mon, 10 Oct 2005 22:27:40 -0400
+Received: from mail1.webmaster.com ([216.152.64.168]:37386 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP
+	id S1751355AbVJKC1j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 22:27:39 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Emmanuel Fleury" <fleury@cs.aau.dk>
+Cc: "Linux Kernel ML" <linux-kernel@vger.kernel.org>
+Subject: RE: freebox possible GPL violation
+Date: Mon, 10 Oct 2005 19:27:05 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKIEECHDAB.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <1128514062.2920.27.camel@laptopd505.fenrus.org>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Mon, 10 Oct 2005 19:24:41 -0700
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Mon, 10 Oct 2005 19:24:45 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I found the problem.. there is no entry in pciids.h for my card:
 
-0000:05:00.0 VGA compatible controller: ATI Technologies Inc RV370 5B60 
-[Radeon X300 (PCIE)]
-0000:05:00.1 Display controller: ATI Technologies Inc RV370 [Radeon 
-X300SE]
+> On Wed, 2005-10-05 at 14:02 +0200, Emmanuel Fleury wrote:
+> > Arjan van de Ven wrote:
 
-0000:05:00.0 0300: 1002:5b60
-0000:05:00.1 0380: 1002:5b70
+> > > that's not enough to satisfy the GPL conditions.
+
+> > It is.
+
+>   3. You may copy and distribute the Program (or a work based on it,
+> under Section 2) in object code or executable form under the terms of
+> Sections 1 and 2 above provided that you also do one of the following:
+>
+>     a) Accompany it with the complete corresponding machine-readable
+>     source code, which must be distributed under the terms of Sections
+>     1 and 2 above on a medium customarily used for software interchange;
+
+	The Internet is a medium customarily used for software interchange, in
+fact, it is most likely the most popular medium for that purpose. At the
+time the GPL was written (June 1991), it arguably was not. So you will see a
+lot of arguments that including a URL was not sufficient. However, now that
+the Internet is the most popular medium for software interchange, offering a
+URL is actually the *best* way to make the source code available.
+
+	Anyone who argues otherwise is just looking to make trouble for no reason
+whatsoever. There is no medium you could possibly include that is more
+likely to be usable than a URL. The intent of this paragraph was that the
+software be available and easily accessible. A URL does this better than
+anything else.
+
+	DS
 
 
-On Mon, 10 Oct 2005, Lars Roland wrote:
-
-> Date: Mon, 10 Oct 2005 21:00:42 +0200
-> From: Lars Roland <lroland@gmail.com>
-> To: Gerhard Mack <gmack@innerfire.net>
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: Direct Rendering drivers for ATI X300 ?
-> 
-> On 10/10/05, Gerhard Mack <gmack@innerfire.net> wrote:
-> > Hello,
-> >
-> > Can anyone tell me if there are working open source DRM drivers that work
-> > on recent 2.6.x kernels for the ATI X300?  I've tried dri.sourceforge.net
-> > and r300 but neither seems to even bother compiling.  I've spent several
-> > hours on google without luck.
-> >
-> >         Gerhard
-> 
-> What are your dmesg reporting, when loading the modules, if you see
-> something along these lines:
-> 
-> -------------------
-> [drm] Initialized drm 1.0.0 20040925
-> PCI: Unable to reserve mem region #1:8000000@c0000000 for device 0000:01:00.0
-> [drm] Initialized radeon 1.19.0 20050911 on minor 0:
-> [drm] Used old pci detect: framebuffer loaded
-> mtrr: 0xc0000000,0x8000000 overlaps existing 0xc0000000,0x4000000
-> [drm:radeon_do_init_cp] *ERROR* Cannot use PCI Express without GART in
-> FB memory
-> -------------------
-> 
-> then you may have hit a possible x300/pci express issue - other than
-> that I have it working perfectly here with kernel 2.6.14rc1, Quake3 is
-> playable (although I am experiencing some minor problems with MergedFB
-> combined with 3D gaming). I have written a small guide for Gentoo that
-> explains how to get DRI/DRM working with R300 (and newer cards) all
-> though you may not use Gentoo it should be very easy to get it working
-> on other distributions:
-> 
-> The guide is here:
-> http://forums.gentoo.org/viewtopic-t-374745-highlight-r300.html
-> 
-> 
-> --------------
-> Regards.
-> 
-> Lars Roland
-> 
-
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.

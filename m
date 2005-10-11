@@ -1,85 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbVJKMPs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbVJKMan@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932081AbVJKMPs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 08:15:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932080AbVJKMPs
+	id S932079AbVJKMan (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 08:30:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932080AbVJKMan
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 08:15:48 -0400
-Received: from cimice0.lam.cz ([212.71.168.90]:57791 "EHLO cimice.yo.cz")
-	by vger.kernel.org with ESMTP id S932078AbVJKMPr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 08:15:47 -0400
-Date: Tue, 11 Oct 2005 14:15:25 +0200
-From: Jan Hudec <bulb@ucw.cz>
-To: David Teigland <teigland@redhat.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 03/16] GFS: core fs
-Message-ID: <20051011121525.GC16249@djinn>
-References: <20051010171002.GD22483@redhat.com> <20051010213928.GB2475@elf.ucw.cz>
+	Tue, 11 Oct 2005 08:30:43 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:54157 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S932079AbVJKMam
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 08:30:42 -0400
+From: Vincent Roqueta <vincent.roqueta@ext.bull.net>
+Organization: BULL SA
+To: linux-kernel@vger.kernel.org
+Subject: linux 2.6.13.3+ext3: journal block not found
+Date: Tue, 11 Oct 2005 14:33:56 +0200
+User-Agent: KMail/1.8.1
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="da4uJneut+ArUgXk"
+Message-Id: <200510111433.56067.vincent.roqueta@ext.bull.net>
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 11/10/2005 14:44:16,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 11/10/2005 14:44:18,
+	Serialize complete at 11/10/2005 14:44:18
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Disposition: inline
-In-Reply-To: <20051010213928.GB2475@elf.ucw.cz>
-User-Agent: Mutt/1.5.11
-X-Spam-Score: -4.5 (----)
-X-Spam-Report: Spam detection software, running on "shpek.cybernet.src", has inspected this
-	incomming email and gave it -4.5 points (spam is above 5.0)
-	Content analysis details:
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.9 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-1.7 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
---da4uJneut+ArUgXk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I use ext3 a laptop. The only disk intensive application I run is amule.
+ After a (short) while running it, the /home filesystem is remounted readonly.
 
-On Mon, Oct 10, 2005 at 23:39:28 +0200, Pavel Machek wrote:
-> Hi!
->=20
-> > Signed-off-by: Ken Preslan <ken@preslan.org>
-> > Signed-off-by: David Teigland <teigland@redhat.com>
->=20
-> > +	for (; blks; gfs2_replay_incr_blk(sdp, &start), blks--) {
->=20
-> > +		for (head =3D &ai->ai_ail1_list, tmp =3D head->prev, prev =3D tmp->p=
-rev;
-> > +		     tmp !=3D head;
-> > +		     tmp =3D prev, prev =3D tmp->prev) {
->=20
->=20
-> > +	for (head =3D &ai->ai_ail1_list, tmp =3D head->prev, prev =3D tmp->pr=
-ev;
-> > +	     tmp !=3D head;
-> > +	     tmp =3D prev, prev =3D tmp->prev) {
->=20
->=20
-> Can you get less creative in the for loops? [There are more examples
-> at other patches, for (i=3Dsomething; i--; ) was "nicest" example].
+ Here are the traces I get :
+Oct 11 08:17:39 localhost kernel: journal_bmap: journal block not found at 
+offset 6156 on hda6
+Oct 11 08:17:39 localhost kernel: Aborting journal on device hda6.
+Oct 11 08:17:39 localhost kernel: __journal_remove_journal_head: freeing 
+b_committed_data
+Oct 11 08:17:39 localhost last message repeated 2 times
+Oct 11 08:17:39 localhost kernel: journal commit I/O error
+Oct 11 08:17:39 localhost kernel: ext3_abort called.
+Oct 11 08:17:39 localhost kernel: EXT3-fs error (device hda6): 
+ext3_journal_start_sb: Detected aborted journal
+Oct 11 08:17:39 localhost kernel: Remounting filesystem read-only       
 
-The later two are good examples of where list_for_each_safe is
-appropriate.
+Kernel is linux 2.6.13.3
+FS is ext3.
 
---
-						 Jan 'Bulb' Hudec <bulb@ucw.cz>
-
---da4uJneut+ArUgXk
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFDS6zdRel1vVwhjGURApTDAJ4hsxRGFVNqQOOcW6Ix3fsL2f+VVwCg1+9K
-qjRqoXM/ufayzpSrU9CNP3c=
-=9NSE
------END PGP SIGNATURE-----
-
---da4uJneut+ArUgXk--
+Vincent

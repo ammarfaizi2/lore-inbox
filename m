@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751443AbVJKKFL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751329AbVJKKkN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751443AbVJKKFL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 06:05:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751445AbVJKKFL
+	id S1751329AbVJKKkN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 06:40:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751339AbVJKKkN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 06:05:11 -0400
-Received: from 109.82.233.220.exetel.com.au ([220.233.82.109]:43416 "EHLO
-	faex.net") by vger.kernel.org with ESMTP id S1751443AbVJKKFJ (ORCPT
+	Tue, 11 Oct 2005 06:40:13 -0400
+Received: from gate.crashing.org ([63.228.1.57]:46984 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751329AbVJKKkM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 06:05:09 -0400
-Date: Tue, 11 Oct 2005 20:05:02 +1000
-From: Rudolph Pereira <rudolph@faex.net>
-To: Wes Newell <w.newell@verizon.net>
-Cc: Aurelien Jarno <aurelien@aurel32.net>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, Lionel.Bouton@inet6.fr,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: [PATCH 2.6.14-rc3] sis5513.c: enable ATA133 for the SiS965 southbridge
-Message-ID: <20051011100502.GB29008@delta.faex.net>
-References: <20051005205906.GA4320@farad.aurel32.net> <58cb370e0510060240x2f2e31c3kd0609a06172d86a4@mail.gmail.com> <20051007094135.GA16386@farad.aurel32.net> <4346A41E.3020505@verizon.net>
+	Tue, 11 Oct 2005 06:40:12 -0400
+Subject: Re: ide_wait_not_busy oops still with 2.6.14-rc3 (Re: 1GHz pbook
+	15", linux 2.6.14-rc2 oops on resume)
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Soeren Sonnenburg <kernel@nn7.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1129026807.21318.15.camel@localhost>
+References: <1128323544.4602.5.camel@localhost>
+	 <pan.2005.10.06.19.19.22.673915@nn7.de>  <1128720351.17365.48.camel@gaston>
+	 <1128948118.23434.13.camel@localhost>  <1128982002.17365.163.camel@gaston>
+	 <1129026807.21318.15.camel@localhost>
+Content-Type: text/plain
+Date: Tue, 11 Oct 2005 20:36:26 +1000
+Message-Id: <1129026986.17365.206.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4346A41E.3020505@verizon.net>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 07, 2005 at 11:36:46AM -0500, Wes Newell wrote:
-> It appears to me that this patch will try and apply itself to the real 
-> SIS_180 which has the same true_id of 0x180. Can someone tell me what 
-> will happen then?
-Indeed, I've tried Aurelien's patch and it works fine for me (on an asus
-k8s-mx motherboard). Going back over the reasons for the patch that is
-in -mm that I submitted, which was a rework of
-a patch that Arnaud Patard/Uwe Koziolek sent to linux-ide, it seems that the
-thinking was that complex probing and/or configuration was required for
-this chipset. I don't have any specs to work from, and am not the expert
-in any case, but it would seem that this is not necessary, and
-just doing a standard detect of the southbridge id is fine.
+On Tue, 2005-10-11 at 12:33 +0200, Soeren Sonnenburg wrote:
+> On Tue, 2005-10-11 at 08:06 +1000, Benjamin Herrenschmidt wrote:
+> > > ok, here is the complete one:
+> > > 
+> > > BUG: soft lockup detected on CPU#0!
+> > 
+> > Gack, the soft lockup thing. Can you disable that ? If you do so, does
+> > it crashes instead of oopsing or just "pauses" for a little while on
+> > wakeup ? The problem is that ide_do_request does a synchronous wait for
+> > the drive to get out of busy state which can take a while with some
+> > optical drives on wakeup. It might be possible to allow scheduling
+> > there, I have to look at it. In the meantime, disable the lockup
+> > detector (CONFIG_DETECT_SOFTLOCKUP) and tell me if that's enough.
+> 
+> Hmmhh, I already compiled 2.6.14-rc4 but did not disable
+> soft-lockup-ing, should I still do it - the oops looks better as it is
+> not followed by a ATAPI reset anymore:
 
-Unless anyone has stronger evidence/experience, it would seem that the
-simplest/cleanest solution is an update to SiSHostChipInfo[], as in Aurelien's
-patch.
+It's still pretty annoying. I'll see what I can do but it won't be for
+2.6.14 timeframe, so in the meantime, just ignore it or remove soft
+lockup detection.
+
+Ben.
+
+

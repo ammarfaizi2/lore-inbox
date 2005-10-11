@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbVJKKxc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751339AbVJKKyt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750798AbVJKKxc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 06:53:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbVJKKxc
+	id S1751339AbVJKKyt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 06:54:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbVJKKyt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 06:53:32 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:47043 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1750798AbVJKKxc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 06:53:32 -0400
-Date: Tue, 11 Oct 2005 06:53:23 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-To: liyu <liyu@ccoss.com.cn>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [Question] Some question about Ingo scheduler.
-In-Reply-To: <434B8CA8.1080403@ccoss.com.cn>
-Message-ID: <Pine.LNX.4.58.0510110651460.1044@localhost.localdomain>
-References: <434732DA.20701@ccoss.com.cn> <Pine.LNX.4.58.0510090955160.19961@localhost.localdomain>
- <434B1FBD.3000803@ccoss.com.cn> <Pine.LNX.4.58.0510110147370.30989@localhost.localdomain>
- <434B6F0D.4040808@ccoss.com.cn> <Pine.LNX.4.58.0510110357560.1044@localhost.localdomain>
- <434B8CA8.1080403@ccoss.com.cn>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 11 Oct 2005 06:54:49 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:5060 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751339AbVJKKys (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 06:54:48 -0400
+Date: Tue, 11 Oct 2005 12:55:09 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: John Rigg <lk@sound-man.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-rc3-rt10 crashes on boot
+Message-ID: <20051011105509.GA15091@elte.hu>
+References: <E1ENxei-0001C9-F7@localhost.localdomain> <Pine.LNX.4.58.0510071538380.8980@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0510071538380.8980@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Oct 2005, liyu wrote:
->
-> In fact, your first reply already is very clearly, but I read too
-> quickly to ignore something.
->
-> These code of only six lines imply so many secrets. All interesting came
-> from it.
->
 
-Hi liyu,
+* Steven Rostedt <rostedt@goodmis.org> wrote:
 
-Looks like you understand it now.  Good!
+> > I wonder if DEBUG_STACKOVERFLOW was left out of x86_64 for this reason.
+> 
+> Here's an addon patch to my last one.  I don't know x86_64 very well, 
+> but I believe the the asm is pretty much the same, so this patch 
+> removes the check for __i386__ and also defines STACK_WARN.
 
-> Happy everyday.
->
+this wont work on x64 - but i've now implemented this in my tree and it 
+should work fine in -rc4-rt1.
 
-Thank you, same to you. ;-)
-
-
--- Steve
-
+	Ingo

@@ -1,65 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbVJKOyE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932118AbVJKOxr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932114AbVJKOyE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 10:54:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbVJKOyE
+	id S932118AbVJKOxr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 10:53:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932110AbVJKOxq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 10:54:04 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:24762 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932110AbVJKOyC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 10:54:02 -0400
-Date: Tue, 11 Oct 2005 07:44:43 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, linux@horizon.com,
-       Kirill Korotaev <dev@sw.ru>
-Subject: Re: i386 spinlock fairness: bizarre test results
-In-Reply-To: <1129035658.23677.46.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0510110740050.14597@g5.osdl.org>
-References: <200510110007_MC3-1-AC4C-97EA@compuserve.com>
- <1129035658.23677.46.camel@localhost.localdomain>
+	Tue, 11 Oct 2005 10:53:46 -0400
+Received: from tirith.ics.muni.cz ([147.251.4.36]:51924 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S932107AbVJKOxp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 10:53:45 -0400
+Message-ID: <434BD1FB.7070608@gmail.com>
+Date: Tue, 11 Oct 2005 16:53:47 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: cs, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Grzegorz Nosek <grzegorz.nosek@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: sys_sendfile oops in 2.6.13?
+References: <121a28810510110156q1369b9dg@mail.gmail.com>
+In-Reply-To: <121a28810510110156q1369b9dg@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Muni-Spam-TestIP: 147.251.51.171
+X-Muni-Envelope-From: jirislaby@gmail.com
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Grzegorz Nosek napsal(a):
 
+>Hi all
+>
+>I found an (IMHO) silly bug in do_sendfile in 2.6.13.x kernels (at
+>least in 2.6.13.3 and .4, didn't backtrack to find where it
+>originated). Without the patch all I apparently get from sys_sendfile
+>is an oops due to a call in sys_sendfile with ppos being NULL. With the
+>patch it works OK. Noticed in vsftpd.
+>
+>The patch may apply with some fuzz as my kernel is somehwat patched but
+>the gist of the patch is the same anyway
+>
+>Regards,
+> Grzegorz Nosek
+>
+>--- linux-2.6/fs/read_write.c~  2005-10-06 21:35:03.000000000 +0200
+>+++ linux-2.6/fs/read_write.c   2005-10-05 19:14:04.000000000 +0200
+>@@ -719,7 +719,7 @@
+>       current->syscr++;
+>       current->syscw++;
+>
+>-       if (*ppos > max)
+>+       if (ppos && *ppos > max)
+>  
+>
+I don't know the code surrounding this, but shouldn't be this
+(!ppos || *ppos > max)?
 
-On Tue, 11 Oct 2005, Alan Cox wrote:
+>               retval = -EOVERFLOW;
+>
+> fput_out:
+>  
+>
+-- 
+js
 
-> On Maw, 2005-10-11 at 00:04 -0400, Chuck Ebbert wrote:
-> >   That test machine was a dual 350MHz Pentium II Xeon; on a dual 333MHz Pentium II
-> > Overdrive (with very slow Socket 8 bus) I could not reproduce those results.
-> > However, on that machine the 'xchg' instruction made the test run almost 20%
-> > _faster_ than using 'mov'.
-> > 
-> >   So I think the i386 spinlock code should be changed to always use 'xchg' to do
-> > spin_unlock.
-> 
-> 
-> Using xchg on the spin unlock path is expensive. Really expensive on P4
-> compared to movb. It also doesn't guarantee anything either way around
-> especially as you go to four cores or change CPU (or in some cases quite
-> likely even chipset).
-
-Indeed.
-
-I suspect that the behaviour Chuck saw is (a) only present under 
-contention and (b) very much dependent on other timing issues.
-
-(a) is the wrong thing to optimize for, and (b) means that Chuck's numbers 
-aren't reliable anyway (as shown by the fact that things like instruction 
-alignment matters, and by Eric's numbers on other machines).
-
-We want the spinlocks to behave well when they are _not_ under heavy 
-contention. If a spinlock gets so much contention that it starts having 
-these kinds of issues, then there's something wrong at higher levels, and 
-the fix is to use a different algorithm, or use a different kind of lock.
-
-Spinlocks by definition are the _simplest_ locks there are. Not the 
-smartest or most fair. Trying to make them anything else is kind of 
-missing the whole point of them.
-
-			Linus

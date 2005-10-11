@@ -1,33 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbVJKXtv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932345AbVJKXu0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751113AbVJKXtv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 19:49:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbVJKXtv
+	id S932345AbVJKXu0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 19:50:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932364AbVJKXu0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 19:49:51 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:21711 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751113AbVJKXtu
+	Tue, 11 Oct 2005 19:50:26 -0400
+Received: from science.horizon.com ([192.35.100.1]:24114 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S932345AbVJKXuZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 19:49:50 -0400
-Date: Wed, 12 Oct 2005 00:49:48 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Borislav Petkov <bbpetkov@yahoo.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, tgraf@suug.ch,
-       pablo@eurodev.net
-Subject: Re: [was: Linux v2.6.14-rc4] fix textsearch build warning
-Message-ID: <20051011234948.GX7992@ftp.linux.org.uk>
-References: <Pine.LNX.4.64.0510101824130.14597@g5.osdl.org> <20051011145454.GA30786@gollum.tnic> <20051011205949.GU7992@ftp.linux.org.uk> <20051011230233.GA20187@gollum.tnic> <Pine.LNX.4.64.0510111629490.14597@g5.osdl.org> <Pine.LNX.4.64.0510111634070.14597@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0510111634070.14597@g5.osdl.org>
-User-Agent: Mutt/1.4.1i
+	Tue, 11 Oct 2005 19:50:25 -0400
+Date: 11 Oct 2005 19:50:17 -0400
+Message-ID: <20051011235017.21719.qmail@science.horizon.com>
+From: linux@horizon.com
+To: dev@sw.ru
+Subject: Re: SMP syncronization on AMD processors (broken?)
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 11, 2005 at 04:38:14PM -0700, Linus Torvalds wrote:
-> I'll merge the full series after 2.6.14..
+> The whole story started when we wrote the following code:
+> 
+> void XXX(void)
+> {
+> 	/* ints disabled */
+> restart:
+> 	spin_lock(&lock);
+> 	do_something();
+> 	if (!flag)
+> 		need_restart = 1;
+> 	spin_unlock(&lock);
+> 	if (need_restart)
+> 		goto restart;	<<<< LOOPS 4EVER ON AMD!!!
+> }
+> 
+> void YYY(void)
+> {
+> 	spin_lock(&lock);	<<<< SPINS 4EVER ON AMD!!!
+> 	flag = 1;
+> 	spin_unlock(&lock);
+> }
+> 
+> function XXX() starts on CPU0 and begins to loop since flag is not set, 
+> then CPU1 calls function YYY() and it turns out that it can't take the 
+> lock any arbitrary time.
 
-BTW, do you want me to post it now (marked "post-2.6.14") or would you prefer
-to get it right after 2.6.14 gets released?  It's at 20-odd patches by now..
+The right thing to do here is to wait for the flag to be set *outside*
+the lock, and then re-validate inside the lock:
+
+void XXX(void)
+{
+	/* ints disabled */
+restart:
+	spin_lock(&lock);
+	do_something();
+	if (!flag)
+		need_restart = 1;
+	spin_unlock(&lock);
+	if (need_restart) {
+		while (!flag)
+			cpu_relax();
+		goto restart;
+	}
+}
+
+This way, XXX() keeps the lock dropped for as long as it takes for
+YYY() to notice and grab it.
+
+
+However, I realize that this is of course a simplified case of some real
+code, where even *finding* the flag requires the spin lock.
+
+The generic solution is to have a global "progress" counter, which
+records "I made progress toward setting flag", that XXX() can
+busy-loop on:
+
+int progress;
+
+void XXX(void)
+{
+	int old_progress;
+	/* ints disabled */
+restart:
+	spin_lock(&lock);
+	do_something();
+	if (!flag) {
+		old_progress = progress;
+		need_restart = 1;
+	}
+	spin_unlock(&lock);
+	if (need_restart) {
+		while (progress == old_progress)
+			cpu_relax();
+		goto restart;
+	}
+}
+
+void YYY(void)
+{
+	spin_lock(&lock);
+	flag = 1;
+	progress++;
+	spin_unlock(&lock);
+}
+
+It may be that in your data structure, there is one or a series of
+fields that already exist that you can use for the purpose.  The goal
+is to merely detect *change*, so you can reacquire the lock and test
+definitively.  It's okay to read freed memory while doing this, as long as
+you can be sure that:
+- The memory read won't oops the kernel, and
+- You don't end up depending on the value of the freed memory to
+  get you out of the stall.

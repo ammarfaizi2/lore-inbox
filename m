@@ -1,83 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751423AbVJKI4W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751427AbVJKI4p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751423AbVJKI4W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 04:56:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751425AbVJKI4W
+	id S1751427AbVJKI4p (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 04:56:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751429AbVJKI4p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 04:56:22 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:37115 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S1751423AbVJKI4V
+	Tue, 11 Oct 2005 04:56:45 -0400
+Received: from qproxy.gmail.com ([72.14.204.200]:21517 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751427AbVJKI4o convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 04:56:21 -0400
-Subject: Re: Latency data - 2.6.14-rc3-rt13
-From: Sven-Thorsten Dietrich <sven@mvista.com>
-To: Mark Knecht <markknecht@gmail.com>
-Cc: Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>
-In-Reply-To: <5bdc1c8b0510102045u7e4bc9eeld5b690b5e96c4a5f@mail.gmail.com>
-References: <5bdc1c8b0510101316k23ff64e2i231cdea7f11e8553@mail.gmail.com>
-	 <1128977359.18782.199.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-	 <5bdc1c8b0510101412n714c4798v1482254f6f8e0386@mail.gmail.com>
-	 <5bdc1c8b0510101428o475d9dbct2e9bdcc6b46418c9@mail.gmail.com>
-	 <1128980674.18782.211.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-	 <5bdc1c8b0510101509w4c74028apb6e69746b1b8b65b@mail.gmail.com>
-	 <1128983301.18782.215.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-	 <5bdc1c8b0510101633lc45fbf8gd2677e5646dc6f93@mail.gmail.com>
-	 <5bdc1c8b0510101649s221ab437scc49d6a49269d6b@mail.gmail.com>
-	 <5bdc1c8b0510102045u7e4bc9eeld5b690b5e96c4a5f@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 11 Oct 2005 01:56:19 -0700
-Message-Id: <1129020979.10291.6.camel@imap.mvista.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Oct 2005 04:56:44 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Ej86N+6CfITo6q+ImQHuZDdKdw+TaAAnXRdZ7djZGisb40O4hCLNN1z+TRvKiAILKnuxeuZooZD16tCqHmwgvqS0gNZbVg9Swa5zMmCMvkUbQO7fafQOb7GPWDNdgDOsMj/mVjP3L+fkkWfqhkGKveHx1UctPdKVf5zCoeXdaTk=
+Message-ID: <121a28810510110156q1369b9dg@mail.gmail.com>
+Date: Tue, 11 Oct 2005 10:56:43 +0200
+From: Grzegorz Nosek <grzegorz.nosek@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: sys_sendfile oops in 2.6.13?
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-10-10 at 20:45 -0700, Mark Knecht wrote:
-> On 10/10/05, Mark Knecht <markknecht@gmail.com> wrote:
-> >
-> > ( softirq-timer/0-3    |#0): new 3997 us maximum-latency critical section.
-> 
-> So the root cause of this 4mS delay is the 250Hz timer. If I change
-> the system to use the 1Khz timer then the time in this section drops,
-> as expected, to 1mS.
-> 
-> ( softirq-timer/0-3    |#0): new 998 us maximum-latency critical section.
->  => started at timestamp 121040020: <acpi_processor_idle+0x20/0x379>
->  =>   ended at timestamp 121041019: <thread_return+0xb5/0x11a>
-> 
-> So, thinking very interesting here I think.
-> 
+Hi all
 
-Maximum preemption latencies near the timer period 
-are sometimes indicative of mismatched 
-preempt_disable/preempt_enable pairs in the code.
+I found an (IMHO) silly bug in do_sendfile in 2.6.13.x kernels (at
+least in 2.6.13.3 and .4, didn't backtrack to find where it
+originated). Without the patch all I apparently get from sys_sendfile
+is an oops due to a call in sys_sendfile with ppos being NULL. With the
+patch it works OK. Noticed in vsftpd.
 
-Usually the scheduler warns about that on the console, however.
+The patch may apply with some fuzz as my kernel is somehwat patched but
+the gist of the patch is the same anyway
 
-Sven
+Regards,
+ Grzegorz Nosek
 
-> Back to the drawing board as to my xruns.
-> 
-> - Mark
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-***********************************
-Sven-Thorsten Dietrich
-Real-Time Software Architect
-MontaVista Software, Inc.
-1237 East Arques Ave.
-Sunnyvale, CA 94085
+--- linux-2.6/fs/read_write.c~  2005-10-06 21:35:03.000000000 +0200
++++ linux-2.6/fs/read_write.c   2005-10-05 19:14:04.000000000 +0200
+@@ -719,7 +719,7 @@
+       current->syscr++;
+       current->syscw++;
 
-Phone: 408.992.4515
-Fax: 408.328.9204
+-       if (*ppos > max)
++       if (ppos && *ppos > max)
+               retval = -EOVERFLOW;
 
-http://www.mvista.com
-Platform To Innovate
-*********************************** 
-
+ fput_out:

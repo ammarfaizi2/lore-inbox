@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbVJKALj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbVJKA0p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751306AbVJKALj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 20:11:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751308AbVJKALj
+	id S1751309AbVJKA0p (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 20:26:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbVJKA0p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 20:11:39 -0400
-Received: from mail.kroah.org ([69.55.234.183]:64481 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751306AbVJKALi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 20:11:38 -0400
-Date: Mon, 10 Oct 2005 17:10:56 -0700
-From: Greg KH <greg@kroah.com>
-To: linas <linas@austin.ibm.com>
-Cc: paulus@samba.org, linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 20/22] PCI Error Recovery: e100 network device driver
-Message-ID: <20051011001056.GA16634@kroah.com>
-References: <20051006232032.GA29826@austin.ibm.com> <20051006235729.GU29826@austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 10 Oct 2005 20:26:45 -0400
+Received: from rproxy.gmail.com ([64.233.170.200]:48134 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751309AbVJKA0o convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 20:26:44 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ai/1MofrVSoJbbBmG0qJPkmeKV4IO4ZFrk+Nde0oExPRUizVv/g9tVy+xEOk67RE8V5B082LpMH5tFxKyWqWo+nTCja+TsFdIITSO7bGCHVTC365PS0ESXIaM1WOYq/Ld5NseuCD77s6GUE+31GlPB411L23t6KAnzMEmo6j1Wc=
+Message-ID: <21d7e9970510101726h5bf920f0y3b7c42a6ff98734e@mail.gmail.com>
+Date: Tue, 11 Oct 2005 10:26:41 +1000
+From: Dave Airlie <airlied@gmail.com>
+To: Lars Roland <lroland@gmail.com>
+Subject: Re: Direct Rendering drivers for ATI X300 ?
+Cc: Gerhard Mack <gmack@innerfire.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <4ad99e050510101200m6f3e1abh7ff8fb6b08b3c0e6@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051006235729.GU29826@austin.ibm.com>
-User-Agent: Mutt/1.5.11
+References: <Pine.LNX.4.64.0510101230360.8804@innerfire.net>
+	 <4ad99e050510101200m6f3e1abh7ff8fb6b08b3c0e6@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 06, 2005 at 06:57:29PM -0500, linas wrote:
-> +config E100_EEH_RECOVERY
-> +	bool "Enable PCI bus error recovery"
-> +	depends on E100 && PPC_PSERIES
-> +   help
-> +      If you say Y here, the driver will be able to recover from
-> +      PCI bus errors on many PowerPC platforms. IBM pSeries users
-> +      should answer Y.
+>
+> What are your dmesg reporting, when loading the modules, if you see
+> something along these lines:
+>
 
-Why make a config option for this at all?  Who would turn it off?
+For PCI Express Radeon cards:
 
-> @@ -2661,6 +2731,9 @@
->  	.resume =       e100_resume,
->  #endif
->  	.shutdown =	e100_shutdown,
-> +#ifdef CONFIG_E100_EEH_RECOVERY
-> +	.err_handler = &e100_err_handler,
-> +#endif /* CONFIG_E100_EEH_RECOVERY */
+The kernel portions are in my -git tree ready for pushing to Linus
+after the next release is made,
 
-No, don't put #ifdefs in the middle of a structure, remember we made
-err_handler always present in the .h file for a reason...
+The userspace portions requires X.org/Mesa/DRM CVS trees.
 
-thanks,
+The DRM CVS also contains the kernel portions....
 
-greg k-h
+Dave.

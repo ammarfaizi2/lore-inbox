@@ -1,62 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751319AbVJKBcR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbVJKBsl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751319AbVJKBcR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 21:32:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbVJKBcR
+	id S1751344AbVJKBsl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 21:48:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbVJKBsl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 21:32:17 -0400
-Received: from xproxy.gmail.com ([66.249.82.207]:36314 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751319AbVJKBcQ convert rfc822-to-8bit
+	Mon, 10 Oct 2005 21:48:41 -0400
+Received: from nproxy.gmail.com ([64.233.182.198]:53601 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751344AbVJKBsk convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 21:32:16 -0400
+	Mon, 10 Oct 2005 21:48:40 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=IewAr0VhFsWIyyjEqtfgjfBDtHNqcf0RZN0wvRADcIXk0gPvpOvYP3ndUO4+UOzfaBLihuN3l4NAHsWOO8TtS2xqPHSCIiuOwoTTbmH+kJZnLfU1WGAZQY7XrhLNQCcxDgA7vU+gvuKcpfVQXpjyPXcZcEXEjOp6iMQWyAW+wiM=
-Message-ID: <5bdc1c8b0510101832v5f0c80d0ldec1ade4d4530292@mail.gmail.com>
-Date: Mon, 10 Oct 2005 18:32:15 -0700
-From: Mark Knecht <markknecht@gmail.com>
-To: Robert Crocombe <rwcrocombe@raytheon.com>
-Subject: Re: PS/2 Keyboard under 2.6.x
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <434B121A.3000705@raytheon.com>
+        b=PYMkzAFSa+/WnsmO3Re+zrgx1Vd+ier2dMcHULZF32dXwKLxBpfCn3jaflOdhXYO9OLNZTk7CoVOrBK3c6YTSI3Oo4gpWo6l3adstGs/eA+RdY8GexgBGCQjXMnuwvVow1k2kPjEx6nkDapJsbwnJXyMz1gINQYkTCh9/hr+wt4=
+Message-ID: <2cd57c900510101848l5ecaa7e3p134f2e51950ab277@mail.gmail.com>
+Date: Tue, 11 Oct 2005 09:48:39 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: THE LINUX/I386 BOOT PROTOCOL - Breaking the 256 limit
+Cc: Alon Bar-Lev <alon.barlev@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <431DFEC3.1070309@zytor.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <434B121A.3000705@raytheon.com>
+References: <4315B668.6030603@gmail.com> <43162148.9040604@zytor.com>
+	 <20050831215757.GA10804@taniwha.stupidest.org>
+	 <431628D5.1040709@zytor.com> <431DF9E9.5050102@gmail.com>
+	 <431DFEC3.1070309@zytor.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/10/05, Robert Crocombe <rwcrocombe@raytheon.com> wrote:
+On 9/7/05, H. Peter Anvin <hpa@zytor.com> wrote:
+> Alon Bar-Lev wrote:
+> >
+> > Hello Peter, I've written a reply before but got no response...
+> >
+> > The idea of putting arguments in initramfs is not practical, since the
+> > whole idea is to have the same image of system and affecting its
+> > behavior using the boot loader...
+> >
 >
-> I have a Microway system based around the Tyan Thunder K8QS Pro
-> motherboard (4x Opterons).  Under recent versions of 2.6:
+> No, you're wrong.  The boot loader can synthesize an initramfs.
 >
-> 2.6.12
-> 2.6.13
-> 2.6.13.3
-> 2.6.14-rc3-rt13
+> > I would like to push forward the idea to extend the command-line size...
+> >
+> > All we need for start is an updated version of the "THE LINUX/I386 BOOT
+> > PROTOCOL" document that states that in the 2.02+  protocol the boot
+> > loader should set cmd_line_ptr to a pointer to a null terminated string
+> > without any size restriction, specifying that the kernel will read as
+> > much as it can.
 >
-> the PS/2-connected keyboard becomes unresponsive once the kernel has
-> booted (I can use it to select which kernel to boot in grub -- actually,
-> it must be present to keep the system from whining and asking me to
-> press F1).  A USB keyboard works (I am composing this message from the
-> affected machine).  I attempted using earlier versions of the kernel,
-> but they do not compile before 2.6.12, and if you go far enough back
-> 'make menuconfig' doesn't work (I found and fixed the minor error that
-> was reported, but haven't attempted to build those kernels again).
+> Already pushed to Andrew.  I will follow it up with a patch to extend
+> the command line, at least to 512.
 >
+> > After I get this update, I will try to work with GRUB and LILO so that
+> > they will fix their implementation. Currently they claim that they
+> > understand that they should truncate the string to 256.
+> >
+> > After that I will provide my simple  patch for setting the maximum size
+> > the kernel allocates in the configuration.
+> >
+> > BTW: Do you know why the COMMAND_LINE_SIZE constant is located in two
+> > separate include files?
+>
+> No, I don't.  It could be because one is included from assembly code in
+> the i386 architecture.
 
-I just reported this problem on the Gentoo bugzilla a couple of days
-ago. Here I have a P4HT machine. I had never turned on SMP to use the
-hyperthreading feature. When I turned it on I got exactly the problem
-you talk about. When I went back to UMP it worked fine.
 
-My keyboard is a wireless thing that had a little dongle to make it
-into ps2. I took that off and used the keyboard as a USB keyboard and
-it works fine under SMP.
-
-This was on 2.6.13-gentoo-r3 for me.
-
-- Mark
+The kernel uses the setup.h COMMAND_LINE_SIZE for both assembly and C
+code. COMMAND_LINE_SIZE in param.h is only for bootloader IMHO.
+--
+Coywolf Qi Hunt
+http://sosdg.org/~coywolf/

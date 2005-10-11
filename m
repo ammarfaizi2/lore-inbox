@@ -1,51 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbVJKXYY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932358AbVJKXbM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932123AbVJKXYY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 19:24:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbVJKXYX
+	id S932358AbVJKXbM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 19:31:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbVJKXbM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 19:24:23 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:55755 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932123AbVJKXYX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 19:24:23 -0400
-Date: Wed, 12 Oct 2005 00:24:21 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Borislav Petkov <bbpetkov@yahoo.de>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, tgraf@suug.ch,
-       pablo@eurodev.net
-Subject: Re: [was: Linux v2.6.14-rc4] fix textsearch build warning
-Message-ID: <20051011232421.GW7992@ftp.linux.org.uk>
-References: <Pine.LNX.4.64.0510101824130.14597@g5.osdl.org> <20051011145454.GA30786@gollum.tnic> <20051011205949.GU7992@ftp.linux.org.uk> <20051011230233.GA20187@gollum.tnic>
+	Tue, 11 Oct 2005 19:31:12 -0400
+Received: from pat.qlogic.com ([198.70.193.2]:2594 "EHLO avexch01.qlogic.com")
+	by vger.kernel.org with ESMTP id S932352AbVJKXbL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 19:31:11 -0400
+Date: Tue, 11 Oct 2005 16:31:08 -0700
+From: Andrew Vasquez <andrew.vasquez@qlogic.com>
+To: Olaf Hering <olh@suse.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       linux-scsi@vger.kernel.org
+Subject: Re: [SCSI] qla2xxx: fix remote port timeout with qla2xxx driver
+Message-ID: <20051011233108.GA25279@plap.qlogic.org>
+References: <200510031643.j93GhgRY023585@hera.kernel.org> <20051010170136.GA9736@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051011230233.GA20187@gollum.tnic>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20051010170136.GA9736@suse.de>
+Organization: QLogic Corporation
+User-Agent: Mutt/1.5.9i
+X-OriginalArrivalTime: 11 Oct 2005 23:31:09.0868 (UTC) FILETIME=[DC364EC0:01C5CEBB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 12, 2005 at 01:02:33AM +0200, Borislav Petkov wrote:
-> Hm, I think that this is even merged already, at least the exact same one liner
-> I sent is in Linus' git (see commit id dd0fc66fb33cd610bc1a5db8a5e232d34879b4d7). By the way, how
-> can you see the patch's source by using the commit id? 
-; git-cat-file commit dd0fc66fb33cd610bc1a5db8a5e232d34879b4d7
-tree 51f96a9db96293b352e358f66032e1f4ff79fafb
-parent 3b0e77bd144203a507eb191f7117d2c5004ea1de
-author Al Viro <viro@ftp.linux.org.uk> 1128667564 +0100
-committer Linus Torvalds <torvalds@g5.osdl.org> 1128808857 -0700
+On Mon, 10 Oct 2005, Olaf Hering wrote:
 
-[PATCH] gfp flags annotations - part 1
+>  On Mon, Oct 03, Linux Kernel Mailing List wrote:
+> 
+> > tree e50f57f9c85bacf3fc07359b1a339432dea31a7a
+> > parent 6f3a20242db2597312c50abc11f1e747c5d2326a
+> > author Andrew Vasquez <andrew.vasquez@qlogic.com> Wed, 21 Sep 2005 03:32:11 -0700
+> > committer James Bottomley <jejb@mulgrave.(none)> Sun, 25 Sep 2005 22:11:35 -0500
+> > 
+> > [SCSI] qla2xxx: fix remote port timeout with qla2xxx driver
+> > diff --git a/drivers/scsi/qla2xxx/qla_rscn.c b/drivers/scsi/qla2xxx/qla_rscn.c
+> > --- a/drivers/scsi/qla2xxx/qla_rscn.c
+> > +++ b/drivers/scsi/qla2xxx/qla_rscn.c
+> > @@ -330,6 +330,8 @@ qla2x00_update_login_fcport(scsi_qla_hos
+> >  	fcport->flags &= ~FCF_FAILOVER_NEEDED;
+> >  	fcport->iodesc_idx_sent = IODESC_INVALID_INDEX;
+> >  	atomic_set(&fcport->state, FCS_ONLINE);
+> > +	if (fcport->rport)
+> > +		fc_remote_port_unblock(fcport->rport);
+> 
+> 
+> This patch lacks an #include, probably scsi/scsi_transport_fc.h:
+> 
+> drivers/scsi/qla2xxx/qla_rscn.c:334: error: implicit declaration of function 'fc_remote_port_unblock'
 
- - added typedef unsigned int __nocast gfp_t;
+Yes,  here's a one-liner to add the proper include.
 
- - replaced __nocast uses for gfp flags with gfp_t - it gives exactly
-   the same warnings as far as sparse is concerned, doesn't change
-   generated code (from gcc point of view we replaced unsigned int with
-   typedef) and documents what's going on far better.
+---
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-
-and no, that's not it.
+diff --git a/drivers/scsi/qla2xxx/qla_rscn.c b/drivers/scsi/qla2xxx/qla_rscn.c
+index 1eba988..11682a2 100644
+--- a/drivers/scsi/qla2xxx/qla_rscn.c
++++ b/drivers/scsi/qla2xxx/qla_rscn.c
+@@ -18,6 +18,8 @@
+  */
+ #include "qla_def.h"
+ 
++#include <scsi/scsi_transport_fc.h>
++
+ /**
+  * IO descriptor handle definitions.
+  *

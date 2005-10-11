@@ -1,60 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932104AbVJKOsM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbVJKOvL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932104AbVJKOsM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 10:48:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932106AbVJKOsL
+	id S932106AbVJKOvL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 10:51:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbVJKOvK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 10:48:11 -0400
-Received: from pat.uio.no ([129.240.130.16]:24283 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932104AbVJKOsK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 10:48:10 -0400
-Subject: Re: Cache invalidation bug in NFS v3 - trivially reproducible
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Leif Nixon <nixon@nsc.liu.se>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <m33bn8bet4.fsf@nammatj.nsc.liu.se>
-References: <m33bn8bet4.fsf@nammatj.nsc.liu.se>
-Content-Type: text/plain
-Date: Tue, 11 Oct 2005 10:47:57 -0400
-Message-Id: <1129042077.11164.9.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+	Tue, 11 Oct 2005 10:51:10 -0400
+Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:28863 "HELO
+	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932106AbVJKOvJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 10:51:09 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=ISSUjGh6MXcuQ7g39MBQGDRtEbrj6AQLyKhRFXUBZWfx65Nt6EHGWSi6KeA0PJxJmFxZJDG/Syq86BI0cQAY5FxuzkeYoxTIlujY36rtqI5AzBkNQUxu6sTrxjvFJXomZ4y8JRx3KUD/pC5r6kULifDahNw2axwMt+mDR9Oal6U=  ;
+Message-ID: <434BCE80.2060405@yahoo.com.au>
+Date: Wed, 12 Oct 2005 00:38:56 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050914 Debian/1.7.11-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Hugh Dickins <hugh@veritas.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6.14-rc2-mm2] core remove PageReserved
+References: <434B7F19.5040808@yahoo.com.au> <1129035883.23677.48.camel@localhost.localdomain> <434BC095.4050305@yahoo.com.au> <Pine.LNX.4.61.0510111454530.2950@goblin.wat.veritas.com> <434BCDF5.2080707@yahoo.com.au>
+In-Reply-To: <434BCDF5.2080707@yahoo.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.905, required 12,
-	autolearn=disabled, AWL 0.91, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ty den 11.10.2005 Klokka 11:09 (+0200) skreiv Leif Nixon:
-> Hi,
-> 
-> We have come across a bug where a NFS v3 client fails to invalidate
-> its data cache for a file even though it realizes that the file
-> attributes have changed. We have been able to recreate the bug on a
-> range of kernel versions and different underlying file systems.
-> 
-> Here's a minimal way to reproduce the error (there seems to be some
-> timing issues involved, but this has worked at least 90% of the time):
-> 
->   NFS client n1                NFS client n2
-> 
->   $ echo 1 > f
-> 			       $ cat f
-> 			       1
->   $ touch .
->   $ echo 2 > f
-> 			       $ touch f
-> 			       $ cat f
-> 			       1
-> 
-> Now client n2 is stuck in a state where it uses its old cached data
-> forever (or at least for several hours):
+Nick Piggin wrote:
 
-Yep. I can see a problem whereby the cache is "losing" consistency
-information when you do this sort of thing. I'm working on a fix.
+> Right. As a security issue it is nothing new, though probably it will
+> be eaiser for big 64-bit systems to _unintentionally_ wrap the ZERO_PAGE
+> refcount.
+> 
 
-Cheers,
-  Trond
+Infinitely more probable in fact, considering it was impossible beforehand.
 
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

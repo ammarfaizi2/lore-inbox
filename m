@@ -1,46 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbVJKA0p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751177AbVJKAWW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751309AbVJKA0p (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Oct 2005 20:26:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbVJKA0p
+	id S1751177AbVJKAWW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Oct 2005 20:22:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbVJKAWW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Oct 2005 20:26:45 -0400
-Received: from rproxy.gmail.com ([64.233.170.200]:48134 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751309AbVJKA0o convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Oct 2005 20:26:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ai/1MofrVSoJbbBmG0qJPkmeKV4IO4ZFrk+Nde0oExPRUizVv/g9tVy+xEOk67RE8V5B082LpMH5tFxKyWqWo+nTCja+TsFdIITSO7bGCHVTC365PS0ESXIaM1WOYq/Ld5NseuCD77s6GUE+31GlPB411L23t6KAnzMEmo6j1Wc=
-Message-ID: <21d7e9970510101726h5bf920f0y3b7c42a6ff98734e@mail.gmail.com>
-Date: Tue, 11 Oct 2005 10:26:41 +1000
-From: Dave Airlie <airlied@gmail.com>
-To: Lars Roland <lroland@gmail.com>
-Subject: Re: Direct Rendering drivers for ATI X300 ?
-Cc: Gerhard Mack <gmack@innerfire.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <4ad99e050510101200m6f3e1abh7ff8fb6b08b3c0e6@mail.gmail.com>
+	Mon, 10 Oct 2005 20:22:22 -0400
+Received: from mail.servus.at ([193.170.194.20]:273 "EHLO mail.servus.at")
+	by vger.kernel.org with ESMTP id S1751177AbVJKAWW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Oct 2005 20:22:22 -0400
+Message-ID: <434B0609.6080109@oberhumer.com>
+Date: Tue, 11 Oct 2005 02:23:37 +0200
+From: "Markus F.X.J. Oberhumer" <markus@oberhumer.com>
+Organization: oberhumer.com
+User-Agent: Mozilla Thunderbird 1.0.7-1.4.1.centos4 (X11/20051007)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.64.0510101230360.8804@innerfire.net>
-	 <4ad99e050510101200m6f3e1abh7ff8fb6b08b3c0e6@mail.gmail.com>
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386: fix stack alignment for signal handlers
+References: <43273CB3.7090200@oberhumer.com> <20050914154425.GM11338@wotan.suse.de> <43494B3F.5070303@oberhumer.com> <200510091857.11566.ak@suse.de>
+In-Reply-To: <200510091857.11566.ak@suse.de>
+X-no-Archive: yes
+X-Oberhumer-Conspiracy: There is no conspiracy. Trust us.
+Content-Type: multipart/mixed;
+ boundary="------------040106040204080704030402"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> What are your dmesg reporting, when loading the modules, if you see
-> something along these lines:
->
+This is a multi-part message in MIME format.
+--------------040106040204080704030402
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-For PCI Express Radeon cards:
+I've just seen that Linus has merged my second patch, so here is one more 
+missing piece to fix ia64 in ia32 emulation as well.
 
-The kernel portions are in my -git tree ready for pushing to Linus
-after the next release is made,
+~Markus
 
-The userspace portions requires X.org/Mesa/DRM CVS trees.
+p.s. this patch has not been tested due to lack of hardware
 
-The DRM CVS also contains the kernel portions....
 
-Dave.
+Andi Kleen wrote:
+> On Sunday 09 October 2005 18:54, Markus F.X.J. Oberhumer wrote:
+> 
+> 
+>>Here is a somewhat simplified version of my previous patch with
+>>updated comments.
+>>
+>>Attached is also a new small user-space test program which does not
+>>depend on any special gcc features and should trigger the problem on all
+>>machines.
+> 
+> 
+> I already have a version of the patch in my queue, but it's not a strict 
+> bugfix so it's only for after 2.6.14.
+> 
+> -Andi
+> 
+> ftp://ftp.firstfloor.org/pub/ak/x86_64/quilt-current/patches/sigframe-alignment
+> 
+> 
+
+-- 
+Markus Oberhumer, <markus@oberhumer.com>, http://www.oberhumer.com/
+
+--------------040106040204080704030402
+Content-Type: text/x-patch;
+ name="i386-align_sigframe-ia64.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="i386-align_sigframe-ia64.patch"
+
+[PATCH] i386: fix stack alignment for signal handlers (ia64)
+
+This fixes the setup of the alignment of the signal frame, so that all
+signal handlers are run with a properly aligned stack frame.
+
+The current code "over-aligns" the stack pointer so that the stack frame
+is effectively always mis-aligned by 4 bytes.  But what we really want
+is that on function entry ((sp + 4) & 15) == 0, which matches what would
+happen if the stack were aligned before a "call" instruction.
+
+[ This patch fixes ia64. i386 and x86_64 are already fixed by
+  git commit d347f372273c2b3d86a66e2e1c94c790c208e166 ]
+
+Signed-off-by: Markus F.X.J. Oberhumer <markus@oberhumer.com>
+
+
+
+Index: linux-2.6.git/arch/ia64/ia32/ia32_signal.c
+===================================================================
+--- linux-2.6.git.orig/arch/ia64/ia32/ia32_signal.c
++++ linux-2.6.git/arch/ia64/ia32/ia32_signal.c
+@@ -810,7 +810,11 @@
+ 	}
+ 	/* Legacy stack switching not supported */
+ 
+-	return (void __user *)((esp - frame_size) & -8ul);
++	esp -= frame_size;
++	/* Align the stack pointer according to the i386 ABI,
++	 * i.e. so that on function entry ((sp + 4) & 15) == 0. */
++	esp = ((esp + 4) & -16ul) - 4;
++	return (void __user *) esp;
+ }
+ 
+ static int
+
+--------------040106040204080704030402--

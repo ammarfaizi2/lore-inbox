@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbVJKUzW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbVJKU4i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750735AbVJKUzW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 16:55:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750753AbVJKUzW
+	id S1750753AbVJKU4i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 16:56:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbVJKU4i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 16:55:22 -0400
-Received: from wproxy.gmail.com ([64.233.184.198]:46546 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750735AbVJKUzV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 16:55:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:disposition-notification-to:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=svluE/NJuKYc5dXor/18DWI6S2hBa2PvWRbxkhs+OO5mB6hC9TxwCuZzFpxL6eRIbb1qvLvnTwOizWfBeokR+VT/PcXvG3KqOLchJA1rgi2qbqSBeHPTm6o5IJ21+/V1szKXEnpBGV4zzFplpvJJ1fcQTZHKSfgyDc7ZLEo3lxc=
-Message-ID: <434C1F8E.6080405@gmail.com>
-Date: Tue, 11 Oct 2005 22:24:46 +0200
-From: Alon Bar-Lev <alon.barlev@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20051008)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Brian Gerst <bgerst@didntduck.org>
-CC: "Jonathan M. McCune" <jonmccune@cmu.edu>, linux-kernel@vger.kernel.org,
-       Arvind Seshadri <arvinds@cs.cmu.edu>, Bryan Parno <parno@cmu.edu>
-Subject: Re: using segmentation in the kernel
-References: <434C1D60.2090901@cmu.edu> <434C2269.5090209@didntduck.org>
-In-Reply-To: <434C2269.5090209@didntduck.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 11 Oct 2005 16:56:38 -0400
+Received: from smtp2.Stanford.EDU ([171.67.16.125]:41144 "EHLO
+	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S1751071AbVJKU4h
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 16:56:37 -0400
+Subject: Re: 2.6.14-rc4-rt1
+From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: nando@ccrma.Stanford.EDU, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>, dwalker@mvista.com,
+       david singleton <dsingleton@mvista.com>
+In-Reply-To: <20051011111454.GA15504@elte.hu>
+References: <20051011111454.GA15504@elte.hu>
+Content-Type: text/plain
+Date: Tue, 11 Oct 2005 13:55:51 -0700
+Message-Id: <1129064151.5324.6.camel@cmn3.stanford.edu>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brian Gerst wrote:
-> Jonathan M. McCune wrote:
+On Tue, 2005-10-11 at 13:14 +0200, Ingo Molnar wrote:
+> i have released the 2.6.14-rc4-rt1 tree, which can be downloaded from 
+> the usual place:
 > 
->> Hello,
->>
-> Why send the kernel back to the 2.0 days?  There is no valid reason for 
-> doing this with they way x86 segmentation works, which is why it was 
-> done away with in 2.1.
+>   http://redhat.com/~mingo/realtime-preempt/
 > 
+> lots of fixes all across the spectrum. x64 support and debugging 
+> features on x64 should be in a much better shape now. Same for ARM.
 
-But with segmentation you can set code to be read-only, 
-disallow execution from stack, separate modules so that they 
-will not affect kernel and more...
+Hi Ingo, just a heads up, I'm still seeing the same problems I reported
+with rt13. After about 10 to 15 minutes of up time I see the usual
+warnings from Jack, keyboard repeat problems (repeats keys too fast) and
+random screensaver triggers. The last two seem to be "clustered" in
+time, for a little while things work, then both happen and so on and so
+forth. 
 
-The main problem with segmentation is that it is x86 specific...
+Sorry to not have any traces that could help, I'm still too busy to be
+able to sit down quietly and gather data. 
+-- Fernando
 
-Best Regards,
-Alon Bar-Lev.
+

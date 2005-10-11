@@ -1,79 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751413AbVJKHww@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751408AbVJKHwa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751413AbVJKHww (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 03:52:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751412AbVJKHww
+	id S1751408AbVJKHwa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 03:52:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbVJKHwa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 03:52:52 -0400
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:34457 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1751409AbVJKHwu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 03:52:50 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Subject: Re: [PATCH] Use of getblk differs between locations
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Cc: Glauber de Oliveira Costa <glommer@br.ibm.com>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, hirofumi@mail.parknet.co.jp,
-       linux-ntfs-dev@lists.sourceforge.net, aia21@cantab.net,
-       hch@infradead.org, viro@zeniv.linux.org.uk, akpm@osdl.org
-In-Reply-To: <Pine.LNX.4.62.0510110035110.19021@artax.karlin.mff.cuni.cz>
-References: <20051010204517.GA30867@br.ibm.com>
-	 <Pine.LNX.4.64.0510102217200.6247@hermes-1.csi.cam.ac.uk>
-	 <20051010214605.GA11427@br.ibm.com>
-	 <Pine.LNX.4.62.0510102347220.19021@artax.karlin.mff.cuni.cz>
-	 <Pine.LNX.4.64.0510102319100.6247@hermes-1.csi.cam.ac.uk>
-	 <Pine.LNX.4.62.0510110035110.19021@artax.karlin.mff.cuni.cz>
-Content-Type: text/plain
-Organization: Computing Service, University of Cambridge, UK
-Date: Tue, 11 Oct 2005 08:52:35 +0100
-Message-Id: <1129017155.12336.4.camel@imp.csi.cam.ac.uk>
+	Tue, 11 Oct 2005 03:52:30 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:20661 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751408AbVJKHw3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 03:52:29 -0400
+Date: Tue, 11 Oct 2005 09:53:00 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark Knecht <markknecht@gmail.com>
+Cc: chaosite@gmail.com, Daniel Walker <dwalker@mvista.com>,
+       linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>
+Subject: Re: Latency data - 2.6.14-rc3-rt13
+Message-ID: <20051011075300.GA27359@elte.hu>
+References: <5bdc1c8b0510101412n714c4798v1482254f6f8e0386@mail.gmail.com> <5bdc1c8b0510101428o475d9dbct2e9bdcc6b46418c9@mail.gmail.com> <1128980674.18782.211.camel@c-67-188-6-232.hsd1.ca.comcast.net> <5bdc1c8b0510101509w4c74028apb6e69746b1b8b65b@mail.gmail.com> <1128983301.18782.215.camel@c-67-188-6-232.hsd1.ca.comcast.net> <5bdc1c8b0510101633lc45fbf8gd2677e5646dc6f93@mail.gmail.com> <5bdc1c8b0510101649s221ab437scc49d6a49269d6b@mail.gmail.com> <434B3803.2030803@gmail.com> <5bdc1c8b0510102145k3b05c00dm8e3e770c5eee2ee4@mail.gmail.com> <20051011061420.GA20074@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051011061420.GA20074@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-10-11 at 00:49 +0200, Mikulas Patocka wrote:
-> On Mon, 10 Oct 2005, Anton Altaparmakov wrote:
-> > On Mon, 10 Oct 2005, Mikulas Patocka wrote:
-> >> On Mon, 10 Oct 2005, Glauber de Oliveira Costa wrote:
-> >> As comment in buffer.c says, getblk will deadlock if the machine is out of
-> >> memory. It is questionable whether to deadlock or return NULL and corrupt
-> >> filesystem in this case --- deadlock is probably better.
-> >
-> > What do you mean corrupt filesystem?  If a filesystem is written so badly
-> > that it will cause corruption when a NULL is returned somewhere, I
-> > certainly don't want to have anything to do with it.
+
+* Ingo Molnar <mingo@elte.hu> wrote:
+
+> > Anyway, these latencies seem understood at this point. They are just 
+> > the timer that you set in the kernel hacking section. No big deal. 
+> > However, none of the messages yet give any clues (that I understand) 
+> > as to the cause of the timing misses I'm seeing with 2.6.14-rc3-rt13. 
+> > I shall look into a 2.6.14-rc4-rtX tomorrow.
 > 
-> What should a filesystem driver do if it can't suddenly read or write any 
-> blocks on media?
+> do you have 64-bit userspace too? If you have 32-bit userspace then 
+> could you try running the x86 kernel? Generally the 64-bit kernel has 
+> less mature debugging options in the -rt tree: e.g. latency tracing 
+> itself doesnt work [...]
 
-Two clear choices:
+let me take that back - latency tracing does work on x64 too.
 
-1) Switch to read-only and use the cached data to fulfil requests and
-fail all others.
-
-2) Ask the user to insert the media/plug the device back in (this is by
-far the most likely cause of all requests suddenly failing) and then
-continue where they left off.
-
-It is unfortunate that Linux does not allow for 2) so you need to do 1).
-
-I completely disagree with people who want the system to panic() or even
-BUG() in such case.  I don't want "me accidentally knocking the
-flashdrive attached to my keyboard's usb ports" to panic() my system
-thank you very much!  And I don't want it to go BUG() either!
-
-Best regards,
-
-        Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
-
+	Ingo

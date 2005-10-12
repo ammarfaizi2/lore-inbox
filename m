@@ -1,102 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbVJLVP7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932441AbVJLVQo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964818AbVJLVP7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 17:15:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964822AbVJLVP7
+	id S932441AbVJLVQo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 17:16:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932254AbVJLVQo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 17:15:59 -0400
-Received: from devrace.com ([198.63.210.113]:36624 "EHLO devrace.com")
-	by vger.kernel.org with ESMTP id S964818AbVJLVP7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 17:15:59 -0400
-Date: Wed, 12 Oct 2005 23:15:31 +0200
-From: Alex Riesen <raa.lkml@gmail.com>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, boi@boi.at,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: blocking file lock functions (lockf,flock,fcntl) do not return after timer signal
-Message-ID: <20051012211531.GA4068@steel.home>
-Reply-To: Alex Riesen <raa.lkml@gmail.com>
-Mail-Followup-To: Alex Riesen <raa.lkml@gmail.com>,
-	"linux-os (Dick Johnson)" <linux-os@analogic.com>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>, boi@boi.at,
-	Linux kernel <linux-kernel@vger.kernel.org>
-References: <434CC144.6000504@boi.at> <81b0412b0510120548k3464d355ne75cce4e5edcce1a@mail.gmail.com> <1129127947.8561.44.camel@lade.trondhjem.org> <81b0412b0510120810o6d06a678q1d4a9787687b9bfa@mail.gmail.com> <Pine.LNX.4.61.0510121112060.4302@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0510121112060.4302@chaos.analogic.com>
-User-Agent: Mutt/1.5.6i
+	Wed, 12 Oct 2005 17:16:44 -0400
+Received: from locomotive.csh.rit.edu ([129.21.60.149]:62575 "EHLO
+	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
+	id S932389AbVJLVQn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 17:16:43 -0400
+Message-ID: <434D7DD3.40706@suse.com>
+Date: Wed, 12 Oct 2005 17:19:15 -0400
+From: Jeff Mahoney <jeffm@suse.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+Cc: Anton Altaparmakov <aia21@cam.ac.uk>,
+       Glauber de Oliveira Costa <glommer@br.ibm.com>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, hirofumi@mail.parknet.co.jp,
+       linux-ntfs-dev@lists.sourceforge.net, aia21@cantab.net,
+       hch@infradead.org, viro@zeniv.linux.org.uk, akpm@osdl.org
+Subject: Re: [PATCH] Use of getblk differs between locations
+References: <20051010204517.GA30867@br.ibm.com>  <Pine.LNX.4.64.0510102217200.6247@hermes-1.csi.cam.ac.uk>  <20051010214605.GA11427@br.ibm.com>  <Pine.LNX.4.62.0510102347220.19021@artax.karlin.mff.cuni.cz>  <Pine.LNX.4.64.0510102319100.6247@hermes-1.csi.cam.ac.uk>  <Pine.LNX.4.62.0510110035110.19021@artax.karlin.mff.cuni.cz> <1129017155.12336.4.camel@imp.csi.cam.ac.uk> <434D6932.1040703@suse.com> <Pine.LNX.4.62.0510122155390.9881@artax.karlin.mff.cuni.cz> <434D6CFA.4080802@suse.com> <Pine.LNX.4.62.0510122208210.11573@artax.karlin.mff.cuni.cz> <Pine.LNX.4.64.0510122114140.9696@hermes-1.csi.cam.ac.uk> <Pine.LNX.4.62.0510122221250.13771@artax.karlin.mff.cuni.cz>
+In-Reply-To: <Pine.LNX.4.62.0510122221250.13771@artax.karlin.mff.cuni.cz>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os (Dick Johnson), Wed, Oct 12, 2005 17:20:26 +0200:
-> >>>> flock, lockf, fcntl do not return even after the signal SIGALRM  has
-> >>>> been raised and the signal handler function has been executed
-> >>>> the functions should return with a return value EWOULDBLOCK as described
-> >>>> in the man pages
-> >>
-> >> Works for me on a local filesystem.
-> >>
-> >> Desktop$ ./gnurr gnarg
-> >> locking...
-> >> timeout
-> >
-> > Doesn't look so. I'd expect "flock: EWOULDBLOCK" and "sleeping" after
-> > the first timeout.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-It's EINTR, btw.
+Mikulas Patocka wrote:
+>>> But discarding data sometimes on USB unplug is even worse than
+>>> discarding data
+>>> always --- users will by experimenting learn that linux doesn't discard
+>>> write-cached data and reminds them to replug the device --- and one day,
+>>> randomly, they lose their data because of some memory management
+>>> condition...
+>>
+>> And how exactly is that worse than discarding the data every time?!?!?!?
+> 
+> Undeterministic behaviour is worse than deterministic. You can learn the
+> system that behaves deterministically.
+> 
+> If you know that unplug damages filesystem on your USB disk, you replug
+> it, recheck filesystem and copy the important data again --- you have 0%
+> probability of data damage.
+> However, if damage on unplug happens only with 1/100 probability, will
+> you still check filesystem and copy all recently created files on it?
+> You forget it (or you wouldn't even know that damage might occur) and
+> you have 1% probability of data damage.
 
-linux-os (Dick Johnson), Wed, Oct 12, 2005 17:20:26 +0200:
-> As I told you, you use sigaction(). Also flock() will not block
-> unless there is another open on the file. The code will run to
-> your blocking read(), wait 10 seconds, get your "timeout" from
-> the signal handler, then read() will return with -1 and ERESTARTSYS
-> in errno as required.
+I agree that dependability is important, but so important that we keep
+the absolute worst case scenario for all cases because it could happen
+occasionally? We can warn the user that removing media without umounting
+/ejecting it may cause data loss and prompt them to reinsert the media.
+If they don't reinsert the media soon enough (for any reason, including
+the availabilty of memory) we can inform them that data loss may have
+occured and that they should attempt to recover the file system.
 
-Ahh yes, of course. signal(2) places a syscall-restarting handler in glibc.
-My bad, sorry.
+- -Jeff
 
-For the last time:
+- --
+Jeff Mahoney
+SUSE Labs
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-// everything works as expected, flock returns with EINTR in the
-// second instance of the program.
-#include <unistd.h>
-#include <sys/time.h>
-#include <sys/file.h>
-#include <stdio.h>
-#include <signal.h>
-#include <errno.h>
-
-void alrm(int sig)
-{
-     write(2, "timeout\n", 8);
-}
-
-int main(int argc, char* argv[])
-{
-     struct itimerval tv = {
-         .it_interval = {.tv_sec = 10, .tv_usec = 0},
-         .it_value    = {.tv_sec = 10, .tv_usec = 0},
-     };
-     struct sigaction sa = { .sa_handler = alrm, .sa_flags = 0 };
-     sigaction(SIGALRM, &sa, NULL);
-     setitimer(ITIMER_REAL, &tv, NULL);
-     int fd = open(argv[1], O_RDWR);
-     if ( fd < 0 ) {
-         perror(argv[1]);
-         return 1;
-     }
-     printf("locking...\n");
-     if ( flock(fd, LOCK_EX) < 0 ) {
-         perror("flock");
-         return 1;
-     }
-     printf("sleeping...\n");
-     int ch;
-     while ( read(0, &ch, 1) < 0 && EINTR == errno )
-	 ;
-     close(fd);
-     return 0;
-}
-
+iD8DBQFDTX3TLPWxlyuTD7IRApliAJ4+8+OGhzKXlfkgx67lfDJioBeqngCgmF66
+HOTsI39yyNUTL4H7KP9ZM38=
+=WTcy
+-----END PGP SIGNATURE-----

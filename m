@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932371AbVJLALE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932375AbVJLANW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932371AbVJLALE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 20:11:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbVJLALE
+	id S932375AbVJLANW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 20:13:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932380AbVJLANW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 20:11:04 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:43659 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932371AbVJLALC (ORCPT
+	Tue, 11 Oct 2005 20:13:22 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:41100 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932375AbVJLANV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 20:11:02 -0400
-Date: Tue, 11 Oct 2005 17:10:52 -0700
+	Tue, 11 Oct 2005 20:13:21 -0400
+Date: Tue, 11 Oct 2005 17:13:15 -0700
 From: Andrew Morton <akpm@osdl.org>
 To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 Cc: linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org
 Subject: Re: [PATCH] ppc64: Thermal control for SMU based machines
-Message-Id: <20051011171052.3e1d00b6.akpm@osdl.org>
+Message-Id: <20051011171315.2fe087e7.akpm@osdl.org>
 In-Reply-To: <1128404215.31063.32.camel@gaston>
 References: <1128404215.31063.32.camel@gaston>
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
@@ -26,34 +26,28 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 >
-> +	/* First, locate the params for this model */
-> +	for (i = 0; i < WF_SMU_SYS_FANS_NUM_CONFIGS; i++)
-> +		if (wf_smu_sys_all_params[i].model_id == mach_model) {
-
-The loop control is a bit scary here.  If you were to do
-
-	#define WF_SMU_SYS_FANS_NUM_CONFIGS ARRAY_SIZE(wf_smu_sys_all_params)
-
-then we wouldn't need duplicated into in two places.
-
-> +			param = &wf_smu_sys_all_params[i];
-> +			break;
-> +		}
-> +	/* No params found, put fans to max */
-> +	if (param == NULL) {
-> +		printk(KERN_WARNING "windfarm: System fan config not found "
-> +		       "for this machine model, max fan speed\n");
-> +		goto fail;
-> +	}
+> +#define BUILD_SHOW_FUNC_FIX(name, data)				\
+> +static ssize_t show_##name(struct device *dev,                  \
+> +			   struct device_attribute *attr,       \
+> +			   char *buf)	                        \
+> +{								\
+> +	ssize_t r;						\
+> +        s32 val = 0;                                            \
+> +        data->ops->get_value(data, &val);                       \
+> +	r = sprintf(buf, "%d.%03d", FIX32TOPRINT(val)); 	\
+> +	return r;						\
+> +}                                                               \
+> +static DEVICE_ATTR(name,S_IRUGO,show_##name, NULL);
 > +
-> +	/* Alloc & initialize state */
-> +	wf_smu_sys_fans = kmalloc(sizeof(struct wf_smu_sys_fans_state),
-> +					GFP_KERNEL);
-> +	if (wf_smu_sys_fans == NULL) {
-> +		printk(KERN_WARNING "windfarm: Memory allocation error"
-> +		       " max fan speed\n");
-> +		goto fail;
-> +	}
-> +       	wf_smu_sys_fans->ticks = 1;
+> +
+> +#define BUILD_SHOW_FUNC_INT(name, data)				\
+> +static ssize_t show_##name(struct device *dev,                  \
+> +			   struct device_attribute *attr,       \
+> +			   char *buf)	                        \
+> +{								\
+> +        s32 val = 0;                                            \
+> +        data->ops->get_value(data, &val);                       \
+> +	return sprintf(buf, "%d", val);  			\
+> +}                                                               \
 
-whitespace broke.
+Someone needs a tab key ;)

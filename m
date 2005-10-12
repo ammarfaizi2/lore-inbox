@@ -1,63 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932459AbVJLVmV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751377AbVJLVsm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932459AbVJLVmV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 17:42:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbVJLVmV
+	id S1751377AbVJLVsm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 17:48:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751505AbVJLVsm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 17:42:21 -0400
-Received: from john.hrz.tu-chemnitz.de ([134.109.132.2]:50124 "EHLO
-	john.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id S932459AbVJLVmU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 17:42:20 -0400
-To: kernel-stuff@comcast.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bug in handling of highspeed usb HID devices
-References: <101220052110.3094.434D7BDD0001F67000000C1622007621949D0E050B9A9D0E99@comcast.net>
-From: Christian Krause <chkr@plauener.de>
-Date: Wed, 12 Oct 2005 23:42:17 +0200
-In-Reply-To: <101220052110.3094.434D7BDD0001F67000000C1622007621949D0E050B9A9D0E99@comcast.net> (kernel-stuff@comcast.net's
- message of "Wed, 12 Oct 2005 21:10:53 +0000")
-Message-ID: <m3zmpev2di.fsf@gondor.middle-earth.priv>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+	Wed, 12 Oct 2005 17:48:42 -0400
+Received: from mx1.suse.de ([195.135.220.2]:54411 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751486AbVJLVsl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 17:48:41 -0400
+From: Andi Kleen <ak@suse.de>
+To: discuss@x86-64.org
+Subject: Re: [discuss] [Patch 1/2] x86, x86_64: Intel HT, Multi core detection fixes
+Date: Wed, 12 Oct 2005 23:49:04 +0200
+User-Agent: KMail/1.8.2
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <20051005161706.B30098@unix-os.sc.intel.com> <200510081228.39492.ak@suse.de> <20051012143641.B29292@unix-os.sc.intel.com>
+In-Reply-To: <20051012143641.B29292@unix-os.sc.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Spam-Score: 0.0 (/)
-X-Spam-Report: --- Start der SpamAssassin 3.1.0 Textanalyse (0.0 Punkte)
-	Fragen an/questions to:  Postmaster TU Chemnitz <postmaster@tu-chemnitz.de>
-	--- Ende der SpamAssassin Textanalyse
-X-Scan-Signature: 2da4cb75faf7b3f12212370ffd4cc0ae
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510122349.05312.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wednesday 12 October 2005 23:36, Siddha, Suresh B wrote:
 
-On Wed, 12 Oct 2005 21:10:53 +0000, kernel-stuff  wrote:
->> Re-calculation in usb_fill_int_urb makes more sense, because it is the
->> most general approach. So it would make sense to remove it from
->> hid-core.c.
->> 
+> Fields obtained through cpuid vector 0x1(ebx[16:23]) and
+> vector 0x4(eax[14:25], eax[26:31]) indicate the maximum values and might not
+> always be the same as what is available and what OS sees.  So make sure
+> "siblings" and "cpu cores" values in /proc/cpuinfo reflect the values as seen
+> by OS instead of what cpuid instruction says. This will also fix the buggy BIOS
+> cases (for example where cpuid on a single core cpu says there are "2" siblings,
+> even when HT is disabled in the BIOS. 
+> http://bugzilla.kernel.org/show_bug.cgi?id=4359)
 
-> Patch looks correct to me from a purely logical perspective. (IOW I
-> read that file first time :)
+I'm not too fond of this new booted_core variable. How about
+you just put the true number of cores into x86_num_cores? 
+What should x86_num_cores be in your setup anyways if not
+"booted cores"? 
 
-> But since interval is passed as a parameter to the usb_fill_int_urb()
-> function, I think it is more natural to remove the recalculation from
-> usb_fill_int_urb() - If caller passes a parameter and has enough info
-> to determine its value, it makes sense for the caller to pass in the
-> right value and the callee to just take it as it is.
+Also I must admit the number of different variables to keep
+track of multicore and siblingness starts to become mindboggling,
+so I would recommend you add a fat overview comment somewhere
+that describes their definition and relationship. Or better put
+something into Documentation, it is probably as confusing for 
+user space /proc/cpuinfo consumer too.
 
-Yes, but in this case we have to check all callers of usb_fill_int_urb
-to do the recalculation. E.g. in input/usbmouse.c
-endpoint->bInterval is used directly as parameter to usb_fill_int_urb.
-
-To avoid breaking things (my suggested patch has no impact on any other
-usb driver) and to solve the problem shortly, I suggest to
-use my patch and do some kind of refactoring later (You are right,
-for a clean interface the interval parameter should have the same
-meaning independend of the speed).
-
-
-Best regards,
-Christian
-
-
+-Andi

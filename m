@@ -1,53 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932381AbVJLBus@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751193AbVJLCNS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932381AbVJLBus (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 21:50:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751312AbVJLBus
+	id S1751193AbVJLCNS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 22:13:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbVJLCNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 21:50:48 -0400
-Received: from anchor-post-36.mail.demon.net ([194.217.242.86]:27919 "EHLO
-	anchor-post-36.mail.demon.net") by vger.kernel.org with ESMTP
-	id S1751281AbVJLBur (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 21:50:47 -0400
-From: Felix Oxley <lkml@oxley.org>
-To: Coywolf Qi Hunt <qiyong@fc-cn.com>
-Subject: Re: [PATCH] small Kconfig help text correction for CONFIG_FRAME_POINTER
-Date: Wed, 12 Oct 2005 02:50:34 +0100
-User-Agent: KMail/1.8.2
-Cc: Jesper Juhl <jesper.juhl@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-References: <200510112322.22004.jesper.juhl@gmail.com> <20051012012528.GA2845@localhost.localdomain>
-In-Reply-To: <20051012012528.GA2845@localhost.localdomain>
+	Tue, 11 Oct 2005 22:13:18 -0400
+Received: from zctfs063.nortelnetworks.com ([47.164.128.120]:58516 "EHLO
+	zctfs063.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S1751193AbVJLCNS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 22:13:18 -0400
+Message-ID: <434C710C.2040305@nortel.com>
+Date: Tue, 11 Oct 2005 20:12:28 -0600
+From: "Christopher Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux@horizon.com
+CC: dev@sw.ru, linux-kernel@vger.kernel.org
+Subject: Re: SMP syncronization on AMD processors (broken?)
+References: <20051011235017.21719.qmail@science.horizon.com>
+In-Reply-To: <20051011235017.21719.qmail@science.horizon.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510120250.37685.lkml@oxley.org>
+X-OriginalArrivalTime: 12 Oct 2005 02:12:38.0534 (UTC) FILETIME=[6B1B6A60:01C5CED2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 12 October 2005 02:25, Coywolf Qi Hunt wrote:
-> On Tue, Oct 11, 2005 at 11:22:21PM +0200, Jesper Juhl wrote:
->
-> Why bother anyway since the original is brief and neat.  (yours could be
-> s/if/when/ even)
+linux@horizon.com wrote:
 
-I would definitely agree with Jesper that the current version needs changing.
-However, I don't know technically whether it means:
+> The right thing to do here is to wait for the flag to be set *outside*
+> the lock, and then re-validate inside the lock:
 
-a) you will need an external debugger to get this information
-b) this information will be available in the log (etc) and ALSO via an 
-external debugger
+This may work on some processors, but on others the read of "progress" 
+in XXX, or the write in YYY may require arch-specific code to force the 
+update out to other cpus.
 
-regards,
-Felix
+Alternately, explicitly atomic operations should suffice, but a simple 
+increment is probably not enough for portable code.
 
->
-> >  	  If you say Y here the resulting kernel image will be slightly larger
-> > -	  and slower, but it might give very useful debugging information
-> > -	  on some architectures or you use external debuggers.
-> > +	  and slower, but it might give very useful debugging information on
-> > +	  some architectures or if you use external debuggers.
-> >  	  If you don't debug the kernel, you can say N.
+Chris

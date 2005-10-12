@@ -1,43 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932412AbVJLMVe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932427AbVJLM0w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932412AbVJLMVe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 08:21:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932432AbVJLMVe
+	id S932427AbVJLM0w (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 08:26:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932432AbVJLM0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 08:21:34 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:2195 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S932412AbVJLMVd (ORCPT
+	Wed, 12 Oct 2005 08:26:52 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:1728 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S932427AbVJLM0w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 08:21:33 -0400
-Message-Id: <200510120108.j9C18GfV005006@laptop11.inf.utfsm.cl>
-To: Roberto Jung Drebes <drebes@inf.ufrgs.br>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Instantiating my own random number generator 
-In-Reply-To: Message from Roberto Jung Drebes <drebes@inf.ufrgs.br> 
-   of "Tue, 11 Oct 2005 17:46:18 -0300." <E90C20D8-AC5D-4E9E-A477-48164FA0E7EE@inf.ufrgs.br> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Tue, 11 Oct 2005 22:08:16 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Wed, 12 Oct 2005 09:21:28 -0300 (CLST)
+	Wed, 12 Oct 2005 08:26:52 -0400
+Subject: RE: [BUG?] 2.6.x (2.6.13) - new signals not being delivered to
+	aterminating (PF_EXITING) process.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Kilau, Scott" <Scott_Kilau@digi.com>
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+In-Reply-To: <335DD0B75189FB428E5C32680089FB9F36B12E@mtk-sms-mail01.digi.com>
+References: <335DD0B75189FB428E5C32680089FB9F36B12E@mtk-sms-mail01.digi.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 12 Oct 2005 13:55:30 +0100
+Message-Id: <1129121730.4741.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roberto Jung Drebes <drebes@inf.ufrgs.br> wrote:
-> I have a kernel module which asks for random numbers using
-> get_random_bytes().
-> 
-> Is there a way I can set this number generator my own seed value, so
-> that I can replay experiments I perform with my module? If I set a
-> seed for the whole system, it would affect other kernel tasks
-> obtaining random numbers through get_random_bytes(), so I guess that
-> is not a good solution.
+> Do you know if there was any particular reason why it was changed that
+> signals can't be delivered to an exiting process in 2.6?
+> Was there maybe some sort of race, and this was the best way to resolve
+> it?
 
-If it is for experiments, just call MY_get_random_bytes() instead, and
-define that one as you see fit. This will only work if it is called
-directly, but then again...
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+I have no idea. It may be a change due to the threaded signal support.
+Ask whoever hacked up the signal code last I guess.
 

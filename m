@@ -1,102 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964778AbVJLMA5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbVJLMHR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964778AbVJLMA5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 08:00:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932431AbVJLMA4
+	id S932377AbVJLMHR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 08:07:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932430AbVJLMHQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 08:00:56 -0400
-Received: from mail06.syd.optusnet.com.au ([211.29.132.187]:18123 "EHLO
-	mail06.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932430AbVJLMA4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 08:00:56 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] mm - implement swap prefetching
-Date: Wed, 12 Oct 2005 22:00:46 +1000
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org, ck@vds.kolivas.org
-References: <200510110023.02426.kernel@kolivas.org> <200510111648.31504.kernel@kolivas.org> <20051011223419.4250ecf6.akpm@osdl.org>
-In-Reply-To: <20051011223419.4250ecf6.akpm@osdl.org>
+	Wed, 12 Oct 2005 08:07:16 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:13238 "EHLO
+	linuxbipbip.grupopie.com") by vger.kernel.org with ESMTP
+	id S932377AbVJLMHP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 08:07:15 -0400
+Message-ID: <434CFC6B.6090605@grupopie.com>
+Date: Wed, 12 Oct 2005 13:07:07 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Roberto Jung Drebes <drebes@inf.ufrgs.br>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Instantiating my own random number generator
+References: <E90C20D8-AC5D-4E9E-A477-48164FA0E7EE@inf.ufrgs.br>
+In-Reply-To: <E90C20D8-AC5D-4E9E-A477-48164FA0E7EE@inf.ufrgs.br>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510122200.47074.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Oct 2005 15:34, Andrew Morton wrote:
-> Con Kolivas <kernel@kolivas.org> wrote:
-> > +		/* Select the zone with the most free ram */
-> > +		if (free > most_free) {
-> > +			most_free = free;
+Roberto Jung Drebes wrote:
+> 
+> Hi there,
 
-> Why use the "zone with most free pages"?  Generally it would be better to
-> use up ZONE_HIGHMEM first: ZONE_NORMAL is valuable.
+Hi,
 
-Ok. Sounds fair.
+> I have a kernel module which asks for random numbers using  
+> get_random_bytes().
+> 
+> Is there a way I can set this number generator my own seed value, so  
+> that I can replay experiments I perform with my module? If I set a  seed 
+> for the whole system, it would affect other kernel tasks  obtaining 
+> random numbers through get_random_bytes(), so I guess that  is not a 
+> good solution.
 
-> > +	/* We shouldn't prefetch when we are doing writeback */
-> > +	if (ps.nr_writeback)
-> > +		goto out;
->
-> Yeah, this really needs to become per-disk-queue-aware.
+Why don't you implement a simple PRNG in your own module that you can 
+control yourself for your experiments, and then replace it later with 
+get_random_bytes()?
 
-I looked but it started looking like I was going to over-engineer.
+There are a number of PRNG's that are simple to implement and good 
+enough for most problems:
 
-> > +	/* Delay prefetching if we have significant amounts of dirty data */
-> > +	pending_writes = ps.nr_dirty + ps.nr_unstable;
-> > +	if (pending_writes > SWAP_CLUSTER_MAX)
-> > +		goto out;
->
-> Surely this is too aggressive.  There are almost always a few tens of dirty
-> pages floating about, especially when atime updates are enabled.  I'd
-> suggest that you stick a printk in here - I expect you'll find that this
-> test triggers a lot - too much.
+http://en.wikipedia.org/wiki/List_of_pseudorandom_number_generators
 
-Actually I was quite aware of how frequently this hits. What I found in 
-practice was that the amount of dirty ram was an extraordinarily good marker 
-of whether the system was globally idle / low stressed or not. It did not 
-seem to stop prefetching from occurring in the real world on the machines I 
-tried it on.
+I hope this helps,
 
-> > +	if (unlikely(!read_trylock(&swapper_space.tree_lock)))
-> > +		goto out;
-> > +	limit += total_swapcache_pages;
-> > +	read_unlock(&swapper_space.tree_lock);
->
-> I'd just not bother with the locking at all here.
+-- 
+Paulo Marques - www.grupopie.com
 
-Ok.
-
-> > +	daemonize("kprefetchd");
->
-> kthread(), please.
-
-Check.
-
-> > +	init_timer(&prefetch_timer);
-> > +	prefetch_timer.data = 0;
-> > +	prefetch_timer.function = prefetch_wakeup;
-> > +
-> > +	kernel_thread(kprefetchd, NULL, CLONE_KERNEL);
-> > +
-> > +	return 0;
-> > +}
->
-> Might be able to use a boring old wake_up_process() here rather than a
-> waitqueue.
->
-> Is the timer actually needed?  Could just do schedule_timeout() in
-> kprefetchd()?
-
-I guess. The timer just made it easy to start and stop it completely before I 
-turned prefetch into a daemon and it kinda stayed that way. It's not run that 
-frequently and only does miniscule things in that context; is it of a 
-significant advantage?
-
-Thanks very much!
-
-Cheers,
-Con
+The rule is perfect: in all matters of opinion our
+adversaries are insane.
+Mark Twain

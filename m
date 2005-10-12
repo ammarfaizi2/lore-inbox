@@ -1,59 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932431AbVJLMTt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932412AbVJLMVe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932431AbVJLMTt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 08:19:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932432AbVJLMTt
+	id S932412AbVJLMVe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 08:21:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932432AbVJLMVe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 08:19:49 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:31398 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S932431AbVJLMTs (ORCPT
+	Wed, 12 Oct 2005 08:21:34 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:2195 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S932412AbVJLMVd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 08:19:48 -0400
-Date: Wed, 12 Oct 2005 13:19:37 +0100 (IST)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, jschopp@austin.ibm.com, kravetz@us.ibm.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>, lhms <lhms-devel@lists.sourceforge.net>
-Subject: Re: [Lhms-devel] [PATCH 8/8] Fragmentation Avoidance V17: 008_stats
-In-Reply-To: <1129118247.6134.54.camel@localhost>
-Message-ID: <Pine.LNX.4.58.0510121318390.25855@skynet>
-References: <20051011151221.16178.67130.sendpatchset@skynet.csn.ul.ie> 
- <20051011151302.16178.46089.sendpatchset@skynet.csn.ul.ie>
- <1129118247.6134.54.camel@localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 12 Oct 2005 08:21:33 -0400
+Message-Id: <200510120108.j9C18GfV005006@laptop11.inf.utfsm.cl>
+To: Roberto Jung Drebes <drebes@inf.ufrgs.br>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Instantiating my own random number generator 
+In-Reply-To: Message from Roberto Jung Drebes <drebes@inf.ufrgs.br> 
+   of "Tue, 11 Oct 2005 17:46:18 -0300." <E90C20D8-AC5D-4E9E-A477-48164FA0E7EE@inf.ufrgs.br> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Tue, 11 Oct 2005 22:08:16 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Wed, 12 Oct 2005 09:21:28 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Oct 2005, Dave Hansen wrote:
+Roberto Jung Drebes <drebes@inf.ufrgs.br> wrote:
+> I have a kernel module which asks for random numbers using
+> get_random_bytes().
+> 
+> Is there a way I can set this number generator my own seed value, so
+> that I can replay experiments I perform with my module? If I set a
+> seed for the whole system, it would affect other kernel tasks
+> obtaining random numbers through get_random_bytes(), so I guess that
+> is not a good solution.
 
-> On Tue, 2005-10-11 at 16:13 +0100, Mel Gorman wrote:
-> > +#ifdef CONFIG_ALLOCSTAT
-> > +               memset((unsigned long *)zone->fallback_count, 0,
-> > +                               sizeof(zone->fallback_count));
-> > +               memset((unsigned long *)zone->alloc_count, 0,
-> > +                               sizeof(zone->alloc_count));
-> > +               memset((unsigned long *)zone->alloc_count, 0,
-> > +                               sizeof(zone->alloc_count));
-> > +               zone->kernnorclm_partial_steal=0;
-> > +               zone->kernnorclm_full_steal=0;
-> > +               zone->reserve_count[RCLM_NORCLM] =
-> > +                               realsize >> (MAX_ORDER-1);
-> > +#endif
->
-> The struct zone is part of the pgdat which is zeroed at boot-time on all
-> architectures and configuration that I have ever audited.  Re-zeroing
-> parts of it here is unnecessary.
->
-> BTW, that '=0' with no spaces is anti-CodingStyle.
->
-
-Blast, true. However, the whole block of code can be simply removed which
-I prefer. I didn't like the #ifdef in the middle of the function.
-
+If it is for experiments, just call MY_get_random_bytes() instead, and
+define that one as you see fit. This will only work if it is called
+directly, but then again...
 -- 
-Mel Gorman
-Part-time Phd Student                          Java Applications Developer
-University of Limerick                         IBM Dublin Software Lab
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+

@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932430AbVJLXcz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbVJLXho@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932430AbVJLXcz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 19:32:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932100AbVJLXcz
+	id S932100AbVJLXho (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 19:37:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932473AbVJLXho
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 19:32:55 -0400
-Received: from rwcrmhc14.comcast.net ([216.148.227.89]:46077 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S932430AbVJLXcy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 19:32:54 -0400
-From: kernel-stuff@comcast.net (Parag Warudkar)
-To: Christian Krause <chkr@plauener.de>
+	Wed, 12 Oct 2005 19:37:44 -0400
+Received: from mail.isurf.ca ([66.154.97.68]:6610 "EHLO columbo.isurf.ca")
+	by vger.kernel.org with ESMTP id S932100AbVJLXhn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 19:37:43 -0400
+From: "Gabriel A. Devenyi" <ace@staticwave.ca>
+To: Chris Wright <chrisw@osdl.org>
+Subject: Re: [OOPS] nfsv4 in linux 2.6.13 (-ck7)
+Date: Wed, 12 Oct 2005 19:37:55 -0400
+User-Agent: KMail/1.8.2
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: bug in handling of highspeed usb HID devices
-Date: Wed, 12 Oct 2005 23:32:50 +0000
-Message-Id: <101220052332.3804.434D9D220007875C00000EDC220588644200009A9B9CD3040A029D0A05@comcast.net>
-X-Mailer: AT&T Message Center Version 1 (Dec 17 2004)
-X-Authenticated-Sender: a2VybmVsLXN0dWZmQGNvbWNhc3QubmV0
+References: <200510121903.04485.ace@staticwave.ca> <200510121927.22296.ace@staticwave.ca> <20051012233159.GJ5856@shell0.pdx.osdl.net>
+In-Reply-To: <20051012233159.GJ5856@shell0.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510121937.55434.ace@staticwave.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> Yes, but in this case we have to check all callers of usb_fill_int_urb
-> to do the recalculation. E.g. in input/usbmouse.c
-> endpoint->bInterval is used directly as parameter to usb_fill_int_urb.
+On October 12, 2005 19:31, Chris Wright wrote:
+> In this case it's not very likely since others are seeing same problem
+> under load.  However, a binary module can corrupt any kernel memory.
+> So as a general rule all bets are off with a binary module loaded.
 
-Absolutely correct - There are 41 callers per LXR in 2.6.11 - may be even more in the current kernel.
+Thanks, I'll keep that in mind for next time. With regards to the patch in the other thread, 
+should I try and patch the client, the server or both?
 
-> 
-> To avoid breaking things (my suggested patch has no impact on any other
-> usb driver) and to solve the problem shortly, I suggest to
-> use my patch and do some kind of refactoring later (You are right,
-> for a clean interface the interval parameter should have the same
-> meaning independend of the speed).
-> 
-> 
-
-Agreed. Looking at some of the callers, it will take some time and refactoring to fix all of them. For now, it makes sense to put your patch in if no one has an objection.
-
-Thanks
-
-Parag
-
-
-
+-- 
+Gabriel A. Devenyi
+ace@staticwave.ca

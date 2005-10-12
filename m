@@ -1,51 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964784AbVJLPtT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932339AbVJLPsv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964784AbVJLPtT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 11:49:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbVJLPtT
+	id S932339AbVJLPsv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 11:48:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751470AbVJLPsv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 11:49:19 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:8677 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S964784AbVJLPtS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 11:49:18 -0400
-Message-ID: <434D3078.50205@pobox.com>
-Date: Wed, 12 Oct 2005 11:49:12 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Wed, 12 Oct 2005 11:48:51 -0400
+Received: from wavehammer.waldi.eu.org ([82.139.196.55]:37519 "EHLO
+	wavehammer.waldi.eu.org") by vger.kernel.org with ESMTP
+	id S1751465AbVJLPsu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 11:48:50 -0400
+Date: Wed, 12 Oct 2005 17:48:44 +0200
+From: Bastian Blank <bastian@waldi.eu.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: modalias entries for ccw devices
+Message-ID: <20051012154844.GA10587@wavehammer.waldi.eu.org>
+Mail-Followup-To: Martin Schwidefsky <schwidefsky@de.ibm.com>,
+	linux-kernel@vger.kernel.org
+References: <20051012141218.GA4039@wavehammer.waldi.eu.org> <1129127818.32420.2.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Daniel Drake <dsd@gentoo.org>
-CC: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] via82cxxx IDE: Support multiple controllers
-References: <43146CC3.4010005@gentoo.org>	 <58cb370e05083008121f2eb783@mail.gmail.com>	 <43179CC9.8090608@gentoo.org> <58cb370e050927062049be32f8@mail.gmail.com> <434D2DF1.9070709@gentoo.org>
-In-Reply-To: <434D2DF1.9070709@gentoo.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="XsQoSWH+UP9D9v3l"
+Content-Disposition: inline
+In-Reply-To: <1129127818.32420.2.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Drake wrote:
-> Bartlomiej Zolnierkiewicz wrote:
-> 
->> I would prefer /proc/via
->> to vanish because it complicates driver needlessly (could you do
->> this in separate patch?).
-> 
-> 
-> I'm working on a user-space app to provide the same info. It's nearly 
-> there but lacking some timing info.
-> 
-> Do you have any suggestions for how I can compute the value of via_clock 
-> in userspace? (i.e. some equivalent of system_bus_clock())
 
-A sysfs read-only attribute, associated with the PCI device?
+--XsQoSWH+UP9D9v3l
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Of course, procfs sure seems a whole lot easier some days...
+On Wed, Oct 12, 2005 at 04:36:58PM +0200, Martin Schwidefsky wrote:
+> Hmm, never heard of modalias. Arnd has done the module loading for ccw
+> devices. That must be something rather new.
 
-	Jeff
+Yes, it is rather new.
 
+> No, but as far as I can tell after glancing at the modalias
+> implementation in usb this would make sense for ccw as well.
 
+Hmm, I don't find device tables in ctc.ko and lcs.ko, can that be fixed
+at the same time?
+
+Hmm, something else. Wasn't there a cu type or device type clash between
+escon and lcs, or was that only related to chan types reported by the
+2.4 kernels?
+
+Bastian
+
+--=20
+Emotions are alien to me.  I'm a scientist.
+		-- Spock, "This Side of Paradise", stardate 3417.3
+
+--XsQoSWH+UP9D9v3l
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iEYEARECAAYFAkNNMFwACgkQnw66O/MvCNFBkgCgk97iT9moezyN4Zc8etGj1ZaK
+p/cAoJJfUEscMp8bGK5nSlwgo+KTHW6i
+=HeGX
+-----END PGP SIGNATURE-----
+
+--XsQoSWH+UP9D9v3l--

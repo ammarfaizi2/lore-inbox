@@ -1,65 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbVJLHzF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751354AbVJLI3A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751345AbVJLHzF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 03:55:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751348AbVJLHzE
+	id S1751354AbVJLI3A (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 04:29:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbVJLI27
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 03:55:04 -0400
-Received: from email.boi.at ([62.218.133.50]:42606 "EHLO email.boi.at")
-	by vger.kernel.org with ESMTP id S1751345AbVJLHzC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 03:55:02 -0400
-Message-ID: <434CC144.6000504@boi.at>
-Date: Wed, 12 Oct 2005 09:54:44 +0200
-From: =?ISO-8859-15?Q?=22Dieter_M=FCller_=28BOI_GmbH=29=22?= 
-	<dieter.mueller@boi.at>
-Reply-To: boi@boi.at
-Organization: BOI GmbH
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: blocking file lock functions (lockf,flock,fcntl) do not return after
- timer signal
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+	Wed, 12 Oct 2005 04:28:59 -0400
+Received: from mail6.hitachi.co.jp ([133.145.228.41]:59632 "EHLO
+	mail6.hitachi.co.jp") by vger.kernel.org with ESMTP
+	id S1751354AbVJLI27 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 04:28:59 -0400
+Date: Wed, 12 Oct 2005 17:28:44 +0900 (JST)
+Message-Id: <20051012.172844.59463643.noboru.obata.ar@hitachi.com>
+To: pavel@ucw.cz
+Cc: hyoshiok@miraclelinux.com, linux-kernel@vger.kernel.org
+Subject: Re: Linux Kernel Dump Summit 2005
+From: OBATA Noboru <noboru.obata.ar@hitachi.com>
+In-Reply-To: <20051010084535.GA2298@elf.ucw.cz>
+References: <20051010084535.GA2298@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bug description:
+Hi, Pavel,
 
-flock, lockf, fcntl do not return even after the signal SIGALRM  has 
-been raised and the signal handler function has been executed
-the functions should return with a return value EWOULDBLOCK as described 
-in the man pages
+On Mon, 10 Oct 2005, Pavel Machek wrote:
+> 
+> > Compressing a 32GB dump file took about 40 minutes on Pentium 4
+> > Xeon 3.0GHz, which is not good enough because the dump without
+> > compression took only 5 minutes; eight times slower.
+> 
+> ....you probably want to look at suspend2.net project. They have
+> special compressor aimed at compressing exactly this kind of data,
+> fast enough to be improvement.
 
+Thank you for pointing me to the interesting project.
 
-test:
+I looked at their patch to find that the special compressor uses
+the LZF compression algorithm.  (Correct me if I'm wrong.)
 
-sequence of called functions (start the test in 2 terminal sessions)
-1. signal
-2. setitimer
-3. fopen
-4. fileno
-5. fcntl with F_WRLCK and F_SETLKW (or flock or lockf)
-6. getchar (to keep the lock in the 1st session; now start the 2nd)
-in the 2nd session the file lock function (fcntl) will not return
+So I made a quick comparison between cp, lzf(*) and gzip as
+follows.  The INFILE is a file that showed the worst compression
+ratio last time.
 
-
-kernel versions:
-
-2.4.18-64GB-SMP
-2.4.21psetlvm
-2.6.11.4-21.9-default
+(*) A simple compress tool based on LZF algorithm included in
+    liblzf, available from http://www.goof.com/pcg/marc/liblzf.html
 
 
-please reply or CC to mailto:boi@boi.at
+$ cp INFILE /dev/null           # this puts whole INFILE in a cache
+
+$ /usr/bin/time cp INFILE /mnt/OUTFILE-cp
+0.23user 14.16system 0:35.94elapsed 40%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (115major+15minor)pagefaults 0swaps
+
+$ /usr/bin/time ./lzf -c < INFILE > /mnt/OUTFILE-lzf
+35.04user 13.10system 0:54.30elapsed 88%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (84major+74minor)pagefaults 0swaps
+
+$ /usr/bin/time gzip -1c < INFILE > /mnt/OUTFILE-gzip-1
+186.84user 11.73system 3:20.36elapsed 99%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (90major+93minor)pagefaults 0swaps
 
 
+The results can be summarized as follows.  The lzf tool is
+slower than cp (normal file copy) only by a factor of 1.5,
+achieving the compress ratio close to gzip -1.
 
-Dieter Mueller-Wipperfuerth
-BOI GmbH.
-Spazgasse 4
-4040 Linz
-Austria
+
+   CMD     | NET TIME (in seconds)          | OUTPUT SIZE (in bytes)
+  ---------+--------------------------------+------------------------
+   cp      |  35.94 (usr 0.23, sys 14.16)   | 2,121,438,352 (100.0%)
+   lzf     |  54.30 (usr 35.04, sys 13.10)  | 1,959,473,330 ( 92.3%)
+   gzip -1 | 200.36 (usr 186.84, sys 11.73) | 1,938,686,487 ( 91.3%)
+  ---------+--------------------------------+------------------------
+
+
+Although it is too early to say lzf's compress ratio is good
+enough, its compression speed is impressive indeed.  And the
+result also suggests that it is too early to give up the idea of
+full dump with compression.
+
+Pavel, thank you again for your advice and I'll welcome further
+suggestions.
+
+-- 
+OBATA Noboru (noboru.obata.ar@hitachi.com)
 

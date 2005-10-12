@@ -1,112 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932490AbVJLXxm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964811AbVJLX4e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932490AbVJLXxm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 19:53:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932491AbVJLXxm
+	id S964811AbVJLX4e (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 19:56:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964815AbVJLX4d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 19:53:42 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:35057 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S932490AbVJLXxl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 19:53:41 -0400
-Message-ID: <434DA1C1.9010108@mvista.com>
-Date: Wed, 12 Oct 2005 16:52:33 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Cc: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       dwalker@mvista.com, david singleton <dsingleton@mvista.com>
-Subject: Re: 2.6.14-rc4-rt1
-References: <20051011111454.GA15504@elte.hu>	 <1129064151.5324.6.camel@cmn3.stanford.edu>	 <20051012061455.GA16586@elte.hu>	 <Pine.LNX.4.58.0510120230001.5830@localhost.localdomain>	 <434D8973.8000706@mvista.com> <1129160470.4633.6.camel@cmn3.stanford.edu>
-In-Reply-To: <1129160470.4633.6.camel@cmn3.stanford.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 12 Oct 2005 19:56:33 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:17338 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964811AbVJLX4d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 19:56:33 -0400
+Date: Wed, 12 Oct 2005 16:56:31 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: "Gabriel A. Devenyi" <ace@staticwave.ca>
+Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [OOPS] nfsv4 in linux 2.6.13 (-ck7)
+Message-ID: <20051012235630.GL5856@shell0.pdx.osdl.net>
+References: <200510121903.04485.ace@staticwave.ca> <200510121927.22296.ace@staticwave.ca> <20051012233159.GJ5856@shell0.pdx.osdl.net> <200510121937.55434.ace@staticwave.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200510121937.55434.ace@staticwave.ca>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fernando Lopez-Lezcano wrote:
-> On Wed, 2005-10-12 at 15:08 -0700, George Anzinger wrote:
-> 
->>Steven Rostedt wrote:
->>
->>>On Wed, 12 Oct 2005, Ingo Molnar wrote:
->>>
->>>
->>>
->>>>i'm not sure latency traces will uncover anything useful for this bug.
->>>>Your problems could be timer issues: timers going off too fast cause
->>>>high keyboard repeat rates, and the same goes for the screensaver. Does
->>>>'sleep 1' work as expected, or is that timing out in an "accelerated"
->>>>way too?
->>>>
->>>
->>>
->>>I usually recommend doing a 'sleep 10'.  It really shows you if things are
->>>wrong.  If a sleep 1 returns 2 seconds, or 0.5 seconds later it may not be
->>>detected.  But a sleep 10 returning 20 seconds or 5 seconds later is
->>>obvious.
->>
->>Or maybe:
->>'time sleep 10'
->>
->>Lets the machine time it.
-> 
-> 
-> My first thought was "this can't work" as I imagined the same timing
-> services would be used and you would get always 10 secs or so...
-> 
-> Ingo: I tried with PREEMPT_RCU=y and it made no difference. 
-> 
-> When the system starts to misbehave I tried 'time sleep 10' and got
-> really wild results:
-> 
-> # time sleep 10
-> 
-> real    0m10.007s
-> user    0m0.001s
-> sys     0m0.003s
-> # time sleep 10
-> 
-> real    0m10.006s
-> user    0m0.000s
-> sys     0m0.003s
-> # time sleep 10
-> [the return key "autorepeated" here :-]
-> 
-> 
-> 
-> real    0m10.006s
-> user    0m0.001s
-> sys     0m0.003s
-> #
-> #
-> #
-> # time sleep 10
-> 
-> real    0m0.016s
-> user    0m0.002s
-> sys     0m0.001s
-> [yes I really got the prompt back that fast!]
-> #
-> #
-> # time sleep 10
-> 
-> real    73m18.087s
-> user    0m0.000s
-> sys     0m0.003s
-> [this last one was also very fast, it did not take 73 minutes...]
+* Gabriel A. Devenyi (ace@staticwave.ca) wrote:
 
-Uh... this implies that your system clock is not keeping very good time.  Is that so?  Try:
-date
-time sleep 10
-date
+> Thanks, I'll keep that in mind for next time. With regards to the
+> patch in the other thread, should I try and patch the client, the
+> server or both?
 
-~
--- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+Client side AFAIK.  May want to check with the nfs folks to see if
+they've got any specific testing they'd find useful.
+
+thanks,
+-chris

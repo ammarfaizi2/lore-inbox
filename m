@@ -1,75 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751487AbVJLSO0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751492AbVJLSRq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751487AbVJLSO0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 14:14:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751489AbVJLSO0
+	id S1751492AbVJLSRq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 14:17:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751491AbVJLSRp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 14:14:26 -0400
-Received: from kirby.webscope.com ([204.141.84.57]:48848 "EHLO
-	kirby.webscope.com") by vger.kernel.org with ESMTP id S1751487AbVJLSO0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 14:14:26 -0400
-Message-ID: <434D5269.8000708@m1k.net>
-Date: Wed, 12 Oct 2005 14:14:01 -0400
-From: Michael Krufky <mkrufky@m1k.net>
-Reply-To: mkrufky@m1k.net
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+	Wed, 12 Oct 2005 14:17:45 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:1184 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751489AbVJLSRo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 14:17:44 -0400
+Message-ID: <434D533C.6030901@us.ibm.com>
+Date: Wed, 12 Oct 2005 14:17:32 -0400
+From: Janak Desai <janak@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jiri Slaby <xslaby@fi.muni.cz>
-CC: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.14-rc4] Maintainers one entry removed
-References: <4af2d03a0510061516t32a62180t380dcb856d45a774@mail.gmail.com> <20051012170612.619C422AF21@anxur.fi.muni.cz>
-In-Reply-To: <20051012170612.619C422AF21@anxur.fi.muni.cz>
-Content-Type: multipart/mixed;
- boundary="------------050602000003080700000204"
+To: Jamie Lokier <jamie@shareable.org>
+CC: chrisw@osdl.org, viro@ZenIV.linux.org.uk, nickpiggin@yahoo.com.au,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH] New System call unshare (try 2)
+References: <Pine.WNT.4.63.0510121201540.1316@IBM-AIP3070F3AM> <20051012171914.GA8622@mail.shareable.org>
+In-Reply-To: <20051012171914.GA8622@mail.shareable.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050602000003080700000204
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Jamie Lokier wrote:
+> Janak Desai wrote:
+> 
+>>	Don't allow namespace unsharing, if sharing fs (CLONE_FS)
+> 
+> 
+> Makes sense.  clone() has the same test at the start.  (I think
+> namespace should be a property of fs, not task, anyway.  Or completely
+> eliminated because it's implied by the task's root dentry+vfsmnt).
+> 
+> 
+>>	Don't allow sighand unsharing if not unsharing vm
+> 
+> 
+> Why not?  It's permitted to clone with unshared sighand and shared vm,
+> and it's useful too.
+> 
+> It's the combination shared sighand + unshared vm which is not
+> allowed by clone - so I think that's what you should refuse.
+> 
 
-Jiri Slaby wrote:
+Yes, thanks. I had that backwards. I am checking for the illegal
+combination of "shared sighand + unshared vm" later but I will
+allow (and test) unsharing of sighand while keeping shared vm.
 
->Maintainers one entry removed
->
->Computone intelliport multiport card is no longer maintained. The
->maintainer doesn't respond to e-mails (3 times during 1 month). The page was
->updated 2 years ago and there is no other contact.
->
->Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
->
-Rather than removing the entry entirely, wouldn't something like this be 
-more appropriate?
+> 
+>>	Don't allow vm unsharing if task cloned with CLONE_THREAD
+> 
+> 
+> It would be better to do what clone does, and say "don't allow sighand
+> unsharing if task cloned with CLONE_THREAD".  This is because
+> CLONE_THREAD tasks must have shared signals.
+> 
+> In combination with the rule above for sighand (my rule, not yours),
+> that implies "don't allow vm unsharing.." as a consequence.
+> 
 
-Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+Ok. Basically, with my current logic you are forced to unshare
+both vm and sighand. I will update so you can unshare just sighand
+and tie the CLONE_THREAD restriction to sighand.
 
+> 
+>>	Don't allow vm unsharing if the task is performing async io
+> 
+> 
+> Why not?
+> 
+> Async ios are tied to an mm (see lookup_ioctx in fs/aio.c), which may
+> be shared among tasks.  I see no reason why the async ios can't
+> continue and be waited in on in other tasks that may be using the old mm.
+> 
+> The new mm, if vm is unshared, would simply not see the outstanding
+> aios - in the same way as if a vm was unshared by fork().
+> 
 
+Yes, I did see that async ios are tied to an mm and that aio context is
+cleared when a new mm is created by clone/exec. It just appeared odd to
+me that a task that setup aio is unable to continue performing aio
+after unsharing mm, but the task that it was sharing mm with, can. I
+don't have any problem making this change. It's just that I wasn't sure
+about aio usage and thought it was better to not allow an mm unshare if
+aio is being performed.
 
---------------050602000003080700000204
-Content-Type: text/plain;
- name="maintainer.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="maintainer.patch"
-
-diff -up a/MAINTAINERS b/MAINTAINERS
---- a/MAINTAINERS	2005-10-12 14:02:10.267405404 -0400
-+++ b/MAINTAINERS	2005-10-12 14:09:48.621252057 -0400
-@@ -581,10 +581,7 @@ L:	pcihpd-discuss@lists.sourceforge.net
- S:	Supported
- 
- COMPUTONE INTELLIPORT MULTIPORT CARD
--P:	Michael H. Warfield
--M:	mhw@wittsend.com
--W:	http://www.wittsend.com/computone.html
--S:	Maintained
-+S:	Orphaned
- 
- COSA/SRP SYNC SERIAL DRIVER
- P:	Jan "Yenya" Kasprzak
-
---------------050602000003080700000204--
+-Janak
 

@@ -1,62 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932120AbVJLJDU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbVJLJFn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932120AbVJLJDU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 05:03:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbVJLJDU
+	id S932415AbVJLJFn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 05:05:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbVJLJFn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 05:03:20 -0400
-Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:53508 "EHLO
-	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
-	id S932120AbVJLJDT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 05:03:19 -0400
-From: Felix Oxley <lkml@oxley.org>
-To: OBATA Noboru <noboru.obata.ar@hitachi.com>
-Subject: Re: Linux Kernel Dump Summit 2005
-Date: Wed, 12 Oct 2005 10:02:56 +0100
-User-Agent: KMail/1.8.2
-Cc: pavel@ucw.cz, hyoshiok@miraclelinux.com, linux-kernel@vger.kernel.org
-References: <20051010084535.GA2298@elf.ucw.cz> <20051012.172844.59463643.noboru.obata.ar@hitachi.com>
-In-Reply-To: <20051012.172844.59463643.noboru.obata.ar@hitachi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 12 Oct 2005 05:05:43 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:12932 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932415AbVJLJFm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 05:05:42 -0400
+Subject: Re: using segmentation in the kernel
+From: Arjan van de Ven <arjan@infradead.org>
+To: Alon Bar-Lev <alon.barlev@gmail.com>
+Cc: Brian Gerst <bgerst@didntduck.org>,
+       "Jonathan M. McCune" <jonmccune@cmu.edu>, linux-kernel@vger.kernel.org,
+       Arvind Seshadri <arvinds@cs.cmu.edu>, Bryan Parno <parno@cmu.edu>
+In-Reply-To: <434C1F8E.6080405@gmail.com>
+References: <434C1D60.2090901@cmu.edu> <434C2269.5090209@didntduck.org>
+	 <434C1F8E.6080405@gmail.com>
+Content-Type: text/plain
+Date: Wed, 12 Oct 2005 11:05:35 +0200
+Message-Id: <1129107936.3082.34.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510121002.59098.lkml@oxley.org>
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 12 October 2005 09:28, OBATA Noboru wrote:
+On Tue, 2005-10-11 at 22:24 +0200, Alon Bar-Lev wrote:
+> Brian Gerst wrote:
+> > Jonathan M. McCune wrote:
+> > 
+> >> Hello,
+> >>
+> > Why send the kernel back to the 2.0 days?  There is no valid reason for 
+> > doing this with they way x86 segmentation works, which is why it was 
+> > done away with in 2.1.
+> > 
+> 
+> But with segmentation you can set code to be read-only, 
 
->    CMD     | NET TIME (in seconds)          | OUTPUT SIZE (in bytes)
->   ---------+--------------------------------+------------------------
->    cp      |  35.94 (usr 0.23, sys 14.16)   | 2,121,438,352 (100.0%)
->    lzf     |  54.30 (usr 35.04, sys 13.10)  | 1,959,473,330 ( 92.3%)
->    gzip -1 | 200.36 (usr 186.84, sys 11.73) | 1,938,686,487 ( 91.3%)
->   ---------+--------------------------------+------------------------
->
-> Although it is too early to say lzf's compress ratio is good
-> enough, its compression speed is impressive indeed.  
+you can do that without segmentation too, absolutely no problem
 
-As you say, the speed of lzf relative to gzip is impressive.
+> disallow execution from stack,
 
-However if the properties of the kernel dump mean that it is not suitable for 
-compression then surely it is not efficient to spend any time on it.
+That is why CPUs have NX nowadays. And it's not like the kernel is full
+of buffer overflows; due to the 4Kb stack space (total), there are very
+very few static buffers on the stack at all; simply because theres no
+space to do it.
 
->And the
-> result also suggests that it is too early to give up the idea of
-> full dump with compression.
+>  separate modules so that they 
+> will not affect kernel and more...
 
-Are you sure? :-)
-If we are talking about systems with 32GB of memory then we must be taking 
-about organisations who can afford an extra 100GB of disk space just for 
-keeping their kernel dump files. 
-
-I would expect that speed of recovery would always be the primary concern.
-Would you agree?
-
-regards,
-Felix
+and I don't believe this one yota. THe only way to do this is to run
+modules in ring 1, at which point you are in deep shit anyway.
 
 
 

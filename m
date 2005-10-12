@@ -1,64 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932424AbVJLJKF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932422AbVJLJ6X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932424AbVJLJKF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 05:10:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932425AbVJLJKF
+	id S932422AbVJLJ6X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 05:58:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932425AbVJLJ6X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 05:10:05 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:21681 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932424AbVJLJKE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 05:10:04 -0400
-Date: Wed, 12 Oct 2005 11:09:45 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Felix Oxley <lkml@oxley.org>
-Cc: OBATA Noboru <noboru.obata.ar@hitachi.com>, hyoshiok@miraclelinux.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux Kernel Dump Summit 2005
-Message-ID: <20051012090945.GN12682@elf.ucw.cz>
-References: <20051010084535.GA2298@elf.ucw.cz> <20051012.172844.59463643.noboru.obata.ar@hitachi.com> <200510121002.59098.lkml@oxley.org>
+	Wed, 12 Oct 2005 05:58:23 -0400
+Received: from ganesha.gnumonks.org ([213.95.27.120]:35225 "EHLO
+	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
+	id S932422AbVJLJ6W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 05:58:22 -0400
+Date: Wed, 12 Oct 2005 09:24:02 +0200
+From: Harald Welte <laforge@gnumonks.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Greg KH <greg@kroah.com>, Chris Wright <chrisw@osdl.org>,
+       Sergey Vlasov <vsu@altlinux.ru>, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, security@linux.kernel.org,
+       vendor-sec@lst.de
+Subject: Re: [vendor-sec] Re: [BUG/PATCH/RFC] Oops while completing async USB via usbdevio
+Message-ID: <20051012072401.GI4237@rama.de.gnumonks.org>
+References: <Pine.LNX.4.64.0509300752530.3378@g5.osdl.org> <20050930184433.GF16352@shell0.pdx.osdl.net> <Pine.LNX.4.64.0509301225190.3378@g5.osdl.org> <20050930220808.GE4168@sunbeam.de.gnumonks.org> <Pine.LNX.4.64.0509301514190.3378@g5.osdl.org> <20051010174429.GH5627@rama> <20051010180745.GT5856@shell0.pdx.osdl.net> <20051011094550.GI4290@rama> <20051011231054.GA16315@kroah.com> <Pine.LNX.4.64.0510111639500.14597@g5.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="x0KprKst+ZOYEj2z"
 Content-Disposition: inline
-In-Reply-To: <200510121002.59098.lkml@oxley.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <Pine.LNX.4.64.0510111639500.14597@g5.osdl.org>
+User-Agent: mutt-ng devel-20050619 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> >    CMD     | NET TIME (in seconds)          | OUTPUT SIZE (in bytes)
-> >   ---------+--------------------------------+------------------------
-> >    cp      |  35.94 (usr 0.23, sys 14.16)   | 2,121,438,352 (100.0%)
-> >    lzf     |  54.30 (usr 35.04, sys 13.10)  | 1,959,473,330 ( 92.3%)
-> >    gzip -1 | 200.36 (usr 186.84, sys 11.73) | 1,938,686,487 ( 91.3%)
-> >   ---------+--------------------------------+------------------------
-> >
-> > Although it is too early to say lzf's compress ratio is good
-> > enough, its compression speed is impressive indeed.  
-> 
-> As you say, the speed of lzf relative to gzip is impressive.
-> 
-> However if the properties of the kernel dump mean that it is not suitable for 
-> compression then surely it is not efficient to spend any time on it.
-> 
-> >And the
-> > result also suggests that it is too early to give up the idea of
-> > full dump with compression.
-> 
-> Are you sure? :-)
-> If we are talking about systems with 32GB of memory then we must be taking 
-> about organisations who can afford an extra 100GB of disk space just for 
-> keeping their kernel dump files. 
-> 
-> I would expect that speed of recovery would always be the primary concern.
-> Would you agree?
+--x0KprKst+ZOYEj2z
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Notice that suspend2 project actually introduced compression *for
-speed*. Doing it right means that it is faster to do it
-compressed. See Jamie Lokier's description how to *never* slow down.
+On Tue, Oct 11, 2005 at 04:44:41PM -0700, Linus Torvalds wrote:
+> I _think_ I fixed the disconnect thing too, although I think Harald's=20
+> naming for the disconnect structure was cleaner, so I wouldn't mind havin=
+g=20
+> a (tested) patch on top of mine..
+> [...]
+> But for 2.6.14, the most important thing would be to verify that the oops=
+=20
+> cannot happen, and that you can't send signals to setuid programs by doin=
+g=20
+> an "open(usb) + fork(keep it open in the child) + exec(suid in the=20
+> parent)"
 
-								Pavel
--- 
-if you have sharp zaurus hardware you don't need... you know my address
+I'm busy giving a netfilter tutorial all day, but I'll do the
+incremental patch + testing tonight.  So I expect some kind of reply on
+this at about 11pm (GMT+1).
+
+Sorry once again for the delays, but as I said initially: I'm neither a
+core kernel / scheduler nor a USB developer.  If somebody else had taken
+the bug, we'd have had way less round-trips...
+
+Cheers,
+--=20
+- Harald Welte <laforge@gnumonks.org>          	        http://gnumonks.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+"Privacy in residential applications is a desirable marketing option."
+                                                  (ETSI EN 300 175-7 Ch. A6)
+
+--x0KprKst+ZOYEj2z
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDTLoRXaXGVTD0i/8RAisAAKCgGyKNM1pMasUUHlckfeT7un2+2gCgpRPY
+DriH6MppsMEUjOmjVkScsrI=
+=65VZ
+-----END PGP SIGNATURE-----
+
+--x0KprKst+ZOYEj2z--

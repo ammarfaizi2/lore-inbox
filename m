@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932360AbVJLGpe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbVJLHKU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932360AbVJLGpe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 02:45:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbVJLGpe
+	id S932397AbVJLHKU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 03:10:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932398AbVJLHKU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 02:45:34 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:41885 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932360AbVJLGpe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 02:45:34 -0400
-Date: Wed, 12 Oct 2005 02:38:51 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-To: Lee Revell <rlrevell@joe-job.com>
-cc: Mark Knecht <markknecht@gmail.com>, Ingo Molnar <mingo@elte.hu>,
-       Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org
-Subject: Re: Latency data - 2.6.14-rc3-rt13
-In-Reply-To: <1129080062.7094.7.camel@mindpipe>
-Message-ID: <Pine.LNX.4.58.0510120233300.5830@localhost.localdomain>
-References: <5bdc1c8b0510101316k23ff64e2i231cdea7f11e8553@mail.gmail.com> 
- <1128980674.18782.211.camel@c-67-188-6-232.hsd1.ca.comcast.net> 
- <5bdc1c8b0510101509w4c74028apb6e69746b1b8b65b@mail.gmail.com> 
- <1128983301.18782.215.camel@c-67-188-6-232.hsd1.ca.comcast.net> 
- <5bdc1c8b0510101633lc45fbf8gd2677e5646dc6f93@mail.gmail.com> 
- <5bdc1c8b0510101649s221ab437scc49d6a49269d6b@mail.gmail.com> 
- <5bdc1c8b0510102045u7e4bc9eeld5b690b5e96c4a5f@mail.gmail.com> 
- <20051011111700.GA15892@elte.hu>  <5bdc1c8b0510111545n29b77010h8558a1b69c4bf12a@mail.gmail.com>
-  <1129075368.7094.3.camel@mindpipe>  <5bdc1c8b0510111809v2609879ai8aa0a8e283acb58d@mail.gmail.com>
- <1129080062.7094.7.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 12 Oct 2005 03:10:20 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:60392 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932397AbVJLHKT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 03:10:19 -0400
+Date: Wed, 12 Oct 2005 09:10:37 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>, dwalker@mvista.com,
+       david singleton <dsingleton@mvista.com>
+Subject: Re: 2.6.14-rc4-rt1
+Message-ID: <20051012071037.GA19018@elte.hu>
+References: <20051011111454.GA15504@elte.hu> <1129064151.5324.6.camel@cmn3.stanford.edu> <20051012061455.GA16586@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051012061455.GA16586@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 11 Oct 2005, Lee Revell wrote:
+another thing: might be worth trying PREEMPT_RT too, maybe it makes a 
+difference.
 
-> On Tue, 2005-10-11 at 18:09 -0700, Mark Knecht wrote:
-> > Should free memory drop like that over time?
->
-> Yes this is perfectly normal.  When a system first boots all the memory
-> your apps aren't using is initially free.  As applications access more
-> data over time then it will be cached in memory until free memory drops
-> to near zero.
->
-> "Free memory" is actually wasted memory - it's better to use all
-> available RAM for caching.
->
+Also, i noticed an unrelated .config thing: while you have 
+PREEMPT_DESKTOP, PREEMPT_BKL and irq/softirq threading turned on, you 
+dont have PREEMPT_RCU enabled. PREEMPT_RCU is pretty useful, it can get 
+rid of a number of latency sources. Might be worth a try for your 
+kernel.
 
-But the swap being touched bothers me.  Although I've had problems with
-leaving Mozilla up for long times and it leaking. Without Mozilla running
-and running lots of other apps, I have almost 100% memory used, but 0%
-swap.
-
-If the swap starts to increase slowly over time, you _do_ have a
-leak somewhere.  Probably not in the kernel (kernel memory never goes into
-swap). But if you want to see if the kernel is leaking, examine
-/proc/slabinfo once in a while and if you see something there constantly
-growing, then that might indicate a leak.  Just pay attention to the first
-column.
-
--- Steve
-
+	Ingo

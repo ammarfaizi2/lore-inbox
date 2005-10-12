@@ -1,98 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751542AbVJLUb0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751545AbVJLUbz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751542AbVJLUb0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 16:31:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751540AbVJLUb0
+	id S1751545AbVJLUbz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 16:31:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751547AbVJLUbz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 16:31:26 -0400
-Received: from remus.commandcorp.com ([130.205.32.4]:37349 "EHLO
-	remus.wittsend.com") by vger.kernel.org with ESMTP id S1751491AbVJLUbZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 16:31:25 -0400
-Subject: Re: [PATCH 2.6.14-rc4] Maintainers one entry removed
-From: "Michael H. Warfield" <mhw@wittsend.com>
-Reply-To: mhw@wittsend.com
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: mhw@wittsend.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jiri Slaby <xslaby@fi.muni.cz>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, mhw@commandcorp.com,
-       m.warfield@computer.org, warfieldm@acm.org
-In-Reply-To: <4af2d03a0510121137h2c89ee1fw35109a41351a8b2e@mail.gmail.com>
-References: <4af2d03a0510061516t32a62180t380dcb856d45a774@mail.gmail.com>
-	 <20051012170612.619C422AF21@anxur.fi.muni.cz>
-	 <1129143366.7966.19.camel@localhost.localdomain>
-	 <4af2d03a0510121137h2c89ee1fw35109a41351a8b2e@mail.gmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-+B0Qh3rVl2uiZpZI8UEm"
-Organization: Thaumaturgy & Speculms Technology
-Date: Wed, 12 Oct 2005 15:52:17 -0400
-Message-Id: <1129146738.20250.23.camel@canyon.wittsend.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 (2.4.0-2) 
-X-WittsEnd-MailScanner-Information: Please contact the ISP for more information
-X-WittsEnd-MailScanner: Found to be clean
-X-MailScanner-From: mhw@wittsend.com
+	Wed, 12 Oct 2005 16:31:55 -0400
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:65512 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1751540AbVJLUby (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 16:31:54 -0400
+Date: Wed, 12 Oct 2005 22:31:52 +0200 (CEST)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: Jeff Mahoney <jeffm@suse.com>,
+       Glauber de Oliveira Costa <glommer@br.ibm.com>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, hirofumi@mail.parknet.co.jp,
+       linux-ntfs-dev@lists.sourceforge.net, aia21@cantab.net,
+       hch@infradead.org, viro@zeniv.linux.org.uk, akpm@osdl.org
+Subject: Re: [PATCH] Use of getblk differs between locations
+In-Reply-To: <Pine.LNX.4.64.0510122114140.9696@hermes-1.csi.cam.ac.uk>
+Message-ID: <Pine.LNX.4.62.0510122221250.13771@artax.karlin.mff.cuni.cz>
+References: <20051010204517.GA30867@br.ibm.com> 
+ <Pine.LNX.4.64.0510102217200.6247@hermes-1.csi.cam.ac.uk> 
+ <20051010214605.GA11427@br.ibm.com>  <Pine.LNX.4.62.0510102347220.19021@artax.karlin.mff.cuni.cz>
+  <Pine.LNX.4.64.0510102319100.6247@hermes-1.csi.cam.ac.uk> 
+ <Pine.LNX.4.62.0510110035110.19021@artax.karlin.mff.cuni.cz>
+ <1129017155.12336.4.camel@imp.csi.cam.ac.uk> <434D6932.1040703@suse.com>
+ <Pine.LNX.4.62.0510122155390.9881@artax.karlin.mff.cuni.cz> <434D6CFA.4080802@suse.com>
+ <Pine.LNX.4.62.0510122208210.11573@artax.karlin.mff.cuni.cz>
+ <Pine.LNX.4.64.0510122114140.9696@hermes-1.csi.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> But discarding data sometimes on USB unplug is even worse than discarding data
+>> always --- users will by experimenting learn that linux doesn't discard
+>> write-cached data and reminds them to replug the device --- and one day,
+>> randomly, they lose their data because of some memory management condition...
+>
+> And how exactly is that worse than discarding the data every time?!?!?!?
 
---=-+B0Qh3rVl2uiZpZI8UEm
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Undeterministic behaviour is worse than deterministic. You can learn 
+the system that behaves deterministically.
 
-On Wed, 2005-10-12 at 20:37 +0200, Jiri Slaby wrote:
-> On 10/12/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > On Mer, 2005-10-12 at 19:06 +0200, Jiri Slaby wrote:
-> > > Maintainers one entry removed
-> > >
-> > > Computone intelliport multiport card is no longer maintained. The
-> > > maintainer doesn't respond to e-mails (3 times during 1 month). The p=
-age was
-> > > updated 2 years ago and there is no other contact.
-> >
-> > Michael posted to fedora-list on October 1st and seems active. Have you
-> > allowed for the fact he might be away, busy or that you could be in his
-> > spam filters ?
-> So let's try his other e-mails, which I was not able to find before. Than=
-ks.
+If you know that unplug damages filesystem on your USB disk, you replug 
+it, recheck filesystem and copy the important data again --- you have 0% 
+probability of data damage.
+However, if damage on unplug happens only with 1/100 probability, will 
+you still check filesystem and copy all recently created files on it? You 
+forget it (or you wouldn't even know that damage might occur) and you have 
+1% probability of data damage.
 
-> Hello Michael, is the Computone intelliport multiport card still
-> maintained [and are you going to rewrite it to pci probing and the new
-> api?] and/or mhw@wittsend.com e-mail from MAINTAINERS still active (as
-> Alan wrote, I could be at on your black-list). So could you reply and
-> tell us?
+Mikulas
 
-	Ah... Found out what happened.  They weren't getting dumped in a spam
-folder (unless you consider LKML a spam folder :-) ).  All of your
-messages included LKML in the cc and my procmail scripts obligingly
-dumped all of them in my LKML folder.  And I'm just a few thousand
-messages behind on that one ATM.  :-(  Sorry about that.  On it now.
-Guess I need to "fine tune" that procmail receipe.
-
-> thanks,
-> --
-> Jiri Slaby         www.fi.muni.cz/~xslaby
-> ~\-/~      jirislaby@gmail.com      ~\-/~
-> B67499670407CE62ACC8 22A032CC55C339D47A7E
---=20
- Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com =20
-  /\/\|=3Dmhw=3D|\/\/       |  (678) 463-0932   |  http://www.wittsend.com/=
-mhw/
-  NIC whois:  MHW9      |  An optimist believes we live in the best of all
- PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
-
---=-+B0Qh3rVl2uiZpZI8UEm
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iQCVAwUAQ01pceHJS0bfHdRxAQKc3gP8ClzDd1p4FvfBjUHlxqxPEskV4ONUGTRO
-4J8ppWIWvywI3yJL85L0mZUSZbiODs1eqKtXfvxWI3Brau/0ke0XFdbDq9hINe+S
-bixiRv6SuXTXfKYWf/D+QfFLy+Wy1/RuEsGg2vmTEqVfqUKMxY7ftBOkv/KuSRS2
-HzPTuUnn1io=
-=eifF
------END PGP SIGNATURE-----
-
---=-+B0Qh3rVl2uiZpZI8UEm--
-
+> Best regards,
+>
+> 	Anton

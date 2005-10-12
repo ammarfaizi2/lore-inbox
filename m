@@ -1,55 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751494AbVJLSZx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751498AbVJLS1e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751494AbVJLSZx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 14:25:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751490AbVJLSZx
+	id S1751498AbVJLS1e (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 14:27:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751495AbVJLS1e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 14:25:53 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:65509 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751494AbVJLSZw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 14:25:52 -0400
-Subject: Re: 2.6.14-rc4-rt1
-From: Lee Revell <rlrevell@joe-job.com>
-To: Mark Knecht <markknecht@gmail.com>
-Cc: Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>, dwalker@mvista.com,
-       david singleton <dsingleton@mvista.com>
-In-Reply-To: <5bdc1c8b0510121100o11e0e28ft4b532ba43e170774@mail.gmail.com>
-References: <20051011111454.GA15504@elte.hu>
-	 <1129064151.5324.6.camel@cmn3.stanford.edu>
-	 <5bdc1c8b0510111408n4ef45eadv1e12ec4d1271d971@mail.gmail.com>
-	 <5bdc1c8b0510111413q7b1ea391n3bc27924d928b963@mail.gmail.com>
-	 <1129065696.4718.10.camel@mindpipe>
-	 <5bdc1c8b0510120937r45bbd26fr6f45b6e3a9895d3f@mail.gmail.com>
-	 <1129139304.10599.15.camel@mindpipe>
-	 <5bdc1c8b0510121100o11e0e28ft4b532ba43e170774@mail.gmail.com>
+	Wed, 12 Oct 2005 14:27:34 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:39300 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751496AbVJLS1e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 14:27:34 -0400
+Subject: Re: [PATCH 2.6.14-rc4] Maintainers one entry removed
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jiri Slaby <xslaby@fi.muni.cz>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20051012170612.619C422AF21@anxur.fi.muni.cz>
+References: <4af2d03a0510061516t32a62180t380dcb856d45a774@mail.gmail.com>
+	 <20051012170612.619C422AF21@anxur.fi.muni.cz>
 Content-Type: text/plain
-Date: Wed, 12 Oct 2005 14:25:47 -0400
-Message-Id: <1129141547.11297.4.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
+Date: Wed, 12 Oct 2005 19:56:06 +0100
+Message-Id: <1129143366.7966.19.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-10-12 at 11:00 -0700, Mark Knecht wrote:
-> On 10/12/05, Lee Revell <rlrevell@joe-job.com> wrote:
-> > Sounds like an application bug (some JACK client doing something not RT
-> > safe).  Can you reproduce the xruns if you just run jackd with no
-> > clients?
+On Mer, 2005-10-12 at 19:06 +0200, Jiri Slaby wrote:
+> Maintainers one entry removed
 > 
-> I don't know. These xruns take hours to generate. I'd probably have to
-> dedicate a whole day of doing nothing on the machine to try, and then
-> if I didn't produce anything I'm not sure what it proves. If I do get
-> one then we get to see if there's data.
+> Computone intelliport multiport card is no longer maintained. The
+> maintainer doesn't respond to e-mails (3 times during 1 month). The page was
+> updated 2 years ago and there is no other contact.
 
-A much easier solution is to recompile JACK with the
---enable-preemption-check option.  This activates the in-kernel
-debugging mechanism that causes a stack dump when an RT task schedules.
-It has been used to find tricky bugs in Hydrogen and Freqtweak already.
+Michael posted to fedora-list on October 1st and seems active. Have you
+allowed for the fact he might be away, busy or that you could be in his
+spam filters ?
 
-Lee
+Alan
 

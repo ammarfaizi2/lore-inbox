@@ -1,41 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751193AbVJLCNS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbVJLCjz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751193AbVJLCNS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 22:13:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbVJLCNS
+	id S932237AbVJLCjz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 22:39:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbVJLCjz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 22:13:18 -0400
-Received: from zctfs063.nortelnetworks.com ([47.164.128.120]:58516 "EHLO
-	zctfs063.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S1751193AbVJLCNS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 22:13:18 -0400
-Message-ID: <434C710C.2040305@nortel.com>
-Date: Tue, 11 Oct 2005 20:12:28 -0600
-From: "Christopher Friesen" <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
+	Tue, 11 Oct 2005 22:39:55 -0400
+Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:63882 "HELO
+	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932237AbVJLCjy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 22:39:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:From:Reply-To:To:Subject:Date:User-Agent:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=TYUSl7U7OI0KNksnqv8w+52S3CcgMSUEvmknT8ALizVMszjfI/GSsr8pzvaOYqlKZjuFr0QeaeAK2qKelC09NXwhdArzu6qiYtWOZL57NkBjrIzmu38phCsZCyATElALCL8YVTrXdDlA21SKUCoygLvCl1uDNPqXVt5BMspN+dI=  ;
+From: Marek W <marekw1977@yahoo.com.au>
+Reply-To: marekw1977@yahoo.com.au
+To: linux-kernel@vger.kernel.org
+Subject: Re: Direct Rendering drivers for ATI X300 ?
+Date: Wed, 12 Oct 2005 12:38:26 +1000
+User-Agent: KMail/1.8.91
+References: <1129073664.5116.93.camel@rousalka.dyndns.org>
+In-Reply-To: <1129073664.5116.93.camel@rousalka.dyndns.org>
 MIME-Version: 1.0
-To: linux@horizon.com
-CC: dev@sw.ru, linux-kernel@vger.kernel.org
-Subject: Re: SMP syncronization on AMD processors (broken?)
-References: <20051011235017.21719.qmail@science.horizon.com>
-In-Reply-To: <20051011235017.21719.qmail@science.horizon.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-6"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 Oct 2005 02:12:38.0534 (UTC) FILETIME=[6B1B6A60:01C5CED2]
+Content-Disposition: inline
+Message-Id: <200510121238.26343.marekw1977@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux@horizon.com wrote:
+On Wednesday 12 October 2005 09:34, Nicolas Mailhot wrote:
+> Dave Airlie wrote :
+> > For PCI Express Radeon cards:
+> >
+> > The kernel portions are in my -git tree ready for pushing to Linus
+> > after the next release is made,
+> >
+> > The userspace portions requires X.org/Mesa/DRM CVS trees.
+>
+> Does this include all PCIE Radeon card, not just X300-based ?
+> I have a X700
+>
+> Regards,
 
-> The right thing to do here is to wait for the flag to be set *outside*
-> the lock, and then re-validate inside the lock:
+Since someone raised the issue, how about the X600 PCIE? Info on it is scarce 
+and what's out there has not worked for me.
 
-This may work on some processors, but on others the read of "progress" 
-in XXX, or the write in YYY may require arch-specific code to force the 
-update out to other cpus.
+Cheers,
 
-Alternately, explicitly atomic operations should suffice, but a simple 
-increment is probably not enough for portable code.
-
-Chris
+Marek W
+Send instant messages to your online friends http://au.messenger.yahoo.com 

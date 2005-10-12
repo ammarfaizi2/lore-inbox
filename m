@@ -1,79 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbVJLMtB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751301AbVJLNDl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751265AbVJLMtB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 08:49:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751452AbVJLMtB
+	id S1751301AbVJLNDl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 09:03:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751420AbVJLNDl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 08:49:01 -0400
-Received: from nproxy.gmail.com ([64.233.182.202]:57444 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751265AbVJLMtA convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 08:49:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=VHreY/YvZCXuHFvTz3VGz3OcMLFsu727RSYCgM9WtjirEuoAsaYQ65DcZ/iTgEEAGM5xgrYdyFaqOiBY/ngzJxt3w/s9Kx3ML9Bf8jW/apJa7pi+lgcOiGVmD0Z9leaZpSbLPkRwkaIynUBRZ4xUwgPoZXit/WWNPOTSBrW4r7s=
-Message-ID: <81b0412b0510120548k3464d355ne75cce4e5edcce1a@mail.gmail.com>
-Date: Wed, 12 Oct 2005 14:48:59 +0200
-From: Alex Riesen <raa.lkml@gmail.com>
-To: boi@boi.at
-Subject: Re: blocking file lock functions (lockf,flock,fcntl) do not return after timer signal
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <434CC144.6000504@boi.at>
+	Wed, 12 Oct 2005 09:03:41 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:10251 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S1751301AbVJLNDk convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 09:03:40 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-References: <434CC144.6000504@boi.at>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <434C1D60.2090901@cmu.edu>
+References: <434C1D60.2090901@cmu.edu>
+X-OriginalArrivalTime: 12 Oct 2005 13:03:38.0313 (UTC) FILETIME=[5C8CB390:01C5CF2D]
+Content-class: urn:content-classes:message
+Subject: Re: using segmentation in the kernel
+Date: Wed, 12 Oct 2005 09:03:37 -0400
+Message-ID: <Pine.LNX.4.61.0510120837370.8832@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: using segmentation in the kernel
+Thread-Index: AcXPLVyWq6vlztBDR3Os459ifqYXng==
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Jonathan M. McCune" <jonmccune@cmu.edu>
+Cc: <linux-kernel@vger.kernel.org>, "Arvind Seshadri" <arvinds@cs.cmu.edu>,
+       "Bryan Parno" <parno@cmu.edu>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/12/05, "Dieter Müller (BOI GmbH)" <dieter.mueller@boi.at> wrote:
-> bug description:
+
+On Tue, 11 Oct 2005, Jonathan M. McCune wrote:
+
+> Hello,
 >
-> flock, lockf, fcntl do not return even after the signal SIGALRM  has
-> been raised and the signal handler function has been executed
-> the functions should return with a return value EWOULDBLOCK as described
-> in the man pages
+> We're starting work on a project for the 32-bit x86 Linux kernel that
+> involves using segmentation in the kernel. As a first effort, we'd
+> like to adjust the kernel code and data segment descriptors so that
+> the kernel code, and data segment, bss, heap and stack exist in linear
+> address range between 3GB and 4 GB. How could we implment this so that
+> it breaks the memory management subsystem the least (or not at all if
+> we are lucky ;-))?
+>
+> Our current thinking is to modify only the base address and the limit
+> of the the kernel code and data segment descriptors (_KERNEL_CS and
+> _KERNEL_DS). We set the base address to 3GB and the limit to 1GB. We
+> would also change the kernel linker script (vmlinux.lds.S) by removing
+> the relocation caused by PAGE_OFFSET. This would mean that the kernel
+> would be linked to start at address 0 + 1MB in logical address
+> space. Since we would set the base address of the kernel code and data
+> segment descriptors to 3GB, the processor would translate all
+> addresses emitted by the kernel so that the kernel would use addresses
+> of 3GB + 1MB and above in the linear address space. Hopefully, this
+> would mean that the all the paging code in the kernel would continue
+> to work correctly.
+>
+> We do not understand the mm subsystem well enough to figure out if our
+> method would work at all or if it works what things in the mm
+> subsystem would be likely to break. Can someone who understands the mm
+> subsystem please help us here?
+>
+>
+> Thanks!
+> -Jon
+>
 
-To confirm:
+On the ix86 you have a problem. Let's say that you write some
+code from scratch, that runs the CPU in 32-bit linear address-mode
+without paging. Then you want to activate paging. To activate
+paging, you MUST have provided some code and some data-space for
+your descriptors, where there is a 1:1 mapping between virtual
+and bus addresses. If you don't do this, at the instant you
+change to paging mode, you crash. The CPU fetches garbage.
 
-#include <unistd.h>
-#include <sys/time.h>
-#include <sys/file.h>
-#include <time.h>
-#include <signal.h>
+This is why the first few megabytes of Linux are unity-mapped.
+You will always need to run the kernel out of an area where
+a portion of that "segment" is unity-mapped. That segment
+is where the descriptors for addressing, paging, and interrupts
+must reside.
 
-void alrm(int sig)
-{
-    write(2, "timeout\n", 8);
-}
+If you truly wanted to run the kernel from 3-4 GB as you state,
+you must have RAM there, i.e., some physical stuff so that
+a 1:1 mapping could be implemented. The 3-4 GB region is
+where a lot of PCI addressing occurs on 32-bit machines and,
+in fact, there are some "do-not-touch" addresses in that
+region as well.
 
-int main(int argc, char* argv[])
-{
-    struct itimerval tv = {
-        .it_interval = {.tv_sec = 10, .tv_usec = 0},
-        .it_value = {.tv_sec = 10, .tv_usec = 0},
-    };
-    struct itimerval otv;
+Remember that the kernel runs in virtual address mode, but
+the descriptors that specify that mode need to be in physical
+memory, addressed at the same offset. You can experiment
+by making a module that attempts to turn off paging and
+then turn it back on. The kernel will crash instantly.
+However, if you write some code somewhere in low address-
+space where the startup code already exists, that turns
+off paging, then turns it back on; and your module code
+calls this other code, the machine will work fine. You
+need the interrupts off when you play.
 
-    signal(SIGALRM, alrm);
-    setitimer(ITIMER_REAL, &tv, &otv);
-    int fd = open(argv[1], O_RDWR);
-    if ( fd < 0 )
-    {
-        perror(argv[1]);
-        return 1;
-    }
-    printf("locking...\n");
-    if ( flock(fd, LOCK_EX) < 0 )
-    {
-        perror("flock");
-        return 1;
-    }
-    printf("sleeping...\n");
-    int ch;
-    read(0, &ch, 1);
-    close(fd);
-    return 0;
-}
+So, basically you can't do what you want with any OS that
+uses ix86 type CPUs. The question is; "What was it that
+you really wanted to do?". What you gave us was the
+"implementation details". What I want to know is what
+you intend to accomplish. The ix86 architecture lends itself
+to a lot of interesting things so if I knew your intentions
+I might be able to help.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13.4 on an i686 machine (5589.48 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+.
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

@@ -1,43 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932447AbVJLR3p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751073AbVJLRez@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932447AbVJLR3p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 13:29:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932444AbVJLR3p
+	id S1751073AbVJLRez (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 13:34:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbVJLRez
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 13:29:45 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:44931 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932447AbVJLR3o
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 13:29:44 -0400
-Message-ID: <434D47FF.1000602@austin.ibm.com>
-Date: Wed, 12 Oct 2005 12:29:35 -0500
-From: Joel Schopp <jschopp@austin.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050909 Fedora/1.7.10-1.3.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mel Gorman <mel@csn.ul.ie>
-CC: mike kravetz <kravetz@us.ibm.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       lhms-devel@lists.sourceforge.net
-Subject: Re: [Lhms-devel] Re: [PATCH 5/8] Fragmentation Avoidance V17: 005_fallback
-References: <20051011151221.16178.67130.sendpatchset@skynet.csn.ul.ie> <20051011151246.16178.40148.sendpatchset@skynet.csn.ul.ie> <20051012164353.GA9425@w-mikek2.ibm.com> <Pine.LNX.4.58.0510121806550.9602@skynet>
-In-Reply-To: <Pine.LNX.4.58.0510121806550.9602@skynet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 12 Oct 2005 13:34:55 -0400
+Received: from eurogra4543-2.clients.easynet.fr ([212.180.52.86]:64670 "HELO
+	briare1.heliogroup.fr") by vger.kernel.org with SMTP
+	id S1751073AbVJLRey (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 13:34:54 -0400
+From: Hubert Tonneau <hubert.tonneau@fullpliant.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: MPT fusion driver, better but still buggy at errors handling under 2.6
+Date: Wed, 12 Oct 2005 17:30:47 GMT
+Message-ID: <05EN9ZB11@briare1.heliogroup.fr>
+X-Mailer: Pliant 94
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In reality, no and it would only happen if a caller had specified both
-> __GFP_USER and __GFP_KERNRCLM in the call to alloc_pages() or friends. It
-> makes *no* sense for someone to do this, but if they did, an oops would be
-> thrown during an interrupt. The alternative is to get rid of this last
-> element and put a BUG_ON() check before the spinlock is taken.
-> 
-> This way, a stupid caller will damage the fragmentation strategy (which is
-> bad). The alternative, the kernel will call BUG() (which is bad). The
-> question is, which is worse?
-> 
+Hubert Tonneau wrote:
+>
+> 2.4.xx  recovers gracefully (only reading the kernel log will enable
+>         to discover that a tiny problem did append).
 
-If in the future we hypothetically have code that damages the fragmentation 
-strategy we want to find it sooner rather than never.  I'd rather some kernels 
-BUG() than we have bugs which go unnoticed.
+Here is the report of the gracefull recovery the Linux 2.4.31 does as
+opposed to Linux 2.6:
+
+<4>scsi : aborting command due to timeout : pid 2232433, scsi0, channel 0, id 0, lun 0 0x2a 00 05 b6 3d 3f 00 00 80 00 
+<4>mptscsih: OldAbort scheduling ABORT SCSI IO (sc=f79af800)
+<4>scsi : aborting command due to timeout : pid 2232436, scsi0, channel 0, id 0, lun 0 0x2a 00 05 b6 3d bf 00 00 38 00 
+<4>mptscsih: OldAbort scheduling ABORT SCSI IO (sc=f79af600)
+<4>scsi : aborting command due to timeout : pid 2232437, scsi0, channel 0, id 0, lun 0 0x2a 00 05 b6 3d f7 00 00 48 00 
+<4>mptscsih: OldAbort scheduling ABORT SCSI IO (sc=f79afa00)
+<4>SCSI host 0 abort (pid 2232433) timed out - resetting
+<4>SCSI bus is being reset for host 0 channel 0.
+<4>mptscsih: OldReset scheduling BUS_RESET (sc=f79af800)
+<4>SCSI host 0 abort (pid 2232436) timed out - resetting
+<4>SCSI bus is being reset for host 0 channel 0.
+<4>mptscsih: OldReset scheduling BUS_RESET (sc=f79af600)
+<4>SCSI host 0 abort (pid 2232437) timed out - resetting
+<4>SCSI bus is being reset for host 0 channel 0.
+<4>mptscsih: OldReset scheduling BUS_RESET (sc=f79afa00)
+<4>SCSI host 0 channel 0 reset (pid 2232433) timed out - trying harder
+<4>SCSI bus is being reset for host 0 channel 0.
+<4>mptscsih: OldReset scheduling BUS_RESET (sc=f79af800)
+<4>SCSI host 0 channel 0 reset (pid 2232437) timed out - trying harder
+<4>SCSI bus is being reset for host 0 channel 0.
+<4>mptscsih: OldReset scheduling BUS_RESET (sc=f79afa00)
+<4>SCSI host 0 reset (pid 2232433) timed out again -
+<4>probably an unrecoverable SCSI bus or device hang.
+<4>SCSI host 0 reset (pid 2232437) timed out again -
+<4>probably an unrecoverable SCSI bus or device hang.
+<4>SCSI Error: (0:0:0) Status=02h (CHECK CONDITION)
+<4> Key=6h (UNIT ATTENTION); FRU=00h
+<4> ASC/ASCQ=29h/02h "SCSI BUS RESET OCCURRED"
+<4> CDB: 2A 00 05 B6 3D BF 00 00 38 00
+<4>
+<4>SCSI Error: (0:1:0) Status=02h (CHECK CONDITION)
+<4> Key=6h (UNIT ATTENTION); FRU=00h
+<4> ASC/ASCQ=29h/02h "SCSI BUS RESET OCCURRED"
+<4> CDB: 28 00 05 B6 3E 3F 00 00 80 00
+<4>
+<4>scsi : aborting command due to timeout : pid 2232577, scsi0, channel 0, id 0, lun 0 0x2a 00 05 b6 41 3f 00 00 80 00 
+<4>mptscsih: OldAbort scheduling ABORT SCSI IO (sc=f79af600)
+<4>scsi : aborting command due to timeout : pid 2232580, scsi0, channel 0, id 0, lun 0 0x2a 00 05 b6 41 bf 00 00 18 00 
+<4>mptscsih: OldAbort scheduling ABORT SCSI IO (sc=f79af800)
+<4>scsi : aborting command due to timeout : pid 2232581, scsi0, channel 0, id 0, lun 0 0x2a 00 05 b6 41 d7 00 00 68 00 
+<4>mptscsih: OldAbort scheduling ABORT SCSI IO (sc=f79afa00)
+<4>SCSI host 0 abort (pid 2232577) timed out - resetting
+<4>SCSI bus is being reset for host 0 channel 0.
+<4>mptscsih: OldReset scheduling BUS_RESET (sc=f79af600)
+<4>SCSI host 0 abort (pid 2232580) timed out - resetting
+<4>SCSI bus is being reset for host 0 channel 0.
+<4>mptscsih: OldReset scheduling BUS_RESET (sc=f79af800)
+<4>SCSI host 0 abort (pid 2232581) timed out - resetting
+<4>SCSI bus is being reset for host 0 channel 0.
+<4>mptscsih: OldReset scheduling BUS_RESET (sc=f79afa00)
+<4>SCSI host 0 channel 0 reset (pid 2232577) timed out - trying harder
+<4>SCSI bus is being reset for host 0 channel 0.
+<4>mptscsih: OldReset scheduling BUS_RESET (sc=f79af600)
+<4>SCSI host 0 channel 0 reset (pid 2232580) timed out - trying harder
+<4>SCSI bus is being reset for host 0 channel 0.
+<4>mptscsih: OldReset scheduling BUS_RESET (sc=f79af800)
+<4>SCSI host 0 channel 0 reset (pid 2232581) timed out - trying harder
+<4>SCSI bus is being reset for host 0 channel 0.
+<4>mptscsih: OldReset scheduling BUS_RESET (sc=f79afa00)
+<4>SCSI host 0 reset (pid 2232577) timed out again -
+<4>probably an unrecoverable SCSI bus or device hang.
+<4>SCSI host 0 reset (pid 2232580) timed out again -
+<4>probably an unrecoverable SCSI bus or device hang.
+<4>SCSI host 0 reset (pid 2232581) timed out again -
+<4>probably an unrecoverable SCSI bus or device hang.
+<4>SCSI Error: (0:0:0) Status=02h (CHECK CONDITION)
+<4> Key=6h (UNIT ATTENTION); FRU=00h
+<4> ASC/ASCQ=29h/02h "SCSI BUS RESET OCCURRED"
+<4> CDB: 2A 00 0D 38 DB 87 00 00 08 00
+<4>
+<4>SCSI Error: (0:1:0) Status=02h (CHECK CONDITION)
+<4> Key=6h (UNIT ATTENTION); FRU=00h
+<4> ASC/ASCQ=29h/02h "SCSI BUS RESET OCCURRED"
+<4> CDB: 2A 00 0D 38 E2 C7 00 00 10 00
+<4>
+

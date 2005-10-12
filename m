@@ -1,53 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751377AbVJLVsm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932460AbVJLVzy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751377AbVJLVsm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 17:48:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751505AbVJLVsm
+	id S932460AbVJLVzy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 17:55:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbVJLVzy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 17:48:42 -0400
-Received: from mx1.suse.de ([195.135.220.2]:54411 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751486AbVJLVsl (ORCPT
+	Wed, 12 Oct 2005 17:55:54 -0400
+Received: from xenotime.net ([66.160.160.81]:53722 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932460AbVJLVzx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 17:48:41 -0400
-From: Andi Kleen <ak@suse.de>
-To: discuss@x86-64.org
-Subject: Re: [discuss] [Patch 1/2] x86, x86_64: Intel HT, Multi core detection fixes
-Date: Wed, 12 Oct 2005 23:49:04 +0200
-User-Agent: KMail/1.8.2
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <20051005161706.B30098@unix-os.sc.intel.com> <200510081228.39492.ak@suse.de> <20051012143641.B29292@unix-os.sc.intel.com>
-In-Reply-To: <20051012143641.B29292@unix-os.sc.intel.com>
+	Wed, 12 Oct 2005 17:55:53 -0400
+Date: Wed, 12 Oct 2005 14:55:50 -0700 (PDT)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+cc: Randy Dunlap <randy_d_dunlap@linux.intel.com>,
+       lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       venki <venkatesh.pallipadi@intel.com>, bob.picco@hp.com,
+       Adam Belay <ambx1@neo.rr.com>
+Subject: Re: [PATCH 1/3] hpet: allow fixed_mem32 ACPI resource type
+In-Reply-To: <200510121408.32163.bjorn.helgaas@hp.com>
+Message-ID: <Pine.LNX.4.58.0510121441010.6823@shark.he.net>
+References: <20051012115814.1d367a94.randy_d_dunlap@linux.intel.com>
+ <200510121408.32163.bjorn.helgaas@hp.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510122349.05312.ak@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 12 October 2005 23:36, Siddha, Suresh B wrote:
+(Sorry, replying from different email address; I've waited > 1 hour
+for your email to arrive at linux.intel.com ... :(
+Maybe it was a bad choice.)
 
-> Fields obtained through cpuid vector 0x1(ebx[16:23]) and
-> vector 0x4(eax[14:25], eax[26:31]) indicate the maximum values and might not
-> always be the same as what is available and what OS sees.  So make sure
-> "siblings" and "cpu cores" values in /proc/cpuinfo reflect the values as seen
-> by OS instead of what cpuid instruction says. This will also fix the buggy BIOS
-> cases (for example where cpuid on a single core cpu says there are "2" siblings,
-> even when HT is disabled in the BIOS. 
-> http://bugzilla.kernel.org/show_bug.cgi?id=4359)
 
-I'm not too fond of this new booted_core variable. How about
-you just put the true number of cores into x86_num_cores? 
-What should x86_num_cores be in your setup anyways if not
-"booted cores"? 
+On Wed, 12 Oct 2005, Bjorn Helgaas wrote:
 
-Also I must admit the number of different variables to keep
-track of multicore and siblingness starts to become mindboggling,
-so I would recommend you add a fat overview comment somewhere
-that describes their definition and relationship. Or better put
-something into Documentation, it is probably as confusing for 
-user space /proc/cpuinfo consumer too.
+> On Wednesday 12 October 2005 12:58 pm, Randy Dunlap wrote:
+> > Allow the ACPI HPET description table to use a resource type
+> > of FIXED_MEM32 for the HPET reource.  Use the fixed resoure
+> > size of 1 KB for the HPET resource as per the HPET spec.
+>
+> I have a patch in my tree to convert HPET from an ACPI
+> driver to a PNP driver, using PNPACPI.  That should take
+> care of issues like this.
 
--Andi
+Thanks, that's good news.
+
+> But my patch is waiting on some PNP work by Adam to allow
+> PNPACPI devices to have more than 2 IRQs.
+>
+> In the meantime, I think your patch is fine.
+>
+> > +#define HPET_RANGE_SIZE		1024	/* from HPET spec */
+>
+> Out of curiosity, why do you need this?  ACPI_RSTYPE_FIXED_MEM32
+> contains a length field, and my patch uses it.  Did you run
+> into some firmware that supplies incorrect information about the
+> size of the HPET MMIO area?
+
+a.  The HPET spec says that the HPET block size is 1 KB
+in section 3.2.1.
+
+b.  Table 3 (HPET description table) requires an HPET base
+address (offset 40), but seems not to require a length.
+However, the description text again states a fixed block size
+of 1 KB.
+
+c.  Yes, I've seen descriptor.length field value of 0.
+Whether it's incorrect is a discussion for an specster IMO.
+At least it's debatable (by someone).
+
+d.  Yes, I would prefer to use (valid) length from the descriptor.
+Maybe default to 1 KB if desc.length is 0 (?).
+
+
+> Another minor HPET nit I fixed is that it currently doesn't
+> use request_mem_region().  I did it in PNP terms, so it's
+> waiting on Adam's work, but maybe it'd be worth an interim
+> patch until that's ready.
+
+OK, maybe you can get Bob Picco or me to add that to our
+todo lists.
+
+Thanks,
+-- 
+~Randy

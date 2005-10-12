@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbVJLSiJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751500AbVJLSiu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932080AbVJLSiJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 14:38:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751499AbVJLSiJ
+	id S1751500AbVJLSiu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 14:38:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751499AbVJLSiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 14:38:09 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:12263 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751500AbVJLSiI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 14:38:08 -0400
-Subject: Re: 2.6.14-rc4-rt1
-From: Lee Revell <rlrevell@joe-job.com>
-To: Mark Knecht <markknecht@gmail.com>
-Cc: Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>, dwalker@mvista.com,
-       david singleton <dsingleton@mvista.com>
-In-Reply-To: <1129141547.11297.4.camel@mindpipe>
-References: <20051011111454.GA15504@elte.hu>
-	 <1129064151.5324.6.camel@cmn3.stanford.edu>
-	 <5bdc1c8b0510111408n4ef45eadv1e12ec4d1271d971@mail.gmail.com>
-	 <5bdc1c8b0510111413q7b1ea391n3bc27924d928b963@mail.gmail.com>
-	 <1129065696.4718.10.camel@mindpipe>
-	 <5bdc1c8b0510120937r45bbd26fr6f45b6e3a9895d3f@mail.gmail.com>
-	 <1129139304.10599.15.camel@mindpipe>
-	 <5bdc1c8b0510121100o11e0e28ft4b532ba43e170774@mail.gmail.com>
-	 <1129141547.11297.4.camel@mindpipe>
-Content-Type: text/plain
-Date: Wed, 12 Oct 2005 14:38:02 -0400
-Message-Id: <1129142282.11410.7.camel@mindpipe>
+	Wed, 12 Oct 2005 14:38:50 -0400
+Received: from smtp.mailbox.net.uk ([195.82.125.32]:13495 "EHLO
+	smtp.mailbox.co.uk") by vger.kernel.org with ESMTP id S1751500AbVJLSis
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 14:38:48 -0400
+Date: Wed, 12 Oct 2005 19:38:13 +0100
+From: Jon Masters <jonathan@jonmasters.org>
+To: Kai Svahn <kai.svahn@nokia.com>
+Cc: ext Jon Masters <jonathan@jonmasters.org>,
+       Tony Lindgren <tony@atomide.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Nokia 770 kernel sources?
+Message-ID: <20051012183813.GC24120@apogee.jonmasters.org>
+References: <35fb2e590510101708l497a44a5oe71971e9c3c925a9@mail.gmail.com> <20051011134936.GA12462@atomide.com> <20051011135739.GA22484@apogee.jonmasters.org> <1129133327.22381.29.camel@six.research.nokia.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1129133327.22381.29.camel@six.research.nokia.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-10-12 at 14:25 -0400, Lee Revell wrote:
-> On Wed, 2005-10-12 at 11:00 -0700, Mark Knecht wrote:
-> > On 10/12/05, Lee Revell <rlrevell@joe-job.com> wrote:
-> > > Sounds like an application bug (some JACK client doing something not RT
-> > > safe).  Can you reproduce the xruns if you just run jackd with no
-> > > clients?
-> > 
-> > I don't know. These xruns take hours to generate. I'd probably have to
-> > dedicate a whole day of doing nothing on the machine to try, and then
-> > if I didn't produce anything I'm not sure what it proves. If I do get
-> > one then we get to see if there's data.
-> 
-> A much easier solution is to recompile JACK with the
-> --enable-preemption-check option.  This activates the in-kernel
-> debugging mechanism that causes a stack dump when an RT task schedules.
-> It has been used to find tricky bugs in Hydrogen and Freqtweak already.
+On Wed, Oct 12, 2005 at 07:08:47PM +0300, Kai Svahn wrote:
 
-I should also remind you that if you pursue the
---enable-preemption-check option, then we'll be well outside of kernel
-land so you might want to take it up on the JACK list.
+> The kernel sources for N770 will be available in www.maemo.org when we
+> start sales. There will be some binary modules that will not be made
+> open source. All drivers we can open source, we will, and they will be
+> pushed to linux-omap tree and into mainstream kernel through driver
+> specific channels. Unfortunately all open source drivers are not yet in
+> linux-omap tree so you cannot compile your own kernel for N770, I'm
+> sorry about that.
 
-Lee
+Sure thing. I'm actually just trying to be helpful since I'm pretty
+experienced at debugging kernels and noticed a few issues with the VM on
+the unit I have - guess I'll have to wait before I can debug those -
+there's also a couple of problems with the audio driver.
 
+There's a suspicious looking connector in the battery compartment that
+might well be JTAG. In any case, I'm confident that if I actually opened
+this unit I could figure out the changes you've made to the reference OMAP.
+But I'll wait because I don't want to take this unit apart :-)
+
+Jon.

@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932436AbVJLRIt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964802AbVJLRKa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932436AbVJLRIt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 13:08:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbVJLRIt
+	id S964802AbVJLRKa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 13:10:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964811AbVJLRKa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 13:08:49 -0400
-Received: from fmr23.intel.com ([143.183.121.15]:31887 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S964802AbVJLRIs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 13:08:48 -0400
-Message-Id: <200510121708.j9CH8lg25344@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: kernel performance update - 2.6.14-rc4
-Date: Wed, 12 Oct 2005 10:08:25 -0700
+	Wed, 12 Oct 2005 13:10:30 -0400
+Received: from rwcrmhc13.comcast.net ([216.148.227.118]:28657 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S964802AbVJLRK3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 13:10:29 -0400
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: "Michael Kerrisk" <mtk-manpages@gmx.net>
+Subject: Re: man-pages-2.08 is released
+Date: Wed, 12 Oct 2005 10:10:15 -0700
+User-Agent: KMail/1.8.91
+Cc: linux-kernel@vger.kernel.org, michael.kerrisk@gmx.net,
+       Andries.Brouwer@cwi.nl
+References: <434D5224.9754.10AC691@localhost> <30041.1129134415@www32.gmx.net>
+In-Reply-To: <30041.1129134415@www32.gmx.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcXPT46nO6hVzC3dS2Gkylae/OH8sQ==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Content-Disposition: inline
+Message-Id: <200510121010.16274.jbarnes@virtuousgeek.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel performance data for 2.6.14-rc4 is updated at:
-http://kernel-perf.sourceforge.net
+On Wednesday, October 12, 2005 9:26 am, Michael Kerrisk wrote:
+> This is a request to kernel developers: if you make a change
+> to a kernel-userland interface, or observe a discrepancy
+> between the manual pages and reality, would you please send
+> me (at mtk-manpages@gmx.net ) one of the following
+> (in decreasing order of preference):
 
-991 patches went in for rc4 since rc3, all perf. results are
-pretty much flat compares to 2.6.14-rc3.  This is probably as
-expected since kernel is in the quiet mode.
+Would it make sense for some of the man pages (or maybe all of them) that 
+correspond directly to kernel interfaces (e.g. syscalls, procfs & sysfs 
+descriptions) to be bundled directly with the kernel?  Andrew is 
+generally pretty good about asking people to update the stuff in 
+Documentation/ when necessary, so maybe the man pages would be kept more 
+up to date if developers were forced to deal with them more directly.
 
-Result with fileio went up on IPF box, and it is because of a
-intermittent bug in the mpt fusion scsi driver. A fix is
-proposed [*] and we have verified that the patch improved
-regression seen with fileio.
+OTOH, they comprise a fairly large package, so adding them to the kernel 
+tarball would increase its size a lot.
 
-We are working on having a sensible configuration for dbench,
-all numbers for dbench presented on the web site are taken with
-default parameters, and it needs to be taken with a grain of
-salt at the moment.
+The man pages are great; I'm just thinking that if some of them were 
+bundled with the kernel there'd be a bit less work for you to do (just 
+proofreading and acking changes hopefully).  Also, if they were there, 
+it might motivate people to convert some of the stuff in Documentation 
+to section 7 man pages (the janitors have been doing a lot of good 
+stuff, maybe that would be another area where they could contribute).
 
-	Ken Chen
-	Intel Opensource Technology Center
-
-
-[*] mpt fusion driver performance issue in 2.6.14-rc2
-http://marc.theaimsgroup.com/?t=112802043200007&r=1&w=2
+Thanks,
+Jesse
 

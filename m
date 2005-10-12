@@ -1,74 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932485AbVJLWhS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932486AbVJLWtv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932485AbVJLWhS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 18:37:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932448AbVJLWhS
+	id S932486AbVJLWtv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 18:49:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932448AbVJLWtv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 18:37:18 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:11401 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932485AbVJLWhR (ORCPT
+	Wed, 12 Oct 2005 18:49:51 -0400
+Received: from mail.kroah.org ([69.55.234.183]:14740 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932486AbVJLWtu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 18:37:17 -0400
-Date: Thu, 13 Oct 2005 00:36:17 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Thomas Gleixner <tglx@linutronix.de>
-cc: linux-kernel@vger.kernel.org, mingo@elte.hu, Andrew Morton <akpm@osdl.org>,
-       george@mvista.com, johnstul@us.ibm.com, paulmck@us.ibm.com,
-       Christoph Hellwig <hch@infradead.org>, oleg@tv-sign.ru,
-       tim.bird@am.sony.com
-Subject: Re: [PATCH]  ktimers subsystem 2.6.14-rc2-kt5
-In-Reply-To: <1129016558.1728.285.camel@tglx.tec.linutronix.de>
-Message-ID: <Pine.LNX.4.61.0510130004330.3728@scrub.home>
-References: <20050928224419.1.patchmail@tglx.tec.linutronix.de> 
- <Pine.LNX.4.61.0509301825290.3728@scrub.home>  <1128168344.15115.496.camel@tglx.tec.linutronix.de>
-  <Pine.LNX.4.61.0510100213480.3728@scrub.home> <1129016558.1728.285.camel@tglx.tec.linutronix.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 12 Oct 2005 18:49:50 -0400
+Date: Wed, 12 Oct 2005 15:49:19 -0700
+From: Greg KH <greg@kroah.com>
+To: Mark Gross <mgross@linux.intel.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       Sebastien.Bouchard@ca.kontron.com, mark.gross@intel.com
+Subject: Re: Fwd: Telecom Clock Driver for MPCBL0010 ATCA computer blade
+Message-ID: <20051012224919.GA1730@kroah.com>
+References: <200510060803.21470.mgross@linux.intel.com> <200510061554.35039.mgross@linux.intel.com> <20051006231501.GB7488@kroah.com> <200510121530.00997.mgross@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200510121530.00997.mgross@linux.intel.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tue, 11 Oct 2005, Thomas Gleixner wrote:
-
-> > > As far as I understand SUS timer resolution is equal to clock resolution
-> > > and the timer value/interval is rounded up to the resolution.
-> > 
-> > Please check the rationale about clocks and timers. It talks about clocks 
-> > and timer services based on them and their resolutions can be different.
+On Wed, Oct 12, 2005 at 03:30:00PM -0700, Mark Gross wrote:
 > 
-> clock_settime():
-> ... Time values that are between two consecutive non-negative integer
-> multiples of the resolution of the specified clock shall be truncated
-> down to the smaller multiple of the resolution.
-> 
-> timer_settime():
-> ...Time values that are between two consecutive non-negative integer
-> multiples of the resolution of the specified timer shall be rounded up
-> to the larger multiple of the resolution. Quantization error shall not
-> cause the timer to expire earlier than the rounded time value.
+> Most significantly I moved the driver from a misc_device to a
+> platform_device.
 
-Where does it say anything about that their resolution is equal?
+You should still use the misc_device to register your file ops, just
+stick with the platform device for the sysfs stuff.  You need that
+misc_device in order to work properly with udev.  Have you tested this
+code on a udev-only system?
 
-> > > Reprogramming interval timers by now + interval is completely wrong.
-> > > Reprogramming has to be 
-> > > timer->expires + interval and nothing else. 
-> > 
-> > Where do get the requirement for an explicit rounding from?
-> > The point is that the timer should not expire early, but there is more 
-> > than one way to do this and can be done implicitly using the timer 
-> > resolution.
-> 
-> See above.
+Other than that, it looks very good.
 
-I know it and above is an _interface_ description, but what leads you to 
-the conclusion that your _implementation_ is the only correct one?
+Oh, one minor thing:
 
-Thomas, are you even interested in discussing this? Do you just expect 
-that everyone accepts your patch and is happy? So far it's difficult 
-enough to get you to explain your design, but a serious discussion also 
-requires to look at the possible alternatives. It's quite possible I'm 
-wrong, but you have to try a little harder at explaining why.
+> +#include <linux/sysfs.h>
+> +#define DEBUG
+> +#include <linux/device.h>
 
-bye, Roman
+Do you always want DEBUG to be enabled?  :)
+
+thanks,
+
+greg k-h

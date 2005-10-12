@@ -1,138 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751232AbVJLRlD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbVJLRpN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751232AbVJLRlD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 13:41:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbVJLRlD
+	id S1750808AbVJLRpN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 13:45:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbVJLRpN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 13:41:03 -0400
-Received: from smtp102.sbc.mail.re2.yahoo.com ([68.142.229.103]:40552 "HELO
-	smtp102.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1751232AbVJLRlA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 13:41:00 -0400
-Message-ID: <434D4AAA.9010905@gmail.com>
-Date: Wed, 12 Oct 2005 12:40:58 -0500
-From: Hareesh Nagarajan <hnagar2@gmail.com>
-Reply-To: hnagar2@gmail.com
-User-Agent: Thunderbird 1.4 (X11/20050908)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: geert@linux-m68k.org, davem@davemloft.net
-Subject: [PATCH] Trivial patch to remove the unused member 'list' from the
- *_par structures in some files in drivers/video/
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 12 Oct 2005 13:45:13 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:4274 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1750808AbVJLRpM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 13:45:12 -0400
+Message-Id: <200510121745.j9CHj6XE023497@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Klaus Dittrich <kladit@arcor.de>
+Cc: linux mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.14-rc* / xinetd 
+In-Reply-To: Your message of "Wed, 12 Oct 2005 16:36:57 +0200."
+             <20051012143657.GA1625@xeon2.local.here> 
+From: Valdis.Kletnieks@vt.edu
+References: <20051012143657.GA1625@xeon2.local.here>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1129139106_16609P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Wed, 12 Oct 2005 13:45:06 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This trivial patch removes the unused member 'list' from the 
-corresponding *_par structure from some files in drivers/video/
+--==_Exmh_1129139106_16609P
+Content-Type: text/plain; charset=us-ascii
 
-For e.g.: struct tcx_par, in drivers/video/tcx.c
+On Wed, 12 Oct 2005 16:36:57 +0200, Klaus Dittrich said:
+> I noticed a huge cpu usage of xinetd with 2.6.14-rc4 
+> starting with the first ntp request.
 
-Signed-off-by: Hareesh Nagarajan <hnagar2@gmail.com>
+Umm.. why is xinetd listening for ntp requests at all?  I'm pretty sure that
+xinetd fighting with xntpd for control of the socket isn't going to work nicely,
+although I admit being mystified as to (a) why this ever worked for you and
+(b) what specifically changed in -rc4 to cause the CPU spin.
 
----
-diff -ruN linux-2.6.13.4/drivers/video/bw2.c 
-linux-2.6.13.4-edit/drivers/video/bw2.c
---- linux-2.6.13.4/drivers/video/bw2.c	2005-10-10 13:54:29.000000000 -0500
-+++ linux-2.6.13.4-edit/drivers/video/bw2.c	2005-10-12 
-00:06:48.239981000 -0500
-@@ -119,7 +119,6 @@
-  	unsigned long		fbsize;
+What was the most recent kernel known to work, and what does the xinetd
+config file entry for NTP look like?
 
-  	struct sbus_dev		*sdev;
--	struct list_head	list;
-  };
+--==_Exmh_1129139106_16609P
+Content-Type: application/pgp-signature
 
-  /**
-diff -ruN linux-2.6.13.4/drivers/video/cg14.c 
-linux-2.6.13.4-edit/drivers/video/cg14.c
---- linux-2.6.13.4/drivers/video/cg14.c	2005-10-10 13:54:29.000000000 -0500
-+++ linux-2.6.13.4-edit/drivers/video/cg14.c	2005-10-12 
-00:10:25.039490000 -0500
-@@ -204,7 +204,6 @@
-  	int			mode;
-  	int			ramsize;
-  	struct sbus_dev		*sdev;
--	struct list_head	list;
-  };
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-  static void __cg14_reset(struct cg14_par *par)
-diff -ruN linux-2.6.13.4/drivers/video/cg3.c 
-linux-2.6.13.4-edit/drivers/video/cg3.c
---- linux-2.6.13.4/drivers/video/cg3.c	2005-10-10 13:54:29.000000000 -0500
-+++ linux-2.6.13.4-edit/drivers/video/cg3.c	2005-10-12 
-00:07:06.759939000 -0500
-@@ -122,7 +122,6 @@
-  	unsigned long		fbsize;
+iD8DBQFDTUuicC3lWbTT17ARAlUwAJ9hfWKXKT2zLu1pYG85Wk16mTC6ygCg2UP8
+sVbmyD/rNMEidlJA1YKH68Q=
+=x5hJ
+-----END PGP SIGNATURE-----
 
-  	struct sbus_dev		*sdev;
--	struct list_head	list;
-  };
-
-  /**
-diff -ruN linux-2.6.13.4/drivers/video/cg6.c 
-linux-2.6.13.4-edit/drivers/video/cg6.c
---- linux-2.6.13.4/drivers/video/cg6.c	2005-10-10 13:54:29.000000000 -0500
-+++ linux-2.6.13.4-edit/drivers/video/cg6.c	2005-10-12 
-00:06:04.330080000 -0500
-@@ -263,7 +263,6 @@
-  	unsigned long		fbsize;
-
-  	struct sbus_dev		*sdev;
--	struct list_head	list;
-  };
-
-  static int cg6_sync(struct fb_info *info)
-diff -ruN linux-2.6.13.4/drivers/video/ffb.c 
-linux-2.6.13.4-edit/drivers/video/ffb.c
---- linux-2.6.13.4/drivers/video/ffb.c	2005-10-10 13:54:29.000000000 -0500
-+++ linux-2.6.13.4-edit/drivers/video/ffb.c	2005-10-12 
-00:10:44.739447000 -0500
-@@ -359,7 +359,6 @@
-  	int			prom_parent_node;
-  	int			dac_rev;
-  	int			board_type;
--	struct list_head	list;
-  };
-
-  static void FFBFifo(struct ffb_par *par, int n)
-diff -ruN linux-2.6.13.4/drivers/video/leo.c 
-linux-2.6.13.4-edit/drivers/video/leo.c
---- linux-2.6.13.4/drivers/video/leo.c	2005-10-10 13:54:29.000000000 -0500
-+++ linux-2.6.13.4-edit/drivers/video/leo.c	2005-10-12 
-00:10:10.839522000 -0500
-@@ -195,7 +195,6 @@
-  	unsigned long		fbsize;
-
-  	struct sbus_dev		*sdev;
--	struct list_head	list;
-  };
-
-  static void leo_wait(struct leo_lx_krn __iomem *lx_krn)
-diff -ruN linux-2.6.13.4/drivers/video/p9100.c 
-linux-2.6.13.4-edit/drivers/video/p9100.c
---- linux-2.6.13.4/drivers/video/p9100.c	2005-10-10 13:54:29.000000000 -0500
-+++ linux-2.6.13.4-edit/drivers/video/p9100.c	2005-10-12 
-00:07:30.459885000 -0500
-@@ -138,7 +138,6 @@
-  	unsigned long		fbsize;
-
-  	struct sbus_dev		*sdev;
--	struct list_head	list;
-  };
-
-  /**
-diff -ruN linux-2.6.13.4/drivers/video/tcx.c 
-linux-2.6.13.4-edit/drivers/video/tcx.c
---- linux-2.6.13.4/drivers/video/tcx.c	2005-10-10 13:54:29.000000000 -0500
-+++ linux-2.6.13.4-edit/drivers/video/tcx.c	2005-10-12 
-00:02:53.710511000 -0500
-@@ -123,7 +123,6 @@
-  	int			lowdepth;
-
-  	struct sbus_dev		*sdev;
--	struct list_head	list;
-  };
-
-  /* Reset control plane so that WID is 8-bit plane. */
+--==_Exmh_1129139106_16609P--

@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932433AbVJLREM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932437AbVJLRGT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932433AbVJLREM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 13:04:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbVJLREL
+	id S932437AbVJLRGT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 13:06:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932436AbVJLRGT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 13:04:11 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:46281 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932433AbVJLREK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 13:04:10 -0400
-Date: Wed, 12 Oct 2005 13:03:40 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-To: Lee Revell <rlrevell@joe-job.com>
-cc: Mark Knecht <markknecht@gmail.com>, Ingo Molnar <mingo@elte.hu>,
-       Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org
-Subject: Re: Latency data - 2.6.14-rc3-rt13
-In-Reply-To: <1129133902.10599.10.camel@mindpipe>
-Message-ID: <Pine.LNX.4.58.0510121301460.9258@localhost.localdomain>
-References: <5bdc1c8b0510101316k23ff64e2i231cdea7f11e8553@mail.gmail.com> 
- <1128980674.18782.211.camel@c-67-188-6-232.hsd1.ca.comcast.net> 
- <5bdc1c8b0510101509w4c74028apb6e69746b1b8b65b@mail.gmail.com> 
- <1128983301.18782.215.camel@c-67-188-6-232.hsd1.ca.comcast.net> 
- <5bdc1c8b0510101633lc45fbf8gd2677e5646dc6f93@mail.gmail.com> 
- <5bdc1c8b0510101649s221ab437scc49d6a49269d6b@mail.gmail.com> 
- <5bdc1c8b0510102045u7e4bc9eeld5b690b5e96c4a5f@mail.gmail.com> 
- <20051011111700.GA15892@elte.hu>  <5bdc1c8b0510111545n29b77010h8558a1b69c4bf12a@mail.gmail.com>
-  <1129075368.7094.3.camel@mindpipe>  <5bdc1c8b0510111809v2609879ai8aa0a8e283acb58d@mail.gmail.com>
-  <1129080062.7094.7.camel@mindpipe>  <Pine.LNX.4.58.0510120233300.5830@localhost.localdomain>
- <1129133902.10599.10.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 12 Oct 2005 13:06:19 -0400
+Received: from tirith.ics.muni.cz ([147.251.4.36]:1201 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S932435AbVJLRGS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 13:06:18 -0400
+From: "Jiri Slaby" <xslaby@fi.muni.cz>
+Date: Wed, 12 Oct 2005 19:06:13 +0200
+References: <4af2d03a0510061516t32a62180t380dcb856d45a774@mail.gmail.com>
+In-reply-to: <20051012164748.A587022AF22@anxur.fi.muni.cz>
+Subject: [PATCH 2.6.14-rc4] Maintainers one entry removed
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <20051012170612.619C422AF21@anxur.fi.muni.cz>
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: xslaby@fi.muni.cz
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Maintainers one entry removed
 
-On Wed, 12 Oct 2005, Lee Revell wrote:
+Computone intelliport multiport card is no longer maintained. The
+maintainer doesn't respond to e-mails (3 times during 1 month). The page was
+updated 2 years ago and there is no other contact.
 
->
-> I believe this is the expected behavior under 2.6 unless you
-> set /proc/sys/vm/swappiness to 0.  If an app allocates memory and then
-> never touches it then those pages will eventually be swapped out to make
-> room for hot ones.
->
+Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
 
-OK, thanks for the info.  I guess my apps don't allocate enough memory to
-be eventually swapped out (I obviously run 2.6).  Or those apps use the
-memory that it allocates often.
+---
+commit a6e455aea055d5c0bd9abd69fc0c40b41d76b993
+tree 583e168ce727b57836064b2a0eb63326a1ef529e
+parent ef1b647cf1a27b138123d31ab885b3e92cdbe4e9
+author root <root@anemoi.(none)> Wed, 12 Oct 2005 18:33:10 +0200
+committer root <root@anemoi.(none)> Wed, 12 Oct 2005 18:33:10 +0200
 
-Whatever..
+ MAINTAINERS |    6 ------
+ 1 files changed, 0 insertions(+), 6 deletions(-)
 
--- Steve
-
+diff --git a/MAINTAINERS b/MAINTAINERS
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -580,12 +580,6 @@ M:	scott@spiteful.org
+ L:	pcihpd-discuss@lists.sourceforge.net
+ S:	Supported
+ 
+-COMPUTONE INTELLIPORT MULTIPORT CARD
+-P:	Michael H. Warfield
+-M:	mhw@wittsend.com
+-W:	http://www.wittsend.com/computone.html
+-S:	Maintained
+-
+ COSA/SRP SYNC SERIAL DRIVER
+ P:	Jan "Yenya" Kasprzak
+ M:	kas@fi.muni.cz

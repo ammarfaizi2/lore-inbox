@@ -1,60 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932399AbVJLVa0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbVJLVfv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932399AbVJLVa0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 17:30:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932444AbVJLVaZ
+	id S932454AbVJLVfv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 17:35:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbVJLVfv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 17:30:25 -0400
-Received: from fmr24.intel.com ([143.183.121.16]:46985 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932399AbVJLVaX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 17:30:23 -0400
-Date: Wed, 12 Oct 2005 14:30:08 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Andi Kleen <ak@suse.de>
-Cc: discuss@x86-64.org, "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [discuss] Re: [Patch] x86, x86_64: Intel HT, Multi core detection code cleanup
-Message-ID: <20051012143008.A29292@unix-os.sc.intel.com>
-References: <20051005161706.B30098@unix-os.sc.intel.com> <20051007095200.GL6642@verdi.suse.de> <20051007175240.A2354@unix-os.sc.intel.com> <200510081228.39492.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 12 Oct 2005 17:35:51 -0400
+Received: from qproxy.gmail.com ([72.14.204.205]:30092 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932454AbVJLVfu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 17:35:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jeZ7nCZ4eGy+Z5LRLlvjO4I6ZX2LbZCjm/WbNw42rvcF1x6XkC0HCE9krwWyizbybKPZ7eTufAqM9pSpHetDUy8r7QVAyFkt98S9FapVC48mHx7mMiTmUWx5bGVzx2NI9dXTT86Ow1n/CV1/3WWVGXPo8SMjPQMawECIyQKZDfA=
+Message-ID: <9a8748490510120345safdef83p3c0147c9fea84365@mail.gmail.com>
+Date: Wed, 12 Oct 2005 12:45:33 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Coywolf Qi Hunt <qiyong@fc-cn.com>
+Subject: Re: [PATCH] small Kconfig help text correction for CONFIG_FRAME_POINTER
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20051012012528.GA2845@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200510081228.39492.ak@suse.de>; from ak@suse.de on Sat, Oct 08, 2005 at 12:28:38PM +0200
+References: <200510112322.22004.jesper.juhl@gmail.com>
+	 <20051012012528.GA2845@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 08, 2005 at 12:28:38PM +0200, Andi Kleen wrote:
-> On Saturday 08 October 2005 02:52, Siddha, Suresh B wrote:
-> > On Fri, Oct 07, 2005 at 11:52:00AM +0200, Andi Kleen wrote:
-> > > > I can fix the API mess. Is there anything else you want me to do?
-> > >
-> > > I think you overdid the sharing. Can you limit it to one file
-> > > and copy the stuff that doesn't fit easily?
+On 10/12/05, Coywolf Qi Hunt <qiyong@fc-cn.com> wrote:
+> On Tue, Oct 11, 2005 at 11:22:21PM +0200, Jesper Juhl wrote:
+> > Fix-up the CONFIG_FRAME_POINTER help text language a bit.
 > >
-> > Andi, This stuff is very much common to x86 and x86_64. Shared code is
-> > split into two files because setting up sibling map code is generic and
-> > HT/core detection code is very specific to Intel.
+> > Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+> > ---
 > >
-> > How about the appended patch?
-> 
-> I would prefer if the Intel CPU detection support wasn't distributed over so 
-> many small files. If you prefer to share it put it all into a single file and 
-> share that. But please only for code that can be cleanly shared without 
-> ifdefs.
+> >  "on some architectures or you use external debuggers"
+> >   doesn't sound too good
+> >  "on some architectures or if you use external debuggers"
+> >   is better.
+>
+>
+> Why bother anyway since the original is brief and neat.  (yours could be s/if/when/ even)
+>
 
-Lets defer this code sharing to some other time. I want to make sure that 
--mm tree (and finally 2.6.15) picks up these enhancements first, before 
-I start my vacation :)
+We can argue the exact wording (using "when" is probably better, I
+agree), but the current text is just not proper english.
 
-> Also in general it would be better if you first did the cleanup and then 
-> as separate patches the various functionality enhancements.That makes
-> the changes easier to be reviewed and it helps in binary search when something 
-> goes wrong.
 
-I am going to send two follow up patches which addresses the functionality
-enhancements.
-
-thanks,
-suresh
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

@@ -1,40 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751498AbVJLS1e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751497AbVJLSaH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751498AbVJLS1e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 14:27:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751495AbVJLS1e
+	id S1751497AbVJLSaH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 14:30:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751499AbVJLSaH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 14:27:34 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:39300 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751496AbVJLS1e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 14:27:34 -0400
-Subject: Re: [PATCH 2.6.14-rc4] Maintainers one entry removed
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jiri Slaby <xslaby@fi.muni.cz>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20051012170612.619C422AF21@anxur.fi.muni.cz>
-References: <4af2d03a0510061516t32a62180t380dcb856d45a774@mail.gmail.com>
-	 <20051012170612.619C422AF21@anxur.fi.muni.cz>
-Content-Type: text/plain
+	Wed, 12 Oct 2005 14:30:07 -0400
+Received: from mail-in-07.arcor-online.net ([151.189.21.47]:947 "EHLO
+	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1751497AbVJLSaG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 14:30:06 -0400
+Message-ID: <434D5574.10405@arcor.de>
+Date: Wed, 12 Oct 2005 20:27:00 +0200
+From: Klaus Dittrich <kladit@arcor.de>
+User-Agent: Mozilla Thunderbird 1.0.5 (X11/20050711)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Valdis.Kletnieks@vt.edu
+CC: linux mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.14-rc* / xinetd
+References: <20051012143657.GA1625@xeon2.local.here> <200510121745.j9CHj6XE023497@turing-police.cc.vt.edu>
+In-Reply-To: <200510121745.j9CHj6XE023497@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Wed, 12 Oct 2005 19:56:06 +0100
-Message-Id: <1129143366.7966.19.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2005-10-12 at 19:06 +0200, Jiri Slaby wrote:
-> Maintainers one entry removed
-> 
-> Computone intelliport multiport card is no longer maintained. The
-> maintainer doesn't respond to e-mails (3 times during 1 month). The page was
-> updated 2 years ago and there is no other contact.
+Valdis.Kletnieks@vt.edu wrote:
 
-Michael posted to fedora-list on October 1st and seems active. Have you
-allowed for the fact he might be away, busy or that you could be in his
-spam filters ?
+>On Wed, 12 Oct 2005 16:36:57 +0200, Klaus Dittrich said:
+>  
+>
+>>I noticed a huge cpu usage of xinetd with 2.6.14-rc4 
+>>starting with the first ntp request.
+>>    
+>>
+>
+>Umm.. why is xinetd listening for ntp requests at all?  I'm pretty sure that
+>xinetd fighting with xntpd for control of the socket isn't going to work nicely,
+>although I admit being mystified as to (a) why this ever worked for you and
+>(b) what specifically changed in -rc4 to cause the CPU spin.
+>
+>What was the most recent kernel known to work, and what does the xinetd
+>config file entry for NTP look like
+>  
+>
 
-Alan
+2.6.13.3 works. I can compile an try 2.6.14-rc[1,2,3].
+
+service time
+{
+    type        = INTERNAL
+    id          = dgram_time
+    socket_type = dgram
+    protocol    = udp
+    user        = root
+    wait        = yes
+    only_from   = 192.168.168.36 192.168.168.39
+}
+
+
+This setup worked for years now. The machine
+(192.168.168.32) is the time-server and I have
+chosen this setup to simulate and verify a real
+world scenario.
+
+/etc/ntpd.conf
+..
+driftfile /etc/ntp.drift
+logfile   /var/log/ntp 
+#authenticate no
+server 127.127.8.0 prefer mode 2    # Meinberg ANZ_14 (Standart Telegramm)
+server 127.127.1.1                  # Local clock in case of disaster
+fudge  127.127.1.1 stratum 10       # Poor stratum for local clock
+--
+Klaus
 

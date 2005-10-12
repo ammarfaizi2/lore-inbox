@@ -1,64 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932413AbVJLRT1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932443AbVJLRVX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932413AbVJLRT1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 13:19:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932434AbVJLRT0
+	id S932443AbVJLRVX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 13:21:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932441AbVJLRVW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 13:19:26 -0400
-Received: from mail.shareable.org ([81.29.64.88]:51169 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S932413AbVJLRT0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 13:19:26 -0400
-Date: Wed, 12 Oct 2005 18:19:14 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Janak Desai <janak@us.ibm.com>
-Cc: chrisw@osdl.org, viro@ZenIV.linux.org.uk, nickpiggin@yahoo.com.au,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH] New System call unshare (try 2)
-Message-ID: <20051012171914.GA8622@mail.shareable.org>
-References: <Pine.WNT.4.63.0510121201540.1316@IBM-AIP3070F3AM>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.WNT.4.63.0510121201540.1316@IBM-AIP3070F3AM>
-User-Agent: Mutt/1.4.1i
+	Wed, 12 Oct 2005 13:21:22 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:17858 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S932440AbVJLRVV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 13:21:21 -0400
+Date: Wed, 12 Oct 2005 18:21:04 +0100 (IST)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet
+To: mike kravetz <kravetz@us.ibm.com>
+Cc: akpm@osdl.org, jschopp@austin.ibm.com, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, lhms-devel@lists.sourceforge.net
+Subject: Re: [PATCH 5/8] Fragmentation Avoidance V17: 005_fallback
+In-Reply-To: <20051012164353.GA9425@w-mikek2.ibm.com>
+Message-ID: <Pine.LNX.4.58.0510121806550.9602@skynet>
+References: <20051011151221.16178.67130.sendpatchset@skynet.csn.ul.ie>
+ <20051011151246.16178.40148.sendpatchset@skynet.csn.ul.ie>
+ <20051012164353.GA9425@w-mikek2.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Janak Desai wrote:
-> 	Don't allow namespace unsharing, if sharing fs (CLONE_FS)
+On Wed, 12 Oct 2005, mike kravetz wrote:
 
-Makes sense.  clone() has the same test at the start.  (I think
-namespace should be a property of fs, not task, anyway.  Or completely
-eliminated because it's implied by the task's root dentry+vfsmnt).
+> On Tue, Oct 11, 2005 at 04:12:47PM +0100, Mel Gorman wrote:
+> > This patch implements fallback logic. In the event there is no 2^(MAX_ORDER-1)
+> > blocks of pages left, this will help the system decide what list to use. The
+> > highlights of the patch are;
+> >
+> > o Define a RCLM_FALLBACK type for fallbacks
+> > o Use a percentage of each zone for fallbacks. When a reserved pool of pages
+> >   is depleted, it will try and use RCLM_FALLBACK before using anything else.
+> >   This greatly reduces the amount of fallbacks causing fragmentation without
+> >   needing complex balancing algorithms
+>
+> I'm having a little trouble seeing how adding a new type (RCLM_FALLBACK)
+> helps.
 
-> 	Don't allow sighand unsharing if not unsharing vm
+When a pool for allocations is depleted, it has to fallback to somewhere.
+It will never be the case that the pools are just the right size and
+balancing them would be *very* difficult. The RCLM_FALLBACK acts as a
+buffer for fallbacks to give page reclaim a chance to free up pages in the
+proper pools.
 
-Why not?  It's permitted to clone with unshared sighand and shared vm,
-and it's useful too.
+With stats enabled, you can see the fallback counts. Right now
+inc_fallback_count() counts a "real" fallback when the requested pool and
+RCLM_FALLBACK are depleted. If you alter inc_fallback_count() to always
+count, you'll get an idea of how often RCLM_FALLBACK is used. Without the
+fallback area, the strategy suffers pretty badly.
 
-It's the combination shared sighand + unshared vm which is not
-allowed by clone - so I think that's what you should refuse.
+> Seems to me that pages put into the RCLM_FALLBACK area would have
+> gone to the global free list and available to anyone.
 
-> 	Don't allow vm unsharing if task cloned with CLONE_THREAD
+Not quite, they would have gone to the pool they were first reserved as.
+This could mean that the USERRCLM pool could end up with a lot of free
+pages that kernel allocations then fallback to. This would make a mess of
+the whole strategy.
 
-It would be better to do what clone does, and say "don't allow sighand
-unsharing if task cloned with CLONE_THREAD".  This is because
-CLONE_THREAD tasks must have shared signals.
+> I must be missing
+> something here.
+>
+> > +int fallback_allocs[RCLM_TYPES][RCLM_TYPES+1] = {
+> > +	{RCLM_NORCLM,	RCLM_FALLBACK, RCLM_KERN,   RCLM_USER, RCLM_TYPES},
+> > +	{RCLM_KERN,     RCLM_FALLBACK, RCLM_NORCLM, RCLM_USER, RCLM_TYPES},
+> > +	{RCLM_USER,     RCLM_FALLBACK, RCLM_NORCLM, RCLM_KERN, RCLM_TYPES},
+> > +	{RCLM_FALLBACK, RCLM_NORCLM,   RCLM_KERN,   RCLM_USER, RCLM_TYPES}
+>
+> Do you really need that last line?  Can an allocation of type RCLM_FALLBACK
+> realy be made?
+>
 
-In combination with the rule above for sighand (my rule, not yours),
-that implies "don't allow vm unsharing.." as a consequence.
+In reality, no and it would only happen if a caller had specified both
+__GFP_USER and __GFP_KERNRCLM in the call to alloc_pages() or friends. It
+makes *no* sense for someone to do this, but if they did, an oops would be
+thrown during an interrupt. The alternative is to get rid of this last
+element and put a BUG_ON() check before the spinlock is taken.
 
-> 	Don't allow vm unsharing if the task is performing async io
+This way, a stupid caller will damage the fragmentation strategy (which is
+bad). The alternative, the kernel will call BUG() (which is bad). The
+question is, which is worse?
 
-Why not?
-
-Async ios are tied to an mm (see lookup_ioctx in fs/aio.c), which may
-be shared among tasks.  I see no reason why the async ios can't
-continue and be waited in on in other tasks that may be using the old mm.
-
-The new mm, if vm is unshared, would simply not see the outstanding
-aios - in the same way as if a vm was unshared by fork().
-
--- Jamie
+-- 
+Mel Gorman
+Part-time Phd Student                          Java Applications Developer
+University of Limerick                         IBM Dublin Software Lab

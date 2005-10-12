@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932393AbVJLBZh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751142AbVJLB0j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932393AbVJLBZh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 21:25:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbVJLBZh
+	id S1751142AbVJLB0j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 21:26:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbVJLB0j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 21:25:37 -0400
-Received: from cncln.online.ln.cn ([218.25.172.144]:39435 "HELO mail.fc-cn.com")
-	by vger.kernel.org with SMTP id S932393AbVJLBZg (ORCPT
+	Tue, 11 Oct 2005 21:26:39 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:924 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751271AbVJLB0i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 21:25:36 -0400
-Date: Wed, 12 Oct 2005 09:25:28 +0800
-From: Coywolf Qi Hunt <qiyong@fc-cn.com>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] small Kconfig help text correction for CONFIG_FRAME_POINTER
-Message-ID: <20051012012528.GA2845@localhost.localdomain>
-References: <200510112322.22004.jesper.juhl@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200510112322.22004.jesper.juhl@gmail.com>
-User-Agent: Mutt/1.5.11
+	Tue, 11 Oct 2005 21:26:38 -0400
+Date: Tue, 11 Oct 2005 18:26:00 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: linux-kernel@vger.kernel.org, fastboot@osdl.org
+Subject: Re: i386 nmi_watchdog: Merge check_nmi_watchdog fixes from x86_64
+Message-Id: <20051011182600.4a5ce224.akpm@osdl.org>
+In-Reply-To: <m1k6gt8gvt.fsf@ebiederm.dsl.xmission.com>
+References: <m1k6gt8gvt.fsf@ebiederm.dsl.xmission.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 11, 2005 at 11:22:21PM +0200, Jesper Juhl wrote:
-> Fix-up the CONFIG_FRAME_POINTER help text language a bit.
+ebiederm@xmission.com (Eric W. Biederman) wrote:
+>
 > 
-> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
-> ---
+> The per cpu nmi watchdog timer is based on an event counter.  
+> idle cpus don't generate events so the NMI watchdog doesn't fire
+> and the test to see if the watchdog is working fails.
 > 
->  "on some architectures or you use external debuggers"
->   doesn't sound too good
->  "on some architectures or if you use external debuggers"
->   is better.
+> - Add nmi_cpu_busy so idle cpus don't mess up the test.
+> - kmalloc prev_nmi_count to keep kernel stack usage bounded.
+> - Improve the error message on failure so there is enough
+>   information to debug problems.
+> 
+> ...
+>
+>  static int __init check_nmi_watchdog(void)
+>  {
+> -	unsigned int prev_nmi_count[NR_CPUS];
+> +	volatile int endflag = 0;
 
-
-Why bother anyway since the original is brief and neat.  (yours could be s/if/when/ even)
-
-
-		Coywolf
-
-> 
->  lib/Kconfig.debug |    4 ++--
->  1 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> --- linux-2.6.14-rc4-orig/lib/Kconfig.debug	2005-10-11 22:41:32.000000000 +0200
-> +++ linux-2.6.14-rc4/lib/Kconfig.debug	2005-10-11 23:16:30.000000000 +0200
-> @@ -174,7 +174,7 @@
->  	default y if DEBUG_INFO && UML
->  	help
->  	  If you say Y here the resulting kernel image will be slightly larger
-> -	  and slower, but it might give very useful debugging information
-> -	  on some architectures or you use external debuggers.
-> +	  and slower, but it might give very useful debugging information on
-> +	  some architectures or if you use external debuggers.
->  	  If you don't debug the kernel, you can say N.
->  
-> 
-> 
-> -
+I don't think this needs to be declared volatile?

@@ -1,78 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751480AbVJLSAB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751483AbVJLSAy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751480AbVJLSAB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 14:00:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751482AbVJLSAB
+	id S1751483AbVJLSAy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 14:00:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751485AbVJLSAy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 14:00:01 -0400
-Received: from xproxy.gmail.com ([66.249.82.197]:10958 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751480AbVJLSAB convert rfc822-to-8bit
+	Wed, 12 Oct 2005 14:00:54 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:2246 "EHLO
+	palinux.hppa") by vger.kernel.org with ESMTP id S1751483AbVJLSAx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 14:00:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=GDKS6hXG7bnijUb2BZH7R95yZ2S03SIYpdA3ICnHj/xmZn87pgMjWBypnB3nONuBkEM4YQDyz/qUF5FK4iUskBWRlQ574a7MWK42N3EwW6nW+jebqook23goklflV2GVRBiE3Nj1hueqFXF6EZNFotQ3BMsXNeQd7yzNbZN5qKo=
-Message-ID: <5bdc1c8b0510121100o11e0e28ft4b532ba43e170774@mail.gmail.com>
-Date: Wed, 12 Oct 2005 11:00:00 -0700
-From: Mark Knecht <markknecht@gmail.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: 2.6.14-rc4-rt1
-Cc: Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>, dwalker@mvista.com,
-       david singleton <dsingleton@mvista.com>
-In-Reply-To: <1129139304.10599.15.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 12 Oct 2005 14:00:53 -0400
+Date: Wed, 12 Oct 2005 12:00:50 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: acpi-devel@lists.sourceforge.net, Adam Litke <agl@us.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ACPI] 2.6.14-rc4 ACPI/PCI compile problem
+Message-ID: <20051012180050.GC5103@parisc-linux.org>
+References: <1129069727.27663.8.camel@localhost.localdomain> <200510111717.01887.bjorn.helgaas@hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20051011111454.GA15504@elte.hu>
-	 <1129064151.5324.6.camel@cmn3.stanford.edu>
-	 <5bdc1c8b0510111408n4ef45eadv1e12ec4d1271d971@mail.gmail.com>
-	 <5bdc1c8b0510111413q7b1ea391n3bc27924d928b963@mail.gmail.com>
-	 <1129065696.4718.10.camel@mindpipe>
-	 <5bdc1c8b0510120937r45bbd26fr6f45b6e3a9895d3f@mail.gmail.com>
-	 <1129139304.10599.15.camel@mindpipe>
+In-Reply-To: <200510111717.01887.bjorn.helgaas@hp.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/12/05, Lee Revell <rlrevell@joe-job.com> wrote:
-> On Wed, 2005-10-12 at 09:37 -0700, Mark Knecht wrote:
-> > On 10/11/05, Lee Revell <rlrevell@joe-job.com> wrote:
-> > > On Tue, 2005-10-11 at 14:13 -0700, Mark Knecht wrote:
-> > > > The machine had been essentially 'User space idle' for the previous
-> > > > two hours. The screen saver had kicked in. Audio was running and the
-> > > > machine was busy. I woke it up, gave xscreensaver my password, read
-> > > > email, sent the previous mail, then picked up the telephone to make a
-> > > > call. Not 2 seconds later the xruns occurred!
-> > >
-> > > So what does /proc/latency_trace report?
-> > >
-> > > Lee
-> >
-> > Well, unfortunately it doesn't appear to report anythign helpful. The
-> > maximum latency report did not change when the xrun occurred. This was
-> > the last one reported and it happened long before the xrun:
->
-> Sounds like an application bug (some JACK client doing something not RT
-> safe).  Can you reproduce the xruns if you just run jackd with no
-> clients?
+On Tue, Oct 11, 2005 at 05:17:01PM -0600, Bjorn Helgaas wrote:
+> Please try the following patch and confirm whether it works.
+> 
+> [i386 kbuild] Don't clobber pci-y when X86_VISWS or X86_NUMAQ
+> 
+> Previously, enabling CONFIG_X86_VISWS or CONFIG_X86_NUMAQ
+> clobbered any previous contents of pci-y, because they used
+> ":=" instead of "+=".
 
-I don't know. These xruns take hours to generate. I'd probably have to
-dedicate a whole day of doing nothing on the machine to try, and then
-if I didn't produce anything I'm not sure what it proves. If I do get
-one then we get to see if there's data.
+This isn't correct.  We want to get rid of some of the current contents
+of pci-y when NUMAQ or VISWS are enabled.  I'm not quite sure what the
+right fix is here.  Maybe something like ...
 
-I'd really like to do the IRQ-off tests that you do before I go that
-direction but unfortunately it's broken very badly since yesterday's
--rt1 release.
+--- arch/i386/pci/Makefile      14 Sep 2005 12:54:20 -0000      1.3
++++ arch/i386/pci/Makefile      12 Oct 2005 17:51:19 -0000
+@@ -4,11 +4,11 @@ obj-$(CONFIG_PCI_BIOS)                += pcbios.o
+ obj-$(CONFIG_PCI_MMCONFIG)     += mmconfig.o
+ obj-$(CONFIG_PCI_DIRECT)       += direct.o
+ 
+-pci-y                          := fixup.o
+-pci-$(CONFIG_ACPI)             += acpi.o
+-pci-y                          += legacy.o irq.o
++acpi-$(CONFIG_ACPI)            := acpi.o
++
++pci-y                          := fixup.o $(acpi-y) legacy.o irq.o
+ 
+ pci-$(CONFIG_X86_VISWS)                := visws.o fixup.o
+-pci-$(CONFIG_X86_NUMAQ)                := numa.o irq.o
++pci-$(CONFIG_X86_NUMAQ)                := numa.o $(acpi-y) irq.o
+ 
+ obj-y                          += $(pci-y) common.o
 
-Maybe a better path to take would just be pushing the machine harder.
-Do some real work in Ardour. Build up a big session and let it rip for
-a while and see what that produces?
+This mess really needs some more eyes on it.  For example, should fixups.o
+really be enabled on visws but disabled on numaq?  I suspect both want
+legacy.o disabled.  Does it make sense to enable ACPI on a NUMAQ system?
+I don't know enough about them.
 
-I don't know really.
+And it /really/ needs some commentary.  Here's my first cut at it, based
+on my memories of editing it several years ago:
 
-- Mark
+# A little more complex than most Makefiles.
+# Neither the VISWS nor the NUMAQ configs want to see legacy.o compiled in.
+# VISWS doesn't have ACPI to worry about, but NUMAQ might
+# Order is important -- don't rearrange the order of files here.
+
+Help most gratefully received from people who really understand these boxes!

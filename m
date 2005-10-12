@@ -1,44 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964821AbVJLRYP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932447AbVJLR3p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964821AbVJLRYP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 13:24:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964818AbVJLRYP
+	id S932447AbVJLR3p (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 13:29:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932444AbVJLR3p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 13:24:15 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:6555 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S932440AbVJLRYN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 13:24:13 -0400
-Subject: Re: [PATCH] via82cxxx IDE: Support multiple controllers
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Daniel Drake <dsd@gentoo.org>
-Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       posting@blx4.net, vsu@altlinux.ru
-In-Reply-To: <434D3266.9000203@gentoo.org>
-References: <43146CC3.4010005@gentoo.org>
-	 <58cb370e05083008121f2eb783@mail.gmail.com>	 <43179CC9.8090608@gentoo.org>
-	 <58cb370e050927062049be32f8@mail.gmail.com> <434D2DF1.9070709@gentoo.org>
-	 <434D3266.9000203@gentoo.org>
-Content-Type: text/plain
+	Wed, 12 Oct 2005 13:29:45 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:44931 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932447AbVJLR3o
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 13:29:44 -0400
+Message-ID: <434D47FF.1000602@austin.ibm.com>
+Date: Wed, 12 Oct 2005 12:29:35 -0500
+From: Joel Schopp <jschopp@austin.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050909 Fedora/1.7.10-1.3.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mel Gorman <mel@csn.ul.ie>
+CC: mike kravetz <kravetz@us.ibm.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       lhms-devel@lists.sourceforge.net
+Subject: Re: [Lhms-devel] Re: [PATCH 5/8] Fragmentation Avoidance V17: 005_fallback
+References: <20051011151221.16178.67130.sendpatchset@skynet.csn.ul.ie> <20051011151246.16178.40148.sendpatchset@skynet.csn.ul.ie> <20051012164353.GA9425@w-mikek2.ibm.com> <Pine.LNX.4.58.0510121806550.9602@skynet>
+In-Reply-To: <Pine.LNX.4.58.0510121806550.9602@skynet>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Wed, 12 Oct 2005 18:52:43 +0100
-Message-Id: <1129139563.7966.4.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2005-10-12 at 16:57 +0100, Daniel Drake wrote:
-> Uh, looks like the kernel just assumes 33mhz unless overriden by the user. Is 
-> this assumption generally accurate?
-> If it is not, then there's probably no point displaying timing info...
+> In reality, no and it would only happen if a caller had specified both
+> __GFP_USER and __GFP_KERNRCLM in the call to alloc_pages() or friends. It
+> makes *no* sense for someone to do this, but if they did, an oops would be
+> thrown during an interrupt. The alternative is to get rid of this last
+> element and put a BUG_ON() check before the spinlock is taken.
+> 
+> This way, a stupid caller will damage the fragmentation strategy (which is
+> bad). The alternative, the kernel will call BUG() (which is bad). The
+> question is, which is worse?
+> 
 
-A small number of 486 systems use 25Mhz, some boards allow overclock at
-37.5Mhz on the PCI. I've been looking at this the past couple of days
-for the libata via driver which I've been porting over and unfortunately
-having been through the Northbridge manuals I can find no way to ask the
-chipset what the PCI clock is set too.
-
-Alan
-
+If in the future we hypothetically have code that damages the fragmentation 
+strategy we want to find it sooner rather than never.  I'd rather some kernels 
+BUG() than we have bugs which go unnoticed.

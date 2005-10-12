@@ -1,51 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932379AbVJLAEH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932353AbVJLAJm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932379AbVJLAEH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 20:04:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbVJLAEH
+	id S932353AbVJLAJm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 20:09:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbVJLAJm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 20:04:07 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:48265 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932380AbVJLAEG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 20:04:06 -0400
-Date: Tue, 11 Oct 2005 17:03:58 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org
-Subject: Re: [PATCH] ppc64: Thermal control for SMU based machines
-Message-Id: <20051011170358.2684347a.akpm@osdl.org>
-In-Reply-To: <1128404215.31063.32.camel@gaston>
-References: <1128404215.31063.32.camel@gaston>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 11 Oct 2005 20:09:42 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:3999 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932353AbVJLAJl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 20:09:41 -0400
+Subject: RE: [BUG?] 2.6.x (2.6.13) - new signals not being delivered to a
+	terminating (PF_EXITING) process.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Kilau, Scott" <Scott_Kilau@digi.com>
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+In-Reply-To: <335DD0B75189FB428E5C32680089FB9F36B115@mtk-sms-mail01.digi.com>
+References: <335DD0B75189FB428E5C32680089FB9F36B115@mtk-sms-mail01.digi.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Wed, 12 Oct 2005 01:38:25 +0100
+Message-Id: <1129077506.23677.107.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
->
-> +int wf_register_client(struct notifier_block *nb)
-> +{
-> +	int rc;
-> +	struct wf_control *ct;
-> +	struct wf_sensor *sr;
-> +
-> +	down(&wf_lock);
-> +	rc = notifier_chain_register(&wf_client_list, nb);
-> +	if (rc != 0)
-> +		goto bail;
-> +	wf_client_count++;
-> +	list_for_each_entry(ct, &wf_controls, link)
-> +		wf_notify(WF_EVENT_NEW_CONTROL, ct);
-> +	list_for_each_entry(sr, &wf_sensors, link)
-> +		wf_notify(WF_EVENT_NEW_SENSOR, sr);
-> +	if (wf_client_count == 1)
-> +		wf_start_thread();
-> +	up(&wf_lock);
-> + bail:
-> +	return rc;
-> +}
+On Maw, 2005-10-11 at 14:35 -0500, Kilau, Scott wrote:
+> Also, why did this work under 2.4?
+> 
+> This is why I was wondering if this was intentional, or was just an
+> oversight...
 
-This will leave wf_lock held on error.
+It seems that the signal reception in exiting process logic has changed.
+Serial depends on the old behaviour and its difficult to see how it
+should be fixed and what else would be "correct behaviour" here.
+
+Alan
+

@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932437AbVJLRGT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932436AbVJLRIt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932437AbVJLRGT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 13:06:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932436AbVJLRGT
+	id S932436AbVJLRIt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 13:08:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbVJLRIt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 13:06:19 -0400
-Received: from tirith.ics.muni.cz ([147.251.4.36]:1201 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S932435AbVJLRGS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 13:06:18 -0400
-From: "Jiri Slaby" <xslaby@fi.muni.cz>
-Date: Wed, 12 Oct 2005 19:06:13 +0200
-References: <4af2d03a0510061516t32a62180t380dcb856d45a774@mail.gmail.com>
-In-reply-to: <20051012164748.A587022AF22@anxur.fi.muni.cz>
-Subject: [PATCH 2.6.14-rc4] Maintainers one entry removed
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <20051012170612.619C422AF21@anxur.fi.muni.cz>
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Envelope-From: xslaby@fi.muni.cz
-X-Muni-Virus-Test: Clean
+	Wed, 12 Oct 2005 13:08:49 -0400
+Received: from fmr23.intel.com ([143.183.121.15]:31887 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S964802AbVJLRIs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 13:08:48 -0400
+Message-Id: <200510121708.j9CH8lg25344@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: kernel performance update - 2.6.14-rc4
+Date: Wed, 12 Oct 2005 10:08:25 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcXPT46nO6hVzC3dS2Gkylae/OH8sQ==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maintainers one entry removed
+Kernel performance data for 2.6.14-rc4 is updated at:
+http://kernel-perf.sourceforge.net
 
-Computone intelliport multiport card is no longer maintained. The
-maintainer doesn't respond to e-mails (3 times during 1 month). The page was
-updated 2 years ago and there is no other contact.
+991 patches went in for rc4 since rc3, all perf. results are
+pretty much flat compares to 2.6.14-rc3.  This is probably as
+expected since kernel is in the quiet mode.
 
-Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
+Result with fileio went up on IPF box, and it is because of a
+intermittent bug in the mpt fusion scsi driver. A fix is
+proposed [*] and we have verified that the patch improved
+regression seen with fileio.
 
----
-commit a6e455aea055d5c0bd9abd69fc0c40b41d76b993
-tree 583e168ce727b57836064b2a0eb63326a1ef529e
-parent ef1b647cf1a27b138123d31ab885b3e92cdbe4e9
-author root <root@anemoi.(none)> Wed, 12 Oct 2005 18:33:10 +0200
-committer root <root@anemoi.(none)> Wed, 12 Oct 2005 18:33:10 +0200
+We are working on having a sensible configuration for dbench,
+all numbers for dbench presented on the web site are taken with
+default parameters, and it needs to be taken with a grain of
+salt at the moment.
 
- MAINTAINERS |    6 ------
- 1 files changed, 0 insertions(+), 6 deletions(-)
+	Ken Chen
+	Intel Opensource Technology Center
 
-diff --git a/MAINTAINERS b/MAINTAINERS
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -580,12 +580,6 @@ M:	scott@spiteful.org
- L:	pcihpd-discuss@lists.sourceforge.net
- S:	Supported
- 
--COMPUTONE INTELLIPORT MULTIPORT CARD
--P:	Michael H. Warfield
--M:	mhw@wittsend.com
--W:	http://www.wittsend.com/computone.html
--S:	Maintained
--
- COSA/SRP SYNC SERIAL DRIVER
- P:	Jan "Yenya" Kasprzak
- M:	kas@fi.muni.cz
+
+[*] mpt fusion driver performance issue in 2.6.14-rc2
+http://marc.theaimsgroup.com/?t=112802043200007&r=1&w=2
+

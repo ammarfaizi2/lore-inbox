@@ -1,59 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbVJLJBO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932120AbVJLJDU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932407AbVJLJBO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 05:01:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbVJLJBO
+	id S932120AbVJLJDU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 05:03:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbVJLJDU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 05:01:14 -0400
-Received: from smtp100.mail.sc5.yahoo.com ([216.136.174.138]:56964 "HELO
-	smtp100.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932407AbVJLJBN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 05:01:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.de;
-  h=Received:Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:Content-Disposition:User-Agent;
-  b=VWrGIYwmB1e7TgpqK3d5pGmmrwj0YwVXKQnFo5fIf4Yq1uIalimIdALvxM1/kxp9iaEN/sm9DNEsJtmYfEs7PKcE6rq6DYUoPebfbUsM+vAM6lpzmSV4irdX3P3qRWWb7/l0KUgq4uVHKJTQ+84CKksyH9VMnjlAFAfssHKEAbo=  ;
-Date: Wed, 12 Oct 2005 10:45:33 +0200
-From: Borislav Petkov <bbpetkov@yahoo.de>
-To: greg@kroah.com
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: 2.6.14-rc4 echi_hcd hangs machine
-Message-ID: <20051012084533.GB26865@gollum.tnic>
+	Wed, 12 Oct 2005 05:03:20 -0400
+Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:53508 "EHLO
+	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
+	id S932120AbVJLJDT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 05:03:19 -0400
+From: Felix Oxley <lkml@oxley.org>
+To: OBATA Noboru <noboru.obata.ar@hitachi.com>
+Subject: Re: Linux Kernel Dump Summit 2005
+Date: Wed, 12 Oct 2005 10:02:56 +0100
+User-Agent: KMail/1.8.2
+Cc: pavel@ucw.cz, hyoshiok@miraclelinux.com, linux-kernel@vger.kernel.org
+References: <20051010084535.GA2298@elf.ucw.cz> <20051012.172844.59463643.noboru.obata.ar@hitachi.com>
+In-Reply-To: <20051012.172844.59463643.noboru.obata.ar@hitachi.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Message-Id: <200510121002.59098.lkml@oxley.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
-   I tried to boot 14-rc4 yesterday but it fails when it reaches the init code
-   forthe usb host controllers und freezes the machine totally:
-   
-<snip>
-   [4294687.294000] usb usb3: Manufacturer: Linux 2.6.14-rc4 uhci_hcd
-   [4294687.300000] usb usb3: SerialNumber: 0000:00:1d.2
-   [4294687.321000] hub 3-0:1.0: USB hub found
-   [4294687.326000] hub 3-0:1.0: 2 ports detected
-   [4294689.363000] ACPI: PCI Interrupt 0000:00:1d.7[D] -> GSI 23 (level, low)	-> IRQ 20
-   [4294689.372000] ehci_hcd 0000:00:1d.7: EHCI Host Controller
-   [4294689.378000] ehci_hcd 0000:00:1d.7: debug port 1
-   <EOF>
-</snip>
+On Wednesday 12 October 2005 09:28, OBATA Noboru wrote:
 
-This happens with rc3 too so I thought it had something in common with this bug:
-http://bugzilla.kernel.org/show_bug.cgi?id=5350 but it doesn't seem so. I've got
-USB debugging enabled but the above is all you get over the serial console. The
-rc? series don't have a kernel debugger so is there any other way to debug this?
+>    CMD     | NET TIME (in seconds)          | OUTPUT SIZE (in bytes)
+>   ---------+--------------------------------+------------------------
+>    cp      |  35.94 (usr 0.23, sys 14.16)   | 2,121,438,352 (100.0%)
+>    lzf     |  54.30 (usr 35.04, sys 13.10)  | 1,959,473,330 ( 92.3%)
+>    gzip -1 | 200.36 (usr 186.84, sys 11.73) | 1,938,686,487 ( 91.3%)
+>   ---------+--------------------------------+------------------------
+>
+> Although it is too early to say lzf's compress ratio is good
+> enough, its compression speed is impressive indeed.  
 
-Regards,
-		Boris.
+As you say, the speed of lzf relative to gzip is impressive.
 
-   
+However if the properties of the kernel dump mean that it is not suitable for 
+compression then surely it is not efficient to spend any time on it.
 
-	
+>And the
+> result also suggests that it is too early to give up the idea of
+> full dump with compression.
 
-	
-		
-___________________________________________________________ 
-Gesendet von Yahoo! Mail - Jetzt mit 1GB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de
+Are you sure? :-)
+If we are talking about systems with 32GB of memory then we must be taking 
+about organisations who can afford an extra 100GB of disk space just for 
+keeping their kernel dump files. 
+
+I would expect that speed of recovery would always be the primary concern.
+Would you agree?
+
+regards,
+Felix
+
+
+

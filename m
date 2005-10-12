@@ -1,61 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964817AbVJLPhF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964820AbVJLPi2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964817AbVJLPhF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 11:37:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964816AbVJLPhF
+	id S964820AbVJLPi2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 11:38:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964819AbVJLPi2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 11:37:05 -0400
-Received: from mail.gmx.net ([213.165.64.21]:7099 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S964817AbVJLPhE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 11:37:04 -0400
-Date: Wed, 12 Oct 2005 17:37:02 +0200 (MEST)
-From: "Michael Kerrisk" <mtk-lkml@gmx.net>
-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-Cc: raa.lkml@gmail.com, trond.myklebust@fys.uio.no, boi@boi.at,
-       linux-kernel@vger.kernel.org
+	Wed, 12 Oct 2005 11:38:28 -0400
+Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:31427 "EHLO
+	mta08-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S964804AbVJLPi1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 11:38:27 -0400
+Message-ID: <434D2DF1.9070709@gentoo.org>
+Date: Wed, 12 Oct 2005 16:38:25 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050820)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-References: <Pine.LNX.4.61.0510121112060.4302@chaos.analogic.com>
-Subject: =?ISO-8859-1?Q?Re:_blocking_file_lock_functions_(lockf,flock,fcntl)_do_no?=
- =?ISO-8859-1?Q?t_return_after_timer_signal?=
-X-Priority: 3 (Normal)
-X-Authenticated: #23581172
-Message-ID: <16960.1129131422@www39.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+CC: jgarzik@pobox.com, linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       posting@blx4.net, vsu@altlinux.ru
+Subject: Re: [PATCH] via82cxxx IDE: Support multiple controllers
+References: <43146CC3.4010005@gentoo.org>	 <58cb370e05083008121f2eb783@mail.gmail.com>	 <43179CC9.8090608@gentoo.org> <58cb370e050927062049be32f8@mail.gmail.com>
+In-Reply-To: <58cb370e050927062049be32f8@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Von: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-> An: "Alex Riesen" <raa.lkml@gmail.com>
-> Kopie: "Trond Myklebust" <trond.myklebust@fys.uio.no>, <boi@boi.at>,
-> "Linux kernel" <linux-kernel@vger.kernel.org>
-> Betreff: Re: blocking file lock functions (lockf,flock,fcntl) do not
-> return after timer signal
+Bartlomiej Zolnierkiewicz wrote:
+> I would prefer /proc/via
+> to vanish because it complicates driver needlessly (could you do
+> this in separate patch?).
 
-[...]
+I'm working on a user-space app to provide the same info. It's nearly there 
+but lacking some timing info.
 
-> Datum: Wed, 12 Oct 2005 11:20:26 -0400
-> As I told you, you use sigaction(). Also flock() will not block
-> unless there is another open on the file. The code will run to
-> your blocking read(), wait 10 seconds, get your "timeout" from
-> the signal handler, then read() will return with -1 and ERESTARTSYS
-> in errno as required.
+Do you have any suggestions for how I can compute the value of via_clock in 
+userspace? (i.e. some equivalent of system_bus_clock())
 
-I was just trying to write a message to say the same ;-).
-
-> Also, using a 'C' runtime library call like write() in a signal-
-> handler is a bug.
-
-But this is not correct.  write() is async-signal-safe (POSIX 
-requires it).
-
-Cheers,
-
-Michael
-
--- 
-10 GB Mailbox, 100 FreeSMS/Monat http://www.gmx.net/de/go/topmail
-+++ GMX - die erste Adresse für Mail, Message, More +++
+Thanks,
+Daniel

@@ -1,44 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbVJLD7S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbVJLEAJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932405AbVJLD7S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 23:59:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbVJLD7S
+	id S932406AbVJLEAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 00:00:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932408AbVJLEAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 23:59:18 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:55487 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932405AbVJLD7R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 23:59:17 -0400
-Subject: Re: info for alc880
-From: Lee Revell <rlrevell@joe-job.com>
-To: Luca <luca.foppiano@gmail.com>
+	Wed, 12 Oct 2005 00:00:09 -0400
+Received: from straum.hexapodia.org ([64.81.70.185]:10772 "EHLO
+	straum.hexapodia.org") by vger.kernel.org with ESMTP
+	id S932410AbVJLEAH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 00:00:07 -0400
+Date: Tue, 11 Oct 2005 21:00:06 -0700
+From: Andy Isaacson <adi@hexapodia.org>
+To: Grzegorz Nosek <grzegorz.nosek@gmail.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <460afdfa0510101008v3ad0b914oa2e557b112dde86b@mail.gmail.com>
-References: <460afdfa0510101008v3ad0b914oa2e557b112dde86b@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 11 Oct 2005 22:56:36 -0400
-Message-Id: <1129085797.7094.22.camel@mindpipe>
+Subject: Re: sys_sendfile oops in 2.6.13?
+Message-ID: <20051012040006.GA31099@hexapodia.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <121a28810510110156q1369b9dg@mail.gmail.com>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-10-10 at 19:08 +0200, Luca wrote:
-> hi, I have a audio card Intel HDA with chipset Realteck ALC880.
-> I have kernel 2.6.13.3 and I return this error when the pc start:
+On Tue, Oct 11, 2005 at 10:56:43AM +0200, Grzegorz Nosek wrote:
+> I found an (IMHO) silly bug in do_sendfile in 2.6.13.x kernels (at
+> least in 2.6.13.3 and .4, didn't backtrack to find where it
+> originated). Without the patch all I apparently get from sys_sendfile
+> is an oops due to a call in sys_sendfile with ppos being NULL. With the
+> patch it works OK. Noticed in vsftpd.
+>
+> @@ -719,7 +719,7 @@
+>        current->syscr++;
+>        current->syscw++;
 > 
-> ACPI: PCI Interrupt 0000:00:1b.0[A] -> GSI 16 (level, low) -> IRQ 169
-> PCI: Setting latency timer of device 0000:00:1b.0 to 64
-> hda_codec: Unknown model for ALC880, trying auto-probe from BIOS...
-> hda_codec: Cannot set up configuration from BIOS.  Using 3-stack mode...
-> 
-> This card is not supported?  I must patch the kernel?
+> -       if (*ppos > max)
+> +       if (ppos && *ppos > max)
 
-Known problem.  See ALSA bugs 1316, 1429, 1453, and 1460.
+That change can't fix a bug in 2.6.13, because ppos is forced to be
+non-null further up the file:
 
-(I wish users would check for an existing bug before submitting a new
-one...)
+    622 static ssize_t do_sendfile(int out_fd, int in_fd, loff_t *ppos,
+...
+    647         if (!ppos)
+    648                 ppos = &in_file->f_pos;
+...
+    684         pos = *ppos;
+...
+    701         current->syscr++;
+    702         current->syscw++;
+    703 
+    704         if (*ppos > max)
+    705                 retval = -EOVERFLOW;
 
-Lee
+(line numbers from 2.6.13.)
 
+So there must be something else at work.  Perhaps your patches?
+
+On Tue, Oct 11, 2005 at 04:53:47PM +0200, Jiri Slaby wrote:
+> I don't know the code surrounding this, but shouldn't be this
+> (!ppos || *ppos > max)?
+
+That would be wrong, too; if it were valid to call in with ppos==0, you
+wouldn't want to return EOVERFLOW; and if ppos==0 were not valid and you
+wanted to return an error, EOVERFLOW would be the wrong error to return.
+
+-andy

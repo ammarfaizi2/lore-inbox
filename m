@@ -1,103 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751459AbVJLNJL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932074AbVJLNVh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751459AbVJLNJL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 09:09:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751449AbVJLNJK
+	id S932074AbVJLNVh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 09:21:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751470AbVJLNVg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 09:09:10 -0400
-Received: from spirit.analogic.com ([204.178.40.4]:26122 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP
-	id S1751463AbVJLNJJ convert rfc822-to-8bit (ORCPT
+	Wed, 12 Oct 2005 09:21:36 -0400
+Received: from pat.uio.no ([129.240.130.16]:55281 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1751465AbVJLNVf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 09:09:09 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <81b0412b0510120548k3464d355ne75cce4e5edcce1a@mail.gmail.com>
-References: <434CC144.6000504@boi.at> <81b0412b0510120548k3464d355ne75cce4e5edcce1a@mail.gmail.com>
-X-OriginalArrivalTime: 12 Oct 2005 13:09:08.0622 (UTC) FILETIME=[216DDAE0:01C5CF2E]
-Content-class: urn:content-classes:message
-Subject: Re: blocking file lock functions (lockf,flock,fcntl) do not return after timer signal
-Date: Wed, 12 Oct 2005 09:09:02 -0400
-Message-ID: <Pine.LNX.4.61.0510120905190.8876@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: blocking file lock functions (lockf,flock,fcntl) do not return after timer signal
-Thread-Index: AcXPLiF1Cg9eMHm8R4OrRFhHPLFaxw==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Alex Riesen" <raa.lkml@gmail.com>
-Cc: <boi@boi.at>, <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Wed, 12 Oct 2005 09:21:35 -0400
+Subject: Re: [RFC] atomic create+open
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <E1EPeM4-0000Xz-00@dorka.pomaz.szeredi.hu>
+References: <E1ENWt1-000363-00@dorka.pomaz.szeredi.hu>
+	 <1128616864.8396.32.camel@lade.trondhjem.org>
+	 <E1ENZ8u-0003JS-00@dorka.pomaz.szeredi.hu>
+	 <E1ENZCQ-0003K3-00@dorka.pomaz.szeredi.hu>
+	 <1128619526.16534.8.camel@lade.trondhjem.org>
+	 <E1ENZZl-0003OO-00@dorka.pomaz.szeredi.hu>
+	 <1128620528.16534.26.camel@lade.trondhjem.org>
+	 <E1ENZu1-0003SP-00@dorka.pomaz.szeredi.hu>
+	 <1128623899.31797.14.camel@lade.trondhjem.org>
+	 <E1ENani-0003c4-00@dorka.pomaz.szeredi.hu>
+	 <1128626258.31797.34.camel@lade.trondhjem.org>
+	 <E1ENcAr-0003jz-00@dorka.pomaz.szeredi.hu>
+	 <1128633138.31797.52.camel@lade.trondhjem.org>
+	 <E1ENlI2-0004Gt-00@dorka.pomaz.szeredi.hu>
+	 <1128692289.8519.75.camel@lade.trondhjem.org>
+	 <E1ENslH-00057W-00@dorka.pomaz.szeredi.hu>
+	 <1128698035.8583.36.camel@lade.trondhjem.org>
+	 <E1ENu8h-0005Kd-00@dorka.pomaz.szeredi.hu>
+	 <1128702227.8583.69.camel@lade.trondhjem.org>
+	 <E1ENvzx-0005VT-00@dorka.pomaz.szeredi.hu>
+	 <1129061494.11164.38.camel@lade.trondhjem.org>
+	 <E1EPeM4-0000Xz-00@dorka.pomaz.szeredi.hu>
+Content-Type: text/plain
+Date: Wed, 12 Oct 2005 09:20:57 -0400
+Message-Id: <1129123257.8561.27.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-2.721, required 12,
+	autolearn=disabled, AWL 2.09, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+on den 12.10.2005 Klokka 13:01 (+0200) skreiv Miklos Szeredi:
 
-On Wed, 12 Oct 2005, Alex Riesen wrote:
+> However I don't really like that the filesystem is reentered from
+> lookup_instantiate_filp() via __dentry_open() and ->open().  Is this
+> necessary?
 
-> On 10/12/05, "Dieter Müller (BOI GmbH)" <dieter.mueller@boi.at> wrote:
->> bug description:
->>
->> flock, lockf, fcntl do not return even after the signal SIGALRM  has
->> been raised and the signal handler function has been executed
->> the functions should return with a return value EWOULDBLOCK as described
->> in the man pages
->
-> To confirm:
->
-> #include <unistd.h>
-> #include <sys/time.h>
-> #include <sys/file.h>
-> #include <time.h>
-> #include <signal.h>
->
-> void alrm(int sig)
-> {
->    write(2, "timeout\n", 8);
-> }
->
-> int main(int argc, char* argv[])
-> {
->    struct itimerval tv = {
->        .it_interval = {.tv_sec = 10, .tv_usec = 0},
->        .it_value = {.tv_sec = 10, .tv_usec = 0},
->    };
->    struct itimerval otv;
->
->    signal(SIGALRM, alrm);
->    setitimer(ITIMER_REAL, &tv, &otv);
->    int fd = open(argv[1], O_RDWR);
->    if ( fd < 0 )
->    {
->        perror(argv[1]);
->        return 1;
->    }
->    printf("locking...\n");
->    if ( flock(fd, LOCK_EX) < 0 )
->    {
->        perror("flock");
->        return 1;
->    }
->    printf("sleeping...\n");
->    int ch;
->    read(0, &ch, 1);
->    close(fd);
->    return 0;
-> }
-> -
+If filesystems need to be able to change the value of f_mapping, then
+yes, however if none of the potential users of lookup_instantiate_filp()
+care about doing so, then we can get rid of it.
+I don't care either way since we will not be supporting non-intent based
+opens for NFSv4.
 
-Does your 'signal()' impliment POSIX or BSD signals? You don't know.
-It's whatever the 'C' runtime library got built for. You need to
-use sigaction() so you can set the flags to give you your intended
-action.
+> I see you've fixed the O_TRUNC problem.  The accmode==3 case is still
+> slightly broken, since now the file is being opened in read-write mode
+> instead of no-read-no-write mode.  This probably won't break anything
+> too badly though.
+
+It is non-portable and it was never supported on NFSv4 anyway. If
+someone cares, they can fix it, but I don't see much need.
+
+> Equivalent and simpler:
+> 
+>      flags = nd->intent.open.flags - 1;
+> 
+> Note, that the access bits of intent.open.flags will never both be
+> zero, so this is safe.
+
+Agreed.
 
 Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.48 BogoMips).
-Warning : 98.36% of all statistics are fiction.
+  Trond
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.

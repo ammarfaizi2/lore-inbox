@@ -1,101 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932434AbVJLRVI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932413AbVJLRT1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932434AbVJLRVI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 13:21:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964815AbVJLRVH
+	id S932413AbVJLRT1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 13:19:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932434AbVJLRT0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 13:21:07 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:3474 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932440AbVJLRVG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 13:21:06 -0400
-Message-ID: <434D48FA.FD0439AA@tv-sign.ru>
-Date: Wed, 12 Oct 2005 21:33:46 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Michael Kerrisk <mtk-lkml@gmx.net>
-Cc: Daniel Jacobowitz <dan@debian.org>, Roland McGrath <roland@redhat.com>,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: Process with many NPTL threads terminates slowly on core dump signal
+	Wed, 12 Oct 2005 13:19:26 -0400
+Received: from mail.shareable.org ([81.29.64.88]:51169 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S932413AbVJLRT0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 13:19:26 -0400
+Date: Wed, 12 Oct 2005 18:19:14 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Janak Desai <janak@us.ibm.com>
+Cc: chrisw@osdl.org, viro@ZenIV.linux.org.uk, nickpiggin@yahoo.com.au,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH] New System call unshare (try 2)
+Message-ID: <20051012171914.GA8622@mail.shareable.org>
+References: <Pine.WNT.4.63.0510121201540.1316@IBM-AIP3070F3AM>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.WNT.4.63.0510121201540.1316@IBM-AIP3070F3AM>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Kerrisk wrote:
->
-> Following up (belatedly) from my earlier message, I took Daniel 
-> Jacobowitz's suggestion to investigate the result from booting 
-> with "profile=2".  When running my program (shwon below) on 
-> 2.6.14-rc4 to create 100 threads, and sending a core dump signal, 
-> the program takes 90 seconds to terminate, and readprofile shows 
-> the following:
+Janak Desai wrote:
+> 	Don't allow namespace unsharing, if sharing fs (CLONE_FS)
 
-I think the coredumping code in __group_complete_signal() is bogus
-and what happens is:
+Makes sense.  clone() has the same test at the start.  (I think
+namespace should be a property of fs, not task, anyway.  Or completely
+eliminated because it's implied by the task's root dentry+vfsmnt).
 
-group_send_sig_info(P, SIGQUIT):
+> 	Don't allow sighand unsharing if not unsharing vm
 
-	adds SIGQUIT to ->shared_pending
+Why not?  It's permitted to clone with unshared sighand and shared vm,
+and it's useful too.
 
-	__group_complete_signal:
+It's the combination shared sighand + unshared vm which is not
+allowed by clone - so I think that's what you should refuse.
 
-		->signal->group_exit_task = P;
+> 	Don't allow vm unsharing if task cloned with CLONE_THREAD
 
-		for_each_thread(t) {
-			P->signal->group_stop_count ++;
-			// sets TIF_SIGPENDING
-			signal_wake_up(t)
-		}
-	
+It would be better to do what clone does, and say "don't allow sighand
+unsharing if task cloned with CLONE_THREAD".  This is because
+CLONE_THREAD tasks must have shared signals.
 
-Now, P receives the signal:
+In combination with the rule above for sighand (my rule, not yours),
+that implies "don't allow vm unsharing.." as a consequence.
 
-get_signal_to_deliver:
+> 	Don't allow vm unsharing if the task is performing async io
 
-	if (->signal->group_stop_count > 0) // YES
-		handle_group_stop():
-			if (->signal->group_exit_task == current) { // YES
-				->signal->group_exit_task = NULL
-				return 0;
-			}
+Why not?
 
-	signr = dequeue_signal(); // SIGQUIT
+Async ios are tied to an mm (see lookup_ioctx in fs/aio.c), which may
+be shared among tasks.  I see no reason why the async ios can't
+continue and be waited in on in other tasks that may be using the old mm.
 
-	do_coredump:
+The new mm, if vm is unshared, would simply not see the outstanding
+aios - in the same way as if a vm was unshared by fork().
 
-		->signal->flags = SIGNAL_GROUP_EXIT;
-
-		coredump_wait:
-
-			yield();
-
-
-Now all other threads do:
-
-get_signal_to_deliver:
-
-	if (->signal->group_stop_count > 0) // YES
-		handle_group_stop();
-			if (->signal->flags & SIGNAL_GROUP_EXIT) // YES
-				return 0;
-
-	signr = dequeue_signal(); // no pending signals
-		// recalc_sigpending_tsk() DOES NOT clear TIF_SIGPENDING,
-		// because it sees ->group_stop_count != 0.
-	
-	return 0;
-
-TIF_SIGPENDING is not cleared, so get_signal_to_deliver() will be
-called again on return to userspace. When all threads will eat their
-->time_slice, P will return from yield() and kill all threads.
-
-Could you try this patch (added to mm tree):
-	http://marc.theaimsgroup.com/?l=linux-kernel&m=112887453531139
-? It does not solve the whole problem, but may help.
-
-Please report the result, if possible.
-
-Oleg.
+-- Jamie

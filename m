@@ -1,58 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751543AbVJLUMV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932440AbVJLUNg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751543AbVJLUMV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 16:12:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751545AbVJLUMV
+	id S932440AbVJLUNg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 16:13:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbVJLUNg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 16:12:21 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:31463 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1751542AbVJLUMU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 16:12:20 -0400
-Date: Wed, 12 Oct 2005 22:12:18 +0200 (CEST)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Jeff Mahoney <jeffm@suse.com>
-Cc: Anton Altaparmakov <aia21@cam.ac.uk>,
-       Glauber de Oliveira Costa <glommer@br.ibm.com>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, hirofumi@mail.parknet.co.jp,
-       linux-ntfs-dev@lists.sourceforge.net, aia21@cantab.net,
-       hch@infradead.org, viro@zeniv.linux.org.uk, akpm@osdl.org
-Subject: Re: [PATCH] Use of getblk differs between locations
-In-Reply-To: <434D6CFA.4080802@suse.com>
-Message-ID: <Pine.LNX.4.62.0510122208210.11573@artax.karlin.mff.cuni.cz>
-References: <20051010204517.GA30867@br.ibm.com> 
- <Pine.LNX.4.64.0510102217200.6247@hermes-1.csi.cam.ac.uk> 
- <20051010214605.GA11427@br.ibm.com>  <Pine.LNX.4.62.0510102347220.19021@artax.karlin.mff.cuni.cz>
-  <Pine.LNX.4.64.0510102319100.6247@hermes-1.csi.cam.ac.uk> 
- <Pine.LNX.4.62.0510110035110.19021@artax.karlin.mff.cuni.cz>
- <1129017155.12336.4.camel@imp.csi.cam.ac.uk> <434D6932.1040703@suse.com>
- <Pine.LNX.4.62.0510122155390.9881@artax.karlin.mff.cuni.cz> <434D6CFA.4080802@suse.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 12 Oct 2005 16:13:36 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:32196 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932440AbVJLUNf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 16:13:35 -0400
+Message-Id: <200510122013.j9CKDVGV032270@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Klaus Dittrich <kladit@arcor.de>
+Cc: linux mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.14-rc* / xinetd 
+In-Reply-To: Your message of "Wed, 12 Oct 2005 20:27:00 +0200."
+             <434D5574.10405@arcor.de> 
+From: Valdis.Kletnieks@vt.edu
+References: <20051012143657.GA1625@xeon2.local.here> <200510121745.j9CHj6XE023497@turing-police.cc.vt.edu>
+            <434D5574.10405@arcor.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1129148011_16609P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 12 Oct 2005 16:13:31 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Is memory management ready for this? Can't deadlock like this happen?
->> - displaying dialog window needs memory, so it waits until memory will
->> be available
->> - system decides to write some write-back cached data in order to free
->> memory
->> - the write of these data waits until the dialog window is displayed,
->> user inserts the device and clicks 'OK'
->
-> No, it's not, and deadlock is definitely possible. However, if we're at
-> the point where memory is tight enough that it's an issue, the timer can
-> expire and all the pending i/o is dropped just as it would be without
-> the multipath code enabled.
->
-> I'm not saying it's a solution ready for production, just a good
-> starting point.
+--==_Exmh_1129148011_16609P
+Content-Type: text/plain; charset=us-ascii
 
-But discarding data sometimes on USB unplug is even worse than discarding 
-data always --- users will by experimenting learn that linux doesn't 
-discard write-cached data and reminds them to replug the device --- and 
-one day, randomly, they lose their data because of some memory management 
-condition...
+On Wed, 12 Oct 2005 20:27:00 +0200, Klaus Dittrich said:
 
-Mikulas
+> service time
+> {
+>     type        = INTERNAL
+>     id          = dgram_time
+
+That, my friends, is UDP port 37, not UDP port 123 where NTP lives.
+
+
+--==_Exmh_1129148011_16609P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFDTW5rcC3lWbTT17ARAhrJAJ0ek2v1QmPhv3wHdc9xZUkaDDFVHACfWPVs
+t8j5Vi+93AkzH3fVlfUt8y0=
+=mo/v
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1129148011_16609P--

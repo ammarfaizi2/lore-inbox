@@ -1,63 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932414AbVJLEb1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932445AbVJLE7O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932414AbVJLEb1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 00:31:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbVJLEb1
+	id S932445AbVJLE7O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 00:59:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbVJLE7O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 00:31:27 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:54023 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S932414AbVJLEb0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 00:31:26 -0400
-Date: Wed, 12 Oct 2005 06:31:08 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Leif Nixon <nixon@nsc.liu.se>, linux-kernel@vger.kernel.org
-Subject: Re: Cache invalidation bug in NFS v3 - trivially reproducible
-Message-ID: <20051012043108.GI22601@alpha.home.local>
-References: <m33bn8bet4.fsf@nammatj.nsc.liu.se> <1129042077.11164.9.camel@lade.trondhjem.org>
-Mime-Version: 1.0
+	Wed, 12 Oct 2005 00:59:14 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:43268 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S932445AbVJLE7N
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 00:59:13 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: machida@sm.sony.co.jp, linux-kernel@vger.kernel.org,
+       David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH 1/2] miss-sync changes on attributes (Re: [PATCH 2/2][FAT] miss-sync issues on sync mount (miss-sync on utime))
+References: <43288A84.2090107@sm.sony.co.jp>
+	<87oe6uwjy7.fsf@devron.myhome.or.jp> <433C25D9.9090602@sm.sony.co.jp>
+	<20051011142608.6ff3ca58.akpm@osdl.org>
+	<87r7armlgz.fsf@ibmpc.myhome.or.jp>
+	<20051011211601.72a0f91c.akpm@osdl.org>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Wed, 12 Oct 2005 13:58:52 +0900
+In-Reply-To: <20051011211601.72a0f91c.akpm@osdl.org> (Andrew Morton's message of "Tue, 11 Oct 2005 21:16:01 -0700")
+Message-ID: <87psqbxreb.fsf@ibmpc.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1129042077.11164.9.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andrew Morton <akpm@osdl.org> writes:
 
-On Tue, Oct 11, 2005 at 10:47:57AM -0400, Trond Myklebust wrote:
-> ty den 11.10.2005 Klokka 11:09 (+0200) skreiv Leif Nixon:
-> > Hi,
-> > 
-> > We have come across a bug where a NFS v3 client fails to invalidate
-> > its data cache for a file even though it realizes that the file
-> > attributes have changed. We have been able to recreate the bug on a
-> > range of kernel versions and different underlying file systems.
-> > 
-> > Here's a minimal way to reproduce the error (there seems to be some
-> > timing issues involved, but this has worked at least 90% of the time):
-> > 
-> >   NFS client n1                NFS client n2
-> > 
-> >   $ echo 1 > f
-> > 			       $ cat f
-> > 			       1
-> >   $ touch .
-> >   $ echo 2 > f
-> > 			       $ touch f
-> > 			       $ cat f
-> > 			       1
-> > 
-> > Now client n2 is stuck in a state where it uses its old cached data
-> > forever (or at least for several hours):
-> 
-> Yep. I can see a problem whereby the cache is "losing" consistency
-> information when you do this sort of thing. I'm working on a fix.
+> However there's not much point in writing a brand-new function when
+> write_inode_now() almost does the right thing.  We can share the
+> implementation within fs-writeback.c.
 
-Trond, if this can help you, I *cannot* reproduce this with 2.4 clients
-and server.
+Indeed. We use the generic_osync_inode() for it?
 
-Cheers,
-Willy
+> Isn't write_inode_now() buggy?  If !mapping_cap_writeback_dirty() we
+> should still write the inode itself?
 
+Indeed. It seems we should write the dirty inode to backing device's buffers.
+sync_sb_inodes() too?  If so, really buggy.. I'll check it.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

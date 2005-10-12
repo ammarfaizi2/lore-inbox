@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751180AbVJLQoI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932401AbVJLQr6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751180AbVJLQoI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 12:44:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbVJLQoI
+	id S932401AbVJLQr6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 12:47:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932080AbVJLQr5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 12:44:08 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:64717 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751180AbVJLQoH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 12:44:07 -0400
-Date: Wed, 12 Oct 2005 09:43:54 -0700
-From: mike kravetz <kravetz@us.ibm.com>
-To: Mel Gorman <mel@csn.ul.ie>
-Cc: akpm@osdl.org, jschopp@austin.ibm.com, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, lhms-devel@lists.sourceforge.net
-Subject: Re: [PATCH 5/8] Fragmentation Avoidance V17: 005_fallback
-Message-ID: <20051012164353.GA9425@w-mikek2.ibm.com>
-References: <20051011151221.16178.67130.sendpatchset@skynet.csn.ul.ie> <20051011151246.16178.40148.sendpatchset@skynet.csn.ul.ie>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051011151246.16178.40148.sendpatchset@skynet.csn.ul.ie>
-User-Agent: Mutt/1.4.1i
+	Wed, 12 Oct 2005 12:47:57 -0400
+Received: from tirith.ics.muni.cz ([147.251.4.36]:6886 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S932413AbVJLQr5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 12:47:57 -0400
+From: "Jiri Slaby" <xslaby@fi.muni.cz>
+Date: Wed, 12 Oct 2005 18:47:50 +0200
+References: <4af2d03a0510061516t32a62180t380dcb856d45a774@mail.gmail.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <20051012164748.A587022AF22@anxur.fi.muni.cz>
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: xslaby@fi.muni.cz
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 11, 2005 at 04:12:47PM +0100, Mel Gorman wrote:
-> This patch implements fallback logic. In the event there is no 2^(MAX_ORDER-1)
-> blocks of pages left, this will help the system decide what list to use. The
-> highlights of the patch are;
-> 
-> o Define a RCLM_FALLBACK type for fallbacks
-> o Use a percentage of each zone for fallbacks. When a reserved pool of pages
->   is depleted, it will try and use RCLM_FALLBACK before using anything else.
->   This greatly reduces the amount of fallbacks causing fragmentation without
->   needing complex balancing algorithms
+Maintainers one entry removed
 
-I'm having a little trouble seeing how adding a new type (RCLM_FALLBACK)
-helps.  Seems to me that pages put into the RCLM_FALLBACK area would have
-gone to the global free list and available to anyone.  I must be missing
-something here.
+Computone intelliport multiport card is no longer maintained. The
+maintainer doesn't respond to e-mails (3 times during 1 month). The page was
+updated 2 years ago and there is no other contact.
 
-> +int fallback_allocs[RCLM_TYPES][RCLM_TYPES+1] = {
-> +	{RCLM_NORCLM,	RCLM_FALLBACK, RCLM_KERN,   RCLM_USER, RCLM_TYPES},
-> +	{RCLM_KERN,     RCLM_FALLBACK, RCLM_NORCLM, RCLM_USER, RCLM_TYPES},
-> +	{RCLM_USER,     RCLM_FALLBACK, RCLM_NORCLM, RCLM_KERN, RCLM_TYPES},
-> +	{RCLM_FALLBACK, RCLM_NORCLM,   RCLM_KERN,   RCLM_USER, RCLM_TYPES}
+Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
 
-Do you really need that last line?  Can an allocation of type RCLM_FALLBACK
-realy be made?
+---
+commit a6e455aea055d5c0bd9abd69fc0c40b41d76b993
+tree 583e168ce727b57836064b2a0eb63326a1ef529e
+parent ef1b647cf1a27b138123d31ab885b3e92cdbe4e9
+author root <root@anemoi.(none)> Wed, 12 Oct 2005 18:33:10 +0200
+committer root <root@anemoi.(none)> Wed, 12 Oct 2005 18:33:10 +0200
 
--- 
-Mike
+ MAINTAINERS |    6 ------
+ 1 files changed, 0 insertions(+), 6 deletions(-)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -580,12 +580,6 @@ M:	scott@spiteful.org
+ L:	pcihpd-discuss@lists.sourceforge.net
+ S:	Supported
+ 
+-COMPUTONE INTELLIPORT MULTIPORT CARD
+-P:	Michael H. Warfield
+-M:	mhw@wittsend.com
+-W:	http://www.wittsend.com/computone.html
+-S:	Maintained
+-
+ COSA/SRP SYNC SERIAL DRIVER
+ P:	Jan "Yenya" Kasprzak
+ M:	kas@fi.muni.cz

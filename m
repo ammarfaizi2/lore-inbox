@@ -1,77 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751497AbVJLSaH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbVJLSiJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751497AbVJLSaH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 14:30:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751499AbVJLSaH
+	id S932080AbVJLSiJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 14:38:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751499AbVJLSiJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 14:30:07 -0400
-Received: from mail-in-07.arcor-online.net ([151.189.21.47]:947 "EHLO
-	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1751497AbVJLSaG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 14:30:06 -0400
-Message-ID: <434D5574.10405@arcor.de>
-Date: Wed, 12 Oct 2005 20:27:00 +0200
-From: Klaus Dittrich <kladit@arcor.de>
-User-Agent: Mozilla Thunderbird 1.0.5 (X11/20050711)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: linux mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.14-rc* / xinetd
-References: <20051012143657.GA1625@xeon2.local.here> <200510121745.j9CHj6XE023497@turing-police.cc.vt.edu>
-In-Reply-To: <200510121745.j9CHj6XE023497@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+	Wed, 12 Oct 2005 14:38:09 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:12263 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751500AbVJLSiI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 14:38:08 -0400
+Subject: Re: 2.6.14-rc4-rt1
+From: Lee Revell <rlrevell@joe-job.com>
+To: Mark Knecht <markknecht@gmail.com>
+Cc: Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>, dwalker@mvista.com,
+       david singleton <dsingleton@mvista.com>
+In-Reply-To: <1129141547.11297.4.camel@mindpipe>
+References: <20051011111454.GA15504@elte.hu>
+	 <1129064151.5324.6.camel@cmn3.stanford.edu>
+	 <5bdc1c8b0510111408n4ef45eadv1e12ec4d1271d971@mail.gmail.com>
+	 <5bdc1c8b0510111413q7b1ea391n3bc27924d928b963@mail.gmail.com>
+	 <1129065696.4718.10.camel@mindpipe>
+	 <5bdc1c8b0510120937r45bbd26fr6f45b6e3a9895d3f@mail.gmail.com>
+	 <1129139304.10599.15.camel@mindpipe>
+	 <5bdc1c8b0510121100o11e0e28ft4b532ba43e170774@mail.gmail.com>
+	 <1129141547.11297.4.camel@mindpipe>
+Content-Type: text/plain
+Date: Wed, 12 Oct 2005 14:38:02 -0400
+Message-Id: <1129142282.11410.7.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
+On Wed, 2005-10-12 at 14:25 -0400, Lee Revell wrote:
+> On Wed, 2005-10-12 at 11:00 -0700, Mark Knecht wrote:
+> > On 10/12/05, Lee Revell <rlrevell@joe-job.com> wrote:
+> > > Sounds like an application bug (some JACK client doing something not RT
+> > > safe).  Can you reproduce the xruns if you just run jackd with no
+> > > clients?
+> > 
+> > I don't know. These xruns take hours to generate. I'd probably have to
+> > dedicate a whole day of doing nothing on the machine to try, and then
+> > if I didn't produce anything I'm not sure what it proves. If I do get
+> > one then we get to see if there's data.
+> 
+> A much easier solution is to recompile JACK with the
+> --enable-preemption-check option.  This activates the in-kernel
+> debugging mechanism that causes a stack dump when an RT task schedules.
+> It has been used to find tricky bugs in Hydrogen and Freqtweak already.
 
->On Wed, 12 Oct 2005 16:36:57 +0200, Klaus Dittrich said:
->  
->
->>I noticed a huge cpu usage of xinetd with 2.6.14-rc4 
->>starting with the first ntp request.
->>    
->>
->
->Umm.. why is xinetd listening for ntp requests at all?  I'm pretty sure that
->xinetd fighting with xntpd for control of the socket isn't going to work nicely,
->although I admit being mystified as to (a) why this ever worked for you and
->(b) what specifically changed in -rc4 to cause the CPU spin.
->
->What was the most recent kernel known to work, and what does the xinetd
->config file entry for NTP look like
->  
->
+I should also remind you that if you pursue the
+--enable-preemption-check option, then we'll be well outside of kernel
+land so you might want to take it up on the JACK list.
 
-2.6.13.3 works. I can compile an try 2.6.14-rc[1,2,3].
-
-service time
-{
-    type        = INTERNAL
-    id          = dgram_time
-    socket_type = dgram
-    protocol    = udp
-    user        = root
-    wait        = yes
-    only_from   = 192.168.168.36 192.168.168.39
-}
-
-
-This setup worked for years now. The machine
-(192.168.168.32) is the time-server and I have
-chosen this setup to simulate and verify a real
-world scenario.
-
-/etc/ntpd.conf
-..
-driftfile /etc/ntp.drift
-logfile   /var/log/ntp 
-#authenticate no
-server 127.127.8.0 prefer mode 2    # Meinberg ANZ_14 (Standart Telegramm)
-server 127.127.1.1                  # Local clock in case of disaster
-fudge  127.127.1.1 stratum 10       # Poor stratum for local clock
---
-Klaus
+Lee
 

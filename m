@@ -1,71 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbVJKXxR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbVJLACv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932309AbVJKXxR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Oct 2005 19:53:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbVJKXxR
+	id S932376AbVJLACv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Oct 2005 20:02:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbVJLACv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Oct 2005 19:53:17 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:35796 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932309AbVJKXxQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Oct 2005 19:53:16 -0400
-Subject: Re: [Pcihpd-discuss] [patch 1/2] acpiphp: allocate resources for
-	adapters with bridges
-From: Kristen Accardi <kristen.c.accardi@intel.com>
-To: MUNEDA Takahiro <muneda.takahiro@jp.fujitsu.com>
-Cc: pcihpd-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net, rajesh.shah@intel.com, greg@kroah.com,
-       len.brown@intel.com
-In-Reply-To: <87mzlgkeil.wl%muneda.takahiro@jp.fujitsu.com>
-References: <1128707147.11020.10.camel@whizzy>
-	 <87mzlgkeil.wl%muneda.takahiro@jp.fujitsu.com>
+	Tue, 11 Oct 2005 20:02:51 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:27537 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932376AbVJLACu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Oct 2005 20:02:50 -0400
+Subject: Re: Latency data - 2.6.14-rc3-rt13
+From: Lee Revell <rlrevell@joe-job.com>
+To: Mark Knecht <markknecht@gmail.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Daniel Walker <dwalker@mvista.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <5bdc1c8b0510111545n29b77010h8558a1b69c4bf12a@mail.gmail.com>
+References: <5bdc1c8b0510101316k23ff64e2i231cdea7f11e8553@mail.gmail.com>
+	 <5bdc1c8b0510101412n714c4798v1482254f6f8e0386@mail.gmail.com>
+	 <5bdc1c8b0510101428o475d9dbct2e9bdcc6b46418c9@mail.gmail.com>
+	 <1128980674.18782.211.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+	 <5bdc1c8b0510101509w4c74028apb6e69746b1b8b65b@mail.gmail.com>
+	 <1128983301.18782.215.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+	 <5bdc1c8b0510101633lc45fbf8gd2677e5646dc6f93@mail.gmail.com>
+	 <5bdc1c8b0510101649s221ab437scc49d6a49269d6b@mail.gmail.com>
+	 <5bdc1c8b0510102045u7e4bc9eeld5b690b5e96c4a5f@mail.gmail.com>
+	 <20051011111700.GA15892@elte.hu>
+	 <5bdc1c8b0510111545n29b77010h8558a1b69c4bf12a@mail.gmail.com>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 11 Oct 2005 16:53:02 -0700
-Message-Id: <1129074782.15526.28.camel@whizzy>
+Date: Tue, 11 Oct 2005 20:02:48 -0400
+Message-Id: <1129075368.7094.3.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
-X-OriginalArrivalTime: 11 Oct 2005 23:53:04.0218 (UTC) FILETIME=[EBA033A0:01C5CEBE]
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Allocate resources for adapters with bridges on them.
+On Tue, 2005-10-11 at 15:45 -0700, Mark Knecht wrote:
+> On 10/11/05, Ingo Molnar <mingo@elte.hu> wrote:
+> >
+> > * Mark Knecht <markknecht@gmail.com> wrote:
+> >
+> > > > ( softirq-timer/0-3    |#0): new 3997 us maximum-latency critical section.
+> > >
+> > > So the root cause of this 4mS delay is the 250Hz timer. If I change
+> > > the system to use the 1Khz timer then the time in this section drops,
+> > > as expected, to 1mS.
+> >
+> > this was a bug in the critical-section-latency measurement code of x64.
+> > The timer irq is the one that leaves userspace running for the longest
+> > time, between two kernel calls.
+> >
+> > I have fixed these bugs in -rc4-rt1, could you try it? It should report
+> > much lower latencies, regardless of PM settings.
+> >
+> >         Ingo
+> >
+> 
+> Ingo,
+>    This test now reports much more intersting data:
+> 
+> (           dmesg-8010 |#0): new 13 us maximum-latency critical section.
+>  => started at timestamp 117628604: <do_IRQ+0x29/0x50>
+>  =>   ended at timestamp 117628618: <do_IRQ+0x39/0x50>
 
-Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
----
-I changed the patch to not store the acpi_handle in the acpiphp_slot
-structure, but grab it out of the device structure instead.  However, I
-don't have an adapter that will really test to see if this works
-properly, so if your adapter will work, then please give it a try and
-let me know if it fails.
+This is the expected, correct behavior - very small maximum latency
+critical sections.  Do you get anything longer (say 300 usecs or more)
+if you leave it running?
 
-diff -uprN -X linux-2.6.14-rc3/Documentation/dontdiff linux-2.6.14-rc3.orig/drivers/pci/hotplug/acpiphp_glue.c linux-2.6.14-rc3/drivers/pci/hotplug/acpiphp_glue.c
---- linux-2.6.14-rc3.orig/drivers/pci/hotplug/acpiphp_glue.c	2005-08-28 16:41:01.000000000 -0700
-+++ linux-2.6.14-rc3/drivers/pci/hotplug/acpiphp_glue.c	2005-10-11 16:30:58.000000000 -0700
-@@ -58,6 +58,9 @@ static LIST_HEAD(bridge_list);
- 
- static void handle_hotplug_event_bridge (acpi_handle, u32, void *);
- static void handle_hotplug_event_func (acpi_handle, u32, void *);
-+static void acpiphp_sanitize_bus(struct pci_bus *bus);
-+static void acpiphp_set_hpp_values(acpi_handle handle, struct pci_bus *bus);
-+
- 
- /*
-  * initialization & terminatation routines
-@@ -796,9 +799,14 @@ static int enable_device(struct acpiphp_
- 		}
- 	}
- 
-+	pci_bus_size_bridges(bus);
- 	pci_bus_assign_resources(bus);
-+	acpiphp_sanitize_bus(bus);
-+	pci_enable_bridges(bus);
- 	pci_bus_add_devices(bus);
--
-+	acpiphp_set_hpp_values(DEVICE_ACPI_HANDLE(&bus->self->dev), bus);
-+	acpiphp_configure_ioapics(DEVICE_ACPI_HANDLE(&bus->self->dev));
-+		
- 	/* associate pci_dev to our representation */
- 	list_for_each (l, &slot->funcs) {
- 		func = list_entry(l, struct acpiphp_func, sibling);
+So far the latency tracer on my much slower system has only gone up to
+123 usecs.  So the bug seems to be fixed at least on i386.
+
+Lee
 

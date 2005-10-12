@@ -1,83 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbVJLXjf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932481AbVJLXlk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964789AbVJLXjf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 19:39:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932481AbVJLXje
+	id S932481AbVJLXlk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 19:41:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932483AbVJLXlk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 19:39:34 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:3297 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932477AbVJLXjd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 19:39:33 -0400
-Date: Thu, 13 Oct 2005 01:39:17 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: lenz@cs.wisc.edu, zaurus@orca.cx,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: spitz (zaurus sl-c3000) support
-Message-ID: <20051012233917.GA2890@elf.ucw.cz>
-References: <20051012223036.GA3610@elf.ucw.cz> <1129158864.8340.20.camel@localhost.localdomain>
+	Wed, 12 Oct 2005 19:41:40 -0400
+Received: from smtp2.Stanford.EDU ([171.67.16.125]:41953 "EHLO
+	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S932481AbVJLXlj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 19:41:39 -0400
+Subject: Re: 2.6.14-rc4-rt1
+From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+To: george@mvista.com
+Cc: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       dwalker@mvista.com, david singleton <dsingleton@mvista.com>
+In-Reply-To: <434D8973.8000706@mvista.com>
+References: <20051011111454.GA15504@elte.hu>
+	 <1129064151.5324.6.camel@cmn3.stanford.edu>
+	 <20051012061455.GA16586@elte.hu>
+	 <Pine.LNX.4.58.0510120230001.5830@localhost.localdomain>
+	 <434D8973.8000706@mvista.com>
+Content-Type: text/plain
+Date: Wed, 12 Oct 2005 16:41:10 -0700
+Message-Id: <1129160470.4633.6.camel@cmn3.stanford.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1129158864.8340.20.camel@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > I got spitz machine today. I thought oz3.5.3 for spitz would be
-> > 2.6-based, but found out that I'm not _that_ fortunate.
+On Wed, 2005-10-12 at 15:08 -0700, George Anzinger wrote:
+> Steven Rostedt wrote:
+> > On Wed, 12 Oct 2005, Ingo Molnar wrote:
+> > 
+> > 
+> >>i'm not sure latency traces will uncover anything useful for this bug.
+> >>Your problems could be timer issues: timers going off too fast cause
+> >>high keyboard repeat rates, and the same goes for the screensaver. Does
+> >>'sleep 1' work as expected, or is that timing out in an "accelerated"
+> >>way too?
+> >>
+> > 
+> > 
+> > I usually recommend doing a 'sleep 10'.  It really shows you if things are
+> > wrong.  If a sleep 1 returns 2 seconds, or 0.5 seconds later it may not be
+> > detected.  But a sleep 10 returning 20 seconds or 5 seconds later is
+> > obvious.
 > 
-> oz 3.5.4 is due for release soon and will hopefully have a 2.6 option
-> for spitz.
-
-Is there chance to get preview version somewhere? 2.6-capable userland
-would be very nice (and zImage would help, too, just for a demo :-).
-
-> > Is there simple way to tell spitz and tosa apart (like without opening
-> > the machine)?
+> Or maybe:
+> 'time sleep 10'
 > 
-> At what level? machine_is_spitz() and machine_is_tosa()? There are some
-> checks in the sharpsl head file to auto detect all the Zaurus machines
-> and set the machine numbers. For those two machines the difference is
-> the presence of the tc6393 chip in tosa. See head-sharpsl.S
+> Lets the machine time it.
 
-I was thinking about "huh, is this machine tosa or spitz", but it is
-labeled SL-C3000, so it should be spitz.
+My first thought was "this can't work" as I imagined the same timing
+services would be used and you would get always 10 secs or so...
 
-> > Aha, I realized that spitz support came into 2.6.14-rc2, so something
-> > definitely _is_ happening. Are there newer patches than orca.cx
-> > somewhere?
-> 
-> I got a spitz recently which moved 2.6 for it forwards a lot. Have a
-> look at:
-> 
-> http://www.rpsys.net/openzaurus/
+Ingo: I tried with PREEMPT_RCU=y and it made no difference. 
 
-Wildly offtopic... I got poweradapter with spitz (with funny design)
-that says 100V (and lot of japanese letters).. I guess it would be
-very bad idea to try it at 240V?
+When the system starts to misbehave I tried 'time sleep 10' and got
+really wild results:
 
-> This file should give you an idea of which patches to apply in what
-> order:
-> http://www.rpsys.net/openzaurus/temp/linux-openzaurus_2.6.14-rc1.bb
+# time sleep 10
 
-Quite a long list; what is $RPSRC -- that is where are those patches
-really placed? Is there some way I can help you (besides obviously
-testing)?
+real    0m10.007s
+user    0m0.001s
+sys     0m0.003s
+# time sleep 10
 
-> With my patch series applied, we're missing usb client (usb host works)
-> and sound support.
-> 
-> Mainline is missing power management and currently fails to compile
-> without my patch series but I'm working on that.
+real    0m10.006s
+user    0m0.000s
+sys     0m0.003s
+# time sleep 10
+[the return key "autorepeated" here :-]
 
-Yes, asm/arch/ohci.h seems to be missing... But I should probably do
-update, I'm at rc2 with my zaurus hacks now.
 
-								Pavel
--- 
-Thanks, Sharp!
+
+real    0m10.006s
+user    0m0.001s
+sys     0m0.003s
+#
+#
+#
+# time sleep 10
+
+real    0m0.016s
+user    0m0.002s
+sys     0m0.001s
+[yes I really got the prompt back that fast!]
+#
+#
+# time sleep 10
+
+real    73m18.087s
+user    0m0.000s
+sys     0m0.003s
+[this last one was also very fast, it did not take 73 minutes...]
+# time sleep 10
+
+real    73m18.089s
+user    0m0.000s
+sys     0m0.003s
+#
+#
+# time sleep 10
+
+real    0m10.006s
+user    0m0.000s
+sys     0m0.004s
+# time sleep 10
+
+real    73m18.069s
+user    0m0.000s
+sys     0m0.003s
+# time sleep 10
+
+And so on and so forth. At least this shows the problem clearly.
+I still have to test with a up kernel and try again PREEMPT_RT.
+
+-- Fernando
+
+

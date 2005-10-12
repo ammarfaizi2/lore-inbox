@@ -1,60 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751517AbVJLTzQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751518AbVJLTzq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751517AbVJLTzQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 15:55:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751515AbVJLTzP
+	id S1751518AbVJLTzq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 15:55:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751522AbVJLTzq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 15:55:15 -0400
-Received: from 253-121.adsl.pool.ew.hu ([193.226.253.121]:6660 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S1751513AbVJLTzN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 15:55:13 -0400
-To: trond.myklebust@fys.uio.no
-CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-reply-to: <1129143686.8434.64.camel@lade.trondhjem.org> (message from Trond
-	Myklebust on Wed, 12 Oct 2005 15:01:26 -0400)
-Subject: Re: [RFC] atomic create+open
-References: <E1ENWt1-000363-00@dorka.pomaz.szeredi.hu>
-	 <1128616864.8396.32.camel@lade.trondhjem.org>
-	 <E1ENZ8u-0003JS-00@dorka.pomaz.szeredi.hu>
-	 <E1ENZCQ-0003K3-00@dorka.pomaz.szeredi.hu>
-	 <1128619526.16534.8.camel@lade.trondhjem.org>
-	 <E1ENZZl-0003OO-00@dorka.pomaz.szeredi.hu>
-	 <1128620528.16534.26.camel@lade.trondhjem.org>
-	 <E1ENZu1-0003SP-00@dorka.pomaz.szeredi.hu>
-	 <1128623899.31797.14.camel@lade.trondhjem.org>
-	 <E1ENani-0003c4-00@dorka.pomaz.szeredi.hu>
-	 <1128626258.31797.34.camel@lade.trondhjem.org>
-	 <E1ENcAr-0003jz-00@dorka.pomaz.szeredi.hu>
-	 <1128633138.31797.52.camel@lade.trondhjem.org>
-	 <E1ENlI2-0004Gt-00@dorka.pomaz.szeredi.hu>
-	 <1128692289.8519.75.camel@lade.trondhjem.org>
-	 <E1ENslH-00057W-00@dorka.pomaz.szeredi.hu>
-	 <1128698035.8583.36.camel@lade.trondhjem.org>
-	 <E1ENu8h-0005Kd-00@dorka.pomaz.szeredi.hu>
-	 <1128702227.8583.69.camel@lade.trondhjem.org>
-	 <E1ENvzx-0005VT-00@dorka.pomaz.szeredi.hu>
-	 <1129061494.11164.38.camel@lade.trondhjem.org>
-	 <E1EPeM4-0000Xz-00@dorka.pomaz.szeredi.hu>
-	 <1129123257.8561.27.camel@lade.trondhjem.org>
-	 <E1EPh1j-0000jR-00@dorka.pomaz.szeredi.hu> <1129143686.8434.64.camel@lade.trondhjem.org>
-Message-Id: <E1EPmfK-00019W-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 12 Oct 2005 21:53:30 +0200
+	Wed, 12 Oct 2005 15:55:46 -0400
+Received: from john.hrz.tu-chemnitz.de ([134.109.132.2]:10170 "EHLO
+	john.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id S1751521AbVJLTzp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 15:55:45 -0400
+To: linux-kernel@vger.kernel.org
+Subject: bug in handling of highspeed usb HID devices
+From: Christian Krause <chkr@plauener.de>
+Date: Wed, 12 Oct 2005 21:55:32 +0200
+Message-ID: <m34q7mwlvv.fsf@gondor.middle-earth.priv>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Spam-Score: 0.0 (/)
+X-Spam-Report: --- Start der SpamAssassin 3.1.0 Textanalyse (0.0 Punkte)
+	Fragen an/questions to:  Postmaster TU Chemnitz <postmaster@tu-chemnitz.de>
+	--- Ende der SpamAssassin Textanalyse
+X-Scan-Signature: a9b0c11fa57e65d288d1a9e86fed51cf
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > I don't care either way since we will not be supporting non-intent based
-> > > opens for NFSv4.
-> > 
-> > I need this for FUSE, since non-create opens and non-exclusive open of
-> > positive dentry will be done through ->open().
-> 
-> How about something like the following instead? That gives you the
-> option of choosing a non-standard initialisation for the intent case,
-> with the default being ->open().
+Hi folks,
 
-Fine by me.
+During the development of an USB device I found a bug in the handling of
+Highspeed HID devices in the kernel.
 
-Thanks,
-Miklos
+What happened?
+
+Highspeed HID devices are correctly recognized and enumerated by the
+kernel. But even if usbhid kernel module is loaded, no HID reports are
+received by the kernel.
+
+The output of the hardware USB analyzer told me that the host doesn't
+even poll for interrupt IN transfers (even the "interrupt in" USB
+transfer are polled by the host).
+
+
+After some debugging in hid-core.c I've found the reason.
+
+In case of a highspeed device, the endpoint interval is re-calculated in
+driver/usb/input/hid-core.c:
+
+line 1669:
+             /* handle potential highspeed HID correctly */
+             interval = endpoint->bInterval;
+             if (dev->speed == USB_SPEED_HIGH)
+                   interval = 1 << (interval - 1);
+
+Basically this calculation is correct (refer to USB 2.0 spec, 9.6.6).
+This new calculated value of "interval" is used as input for
+usb_fill_int_urb:
+
+line 1685:
+
+            usb_fill_int_urb(hid->urbin, dev, pipe, hid->inbuf, 0,
+                   hid_irq_in, hid, interval);
+
+Unfortunately the same calculation as above is done a second time in 
+usb_fill_int_urb in the file include/linux/usb.h:
+
+line 933:
+        if (dev->speed == USB_SPEED_HIGH)
+                urb->interval = 1 << (interval - 1);
+        else
+                urb->interval = interval;
+
+This means, that if the endpoint descriptor (of a high speed device)
+specifies e.g. bInterval = 7, the urb->interval gets the value:
+
+hid-core.c: interval = 1 << (7-1) = 0x40 = 64
+urb->interval = 1 << (interval -1) = 1 << (63) = integer overflow
+
+Because of this the value of urb->interval is sometimes negative and is
+rejected in core/urb.c:
+line 353:
+                /* too small? */
+                if (urb->interval <= 0)
+                        return -EINVAL;
+
+
+The conclusion is, that the recalculaton of the interval (which is
+necessary for highspeed) should not be made twice, because this is
+simply wrong. ;-)
+
+
+Re-calculation in usb_fill_int_urb makes more sense, because it is the
+most general approach. So it would make sense to remove it from
+hid-core.c.
+
+
+Because in hid-core.c the interval variable is only used for calling
+usb_fill_int_urb, it is no problem to remove the highspeed
+re-calculation in this file.
+
+Here is a small patch which solves the whole problem:
+
+--------------------------
+--- hid-core.c.old      2005-10-12 21:29:29.000000000 +0200
++++ hid-core.c  2005-10-12 21:31:02.000000000 +0200
+@@ -1667,11 +1667,6 @@
+                if ((endpoint->bmAttributes & 3) != 3)          /* Not an interrupt endpoint */
+                        continue;
+ 
+-               /* handle potential highspeed HID correctly */
+-               interval = endpoint->bInterval;
+-               if (dev->speed == USB_SPEED_HIGH)
+-                       interval = 1 << (interval - 1);
+-
+                /* Change the polling interval of mice. */
+                if (hid->collection->usage == HID_GD_MOUSE && hid_mousepoll_interval > 0)
+                        interval = hid_mousepoll_interval;
+
+----------------------------
+
+Please review my investigation and if you come to the same conclusion
+please apply this patch in the next kernel versions. If not, please tell
+me why. ;-)
+
+
+Best regards,
+Christian

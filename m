@@ -1,160 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932423AbVJLRAk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932433AbVJLREM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932423AbVJLRAk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 13:00:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbVJLRAj
+	id S932433AbVJLREM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 13:04:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbVJLREL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 13:00:39 -0400
-Received: from xproxy.gmail.com ([66.249.82.192]:1325 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932423AbVJLRAj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 13:00:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type;
-        b=FTrdjmQ47ejZL28BssT7akFHmqv3MAlSZFikZNlC3b30J9ByE8IYwtMNxSS4HFHhPsmgrgjYrldzjrcv1lBY30vT7vK+eAahSwE+Z8rOIDSGxMSjTin6Yp2cUI/kxx6cXSDoKll5baW3U1yiw0CQvctcaNkoSXryWIMTboOKCtU=
-Message-ID: <5bdc1c8b0510121000i5db112f2p642f66686fb46c57@mail.gmail.com>
-Date: Wed, 12 Oct 2005 10:00:38 -0700
-From: Mark Knecht <markknecht@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.14-rc4-rt1 - enable IRQ-off tracing causes kernel to fault at boot
-Cc: Ingo Molnar <mingo@elte.hu>
+	Wed, 12 Oct 2005 13:04:11 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:46281 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932433AbVJLREK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 13:04:10 -0400
+Date: Wed, 12 Oct 2005 13:03:40 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+To: Lee Revell <rlrevell@joe-job.com>
+cc: Mark Knecht <markknecht@gmail.com>, Ingo Molnar <mingo@elte.hu>,
+       Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org
+Subject: Re: Latency data - 2.6.14-rc3-rt13
+In-Reply-To: <1129133902.10599.10.camel@mindpipe>
+Message-ID: <Pine.LNX.4.58.0510121301460.9258@localhost.localdomain>
+References: <5bdc1c8b0510101316k23ff64e2i231cdea7f11e8553@mail.gmail.com> 
+ <1128980674.18782.211.camel@c-67-188-6-232.hsd1.ca.comcast.net> 
+ <5bdc1c8b0510101509w4c74028apb6e69746b1b8b65b@mail.gmail.com> 
+ <1128983301.18782.215.camel@c-67-188-6-232.hsd1.ca.comcast.net> 
+ <5bdc1c8b0510101633lc45fbf8gd2677e5646dc6f93@mail.gmail.com> 
+ <5bdc1c8b0510101649s221ab437scc49d6a49269d6b@mail.gmail.com> 
+ <5bdc1c8b0510102045u7e4bc9eeld5b690b5e96c4a5f@mail.gmail.com> 
+ <20051011111700.GA15892@elte.hu>  <5bdc1c8b0510111545n29b77010h8558a1b69c4bf12a@mail.gmail.com>
+  <1129075368.7094.3.camel@mindpipe>  <5bdc1c8b0510111809v2609879ai8aa0a8e283acb58d@mail.gmail.com>
+  <1129080062.7094.7.camel@mindpipe>  <Pine.LNX.4.58.0510120233300.5830@localhost.localdomain>
+ <1129133902.10599.10.camel@mindpipe>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_8391_20721920.1129136438218"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_8391_20721920.1129136438218
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-Config file attached. The only change was to enable IRQ-off latency
-tracing using make menuconfig. Rebuild and reboot. I got a message
-about the kernel not syncing, lots of stuff above that message about
-do_futex, etc.
+On Wed, 12 Oct 2005, Lee Revell wrote:
 
-This was not a problem on 2.6.14-rc3-rt13.
+>
+> I believe this is the expected behavior under 2.6 unless you
+> set /proc/sys/vm/swappiness to 0.  If an app allocates memory and then
+> never touches it then those pages will eventually be swapped out to make
+> room for hot ones.
+>
 
-Thanks,
-Mark
+OK, thanks for the info.  I guess my apps don't allocate enough memory to
+be eventually swapped out (I obviously run 2.6).  Or those apps use the
+memory that it allocates often.
 
-------=_Part_8391_20721920.1129136438218
-Content-Type: application/x-bzip2; name=knecht.config-2.6.14-rc4-rt1.bz2
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="knecht.config-2.6.14-rc4-rt1.bz2"
+Whatever..
 
-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
-------=_Part_8391_20721920.1129136438218--
+-- Steve
+

@@ -1,64 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbVJLTlI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750962AbVJLTlk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751213AbVJLTlI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 15:41:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750981AbVJLTlH
+	id S1750962AbVJLTlk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 15:41:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbVJLTlk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 15:41:07 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:36845 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1750784AbVJLTlG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 15:41:06 -0400
-Date: Wed, 12 Oct 2005 14:40:22 -0500
-From: Robin Holt <holt@sgi.com>
-To: linux-ia64@vger.kernel.org, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, hch@infradead.org, jgarzik@pobox.com,
-       wli@holomorphy.com
-Subject: [Patch 0/2] SGI Altix and ia64 special memory support.
-Message-ID: <20051012194022.GE17458@lnx-holt.americas.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 12 Oct 2005 15:41:40 -0400
+Received: from xproxy.gmail.com ([66.249.82.193]:29386 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750981AbVJLTlj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 15:41:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=cCDjWYFIxDjb/V7CLfvqDPHyYIbFfbtZPqICnCV2piRj0vx+1906XWXVzIhpvsVmdaoocIc3URIfqBrPLSUe7Obp7yyGqc3l/Vo9z7l47cLJT5oEe9WtaaIqsfje6EQ/jKLrTdXcCZEljWNY4MCNzamB7QVZqwwu42474VDehKA=
+Message-ID: <5bdc1c8b0510121241q526f5d4cx84c9df2ec744fec9@mail.gmail.com>
+Date: Wed, 12 Oct 2005 12:41:38 -0700
+From: Mark Knecht <markknecht@gmail.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: 2.6.14-rc4-rt1
+Cc: Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>, dwalker@mvista.com,
+       david singleton <dsingleton@mvista.com>
+In-Reply-To: <5bdc1c8b0510121211g5a46282fm2e34188875261bb7@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+References: <20051011111454.GA15504@elte.hu>
+	 <5bdc1c8b0510111408n4ef45eadv1e12ec4d1271d971@mail.gmail.com>
+	 <5bdc1c8b0510111413q7b1ea391n3bc27924d928b963@mail.gmail.com>
+	 <1129065696.4718.10.camel@mindpipe>
+	 <5bdc1c8b0510120937r45bbd26fr6f45b6e3a9895d3f@mail.gmail.com>
+	 <1129139304.10599.15.camel@mindpipe>
+	 <5bdc1c8b0510121100o11e0e28ft4b532ba43e170774@mail.gmail.com>
+	 <1129141547.11297.4.camel@mindpipe>
+	 <1129142282.11410.7.camel@mindpipe>
+	 <5bdc1c8b0510121211g5a46282fm2e34188875261bb7@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 10/12/05, Mark Knecht <markknecht@gmail.com> wrote:
+> On 10/12/05, Lee Revell <rlrevell@joe-job.com> wrote:
 
-SGI hardware supports a special type of memory called fetchop or atomic
-memory. This memory does atomic operations at the memory controller
-instead of using the processor.
+> I've just built with this feature. I'll try it out for a while and ask
+> questions on that list while I'm configured this way.
+>
+> Thanks for the idea.
+>
+> Cheers,
+> Mark
+>
+Ardour just segfaulted immediately when talking to jack-0.100.5 built
+this way. I think I'll stick with the kernel stuff.
 
-This patch set introduces a driver so user land can map the devices and
-fault pages of the appropriate type.  Pages are inserted on first touch.
-The reason for that was hashed out earlier on the lists, but can be
-distilled to node locality, node resource limitation, and application
-performance.
-
-Since a typical ia64 uncached page does not have a page struct backing it,
-we first modify do_no_page to handle a new return type of NOPAGE_FAULTED.
-This indicates to the nopage handler that the desired operation is
-complete and should be treated as a minor fault.  This is a result of a
-discussion which Jes Sorenson started on the the ia64 mailing list and
-Christoph Hellwig carried over to the linux-mm mailing list.
-
-The second patch introduces the mspec driver.
-
-I am reposting these today.  The last version went out in a rush last
-night and I did not take the time to notify the people that were part
-of the earlier discussion.
-
-Additionally, the version which Jes posted last April was using
-remap_pfn_range().  This version uses set_pte().  I realize that is
-probably the wrong thing to do.  Unfortunately, we need this to be
-thread-safe.  With remap_pfn_range() there is a BUG_ON(!pte_none(*pte));
-in remap_pte_range() which would trip if there were multiple threads
-faulting at the same time.  To work around that, I started looking at
-breaking remap_pfn_range() into an _remap_pfn_range() which assumed
-the locks were already held.  At that point, it became apparent I
-was stretching the use of remap_pfn_range beyond its original intent.
-For this driver, we are inserting a single pte, the page tables have
-already been put in place by the caller's chain, why not just insert
-the pte directly.  That is what I finally did.
+Any ideas on when someone might look at the IRQ-off problem in rc4-rt1
+that I've reported?
 
 Thanks,
-Robin Holt
+Mark

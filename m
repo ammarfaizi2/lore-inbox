@@ -1,57 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbVJMUBh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751110AbVJMUBw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932146AbVJMUBh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 16:01:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751471AbVJMUBg
+	id S1751110AbVJMUBw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 16:01:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751550AbVJMUBw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 16:01:36 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:29890 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751110AbVJMUBg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 16:01:36 -0400
-Subject: sched_clock -> check_tsc_unstable -> tsc_read_c3_time ?!?
-From: Lee Revell <rlrevell@joe-job.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: john stultz <johnstul@us.ibm.com>, Ingo Molnar <mingo@elte.hu>
-Content-Type: text/plain
-Date: Thu, 13 Oct 2005 16:01:27 -0400
-Message-Id: <1129233687.16243.52.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+	Thu, 13 Oct 2005 16:01:52 -0400
+Received: from ccerelbas02.cce.hp.com ([161.114.21.105]:41424 "EHLO
+	ccerelbas02.cce.hp.com") by vger.kernel.org with ESMTP
+	id S1751471AbVJMUBv convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Oct 2005 16:01:51 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH 09/14] Big kfree NULL check cleanup - misc remaining drivers
+Date: Thu, 13 Oct 2005 15:01:42 -0500
+Message-ID: <D4CFB69C345C394284E4B78B876C1CF10AF98879@cceexc23.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 09/14] Big kfree NULL check cleanup - misc remaining drivers
+Thread-Index: AcXQK/CtdgvEE4p6T+qcdtLO5kiqRAABH5Cw
+From: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>
+To: "Jesper Juhl" <jesper.juhl@gmail.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>
+Cc: "Andrew Morton" <akpm@osdl.org>, "Len Brown" <len.brown@intel.com>,
+       "ISS StorageDev" <iss_storagedev@hp.com>,
+       "Jakub Jelinek" <jj@ultra.linux.cz>, "Frodo Looijaard" <frodol@dds.nl>,
+       "Jean Delvare" <khali@linux-fr.org>,
+       "Bartlomiej Zolnierkiewicz" <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       "Jens Axboe" <axboe@suse.de>, "Roland Dreier" <rolandd@cisco.com>,
+       "Sergio Rozanski Filho" <aris@cathedrallabs.org>,
+       "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
+       "Pierre Ossman" <drzeus-wbsd@drzeus.cx>,
+       "Carsten Gross" <carsten@sol.wh-hms.uni-ulm.de>,
+       "Greg Kroah-Hartman" <greg@kroah.com>,
+       "David Hinds" <dahinds@users.sourceforge.net>,
+       "Vinh Truong" <vinh.truong@eng.sun.com>,
+       "Mark Douglas Corner" <mcorner@umich.edu>,
+       "Michael Downey" <downey@zymeta.com>,
+       "Antonino Daplas" <adaplas@pol.net>,
+       "Ben Gardner" <bgardner@wabtec.com>
+X-OriginalArrivalTime: 13 Oct 2005 20:01:44.0910 (UTC) FILETIME=[EFBD5EE0:01C5D030]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looking at the latency traces it appears that sched_clock could be
-optimized a bit:
+> From: Jesper Juhl [mailto:jesper.juhl@gmail.com] 
+> This is the remaining misc drivers/ part of the big kfree 
+> cleanup patch.
+> 
+> Remove pointless checks for NULL prior to calling kfree() in 
+> misc files in drivers/.
+> 
+>  
+> --- linux-2.6.14-rc4-orig/drivers/block/cciss.c	
+> 2005-10-11 22:41:05.000000000 +0200
+> +++ linux-2.6.14-rc4/drivers/block/cciss.c	2005-10-12 
+> 17:43:18.000000000 +0200
+> @@ -1096,14 +1096,11 @@ static int cciss_ioctl(struct inode *ino
+>  cleanup1:
+>  		if (buff) {
+>  			for(i=0; i<sg_used; i++)
+> -				if(buff[i] != NULL)
+> -					kfree(buff[i]);
 
-evolutio-16296 0D.h4   32us : activate_task (try_to_wake_up)
-evolutio-16296 0D.h4   33us : sched_clock (activate_task)
-evolutio-16296 0D.h4   33us : check_tsc_unstable (sched_clock)
-evolutio-16296 0D.h4   34us : tsc_read_c3_time (sched_clock)
-evolutio-16296 0D.h4   35us : recalc_task_prio (activate_task)
+I'm not sure I agree that these are pointless checks. They're not in the
+main code path so nothing is lost by checking first. What if the pointer
+is NULL????
 
-check_tsc_unstable and tsc_read_c3_time appear to be new.  Here they
-are:
+Anybody else?
 
-     49 /* Code to mark and check if the TSC is unstable
-     50  * due to cpufreq or due to unsynced TSCs
-     51  */
-     52 static int tsc_unstable;
-     53 int check_tsc_unstable(void)
-     54 {
-     55         return tsc_unstable;
-     56 }
+mikem
 
-     73 u64 tsc_read_c3_time(void)
-     74 {
-     75         return tsc_c3_offset;
-     76 }
 
-Shouldn't these be inlined or something?  I know it's only a few
-microseconds, but it seems like excessive function call overhead to me.
-I don't use power management and the TSC is stable on this machine.  Why
-do we have to call these simple accessor functions over and over?
-
-Lee
-
+> +				kfree(buff[i]);
+>  			kfree(buff);
+>  		}
+> -		if (buff_size)
+> -			kfree(buff_size);
+> -		if (ioc)
+> -			kfree(ioc);
+> +		kfree(buff_size);
+> +		kfree(ioc);
+>  		return(status);
+>  	}
+>  	default:
+> @@ -3034,8 +3031,7 @@ static int __devinit cciss_init_one(stru
+>  	return(1);
+>  
+>  clean4:
+> -	if(hba[i]->cmd_pool_bits)
+> -               	kfree(hba[i]->cmd_pool_bits);
+> +	kfree(hba[i]->cmd_pool_bits);
+>  	if(hba[i]->cmd_pool)
+>  		pci_free_consistent(hba[i]->pdev,
+>  			NR_CMDS * sizeof(CommandList_struct),

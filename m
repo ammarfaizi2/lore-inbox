@@ -1,70 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964810AbVJMWob@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964874AbVJMWrX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964810AbVJMWob (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 18:44:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964815AbVJMWob
+	id S964874AbVJMWrX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 18:47:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964875AbVJMWrX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 18:44:31 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:63147 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964810AbVJMWob (ORCPT
+	Thu, 13 Oct 2005 18:47:23 -0400
+Received: from mail.kroah.org ([69.55.234.183]:39301 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964874AbVJMWrW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 18:44:31 -0400
-Date: Fri, 14 Oct 2005 00:44:19 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: lenz@cs.wisc.edu, zaurus@orca.cx,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: spitz (zaurus sl-c3000) support
-Message-ID: <20051013224419.GF1876@elf.ucw.cz>
-References: <20051012223036.GA3610@elf.ucw.cz> <1129158864.8340.20.camel@localhost.localdomain> <20051012233917.GA2890@elf.ucw.cz> <1129192418.8238.21.camel@localhost.localdomain>
+	Thu, 13 Oct 2005 18:47:22 -0400
+Date: Thu, 13 Oct 2005 15:46:52 -0700
+From: Greg KH <greg@kroah.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: kernel-stuff@comcast.net, stable@kernel.org, linux-kernel@vger.kernel.org,
+       Christian Krause <chkr@plauener.de>
+Subject: Re: [stable] Re: [PATCH] Re: bug in handling of highspeed usb HID devices
+Message-ID: <20051013224652.GC3266@kroah.com>
+References: <101320051953.12930.434EBB460007F30B0000328222007589429D0E050B9A9D0E99@comcast.net> <20051013212518.GY5856@shell0.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1129192418.8238.21.camel@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20051013212518.GY5856@shell0.pdx.osdl.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > > I got spitz machine today. I thought oz3.5.3 for spitz would be
-> > > > 2.6-based, but found out that I'm not _that_ fortunate.
-> > > 
-> > > oz 3.5.4 is due for release soon and will hopefully have a 2.6 option
-> > > for spitz.
+On Thu, Oct 13, 2005 at 02:25:18PM -0700, Chris Wright wrote:
+> * kernel-stuff@comcast.net (kernel-stuff@comcast.net) wrote:
+> > This seems to be -stable material since it's a clear cut bug with bad
+> > consequences. 
 > > 
-> > Is there chance to get preview version somewhere? 2.6-capable userland
-> > would be very nice (and zImage would help, too, just for a demo :-).
+> > Chris Wright - is the below patch acceptable for -stable?
 > 
-> I'm no sure offical preview images exist but here's something I built
-> myself recently:
-> 
-> http://www.rpsys.net/openzaurus/temp/spitz/
+> This all looks fine.  But two things, please send -stable patches to
+> stable@kernel.org, and I've not seen an ACK from any usb developers.
 
-Thanks. Kernel works, even with 3.5.3 opie. [But touchscreen gets
-extremely interesting, you have to click top-right corner to get it to
-register click in bottom-left].
+I haven't seen a patch even _sent_ in a format that it could be applied
+in (please read Documentation/SubmittingPatches.)
 
-> Rename the gpe or opie file "hdimage1.tgz" to flash depending on what
-> flavoured image you'd like. You need the other files including gnu-tar.
-> You don't need an initrd.bin file as under 2.6 we can boot directly from
-> the microdrive.
+thanks,
 
-You mean I should place tar binary on flashcard, because updater.sh
-needs it? [What is updater.sh anyway, xor 0x5e encrypted shell
-script?!]
-
-> > Wildly offtopic... I got poweradapter with spitz (with funny design)
-> > that says 100V (and lot of japanese letters).. I guess it would be
-> > very bad idea to try it at 240V?
-> 
-> Trust me, its a very bad idea...
-
-Oh, okay, one more question. Do you trust your battery charging code
-enough to leave spitz overnight in charger? I would hate to be awaken
-by angry lithium ;-).
-
-								Pavel
--- 
-Thanks, Sharp!
+greg k-h

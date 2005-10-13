@@ -1,99 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbVJMLeP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbVJMMRv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750734AbVJMLeP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 07:34:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750971AbVJMLeP
+	id S1750702AbVJMMRv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 08:17:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbVJMMRv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 07:34:15 -0400
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:10731 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1750734AbVJMLeP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 07:34:15 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Subject: [2.6.14-rc4-git HFSPlus BUG] HFSPlus ate my free space!
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: zippel@linux-m68k.org
-Cc: lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: Computing Service, University of Cambridge, UK
-Date: Thu, 13 Oct 2005 12:34:01 +0100
-Message-Id: <1129203241.5293.43.camel@imp.csi.cam.ac.uk>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
+	Thu, 13 Oct 2005 08:17:51 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:16197 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1750702AbVJMMRv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Oct 2005 08:17:51 -0400
+Message-ID: <434E521F.40100@sw.ru>
+Date: Thu, 13 Oct 2005 16:25:03 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
+MIME-Version: 1.0
+To: linux@horizon.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: SMP syncronization on AMD processors (broken?)
+References: <20051011235017.21719.qmail@science.horizon.com>
+In-Reply-To: <20051011235017.21719.qmail@science.horizon.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Roman,
+Thanks a lot for the interesting idea provided below.
+I will try to implement it.
 
-I am using hfsplus (journalled) to mount a 10Gb partition on an usb
-attached disk.  I then copy a 3.5Gb file to the partition, then umount,
-and mount again, and then delete it, but the space occupied by the file
-is not freed, and doing that two times in a row ends up filling up the
-space and I get an error that there is no space left.  Here are steps to
-reproduce:
+Kirill
 
-$ newfs_hfs -J -v BigFiles /dev/sda6
-Initialized /dev/sda6 as a 10112 MB HFS Plus volume with a 8192k journal
+>>The whole story started when we wrote the following code:
+>>
+>>void XXX(void)
+>>{
+>>	/* ints disabled */
+>>restart:
+>>	spin_lock(&lock);
+>>	do_something();
+>>	if (!flag)
+>>		need_restart = 1;
+>>	spin_unlock(&lock);
+>>	if (need_restart)
+>>		goto restart;	<<<< LOOPS 4EVER ON AMD!!!
+>>}
+>>
+>>void YYY(void)
+>>{
+>>	spin_lock(&lock);	<<<< SPINS 4EVER ON AMD!!!
+>>	flag = 1;
+>>	spin_unlock(&lock);
+>>}
+>>
+>>function XXX() starts on CPU0 and begins to loop since flag is not set, 
+>>then CPU1 calls function YYY() and it turns out that it can't take the 
+>>lock any arbitrary time.
+> 
+> 
+> The right thing to do here is to wait for the flag to be set *outside*
+> the lock, and then re-validate inside the lock:
+> 
+> void XXX(void)
+> {
+> 	/* ints disabled */
+> restart:
+> 	spin_lock(&lock);
+> 	do_something();
+> 	if (!flag)
+> 		need_restart = 1;
+> 	spin_unlock(&lock);
+> 	if (need_restart) {
+> 		while (!flag)
+> 			cpu_relax();
+> 		goto restart;
+> 	}
+> }
+> 
+> This way, XXX() keeps the lock dropped for as long as it takes for
+> YYY() to notice and grab it.
+> 
+> 
+> However, I realize that this is of course a simplified case of some real
+> code, where even *finding* the flag requires the spin lock.
+> 
+> The generic solution is to have a global "progress" counter, which
+> records "I made progress toward setting flag", that XXX() can
+> busy-loop on:
+> 
+> int progress;
+> 
+> void XXX(void)
+> {
+> 	int old_progress;
+> 	/* ints disabled */
+> restart:
+> 	spin_lock(&lock);
+> 	do_something();
+> 	if (!flag) {
+> 		old_progress = progress;
+> 		need_restart = 1;
+> 	}
+> 	spin_unlock(&lock);
+> 	if (need_restart) {
+> 		while (progress == old_progress)
+> 			cpu_relax();
+> 		goto restart;
+> 	}
+> }
+> 
+> void YYY(void)
+> {
+> 	spin_lock(&lock);
+> 	flag = 1;
+> 	progress++;
+> 	spin_unlock(&lock);
+> }
+> 
+> It may be that in your data structure, there is one or a series of
+> fields that already exist that you can use for the purpose.  The goal
+> is to merely detect *change*, so you can reacquire the lock and test
+> definitively.  It's okay to read freed memory while doing this, as long as
+> you can be sure that:
+> - The memory read won't oops the kernel, and
+> - You don't end up depending on the value of the freed memory to
+>   get you out of the stall.
+> 
 
-$ mount -t hfsplus /dev/sda6 /sda6
-
-$ dmesg | tail -1
-HFS+: create hidden dir...
-
-$ df -h /sda6
-Filesystem            Size  Used Avail Use% Mounted on
-/dev/sda6             9.9G   25M  9.9G   1% /sda6
-
-$ cp ~/some-bigfile /sda6/bigfile
-
-$ ls -lh /sda6
-total 3.5G
--rw-r--r--  1 root root 3.5G 2005-10-13 12:28 bigfile
-
-$ df -h /sda6
-Filesystem            Size  Used Avail Use% Mounted on
-/dev/sda6             9.9G  3.5G  6.4G  36% /sda6
-
-$ umount /sda6
-$ mount -t hfsplus /dev/sda6 /sda6
-
-$ ls -lh /sda6
-total 3.5G
--rw-r--r--  1 root root 3.5G 2005-10-13 12:28 bigfile
-
-$ df -h
-Filesystem            Size  Used Avail Use% Mounted on
-/dev/sda6             9.9G  3.5G  6.4G  36% /sda6
-
-$ rm /sda6/bigfile
-
-$ ls -lh /sda6
-total 0
-
-$ df -h /sda6
-Filesystem            Size  Used Avail Use% Mounted on
-/dev/sda6             9.9G  3.5G  6.4G  36% /sda6
-
-$ ls -lah /sda6
-total 8.1M
-drwxr-xr-x   1 root root    5 2005-10-13 12:31 .
-drwxr-xr-x  33 root root 4.0K 2005-10-11 14:33 ..
-----------   1 root root 8.0M 2005-10-13 12:26 .journal
-----------   1 root root 4.0K 2005-10-13 12:26 .journal_info_block
-
-Let me know if you need any more info or you cannot reproduce and want
-me to help debug it...  Note this is running on a Pentium 4 so if you
-have any endianness bugs that might be it...
-
-Best regards,
-
-        Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

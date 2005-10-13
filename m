@@ -1,35 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932469AbVJMUNk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932495AbVJMUOq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932469AbVJMUNk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 16:13:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932491AbVJMUNk
+	id S932495AbVJMUOq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 16:14:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932494AbVJMUOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 16:13:40 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:3524 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932469AbVJMUNk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 16:13:40 -0400
-Subject: Re: sched_clock -> check_tsc_unstable -> tsc_read_c3_time ?!?
-From: Lee Revell <rlrevell@joe-job.com>
-To: john stultz <johnstul@us.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1129234306.27168.7.camel@cog.beaverton.ibm.com>
-References: <1129233687.16243.52.camel@mindpipe>
-	 <1129234306.27168.7.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain
-Date: Thu, 13 Oct 2005 16:13:26 -0400
-Message-Id: <1129234407.16243.58.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Thu, 13 Oct 2005 16:14:46 -0400
+Received: from ns2.g-housing.de ([81.169.133.75]:62140 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S932491AbVJMUOq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Oct 2005 16:14:46 -0400
+Message-ID: <434EC01E.4000008@g-house.de>
+Date: Thu, 13 Oct 2005 22:14:22 +0200
+From: Christian <evil@g-house.de>
+User-Agent: Mail/News 1.6a1 (Windows/20051004)
+MIME-Version: 1.0
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+CC: linux-kernel@vger.kernel.org, GregKH <greg@kroah.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Dallas's 1-wire bus compile error (again)
+References: <434EA63F.10306@g-house.de> <20051013183353.GA32530@2ka.mipt.ru> <434EB375.4060104@g-house.de> <20051013194705.GA27809@2ka.mipt.ru>
+In-Reply-To: <20051013194705.GA27809@2ka.mipt.ru>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Antivirus: avast! (VPS 0539-6, 02.10.2005), Outbound message
+X-Antivirus-Status: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-10-13 at 13:11 -0700, john stultz wrote:
-> Yea, you're right about the inlining. Although I'm not sure why those
-> functions should take microseconds to execute. That's very strange. 
+Evgeniy Polyakov wrote:
+> 
+> It looks like you use old version - I've just compiled 
+> today's git tree with your config, and it does have an error, 
+> but in different place.
 
-Latency tracing overhead plus a slow (600MHz) machine?
+i've tested against 2.6.13.4 and a current -git tree when the error
+showed up.
 
-Lee
+but your patch fixes it.
+
+thank you for your time,
+Christian.
+-- 
+BOFH excuse #19:
+
+floating point processor overflow
 

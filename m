@@ -1,46 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964825AbVJMALj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964833AbVJMAVn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964825AbVJMALj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 20:11:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964827AbVJMALj
+	id S964833AbVJMAVn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 20:21:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964832AbVJMAVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 20:11:39 -0400
-Received: from ns2.suse.de ([195.135.220.15]:30694 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964825AbVJMALi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 20:11:38 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Subject: Re: [discuss] [Patch 1/2] x86, x86_64: Intel HT, Multi core detection fixes
-Date: Thu, 13 Oct 2005 02:10:22 +0200
-User-Agent: KMail/1.8.2
-Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <20051005161706.B30098@unix-os.sc.intel.com> <200510122349.05312.ak@suse.de> <20051012151926.E29292@unix-os.sc.intel.com>
-In-Reply-To: <20051012151926.E29292@unix-os.sc.intel.com>
+	Wed, 12 Oct 2005 20:21:43 -0400
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:31111 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S964827AbVJMAVm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Oct 2005 20:21:42 -0400
+Date: Thu, 13 Oct 2005 02:21:41 +0200 (CEST)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Jeff Mahoney <jeffm@suse.com>, Anton Altaparmakov <aia21@cam.ac.uk>,
+       Glauber de Oliveira Costa <glommer@br.ibm.com>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, hirofumi@mail.parknet.co.jp,
+       linux-ntfs-dev@lists.sourceforge.net, aia21@cantab.net,
+       hch@infradead.org, viro@zeniv.linux.org.uk, akpm@osdl.org
+Subject: Re: [PATCH] Use of getblk differs between locations
+In-Reply-To: <20051013000921.GD23770@mail.shareable.org>
+Message-ID: <Pine.LNX.4.62.0510130217050.15206@artax.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.64.0510102217200.6247@hermes-1.csi.cam.ac.uk>
+ <20051010214605.GA11427@br.ibm.com> <Pine.LNX.4.62.0510102347220.19021@artax.karlin.mff.cuni.cz>
+ <Pine.LNX.4.64.0510102319100.6247@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.62.0510110035110.19021@artax.karlin.mff.cuni.cz>
+ <1129017155.12336.4.camel@imp.csi.cam.ac.uk> <434D6932.1040703@suse.com>
+ <Pine.LNX.4.62.0510122155390.9881@artax.karlin.mff.cuni.cz> <434D6CFA.4080802@suse.com>
+ <Pine.LNX.4.62.0510122208210.11573@artax.karlin.mff.cuni.cz>
+ <20051013000921.GD23770@mail.shareable.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510130210.23311.ak@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 13 October 2005 00:19, Siddha, Suresh B wrote:
-
-> x86_num_cores (cpuid returned value) is required while right shifting the 
-> apicid to get the core-id and the package-id. booted_cores will indicate 
-> how many cores actually cameup. x86_num_cores can differ from "booted cores" 
-> in these scenarios
-
-The original idea was to round it up to the next power of two 
-before shifting. But I can see that it will break when the number
-of online cores differs from the max number by more than a single power 
-of two (e.g. quadcore with only a single CPU booted) 
-
-Ok, if you rename the variable to make it clear
-
-x86_num_cores -> x86_max_cores
 
 
--Andi
+On Thu, 13 Oct 2005, Jamie Lokier wrote:
+
+> Mikulas Patocka wrote:
+>> But discarding data sometimes on USB unplug is even worse than discarding
+>> data always --- users will by experimenting learn that linux doesn't
+>> discard write-cached data and reminds them to replug the device --- and
+>> one day, randomly, they lose their data because of some memory management
+>> condition...
+>
+> It should not happen provided the total amount of dirty data for
+> detachable devices is restricted to allow enough room for opening a
+> dialog.
+
+That is possible ... you must also make sure that you do not hold an 
+important semaphore while waiting for some removable device (auditing VFS 
+for this will be a bit harder...)
+
+Mikulas
+
+> That's no different, in principle, than the restrictions that are used
+> to ensure some types of kernel memory allocation always succeed.
+>
+> There's no exact calculation, just a notion of "this many megabytes
+> should be enough for a dialog".
+>
+> -- Jamie
+>

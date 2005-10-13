@@ -1,71 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751582AbVJMPSr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751586AbVJMPth@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751582AbVJMPSr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 11:18:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751583AbVJMPSr
+	id S1751586AbVJMPth (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 11:49:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751588AbVJMPth
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 11:18:47 -0400
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:47768 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1751581AbVJMPSq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 11:18:46 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Subject: Re: Linux NTFS Vista compatibility (was: Re: [2.6-GIT] NTFS:
-	Release 2.1.24.)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: Szakacsits Szabolcs <szaka@sienet.hu>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
-In-Reply-To: <200510131613.43578.s0348365@sms.ed.ac.uk>
-References: <Pine.LNX.4.21.0509252047090.21817-100000@mlf.linux.rulez.org>
-	 <200509252335.37780.s0348365@sms.ed.ac.uk>
-	 <200510131613.43578.s0348365@sms.ed.ac.uk>
+	Thu, 13 Oct 2005 11:49:37 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:26243 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751583AbVJMPth (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Oct 2005 11:49:37 -0400
+Subject: Re: [PATCH 2/3] hugetlb: Demand fault handler
+From: Adam Litke <agl@us.ibm.com>
+To: David Gibson <david@gibson.dropbear.id.au>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       ak@suse.de, hugh@veritas.com
+In-Reply-To: <20051012060934.GA14943@localhost.localdomain>
+References: <1129055057.22182.8.camel@localhost.localdomain>
+	 <1129055559.22182.12.camel@localhost.localdomain>
+	 <20051012060934.GA14943@localhost.localdomain>
 Content-Type: text/plain
-Organization: Computing Service, University of Cambridge, UK
-Date: Thu, 13 Oct 2005 16:18:30 +0100
-Message-Id: <1129216711.5293.48.camel@imp.csi.cam.ac.uk>
+Organization: IBM
+Date: Thu, 13 Oct 2005 10:49:28 -0500
+Message-Id: <1129218568.8797.7.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-10-13 at 16:13 +0100, Alistair John Strachan wrote:
-> On Sunday 25 September 2005 23:35, Alistair John Strachan wrote:
-> [snip]
-> > >
-> > > Alistair, any result?
-> > >
-> > > > Note you will need to try the ntfs driver itself and not ntfscp as
-> > > > libntfs does not have these changes yet hence ntfscp will not work just
-> > > > the same (it does not use the kernel driver at all, it only uses
-> > > > libntfs).
-> > >
-> > > The latest ntfsprogs CVS has also these changes and every tool should
-> > > work fine with Vista (ntfscp, ntfsresize, ntfsundelete, ntfsclone, etc).
-> >
-> > I have limited access to the beta, as it expires every 30 days and forces
-> > me to reinstall it. I promise to get back to all of you after 2.6.14 is
-> > released with the LogFile changes.
-> >
-> > To clarify, I did not leave the Vista NTFS volume in an inconsistent state.
-> > I even forced a chkdsk, rebooted, let it run through, then attempted again
-> > to mount it with the NTFS code in 2.6.13. This categorically fails.
+Thanks for the review and comments...
+
+On Wed, 2005-10-12 at 16:09 +1000, David Gibson wrote:
+> On Tue, Oct 11, 2005 at 01:32:38PM -0500, Adam Litke wrote:
+> > Version 5 (Tue, 11 Oct 2005)
+> > 	Deal with hugetlbfs file truncation in find_get_huge_page()
+> > Version 4 (Mon, 03 Oct 2005)
+> > 	Make find_get_huge_page bale properly when add_to_page_cache fails
+> > 	  due to OOM conditions
+> > Version 3 (Thu, 08 Sep 2005)
+> >         Organized logic in hugetlb_pte_fault() by breaking out
+> >           find_get_page/alloc_huge_page logic into separate function
+> >         Removed a few more paranoid checks  ( Thanks       )
+> >         Fixed tlb flushing in a race case   ( Yanmin Zhang )
+> > 
+> > Version 2 (Wed, 17 Aug 2005)
+> >         Removed spurious WARN_ON()
+> >     Patches added earlier in the series (now in mainline):
+> >         Check for p?d_none() in arch/i386/mm/hugetlbpage.c:huge_pte_offset()
+> >         Move i386 stale pte check into huge_pte_alloc()
 > 
-> I was free today, so I built a 2.6.14-rc4 kernel on the machine with the 
-> Longhorn NTFS volume. It now mounts without warnings in dmesg, and I've 
-> verified that ntfscp works properly.
+> I'm not sure this does fully deal with truncation, I'm afraid - it
+> will deal with a truncation well before the fault, but not a
+> concurrent truncate().  We'll need the truncate_count/retry logic from
+> do_no_page, I think.  Andi/Hugh, can you confirm that's correct?
 
-Great!  Thanks for letting us know!
+Ok.  I can see why we need that.
 
-Best regards,
+> > Initial Post (Fri, 05 Aug 2005)
+> > 
+> > Below is a patch to implement demand faulting for huge pages.  The main
+> > motivation for changing from prefaulting to demand faulting is so that
+> > huge page memory areas can be allocated according to NUMA policy.
+> > 
+> > Thanks to consolidated hugetlb code, switching the behavior requires changing
+> > only one fault handler.  The bulk of the patch just moves the logic from 
+> > hugelb_prefault() to hugetlb_pte_fault() and find_get_huge_page().
+> 
+> While we're at it - it's a minor nit, but I find the distinction
+> between hugetlb_pte_fault() and hugetlb_fault() confusing.  A better
+> name for the former would be hugetlb_no_page(), in which case we
+> should probably also move the border between it and
+> hugetlb_find_get_page() to match the boundary between do_no_page() and
+> mapping->nopage.
+> 
+> How about this, for example:
 
-        Anton
+Yeah, I suppose that division makes more sense when comparing to the
+normal fault handler code.
+
+> @@ -338,57 +337,128 @@
+>  	spin_unlock(&mm->page_table_lock);
+>  }
+>  
+> -int hugetlb_prefault(struct address_space *mapping, struct vm_area_struct *vma)
+> +static struct page *hugetlbfs_nopage(struct vm_area_struct *vma,
+
+<snip>
+
+> +	/* Check to make sure the mapping hasn't been truncated */
+> +	size = i_size_read(inode) >> HPAGE_SHIFT;
+> +	if (pgoff >= size)
+> +		return NULL;
+> +
+> + retry:
+> +	page = find_get_page(mapping, pgoff);
+> +	if (page)
+> +		/* Another thread won the race */
+> +		return page;
+
+Both of those returns could be changed to goto out so that the function
+has only one exit path.  Isn't that what we want?
+
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+Adam Litke - (agl at us.ibm.com)
+IBM Linux Technology Center
 

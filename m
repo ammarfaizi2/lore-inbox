@@ -1,160 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbVJMRiy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbVJMRqu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932127AbVJMRiy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 13:38:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932134AbVJMRiy
+	id S932141AbVJMRqu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 13:46:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbVJMRqu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 13:38:54 -0400
-Received: from mail.linicks.net ([217.204.244.146]:44555 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S932127AbVJMRiy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 13:38:54 -0400
-From: Nick Warne <nick@linicks.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.4.31] Reintroduction i386 CONFIG_DUMMY_KEYB option
-Date: Thu, 13 Oct 2005 18:38:44 +0100
-User-Agent: KMail/1.8.1
+	Thu, 13 Oct 2005 13:46:50 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:35794 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S932141AbVJMRqt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Oct 2005 13:46:49 -0400
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: "Michael Kerrisk" <mtk-manpages@gmx.net>
+Subject: Re: man-pages-2.08 is released
+Date: Thu, 13 Oct 2005 10:46:44 -0700
+User-Agent: KMail/1.8.91
+Cc: linux-kernel@vger.kernel.org, michael.kerrisk@gmx.net,
+       Andries.Brouwer@cwi.nl
+References: <200510121010.16274.jbarnes@virtuousgeek.org> <20785.1129193533@www73.gmx.net>
+In-Reply-To: <20785.1129193533@www73.gmx.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200510131838.45082.nick@linicks.net>
+Message-Id: <200510131046.44520.jbarnes@virtuousgeek.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Thursday, October 13, 2005 1:52 am, Michael Kerrisk wrote:
+> Recently, I was just wondering the same thing.  However, there
+> are complexities to consider.  C libraries (okay, glibc is the
+> main one I concern myself with) sometimes add some functionality
+> in the wrapper function for a particular system call.  This also
+> needs to be documented in the Secion 2 page.
 
-A small patch here to reintroduce the dummy keyboard, which seems to have been 
-lost sometime - refer to my LKML thread:
+True.  But there are other libcs available (e.g. klibc, dietlibc) too.  
+I'd think that if the pages were bundled with the kernel, they should 
+describe exactly what the kernel does, while pages bundled with a libc 
+would describe any enhancements (or breakages) that the particular libc 
+includes.  But then what to do about duplicates?  Or should the raw 
+kernel interfaces have their own section, while libc interfaces remain 
+in section 2?  Or should the libc versions typically replace the kernel 
+versions on running systems?  Or 'patch' the existing kernel pages 
+somehow?  So many questions... ;)
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=112885471602308&w=2
+> Nevertheless, I think the idea of binding the kernel sources and
+> Sections 2 and 4 of the manual pages a bit more tightly bears
+> some consideration.  In the ideal world, when a change is made to
+> the kernel, the patch could include adjustments to the man
+> pages (if relevant) -- then the changes could follow the patch
+> through the -mm tree and then into Linus's tree.
 
-I reason that a lot of people have headless boxes (I have 7), and the dummy 
-keyboard option appears to be unknown, but a good addition...
+That was my though too; it's certainly easier to ask people to update 
+manual pages in Documentation/ or man/ when they do a kernel patch than 
+to ask them to download a separate package and make the changes (since 
+they'll probably never get around to doing the latter :).
 
-I found out that CONFIG_DUMMY_KEYB is slightly broken in that although the 
-header text in 'dummy_keyb.c' states that this should be used with CONFIG_VT, 
-using this option breaks the kernel build 'as is'.  This patch fixes that, 
-and also allows the use of dummy keyboard with or with out CONFIG_VT which 
-stops all the timeout warnings etc at boot on a keyboardless box.  The option 
-to use the dummy keyboard is only available if CONFIG_INPUT_KEYBDEV   is 'n'.
+> > OTOH, they comprise a fairly large package, so adding them to the
+> > kernel tarball would increase its size a lot.
+>
+> I'd guess that the uncompressed source of the relevant pages
+> would be around 3 MB.
 
-I apologise sending to list only, but I couldn't find a maintainer of this 
-area...
+Ok, that's not too bad.  Having full, up-to-date man pages would be worth 
+the extra few megs to me at least.
 
-Nick
+> > The man pages are great;
+>
+> Thanks.  But the greatest part of credit must go to Andries,
+> the maintainer for nearly 10 years.  I'm shortly coming up to my
+> first anniversary...
 
+Many thanks to both of you then!
 
-Signed off by Nick Warne <nick@linicks.net>
-
-
- Documentation/Configure.help |   18 ++++++++++++++++++
- arch/i386/kernel/dmi_scan.c  |    2 ++
- drivers/char/dummy_keyb.c    |    1 +
- drivers/input/Config.in      |    5 +++++
- kernel/panic.c               |    2 +-
- 5 files changed, 27 insertions(+), 1 deletion(-)
-
-
-
-
-
-diff -Naur linux-2.4.31.orig/Documentation/Configure.help 
-linux-2.4.31n/Documentation/Configure.help
---- linux-2.4.31.orig/Documentation/Configure.help	Mon Apr  4 02:42:19 2005
-+++ linux-2.4.31n/Documentation/Configure.help	Thu Oct 13 09:38:07 2005
-@@ -15242,6 +15242,24 @@
-   The module will be called joydev.o. If you want to compile it as a
-   module, say M here and read <file:Documentation/modules.txt>.
- 
-+Dummy keyboard driver
-+CONFIG_DUMMY_KEYB
-+  What is this for?
-+
-+  Not all systems have keyboards.  Some don't even have a keyboard
-+  port.  However, some of those systems have video support and can
-+  use the virtual terminal support for display.  However, the virtual
-+  terminal code expects a keyboard of some kind.  This driver keeps
-+  the virtual terminal code happy by providing it a "keyboard", albeit
-+  a very quiet one.
-+
-+  If you want to use the virtual terminal support but your system
-+  does not support a keyboard, define CONFIG_DUMMY_KEYB along with
-+  CONFIG_VT.
-+
-+  This can also be selected lonesome without any VT support (i.e. no
-+  monitor or keyboard attached) - just define CONFIG_DUMMY_KEYB.
-+
- Event interface support
- CONFIG_INPUT_EVDEV
-   Say Y here if you want your USB or ADB HID device events be
-diff -Naur linux-2.4.31.orig/arch/i386/kernel/dmi_scan.c 
-linux-2.4.31n/arch/i386/kernel/dmi_scan.c
---- linux-2.4.31.orig/arch/i386/kernel/dmi_scan.c	Wed Nov 17 11:54:21 2004
-+++ linux-2.4.31n/arch/i386/kernel/dmi_scan.c	Wed Oct 12 15:57:27 2005
-@@ -412,11 +412,13 @@
- static __init int broken_ps2_resume(struct dmi_blacklist *d)
- {
- #ifdef CONFIG_VT
-+#ifndef CONFIG_DUMMY_KEYB
- 	if (pm_kbd_request_override == NULL)
- 	{
- 		pm_kbd_request_override = pckbd_pm_resume;
- 		printk(KERN_INFO "%s machine detected. Mousepad Resume Bug workaround 
-enabled.\n", d->ident);
- 	}
-+#endif
- #endif
- 	return 0;
- }
-diff -Naur linux-2.4.31.orig/drivers/char/dummy_keyb.c 
-linux-2.4.31n/drivers/char/dummy_keyb.c
---- linux-2.4.31.orig/drivers/char/dummy_keyb.c	Mon Aug 25 12:44:41 2003
-+++ linux-2.4.31n/drivers/char/dummy_keyb.c	Wed Oct 12 15:38:48 2005
-@@ -29,6 +29,7 @@
- #include <linux/errno.h>
- #include <linux/init.h>
- #include <linux/input.h>
-+#include <asm/keyboard.h>
- 
- void kbd_leds(unsigned char leds)
- {
-diff -Naur linux-2.4.31.orig/drivers/input/Config.in 
-linux-2.4.31n/drivers/input/Config.in
---- linux-2.4.31.orig/drivers/input/Config.in	Wed Feb 18 13:36:31 2004
-+++ linux-2.4.31n/drivers/input/Config.in	Wed Oct 12 15:16:09 2005
-@@ -7,6 +7,11 @@
- 
- tristate 'Input core support' CONFIG_INPUT
- dep_tristate '  Keyboard support' CONFIG_INPUT_KEYBDEV $CONFIG_INPUT
-+
-+if [ "$CONFIG_INPUT_KEYBDEV" == "n" ]; then
-+	bool '  Use dummy keyboard driver' CONFIG_DUMMY_KEYB $CONFIG_INPUT
-+fi
-+
- dep_tristate '  Mouse support' CONFIG_INPUT_MOUSEDEV $CONFIG_INPUT
- if [ "$CONFIG_INPUT_MOUSEDEV" != "n" ]; then
-    int '   Horizontal screen resolution' CONFIG_INPUT_MOUSEDEV_SCREEN_X 1024
-diff -Naur linux-2.4.31.orig/kernel/panic.c linux-2.4.31n/kernel/panic.c
---- linux-2.4.31.orig/kernel/panic.c	Wed Nov 17 11:54:22 2004
-+++ linux-2.4.31n/kernel/panic.c	Wed Oct 12 16:07:56 2005
-@@ -104,7 +104,7 @@
- #endif
- 	sti();
- 	for(;;) {
--#if defined(CONFIG_X86) && defined(CONFIG_VT) 
-+#if defined(CONFIG_X86) && defined(CONFIG_VT) && !defined(CONFIG_DUMMY_KEYB) 
- 		extern void panic_blink(void);
- 		panic_blink(); 
- #endif
-
-
-
-
--- 
-http://sourceforge.net/projects/quake2plus
-
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."
-
+Jesse

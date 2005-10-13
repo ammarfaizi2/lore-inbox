@@ -1,170 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932442AbVJMUIy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932446AbVJMUK1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932442AbVJMUIy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 16:08:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932453AbVJMUIy
+	id S932446AbVJMUK1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 16:10:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbVJMUK1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 16:08:54 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:11223 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932442AbVJMUIx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 16:08:53 -0400
-Date: Thu, 13 Oct 2005 22:07:42 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: Sharp sl-5500 touchscreen support
-Message-ID: <20051013200742.GA12757@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 13 Oct 2005 16:10:27 -0400
+Received: from qproxy.gmail.com ([72.14.204.198]:44681 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932446AbVJMUK0 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Oct 2005 16:10:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=b1yLedpoQj0vgs7Oa/DeWf5t5K60ZobAb11dku9dkaAsWPqcYj19GRhuYGHe6xbNRpIF2pBByQ8vD1MoZiPOhkAFZUFCMlVpYb60qdxcA+ntT2xM0hcs8iDuj3mEaeM1Ymgy7fvkNJhZX6bWcITyCzHnsXNt/T7/r7CU49DxfDU=
+Message-ID: <9a8748490510131310y2c31ac04w4ea34ee2333f7ff7@mail.gmail.com>
+Date: Thu, 13 Oct 2005 22:10:25 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>
+Subject: Re: [PATCH 09/14] Big kfree NULL check cleanup - misc remaining drivers
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Len Brown <len.brown@intel.com>, ISS StorageDev <iss_storagedev@hp.com>,
+       Jakub Jelinek <jj@ultra.linux.cz>, Frodo Looijaard <frodol@dds.nl>,
+       Jean Delvare <khali@linux-fr.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Jens Axboe <axboe@suse.de>, Roland Dreier <rolandd@cisco.com>,
+       Sergio Rozanski Filho <aris@cathedrallabs.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Pierre Ossman <drzeus-wbsd@drzeus.cx>,
+       Carsten Gross <carsten@sol.wh-hms.uni-ulm.de>,
+       Greg Kroah-Hartman <greg@kroah.com>,
+       David Hinds <dahinds@users.sourceforge.net>,
+       Vinh Truong <vinh.truong@eng.sun.com>,
+       Mark Douglas Corner <mcorner@umich.edu>,
+       Michael Downey <downey@zymeta.com>, Antonino Daplas <adaplas@pol.net>,
+       Ben Gardner <bgardner@wabtec.com>
+In-Reply-To: <D4CFB69C345C394284E4B78B876C1CF10AF98879@cceexc23.americas.cpqcorp.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+References: <D4CFB69C345C394284E4B78B876C1CF10AF98879@cceexc23.americas.cpqcorp.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On 10/13/05, Miller, Mike (OS Dev) <Mike.Miller@hp.com> wrote:
+> > From: Jesper Juhl [mailto:jesper.juhl@gmail.com]
+> > This is the remaining misc drivers/ part of the big kfree
+> > cleanup patch.
+> >
+> > Remove pointless checks for NULL prior to calling kfree() in
+> > misc files in drivers/.
+> >
+> >
+> > --- linux-2.6.14-rc4-orig/drivers/block/cciss.c
+> > 2005-10-11 22:41:05.000000000 +0200
+> > +++ linux-2.6.14-rc4/drivers/block/cciss.c    2005-10-12
+> > 17:43:18.000000000 +0200
+> > @@ -1096,14 +1096,11 @@ static int cciss_ioctl(struct inode *ino
+> >  cleanup1:
+> >               if (buff) {
+> >                       for(i=0; i<sg_used; i++)
+> > -                             if(buff[i] != NULL)
+> > -                                     kfree(buff[i]);
+>
+> I'm not sure I agree that these are pointless checks. They're not in the
+> main code path so nothing is lost by checking first. What if the pointer
+> is NULL????
+>
 
-This adds support for sharp zaurus sl-5500 touchscreen. It introduces
-some not-too-nice ifs, but I guess copying whole ucb1x00-ts.c
-would be bad idea...
+If the pointer is NULL then this bit of code in kfree takes care of things :
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
-
-diff --git a/drivers/mfd/ucb1x00-ts.c b/drivers/mfd/ucb1x00-ts.c
---- a/drivers/mfd/ucb1x00-ts.c
-+++ b/drivers/mfd/ucb1x00-ts.c
-@@ -32,9 +32,12 @@
- #include <linux/suspend.h>
- #include <linux/slab.h>
- #include <linux/kthread.h>
-+#include <linux/delay.h>
- 
- #include <asm/dma.h>
- #include <asm/semaphore.h>
-+#include <asm/arch/collie.h>
-+#include <asm/mach-types.h>
- 
- #include "ucb1x00.h"
- 
-@@ -85,12 +90,23 @@ static inline void ucb1x00_ts_mode_int(s
-  */
- static inline unsigned int ucb1x00_ts_read_pressure(struct ucb1x00_ts *ts)
+ void kfree(const void *objp)
  {
--	ucb1x00_reg_write(ts->ucb, UCB_TS_CR,
--			UCB_TS_CR_TSMX_POW | UCB_TS_CR_TSPX_POW |
--			UCB_TS_CR_TSMY_GND | UCB_TS_CR_TSPY_GND |
--			UCB_TS_CR_MODE_PRES | UCB_TS_CR_BIAS_ENA);
-+	if (machine_is_collie()) {
-+		ucb1x00_io_write(ts->ucb, COLLIE_TC35143_GPIO_TBL_CHK, 0);
-+		ucb1x00_reg_write(ts->ucb, UCB_TS_CR,
-+				  UCB_TS_CR_TSPX_POW | UCB_TS_CR_TSMX_POW | 
-+				  UCB_TS_CR_MODE_POS | UCB_TS_CR_BIAS_ENA);
- 
--	return ucb1x00_adc_read(ts->ucb, UCB_ADC_INP_TSPY, ts->adcsync);
-+		udelay(55);
-+
-+		return ucb1x00_adc_read(ts->ucb, UCB_ADC_INP_AD2, ts->adcsync);
-+	} else {
-+		ucb1x00_reg_write(ts->ucb, UCB_TS_CR,
-+				  UCB_TS_CR_TSMX_POW | UCB_TS_CR_TSPX_POW |
-+				  UCB_TS_CR_TSMY_GND | UCB_TS_CR_TSPY_GND |
-+				  UCB_TS_CR_MODE_PRES | UCB_TS_CR_BIAS_ENA);
-+
-+		return ucb1x00_adc_read(ts->ucb, UCB_ADC_INP_TSPY, ts->adcsync);
-+	}
- }
- 
- /*
-@@ -101,12 +117,16 @@ static inline unsigned int ucb1x00_ts_re
-  */
- static inline unsigned int ucb1x00_ts_read_xpos(struct ucb1x00_ts *ts)
- {
--	ucb1x00_reg_write(ts->ucb, UCB_TS_CR,
--			UCB_TS_CR_TSMX_GND | UCB_TS_CR_TSPX_POW |
--			UCB_TS_CR_MODE_PRES | UCB_TS_CR_BIAS_ENA);
--	ucb1x00_reg_write(ts->ucb, UCB_TS_CR,
--			UCB_TS_CR_TSMX_GND | UCB_TS_CR_TSPX_POW |
--			UCB_TS_CR_MODE_PRES | UCB_TS_CR_BIAS_ENA);
-+	if (machine_is_collie())
-+		ucb1x00_io_write(ts->ucb, 0, COLLIE_TC35143_GPIO_TBL_CHK);
-+	else {
-+		ucb1x00_reg_write(ts->ucb, UCB_TS_CR,
-+				  UCB_TS_CR_TSMX_GND | UCB_TS_CR_TSPX_POW |
-+				  UCB_TS_CR_MODE_PRES | UCB_TS_CR_BIAS_ENA);
-+		ucb1x00_reg_write(ts->ucb, UCB_TS_CR,
-+				  UCB_TS_CR_TSMX_GND | UCB_TS_CR_TSPX_POW |
-+				  UCB_TS_CR_MODE_PRES | UCB_TS_CR_BIAS_ENA);
-+	}
- 	ucb1x00_reg_write(ts->ucb, UCB_TS_CR,
- 			UCB_TS_CR_TSMX_GND | UCB_TS_CR_TSPX_POW |
- 			UCB_TS_CR_MODE_POS | UCB_TS_CR_BIAS_ENA);
-@@ -124,12 +144,17 @@ static inline unsigned int ucb1x00_ts_re
-  */
- static inline unsigned int ucb1x00_ts_read_ypos(struct ucb1x00_ts *ts)
- {
--	ucb1x00_reg_write(ts->ucb, UCB_TS_CR,
--			UCB_TS_CR_TSMY_GND | UCB_TS_CR_TSPY_POW |
--			UCB_TS_CR_MODE_PRES | UCB_TS_CR_BIAS_ENA);
--	ucb1x00_reg_write(ts->ucb, UCB_TS_CR,
--			UCB_TS_CR_TSMY_GND | UCB_TS_CR_TSPY_POW |
--			UCB_TS_CR_MODE_PRES | UCB_TS_CR_BIAS_ENA);
-+	if (machine_is_collie())
-+		ucb1x00_io_write(ts->ucb, 0, COLLIE_TC35143_GPIO_TBL_CHK);
-+	else {
-+		ucb1x00_reg_write(ts->ucb, UCB_TS_CR,
-+				  UCB_TS_CR_TSMY_GND | UCB_TS_CR_TSPY_POW |
-+				  UCB_TS_CR_MODE_PRES | UCB_TS_CR_BIAS_ENA);
-+		ucb1x00_reg_write(ts->ucb, UCB_TS_CR,
-+				  UCB_TS_CR_TSMY_GND | UCB_TS_CR_TSPY_POW |
-+				  UCB_TS_CR_MODE_PRES | UCB_TS_CR_BIAS_ENA);
-+	}
-+
- 	ucb1x00_reg_write(ts->ucb, UCB_TS_CR,
- 			UCB_TS_CR_TSMY_GND | UCB_TS_CR_TSPY_POW |
- 			UCB_TS_CR_MODE_POS | UCB_TS_CR_BIAS_ENA);
-@@ -163,6 +188,15 @@ static inline unsigned int ucb1x00_ts_re
- 	return ucb1x00_adc_read(ts->ucb, 0, ts->adcsync);
- }
- 
-+static inline int ucb1x00_ts_pen_down(struct ucb1x00_ts *ts)
-+{
-+	unsigned int val = ucb1x00_reg_read(ts->ucb, UCB_TS_CR);
-+	if (machine_is_collie())
-+		return (!(val & (UCB_TS_CR_TSPX_LOW)));
-+	else
-+		return (val & (UCB_TS_CR_TSPX_LOW | UCB_TS_CR_TSMX_LOW));
-+}
-+
- /*
-  * This is a RT kernel thread that handles the ADC accesses
-  * (mainly so we can use semaphores in the UCB1200 core code
-@@ -186,7 +220,7 @@ static int ucb1x00_thread(void *_ts)
- 
- 	add_wait_queue(&ts->irq_wait, &wait);
- 	while (!kthread_should_stop()) {
--		unsigned int x, y, p, val;
-+		unsigned int x, y, p;
- 		signed long timeout;
- 
- 		ts->restart = 0;
-@@ -206,12 +240,12 @@ static int ucb1x00_thread(void *_ts)
- 		msleep(10);
- 
- 		ucb1x00_enable(ts->ucb);
--		val = ucb1x00_reg_read(ts->ucb, UCB_TS_CR);
- 
--		if (val & (UCB_TS_CR_TSPX_LOW | UCB_TS_CR_TSMX_LOW)) {
-+
-+		if (ucb1x00_ts_pen_down(ts)) {
- 			set_task_state(tsk, TASK_INTERRUPTIBLE);
- 
--			ucb1x00_enable_irq(ts->ucb, UCB_IRQ_TSPX, UCB_FALLING);
-+			ucb1x00_enable_irq(ts->ucb, UCB_IRQ_TSPX, machine_is_collie() ? UCB_RISING : UCB_FALLING);
- 			ucb1x00_disable(ts->ucb);
- 
- 			/*
+...
 
--- 
-Thanks, Sharp!
+         if (unlikely(!objp))
+                 return;
+...
+
+Runtime behaviour is exactely the same.
+kfree checks if the pointer passed to it is NULL in any case and just
+returns if it is.
+
+
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

@@ -1,47 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbVJMM3w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751007AbVJMMjJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751032AbVJMM3w (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 08:29:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751057AbVJMM3w
+	id S1751007AbVJMMjJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 08:39:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751307AbVJMMjI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 08:29:52 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:29540 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751032AbVJMM3v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 08:29:51 -0400
-Date: Thu, 13 Oct 2005 14:30:29 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Marcin Owsiany <marcin@owsiany.pl>, linux-kernel@vger.kernel.org
-Subject: Re: SCSI "asking for cache data failed"
-Message-ID: <20051013123028.GE6603@suse.de>
-References: <20051013104536.GA10525@kufelek> <1129208154.18635.4.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1129208154.18635.4.camel@localhost.localdomain>
+	Thu, 13 Oct 2005 08:39:08 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:60349 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751007AbVJMMjH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Oct 2005 08:39:07 -0400
+Message-ID: <434E5574.8060901@de.ibm.com>
+Date: Thu, 13 Oct 2005 14:39:16 +0200
+From: Carsten Otte <cotte@de.ibm.com>
+Reply-To: carsteno@de.ibm.com
+Organization: IBM Deutschland
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Hugh Dickins <hugh@veritas.com>
+CC: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 18/21] mm: xip_unmap ZERO_PAGE fix
+References: <Pine.LNX.4.61.0510130143240.4060@goblin.wat.veritas.com> <Pine.LNX.4.61.0510130218580.4343@goblin.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.61.0510130218580.4343@goblin.wat.veritas.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 13 2005, Alan Cox wrote:
-> On Iau, 2005-10-13 at 12:45 +0200, Marcin Owsiany wrote:
-> > I'm wondering about the following messages, which appeared when I upgraded from
-> > 2.4 to 2.6:
-> > 
-> > | sda: asking for cache data failed
-> > | sda: assuming drive cache: write through
-> > 
-> > (a larger log snippet below)
-> 
-> The kernel asks the SCSI drive for its cache parameters. The AMI raid
-> card sitting in the middle doesn't know how to handle this so this
-> message occurs. It should be ok providing the raid card itself is
-> handling the consistency correctly but check with your card vendor.
+Hugh Dickins wrote:
+> Small fix to the PageReserved patch: the mips ZERO_PAGE(address) depends
+> on address, so __xip_unmap is wrong to initialize page with that before
+> address is initialized; and in fact must re-evaluate it each iteration.
+Looks fine to me. I never realized they have multiple zero pages on mips.
+--
 
-The assumption that sd makes might be a little on the risky side though,
-would seem a lot safer to assume write back if you don't know the
-policy. At least that wont bring surprises later on...
-
--- 
-Jens Axboe
-
+Carsten Otte
+IBM Linux technology center
+ARCH=s390

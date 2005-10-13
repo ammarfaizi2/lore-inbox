@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751548AbVJMIll@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932254AbVJMIwQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751548AbVJMIll (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 04:41:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751540AbVJMIlk
+	id S932254AbVJMIwQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 04:52:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932483AbVJMIwQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 04:41:40 -0400
-Received: from mail.gmx.net ([213.165.64.21]:15844 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751149AbVJMIlk (ORCPT
+	Thu, 13 Oct 2005 04:52:16 -0400
+Received: from mail.gmx.net ([213.165.64.21]:55461 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932254AbVJMIwP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 04:41:40 -0400
-Date: Thu, 13 Oct 2005 10:41:38 +0200 (MEST)
-From: "Michael Kerrisk" <mtk-lkml@gmx.net>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: dan@debian.org, roland@redhat.com, mingo@elte.hu,
-       linux-kernel@vger.kernel.org, michael.kerrisk@gmx.net
+	Thu, 13 Oct 2005 04:52:15 -0400
+Date: Thu, 13 Oct 2005 10:52:13 +0200 (MEST)
+From: "Michael Kerrisk" <mtk-manpages@gmx.net>
+To: Jesse Barnes <jbarnes@virtuousgeek.org>
+Cc: linux-kernel@vger.kernel.org, michael.kerrisk@gmx.net,
+       Andries.Brouwer@cwi.nl
 MIME-Version: 1.0
-References: <434D48FA.FD0439AA@tv-sign.ru>
-Subject: Re: Process with many NPTL threads terminates slowly on core dump signal
+References: <200510121010.16274.jbarnes@virtuousgeek.org>
+Subject: Re: man-pages-2.08 is released
 X-Priority: 3 (Normal)
-X-Authenticated: #23581172
-Message-ID: <18436.1129192898@www29.gmx.net>
+X-Authenticated: #24879014
+Message-ID: <20785.1129193533@www73.gmx.net>
 X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
 X-Flags: 0001
 Content-Type: text/plain; charset="us-ascii"
@@ -27,44 +27,55 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Von: Oleg Nesterov <oleg@tv-sign.ru>
-> Datum: Wed, 12 Oct 2005 21:33:46 +0400
+> Von: Jesse Barnes <jbarnes@virtuousgeek.org>
 > 
-> Michael Kerrisk wrote:
-> >
-> > Following up (belatedly) from my earlier message, I took Daniel 
-> > Jacobowitz's suggestion to investigate the result from booting 
-> > with "profile=2".  When running my program (shwon below) on 
-> > 2.6.14-rc4 to create 100 threads, and sending a core dump signal, 
-> > the program takes 90 seconds to terminate, and readprofile shows 
-> > the following:
+> On Wednesday, October 12, 2005 9:26 am, Michael Kerrisk wrote:
+> > This is a request to kernel developers: if you make a change
+> > to a kernel-userland interface, or observe a discrepancy
+> > between the manual pages and reality, would you please send
+> > me (at mtk-manpages@gmx.net ) one of the following
+> > (in decreasing order of preference):
 > 
-> I think the coredumping code in __group_complete_signal() is bogus
-> and what happens is:
+> Would it make sense for some of the man pages (or maybe all of them) that 
+> correspond directly to kernel interfaces (e.g. syscalls, procfs & sysfs 
+> descriptions) to be bundled directly with the kernel?  Andrew is 
+> generally pretty good about asking people to update the stuff in 
+> Documentation/ when necessary, so maybe the man pages would be kept more 
+> up to date if developers were forced to deal with them more directly.
 
-[...]
+Recently, I was just wondering the same thing.  However, there 
+are complexities to consider.  C libraries (okay, glibc is the 
+main one I concern myself with) sometimes add some functionality 
+in the wrapper function for a particular system call.  This also
+needs to be documented in the Secion 2 page. 
 
-> TIF_SIGPENDING is not cleared, so get_signal_to_deliver() will be
-> called again on return to userspace. When all threads will eat their
-> ->time_slice, P will return from yield() and kill all threads.
+Nevertheless, I think the idea of binding the kernel sources and 
+Sections 2 and 4 of the manual pages a bit more tightly bears
+some consideration.  In the ideal world, when a change is made to
+the kernel, the patch could include adjustments to the man 
+pages (if relevant) -- then the changes could follow the patch 
+through the -mm tree and then into Linus's tree.
 
-Thanks for investiagting this further.
+> OTOH, they comprise a fairly large package, so adding them to the kernel 
+> tarball would increase its size a lot.
 
-> Could you try this patch (added to mm tree):
-> 	http://marc.theaimsgroup.com/?l=linux-kernel&m=112887453531139
-> ? It does not solve the whole problem, but may help.
->
-> Please report the result, if possible.
+I'd guess that the uncompressed source of the relevant pages 
+would be around 3 MB.
+ 
+> The man pages are great; 
 
-Thanks.  I've applied it to 2.6.14-rc4: this patch does fix the 
-specific behaviour that my program demonstrates.  
-
-What remains to be solved?
+Thanks.  But the greatest part of credit must go to Andries, 
+the maintainer for nearly 10 years.  I'm shortly coming up to my 
+first anniversary...
 
 Cheers,
 
 Michael
 
 -- 
-10 GB Mailbox, 100 FreeSMS/Monat http://www.gmx.net/de/go/topmail
-+++ GMX - die erste Adresse für Mail, Message, More +++
+Michael Kerrisk
+maintainer of Linux man pages Sections 2, 3, 4, 5, and 7 
+
+Want to help with man page maintenance?  Grab the latest
+tarball at ftp://ftp.win.tue.nl/pub/linux-local/manpages/
+and grep the source files for 'FIXME'.

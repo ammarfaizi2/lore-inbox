@@ -1,119 +1,160 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932172AbVJMV7d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751112AbVJMWIb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932172AbVJMV7d (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 17:59:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbVJMV7c
+	id S1751112AbVJMWIb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 18:08:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbVJMWIb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 17:59:32 -0400
-Received: from fmr21.intel.com ([143.183.121.13]:26292 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1751112AbVJMV7c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 17:59:32 -0400
-Date: Thu, 13 Oct 2005 14:59:23 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Andi Kleen <ak@suse.de>
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: [Patch 2/2] x86, x86_64: fix Intel cache detection code assumption about threads sharing
-Message-ID: <20051013145923.C8988@unix-os.sc.intel.com>
-References: <20051005161706.B30098@unix-os.sc.intel.com> <200510122349.05312.ak@suse.de> <20051012151926.E29292@unix-os.sc.intel.com> <200510130210.23311.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 13 Oct 2005 18:08:31 -0400
+Received: from qproxy.gmail.com ([72.14.204.207]:28885 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751112AbVJMWIa convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Oct 2005 18:08:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=J8qmFa0QRyNzhj7c8EIJQrzWZCTqdna5u/MDOL9+DOUdZPP6DRrTJ8nSXmAy4FxYh475jRlGf3ynvDL4v4QGaKNOzyMY7Jm1mrlPWqf8bI9SFGzbsCoCIvlX9dYOSRHhxwKZk0lo54WCHlQrcmFzcEY6COk8VfnVOivX0TJ9lnY=
+Message-ID: <9a8748490510131508r49a048cau7e08d77ef1d614ad@mail.gmail.com>
+Date: Fri, 14 Oct 2005 00:08:28 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Mark Gross <mgross@linux.intel.com>
+Subject: Re: Fwd: Telecom Clock Driver for MPCBL0010 ATCA computer blade
+Cc: Greg KH <greg@kroah.com>, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       Sebastien.Bouchard@ca.kontron.com, mark.gross@intel.com
+In-Reply-To: <200510131436.06718.mgross@linux.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200510130210.23311.ak@suse.de>; from ak@suse.de on Thu, Oct 13, 2005 at 02:10:22AM +0200
+References: <200510060803.21470.mgross@linux.intel.com>
+	 <200510121636.29821.mgross@linux.intel.com>
+	 <20051013011451.GA28844@kroah.com>
+	 <200510131436.06718.mgross@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 13, 2005 at 02:10:22AM +0200, Andi Kleen wrote:
-> Ok, if you rename the variable to make it clear
-> 
-> x86_num_cores -> x86_max_cores
+On 10/13/05, Mark Gross <mgross@linux.intel.com> wrote:
+> On Wednesday 12 October 2005 18:14, Greg KH wrote:
+> > On Wed, Oct 12, 2005 at 04:36:29PM -0700, Mark Gross wrote:
+> > > No, but I'm glad I tested that otherwise the my problem with using dev_dbg
+> > > with the kobj->dev devices I got from the misc_device class could have
+> gotten
+> > > by me.
+> >
+> > Yeah, it's always good to test the code to make sure it compiles :)
+> >
+> > This patch looks good, I have no objections to it.
+> >
+> > thanks,
+> >
+>
+> One minor update, after testing with misc_class device for udev I found that
+> it would be nice to have the sysfs file inodes all use the same base name
+> "teleco_clock".
+>
+> Please consider including this driver in the MM tree.
+>
+> See attached.
+>
 
-Updated patch 2/2 in the context of this change.
+Hi Mark,
 
-Andrew, please apply.
+I just took a new look at your patch and I have (again) a few small comments...
 
-thanks,
-suresh
---
 
-Fix the Intel cache detection code assumption that number of threads sharing the
-cache will either be equal to number of HT or core siblings.
-
-Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
-
-diff -pNru linux-2.6.14-rc3/arch/i386/kernel/cpu/intel_cacheinfo.c linux/arch/i386/kernel/cpu/intel_cacheinfo.c
---- linux-2.6.14-rc3/arch/i386/kernel/cpu/intel_cacheinfo.c	2005-09-30 14:17:35.000000000 -0700
-+++ linux/arch/i386/kernel/cpu/intel_cacheinfo.c	2005-10-07 16:27:37.708580280 -0700
-@@ -303,29 +303,45 @@ static struct _cpuid4_info *cpuid4_info[
- #ifdef CONFIG_SMP
- static void __devinit cache_shared_cpu_map_setup(unsigned int cpu, int index)
- {
--	struct _cpuid4_info	*this_leaf;
-+	struct _cpuid4_info	*this_leaf, *sibling_leaf;
- 	unsigned long num_threads_sharing;
--#ifdef CONFIG_X86_HT
--	struct cpuinfo_x86 *c = cpu_data + cpu;
--#endif
-+	int index_msb, i;
-+	struct cpuinfo_x86 *c = cpu_data;
- 
- 	this_leaf = CPUID4_INFO_IDX(cpu, index);
- 	num_threads_sharing = 1 + this_leaf->eax.split.num_threads_sharing;
- 
- 	if (num_threads_sharing == 1)
- 		cpu_set(cpu, this_leaf->shared_cpu_map);
--#ifdef CONFIG_X86_HT
--	else if (num_threads_sharing == smp_num_siblings)
--		this_leaf->shared_cpu_map = cpu_sibling_map[cpu];
--	else if (num_threads_sharing == (c->x86_max_cores * smp_num_siblings))
--		this_leaf->shared_cpu_map = cpu_core_map[cpu];
--	else
--		printk(KERN_DEBUG "Number of CPUs sharing cache didn't match "
--				"any known set of CPUs\n");
--#endif
-+	else {
-+		index_msb = get_count_order(num_threads_sharing);
-+
-+		for_each_online_cpu(i) {
-+			if (c[i].apicid >> index_msb ==
-+			    c[cpu].apicid >> index_msb) {
-+				cpu_set(i, this_leaf->shared_cpu_map);
-+				if (i != cpu && cpuid4_info[i])  {
-+					sibling_leaf = CPUID4_INFO_IDX(i, index);
-+					cpu_set(cpu, sibling_leaf->shared_cpu_map);
-+				}
-+			}
-+		}
-+	}
-+}
-+static void __devinit cache_remove_shared_cpu_map(unsigned int cpu, int index)
++static int tlclk_open(struct inode *inode, struct file *filp)
 +{
-+	struct _cpuid4_info	*this_leaf, *sibling_leaf;
-+	int sibling;
++	int result;
 +
-+	this_leaf = CPUID4_INFO_IDX(cpu, index);
-+	for_each_cpu_mask(sibling, this_leaf->shared_cpu_map) {
-+		sibling_leaf = CPUID4_INFO_IDX(sibling, index);	
-+		cpu_clear(cpu, sibling_leaf->shared_cpu_map);
++	/* Make sure there is no interrupt pending while
++	 * initialising interrupt handler */
++	inb(TLCLK_REG6);
++
++	/* This device is wired through the FPGA IO space of the ATCA blade
++	 * we can't share this IRQ */
++	result = request_irq(telclk_interrupt, &tlclk_interrupt,
++			     SA_INTERRUPT, "telco_clock", tlclk_interrupt);
++	if (result == -EBUSY) {
++		printk(KERN_ERR "telco_clock: Interrupt can't be reserved!\n");
++		return -EBUSY;
 +	}
- }
- #else
- static void __init cache_shared_cpu_map_setup(unsigned int cpu, int index) {}
-+static void __init cache_remove_shared_cpu_map(unsigned int cpu, int index) {}
- #endif
- 
- static void free_cache_attributes(unsigned int cpu)
-@@ -584,8 +600,10 @@ static int __devexit cache_remove_dev(st
- 	unsigned int cpu = sys_dev->id;
- 	unsigned long i;
- 
--	for (i = 0; i < num_cache_leaves; i++)
-+	for (i = 0; i < num_cache_leaves; i++) {
-+		cache_remove_shared_cpu_map(cpu, i);
- 		kobject_unregister(&(INDEX_KOBJECT_PTR(cpu,i)->kobj));
-+	}
- 	kobject_unregister(cache_kobject[cpu]);
- 	cpuid4_cache_sysfs_exit(cpu);
- 	return 0;
++	inb(TLCLK_REG6);	/* Clear interrupt events */
++
++	return 0;
++}
+
+It seems to me that you can get rid of the "result" variable here by
+rewriting the funcion like this :
+
+static int tlclk_open(struct inode *inode, struct file *filp)
+{
+	/* Make sure there is no interrupt pending while
+	 * initialising interrupt handler */
+	inb(TLCLK_REG6);
+
+	/* This device is wired through the FPGA IO space of the ATCA blade
+	 * we can't share this IRQ */
+	if (-EBUSY == request_irq(telclk_interrupt, &tlclk_interrupt,
+			     SA_INTERRUPT, "telco_clock", tlclk_interrupt)) {
+		printk(KERN_ERR "telco_clock: Interrupt can't be reserved!\n");
+		return -EBUSY;
+	}
+	inb(TLCLK_REG6);	/* Clear interrupt events */
+
+	return 0;
+}
+
+And btw, what about the other error return values that request_irq can return?
+You might get back -ENOMEM or -EINVAL...  So shouldn't you rather be
+doing something like
+
+result = request_irq(...);
+if (result < 0)
+   /* handle error */
+
+?????
+
+(which then of course would bring the "result" variable back into play ;)
+
+
++ssize_t tlclk_read(struct file *filp, char __user *buf, size_t count,
+...
++	return  sizeof(struct tlclk_alarms);
+
+Why do you have 2 spaces here between "return" and "sizeof..." ?
+
+
++static DEVICE_ATTR(current_ref, S_IRUGO, show_current_ref, NULL);
++
++
++static ssize_t show_interrupt_switch(struct device *d,
+
+Surely a single space between these two lines should be enough ;) (ok,
+I'm nitpicking, I admit it).
+
+
++	unsigned long tmp;
++	unsigned char val;
++	unsigned long flags;
++
++	sscanf(buf, "%lX", &tmp);
++	dev_dbg(d, "tmp = 0x%lX\n", tmp);
++
++	val = (unsigned char)tmp;
+
+You do this a lot, I'm wondering why you don't read directly into
+"val" and then get rid of the "tmp" variable?
+
+
+Maybe I'm missing something, but in tlclk_init() you are calling
+request_region() and in case of failure you can end up exiting via the
+out3: label which will result in release_region() being called... What
+now prevents the release region() in tlclk_cleanup() from being called
+on an already released region?
+
+
+
+
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

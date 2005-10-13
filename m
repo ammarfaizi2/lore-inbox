@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964828AbVJMVTx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbVJMVVO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964828AbVJMVTx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 17:19:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964832AbVJMVTx
+	id S964832AbVJMVVO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 17:21:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964835AbVJMVVO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 17:19:53 -0400
-Received: from qproxy.gmail.com ([72.14.204.193]:14692 "EHLO qproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964828AbVJMVTx (ORCPT
+	Thu, 13 Oct 2005 17:21:14 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:49109 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S964832AbVJMVVN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 17:19:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type:content-transfer-encoding;
-        b=pOlaxJp8BEoi+EPFwQH791oa/HtqCVS9cYShB1jBRPQXVxXeNhniYWJYd5990kowklgIg6kFkHpN8ySTY0shHtujxrK6xVo0NXbYaQPgHVcdh1/w8h5C9QwHHQy0/FRqHeZkThNtxDgFdIlnd6r4K12yI6w39r+loLfvrRoC7IM=
-Message-ID: <434ECF66.3030101@gmail.com>
-Date: Thu, 13 Oct 2005 23:19:34 +0200
-From: =?ISO-8859-2?Q?=A3ukasz_Gromanowski?= <lgromanowski@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: pl, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Newbie problem with Gigabyte GA-K8U mainboard, ALi/ULi 1689 chipset
- and agpgart...
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 13 Oct 2005 17:21:13 -0400
+Date: Thu, 13 Oct 2005 23:19:11 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH] 1/2  EDAC  (Core Code)
+Message-ID: <20051013211911.GA15477@elf.ucw.cz>
+References: <1129043623.23677.75.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1129043623.23677.75.camel@localhost.localdomain>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-i have computer with Gigabyte GA-K8U motherboard with ULi 1689 chipset
-(northbridge):
+Hi!
 
-http://tw.giga-byte.com/Motherboard/Products/Products_GA-K8U.htm#
+> This is a pair of patches that add the basic ECC and related chipset
+> handling to the kernel. Various "interesting" patches have kicked around
+> since Dan Hollis original work some years ago. Since then many people
+> have picked up the code and improved on it.
+> 
+> The current code (bluesmoke.sf.net) has some very fancy NMI handling
+> features and other complex open issues with NMI during a PCI transaction
+> and the like.
+> 
+> This code is a subset and the maintainer agrees this is the best
+> approach to merging.
+> 
+> >From the original repository
+> 
+> -	2.4 and other compatibility code removed
+> -	Some commenting added
+> -	A couple of 32bit isms cleaned up
+> -	Move several drivers from pci_find to pci_get
+> -	Remove all the NMI layer handling so that the code requires no core
+> changes
+> -	Rename from bluesmoke to EDAC (Correct name for the whole field of ECC
+> and friends) to avoid confusion
 
-I want enable 3d hardware acceleration for my ATI Radeon 9550 card
-and i tried to compile new kernel 2.6.13 (vanilla from Slackware
-current) with agpgart -> ALI chipset option enabled. But when
-i run new kernel i saw agpgart error: "unsupported ALI chipset".
-Could you help me with it, please? What agpgart module should
-i choose instead of ALI? And another question - will
-be ALi/ULi 1689 chipset supported in near future in kernel?
+I'd say thta bluesmoke is *way* better name than EDAC. We don't need
+yet another ETLA.
+								Pavel
 
-Sorry for my spelling errors - English is not my native language.
-
--
 -- 
-best regards,
-Lukasz Gromanowski
-
-
+Thanks, Sharp!

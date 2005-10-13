@@ -1,91 +1,385 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbVJMGim@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751463AbVJMGrf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751100AbVJMGim (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 02:38:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751489AbVJMGim
+	id S1751463AbVJMGrf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 02:47:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751489AbVJMGrf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 02:38:42 -0400
-Received: from styx.suse.cz ([82.119.242.94]:465 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S1751100AbVJMGil (ORCPT
+	Thu, 13 Oct 2005 02:47:35 -0400
+Received: from lead.cat.pdx.edu ([131.252.208.91]:18051 "EHLO lead.cat.pdx.edu")
+	by vger.kernel.org with ESMTP id S1751463AbVJMGre (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 02:38:41 -0400
-Date: Thu, 13 Oct 2005 08:38:00 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Greg KH <gregkh@suse.de>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
-       Kay Sievers <kay.sievers@vrfy.org>, Hannes Reinecke <hare@suse.de>,
-       Patrick Mochel <mochel@digitalimplant.org>, airlied@linux.ie,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 0/8] Nesting class_device patches that actually work
-Message-ID: <20051013063800.GA12008@midnight.suse.cz>
-References: <20051013020844.GA31732@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051013020844.GA31732@kroah.com>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.10i
+	Thu, 13 Oct 2005 02:47:34 -0400
+Date: Wed, 12 Oct 2005 23:47:05 -0700 (PDT)
+From: Suzanne Wood <suzannew@cs.pdx.edu>
+Message-Id: <200510130647.j9D6l5qW014765@rastaban.cs.pdx.edu>
+To: neilb@suse.de
+Cc: linux-kernel@vger.kernel.org, paulmck@us.ibm.com, suzannew@cs.pdx.edu,
+       walpole@cs.pdx.edu
+Subject: Re: [RFC][PATCH] identify raid rcu-protected pointer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 12, 2005 at 07:08:44PM -0700, Greg KH wrote:
 
-> Ok, finally.  Here's a set of _working_ patches that properly implement
-> nesting class_device structures, and the follow-on patches to move the
-> input subsystem to use them.  Hotplug and release functions work
-> properly now, and this will let us move /sys/block/ to use class and
-> class_device structures soon.
+On Wednesday, October 12, 2005, Neil Brown neilb@suse.de wrote:
+>
+> On Wednesday October 5, suzannew@cs.pdx.edu wrote:
+>> Please consider the following patch submittal
+>> to insert rcu_dereference() to make explicit
+>> the object of the rcu read-side critical sections.  
+>> Thank you.
 > 
-> The input patches are on top of almost all of Dmitry's input patches.
-> All of them are together in one series in my public patches at:
-> 	kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/
-> and should show up in the next -mm release.
+> Thank for the patch and detailed explanations.
 > 
-> The sysfs tree looks the same as it did last time, but now hotplug works
-> properly for addition and removal, and we actually free the memory used
-> :)
+> I agree with all the places where you add rcu_dereference.
 > 
-> For those that don't remember, here's the sysfs tree on my desktop:
-> $ tree /sys/class/input/ -d
-> /sys/class/input/
-> |-- input0
-> |   |-- capabilities
-> |   |-- event0
-> |   `-- id
-> |-- input1
-> |   |-- capabilities
-> |   |-- device -> ../../../devices/platform/i8042/serio1
-> |   |-- event1
-> |   |   `-- device -> ../../../../devices/platform/i8042/serio1
-> |   `-- id
-> |-- input3
-> |   |-- capabilities
-> |   |-- device -> ../../../devices/pci0000:00/0000:00:1d.0/usb2/2-2/2-2:1.0
-> |   |-- event2
-> |   |   `-- device -> ../../../../devices/pci0000:00/0000:00:1d.0/usb2/2-2/2-2:1.0
-> |   |-- id
-> |   |-- mouse0
-> |   |   `-- device -> ../../../../devices/pci0000:00/0000:00:1d.0/usb2/2-2/2-2:1.0
-> |   `-- ts0
-> |       `-- device -> ../../../../devices/pci0000:00/0000:00:1d.0/usb2/2-2/2-2:1.0
-> `-- mice
-
-> Ok, I think that covers everything.
+> I do not agree with the place you added rcu_assign_pointer.
+> rdev->mddev is of no relevance to the rcu usage.  However I think it
+> is appropriate to use rcu_assign_pointer when setting the pointer that
+> rcu_dereference dereferences.  I had made appropriate changes.
+>
+> The place where you put the comment about incrementing new_disk does
+> *not* require an increment.  That loop actually runs backwards, and
+> new_disk is decremented in the body of the loop.
+>
+> You moved 'rcu_read_unlock' down several lines in raid5.c, but didn't
+> make an equivalent change in similar code in raid6main.c.  I'm
+> confident that this change isn't needed.  After nr_pending has been
+> incremented, there is no longer a need to hold the rcu read lock.
 > 
-> Oh, one final thing.  I really don't think that input should be a class.
-> It looks like a "bus" and acts like a "bus" (you have different devices
-> that have different drivers bind to them, and you want to load those
-> drivers with the hotplug mechanism.) 
+> I have improved the code in raid10.c so that the rcu_dereference'd
+> pointer is held in a temporary variable, which is much cleaner than
+> the existing code.
+> 
+> 
+> My revised patch follows.  I will submit it to Andrew if I hear
+> nothing negative.
+> 
+> Thanks,
+> NeilBrown
 
-[ Vojtech mumbles something about saying that from the beginning. ]
+This looks very good.  Thank you for clarifying the implication of the
+increment of nr_pending and for the rcu_assign_pointer() corrections.
 
-> The only thing keeping this from
-> being a bus is the fact that we can't bind multiple drivers to a single
-> device these days, and I can't see a way to move this code to that
-> model, so oh well...
- 
-Oh, well.
+Thank you.
+Suzanne Wood
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+> 
+> -----
+> Provide proper rcu_dereference / rcu_assign_pointer annotations in md
+> 
+> 
+> Acked-by: <paulmck@us.ibm.com>
+> Signed-off-by: <suzannew@cs.pdx.edu>
+> Signed-off-by: Neil Brown <neilb@suse.de>
+> 
+> ### Diffstat output
+> ./drivers/md/multipath.c |    8 ++++----
+> ./drivers/md/raid1.c     |   20 ++++++++++----------
+> ./drivers/md/raid10.c    |   30 ++++++++++++++++--------------
+> ./drivers/md/raid5.c     |    8 ++++----
+> ./drivers/md/raid6main.c |    8 ++++----
+> 5 files changed, 38 insertions(+), 36 deletions(-)
+> 
+> diff ./drivers/md/multipath.c~current~ ./drivers/md/multipath.c
+> --- ./drivers/md/multipath.c~current~ 2005-10-13 13:42:05.000000000 +1000
+> +++ ./drivers/md/multipath.c 2005-10-13 13:49:39.000000000 +1000
+> @@ -63,7 +63,7 @@ static int multipath_map (multipath_conf
+> 
+>  rcu_read_lock();
+>  for (i = 0; i < disks; i++) {
+> - mdk_rdev_t *rdev = conf->multipaths[i].rdev;
+> + mdk_rdev_t *rdev = rcu_dereference(conf->multipaths[i].rdev);
+>  if (rdev && rdev->in_sync) {
+>  atomic_inc(&rdev->nr_pending);
+>  rcu_read_unlock();
+> @@ -139,7 +139,7 @@ static void unplug_slaves(mddev_t *mddev
+> 
+>  rcu_read_lock();
+>  for (i=0; i<mddev->raid_disks; i++) {
+> - mdk_rdev_t *rdev = conf->multipaths[i].rdev;
+> + mdk_rdev_t *rdev = rcu_dereference(conf->multipaths[i].rdev);
+>  if (rdev && !rdev->faulty && atomic_read(&rdev->nr_pending)) {
+>  request_queue_t *r_queue = bdev_get_queue(rdev->bdev);
+> 
+> @@ -228,7 +228,7 @@ static int multipath_issue_flush(request
+> 
+>  rcu_read_lock();
+>  for (i=0; i<mddev->raid_disks && ret == 0; i++) {
+> - mdk_rdev_t *rdev = conf->multipaths[i].rdev;
+> + mdk_rdev_t *rdev = rcu_dereference(conf->multipaths[i].rdev);
+>  if (rdev && !rdev->faulty) {
+>  struct block_device *bdev = rdev->bdev;
+>  request_queue_t *r_queue = bdev_get_queue(bdev);
+> @@ -335,7 +335,7 @@ static int multipath_add_disk(mddev_t *m
+>  conf->working_disks++;
+>  rdev->raid_disk = path;
+>  rdev->in_sync = 1;
+> - p->rdev = rdev;
+> + rcu_assign_pointer(p->rdev, rdev);
+>  found = 1;
+>  }
+> 
+> 
+> diff ./drivers/md/raid1.c~current~ ./drivers/md/raid1.c
+> --- ./drivers/md/raid1.c~current~ 2005-10-13 13:42:05.000000000 +1000
+> +++ ./drivers/md/raid1.c 2005-10-13 13:50:32.000000000 +1000
+> @@ -416,10 +416,10 @@ static int read_balance(conf_t *conf, r1
+>  /* Choose the first operation device, for consistancy */
+>  new_disk = 0;
+> 
+> - for (rdev = conf->mirrors[new_disk].rdev;
+> + for (rdev = rcu_dereference(conf->mirrors[new_disk].rdev);
+>       !rdev || !rdev->in_sync
+>       || test_bit(WriteMostly, &rdev->flags);
+> -      rdev = conf->mirrors[++new_disk].rdev) {
+> +      rdev = rcu_dereference(conf->mirrors[++new_disk].rdev)) {
+> 
+>  if (rdev && rdev->in_sync)
+>  wonly_disk = new_disk;
+> @@ -434,10 +434,10 @@ static int read_balance(conf_t *conf, r1
+> 
+> 
+>  /* make sure the disk is operational */
+> - for (rdev = conf->mirrors[new_disk].rdev;
+> + for (rdev = rcu_dereference(conf->mirrors[new_disk].rdev);
+>       !rdev || !rdev->in_sync ||
+>       test_bit(WriteMostly, &rdev->flags);
+> -      rdev = conf->mirrors[new_disk].rdev) {
+> +      rdev = rcu_dereference(conf->mirrors[new_disk].rdev)) {
+> 
+>  if (rdev && rdev->in_sync)
+>  wonly_disk = new_disk;
+> @@ -474,7 +474,7 @@ static int read_balance(conf_t *conf, r1
+>  disk = conf->raid_disks;
+>  disk--;
+> 
+> - rdev = conf->mirrors[disk].rdev;
+> + rdev = rcu_dereference(conf->mirrors[disk].rdev);
+> 
+>  if (!rdev ||
+>      !rdev->in_sync ||
+> @@ -496,7 +496,7 @@ static int read_balance(conf_t *conf, r1
+> 
+> 
+>  if (new_disk >= 0) {
+> - rdev = conf->mirrors[new_disk].rdev;
+> + rdev = rcu_dereference(conf->mirrors[new_disk].rdev);
+>  if (!rdev)
+>  goto retry;
+>  atomic_inc(&rdev->nr_pending);
+> @@ -522,7 +522,7 @@ static void unplug_slaves(mddev_t *mddev
+> 
+>  rcu_read_lock();
+>  for (i=0; i<mddev->raid_disks; i++) {
+> - mdk_rdev_t *rdev = conf->mirrors[i].rdev;
+> + mdk_rdev_t *rdev = rcu_dereference(conf->mirrors[i].rdev);
+>  if (rdev && !rdev->faulty && atomic_read(&rdev->nr_pending)) {
+>  request_queue_t *r_queue = bdev_get_queue(rdev->bdev);
+> 
+> @@ -556,7 +556,7 @@ static int raid1_issue_flush(request_que
+> 
+>  rcu_read_lock();
+>  for (i=0; i<mddev->raid_disks && ret == 0; i++) {
+> - mdk_rdev_t *rdev = conf->mirrors[i].rdev;
+> + mdk_rdev_t *rdev = rcu_dereference(conf->mirrors[i].rdev);
+>  if (rdev && !rdev->faulty) {
+>  struct block_device *bdev = rdev->bdev;
+>  request_queue_t *r_queue = bdev_get_queue(bdev);
+> @@ -732,7 +732,7 @@ static int make_request(request_queue_t 
+> #endif
+>  rcu_read_lock();
+>  for (i = 0;  i < disks; i++) {
+> - if ((rdev=conf->mirrors[i].rdev) != NULL &&
+> + if ((rdev=rcu_dereference(conf->mirrors[i].rdev)) != NULL &&
+>      !rdev->faulty) {
+>  atomic_inc(&rdev->nr_pending);
+>  if (rdev->faulty) {
+> @@ -958,7 +958,7 @@ static int raid1_add_disk(mddev_t *mddev
+>  found = 1;
+>  if (rdev->saved_raid_disk != mirror)
+>  conf->fullsync = 1;
+> - p->rdev = rdev;
+> + rcu_assign_pointer(p->rdev, rdev);
+>  break;
+>  }
+> 
+> 
+> diff ./drivers/md/raid10.c~current~ ./drivers/md/raid10.c
+> --- ./drivers/md/raid10.c~current~ 2005-10-13 13:42:05.000000000 +1000
+> +++ ./drivers/md/raid10.c 2005-10-13 14:09:29.000000000 +1000
+> @@ -496,6 +496,7 @@ static int read_balance(conf_t *conf, r1
+>  int disk, slot, nslot;
+>  const int sectors = r10_bio->sectors;
+>  sector_t new_distance, current_distance;
+> + mdk_rdev_t *rdev;
+> 
+>  raid10_find_phys(conf, r10_bio);
+>  rcu_read_lock();
+> @@ -510,8 +511,8 @@ static int read_balance(conf_t *conf, r1
+>  slot = 0;
+>  disk = r10_bio->devs[slot].devnum;
+> 
+> - while (!conf->mirrors[disk].rdev ||
+> -        !conf->mirrors[disk].rdev->in_sync) {
+> + while ((rdev = rcu_dereference(conf->mirrors[disk].rdev)) == NULL ||
+> +        !rdev->in_sync) {
+>  slot++;
+>  if (slot == conf->copies) {
+>  slot = 0;
+> @@ -527,8 +528,8 @@ static int read_balance(conf_t *conf, r1
+>  /* make sure the disk is operational */
+>  slot = 0;
+>  disk = r10_bio->devs[slot].devnum;
+> - while (!conf->mirrors[disk].rdev ||
+> -        !conf->mirrors[disk].rdev->in_sync) {
+> + while ((rdev=rcu_dereference(conf->mirrors[disk].rdev)) == NULL ||
+> +        !rdev->in_sync) {
+>  slot ++;
+>  if (slot == conf->copies) {
+>  disk = -1;
+> @@ -547,11 +548,11 @@ static int read_balance(conf_t *conf, r1
+>  int ndisk = r10_bio->devs[nslot].devnum;
+> 
+> 
+> - if (!conf->mirrors[ndisk].rdev ||
+> -     !conf->mirrors[ndisk].rdev->in_sync)
+> + if ((rdev=rcu_dereference(conf->mirrors[ndisk].rdev)) == NULL ||
+> +     !rdev->in_sync)
+>  continue;
+> 
+> - if (!atomic_read(&conf->mirrors[ndisk].rdev->nr_pending)) {
+> + if (!atomic_read(&rdev->nr_pending)) {
+>  disk = ndisk;
+>  slot = nslot;
+>  break;
+> @@ -569,7 +570,7 @@ rb_out:
+>  r10_bio->read_slot = slot;
+> /* conf->next_seq_sect = this_sector + sectors;*/
+> 
+> - if (disk >= 0 && conf->mirrors[disk].rdev)
+> + if (disk >= 0 && (rdev=rcu_dereference(conf->mirrors[disk].rdev))!= NULL)
+>  atomic_inc(&conf->mirrors[disk].rdev->nr_pending);
+>  rcu_read_unlock();
+> 
+> @@ -583,7 +584,7 @@ static void unplug_slaves(mddev_t *mddev
+> 
+>  rcu_read_lock();
+>  for (i=0; i<mddev->raid_disks; i++) {
+> - mdk_rdev_t *rdev = conf->mirrors[i].rdev;
+> + mdk_rdev_t *rdev = rcu_dereference(conf->mirrors[i].rdev);
+>  if (rdev && !rdev->faulty && atomic_read(&rdev->nr_pending)) {
+>  request_queue_t *r_queue = bdev_get_queue(rdev->bdev);
+> 
+> @@ -614,7 +615,7 @@ static int raid10_issue_flush(request_qu
+> 
+>  rcu_read_lock();
+>  for (i=0; i<mddev->raid_disks && ret == 0; i++) {
+> - mdk_rdev_t *rdev = conf->mirrors[i].rdev;
+> + mdk_rdev_t *rdev = rcu_dereference(conf->mirrors[i].rdev);
+>  if (rdev && !rdev->faulty) {
+>  struct block_device *bdev = rdev->bdev;
+>  request_queue_t *r_queue = bdev_get_queue(bdev);
+> @@ -772,9 +773,10 @@ static int make_request(request_queue_t 
+>  rcu_read_lock();
+>  for (i = 0;  i < conf->copies; i++) {
+>  int d = r10_bio->devs[i].devnum;
+> - if (conf->mirrors[d].rdev &&
+> -     !conf->mirrors[d].rdev->faulty) {
+> - atomic_inc(&conf->mirrors[d].rdev->nr_pending);
+> + mdk_rdev_t *rdev = rcu_dereference(conf->mirrors[d].rdev);
+> + if (rdev &&
+> +     !rdev->faulty) {
+> + atomic_inc(&rdev->nr_pending);
+>  r10_bio->devs[i].bio = bio;
+>  } else
+>  r10_bio->devs[i].bio = NULL;
+> @@ -984,7 +986,7 @@ static int raid10_add_disk(mddev_t *mdde
+>  p->head_position = 0;
+>  rdev->raid_disk = mirror;
+>  found = 1;
+> - p->rdev = rdev;
+> + rcu_assign_pointer(p->rdev, rdev);
+>  break;
+>  }
+> 
+> 
+> diff ./drivers/md/raid5.c~current~ ./drivers/md/raid5.c
+> --- ./drivers/md/raid5.c~current~ 2005-10-13 13:42:05.000000000 +1000
+> +++ ./drivers/md/raid5.c 2005-10-13 14:00:38.000000000 +1000
+> @@ -1383,7 +1383,7 @@ static void handle_stripe(struct stripe_
+>  bi->bi_end_io = raid5_end_read_request;
+>  
+>  rcu_read_lock();
+> - rdev = conf->disks[i].rdev;
+> + rdev = rcu_dereference(conf->disks[i].rdev);
+>  if (rdev && rdev->faulty)
+>  rdev = NULL;
+>  if (rdev)
+> @@ -1457,7 +1457,7 @@ static void unplug_slaves(mddev_t *mddev
+> 
+>  rcu_read_lock();
+>  for (i=0; i<mddev->raid_disks; i++) {
+> - mdk_rdev_t *rdev = conf->disks[i].rdev;
+> + mdk_rdev_t *rdev = rcu_dereference(conf->disks[i].rdev);
+>  if (rdev && !rdev->faulty && atomic_read(&rdev->nr_pending)) {
+>  request_queue_t *r_queue = bdev_get_queue(rdev->bdev);
+> 
+> @@ -1502,7 +1502,7 @@ static int raid5_issue_flush(request_que
+> 
+>  rcu_read_lock();
+>  for (i=0; i<mddev->raid_disks && ret == 0; i++) {
+> - mdk_rdev_t *rdev = conf->disks[i].rdev;
+> + mdk_rdev_t *rdev = rcu_dereference(conf->disks[i].rdev);
+>  if (rdev && !rdev->faulty) {
+>  struct block_device *bdev = rdev->bdev;
+>  request_queue_t *r_queue = bdev_get_queue(bdev);
+> @@ -2178,7 +2178,7 @@ static int raid5_add_disk(mddev_t *mddev
+>  found = 1;
+>  if (rdev->saved_raid_disk != disk)
+>  conf->fullsync = 1;
+> - p->rdev = rdev;
+> + rcu_assign_pointer(p->rdev, rdev);
+>  break;
+>  }
+>  print_raid5_conf(conf);
+> 
+> diff ./drivers/md/raid6main.c~current~ ./drivers/md/raid6main.c
+> --- ./drivers/md/raid6main.c~current~ 2005-10-13 13:42:05.000000000 +1000
+> +++ ./drivers/md/raid6main.c 2005-10-13 13:57:08.000000000 +1000
+> @@ -1464,7 +1464,7 @@ static void handle_stripe(struct stripe_
+>  bi->bi_end_io = raid6_end_read_request;
+> 
+>  rcu_read_lock();
+> - rdev = conf->disks[i].rdev;
+> + rdev = rcu_dereference(conf->disks[i].rdev);
+>  if (rdev && rdev->faulty)
+>  rdev = NULL;
+>  if (rdev)
+> @@ -1538,7 +1538,7 @@ static void unplug_slaves(mddev_t *mddev
+> 
+>  rcu_read_lock();
+>  for (i=0; i<mddev->raid_disks; i++) {
+> - mdk_rdev_t *rdev = conf->disks[i].rdev;
+> + mdk_rdev_t *rdev = rcu_dereference(conf->disks[i].rdev);
+>  if (rdev && !rdev->faulty && atomic_read(&rdev->nr_pending)) {
+>  request_queue_t *r_queue = bdev_get_queue(rdev->bdev);
+> 
+> @@ -1583,7 +1583,7 @@ static int raid6_issue_flush(request_que
+> 
+>  rcu_read_lock();
+>  for (i=0; i<mddev->raid_disks && ret == 0; i++) {
+> - mdk_rdev_t *rdev = conf->disks[i].rdev;
+> + mdk_rdev_t *rdev = rcu_dereference(conf->disks[i].rdev);
+>  if (rdev && !rdev->faulty) {
+>  struct block_device *bdev = rdev->bdev;
+>  request_queue_t *r_queue = bdev_get_queue(bdev);
+> @@ -2158,7 +2158,7 @@ static int raid6_add_disk(mddev_t *mddev
+>  found = 1;
+>  if (rdev->saved_raid_disk != disk)
+>  conf->fullsync = 1;
+> - p->rdev = rdev;
+> + rcu_assign_pointer(p->rdev, rdev);
+>  break;
+>  }
+>  print_raid6_conf(conf);
+>

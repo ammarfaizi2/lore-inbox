@@ -1,40 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750857AbVJMKoj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750853AbVJMKxw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750857AbVJMKoj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 06:44:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750861AbVJMKoj
+	id S1750853AbVJMKxw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 06:53:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750870AbVJMKxw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 06:44:39 -0400
-Received: from alsikeapila.uta.fi ([153.1.1.44]:19334 "EHLO alsikeapila.uta.fi")
-	by vger.kernel.org with ESMTP id S1750841AbVJMKoj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 06:44:39 -0400
-Message-ID: <434E3A86.4030509@uta.fi>
-Date: Thu, 13 Oct 2005 13:44:22 +0300
-From: Pauli Borodulin <pauli.borodulin@uta.fi>
-Organization: University of Tampere
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christiaan den Besten <chris@scorpion.nl>
-CC: linux-kernel@vger.kernel.org
+	Thu, 13 Oct 2005 06:53:52 -0400
+Received: from 36-71-dsl.ipact.nl ([84.35.71.36]:39592 "EHLO
+	office.scorpion.nl") by vger.kernel.org with ESMTP id S1750853AbVJMKxw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Oct 2005 06:53:52 -0400
+Message-ID: <025d01c5cfe4$5889b4c0$3d64880a@speedy>
+Reply-To: "Christiaan den Besten" <chris@scorpion.nl>
+From: "Christiaan den Besten" <chris@scorpion.nl>
+To: "Pauli Borodulin" <pauli.borodulin@uta.fi>
+Cc: <linux-kernel@vger.kernel.org>
+References: <049f01c5b215$91e7c4b0$3d64880a@speedy> <434E3A86.4030509@uta.fi>
 Subject: Re: Machine dies under heavy I/O or network-access ..?
-References: <049f01c5b215$91e7c4b0$3d64880a@speedy>
-In-Reply-To: <049f01c5b215$91e7c4b0$3d64880a@speedy>
-X-Enigmail-Version: 0.92.0.0
-OpenPGP: url=http://www.uta.fi/~pauli.borodulin/boro.public.asc
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig03A40CFA4802D5627E3D9798"
-X-Greylist: Sender succeeded SMTP AUTH authentication, not delayed by milter-greylist-2.0.1 (apila.uta.fi [153.1.1.41]); Thu, 13 Oct 2005 13:44:31 +0300 (EEST)
-X-Spam-Report: ALL_TRUSTED,BAYES_00
+Date: Thu, 13 Oct 2005 12:53:29 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-KM95-MailScanner: Found to be clean
+X-MailScanner-From: chris@scorpion.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig03A40CFA4802D5627E3D9798
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Hi !
+
+Our situation has cleared up a little bit. Our Areca Raid-controller had troubles with Maxtor SATA disks and died eventually. They 
+fixed this in a new firmware release (at least, we are testing that right now ...).
+
+I have been playing with sysctl.conf as well:
+
+---
+# 5s will give us between 200 and 260Mb dirty buffer ...
+vm.dirty_background_ratio = 5
+vm.dirty_ratio = 75
+---
+
+By keeping the dirty buffer somewhat lower (250M) it seems to be preventing the system from using too much memory. If I recall 
+correct I have seen 'some' assertions, but never fatal anymore.
+
+bye,
+Chris
+
+----- Original Message ----- 
+From: "Pauli Borodulin" <pauli.borodulin@uta.fi>
+To: "Christiaan den Besten" <chris@scorpion.nl>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Thursday, October 13, 2005 12:44 PM
+Subject: Re: Machine dies under heavy I/O or network-access ..?
 
 Christiaan den Besten wrote:
 > [...]
@@ -64,19 +86,5 @@ Br,
 Pauli Borodulin <pauli.borodulin@uta.fi>
 Systems Analyst, tel. +358 3 3551 7892
 Computer Centre / Room B4179
-University of Tampere, Finland
+University of Tampere, Finland 
 
---------------enig03A40CFA4802D5627E3D9798
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFDTjqJ7oDm4BakJTURAtoFAJ0eC43buBcN5lO1fEfdUKa4x/uY+wCfRgYy
-pnP6Z18Ye5CVPOHYAHQNpa0=
-=xEI8
------END PGP SIGNATURE-----
-
---------------enig03A40CFA4802D5627E3D9798--

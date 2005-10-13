@@ -1,53 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932145AbVJMSFF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbVJMSKX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932145AbVJMSFF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 14:05:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbVJMSFF
+	id S932148AbVJMSKX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 14:10:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932150AbVJMSKX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 14:05:05 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:59910 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932145AbVJMSFD (ORCPT
+	Thu, 13 Oct 2005 14:10:23 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:38123 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932148AbVJMSKX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 14:05:03 -0400
-Date: Thu, 13 Oct 2005 20:05:45 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/1] indirect function calls elimination in IO eliminate
-Message-ID: <20051013180545.GJ6603@suse.de>
-References: <6694B22B6436BC43B429958787E454988AA6F7@mssmsx402nb>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6694B22B6436BC43B429958787E454988AA6F7@mssmsx402nb>
+	Thu, 13 Oct 2005 14:10:23 -0400
+Date: Thu, 13 Oct 2005 11:10:15 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ben Dooks <ben-linux@fluff.org>
+cc: linux-kernel@vger.kernel.org, gregkh@suse.de
+Subject: Re: [PATCH] drivers/base - fix sparse warnings
+In-Reply-To: <20051013165441.GA18360@home.fluff.org>
+Message-ID: <Pine.LNX.4.64.0510131059510.15297@g5.osdl.org>
+References: <20051013165441.GA18360@home.fluff.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 13 2005, Ananiev, Leonid I wrote:
->  
+
+
+On Thu, 13 Oct 2005, Ben Dooks wrote:
 > 
-> Fully modular io schedulers and enables online switching between
-> them was introduced in Linux 2.6.10 but as a result percentage
-> of CPU using by kernel was increased and performance degradation
-> is marked on Itanium. A cause of degradation is in more steps
-> for indirect IO scheduler type specific function calls.
-> 
-> The patch eliminates 45 indirect function calls in 16 elevator
-> functions. Sysbench fileio benchmark throughput was increased at 2%
-> for noop elevator after patching.
+> The patch does not solve all the sparse errors generated,
+> but reduces the count significantly.
 
-I don't really see the patch doing what you describe - the indirect
-function calls are the same, what you did was inline the actual elevator
-structure in the queue again. This breaks reference counting of said
-structure, so it's not really something that can be applied.  I'm
-guessing what you saw was a decrease in cache misses, maybe we can do
-something about that instead.
+Well, you should also then remove the _bad_ declarations.
 
-Can you say more about the throughput increase? From what to what and on
-what hardware?
+For example, attribute_container_init() right now is defined in 
+attribute_container.c, but then it's _declared_ (with no checking) where 
+it's used in init.c. 
 
-Oh, and your patch is totally screwed, check your mail setup.
+The sparse warnign is appropriate: it was not declared where that 
+declaration is actually visible to the definition, so the code basically 
+isn't type-safe at all (since there's nothing that enforces the 
+declaration actually matching the definition).
 
--- 
-Jens Axboe
+You made the declaration properly visible, but you should also remove the 
+bogus declaration. A declaration that isn't visible to the definition is 
+always bad - since in the absense of a compiler with global visibility it 
+may or may not actually match what it supposedly declares.
 
+I wonder if I should make sparse warn about multiple declarations..
+
+These days, sparse actually has some limited support for checking _global_ 
+visibility, and we could do cross-checking across thousands of files. 
+However, the build environment isn't really very amenable to that, so 
+doing a global sparse check is pretty hard in practice.
+
+We could possibly do a per-directory global check, which might be better 
+than nothing (ie if you were to have incorrect declaration in a C file 
+that is in the same directory as another C file, then we could 
+cross-check).
+
+But the kernel kbuild environment is pretty hairy, and I wouldn't even 
+know where to begin trying to do that. It's also fundamentally hard to do 
+if there are per-file pre-defines (since to do a cross-check, sparse wants 
+to see all C files together on the command line).
+
+		Linus

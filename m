@@ -1,51 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbVJMJJp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbVJMJwY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750731AbVJMJJp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 05:09:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbVJMJJp
+	id S1750785AbVJMJwY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 05:52:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750810AbVJMJwY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 05:09:45 -0400
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:28623 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1750731AbVJMJJo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 05:09:44 -0400
-Subject: Re: [PATCH 2.6.14-rc4-git] s390, ccw - export modalias
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-To: Andrew Morton <akpm@osdl.org>
-Cc: Bastian Blank <bastian@waldi.eu.org>, torvalds@osdl.org,
+	Thu, 13 Oct 2005 05:52:24 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:48616 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S1750785AbVJMJwX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Oct 2005 05:52:23 -0400
+Subject: Re: [PATCH] [BLUETOOTH] kmalloc + memset -> kzalloc conversion
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: dsaxena@plexity.net, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-In-Reply-To: <20051012125939.6ee58910.akpm@osdl.org>
-References: <20051012192639.GA25481@wavehammer.waldi.eu.org>
-	 <20051012125939.6ee58910.akpm@osdl.org>
+In-Reply-To: <434CFF51.1070709@grupopie.com>
+References: <20051001065121.GC25424@plexity.net>
+	 <20051011151805.0d32c840.akpm@osdl.org>
+	 <1129071122.6487.6.camel@localhost.localdomain>
+	 <20051011230440.GA26330@plexity.net>  <434CFF51.1070709@grupopie.com>
 Content-Type: text/plain
-Date: Thu, 13 Oct 2005 11:09:38 +0200
-Message-Id: <1129194579.5305.13.camel@localhost.localdomain>
+Date: Thu, 13 Oct 2005 11:52:57 +0200
+Message-Id: <1129197177.6543.16.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-10-12 at 12:59 -0700, Andrew Morton wrote:
-> Bastian Blank <bastian@waldi.eu.org> wrote:
-> >
-> > This patch exports modalias for ccw devices.
+Hi Paulo,
+
+> >>>Confused.  This patch changes lots of block code, not bluetooth.
+> >>
+> >>I know. This is what I already mailed Deepak, but he never replied.
+> > 
+> > Sorry, got lost in the mailbox. I think I was not paying attention to
+> > my tab completion and included the wrong patch. Proper patch follows.
+> > 
+> [...]
+> > --- a/drivers/bluetooth/hci_usb.c
+> > +++ b/drivers/bluetooth/hci_usb.c
+> > @@ -134,10 +134,9 @@ static struct usb_device_id blacklist_id
+> >  
+> >  static struct _urb *_urb_alloc(int isoc, unsigned int __nocast gfp)
+> >  {
+> > -	struct _urb *_urb = kmalloc(sizeof(struct _urb) +
+> > +	struct _urb *_urb = kzalloc(sizeof(struct _urb) +
+> >  				sizeof(struct usb_iso_packet_descriptor) * isoc, gfp);
+> >  	if (_urb) {
+> > -		memset(_urb, 0, sizeof(*_urb));
+> >  		usb_init_urb(&_urb->urb);
+> >  	}
+> >  	return _urb;
 > 
-> And why do we want to do that?
+> This one doesn't keep the exact same behavior as before, as it is 
+> zeroing more memory than it did.
+> 
+> If this is not a performance critical path, then I guess it's ok (code 
+> size reduction, and all).
+> 
+> I just wanted to call some attention on this so that someone more 
+> knowledgeable than me in the bluetooth ways can make sure it's ok.
 
-The wanted to have some information for use by udev. After looking at
-the patch I wonder why they can't use the cutype/devtype attributes.
-They already contain the information that gets exported by the new
-attribute. It might be a little bit harder to parse because devtype can
-be "n/a" but that certainly isn't rocket science.
+the current hci_usb URB shim layer is crap anyhow. We need to replace it
+at some point with better code, but so far I haven't had the time to do
+this properly.
 
--- 
-blue skies,
-   Martin
+Regards
 
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
+Marcel
 
 

@@ -1,160 +1,163 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751112AbVJMWIb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbVJMWea@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751112AbVJMWIb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 18:08:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbVJMWIb
+	id S932184AbVJMWea (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 18:34:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751118AbVJMWea
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 18:08:31 -0400
-Received: from qproxy.gmail.com ([72.14.204.207]:28885 "EHLO qproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751112AbVJMWIa convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 18:08:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=J8qmFa0QRyNzhj7c8EIJQrzWZCTqdna5u/MDOL9+DOUdZPP6DRrTJ8nSXmAy4FxYh475jRlGf3ynvDL4v4QGaKNOzyMY7Jm1mrlPWqf8bI9SFGzbsCoCIvlX9dYOSRHhxwKZk0lo54WCHlQrcmFzcEY6COk8VfnVOivX0TJ9lnY=
-Message-ID: <9a8748490510131508r49a048cau7e08d77ef1d614ad@mail.gmail.com>
-Date: Fri, 14 Oct 2005 00:08:28 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Mark Gross <mgross@linux.intel.com>
-Subject: Re: Fwd: Telecom Clock Driver for MPCBL0010 ATCA computer blade
-Cc: Greg KH <greg@kroah.com>, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       Sebastien.Bouchard@ca.kontron.com, mark.gross@intel.com
-In-Reply-To: <200510131436.06718.mgross@linux.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200510060803.21470.mgross@linux.intel.com>
-	 <200510121636.29821.mgross@linux.intel.com>
-	 <20051013011451.GA28844@kroah.com>
-	 <200510131436.06718.mgross@linux.intel.com>
+	Thu, 13 Oct 2005 18:34:30 -0400
+Received: from pat.uio.no ([129.240.130.16]:11504 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1751116AbVJMWea (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Oct 2005 18:34:30 -0400
+Subject: Re: Cache invalidation bug in NFS v3 - trivially reproducible
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Jakob Oestergaard <jakob@unthought.net>, Leif Nixon <nixon@nsc.liu.se>
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <m33bn8bet4.fsf@nammatj.nsc.liu.se>
+References: <m33bn8bet4.fsf@nammatj.nsc.liu.se>
+Content-Type: multipart/mixed; boundary="=-bH9UGqh3C0Y2Jitwr5pZ"
+Date: Thu, 13 Oct 2005 18:34:14 -0400
+Message-Id: <1129242855.8435.32.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.927, required 12,
+	autolearn=disabled, AWL 1.07, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/13/05, Mark Gross <mgross@linux.intel.com> wrote:
-> On Wednesday 12 October 2005 18:14, Greg KH wrote:
-> > On Wed, Oct 12, 2005 at 04:36:29PM -0700, Mark Gross wrote:
-> > > No, but I'm glad I tested that otherwise the my problem with using dev_dbg
-> > > with the kobj->dev devices I got from the misc_device class could have
-> gotten
-> > > by me.
-> >
-> > Yeah, it's always good to test the code to make sure it compiles :)
-> >
-> > This patch looks good, I have no objections to it.
-> >
-> > thanks,
-> >
->
-> One minor update, after testing with misc_class device for udev I found that
-> it would be nice to have the sysfs file inodes all use the same base name
-> "teleco_clock".
->
-> Please consider including this driver in the MM tree.
->
-> See attached.
->
 
-Hi Mark,
+--=-bH9UGqh3C0Y2Jitwr5pZ
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-I just took a new look at your patch and I have (again) a few small comments...
+ty den 11.10.2005 Klokka 11:09 (+0200) skreiv Leif Nixon:
+> Hi,
+> 
+> We have come across a bug where a NFS v3 client fails to invalidate
+> its data cache for a file even though it realizes that the file
+> attributes have changed. We have been able to recreate the bug on a
+> range of kernel versions and different underlying file systems.
+> 
+> Here's a minimal way to reproduce the error (there seems to be some
+> timing issues involved, but this has worked at least 90% of the time):
+> 
+>   NFS client n1                NFS client n2
+> 
+>   $ echo 1 > f
+> 			       $ cat f
+> 			       1
+>   $ touch .
+>   $ echo 2 > f
+> 			       $ touch f
+> 			       $ cat f
+> 			       1
+> 
+> Now client n2 is stuck in a state where it uses its old cached data
+> forever (or at least for several hours):
+> 
+>   NFS client n1                NFS client n2
+> 
+>   $ cat f
+>   2
+> 			       $ cat f
+> 			       1
+> 
+> However, "stat f" gives the same output on both clients. "touch f" on
+> either machine corrects the situation; n2 invalidates its data cache.
+> 
+> Interestingly, the second write to the file ("echo 2 > f") must
+> not change the size of the file. If you do "echo foo > f" instead,
+> the erroneous behaviour isn't triggered.
+> 
+> We have seen this on a range of kernels between 2.6.9 and 2.6.13.2 on
+> Debian, CentOS, RHEL, Fedora and vanilla kernel.org, on both clients
+> and server. We have *not* been able to reproduce the bug with Linux
+> clients and a Solaris server, neither with Solaris clients and a Linux
+> server. Underlying file systems have been ext3 and xfs (and Solaris
+> ufs). We have tried varying mount options, but to no avail; the bug
+> persists, even with "noac".
+
+Does the attached patch help?
+
+Cheers,
+ Trond
 
 
-+static int tlclk_open(struct inode *inode, struct file *filp)
-+{
-+	int result;
+--=-bH9UGqh3C0Y2Jitwr5pZ
+Content-Disposition: inline; filename=linux-2.6.14-01-fix_attrcache.dif
+Content-Type: text/plain; name=linux-2.6.14-01-fix_attrcache.dif; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+NFS: Fix cache consistency races
+
+ If the data cache has been marked as potentially invalid by nfs_refresh_inode,
+ we should invalidate it rather than assume that changes are due to our own
+ activity.
+
+ Also ensure that we always start with a valid cache before declaring it
+ to be protected by a delegation.
+
+ Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
+---
+ delegation.c |    4 ++++
+ file.c       |    3 ++-
+ inode.c      |    7 ++-----
+ 3 files changed, 8 insertions(+), 6 deletions(-)
+
+Index: linux-2.6.14-rc4/fs/nfs/delegation.c
+===================================================================
+--- linux-2.6.14-rc4.orig/fs/nfs/delegation.c
++++ linux-2.6.14-rc4/fs/nfs/delegation.c
+@@ -85,6 +85,10 @@ int nfs_inode_set_delegation(struct inod
+ 	struct nfs_delegation *delegation;
+ 	int status = 0;
+ 
++	/* Ensure we first revalidate the attributes and page cache! */
++	if ((nfsi->cache_validity & (NFS_INO_REVAL_PAGECACHE|NFS_INO_INVALID_ATTR)))
++		__nfs_revalidate_inode(NFS_SERVER(inode), inode);
 +
-+	/* Make sure there is no interrupt pending while
-+	 * initialising interrupt handler */
-+	inb(TLCLK_REG6);
-+
-+	/* This device is wired through the FPGA IO space of the ATCA blade
-+	 * we can't share this IRQ */
-+	result = request_irq(telclk_interrupt, &tlclk_interrupt,
-+			     SA_INTERRUPT, "telco_clock", tlclk_interrupt);
-+	if (result == -EBUSY) {
-+		printk(KERN_ERR "telco_clock: Interrupt can't be reserved!\n");
-+		return -EBUSY;
-+	}
-+	inb(TLCLK_REG6);	/* Clear interrupt events */
-+
-+	return 0;
-+}
+ 	delegation = nfs_alloc_delegation();
+ 	if (delegation == NULL)
+ 		return -ENOMEM;
+Index: linux-2.6.14-rc4/fs/nfs/file.c
+===================================================================
+--- linux-2.6.14-rc4.orig/fs/nfs/file.c
++++ linux-2.6.14-rc4/fs/nfs/file.c
+@@ -137,7 +137,8 @@ static int nfs_revalidate_file(struct in
+ 	struct nfs_inode *nfsi = NFS_I(inode);
+ 	int retval = 0;
+ 
+-	if ((nfsi->cache_validity & NFS_INO_REVAL_PAGECACHE) || nfs_attribute_timeout(inode))
++	if ((nfsi->cache_validity & (NFS_INO_REVAL_PAGECACHE|NFS_INO_INVALID_ATTR))
++			|| nfs_attribute_timeout(inode))
+ 		retval = __nfs_revalidate_inode(NFS_SERVER(inode), inode);
+ 	nfs_revalidate_mapping(inode, filp->f_mapping);
+ 	return 0;
+Index: linux-2.6.14-rc4/fs/nfs/inode.c
+===================================================================
+--- linux-2.6.14-rc4.orig/fs/nfs/inode.c
++++ linux-2.6.14-rc4/fs/nfs/inode.c
+@@ -1226,10 +1226,6 @@ int nfs_refresh_inode(struct inode *inod
+ 	loff_t cur_size, new_isize;
+ 	int data_unstable;
+ 
+-	/* Do we hold a delegation? */
+-	if (nfs_have_delegation(inode, FMODE_READ))
+-		return 0;
+-
+ 	spin_lock(&inode->i_lock);
+ 
+ 	/* Are we in the process of updating data on the server? */
+@@ -1350,7 +1346,8 @@ static int nfs_update_inode(struct inode
+ 	nfsi->read_cache_jiffies = fattr->timestamp;
+ 
+ 	/* Are we racing with known updates of the metadata on the server? */
+-	data_unstable = ! nfs_verify_change_attribute(inode, verifier);
++	data_unstable = ! (nfs_verify_change_attribute(inode, verifier) ||
++		(nfsi->cache_validity & NFS_INO_REVAL_PAGECACHE));
+ 
+ 	/* Check if our cached file size is stale */
+  	new_isize = nfs_size_to_loff_t(fattr->size);
 
-It seems to me that you can get rid of the "result" variable here by
-rewriting the funcion like this :
+--=-bH9UGqh3C0Y2Jitwr5pZ--
 
-static int tlclk_open(struct inode *inode, struct file *filp)
-{
-	/* Make sure there is no interrupt pending while
-	 * initialising interrupt handler */
-	inb(TLCLK_REG6);
-
-	/* This device is wired through the FPGA IO space of the ATCA blade
-	 * we can't share this IRQ */
-	if (-EBUSY == request_irq(telclk_interrupt, &tlclk_interrupt,
-			     SA_INTERRUPT, "telco_clock", tlclk_interrupt)) {
-		printk(KERN_ERR "telco_clock: Interrupt can't be reserved!\n");
-		return -EBUSY;
-	}
-	inb(TLCLK_REG6);	/* Clear interrupt events */
-
-	return 0;
-}
-
-And btw, what about the other error return values that request_irq can return?
-You might get back -ENOMEM or -EINVAL...  So shouldn't you rather be
-doing something like
-
-result = request_irq(...);
-if (result < 0)
-   /* handle error */
-
-?????
-
-(which then of course would bring the "result" variable back into play ;)
-
-
-+ssize_t tlclk_read(struct file *filp, char __user *buf, size_t count,
-...
-+	return  sizeof(struct tlclk_alarms);
-
-Why do you have 2 spaces here between "return" and "sizeof..." ?
-
-
-+static DEVICE_ATTR(current_ref, S_IRUGO, show_current_ref, NULL);
-+
-+
-+static ssize_t show_interrupt_switch(struct device *d,
-
-Surely a single space between these two lines should be enough ;) (ok,
-I'm nitpicking, I admit it).
-
-
-+	unsigned long tmp;
-+	unsigned char val;
-+	unsigned long flags;
-+
-+	sscanf(buf, "%lX", &tmp);
-+	dev_dbg(d, "tmp = 0x%lX\n", tmp);
-+
-+	val = (unsigned char)tmp;
-
-You do this a lot, I'm wondering why you don't read directly into
-"val" and then get rid of the "tmp" variable?
-
-
-Maybe I'm missing something, but in tlclk_init() you are calling
-request_region() and in case of failure you can end up exiting via the
-out3: label which will result in release_region() being called... What
-now prevents the release region() in tlclk_cleanup() from being called
-on an already released region?
-
-
-
-
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html

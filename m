@@ -1,51 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751575AbVJMPBI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751579AbVJMPNl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751575AbVJMPBI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 11:01:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751559AbVJMPBH
+	id S1751579AbVJMPNl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 11:13:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751576AbVJMPNl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 11:01:07 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:51652 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750823AbVJMPBG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 11:01:06 -0400
-Subject: Re: [PATCH] via82cxxx IDE: Support multiple controllers
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Mark Lord <liml@rtr.ca>
-Cc: Daniel Drake <dsd@gentoo.org>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       posting@blx4.net, vsu@altlinux.ru
-In-Reply-To: <434E7237.1070508@rtr.ca>
-References: <43146CC3.4010005@gentoo.org>
-	 <58cb370e05083008121f2eb783@mail.gmail.com>	 <43179CC9.8090608@gentoo.org>
-	 <58cb370e050927062049be32f8@mail.gmail.com> <434D2DF1.9070709@gentoo.org>
-	 <434D3266.9000203@gentoo.org>
-	 <1129139563.7966.4.camel@localhost.localdomain>
-	 <1129203917.18635.1.camel@localhost.localdomain>  <434E7237.1070508@rtr.ca>
-Content-Type: text/plain
+	Thu, 13 Oct 2005 11:13:41 -0400
+Received: from mail.metronet.co.uk ([213.162.97.75]:35045 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP
+	id S1751224AbVJMPNl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Oct 2005 11:13:41 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Szakacsits Szabolcs <szaka@sienet.hu>
+Subject: Re: Linux NTFS Vista compatibility (was: Re: [2.6-GIT] NTFS: Release 2.1.24.)
+Date: Thu, 13 Oct 2005 16:13:43 +0100
+User-Agent: KMail/1.8.91
+Cc: Anton Altaparmakov <aia21@cam.ac.uk>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
+References: <Pine.LNX.4.21.0509252047090.21817-100000@mlf.linux.rulez.org> <200509252335.37780.s0348365@sms.ed.ac.uk>
+In-Reply-To: <200509252335.37780.s0348365@sms.ed.ac.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Thu, 13 Oct 2005 16:29:04 +0100
-Message-Id: <1129217344.18635.35.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Disposition: inline
+Message-Id: <200510131613.43578.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-10-13 at 10:41 -0400, Mark Lord wrote:
-> Alan Cox wrote:
+On Sunday 25 September 2005 23:35, Alistair John Strachan wrote:
+[snip]
 > >
-> > If the bus speed of your 486 is 25Mhz the chipset is at 25MHz as is your
-> > IDE (ie 486/25, DX2/50, 3/75 - not sure about 4/100 etc). Now does
-> > anyone know how you find out if the CPU is 25MHz bus clocked on a 486 8)
-> 
-> Same method as /proc/cpuinfo, for an approximation?  :)
+> > Alistair, any result?
+> >
+> > > Note you will need to try the ntfs driver itself and not ntfscp as
+> > > libntfs does not have these changes yet hence ntfscp will not work just
+> > > the same (it does not use the kernel driver at all, it only uses
+> > > libntfs).
+> >
+> > The latest ntfsprogs CVS has also these changes and every tool should
+> > work fine with Vista (ntfscp, ntfsresize, ntfsundelete, ntfsclone, etc).
+>
+> I have limited access to the beta, as it expires every 30 days and forces
+> me to reinstall it. I promise to get back to all of you after 2.6.14 is
+> released with the LogFile changes.
+>
+> To clarify, I did not leave the Vista NTFS volume in an inconsistent state.
+> I even forced a chkdsk, rebooted, let it run through, then attempted again
+> to mount it with the NTFS code in 2.6.13. This categorically fails.
 
-Unfortunately cpuinfo doesn't know the difference between a 100Mhz
-(4x25) and 100Mhz (3x33). Late 486s have cpuid which helps a bit but
-many do not have that (it comes in with writeback cache) and they don't
-have rdmsr to access the processor boot bus speed bits as the preventium
-and later do.
+I was free today, so I built a 2.6.14-rc4 kernel on the machine with the 
+Longhorn NTFS volume. It now mounts without warnings in dmesg, and I've 
+verified that ntfscp works properly.
 
-Alan
+Thanks!
 
+-- 
+Cheers,
+Alistair.
+
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

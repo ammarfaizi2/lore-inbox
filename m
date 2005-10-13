@@ -1,48 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751122AbVJMXzO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932547AbVJMX5J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751122AbVJMXzO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 19:55:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbVJMXzO
+	id S932547AbVJMX5J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 19:57:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbVJMX5J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 19:55:14 -0400
-Received: from mail.kroah.org ([69.55.234.183]:33188 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751122AbVJMXzN (ORCPT
+	Thu, 13 Oct 2005 19:57:09 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:5865 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751132AbVJMX5I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 19:55:13 -0400
-Date: Thu, 13 Oct 2005 16:53:58 -0700
-From: Greg KH <gregkh@suse.de>
-To: "Mathieu Therrien, VE2TMQ" <ve2tmq@rac.ca>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Patch: Remove devfs from 2.6.13
-Message-ID: <20051013235358.GA4443@suse.de>
-References: <434E9D48.70306@rac.ca>
+	Thu, 13 Oct 2005 19:57:08 -0400
+Date: Thu, 13 Oct 2005 16:56:46 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: alan@lxorguk.ukuu.org.uk, vsu@altlinux.ru, laforge@gnumonks.org,
+       linux-usb-devel@lists.sourceforge.net, vendor-sec@lst.de,
+       linux-kernel@vger.kernel.org, greg@kroah.com, security@linux.kernel.org,
+       zaitcev@redhat.com
+Subject: Re: [Security] [vendor-sec] [BUG/PATCH/RFC] Oops while completing
+ async USB via usbdevio
+Message-Id: <20051013165646.7845ebe8.zaitcev@redhat.com>
+In-Reply-To: <Pine.LNX.4.64.0510131611060.23590@g5.osdl.org>
+References: <20050925151330.GL731@sunbeam.de.gnumonks.org>
+	<Pine.LNX.4.58.0509270746200.3308@g5.osdl.org>
+	<20050927160029.GA20466@master.mivlgu.local>
+	<Pine.LNX.4.58.0509270904140.3308@g5.osdl.org>
+	<1127840281.10674.5.camel@localhost.localdomain>
+	<20051013160010.7cc532ae.zaitcev@redhat.com>
+	<Pine.LNX.4.64.0510131611060.23590@g5.osdl.org>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <434E9D48.70306@rac.ca>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 13, 2005 at 01:45:44PM -0400, Mathieu Therrien, VE2TMQ wrote:
-> Hello every one!&nbsp; I read this document : <a
-> class="moz-txt-link-freetext"
-> href="http://lwn.net/Articles/151174/">http://lwn.net/Articles/151174/</a><br>
-> but I don't understand the reason to remove devfs from the kernel
-> selection.&nbsp;
+On Thu, 13 Oct 2005 16:16:58 -0700 (PDT), Linus Torvalds <torvalds@osdl.org> wrote:
 
-Please search the archives for the reasons why.  In short:
-	- It had unfixable bugs.
-	- It was unmaintained for many years.
-	- It has been marked OBSOLETE for about 1 1/2 years
-	- It has been documented that it would be removed for over a
-	  year.
-	- It puts naming policy into the kernel, where it is not needed.
-	- It is not LSB compliant.
-	- there are numerous userspace solutions that do the same thing,
-	  in much better ways.
+> "release()" won't be called until the _last_ close, and the task that 
+> opened the fd can certainly exit before that.
+>[...]
+> It's a fundamental mistake to think that file descriptors stay with the 
+> process that opened them. 
 
-thanks,
+I am quite aware and my proposal takes it into account. I am sorry that
+I failed to explain it adequately.
 
-greg k-h
+Did you even look at the pseudocode though?
+
+-- Pete
+
+P.S.
+submit_urb()
+   as->pid = current->pid;
+   as->tgid = current->tgid;
+.....
+async_complete()
+   __kill_same_process(as->pid, as->tgid);
+
+/* DO NOT USE IN DRIVERS (other than USB core) */
+__kill_same_process(pid_t pid, pid_t tgid) {
+   task_struct *we, *maybe_parent;
+   lock(&tasklist_lock);
+   we = find_task_by_pid(pid);
+   maybe_parent = find_task_by_tgid(pid);
+   if (maybe_parent != NULL && we->parent == maybe_parent)
+      send_sig_info(sig, info, we);
+   unlock(&tasklist_lock);
+}

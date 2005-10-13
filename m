@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751596AbVJMSlz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751601AbVJMSqe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751596AbVJMSlz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 14:41:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751598AbVJMSlz
+	id S1751601AbVJMSqe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 14:46:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751602AbVJMSqe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 14:41:55 -0400
-Received: from zproxy.gmail.com ([64.233.162.202]:58423 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751524AbVJMSlz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 14:41:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=ZB0UuqJONT88nys8S4Wopfp1FPEShw9fEGKxWbMYV/X+nmBQZMGh+uDJn/IZg3fC8+UMrN2T8a4CyqD1l4WxUbR6d0KsUDyeeah3WRPcIebISDpTuRET+Ekn2LqfCjGIgQihPzAP9XVJPkkuiMWeDHnqXYHS1MORyNnqXocp+fI=
-Message-ID: <6fc1f4490510131141y15114b88qaa176d2f2af69b8c@mail.gmail.com>
-Date: Thu, 13 Oct 2005 20:41:42 +0200
-From: Aviv Grafi <agrafi@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: multiple sendmsg and single user-kernel switch
+	Thu, 13 Oct 2005 14:46:34 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:57741 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751601AbVJMSqe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Oct 2005 14:46:34 -0400
+Date: Thu, 13 Oct 2005 11:46:17 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Ben Dooks <ben-linux@fluff.org>, linux-kernel@vger.kernel.org,
+       gregkh@suse.de
+Subject: Re: [PATCH] drivers/base - fix sparse warnings
+In-Reply-To: <20051013182154.GB24367@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.64.0510131145030.15297@g5.osdl.org>
+References: <20051013165441.GA18360@home.fluff.org>
+ <Pine.LNX.4.64.0510131059510.15297@g5.osdl.org> <20051013182154.GB24367@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
- I want to use the sendto (or sendmsg) for sending raw packets on a raw
- socket directly to the NIC (passing the kernel protocol stack).
- In addition to that i need so send a lot of packets (100-200Kpps) so i
- have to do that fast.
- Currently the kernel-user switching is killing me and i want to batch
- some packets before calling send() - to reduce the user-kernel switch
- overhead.
- Passing a batched buffer to the sendto() cause a probelm - the NIC have
- to get one message at a time because it has to calculate the L2 CRC for
- each packet (or msg). so batched buffer is not acceptable.
 
- I would like to get some help please. any one have any idea how to
- reduce the user-kernel overhead (or sending a batched buffer so the
- kernel will call sendto for each buffer)?
 
- Thanks,
- Aviv
+On Thu, 13 Oct 2005, Russell King wrote:
+> 
+> Erm, lets take your example - attribute_container_init().  It's defined
+> in attribute_container.c, where the base.h include was added:
+> 
+> I can't see anything that was missed.
+
+Duh. My mistake, I looked at the patch twice, but I still missed the place 
+where it removed the declaration. Twice.
+
+Gaah. Where are my brain-pills again?
+
+		Linus

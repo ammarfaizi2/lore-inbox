@@ -1,46 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbVJMRw7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbVJMRzv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932136AbVJMRw7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 13:52:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbVJMRw7
+	id S932091AbVJMRzv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 13:55:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbVJMRzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 13:52:59 -0400
-Received: from [67.137.28.189] ([67.137.28.189]:19329 "EHLO vger.utah-nac.org")
-	by vger.kernel.org with ESMTP id S932136AbVJMRw7 (ORCPT
+	Thu, 13 Oct 2005 13:55:50 -0400
+Received: from xenotime.net ([66.160.160.81]:31160 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932091AbVJMRzu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 13:52:59 -0400
-Message-ID: <434E8BED.5050506@utah-nac.org>
-Date: Thu, 13 Oct 2005 10:31:41 -0600
-From: "Jeff V. Merkey" <jmerkey@utah-nac.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Thu, 13 Oct 2005 13:55:50 -0400
+Date: Thu, 13 Oct 2005 10:55:48 -0700 (PDT)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
+cc: linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: [PATCH 1/1] indirect function calls elimination in IO eliminate
+In-Reply-To: <6694B22B6436BC43B429958787E454988AA6FE@mssmsx402nb>
+Message-ID: <Pine.LNX.4.58.0510131050150.2745@shark.he.net>
+References: <6694B22B6436BC43B429958787E454988AA6FE@mssmsx402nb>
 MIME-Version: 1.0
-To: Nick Warne <nick@linicks.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4.31] Reintroduction i386 CONFIG_DUMMY_KEYB option
-References: <200510131838.45082.nick@linicks.net>
-In-Reply-To: <200510131838.45082.nick@linicks.net>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Warne wrote:
+On Thu, 13 Oct 2005, Ananiev, Leonid I wrote:
 
->Hi all,
+> >From Leonid Ananiev
 >
->A small patch here to reintroduce the dummy keyboard, which seems to have been 
->lost sometime - refer to my LKML thread:
+>       Fully modular io schedulers and enables online switching between
+> them was introduced in Linux 2.6.10 but as a result percentage of CPU
+> using by kernel was increased and performance degradation is marked on
+> Itanium. A cause of degradation is in more steps for indirect IO
+> scheduler type specific function calls.
+>       The patch eliminates 45 indirect function calls in 16 elevator
+> functions. Sysbench fileio benchmark throughput was increased at 2% for
+> noop elevator after patching.
 >
->http://marc.theaimsgroup.com/?l=linux-kernel&m=112885471602308&w=2
->
->
->
->  
->
-A serial based keyboard driver for general purpose debuggers and test 
-harnesses would be a whole lot more useful.  Ever consider it?  Snatch 
-the one out of kdb and submit it as a patch.  The AIMS test.  I remember 
-that from my Memorex Telex days on OS/2.
+> Signed-off-by: Leonid Ananiev leonid.i.ananiev@intel.com
 
-Jeff
+Hi-
+
+Put <...> around the email address.
+
+> ---
+
+patching file drivers/block/as-iosched.c
+patch: **** malformed patch at line 39:
+
+
+Ugh.  Does exchange (server) add all of those extra lines?
+
+> diff -rup linux-2.6.14-rc2/drivers/block/as-iosched.c
+> linux-2.6.14-rc2elv1/drivers/block/as-iosched.c
+>
+> --- linux-2.6.14-rc2/drivers/block/as-iosched.c      2005-09-24
+> 09:13:54.000000000 +0400
+>
+> +++ linux-2.6.14-rc2elv1/drivers/block/as-iosched.c  2005-10-13
+> 04:18:12.000000000 +0400
+>
+> @@ -614,7 +614,7 @@ static void as_antic_stop(struct as_data
+>
+>  static void as_antic_timeout(unsigned long data)
+>
+>  {
+>
+>       struct request_queue *q = (struct request_queue *)data;
+>
+> -     struct as_data *ad = q->elevator->elevator_data;
+>
+> +     struct as_data *ad = q->elevator.elevator_data;
+>
+>       unsigned long flags;
+>
+>
+>
+>       spin_lock_irqsave(q->queue_lock, flags);
+
+-- 
+~Randy

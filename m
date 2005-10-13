@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbVJMTmp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932247AbVJMTnP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932159AbVJMTmp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 15:42:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbVJMTmo
+	id S932247AbVJMTnP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 15:43:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbVJMTnO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 15:42:44 -0400
-Received: from streetfiresound.liquidweb.com ([64.91.233.29]:58048 "EHLO
-	host.streetfiresound.liquidweb.com") by vger.kernel.org with ESMTP
-	id S932159AbVJMTmo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 15:42:44 -0400
-Subject: Re: [PATCH/RFC 2/2] simple SPI controller on PXA2xx SSP port
-From: Stephen Street <stephen@streetfiresound.com>
-Reply-To: stephen@streetfiresound.com
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel@vger.kernel.org, David Brownell <david-b@pacbell.net>,
-       Takashi Iwai <tiwai@suse.de>
-In-Reply-To: <1129229571.16243.34.camel@mindpipe>
-References: <43443418.iFtzmi3B9GGDv89Z%stephen@streetfiresound.com>
-	 <1129229571.16243.34.camel@mindpipe>
+	Thu, 13 Oct 2005 15:43:14 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:64735
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932247AbVJMTnN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Oct 2005 15:43:13 -0400
+Subject: Re: [PATCH 03/14] Big kfree NULL check cleanup - drivers/mtd
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <200510132126.13411.jesper.juhl@gmail.com>
+References: <200510132126.13411.jesper.juhl@gmail.com>
 Content-Type: text/plain
-Organization: StreetFire Sound Labs
-Date: Thu, 13 Oct 2005 12:42:39 -0700
-Message-Id: <1129232559.11433.8.camel@localhost.localdomain>
+Organization: linutronix
+Date: Thu, 13 Oct 2005 21:45:12 +0200
+Message-Id: <1129232712.1728.704.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-16) 
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - host.streetfiresound.liquidweb.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - streetfiresound.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-10-13 at 14:52 -0400, Lee Revell wrote:
-> Shouln't this live in sound/spi, like the i2c ALSA drivers live in
-> sound/i2c, and not drivers/spi?
+On Thu, 2005-10-13 at 21:26 +0200, Jesper Juhl wrote:
+> This is the drivers/mtd part of the big kfree cleanup patch.
+> 
+> Remove pointless checks for NULL prior to calling kfree() in drivers/mtd/.
+> 
+> 
+> Sorry about the long Cc: list, but I wanted to make sure I included everyone
+> who's code I've changed with this patch.
+> 
+> 
+> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
 
-Yes!  This is a preliminary driver designed primarily to
-test/demonstrate the SPI framework and the PXA255 SPI implementation.  I
-will move it when I release a complete CS8415A driver. Soon. 
+Ack,
 
--Stephen
+tglx
+
+
+
+
 

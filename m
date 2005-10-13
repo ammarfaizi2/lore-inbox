@@ -1,67 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbVJMWag@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932502AbVJMWlb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932181AbVJMWag (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 18:30:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751118AbVJMWag
+	id S932502AbVJMWlb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 18:41:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964793AbVJMWlb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 18:30:36 -0400
-Received: from smtp1.Stanford.EDU ([171.67.16.123]:26799 "EHLO
-	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S1751116AbVJMWaf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 18:30:35 -0400
-Subject: Re: 2.6.14-rc4-rt1
-From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: nando@ccrma.Stanford.EDU, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>, dwalker@mvista.com,
-       david singleton <dsingleton@mvista.com>
-In-Reply-To: <20051012071037.GA19018@elte.hu>
-References: <20051011111454.GA15504@elte.hu>
-	 <1129064151.5324.6.camel@cmn3.stanford.edu>
-	 <20051012061455.GA16586@elte.hu>  <20051012071037.GA19018@elte.hu>
-Content-Type: text/plain
-Date: Thu, 13 Oct 2005 15:29:55 -0700
-Message-Id: <1129242595.4623.14.camel@cmn3.stanford.edu>
+	Thu, 13 Oct 2005 18:41:31 -0400
+Received: from mail.kroah.org ([69.55.234.183]:28803 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932503AbVJMWlb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Oct 2005 18:41:31 -0400
+Date: Thu, 13 Oct 2005 15:40:42 -0700
+From: Greg KH <greg@kroah.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Mark Gross <mgross@linux.intel.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, Sebastien.Bouchard@ca.kontron.com,
+       mark.gross@intel.com
+Subject: Re: Fwd: Telecom Clock Driver for MPCBL0010 ATCA computer blade
+Message-ID: <20051013224042.GB3266@kroah.com>
+References: <200510060803.21470.mgross@linux.intel.com> <200510121636.29821.mgross@linux.intel.com> <20051013011451.GA28844@kroah.com> <200510131436.06718.mgross@linux.intel.com> <9a8748490510131508r49a048cau7e08d77ef1d614ad@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9a8748490510131508r49a048cau7e08d77ef1d614ad@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-10-12 at 09:10 +0200, Ingo Molnar wrote:
-> another thing: might be worth trying PREEMPT_RT too, maybe it makes a 
-> difference.
+On Fri, Oct 14, 2005 at 12:08:28AM +0200, Jesper Juhl wrote:
+> 
+> I just took a new look at your patch and I have (again) a few small comments...
+> 
+> 
+> +static int tlclk_open(struct inode *inode, struct file *filp)
+> +{
+> +	int result;
+> +
+> +	/* Make sure there is no interrupt pending while
+> +	 * initialising interrupt handler */
+> +	inb(TLCLK_REG6);
+> +
+> +	/* This device is wired through the FPGA IO space of the ATCA blade
+> +	 * we can't share this IRQ */
+> +	result = request_irq(telclk_interrupt, &tlclk_interrupt,
+> +			     SA_INTERRUPT, "telco_clock", tlclk_interrupt);
+> +	if (result == -EBUSY) {
+> +		printk(KERN_ERR "telco_clock: Interrupt can't be reserved!\n");
+> +		return -EBUSY;
+> +	}
+> +	inb(TLCLK_REG6);	/* Clear interrupt events */
+> +
+> +	return 0;
+> +}
+> 
+> It seems to me that you can get rid of the "result" variable here by
+> rewriting the funcion like this :
+> 
+> static int tlclk_open(struct inode *inode, struct file *filp)
+> {
+> 	/* Make sure there is no interrupt pending while
+> 	 * initialising interrupt handler */
+> 	inb(TLCLK_REG6);
+> 
+> 	/* This device is wired through the FPGA IO space of the ATCA blade
+> 	 * we can't share this IRQ */
+> 	if (-EBUSY == request_irq(telclk_interrupt, &tlclk_interrupt,
+> 			     SA_INTERRUPT, "telco_clock", tlclk_interrupt)) {
 
-On "depmod -a" I'm getting:
-WARNING: /lib/modules/2.6.13-0.11.rdt.rhfc4.ccrmasmp/kernel/fs/jffs2/jffs2.ko needs unknown symbol __down_read
-WARNING: /lib/modules/2.6.13-0.11.rdt.rhfc4.ccrmasmp/kernel/fs/jffs2/jffs2.ko needs unknown symbol __up_write
-WARNING: /lib/modules/2.6.13-0.11.rdt.rhfc4.ccrmasmp/kernel/fs/jffs2/jffs2.ko needs unknown symbol __up_read
-WARNING: /lib/modules/2.6.13-0.11.rdt.rhfc4.ccrmasmp/kernel/fs/jffs2/jffs2.ko needs unknown symbol __down_write
-WARNING: /lib/modules/2.6.13-0.11.rdt.rhfc4.ccrmasmp/kernel/fs/jffs2/jffs2.ko needs unknown symbol compat_init_rwsem
-WARNING: /lib/modules/2.6.13-0.11.rdt.rhfc4.ccrmasmp/kernel/fs/xfs/xfs.ko needs unknown symbol __down_read
-WARNING: /lib/modules/2.6.13-0.11.rdt.rhfc4.ccrmasmp/kernel/fs/xfs/xfs.ko needs unknown symbol __down_write_trylock
-WARNING: /lib/modules/2.6.13-0.11.rdt.rhfc4.ccrmasmp/kernel/fs/xfs/xfs.ko needs unknown symbol __up_write
-WARNING: /lib/modules/2.6.13-0.11.rdt.rhfc4.ccrmasmp/kernel/fs/xfs/xfs.ko needs unknown symbol __up_read
-WARNING: /lib/modules/2.6.13-0.11.rdt.rhfc4.ccrmasmp/kernel/fs/xfs/xfs.ko needs unknown symbol __downgrade_write
-WARNING: /lib/modules/2.6.13-0.11.rdt.rhfc4.ccrmasmp/kernel/fs/xfs/xfs.ko needs unknown symbol __down_write
-WARNING: /lib/modules/2.6.13-0.11.rdt.rhfc4.ccrmasmp/kernel/fs/xfs/xfs.ko needs unknown symbol compat_init_rwsem
-WARNING: /lib/modules/2.6.13-0.11.rdt.rhfc4.ccrmasmp/kernel/fs/xfs/xfs.ko needs unknown symbol __down_read_trylock
+Ick, no, that's a mess.  Stick with the original version.
 
-I'll report after I try to boot into it. 
+Don't call functions within a if() statement, it's harder to read.
 
-> Also, i noticed an unrelated .config thing: while you have 
-> PREEMPT_DESKTOP, PREEMPT_BKL and irq/softirq threading turned on, you 
-> dont have PREEMPT_RCU enabled. PREEMPT_RCU is pretty useful, it can get 
-> rid of a number of latency sources. Might be worth a try for your 
-> kernel.
+> +	unsigned long tmp;
+> +	unsigned char val;
+> +	unsigned long flags;
+> +
+> +	sscanf(buf, "%lX", &tmp);
+> +	dev_dbg(d, "tmp = 0x%lX\n", tmp);
+> +
+> +	val = (unsigned char)tmp;
+> 
+> You do this a lot, I'm wondering why you don't read directly into
+> "val" and then get rid of the "tmp" variable?
 
-I tried PREEMPT_RCU=y and then HIGH_RES_TIMERS=y with no effects. I also
-turned off ntpd at Thomas's request (no change). 
+Because you want to cast it.
 
-I could not boot the up version of the kernel, it hangs early, I'll try
-to see why (weird). 
+thanks,
 
--- Fernando
-
-
+greg k-h

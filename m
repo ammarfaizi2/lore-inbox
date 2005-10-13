@@ -1,65 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbVJMSKX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbVJMSYv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932148AbVJMSKX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 14:10:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932150AbVJMSKX
+	id S932151AbVJMSYv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 14:24:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbVJMSYv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 14:10:23 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:38123 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932148AbVJMSKX (ORCPT
+	Thu, 13 Oct 2005 14:24:51 -0400
+Received: from ns2.g-housing.de ([81.169.133.75]:21434 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S932151AbVJMSYu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 14:10:23 -0400
-Date: Thu, 13 Oct 2005 11:10:15 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ben Dooks <ben-linux@fluff.org>
-cc: linux-kernel@vger.kernel.org, gregkh@suse.de
-Subject: Re: [PATCH] drivers/base - fix sparse warnings
-In-Reply-To: <20051013165441.GA18360@home.fluff.org>
-Message-ID: <Pine.LNX.4.64.0510131059510.15297@g5.osdl.org>
-References: <20051013165441.GA18360@home.fluff.org>
+	Thu, 13 Oct 2005 14:24:50 -0400
+Message-ID: <434EA63F.10306@g-house.de>
+Date: Thu, 13 Oct 2005 20:23:59 +0200
+From: Christian <evil@g-house.de>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+CC: johnpol@2ka.mipt.ru
+Subject: [PATCH] Dallas's 1-wire bus compile error (again)
+Content-Type: multipart/mixed;
+ boundary="------------070505050303060906040608"
+X-Antivirus: avast! (VPS 0539-6, 02.10.2005), Outbound message
+X-Antivirus-Status: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------070505050303060906040608
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
+hi,
 
-On Thu, 13 Oct 2005, Ben Dooks wrote:
-> 
-> The patch does not solve all the sparse errors generated,
-> but reduces the count significantly.
+playing around with "make randconfig" (don't ask :)), i noticed the
+driver for the "Dallas's 1-wire bus" does not compile when CONFIG_NET is 
+disabled.
 
-Well, you should also then remove the _bad_ declarations.
+this was discussed earlier in
 
-For example, attribute_container_init() right now is defined in 
-attribute_container.c, but then it's _declared_ (with no checking) where 
-it's used in init.c. 
+   http://www.ussg.iu.edu/hypermail/linux/kernel/0408.1/1764.html
 
-The sparse warnign is appropriate: it was not declared where that 
-declaration is actually visible to the definition, so the code basically 
-isn't type-safe at all (since there's nothing that enforces the 
-declaration actually matching the definition).
+but the discussion ended up in arguing about using "depends" over 
+"select" and the actual fix was forgotten i think.
 
-You made the declaration properly visible, but you should also remove the 
-bogus declaration. A declaration that isn't visible to the definition is 
-always bad - since in the absense of a compiler with global visibility it 
-may or may not actually match what it supposedly declares.
+Signed-off-by: Christian Kujau <evil@g-house.de>
 
-I wonder if I should make sparse warn about multiple declarations..
+thanks,
+Christian.
+-- 
+BOFH excuse #446:
 
-These days, sparse actually has some limited support for checking _global_ 
-visibility, and we could do cross-checking across thousands of files. 
-However, the build environment isn't really very amenable to that, so 
-doing a global sparse check is pretty hard in practice.
+Mailer-daemon is busy burning your message in hell.
 
-We could possibly do a per-directory global check, which might be better 
-than nothing (ie if you were to have incorrect declaration in a C file 
-that is in the same directory as another C file, then we could 
-cross-check).
+--------------070505050303060906040608
+Content-Type: text/plain;
+ name="dallas-1-wire_compile-fix.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="dallas-1-wire_compile-fix.diff"
 
-But the kernel kbuild environment is pretty hairy, and I wouldn't even 
-know where to begin trying to do that. It's also fundamentally hard to do 
-if there are per-file pre-defines (since to do a cross-check, sparse wants 
-to see all C files together on the command line).
-
-		Linus
+LS0tIGxpbnV4LTIuNi9kcml2ZXJzL3cxL0tjb25maWcub3JpZwkyMDA1LTEwLTEzIDIwOjA5
+OjQ0LjgxMzk4NjY5OCArMDIwMAorKysgbGludXgtMi42L2RyaXZlcnMvdzEvS2NvbmZpZwky
+MDA1LTEwLTEzIDIwOjEwOjIxLjYxMzQ2MDE1MyArMDIwMApAQCAtMiw2ICsyLDcgQEAgbWVu
+dSAiRGFsbGFzJ3MgMS13aXJlIGJ1cyIKIAogY29uZmlnIFcxCiAJdHJpc3RhdGUgIkRhbGxh
+cydzIDEtd2lyZSBzdXBwb3J0IgorCWRlcGVuZHMgb24gTkVUCiAJLS0taGVscC0tLQogCSAg
+RGFsbGFzJ3MgMS13aXJlIGJ1cyBpcyB1c2VmdWxsIHRvIGNvbm5lY3Qgc2xvdyAxLXBpbiBk
+ZXZpY2VzCiAJICBzdWNoIGFzIGlCdXR0b25zIGFuZCB0aGVybWFsIHNlbnNvcnMuCg==
+--------------070505050303060906040608--

@@ -1,69 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750786AbVJMH4G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751563AbVJMIeE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750786AbVJMH4G (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 03:56:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751511AbVJMH4F
+	id S1751563AbVJMIeE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 04:34:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751565AbVJMIeD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 03:56:05 -0400
-Received: from f24.mail.ru ([194.67.57.160]:45325 "EHLO f24.mail.ru")
-	by vger.kernel.org with ESMTP id S1750786AbVJMH4E (ORCPT
+	Thu, 13 Oct 2005 04:34:03 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:30632 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1751563AbVJMIeB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 03:56:04 -0400
-From: Serge Goodenko <s_goodenko@mail.ru>
-To: George Anzinger <george@mvista.com>
-Cc: linux-kernel@vger.kernel.org,
-       high-res-timers-discourse@lists.sourceforge.net
-Subject: Re: Re: [PATCH] UML + High-Res-Timers on 2.4.25 kernel
+	Thu, 13 Oct 2005 04:34:01 -0400
+Subject: Re: spitz (zaurus sl-c3000) support
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: lenz@cs.wisc.edu, zaurus@orca.cx,
+       kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051012233917.GA2890@elf.ucw.cz>
+References: <20051012223036.GA3610@elf.ucw.cz>
+	 <1129158864.8340.20.camel@localhost.localdomain>
+	 <20051012233917.GA2890@elf.ucw.cz>
+Content-Type: text/plain
+Date: Thu, 13 Oct 2005 09:33:38 +0100
+Message-Id: <1129192418.8238.21.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [194.85.70.42]
-Date: Thu, 13 Oct 2005 11:55:57 +0400
-In-Reply-To: <4346A0A4.4090303@mvista.com>
-Reply-To: Serge Goodenko <s_goodenko@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E1EPxwT-0009q3-00.s_goodenko-mail-ru@f24.mail.ru>
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
+On Thu, 2005-10-13 at 01:39 +0200, Pavel Machek wrote:
+> Hi!
 > 
-> Serge Goodenko wrote:
-> > Hello!
+> > > I got spitz machine today. I thought oz3.5.3 for spitz would be
+> > > 2.6-based, but found out that I'm not _that_ fortunate.
 > > 
-> > I am trying to compile 2.4.25 UML kernel together with High Resolution Timers patch and it fails to compile saying the following during linking:
-> > 
-> > gcc -Wl,-T,arch/um/link.ld -static -Wl,--wrap,malloc -Wl,--wrap,free -Wl,--wrap,calloc \
-> >         -o linux arch/um/main.o vmlinux.o -L/usr/lib -lutil
-> > vmlinux.o(.text+0x2688): In function `schedule_timeout':
-> > /usr/src/linux-2.4.25/kernel/sched.c:443: undefined reference to `jiffies'
-> > vmlinux.o(.text+0x26cd):/usr/src/linux-2.4.25/kernel/sched.c:454: undefined reference to `jiffies'
-> > vmlinux.o(.text+0x27a4): In function `schedule':
-> > /usr/src/linux-2.4.25/include/linux/sched.h:929: undefined reference to `jiffies'
-> > vmlinux.o(.text+0x489e): In function `do_fork':
-> > /usr/src/linux-2.4.25/kernel/fork.c:740: undefined reference to `jiffies'
-> > vmlinux.o(.text+0xabd5): In function `do_getitimer':
-> > /usr/src/linux-2.4.25/kernel/itimer.c:55: undefined reference to `jiffies'
-> > vmlinux.o(.text+0xacd3):/usr/src/linux-2.4.25/kernel/itimer.c:103: more undefined references to `jiffies' follow
-> > collect2: ld returned 1 exit status
-> > make: *** [linux] Error 1
-> > 
-> > is there any solution to this problem?
-> > or HRT patch is not supposed to work under UML at all?
-> >
-> You might do better on the HRT list (cc'ed).
+> > oz 3.5.4 is due for release soon and will hopefully have a 2.6 option
+> > for spitz.
 > 
-> I don't know what UML needs.  I would have thought that jiffies would be defined...  especially for 
-> things like do_fork.  Which patch are you using?
+> Is there chance to get preview version somewhere? 2.6-capable userland
+> would be very nice (and zImage would help, too, just for a demo :-).
 
-Well, as far as I understood recently HRT patch is not what I exactly need. It provides just API for using in user space applications and I need to use High-Resolution timer in kernel (particulary in TCP/IP stack)...
-therefore my problem now is to find suitable hi-res timer patch for use in 2.4 kernel...
-and I would be pleased if you could recommend me something...
+I'm no sure offical preview images exist but here's something I built
+myself recently:
 
-thanks,
+http://www.rpsys.net/openzaurus/temp/spitz/
 
-Serge, MIPT,
-Russia
+Rename the gpe or opie file "hdimage1.tgz" to flash depending on what
+flavoured image you'd like. You need the other files including gnu-tar.
+You don't need an initrd.bin file as under 2.6 we can boot directly from
+the microdrive.
 
+I'm hoping these work - I'm not sure I've tried one of them... :)
+
+> I was thinking about "huh, is this machine tosa or spitz", but it is
+> labeled SL-C3000, so it should be spitz.
+
+Correct. Tosa is SL-C6000.
+
+> Wildly offtopic... I got poweradapter with spitz (with funny design)
+> that says 100V (and lot of japanese letters).. I guess it would be
+> very bad idea to try it at 240V?
+
+Trust me, its a very bad idea...
+
+> > This file should give you an idea of which patches to apply in what
+> > order:
+> > http://www.rpsys.net/openzaurus/temp/linux-openzaurus_2.6.14-rc1.bb
+> 
+> Quite a long list; what is $RPSRC -- that is where are those patches
+> really placed? 
+
+Its declared in:
+http://www.rpsys.net/openzaurus/temp/linux-openzaurus.inc
+
+so $RPSRC = http://www.rpsys.net/openzaurus/patches
+
+You probably don't need the ipaq hx2750 or tosa patches, they're just
+part of my tree. The top 15 patches have been merged since -rc1 came out
+(they were in the process of being merged at the time).
+
+> Yes, asm/arch/ohci.h seems to be missing... But I should probably do
+> update, I'm at rc2 with my zaurus hacks now.
+
+That's still a problem although a patch queued for 2.6.15 will add that
+file so I'm in two minds as to what to do with it. There's also an issue
+with struct pxafb_device which I've agreed a solution to, just need to
+write the patch and I think a reference to the battery device sneaked
+into mainline when it shouldn't have done.
+
+> Is there some way I can help you (besides obviously testing)?
+
+I'm open to any help in getting the none ipaq/tosa things merged with
+mainline. Have a look through them patch series and see if there's
+anything you fancy taking on. Most of them are simple fixes although
+some are nasty hacks we need to find some way of doing nicely.
+
+The biggest thing is the battery/power management patch. I've just
+agreed some changes to enable it to stand a chance of making mainline.
+It probably needs more coding style cleanup.
+
+There's also sound to get working although so code arrived yesterday
+which should help with that. The usb client code exists in
+handheld.org's kernel26 cvs tree. We need to extract it, fix any bugs
+and talk to the usb developers about it.
+
+Its a shame you don't have a C1000 as there's a nasty bit of coding
+someone with such a device needs to do to complete mainline 2.6 support
+(I2C driver for its IO Expander to enable access to its extra GPIOs).
+
+Richard
 

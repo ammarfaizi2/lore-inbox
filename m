@@ -1,75 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932314AbVJMTrX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751101AbVJMTxt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932314AbVJMTrX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 15:47:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbVJMTrX
+	id S1751101AbVJMTxt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 15:53:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751110AbVJMTxt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 15:47:23 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:7814 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S932314AbVJMTrW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 15:47:22 -0400
-Date: Thu, 13 Oct 2005 23:47:05 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Christian <evil@g-house.de>
-Cc: linux-kernel@vger.kernel.org, GregKH <greg@kroah.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Dallas's 1-wire bus compile error (again)
-Message-ID: <20051013194705.GA27809@2ka.mipt.ru>
-References: <434EA63F.10306@g-house.de> <20051013183353.GA32530@2ka.mipt.ru> <434EB375.4060104@g-house.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <434EB375.4060104@g-house.de>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 13 Oct 2005 23:47:06 +0400 (MSD)
+	Thu, 13 Oct 2005 15:53:49 -0400
+Received: from sccrmhc14.comcast.net ([63.240.76.49]:43739 "EHLO
+	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S1751101AbVJMTxs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Oct 2005 15:53:48 -0400
+From: kernel-stuff@comcast.net
+To: Christian Krause <chkr@plauener.de>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, chrisw@osdl.org
+Subject: [PATCH] Re: bug in handling of highspeed usb HID devices
+Date: Thu, 13 Oct 2005 19:53:42 +0000
+Message-Id: <101320051953.12930.434EBB460007F30B0000328222007589429D0E050B9A9D0E99@comcast.net>
+X-Mailer: AT&T Message Center Version 1 (Dec 17 2004)
+X-Authenticated-Sender: d2FydWRrYXJAY29tY2FzdC5uZXQ=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 13, 2005 at 09:20:21PM +0200, Christian (evil@g-house.de) wrote:
-> Evgeniy Polyakov wrote:
-> >
-> >Hmm... Could you please provide error log.
-> >Networking is only used for netlink notifications which are disabled 
-> >if CONFIG_NET is not set, you can find empty declarations in
-> >w1_netlink.c
+
+> Ok, then only one question remains: How do I get this patch applied to
+> the official kernel tree?
 > 
-> Similar errors as in the mentioned thread, but here we go:
-> 
-> drivers/built-in.o: In function `w1_alloc_dev':
-> : undefined reference to `netlink_kernel_create'
-> drivers/built-in.o: In function `w1_alloc_dev':
-> : undefined reference to `sock_release'
-> drivers/built-in.o: In function `w1_free_dev':
-> : undefined reference to `sock_release'
-> make: *** [.tmp_vmlinux1] Error 1
+> Thanks & best regards,
+> Christian
 
-It looks like you use old version - I've just compiled 
-today's git tree with your config, and it does have an error, 
-but in different place.
-That bug was introduced during big w1 cleanup due to device driver
-model.
+I already forwarded your patch to linux-usb-devel@lists.sf.net. 
+No one seems to have picked it up till now.
 
-Attached patch fixes that on x86_64 and i386 compilation.
+This seems to be -stable material since it's a clear cut bug with bad
+consequences. 
 
-Thank you, Christian.
+Chris Wright - is the below patch acceptable for -stable?
 
-Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+If no one else cares, there is always Andrew Morton and -mm ! :)
 
-diff --git a/drivers/w1/w1.c b/drivers/w1/w1.c
---- a/drivers/w1/w1.c
-+++ b/drivers/w1/w1.c
-@@ -77,8 +77,7 @@ static void w1_master_release(struct dev
+Parag
+
+
+
+----------------------  Forwarded Message:  ---------------------
+From:    Christian Krause <chkr@plauener.de>
+To:      linux-kernel@vger.kernel.org
+Subject: bug in handling of highspeed usb HID devices
+Date:    Wed, 12 Oct 2005 19:56:16 +0000
+
+Hi folks,
+
+During the development of an USB device I found a bug in the handling of
+Highspeed HID devices in the kernel.
+
+What happened?
+
+Highspeed HID devices are correctly recognized and enumerated by the
+kernel. But even if usbhid kernel module is loaded, no HID reports are
+received by the kernel.
+
+The output of the hardware USB analyzer told me that the host doesn't
+even poll for interrupt IN transfers (even the "interrupt in" USB
+transfer are polled by the host).
+
+
+After some debugging in hid-core.c I've found the reason.
+
+In case of a highspeed device, the endpoint interval is re-calculated in
+driver/usb/input/hid-core.c:
+
+line 1669:
+             /* handle potential highspeed HID correctly */
+             interval = endpoint->bInterval;
+             if (dev->speed == USB_SPEED_HIGH)
+                   interval = 1 << (interval - 1);
+
+Basically this calculation is correct (refer to USB 2.0 spec, 9.6.6).
+This new calculated value of "interval" is used as input for
+usb_fill_int_urb:
+
+line 1685:
+
+            usb_fill_int_urb(hid->urbin, dev, pipe, hid->inbuf, 0,
+                   hid_irq_in, hid, interval);
+
+Unfortunately the same calculation as above is done a second time in 
+usb_fill_int_urb in the file include/linux/usb.h:
+
+line 933:
+        if (dev->speed == USB_SPEED_HIGH)
+                urb->interval = 1 << (interval - 1);
+        else
+                urb->interval = interval;
+
+This means, that if the endpoint descriptor (of a high speed device)
+specifies e.g. bInterval = 7, the urb->interval gets the value:
+
+hid-core.c: interval = 1 << (7-1) = 0x40 = 64
+urb->interval = 1 << (interval -1) = 1 << (63) = integer overflow
+
+Because of this the value of urb->interval is sometimes negative and is
+rejected in core/urb.c:
+line 353:
+                /* too small? */
+                if (urb->interval <= 0)
+                        return -EINVAL;
+
+
+The conclusion is, that the recalculaton of the interval (which is
+necessary for highspeed) should not be made twice, because this is
+simply wrong. ;-)
+
+
+Re-calculation in usb_fill_int_urb makes more sense, because it is the
+most general approach. So it would make sense to remove it from
+hid-core.c.
+
+
+Because in hid-core.c the interval variable is only used for calling
+usb_fill_int_urb, it is no problem to remove the highspeed
+re-calculation in this file.
+
+Here is a small patch which solves the whole problem:
+
+--------------------------
+--- hid-core.c.old      2005-10-12 21:29:29.000000000 +0200
++++ hid-core.c  2005-10-12 21:31:02.000000000 +0200
+@@ -1667,11 +1667,6 @@
+                if ((endpoint->bmAttributes & 3) != 3)          /* Not an 
+interrupt endpoint */
+                        continue;
  
- 	dev_dbg(dev, "%s: Releasing %s.\n", __func__, md->name);
- 
--	if (md->nls && md->nls->sk_socket)
--		sock_release(md->nls->sk_socket);
-+	dev_fini_netlink(md);
- 	memset(md, 0, sizeof(struct w1_master) + sizeof(struct w1_bus_master));
- 	kfree(md);
- }
+-               /* handle potential highspeed HID correctly */
+-               interval = endpoint->bInterval;
+-               if (dev->speed == USB_SPEED_HIGH)
+-                       interval = 1 << (interval - 1);
+-
+                /* Change the polling interval of mice. */
+                if (hid->collection->usage == HID_GD_MOUSE && 
+hid_mousepoll_interval > 0)
+                        interval = hid_mousepoll_interval;
+
+----------------------------
+
+Please review my investigation and if you come to the same conclusion
+please apply this patch in the next kernel versions. If not, please tell
+me why. ;-)
 
 
--- 
-	Evgeniy Polyakov
+Best regards,
+Christian

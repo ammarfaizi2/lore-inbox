@@ -1,71 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751519AbVJMNRT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751551AbVJMN1c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751519AbVJMNRT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 09:17:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751526AbVJMNRT
+	id S1751551AbVJMN1c (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 09:27:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751568AbVJMN1c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 09:17:19 -0400
-Received: from bgs.hu ([195.228.254.245]:44714 "HELO mail.bgs.hu")
-	by vger.kernel.org with SMTP id S1751525AbVJMNRT (ORCPT
+	Thu, 13 Oct 2005 09:27:32 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:13959 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751550AbVJMN1b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 09:17:19 -0400
-Message-ID: <434E5E2B.8030206@bgs.hu>
-Date: Thu, 13 Oct 2005 15:16:27 +0200
-From: Bgs <bgs@bgs.hu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050920 MultiZilla/1.8.1.0a
-X-Accept-Language: en-us, en, hu, it, es
+	Thu, 13 Oct 2005 09:27:31 -0400
+Message-ID: <434E60B6.7030803@us.ibm.com>
+Date: Thu, 13 Oct 2005 09:27:18 -0400
+From: Janak Desai <janak@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: strange ramdrive behaviour
+To: Chris Wright <chrisw@osdl.org>
+CC: Jamie Lokier <jamie@shareable.org>, viro@ZenIV.linux.org.uk,
+       nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] New System call unshare (try 2)
+References: <Pine.WNT.4.63.0510121201540.1316@IBM-AIP3070F3AM> <20051012171914.GA8622@mail.shareable.org> <20051013101347.GN5856@shell0.pdx.osdl.net>
+In-Reply-To: <20051013101347.GN5856@shell0.pdx.osdl.net>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chris Wright wrote:
+> * Jamie Lokier (jamie@shareable.org) wrote:
+> 
+>>Janak Desai wrote:
+>>
+>>>	Don't allow sighand unsharing if not unsharing vm
+>>
+>>Why not?  It's permitted to clone with unshared sighand and shared vm,
+>>and it's useful too.
+> 
+> 
+> I think that one's just backwards.  Although I do question how useful it
+> is to unshare sighand.  Sharing vm is pretty intimate ;-)
+> 
+> 
+>>It's the combination shared sighand + unshared vm which is not
+>>allowed by clone - so I think that's what you should refuse.
+>>
+>>
+>>>	Don't allow vm unsharing if task cloned with CLONE_THREAD
+>>
+>>It would be better to do what clone does, and say "don't allow sighand
+>>unsharing if task cloned with CLONE_THREAD".  This is because
+>>CLONE_THREAD tasks must have shared signals.
+> 
+> 
+> Yes, I agree.
+> 
+> 
+>>In combination with the rule above for sighand (my rule, not yours),
+>>that implies "don't allow vm unsharing.." as a consequence.
+>>
+>>
+>>>	Don't allow vm unsharing if the task is performing async io
+>>
+>>Why not?
+>>
+>>Async ios are tied to an mm (see lookup_ioctx in fs/aio.c), which may
+>>be shared among tasks.  I see no reason why the async ios can't
+>>continue and be waited in on in other tasks that may be using the old mm.
+> 
+> 
+> My concern was the case where there are no other tasks.  But I don't
+> think that's an issue other than having the aio effect of setting up
+> aio then exiting.
+> 
+> thanks,
+> -chris
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 
-  Hi all,
+Thanks Chris and Jamie. I understand the issues that you raised and
+agree with your change recommendations. I will make the necessary
+changes, test aio and unsharing of signal handlers (while keeping
+shared vm) and post the updated patch by tomorrow.
 
-  I have a ramdrive set up at boot time. The script is very simple, sets 
-up the filesystem and mounts the ramdrive. The interesting part is that 
-at first it doesn't work, but run a second time it is fine.
-
-At first the mkfs part is ok, but mount reports no fs.
-The second time, mkfs part is ok again and mount works as well.
-
-I sent to syslog the output of the first run:
-
-Oct 13 02:26:28 wh-db02 ramdisk: Guessing about desired format.. Kernel 
-2.6.13.4 is running.
-Oct 13 02:26:28 wh-db02 ramdisk: Format 3.6 with standard journal
-Oct 13 02:26:28 wh-db02 ramdisk: Count of blocks on the device: 16368
-Oct 13 02:26:28 wh-db02 ramdisk: Number of blocks consumed by mkreiserfs 
-formatting process: 8212
-Oct 13 02:26:28 wh-db02 ramdisk: Blocksize: 4096
-Oct 13 02:26:28 wh-db02 ramdisk: Hash function used to sort names: "r5"
-Oct 13 02:26:28 wh-db02 ramdisk: Journal Size 8193 blocks (first block 18)
-Oct 13 02:26:28 wh-db02 ramdisk: Journal Max transaction length 1024
-Oct 13 02:26:28 wh-db02 ramdisk: inode generation number: 0
-Oct 13 02:26:28 wh-db02 ramdisk: UUID: 2a989bfb-8380-4c28-b3d9-db57fc0049ec
-Oct 13 02:26:28 wh-db02 ramdisk: Initializing journal - 
-0%....20%....40%....60%....80%....100%
-Oct 13 02:26:28 wh-db02 ramdisk: Syncing..ok
-Oct 13 02:26:28 wh-db02 ramdisk:
-Oct 13 02:26:28 wh-db02 ramdisk: Tell your friends to use a kernel based 
-on 2.4.18 or later, and especially not a
-Oct 13 02:26:28 wh-db02 ramdisk: kernel based on 2.4.9, when you use 
-reiserFS. Have fun.
-Oct 13 02:26:28 wh-db02 ramdisk:
-Oct 13 02:26:28 wh-db02 ramdisk: ReiserFS is successfully created on 
-/dev/ram0.
-Oct 13 02:26:28 wh-db02 kernel: ReiserFS: ram0: warning: sh-2011: 
-read_super_block: can't find a reiserfs filesystem on (dev ram0, block 
-16, size 4096)
-Oct 13 02:26:28 wh-db02 kernel:
-Oct 13 02:26:28 wh-db02 kernel: ReiserFS: ram0: warning: sh-2021: 
-reiserfs_fill_super: can not find reiserfs on ram0
-
-Any ideas about the hysteresis? :)
-
-Bye
-Bgs
+-Janak
 

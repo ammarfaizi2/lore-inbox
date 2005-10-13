@@ -1,46 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964879AbVJMWwe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964886AbVJMXAs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964879AbVJMWwe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 18:52:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964878AbVJMWwe
+	id S964886AbVJMXAs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 19:00:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964888AbVJMXAs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 18:52:34 -0400
-Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:57369 "EHLO
-	mta08-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S964876AbVJMWwd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 18:52:33 -0400
-Message-ID: <434EE534.6010500@gentoo.org>
-Date: Thu, 13 Oct 2005 23:52:36 +0100
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050820)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Grzegorz Kulewski <kangur@polcom.net>
-CC: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       posting@blx4.net, vsu@altlinux.ru
-Subject: Re: [PATCH] via82cxxx IDE: Remove /proc/via entry
-References: <43146CC3.4010005@gentoo.org>  <58cb370e05083008121f2eb783@mail.gmail.com>  <43179CC9.8090608@gentoo.org>  <58cb370e050927062049be32f8@mail.gmail.com>  <433B16BD.7040409@gentoo.org>  <Pine.LNX.4.63.0509290042160.21130@alpha.polcom.net> <58cb370e0509290027404f5224@mail.gmail.com> <Pine.LNX.4.63.0510091707220.21130@alpha.polcom.net>
-In-Reply-To: <Pine.LNX.4.63.0510091707220.21130@alpha.polcom.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Thu, 13 Oct 2005 19:00:48 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:34770 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964886AbVJMXAr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Oct 2005 19:00:47 -0400
+Date: Thu, 13 Oct 2005 16:00:10 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: torvalds@osdl.org, vsu@altlinux.ru, laforge@gnumonks.org,
+       linux-usb-devel@lists.sourceforge.net, vendor-sec@lst.de,
+       linux-kernel@vger.kernel.org, greg@kroah.com, security@linux.kernel.org,
+       zaitcev@redhat.com
+Subject: Re: [Security] [vendor-sec] [BUG/PATCH/RFC] Oops while completing
+ async USB via usbdevio
+Message-Id: <20051013160010.7cc532ae.zaitcev@redhat.com>
+In-Reply-To: <1127840281.10674.5.camel@localhost.localdomain>
+References: <20050925151330.GL731@sunbeam.de.gnumonks.org>
+	<Pine.LNX.4.58.0509270746200.3308@g5.osdl.org>
+	<20050927160029.GA20466@master.mivlgu.local>
+	<Pine.LNX.4.58.0509270904140.3308@g5.osdl.org>
+	<1127840281.10674.5.camel@localhost.localdomain>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 27 Sep 2005 17:58:00 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> On Maw, 2005-09-27 at 09:09 -0700, Linus Torvalds wrote:
 
-Grzegorz Kulewski wrote:
->>> As a user of this controller, I think that if it is not then this patch
->>> should be changed to export it or should be dropped. The data from that
->>> file is really helpfull in debugging problems (for example related to 
->>> bad
->>> cables or breaking disks/cdroms).
+> > > root-owned), then the urb completes, and kill_proc_info() sends the
+> > > signal to the unsuspecting process.
+> > 
+> > Ehh.. pid's don't get re-used until they wrap.
+> 
+> Which doesn't take very long to arrange. Relying on pids is definitely a
+> security problem we don't want to make worse than it already is. 
 
-Per Bart's suggestion, I've created a user-space app which shows identical 
-data (and doesn't even rely on the via82cxxx IDE driver).
+The whole application cannot exit and leave URBs running behind,
+because usbdevio_release() blocks until they are terminated.
+Only separate threads can exit.
 
-http://www.reactivated.net/software/viaideinfo/
+So, the only thing a malicious user can do is something like this:
+ - open /proc/bus/usb/BUS/DEV
+ - submit URB
+ - fork
+ - exit parent thread
+ - wait in the child until PIDs wrap very close to former parent
+ - exit and hope that someone forks while the exit is processing
 
-So, I think we should be clear to drop /proc/ide/via now.
+Right? But if so, why don't we do something like this:
 
-Daniel
+submit_urb()
+   as->pid = current->pid;
+   as->tgid = current->tgid;
+.....
+async_complete()
+   __kill_same_process(as->pid, as->tgid);
+
+/* DO NOT USE IN DRIVERS (other than USB core) */
+__kill_same_process(pid_t pid, pid_t tgid) {
+   task_struct *we, *maybe_parent;
+   lock(&tasklist_lock);
+   we = find_task_by_pid(pid);
+   maybe_parent = find_task_by_tgid(pid);
+   if (maybe_parent != NULL && we->parent == maybe_parent)
+      send_sig_info(sig, info, we);
+   unlock(&tasklist_lock);
+}
+
+This does not need to check any IDs, I think. Then we do not have to
+ponder if effective or real is more appropriate, and if any sort of
+new-fanged security thingies like capabilities apply.
+
+-- Pete

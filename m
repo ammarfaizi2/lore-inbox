@@ -1,44 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbVJMA1p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751275AbVJMAq0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964836AbVJMA1p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 20:27:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964838AbVJMA1p
+	id S1751275AbVJMAq0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 20:46:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751489AbVJMAq0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 20:27:45 -0400
-Received: from mail.shareable.org ([81.29.64.88]:5602 "EHLO mail.shareable.org")
-	by vger.kernel.org with ESMTP id S964835AbVJMA1o (ORCPT
+	Wed, 12 Oct 2005 20:46:26 -0400
+Received: from gold.veritas.com ([143.127.12.110]:45841 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1751275AbVJMAqZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 20:27:44 -0400
-Date: Thu, 13 Oct 2005 01:27:26 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Cc: Jeff Mahoney <jeffm@suse.com>, Anton Altaparmakov <aia21@cam.ac.uk>,
-       Glauber de Oliveira Costa <glommer@br.ibm.com>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, hirofumi@mail.parknet.co.jp,
-       linux-ntfs-dev@lists.sourceforge.net, aia21@cantab.net,
-       hch@infradead.org, viro@zeniv.linux.org.uk, akpm@osdl.org
-Subject: Re: [PATCH] Use of getblk differs between locations
-Message-ID: <20051013002726.GG23770@mail.shareable.org>
-References: <Pine.LNX.4.62.0510102347220.19021@artax.karlin.mff.cuni.cz> <Pine.LNX.4.64.0510102319100.6247@hermes-1.csi.cam.ac.uk> <Pine.LNX.4.62.0510110035110.19021@artax.karlin.mff.cuni.cz> <1129017155.12336.4.camel@imp.csi.cam.ac.uk> <434D6932.1040703@suse.com> <Pine.LNX.4.62.0510122155390.9881@artax.karlin.mff.cuni.cz> <434D6CFA.4080802@suse.com> <Pine.LNX.4.62.0510122208210.11573@artax.karlin.mff.cuni.cz> <20051013000921.GD23770@mail.shareable.org> <Pine.LNX.4.62.0510130217050.15206@artax.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0510130217050.15206@artax.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.4.1i
+	Wed, 12 Oct 2005 20:46:25 -0400
+Date: Thu, 13 Oct 2005 01:45:41 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 01/21] mm: copy_one_pte inc rss
+In-Reply-To: <Pine.LNX.4.61.0510130143240.4060@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0510130144550.4060@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0510130143240.4060@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 13 Oct 2005 00:46:25.0370 (UTC) FILETIME=[8A12FBA0:01C5CF8F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikulas Patocka wrote:
-> That is possible ... you must also make sure that you do not hold an 
-> important semaphore while waiting for some removable device (auditing VFS 
-> for this will be a bit harder...)
+Small adjustment, following Nick's suggestion: it's more straightforward
+for copy_pte_range to let copy_one_pte do the rss incrementation, than
+use an index it passed back.  Saves a #define, and 16 bytes of .text.
 
-If any filesystem is holding any _global_ semaphores while waiting for
-an I/O to complete - that's a major bug already.
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+---
 
-Activity which may take a long time due to slow I/O on one filesystem
-shouldn't block activity on other, unrelated filesystems, apart from
-global resource competition such as numbers of dirty pages...
+ mm/memory.c |   15 +++++----------
+ 1 files changed, 5 insertions(+), 10 deletions(-)
 
--- Jamie
+--- mm00/mm/memory.c	2005-10-11 12:16:50.000000000 +0100
++++ mm01/mm/memory.c	2005-10-11 23:53:00.000000000 +0100
+@@ -340,8 +340,6 @@ static inline void add_mm_rss(struct mm_
+ 		add_mm_counter(mm, anon_rss, anon_rss);
+ }
+ 
+-#define NO_RSS 2	/* Increment neither file_rss nor anon_rss */
+-
+ /*
+  * This function is called to print an error when a pte in a
+  * !VM_RESERVED region is found pointing to an invalid pfn (which
+@@ -368,16 +366,15 @@ void print_bad_pte(struct vm_area_struct
+  * but may be dropped within p[mg]d_alloc() and pte_alloc_map().
+  */
+ 
+-static inline int
++static inline void
+ copy_one_pte(struct mm_struct *dst_mm, struct mm_struct *src_mm,
+ 		pte_t *dst_pte, pte_t *src_pte, struct vm_area_struct *vma,
+-		unsigned long addr)
++		unsigned long addr, int *rss)
+ {
+ 	unsigned long vm_flags = vma->vm_flags;
+ 	pte_t pte = *src_pte;
+ 	struct page *page;
+ 	unsigned long pfn;
+-	int anon = NO_RSS;
+ 
+ 	/* pte contains position in swap or file, so copy. */
+ 	if (unlikely(!pte_present(pte))) {
+@@ -428,11 +425,10 @@ copy_one_pte(struct mm_struct *dst_mm, s
+ 	pte = pte_mkold(pte);
+ 	get_page(page);
+ 	page_dup_rmap(page);
+-	anon = !!PageAnon(page);
++	rss[!!PageAnon(page)]++;
+ 
+ out_set_pte:
+ 	set_pte_at(dst_mm, addr, dst_pte, pte);
+-	return anon;
+ }
+ 
+ static int copy_pte_range(struct mm_struct *dst_mm, struct mm_struct *src_mm,
+@@ -441,7 +437,7 @@ static int copy_pte_range(struct mm_stru
+ {
+ 	pte_t *src_pte, *dst_pte;
+ 	int progress = 0;
+-	int rss[NO_RSS+1], anon;
++	int rss[2];
+ 
+ again:
+ 	rss[1] = rss[0] = 0;
+@@ -467,8 +463,7 @@ again:
+ 			progress++;
+ 			continue;
+ 		}
+-		anon = copy_one_pte(dst_mm, src_mm, dst_pte, src_pte, vma,addr);
+-		rss[anon]++;
++		copy_one_pte(dst_mm, src_mm, dst_pte, src_pte, vma, addr, rss);
+ 		progress += 8;
+ 	} while (dst_pte++, src_pte++, addr += PAGE_SIZE, addr != end);
+ 	spin_unlock(&src_mm->page_table_lock);

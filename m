@@ -1,128 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbVJMTpV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbVJMTqJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932168AbVJMTpV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 15:45:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbVJMTpV
+	id S932364AbVJMTqJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 15:46:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbVJMTqI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 15:45:21 -0400
-Received: from jeffindy.licquia.org ([216.37.46.185]:3339 "EHLO
-	jeffindy.licquia.org") by vger.kernel.org with ESMTP
-	id S932168AbVJMTpU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 15:45:20 -0400
-Subject: [PATCH] 2.6.13: POSIX violation in pipes on ia64 for kernels >
-	2.6.10
-From: Jeff Licquia <licquia@progeny.com>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org
-Content-Type: text/plain
+	Thu, 13 Oct 2005 15:46:08 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:15358 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S932364AbVJMTqG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Oct 2005 15:46:06 -0400
+Message-ID: <434EB936.3070600@mvista.com>
+Date: Thu, 13 Oct 2005 12:44:54 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Serge Goodenko <s_goodenko@mail.ru>
+Cc: linux-kernel@vger.kernel.org,
+       high-res-timers-discourse@lists.sourceforge.net
+Subject: Re: [PATCH] UML + High-Res-Timers on 2.4.25 kernel
+References: <E1EPxwT-0009q3-00.s_goodenko-mail-ru@f24.mail.ru>
+In-Reply-To: <E1EPxwT-0009q3-00.s_goodenko-mail-ru@f24.mail.ru>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Thu, 13 Oct 2005 14:44:35 -0500
-Message-Id: <1129232675.4573.18.camel@laptop1>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On architectures where PAGE_SIZE > PIPE_BUF, a read of PIPE_BUF bytes
-from a full pipe does not change the pipe's write state.  This behavior
-is different from kernels 2.6.9 and earlier, and it triggers failures of
-the LSB tests.  
+Serge Goodenko wrote:
+> ~
+>>>is there any solution to this problem?
+>>>or HRT patch is not supposed to work under UML at all?
+>>>
+>>
+>>You might do better on the HRT list (cc'ed).
+>>
+>>I don't know what UML needs.  I would have thought that jiffies would be defined...  especially for 
+>>things like do_fork.  Which patch are you using?
 
-This patch fixes two parts of this problem: "short" writes are allowed
-to partially succeed if the whole write won't fit on the current buffer,
-and the last buffer for a full pipe is "held back" and gradually
-released in PIPE_BUF blocks as reads happen.  This patch has been tested
-against the LSB runtime test suite, with no kernel-related failures.
+HRT (in all its versions) requires the availability of a hardware timer to provide an interrupt at 
+timer expiry.  I am not sure how this is done in UML but my guess is that the host kernel would need 
+to have HRT running on it.  Then the UML kernel(s) would transform the HRT requests into the proper 
+user call to the host.
+> 
+> 
+> Well, as far as I understood recently HRT patch is not what I exactly need. It provides just API for using in user space applications and I need to use High-Resolution timer in kernel (particulary in TCP/IP stack)...
+> therefore my problem now is to find suitable hi-res timer patch for use in 2.4 kernel...
 
-A more detailed description of the problem can be found on the
-linux-ia64 list:
+There are several 2.4 HRT patches on the HRT site, see signature below.
 
-http://marc.theaimsgroup.com/?l=linux-ia64&m=112906384826364
+Still, these patches do not provide kernel access to the high-res timers.  This has been done in one 
+case, but the interface is not really defined nor stable (i.e. we may change it in the next 
+release...).  Look for HIGH_RES_TIMERS in the ipmi driver in the 2.6 kernel tree to see how to go 
+about this.
 
-Please CC me on replies, thanks.
+> and I would be pleased if you could recommend me something...
+> 
+> thanks,
+> 
+> Serge, MIPT,
+> Russia
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Signed-off-by: Jeff Licquia <licquia@progeny.com>
-
---- linux-2.6.13-orig/fs/pipe.c	2005-10-10 13:51:38.000000000 -0500
-+++ linux-2.6.13/fs/pipe.c	2005-10-12 17:45:34.000000000 -0500
-@@ -15,6 +15,7 @@
- #include <linux/pipe_fs_i.h>
- #include <linux/uio.h>
- #include <linux/highmem.h>
-+#include <linux/limits.h>
- 
- #include <asm/uaccess.h>
- #include <asm/ioctls.h>
-@@ -220,11 +221,13 @@
- {
- 	struct inode *inode = filp->f_dentry->d_inode;
- 	struct pipe_inode_info *info;
-+	struct pipe_buffer *buf;
- 	ssize_t ret;
- 	int do_wakeup;
- 	struct iovec *iov = (struct iovec *)_iov;
- 	size_t total_len;
- 	ssize_t chars;
-+	size_t last_allowed_len;
- 
- 	total_len = iov_length(iov, nr_segs);
- 	/* Null write succeeds. */
-@@ -242,16 +245,28 @@
- 		goto out;
- 	}
- 
-+	buf = info->bufs + info->curbuf;
-+	last_allowed_len = buf->offset & ~(PIPE_BUF-1);
-+
- 	/* We try to merge small writes */
- 	chars = total_len & (PAGE_SIZE-1); /* size of the last buffer */
- 	if (info->nrbufs && chars != 0) {
- 		int lastbuf = (info->curbuf + info->nrbufs - 1) & (PIPE_BUFFERS-1);
--		struct pipe_buffer *buf = info->bufs + lastbuf;
--		struct pipe_buf_operations *ops = buf->ops;
--		int offset = buf->offset + buf->len;
--		if (ops->can_merge && offset + chars <= PAGE_SIZE) {
-+		struct pipe_buf_operations *ops;
-+		int offset;
-+		size_t max_write = PAGE_SIZE;
-+
-+		if (lastbuf == info->curbuf - 1 || lastbuf == (PIPE_BUFFERS-1))
-+			max_write = last_allowed_len;
-+		buf = info->bufs + lastbuf;
-+		ops = buf->ops;
-+		offset = buf->offset + buf->len;
-+		if (ops->can_merge && offset < max_write) {
- 			void *addr = ops->map(filp, info, buf);
--			int error = pipe_iov_copy_from_user(offset + addr, iov, chars);
-+			int error;
-+			if (chars > (max_write - offset))
-+				chars = max_write - offset;
-+			error = pipe_iov_copy_from_user(offset + addr, iov, chars);
- 			ops->unmap(info, buf);
- 			ret = error;
- 			do_wakeup = 1;
-@@ -275,10 +290,13 @@
- 		bufs = info->nrbufs;
- 		if (bufs < PIPE_BUFFERS) {
- 			int newbuf = (info->curbuf + bufs) & (PIPE_BUFFERS-1);
--			struct pipe_buffer *buf = info->bufs + newbuf;
- 			struct page *page = info->tmp_page;
- 			int error;
-+			size_t max_write = PAGE_SIZE;
- 
-+			if (newbuf == info->curbuf - 1 || newbuf == (PIPE_BUFFERS-1))
-+				max_write = last_allowed_len;
-+			buf = info->bufs + newbuf;
- 			if (!page) {
- 				page = alloc_page(GFP_HIGHUSER);
- 				if (unlikely(!page)) {
-@@ -293,7 +311,7 @@
- 			 * FIXME! Is this really true?
- 			 */
- 			do_wakeup = 1;
--			chars = PAGE_SIZE;
-+			chars = max_write;
- 			if (chars > total_len)
- 				chars = total_len;
- 
-
+-- 
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/

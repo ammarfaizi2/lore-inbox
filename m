@@ -1,83 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964886AbVJMXAs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbVJMXDB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964886AbVJMXAs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 19:00:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964888AbVJMXAs
+	id S932182AbVJMXDB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 19:03:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbVJMXDB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 19:00:48 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:34770 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964886AbVJMXAr (ORCPT
+	Thu, 13 Oct 2005 19:03:01 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:58530 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S932182AbVJMXDA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 19:00:47 -0400
-Date: Thu, 13 Oct 2005 16:00:10 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: torvalds@osdl.org, vsu@altlinux.ru, laforge@gnumonks.org,
-       linux-usb-devel@lists.sourceforge.net, vendor-sec@lst.de,
-       linux-kernel@vger.kernel.org, greg@kroah.com, security@linux.kernel.org,
-       zaitcev@redhat.com
-Subject: Re: [Security] [vendor-sec] [BUG/PATCH/RFC] Oops while completing
- async USB via usbdevio
-Message-Id: <20051013160010.7cc532ae.zaitcev@redhat.com>
-In-Reply-To: <1127840281.10674.5.camel@localhost.localdomain>
-References: <20050925151330.GL731@sunbeam.de.gnumonks.org>
-	<Pine.LNX.4.58.0509270746200.3308@g5.osdl.org>
-	<20050927160029.GA20466@master.mivlgu.local>
-	<Pine.LNX.4.58.0509270904140.3308@g5.osdl.org>
-	<1127840281.10674.5.camel@localhost.localdomain>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Thu, 13 Oct 2005 19:03:00 -0400
+Subject: Re: spitz (zaurus sl-c3000) support
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Pavel Machek <pavel@suse.cz>
+Cc: lenz@cs.wisc.edu, zaurus@orca.cx,
+       kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051013224419.GF1876@elf.ucw.cz>
+References: <20051012223036.GA3610@elf.ucw.cz>
+	 <1129158864.8340.20.camel@localhost.localdomain>
+	 <20051012233917.GA2890@elf.ucw.cz>
+	 <1129192418.8238.21.camel@localhost.localdomain>
+	 <20051013224419.GF1876@elf.ucw.cz>
+Content-Type: text/plain
+Date: Fri, 14 Oct 2005 00:02:26 +0100
+Message-Id: <1129244547.8238.100.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Sep 2005 17:58:00 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Maw, 2005-09-27 at 09:09 -0700, Linus Torvalds wrote:
+On Fri, 2005-10-14 at 00:44 +0200, Pavel Machek wrote:
+> Thanks. Kernel works, even with 3.5.3 opie. [But touchscreen gets
+> extremely interesting, you have to click top-right corner to get it to
+> register click in bottom-left].
 
-> > > root-owned), then the urb completes, and kill_proc_info() sends the
-> > > signal to the unsuspecting process.
-> > 
-> > Ehh.. pid's don't get re-used until they wrap.
+Yes, there's a bug in the opie (qte specifically) calibration code which
+is fixed in 3.5.4 (I fixed it). I ended up replacing qte's algorithm
+with a decent 5 point one.
+
+> > Rename the gpe or opie file "hdimage1.tgz" to flash depending on what
+> > flavoured image you'd like. You need the other files including gnu-tar.
+> > You don't need an initrd.bin file as under 2.6 we can boot directly from
+> > the microdrive.
 > 
-> Which doesn't take very long to arrange. Relying on pids is definitely a
-> security problem we don't want to make worse than it already is. 
+> You mean I should place tar binary on flashcard, because updater.sh
+> needs it? [What is updater.sh anyway, xor 0x5e encrypted shell
+> script?!]
 
-The whole application cannot exit and leave URBs running behind,
-because usbdevio_release() blocks until they are terminated.
-Only separate threads can exit.
+Yes, place the file as gnu.tar on the flashcard with updater.sh.
+updater.sh is indeed an "encrypted" shell script! There are tools around
+to decode/encode it.
 
-So, the only thing a malicious user can do is something like this:
- - open /proc/bus/usb/BUS/DEV
- - submit URB
- - fork
- - exit parent thread
- - wait in the child until PIDs wrap very close to former parent
- - exit and hope that someone forks while the exit is processing
+> Oh, okay, one more question. Do you trust your battery charging code
+> enough to leave spitz overnight in charger? I would hate to be awaken
+> by angry lithium ;-).
 
-Right? But if so, why don't we do something like this:
+My spitz has been left plugged in all the time with my charging code and
+has yet to explode. ;-) Its very similar to the c7x0 code which people
+have happily been using for a while in OpenZaurus c7x0 2.6. Spitz does
+contain a charging chip which should prevent major damage to the
+battery. The software just tries to help it along...
 
-submit_urb()
-   as->pid = current->pid;
-   as->tgid = current->tgid;
-.....
-async_complete()
-   __kill_same_process(as->pid, as->tgid);
+Cheers,
 
-/* DO NOT USE IN DRIVERS (other than USB core) */
-__kill_same_process(pid_t pid, pid_t tgid) {
-   task_struct *we, *maybe_parent;
-   lock(&tasklist_lock);
-   we = find_task_by_pid(pid);
-   maybe_parent = find_task_by_tgid(pid);
-   if (maybe_parent != NULL && we->parent == maybe_parent)
-      send_sig_info(sig, info, we);
-   unlock(&tasklist_lock);
-}
+Richard
 
-This does not need to check any IDs, I think. Then we do not have to
-ponder if effective or real is more appropriate, and if any sort of
-new-fanged security thingies like capabilities apply.
-
--- Pete

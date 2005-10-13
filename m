@@ -1,118 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751528AbVJMHVA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbVJMH36@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751528AbVJMHVA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 03:21:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751525AbVJMHVA
+	id S1750822AbVJMH36 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 03:29:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751511AbVJMH36
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 03:21:00 -0400
-Received: from adsl-65-64-39-162.dsl.tulsok.swbell.net ([65.64.39.162]:58380
-	"HELO cicorp.co.kr") by vger.kernel.org with SMTP id S1751531AbVJMHU7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 03:20:59 -0400
-Message-ID: <854001c5cfc6$76aa6bdd$1e80c9b7@cicorp.co.kr>
-From: "Sophie Aguilar" <aguilardo@cimon.se>
-To: linux-kernel@vger.kernel.org
-Subject: Are You A PenmnySt0ck Player
-Date: Thu, 13 Oct 2005 08:17:10 +0100
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	Thu, 13 Oct 2005 03:29:58 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:27013 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750822AbVJMH36 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Oct 2005 03:29:58 -0400
+Date: Thu, 13 Oct 2005 09:30:29 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark Knecht <markknecht@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-rc4-rt1 - enable IRQ-off tracing causes kernel to fault at boot
+Message-ID: <20051013073029.GA12801@elte.hu>
+References: <5bdc1c8b0510121000i5db112f2p642f66686fb46c57@mail.gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5bdc1c8b0510121000i5db112f2p642f66686fb46c57@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Company Profile:
 
-CEO AMERICA INC.
+* Mark Knecht <markknecht@gmail.com> wrote:
 
-Symbol: CEOA . pk
-Recent Price: $3.00
-Expected Trading Range: $5.50 - $6.00 (post split)
-Shares Outstanding: 35M (est.)
-Float (est.): 5M
+> Config file attached. The only change was to enable IRQ-off latency 
+> tracing using make menuconfig. Rebuild and reboot. I got a message 
+> about the kernel not syncing, lots of stuff above that message about 
+> do_futex, etc.
+
+i cannot reproduce your problems - your .config works fine on my x64 
+box. A log of the crash would be needed - do you have a null-modem cable 
+to connect this box to some other nearby box to do serial logging? If 
+yes then there is a mini-howto below. (for x86, but it works the same 
+for x64)
+
+	Ingo
 
 
+to set up serial logging:
+-------------------------
 
-This st0ck has just started a Major PR Campaign!!
-How will it react to th0usands of investors
-in the know now?
+install a null modem cable (== serial cable) to one of the serial ports
+of the server, connect the cable to another box, run a terminal program
+on that other box (e.g. "minicom -m" - do Alt-L to switch on logging
+after starting it up) and set up the server's kernel to do serial
+logging: enable CONFIG_SERIAL_8250_CONSOLE and
+CONFIG_SERIAL_CORE_CONSOLE, recompile & reinstall the kernel, add
+"console=ttyS0,38400 console=tty0" to your /etc/grub.conf or
+/etc/lilo.conf kernel boot line, reboot the server with the new kernel
+command line - and configure minicom to run with that speed (Alt-S).
 
-Could this be some fast cash?
-We are expecting a explosion in the price.
-Don't wait act early watch this one trade Friday
-and ALL following days!!
+e.g. my /etc/grub.conf has:
 
-*Read Below Why we think this one is going to take
-off this week with this major PR campaign.
+title test-2.6 (test-2.6)
+        root (hd0,0)
+        kernel /boot/bzImage root=/dev/sda1 console=ttyS0,38400 console=tty0 nmi_watchdog=1 kernel_preempt=1
 
-Recent News Headlines Late September:
+if everything is set up correctly then you should see kernel messages
+showing up in the minicom session when you boot up.
 
-  1. CEO America announces 3 for 1 forward split.
+When the messages do not show up then typical errors are mismatch
+between the serial port (or speed) and the device names used - if it's
+COM2 then use ttyS1, and dont forget to set up the serial speed option
+of minicom, etc. You can test the serial connection by doing:
 
-  2. Sales and marketing expertise joins CEO America
+	echo x > /dev/ttyS0
 
-  3. Creditz used to fund local education foundation
+and that should show up in the minicom session on the other box.
 
-*Goto Your Favorite Financial Site to read the Full Stories!
+to set up early-printk:
+-----------------------
 
-CEO America, Inc. is the sole licensee of the Creditz
-Digital Currency System - Creditz is the world's first
-digital currency, transforming cash, reward points, and
-miles into digital form enabling secure transactions in
-retail stores, online, and wireless.
+occasionally lockups/crashes happen so early in the bootup that nothing
+makes it even to the serial log. In that case the 'earlyprintk' feature
+is most useful. It is default-enabled on all 2.6 kernels, you only need
+to add one more boot parameter to activate it over the serial console:
 
-CEOA believes it will generate approximately $45M in
-revenue it's first full year of operations as a Digital
-Currency Vendor, commencing in 2006 and will produce
-$25OM, with net income of $35M in calendar 2007.
-
-Partners & Alliances:
-IBM
-MERRILL LYNCH
-FIRST DATA
-VERIFONE
-SCRIP ADVANTAGE
-*In negotiations with national retailers
-
-Editor's Pick:
-
-We have selected CEOA as an editor's pick based on the
-following fundamentals:
-
-1. Strong Management
-2. World-Class Partners
-3. Cutting Edge Technology
-4. Secure Financing
-5. High Consumer Demand
-6. Undervalued (Post-Split)
-
-CEOA is postured to dominate the retail community in the US
-and internationally.
-
-Researchers say "Creditz is fast becoming the country's foremost
-choice of currency in e-commerce, a $2O_bill10n a year industry."
-
-________________________________________
-
-This is a marketing and information firm, and is n0t a f1nancial
-analyst. This report is based on independent analysis but also
-relies on information supplied by sources believed to be reliable.
-This report may or may not be the opinion of CEOA's management.
-We have been retained to reprint and distribute this information.
-We have not been compensated by CEOA. Compensation was made by a
-third party investor of CEOA The Market Invest0r_Al3rt and its
-officers and directors may from time to time buy and sell CEOA
-shares in the open market without notice. Ongoing technical
-analysis may from time to time cause the target price to fluctuate
-  without notice. The information contained in this report is not
-intended to be, and shall not constitute, an offer to sell or
-s0licitation of any offer to buy any security. This report contains
-f0rw4rd-l00k1ng_st4tem3nts, which involve risks and uncertainties
-that may cause actual results to differ materially from those
-set forth in the f0rw4rd-l00k1ng_st4tem3nts.It is intended for
-information only. Consult with your financial advis0r about CEOA.
-To be taken off our data base please Em4il us Nostk@Yahoo.com 
+   earlyprintk=serial,ttyS0,38400
 

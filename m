@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751635AbVJMTYZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751648AbVJMTZW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751635AbVJMTYZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 15:24:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751641AbVJMTYZ
+	id S1751648AbVJMTZW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 15:25:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751652AbVJMTZW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 15:24:25 -0400
-Received: from xproxy.gmail.com ([66.249.82.192]:23162 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751635AbVJMTYX (ORCPT
+	Thu, 13 Oct 2005 15:25:22 -0400
+Received: from xproxy.gmail.com ([66.249.82.207]:52095 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751648AbVJMTZT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 15:24:23 -0400
+	Thu, 13 Oct 2005 15:25:19 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:subject:date:user-agent:cc:mime-version:content-disposition:content-type:content-transfer-encoding:message-id;
-        b=qgkcDaiHdu9mTgEUTNtVKUsUfIoqO4/VbqY/igCN9eObKcqx7InYAnI7h+5HTs1nyYQEEqd2ao4/LvGlN3fh1BsbbGx0PjZvx96dNf3e9wHwItW8uw4vYxF2fwYXtjLf+RfTio7Z+8v6xa8VOGfbZ7PH2jc6TiMr204b7eKzcwg=
+        b=MNJRToBgJBcWx2dcW92T/Ncoka0mDf9dt/zeNTCAc1kj1/aRat5s8lvMFJ0vvLZQFZh3Wxcxwt3X6BJy+srjuzEwVwGPTuAJ0T6Fsp6IKLRYLpwjJk5ZMTNSeDDDaJvE5cq3UtOiQvPiBcLCv1T+2vf93Ff5Yo/lFmlUNjP/u1E=
 From: Jesper Juhl <jesper.juhl@gmail.com>
 To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: [PATCH 05/14] Big kfree NULL check cleanup - drivers/isdn
-Date: Thu, 13 Oct 2005 21:27:13 +0200
+Subject: [PATCH 08/14] Big kfree NULL check cleanup - drivers/media
+Date: Thu, 13 Oct 2005 21:28:11 +0200
 User-Agent: KMail/1.8.2
-Cc: Andrew Morton <akpm@osdl.org>, Karsten Keil <keil@isdn4linux.de>,
-       Kai Germaschewski <kai.germaschewski@gmx.de>,
-       isdn4linux@listserv.isdn4linux.de, Carsten Paeth <calle@calle.de>,
-       Roland Klabunde <R.Klabunde@berkom.de>,
-       Frode Isaksen <fisaksen@bewan.com>, Petr Novak <petr.novak@i.cz>,
-       Werner Cornelius <werner@titro.de>,
-       Michael Hipp <Michael.Hipp@student.uni-tuebingen.de>,
-       Fritz Elfert <fritz@isdn4linux.de>,
-       "Pedro Roque Marques" <roque@di.fc.ul.pt>,
+Cc: Andrew Morton <akpm@osdl.org>, linux-dvb-maintainer@linuxtv.org,
+       Manu Abraham <manu@kromtek.com>, Emard <emard@softhome.net>,
+       Marko Kohtala <marko.kohtala@luukku.com>,
+       Wilson Michaels <wilsonmichaels@earthlink.net>,
+       Andreas Oberritter <obi@linuxtv.org>,
+       Kirk Lapray <kirk_lapray@bigfoot.com>,
+       Mauro Carvalho Chehab <mchehab@brturbo.com.br>,
+       video4linux-list@redhat.com,
+       Takeo Takahashi <takahashi.takeo@renesas.com>,
+       Ralph Metzler <rjkm@thp.uni-koeln.de>, Gerd Knorr <kraxel@bytesex.org>,
+       Bill Dirks <bdirks@pacbell.net>, Wolfgang Scherr <scherr@net4you.at>,
+       Alan Cox <alan@redhat.com>, Ronald Bultje <rbultje@ronald.bitfreak.net>,
+       Serguei Miridonov <mirsev@cicese.mx>,
        Jesper Juhl <jesper.juhl@gmail.com>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200510132127.13778.jesper.juhl@gmail.com>
+Message-Id: <200510132128.12616.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the drivers/isdn/ part of the big kfree cleanup patch.
+This is the drivers/media/ part of the big kfree cleanup patch.
 
-Remove pointless checks for NULL prior to calling kfree() in drivers/isdn/.
+Remove pointless checks for NULL prior to calling kfree() in drivers/media/.
 
 
 Sorry about the long Cc: list, but I wanted to make sure I included everyone
@@ -53,482 +57,246 @@ Please see the initial announcement mail on LKML with subject
 "[PATCH 00/14] Big kfree NULL check cleanup"
 for additional details.
 
- drivers/isdn/hardware/avm/avm_cs.c  |    5 +----
- drivers/isdn/hisax/avm_pci.c        |   12 ++++--------
- drivers/isdn/hisax/avma1_cs.c       |    4 +---
- drivers/isdn/hisax/config.c         |    9 +++------
- drivers/isdn/hisax/hfc_2bds0.c      |   18 ++++++------------
- drivers/isdn/hisax/hfc_2bs0.c       |   12 ++++--------
- drivers/isdn/hisax/hscx.c           |   12 ++++--------
- drivers/isdn/hisax/icc.c            |   12 ++++--------
- drivers/isdn/hisax/ipacx.c          |   12 ++++--------
- drivers/isdn/hisax/isac.c           |   15 ++++++---------
- drivers/isdn/hisax/isar.c           |    6 ++----
- drivers/isdn/hisax/jade.c           |   12 ++++--------
- drivers/isdn/hisax/netjet.c         |   32 ++++++++++----------------------
- drivers/isdn/hisax/st5481_usb.c     |   12 ++++--------
- drivers/isdn/hisax/w6692.c          |   12 ++++--------
- drivers/isdn/hysdn/hysdn_procconf.c |    3 +--
- drivers/isdn/i4l/isdn_ppp.c         |   21 +++++++--------------
- drivers/isdn/i4l/isdn_tty.c         |   24 ++++++++----------------
- drivers/isdn/pcbit/drv.c            |    6 ++----
- 19 files changed, 79 insertions(+), 160 deletions(-)
+ drivers/media/dvb/bt8xx/dst.c              |    8 ++------
+ drivers/media/dvb/frontends/dvb_dummy_fe.c |    4 ++--
+ drivers/media/dvb/frontends/l64781.c       |    3 ++-
+ drivers/media/dvb/frontends/lgdt330x.c     |    3 +--
+ drivers/media/dvb/frontends/mt312.c        |    3 +--
+ drivers/media/dvb/frontends/or51132.c      |    3 +--
+ drivers/media/video/arv.c                  |   12 ++++--------
+ drivers/media/video/bttv-driver.c          |    6 ++----
+ drivers/media/video/v4l1-compat.c          |    6 ++----
+ drivers/media/video/videocodec.c           |    6 ++----
+ drivers/media/video/videodev.c             |    3 +--
+ drivers/media/video/zoran_card.c           |   14 ++++++--------
+ 12 files changed, 26 insertions(+), 45 deletions(-)
 
---- linux-2.6.14-rc4-orig/drivers/isdn/i4l/isdn_ppp.c	2005-10-11 22:41:09.000000000 +0200
-+++ linux-2.6.14-rc4/drivers/isdn/i4l/isdn_ppp.c	2005-10-12 16:43:27.000000000 +0200
-@@ -364,10 +364,8 @@ isdn_ppp_release(int min, struct file *f
- 		isdn_net_hangup(&p->dev);
+--- linux-2.6.14-rc4-orig/drivers/media/dvb/frontends/lgdt330x.c	2005-10-11 22:41:09.000000000 +0200
++++ linux-2.6.14-rc4/drivers/media/dvb/frontends/lgdt330x.c	2005-10-13 10:28:41.000000000 +0200
+@@ -729,8 +729,7 @@ struct dvb_frontend* lgdt330x_attach(con
+ 	return &state->frontend;
+ 
+ error:
+-	if (state)
+-		kfree(state);
++	kfree(state);
+ 	dprintk("%s: ERROR\n",__FUNCTION__);
+ 	return NULL;
+ }
+--- linux-2.6.14-rc4-orig/drivers/media/dvb/frontends/mt312.c	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.14-rc4/drivers/media/dvb/frontends/mt312.c	2005-10-13 10:28:50.000000000 +0200
+@@ -675,8 +675,7 @@ struct dvb_frontend* mt312_attach(const 
+ 	return &state->frontend;
+ 
+ error:
+-	if (state)
+-		kfree(state);
++	kfree(state);
+ 	return NULL;
+ }
+ 
+--- linux-2.6.14-rc4-orig/drivers/media/dvb/frontends/dvb_dummy_fe.c	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.14-rc4/drivers/media/dvb/frontends/dvb_dummy_fe.c	2005-10-13 10:29:06.000000000 +0200
+@@ -146,7 +146,7 @@ struct dvb_frontend* dvb_dummy_fe_qpsk_a
+ 	return &state->frontend;
+ 
+ error:
+-	if (state) kfree(state);
++	kfree(state);
+ 	return NULL;
+ }
+ 
+@@ -169,7 +169,7 @@ struct dvb_frontend* dvb_dummy_fe_qam_at
+ 	return &state->frontend;
+ 
+ error:
+-	if (state) kfree(state);
++	kfree(state);
+ 	return NULL;
+ }
+ 
+--- linux-2.6.14-rc4-orig/drivers/media/dvb/frontends/l64781.c	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.14-rc4/drivers/media/dvb/frontends/l64781.c	2005-10-13 10:29:22.000000000 +0200
+@@ -559,7 +559,8 @@ struct dvb_frontend* l64781_attach(const
+ 	return &state->frontend;
+ 
+ error:
+-	if (reg0x3e >= 0) l64781_writereg (state, 0x3e, reg0x3e);  /* restore reg 0x3e */
++	if (reg0x3e >= 0)
++		l64781_writereg (state, 0x3e, reg0x3e);  /* restore reg 0x3e */
+ 	kfree(state);
+ 	return NULL;
+ }
+--- linux-2.6.14-rc4-orig/drivers/media/dvb/frontends/or51132.c	2005-10-11 22:41:09.000000000 +0200
++++ linux-2.6.14-rc4/drivers/media/dvb/frontends/or51132.c	2005-10-13 10:29:37.000000000 +0200
+@@ -575,8 +575,7 @@ struct dvb_frontend* or51132_attach(cons
+ 	return &state->frontend;
+ 
+ error:
+-	if (state)
+-		kfree(state);
++	kfree(state);
+ 	return NULL;
+ }
+ 
+--- linux-2.6.14-rc4-orig/drivers/media/dvb/bt8xx/dst.c	2005-10-11 22:41:09.000000000 +0200
++++ linux-2.6.14-rc4/drivers/media/dvb/bt8xx/dst.c	2005-10-13 10:30:01.000000000 +0200
+@@ -1331,9 +1331,7 @@ struct dst_state *dst_attach(struct dst_
+ {
+ 	/* check if the ASIC is there */
+ 	if (dst_probe(state) < 0) {
+-		if (state)
+-			kfree(state);
+-
++		kfree(state);
+ 		return NULL;
  	}
- 	for (i = 0; i < NUM_RCV_BUFFS; i++) {
--		if (is->rq[i].buf) {
--			kfree(is->rq[i].buf);
--			is->rq[i].buf = NULL;
--		}
-+		kfree(is->rq[i].buf);
-+		is->rq[i].buf = NULL;
- 	}
- 	is->first = is->rq + NUM_RCV_BUFFS - 1;	/* receive queue */
- 	is->last = is->rq;
-@@ -378,14 +376,10 @@ isdn_ppp_release(int min, struct file *f
- 	is->slcomp = NULL;
- #endif
- #ifdef CONFIG_IPPP_FILTER
--	if (is->pass_filter) {
--		kfree(is->pass_filter);
--		is->pass_filter = NULL;
--	}
--	if (is->active_filter) {
--		kfree(is->active_filter);
--		is->active_filter = NULL;
--	}
-+	kfree(is->pass_filter);
-+	is->pass_filter = NULL;
-+	kfree(is->active_filter);
-+	is->active_filter = NULL;
- #endif
- 
- /* TODO: if this was the previous master: link the stuff to the new master */
-@@ -914,8 +908,7 @@ isdn_ppp_cleanup(void)
- 		kfree(ippp_table[i]);
- 
- #ifdef CONFIG_ISDN_MPP
--	if (isdn_ppp_bundle_arr)
--		kfree(isdn_ppp_bundle_arr);
-+	kfree(isdn_ppp_bundle_arr);
- #endif /* CONFIG_ISDN_MPP */
- 
- }
---- linux-2.6.14-rc4-orig/drivers/isdn/i4l/isdn_tty.c	2005-08-29 01:41:01.000000000 +0200
-+++ linux-2.6.14-rc4/drivers/isdn/i4l/isdn_tty.c	2005-10-12 16:44:00.000000000 +0200
-@@ -712,22 +712,14 @@ isdn_tty_modem_hup(modem_info * info, in
- #endif
- 	info->emu.vpar[4] = 0;
- 	info->emu.vpar[5] = 8;
--	if (info->dtmf_state) {
--		kfree(info->dtmf_state);
--		info->dtmf_state = NULL;
--	}
--	if (info->silence_state) {
--		kfree(info->silence_state);
--		info->silence_state = NULL;
--	}
--	if (info->adpcms) {
--		kfree(info->adpcms);
--		info->adpcms = NULL;
--	}
--	if (info->adpcmr) {
--		kfree(info->adpcmr);
--		info->adpcmr = NULL;
--	}
-+	kfree(info->dtmf_state);
-+	info->dtmf_state = NULL;
-+	kfree(info->silence_state);
-+	info->silence_state = NULL;
-+	kfree(info->adpcms);
-+	info->adpcms = NULL;
-+	kfree(info->adpcmr);
-+	info->adpcmr = NULL;
- #endif
- 	if ((info->msr & UART_MSR_RI) &&
- 		(info->emu.mdmreg[REG_RUNG] & BIT_RUNG))
---- linux-2.6.14-rc4-orig/drivers/isdn/hisax/w6692.c	2005-08-29 01:41:01.000000000 +0200
-+++ linux-2.6.14-rc4/drivers/isdn/hisax/w6692.c	2005-10-12 16:46:46.000000000 +0200
-@@ -819,14 +819,10 @@ close_w6692state(struct BCState *bcs)
- {
- 	W6692Bmode(bcs, 0, bcs->channel);
- 	if (test_and_clear_bit(BC_FLG_INIT, &bcs->Flag)) {
--		if (bcs->hw.w6692.rcvbuf) {
--			kfree(bcs->hw.w6692.rcvbuf);
--			bcs->hw.w6692.rcvbuf = NULL;
--		}
--		if (bcs->blog) {
--			kfree(bcs->blog);
--			bcs->blog = NULL;
--		}
-+		kfree(bcs->hw.w6692.rcvbuf);
-+		bcs->hw.w6692.rcvbuf = NULL;
-+		kfree(bcs->blog);
-+		bcs->blog = NULL;
- 		skb_queue_purge(&bcs->rqueue);
- 		skb_queue_purge(&bcs->squeue);
- 		if (bcs->tx_skb) {
---- linux-2.6.14-rc4-orig/drivers/isdn/hisax/avm_pci.c	2005-08-29 01:41:01.000000000 +0200
-+++ linux-2.6.14-rc4/drivers/isdn/hisax/avm_pci.c	2005-10-12 16:47:02.000000000 +0200
-@@ -552,14 +552,10 @@ close_hdlcstate(struct BCState *bcs)
- {
- 	modehdlc(bcs, 0, 0);
- 	if (test_and_clear_bit(BC_FLG_INIT, &bcs->Flag)) {
--		if (bcs->hw.hdlc.rcvbuf) {
--			kfree(bcs->hw.hdlc.rcvbuf);
--			bcs->hw.hdlc.rcvbuf = NULL;
--		}
--		if (bcs->blog) {
--			kfree(bcs->blog);
--			bcs->blog = NULL;
--		}
-+		kfree(bcs->hw.hdlc.rcvbuf);
-+		bcs->hw.hdlc.rcvbuf = NULL;
-+		kfree(bcs->blog);
-+		bcs->blog = NULL;
- 		skb_queue_purge(&bcs->rqueue);
- 		skb_queue_purge(&bcs->squeue);
- 		if (bcs->tx_skb) {
---- linux-2.6.14-rc4-orig/drivers/isdn/hisax/icc.c	2005-08-29 01:41:01.000000000 +0200
-+++ linux-2.6.14-rc4/drivers/isdn/hisax/icc.c	2005-10-12 16:47:20.000000000 +0200
-@@ -571,14 +571,10 @@ setstack_icc(struct PStack *st, struct I
- 
- static void
- DC_Close_icc(struct IsdnCardState *cs) {
--	if (cs->dc.icc.mon_rx) {
--		kfree(cs->dc.icc.mon_rx);
--		cs->dc.icc.mon_rx = NULL;
--	}
--	if (cs->dc.icc.mon_tx) {
--		kfree(cs->dc.icc.mon_tx);
--		cs->dc.icc.mon_tx = NULL;
--	}
-+	kfree(cs->dc.icc.mon_rx);
-+	cs->dc.icc.mon_rx = NULL;
-+	kfree(cs->dc.icc.mon_tx);
-+	cs->dc.icc.mon_tx = NULL;
- }
- 
- static void
---- linux-2.6.14-rc4-orig/drivers/isdn/hisax/hfc_2bs0.c	2005-08-29 01:41:01.000000000 +0200
-+++ linux-2.6.14-rc4/drivers/isdn/hisax/hfc_2bs0.c	2005-10-12 16:47:44.000000000 +0200
-@@ -582,12 +582,8 @@ inithfc(struct IsdnCardState *cs)
- void
- releasehfc(struct IsdnCardState *cs)
- {
--	if (cs->bcs[0].hw.hfc.send) {
--		kfree(cs->bcs[0].hw.hfc.send);
--		cs->bcs[0].hw.hfc.send = NULL;
--	}
--	if (cs->bcs[1].hw.hfc.send) {
--		kfree(cs->bcs[1].hw.hfc.send);
--		cs->bcs[1].hw.hfc.send = NULL;
--	}
-+	kfree(cs->bcs[0].hw.hfc.send);
-+	cs->bcs[0].hw.hfc.send = NULL;
-+	kfree(cs->bcs[1].hw.hfc.send);
-+	cs->bcs[1].hw.hfc.send = NULL;
- }
---- linux-2.6.14-rc4-orig/drivers/isdn/hisax/st5481_usb.c	2005-10-11 22:41:09.000000000 +0200
-+++ linux-2.6.14-rc4/drivers/isdn/hisax/st5481_usb.c	2005-10-12 16:48:37.000000000 +0200
-@@ -335,14 +335,12 @@ void st5481_release_usb(struct st5481_ad
- 
- 	// Stop and free Control and Interrupt URBs
- 	usb_kill_urb(ctrl->urb);
--	if (ctrl->urb->transfer_buffer)
--		kfree(ctrl->urb->transfer_buffer);
-+	kfree(ctrl->urb->transfer_buffer);
- 	usb_free_urb(ctrl->urb);
- 	ctrl->urb = NULL;
- 
- 	usb_kill_urb(intr->urb);
--	if (intr->urb->transfer_buffer)
--		kfree(intr->urb->transfer_buffer);
-+	kfree(intr->urb->transfer_buffer);
- 	usb_free_urb(intr->urb);
- 	ctrl->urb = NULL;
- }
-@@ -457,8 +455,7 @@ st5481_setup_isocpipes(struct urb* urb[2
-  err:
- 	for (j = 0; j < 2; j++) {
- 		if (urb[j]) {
--			if (urb[j]->transfer_buffer)
--				kfree(urb[j]->transfer_buffer);
-+			kfree(urb[j]->transfer_buffer);
- 			urb[j]->transfer_buffer = NULL;
- 			usb_free_urb(urb[j]);
- 			urb[j] = NULL;
-@@ -473,8 +470,7 @@ void st5481_release_isocpipes(struct urb
- 
- 	for (j = 0; j < 2; j++) {
- 		usb_kill_urb(urb[j]);
--		if (urb[j]->transfer_buffer)
--			kfree(urb[j]->transfer_buffer);			
-+		kfree(urb[j]->transfer_buffer);			
- 		usb_free_urb(urb[j]);
- 		urb[j] = NULL;
- 	}
---- linux-2.6.14-rc4-orig/drivers/isdn/hisax/config.c	2005-08-29 01:41:01.000000000 +0200
-+++ linux-2.6.14-rc4/drivers/isdn/hisax/config.c	2005-10-12 16:49:02.000000000 +0200
-@@ -787,8 +787,7 @@ static void ll_unload(struct IsdnCardSta
- 	ic.command = ISDN_STAT_UNLOAD;
- 	ic.driver = cs->myid;
- 	cs->iif.statcallb(&ic);
--	if (cs->status_buf)
--		kfree(cs->status_buf);
-+	kfree(cs->status_buf);
- 	cs->status_read = NULL;
- 	cs->status_write = NULL;
- 	cs->status_end = NULL;
-@@ -807,10 +806,8 @@ static void closecard(int cardnr)
- 
- 	skb_queue_purge(&csta->rq);
- 	skb_queue_purge(&csta->sq);
--	if (csta->rcvbuf) {
--		kfree(csta->rcvbuf);
--		csta->rcvbuf = NULL;
--	}
-+	kfree(csta->rcvbuf);
-+	csta->rcvbuf = NULL;
- 	if (csta->tx_skb) {
- 		dev_kfree_skb(csta->tx_skb);
- 		csta->tx_skb = NULL;
---- linux-2.6.14-rc4-orig/drivers/isdn/hisax/hfc_2bds0.c	2005-08-29 01:41:01.000000000 +0200
-+++ linux-2.6.14-rc4/drivers/isdn/hisax/hfc_2bds0.c	2005-10-12 16:49:35.000000000 +0200
-@@ -1052,18 +1052,12 @@ init2bds0(struct IsdnCardState *cs)
- void
- release2bds0(struct IsdnCardState *cs)
- {
--	if (cs->bcs[0].hw.hfc.send) {
--		kfree(cs->bcs[0].hw.hfc.send);
--		cs->bcs[0].hw.hfc.send = NULL;
--	}
--	if (cs->bcs[1].hw.hfc.send) {
--		kfree(cs->bcs[1].hw.hfc.send);
--		cs->bcs[1].hw.hfc.send = NULL;
--	}
--	if (cs->hw.hfcD.send) {
--		kfree(cs->hw.hfcD.send);
--		cs->hw.hfcD.send = NULL;
--	}
-+	kfree(cs->bcs[0].hw.hfc.send);
-+	cs->bcs[0].hw.hfc.send = NULL;
-+	kfree(cs->bcs[1].hw.hfc.send);
-+	cs->bcs[1].hw.hfc.send = NULL;
-+	kfree(cs->hw.hfcD.send);
-+	cs->hw.hfcD.send = NULL;
- }
- 
- void
---- linux-2.6.14-rc4-orig/drivers/isdn/hisax/hscx.c	2005-08-29 01:41:01.000000000 +0200
-+++ linux-2.6.14-rc4/drivers/isdn/hisax/hscx.c	2005-10-12 16:49:55.000000000 +0200
-@@ -156,14 +156,10 @@ close_hscxstate(struct BCState *bcs)
- {
- 	modehscx(bcs, 0, bcs->channel);
- 	if (test_and_clear_bit(BC_FLG_INIT, &bcs->Flag)) {
--		if (bcs->hw.hscx.rcvbuf) {
--			kfree(bcs->hw.hscx.rcvbuf);
--			bcs->hw.hscx.rcvbuf = NULL;
--		}
--		if (bcs->blog) {
--			kfree(bcs->blog);
--			bcs->blog = NULL;
--		}
-+		kfree(bcs->hw.hscx.rcvbuf);
-+		bcs->hw.hscx.rcvbuf = NULL;
-+		kfree(bcs->blog);
-+		bcs->blog = NULL;
- 		skb_queue_purge(&bcs->rqueue);
- 		skb_queue_purge(&bcs->squeue);
- 		if (bcs->tx_skb) {
---- linux-2.6.14-rc4-orig/drivers/isdn/hisax/jade.c	2005-08-29 01:41:01.000000000 +0200
-+++ linux-2.6.14-rc4/drivers/isdn/hisax/jade.c	2005-10-12 16:50:08.000000000 +0200
-@@ -195,14 +195,10 @@ close_jadestate(struct BCState *bcs)
- {
-     modejade(bcs, 0, bcs->channel);
-     if (test_and_clear_bit(BC_FLG_INIT, &bcs->Flag)) {
--	if (bcs->hw.hscx.rcvbuf) {
--		kfree(bcs->hw.hscx.rcvbuf);
--		bcs->hw.hscx.rcvbuf = NULL;
--	}
--	if (bcs->blog) {
--		kfree(bcs->blog);
--		bcs->blog = NULL;
--	}
-+	kfree(bcs->hw.hscx.rcvbuf);
-+	bcs->hw.hscx.rcvbuf = NULL;
-+	kfree(bcs->blog);
-+	bcs->blog = NULL;
- 	skb_queue_purge(&bcs->rqueue);
- 	skb_queue_purge(&bcs->squeue);
- 	if (bcs->tx_skb) {
---- linux-2.6.14-rc4-orig/drivers/isdn/hisax/isac.c	2005-08-29 01:41:01.000000000 +0200
-+++ linux-2.6.14-rc4/drivers/isdn/hisax/isac.c	2005-10-12 16:50:39.000000000 +0200
-@@ -570,15 +570,12 @@ setstack_isac(struct PStack *st, struct 
- }
- 
- static void
--DC_Close_isac(struct IsdnCardState *cs) {
--	if (cs->dc.isac.mon_rx) {
--		kfree(cs->dc.isac.mon_rx);
--		cs->dc.isac.mon_rx = NULL;
--	}
--	if (cs->dc.isac.mon_tx) {
--		kfree(cs->dc.isac.mon_tx);
--		cs->dc.isac.mon_tx = NULL;
--	}
-+DC_Close_isac(struct IsdnCardState *cs)
-+{
-+	kfree(cs->dc.isac.mon_rx);
-+	cs->dc.isac.mon_rx = NULL;
-+	kfree(cs->dc.isac.mon_tx);
-+	cs->dc.isac.mon_tx = NULL;
- }
- 
- static void
---- linux-2.6.14-rc4-orig/drivers/isdn/hisax/isar.c	2005-08-29 01:41:01.000000000 +0200
-+++ linux-2.6.14-rc4/drivers/isdn/hisax/isar.c	2005-10-12 16:50:55.000000000 +0200
-@@ -1688,10 +1688,8 @@ close_isarstate(struct BCState *bcs)
- {
- 	modeisar(bcs, 0, bcs->channel);
- 	if (test_and_clear_bit(BC_FLG_INIT, &bcs->Flag)) {
--		if (bcs->hw.isar.rcvbuf) {
--			kfree(bcs->hw.isar.rcvbuf);
--			bcs->hw.isar.rcvbuf = NULL;
--		}
-+		kfree(bcs->hw.isar.rcvbuf);
-+		bcs->hw.isar.rcvbuf = NULL;
- 		skb_queue_purge(&bcs->rqueue);
- 		skb_queue_purge(&bcs->squeue);
- 		if (bcs->tx_skb) {
---- linux-2.6.14-rc4-orig/drivers/isdn/hisax/netjet.c	2005-08-29 01:41:01.000000000 +0200
-+++ linux-2.6.14-rc4/drivers/isdn/hisax/netjet.c	2005-10-12 16:51:58.000000000 +0200
-@@ -855,14 +855,10 @@ close_tigerstate(struct BCState *bcs)
- {
- 	mode_tiger(bcs, 0, bcs->channel);
- 	if (test_and_clear_bit(BC_FLG_INIT, &bcs->Flag)) {
--		if (bcs->hw.tiger.rcvbuf) {
--			kfree(bcs->hw.tiger.rcvbuf);
--			bcs->hw.tiger.rcvbuf = NULL;
--		}
--		if (bcs->hw.tiger.sendbuf) {
--			kfree(bcs->hw.tiger.sendbuf);
--			bcs->hw.tiger.sendbuf = NULL;
--		}
-+		kfree(bcs->hw.tiger.rcvbuf);
-+		bcs->hw.tiger.rcvbuf = NULL;
-+		kfree(bcs->hw.tiger.sendbuf);
-+		bcs->hw.tiger.sendbuf = NULL;
- 		skb_queue_purge(&bcs->rqueue);
- 		skb_queue_purge(&bcs->squeue);
- 		if (bcs->tx_skb) {
-@@ -967,20 +963,12 @@ inittiger(struct IsdnCardState *cs)
- static void
- releasetiger(struct IsdnCardState *cs)
- {
--	if (cs->bcs[0].hw.tiger.send) {
--		kfree(cs->bcs[0].hw.tiger.send);
--		cs->bcs[0].hw.tiger.send = NULL;
--	}
--	if (cs->bcs[1].hw.tiger.send) {
--		cs->bcs[1].hw.tiger.send = NULL;
--	}
--	if (cs->bcs[0].hw.tiger.rec) {
--		kfree(cs->bcs[0].hw.tiger.rec);
--		cs->bcs[0].hw.tiger.rec = NULL;
--	}
--	if (cs->bcs[1].hw.tiger.rec) {
--		cs->bcs[1].hw.tiger.rec = NULL;
--	}
-+	kfree(cs->bcs[0].hw.tiger.send);
-+	cs->bcs[0].hw.tiger.send = NULL;
-+	cs->bcs[1].hw.tiger.send = NULL;
-+	kfree(cs->bcs[0].hw.tiger.rec);
-+	cs->bcs[0].hw.tiger.rec = NULL;
-+	cs->bcs[1].hw.tiger.rec = NULL;
- }
- 
- void
---- linux-2.6.14-rc4-orig/drivers/isdn/hisax/ipacx.c	2005-08-29 01:41:01.000000000 +0200
-+++ linux-2.6.14-rc4/drivers/isdn/hisax/ipacx.c	2005-10-12 16:52:17.000000000 +0200
-@@ -762,14 +762,10 @@ bch_close_state(struct BCState *bcs)
- {
- 	bch_mode(bcs, 0, bcs->channel);
- 	if (test_and_clear_bit(BC_FLG_INIT, &bcs->Flag)) {
--		if (bcs->hw.hscx.rcvbuf) {
--			kfree(bcs->hw.hscx.rcvbuf);
--			bcs->hw.hscx.rcvbuf = NULL;
--		}
--		if (bcs->blog) {
--			kfree(bcs->blog);
--			bcs->blog = NULL;
--		}
-+		kfree(bcs->hw.hscx.rcvbuf);
-+		bcs->hw.hscx.rcvbuf = NULL;
-+		kfree(bcs->blog);
-+		bcs->blog = NULL;
- 		skb_queue_purge(&bcs->rqueue);
- 		skb_queue_purge(&bcs->squeue);
- 		if (bcs->tx_skb) {
---- linux-2.6.14-rc4-orig/drivers/isdn/hisax/avma1_cs.c	2005-08-29 01:41:01.000000000 +0200
-+++ linux-2.6.14-rc4/drivers/isdn/hisax/avma1_cs.c	2005-10-12 16:52:48.000000000 +0200
-@@ -236,9 +236,7 @@ static void avma1cs_detach(dev_link_t *l
-     
-     /* Unlink device structure, free pieces */
-     *linkp = link->next;
--    if (link->priv) {
--	kfree(link->priv);
--    }
-+    kfree(link->priv);
-     kfree(link);
-     
- } /* avma1cs_detach */
---- linux-2.6.14-rc4-orig/drivers/isdn/hysdn/hysdn_procconf.c	2005-10-11 22:41:09.000000000 +0200
-+++ linux-2.6.14-rc4/drivers/isdn/hysdn/hysdn_procconf.c	2005-10-12 16:53:53.000000000 +0200
-@@ -359,8 +359,7 @@ hysdn_conf_close(struct inode *ino, stru
- 	} else if ((filep->f_mode & (FMODE_READ | FMODE_WRITE)) == FMODE_READ) {
- 		/* read access -> output card info data */
- 
--		if (filep->private_data)
--			kfree(filep->private_data);	/* release memory */
-+		kfree(filep->private_data);	/* release memory */
- 	}
- 	unlock_kernel();
- 	return (retval);
---- linux-2.6.14-rc4-orig/drivers/isdn/pcbit/drv.c	2005-08-29 01:41:01.000000000 +0200
-+++ linux-2.6.14-rc4/drivers/isdn/pcbit/drv.c	2005-10-12 16:54:41.000000000 +0200
-@@ -561,10 +561,8 @@ void pcbit_l3_receive(struct pcbit_dev *
- 		else
- 			pcbit_fsm_event(dev, chan, EV_USR_RELEASE_REQ, NULL);
- 
--		if (cbdata.data.setup.CalledPN)
--			kfree(cbdata.data.setup.CalledPN);
--		if (cbdata.data.setup.CallingPN)
--			kfree(cbdata.data.setup.CallingPN);
-+		kfree(cbdata.data.setup.CalledPN);
-+		kfree(cbdata.data.setup.CallingPN);
+ 	/* determine settings based on type */
+@@ -1349,9 +1347,7 @@ struct dst_state *dst_attach(struct dst_
  		break;
-     
- 	case MSG_CONN_CONF:
---- linux-2.6.14-rc4-orig/drivers/isdn/hardware/avm/avm_cs.c	2005-08-29 01:41:01.000000000 +0200
-+++ linux-2.6.14-rc4/drivers/isdn/hardware/avm/avm_cs.c	2005-10-12 16:55:21.000000000 +0200
-@@ -212,11 +212,8 @@ static void avmcs_detach(dev_link_t *lin
-     
-     /* Unlink device structure, free pieces */
-     *linkp = link->next;
--    if (link->priv) {
--	kfree(link->priv);
--    }
-+    kfree(link->priv);
-     kfree(link);
--    
- } /* avmcs_detach */
+ 	default:
+ 		dprintk(verbose, DST_ERROR, 1, "unknown DST type. please report to the LinuxTV.org DVB mailinglist.");
+-		if (state)
+-			kfree(state);
+-
++		kfree(state);
+ 		return NULL;
+ 	}
  
- /*======================================================================
+--- linux-2.6.14-rc4-orig/drivers/media/video/arv.c	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.14-rc4/drivers/media/video/arv.c	2005-10-13 10:30:44.000000000 +0200
+@@ -865,10 +865,8 @@ out_dev:
+ 
+ out_irq:
+ #endif
+-	for (i = 0; i < MAX_AR_HEIGHT; i++) {
+-		if (ar->frame[i])
+-			kfree(ar->frame[i]);
+-	}
++	for (i = 0; i < MAX_AR_HEIGHT; i++)
++		kfree(ar->frame[i]);
+ 
+ out_line_buff:
+ #if USE_INT
+@@ -899,10 +897,8 @@ static void __exit ar_cleanup_module(voi
+ #if USE_INT
+ 	free_irq(M32R_IRQ_INT3, ar);
+ #endif
+-	for (i = 0; i < MAX_AR_HEIGHT; i++) {
+-		if (ar->frame[i])
+-			kfree(ar->frame[i]);
+-	}
++	for (i = 0; i < MAX_AR_HEIGHT; i++)
++		kfree(ar->frame[i]);
+ #if USE_INT
+ 	kfree(ar->line_buff);
+ #endif
+--- linux-2.6.14-rc4-orig/drivers/media/video/zoran_card.c	2005-10-11 22:41:10.000000000 +0200
++++ linux-2.6.14-rc4/drivers/media/video/zoran_card.c	2005-10-13 10:31:59.000000000 +0200
+@@ -1057,10 +1057,8 @@ zr36057_init (struct zoran *zr)
+ 			KERN_ERR
+ 			"%s: zr36057_init() - kmalloc (STAT_COM) failed\n",
+ 			ZR_DEVNAME(zr));
+-		if (vdev)
+-			kfree(vdev);
+-		if (mem)
+-			kfree((void *)mem);
++		kfree(vdev);
++		kfree((void *)mem);
+ 		return -ENOMEM;
+ 	}
+ 	memset((void *) mem, 0, mem_needed);
+@@ -1105,15 +1103,15 @@ zoran_release (struct zoran *zr)
+ 	/* unregister videocodec bus */
+ 	if (zr->codec) {
+ 		struct videocodec_master *master = zr->codec->master_data;
++
+ 		videocodec_detach(zr->codec);
+-		if (master)
+-			kfree(master);
++		kfree(master);
+ 	}
+ 	if (zr->vfe) {
+ 		struct videocodec_master *master = zr->vfe->master_data;
++
+ 		videocodec_detach(zr->vfe);
+-		if (master)
+-			kfree(master);
++		kfree(master);
+ 	}
+ 
+ 	/* unregister i2c bus */
+--- linux-2.6.14-rc4-orig/drivers/media/video/videocodec.c	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.14-rc4/drivers/media/video/videocodec.c	2005-10-13 10:32:30.000000000 +0200
+@@ -353,8 +353,7 @@ videocodec_build_table (void)
+ 	dprintk(3, "videocodec_build table: %d entries, %d bytes\n", i,
+ 		size);
+ 
+-	if (videocodec_buf)
+-		kfree(videocodec_buf);
++	kfree(videocodec_buf);
+ 	videocodec_buf = (char *) kmalloc(size, GFP_KERNEL);
+ 
+ 	i = 0;
+@@ -471,8 +470,7 @@ videocodec_exit (void)
+ {
+ #ifdef CONFIG_PROC_FS
+ 	remove_proc_entry("videocodecs", NULL);
+-	if (videocodec_buf)
+-		kfree(videocodec_buf);
++	kfree(videocodec_buf);
+ #endif
+ }
+ 
+--- linux-2.6.14-rc4-orig/drivers/media/video/v4l1-compat.c	2005-10-11 22:41:10.000000000 +0200
++++ linux-2.6.14-rc4/drivers/media/video/v4l1-compat.c	2005-10-13 10:32:42.000000000 +0200
+@@ -1006,10 +1006,8 @@ v4l_compat_translate_ioctl(struct inode 
+ 		break;
+ 	}
+ 
+-	if (cap2)
+-		kfree(cap2);
+-	if (fmt2)
+-		kfree(fmt2);
++	kfree(cap2);
++	kfree(fmt2);
+ 	return err;
+ }
+ 
+--- linux-2.6.14-rc4-orig/drivers/media/video/bttv-driver.c	2005-10-11 22:41:10.000000000 +0200
++++ linux-2.6.14-rc4/drivers/media/video/bttv-driver.c	2005-10-13 10:33:07.000000000 +0200
+@@ -1951,8 +1951,7 @@ static int setup_window(struct bttv_fh *
+ 	}
+ 
+ 	down(&fh->cap.lock);
+-	if (fh->ov.clips)
+-		kfree(fh->ov.clips);
++	kfree(fh->ov.clips);
+ 	fh->ov.clips    = clips;
+ 	fh->ov.nclips   = n;
+ 
+@@ -2723,8 +2722,7 @@ static int bttv_do_ioctl(struct inode *i
+ 			fh->ov.w.height = fb->fmt.height;
+ 			btv->init.ov.w.width  = fb->fmt.width;
+ 			btv->init.ov.w.height = fb->fmt.height;
+-			if (fh->ov.clips)
+-				kfree(fh->ov.clips);
++			kfree(fh->ov.clips);
+ 			fh->ov.clips = NULL;
+ 			fh->ov.nclips = 0;
+ 
+--- linux-2.6.14-rc4-orig/drivers/media/video/videodev.c	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.14-rc4/drivers/media/video/videodev.c	2005-10-13 10:33:14.000000000 +0200
+@@ -215,8 +215,7 @@ video_usercopy(struct inode *inode, stru
+ 	}
+ 
+ out:
+-	if (mbuf)
+-		kfree(mbuf);
++	kfree(mbuf);
+ 	return err;
+ }
+ 
 
 
 

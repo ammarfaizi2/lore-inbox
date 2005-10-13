@@ -1,72 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbVJMS2X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932156AbVJMSbO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932154AbVJMS2X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 14:28:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932156AbVJMS2X
+	id S932156AbVJMSbO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 14:31:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbVJMSbN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 14:28:23 -0400
-Received: from ns2.g-housing.de ([81.169.133.75]:25018 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S932154AbVJMS2W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 14:28:22 -0400
-Message-ID: <434EA722.7090800@g-house.de>
-Date: Thu, 13 Oct 2005 20:27:46 +0200
-From: Christian <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: en-us, en
+	Thu, 13 Oct 2005 14:31:13 -0400
+Received: from lana.hrz.tu-chemnitz.de ([134.109.132.3]:64977 "EHLO
+	lana.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id S932156AbVJMSbM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Oct 2005 14:31:12 -0400
+To: kernel-stuff@comcast.net (Parag Warudkar)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bug in handling of highspeed usb HID devices
+References: <101220052332.3804.434D9D220007875C00000EDC220588644200009A9B9CD3040A029D0A05@comcast.net>
+From: Christian Krause <chkr@plauener.de>
+Date: Thu, 13 Oct 2005 20:05:09 +0200
+In-Reply-To: <101220052332.3804.434D9D220007875C00000EDC220588644200009A9B9CD3040A029D0A05@comcast.net> (Parag
+ Warudkar's message of "Wed, 12 Oct 2005 23:32:50 +0000")
+Message-ID: <m3oe5tuwbu.fsf@gondor.middle-earth.priv>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: johnpol@2ka.mipt.ru
-Subject: [PATCH] Dallas's 1-wire bus compile error (again)
-Content-Type: multipart/mixed;
- boundary="------------020909070701070907090105"
-X-Antivirus: avast! (VPS 0539-6, 02.10.2005), Outbound message
-X-Antivirus-Status: Clean
+Content-Type: text/plain; charset=us-ascii
+X-Spam-Score: 0.0 (/)
+X-Spam-Report: --- Start der SpamAssassin 3.1.0 Textanalyse (0.0 Punkte)
+	Fragen an/questions to:  Postmaster TU Chemnitz <postmaster@tu-chemnitz.de>
+	--- Ende der SpamAssassin Textanalyse
+X-Scan-Signature: 8a8fa125b9cc748093f12ed7809f170b
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020909070701070907090105
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi,
 
+On Wed, 12 Oct 2005 23:32:50 +0000, Parag Warudkar wrote:
+>> To avoid breaking things (my suggested patch has no impact on any other
+>> usb driver) and to solve the problem shortly, I suggest to
+>> use my patch and do some kind of refactoring later (You are right,
+>> for a clean interface the interval parameter should have the same
+>> meaning independend of the speed).
 
-...and again with some spelling fixes. sorry for the noise.
+> Agreed. Looking at some of the callers, it will take some time and
+> refactoring to fix all of them. For now, it makes sense to put your
+> patch in if no one has an objection.
 
-Signed-off-by: Christian Kujau <evil@g-house.de>
+Ok, then only one question remains: How do I get this patch applied to
+the official kernel tree?
 
-thanks,
-Christian.
--- 
-BOFH excuse #446:
-
-Mailer-daemon is busy burning your message in hell.
-
-
---------------020909070701070907090105
-Content-Type: text/plain;
- name="dallas-1-wire_compile-fix_2.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="dallas-1-wire_compile-fix_2.diff"
-
-LS0tIGxpbnV4LTIuNi9kcml2ZXJzL3cxL0tjb25maWcub3JpZwkyMDA1LTEwLTEzIDIwOjA5
-OjQ0LjgxMzk4NjY5OCArMDIwMAorKysgbGludXgtMi42L2RyaXZlcnMvdzEvS2NvbmZpZwky
-MDA1LTEwLTEzIDIwOjI2OjIyLjM0OTcxMzQ3NyArMDIwMApAQCAtMiw4ICsyLDkgQEAgbWVu
-dSAiRGFsbGFzJ3MgMS13aXJlIGJ1cyIKIAogY29uZmlnIFcxCiAJdHJpc3RhdGUgIkRhbGxh
-cydzIDEtd2lyZSBzdXBwb3J0IgorCWRlcGVuZHMgb24gTkVUCiAJLS0taGVscC0tLQotCSAg
-RGFsbGFzJ3MgMS13aXJlIGJ1cyBpcyB1c2VmdWxsIHRvIGNvbm5lY3Qgc2xvdyAxLXBpbiBk
-ZXZpY2VzCisJICBEYWxsYXMncyAxLXdpcmUgYnVzIGlzIHVzZWZ1bCB0byBjb25uZWN0IHNs
-b3cgMS1waW4gZGV2aWNlcwogCSAgc3VjaCBhcyBpQnV0dG9ucyBhbmQgdGhlcm1hbCBzZW5z
-b3JzLgogCiAJICBJZiB5b3Ugd2FudCBXMSBzdXBwb3J0LCB5b3Ugc2hvdWxkIHNheSBZIGhl
-cmUuCkBAIC00NCw3ICs0NSw3IEBAIGNvbmZpZyBXMV9USEVSTQogCXRyaXN0YXRlICJUaGVy
-bWFsIGZhbWlseSBpbXBsZW1lbnRhdGlvbiIKIAlkZXBlbmRzIG9uIFcxCiAJaGVscAotCSAg
-U2F5IFkgaGVyZSBpZiB5b3Ugd2FudCB0byBjb25uZWN0IDEtd2lyZSB0aGVybWFsIHNlbnNv
-cnMgdG8geW91CisJICBTYXkgWSBoZXJlIGlmIHlvdSB3YW50IHRvIGNvbm5lY3QgMS13aXJl
-IHRoZXJtYWwgc2Vuc29ycyB0byB5b3VyCiAJICB3aXJlLgogCiBjb25maWcgVzFfU01FTQpA
-QCAtNTIsNiArNTMsNiBAQCBjb25maWcgVzFfU01FTQogCWRlcGVuZHMgb24gVzEKIAloZWxw
-CiAJICBTYXkgWSBoZXJlIGlmIHlvdSB3YW50IHRvIGNvbm5lY3QgMS13aXJlCi0JICBzaW1w
-bGUgNjRiaXQgbWVtb3J5IHJvbShkczI0MDEvZHMyNDExL2RzMTk5MCopIHRvIHlvdSB3aXJl
-LgorCSAgc2ltcGxlIDY0Yml0IG1lbW9yeSByb20oZHMyNDAxL2RzMjQxMS9kczE5OTAqKSB0
-byB5b3VyIHdpcmUuCiAKIGVuZG1lbnUK
---------------020909070701070907090105--
+Thanks & best regards,
+Christian

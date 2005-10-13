@@ -1,95 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932544AbVJMXhj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932543AbVJMXtq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932544AbVJMXhj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 19:37:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932545AbVJMXhi
+	id S932543AbVJMXtq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 19:49:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbVJMXtq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 19:37:38 -0400
-Received: from ns.suse.de ([195.135.220.2]:12471 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932544AbVJMXhi (ORCPT
+	Thu, 13 Oct 2005 19:49:46 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:59877 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751122AbVJMXtq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 19:37:38 -0400
-Message-ID: <2553895.1129246651478.SLOX.WebMail.wwwrun@imap-dhs.suse.de>
-Date: Fri, 14 Oct 2005 01:37:31 +0200 (CEST)
-From: Hannes Reinecke <hare@suse.de>
-To: dtor_core@ameritech.net
-Subject: Re: [patch 0/8] Nesting class_device patches that actually work
-Cc: Kay Sievers <kay.sievers@vrfy.org>, Greg KH <gregkh@suse.de>,
-       Vojtech Pavlik <vojtech@suse.cz>,
-       Patrick Mochel <mochel@digitalimplant.org>, airlied@linux.ie,
-       linux-kernel@vger.kernel.org, Adam Belay <ambx1@neo.rr.com>
-In-Reply-To: <d120d5000510131435m7b27fe59l917ac3e11b2458c8@mail.gmail.com>
+	Thu, 13 Oct 2005 19:49:46 -0400
+Date: Thu, 13 Oct 2005 19:49:34 -0400
+From: Alexander Viro <aviro@redhat.com>
+To: torvalds@osdl.org
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: BLKSECTGET userland API breakage (2.4 and 2.6 incompatible)
+Message-ID: <20051013234934.GB6711@devserv.devel.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (normal)
-X-Mailer: SuSE Linux Openexchange Server 4 - WebMail (Build 2.4160)
-X-Operating-System: Linux 2.4.21-295-smp i386 (JVM 1.3.1_13)
-Organization: SuSE Linux AG
-References: <20051013020844.GA31732@kroah.com> <20051013105826.GA11155@vrfy.org> <d120d5000510131435m7b27fe59l917ac3e11b2458c8@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Do 13.10.2005 23:35 schrieb Dmitry Torokhov
-<dmitry.torokhov@gmail.com>:
+[that had started as "BLKSECTGET 32bit compat is broken"]
 
-> On 10/13/05, Kay Sievers <kay.sievers@vrfy.org> wrote:
-> >
-[ ... ]
-> >
-> > Instead of that, I propose a unification of "/sys/devices-devices"
-> > and "class-devices". The differentiation of both does not make sense
-> > in a wold where we can't really tell if a device is hardware or
-> > virtual.
-> >
-[ ... ]
-> >
->
-> Hi,
->
-> Kay eased my task by enumerating all issues I have with Greg's
-> approach. Not all the world is udev and not all class devices have
-> "/dev" represetation so haveing one program being able to understand
-> new sysfs hierarchy is not enough IHMO.
->
-Do not forget another side effect: we only have 'devices' within a tree
-under /sys/devices.
-/sys/class is just a mapping with no real devices in them, only
- symlinks.
-So _everything_ can be found under /sys/devices, and you don't have to
-figure out whether this device your looking for is a class device or a
-proper device or whatever.
+Situation:
 
-So we really have unified view for all devices, may they be physical or
-logical devices.
+all 2.4:      BLKSECTGET takes long * and is supported by several block drivers
+bio-14-pre9:  Takes BLKSECTGET to drivers/block/blkpg.c, defining it for all
+              block drivers *AND* making it take unsigned short *
+2.5.1-pre2:   bio merge
+all 2.[56] kernels since then: BLKSECTGET takes unsigned short *
+32bit compat: unchanged since 2.4 and thus broken on 2.[56]
+applications: we have seen ones using 2.6 ABI and getting buggered in
+              32bit compat.  Most likely there are some using 2.4 ABI...
 
-> However I do not think that "moving" class devices into /sys/devices
-> hierarchy is the right solution either because one physical device
-> could easily end up belonging to several classes. I recenty got an
-> e-mail from Adam Belay (whom I am pulling into the discussion)
-> regarding his desire to rearrange net/wireless representation. I think
-> it would be quite natural to have /sys/class/net/interfaces and
-> /sys/class/net/wireless /sys/class/net/irda, and /sys/class/net/wired
-> subclasses where "interfaces" would enumerate _all_ network interfaces
-> in the system, and the rest would show only devices of their class.
->
-But you can! That was the whole idea behind it.
-Every device ends up in /sys/devices, and the class is just a 'view' on
-those devices.
-(You might even call it API if you feel so inclined).
-/sys/class/net/interfaces would be implemented just as a collection of
-symlinks onto the proper devices in /sys/devices.
-
-Overall this approach would make so many tasks so much simpler.
-We could figure out the dependencies on a given device by just following
-up the path; no need for the 'PHYSDEVPATH' stuff we have now for the
-events. Plus we could model weird things like the SCSI subsystem onto
-sysfs without having to resort to dirty tricks like we do now. Hell, we
-maybe can even map the OpenPROM device tree onto sysfs for all I know.
-
-So it definitely looks far superior to what we have now.
-
-Cheers,
-
-Hannes
+IMO the least painful variant is to switch 2.6 compat code to match
+2.6 native (i.e. use COMPATIBLE_IOCTL()), leave 2.4 as-is and live
+with the fact of userland ABI change between 2.4 and 2.6...
 

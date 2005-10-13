@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932156AbVJMSbO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932155AbVJMSbC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932156AbVJMSbO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 14:31:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbVJMSbN
+	id S932155AbVJMSbC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 14:31:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932156AbVJMSbC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 14:31:13 -0400
-Received: from lana.hrz.tu-chemnitz.de ([134.109.132.3]:64977 "EHLO
-	lana.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id S932156AbVJMSbM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 14:31:12 -0400
-To: kernel-stuff@comcast.net (Parag Warudkar)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bug in handling of highspeed usb HID devices
-References: <101220052332.3804.434D9D220007875C00000EDC220588644200009A9B9CD3040A029D0A05@comcast.net>
-From: Christian Krause <chkr@plauener.de>
-Date: Thu, 13 Oct 2005 20:05:09 +0200
-In-Reply-To: <101220052332.3804.434D9D220007875C00000EDC220588644200009A9B9CD3040A029D0A05@comcast.net> (Parag
- Warudkar's message of "Wed, 12 Oct 2005 23:32:50 +0000")
-Message-ID: <m3oe5tuwbu.fsf@gondor.middle-earth.priv>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+	Thu, 13 Oct 2005 14:31:02 -0400
+Received: from starnet.skynet.com.pl ([213.25.173.230]:9619 "EHLO
+	skynet.skynet.com.pl") by vger.kernel.org with ESMTP
+	id S932155AbVJMSbA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Oct 2005 14:31:00 -0400
+Date: Thu, 13 Oct 2005 20:30:38 +0200
+From: Marcin Owsiany <marcin@owsiany.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: SCSI "asking for cache data failed"
+Message-ID: <20051013183038.GA13293@kufelek>
+References: <20051013104536.GA10525@kufelek> <1129208154.18635.4.camel@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Spam-Score: 0.0 (/)
-X-Spam-Report: --- Start der SpamAssassin 3.1.0 Textanalyse (0.0 Punkte)
-	Fragen an/questions to:  Postmaster TU Chemnitz <postmaster@tu-chemnitz.de>
-	--- Ende der SpamAssassin Textanalyse
-X-Scan-Signature: 8a8fa125b9cc748093f12ed7809f170b
+Content-Disposition: inline
+In-Reply-To: <1129208154.18635.4.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
+X-Scanner: exiscan *1EQ7qh-0005lO-00*N8Vb166SbGo*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Oct 13, 2005 at 01:55:54PM +0100, Alan Cox wrote:
+> On Iau, 2005-10-13 at 12:45 +0200, Marcin Owsiany wrote:
+> > I'm wondering about the following messages, which appeared when I upgraded from
+> > 2.4 to 2.6:
+> > 
+> > | sda: asking for cache data failed
+> > | sda: assuming drive cache: write through
+> > 
+> > (a larger log snippet below)
+> 
+[...]
+> It should be ok providing the raid card itself is
+> handling the consistency correctly but check with your card vendor.
 
-On Wed, 12 Oct 2005 23:32:50 +0000, Parag Warudkar wrote:
->> To avoid breaking things (my suggested patch has no impact on any other
->> usb driver) and to solve the problem shortly, I suggest to
->> use my patch and do some kind of refactoring later (You are right,
->> for a clean interface the interval parameter should have the same
->> meaning independend of the speed).
+Does that depend on the card only, or rather on the driver?
+(megaraid_mbox in this case) If the latter, then maybe someone familiar
+with its code can tell if the driver is OK in this regard?
 
-> Agreed. Looking at some of the callers, it will take some time and
-> refactoring to fix all of them. For now, it makes sense to put your
-> patch in if no one has an objection.
+thanks,
 
-Ok, then only one question remains: How do I get this patch applied to
-the official kernel tree?
-
-Thanks & best regards,
-Christian
+Marcin
+-- 
+Marcin Owsiany <marcin@owsiany.pl>              http://marcin.owsiany.pl/
+GnuPG: 1024D/60F41216  FE67 DA2D 0ACA FC5E 3F75  D6F6 3A0D 8AA0 60F4 1216
+ 
+"Every program in development at MIT expands until it can read mail."
+                                                              -- Unknown

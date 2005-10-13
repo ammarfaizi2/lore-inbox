@@ -1,71 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964869AbVJMCM5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751102AbVJMCvS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964869AbVJMCM5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Oct 2005 22:12:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964864AbVJMCMd
+	id S1751102AbVJMCvS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Oct 2005 22:51:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751109AbVJMCvS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Oct 2005 22:12:33 -0400
-Received: from mail.kroah.org ([69.55.234.183]:44942 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S964858AbVJMCMG (ORCPT
+	Wed, 12 Oct 2005 22:51:18 -0400
+Received: from zproxy.gmail.com ([64.233.162.205]:37128 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751102AbVJMCvR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Oct 2005 22:12:06 -0400
-Date: Wed, 12 Oct 2005 19:10:37 -0700
-From: Greg KH <gregkh@suse.de>
-To: Dmitry Torokhov <dtor_core@ameritech.net>,
-       Kay Sievers <kay.sievers@vrfy.org>, Vojtech Pavlik <vojtech@suse.cz>,
-       Hannes Reinecke <hare@suse.de>,
-       Patrick Mochel <mochel@digitalimplant.org>, airlied@linux.ie
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch 3/8] Driver Core: document struct class_device properly
-Message-ID: <20051013021037.GD31732@kroah.com>
-References: <20051013014147.235668000@echidna.kroah.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="class-device.h-documentation.patch"
-In-Reply-To: <20051013020844.GA31732@kroah.com>
-User-Agent: Mutt/1.5.11
+	Wed, 12 Oct 2005 22:51:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=o27fyRJUhWEIeIxlm+1SAE9W+sxgtcts10GD87ZsQ/cRHGylVYrlIkbO0BW4m/S7bl8y0C8K6O/4amkZ7kmlHeb+UwgjMthjFWtFQ0ys+Juh9RA4gbPllRrEnVNUwH2XTj2VpcM/TUX9Wokp+D4blrlQ3ocGQWWY6IiIG+Sn3Zg=
+Message-ID: <434DCB97.8010406@gmail.com>
+Date: Thu, 13 Oct 2005 10:51:03 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Miles Lane <miles.lane@gmail.com>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.14-rc3-git8 -- Failed to execute /etc/init lang=us apm=power-off
+ root=/dev/hda6 video=nvidiafb:1024x768 ro nomce. Attempting defaults...
+References: <a44ae5cd0510101729x52f31063l6e9d4eec468963ec@mail.gmail.com>
+In-Reply-To: <a44ae5cd0510101729x52f31063l6e9d4eec468963ec@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@suse.de>
+Miles Lane wrote:
 
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
----
- include/linux/device.h |   24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+> A possibly related problem I am attempting to track down is that
+> nvidiafb is not correctly receiving it's video= option parameter. 
+> Specifically, I am using:
+> cat /proc/cmdline
+> "init=/etc/init lang=us apm=power-off root=/dev/hda6
+> video=nvidiafb:1024x768 ro nomce"
+> But nvidiafb is only seeing:
+> nvidiafb: mode_option = <NULL>
+> 
 
---- gregkh-2.6.orig/include/linux/device.h
-+++ gregkh-2.6/include/linux/device.h
-@@ -203,6 +203,30 @@ struct class_device_attribute class_devi
- extern int class_device_create_file(struct class_device *,
- 				    const struct class_device_attribute *);
- 
-+/**
-+ * struct class_device - class devices
-+ * @class: pointer to the parent class for this class device.  This is required.
-+ * @devt: for internal use by the driver core only.
-+ * @node: for internal use by the driver core only.
-+ * @kobj: for internal use by the driver core only.
-+ * @devt_attr: for internal use by the driver core only.
-+ * @dev: if set, a symlink to the struct device is created in the sysfs
-+ * directory for this struct class device.
-+ * @class_data: pointer to whatever you want to store here for this struct
-+ * class_device.  Use class_get_devdata() and class_set_devdata() to get and
-+ * set this pointer.
-+ * @parent: pointer to a struct class_device that is the parent of this struct
-+ * class_device.  If NULL, this class_device will show up at the root of the
-+ * struct class in sysfs (which is probably what you want to have happen.)
-+ * @release: pointer to a release function for this struct class_device.  If
-+ * set, this will be called instead of the class specific release function.
-+ * Only use this if you want to override the default release function, like
-+ * when you are nesting class_device structures.
-+ * @hotplug: pointer to a hotplug function for this struct class_device.  If
-+ * set, this will be called instead of the class specific hotplug function.
-+ * Only use this if you want to override the default hotplug function, like
-+ * when you are nesting class_device structures.
-+ */
- struct class_device {
- 	struct list_head	node;
- 
+Try this.  video=nvidiafb:off vga=0x0x305 video=vesafb:ypan
 
---
+If you get the vesafb driver to run in ypan scrolling mode,
+this problem may be specific to nvidiafb.
+
+Tony
+

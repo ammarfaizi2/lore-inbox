@@ -1,130 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964777AbVJMUgz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964798AbVJMUiR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964777AbVJMUgz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 16:36:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964798AbVJMUgz
+	id S964798AbVJMUiR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 16:38:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964803AbVJMUiR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 16:36:55 -0400
-Received: from mailout11.sul.t-online.com ([194.25.134.85]:61059 "EHLO
-	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S964777AbVJMUgy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 16:36:54 -0400
-Message-ID: <434E5541.5030307@t-online.de>
-Date: Thu, 13 Oct 2005 14:38:25 +0200
-From: Manfred Scherer <Manfred.Scherer.Mhm@t-online.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040906
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: reiserfs-dev@namesys.com
-CC: linux-kernel@vger.kernel.org
-Subject: PATCH for reiserfs, max 2GB in version 3.5
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 13 Oct 2005 16:38:17 -0400
+Received: from jeffindy.licquia.org ([216.37.46.185]:17419 "EHLO
+	jeffindy.licquia.org") by vger.kernel.org with ESMTP
+	id S964798AbVJMUiQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Oct 2005 16:38:16 -0400
+Subject: Re: [PATCH] 2.6.13: POSIX violation in pipes on ia64 for kernels >
+	2.6.10
+From: Jeff Licquia <licquia@progeny.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0510131250070.23590@g5.osdl.org>
+References: <1129232675.4573.18.camel@laptop1>
+	 <Pine.LNX.4.64.0510131250070.23590@g5.osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-ID: TQJVcMZYgePGHcaOc40Mb1xC3MOwqB363F6xaU9SGuTR3wapUBWfc9
-X-TOI-MSGID: ea8eb3bd-a5c2-4f8f-949d-578d5d11aa9d
+Date: Thu, 13 Oct 2005 15:37:26 -0500
+Message-Id: <1129235846.4573.36.camel@laptop1>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If we create a file greater than 2GB in a reiserfs v3.5,
-the file size will not be checked and the file can be
-created like this:
+On Thu, 2005-10-13 at 12:54 -0700, Linus Torvalds wrote:
+> It also sounds like your patch is broken: allowing partial short writes is 
+> in explicit violation of the POSIX specs, and breaks the only thing that 
+> PIPE_BUF _really_ guarantees, namely that writes smaller than that size 
+> must be atomic.
 
-pc1:/mnt_hdg10 # dd if=/dev/zero of=zero_3GB.dd bs=1024 count=3000000
-3000000+0 records in
-3000000+0 records out
-pc1:/mnt_hdg10 #
+That guarantee is still there, because short writes take place on the
+last buffer in use.  We either have a full PAGE_SIZE or more bytes in
+the next available buffer(s), or we're on the last buffer, and the
+max_write code kicks in and we control writes in PIPE_BUF increments.
 
-The command "ls -l" shows the file size as created above:
+I wrote a short test program to make sure writes < PIPE_BUF length are
+still atomic (by reading PIPE_BUF/2 bytes from a full pipe and then
+trying to write PIPE_BUF * (3/4) bytes to it), and the behavior seems to
+be correct (ret = -1, errno = EAGAIN).
 
-pc1:/mnt_hdg10 # ls -l zero_3GB.dd
--rw-r--r--  1 root root 3072000000 Oct  3 15:59 zero_3GB.dd
-pc1:/mnt_hdg10 #
+> The _only_ guarantees wrt PIPE_BUF is literally that a write smaller than 
+> or equal to the PIPE_BUF will always either complete fully or not at all, 
+> and that a reader will see the write as an atomic packet (ie two writers 
+> will never have their write buffers interleaved within such a single 
+> "write()" system call).
+> 
+> How empty the pipe has to be for a write to be able to do so is outside 
+> the spec, and any code (including LSB tests) that depends on it is broken.
 
-When we read this file, read will abort when the 2GB border is reached:
+Hmm.  My reading was different, but on reflection you seem to be more
+accurate.  I suppose I will have to bring this to the attention to the
+LSB.
 
-pc1:/mnt_hdg10 # dd if=zero_3GB.dd of=/dev/null bs=1024
-dd: reading `zero_3GB.dd': Input/output error
-2097152+0 records in
-2097152+0 records out
-pc1:/mnt_hdg10 #
+I will give one more reason to consider the patch.  Whatever the spec
+said, the kernel's behavior has changed, and only for certain
+architectures.  On ia64 (at least), the amount one must read from a pipe
+in order to unblock it cannot be determined except via extreme means
+(parsing a kernel config, doing test pipe I/O to try and deduce
+PAGE_SIZE, etc.)  There may be benefit in restoring the previous
+behavior, which my patch does without sacrificing the benefits of the
+new pipe code.
 
+Of course, that's up to you to decide.  Thanks for your time.
 
-A file system check does not help,
-the command "reiserfsck --fix-fixable /dev/hdg10"
-spit out this massage:
-
-/zero_3GB.ddvpf-10670: The file [2 23061] has the wrong size in the 
-StatData (3072000000) - corrected to (3072000000)
-
-BTW this file can be delete with the command "rm zero_3GB.dd".
-
-
-The same test in a reiserfs v3.5 with a file greater than 4GB will end 
-in more trouble.
-You can test this like:
-
-pc1:/mnt_hdg10 # dd if=/dev/zero of=zero_5GB.dd bs=1024 count=5000000
-
-
----------------------------------------------------------------------------
-
-A simple check will avoid to create files greater than 2GB in reiserfs v3.5,
-see patch below:
-
----------------------------------------------------------------------------
-
---- linux-2.6.13/fs/reiserfs/file.c.ORIG        2005-08-29 
-01:41:01.000000000 +0200
-+++ linux-2.6.13/fs/reiserfs/file.c     2005-10-11 11:41:23.000000000 +0200
-@@ -1343,10 +1343,14 @@
-
-         down(&inode->i_sem);    // locks the entire file for just us
-
-         pos = *ppos;
-
-+       // 2005-10-07 --ms, max 2GB on v3.5
-+       if (get_inode_item_key_version(inode) == KEY_FORMAT_3_5)
-+               file->f_flags &= ~O_LARGEFILE;  // for LFS rule in 
-generic_write_checks()
-+
-         /* Check if we can write to specified region of file, file
-            is not overly big and this kind of stuff. Adjust pos and
-            count, if needed */
-         res = generic_write_checks(file, &pos, &count, 0);
-         if (res)
-
-
-Signed-off-by: Manfred Scherer <manfred.scherer.mhm@t-online.de>
-
--------------------------------------------------------------------------
-
-BTW the 2.4 kernel will have the same problem.
-
-fs/reiserfs/file.c:
-
-static ssize_t
-reiserfs_file_write(struct file *f, const char *b, size_t count, loff_t 
-*ppos)
-{
-     ssize_t ret;
-     struct inode *inode = f->f_dentry->d_inode;
-
-+    // 2005-10-07 --ms, max 2GB on v 3.5
-+    if (get_inode_item_key_version(inode) == KEY_FORMAT_3_5)
-+        file->f_flags &= ~O_LARGEFILE;  // for LFS rule in 
-precheck_file_write()
-+
-     ret = generic_file_write(f, b, count, ppos);
-     if (ret >= 0 && f->f_flags & O_SYNC) {
-         lock_kernel();
-         reiserfs_commit_for_inode(inode);
-         unlock_kernel();
-     }
-     return ret;
-}
-
--------------------------------------------------------------------------
-
-Manfred Scherer

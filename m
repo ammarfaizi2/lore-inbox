@@ -1,76 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbVJMRqu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbVJMRw7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932141AbVJMRqu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 13:46:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbVJMRqu
+	id S932136AbVJMRw7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 13:52:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbVJMRw7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 13:46:50 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:35794 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S932141AbVJMRqt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 13:46:49 -0400
-From: Jesse Barnes <jbarnes@virtuousgeek.org>
-To: "Michael Kerrisk" <mtk-manpages@gmx.net>
-Subject: Re: man-pages-2.08 is released
-Date: Thu, 13 Oct 2005 10:46:44 -0700
-User-Agent: KMail/1.8.91
-Cc: linux-kernel@vger.kernel.org, michael.kerrisk@gmx.net,
-       Andries.Brouwer@cwi.nl
-References: <200510121010.16274.jbarnes@virtuousgeek.org> <20785.1129193533@www73.gmx.net>
-In-Reply-To: <20785.1129193533@www73.gmx.net>
+	Thu, 13 Oct 2005 13:52:59 -0400
+Received: from [67.137.28.189] ([67.137.28.189]:19329 "EHLO vger.utah-nac.org")
+	by vger.kernel.org with ESMTP id S932136AbVJMRw7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Oct 2005 13:52:59 -0400
+Message-ID: <434E8BED.5050506@utah-nac.org>
+Date: Thu, 13 Oct 2005 10:31:41 -0600
+From: "Jeff V. Merkey" <jmerkey@utah-nac.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Nick Warne <nick@linicks.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.4.31] Reintroduction i386 CONFIG_DUMMY_KEYB option
+References: <200510131838.45082.nick@linicks.net>
+In-Reply-To: <200510131838.45082.nick@linicks.net>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510131046.44520.jbarnes@virtuousgeek.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, October 13, 2005 1:52 am, Michael Kerrisk wrote:
-> Recently, I was just wondering the same thing.  However, there
-> are complexities to consider.  C libraries (okay, glibc is the
-> main one I concern myself with) sometimes add some functionality
-> in the wrapper function for a particular system call.  This also
-> needs to be documented in the Secion 2 page.
+Nick Warne wrote:
 
-True.  But there are other libcs available (e.g. klibc, dietlibc) too.  
-I'd think that if the pages were bundled with the kernel, they should 
-describe exactly what the kernel does, while pages bundled with a libc 
-would describe any enhancements (or breakages) that the particular libc 
-includes.  But then what to do about duplicates?  Or should the raw 
-kernel interfaces have their own section, while libc interfaces remain 
-in section 2?  Or should the libc versions typically replace the kernel 
-versions on running systems?  Or 'patch' the existing kernel pages 
-somehow?  So many questions... ;)
-
-> Nevertheless, I think the idea of binding the kernel sources and
-> Sections 2 and 4 of the manual pages a bit more tightly bears
-> some consideration.  In the ideal world, when a change is made to
-> the kernel, the patch could include adjustments to the man
-> pages (if relevant) -- then the changes could follow the patch
-> through the -mm tree and then into Linus's tree.
-
-That was my though too; it's certainly easier to ask people to update 
-manual pages in Documentation/ or man/ when they do a kernel patch than 
-to ask them to download a separate package and make the changes (since 
-they'll probably never get around to doing the latter :).
-
-> > OTOH, they comprise a fairly large package, so adding them to the
-> > kernel tarball would increase its size a lot.
+>Hi all,
 >
-> I'd guess that the uncompressed source of the relevant pages
-> would be around 3 MB.
-
-Ok, that's not too bad.  Having full, up-to-date man pages would be worth 
-the extra few megs to me at least.
-
-> > The man pages are great;
+>A small patch here to reintroduce the dummy keyboard, which seems to have been 
+>lost sometime - refer to my LKML thread:
 >
-> Thanks.  But the greatest part of credit must go to Andries,
-> the maintainer for nearly 10 years.  I'm shortly coming up to my
-> first anniversary...
+>http://marc.theaimsgroup.com/?l=linux-kernel&m=112885471602308&w=2
+>
+>
+>
+>  
+>
+A serial based keyboard driver for general purpose debuggers and test 
+harnesses would be a whole lot more useful.  Ever consider it?  Snatch 
+the one out of kdb and submit it as a patch.  The AIMS test.  I remember 
+that from my Memorex Telex days on OS/2.
 
-Many thanks to both of you then!
-
-Jesse
+Jeff

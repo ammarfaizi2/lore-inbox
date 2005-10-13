@@ -1,159 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932461AbVJMULd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbVJMULw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932461AbVJMULd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 16:11:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932453AbVJMULd
+	id S932453AbVJMULw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 16:11:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932489AbVJMULv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 16:11:33 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:18113 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932461AbVJMULc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 16:11:32 -0400
-Date: Thu, 13 Oct 2005 22:10:53 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: Support pcmcia slot on sharp sl-5500
-Message-ID: <20051013201053.GA12778@elf.ucw.cz>
+	Thu, 13 Oct 2005 16:11:51 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:23268 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932453AbVJMULt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Oct 2005 16:11:49 -0400
+Subject: Re: sched_clock -> check_tsc_unstable -> tsc_read_c3_time ?!?
+From: john stultz <johnstul@us.ibm.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1129233687.16243.52.camel@mindpipe>
+References: <1129233687.16243.52.camel@mindpipe>
+Content-Type: text/plain
+Date: Thu, 13 Oct 2005 13:11:45 -0700
+Message-Id: <1129234306.27168.7.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, 2005-10-13 at 16:01 -0400, Lee Revell wrote:
+> Looking at the latency traces it appears that sched_clock could be
+> optimized a bit:
+> 
+> evolutio-16296 0D.h4   32us : activate_task (try_to_wake_up)
+> evolutio-16296 0D.h4   33us : sched_clock (activate_task)
+> evolutio-16296 0D.h4   33us : check_tsc_unstable (sched_clock)
+> evolutio-16296 0D.h4   34us : tsc_read_c3_time (sched_clock)
+> evolutio-16296 0D.h4   35us : recalc_task_prio (activate_task)
+> 
+> check_tsc_unstable and tsc_read_c3_time appear to be new.  Here they
+> are:
+> 
+>      49 /* Code to mark and check if the TSC is unstable
+>      50  * due to cpufreq or due to unsynced TSCs
+>      51  */
+>      52 static int tsc_unstable;
+>      53 int check_tsc_unstable(void)
+>      54 {
+>      55         return tsc_unstable;
+>      56 }
+> 
+>      73 u64 tsc_read_c3_time(void)
+>      74 {
+>      75         return tsc_c3_offset;
+>      76 }
+> 
+> Shouldn't these be inlined or something?  I know it's only a few
+> microseconds, but it seems like excessive function call overhead to me.
 
-This adds support for pcmcia slot on sharp zaurus
-sl-5500. pxa2xx_sharpsl.c thus becomes quite miss-named, but I guess
-that is not worth fixing?
+Yea, you're right about the inlining. Although I'm not sure why those
+functions should take microseconds to execute. That's very strange.
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
+> I don't use power management and the TSC is stable on this machine.  Why
+> do we have to call these simple accessor functions over and over?
 
-diff --git a/drivers/pcmcia/Makefile b/drivers/pcmcia/Makefile
---- a/drivers/pcmcia/Makefile
-+++ b/drivers/pcmcia/Makefile
-@@ -57,6 +57,7 @@ sa1111_cs-$(CONFIG_SA1100_JORNADA720)		+
- sa1100_cs-y					+= sa1100_generic.o
- sa1100_cs-$(CONFIG_SA1100_ASSABET)		+= sa1100_assabet.o
- sa1100_cs-$(CONFIG_SA1100_CERF)			+= sa1100_cerf.o
-+sa1100_cs-$(CONFIG_SA1100_COLLIE)              += pxa2xx_sharpsl.o
- sa1100_cs-$(CONFIG_SA1100_H3600)		+= sa1100_h3600.o
- sa1100_cs-$(CONFIG_SA1100_SHANNON)		+= sa1100_shannon.o
- sa1100_cs-$(CONFIG_SA1100_SIMPAD)		+= sa1100_simpad.o
-diff --git a/drivers/pcmcia/pxa2xx_sharpsl.c b/drivers/pcmcia/pxa2xx_sharpsl.c
---- a/drivers/pcmcia/pxa2xx_sharpsl.c
-+++ b/drivers/pcmcia/pxa2xx_sharpsl.c
-@@ -18,10 +18,15 @@
- #include <linux/interrupt.h>
- #include <linux/device.h>
- 
-+#include <asm/mach-types.h>
- #include <asm/hardware.h>
- #include <asm/irq.h>
- #include <asm/hardware/scoop.h>
--#include <asm/arch/pxa-regs.h>
-+#ifdef CONFIG_SA1100_COLLIE
-+#include <asm/arch-sa1100/collie.h>
-+#else
-+#include <asm/arch-pxa/pxa-regs.h>
-+#endif
- 
- #include "soc_common.h"
- 
-@@ -38,6 +43,7 @@ static int sharpsl_pcmcia_hw_init(struct
- {
- 	int ret;
- 
-+#ifndef CONFIG_SA1100_COLLIE
- 	/*
- 	 * Setup default state of GPIO outputs
- 	 * before we enable them as outputs.
-@@ -60,6 +66,7 @@ static int sharpsl_pcmcia_hw_init(struct
- 	pxa_gpio_mode(GPIO55_nPREG_MD);
- 	pxa_gpio_mode(GPIO56_nPWAIT_MD);
- 	pxa_gpio_mode(GPIO57_nIOIS16_MD);
-+#endif
- 
- 	/* Register interrupts */
- 	if (scoop_devs[skt->nr].cd_irq >= 0) {
-@@ -213,12 +219,20 @@ static void sharpsl_pcmcia_socket_init(s
- 	write_scoop_reg(scoop_devs[skt->nr].dev, SCOOP_IMR, 0x00C0);
- 	write_scoop_reg(scoop_devs[skt->nr].dev, SCOOP_MCR, 0x0101);
- 	scoop_devs[skt->nr].keep_vs = NO_KEEP_VS;
-+
-+	if (machine_is_collie())
-+		/* We need to disable SS_OUTPUT_ENA here. */
-+		write_scoop_reg(scoop_devs[skt->nr].dev, SCOOP_CPR, read_scoop_reg(scoop_devs[skt->nr].dev, SCOOP_CPR) & ~0x0080);
- }
- 
- static void sharpsl_pcmcia_socket_suspend(struct soc_pcmcia_socket *skt)
- {
- 	/* CF_BUS_OFF */
- 	sharpsl_pcmcia_init_reset(&scoop_devs[skt->nr]);
-+
-+	if (machine_is_collie())
-+		/* We need to disable SS_OUTPUT_ENA here. */
-+		write_scoop_reg(scoop_devs[skt->nr].dev, SCOOP_CPR, read_scoop_reg(scoop_devs[skt->nr].dev, SCOOP_CPR) & ~0x0080);
- }
- 
- static struct pcmcia_low_level sharpsl_pcmcia_ops = {
-@@ -235,6 +249,19 @@ static struct pcmcia_low_level sharpsl_p
- 
- static struct platform_device *sharpsl_pcmcia_device;
- 
-+#ifdef CONFIG_SA1100_COLLIE
-+int __init pcmcia_collie_init(struct device *dev)
-+{
-+       int ret = -ENODEV;
-+
-+       if (machine_is_collie())
-+               ret = sa11xx_drv_pcmcia_probe(dev, &sharpsl_pcmcia_ops, 0, 1);
-+
-+       return ret;
-+}
-+
-+#else
-+
- static int __init sharpsl_pcmcia_init(void)
- {
- 	int ret;
-@@ -269,6 +296,7 @@ static void __exit sharpsl_pcmcia_exit(v
- 
- fs_initcall(sharpsl_pcmcia_init);
- module_exit(sharpsl_pcmcia_exit);
-+#endif
- 
- MODULE_DESCRIPTION("Sharp SL Series PCMCIA Support");
- MODULE_LICENSE("GPL");
-diff --git a/drivers/pcmcia/sa1100_generic.c b/drivers/pcmcia/sa1100_generic.c
---- a/drivers/pcmcia/sa1100_generic.c
-+++ b/drivers/pcmcia/sa1100_generic.c
-@@ -38,8 +38,12 @@
- #include <pcmcia/cs.h>
- #include <pcmcia/ss.h>
- 
-+#include <asm/hardware/scoop.h>
-+
- #include "sa1100_generic.h"
- 
-+int __init pcmcia_collie_init(struct device *dev);
-+
- static int (*sa11x0_pcmcia_hw_init[])(struct device *dev) = {
- #ifdef CONFIG_SA1100_ASSABET
- 	pcmcia_assabet_init,
-@@ -56,6 +60,9 @@ static int (*sa11x0_pcmcia_hw_init[])(st
- #ifdef CONFIG_SA1100_SIMPAD
- 	pcmcia_simpad_init,
- #endif
-+#ifdef CONFIG_SA1100_COLLIE
-+       pcmcia_collie_init,
-+#endif
- };
- 
- static int sa11x0_drv_pcmcia_probe(struct device *dev)
+Basically its there to detect if the cpu goes into a low power mode and
+halts the TSC. 
 
--- 
-Thanks, Sharp!
+They probably could be #defined if C3 really cannot triggered, but some
+check will be necessary otherwise.
+
+The arch specific bits in my patches have gotten less of my attention
+recently, but hopefully with the arch generic code getting pretty solid
+and fast I'll be back to focusing on it.
+
+thanks
+-john
+
+

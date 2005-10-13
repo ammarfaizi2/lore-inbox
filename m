@@ -1,75 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbVJMTqJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932314AbVJMTrX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932364AbVJMTqJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 15:46:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbVJMTqI
+	id S932314AbVJMTrX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 15:47:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbVJMTrX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 15:46:08 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:15358 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S932364AbVJMTqG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 15:46:06 -0400
-Message-ID: <434EB936.3070600@mvista.com>
-Date: Thu, 13 Oct 2005 12:44:54 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Serge Goodenko <s_goodenko@mail.ru>
-Cc: linux-kernel@vger.kernel.org,
-       high-res-timers-discourse@lists.sourceforge.net
-Subject: Re: [PATCH] UML + High-Res-Timers on 2.4.25 kernel
-References: <E1EPxwT-0009q3-00.s_goodenko-mail-ru@f24.mail.ru>
-In-Reply-To: <E1EPxwT-0009q3-00.s_goodenko-mail-ru@f24.mail.ru>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 13 Oct 2005 15:47:23 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:7814 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S932314AbVJMTrW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Oct 2005 15:47:22 -0400
+Date: Thu, 13 Oct 2005 23:47:05 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Christian <evil@g-house.de>
+Cc: linux-kernel@vger.kernel.org, GregKH <greg@kroah.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Dallas's 1-wire bus compile error (again)
+Message-ID: <20051013194705.GA27809@2ka.mipt.ru>
+References: <434EA63F.10306@g-house.de> <20051013183353.GA32530@2ka.mipt.ru> <434EB375.4060104@g-house.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <434EB375.4060104@g-house.de>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 13 Oct 2005 23:47:06 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Serge Goodenko wrote:
-> ~
->>>is there any solution to this problem?
->>>or HRT patch is not supposed to work under UML at all?
->>>
->>
->>You might do better on the HRT list (cc'ed).
->>
->>I don't know what UML needs.  I would have thought that jiffies would be defined...  especially for 
->>things like do_fork.  Which patch are you using?
+On Thu, Oct 13, 2005 at 09:20:21PM +0200, Christian (evil@g-house.de) wrote:
+> Evgeniy Polyakov wrote:
+> >
+> >Hmm... Could you please provide error log.
+> >Networking is only used for netlink notifications which are disabled 
+> >if CONFIG_NET is not set, you can find empty declarations in
+> >w1_netlink.c
+> 
+> Similar errors as in the mentioned thread, but here we go:
+> 
+> drivers/built-in.o: In function `w1_alloc_dev':
+> : undefined reference to `netlink_kernel_create'
+> drivers/built-in.o: In function `w1_alloc_dev':
+> : undefined reference to `sock_release'
+> drivers/built-in.o: In function `w1_free_dev':
+> : undefined reference to `sock_release'
+> make: *** [.tmp_vmlinux1] Error 1
 
-HRT (in all its versions) requires the availability of a hardware timer to provide an interrupt at 
-timer expiry.  I am not sure how this is done in UML but my guess is that the host kernel would need 
-to have HRT running on it.  Then the UML kernel(s) would transform the HRT requests into the proper 
-user call to the host.
-> 
-> 
-> Well, as far as I understood recently HRT patch is not what I exactly need. It provides just API for using in user space applications and I need to use High-Resolution timer in kernel (particulary in TCP/IP stack)...
-> therefore my problem now is to find suitable hi-res timer patch for use in 2.4 kernel...
+It looks like you use old version - I've just compiled 
+today's git tree with your config, and it does have an error, 
+but in different place.
+That bug was introduced during big w1 cleanup due to device driver
+model.
 
-There are several 2.4 HRT patches on the HRT site, see signature below.
+Attached patch fixes that on x86_64 and i386 compilation.
 
-Still, these patches do not provide kernel access to the high-res timers.  This has been done in one 
-case, but the interface is not really defined nor stable (i.e. we may change it in the next 
-release...).  Look for HIGH_RES_TIMERS in the ipmi driver in the 2.6 kernel tree to see how to go 
-about this.
+Thank you, Christian.
 
-> and I would be pleased if you could recommend me something...
-> 
-> thanks,
-> 
-> Serge, MIPT,
-> Russia
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+
+diff --git a/drivers/w1/w1.c b/drivers/w1/w1.c
+--- a/drivers/w1/w1.c
++++ b/drivers/w1/w1.c
+@@ -77,8 +77,7 @@ static void w1_master_release(struct dev
+ 
+ 	dev_dbg(dev, "%s: Releasing %s.\n", __func__, md->name);
+ 
+-	if (md->nls && md->nls->sk_socket)
+-		sock_release(md->nls->sk_socket);
++	dev_fini_netlink(md);
+ 	memset(md, 0, sizeof(struct w1_master) + sizeof(struct w1_bus_master));
+ 	kfree(md);
+ }
+
 
 -- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+	Evgeniy Polyakov

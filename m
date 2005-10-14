@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750887AbVJNTLU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750899AbVJNTP1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750887AbVJNTLU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Oct 2005 15:11:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750888AbVJNTLU
+	id S1750899AbVJNTP1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Oct 2005 15:15:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750895AbVJNTP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Oct 2005 15:11:20 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:15045 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750885AbVJNTLT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Oct 2005 15:11:19 -0400
-Date: Fri, 14 Oct 2005 21:11:51 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: John Rigg <lk@sound-man.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc4-rt4
-Message-ID: <20051014191151.GA19538@elte.hu>
-References: <E1EQUdJ-0001Lw-Pq@localhost.localdomain>
+	Fri, 14 Oct 2005 15:15:27 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:2181 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750893AbVJNTP0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Oct 2005 15:15:26 -0400
+Date: Fri, 14 Oct 2005 14:14:55 -0500
+From: Robin Holt <holt@sgi.com>
+To: Jack Steiner <steiner@sgi.com>
+Cc: Robin Holt <holt@sgi.com>, linux-ia64@vger.kernel.org, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, hch@infradead.org, jgarzik@pobox.com,
+       wli@holomorphy.com
+Subject: Re: [Patch 2/2] Special Memory (mspec) driver.
+Message-ID: <20051014191455.GA14418@lnx-holt.americas.sgi.com>
+References: <20051012194022.GE17458@lnx-holt.americas.sgi.com> <20051012194233.GG17458@lnx-holt.americas.sgi.com> <20051012202925.GA23081@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E1EQUdJ-0001Lw-Pq@localhost.localdomain>
+In-Reply-To: <20051012202925.GA23081@sgi.com>
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* John Rigg <lk@sound-man.co.uk> wrote:
-
-> >I am able to apply cleanly. I am trying to see if it fixes my problem
-> >or not.
+On Wed, Oct 12, 2005 at 03:29:25PM -0500, Jack Steiner wrote:
+> On Wed, Oct 12, 2005 at 02:42:33PM -0500, Robin Holt wrote:
+> > Introduce the special memory (mspec) driver.  This is used to allow
+> > userland to map fetchop, etc pages
+> > 
+> > Signed-off-by: holt@sgi.com
 > 
-> Something in 2.6.14-rc4-rt4 breaks compilation with my config (with or
-> without the extra patch) with following error message:
+> Robin - 
 > 
->   CC      kernel/ktimers.o
-> kernel/ktimers.c: In function 'check_ktimer_signal':
-> kernel/ktimers.c:1100: error: request for member 'tv' in something not a structure or union
-> 
-> Am about to try applying the change in the patch to -rt1, which I know 
-> compiles.
+> I think you are missing the shub2 code that is required for flushing the fetchop 
+> cache. The cache is new in shub2. Take a look at the old PP4 driver - clear_mspec_page();
 
--rt5 should fix that build problem.
+Done.  Will test when I get access to a shub2 machine.
 
-	Ingo
+Robin

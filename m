@@ -1,149 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932466AbVJNIJp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932124AbVJNIp6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932466AbVJNIJp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Oct 2005 04:09:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932499AbVJNIJp
+	id S932124AbVJNIp6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Oct 2005 04:45:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbVJNIp5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Oct 2005 04:09:45 -0400
-Received: from iron.cat.pdx.edu ([131.252.208.92]:21239 "EHLO iron.cat.pdx.edu")
-	by vger.kernel.org with ESMTP id S932466AbVJNIJo (ORCPT
+	Fri, 14 Oct 2005 04:45:57 -0400
+Received: from soundwarez.org ([217.160.171.123]:38534 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S1751499AbVJNIp5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Oct 2005 04:09:44 -0400
-Date: Fri, 14 Oct 2005 01:04:49 -0700 (PDT)
-From: Suzanne Wood <suzannew@cs.pdx.edu>
-Message-Id: <200510140804.j9E84nwG026920@rastaban.cs.pdx.edu>
-To: linux-kernel@vger.kernel.org
-Cc: g4klx@g4klx.demon.co.uk, hch@infradead.org, jreuter@yaina.de,
-       paulmck@us.ibm.com, suzannew@cs.pdx.edu, walpole@cs.pdx.edu
-Subject: [RFC][PATCH] rcu in drivers/net/hamradio
+	Fri, 14 Oct 2005 04:45:57 -0400
+Date: Fri, 14 Oct 2005 10:45:54 +0200
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: dtor_core@ameritech.net
+Cc: Greg KH <gregkh@suse.de>, Vojtech Pavlik <vojtech@suse.cz>,
+       Hannes Reinecke <hare@suse.de>,
+       Patrick Mochel <mochel@digitalimplant.org>, airlied@linux.ie,
+       linux-kernel@vger.kernel.org, Adam Belay <ambx1@neo.rr.com>
+Subject: Re: [patch 0/8] Nesting class_device patches that actually work
+Message-ID: <20051014084554.GA19445@vrfy.org>
+References: <20051013020844.GA31732@kroah.com> <20051013105826.GA11155@vrfy.org> <d120d5000510131435m7b27fe59l917ac3e11b2458c8@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d120d5000510131435m7b27fe59l917ac3e11b2458c8@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In a prior submittal [RFC][PATCH] identify rcu-protected ptr
-posted Thu Oct 06 2005 - 01:08:25 EST, the usage of RCU in 
-drivers/net/hamradio/bpqether.c was addressed in
+On Thu, Oct 13, 2005 at 04:35:25PM -0500, Dmitry Torokhov wrote:
+> On 10/13/05, Kay Sievers <kay.sievers@vrfy.org> wrote:
+> >
+> > The nesting classes implement a fraction of a device hierarchy in
+> > /sys/class. It moves arbitrary relation information into the class
+> > directory, where nothing else than device classification belongs.
+> > What is the rationale behind sticking device trees into class?
+> >
+> > Instead of that, I propose a unification of "/sys/devices-devices"
+> > and "class-devices". The differentiation of both does not make sense
+> > in a wold where we can't really tell if a device is hardware or virtual.
+> >
+> > We should model _all_ devices with its actual realationship in
+> > /sys/devices and /sys/class should only be a pinter to the actual
+> > devices in that place. Device like "mice", which have no parent, would
+> > sit at the top level of /sys/devices. All devices in /sys/class are
+> > only symlinks and never devices by itself.
+> > That way userspace can read all device relation at _one_ place in a sane
+> > way, and we keep the clean class interface to have easy access to all
+> > devices of a specific group.
+> > It gives us the right abstraction and is future proof, cause
+> > the class interface will not change when the relation between devices
+> > changes. The destinction between classes and buses would no longer be
+> > needed, and as we see in the "input" case never made sense anyway.
+> >
+> > /sys/class/block would look exactly like /sys/block today. The only
+> > difference is that there are symlinks to follow instead of class devices
+> > on its own. With every device creation we will get the whole dependency
+> > path of the device in the DEVPATH and a "classsification symlink" in
+> > /sys/class. The input devices are all clearly modeled in its hierarchy,
+> > in /sys/devices but we also get clean class interfaces:
+> >
+> 
+> Kay eased my task by enumerating all issues I have with Greg's
+> approach. Not all the world is udev and not all class devices have
+> "/dev" represetation so haveing one program being able to understand
+> new sysfs hierarchy is not enough IHMO.
+> 
+> However I do not think that "moving" class devices into /sys/devices
+> hierarchy is the right solution either because one physical device
+> could easily end up belonging to several classes.
 
-> Please consider the effective addition of an
-> rcu_dereference() in bpq_get_ax25_dev() in recognition 
-> of each use being nested in an rcu critical section.
+Sure, than that physical (while that distinction is silly by itself)
+will just have several child devices. Look at the mouse0 and event0 in
+the ascii drawing.
 
-> diff a/drivers/net/hamradio/bpqether.c b/drivers/net/hamradio/bpqether.c
-> --- a/drivers/net/hamradio/bpqether.c 2005-09-30 14:17:35.000000000 -0700
-> +++ b/drivers/net/hamradio/bpqether.c 2005-10-05 22:32:53.000000000 -0700
-. . .
-> - list_for_each_entry(bpq, &bpq_devices, bpq_list) {
-> + list_for_each_entry_rcu(bpq, &bpq_devices, bpq_list) {
+> I recenty got an
+> e-mail from Adam Belay (whom I am pulling into the discussion)
+> regarding his desire to rearrange net/wireless representation. I think
+> it would be quite natural to have /sys/class/net/interfaces and
+> /sys/class/net/wireless /sys/class/net/irda, and /sys/class/net/wired
+> subclasses where "interfaces" would enumerate _all_ network interfaces
+> in the system, and the rest would show only devices of their class.
 
-Please let me know if any assumptions below are false.
-Thank you.
+That solution would keep a better device separation, sure. But it
+is completely incompatible with everything we ever had in sysfs and
+nobody wants to rewrite _all_ userspace programs.
 
-The similarity to drivers/net/wan/lapbether.c supports 
-the suggestion above, but the reason used earlier fails 
-because I suggest now that the rcu_read_lock()/unlock() 
-in bpq_device_event() should be moved due to the 
-following found by considering the cases of the 
-switch statement: 
+It invents artificial subclass names below a "master" class, which
+is absolutely not needed.
 
-(1) bpq_new_device() calls list_add_rcu() labeled as 
-"list protected by RTNL."  The comment may need to go 
-since the only apparent rtnl_lock()/unlock() pair encloses 
-the call to bpq_free_device() in bpq_cleanup_driver()
-called upon module_exit().
+It creates the magic "interfaces" directory, which is confusing, cause
+it classifies devices by itself.
 
-(2) dev_close() as defined in net/core/dev.c 
-employs a memory barrier.
+It doesn't represent any relationship and hierarchy of devices and
+adding a forest of magic symlinks and "device" pointers is a very
+bad design. The proposed "inter-class" symlinks make it even harder
+to understand sysfs as it already is.
 
-(3) bpq_free_device() calls list_del_rcu() which, according 
-to list.h, requires synchronize_rcu() which can block or 
-call_rcu() or call_rcu_bh() which cannot block. 
-None of these is called anywhere in the directory drivers/net,
-so synchronize_irq() may address this.  
-(synchronize_sched() is called in drivers/net/sis190.c and 
-r8169.c with FIXME comment about synchronize_irq().)
+The biggest problem with current sysfs is that the driver hacker has to
+decide if the device is "hardware" or "virtual" which in a lot of
+cases just can't tell and this distiction doesn't make any sense today.
 
-Because the rcu read-side critical section marked by 
-rcu_read_lock()/unlock() disables preemption, it is not 
-suitable in bpq_device_event() in the context of update.
+All the more complex subsystems use "virtual buses" and an unconnected
+bunch of class-devices to model its sysfs represention, which is just
+to work around a major design flaw in sysfs!
+We really should get _one_ device tree with its natural hierarchy, get
+rid of the stupid "device"-link, the PHYSDEVPATH and the unconnected
+class devices. Every device should just carry its dependency tree in
+it _own_ devpath!
 
-If RCU is indeed appropriate in bpq_new_device() and 
-bpq_free_device() of bpqether.c, then, substituting 
-list_for_each_entry_rcu() for list_for_each_entry()
-introduces an rcu_dereference on bpq.  This requires the 
-marking of the read-side critical section, raising the 
-question of the rcu_assign_pointer(), but the list_add_rcu()
-introduces the corresponding write memory barrier.
+I'm very sure, we want a unified tree in /sys/devices, regardless of the type
+of device, to represent the global hierarchy wich is exactly what you want to
+know from a device tree!
+That way we stack "virtual" _and_ "physical" in a sane manner and at the same
+time get very clean class interfaces. We would stop to mix up "hierarchy" and
+"classes" all over the tree.
 
-We consider the statements in bpq_rcv()
-	rcu_read_lock();
-	dev = bpq_get_ax25_dev(dev);
-
-and see that a result of the rcu_dereference() in
-list_for_each_entry_rcu(bpq, &bpq_devices, bpq_list)
-is that the future dereference of the pointer to the bpqdev 
-struct bpq is rcu-protected.  But bpq_get_ax25_dev() 
-returns bpq->axdev, a pointer to a net_device struct.  The 
-rcu_read_lock() in bpq_rcv() likely implies that is another 
-pointer to receive rcu-protected dereference.
-
-As a starting point, please consider the following patch.
-Thank you.
-
--------
-
- bpqether.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
-
--------
-
-
---- src/linux-2.6.14-rc4/drivers/net/hamradio/bpqether.c	2005-10-10 18:19:19.000000000 -0700
-+++ patch/linux-2.6.14-rc4/drivers/net/hamradio/bpqether.c	2005-10-14 00:18:14.000000000 -0700
-@@ -144,10 +144,13 @@ static inline struct net_device *bpq_get
- {
- 	struct bpqdev *bpq;
- 
--	list_for_each_entry(bpq, &bpq_devices, bpq_list) {
-+	rcu_read_lock();
-+	list_for_each_entry_rcu(bpq, &bpq_devices, bpq_list) {
- 		if (bpq->ethdev == dev)
-+			rcu_read_unlock();
- 			return bpq->axdev;
- 	}
-+	rcu_read_unlock();
- 	return NULL;
- }
- 
-@@ -179,7 +182,7 @@ static int bpq_rcv(struct sk_buff *skb, 
- 		goto drop;
- 
- 	rcu_read_lock();
--	dev = bpq_get_ax25_dev(dev);
-+	dev = rcu_dereference(bpq_get_ax25_dev(dev));
- 
- 	if (dev == NULL || !netif_running(dev)) 
- 		goto drop_unlock;
-@@ -530,7 +533,6 @@ static int bpq_new_device(struct net_dev
- 	if (err)
- 		goto error;
- 
--	/* List protected by RTNL */
- 	list_add_rcu(&bpq->bpq_list, &bpq_devices);
- 	return 0;
- 
-@@ -561,8 +563,6 @@ static int bpq_device_event(struct notif
- 	if (!dev_is_ethdev(dev))
- 		return NOTIFY_DONE;
- 
--	rcu_read_lock();
--
- 	switch (event) {
- 	case NETDEV_UP:		/* new ethernet device -> new BPQ interface */
- 		if (bpq_get_ax25_dev(dev) == NULL)
-@@ -581,7 +581,6 @@ static int bpq_device_event(struct notif
- 	default:
- 		break;
- 	}
--	rcu_read_unlock();
- 
- 	return NOTIFY_DONE;
- }
+Thanks,
+Kay

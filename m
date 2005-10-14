@@ -1,75 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750804AbVJNRRf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbVJNRWZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750804AbVJNRRf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Oct 2005 13:17:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750805AbVJNRRf
+	id S1750807AbVJNRWZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Oct 2005 13:22:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbVJNRWZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Oct 2005 13:17:35 -0400
-Received: from usbb-lacimss2.unisys.com ([192.63.108.52]:21768 "EHLO
-	usbb-lacimss2.unisys.com") by vger.kernel.org with ESMTP
-	id S1750804AbVJNRRe convert rfc822-to-8bit (ORCPT
+	Fri, 14 Oct 2005 13:22:25 -0400
+Received: from qproxy.gmail.com ([72.14.204.203]:3406 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750807AbVJNRWY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Oct 2005 13:17:34 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH] Kconfig fix, (ES7000 dependencies)
-Date: Fri, 14 Oct 2005 12:17:15 -0500
-Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04DC8@USRV-EXCH4.na.uis.unisys.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Kconfig fix, (ES7000 dependencies)
-Thread-Index: AcXQrfIiqAa95k0ITkmyy/xDNw4wqAANINDQ
-From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-To: "Peter Hagervall" <hager@cs.umu.se>, <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, "Brown, Len" <len.brown@intel.com>
-X-OriginalArrivalTime: 14 Oct 2005 17:17:16.0036 (UTC) FILETIME=[1FD87440:01C5D0E3]
+	Fri, 14 Oct 2005 13:22:24 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer;
+        b=M3Nlrq8jB4JgKvt/08sFZluGWtfWhiWSFrfC3Ji6BKvYwMp4k6yfFpYOGorwpy4MOl5XfoJB/xVcE2QzchfJXdatzd1A9iuOEHwg/JthqkgBJWaz0aZU8eOzk1d+YY8mWeYUUedWFaFuQBzAt6HDPH0GjSDut2B3c7Pedd1PXHc=
+Subject: Re: 2.6.14-rc4-rt4
+From: Badari Pulavarty <pbadari@gmail.com>
+To: John Rigg <lk@sound-man.co.uk>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <E1EQSJt-0001Fp-4j@localhost.localdomain>
+References: <E1EQSJt-0001Fp-4j@localhost.localdomain>
+Content-Type: multipart/mixed; boundary="=-7lkhQtqQkARjb2G9hiL3"
+Date: Fri, 14 Oct 2005 10:21:47 -0700
+Message-Id: <1129310507.6266.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Targets X86_GENERICARCH and X86_ES7000 fail to build without 
-> CONFIG_ACPI.
-> 
-> Signed-off-by: Peter Hagervall <hager@cs.umu.se>
-> ---
-> 
-> diff --git a/arch/i386/Kconfig b/arch/i386/Kconfig
-> --- a/arch/i386/Kconfig
-> +++ b/arch/i386/Kconfig
-> @@ -115,14 +115,14 @@ config X86_VISWS
->  
->  config X86_GENERICARCH
->         bool "Generic architecture (Summit, bigsmp, ES7000, default)"
-> -       depends on SMP
-> +       depends on SMP && ACPI
->         help
->            This option compiles in the Summit, bigsmp, 
-> ES7000, default subarchitectures.
->  	  It is intended for a generic binary kernel.
->  
->  config X86_ES7000
->  	bool "Support for Unisys ES7000 IA32 series"
-> -	depends on SMP
-> +	depends on SMP && ACPI
->  	help
->  	  Support for Unisys ES7000 systems.  Say 'Y' here if 
-> this kernel is
->  	  supposed to run on an IA32-based Unisys ES7000 system.
 
+--=-7lkhQtqQkARjb2G9hiL3
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-No, ES7000 doesn't have to depend on ACPI, it uses MPS for
-testing/failsafe purposes a lot. I had a patch for the build bix
-submitted http://bugzilla.kernel.org/show_bug.cgi?id=5124, I think Len
-was going to sort it out.
+On Fri, 2005-10-14 at 17:22 +0100, John Rigg wrote:
+> The header on my last post seems to have been mangled so here it
+> is again...
+> 
+> Ingo, I just tried the patch you posted in reply to Badari Pulavarty's
+> boot crash message. I get an error when trying to patch 2.6.14-rc4-rt4:
+> 
+> patching file arch/x86_64/kernel/vsyscall.c
+> patch: **** malformed patch at line 11: notrace
+> 
+
+Try this..
+
+I am able to apply cleanly. I am trying to see if it fixes my problem
+or not.
+
 Thanks,
---Natalie
+Badari
 
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in the body of a message to 
-> majordomo@vger.kernel.org More majordomo info at  
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+
+
+--=-7lkhQtqQkARjb2G9hiL3
+Content-Disposition: attachment; filename=notrace.patch
+Content-Type: text/x-patch; name=notrace.patch; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+--- linux-2.6.14-rc4.org/arch/x86_64/kernel/vsyscall.c	2005-10-07 10:27:33.000000000 -0700
++++ linux-2.6.14-rc4/arch/x86_64/kernel/vsyscall.c	2005-10-14 05:11:02.000000000 -0700
+@@ -34,7 +34,7 @@
+ #include <asm/errno.h>
+ #include <asm/io.h>
+ 
+-#define __vsyscall(nr) __attribute__ ((unused,__section__(".vsyscall_" #nr)))
++#define __vsyscall(nr) __attribute__ ((unused,__section__(".vsyscall_" #nr))) notrace
+ #define force_inline __attribute__((always_inline)) inline
+ 
+ int __sysctl_vsyscall __section_sysctl_vsyscall = 1;
+
+--=-7lkhQtqQkARjb2G9hiL3--
+

@@ -1,53 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbVJNO2R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbVJNPCm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750727AbVJNO2R (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Oct 2005 10:28:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750758AbVJNO2R
+	id S1750744AbVJNPCm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Oct 2005 11:02:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750753AbVJNPCm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Oct 2005 10:28:17 -0400
-Received: from smtpout.mac.com ([17.250.248.88]:37863 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1750727AbVJNO2R convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Oct 2005 10:28:17 -0400
-X-PGP-Universal: processed;
-	by AlPB on Fri, 14 Oct 2005 09:28:18 -0500
-Date: Fri, 14 Oct 2005 09:28:15 -0500
-From: Mark Rustad <MRustad@mac.com>
-Subject: [PATCH 2.6.14-rc4] kbuild: Eliminate build error when KALLSYMS not defined
-To: linux-kernel@vger.kernel.org
-X-Priority: 3
-Message-ID: <r02010500-1042-C24A71793CBE11DA99900011248907EC@[10.64.61.29]>
+	Fri, 14 Oct 2005 11:02:42 -0400
+Received: from mail.udag.de ([62.146.33.70]:35286 "EHLO mail.udag.de")
+	by vger.kernel.org with ESMTP id S1750744AbVJNPCl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Oct 2005 11:02:41 -0400
+From: "Stephan Brodkorb" <stephan-linuxdev@brodkorb.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <adobriyan@gmail.com>, <rubini@vision.unipv.it>,
+       <rmk+serial@arm.linux.org.uk>, <linux-serial@vger.kernel.org>,
+       <Markus_Daniel@gmx.de>
+Subject: [PATCH 1/1] n_r3964 fix - char
+Date: Fri, 14 Oct 2005 17:02:42 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Mailsmith 2.1.5 (Blindsider)
-In-Reply-To: <A7D1D429-D1C7-4FBD-80F2-B3EDFF9E2200@mac.com>
-References: <A7D1D429-D1C7-4FBD-80F2-B3EDFF9E2200@mac.com>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcXQ0FO5ZllYBtnmQWSz23aIqDpYzQ==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
+Message-Id: <20051014150238.B105980CD@mail.udag.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I encountered a build error with 2.6.14-rc4 when CONFIG_KALLSYMS is not defined. The error
-message in a fragment of the output was:
 
-  CC      arch/i386/lib/usercopy.o
-  AR      arch/i386/lib/lib.a
-/bin/sh: line 1: +@: command not found
-make[3]: warning: jobserver unavailable: using -j1.  Add `+' to parent make rule.
-  CHK     include/linux/compile.h
+--- linux-2.6.14-rc4-orig/drivers/char/n_r3964.c	2005-10-11
+03:19:20.000000000 +0200
++++ linux-2.6.14-rc4/drivers/char/n_r3964.c	2005-10-14
+15:05:29.589643200 +0200
+@@ -695,7 +695,7 @@
+             {
+                TRACE_PE("IDLE - got STX but no space in rx_queue!");
+                pInfo->state=R3964_WAIT_FOR_RX_BUF;
+-	       mod_timer(&pInfo->tmr, R3964_TO_NO_BUF);
++	       mod_timer(&pInfo->tmr, jiffies + R3964_TO_NO_BUF);
+                break;
+             }
+ start_receiving:
+@@ -705,7 +705,7 @@
+             pInfo->last_rx = 0;
+             pInfo->flags &= ~R3964_ERROR;
+             pInfo->state=R3964_RECEIVING;
+-	    mod_timer(&pInfo->tmr, R3964_TO_ZVZ);
++	    mod_timer(&pInfo->tmr, jiffies + R3964_TO_ZVZ);
+ 	    pInfo->nRetry = 0;
+             put_char(pInfo, DLE);
+             flush(pInfo);
+@@ -732,7 +732,7 @@
+                if(pInfo->flags & R3964_BCC)
+                {
+                   pInfo->state = R3964_WAIT_FOR_BCC;
+-		  mod_timer(&pInfo->tmr, R3964_TO_ZVZ);
++		  mod_timer(&pInfo->tmr, jiffies + R3964_TO_ZVZ);
+                }
+                else 
+                {
+@@ -744,7 +744,7 @@
+                pInfo->last_rx = c;
+ char_to_buf:
+                pInfo->rx_buf[pInfo->rx_position++] = c;
+-	       mod_timer(&pInfo->tmr, R3964_TO_ZVZ);
++	       mod_timer(&pInfo->tmr, jiffies + R3964_TO_ZVZ);
+             }
+          }
+         /* else: overflow-msg? BUF_SIZE>MTU; should not happen? */ 
 
-The following patch seems to fix it. I can't say that I really know why, but noticed this
-construct elsewhere in the Makefile and it seems to work.
 
+Hi everybody,
 
---- a/Makefile	2005-10-12 10:42:37.787722969 -0500
-+++ b/Makefile	2005-10-12 10:42:58.396913248 -0500
-@@ -662,6 +662,7 @@
- # Generate System.map and verify that the content is consistent
- 
- define rule_vmlinux__
-+	:
- 	$(if $(CONFIG_KALLSYMS),,+$(call cmd,vmlinux_version))
- 
- 	$(call cmd,vmlinux__)
+since Revision 1.10  was released the n_r3964 module wasn't able to receive
+any data. The reason for that behavior is because there were some wrong
+calls of mod_timer(...) in the function receive_char (...).
+This patch should fix this problem and was successfully tested with talking
+to some kuka industrial robots.
 
-Signed-off-by: Mark Rustad <mrustad@mac.com>
+Greetings,
+
+Stephan Brodkorb
+

@@ -1,30 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750818AbVJNSHU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750820AbVJNSKH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750818AbVJNSHU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Oct 2005 14:07:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbVJNSHT
+	id S1750820AbVJNSKH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Oct 2005 14:10:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750821AbVJNSKH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Oct 2005 14:07:19 -0400
-Received: from mail3.uklinux.net ([80.84.72.33]:61612 "EHLO mail3.uklinux.net")
-	by vger.kernel.org with ESMTP id S1750818AbVJNSHS (ORCPT
+	Fri, 14 Oct 2005 14:10:07 -0400
+Received: from mail.kroah.org ([69.55.234.183]:33963 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750820AbVJNSKG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Oct 2005 14:07:18 -0400
-Subject: Re: 2.6.14-rc4-rt4
-To: linux-kernel@vger.kernel.org
-From: John Rigg <lk@sound-man.co.uk>
-Message-Id: <E1EQU3c-0001Jr-P5@localhost.localdomain>
-Date: Fri, 14 Oct 2005 19:13:28 +0100
+	Fri, 14 Oct 2005 14:10:06 -0400
+Date: Fri, 14 Oct 2005 11:09:23 -0700
+From: Greg KH <greg@kroah.com>
+To: Christian Krause <chkr@plauener.de>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Chris Wright <chrisw@osdl.org>,
+       Parag Warudkar <kernel-stuff@comcast.net>
+Subject: Re: [PATCH] Re: bug in handling of highspeed usb HID devices
+Message-ID: <20051014180923.GA17179@kroah.com>
+References: <m34q7mwlvv.fsf@gondor.middle-earth.priv> <20051013224839.GA3583@kroah.com> <m3ek6o2d7q.fsf@gondor.middle-earth.priv>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m3ek6o2d7q.fsf@gondor.middle-earth.priv>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 14 October 2005 John Rigg wrote:
->Ingo, I just tried the patch you posted in reply to Badari Pulavarty's
->boot crash message. I get an error when trying to patch 2.6.14-rc4-rt4:
->
->patching file arch/x86_64/kernel/vsyscall.c
->patch: **** malformed patch at line 11: notrace
+On Fri, Oct 14, 2005 at 07:57:45PM +0200, Christian Krause wrote:
+> Hi Greg,
+> 
+> On Thu, 13 Oct 2005 15:48:39 -0700, Greg KH wrote:
+> > On Wed, Oct 12, 2005 at 09:55:32PM +0200, Christian Krause wrote:
+> >> Here is a small patch which solves the whole problem:
+> 
+> > The patch is at the wrong level, and has spaces instead of tabs.
+> > And no "signed-off-by" line :(
+> > Take a look at Documentation/SubmittingPatches for how to create a patch
+> > that I can apply and forward on.
+> 
+> Please apologize the wrong format of the patch, here is the next
+> try. I also include the description why the change is necessary again:
 
-Excuse my stupidity - lynx wrapped the line when I printed it to a file.
-Of course it patches cleanly with the \n removed.
+You forgot a Signed-off-by: in the patch description.  Anything below
+the patch is thrown away by our scripts.
 
-John
+Care to try it again?  Third time's a charm :)
+
+thanks,
+
+greg k-h

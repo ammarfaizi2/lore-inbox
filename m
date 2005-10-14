@@ -1,143 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbVJNR5s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750805AbVJNSC2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750783AbVJNR5s (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Oct 2005 13:57:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbVJNR5s
+	id S1750805AbVJNSC2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Oct 2005 14:02:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbVJNSC2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Oct 2005 13:57:48 -0400
-Received: from lana.hrz.tu-chemnitz.de ([134.109.132.3]:57798 "EHLO
-	lana.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id S1750783AbVJNR5r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Oct 2005 13:57:47 -0400
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Chris Wright <chrisw@osdl.org>,
-       kernel-stuff@comcast.net (Parag Warudkar)
-Subject: [PATCH] Re: bug in handling of highspeed usb HID devices
-References: <m34q7mwlvv.fsf@gondor.middle-earth.priv>
-	<20051013224839.GA3583@kroah.com>
-From: Christian Krause <chkr@plauener.de>
-Date: Fri, 14 Oct 2005 19:57:45 +0200
-Message-ID: <m3ek6o2d7q.fsf@gondor.middle-earth.priv>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Spam-Score: 0.0 (/)
-X-Spam-Report: --- Start der SpamAssassin 3.1.0 Textanalyse (0.0 Punkte)
-	Fragen an/questions to:  Postmaster TU Chemnitz <postmaster@tu-chemnitz.de>
-	--- Ende der SpamAssassin Textanalyse
-X-Scan-Signature: 8de341043e09d6ae0c0b257e994bf918
+	Fri, 14 Oct 2005 14:02:28 -0400
+Received: from smtp2.Stanford.EDU ([171.67.16.125]:45019 "EHLO
+	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S1750805AbVJNSC2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Oct 2005 14:02:28 -0400
+Subject: Re: 2.6.14-rc4-rt1
+From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: nando@ccrma.Stanford.EDU, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>, dwalker@mvista.com,
+       david singleton <dsingleton@mvista.com>
+In-Reply-To: <20051014061546.GA30319@elte.hu>
+References: <20051011111454.GA15504@elte.hu>
+	 <1129064151.5324.6.camel@cmn3.stanford.edu>
+	 <20051012061455.GA16586@elte.hu> <20051012071037.GA19018@elte.hu>
+	 <1129242595.4623.14.camel@cmn3.stanford.edu>
+	 <1129256936.11036.4.camel@cmn3.stanford.edu>
+	 <20051014045615.GC13595@elte.hu>  <20051014061546.GA30319@elte.hu>
+Content-Type: text/plain
+Date: Fri, 14 Oct 2005 11:01:46 -0700
+Message-Id: <1129312907.19449.13.camel@cmn3.stanford.edu>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+On Fri, 2005-10-14 at 08:15 +0200, Ingo Molnar wrote:
+> * Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> > could you try:
+> > 
+> > 	strace -o log sleep 10
+> > 
+> > and wait for a failure, and send us the log? Is it perhaps nanosleep 
+> > unexpectedly returning with -EAGAIN or -512? There's a transient 
+> > nanosleep failure that happens on really fast boxes, which we havent 
+> > gotten to the bottom yet. That problem is very sporadic, but maybe 
+> > your box is just too fast and triggers it more likely :-)
+> 
+> is nanosleep returning -ERESTART_RESTARTBLOCK (-516) perhaps?
 
-On Thu, 13 Oct 2005 15:48:39 -0700, Greg KH wrote:
-> On Wed, Oct 12, 2005 at 09:55:32PM +0200, Christian Krause wrote:
->> Here is a small patch which solves the whole problem:
+Yes, that is probably correct, I saw a few of these:
+  sleep: cannot read realtime clock: Unknown error 516
 
-> The patch is at the wrong level, and has spaces instead of tabs.
-> And no "signed-off-by" line :(
-> Take a look at Documentation/SubmittingPatches for how to create a patch
-> that I can apply and forward on.
+I left the kernel running overnight and this morning I've been using it
+with no key repeats or screen blanks so far. Go figure. I imagine they
+would come back if I reboot. I'm still seeing the Jack warnings but
+that's probably a related but somewhat separate issue. 
 
-Please apologize the wrong format of the patch, here is the next
-try. I also include the description why the change is necessary again:
+I'm building rt5 and will report later. 
 
-During the development of an USB device I found a bug in the handling of
-Highspeed HID devices in the kernel.
-
-What happened?
-
-Highspeed HID devices are correctly recognized and enumerated by the
-kernel. But even if usbhid kernel module is loaded, no HID reports are
-received by the kernel.
-
-The output of the hardware USB analyzer told me that the host doesn't
-even poll for interrupt IN transfers (even the "interrupt in" USB
-transfer are polled by the host).
-
-After some debugging in hid-core.c I've found the reason.
-
-In case of a highspeed device, the endpoint interval is re-calculated in
-driver/usb/input/hid-core.c:
-
-line 1669:
-             /* handle potential highspeed HID correctly */
-             interval = endpoint->bInterval;
-             if (dev->speed == USB_SPEED_HIGH)
-                   interval = 1 << (interval - 1);
-
-Basically this calculation is correct (refer to USB 2.0 spec, 9.6.6).
-This new calculated value of "interval" is used as input for
-usb_fill_int_urb:
-
-line 1685:
-
-            usb_fill_int_urb(hid->urbin, dev, pipe, hid->inbuf, 0,
-                   hid_irq_in, hid, interval);
-
-Unfortunately the same calculation as above is done a second time in 
-usb_fill_int_urb in the file include/linux/usb.h:
-
-line 933:
-        if (dev->speed == USB_SPEED_HIGH)
-                urb->interval = 1 << (interval - 1);
-        else
-                urb->interval = interval;
-
-This means, that if the endpoint descriptor (of a high speed device)
-specifies e.g. bInterval = 7, the urb->interval gets the value:
-
-hid-core.c: interval = 1 << (7-1) = 0x40 = 64
-urb->interval = 1 << (interval -1) = 1 << (63) = integer overflow
-
-Because of this the value of urb->interval is sometimes negative and is
-rejected in core/urb.c:
-line 353:
-                /* too small? */
-                if (urb->interval <= 0)
-                        return -EINVAL;
-
-The conclusion is, that the recalculaton of the interval (which is
-necessary for highspeed) should not be made twice, because this is
-simply wrong. ;-)
-
-Re-calculation in usb_fill_int_urb makes more sense, because it is the
-most general approach. So it would make sense to remove it from
-hid-core.c.
-
-Because in hid-core.c the interval variable is only used for calling
-usb_fill_int_urb, it is no problem to remove the highspeed
-re-calculation in this file.
-
---------------------------------snip------------------------
---- linux-2.6.13.4/drivers/usb/input/hid-core.c.old	2005-10-12 21:29:29.000000000 +0200
-+++ linux-2.6.13.4/drivers/usb/input/hid-core.c	2005-10-12 21:31:02.000000000 +0200
-@@ -1667,11 +1667,6 @@ static struct hid_device *usb_hid_config
- 		if ((endpoint->bmAttributes & 3) != 3)		/* Not an interrupt endpoint */
- 			continue;
- 
--		/* handle potential highspeed HID correctly */
--		interval = endpoint->bInterval;
--		if (dev->speed == USB_SPEED_HIGH)
--			interval = 1 << (interval - 1);
--
- 		/* Change the polling interval of mice. */
- 		if (hid->collection->usage == HID_GD_MOUSE && hid_mousepoll_interval > 0)
- 			interval = hid_mousepoll_interval;
-
---------------------------------snip------------------------
-Signed-off-by: Christian Krause <chkr@plauener.de>
+-- Fernando
 
 
-I hope all things are ok now and I ask kindly for applying. 
-
-> Also, what device needs this patch?  Is it a device that I can buy
-> today?
-
-Yes, just buy Avocent's DSR2030. It enumerates as a highspeed HID device.
-
-
-Best regards,
-Christian

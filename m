@@ -1,43 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750899AbVJNTP1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750868AbVJNTRX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750899AbVJNTP1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Oct 2005 15:15:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750895AbVJNTP1
+	id S1750868AbVJNTRX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Oct 2005 15:17:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750881AbVJNTRX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Oct 2005 15:15:27 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:2181 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1750893AbVJNTP0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Oct 2005 15:15:26 -0400
-Date: Fri, 14 Oct 2005 14:14:55 -0500
-From: Robin Holt <holt@sgi.com>
-To: Jack Steiner <steiner@sgi.com>
-Cc: Robin Holt <holt@sgi.com>, linux-ia64@vger.kernel.org, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, hch@infradead.org, jgarzik@pobox.com,
-       wli@holomorphy.com
-Subject: Re: [Patch 2/2] Special Memory (mspec) driver.
-Message-ID: <20051014191455.GA14418@lnx-holt.americas.sgi.com>
-References: <20051012194022.GE17458@lnx-holt.americas.sgi.com> <20051012194233.GG17458@lnx-holt.americas.sgi.com> <20051012202925.GA23081@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051012202925.GA23081@sgi.com>
-User-Agent: Mutt/1.4.2.1i
+	Fri, 14 Oct 2005 15:17:23 -0400
+Received: from fmr22.intel.com ([143.183.121.14]:54680 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1750866AbVJNTRX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Oct 2005 15:17:23 -0400
+Message-Id: <200510141917.j9EJHEg20883@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Arjan van de Ven'" <arjan@infradead.org>
+Cc: <linux-kernel@vger.kernel.org>, "'Jens Axboe'" <axboe@suse.de>
+Subject: RE: [patch] optimize disk_round_stats
+Date: Fri, 14 Oct 2005 12:16:54 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcXQqPwp2215Yv/fQYWI4zhxwhPyfgASQv+w
+In-Reply-To: <1129285187.2873.7.camel@laptopd505.fenrus.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 12, 2005 at 03:29:25PM -0500, Jack Steiner wrote:
-> On Wed, Oct 12, 2005 at 02:42:33PM -0500, Robin Holt wrote:
-> > Introduce the special memory (mspec) driver.  This is used to allow
-> > userland to map fetchop, etc pages
-> > 
-> > Signed-off-by: holt@sgi.com
+Arjan van de Ven wrote on Friday, October 14, 2005 3:20 AM
+> On Thu, 2005-10-13 at 12:19 -0700, Chen, Kenneth W wrote:
+> > Following the same idea, it occurs to me that we should only update
+> > disk stat when "now" is different from disk->stamp.  Otherwise, we
+> > are again needlessly adding zero to the stats.
 > 
-> Robin - 
-> 
-> I think you are missing the shub2 code that is required for flushing the fetchop 
-> cache. The cache is new in shub2. Take a look at the old PP4 driver - clear_mspec_page();
+> have you measured this?
+> Conditionals in code are not free, so it might well be more expensive...
 
-Done.  Will test when I get access to a shub2 machine.
+Yes I did, on a null block driver[1], this optimization gets about
+2% improvement.  The reasoning is that for example, user submits
+100,000 I/O per second, we only need to update the stats per jiffies.
+With latest kernel have 250 Hz as default.  It's 250 updates versus
+100,000 updates (with 99,750 updates of adding zero).  I see that the
+condition is well worth it.  The address calculation for per cpu disk
+stats has lots of indirection and index calculation.  Compiler generates
+lots of code just for address calculation.
 
-Robin
+- Ken
+
+
+[1] this driver completes an I/O request as soon as it enters block queue.
+

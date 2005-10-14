@@ -1,77 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750821AbVJNSKf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbVJNSNN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750821AbVJNSKf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Oct 2005 14:10:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750828AbVJNSKf
+	id S1750828AbVJNSNN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Oct 2005 14:13:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbVJNSNN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Oct 2005 14:10:35 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:44006 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1750821AbVJNSKd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Oct 2005 14:10:33 -0400
-Date: Fri, 14 Oct 2005 13:09:46 -0500
-From: Robin Holt <holt@sgi.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Robin Holt <holt@sgi.com>, ia64 list <linux-ia64@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       hch@infradead.org, jgarzik@pobox.com,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: [Patch 2/2] Special Memory (mspec) driver.
-Message-ID: <20051014180946.GA4143@lnx-holt.americas.sgi.com>
-References: <20051012194022.GE17458@lnx-holt.americas.sgi.com> <20051012194233.GG17458@lnx-holt.americas.sgi.com> <1129266725.22903.25.camel@localhost>
+	Fri, 14 Oct 2005 14:13:13 -0400
+Received: from mail.kroah.org ([69.55.234.183]:48044 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750828AbVJNSNM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Oct 2005 14:13:12 -0400
+Date: Fri, 14 Oct 2005 11:12:37 -0700
+From: Greg KH <greg@kroah.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Len Brown <len.brown@intel.com>, iss_storagedev@hp.com,
+       Jakub Jelinek <jj@ultra.linux.cz>, Frodo Looijaard <frodol@dds.nl>,
+       Jean Delvare <khali@linux-fr.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Jens Axboe <axboe@suse.de>, Roland Dreier <rolandd@cisco.com>,
+       Sergio Rozanski Filho <aris@cathedrallabs.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Pierre Ossman <drzeus-wbsd@drzeus.cx>,
+       Carsten Gross <carsten@sol.wh-hms.uni-ulm.de>,
+       David Hinds <dahinds@users.sourceforge.net>,
+       Vinh Truong <vinh.truong@eng.sun.com>,
+       Mark Douglas Corner <mcorner@umich.edu>,
+       Michael Downey <downey@zymeta.com>, Antonino Daplas <adaplas@pol.net>,
+       Ben Gardner <bgardner@wabtec.com>
+Subject: Re: [PATCH 09/14] Big kfree NULL check cleanup - misc remaining drivers
+Message-ID: <20051014181237.GC17179@kroah.com>
+References: <200510132128.45171.jesper.juhl@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1129266725.22903.25.camel@localhost>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <200510132128.45171.jesper.juhl@gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 13, 2005 at 10:12:05PM -0700, Dave Hansen wrote:
-> On Wed, 2005-10-12 at 14:42 -0500, Robin Holt wrote:
-> ...
-> 
-> Looks like you could un-indent almost the entire function of you just
-> did this instead:
-> 
-> 	if (!atomic_dec_and_test(&vdata->refcnt))
-> 		return;
+On Thu, Oct 13, 2005 at 09:28:44PM +0200, Jesper Juhl wrote:
+> --- linux-2.6.14-rc4-orig/drivers/usb/class/bluetty.c	2005-08-29 01:41:01.000000000 +0200
 
-Done
+This driver is about to be deleted from the tree (2.6.15 will remove
+it).  So I doubt you want to care about it.
 
-> 
-> This looks pretty similar to get_one_pte_map().  Is there enough
-> commonality to use it?
-> 
+> --- linux-2.6.14-rc4-orig/drivers/usb/input/keyspan_remote.c	2005-10-11 22:41:21.000000000 +0200
+> +++ linux-2.6.14-rc4/drivers/usb/input/keyspan_remote.c	2005-10-12 16:29:31.000000000 +0200
+> @@ -557,8 +557,7 @@ error:
+>  	if (remote->in_buffer)
+>  		usb_buffer_free(remote->udev, RECV_SIZE, remote->in_buffer, remote->in_dma);
+>  
+> -	if (remote)
+> -		kfree(remote);
+> +	kfree(remote);
+>  
+>  	return retval;
+>  }
 
-Added an extra patch to export get_one_pte_map and used that instead.
-
-> How about:
-> 
-> 	vdata = vmalloc(sizeof(struct vma_data) + pages * sizeof(long));
-> 	if (!vdata)
-> 		return -ENOMEM;
-
-Done
-
-> This whole thing really is a driver for a piece of arch-specific
-> hardware, right?  Does it really belong in /proc?  You already have a
-> misc device, so you already have some area in sysfs.  Would that make a
-> better place for it?
-
-Most of the useful information for this was removed when the kernel
-uncached allocator (and gen_alloc) were moved out of the earliest mspec.c.
-Removed entirely.
-
-> Isn't the general kernel style for these to keep the action out of the
-> if() condition?
-> 
-> 	ret = misc_register(&cached_miscdev);
-> 	if (ret) {
-> 		...
-
-Done.
-
-Thanks,
-Robin Holt
+Acked-by: Greg Kroah-Hartman <gregkh@suse.de>

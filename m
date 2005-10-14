@@ -1,64 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751144AbVJNDwE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbVJNDzi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751144AbVJNDwE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 23:52:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751156AbVJNDwE
+	id S1751148AbVJNDzi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 23:55:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751156AbVJNDzi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 23:52:04 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:59070 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751144AbVJNDwD (ORCPT
+	Thu, 13 Oct 2005 23:55:38 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:46229 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751148AbVJNDzh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 23:52:03 -0400
-Date: Fri, 14 Oct 2005 05:52:30 +0200
+	Thu, 13 Oct 2005 23:55:37 -0400
+Date: Fri, 14 Oct 2005 05:56:00 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: Mark Knecht <markknecht@gmail.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc4-rt1 - enable IRQ-off tracing causes kernel to fault at boot
-Message-ID: <20051014035230.GB6513@elte.hu>
-References: <5bdc1c8b0510121000i5db112f2p642f66686fb46c57@mail.gmail.com> <20051013073029.GA12801@elte.hu> <5bdc1c8b0510130526k6064c640pecded9ccb0ef7dde@mail.gmail.com> <Pine.LNX.4.58.0510130844070.13098@localhost.localdomain> <5bdc1c8b0510131210i64f7f289q557368b056e59e18@mail.gmail.com>
+To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>, dwalker@mvista.com,
+       david singleton <dsingleton@mvista.com>
+Subject: Re: 2.6.14-rc4-rt1
+Message-ID: <20051014035600.GA8481@elte.hu>
+References: <20051011111454.GA15504@elte.hu> <1129064151.5324.6.camel@cmn3.stanford.edu> <20051012061455.GA16586@elte.hu> <20051012071037.GA19018@elte.hu> <1129242595.4623.14.camel@cmn3.stanford.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <5bdc1c8b0510131210i64f7f289q557368b056e59e18@mail.gmail.com>
+In-Reply-To: <1129242595.4623.14.camel@cmn3.stanford.edu>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamScore: 0.0
 X-ELTE-SpamLevel: 
 X-ELTE-SpamCheck: no
 X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
 	0.0 AWL                    AWL: From: address is in the auto white-list
 X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Mark Knecht <markknecht@gmail.com> wrote:
+* Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
 
-> Ingo & Steve,
->    Thank you for your great instructions that even a guitar player 
-> could basically follow. After about an hour of messing around I did 
-> manage to capture the crash. The console file is attached.
-> 
-> NOTE: The first time I booted the kernel it got to the crash point and 
-> the machine rebooted. The second time it booted I got the trace. Both 
-> boots are in the capture file.
+> I could not boot the up version of the kernel, it hangs early, I'll 
+> try to see why (weird).
 
-thanks, this log is much more informative. No smoking gun though, but it 
-seems something fundamental (probably lowlevel x64 code) has been broken 
-by -rt1.
-
-Do the crashes go away if you take the -rc3-rt13 version of 
-arch/x86_64/kernel/entry.S and copy it over into the -rc4-rt1 tree?  
-[this undoes a particular set of CONFIG_CRITICAL_IRQSOFF_TIMING fixes 
-from the x64 code, which i did during -rc3-rt13 => -rc4-rt1]
-
-(Note that doing this will re-introduce tracing bugs, which can result 
-in false-positive latency readings - but it should fix any related 
-lowlevel bug in the assembly code.)
-
-if this indeed solves the crash then i'd suggest to restore the -rt1 
-version of entry.S, and i'd suggest to disable CRITICAL_IRQSOFF_TIMING 
-until i fix it. You should be able to get pretty good latency tracing 
-info even without CRITICAL_IRQSOFF_TIMING.
+did you try the maxcpus=1 boot option? That will boot up using a single 
+CPU only. The bug is very likely somewhere in the APIC timer handling 
+code. How does /proc/interrupts look like - does the 'LOC' counter [this 
+represents local APIC interrupts] behave irregularly?
 
 	Ingo

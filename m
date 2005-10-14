@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbVJNDzi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751160AbVJNECE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751148AbVJNDzi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 23:55:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751156AbVJNDzi
+	id S1751160AbVJNECE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Oct 2005 00:02:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751156AbVJNECE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 23:55:38 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:46229 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751148AbVJNDzh (ORCPT
+	Fri, 14 Oct 2005 00:02:04 -0400
+Received: from smtpout.mac.com ([17.250.248.84]:17146 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1751162AbVJNECD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 23:55:37 -0400
-Date: Fri, 14 Oct 2005 05:56:00 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>, dwalker@mvista.com,
-       david singleton <dsingleton@mvista.com>
-Subject: Re: 2.6.14-rc4-rt1
-Message-ID: <20051014035600.GA8481@elte.hu>
-References: <20051011111454.GA15504@elte.hu> <1129064151.5324.6.camel@cmn3.stanford.edu> <20051012061455.GA16586@elte.hu> <20051012071037.GA19018@elte.hu> <1129242595.4623.14.camel@cmn3.stanford.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1129242595.4623.14.camel@cmn3.stanford.edu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Fri, 14 Oct 2005 00:02:03 -0400
+In-Reply-To: <1129255182.27168.14.camel@cog.beaverton.ibm.com>
+References: <1129255182.27168.14.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <050B11FF-A9F5-48B4-AA59-AA51F2C32822@mac.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Roman Zippel <zippel@linux-m68k.org>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       George Anzinger <george@mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Frank Sorenson <frank@tuxrocks.com>,
+       Nishanth Aravamudan <nacc@us.ibm.com>, Darren Hart <dvhltc@us.ibm.com>
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [RFC][PATCH 0/12] Generic Timeofday Subsystem (v B7)	(cumulative-i386)
+Date: Fri, 14 Oct 2005 00:01:54 -0400
+To: john stultz <johnstul@us.ibm.com>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Oct 13, 2005, at 21:59:41, john stultz wrote:
+> <excellent patchset>
 
-* Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
+Three cheers for John Stultz for plugging at this as long as he has!   
+Despite the ugly code, the many requested changes and revisions, etc,  
+he's made awesome progress.  These are sorely needed changes and we  
+should thank John  (and all the rest of the participants) for their  
+time on this particular project.  Hurrah to you sirs!
 
-> I could not boot the up version of the kernel, it hangs early, I'll 
-> try to see why (weird).
+Cheers,
+Kyle Moffett
 
-did you try the maxcpus=1 boot option? That will boot up using a single 
-CPU only. The bug is very likely somewhere in the APIC timer handling 
-code. How does /proc/interrupts look like - does the 'LOC' counter [this 
-represents local APIC interrupts] behave irregularly?
+--
+Somone asked me why I work on this free (http://www.fsf.org/ 
+philosophy/) software stuff and not get a real job. Charles Shultz  
+had the best answer:
 
-	Ingo
+"Why do musicians compose symphonies and poets write poems? They do  
+it because life wouldn't have any meaning for them if they didn't.  
+That's why I draw cartoons. It's my life."
+   -- Charles Shultz
+
+

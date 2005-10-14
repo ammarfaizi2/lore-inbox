@@ -1,137 +1,154 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750912AbVJNWGk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750930AbVJNWL6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750912AbVJNWGk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Oct 2005 18:06:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750935AbVJNWGk
+	id S1750930AbVJNWL6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Oct 2005 18:11:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750938AbVJNWL6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Oct 2005 18:06:40 -0400
-Received: from lana.hrz.tu-chemnitz.de ([134.109.132.3]:50667 "EHLO
-	lana.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id S1750911AbVJNWGj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Oct 2005 18:06:39 -0400
-X-From-Line: nobody Fri Oct 14 19:57:45 2005
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Chris Wright <chrisw@osdl.org>,
-       kernel-stuff@comcast.net (Parag Warudkar)
-Subject: [PATCH] Re: bug in handling of highspeed usb HID devices
-References: <m34q7mwlvv.fsf@gondor.middle-earth.priv>
-	<20051013224839.GA3583@kroah.com>
-From: Christian Krause <chkr@plauener.de>
-Date: Fri, 14 Oct 2005 19:57:45 +0200
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
-Content-Type: text/plain; charset=us-ascii
-Message-ID: <m3oe5riwib.fsf@gondor.middle-earth.priv>
-MIME-Version: 1.0
-X-Spam-Score: 0.0 (/)
-X-Spam-Report: --- Start der SpamAssassin 3.1.0 Textanalyse (0.0 Punkte)
-	Fragen an/questions to:  Postmaster TU Chemnitz <postmaster@tu-chemnitz.de>
-	--- Ende der SpamAssassin Textanalyse
-X-Scan-Signature: ce20b7edf4650e69c84e96fedf5678d6
+	Fri, 14 Oct 2005 18:11:58 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:52970
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1750917AbVJNWL6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Oct 2005 18:11:58 -0400
+Subject: [ANNOUNCE] ktimers high resolution patches - clockevent
+	abstraction layer
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Steven Rostedt <rostedt@kihontech.com>, Con Kolivas <kernel@kolivas.org>,
+       "high-res-timers-discourse@lists.sourceforge.net" 
+	<high-res-timers-discourse@lists.sourceforge.net>,
+       john cooper <john.cooper@timesys.com>,
+       George Anzinger <george@mvista.com>, Doug Niehaus <niehaus@ittc.ku.edu>,
+       john stultz <johnstul@us.ibm.com>, Ingo Molnar <mingo@elte.hu>
+Content-Type: text/plain
+Organization: linutronix
+Date: Sat, 15 Oct 2005 00:14:00 +0200
+Message-Id: <1129328040.1728.829.camel@tglx.tec.linutronix.de>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+i have released the 2.6.14-rc4-kthrt1 version of the high resolution
+timer enabled ktimers subsystem patch, which can be downloaded from
 
-On Thu, 13 Oct 2005 15:48:39 -0700, Greg KH wrote:
-> On Wed, Oct 12, 2005 at 09:55:32PM +0200, Christian Krause wrote:
->> Here is a small patch which solves the whole problem:
+http://www.tglx.de/projects/ktimers/patch-2.6.14-rc4-kthrt1.patch
 
-> The patch is at the wrong level, and has spaces instead of tabs.
-> And no "signed-off-by" line :(
-> Take a look at Documentation/SubmittingPatches for how to create a patch
-> that I can apply and forward on.
+a broken out version is available from
 
-Ok, next try with Signed-off-by above the patch. Please apologize the
-spam. ;-)
-
-During the development of an USB device I found a bug in the handling of
-Highspeed HID devices in the kernel.
-
-What happened?
-
-Highspeed HID devices are correctly recognized and enumerated by the
-kernel. But even if usbhid kernel module is loaded, no HID reports are
-received by the kernel.
-
-The output of the hardware USB analyzer told me that the host doesn't
-even poll for interrupt IN transfers (even the "interrupt in" USB
-transfer are polled by the host).
-
-After some debugging in hid-core.c I've found the reason.
-
-In case of a highspeed device, the endpoint interval is re-calculated in
-driver/usb/input/hid-core.c:
-
-line 1669:
-             /* handle potential highspeed HID correctly */
-             interval = endpoint->bInterval;
-             if (dev->speed == USB_SPEED_HIGH)
-                   interval = 1 << (interval - 1);
-
-Basically this calculation is correct (refer to USB 2.0 spec, 9.6.6).
-This new calculated value of "interval" is used as input for
-usb_fill_int_urb:
-
-line 1685:
-
-            usb_fill_int_urb(hid->urbin, dev, pipe, hid->inbuf, 0,
-                   hid_irq_in, hid, interval);
-
-Unfortunately the same calculation as above is done a second time in 
-usb_fill_int_urb in the file include/linux/usb.h:
-
-line 933:
-        if (dev->speed == USB_SPEED_HIGH)
-                urb->interval = 1 << (interval - 1);
-        else
-                urb->interval = interval;
-
-This means, that if the endpoint descriptor (of a high speed device)
-specifies e.g. bInterval = 7, the urb->interval gets the value:
-
-hid-core.c: interval = 1 << (7-1) = 0x40 = 64
-urb->interval = 1 << (interval -1) = 1 << (63) = integer overflow
-
-Because of this the value of urb->interval is sometimes negative and is
-rejected in core/urb.c:
-line 353:
-                /* too small? */
-                if (urb->interval <= 0)
-                        return -EINVAL;
-
-The conclusion is, that the recalculaton of the interval (which is
-necessary for highspeed) should not be made twice, because this is
-simply wrong. ;-)
-
-Re-calculation in usb_fill_int_urb makes more sense, because it is the
-most general approach. So it would make sense to remove it from
-hid-core.c.
-
-Because in hid-core.c the interval variable is only used for calling
-usb_fill_int_urb, it is no problem to remove the highspeed
-re-calculation in this file.
-
-Signed-off-by: Christian Krause <chkr@plauener.de>
-
---------------------------------snip------------------------
---- linux-2.6.13.4/drivers/usb/input/hid-core.c.old	2005-10-12 21:29:29.000000000 +0200
-+++ linux-2.6.13.4/drivers/usb/input/hid-core.c	2005-10-12 21:31:02.000000000 +0200
-@@ -1667,11 +1667,6 @@ static struct hid_device *usb_hid_config
- 		if ((endpoint->bmAttributes & 3) != 3)		/* Not an interrupt endpoint */
- 			continue;
- 
--		/* handle potential highspeed HID correctly */
--		interval = endpoint->bInterval;
--		if (dev->speed == USB_SPEED_HIGH)
--			interval = 1 << (interval - 1);
--
- 		/* Change the polling interval of mice. */
- 		if (hid->collection->usage == HID_GD_MOUSE && hid_mousepoll_interval > 0)
- 			interval = hid_mousepoll_interval;
-
---------------------------------snip------------------------
+http://www.tglx.de/projects/ktimers/patch-2.6.14-rc4-kthrt1-broken-out.tar.bz2
+or
+http://www.tglx.de/projects/ktimers/broken-out/
 
 
-Best regards,
-Christian
+This is the first release after a couple of proof of concept
+implementations on top of ktimers.
+
+The patch consists of following elements:
+
+- ktimers base patch
+- a refactored version of John Stultz timeofday patch
+  (mostly code moving and some addons to simplify ktimers interface)
+- the clockevents abtraction layer
+- ktimers high resolution addons
+- i386 high resolution enabling code
+
+
+The patch introduces a new abstraction layer:
+	clockevents
+
+clockevents is the logical sibling to John Stultz clocksource
+abstraction.
+
+The current implementation of time(r) related event handling is analogue
+to time keeping a widely duplicated code across architectures. Looking
+at the timer_interrupt() implementations in the various architectures
+reviels a mostly 1:1 copy and paste relationship with some architecture
+specific quirks. Many of those quirks are related to the variety of
+clock event sources which may be unknown at compile time. 
+
+The analysis of time(r) related functionaly reviels following components
+
+- tick handling
+- update_process_times
+- profiling
+Future extensions:
+- non tick based events (high resolution timers, dynamic tick)
+
+These functionalities can be handled by a variety of hardware
+environments
+
+- Single event source handling everything
+- Multiple event sources
+- Single event source for ticks and one or more per CPU event sources
+for other functionalities.
+
+This introduces a lot of #ifdef and macro magic all over the place.
+Adding new functionality e.g. high resolution timers increases the
+number of quirks significantly as every potential combination of
+handling has to be covered.
+
+The clockevents layer is designed to resolve this complexity in a
+central and generic place. The basic idea is to move the assignment of
+time(r) related event functionality from the compile time architecture
+level to a runtime decision. The architecture/hardware specific code
+provides the chip level handling functions and sets the events source up
+by calling the generic abstraction code with a description structure.
+The clockevent abstraction layer analyses the capabilities of the event
+source and assigns the appropriate handling code including a generic
+timer interrupt handler where appropriate. The converted i386
+architecture does not longer need a seperate timer interrupt function.
+The hardware quirks, which were implemented inside the existing timer
+interrupt code are handled by callbacks. It's expected that most
+architectures can follow this example and delegate this functionality to
+the clockevent layer. We have sample code running on PPC and ARM which
+needs some cleanup and will be released ASAP. 
+
+The release code implementation is tested on i386 UP and SMP systems and
+handles all kinds of hardware scenarios. 
+
+An illustration of the benefits is the UP high resolution mode on i386.
+We have following alternatives:
+- PIT handles everything (ticks, highres, profiling, update process
+times)
+- PIT handles ticks, update process times and profiling. LAPIC timer
+handles high resolution events.
+
+This must be handled at runtime as we don't know whether "lapic" is
+given on the command line or not. The previous implementations needed a
+bunch of #ifdefs and a lot of "if (using_apic_timer)" quirks.
+clockevents does not need any of them. The required "tick reschulding"
+in the PIT-only case is handled automatically by the generic code.
+
+Also note the "enourmous" size of the i386 high resolution enabling
+patch:
+ hres_i386.patch: 1944 bytes
+ Kconfig       |   18 ++++++++++++++++++
+ kernel/apic.c |   12 ++++++++++--
+ 2 files changed, 28 insertions(+), 2 deletions(-)
+The Kconfig changes are scheduled to be moved to the generic layer in
+the next round of cleanups.
+
+The high resolution functionality is verified against the posix timer
+test suite from the HRT project
+
+The clockevent layer provides also a solid ground for a generic solution
+of the dynamic tick problem. The infrastructure should provide all the
+necessary basics.
+
+
+I'd like to thank especially
+- Ingo Molnar for discussion, review and testing
+- John Stultz for his excellent work on the timeofday code and his
+openness for ideas and changes affecting his work
+- the HRT pioneers Doug Niehaus and George Anzinger for a lot of input
+and inspiration
+
+Thanks also to everybody else who helped by providing ideas, criticism,
+bugfixes, testing ...
+
+
+	tglx
+
+

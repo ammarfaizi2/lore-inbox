@@ -1,389 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbVJNBZE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932526AbVJNBnD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932167AbVJNBZE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 21:25:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932195AbVJNBZE
+	id S932526AbVJNBnD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 21:43:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932551AbVJNBnD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 21:25:04 -0400
-Received: from ozlabs.org ([203.10.76.45]:63451 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932167AbVJNBZC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 21:25:02 -0400
-Date: Fri, 14 Oct 2005 11:24:24 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Adam Litke <agl@us.ibm.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       ak@suse.de, hugh@veritas.com
-Subject: Re: [PATCH 2/3] hugetlb: Demand fault handler
-Message-ID: <20051014012424.GC6374@localhost.localdomain>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Adam Litke <agl@us.ibm.com>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org, ak@suse.de,
-	hugh@veritas.com
-References: <1129055057.22182.8.camel@localhost.localdomain> <1129055559.22182.12.camel@localhost.localdomain> <20051012060934.GA14943@localhost.localdomain> <1129218568.8797.7.camel@localhost.localdomain>
+	Thu, 13 Oct 2005 21:43:03 -0400
+Received: from li2-47.members.linode.com ([69.56.173.47]:11025 "EHLO
+	li2-47.members.linode.com") by vger.kernel.org with ESMTP
+	id S932526AbVJNBnC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Oct 2005 21:43:02 -0400
+Date: Thu, 13 Oct 2005 21:42:56 -0400
+From: Randall Nortman <linuxkernellist@wonderclown.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Regression in 2.6.13 in USB generic serial driver
+Message-ID: <20051014014255.GN8982@li2-47.members.linode.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1129218568.8797.7.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6+20040907i
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 13, 2005 at 10:49:28AM -0500, Adam Litke wrote:
-> Thanks for the review and comments...
-> 
-> On Wed, 2005-10-12 at 16:09 +1000, David Gibson wrote:
-> > On Tue, Oct 11, 2005 at 01:32:38PM -0500, Adam Litke wrote:
-> > > Version 5 (Tue, 11 Oct 2005)
-> > > 	Deal with hugetlbfs file truncation in find_get_huge_page()
-> > > Version 4 (Mon, 03 Oct 2005)
-> > > 	Make find_get_huge_page bale properly when add_to_page_cache fails
-> > > 	  due to OOM conditions
-> > > Version 3 (Thu, 08 Sep 2005)
-> > >         Organized logic in hugetlb_pte_fault() by breaking out
-> > >           find_get_page/alloc_huge_page logic into separate function
-> > >         Removed a few more paranoid checks  ( Thanks       )
-> > >         Fixed tlb flushing in a race case   ( Yanmin Zhang )
-> > > 
-> > > Version 2 (Wed, 17 Aug 2005)
-> > >         Removed spurious WARN_ON()
-> > >     Patches added earlier in the series (now in mainline):
-> > >         Check for p?d_none() in arch/i386/mm/hugetlbpage.c:huge_pte_offset()
-> > >         Move i386 stale pte check into huge_pte_alloc()
-> > 
-> > I'm not sure this does fully deal with truncation, I'm afraid - it
-> > will deal with a truncation well before the fault, but not a
-> > concurrent truncate().  We'll need the truncate_count/retry logic from
-> > do_no_page, I think.  Andi/Hugh, can you confirm that's correct?
-> 
-> Ok.  I can see why we need that.
-> 
-> > > Initial Post (Fri, 05 Aug 2005)
-> > > 
-> > > Below is a patch to implement demand faulting for huge pages.  The main
-> > > motivation for changing from prefaulting to demand faulting is so that
-> > > huge page memory areas can be allocated according to NUMA policy.
-> > > 
-> > > Thanks to consolidated hugetlb code, switching the behavior requires changing
-> > > only one fault handler.  The bulk of the patch just moves the logic from 
-> > > hugelb_prefault() to hugetlb_pte_fault() and find_get_huge_page().
-> > 
-> > While we're at it - it's a minor nit, but I find the distinction
-> > between hugetlb_pte_fault() and hugetlb_fault() confusing.  A better
-> > name for the former would be hugetlb_no_page(), in which case we
-> > should probably also move the border between it and
-> > hugetlb_find_get_page() to match the boundary between do_no_page() and
-> > mapping->nopage.
-> > 
-> > How about this, for example:
-> 
-> Yeah, I suppose that division makes more sense when comparing to the
-> normal fault handler code.
-> 
-> > @@ -338,57 +337,128 @@
-> >  	spin_unlock(&mm->page_table_lock);
-> >  }
-> >  
-> > -int hugetlb_prefault(struct address_space *mapping, struct vm_area_struct *vma)
-> > +static struct page *hugetlbfs_nopage(struct vm_area_struct *vma,
-> 
-> <snip>
-> 
-> > +	/* Check to make sure the mapping hasn't been truncated */
-> > +	size = i_size_read(inode) >> HPAGE_SHIFT;
-> > +	if (pgoff >= size)
-> > +		return NULL;
-> > +
-> > + retry:
-> > +	page = find_get_page(mapping, pgoff);
-> > +	if (page)
-> > +		/* Another thread won the race */
-> > +		return page;
-> 
-> Both of those returns could be changed to goto out so that the function
-> has only one exit path.  Isn't that what we want?
+Kernel version 2.6.13 introduced a regression (vs. 2.6.12.6) in the
+generic USB serial converter driver.  The regression manifests, as far
+as I can tell, whenever you attempt to write to the device.  The
+symptom is that the write never completes (write() returns 0, or
+blocks).  I'm pretty sure this will happen with all hardware, but I
+only have my hardware to test with (amd64 host interfacing to a
+custom-built USB device based on an Atmel AT91SAM7X256 arm7tdmi chip's
+built-in USB transceiver).
 
-Eh, I've never been of the "gotos are better than multiple exit
-points" school of thought.  However, I've not been consistent here,
-sometimes using return and sometimes goto out.  Here's a new version
+The patch (vs. vanilla 2.6.13.4) is rather straightforward:
 
-Subject: [PATCH 2/3] hugetlb: Demand fault handler
-From: Adam Litke <agl@us.ibm.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-	David Gibson <david@gibson.dropbear.id.au>, ak@suse.de,
-	hugh@veritas.com
-Organization: IBM
-Date:	Tue, 11 Oct 2005 13:32:38 -0500
-
-Version 5 (Tue, 11 Oct 2005)
-	Deal with hugetlbfs file truncation in find_get_huge_page()
-Version 4 (Mon, 03 Oct 2005)
-	Make find_get_huge_page bale properly when add_to_page_cache fails
-	  due to OOM conditions
-Version 3 (Thu, 08 Sep 2005)
-        Organized logic in hugetlb_pte_fault() by breaking out
-          find_get_page/alloc_huge_page logic into separate function
-        Removed a few more paranoid checks  ( Thanks       )
-        Fixed tlb flushing in a race case   ( Yanmin Zhang )
-
-Version 2 (Wed, 17 Aug 2005)
-        Removed spurious WARN_ON()
-    Patches added earlier in the series (now in mainline):
-        Check for p?d_none() in arch/i386/mm/hugetlbpage.c:huge_pte_offset()
-        Move i386 stale pte check into huge_pte_alloc()
-
-Initial Post (Fri, 05 Aug 2005)
-
-Below is a patch to implement demand faulting for huge pages.  The main
-motivation for changing from prefaulting to demand faulting is so that
-huge page memory areas can be allocated according to NUMA policy.
-
-Thanks to consolidated hugetlb code, switching the behavior requires changing
-only one fault handler.  The bulk of the patch just moves the logic from 
-hugelb_prefault() to hugetlb_pte_fault() and find_get_huge_page().
-
-Signed-off-by: Adam Litke <agl@us.ibm.com>
-Index: working-2.6/fs/hugetlbfs/inode.c
 ===================================================================
---- working-2.6.orig/fs/hugetlbfs/inode.c	2005-10-14 11:05:42.000000000 +1000
-+++ working-2.6/fs/hugetlbfs/inode.c	2005-10-14 11:08:39.000000000 +1000
-@@ -48,7 +48,6 @@
- static int hugetlbfs_file_mmap(struct file *file, struct vm_area_struct *vma)
- {
- 	struct inode *inode = file->f_dentry->d_inode;
--	struct address_space *mapping = inode->i_mapping;
- 	loff_t len, vma_len;
- 	int ret;
+diff -ru linux-2.6.13.4/drivers/usb/serial/generic.c linux-2.6.13.4-fixed/drivers/usb/serial/generic.c
+--- linux-2.6.13.4/drivers/usb/serial/generic.c	2005-10-10 14:54:29.000000000 -0400
++++ linux-2.6.13.4-fixed/drivers/usb/serial/generic.c	2005-10-13 21:34:54.000000000 -0400
+@@ -223,7 +223,7 @@
+ 	dbg("%s - port %d", __FUNCTION__, port->number);
  
-@@ -79,10 +78,7 @@
- 	if (!(vma->vm_flags & VM_WRITE) && len > inode->i_size)
- 		goto out;
- 
--	ret = hugetlb_prefault(mapping, vma);
--	if (ret)
--		goto out;
--
-+	ret = 0;
- 	if (inode->i_size < len)
- 		inode->i_size = len;
- out:
-Index: working-2.6/include/linux/hugetlb.h
-===================================================================
---- working-2.6.orig/include/linux/hugetlb.h	2005-10-12 17:10:16.000000000 +1000
-+++ working-2.6/include/linux/hugetlb.h	2005-10-14 11:05:44.000000000 +1000
-@@ -25,6 +25,8 @@
- unsigned long hugetlb_total_pages(void);
- struct page *alloc_huge_page(void);
- void free_huge_page(struct page *);
-+int hugetlb_fault(struct mm_struct *mm, struct vm_area_struct * vma,
-+			unsigned long address, int write_access);
- 
- extern unsigned long max_huge_pages;
- extern const unsigned long hugetlb_zero, hugetlb_infinity;
-Index: working-2.6/mm/hugetlb.c
-===================================================================
---- working-2.6.orig/mm/hugetlb.c	2005-10-14 11:05:44.000000000 +1000
-+++ working-2.6/mm/hugetlb.c	2005-10-14 11:09:20.000000000 +1000
-@@ -312,9 +312,8 @@
- 	for (address = start; address < end; address += HPAGE_SIZE) {
- 		ptep = huge_pte_offset(mm, address);
- 		if (! ptep)
--			/* This can happen on truncate, or if an
--			 * mmap() is aborted due to an error before
--			 * the prefault */
-+			/* This can happen on truncate, or for pages
-+			 * not yet faulted in */
- 			continue;
- 
- 		pte = huge_ptep_get_and_clear(mm, address, ptep);
-@@ -338,57 +337,127 @@
- 	spin_unlock(&mm->page_table_lock);
- }
- 
--int hugetlb_prefault(struct address_space *mapping, struct vm_area_struct *vma)
-+static struct page *hugetlbfs_nopage(struct vm_area_struct *vma,
-+				     unsigned long address)
- {
--	struct mm_struct *mm = current->mm;
--	unsigned long addr;
--	int ret = 0;
-+	int err;
-+	struct address_space *mapping = vma->vm_file->f_mapping;
-+	struct inode *inode = mapping->host;
-+	unsigned long pgoff, size;
-+	struct page *page = NULL;
-+
-+	pgoff = ((address - vma->vm_start) >> HPAGE_SHIFT)
-+		+ (vma->vm_pgoff >> (HPAGE_SHIFT - PAGE_SHIFT));
-+
-+	/* Check to make sure the mapping hasn't been truncated */
-+	size = i_size_read(inode) >> HPAGE_SHIFT;
-+	if (pgoff >= size)
-+		return NULL;
-+
-+ retry:
-+	page = find_get_page(mapping, pgoff);
-+	if (page)
-+		/* Another thread won the race */
-+		return page;
-+
-+	if (hugetlb_get_quota(mapping) != 0)
-+		return NULL;
-+
-+	page = alloc_huge_page();
-+	if (!page) {
-+		hugetlb_put_quota(mapping);
-+		return NULL;
-+	}
-+
-+	/*
-+	 * It would be better to use GFP_KERNEL here but then we'd need to
-+	 * drop the page_table_lock and handle several race conditions.
-+	 */
-+	err = add_to_page_cache(page, mapping, pgoff, GFP_ATOMIC);
-+	if (err) {
-+		put_page(page);
-+		hugetlb_put_quota(mapping);
-+		if (err == -ENOMEM)
-+			return NULL;
-+		else
-+			goto retry;
-+	}
-+	unlock_page(page);
-+
-+	return page;
-+
-+}
-+
-+static int hugetlb_no_page(struct mm_struct *mm, struct vm_area_struct *vma,
-+			   unsigned long address, pte_t *pte,
-+			   int write_access)
-+{
-+	struct page *new_page;
-+	struct address_space *mapping;
-+	unsigned int sequence;
- 
--	WARN_ON(!is_vm_hugetlb_page(vma));
- 	BUG_ON(vma->vm_start & ~HPAGE_MASK);
- 	BUG_ON(vma->vm_end & ~HPAGE_MASK);
-+	BUG_ON(!vma->vm_file);
-+	BUG_ON(!pte);
-+	BUG_ON(!pte_none(*pte));
-+
-+	spin_unlock(&mm->page_table_lock);
-+
-+	mapping = vma->vm_file->f_mapping;
-+	sequence = mapping->truncate_count;
-+	smp_rmb(); /* serializes i_size against truncate_count */
- 
--	hugetlb_prefault_arch_hook(mm);
-+ retry:
-+	new_page = hugetlbfs_nopage(vma, address & HPAGE_MASK);
- 
- 	spin_lock(&mm->page_table_lock);
--	for (addr = vma->vm_start; addr < vma->vm_end; addr += HPAGE_SIZE) {
--		unsigned long idx;
--		pte_t *pte = huge_pte_alloc(mm, addr);
--		struct page *page;
--
--		if (!pte) {
--			ret = -ENOMEM;
--			goto out;
--		}
--
--		idx = ((addr - vma->vm_start) >> HPAGE_SHIFT)
--			+ (vma->vm_pgoff >> (HPAGE_SHIFT - PAGE_SHIFT));
--		page = find_get_page(mapping, idx);
--		if (!page) {
--			/* charge the fs quota first */
--			if (hugetlb_get_quota(mapping)) {
--				ret = -ENOMEM;
--				goto out;
--			}
--			page = alloc_huge_page();
--			if (!page) {
--				hugetlb_put_quota(mapping);
--				ret = -ENOMEM;
--				goto out;
--			}
--			ret = add_to_page_cache(page, mapping, idx, GFP_ATOMIC);
--			if (! ret) {
--				unlock_page(page);
--			} else {
--				hugetlb_put_quota(mapping);
--				free_huge_page(page);
--				goto out;
--			}
--		}
-+
-+	if (!new_page)
-+		return VM_FAULT_SIGBUS;
-+
-+	/*
-+	 * Someone could have truncated this page.
-+	 */
-+	if (unlikely(sequence != mapping->truncate_count)) {
-+		spin_unlock(&mm->page_table_lock);
-+		page_cache_release(new_page);
-+		cond_resched();
-+		sequence = mapping->truncate_count;
-+		smp_rmb();
-+		goto retry;
-+	}
-+
-+	if (pte_none(*pte)) {
-+		set_huge_pte_at(mm, address, pte,
-+				make_huge_pte(vma, new_page));
- 		add_mm_counter(mm, file_rss, HPAGE_SIZE / PAGE_SIZE);
--		set_huge_pte_at(mm, addr, pte, make_huge_pte(vma, page));
-+	} else {
-+		/* One of our sibling threads was faster, back out. */
-+		page_cache_release(new_page);
-+	}
-+	return VM_FAULT_MINOR;
-+}
-+
-+int hugetlb_fault(struct mm_struct *mm, struct vm_area_struct *vma,
-+			unsigned long address, int write_access)
-+{
-+	pte_t *ptep;
-+	int rc = VM_FAULT_MINOR;
-+
-+	spin_lock(&mm->page_table_lock);
-+
-+	ptep = huge_pte_alloc(mm, address);
-+	if (!ptep) {
-+		rc = VM_FAULT_SIGBUS;
-+		goto out;
+ 	if (serial->num_bulk_out) {
+-		if (port->write_urb_busy)
++		if (!(port->write_urb_busy))
+ 			room = port->bulk_out_size;
  	}
-+	if (pte_none(*ptep))
-+		rc = hugetlb_no_page(mm, vma, address, ptep, write_access);
-+
-+	if (rc == VM_FAULT_MINOR)
-+		flush_tlb_page(vma, address);
- out:
- 	spin_unlock(&mm->page_table_lock);
--	return ret;
-+	return rc;
- }
-Index: working-2.6/mm/memory.c
+ 
 ===================================================================
---- working-2.6.orig/mm/memory.c	2005-10-14 11:05:44.000000000 +1000
-+++ working-2.6/mm/memory.c	2005-10-14 11:05:44.000000000 +1000
-@@ -2040,7 +2040,7 @@
- 	inc_page_state(pgfault);
- 
- 	if (is_vm_hugetlb_page(vma))
--		return VM_FAULT_SIGBUS;	/* mapping truncation does this. */
-+		return hugetlb_fault(mm, vma, address, write_access);
- 
- 	/*
- 	 * We need the page table lock to synchronize with kswapd
 
+Please let me know if I'm missing something.  Otherwise, do I need to
+do anything in particular to get a maintainer to accept the patch?
+(I'm a long-time user, first-time patcher, so forgive my ignorance
+about procedures.)
 
 -- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/people/dgibson
+Randall

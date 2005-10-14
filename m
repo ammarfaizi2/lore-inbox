@@ -1,69 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750926AbVJNV4W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750912AbVJNWGk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750926AbVJNV4W (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Oct 2005 17:56:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750927AbVJNV4W
+	id S1750912AbVJNWGk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Oct 2005 18:06:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750935AbVJNWGk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Oct 2005 17:56:22 -0400
-Received: from ffm.saftware.de ([217.20.127.95]:27411 "EHLO ffm.saftware.de")
-	by vger.kernel.org with ESMTP id S1750924AbVJNV4W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Oct 2005 17:56:22 -0400
-Subject: Re: [PATCH 08/14] Big kfree NULL check cleanup - drivers/media
-From: Andreas Oberritter <obi@linuxtv.org>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       linux-dvb-maintainer@linuxtv.org, Manu Abraham <manu@kromtek.com>,
-       Emard <emard@softhome.net>, Marko Kohtala <marko.kohtala@luukku.com>,
-       Wilson Michaels <wilsonmichaels@earthlink.net>,
-       Kirk Lapray <kirk_lapray@bigfoot.com>,
-       Mauro Carvalho Chehab <mchehab@brturbo.com.br>,
-       video4linux-list@redhat.com,
-       Takeo Takahashi <takahashi.takeo@renesas.com>,
-       Ralph Metzler <rjkm@thp.uni-koeln.de>, Gerd Knorr <kraxel@bytesex.org>,
-       Bill Dirks <bdirks@pacbell.net>, Wolfgang Scherr <scherr@net4you.at>,
-       Alan Cox <alan@redhat.com>, Ronald Bultje <rbultje@ronald.bitfreak.net>,
-       Serguei Miridonov <mirsev@cicese.mx>
-In-Reply-To: <200510132128.12616.jesper.juhl@gmail.com>
-References: <200510132128.12616.jesper.juhl@gmail.com>
-Content-Type: text/plain
-Date: Fri, 14 Oct 2005 23:56:18 +0200
-Message-Id: <1129326978.7184.3.camel@ip6-localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Fri, 14 Oct 2005 18:06:40 -0400
+Received: from lana.hrz.tu-chemnitz.de ([134.109.132.3]:50667 "EHLO
+	lana.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id S1750911AbVJNWGj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Oct 2005 18:06:39 -0400
+X-From-Line: nobody Fri Oct 14 19:57:45 2005
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Chris Wright <chrisw@osdl.org>,
+       kernel-stuff@comcast.net (Parag Warudkar)
+Subject: [PATCH] Re: bug in handling of highspeed usb HID devices
+References: <m34q7mwlvv.fsf@gondor.middle-earth.priv>
+	<20051013224839.GA3583@kroah.com>
+From: Christian Krause <chkr@plauener.de>
+Date: Fri, 14 Oct 2005 19:57:45 +0200
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+Content-Type: text/plain; charset=us-ascii
+Message-ID: <m3oe5riwib.fsf@gondor.middle-earth.priv>
+MIME-Version: 1.0
+X-Spam-Score: 0.0 (/)
+X-Spam-Report: --- Start der SpamAssassin 3.1.0 Textanalyse (0.0 Punkte)
+	Fragen an/questions to:  Postmaster TU Chemnitz <postmaster@tu-chemnitz.de>
+	--- Ende der SpamAssassin Textanalyse
+X-Scan-Signature: ce20b7edf4650e69c84e96fedf5678d6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-10-13 at 21:28 +0200, Jesper Juhl wrote:
-> This is the drivers/media/ part of the big kfree cleanup patch.
-> 
-> Remove pointless checks for NULL prior to calling kfree() in drivers/media/.
-> 
-> 
-> Sorry about the long Cc: list, but I wanted to make sure I included everyone
-> who's code I've changed with this patch.
-> 
-> 
-> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
-> ---
-> 
+Hi Greg,
 
-[...]
+On Thu, 13 Oct 2005 15:48:39 -0700, Greg KH wrote:
+> On Wed, Oct 12, 2005 at 09:55:32PM +0200, Christian Krause wrote:
+>> Here is a small patch which solves the whole problem:
 
-> --- linux-2.6.14-rc4-orig/drivers/media/dvb/frontends/mt312.c	2005-08-29 01:41:01.000000000 +0200
-> +++ linux-2.6.14-rc4/drivers/media/dvb/frontends/mt312.c	2005-10-13 10:28:50.000000000 +0200
-> @@ -675,8 +675,7 @@ struct dvb_frontend* mt312_attach(const 
->  	return &state->frontend;
->  
->  error:
-> -	if (state)
-> -		kfree(state);
-> +	kfree(state);
->  	return NULL;
->  }
->  
+> The patch is at the wrong level, and has spaces instead of tabs.
+> And no "signed-off-by" line :(
+> Take a look at Documentation/SubmittingPatches for how to create a patch
+> that I can apply and forward on.
 
-Acked-by: Andreas Oberritter <obi@linuxtv.org>
+Ok, next try with Signed-off-by above the patch. Please apologize the
+spam. ;-)
+
+During the development of an USB device I found a bug in the handling of
+Highspeed HID devices in the kernel.
+
+What happened?
+
+Highspeed HID devices are correctly recognized and enumerated by the
+kernel. But even if usbhid kernel module is loaded, no HID reports are
+received by the kernel.
+
+The output of the hardware USB analyzer told me that the host doesn't
+even poll for interrupt IN transfers (even the "interrupt in" USB
+transfer are polled by the host).
+
+After some debugging in hid-core.c I've found the reason.
+
+In case of a highspeed device, the endpoint interval is re-calculated in
+driver/usb/input/hid-core.c:
+
+line 1669:
+             /* handle potential highspeed HID correctly */
+             interval = endpoint->bInterval;
+             if (dev->speed == USB_SPEED_HIGH)
+                   interval = 1 << (interval - 1);
+
+Basically this calculation is correct (refer to USB 2.0 spec, 9.6.6).
+This new calculated value of "interval" is used as input for
+usb_fill_int_urb:
+
+line 1685:
+
+            usb_fill_int_urb(hid->urbin, dev, pipe, hid->inbuf, 0,
+                   hid_irq_in, hid, interval);
+
+Unfortunately the same calculation as above is done a second time in 
+usb_fill_int_urb in the file include/linux/usb.h:
+
+line 933:
+        if (dev->speed == USB_SPEED_HIGH)
+                urb->interval = 1 << (interval - 1);
+        else
+                urb->interval = interval;
+
+This means, that if the endpoint descriptor (of a high speed device)
+specifies e.g. bInterval = 7, the urb->interval gets the value:
+
+hid-core.c: interval = 1 << (7-1) = 0x40 = 64
+urb->interval = 1 << (interval -1) = 1 << (63) = integer overflow
+
+Because of this the value of urb->interval is sometimes negative and is
+rejected in core/urb.c:
+line 353:
+                /* too small? */
+                if (urb->interval <= 0)
+                        return -EINVAL;
+
+The conclusion is, that the recalculaton of the interval (which is
+necessary for highspeed) should not be made twice, because this is
+simply wrong. ;-)
+
+Re-calculation in usb_fill_int_urb makes more sense, because it is the
+most general approach. So it would make sense to remove it from
+hid-core.c.
+
+Because in hid-core.c the interval variable is only used for calling
+usb_fill_int_urb, it is no problem to remove the highspeed
+re-calculation in this file.
+
+Signed-off-by: Christian Krause <chkr@plauener.de>
+
+--------------------------------snip------------------------
+--- linux-2.6.13.4/drivers/usb/input/hid-core.c.old	2005-10-12 21:29:29.000000000 +0200
++++ linux-2.6.13.4/drivers/usb/input/hid-core.c	2005-10-12 21:31:02.000000000 +0200
+@@ -1667,11 +1667,6 @@ static struct hid_device *usb_hid_config
+ 		if ((endpoint->bmAttributes & 3) != 3)		/* Not an interrupt endpoint */
+ 			continue;
+ 
+-		/* handle potential highspeed HID correctly */
+-		interval = endpoint->bInterval;
+-		if (dev->speed == USB_SPEED_HIGH)
+-			interval = 1 << (interval - 1);
+-
+ 		/* Change the polling interval of mice. */
+ 		if (hid->collection->usage == HID_GD_MOUSE && hid_mousepoll_interval > 0)
+ 			interval = hid_mousepoll_interval;
+
+--------------------------------snip------------------------
 
 
+Best regards,
+Christian

@@ -1,53 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbVJNRu6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbVJNR5s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750762AbVJNRu6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Oct 2005 13:50:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750777AbVJNRu6
+	id S1750783AbVJNR5s (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Oct 2005 13:57:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbVJNR5s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Oct 2005 13:50:58 -0400
-Received: from liaag2ae.mx.compuserve.com ([149.174.40.156]:7628 "EHLO
-	liaag2ae.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1750762AbVJNRu5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Oct 2005 13:50:57 -0400
-Date: Fri, 14 Oct 2005 13:47:09 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [patch 2.6.14-rc4] i386: spinlock optimization
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Chuck Ebbert <76306.1226@compuserve.com>
-Message-ID: <200510141350_MC3-1-ACA0-C8C9@compuserve.com>
+	Fri, 14 Oct 2005 13:57:48 -0400
+Received: from lana.hrz.tu-chemnitz.de ([134.109.132.3]:57798 "EHLO
+	lana.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id S1750783AbVJNR5r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Oct 2005 13:57:47 -0400
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Chris Wright <chrisw@osdl.org>,
+       kernel-stuff@comcast.net (Parag Warudkar)
+Subject: [PATCH] Re: bug in handling of highspeed usb HID devices
+References: <m34q7mwlvv.fsf@gondor.middle-earth.priv>
+	<20051013224839.GA3583@kroah.com>
+From: Christian Krause <chkr@plauener.de>
+Date: Fri, 14 Oct 2005 19:57:45 +0200
+Message-ID: <m3ek6o2d7q.fsf@gondor.middle-earth.priv>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
+X-Spam-Score: 0.0 (/)
+X-Spam-Report: --- Start der SpamAssassin 3.1.0 Textanalyse (0.0 Punkte)
+	Fragen an/questions to:  Postmaster TU Chemnitz <postmaster@tu-chemnitz.de>
+	--- Ende der SpamAssassin Textanalyse
+X-Scan-Signature: 8de341043e09d6ae0c0b257e994bf918
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Attempt to acquire spinlock sooner after spinning and then noticing
-it has become available.  Also adds a slight delay before testing the
-spinlock again when it's not available, reducing bus traffic.
+Hi Greg,
 
-This change makes spinlocks fairer in the case where the owner drops
-the lock and then immediately tries to take it again.
+On Thu, 13 Oct 2005 15:48:39 -0700, Greg KH wrote:
+> On Wed, Oct 12, 2005 at 09:55:32PM +0200, Christian Krause wrote:
+>> Here is a small patch which solves the whole problem:
 
-Signed-Off-By: Chuck Ebbert <76306.1226@compuserve.com>
----
+> The patch is at the wrong level, and has spaces instead of tabs.
+> And no "signed-off-by" line :(
+> Take a look at Documentation/SubmittingPatches for how to create a patch
+> that I can apply and forward on.
 
- include/asm-i386/spinlock.h |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+Please apologize the wrong format of the patch, here is the next
+try. I also include the description why the change is necessary again:
 
---- 2.6.14-rc4a.orig/include/asm-i386/spinlock.h
-+++ 2.6.14-rc4a/include/asm-i386/spinlock.h
-@@ -28,8 +28,8 @@
- 	"2:\t" \
- 	"rep;nop\n\t" \
- 	"cmpb $0,%0\n\t" \
--	"jle 2b\n\t" \
--	"jmp 1b\n" \
-+	"jg 1b\n\t" \
-+	"jmp 2b\n" \
- 	"3:\n\t"
+During the development of an USB device I found a bug in the handling of
+Highspeed HID devices in the kernel.
+
+What happened?
+
+Highspeed HID devices are correctly recognized and enumerated by the
+kernel. But even if usbhid kernel module is loaded, no HID reports are
+received by the kernel.
+
+The output of the hardware USB analyzer told me that the host doesn't
+even poll for interrupt IN transfers (even the "interrupt in" USB
+transfer are polled by the host).
+
+After some debugging in hid-core.c I've found the reason.
+
+In case of a highspeed device, the endpoint interval is re-calculated in
+driver/usb/input/hid-core.c:
+
+line 1669:
+             /* handle potential highspeed HID correctly */
+             interval = endpoint->bInterval;
+             if (dev->speed == USB_SPEED_HIGH)
+                   interval = 1 << (interval - 1);
+
+Basically this calculation is correct (refer to USB 2.0 spec, 9.6.6).
+This new calculated value of "interval" is used as input for
+usb_fill_int_urb:
+
+line 1685:
+
+            usb_fill_int_urb(hid->urbin, dev, pipe, hid->inbuf, 0,
+                   hid_irq_in, hid, interval);
+
+Unfortunately the same calculation as above is done a second time in 
+usb_fill_int_urb in the file include/linux/usb.h:
+
+line 933:
+        if (dev->speed == USB_SPEED_HIGH)
+                urb->interval = 1 << (interval - 1);
+        else
+                urb->interval = interval;
+
+This means, that if the endpoint descriptor (of a high speed device)
+specifies e.g. bInterval = 7, the urb->interval gets the value:
+
+hid-core.c: interval = 1 << (7-1) = 0x40 = 64
+urb->interval = 1 << (interval -1) = 1 << (63) = integer overflow
+
+Because of this the value of urb->interval is sometimes negative and is
+rejected in core/urb.c:
+line 353:
+                /* too small? */
+                if (urb->interval <= 0)
+                        return -EINVAL;
+
+The conclusion is, that the recalculaton of the interval (which is
+necessary for highspeed) should not be made twice, because this is
+simply wrong. ;-)
+
+Re-calculation in usb_fill_int_urb makes more sense, because it is the
+most general approach. So it would make sense to remove it from
+hid-core.c.
+
+Because in hid-core.c the interval variable is only used for calling
+usb_fill_int_urb, it is no problem to remove the highspeed
+re-calculation in this file.
+
+--------------------------------snip------------------------
+--- linux-2.6.13.4/drivers/usb/input/hid-core.c.old	2005-10-12 21:29:29.000000000 +0200
++++ linux-2.6.13.4/drivers/usb/input/hid-core.c	2005-10-12 21:31:02.000000000 +0200
+@@ -1667,11 +1667,6 @@ static struct hid_device *usb_hid_config
+ 		if ((endpoint->bmAttributes & 3) != 3)		/* Not an interrupt endpoint */
+ 			continue;
  
- #define __raw_spin_lock_string_flags \
+-		/* handle potential highspeed HID correctly */
+-		interval = endpoint->bInterval;
+-		if (dev->speed == USB_SPEED_HIGH)
+-			interval = 1 << (interval - 1);
+-
+ 		/* Change the polling interval of mice. */
+ 		if (hid->collection->usage == HID_GD_MOUSE && hid_mousepoll_interval > 0)
+ 			interval = hid_mousepoll_interval;
+
+--------------------------------snip------------------------
+Signed-off-by: Christian Krause <chkr@plauener.de>
+
+
+I hope all things are ok now and I ask kindly for applying. 
+
+> Also, what device needs this patch?  Is it a device that I can buy
+> today?
+
+Yes, just buy Avocent's DSR2030. It enumerates as a highspeed HID device.
+
+
+Best regards,
+Christian

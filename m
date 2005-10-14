@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbVJNNh1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbVJNNvn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750749AbVJNNh1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Oct 2005 09:37:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750750AbVJNNh1
+	id S1750736AbVJNNvn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Oct 2005 09:51:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbVJNNvm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Oct 2005 09:37:27 -0400
-Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:4878 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1750749AbVJNNh1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Oct 2005 09:37:27 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: suzannew@cs.pdx.edu (Suzanne Wood)
-Subject: Re: [RFC][PATCH] rcu in drivers/net/hamradio
-Cc: linux-kernel@vger.kernel.org, g4klx@g4klx.demon.co.uk, hch@infradead.org,
-       jreuter@yaina.de, paulmck@us.ibm.com, suzannew@cs.pdx.edu,
-       walpole@cs.pdx.edu
-Organization: Core
-In-Reply-To: <200510140804.j9E84nwG026920@rastaban.cs.pdx.edu>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1EQPk5-0006dA-00@gondolin.me.apana.org.au>
-Date: Fri, 14 Oct 2005 23:37:01 +1000
+	Fri, 14 Oct 2005 09:51:42 -0400
+Received: from mailout09.sul.t-online.com ([194.25.134.84]:51660 "EHLO
+	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S1750736AbVJNNvm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Oct 2005 09:51:42 -0400
+Message-Id: <6.1.1.1.2.20051014154955.026f38e0@192.168.6.2>
+X-Mailer: QUALCOMM Windows Eudora Version 6.1.1.1
+Date: Fri, 14 Oct 2005 15:50:33 +0200
+To: linux-kernel@vger.kernel.org
+From: Roger While <simrw@sim-basis.de>
+Subject: 2.6 - SCSI Config parameter always set ?
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-MDRemoteIP: 192.168.6.50
+X-Return-Path: simrw@sim-basis.de
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+X-ID: E1HZVOZrZe0mK5fjnmJVcqH5kQlVYRcAgHs3vJdit8t-0UWJGmZtwC@t-dialin.net
+X-TOI-MSGID: 187ab2ea-4c46-497c-b976-89b951107edc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Suzanne Wood <suzannew@cs.pdx.edu> wrote:
->
-> (1) bpq_new_device() calls list_add_rcu() labeled as 
-> "list protected by RTNL."  The comment may need to go 
-> since the only apparent rtnl_lock()/unlock() pair encloses 
-> the call to bpq_free_device() in bpq_cleanup_driver()
-> called upon module_exit().
+CONFIG_SCSI_QLA2XXX=y
 
-The RTNL comment is correct actually.
+It seems as though this is always set with no method
+of unsetting it.
+Is this intentional ?
 
-bpq_new_device can only be called from bpq_device_event which
-is called from a netdev event handler.  All netdev event handlers
-must be called uner the RTNL.
+It's been like this since at least 2.6.11 up to current 2.6.14rc4.
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Roger While
+
+
+

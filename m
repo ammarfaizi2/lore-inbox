@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbVJNKjb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbVJNKzm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750705AbVJNKjb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Oct 2005 06:39:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750714AbVJNKjb
+	id S1750710AbVJNKzm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Oct 2005 06:55:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750714AbVJNKzm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Oct 2005 06:39:31 -0400
-Received: from zproxy.gmail.com ([64.233.162.207]:28535 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750705AbVJNKja (ORCPT
+	Fri, 14 Oct 2005 06:55:42 -0400
+Received: from mail.cs.umu.se ([130.239.40.25]:53443 "EHLO mail.cs.umu.se")
+	by vger.kernel.org with ESMTP id S1750710AbVJNKzm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Oct 2005 06:39:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type:content-transfer-encoding;
-        b=MJ40MidPADI8kzoxTmPIePRx0dgbSFiM11Vszt18XoSzaUrpNc4/ja/o4oS9ueiD1dts5E4PPwZ5zaZHOhWSkIg0mxlx1GP1fdz5QATzcS0uogPzNR6fJ4CPjjKMRTIgdz30qBi3SM9DSjzyfOECODgjfVW/feWqqNHTRL05fyI=
-Message-ID: <434F8B23.7090201@gmail.com>
-Date: Fri, 14 Oct 2005 18:40:35 +0800
-From: Yan Zheng <yzcorp@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH]The type of inet6_ifinfo_notify event  in addrconf_ifdown().
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 14 Oct 2005 06:55:42 -0400
+Date: Fri, 14 Oct 2005 12:55:32 +0200
+From: Peter Hagervall <hager@cs.umu.se>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Kconfig fix, (ES7000 dependencies)
+Message-ID: <20051014105532.GD8805@peppar.cs.umu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maybe inet6_ifinfo_notify event type should be RTM_DELLINK in 
-addrconf_ifdown().
+Targets X86_GENERICARCH and X86_ES7000 fail to build without
+CONFIG_ACPI.
 
-Signed-off-by: Yan Zheng<yanzheng@21cn.com>
+Signed-off-by: Peter Hagervall <hager@cs.umu.se>
+---
 
-Index:  net/ipv6/addrconf.c
-------------------------------------------------------------------------
---- linux-2.6.14-rc4-git2/net/ipv6/addrconf.c    2005-10-14 
-18:28:01.000000000 +0800
-+++ linux/net/ipv6/addrconf.c    2005-10-14 18:31:15.000000000 +0800
-@@ -2167,7 +2167,7 @@
+diff --git a/arch/i386/Kconfig b/arch/i386/Kconfig
+--- a/arch/i386/Kconfig
++++ b/arch/i386/Kconfig
+@@ -115,14 +115,14 @@ config X86_VISWS
  
-     /* Step 5: netlink notification of this interface */
-     idev->tstamp = jiffies;
--    inet6_ifinfo_notify(RTM_NEWLINK, idev);
-+    inet6_ifinfo_notify(RTM_DELLINK, idev);
-    
-     /* Shot the device (if unregistered) */
+ config X86_GENERICARCH
+        bool "Generic architecture (Summit, bigsmp, ES7000, default)"
+-       depends on SMP
++       depends on SMP && ACPI
+        help
+           This option compiles in the Summit, bigsmp, ES7000, default subarchitectures.
+ 	  It is intended for a generic binary kernel.
  
-
+ config X86_ES7000
+ 	bool "Support for Unisys ES7000 IA32 series"
+-	depends on SMP
++	depends on SMP && ACPI
+ 	help
+ 	  Support for Unisys ES7000 systems.  Say 'Y' here if this kernel is
+ 	  supposed to run on an IA32-based Unisys ES7000 system.

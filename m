@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932198AbVJNCIX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932557AbVJNCKg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932198AbVJNCIX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 22:08:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932553AbVJNCIX
+	id S932557AbVJNCKg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 22:10:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932564AbVJNCKg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 22:08:23 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:31687 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932198AbVJNCIX
+	Thu, 13 Oct 2005 22:10:36 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:34462 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932557AbVJNCKf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 22:08:23 -0400
-Subject: [RFC] Generic Timeofday Subsystem Simulator (v1)
+	Thu, 13 Oct 2005 22:10:35 -0400
+Subject: [RFC][PATCH 2/12] Reduced NTP rework (part 2)
 From: john stultz <johnstul@us.ibm.com>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: Roman Zippel <zippel@linux-m68k.org>,
@@ -18,145 +18,402 @@ Cc: Roman Zippel <zippel@linux-m68k.org>,
        Thomas Gleixner <tglx@linutronix.de>,
        Frank Sorenson <frank@tuxrocks.com>,
        Nishanth Aravamudan <nacc@us.ibm.com>, Darren Hart <dvhltc@us.ibm.com>
-In-Reply-To: <1129255182.27168.14.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1129255761.27168.26.camel@cog.beaverton.ibm.com>
 References: <1129255182.27168.14.camel@cog.beaverton.ibm.com>
-Content-Type: multipart/mixed; boundary="=-Xkbz8fo+Wex9HBFoByPV"
-Date: Thu, 13 Oct 2005 19:08:18 -0700
-Message-Id: <1129255699.27168.24.camel@cog.beaverton.ibm.com>
+	 <1129255761.27168.26.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain
+Date: Thu, 13 Oct 2005 19:10:31 -0700
+Message-Id: <1129255831.27168.29.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-Xkbz8fo+Wex9HBFoByPV
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
 All,
-	At Roman's prodding, and inspired by Dave Mills' simulator, I've
-scratched out a pretty simple userspace simulator for my timeofday and
-NTP changes.
+	Here is the second of two patches which try to minimize my ntp rework
+patches.
+	
+This patch further changes the interrupt time NTP code, breaking out the
+leapsecond processing and introduces an accessor to a shifted ppm
+adjustment value. For correctness, I've also introduced a new lock, the
+ntp_lock, which protects the NTP state machine when accessing it from my
+timekeeping code (which does not use the xtime_lock).
 
-The project is attached. It is pretty simple right now and if you have
-any suggestions for changes, please let me know.
-
-To use it:
-1. Download my timeofday patches (or just the cumulative one) and apply
-them to a current git tree.
-2. Untar the simulator.
-3. Run ./generate.sh <path to patched kernel tree>
-4. Run make
-5. Run ./todsim <offset> <ppm skew>
-
-Pretty easy. It will output a whole lot of data providing:
-
-<simulator time> <kernel time> <hardware value> <offset> <ppm adj>
-
-Its not terribly interesting at the moment, but hopefully folks can play
-with it and make suggestions for improvements to the simulator,
-timeofday code or the ntp changes. 
+Again, this patch should not affect the existing behavior, but just
+separate the logical functionality so it can be re-used by my timeofday
+patches.
 
 thanks
 -john
 
---=-Xkbz8fo+Wex9HBFoByPV
-Content-Disposition: attachment; filename=simulator.tar.bz2
-Content-Type: application/x-bzip-compressed-tar; name=simulator.tar.bz2
-Content-Transfer-Encoding: base64
+ include/linux/timex.h |   24 ++++++
+ kernel/time.c         |   25 ++++---
+ kernel/timer.c        |  176 ++++++++++++++++++++++++++++++++++----------------
+ 3 files changed, 160 insertions(+), 65 deletions(-)
 
-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
-OpMA
+linux-2.6.14-rc4_timeofday-ntp-part2_B7.patch
+============================================
+diff --git a/include/linux/timex.h b/include/linux/timex.h
+--- a/include/linux/timex.h
++++ b/include/linux/timex.h
+@@ -260,6 +260,7 @@ extern long pps_calcnt;		/* calibration 
+ extern long pps_errcnt;		/* calibration errors */
+ extern long pps_stbcnt;		/* stability limit exceeded */
+ 
++extern seqlock_t ntp_lock;
+ /**
+  * ntp_clear - Clears the NTP state variables
+  *
+@@ -267,10 +268,14 @@ extern long pps_stbcnt;		/* stability li
+  */
+ static inline void ntp_clear(void)
+ {
++	unsigned long flags;
++	write_seqlock_irqsave(&ntp_lock, flags);
+ 	time_adjust = 0;		/* stop active adjtime() */
+ 	time_status |= STA_UNSYNC;
+ 	time_maxerror = NTP_PHASE_LIMIT;
+ 	time_esterror = NTP_PHASE_LIMIT;
++	write_sequnlock_irqrestore(&ntp_lock, flags);
++
+ }
+ 
+ /**
+@@ -282,6 +287,25 @@ static inline int ntp_synced(void)
+ 	return !(time_status & STA_UNSYNC);
+ }
+ 
++/**
++ * ntp_get_ppm_adjustment - Returns Shifted PPM adjustment
++ *
++ */
++long ntp_get_ppm_adjustment(void);
++
++/**
++ * ntp_advance - Advances the NTP state machine by interval_ns
++ *
++ */
++void ntp_advance(unsigned long interval_ns);
++
++/**
++ * ntp_leapsecond - NTP leapsecond processing code.
++ *
++ */
++int ntp_leapsecond(struct timespec now);
++
++
+ /* Required to safely shift negative values */
+ #define shift_right(x, s) ({	\
+ 	__typeof__(x) __x = (x);	\
+diff --git a/kernel/time.c b/kernel/time.c
+--- a/kernel/time.c
++++ b/kernel/time.c
+@@ -231,7 +231,9 @@ int do_adjtimex(struct timex *txc)
+ {
+         long ltemp, mtemp, save_adjust;
+ 	int result;
+-
++	unsigned long flags;
++	struct timespec now_ts;
++	unsigned long seq;
+ 	/* In order to modify anything, you gotta be super-user! */
+ 	if (txc->modes && !capable(CAP_SYS_TIME))
+ 		return -EPERM;
+@@ -254,7 +256,13 @@ int do_adjtimex(struct timex *txc)
+ 		    txc->tick > 1100000/USER_HZ)
+ 			return -EINVAL;
+ 
+-	write_seqlock_irq(&xtime_lock);
++	do { /* save off current xtime */
++		seq = read_seqbegin(&xtime_lock);
++		now_ts = xtime;
++	} while (read_seqretry(&xtime_lock, seq));
++
++	write_seqlock_irqsave(&ntp_lock, flags);
++
+ 	result = time_state;	/* mostly `TIME_OK' */
+ 
+ 	/* Save for later - semantics of adjtime is to return old value */
+@@ -331,9 +339,9 @@ int do_adjtimex(struct timex *txc)
+ 		     */
+ 
+ 		    if (time_status & STA_FREQHOLD || time_reftime == 0)
+-		        time_reftime = xtime.tv_sec;
+-		    mtemp = xtime.tv_sec - time_reftime;
+-		    time_reftime = xtime.tv_sec;
++		        time_reftime = now_ts.tv_sec;
++		    mtemp = now_ts.tv_sec - time_reftime;
++		    time_reftime = now_ts.tv_sec;
+ 		    if (time_status & STA_FLL) {
+ 		        if (mtemp >= MINSEC) {
+ 			    ltemp = (time_offset / mtemp) << (SHIFT_USEC -
+@@ -392,7 +400,7 @@ leave:	if ((time_status & (STA_UNSYNC|ST
+ 	txc->calcnt	   = pps_calcnt;
+ 	txc->errcnt	   = pps_errcnt;
+ 	txc->stbcnt	   = pps_stbcnt;
+-	write_sequnlock_irq(&xtime_lock);
++	write_sequnlock_irqrestore(&ntp_lock, flags);
+ 	do_gettimeofday(&txc->time);
+ 	notify_arch_cmos_timer();
+ 	return(result);
+@@ -509,10 +517,7 @@ int do_settimeofday (struct timespec *tv
+ 		set_normalized_timespec(&xtime, sec, nsec);
+ 		set_normalized_timespec(&wall_to_monotonic, wtm_sec, wtm_nsec);
+ 
+-		time_adjust = 0;		/* stop active adjtime() */
+-		time_status |= STA_UNSYNC;
+-		time_maxerror = NTP_PHASE_LIMIT;
+-		time_esterror = NTP_PHASE_LIMIT;
++		ntp_clear();
+ 		time_interpolator_reset();
+ 	}
+ 	write_sequnlock_irq(&xtime_lock);
+diff --git a/kernel/timer.c b/kernel/timer.c
+--- a/kernel/timer.c
++++ b/kernel/timer.c
+@@ -613,7 +613,6 @@ long time_tolerance = MAXFREQ;		/* frequ
+ long time_precision = 1;		/* clock precision (us)		*/
+ long time_maxerror = NTP_PHASE_LIMIT;	/* maximum error (us)		*/
+ long time_esterror = NTP_PHASE_LIMIT;	/* estimated error (us)		*/
+-static long time_phase;			/* phase offset (scaled us)	*/
+ long time_freq = (((NSEC_PER_SEC + HZ/2) % HZ - HZ/2) << SHIFT_USEC) / NSEC_PER_USEC;
+ 					/* frequency offset (scaled ppm)*/
+ static long time_adj;			/* tick adjust (scaled 1 / HZ)	*/
+@@ -622,6 +621,87 @@ long time_adjust;
+ long time_next_adjust;
+ long time_adjust_step;	/* per tick time_adjust step */
+ 
++long total_sppm;	/* shifted ppm sum of all NTP adjustments */
++long offset_adj_ppm;
++long tick_adj_ppm;
++long singleshot_adj_ppm;
++
++#define MAX_SINGLESHOT_ADJ 500 /* (ppm) */
++#define SEC_PER_DAY 86400
++#define END_OF_DAY(x) (x + SEC_PER_DAY - (x % SEC_PER_DAY) - 1)
++
++/* NTP lock, protects NTP state machine */
++seqlock_t ntp_lock = SEQLOCK_UNLOCKED;
++
++/**
++ * ntp_leapsecond - NTP leapsecond processing code.
++ * now: the current time
++ *
++ * Returns the number of seconds (-1, 0, or 1) that
++ * should be added to the current time to properly
++ * adjust for leapseconds.
++ */
++
++int ntp_leapsecond(struct timespec now)
++{
++	unsigned long flags;
++	/*
++	 * Leap second processing. If in leap-insert state at
++	 * the end of the day, the system clock is set back one
++	 * second; if in leap-delete state, the system clock is
++	 * set ahead one second.
++	 */
++	static time_t leaptime = 0;
++	int ret = 0;
++
++	write_seqlock_irqsave(&ntp_lock, flags);
++	switch (time_state) {
++
++	case TIME_OK:
++		if (time_status & STA_INS) {
++			time_state = TIME_INS;
++			leaptime = END_OF_DAY(now.tv_sec);
++		} else if (time_status & STA_DEL) {
++			time_state = TIME_DEL;
++			leaptime = END_OF_DAY(now.tv_sec);
++		}
++		break;
++
++	case TIME_INS:
++		/* Once we are at (or past) leaptime, insert the second */
++		if (now.tv_sec >= leaptime) {
++			time_state = TIME_OOP;
++			printk(KERN_NOTICE "Clock: inserting leap second 23:59:60 UTC\n");
++			ret = -1;
++		}
++		break;
++
++	case TIME_DEL:
++		/* Once we are at (or past) leaptime, delete the second */
++		if (now.tv_sec >= leaptime) {
++			time_state = TIME_WAIT;
++			printk(KERN_NOTICE "Clock: deleting leap second 23:59:59 UTC\n");
++			ret = 1;
++		}
++		break;
++
++	case TIME_OOP:
++		/*  Wait for the end of the leap second*/
++		if (now.tv_sec > (leaptime + 1))
++			time_state = TIME_WAIT;
++		time_state = TIME_WAIT;
++		break;
++
++	case TIME_WAIT:
++		if (!(time_status & (STA_INS | STA_DEL)))
++			time_state = TIME_OK;
++		break;
++	}
++
++	write_sequnlock_irqrestore(&ntp_lock, flags);
++	return 0;
++}
++
+ /*
+  * this routine handles the overflow of the microsecond field
+  *
+@@ -643,59 +723,6 @@ static void second_overflow(void)
+     }
+ 
+     /*
+-     * Leap second processing. If in leap-insert state at
+-     * the end of the day, the system clock is set back one
+-     * second; if in leap-delete state, the system clock is
+-     * set ahead one second. The microtime() routine or
+-     * external clock driver will insure that reported time
+-     * is always monotonic. The ugly divides should be
+-     * replaced.
+-     */
+-    switch (time_state) {
+-
+-    case TIME_OK:
+-	if (time_status & STA_INS)
+-	    time_state = TIME_INS;
+-	else if (time_status & STA_DEL)
+-	    time_state = TIME_DEL;
+-	break;
+-
+-    case TIME_INS:
+-	if (xtime.tv_sec % 86400 == 0) {
+-	    xtime.tv_sec--;
+-	    wall_to_monotonic.tv_sec++;
+-	    /* The timer interpolator will make time change gradually instead
+-	     * of an immediate jump by one second.
+-	     */
+-	    time_interpolator_update(-NSEC_PER_SEC);
+-	    time_state = TIME_OOP;
+-	    clock_was_set();
+-	    printk(KERN_NOTICE "Clock: inserting leap second 23:59:60 UTC\n");
+-	}
+-	break;
+-
+-    case TIME_DEL:
+-	if ((xtime.tv_sec + 1) % 86400 == 0) {
+-	    xtime.tv_sec++;
+-	    wall_to_monotonic.tv_sec--;
+-	    /* Use of time interpolator for a gradual change of time */
+-	    time_interpolator_update(NSEC_PER_SEC);
+-	    time_state = TIME_WAIT;
+-	    clock_was_set();
+-	    printk(KERN_NOTICE "Clock: deleting leap second 23:59:59 UTC\n");
+-	}
+-	break;
+-
+-    case TIME_OOP:
+-	time_state = TIME_WAIT;
+-	break;
+-
+-    case TIME_WAIT:
+-	if (!(time_status & (STA_INS | STA_DEL)))
+-	    time_state = TIME_OK;
+-    }
+-
+-    /*
+      * Compute the phase adjustment for the next second. In
+      * PLL mode, the offset is reduced by a fixed factor
+      * times the time constant. In FLL mode the offset is
+@@ -712,6 +739,13 @@ static void second_overflow(void)
+ 	time_offset -= ltemp;
+ 	time_adj = ltemp << (SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE);
+ 
++	offset_adj_ppm = shift_right(ltemp, SHIFT_UPDATE); /* ppm */
++
++	/* first calculate usec/user_tick offset */
++	tick_adj_ppm = ((USEC_PER_SEC + USER_HZ/2)/USER_HZ) - tick_usec;
++	/* multiply by user_hz to get usec/sec => ppm */
++	tick_adj_ppm *= USER_HZ;
++
+     /*
+      * Compute the frequency estimate and additional phase
+      * adjustment due to frequency error for the next
+@@ -744,9 +778,20 @@ static void second_overflow(void)
+ }
+ 
+ 
+-static void ntp_advance(unsigned long interval_ns)
++/**
++ * ntp_get_ppm_adjustment - Returns Shifted PPM adjustment
++ *
++ */
++long ntp_get_ppm_adjustment(void)
++{
++	return total_sppm;
++}
++
++void ntp_advance(unsigned long interval_ns)
+ {
+ 	static unsigned long interval_sum;
++	unsigned long flags;
++	write_seqlock_irqsave(&ntp_lock, flags);
+ 
+ 	/* increment the interval sum */
+ 	interval_sum += interval_ns;
+@@ -772,6 +817,7 @@ static void ntp_advance(unsigned long in
+ 		}
+ 		interval_ns -= tick_nsec;
+ 	}
++	singleshot_adj_ppm = time_adjust_step*(1000000/HZ); /* usec/tick => ppm */
+ 
+ 	/* Changes by adjtime() do not take effect till next tick. */
+ 	if (time_next_adjust) {
+@@ -783,6 +829,15 @@ static void ntp_advance(unsigned long in
+ 		interval_sum -= NSEC_PER_SEC;
+ 		second_overflow();
+ 	}
++
++	/* calculate the total continuous ppm adjustment */
++	total_sppm = time_freq; /* already shifted by SHIFT_USEC */
++	total_sppm += offset_adj_ppm << SHIFT_USEC;
++	total_sppm += tick_adj_ppm << SHIFT_USEC;
++	total_sppm += singleshot_adj_ppm << SHIFT_USEC;
++
++	write_sequnlock_irqrestore(&ntp_lock, flags);
++
+ }
+ 
+ /*
+@@ -795,6 +850,7 @@ static void ntp_advance(unsigned long in
+ static void update_wall_time(unsigned long ticks)
+ {
+ 	long delta_nsec;
++	static long time_phase; /* phase offset (scaled us)	*/
+ 
+ 	do {
+ 		ticks--;
+@@ -817,8 +873,18 @@ static void update_wall_time(unsigned lo
+ 
+ 		xtime.tv_nsec += delta_nsec;
+ 		if (xtime.tv_nsec >= 1000000000) {
++			int leapsecond;
+ 			xtime.tv_nsec -= 1000000000;
+ 			xtime.tv_sec++;
++			/* process leapsecond */
++			leapsecond = ntp_leapsecond(xtime);
++			if (leapsecond) {
++				xtime.tv_sec += leapsecond;
++				wall_to_monotonic.tv_sec -= leapsecond;
++				/* Use of time interpolator for a gradual change of time */
++				time_interpolator_update(leapsecond*NSEC_PER_SEC);
++				clock_was_set();
++			}
+ 		}
+ 		ntp_advance(tick_nsec);
+ 		time_interpolator_update(delta_nsec);
 
-
---=-Xkbz8fo+Wex9HBFoByPV--
 

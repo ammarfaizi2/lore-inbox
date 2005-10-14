@@ -1,97 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbVJNTlE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbVJNTuU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750772AbVJNTlE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Oct 2005 15:41:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbVJNTlE
+	id S1750708AbVJNTuU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Oct 2005 15:50:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbVJNTuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Oct 2005 15:41:04 -0400
-Received: from xproxy.gmail.com ([66.249.82.192]:51981 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750772AbVJNTlC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Oct 2005 15:41:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=co0h7nFRNFSURTpa4yRc11HoXKk52osfvGnxJMEI21ohthJMaAckPqaXHpU5QfZ5wPR+2BxbEluRG50VmvvbFjcwnheqn6igCDbStNKQN5fvlSz65vnK8g/MheH3WbDTPrlinwBcymcTSbJsiUZGcnevQEVIITa+abdva4HLrRY=
-Message-ID: <5bdc1c8b0510141240r2c90094bx96835c84e49049ce@mail.gmail.com>
-Date: Fri, 14 Oct 2005 12:40:59 -0700
-From: Mark Knecht <markknecht@gmail.com>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.14-rc4-rt1 - enable IRQ-off tracing causes kernel to fault at boot
-Cc: Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <5bdc1c8b0510140756u1b006de9td552539421666bec@mail.gmail.com>
+	Fri, 14 Oct 2005 15:50:20 -0400
+Received: from amsfep16-int.chello.nl ([213.46.243.25]:5443 "EHLO
+	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
+	id S1750708AbVJNTuT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Oct 2005 15:50:19 -0400
+Message-ID: <43500BF6.8080501@chello.be>
+Date: Fri, 14 Oct 2005 21:50:14 +0200
+From: "F. Poncin" <cr27587@chello.be>
+Organization: Why do you read the header
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
+X-Accept-Language: en, en-us, fr
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <5bdc1c8b0510121000i5db112f2p642f66686fb46c57@mail.gmail.com>
-	 <20051013073029.GA12801@elte.hu>
-	 <5bdc1c8b0510130526k6064c640pecded9ccb0ef7dde@mail.gmail.com>
-	 <Pine.LNX.4.58.0510130844070.13098@localhost.localdomain>
-	 <5bdc1c8b0510131210i64f7f289q557368b056e59e18@mail.gmail.com>
-	 <20051014035230.GB6513@elte.hu>
-	 <5bdc1c8b0510140756u1b006de9td552539421666bec@mail.gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: slab error in cache_free_debugcheck(): cache `sgpool-8':
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/14/05, Mark Knecht <markknecht@gmail.com> wrote:
-> On 10/13/05, Ingo Molnar <mingo@elte.hu> wrote:
-> >
-> > * Mark Knecht <markknecht@gmail.com> wrote:
-> >
-> > > Ingo & Steve,
-> > >    Thank you for your great instructions that even a guitar player
-> > > could basically follow. After about an hour of messing around I did
-> > > manage to capture the crash. The console file is attached.
-> > >
-> > > NOTE: The first time I booted the kernel it got to the crash point and
-> > > the machine rebooted. The second time it booted I got the trace. Both
-> > > boots are in the capture file.
-> >
-> > thanks, this log is much more informative. No smoking gun though, but it
-> > seems something fundamental (probably lowlevel x64 code) has been broken
-> > by -rt1.
-> >
-> > Do the crashes go away if you take the -rc3-rt13 version of
-> > arch/x86_64/kernel/entry.S and copy it over into the -rc4-rt1 tree?
-> > [this undoes a particular set of CONFIG_CRITICAL_IRQSOFF_TIMING fixes
-> > from the x64 code, which i did during -rc3-rt13 => -rc4-rt1]
->
-> Indeed it is fixed by doing this. Options are on but the modified
-> kernel does boot:
+Hello,
+I found this in several recent boot logs.
 
-Ingo,
-   Good news and strange news:
+Summary: slab error in cache_free_debugcheck(): cache `sgpool-8': double 
+free, or memory outside object was overwritten
+Kernel version: 2.6.14-rc4-g9149ccfa
+Steps to reproduce: on boot
+Hardware: Dell 8300 + External USB disk enclosures
 
-GOOD NEWS: This problem may or may not be fixed in 2.6.14-rc4-rt5. The
-kernel now boots for me with IRQoff tracing enabled, but once again
-I'm seeing times that appear to be the timer frequency:
+I'm not subscribed to the list. Please Cc:
+Additional info / test on request.
 
-( softirq-timer/0-3    |#0): new 998 us maximum-latency critical section.
- => started at timestamp 403325647: <acpi_processor_idle+0x20/0x379>
- =>   ended at timestamp 403326645: <thread_return+0xb5/0x11a>
+extract from dmesg:
 
-Call Trace:<ffffffff8014e58c>{check_critical_timing+492}
-<ffffffff8014e9e5>{sub_preempt_count_ti+133}
-       <ffffffff803edaec>{thread_return+70}
-<ffffffff803edb5b>{thread_return+181}
-       <ffffffff803edcc5>{schedule+261} <ffffffff8013723a>{ksoftirqd+138}
-       <ffffffff801371b0>{ksoftirqd+0} <ffffffff8014757d>{kthread+205}
-       <ffffffff8010e70e>{child_rip+8} <ffffffff801474b0>{kthread+0}
-       <ffffffff8010e706>{child_rip+0}
----------------------------
-| preempt count: 00000001 ]
-| 1-level deep critical section nesting:
-----------------------------------------
-.. [<ffffffff803ed5b8>] .... __schedule+0xb8/0x5a6
-.....[<00000000>] ..   ( <= _stext+0x7feff0e8/0xe8)
+scsi2 : SCSI emulation for IEEE-1394 SBP-2 Devices
+ieee1394: sbp2: Logged into SBP-2 device
+ieee1394: Node 0-00:1023: Max speed [S400] - Max payload [2048]
+  Vendor: Initio    Model: ST3400832A        Rev: 4.07
+  Type:   Direct-Access                      ANSI SCSI revision: 00
+SCSI device sdc: 781422768 512-byte hdwr sectors (400088 MB)
+slab error in cache_free_debugcheck(): cache `sgpool-8': double free, or 
+memory outside object was overwritten
+ [<c014a43b>] cache_free_debugcheck+0x15e/0x215
+ [<c0144c73>] mempool_free+0x6c/0x73
+ [<c014ae71>] kmem_cache_free+0x25/0x59
+ [<c0144c73>] mempool_free+0x6c/0x73
+ [<f8891d92>] scsi_io_completion+0x1fd/0x4ac [scsi_mod]
+ [<f8826d3f>] sd_rw_intr+0x155/0x30e [sd_mod]
+ [<c0148e2b>] poison_obj+0x1c/0x38
+ [<c032ca6e>] _spin_lock+0x1c/0x75
+ [<f888cc33>] scsi_finish_command+0x82/0xb5 [scsi_mod]
+ [<c032ca6e>] _spin_lock+0x1c/0x75
+ [<f888cb0a>] scsi_softirq+0xc0/0x141 [scsi_mod]
+ [<c01252e1>] tasklet_action+0x59/0xbe
+ [<c0124f79>] __do_softirq+0x69/0xd5
+ [<c0104ceb>] do_softirq+0x57/0x5b
+ =======================
+ [<c01250c0>] irq_exit+0x42/0x44
+ [<c0104bbc>] do_IRQ+0x5c/0x8e
+ [<c032b277>] schedule+0x627/0xcd8
+ [<c01036a6>] common_interrupt+0x1a/0x20
+ [<c0100e91>] mwait_idle+0x25/0x4a
+ [<c023d243>] acpi_processor_idle+0x0/0x29e
+ [<c023d344>] acpi_processor_idle+0x101/0x29e
+ [<c023d243>] acpi_processor_idle+0x0/0x29e
+ [<c0100ceb>] cpu_idle+0x45/0x7d
+ [<c03f088a>] start_kernel+0x18c/0x1cb
+ [<c03f030b>] unknown_bootoption+0x0/0x1b0
+c233b7a8: redzone 1: 0x170fc2a5, redzone 2: 0xc0144b47.
+sdc: asking for cache data failed
+sdc: assuming drive cache: write through
+SCSI device sdc: 781422768 512-byte hdwr sectors (400088 MB)
+slab error in cache_free_debugcheck(): cache `sgpool-8': double free, or 
+memory outside object was overwritten
+ [<c014a43b>] cache_free_debugcheck+0x15e/0x215
+ [<c0144c73>] mempool_free+0x6c/0x73
+ [<c014ae71>] kmem_cache_free+0x25/0x59
+ [<c0144c73>] mempool_free+0x6c/0x73
+ [<f8891d92>] scsi_io_completion+0x1fd/0x4ac [scsi_mod]
+ [<f8826d3f>] sd_rw_intr+0x155/0x30e [sd_mod]
+ [<c0148e2b>] poison_obj+0x1c/0x38
+ [<c032ca6e>] _spin_lock+0x1c/0x75
+ [<f888cc33>] scsi_finish_command+0x82/0xb5 [scsi_mod]
+ [<c032ca6e>] _spin_lock+0x1c/0x75
+ [<f888cb0a>] scsi_softirq+0xc0/0x141 [scsi_mod]
+ [<c01252e1>] tasklet_action+0x59/0xbe
+ [<c0124f79>] __do_softirq+0x69/0xd5
+ [<c0104ceb>] do_softirq+0x57/0x5b
+ =======================
+ [<c01250c0>] irq_exit+0x42/0x44
+ [<c0104bbc>] do_IRQ+0x5c/0x8e
+ [<c01036a6>] common_interrupt+0x1a/0x20
+ [<c0100e91>] mwait_idle+0x25/0x4a
+ [<c023d243>] acpi_processor_idle+0x0/0x29e
+ [<c023d344>] acpi_processor_idle+0x101/0x29e
+ [<c023d243>] acpi_processor_idle+0x0/0x29e
+ [<c0100ceb>] cpu_idle+0x45/0x7d
+ [<c03f088a>] start_kernel+0x18c/0x1cb
+ [<c03f030b>] unknown_bootoption+0x0/0x1b0
+c233b7a8: redzone 1: 0x170fc2a5, redzone 2: 0xc0144b47.
+sdc: asking for cache data failed
+sdc: assuming drive cache: write through
+ sdc:<6>FDC 0 is a post-1991 82077
 
- =>   dump-end timestamp 403326728
 
-lightning ~ #
+--
+Frédéric Poncin
 
-STRANGE NEWS: It now takes between 1-2 minutes for Gnome to log out.
-
-I think possibly something is not exactly right about the timers yet.
-
-- Mark

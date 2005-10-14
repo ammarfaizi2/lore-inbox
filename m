@@ -1,41 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbVJNNed@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbVJNNh1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750745AbVJNNed (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Oct 2005 09:34:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbVJNNed
+	id S1750749AbVJNNh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Oct 2005 09:37:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750750AbVJNNh1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Oct 2005 09:34:33 -0400
-Received: from nammatj.nsc.liu.se ([130.236.101.75]:42125 "EHLO
-	nammatj.nsc.liu.se") by vger.kernel.org with ESMTP id S1750745AbVJNNec
+	Fri, 14 Oct 2005 09:37:27 -0400
+Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:4878 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1750749AbVJNNh1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Oct 2005 09:34:32 -0400
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Jakob Oestergaard <jakob@unthought.net>, nfs@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: Cache invalidation bug in NFS v3 - trivially reproducible
-References: <m33bn8bet4.fsf@nammatj.nsc.liu.se>
-	<1129242855.8435.32.camel@lade.trondhjem.org>
-From: Leif Nixon <nixon@nsc.liu.se>
-Date: Fri, 14 Oct 2005 15:34:25 +0200
-In-Reply-To: <1129242855.8435.32.camel@lade.trondhjem.org> (Trond
- Myklebust's message of "Thu, 13 Oct 2005 18:34:14 -0400")
-Message-ID: <m364s0mdcu.fsf@nammatj.nsc.liu.se>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 14 Oct 2005 09:37:27 -0400
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: suzannew@cs.pdx.edu (Suzanne Wood)
+Subject: Re: [RFC][PATCH] rcu in drivers/net/hamradio
+Cc: linux-kernel@vger.kernel.org, g4klx@g4klx.demon.co.uk, hch@infradead.org,
+       jreuter@yaina.de, paulmck@us.ibm.com, suzannew@cs.pdx.edu,
+       walpole@cs.pdx.edu
+Organization: Core
+In-Reply-To: <200510140804.j9E84nwG026920@rastaban.cs.pdx.edu>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
+Message-Id: <E1EQPk5-0006dA-00@gondolin.me.apana.org.au>
+Date: Fri, 14 Oct 2005 23:37:01 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust <trond.myklebust@fys.uio.no> writes:
+Suzanne Wood <suzannew@cs.pdx.edu> wrote:
+>
+> (1) bpq_new_device() calls list_add_rcu() labeled as 
+> "list protected by RTNL."  The comment may need to go 
+> since the only apparent rtnl_lock()/unlock() pair encloses 
+> the call to bpq_free_device() in bpq_cleanup_driver()
+> called upon module_exit().
 
-> Does the attached patch help?
+The RTNL comment is correct actually.
 
-Yes, it does indeed seem to solve the problem.
+bpq_new_device can only be called from bpq_device_event which
+is called from a netdev event handler.  All netdev event handlers
+must be called uner the RTNL.
 
-Thanks!
-
+Cheers,
 -- 
-Leif Nixon                       -            Systems expert
-------------------------------------------------------------
-National Supercomputer Centre    -      Linkoping University
-------------------------------------------------------------
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

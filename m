@@ -1,52 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751081AbVJNDff@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932497AbVJNDo4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751081AbVJNDff (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 23:35:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbVJNDff
+	id S932497AbVJNDo4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 23:44:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932501AbVJNDo4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 23:35:35 -0400
-Received: from mail.kroah.org ([69.55.234.183]:24983 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751081AbVJNDfe (ORCPT
+	Thu, 13 Oct 2005 23:44:56 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:44236 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932497AbVJNDoz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 23:35:34 -0400
-Date: Thu, 13 Oct 2005 20:31:19 -0700
-From: Greg KH <greg@kroah.com>
-To: Parag Warudkar <kernel-stuff@comcast.net>
-Cc: Christian Krause <chkr@plauener.de>, linux-kernel@vger.kernel.org
-Subject: Re: bug in handling of highspeed usb HID devices
-Message-ID: <20051014033118.GA7956@kroah.com>
-References: <101420050210.18923.434F13890004C6F8000049EB220076106400009A9B9CD3040A029D0A05@comcast.net>
+	Thu, 13 Oct 2005 23:44:55 -0400
+Date: Fri, 14 Oct 2005 05:45:14 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>, dwalker@mvista.com,
+       david singleton <dsingleton@mvista.com>
+Subject: Re: 1.6ms jitter in rtc_wakeup (Re: 2.6.14-rc4-rt1)
+Message-ID: <20051014034513.GA6513@elte.hu>
+References: <20051011111454.GA15504@elte.hu> <Pine.OSF.4.05.10510130024260.24215-200000@da410.phys.au.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <101420050210.18923.434F13890004C6F8000049EB220076106400009A9B9CD3040A029D0A05@comcast.net>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <Pine.OSF.4.05.10510130024260.24215-200000@da410.phys.au.dk>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 14, 2005 at 02:10:17AM +0000, Parag Warudkar wrote:
-> > 
-> > Also, what device needs this patch?  Is it a device that I can buy
-> > today?
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> 
-> The patch is for hid-core.c - I don't think it is device specific -
-> original problem should affect all High Speed USB HID devices. 
 
-I realize that, my point is are there any such devices out in the wild
-that people can buy and use?  I do not know of any.
+* Esben Nielsen <simlo@phys.au.dk> wrote:
 
-> To summarize -
-> 
-> Current code just looks plain wrong since the same logic is repeated
-> twice - endpoint->bInterval is operated upon twice if the device is
-> HIGH SPEED one.
+> I set up rtc_wakeup and got a jitter up 1.6ms!
+> It came when I cd'en into a nfs-mount and typed ls.
 
-I agree.  That's wrong and should be fixed.  A patch would be nice...
+>       ls-11239 0Dn..    4us : profile_hit (__schedule)
+>       ls-11239 0Dn.1    4us : sched_clock (__schedule)
+>       ls-11239 0Dn.1    5us : check_tsc_unstable (sched_clock)
+>       ls-11239 0Dn.1    5us : tsc_read_c3_time (sched_clock)
+>    IRQ 8-775   0D..2    6us : __switch_to (__schedule)
+>    IRQ 8-775   0D..2    7us!: __schedule <ls-11239> (75 0)
+>    IRQ 8-775   0...1 1594us : trace_stop_sched_switched (__schedule)
+>    IRQ 8-775   0D..2 1594us : trace_stop_sched_switched <IRQ 8-775> (0 0)
+>    IRQ 8-775   0D..2 1595us : trace_stop_sched_switched (__schedule)
 
-thanks,
+ouch! This very much looks like a hardware induced latency, because the 
+codepath from those two __schedule points is extremely short and there 
+is no loop there. Have you tested this particular box before too? If 
+not, can you reproduce this latency with older versions of -rt too on 
+the same box, or is this completely new? Occasionally there are boxes 
+that show clear signs of hardware latencies - there's little the kernel 
+can do about those.
 
-greg k-h
+Wild shot in the dark: are there any power-saving modes enabled on the 
+box? Another shot in the dark: can you trigger these latencies if the 
+networking card is ifconfig down-ed? I.e. perhaps it's related to DMA 
+done by the networking device. Playing with BIOS settings / DMA/PCI 
+priorities might help reduce DMA related latencies ...
+
+	Ingo

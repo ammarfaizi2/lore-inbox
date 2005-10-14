@@ -1,74 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbVJNEzE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751050AbVJNFMT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751118AbVJNEzE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Oct 2005 00:55:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbVJNEzE
+	id S1751050AbVJNFMT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Oct 2005 01:12:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbVJNFMT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Oct 2005 00:55:04 -0400
-Received: from [85.8.13.51] ([85.8.13.51]:26765 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S1751118AbVJNEzC (ORCPT
+	Fri, 14 Oct 2005 01:12:19 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:15341 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751050AbVJNFMT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Oct 2005 00:55:02 -0400
-Message-ID: <434F3A1E.7000403@drzeus.cx>
-Date: Fri, 14 Oct 2005 06:54:54 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jesper Juhl <jesper.juhl@gmail.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Len Brown <len.brown@intel.com>, iss_storagedev@hp.com,
-       Jakub Jelinek <jj@ultra.linux.cz>, Frodo Looijaard <frodol@dds.nl>,
-       Jean Delvare <khali@linux-fr.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Jens Axboe <axboe@suse.de>, Roland Dreier <rolandd@cisco.com>,
-       Sergio Rozanski Filho <aris@cathedrallabs.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Pierre Ossman <drzeus-wbsd@drzeus.cx>,
-       Carsten Gross <carsten@sol.wh-hms.uni-ulm.de>,
-       Greg Kroah-Hartman <greg@kroah.com>,
-       David Hinds <dahinds@users.sourceforge.net>,
-       Vinh Truong <vinh.truong@eng.sun.com>,
-       Mark Douglas Corner <mcorner@umich.edu>,
-       Michael Downey <downey@zymeta.com>, Antonino Daplas <adaplas@pol.net>,
-       Ben Gardner <bgardner@wabtec.com>
-Subject: Re: [PATCH 09/14] Big kfree NULL check cleanup - misc remaining drivers
-References: <200510132128.45171.jesper.juhl@gmail.com>
-In-Reply-To: <200510132128.45171.jesper.juhl@gmail.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+	Fri, 14 Oct 2005 01:12:19 -0400
+Subject: Re: [Lhms-devel] Re: [PATCH 5/8] Fragmentation Avoidance V17:
+	005_fallback
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Joel Schopp <jschopp@austin.ibm.com>
+Cc: Mel Gorman <mel@csn.ul.ie>, Mike Kravetz <kravetz@us.ibm.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>, lhms <lhms-devel@lists.sourceforge.net>
+In-Reply-To: <434D47FF.1000602@austin.ibm.com>
+References: <20051011151221.16178.67130.sendpatchset@skynet.csn.ul.ie>
+	 <20051011151246.16178.40148.sendpatchset@skynet.csn.ul.ie>
+	 <20051012164353.GA9425@w-mikek2.ibm.com>
+	 <Pine.LNX.4.58.0510121806550.9602@skynet> <434D47FF.1000602@austin.ibm.com>
+Content-Type: text/plain
+Date: Thu, 13 Oct 2005 22:12:00 -0700
+Message-Id: <1129266720.22903.23.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
-> This is the remaining misc drivers/ part of the big kfree cleanup patch.
+On Wed, 2005-10-12 at 12:29 -0500, Joel Schopp wrote:
+> > In reality, no and it would only happen if a caller had specified both
+> > __GFP_USER and __GFP_KERNRCLM in the call to alloc_pages() or friends. It
+> > makes *no* sense for someone to do this, but if they did, an oops would be
+> > thrown during an interrupt. The alternative is to get rid of this last
+> > element and put a BUG_ON() check before the spinlock is taken.
+> > 
+> > This way, a stupid caller will damage the fragmentation strategy (which is
+> > bad). The alternative, the kernel will call BUG() (which is bad). The
+> > question is, which is worse?
+> > 
 > 
-> Remove pointless checks for NULL prior to calling kfree() in misc files in drivers/.
-> 
-> 
-> Sorry about the long Cc: list, but I wanted to make sure I included everyone
-> who's code I've changed with this patch.
-> 
-> 
-> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
-> ---
-> 
-> --- linux-2.6.14-rc4-orig/drivers/mmc/wbsd.c	2005-10-11 22:41:10.000000000 +0200
-> +++ linux-2.6.14-rc4/drivers/mmc/wbsd.c	2005-10-12 15:43:04.000000000 +0200
-> @@ -1595,8 +1595,7 @@ static void __devexit wbsd_release_dma(s
->  	if (host->dma_addr)
->  		dma_unmap_single(host->mmc->dev, host->dma_addr, WBSD_DMA_SIZE,
->  			DMA_BIDIRECTIONAL);
-> -	if (host->dma_buffer)
-> -		kfree(host->dma_buffer);
-> +	kfree(host->dma_buffer);
->  	if (host->dma >= 0)
->  		free_dma(host->dma);
->  
+> If in the future we hypothetically have code that damages the fragmentation 
+> strategy we want to find it sooner rather than never.  I'd rather some kernels 
+> BUG() than we have bugs which go unnoticed.
 
-Looks good. Thanks.
+It isn't a bug.  It's a normal
+let-the-stupid-user-shoot-themselves-in-the-foot situation.  Let's
+explicitly document the fact that you can't pass both flags, then maybe
+add a WARN_ON() or another printk.  Or, we just fail the allocation.  
 
-Acked-by: Pierre Ossman <drzeus@drzeus.cx>
+Failing the allocation seems like the simplest and most effective
+solution.  A developer will run into it when they're developing, it
+won't be killing off processes or locking things up like a BUG(), and it
+doesn't ruin any of the fragmentation strategy.  It also fits with the
+current behavior if someone asks the allocator do do something silly
+like give them memory from a non-present zone.
+
+-- Dave
 

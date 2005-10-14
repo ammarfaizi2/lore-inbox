@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbVJNGWU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbVJNGiG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932178AbVJNGWU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Oct 2005 02:22:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbVJNGWU
+	id S1750787AbVJNGiG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Oct 2005 02:38:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbVJNGiF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Oct 2005 02:22:20 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:32207 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932178AbVJNGWT (ORCPT
+	Fri, 14 Oct 2005 02:38:05 -0400
+Received: from www.tuxrocks.com ([64.62.190.123]:25361 "EHLO tuxrocks.com")
+	by vger.kernel.org with ESMTP id S1750757AbVJNGiE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Oct 2005 02:22:19 -0400
-Date: Fri, 14 Oct 2005 08:22:44 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Badari Pulavarty <pbadari@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>, dwalker@mvista.com,
-       david singleton <dsingleton@mvista.com>
-Subject: Re: 2.6.14-rc4-rt1
-Message-ID: <20051014062244.GB30874@elte.hu>
-References: <20051011111454.GA15504@elte.hu> <1129135337.21743.11.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1129135337.21743.11.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Fri, 14 Oct 2005 02:38:04 -0400
+Message-ID: <434F5247.2040007@tuxrocks.com>
+Date: Fri, 14 Oct 2005 00:37:59 -0600
+From: Frank Sorenson <frank@tuxrocks.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
+Subject: Kconfig Dependencies for CONFIG_NET_CLS_RSVP6
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-* Badari Pulavarty <pbadari@gmail.com> wrote:
+I noticed that I can still select "Special RSVP classifier for IPv6"
+even if "The IPv6 protocol" isn't selected.  Should CONFIG_NET_CLS_RSVP6
+depend on or select IPV6?
 
-> Hi Ingo,
-> 
-> I am getting similar segfault on boot problem on 2.6.14-rc4-rt1 on my 
-> x86-64 box (with LATENCY_TRACE).
+Currently:
+Depends on: NET && NET_CLS && NET_QOS
 
-also, could you send me your .config?
 
-	Ingo
+Thanks,
+Frank
+- --
+Frank Sorenson - KD7TZK
+Systems Manager, Computer Science Department
+Brigham Young University
+frank@tuxrocks.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFDT1JHaI0dwg4A47wRAhgRAJ0WKH6/S1DjKKRZDSwiLOpIMYJ8cgCgyIld
+xXUJRsvCO1TJsCfpSCMj7/A=
+=gqzH
+-----END PGP SIGNATURE-----

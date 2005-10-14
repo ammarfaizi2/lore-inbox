@@ -1,30 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbVJNP2l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbVJNPV2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750760AbVJNP2l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Oct 2005 11:28:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750762AbVJNP2l
+	id S1750756AbVJNPV2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Oct 2005 11:21:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750761AbVJNPV2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Oct 2005 11:28:41 -0400
-Received: from mail3.uklinux.net ([80.84.72.33]:38056 "EHLO mail3.uklinux.net")
-	by vger.kernel.org with ESMTP id S1750760AbVJNP2l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Oct 2005 11:28:41 -0400
-Message-Id: <E1EQRa1-0001CH-0r@localhost.localdomain>
-From: lk@sound-man.co.uk
-Date: Fri, 14 Oct 2005 16:34:45 +0100
-To: undisclosed-recipients:;
+	Fri, 14 Oct 2005 11:21:28 -0400
+Received: from sccrmhc14.comcast.net ([63.240.76.49]:37370 "EHLO
+	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S1750756AbVJNPV1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Oct 2005 11:21:27 -0400
+From: kernel-stuff@comcast.net
+To: Greg KH <greg@kroah.com>
+Cc: Christian Krause <chkr@plauener.de>, linux-kernel@vger.kernel.org
+Subject: Re: bug in handling of highspeed usb HID devices
+Date: Fri, 14 Oct 2005 15:21:14 +0000
+Message-Id: <101420051521.9477.434FCCEA000157370000250522070215539D0E050B9A9D0E99@comcast.net>
+X-Mailer: AT&T Message Center Version 1 (Dec 17 2004)
+X-Authenticated-Sender: d2FydWRrYXJAY29tY2FzdC5uZXQ=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: Re: 2.6.14-rc4-rt1
-To: linux-kernel@vger.kernel.org
-Cc: Ingo Molnar <mingo@elte.hu>
-From: John Rigg <lk@sound-man.co.uk>
+ > I agree.  That's wrong and should be fixed.  A patch would be nice...
+> 
+> thanks,
+> 
+> greg k-h
 
-Ingo, I just tried the patch you posted in reply to Badari Pulavarty's
-boot crash message. I get an error when trying to patch 2.6.14-rc4-rt4:
+Christian,
 
-patching file arch/x86_64/kernel/vsyscall.c
-patch: **** malformed patch at line 11: notrace
+Mind reposting the patch after making it compliant with Documentation/SubmittingPatches or -
+AKPM's famous - http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt ?
 
-John
+Send it to at least akpm@osdl.org, stable@kernel.org and to
+Greg KH.
+
+If you can't for some reason, let me know - I will post one later today.
+
+Thanks
+Parag
+
+

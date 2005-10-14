@@ -1,27 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932497AbVJNDo4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751144AbVJNDwE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932497AbVJNDo4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 23:44:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932501AbVJNDo4
+	id S1751144AbVJNDwE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 23:52:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751156AbVJNDwE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 23:44:56 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:44236 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932497AbVJNDoz (ORCPT
+	Thu, 13 Oct 2005 23:52:04 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:59070 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751144AbVJNDwD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 23:44:55 -0400
-Date: Fri, 14 Oct 2005 05:45:14 +0200
+	Thu, 13 Oct 2005 23:52:03 -0400
+Date: Fri, 14 Oct 2005 05:52:30 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>, dwalker@mvista.com,
-       david singleton <dsingleton@mvista.com>
-Subject: Re: 1.6ms jitter in rtc_wakeup (Re: 2.6.14-rc4-rt1)
-Message-ID: <20051014034513.GA6513@elte.hu>
-References: <20051011111454.GA15504@elte.hu> <Pine.OSF.4.05.10510130024260.24215-200000@da410.phys.au.dk>
+To: Mark Knecht <markknecht@gmail.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-rc4-rt1 - enable IRQ-off tracing causes kernel to fault at boot
+Message-ID: <20051014035230.GB6513@elte.hu>
+References: <5bdc1c8b0510121000i5db112f2p642f66686fb46c57@mail.gmail.com> <20051013073029.GA12801@elte.hu> <5bdc1c8b0510130526k6064c640pecded9ccb0ef7dde@mail.gmail.com> <Pine.LNX.4.58.0510130844070.13098@localhost.localdomain> <5bdc1c8b0510131210i64f7f289q557368b056e59e18@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.OSF.4.05.10510130024260.24215-200000@da410.phys.au.dk>
+In-Reply-To: <5bdc1c8b0510131210i64f7f289q557368b056e59e18@mail.gmail.com>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamScore: 0.0
 X-ELTE-SpamLevel: 
@@ -34,33 +32,33 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Esben Nielsen <simlo@phys.au.dk> wrote:
+* Mark Knecht <markknecht@gmail.com> wrote:
 
-> I set up rtc_wakeup and got a jitter up 1.6ms!
-> It came when I cd'en into a nfs-mount and typed ls.
+> Ingo & Steve,
+>    Thank you for your great instructions that even a guitar player 
+> could basically follow. After about an hour of messing around I did 
+> manage to capture the crash. The console file is attached.
+> 
+> NOTE: The first time I booted the kernel it got to the crash point and 
+> the machine rebooted. The second time it booted I got the trace. Both 
+> boots are in the capture file.
 
->       ls-11239 0Dn..    4us : profile_hit (__schedule)
->       ls-11239 0Dn.1    4us : sched_clock (__schedule)
->       ls-11239 0Dn.1    5us : check_tsc_unstable (sched_clock)
->       ls-11239 0Dn.1    5us : tsc_read_c3_time (sched_clock)
->    IRQ 8-775   0D..2    6us : __switch_to (__schedule)
->    IRQ 8-775   0D..2    7us!: __schedule <ls-11239> (75 0)
->    IRQ 8-775   0...1 1594us : trace_stop_sched_switched (__schedule)
->    IRQ 8-775   0D..2 1594us : trace_stop_sched_switched <IRQ 8-775> (0 0)
->    IRQ 8-775   0D..2 1595us : trace_stop_sched_switched (__schedule)
+thanks, this log is much more informative. No smoking gun though, but it 
+seems something fundamental (probably lowlevel x64 code) has been broken 
+by -rt1.
 
-ouch! This very much looks like a hardware induced latency, because the 
-codepath from those two __schedule points is extremely short and there 
-is no loop there. Have you tested this particular box before too? If 
-not, can you reproduce this latency with older versions of -rt too on 
-the same box, or is this completely new? Occasionally there are boxes 
-that show clear signs of hardware latencies - there's little the kernel 
-can do about those.
+Do the crashes go away if you take the -rc3-rt13 version of 
+arch/x86_64/kernel/entry.S and copy it over into the -rc4-rt1 tree?  
+[this undoes a particular set of CONFIG_CRITICAL_IRQSOFF_TIMING fixes 
+from the x64 code, which i did during -rc3-rt13 => -rc4-rt1]
 
-Wild shot in the dark: are there any power-saving modes enabled on the 
-box? Another shot in the dark: can you trigger these latencies if the 
-networking card is ifconfig down-ed? I.e. perhaps it's related to DMA 
-done by the networking device. Playing with BIOS settings / DMA/PCI 
-priorities might help reduce DMA related latencies ...
+(Note that doing this will re-introduce tracing bugs, which can result 
+in false-positive latency readings - but it should fix any related 
+lowlevel bug in the assembly code.)
+
+if this indeed solves the crash then i'd suggest to restore the -rt1 
+version of entry.S, and i'd suggest to disable CRITICAL_IRQSOFF_TIMING 
+until i fix it. You should be able to get pretty good latency tracing 
+info even without CRITICAL_IRQSOFF_TIMING.
 
 	Ingo

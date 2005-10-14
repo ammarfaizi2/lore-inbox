@@ -1,66 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbVJNHH4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbVJNIC7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932219AbVJNHH4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Oct 2005 03:07:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbVJNHH4
+	id S932366AbVJNIC7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Oct 2005 04:02:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbVJNIC7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Oct 2005 03:07:56 -0400
-Received: from www.tuxrocks.com ([64.62.190.123]:28935 "EHLO tuxrocks.com")
-	by vger.kernel.org with ESMTP id S932213AbVJNHHz (ORCPT
+	Fri, 14 Oct 2005 04:02:59 -0400
+Received: from f47.mail.ru ([194.67.57.83]:41741 "EHLO f47.mail.ru")
+	by vger.kernel.org with ESMTP id S932366AbVJNIC6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Oct 2005 03:07:55 -0400
-Message-ID: <434F5940.9010500@tuxrocks.com>
-Date: Fri, 14 Oct 2005 01:07:44 -0600
-From: Frank Sorenson <frank@tuxrocks.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@davemloft.net>
-CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: Kconfig Dependencies for CONFIG_NET_CLS_RSVP6
-References: <434F5247.2040007@tuxrocks.com> <20051013.235907.66789139.davem@davemloft.net>
-In-Reply-To: <20051013.235907.66789139.davem@davemloft.net>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 14 Oct 2005 04:02:58 -0400
+From: Serge Goodenko <s_goodenko@mail.ru>
+To: george@mvista.com
+Cc: linux-kernel@vger.kernel.org,
+       high-res-timers-discourse@lists.sourceforge.net
+Subject: Re[2]: [PATCH] UML + High-Res-Timers on 2.4.25 kernel
+Mime-Version: 1.0
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: [194.85.70.42]
+Date: Fri, 14 Oct 2005 12:02:51 +0400
+In-Reply-To: <434EB936.3070600@mvista.com>
+Reply-To: Serge Goodenko <s_goodenko@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E1EQKWh-000BoG-00.s_goodenko-mail-ru@f47.mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> Still, these patches do not provide kernel access to the high-res timers.  This has been done in one 
+> case, but the interface is not really defined nor stable (i.e. we may change it in the next 
+> release...).  Look for HIGH_RES_TIMERS in the ipmi driver in the 2.6 kernel tree to see how to go 
+> about this.
 
-David S. Miller wrote:
-> From: Frank Sorenson <frank@tuxrocks.com>
-> Date: Fri, 14 Oct 2005 00:37:59 -0600
-> 
-> 
->>I noticed that I can still select "Special RSVP classifier for IPv6"
->>even if "The IPv6 protocol" isn't selected.  Should CONFIG_NET_CLS_RSVP6
->>depend on or select IPV6?
->>
->>Currently:
->>Depends on: NET && NET_CLS && NET_QOS
-> 
-> 
-> It doesn't need the ipv6 stack at all, it's just a classifier
-> that looks at packet headers and makes decisions.
+yeah...
+all these problems finally persuaded me to start playing with 2.6 kernel... )
 
-Okay, I suppose that makes more sense now.  I just wanted to check it
-through, since I figured I'd turned off everything related to IPv6 :)
+thank you for replies!
 
-Thanks for explaining,
 
-Frank
-- --
-Frank Sorenson - KD7TZK
-Systems Manager, Computer Science Department
-Brigham Young University
-frank@tuxrocks.com
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFDT1lAaI0dwg4A47wRAuXVAKCWBcZj3OTK8wLZInGE7eIegtrBeACg7GOt
-gM0finkJL0tRmXm9685vS10=
-=8M+k
------END PGP SIGNATURE-----
+Serge
+MIPT
+Moscow
+Russia

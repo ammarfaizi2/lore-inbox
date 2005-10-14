@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932160AbVJNJ2x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750973AbVJNJey@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932160AbVJNJ2x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Oct 2005 05:28:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbVJNJ2x
+	id S1750973AbVJNJey (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Oct 2005 05:34:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751211AbVJNJey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Oct 2005 05:28:53 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:22178 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1751173AbVJNJ2w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Oct 2005 05:28:52 -0400
-Date: Thu, 13 Oct 2005 13:17:07 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Cc: Jeff Mahoney <jeffm@suse.com>, Anton Altaparmakov <aia21@cam.ac.uk>,
-       Glauber de Oliveira Costa <glommer@br.ibm.com>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, hirofumi@mail.parknet.co.jp,
-       linux-ntfs-dev@lists.sourceforge.net, aia21@cantab.net,
-       hch@infradead.org, viro@zeniv.linux.org.uk, akpm@osdl.org
-Subject: Re: [PATCH] Use of getblk differs between locations
-Message-ID: <20051013111707.GB516@openzaurus.ucw.cz>
-References: <Pine.LNX.4.64.0510102217200.6247@hermes-1.csi.cam.ac.uk> <20051010214605.GA11427@br.ibm.com> <Pine.LNX.4.62.0510102347220.19021@artax.karlin.mff.cuni.cz> <Pine.LNX.4.64.0510102319100.6247@hermes-1.csi.cam.ac.uk> <Pine.LNX.4.62.0510110035110.19021@artax.karlin.mff.cuni.cz> <1129017155.12336.4.camel@imp.csi.cam.ac.uk> <434D6932.1040703@suse.com> <Pine.LNX.4.62.0510122155390.9881@artax.karlin.mff.cuni.cz> <434D6CFA.4080802@suse.com> <Pine.LNX.4.62.0510122208210.11573@artax.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 14 Oct 2005 05:34:54 -0400
+Received: from ns1.suse.de ([195.135.220.2]:57321 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750973AbVJNJey (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Oct 2005 05:34:54 -0400
+From: Andi Kleen <ak@suse.de>
+To: yhlu <yhlu.kernel@gmail.com>
+Subject: Re: amd_detect_cmp messing up initial apic id and apic id
+Date: Fri, 14 Oct 2005 11:35:06 +0200
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org
+References: <86802c440510140009t239d9dffj62469453db5737e4@mail.gmail.com>
+In-Reply-To: <86802c440510140009t239d9dffj62469453db5737e4@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0510122208210.11573@artax.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.3.27i
+Message-Id: <200510141135.06147.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Friday 14 October 2005 09:09, yhlu wrote:
+> andi,
+>
+> in arch/x86_64/setup.c amd_detect_cmp, the code already using initial apic
+> to get node id, why adding some extra code double check the node id?
 
-> >>- the write of these data waits until the dialog window is 
-> >>displayed,
-> >>user inserts the device and clicks 'OK'
-> >
-> >No, it's not, and deadlock is definitely possible. However, if we're 
-> >at
-> >the point where memory is tight enough that it's an issue, the timer 
-> >can
-> >expire and all the pending i/o is dropped just as it would be without
-> >the multipath code enabled.
-> >
-> >I'm not saying it's a solution ready for production, just a good
-> >starting point.
-> 
-> But discarding data sometimes on USB unplug is even worse than 
-> discarding data always --- users will by experimenting learn that 
+Because it is not necessarily matching.
 
-*Good starting point*.
+>
+> Also
+> apicid = phys_proc_id[cpu]; <----- initial apic id
+>
+> and then apicid_to_node[apicid]....
+>
+> that is wrong if the cpu apic id is lifted.
 
-Anyway, one solution would be to simply mlockall() on that
-replugitd and/or make dirty data hdd based
-(not ram based) and/or
-restricting dirty buffers to 10MB for removable media.
+Can you describe exactly what you think is wrong? 
 
-				Pavel
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
-
+-Andi

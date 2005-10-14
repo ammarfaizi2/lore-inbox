@@ -1,77 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbVJNAzK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbVJNB2f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932196AbVJNAzK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 20:55:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932197AbVJNAzK
+	id S932195AbVJNB2f (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 21:28:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932201AbVJNB2f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 20:55:10 -0400
-Received: from omta03ps.mx.bigpond.com ([144.140.82.155]:61170 "EHLO
-	omta03ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S932196AbVJNAzI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 20:55:08 -0400
-Message-ID: <434F01EA.6060709@bigpond.net.au>
-Date: Fri, 14 Oct 2005 10:55:06 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Thu, 13 Oct 2005 21:28:35 -0400
+Received: from qproxy.gmail.com ([72.14.204.195]:31270 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932195AbVJNB2e convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Oct 2005 21:28:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=sOzsURGXYQWnX8/05l4CPggbjDFP1BvHw7WCNmeMpQI2TBWzTyMpkE+Ak/ZJ5Ie7u1y4Pe/JzDwuy7PXd+vcGfrLytJyXEY7vjm/3D1qQMBcHxPRHNG54BbsyffLfvKA1DKg5poiSO31UIq9Ijpbcf+fy4IliJ0DIPrXuv7ZaXw=
+Message-ID: <9a8748490510131828l6440994lf9587df44f7c0d78@mail.gmail.com>
+Date: Fri, 14 Oct 2005 03:28:32 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Greg KH <greg@kroah.com>
+Subject: Re: Fwd: Telecom Clock Driver for MPCBL0010 ATCA computer blade
+Cc: LKML List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051014001547.GA4647@kroah.com>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Jake Moilanen <moilanen@austin.ibm.com>
-Subject: [ANNOUNCE][RFC] PlugSched-6.1.3 for 2.6.13 and 2.6.14-rc4
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Fri, 14 Oct 2005 00:55:06 +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200510060803.21470.mgross@linux.intel.com>
+	 <200510121636.29821.mgross@linux.intel.com>
+	 <20051013011451.GA28844@kroah.com>
+	 <200510131436.06718.mgross@linux.intel.com>
+	 <9a8748490510131508r49a048cau7e08d77ef1d614ad@mail.gmail.com>
+	 <20051013224042.GB3266@kroah.com>
+	 <9a8748490510131547s127f3167j6c9427ff3d97f878@mail.gmail.com>
+	 <20051014001547.GA4647@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This version contains a new scheduler, spa_svr, which is a minor 
-extension of spa_no_frills intended for use on servers.  It makes no 
-attempt to improve interactive responsiveness but includes a simplified 
-version of the throughput bonus mechanism found in Zaphod.  This 
-mechanism attempts to minimize the time tasks spend on run queues 
-waiting for CPU access when the system is moderately loaded by giving 
-tasks temporary priority bonuses based on the relationship between the 
-recent average time spent on run queues and on a cpu per cycle. 
-(Although it's effectiveness tends to disappear when the system is fully 
-loaded, it is still useful as considerable delay can be seen on systems 
-with quite low average loads due to lack of serendipity.)
+On 10/14/05, Greg KH <greg@kroah.com> wrote:
+> On Fri, Oct 14, 2005 at 12:47:21AM +0200, Jesper Juhl wrote:
+> > Ick, no, that's a mess.  Stick with the original version.
+> >
+> >Don't call functions within a if() statement, it's harder to read.
+> direct to me only?  What about everyone on the list?
+>
+Whoops, wrong button - sorry.  Let's copy LKML.
 
-A patch for 2.6.14-rc4 is available at:
 
-<http://prdownloads.sourceforge.net/cpuse/plugsched-6.1.3-for-2.6.14-rc4.patch?download>
+> > I guess you are right - it /would/ save a variable though ;)
+>
+> Not worth it.  Ease of maintainability, which means being able to read
+> the code better, trumps a single variable on a slow path.
+>
 
-and a patch to upgrade the 6.1.2 version for 2.6.13 to 6.1.3 is
-available at:
+Hmm, yeah, I can see the sense in that - if it's not performance
+critical, better make it readable.
 
-<http://prdownloads.sourceforge.net/cpuse/plugsched-6.1.2-to-6.1.3-for-2.6.13.patch?download>
 
-Very Brief Documentation:
+> > > > +     unsigned long tmp;
+> > > > +     unsigned char val;
+> > > > +     unsigned long flags;
+> > > > +
+> > > > +     sscanf(buf, "%lX", &tmp);
+> > > > +     dev_dbg(d, "tmp = 0x%lX\n", tmp);
+> > > > +
+> > > > +     val = (unsigned char)tmp;
+> > > >
+> > > > You do this a lot, I'm wondering why you don't read directly into
+> > > > "val" and then get rid of the "tmp" variable?
+> > >
+> > > Because you want to cast it.
+> > >
+> > Ok, I'm feeling a little dense tonight, so bear with me please, but
+> > wouldn't the effect of reading into the unsigned char (and potentially
+> > getting the value truncated) result in the same thing as casting it
+> > later?
+>
+> I don't think it would be the same if you put a large value in the
+> string.  Try it out and see.
+>
+Ok, I must admit I haven't actually tested it, perhaps I will tomorrow
+after I get some sleep.
 
-You can select a default scheduler at kernel build time.  If you wish to
-boot with a scheduler other than the default it can be selected at boot
-time by adding:
 
-cpusched=<scheduler>
-
-to the boot command line where <scheduler> is one of: ingosched,
-nicksched, staircase, spa_no_frills, spa_ws, spa_svr or zaphod.  If you 
-don't change the default when you build the kernel the default scheduler 
-will be ingosched (which is the normal scheduler).
-
-The scheduler in force on a running system can be determined by the
-contents of:
-
-/proc/scheduler
-
-Control parameters for the scheduler can be read/set via files in:
-
-/sys/cpusched/<scheduler>/
-
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

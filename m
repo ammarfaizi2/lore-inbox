@@ -1,84 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbVJNPCm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbVJNO4K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750744AbVJNPCm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Oct 2005 11:02:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750753AbVJNPCm
+	id S1750730AbVJNO4K (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Oct 2005 10:56:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbVJNO4K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Oct 2005 11:02:42 -0400
-Received: from mail.udag.de ([62.146.33.70]:35286 "EHLO mail.udag.de")
-	by vger.kernel.org with ESMTP id S1750744AbVJNPCl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Oct 2005 11:02:41 -0400
-From: "Stephan Brodkorb" <stephan-linuxdev@brodkorb.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <adobriyan@gmail.com>, <rubini@vision.unipv.it>,
-       <rmk+serial@arm.linux.org.uk>, <linux-serial@vger.kernel.org>,
-       <Markus_Daniel@gmx.de>
-Subject: [PATCH 1/1] n_r3964 fix - char
-Date: Fri, 14 Oct 2005 17:02:42 +0200
+	Fri, 14 Oct 2005 10:56:10 -0400
+Received: from xproxy.gmail.com ([66.249.82.204]:32612 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750730AbVJNO4I convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Oct 2005 10:56:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=myfbko9BCEXS1qsvaoAt45WDgtuy/A65e1o1k57QVwsy7GHN37jdaHBSVFBz4Sv3E1fFXotN/W09E30dhqqsx8ux/MfvZStNmdGPH2ZN7GzwnwAgbeM+wlMgjTpzVxvWKowtHli3ugc5ARoY/9f0aKiqSfTKVR6d8dAUJwtEXWY=
+Message-ID: <5bdc1c8b0510140756u1b006de9td552539421666bec@mail.gmail.com>
+Date: Fri, 14 Oct 2005 07:56:05 -0700
+From: Mark Knecht <markknecht@gmail.com>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.14-rc4-rt1 - enable IRQ-off tracing causes kernel to fault at boot
+Cc: Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20051014035230.GB6513@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcXQ0FO5ZllYBtnmQWSz23aIqDpYzQ==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
-Message-Id: <20051014150238.B105980CD@mail.udag.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <5bdc1c8b0510121000i5db112f2p642f66686fb46c57@mail.gmail.com>
+	 <20051013073029.GA12801@elte.hu>
+	 <5bdc1c8b0510130526k6064c640pecded9ccb0ef7dde@mail.gmail.com>
+	 <Pine.LNX.4.58.0510130844070.13098@localhost.localdomain>
+	 <5bdc1c8b0510131210i64f7f289q557368b056e59e18@mail.gmail.com>
+	 <20051014035230.GB6513@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 10/13/05, Ingo Molnar <mingo@elte.hu> wrote:
+>
+> * Mark Knecht <markknecht@gmail.com> wrote:
+>
+> > Ingo & Steve,
+> >    Thank you for your great instructions that even a guitar player
+> > could basically follow. After about an hour of messing around I did
+> > manage to capture the crash. The console file is attached.
+> >
+> > NOTE: The first time I booted the kernel it got to the crash point and
+> > the machine rebooted. The second time it booted I got the trace. Both
+> > boots are in the capture file.
+>
+> thanks, this log is much more informative. No smoking gun though, but it
+> seems something fundamental (probably lowlevel x64 code) has been broken
+> by -rt1.
+>
+> Do the crashes go away if you take the -rc3-rt13 version of
+> arch/x86_64/kernel/entry.S and copy it over into the -rc4-rt1 tree?
+> [this undoes a particular set of CONFIG_CRITICAL_IRQSOFF_TIMING fixes
+> from the x64 code, which i did during -rc3-rt13 => -rc4-rt1]
 
---- linux-2.6.14-rc4-orig/drivers/char/n_r3964.c	2005-10-11
-03:19:20.000000000 +0200
-+++ linux-2.6.14-rc4/drivers/char/n_r3964.c	2005-10-14
-15:05:29.589643200 +0200
-@@ -695,7 +695,7 @@
-             {
-                TRACE_PE("IDLE - got STX but no space in rx_queue!");
-                pInfo->state=R3964_WAIT_FOR_RX_BUF;
--	       mod_timer(&pInfo->tmr, R3964_TO_NO_BUF);
-+	       mod_timer(&pInfo->tmr, jiffies + R3964_TO_NO_BUF);
-                break;
-             }
- start_receiving:
-@@ -705,7 +705,7 @@
-             pInfo->last_rx = 0;
-             pInfo->flags &= ~R3964_ERROR;
-             pInfo->state=R3964_RECEIVING;
--	    mod_timer(&pInfo->tmr, R3964_TO_ZVZ);
-+	    mod_timer(&pInfo->tmr, jiffies + R3964_TO_ZVZ);
- 	    pInfo->nRetry = 0;
-             put_char(pInfo, DLE);
-             flush(pInfo);
-@@ -732,7 +732,7 @@
-                if(pInfo->flags & R3964_BCC)
-                {
-                   pInfo->state = R3964_WAIT_FOR_BCC;
--		  mod_timer(&pInfo->tmr, R3964_TO_ZVZ);
-+		  mod_timer(&pInfo->tmr, jiffies + R3964_TO_ZVZ);
-                }
-                else 
-                {
-@@ -744,7 +744,7 @@
-                pInfo->last_rx = c;
- char_to_buf:
-                pInfo->rx_buf[pInfo->rx_position++] = c;
--	       mod_timer(&pInfo->tmr, R3964_TO_ZVZ);
-+	       mod_timer(&pInfo->tmr, jiffies + R3964_TO_ZVZ);
-             }
-          }
-         /* else: overflow-msg? BUF_SIZE>MTU; should not happen? */ 
+Indeed it is fixed by doing this. Options are on but the modified
+kernel does boot:
+
+*****************************************************************************
+*                                                                           *
+*  REMINDER, the following debugging options are turned on in your .config: *
+*                                                                           *
+*        CONFIG_DEBUG_PREEMPT                                               *
+*        CONFIG_CRITICAL_PREEMPT_TIMING                                     *
+*        CONFIG_CRITICAL_IRQSOFF_TIMING                                     *
+*                                                                           *
+*  they may increase runtime overhead and latencies.                        *
+*                                                                           *
+*****************************************************************************
+
+mark@lightning ~ $ uname -a
+Linux lightning 2.6.14-rc4-rt1 #8 PREEMPT Fri Oct 14 07:46:29 PDT 2005
+x86_64 AMD Athlon(tm) 64 Processor 3000+ AuthenticAMD GNU/Linux
+mark@lightning ~ $
 
 
-Hi everybody,
+>
+> (Note that doing this will re-introduce tracing bugs, which can result
+> in false-positive latency readings - but it should fix any related
+> lowlevel bug in the assembly code.)
+>
+> if this indeed solves the crash then i'd suggest to restore the -rt1
+> version of entry.S, and i'd suggest to disable CRITICAL_IRQSOFF_TIMING
+> until i fix it. You should be able to get pretty good latency tracing
+> info even without CRITICAL_IRQSOFF_TIMING.
+>
+>         Ingo
+>
 
-since Revision 1.10  was released the n_r3964 module wasn't able to receive
-any data. The reason for that behavior is because there were some wrong
-calls of mod_timer(...) in the function receive_char (...).
-This patch should fix this problem and was successfully tested with talking
-to some kuka industrial robots.
+Will got back to the original entry.S file with the IRQoff option
+turned off. Let me know when you have a fix to test, or if you need
+more data.
 
-Greetings,
-
-Stephan Brodkorb
-
+Thanks,
+Mark

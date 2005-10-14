@@ -1,67 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751317AbVJNEzy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbVJNEzE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751317AbVJNEzy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Oct 2005 00:55:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbVJNEzx
+	id S1751118AbVJNEzE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Oct 2005 00:55:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbVJNEzE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Oct 2005 00:55:53 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:7044 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751317AbVJNEzw (ORCPT
+	Fri, 14 Oct 2005 00:55:04 -0400
+Received: from [85.8.13.51] ([85.8.13.51]:26765 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S1751118AbVJNEzC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Oct 2005 00:55:52 -0400
-Date: Fri, 14 Oct 2005 06:56:15 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>, dwalker@mvista.com,
-       david singleton <dsingleton@mvista.com>
-Subject: Re: 2.6.14-rc4-rt1
-Message-ID: <20051014045615.GC13595@elte.hu>
-References: <20051011111454.GA15504@elte.hu> <1129064151.5324.6.camel@cmn3.stanford.edu> <20051012061455.GA16586@elte.hu> <20051012071037.GA19018@elte.hu> <1129242595.4623.14.camel@cmn3.stanford.edu> <1129256936.11036.4.camel@cmn3.stanford.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1129256936.11036.4.camel@cmn3.stanford.edu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Fri, 14 Oct 2005 00:55:02 -0400
+Message-ID: <434F3A1E.7000403@drzeus.cx>
+Date: Fri, 14 Oct 2005 06:54:54 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jesper Juhl <jesper.juhl@gmail.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Len Brown <len.brown@intel.com>, iss_storagedev@hp.com,
+       Jakub Jelinek <jj@ultra.linux.cz>, Frodo Looijaard <frodol@dds.nl>,
+       Jean Delvare <khali@linux-fr.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Jens Axboe <axboe@suse.de>, Roland Dreier <rolandd@cisco.com>,
+       Sergio Rozanski Filho <aris@cathedrallabs.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Pierre Ossman <drzeus-wbsd@drzeus.cx>,
+       Carsten Gross <carsten@sol.wh-hms.uni-ulm.de>,
+       Greg Kroah-Hartman <greg@kroah.com>,
+       David Hinds <dahinds@users.sourceforge.net>,
+       Vinh Truong <vinh.truong@eng.sun.com>,
+       Mark Douglas Corner <mcorner@umich.edu>,
+       Michael Downey <downey@zymeta.com>, Antonino Daplas <adaplas@pol.net>,
+       Ben Gardner <bgardner@wabtec.com>
+Subject: Re: [PATCH 09/14] Big kfree NULL check cleanup - misc remaining drivers
+References: <200510132128.45171.jesper.juhl@gmail.com>
+In-Reply-To: <200510132128.45171.jesper.juhl@gmail.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
-
-> #!/bin/bash
-> while true ; do
->     START=`date +"%s"`
->     sleep 10
->     END=`date +"%s"`
->     let DIFF=END-START
->     echo "$DIFF" >>time
->     echo "---"
-> done
+Jesper Juhl wrote:
+> This is the remaining misc drivers/ part of the big kfree cleanup patch.
 > 
-> I'm attaching what I found when I got back.
+> Remove pointless checks for NULL prior to calling kfree() in misc files in drivers/.
+> 
+> 
+> Sorry about the long Cc: list, but I wanted to make sure I included everyone
+> who's code I've changed with this patch.
+> 
+> 
+> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+> ---
+> 
+> --- linux-2.6.14-rc4-orig/drivers/mmc/wbsd.c	2005-10-11 22:41:10.000000000 +0200
+> +++ linux-2.6.14-rc4/drivers/mmc/wbsd.c	2005-10-12 15:43:04.000000000 +0200
+> @@ -1595,8 +1595,7 @@ static void __devexit wbsd_release_dma(s
+>  	if (host->dma_addr)
+>  		dma_unmap_single(host->mmc->dev, host->dma_addr, WBSD_DMA_SIZE,
+>  			DMA_BIDIRECTIONAL);
+> -	if (host->dma_buffer)
+> -		kfree(host->dma_buffer);
+> +	kfree(host->dma_buffer);
+>  	if (host->dma >= 0)
+>  		free_dma(host->dma);
+>  
 
-> 1
-> 10
-> 6
-> 0
-> 0
+Looks good. Thanks.
 
-could you try:
+Acked-by: Pierre Ossman <drzeus@drzeus.cx>
 
-	strace -o log sleep 10
-
-and wait for a failure, and send us the log? Is it perhaps nanosleep 
-unexpectedly returning with -EAGAIN or -512? There's a transient 
-nanosleep failure that happens on really fast boxes, which we havent 
-gotten to the bottom yet. That problem is very sporadic, but maybe your 
-box is just too fast and triggers it more likely :-)
-
-	Ingo

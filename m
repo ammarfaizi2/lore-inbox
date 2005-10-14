@@ -1,41 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751168AbVJNEVk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751166AbVJNEUd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751168AbVJNEVk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Oct 2005 00:21:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbVJNEVk
+	id S1751166AbVJNEUd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Oct 2005 00:20:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbVJNEUd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Oct 2005 00:21:40 -0400
-Received: from mail.kroah.org ([69.55.234.183]:47530 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751168AbVJNEVk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Oct 2005 00:21:40 -0400
-Date: Thu, 13 Oct 2005 21:20:58 -0700
-From: Greg KH <greg@kroah.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Bastian Blank <bastian@waldi.eu.org>, schwidefsky@de.ibm.com,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.14-rc4-git] s390, ccw - export modalias
-Message-ID: <20051014042058.GA8232@kroah.com>
-References: <20051012192639.GA25481@wavehammer.waldi.eu.org> <20051012125939.6ee58910.akpm@osdl.org>
+	Fri, 14 Oct 2005 00:20:33 -0400
+Received: from li2-47.members.linode.com ([69.56.173.47]:6930 "EHLO
+	li2-47.members.linode.com") by vger.kernel.org with ESMTP
+	id S1751166AbVJNEUd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Oct 2005 00:20:33 -0400
+Date: Fri, 14 Oct 2005 00:20:08 -0400
+From: Randall Nortman <linuxkernellist@wonderclown.com>
+To: gregkh@suse.de
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: [PATCH] usbserial: Regression in USB generic serial driver
+Message-ID: <20051014042007.GO8982@li2-47.members.linode.com>
+Mail-Followup-To: gregkh@suse.de, linux-kernel@vger.kernel.org,
+	linux-usb-devel@lists.sourceforge.net
+References: <20051014014255.GN8982@li2-47.members.linode.com> <20051014015908.GR7991@shell0.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051012125939.6ee58910.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20051014015908.GR7991@shell0.pdx.osdl.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 12, 2005 at 12:59:39PM -0700, Andrew Morton wrote:
-> Bastian Blank <bastian@waldi.eu.org> wrote:
-> >
-> > This patch exports modalias for ccw devices.
-> 
-> And why do we want to do that?
+Kernel version 2.6.13 introduced a regression in the generic USB
+serial converter driver (usbserial.o, drivers/usb/serial/generic.c).
+The bug manifests, as far as I can tell, whenever you attempt to write
+to the device -- the write will never complete (write() returns 0, or
+blocks).
 
-So you can do:
-	modprobe `echo /sys/device/path_to_device/modalias`
-and the proper driver will automatically be loaded by userspace.
+Signed-off-by: Randall Nortman <oss@wonderclown.org>
+---
+I'm sending this a second time, after reading up on the right way to
+submit a patch (much thanks to Chris Wright).  Now we see if I'm
+capable of following instructions properly.
 
-thanks,
-
-greg k-h
+diff --git a/drivers/usb/serial/generic.c b/drivers/usb/serial/generic.c
+--- a/drivers/usb/serial/generic.c
++++ b/drivers/usb/serial/generic.c
+@@ -223,7 +223,7 @@ int usb_serial_generic_write_room (struc
+ 	dbg("%s - port %d", __FUNCTION__, port->number);
+ 
+ 	if (serial->num_bulk_out) {
+-		if (port->write_urb_busy)
++		if (!(port->write_urb_busy))
+ 			room = port->bulk_out_size;
+ 	}
+ 

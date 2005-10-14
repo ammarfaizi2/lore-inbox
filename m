@@ -1,51 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbVJNRCF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbVJNRO3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750798AbVJNRCF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Oct 2005 13:02:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbVJNRCF
+	id S1750803AbVJNRO3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Oct 2005 13:14:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750804AbVJNRO3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Oct 2005 13:02:05 -0400
-Received: from mail.shareable.org ([81.29.64.88]:26851 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S1750798AbVJNRCC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Oct 2005 13:02:02 -0400
-Date: Fri, 14 Oct 2005 17:52:23 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-       Jeff Mahoney <jeffm@suse.com>, Anton Altaparmakov <aia21@cam.ac.uk>,
-       Glauber de Oliveira Costa <glommer@br.ibm.com>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, hirofumi@mail.parknet.co.jp,
-       linux-ntfs-dev@lists.sourceforge.net, aia21@cantab.net,
-       hch@infradead.org, viro@zeniv.linux.org.uk, akpm@osdl.org
-Subject: Re: [PATCH] Use of getblk differs between locations
-Message-ID: <20051014165223.GA23420@mail.shareable.org>
-References: <20051010214605.GA11427@br.ibm.com> <Pine.LNX.4.62.0510102347220.19021@artax.karlin.mff.cuni.cz> <Pine.LNX.4.64.0510102319100.6247@hermes-1.csi.cam.ac.uk> <Pine.LNX.4.62.0510110035110.19021@artax.karlin.mff.cuni.cz> <1129017155.12336.4.camel@imp.csi.cam.ac.uk> <434D6932.1040703@suse.com> <Pine.LNX.4.62.0510122155390.9881@artax.karlin.mff.cuni.cz> <434D6CFA.4080802@suse.com> <Pine.LNX.4.62.0510122208210.11573@artax.karlin.mff.cuni.cz> <20051013111707.GB516@openzaurus.ucw.cz>
+	Fri, 14 Oct 2005 13:14:29 -0400
+Received: from mail.kroah.org ([69.55.234.183]:28310 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750803AbVJNRO3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Oct 2005 13:14:29 -0400
+Date: Fri, 14 Oct 2005 10:13:26 -0700
+From: Greg KH <greg@kroah.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: kernel-stuff@comcast.net, stable@kernel.org, linux-kernel@vger.kernel.org,
+       Christian Krause <chkr@plauener.de>
+Subject: Re: [stable] Re: [PATCH] Re: bug in handling of highspeed usb HID devices
+Message-ID: <20051014171326.GA16496@kroah.com>
+References: <101320051953.12930.434EBB460007F30B0000328222007589429D0E050B9A9D0E99@comcast.net> <20051013212518.GY5856@shell0.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051013111707.GB516@openzaurus.ucw.cz>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20051013212518.GY5856@shell0.pdx.osdl.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> *Good starting point*.
-> 
-> Anyway, one solution would be to simply mlockall() on that replugitd
+On Thu, Oct 13, 2005 at 02:25:18PM -0700, Chris Wright wrote:
+> * kernel-stuff@comcast.net (kernel-stuff@comcast.net) wrote:
+> > This seems to be -stable material since it's a clear cut bug with bad
+> > consequences. 
+> > 
+> > Chris Wright - is the below patch acceptable for -stable?
 
-Unfortunately, mlockall() isn't effective for an X application (for
-the dialog) because the X server needs resources too, and that's not
-usually mlock'd because it's too big.  (It would be nice to have a
-general solution to allow mlock'd GUI applications).
+Also, I don't think this should go into -stable, as there are no
+high-speed HID devices available right now, so it really isn't affecting
+anyone :)
 
-> and/or make dirty data hdd based (not ram based)
+thanks,
 
-Ooh, swappable dirty data... nice idea :)
-
-> and/or restricting dirty buffers to 10MB for removable media.
-
-That seems like the simplest effective solution.
-
--- Jamie
+greg k-h

@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932562AbVJNCLw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932572AbVJNCNF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932562AbVJNCLw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Oct 2005 22:11:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932574AbVJNCLv
+	id S932572AbVJNCNF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Oct 2005 22:13:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932574AbVJNCNE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Oct 2005 22:11:51 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:12224 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932562AbVJNCLu
+	Thu, 13 Oct 2005 22:13:04 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:28353 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932572AbVJNCNB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Oct 2005 22:11:50 -0400
-Subject: [RFC][PATCH 3/12] clocksource management code
+	Thu, 13 Oct 2005 22:13:01 -0400
+Subject: [RFC][PATCH 4/12] generic timeofday core subsystem
 From: john stultz <johnstul@us.ibm.com>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: Roman Zippel <zippel@linux-m68k.org>,
@@ -18,13 +18,14 @@ Cc: Roman Zippel <zippel@linux-m68k.org>,
        Thomas Gleixner <tglx@linutronix.de>,
        Frank Sorenson <frank@tuxrocks.com>,
        Nishanth Aravamudan <nacc@us.ibm.com>, Darren Hart <dvhltc@us.ibm.com>
-In-Reply-To: <1129255831.27168.29.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1129255906.27168.32.camel@cog.beaverton.ibm.com>
 References: <1129255182.27168.14.camel@cog.beaverton.ibm.com>
 	 <1129255761.27168.26.camel@cog.beaverton.ibm.com>
 	 <1129255831.27168.29.camel@cog.beaverton.ibm.com>
+	 <1129255906.27168.32.camel@cog.beaverton.ibm.com>
 Content-Type: text/plain
-Date: Thu, 13 Oct 2005 19:11:46 -0700
-Message-Id: <1129255906.27168.32.camel@cog.beaverton.ibm.com>
+Date: Thu, 13 Oct 2005 19:12:57 -0700
+Message-Id: <1129255977.27168.34.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
@@ -32,450 +33,355 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 All,
-	This patch introduces the clocksource management infrastructure. A
-clocksource is a driver-like architecture generic abstraction of a
-freerunning counter. This patch defines the clocksource structure, and
-provides management code for registering, selecting, accessing and
-scaling clocksources. The clocksource structure is influenced by the
-time_interpolator code, although I feel it has a cleaner interface and
-avoids preserving system state in the clocksource structure.
 
-Additionally, this patch includes the trivial jiffies clocksource, a
-lowest common denominator clocksource, provided mainly for use as an
-example.
+This patch implements my generic timeofday framework. This common
+infrastructure is intended to be used by any arch to reduce code
+duplication. Hopefully it will allow generic bugs to be fixed once. And
+with many architectures sharing the same time source, this allows
+drivers to be written once for multiple architectures. 
 
-This patch applies ontop of my part 2 of my ntp changes.
+One major change with this code is that it delineate the lines between
+the soft-timer subsystem and the time-of-day subsystem, allowing for a
+1:1 mapping between a hardware clocksource counter and the time of day.
+This allows for lost ticks or other software delays to not affect
+timekeeping.
 
-Since this patch provides the groundwork for the generic timeofday core,
-it will not function without the generic timeofday patches to follow.
+Included below is timeofday.c (which includes all the time of day
+management and accessor functions), and minimal hooks into arch
+independent code. This patch does not remove the current timekeeping
+code, allowing architectures to move over when they are ready. 
 
+This patch applies on top of my clocksource managment patch.
+
+The patch does nothing without at least minimal architecture specific
+hooks (i386, x86-64 and other architecture examples to follow), and it
+should be able to be applied to a tree without affecting the existing
+code.
 
 thanks
 -john
 
- Documentation/kernel-parameters.txt |   11 +
- drivers/Makefile                    |    1 
- drivers/clocksource/Makefile        |    1 
- drivers/clocksource/jiffies.c       |   74 +++++++++
- include/linux/clocksource.h         |  269 ++++++++++++++++++++++++++++++++++
- kernel/clocksource.c                |  279 ++++++++++++++++++++++++++++++++++++
- 6 files changed, 632 insertions(+), 3 deletions(-)
 
-linux-2.6.14-rc4_timeofday-clocksource-core_B7.patch
+ drivers/char/hangcheck-timer.c  |    5 
+ include/asm-generic/timeofday.h |   29 ++
+ include/linux/time.h            |    4 
+ include/linux/timeofday.h       |   90 ++++++
+ include/linux/timex.h           |    2 
+ init/main.c                     |    2 
+ kernel/Makefile                 |    1 
+ kernel/time.c                   |   40 ++
+ kernel/timeofday.c              |  558 ++++++++++++++++++++++++++++++++++++++++
+ kernel/timer.c                  |    4 
+ 10 files changed, 735 insertions(+)
+
+linux-2.6.14-rc4_timeofday-core_B7.patch
 ============================================
-diff --git a/Documentation/kernel-parameters.txt b/Documentation/kernel-parameters.txt
---- a/Documentation/kernel-parameters.txt
-+++ b/Documentation/kernel-parameters.txt
-@@ -52,6 +52,7 @@ restrictions referred to are that the re
- 	MTD	MTD support is enabled.
- 	NET	Appropriate network support is enabled.
- 	NUMA	NUMA support is enabled.
-+	GENERIC_TOD The generic timeofday code is enabled.
- 	NFS	Appropriate NFS support is enabled.
- 	OSS	OSS sound support is enabled.
- 	PARIDE	The ParIDE subsystem is enabled.
-@@ -323,9 +324,9 @@ running once the system is up.
- 			Default value is set via a kernel config option.
- 			Value can be changed at runtime via /selinux/checkreqprot.
-  
-- 	clock=		[BUGS=IA-32, HW] gettimeofday timesource override. 
--			Forces specified timesource (if avaliable) to be used
--			when calculating gettimeofday(). If specicified timesource
-+ 	clock=		[BUGS=IA-32, HW] gettimeofday clocksource override. [Deprecated]
-+			Forces specified clocksource (if avaliable) to be used
-+			when calculating gettimeofday(). If specicified clocksource
- 			is not avalible, it defaults to PIT. 
- 			Format: { pit | tsc | cyclone | pmtmr }
+diff --git a/drivers/char/hangcheck-timer.c b/drivers/char/hangcheck-timer.c
+--- a/drivers/char/hangcheck-timer.c
++++ b/drivers/char/hangcheck-timer.c
+@@ -49,6 +49,7 @@
+ #include <linux/delay.h>
+ #include <asm/uaccess.h>
+ #include <linux/sysrq.h>
++#include <linux/timeofday.h>
  
-@@ -1462,6 +1463,10 @@ running once the system is up.
  
- 	time		Show timing data prefixed to each printk message line
+ #define VERSION_STR "0.9.0"
+@@ -130,8 +131,12 @@ __setup("hcheck_dump_tasks", hangcheck_p
+ #endif
  
-+	clocksource=		[GENERIC_TOD] Override the default clocksource
-+			Override the default clocksource and use the clocksource
-+			with the name specified.
-+
- 	tipar.timeout=	[HW,PPT]
- 			Set communications timeout in tenths of a second
- 			(default 15).
-diff --git a/drivers/Makefile b/drivers/Makefile
---- a/drivers/Makefile
-+++ b/drivers/Makefile
-@@ -67,3 +67,4 @@ obj-$(CONFIG_INFINIBAND)	+= infiniband/
- obj-$(CONFIG_SGI_IOC4)		+= sn/
- obj-y				+= firmware/
- obj-$(CONFIG_CRYPTO)		+= crypto/
-+obj-$(CONFIG_GENERICTOD)		+= clocksource/
-diff --git a/drivers/clocksource/Makefile b/drivers/clocksource/Makefile
+ #ifdef HAVE_MONOTONIC
++#ifndef CONFIG_GENERICTOD
+ extern unsigned long long monotonic_clock(void);
+ #else
++#define monotonic_clock() do_monotonic_clock()
++#endif
++#else
+ static inline unsigned long long monotonic_clock(void)
+ {
+ # ifdef __s390__
+diff --git a/include/asm-generic/timeofday.h b/include/asm-generic/timeofday.h
 new file mode 100644
 --- /dev/null
-+++ b/drivers/clocksource/Makefile
-@@ -0,0 +1 @@
-+obj-y += jiffies.o
-diff --git a/drivers/clocksource/jiffies.c b/drivers/clocksource/jiffies.c
-new file mode 100644
---- /dev/null
-+++ b/drivers/clocksource/jiffies.c
-@@ -0,0 +1,74 @@
-+/***********************************************************************
-+* linux/drivers/clocksource/jiffies.c
-+*
-+* This file contains the jiffies based clocksource.
-+*
-+* Copyright (C) 2004, 2005 IBM, John Stultz (johnstul@us.ibm.com)
-+*
-+* This program is free software; you can redistribute it and/or modify
-+* it under the terms of the GNU General Public License as published by
-+* the Free Software Foundation; either version 2 of the License, or
-+* (at your option) any later version.
-+*
-+* This program is distributed in the hope that it will be useful,
-+* but WITHOUT ANY WARRANTY; without even the implied warranty of
-+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+* GNU General Public License for more details.
-+*
-+* You should have received a copy of the GNU General Public License
-+* along with this program; if not, write to the Free Software
-+* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+*
-+************************************************************************/
-+#include <linux/clocksource.h>
-+#include <linux/jiffies.h>
-+#include <linux/init.h>
-+
-+/* The Jiffies based clocksource is the lowest common
-+ * denominator clock source which should function on
-+ * all systems. It has the same coarse resolution as
-+ * the timer interrupt frequency HZ and it suffers
-+ * inaccuracies caused by missed or lost timer
-+ * interrupts and the inability for the timer
-+ * interrupt hardware to accuratly tick at the
-+ * requested HZ value. It is also not reccomended
-+ * for "tick-less" systems.
-+ */
-+#define NSEC_PER_JIFFY ((u32)((((u64)NSEC_PER_SEC)<<8)/ACTHZ))
-+
-+/* Since jiffies uses a simple NSEC_PER_JIFFY multiplier
-+ * conversion, the .shift value could be zero. However
-+ * this would make NTP adjustments impossible as they are
-+ * in units of 1/2^.shift. Thus we use JIFFIES_SHIFT to
-+ * shift both the nominator and denominator the same
-+ * amount, and give ntp adjustments in units of 1/2^8
++++ b/include/asm-generic/timeofday.h
+@@ -0,0 +1,29 @@
++/*  linux/include/asm-generic/timeofday.h
 + *
-+ * The value 8 is somewhat carefully chosen, as anything
-+ * larger can result in overflows. NSEC_PER_JIFFY grows as
-+ * HZ shrinks, so values greater then 8 overflow 32bits when
-+ * HZ=100.
++ *  This file contains the asm-generic interface
++ *  to the arch specific calls used by the time of day subsystem
 + */
-+#define JIFFIES_SHIFT 8
-+
-+static cycle_t jiffies_read(void)
-+{
-+	cycle_t ret = get_jiffies_64();
-+	return ret;
-+}
-+
-+struct clocksource clocksource_jiffies = {
-+	.name = "jiffies",
-+	.rating = 0, /* lowest rating*/
-+	.type = CLOCKSOURCE_FUNCTION,
-+	.read_fnct = jiffies_read,
-+	.mask = (cycle_t)-1,
-+	.mult = NSEC_PER_JIFFY << JIFFIES_SHIFT, /* See above for details */
-+	.shift = JIFFIES_SHIFT,
-+};
-+
-+static int __init init_jiffies_clocksource(void)
-+{
-+	register_clocksource(&clocksource_jiffies);
-+	return 0;
-+}
-+module_init(init_jiffies_clocksource);
-diff --git a/include/linux/clocksource.h b/include/linux/clocksource.h
-new file mode 100644
---- /dev/null
-+++ b/include/linux/clocksource.h
-@@ -0,0 +1,269 @@
-+/*  linux/include/linux/clocksource.h
-+ *
-+ *  This file contains the structure definitions for clocksources.
-+ *
-+ *  If you are not a clocksource, or the time of day code, you should
-+ *  not be including this file!
-+ */
-+#ifndef _LINUX_CLOCKSOURCE_H
-+#define _LINUX_CLOCKSOURCE_H
-+
++#ifndef _ASM_GENERIC_TIMEOFDAY_H
++#define _ASM_GENERIC_TIMEOFDAY_H
 +#include <linux/types.h>
 +#include <linux/time.h>
 +#include <linux/timex.h>
-+#include <linux/list.h>
-+#include <asm/io.h>
++#include <linux/timeofday.h>
++#include <linux/clocksource.h>
++
++#include <asm/div64.h>
++#ifdef CONFIG_GENERICTOD
++/* Required externs */
++extern nsec_t read_persistent_clock(void);
++extern void sync_persistent_clock(struct timespec ts);
++
++#ifdef CONFIG_GENERICTOD_VSYSCALL
++extern void arch_update_vsyscall_gtod(struct timespec wall_time,
++				cycle_t offset_base, struct clocksource* clock,
++				int ntp_adj);
++#else
++#define arch_update_vsyscall_gtod(x,y,z,w) {}
++#endif /* CONFIG_GENERICTOD_VSYSCALL */
++
++#endif /* CONFIG_GENERICTOD */
++#endif
+diff --git a/include/linux/time.h b/include/linux/time.h
+--- a/include/linux/time.h
++++ b/include/linux/time.h
+@@ -27,6 +27,10 @@ struct timezone {
+ 
+ #ifdef __KERNEL__
+ 
++/* timeofday base types */
++typedef s64 nsec_t;
++typedef unsigned long cycle_t;
++
+ /* Parameters used to convert the timespec values */
+ #define MSEC_PER_SEC (1000L)
+ #define USEC_PER_SEC (1000000L)
+diff --git a/include/linux/timeofday.h b/include/linux/timeofday.h
+new file mode 100644
+--- /dev/null
++++ b/include/linux/timeofday.h
+@@ -0,0 +1,90 @@
++/*  linux/include/linux/timeofday.h
++ *
++ *  This file contains the interface to the time of day subsystem
++ */
++#ifndef _LINUX_TIMEOFDAY_H
++#define _LINUX_TIMEOFDAY_H
++#include <linux/types.h>
++#include <linux/time.h>
++#include <linux/timex.h>
 +#include <asm/div64.h>
 +
-+/* struct clocksource:
-+ *      Provides mostly state-free accessors to the underlying hardware.
-+ *
-+ * name:                ptr to clocksource name
-+ * list:                list head for registration
-+ * rating:              rating value for selection (higher is better)
-+ *                      To avoid rating inflation the following
-+ *                      list should give you a guide as to how
-+ *                      to assign your clocksource a rating
-+ *                      1-99: Unfit for real use
-+ *                          Only available for bootup and testing purposes.
-+ *                      100-199: Base level usability.
-+ *                          Functional for real use, but not desired.
-+ *                      200-299: Good.
-+ *                           A correct and usable clocksource.
-+ *                      300-399: Desired.
-+ *                           A reasonably fast and accurate clocksource.
-+ *                      400-499: Perfect
-+ *                           The ideal clocksource. A must-use where available.
-+ * type:                defines clocksource type
-+ * @read_fnct:          returns a cycle value
-+ * ptr:                 ptr to MMIO'ed counter
-+ * mask:                bitmask for two's complement
-+ *                      subtraction of non 64 bit counters
-+ * mult:                cycle to nanosecond multiplier
-+ * shift:               cycle to nanosecond divisor (power of two)
-+ * @update_callback:    called when safe to alter clocksource values
-+ */
-+struct clocksource {
-+	char* name;
-+	struct list_head list;
-+	int rating;
-+	enum {
-+		CLOCKSOURCE_FUNCTION,
-+		CLOCKSOURCE_CYCLES,
-+		CLOCKSOURCE_MMIO_32,
-+		CLOCKSOURCE_MMIO_64
-+	} type;
-+	cycle_t (*read_fnct)(void);
-+	void __iomem *mmio_ptr;
-+	cycle_t mask;
-+	u32 mult;
-+	u32 shift;
-+	int (*update_callback)(void);
-+};
++#ifdef CONFIG_GENERICTOD
++/* Public definitions */
++extern nsec_t do_monotonic_clock(void);
++extern void do_gettimeofday(struct timeval *tv);
++extern void getnstimeofday(struct timespec *ts);
++extern int do_settimeofday(struct timespec *tv);
++extern void timeofday_init(void);
 +
++#ifndef div_long_long_rem
++#define div_long_long_rem(dividend,divisor,remainder) ({ \
++		       u64 result = dividend;		\
++		       *remainder = do_div(result,divisor); \
++		       result; })
 +
-+/* Helper functions that converts a khz counter
-+ * frequency to a timsource multiplier, given the
-+ * clocksource shift value
-+ */
-+static inline u32 clocksource_khz2mult(u32 khz, u32 shift_constant)
-+{
-+	/*  khz = cyc/(Million ns)
-+	 *  mult/2^shift  = ns/cyc
-+	 *  mult = ns/cyc * 2^shift
-+	 *  mult = 1Million/khz * 2^shift
-+	 *  mult = 1000000 * 2^shift / khz
-+	 *  mult = (1000000<<shift) / khz
-+	 */
-+	u64 tmp = ((u64)1000000) << shift_constant;
-+	tmp += khz/2; /* round for do_div */
-+	do_div(tmp, khz);
-+	return (u32)tmp;
-+}
-+
-+/* Helper functions that converts a hz counter
-+ * frequency to a timsource multiplier, given the
-+ * clocksource shift value
-+ */
-+static inline u32 clocksource_hz2mult(u32 hz, u32 shift_constant)
-+{
-+	/*  hz = cyc/(Billion ns)
-+	 *  mult/2^shift  = ns/cyc
-+	 *  mult = ns/cyc * 2^shift
-+	 *  mult = 1Billion/hz * 2^shift
-+	 *  mult = 1000000000 * 2^shift / hz
-+	 *  mult = (1000000000<<shift) / hz
-+	 */
-+	u64 tmp = ((u64)1000000000) << shift_constant;
-+	tmp += hz/2; /* round for do_div */
-+	do_div(tmp, hz);
-+	return (u32)tmp;
-+}
-+
-+
-+#ifndef readq
-+/* Provide an a way to atomically read a u64 on a 32bit arch */
-+static inline unsigned long long clocksource_readq(void __iomem *addr)
-+{
-+	u32 low, high;
-+	/* loop is required to make sure we get an atomic read */
-+	do {
-+		high = readl(addr+4);
-+		low = readl(addr);
-+	} while (high != readl(addr+4));
-+
-+	return low | (((unsigned long long)high) << 32LL);
-+}
-+#else
-+#define clocksource_readq(x) readq(x)
 +#endif
 +
-+
-+/* read_clocksource():
-+ *      Uses the clocksource to return the current cycle_t value
-+ */
-+static inline cycle_t read_clocksource(struct clocksource *cs)
++/* Inline helper functions */
++static inline struct timeval ns_to_timeval(nsec_t ns)
 +{
-+	switch (cs->type) {
-+	case CLOCKSOURCE_MMIO_32:
-+		return (cycle_t)readl(cs->mmio_ptr);
-+	case CLOCKSOURCE_MMIO_64:
-+		return (cycle_t)clocksource_readq(cs->mmio_ptr);
-+	case CLOCKSOURCE_CYCLES:
-+		return (cycle_t)get_cycles();
-+	default:/* case: CLOCKSOURCE_FUNCTION */
-+		return cs->read_fnct();
-+	}
++	struct timeval tv;
++	tv.tv_sec = div_long_long_rem(ns, NSEC_PER_SEC, &tv.tv_usec);
++	tv.tv_usec = (tv.tv_usec + NSEC_PER_USEC/2) / NSEC_PER_USEC;
++	return tv;
 +}
 +
-+/* ppm_to_mult_adj():
-+ *      Helper which converts a shifted ppm value to
-+ *      clocksource mult_adj value,
-+ *
-+ *      XXX - this could use some optimization
-+ */
-+static inline int ppm_to_mult_adj(struct clocksource *cs, int ppm)
++static inline struct timespec ns_to_timespec(nsec_t ns)
 +{
-+	u64 mult_adj;
-+	int ret_adj;
-+
-+	/* The basic math is as follows:
-+	 *     cyc * mult/2^shift * (1 + ppm/MILL) = scaled ns
-+	 * We want to precalculate the ppm factor so it can be added
-+	 * to the multiplyer saving the extra multiplication step.
-+	 *     cyc * (mult/2^shift + (mult/2^shift) * (ppm/MILL)) =
-+	 *     cyc * (mult/2^shift + (mult*ppm/MILL)/2^shift) =
-+	 *     cyc * (mult + (mult*ppm/MILL))/2^shift =
-+	 * Thus we want to calculate the value of:
-+	 *     mult*ppm/MILL
-+	 */
-+ 	mult_adj = abs(ppm);
-+	mult_adj = (mult_adj * cs->mult)>>SHIFT_USEC;
-+	mult_adj += 1000000/2; /* round for div*/
-+	do_div(mult_adj, 1000000);
-+	if (ppm < 0)
-+		ret_adj = -(int)mult_adj;
-+	else
-+		ret_adj = (int)mult_adj;
-+	return ret_adj;
++	struct timespec ts;
++	ts.tv_sec = div_long_long_rem(ns, NSEC_PER_SEC, &ts.tv_nsec);
++	return ts;
 +}
 +
-+/* cyc2ns():
-+ *      Uses the clocksource and ntp ajdustment interval to
-+ *      convert cycle_ts to nanoseconds.
-+ *
-+ *      XXX - This could use some mult_lxl_ll() asm optimization
-+ */
-+static inline nsec_t cyc2ns(struct clocksource *cs, int ntp_adj, cycle_t cycles)
++static inline nsec_t timespec_to_ns(struct timespec* ts)
 +{
-+	u64 ret;
-+	ret = (u64)cycles;
-+	ret *= (cs->mult + ntp_adj);
-+	ret >>= cs->shift;
-+	return (nsec_t)ret;
-+}
-+
-+/* cyc2ns_rem():
-+ *      Uses the clocksource and ntp ajdustment interval to
-+ *      convert cycle_t to nanoseconds. Add in remainder portion
-+ *      which is stored in ns<<cs->shift units and save the new
-+ *      remainder off.
-+ *
-+ *      XXX - This could use some mult_lxl_ll() asm optimization.
-+ */
-+static inline nsec_t cyc2ns_rem(struct clocksource *cs, int ntp_adj, cycle_t cycles, u64* rem)
-+{
-+	u64 ret;
-+	ret = (u64)cycles;
-+	ret *= (cs->mult + ntp_adj);
-+	if (rem) {
-+		ret += *rem;
-+		*rem = ret & ((1<<cs->shift)-1);
-+	}
-+	ret >>= cs->shift;
-+	return (nsec_t)ret;
-+}
-+
-+/* Used for fixed interval conversions
-+ */
-+struct clocksource_interval {
-+	cycle_t cycles;
-+	nsec_t nsecs;
-+	u64 remainder;
-+	u64 remainder_ns_overflow;
-+};
-+
-+/* cyc2ns_fixed_rem():
-+ *      Uses a precalculated fixed cycle/nsec interval to
-+ *      convert cycles to nanoseconds. Returns the unaccumulated
-+ *      cycles in the cycles pointer as well as uses and updates
-+ *      the value at the remainder pointer
-+ *
-+ */
-+static inline nsec_t cyc2ns_fixed_rem(struct clocksource_interval interval, cycle_t *cycles, u64* rem)
-+{
-+	nsec_t delta_nsec = 0;
-+	while(*cycles > interval.cycles) {
-+		delta_nsec += interval.nsecs;
-+		*cycles -= interval.cycles;
-+		*rem += interval.remainder;
-+		while(*rem > interval.remainder_ns_overflow) {
-+			*rem -= interval.remainder_ns_overflow;
-+			delta_nsec += 1;
-+		}
-+	}
-+	return delta_nsec;
-+}
-+
-+/* calculate_clocksource_interval():
-+ *      Calculates a fixed cycle/nsec interval for a given
-+ *      clocksource/adjustment pair and interval request.
-+ */
-+static inline struct clocksource_interval
-+calculate_clocksource_interval(struct clocksource *c, long adj, unsigned long length_nsec)
-+{
-+	struct clocksource_interval ret;
-+	u64 tmp;
-+
-+	/* XXX - All of this could use a whole lot of optimization */
-+	tmp = length_nsec;
-+	tmp <<= c->shift;
-+	do_div(tmp, c->mult+adj);
-+
-+	ret.cycles = (cycle_t)tmp;
-+	if(ret.cycles == 0)
-+		ret.cycles = 1;
-+
-+	ret.remainder = 0;
-+	ret.remainder_ns_overflow = 1 << c->shift;
-+	ret.nsecs = cyc2ns_rem(c, adj, ret.cycles, &ret.remainder);
-+
++	nsec_t ret;
++	ret = ((nsec_t)ts->tv_sec) * NSEC_PER_SEC;
++	ret += ts->tv_nsec;
 +	return ret;
 +}
 +
++static inline nsec_t timeval_to_ns(struct timeval* tv)
++{
++	nsec_t ret;
++	ret = ((nsec_t)tv->tv_sec) * NSEC_PER_SEC;
++	ret += tv->tv_usec * NSEC_PER_USEC;
++	return ret;
++}
 +
-+/* used to install a new clocksource */
-+void register_clocksource(struct clocksource*);
-+void reselect_clocksource(void);
-+struct clocksource* get_next_clocksource(void);
++static inline void normalize_timespec(struct timespec *ts)
++{
++	while ((unsigned long)ts->tv_nsec > NSEC_PER_SEC) {
++		ts->tv_nsec -= NSEC_PER_SEC;
++		ts->tv_sec++;
++	}
++}
++
++static inline struct timespec timespec_add_ns(struct timespec a, nsec_t ns)
++{
++	while(ns > NSEC_PER_SEC) {
++		ns -= NSEC_PER_SEC;
++		a.tv_sec++;
++	}
++	a.tv_nsec += ns;
++	normalize_timespec(&a);
++
++	return a;
++}
++
++
++#ifndef CONFIG_IS_TICK_BASED
++#define arch_getoffset() (0)
++#else
++extern unsigned long arch_getoffset(void);
 +#endif
-diff --git a/kernel/clocksource.c b/kernel/clocksource.c
++
++#else /* CONFIG_GENERICTOD */
++#define timeofday_init()
++#endif /* CONFIG_GENERICTOD */
++#endif /* _LINUX_TIMEOFDAY_H */
+diff --git a/include/linux/timex.h b/include/linux/timex.h
+--- a/include/linux/timex.h
++++ b/include/linux/timex.h
+@@ -313,6 +313,7 @@ int ntp_leapsecond(struct timespec now);
+ 	__x < 0 ? -(-__x >> __s) : __x >> __s;	\
+ })
+ 
++#ifndef CONFIG_GENERICTOD
+ 
+ #ifdef CONFIG_TIME_INTERPOLATION
+ 
+@@ -368,6 +369,7 @@ time_interpolator_reset(void)
+ }
+ 
+ #endif /* !CONFIG_TIME_INTERPOLATION */
++#endif /* !CONFIG_GENERICTOD */
+ 
+ #endif /* KERNEL */
+ 
+diff --git a/init/main.c b/init/main.c
+--- a/init/main.c
++++ b/init/main.c
+@@ -47,6 +47,7 @@
+ #include <linux/rmap.h>
+ #include <linux/mempolicy.h>
+ #include <linux/key.h>
++#include <linux/timeofday.h>
+ #include <net/sock.h>
+ 
+ #include <asm/io.h>
+@@ -486,6 +487,7 @@ asmlinkage void __init start_kernel(void
+ 	pidhash_init();
+ 	init_timers();
+ 	softirq_init();
++	timeofday_init();
+ 	time_init();
+ 
+ 	/*
+diff --git a/kernel/Makefile b/kernel/Makefile
+--- a/kernel/Makefile
++++ b/kernel/Makefile
+@@ -9,6 +9,7 @@ obj-y     = sched.o fork.o exec_domain.o
+ 	    rcupdate.o intermodule.o extable.o params.o posix-timers.o \
+ 	    kthread.o wait.o kfifo.o sys_ni.o posix-cpu-timers.o
+ 
++obj-$(CONFIG_GENERICTOD) += timeofday.o clocksource.o
+ obj-$(CONFIG_FUTEX) += futex.o
+ obj-$(CONFIG_GENERIC_ISA_DMA) += dma.o
+ obj-$(CONFIG_SMP) += cpu.o spinlock.o
+diff --git a/kernel/time.c b/kernel/time.c
+--- a/kernel/time.c
++++ b/kernel/time.c
+@@ -38,6 +38,7 @@
+ 
+ #include <asm/uaccess.h>
+ #include <asm/unistd.h>
++#include <linux/timeofday.h>
+ 
+ /* 
+  * The timezone where the local system is located.  Used as a default by some
+@@ -128,6 +129,7 @@ asmlinkage long sys_gettimeofday(struct 
+  * as real UNIX machines always do it. This avoids all headaches about
+  * daylight saving times and warping kernel clocks.
+  */
++#ifndef CONFIG_GENERICTOD
+ static inline void warp_clock(void)
+ {
+ 	write_seqlock_irq(&xtime_lock);
+@@ -137,6 +139,18 @@ static inline void warp_clock(void)
+ 	write_sequnlock_irq(&xtime_lock);
+ 	clock_was_set();
+ }
++#else /* !CONFIG_GENERICTOD */
++/* XXX - this is somewhat cracked out and should
++         be checked  -johnstul@us.ibm.com
++*/
++static inline void warp_clock(void)
++{
++	struct timespec ts;
++	getnstimeofday(&ts);
++	ts.tv_sec += sys_tz.tz_minuteswest * 60;
++	do_settimeofday(&ts);
++}
++#endif /* !CONFIG_GENERICTOD */
+ 
+ /*
+  * In case for some reason the CMOS clock has not already been running
+@@ -481,6 +495,7 @@ struct timespec timespec_trunc(struct ti
+ }
+ EXPORT_SYMBOL(timespec_trunc);
+ 
++#ifndef CONFIG_GENERICTOD
+ #ifdef CONFIG_TIME_INTERPOLATION
+ void getnstimeofday (struct timespec *tv)
+ {
+@@ -564,6 +579,31 @@ void getnstimeofday(struct timespec *tv)
+ }
+ #endif
+ 
++/**
++ * do_monotonic_clock - Returns monotonically increasing nanoseconds
++ *
++ * Returns the monotonically increasing number of nanoseconds
++ * since the system booted.
++ */
++nsec_t do_monotonic_clock(void)
++{
++	struct timespec ts, mo;
++	unsigned int seq;
++
++	do {
++		seq = read_seqbegin(&xtime_lock);
++		getnstimeofday(&ts);
++		mo = wall_to_monotonic;
++	} while(read_seqretry(&xtime_lock, seq));
++
++	ts.tv_sec += mo.tv_sec;
++	ts.tv_nsec += mo.tv_nsec;
++
++	return ((u64)ts.tv_sec * NSEC_PER_SEC) + ts.tv_nsec;
++}
++
++#endif /* !CONFIG_GENERICTOD */
++
+ #if (BITS_PER_LONG < 64)
+ u64 get_jiffies_64(void)
+ {
+diff --git a/kernel/timeofday.c b/kernel/timeofday.c
 new file mode 100644
 --- /dev/null
-+++ b/kernel/clocksource.c
-@@ -0,0 +1,279 @@
++++ b/kernel/timeofday.c
+@@ -0,0 +1,558 @@
 +/*********************************************************************
-+* linux/kernel/clocksource.c
++* linux/kernel/timeofday.c
 +*
-+* This file contains the functions which manage clocksource drivers.
++* This file contains the functions which access and manage
++* the system's time of day functionality.
 +*
-+* Copyright (C) 2004, 2005 IBM, John Stultz (johnstul@us.ibm.com)
++* Copyright (C) 2003, 2004, 2005 IBM, John Stultz (johnstul@us.ibm.com)
 +*
 +* This program is free software; you can redistribute it and/or modify
 +* it under the terms of the GNU General Public License as published by
@@ -492,262 +398,561 @@ new file mode 100644
 +* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 +*
 +* TODO WishList:
-+*   o Allow clocksource drivers to be unregistered
-+*   o get rid of clocksource_jiffies extern
++*   o See XXX's below.
 +**********************************************************************/
 +
++#include <linux/timeofday.h>
 +#include <linux/clocksource.h>
-+#include <linux/sysdev.h>
-+#include <linux/init.h>
++#include <linux/timex.h>
++#include <linux/timer.h>
 +#include <linux/module.h>
++#include <linux/sched.h> /* Needed for capable() */
++#include <linux/sysdev.h>
++#include <linux/jiffies.h>
++#include <asm/timeofday.h>
 +
-+/* XXX - Would like a better way for initializing curr_clocksource */
-+extern struct clocksource clocksource_jiffies;
++/* only run periodic_hook every 50ms */
++#define PERIODIC_INTERVAL_MS 50
 +
-+/*[Clocksource internal variables]---------
-+ * curr_clocksource:
-+ *     currently selected clocksource. Initialized to clocksource_jiffies.
-+ * next_clocksource:
-+ *     pending next selected clocksource.
-+ * clocksource_list:
-+ *     linked list with the registered clocksources
-+ * clocksource_lock:
-+ *     protects manipulations to curr_clocksource and next_clocksource
-+ *     and the clocksource_list
++/*[Nanosecond based variables]
++ * system_time:
++ *     Monotonically increasing counter of the number of nanoseconds
++ *     since boot.
++ * wall_time_offset:
++ *     Offset added to system_time to provide accurate time-of-day
 + */
-+static struct clocksource *curr_clocksource = &clocksource_jiffies;
-+static struct clocksource *next_clocksource;
-+static LIST_HEAD(clocksource_list);
-+static seqlock_t clocksource_lock = SEQLOCK_UNLOCKED;
++static nsec_t system_time;
++static nsec_t wall_time_offset;
 +
-+static char override_name[32];
++/*[timespec based variables]
++ * wall_time_ts:
++ *     Timespec holding the current wall time. This is redundent
++ *     but necessary because we have both nsec_t and timespec
++ *     interfaces and the conversion between is costly.
++ * monotonic_time_offset_ts:
++ *     Timespec used to keep wall_to_monotonic synced. Hopefully
++ *     could be removed once wall_to_monotonic is killed.
++ */
++static struct timespec wall_time_ts;
++static struct timespec monotonic_time_offset_ts;
++
++/*[Cycle based variables]
++ * cycle_last:
++ *     Value of the clocksource at the last timeofday_periodic_hook()
++ *     (adjusted only minorly to account for rounded off cycles)
++ */
++static cycle_t cycle_last;
++
++/* XXX this needs more comments */
++#define INTERVAL_LEN ((PERIODIC_INTERVAL_MS-1)*1000000)
++struct clocksource_interval ts_interval;
++
++/*[Time source data]
++ * clocks:
++ *     current clocksource pointer
++ */
++static struct clocksource *clock;
++
++/*[NTP adjustment]
++ * ntp_adj:
++ *     value of the current ntp adjustment,
++ *     stored in clocksource multiplier units.
++ */
++int ntp_adj;
++
++/*[Locks]
++ * system_time_lock:
++ *     generic lock for all locally scoped time values
++ */
++static seqlock_t system_time_lock = SEQLOCK_UNLOCKED;
++
++
++/*[Suspend/Resume info]
++ * time_suspend_state:
++ *     variable that keeps track of suspend state
++ * suspend_start:
++ *     start of the suspend call
++ */
++static enum {
++	TIME_RUNNING,
++	TIME_SUSPENDED
++} time_suspend_state = TIME_RUNNING;
++
++static nsec_t suspend_start;
++
++/* [Soft-Timers]
++ * timeofday_timer:
++ *     soft-timer used to call timeofday_periodic_hook()
++ */
++struct timer_list timeofday_timer;
++
++
++/* [Functions]
++ */
 +
 +
 +/**
-+ * get_next_clocksource - Returns the selected clocksource
++ * update_legacy_time_values - Used to sync legacy time values
 + *
++ * Private function. Used to sync legacy time values to
++ * current timeofday. Assumes we have the system_time_lock.
++ * Hopefully someday this function can be removed.
 + */
-+struct clocksource *get_next_clocksource(void)
++static void update_legacy_time_values(void)
 +{
-+	write_seqlock(&clocksource_lock);
-+	if (next_clocksource) {
-+		curr_clocksource = next_clocksource;
-+		next_clocksource = NULL;
-+	}
-+	write_sequnlock(&clocksource_lock);
++	unsigned long flags;
++	write_seqlock_irqsave(&xtime_lock, flags);
++	xtime = wall_time_ts;
++	wall_to_monotonic = monotonic_time_offset_ts;
++	write_sequnlock_irqrestore(&xtime_lock, flags);
 +
-+	return curr_clocksource;
++	/* since time state has changed, notify vsyscall code */
++	arch_update_vsyscall_gtod(wall_time_ts, cycle_last,
++							clock, ntp_adj);
 +}
 +
 +
 +/**
-+ * select_clocksource - Finds the best registered clocksource.
++ * __get_nsec_offset - Returns nanoseconds since last call to periodic_hook
 + *
-+ * Private function. Must have a writelock on clocksource_lock
-+ * when called.
++ * private function, must hold system_time_lock lock when being
++ * called. Returns the number of nanoseconds since the
++ * last call to timeofday_periodic_hook() (adjusted by NTP scaling)
 + */
-+static struct clocksource *select_clocksource(void)
++static inline nsec_t __get_nsec_offset(void)
 +{
-+	struct clocksource *best = NULL;
-+	struct list_head *tmp;
++	nsec_t ns_offset;
++	cycle_t cycle_now, cycle_delta;
 +
-+	list_for_each(tmp, &clocksource_list) {
-+		struct clocksource *src;
++	/* read clocksource */
++	cycle_now = read_clocksource(clock);
 +
-+		src = list_entry(tmp, struct clocksource, list);
-+		if (!best)
-+			best = src;
++	/* calculate the delta since the last timeofday_periodic_hook */
++	cycle_delta = (cycle_now - cycle_last) & clock->mask;
 +
-+		/* Check for override */
-+		if (strlen(src->name) == strlen(override_name) &&
-+		    !strcmp(src->name, override_name)) {
-+			best = src;
-+			break;
-+		}
-+		/* Pick the highest rating */
-+		if (src->rating > best->rating)
-+		 	best = src;
-+	}
-+	return best;
++	/* convert to nanoseconds */
++	ns_offset = cyc2ns(clock, ntp_adj, cycle_delta);
++
++	/* Special case for jiffies tick/offset based systems
++	 * add arch specific offset
++	 */
++	ns_offset += arch_getoffset();
++
++	return ns_offset;
++}
++
++/**
++ * __monotonic_clock - Returns monotonically increasing nanoseconds
++ *
++ * private function, must hold system_time_lock lock when being
++ * called. Returns the monotonically increasing number of
++ * nanoseconds since the system booted (adjusted by NTP scaling)
++ */
++static inline nsec_t __monotonic_clock(void)
++{
++	return system_time + __get_nsec_offset();
 +}
 +
 +
-+/*
-+ * Check, if the clocksource is already registered
++/**
++ * do_monotonic_clock - Returns monotonically increasing nanoseconds
++ *
++ * Returns the monotonically increasing number of nanoseconds
++ * since the system booted via __monotonic_clock()
 + */
-+static inline int is_registered_source(struct clocksource *c)
++nsec_t do_monotonic_clock(void)
 +{
-+	struct list_head *tmp;
-+	int len = strlen(c->name);
++	nsec_t ret;
++	unsigned long seq;
 +
-+	list_for_each(tmp, &clocksource_list) {
-+		struct clocksource *src;
++	/* atomically read __monotonic_clock() */
++	do {
++		seq = read_seqbegin(&system_time_lock);
 +
-+		src = list_entry(tmp, struct clocksource, list);
-+		if (strlen(src->name) == len &&	!strcmp(src->name, c->name))
-+			return 1;
-+	}
++		ret = __monotonic_clock();
++
++	} while (read_seqretry(&system_time_lock, seq));
++
++	return ret;
++}
++
++
++
++/**
++ * __getnstimeofday - Returns the time of day in a timespec
++ * @ts: pointer to the timespec to be set
++ *
++ * Returns the time of day in a timespec. Used by
++ * do_gettimeofday() and getnstimeofday().
++ *
++ * XXX - For consistency should be renamed
++ * later to do_getnstimeofday()
++ */
++static inline void __getnstimeofday(struct timespec *ts)
++{
++	struct timespec now_ts;
++	nsec_t nsecs;
++	unsigned long seq;
++
++	do {
++		seq = read_seqbegin(&system_time_lock);
++
++		now_ts = wall_time_ts;
++		nsecs = __get_nsec_offset();
++
++	} while (read_seqretry(&system_time_lock, seq));
++
++	*ts = timespec_add_ns(now_ts, nsecs);
++}
++
++/**
++ * getnstimeofday - Returns the time of day in a timespec
++ * @ts: pointer to the timespec to be set
++ *
++ * Returns the time of day in a timespec.
++ *
++ * XXX - For consistency should be renamed
++ * later to do_getnstimeofday()
++ */
++void getnstimeofday(struct timespec *ts)
++{
++	__getnstimeofday(ts);
++}
++EXPORT_SYMBOL(getnstimeofday);
++
++
++/**
++ * do_gettimeofday - Returns the time of day in a timeval
++ * @tv: pointer to the timeval to be set
++ *
++ */
++void do_gettimeofday(struct timeval *tv)
++{
++	struct timespec now_ts;
++	__getnstimeofday(&now_ts);
++	tv->tv_sec = now_ts.tv_sec;
++	tv->tv_usec = now_ts.tv_nsec/1000;
++}
++EXPORT_SYMBOL(do_gettimeofday);
++
++
++/**
++ * do_settimeofday - Sets the time of day
++ * @tv: pointer to the timespec that will be used to set the time
++ *
++ */
++int do_settimeofday(struct timespec *tv)
++{
++	unsigned long flags;
++	nsec_t newtime;
++
++	newtime = timespec_to_ns(tv);
++
++	write_seqlock_irqsave(&system_time_lock, flags);
++
++	wall_time_offset = newtime - __monotonic_clock();
++
++	wall_time_ts = ns_to_timespec(system_time + wall_time_offset);
++
++	monotonic_time_offset_ts = ns_to_timespec(wall_time_offset);
++	set_normalized_timespec(&monotonic_time_offset_ts,
++		-monotonic_time_offset_ts.tv_sec, -monotonic_time_offset_ts.tv_nsec);
++
++	ntp_clear();
++
++	update_legacy_time_values();
++
++	write_sequnlock_irqrestore(&system_time_lock, flags);
++
++	/* signal posix-timers about time change */
++	clock_was_set();
++
++	return 0;
++}
++EXPORT_SYMBOL(do_settimeofday);
++
++
++/**
++ * timeofday_suspend_hook - allows the timeofday subsystem to be shutdown
++ * @dev: unused
++ * state: unused
++ *
++ * This function allows the timeofday subsystem to
++ * be shutdown for a period of time. Usefull when
++ * going into suspend/hibernate mode. The code is
++ * very similar to the first half of
++ * timeofday_periodic_hook().
++ */
++static int timeofday_suspend_hook(struct sys_device *dev, pm_message_t state)
++{
++	unsigned long flags;
++
++	write_seqlock_irqsave(&system_time_lock, flags);
++
++	BUG_ON(time_suspend_state != TIME_RUNNING);
++
++	/* First off, save suspend start time
++	 * then quickly call __monotonic_clock.
++	 * These two calls hopefully occur quickly
++	 * because the difference between reads will
++	 * accumulate as time drift on resume.
++	 */
++	suspend_start = read_persistent_clock();
++	system_time = __monotonic_clock();
++
++	time_suspend_state = TIME_SUSPENDED;
++
++	write_sequnlock_irqrestore(&system_time_lock, flags);
 +	return 0;
 +}
 +
 +
 +/**
-+ * register_clocksource - Used to install new clocksources
-+ * @t: clocksource to be registered
-+ *
-+ */
-+void register_clocksource(struct clocksource *c)
-+{
-+	write_seqlock(&clocksource_lock);
-+
-+	/* check if clocksource is already registered */
-+	if (is_registered_source(c)) {
-+		printk("register_clocksource: Cannot register %s. Already registered!",
-+		       c->name);
-+	} else {
-+		list_add(&c->list, &clocksource_list);
-+		/* select next clocksource */
-+		next_clocksource = select_clocksource();
-+	}
-+	write_sequnlock(&clocksource_lock);
-+}
-+EXPORT_SYMBOL(register_clocksource);
-+
-+
-+/**
-+ * reselect_clocksource - Rescan list for next clocksource
-+ *
-+ * A quick helper function to be used if a clocksource
-+ * changes its rating. Forces the clocksource list to
-+ * be re-scaned for the best clocksource.
-+ */
-+void reselect_clocksource(void)
-+{
-+	write_seqlock(&clocksource_lock);
-+	next_clocksource = select_clocksource();
-+	write_sequnlock(&clocksource_lock);
-+}
-+
-+
-+/**
-+ * sysfs_show_clocksources - sysfs interface for listing clocksource
++ * timeofday_resume_hook - Resumes the timeofday subsystem.
 + * @dev: unused
-+ * @buf: char buffer to be filled with clocksource list
 + *
-+ * Provides sysfs interface for listing registered clocksources
++ * This function resumes the timeofday subsystem
++ * from a previous call to timeofday_suspend_hook.
 + */
-+static ssize_t sysfs_show_clocksources(struct sys_device *dev, char *buf)
++static int timeofday_resume_hook(struct sys_device *dev)
 +{
-+	char* curr = buf;
-+	struct list_head *tmp;
++	nsec_t suspend_end, suspend_time;
++	unsigned long flags;
 +
-+	write_seqlock(&clocksource_lock);
++	write_seqlock_irqsave(&system_time_lock, flags);
 +
-+	list_for_each(tmp, &clocksource_list) {
-+		struct clocksource *src;
++	BUG_ON(time_suspend_state != TIME_SUSPENDED);
 +
-+		src = list_entry(tmp, struct clocksource, list);
-+		/* Mark current clocksource w/ a star */
-+		if (src == curr_clocksource)
-+			curr += sprintf(curr, "*");
-+		curr += sprintf(curr, "%s ", src->name);
-+	}
-+	write_sequnlock(&clocksource_lock);
++	/* Read persistent clock to mark the end of
++	 * the suspend interval then rebase the
++	 * cycle_last to current clocksource value.
++	 * Again, time between these two calls will
++	 * not be accounted for and will show up as
++	 * time drift.
++	 */
++	suspend_end = read_persistent_clock();
++	cycle_last = read_clocksource(clock);
 +
-+	curr += sprintf(curr, "\n");
-+	return curr - buf;
++	suspend_time = suspend_end - suspend_start;
++
++	system_time += suspend_time;
++	wall_time_ts = ns_to_timespec(system_time + wall_time_offset);
++
++	ntp_clear();
++
++	time_suspend_state = TIME_RUNNING;
++
++	update_legacy_time_values();
++
++	write_sequnlock_irqrestore(&system_time_lock, flags);
++
++	/* signal posix-timers about time change */
++	clock_was_set();
++
++	return 0;
 +}
 +
-+
-+/**
-+ * sysfs_override_clocksource - interface for manually overriding clocksource
-+ * @dev: unused
-+ * @buf: name of override clocksource
-+ *
-+ *
-+ *     Takes input from sysfs interface for manually overriding
-+ *     the default clocksource selction
-+ */
-+static ssize_t sysfs_override_clocksource(struct sys_device *dev,
-+			const char *buf, size_t count)
-+{
-+	/* Strings from sysfs write are not 0 terminated ! */
-+	if (count >= sizeof(override_name))
-+		return -EINVAL;
-+	/* Strip of \n */
-+	if (buf[count-1] == '\n')
-+		count--;
-+	if (count < 1)
-+		return -EINVAL;
-+
-+	write_seqlock(&clocksource_lock);
-+
-+	/* copy the name given */
-+	memcpy(override_name, buf, count);
-+	override_name[count] = 0;
-+
-+	/* try to select it */
-+	next_clocksource = select_clocksource();
-+
-+	write_sequnlock(&clocksource_lock);
-+	return count;
-+}
-+
-+
-+/* Sysfs setup bits:
-+ */
-+static SYSDEV_ATTR(clocksource, 0600, sysfs_show_clocksources, sysfs_override_clocksource);
-+
-+static struct sysdev_class clocksource_sysclass = {
-+	set_kset_name("clocksource"),
++/* sysfs resume/suspend bits */
++static struct sysdev_class timeofday_sysclass = {
++	.resume = timeofday_resume_hook,
++	.suspend = timeofday_suspend_hook,
++	set_kset_name("timeofday"),
 +};
-+
-+static struct sys_device device_clocksource = {
++static struct sys_device device_timer = {
 +	.id	= 0,
-+	.cls	= &clocksource_sysclass,
++	.cls	= &timeofday_sysclass,
 +};
-+
-+static int init_clocksource_sysfs(void)
++static int timeofday_init_device(void)
 +{
-+	int error = sysdev_class_register(&clocksource_sysclass);
-+	if (!error) {
-+		error = sysdev_register(&device_clocksource);
-+		if (!error)
-+			error = sysdev_create_file(&device_clocksource, &attr_clocksource);
-+	}
++	int error = sysdev_class_register(&timeofday_sysclass);
++	if (!error)
++		error = sysdev_register(&device_timer);
 +	return error;
 +}
-+device_initcall(init_clocksource_sysfs);
++device_initcall(timeofday_init_device);
++
++/**
++ * timeofday_periodic_hook - Does periodic update of timekeeping values.
++ * unused: unused
++ *
++ * Calculates the delta since the last call,
++ * updates system time and clears the offset.
++ *
++ * Called via timeofday_timer.
++ */
++static void timeofday_periodic_hook(unsigned long unused)
++{
++	unsigned long flags;
++
++	cycle_t cycle_now, cycle_delta;
++	nsec_t delta_nsec;
++	static u64 remainder;
++
++	long leapsecond;
++	struct clocksource* next;
++
++	int ppm;
++	static int ppm_last;
++
++	int something_changed = 0;
++	struct clocksource old_clock;
++	static unsigned long second_check;
++
++	write_seqlock_irqsave(&system_time_lock, flags);
++
++	/* read time source & calc time since last call*/
++	cycle_now = read_clocksource(clock);
++	cycle_delta = (cycle_now - cycle_last) & clock->mask;
++
++	delta_nsec = cyc2ns_fixed_rem(ts_interval, &cycle_delta, &remainder);
++	cycle_last = (cycle_now - cycle_delta)&clock->mask;
++
++	/* update system_time */
++	system_time += delta_nsec;
++	wall_time_ts = timespec_add_ns(wall_time_ts, delta_nsec);
++
++	/* advance the ntp state machine by ns interval*/
++	ntp_advance(delta_nsec);
++
++	/* Only call ntp_leapsecond and ntp_sync once a sec */
++	second_check+= delta_nsec;
++	if(second_check > NSEC_PER_SEC) {
++		/* do ntp leap second processing*/
++		leapsecond = ntp_leapsecond(wall_time_ts);
++		if (leapsecond) {
++			wall_time_offset += leapsecond * NSEC_PER_SEC;
++			wall_time_ts.tv_sec += leapsecond;
++			monotonic_time_offset_ts.tv_sec -= leapsecond;
++		}
++		/* sync the persistent clock */
++		if (ntp_synced())
++			sync_persistent_clock(wall_time_ts);
++		second_check -= NSEC_PER_SEC;
++	}
++
++	/* if necessary, switch clocksources */
++	next = get_next_clocksource();
++	if (next != clock) {
++		/* immediately set new cycle_last */
++		cycle_last = read_clocksource(next);
++		/* update cycle_now to avoid problems in accumulation later */
++		cycle_now = cycle_last;
++		/* swap clocksources */
++		old_clock = *clock;
++		clock = next;
++		printk(KERN_INFO "Time: %s clocksource has been installed.\n",
++					clock->name);
++		ntp_clear();
++		ntp_adj = 0;
++		remainder = 0;
++		something_changed = 1;
++	}
++
++	/* now is a safe time, so allow clocksource to adjust
++	 * itself (for example: to make cpufreq changes).
++	 */
++	if(clock->update_callback) {
++		/* since clocksource state might change, keep a copy */
++		old_clock = *clock;
++		if(clock->update_callback()) {
++			remainder = 0;
++			something_changed = 1;
++		}
++	}
++
++	/* check for new PPM adjustment */
++	ppm = ntp_get_ppm_adjustment();
++	if (ppm_last != ppm) {
++		old_clock = *clock;
++		something_changed = 1;
++	}
++
++	/* if something changed, recalculate the ntp adjustment value */
++	if (something_changed) {
++		/* accumulate the current leftover cycles using old_timesoruce */
++		if (cycle_delta) {
++			delta_nsec = cyc2ns_rem(&old_clock, ntp_adj, cycle_delta, &remainder);
++			system_time += delta_nsec;
++			wall_time_ts = timespec_add_ns(wall_time_ts, delta_nsec);
++			ntp_advance(delta_nsec);
++			cycle_last = cycle_now;
++		}
++
++		/* recalculate the ntp adjustment and fixed interval values */
++		ppm_last = ppm;
++		ntp_adj = ppm_to_mult_adj(clock, ppm);
++		ts_interval = calculate_clocksource_interval(clock,
++						ntp_adj, INTERVAL_LEN);
++	}
++
++	update_legacy_time_values();
++
++	write_sequnlock_irqrestore(&system_time_lock, flags);
++
++	/* Set us up to go off on the next interval */
++	mod_timer(&timeofday_timer,
++			jiffies + msecs_to_jiffies(PERIODIC_INTERVAL_MS));
++}
 +
 +
 +/**
-+ * boot_override_clocksource - boot clock override
-+ * @str: override name
++ * timeofday_init - Initializes time variables
 + *
-+ * Takes a clocksource= boot argument and uses it
-+ * as the clocksource override name
 + */
-+static int __init boot_override_clocksource(char* str)
++void __init timeofday_init(void)
 +{
-+	if (str)
-+		strlcpy(override_name, str, sizeof(override_name));
-+	return 1;
-+}
-+__setup("clocksource=", boot_override_clocksource);
++	unsigned long flags;
++	write_seqlock_irqsave(&system_time_lock, flags);
 +
++	/* initialize the clock variable */
++	clock = get_next_clocksource();
 +
-+/**
-+ * boot_override_clock - Compatibility layer for deprecated boot option
-+ * @str: override name
-+ *
-+ * DEPRECATED! Takes a clock= boot argument and uses it
-+ * as the clocksource override name
-+ */
-+static int __init boot_override_clock(char* str)
-+{
-+	printk("Warning! clock= boot option is deprecated.\n");
-+	return boot_override_clocksource(str);
++	/* clear and initialize offsets */
++	cycle_last = read_clocksource(clock);
++	wall_time_offset = read_persistent_clock();
++	wall_time_ts = ns_to_timespec(system_time + wall_time_offset);
++	monotonic_time_offset_ts = ns_to_timespec(wall_time_offset);
++	set_normalized_timespec(&monotonic_time_offset_ts,
++		-monotonic_time_offset_ts.tv_sec, -monotonic_time_offset_ts.tv_nsec);
++
++	/* clear NTP scaling factor & state machine */
++	ntp_adj = 0;
++	ntp_clear();
++	ts_interval = calculate_clocksource_interval(clock, ntp_adj, INTERVAL_LEN);
++
++	/* initialize legacy time values */
++	update_legacy_time_values();
++
++	write_sequnlock_irqrestore(&system_time_lock, flags);
++
++	/* Install timeofday_periodic_hook timer */
++	init_timer(&timeofday_timer);
++	timeofday_timer.function = timeofday_periodic_hook;
++	timeofday_timer.expires = jiffies + 1;
++	add_timer(&timeofday_timer);
++
++	return;
 +}
-+__setup("clock=", boot_override_clock);
+diff --git a/kernel/timer.c b/kernel/timer.c
+--- a/kernel/timer.c
++++ b/kernel/timer.c
+@@ -840,6 +840,7 @@ void ntp_advance(unsigned long interval_
+ 
+ }
+ 
++#ifndef CONFIG_GENERICTOD
+ /*
+  * Using a loop looks inefficient, but "ticks" is
+  * usually just one (we shouldn't be losing ticks,
+@@ -891,6 +892,9 @@ static void update_wall_time(unsigned lo
+ 
+ 	} while (ticks);
+ }
++#else /* !CONFIG_GENERICTOD */
++#define update_wall_time(x)
++#endif /* !CONFIG_GENERICTOD */
+ 
+ /*
+  * Called from the timer interrupt handler to charge one tick to the current 
 
 

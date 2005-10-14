@@ -1,51 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbVJNOYS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750755AbVJNOXj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750757AbVJNOYS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Oct 2005 10:24:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750759AbVJNOYS
+	id S1750755AbVJNOXj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Oct 2005 10:23:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbVJNOXi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Oct 2005 10:24:18 -0400
-Received: from smtp.preteco.com ([200.68.93.225]:44012 "EHLO smtp.preteco.com")
-	by vger.kernel.org with ESMTP id S1750757AbVJNOYR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Oct 2005 10:24:17 -0400
-Message-ID: <434FBF3F.2040604@rhla.com>
-Date: Fri, 14 Oct 2005 11:22:55 -0300
-From: =?ISO-8859-1?Q?M=E1rcio_Oliveira?= <moliveira@rhla.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
+	Fri, 14 Oct 2005 10:23:38 -0400
+Received: from smtpout.mac.com ([17.250.248.73]:47810 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1750755AbVJNOXi convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Oct 2005 10:23:38 -0400
+X-PGP-Universal: processed;
+	by AlPB on Fri, 14 Oct 2005 09:23:39 -0500
+Date: Fri, 14 Oct 2005 09:23:28 -0500
+From: Mark Rustad <MRustad@mac.com>
+Subject: [PATCH 2.6.14-rc4] kbuild: once again use Makefiles in obj tree
+To: linux-kernel@vger.kernel.org
+X-Priority: 3
+Message-ID: <r02010500-1042-1784C9C83CBE11DA99900011248907EC@[10.64.61.29]>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, moliveira@latinsourcetech.com
-Subject: Problems in kernel migration from 2.4 to 2.6
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Mailsmith 2.1.5 (Blindsider)
+In-Reply-To: <A7D1D429-D1C7-4FBD-80F2-B3EDFF9E2200@mac.com>
+References: <A7D1D429-D1C7-4FBD-80F2-B3EDFF9E2200@mac.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there!
+I believe that I have found and fixed the problem that I encountered earlier this week
+with Makefiles not being used from the objects tree as they had been in every 2.6 kernel
+I have worked with since 2.6.5. I I view this as a regression in 2.6.14-rc4. I believe
+that the following patch fixes it.
 
-  I am migrating my linux laptop from a kernel 2.4.27-2  to a 2.6.12.6
-one. Since I compiled the 2.6.12.6 kernel and booted my laptop, I am
-receiving the following message when chose the 2.6.12.6 entry in the
-grub menu:
 
-mount: mount point dev does not exist
-pivot_root: No such file or directory
-/sbin/init: 432: cannot open dev/console: No such file
-Kernel panic - not syncing: Attempted to kill init!
+--- a/scripts/Makefile.build	2005-10-11 09:27:42.150471811 -0500
++++ b/scripts/Makefile.build	2005-10-11 11:28:10.748640516 -0500
+@@ -12,7 +12,11 @@
+ 
+ # The filename Kbuild has precedence over Makefile
+ kbuild-dir := $(if $(filter /%,$(src)),$(src),$(srctree)/$(src))
+-include $(if $(wildcard $(kbuild-dir)/Kbuild), $(kbuild-dir)/Kbuild, $(kbuild-dir)/Makefile)
++kbuild-inc := $(wildcard $(obj)/Kbuild)
++kbuild-inc := $(if $(kbuild-inc),$(kbuild-inc),$(wildcard $(kbuild-dir)/Kbuild))
++kbuild-inc := $(if $(kbuild-inc),$(kbuild-inc),$(wildcard $(obj)/Makefile))
++kbuild-inc := $(if $(kbuild-inc),$(kbuild-inc),$(kbuild-dir)/Makefile)
++include $(kbuild-inc)
+ 
+ include scripts/Kbuild.include
+ include scripts/Makefile.lib
+--- a/scripts/Makefile.clean	2005-10-11 09:27:42.150471811 -0500
++++ b/scripts/Makefile.clean	2005-10-11 11:28:20.622769436 -0500
+@@ -14,7 +14,11 @@
+ 
+ # The filename Kbuild has precedence over Makefile
+ kbuild-dir := $(if $(filter /%,$(src)),$(src),$(srctree)/$(src))
+-include $(if $(wildcard $(kbuild-dir)/Kbuild), $(kbuild-dir)/Kbuild, $(kbuild-dir)/Makefile)
++kbuild-inc := $(wildcard $(obj)/Kbuild)
++kbuild-inc := $(if $(kbuild-inc),$(kbuild-inc),$(wildcard $(kbuild-dir)/Kbuild))
++kbuild-inc := $(if $(kbuild-inc),$(kbuild-inc),$(wildcard $(obj)/Makefile))
++kbuild-inc := $(if $(kbuild-inc),$(kbuild-inc),$(kbuild-dir)/Makefile)
++include $(kbuild-inc)
+ 
+ # Figure out what we need to build from the various variables
+ # ==========================================================================
 
-   But when I chose the 2.4.27 entry in the grub meno, my laptop boots ok!
 
-   My laptop is running Debian Sarge 3.1a,  kernel 2.4.27-2 (that it is
-booting ok) and kernel 2.4.6.12.6 (kernel.org kernel).  I compiled the
-2.6.12.6 kernel with all needed modules (sata disk, ext3 ... including
-devfs support), maked a initrd image with the necessary modules to mount
-the / partition (sata modules, file system modules...) and changed the
-disks names in the /etc/fstab from hda to sda (as it is recognized at
-2.6.12.6 kernel bootup process). The laptop model is IBM Thinkpad T43.
-
-Any ideia? Anybody knows why it is happen?
-
-Thanks in advice.
-Márcio Oliveira.
-
+Signed-off-by: Mark Rustad <mrustad@mac.com>

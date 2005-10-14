@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbVJNGiG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750771AbVJNGwo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750787AbVJNGiG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Oct 2005 02:38:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbVJNGiF
+	id S1750771AbVJNGwo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Oct 2005 02:52:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbVJNGwo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Oct 2005 02:38:05 -0400
-Received: from www.tuxrocks.com ([64.62.190.123]:25361 "EHLO tuxrocks.com")
-	by vger.kernel.org with ESMTP id S1750757AbVJNGiE (ORCPT
+	Fri, 14 Oct 2005 02:52:44 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:10325 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1750771AbVJNGwo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Oct 2005 02:38:04 -0400
-Message-ID: <434F5247.2040007@tuxrocks.com>
-Date: Fri, 14 Oct 2005 00:37:59 -0600
-From: Frank Sorenson <frank@tuxrocks.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
-Subject: Kconfig Dependencies for CONFIG_NET_CLS_RSVP6
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 14 Oct 2005 02:52:44 -0400
+Date: Fri, 14 Oct 2005 08:53:02 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Alexander Viro <aviro@redhat.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: BLKSECTGET userland API breakage (2.4 and 2.6 incompatible)
+Message-ID: <20051014065302.GP6603@suse.de>
+References: <20051013234934.GB6711@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051013234934.GB6711@devserv.devel.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, Oct 13 2005, Alexander Viro wrote:
+> [that had started as "BLKSECTGET 32bit compat is broken"]
+> 
+> Situation:
+> 
+> all 2.4:      BLKSECTGET takes long * and is supported by several block drivers
+> bio-14-pre9:  Takes BLKSECTGET to drivers/block/blkpg.c, defining it for all
+>               block drivers *AND* making it take unsigned short *
+> 2.5.1-pre2:   bio merge
+> all 2.[56] kernels since then: BLKSECTGET takes unsigned short *
+> 32bit compat: unchanged since 2.4 and thus broken on 2.[56]
+> applications: we have seen ones using 2.6 ABI and getting buggered in
+>               32bit compat.  Most likely there are some using 2.4 ABI...
 
-I noticed that I can still select "Special RSVP classifier for IPv6"
-even if "The IPv6 protocol" isn't selected.  Should CONFIG_NET_CLS_RSVP6
-depend on or select IPV6?
+Unfortunate situation :(
 
-Currently:
-Depends on: NET && NET_CLS && NET_QOS
+> IMO the least painful variant is to switch 2.6 compat code to match
+> 2.6 native (i.e. use COMPATIBLE_IOCTL()), leave 2.4 as-is and live
+> with the fact of userland ABI change between 2.4 and 2.6...
 
+Agree.
 
-Thanks,
-Frank
-- --
-Frank Sorenson - KD7TZK
-Systems Manager, Computer Science Department
-Brigham Young University
-frank@tuxrocks.com
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+-- 
+Jens Axboe
 
-iD8DBQFDT1JHaI0dwg4A47wRAhgRAJ0WKH6/S1DjKKRZDSwiLOpIMYJ8cgCgyIld
-xXUJRsvCO1TJsCfpSCMj7/A=
-=gqzH
------END PGP SIGNATURE-----

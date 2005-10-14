@@ -1,63 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751050AbVJNFMT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbVJNFM2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751050AbVJNFMT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Oct 2005 01:12:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbVJNFMT
+	id S1751132AbVJNFM2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Oct 2005 01:12:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbVJNFM2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Oct 2005 01:12:19 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:15341 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751050AbVJNFMT (ORCPT
+	Fri, 14 Oct 2005 01:12:28 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:58591 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751132AbVJNFM1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Oct 2005 01:12:19 -0400
-Subject: Re: [Lhms-devel] Re: [PATCH 5/8] Fragmentation Avoidance V17:
-	005_fallback
+	Fri, 14 Oct 2005 01:12:27 -0400
+Subject: Re: [Patch 2/2] Special Memory (mspec) driver.
 From: Dave Hansen <haveblue@us.ibm.com>
-To: Joel Schopp <jschopp@austin.ibm.com>
-Cc: Mel Gorman <mel@csn.ul.ie>, Mike Kravetz <kravetz@us.ibm.com>,
-       Andrew Morton <akpm@osdl.org>,
+To: Robin Holt <holt@sgi.com>
+Cc: ia64 list <linux-ia64@vger.kernel.org>, linux-mm <linux-mm@kvack.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>, lhms <lhms-devel@lists.sourceforge.net>
-In-Reply-To: <434D47FF.1000602@austin.ibm.com>
-References: <20051011151221.16178.67130.sendpatchset@skynet.csn.ul.ie>
-	 <20051011151246.16178.40148.sendpatchset@skynet.csn.ul.ie>
-	 <20051012164353.GA9425@w-mikek2.ibm.com>
-	 <Pine.LNX.4.58.0510121806550.9602@skynet> <434D47FF.1000602@austin.ibm.com>
+       hch@infradead.org, jgarzik@pobox.com,
+       William Lee Irwin III <wli@holomorphy.com>
+In-Reply-To: <20051012194233.GG17458@lnx-holt.americas.sgi.com>
+References: <20051012194022.GE17458@lnx-holt.americas.sgi.com>
+	 <20051012194233.GG17458@lnx-holt.americas.sgi.com>
 Content-Type: text/plain
-Date: Thu, 13 Oct 2005 22:12:00 -0700
-Message-Id: <1129266720.22903.23.camel@localhost>
+Date: Thu, 13 Oct 2005 22:12:05 -0700
+Message-Id: <1129266725.22903.25.camel@localhost>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-10-12 at 12:29 -0500, Joel Schopp wrote:
-> > In reality, no and it would only happen if a caller had specified both
-> > __GFP_USER and __GFP_KERNRCLM in the call to alloc_pages() or friends. It
-> > makes *no* sense for someone to do this, but if they did, an oops would be
-> > thrown during an interrupt. The alternative is to get rid of this last
-> > element and put a BUG_ON() check before the spinlock is taken.
-> > 
-> > This way, a stupid caller will damage the fragmentation strategy (which is
-> > bad). The alternative, the kernel will call BUG() (which is bad). The
-> > question is, which is worse?
-> > 
-> 
-> If in the future we hypothetically have code that damages the fragmentation 
-> strategy we want to find it sooner rather than never.  I'd rather some kernels 
-> BUG() than we have bugs which go unnoticed.
+On Wed, 2005-10-12 at 14:42 -0500, Robin Holt wrote:
+> +static void
+> +mspec_close(struct vm_area_struct *vma)
+> +{
+> +	struct vma_data *vdata;
+> +	int i, pages, result;
+> +
+> +	vdata = vma->vm_private_data;
+> +	if (atomic_dec_and_test(&vdata->refcnt)) {
+> +		pages = (vma->vm_end - vma->vm_start) >> PAGE_SHIFT;
+...
 
-It isn't a bug.  It's a normal
-let-the-stupid-user-shoot-themselves-in-the-foot situation.  Let's
-explicitly document the fact that you can't pass both flags, then maybe
-add a WARN_ON() or another printk.  Or, we just fail the allocation.  
+Looks like you could un-indent almost the entire function of you just
+did this instead:
 
-Failing the allocation seems like the simplest and most effective
-solution.  A developer will run into it when they're developing, it
-won't be killing off processes or locking things up like a BUG(), and it
-doesn't ruin any of the fragmentation strategy.  It also fits with the
-current behavior if someone asks the allocator do do something silly
-like give them memory from a non-present zone.
+	if (!atomic_dec_and_test(&vdata->refcnt))
+		return;
+
+> +static __inline__ int
+> +mspec_get_one_pte(struct mm_struct *mm, u64 address, pte_t ** page_table)
+> +{
+> +	pgd_t *pgd;
+> +	pmd_t *pmd;
+> +	pud_t *pud;
+> +
+> +	pgd = pgd_offset(mm, address);
+> +	if (pgd_present(*pgd)) {
+> +		pud = pud_offset(pgd, address);
+> +		if (pud_present(*pud)) {
+> +			pmd = pmd_offset(pud, address);
+> +			if (pmd_present(*pmd)) {
+> +				*page_table = pte_offset_map(pmd, address);
+> +				if (pte_present(**page_table)) {
+> +					return 0;
+> +				}
+> +			}
+> +		}
+> +	}
+> +
+> +	return -1;
+> +}
+
+This looks pretty similar to get_one_pte_map().  Is there enough
+commonality to use it?
+
+> +static int
+> +mspec_mmap(struct file *file, struct vm_area_struct *vma, int type)
+> +{
+> +	struct vma_data *vdata;
+> +	int pages;
+> +
+> +	if (vma->vm_pgoff != 0)
+> +		return -EINVAL;
+> +
+> +	if ((vma->vm_flags & VM_WRITE) == 0)
+> +		return -EPERM;
+> +
+> +	pages = (vma->vm_end - vma->vm_start) >> PAGE_SHIFT;
+> +	if (!
+> +	    (vdata =
+> +	     vmalloc(sizeof(struct vma_data) + pages * sizeof(long))))
+> +		return -ENOMEM;
+
+How about:
+
+	vdata = vmalloc(sizeof(struct vma_data) + pages * sizeof(long));
+	if (!vdata)
+		return -ENOMEM;
+
+> +#ifdef CONFIG_PROC_FS
+> +static void *
+> +mspec_seq_start(struct seq_file *file, loff_t * offset)
+> +{
+> +	if (*offset < MAX_NUMNODES)
+> +		return offset;
+> +	return NULL;
+> +}
+
+This whole thing really is a driver for a piece of arch-specific
+hardware, right?  Does it really belong in /proc?  You already have a
+misc device, so you already have some area in sysfs.  Would that make a
+better place for it?
+
+> +static int __init
+> +mspec_init(void)
+> +{
+> +	if ((ret = misc_register(&cached_miscdev))) {
+> +		printk(KERN_ERR "%s: failed to register device %i\n",
+> +		       CACHED_ID, ret);
+> +		misc_deregister(&fetchop_miscdev);
+> +		return ret;
+> +	}
+
+Isn't the general kernel style for these to keep the action out of the
+if() condition?
+
+	ret = misc_register(&cached_miscdev);
+	if (ret) {
+		...
+	}
 
 -- Dave
 

@@ -1,50 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750859AbVJNSmf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbVJNSxM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750859AbVJNSmf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Oct 2005 14:42:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbVJNSmf
+	id S1750863AbVJNSxM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Oct 2005 14:53:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750878AbVJNSxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Oct 2005 14:42:35 -0400
-Received: from mail3.uklinux.net ([80.84.72.33]:54189 "EHLO mail3.uklinux.net")
-	by vger.kernel.org with ESMTP id S1750856AbVJNSme (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Oct 2005 14:42:34 -0400
-Subject: Re: 2.6.14-rc4-rt4
-To: linux-kernel@vger.kernel.org
-Cc: Ingo Molnar <mingo@elte.hu>
-From: John Rigg <lk@sound-man.co.uk>
-Message-Id: <E1EQUbp-0001Lq-Bh@localhost.localdomain>
-Date: Fri, 14 Oct 2005 19:48:49 +0100
+	Fri, 14 Oct 2005 14:53:12 -0400
+Received: from straum.hexapodia.org ([64.81.70.185]:1037 "EHLO
+	straum.hexapodia.org") by vger.kernel.org with ESMTP
+	id S1750860AbVJNSxM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Oct 2005 14:53:12 -0400
+Date: Fri, 14 Oct 2005 11:53:11 -0700
+From: Andy Isaacson <adi@hexapodia.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       fastboot@osdl.org, Andi Kleen <ak@suse.de>
+Subject: Re: i386 nmi_watchdog: Merge check_nmi_watchdog fixes from x86_64
+Message-ID: <20051014185311.GH14194@hexapodia.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1r7aoohwn.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Oct 13, 2005 at 10:13:12PM -0600, Eric W. Biederman wrote:
+> Andrew Morton <akpm@osdl.org> writes:
+> > ebiederm@xmission.com (Eric W. Biederman) wrote:
+> >>  static int __init check_nmi_watchdog(void)
+> >>  {
+> >> +	volatile int endflag = 0;
+> >
+> > I don't think this needs to be declared volatile?
+> 
+> I haven't though it through extremely closely but I believe
+> the stores into that variable in check_nmi_watchdog could 
+> legitimately be optimized away by the compiler if it doesn't
+> have a hint.  As the variable is auto and is never used
+> after the store without volatile it seems a reasonable
+> assumption that no one else will see the value.
+> 
+> If the variable was static the volatile would clearly be unnecessary
+> as we have taken the address earlier so at some point the compiler
+> would be obligated to but with the variable being auto the rules are a
+> little murky.
 
-On Fri October 14 Badari Pulavarty wrote:
+I don't think it's murky at all; since you took the address and passed
+it to another function, the compiler has to assume that you saved the
+pointer away and will be referring to it later.  (Unless the compiler
+can prove that you *won't* be referring to it later, such as if there
+are no more function calls between the store and the variable going out
+of scope, or if the compiler does whole-program optimization and can see
+the entire data flow of that pointer and prove that it's not
+dereferenced.)
 
->I am able to apply cleanly. I am trying to see if it fixes my problem
->or not.
+Proving this using the standard is a bit of a challenge...
 
-Something in 2.6.14-rc4-rt4 breaks compilation with my config (with or
-without the extra patch) with following error message:
+6.2.4:
+4 An object whose identifier is declared with no linkage and without the
+  storage-class specifier static has automatic storage duration.
+5 For such an object that does not have a variable length array type,
+  its lifetime extends from entry into the block with which it is
+  associated until execution of that block ends in any way. (Entering an
+  enclosed block or calling a function suspends, but does not end,
+  execution of the current block.)
 
-  CC      kernel/ktimers.o
-kernel/ktimers.c: In function 'check_ktimer_signal':
-kernel/ktimers.c:1100: error: request for member 'tv' in something not a structure or union
+6.5.3.2:
+3 The unary & operator returns the address of its operand. If the
+  operand has type ``type'', the result has type ``pointer to type''.
+4 The unary * operator denotes indirection. If the operand ... points to
+  an object, the result is an lvalue designating the object. If the
+  operand has type ``pointer to type'', the result has type ``type''.
 
-Am about to try applying the change in the patch to -rt1, which I know
-compiles.
+So the object 'endflag' has lifetime extending until the end of the
+function; you are permitted to take its address and pass that address to
+a function (which stores it somewhere with static or allocated
+duration); a later function call is then permitted to dereference the
+stored pointer so long as 'endflag' has not yet passed out of scope.
 
-John
+Now, I think the following could hypothetically be a problem:
 
->--- linux-2.6.14-rc4.org/arch/x86_64/kernel/vsyscall.c  2005-10-07 10:27:33.000000000 -0700
->+++ linux-2.6.14-rc4/arch/x86_64/kernel/vsyscall.c      2005-10-14 05:11:02.000000000 -0700
->@@ -34,7 +34,7 @@
-> #include <asm/errno.h>
-> #include <asm/io.h>
->
->-#define __vsyscall(nr) __attribute__ ((unused,__section__(".vsyscall_" #nr)))
->+#define __vsyscall(nr) __attribute__ ((unused,__section__(".vsyscall_" #nr))) notrace
-> #define force_inline __attribute__((always_inline)) inline
->
-> int __sysctl_vsyscall __section_sysctl_vsyscall = 1;
->
+static int *bp;
+
+int foo() {
+	volatile int flag = 0;
+	int blah = 0, count = 0;
+
+	bp = &blah;
+	pthread_create(baz, flag);
+	blah++;
+	while(flag == 0)
+		count++;
+	return count;
+}
+
+int baz(void *p) {
+	volatile int *flag = p;
+	int count = 1;
+	while(*bp == 0)
+		count++;
+	*flag = count;
+}
+
+An optimizing compiler could look at foo() and decide that since blah is
+not volatile, and there are no function calls after it is incremented,
+the increment can be discarded.  But alas, baz() does check the value on
+another thread.
+
+I believe (but have not verified) that GCC simply inhibits
+dead-store-elimination when the address of the variable has been taken,
+so this theoretical possibility is not a real danger under gcc.  And in
+any case, it doesn't apply to your check_nmi_watchdog, because you've
+got function calls after the assignment.
+
+-andy

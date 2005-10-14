@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750793AbVJNQiz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbVJNQir@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750793AbVJNQiz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Oct 2005 12:38:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbVJNQiz
+	id S1750791AbVJNQir (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Oct 2005 12:38:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbVJNQiq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Oct 2005 12:38:55 -0400
-Received: from mail2.asahi-net.or.jp ([202.224.39.198]:8315 "EHLO
+	Fri, 14 Oct 2005 12:38:46 -0400
+Received: from mail2.asahi-net.or.jp ([202.224.39.198]:7035 "EHLO
 	mail.asahi-net.or.jp") by vger.kernel.org with ESMTP
-	id S1750793AbVJNQiy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Oct 2005 12:38:54 -0400
-Date: Sat, 15 Oct 2005 01:38:53 +0900
-Message-ID: <m2ek6ogijm.wl%ysato@users.sourceforge.jp>
+	id S1750791AbVJNQiq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Oct 2005 12:38:46 -0400
+Date: Sat, 15 Oct 2005 01:38:43 +0900
+Message-ID: <m2fyr4gijw.wl%ysato@users.sourceforge.jp>
 From: Yoshinori Sato <ysato@users.sourceforge.jp>
-To: Paul Mundt <lethal@linux-sh.org>, Andrew Morton <akpm@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] sh-sci.c sci_start_tx error
+Subject: [PATCH] nommu build error fix
 User-Agent: Wanderlust/2.15.1 (Almost Unreal) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.7 (=?ISO-8859-4?Q?Sanj=F2?=) APEL/10.6 Emacs/21.4
  (i386-pc-linux-gnu) MULE/5.0 (SAKAKI)
@@ -23,23 +23,83 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Argument does not agree.
+"proc_smaps_operations" is not defined in case of "CONFIG_MMU=n".
 
-Signed-off-by: Yoshinori Sato <ysato@users.sourceforge.jp> 
+Signed-off-by: Yoshinori Sato <ysato@users.sourceforge.jp>
 
-diff --git a/drivers/serial/sh-sci.c b/drivers/serial/sh-sci.c
-index 5122663..430754e 100644
---- a/drivers/serial/sh-sci.c
-+++ b/drivers/serial/sh-sci.c
-@@ -967,7 +967,7 @@ static int sci_startup(struct uart_port 
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index 3b33f94..a170450 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -103,7 +103,9 @@ enum pid_directory_inos {
+ 	PROC_TGID_NUMA_MAPS,
+ 	PROC_TGID_MOUNTS,
+ 	PROC_TGID_WCHAN,
++#ifdef CONFIG_MMU
+ 	PROC_TGID_SMAPS,
++#endif
+ #ifdef CONFIG_SCHEDSTATS
+ 	PROC_TGID_SCHEDSTAT,
+ #endif
+@@ -141,7 +143,9 @@ enum pid_directory_inos {
+ 	PROC_TID_NUMA_MAPS,
+ 	PROC_TID_MOUNTS,
+ 	PROC_TID_WCHAN,
++#ifdef CONFIG_MMU
+ 	PROC_TID_SMAPS,
++#endif
+ #ifdef CONFIG_SCHEDSTATS
+ 	PROC_TID_SCHEDSTAT,
+ #endif
+@@ -195,7 +199,9 @@ static struct pid_entry tgid_base_stuff[
+ 	E(PROC_TGID_ROOT,      "root",    S_IFLNK|S_IRWXUGO),
+ 	E(PROC_TGID_EXE,       "exe",     S_IFLNK|S_IRWXUGO),
+ 	E(PROC_TGID_MOUNTS,    "mounts",  S_IFREG|S_IRUGO),
++#ifdef CONFIG_MMU
+ 	E(PROC_TGID_SMAPS,     "smaps",   S_IFREG|S_IRUGO),
++#endif
+ #ifdef CONFIG_SECURITY
+ 	E(PROC_TGID_ATTR,      "attr",    S_IFDIR|S_IRUGO|S_IXUGO),
+ #endif
+@@ -235,7 +241,9 @@ static struct pid_entry tid_base_stuff[]
+ 	E(PROC_TID_ROOT,       "root",    S_IFLNK|S_IRWXUGO),
+ 	E(PROC_TID_EXE,        "exe",     S_IFLNK|S_IRWXUGO),
+ 	E(PROC_TID_MOUNTS,     "mounts",  S_IFREG|S_IRUGO),
++#ifdef CONFIG_MMU
+ 	E(PROC_TID_SMAPS,      "smaps",   S_IFREG|S_IRUGO),
++#endif
+ #ifdef CONFIG_SECURITY
+ 	E(PROC_TID_ATTR,       "attr",    S_IFDIR|S_IRUGO|S_IXUGO),
+ #endif
+@@ -630,6 +638,7 @@ static struct file_operations proc_numa_
+ };
  #endif
  
- 	sci_request_irq(s);
--	sci_start_tx(port, 1);
-+	sci_start_tx(port);
- 	sci_start_rx(port, 1);
++#ifdef CONFIG_MMU
+ extern struct seq_operations proc_pid_smaps_op;
+ static int smaps_open(struct inode *inode, struct file *file)
+ {
+@@ -648,6 +657,7 @@ static struct file_operations proc_smaps
+ 	.llseek		= seq_lseek,
+ 	.release	= seq_release,
+ };
++#endif
  
- 	return 0;
+ extern struct seq_operations mounts_op;
+ static int mounts_open(struct inode *inode, struct file *file)
+@@ -1681,10 +1691,12 @@ static struct dentry *proc_pident_lookup
+ 		case PROC_TGID_MOUNTS:
+ 			inode->i_fop = &proc_mounts_operations;
+ 			break;
++#ifdef CONFIG_MMU
+ 		case PROC_TID_SMAPS:
+ 		case PROC_TGID_SMAPS:
+ 			inode->i_fop = &proc_smaps_operations;
+ 			break;
++#endif
+ #ifdef CONFIG_SECURITY
+ 		case PROC_TID_ATTR:
+ 			inode->i_nlink = 2;
 
 -- 
 Yoshinori Sato

@@ -1,95 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbVJOPJY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751171AbVJOPN6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751169AbVJOPJY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Oct 2005 11:09:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbVJOPJY
+	id S1751171AbVJOPN6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Oct 2005 11:13:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbVJOPN6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Oct 2005 11:09:24 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:9166 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751169AbVJOPJX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Oct 2005 11:09:23 -0400
-Date: Sat, 15 Oct 2005 17:09:48 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 2.6.14-rc4] i386: spinlock optimization
-Message-ID: <20051015150948.GA10763@elte.hu>
-References: <200510142128_MC3-1-ACAD-8CD3@compuserve.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200510142128_MC3-1-ACAD-8CD3@compuserve.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Sat, 15 Oct 2005 11:13:58 -0400
+Received: from hulk.hostingexpert.com ([69.57.134.39]:7653 "EHLO
+	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
+	id S1751171AbVJOPN6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Oct 2005 11:13:58 -0400
+Message-ID: <43511CAD.2010209@m1k.net>
+Date: Sat, 15 Oct 2005 11:13:49 -0400
+From: Michael Krufky <mkrufky@m1k.net>
+Reply-To: mkrufky@m1k.net
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Denis Vlasenko <vda@ilport.com.ua>
+CC: Damir Perisa <damir.perisa@solnet.ch>,
+       Benoit Boissinot <bboissin@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Documentation/files somewhere online?
+References: <43505F86.1050701@perkel.com> <40f323d00510150640q1b1a996p85c9b4ff468de346@mail.gmail.com> <200510151653.03747.damir.perisa@solnet.ch> <200510151802.27120.vda@ilport.com.ua>
+In-Reply-To: <200510151802.27120.vda@ilport.com.ua>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - m1k.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Denis Vlasenko wrote:
 
-* Chuck Ebbert <76306.1226@compuserve.com> wrote:
+>On Saturday 15 October 2005 17:52, Damir Perisa wrote:
+>  
+>
+>>is somebody keeping a online version of the kernel source docs (i mean the 
+>>Documentation/* files) somewhere for surfing? i want to point people to 
+>>pages with links without forcing them to download the sources to read 
+>>what i tell them to.
+>>    
+>>
+>http://lxr.linux.no/source/Documentation/
+>  
+>
+I think that using the -git web interface to Linus' tree on kernel.org 
+is even better.
 
-> Parent CPU 1, child CPU 0, using old code for lock
-> CPU clocks: 2066947815
-> Parent CPU 1, child CPU 0, using new code for lock
-> CPU clocks: 2818166922
+The following is a link to the top-level of the kernel source tree:
 
-> Parent CPU 1, child CPU 0, using old code for lock
-> CPU clocks: 5635093038
-> Parent CPU 1, child CPU 0, using new code for lock
-> CPU clocks: 5250078921
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=tree
 
-your numbers show that for the first box, there's a 36% net slowdown 
-resulting from the new code. On the other (older) box, there's a 7% 
-speedup from the new code.
+You will notice a Documentation tree link (3rd file object link from the 
+top).
 
-i ran the code on two newer boxes, 2.4 and 3.4 GHz Xeons, on two sibling 
-CPUs sharing the same physical CPU and on two different CPUs as well:
+This will get you the most current Documentation at the moment from 
+Linus' tree, and it also gives you the ability to see the history of 
+changes.
 
-HT non-siblings [Xeon 2.40GHz], 1% slowdown:
+Hope this helps.
 
- Parent CPU 2, child CPU 0, using old code for lock
- CPU clocks: 6712771070
- Parent CPU 2, child CPU 0, using new code for lock
- CPU clocks: 6787556068
+-- 
+Michael Krufky
 
-HT siblings [Xeon 2.40GHz], 14% speedup:
-
- Parent CPU 1, child CPU 0, using old code for lock
- CPU clocks: 3587124593
- Parent CPU 1, child CPU 0, using new code for lock
- CPU clocks: 3079647206
-
-HT non-siblings [Xeon 3.40GHz], 3% speedup:
-
- Parent CPU 2, child CPU 0, using old code for lock
- CPU clocks: 8486900988
- Parent CPU 2, child CPU 0, using new code for lock
- CPU clocks: 8255818784
-
-HT siblings [Xeon 3.40GHz], 1% slowdown:
-
- Parent CPU 3, child CPU 0, using old code for lock
- CPU clocks: 3684195488
- Parent CPU 3, child CPU 0, using new code for lock
- CPU clocks: 3739797320
-
-but given that the code is a drastic slowdown on older boxes (and 
-results in higher memory bus traffic, which may slow down other CPUs 
-too, which effect isnt measured here), i dont think we should apply the 
-patch, just yet - up until the point it becomes a clear winner on new 
-CPUs.
-
-(in fact the ping-pong effect should be worse if more than 2 CPUs 
-contend for the spinlock.)
-
-could someone run the tests on a dual-core box too?
-
-	Ingo

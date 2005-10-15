@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751223AbVJOVjv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751242AbVJOWBN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751223AbVJOVjv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Oct 2005 17:39:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbVJOVjv
+	id S1751242AbVJOWBN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Oct 2005 18:01:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbVJOWBN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Oct 2005 17:39:51 -0400
-Received: from jive.SoftHome.net ([66.54.152.27]:26849 "HELO jive.SoftHome.net")
-	by vger.kernel.org with SMTP id S1751223AbVJOVjv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Oct 2005 17:39:51 -0400
-Date: Sat, 15 Oct 2005 23:39:53 +0200
-To: linux-kernel@vger.kernel.org
-Subject: force feedback envelope incomplete
-Message-ID: <20051015213953.GA27117@tink>
+	Sat, 15 Oct 2005 18:01:13 -0400
+Received: from ms004msg.fastwebnet.it ([213.140.2.58]:57218 "EHLO
+	ms004msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S1751242AbVJOWBN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Oct 2005 18:01:13 -0400
+Date: Sun, 16 Oct 2005 00:01:15 +0200
+From: Mattia Dongili <malattia@linux.it>
+To: emard@softhome.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: uinput crash and fix
+Message-ID: <20051015220115.GG3564@inferi.kami.home>
+Mail-Followup-To: emard@softhome.net, linux-kernel@vger.kernel.org
+References: <20051015212911.GA25752@tink>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20051015212911.GA25752@tink>
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.14-rc2-mm2-1 i686
+X-Editor: Vim http://www.vim.org/
+X-Disclaimer: Buh!
 User-Agent: Mutt/1.5.9i
-From: emard@softhome.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HI
+On Sat, Oct 15, 2005 at 11:29:12PM +0200, emard@softhome.net wrote:
+> HI
+[...]
+>  			req = uinput_request_find(udev, ff_up.request_id);
+> -			if (!(req && req->code == UI_FF_UPLOAD && req->u.effect)) {
+> +			if (!req) {
 
-Force feedback envelope struct in input.h 
-for periodic events is incomplete.
+out of curiosity, instead of adding a whole if block wouldn't be easier
+to just write 
 
-struct ff_envelope {
-        __u16 attack_length;    /* Duration of attack (ms) */
-        __u16 attack_level;     /* Level at beginning of attack */
-        __u16 fade_length;      /* Duration of fade (ms) */
-        __u16 fade_level;       /* Level at end of fade */
-};
+	if (!req || !(req->code == UI_FF_UPLOAD && req->u.effect)) {
 
-The envelope consists of:
-1. Attack level (Level at beginning of attack)
-2. Attack time
-3. Sustain level (Level at end of attack and beginning of fade)
-4. Sustain time
-5. Fade level (Level at the end of fade)
-6. Fade time
-
-If I want to implement proper envelope I propose something like this:
-
-struct ff_envelope {
-        __u16 attack_length;    /* Duration of attack (ms) */
-        __u16 attack_level;     /* Level at beginning of attack */
-        __u16 sustain_length;   /* Duration of sustain (ms) */
-        __u16 sustain_level;    /* Sustain Level at end of attack and beginning of fade */
-        __u16 fade_length;      /* Duration of fade (ms) */
-        __u16 fade_level;       /* Level at end of fade */
-};
+in order to evaulate !req first and eventually dereference it?
+-- 
+mattia
+:wq!

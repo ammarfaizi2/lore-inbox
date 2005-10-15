@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbVJOS2j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbVJOSaV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751191AbVJOS2j (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Oct 2005 14:28:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751193AbVJOS2j
+	id S1751190AbVJOSaV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Oct 2005 14:30:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751194AbVJOSaV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Oct 2005 14:28:39 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:42170 "EHLO
+	Sat, 15 Oct 2005 14:30:21 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:42938 "EHLO
 	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751191AbVJOS2i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Oct 2005 14:28:38 -0400
-Subject: PATCH: EDAC - drivers for AMD 76x and Intel E750x, E752x
+	id S1751190AbVJOSaT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Oct 2005 14:30:19 -0400
+Subject: PATCH: EDAC, drivers for Intel i82860, i82875
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Sat, 15 Oct 2005 19:57:38 +0100
-Message-Id: <1129402659.17923.12.camel@localhost.localdomain>
+Date: Sat, 15 Oct 2005 19:59:23 +0100
+Message-Id: <1129402763.17923.15.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
@@ -23,22 +23,326 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Signed-off-by: Alan Cox <alan@redhat.com>
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.14-rc2-mm1/drivers/edac/amd76x_edac.c linux-2.6.14-rc2-mm1/drivers/edac/amd76x_edac.c
---- linux.vanilla-2.6.14-rc2-mm1/drivers/edac/amd76x_edac.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.14-rc2-mm1/drivers/edac/amd76x_edac.c	2005-10-07 16:50:22.000000000 +0100
-@@ -0,0 +1,356 @@
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.14-rc2-mm1/drivers/edac/i82860_edac.c linux-2.6.14-rc2-mm1/drivers/edac/i82860_edac.c
+--- linux.vanilla-2.6.14-rc2-mm1/drivers/edac/i82860_edac.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.14-rc2-mm1/drivers/edac/i82860_edac.c	2005-10-07 16:50:22.000000000 +0100
+@@ -0,0 +1,299 @@
 +/*
-+ * AMD 76x Memory Controller kernel module
++ * Intel 82860 Memory Controller kernel module
++ * (C) 2005 Red Hat (http://www.redhat.com)
++ * This file may be distributed under the terms of the
++ * GNU General Public License.
++ *
++ * Written by Ben Woodard <woodard@redhat.com>
++ * shamelessly copied from and based upon the edac_i82875 driver 
++ * by Thayne Harbaugh of Linux Networx. (http://lnxi.com)
++ */
++
++
++#include <linux/config.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/pci.h>
++#include <linux/pci_ids.h>
++#include <linux/slab.h>
++#include "edac_mc.h"
++
++
++#ifndef PCI_DEVICE_ID_INTEL_82860_0
++#define PCI_DEVICE_ID_INTEL_82860_0	0x2531
++#endif				/* PCI_DEVICE_ID_INTEL_82860_0 */
++
++#define I82860_MCHCFG 0x50
++#define I82860_GBA 0x60
++#define I82860_GBA_MASK 0x7FF
++#define I82860_GBA_SHIFT 24
++#define I82860_ERRSTS 0xC8
++#define I82860_EAP 0xE4
++#define I82860_DERRCTL_STS 0xE2
++
++enum i82860_chips {
++	I82860 = 0,
++};
++
++struct i82860_dev_info {
++	const char *ctl_name;
++};
++
++struct i82860_error_info {
++	u16 errsts;
++	u32 eap;
++	u16 derrsyn;
++	u16 errsts2;
++};
++
++static const struct i82860_dev_info i82860_devs[] = {
++	[I82860] = {
++		    .ctl_name = "i82860"},
++};
++
++static struct pci_dev *mci_pdev = NULL;	/* init dev: in case that AGP code 
++					   has already registered driver */
++
++static int i82860_registered = 1;
++
++static void i82860_get_error_info (struct mem_ctl_info *mci,
++		struct i82860_error_info *info)
++{
++	/*
++	 * This is a mess because there is no atomic way to read all the
++	 * registers at once and the registers can transition from CE being
++	 * overwritten by UE.
++	 */
++	pci_read_config_word(mci->pdev, I82860_ERRSTS, &info->errsts);
++	pci_read_config_dword(mci->pdev, I82860_EAP, &info->eap);
++	pci_read_config_word(mci->pdev, I82860_DERRCTL_STS, &info->derrsyn);
++	pci_read_config_word(mci->pdev, I82860_ERRSTS, &info->errsts2);
++
++	pci_write_bits16(mci->pdev, I82860_ERRSTS, 0x0003, 0x0003);
++
++	/*
++	 * If the error is the same for both reads then the first set of reads
++	 * is valid.  If there is a change then there is a CE no info and the
++	 * second set of reads is valid and should be UE info.
++	 */
++	if (!(info->errsts2 & 0x0003))
++		return;
++	if ((info->errsts ^ info->errsts2) & 0x0003) {
++		pci_read_config_dword(mci->pdev, I82860_EAP, &info->eap);
++		pci_read_config_word(mci->pdev, I82860_DERRCTL_STS,
++		    &info->derrsyn);
++	}
++}
++
++static int i82860_process_error_info (struct mem_ctl_info *mci,
++		struct i82860_error_info *info, int handle_errors)
++{
++	int row;
++
++	if (!(info->errsts2 & 0x0003))
++		return 0;
++
++	if (!handle_errors)
++		return 1;
++
++	if ((info->errsts ^ info->errsts2) & 0x0003) {
++		edac_mc_handle_ce_no_info(mci, "UE overwrote CE");
++		info->errsts = info->errsts2;
++	}
++
++	info->eap >>= PAGE_SHIFT;
++	row = edac_mc_find_csrow_by_page(mci, info->eap);
++
++	if (info->errsts & 0x0002)
++		edac_mc_handle_ue(mci, info->eap, 0, row, "i82860 UE");
++	else
++		edac_mc_handle_ce(mci, info->eap, 0, info->derrsyn, row,
++				       0, "i82860 UE");
++
++	return 1;
++}
++
++static void i82860_check(struct mem_ctl_info *mci)
++{
++	struct i82860_error_info info;
++
++	debugf1("MC%d: " __FILE__ ": %s()\n", mci->mc_idx, __func__);
++	i82860_get_error_info(mci, &info);
++	i82860_process_error_info(mci, &info, 1);
++}
++
++static int i82860_probe1(struct pci_dev *pdev, int dev_idx)
++{
++	int rc = -ENODEV;
++	int index;
++	struct mem_ctl_info *mci = NULL;
++	unsigned long last_cumul_size;
++
++	u16 mchcfg_ddim;	/* DRAM Data Integrity Mode 0=none,2=edac */
++
++	/* RDRAM has channels but these don't map onto the abstractions that 
++	   edac uses. 
++	   The device groups from the GRA registers seem to map reasonably 
++	   well onto the notion of a chip select row. 
++	   There are 16 GRA registers and since the name is associated with
++	   the channel and the GRA registers map to physical devices so we are
++	   going to make 1 channel for group.
++	 */
++	mci = edac_mc_alloc(0, 16, 1);
++	if (!mci)
++		return -ENOMEM;
++
++	debugf3("MC: " __FILE__ ": %s(): init mci\n", __func__);
++
++	mci->pdev = pdev;
++	mci->mtype_cap = MEM_FLAG_DDR;
++
++
++	mci->edac_ctl_cap = EDAC_FLAG_NONE | EDAC_FLAG_SECDED;
++	/* I"m not sure about this but I think that all RDRAM is SECDED */
++	mci->edac_cap = EDAC_FLAG_SECDED;
++	/* adjust FLAGS */
++
++	mci->mod_name = BS_MOD_STR;
++	mci->mod_ver = "$Revision: 1.1.2.6 $";
++	mci->ctl_name = i82860_devs[dev_idx].ctl_name;
++	mci->edac_check = i82860_check;
++	mci->ctl_page_to_phys = NULL;
++
++	pci_read_config_word(mci->pdev, I82860_MCHCFG, &mchcfg_ddim);
++	mchcfg_ddim = mchcfg_ddim & 0x180;
++
++	/*
++	 * The group row boundary (GRA) reg values are boundary address
++	 * for each DRAM row with a granularity of 16MB.  GRA regs are 
++	 * cumulative; therefore GRA15 will contain the total memory contained
++	 * in all eight rows.
++	 */
++	for (last_cumul_size = index = 0; index < mci->nr_csrows; index++) {
++		u16 value;
++		u32 cumul_size;
++		struct csrow_info *csrow = &mci->csrows[index];
++
++		pci_read_config_word(mci->pdev, I82860_GBA + index * 2,
++				     &value);
++
++		cumul_size = (value & I82860_GBA_MASK) <<
++		    (I82860_GBA_SHIFT - PAGE_SHIFT);
++		debugf3("MC: " __FILE__ ": %s(): (%d) cumul_size 0x%x\n",
++			__func__, index, cumul_size);
++		if (cumul_size == last_cumul_size)
++			continue;	/* not populated */
++
++		csrow->first_page = last_cumul_size;
++		csrow->last_page = cumul_size - 1;
++		csrow->nr_pages = cumul_size - last_cumul_size;
++		last_cumul_size = cumul_size;
++		csrow->grain = 1 << 12;	/* I82860_EAP has 4KiB reolution */
++		csrow->mtype = MEM_RMBS;
++		csrow->dtype = DEV_UNKNOWN;
++		csrow->edac_mode = mchcfg_ddim ? EDAC_SECDED : EDAC_NONE;
++	}
++
++	/* clear counters */
++	pci_write_bits16(mci->pdev, I82860_ERRSTS, 0x0003, 0x0003);
++
++	if (edac_mc_add_mc(mci)) {
++		debugf3("MC: " __FILE__
++			": %s(): failed edac_mc_add_mc()\n",
++			__func__);
++		edac_mc_free(mci);
++	} else {
++		/* get this far and it's successful */
++		debugf3("MC: " __FILE__ ": %s(): success\n", __func__);
++		rc = 0;
++	}
++	return rc;
++}
++
++/* returns count (>= 0), or negative on error */
++static int __devinit i82860_init_one(struct pci_dev *pdev,
++				     const struct pci_device_id *ent)
++{
++	int rc;
++
++	debugf0("MC: " __FILE__ ": %s()\n", __func__);
++
++	printk(KERN_INFO "i82860 init one\n");
++	if(pci_enable_device(pdev) < 0)
++		return -EIO;
++	rc = i82860_probe1(pdev, ent->driver_data);
++	if(rc == 0)
++		mci_pdev = pci_dev_get(pdev);
++	return rc;
++}
++
++static void __devexit i82860_remove_one(struct pci_dev *pdev)
++{
++	struct mem_ctl_info *mci;
++
++	debugf0(__FILE__ ": %s()\n", __func__);
++
++	mci = edac_mc_find_mci_by_pdev(pdev);
++	if ((mci != NULL) && (edac_mc_del_mc(mci) == 0))
++		edac_mc_free(mci);
++}
++
++static const struct pci_device_id i82860_pci_tbl[] __devinitdata = {
++	{PCI_VEND_DEV(INTEL, 82860_0), PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	 I82860},
++	{0,}			/* 0 terminated list. */
++};
++
++MODULE_DEVICE_TABLE(pci, i82860_pci_tbl);
++
++static struct pci_driver i82860_driver = {
++	.name = BS_MOD_STR,
++	.probe = i82860_init_one,
++	.remove = __devexit_p(i82860_remove_one),
++	.id_table = i82860_pci_tbl,
++};
++
++int __init i82860_init(void)
++{
++	int pci_rc;
++
++	debugf3("MC: " __FILE__ ": %s()\n", __func__);
++	if ((pci_rc = pci_register_driver(&i82860_driver)) < 0)
++		return pci_rc;
++
++	if (!mci_pdev) {
++		i82860_registered = 0;
++		mci_pdev = pci_get_device(PCI_VENDOR_ID_INTEL,
++					  PCI_DEVICE_ID_INTEL_82860_0, NULL);
++		if (mci_pdev == NULL) {
++			debugf0("860 pci_get_device fail\n");
++			return -ENODEV;
++		}
++		pci_rc = i82860_init_one(mci_pdev, i82860_pci_tbl);
++		if (pci_rc < 0) {
++			debugf0("860 init fail\n");
++			pci_dev_put(mci_pdev);
++			return -ENODEV;
++		}
++	}
++	return 0;
++}
++
++static void __exit i82860_exit(void)
++{
++	debugf3("MC: " __FILE__ ": %s()\n", __func__);
++
++	pci_unregister_driver(&i82860_driver);
++	if (!i82860_registered) {
++		i82860_remove_one(mci_pdev);
++		pci_dev_put(mci_pdev);
++	}
++}
++
++module_init(i82860_init);
++module_exit(i82860_exit);
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR
++    ("Red Hat Inc. (http://www.redhat.com.com) Ben Woodard <woodard@redhat.com>");
++MODULE_DESCRIPTION("ECC support for Intel 82860 memory hub controllers");
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.14-rc2-mm1/drivers/edac/i82875p_edac.c linux-2.6.14-rc2-mm1/drivers/edac/i82875p_edac.c
+--- linux.vanilla-2.6.14-rc2-mm1/drivers/edac/i82875p_edac.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.14-rc2-mm1/drivers/edac/i82875p_edac.c	2005-10-07 16:50:22.000000000 +0100
+@@ -0,0 +1,532 @@
++/*
++ * Intel D82875P Memory Controller kernel module
 + * (C) 2003 Linux Networx (http://lnxi.com)
 + * This file may be distributed under the terms of the
 + * GNU General Public License.
 + *
 + * Written by Thayne Harbaugh
-+ * Based on work by Dan Hollis <goemon at anime dot net> and others.
-+ *	http://www.anime.net/~goemon/linux-ecc/
++ * Contributors:
++ *	Wang Zhenyu at intel.com
 + *
-+ * $Id: edac_amd76x.c,v 1.4.2.5 2005/10/05 00:43:44 dsp_llnl Exp $
++ * $Id: edac_i82875p.c,v 1.5.2.11 2005/10/05 00:43:44 dsp_llnl Exp $
 + *
++ * Note: E7210 appears same as D82875P - zhenyu.z.wang at intel.com 
 + */
 +
 +
@@ -54,246 +358,371 @@ diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6
 +#include "edac_mc.h"
 +
 +
-+#define AMD76X_NR_CSROWS 8
-+#define AMD76X_NR_CHANS  1
-+#define AMD76X_NR_DIMMS  4
++#ifndef PCI_DEVICE_ID_INTEL_82875_0
++#define PCI_DEVICE_ID_INTEL_82875_0	0x2578
++#endif				/* PCI_DEVICE_ID_INTEL_82875_0 */
++
++#ifndef PCI_DEVICE_ID_INTEL_82875_6
++#define PCI_DEVICE_ID_INTEL_82875_6	0x257e
++#endif				/* PCI_DEVICE_ID_INTEL_82875_6 */
 +
 +
-+/* AMD 76x register addresses - device 0 function 0 - PCI bridge */
-+#define AMD76X_ECC_MODE_STATUS	0x48	/* Mode and status of ECC (32b)
++/* four csrows in dual channel, eight in single channel */
++#define I82875P_NR_CSROWS(nr_chans) (8/(nr_chans))
++
++
++/* Intel 82875p register addresses - device 0 function 0 - DRAM Controller */
++#define I82875P_EAP		0x58	/* Error Address Pointer (32b)
 +					 *
-+					 * 31:16 reserved
-+					 * 15:14 SERR enabled: x1=ue 1x=ce
-+					 * 13    reserved
-+					 * 12    diag: disabled, enabled
-+					 * 11:10 mode: dis, EC, ECC, ECC+scrub
-+					 *  9:8  status: x1=ue 1x=ce
-+					 *  7:4  UE cs row
-+					 *  3:0  CE cs row
-+					 */
-+#define AMD76X_DRAM_MODE_STATUS	0x58	/* DRAM Mode and status (32b)
-+					 *
-+					 * 31:26 clock disable 5 - 0
-+					 * 25    SDRAM init
-+					 * 24    reserved
-+					 * 23    mode register service
-+					 * 22:21 suspend to RAM
-+					 * 20    burst refresh enable
-+					 * 19    refresh disable
-+					 * 18    reserved
-+					 * 17:16 cycles-per-refresh
-+					 * 15:8  reserved
-+					 *  7:0  x4 mode enable 7 - 0
-+					 */
-+#define AMD76X_MEM_BASE_ADDR	0xC0	/* Memory base address (8 x 32b)
-+					 *
-+					 * 31:23 chip-select base
-+					 * 22:16 reserved
-+					 * 15:7  chip-select mask
-+					 *  6:3  reserved
-+					 *  2:1  address mode
-+					 *  0    chip-select enable
++					 * 31:12 block address
++					 * 11:0  reserved
 +					 */
 +
++#define I82875P_DERRSYN		0x5c	/* DRAM Error Syndrome (8b)
++					 *
++					 *  7:0  DRAM ECC Syndrome
++					 */
 +
-+struct amd76x_error_info {
-+	u32 ecc_mode_status;
++#define I82875P_DES		0x5d	/* DRAM Error Status (8b)
++					 *
++					 *  7:1  reserved
++					 *  0    Error channel 0/1
++					 */
++
++#define I82875P_ERRSTS		0xc8	/* Error Status Register (16b)
++					 *
++					 * 15:10 reserved
++					 *  9    non-DRAM lock error (ndlock)
++					 *  8    Sftwr Generated SMI
++					 *  7    ECC UE
++					 *  6    reserved
++					 *  5    MCH detects unimplemented cycle
++					 *  4    AGP access outside GA
++					 *  3    Invalid AGP access
++					 *  2    Invalid GA translation table
++					 *  1    Unsupported AGP command
++					 *  0    ECC CE
++					 */
++
++#define I82875P_ERRCMD		0xca	/* Error Command (16b)
++					 *
++					 * 15:10 reserved
++					 *  9    SERR on non-DRAM lock
++					 *  8    SERR on ECC UE
++					 *  7    SERR on ECC CE
++					 *  6    target abort on high exception
++					 *  5    detect unimplemented cyc
++					 *  4    AGP access outside of GA
++					 *  3    SERR on invalid AGP access
++					 *  2    invalid translation table
++					 *  1    SERR on unsupported AGP command
++					 *  0    reserved
++					 */
++
++
++/* Intel 82875p register addresses - device 6 function 0 - DRAM Controller */
++#define I82875P_PCICMD6		0x04	/* PCI Command Register (16b)
++					 *
++					 * 15:10 reserved
++					 *  9    fast back-to-back - ro 0
++					 *  8    SERR enable - ro 0
++					 *  7    addr/data stepping - ro 0
++					 *  6    parity err enable - ro 0
++					 *  5    VGA palette snoop - ro 0
++					 *  4    mem wr & invalidate - ro 0
++					 *  3    special cycle - ro 0
++					 *  2    bus master - ro 0
++					 *  1    mem access dev6 - 0(dis),1(en)
++					 *  0    IO access dev3 - 0(dis),1(en)
++					 */
++
++#define I82875P_BAR6		0x10	/* Mem Delays Base ADDR Reg (32b)
++					 *
++					 * 31:12 mem base addr [31:12]
++					 * 11:4  address mask - ro 0
++					 *  3    prefetchable - ro 0(non),1(pre)
++					 *  2:1  mem type - ro 0
++					 *  0    mem space - ro 0
++					 */
++
++/* Intel 82875p MMIO register space - device 0 function 0 - MMR space */
++
++#define I82875P_DRB_SHIFT 26	/* 64MiB grain */
++#define I82875P_DRB		0x00	/* DRAM Row Boundary (8b x 8)
++					 *
++					 *  7    reserved
++					 *  6:0  64MiB row boundary addr
++					 */
++
++#define I82875P_DRA		0x10	/* DRAM Row Attribute (4b x 8)
++					 *
++					 *  7    reserved
++					 *  6:4  row attr row 1
++					 *  3    reserved
++					 *  2:0  row attr row 0
++					 *
++					 * 000 =  4KiB
++					 * 001 =  8KiB
++					 * 010 = 16KiB
++					 * 011 = 32KiB
++					 */
++
++#define I82875P_DRC		0x68	/* DRAM Controller Mode (32b)
++					 *
++					 * 31:30 reserved
++					 * 29    init complete
++					 * 28:23 reserved
++					 * 22:21 nr chan 00=1,01=2
++					 * 20    reserved
++					 * 19:18 Data Integ Mode 00=none,01=ecc
++					 * 17:11 reserved
++					 * 10:8  refresh mode
++					 *  7    reserved
++					 *  6:4  mode select
++					 *  3:2  reserved
++					 *  1:0  DRAM type 01=DDR
++					 */
++
++
++enum i82875p_chips {
++	I82875P = 0,
 +};
 +
 +
-+enum amd76x_chips {
-+	AMD761 = 0,
-+	AMD762
++struct i82875p_pvt {
++	struct pci_dev *ovrfl_pdev;
++	void *ovrfl_window;
 +};
 +
 +
-+struct amd76x_dev_info {
++struct i82875p_dev_info {
 +	const char *ctl_name;
 +};
 +
 +
-+static const struct amd76x_dev_info amd76x_devs[] = {
-+	[AMD761] = {.ctl_name = "AMD761"},
-+	[AMD762] = {.ctl_name = "AMD762"},
++struct i82875p_error_info {
++	u16 errsts;
++	u32 eap;
++	u8 des;
++	u8 derrsyn;
++	u16 errsts2;
 +};
 +
 +
-+/**
-+ *	amd76x_get_error_info	-	fetch error information
-+ *	@mci: Memory controller
-+ *	@info: Info to fill in
-+ *
-+ *	Fetch and store the AMD76x ECC status. Clear pending status
-+ *	on the chip so that further errors will be reported
-+ */
++static const struct i82875p_dev_info i82875p_devs[] = {
++	[I82875P] = {
++		     .ctl_name = "i82875p"},
++};
 +
-+static void amd76x_get_error_info (struct mem_ctl_info *mci,
-+				   struct amd76x_error_info *info)
++static struct pci_dev *mci_pdev = NULL;	/* init dev: in case that AGP code 
++					   has already registered driver */
++static int i82875p_registered = 1;
++
++static void i82875p_get_error_info (struct mem_ctl_info *mci,
++		struct i82875p_error_info *info)
 +{
-+	pci_read_config_dword(mci->pdev, AMD76X_ECC_MODE_STATUS,
-+				&info->ecc_mode_status);
++	/*
++	 * This is a mess because there is no atomic way to read all the
++	 * registers at once and the registers can transition from CE being
++	 * overwritten by UE.
++	 */
++	pci_read_config_word(mci->pdev, I82875P_ERRSTS, &info->errsts);
++	pci_read_config_dword(mci->pdev, I82875P_EAP, &info->eap);
++	pci_read_config_byte(mci->pdev, I82875P_DES, &info->des);
++	pci_read_config_byte(mci->pdev, I82875P_DERRSYN, &info->derrsyn);
++	pci_read_config_word(mci->pdev, I82875P_ERRSTS, &info->errsts2);
 +
-+	if (info->ecc_mode_status & BIT(8))
-+		pci_write_bits32(mci->pdev, AMD76X_ECC_MODE_STATUS,
-+				   (u32) BIT(8), (u32) BIT(8));
-+
-+	if (info->ecc_mode_status & BIT(9))
-+		pci_write_bits32(mci->pdev, AMD76X_ECC_MODE_STATUS,
-+				   (u32) BIT(9), (u32) BIT(9));
-+}
-+
-+
-+/**
-+ *	amd76x_process_error_info	-	Error check
-+ *	@mci: Memory controller
-+ *	@info: Previously fetched information from chip
-+ *	@handle_errors: 1 if we should do recovery
-+ *
-+ *	Process the chip state and decide if an error has occurred.
-+ *	A return of 1 indicates an error. Also if handle_errors is true
-+ *	then attempt to handle and clean up after the error
-+ */
-+
-+static int amd76x_process_error_info (struct mem_ctl_info *mci,
-+		struct amd76x_error_info *info, int handle_errors)
-+{
-+	int error_found;
-+	u32 row;
-+
-+	error_found = 0;
++	pci_write_bits16(mci->pdev, I82875P_ERRSTS, 0x0081, 0x0081);
 +
 +	/*
-+	 *	Check for an uncorrectable error
++	 * If the error is the same then we can for both reads then
++	 * the first set of reads is valid.  If there is a change then
++	 * there is a CE no info and the second set of reads is valid
++	 * and should be UE info.
 +	 */
-+	if (info->ecc_mode_status & BIT(8)) {
-+		error_found = 1;
-+
-+		if (handle_errors) {
-+			row = (info->ecc_mode_status >> 4) & 0xf;
-+			edac_mc_handle_ue(mci,
-+			    mci->csrows[row].first_page, 0, row,
-+			    mci->ctl_name);
-+		}
++	if (!(info->errsts2 & 0x0081))
++		return;
++	if ((info->errsts ^ info->errsts2) & 0x0081) {
++		pci_read_config_dword(mci->pdev, I82875P_EAP, &info->eap);
++		pci_read_config_byte(mci->pdev, I82875P_DES, &info->des);
++		pci_read_config_byte(mci->pdev, I82875P_DERRSYN,
++		    &info->derrsyn);
 +	}
-+
-+	/*
-+	 *	Check for a correctable error
-+	 */
-+	if (info->ecc_mode_status & BIT(9)) {
-+		error_found = 1;
-+
-+		if (handle_errors) {
-+			row = info->ecc_mode_status & 0xf;
-+			edac_mc_handle_ce(mci,
-+			    mci->csrows[row].first_page, 0, 0, row, 0,
-+			    mci->ctl_name);
-+		}
-+	}
-+	return error_found;
 +}
 +
-+/**
-+ *	amd76x_check	-	Poll the controller
-+ *	@mci: Memory controller
-+ *
-+ *	Called by the poll handlers this function reads the status
-+ *	from the controller and checks for errors.
-+ */
-+
-+static void amd76x_check(struct mem_ctl_info *mci)
++static int i82875p_process_error_info (struct mem_ctl_info *mci,
++		struct i82875p_error_info *info, int handle_errors)
 +{
-+	struct amd76x_error_info info;
-+	debugf3("MC: " __FILE__ ": %s()\n", __func__);
-+	amd76x_get_error_info(mci, &info);
-+	amd76x_process_error_info(mci, &info, 1);
++	int row, multi_chan;
++
++	multi_chan = mci->csrows[0].nr_channels - 1;
++
++	if (!(info->errsts2 & 0x0081))
++		return 0;
++
++	if (!handle_errors)
++		return 1;
++
++	if ((info->errsts ^ info->errsts2) & 0x0081) {
++		edac_mc_handle_ce_no_info(mci, "UE overwrote CE");
++		info->errsts = info->errsts2;
++	}
++
++	info->eap >>= PAGE_SHIFT;
++	row = edac_mc_find_csrow_by_page(mci, info->eap);
++
++	if (info->errsts & 0x0080)
++		edac_mc_handle_ue(mci, info->eap, 0, row, "i82875p UE");
++	else
++		edac_mc_handle_ce(mci, info->eap, 0, info->derrsyn, row,
++				       multi_chan ? (info->des & 0x1) : 0,
++				       "i82875p CE");
++
++	return 1;
 +}
 +
 +
-+/**
-+ *	amd76x_probe1	-	Perform set up for detected device
-+ *	@pdev; PCI device detected
-+ *	@dev_idx: Device type index
-+ *
-+ *	We have found an AMD76x and now need to set up the memory
-+ *	controller status reporting. We configure and set up the
-+ *	memory controller reporting and claim the device.
-+ */
++static void i82875p_check(struct mem_ctl_info *mci)
++{
++	struct i82875p_error_info info;
 +
-+static int amd76x_probe1(struct pci_dev *pdev, int dev_idx)
++	debugf1("MC%d: " __FILE__ ": %s()\n", mci->mc_idx, __func__);
++	i82875p_get_error_info(mci, &info);
++	i82875p_process_error_info(mci, &info, 1);
++}
++
++
++#ifdef CONFIG_PROC_FS
++extern int pci_proc_attach_device(struct pci_dev *);
++#endif
++
++static int i82875p_probe1(struct pci_dev *pdev, int dev_idx)
 +{
 +	int rc = -ENODEV;
 +	int index;
 +	struct mem_ctl_info *mci = NULL;
-+	enum edac_type ems_modes[] = {
-+		EDAC_NONE,
-+		EDAC_EC,
-+		EDAC_SECDED,
-+		EDAC_SECDED
-+	};
-+	u32 ems;
-+	u32 ems_mode;
++	struct i82875p_pvt *pvt = NULL;
++	unsigned long last_cumul_size;
++	struct pci_dev *ovrfl_pdev;
++	void __iomem *ovrfl_window = NULL;
++
++	u32 drc;
++	u32 drc_chan;		/* Number of channels 0=1chan,1=2chan */
++	u32 nr_chans;
++	u32 drc_ddim;		/* DRAM Data Integrity Mode 0=none,2=edac */
 +
 +	debugf0("MC: " __FILE__ ": %s()\n", __func__);
 +
-+	pci_read_config_dword(pdev, AMD76X_ECC_MODE_STATUS, &ems);
-+	ems_mode = (ems >> 10) & 0x3;
++	ovrfl_pdev = pci_find_device(PCI_VEND_DEV(INTEL, 82875_6), NULL);
 +
-+	mci = edac_mc_alloc(0, AMD76X_NR_CSROWS, AMD76X_NR_CHANS);
++	if (!ovrfl_pdev) {
++		/*
++		 * Intel tells BIOS developers to hide device 6 which
++		 * configures the overflow device access containing
++		 * the DRBs - this is where we expose device 6.
++		 * http://www.x86-secret.com/articles/tweak/pat/patsecrets-2.htm
++		 */
++		pci_write_bits8(pdev, 0xf4, 0x2, 0x2);
++		ovrfl_pdev =
++		    pci_scan_single_device(pdev->bus, PCI_DEVFN(6, 0));
++		if (!ovrfl_pdev)
++			goto fail;
++	}
++#ifdef CONFIG_PROC_FS
++	if (!ovrfl_pdev->procent && pci_proc_attach_device(ovrfl_pdev)) {
++		printk(KERN_ERR "MC: " __FILE__
++		       ": %s(): Failed to attach overflow device\n",
++		       __func__);
++		goto fail;
++	}
++#endif				/* CONFIG_PROC_FS */
++	if (pci_enable_device(ovrfl_pdev)) {
++		printk(KERN_ERR "MC: " __FILE__
++		       ": %s(): Failed to enable overflow device\n",
++		       __func__);
++		goto fail;
++	}
 +
-+	if (mci == NULL) {
++	if (pci_request_regions(ovrfl_pdev, pci_name(ovrfl_pdev))) {
++#ifdef CORRECT_BIOS
++		goto fail;
++#endif
++	}
++	/* cache is irrelevant for PCI bus reads/writes */
++	ovrfl_window = ioremap_nocache(pci_resource_start(ovrfl_pdev, 0),
++				       pci_resource_len(ovrfl_pdev, 0));
++
++	if (!ovrfl_window) {
++		printk(KERN_ERR "MC: " __FILE__
++		       ": %s(): Failed to ioremap bar6\n", __func__);
++		goto fail;
++	}
++
++	/* need to find out the number of channels */
++	drc = readl(ovrfl_window + I82875P_DRC);
++	drc_chan = ((drc >> 21) & 0x1);
++	nr_chans = drc_chan + 1;
++	drc_ddim = (drc >> 18) & 0x1;
++
++	mci = edac_mc_alloc(sizeof(*pvt), I82875P_NR_CSROWS(nr_chans),
++				 nr_chans);
++
++	if (!mci) {
 +		rc = -ENOMEM;
 +		goto fail;
 +	}
 +
-+	debugf0("MC: " __FILE__ ": %s(): mci = %p\n", __func__, mci);
++	debugf3("MC: " __FILE__ ": %s(): init mci\n", __func__);
 +
-+	mci->pdev = pci_dev_get(pdev);
-+	mci->mtype_cap = MEM_FLAG_RDDR;
++	mci->pdev = pdev;
++	mci->mtype_cap = MEM_FLAG_DDR;
 +
-+	mci->edac_ctl_cap = EDAC_FLAG_NONE | EDAC_FLAG_EC | EDAC_FLAG_SECDED;
-+	mci->edac_cap = ems_mode ?
-+	    (EDAC_FLAG_EC | EDAC_FLAG_SECDED) : EDAC_FLAG_NONE;
++	mci->edac_ctl_cap = EDAC_FLAG_NONE | EDAC_FLAG_SECDED;
++	mci->edac_cap = EDAC_FLAG_UNKNOWN;
++	/* adjust FLAGS */
 +
 +	mci->mod_name = BS_MOD_STR;
-+	mci->mod_ver = "$Revision: 1.4.2.5 $";
-+	mci->ctl_name = amd76x_devs[dev_idx].ctl_name;
-+	mci->edac_check = amd76x_check;
++	mci->mod_ver = "$Revision: 1.5.2.11 $";
++	mci->ctl_name = i82875p_devs[dev_idx].ctl_name;
++	mci->edac_check = i82875p_check;
 +	mci->ctl_page_to_phys = NULL;
 +
-+	for (index = 0; index < mci->nr_csrows; index++) {
++	debugf3("MC: " __FILE__ ": %s(): init pvt\n", __func__);
++
++	pvt = (struct i82875p_pvt *) mci->pvt_info;
++	pvt->ovrfl_pdev = ovrfl_pdev;
++	pvt->ovrfl_window = ovrfl_window;
++
++	/*
++	 * The dram row boundary (DRB) reg values are boundary address
++	 * for each DRAM row with a granularity of 32 or 64MB (single/dual
++	 * channel operation).  DRB regs are cumulative; therefore DRB7 will
++	 * contain the total memory contained in all eight rows.
++	 */
++	for (last_cumul_size = index = 0; index < mci->nr_csrows; index++) {
++		u8 value;
++		u32 cumul_size;
 +		struct csrow_info *csrow = &mci->csrows[index];
-+		u32 mba;
-+		u32 mba_base;
-+		u32 mba_mask;
-+		u32 dms;
 +
-+		/* find the DRAM Chip Select Base address and mask */
-+		pci_read_config_dword(mci->pdev,
-+				      AMD76X_MEM_BASE_ADDR + (index * 4),
-+				      &mba);
++		value = readb(ovrfl_window + I82875P_DRB + index);
++		cumul_size = value << (I82875P_DRB_SHIFT - PAGE_SHIFT);
++		debugf3("MC: " __FILE__ ": %s(): (%d) cumul_size 0x%x\n",
++			__func__, index, cumul_size);
++		if (cumul_size == last_cumul_size)
++			continue;	/* not populated */
 +
-+		if (!(mba & BIT(0)))
-+			continue;
-+
-+		mba_base = mba & 0xff800000UL;
-+		mba_mask = ((mba & 0xff80) << 16) | 0x7fffffUL;
-+
-+		pci_read_config_dword(mci->pdev, AMD76X_DRAM_MODE_STATUS,
-+				      &dms);
-+
-+		csrow->first_page = mba_base >> PAGE_SHIFT;
-+		csrow->nr_pages = (mba_mask + 1) >> PAGE_SHIFT;
-+		csrow->last_page = csrow->first_page + csrow->nr_pages - 1;
-+		csrow->page_mask = mba_mask >> PAGE_SHIFT;
-+		csrow->grain = csrow->nr_pages << PAGE_SHIFT;
-+		csrow->mtype = MEM_RDDR;
-+		csrow->dtype = ((dms >> index) & 0x1) ? DEV_X4 : DEV_UNKNOWN;
-+		csrow->edac_mode = ems_modes[ems_mode];
++		csrow->first_page = last_cumul_size;
++		csrow->last_page = cumul_size - 1;
++		csrow->nr_pages = cumul_size - last_cumul_size;
++		last_cumul_size = cumul_size;
++		csrow->grain = 1 << 12;	/* I82875P_EAP has 4KiB reolution */
++		csrow->mtype = MEM_DDR;
++		csrow->dtype = DEV_UNKNOWN;
++		csrow->edac_mode = drc_ddim ? EDAC_SECDED : EDAC_NONE;
 +	}
 +
 +	/* clear counters */
-+	pci_write_bits32(mci->pdev, AMD76X_ECC_MODE_STATUS, (u32) (0x3 << 8),
-+			 (u32) (0x3 << 8));
++	pci_write_bits16(mci->pdev, I82875P_ERRSTS, 0x0081, 0x0081);
 +
 +	if (edac_mc_add_mc(mci)) {
 +		debugf3("MC: " __FILE__
@@ -305,1717 +734,132 @@ diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6
 +	debugf3("MC: " __FILE__ ": %s(): success\n", __func__);
 +	return 0;
 +
-+fail:
-+	if (mci) {
-+		if(mci->pdev)
-+			pci_dev_put(mci->pdev);
++      fail:
++	if (mci)
 +		edac_mc_free(mci);
++
++	if (ovrfl_window)
++		iounmap(ovrfl_window);
++
++	if (ovrfl_pdev) {
++		pci_release_regions(ovrfl_pdev);
++		pci_disable_device(ovrfl_pdev);
 +	}
++
++	/* NOTE: the ovrfl proc entry and pci_dev are intentionally left */
 +	return rc;
 +}
 +
-+/* returns count (>= 0), or negative on error */
-+static int __devinit amd76x_init_one(struct pci_dev *pdev,
-+				     const struct pci_device_id *ent)
-+{
-+	debugf0("MC: " __FILE__ ": %s()\n", __func__);
-+
-+	/* don't need to call pci_device_enable() */
-+	return amd76x_probe1(pdev, ent->driver_data);
-+}
-+
-+
-+/**
-+ *	amd76x_remove_one	-	driver shutdown
-+ *	@pdev: PCI device being handed back
-+ *	
-+ *	Called when the driver is unloaded. Find the matching mci
-+ *	structure for the device then delete the mci and free the
-+ *	resources.	
-+ */	
-+
-+static void __devexit amd76x_remove_one(struct pci_dev *pdev)
-+{
-+	struct mem_ctl_info *mci;
-+
-+	debugf0(__FILE__ ": %s()\n", __func__);
-+
-+	if ((mci = edac_mc_find_mci_by_pdev(pdev)) == NULL)
-+		return;
-+	if (edac_mc_del_mc(mci))
-+		return;
-+	pci_dev_put(mci->pdev);
-+	edac_mc_free(mci);
-+}
-+
-+
-+static const struct pci_device_id amd76x_pci_tbl[] __devinitdata = {
-+	{PCI_VEND_DEV(AMD, FE_GATE_700C), PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+	 AMD762},
-+	{PCI_VEND_DEV(AMD, FE_GATE_700E), PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+	 AMD761},
-+	{0,}			/* 0 terminated list. */
-+};
-+
-+MODULE_DEVICE_TABLE(pci, amd76x_pci_tbl);
-+
-+
-+static struct pci_driver amd76x_driver = {
-+	.name = BS_MOD_STR,
-+	.probe = amd76x_init_one,
-+	.remove = __devexit_p(amd76x_remove_one),
-+	.id_table = amd76x_pci_tbl,
-+};
-+
-+int __init amd76x_init(void)
-+{
-+	return pci_module_init(&amd76x_driver);
-+}
-+
-+static void __exit amd76x_exit(void)
-+{
-+	pci_unregister_driver(&amd76x_driver);
-+}
-+
-+module_init(amd76x_init);
-+module_exit(amd76x_exit);
-+
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Linux Networx (http://lnxi.com) Thayne Harbaugh");
-+MODULE_DESCRIPTION("MC support for AMD 76x memory controllers");
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.14-rc2-mm1/drivers/edac/e752x_edac.c linux-2.6.14-rc2-mm1/drivers/edac/e752x_edac.c
---- linux.vanilla-2.6.14-rc2-mm1/drivers/edac/e752x_edac.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.14-rc2-mm1/drivers/edac/e752x_edac.c	2005-10-07 16:50:22.000000000 +0100
-@@ -0,0 +1,1069 @@
-+/*
-+ * Intel e752x Memory Controller kernel module
-+ * (C) 2004 Linux Networx (http://lnxi.com)
-+ * This file may be distributed under the terms of the
-+ * GNU General Public License.
-+ *
-+ * See "enum e752x_chips" below for supported chipsets
-+ *
-+ * Written by Tom Zimmerman
-+ *
-+ * Contributors:
-+ * 	Thayne Harbaugh at realmsys.com (?)
-+ * 	Wang Zhenyu at intel.com
-+ * 	Dave Jiang at mvista.com
-+ *
-+ * $Id: bluesmoke_e752x.c,v 1.5.2.11 2005/10/05 00:43:44 dsp_llnl Exp $
-+ *
-+ */
-+
-+
-+#include <linux/config.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+
-+#include <linux/pci.h>
-+#include <linux/pci_ids.h>
-+
-+#include <linux/slab.h>
-+
-+#include "edac_mc.h"
-+
-+
-+#ifndef PCI_DEVICE_ID_INTEL_7520_0
-+#define PCI_DEVICE_ID_INTEL_7520_0      0x3590
-+#endif				/* PCI_DEVICE_ID_INTEL_7520_0      */
-+
-+#ifndef PCI_DEVICE_ID_INTEL_7520_1_ERR
-+#define PCI_DEVICE_ID_INTEL_7520_1_ERR  0x3591
-+#endif				/* PCI_DEVICE_ID_INTEL_7520_1_ERR  */
-+
-+#ifndef PCI_DEVICE_ID_INTEL_7525_0
-+#define PCI_DEVICE_ID_INTEL_7525_0      0x359E
-+#endif				/* PCI_DEVICE_ID_INTEL_7525_0      */
-+
-+#ifndef PCI_DEVICE_ID_INTEL_7525_1_ERR
-+#define PCI_DEVICE_ID_INTEL_7525_1_ERR  0x3593
-+#endif				/* PCI_DEVICE_ID_INTEL_7525_1_ERR  */
-+
-+#ifndef PCI_DEVICE_ID_INTEL_7320_0
-+#define PCI_DEVICE_ID_INTEL_7320_0	0x3592
-+#endif				/* PCI_DEVICE_ID_INTEL_7320_0 */
-+
-+#ifndef PCI_DEVICE_ID_INTEL_7320_1_ERR
-+#define PCI_DEVICE_ID_INTEL_7320_1_ERR	0x3593
-+#endif				/* PCI_DEVICE_ID_INTEL_7320_1_ERR */
-+
-+#define E752X_NR_CSROWS		8	/* number of csrows */
-+
-+
-+/* E752X register addresses - device 0 function 0 */
-+#define E752X_DRB		0x60	/* DRAM row boundary register (8b) */
-+#define E752X_DRA		0x70	/* DRAM row attribute register (8b) */
-+					/*
-+					 * 31:30   Device width row 7 
-+					 *      01=x8 10=x4 11=x8 DDR2
-+					 * 27:26   Device width row 6
-+					 * 23:22   Device width row 5
-+					 * 19:20   Device width row 4
-+					 * 15:14   Device width row 3
-+					 * 11:10   Device width row 2
-+					 *  7:6    Device width row 1
-+					 *  3:2    Device width row 0
-+					 */
-+#define E752X_DRC		0x7C	/* DRAM controller mode reg (32b) */
-+					/* FIXME:IS THIS RIGHT? */
-+					/*
-+					 * 22    Number channels 0=1,1=2
-+					 * 19:18 DRB Granularity 32/64MB
-+					 */
-+#define E752X_DRM		0x80	/* Dimm mapping register */
-+#define E752X_DDRCSR		0x9A	/* DDR control and status reg (16b) */
-+					/*
-+					 * 14:12 1 single A, 2 single B, 3 dual
-+					 */
-+#define E752X_TOLM		0xC4	/* DRAM top of low memory reg (16b) */
-+#define E752X_REMAPBASE		0xC6	/* DRAM remap base address reg (16b) */
-+#define E752X_REMAPLIMIT	0xC8	/* DRAM remap limit address reg (16b) */
-+#define E752X_REMAPOFFSET	0xCA	/* DRAM remap limit offset reg (16b) */
-+
-+/* E752X register addresses - device 0 function 1 */
-+#define E752X_FERR_GLOBAL	0x40	/* Global first error register (32b) */
-+#define E752X_NERR_GLOBAL	0x44	/* Global next error register (32b) */
-+#define E752X_HI_FERR		0x50	/* Hub interface first error reg (8b) */
-+#define E752X_HI_NERR		0x52	/* Hub interface next error reg (8b) */
-+#define E752X_HI_ERRMASK	0x54	/* Hub interface error mask reg (8b) */
-+#define E752X_HI_SMICMD		0x5A	/* Hub interface SMI command reg (8b) */
-+#define E752X_SYSBUS_FERR	0x60	/* System buss first error reg (16b) */
-+#define E752X_SYSBUS_NERR	0x62	/* System buss next error reg (16b) */
-+#define E752X_SYSBUS_ERRMASK	0x64	/* System buss error mask reg (16b) */
-+#define E752X_SYSBUS_SMICMD	0x6A	/* System buss SMI command reg (16b) */
-+#define E752X_BUF_FERR		0x70	/* Memory buffer first error reg (8b) */
-+#define E752X_BUF_NERR		0x72	/* Memory buffer next error reg (8b) */
-+#define E752X_BUF_ERRMASK	0x74	/* Memory buffer error mask reg (8b) */
-+#define E752X_BUF_SMICMD	0x7A	/* Memory buffer SMI command reg (8b) */
-+#define E752X_DRAM_FERR		0x80	/* DRAM first error register (16b) */
-+#define E752X_DRAM_NERR		0x82	/* DRAM next error register (16b) */
-+#define E752X_DRAM_ERRMASK	0x84	/* DRAM error mask register (8b) */
-+#define E752X_DRAM_SMICMD	0x8A	/* DRAM SMI command register (8b) */
-+#define E752X_DRAM_RETR_ADD	0xAC	/* DRAM Retry address register (32b) */
-+#define E752X_DRAM_SEC1_ADD	0xA0	/* DRAM first correctable memory */
-+					/*     error address register (32b) */
-+					/*
-+					 * 31    Reserved
-+					 * 30:2  CE address (64 byte block 34:6)
-+					 * 1     Reserved
-+					 * 0     HiLoCS
-+					 */
-+#define E752X_DRAM_SEC2_ADD	0xC8	/* DRAM first correctable memory */
-+					/*     error address register (32b) */
-+					/*
-+					 * 31    Reserved
-+					 * 30:2  CE address (64 byte block 34:6)
-+					 * 1     Reserved
-+					 * 0     HiLoCS
-+					 */
-+#define E752X_DRAM_DED_ADD	0xA4	/* DRAM first uncorrectable memory */
-+					/*     error address register (32b) */
-+					/*
-+					 * 31    Reserved
-+					 * 30:2  CE address (64 byte block 34:6)
-+					 * 1     Reserved
-+					 * 0     HiLoCS
-+					 */
-+#define E752X_DRAM_SCRB_ADD	0xA8	/* DRAM first uncorrectable scrub memory */
-+					/*     error address register (32b) */
-+					/*
-+					 * 31    Reserved
-+					 * 30:2  CE address (64 byte block 34:6)
-+					 * 1     Reserved
-+					 * 0     HiLoCS
-+					 */
-+#define E752X_DRAM_SEC1_SYNDROME 0xC4	/* DRAM first correctable memory */
-+					/*     error syndrome register (16b) */
-+#define E752X_DRAM_SEC2_SYNDROME 0xC6	/* DRAM second correctable memory */
-+					/*     error syndrome register (16b) */
-+#define E752X_DEVPRES1		0xF4	/* Device Present 1 register (8b) */
-+
-+/* ICH5R register addresses - device 30 function 0 */
-+#define ICH5R_PCI_STAT		0x06	/* PCI status register (16b) */
-+#define ICH5R_PCI_2ND_STAT	0x1E	/* PCI status secondary reg (16b) */
-+#define ICH5R_PCI_BRIDGE_CTL	0x3E	/* PCI bridge control register (16b) */
-+
-+enum e752x_chips {
-+	E7520 = 0,
-+	E7525 = 1,
-+	E7320 = 2
-+};
-+
-+
-+struct e752x_pvt {
-+	struct pci_dev *bridge_ck;
-+	struct pci_dev *dev_d0f0;
-+	struct pci_dev *dev_d0f1;
-+	u32 tolm;
-+	u32 remapbase;
-+	u32 remaplimit;
-+	int mc_symmetric;
-+	u8 map[8];
-+	int map_type;
-+	const struct e752x_dev_info *dev_info;
-+};
-+
-+
-+struct e752x_dev_info {
-+	u16 err_dev;
-+	const char *ctl_name;
-+};
-+
-+struct e752x_error_info {
-+	u32 ferr_global;
-+	u32 nerr_global;
-+	u8 hi_ferr;
-+	u8 hi_nerr;
-+	u16 sysbus_ferr;
-+	u16 sysbus_nerr;
-+	u8 buf_ferr;
-+	u8 buf_nerr;
-+	u16 dram_ferr;
-+	u16 dram_nerr;
-+	u32 dram_sec1_add;
-+	u32 dram_sec2_add;
-+	u16 dram_sec1_syndrome;
-+	u16 dram_sec2_syndrome;
-+	u32 dram_ded_add;
-+	u32 dram_scrb_add;
-+	u32 dram_retr_add;
-+};
-+
-+static const struct e752x_dev_info e752x_devs[] = {
-+	[E7520] = {
-+		   .err_dev = PCI_DEVICE_ID_INTEL_7520_1_ERR,
-+		   .ctl_name = "E7520"},
-+	[E7525] = {
-+		   .err_dev = PCI_DEVICE_ID_INTEL_7525_1_ERR,
-+		   .ctl_name = "E7525"},
-+	[E7320] = {
-+		   .err_dev = PCI_DEVICE_ID_INTEL_7320_1_ERR,
-+		   .ctl_name = "E7320"},
-+};
-+
-+
-+static unsigned long ctl_page_to_phys(struct mem_ctl_info *mci,
-+				      unsigned long page)
-+{
-+	u32 remap;
-+	struct e752x_pvt *pvt = (struct e752x_pvt *) mci->pvt_info;
-+
-+	debugf3("MC: " __FILE__ ": %s()\n", __func__);
-+
-+	if (page < pvt->tolm)
-+		return page;
-+	if ((page >= 0x100000) && (page < pvt->remapbase))
-+		return page;
-+	remap = (page - pvt->tolm) + pvt->remapbase;
-+	if (remap < pvt->remaplimit)
-+		return remap;
-+	printk(KERN_ERR "Invalid page %lx - out of range\n", page);
-+	return pvt->tolm - 1;
-+}
-+
-+static void do_process_ce(struct mem_ctl_info *mci, u16 error_one,
-+		       u32 sec1_add, u16 sec1_syndrome)
-+{
-+	u32 page;
-+	int row;
-+	int channel;
-+	int i;
-+	struct e752x_pvt *pvt = (struct e752x_pvt *) mci->pvt_info;
-+
-+	debugf3("MC: " __FILE__ ": %s()\n", __func__);
-+
-+	/* convert the addr to 4k page */
-+	page = sec1_add >> (PAGE_SHIFT - 4);
-+
-+	/* FIXME - check for -1 */
-+	if (pvt->mc_symmetric) {
-+		/* chip select are bits 14 & 13 */
-+		row = ((page >> 1) & 3);
-+		printk(KERN_WARNING
-+		       "Test row %d Table %d %d %d %d %d %d %d %d\n",
-+		       row, pvt->map[0], pvt->map[1], pvt->map[2],
-+		       pvt->map[3], pvt->map[4], pvt->map[5],
-+		       pvt->map[6], pvt->map[7]);
-+
-+		/* test for channel remapping */
-+		for (i = 0; i < 8; i++) {
-+			if (pvt->map[i] == row)
-+				break;
-+		}
-+		printk(KERN_WARNING "Test computed row %d\n", i);
-+		if (i < 8)
-+			row = i;
-+		else
-+			printk(KERN_WARNING
-+			       "MC%d: row %d not found in remap table\n",
-+			       mci->mc_idx, row);
-+	} else
-+		row = edac_mc_find_csrow_by_page(mci, page);
-+	/* 0 = channel A, 1 = channel B */
-+	channel = !(error_one & 1);
-+
-+	if (!pvt->map_type)
-+		row = 7 - row;
-+	edac_mc_handle_ce(mci, page, 0, sec1_syndrome, row, channel,
-+	    "e752x CE");
-+}
-+
-+
-+static inline void process_ce(struct mem_ctl_info *mci, u16 error_one,
-+		u32 sec1_add, u16 sec1_syndrome, int *error_found,
-+		int handle_error)
-+{
-+	*error_found = 1;
-+
-+	if (handle_error)
-+		do_process_ce(mci, error_one, sec1_add, sec1_syndrome);
-+}
-+
-+static void do_process_ue(struct mem_ctl_info *mci, u16 error_one, u32 ded_add,
-+		u32 scrb_add)
-+{
-+	u32 error_2b, block_page;
-+	int row;
-+	struct e752x_pvt *pvt = (struct e752x_pvt *) mci->pvt_info;
-+
-+	debugf3("MC: " __FILE__ ": %s()\n", __func__);
-+
-+	if (error_one & 0x0202) {
-+		error_2b = ded_add;
-+		/* convert to 4k address */
-+		block_page = error_2b >> (PAGE_SHIFT - 4);
-+		row = pvt->mc_symmetric ?
-+		    /* chip select are bits 14 & 13 */
-+		    ((block_page >> 1) & 3) :
-+		    edac_mc_find_csrow_by_page(mci, block_page);
-+		edac_mc_handle_ue(mci, block_page, 0, row,
-+				       "e752x UE from Read");
-+	}
-+	if (error_one & 0x0404) {
-+		error_2b = scrb_add;
-+		/* convert to 4k address */
-+		block_page = error_2b >> (PAGE_SHIFT - 4);
-+		row = pvt->mc_symmetric ?
-+		    /* chip select are bits 14 & 13 */
-+		    ((block_page >> 1) & 3) :
-+		    edac_mc_find_csrow_by_page(mci, block_page);
-+		edac_mc_handle_ue(mci, block_page, 0, row,
-+				       "e752x UE from Scruber");
-+	}
-+}
-+
-+static inline void process_ue(struct mem_ctl_info *mci, u16 error_one,
-+		u32 ded_add, u32 scrb_add, int *error_found, int handle_error)
-+{
-+	*error_found = 1;
-+
-+	if (handle_error)
-+		do_process_ue(mci, error_one, ded_add, scrb_add);
-+}
-+
-+static inline void process_ue_no_info_wr(struct mem_ctl_info *mci,
-+		int *error_found, int handle_error)
-+{
-+	*error_found = 1;
-+
-+	if (!handle_error)
-+		return;
-+
-+	debugf3("MC: " __FILE__ ": %s()\n", __func__);
-+	edac_mc_handle_ue_no_info(mci, "e752x UE log memory write");
-+}
-+
-+static void do_process_ded_retry(struct mem_ctl_info *mci, u16 error,
-+		u32 retry_add)
-+{
-+	u32 error_1b, page;
-+	int row;
-+	struct e752x_pvt *pvt = (struct e752x_pvt *) mci->pvt_info;
-+
-+	error_1b = retry_add;
-+	page = error_1b >> (PAGE_SHIFT - 4);	/* convert the addr to 4k page */
-+	row = pvt->mc_symmetric ?
-+	    ((page >> 1) & 3) :	/* chip select are bits 14 & 13 */
-+	    edac_mc_find_csrow_by_page(mci, page);
-+	printk(KERN_WARNING
-+	       "MC%d: CE page 0x%lx, row %d : Memory read retry\n",
-+	       mci->mc_idx, (long unsigned int) page, row);
-+}
-+
-+static inline void process_ded_retry(struct mem_ctl_info *mci, u16 error,
-+		u32 retry_add, int *error_found, int handle_error)
-+{
-+	*error_found = 1;
-+
-+	if (handle_error)
-+		do_process_ded_retry(mci, error, retry_add);
-+}
-+
-+static inline void process_threshold_ce(struct mem_ctl_info *mci, u16 error,
-+		int *error_found, int handle_error)
-+{
-+	*error_found = 1;
-+
-+	if (handle_error)
-+		printk(KERN_WARNING "MC%d: Memory threshold CE\n",
-+		       mci->mc_idx);
-+}
-+
-+char *global_message[11] = {
-+	"PCI Express C1", "PCI Express C", "PCI Express B1",
-+	"PCI Express B", "PCI Express A1", "PCI Express A",
-+	"DMA Controler", "HUB Interface", "System Bus",
-+	"DRAM Controler", "Internal Buffer"
-+};
-+
-+char *fatal_message[2] = { "Non-Fatal ", "Fatal " };
-+
-+static void do_global_error(int fatal, u32 errors)
-+{
-+	int i;
-+
-+	for (i = 0; i < 11; i++) {
-+		if (errors & (1 << i))
-+			printk(KERN_WARNING "%sError %s\n",
-+			       fatal_message[fatal], global_message[i]);
-+	}
-+}
-+
-+static inline void global_error(int fatal, u32 errors, int *error_found,
-+		int handle_error)
-+{
-+	*error_found = 1;
-+
-+	if (handle_error)
-+		do_global_error(fatal, errors);
-+}
-+
-+char *hub_message[7] = {
-+	"HI Address or Command Parity", "HI Illegal Access",
-+	"HI Internal Parity", "Out of Range Access",
-+	"HI Data Parity", "Enhanced Config Access",
-+	"Hub Interface Target Abort"
-+};
-+
-+static void do_hub_error(int fatal, u8 errors)
-+{
-+	int i;
-+
-+	for (i = 0; i < 7; i++) {
-+		if (errors & (1 << i))
-+			printk(KERN_WARNING "%sError %s\n",
-+			       fatal_message[fatal], hub_message[i]);
-+	}
-+}
-+
-+static inline void hub_error(int fatal, u8 errors, int *error_found,
-+		int handle_error)
-+{
-+	*error_found = 1;
-+
-+	if (handle_error)
-+		do_hub_error(fatal, errors);
-+}
-+
-+char *membuf_message[4] = {
-+	"Internal PMWB to DRAM parity",
-+	"Internal PMWB to System Bus Parity",
-+	"Internal System Bus or IO to PMWB Parity",
-+	"Internal DRAM to PMWB Parity"
-+};
-+
-+static void do_membuf_error(u8 errors)
-+{
-+	int i;
-+
-+	for (i = 0; i < 4; i++) {
-+		if (errors & (1 << i))
-+			printk(KERN_WARNING "Non-Fatal Error %s\n",
-+			       membuf_message[i]);
-+	}
-+}
-+
-+static inline void membuf_error(u8 errors, int *error_found, int handle_error)
-+{
-+	*error_found = 1;
-+
-+	if (handle_error)
-+		do_membuf_error(errors);
-+}
-+
-+char *sysbus_message[10] = {
-+	"Addr or Request Parity",
-+	"Data Strobe Glitch",
-+	"Addr Strobe Glitch",
-+	"Data Parity",
-+	"Addr Above TOM",
-+	"Non DRAM Lock Error",
-+	"MCERR", "BINIT",
-+	"Memory Parity",
-+	"IO Subsystem Parity"
-+};
-+
-+static void do_sysbus_error(int fatal, u32 errors)
-+{
-+	int i;
-+
-+	for (i = 0; i < 10; i++) {
-+		if (errors & (1 << i))
-+			printk(KERN_WARNING "%sError System Bus %s\n",
-+			       fatal_message[fatal], global_message[i]);
-+	}
-+}
-+
-+static inline void sysbus_error(int fatal, u32 errors, int *error_found,
-+		int handle_error)
-+{
-+	*error_found = 1;
-+
-+	if (handle_error)
-+		do_sysbus_error(fatal, errors);
-+}
-+
-+static void e752x_check_hub_interface (struct e752x_error_info *info,
-+		int *error_found, int handle_error)
-+{
-+	u8 stat8;
-+
-+	//pci_read_config_byte(dev,E752X_HI_FERR,&stat8);
-+	stat8 = info->hi_ferr;
-+	if(stat8 & 0x7f) { /* Error, so process */
-+		stat8 &= 0x7f;
-+		if(stat8 & 0x2b) 
-+			hub_error(1, stat8 & 0x2b, error_found, handle_error);
-+		if(stat8 & 0x54)
-+			hub_error(0, stat8 & 0x54, error_found, handle_error);
-+	}
-+	//pci_read_config_byte(dev,E752X_HI_NERR,&stat8);
-+	stat8 = info->hi_nerr;
-+	if(stat8 & 0x7f) { /* Error, so process */
-+		stat8 &= 0x7f;
-+		if (stat8 & 0x2b)
-+			hub_error(1, stat8 & 0x2b, error_found, handle_error);
-+		if(stat8 & 0x54)
-+			hub_error(0, stat8 & 0x54, error_found, handle_error);
-+	}
-+}
-+
-+static void e752x_check_sysbus (struct e752x_error_info *info, int *error_found,
-+		int handle_error)
-+{
-+	u32 stat32, error32;
-+
-+	//pci_read_config_dword(dev,E752X_SYSBUS_FERR,&stat32);
-+	stat32 = info->sysbus_ferr + (info->sysbus_nerr << 16);
-+
-+	if (stat32 == 0)
-+		return;  /* no errors */
-+
-+	error32 = (stat32 >> 16) & 0x3ff;
-+	stat32 = stat32 & 0x3ff;
-+	if(stat32 & 0x083) 
-+		sysbus_error(1, stat32 & 0x083, error_found, handle_error);
-+	if(stat32 & 0x37c)
-+		sysbus_error(0, stat32 & 0x37c, error_found, handle_error);
-+	if(error32 & 0x083) 
-+		sysbus_error(1, error32 & 0x083, error_found, handle_error);
-+	if(error32 & 0x37c)
-+		sysbus_error(0, error32 & 0x37c, error_found, handle_error);
-+}
-+
-+static void e752x_check_membuf (struct e752x_error_info *info, int *error_found,
-+		int handle_error)
-+{
-+	u8 stat8;
-+
-+	stat8 = info->buf_ferr;
-+	if (stat8 & 0x0f) { /* Error, so process */
-+		stat8 &= 0x0f;
-+		membuf_error(stat8, error_found, handle_error);
-+	}
-+	stat8 = info->buf_nerr;
-+	if (stat8 & 0x0f) { /* Error, so process */
-+		stat8 &= 0x0f;
-+		membuf_error(stat8, error_found, handle_error);
-+	}
-+}
-+
-+static void e752x_check_dram (struct mem_ctl_info *mci,
-+		struct e752x_error_info *info, int *error_found, int handle_error)
-+{
-+	u16 error_one, error_next;
-+
-+	error_one = info->dram_ferr;
-+	error_next = info->dram_nerr;
-+
-+	/* decode and report errors */
-+	if(error_one & 0x0101)  /* check first error correctable */
-+		process_ce(mci, error_one, info->dram_sec1_add,
-+			   info->dram_sec1_syndrome, error_found,
-+			   handle_error);
-+
-+	if(error_next & 0x0101)  /* check next error correctable */
-+		process_ce(mci, error_next, info->dram_sec2_add,
-+			   info->dram_sec2_syndrome, error_found,
-+			   handle_error);
-+
-+	if(error_one & 0x4040)
-+		process_ue_no_info_wr(mci, error_found, handle_error);
-+
-+	if(error_next & 0x4040)
-+		process_ue_no_info_wr(mci, error_found, handle_error);
-+
-+	if(error_one & 0x2020)
-+		process_ded_retry(mci, error_one, info->dram_retr_add,
-+				  error_found, handle_error);
-+
-+	if(error_next & 0x2020)
-+		process_ded_retry(mci, error_next, info->dram_retr_add,
-+				  error_found, handle_error);
-+
-+	if(error_one & 0x0808)
-+		process_threshold_ce(mci, error_one, error_found,
-+				     handle_error);
-+
-+	if(error_next & 0x0808)
-+		process_threshold_ce(mci, error_next, error_found,
-+				     handle_error);
-+
-+	if(error_one & 0x0606)
-+		process_ue(mci, error_one, info->dram_ded_add,
-+			   info->dram_scrb_add, error_found, handle_error);
-+
-+	if(error_next & 0x0606)
-+		process_ue(mci, error_next, info->dram_ded_add,
-+			   info->dram_scrb_add, error_found, handle_error);
-+}
-+
-+static void e752x_get_error_info (struct mem_ctl_info *mci,
-+				  struct e752x_error_info *info)
-+{
-+	struct pci_dev *dev;
-+	struct e752x_pvt *pvt;
-+
-+	memset(info, 0, sizeof(*info));
-+	pvt = (struct e752x_pvt *) mci->pvt_info;
-+	dev = pvt->dev_d0f1;
-+
-+	pci_read_config_dword(dev, E752X_FERR_GLOBAL, &info->ferr_global);
-+
-+	if (info->ferr_global) {
-+		pci_read_config_byte(dev, E752X_HI_FERR, &info->hi_ferr);
-+		pci_read_config_word(dev, E752X_SYSBUS_FERR,
-+				&info->sysbus_ferr);
-+		pci_read_config_byte(dev, E752X_BUF_FERR, &info->buf_ferr);
-+		pci_read_config_word(dev, E752X_DRAM_FERR,
-+				&info->dram_ferr);
-+		pci_read_config_dword(dev, E752X_DRAM_SEC1_ADD,
-+				&info->dram_sec1_add);
-+		pci_read_config_word(dev, E752X_DRAM_SEC1_SYNDROME,
-+				&info->dram_sec1_syndrome);
-+		pci_read_config_dword(dev, E752X_DRAM_DED_ADD,
-+				&info->dram_ded_add);
-+		pci_read_config_dword(dev, E752X_DRAM_SCRB_ADD,
-+				&info->dram_scrb_add);
-+		pci_read_config_dword(dev, E752X_DRAM_RETR_ADD,
-+				&info->dram_retr_add);
-+
-+		if (info->hi_ferr & 0x7f)
-+			pci_write_config_byte(dev, E752X_HI_FERR,
-+					info->hi_ferr);
-+
-+		if (info->sysbus_ferr)
-+			pci_write_config_word(dev, E752X_SYSBUS_FERR,
-+					info->sysbus_ferr);
-+
-+		if (info->buf_ferr & 0x0f)
-+			pci_write_config_byte(dev, E752X_BUF_FERR,
-+					info->buf_ferr);
-+
-+		if (info->dram_ferr)
-+			pci_write_bits16(pvt->bridge_ck, E752X_DRAM_FERR,
-+					info->dram_ferr, info->dram_ferr);
-+
-+		pci_write_config_dword(dev, E752X_FERR_GLOBAL,
-+				info->ferr_global);
-+	}
-+
-+	pci_read_config_dword(dev, E752X_NERR_GLOBAL, &info->nerr_global);
-+
-+	if (info->nerr_global) {
-+		pci_read_config_byte(dev, E752X_HI_NERR, &info->hi_nerr);
-+		pci_read_config_word(dev, E752X_SYSBUS_NERR,
-+				&info->sysbus_nerr);
-+		pci_read_config_byte(dev, E752X_BUF_NERR, &info->buf_nerr);
-+		pci_read_config_word(dev, E752X_DRAM_NERR,
-+				&info->dram_nerr);
-+		pci_read_config_dword(dev, E752X_DRAM_SEC2_ADD,
-+				&info->dram_sec2_add);
-+		pci_read_config_word(dev, E752X_DRAM_SEC2_SYNDROME,
-+				&info->dram_sec2_syndrome);
-+
-+		if (info->hi_nerr & 0x7f)
-+			pci_write_config_byte(dev, E752X_HI_NERR,
-+					info->hi_nerr);
-+
-+		if (info->sysbus_nerr)
-+			pci_write_config_word(dev, E752X_SYSBUS_NERR,
-+					info->sysbus_nerr);
-+
-+		if (info->buf_nerr & 0x0f)
-+			pci_write_config_byte(dev, E752X_BUF_NERR,
-+					info->buf_nerr);
-+
-+		if (info->dram_nerr)
-+			pci_write_bits16(pvt->bridge_ck, E752X_DRAM_NERR,
-+					info->dram_nerr, info->dram_nerr);
-+
-+		pci_write_config_dword(dev, E752X_NERR_GLOBAL,
-+				info->nerr_global);
-+	}
-+}
-+
-+static int e752x_process_error_info (struct mem_ctl_info *mci,
-+		struct e752x_error_info *info, int handle_errors)
-+{
-+	u32 error32, stat32;
-+	int error_found;
-+
-+	error_found = 0;
-+	error32 = (info->ferr_global >> 18) & 0x3ff;
-+	stat32 = (info->ferr_global >> 4) & 0x7ff;
-+
-+	if (error32)
-+		global_error(1, error32, &error_found, handle_errors);
-+
-+	if (stat32)
-+		global_error(0, stat32, &error_found, handle_errors);
-+
-+	error32 = (info->nerr_global >> 18) & 0x3ff;
-+	stat32 = (info->nerr_global >> 4) & 0x7ff;
-+
-+	if (error32)
-+		global_error(1, error32, &error_found, handle_errors);
-+
-+	if (stat32)
-+		global_error(0, stat32, &error_found, handle_errors);
-+
-+	e752x_check_hub_interface(info, &error_found, handle_errors);
-+	e752x_check_sysbus(info, &error_found, handle_errors);
-+	e752x_check_membuf(info, &error_found, handle_errors);
-+	e752x_check_dram(mci, info, &error_found, handle_errors);
-+	return error_found;
-+}
-+
-+static void e752x_check(struct mem_ctl_info *mci)
-+{
-+	struct e752x_error_info info;
-+	debugf3("MC: " __FILE__ ": %s()\n", __func__);
-+	e752x_get_error_info(mci, &info);
-+	e752x_process_error_info(mci, &info, 1);
-+}
-+
-+static int e752x_probe1(struct pci_dev *pdev, int dev_idx)
-+{
-+	int rc = -ENODEV;
-+	int index;
-+	u16 pci_data, stat;
-+	u32 stat32;
-+	u16 stat16;
-+	u8 stat8;
-+	struct mem_ctl_info *mci = NULL;
-+	struct e752x_pvt *pvt = NULL;
-+	u16 ddrcsr;
-+	u32 drc;
-+	int drc_chan;		/* Number of channels 0=1chan,1=2chan */
-+	int drc_drbg;		/* DRB granularity 0=64mb,1=128mb */
-+	int drc_ddim;		/* DRAM Data Integrity Mode 0=none,2=edac */
-+	u32 dra;
-+	unsigned long last_cumul_size;
-+	struct pci_dev *pres_dev;
-+	struct pci_dev *dev = NULL;
-+
-+	debugf0("MC: " __FILE__ ": %s(): mci\n", __func__);
-+	debugf0("Starting Probe1\n");
-+
-+	/* enable device 0 function 1 */
-+	pci_read_config_byte(pdev, E752X_DEVPRES1, &stat8);
-+	stat8 |= (1 << 5);
-+	pci_write_config_byte(pdev, E752X_DEVPRES1, stat8);
-+
-+	/* need to find out the number of channels */
-+	pci_read_config_dword(pdev, E752X_DRC, &drc);
-+	pci_read_config_word(pdev, E752X_DDRCSR, &ddrcsr);
-+	/* FIXME: should check >>12 or 0xf, true for all? */
-+	/* Dual channel = 1, Single channel = 0 */
-+	drc_chan = (((ddrcsr >> 12) & 3) == 3);
-+	drc_drbg = drc_chan + 1;	/* 128 in dual mode, 64 in single */
-+	drc_ddim = (drc >> 20) & 0x3;
-+
-+	mci = edac_mc_alloc(sizeof(*pvt), E752X_NR_CSROWS, drc_chan + 1);
-+
-+	if (mci == NULL) {
-+		rc = -ENOMEM;
-+		goto fail;
-+	}
-+
-+	debugf3("MC: " __FILE__ ": %s(): init mci\n", __func__);
-+
-+	mci->mtype_cap = MEM_FLAG_RDDR;
-+	mci->edac_ctl_cap = EDAC_FLAG_NONE | EDAC_FLAG_SECDED |
-+	    EDAC_FLAG_S4ECD4ED;
-+	/* FIXME - what if different memory types are in different csrows? */
-+	mci->mod_name = BS_MOD_STR;
-+	mci->mod_ver = "$Revision: 1.5.2.11 $";
-+	mci->pdev = pdev;
-+
-+	debugf3("MC: " __FILE__ ": %s(): init pvt\n", __func__);
-+	pvt = (struct e752x_pvt *) mci->pvt_info;
-+	pvt->dev_info = &e752x_devs[dev_idx];
-+	pvt->bridge_ck = pci_get_device(PCI_VENDOR_ID_INTEL,
-+					 pvt->dev_info->err_dev,
-+					 pvt->bridge_ck);
-+	if (pvt->bridge_ck == NULL)
-+		pvt->bridge_ck = pci_scan_single_device(pdev->bus,
-+							PCI_DEVFN(0, 1));
-+	if (pvt->bridge_ck == NULL) {
-+		printk(KERN_ERR "MC: error reporting device not found:"
-+		       "vendor %x device 0x%x (broken BIOS?)\n",
-+		       PCI_VENDOR_ID_INTEL, e752x_devs[dev_idx].err_dev);
-+		goto fail;
-+	}
-+	pvt->mc_symmetric = ((ddrcsr & 0x10) != 0);
-+
-+	debugf3("MC: " __FILE__ ": %s(): more mci init\n", __func__);
-+	mci->ctl_name = pvt->dev_info->ctl_name;
-+	mci->edac_check = e752x_check;
-+	mci->ctl_page_to_phys = ctl_page_to_phys;
-+
-+	/* find out the device types */
-+	pci_read_config_dword(pdev, E752X_DRA, &dra);
-+
-+	/*
-+	 * The dram row boundary (DRB) reg values are boundary address for
-+	 * each DRAM row with a granularity of 64 or 128MB (single/dual
-+	 * channel operation).  DRB regs are cumulative; therefore DRB7 will
-+	 * contain the total memory contained in all eight rows.
-+	 */
-+	for (last_cumul_size = index = 0; index < mci->nr_csrows; index++) {
-+		u8 value;
-+		u32 cumul_size;
-+		/* mem_dev 0=x8, 1=x4 */
-+		int mem_dev = (dra >> (index * 4 + 2)) & 0x3;
-+		struct csrow_info *csrow = &mci->csrows[index];
-+
-+		mem_dev = (mem_dev == 2);
-+		pci_read_config_byte(mci->pdev, E752X_DRB + index, &value);
-+		/* convert a 128 or 64 MiB DRB to a page size. */
-+		cumul_size = value << (25 + drc_drbg - PAGE_SHIFT);
-+		debugf3("MC: " __FILE__ ": %s(): (%d) cumul_size 0x%x\n",
-+			__func__, index, cumul_size);
-+		if (cumul_size == last_cumul_size)
-+			continue;	/* not populated */
-+
-+		csrow->first_page = last_cumul_size;
-+		csrow->last_page = cumul_size - 1;
-+		csrow->nr_pages = cumul_size - last_cumul_size;
-+		last_cumul_size = cumul_size;
-+		csrow->grain = 1 << 12;	/* 4KiB - resolution of CELOG */
-+		csrow->mtype = MEM_RDDR;	/* only one type supported */
-+		csrow->dtype = mem_dev ? DEV_X4 : DEV_X8;
-+
-+		/*
-+		 * if single channel or x8 devices then SECDED
-+		 * if dual channel and x4 then S4ECD4ED
-+		 */
-+		if (drc_ddim) {
-+			if (drc_chan && mem_dev) {
-+				csrow->edac_mode = EDAC_S4ECD4ED;
-+				mci->edac_cap |= EDAC_FLAG_S4ECD4ED;
-+			} else {
-+				csrow->edac_mode = EDAC_SECDED;
-+				mci->edac_cap |= EDAC_FLAG_SECDED;
-+			}
-+		} else
-+			csrow->edac_mode = EDAC_NONE;
-+	}
-+
-+	/* Fill in the memory map table */
-+	{
-+		u8 value;
-+		u8 last = 0;
-+		u8 row = 0;
-+		for (index = 0; index < 8; index += 2) {
-+
-+			pci_read_config_byte(mci->pdev, E752X_DRB + index,
-+					     &value);
-+			/* test if there is a dimm in this slot */
-+			if (value == last) {
-+				/* no dimm in the slot, so flag it as empty */
-+				pvt->map[index] = 0xff;
-+				pvt->map[index + 1] = 0xff;
-+			} else {	/* there is a dimm in the slot */
-+				pvt->map[index] = row;
-+				row++;
-+				last = value;
-+				/* test the next value to see if the dimm is
-+				   double sided */
-+				pci_read_config_byte(mci->pdev,
-+						     E752X_DRB + index + 1,
-+						     &value);
-+				pvt->map[index + 1] = (value == last) ?
-+				    0xff :	/* the dimm is single sided,
-+						   so flag as empty */
-+				    row;	/* this is a double sided dimm
-+						   to save the next row # */
-+				row++;
-+				last = value;
-+			}
-+		}
-+	}
-+
-+	/* set the map type.  1 = normal, 0 = reversed */
-+	pci_read_config_byte(mci->pdev, E752X_DRM, &stat8);
-+	pvt->map_type = ((stat8 & 0x0f) > ((stat8 >> 4) & 0x0f));
-+
-+	mci->edac_cap |= EDAC_FLAG_NONE;
-+
-+	debugf3("MC: " __FILE__ ": %s(): tolm, remapbase, remaplimit\n",
-+		__func__);
-+	/* load the top of low memory, remap base, and remap limit vars */
-+	pci_read_config_word(mci->pdev, E752X_TOLM, &pci_data);
-+	pvt->tolm = ((u32) pci_data) << 4;
-+	pci_read_config_word(mci->pdev, E752X_REMAPBASE, &pci_data);
-+	pvt->remapbase = ((u32) pci_data) << 14;
-+	pci_read_config_word(mci->pdev, E752X_REMAPLIMIT, &pci_data);
-+	pvt->remaplimit = ((u32) pci_data) << 14;
-+	printk("tolm = %x, remapbase = %x, remaplimit = %x\n", pvt->tolm,
-+	       pvt->remapbase, pvt->remaplimit);
-+
-+	if (edac_mc_add_mc(mci)) {
-+		debugf3("MC: " __FILE__
-+			": %s(): failed edac_mc_add_mc()\n",
-+			__func__);
-+		goto fail;
-+	}
-+
-+	/* Walk through the PCI table and clear errors */
-+	switch (dev_idx) {
-+	case E7520:
-+		dev = pci_get_device(PCI_VENDOR_ID_INTEL,
-+				      PCI_DEVICE_ID_INTEL_7520_0, NULL);
-+		break;
-+	case E7525:
-+		dev = pci_get_device(PCI_VENDOR_ID_INTEL,
-+				      PCI_DEVICE_ID_INTEL_7525_0, NULL);
-+		break;
-+	case E7320:
-+		dev = pci_get_device(PCI_VENDOR_ID_INTEL,
-+				      PCI_DEVICE_ID_INTEL_7320_0, NULL);
-+		break;
-+	}
-+
-+
-+	pvt->dev_d0f0 = dev;
-+	for (pres_dev = dev;
-+	     ((struct pci_dev *) pres_dev->global_list.next != dev);
-+	     pres_dev = (struct pci_dev *) pres_dev->global_list.next) {
-+		pci_read_config_dword(pres_dev, PCI_COMMAND, &stat32);
-+		stat = (u16) (stat32 >> 16);
-+		/* clear any error bits */
-+		if (stat32 & ((1 << 6) + (1 << 8)))
-+			pci_write_config_word(pres_dev, PCI_STATUS, stat);
-+	}
-+	/* find the error reporting device and clear errors */
-+	dev = pvt->dev_d0f1 = pci_dev_get(pvt->bridge_ck);
-+	/* Turn off error disable & SMI in case the BIOS turned it on */
-+	pci_write_config_byte(dev, E752X_HI_ERRMASK, 0x00);
-+	pci_write_config_byte(dev, E752X_HI_SMICMD, 0x00);
-+	pci_write_config_word(dev, E752X_SYSBUS_ERRMASK, 0x00);
-+	pci_write_config_word(dev, E752X_SYSBUS_SMICMD, 0x00);
-+	pci_write_config_byte(dev, E752X_BUF_ERRMASK, 0x00);
-+	pci_write_config_byte(dev, E752X_BUF_SMICMD, 0x00);
-+	pci_write_config_byte(dev, E752X_DRAM_ERRMASK, 0x00);
-+	pci_write_config_byte(dev, E752X_DRAM_SMICMD, 0x00);
-+	/* clear other MCH errors */
-+	pci_read_config_dword(dev, E752X_FERR_GLOBAL, &stat32);
-+	pci_write_config_dword(dev, E752X_FERR_GLOBAL, stat32);
-+	pci_read_config_dword(dev, E752X_NERR_GLOBAL, &stat32);
-+	pci_write_config_dword(dev, E752X_NERR_GLOBAL, stat32);
-+	pci_read_config_byte(dev, E752X_HI_FERR, &stat8);
-+	pci_write_config_byte(dev, E752X_HI_FERR, stat8);
-+	pci_read_config_byte(dev, E752X_HI_NERR, &stat8);
-+	pci_write_config_byte(dev, E752X_HI_NERR, stat8);
-+	pci_read_config_dword(dev, E752X_SYSBUS_FERR, &stat32);
-+	pci_write_config_dword(dev, E752X_SYSBUS_FERR, stat32);
-+	pci_read_config_byte(dev, E752X_BUF_FERR, &stat8);
-+	pci_write_config_byte(dev, E752X_BUF_FERR, stat8);
-+	pci_read_config_byte(dev, E752X_BUF_NERR, &stat8);
-+	pci_write_config_byte(dev, E752X_BUF_NERR, stat8);
-+	pci_read_config_word(dev, E752X_DRAM_FERR, &stat16);
-+	pci_write_config_word(dev, E752X_DRAM_FERR, stat16);
-+	pci_read_config_word(dev, E752X_DRAM_NERR, &stat16);
-+	pci_write_config_word(dev, E752X_DRAM_NERR, stat16);
-+
-+	/* get this far and it's successful */
-+	debugf3("MC: " __FILE__ ": %s(): success\n", __func__);
-+	return 0;
-+
-+fail:
-+	if (mci) {
-+		if (pvt->dev_d0f0)
-+			pci_dev_put(pvt->dev_d0f0);
-+		if (pvt->dev_d0f1)
-+			pci_dev_put(pvt->dev_d0f1);
-+		if (pvt->bridge_ck)
-+			pci_dev_put(pvt->bridge_ck);
-+		edac_mc_free(mci);
-+	}
-+	return rc;
-+}
 +
 +/* returns count (>= 0), or negative on error */
-+static int __devinit e752x_init_one(struct pci_dev *pdev,
-+				    const struct pci_device_id *ent)
++static int __devinit i82875p_init_one(struct pci_dev *pdev,
++				      const struct pci_device_id *ent)
 +{
++	int rc;
++
 +	debugf0("MC: " __FILE__ ": %s()\n", __func__);
 +
-+	/* wake up and enable device */
++	printk(KERN_INFO "i82875p init one\n");
 +	if(pci_enable_device(pdev) < 0)
 +		return -EIO;
-+	return e752x_probe1(pdev, ent->driver_data);
++	rc = i82875p_probe1(pdev, ent->driver_data);
++	if (mci_pdev == NULL)
++		mci_pdev = pci_dev_get(pdev);
++	return rc;
 +}
 +
 +
-+static void __devexit e752x_remove_one(struct pci_dev *pdev)
++static void __devexit i82875p_remove_one(struct pci_dev *pdev)
 +{
 +	struct mem_ctl_info *mci;
-+	struct e752x_pvt *pvt;
++	struct i82875p_pvt *pvt = NULL;
 +
 +	debugf0(__FILE__ ": %s()\n", __func__);
 +
 +	if ((mci = edac_mc_find_mci_by_pdev(pdev)) == NULL)
 +		return;
 +
++	pvt = (struct i82875p_pvt *) mci->pvt_info;
++	if (pvt->ovrfl_window)
++		iounmap(pvt->ovrfl_window);
++
++	if (pvt->ovrfl_pdev) {
++#ifdef CORRECT_BIOS
++		pci_release_regions(pvt->ovrfl_pdev);
++#endif				/*CORRECT_BIOS */
++		pci_disable_device(pvt->ovrfl_pdev);
++		pci_dev_put(pvt->ovrfl_pdev);
++	}
++
 +	if (edac_mc_del_mc(mci))
 +		return;
 +
-+	pvt = (struct e752x_pvt *) mci->pvt_info;
-+	pci_dev_put(pvt->dev_d0f0);
-+	pci_dev_put(pvt->dev_d0f1);
-+	pci_dev_put(pvt->bridge_ck);
 +	edac_mc_free(mci);
 +}
 +
 +
-+static const struct pci_device_id e752x_pci_tbl[] __devinitdata = {
-+	{PCI_VEND_DEV(INTEL, 7520_0), PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+	 E7520},
-+	{PCI_VEND_DEV(INTEL, 7525_0), PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+	 E7525},
-+	{PCI_VEND_DEV(INTEL, 7320_0), PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+	 E7320},
++static const struct pci_device_id i82875p_pci_tbl[] __devinitdata = {
++	{PCI_VEND_DEV(INTEL, 82875_0), PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	 I82875P},
 +	{0,}			/* 0 terminated list. */
 +};
 +
-+MODULE_DEVICE_TABLE(pci, e752x_pci_tbl);
++MODULE_DEVICE_TABLE(pci, i82875p_pci_tbl);
 +
 +
-+static struct pci_driver e752x_driver = {
-+      name: BS_MOD_STR,
-+      probe: e752x_init_one,
-+      remove: __devexit_p(e752x_remove_one),
-+      id_table: e752x_pci_tbl,
++static struct pci_driver i82875p_driver = {
++	.name = BS_MOD_STR,
++	.probe = i82875p_init_one,
++	.remove = __devexit_p(i82875p_remove_one),
++	.id_table = i82875p_pci_tbl,
 +};
 +
 +
-+int __init e752x_init(void)
++int __init i82875p_init(void)
 +{
 +	int pci_rc;
 +
 +	debugf3("MC: " __FILE__ ": %s()\n", __func__);
-+	pci_rc = pci_register_driver(&e752x_driver);
-+	return (pci_rc < 0) ? pci_rc : 0;
-+}
-+
-+
-+static void __exit e752x_exit(void)
-+{
-+	debugf3("MC: " __FILE__ ": %s()\n", __func__);
-+	pci_unregister_driver(&e752x_driver);
-+}
-+
-+
-+module_init(e752x_init);
-+module_exit(e752x_exit);
-+
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Linux Networx (http://lnxi.com) Tom Zimmerman\n");
-+MODULE_DESCRIPTION("MC support for Intel e752x memory controllers");
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.14-rc2-mm1/drivers/edac/e7xxx_edac.c linux-2.6.14-rc2-mm1/drivers/edac/e7xxx_edac.c
---- linux.vanilla-2.6.14-rc2-mm1/drivers/edac/e7xxx_edac.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.14-rc2-mm1/drivers/edac/e7xxx_edac.c	2005-10-07 16:50:22.000000000 +0100
-@@ -0,0 +1,558 @@
-+/*
-+ * Intel e7xxx Memory Controller kernel module
-+ * (C) 2003 Linux Networx (http://lnxi.com)
-+ * This file may be distributed under the terms of the
-+ * GNU General Public License.
-+ *
-+ * See "enum e7xxx_chips" below for supported chipsets
-+ *
-+ * Written by Thayne Harbaugh
-+ * Based on work by Dan Hollis <goemon at anime dot net> and others.
-+ *	http://www.anime.net/~goemon/linux-ecc/
-+ *
-+ * Contributors:
-+ * 	Eric Biederman (Linux Networx)
-+ * 	Tom Zimmerman (Linux Networx)
-+ * 	Jim Garlick (Lawrence Livermore National Labs)
-+ *	Dave Peterson (Lawrence Livermore National Labs)
-+ *	That One Guy (Some other place)
-+ *	Wang Zhenyu (intel.com)
-+ *
-+ * $Id: edac_e7xxx.c,v 1.5.2.9 2005/10/05 00:43:44 dsp_llnl Exp $
-+ *
-+ */
-+
-+
-+#include <linux/config.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/pci.h>
-+#include <linux/pci_ids.h>
-+#include <linux/slab.h>
-+#include "edac_mc.h"
-+
-+
-+#ifndef PCI_DEVICE_ID_INTEL_7205_0
-+#define PCI_DEVICE_ID_INTEL_7205_0	0x255d
-+#endif				/* PCI_DEVICE_ID_INTEL_7205_0 */
-+
-+#ifndef PCI_DEVICE_ID_INTEL_7205_1_ERR
-+#define PCI_DEVICE_ID_INTEL_7205_1_ERR	0x2551
-+#endif				/* PCI_DEVICE_ID_INTEL_7205_1_ERR */
-+
-+#ifndef PCI_DEVICE_ID_INTEL_7500_0
-+#define PCI_DEVICE_ID_INTEL_7500_0	0x2540
-+#endif				/* PCI_DEVICE_ID_INTEL_7500_0 */
-+
-+#ifndef PCI_DEVICE_ID_INTEL_7500_1_ERR
-+#define PCI_DEVICE_ID_INTEL_7500_1_ERR	0x2541
-+#endif				/* PCI_DEVICE_ID_INTEL_7500_1_ERR */
-+
-+#ifndef PCI_DEVICE_ID_INTEL_7501_0
-+#define PCI_DEVICE_ID_INTEL_7501_0	0x254c
-+#endif				/* PCI_DEVICE_ID_INTEL_7501_0 */
-+
-+#ifndef PCI_DEVICE_ID_INTEL_7501_1_ERR
-+#define PCI_DEVICE_ID_INTEL_7501_1_ERR	0x2541
-+#endif				/* PCI_DEVICE_ID_INTEL_7501_1_ERR */
-+
-+#ifndef PCI_DEVICE_ID_INTEL_7505_0
-+#define PCI_DEVICE_ID_INTEL_7505_0	0x2550
-+#endif				/* PCI_DEVICE_ID_INTEL_7505_0 */
-+
-+#ifndef PCI_DEVICE_ID_INTEL_7505_1_ERR
-+#define PCI_DEVICE_ID_INTEL_7505_1_ERR	0x2551
-+#endif				/* PCI_DEVICE_ID_INTEL_7505_1_ERR */
-+
-+
-+#define E7XXX_NR_CSROWS		8	/* number of csrows */
-+#define E7XXX_NR_DIMMS		8	/* FIXME - is this correct? */
-+
-+
-+/* E7XXX register addresses - device 0 function 0 */
-+#define E7XXX_DRB		0x60	/* DRAM row boundary register (8b) */
-+#define E7XXX_DRA		0x70	/* DRAM row attribute register (8b) */
-+					/*
-+					 * 31   Device width row 7 0=x8 1=x4
-+					 * 27   Device width row 6
-+					 * 23   Device width row 5
-+					 * 19   Device width row 4
-+					 * 15   Device width row 3
-+					 * 11   Device width row 2
-+					 *  7   Device width row 1
-+					 *  3   Device width row 0
-+					 */
-+#define E7XXX_DRC		0x7C	/* DRAM controller mode reg (32b) */
-+					/*
-+					 * 22    Number channels 0=1,1=2
-+					 * 19:18 DRB Granularity 32/64MB
-+					 */
-+#define E7XXX_TOLM		0xC4	/* DRAM top of low memory reg (16b) */
-+#define E7XXX_REMAPBASE		0xC6	/* DRAM remap base address reg (16b) */
-+#define E7XXX_REMAPLIMIT	0xC8	/* DRAM remap limit address reg (16b) */
-+
-+/* E7XXX register addresses - device 0 function 1 */
-+#define E7XXX_DRAM_FERR		0x80	/* DRAM first error register (8b) */
-+#define E7XXX_DRAM_NERR		0x82	/* DRAM next error register (8b) */
-+#define E7XXX_DRAM_CELOG_ADD	0xA0	/* DRAM first correctable memory */
-+					/*     error address register (32b) */
-+					/*
-+					 * 31:28 Reserved
-+					 * 27:6  CE address (4k block 33:12)
-+					 *  5:0  Reserved
-+					 */
-+#define E7XXX_DRAM_UELOG_ADD	0xB0	/* DRAM first uncorrectable memory */
-+					/*     error address register (32b) */
-+					/*
-+					 * 31:28 Reserved
-+					 * 27:6  CE address (4k block 33:12)
-+					 *  5:0  Reserved
-+					 */
-+#define E7XXX_DRAM_CELOG_SYNDROME 0xD0	/* DRAM first correctable memory */
-+					/*     error syndrome register (16b) */
-+
-+enum e7xxx_chips {
-+	E7500 = 0,
-+	E7501,
-+	E7505,
-+	E7205,
-+};
-+
-+
-+struct e7xxx_pvt {
-+	struct pci_dev *bridge_ck;
-+	u32 tolm;
-+	u32 remapbase;
-+	u32 remaplimit;
-+	const struct e7xxx_dev_info *dev_info;
-+};
-+
-+
-+struct e7xxx_dev_info {
-+	u16 err_dev;
-+	const char *ctl_name;
-+};
-+
-+
-+struct e7xxx_error_info {
-+	u8 dram_ferr;
-+	u8 dram_nerr;
-+	u32 dram_celog_add;
-+	u16 dram_celog_syndrome;
-+	u32 dram_uelog_add;
-+};
-+
-+static const struct e7xxx_dev_info e7xxx_devs[] = {
-+	[E7500] = {
-+		   .err_dev = PCI_DEVICE_ID_INTEL_7500_1_ERR,
-+		   .ctl_name = "E7500"},
-+	[E7501] = {
-+		   .err_dev = PCI_DEVICE_ID_INTEL_7501_1_ERR,
-+		   .ctl_name = "E7501"},
-+	[E7505] = {
-+		   .err_dev = PCI_DEVICE_ID_INTEL_7505_1_ERR,
-+		   .ctl_name = "E7505"},
-+	[E7205] = {
-+		   .err_dev = PCI_DEVICE_ID_INTEL_7205_1_ERR,
-+		   .ctl_name = "E7205"},
-+};
-+
-+
-+/* FIXME - is this valid for both SECDED and S4ECD4ED? */
-+static inline int e7xxx_find_channel(u16 syndrome)
-+{
-+	debugf3("MC: " __FILE__ ": %s()\n", __func__);
-+
-+	if ((syndrome & 0xff00) == 0)
-+		return 0;
-+	if ((syndrome & 0x00ff) == 0)
-+		return 1;
-+	if ((syndrome & 0xf000) == 0 || (syndrome & 0x0f00) == 0)
-+		return 0;
-+	return 1;
-+}
-+
-+
-+static unsigned long
-+ctl_page_to_phys(struct mem_ctl_info *mci, unsigned long page)
-+{
-+	u32 remap;
-+	struct e7xxx_pvt *pvt = (struct e7xxx_pvt *) mci->pvt_info;
-+
-+	debugf3("MC: " __FILE__ ": %s()\n", __func__);
-+
-+	if ((page < pvt->tolm) ||
-+	    ((page >= 0x100000) && (page < pvt->remapbase)))
-+		return page;
-+	remap = (page - pvt->tolm) + pvt->remapbase;
-+	if (remap < pvt->remaplimit)
-+		return remap;
-+	printk(KERN_ERR "Invalid page %lx - out of range\n", page);
-+	return pvt->tolm - 1;
-+}
-+
-+
-+static void process_ce(struct mem_ctl_info *mci, struct e7xxx_error_info *info)
-+{
-+	u32 error_1b, page;
-+	u16 syndrome;
-+	int row;
-+	int channel;
-+
-+	debugf3("MC: " __FILE__ ": %s()\n", __func__);
-+
-+	/* read the error address */
-+	error_1b = info->dram_celog_add;
-+	/* FIXME - should use PAGE_SHIFT */
-+	page = error_1b >> 6;	/* convert the address to 4k page */
-+	/* read the syndrome */
-+	syndrome = info->dram_celog_syndrome;
-+	/* FIXME - check for -1 */
-+	row = edac_mc_find_csrow_by_page(mci, page);
-+	/* convert syndrome to channel */
-+	channel = e7xxx_find_channel(syndrome);
-+	edac_mc_handle_ce(mci, page, 0, syndrome, row, channel,
-+			       "e7xxx CE");
-+}
-+
-+
-+static void process_ce_no_info(struct mem_ctl_info *mci)
-+{
-+	debugf3("MC: " __FILE__ ": %s()\n", __func__);
-+	edac_mc_handle_ce_no_info(mci, "e7xxx CE log register overflow");
-+}
-+
-+
-+static void process_ue(struct mem_ctl_info *mci, struct e7xxx_error_info *info)
-+{
-+	u32 error_2b, block_page;
-+	int row;
-+
-+	debugf3("MC: " __FILE__ ": %s()\n", __func__);
-+
-+	/* read the error address */
-+	error_2b = info->dram_uelog_add;
-+	/* FIXME - should use PAGE_SHIFT */
-+	block_page = error_2b >> 6;	/* convert to 4k address */
-+	row = edac_mc_find_csrow_by_page(mci, block_page);
-+	edac_mc_handle_ue(mci, block_page, 0, row, "e7xxx UE");
-+}
-+
-+
-+static void process_ue_no_info(struct mem_ctl_info *mci)
-+{
-+	debugf3("MC: " __FILE__ ": %s()\n", __func__);
-+	edac_mc_handle_ue_no_info(mci, "e7xxx UE log register overflow");
-+}
-+
-+
-+static void e7xxx_get_error_info (struct mem_ctl_info *mci,
-+		struct e7xxx_error_info *info)
-+{
-+	struct e7xxx_pvt *pvt;
-+
-+	pvt = (struct e7xxx_pvt *) mci->pvt_info;
-+	pci_read_config_byte(pvt->bridge_ck, E7XXX_DRAM_FERR,
-+	    &info->dram_ferr);
-+	pci_read_config_byte(pvt->bridge_ck, E7XXX_DRAM_NERR,
-+	    &info->dram_nerr);
-+
-+	if ((info->dram_ferr & 1) || (info->dram_nerr & 1)) {
-+		pci_read_config_dword(pvt->bridge_ck, E7XXX_DRAM_CELOG_ADD,
-+		    &info->dram_celog_add);
-+		pci_read_config_word(pvt->bridge_ck,
-+		    E7XXX_DRAM_CELOG_SYNDROME, &info->dram_celog_syndrome);
-+	}
-+
-+	if ((info->dram_ferr & 2) || (info->dram_nerr & 2))
-+		pci_read_config_dword(pvt->bridge_ck, E7XXX_DRAM_UELOG_ADD,
-+		    &info->dram_uelog_add);
-+
-+	if (info->dram_ferr & 3)
-+		pci_write_bits8(pvt->bridge_ck, E7XXX_DRAM_FERR, 0x03,
-+		    0x03);
-+
-+	if (info->dram_nerr & 3)
-+		pci_write_bits8(pvt->bridge_ck, E7XXX_DRAM_NERR, 0x03,
-+		    0x03);
-+}
-+
-+
-+static int e7xxx_process_error_info (struct mem_ctl_info *mci,
-+		struct e7xxx_error_info *info, int handle_errors)
-+{
-+	int error_found;
-+
-+	error_found = 0;
-+
-+	/* decode and report errors */
-+	if (info->dram_ferr & 1) {	/* check first error correctable */
-+		error_found = 1;
-+
-+		if (handle_errors)
-+			process_ce(mci, info);
-+	}
-+
-+	if (info->dram_ferr & 2) {	/* check first error uncorrectable */
-+		error_found = 1;
-+
-+		if (handle_errors)
-+			process_ue(mci, info);
-+	}
-+
-+	if (info->dram_nerr & 1) {	/* check next error correctable */
-+		error_found = 1;
-+
-+		if (handle_errors) {
-+			if (info->dram_ferr & 1)
-+				process_ce_no_info(mci);
-+			else
-+				process_ce(mci, info);
++	pci_rc = pci_register_driver(&i82875p_driver);
++	if (pci_rc < 0)
++		return pci_rc;
++	if (mci_pdev == NULL) {
++		i82875p_registered = 0;
++		mci_pdev =
++		    pci_get_device(PCI_VENDOR_ID_INTEL,
++				   PCI_DEVICE_ID_INTEL_82875_0, NULL);
++		if (!mci_pdev) {
++			debugf0("875p pci_get_device fail\n");
++			return -ENODEV;
++		}
++		pci_rc = i82875p_init_one(mci_pdev, i82875p_pci_tbl);
++		if (pci_rc < 0) {
++			debugf0("875p init fail\n");
++			pci_dev_put(mci_pdev);
++			return -ENODEV;
 +		}
 +	}
-+
-+	if (info->dram_nerr & 2) {	/* check next error uncorrectable */
-+		error_found = 1;
-+
-+		if (handle_errors) {
-+			if (info->dram_ferr & 2)
-+				process_ue_no_info(mci);
-+			else
-+				process_ue(mci, info);
-+		}
-+	}
-+
-+	return error_found;
-+}
-+
-+
-+static void e7xxx_check(struct mem_ctl_info *mci)
-+{
-+	struct e7xxx_error_info info;
-+
-+	debugf3("MC: " __FILE__ ": %s()\n", __func__);
-+	e7xxx_get_error_info(mci, &info);
-+	e7xxx_process_error_info(mci, &info, 1);
-+}
-+
-+
-+static int e7xxx_probe1(struct pci_dev *pdev, int dev_idx)
-+{
-+	int rc = -ENODEV;
-+	int index;
-+	u16 pci_data;
-+	struct mem_ctl_info *mci = NULL;
-+	struct e7xxx_pvt *pvt = NULL;
-+	u32 drc;
-+	int drc_chan = 1;	/* Number of channels 0=1chan,1=2chan */
-+	int drc_drbg = 1;	/* DRB granularity 0=32mb,1=64mb */
-+	int drc_ddim;		/* DRAM Data Integrity Mode 0=none,2=edac */
-+	u32 dra;
-+	unsigned long last_cumul_size;
-+
-+
-+	debugf0("MC: " __FILE__ ": %s(): mci\n", __func__);
-+
-+	/* need to find out the number of channels */
-+	pci_read_config_dword(pdev, E7XXX_DRC, &drc);
-+	/* only e7501 can be single channel */
-+	if (dev_idx == E7501) {
-+		drc_chan = ((drc >> 22) & 0x1);
-+		drc_drbg = (drc >> 18) & 0x3;
-+	}
-+	drc_ddim = (drc >> 20) & 0x3;
-+
-+	mci = edac_mc_alloc(sizeof(*pvt), E7XXX_NR_CSROWS, drc_chan + 1);
-+
-+	if (mci == NULL) {
-+		rc = -ENOMEM;
-+		goto fail;
-+	}
-+
-+	debugf3("MC: " __FILE__ ": %s(): init mci\n", __func__);
-+
-+	mci->mtype_cap = MEM_FLAG_RDDR;
-+	mci->edac_ctl_cap =
-+	    EDAC_FLAG_NONE | EDAC_FLAG_SECDED | EDAC_FLAG_S4ECD4ED;
-+	/* FIXME - what if different memory types are in different csrows? */
-+	mci->mod_name = BS_MOD_STR;
-+	mci->mod_ver = "$Revision: 1.5.2.9 $";
-+	mci->pdev = pdev;
-+
-+	debugf3("MC: " __FILE__ ": %s(): init pvt\n", __func__);
-+	pvt = (struct e7xxx_pvt *) mci->pvt_info;
-+	pvt->dev_info = &e7xxx_devs[dev_idx];
-+	pvt->bridge_ck = pci_get_device(PCI_VENDOR_ID_INTEL,
-+					 pvt->dev_info->err_dev,
-+					 pvt->bridge_ck);
-+	if (!pvt->bridge_ck) {
-+		printk(KERN_ERR
-+		       "MC: error reporting device not found:"
-+		       "vendor %x device 0x%x (broken BIOS?)\n",
-+		       PCI_VENDOR_ID_INTEL, e7xxx_devs[dev_idx].err_dev);
-+		goto fail;
-+	}
-+
-+	debugf3("MC: " __FILE__ ": %s(): more mci init\n", __func__);
-+	mci->ctl_name = pvt->dev_info->ctl_name;
-+
-+	mci->edac_check = e7xxx_check;
-+	mci->ctl_page_to_phys = ctl_page_to_phys;
-+
-+	/* find out the device types */
-+	pci_read_config_dword(pdev, E7XXX_DRA, &dra);
-+
-+	/*
-+	 * The dram row boundary (DRB) reg values are boundary address
-+	 * for each DRAM row with a granularity of 32 or 64MB (single/dual
-+	 * channel operation).  DRB regs are cumulative; therefore DRB7 will
-+	 * contain the total memory contained in all eight rows.
-+	 */
-+	for (last_cumul_size = index = 0; index < mci->nr_csrows; index++) {
-+		u8 value;
-+		u32 cumul_size;
-+		/* mem_dev 0=x8, 1=x4 */
-+		int mem_dev = (dra >> (index * 4 + 3)) & 0x1;
-+		struct csrow_info *csrow = &mci->csrows[index];
-+
-+		pci_read_config_byte(mci->pdev, E7XXX_DRB + index, &value);
-+		/* convert a 64 or 32 MiB DRB to a page size. */
-+		cumul_size = value << (25 + drc_drbg - PAGE_SHIFT);
-+		debugf3("MC: " __FILE__ ": %s(): (%d) cumul_size 0x%x\n",
-+			__func__, index, cumul_size);
-+		if (cumul_size == last_cumul_size)
-+			continue;	/* not populated */
-+
-+		csrow->first_page = last_cumul_size;
-+		csrow->last_page = cumul_size - 1;
-+		csrow->nr_pages = cumul_size - last_cumul_size;
-+		last_cumul_size = cumul_size;
-+		csrow->grain = 1 << 12;	/* 4KiB - resolution of CELOG */
-+		csrow->mtype = MEM_RDDR;	/* only one type supported */
-+		csrow->dtype = mem_dev ? DEV_X4 : DEV_X8;
-+
-+		/*
-+		 * if single channel or x8 devices then SECDED
-+		 * if dual channel and x4 then S4ECD4ED
-+		 */
-+		if (drc_ddim) {
-+			if (drc_chan && mem_dev) {
-+				csrow->edac_mode = EDAC_S4ECD4ED;
-+				mci->edac_cap |= EDAC_FLAG_S4ECD4ED;
-+			} else {
-+				csrow->edac_mode = EDAC_SECDED;
-+				mci->edac_cap |= EDAC_FLAG_SECDED;
-+			}
-+		} else
-+			csrow->edac_mode = EDAC_NONE;
-+	}
-+
-+	mci->edac_cap |= EDAC_FLAG_NONE;
-+
-+	debugf3("MC: " __FILE__ ": %s(): tolm, remapbase, remaplimit\n",
-+		__func__);
-+	/* load the top of low memory, remap base, and remap limit vars */
-+	pci_read_config_word(mci->pdev, E7XXX_TOLM, &pci_data);
-+	pvt->tolm = ((u32) pci_data) << 4;
-+	pci_read_config_word(mci->pdev, E7XXX_REMAPBASE, &pci_data);
-+	pvt->remapbase = ((u32) pci_data) << 14;
-+	pci_read_config_word(mci->pdev, E7XXX_REMAPLIMIT, &pci_data);
-+	pvt->remaplimit = ((u32) pci_data) << 14;
-+	printk("tolm = %x, remapbase = %x, remaplimit = %x\n", pvt->tolm,
-+	       pvt->remapbase, pvt->remaplimit);
-+
-+	/* clear any pending errors, or initial state bits */
-+	pci_write_bits8(pvt->bridge_ck, E7XXX_DRAM_FERR, 0x03, 0x03);
-+	pci_write_bits8(pvt->bridge_ck, E7XXX_DRAM_NERR, 0x03, 0x03);
-+
-+	if (edac_mc_add_mc(mci) != 0) {
-+		debugf3("MC: " __FILE__
-+			": %s(): failed edac_mc_add_mc()\n",
-+			__func__);
-+		goto fail;
-+	}
-+
-+	/* get this far and it's successful */
-+	debugf3("MC: " __FILE__ ": %s(): success\n", __func__);
 +	return 0;
-+
-+fail:
-+	if (mci != NULL) {
-+		if(pvt != NULL && pvt->bridge_ck)
-+			pci_dev_put(pvt->bridge_ck);
-+		edac_mc_free(mci);
-+	}
-+
-+	return rc;
-+}
-+
-+/* returns count (>= 0), or negative on error */
-+static int __devinit
-+e7xxx_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
-+{
-+	debugf0("MC: " __FILE__ ": %s()\n", __func__);
-+
-+	/* wake up and enable device */
-+	return pci_enable_device(pdev) ?
-+	    -EIO : e7xxx_probe1(pdev, ent->driver_data);
 +}
 +
 +
-+static void __devexit e7xxx_remove_one(struct pci_dev *pdev)
++static void __exit i82875p_exit(void)
 +{
-+	struct mem_ctl_info *mci;
-+	struct e7xxx_pvt *pvt;
++	debugf3("MC: " __FILE__ ": %s()\n", __func__);
 +
-+	debugf0(__FILE__ ": %s()\n", __func__);
-+
-+	if (((mci = edac_mc_find_mci_by_pdev(pdev)) != 0) &&
-+	    edac_mc_del_mc(mci)) {
-+		pvt = (struct e7xxx_pvt *) mci->pvt_info;
-+		pci_dev_put(pvt->bridge_ck);
-+		edac_mc_free(mci);
++	pci_unregister_driver(&i82875p_driver);
++	if (!i82875p_registered) {
++		i82875p_remove_one(mci_pdev);
++		pci_dev_put(mci_pdev);
 +	}
 +}
 +
 +
-+static const struct pci_device_id e7xxx_pci_tbl[] __devinitdata = {
-+	{PCI_VEND_DEV(INTEL, 7205_0), PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+	 E7205},
-+	{PCI_VEND_DEV(INTEL, 7500_0), PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+	 E7500},
-+	{PCI_VEND_DEV(INTEL, 7501_0), PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+	 E7501},
-+	{PCI_VEND_DEV(INTEL, 7505_0), PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+	 E7505},
-+	{0,}			/* 0 terminated list. */
-+};
-+
-+MODULE_DEVICE_TABLE(pci, e7xxx_pci_tbl);
-+
-+
-+static struct pci_driver e7xxx_driver = {
-+	.name = BS_MOD_STR,
-+	.probe = e7xxx_init_one,
-+	.remove = __devexit_p(e7xxx_remove_one),
-+	.id_table = e7xxx_pci_tbl,
-+};
-+
-+
-+int __init e7xxx_init(void)
-+{
-+	return pci_module_init(&e7xxx_driver);
-+}
-+
-+
-+static void __exit e7xxx_exit(void)
-+{
-+	pci_unregister_driver(&e7xxx_driver);
-+}
-+
-+module_init(e7xxx_init);
-+module_exit(e7xxx_exit);
++module_init(i82875p_init);
++module_exit(i82875p_exit);
 +
 +
 +MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Linux Networx (http://lnxi.com) Thayne Harbaugh et al\n"
-+	      "Based on.work by Dan Hollis et al");
-+MODULE_DESCRIPTION("MC support for Intel e7xxx memory controllers");
++MODULE_AUTHOR("Linux Networx (http://lnxi.com) Thayne Harbaugh");
++MODULE_DESCRIPTION("MC support for Intel 82875 memory hub controllers");
 

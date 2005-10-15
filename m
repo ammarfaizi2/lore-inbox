@@ -1,76 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750957AbVJODWM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751071AbVJOEUJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750957AbVJODWM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Oct 2005 23:22:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751039AbVJODWM
+	id S1751071AbVJOEUJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Oct 2005 00:20:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751074AbVJOEUJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Oct 2005 23:22:12 -0400
-Received: from pop-borzoi.atl.sa.earthlink.net ([207.69.195.70]:18136 "EHLO
-	pop-borzoi.atl.sa.earthlink.net") by vger.kernel.org with ESMTP
-	id S1750945AbVJODWM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Oct 2005 23:22:12 -0400
-From: Wilson Michaels <wilsonmichaels@earthlink.net>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Subject: Re: [PATCH 08/14] Big kfree NULL check cleanup - drivers/media
-Date: Fri, 14 Oct 2005 22:21:06 -0500
-User-Agent: KMail/1.8.1
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Manu Abraham <manu@kromtek.com>,
-       Emard <emard@softhome.net>, Marko Kohtala <marko.kohtala@luukku.com>,
-       Andreas Oberritter <obi@linuxtv.org>,
-       Kirk Lapray <kirk_lapray@bigfoot.com>,
-       Mauro Carvalho Chehab <mchehab@brturbo.com.br>,
-       Takeo Takahashi <takahashi.takeo@renesas.com>,
-       Ralph Metzler <rjkm@thp.uni-koeln.de>, Gerd Knorr <kraxel@bytesex.org>,
-       Bill Dirks <bdirks@pacbell.net>, Wolfgang Scherr <scherr@net4you.at>,
-       Alan Cox <alan@redhat.com>, Ronald Bultje <rbultje@ronald.bitfreak.net>,
-       Serguei Miridonov <mirsev@cicese.mx>
-References: <200510132128.12616.jesper.juhl@gmail.com>
-In-Reply-To: <200510132128.12616.jesper.juhl@gmail.com>
+	Sat, 15 Oct 2005 00:20:09 -0400
+Received: from mail.tmr.com ([64.65.253.246]:46248 "EHLO gaimboi.tmr.com")
+	by vger.kernel.org with ESMTP id S1751071AbVJOEUH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Oct 2005 00:20:07 -0400
+Message-ID: <43508485.5040800@tmr.com>
+Date: Sat, 15 Oct 2005 00:24:37 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+Organization: TMR Associates Inc, Schenectady NY
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andrew Walrond <andrew@walrond.org>
+CC: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Anybody know about nforce4 SATA II hot swapping + linux raid?
+References: <200510071111.46788.andrew@walrond.org>
+In-Reply-To: <200510071111.46788.andrew@walrond.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510142221.07341.wilsonmichaels@earthlink.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 13 October 2005 02:28 pm, Jesper Juhl wrote:
-> This is the drivers/media/ part of the big kfree cleanup
-> patch.
+Andrew Walrond wrote:
+
+>I need to deploy some very resilient servers with hot swapable drives.
 >
-> Remove pointless checks for NULL prior to calling kfree()
-> in drivers/media/.
+>I always used dac960 based hardware raid for hot swapping in the past, but 
+>sata drives are so cheap compared to scsi that I'm considering the Tyan GT24 
+>server with 4 hot swappable SATA II drives (nforce4 pro controller)
 >
+>	http://www.tyan.com/products/html/gt24b2891.html
 >
-> Sorry about the long Cc: list, but I wanted to make sure
-> I included everyone who's code I've changed with this
-> patch.
+>Before I place an order, I need to know whether sata II hot swapping is up to 
+>scratch in the linux kernel, and whether it works nicely with linux software 
+>raid (which I already use/am familiar with).
 >
->
-> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
-> ---
->
-> Please see the initial announcement mail on LKML with
-> subject "[PATCH 00/14] Big kfree NULL check cleanup"
-> for additional details.
+>Any knowledge greatfully accepted :)
 >
 
-> linux-2.6.14-rc4-orig/drivers/media/dvb/frontends/lgdt330
->x.c	2005-10-11 22:41:09.000000000 +0200 +++
-> linux-2.6.14-rc4/drivers/media/dvb/frontends/lgdt330x.c	2
->005-10-13 10:28:41.000000000 +0200 @@ -729,8 +729,7 @@
-> struct dvb_frontend* lgdt330x_attach(con return
-> &state->frontend;
->
->  error:
-> -	if (state)
-> -		kfree(state);
-> +	kfree(state);
->  	dprintk("%s: ERROR\n",__FUNCTION__);
->  	return NULL;
->  }
-> ---
+As others have noted, SATA is young and should not be used for hot-swap, 
+at least in a production manner. I suggest the IBM ServeRAID controller 
+as one solution for SCSI. I have a bunch of servers in various places 
+around the country, and these have been good to me, work pretty well 
+with typical failures, and IBM supports them.
 
-Acked-by : Wilson Michaels <wilsonmichaels@earthlink.net>
+I've deployed about 35 of these and am still happy, so you have a data 
+point. Most of my servers have 3-6TB.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO TMR Associates, Inc
+  Doing interesting things with small computers since 1979
+

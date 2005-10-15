@@ -1,52 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751241AbVJOWR6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbVJOWZU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751241AbVJOWR6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Oct 2005 18:17:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbVJOWR6
+	id S1751246AbVJOWZU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Oct 2005 18:25:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751247AbVJOWZU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Oct 2005 18:17:58 -0400
-Received: from gate.crashing.org ([63.228.1.57]:51129 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751241AbVJOWR5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Oct 2005 18:17:57 -0400
-Subject: Re: Possible memory ordering bug in page reclaim?
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, hugh@veritas.com,
-       paulus@samba.org, anton@samba.org, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20051015180018.GN18159@opteron.random>
-References: <4350C4F6.4030807@yahoo.com.au>
-	 <E1EQkpc-0007FI-00@gondolin.me.apana.org.au>
-	 <20051015180018.GN18159@opteron.random>
-Content-Type: text/plain
-Date: Sun, 16 Oct 2005 08:16:30 +1000
-Message-Id: <1129414591.7620.13.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Sat, 15 Oct 2005 18:25:20 -0400
+Received: from mournblade.cat.pdx.edu ([131.252.208.27]:23199 "EHLO
+	mournblade.cat.pdx.edu") by vger.kernel.org with ESMTP
+	id S1751246AbVJOWZT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Oct 2005 18:25:19 -0400
+Date: Sat, 15 Oct 2005 15:24:57 -0700 (PDT)
+From: Suzanne Wood <suzannew@cs.pdx.edu>
+Message-Id: <200510152224.j9FMOvmO012626@rastaban.cs.pdx.edu>
+To: herbert@gondor.apana.org.au, linux-kernel@vger.kernel.org
+Cc: paulmck@us.ibm.com, suzannew@cs.pdx.edu, walpole@cs.pdx.edu
+Subject: Re: [RFC][PATCH] rcu in drivers/net/hamradio
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Many thanks for your direction and insights.
 
-> Even a write barrier is required on the left side, the read barrier on
-> the right side is useless if there is no write barrier on the left side.
-> 
-> Note that the barrier in atomic_add_negative is useless here because it
-> happens way too late, _after_ the count is decremented (not _before_)
-> so the decreased count could be already visible to the other cpu.
+  > From herbert@gondor.apana.org.au  Sat Oct 15 01:05:52 2005
 
-Not on ppc64. Our atomic*return functions have a write barrier before
-the atomic operation. I think there is just too much code out there that
-either expects implicit barriers done by atomics (abuse them as locks)
-or simply written by people who don't understand those ordering issues
-(to be fair, they can be fairly brain damaging).
+  > On Sat, Oct 15, 2005 at 12:57:23AM -0700, Suzanne Wood wrote:
+  > > 
+  > > Another list_for_each_entry() in bpq_seq_start() in a marked rcu 
+  > > read-side critical section becomes the rcu version.
 
-I agree this is not a good generic solution though.
+  > You might want to add an rcu_dereference in bpq_seq_next
+  > as well.
 
-> Not all archs are like x86 where a barrier happens implicitly both
-> before and after the instruction, and the way atomic_add_negative is
-> implemented the barrier from a common code point of view is only added
-> _after_ the instruction. 
+Please find attached a patch to drivers/net/hamradio/bpqether.c
+that might finally merit being
+Signed-off-by: suzannew@cs.pdx.edu
 
+-------
+
+ChangeLog: clarify RCU implementation in 
+drivers/net/hamradio/bpqether.c 
+
+Because bpq_new_device() calls list_add_rcu()
+and bpq_free_device() calls list_del_rcu(),
+substitute list_for_each_entry_rcu() for 
+list_for_each_entry() in bpq_get_ax25_dev()
+and in bpq_seq_start().
+
+Add rcu dereference protection in bpq_seq_next().
+
+The rcu_read_lock()/unlock() in bpq_device_event() 
+are removed because netdev event handlers are called 
+with RTNL locking in place.
+
+FYI: bpq_free_device() calls list_del_rcu() which, per 
+list.h, requires synchronize_rcu() which can block or 
+call_rcu() or call_rcu_bh() which cannot block. 
+Herbert Xu notes that synchronization is done here by 
+unregister_netdevice().  This calls synchronize_net()
+which in turn uses synchronize_rcu().
+
+-------
+
+ bpqether.c |    9 +++------
+ 1 files changed, 3 insertions(+), 6 deletions(-)
+
+-------
+
+--- src/linux-2.6.14-rc4/drivers/net/hamradio/bpqether.c	2005-10-10 18:19:19.000000000 -0700
++++ patch/linux-2.6.14-rc4/drivers/net/hamradio/bpqether.c	2005-10-15 15:12:15.000000000 -0700
+@@ -144,7 +144,7 @@ static inline struct net_device *bpq_get
+ {
+ 	struct bpqdev *bpq;
+ 
+-	list_for_each_entry(bpq, &bpq_devices, bpq_list) {
++	list_for_each_entry_rcu(bpq, &bpq_devices, bpq_list) {
+ 		if (bpq->ethdev == dev)
+ 			return bpq->axdev;
+ 	}
+@@ -399,7 +399,7 @@ static void *bpq_seq_start(struct seq_fi
+ 	if (*pos == 0)
+ 		return SEQ_START_TOKEN;
+ 	
+-	list_for_each_entry(bpqdev, &bpq_devices, bpq_list) {
++	list_for_each_entry_rcu(bpqdev, &bpq_devices, bpq_list) {
+ 		if (i == *pos)
+ 			return bpqdev;
+ 	}
+@@ -418,7 +418,7 @@ static void *bpq_seq_next(struct seq_fil
+ 		p = ((struct bpqdev *)v)->bpq_list.next;
+ 
+ 	return (p == &bpq_devices) ? NULL 
+-		: list_entry(p, struct bpqdev, bpq_list);
++		: rcu_dereference(list_entry(p, struct bpqdev, bpq_list));
+ }
+ 
+ static void bpq_seq_stop(struct seq_file *seq, void *v)
+@@ -561,8 +561,6 @@ static int bpq_device_event(struct notif
+ 	if (!dev_is_ethdev(dev))
+ 		return NOTIFY_DONE;
+ 
+-	rcu_read_lock();
+-
+ 	switch (event) {
+ 	case NETDEV_UP:		/* new ethernet device -> new BPQ interface */
+ 		if (bpq_get_ax25_dev(dev) == NULL)
+@@ -581,7 +579,6 @@ static int bpq_device_event(struct notif
+ 	default:
+ 		break;
+ 	}
+-	rcu_read_unlock();
+ 
+ 	return NOTIFY_DONE;
+ }

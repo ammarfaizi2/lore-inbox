@@ -1,96 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751177AbVJOPlF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750850AbVJOQBZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751177AbVJOPlF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Oct 2005 11:41:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbVJOPlF
+	id S1750850AbVJOQBZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Oct 2005 12:01:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751175AbVJOQBZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Oct 2005 11:41:05 -0400
-Received: from wg.technophil.ch ([213.189.149.230]:32230 "HELO
-	hydrogenium.schottelius.org") by vger.kernel.org with SMTP
-	id S1751177AbVJOPlC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Oct 2005 11:41:02 -0400
-Date: Sat, 15 Oct 2005 17:40:48 +0200
-From: Nico Schottelius <nico-kernel@schottelius.org>
-To: Christian Kujau <evil@g-house.de>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Nico Schottelius <nico-kernel@schottelius.org>,
-       Daniel Aubry <kernel-obri@chaostreff.ch>
-Subject: Re: Some problems with 2.6.13.4
-Message-ID: <20051015154048.GK8609@schottelius.org>
-Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
-	Christian Kujau <evil@g-house.de>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Daniel Aubry <kernel-obri@chaostreff.ch>
-References: <20051015122131.GG8609@schottelius.org> <43511AB1.3010608@g-house.de>
+	Sat, 15 Oct 2005 12:01:25 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:1408 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1750850AbVJOQBY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Oct 2005 12:01:24 -0400
+Message-ID: <43512AD5.852E44AC@tv-sign.ru>
+Date: Sat, 15 Oct 2005 20:14:13 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4wkndigzIeYF6Hbg"
-Content-Disposition: inline
-In-Reply-To: <43511AB1.3010608@g-house.de>
-User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
-X-Linux-Info: http://linux.schottelius.org/
-X-Operating-System: Linux 2.6.13.1
+To: "Kilau, Scott" <Scott_Kilau@digi.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BUG?] 2.6.x (2.6.13) - new signals not being delivered to a 
+ terminating (PF_EXITING) process.
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Kilau, Scott wrote:
+>
+> signal_pending() never does, no matter how many signals I send it.
+> (Even sending it multiple kill -9's)
+>
+> ...
+>
+> However, I see the signals climb, when I print out the values of
+> current->signal->shared_pending.list.next and
+> current->signal->shared_pending.list.prev
+>
+> Its like those values and the signal_pending macro aren't in "synch"
+> Anymore, once the process has gone into the PF_EXITING state.
+> (It works fine when the process is not in that state)
 
---4wkndigzIeYF6Hbg
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yes, __group_complete_signal() is called after the signal has been added to
+the ->shared_pending. But it does not signal_wake_up()s process, because of
+this check in wants_signal():
 
-Christian Kujau [Sat, Oct 15, 2005 at 05:05:21PM +0200]:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: RIPEMD160
->=20
-> Nico Schottelius schrieb:
-> > The kernel configurations are used from the versions before, with runni=
-ng
-> > make oldconfig before.
->=20
-> so, these machines were running fine with 2.6.13.3 or .2 and stopped
-> working with 2.6.13.4? if yes, then perhaps you can narrow it down to one
-> of the changes in patch-2.6.13.3-4.gz or patch-2.6.13.2-3.gz
->=20
-> (from http://www.kernel.org/pub/linux/kernel/v2.6/incr/)
+	if (p->flags & PF_EXITING)
+		return 0;
 
-Sorry, I sent the message before inserting this info:
+The intent was to find another thread in the thread group which can accept
+this signal. May be we need special check in __group_complete_signal() under
+"else if (thread_group_empty(p))".
 
-- ibm tp runs with 2.6.12.5
-- dell latitude runs with 2.6.10
+You still can kill this process via tkill, though.
 
-I personally have access to the ibm tp and I'll test 2.6.13.3 in some hours
-(which it nees to compile it).
-
-I'll report more info than. Perhaps Daniel Aubry can test on his dell, too.
-
-Nico
-
---=20
-Latest project: cconfig (http://nico.schotteli.us/papers/linux/cconfig/)
-Open Source nutures open minds and free, creative developers.
-
---4wkndigzIeYF6Hbg
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iQIVAwUBQ1Ei/7OTBMvCUbrlAQKABA//V3D/TtU8VNEr5o0jl5Qg57XvXU/k0d8W
-xtvm7NybH9CSPEEJpUmO5fOZxTjz9w09nvzFEDvmabAH6S3LivSg2pncaAFdxs45
-IBmTGSWI/qEsaHV3zDK0xfEQF3GMZGdCXI56uvRdxp8mKahvBBivnTvsPvyNrg8z
-kpiOHY+V4u5IDhTj2XEn3wjUvSGjhIpf1OaC/KSOkOH5CAVR8QbJiV8to/dBTrYw
-vdYQwp5KcCO0JCxz+jFVZqfQ2jHIfwGr4ocCE5Mv/FzC0KsVHdXfe2Z3rM+Ijw4Q
-aWUkm18fIQxuHQFu4tMM48lOFJ6/m5hEceuHJQEjCgWNKRbuPn+Z/DWkI9v8tN7M
-oAdFlOS2KHdtDGrawJe2Sx02NkFwNsuaC+f7tKgVmh/EfXJWclRQeZQ+hBWr1Na6
-xbb+PSr7DUsb6M8FIHDWmyt+wRhwcK8dwVg6jlTJWlMMZG7h6WD+7Eq//c5fql/V
-G4F7uy4g6wDH1hAjw5vWjjYzacUNKMD9ycPanR95Mu0oNafqSapKroC+L05WfSfK
-qwB4sdxmt8Pz1/bV5hdi09TEEeIW8JHyWHaFLGwJSpKwED62TtoiPZLdyJ47lIZQ
-Cr+QkTD/n2Q3S8HXhFwq2Z6At66dy9XI8cRK5erlIqyXy7GUjd4TTDQNUv5Yuf6M
-QsQTAeQvuBM=
-=t3CT
------END PGP SIGNATURE-----
-
---4wkndigzIeYF6Hbg--
+Oleg.

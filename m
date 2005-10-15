@@ -1,44 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751139AbVJOMDr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751136AbVJOMVp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751139AbVJOMDr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Oct 2005 08:03:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbVJOMDr
+	id S1751136AbVJOMVp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Oct 2005 08:21:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751141AbVJOMVp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Oct 2005 08:03:47 -0400
-Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:28178 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751139AbVJOMDr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Oct 2005 08:03:47 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: suzannew@cs.pdx.edu (Suzanne Wood)
-Subject: Re: [RFC][PATCH] rcu in drivers/net/hamradio
-Cc: linux-kernel@vger.kernel.org, g4klx@g4klx.demon.co.uk, hch@infradead.org,
-       jreuter@yaina.de, paulmck@us.ibm.com, suzannew@cs.pdx.edu,
-       walpole@cs.pdx.edu
-Organization: Core
-In-Reply-To: <200510140804.j9E84nwG026920@rastaban.cs.pdx.edu>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1EQkl4-0003gB-00@gondolin.me.apana.org.au>
-Date: Sat, 15 Oct 2005 22:03:26 +1000
+	Sat, 15 Oct 2005 08:21:45 -0400
+Received: from wg.technophil.ch ([213.189.149.230]:42719 "HELO
+	hydrogenium.schottelius.org") by vger.kernel.org with SMTP
+	id S1751136AbVJOMVp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Oct 2005 08:21:45 -0400
+Date: Sat, 15 Oct 2005 14:21:31 +0200
+From: Nico Schottelius <nico-kernel@schottelius.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: kernel-obri@chaostreff.ch
+Subject: Some problems with 2.6.13.4
+Message-ID: <20051015122131.GG8609@schottelius.org>
+Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
+	LKML <linux-kernel@vger.kernel.org>, kernel-obri@chaostreff.ch
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Cp3Cp8fzgozWLBWL"
+Content-Disposition: inline
+User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
+X-Linux-Info: http://linux.schottelius.org/
+X-Operating-System: Linux 2.6.13.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Suzanne Wood <suzannew@cs.pdx.edu> wrote:
-> 
-> (3) bpq_free_device() calls list_del_rcu() which, according 
-> to list.h, requires synchronize_rcu() which can block or 
-> call_rcu() or call_rcu_bh() which cannot block. 
-> None of these is called anywhere in the directory drivers/net,
-> so synchronize_irq() may address this.  
-> (synchronize_sched() is called in drivers/net/sis190.c and 
-> r8169.c with FIXME comment about synchronize_irq().)
 
-The synchronisation is carried out by unregister_netdevice.
+--Cp3Cp8fzgozWLBWL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Hello!
+
+With 2.6.13.4 I've problems on several machines:
+
+- IBM Thinkpad 600: Hangs (no panic, simply dead) after HDC (cdrom)
+  is initialized [Works with 2.6.13.5]
+- Dell Latitude C400: Keyboard does not work
+- new HP-Servers (ML-350): Hangup when syslog is started
+
+What information do you want to have from those machines?
+lspci, dmesg, cpuinfo, .config when running with older kernels?
+
+The kernel configurations are used from the versions before, with running
+make oldconfig before.
+
+Greetings,
+
+Nico
+
+--=20
+Latest project: cconfig (http://nico.schotteli.us/papers/linux/cconfig/)
+Open Source nutures open minds and free, creative developers.
+
+--Cp3Cp8fzgozWLBWL
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iQIVAwUBQ1D0SrOTBMvCUbrlAQInwA//YEx/91ti0Kuhr6hkNfAHqeVlM2Ugu6Fp
+CwImqGQHyRRIOLSMqeBPNyGmgwE8ReOwzc+/YblovIZoJrf6jTaBkfiJJDIvl+wq
+LQ8I5onxT2KEa3cq5pZMHEFoeCFlZFcVb0oedG8G32d7Zd14YlotqNw7eF49A0km
+Mu2Iyg809/qj3PKspfIdtg1nu8OohPO4yXEABOc+u41B7xJxDIn9qNwb6FiqlDkB
+CyXxyuRToV59N21LjKZawj7QynWb3iS0Owd/6eWYUSVnH/c7edZJzzcEjDJqoTxf
+ufvGiRLrrWkkLM650sG0e2NKhk1M5QhhzdjewBDX+1FBErD9mOv44UOC8FYnyOUU
+Gal2L6YEaNdwUOBRdJ1KpwK6asAzeBRCP0Zld7LJrSyJCpeOw4wHD/a9gLEQPy8x
+LhgS6/vDRe/AwRbBnpYS+V+UBVCriKTMf7+h/vpA7dO6o4wOvPyNkbGq0CzDH96C
+IEbOiqRDypAyWNeiVvo+7P/iteJ4PUNJfCDPXuba0/BynrYrwoRfyXgpeR2z/KkR
+UUygwTDq2e3I8N7F30CbB4iyXn2z3p9zRlselDN1IhRZbJlH4NeNNlu1KM9CY1aN
+9p811mQFdpmwK0SuO+QEaGx7963zEofAdQSPxSg25HodXY9R0tWV/KemwSYLsM3b
+410dCaS2Fhw=
+=LLI+
+-----END PGP SIGNATURE-----
+
+--Cp3Cp8fzgozWLBWL--

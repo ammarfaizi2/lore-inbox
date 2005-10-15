@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751072AbVJOKk4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbVJOK5c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751072AbVJOKk4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Oct 2005 06:40:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751095AbVJOKk4
+	id S1751104AbVJOK5c (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Oct 2005 06:57:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbVJOK5c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Oct 2005 06:40:56 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:25757 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751072AbVJOKkz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Oct 2005 06:40:55 -0400
-Message-ID: <4350DCB1.7010201@pobox.com>
-Date: Sat, 15 Oct 2005 06:40:49 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: dsaxena@plexity.net
-CC: jgarzik@pobox.net, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] RNG rewrite...
-References: <20051015043120.GA5946@plexity.net>
-In-Reply-To: <20051015043120.GA5946@plexity.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Sat, 15 Oct 2005 06:57:32 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:57611 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751104AbVJOK5c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Oct 2005 06:57:32 -0400
+Date: Sat, 15 Oct 2005 11:57:24 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Gabriele Brugnoni <news@dveprojects.com>, linux-kernel@vger.kernel.org
+Subject: Re: interruptible_sleep_on, interrupts and device drivers
+Message-ID: <20051015105724.GC5724@flint.arm.linux.org.uk>
+Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
+	Gabriele Brugnoni <news@dveprojects.com>,
+	linux-kernel@vger.kernel.org
+References: <200510151229.37124.news@dveprojects.com> <1129372589.2908.8.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1129372589.2908.8.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Deepak Saxena wrote:
-> I want to add support for the RNG on Intel's IXP4xx NPU and 
-> looking at the existing hw-random.c code, it is written with
-> the assumption that the RNG is on the PCI bus. I can put a
-> big #ifdef ARCH_IXP4XX in there but instead I would rather
-> rewrite the damn thing to use the device model and have a rng
-> device class with individual drivers for each RNG model, including
-> IXP4xx. I'll keep the miscdev interface around but will add a
-> new interface under /sys/class/rng that the userspace tools 
-> can transition to. Is this OK with folks?
-
-How does the hardware export RNG functionality?  CPU insn?  Magic memory 
-address?  Can it be done 100% in userspace?
-
-
-> One question I have is about the following comment:
+On Sat, Oct 15, 2005 at 12:36:29PM +0200, Arjan van de Ven wrote:
+> On Sat, 2005-10-15 at 12:29 +0200, Gabriele Brugnoni wrote:
+> > 		save_flags(flags); cli();
 > 
->  * This data only exists for exporting the supported
->  * PCI ids via MODULE_DEVICE_TABLE.  We do not actually
->  * register a pci_driver, because someone else might one day
->  * want to register another driver on the same PCI id.
+> this is broken code; cli() cannot and should not be used. (and isn't
+> even available on SMP kernels anymore)
 > 
-> Why? Is there something else on those IDs that another driver might
-> care about?
+> > 		if( !rs.txdone ) {
+> > 			if( arg < 0 ) arg = rs.ttimeout;
+> > 			if( arg > 0 )
+> > 				interruptible_sleep_on_timeout ( &rs.txwait, arg );
+> > 			else
+> > 				interruptible_sleep_on ( &rs.txwait );
+> > 		}
+> > 		restore_flags(flags);
+> 
+> and this is missing a sti()
 
-They are bridge ids, not device ids.
+Err, no, that's wrong.  sti() unconditionally enables interrupts - if
+an sti() was placed here, it's pointless using save_flags() (which
+saves the old interrupt enable state) and restore_flags() (which
+restores the interrupt enable state).
 
-	Jeff
+Also remember that interruptible_sleep_* is only safe on UP machines
+provided it's called with interrupts disabled.
 
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,279 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbVJOILJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750964AbVJOIRF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbVJOILJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Oct 2005 04:11:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750935AbVJOILI
+	id S1750964AbVJOIRF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Oct 2005 04:17:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750986AbVJOIRE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Oct 2005 04:11:08 -0400
-Received: from mail12.syd.optusnet.com.au ([211.29.132.193]:30420 "EHLO
-	mail12.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1750706AbVJOILH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Oct 2005 04:11:07 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] mm - implement swap prefetching
-Date: Sat, 15 Oct 2005 18:10:53 +1000
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org, ck@vds.kolivas.org
-References: <200510110023.02426.kernel@kolivas.org> <200510111648.31504.kernel@kolivas.org> <20051011223419.4250ecf6.akpm@osdl.org>
-In-Reply-To: <20051011223419.4250ecf6.akpm@osdl.org>
+	Sat, 15 Oct 2005 04:17:04 -0400
+Received: from ppsw-9.csi.cam.ac.uk ([131.111.8.139]:64947 "EHLO
+	ppsw-9.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1750964AbVJOIRE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Oct 2005 04:17:04 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Sat, 15 Oct 2005 09:16:54 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Coywolf Qi Hunt <coywolf@gmail.com>
+cc: Lee Revell <rlrevell@joe-job.com>, Marc Perkel <marc@perkel.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Forcing an immediate reboot
+In-Reply-To: <2cd57c900510150056j2a6af6e5gf93ce9fa4ef16aac@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0510150909050.25927@hermes-1.csi.cam.ac.uk>
+References: <43505F86.1050701@perkel.com> <1129341050.23895.12.camel@mindpipe>
+  <Pine.LNX.4.64.0510150846430.25927@hermes-1.csi.cam.ac.uk>
+ <2cd57c900510150056j2a6af6e5gf93ce9fa4ef16aac@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_OmLUDLSB7YCE526"
-Message-Id: <200510151810.54016.kernel@kolivas.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_OmLUDLSB7YCE526
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Sat, 15 Oct 2005, Coywolf Qi Hunt wrote:
+> On 10/15/05, Anton Altaparmakov <aia21@cam.ac.uk> wrote:
+> > On Fri, 14 Oct 2005, Lee Revell wrote:
+> > > On Fri, 2005-10-14 at 18:46 -0700, Marc Perkel wrote:
+> > > > Is there any way to force an immediate reboot as if to push the reset
+> > > > button in software? Got a remote server that i need to reboot and
+> > > > shutdown isn't working.
+> > >
+> > > If it has Oopsed, and the "reboot" command does not work, then all bets
+> > > are off - kernel memory has probably been corrupted.
+> > >
+> > > Get one of those powerstrips that you can telnet into and power cycle
+> > > things remotely.
+> >
+> > If it has sysrq compiled in as root just do:
+> >
+> > echo s > /proc/sysrq-trigger
+> > echo u > /proc/sysre-trigger
+> > echo s > /proc/sysrq-trigger
+> 
+> What the purpose of the second sync?
 
-[snip snip]
-On Wed, 12 Oct 2005 15:34, Andrew Morton wrote:
-> Why use the "zone with most free pages"?  Generally it would be better to
-> use up ZONE_HIGHMEM first: ZONE_NORMAL is valuable.
+Allows any i/o initiated between the first sync and the remount r/o to 
+complete.  Remember that r/o mounting doesn't stop i/o.  It only stops you 
+from writing to the fs at the vfs layer.  Once a write/modification has 
+entered the fs driver it will get written no matter what, unless the 
+"reboot" sysrq is triggered in which case the kernel just reboots 
+immediately.
 
-> I'd just not bother with the locking at all here.
+Maybe it is just paranoia on my part but I have gotten used to hitting 
+Alt+PrtScr+S, +U, +S, +B so I do it automatically.
 
-> kthread(), please.
+Best regards,
 
-> Might be able to use a boring old wake_up_process() here rather than a
-> waitqueue.
-
-> Is the timer actually needed?  Could just do schedule_timeout() in
-> kprefetchd()?
-
-Ok how's this look? On top of your patches.
-
-Cheers,
-Con
-
---Boundary-00=_OmLUDLSB7YCE526
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="mm-implement-swap-prefetching-cleanups.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
-	filename="mm-implement-swap-prefetching-cleanups.patch"
-
--Convert kprefetchd to kthread().
--Convert timers to schedule_timeouts
--Prefer highmem whenever possible to prefetch into
--Remove locking from reading total_swapcache_pages
--Remove waitqueues
-
-Signed-off-by: Con Kolivas <kernel@kolivas.org>
-
-Index: linux-2.6.14-rc4-ck1/mm/swap_prefetch.c
-===================================================================
---- linux-2.6.14-rc4-ck1.orig/mm/swap_prefetch.c	2005-10-14 11:48:46.000000000 +1000
-+++ linux-2.6.14-rc4-ck1/mm/swap_prefetch.c	2005-10-15 17:22:13.000000000 +1000
-@@ -10,11 +10,12 @@
-  * published by the Free Software Foundation.
-  */
- 
--#include <linux/swap.h>
- #include <linux/fs.h>
-+#include <linux/swap.h>
-+#include <linux/ioprio.h>
-+#include <linux/kthread.h>
- #include <linux/pagemap.h>
- #include <linux/syscalls.h>
--#include <linux/ioprio.h>
- #include <linux/writeback.h>
- 
- /* Time to delay prefetching if vm is busy or prefetching unsuccessful */
-@@ -48,9 +49,7 @@ static struct swapped_root swapped = {
- 	.count 		= 0,
- };
- 
--static struct timer_list prefetch_timer;
--
--static DECLARE_WAIT_QUEUE_HEAD(kprefetchd_wait);
-+static task_t *kprefetchd_task;
- 
- static unsigned long mapped_limit;	/* Max mapped we will prefetch to */
- static unsigned long last_free = 0;	/* Last total free pages */
-@@ -77,16 +76,6 @@ void __init prepare_prefetch(void)
- 		swap_prefetch++;
- }
- 
--static inline void delay_prefetch_timer(void)
--{
--	mod_timer(&prefetch_timer, jiffies + PREFETCH_DELAY);
--}
--
--static inline void reset_prefetch_timer(void)
--{
--	mod_timer(&prefetch_timer, jiffies + PREFETCH_INTERVAL);
--}
--
- /*
-  * We check to see no part of the vm is busy. If it is this will interrupt
-  * trickle_swap and wait another PREFETCH_DELAY. Purposefully racy.
-@@ -130,11 +119,11 @@ void add_to_swapped_list(unsigned long i
- 		error = radix_tree_insert(&swapped.swap_tree, index, entry);
- 		if (likely(!error)) {
- 			/*
--			 * If this is the first entry the timer needs to be
-+			 * If this is the first entry, kprefetchd needs to be
- 			 * (re)started
- 			 */
- 			if (list_empty(&swapped.list))
--				delay_prefetch_timer();
-+				wake_up_process(kprefetchd_task);
- 			list_add(&entry->swapped_list, &swapped.list);
- 			swapped.count++;
- 		}
-@@ -168,6 +157,13 @@ void remove_from_swapped_list(unsigned l
- 	spin_unlock_irqrestore(&swapped.lock, flags);
- }
- 
-+static inline int high_zone(struct zone *zone)
-+{
-+	if (zone == NULL)
-+		return 0;
-+	return is_highmem(zone);
-+}
-+
- /*
-  * Find the zone with the most free pages, recheck the watermarks and
-  * then directly allocate the ram. We don't want prefetch to use
-@@ -185,16 +181,16 @@ static struct page *prefetch_get_page(vo
- 		if (z->present_pages == 0)
- 			continue;
- 
--		free = z->free_pages;
--
- 		/* We don't prefetch into DMA */
- 		if (zone_idx(z) == ZONE_DMA)
- 			continue;
- 
--		/* Select the zone with the most free ram */
--		if (free > most_free) {
--			most_free = free;
--			zone = z;
-+		free = z->free_pages;
-+		/* Select the zone with the most free ram preferring high */
-+		if ((free > most_free && (!high_zone(zone) || high_zone(z))) ||
-+			(!high_zone(zone) && high_zone(z))) {
-+				most_free = free;
-+				zone = z;
- 		}
- 	}
- 
-@@ -330,19 +326,12 @@ static int prefetch_suitable(void)
- 	if (pending_writes > SWAP_CLUSTER_MAX)
- 		goto out;
- 
--	/* >2/3 of the ram is mapped, we need some free for pagecache */
--	limit = ps.nr_mapped + ps.nr_slab + pending_writes;
--	if (limit > mapped_limit)
--		goto out;
--
- 	/*
--	 * Add swapcache to limit as well, but check this last since it needs
--	 * locking
-+	 * >2/3 of the ram is mapped or swapcache, we need some free for
-+	 * pagecache
- 	 */
--	if (unlikely(!read_trylock(&swapper_space.tree_lock)))
--		goto out;
--	limit += total_swapcache_pages;
--	read_unlock(&swapper_space.tree_lock);
-+	limit = ps.nr_mapped + ps.nr_slab + pending_writes +
-+		total_swapcache_pages;
- 	if (limit > mapped_limit)
- 		goto out;
- 
-@@ -400,68 +389,53 @@ out:
- 	return ret;
- }
- 
--static int kprefetchd(void *data)
-+static int kprefetchd(void *__unused)
- {
--	DEFINE_WAIT(wait);
--
--	daemonize("kprefetchd");
- 	set_user_nice(current, 19);
- 	/* Set ioprio to lowest if supported by i/o scheduler */
- 	sys_ioprio_set(IOPRIO_WHO_PROCESS, 0, IOPRIO_CLASS_IDLE);
- 
--	for ( ; ; ) {
-+	do {
- 		enum trickle_return prefetched;
- 
- 		try_to_freeze();
--		prepare_to_wait(&kprefetchd_wait, &wait, TASK_INTERRUPTIBLE);
--		schedule();
--		finish_wait(&kprefetchd_wait, &wait);
- 
- 		/*
--		 * TRICKLE_FAILED implies no entries left - the timer is not
--		 * reset
-+		 * TRICKLE_FAILED implies no entries left - we do not schedule
-+		 * a wakeup, and further delay the next one.
- 		 */
- 		prefetched = trickle_swap();
- 		switch (prefetched) {
- 		case TRICKLE_SUCCESS:
- 			last_free = temp_free;
--			reset_prefetch_timer();
-+			schedule_timeout_interruptible(PREFETCH_INTERVAL);
- 			break;
- 		case TRICKLE_DELAY:
- 			last_free = 0;
--			delay_prefetch_timer();
-+			schedule_timeout_interruptible(PREFETCH_DELAY);
- 			break;
- 		case TRICKLE_FAILED:
- 			last_free = 0;
-+			schedule_timeout_interruptible(MAX_SCHEDULE_TIMEOUT);
-+			schedule_timeout_interruptible(PREFETCH_DELAY);
- 			break;
- 		}
--	}
--	return 0;
--}
-+	} while (!kthread_should_stop());
- 
--/*
-- * Wake up kprefetchd. It will reset the timer itself appropriately so no
-- * need to do it here
-- */
--static void prefetch_wakeup(unsigned long data)
--{
--	if (waitqueue_active(&kprefetchd_wait))
--		wake_up_interruptible(&kprefetchd_wait);
-+	return 0;
- }
- 
- static int __init kprefetchd_init(void)
- {
--	/*
--	 * Prepare the prefetch timer. It is inactive until entries are placed
--	 * on the swapped_list
--	 */
--	init_timer(&prefetch_timer);
--	prefetch_timer.data = 0;
--	prefetch_timer.function = prefetch_wakeup;
--
--	kernel_thread(kprefetchd, NULL, CLONE_KERNEL);
-+	kprefetchd_task = kthread_run(kprefetchd, NULL, "kprefetchd");
- 
- 	return 0;
- }
- 
--module_init(kprefetchd_init)
-+static void __exit kprefetchd_exit(void)
-+{
-+	kthread_stop(kprefetchd_task);
-+}
-+
-+module_init(kprefetchd_init);
-+module_exit(kprefetchd_exit);
-
---Boundary-00=_OmLUDLSB7YCE526--
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

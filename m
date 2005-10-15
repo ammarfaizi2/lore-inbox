@@ -1,154 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751041AbVJODW6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751039AbVJOD15@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751041AbVJODW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Oct 2005 23:22:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751047AbVJODW6
+	id S1751039AbVJOD15 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Oct 2005 23:27:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751052AbVJOD15
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Oct 2005 23:22:58 -0400
-Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:13585 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751039AbVJODW5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Oct 2005 23:22:57 -0400
-Date: Sat, 15 Oct 2005 13:22:41 +1000
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Suzanne Wood <suzannew@cs.pdx.edu>
-Subject: Re: [LIST] Add missing rcu_dereference on first element
-Message-ID: <20051015032241.GA3893@gondor.apana.org.au>
-References: <20051015002649.GA28555@gondor.apana.org.au> <20051015020324.GL1302@us.ibm.com> <20051015023918.GA22074@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="M9NhX3UHpAaciwkO"
-Content-Disposition: inline
-In-Reply-To: <20051015023918.GA22074@gondor.apana.org.au>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Fri, 14 Oct 2005 23:27:57 -0400
+Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:43393 "HELO
+	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1751039AbVJOD14 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Oct 2005 23:27:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:Subject:Content-Type;
+  b=z5WK4HQL1SOZXOSRHwxlrxwRxgDisw5ardx1r6H2ohdGYxqL2HFZKpW5KntZ3q7a+6VdK2TXYUryng9kOixIsmQhTggo+tCdj9m0wcJG8bvNUOzBW3gBCdVfr1qw/wipfhYkm3JuTSQjTcZFJhMhD88kk4TPMyXTLpOskCef6QY=  ;
+Message-ID: <4350776D.1060304@yahoo.com.au>
+Date: Sat, 15 Oct 2005 13:28:45 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050914 Debian/1.7.11-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Hugh Dickins <hugh@veritas.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Possible memory ordering bug in page reclaim?
+Content-Type: multipart/mixed;
+ boundary="------------060001070704090905080907"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------060001070704090905080907
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
---M9NhX3UHpAaciwkO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Is there anything that prevents PageDirty from theoretically being
+speculatively loaded before page_count here? (see patch)
 
-Hi Paul:
+It would result in pagecache corruption in the following situation:
 
-On Sat, Oct 15, 2005 at 12:39:18PM +1000, herbert wrote:
-> 
-> Besides, the expression
-> 
-> i = foo(i)
-> 
-> where foo has side-effects is pretty normal.
+1                                2
+find_get_page();
+write to page                    write_lock(tree_lock);
+SetPageDirty();                  if (page_count != 2
+put_page();                          || PageDirty())
 
-Actually I've changed my mind on this.  I think your version is
-better because the side-effect of rcu_dereference will cause the
-above assignment to occur twice when i refers to a memory-backed
-variable.
+Now I'm worried that 2 might see PageDirty *before* SetPageDirty in
+1, and page_count *after* put_page in 1.
 
-Since all current prefetch implementations are safe as far as
-side-effects are concerned, here is an updated version that
-doesn't do i = foo(i).
-
-Andrew, please replace the previous version with this.
+Or am I seeing things that aren't there?
 
 Thanks,
+
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+SUSE Labs, Novell Inc.
 
---M9NhX3UHpAaciwkO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=p
 
-diff --git a/include/linux/list.h b/include/linux/list.h
---- a/include/linux/list.h
-+++ b/include/linux/list.h
-@@ -442,12 +442,14 @@ static inline void list_splice_init(stru
-  * as long as the traversal is guarded by rcu_read_lock().
-  */
- #define list_for_each_rcu(pos, head) \
--	for (pos = (head)->next; prefetch(pos->next), pos != (head); \
--        	pos = rcu_dereference(pos->next))
-+	for (pos = (head)->next; \
-+		prefetch(rcu_dereference(pos)->next), pos != (head); \
-+        	pos = pos->next)
- 
- #define __list_for_each_rcu(pos, head) \
--	for (pos = (head)->next; pos != (head); \
--        	pos = rcu_dereference(pos->next))
-+	for (pos = (head)->next; \
-+		rcu_dereference(pos) != (head); \
-+        	pos = pos->next)
- 
- /**
-  * list_for_each_safe_rcu	-	iterate over an rcu-protected list safe
-@@ -461,8 +463,9 @@ static inline void list_splice_init(stru
-  * as long as the traversal is guarded by rcu_read_lock().
-  */
- #define list_for_each_safe_rcu(pos, n, head) \
--	for (pos = (head)->next, n = pos->next; pos != (head); \
--		pos = rcu_dereference(n), n = pos->next)
-+	for (pos = (head)->next; \
-+		n = rcu_dereference(pos)->next, pos != (head); \
-+		pos = n)
- 
- /**
-  * list_for_each_entry_rcu	-	iterate over rcu list of given type
-@@ -474,11 +477,11 @@ static inline void list_splice_init(stru
-  * the _rcu list-mutation primitives such as list_add_rcu()
-  * as long as the traversal is guarded by rcu_read_lock().
-  */
--#define list_for_each_entry_rcu(pos, head, member)			\
--	for (pos = list_entry((head)->next, typeof(*pos), member);	\
--	     prefetch(pos->member.next), &pos->member != (head); 	\
--	     pos = rcu_dereference(list_entry(pos->member.next, 	\
--					typeof(*pos), member)))
-+#define list_for_each_entry_rcu(pos, head, member) \
-+	for (pos = list_entry((head)->next, typeof(*pos), member); \
-+		prefetch(rcu_dereference(pos)->member.next), \
-+			&pos->member != (head); \
-+		pos = list_entry(pos->member.next, typeof(*pos), member))
- 
- 
- /**
-@@ -492,8 +495,9 @@ static inline void list_splice_init(stru
-  * as long as the traversal is guarded by rcu_read_lock().
-  */
- #define list_for_each_continue_rcu(pos, head) \
--	for ((pos) = (pos)->next; prefetch((pos)->next), (pos) != (head); \
--        	(pos) = rcu_dereference((pos)->next))
-+	for ((pos) = (pos)->next; \
-+		prefetch(rcu_dereference((pos))->next), (pos) != (head); \
-+        	(pos) = (pos)->next)
- 
- /*
-  * Double linked lists with a single pointer list head.
-@@ -696,8 +700,9 @@ static inline void hlist_add_after_rcu(s
- 	     pos = n)
- 
- #define hlist_for_each_rcu(pos, head) \
--	for ((pos) = (head)->first; pos && ({ prefetch((pos)->next); 1; }); \
--		(pos) = rcu_dereference((pos)->next))
-+	for ((pos) = (head)->first; \
-+		rcu_dereference((pos)) && ({ prefetch((pos)->next); 1; }); \
-+		(pos) = (pos)->next)
- 
- /**
-  * hlist_for_each_entry	- iterate over list of given type
-@@ -762,9 +767,9 @@ static inline void hlist_add_after_rcu(s
-  */
- #define hlist_for_each_entry_rcu(tpos, pos, head, member)		 \
- 	for (pos = (head)->first;					 \
--	     pos && ({ prefetch(pos->next); 1;}) &&			 \
-+	     rcu_dereference(pos) && ({ prefetch(pos->next); 1;}) &&	 \
- 		({ tpos = hlist_entry(pos, typeof(*tpos), member); 1;}); \
--	     pos = rcu_dereference(pos->next))
-+	     pos = pos->next)
- 
- #else
- #warning "don't include kernel headers in userspace"
+--------------060001070704090905080907
+Content-Type: text/plain;
+ name="mm-reclaim-memorder-fix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="mm-reclaim-memorder-fix.patch"
 
---M9NhX3UHpAaciwkO--
+Index: linux-2.6/mm/vmscan.c
+===================================================================
+--- linux-2.6.orig/mm/vmscan.c
++++ linux-2.6/mm/vmscan.c
+@@ -511,7 +511,12 @@ static int shrink_list(struct list_head 
+ 		 * PageDirty _after_ making sure that the page is freeable and
+ 		 * not in use by anybody. 	(pagecache + us == 2)
+ 		 */
+-		if (page_count(page) != 2 || PageDirty(page)) {
++		if (page_count(page) != 2) {
++			write_unlock_irq(&mapping->tree_lock);
++			goto keep_locked;
++		}
++		smp_rmb();
++		if (PageDirty(page)) {
+ 			write_unlock_irq(&mapping->tree_lock);
+ 			goto keep_locked;
+ 		}
+
+--------------060001070704090905080907--
+Send instant messages to your online friends http://au.messenger.yahoo.com 

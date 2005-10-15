@@ -1,68 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750950AbVJOJzP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750935AbVJOJmn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750950AbVJOJzP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Oct 2005 05:55:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751070AbVJOJzP
+	id S1750935AbVJOJmn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Oct 2005 05:42:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750901AbVJOJmn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Oct 2005 05:55:15 -0400
-Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:54025 "EHLO
-	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
-	id S1751027AbVJOJzO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Oct 2005 05:55:14 -0400
-From: Felix Oxley <lkml@oxley.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH]driver/block/kconfig-2.6.14-rc4
-Date: Sat, 15 Oct 2005 10:55:02 +0100
-User-Agent: KMail/1.8.2
-Cc: Roman Zippel <zippel@linux-m68k.org>
+	Sat, 15 Oct 2005 05:42:43 -0400
+Received: from free.mekensleep.com ([81.57.75.249]:5251 "EHLO
+	allin.dachary.org") by vger.kernel.org with ESMTP id S1750713AbVJOJmn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Oct 2005 05:42:43 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510151055.02879.lkml@oxley.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-ID: <17232.52887.293668.390641@allin.dachary.org>
+Date: Sat, 15 Oct 2005 11:40:39 +0200
+From: Loic Dachary <loic@gnu.org>
+To: Pierre Michon <pierre@no-spam.org>
+Cc: linux-kernel@vger.kernel.org, legal@lists.gpl-violations.org
+Subject: Re: freebox possible GPL violation
+In-Reply-To: Pierre Michon's message of 5 October 2005 10:47:38 +0200
+References: <20051005084738.GA29944@linux.ensimag.fr>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+Reply-To: loic@gnu.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am sure who the following patch should be directed to.
-(I couldn't find the Maintainer for RAM disk or initrd listed in the 
-Maintainers file.)
+Pierre Michon writes:
+ > 1) The freebox is an adsl gateway with VoIP, TV over ADSL and a optional 
+ > wifi bridge. The box is built and lended by an ADSL provider 'free'[0].
 
-Change to Kconfig text for RAM disks where suggested setting was N.
-Now reminds the user that this option is required for initrd.
+        I suggest you say :
 
-Hopefully this will stop me turning off this option and thus being unable to 
-boot my system :-)
+"The box is built by an ADSL provider 'free'[0]. The box is located at
+the user end of the ADSL line (i.e. in the appartement of an individual
+or in the offices of a company). "
 
-Signed-off-by: Felix Oxley <lkml@oxley.org>
+        Later on you could expand on how the box gets there, how
+it is installed (lended or not) and the claim of Free that it is 
+not lended in any ways.
 
---- ./drivers/block/Kconfig.orig	2005-10-15 08:58:20.000000000 +0100
-+++ ./drivers/block/Kconfig	2005-10-15 09:25:31.000000000 +0100
-@@ -368,19 +368,21 @@ config BLK_DEV_RAM
- 	  Saying Y here will allow you to use a portion of your RAM memory as
- 	  a block device, so that you can make file systems on it, read and
- 	  write to it and do all the other things that you can do with normal
--	  block devices (such as hard drives). It is usually used to load and
--	  store a copy of a minimal root file system off of a floppy into RAM
--	  during the initial install of Linux.
-+	  block devices (such as hard drives).
-+
-+	  It is usually used to load and store a copy of a minimal root file
-+	  system into RAM during the boot sequence.
-+	  (For this purpose say Y to this and also to initrd below)
- 
- 	  Note that the kernel command line option "ramdisk=XX" is now
- 	  obsolete. For details, read <file:Documentation/ramdisk.txt>.
- 
-+	  Unless your system uses a RAM disk whilst booting you probably
-+	  won't need this functionality, and can thus say N here.
-+
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called rd.
- 
--	  Most normal users won't need the RAM disk functionality, and can
--	  thus say N here.
--
- config BLK_DEV_RAM_COUNT
- 	int "Default number of RAM disks" if BLK_DEV_RAM
- 	default "16"
+
+ > ==FREE and PRO-FREE CLAIMS (some claims could be find on [6])==
+ > 
+ > A) The freebox is only lended, so the user can't ask for GPL source code.
+
+        I insist that free does not even claim to lend the Freebox. They
+claim that the freebox is a terminal equipement of their local network. 
+
+ > -> They forgot that for wifi feature, you have buy a pcmcia card and 
+ > that is card works wifi Linux driver. So according to GPL you could ask 
+ > for wifi driver source code and all the Linux source code ???
+ > Also some people that don't return the freebox in time had to 
+ > paid 400 Euros and they became the owner of the freebox. Free send to a 
+ > client a letter [7] saying that if the user don't return the freebox, 
+ > free could bill it and then it becomes propriety of the user : 
+ > 'Nous vous rappelons que conformément aux Conditions Générales de Vente , 
+ > en cas de non-restitution du modem, Free se réserve le droit de procéder 
+ > à la facturation de l'équipement terminal, au prix mentionné dans les CGV, 
+ > qui deviendra alors la *propriété* de l'Usager.'
+
+        I believe that a customer could ask for the corresponding sources
+to Free if she/he got a copy of the binary out of the freebox. Does anyone
+have such a binary ? 
+
+ > the fimware. So we could assume that at least a mininal system (Linux
+ > kernel + some utils) is keep in rom).
+
+        Could someone provide a hard proof of this ?
+
+ > C) 'Free' is a network operator and needs to keep secret some informations 
+ > in order to preserve security on its networks.
+ > 
+ > -> Everybody know how security obscurity via is safe. Also I agree they
+ > don't want to give their script or their configuration, but I fail to
+ > see what could be a threat in the Linux kernel.
+
+        I'd say this is more a debatable justification than a claim.
+
+        Cheers,
+
+-- 
+Loic Dachary, 12 bd Magenta, 75010 Paris. Tel: 33 8 71 18 43 38
+http://www.fsffrance.org/   http://www.dachary.org/loic/gpg.txt

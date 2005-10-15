@@ -1,61 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbVJOGvI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbVJOHE3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751098AbVJOGvI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Oct 2005 02:51:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbVJOGvI
+	id S1751106AbVJOHE3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Oct 2005 03:04:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbVJOHE3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Oct 2005 02:51:08 -0400
-Received: from 10.ctyme.com ([69.50.231.10]:38786 "EHLO newton.ctyme.com")
-	by vger.kernel.org with ESMTP id S1751098AbVJOGvH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Oct 2005 02:51:07 -0400
-Message-ID: <4350A6D5.7010304@perkel.com>
-Date: Fri, 14 Oct 2005 23:51:01 -0700
-From: Marc Perkel <marc@perkel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040121
-X-Accept-Language: en-us, en
+	Sat, 15 Oct 2005 03:04:29 -0400
+Received: from web33314.mail.mud.yahoo.com ([68.142.206.129]:34157 "HELO
+	web33314.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751106AbVJOHE2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Oct 2005 03:04:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=VptwmHKZV+JrP+Bf410/Tkc+y9FXZ6Dcaa71AWbP8N6Ba5oS/gtFM12rXU0ENEoZw7BFkjda19D3xqtJiRmsw0JDoWTPXXBI/2n7OUtD6TI79j7+zSa1whXrKF0Ph75FMyMoEsDVbtP3Mv7h7A51H5NCwOZyKVQoK1dKG8ToRb8=  ;
+Message-ID: <20051015070426.56781.qmail@web33314.mail.mud.yahoo.com>
+Date: Sat, 15 Oct 2005 00:04:26 -0700 (PDT)
+From: li nux <lnxluv@yahoo.com>
+Subject: lock_kernel twice possible ?
+To: linux <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: Coywolf Qi Hunt <coywolf@gmail.com>
-CC: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
-Subject: Re: Forcing an immediate reboot
-References: <43505F86.1050701@perkel.com> <1129341050.23895.12.camel@mindpipe> <2cd57c900510142347y41ca98b1gf7172898d2bdc97a@mail.gmail.com>
-In-Reply-To: <2cd57c900510142347y41ca98b1gf7172898d2bdc97a@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spamfilter-host: newton.ctyme.com - http://www.junkemailfilter.com"
-X-Mail-from: marc@perkel.com
-X-Sender-host-address: 204.95.16.61
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+
+I was going thru the NFS v3 code for SMP kernel 2.6.11
+to see how an inode gets revalidated. I found that
+there is a possibility that there may be an attempt to
+do lock_kernel() twice.
+
+Is this possible ? If yes then how this deadlock
+condition is/can be avoided.
+
+-lnxluv
+
+Below is the code flow (please see ** for
+lock_kernel):
+
+nfs_revalidate_inode
+ - __nfs_revalidate_inode
+   - ** lock_kernel() **
+   - nfs_wait_on_inode
+   - Call getattr() (which is nfs3_proc_getattr()) to
+     get the attributes from the server and 
+     refresh the inode with the new values
+   - IF the cached data is invalid for the inode
+     - Writeback (If dirty) and sync the 
+       inode, call nfs_wb_all
+     - nfs_wb_all
+       - nfs_sync_inode 
+           - call nfs_wait_on_requests to wait for
+             the requests associated with the pages
+             to get complete
+           - nfs_flush_inode
+             - nfs_scan_dirty
+             - nfs_flush_list
+               - nfs_flush_one
+                 - nfs_write_rpcsetup
+                   - nfs3_proc_write_setup
+                     - rpc_init_task
+                     - rpc_call_setup
+           - nfs_execute_write
+             - ** lock_kernel() **
+             - rpc_execute
+             - ** unlock_kernel() **
+   - ** unlock_kernel() **     
 
 
-Coywolf Qi Hunt wrote:
 
->On 10/15/05, Lee Revell <rlrevell@joe-job.com> wrote:
->  
->
->>On Fri, 2005-10-14 at 18:46 -0700, Marc Perkel wrote:
->>    
->>
->>>Is there any way to force an immediate reboot as if to push the reset
->>>button in software? Got a remote server that i need to reboot and
->>>shutdown isn't working.
->>>      
->>>
->>If it has Oopsed, and the "reboot" command does not work, then all bets
->>are off - kernel memory has probably been corrupted.
->>
->>Get one of those powerstrips that you can telnet into and power cycle
->>things remotely.
->>
->>    
->>
->
->use reboot on panic.
->  
->
 
-But it didn't panic. It was still running - filtering spam. But reboot 
-wouldn't work and I couldn't kill anything that was running. So it never 
-paniced.
+		
+__________________________________ 
+Yahoo! Music Unlimited 
+Access over 1 million songs. Try it free.
+http://music.yahoo.com/unlimited/

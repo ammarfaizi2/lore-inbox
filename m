@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751238AbVJOWCb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbVJOWSP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751238AbVJOWCb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Oct 2005 18:02:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbVJOWCb
+	id S1751245AbVJOWSP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Oct 2005 18:18:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbVJOWSO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Oct 2005 18:02:31 -0400
-Received: from rwcrmhc11.comcast.net ([216.148.227.117]:48324 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S1751238AbVJOWCa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Oct 2005 18:02:30 -0400
-Date: Sat, 15 Oct 2005 14:59:12 -0700
-From: Jesse Barnes <jbarnes@virtuousgeek.org>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: ohci1394 unhandled interrupts bug in 2.6.14-rc2
-Message-ID: <20051015215912.GA11321@virtuousgeek.org>
-References: <20051015185502.GA9940@plato.virtuousgeek.org> <43515ADA.6050102@s5r6.in-berlin.de> <20051015202944.GA10463@plato.virtuousgeek.org> <43516E78.6040502@s5r6.in-berlin.de>
+	Sat, 15 Oct 2005 18:18:14 -0400
+Received: from gate.crashing.org ([63.228.1.57]:52921 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751245AbVJOWSN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Oct 2005 18:18:13 -0400
+Subject: Re: Possible memory ordering bug in page reclaim?
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: torvalds@osdl.org, herbert@gondor.apana.org.au, hugh@veritas.com,
+       paulus@samba.org, anton@samba.org, nickpiggin@yahoo.com.au,
+       akpm@osdl.org, andrea@suse.de, linux-kernel@vger.kernel.org
+In-Reply-To: <20051015.122938.14078749.davem@davemloft.net>
+References: <E1EQgxs-00061G-00@gondolin.me.apana.org.au>
+	 <Pine.LNX.4.64.0510150945460.23590@g5.osdl.org>
+	 <20051015.122938.14078749.davem@davemloft.net>
+Content-Type: text/plain
+Date: Sun, 16 Oct 2005 08:17:00 +1000
+Message-Id: <1129414620.7620.14.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43516E78.6040502@s5r6.in-berlin.de>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 15, 2005 at 11:02:48PM +0200, Stefan Richter wrote:
-> What about the PCI_CACHE_LINE_SIZE read/write?
+On Sat, 2005-10-15 at 12:29 -0700, David S. Miller wrote:
+> From: Linus Torvalds <torvalds@osdl.org>
+> Date: Sat, 15 Oct 2005 09:57:47 -0700 (PDT)
 > 
-> Jody McIntyre wrote on 2005-02-09:
-> | Can you try the fix without
-> | pci_write_config_word(dev,PCI_CACHE_LINE_SIZE,toshiba_pcls);
-> | or pci_read_config_word(dev,PCI_CACHE_LINE_SIZE,&toshiba_pcls);
-> | and report if it still works?
-> |
-> | If it doesn't work, try leaving those lines out but adding
-> | pci_clear_mwi(dev);
-> | after the mdelay(), on the off chance that the device thinks mwi is on.
-> |
-> | The correct fix for this, if possible, is actually a pci quirk instead
-> | of the dmi-based approach, but if reading PCI_CACHE_LINE_SIZE before
-> | pci_enable_device() really is necessary, this will be rather difficult.
-> [ http://marc.theaimsgroup.com/?l=linux1394-devel&m=110797909807519 ]
+> > On Sat, 15 Oct 2005, Herbert Xu wrote:
+> > >
+> > > Yes atomic_add_negative should always be a barrier.
+> > 
+> > I disagree. That would be very expensive on anything but x86, where it 
+> > just happens to be true for other reasons. Atomics do _not_ implement 
+> > barriers.
+> 
+> When they return values, they are defined to be barriers.
+> It's even on the documentation :-)
 
-It looks like it is.
+Ahhh, good to know :)
 
-I removed the PCI_CACHE_LINE_SIZE read and write, and that didn't work.
-I added in a pci_clear_mwi(dev) and that didn't work either.  It looks
-like the whole patch that I posted earlier is required.
+/me should read the documentation sometimes....
 
-Thanks,
-Jesse
+Ben.
+

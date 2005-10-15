@@ -1,57 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751119AbVJOHsR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbVJOH4c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751119AbVJOHsR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Oct 2005 03:48:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbVJOHsR
+	id S1751126AbVJOH4c (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Oct 2005 03:56:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbVJOH4c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Oct 2005 03:48:17 -0400
-Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:33678 "EHLO
-	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1751119AbVJOHsQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Oct 2005 03:48:16 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Sat, 15 Oct 2005 08:48:12 +0100 (BST)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Lee Revell <rlrevell@joe-job.com>
-cc: Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
+	Sat, 15 Oct 2005 03:56:32 -0400
+Received: from nproxy.gmail.com ([64.233.182.199]:3872 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751126AbVJOH4c convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Oct 2005 03:56:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=T7OZKnExT6tzHHRoUPCkxQQ1d6kPPvDgyrtkguxwKM3/vSNBVUVU8iIQYMfMqne/w0FgLBKkHvidgQuzWEm7/7RWSb+WtEs46PytlKJ3i0vn+s1geNLs2jIkylUUQlAgm87576adzsSqPpyhiNucp4WkJk3CNCTJmm81bPwaqtE=
+Message-ID: <2cd57c900510150056j2a6af6e5gf93ce9fa4ef16aac@mail.gmail.com>
+Date: Sat, 15 Oct 2005 15:56:31 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
 Subject: Re: Forcing an immediate reboot
-In-Reply-To: <1129341050.23895.12.camel@mindpipe>
-Message-ID: <Pine.LNX.4.64.0510150846430.25927@hermes-1.csi.cam.ac.uk>
-References: <43505F86.1050701@perkel.com> <1129341050.23895.12.camel@mindpipe>
+Cc: Lee Revell <rlrevell@joe-job.com>, Marc Perkel <marc@perkel.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0510150846430.25927@hermes-1.csi.cam.ac.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <43505F86.1050701@perkel.com> <1129341050.23895.12.camel@mindpipe>
+	 <Pine.LNX.4.64.0510150846430.25927@hermes-1.csi.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Oct 2005, Lee Revell wrote:
-> On Fri, 2005-10-14 at 18:46 -0700, Marc Perkel wrote:
-> > Is there any way to force an immediate reboot as if to push the reset 
-> > button in software? Got a remote server that i need to reboot and 
-> > shutdown isn't working.
-> 
-> If it has Oopsed, and the "reboot" command does not work, then all bets
-> are off - kernel memory has probably been corrupted.
-> 
-> Get one of those powerstrips that you can telnet into and power cycle
-> things remotely.
+On 10/15/05, Anton Altaparmakov <aia21@cam.ac.uk> wrote:
+> On Fri, 14 Oct 2005, Lee Revell wrote:
+> > On Fri, 2005-10-14 at 18:46 -0700, Marc Perkel wrote:
+> > > Is there any way to force an immediate reboot as if to push the reset
+> > > button in software? Got a remote server that i need to reboot and
+> > > shutdown isn't working.
+> >
+> > If it has Oopsed, and the "reboot" command does not work, then all bets
+> > are off - kernel memory has probably been corrupted.
+> >
+> > Get one of those powerstrips that you can telnet into and power cycle
+> > things remotely.
+>
+> If it has sysrq compiled in as root just do:
+>
+> echo s > /proc/sysrq-trigger
+> echo u > /proc/sysre-trigger
+> echo s > /proc/sysrq-trigger
 
-If it has sysrq compiled in as root just do:
+What the purpose of the second sync?
 
-echo s > /proc/sysrq-trigger
-echo u > /proc/sysre-trigger
-echo s > /proc/sysrq-trigger
-echo b > /proc/sysrq-trigger
-
-This will "sync", "umount/remount read-only", "sync", "immediate hardware 
-reboot".  Should always work...
-
-Best regards,
-
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+> echo b > /proc/sysrq-trigger
+>
+> This will "sync", "umount/remount read-only", "sync", "immediate hardware
+> reboot".  Should always work...
+--
+Coywolf Qi Hunt
+http://sosdg.org/~coywolf/

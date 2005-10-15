@@ -1,56 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751097AbVJOGue@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbVJOGvI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751097AbVJOGue (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Oct 2005 02:50:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbVJOGue
+	id S1751098AbVJOGvI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Oct 2005 02:51:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbVJOGvI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Oct 2005 02:50:34 -0400
-Received: from nproxy.gmail.com ([64.233.182.202]:62999 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751097AbVJOGud convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Oct 2005 02:50:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Buj3zHjtcJVAHFg3L09O4cJMMRY+lYJeoNav1mjLlcMIgHL8FRmoB1vE/ty7nJ8D4Firy7TpvfrN1W3hcE5rzLG+27s0aFLDkXRJgSiY7eRDbO7IXWmqcJvsAOsF37Txtz6C1arB1t/UzOpetz+BxXSe3z/6IU4AcaPQOI5HYOQ=
-Message-ID: <2cd57c900510142350v524a1bc0t1258a0d988aea28d@mail.gmail.com>
-Date: Sat, 15 Oct 2005 14:50:32 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-To: Willy Tarreau <willy@w.ods.org>
-Subject: Re: Forcing an immediate reboot
-Cc: Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20051015062125.GK22601@alpha.home.local>
+	Sat, 15 Oct 2005 02:51:08 -0400
+Received: from 10.ctyme.com ([69.50.231.10]:38786 "EHLO newton.ctyme.com")
+	by vger.kernel.org with ESMTP id S1751098AbVJOGvH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Oct 2005 02:51:07 -0400
+Message-ID: <4350A6D5.7010304@perkel.com>
+Date: Fri, 14 Oct 2005 23:51:01 -0700
+From: Marc Perkel <marc@perkel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040121
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <43505F86.1050701@perkel.com>
-	 <20051015062125.GK22601@alpha.home.local>
+To: Coywolf Qi Hunt <coywolf@gmail.com>
+CC: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
+Subject: Re: Forcing an immediate reboot
+References: <43505F86.1050701@perkel.com> <1129341050.23895.12.camel@mindpipe> <2cd57c900510142347y41ca98b1gf7172898d2bdc97a@mail.gmail.com>
+In-Reply-To: <2cd57c900510142347y41ca98b1gf7172898d2bdc97a@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spamfilter-host: newton.ctyme.com - http://www.junkemailfilter.com"
+X-Mail-from: marc@perkel.com
+X-Sender-host-address: 204.95.16.61
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/15/05, Willy Tarreau <willy@w.ods.org> wrote:
-> On Fri, Oct 14, 2005 at 06:46:46PM -0700, Marc Perkel wrote:
-> > Is there any way to force an immediate reboot as if to push the reset
-> > button in software? Got a remote server that i need to reboot and
-> > shutdown isn't working.
->
-> If you can telnet it, simply use this :
->
-> # echo 1 >/proc/sys/kernel/sysrq
-> # echo b >/proc/sysrq-trigger
->
-> It's dirty and you'll have an fsck. But it will nearly always work.
 
-You may avoid the fsck by:
 
-# echo s >/proc/sysrq-trigger
-# echo u >/proc/sysrq-trigger
+Coywolf Qi Hunt wrote:
 
-> I use it a lot in local on distros on which the shutdown process is
-> as long as the boot process (you know, the ones which display lots
-> of 'OK' or wait indefinitely for some dead services to stop, when
-> you really want them to reboot quickly).
---
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+>On 10/15/05, Lee Revell <rlrevell@joe-job.com> wrote:
+>  
+>
+>>On Fri, 2005-10-14 at 18:46 -0700, Marc Perkel wrote:
+>>    
+>>
+>>>Is there any way to force an immediate reboot as if to push the reset
+>>>button in software? Got a remote server that i need to reboot and
+>>>shutdown isn't working.
+>>>      
+>>>
+>>If it has Oopsed, and the "reboot" command does not work, then all bets
+>>are off - kernel memory has probably been corrupted.
+>>
+>>Get one of those powerstrips that you can telnet into and power cycle
+>>things remotely.
+>>
+>>    
+>>
+>
+>use reboot on panic.
+>  
+>
+
+But it didn't panic. It was still running - filtering spam. But reboot 
+wouldn't work and I couldn't kill anything that was running. So it never 
+paniced.

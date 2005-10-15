@@ -1,88 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbVJONYN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbVJONfF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751141AbVJONYN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Oct 2005 09:24:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751151AbVJONYN
+	id S1751147AbVJONfF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Oct 2005 09:35:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751151AbVJONfE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Oct 2005 09:24:13 -0400
-Received: from mail02.solnet.ch ([212.101.4.136]:30697 "EHLO mail02.solnet.ch")
-	by vger.kernel.org with ESMTP id S1751141AbVJONYL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Oct 2005 09:24:11 -0400
-From: Damir Perisa <damir.perisa@solnet.ch>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: documentation? (i learned something today ;-) )
-Date: Sat, 15 Oct 2005 15:23:58 +0200
-User-Agent: KMail/1.8.3
-Cc: Lee Revell <rlrevell@joe-job.com>, Marc Perkel <marc@perkel.com>,
-       linux-kernel@vger.kernel.org
-References: <43505F86.1050701@perkel.com> <1129341050.23895.12.camel@mindpipe> <Pine.LNX.4.64.0510150846430.25927@hermes-1.csi.cam.ac.uk>
-In-Reply-To: <Pine.LNX.4.64.0510150846430.25927@hermes-1.csi.cam.ac.uk>
-X-Face: +)fhYFmn|<pyRIlgch_);krg#jn!^z'?xy(Ur#Z6rZi)KD+_-V<Y@i>0pOVfJ4<=?utf-8?q?Q1/=26/=26z=0A=093cxqRa=3B7O=5C4g=5C=7C=5DF-!H0!ew9kx1LqK/iP?=
- =?utf-8?q?Ov8eXi=26I7=60Pez0V0VNMAxnqRL8-30qqKK=3DxGM=0A=09pExQc=5B2=7C?=
- =?utf-8?q?l6v=23?=<iwBvEO9+h|_YS[48z%/kuD2*aT*S/$0323VCL3V9?@}jq<
- =?utf-8?q?Ns6V=3A0m=27Qia=0A=09?="[#oJg[RVe}Sy/lP95E@pa[vdKzqLqn&M`exb91"`,<k`3;Vt97cLjhub0.v+]m`%|>@Z(
- =?utf-8?q?=0A=09EeC/zU7=25?=@"L6mi#..8Q^M
-Alanine: true
-Glycine: true
+	Sat, 15 Oct 2005 09:35:04 -0400
+Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:22975 "HELO
+	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1751147AbVJONfD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Oct 2005 09:35:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type;
+  b=HzaiGwN3C81QpXnAKq8Fwoz8mEzR7WB0O30mF892UonSaAV/JNeybX+ltDyJDjpvgGTyCPvYSWpn+oeVB5rgZnbox9RN+ovYa2gGyC6U1yn8QhEI/oRMoPFzyNaECZ3G9FCHaVbMJoG/ssX5PlkSgXXl9GrdPuszG9oeyo/UyBY=  ;
+Message-ID: <435105B6.4040507@yahoo.com.au>
+Date: Sat, 15 Oct 2005 23:35:50 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050914 Debian/1.7.11-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2694688.Kpf2JiGsf0";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200510151524.02123.damir.perisa@solnet.ch>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+CC: benh@kernel.crashing.org, hugh@veritas.com, paulus@samba.org,
+       anton@samba.org, torvalds@osdl.org, akpm@osdl.org, andrea@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: Possible memory ordering bug in page reclaim?
+References: <E1EQkpc-0007FI-00@gondolin.me.apana.org.au>
+In-Reply-To: <E1EQkpc-0007FI-00@gondolin.me.apana.org.au>
+Content-Type: multipart/mixed;
+ boundary="------------090003050907010403050501"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2694688.Kpf2JiGsf0
+This is a multi-part message in MIME format.
+--------------090003050907010403050501
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Herbert Xu wrote:
+> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> 
+>>Well yes, that's on the store side (1, above). However can't a CPU
+>>still speculatively (eg. guess the branch) load the page->flags
+>>cacheline which might be satisfied from memory before the page->count
+>>cacheline loads? Ie. you can still have the correct write ordering
+>>but have incorrect read ordering?
+>>
+>>Because neither PageDirty nor page_count is a barrier, and there is
+>>no read barrier between them.
+> 
+> 
+> Yes you're right.  A read barrier is required here.
+> 
+> I think Ben was actually agreeing with you.  He's just questioning
+> whether the corresponding write barrier existed on CPU 1 (the answer
+> to which is affirmative).
+>  
+
+Ah, that clears up my misunderstanding.
+
+Yes I agree the write side is OK.
+
+Thanks Ben and Herbert. I guess I should do a proper patch then.
+
+-- 
+SUSE Labs, Novell Inc.
+
+
+--------------090003050907010403050501
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+ name="mm-reclaim-memorder-fix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="mm-reclaim-memorder-fix.patch"
 
-hi all,
+In mm/vmscan.c, the page reclaim may have the following sequence 2
+running concurrently with sequence 1 on another CPU:
 
-Le Saturday 15 October 2005 09:48, Anton Altaparmakov a =E9crit=A0:
- | If it has sysrq compiled in as root just do:
- |
- | echo s > /proc/sysrq-trigger
- | echo u > /proc/sysre-trigger
- | echo s > /proc/sysrq-trigger
- | echo b > /proc/sysrq-trigger
- |
- | This will "sync", "umount/remount read-only", "sync", "immediate
- | hardware reboot". =A0Should always work...
+1                                2
+find_get_page();
+write to page                    write_lock(tree_lock);
+SetPageDirty();                  if (page_count != 2
+put_page();                              || PageDirty())
+                                     /* page dirty or busy */
+				 else
+				     /* free it */
 
-i'm impressed that i see that sysrq also works from procfs.... the=20
-"PrintScreen/SysRq" button on my keyboard from time to time does not work=20
-(old keyboard) and then it's pain hitting this key if you have to.=20
+The comment indicates that PageDirty must be checked *after* page_count
+indicates there are no users of this page, which prevents the dirty bit
+from being lost in the case that that sequence 2 might see the state of
+PageDirty() *before* SetPageDirty() in 1, but page_count *after* put_page
+in 1.
 
-great news that you can also pass sysrq requests using proc - i've learned=
-=20
-something today... is this documented somewhere? maybe i'm bad in=20
-reading/finding docs but i think i'm not the only one here. can somebody=20
-point me to the links of docs where all this magic is specified? if not,=20
-i will try to start my own docs on how to use the linux kernel magic.=20
-mainly a collection of tricks like this and similar ones.=20
+However, there is no read memory barrier there, and so nothing to stop a
+CPU from loading page_count before PageDirty (ie. ->flags). Theoretically,
+data corruption is possible.
 
-thank you in advance + greetings,
-Damir
+Signed-off-by: Nick Piggin <npiggin@suse.de>
 
-=2D-=20
-  Customer: (angrily) "You said I would get 98 windows with this computer.=
-=20
-Where are they?"=20
+Index: linux-2.6/mm/vmscan.c
+===================================================================
+--- linux-2.6.orig/mm/vmscan.c
++++ linux-2.6/mm/vmscan.c
+@@ -511,7 +511,12 @@ static int shrink_list(struct list_head 
+ 		 * PageDirty _after_ making sure that the page is freeable and
+ 		 * not in use by anybody. 	(pagecache + us == 2)
+ 		 */
+-		if (page_count(page) != 2 || PageDirty(page)) {
++		if (page_count(page) != 2) {
++			write_unlock_irq(&mapping->tree_lock);
++			goto keep_locked;
++		}
++		smp_rmb();
++		if (PageDirty(page)) {
+ 			write_unlock_irq(&mapping->tree_lock);
+ 			goto keep_locked;
+ 		}
 
---nextPart2694688.Kpf2JiGsf0
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBDUQLyPABWKV6NProRAnYJAJsGag/pV7AX0/deq9+7LoNnc0auNgCgooBQ
-dtDD4Oi9RKJDVEpQ9bgVuPI=
-=yC4b
------END PGP SIGNATURE-----
-
---nextPart2694688.Kpf2JiGsf0--
+--------------090003050907010403050501--
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbVJOVEZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751220AbVJOVGz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751213AbVJOVEZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Oct 2005 17:04:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbVJOVEY
+	id S1751220AbVJOVGz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Oct 2005 17:06:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751221AbVJOVGy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Oct 2005 17:04:24 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:46279 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1751213AbVJOVEY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Oct 2005 17:04:24 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <43516E78.6040502@s5r6.in-berlin.de>
-Date: Sat, 15 Oct 2005 23:02:48 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: linux1394-devel@lists.sourceforge.net
-CC: Jesse Barnes <jbarnes@virtuousgeek.org>, linux-kernel@vger.kernel.org
-Subject: Re: ohci1394 unhandled interrupts bug in 2.6.14-rc2
-References: <20051015185502.GA9940@plato.virtuousgeek.org> <43515ADA.6050102@s5r6.in-berlin.de> <20051015202944.GA10463@plato.virtuousgeek.org>
-In-Reply-To: <20051015202944.GA10463@plato.virtuousgeek.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 15 Oct 2005 17:06:54 -0400
+Received: from ms001msg.fastwebnet.it ([213.140.2.51]:8856 "EHLO
+	ms001msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S1751220AbVJOVGx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Oct 2005 17:06:53 -0400
+Date: Sat, 15 Oct 2005 23:03:28 +0200
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: Nico Schottelius <nico-kernel@schottelius.org>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>,
+       Nico Schottelius <nico-kernel@schottelius.org>,
+       Christian Kujau <evil@g-house.de>, LKML <linux-kernel@vger.kernel.org>,
+       Daniel Aubry <kernel-obri@chaostreff.ch>
+Subject: Re: Some problems with 2.6.13.4
+Message-ID: <20051015230328.3929264f@localhost>
+In-Reply-To: <20051015203824.GN12774@schottelius.org>
+References: <20051015122131.GG8609@schottelius.org>
+	<43511AB1.3010608@g-house.de>
+	<20051015154048.GK8609@schottelius.org>
+	<20051015200245.GM12774@schottelius.org>
+	<9a8748490510151322w25063287u567ecb698037fc4d@mail.gmail.com>
+	<20051015203824.GN12774@schottelius.org>
+X-Mailer: Sylpheed-Claws 1.9.13 (GTK+ 2.6.8; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: (-1.472) AWL,BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Barnes wrote:
-> On Sat, Oct 15, 2005 at 09:39:06PM +0200, Stefan Richter wrote:
->>Somebody mentioned this Linux-on-Toshiba-Satellite page recently on 
->>linux1394-user: http://www.janerob.com/rob/ts5100/index.shtml
->>The patch available from there was briefly discussed in February:
->>http://marc.theaimsgroup.com/?l=linux1394-devel&t=110786507900006
-> 
-> Yes, it seems to help.  If I boot up and modprobe the driver with
-> toshiba=1, everything looks fine (I have no firewire devices to test
-> with).  If I modprobe it with toshiba=0, the system gets sluggish for a
-> second then IRQ 11 is disabled.  I had to update the patch though,
+On Sat, 15 Oct 2005 22:38:24 +0200
+Nico Schottelius <nico-kernel@schottelius.org> wrote:
 
-What about the PCI_CACHE_LINE_SIZE read/write?
+> distcc will fail here, because of different gccs and different distributions
+> (ever tried to use gentoo and distcc in the same distcc-network? It's a real
+> pain).
 
-Jody McIntyre wrote on 2005-02-09:
-| Can you try the fix without
-| pci_write_config_word(dev,PCI_CACHE_LINE_SIZE,toshiba_pcls);
-| or pci_read_config_word(dev,PCI_CACHE_LINE_SIZE,&toshiba_pcls);
-| and report if it still works?
-|
-| If it doesn't work, try leaving those lines out but adding
-| pci_clear_mwi(dev);
-| after the mdelay(), on the off chance that the device thinks mwi is on.
-|
-| The correct fix for this, if possible, is actually a pci quirk instead
-| of the dmi-based approach, but if reading PCI_CACHE_LINE_SIZE before
-| pci_enable_device() really is necessary, this will be rather difficult.
-[ http://marc.theaimsgroup.com/?l=linux1394-devel&m=110797909807519 ]
+You can also use ccache to speed-up:
+	http://ccache.samba.org/
+
 -- 
-Stefan Richter
--=====-=-=-= =-=- -====
-http://arcgraph.de/sr/
+	Paolo Ornati
+	Linux 2.6.14-rc4-g7a3ca7d2 on x86_64

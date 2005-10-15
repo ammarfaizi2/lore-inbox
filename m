@@ -1,78 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbVJOHE3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbVJOHSO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751106AbVJOHE3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Oct 2005 03:04:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbVJOHE3
+	id S1751108AbVJOHSO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Oct 2005 03:18:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751111AbVJOHSO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Oct 2005 03:04:29 -0400
-Received: from web33314.mail.mud.yahoo.com ([68.142.206.129]:34157 "HELO
-	web33314.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751106AbVJOHE2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Oct 2005 03:04:28 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=VptwmHKZV+JrP+Bf410/Tkc+y9FXZ6Dcaa71AWbP8N6Ba5oS/gtFM12rXU0ENEoZw7BFkjda19D3xqtJiRmsw0JDoWTPXXBI/2n7OUtD6TI79j7+zSa1whXrKF0Ph75FMyMoEsDVbtP3Mv7h7A51H5NCwOZyKVQoK1dKG8ToRb8=  ;
-Message-ID: <20051015070426.56781.qmail@web33314.mail.mud.yahoo.com>
-Date: Sat, 15 Oct 2005 00:04:26 -0700 (PDT)
-From: li nux <lnxluv@yahoo.com>
-Subject: lock_kernel twice possible ?
-To: linux <linux-kernel@vger.kernel.org>
+	Sat, 15 Oct 2005 03:18:14 -0400
+Received: from www.tuxrocks.com ([64.62.190.123]:25350 "EHLO tuxrocks.com")
+	by vger.kernel.org with ESMTP id S1751108AbVJOHSO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Oct 2005 03:18:14 -0400
+Message-ID: <4350AD0A.2010208@tuxrocks.com>
+Date: Sat, 15 Oct 2005 01:17:30 -0600
+From: Frank Sorenson <frank@tuxrocks.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: tglx@linutronix.de
+CC: LKML <linux-kernel@vger.kernel.org>,
+       Steven Rostedt <rostedt@kihontech.com>,
+       Con Kolivas <kernel@kolivas.org>,
+       "high-res-timers-discourse@lists.sourceforge.net" 
+	<high-res-timers-discourse@lists.sourceforge.net>,
+       john cooper <john.cooper@timesys.com>,
+       George Anzinger <george@mvista.com>, Doug Niehaus <niehaus@ittc.ku.edu>,
+       john stultz <johnstul@us.ibm.com>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [ANNOUNCE] ktimers high resolution patches - clockevent	abstraction
+ layer
+References: <1129328040.1728.829.camel@tglx.tec.linutronix.de>
+In-Reply-To: <1129328040.1728.829.camel@tglx.tec.linutronix.de>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I was going thru the NFS v3 code for SMP kernel 2.6.11
-to see how an inode gets revalidated. I found that
-there is a possibility that there may be an attempt to
-do lock_kernel() twice.
+Thomas Gleixner wrote:
+> i have released the 2.6.14-rc4-kthrt1 version of the high resolution
+> timer enabled ktimers subsystem patch, which can be downloaded from
 
-Is this possible ? If yes then how this deadlock
-condition is/can be avoided.
+Great job.  I really like this rollup of ktimers + ktimersHRT + John's
+TOD patches.
 
--lnxluv
+Initial results are showing excellent latency numbers.  I'll run some
+tests overnight, and will report the results.
 
-Below is the code flow (please see ** for
-lock_kernel):
+Frank
+- --
+Frank Sorenson - KD7TZK
+Systems Manager, Computer Science Department
+Brigham Young University
+frank@tuxrocks.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-nfs_revalidate_inode
- - __nfs_revalidate_inode
-   - ** lock_kernel() **
-   - nfs_wait_on_inode
-   - Call getattr() (which is nfs3_proc_getattr()) to
-     get the attributes from the server and 
-     refresh the inode with the new values
-   - IF the cached data is invalid for the inode
-     - Writeback (If dirty) and sync the 
-       inode, call nfs_wb_all
-     - nfs_wb_all
-       - nfs_sync_inode 
-           - call nfs_wait_on_requests to wait for
-             the requests associated with the pages
-             to get complete
-           - nfs_flush_inode
-             - nfs_scan_dirty
-             - nfs_flush_list
-               - nfs_flush_one
-                 - nfs_write_rpcsetup
-                   - nfs3_proc_write_setup
-                     - rpc_init_task
-                     - rpc_call_setup
-           - nfs_execute_write
-             - ** lock_kernel() **
-             - rpc_execute
-             - ** unlock_kernel() **
-   - ** unlock_kernel() **     
-
-
-
-
-		
-__________________________________ 
-Yahoo! Music Unlimited 
-Access over 1 million songs. Try it free.
-http://music.yahoo.com/unlimited/
+iD8DBQFDUK0KaI0dwg4A47wRAg4JAKClGzgh0vGyt+yw0zoB5e3LoR82pwCfWgC7
+L61GelaatdyczS8VbTKVWeQ=
+=5Zb4
+-----END PGP SIGNATURE-----

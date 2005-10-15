@@ -1,147 +1,160 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751189AbVJOSML@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751137AbVJOS0N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751189AbVJOSML (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Oct 2005 14:12:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbVJOSML
+	id S1751137AbVJOS0N (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Oct 2005 14:26:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbVJOS0N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Oct 2005 14:12:11 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:24244 "EHLO
+	Sat, 15 Oct 2005 14:26:13 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:15073 "EHLO
 	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751189AbVJOSMK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Oct 2005 14:12:10 -0400
-Subject: PATCH: Better fixup for the orinoco driver
+	id S1751137AbVJOS0N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Oct 2005 14:26:13 -0400
+Subject: PATCH: EDAC atomic scrub operations
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Sat, 15 Oct 2005 19:41:20 +0100
-Message-Id: <1129401680.17923.3.camel@localhost.localdomain>
+Date: Sat, 15 Oct 2005 19:55:28 +0100
+Message-Id: <1129402528.17923.9.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest kernel added a pretty ugly fix for the orinoco etherleak bug
-which contains bogus skb->len checks already done by the caller and
-causes copies of all odd sized frames (which are quite common)
+EDAC requires a way to scrub memory if an ECC error is found and the
+chipset does not do the work automatically. That means rewriting memory
+locations atomically with respect to all CPUs _and_ bus masters. That
+means we can't use atomic_add(foo, 0) as it gets optimised for non-SMP
 
-While the skb->len check should be ripped out the other fix is harder to
-do properly so I'm proposing for this the -mm tree only until next 2.6.x
-so that it gets tested.
+This adds a function to include/asm-foo/atomic.h for the platforms
+currently supported which implements a scrub of a mapped block.
 
-Instead of copying buffers around blindly this code implements a padding
-aware version of the hermes buffer writing function which does padding
-as the buffer is loaded and thus more cleanly and without bogus 1.5K
-copies.
+It also adjusts a few other files include order where atomic.h is
+included before types.h as this now causes an error as atomic_scrub uses
+u32.
 
-Patch v current -mm so before the bogus skb->len/skb=skb_padto change
-went in.
+Alan
 
 Signed-off-by: Alan Cox <alan@redhat.com>
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.14-rc2-mm1/drivers/net/wireless/hermes.c linux-2.6.14-rc2-mm1/drivers/net/wireless/hermes.c
---- linux.vanilla-2.6.14-rc2-mm1/drivers/net/wireless/hermes.c	2005-09-22 15:21:45.000000000 +0100
-+++ linux-2.6.14-rc2-mm1/drivers/net/wireless/hermes.c	2005-10-13 13:18:46.000000000 +0100
-@@ -451,6 +451,43 @@
- 	return err;
- }
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.14-rc2-mm1/drivers/md/kcopyd.c linux-2.6.14-rc2-mm1/drivers/md/kcopyd.c
+--- linux.vanilla-2.6.14-rc2-mm1/drivers/md/kcopyd.c	2005-09-22 15:21:40.000000000 +0100
++++ linux-2.6.14-rc2-mm1/drivers/md/kcopyd.c	2005-10-14 18:54:22.000000000 +0100
+@@ -8,6 +8,7 @@
+  * completion notification.
+  */
  
-+/* Write a block of data to the chip's buffer with padding if
-+ * neccessary, via the BAP. Synchronization/serialization is the
-+ * caller's problem. len must be even.
-+ *
-+ * Returns: < 0 on internal failure (errno), 0 on success, > 0 on error from firmware
-+ */
-+int hermes_bap_pwrite_pad(hermes_t *hw, int bap, const void *buf, unsigned data_len, unsigned len, 
-+		      u16 id, u16 offset)
++#include <asm/types.h>
+ #include <asm/atomic.h>
+ 
+ #include <linux/blkdev.h>
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.14-rc2-mm1/drivers/w1/matrox_w1.c linux-2.6.14-rc2-mm1/drivers/w1/matrox_w1.c
+--- linux.vanilla-2.6.14-rc2-mm1/drivers/w1/matrox_w1.c	2005-09-22 15:21:55.000000000 +0100
++++ linux-2.6.14-rc2-mm1/drivers/w1/matrox_w1.c	2005-10-14 19:04:55.000000000 +0100
+@@ -19,8 +19,8 @@
+  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+  */
+ 
+-#include <asm/atomic.h>
+ #include <asm/types.h>
++#include <asm/atomic.h>
+ #include <asm/io.h>
+ 
+ #include <linux/delay.h>
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.14-rc2-mm1/fs/nfsctl.c linux-2.6.14-rc2-mm1/fs/nfsctl.c
+--- linux.vanilla-2.6.14-rc2-mm1/fs/nfsctl.c	2005-09-22 15:22:00.000000000 +0100
++++ linux-2.6.14-rc2-mm1/fs/nfsctl.c	2005-10-14 18:39:22.000000000 +0100
+@@ -5,6 +5,7 @@
+  *
+  */
+ #include <linux/config.h>
++#include <linux/types.h>
+ #include <linux/file.h>
+ #include <linux/fs.h>
+ #include <linux/sunrpc/svc.h>
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.14-rc2-mm1/include/asm-i386/atomic.h linux-2.6.14-rc2-mm1/include/asm-i386/atomic.h
+--- linux.vanilla-2.6.14-rc2-mm1/include/asm-i386/atomic.h	2005-09-22 15:22:55.000000000 +0100
++++ linux-2.6.14-rc2-mm1/include/asm-i386/atomic.h	2005-10-14 18:30:03.000000000 +0100
+@@ -237,4 +237,15 @@
+ #define smp_mb__before_atomic_inc()	barrier()
+ #define smp_mb__after_atomic_inc()	barrier()
+ 
++/* ECC atomic, DMA, SMP and interrupt safe scrub function */
++
++static __inline__ void atomic_scrub(unsigned long *virt_addr, u32 size)
 +{
-+	int dreg = bap ? HERMES_DATA1 : HERMES_DATA0;
-+	int err = 0;
++	u32 i;
++	for (i = 0; i < size / 4; i++, virt_addr++)
++		/* Very carefully read and write to memory atomically
++		 * so we are interrupt, DMA and SMP safe.
++		 */
++		__asm__ __volatile__("lock; addl $0, %0"::"m"(*virt_addr));
++}
+ #endif
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.14-rc2-mm1/include/asm-x86_64/atomic.h linux-2.6.14-rc2-mm1/include/asm-x86_64/atomic.h
+--- linux.vanilla-2.6.14-rc2-mm1/include/asm-x86_64/atomic.h	2005-09-22 15:22:11.000000000 +0100
++++ linux-2.6.14-rc2-mm1/include/asm-x86_64/atomic.h	2005-10-14 18:29:47.000000000 +0100
+@@ -378,4 +378,16 @@
+ #define smp_mb__before_atomic_inc()	barrier()
+ #define smp_mb__after_atomic_inc()	barrier()
+ 
++/* ECC atomic, DMA, SMP and interrupt safe scrub function */
 +
-+	if (len < 0 || len % 2 || data_len > len)
-+		return -EINVAL;
-+
-+	err = hermes_bap_seek(hw, bap, id, offset);
-+	if (err)
-+		goto out;
-+	
-+	/* Transfer all the complete words of data */
-+	hermes_write_words(hw, dreg, buf, data_len/2);
-+	/* If there is an odd byte left over pad and transfer it */
-+	if(data_len & 1) {
-+		u8 end[2];
-+		end[1] = 0;
-+		end[0] = ((unsigned char *)buf)[data_len - 1];
-+		hermes_write_words(hw, dreg, end, 1);
-+		data_len ++;
-+	}
-+	/* Now send zeros for the padding */
-+	if(data_len < len)
-+		hermes_clear_words(hw, dreg, (len - data_len) / 2);
-+	/* Complete */
-+ out:	
-+	return err;
++static __inline__ void atomic_scrub(unsigned long *virt_addr, u32 size)
++{
++	u32 i;
++	for (i = 0; i < size / 4; i++, virt_addr++)
++		/* Very carefully read and write to memory atomically
++		 * so we are interrupt, DMA and SMP safe.
++		 */
++		__asm__ __volatile__("lock; addl $0, %0"::"m"(*virt_addr));
 +}
 +
- /* Read a Length-Type-Value record from the card.
-  *
-  * If length is NULL, we ignore the length read from the card, and
-@@ -538,6 +575,7 @@
+ #endif
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.14-rc2-mm1/kernel/audit.c linux-2.6.14-rc2-mm1/kernel/audit.c
+--- linux.vanilla-2.6.14-rc2-mm1/kernel/audit.c	2005-09-22 15:22:45.000000000 +0100
++++ linux-2.6.14-rc2-mm1/kernel/audit.c	2005-10-14 18:31:38.000000000 +0100
+@@ -42,8 +42,8 @@
+  */
  
- EXPORT_SYMBOL(hermes_bap_pread);
- EXPORT_SYMBOL(hermes_bap_pwrite);
-+EXPORT_SYMBOL(hermes_bap_pwrite_pad);
- EXPORT_SYMBOL(hermes_read_ltv);
- EXPORT_SYMBOL(hermes_write_ltv);
+ #include <linux/init.h>
+-#include <asm/atomic.h>
+ #include <asm/types.h>
++#include <asm/atomic.h>
+ #include <linux/mm.h>
+ #include <linux/module.h>
+ #include <linux/err.h>
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.14-rc2-mm1/kernel/auditsc.c linux-2.6.14-rc2-mm1/kernel/auditsc.c
+--- linux.vanilla-2.6.14-rc2-mm1/kernel/auditsc.c	2005-09-22 15:22:45.000000000 +0100
++++ linux-2.6.14-rc2-mm1/kernel/auditsc.c	2005-10-14 18:31:51.000000000 +0100
+@@ -30,8 +30,8 @@
+  */
  
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.14-rc2-mm1/drivers/net/wireless/hermes.h linux-2.6.14-rc2-mm1/drivers/net/wireless/hermes.h
---- linux.vanilla-2.6.14-rc2-mm1/drivers/net/wireless/hermes.h	2005-09-22 15:21:45.000000000 +0100
-+++ linux-2.6.14-rc2-mm1/drivers/net/wireless/hermes.h	2005-10-13 13:08:48.000000000 +0100
-@@ -377,6 +377,8 @@
- 		       u16 id, u16 offset);
- int hermes_bap_pwrite(hermes_t *hw, int bap, const void *buf, unsigned len,
- 			u16 id, u16 offset);
-+int hermes_bap_pwrite_pad(hermes_t *hw, int bap, const void *buf, 
-+			unsigned data_len, unsigned len, u16 id, u16 offset);
- int hermes_read_ltv(hermes_t *hw, int bap, u16 rid, unsigned buflen,
- 		    u16 *length, void *buf);
- int hermes_write_ltv(hermes_t *hw, int bap, u16 rid,
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.14-rc2-mm1/drivers/net/wireless/orinoco.c linux-2.6.14-rc2-mm1/drivers/net/wireless/orinoco.c
---- linux.vanilla-2.6.14-rc2-mm1/drivers/net/wireless/orinoco.c	2005-09-22 15:22:54.000000000 +0100
-+++ linux-2.6.14-rc2-mm1/drivers/net/wireless/orinoco.c	2005-10-13 13:17:19.000000000 +0100
-@@ -502,8 +502,7 @@
- 	}
- 
- 	/* Length of the packet body */
--	/* FIXME: what if the skb is smaller than this? */
--	len = max_t(int,skb->len - ETH_HLEN, ETH_ZLEN - ETH_HLEN);
-+	len = max_t(int,skb->len, ETH_ZLEN) - ETH_HLEN;
- 
- 	eh = (struct ethhdr *)skb->data;
- 
-@@ -549,14 +548,21 @@
- 			stats->tx_errors++;
- 			goto fail;
- 		}
-+		/* Actual xfer length - allow for padding */
-+		len = ALIGN(data_len, 2);
-+		if(len < ETH_ZLEN - ETH_HLEN)
-+			len = ETH_ZLEN - ETH_HLEN;
- 	} else { /* IEEE 802.3 frame */
- 		data_len = len + ETH_HLEN;
- 		data_off = HERMES_802_3_OFFSET;
- 		p = skb->data;
-+		/* Actual xfer length - round up for odd length packets */
-+		len = ALIGN(data_len, 2);
-+		if(len < ETH_ZLEN)
-+			len = ETH_ZLEN;
- 	}
- 
--	/* Round up for odd length packets */
--	err = hermes_bap_pwrite(hw, USER_BAP, p, ALIGN(data_len, 2),
-+	err = hermes_bap_pwrite_pad(hw, USER_BAP, p, data_len, len,
- 				txfid, data_off);
- 	if (err) {
- 		printk(KERN_ERR "%s: Error %d writing packet to BAP\n",
+ #include <linux/init.h>
+-#include <asm/atomic.h>
+ #include <asm/types.h>
++#include <asm/atomic.h>
+ #include <linux/mm.h>
+ #include <linux/module.h>
+ #include <linux/mount.h>
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.14-rc2-mm1/net/ipv4/raw.c linux-2.6.14-rc2-mm1/net/ipv4/raw.c
+--- linux.vanilla-2.6.14-rc2-mm1/net/ipv4/raw.c	2005-09-22 15:22:45.000000000 +0100
++++ linux-2.6.14-rc2-mm1/net/ipv4/raw.c	2005-10-14 19:09:41.000000000 +0100
+@@ -40,12 +40,12 @@
+  */
+  
+ #include <linux/config.h> 
++#include <linux/types.h>
+ #include <asm/atomic.h>
+ #include <asm/byteorder.h>
+ #include <asm/current.h>
+ #include <asm/uaccess.h>
+ #include <asm/ioctls.h>
+-#include <linux/types.h>
+ #include <linux/stddef.h>
+ #include <linux/slab.h>
+ #include <linux/errno.h>
+
+
 
 

@@ -1,133 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751143AbVJOMbR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751082AbVJOMu1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751143AbVJOMbR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Oct 2005 08:31:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751145AbVJOMbR
+	id S1751082AbVJOMu1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Oct 2005 08:50:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751145AbVJOMu1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Oct 2005 08:31:17 -0400
-Received: from wombat.indigo.net.au ([202.0.185.19]:54034 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S1751143AbVJOMbR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Oct 2005 08:31:17 -0400
-Date: Sat, 15 Oct 2005 20:30:47 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-To: Jeff Moyer <jmoyer@redhat.com>
-cc: autofs@linux.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: autofs4 looks up wrong path element when ghosting is enabled
-In-Reply-To: <17208.24786.729632.221157@segfault.boston.redhat.com>
-Message-ID: <Pine.LNX.4.63.0510152006340.30122@donald.themaw.net>
-References: <17200.23724.686149.394150@segfault.boston.redhat.com>
- <Pine.LNX.4.58.0509210916040.26144@wombat.indigo.net.au>
- <17203.7543.949262.883138@segfault.boston.redhat.com>
- <Pine.LNX.4.63.0509241644420.2069@donald.themaw.net>
- <17205.48192.180623.885538@segfault.boston.redhat.com>
- <Pine.LNX.4.63.0509250918150.2191@donald.themaw.net>
- <17208.24786.729632.221157@segfault.boston.redhat.com>
+	Sat, 15 Oct 2005 08:50:27 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:6852 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751082AbVJOMu0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Oct 2005 08:50:26 -0400
+To: Andy Isaacson <adi@hexapodia.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       fastboot@osdl.org, Andi Kleen <ak@suse.de>
+Subject: Re: i386 nmi_watchdog: Merge check_nmi_watchdog fixes from x86_64
+References: <20051014185311.GH14194@hexapodia.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Sat, 15 Oct 2005 06:49:56 -0600
+In-Reply-To: <20051014185311.GH14194@hexapodia.org> (Andy Isaacson's message
+ of "Fri, 14 Oct 2005 11:53:11 -0700")
+Message-ID: <m13bn3ndvv.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-101.4, required 8,
-	EMAIL_ATTRIBUTION, IN_REP_TO, QUOTED_EMAIL_TEXT, RCVD_IN_ORBS,
-	RCVD_IN_OSIRUSOFT_COM, REFERENCES, REPLY_WITH_QUOTES,
-	USER_AGENT_PINE, USER_IN_WHITELIST)
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Sep 2005, Jeff Moyer wrote:
+Andy Isaacson <adi@hexapodia.org> writes:
 
-> ==> Regarding Re: autofs4 looks up wrong path element when ghosting is enabled; Ian Kent <raven@themaw.net> adds:
-> 
-> raven> On Sat, 24 Sep 2005, Jeff Moyer wrote:
-> >> >> >> >> >> Ian, I'm not really sure how we can address this issue
-> >> without VFS >> >> changes.  Any ideas?
-> >> >> >> 
-> >> >> 
-> raven> I'm aware of this problem.  I'm not sure how to deal with it yet.
-> raven> The case above is probably not that difficult to solve but if the
-> raven> last component is a directory it's hard to work out it's a problem.
-> >> >> Ugh.  If you're thinking what I think you're thinking, that's an ugly
-> >> >> hack.
-> >> 
-> raven> Don't think so.
-> >>
-> raven> I've been seeing this for a while. I wasn't quite sure of the source
-> raven> but, for some reason your report has cleared that up.
-> >>
-> raven> The problem is not so much the success returned on the failed mount
-> raven> (revalidate). It's the return from the following lookup. This is a
-> raven> lookup in a non-root directory. I replaced the non-root lookup with
-> raven> the root lookup a while ago and I think this is an unexpected side
-> raven> affect of that. Becuase of other changes that lead to that decision
-> raven> I think that it should be now be OK to put back the null function
-> raven> (always return a negative dentry) that was there before I started
-> raven> working on the browable maps feature.
-> >>
+> On Thu, Oct 13, 2005 at 10:13:12PM -0600, Eric W. Biederman wrote:
+>> Andrew Morton <akpm@osdl.org> writes:
+>> > ebiederm@xmission.com (Eric W. Biederman) wrote:
+>> >>  static int __init check_nmi_watchdog(void)
+>> >>  {
+>> >> +	volatile int endflag = 0;
+>> >
+>> > I don't think this needs to be declared volatile?
+>> 
+>> If the variable was static the volatile would clearly be unnecessary
+>> as we have taken the address earlier so at some point the compiler
+>> would be obligated to but with the variable being auto the rules are a
+>> little murky.
+>
+> I don't think it's murky at all; since you took the address and passed
+> it to another function, the compiler has to assume that you saved the
+> pointer away and will be referring to it later.  (Unless the compiler
+> can prove that you *won't* be referring to it later, such as if there
+> are no more function calls between the store and the variable going out
+> of scope, or if the compiler does whole-program optimization and can see
+> the entire data flow of that pointer and prove that it's not
+> dereferenced.)
+>
+> Now, I think the following could hypothetically be a problem:
+>
+> An optimizing compiler could look at foo() and decide that since blah is
+> not volatile, and there are no function calls after it is incremented,
+> the increment can be discarded.  But alas, baz() does check the value on
+> another thread.
+>
+> I believe (but have not verified) that GCC simply inhibits
+> dead-store-elimination when the address of the variable has been taken,
+> so this theoretical possibility is not a real danger under gcc.  And in
+> any case, it doesn't apply to your check_nmi_watchdog, because you've
+> got function calls after the assignment.
 
-I've had a look at this a bit more deeply.
+It comes very close to applying to check_nmi_watchdog as both
+of the functions called after endflag is set: printk and kfree 
+both have nothing to do with the setting of endflag.   If they
+were simpler functions an optimizing compiler could look at
+them realizing that.  Since those two functions have nothing
+to do with endflag someone else looking at the code remove or
+reorder them with a trivial patch and the code could stop working.
 
-As we know we can't make the path walk lookup fail by autofs4_revalidate 
-simply returning 0 and to change that in the kernel would be far to 
-dangerous. So we need to deal with this during the following lookup. This 
-just means we get an unwanted callback to the daemon which will fail 
-and should not cause a problem.
+GCC keeps getting more powerful optimizations so I am not comfortable
+with depending on it simply eliminating dead-store-elimination when the
+address of a variable has been taken.
 
-I'm still not fully clear on the reasoning behind the logic in 
-try_to_fill_dentry when called with a negative dentry. One of the things 
-it attempts to do is cache a lookup failure (ENOENT return from the wait). 
-Unfortuneatly the subsequent test in autofs4_revalidate is a tautology, 
-always returning true. So d_invalidate is never called to cleanup what 
-might be a stale dentry. While this is not causing the problem stale 
-dentrys are the problem.
+If there is a better idiom to synchronize the cpus which does
+not mark the variable volatile I could see switching to that. 
 
-I still haven't decided whether it would be a good idea to return 0 
-instead of 1 from try_to_fill_dentry for these failed mount attempts. All 
-this would do is give the kernel more chances to clean up the stale 
-dentries. The dentry in question won't be released at this point as it has 
-a non zero reference count (I believe). But sooner or later they will go 
-anyway when d_invalidate is called.
+There is a theoretical race there as some cpu might not see endflag
+get set and the next function on the stack could set it that same
+stack slot to 0.  I can see value in fixing that, if there is a simple
+and clear solution.  Currently I am having a failure of imagination.
 
-So to resolve this we need to ignore negative and unhashed dentries when 
-checking if directory dentry is empty.
-
-Please test this patch and let me know how you go.
-
-diff -Nurp linux-2.6.12.orig/fs/autofs4/expire.c linux-2.6.12/fs/autofs4/expire.c
---- linux-2.6.12.orig/fs/autofs4/expire.c	2005-06-18 03:48:29.000000000 +0800
-+++ linux-2.6.12/fs/autofs4/expire.c	2005-10-09 15:11:37.000000000 +0800
-@@ -177,7 +177,7 @@ resume:
- 		DPRINTK("dentry %p %.*s",
- 			dentry, (int)dentry->d_name.len, dentry->d_name.name);
- 
--		if (!list_empty(&dentry->d_subdirs)) {
-+		if (!simple_empty_nolock(dentry)) {
- 			this_parent = dentry;
- 			goto repeat;
- 		}
-@@ -269,7 +269,7 @@ static struct dentry *autofs4_expire(str
- 			goto next;
- 		}
- 
--		if ( simple_empty(dentry) )
-+		if (simple_empty(dentry))
- 			goto next;
- 
- 		/* Case 2: tree mount, expire iff entire tree is not busy */
-diff -Nurp linux-2.6.12.orig/fs/autofs4/root.c linux-2.6.12/fs/autofs4/root.c
---- linux-2.6.12.orig/fs/autofs4/root.c	2005-06-18 03:48:29.000000000 +0800
-+++ linux-2.6.12/fs/autofs4/root.c	2005-10-09 15:52:04.000000000 +0800
-@@ -386,13 +386,13 @@ static int autofs4_revalidate(struct den
- 
- 	/* Negative dentry.. invalidate if "old" */
- 	if (dentry->d_inode == NULL)
--		return (dentry->d_time - jiffies <= AUTOFS_NEGATIVE_TIMEOUT);
-+		return (dentry->d_time - jiffies <= 0);
- 
- 	/* Check for a non-mountpoint directory with no contents */
- 	spin_lock(&dcache_lock);
- 	if (S_ISDIR(dentry->d_inode->i_mode) &&
- 	    !d_mountpoint(dentry) && 
--	    list_empty(&dentry->d_subdirs)) {
-+	    simple_empty_nolock(dentry)) {
- 		DPRINTK("dentry=%p %.*s, emptydir",
- 			 dentry, dentry->d_name.len, dentry->d_name.name);
- 		spin_unlock(&dcache_lock);
+Eric

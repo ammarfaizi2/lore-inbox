@@ -1,105 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751235AbVJOUn6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751240AbVJOUrW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751235AbVJOUn6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Oct 2005 16:43:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751236AbVJOUn6
+	id S1751240AbVJOUrW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Oct 2005 16:47:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbVJOUrW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Oct 2005 16:43:58 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:19419 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1751235AbVJOUn5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Oct 2005 16:43:57 -0400
-Date: Sat, 15 Oct 2005 13:40:40 -0700
-From: Jesse Barnes <jbarnes@plato.virtuousgeek.org>
-To: Jesse Barnes <jbarnes@virtuousgeek.org>
-Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>,
-       linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, gregkh@suse.de
-Subject: Re: new PCI quirk for Toshiba Satellite?
-Message-ID: <20051015204040.GA10537@plato.virtuousgeek.org>
-References: <20051015185502.GA9940@plato.virtuousgeek.org> <43515ADA.6050102@s5r6.in-berlin.de> <20051015202944.GA10463@plato.virtuousgeek.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051015202944.GA10463@plato.virtuousgeek.org>
-User-Agent: Mutt/1.4.2.1i
+	Sat, 15 Oct 2005 16:47:22 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:36500 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751237AbVJOUrV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Oct 2005 16:47:21 -0400
+Message-Id: <200510152047.j9FKlDGb022996@shell0.pdx.osdl.net>
+Subject: + revert-orinoco-information-leakage-due-to-incorrect-padding.patch added to -mm tree
+To: linux-kernel@vger.kernel.org, alan@redhat.com, mm-commits@vger.kernel.org
+From: akpm@osdl.org
+Date: Sat, 15 Oct 2005 13:46:43 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 15, 2005 at 01:29:44PM -0700, Jesse Barnes wrote:
-> On Sat, Oct 15, 2005 at 09:39:06PM +0200, Stefan Richter wrote:
-> > Somebody mentioned this Linux-on-Toshiba-Satellite page recently on 
-> > linux1394-user: http://www.janerob.com/rob/ts5100/index.shtml
-> > The patch available from there was briefly discussed in February:
-> > http://marc.theaimsgroup.com/?l=linux1394-devel&t=110786507900006
-> > 
-> > Does this patch correct the problem on your machine?
-> 
-> Yes, it seems to help.  If I boot up and modprobe the driver with
-> toshiba=1, everything looks fine (I have no firewire devices to test
-> with).  If I modprobe it with toshiba=0, the system gets sluggish for a
-> second then IRQ 11 is disabled.  I had to update the patch though, as
-> shown below.
-> 
-> I'm not sure if the fix is proper though, maybe this should be handled
-> as a PCI quirk of this Toshiba board instead?  Either way, some kind of
-> fix should make it in soon, ideally to 2.6.14 or 2.6.14.1.
 
-[Forwarding on to the PCI maintainers.]
+The patch titled
 
-It seems that the PCI config space isn't programmed correctly on these
-machines for some reason, so the fix below allows my OHCI device to work
-if I pass 'toshiba=1'.  This seems like something that belongs in the
-PCI layer instead though, doesn't it?
+     revert "orinoco: Information leakage due to incorrect padding"
 
-Thanks,
-Jesse
+has been added to the -mm tree.  Its filename is
 
-> diff -X linux-2.6.14-rc2/Documentation/dontdiff -Naur linux-2.6.14-rc2.orig/drivers/ieee1394/ohci1394.c linux-2.6.14-rc2/drivers/ieee1394/ohci1394.c
-> --- linux-2.6.14-rc2.orig/drivers/ieee1394/ohci1394.c	2005-09-19 20:00:41.000000000 -0700
-> +++ linux-2.6.14-rc2/drivers/ieee1394/ohci1394.c	2005-10-15 12:55:08.000000000 -0700
-> @@ -169,6 +169,10 @@
->  module_param(phys_dma, int, 0644);
->  MODULE_PARM_DESC(phys_dma, "Enable physical dma (default = 1).");
->  
-> +static int toshiba __initdata = 0;
-> +module_param(toshiba, bool, 0);
-> +MODULE_PARM_DESC(toshiba, "Toshiba Legacy-Free BIOS workaround (default=0).");
-> +
->  static void dma_trm_tasklet(unsigned long data);
->  static void dma_trm_reset(struct dma_trm_ctx *d);
->  
-> @@ -3222,14 +3226,28 @@
->  	struct hpsb_host *host;
->  	struct ti_ohci *ohci;	/* shortcut to currently handled device */
->  	unsigned long ohci_base;
-> +	u16  toshiba_data;
->  
->  	if (version_printed++ == 0)
->  		PRINT_G(KERN_INFO, "%s", version);
->  
-> +	if (toshiba) {
-> +		dev->current_state = 4;
-> +		pci_read_config_word(dev, PCI_CACHE_LINE_SIZE, &toshiba_data);
-> +	}
-> +
->          if (pci_enable_device(dev))
->  		FAIL(-ENXIO, "Failed to enable OHCI hardware");
->          pci_set_master(dev);
->  
-> +	if (toshiba) {
-> +		mdelay(10);
-> +		pci_write_config_word(dev, PCI_CACHE_LINE_SIZE, toshiba_data);
-> +		pci_write_config_word(dev, PCI_INTERRUPT_LINE, dev->irq);
-> +		pci_write_config_dword(dev, PCI_BASE_ADDRESS_0, pci_resource_start(dev, 0));
-> +		pci_write_config_dword(dev, PCI_BASE_ADDRESS_1, pci_resource_start(dev, 1));
-> + 	}
-> +
->  	host = hpsb_alloc_host(&ohci1394_driver, sizeof(struct ti_ohci), &dev->dev);
->  	if (!host) FAIL(-ENOMEM, "Failed to allocate host structure");
->  
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+     revert-orinoco-information-leakage-due-to-incorrect-padding.patch
+
+
+From: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+
+Cc: Alan Cox <alan@redhat.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ drivers/net/wireless/orinoco.c |   14 +++++---------
+ 1 files changed, 5 insertions(+), 9 deletions(-)
+
+diff -puN drivers/net/wireless/orinoco.c~revert-orinoco-information-leakage-due-to-incorrect-padding drivers/net/wireless/orinoco.c
+--- devel/drivers/net/wireless/orinoco.c~revert-orinoco-information-leakage-due-to-incorrect-padding	2005-10-15 13:46:12.000000000 -0700
++++ devel-akpm/drivers/net/wireless/orinoco.c	2005-10-15 13:46:37.000000000 -0700
+@@ -503,14 +503,9 @@ static int orinoco_xmit(struct sk_buff *
+ 		return 0;
+ 	}
+ 
+-	/* Check packet length, pad short packets, round up odd length */
+-	len = max_t(int, ALIGN(skb->len, 2), ETH_ZLEN);
+-	if (skb->len < len) {
+-		skb = skb_padto(skb, len);
+-		if (skb == NULL)
+-			goto fail;
+-	}
+-	len -= ETH_HLEN;
++	/* Length of the packet body */
++	/* FIXME: what if the skb is smaller than this? */
++	len = max_t(int,skb->len - ETH_HLEN, ETH_ZLEN - ETH_HLEN);
+ 
+ 	eh = (struct ethhdr *)skb->data;
+ 
+@@ -562,7 +557,8 @@ static int orinoco_xmit(struct sk_buff *
+ 		p = skb->data;
+ 	}
+ 
+-	err = hermes_bap_pwrite(hw, USER_BAP, p, data_len,
++	/* Round up for odd length packets */
++	err = hermes_bap_pwrite(hw, USER_BAP, p, ALIGN(data_len, 2),
+ 				txfid, data_off);
+ 	if (err) {
+ 		printk(KERN_ERR "%s: Error %d writing packet to BAP\n",
+_
+
+Patches currently in -mm which might be from linux-kernel@vger.kernel.org are
+
+revert-orinoco-information-leakage-due-to-incorrect-padding.patch
+reiser4-only.patch
+

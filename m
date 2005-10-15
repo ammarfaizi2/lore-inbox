@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbVJOUWX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751219AbVJOUXO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751216AbVJOUWX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Oct 2005 16:22:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751218AbVJOUWX
+	id S1751219AbVJOUXO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Oct 2005 16:23:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751218AbVJOUXO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Oct 2005 16:22:23 -0400
-Received: from qproxy.gmail.com ([72.14.204.204]:38336 "EHLO qproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751216AbVJOUWX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Oct 2005 16:22:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Q5zVvajME0eAlUx0rDiCNkwjj03NLc1J8tMPtXQghC6iiBfL5FFvJgznnKvPQ2AJx9UNuiJXtkpj626E9U2Uk8VzfIyAyyeturvOSXaqdNB1jpF/a0Psx3JKRL+GBlZnhxvI06aZb5AvWrTO6q6+9Qfd69CjtHc+k9/6m1OXU0I=
-Message-ID: <9a8748490510151322w25063287u567ecb698037fc4d@mail.gmail.com>
-Date: Sat, 15 Oct 2005 22:22:22 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Nico Schottelius <nico-kernel@schottelius.org>
-Subject: Re: Some problems with 2.6.13.4
-Cc: Christian Kujau <evil@g-house.de>, LKML <linux-kernel@vger.kernel.org>,
-       Daniel Aubry <kernel-obri@chaostreff.ch>
-In-Reply-To: <20051015200245.GM12774@schottelius.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051015122131.GG8609@schottelius.org>
-	 <43511AB1.3010608@g-house.de> <20051015154048.GK8609@schottelius.org>
-	 <20051015200245.GM12774@schottelius.org>
+	Sat, 15 Oct 2005 16:23:14 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:64682 "EHLO
+	pd4mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1751219AbVJOUXN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Oct 2005 16:23:13 -0400
+Date: Sat, 15 Oct 2005 14:21:55 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: interruptible_sleep_on, interrupts and device drivers
+In-reply-to: <4XQZI-5QC-1@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <435164E3.9000001@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <4XQZI-5QC-1@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/15/05, Nico Schottelius <nico-kernel@schottelius.org> wrote:
-[snip]
-> Could we somehow debug this differently or do I have to install
-> 2.6.13.2 and 2.6.13.1, too? It would take simply hours until it is
-> finished here.
->
+Gabriele Brugnoni wrote:
+> But:
+> If the test is made with IRQ closed, and IRQ are then enabled after the test
+> but before the call to interruptible_sleep_on, what happen if the handler
+> break the procedure immediately before entering the interruptible_sleep_on
+> function ?
+> I beleave that the interrupt handler, calling the wakeup function, will not
+> wake our process, because is not in the waiting list. But at return from
+> IRQ handler, the process will continue execution calling the sleep
+> function, and nobody will wake it because the data is now already available.
 
-If you have another, faster, machine available you could build the
-kernel(s) on that one. You don't have to build a kernel on the same
-machine that is later supposed to run it.
-Also, if you have more than one machine (even if they are not
-especially fast) then you can use distcc (http://distcc.samba.org/) to
-distribute the build over multiple machines which can speed up a build
-a great deal.
+This is why interruptible_sleep_on is deprecated and should not be used 
+anymore. The wait_event_interruptible, etc. functions avoid this race 
+since the condition is tested after the caller is put into the wait 
+queue, so if the condition is true you are guaranteed to be woken up.
 
-[snip]
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html

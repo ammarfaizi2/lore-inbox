@@ -1,96 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbVJPJjt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbVJPLJT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751315AbVJPJjt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Oct 2005 05:39:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbVJPJjt
+	id S1751217AbVJPLJT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Oct 2005 07:09:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751221AbVJPLJT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Oct 2005 05:39:49 -0400
-Received: from agp.Stanford.EDU ([171.67.73.10]:65183 "EHLO agp.stanford.edu")
-	by vger.kernel.org with ESMTP id S1751315AbVJPJjs (ORCPT
+	Sun, 16 Oct 2005 07:09:19 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:5541 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751217AbVJPLJS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Oct 2005 05:39:48 -0400
-From: Dawson Engler <engler@csl.stanford.edu>
-Message-Id: <200510160936.j9G9aMrb009564@csl.stanford.edu>
-Subject: [CHECKER] buffer overflows in net/core/filter.c?
-To: linux-kernel@vger.kernel.org
-Date: Sun, 16 Oct 2005 02:36:21 -0700 (PDT)
-Cc: engler@cs.stanford.edu, jschlst@samba.org, mc@cs.stanford.edu
-Reply-To: engler@csl.stanford.edu
-X-Mailer: ELM [version 2.5 PL0pre8]
-MIME-Version: 1.0
+	Sun, 16 Oct 2005 07:09:18 -0400
+Date: Sun, 16 Oct 2005 13:09:37 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: 2.6.14-rc4-rt6, depmod
+Message-ID: <20051016110937.GA16016@elte.hu>
+References: <1129442512.7978.3.camel@cmn3.stanford.edu> <Pine.LNX.4.58.0510160408540.2328@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0510160408540.2328@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-it appears that bad filters in net/core/filter.c can read/write arbitrary
-kernel memory.
+* Steven Rostedt <rostedt@goodmis.org> wrote:
 
-Given a filter created via:
+> > WARNING: 
+> > /lib/modules/2.6.13-0.13.rrt.rhfc4.ccrmasmp/kernel/drivers/char/hangcheck-timer.ko 
+> > needs unknown symbol do_monotonic_clock
+> 
+> below is a patch to get this part to compile. (hopefully :-)
 
-        struct sock_filter s[2];
-        memset(s, 0, sizeof s);
+thanks, applied this and the i8253.c one too.
 
-
-        s[0].code = BPF_LD|BPF_B|BPF_ABS;
-        s[0].k    = 0x7fffffffUL;
-        s[1].code = BPF_RET;
-        s[1].k    = 0xfffffff0UL;
-
-or:
-
-        s[0].code = BPF_LD|BPF_B|BPF_IND;
-        s[0].k    = 0x7fffffffUL;
-        s[1].code = BPF_RET;
-        s[1].k    = 0xfffffff0UL;
-
-or
-
-        s[0].code = BPF_LD|BPF_H|BPF_IND;
-        s[0].k    = 0x7ffffffeUL;
-        s[1].code = BPF_B|BPF_RET;
-        s[1].k    = 0xfffffff0UL;
-
-or
-
-        s[0].code = BPF_LD|BPF_H|BPF_IND;
-        s[0].k = 0x7ffffffeUL;
-        s[1].code = BPF_B|BPF_RET;
-        s[1].k = 0xfffffff0UL;
-
-
-These pass check filter calls:
-
-	sk_chk_filter(s, 2)
-
-But then blow up severely after calling:
-
-static inline void *skb_header_pointer(const struct sk_buff *skb, int offset,
-                                       int len, void *buffer)
-{
-        int hlen = skb_headlen(skb);
-
-
-which increments the data pointer:
-
-        if (offset + len <= hlen)
-                return skb->data + offset;
-
-but does not check if (offset+len) could overflow.  
-
-Something gross along the lines of:
-
-        if((offset + len) < offset) {
-                printf("ERROR: hit overflow!\n");
-                return NULL;
-        }
-
-seems to fix the problem, but most likely filter.c should do it.
-
-If anyone could confirm or refute these I'd appreciate it.  [We've been
-developing a tool to automatically generate test cases by running code
-partially symbolically and these were some of first errors it flagged.]
-
-Dawson
+	Ingo

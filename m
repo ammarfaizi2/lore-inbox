@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751267AbVJPAKk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbVJPAww@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751267AbVJPAKk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Oct 2005 20:10:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbVJPAKk
+	id S1751264AbVJPAww (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Oct 2005 20:52:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbVJPAww
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Oct 2005 20:10:40 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:54679 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S1751267AbVJPAKk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Oct 2005 20:10:40 -0400
-Message-ID: <43519A77.2040806@vc.cvut.cz>
-Date: Sun, 16 Oct 2005 02:10:31 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-CC: Coywolf Qi Hunt <coywolf@gmail.com>, Lee Revell <rlrevell@joe-job.com>,
-       Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
-Subject: Re: Forcing an immediate reboot
-References: <43505F86.1050701@perkel.com> <1129341050.23895.12.camel@mindpipe>  <Pine.LNX.4.64.0510150846430.25927@hermes-1.csi.cam.ac.uk> <2cd57c900510150056j2a6af6e5gf93ce9fa4ef16aac@mail.gmail.com> <Pine.LNX.4.64.0510150909050.25927@hermes-1.csi.cam.ac.uk>
-In-Reply-To: <Pine.LNX.4.64.0510150909050.25927@hermes-1.csi.cam.ac.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 15 Oct 2005 20:52:52 -0400
+Received: from sccrmhc11.comcast.net ([63.240.76.21]:28385 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1751264AbVJPAwv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Oct 2005 20:52:51 -0400
+Date: Sat, 15 Oct 2005 17:53:41 -0700
+From: Deepak Saxena <dsaxena@plexity.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: jgarzik@pobox.net, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] RNG rewrite...
+Message-ID: <20051016005341.GB5946@plexity.net>
+Reply-To: dsaxena@plexity.net
+References: <20051015043120.GA5946@plexity.net> <4350DCB1.7010201@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4350DCB1.7010201@pobox.com>
+Organization: Plexity Networks
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Altaparmakov wrote:
-> On Sat, 15 Oct 2005, Coywolf Qi Hunt wrote:
+On Oct 15 2005, at 06:40, Jeff Garzik was caught saying:
+> Deepak Saxena wrote:
+> >rewrite the damn thing to use the device model and have a rng
+> >device class with individual drivers for each RNG model, including
+> >IXP4xx. I'll keep the miscdev interface around but will add a
+> >new interface under /sys/class/rng that the userspace tools 
+> >can transition to. Is this OK with folks?
 > 
->>On 10/15/05, Anton Altaparmakov <aia21@cam.ac.uk> wrote:
->>
->>>echo s > /proc/sysrq-trigger
->>>echo u > /proc/sysre-trigger
->>>echo s > /proc/sysrq-trigger
->>
->>What the purpose of the second sync?
-> 
-> 
-> Allows any i/o initiated between the first sync and the remount r/o to 
-> complete.  Remember that r/o mounting doesn't stop i/o.  It only stops you 
-> from writing to the fs at the vfs layer.  Once a write/modification has 
-> entered the fs driver it will get written no matter what, unless the 
-> "reboot" sysrq is triggered in which case the kernel just reboots 
-> immediately.
-> 
-> Maybe it is just paranoia on my part but I have gotten used to hitting 
-> Alt+PrtScr+S, +U, +S, +B so I do it automatically.
+> How does the hardware export RNG functionality?  CPU insn?  Magic memory 
+> address?  Can it be done 100% in userspace?
 
-Second sync is a must, otherwise remounting read-only is not written to 
-the filesystem (at least in my case) so no fsck is saved.   But you can 
-save first sync (before remount), and then you get nice sequence which 
-even admins comming from Windows can remember - they have to use USB to 
-safely reboot their Linux systems ;-)  (alt-sysrq-U, S, B)
-								Petr
+It's a magic regsiter we just read/write and could be done in userspace.
+I also took a look at MPC85xx and it has the same sort of interface but
+also has an error interrupt capability. On second thought a class
+interface is overkill b/c there will only be one RNG per system, so
+I can just do something like watchdogs where we have a bunch of simple
+drivers exposing the same interface. We could do it in user space but
+then we have separate RNG implementations for  x86 and !x86 and I'd
+rather not see that. Can we move the x86 code out to userspace and
+just let the daemon eat the numbers directly from HW? We can mmap() 
+PCI devices, but I don't know enough about x86 to say whether msr 
+instructions can execute out of userspace (or if we want them to...).
 
+~Deepak
+
+-- 
+Deepak Saxena - dsaxena@plexity.net - http://www.plexity.net
+
+When law and duty are one, united by religion, you never become fully
+conscious, fully aware of yourself. You are always a little less than
+an individual. - Frank Herbert

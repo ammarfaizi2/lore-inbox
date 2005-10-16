@@ -1,45 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbVJPI0x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbVJPJjt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751284AbVJPI0x (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Oct 2005 04:26:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbVJPI0x
+	id S1751315AbVJPJjt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Oct 2005 05:39:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbVJPJjt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Oct 2005 04:26:53 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:53997 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751284AbVJPI0w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Oct 2005 04:26:52 -0400
-Subject: Re: kernel 2.6.11 and Intel537-modem
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Nikolay N. Ivanov" <group@lindevel.ru>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <43523630.6060605@lindevel.ru>
-References: <43523630.6060605@lindevel.ru>
-Content-Type: text/plain
-Date: Sun, 16 Oct 2005 10:26:49 +0200
-Message-Id: <1129451209.2911.8.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sun, 16 Oct 2005 05:39:49 -0400
+Received: from agp.Stanford.EDU ([171.67.73.10]:65183 "EHLO agp.stanford.edu")
+	by vger.kernel.org with ESMTP id S1751315AbVJPJjs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Oct 2005 05:39:48 -0400
+From: Dawson Engler <engler@csl.stanford.edu>
+Message-Id: <200510160936.j9G9aMrb009564@csl.stanford.edu>
+Subject: [CHECKER] buffer overflows in net/core/filter.c?
+To: linux-kernel@vger.kernel.org
+Date: Sun, 16 Oct 2005 02:36:21 -0700 (PDT)
+Cc: engler@cs.stanford.edu, jschlst@samba.org, mc@cs.stanford.edu
+Reply-To: engler@csl.stanford.edu
+X-Mailer: ELM [version 2.5 PL0pre8]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-10-16 at 11:14 +0000, Nikolay N. Ivanov wrote:
-> Hello!
-> 
-> Firmware kernel module for Intel 537 modem (Intel537.ko) 
+Hi,
 
-.ko doesn't sound like firmware but like a binary only kernel module.
-You're out of luck unless you can afford the lawyers....
+it appears that bad filters in net/core/filter.c can read/write arbitrary
+kernel memory.
 
+Given a filter created via:
+
+        struct sock_filter s[2];
+        memset(s, 0, sizeof s);
+
+
+        s[0].code = BPF_LD|BPF_B|BPF_ABS;
+        s[0].k    = 0x7fffffffUL;
+        s[1].code = BPF_RET;
+        s[1].k    = 0xfffffff0UL;
+
+or:
+
+        s[0].code = BPF_LD|BPF_B|BPF_IND;
+        s[0].k    = 0x7fffffffUL;
+        s[1].code = BPF_RET;
+        s[1].k    = 0xfffffff0UL;
+
+or
+
+        s[0].code = BPF_LD|BPF_H|BPF_IND;
+        s[0].k    = 0x7ffffffeUL;
+        s[1].code = BPF_B|BPF_RET;
+        s[1].k    = 0xfffffff0UL;
+
+or
+
+        s[0].code = BPF_LD|BPF_H|BPF_IND;
+        s[0].k = 0x7ffffffeUL;
+        s[1].code = BPF_B|BPF_RET;
+        s[1].k = 0xfffffff0UL;
+
+
+These pass check filter calls:
+
+	sk_chk_filter(s, 2)
+
+But then blow up severely after calling:
+
+static inline void *skb_header_pointer(const struct sk_buff *skb, int offset,
+                                       int len, void *buffer)
+{
+        int hlen = skb_headlen(skb);
+
+
+which increments the data pointer:
+
+        if (offset + len <= hlen)
+                return skb->data + offset;
+
+but does not check if (offset+len) could overflow.  
+
+Something gross along the lines of:
+
+        if((offset + len) < offset) {
+                printf("ERROR: hit overflow!\n");
+                return NULL;
+        }
+
+seems to fix the problem, but most likely filter.c should do it.
+
+If anyone could confirm or refute these I'd appreciate it.  [We've been
+developing a tool to automatically generate test cases by running code
+partially symbolically and these were some of first errors it flagged.]
+
+Dawson

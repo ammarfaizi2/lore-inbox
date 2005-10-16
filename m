@@ -1,67 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbVJPWoR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbVJPXB5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932075AbVJPWoR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Oct 2005 18:44:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932076AbVJPWoR
+	id S932082AbVJPXB5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Oct 2005 19:01:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932083AbVJPXB5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Oct 2005 18:44:17 -0400
-Received: from smtpa3.netcabo.pt ([212.113.174.18]:20435 "EHLO
-	exch01smtp02.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S932075AbVJPWoQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Oct 2005 18:44:16 -0400
-Message-ID: <4352D79D.9070901@rncbc.org>
-Date: Sun, 16 Oct 2005 23:43:41 +0100
-From: Rui Nuno Capela <rncbc@rncbc.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: tsc_c3_compensate undefined since patch-2.6.13-rt13
-References: <20050901072430.GA6213@elte.hu> <1125571335.15768.21.camel@localhost.localdomain> <20051003065032.GA23777@elte.hu> <43424B7C.9020508@rncbc.org> <20051004101434.GA26882@elte.hu>
-In-Reply-To: <20051004101434.GA26882@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Oct 2005 22:44:09.0784 (UTC) FILETIME=[1F606380:01C5D2A3]
+	Sun, 16 Oct 2005 19:01:57 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:8684 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932082AbVJPXB5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Oct 2005 19:01:57 -0400
+Date: Sun, 16 Oct 2005 19:01:48 -0400
+From: Dave Jones <davej@redhat.com>
+To: Alan Hourihane <alanh@fairlite.demon.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.14-rc4 AGP performance fixes
+Message-ID: <20051016230148.GB15602@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Alan Hourihane <alanh@fairlite.demon.co.uk>,
+	linux-kernel@vger.kernel.org
+References: <20051014094217.GA15871@fairlite.demon.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051014094217.GA15871@fairlite.demon.co.uk>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Rui Nuno Capela <rncbc@rncbc.org> wrote:
-> 
-> 
->>Ingo,
->>
->>I'll take this late opportunity to report something that have been 
->>looking suspicious since 2.6.13-rt13, inclusive, about this symbol of 
->>tsc_c3_compensate being undefined and causing some noise on all kernel 
->>builds since then.
->>
->>To put things in brief, here follows a small exchange that took place 
->>on the linux-audio-user list, regarding this thingie. Apparently for 
->>Mark, it was a kernel build showstopper.
-> 
-> 
-> thanks for the reminder!
-> 
-> 
->>WARNING: 
->>/lib/modules/2.6.13.1-rt13.0mdk/kernel/drivers/char/hangcheck-timer.ko 
->>needs unknown symbol do_monotonic_clock
->>WARNING: 
->>/lib/modules/2.6.13.1-rt13.0mdk/kernel/drivers/acpi/processor.ko needs 
->>unknown symbol tsc_c3_compensate
-> 
-> 
-> back then i fixed do_monotonic_clock, but forgot to export 
-> tsc_c3_compensate. I have fixed this in my tree, and have uploaded the 
-> 2.6.14-rc3-rt3 patch. Does it build without warnings for you now?
-> 
+On Fri, Oct 14, 2005 at 10:42:17AM +0100, Alan Hourihane wrote:
+ > AGP allocation/deallocation is suffering major performance issues due to the 
+ > nature of global_flush_tlb() being called on every change_page_attr() call.
+ > 
+ > For small allocations this isn't really seen, but when you start allocating
+ > 50000 pages of AGP space, for say, texture memory, then things can take 
+ > seconds to complete.
+ > 
+ > In some cases the situation is doubled or even quadrupled in the time due 
+ > to SMP, or a deallocation, then a new reallocation. I've had a case of 
+ > upto 20 seconds wait time to deallocate and reallocate AGP space.
 
-As it seems, tsc_c3_compensate isn't being defined again, as of 
-patch-2.6.14-rc4-rt6 (-rt4 was ok).
+Yikes.
 
-Cheers.
---
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
+ > This patch fixes the problem by making it the caller's responsibility to 
+ > call global_flush_tlb(), and so removes it from every instance of mapping 
+ > a page into AGP space until the time that all change_page_attr() changes 
+ > are done.
+
+I like the idea of minimising the flushes where we can, however the idea
+of having stale entries in the TLB's, even for a short time gives me the jibblies
+a little. If this does cause any problems, they're likely to be of a nature that
+would be incredibly difficult to track down.
+(We've been bitten on more than one occasion due to missing flushes in this driver).
+Given the wide variety of hardware this driver supports, I'd like this
+to sit in -mm for a while, just to be on the safe side.
+
+If Andrew picks that up now, that gives us a while for testing before 2.6.15 closes
+for features.
+
+		Dave
+

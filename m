@@ -1,87 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751294AbVJPFln@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbVJPGBv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751294AbVJPFln (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Oct 2005 01:41:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbVJPFln
+	id S1751290AbVJPGBv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Oct 2005 02:01:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbVJPGBv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Oct 2005 01:41:43 -0400
-Received: from fed1rmmtao02.cox.net ([68.230.241.37]:32166 "EHLO
-	fed1rmmtao02.cox.net") by vger.kernel.org with ESMTP
-	id S1751291AbVJPFlm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Oct 2005 01:41:42 -0400
-From: Junio C Hamano <junkio@cox.net>
-To: git@vger.kernel.org
-Subject: GIT 0.99.8d
-cc: linux-kernel@vger.kernel.org
-Date: Sat, 15 Oct 2005 22:41:41 -0700
-Message-ID: <7vachadnmy.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 16 Oct 2005 02:01:51 -0400
+Received: from smtp2.Stanford.EDU ([171.67.16.125]:21427 "EHLO
+	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S1751290AbVJPGBv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Oct 2005 02:01:51 -0400
+Subject: 2.6.14-rc4-rt6, depmod
+From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+To: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+Cc: nando@ccrma.Stanford.EDU
+Content-Type: text/plain
+Date: Sat, 15 Oct 2005 23:01:52 -0700
+Message-Id: <1129442512.7978.3.camel@cmn3.stanford.edu>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-GIT 0.99.8d is available as usual at:
+Hi Ingo, I'm getting this after building 2.6.14-rc4-rt6:
 
-    RPMs and tarball: www.kernel.org:/pub/software/scm/git/
-    Debs and tarball: www.kernel.org:/pub/software/scm/git/debian/
+WARNING: /lib/modules/2.6.13-0.13.rrt.rhfc4.ccrmasmp/kernel/drivers/char/hangcheck-timer.ko needs unknown symbol do_monotonic_clock
+WARNING: /lib/modules/2.6.13-0.13.rrt.rhfc4.ccrmasmp/kernel/drivers/input/gameport/gameport.ko needs unknown symbol i8253_lock
+WARNING: /lib/modules/2.6.13-0.13.rrt.rhfc4.ccrmasmp/kernel/drivers/input/joystick/analog.ko needs unknown symbol i8253_lock
 
-In addition to accumulated bugfixes, there is one important
-futureproofing changes.
+BTW, rt5 "settles" down after a while and I don't get timer problems
+anymore (ie: fast key repeats and random screensaver activations). It
+does right after a reboot (but I have not tried too many times). 
 
-The "master" branch has changes to git-upload-pack (which would
-affect what git-fetch-pack/git-clone-pack see) and
-git-update-server-info (which would affect what fetch and clone
-over http:// transport see) to send extra information about the
-available references, so that the clients can find out what
-objects are referenced by remote tags before downloading them.
-They take the form of "tagname^{}".  "git ls-remote $repository"
-command would show something like this:
-
-    7a3ca7d2b5ec31b2cfa594b961d77e68075e33c7        refs/heads/master
-    5dc01c595e6c6ec9ccda4f6f69c131c0dd945f8c        refs/tags/v2.6.11-tree
-    c39ae07f393806ccf406ef966e9a15afc43cc36a        refs/tags/v2.6.11-tree^{}
-    ...
-    c2bbf523f1d454649897b3e4bcd71778e4fa5913        refs/tags/v2.6.14-rc2
-    676d55ae30ea3b688f0386f70553489f25f24d55        refs/tags/v2.6.14-rc2^{}
-    f92737b18abac90af30ac26a050fda879c9b238b        refs/tags/v2.6.14-rc3
-    1c9426e8a59461688bb451e006456987b198e4c0        refs/tags/v2.6.14-rc3^{}
-
-when the server side updates to the version in the "master"
-branch.  These "^{}" entries describe the SHA1 of the object the
-tag object points at (so v2.6.11-tree tag, whose object name is
-5dc01c... points at a tree object whose object name is
-c39ae0...).
-
-The downloading clients (git-clone and git-fetch) in the
-"master" branch have been taught to recognize these entries;
-after all, these are not real refs and you cannot give them to
-git-http-fetch to fetch from.  GIT 0.99.8d clients have the same
-change, so that people staying with the maintenance branch can
-download from the server that already runs the "master" version
-and sends these fake references without getting confused.
-
-upload-pack and update-server-info in GIT 0.99.8d would not show
-these extra "fake refs" when used on the server side.  In other
-words, 0.99.8d is to keep the maintenance branch working with
-newer servers.
-
-There will be GIT 0.99.8e at around the time "master" branch
-will get the updated "git-diff-*", for similar purposes.  The
-updated "git-diff-*" commands deal with pathnames with funny
-characters (most importantly tabs and newlines) in a way
-compatible with the proposed change to GNU patch, which was
-outlined in:
-
-    http://marc.theaimsgroup.com/?l=git&m=112927316408690&w=2
-
-The change to "git-diff-*", and corresponding change to
-"git-apply" are cooking in the proposed updates branch right
-now.  When people start generating diffs with them, patches that
-touch paths that have double-quotes '"' or spaces ' ' in them
-need to be applied with the updated git-apply that knows how new
-"git-diff-*" encodes these funny pathnames.  GIT 0.99.8e is
-planned to backport the necessary git-apply changes, in case we
-do not bump the major release number by then.
+-- Fernando
 
 

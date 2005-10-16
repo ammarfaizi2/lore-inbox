@@ -1,70 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbVJPUo3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751304AbVJPU5x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751201AbVJPUo3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Oct 2005 16:44:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbVJPUo3
+	id S1751304AbVJPU5x (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Oct 2005 16:57:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751364AbVJPU5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Oct 2005 16:44:29 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:27024 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1751201AbVJPUo2 (ORCPT
+	Sun, 16 Oct 2005 16:57:53 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:28325 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751304AbVJPU5x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Oct 2005 16:44:28 -0400
-Date: Sun, 16 Oct 2005 21:44:18 +0100 (IST)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: jschopp@austin.ibm.com, kravetz@us.ibm.com,
+	Sun, 16 Oct 2005 16:57:53 -0400
+Date: Sun, 16 Oct 2005 13:58:36 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>, lhms <lhms-devel@lists.sourceforge.net>
-Subject: Re: [PATCH 2/8] Fragmentation Avoidance V17: 002_usemap
-In-Reply-To: <1129213109.7780.18.camel@localhost>
-Message-ID: <Pine.LNX.4.58.0510162141150.14697@skynet>
-References: <20051011151221.16178.67130.sendpatchset@skynet.csn.ul.ie> 
- <20051011151231.16178.58396.sendpatchset@skynet.csn.ul.ie> 
- <1129211783.7780.7.camel@localhost>  <Pine.LNX.4.58.0510131500020.7570@skynet>
- <1129213109.7780.18.camel@localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+       Suzanne Wood <suzannew@cs.pdx.edu>
+Subject: Re: [LIST] Add missing rcu_dereference on first element
+Message-ID: <20051016205836.GB1295@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20051015002649.GA28555@gondor.apana.org.au> <20051015020324.GL1302@us.ibm.com> <20051015023918.GA22074@gondor.apana.org.au> <20051015032241.GA3893@gondor.apana.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051015032241.GA3893@gondor.apana.org.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Oct 2005, Dave Hansen wrote:
+On Sat, Oct 15, 2005 at 01:22:41PM +1000, Herbert Xu wrote:
+> Hi Paul:
+> 
+> On Sat, Oct 15, 2005 at 12:39:18PM +1000, herbert wrote:
+> > 
+> > Besides, the expression
+> > 
+> > i = foo(i)
+> > 
+> > where foo has side-effects is pretty normal.
+> 
+> Actually I've changed my mind on this.  I think your version is
+> better because the side-effect of rcu_dereference will cause the
+> above assignment to occur twice when i refers to a memory-backed
+> variable.
+> 
+> Since all current prefetch implementations are safe as far as
+> side-effects are concerned, here is an updated version that
+> doesn't do i = foo(i).
+> 
+> Andrew, please replace the previous version with this.
 
-> > > > + * RCLM_SHIFT is the number of bits that a gfp_mask has to be shifted right
-> > > > + * to have just the __GFP_USER and __GFP_KERNRCLM bits. The static check is
-> > > > + * made afterwards in case the GFP flags are not updated without updating
-> > > > + * this number
-> > > > + */
-> > > > +#define RCLM_SHIFT 19
-> > > > +#if (__GFP_USER >> RCLM_SHIFT) != RCLM_USER
-> > > > +#error __GFP_USER not mapping to RCLM_USER
-> > > > +#endif
-> > > > +#if (__GFP_KERNRCLM >> RCLM_SHIFT) != RCLM_KERN
-> > > > +#error __GFP_KERNRCLM not mapping to RCLM_KERN
-> > > > +#endif
-> > >
-> > > Should this really be in page_alloc.c, or should it be close to the
-> > > RCLM_* definitions?
-> >
-> > I can't test it right now, but I think the reason it is here is because
-> > RCLM_* and __GFP_* are in different headers that are not aware of each
-> > other. This is the place a static compile-time check can be made.
->
-> Well, they're pretty intricately linked, so maybe they should go in the
-> same header, no?
->
+Looks great to me!
 
-I looked into this more and I did have a good reason for putting them in
-different headers. The __GFP_* flags have to be defined with the other GFP
-flags, it just does not make sense otherwise. The RCLM_* flags must be
-with the definition of struct zone * because there determine the number of
-free lists that exist in the zone. There is no obvious way to have the
-RCLM_* and __GFP_* flags in the same place unless mmzone.h includes gfp.h
-which I seriously doubt we want.
+						Thanx, Paul
 
-The value of RCLM_SHIFT depends on both __GFP_* and RCLM_* so it needs to
-be defined in a place that can see both gfp.h and mmzone.h . As
-page_alloc.c is the only user of RCLM_SHIFT, it made sense to define it
-there.
+Acked-by: <paulmck@us.ibm.com>
 
-Is there a clearer way of doing this?
+> Thanks,
+> -- 
+> Visit Openswan at http://www.openswan.org/
+> Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+> Home Page: http://gondor.apana.org.au/~herbert/
+> PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+> diff --git a/include/linux/list.h b/include/linux/list.h
+> --- a/include/linux/list.h
+> +++ b/include/linux/list.h
+> @@ -442,12 +442,14 @@ static inline void list_splice_init(stru
+>   * as long as the traversal is guarded by rcu_read_lock().
+>   */
+>  #define list_for_each_rcu(pos, head) \
+> -	for (pos = (head)->next; prefetch(pos->next), pos != (head); \
+> -        	pos = rcu_dereference(pos->next))
+> +	for (pos = (head)->next; \
+> +		prefetch(rcu_dereference(pos)->next), pos != (head); \
+> +        	pos = pos->next)
+>  
+>  #define __list_for_each_rcu(pos, head) \
+> -	for (pos = (head)->next; pos != (head); \
+> -        	pos = rcu_dereference(pos->next))
+> +	for (pos = (head)->next; \
+> +		rcu_dereference(pos) != (head); \
+> +        	pos = pos->next)
+>  
+>  /**
+>   * list_for_each_safe_rcu	-	iterate over an rcu-protected list safe
+> @@ -461,8 +463,9 @@ static inline void list_splice_init(stru
+>   * as long as the traversal is guarded by rcu_read_lock().
+>   */
+>  #define list_for_each_safe_rcu(pos, n, head) \
+> -	for (pos = (head)->next, n = pos->next; pos != (head); \
+> -		pos = rcu_dereference(n), n = pos->next)
+> +	for (pos = (head)->next; \
+> +		n = rcu_dereference(pos)->next, pos != (head); \
+> +		pos = n)
+>  
+>  /**
+>   * list_for_each_entry_rcu	-	iterate over rcu list of given type
+> @@ -474,11 +477,11 @@ static inline void list_splice_init(stru
+>   * the _rcu list-mutation primitives such as list_add_rcu()
+>   * as long as the traversal is guarded by rcu_read_lock().
+>   */
+> -#define list_for_each_entry_rcu(pos, head, member)			\
+> -	for (pos = list_entry((head)->next, typeof(*pos), member);	\
+> -	     prefetch(pos->member.next), &pos->member != (head); 	\
+> -	     pos = rcu_dereference(list_entry(pos->member.next, 	\
+> -					typeof(*pos), member)))
+> +#define list_for_each_entry_rcu(pos, head, member) \
+> +	for (pos = list_entry((head)->next, typeof(*pos), member); \
+> +		prefetch(rcu_dereference(pos)->member.next), \
+> +			&pos->member != (head); \
+> +		pos = list_entry(pos->member.next, typeof(*pos), member))
+>  
+>  
+>  /**
+> @@ -492,8 +495,9 @@ static inline void list_splice_init(stru
+>   * as long as the traversal is guarded by rcu_read_lock().
+>   */
+>  #define list_for_each_continue_rcu(pos, head) \
+> -	for ((pos) = (pos)->next; prefetch((pos)->next), (pos) != (head); \
+> -        	(pos) = rcu_dereference((pos)->next))
+> +	for ((pos) = (pos)->next; \
+> +		prefetch(rcu_dereference((pos))->next), (pos) != (head); \
+> +        	(pos) = (pos)->next)
+>  
+>  /*
+>   * Double linked lists with a single pointer list head.
+> @@ -696,8 +700,9 @@ static inline void hlist_add_after_rcu(s
+>  	     pos = n)
+>  
+>  #define hlist_for_each_rcu(pos, head) \
+> -	for ((pos) = (head)->first; pos && ({ prefetch((pos)->next); 1; }); \
+> -		(pos) = rcu_dereference((pos)->next))
+> +	for ((pos) = (head)->first; \
+> +		rcu_dereference((pos)) && ({ prefetch((pos)->next); 1; }); \
+> +		(pos) = (pos)->next)
+>  
+>  /**
+>   * hlist_for_each_entry	- iterate over list of given type
+> @@ -762,9 +767,9 @@ static inline void hlist_add_after_rcu(s
+>   */
+>  #define hlist_for_each_entry_rcu(tpos, pos, head, member)		 \
+>  	for (pos = (head)->first;					 \
+> -	     pos && ({ prefetch(pos->next); 1;}) &&			 \
+> +	     rcu_dereference(pos) && ({ prefetch(pos->next); 1;}) &&	 \
+>  		({ tpos = hlist_entry(pos, typeof(*tpos), member); 1;}); \
+> -	     pos = rcu_dereference(pos->next))
+> +	     pos = pos->next)
+>  
+>  #else
+>  #warning "don't include kernel headers in userspace"
+

@@ -1,75 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbVJPUcx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbVJPUo3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751305AbVJPUcx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Oct 2005 16:32:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751364AbVJPUcx
+	id S1751201AbVJPUo3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Oct 2005 16:44:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbVJPUo3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Oct 2005 16:32:53 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:19209 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751305AbVJPUcx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Oct 2005 16:32:53 -0400
-Date: Sun, 16 Oct 2005 21:32:46 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Neela.Kolli@engenio.com
-Subject: Re: [PATCH 2/2] Convert megaraid to use pci_driver shutdown method
-Message-ID: <20051016203246.GE14413@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-	Neela.Kolli@engenio.com
-References: <20051016203135.GD14413@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051016203135.GD14413@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+	Sun, 16 Oct 2005 16:44:29 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:27024 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S1751201AbVJPUo2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Oct 2005 16:44:28 -0400
+Date: Sun, 16 Oct 2005 21:44:18 +0100 (IST)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: jschopp@austin.ibm.com, kravetz@us.ibm.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>, lhms <lhms-devel@lists.sourceforge.net>
+Subject: Re: [PATCH 2/8] Fragmentation Avoidance V17: 002_usemap
+In-Reply-To: <1129213109.7780.18.camel@localhost>
+Message-ID: <Pine.LNX.4.58.0510162141150.14697@skynet>
+References: <20051011151221.16178.67130.sendpatchset@skynet.csn.ul.ie> 
+ <20051011151231.16178.58396.sendpatchset@skynet.csn.ul.ie> 
+ <1129211783.7780.7.camel@localhost>  <Pine.LNX.4.58.0510131500020.7570@skynet>
+ <1129213109.7780.18.camel@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Convert megaraid to use pci_driver's shutdown method rather than
-the generic device_driver shutdown method.
+On Thu, 13 Oct 2005, Dave Hansen wrote:
 
-Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+> > > > + * RCLM_SHIFT is the number of bits that a gfp_mask has to be shifted right
+> > > > + * to have just the __GFP_USER and __GFP_KERNRCLM bits. The static check is
+> > > > + * made afterwards in case the GFP flags are not updated without updating
+> > > > + * this number
+> > > > + */
+> > > > +#define RCLM_SHIFT 19
+> > > > +#if (__GFP_USER >> RCLM_SHIFT) != RCLM_USER
+> > > > +#error __GFP_USER not mapping to RCLM_USER
+> > > > +#endif
+> > > > +#if (__GFP_KERNRCLM >> RCLM_SHIFT) != RCLM_KERN
+> > > > +#error __GFP_KERNRCLM not mapping to RCLM_KERN
+> > > > +#endif
+> > >
+> > > Should this really be in page_alloc.c, or should it be close to the
+> > > RCLM_* definitions?
+> >
+> > I can't test it right now, but I think the reason it is here is because
+> > RCLM_* and __GFP_* are in different headers that are not aware of each
+> > other. This is the place a static compile-time check can be made.
+>
+> Well, they're pretty intricately linked, so maybe they should go in the
+> same header, no?
+>
 
-diff --git a/drivers/scsi/megaraid/megaraid_mbox.c b/drivers/scsi/megaraid/megaraid_mbox.c
---- a/drivers/scsi/megaraid/megaraid_mbox.c
-+++ b/drivers/scsi/megaraid/megaraid_mbox.c
-@@ -76,7 +76,7 @@ static void megaraid_exit(void);
- 
- static int megaraid_probe_one(struct pci_dev*, const struct pci_device_id *);
- static void megaraid_detach_one(struct pci_dev *);
--static void megaraid_mbox_shutdown(struct device *);
-+static void megaraid_mbox_shutdown(struct pci_dev *);
- 
- static int megaraid_io_attach(adapter_t *);
- static void megaraid_io_detach(adapter_t *);
-@@ -369,9 +369,7 @@ static struct pci_driver megaraid_pci_dr
- 	.id_table	= pci_id_table_g,
- 	.probe		= megaraid_probe_one,
- 	.remove		= __devexit_p(megaraid_detach_one),
--	.driver		= {
--		.shutdown	= megaraid_mbox_shutdown,
--	}
-+	.shutdown	= megaraid_mbox_shutdown,
- };
- 
- 
-@@ -673,9 +671,9 @@ megaraid_detach_one(struct pci_dev *pdev
-  * Shutdown notification, perform flush cache
-  */
- static void
--megaraid_mbox_shutdown(struct device *device)
-+megaraid_mbox_shutdown(struct pci_dev *pdev)
- {
--	adapter_t		*adapter = pci_get_drvdata(to_pci_dev(device));
-+	adapter_t		*adapter = pci_get_drvdata(pdev);
- 	static int		counter;
- 
- 	if (!adapter) {
+I looked into this more and I did have a good reason for putting them in
+different headers. The __GFP_* flags have to be defined with the other GFP
+flags, it just does not make sense otherwise. The RCLM_* flags must be
+with the definition of struct zone * because there determine the number of
+free lists that exist in the zone. There is no obvious way to have the
+RCLM_* and __GFP_* flags in the same place unless mmzone.h includes gfp.h
+which I seriously doubt we want.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+The value of RCLM_SHIFT depends on both __GFP_* and RCLM_* so it needs to
+be defined in a place that can see both gfp.h and mmzone.h . As
+page_alloc.c is the only user of RCLM_SHIFT, it made sense to define it
+there.
+
+Is there a clearer way of doing this?

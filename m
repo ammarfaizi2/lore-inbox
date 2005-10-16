@@ -1,94 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbVJPAFl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751266AbVJPAEM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751265AbVJPAFl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Oct 2005 20:05:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbVJPAFl
+	id S1751266AbVJPAEM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Oct 2005 20:04:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbVJPAEM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Oct 2005 20:05:41 -0400
-Received: from qproxy.gmail.com ([72.14.204.193]:3876 "EHLO qproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751265AbVJPAFk convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Oct 2005 20:05:40 -0400
+	Sat, 15 Oct 2005 20:04:12 -0400
+Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:39504 "HELO
+	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1751266AbVJPAEM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Oct 2005 20:04:12 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=T+fOsUkTZPi561n9L0X7cPfKW2HJ/H2MIAOQIt+vZjWze4/RxUcUig9zn/v9xDyUSZRLnwmhhd0oFbjqisbDmRIKgKpJaL9+0ntAChIJ+8WMn1ypEqiO6l4uVDc0JP7Rg1v+0SQEkAoYayvuBsxhmtR12aAjgcrGS0fO/roq+BQ=
-Message-ID: <6bffcb0e0510151705l67725fd3t@mail.gmail.com>
-Date: Sun, 16 Oct 2005 00:05:40 +0000
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-To: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: hdparm almost burned my SATA disk
-Cc: "Linux-Kernel," <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051016010459.0c9a2beb@werewolf.able.es>
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=GoYKmQcPEttLgi7jIg1YWz5A/0iF42jBZXr+oj11BnwhemHABncyIHCGZfuFnbbq2mZ4dSX0SVxV5fFStn72If/ykiFuBX4GCFP0gWT4G8qeQmZJalVzAu16KvS6yifyTkX7+J+sRsxZ1HaT2bRCtSrlYVixu6G7D9ndIKYOmw8=  ;
+Message-ID: <43519905.40902@yahoo.com.au>
+Date: Sun, 16 Oct 2005 10:04:21 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050914 Debian/1.7.11-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051016010153.768d29d5@werewolf.able.es>
-	 <20051016010459.0c9a2beb@werewolf.able.es>
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Herbert Xu <herbert@gondor.apana.org.au>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>, hugh@veritas.com,
+       paulus@samba.org, anton@samba.org, akpm@osdl.org, andrea@suse.de,
+       linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+Subject: Re: Possible memory ordering bug in page reclaim?
+References: <E1EQgxs-00061G-00@gondolin.me.apana.org.au> <Pine.LNX.4.64.0510150945460.23590@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0510150945460.23590@g5.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Linus Torvalds wrote:
 
-On 15/10/05, J.A. Magallon <jamagallon@able.es> wrote:
-> On Sun, 16 Oct 2005 01:01:53 +0200, "J.A. Magallon" <jamagallon@able.es> wrote:
->
-> > Hi all...
-> >
-> > I have seen a very strange thing.
-> > I was trying hdparm -tT on a SATA disk, it did the buffered part OK,
-> > and hanged my box in the non-buffered measure. After waiting some minutes,
-> > I did a SysRQ-s-u-b, and the the disk began to give many read errors on
-> > sectors and could not boot because journal was not present and many other
-> > errors.
-> >
-> > After some warm and cold boots, finally the box came up correctly.
-> > I suspect that something that hdparm did left my disk dumb. But what ?
-> > I will keep away from hdparm for some time...
-> >
-> > Any idea ?
-> >
->
-> Oops I forgot.
-> Kernel is 2.6.14-rc2-mm2.
-> hdparm is v6.1
-> Filesystem is ext3 on a
->
-> werewolf:~/soft/kernel/patches/2.6.13-jam8# hdparm -I /dev/sda
->
-> /dev/sda:
->
-> ATA device, with non-removable media
->         Model Number:       Maxtor 6L160M0
->         Serial Number:      L40MRV4G
->         Firmware Revision:  BANC1G10
+> I agree, however, that it looks like PG_dirty is racy. Probably not in 
+> practice, but still.
+> 
+> So I'd suggest adding a smp_wmb() into set_page_dirty, and the rmb where 
+> Nick suggested.
+> 
+> So I'd suggest a patch something more like this.. Marking the dirty/count 
+> cases unlikely too in mm/page-writeback.c, since we should have tested for 
+> these conditions optimistically outside the lock.
+> 
 
-debian:/home/michal# hdparm -tT /dev/sda
+As Dave suggested, I think there is too much other code that depends on
+these atomics to be barriers for us to change it (at least not in this
+patch! :)).
 
-/dev/sda:
- Timing cached reads:   3652 MB in  2.00 seconds = 1823.54 MB/sec
-HDIO_DRIVE_CMD(null) (wait for flush complete) failed: Inappropriate
-ioctl for device
- Timing buffered disk reads:  174 MB in  3.01 seconds =  57.72 MB/sec
-HDIO_DRIVE_CMD(null) (wait for flush complete) failed: Inappropriate
-ioctl for device
-debian:/home/michal# hdparm -V
-hdparm v6.1
-debian:/home/michal# hdparm -I /dev/sda
 
-/dev/sda:
- HDIO_DRIVE_CMD(identify) failed: Inappropriate ioctl for device
+> Comments? Nick, did you have some test-case that you think might actually 
+> have been impacted by this?
+> 
 
-debian:/home/michal# uname -r
-2.6.14-rc4-g7a3ca7d2
+I guess your vmscan.c hunks are slightly nicer, though I might put
+'cannot_free' right at the end, because it will be a very uncommon case.
 
-CONFIG_SCSI_SATA=y
-# CONFIG_SCSI_SATA_AHCI is not set
-# CONFIG_SCSI_SATA_SVW is not set
-CONFIG_SCSI_ATA_PIIX=y
+And no, I don't have a test case. In fact, I wouldn't be surprised if
+nobody anywhere has ever hit it :) I was just browsing code...
 
-I have noticed the same behavior on 2.6.12.
+Thanks,
+Nick
 
-Regards,
-Michal Piotrowski
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

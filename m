@@ -1,116 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751327AbVJPREA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751333AbVJPRH0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751327AbVJPREA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Oct 2005 13:04:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751332AbVJPRD7
+	id S1751333AbVJPRH0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Oct 2005 13:07:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbVJPRH0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Oct 2005 13:03:59 -0400
-Received: from mournblade.cat.pdx.edu ([131.252.208.27]:56496 "EHLO
-	mournblade.cat.pdx.edu") by vger.kernel.org with ESMTP
-	id S1751327AbVJPRD7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Oct 2005 13:03:59 -0400
-Date: Sun, 16 Oct 2005 10:03:40 -0700 (PDT)
-From: Suzanne Wood <suzannew@cs.pdx.edu>
-Message-Id: <200510161703.j9GH3e2T020226@rastaban.cs.pdx.edu>
-To: herbert@gondor.apana.org.au, ralf@linux-mips.org
-Cc: linux-kernel@vger.kernel.org, paulmck@us.ibm.com, walpole@cs.pdx.edu
-Subject: Re: [RFC][PATCH] rcu in drivers/net/hamradio
+	Sun, 16 Oct 2005 13:07:26 -0400
+Received: from herkules.vianova.fi ([194.100.28.129]:44264 "HELO
+	mail.vianova.fi") by vger.kernel.org with SMTP id S1751333AbVJPRHZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Oct 2005 13:07:25 -0400
+Date: Sun, 16 Oct 2005 20:07:18 +0300
+From: Ville Herva <vherva@vianova.fi>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.14-rc4: broken DVD-R recording [Re: Upgrade 2.6.12-rc4 -> 2.6.13.1 broke DVD-R writing (fails consistently in OPC phase)]
+Message-ID: <20051016170718.GK24760@vianova.fi>
+Reply-To: vherva@vianova.fi
+References: <20050925123049.GA24760@viasys.com> <43369C2F.3050201@telia.com> <20050925130436.GD24719@viasys.com> <20050925142825.GB24742@viasys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050925142825.GB24742@viasys.com>
+X-Operating-System: Linux herkules.vianova.fi 2.4.27
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  > Date: Sun, 16 Oct 2005 17:21:36 +1000
-  > From: Herbert Xu <herbert@gondor.apana.org.au>
+On Sun, Sep 25, 2005 at 05:28:25PM +0300, you [Ville Herva] wrote:
+> On Sun, Sep 25, 2005 at 04:04:36PM +0300, you [Ville Herva] wrote:
+> > On Sun, Sep 25, 2005 at 02:46:39PM +0200, you [Simon Strandman] wrote:
+> > > Ville Herva skrev:
+> > > 
+> > > >The .config from 2.6.12-rc4 and 2.6.13.1 is nearly identical, but with
+> > > >2.6.13.1 I use HZ=250 (that being the default nowadays) and 
+> > > >2.6.13.1 has CONFIG_PREEMPT_VOLUNTARY=y instead of 2.6.12-rc4's
+> > > >CONFIG_PREEMPT=y and CONFIG_PREEMPT_BKL=y ².
+> > > >
+> > > >Any ideas?
+> > >
+> > > Have you tried with HZ=1000?
+> > 
+> > No yet. 
+> > 
+> > I did see the HZ=250 problem wrt DVD recording thread earlier, but I got the
+> > impression it had to do with not being able to supply data fast enough to
+> > the drive. 
+> > 
+> > In my case, it fails before it even write a single byte to the disc.
+> > (Fortunately it means it doesn't ruin the disc each time I try to write.)
+> 
+> Recompiled the same 2.6.13.1 kernel with HZ=1000. DVD-R writing still fails
+> with the exact same error.
 
-  > On Sat, Oct 15, 2005 at 03:24:57PM -0700, Suzanne Wood wrote:
-  > > 
-  > > Please find attached a patch to drivers/net/hamradio/bpqether.c
-  > > that might finally merit being
-  > > Signed-off-by: suzannew@cs.pdx.edu
+Still happens with 2.6.14-rc4.
 
-  > Looks good to me.
+Peter Österlund's suggestion to kill hald and kded in the pktcdvd thread did
+not help either. This is a Fedora rawhide installation, though.
 
-  > Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
 
-  > You might want to send this patch to ralf@linux-mips.org who
-  > is the current maintainer.
 
-Thank you for providing the next step, too.
+-- v -- 
 
--------
-
-ChangeLog: clarify RCU implementation in 
-drivers/net/hamradio/bpqether.c 
-
-Because bpq_new_device() calls list_add_rcu()
-and bpq_free_device() calls list_del_rcu(),
-substitute list_for_each_entry_rcu() for 
-list_for_each_entry() in bpq_get_ax25_dev()
-and in bpq_seq_start().
-
-Add rcu dereference protection in bpq_seq_next().
-
-The rcu_read_lock()/unlock() in bpq_device_event() 
-are removed because netdev event handlers are called 
-with RTNL locking in place.
-
-FYI: bpq_free_device() calls list_del_rcu() which, per 
-list.h, requires synchronize_rcu() which can block or 
-call_rcu() or call_rcu_bh() which cannot block. 
-Herbert Xu notes that synchronization is done here by 
-unregister_netdevice().  This calls synchronize_net()
-which in turn uses synchronize_rcu().
-
--------
-
- bpqether.c |    9 +++------
- 1 files changed, 3 insertions(+), 6 deletions(-)
-
--------
-
---- src/linux-2.6.14-rc4/drivers/net/hamradio/bpqether.c	2005-10-10 18:19:19.000000000 -0700
-+++ patch/linux-2.6.14-rc4/drivers/net/hamradio/bpqether.c	2005-10-15 15:12:15.000000000 -0700
-@@ -144,7 +144,7 @@ static inline struct net_device *bpq_get
- {
- 	struct bpqdev *bpq;
- 
--	list_for_each_entry(bpq, &bpq_devices, bpq_list) {
-+	list_for_each_entry_rcu(bpq, &bpq_devices, bpq_list) {
- 		if (bpq->ethdev == dev)
- 			return bpq->axdev;
- 	}
-@@ -399,7 +399,7 @@ static void *bpq_seq_start(struct seq_fi
- 	if (*pos == 0)
- 		return SEQ_START_TOKEN;
- 	
--	list_for_each_entry(bpqdev, &bpq_devices, bpq_list) {
-+	list_for_each_entry_rcu(bpqdev, &bpq_devices, bpq_list) {
- 		if (i == *pos)
- 			return bpqdev;
- 	}
-@@ -418,7 +418,7 @@ static void *bpq_seq_next(struct seq_fil
- 		p = ((struct bpqdev *)v)->bpq_list.next;
- 
- 	return (p == &bpq_devices) ? NULL 
--		: list_entry(p, struct bpqdev, bpq_list);
-+		: rcu_dereference(list_entry(p, struct bpqdev, bpq_list));
- }
- 
- static void bpq_seq_stop(struct seq_file *seq, void *v)
-@@ -561,8 +561,6 @@ static int bpq_device_event(struct notif
- 	if (!dev_is_ethdev(dev))
- 		return NOTIFY_DONE;
- 
--	rcu_read_lock();
--
- 	switch (event) {
- 	case NETDEV_UP:		/* new ethernet device -> new BPQ interface */
- 		if (bpq_get_ax25_dev(dev) == NULL)
-@@ -581,7 +579,6 @@ static int bpq_device_event(struct notif
- 	default:
- 		break;
- 	}
--	rcu_read_unlock();
- 
- 	return NOTIFY_DONE;
- }
+v@iki.fi
 

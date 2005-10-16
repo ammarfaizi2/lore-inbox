@@ -1,65 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbVJPCwe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751279AbVJPDFQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751277AbVJPCwe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Oct 2005 22:52:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751279AbVJPCwe
+	id S1751279AbVJPDFQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Oct 2005 23:05:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751280AbVJPDFP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Oct 2005 22:52:34 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:59044 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751277AbVJPCwd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Oct 2005 22:52:33 -0400
-Date: Sat, 15 Oct 2005 19:52:13 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Mel Gorman <mel@csn.ul.ie>
-Cc: akpm@osdl.org, jschopp@austin.ibm.com, mel@csn.ul.ie, kravetz@us.ibm.com,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       lhms-devel@lists.sourceforge.net
-Subject: Re: [PATCH 0/8] Fragmentation Avoidance V17
-Message-Id: <20051015195213.44e0dabb.pj@sgi.com>
-In-Reply-To: <20051011151221.16178.67130.sendpatchset@skynet.csn.ul.ie>
-References: <20051011151221.16178.67130.sendpatchset@skynet.csn.ul.ie>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Sat, 15 Oct 2005 23:05:15 -0400
+Received: from zproxy.gmail.com ([64.233.162.204]:26377 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751279AbVJPDFO convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Oct 2005 23:05:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=L4aB/gv8T8AmYdtp6DOP+Be+gJjB04vRBUjXjB5zJKpZFn7jN4b52Ywf//BSPkePKKB16/CckZDwpjKeokCOqP/iZdtrA8TqqBfJA+UD7snNV8mZIOSE3LdKYHUciCUaEVC5/hHQf60kUmZ1AEJz3CcmYJQYGUiIMEaxgyzldo0=
+Message-ID: <29495f1d0510152005s3643dc02ub6a0f805c6197332@mail.gmail.com>
+Date: Sat, 15 Oct 2005 20:05:13 -0700
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: PATCH: EDAC, core EDAC support code
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1129403217.17923.22.camel@localhost.localdomain>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1129403217.17923.22.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mel wrote:
-> +#define __GFP_USER       0x80000u  /* User and other easily reclaimed pages */
-> +#define __GFP_KERNRCLM   0x100000u /* Kernel page that is reclaimable */
+On 10/15/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> This is a subset of the bluesmoke project core code, stripped of the NMI
+> work which isn't ready to merge and some of the "interesting" proc
+> functionality that needs reworking or just has no place in kernel. It
+> requires no core kernel changes except the added scrub functions already
+> posted.
+>
+> The goal is to merge further functionality only after the core code is
+> accepted and proven in the base kernel, and only at the point the
+> upstream extras are really ready to merge.
+>
+> Alan
+>
+> Signed-off-by: Alan Cox <alan@redhat.com>
+>
+>
+> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.14-rc2-mm1/drivers/edac/edac_mc.c linux-2.6.14-rc2-mm1/drivers/edac/edac_mc.c
+> --- linux.vanilla-2.6.14-rc2-mm1/drivers/edac/edac_mc.c 1970-01-01 01:00:00.000000000 +0100
+> +++ linux-2.6.14-rc2-mm1/drivers/edac/edac_mc.c 2005-10-14 18:26:12.000000000 +0100
 
-Sorry, but that __GFP_USER name is still sticking in my craw.
+<snip>
 
-I won't try to reopen my quest to get it named __GFP_REALLY_REALLY_EASY_RCLM
-or whatever it was, but instead will venture on a new quest.
+> +static int poll_msec = 1000;
 
-Can we get the 'RCLM' in there.  Especially since this term appears
-naked in such code as:
+<snip>
 
-> -				page = alloc_page(GFP_HIGHUSER);
-> +				page = alloc_page(GFP_HIGHUSER|__GFP_USER);
+> +static int edac_kernel_thread(void *arg)
+> +{
+> +       struct bs_thread_info *thread = (struct bs_thread_info *) arg;
+> +
+> +       /* detach thread */
+> +       daemonize(thread->name);
+> +
+> +       current->exit_signal = SIGCHLD;
+> +       allow_signal(SIGKILL);
+> +       thread->task = current;
+> +
+> +       /* indicate to starting task we have started */
+> +       complete(thread->event);
+> +
+> +       /* loop forever, until we are told to stop */
+> +       while(thread->run != NULL) {
+> +               void (*run)(unsigned long dummy);
+> +
+> +               /* call the function to check the memory controllers */
+> +               run = thread->run;
+> +               if(run)
+> +                       run(thread->dummy);
+> +
+> +               if(signal_pending(current))
+> +                       flush_signals(current);
+> +
+> +               /* ensure we are interruptable */
+> +               set_current_state(TASK_INTERRUPTIBLE);
+> +
+> +               /* goto sleep for the interval */
+> +               schedule_timeout((HZ * poll_msec) / 1000);
 
-where it is not at all obvious to the reader of this file (fs/exec.c)
-that the __GFP_USER term is commenting on the reclaim behaviour of
-the page to be allocated.
+Can this either be
 
-I'd be happier with:
+schedule_timeout_interruptible(msecs_to_jiffies(poll_msec));
 
-> +#define __GFP_USERRCLM    0x80000u /* User and other easily reclaimed pages */
-> +#define __GFP_KERNRCLM   0x100000u /* Kernel page that is reclaimable */
+or
 
-and:
+msleep_interruptible(poll_msec);
 
-> -				page = alloc_page(GFP_HIGHUSER);
-> +				page = alloc_page(GFP_HIGHUSER|__GFP_USERRCLM);
+?
 
-Also the bold assymetry of these two #defines seems to be without motivation,
-one with the 'RCLM', and the other with '    ' four spaces.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Thanks,
+Nish

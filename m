@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbVJPAww@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbVJPCL6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751264AbVJPAww (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Oct 2005 20:52:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbVJPAww
+	id S1750827AbVJPCL6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Oct 2005 22:11:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751272AbVJPCL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Oct 2005 20:52:52 -0400
-Received: from sccrmhc11.comcast.net ([63.240.76.21]:28385 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S1751264AbVJPAwv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Oct 2005 20:52:51 -0400
-Date: Sat, 15 Oct 2005 17:53:41 -0700
-From: Deepak Saxena <dsaxena@plexity.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: jgarzik@pobox.net, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] RNG rewrite...
-Message-ID: <20051016005341.GB5946@plexity.net>
-Reply-To: dsaxena@plexity.net
-References: <20051015043120.GA5946@plexity.net> <4350DCB1.7010201@pobox.com>
+	Sat, 15 Oct 2005 22:11:57 -0400
+Received: from mail2.genealogia.fi ([194.100.116.229]:59299 "EHLO
+	mail2.genealogia.fi") by vger.kernel.org with ESMTP
+	id S1750827AbVJPCL5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Oct 2005 22:11:57 -0400
+Date: Sat, 15 Oct 2005 19:11:10 -0700
+From: Jouni Malinen <jkmaline@cc.hut.fi>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: Better fixup for the orinoco driver
+Message-ID: <20051016021110.GC10699@jm.kir.nu>
+References: <1129401680.17923.3.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4350DCB1.7010201@pobox.com>
-Organization: Plexity Networks
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <1129401680.17923.3.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.8i
+X-Spam-Score: -2.6 (--)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 15 2005, at 06:40, Jeff Garzik was caught saying:
-> Deepak Saxena wrote:
-> >rewrite the damn thing to use the device model and have a rng
-> >device class with individual drivers for each RNG model, including
-> >IXP4xx. I'll keep the miscdev interface around but will add a
-> >new interface under /sys/class/rng that the userspace tools 
-> >can transition to. Is this OK with folks?
+On Sat, Oct 15, 2005 at 07:41:20PM +0100, Alan Cox wrote:
+
+> The latest kernel added a pretty ugly fix for the orinoco etherleak bug
+> which contains bogus skb->len checks already done by the caller and
+> causes copies of all odd sized frames (which are quite common)
 > 
-> How does the hardware export RNG functionality?  CPU insn?  Magic memory 
-> address?  Can it be done 100% in userspace?
+> While the skb->len check should be ripped out the other fix is harder to
+> do properly so I'm proposing for this the -mm tree only until next 2.6.x
+> so that it gets tested.
+> 
+> Instead of copying buffers around blindly this code implements a padding
+> aware version of the hermes buffer writing function which does padding
+> as the buffer is loaded and thus more cleanly and without bogus 1.5K
+> copies.
 
-It's a magic regsiter we just read/write and could be done in userspace.
-I also took a look at MPC85xx and it has the same sort of interface but
-also has an error interrupt capability. On second thought a class
-interface is overkill b/c there will only be one RNG per system, so
-I can just do something like watchdogs where we have a bunch of simple
-drivers exposing the same interface. We could do it in user space but
-then we have separate RNG implementations for  x86 and !x86 and I'd
-rather not see that. Can we move the x86 code out to userspace and
-just let the daemon eat the numbers directly from HW? We can mmap() 
-PCI devices, but I don't know enough about x86 to say whether msr 
-instructions can execute out of userspace (or if we want them to...).
-
-~Deepak
+While working on this area, shouldn't we just finally get rid of the
+bogus ETH_ZLEN padding? There is no such requirement for IEEE 802.11.
+This would remove need for the extra padding code you have in
+hermes_bap_pwrite_pad(). The only requirement is to be able to add one
+extra byte if the packet length is odd.
 
 -- 
-Deepak Saxena - dsaxena@plexity.net - http://www.plexity.net
-
-When law and duty are one, united by religion, you never become fully
-conscious, fully aware of yourself. You are always a little less than
-an individual. - Frank Herbert
+Jouni Malinen                                            PGP id EFC895FA

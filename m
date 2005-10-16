@@ -1,28 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751298AbVJPHoU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751303AbVJPHqb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751298AbVJPHoU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Oct 2005 03:44:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbVJPHoU
+	id S1751303AbVJPHqb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Oct 2005 03:46:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbVJPHqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Oct 2005 03:44:20 -0400
-Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:9478 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751298AbVJPHoT
+	Sun, 16 Oct 2005 03:46:31 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:9648 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751303AbVJPHqb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Oct 2005 03:44:19 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: davem@davemloft.net (David S. Miller)
+	Sun, 16 Oct 2005 03:46:31 -0400
+Date: Sun, 16 Oct 2005 08:46:26 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] highest_possible_processor_id() has to be a macro
-Cc: viro@ftp.linux.org.uk, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Organization: Core
+Message-ID: <20051016074626.GC7992@ftp.linux.org.uk>
+References: <20051015235112.GA7992@ftp.linux.org.uk> <20051016.001649.94729039.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <20051016.001649.94729039.davem@davemloft.net>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1ER3BD-0004aX-00@gondolin.me.apana.org.au>
-Date: Sun, 16 Oct 2005 17:43:39 +1000
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller <davem@davemloft.net> wrote:
+On Sun, Oct 16, 2005 at 12:16:49AM -0700, David S. Miller wrote:
+> From: Al Viro <viro@ftp.linux.org.uk>
+> Date: Sun, 16 Oct 2005 00:51:12 +0100
+> 
+> > 	... otherwise, things like alpha and sparc64 break and break
+> > badly.  They define cpu_possible_map to something else in smp.h
+> > *AFTER* having included cpumask.h.
 > 
 > So ugly...
 > 
@@ -31,16 +39,6 @@ David S. Miller <davem@davemloft.net> wrote:
 > Longer term we might want to make an asm/cpumask.h that can
 > help allow the platforms to cleanly say "well, mask X is
 > equivalent to Y, so only instantiate X and define Y to X"
-> which is all that these two platforms are trying to accomplish.
 
-The other thing you could is have an inline function called
-highest_processor_id (or perhaps last_cpu) that calculates the
-biggest CPU ID for any map and then define highest_possible_processor_id
-as a macro that just calls the function with the right arguments.
-
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Indeed, but playing with moving stuff from smp.h is definitely post-2.6.14
+fodder...

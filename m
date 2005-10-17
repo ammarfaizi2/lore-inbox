@@ -1,77 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751152AbVJQTbE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751280AbVJQTjb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751152AbVJQTbE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 15:31:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbVJQTbE
+	id S1751280AbVJQTjb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 15:39:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751274AbVJQTjb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 15:31:04 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:14516 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751152AbVJQTbC (ORCPT
+	Mon, 17 Oct 2005 15:39:31 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:28504 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751280AbVJQTja (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 15:31:02 -0400
-Date: Mon, 17 Oct 2005 12:30:08 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Eric Dumazet <dada1@cosmosbay.com>
-cc: dipankar@in.ibm.com, Jean Delvare <khali@linux-fr.org>,
-       Serge Belyshev <belyshev@depni.sinp.msu.ru>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: VFS: file-max limit 50044 reached
-In-Reply-To: <4353F7B5.1040101@cosmosbay.com>
-Message-ID: <Pine.LNX.4.64.0510171218490.3369@g5.osdl.org>
-References: <Pine.LNX.4.64.0510161912050.23590@g5.osdl.org>
- <JTFDVq8K.1129537967.5390760.khali@localhost> <20051017084609.GA6257@in.ibm.com>
- <43536A6C.102@cosmosbay.com> <20051017103244.GB6257@in.ibm.com>
- <Pine.LNX.4.64.0510170829000.23590@g5.osdl.org> <4353CADB.8050709@cosmosbay.com>
- <Pine.LNX.4.64.0510170911370.23590@g5.osdl.org> <20051017162930.GC13665@in.ibm.com>
- <4353E6F1.8030206@cosmosbay.com> <Pine.LNX.4.64.0510171112040.3369@g5.osdl.org>
- <4353F7B5.1040101@cosmosbay.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 17 Oct 2005 15:39:30 -0400
+Date: Mon, 17 Oct 2005 21:40:17 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/1] indirect function calls elimination in IO scheduler
+Message-ID: <20051017194016.GB2811@suse.de>
+References: <20051017175858.GY2811@suse.de> <200510171925.j9HJPKg12681@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200510171925.j9HJPKg12681@unix-os.sc.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 17 Oct 2005, Eric Dumazet wrote:
+On Mon, Oct 17 2005, Chen, Kenneth W wrote:
+> Jens Axboe wrote on Monday, October 17, 2005 10:59 AM
+> > you cannot ref count a statically embedded structure. It has to be
+> > dynamically allocated.
 > 
-> Thats strange, because on my tests it seems that I dont have one reschedule
-> for 'maxbatch' items. Doing 'grep filp /proc/slabinfo' it seems I have one
-> 'schedule' then filp count goes back to 1000.
+> I'm confused.  For every block device queue, there is one unique
+> elevator_t structure allocated via kmalloc.  And vice versa, one
+> elevator_t has only one request_queue points to it. This elevator_t
+> structure is per q since it has pointer to per-queue elevator
+> private data.
 
-Hmm.
+For every _non_ stacked queue there is an elevator_t structure attached.
+That's a seperate point, but it means that embedding the elevator inside
+the queue wastes memory (104 bytes per queue on this box I'm typing on)
+for dm/md devices.
 
-I think you're right, but for all the wrong reasons.
+> Since it is always one to one relationship, ref count is predictable
+> and static.  I see there are ref count on q->elevator, But it is
+> always 2: one from object instantiation and one from adding an sysfs
+> hierarchy directory.  In this case, I don't see the difference.
+> Am I missing something?
 
-"maxbatch" ends up not actually having any real effect in the end: after 
-the tasklet ends up running in softirqd, softirqd will actually keep on 
-calling the tasklet code until it doesn't get rescheduled any more ;)
+The reference count does exist outside of the queue getting gotten/put,
+the switching being one of them. Tejun has patches for improving the
+switching, so it would be possible to keep two schedulers alive for the
+queue for the duration of the switch.
 
-So it will do "maxbatch" RCU entries, reschedule itself, return, and 
-immediately get called again.
+-- 
+Jens Axboe
 
-Heh.
-
-The _good_ news is that since it ends up running in softirqd (after the 
-first ten times - the softirq code in kernel/softirq.c will start off 
-calling it ten times _first_), it can be scheduled away, so it actually 
-ends up helping latency.
-
-Which means that we actually end up doing exactly the right thing, 
-although for what appears to be the wrong reasons (or very lucky ones).
-
-The _bad_ news is that softirqd is running at nice +19, so I suspect that 
-with some unlucky patterns it's probably pretty easy to make sure that 
-ksoftirqd doesn't actually run very often at all! 
-
-Gaah. So close, yet so far. I'm _almost_ willing to just undo my "make 
-maxbatch huge" patch, and apply your patch, because now that I see how it 
-all happens to work together I'm convinced that it _almost_ works. Even if 
-it seems to be mostly by luck(*) rather than anything else.
-
-		Linus
-
-(*) Not strictly true. It may not be by design of the RCU code itself, but 
-it's definitely by design of the softirq's being designed to be robust and 
-have good latency behaviour. So it does work by design, but it works by 
-softirq design rather than RCU design ;)

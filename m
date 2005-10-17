@@ -1,153 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932368AbVJQW6q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbVJQXIV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932368AbVJQW6q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 18:58:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbVJQW6q
+	id S1751321AbVJQXIV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 19:08:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751357AbVJQXIV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 18:58:46 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:17561 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932368AbVJQW6p
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 18:58:45 -0400
-Date: Mon, 17 Oct 2005 15:59:26 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: dipankar@in.ibm.com, Linus Torvalds <torvalds@osdl.org>,
-       Jean Delvare <khali@linux-fr.org>,
-       Serge Belyshev <belyshev@depni.sinp.msu.ru>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: VFS: file-max limit 50044 reached
-Message-ID: <20051017225925.GB1298@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <Pine.LNX.4.64.0510161912050.23590@g5.osdl.org> <JTFDVq8K.1129537967.5390760.khali@localhost> <20051017084609.GA6257@in.ibm.com> <43536A6C.102@cosmosbay.com> <20051017103244.GB6257@in.ibm.com> <Pine.LNX.4.64.0510170829000.23590@g5.osdl.org> <4353CADB.8050709@cosmosbay.com> <Pine.LNX.4.64.0510170911370.23590@g5.osdl.org> <20051017162930.GC13665@in.ibm.com> <4353E6F1.8030206@cosmosbay.com>
-Mime-Version: 1.0
+	Mon, 17 Oct 2005 19:08:21 -0400
+Received: from ams-iport-1.cisco.com ([144.254.224.140]:21345 "EHLO
+	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S1751321AbVJQXIU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 19:08:20 -0400
+To: gregkh@suse.de
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: [PATCH] PCI: Add pci_find_next_capability() to deal with >1 caps of
+ same type
+X-Message-Flag: Warning: May contain useful information
+From: Roland Dreier <rolandd@cisco.com>
+Date: Mon, 17 Oct 2005 16:08:12 -0700
+Message-ID: <52mzl7pwrn.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4353E6F1.8030206@cosmosbay.com>
-User-Agent: Mutt/1.4.1i
+X-OriginalArrivalTime: 17 Oct 2005 23:08:13.0794 (UTC) FILETIME=[A67C9420:01C5D36F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 17, 2005 at 08:01:21PM +0200, Eric Dumazet wrote:
-> Dipankar Sarma a écrit :
-> >On Mon, Oct 17, 2005 at 09:16:25AM -0700, Linus Torvalds wrote:
-> >
-> >>>Absolutely. Keeping a count of (percpu) queued items is basically free 
-> >>>if kept
-> >>>in the cache line used by list head, so the 'queue length on this cpu' 
-> >>>is a
-> >>>cheap metric.
-> >>
-> >>The only downside to TIF_RCUUPDATE is that those damn TIF-flags are 
-> >>per-architecture (probably largely unnecessary, but while most 
-> >>architectures don't care at all, others seem to have optimized their 
-> >>layout so that they can test the work bits more efficiently). So it's a 
-> >>matter of each architecture being updated with its TIF_xyz flag and their 
-> >>work function.
-> >>
-> >>Anybody willing to try? Dipankar apparently has a lot on his plate, this 
-> >>_should_ be fairly straightforward. Eric?
-> >
-> >
-> >I *had*, when this hit me :) It was one those spurt things. I am going to
-> >look at this, but I think we will need to do this with some careful
-> >benchmarking.
-> >
-> >At the moment however I do have another concern - open/close taking too
-> >much time as I mentioned in an earlier email. It is nearly 4 times
-> >slower than 2.6.13. So, that is first up in my list of things to
-> >do at the moment.
-> >
-> 
-> <lazy_mode=ON>
-> Do we really need a TIF_RCUUPDATE flag, or could we just ask for a resched ?
-> </lazy_mode>
-> 
-> This patch only take care of call_rcu(), I'm unsure of what can be done 
-> inside call_rcu_bh()
-> 
-> The two stress program dont hit OOM anymore with this patch applied (even 
-> with maxbatch=10)
+Some devices have more than one capability of the same type.  For
+example, the PCI header for the PathScale InfiniPath looks like:
 
-Keeping the per-CPU count of queued callbacks seems eminently reasonable
-to me, as does the set_need_resched().  But the proposed (but fortunately
-commented out) call of rcu_do_batch() from call_rcu() does have deadlock
-issues.
+	04:01.0 InfiniBand: Unknown device 1fc1:000d (rev 02)
+		Subsystem: Unknown device 1fc1:000d
+		Flags: bus master, fast devsel, latency 0, IRQ 193
+		Memory at fea00000 (64-bit, non-prefetchable) [size=2M]
+		Capabilities: [c0] HyperTransport: Slave or Primary Interface
+		Capabilities: [f8] HyperTransport: Interrupt Discovery and Configuration
 
-> Eric
-> 
+There are _two_ HyperTransport capabilities, and the PathScale driver
+wants to look at both of them.
 
-> --- linux-2.6.14-rc4/kernel/rcupdate.c	2005-10-11 03:19:19.000000000 +0200
-> +++ linux-2.6.14-rc4-ed/kernel/rcupdate.c	2005-10-17 21:52:18.000000000 +0200
-> @@ -109,6 +109,10 @@
->  	rdp = &__get_cpu_var(rcu_data);
->  	*rdp->nxttail = head;
->  	rdp->nxttail = &head->next;
-> +
-> +	if (unlikely(++rdp->count > 10000))
-> +		set_need_resched();
-> +
->  	local_irq_restore(flags);
->  }
->  
-> @@ -140,6 +144,12 @@
->  	rdp = &__get_cpu_var(rcu_bh_data);
->  	*rdp->nxttail = head;
->  	rdp->nxttail = &head->next;
-> +	rdp->count++;
+The current pci_find_capability() API doesn't work for this, since it
+only allows us to get to the first capability of a given type.  The
+patch below introduces a new pci_find_next_capability(), which can be
+used in a loop like
 
-Really need an "rdp->count++" in call_rcu_bh() as well, otherwise
-the _bh struct rcu_data will have a steadily decreasing count field.
-Strictly speaking, this is harmless, since call_rcu_bh() cheerfully
-ignores this field, but this situation is bound to cause severe confusion
-at some point.
+	for (pos = pci_find_capability(pdev, <ID>);
+	     pos;
+	     pos = pci_find_next_capability(pdev, pos, <ID>)) {
+		/* ... */
+	}
 
-> +/*
-> + *  Should we directly call rcu_do_batch() here ?
-> + *  if (unlikely(rdp->count > 10000))
-> + *      rcu_do_batch(rdp);
-> + */
+I made this an EXPORT_SYMBOL() instead of an EXPORT_SYMBOL_GPL() since
+it is a trivial wrapper around existing PCI functions, and I'd rather
+see people use a nice wrapper instead of recreating the function.
 
-Good thing that the above is commented out!  ;-)
+Signed-off-by: Roland Dreier <rolandd@cisco.com>
 
-Doing this can result in self-deadlock, for example with the following:
+---
 
-	spin_lock(&mylock);
-	/* do some stuff. */
-	call_rcu(&p->rcu_head, my_rcu_callback);
-	/* do some more stuff. */
-	spin_unlock(&mylock);
-
-void my_rcu_callback(struct rcu_head *p)
-{
-	spin_lock(&mylock);
-	/* self-deadlock via call_rcu() via rcu_do_batch()!!! */
-	spin_unlock(&mylock);
-}
-
-
-						Thanx, Paul
-
->  }
->  
-> @@ -157,6 +167,7 @@
->  		next = rdp->donelist = list->next;
->  		list->func(list);
->  		list = next;
-> +		rdp->count--;
->  		if (++count >= maxbatch)
->  			break;
->  	}
-> --- linux-2.6.14-rc4/include/linux/rcupdate.h	2005-10-11 03:19:19.000000000 +0200
-> +++ linux-2.6.14-rc4-ed/include/linux/rcupdate.h	2005-10-17 21:02:25.000000000 +0200
-> @@ -94,6 +94,7 @@
->  	long  	       	batch;           /* Batch # for current RCU batch */
->  	struct rcu_head *nxtlist;
->  	struct rcu_head **nxttail;
-> +	long            count; /* # of queued items */
->  	struct rcu_head *curlist;
->  	struct rcu_head **curtail;
->  	struct rcu_head *donelist;
-
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index 259d247..b852959 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -120,6 +120,33 @@ int pci_find_capability(struct pci_dev *
+ }
+ 
+ /**
++ * pci_find_next_capability - Find next capability after current position
++ * @dev: PCI device to query
++ * @pos: Position to search from
++ * @cap: capability code
++ */
++int pci_find_next_capability(struct pci_dev *dev, u8 pos, int cap)
++{
++	u8 id;
++	int ttl = 48;
++
++	while (ttl--) {
++		pci_read_config_byte(dev, pos + PCI_CAP_LIST_NEXT, &pos);
++		pos &= ~3;
++		if (pos < 0x40)
++			break;
++		pci_read_config_byte(dev, pos + PCI_CAP_LIST_ID, &id);
++		if (id == 0xff)
++			break;
++		if (id == cap)
++			return pos;
++	}
++
++	return 0;
++}
++EXPORT_SYMBOL(pci_find_next_capability);
++
++/**
+  * pci_bus_find_capability - query for devices' capabilities 
+  * @bus:   the PCI bus to query
+  * @devfn: PCI device to query
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index 7349058..8016d14 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -337,6 +337,7 @@ struct pci_dev *pci_find_device (unsigne
+ struct pci_dev *pci_find_device_reverse (unsigned int vendor, unsigned int device, const struct pci_dev *from);
+ struct pci_dev *pci_find_slot (unsigned int bus, unsigned int devfn);
+ int pci_find_capability (struct pci_dev *dev, int cap);
++int pci_find_next_capability (struct pci_dev *dev, u8 pos, int cap);
+ int pci_find_ext_capability (struct pci_dev *dev, int cap);
+ struct pci_bus * pci_find_next_bus(const struct pci_bus *from);
+ 
+@@ -546,6 +547,7 @@ static inline int pci_assign_resource(st
+ static inline int pci_register_driver(struct pci_driver *drv) { return 0;}
+ static inline void pci_unregister_driver(struct pci_driver *drv) { }
+ static inline int pci_find_capability (struct pci_dev *dev, int cap) {return 0; }
++static inline int pci_find_next_capability (struct pci_dev *dev, u8 post, int cap) {return 0; }
+ static inline int pci_find_ext_capability (struct pci_dev *dev, int cap) {return 0; }
+ static inline const struct pci_device_id *pci_match_device(const struct pci_device_id *ids, const struct pci_dev *dev) { return NULL; }
+ 

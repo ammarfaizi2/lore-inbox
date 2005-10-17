@@ -1,77 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932223AbVJQJ0Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbVJQJar@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932223AbVJQJ0Y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 05:26:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbVJQJ0X
+	id S932231AbVJQJar (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 05:30:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932232AbVJQJar
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 05:26:23 -0400
-Received: from styx.suse.cz ([82.119.242.94]:50601 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S932223AbVJQJ0X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 05:26:23 -0400
-Date: Mon, 17 Oct 2005 11:26:21 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Kay Sievers <kay.sievers@vrfy.org>
-Cc: dtor_core@ameritech.net, Greg KH <gregkh@suse.de>,
-       Hannes Reinecke <hare@suse.de>,
-       Patrick Mochel <mochel@digitalimplant.org>, airlied@linux.ie,
-       linux-kernel@vger.kernel.org, Adam Belay <ambx1@neo.rr.com>
-Subject: Re: [patch 0/8] Nesting class_device patches that actually work
-Message-ID: <20051017092621.GA10522@ucw.cz>
-References: <20051013020844.GA31732@kroah.com> <20051013105826.GA11155@vrfy.org> <d120d5000510131435m7b27fe59l917ac3e11b2458c8@mail.gmail.com> <20051014084554.GA19445@vrfy.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051014084554.GA19445@vrfy.org>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.6i
+	Mon, 17 Oct 2005 05:30:47 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:56009 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S932231AbVJQJaq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 05:30:46 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <4353705D.6060809@s5r6.in-berlin.de>
+Date: Mon, 17 Oct 2005 11:35:25 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.11) Gecko/20050728
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+CC: Andrew Morton <akpm@osdl.org>, Jesse Barnes <jbarnes@virtuousgeek.org>
+Subject: Re: ohci1394 unhandled interrupts bug in 2.6.14-rc2
+References: <20051015185502.GA9940@plato.virtuousgeek.org>	<43515ADA.6050102@s5r6.in-berlin.de>	<20051015202944.GA10463@plato.virtuousgeek.org> <20051017005515.755decb6.akpm@osdl.org>
+In-Reply-To: <20051017005515.755decb6.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: (-1.196) AWL,BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 14, 2005 at 10:45:54AM +0200, Kay Sievers wrote:
+Andrew Morton wrote:
+> Jesse Barnes <jbarnes@virtuousgeek.org> wrote:
+> 
+>>diff -X linux-2.6.14-rc2/Documentation/dontdiff -Naur linux-2.6.14-rc2.orig/drivers/ieee1394/ohci1394.c linux-2.6.14-rc2/drivers/ieee1394/ohci1394.c
+>>--- linux-2.6.14-rc2.orig/drivers/ieee1394/ohci1394.c	2005-09-19 20:00:41.000000000 -0700
+>>+++ linux-2.6.14-rc2/drivers/ieee1394/ohci1394.c	2005-10-15 12:55:08.000000000 -0700
+[...]
+>>+module_param(toshiba, bool, 0);
+>>+MODULE_PARM_DESC(toshiba, "Toshiba Legacy-Free BIOS workaround (default=0).");
+[...]
+> It would be really really preferable if we could find some automatic way of
+> doing this.
 
-> Sure, than that physical (while that distinction is silly by itself)
-> will just have several child devices. Look at the mouse0 and event0 in
-> the ascii drawing.
-> 
-> That solution would keep a better device separation, sure. But it is
-> completely incompatible with everything we ever had in sysfs and
-> nobody wants to rewrite _all_ userspace programs.
-> 
-> It invents artificial subclass names below a "master" class, which is
-> absolutely not needed.
-> 
-> It creates the magic "interfaces" directory, which is confusing, cause
-> it classifies devices by itself.
-> 
-> It doesn't represent any relationship and hierarchy of devices and
-> adding a forest of magic symlinks and "device" pointers is a very bad
-> design. The proposed "inter-class" symlinks make it even harder to
-> understand sysfs as it already is.
-> 
-> The biggest problem with current sysfs is that the driver hacker has
-> to decide if the device is "hardware" or "virtual" which in a lot of
-> cases just can't tell and this distiction doesn't make any sense
-> today.
-> 
-> All the more complex subsystems use "virtual buses" and an unconnected
-> bunch of class-devices to model its sysfs represention, which is just
-> to work around a major design flaw in sysfs!  We really should get
-> _one_ device tree with its natural hierarchy, get rid of the stupid
-> "device"-link, the PHYSDEVPATH and the unconnected class devices.
-> Every device should just carry its dependency tree in it _own_
-> devpath!
-> 
-> I'm very sure, we want a unified tree in /sys/devices, regardless of
-> the type of device, to represent the global hierarchy wich is exactly
-> what you want to know from a device tree!  That way we stack "virtual"
-> _and_ "physical" in a sane manner and at the same time get very clean
-> class interfaces. We would stop to mix up "hierarchy" and "classes"
-> all over the tree.
- 
-Let me just say: I completely agree here. The hard distinction between
-'real' and 'virtual' devices causes more problems than it solves.
+I agree.
 
+>  Is it possible to use DMI matching, like
+> arch/i386/kernel/acpi/sleep.c:acpisleep_dmi_table ?
+
+Earlier forms of the patch do DMI matching:
+http://marc.theaimsgroup.com/?l=linux1394-devel&m=110790513206094
+http://www.janerob.com/rob/ts5100/tosh-1394.patch
+[short-circuited by if (1) at the second URL]
+
+Of course we don't have a complete picture of which models are affected 
+though.
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Stefan Richter
+-=====-=-=-= =-=- =---=
+http://arcgraph.de/sr/

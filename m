@@ -1,106 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751407AbVJQPyT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751405AbVJQPxv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751407AbVJQPyT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 11:54:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbVJQPyT
+	id S1751405AbVJQPxv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 11:53:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751407AbVJQPxv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 11:54:19 -0400
-Received: from agmk.net ([217.73.31.34]:31504 "EHLO mail.agmk.net")
-	by vger.kernel.org with ESMTP id S1751408AbVJQPyS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 11:54:18 -0400
-From: =?utf-8?q?Pawe=C5=82_Sikora?= <pluto@agmk.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc4-rt1 / oops in ip_nat_cleanup_conntrack / softirq-net-rx
-Date: Mon, 17 Oct 2005 17:54:06 +0200
-User-Agent: KMail/1.8.3
-Cc: Ingo Molnar <mingo@elte.hu>, netfilter-devel@lists.netfilter.org
+	Mon, 17 Oct 2005 11:53:51 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:52144 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1751405AbVJQPxv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 11:53:51 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <4353CA12.8020708@s5r6.in-berlin.de>
+Date: Mon, 17 Oct 2005 17:58:10 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.11) Gecko/20050728
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+CC: rob <rob@janerob.com>, Andrew Morton <akpm@osdl.org>,
+       jbarnes@virtuousgeek.org, Jody McIntyre <scjody@modernduck.com>
+Subject: Re: ohci1394 unhandled interrupts bug in 2.6.14-rc2
+References: <20051015185502.GA9940@plato.virtuousgeek.org> <43515ADA.6050102@s5r6.in-berlin.de> <20051015202944.GA10463@plato.virtuousgeek.org> <20051017005515.755decb6.akpm@osdl.org> <4353705D.6060809@s5r6.in-berlin.de> <20051017024219.08662190.akpm@osdl.org> <20051017124711.M44026@janerob.com>
+In-Reply-To: <20051017124711.M44026@janerob.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510171754.07186.pluto@agmk.net>
+X-Spam-Score: (-0.783) AWL,BAYES_05
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
+rob wrote:
+> On Mon, 17 Oct 2005 02:42:19 -0700, Andrew Morton wrote
+>>Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
+>>>Earlier forms of the patch do DMI matching:
+>>>http://marc.theaimsgroup.com/?l=linux1394-devel&m=110790513206094
+>>>http://www.janerob.com/rob/ts5100/tosh-1394.patch
+>>>[short-circuited by if (1) at the second URL]
+>>
+>>Rob, can you finish that patch off and send it?
+> 
+> Sorry, I was advised that this should be correctly handled as a pci-quirk
+> (Jody McIntyre <scjody@modernduck.com>),
 
-With -rt1 I get this oops.
+Since Jesse found that we really need to read & write back the 
+PCI_CACHE_LINE_SIZE, I gather the workaround has to stay in ohci1394 
+(and should be triggered by dmi_check_system), doesn't it?
 
-(...)
-BUG: Unable to handle kernel paging request at virtual address 00100104
- printing eip:
-e13fa10c
-*pde = 00000000
-Oops: 0002 [#1]
-PREEMPT 
-Modules linked in: ipt_state iptable_filter ipt_TTL iptable_mangle iptable_nat 
-ip_nat ip_conntrack nfnetlink ip_tables ip6table_filter ip6_tables ipv6 
-ohci_hcd ehci_hcd snd_seq_dummy snd_seq_oss snd_seq_midi_event snd_seq 
-snd_pcm_oss snd_mixer_oss snd_ens1371 gameport snd_rawmidi snd_seq_device 
-snd_ac97_codec snd_pcm snd_page_alloc snd_ac97_bus tsdev snd_rtctimer 
-snd_timer snd soundcore psmouse evdev usbhid 8139too via_rhine mii processor 
-msr cpuid ide_cd cdrom ide_disk usbkbd uhci_hcd usbcore jfs via82cxxx 
-ide_core
-CPU:    0
-EIP:    0060:[<e13fa10c>]    Not tainted VLI
-EFLAGS: 00010246   (2.6.14-0.5) 
-EIP is at ip_nat_cleanup_conntrack+0x2c/0x50 [ip_nat]
-eax: 00100100   ebx: ddc67c54   ecx: ddc67cf4   edx: 00200200
-esi: 80000000   edi: ddebc5e0   ebp: dff45e98   esp: dff45e94
-ds: 007b   es: 007b   ss: 0068   preempt: 00000001
-Process softirq-net-rx/ (pid: 5, threadinfo=dff44000 task=dffe8030 
-stack_left=7776 worst_left=-1)
-Stack: ddc67c54 dff45eb4 e140b557 ddc67c54 c0403168 c028c0d0 00000014 80000000 
-       dff45ee4 c028bb36 ddc67c54 00000001 dff45eec c1759000 00000000 c028c0d0 
-       80000000 00000000 ddebc5e0 ccb2581e dff45f1c c028be40 ddebc5e0 9134b33e 
-Call Trace:
- [<c010401f>] show_stack+0x7f/0xa0 (28)
- [<c01041f7>] show_registers+0x197/0x220 (56)
- [<c0104418>] die+0xe8/0x190 (68)
- [<c02d58f9>] do_page_fault+0x2d9/0x574 (96)
- [<c0103cb3>] error_code+0x4f/0x54 (64)
- [<e140b557>] destroy_conntrack+0x117/0x150 [ip_conntrack] (28)
- [<c028bb36>] ip_local_deliver+0x1e6/0x290 (48)
- [<c028be40>] ip_rcv+0x260/0x4f0 (56)
- [<c026c748>] netif_receive_skb+0x248/0x2d0 (52)
- [<c026c858>] process_backlog+0x88/0x100 (28)
- [<c026c964>] net_rx_action+0x94/0x1b0 (32)
- [<c0122f16>] ksoftirqd+0xc6/0x130 (40)
- [<c0131eaa>] kthread+0xaa/0xb0 (48)
- [<c0101429>] kernel_thread_helper+0x5/0xc (537632796)
-Code: 89 e5 53 8b 5d 08 f7 43 08 80 01 00 00 75 03 5b 5d c3 b8 c0 da 3f e1 e8 
-93 ae ed de 8d 8b a0 00 00 00 8b 83 a0 00 00 00 8b 51 04 <89> 50 04 89 02 b8 
-00 01 10 00 89 83 a0 00 00 00 b8 c0 da 3f e1 
+> and subsequently my laptop
+> motherboard died so I have no way of taking it further.
 
-I've also observed "probe-failed" with 2.6.14-rc4-rt1:
+We should be able to finish it.
 
-Probing IDE interface ide0...
-hda: ST3160023A, ATA DISK drive
-hda: IRQ probe failed (0xfffffcf8)
-hdb: IRQ probe failed (0xfffffcf8)
-hdb: IRQ probe failed (0xfffffcf8)
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-Probing IDE interface ide1...
-hdc: _NEC DVD_RW ND-3540A, ATAPI CD/DVD-ROM drive
-hdd: TEAC CD-552E, ATAPI CD/DVD-ROM drive
-ide1 at 0x170-0x177,0x376 on irq 15
+> The responses I got
+> indicated that the code works as is for the followiung laptops
+> 
+>>System Vendor: TOSHIBA
+>>Product Name: S5100-501
+>>Version: PS510E-00NV7-EN
+> 
+> System Vendor: TOSHIBA
+> Product Name: S5200-801
+> Version: PS520E-31P1D-GR
+> 
+> Manufacturer: TOSHIBA
+> Product Name: Satellite 5200
+> Version: PS520C-31P0EP
+> 
+> Manufacturer: TOSHIBA
+> Product Name: Satellite 5205
+> Version: PS522U-XK00YV
+> 
+> Manufacturer: TOSHIBA
+> Product Name: S5100-603
+> Version: PS511E-05328-GR
+> 
+> toshiba satellite 5005-S504
+> 
+> Toshiba Satellite 5105-s607
 
-... with 2.6.11.10 it works fine.
+Thanks a lot for the survey. Do they all _need_ the patch, or do some of 
+them need it and the others are just not harmed by the patch?
 
-Probing IDE interface ide0...
-hda: ST3160023A, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-Probing IDE interface ide1...
-hdc: _NEC DVD_RW ND-3540A, ATAPI CD/DVD-ROM drive
-hdd: TEAC CD-552E, ATAPI CD/DVD-ROM drive
-ide1 at 0x170-0x177,0x376 on irq 15
-
-
-Moreover -rt6 slows down my system dramatically :|
-
+Does anybody know a DMI_PRODUCT_NAME of a Libretto L1? Something like 
+PAL1060TNMM or PAL1060TNCM?
 -- 
-The only thing necessary for the triumph of evil
-  is for good men to do nothing.
-                                           - Edmund Burke
+Stefan Richter
+-=====-=-=-= =-=- =---=
+http://arcgraph.de/sr/
+
+

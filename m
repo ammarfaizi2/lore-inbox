@@ -1,72 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbVJQMlK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbVJQMmy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932285AbVJQMlK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 08:41:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932296AbVJQMlJ
+	id S932289AbVJQMmy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 08:42:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbVJQMmy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 08:41:09 -0400
-Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:6741 "HELO
-	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S932285AbVJQMlI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 08:41:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.de;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:MIME-Version:Content-Type:Message-Id;
-  b=vjtqjgXM2OgyusxkYVtWCEtIIOCES5bdw/UDX5CUQltTnJ+6unudXxAon0dnQgUBTWKJ1Fn2f8FRpJpT8moa40CvuKnhpGOPid8H3+gf+tcWm6VkD6O+O3vw424txb5adXvDXxquFeaS1f+zLUdeTE33OFg32MKEIaJNUysH/Og=  ;
-From: Karsten Wiese <annabellesgarden@yahoo.de>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: [PATCH] 2.6.14-rc4-rt6 x86_64 two timer entries in /sys
-Date: Mon, 17 Oct 2005 14:47:32 +0200
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_k15UDOhoaQEGaCA"
-Message-Id: <200510171447.32375.annabellesgarden@yahoo.de>
+	Mon, 17 Oct 2005 08:42:54 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:29654 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932289AbVJQMmx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 08:42:53 -0400
+Date: Mon, 17 Oct 2005 18:06:55 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: Jean Delvare <khali@linux-fr.org>, torvalds@osdl.org,
+       Serge Belyshev <belyshev@depni.sinp.msu.ru>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: [RCU problem] was VFS: file-max limit 50044 reached
+Message-ID: <20051017123655.GD6257@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <Pine.LNX.4.64.0510161912050.23590@g5.osdl.org> <JTFDVq8K.1129537967.5390760.khali@localhost> <20051017084609.GA6257@in.ibm.com> <43536A6C.102@cosmosbay.com> <20051017103244.GB6257@in.ibm.com> <435394A1.7000109@cosmosbay.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <435394A1.7000109@cosmosbay.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_k15UDOhoaQEGaCA
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Mon, Oct 17, 2005 at 02:10:09PM +0200, Eric Dumazet wrote:
+> Dipankar Sarma a écrit :
+> >On Mon, Oct 17, 2005 at 11:10:04AM +0200, Eric Dumazet wrote:
+> >
+> >Agreed. It is not designed to work that way, so there must be
+> >a bug somewhere and I am trying to track it down. It could very well
+> >be that at maxbatch=10 we are just queueing at a rate far too high
+> >compared to processing.
+> >
+> 
+> I can freeze my test machine with a program that 'only' use dentries, no 
+> files.
+> 
+> No message, no panic, but machine becomes totally unresponsive after few 
+> seconds.
+> 
+> Just greping for call_rcu in kernel sources gave me another call_rcu() use 
+> from syscalls. And yes 2.6.13 has the same problem.
 
-Hi Ingo,
+Can you try it with rcupdate.maxbatch set to 10000 in boot
+command line ?
 
-attached patch renames one instance of
-	/sys/devices/system/timer
-to
-	/sys/devices/system/timer_pit
-to avoid a name clash with another instance created in time.c.
+FWIW, the open/close test problem goes away if I set maxbatch to
+10000. I had introduced this limit some time ago to curtail
+the effect long running softirq handlers have on scheduling
+latencies, which now conflicts with OOM avoidance requirements.
 
-      Karsten
-
---Boundary-00=_k15UDOhoaQEGaCA
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="patch_x86_64-kernel-i8259"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="patch_x86_64-kernel-i8259"
-
---- rc4-rt6/arch/x86_64/kernel/i8259.c	2005-10-17 13:31:44.000000000 +0200
-+++ rc4-rt6-kw/arch/x86_64/kernel/i8259.c	2005-10-17 14:31:25.000000000 +0200
-@@ -515,7 +515,7 @@
- }
- 
- static struct sysdev_class timer_sysclass = {
--	set_kset_name("timer"),
-+	set_kset_name("timer_pit"),
- 	.resume		= timer_resume,
- };
- 
-
---Boundary-00=_k15UDOhoaQEGaCA--
-
-	
-
-	
-		
-___________________________________________________________ 
-Gesendet von Yahoo! Mail - Jetzt mit 1GB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de
+Thanks
+Dipankar

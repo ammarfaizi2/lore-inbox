@@ -1,58 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbVJQT2h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751152AbVJQTbE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751173AbVJQT2h (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 15:28:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbVJQT2h
+	id S1751152AbVJQTbE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 15:31:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbVJQTbE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 15:28:37 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:57515 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751173AbVJQT2g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 15:28:36 -0400
-Subject: Re: [discuss] Re: x86_64: 2.6.14-rc4 swiotlb broken
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Muli Ben-Yehuda <mulix@mulix.org>,
-       discuss@x86-64.org, Ravikiran G Thirumalai <kiran@scalex86.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       tglx@linutronix.de, shai@scalex86.org, clameter@engr.sgi.com,
-       muli@il.ibm.com, jdmason@us.ibm.com
-In-Reply-To: <200510172109.54066.ak@suse.de>
-References: <20051017093654.GA7652@localhost.localdomain>
-	 <20051017184523.GB26239@granada.merseine.nu>
-	 <Pine.LNX.4.64.0510171200490.3369@g5.osdl.org>
-	 <200510172109.54066.ak@suse.de>
-Content-Type: text/plain
-Date: Mon, 17 Oct 2005 21:15:37 +0200
-Message-Id: <1129576538.2907.31.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 17 Oct 2005 15:31:04 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:14516 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751152AbVJQTbC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 15:31:02 -0400
+Date: Mon, 17 Oct 2005 12:30:08 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Eric Dumazet <dada1@cosmosbay.com>
+cc: dipankar@in.ibm.com, Jean Delvare <khali@linux-fr.org>,
+       Serge Belyshev <belyshev@depni.sinp.msu.ru>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: VFS: file-max limit 50044 reached
+In-Reply-To: <4353F7B5.1040101@cosmosbay.com>
+Message-ID: <Pine.LNX.4.64.0510171218490.3369@g5.osdl.org>
+References: <Pine.LNX.4.64.0510161912050.23590@g5.osdl.org>
+ <JTFDVq8K.1129537967.5390760.khali@localhost> <20051017084609.GA6257@in.ibm.com>
+ <43536A6C.102@cosmosbay.com> <20051017103244.GB6257@in.ibm.com>
+ <Pine.LNX.4.64.0510170829000.23590@g5.osdl.org> <4353CADB.8050709@cosmosbay.com>
+ <Pine.LNX.4.64.0510170911370.23590@g5.osdl.org> <20051017162930.GC13665@in.ibm.com>
+ <4353E6F1.8030206@cosmosbay.com> <Pine.LNX.4.64.0510171112040.3369@g5.osdl.org>
+ <4353F7B5.1040101@cosmosbay.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-10-17 at 21:09 +0200, Andi Kleen wrote:
-> On Monday 17 October 2005 21:04, Linus Torvalds wrote:
-> 
-> > So the only thing that worried me (and made me ask whether there might be
-> > machines where it doesn't work) is if some machines might have their high
-> > memory (or no memory at all) on NODE(0). It does sound unlikely, but I
-> > simple don't know what kind of strange NUMA configs there are out there.
-> 
-> It could happen in VirtualIron (they seem to interleave node 0 over many nodes 
-> to get equal use of lowmem in 32bit NUMA), but should not in x86-64..
->  
-does VirtualIron work with kernel.org kernels at all?
 
 
+On Mon, 17 Oct 2005, Eric Dumazet wrote:
+> 
+> Thats strange, because on my tests it seems that I dont have one reschedule
+> for 'maxbatch' items. Doing 'grep filp /proc/slabinfo' it seems I have one
+> 'schedule' then filp count goes back to 1000.
+
+Hmm.
+
+I think you're right, but for all the wrong reasons.
+
+"maxbatch" ends up not actually having any real effect in the end: after 
+the tasklet ends up running in softirqd, softirqd will actually keep on 
+calling the tasklet code until it doesn't get rescheduled any more ;)
+
+So it will do "maxbatch" RCU entries, reschedule itself, return, and 
+immediately get called again.
+
+Heh.
+
+The _good_ news is that since it ends up running in softirqd (after the 
+first ten times - the softirq code in kernel/softirq.c will start off 
+calling it ten times _first_), it can be scheduled away, so it actually 
+ends up helping latency.
+
+Which means that we actually end up doing exactly the right thing, 
+although for what appears to be the wrong reasons (or very lucky ones).
+
+The _bad_ news is that softirqd is running at nice +19, so I suspect that 
+with some unlucky patterns it's probably pretty easy to make sure that 
+ksoftirqd doesn't actually run very often at all! 
+
+Gaah. So close, yet so far. I'm _almost_ willing to just undo my "make 
+maxbatch huge" patch, and apply your patch, because now that I see how it 
+all happens to work together I'm convinced that it _almost_ works. Even if 
+it seems to be mostly by luck(*) rather than anything else.
+
+		Linus
+
+(*) Not strictly true. It may not be by design of the RCU code itself, but 
+it's definitely by design of the softirq's being designed to be robust and 
+have good latency behaviour. So it does work by design, but it works by 
+softirq design rather than RCU design ;)

@@ -1,132 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbVJQVna@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932343AbVJQVpP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932263AbVJQVna (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 17:43:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbVJQVna
+	id S932343AbVJQVpP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 17:45:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932344AbVJQVpP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 17:43:30 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:1525 "EHLO
-	godzilla.mvista.com") by vger.kernel.org with ESMTP id S932263AbVJQVna
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 17:43:30 -0400
-Date: Mon, 17 Oct 2005 14:43:24 -0700 (PDT)
-From: Daniel Walker <dwalker@mvista.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       david singleton <dsingleton@mvista.com>,
-       Steven Rostedt <rostedt@goodmis.org>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Mark Knecht <markknecht@gmail.com>
-Subject: Re: 2.6.14-rc4-rt7
-In-Reply-To: <20051017160536.GA2107@elte.hu>
-Message-ID: <Pine.LNX.4.10.10510171417220.24518-101000@godzilla.mvista.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="655872-1753810980-1129585404=:24518"
+	Mon, 17 Oct 2005 17:45:15 -0400
+Received: from mail.kroah.org ([69.55.234.183]:4738 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932343AbVJQVpN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 17:45:13 -0400
+Date: Mon, 17 Oct 2005 14:44:30 -0700
+From: Greg KH <gregkh@suse.de>
+To: Kay Sievers <kay.sievers@vrfy.org>
+Cc: dtor_core@ameritech.net, Vojtech Pavlik <vojtech@suse.cz>,
+       Hannes Reinecke <hare@suse.de>,
+       Patrick Mochel <mochel@digitalimplant.org>, airlied@linux.ie,
+       linux-kernel@vger.kernel.org, Adam Belay <ambx1@neo.rr.com>
+Subject: Re: [patch 0/8] Nesting class_device patches that actually work
+Message-ID: <20051017214430.GA5193@suse.de>
+References: <20051013020844.GA31732@kroah.com> <20051013105826.GA11155@vrfy.org> <d120d5000510131435m7b27fe59l917ac3e11b2458c8@mail.gmail.com> <20051014084554.GA19445@vrfy.org> <d120d5000510141002v67a06900m219b47246c1d92c1@mail.gmail.com> <20051015150855.GA7625@vrfy.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051015150855.GA7625@vrfy.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Sat, Oct 15, 2005 at 05:08:55PM +0200, Kay Sievers wrote:
+> A lot! From general distro specific system-management to subsystem specific
+> setup tools and tons of udev rules... There is definitely no chance to break
+> /sys/class in _all_ subsystems by introducing subdirectories.
 
---655872-1753810980-1129585404=:24518
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+I agree.
 
+> > Btw, is your proposal with moving it all into /sys/device less drastic?
+> 
+> Definitely, cause it keeps all the curent api! The only difference is that class-devices
+> are reached by symlinks instead of real directories. The pathes to the devices are
+> the same!
 
-I found this latency ~5 minutes after boot up, no load . It looks like
-vgacon_scroll() has a memset like operation which can grow. 
+Ok, I've spent a while thinking about this proposal and originally I
+thought it was the same thing we had heard years ago.  But I was wrong,
+moving the class stuff into the device tree is the right thing to do, as
+long as we keep them as new "things" in the tree (previous proposals
+just had the /sys/class stuff as symlinks pointing to the devices
+themselves, which would not work for a range of reasons.)
 
-Daniel
+So, what to do now?  Here's my proposal for the future.
 
+We figure out some way to agree on the input stuff, using class_device
+and get that into 2.6.15.  Personally, I like the stuff I just did and
+is in the -mm tree :)
 
-On Mon, 17 Oct 2005, Ingo Molnar wrote:
+But, if you think we can't break userspace by adding nested class
+devices just yet, I agree, and can probably just put a symlink in
+/sys/class/input to the nested devices, which will make everything "just
+work".  I'll try that out later tonight and let you all know how it
+goes.
 
-> 
-> i have released the 2.6.14-rc4-rt7 tree, which can be downloaded from 
-> the usual place:
-> 
->   http://redhat.com/~mingo/realtime-preempt/
-> 
-> the biggest change is the merging of "ktimers next step", a'ka the 
-> clockevents framework, from Thomas Gleixner. This is mostly a design 
-> cleanup of the existing timekeeping, timer and HRT codebase. One 
-> user-visible aspect is that the PIT timer is now available as a hres 
-> source too - APIC-less systems will find this useful.
-> 
-> otherwise, there are lots of fixes all across the spectrum.
-> 
-> Changes since 2.6.14-rc4-rt1:
-> 
-> - clockevents framework (Thomas Gleixner)
-> 
-> - ktimer and HRT updates (Thomas Gleixner)
-> 
-> - robust futex updates (David Singleton)
-> 
-> - symbol export fixes (Steven Rostedt)
-> 
-> - export tsc_c3_compensate for real (reported by Rui Nuno Capela)
-> 
-> - fix for the nanosleep() -ERESTARTBLOCK bug
->   (reported by Fernando Lopez-Lezcano)
-> 
-> - x64 latency tracer fixes (reported by Mark Knecht)
-> 
-> - PRINTK_IGNORE_LOGLEVEL bugfix
-> 
-> - various build fixes
-> 
-> to build a 2.6.14-rc4-rt7 tree, the following patches should be applied:
-> 
->   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.13.tar.bz2
->   http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.14-rc4.bz2
->   http://redhat.com/~mingo/realtime-preempt/patch-2.6.14-rc4-rt7
-> 
-> 	Ingo
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Then, we move the class stuff into real devices.  There was always a lot
+of duplication with the class and device code, and this shows that there
+is a commonality there.  At the same time, I'll work on making the
+attribute stuff easier and possibly merge the kobject and device
+structures together a bit (possibly I said, I don't know quite how much
+yet...)
 
+But this second step is going to take a while, have to not break
+everything along the way, and should hopefully clean up a lot of mess
+tht the current driver core has.  I'd be glad to do it :)
 
---655872-1753810980-1129585404=:24518
-Content-Type: APPLICATION/octet-stream; name="trace2-1.bz2"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.10.10510171443240.24518@godzilla.mvista.com>
-Content-Description: 
-Content-Disposition: attachment; filename="trace2-1.bz2"
+Acceptable to everyone?
 
-QlpoOTFBWSZTWZr2kwAAGjP/gHT+EABob//zTEpLBL/v/zRgB38Gj2VlLZqX
-ce4xAA8Cw1ETEBkDI00NANNMmhkxGJp6E0w1PCISommJgmABNMATaTTJiYCE
-VP9qqNAAANAAAAAAAANP1RKmoyaB6ho0AAA0AAAAHMAmAmRgBGJiYTCYIaYm
-mAVFEjIRpo1NGpqfqT1MnpAGjEeTSBptTanZ8rI9FkA8iszOJbHXu7cRyskk
-kzx5cdXTt4c/b7P96apzWRIP+Ugh8KPduecKQHz+nT8dPhu8/z0kz/f18ZJD
-jjdpyfVIBvRgqQVUWyKVLLEsQfh+vX4wfGQf9dEHjB+Wn5QaIOzjB6M+Hoxm
-5zjNznGblpltMtpltMtpltMtpltMtpltMvOM3OcZuc4zcXm+fnMQQdJFpD+t
-MIR21ITtQSfb4fVXXd6jgkTDfhBdvTmDP8fruMsVB2/N1z9njhIk5NfHv/Bo
-kB693Xdm7RwXHRvp5pGFo1esmmWXZprK1guIQxwtIpAiGOENEpAxRiFolIGK
-OFpFIgxRwtFIomGOEFkoEQxwh2Xca1mVqxdxq9ZpMsuzTWaDJaGKMQtEpAxR
-iFolIGKOFopEKGMaLYGs9kk/zPW9OMrfYQFnDXz6XzSAe6QDp91+3qf0rp7f
-VPbdquu1q220tpQJxjOMAAAfs+X1W20265Ik6pElCRBzNCqbPz7syOMS2lJS
-xI4MIwtFluGDBLbc4hi2rbFkUpDK8MW/t5J+yzVVRRXLq3BSRqsjGLFFABAg
-korAxctCWlpJ3uVeAJqTZhWK3eTrN5vbKnAQFnIgK4W1LZbwm/vcOLTTRovT
-TOjdkgN/47Ri2S2LVpaudVm/bNztnuyMg4JBOCMGs5CSHg5Uk1ZN3d2KbaSV
-zW5tmW2ba8GMbb8Z4bsr5bRsu4gLMWpatki+YjoBP9IxUdBwlcGjoDQBwLOl
-nRMYcgeUKsk4JIAIBAkFVd1WeLRVi3dm5379+uuut3537/p4ET41D3hUSSxP
-dZhADHFH9OBynhX6MHZ5SA7AFiEAAAKJTfTGMEcIKmUnwtVJu1JPJUk4qkmS
-pGRAAEQABxTv1JPfJKqbalSVwye6VJFgAAAACLXEu5dri1xa4YGBDIQyEMhD
-IQyEMhDJgYYGMXC4qGBIwheFiEzmDBYPsgxB5wYfGITsg4QkdkHKanxIDjug
-7J80gG3H64OMgz3YWrVq1aIQhCEIQhCL69ST9/xuTbuZVSSbIlSTUqSpWqqS
-m+AAAAAQAAAAAVJUjwa936rBi3rBtBgg9n6e7gIm3yg6u04yE6iRmwiYgp49
-0HPu5N9N2xub27XqJGu8g+/RB6Ob7sSDWIThqkB4859OIPSgsHTl9/y8CDly
-6JCV38Omgkc0OMImjw6QEpnMHODRDyRE0g3dVPLregZekNkRMOLCETckJtB6
-uwhJ15wd22vZCSG8kJt2IPLe+GyQnPneRjmSE6u7v6OLwaZSE6iR3weBxiG1
-kJehITy246oO0hukElSJYHv8oLw74NYOcHIyZgygxBkgNWIMVB79oCcCQlgt
-Ijux6vKITkQZ5aIOEhvyWhyucABYwAOYBjAGPDjz+r1Jevk/q5DdTHJJlXeZ
-IaqWv7zpqs6zIbq1YNSkpfsvW7O7rSrbW73ncn8HdaJGtpZrd743wd5VcZar
-jiSGqkoRSkpni9SuNsVq9pTe7mtnesrOktazcmzUWlVve971uTgzPGtpZvdy
-cGotBVaUq74lbsEOnaUzdzWjmxbSve7zvjjf690EYA7AAxgEYB3wVCfRYMER
-4/QHhN8H+DfPlh2VLVFXn/F3JFOFCQmvaTAA
---655872-1753810980-1129585404=:24518--
+Oh, one tiny problem.  "virtual devices" are not currently represented
+in our device tree, but are in the class tree.  Things like the
+different vc and ttys and misc devices are examples of this.  I'll just
+put them on the "platform" bus if no one minds.
+
+thanks,
+
+greg k-h
+
+p.s.  Kay, that's the last time I mention to you that I didn't know what
+I would be working on for the next few months...
+

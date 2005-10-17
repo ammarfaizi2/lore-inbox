@@ -1,29 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbVJQWWY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932355AbVJQWky@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932350AbVJQWWY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 18:22:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbVJQWWY
+	id S932355AbVJQWky (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 18:40:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932357AbVJQWkx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 18:22:24 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:25000 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S932350AbVJQWWX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 18:22:23 -0400
-Date: Tue, 18 Oct 2005 00:24:30 +0200
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc4-mm1 dead in early boot
-Message-ID: <20051017222430.GA31531@aitel.hist.no>
-References: <20051016154108.25735ee3.akpm@osdl.org> <20051017210609.GA30116@aitel.hist.no> <20051017140906.0771f797.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 17 Oct 2005 18:40:53 -0400
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:30659 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S932355AbVJQWkx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 18:40:53 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@suse.cz>
+Subject: [PATCH 0/4] swsusp: more cleanups
+Date: Mon, 17 Oct 2005 23:36:52 +0200
+User-Agent: KMail/1.8.2
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051017140906.0771f797.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+Message-Id: <200510172336.53194.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Testing without EDAC didn't help either.
+Hi,
 
-Helge Hafting
+The following series of patches consists of some nonessential cleanups
+for swsusp.  Still, if there are no objections, please consider them for
+including in 2.6.15.
+
+The patches are against 2.6.14-rc4-mm1 with the
+
+swsusp-cleanups.patch
+swsusp-remove-unneccessary-includes.patch
+
+applied.
+
+Greetings,
+Rafael
+

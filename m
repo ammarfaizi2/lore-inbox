@@ -1,47 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbVJQSqB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932218AbVJQSua@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932250AbVJQSqB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 14:46:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932251AbVJQSqB
+	id S932218AbVJQSua (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 14:50:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932251AbVJQSua
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 14:46:01 -0400
-Received: from mx3.actcom.co.il ([192.114.47.65]:20630 "EHLO
-	smtp3.actcom.co.il") by vger.kernel.org with ESMTP id S932250AbVJQSqA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 14:46:00 -0400
-Date: Mon, 17 Oct 2005 20:45:23 +0200
-From: Muli Ben-Yehuda <mulix@mulix.org>
-To: Andi Kleen <ak@suse.de>
-Cc: discuss@x86-64.org, Ravikiran G Thirumalai <kiran@scalex86.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, tglx@linutronix.de, shai@scalex86.org,
-       clameter@engr.sgi.com, muli@il.ibm.com, jdmason@us.ibm.com
-Subject: Re: [discuss] Re: x86_64: 2.6.14-rc4 swiotlb broken
-Message-ID: <20051017184523.GB26239@granada.merseine.nu>
-References: <20051017093654.GA7652@localhost.localdomain> <200510172008.24669.ak@suse.de> <20051017182755.GA26239@granada.merseine.nu> <200510172032.45972.ak@suse.de>
+	Mon, 17 Oct 2005 14:50:30 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:29090 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932218AbVJQSu3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 14:50:29 -0400
+Date: Mon, 17 Oct 2005 20:49:57 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Tim Bird <tim.bird@am.sony.com>
+cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       tglx@linutronix.de, george@mvista.com, linux-kernel@vger.kernel.org,
+       johnstul@us.ibm.com, paulmck@us.ibm.com, hch@infradead.org,
+       oleg@tv-sign.ru
+Subject: Re: [PATCH]  ktimers subsystem 2.6.14-rc2-kt5
+In-Reply-To: <4353D60E.70901@am.sony.com>
+Message-ID: <Pine.LNX.4.61.0510171948040.1386@scrub.home>
+References: <1128168344.15115.496.camel@tglx.tec.linutronix.de>
+ <Pine.LNX.4.61.0510100213480.3728@scrub.home> <1129016558.1728.285.camel@tglx.tec.linutronix.de>
+ <Pine.LNX.4.61.0510130004330.3728@scrub.home> <434DA06C.7050801@mvista.com>
+ <Pine.LNX.4.61.0510150143500.1386@scrub.home> <1129490809.1728.874.camel@tglx.tec.linutronix.de>
+ <Pine.LNX.4.61.0510170021050.1386@scrub.home> <20051017075917.GA4827@elte.hu>
+ <Pine.LNX.4.61.0510171054430.1386@scrub.home> <20051017094153.GA9091@elte.hu>
+ <20051017025657.0d2d09cc.akpm@osdl.org> <Pine.LNX.4.61.0510171511010.1386@scrub.home>
+ <4353D60E.70901@am.sony.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200510172032.45972.ak@suse.de>
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 17, 2005 at 08:32:45PM +0200, Andi Kleen wrote:
+Hi,
 
-> > and would like to be able to run 2.6.14 on them when it 
-> > comes out...
+On Mon, 17 Oct 2005, Tim Bird wrote:
+
+> > It's rather simple:
+> > - "timer API" vs "timeout API": I got absolutely no acknowlegement that this
+> > might be a little confusing and in consequence "process timer" may be a
+> > better name.
 > 
-> So you're saying you tested it and it doesn't work? 
+> I agree with Thomas on this one.  Maybe "timer" and "timeout" are too close,
+> but I think they are the most descriptive names.
+>  - timeout is something used for a timeout.  Timeouts only actually
+>  expire infrequently, so they have a host of attributes associated
+>  with that characteristic.
+>  - timer is something used to time something.  They almost always
+>  expire as part of their normal behaviour.  In the ktimer code they
+>  have a host of attributes related to this characteristic.
 
-Not quite; I'm saying that form the description up-thread it sounds
-like there's a good chance it won't. Jon Mason (CC'd) has access to
-such a  machine. Jon, can you please try the latest hg tree with and
-without the patch and see how it fares?
+There is of course a difference, but is it big enough that they deserve 
+different APIs? Just look into <linux/timer.h> it doesn't mention timeout 
+once, but according to Thomas that's our "timeout API". Look at the 
+description of mod_timer() in timer.c: "modify a timer's timeout".
+It seems I'm not only one who thinks that both are closely related.
 
-Thanks,
-Muli
--- 
-Muli Ben-Yehuda
-http://www.mulix.org | http://mulix.livejournal.com/
+> Thomas answered the suggestion to use "process timer" as an alternative name,
+> but I didn't see a reply after that from Roman (I may have missed it.)
 
+It was short and painless:
+
+} > > Calling them "process timer" and "kernel timer" would include their main 
+} > > usage, although that also means ptimer were the more correct abbreviation.
+} > 
+} > As said before I think the disctinction between timers and timeouts
+} > makes perfectly sense and ktimers are _not_ restricted to process
+} > timers. 
+} 
+} "main usage" != "restricted to"
+
+IOW I didn't say that "process timer" are restricted to processes, but 
+it's their intended main usage. "kernel timer" are OTOH the first choice 
+for any internal kernel time issues (which are not just timeouts).
+
+> > - I pointed out various (IMO) unnecessary complexities, which were rather
+> > quickly brushed off e.g. with a need for further (not closer specified)
+> > cleanups.
+> 
+> This is rather vague.  It is rather easy to raise hypothetical
+> issues.  From what I've seen, Thomas has gone to great lengths to
+> address specific issues raised.  For example, he actually compiled
+> code on 4 different platforms to get the REAL size of the assembly
+> fragments, in order to address your concern about CONJECTURED size
+> problems.
+
+This was the _only_ issue where he got into any detail, but I also 
+mentioned later that this one of the minor issues.
+Above was about the size of the ktimer structure and interval timer. 
+
+> > - resolution handling: at what resolution should/does the kernel work and
+> > what do we report to user space. The spec allows multiple interpretations
+> > and I have a hard time to get at least one coherent interpretation out of
+> > Thomas.
+> 
+> Huh?  I thought Thomas' last answer was pretty clear.
+
+Then I must have missed something. Earlier he just quotes something from 
+SUS without any explanation. His last answer was just about user 
+expectations without any connection to the different resolutions at the 
+kernel side I described in the mail before.
+
+bye, Roman

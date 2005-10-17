@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932372AbVJQXYQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932374AbVJQX0q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932372AbVJQXYQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 19:24:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932374AbVJQXYQ
+	id S932374AbVJQX0q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 19:26:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbVJQX0p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 19:24:16 -0400
-Received: from HELIOUS.MIT.EDU ([18.248.3.87]:42939 "EHLO neo.rr.com")
-	by vger.kernel.org with ESMTP id S932372AbVJQXYP (ORCPT
+	Mon, 17 Oct 2005 19:26:45 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:9361 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932374AbVJQX0p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 19:24:15 -0400
-Date: Mon, 17 Oct 2005 19:26:55 -0400
-From: Adam Belay <ambx1@neo.rr.com>
-To: dtor_core@ameritech.net
-Cc: Greg KH <gregkh@suse.de>, Kay Sievers <kay.sievers@vrfy.org>,
-       Vojtech Pavlik <vojtech@suse.cz>, Hannes Reinecke <hare@suse.de>,
-       Patrick Mochel <mochel@digitalimplant.org>, airlied@linux.ie,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 0/8] Nesting class_device patches that actually work
-Message-ID: <20051017232655.GB32655@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>, dtor_core@ameritech.net,
-	Greg KH <gregkh@suse.de>, Kay Sievers <kay.sievers@vrfy.org>,
-	Vojtech Pavlik <vojtech@suse.cz>, Hannes Reinecke <hare@suse.de>,
-	Patrick Mochel <mochel@digitalimplant.org>, airlied@linux.ie,
-	linux-kernel@vger.kernel.org
-References: <20051013020844.GA31732@kroah.com> <20051013105826.GA11155@vrfy.org> <d120d5000510131435m7b27fe59l917ac3e11b2458c8@mail.gmail.com> <20051014084554.GA19445@vrfy.org> <d120d5000510141002v67a06900m219b47246c1d92c1@mail.gmail.com> <20051015150855.GA7625@vrfy.org> <20051017214430.GA5193@suse.de> <d120d5000510171454w6c59580j7c2b6901c6f750e5@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d120d5000510171454w6c59580j7c2b6901c6f750e5@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
+	Mon, 17 Oct 2005 19:26:45 -0400
+Message-ID: <43543331.6030603@pobox.com>
+Date: Mon, 17 Oct 2005 19:26:41 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "H. Peter Anvin" <hpa@zytor.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] RNG rewrite...
+References: <20051015043120.GA5946@plexity.net> <4350DCB1.7010201@pobox.com> <20051016005341.GB5946@plexity.net> <dj1bb5$riu$1@terminus.zytor.com>
+In-Reply-To: <dj1bb5$riu$1@terminus.zytor.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 17, 2005 at 04:54:52PM -0500, Dmitry Torokhov wrote:
-> On 10/17/05, Greg KH <gregkh@suse.de> wrote:
-> > So, what to do now?  Here's my proposal for the future.
-> >
-> > We figure out some way to agree on the input stuff, using class_device
-> > and get that into 2.6.15.  Personally, I like the stuff I just did and
-> > is in the -mm tree :)
-> >
+H. Peter Anvin wrote:
+> Followup to:  <20051016005341.GB5946@plexity.net>
+> By author:    Deepak Saxena <dsaxena@plexity.net>
+> In newsgroup: linux.dev.kernel
 > 
-> If we are shooting at 2.6.15 I would just go with original 2-class
-> solution (input and input_dev) with doing symlinks in form of
-> /sys/class/input/mouseX/device -> /sys/class/input_dev/inputX
-> 
-> Correct me if I am wrong but this is least invasive and (at least for
-> older hotplug installations) all that is needed to make it work is a
-> symlink from input.agent to input_dev.agent.
-> 
-> --
-> Dmitry
+>>It's a magic regsiter we just read/write and could be done in userspace.
+>>I also took a look at MPC85xx and it has the same sort of interface but
+>>also has an error interrupt capability. On second thought a class
+>>interface is overkill b/c there will only be one RNG per system, so
+>>I can just do something like watchdogs where we have a bunch of simple
+>>drivers exposing the same interface. We could do it in user space but
+>>then we have separate RNG implementations for  x86 and !x86 and I'd
+>>rather not see that. Can we move the x86 code out to userspace and
+>>just let the daemon eat the numbers directly from HW? We can mmap() 
+>>PCI devices, but I don't know enough about x86 to say whether msr 
+>>instructions can execute out of userspace (or if we want them to...).
 
-I'm not sure if we want to introduce an incorrect change to the sysfs
-topology only to remove it in the next release.  Currently, class devices
-are not expected to link between one another.
+> MSR instructions cannot execute out of userspace, but the MSR driver
+> might be possible to use.  It's usually quite slow, however.
 
-Thanks,
-Adam
+MSRs are used for setup, not for actual data.
+
+Intel:  magic MMIO address (readb)
+AMD:	magic PIO address (inl)
+VIA:	CPU instruction ('xstore')
+
+	Jeff
+
+

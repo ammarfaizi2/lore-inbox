@@ -1,81 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751192AbVJQRfr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751231AbVJQRit@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751192AbVJQRfr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 13:35:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbVJQRfr
+	id S1751231AbVJQRit (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 13:38:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbVJQRit
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 13:35:47 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:30119 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751181AbVJQRfq (ORCPT
+	Mon, 17 Oct 2005 13:38:49 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:3471 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751181AbVJQRis (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 13:35:46 -0400
-Date: Mon, 17 Oct 2005 19:35:35 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>, George Anzinger <george@mvista.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       johnstul@us.ibm.com, paulmck@us.ibm.com,
-       Christoph Hellwig <hch@infradead.org>, oleg@tv-sign.ru,
-       tim.bird@am.sony.com
-Subject: Re: [PATCH]  ktimers subsystem 2.6.14-rc2-kt5
-Message-ID: <20051017173535.GB5719@elte.hu>
-References: <434DA06C.7050801@mvista.com> <Pine.LNX.4.61.0510150143500.1386@scrub.home> <1129490809.1728.874.camel@tglx.tec.linutronix.de> <Pine.LNX.4.61.0510170021050.1386@scrub.home> <20051017075917.GA4827@elte.hu> <Pine.LNX.4.61.0510171054430.1386@scrub.home> <20051017094153.GA9091@elte.hu> <Pine.LNX.4.61.0510171825410.1386@scrub.home> <20051017163958.GA4897@elte.hu> <Pine.LNX.4.61.0510171852000.1386@scrub.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0510171852000.1386@scrub.home>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Mon, 17 Oct 2005 13:38:48 -0400
+Message-ID: <4353E1A4.4050404@pobox.com>
+Date: Mon, 17 Oct 2005 13:38:44 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Andrew Morton <akpm@osdl.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, davej@redhat.com
+Subject: Re: [PATCH] libata: fix broken Kconfig setup
+References: <20051017044606.GA1266@havoc.gtf.org> <Pine.LNX.4.64.0510170754500.23590@g5.osdl.org> <4353C42A.3000005@pobox.com> <Pine.LNX.4.64.0510170848180.23590@g5.osdl.org> <4353CF7E.1090404@pobox.com> <Pine.LNX.4.64.0510170930420.23590@g5.osdl.org> <Pine.LNX.4.64.0510170946250.23590@g5.osdl.org> <4353DB2C.10905@pobox.com> <Pine.LNX.4.64.0510171017010.3369@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0510171017010.3369@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
+> The _best_ choice as far as I can tell, is to just dis-associate SATA from 
+> SCSI entirely. Even if it's an implementation choice, we could make it a 
+> "select SCSI" instead of "depends on SCSI", so that from a _logical_ 
+> standpoint the user could just select SATA support without even knowing 
+> that the kernel happens to need the SCSI layer for it.
 
-* Roman Zippel <zippel@linux-m68k.org> wrote:
+Yep.  That would happen as a side effect of moving the code to 
+drivers/ata, even.
 
-> > > Just for the record: in this thread I got exactly three answers 
-> > > from Thomas. I don't know where you got the other nine mails from, 
-> > > maybe you could forward them to me, as they seem to contain the 
-> > > "patient explanations" I'm missing.
-> > >
-> > here are all the replies from Thomas, regarding ktimers:
-> > 
-> > 12359   * Sep 22 Thomas Gleixner ( 319) Re: [ANNOUNCE] ktimers subsystem
-> > 12362   * Sep 23 Thomas Gleixner (  49) Re: [ANNOUNCE] ktimers subsystem
-> > 12363   * Sep 23 Thomas Gleixner ( 235) Re: [ANNOUNCE] ktimers subsystem
-> > 12367   * Sep 24 Thomas Gleixner ( 214) Re: [ANNOUNCE] ktimers subsystem
-> > 12368   * Sep 25 Thomas Gleixner (  25) Re: [ANNOUNCE] ktimers subsystem
-> > 12369   * Sep 25 Thomas Gleixner (  17) Re: [ANNOUNCE] ktimers subsystem
-> > 12370   * Sep 25 Thomas Gleixner (  10) Re: [ANNOUNCE] ktimers subsystem
-> 
-> Different thread and not directly related to issues with the patch.
 
-ugh, what were they about then, poetry?
+> Of course, eventually I still hope that SATA could be done on the block 
+> layer instead of even depending on SCSI at all, but hey, that's a totally 
+> different issue.
 
-Ah i think i know what you mean: these were about a PREVIOUS VERSION of 
-the patch, and hence they fell off the face of the earth, regardless of 
-their content, right? What a tricky little definition of "Thomas replied 
-only 3 times" ...
+If you look at libata-scsi, the code is simply a SCSI simulator that 
+calls a _clean_ and _separate_ libATA API.
 
-> > 12387   * Oct 01 Thomas Gleixner ( 817) Re: [PATCH]  ktimers subsystem 2.6.14-rc
-> > 12419   * Oct 11 Thomas Gleixner (  41) Re: [PATCH]  ktimers subsystem 2.6.14-rc
-> > 12434   * Oct 16 Thomas Gleixner (  40) Re: [PATCH]  ktimers subsystem 2.6.14-rc
-> 
-> That's the only mails related to the patch.
+Other code -- such as a block-layer driver -- could use this same API. 
+I think Bart has mentioned he has early code to do this, or at least 
+ideas on how to do it.
 
-your latest mail with the list of 'open' issues seems to contradict your 
-assertion that the above 3 mails from Thomas where "the only mails 
-related to the patch". E.g.:
+I made a promise to you, to do it at the block layer, and I intend to 
+keep my promise.  :)  It just takes years to get there.  The two main 
+reasons for using SCSI were/are:
 
-' - "timer API" vs "timeout API": I got absolutely no acknowlegement 
-     that this might be a little confusing and in consequence "process 
-     timer" may be a better name. '
+* provides a bunch of useful _generic_ infrastructure
 
-was raised and discussed in the first chunk of mails just as well.
+* has a very high Just Works(tm) value for distro installers and users, 
+where code already exists for /dev/sdX.  I learned the hard way with 
+drivers/block/sx8.c that adding a new block device involves coordination 
+with multiple distros :(
 
-	Ingo
+I dream of a /dev/disk, perhaps reusing and expanding /dev/sdX's block 
+majors, but that may be unrealistic.
+
+	Jeff
+

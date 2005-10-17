@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932331AbVJQVLd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbVJQVMt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932331AbVJQVLd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 17:11:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbVJQVLd
+	id S932337AbVJQVMt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 17:12:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbVJQVMt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 17:11:33 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:33501 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932331AbVJQVLc (ORCPT
+	Mon, 17 Oct 2005 17:12:49 -0400
+Received: from pop.gmx.net ([213.165.64.20]:5013 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932337AbVJQVMs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 17:11:32 -0400
-Date: Mon, 17 Oct 2005 14:11:20 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: Andi Kleen <ak@suse.de>, kiran@scalex86.org, linux-kernel@vger.kernel.org,
-       discuss@x86-64.org, tglx@linutronix.de, shai@scalex86.org
-Subject: Re: x86_64: 2.6.14-rc4 swiotlb broken
-In-Reply-To: <20051017134401.3b0d861d.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0510171405510.3369@g5.osdl.org>
-References: <20051017093654.GA7652@localhost.localdomain> <200510171153.56063.ak@suse.de>
- <20051017153020.GB7652@localhost.localdomain> <200510171743.47926.ak@suse.de>
- <20051017134401.3b0d861d.akpm@osdl.org>
+	Mon, 17 Oct 2005 17:12:48 -0400
+X-Authenticated: #20450766
+Date: Mon, 17 Oct 2005 23:11:12 +0200 (CEST)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: Peter Osterlund <petero2@telia.com>
+cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: Re: [2.6.13] pktcdvd: IO-errors
+In-Reply-To: <m3acharduz.fsf@telia.com>
+Message-ID: <Pine.LNX.4.60.0510172309300.12742@poirot.grange>
+References: <Pine.LNX.4.60.0509242057001.4899@poirot.grange> <m3slvtzf72.fsf@telia.com>
+ <Pine.LNX.4.60.0509252026290.3089@poirot.grange> <m34q873ccc.fsf@telia.com>
+ <Pine.LNX.4.60.0509262122450.4031@poirot.grange> <m3slvr1ugx.fsf@telia.com>
+ <Pine.LNX.4.60.0509262358020.6722@poirot.grange> <m3hdc4ucrt.fsf@telia.com>
+ <Pine.LNX.4.60.0509292116260.11615@poirot.grange> <m3k6gw86f0.fsf@telia.com>
+ <Pine.LNX.4.60.0510092304550.14767@poirot.grange> <m3psqewe30.fsf@telia.com>
+ <Pine.LNX.4.60.0510112325410.19291@poirot.grange> <m37jcjiula.fsf@telia.com>
+ <m3acharduz.fsf@telia.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 15 Oct 2005, Peter Osterlund wrote:
 
+> I have found a problem on one of my drives. On my FC4 system, hald and
+> kded are constantly doing something with the drive, and this makes it
+> fail when I try to do packet writing. Killing those processes make
+> that drive work correctly. Maybe this helps in your case too. Try
+> packet writing from single user mode to see if it helps.
 
-On Mon, 17 Oct 2005, Andrew Morton wrote:
-> 
-> There seem to be a lot of proposed solutions floating about and I fear that
-> different people will try to fix this in different ways.  Do we all agree
-> that this patch is the correct solution to this problem, or is something
-> more needed?
+Sell, it's Sarge here, so, I doubt there's something similar running, but 
+I'll verify it anyway. Also, booting into S has another side effect on the 
+system - lower background load, fewer context switches...
 
-I think this will fix it. 
-
-The naming is horrible, though, and that whole "goal" parameter is 
-senseless and ugly.
-
-It should just be a flag on whether we want DMA'able memory or not. That's 
-what it _is_, it's just strangely implemented, making the code less 
-readable.
-
-Since the patch changes all the users of that third parameter _anyway_, it 
-should probably be fixed to just make the parameter sane instead.
-
-		Linus
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski

@@ -1,51 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbVJQAqZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbVJQArW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932107AbVJQAqZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Oct 2005 20:46:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932110AbVJQAqY
+	id S932110AbVJQArW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Oct 2005 20:47:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbVJQArW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Oct 2005 20:46:24 -0400
-Received: from mail26.syd.optusnet.com.au ([211.29.133.167]:475 "EHLO
-	mail26.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932107AbVJQAqY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Oct 2005 20:46:24 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.14-rc4-mm1
-Date: Mon, 17 Oct 2005 10:46:12 +1000
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org
-References: <20051016154108.25735ee3.akpm@osdl.org>
-In-Reply-To: <20051016154108.25735ee3.akpm@osdl.org>
+	Sun, 16 Oct 2005 20:47:22 -0400
+Received: from wombat.indigo.net.au ([202.0.185.19]:60933 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S932110AbVJQArV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Oct 2005 20:47:21 -0400
+Date: Mon, 17 Oct 2005 08:47:47 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+X-X-Sender: raven@wombat.indigo.net.au
+To: Mike Waychison <mikew@google.com>
+cc: Ram <linuxram@us.ibm.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       leimy2k@gmail.com
+Subject: Re: /etc/mtab and per-process namespaces
+In-Reply-To: <434F13A7.8090608@google.com>
+Message-ID: <Pine.LNX.4.58.0510170846250.18878@wombat.indigo.net.au>
+References: <3e1162e60510021508r6ef8e802p9f01f40fcf62faae@mail.gmail.com>
+ <3e1162e60510041214t3afd803re27b742705d27900@mail.gmail.com>
+ <20051005162948.GA25162@RAM> <434F13A7.8090608@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510171046.13005.kernel@kolivas.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-102.5, required 8,
+	EMAIL_ATTRIBUTION, IN_REP_TO, QUOTED_EMAIL_TEXT, REFERENCES,
+	REPLY_WITH_QUOTES, USER_AGENT_PINE, USER_IN_WHITELIST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Oct 2005 08:41, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc4/2.
->6.14-rc4-mm1/
-> +mm-implement-swap-prefetching.patch
-> +mm-implement-swap-prefetching-default-y.patch
-> +mm-implement-swap-prefetching-tweaks.patch
-> +mm-implement-swap-prefetching-tweaks-2.patch
->
->  Con's swap prefetching code
+On Thu, 13 Oct 2005, Mike Waychison wrote:
 
-Thanks.
+> Ram wrote:
+> > On Tue, Oct 04, 2005 at 12:14:47PM -0700, David Leimbach wrote:
+> > 
+> >>Hmm no responses on this thread a couple days now.  I guess:
+> >>
+> >>1) No one cares about private namespaces or the fact that they make
+> >>/etc/mtab totally inconsistent.
+> >>2) Private Namespaces aren't important to anyone and will never be
+> >>robust unless someone who cares, like me, takes it over somehow.
+> >>3) Everyone is busy with their own shit and doesn't want to deal with
+> >>me or mine right now.
+> >>
+> >>I'm seriously hoping it's 3 :).  2 Is acceptable too of course.  I
+> >>think this is important and I want to know more about the innards
+> >>anyway.  1 would make me sad as I think Linux can really show other
+> >>Unix's what-for here when it comes to showing off how good the VFS can
+> >>be.
+> > 
+> > 
+> > This becomes even more intresting when sharedsubtree gets added to 
+> > the equation. One would like to know all the mounts in its namesapace
+> > and than all the mounts it propagates to which could include mounts in 
+> > other namespaces too..
+> > 
+> > I guess some interface that meets the following needs would eventually
+> > be needed:
+> > 
+> > 1. what are all the mounts in  my namespace ?
+> > 	A. what are the attributes of each of the mounts?
+> > 		a. where is it mounted
+> > 		b. who is its parent  
+> > 		c. what is it mounted from
+> > 		d. what are the attributes of its mount
+> > 		e. what are its peer mounts (I suspect some kind 
+> > 					of identifier has
+> > 					to be associated with each mount)
+> > 		f. if it has a master mount where is it
+> > 		g. what are its slave mounts.at
+> > 		(note: e, f, g can point to mounts in other namespaces)
+> > 2. what are the attributes of my namespace?
+> > 	a. what is the parent namespace? ( I suspect some kind 
+> > 			of identifier has to associated 
+> > 			with each namespace, pid of the cloned
+> > 			process?)
+> > 	b. what are my children namespace?
+> > 
+> > 3. which processes can access my namespace?
+> > 
+> > 
+> > And I don't think /etc/mtab can do a decent job with this, because it
+> > would not know where all the mounts propagate, when it attempts a mount.
+> > Only the kernel would know, and hence all the commands who depend on
+> > /etc/mtab may have to depend on some /proc or maybe /sysfs interface to
+> > do a descent job.
+> > 
+> 
+> Or,  you bite the bullet and fix /proc/mounts and let distributions bind 
+> mount /proc/mounts over /etc/mtab.
+> 
+> Sun recognized this as a problem a long time ago and /etc/mnttab has 
+> been magic for quite some time now.
 
-For users testing this, could you please also try larger values in: 
-/proc/sys/vm/swap_prefetch
-Read the current value (it should be in the range of 1-10) and try a value ten 
-times larger.
+Don't forget to update mount as well.
 
-It is currently quite gentle in the amount it prefetches, but the code is now 
-extremely cautious about when to prefetch and I suspect it can prefetch much 
-more by default, thus intensifying the effect and benefit. 
+Ian
 
-Cheers,
-Con
+
+

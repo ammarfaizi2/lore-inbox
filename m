@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbVJQUZb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbVJQU2n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751331AbVJQUZb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 16:25:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbVJQUZb
+	id S1751326AbVJQU2n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 16:28:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751343AbVJQU2n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 16:25:31 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:53381 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751331AbVJQUZa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 16:25:30 -0400
-Date: Mon, 17 Oct 2005 15:25:01 -0500
-From: Robin Holt <holt@sgi.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Robin Holt <holt@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       Dave Hansen <haveblue@us.ibm.com>, Greg KH <greg@kroah.com>,
-       ia64 list <linux-ia64@vger.kernel.org>, linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       hch@infradead.org, jgarzik@pobox.com,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Carsten Otte <cotte@de.ibm.com>,
-       Jack Steiner <steiner@americas.sgi.com>
-Subject: Re: [Patch 2/3] Export get_one_pte_map.
-Message-ID: <20051017202501.GB15670@lnx-holt.americas.sgi.com>
-References: <20051014192111.GB14418@lnx-holt.americas.sgi.com> <20051014192225.GD14418@lnx-holt.americas.sgi.com> <20051014213038.GA7450@kroah.com> <20051017113131.GA30898@lnx-holt.americas.sgi.com> <1129549312.32658.32.camel@localhost> <20051017114730.GC30898@lnx-holt.americas.sgi.com> <Pine.LNX.4.61.0510171331090.2993@goblin.wat.veritas.com> <20051017151430.GA2564@lnx-holt.americas.sgi.com> <Pine.LNX.4.61.0510171644220.4773@goblin.wat.veritas.com>
+	Mon, 17 Oct 2005 16:28:43 -0400
+Received: from atlrel8.hp.com ([156.153.255.206]:25794 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S1751326AbVJQU2m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 16:28:42 -0400
+Subject: [PATCH] mm trivial ia64/acpi breakage
+From: Alex Williamson <alex.williamson@hp.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: LOSL
+Date: Mon, 17 Oct 2005 14:28:39 -0600
+Message-Id: <1129580919.9621.33.camel@lts1.fc.hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0510171644220.4773@goblin.wat.veritas.com>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 17, 2005 at 04:59:20PM +0100, Hugh Dickins wrote:
-> Repeating a technical question (sorry, that now seems off-topic!):
-> what do you expect to happen with PROT_WRITE, MAP_PRIVATE?
 
-That would end up with a MAP_PRIVATE, PROT_WRITE, VM_RESERVED
-mapping.  That does not make sense for this device, so I added
-the following check to mspec_mmap()
+   The git-acpi.patch changed the name of the "id" member of the
+acpi_resource structure, but missed the below user.  Updating to the new
+name.
 
-        if ((vma->vm_flags & VM_SHARED) == 0)
-                return -EINVAL;
+Signed-off-by: Alex Williamson <alex.williamson@hp.com>
 
-Thanks,
-Robin
+diff -r 6bf6e9fcc962 arch/ia64/kernel/acpi-ext.c
+--- a/arch/ia64/kernel/acpi-ext.c	Sun Oct 16 22:44:53 2005
++++ b/arch/ia64/kernel/acpi-ext.c	Mon Oct 17 14:27:14 2005
+@@ -35,7 +35,7 @@
+ 	struct acpi_vendor_descriptor *descriptor;
+ 	u32 length;
+ 
+-	if (resource->id != ACPI_RSTYPE_VENDOR)
++	if (resource->type != ACPI_RSTYPE_VENDOR)
+ 		return AE_OK;
+ 
+ 	vendor = (struct acpi_resource_vendor *)&resource->data;
+
+

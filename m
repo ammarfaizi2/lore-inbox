@@ -1,68 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932228AbVJQJhL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbVJQJl5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932228AbVJQJhL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 05:37:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932230AbVJQJhK
+	id S932237AbVJQJl5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 05:41:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbVJQJl4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 05:37:10 -0400
-Received: from serv01.siteground.net ([70.85.91.68]:63710 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S932228AbVJQJhJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 05:37:09 -0400
-Date: Mon, 17 Oct 2005 02:36:54 -0700
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: ak@suse.de
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       Andrew Morton <akpm@osdl.org>, tglx@linutronix.de,
-       Linus Torvalds <torvalds@osdl.org>,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>
-Subject: x86_64: 2.6.14-rc4 swiotlb broken
-Message-ID: <20051017093654.GA7652@localhost.localdomain>
+	Mon, 17 Oct 2005 05:41:56 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:57034 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932233AbVJQJlx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 05:41:53 -0400
+Date: Mon, 17 Oct 2005 11:41:53 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>, George Anzinger <george@mvista.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       johnstul@us.ibm.com, paulmck@us.ibm.com,
+       Christoph Hellwig <hch@infradead.org>, oleg@tv-sign.ru,
+       tim.bird@am.sony.com
+Subject: Re: [PATCH]  ktimers subsystem 2.6.14-rc2-kt5
+Message-ID: <20051017094153.GA9091@elte.hu>
+References: <1128168344.15115.496.camel@tglx.tec.linutronix.de> <Pine.LNX.4.61.0510100213480.3728@scrub.home> <1129016558.1728.285.camel@tglx.tec.linutronix.de> <Pine.LNX.4.61.0510130004330.3728@scrub.home> <434DA06C.7050801@mvista.com> <Pine.LNX.4.61.0510150143500.1386@scrub.home> <1129490809.1728.874.camel@tglx.tec.linutronix.de> <Pine.LNX.4.61.0510170021050.1386@scrub.home> <20051017075917.GA4827@elte.hu> <Pine.LNX.4.61.0510171054430.1386@scrub.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0510171054430.1386@scrub.home>
 User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On x86_64 NUMA boxes, the revert
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=6e3254c4e2927c117044a02acf5f5b56e1373053
-meant that swiotlb gets the IOTLB
-memory from pages over 4G (if mem > 4G), which basically renders swiotlb useless, causing
-breakage with devices not capable of DMA beyond 4G.  2.6.13 was (kinda) not
-broken, although the patch titled "Reverse order of bootmem lists" was
-not in 2.6.13, The reason is commit
-http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=6142891a0c0209c91aa4a98f725de0d6e2ed4918
-was not in 2.6.13, PCI_DMA_BUS_IS_PHYS was 1 when no mmu was present, and the block layer did 
-the bouncing, never using swiotlb.  I guess the right fix is to make sure
-swiotlb gets the right memory.  Here is a patch doing that.  Tested on IBM
-x460.  I hope the patch is ok for ia64s too.  I do not have access to ia64
-boxen.
 
-Thanks,
-Kiran
+* Roman Zippel <zippel@linux-m68k.org> wrote:
 
-Signed-off-by: Shai Fultheim <shai@scalex86.org>
-Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
- 
-Index: linux-2.6.14-rc4/arch/ia64/lib/swiotlb.c
-===================================================================
---- linux-2.6.14-rc4.orig/arch/ia64/lib/swiotlb.c	2005-10-14 00:06:21.000000000 -0700
-+++ linux-2.6.14-rc4/arch/ia64/lib/swiotlb.c	2005-10-17 00:05:22.000000000 -0700
-@@ -123,7 +123,7 @@
- 	/*
- 	 * Get IO TLB memory from the low pages
- 	 */
--	io_tlb_start = alloc_bootmem_low_pages(io_tlb_nslabs *
-+	io_tlb_start = alloc_bootmem_node(NODE_DATA(0), io_tlb_nslabs *
- 					       (1 << IO_TLB_SHIFT));
- 	if (!io_tlb_start)
- 		panic("Cannot allocate SWIOTLB buffer");
+> > the moment you express yourself via patches we'll know that 1) you 
+> > understand what we have done so far 2) you have useful ideas of what 
+> > should be done differently 3) you have the coder capability to implement 
+> > and test those ideas. Patches wont be ignored, i can assure you. Get the 
+> > patches rolling!
+> 
+> This "shut up and show code" attitude is sometimes quite funny, but 
+> it's no real threat to me. I hoped to avoid this and solve this more 
+> civilized. Of course I'll understand the issues better afterwards, but 
+> you could as easily just tell me. [...]
+
+if a dozen mails werent enough then one more probably wont make a 
+difference, especially with your last mail calling Thomas's behavior 
+"childish" - when all he did was to try to explain his reasons to you as 
+patiently as possible! Thomas is not obliged to teach you or bear with 
+you - it is his own free choice. (But if you want to discuss this 
+personal angle any further please take the public lists (and other 
+people) off the Cc: list, it's getting very off-topic.)
+
+Thomas's stuff is now fully integrated into the -rt tree and it works 
+excellently. I have measured a 12 usecs worst-case HR timer-delivery 
+latency (using cyclictest). _That_ is the thing i care about.
+
+> [...] It will waste my time, I could spend on other projects and it 
+> will put Andrew in the unfortunate position to decide, which patch to 
+> accept. [...]
+
+yes, please, put Andrew (and me too) into that unfortunate position!  
+Please, pretty please, get on with the patches!
+
+	Ingo

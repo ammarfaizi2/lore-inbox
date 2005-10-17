@@ -1,111 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750944AbVJQRCH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750948AbVJQRB7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750944AbVJQRCH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 13:02:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750917AbVJQRCH
+	id S1750948AbVJQRB7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 13:01:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750947AbVJQRB7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 13:02:07 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:50318 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750781AbVJQRCF (ORCPT
+	Mon, 17 Oct 2005 13:01:59 -0400
+Received: from petasus.ims.intel.com ([62.118.80.130]:56961 "EHLO
+	petasus.ims.intel.com") by vger.kernel.org with ESMTP
+	id S1750781AbVJQRB6 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 13:02:05 -0400
-Message-ID: <4353D905.3080400@pobox.com>
-Date: Mon, 17 Oct 2005 13:01:57 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Mon, 17 Oct 2005 13:01:58 -0400
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Andrew Morton <akpm@osdl.org>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, davej@redhat.com,
-       Jesse Barnes <jbarnes@virtuousgeek.org>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Subject: Re: [PATCH] libata: fix broken Kconfig setup
-References: <20051017044606.GA1266@havoc.gtf.org> <Pine.LNX.4.64.0510170754500.23590@g5.osdl.org> <4353C42A.3000005@pobox.com> <Pine.LNX.4.64.0510170848180.23590@g5.osdl.org> <4353CF7E.1090404@pobox.com> <Pine.LNX.4.64.0510170930420.23590@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0510170930420.23590@g5.osdl.org>
-Content-Type: multipart/mixed;
- boundary="------------070808050109050200030701"
-X-Spam-Score: 0.2 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Here's a patch for the quirk. I'll split this off from
-	the sata-menu discussion. Jesse, I presume this also fixes the problem
-	for you? This change makes quirk_intel_ide_combined() dependent on the
-	precise conditions under which it is needed: * IDE is built in * IDE
-	SATA option is not set * ata_piix or ahci drivers are enabled [...] 
-	Content analysis details:   (0.2 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.2 UPPERCASE_25_50        message body is 25-50% uppercase
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Subject: Re:[PATCH 1/1] indirect function calls elimination in IO scheduler
+Date: Mon, 17 Oct 2005 21:01:54 +0400
+Message-ID: <6694B22B6436BC43B429958787E454988F5B44@mssmsx402nb>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Re:[PATCH 1/1] indirect function calls elimination in IO scheduler
+thread-index: AcXTPHnhTQh9NWC3RUO5gbdQ5nTqZg==
+From: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
+To: "Jens Axboe" <axboe@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 17 Oct 2005 17:01:55.0399 (UTC) FILETIME=[7A57A570:01C5D33C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070808050109050200030701
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Jens Axboe writes
 
-Here's a patch for the quirk.  I'll split this off from the sata-menu 
-discussion.  Jesse, I presume this also fixes the problem for you?
+> I don't really see the patch doing what you describe - the indirect
+> function calls are the same.
 
+For example on Pentium4 in the function elv_next_request() the line
+            struct request *rq =
+q->elevator->ops->elevator_next_req_fn(q);
+before patch had required 11% of function running time as oprofile
+reports
+           %
+    26  0.0457 :c0270ecb:       mov    0xc(%edi),%eax
+  3455  6.0670 :c0270ece:       mov    (%eax),%eax
+  2848  5.0011 :c0270ed0:       mov    %edi,(%esp)
+  1538  2.7008 :c0270ed3:       call   *0xc(%eax)
 
-This change makes quirk_intel_ide_combined() dependent on the precise 
-conditions under which it is needed:
-* IDE is built in
-* IDE SATA option is not set
-* ata_piix or ahci drivers are enabled
+	A patch which would delete all indirect calls was tryed
+        struct request *rq = q->elevator_cp.ops.elevator_next_req_fn(q);
+     9  0.0224 :c0270eea:       mov    %edi,(%esp)
+  3814  9.4793 :c0270eed:       call   *0x18(%edi)
 
-This fixes an issue where some modular configurations would not cause 
-the quirk to be enabled.
+But additional memory would be needed for 'ops' in each queue. The
+intermediate (proposed) patch has the same timing effect but saves some
+memory:
+	struct request *rq =
+q->elevator_cp.ops->elevator_next_req_fn(q);
+drivers/block/elevator.c:351
+ffffffff802a8b97:       49 8b 44 24 18          mov    0x18(%r12),%rax
+ffffffff802a8b9c:       4c 89 e7                mov    %r12,%rdi
+ffffffff802a8b9f:       ff 50 18                callq  *0x18(%rax)
 
-Signed-off-by: Jeff Garzik <jgarzik@pobox.com>
+For Itanium the difference is huge:
+	Before patch:
+drivers/block/elevator.c:351
+a0000001002cbb60:       0d f0 00 4c 18 10       [MFI]   ld8 r30=[r38]
+a0000001002cbb66:       00 00 00 02 00 c0               nop.f 0x0
+a0000001002cbb6c:       05 00 01 84                     mov r46=r32;;
+a0000001002cbb70:       0b e8 00 3c 18 10       [MMI]   ld8 r29=[r30];;
+a0000001002cbb76:       c0 c1 74 00 42 00               adds r28=24,r29
+a0000001002cbb7c:       00 00 04 00                     nop.i 0x0;;
+a0000001002cbb80:       0b d0 00 38 18 10       [MMI]   ld8 r26=[r28];;
+a0000001002cbb86:       b0 41 68 30 28 00               ld8 r27=[r26],8
+a0000001002cbb8c:       00 00 04 00                     nop.i 0x0;;
+a0000001002cbb90:       11 08 00 34 18 10       [MIB]   ld8 r1=[r26]
+a0000001002cbb96:       70 d8 04 80 03 00               mov b7=r27
+a0000001002cbb9c:       78 00 80 10
+br.call.sptk.many
 
+	After patching there is no object code for considered line. It
+is scattered mixed with other source code lines.
 
---------------070808050109050200030701
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
-
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -1233,7 +1233,7 @@ static void __init quirk_alder_ioapic(st
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_EESSC,	quirk_alder_ioapic );
- #endif
- 
--#ifdef CONFIG_SCSI_SATA
-+#ifdef CONFIG_SCSI_SATA_INTEL_COMBINED
- static void __devinit quirk_intel_ide_combined(struct pci_dev *pdev)
- {
- 	u8 prog, comb, tmp;
-@@ -1310,7 +1310,7 @@ static void __devinit quirk_intel_ide_co
- 		request_region(0x170, 8, "libata");	/* port 1 */
- }
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,    PCI_ANY_ID,	  quirk_intel_ide_combined );
--#endif /* CONFIG_SCSI_SATA */
-+#endif /* CONFIG_SCSI_SATA_INTEL_COMBINED */
- 
- 
- int pcie_mch_quirk;
-diff --git a/drivers/scsi/Kconfig b/drivers/scsi/Kconfig
---- a/drivers/scsi/Kconfig
-+++ b/drivers/scsi/Kconfig
-@@ -553,6 +553,11 @@ config SCSI_SATA_VITESSE
- 
- 	  If unsure, say N.
- 
-+config SCSI_SATA_INTEL_COMBINED
-+	bool
-+	depends on IDE=y && !BLK_DEV_IDE_SATA && (SCSI_SATA_AHCI || SCSI_ATA_PIIX)
-+	default y
-+
- config SCSI_BUSLOGIC
- 	tristate "BusLogic SCSI support"
- 	depends on (PCI || ISA || MCA) && SCSI && ISA_DMA_API
-
---------------070808050109050200030701--
+Leonid

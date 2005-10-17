@@ -1,65 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbVJQQeD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbVJQQfm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750743AbVJQQeD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 12:34:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbVJQQeB
+	id S1750754AbVJQQfm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 12:35:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbVJQQfm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 12:34:01 -0400
-Received: from [139.30.44.2] ([139.30.44.2]:60958 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S1750743AbVJQQd7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 12:33:59 -0400
-Date: Mon, 17 Oct 2005 18:33:58 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: nyk <nyk@giantx.co.uk>, Andi Kleen <ak@suse.de>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch] Re: 2.6.14-rc4-mm1 ntfs/namei.c missing compat.h?
-In-Reply-To: <20051017144900.GA2942@giantx.co.uk>
-Message-ID: <Pine.LNX.4.61.0510171828440.5555@gans.physik3.uni-rostock.de>
-References: <20051017144900.GA2942@giantx.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 17 Oct 2005 12:35:42 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:37605 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750754AbVJQQfl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 12:35:41 -0400
+Date: Mon, 17 Oct 2005 21:59:30 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Eric Dumazet <dada1@cosmosbay.com>, Jean Delvare <khali@linux-fr.org>,
+       Serge Belyshev <belyshev@depni.sinp.msu.ru>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: VFS: file-max limit 50044 reached
+Message-ID: <20051017162930.GC13665@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <Pine.LNX.4.64.0510161912050.23590@g5.osdl.org> <JTFDVq8K.1129537967.5390760.khali@localhost> <20051017084609.GA6257@in.ibm.com> <43536A6C.102@cosmosbay.com> <20051017103244.GB6257@in.ibm.com> <Pine.LNX.4.64.0510170829000.23590@g5.osdl.org> <4353CADB.8050709@cosmosbay.com> <Pine.LNX.4.64.0510170911370.23590@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0510170911370.23590@g5.osdl.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Oct 2005, nyk wrote:
-
-> Looks like fs/ntfs/namei.c is missing linux/compat.h
+On Mon, Oct 17, 2005 at 09:16:25AM -0700, Linus Torvalds wrote:
 > 
->   CHK     include/linux/version.h
->   CHK     include/linux/compile.h
->   CHK     usr/initramfs_list
->   CC [M]  fs/ntfs/namei.o
-> In file included from include/linux/dcache.h:6,
->                  from fs/ntfs/namei.c:23:
-> include/asm/atomic.h:383: error: syntax error before '*' token
-> include/asm/atomic.h:384: warning: function declaration isn't a prototype
-> include/asm/atomic.h: In function 'atomic_scrub':
-> include/asm/atomic.h:385: error: 'u32' undeclared (first use in this function)
-> include/asm/atomic.h:385: error: (Each undeclared identifier is reported only once
-[...]
+> > Absolutely. Keeping a count of (percpu) queued items is basically free if kept
+> > in the cache line used by list head, so the 'queue length on this cpu' is a
+> > cheap metric.
 > 
-> Compiles fine with #include <linux/compat.h> added to the top of
-> fs/ntfs/namei.c
+> The only downside to TIF_RCUUPDATE is that those damn TIF-flags are 
+> per-architecture (probably largely unnecessary, but while most 
+> architectures don't care at all, others seem to have optimized their 
+> layout so that they can test the work bits more efficiently). So it's a 
+> matter of each architecture being updated with its TIF_xyz flag and their 
+> work function.
 > 
-> If that's the right place for it, of course.
+> Anybody willing to try? Dipankar apparently has a lot on his plate, this 
+> _should_ be fairly straightforward. Eric?
 
-[Looks like you are on x86_64, as i386 compiles fine]
+I *had*, when this hit me :) It was one those spurt things. I am going to
+look at this, but I think we will need to do this with some careful
+benchmarking.
 
-Actually, <asm-x86_64/atomic.h> seems to need <asm/types.h> for the 
-declaration of u32.
-The patch below makes NTFS compile on x86_64 for me. Andi?
+At the moment however I do have another concern - open/close taking too
+much time as I mentioned in an earlier email. It is nearly 4 times
+slower than 2.6.13. So, that is first up in my list of things to
+do at the moment.
 
-Tim
-
-
---- linux-2.6.14-rc4-mm1/include/asm-x86_64/atomic.h	2005-10-17 17:48:12.000000000 +0200
-+++ linux-2.6.14-rc4-mm1-build/include/asm-x86_64/atomic.h	2005-10-17 18:20:19.000000000 +0200
-@@ -2,6 +2,7 @@
- #define __ARCH_X86_64_ATOMIC__
- 
- #include <linux/config.h>
-+#include <asm/types.h>
- 
- /* atomic_t should be 32 bit signed type */
- 
+Thanks
+Dipankar

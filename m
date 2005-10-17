@@ -1,62 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbVJQJuu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbVJQJuy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932230AbVJQJuu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 05:50:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbVJQJuu
+	id S932238AbVJQJuy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 05:50:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbVJQJuy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 05:50:50 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:31618 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932230AbVJQJut (ORCPT
+	Mon, 17 Oct 2005 05:50:54 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:3951 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932238AbVJQJux (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 05:50:49 -0400
-Date: Mon, 17 Oct 2005 02:50:07 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Cc: ak@suse.de, linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       tglx@linutronix.de, torvalds@osdl.org, shai@scalex86.org
-Subject: Re: x86_64: 2.6.14-rc4 swiotlb broken
-Message-Id: <20051017025007.35ae8d0e.akpm@osdl.org>
-In-Reply-To: <20051017093654.GA7652@localhost.localdomain>
-References: <20051017093654.GA7652@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 17 Oct 2005 05:50:53 -0400
+Date: Mon, 17 Oct 2005 11:51:33 +0200
+From: Jens Axboe <axboe@suse.de>
+To: li nux <lnxluv@yahoo.com>
+Cc: Grzegorz Kulewski <kangur@polcom.net>,
+       Erik Mouw <erik@harddisk-recovery.com>, colin <colin@realtek.com.tw>,
+       linux-kernel@vger.kernel.org
+Subject: Re: A problem about DIRECT IO on ext3
+Message-ID: <20051017095133.GU2811@suse.de>
+References: <20051017091710.GT2811@suse.de> <20051017094140.14685.qmail@web33301.mail.mud.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051017094140.14685.qmail@web33301.mail.mud.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
->
-> On x86_64 NUMA boxes, the revert
-> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=6e3254c4e2927c117044a02acf5f5b56e1373053
-> meant that swiotlb gets the IOTLB
-> memory from pages over 4G (if mem > 4G), which basically renders swiotlb useless, causing
-> breakage with devices not capable of DMA beyond 4G.  2.6.13 was (kinda) not
-> broken, although the patch titled "Reverse order of bootmem lists" was
-> not in 2.6.13, The reason is commit
-> http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=6142891a0c0209c91aa4a98f725de0d6e2ed4918
-> was not in 2.6.13, PCI_DMA_BUS_IS_PHYS was 1 when no mmu was present, and the block layer did 
-> the bouncing, never using swiotlb.  I guess the right fix is to make sure
-> swiotlb gets the right memory.  Here is a patch doing that.  Tested on IBM
-> x460.  I hope the patch is ok for ia64s too.  I do not have access to ia64
-> boxen.
+On Mon, Oct 17 2005, li nux wrote:
 > 
+> 
+> --- Jens Axboe <axboe@suse.de> wrote:
+> 
+> > On Mon, Oct 17 2005, Grzegorz Kulewski wrote:
+> > > On Mon, 17 Oct 2005, Jens Axboe wrote:
+> > > >>how to correct this problem ?
+> > > >
+> > > >See your buffer address, it's not aligned. You
+> > need to align that as
+> > > >well. This is needed because the hardware will
+> > dma directly to the user
+> > > >buffer, and to be on the safe side we require the
+> > same alignment as the
+> > > >block layer will normally generate for file
+> > system io.
+> > > >
+> > > >So in short, just align your read buffer to the
+> > same as your block size
+> > > >and you will be fine. Example:
+> > > >
+> > > >#define BS      (4096)
+> > > >#define MASK    (BS - 1)
+> > > >#define ALIGN(buf)      (((unsigned long) (buf) +
+> > MASK) & ~(MASK))
+> > > >
+> > > >char *ptr = malloc(BS + MASK);
+> > > >char *buf = (char *) ALIGN(ptr);
+> > > >
+> > > >read(fd, buf, BS);
+> > > 
+> > > Shouldn't one use posix_memalign(3) for that?
+> > 
+> > Dunno if one 'should', one 'can' if one wants to. I
+> > prefer to do it
+> > manually so I don't have to jump through #define
+> > hoops to get at it
+> > (which, btw, still doesn't expose it on this
+> > machine).
+> > 
+> > -- 
+> > Jens Axboe
+> 
+> Thanx a lot Jens :-)
+> Its working now.
+> I did not have to make these adjustments on 2.6
+> Is looks to be having more relaxation.
 
-This is an ia64 patch - what point was there in testing it on an x460?
+2.6 does have the option of checking the hardware dma requirement
+seperately, but for this path you should run into the same restrictions.
+Perhaps you just got lucky when testing 2.6?
 
-Is something missing here?
+> Can somebody please throw some light on how to find
+> your system's hard/soft block size ?
 
->  
-> Index: linux-2.6.14-rc4/arch/ia64/lib/swiotlb.c
-> ===================================================================
-> --- linux-2.6.14-rc4.orig/arch/ia64/lib/swiotlb.c	2005-10-14 00:06:21.000000000 -0700
-> +++ linux-2.6.14-rc4/arch/ia64/lib/swiotlb.c	2005-10-17 00:05:22.000000000 -0700
-> @@ -123,7 +123,7 @@
->  	/*
->  	 * Get IO TLB memory from the low pages
->  	 */
-> -	io_tlb_start = alloc_bootmem_low_pages(io_tlb_nslabs *
-> +	io_tlb_start = alloc_bootmem_node(NODE_DATA(0), io_tlb_nslabs *
->  					       (1 << IO_TLB_SHIFT));
->  	if (!io_tlb_start)
->  		panic("Cannot allocate SWIOTLB buffer");
+It's a per-device (or even per-partition, in case of mounted partitions)
+setting, you can use the BLKBSZGET and BLKSSZGET ioctls to query for
+soft/hard sector sizes.
+
+-- 
+Jens Axboe
+

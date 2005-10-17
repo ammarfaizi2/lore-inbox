@@ -1,84 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751271AbVJQN0e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751299AbVJQN3A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751271AbVJQN0e (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 09:26:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751299AbVJQN0e
+	id S1751299AbVJQN3A (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 09:29:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbVJQN3A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 09:26:34 -0400
-Received: from mail0.lsil.com ([147.145.40.20]:20472 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S1751271AbVJQN0d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 09:26:33 -0400
-Message-ID: <0E3FA95632D6D047BA649F95DAB60E5707232141@exa-atlanta>
-From: "Kolli, Neela Syam" <Neela.Kolli@engenio.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>
-Subject: RE: [PATCH 2/2] Convert megaraid to use pci_driver shutdown metho
-	d
-Date: Mon, 17 Oct 2005 09:26:12 -0400
+	Mon, 17 Oct 2005 09:29:00 -0400
+Received: from gw1.cosmosbay.com ([62.23.185.226]:10723 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S1751299AbVJQN27
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 09:28:59 -0400
+Message-ID: <4353A6F6.9050205@cosmosbay.com>
+Date: Mon, 17 Oct 2005 15:28:22 +0200
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2658.27)
-Content-Type: text/plain
+To: dipankar@in.ibm.com
+CC: Jean Delvare <khali@linux-fr.org>, torvalds@osdl.org,
+       Serge Belyshev <belyshev@depni.sinp.msu.ru>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: [RCU problem] was VFS: file-max limit 50044 reached
+References: <Pine.LNX.4.64.0510161912050.23590@g5.osdl.org> <JTFDVq8K.1129537967.5390760.khali@localhost> <20051017084609.GA6257@in.ibm.com> <43536A6C.102@cosmosbay.com> <20051017103244.GB6257@in.ibm.com> <435394A1.7000109@cosmosbay.com> <20051017123655.GD6257@in.ibm.com>
+In-Reply-To: <20051017123655.GD6257@in.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Mon, 17 Oct 2005 15:28:23 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch looks good.  Thanks for the patch.
+Dipankar Sarma a écrit :
+> On Mon, Oct 17, 2005 at 02:10:09PM +0200, Eric Dumazet wrote:
+> 
+>>Dipankar Sarma a écrit :
+>>
+>>>On Mon, Oct 17, 2005 at 11:10:04AM +0200, Eric Dumazet wrote:
+>>>
+>>>Agreed. It is not designed to work that way, so there must be
+>>>a bug somewhere and I am trying to track it down. It could very well
+>>>be that at maxbatch=10 we are just queueing at a rate far too high
+>>>compared to processing.
+>>>
+>>
+>>I can freeze my test machine with a program that 'only' use dentries, no 
+>>files.
+>>
+>>No message, no panic, but machine becomes totally unresponsive after few 
+>>seconds.
+>>
+>>Just greping for call_rcu in kernel sources gave me another call_rcu() use 
+>>from syscalls. And yes 2.6.13 has the same problem.
+> 
+> 
+> Can you try it with rcupdate.maxbatch set to 10000 in boot
+> command line ?
+> 
 
-Thanks,
-Neela Syam Kolli.
+Changing maxbatch from 10 to 10000 cures the problem.
+Maybe we could initialize maxbatch to (10000000/HZ), considering no current 
+cpu is able to queue more than 10.000.000 items per second in a list.
 
------Original Message-----
-From: Russell King [mailto:rmk+lkml@arm.linux.org.uk] 
-Sent: Sunday, October 16, 2005 4:33 PM
-To: Linux Kernel List; Andrew Morton; Greg KH; Neela.Kolli@engenio.com
-Subject: Re: [PATCH 2/2] Convert megaraid to use pci_driver shutdown method
 
-Convert megaraid to use pci_driver's shutdown method rather than
-the generic device_driver shutdown method.
+> FWIW, the open/close test problem goes away if I set maxbatch to
+> 10000. I had introduced this limit some time ago to curtail
+> the effect long running softirq handlers have on scheduling
+> latencies, which now conflicts with OOM avoidance requirements.
 
-Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+Yes, and probably OOM avoidance has a higher priority than latencies in DOS 
+situations...
 
-diff --git a/drivers/scsi/megaraid/megaraid_mbox.c
-b/drivers/scsi/megaraid/megaraid_mbox.c
---- a/drivers/scsi/megaraid/megaraid_mbox.c
-+++ b/drivers/scsi/megaraid/megaraid_mbox.c
-@@ -76,7 +76,7 @@ static void megaraid_exit(void);
- 
- static int megaraid_probe_one(struct pci_dev*, const struct pci_device_id
-*);
- static void megaraid_detach_one(struct pci_dev *);
--static void megaraid_mbox_shutdown(struct device *);
-+static void megaraid_mbox_shutdown(struct pci_dev *);
- 
- static int megaraid_io_attach(adapter_t *);
- static void megaraid_io_detach(adapter_t *);
-@@ -369,9 +369,7 @@ static struct pci_driver megaraid_pci_dr
- 	.id_table	= pci_id_table_g,
- 	.probe		= megaraid_probe_one,
- 	.remove		= __devexit_p(megaraid_detach_one),
--	.driver		= {
--		.shutdown	= megaraid_mbox_shutdown,
--	}
-+	.shutdown	= megaraid_mbox_shutdown,
- };
- 
- 
-@@ -673,9 +671,9 @@ megaraid_detach_one(struct pci_dev *pdev
-  * Shutdown notification, perform flush cache
-  */
- static void
--megaraid_mbox_shutdown(struct device *device)
-+megaraid_mbox_shutdown(struct pci_dev *pdev)
- {
--	adapter_t		*adapter =
-pci_get_drvdata(to_pci_dev(device));
-+	adapter_t		*adapter = pci_get_drvdata(pdev);
- 	static int		counter;
- 
- 	if (!adapter) {
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Eric

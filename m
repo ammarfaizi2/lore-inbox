@@ -1,92 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbVJQTjR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751274AbVJQTjg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751250AbVJQTjR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 15:39:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbVJQTjR
+	id S1751274AbVJQTjg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 15:39:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751292AbVJQTjg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 15:39:17 -0400
-Received: from dsl-62-3-75-185.zen.co.uk ([62.3.75.185]:35242 "EHLO
-	natsu.giantx.co.uk") by vger.kernel.org with ESMTP id S1751250AbVJQTjQ
+	Mon, 17 Oct 2005 15:39:36 -0400
+Received: from mf00.sitadelle.com ([212.94.174.67]:57116 "EHLO
+	smtp.cegetel.net") by vger.kernel.org with ESMTP id S1751274AbVJQTjf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 15:39:16 -0400
-Date: Mon, 17 Oct 2005 20:39:15 +0100
-From: nyk <nyk@giantx.co.uk>
-To: Tim Schmielau <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] Re: 2.6.14-rc4-mm1 ntfs/namei.c missing compat.h?
-Message-ID: <20051017193915.GA3872@giantx.co.uk>
-References: <20051017144900.GA2942@giantx.co.uk> <Pine.LNX.4.61.0510171828440.5555@gans.physik3.uni-rostock.de>
+	Mon, 17 Oct 2005 15:39:35 -0400
+Message-ID: <4353FDE8.8070909@cosmosbay.com>
+Date: Mon, 17 Oct 2005 21:39:20 +0200
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0510171828440.5555@gans.physik3.uni-rostock.de>
-User-Agent: Mutt/1.5.11
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: dipankar@in.ibm.com, Jean Delvare <khali@linux-fr.org>,
+       Serge Belyshev <belyshev@depni.sinp.msu.ru>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: VFS: file-max limit 50044 reached
+References: <Pine.LNX.4.64.0510161912050.23590@g5.osdl.org> <JTFDVq8K.1129537967.5390760.khali@localhost> <20051017084609.GA6257@in.ibm.com> <43536A6C.102@cosmosbay.com> <20051017103244.GB6257@in.ibm.com> <Pine.LNX.4.64.0510170829000.23590@g5.osdl.org> <4353CADB.8050709@cosmosbay.com> <Pine.LNX.4.64.0510170911370.23590@g5.osdl.org> <20051017162930.GC13665@in.ibm.com> <4353E6F1.8030206@cosmosbay.com> <Pine.LNX.4.64.0510171112040.3369@g5.osdl.org> <4353F7B5.1040101@cosmosbay.com> <Pine.LNX.4.64.0510171218490.3369@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0510171218490.3369@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 17, 2005 at 06:33:58PM +0200, Tim Schmielau wrote:
-> On Mon, 17 Oct 2005, nyk wrote:
+Linus Torvalds a écrit :
 > 
-> > Looks like fs/ntfs/namei.c is missing linux/compat.h
-> > 
-> >   CHK     include/linux/version.h
-> >   CHK     include/linux/compile.h
-> >   CHK     usr/initramfs_list
-> >   CC [M]  fs/ntfs/namei.o
-> > In file included from include/linux/dcache.h:6,
-> >                  from fs/ntfs/namei.c:23:
-> > include/asm/atomic.h:383: error: syntax error before '*' token
-> > include/asm/atomic.h:384: warning: function declaration isn't a prototype
-> > include/asm/atomic.h: In function 'atomic_scrub':
-> > include/asm/atomic.h:385: error: 'u32' undeclared (first use in this function)
-> > include/asm/atomic.h:385: error: (Each undeclared identifier is reported only once
-> [...]
-> > 
-> > Compiles fine with #include <linux/compat.h> added to the top of
-> > fs/ntfs/namei.c
-> > 
-> > If that's the right place for it, of course.
+> On Mon, 17 Oct 2005, Eric Dumazet wrote:
 > 
-> [Looks like you are on x86_64, as i386 compiles fine]
-> 
-> Actually, <asm-x86_64/atomic.h> seems to need <asm/types.h> for the 
-> declaration of u32.
-> The patch below makes NTFS compile on x86_64 for me. Andi?
-> 
-> Tim
+>>Thats strange, because on my tests it seems that I dont have one reschedule
+>>for 'maxbatch' items. Doing 'grep filp /proc/slabinfo' it seems I have one
+>>'schedule' then filp count goes back to 1000.
 > 
 > 
-> --- linux-2.6.14-rc4-mm1/include/asm-x86_64/atomic.h	2005-10-17 17:48:12.000000000 +0200
-> +++ linux-2.6.14-rc4-mm1-build/include/asm-x86_64/atomic.h	2005-10-17 18:20:19.000000000 +0200
-> @@ -2,6 +2,7 @@
->  #define __ARCH_X86_64_ATOMIC__
->  
->  #include <linux/config.h>
-> +#include <asm/types.h>
->  
->  /* atomic_t should be 32 bit signed type */
->  
+> Hmm.
+> 
+> I think you're right, but for all the wrong reasons.
+> 
+> "maxbatch" ends up not actually having any real effect in the end: after 
+> the tasklet ends up running in softirqd, softirqd will actually keep on 
+> calling the tasklet code until it doesn't get rescheduled any more ;)
+> 
+> So it will do "maxbatch" RCU entries, reschedule itself, return, and 
+> immediately get called again.
+> 
+> Heh.
+> 
+> The _good_ news is that since it ends up running in softirqd (after the 
+> first ten times - the softirq code in kernel/softirq.c will start off 
+> calling it ten times _first_), it can be scheduled away, so it actually 
+> ends up helping latency.
+> 
+> Which means that we actually end up doing exactly the right thing, 
+> although for what appears to be the wrong reasons (or very lucky ones).
+> 
+> The _bad_ news is that softirqd is running at nice +19, so I suspect that 
+> with some unlucky patterns it's probably pretty easy to make sure that 
+> ksoftirqd doesn't actually run very often at all! 
+> 
+> Gaah. So close, yet so far. I'm _almost_ willing to just undo my "make 
+> maxbatch huge" patch, and apply your patch, because now that I see how it 
+> all happens to work together I'm convinced that it _almost_ works. Even if 
+> it seems to be mostly by luck(*) rather than anything else.
+> 
 
-Yup x86_64. And trying out bluesmoke, but I got a lot of unknown symbols
-in ehci_hcd, so I've got problems elsewhere as well. Will try a compile
-from a clean tree...
+:)
 
-Oct 17 20:24:42 natsu kernel: ehci_hcd: Unknown symbol usb_hcd_pci_suspend
-Oct 17 20:24:42 natsu kernel: ehci_hcd: Unknown symbol usb_free_urb
-Oct 17 20:24:42 natsu kernel: ehci_hcd: Unknown symbol usb_hub_tt_clear_buffer
-Oct 17 20:24:42 natsu kernel: ehci_hcd: Unknown symbol usb_hcd_pci_probe
-Oct 17 20:24:42 natsu kernel: ehci_hcd: Unknown symbol usb_suspend_device
-Oct 17 20:24:42 natsu kernel: ehci_hcd: Unknown symbol usb_disabled
-Oct 17 20:24:42 natsu kernel: ehci_hcd: Unknown symbol usb_put_dev
-Oct 17 20:24:42 natsu kernel: ehci_hcd: Unknown symbol usb_get_dev
-Oct 17 20:24:42 natsu kernel: ehci_hcd: Unknown symbol usb_calc_bus_time
-Oct 17 20:24:42 natsu kernel: ehci_hcd: Unknown symbol usb_hcd_pci_resume
-Oct 17 20:24:42 natsu kernel: ehci_hcd: Unknown symbol usb_get_urb
-Oct 17 20:24:42 natsu kernel: ehci_hcd: Unknown symbol usb_hcd_giveback_urb
-Oct 17 20:24:42 natsu kernel: ehci_hcd: Unknown symbol usb_set_device_state
-Oct 17 20:24:42 natsu kernel: ehci_hcd: Unknown symbol usb_hcd_pci_remove
+What about call_rcu_bh() which I left unchanged ? At least one of my 
+production machine cannot live very long unless I have maxbatch = 300, because 
+of an insane large tcp route cache (and one of its CPU almost filled by 
+softirq NIC processing)
 
-Nyk
--- 
-/__
-\_|\/
-   /\
+> 		Linus
+> 
+> (*) Not strictly true. It may not be by design of the RCU code itself, but 
+> it's definitely by design of the softirq's being designed to be robust and 
+> have good latency behaviour. So it does work by design, but it works by 
+> softirq design rather than RCU design ;)
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+

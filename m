@@ -1,91 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932074AbVJQMbr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932295AbVJQMew@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932074AbVJQMbr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 08:31:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbVJQMbr
+	id S932295AbVJQMew (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 08:34:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932289AbVJQMew
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 08:31:47 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:8716 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S932074AbVJQMbr convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 08:31:47 -0400
+	Mon, 17 Oct 2005 08:34:52 -0400
+Received: from silver.veritas.com ([143.127.12.111]:32026 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S932285AbVJQMev
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 08:34:51 -0400
+Date: Mon, 17 Oct 2005 13:33:53 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Robin Holt <holt@sgi.com>
+cc: Dave Hansen <haveblue@us.ibm.com>, Greg KH <greg@kroah.com>,
+       ia64 list <linux-ia64@vger.kernel.org>, linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hch@infradead.org, jgarzik@pobox.com,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Carsten Otte <cotte@de.ibm.com>,
+       Jack Steiner <steiner@americas.sgi.com>
+Subject: Re: [Patch 2/3] Export get_one_pte_map.
+In-Reply-To: <20051017114730.GC30898@lnx-holt.americas.sgi.com>
+Message-ID: <Pine.LNX.4.61.0510171331090.2993@goblin.wat.veritas.com>
+References: <20051014192111.GB14418@lnx-holt.americas.sgi.com>
+ <20051014192225.GD14418@lnx-holt.americas.sgi.com> <20051014213038.GA7450@kroah.com>
+ <20051017113131.GA30898@lnx-holt.americas.sgi.com> <1129549312.32658.32.camel@localhost>
+ <20051017114730.GC30898@lnx-holt.americas.sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <435394A1.7000109@cosmosbay.com>
-References: <Pine.LNX.4.64.0510161912050.23590@g5.osdl.org> <JTFDVq8K.1129537967.5390760.khali@localhost> <20051017084609.GA6257@in.ibm.com> <43536A6C.102@cosmosbay.com> <20051017103244.GB6257@in.ibm.com> <435394A1.7000109@cosmosbay.com>
-X-OriginalArrivalTime: 17 Oct 2005 12:31:33.0420 (UTC) FILETIME=[B54A16C0:01C5D316]
-Content-class: urn:content-classes:message
-Subject: Re: [RCU problem] was VFS: file-max limit 50044 reached
-Date: Mon, 17 Oct 2005 08:31:21 -0400
-Message-ID: <Pine.LNX.4.61.0510170828290.16569@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [RCU problem] was VFS: file-max limit 50044 reached
-Thread-Index: AcXTFrVThFxPxDATRc6FSQnFRWhFUw==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Eric Dumazet" <dada1@cosmosbay.com>
-Cc: <dipankar@in.ibm.com>, "Jean Delvare" <khali@linux-fr.org>,
-       <torvalds@osdl.org>, "Serge Belyshev" <belyshev@depni.sinp.msu.ru>,
-       "LKML" <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>,
-       "Manfred Spraul" <manfred@colorfullife.com>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 17 Oct 2005 12:34:44.0949 (UTC) FILETIME=[27731850:01C5D317]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 17 Oct 2005, Robin Holt wrote:
+> On Mon, Oct 17, 2005 at 01:41:52PM +0200, Dave Hansen wrote:
+> > On Mon, 2005-10-17 at 06:31 -0500, Robin Holt wrote:
+> > > On Fri, Oct 14, 2005 at 02:30:38PM -0700, Greg KH wrote:
+> > > > On Fri, Oct 14, 2005 at 02:22:25PM -0500, Robin Holt wrote:
+> > > > > +EXPORT_SYMBOL(get_one_pte_map);
+> 
+> I got a little push from our internal incident tracking system for
+> this being a module.  _GPL it will be.
 
-On Mon, 17 Oct 2005, Eric Dumazet wrote:
+Sorry, Robin, I've not been following your patches.  But if you look
+at 2.6.14-rc4-mm1, you'll find that there isn't even a get_one_pte_map
+there.  Though there's no certainty yet that my pt locking changes, or
+Nick's PageReserved changes, will actually go forward, there's a lot of
+work queued up in -mm that is likely to affect your code.  And I don't
+think exporting internal functions from mremap.c, _GPL or otherwise,
+is the way to go.
 
-> Dipankar Sarma a écrit :
->> On Mon, Oct 17, 2005 at 11:10:04AM +0200, Eric Dumazet wrote:
->>>
->>> Fixing the 'file count' wont fix the real problem : Batch freeing is good
->>> but should be limited so that not more than *billions* of file struct are
->>> queued for deletion.
->>
->>
->> Agreed. It is not designed to work that way, so there must be
->> a bug somewhere and I am trying to track it down. It could very well
->> be that at maxbatch=10 we are just queueing at a rate far too high
->> compared to processing.
->>
->
-> I can freeze my test machine with a program that 'only' use dentries,
-> no files.
->
-> No message, no panic, but machine becomes totally unresponsive after
-> few seconds.
->
-> Just greping for call_rcu in kernel sources gave me another call_rcu() use
-> from syscalls. And yes 2.6.13 has the same problem.
->
-> Here is the killer on by HT Xeon machine (2GB ram)
->
-> Eric
->
+Moving useful functions to a more central location might be.  But I'm
+very dubious about your doing this kind of pte stuff deep down in an
+architecture-specific driver.  You're not the only one interested in
+this kind of functionality: we were thinking of providing it via an
+alternative to the ->nopage method, which deals in pfns rather than
+struct pages (I think that was wli's suggestion originally; Carsten
+has an interest in it on s390, and I bet there are others).  There
+may be excellent reasons why that wouldn't be good enough for you,
+and your retcode method may be a better idea: I don't know yet.
 
-No problem with linux-2.6.13.4 and ext3 file-system:
-F   UID   PID  PPID PRI  NI   VSZ  RSS WCHAN  STAT TTY        TIME COMMAND
-4     0     1     0  16   0  1544  408 -      S    ?          0:00 init [5]
-[SNIPPED....]
-1     0 16017     6  15   0     0    0 pdflus SW   ?          0:00 [pdflush]
-4   666 16406  5273  16   0  4464 1004 wait   S    tty2       0:00 -bash
-0   666 16501 16406  18   0  1324  240 -      R    tty2       9:46 ./xxx
-4     0 16502  5223  15   0  4204 1248 wait   S    tty1       0:00 -bash
-0     0 16563 16502  16   0  2276  584 -      R    tty1       0:00 ps laxw
+Please rebase your work to 2.6.14-rc4-mm1 (but I won't get to look
+at the result for a few days: perhaps others will).
 
-I just put 9:46 CPU time on your program and every thing is fine.
+The big question has to be: what are you expecting to happen for
+PROT_WRITE, MAP_PRIVATE?
 
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.46 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+Hugh

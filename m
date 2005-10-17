@@ -1,60 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751342AbVJQOKL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbVJQOSQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751342AbVJQOKL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 10:10:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751354AbVJQOKL
+	id S932299AbVJQOSQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 10:18:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbVJQOSQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 10:10:11 -0400
-Received: from qproxy.gmail.com ([72.14.204.196]:20284 "EHLO qproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751343AbVJQOKJ convert rfc822-to-8bit
+	Mon, 17 Oct 2005 10:18:16 -0400
+Received: from mpc-26.sohonet.co.uk ([193.203.82.251]:11477 "EHLO
+	moving-picture.com") by vger.kernel.org with ESMTP id S1751354AbVJQOSP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 10:10:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=f35GznRerlTy9r288ra1Ab8N8/pZAfXcQPX+yJapu7TLbuvy/Y+uPDnej0Tu95YdC0gZcrv0UB2wEx+E4q3I2CgiBlOW780ji+tXsKhzFnd5aMU5N8yBr7UTrAP8G3BoME7CayZdjZikY7/2PScNsmeHuk5XqP1/f7ucVnbHe8I=
-Message-ID: <9a8748490510170710s3971e0c6u2a95fa2cb6ad2c5a@mail.gmail.com>
-Date: Mon, 17 Oct 2005 16:10:03 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Glauber de Oliveira Costa <glauber@br.ibm.com>
-Subject: Re: [PATCH] Test for sb_getblk return value
-Cc: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, adilger@clusterfs.com, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-In-Reply-To: <20051017132306.GA30328@br.ibm.com>
+	Mon, 17 Oct 2005 10:18:15 -0400
+Message-ID: <4353B297.5080604@moving-picture.com>
+Date: Mon, 17 Oct 2005 15:17:59 +0100
+From: James Pearson <james-p@moving-picture.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040524
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051017132306.GA30328@br.ibm.com>
+To: linux-kernel@vger.kernel.org
+CC: ruediger@Theo-Phys.Uni-Essen.DE
+Subject: Re: NFS client problem with kernel 2.6 and SGI IRIX 6.5
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Disclaimer: This email and any attachments are confidential, may be legally
+X-Disclaimer: privileged and intended solely for the use of addressee. If you
+X-Disclaimer: are not the intended recipient of this message, any disclosure,
+X-Disclaimer: copying, distribution or any action taken in reliance on it is
+X-Disclaimer: strictly prohibited and may be unlawful. If you have received
+X-Disclaimer: this message in error, please notify the sender and delete all
+X-Disclaimer: copies from your system.
+X-Disclaimer: 
+X-Disclaimer: Email may be susceptible to data corruption, interception and
+X-Disclaimer: unauthorised amendment, and we do not accept liability for any
+X-Disclaimer: such corruption, interception or amendment or the consequences
+X-Disclaimer: thereof.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/17/05, Glauber de Oliveira Costa <glauber@br.ibm.com> wrote:
-> Hi all,
->
-> As we discussed earlier, I'm sending a patch that adds test for the
-> return value of sb_getblk. This time I focused on the code of the ext2/3
-> filesystems. I'm assuming that getblk fails happens due to I/O errors
-> and thus returning returning an EIO back wherever it's needed.
->
+> The summary is as follows: I do have problems with the 2.6 series
+> kernel, which do not occur with a 2.4 series kernel (and an other-
+> wise unchanged system). I discovered it with Mathematica version 5.0,
+> but do think that other programs are also involved (e.g. OpenOffice
+> 1.1.4, that doesn't find its default (or any other) printer any
+> longer). The symptom is, that certain ressources are reported
+> missing, that are definitively there and which lie somewhere
+> within the application-tree, that tree lying within a hierarchie
+> being nfs-auto-mounted from the SGI system to the (Intel architec-
+> ture) Linux client. File contents (or whole files?) seems to get
+> 'lost' somehow.
+> 
+> It doesn't seem to be the MSBit Problem of the 32bit nfs cookies
+> (alone) - the branch is exported with the IRIX '32bitclients'
+> option, to avoid the 64bit cookies, that led to a similar problem
+> with the printer in OpenOffice under the 2.4 series kernels, and
+> vanished with the 32bit-option.  The reason for me to state this
+> is, that when I applied a 32bit-'SGI-IRIX-induced'-patch for (early)
+> 2.6 kernels (Debians 2.6.8) the problem didn't go away, and it also
+> still occurs when using the 2.6.12-kernel, where some kernel-version
+> ago (2.6.10 or 11?) that part of the cookie problem was solved via a
+> translation table (once and for all, I hope).
+> 
+> The problem occurs when requesting nfs v2 as well as nfs v3 protocol.
+> An LD_ASSUME_KERNEL does not seem to help, as it does with other
+> problems.
+> 
+> When testing or compiling kernels, I always used the 'debianized'
+> versions, but to my understanding, they are nearly unaltered compared
+> to the 'plain' kernels (see Debian changelogs).
+> 
+> The problem is severe to us, as the same configuration also exports
+> our home-directories, which are, of course, writeable, contrary to
+> the application-tree, which is read-only. Thus any help will be
+> welcome.
+> 
+> I'm willing to try whatever I can do to resolve the problem, but I
+> need guidance in what to do and what (else) you need to know.
 
-> -		bh = sb_getblk(inode->i_sb, parent);
-> +		if (!(bh = sb_getblk(inode->i_sb, parent))){
-> +			err = -EIO;
-> +			break;
-> +		}
+Is this similar to the issue in the following thread? :
 
-Would be more readable as
+http://marc.theaimsgroup.com/?l=linux-kernel&m=108741268200839&w=2
 
-		bh = sb_getblk(inode->i_sb, parent);
-		if (!bh) {
-			err = -EIO;
-			break;
-		}
-
-
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+James Pearson

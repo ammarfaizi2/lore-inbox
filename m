@@ -1,54 +1,178 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750960AbVJQRGy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbVJQRGg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750960AbVJQRGy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 13:06:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbVJQRGy
+	id S1750796AbVJQRGg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 13:06:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbVJQRGg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 13:06:54 -0400
-Received: from rwcrmhc14.comcast.net ([204.127.198.54]:21470 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1750960AbVJQRGx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 13:06:53 -0400
-From: Jesse Barnes <jbarnes@virtuousgeek.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH] libata: fix broken Kconfig setup
-Date: Mon, 17 Oct 2005 10:06:39 -0700
-User-Agent: KMail/1.8.91
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       davej@redhat.com
-References: <20051017044606.GA1266@havoc.gtf.org> <200510170952.34174.jbarnes@virtuousgeek.org> <4353D96F.90805@pobox.com>
-In-Reply-To: <4353D96F.90805@pobox.com>
+	Mon, 17 Oct 2005 13:06:36 -0400
+Received: from xproxy.gmail.com ([66.249.82.195]:9826 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750796AbVJQRGf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 13:06:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:references;
+        b=Ri4wcfX7rCiCL5KEqnT7WJvW7va66IezMxf3aMG4svw+q8Z3HR4BqvcFBRk/iFSMVjk12+z0XWZdFnCUpcY0YDUXIxcpxRvrawP1dRCO4cgS25peCrkVKDEmthfsY79/TJykhV96OQ22qHjnBpD0k88z+wxvQTKxsLRo2fG2zj8=
+Message-ID: <5bdc1c8b0510171006q6f002670w50ea8b2d26d8a31e@mail.gmail.com>
+Date: Mon, 17 Oct 2005 10:06:34 -0700
+From: Mark Knecht <markknecht@gmail.com>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.14-rc4-rt7
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       david singleton <dsingleton@mvista.com>,
+       Steven Rostedt <rostedt@goodmis.org>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>
+In-Reply-To: <20051017160536.GA2107@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510171006.39206.jbarnes@virtuousgeek.org>
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_9009_22780522.1129568794862"
+References: <20051017160536.GA2107@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, October 17, 2005 10:03 am, Jeff Garzik wrote:
-> Jesse Barnes wrote:
-> > It does, since it prevents one of the ports from being bound by the
-> > legacy IDE driver.  But the whole thing is rather hackish to begin
-> > with, and I prefer this hack to the existing code (in fact, Andrew
-> > already queued up a patch from me in -mm that looks just like
-> > yours).
-> >
-> > Ultimately, when libata gets ATAPI support, I think we just have to
-> > declare libata and legacy IDE to be incompatible for combined mode
-> > devices and remove the quirk.  Then whichever driver loads first
-> > will get the whole device, as it should.
->
-> I would love to remove the quirk completely!
->
-> Unfortunately combined mode is a runtime BIOS configuration, and there
-> is also the lockup issue I mentioned in another email.
+------=_Part_9009_22780522.1129568794862
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-So sometimes the legacy IDE driver will lock up when it tries to drive 
-both ports in a combined configuration?  In that case, can't we just 
-disable the legacy IDE driver for these chips and force the use of the 
-libata version?
+On 10/17/05, Ingo Molnar <mingo@elte.hu> wrote:
+>
+> i have released the 2.6.14-rc4-rt7
 
-Jesse
+Hi Ingo,
+   -rt7 is up and running here. As far as I can tell so far I am
+getting good realtime response. No xruns so far, but certianly very
+little testing.
+
+   The problem I'm seeing, which is consistent, is that it takes 1:45
+to 2 minutes ot log out of Gnome. If I log in, wait about 15 seconds,
+and the choose 'logout' from the panel, I have to wait almost 2
+minutes for the confirmation screen to come up. When I choose logout
+from that screen the final part of logout is immediate.
+
+   This was not a problem on rc4-rt1, but has been a problem on -rt5,
+-rt6 and -rt7.
+
+   I commented on this earlier but possibly the comment was missed.
+
+   Anyway, I'll be doing more testing with Jack today, but it would be
+great if we could debug this problem along the way.
+
+   Kernel config attached.
+
+------=_Part_9009_22780522.1129568794862
+Content-Type: application/x-bzip2; name=knecht.config-2.6.14-rc4-rt7.bz2
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="knecht.config-2.6.14-rc4-rt7.bz2"
+
+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
+------=_Part_9009_22780522.1129568794862--

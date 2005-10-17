@@ -1,83 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751410AbVJQP7G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbVJQQAQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751410AbVJQP7G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 11:59:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751414AbVJQP7G
+	id S932307AbVJQQAQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 12:00:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbVJQQAP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 11:59:06 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:63942 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751410AbVJQP7E (ORCPT
+	Mon, 17 Oct 2005 12:00:15 -0400
+Received: from gold.veritas.com ([143.127.12.110]:50274 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1751414AbVJQQAM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 11:59:04 -0400
-Date: Mon, 17 Oct 2005 08:58:40 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, davej@redhat.com
-Subject: Re: [PATCH] libata: fix broken Kconfig setup
-In-Reply-To: <4353C42A.3000005@pobox.com>
-Message-ID: <Pine.LNX.4.64.0510170848180.23590@g5.osdl.org>
-References: <20051017044606.GA1266@havoc.gtf.org> <Pine.LNX.4.64.0510170754500.23590@g5.osdl.org>
- <4353C42A.3000005@pobox.com>
+	Mon, 17 Oct 2005 12:00:12 -0400
+Date: Mon, 17 Oct 2005 16:59:20 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Robin Holt <holt@sgi.com>
+cc: Andrew Morton <akpm@osdl.org>, Dave Hansen <haveblue@us.ibm.com>,
+       Greg KH <greg@kroah.com>, ia64 list <linux-ia64@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hch@infradead.org, jgarzik@pobox.com,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Carsten Otte <cotte@de.ibm.com>,
+       Jack Steiner <steiner@americas.sgi.com>
+Subject: Re: [Patch 2/3] Export get_one_pte_map.
+In-Reply-To: <20051017151430.GA2564@lnx-holt.americas.sgi.com>
+Message-ID: <Pine.LNX.4.61.0510171644220.4773@goblin.wat.veritas.com>
+References: <20051014192111.GB14418@lnx-holt.americas.sgi.com>
+ <20051014192225.GD14418@lnx-holt.americas.sgi.com> <20051014213038.GA7450@kroah.com>
+ <20051017113131.GA30898@lnx-holt.americas.sgi.com> <1129549312.32658.32.camel@localhost>
+ <20051017114730.GC30898@lnx-holt.americas.sgi.com>
+ <Pine.LNX.4.61.0510171331090.2993@goblin.wat.veritas.com>
+ <20051017151430.GA2564@lnx-holt.americas.sgi.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 17 Oct 2005 16:00:12.0334 (UTC) FILETIME=[DB24C4E0:01C5D333]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 17 Oct 2005, Jeff Garzik wrote:
+On Mon, 17 Oct 2005, Robin Holt wrote:
 > 
-> CONFIG_SCSI_SATA does two things:
-> * Enables/disables the display of the SATA driver menu.
-> * Enables/disables the compiled-in PCI quirk.
-> 
-> Both of these are boolean, and have absolutely nothing to do with modules.
+> I am currently getting pressure from my management to get something
+> checked into the tree for 2.6.15.
 
-You ignore the biggest thing it does:
- - it is the depends-on for the actual low-level drivers
+I'm sorry to hear that, but it's not a kernel development priority.
 
-IOW, the _biggest_ reason for it existing at all is in fact _not_ a 
-boolean. It very much is a tristate. When it's "m" the SATA driver menu 
-_should_ show.
+And since I'm nearing completion of a task which we expect to satisfy
+what SGI's been asking for almost a year, which I had been obstructing,
+I'm disinclined to drop it now in order to help meet their latest fancy.
 
-Also, as already mentioned, that compiled-in PCI quirk is _wrong_. The 
-fact that somebody asked for SCSI_SATA should not change Intel settings. 
-Maybe somebody hass a separate SATA card, and has enabled support for 
-_that_, but wants the on-board thing to work with legacy drivers? The way 
-he'd have done that is to enable SCSI_SATA, but _not_ enable 
-SCSI_ATA_PIIX.
+> Would it be reasonable to ask
+> that the current patch be included and then I work up another patch
+> which introduces a ->nopfn type change for the -mm tree?
 
-So regardless, that PCI quirk is wrong wrong _wrong_.
+I'm definitely not in charge here, and cannot answer that.  But I
+think it's unlikely, unless Linus and Andrew are pretty sure that
+what you have now is really the way they want to go in the long term.
 
-Btw, if you want to really hide things (and not just gray them out) I 
-think you should do a
+You will, as ever, be entitled to apply your patch on top of 2.6.15
+(but it may not apply without some changes).
 
-	menu "SATA low-level drivers"
-		depends on SCSI_SATA != n
+Repeating a technical question (sorry, that now seems off-topic!):
+what do you expect to happen with PROT_WRITE, MAP_PRIVATE?
 
-	..
-
-	endmenu
-
-around the SATA drivers.
-
-> Because it's fundamental a boolean, and has -zero- to do with modules.
-> Encouraging people to think otherwise will just lead to more confusion.
-
-I disagree. It is no more fundamentally boolean than anything else that 
-controls modules. It's a tristate, because it chooses between the 
-low-level drivers being tristate.
-
-I also think that the _only_ thing your ugly patch fixes was totally wrong 
-for wholly other reasons anyway. If that quirk is needed, it really looks 
-like it should be
-
-	#if defined(CONFIG_SCSI_SATA_PIIX) || defined(CONFIG_SCSI_SATA_PIIX_MODULE)
-	..
-	#endif
-
-or something like that. It has _nothing_ to do with whether the user has 
-enabled SATA or not.
-
-		Linus
+Hugh

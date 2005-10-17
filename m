@@ -1,93 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750917AbVJQTT1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751046AbVJQTVp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750917AbVJQTT1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 15:19:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751046AbVJQTT0
+	id S1751046AbVJQTVp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 15:21:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbVJQTVp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 15:19:26 -0400
-Received: from mail-haw.bigfish.com ([12.129.199.61]:12677 "EHLO
-	mail33-haw-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S1750917AbVJQTT0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 15:19:26 -0400
-X-BigFish: V
-Message-ID: <4353F936.3090406@am.sony.com>
-Date: Mon, 17 Oct 2005 12:19:18 -0700
-From: Tim Bird <tim.bird@am.sony.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: "Bird, Tim" <Tim.Bird@am.sony.com>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, tglx@linutronix.de, george@mvista.com,
-       linux-kernel@vger.kernel.org, johnstul@us.ibm.com, paulmck@us.ibm.com,
-       hch@infradead.org, oleg@tv-sign.ru
-Subject: Re: [PATCH]  ktimers subsystem 2.6.14-rc2-kt5
-References: <Pine.LNX.4.61.0510171948040.1386@scrub.home>
-In-Reply-To: <Pine.LNX.4.61.0510171948040.1386@scrub.home>
-Content-Type: text/plain; charset=UTF-8
+	Mon, 17 Oct 2005 15:21:45 -0400
+Received: from smtp3.Stanford.EDU ([171.67.16.138]:995 "EHLO
+	smtp3.Stanford.EDU") by vger.kernel.org with ESMTP id S1751046AbVJQTVo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 15:21:44 -0400
+Subject: Re: 2.6.14-rc4-rt7
+From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: cc@ccrma.Stanford.EDU, nando@ccrma.Stanford.EDU,
+       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       david singleton <dsingleton@mvista.com>,
+       Steven Rostedt <rostedt@goodmis.org>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark Knecht <markknecht@gmail.com>
+In-Reply-To: <20051017160536.GA2107@elte.hu>
+References: <20051017160536.GA2107@elte.hu>
+Content-Type: text/plain
+Date: Mon, 17 Oct 2005 12:21:25 -0700
+Message-Id: <1129576885.4720.3.camel@cmn3.stanford.edu>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-Antivirus: Scanned by F-Prot Antivirus (http://www.f-prot.com)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel wrote:
-> } > > Calling them "process timer" and "kernel timer" would include
-> their main 
-> } > > usage, although that also means ptimer were the more correct
-> abbreviation.
-> } > 
-> } > As said before I think the disctinction between timers and timeouts
-> } > makes perfectly sense and ktimers are _not_ restricted to process
-> } > timers. 
-> } 
-> } "main usage" != "restricted to"
+On Mon, 2005-10-17 at 18:05 +0200, Ingo Molnar wrote:
+> i have released the 2.6.14-rc4-rt7 tree, which can be downloaded from 
+> the usual place:
 > 
-> IOW I didn't say that "process timer" are restricted to processes, but 
-> it's their intended main usage. "kernel timer" are OTOH the first choice
+>   http://redhat.com/~mingo/realtime-preempt/
 > 
-> for any internal kernel time issues (which are not just timeouts).
+> the biggest change is the merging of "ktimers next step", a'ka the 
+> clockevents framework, from Thomas Gleixner. This is mostly a design 
+> cleanup of the existing timekeeping, timer and HRT codebase. One 
+> user-visible aspect is that the PIT timer is now available as a hres 
+> source too - APIC-less systems will find this useful.
 
-Maybe for a more experienced kernel person such as
-yourself, this distinction make sense.  But
-"process timer" and "kernel timer" don't carry much
-semantic value for me.  They seem to convey an
-arbitrary expectation of usage patterns.  Maybe
-they match the current usage patterns in the kernel,
-but I'd prefer naming based on functionality or
-behaviour of the API.
+Some feedback. It looks like the issues I was having are gone, no weird
+key repeats or screensaver activations __plus__ no problems so far with
+spurious warnings from Jack! Woohooo!!! (of course it may be that I
+start getting them as soon as I press send)
 
+[BTW, I'm running now with PREEMPT_RT as well].
+Thanks!!
+-- Fernando
 
-> There is of course a difference, but is it big enough that they deserve 
-> different APIs?
-
-IMHO yes.  I think having separate APIs will eventually be
-beneficial to allow better handling of resolution
-manipulation in the future.
-
-For example, timeouts are likely to need less resolution,
-and it may be valuable to adjust the resolution of timeouts
-to support coalescing timeouts for better tickless operation.
-(Driving towards better power management performance for
-embedded devices.)
-
-> Just look into <linux/timer.h> it doesn't mention timeout 
-> once, but according to Thomas that's our "timeout API". Look at the 
-> description of mod_timer() in timer.c: "modify a timer's timeout".
-> It seems I'm not only one who thinks that both are closely related.
-
-I'm not sure if you are arguing for renaming the
-old API.  I would be in favor of this (from an abstract
-perspective, to clarify the usage in the kernel), but
-it might be too big a change right now.
-
-Regards,
- -- Tim
-
-
-
-=============================
-Tim Bird
-Architecture Group Chair, CE Linux Forum
-Senior Staff Engineer, Sony Electronics
-=============================
 

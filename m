@@ -1,52 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932311AbVJQQDJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbVJQQFa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932311AbVJQQDJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 12:03:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932313AbVJQQDI
+	id S932315AbVJQQFa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 12:05:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbVJQQFa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 12:03:08 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:59337 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932311AbVJQQDH (ORCPT
+	Mon, 17 Oct 2005 12:05:30 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:10626 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932315AbVJQQF3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 12:03:07 -0400
-Date: Mon, 17 Oct 2005 09:02:57 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andi Kleen <ak@suse.de>
-cc: Andrew Morton <akpm@osdl.org>, Ravikiran G Thirumalai <kiran@scalex86.org>,
-       linux-kernel@vger.kernel.org, discuss@x86-64.org, tglx@linutronix.de,
-       shai@scalex86.org
-Subject: Re: x86_64: 2.6.14-rc4 swiotlb broken
-In-Reply-To: <200510171740.57614.ak@suse.de>
-Message-ID: <Pine.LNX.4.64.0510170901460.23590@g5.osdl.org>
-References: <20051017093654.GA7652@localhost.localdomain> <200510171153.56063.ak@suse.de>
- <Pine.LNX.4.64.0510170819290.23590@g5.osdl.org> <200510171740.57614.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 17 Oct 2005 12:05:29 -0400
+Date: Mon, 17 Oct 2005 18:05:36 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>,
+       david singleton <dsingleton@mvista.com>,
+       Steven Rostedt <rostedt@goodmis.org>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Mark Knecht <markknecht@gmail.com>
+Subject: 2.6.14-rc4-rt7
+Message-ID: <20051017160536.GA2107@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+i have released the 2.6.14-rc4-rt7 tree, which can be downloaded from 
+the usual place:
 
-On Mon, 17 Oct 2005, Andi Kleen wrote:
+  http://redhat.com/~mingo/realtime-preempt/
 
-> On Monday 17 October 2005 17:27, Linus Torvalds wrote:
-> > On Mon, 17 Oct 2005, Andi Kleen wrote:
-> > > The patch is actually not quite correct - in theory node 0 could be too
-> > > small to contain the full swiotlb bounce buffers.
-> >
-> > Is node 0 guaranteed to be all low-memory? What if it allocates stuff at
-> > the end of memory on NODE(0)?
-> 
-> This is 64bit ... only low memory.
+the biggest change is the merging of "ktimers next step", a'ka the 
+clockevents framework, from Thomas Gleixner. This is mostly a design 
+cleanup of the existing timekeeping, timer and HRT codebase. One 
+user-visible aspect is that the PIT timer is now available as a hres 
+source too - APIC-less systems will find this useful.
 
-Ehh.. No there isn't.
+otherwise, there are lots of fixes all across the spectrum.
 
-PCI DMA isn't magically 64-bit, even on your Opteron. 
+Changes since 2.6.14-rc4-rt1:
 
-So low memory in this case is anything < 32 bits. How many bits the CPU 
-has is immaterial.
+- clockevents framework (Thomas Gleixner)
 
-That's the whole _point_ of swtlb, after all, so I don't see why you 
-argue.
+- ktimer and HRT updates (Thomas Gleixner)
 
-		Linus
+- robust futex updates (David Singleton)
+
+- symbol export fixes (Steven Rostedt)
+
+- export tsc_c3_compensate for real (reported by Rui Nuno Capela)
+
+- fix for the nanosleep() -ERESTARTBLOCK bug
+  (reported by Fernando Lopez-Lezcano)
+
+- x64 latency tracer fixes (reported by Mark Knecht)
+
+- PRINTK_IGNORE_LOGLEVEL bugfix
+
+- various build fixes
+
+to build a 2.6.14-rc4-rt7 tree, the following patches should be applied:
+
+  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.13.tar.bz2
+  http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.14-rc4.bz2
+  http://redhat.com/~mingo/realtime-preempt/patch-2.6.14-rc4-rt7
+
+	Ingo

@@ -1,64 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932104AbVJQHkp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbVJQHrY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932104AbVJQHkp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 03:40:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbVJQHkp
+	id S932144AbVJQHrY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 03:47:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbVJQHrY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 03:40:45 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:59586 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932104AbVJQHko (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 03:40:44 -0400
-Date: Mon, 17 Oct 2005 03:38:49 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-To: linux-kernel@vger.kernel.org
-cc: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Esben Nielsen <simlo@phys.au.dk>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>, Matt Mackall <mpm@selenic.com>
-Subject: ketchup+rt with ktimers added.
-Message-ID: <Pine.LNX.4.58.0510170316310.5859@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 17 Oct 2005 03:47:24 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:54536 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932144AbVJQHrY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 03:47:24 -0400
+Date: Mon, 17 Oct 2005 08:47:17 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-rc4-mm1
+Message-ID: <20051017074717.GA24608@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+	linux-kernel@vger.kernel.org
+References: <20051016154108.25735ee3.akpm@osdl.org> <6bffcb0e0510161713l7c3abbdq@mail.gmail.com> <20051016201920.53db2b89.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051016201920.53db2b89.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Oct 16, 2005 at 08:19:20PM -0700, Andrew Morton wrote:
+> Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> > I have noticed some warnings while "make modules_install"
+> > 
+> > if [ -r System.map -a -x /sbin/depmod ]; then /sbin/depmod -ae -F
+> > System.map  2.6.14-rc4-mm1; fi
+> > WARNING: Module
+> > /lib/modules/2.6.14-rc4-mm1/kernel/drivers/serial/serial_core.ko
+> > ignored, due to loop
+> > WARNING: Module
+> > /lib/modules/2.6.14-rc4-mm1/kernel/drivers/serial/8250_pnp.ko ignored,
+> > due to loop
+> > WARNING: Module
+> > /lib/modules/2.6.14-rc4-mm1/kernel/drivers/serial/8250_pci.ko ignored,
+> > due to loop
+> > WARNING: Module
+> > /lib/modules/2.6.14-rc4-mm1/kernel/drivers/serial/8250_acpi.ko
+> > ignored, due to loop
+> > WARNING: Loop detected:
+> > /lib/modules/2.6.14-rc4-mm1/kernel/drivers/serial/8250.ko needs
+> > serial_core.ko which needs 8250.ko again!
+> > WARNING: Module
+> > /lib/modules/2.6.14-rc4-mm1/kernel/drivers/serial/8250.ko ignored, due
+> > to loop
+> 
+> Beats me.  Please send .config.
 
-Here's another update patch to ketchup based on Michal Schmidts patched
-version of Matt Mackall's ketchup at
-http://www.uamt.feec.vutbr.cz/rizeni/pom/ketchup-0.9+rt
-This patch adds Thomas Gleixner's ktimers (both base kt and HRT versions).
+It's good ole kgdb.  FWIW, Tom Rini's version which has been posted
+several times to lkml doesn't have this issue.
 
-Since the base version of Michal Schmidt's ketchup-0.9+rt didn't include
-Esben Nielsen's addition of handling Ingo's older kernels, I again
-included it with this patch.
-
--- Steve
-
---- ketchup-0.9+rt	2005-08-16 08:25:40.000000000 -0400
-+++ ketchup	2005-10-17 03:09:53.000000000 -0400
-@@ -311,7 +311,15 @@
-     '2.6-rt': (latest_dir,
-                 "http://people.redhat.com/mingo/realtime-preempt/patch-%(full)s",
- 		r'patch-(2.6.*?)',
--		0, "Ingo Molnar's realtime-preempt kernel")
-+		0, "Ingo Molnar's realtime-preempt kernel"),
-+    '2.6-kt': (latest_dir,
-+                "http://www.tglx.de/projects/ktimers/patch-%(full)s.patch",
-+		r'patch-(2.6.*?)',
-+		0, "Thomas Gleixner's ktimers."),
-+    '2.6-kthrt': (latest_dir,
-+                "http://www.tglx.de/projects/ktimers/patch-%(full)s.patch",
-+		r'patch-(2.6.*?)',
-+		0, "Thomas Gleixner's ktimers and HRT patches.")
-     }
-
- def version_url(ver, sign = 0):
-@@ -363,6 +371,7 @@
-
-     # the jgarzik memorial hack
-     url2 = re.sub("/snapshots/", "/snapshots/old/", url)
-+    url2 = re.sub("/realtime-preempt/", "/realtime-preempt/older/", url2)
-     if url2 != url:
-         if download(url2, file): return file
-         if url2[-4:] == ".bz2":
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

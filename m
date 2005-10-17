@@ -1,116 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbVJQXIV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751362AbVJQXQH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751321AbVJQXIV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 19:08:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751357AbVJQXIV
+	id S1751362AbVJQXQH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 19:16:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbVJQXQH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 19:08:21 -0400
-Received: from ams-iport-1.cisco.com ([144.254.224.140]:21345 "EHLO
-	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S1751321AbVJQXIU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 19:08:20 -0400
-To: gregkh@suse.de
-Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: [PATCH] PCI: Add pci_find_next_capability() to deal with >1 caps of
- same type
-X-Message-Flag: Warning: May contain useful information
-From: Roland Dreier <rolandd@cisco.com>
-Date: Mon, 17 Oct 2005 16:08:12 -0700
-Message-ID: <52mzl7pwrn.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-X-OriginalArrivalTime: 17 Oct 2005 23:08:13.0794 (UTC) FILETIME=[A67C9420:01C5D36F]
+	Mon, 17 Oct 2005 19:16:07 -0400
+Received: from hera.kernel.org ([140.211.167.34]:63162 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1751362AbVJQXQF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 19:16:05 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [RFC] RNG rewrite...
+Date: Mon, 17 Oct 2005 16:15:49 -0700 (PDT)
+Organization: Mostly alphabetical, except Q, with we do not fancy
+Message-ID: <dj1bb5$riu$1@terminus.zytor.com>
+References: <20051015043120.GA5946@plexity.net> <4350DCB1.7010201@pobox.com> <20051016005341.GB5946@plexity.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1129590949 28255 127.0.0.1 (17 Oct 2005 23:15:49 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Mon, 17 Oct 2005 23:15:49 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some devices have more than one capability of the same type.  For
-example, the PCI header for the PathScale InfiniPath looks like:
+Followup to:  <20051016005341.GB5946@plexity.net>
+By author:    Deepak Saxena <dsaxena@plexity.net>
+In newsgroup: linux.dev.kernel
+> 
+> It's a magic regsiter we just read/write and could be done in userspace.
+> I also took a look at MPC85xx and it has the same sort of interface but
+> also has an error interrupt capability. On second thought a class
+> interface is overkill b/c there will only be one RNG per system, so
+> I can just do something like watchdogs where we have a bunch of simple
+> drivers exposing the same interface. We could do it in user space but
+> then we have separate RNG implementations for  x86 and !x86 and I'd
+> rather not see that. Can we move the x86 code out to userspace and
+> just let the daemon eat the numbers directly from HW? We can mmap() 
+> PCI devices, but I don't know enough about x86 to say whether msr 
+> instructions can execute out of userspace (or if we want them to...).
+> 
 
-	04:01.0 InfiniBand: Unknown device 1fc1:000d (rev 02)
-		Subsystem: Unknown device 1fc1:000d
-		Flags: bus master, fast devsel, latency 0, IRQ 193
-		Memory at fea00000 (64-bit, non-prefetchable) [size=2M]
-		Capabilities: [c0] HyperTransport: Slave or Primary Interface
-		Capabilities: [f8] HyperTransport: Interrupt Discovery and Configuration
+MSR instructions cannot execute out of userspace, but the MSR driver
+might be possible to use.  It's usually quite slow, however.
 
-There are _two_ HyperTransport capabilities, and the PathScale driver
-wants to look at both of them.
-
-The current pci_find_capability() API doesn't work for this, since it
-only allows us to get to the first capability of a given type.  The
-patch below introduces a new pci_find_next_capability(), which can be
-used in a loop like
-
-	for (pos = pci_find_capability(pdev, <ID>);
-	     pos;
-	     pos = pci_find_next_capability(pdev, pos, <ID>)) {
-		/* ... */
-	}
-
-I made this an EXPORT_SYMBOL() instead of an EXPORT_SYMBOL_GPL() since
-it is a trivial wrapper around existing PCI functions, and I'd rather
-see people use a nice wrapper instead of recreating the function.
-
-Signed-off-by: Roland Dreier <rolandd@cisco.com>
-
----
-
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index 259d247..b852959 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -120,6 +120,33 @@ int pci_find_capability(struct pci_dev *
- }
- 
- /**
-+ * pci_find_next_capability - Find next capability after current position
-+ * @dev: PCI device to query
-+ * @pos: Position to search from
-+ * @cap: capability code
-+ */
-+int pci_find_next_capability(struct pci_dev *dev, u8 pos, int cap)
-+{
-+	u8 id;
-+	int ttl = 48;
-+
-+	while (ttl--) {
-+		pci_read_config_byte(dev, pos + PCI_CAP_LIST_NEXT, &pos);
-+		pos &= ~3;
-+		if (pos < 0x40)
-+			break;
-+		pci_read_config_byte(dev, pos + PCI_CAP_LIST_ID, &id);
-+		if (id == 0xff)
-+			break;
-+		if (id == cap)
-+			return pos;
-+	}
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL(pci_find_next_capability);
-+
-+/**
-  * pci_bus_find_capability - query for devices' capabilities 
-  * @bus:   the PCI bus to query
-  * @devfn: PCI device to query
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 7349058..8016d14 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -337,6 +337,7 @@ struct pci_dev *pci_find_device (unsigne
- struct pci_dev *pci_find_device_reverse (unsigned int vendor, unsigned int device, const struct pci_dev *from);
- struct pci_dev *pci_find_slot (unsigned int bus, unsigned int devfn);
- int pci_find_capability (struct pci_dev *dev, int cap);
-+int pci_find_next_capability (struct pci_dev *dev, u8 pos, int cap);
- int pci_find_ext_capability (struct pci_dev *dev, int cap);
- struct pci_bus * pci_find_next_bus(const struct pci_bus *from);
- 
-@@ -546,6 +547,7 @@ static inline int pci_assign_resource(st
- static inline int pci_register_driver(struct pci_driver *drv) { return 0;}
- static inline void pci_unregister_driver(struct pci_driver *drv) { }
- static inline int pci_find_capability (struct pci_dev *dev, int cap) {return 0; }
-+static inline int pci_find_next_capability (struct pci_dev *dev, u8 post, int cap) {return 0; }
- static inline int pci_find_ext_capability (struct pci_dev *dev, int cap) {return 0; }
- static inline const struct pci_device_id *pci_match_device(const struct pci_device_id *ids, const struct pci_dev *dev) { return NULL; }
- 
+	-hpa

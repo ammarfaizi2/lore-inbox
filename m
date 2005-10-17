@@ -1,63 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751074AbVJQR4Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751183AbVJQR6O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751074AbVJQR4Y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 13:56:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751234AbVJQR4Y
+	id S1751183AbVJQR6O (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 13:58:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751234AbVJQR6N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 13:56:24 -0400
-Received: from wproxy.gmail.com ([64.233.184.207]:33646 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751074AbVJQR4X (ORCPT
+	Mon, 17 Oct 2005 13:58:13 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:56087 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751183AbVJQR6N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 13:56:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=DHtIjsOoEbGVujFPEy7wQF9I+/a4Dfa1rKH+alPVE07qx6byNWBSZpYp2bXaXeVJ1Yi5c8oD0InTmwEexdNiVsN+8IKpv5b40X9A+oCr5wEfQV4NM/lxrs7XT+1JLYGqyL0cQChUmvm8cBuw6Usz8PgY+sfCSBNbPghqSTEgi2s=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Andrew Vasquez <andrew.vasquez@qlogic.com>
-Subject: [PATCH] fix implicit declaration compile warning in qla2xxx
-Date: Mon, 17 Oct 2005 19:59:23 +0200
-User-Agent: KMail/1.8.2
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Mon, 17 Oct 2005 13:58:13 -0400
+Date: Mon, 17 Oct 2005 19:58:59 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/1] indirect function calls elimination in IO scheduler
+Message-ID: <20051017175858.GY2811@suse.de>
+References: <6694B22B6436BC43B429958787E454988F5B44@mssmsx402nb>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200510171959.23585.jesper.juhl@gmail.com>
+In-Reply-To: <6694B22B6436BC43B429958787E454988F5B44@mssmsx402nb>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 17 2005, Ananiev, Leonid I wrote:
+> Jens Axboe writes
+> 
+> > I don't really see the patch doing what you describe - the indirect
+> > function calls are the same.
+> 
+> For example on Pentium4 in the function elv_next_request() the line
+>             struct request *rq =
+> q->elevator->ops->elevator_next_req_fn(q);
+> before patch had required 11% of function running time as oprofile
+> reports
+>            %
+>     26  0.0457 :c0270ecb:       mov    0xc(%edi),%eax
+>   3455  6.0670 :c0270ece:       mov    (%eax),%eax
+>   2848  5.0011 :c0270ed0:       mov    %edi,(%esp)
+>   1538  2.7008 :c0270ed3:       call   *0xc(%eax)
+> 
+> 	A patch which would delete all indirect calls was tryed
+>         struct request *rq = q->elevator_cp.ops.elevator_next_req_fn(q);
+>      9  0.0224 :c0270eea:       mov    %edi,(%esp)
+>   3814  9.4793 :c0270eed:       call   *0x18(%edi)
+> 
+> But additional memory would be needed for 'ops' in each queue. The
+> intermediate (proposed) patch has the same timing effect but saves some
+> memory:
+> 	struct request *rq =
+> q->elevator_cp.ops->elevator_next_req_fn(q);
+> drivers/block/elevator.c:351
+> ffffffff802a8b97:       49 8b 44 24 18          mov    0x18(%r12),%rax
+> ffffffff802a8b9c:       4c 89 e7                mov    %r12,%rdi
+> ffffffff802a8b9f:       ff 50 18                callq  *0x18(%rax)
 
-Fix warning about implicitly declared function in qla_rscn.c
-  drivers/scsi/qla2xxx/qla_rscn.c:334: warning: implicit declaration of function `fc_remote_port_unblock'
+But with the patch proposed, the function call is still indirect. You
+are only moving eliminating a dereference of elevator-> since that is
+now inlined in the queue. That matches your asm, you eliminate one mov
+there.
 
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
+I'm guessing you are testing this with your NULL driver, which is why
+the difference is so 'huge' in profiling. And you are probably using
+noop, correct? I don't see a lot of real world relevance to this
+testing to be honest, the io path isn't completely lean with the regular
+io schedulers either and I bet this would be noise on real world
+testing. Micro benchmarks are all fine, but they only say so much. And
+as I originally stated, this patch is a no-go from the beginning since
+you cannot ref count a statically embedded structure. It has to be
+dynamically allocated.
 
- drivers/scsi/qla2xxx/qla_rscn.c |    1 +
- 1 files changed, 1 insertion(+)
+So if you are really interested in this and have a valid reason to
+pursue it, please think more about other ways to solve this.
 
---- linux-2.6.14-rc4-mm1-orig/drivers/scsi/qla2xxx/qla_rscn.c	2005-10-11 22:41:20.000000000 +0200
-+++ linux-2.6.14-rc4-mm1/drivers/scsi/qla2xxx/qla_rscn.c	2005-10-17 19:53:50.000000000 +0200
-@@ -17,6 +17,7 @@
-  *
-  */
- #include "qla_def.h"
-+#include <scsi/scsi_transport_fc.h>
- 
- /**
-  * IO descriptor handle definitions.
-
-
-
-
-
-/Jesper Juhl
-
-
-PS. 
- Please CC me on replies.
-
+-- 
+Jens Axboe
 

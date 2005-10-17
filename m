@@ -1,60 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751323AbVJQNjT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932280AbVJQNmd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751323AbVJQNjT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 09:39:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbVJQNjT
+	id S932280AbVJQNmd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 09:42:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbVJQNmd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 09:39:19 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:20921 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751323AbVJQNjS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 09:39:18 -0400
-Date: Mon, 17 Oct 2005 19:03:14 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: Jean Delvare <khali@linux-fr.org>, torvalds@osdl.org,
-       Serge Belyshev <belyshev@depni.sinp.msu.ru>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: [RCU problem] was VFS: file-max limit 50044 reached
-Message-ID: <20051017133314.GA20784@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <Pine.LNX.4.64.0510161912050.23590@g5.osdl.org> <JTFDVq8K.1129537967.5390760.khali@localhost> <20051017084609.GA6257@in.ibm.com> <43536A6C.102@cosmosbay.com> <20051017103244.GB6257@in.ibm.com> <435394A1.7000109@cosmosbay.com> <20051017123655.GD6257@in.ibm.com> <4353A6F6.9050205@cosmosbay.com>
+	Mon, 17 Oct 2005 09:42:33 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:35219 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751328AbVJQNmc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 09:42:32 -0400
+Date: Mon, 17 Oct 2005 14:42:28 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "Kolli, Neela Syam" <Neela.Kolli@engenio.com>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       linux-scsi@vger.kernel.org
+Subject: Re: [PATCH 2/2] Convert megaraid to use pci_driver shutdown metho d
+Message-ID: <20051017134228.GA31938@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Kolli, Neela Syam" <Neela.Kolli@engenio.com>,
+	Russell King <rmk+lkml@arm.linux.org.uk>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+	linux-scsi@vger.kernel.org
+References: <0E3FA95632D6D047BA649F95DAB60E5707232141@exa-atlanta>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4353A6F6.9050205@cosmosbay.com>
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E5707232141@exa-atlanta>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 17, 2005 at 03:28:22PM +0200, Eric Dumazet wrote:
-> Dipankar Sarma a écrit :
-> >On Mon, Oct 17, 2005 at 02:10:09PM +0200, Eric Dumazet wrote:
-> >
-> >
-> >Can you try it with rcupdate.maxbatch set to 10000 in boot
-> >command line ?
-> >
-> 
-> Changing maxbatch from 10 to 10000 cures the problem.
-> Maybe we could initialize maxbatch to (10000000/HZ), considering no current 
-> cpu is able to queue more than 10.000.000 items per second in a list.
+On Mon, Oct 17, 2005 at 09:26:12AM -0400, Kolli, Neela Syam wrote:
+> Patch looks good.  Thanks for the patch.
 
-I don't know, maybe I can look at a more adaptive heuristics.
+another 2.6.14 candidate, without it we'd easily get corruption
+on shutdown when the root filesystem is on megaraid.
 
+> From: Russell King [mailto:rmk+lkml@arm.linux.org.uk] 
+> Sent: Sunday, October 16, 2005 4:33 PM
+> To: Linux Kernel List; Andrew Morton; Greg KH; Neela.Kolli@engenio.com
+> Subject: Re: [PATCH 2/2] Convert megaraid to use pci_driver shutdown method
 > 
+> Convert megaraid to use pci_driver's shutdown method rather than
+> the generic device_driver shutdown method.
 > 
-> >FWIW, the open/close test problem goes away if I set maxbatch to
-> >10000. I had introduced this limit some time ago to curtail
-> >the effect long running softirq handlers have on scheduling
-> >latencies, which now conflicts with OOM avoidance requirements.
+> Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
 > 
-> Yes, and probably OOM avoidance has a higher priority than latencies in DOS 
-> situations...
-
-Yes, one would think. But the audio guys would chew my head for this :)
-
-Thanks
-Dipankar
+> diff --git a/drivers/scsi/megaraid/megaraid_mbox.c
+> b/drivers/scsi/megaraid/megaraid_mbox.c
+> --- a/drivers/scsi/megaraid/megaraid_mbox.c
+> +++ b/drivers/scsi/megaraid/megaraid_mbox.c
+> @@ -76,7 +76,7 @@ static void megaraid_exit(void);
+>  
+>  static int megaraid_probe_one(struct pci_dev*, const struct pci_device_id
+> *);
+>  static void megaraid_detach_one(struct pci_dev *);
+> -static void megaraid_mbox_shutdown(struct device *);
+> +static void megaraid_mbox_shutdown(struct pci_dev *);
+>  
+>  static int megaraid_io_attach(adapter_t *);
+>  static void megaraid_io_detach(adapter_t *);
+> @@ -369,9 +369,7 @@ static struct pci_driver megaraid_pci_dr
+>  	.id_table	= pci_id_table_g,
+>  	.probe		= megaraid_probe_one,
+>  	.remove		= __devexit_p(megaraid_detach_one),
+> -	.driver		= {
+> -		.shutdown	= megaraid_mbox_shutdown,
+> -	}
+> +	.shutdown	= megaraid_mbox_shutdown,
+>  };
+>  
+>  
+> @@ -673,9 +671,9 @@ megaraid_detach_one(struct pci_dev *pdev
+>   * Shutdown notification, perform flush cache
+>   */
+>  static void
+> -megaraid_mbox_shutdown(struct device *device)
+> +megaraid_mbox_shutdown(struct pci_dev *pdev)
+>  {
+> -	adapter_t		*adapter =
+> pci_get_drvdata(to_pci_dev(device));
+> +	adapter_t		*adapter = pci_get_drvdata(pdev);
+>  	static int		counter;
+>  
+>  	if (!adapter) {
+> 

@@ -1,51 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbVJQI1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbVJQIoa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932204AbVJQI1y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 04:27:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbVJQI1y
+	id S932215AbVJQIoa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 04:44:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbVJQIoa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 04:27:54 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:29657 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932204AbVJQI1x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 04:27:53 -0400
-Date: Mon, 17 Oct 2005 04:26:24 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-To: Thomas Gleixner <tglx@linutronix.de>
-cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]  ktimers subsystem 2.6.14-rc2-kt5
-In-Reply-To: <20051017075917.GA4827@elte.hu>
-Message-ID: <Pine.LNX.4.58.0510170424400.5859@localhost.localdomain>
-References: <20050928224419.1.patchmail@tglx.tec.linutronix.de>
- <Pine.LNX.4.61.0509301825290.3728@scrub.home> <1128168344.15115.496.camel@tglx.tec.linutronix.de>
- <Pine.LNX.4.61.0510100213480.3728@scrub.home> <1129016558.1728.285.camel@tglx.tec.linutronix.de>
- <Pine.LNX.4.61.0510130004330.3728@scrub.home> <434DA06C.7050801@mvista.com>
- <Pine.LNX.4.61.0510150143500.1386@scrub.home> <1129490809.1728.874.camel@tglx.tec.linutronix.de>
- <Pine.LNX.4.61.0510170021050.1386@scrub.home> <20051017075917.GA4827@elte.hu>
+	Mon, 17 Oct 2005 04:44:30 -0400
+Received: from [213.91.10.50] ([213.91.10.50]:41944 "EHLO zone4.gcu-squad.org")
+	by vger.kernel.org with ESMTP id S932215AbVJQIo3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 04:44:29 -0400
+X-DomainKeys: Sendmail DomainKeys Filter v0.3.0 zone4.gcu-squad.org j9H8Wnp6024750
+X-DKIM: Sendmail DKIM Filter v0.1.1 zone4.gcu-squad.org j9H8Wnp6024750
+Date: Mon, 17 Oct 2005 10:32:47 +0200 (CEST)
+To: torvalds@osdl.org, dipankar@in.ibm.com
+Subject: Re: VFS: file-max limit 50044 reached
+X-IlohaMail-Blah: khali@localhost
+X-IlohaMail-Method: mail() [mem]
+X-IlohaMail-Dummy: moo
+X-Mailer: IlohaMail/0.8.14 (On: webmail.gcu.info)
+Message-ID: <JTFDVq8K.1129537967.5390760.khali@localhost>
+In-Reply-To: <Pine.LNX.4.64.0510161912050.23590@g5.osdl.org>
+From: "Jean Delvare" <khali@linux-fr.org>
+Bounce-To: "Jean Delvare" <khali@linux-fr.org>
+CC: "Serge Belyshev" <belyshev@depni.sinp.msu.ru>,
+       LKML <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>,
+       "Manfred Spraul" <manfred@colorfullife.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Greylist: Sender is SPF-compliant, not delayed by milter-greylist-2.0.1 (zone4.gcu-squad.org [127.0.0.1]); Mon, 17 Oct 2005 10:32:50 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Trivial "stupid" patch.  MAKE Makefile HAVE -kt($num)!!!!
+Hi Linus, Dipankar, all,
 
-This will help with ketchup :-)
+On 2005-10-17, Linus Torvalds wrote:
+> I would _really_ prefer to not do this in the system call hot-path by
+> default. That is unquestionably the hottest path in the kernel by far.
+>
+> It would be _much_ better to set one of the TIF_WORK flags when there's a
+> lot of RCU stuff, and do this all in the not-quit-so-hot path of
+> do_notify_resume() (on x86, I think others call it other things) instead.
+>
+> If you use the same kind of "set the TIF flag every 1000 rcu events"
+> approach that my failed patch had, you'd be much better off.
+>
+> In fact, in that path you could even do a full "rcu_process_callbacks()".
+> After all, this is not that different from signal handling.
+>
+> Gaah. I had really hoped to release 2.6.14 tomorrow. It's been a week
+> since -rc4.
 
--- Steve
+Isn't reverting the original change an option? 2.6.13 was working OK if
+I'm not mistaken.
 
-Index: linux-2.6.14-rc4-kt2/Makefile
-===================================================================
---- linux-2.6.14-rc4-kt2.orig/Makefile	2005-10-17 10:14:26.000000000 +0200
-+++ linux-2.6.14-rc4-kt2/Makefile	2005-10-17 10:15:12.000000000 +0200
-@@ -1,7 +1,7 @@
- VERSION = 2
- PATCHLEVEL = 6
- SUBLEVEL = 14
--EXTRAVERSION =-rc4
-+EXTRAVERSION =-rc4-kt2
- NAME=Affluent Albatross
-
- # *DOCUMENTATION*
-
+Thanks,
+--
+Jean Delvare

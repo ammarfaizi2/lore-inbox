@@ -1,47 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbVJQTFF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbVJQTFh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932261AbVJQTFF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 15:05:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932263AbVJQTFF
+	id S932270AbVJQTFh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 15:05:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932267AbVJQTFh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 15:05:05 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:37282 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932261AbVJQTFB (ORCPT
+	Mon, 17 Oct 2005 15:05:37 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:62891 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932270AbVJQTFg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 15:05:01 -0400
-Date: Mon, 17 Oct 2005 21:04:46 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: linux@horizon.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]  ktimers subsystem 2.6.14-rc2-kt5
-In-Reply-To: <20051017183834.32695.qmail@science.horizon.com>
-Message-ID: <Pine.LNX.4.61.0510172050460.1386@scrub.home>
-References: <20051017183834.32695.qmail@science.horizon.com>
+	Mon, 17 Oct 2005 15:05:36 -0400
+Date: Mon, 17 Oct 2005 12:04:17 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Muli Ben-Yehuda <mulix@mulix.org>
+cc: Andi Kleen <ak@suse.de>, discuss@x86-64.org,
+       Ravikiran G Thirumalai <kiran@scalex86.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       tglx@linutronix.de, shai@scalex86.org, clameter@engr.sgi.com,
+       muli@il.ibm.com, jdmason@us.ibm.com
+Subject: Re: [discuss] Re: x86_64: 2.6.14-rc4 swiotlb broken
+In-Reply-To: <20051017184523.GB26239@granada.merseine.nu>
+Message-ID: <Pine.LNX.4.64.0510171200490.3369@g5.osdl.org>
+References: <20051017093654.GA7652@localhost.localdomain> <200510172008.24669.ak@suse.de>
+ <20051017182755.GA26239@granada.merseine.nu> <200510172032.45972.ak@suse.de>
+ <20051017184523.GB26239@granada.merseine.nu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Mon, 17 Oct 2005 linux@horizon.com wrote:
 
-> > - "timer API" vs "timeout API": I got absolutely no acknowlegement that 
-> > this might be a little confusing and in consequence "process timer" may be 
-> > a better name.
+On Mon, 17 Oct 2005, Muli Ben-Yehuda wrote:
+>
+> On Mon, Oct 17, 2005 at 08:32:45PM +0200, Andi Kleen wrote:
 > 
-> I have to disagree.  Once you grasp the desirability of having two kinds
-> of timers, one optimized for the case where it does expire, and one
-> optimized for the case where it is aborted or rescheduled before its
-> expiration time, the timer/timeout terminology seems quite intuitive
-> to me.
+> > > and would like to be able to run 2.6.14 on them when it 
+> > > comes out...
+> > 
+> > So you're saying you tested it and it doesn't work? 
+> 
+> Not quite; I'm saying that form the description up-thread it sounds
+> like there's a good chance it won't. Jon Mason (CC'd) has access to
+> such a  machine. Jon, can you please try the latest hg tree with and
+> without the patch and see how it fares?
 
-Thank you, that's exactly the confusion, I'd like to avoid.
+NOTE! Even if the machine has 4GB or more of memory, it's entirely likely 
+that the quick "use NODE(0)" hack will work fine. 
 
-The main difference is in their possible resolution: kernel timer are a 
-low resolution, low overhead timer optimized for kernel needs and process 
-timer have a larger resolution mainly for applications, but this also 
-implies a larger overhead (i.e. more expensive locking).
+Why? Because the bootmem memory should still be allocated low-to-high by 
+default, which means that as logn as NODE(0) has _enough_ memory in the 
+DMA range, we should be ok.
 
-bye, Roman
+So I _think_ the simple one-liner NODE(0) patch is sufficient, and should 
+work (and is a lot more acceptable for 2.6.14 than switching the node 
+ordering around yet again, or doing bigger surgery on the bootmem code).
+
+So the only thing that worried me (and made me ask whether there might be 
+machines where it doesn't work) is if some machines might have their high 
+memory (or no memory at all) on NODE(0). It does sound unlikely, but I 
+simple don't know what kind of strange NUMA configs there are out there.
+
+And I'm definitely only interested in machines that are out there, not 
+some theoretical issues.
+
+			Linus

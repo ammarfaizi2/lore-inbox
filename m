@@ -1,124 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751403AbVJQXoE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751404AbVJQXpj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751403AbVJQXoE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 19:44:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751404AbVJQXoE
+	id S1751404AbVJQXpj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 19:45:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbVJQXpj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 19:44:04 -0400
-Received: from soundwarez.org ([217.160.171.123]:20106 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S1751403AbVJQXoD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 19:44:03 -0400
-Date: Tue, 18 Oct 2005 01:44:00 +0200
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Adam Belay <ambx1@neo.rr.com>, Greg KH <gregkh@suse.de>,
-       dtor_core@ameritech.net, Vojtech Pavlik <vojtech@suse.cz>,
-       Hannes Reinecke <hare@suse.de>,
-       Patrick Mochel <mochel@digitalimplant.org>, airlied@linux.ie,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 0/8] Nesting class_device patches that actually work
-Message-ID: <20051017234400.GA2457@vrfy.org>
-References: <20051013020844.GA31732@kroah.com> <20051013105826.GA11155@vrfy.org> <d120d5000510131435m7b27fe59l917ac3e11b2458c8@mail.gmail.com> <20051014084554.GA19445@vrfy.org> <d120d5000510141002v67a06900m219b47246c1d92c1@mail.gmail.com> <20051015150855.GA7625@vrfy.org> <20051017214430.GA5193@suse.de> <20051017232430.GA32655@neo.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 17 Oct 2005 19:45:39 -0400
+Received: from wproxy.gmail.com ([64.233.184.207]:24847 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751404AbVJQXpi convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 19:45:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=T266UFJ9/G0a3eR1z9rmi94ie3D9D527WVL7NBaMhfSg3gFnFPRe+kfVFnys9vcwyEQGBTdy1EyWrS34inyD18itnTP5OURbxkHrsWOAIGOWZ12mz8GITFFoa9dMLq5S479257iwqpb5G27yljhnVzyjuou/q2TOtJejvuJAmx4=
+Message-ID: <cc9bf44d0510171645t78aaa572h6b7a8521f2d76939@mail.gmail.com>
+Date: Tue, 18 Oct 2005 09:15:36 +0930
+From: Paul Schulz <pschulz01@gmail.com>
+Reply-To: paul@mawsonlakes.org
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.13] pxa-regs: Typo in ARM pxa register definitions.
+Cc: trivial@rustcorp.com.au
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051017232430.GA32655@neo.rr.com>
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 17, 2005 at 07:24:30PM -0400, Adam Belay wrote:
-> On Mon, Oct 17, 2005 at 02:44:30PM -0700, Greg KH wrote:
-> > On Sat, Oct 15, 2005 at 05:08:55PM +0200, Kay Sievers wrote:
-> > > A lot! From general distro specific system-management to subsystem specific
-> > > setup tools and tons of udev rules... There is definitely no chance to break
-> > > /sys/class in _all_ subsystems by introducing subdirectories.
-> > 
-> > I agree.
-> > 
-> > > > Btw, is your proposal with moving it all into /sys/device less drastic?
-> > > 
-> > > Definitely, cause it keeps all the curent api! The only difference is that class-devices
-> > > are reached by symlinks instead of real directories. The pathes to the devices are
-> > > the same!
-> > 
-> > Ok, I've spent a while thinking about this proposal and originally I
-> > thought it was the same thing we had heard years ago.  But I was wrong,
-> > moving the class stuff into the device tree is the right thing to do, as
-> > long as we keep them as new "things" in the tree (previous proposals
-> > just had the /sys/class stuff as symlinks pointing to the devices
-> > themselves, which would not work for a range of reasons.)
-> > 
-> > So, what to do now?  Here's my proposal for the future.
-> > 
-> > We figure out some way to agree on the input stuff, using class_device
-> > and get that into 2.6.15.  Personally, I like the stuff I just did and
-> > is in the -mm tree :)
-> > 
-> > But, if you think we can't break userspace by adding nested class
-> > devices just yet, I agree, and can probably just put a symlink in
-> > /sys/class/input to the nested devices, which will make everything "just
-> > work".  I'll try that out later tonight and let you all know how it
-> > goes.
-> > 
-> > Then, we move the class stuff into real devices.  There was always a lot
-> > of duplication with the class and device code, and this shows that there
-> > is a commonality there.  At the same time, I'll work on making the
-> > attribute stuff easier and possibly merge the kobject and device
-> > structures together a bit (possibly I said, I don't know quite how much
-> > yet...)
+Greetings,
+The following trivial patch is to fix what looks like a typo in the PXA register
+definitions. The correction comes directly from the definition in the
+Intel Documentation.
 
-Yeah, would be nice if we can share the attribute define/create/grouping
-stuff over all devices. Currently we have device/class/block attribute
-management which are all do almost the same.
+   http://www.intel.com/design/pca/applicationsprocessors/manuals/278693.htm
+   Intel(R) PXA 255 Processor - Developers Manual - Jan 2004 - Page 12-33
 
-> > But this second step is going to take a while, have to not break
-> > everything along the way, and should hopefully clean up a lot of mess
-> > tht the current driver core has.  I'd be glad to do it :)
-> > 
-> > Acceptable to everyone?
-> 
-> Sounds good to me.  The changes to driver model internals may be substantial.
+Neither 'UDCCS_IO_ROF' or 'UDCCS_IO_DME' are currently used elseware
+in the main code (from grep of tree)... The current definitions have been
+in the code since at lease 2.4.7.
 
-Sounds very good to me too. :)
-I like to see the "dynamic input" as soon as possible in the tree, as I'm
-waiting for more than a year now to get rid of the old stuff in udev
-only kept there for "input". :)
+ Paul Schulz  <paul@mawsonlakes.org>
+ ---
+ diff -Nuar linux-2.6.13.orig/include/asm-arm/arch-pxa/pxa-regs.h
+linux-2.6.13/include/asm-arm/arch-pxa/pxa-regs.h
+ --- linux-2.6.13.orig/include/asm-arm/arch-pxa/pxa-regs.h      
+2005-08-31 11:40:22.000000000 +0930
+ +++ linux-2.6.13/include/asm-arm/arch-pxa/pxa-regs.h    2005-10-13
+15:04:52.141864488 +0930
+ @@ -652,7 +652,7 @@
 
-/sys/class/input/ and /sys/class/input_device/ and a matching SUBSYSTEM
-value would be the easiest for userspace without much breakage involved.
-That would give us a /sbin/hotplug-fork free driver core and we can
-start rearranging stuff.
+  #define UDCCS_IO_RFS   (1 << 0)        /* Receive FIFO service */
+  #define UDCCS_IO_RPC   (1 << 1)        /* Receive packet complete */
+ -#define UDCCS_IO_ROF   (1 << 3)        /* Receive overflow */
+ +#define UDCCS_IO_ROF   (1 << 2)        /* Receive overflow */
+  #define UDCCS_IO_DME   (1 << 3)        /* DMA enable */
+  #define UDCCS_IO_RNE   (1 << 6)        /* Receive FIFO not empty */
+  #define UDCCS_IO_RSP   (1 << 7)        /* Receive short packet */
 
-> For example, because buses and classes will share more code, it's
-> reasonable to allow drivers to bind to any "device" object, even class
-> devices.  Of course this would be limited to classes that choose to
-> implement driver matching etc.  We are doing this now with the pci express
-> port driver.
 
-We should try this, it feels like "buses" can easily become "classes",
-like the SUBSYSTEM value already looks these days. We'll see...
-
-> It also may make sense to move bus_types to the "class" interface.  The
-> layered classes suggestion is especially useful here because we can have a
-> "hardware" or "bus" class that acts as a parent for "pci", "usb", etc.
-> 
-> Also, we could make driver objects a "class" and represent them in the
-> global device tree, giving each driver instance its own unique namespace.
-> 
-> > 
-> > Oh, one tiny problem.  "virtual devices" are not currently represented
-> > in our device tree, but are in the class tree.  Things like the
-> > different vc and ttys and misc devices are examples of this.  I'll just
-> > put them on the "platform" bus if no one minds.
-> 
-> I think we should be trying to kill off the platform bus (it's artifical and
-> doesn't show the real relationships between these devices).  Instead, just
-> hang them off the root of the tree.  If the device doesn't have any parents
-> or dependencies, then that's logically where it belongs.
-
-We do the same in HAL every unconnected object just lives in the root of
-the device tree.
-
-Thanks,
-Kay
+Signed-off-by: Paul Schulz <paul@mawsonlakes.org>

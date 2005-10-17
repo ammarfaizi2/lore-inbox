@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbVJQJar@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbVJQJa7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932231AbVJQJar (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 05:30:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932232AbVJQJar
+	id S932224AbVJQJa7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 05:30:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932227AbVJQJa7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 05:30:47 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:56009 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S932231AbVJQJaq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 05:30:46 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <4353705D.6060809@s5r6.in-berlin.de>
-Date: Mon, 17 Oct 2005 11:35:25 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.11) Gecko/20050728
-X-Accept-Language: de, en
+	Mon, 17 Oct 2005 05:30:59 -0400
+Received: from gw1.cosmosbay.com ([62.23.185.226]:34458 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S932224AbVJQJa6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 05:30:58 -0400
+Message-ID: <43536E01.8030203@cosmosbay.com>
+Date: Mon, 17 Oct 2005 11:25:21 +0200
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-To: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-CC: Andrew Morton <akpm@osdl.org>, Jesse Barnes <jbarnes@virtuousgeek.org>
-Subject: Re: ohci1394 unhandled interrupts bug in 2.6.14-rc2
-References: <20051015185502.GA9940@plato.virtuousgeek.org>	<43515ADA.6050102@s5r6.in-berlin.de>	<20051015202944.GA10463@plato.virtuousgeek.org> <20051017005515.755decb6.akpm@osdl.org>
-In-Reply-To: <20051017005515.755decb6.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: (-1.196) AWL,BAYES_00
+To: Christoph Hellwig <hch@infradead.org>
+CC: dipankar@in.ibm.com, Jean Delvare <khali@linux-fr.org>, torvalds@osdl.org,
+       Serge Belyshev <belyshev@depni.sinp.msu.ru>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: VFS: file-max limit 50044 reached
+References: <Pine.LNX.4.64.0510161912050.23590@g5.osdl.org> <JTFDVq8K.1129537967.5390760.khali@localhost> <20051017084609.GA6257@in.ibm.com> <43536A6C.102@cosmosbay.com> <20051017091422.GA18882@infradead.org>
+In-Reply-To: <20051017091422.GA18882@infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Mon, 17 Oct 2005 11:25:22 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Jesse Barnes <jbarnes@virtuousgeek.org> wrote:
+Christoph Hellwig a écrit :
+> On Mon, Oct 17, 2005 at 11:10:04AM +0200, Eric Dumazet wrote:
 > 
->>diff -X linux-2.6.14-rc2/Documentation/dontdiff -Naur linux-2.6.14-rc2.orig/drivers/ieee1394/ohci1394.c linux-2.6.14-rc2/drivers/ieee1394/ohci1394.c
->>--- linux-2.6.14-rc2.orig/drivers/ieee1394/ohci1394.c	2005-09-19 20:00:41.000000000 -0700
->>+++ linux-2.6.14-rc2/drivers/ieee1394/ohci1394.c	2005-10-15 12:55:08.000000000 -0700
-[...]
->>+module_param(toshiba, bool, 0);
->>+MODULE_PARM_DESC(toshiba, "Toshiba Legacy-Free BIOS workaround (default=0).");
-[...]
-> It would be really really preferable if we could find some automatic way of
-> doing this.
+>>Dont take me wrong : I really *need* the file RCU stuff added in 2.6.14.
+> 
+> 
+> how so? and why should we care?  I'd rather see a 2.6.14 soon with
+> the changes backed out so we can have a proper release that more or
+> less sticks to the release schedule we agreed on at kernel summit.
+> You'll have four weeks time to sort out the issue afterwards.
+> -
 
-I agree.
+Christoph,
 
->  Is it possible to use DMI matching, like
-> arch/i386/kernel/acpi/sleep.c:acpisleep_dmi_table ?
+You can try to hide the forest by killing some trees.
 
-Earlier forms of the patch do DMI matching:
-http://marc.theaimsgroup.com/?l=linux1394-devel&m=110790513206094
-http://www.janerob.com/rob/ts5100/tosh-1394.patch
-[short-circuited by if (1) at the second URL]
+Are you sure that RCU 'file structs' is the only problem lying around ?
 
-Of course we don't have a complete picture of which models are affected 
-though.
--- 
-Stefan Richter
--=====-=-=-= =-=- =---=
-http://arcgraph.de/sr/
+For instance, I think other RCU freeing problem are dormant (see maxbatch=10 
+and think about the number of routes a busy router (or DOS attack) can handle...
+
+Of course, a 'test program' is more difficult to write than a
+
+while (1) close(open("/dev/null", 3));
+
+Eric
+

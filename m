@@ -1,71 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932345AbVJQVtT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932346AbVJQVvh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932345AbVJQVtT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 17:49:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932346AbVJQVtS
+	id S932346AbVJQVvh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 17:51:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbVJQVvg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 17:49:18 -0400
-Received: from mail.kroah.org ([69.55.234.183]:60803 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932345AbVJQVtS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 17:49:18 -0400
-Date: Mon, 17 Oct 2005 14:48:20 -0700
-From: Greg KH <greg@kroah.com>
-To: dtor_core@ameritech.net
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Andrew Morton <akpm@osdl.org>,
-       Brice Goglin <Brice.Goglin@ens-lyon.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc4-mm1
-Message-ID: <20051017214820.GA5390@kroah.com>
-References: <20051016154108.25735ee3.akpm@osdl.org> <43539762.2020706@ens-lyon.org> <20051017132242.2b872b08.akpm@osdl.org> <20051017212721.GA8997@midnight.suse.cz> <d120d5000510171439l556be0d7sccb7f3c0e65d07bd@mail.gmail.com>
+	Mon, 17 Oct 2005 17:51:36 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:22696 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S932346AbVJQVvg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 17:51:36 -0400
+Date: Mon, 17 Oct 2005 23:53:43 +0200
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-rc4-mm1 dead in early boot
+Message-ID: <20051017215343.GA30829@aitel.hist.no>
+References: <20051016154108.25735ee3.akpm@osdl.org> <20051017210609.GA30116@aitel.hist.no> <20051017140906.0771f797.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <d120d5000510171439l556be0d7sccb7f3c0e65d07bd@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20051017140906.0771f797.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 17, 2005 at 04:39:52PM -0500, Dmitry Torokhov wrote:
-> On 10/17/05, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> > On Mon, Oct 17, 2005 at 01:22:42PM -0700, Andrew Morton wrote:
-> > > Brice Goglin <Brice.Goglin@ens-lyon.org> wrote:
-> > > >
-> > > > Le 17.10.2005 00:41, Andrew Morton a ?crit :
-> > > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc4/2.6.14-rc4-mm1/
-> > > > >
-> > > > > - Lots of i2c, PCI and USB updates
-> > > > >
-> > > > > - Large input layer update to convert it all to dynamic input_dev allocation
-> > > > >
-> > > > > - Significant x86_64 updates
-> > > > >
-> > > > > - MD updates
-> > > > >
-> > > > > - Lots of core memory management scalability rework
-> > > >
-> > > > Hi Andrew,
-> > > >
-> > > > I got the following oops during the boot on my laptop (Compaq Evo N600c).
-> > > > .config is attached.
-> > > >
-> > > > Regards,
-> > > > Brice
+On Mon, Oct 17, 2005 at 02:09:06PM -0700, Andrew Morton wrote:
+> Helge Hafting <helgehaf@aitel.hist.no> wrote:
 > >
-> > Where did get support for IBM TrackPoints into that kernel? It's
-> > certainly not in 2.6.14, and it's not in the -mm patch either ...
-> >
+> > This one gets me a penguin on the framebuffer, and then dies
+> > with no further textual output.  
+> > numlock leds were working, and I could reboot with sysrq.
 > 
-> Yes it is. We merged it at the beginning of 2.6.14.. ;)
+> Can we get anything useful out of sysrq-p and sysrq-t?
 > 
-> > That's likely the cause here, since the TP patch probably relies on
-> > non-dynamic allocation semantics.
-> >
+> Also, adding initcall_debug to the boot command line might help.
 > 
-> It was converted but I am aftraid when Greg created sub-class devices
-> something broke a bit. Do you see the ugly names input core prints?
+Tried again without the framebuffer.  Still hanging, but more info:
 
-The "//" stuff you mean?  Did I do that?
+Last messages before getting stuck:
+md autorun DONE
+kjournald starting
+Ext3-fs mounted fs w. ordered data mode
+VFS mounted root (ext3) read-only
+freeing unused kernel memory 216k freed.
+warning-unable to open an initial console
+kernel panic-not syncing:No init found. Try passing init= option to kernel
 
-thanks,
 
-greg k-h
+Somewhat silly. There certainly was a console (vgacon) or I wouldn't
+be able to read the messages.  And if it mounted root, then there certainly
+was an init to run also.
+
+
+SYSRQ P  (Omitting lots of time-consuming hex numbers, please tell
+if those are really needed.)
+sysrq: show regs
+cpu 0
+Pid:1, comm: swapper not tainted 2.6.14-rc4-mm1 #17
+RIP  {__delay+4}
+(Omitted register dump)
+Call trace:
+panic+315
+vgacon_cursor+0
+init+543
+child_rip+8
+init+0
+child_rip+0
+
+SYSRQ T  gave me several pages, with no scrollback.  Several kernel
+threads and their stack dumps.  Simplified:
+kedac     R running task
+md2       S
+md3       S
+md0       S
+kjournald S
+
+I can provide the full 80x50 page, but I have to write it down by hand
+so only if someone actually think it will be useful.
+
+That EDAC thing was new in rc4-mm1, compared to rc3.  I am testing
+another rc4-mm1 kernel without it.  (menuconfig adviced me to say Y
+to the new EDAC thing, so I did that initially.)
+
+Helge Hafting

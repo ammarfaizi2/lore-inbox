@@ -1,86 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbVJQJlm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbVJQJnL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932232AbVJQJlm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 05:41:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932233AbVJQJll
+	id S932233AbVJQJnL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 05:43:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932234AbVJQJnK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 05:41:41 -0400
-Received: from web33301.mail.mud.yahoo.com ([68.142.206.116]:4733 "HELO
-	web33301.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932232AbVJQJll (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 05:41:41 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=hlNYQJYtURrlLsIgWLHmgCXTghJ2b4cH4VJchYVTgLX5NSlxe5eQukd5MdX+VIOtXG+XTpqNjN+bnaNjaducAsrBZ0rjXVvmeY8Vf4ASlxcgAEjZy05cslOK0x+LtW9KPpxvD4csm7CuatfTn+I42k6T0DBdz1K6TWcICFBIkx0=  ;
-Message-ID: <20051017094140.14685.qmail@web33301.mail.mud.yahoo.com>
-Date: Mon, 17 Oct 2005 02:41:40 -0700 (PDT)
-From: li nux <lnxluv@yahoo.com>
-Subject: Re: A problem about DIRECT IO on ext3
-To: Jens Axboe <axboe@suse.de>, Grzegorz Kulewski <kangur@polcom.net>
-Cc: Erik Mouw <erik@harddisk-recovery.com>, colin <colin@realtek.com.tw>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20051017091710.GT2811@suse.de>
-MIME-Version: 1.0
+	Mon, 17 Oct 2005 05:43:10 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:21740 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932233AbVJQJnI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 05:43:08 -0400
+Date: Mon, 17 Oct 2005 02:42:19 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       jbarnes@virtuousgeek.org, rob@janerob.com
+Subject: Re: ohci1394 unhandled interrupts bug in 2.6.14-rc2
+Message-Id: <20051017024219.08662190.akpm@osdl.org>
+In-Reply-To: <4353705D.6060809@s5r6.in-berlin.de>
+References: <20051015185502.GA9940@plato.virtuousgeek.org>
+	<43515ADA.6050102@s5r6.in-berlin.de>
+	<20051015202944.GA10463@plato.virtuousgeek.org>
+	<20051017005515.755decb6.akpm@osdl.org>
+	<4353705D.6060809@s5r6.in-berlin.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
---- Jens Axboe <axboe@suse.de> wrote:
-
-> On Mon, Oct 17 2005, Grzegorz Kulewski wrote:
-> > On Mon, 17 Oct 2005, Jens Axboe wrote:
-> > >>how to correct this problem ?
-> > >
-> > >See your buffer address, it's not aligned. You
-> need to align that as
-> > >well. This is needed because the hardware will
-> dma directly to the user
-> > >buffer, and to be on the safe side we require the
-> same alignment as the
-> > >block layer will normally generate for file
-> system io.
-> > >
-> > >So in short, just align your read buffer to the
-> same as your block size
-> > >and you will be fine. Example:
-> > >
-> > >#define BS      (4096)
-> > >#define MASK    (BS - 1)
-> > >#define ALIGN(buf)      (((unsigned long) (buf) +
-> MASK) & ~(MASK))
-> > >
-> > >char *ptr = malloc(BS + MASK);
-> > >char *buf = (char *) ALIGN(ptr);
-> > >
-> > >read(fd, buf, BS);
+Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
+>
+> Andrew Morton wrote:
+> > Jesse Barnes <jbarnes@virtuousgeek.org> wrote:
 > > 
-> > Shouldn't one use posix_memalign(3) for that?
+> >>diff -X linux-2.6.14-rc2/Documentation/dontdiff -Naur linux-2.6.14-rc2.orig/drivers/ieee1394/ohci1394.c linux-2.6.14-rc2/drivers/ieee1394/ohci1394.c
+> >>--- linux-2.6.14-rc2.orig/drivers/ieee1394/ohci1394.c	2005-09-19 20:00:41.000000000 -0700
+> >>+++ linux-2.6.14-rc2/drivers/ieee1394/ohci1394.c	2005-10-15 12:55:08.000000000 -0700
+> [...]
+> >>+module_param(toshiba, bool, 0);
+> >>+MODULE_PARM_DESC(toshiba, "Toshiba Legacy-Free BIOS workaround (default=0).");
+> [...]
+> > It would be really really preferable if we could find some automatic way of
+> > doing this.
 > 
-> Dunno if one 'should', one 'can' if one wants to. I
-> prefer to do it
-> manually so I don't have to jump through #define
-> hoops to get at it
-> (which, btw, still doesn't expose it on this
-> machine).
+> I agree.
 > 
-> -- 
-> Jens Axboe
+> >  Is it possible to use DMI matching, like
+> > arch/i386/kernel/acpi/sleep.c:acpisleep_dmi_table ?
+> 
+> Earlier forms of the patch do DMI matching:
+> http://marc.theaimsgroup.com/?l=linux1394-devel&m=110790513206094
+> http://www.janerob.com/rob/ts5100/tosh-1394.patch
+> [short-circuited by if (1) at the second URL]
 
-Thanx a lot Jens :-)
-Its working now.
-I did not have to make these adjustments on 2.6
-Is looks to be having more relaxation.
+Rob, can you finish that patch off and send it?
 
-Can somebody please throw some light on how to find
-your system's hard/soft block size ?
+> Of course we don't have a complete picture of which models are affected 
+> though.
 
+I suppose we could do both.  As people are found who need the module
+parameter, we grab their DMI strings and add them to the table?
 
-	
-		
-__________________________________ 
-Yahoo! Mail - PC Magazine Editors' Choice 2005 
-http://mail.yahoo.com

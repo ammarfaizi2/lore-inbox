@@ -1,69 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbVJQLnE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbVJQLr7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932282AbVJQLnE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 07:43:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932283AbVJQLnD
+	id S932283AbVJQLr7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 07:47:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbVJQLr7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 07:43:03 -0400
-Received: from styx.suse.cz ([82.119.242.94]:4530 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S932282AbVJQLnB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 07:43:01 -0400
-Date: Mon, 17 Oct 2005 13:42:58 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: emard@softhome.net
-Cc: linux-kernel@vger.kernel.org, dtor_core@ameritech.net
-Subject: Re: force feedback envelope incomplete
-Message-ID: <20051017114258.GC10522@ucw.cz>
-References: <20051015213953.GA27117@tink> <200510161335.48458.dtor_core@ameritech.net>
+	Mon, 17 Oct 2005 07:47:59 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:8842 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932283AbVJQLr6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 07:47:58 -0400
+Date: Mon, 17 Oct 2005 06:47:30 -0500
+From: Robin Holt <holt@sgi.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Robin Holt <holt@sgi.com>, Greg KH <greg@kroah.com>,
+       ia64 list <linux-ia64@vger.kernel.org>, linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hch@infradead.org, jgarzik@pobox.com,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Jack Steiner <steiner@americas.sgi.com>
+Subject: Re: [Patch 2/3] Export get_one_pte_map.
+Message-ID: <20051017114730.GC30898@lnx-holt.americas.sgi.com>
+References: <20051014192111.GB14418@lnx-holt.americas.sgi.com> <20051014192225.GD14418@lnx-holt.americas.sgi.com> <20051014213038.GA7450@kroah.com> <20051017113131.GA30898@lnx-holt.americas.sgi.com> <1129549312.32658.32.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200510161335.48458.dtor_core@ameritech.net>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <1129549312.32658.32.camel@localhost>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 16, 2005 at 01:35:47PM -0500, Dmitry Torokhov wrote:
-> On Saturday 15 October 2005 16:39, emard@softhome.net wrote:
-> > HI
+On Mon, Oct 17, 2005 at 01:41:52PM +0200, Dave Hansen wrote:
+> On Mon, 2005-10-17 at 06:31 -0500, Robin Holt wrote:
+> > On Fri, Oct 14, 2005 at 02:30:38PM -0700, Greg KH wrote:
+> > > On Fri, Oct 14, 2005 at 02:22:25PM -0500, Robin Holt wrote:
+> > > > +EXPORT_SYMBOL(get_one_pte_map);
+> > > 
+> > > EXPORT_SYMBOL_GPL() ?
 > > 
-> > Force feedback envelope struct in input.h 
-> > for periodic events is incomplete.
-> > 
-> > struct ff_envelope {
-> >         __u16 attack_length;    /* Duration of attack (ms) */
-> >         __u16 attack_level;     /* Level at beginning of attack */
-> >         __u16 fade_length;      /* Duration of fade (ms) */
-> >         __u16 fade_level;       /* Level at end of fade */
-> > };
-> > 
-> > The envelope consists of:
-> > 1. Attack level (Level at beginning of attack)
-> > 2. Attack time
-> > 3. Sustain level (Level at end of attack and beginning of fade)
-> > 4. Sustain time
-> > 5. Fade level (Level at the end of fade)
-> > 6. Fade time
-> > 
-> > If I want to implement proper envelope I propose something like this:
-> > 
-> > struct ff_envelope {
-> >         __u16 attack_length;    /* Duration of attack (ms) */
-> >         __u16 attack_level;     /* Level at beginning of attack */
-> >         __u16 sustain_length;   /* Duration of sustain (ms) */
-> >         __u16 sustain_level;    /* Sustain Level at end of attack and beginning of fade */
-> >         __u16 fade_length;      /* Duration of fade (ms) */
-> >         __u16 fade_level;       /* Level at end of fade */
-> > };
+> > Not sure why it would fall that way.  Looking at the directory,
+> > I get:
 > 
-> You might want to talk to Vojtech about this (CC-ed).
- 
-Your proposal seems reasonable. Please send me a patch that adds the
-sustain members to the envelope, and uses it in some driver, while
-making sure existing binary-only apps (if there are any) don't break.
+> Most of the VM stuff in those directories that you're referring to are
+> old, crusty exports, from the days before _GPL.  We've left them to be
+> polite, but if many of them were recreated today, they'd certainly be
+> _GPL.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+I got a little push from our internal incident tracking system for
+this being a module.  _GPL it will be.
+
+Thanks,
+Robin

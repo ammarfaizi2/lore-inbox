@@ -1,61 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751404AbVJQXpj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751409AbVJQXrZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751404AbVJQXpj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 19:45:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbVJQXpj
+	id S1751409AbVJQXrZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 19:47:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751413AbVJQXrZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 19:45:39 -0400
-Received: from wproxy.gmail.com ([64.233.184.207]:24847 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751404AbVJQXpi convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 19:45:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=T266UFJ9/G0a3eR1z9rmi94ie3D9D527WVL7NBaMhfSg3gFnFPRe+kfVFnys9vcwyEQGBTdy1EyWrS34inyD18itnTP5OURbxkHrsWOAIGOWZ12mz8GITFFoa9dMLq5S479257iwqpb5G27yljhnVzyjuou/q2TOtJejvuJAmx4=
-Message-ID: <cc9bf44d0510171645t78aaa572h6b7a8521f2d76939@mail.gmail.com>
-Date: Tue, 18 Oct 2005 09:15:36 +0930
-From: Paul Schulz <pschulz01@gmail.com>
-Reply-To: paul@mawsonlakes.org
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.13] pxa-regs: Typo in ARM pxa register definitions.
-Cc: trivial@rustcorp.com.au
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 17 Oct 2005 19:47:25 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:23447 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1751409AbVJQXrY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 19:47:24 -0400
+Date: Tue, 18 Oct 2005 01:47:23 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/4] swsusp: clean up resume error path
+Message-ID: <20051017234723.GB13148@atrey.karlin.mff.cuni.cz>
+References: <200510172336.53194.rjw@sisk.pl> <200510172350.05415.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200510172350.05415.rjw@sisk.pl>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
-The following trivial patch is to fix what looks like a typo in the PXA register
-definitions. The correction comes directly from the definition in the
-Intel Documentation.
+Hi!
 
-   http://www.intel.com/design/pca/applicationsprocessors/manuals/278693.htm
-   Intel(R) PXA 255 Processor - Developers Manual - Jan 2004 - Page 12-33
+> The following patch removes an incorrect call to restore_highmem() from
+> the resume error path (there's no saved highmem in that case) and makes
+> swsusp touch the softlockup watchdog if there's no error (currently it only
+> touches the watchdog if an error occurs).
+> 
+> Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+> 
+> Index: linux-2.6.14-rc4-mm1/kernel/power/swsusp.c
+> ===================================================================
+> --- linux-2.6.14-rc4-mm1.orig/kernel/power/swsusp.c	2005-10-17 23:28:34.000000000 +0200
+> +++ linux-2.6.14-rc4-mm1/kernel/power/swsusp.c	2005-10-17 23:28:47.000000000 +0200
+> @@ -628,7 +629,6 @@
+>  	 */
+>  	swsusp_free();
+>  	restore_processor_state();
+> -	restore_highmem();
+>  	touch_softlockup_watchdog();
+>  	device_power_up();
+>  	local_irq_enable();
 
-Neither 'UDCCS_IO_ROF' or 'UDCCS_IO_DME' are currently used elseware
-in the main code (from grep of tree)... The current definitions have been
-in the code since at lease 2.4.7.
+I don't like this one. restore_highmem() does freeing of allocated
+pages. If swsusp_arch_suspend() fails in specific way, I suspect it
+could leak highmem.
 
- Paul Schulz  <paul@mawsonlakes.org>
- ---
- diff -Nuar linux-2.6.13.orig/include/asm-arm/arch-pxa/pxa-regs.h
-linux-2.6.13/include/asm-arm/arch-pxa/pxa-regs.h
- --- linux-2.6.13.orig/include/asm-arm/arch-pxa/pxa-regs.h      
-2005-08-31 11:40:22.000000000 +0930
- +++ linux-2.6.13/include/asm-arm/arch-pxa/pxa-regs.h    2005-10-13
-15:04:52.141864488 +0930
- @@ -652,7 +652,7 @@
-
-  #define UDCCS_IO_RFS   (1 << 0)        /* Receive FIFO service */
-  #define UDCCS_IO_RPC   (1 << 1)        /* Receive packet complete */
- -#define UDCCS_IO_ROF   (1 << 3)        /* Receive overflow */
- +#define UDCCS_IO_ROF   (1 << 2)        /* Receive overflow */
-  #define UDCCS_IO_DME   (1 << 3)        /* DMA enable */
-  #define UDCCS_IO_RNE   (1 << 6)        /* Receive FIFO not empty */
-  #define UDCCS_IO_RSP   (1 << 7)        /* Receive short packet */
+								Pavel
 
 
-Signed-off-by: Paul Schulz <paul@mawsonlakes.org>
+-- 
+Boycott Kodak -- for their patent abuse against Java.

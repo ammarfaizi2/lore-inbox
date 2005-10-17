@@ -1,60 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbVJQMmy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbVJQMoY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932289AbVJQMmy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 08:42:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbVJQMmy
+	id S932297AbVJQMoY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 08:44:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbVJQMoY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 08:42:54 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:29654 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932289AbVJQMmx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 08:42:53 -0400
-Date: Mon, 17 Oct 2005 18:06:55 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: Jean Delvare <khali@linux-fr.org>, torvalds@osdl.org,
-       Serge Belyshev <belyshev@depni.sinp.msu.ru>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: [RCU problem] was VFS: file-max limit 50044 reached
-Message-ID: <20051017123655.GD6257@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <Pine.LNX.4.64.0510161912050.23590@g5.osdl.org> <JTFDVq8K.1129537967.5390760.khali@localhost> <20051017084609.GA6257@in.ibm.com> <43536A6C.102@cosmosbay.com> <20051017103244.GB6257@in.ibm.com> <435394A1.7000109@cosmosbay.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Mon, 17 Oct 2005 08:44:24 -0400
+Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:23048 "EHLO
+	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
+	id S932297AbVJQMoX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 08:44:23 -0400
+From: Felix Oxley <lkml@oxley.org>
+To: Rob Landley <rob@landley.net>
+Subject: Re: [PATCH 1/1] Kconfig help text for RAM Disk & initrd
+Date: Mon, 17 Oct 2005 13:44:17 +0100
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
+References: <200510170102.19717.lkml@oxley.org> <200510170812.11590.lkml@oxley.org> <200510170233.46811.rob@landley.net>
+In-Reply-To: <200510170233.46811.rob@landley.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <435394A1.7000109@cosmosbay.com>
-User-Agent: Mutt/1.5.10i
+Message-Id: <200510171344.18416.lkml@oxley.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 17, 2005 at 02:10:09PM +0200, Eric Dumazet wrote:
-> Dipankar Sarma a écrit :
-> >On Mon, Oct 17, 2005 at 11:10:04AM +0200, Eric Dumazet wrote:
-> >
-> >Agreed. It is not designed to work that way, so there must be
-> >a bug somewhere and I am trying to track it down. It could very well
-> >be that at maxbatch=10 we are just queueing at a rate far too high
-> >compared to processing.
-> >
-> 
-> I can freeze my test machine with a program that 'only' use dentries, no 
-> files.
-> 
-> No message, no panic, but machine becomes totally unresponsive after few 
-> seconds.
-> 
-> Just greping for call_rcu in kernel sources gave me another call_rcu() use 
-> from syscalls. And yes 2.6.13 has the same problem.
+On Monday 17 October 2005 08:33, Rob Landley wrote:
+> > On Monday 17 October 2005 06:37, Rob Landley wrote:
+> > > Actually if this is a patch against 2.6, between ramfs (including
+> > > initramfs) and the ability to loopback mount files, I personally consider
+> > > ramdisks semi-obsolete.  (This might be _why_ it says most normal users
+> > > won't need them.)
 
-Can you try it with rcupdate.maxbatch set to 10000 in boot
-command line ?
+You are right in all you say.
+However, my system uses initrd and I thought that a help message warning newbies
+that these options are required if inrd is used, would be useful.
+Since I removed it and was uanble to boot :-)
 
-FWIW, the open/close test problem goes away if I set maxbatch to
-10000. I had introduced this limit some time ago to curtail
-the effect long running softirq handlers have on scheduling
-latencies, which now conflicts with OOM avoidance requirements.
+Do you think the slimmed down patch below is appropriate, or shall I just drop the subject?
 
-Thanks
-Dipankar
+reagrds,
+Felix
+
+Signed-off-by: Felix Oxley <lkml@oxley.org>
+---
+--- ./drivers/block/Kconfig.orig	2005-10-17 13:04:31.000000000 +0100
++++ ./drivers/block/Kconfig	2005-10-17 13:20:31.000000000 +0100
+@@ -368,9 +368,9 @@ config BLK_DEV_RAM
+ 	  Saying Y here will allow you to use a portion of your RAM memory as
+ 	  a block device, so that you can make file systems on it, read and
+ 	  write to it and do all the other things that you can do with normal
+-	  block devices (such as hard drives). It is usually used to load and
+-	  store a copy of a minimal root file system off of a floppy into RAM
+-	  during the initial install of Linux.
++	  block devices (such as hard drives). This is usually used to load and
++	  store a copy of a minimal root file system into RAM during the boot
++	  sequence.
+ 
+ 	  Note that the kernel command line option "ramdisk=XX" is now
+ 	  obsolete. For details, read <file:Documentation/ramdisk.txt>.
+@@ -378,8 +378,10 @@ config BLK_DEV_RAM
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called rd.
+ 
+-	  Most normal users won't need the RAM disk functionality, and can
+-	  thus say N here.
++	  Say Y here if your system uses an initrd RAM disk whilst booting, you
++	  will also need to to enable initrd below. (Check for /boot/initrd*).
++
++	  If unsure, say N.
+ 
+ config BLK_DEV_RAM_COUNT
+ 	int "Default number of RAM disks" if BLK_DEV_RAM
+@@ -403,11 +405,14 @@ config BLK_DEV_INITRD
+ 	depends on BLK_DEV_RAM=y
+ 	help
+ 	  The initial RAM disk is a RAM disk that is loaded by the boot loader
+-	  (loadlin or lilo) and that is mounted as root before the normal boot
++	  (lilo or grub) and that is mounted as root before the normal boot
+ 	  procedure. It is typically used to load modules needed to mount the
+ 	  "real" root file system, etc. See <file:Documentation/initrd.txt>
+ 	  for details.
+ 
++	  Some systems will require this to boot (check for /boot/initrd*).
++	  Otherwise, say N.
++
+ 
+ #XXX - it makes sense to enable this only for 32-bit subarch's, not for x86_64
+ #for instance.

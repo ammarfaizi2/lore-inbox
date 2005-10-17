@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbVJQQCT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932311AbVJQQDJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932309AbVJQQCT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 12:02:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932311AbVJQQCS
+	id S932311AbVJQQDJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 12:03:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932313AbVJQQDI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 12:02:18 -0400
-Received: from gw1.cosmosbay.com ([62.23.185.226]:34962 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S932309AbVJQQCR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 12:02:17 -0400
-Message-ID: <4353CADB.8050709@cosmosbay.com>
-Date: Mon, 17 Oct 2005 18:01:31 +0200
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: fr, en
+	Mon, 17 Oct 2005 12:03:08 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:59337 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932311AbVJQQDH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 12:03:07 -0400
+Date: Mon, 17 Oct 2005 09:02:57 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andi Kleen <ak@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, Ravikiran G Thirumalai <kiran@scalex86.org>,
+       linux-kernel@vger.kernel.org, discuss@x86-64.org, tglx@linutronix.de,
+       shai@scalex86.org
+Subject: Re: x86_64: 2.6.14-rc4 swiotlb broken
+In-Reply-To: <200510171740.57614.ak@suse.de>
+Message-ID: <Pine.LNX.4.64.0510170901460.23590@g5.osdl.org>
+References: <20051017093654.GA7652@localhost.localdomain> <200510171153.56063.ak@suse.de>
+ <Pine.LNX.4.64.0510170819290.23590@g5.osdl.org> <200510171740.57614.ak@suse.de>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Dipankar Sarma <dipankar@in.ibm.com>, Jean Delvare <khali@linux-fr.org>,
-       Serge Belyshev <belyshev@depni.sinp.msu.ru>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: VFS: file-max limit 50044 reached
-References: <Pine.LNX.4.64.0510161912050.23590@g5.osdl.org> <JTFDVq8K.1129537967.5390760.khali@localhost> <20051017084609.GA6257@in.ibm.com> <43536A6C.102@cosmosbay.com> <20051017103244.GB6257@in.ibm.com> <Pine.LNX.4.64.0510170829000.23590@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0510170829000.23590@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Mon, 17 Oct 2005 18:01:34 +0200 (CEST)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds a écrit :
 
-> So I suspect that the _real_ fix is:
+
+On Mon, 17 Oct 2005, Andi Kleen wrote:
+
+> On Monday 17 October 2005 17:27, Linus Torvalds wrote:
+> > On Mon, 17 Oct 2005, Andi Kleen wrote:
+> > > The patch is actually not quite correct - in theory node 0 could be too
+> > > small to contain the full swiotlb bounce buffers.
+> >
+> > Is node 0 guaranteed to be all low-memory? What if it allocates stuff at
+> > the end of memory on NODE(0)?
 > 
->  - for 2.6.14: remove the batching limig (or just make it much higher for 
->    now)
+> This is 64bit ... only low memory.
 
-I would just remove it. If the limit is wrong, we crash again. And the 
-realtime guys already are pissed off by batch=10000 anyway.
+Ehh.. No there isn't.
 
-> 
->  - post-14: work on making sure rcu callbacks are done in a more timely 
->    manner when the rcu queue gets long. This would involve TIF_RCUPENDING 
->    and whatever else to make sure that we have timely quiescent periods, 
->    and we do the RCU callback tasklet more often if the queue is long.
-> 
+PCI DMA isn't magically 64-bit, even on your Opteron. 
 
-Absolutely. Keeping a count of (percpu) queued items is basically free if kept 
-in the cache line used by list head, so the 'queue length on this cpu' is a 
-cheap metric.
+So low memory in this case is anything < 32 bits. How many bits the CPU 
+has is immaterial.
 
-A 'realtime refinement' would be to use a different maxbatch limit depending 
-on the caller's priority : Let a softirq thread have a lower batch count than 
-a regular user thread.
+That's the whole _point_ of swtlb, after all, so I don't see why you 
+argue.
 
-Eric
+		Linus

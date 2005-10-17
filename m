@@ -1,59 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750854AbVJQQwu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750874AbVJQQx4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750854AbVJQQwu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 12:52:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbVJQQwu
+	id S1750874AbVJQQx4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 12:53:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750867AbVJQQx4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 12:52:50 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:48282 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S1750814AbVJQQwt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 12:52:49 -0400
-From: Jesse Barnes <jbarnes@virtuousgeek.org>
-To: Linus Torvalds <torvalds@osdl.org>
+	Mon, 17 Oct 2005 12:53:56 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:25059 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750747AbVJQQxz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 12:53:55 -0400
+Date: Mon, 17 Oct 2005 09:53:31 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, davej@redhat.com
 Subject: Re: [PATCH] libata: fix broken Kconfig setup
-Date: Mon, 17 Oct 2005 09:52:33 -0700
-User-Agent: KMail/1.8.91
-Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       davej@redhat.com
+In-Reply-To: <Pine.LNX.4.64.0510170930420.23590@g5.osdl.org>
+Message-ID: <Pine.LNX.4.64.0510170946250.23590@g5.osdl.org>
 References: <20051017044606.GA1266@havoc.gtf.org> <Pine.LNX.4.64.0510170754500.23590@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0510170754500.23590@g5.osdl.org>
+ <4353C42A.3000005@pobox.com> <Pine.LNX.4.64.0510170848180.23590@g5.osdl.org>
+ <4353CF7E.1090404@pobox.com> <Pine.LNX.4.64.0510170930420.23590@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510170952.34174.jbarnes@virtuousgeek.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, October 17, 2005 8:14 am, Linus Torvalds wrote:
->    So it appears that your dependence on quirk_intel_ide_combined() is
->    fundamentally broken for the "m" case _anyway_.
-
-Correct.  The quirk itself is a fragile hack.
 
 
-> Anyway, the second thing means that the whole configuration is
-> somewhat broken, but on the whole, why not this _much_ more trivial
-> patch?
->
-> It's still broken, exactly because it depends on the modules being
-> defined when compiling the whole kernel, but hey, we probably have
-> other cases like that.
->
-> My suggestion being that we should make it unconditional, but maybe
-> that breaks the case where we don't actually load the SATA module?
+On Mon, 17 Oct 2005, Linus Torvalds wrote:
+> 
+> >  And then with the quirk issue out of
+> > the way, CONFIG_SCSI_SATA becomes purely a boolean enable/disable-this-menu
+> > switch.
+> 
+> No it does not. You continue to ignore the fact that it's not an 
+> enable/disable thing. It's a "can we enable SATA drivers" vs "can we 
+> enable SATA drivers as modules" vs "do we do any SATA drivers at all?" 
+> thing.
+> 
+> A tristate.
 
-It does, since it prevents one of the ports from being bound by the 
-legacy IDE driver.  But the whole thing is rather hackish to begin with, 
-and I prefer this hack to the existing code (in fact, Andrew already 
-queued up a patch from me in -mm that looks just like yours).
+Btw, if you want to have the _question_ always be y/n only, that's easy 
+enough to do, just make that one do
 
-Ultimately, when libata gets ATAPI support, I think we just have to 
-declare libata and legacy IDE to be incompatible for combined mode 
-devices and remove the quirk.  Then whichever driver loads first will 
-get the whole device, as it should.
+	config SATA_MENU
+		bool "Want to see SATA drivers"
+		depends on SCSI != n
 
-Jesse
+	config SCSI_SATA
+		tristate
+		depends on SCSI && SATA_MENU
+		default y
+
+and now you have a totally sensible setup, where the low-level drivers can 
+depend on something sane. 
+
+I don't think it _buys_ you anything, but hey, at least it's logical. 
+
+Btw, wouldn't it be much nicer to also have this all in a totally separate 
+Kconfig file? That SCSI Kconfig file is one of the biggest ones (yeah, 
+drivers/net/Kconfig is bigger, but hey, that's not a surprise, is it ;)
+
+		Linus

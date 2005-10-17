@@ -1,60 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932316AbVJQQ0M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbVJQQ0d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932316AbVJQQ0M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 12:26:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932317AbVJQQ0M
+	id S1750753AbVJQQ0d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 12:26:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbVJQQ0c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 12:26:12 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:34721 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932316AbVJQQ0L (ORCPT
+	Mon, 17 Oct 2005 12:26:32 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:15017 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932263AbVJQQ0S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 12:26:11 -0400
-Date: Mon, 17 Oct 2005 18:25:25 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Andrew Morton <akpm@osdl.org>
-cc: Ingo Molnar <mingo@elte.hu>, tglx@linutronix.de, george@mvista.com,
-       linux-kernel@vger.kernel.org, johnstul@us.ibm.com, paulmck@us.ibm.com,
-       hch@infradead.org, oleg@tv-sign.ru, tim.bird@am.sony.com
-Subject: Re: [PATCH]  ktimers subsystem 2.6.14-rc2-kt5
-In-Reply-To: <20051017025657.0d2d09cc.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0510171511010.1386@scrub.home>
-References: <1128168344.15115.496.camel@tglx.tec.linutronix.de>
- <Pine.LNX.4.61.0510100213480.3728@scrub.home> <1129016558.1728.285.camel@tglx.tec.linutronix.de>
- <Pine.LNX.4.61.0510130004330.3728@scrub.home> <434DA06C.7050801@mvista.com>
- <Pine.LNX.4.61.0510150143500.1386@scrub.home> <1129490809.1728.874.camel@tglx.tec.linutronix.de>
- <Pine.LNX.4.61.0510170021050.1386@scrub.home> <20051017075917.GA4827@elte.hu>
- <Pine.LNX.4.61.0510171054430.1386@scrub.home> <20051017094153.GA9091@elte.hu>
- <20051017025657.0d2d09cc.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 17 Oct 2005 12:26:18 -0400
+Date: Mon, 17 Oct 2005 21:50:02 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Eric Dumazet <dada1@cosmosbay.com>, Jean Delvare <khali@linux-fr.org>,
+       Serge Belyshev <belyshev@depni.sinp.msu.ru>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: VFS: file-max limit 50044 reached
+Message-ID: <20051017162002.GA13665@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <Pine.LNX.4.64.0510161912050.23590@g5.osdl.org> <JTFDVq8K.1129537967.5390760.khali@localhost> <20051017084609.GA6257@in.ibm.com> <43536A6C.102@cosmosbay.com> <20051017103244.GB6257@in.ibm.com> <Pine.LNX.4.64.0510170829000.23590@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0510170829000.23590@g5.osdl.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Oct 17, 2005 at 08:42:05AM -0700, Linus Torvalds wrote:
+> 
+> On Mon, 17 Oct 2005, Dipankar Sarma wrote:
+> 
+> > This I am not sure, it is Linus' call. I am just trying to do the
+> > right thing - fix the real problem.
+> 
+> It sure looks like the batch limiter is the fundamental problem.
+> 
+> Instead of limiting the batching, we should likely try to avoid the RCU 
+> lists getting huge in the first place - ie do the RCU callback processing 
+> more often if the list is getting longer.
+> 
+> So I suspect that the _real_ fix is:
+> 
+>  - for 2.6.14: remove the batching limig (or just make it much higher for 
+>    now)
 
-On Mon, 17 Oct 2005, Andrew Morton wrote:
+You can remove the batching limit by making maxbatch = 0 by default.
+Just a one line patch.
 
-> That being said, I'll confess that I've largely ignored this discussion in
-> the hope that things would get sorted out.  Seems that this won't be
-> happening and as Roman's opinions carry weight I do intend to solicit a
-> (brief!) summary of his objections from him when the patch comes round
-> again.  Sorry.
+>  - post-14: work on making sure rcu callbacks are done in a more timely 
+>    manner when the rcu queue gets long. This would involve TIF_RCUPENDING 
+>    and whatever else to make sure that we have timely quiescent periods, 
+>    and we do the RCU callback tasklet more often if the queue is long.
 
-It's rather simple:
-- "timer API" vs "timeout API": I got absolutely no acknowlegement that 
-this might be a little confusing and in consequence "process timer" may be 
-a better name.
-- I pointed out various (IMO) unnecessary complexities, which were rather 
-quickly brushed off e.g. with a need for further (not closer specified) 
-cleanups.
-- resolution handling: at what resolution should/does the kernel work and 
-what do we report to user space. The spec allows multiple interpretations 
-and I have a hard time to get at least one coherent interpretation out of 
-Thomas.
+Yes, I am already looking at this. There are a number approaches
+to this include adaptive algorithm to cater to naughty corner
+cases and/or adding different ways to handle RCU as in 
+tree. I hope to experiment with these incrementally after 2.6.14 over 
+a period of time and see what works best for most people.
 
-Maybe I'm the only one who found Thomas answers a little superficial, but 
-as this is a central kernel subsystem I think it deserves a closer look 
-and everytime I tried to poke a little deeper I got nothing.
-
-bye, Roman
+Thanks
+Dipankar

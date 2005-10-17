@@ -1,115 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbVJQTNE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750917AbVJQTT1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932306AbVJQTNE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 15:13:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbVJQTNE
+	id S1750917AbVJQTT1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 15:19:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751046AbVJQTT0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 15:13:04 -0400
-Received: from mf01.sitadelle.com ([212.94.174.68]:52353 "EHLO
-	smtp.cegetel.net") by vger.kernel.org with ESMTP id S932306AbVJQTNC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 15:13:02 -0400
-Message-ID: <4353F7B5.1040101@cosmosbay.com>
-Date: Mon, 17 Oct 2005 21:12:53 +0200
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: fr, en
+	Mon, 17 Oct 2005 15:19:26 -0400
+Received: from mail-haw.bigfish.com ([12.129.199.61]:12677 "EHLO
+	mail33-haw-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S1750917AbVJQTT0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 15:19:26 -0400
+X-BigFish: V
+Message-ID: <4353F936.3090406@am.sony.com>
+Date: Mon, 17 Oct 2005 12:19:18 -0700
+From: Tim Bird <tim.bird@am.sony.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: dipankar@in.ibm.com, Jean Delvare <khali@linux-fr.org>,
-       Serge Belyshev <belyshev@depni.sinp.msu.ru>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: VFS: file-max limit 50044 reached
-References: <Pine.LNX.4.64.0510161912050.23590@g5.osdl.org> <JTFDVq8K.1129537967.5390760.khali@localhost> <20051017084609.GA6257@in.ibm.com> <43536A6C.102@cosmosbay.com> <20051017103244.GB6257@in.ibm.com> <Pine.LNX.4.64.0510170829000.23590@g5.osdl.org> <4353CADB.8050709@cosmosbay.com> <Pine.LNX.4.64.0510170911370.23590@g5.osdl.org> <20051017162930.GC13665@in.ibm.com> <4353E6F1.8030206@cosmosbay.com> <Pine.LNX.4.64.0510171112040.3369@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0510171112040.3369@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: "Bird, Tim" <Tim.Bird@am.sony.com>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, tglx@linutronix.de, george@mvista.com,
+       linux-kernel@vger.kernel.org, johnstul@us.ibm.com, paulmck@us.ibm.com,
+       hch@infradead.org, oleg@tv-sign.ru
+Subject: Re: [PATCH]  ktimers subsystem 2.6.14-rc2-kt5
+References: <Pine.LNX.4.61.0510171948040.1386@scrub.home>
+In-Reply-To: <Pine.LNX.4.61.0510171948040.1386@scrub.home>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Antivirus: Scanned by F-Prot Antivirus (http://www.f-prot.com)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds a écrit :
+Roman Zippel wrote:
+> } > > Calling them "process timer" and "kernel timer" would include
+> their main 
+> } > > usage, although that also means ptimer were the more correct
+> abbreviation.
+> } > 
+> } > As said before I think the disctinction between timers and timeouts
+> } > makes perfectly sense and ktimers are _not_ restricted to process
+> } > timers. 
+> } 
+> } "main usage" != "restricted to"
 > 
-> On Mon, 17 Oct 2005, Eric Dumazet wrote:
+> IOW I didn't say that "process timer" are restricted to processes, but 
+> it's their intended main usage. "kernel timer" are OTOH the first choice
 > 
->><lazy_mode=ON>
->>Do we really need a TIF_RCUUPDATE flag, or could we just ask for a resched ?
->></lazy_mode>
-> 
-> 
-> Hmm.. Your patch looks very much like one I tried already, but the big 
-> difference being that I just cleared the count when doing the rcu 
-> callback. That was because I hadn't realized the importance of the 
-> maxbatch thing (so it didn't work for me, like it did for you).
-> 
-> Still - the actual RCU callback will only be called at the next timer tick 
-> or whatever as far as I can tell, so the first time you'll still have a 
-> _long_ RCU queue (and thus bad latency).
-> 
-> I guess that's inevitable - and TIF_RCUUPDATE wouldn't even help, because 
-> we still need to wait for the _other_ CPU's to get to their RCU quiescent 
-> event.
-> 
-> However, that leaves us with the nasty situation that we'll ve very 
-> inefficient: we'll do "maxbatch" RCU entries, and then return, and then 
-> force a whole re-schedule. That just can't be good.
->
+> for any internal kernel time issues (which are not just timeouts).
 
-Thats strange, because on my tests it seems that I dont have one reschedule 
-for 'maxbatch' items. Doing 'grep filp /proc/slabinfo' it seems I have one 
-'schedule' then filp count goes back to 1000.
+Maybe for a more experienced kernel person such as
+yourself, this distinction make sense.  But
+"process timer" and "kernel timer" don't carry much
+semantic value for me.  They seem to convey an
+arbitrary expectation of usage patterns.  Maybe
+they match the current usage patterns in the kernel,
+but I'd prefer naming based on functionality or
+behaviour of the API.
 
-vmstat shows about 150 context switches per second.
 
-(This machines does 1.000.000 pair of open/close in 4.88 seconds)
+> There is of course a difference, but is it big enough that they deserve 
+> different APIs?
 
-oprofile data shows verly little schedule overhead :
+IMHO yes.  I think having separate APIs will eventually be
+beneficial to allow better handling of resolution
+manipulation in the future.
 
-CPU: P4 / Xeon with 2 hyper-threads, speed 1993.83 MHz (estimated)
-Counted GLOBAL_POWER_EVENTS events (time during which processor is not 
-stopped) with a unit mask of 0x01 (mandatory) count 100000
-samples  %        symbol name
-132578   11.3301  path_lookup
-104788    8.9551  __d_lookup
-85220     7.2829  link_path_walk
-63013     5.3851  sysenter_past_esp
-53287     4.5539  _atomic_dec_and_lock
-45825     3.9162  chrdev_open
-43105     3.6837  get_unused_fd
-39948     3.4139  kmem_cache_alloc
-38308     3.2738  strncpy_from_user
-35738     3.0542  rcu_do_batch
-31850     2.7219  __link_path_walk
-31355     2.6796  get_empty_filp
-25941     2.2169  kmem_cache_free
-24455     2.0899  __fput
-24422     2.0871  sys_close
-19814     1.6933  filp_dtor
-19616     1.6764  free_block
-19000     1.6237  open_namei
-18214     1.5566  fput
-15991     1.3666  fd_install
-14394     1.2301  file_kill
-14365     1.2276  call_rcu
-14338     1.2253  kref_put
-13679     1.1690  file_move
-13646     1.1662  schedule
-13456     1.1499  getname
-13019     1.1126  kref_get
+For example, timeouts are likely to need less resolution,
+and it may be valuable to adjust the resolution of timeouts
+to support coalescing timeouts for better tickless operation.
+(Driving towards better power management performance for
+embedded devices.)
+
+> Just look into <linux/timer.h> it doesn't mention timeout 
+> once, but according to Thomas that's our "timeout API". Look at the 
+> description of mod_timer() in timer.c: "modify a timer's timeout".
+> It seems I'm not only one who thinks that both are closely related.
+
+I'm not sure if you are arguing for renaming the
+old API.  I would be in favor of this (from an abstract
+perspective, to clarify the usage in the kernel), but
+it might be too big a change right now.
+
+Regards,
+ -- Tim
 
 
 
-> How about instead of depending on "maxbatch", we'd depend on 
-> "need_resched()"? Mabe the "maxbatch" be a _minbatch_ thing, and then once 
-> we've done the minimum amount we _need_ to do (or emptied the RCU queue) 
-> we start honoring need_resched(), and return early if we do? 
-> 
-> That, together with your patch, should work, without causing ludicrous 
-> "reschedule every ten system calls" behaviour..
-> 
-> Hmm?
-> 
-> 		Linus
-> 
-> 
+=============================
+Tim Bird
+Architecture Group Chair, CE Linux Forum
+Senior Staff Engineer, Sony Electronics
+=============================
 

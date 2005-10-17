@@ -1,45 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbVJQSV4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbVJQSVf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932166AbVJQSV4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 14:21:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932171AbVJQSV4
+	id S932108AbVJQSVf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 14:21:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbVJQSVf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 14:21:56 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:44268 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932166AbVJQSVz (ORCPT
+	Mon, 17 Oct 2005 14:21:35 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:27108 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932108AbVJQSVf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 14:21:55 -0400
-Date: Mon, 17 Oct 2005 23:45:42 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Eric Dumazet <dada1@cosmosbay.com>, Jean Delvare <khali@linux-fr.org>,
-       Serge Belyshev <belyshev@depni.sinp.msu.ru>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: VFS: file-max limit 50044 reached
-Message-ID: <20051017181542.GE13665@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <Pine.LNX.4.64.0510161912050.23590@g5.osdl.org> <JTFDVq8K.1129537967.5390760.khali@localhost> <20051017084609.GA6257@in.ibm.com> <43536A6C.102@cosmosbay.com> <20051017103244.GB6257@in.ibm.com> <Pine.LNX.4.64.0510170829000.23590@g5.osdl.org> <4353CADB.8050709@cosmosbay.com> <Pine.LNX.4.64.0510170911370.23590@g5.osdl.org> <20051017162930.GC13665@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051017162930.GC13665@in.ibm.com>
-User-Agent: Mutt/1.5.10i
+	Mon, 17 Oct 2005 14:21:35 -0400
+Date: Mon, 17 Oct 2005 11:20:23 -0700 (PDT)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: alex.williamson@hp.com
+cc: Ravikiran G Thirumalai <kiran@scalex86.org>, Andi Kleen <ak@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, discuss@x86-64.org, tglx@linutronix.de,
+       shai@scalex86.org, linville@tuxdriver.com
+Subject: Re: x86_64: 2.6.14-rc4 swiotlb broken
+In-Reply-To: <20051017175231.GA4959@localhost.localdomain>
+Message-ID: <Pine.LNX.4.62.0510171110450.1480@schroedinger.engr.sgi.com>
+References: <20051017093654.GA7652@localhost.localdomain> <200510171153.56063.ak@suse.de>
+ <Pine.LNX.4.64.0510170819290.23590@g5.osdl.org> <200510171740.57614.ak@suse.de>
+ <20051017175231.GA4959@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 17, 2005 at 09:59:30PM +0530, Dipankar Sarma wrote:
-> On Mon, Oct 17, 2005 at 09:16:25AM -0700, Linus Torvalds wrote:
-> 
-> At the moment however I do have another concern - open/close taking too
-> much time as I mentioned in an earlier email. It is nearly 4 times
-> slower than 2.6.13. So, that is first up in my list of things to
-> do at the moment.
+On Mon, 17 Oct 2005, Ravikiran G Thirumalai wrote:
 
-Please ignore this. This is a big Doh! slab debugging snuck into
-my config file because I was trying to track down the 
-"bad page state" problem again. Without it, open/close in 2.6.14-rc1
-is just as fast as 2.6.13 - ~3 microseconds per pair.
+> Maybe someone with access to ia64 NUMA boxen can check if the NODE(0)
+> solution works (and does not break anything) on ia64?  Chrisoph, can you help?
 
-Thanks
-Dipankar
+Umm... SGI does not use the swiotlb and we do not have these issues. HP 
+does use the swiotlb on IA64. CCing John and Alex.
+
+For the newcomers: Thread is at 
+http://marc.theaimsgroup.com/?t=112954203900001&r=1&w=2
+
+Proposed patch by Kiran:
+
+Index: linux-2.6.14-rc4/arch/ia64/lib/swiotlb.c
+===================================================================
+--- linux-2.6.14-rc4.orig/arch/ia64/lib/swiotlb.c	2005-10-14 
+00:06:21.000000000 -0700
++++ linux-2.6.14-rc4/arch/ia64/lib/swiotlb.c	2005-10-17 
+00:05:22.000000000 -0700
+@@ -123,7 +123,7 @@
+ 	/*
+ 	 * Get IO TLB memory from the low pages
+ 	 */
+-	io_tlb_start = alloc_bootmem_low_pages(io_tlb_nslabs *
++	io_tlb_start = alloc_bootmem_node(NODE_DATA(0), io_tlb_nslabs *
+ 					       (1 << IO_TLB_SHIFT));
+ 	if (!io_tlb_start)
+ 		panic("Cannot allocate SWIOTLB buffer");
+
+
+

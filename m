@@ -1,68 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbVJQSiZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbVJQSiq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932214AbVJQSiZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 14:38:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932248AbVJQSiZ
+	id S932248AbVJQSiq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 14:38:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbVJQSiq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 14:38:25 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:57250 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932214AbVJQSiY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 14:38:24 -0400
-Date: Mon, 17 Oct 2005 11:37:25 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Eric Dumazet <dada1@cosmosbay.com>
-cc: dipankar@in.ibm.com, Jean Delvare <khali@linux-fr.org>,
-       Serge Belyshev <belyshev@depni.sinp.msu.ru>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: VFS: file-max limit 50044 reached
-In-Reply-To: <4353E6F1.8030206@cosmosbay.com>
-Message-ID: <Pine.LNX.4.64.0510171112040.3369@g5.osdl.org>
-References: <Pine.LNX.4.64.0510161912050.23590@g5.osdl.org>
- <JTFDVq8K.1129537967.5390760.khali@localhost> <20051017084609.GA6257@in.ibm.com>
- <43536A6C.102@cosmosbay.com> <20051017103244.GB6257@in.ibm.com>
- <Pine.LNX.4.64.0510170829000.23590@g5.osdl.org> <4353CADB.8050709@cosmosbay.com>
- <Pine.LNX.4.64.0510170911370.23590@g5.osdl.org> <20051017162930.GC13665@in.ibm.com>
- <4353E6F1.8030206@cosmosbay.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 17 Oct 2005 14:38:46 -0400
+Received: from science.horizon.com ([192.35.100.1]:57919 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S932248AbVJQSip
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 14:38:45 -0400
+Date: 17 Oct 2005 14:38:34 -0400
+Message-ID: <20051017183834.32695.qmail@science.horizon.com>
+From: linux@horizon.com
+To: linux-kernel@vger.kernel.org, zippel@linux-m68k.org
+Subject: Re: [PATCH]  ktimers subsystem 2.6.14-rc2-kt5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> - "timer API" vs "timeout API": I got absolutely no acknowlegement that 
+> this might be a little confusing and in consequence "process timer" may be 
+> a better name.
+
+I have to disagree.  Once you grasp the desirability of having two kinds
+of timers, one optimized for the case where it does expire, and one
+optimized for the case where it is aborted or rescheduled before its
+expiration time, the timer/timeout terminology seems quite intuitive
+to me.
+
+In particular, knowing that there are these two kinds of timers, and
+they are called "timer" and "timeout", it's immediately obvious to me
+which is which.  I have no idea which one a "process timer" is.
+
+The word "timeout" is already understood to refer to an error-recovery
+mechanism.  The common and desired case is that a timeout does not occur,
+but rather the device responds, the packet is acknowledged, or what
+have you.
+
+Also, a common use case is that a timeout is continuously active, but its
+expiration time keeps getting postponed.  And great accuracy in timing is
+not required; if the timeout expires 10% late, very little harm is done.
+
+Finally, timeouts are always relative to some triggering event, not
+absolute.
+
+Given this, a specialized timer implementation that optimizes timer
+scheduling at the expense of timer expiration makes all sorts of sense.
 
 
-On Mon, 17 Oct 2005, Eric Dumazet wrote:
-> 
-> <lazy_mode=ON>
-> Do we really need a TIF_RCUUPDATE flag, or could we just ask for a resched ?
-> </lazy_mode>
-
-Hmm.. Your patch looks very much like one I tried already, but the big 
-difference being that I just cleared the count when doing the rcu 
-callback. That was because I hadn't realized the importance of the 
-maxbatch thing (so it didn't work for me, like it did for you).
-
-Still - the actual RCU callback will only be called at the next timer tick 
-or whatever as far as I can tell, so the first time you'll still have a 
-_long_ RCU queue (and thus bad latency).
-
-I guess that's inevitable - and TIF_RCUUPDATE wouldn't even help, because 
-we still need to wait for the _other_ CPU's to get to their RCU quiescent 
-event.
-
-However, that leaves us with the nasty situation that we'll ve very 
-inefficient: we'll do "maxbatch" RCU entries, and then return, and then 
-force a whole re-schedule. That just can't be good.
-
-How about instead of depending on "maxbatch", we'd depend on 
-"need_resched()"? Mabe the "maxbatch" be a _minbatch_ thing, and then once 
-we've done the minimum amount we _need_ to do (or emptied the RCU queue) 
-we start honoring need_resched(), and return early if we do? 
-
-That, together with your patch, should work, without causing ludicrous 
-"reschedule every ten system calls" behaviour..
-
-Hmm?
-
-		Linus
+Note that the network stack can make good use of both kinds.  Timeouts
+for all the usual network timeouts, but high-resolution timers are very
+desirable for transmission rate control.

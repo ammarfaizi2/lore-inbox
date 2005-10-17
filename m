@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbVJQSCE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbVJQSDL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932078AbVJQSCE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 14:02:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932079AbVJQSCE
+	id S932079AbVJQSDL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 14:03:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbVJQSDK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 14:02:04 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:8685 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932078AbVJQSCB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 14:02:01 -0400
-From: Andi Kleen <ak@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [patch] Re: 2.6.14-rc4-mm1 ntfs/namei.c missing compat.h?
-Date: Mon, 17 Oct 2005 20:02:23 +0200
-User-Agent: KMail/1.8
-Cc: Tim Schmielau <tim@physik3.uni-rostock.de>, nyk <nyk@giantx.co.uk>,
-       lkml <linux-kernel@vger.kernel.org>
-References: <20051017144900.GA2942@giantx.co.uk> <200510171841.39868.ak@suse.de> <1129572062.2424.3.camel@localhost>
-In-Reply-To: <1129572062.2424.3.camel@localhost>
+	Mon, 17 Oct 2005 14:03:10 -0400
+Received: from qproxy.gmail.com ([72.14.204.196]:6313 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932090AbVJQSDI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 14:03:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Dr7i1n7b3cr3BFMqAxCEyjCxxNU2NdpzxF4WUufcT5UcQMuCu71tIc9yHClDe+VoSKQth+FKI+OyTsl0zo4HUkSeymIHAMm9VStTmIfpp6vp3aewjAjt2XfR/H9ptqq7AO3j4PlTLJNH9zwGfl3SeBcACk9Sol2xriKREf2QN5I=
+Message-ID: <9a8748490510171103s62bdb84ap3d0ba55b65af32e@mail.gmail.com>
+Date: Mon, 17 Oct 2005 20:03:06 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Andrew Vasquez <andrew.vasquez@qlogic.com>
+Subject: Re: [PATCH] fix implicit declaration compile warning in qla2xxx
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20051017180029.GA9192@plap.qlogic.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200510172002.24210.ak@suse.de>
+References: <200510171959.23585.jesper.juhl@gmail.com>
+	 <20051017180029.GA9192@plap.qlogic.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 17 October 2005 20:01, Alan Cox wrote:
-> On Llu, 2005-10-17 at 18:41 +0200, Andi Kleen wrote:
-> > IMHO the right fix is to put that atomic scrub thingy into another
-> > include file. It seems to cause major additional include dependencies and
-> > is only used in a single file right now.
+On 10/17/05, Andrew Vasquez <andrew.vasquez@qlogic.com> wrote:
+> On Mon, 17 Oct 2005, Jesper Juhl wrote:
 >
-> Every file I looked at (I've not looked at NTFS) included types.h if it
-> included atomic.h but sometimes directly or indirectly after atomic.h
-> rather than before.
+> > Fix warning about implicitly declared function in qla_rscn.c
+> >   drivers/scsi/qla2xxx/qla_rscn.c:334: warning: implicit declaration of function `fc_remote_port_unblock'
+> >
+[snip]
 >
-> I was thinking of just writing a tool to find the other cases and then
-> fix those I can.
+> Sent earlier:
+>
+> http://marc.theaimsgroup.com/?l=linux-scsi&m=112907350209822&w=2
+>
+Hmm, I guess I did a lousy job of searching the archives :(
 
-I think it is far better you do it in a different macro in a different file
-without any nasty dependencies. What you're trying to do has nothing
-to do with atomic_t anyways. It is just abuse of atomic.h
 
--Andi
+> Awaiting inclusion.
+>
+Great :)
 
+
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

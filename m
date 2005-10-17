@@ -1,77 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbVJQQFa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751302AbVJQQHJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932315AbVJQQFa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 12:05:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbVJQQFa
+	id S1751302AbVJQQHJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 12:07:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbVJQQHJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 12:05:30 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:10626 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932315AbVJQQF3 (ORCPT
+	Mon, 17 Oct 2005 12:07:09 -0400
+Received: from mail.kroah.org ([69.55.234.183]:60883 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751302AbVJQQHG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 12:05:29 -0400
-Date: Mon, 17 Oct 2005 18:05:36 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>,
-       david singleton <dsingleton@mvista.com>,
-       Steven Rostedt <rostedt@goodmis.org>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Mark Knecht <markknecht@gmail.com>
-Subject: 2.6.14-rc4-rt7
-Message-ID: <20051017160536.GA2107@elte.hu>
+	Mon, 17 Oct 2005 12:07:06 -0400
+Date: Mon, 17 Oct 2005 09:05:59 -0700
+From: Greg KH <greg@kroah.com>
+To: Robin Holt <holt@sgi.com>
+Cc: Hugh Dickins <hugh@veritas.com>, Dave Hansen <haveblue@us.ibm.com>,
+       ia64 list <linux-ia64@vger.kernel.org>, linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hch@infradead.org, jgarzik@pobox.com,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Carsten Otte <cotte@de.ibm.com>,
+       Jack Steiner <steiner@americas.sgi.com>
+Subject: Re: [Patch 2/3] Export get_one_pte_map.
+Message-ID: <20051017160559.GA315@kroah.com>
+References: <20051014192111.GB14418@lnx-holt.americas.sgi.com> <20051014192225.GD14418@lnx-holt.americas.sgi.com> <20051014213038.GA7450@kroah.com> <20051017113131.GA30898@lnx-holt.americas.sgi.com> <1129549312.32658.32.camel@localhost> <20051017114730.GC30898@lnx-holt.americas.sgi.com> <Pine.LNX.4.61.0510171331090.2993@goblin.wat.veritas.com> <20051017151430.GA2564@lnx-holt.americas.sgi.com> <20051017152034.GA32286@kroah.com> <20051017155605.GB2564@lnx-holt.americas.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <20051017155605.GB2564@lnx-holt.americas.sgi.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 17, 2005 at 10:56:05AM -0500, Robin Holt wrote:
+> On Mon, Oct 17, 2005 at 08:20:34AM -0700, Greg KH wrote:
+> > > Would it be reasonable to ask that the current patch be included and
+> > > then I work up another patch which introduces a ->nopfn type change
+> > > for the -mm tree?
+> > 
+> > The stuff in -mm is what is going to be in .15, so you have to work off
+> > of that patchset if you wish to have something for .15.
+> 
+> Is everything in the mm/ directory from the -mm tree going into .15 or
+> is there a planned subset?  What should I develop against to help ensure
+> I match up with the community?
 
-i have released the 2.6.14-rc4-rt7 tree, which can be downloaded from 
-the usual place:
+-mm is "the community" :)
 
-  http://redhat.com/~mingo/realtime-preempt/
+But Hugh would have the best answer for this, as he knows what he will
+be sending in for .15, so at the least, work off of his patches in
+there.
 
-the biggest change is the merging of "ktimers next step", a'ka the 
-clockevents framework, from Thomas Gleixner. This is mostly a design 
-cleanup of the existing timekeeping, timer and HRT codebase. One 
-user-visible aspect is that the PIT timer is now available as a hres 
-source too - APIC-less systems will find this useful.
+Good luck,
 
-otherwise, there are lots of fixes all across the spectrum.
-
-Changes since 2.6.14-rc4-rt1:
-
-- clockevents framework (Thomas Gleixner)
-
-- ktimer and HRT updates (Thomas Gleixner)
-
-- robust futex updates (David Singleton)
-
-- symbol export fixes (Steven Rostedt)
-
-- export tsc_c3_compensate for real (reported by Rui Nuno Capela)
-
-- fix for the nanosleep() -ERESTARTBLOCK bug
-  (reported by Fernando Lopez-Lezcano)
-
-- x64 latency tracer fixes (reported by Mark Knecht)
-
-- PRINTK_IGNORE_LOGLEVEL bugfix
-
-- various build fixes
-
-to build a 2.6.14-rc4-rt7 tree, the following patches should be applied:
-
-  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.13.tar.bz2
-  http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.14-rc4.bz2
-  http://redhat.com/~mingo/realtime-preempt/patch-2.6.14-rc4-rt7
-
-	Ingo
+greg k-h

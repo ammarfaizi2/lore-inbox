@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbVJQQcd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbVJQQdr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750742AbVJQQcd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 12:32:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750735AbVJQQcd
+	id S1750735AbVJQQdr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 12:33:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbVJQQdr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 12:32:33 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:28567 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750742AbVJQQcc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 12:32:32 -0400
-Subject: Re: VFS: file-max limit 50044 reached
-From: Lee Revell <rlrevell@joe-job.com>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Dipankar Sarma <dipankar@in.ibm.com>,
-       Jean Delvare <khali@linux-fr.org>,
-       Serge Belyshev <belyshev@depni.sinp.msu.ru>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Manfred Spraul <manfred@colorfullife.com>
-In-Reply-To: <4353CADB.8050709@cosmosbay.com>
-References: <Pine.LNX.4.64.0510161912050.23590@g5.osdl.org>
-	 <JTFDVq8K.1129537967.5390760.khali@localhost>
-	 <20051017084609.GA6257@in.ibm.com> <43536A6C.102@cosmosbay.com>
-	 <20051017103244.GB6257@in.ibm.com>
-	 <Pine.LNX.4.64.0510170829000.23590@g5.osdl.org>
-	 <4353CADB.8050709@cosmosbay.com>
-Content-Type: text/plain
-Date: Mon, 17 Oct 2005 12:31:56 -0400
-Message-Id: <1129566717.1321.39.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+	Mon, 17 Oct 2005 12:33:47 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:38817 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1750735AbVJQQdr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 12:33:47 -0400
+Date: Mon, 17 Oct 2005 18:33:31 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Ingo Molnar <mingo@elte.hu>
+cc: Thomas Gleixner <tglx@linutronix.de>, George Anzinger <george@mvista.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       johnstul@us.ibm.com, paulmck@us.ibm.com,
+       Christoph Hellwig <hch@infradead.org>, oleg@tv-sign.ru,
+       tim.bird@am.sony.com
+Subject: Re: [PATCH]  ktimers subsystem 2.6.14-rc2-kt5
+In-Reply-To: <20051017094153.GA9091@elte.hu>
+Message-ID: <Pine.LNX.4.61.0510171825410.1386@scrub.home>
+References: <1128168344.15115.496.camel@tglx.tec.linutronix.de>
+ <Pine.LNX.4.61.0510100213480.3728@scrub.home> <1129016558.1728.285.camel@tglx.tec.linutronix.de>
+ <Pine.LNX.4.61.0510130004330.3728@scrub.home> <434DA06C.7050801@mvista.com>
+ <Pine.LNX.4.61.0510150143500.1386@scrub.home> <1129490809.1728.874.camel@tglx.tec.linutronix.de>
+ <Pine.LNX.4.61.0510170021050.1386@scrub.home> <20051017075917.GA4827@elte.hu>
+ <Pine.LNX.4.61.0510171054430.1386@scrub.home> <20051017094153.GA9091@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-10-17 at 18:01 +0200, Eric Dumazet wrote:
-> A 'realtime refinement' would be to use a different maxbatch limit depending 
-> on the caller's priority : Let a softirq thread have a lower batch count than 
-> a regular user thread.
+Hi,
 
-Or just make the whole thing preemptible like in the -rt tree and forget
-about it.
+On Mon, 17 Oct 2005, Ingo Molnar wrote:
 
-Lee
+> if a dozen mails werent enough then one more probably wont make a 
+> difference,
 
+Just for the record: in this thread I got exactly three answers from 
+Thomas. I don't know where you got the other nine mails from, maybe you 
+could forward them to me, as they seem to contain the "patient 
+explanations" I'm missing.
+
+bye, Roman

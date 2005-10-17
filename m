@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbVJQU2n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbVJQUaY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751326AbVJQU2n (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 16:28:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751343AbVJQU2n
+	id S1751345AbVJQUaY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 16:30:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751352AbVJQUaY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 16:28:43 -0400
-Received: from atlrel8.hp.com ([156.153.255.206]:25794 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S1751326AbVJQU2m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 16:28:42 -0400
-Subject: [PATCH] mm trivial ia64/acpi breakage
-From: Alex Williamson <alex.williamson@hp.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: LOSL
-Date: Mon, 17 Oct 2005 14:28:39 -0600
-Message-Id: <1129580919.9621.33.camel@lts1.fc.hp.com>
+	Mon, 17 Oct 2005 16:30:24 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:59605 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751345AbVJQUaX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 16:30:23 -0400
+Date: Tue, 18 Oct 2005 01:54:19 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: "Christopher Friesen" <cfriesen@nortel.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Eric Dumazet <dada1@cosmosbay.com>,
+       Jean Delvare <khali@linux-fr.org>,
+       Serge Belyshev <belyshev@depni.sinp.msu.ru>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: VFS: file-max limit 50044 reached
+Message-ID: <20051017202419.GG13665@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <4353CADB.8050709@cosmosbay.com> <Pine.LNX.4.64.0510170911370.23590@g5.osdl.org> <20051017162930.GC13665@in.ibm.com> <4353E6F1.8030206@cosmosbay.com> <Pine.LNX.4.64.0510171112040.3369@g5.osdl.org> <4353F7B5.1040101@cosmosbay.com> <Pine.LNX.4.64.0510171218490.3369@g5.osdl.org> <4353FDE8.8070909@cosmosbay.com> <Pine.LNX.4.64.0510171304580.3369@g5.osdl.org> <435408AD.4060505@nortel.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <435408AD.4060505@nortel.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 17, 2005 at 02:25:17PM -0600, Christopher Friesen wrote:
+> Linus Torvalds wrote:
+> 
+> >Yes, it may screw up some latency stuff, but quite frankly, even with your 
+> >patch and even ignoring the call_rcu_bh case, I'm convinced you can easily 
+> >get into the situation where softirqd just doesn't run soon enough.
+> >
+> >But at least I think I understand _why_ rcu processing was delayed.
+> 
+> Could this be related to the "rename14 LTP test with /tmp as tmpfs and 
+> HIGHMEM causes OOM-killer invocation due to zone normal exhaustion" issue?
 
-   The git-acpi.patch changed the name of the "id" member of the
-acpi_resource structure, but missed the below user.  Updating to the new
-name.
+Could very well be. Chris, could you please try booting
+with rcupdate.maxbatch=10000 and see if the problem goes away ?
 
-Signed-off-by: Alex Williamson <alex.williamson@hp.com>
-
-diff -r 6bf6e9fcc962 arch/ia64/kernel/acpi-ext.c
---- a/arch/ia64/kernel/acpi-ext.c	Sun Oct 16 22:44:53 2005
-+++ b/arch/ia64/kernel/acpi-ext.c	Mon Oct 17 14:27:14 2005
-@@ -35,7 +35,7 @@
- 	struct acpi_vendor_descriptor *descriptor;
- 	u32 length;
- 
--	if (resource->id != ACPI_RSTYPE_VENDOR)
-+	if (resource->type != ACPI_RSTYPE_VENDOR)
- 		return AE_OK;
- 
- 	vendor = (struct acpi_resource_vendor *)&resource->data;
-
-
+Thanks
+Dipankar

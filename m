@@ -1,47 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932192AbVJQIQv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932201AbVJQIYN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932192AbVJQIQv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 04:16:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932194AbVJQIQv
+	id S932201AbVJQIYN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 04:24:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbVJQIYN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 04:16:51 -0400
-Received: from gate.crashing.org ([63.228.1.57]:26820 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932192AbVJQIQv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 04:16:51 -0400
-Subject: Re: Fw: Re: 2.6.14-rc4-mm1
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: WU Fengguang <wfg@mail.ustc.edu.cn>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20051017081534.GA4493@mail.ustc.edu.cn>
-References: <20051017001321.2358f341.akpm@osdl.org>
-	 <1129533808.7620.70.camel@gaston>  <20051017081534.GA4493@mail.ustc.edu.cn>
-Content-Type: text/plain
-Date: Mon, 17 Oct 2005 18:14:58 +1000
-Message-Id: <1129536899.7620.78.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Mon, 17 Oct 2005 04:24:13 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:1275 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932201AbVJQIYM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 04:24:12 -0400
+Date: Mon, 17 Oct 2005 04:24:00 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+To: liyu <liyu@ccoss.com.cn>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [Question] one question about 'current' in scheduler_tick() 
+In-Reply-To: <43535B35.5020603@ccoss.com.cn>
+Message-ID: <Pine.LNX.4.58.0510170416090.5859@localhost.localdomain>
+References: <43535B35.5020603@ccoss.com.cn>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-10-17 at 16:15 +0800, WU Fengguang wrote:
-> On Mon, Oct 17, 2005 at 05:23:27PM +1000, Benjamin Herrenschmidt wrote:
-> > Does that updated patch fixes it ?
-> Lots of rejects, so I manually applied the relevant part in nv_proto.h.
-> It worked, though there were warnings:
-> 
-> drivers/video/nvidia/nv_setup.c: In function `NVCommonSetup':
-> drivers/video/nvidia/nv_setup.c:408: warning: statement with no effect
-> drivers/video/nvidia/nv_setup.c:496: warning: statement with no effect
-> drivers/video/nvidia/nv_setup.c:504: warning: statement with no effect
-> 
-> > +#define nvidia_probe_i2c_connector(p, c, edid) (-1)
-> > +#define nvidia_probe_of_connector(p, c, edid)  (-1)
-> Do you mean TRUE/SUCCESS here with (-1)?
+Hi Liyu (once again :-)
 
-Yes
+On Mon, 17 Oct 2005, liyu wrote:
 
-Ben.
+> Hi, All.
+>
+>     I found scheduler_tick() use current macro to get task_struct of
+> current task.
+>
+>     I seen scheduler_tick() is called every timer interrupt at most
+> time. In this
+> case, I think scheduler_tick() is in interrupt context (enter kernel by
+> interrupt),
 
+Yes, scheduler_tick is called from interrupt context.
+
+> So I have a hunch that there have not thread_info which it need in
+> kernel stack. But
+> It seem it can work perfectly.
+
+Although it is said that you can't access user memory from an interrupt
+context, the reasons are simple.  One, most user memory access can
+schedule, and an interrupt service routine must not schedule. Also, an
+interrupt service routine can happen on any thread, so you can't be sure
+what thread is there.
+
+But, when an interrupt goes off, whatever thread is running is still
+there.  The thread's context _is_ still there.  The changing to the
+interrupt stack takes special care to make sure that current still works.
+So a copy of the thread_info is also done. Look in the do_IRQ in
+arch/i386/kernel/irq.c and search for 4KSTACKS.  You will see there the
+copying of thread_info.
+
+>
+>     I can not understand this. Would any expert like explain clearly for
+> it ?
+>
+
+Hope this helps,
+
+-- Steve
 

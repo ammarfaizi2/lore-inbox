@@ -1,187 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbVJQEqM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbVJQEnf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932190AbVJQEqM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 00:46:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbVJQEqL
+	id S932180AbVJQEnf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 00:43:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbVJQEnf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 00:46:11 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:58572 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S932174AbVJQEqK (ORCPT
+	Mon, 17 Oct 2005 00:43:35 -0400
+Received: from [82.138.41.32] ([82.138.41.32]:34698 "EHLO foo.vault.bofh.ru")
+	by vger.kernel.org with ESMTP id S932180AbVJQEne (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 00:46:10 -0400
-Date: Mon, 17 Oct 2005 00:46:06 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, davej@redhat.com
-Subject: [PATCH] libata: fix broken Kconfig setup
-Message-ID: <20051017044606.GA1266@havoc.gtf.org>
-Mime-Version: 1.0
+	Mon, 17 Oct 2005 00:43:34 -0400
+From: Serge Belyshev <belyshev@depni.sinp.msu.ru>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, khali@linux-fr.org,
+       Andrew Morton <akpm@osdl.org>,
+       Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: VFS: file-max limit 50044 reached
+References: <87fyr2ape5.fsf@foo.vault.bofh.ru>
+	<87slv23bw5.fsf@foo.vault.bofh.ru> <20051016162306.GA10410@in.ibm.com>
+	<873bn1thwf.fsf@foo.vault.bofh.ru> <20051016185632.GE8303@in.ibm.com>
+	<Pine.LNX.4.64.0510161912050.23590@g5.osdl.org>
+Date: Mon, 17 Oct 2005 08:43:27 +0400
+In-Reply-To: <Pine.LNX.4.64.0510161912050.23590@g5.osdl.org> (Linus Torvalds's
+	message of "Sun, 16 Oct 2005 19:19:29 -0700 (PDT)")
+Message-ID: <87wtkcg3dc.fsf@foo.vault.bofh.ru>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/23.0.0 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[resend, sorry for sending mail off-list]
 
-The patch described in commit faa725332f39329288f52b7f872ffda866ba5b09
->   [PATCH] SCSI_SATA has to be a tristate
+Linus Torvalds <torvalds@osdl.org> writes:
 
-causes the PCI quirk in drivers/pci/quirk.c (quirk_intel_ide_combined)
-to disappear, unless CONFIG_SCSI_SATA==y.  This, in turn, causes all
-manner of booting and interaction problems between the IDE driver and
-libata.
+> Serge, does this alternate patch work for you?
+>
 
-CONFIG_SCSI_SATA is truly a boolean option, not a tristate.
-Since the Kconfig dependencies are insufficient to describe this (2.4
-had dep_mbool), we need to resort to 'if'.
+Yes, this patch works too.
 
-This fix is twofold:
-1) Fix IDE/libata conflict by ensuring that CONFIG_SCSI_SATA symbol
-   always exists (rather than bothering with CONFIG_SCSI_SATA_MODULE).
-2) Restore CONFIG_SCSI_SATA's rightful boolean status, and employ
-   'if' to obtain the proper menu behavior.
+> Gaah. I had really hoped to release 2.6.14 tomorrow. It's been a week 
+> since -rc4.
+>
+> Maybe this isn't that serious in practice right now? Serge, how did you 
+> notice it?
+>
 
-Please apply, so that people cursed with PATA/SATA "combined mode"
-can have a working configuration again.
-
-
-diff --git a/drivers/scsi/Kconfig b/drivers/scsi/Kconfig
---- a/drivers/scsi/Kconfig
-+++ b/drivers/scsi/Kconfig
-@@ -437,7 +437,7 @@ config SCSI_IN2000
- source "drivers/scsi/megaraid/Kconfig.megaraid"
- 
- config SCSI_SATA
--	tristate "Serial ATA (SATA) support"
-+	bool "Serial ATA (SATA) support"
- 	depends on SCSI
- 	help
- 	  This driver family supports Serial ATA host controllers
-@@ -445,9 +445,11 @@ config SCSI_SATA
- 
- 	  If unsure, say N.
- 
-+if SCSI_SATA
-+
- config SCSI_SATA_AHCI
- 	tristate "AHCI SATA support"
--	depends on SCSI_SATA && PCI
-+	depends on SCSI && PCI
- 	help
- 	  This option enables support for AHCI Serial ATA.
- 
-@@ -455,7 +457,7 @@ config SCSI_SATA_AHCI
- 
- config SCSI_SATA_SVW
- 	tristate "ServerWorks Frodo / Apple K2 SATA support"
--	depends on SCSI_SATA && PCI
-+	depends on SCSI && PCI
- 	help
- 	  This option enables support for Broadcom/Serverworks/Apple K2
- 	  SATA support.
-@@ -464,7 +466,7 @@ config SCSI_SATA_SVW
- 
- config SCSI_ATA_PIIX
- 	tristate "Intel PIIX/ICH SATA support"
--	depends on SCSI_SATA && PCI
-+	depends on SCSI && PCI
- 	help
- 	  This option enables support for ICH5 Serial ATA.
- 	  If PATA support was enabled previously, this enables
-@@ -474,7 +476,7 @@ config SCSI_ATA_PIIX
- 
- config SCSI_SATA_MV
- 	tristate "Marvell SATA support"
--	depends on SCSI_SATA && PCI && EXPERIMENTAL
-+	depends on SCSI && PCI && EXPERIMENTAL
- 	help
- 	  This option enables support for the Marvell Serial ATA family.
- 	  Currently supports 88SX[56]0[48][01] chips.
-@@ -483,7 +485,7 @@ config SCSI_SATA_MV
- 
- config SCSI_SATA_NV
- 	tristate "NVIDIA SATA support"
--	depends on SCSI_SATA && PCI && EXPERIMENTAL
-+	depends on SCSI && PCI && EXPERIMENTAL
- 	help
- 	  This option enables support for NVIDIA Serial ATA.
- 
-@@ -491,7 +493,7 @@ config SCSI_SATA_NV
- 
- config SCSI_SATA_PROMISE
- 	tristate "Promise SATA TX2/TX4 support"
--	depends on SCSI_SATA && PCI
-+	depends on SCSI && PCI
- 	help
- 	  This option enables support for Promise Serial ATA TX2/TX4.
- 
-@@ -499,7 +501,7 @@ config SCSI_SATA_PROMISE
- 
- config SCSI_SATA_QSTOR
- 	tristate "Pacific Digital SATA QStor support"
--	depends on SCSI_SATA && PCI
-+	depends on SCSI && PCI
- 	help
- 	  This option enables support for Pacific Digital Serial ATA QStor.
- 
-@@ -507,7 +509,7 @@ config SCSI_SATA_QSTOR
- 
- config SCSI_SATA_SX4
- 	tristate "Promise SATA SX4 support"
--	depends on SCSI_SATA && PCI && EXPERIMENTAL
-+	depends on SCSI && PCI && EXPERIMENTAL
- 	help
- 	  This option enables support for Promise Serial ATA SX4.
- 
-@@ -515,7 +517,7 @@ config SCSI_SATA_SX4
- 
- config SCSI_SATA_SIL
- 	tristate "Silicon Image SATA support"
--	depends on SCSI_SATA && PCI && EXPERIMENTAL
-+	depends on SCSI && PCI && EXPERIMENTAL
- 	help
- 	  This option enables support for Silicon Image Serial ATA.
- 
-@@ -523,7 +525,7 @@ config SCSI_SATA_SIL
- 
- config SCSI_SATA_SIS
- 	tristate "SiS 964/180 SATA support"
--	depends on SCSI_SATA && PCI && EXPERIMENTAL
-+	depends on SCSI && PCI && EXPERIMENTAL
- 	help
- 	  This option enables support for SiS Serial ATA 964/180.
- 
-@@ -531,7 +533,7 @@ config SCSI_SATA_SIS
- 
- config SCSI_SATA_ULI
- 	tristate "ULi Electronics SATA support"
--	depends on SCSI_SATA && PCI && EXPERIMENTAL
-+	depends on SCSI && PCI && EXPERIMENTAL
- 	help
- 	  This option enables support for ULi Electronics SATA.
- 
-@@ -539,7 +541,7 @@ config SCSI_SATA_ULI
- 
- config SCSI_SATA_VIA
- 	tristate "VIA SATA support"
--	depends on SCSI_SATA && PCI
-+	depends on SCSI && PCI
- 	help
- 	  This option enables support for VIA Serial ATA.
- 
-@@ -547,12 +549,14 @@ config SCSI_SATA_VIA
- 
- config SCSI_SATA_VITESSE
- 	tristate "VITESSE VSC-7174 SATA support"
--	depends on SCSI_SATA && PCI
-+	depends on SCSI && PCI
- 	help
- 	  This option enables support for Vitesse VSC7174 Serial ATA.
- 
- 	  If unsure, say N.
- 
-+endif	# if SCSI_SATA
-+
- config SCSI_BUSLOGIC
- 	tristate "BusLogic SCSI support"
- 	depends on (PCI || ISA || MCA) && SCSI && ISA_DMA_API
+This bug causes random failures when building kernel with make -j4, all with
+"Too many open files in system" message from gcc.

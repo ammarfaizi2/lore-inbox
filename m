@@ -1,63 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750980AbVJQTwh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751243AbVJQUJp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750980AbVJQTwh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 15:52:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbVJQTwh
+	id S1751243AbVJQUJp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 16:09:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751292AbVJQUJp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 15:52:37 -0400
-Received: from atlrel7.hp.com ([156.153.255.213]:29631 "EHLO atlrel7.hp.com")
-	by vger.kernel.org with ESMTP id S1750980AbVJQTwg (ORCPT
+	Mon, 17 Oct 2005 16:09:45 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:53145 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751243AbVJQUJo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 15:52:36 -0400
-Subject: Re: x86_64: 2.6.14-rc4 swiotlb broken
-From: Alex Williamson <alex.williamson@hp.com>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Cc: Christoph Lameter <clameter@engr.sgi.com>, Andi Kleen <ak@suse.de>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, discuss@x86-64.org, tglx@linutronix.de,
-       shai@scalex86.org, linville@tuxdriver.com
-In-Reply-To: <20051017192637.GC4959@localhost.localdomain>
-References: <20051017093654.GA7652@localhost.localdomain>
-	 <200510171153.56063.ak@suse.de>
-	 <Pine.LNX.4.64.0510170819290.23590@g5.osdl.org>
-	 <200510171740.57614.ak@suse.de>
-	 <20051017175231.GA4959@localhost.localdomain>
-	 <Pine.LNX.4.62.0510171110450.1480@schroedinger.engr.sgi.com>
-	 <1129575841.9621.15.camel@lts1.fc.hp.com>
-	 <20051017192637.GC4959@localhost.localdomain>
-Content-Type: text/plain
-Organization: LOSL
-Date: Mon, 17 Oct 2005 13:52:16 -0600
-Message-Id: <1129578736.9621.25.camel@lts1.fc.hp.com>
+	Mon, 17 Oct 2005 16:09:44 -0400
+Date: Mon, 17 Oct 2005 22:09:49 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Tim Bird <tim.bird@am.sony.com>, Andrew Morton <akpm@osdl.org>,
+       tglx@linutronix.de, george@mvista.com, linux-kernel@vger.kernel.org,
+       johnstul@us.ibm.com, paulmck@us.ibm.com, hch@infradead.org,
+       oleg@tv-sign.ru
+Subject: Re: [PATCH]  ktimers subsystem 2.6.14-rc2-kt5
+Message-ID: <20051017200949.GA8590@elte.hu>
+References: <Pine.LNX.4.61.0510150143500.1386@scrub.home> <1129490809.1728.874.camel@tglx.tec.linutronix.de> <Pine.LNX.4.61.0510170021050.1386@scrub.home> <20051017075917.GA4827@elte.hu> <Pine.LNX.4.61.0510171054430.1386@scrub.home> <20051017094153.GA9091@elte.hu> <20051017025657.0d2d09cc.akpm@osdl.org> <Pine.LNX.4.61.0510171511010.1386@scrub.home> <4353D60E.70901@am.sony.com> <Pine.LNX.4.61.0510171948040.1386@scrub.home>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0510171948040.1386@scrub.home>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-10-17 at 12:26 -0700, Ravikiran G Thirumalai wrote:
 
-> This memory only node has a node id? Then how about a patch which iterates over 
-> nodes in swiotlb.c, trying to allocate DMA'ble memory from node 0 and above
-> until it gets proper memory for swiotlb?
+* Roman Zippel <zippel@linux-m68k.org> wrote:
+
+> > > It's rather simple:
+> > > - "timer API" vs "timeout API": I got absolutely no acknowlegement that this
+> > > might be a little confusing and in consequence "process timer" may be a
+> > > better name.
+> > 
+> > I agree with Thomas on this one.  Maybe "timer" and "timeout" are too close,
+> > but I think they are the most descriptive names.
+> >  - timeout is something used for a timeout.  Timeouts only actually
+> >  expire infrequently, so they have a host of attributes associated
+> >  with that characteristic.
+> >  - timer is something used to time something.  They almost always
+> >  expire as part of their normal behaviour.  In the ktimer code they
+> >  have a host of attributes related to this characteristic.
 > 
-> Would that be accepatble?  I can quickly make a patch for that if it is
-> acceptable..
+> There is of course a difference, but is it big enough that they 
+> deserve different APIs? Just look into <linux/timer.h> it doesn't 
+> mention timeout once, but according to Thomas that's our "timeout 
+> API". Look at the description of mod_timer() in timer.c: "modify a 
+> timer's timeout". It seems I'm not only one who thinks that both are 
+> closely related.
 
-   Yes, the memory-only node is just another node.  Iterating over all
-nodes sounds a little brute force, but I guess it should work.  FWIW,
-here's the results of the previous one-liner on an HP Superdome (booting
-w/ machvec=dig to use the swiotlb instead of hardware iotlb):
+this is one more area where there's no good substitute from 'walking the 
+walk', i.e. getting yourself dirty with actual code. I have been 
+involved with the following variants which were part of the -rt tree:
 
-2.6.14-rc4-mm1, before patch:
-Placing software IO TLB between 0x4cdc000 - 0x8cdc000
+- we implemented both timeouts and timers with the same
+  timeout-optimized framework [i.e. with the 'wheel'] - it sucked.
 
-after patch:
-Placing software IO TLB between 0x74104e6b200 - 0x74108e6b200
+- timers and timeouts with a timer-optimized framework [i.e. with a
+  binary tree] sucks too, due to the tree overhead.
 
-Thanks,
+- we in fact tried another variant too: a hybrid method where timers and
+  timeouts lived in the timer wheel and some time before (hr) timers
+  were about to time out they were put into a separate hr-list. This
+  hybrid solution sucked too.
 
-	Alex
+so then we tried a separate API and subsystem for both of them, and 
+voila, many of the uglinesses went away, and things became robust.
 
--- 
-
+	Ingo

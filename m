@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932260AbVJQKit@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932264AbVJQKzk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932260AbVJQKit (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 06:38:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbVJQKis
+	id S932264AbVJQKzk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 06:55:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbVJQKzk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 06:38:48 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:30402 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932260AbVJQKis
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 06:38:48 -0400
-Date: Mon, 17 Oct 2005 16:02:44 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: Jean Delvare <khali@linux-fr.org>, torvalds@osdl.org,
-       Serge Belyshev <belyshev@depni.sinp.msu.ru>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: VFS: file-max limit 50044 reached
-Message-ID: <20051017103244.GB6257@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <Pine.LNX.4.64.0510161912050.23590@g5.osdl.org> <JTFDVq8K.1129537967.5390760.khali@localhost> <20051017084609.GA6257@in.ibm.com> <43536A6C.102@cosmosbay.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <43536A6C.102@cosmosbay.com>
-User-Agent: Mutt/1.5.10i
+	Mon, 17 Oct 2005 06:55:40 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:65507 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932264AbVJQKzj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 06:55:39 -0400
+Date: Mon, 17 Oct 2005 19:54:58 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+Subject: Re: x86_64: 2.6.14-rc4 swiotlb broken
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org, tglx@linutronix.de, torvalds@osdl.org,
+       shai@scalex86.org, Andi Kleen <ak@suse.de>
+In-Reply-To: <200510171153.56063.ak@suse.de>
+References: <20051017025007.35ae8d0e.akpm@osdl.org> <200510171153.56063.ak@suse.de>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.051
+Message-Id: <20051017193904.0C96.Y-GOTO@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.21.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 17, 2005 at 11:10:04AM +0200, Eric Dumazet wrote:
-> Dipankar Sarma a écrit :
+Hello. Ravikiran-san.
+
+> > This is an ia64 patch - what point was there in testing it on an x460?
 > >
-> >IMO, putting the file accounting in slab ctor/dtors is not very
-> >reliable because it depends on slab not getting fragmented.
-> >Batched freeing in RCU is just an extreme case of it. We needed
-> >to fix file counting anyway.
-> >
-> >Thanks
-> >Dipankar
+> > Is something missing here?
 > 
-> But isnt this file counting a small problem ?
+> x86-64 shares that code with ia64.
 > 
-> This small program can eat all available memory.
+> The patch is actually not quite correct - in theory node 0 could be too small 
+> to contain the full swiotlb bounce buffers.
 > 
-> Fixing the 'file count' wont fix the real problem : Batch freeing is good 
-> but should be limited so that not more than *billions* of file struct are 
-> queued for deletion.
+> The real fix would be to get rid of the pgdata lists and just walk the 
+> node_online_map on bootmem.c. The memory hotplug guys have
+> a patch pending for this.
 
-Agreed. It is not designed to work that way, so there must be
-a bug somewhere and I am trying to track it down. It could very well
-be that at maxbatch=10 we are just queueing at a rate far too high
-compared to processing.
+Yeah!
+I posted a patch for this problem to linux-mm ML. Could you try it? 
+http://marc.theaimsgroup.com/?l=linux-mm&m=112791558527522&w=2
 
-> I believe we can find a solution, even if it might delay 2.6.14 because 
-> Linus would have to release a rc5
+2.6.14-rc4-mm1 already has merged it. ;-)
 
-This I am not sure, it is Linus' call. I am just trying to do the
-right thing - fix the real problem.
+Thanks.
 
-Thanks
-Dipankar
+-- 
+Yasunori Goto 
+

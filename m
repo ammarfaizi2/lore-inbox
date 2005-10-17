@@ -1,102 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751178AbVJQRaj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751192AbVJQRfr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751178AbVJQRaj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 13:30:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbVJQRaj
+	id S1751192AbVJQRfr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 13:35:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbVJQRfr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 13:30:39 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:27538 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1751178AbVJQRai (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 13:30:38 -0400
-Date: Mon, 17 Oct 2005 19:30:34 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: WU Fengguang <wfg@mail.ustc.edu.cn>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] Adaptive read-ahead v4
-Message-ID: <20051017173034.GA6558@wohnheim.fh-wedel.de>
-References: <20051015174731.GA5851@mail.ustc.edu.cn>
+	Mon, 17 Oct 2005 13:35:47 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:30119 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751181AbVJQRfq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 13:35:46 -0400
+Date: Mon, 17 Oct 2005 19:35:35 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>, George Anzinger <george@mvista.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       johnstul@us.ibm.com, paulmck@us.ibm.com,
+       Christoph Hellwig <hch@infradead.org>, oleg@tv-sign.ru,
+       tim.bird@am.sony.com
+Subject: Re: [PATCH]  ktimers subsystem 2.6.14-rc2-kt5
+Message-ID: <20051017173535.GB5719@elte.hu>
+References: <434DA06C.7050801@mvista.com> <Pine.LNX.4.61.0510150143500.1386@scrub.home> <1129490809.1728.874.camel@tglx.tec.linutronix.de> <Pine.LNX.4.61.0510170021050.1386@scrub.home> <20051017075917.GA4827@elte.hu> <Pine.LNX.4.61.0510171054430.1386@scrub.home> <20051017094153.GA9091@elte.hu> <Pine.LNX.4.61.0510171825410.1386@scrub.home> <20051017163958.GA4897@elte.hu> <Pine.LNX.4.61.0510171852000.1386@scrub.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20051015174731.GA5851@mail.ustc.edu.cn>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <Pine.LNX.4.61.0510171852000.1386@scrub.home>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 October 2005 01:47:31 +0800, WU Fengguang wrote:
->
-> @@ -131,6 +133,63 @@ struct page_state {
->  
->  	unsigned long pgrotated;	/* pages rotated to tail of the LRU */
->  	unsigned long nr_bounce;	/* pages for bounce buffers */
-> +
-> +	unsigned long cache_miss;	/* read cache misses */
-> +	unsigned long readrandom;	/* random reads */
-> +	unsigned long pgreadrandom;	/* random read pages */
-> +	unsigned long readahead_rescue; /* read-aheads rescued*/
-> +	unsigned long pgreadahead_rescue;
-> +	unsigned long readahead_end;	/* read-aheads passed EOF */
-> +
-> +	unsigned long readahead;	/* read-aheads issued */
-> +	unsigned long readahead_return;	/* look-ahead marks returned */
-> +	unsigned long readahead_eof;	/* read-aheads stop at EOF */
-> +	unsigned long pgreadahead;	/* read-ahead pages issued */
-> +	unsigned long pgreadahead_hit;	/* read-ahead pages accessed */
-> +	unsigned long pgreadahead_eof;
-> +
-> +	unsigned long ra_newfile;	/* read-ahead on start of file */
-> +	unsigned long ra_newfile_return;
-> +	unsigned long ra_newfile_eof;
-> +	unsigned long pgra_newfile;
-> +	unsigned long pgra_newfile_hit;
-> +	unsigned long pgra_newfile_eof;
-> +
-> +	unsigned long ra_state;		/* state based read-ahead */
-> +	unsigned long ra_state_return;
-> +	unsigned long ra_state_eof;
-> +	unsigned long pgra_state;
-> +	unsigned long pgra_state_hit;
-> +	unsigned long pgra_state_eof;
-> +
-> +	unsigned long ra_context;	/* context based read-ahead */
-> +	unsigned long ra_context_return;
-> +	unsigned long ra_context_eof;
-> +	unsigned long pgra_context;
-> +	unsigned long pgra_context_hit;
-> +	unsigned long pgra_context_eof;
-> +
-> +	unsigned long ra_contexta;	/* accelerated context based read-ahead */
-> +	unsigned long ra_contexta_return;
-> +	unsigned long ra_contexta_eof;
-> +	unsigned long pgra_contexta;
-> +	unsigned long pgra_contexta_hit;
-> +	unsigned long pgra_contexta_eof;
-> +
-> +	unsigned long ra_backward;	/* prefetch pages for backward reading */
-> +	unsigned long ra_backward_return;
-> +	unsigned long ra_backward_eof;
-> +	unsigned long pgra_backward;
-> +	unsigned long pgra_backward_hit;
-> +	unsigned long pgra_backward_eof;
-> +
-> +	unsigned long ra_random;	/* read-ahead on seek-and-read-pages */
-> +	unsigned long ra_random_return;
-> +	unsigned long ra_random_eof;
-> +	unsigned long pgra_random;
-> +	unsigned long pgra_random_hit;
-> +	unsigned long pgra_random_eof;
-> +
->  };
 
-Without actually understanding what you're doing, wouldn't a struct
-for all those groups make sense?  I bet it can simplify the actual
-code as well.
+* Roman Zippel <zippel@linux-m68k.org> wrote:
 
-Jörn
+> > > Just for the record: in this thread I got exactly three answers 
+> > > from Thomas. I don't know where you got the other nine mails from, 
+> > > maybe you could forward them to me, as they seem to contain the 
+> > > "patient explanations" I'm missing.
+> > >
+> > here are all the replies from Thomas, regarding ktimers:
+> > 
+> > 12359   * Sep 22 Thomas Gleixner ( 319) Re: [ANNOUNCE] ktimers subsystem
+> > 12362   * Sep 23 Thomas Gleixner (  49) Re: [ANNOUNCE] ktimers subsystem
+> > 12363   * Sep 23 Thomas Gleixner ( 235) Re: [ANNOUNCE] ktimers subsystem
+> > 12367   * Sep 24 Thomas Gleixner ( 214) Re: [ANNOUNCE] ktimers subsystem
+> > 12368   * Sep 25 Thomas Gleixner (  25) Re: [ANNOUNCE] ktimers subsystem
+> > 12369   * Sep 25 Thomas Gleixner (  17) Re: [ANNOUNCE] ktimers subsystem
+> > 12370   * Sep 25 Thomas Gleixner (  10) Re: [ANNOUNCE] ktimers subsystem
+> 
+> Different thread and not directly related to issues with the patch.
 
--- 
-When people work hard for you for a pat on the back, you've got
-to give them that pat.
--- Robert Heinlein
+ugh, what were they about then, poetry?
+
+Ah i think i know what you mean: these were about a PREVIOUS VERSION of 
+the patch, and hence they fell off the face of the earth, regardless of 
+their content, right? What a tricky little definition of "Thomas replied 
+only 3 times" ...
+
+> > 12387   * Oct 01 Thomas Gleixner ( 817) Re: [PATCH]  ktimers subsystem 2.6.14-rc
+> > 12419   * Oct 11 Thomas Gleixner (  41) Re: [PATCH]  ktimers subsystem 2.6.14-rc
+> > 12434   * Oct 16 Thomas Gleixner (  40) Re: [PATCH]  ktimers subsystem 2.6.14-rc
+> 
+> That's the only mails related to the patch.
+
+your latest mail with the list of 'open' issues seems to contradict your 
+assertion that the above 3 mails from Thomas where "the only mails 
+related to the patch". E.g.:
+
+' - "timer API" vs "timeout API": I got absolutely no acknowlegement 
+     that this might be a little confusing and in consequence "process 
+     timer" may be a better name. '
+
+was raised and discussed in the first chunk of mails just as well.
+
+	Ingo

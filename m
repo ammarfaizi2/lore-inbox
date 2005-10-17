@@ -1,26 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbVJQRZz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751268AbVJQR0q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751225AbVJQRZz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 13:25:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbVJQRZy
+	id S1751268AbVJQR0q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 13:26:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751243AbVJQR0q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 13:25:54 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:26759 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751173AbVJQRZx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 13:25:53 -0400
-Date: Mon, 17 Oct 2005 10:25:32 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, davej@redhat.com
-Subject: Re: [PATCH] libata: fix broken Kconfig setup
-In-Reply-To: <4353DB2C.10905@pobox.com>
-Message-ID: <Pine.LNX.4.64.0510171017010.3369@g5.osdl.org>
-References: <20051017044606.GA1266@havoc.gtf.org> <Pine.LNX.4.64.0510170754500.23590@g5.osdl.org>
- <4353C42A.3000005@pobox.com> <Pine.LNX.4.64.0510170848180.23590@g5.osdl.org>
- <4353CF7E.1090404@pobox.com> <Pine.LNX.4.64.0510170930420.23590@g5.osdl.org>
- <Pine.LNX.4.64.0510170946250.23590@g5.osdl.org> <4353DB2C.10905@pobox.com>
+	Mon, 17 Oct 2005 13:26:46 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:33735 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751231AbVJQR0p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 13:26:45 -0400
+Date: Mon, 17 Oct 2005 13:26:12 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+To: Tim Bird <tim.bird@am.sony.com>
+cc: Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, tglx@linutronix.de, george@mvista.com,
+       linux-kernel@vger.kernel.org, johnstul@us.ibm.com, paulmck@us.ibm.com,
+       hch@infradead.org, oleg@tv-sign.ru
+Subject: Re: [PATCH]  ktimers subsystem 2.6.14-rc2-kt5
+In-Reply-To: <4353D60E.70901@am.sony.com>
+Message-ID: <Pine.LNX.4.58.0510171312030.10443@localhost.localdomain>
+References: <1128168344.15115.496.camel@tglx.tec.linutronix.de>
+ <Pine.LNX.4.61.0510100213480.3728@scrub.home> <1129016558.1728.285.camel@tglx.tec.linutronix.de>
+ <Pine.LNX.4.61.0510130004330.3728@scrub.home> <434DA06C.7050801@mvista.com>
+ <Pine.LNX.4.61.0510150143500.1386@scrub.home> <1129490809.1728.874.camel@tglx.tec.linutronix.de>
+ <Pine.LNX.4.61.0510170021050.1386@scrub.home> <20051017075917.GA4827@elte.hu>
+ <Pine.LNX.4.61.0510171054430.1386@scrub.home> <20051017094153.GA9091@elte.hu>
+ <20051017025657.0d2d09cc.akpm@osdl.org> <Pine.LNX.4.61.0510171511010.1386@scrub.home>
+ <4353D60E.70901@am.sony.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -28,62 +35,48 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Mon, 17 Oct 2005, Jeff Garzik wrote:
-> Linus Torvalds wrote:
+On Mon, 17 Oct 2005, Tim Bird wrote:
+
+> >
+> >
+> > It's rather simple:
+> > - "timer API" vs "timeout API": I got absolutely no acknowlegement that
+> > this might be a little confusing and in consequence "process timer" may be
+> > a better name.
 >
-> > Btw, if you want to have the _question_ always be y/n only, that's easy
-> > enough to do, just make that one do
-> > 
-> > 	config SATA_MENU
-> > 		bool "Want to see SATA drivers"
-> > 		depends on SCSI != n
-> > 
-> > 	config SCSI_SATA
-> > 		tristate
-> > 		depends on SCSI && SATA_MENU
-> > 		default y
-> > 
-> > and now you have a totally sensible setup, where the low-level drivers can
-> > depend on something sane. 
-> > I don't think it _buys_ you anything, but hey, at least it's logical. 
-> 
-> That's a reasonable solution.  I think it does buy you reduced user confusion.
+> I agree with Thomas on this one.  Maybe "timer" and "timeout" are too
+> close, but I think they are the most descriptive names.
+>   - timeout is something used for a timeout.  Timeouts only actually
+>   expire infrequently, so they have a host of attributes associated
+>   with that characteristic.
+>   - timer is something used to time something.  They almost always
+>   expire as part of their normal behaviour.  In the ktimer code they
+>   have a host of attributes related to this characteristic.
+>
+> Thomas answered the suggestion to use "process timer" as an alternative
+> name, but I didn't see a reply after that from Roman (I may have missed it.)
+>
 
-The thing that worries me is that while the question may appear a bit more 
-straightforward that way, I actually think it makes the end result _less_ 
-so.
+I can add to this.  After this was brought up, I did a little
+non-scientific survey. I walked around and asked various engineers here at
+my customer's site, what it meant to them if I had two types of timer
+APIs, one for "timers" and one for "timeouts".  All 100% of 8 people that
+I asked (not a lot, but still), had no confusion with what they meant.  I
+asked them to explain what these names mean to them, and every one said
+basically, timeouts are for situations that are for things that lasted too
+long, and timers and for things where they want to be notified of an
+event that takes place at some time.
 
-Let's say that I'm a clueless user, and I just don't realize that SATA 
-depends on SCSI. After all, to a user, SATA sure as hell isn't SCSI, 
-that's just an implementation detail inside the kernel.
+They all agreed with me that timeouts were for exceptions and not expected
+to be triggered, and timers were the other way around and should always be
+triggered.
 
-So I've happened to say "m" to SCSI (for whatever reason - don't ask why 
-users do strange things, but maybe I realize that USB storage needs it), 
-and now I see the question for SATA. And I say "y".
+Not only that, I also asked if these timers would make sense if we called
+them "kernel" timers and "process" timers.  These names confused them
+because they use both timers in their kernel modules.
 
-And then I wonder why I can only select my sata drivers as modules. I 
-didn't ask for SATA as a module, but they refuse to say "m".
+That convinced me enough to think that Thomas' naming convention is not
+confusing.
 
-Now, with SCSI_SATA as a straight M/n choice (or whatever), if I had SCSI 
-as a module, at least I'll see at SATA selection time that I can only 
-compile SATA drivers as modules. I might wonder at that time why, but I 
-think it's less confusing there (and we could even mention it in the 
-help-text).
+-- Steve
 
-I dunno. 
-
-The _best_ choice as far as I can tell, is to just dis-associate SATA from 
-SCSI entirely. Even if it's an implementation choice, we could make it a 
-"select SCSI" instead of "depends on SCSI", so that from a _logical_ 
-standpoint the user could just select SATA support without even knowing 
-that the kernel happens to need the SCSI layer for it.
-
-I think that's what USB storage ended up doing, exactly because it 
-confused people too badly that they had to select SCSI in order to be able 
-to say "I want USB disk supprt".
-
-Of course, eventually I still hope that SATA could be done on the block 
-layer instead of even depending on SCSI at all, but hey, that's a totally 
-different issue.
-
-			Linus

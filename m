@@ -1,78 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750766AbVJQACj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932086AbVJQANh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750766AbVJQACj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Oct 2005 20:02:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751228AbVJQACj
+	id S932086AbVJQANh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Oct 2005 20:13:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932090AbVJQANh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Oct 2005 20:02:39 -0400
-Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:21263 "EHLO
-	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
-	id S1750766AbVJQACi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Oct 2005 20:02:38 -0400
-From: Felix Oxley <lkml@oxley.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 1/1] Kconfig help text for RAM Disk & initrd
-Date: Mon, 17 Oct 2005 01:02:18 +0100
-User-Agent: KMail/1.8.2
-Cc: Linus Torvalds <torvalds@osdl.org>, trivial@rustcorp.com.au
+	Sun, 16 Oct 2005 20:13:37 -0400
+Received: from qproxy.gmail.com ([72.14.204.194]:13836 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932086AbVJQANh convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Oct 2005 20:13:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Y2ut8hOZTpl7NloBXhWyDge9oB3UWvvYzM8g3NoU8ens2dygsBAWUfkQTn6/gez7oazXFvU4dXM3CD49IJRydanYEbmm9GHxDCjj6BeVkcYnoV6r/dRwzHxGgPt0INMHPoMK3svIPb/ejx19hyRbH35ISyask6TSRiU0cT8RfoI=
+Message-ID: <6bffcb0e0510161713l7c3abbdq@mail.gmail.com>
+Date: Mon, 17 Oct 2005 00:13:36 +0000
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.14-rc4-mm1
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20051016154108.25735ee3.akpm@osdl.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200510170102.19717.lkml@oxley.org>
+References: <20051016154108.25735ee3.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Felix Oxley <lkml@oxley.org>
+Hi,
 
-Amend Kconfig help text for RAM Disk & initrd to suggest that
-these features should be answered Y.
-Remove loadlin as an example of a boot loader, replace with grub.
+On 16/10/05, Andrew Morton <akpm@osdl.org> wrote:
+>
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc4/2.6.14-rc4-mm1/
+>
+[snip]
 
-Signed-off-by: Felix Oxley <lkml@oxley.org>
----
---- ./drivers/block/Kconfig.orig	2005-10-17 00:20:18.000000000 +0100
-+++ ./drivers/block/Kconfig	2005-10-16 23:57:18.000000000 +0100
-@@ -368,9 +368,11 @@ config BLK_DEV_RAM
- 	  Saying Y here will allow you to use a portion of your RAM memory as
- 	  a block device, so that you can make file systems on it, read and
- 	  write to it and do all the other things that you can do with normal
--	  block devices (such as hard drives). It is usually used to load and
--	  store a copy of a minimal root file system off of a floppy into RAM
--	  during the initial install of Linux.
-+	  block devices (such as hard drives).
-+
-+	  It is usually used to load and store a copy of a minimal root file
-+	  system into RAM during the boot sequence. "Inital RAM disk support"
-+	  must also be enabled for this option to work.
- 
- 	  Note that the kernel command line option "ramdisk=XX" is now
- 	  obsolete. For details, read <file:Documentation/ramdisk.txt>.
-@@ -378,8 +380,10 @@ config BLK_DEV_RAM
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called rd.
- 
--	  Most normal users won't need the RAM disk functionality, and can
--	  thus say N here.
-+	  Say Y here if your system uses a RAM disk whilst booting, or if you
-+	  know you require a RAM disk for another purpose. Otherwise, say N.
-+
-+	  If unsure, say Y.
- 
- config BLK_DEV_RAM_COUNT
- 	int "Default number of RAM disks" if BLK_DEV_RAM
-@@ -403,11 +407,12 @@ config BLK_DEV_INITRD
- 	depends on BLK_DEV_RAM=y
- 	help
- 	  The initial RAM disk is a RAM disk that is loaded by the boot loader
--	  (loadlin or lilo) and that is mounted as root before the normal boot
-+	  (lilo or grub) and that is mounted as root before the normal boot
- 	  procedure. It is typically used to load modules needed to mount the
- 	  "real" root file system, etc. See <file:Documentation/initrd.txt>
- 	  for details.
- 
-+	  Most users will answer Y here.
- 
- #XXX - it makes sense to enable this only for 32-bit subarch's, not for x86_64
- #for instance.
+I have noticed some warnings while "make modules_install"
+
+if [ -r System.map -a -x /sbin/depmod ]; then /sbin/depmod -ae -F
+System.map  2.6.14-rc4-mm1; fi
+WARNING: Module
+/lib/modules/2.6.14-rc4-mm1/kernel/drivers/serial/serial_core.ko
+ignored, due to loop
+WARNING: Module
+/lib/modules/2.6.14-rc4-mm1/kernel/drivers/serial/8250_pnp.ko ignored,
+due to loop
+WARNING: Module
+/lib/modules/2.6.14-rc4-mm1/kernel/drivers/serial/8250_pci.ko ignored,
+due to loop
+WARNING: Module
+/lib/modules/2.6.14-rc4-mm1/kernel/drivers/serial/8250_acpi.ko
+ignored, due to loop
+WARNING: Loop detected:
+/lib/modules/2.6.14-rc4-mm1/kernel/drivers/serial/8250.ko needs
+serial_core.ko which needs 8250.ko again!
+WARNING: Module
+/lib/modules/2.6.14-rc4-mm1/kernel/drivers/serial/8250.ko ignored, due
+to loop
+
+Regards,
+Michal Piotrowski

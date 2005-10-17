@@ -1,81 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751208AbVJQCO3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbVJQCSs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751208AbVJQCO3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Oct 2005 22:14:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751228AbVJQCO3
+	id S932129AbVJQCSs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Oct 2005 22:18:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbVJQCSs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Oct 2005 22:14:29 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:29384 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S1751208AbVJQCO3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Oct 2005 22:14:29 -0400
-From: Jesse Barnes <jbarnes@virtuousgeek.org>
-To: linux-kernel@vger.kernel.org, jgarzik@pobox.com, akpm@osdl.org
-Subject: Intel SATA combined mode quirk broken for SCSI_SATA=m
-Date: Sun, 16 Oct 2005 19:13:59 -0700
-User-Agent: KMail/1.8
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_njwUDtCFxRDBADr"
-Message-Id: <200510161913.59622.jbarnes@virtuousgeek.org>
+	Sun, 16 Oct 2005 22:18:48 -0400
+Received: from yue.linux-ipv6.org ([203.178.140.15]:26123 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S1751228AbVJQCSr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Oct 2005 22:18:47 -0400
+Date: Mon, 17 Oct 2005 11:18:51 +0900 (JST)
+Message-Id: <20051017.111851.58669558.yoshfuji@linux-ipv6.org>
+To: dleppik@vocalabs.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [OT] Re: PROBLEM: memory leak in LIST_*, TAILQ_* man page
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <43530379.6040504@vocalabs.com>
+References: <43530379.6040504@vocalabs.com>
+Organization: USAGI/WIDE Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_njwUDtCFxRDBADr
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+In article <43530379.6040504@vocalabs.com> (at Sun, 16 Oct 2005 20:50:49 -0500), David Leppik <dleppik@vocalabs.com> says:
 
-Back in July, Adrian Bunk sent in a patch to make SCSI_SATA tristate.  This 
-prevents the intel_ide_combined quirk in drivers/pci/quirks.c from working if 
-SCSI_SATA=m, which is the case for Fedora kernels (my motivation for tracking 
-this down).
+> The man page for TAILQ_REMOVE, etc. contains the following sample code:
+> 
+> while (head.tqh_first != NULL)
+>      TAILQ_REMOVE(&head, head.tqh_first, entries);
+> 
+> I checked /usr/include/sys/queue.h and, sure enough, TAILQ_REMOVE 
+> doesn't free
+> head.tqh_first.  Nor should it-- this isn't Objective-C, after all. :-)
+> 
+> It should be something like:
+> 
+> while (head.tqh_first != NULL) {
+>               np = head.tqh_first;
+>               TAILQ_REMOVE(&head, np, entries);
+>               free(np);
+> }
 
-In my configuration, not running the quirk causes the ata_piix driver (the 
-libata driver for my IDE controller) to fail to attach to the device, since 
-the legacy IDE driver has already claimed the ports.  Unfortunately, the AHCI 
-driver also tries to mess with the device, and ends up disabling its 
-interrupts before aborting its load, causing the IDE layer to complain loudly 
-that hda is losing interrupts.
+Wrong. People do not always destroy the item removed
+from the list, I think.
 
-So what should be done?  Ideally, libata would fully support ATAPI and then I 
-wouldn't need the legacy IDE drivers at all on this box, making the quirk 
-moot, but that won't happen for 2.6.14, so we'll need something else.  
-Unconditionally enabling the quirk will cause at least one of the ports to be 
-reserved for the SATA driver, which may never load.  And obviously not 
-running the quirk leads to the situation described above.
-
-A hack that might be suitable for 2.6.14 is to make the quirk depend on either 
-CONFIG_SCSI_SATA or CONFIG_SCSI_SATA_MODULE.  Then the quirk could be removed 
-entirely when ATAPI support for libata is merged.
-
-Thoughts?
-
-Thanks,
-Jesse
-
-Signed-off-by: Jesse Barnes <jbarnes@virtuousgeek.org>
-
---Boundary-00=_njwUDtCFxRDBADr
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="intel-combined-mode-quirk-hack.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="intel-combined-mode-quirk-hack.patch"
-
---- linux-2.6.14-rc4/drivers/pci/quirks.c.orig	2005-10-16 19:12:05.000000000 -0700
-+++ linux-2.6.14-rc4/drivers/pci/quirks.c	2005-10-16 19:12:33.000000000 -0700
-@@ -1233,8 +1233,7 @@
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_EESSC,	quirk_alder_ioapic );
- #endif
- 
--#ifdef CONFIG_SCSI_SATA
--#error building quirk
-+#if defined(CONFIG_SCSI_SATA) || defined(CONFIG_SCSI_SATA_MODULE)
- static void __devinit quirk_intel_ide_combined(struct pci_dev *pdev)
- {
- 	u8 prog, comb, tmp;
-
---Boundary-00=_njwUDtCFxRDBADr--
+--yoshfuji

@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbVJQScX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932205AbVJQShe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932202AbVJQScX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 14:32:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbVJQScX
+	id S932205AbVJQShe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 14:37:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbVJQShe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 14:32:23 -0400
-Received: from mail.suse.de ([195.135.220.2]:29906 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932202AbVJQScX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 14:32:23 -0400
-From: Andi Kleen <ak@suse.de>
-To: Muli Ben-Yehuda <mulix@mulix.org>
-Subject: Re: [discuss] Re: x86_64: 2.6.14-rc4 swiotlb broken
-Date: Mon, 17 Oct 2005 20:32:45 +0200
-User-Agent: KMail/1.8
-Cc: discuss@x86-64.org, Ravikiran G Thirumalai <kiran@scalex86.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, tglx@linutronix.de, shai@scalex86.org,
-       clameter@engr.sgi.com
-References: <20051017093654.GA7652@localhost.localdomain> <200510172008.24669.ak@suse.de> <20051017182755.GA26239@granada.merseine.nu>
-In-Reply-To: <20051017182755.GA26239@granada.merseine.nu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 17 Oct 2005 14:37:34 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:50817 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932205AbVJQShd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 14:37:33 -0400
+Date: Tue, 18 Oct 2005 00:01:24 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Jean Delvare <khali@linux-fr.org>,
+       Serge Belyshev <belyshev@depni.sinp.msu.ru>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: VFS: file-max limit 50044 reached
+Message-ID: <20051017183124.GF13665@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <Pine.LNX.4.64.0510161912050.23590@g5.osdl.org> <JTFDVq8K.1129537967.5390760.khali@localhost> <20051017084609.GA6257@in.ibm.com> <43536A6C.102@cosmosbay.com> <20051017103244.GB6257@in.ibm.com> <Pine.LNX.4.64.0510170829000.23590@g5.osdl.org> <4353CADB.8050709@cosmosbay.com> <Pine.LNX.4.64.0510170911370.23590@g5.osdl.org> <20051017162930.GC13665@in.ibm.com> <4353E6F1.8030206@cosmosbay.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200510172032.45972.ak@suse.de>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <4353E6F1.8030206@cosmosbay.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 17 October 2005 20:27, Muli Ben-Yehuda wrote:
-> On Mon, Oct 17, 2005 at 08:08:24PM +0200, Andi Kleen wrote:
-> > On Monday 17 October 2005 19:52, Ravikiran G Thirumalai wrote:
-> > > No they are not.  IBM X460s are generally available machines and  the
-> > > bug affects those boxes.
+On Mon, Oct 17, 2005 at 08:01:21PM +0200, Eric Dumazet wrote:
+> Dipankar Sarma a écrit :
+> >On Mon, Oct 17, 2005 at 09:16:25AM -0700, Linus Torvalds wrote:
 > >
-> > No reports from that front so far.
->
-> We have such machines with >4GB memory and 32 bit DMA capable SCSI
-> controllers 
+> 
+> <lazy_mode=ON>
+> Do we really need a TIF_RCUUPDATE flag, or could we just ask for a resched ?
+> </lazy_mode>
 
-32bit DMA SCSI controllers??? Where did you find such a beast?
+I think the theory was that we have to process the callbacks,
+not just force the grace period by setting need_resched.
+That is what TIF_RCUUPDATE indicates - rcus to process.
 
-> and would like to be able to run 2.6.14 on them when it 
-> comes out...
+> This patch only take care of call_rcu(), I'm unsure of what can be done 
+> inside call_rcu_bh()
+> 
+> The two stress program dont hit OOM anymore with this patch applied (even 
+> with maxbatch=10)
 
-So you're saying you tested it and it doesn't work? 
+Hmm.. I am supprised that maxbatch=10 still allowed you keep up
+with a continuously queueing cpu. OK, I will look at this.
 
--Andi
+Thanks
+Dipankar

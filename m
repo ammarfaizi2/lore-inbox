@@ -1,67 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932201AbVJQIYN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbVJQI1y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932201AbVJQIYN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 04:24:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbVJQIYN
+	id S932204AbVJQI1y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 04:27:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbVJQI1y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 04:24:13 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:1275 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932201AbVJQIYM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 04:24:12 -0400
-Date: Mon, 17 Oct 2005 04:24:00 -0400 (EDT)
+	Mon, 17 Oct 2005 04:27:54 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:29657 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932204AbVJQI1x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 04:27:53 -0400
+Date: Mon, 17 Oct 2005 04:26:24 -0400 (EDT)
 From: Steven Rostedt <rostedt@goodmis.org>
 X-X-Sender: rostedt@localhost.localdomain
-To: liyu <liyu@ccoss.com.cn>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [Question] one question about 'current' in scheduler_tick() 
-In-Reply-To: <43535B35.5020603@ccoss.com.cn>
-Message-ID: <Pine.LNX.4.58.0510170416090.5859@localhost.localdomain>
-References: <43535B35.5020603@ccoss.com.cn>
+To: Thomas Gleixner <tglx@linutronix.de>
+cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]  ktimers subsystem 2.6.14-rc2-kt5
+In-Reply-To: <20051017075917.GA4827@elte.hu>
+Message-ID: <Pine.LNX.4.58.0510170424400.5859@localhost.localdomain>
+References: <20050928224419.1.patchmail@tglx.tec.linutronix.de>
+ <Pine.LNX.4.61.0509301825290.3728@scrub.home> <1128168344.15115.496.camel@tglx.tec.linutronix.de>
+ <Pine.LNX.4.61.0510100213480.3728@scrub.home> <1129016558.1728.285.camel@tglx.tec.linutronix.de>
+ <Pine.LNX.4.61.0510130004330.3728@scrub.home> <434DA06C.7050801@mvista.com>
+ <Pine.LNX.4.61.0510150143500.1386@scrub.home> <1129490809.1728.874.camel@tglx.tec.linutronix.de>
+ <Pine.LNX.4.61.0510170021050.1386@scrub.home> <20051017075917.GA4827@elte.hu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Liyu (once again :-)
 
-On Mon, 17 Oct 2005, liyu wrote:
+Trivial "stupid" patch.  MAKE Makefile HAVE -kt($num)!!!!
 
-> Hi, All.
->
->     I found scheduler_tick() use current macro to get task_struct of
-> current task.
->
->     I seen scheduler_tick() is called every timer interrupt at most
-> time. In this
-> case, I think scheduler_tick() is in interrupt context (enter kernel by
-> interrupt),
-
-Yes, scheduler_tick is called from interrupt context.
-
-> So I have a hunch that there have not thread_info which it need in
-> kernel stack. But
-> It seem it can work perfectly.
-
-Although it is said that you can't access user memory from an interrupt
-context, the reasons are simple.  One, most user memory access can
-schedule, and an interrupt service routine must not schedule. Also, an
-interrupt service routine can happen on any thread, so you can't be sure
-what thread is there.
-
-But, when an interrupt goes off, whatever thread is running is still
-there.  The thread's context _is_ still there.  The changing to the
-interrupt stack takes special care to make sure that current still works.
-So a copy of the thread_info is also done. Look in the do_IRQ in
-arch/i386/kernel/irq.c and search for 4KSTACKS.  You will see there the
-copying of thread_info.
-
->
->     I can not understand this. Would any expert like explain clearly for
-> it ?
->
-
-Hope this helps,
+This will help with ketchup :-)
 
 -- Steve
+
+Index: linux-2.6.14-rc4-kt2/Makefile
+===================================================================
+--- linux-2.6.14-rc4-kt2.orig/Makefile	2005-10-17 10:14:26.000000000 +0200
++++ linux-2.6.14-rc4-kt2/Makefile	2005-10-17 10:15:12.000000000 +0200
+@@ -1,7 +1,7 @@
+ VERSION = 2
+ PATCHLEVEL = 6
+ SUBLEVEL = 14
+-EXTRAVERSION =-rc4
++EXTRAVERSION =-rc4-kt2
+ NAME=Affluent Albatross
+
+ # *DOCUMENTATION*
 

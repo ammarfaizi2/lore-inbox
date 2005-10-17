@@ -1,66 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbVJQTFh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbVJQTHO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932270AbVJQTFh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 15:05:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932267AbVJQTFh
+	id S932286AbVJQTHO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 15:07:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbVJQTHN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 15:05:37 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:62891 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932270AbVJQTFg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 15:05:36 -0400
-Date: Mon, 17 Oct 2005 12:04:17 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
+	Mon, 17 Oct 2005 15:07:13 -0400
+Received: from qproxy.gmail.com ([72.14.204.200]:36538 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932267AbVJQTHL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 15:07:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=i9WEQezEmQm1D6cQ7aNE6RMOFe2CSbkG8IX8U0kx4CtxAaagVNtdI7nV1PPSKwnux+qfCEPs9JduSJbLhgjCg4huhBEVBofNweQNULRfWcMGOgoq1PypEf3hji/SI1UvYe+7/kGrE/NVyPBxhJ08a1K0RQdBC3Vcef/RmryGpLQ=
+Message-ID: <12c511ca0510171207v28030070p40a0ec769a93a101@mail.gmail.com>
+Date: Mon, 17 Oct 2005 12:07:10 -0700
+From: Tony Luck <tony.luck@intel.com>
 To: Muli Ben-Yehuda <mulix@mulix.org>
-cc: Andi Kleen <ak@suse.de>, discuss@x86-64.org,
-       Ravikiran G Thirumalai <kiran@scalex86.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       tglx@linutronix.de, shai@scalex86.org, clameter@engr.sgi.com,
-       muli@il.ibm.com, jdmason@us.ibm.com
-Subject: Re: [discuss] Re: x86_64: 2.6.14-rc4 swiotlb broken
-In-Reply-To: <20051017184523.GB26239@granada.merseine.nu>
-Message-ID: <Pine.LNX.4.64.0510171200490.3369@g5.osdl.org>
-References: <20051017093654.GA7652@localhost.localdomain> <200510172008.24669.ak@suse.de>
- <20051017182755.GA26239@granada.merseine.nu> <200510172032.45972.ak@suse.de>
- <20051017184523.GB26239@granada.merseine.nu>
+Subject: Re: x86_64: 2.6.14-rc4 swiotlb broken
+Cc: Andrew Morton <akpm@osdl.org>, Ravikiran G Thirumalai <kiran@scalex86.org>,
+       ak@suse.de, linux-kernel@vger.kernel.org, discuss@x86-64.org,
+       tglx@linutronix.de, torvalds@osdl.org, shai@scalex86.org,
+       "John W. Linville" <linville@tuxdriver.com>
+In-Reply-To: <20051017100257.GD21783@granada.merseine.nu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051017093654.GA7652@localhost.localdomain>
+	 <20051017025007.35ae8d0e.akpm@osdl.org>
+	 <20051017100257.GD21783@granada.merseine.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> x86-64 uses swioltb as well, via arch/ia64 directly. John Linville has
+> a patch to move the swiotlb to lib/swiotlb.c that is waiting in an
+> IA64 for inclusion (post 2.6.14, I guess?)
 
+Yes.  John's patch is sitting in a "swiotlb" branch of my GIT tree.  I'd like to
+hear some positive confirmation from Linus and/or Andrew that moving this
+up to lib/ is ok ... I don't want to be accused of shovelling tasteless code up
+into the base.
 
-On Mon, 17 Oct 2005, Muli Ben-Yehuda wrote:
->
-> On Mon, Oct 17, 2005 at 08:32:45PM +0200, Andi Kleen wrote:
-> 
-> > > and would like to be able to run 2.6.14 on them when it 
-> > > comes out...
-> > 
-> > So you're saying you tested it and it doesn't work? 
-> 
-> Not quite; I'm saying that form the description up-thread it sounds
-> like there's a good chance it won't. Jon Mason (CC'd) has access to
-> such a  machine. Jon, can you please try the latest hg tree with and
-> without the patch and see how it fares?
+This is definitely a post 2.6.14 move.
 
-NOTE! Even if the machine has 4GB or more of memory, it's entirely likely 
-that the quick "use NODE(0)" hack will work fine. 
-
-Why? Because the bootmem memory should still be allocated low-to-high by 
-default, which means that as logn as NODE(0) has _enough_ memory in the 
-DMA range, we should be ok.
-
-So I _think_ the simple one-liner NODE(0) patch is sufficient, and should 
-work (and is a lot more acceptable for 2.6.14 than switching the node 
-ordering around yet again, or doing bigger surgery on the bootmem code).
-
-So the only thing that worried me (and made me ask whether there might be 
-machines where it doesn't work) is if some machines might have their high 
-memory (or no memory at all) on NODE(0). It does sound unlikely, but I 
-simple don't know what kind of strange NUMA configs there are out there.
-
-And I'm definitely only interested in machines that are out there, not 
-some theoretical issues.
-
-			Linus
+-Tony

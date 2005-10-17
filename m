@@ -1,89 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbVJQTBA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbVJQTEc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932239AbVJQTBA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 15:01:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbVJQTBA
+	id S932262AbVJQTEc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 15:04:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbVJQTEc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 15:01:00 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:32938 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932239AbVJQTBA (ORCPT
+	Mon, 17 Oct 2005 15:04:32 -0400
+Received: from atlrel7.hp.com ([156.153.255.213]:65164 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S932262AbVJQTEb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 15:01:00 -0400
-Date: Mon, 17 Oct 2005 12:00:07 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Dipankar Sarma <dipankar@in.ibm.com>
-cc: Eric Dumazet <dada1@cosmosbay.com>, Jean Delvare <khali@linux-fr.org>,
-       Serge Belyshev <belyshev@depni.sinp.msu.ru>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: VFS: file-max limit 50044 reached
-In-Reply-To: <20051017183124.GF13665@in.ibm.com>
-Message-ID: <Pine.LNX.4.64.0510171147110.3369@g5.osdl.org>
-References: <Pine.LNX.4.64.0510161912050.23590@g5.osdl.org>
- <JTFDVq8K.1129537967.5390760.khali@localhost> <20051017084609.GA6257@in.ibm.com>
- <43536A6C.102@cosmosbay.com> <20051017103244.GB6257@in.ibm.com>
- <Pine.LNX.4.64.0510170829000.23590@g5.osdl.org> <4353CADB.8050709@cosmosbay.com>
- <Pine.LNX.4.64.0510170911370.23590@g5.osdl.org> <20051017162930.GC13665@in.ibm.com>
- <4353E6F1.8030206@cosmosbay.com> <20051017183124.GF13665@in.ibm.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="21872808-2034643218-1129575607=:3369"
+	Mon, 17 Oct 2005 15:04:31 -0400
+Subject: Re: x86_64: 2.6.14-rc4 swiotlb broken
+From: Alex Williamson <alex.williamson@hp.com>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: Ravikiran G Thirumalai <kiran@scalex86.org>, Andi Kleen <ak@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, discuss@x86-64.org, tglx@linutronix.de,
+       shai@scalex86.org, linville@tuxdriver.com
+In-Reply-To: <Pine.LNX.4.62.0510171110450.1480@schroedinger.engr.sgi.com>
+References: <20051017093654.GA7652@localhost.localdomain>
+	 <200510171153.56063.ak@suse.de>
+	 <Pine.LNX.4.64.0510170819290.23590@g5.osdl.org>
+	 <200510171740.57614.ak@suse.de>
+	 <20051017175231.GA4959@localhost.localdomain>
+	 <Pine.LNX.4.62.0510171110450.1480@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Organization: LOSL
+Date: Mon, 17 Oct 2005 13:04:01 -0600
+Message-Id: <1129575841.9621.15.camel@lts1.fc.hp.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-
---21872808-2034643218-1129575607=:3369
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-
-
-
-On Tue, 18 Oct 2005, Dipankar Sarma wrote:
-
-> On Mon, Oct 17, 2005 at 08:01:21PM +0200, Eric Dumazet wrote:
-> > Dipankar Sarma a écrit :
-> > >On Mon, Oct 17, 2005 at 09:16:25AM -0700, Linus Torvalds wrote:
-> > >
-> > 
-> > <lazy_mode=ON>
-> > Do we really need a TIF_RCUUPDATE flag, or could we just ask for a resched ?
-> > </lazy_mode>
+On Mon, 2005-10-17 at 11:20 -0700, Christoph Lameter wrote:
+> On Mon, 17 Oct 2005, Ravikiran G Thirumalai wrote:
 > 
-> I think the theory was that we have to process the callbacks,
-> not just force the grace period by setting need_resched.
-> That is what TIF_RCUUPDATE indicates - rcus to process.
+> > Maybe someone with access to ia64 NUMA boxen can check if the NODE(0)
+> > solution works (and does not break anything) on ia64?  Chrisoph, can you help?
+> 
+> Umm... SGI does not use the swiotlb and we do not have these issues. HP 
+> does use the swiotlb on IA64. CCing John and Alex.
+...
+> @@ -123,7 +123,7 @@
+>  	/*
+>  	 * Get IO TLB memory from the low pages
+>  	 */
+> -	io_tlb_start = alloc_bootmem_low_pages(io_tlb_nslabs *
+> +	io_tlb_start = alloc_bootmem_node(NODE_DATA(0), io_tlb_nslabs *
 
-I'm having second thoughts about that, since the problem (in SMP) is that 
-even if the currently active process tries to more proactively handle RCU 
-events rather than just setting the grace period, in order to do that 
-you'd still need to wait for the other CPU's to have their quiescent 
-phase.
+   HP ia64 boxes typically use a hardware I/O TLB, so this is not the
+normal case.  However, the sx1000 boxes are exactly an example that will
+break because of this assumption about memory layout.  These boxes can
+be configured to have various ratios of node local memory and
+interleaved memory.  Node local memory starts well above 4GB.
+Interleaved memory is zero-based, and described in it's own proximity
+domain.  It therefore looks like a memory-only node.  I believe the
+above code change would cause us to allocate memory from the node local
+range, way too high in the address space for bounce buffers.
 
-So the RCU queues can grow long, if only because the other CPU's won't 
-necessarily do the same.
+   BTW, I've got a patch in Tony's testing branch that allows a late
+initialization of the swiotlb.  This is currently only useful on ia64
+since we have 4GB of ZONE_DMA, but may be useful on x86-ish archs when
+the 4GB zone is introduced.
 
-So we probably cannot throttle RCU queues down, and they will inevitably 
-have to be able to grow pretty long. 
+	Alex
 
-> Hmm.. I am supprised that maxbatch=10 still allowed you keep up
-> with a continuously queueing cpu. OK, I will look at this.
+-- 
 
-I think it's just because it ends up rescheduling a lot, and thus waking 
-up softirqd.
-
-The RCU thing is done as a tasklet, which means that
- - it starts out as a "synchronous" softirq event, at which point it gets 
-   called at most X times (MAX_SOFTIRQ_RESTART, defaults to 10)
- - after that, we end up saying "uhhuh, this is using too much softirq 
-   time" and instead just run the softirq as a kernel thread.
- - setting TIF_NEEDRESCHED whenever the rcu lists are long will keep on 
-   rescheduling to the softirq thread much more aggressively.
-
-See __do_softirq() for some of this softirq (and thus tasklet) handling.
-
-I suspect it's _very_ inefficient, but maybe the bad case triggers so 
-seldom that we don't really need to care. 
-
-		Linus
---21872808-2034643218-1129575607=:3369--

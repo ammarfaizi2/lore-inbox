@@ -1,82 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932242AbVJQJ4N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbVJQJz7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932242AbVJQJ4N (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 05:56:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbVJQJ4M
+	id S932240AbVJQJz7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 05:55:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbVJQJz7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 05:56:12 -0400
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:36780 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S932242AbVJQJ4L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 05:56:11 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Subject: ntfs CFT - was: Re: 2.6.14-rc4-mm1
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20051016154108.25735ee3.akpm@osdl.org>
-References: <20051016154108.25735ee3.akpm@osdl.org>
-Content-Type: text/plain
-Organization: Computing Service, University of Cambridge, UK
-Date: Mon, 17 Oct 2005 10:56:07 +0100
-Message-Id: <1129542967.26285.30.camel@imp.csi.cam.ac.uk>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 17 Oct 2005 05:55:59 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:23284 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932240AbVJQJz7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 05:55:59 -0400
+Date: Mon, 17 Oct 2005 05:54:53 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+To: Roman Zippel <zippel@linux-m68k.org>
+cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       George Anzinger <george@mvista.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, johnstul@us.ibm.com, paulmck@us.ibm.com,
+       Christoph Hellwig <hch@infradead.org>, oleg@tv-sign.ru,
+       tim.bird@am.sony.com
+Subject: Re: [PATCH]  ktimers subsystem 2.6.14-rc2-kt5
+In-Reply-To: <Pine.LNX.4.61.0510171054430.1386@scrub.home>
+Message-ID: <Pine.LNX.4.58.0510170547150.5859@localhost.localdomain>
+References: <20050928224419.1.patchmail@tglx.tec.linutronix.de>
+ <Pine.LNX.4.61.0509301825290.3728@scrub.home> <1128168344.15115.496.camel@tglx.tec.linutronix.de>
+ <Pine.LNX.4.61.0510100213480.3728@scrub.home> <1129016558.1728.285.camel@tglx.tec.linutronix.de>
+ <Pine.LNX.4.61.0510130004330.3728@scrub.home> <434DA06C.7050801@mvista.com>
+ <Pine.LNX.4.61.0510150143500.1386@scrub.home> <1129490809.1728.874.camel@tglx.tec.linutronix.de>
+ <Pine.LNX.4.61.0510170021050.1386@scrub.home> <20051017075917.GA4827@elte.hu>
+ <Pine.LNX.4.61.0510171054430.1386@scrub.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-10-16 at 15:41 -0700, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc4/2.6.14-rc4-mm1/
-> 
->  git-ntfs.patch
 
-This is a request for testers for ntfs.  2.6.14-rc4-mm1 contains a
-pretty much complete re-write of file write support so some more testers
-than just myself would be good before I submit it for inclusion in
-2.6.15...
+On Mon, 17 Oct 2005, Roman Zippel wrote:
 
-The rewrite means that the following features are now supported:
+> Hi,
+>
+> On Mon, 17 Oct 2005, Ingo Molnar wrote:
+>
+> > the thing is that Thomas has advanced the whole issue of timeouts and
+> > timekeeping by leaps and bounds and he has written thousands of lines of
+> > new and excellent code for a kernel subsystem that has seen little
+> > activity for many years, before John got involved. One of Thomas'
+> > accomplishments is a timer/time design that allows the enabling of HRT
+> > timers via an _18 lines_ architecture patch. (!)
+>
+> Did I say these patches were bad in general? All I'm asking for is an
+> explanation for a few design decisions to understand the patch and its
+> behaviour better and evaluate alternative solutions.
+> Neither of you have shown any real interest in this so far.
+>
 
-Given an existing uncompressed and unencrypted file, you can use:
+Well, for me anyway, the best way I have with understanding ones decisions
+in their code design _is_ to start playing with the code.  Try it the way
+you want and you might realize things don't work so well, and then you
+might understand why Thomas did it his way.
 
-- write(2) to write to the file, including beyond the end of the
-existing file, and the file will be extended appropriately.  Both
-resident and non-resident files are supported.  Support for heavily
-fragmented files still has some limitations but you will just get an
-EOPNOTSUPP error if you hit one.  Everything will still be consistent on
-the volume.  Sparse files can also be written to and holes will be
-filled in appropriately.
+There's several times where I thought I could write something better, and
+after playing with it, the problems start to arise where I then become
+"enlightened" by the decisions others have made.
 
-- truncate(2) and ftruncate(2) to change the size of the file, inlcuding
-using open(2) with O_TRUNC flag.  As with write(2) there still are some
-limitations for heavily fragmented files, and as above, everything will
-still be consistent on the volume if you hit an unsupported case.
 
-What this means is that you can now run your favourite editor on an
-existing file, e.g. "vim /ntfs/somefile.txt" works fine and you can save
-your changes.  Also things like running OpenOffice should work to edit
-existing MS Office documents but I haven't tried it yet (it should work
-as long as OpenOffice does not need to create temporary files in the
-same directory as the document).
+> > the moment you express yourself via patches we'll know that 1) you
+> > understand what we have done so far 2) you have useful ideas of what
+> > should be done differently 3) you have the coder capability to implement
+> > and test those ideas. Patches wont be ignored, i can assure you. Get the
+> > patches rolling!
+>
+> This "shut up and show code" attitude is sometimes quite funny, but it's
+> no real threat to me. I hoped to avoid this and solve this more civilized.
+> Of course I'll understand the issues better afterwards, but you could as
+> easily just tell me. It will waste my time, I could spend on other
+> projects and it will put Andrew in the unfortunate position to decide,
+> which patch to accept.
+> Is this really what you want?
+>
 
-Still not supported features are creation/deletion of files/directories
-and mmap(2) based writes to sparse regions of files.  (The mmap(2)
-support has not been modified since the last release, only the file
-write(2) support was rewritten.)
+I think what Ingo is saying, is to modify Thomas' code and show where it
+is failing, instead of just talking about it.  You can ask "why" he did
+something, but I think Thomas gave you enough in his answers.  If you are
+still not satisfied, then that is the time to start playing with the code
+and find the problems, fix them and show us that "yes" your way is better.
+Don't just ask why Thomas did it one way without a patch that changes it
+to show us why he shouldn't have.
 
-If you do try it, please let me know how it worked for you! - Thanks a
-lot in advance for testing!
-
-Best regards,
-
-        Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
-.
+-- Steve
 

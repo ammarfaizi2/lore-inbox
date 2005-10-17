@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbVJQQax@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbVJQQa7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750709AbVJQQax (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 12:30:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbVJQQax
+	id S1750732AbVJQQa7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 12:30:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750735AbVJQQa7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 12:30:53 -0400
-Received: from mailgate.urz.uni-halle.de ([141.48.3.51]:54259 "EHLO
-	mailgate.uni-halle.de") by vger.kernel.org with ESMTP
-	id S1750709AbVJQQaw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 12:30:52 -0400
-Date: Mon, 17 Oct 2005 18:30:40 +0200 (METDST)
-From: Clemens Ladisch <clemens@ladisch.de>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-cc: <linux-kernel@vger.kernel.org>, <bob.picco@hp.com>
-Subject: Re: [PATCH 0/7] more HPET fixes and enhancements
-In-Reply-To: <20051014193025.653886f0.rdunlap@xenotime.net>
-Message-ID: <Pine.HPX.4.33n.0510171821290.18920-100000@studcom.urz.uni-halle.de>
+	Mon, 17 Oct 2005 12:30:59 -0400
+Received: from sccrmhc11.comcast.net ([63.240.76.21]:36243 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1750732AbVJQQa6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 12:30:58 -0400
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: Re: ohci1394 unhandled interrupts bug in 2.6.14-rc2
+Date: Mon, 17 Oct 2005 09:30:33 -0700
+User-Agent: KMail/1.8.91
+Cc: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, rob@janerob.com
+References: <20051015185502.GA9940@plato.virtuousgeek.org> <20051017024219.08662190.akpm@osdl.org> <4353770F.3010605@s5r6.in-berlin.de>
+In-Reply-To: <4353770F.3010605@s5r6.in-berlin.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Scan-Signature: 1dcf858e5f71d201888bc25046ce534d
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510170930.33530.jbarnes@virtuousgeek.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-
-> On Tue, 04 Oct 2005 14:41:26 +0200 (MEST) Clemens Ladisch wrote:
+On Monday, October 17, 2005 3:03 am, Stefan Richter wrote:
+> Andrew Morton wrote:
+> > Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
+> >>Of course we don't have a complete picture of which models are
+> >> affected though.
+> >
+> > I suppose we could do both.  As people are found who need the module
+> > parameter, we grab their DMI strings and add them to the table?
 >
-> > Another round of HPET bugfixes and cleanups.
->
-> I've applied and tested all of these along with what is
-> currently in -mm (only -mm hpet + timer patches).
->
-> By "tested" I mean that I booted the kernel.  :)
->
-> What kind of testing have you done?
-> Do you have any timer test tools that you use to verify that
-> timers are actually working as expected?
+> Jesse, what DMI_PRODUCT_NAME matches your laptop?
 
-Apart from the test program in hpet.txt, I'm using the ALSA HPET
-driver (contained in the ALSA 1.0.9 package, but not yet in the kernel
-tree) and then just test it using the ALSA API and/or use it as the
-MIDI sequencer timer.
+I'll have to check when I get home, is the relevant info from the "System 
+Information" section of the dmidecode output?
 
-
-HTH
-Clemens
-
+Jesse

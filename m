@@ -1,102 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751078AbVJQRw4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751074AbVJQR4Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751078AbVJQRw4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 13:52:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751044AbVJQRw4
+	id S1751074AbVJQR4Y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 13:56:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751234AbVJQR4Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 13:52:56 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:13333 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751078AbVJQRwz (ORCPT
+	Mon, 17 Oct 2005 13:56:24 -0400
+Received: from wproxy.gmail.com ([64.233.184.207]:33646 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751074AbVJQR4X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 13:52:55 -0400
-Date: Mon, 17 Oct 2005 19:53:27 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Badari Pulavarty <pbadari@gmail.com>
-Cc: li nux <lnxluv@yahoo.com>, Grzegorz Kulewski <kangur@polcom.net>,
-       Erik Mouw <erik@harddisk-recovery.com>, colin <colin@realtek.com.tw>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: A problem about DIRECT IO on ext3
-Message-ID: <20051017175326.GX2811@suse.de>
-References: <20051017091710.GT2811@suse.de> <20051017094140.14685.qmail@web33301.mail.mud.yahoo.com> <20051017095133.GU2811@suse.de> <1129566970.23632.8.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 17 Oct 2005 13:56:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=DHtIjsOoEbGVujFPEy7wQF9I+/a4Dfa1rKH+alPVE07qx6byNWBSZpYp2bXaXeVJ1Yi5c8oD0InTmwEexdNiVsN+8IKpv5b40X9A+oCr5wEfQV4NM/lxrs7XT+1JLYGqyL0cQChUmvm8cBuw6Usz8PgY+sfCSBNbPghqSTEgi2s=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Andrew Vasquez <andrew.vasquez@qlogic.com>
+Subject: [PATCH] fix implicit declaration compile warning in qla2xxx
+Date: Mon, 17 Oct 2005 19:59:23 +0200
+User-Agent: KMail/1.8.2
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1129566970.23632.8.camel@localhost.localdomain>
+Message-Id: <200510171959.23585.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 17 2005, Badari Pulavarty wrote:
-> On Mon, 2005-10-17 at 11:51 +0200, Jens Axboe wrote:
-> > On Mon, Oct 17 2005, li nux wrote:
-> > > 
-> > > 
-> > > --- Jens Axboe <axboe@suse.de> wrote:
-> > > 
-> > > > On Mon, Oct 17 2005, Grzegorz Kulewski wrote:
-> > > > > On Mon, 17 Oct 2005, Jens Axboe wrote:
-> > > > > >>how to correct this problem ?
-> > > > > >
-> > > > > >See your buffer address, it's not aligned. You
-> > > > need to align that as
-> > > > > >well. This is needed because the hardware will
-> > > > dma directly to the user
-> > > > > >buffer, and to be on the safe side we require the
-> > > > same alignment as the
-> > > > > >block layer will normally generate for file
-> > > > system io.
-> > > > > >
-> > > > > >So in short, just align your read buffer to the
-> > > > same as your block size
-> > > > > >and you will be fine. Example:
-> > > > > >
-> > > > > >#define BS      (4096)
-> > > > > >#define MASK    (BS - 1)
-> > > > > >#define ALIGN(buf)      (((unsigned long) (buf) +
-> > > > MASK) & ~(MASK))
-> > > > > >
-> > > > > >char *ptr = malloc(BS + MASK);
-> > > > > >char *buf = (char *) ALIGN(ptr);
-> > > > > >
-> > > > > >read(fd, buf, BS);
-> > > > > 
-> > > > > Shouldn't one use posix_memalign(3) for that?
-> > > > 
-> > > > Dunno if one 'should', one 'can' if one wants to. I
-> > > > prefer to do it
-> > > > manually so I don't have to jump through #define
-> > > > hoops to get at it
-> > > > (which, btw, still doesn't expose it on this
-> > > > machine).
-> > > > 
-> > > > -- 
-> > > > Jens Axboe
-> > > 
-> > > Thanx a lot Jens :-)
-> > > Its working now.
-> > > I did not have to make these adjustments on 2.6
-> > > Is looks to be having more relaxation.
-> > 
-> > 2.6 does have the option of checking the hardware dma requirement
-> > seperately, but for this path you should run into the same restrictions.
-> > Perhaps you just got lucky when testing 2.6?
-> 
-> 2.6 also has the same restriction. But, if the "filesystem 
-> blocksize alignment" (soft block size) fails, we try to see 
-> if its aligned with hard sector size (512). If so, we can do the IO.
->  
-> 2.4 fails if the offset or buffer is NOT filesystem blocksize
-> aligned. Period.
 
-I'm aware of that, however this particular case was about the buffer
-alignment (which was 32-bytes in the strace). And that should not work
-for 2.6 either.
+Fix warning about implicitly declared function in qla_rscn.c
+  drivers/scsi/qla2xxx/qla_rscn.c:334: warning: implicit declaration of function `fc_remote_port_unblock'
 
-The block-size alignment is really a separate property of correctness.
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
 
-> BTW, posix_memalign() or valloc() should be safe.
+ drivers/scsi/qla2xxx/qla_rscn.c |    1 +
+ 1 files changed, 1 insertion(+)
 
-Certainly.
+--- linux-2.6.14-rc4-mm1-orig/drivers/scsi/qla2xxx/qla_rscn.c	2005-10-11 22:41:20.000000000 +0200
++++ linux-2.6.14-rc4-mm1/drivers/scsi/qla2xxx/qla_rscn.c	2005-10-17 19:53:50.000000000 +0200
+@@ -17,6 +17,7 @@
+  *
+  */
+ #include "qla_def.h"
++#include <scsi/scsi_transport_fc.h>
+ 
+ /**
+  * IO descriptor handle definitions.
 
--- 
-Jens Axboe
+
+
+
+
+/Jesper Juhl
+
+
+PS. 
+ Please CC me on replies.
+
 

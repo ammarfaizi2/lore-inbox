@@ -1,61 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbVJQVLv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932329AbVJQVL1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932332AbVJQVLv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 17:11:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932334AbVJQVLu
+	id S932329AbVJQVL1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 17:11:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbVJQVL1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 17:11:50 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:10077 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S932332AbVJQVLo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 17:11:44 -0400
-Date: Mon, 17 Oct 2005 23:12:29 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Mark Rustad <MRustad@mac.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] kbuild: Eliminate build error when KALLSYMS not defined
-Message-ID: <20051017211229.GA14723@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 17 Oct 2005 17:11:27 -0400
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:2499 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S932329AbVJQVL0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 17:11:26 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [linux-pm] 2.6.14-rc1-mm1: usb breaks suspend
+Date: Mon, 17 Oct 2005 23:11:34 +0200
+User-Agent: KMail/1.8.2
+Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       linux-usb-devel@lists.sourceforge.net
+References: <Pine.LNX.4.44L0.0510171450460.4446-100000@iolanthe.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0510171450460.4446-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+Message-Id: <200510172311.35500.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus, please apply before -final. It eliminates annoying output when
-we do not compile with CONFIG_KALLSYMS enabled.
+Hi,
 
-From: Mark Rustad <MRustad@mac.com>
+On Monday, 17 of October 2005 20:54, Alan Stern wrote:
+> On Mon, 17 Oct 2005, Pavel Machek wrote:
+> 
+> > Hi!
+> > 
+> > In -mm, usb breaks suspend to disk. Compiled without
+> > CONFIG_USB_SUSPEND, it just plainly fails; iwth USB_SUSPEND, it
+> > actually tries to suspend USB, but it fails and machine refuses to
+> > suspend. Is it known or is it worth debugging?
+> 
+> More details please.
 
-The following build error happens with 2.6.14-rc4
-when CONFIG_KALLSYMS is not defined. The error
-message in a fragment of the output was:
+Fails for me too on x86-64, with the following messages:
 
-  CC      arch/i386/lib/usercopy.o
-  AR      arch/i386/lib/lib.a
-/bin/sh: line 1: +@: command not found
-make[3]: warning: jobserver unavailable: using -j1.  Add `+' to parent make rule.
-  CHK     include/linux/compile.h
+Stopping tasks: ========================|
+Freeing memory... done (14642 pages freed)
+Suspending device card0-0
+Suspending device 2-2:1.0
+Suspending device 2-2
+Suspending device 3-0:1.0
+hub 3-0:1.0: no suspend?
+Suspending device usb3
+Could not suspend device usb3: error -16
+Some devices failed to suspend
+Restarting tasks... done
 
-The following patch fixes it.
+where the USB-related info returned by the kernel is this:
 
-Signed-off-by: Mark Rustad <mrustad@mac.com>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
----
+ohci_hcd: 2005 April 22 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
+ACPI: PCI Interrupt Link [LUS0] enabled at IRQ 11
+ACPI: PCI Interrupt 0000:00:02.0[A] -> Link [LUS0] -> GSI 11 (level, low) -> IRQ 11
+PCI: Setting latency timer of device 0000:00:02.0 to 64
+ohci_hcd 0000:00:02.0: OHCI Host Controller
+ohci_hcd 0000:00:02.0: new USB bus registered, assigned bus number 1
+ohci_hcd 0000:00:02.0: irq 11, io mem 0xfebfb000
+hub 1-0:1.0: USB hub found
+hub 1-0:1.0: 3 ports detected
+ACPI: PCI Interrupt Link [LUS1] enabled at IRQ 11
+ACPI: PCI Interrupt 0000:00:02.1[B] -> Link [LUS1] -> GSI 11 (level, low) -> IRQ 11
+PCI: Setting latency timer of device 0000:00:02.1 to 64
+ohci_hcd 0000:00:02.1: OHCI Host Controller
+ohci_hcd 0000:00:02.1: new USB bus registered, assigned bus number 2
+ohci_hcd 0000:00:02.1: irq 11, io mem 0xfebfc000
+hub 2-0:1.0: USB hub found
+hub 2-0:1.0: 3 ports detected
+ACPI: PCI Interrupt Link [LUS2] enabled at IRQ 5
+usb 2-2: new low speed USB device using ohci_hcd and address 2
+PCI: setting IRQ 5 as level-triggered
+ACPI: PCI Interrupt 0000:00:02.2[C] -> Link [LUS2] -> GSI 5 (level, low) -> IRQ 5
+PCI: Setting latency timer of device 0000:00:02.2 to 64
+ehci_hcd 0000:00:02.2: EHCI Host Controller
+ehci_hcd 0000:00:02.2: debug port 1
+ehci_hcd 0000:00:02.2: new USB bus registered, assigned bus number 3
+ehci_hcd 0000:00:02.2: irq 5, io mem 0xfebfdc00
+PCI: cache line size of 64 is not supported by device 0000:00:02.2
+ehci_hcd 0000:00:02.2: park 0
+ehci_hcd 0000:00:02.2: USB 2.0 initialized, EHCI 1.00, driver 10 Dec 2004
+usb 2-2: device descriptor read/all, error -110
+hub 3-0:1.0: USB hub found
+hub 3-0:1.0: 6 ports detected
+ohci_hcd 0000:00:02.1: wakeup
+usb 2-2: new low speed USB device using ohci_hcd and address 4
+usbcore: registered new driver hiddev
+input: Logitech USB Receiver//class/input_dev as input3
+input: USB HID v1.10 Mouse [Logitech USB Receiver] on usb-0000:00:02.1-2
+usbcore: registered new driver usbhid
+drivers/usb/input/hid-core.c: v2.6:USB HID core driver
 
-diff --git a/Makefile b/Makefile
-index 4e0d7c6..a3ffa20 100644
---- a/Makefile
-+++ b/Makefile
-@@ -660,8 +660,10 @@ quiet_cmd_sysmap = SYSMAP 
- # Link of vmlinux
- # If CONFIG_KALLSYMS is set .version is already updated
- # Generate System.map and verify that the content is consistent
--
-+# Use + in front of the vmlinux_version rule to silent warning with make -j2
-+# First command is ':' to allow us to use + in front of the rule
- define rule_vmlinux__
-+	:
- 	$(if $(CONFIG_KALLSYMS),,+$(call cmd,vmlinux_version))
- 
- 	$(call cmd,vmlinux__)
+Greetings,
+Rafael

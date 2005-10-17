@@ -1,67 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751398AbVJQPVQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751390AbVJQPVj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751398AbVJQPVQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 11:21:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751397AbVJQPVQ
+	id S1751390AbVJQPVj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 11:21:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751322AbVJQPVj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 11:21:16 -0400
-Received: from mail.kroah.org ([69.55.234.183]:42179 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751395AbVJQPVP (ORCPT
+	Mon, 17 Oct 2005 11:21:39 -0400
+Received: from mail03.solnet.ch ([212.101.4.137]:39144 "EHLO mail03.solnet.ch")
+	by vger.kernel.org with ESMTP id S1751390AbVJQPVi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 11:21:15 -0400
-Date: Mon, 17 Oct 2005 08:20:34 -0700
-From: Greg KH <greg@kroah.com>
-To: Robin Holt <holt@sgi.com>
-Cc: Hugh Dickins <hugh@veritas.com>, Dave Hansen <haveblue@us.ibm.com>,
-       ia64 list <linux-ia64@vger.kernel.org>, linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       hch@infradead.org, jgarzik@pobox.com,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Carsten Otte <cotte@de.ibm.com>,
-       Jack Steiner <steiner@americas.sgi.com>
-Subject: Re: [Patch 2/3] Export get_one_pte_map.
-Message-ID: <20051017152034.GA32286@kroah.com>
-References: <20051014192111.GB14418@lnx-holt.americas.sgi.com> <20051014192225.GD14418@lnx-holt.americas.sgi.com> <20051014213038.GA7450@kroah.com> <20051017113131.GA30898@lnx-holt.americas.sgi.com> <1129549312.32658.32.camel@localhost> <20051017114730.GC30898@lnx-holt.americas.sgi.com> <Pine.LNX.4.61.0510171331090.2993@goblin.wat.veritas.com> <20051017151430.GA2564@lnx-holt.americas.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051017151430.GA2564@lnx-holt.americas.sgi.com>
-User-Agent: Mutt/1.5.11
+	Mon, 17 Oct 2005 11:21:38 -0400
+From: Damir Perisa <damir.perisa@solnet.ch>
+To: "V. Ananda Krishnan" <mansarov@us.ibm.com>
+Subject: 2.6.14-rc4-mm1 - drivers/serial/jsm/jsm_tty.c: no member named 'flip'
+Date: Mon, 17 Oct 2005 17:21:23 +0200
+User-Agent: KMail/1.8.3
+References: <20051016154108.25735ee3.akpm@osdl.org> <200510171229.57785.damir.perisa@solnet.ch> <4353BB87.1030006@us.ibm.com>
+In-Reply-To: <4353BB87.1030006@us.ibm.com>
+X-Face: +)fhYFmn|<pyRIlgch_);krg#jn!^z'?xy(Ur#Z6rZi)KD+_-V<Y@i>0pOVfJ4<=?iso-8859-1?q?Q1/=26/=26z=0A=093cxqRa=3B7O=5C4g=5C=7C=5DF-!H0!ew9kx1LqK/?=
+ =?iso-8859-1?q?iPOv8eXi=26I7=60Pez0V0VNMAxnqRL8-30qqKK=3DxGM=0A=09pExQc=5B?=
+ =?iso-8859-1?q?2=7Cl6v=23?=<iwBvEO9+h|_YS[48z%/kuD2*aT*S/$0323VCL3V9?@}jq<
+ =?iso-8859-1?q?Ns6V=3A0m=27Qia=0A=09?="[#oJg[RVe}Sy/lP95E@pa[vdKzqLqn&M`exb91"`,<k`3;Vt97cLjhub0.v+]m`%|>@Z(
+ =?iso-8859-1?q?=0A=09EeC/zU7=25?=@"L6mi#..8Q^M
+Cc: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org
+Alanine: true
+Glycine: true
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart5790934.kWy4eXfSq9";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200510171721.26588.damir.perisa@solnet.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 17, 2005 at 10:14:30AM -0500, Robin Holt wrote:
-> On Mon, Oct 17, 2005 at 01:33:53PM +0100, Hugh Dickins wrote:
-> > On Mon, 17 Oct 2005, Robin Holt wrote:
-> > > On Mon, Oct 17, 2005 at 01:41:52PM +0200, Dave Hansen wrote:
-> > > > On Mon, 2005-10-17 at 06:31 -0500, Robin Holt wrote:
-> > > > > On Fri, Oct 14, 2005 at 02:30:38PM -0700, Greg KH wrote:
-> > > > > > On Fri, Oct 14, 2005 at 02:22:25PM -0500, Robin Holt wrote:
-> > > > > > > +EXPORT_SYMBOL(get_one_pte_map);
-> > > 
-> > > I got a little push from our internal incident tracking system for
-> > > this being a module.  _GPL it will be.
-> > 
-> > Sorry, Robin, I've not been following your patches.  But if you look
-> > at 2.6.14-rc4-mm1, you'll find that there isn't even a get_one_pte_map
-> > there.  Though there's no certainty yet that my pt locking changes, or
-> > Nick's PageReserved changes, will actually go forward, there's a lot of
-> > work queued up in -mm that is likely to affect your code.  And I don't
-> > think exporting internal functions from mremap.c, _GPL or otherwise,
-> > is the way to go.
-> 
-> I am currently getting pressure from my management to get something
-> checked into the tree for 2.6.15.
+--nextPart5790934.kWy4eXfSq9
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Your management seems to not understand how kernel development works :)
+Le Monday 17 October 2005 16:56, vous avez =E9crit=A0:
+ | =A0Please give details of the distro and the compiler version that you
+ | used. =A0Are you building the driver as a module?
 
-> Would it be reasonable to ask that the current patch be included and
-> then I work up another patch which introduces a ->nopfn type change
-> for the -mm tree?
+i'm package maintainer of kernel26mm in archlinux (i686).
+the compiler is gcc 4.0.2 with some bugs fixed it had (from=20
+4.0.3-snapshot).
 
-The stuff in -mm is what is going to be in .15, so you have to work off
-of that patchset if you wish to have something for .15.
+yes, jsm-tty is built as module, as can be seen from output i posted.
+the only difference from 2.6.14-rc4-mm1 and the one i compile is the=20
+applied cleanup patch=20
 
-Good luck,
+	2614-rc4-mm-sparse-fixes.patch=20
 
-greg k-h
+that was announced on the mailinglist just after the rc4-mm1 release.
+
+if you need the config, it can be found here:
+
+http://cvs.archlinux.org/cgi-bin/viewcvs.cgi/kernels/kernel26mm/?cvsroot=3D=
+Extra&only_with_tag=3DHEAD
+
+i'm willing to apply any patches that would make kernel26mm again compile=20
+all ttys successfully (the last one that did is 2.6.15-rc5-mm1).
+
+thanx + greetings,
+Damir
+
+=2D-=20
+I think it's a new feature.  Don't tell anyone it was an accident.  :-)
+         -- Larry Wall on s/foo/bar/eieio in=20
+<10911@jpl-devvax.JPL.NASA.GOV>
+
+--nextPart5790934.kWy4eXfSq9
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBDU8F2PABWKV6NProRApaoAKCpPsnEGIOboBKjZBkFLdrw65Jc6gCfQcZ2
+NV5ClcGdS4NV3GzMhFgYmLU=
+=LUMY
+-----END PGP SIGNATURE-----
+
+--nextPart5790934.kWy4eXfSq9--

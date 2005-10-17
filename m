@@ -1,56 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932358AbVJQWkx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932363AbVJQWlt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932358AbVJQWkx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 18:40:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932357AbVJQWkx
+	id S932363AbVJQWlt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 18:41:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932362AbVJQWlX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 18:40:53 -0400
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:29379 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S932354AbVJQWkw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 18:40:52 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@suse.cz>
-Subject: [PATCH 1/4] swsusp: get rid of unnecessary wrapper function
-Date: Mon, 17 Oct 2005 23:40:19 +0200
-User-Agent: KMail/1.8.2
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-References: <200510172336.53194.rjw@sisk.pl>
-In-Reply-To: <200510172336.53194.rjw@sisk.pl>
+	Mon, 17 Oct 2005 18:41:23 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:46985 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932354AbVJQWlA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 18:41:00 -0400
+Date: Mon, 17 Oct 2005 15:40:23 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Eric Dumazet <dada1@cosmosbay.com>
+cc: dipankar@in.ibm.com, Jean Delvare <khali@linux-fr.org>,
+       Serge Belyshev <belyshev@depni.sinp.msu.ru>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: VFS: file-max limit 50044 reached
+In-Reply-To: <Pine.LNX.4.64.0510171304580.3369@g5.osdl.org>
+Message-ID: <Pine.LNX.4.64.0510171530040.3369@g5.osdl.org>
+References: <Pine.LNX.4.64.0510161912050.23590@g5.osdl.org>
+ <JTFDVq8K.1129537967.5390760.khali@localhost> <20051017084609.GA6257@in.ibm.com>
+ <43536A6C.102@cosmosbay.com> <20051017103244.GB6257@in.ibm.com>
+ <Pine.LNX.4.64.0510170829000.23590@g5.osdl.org> <4353CADB.8050709@cosmosbay.com>
+ <Pine.LNX.4.64.0510170911370.23590@g5.osdl.org> <20051017162930.GC13665@in.ibm.com>
+ <4353E6F1.8030206@cosmosbay.com> <Pine.LNX.4.64.0510171112040.3369@g5.osdl.org>
+ <4353F7B5.1040101@cosmosbay.com> <Pine.LNX.4.64.0510171218490.3369@g5.osdl.org>
+ <4353FDE8.8070909@cosmosbay.com> <Pine.LNX.4.64.0510171304580.3369@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510172340.20038.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch merges two functions in a trivial way.
 
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
 
-Index: linux-2.6.14-rc4-mm1/kernel/power/snapshot.c
-===================================================================
---- linux-2.6.14-rc4-mm1.orig/kernel/power/snapshot.c	2005-10-17 23:28:36.000000000 +0200
-+++ linux-2.6.14-rc4-mm1/kernel/power/snapshot.c	2005-10-17 23:28:40.000000000 +0200
-@@ -384,7 +384,7 @@
- 	return 0;
- }
- 
--static int suspend_prepare_image(void)
-+asmlinkage int swsusp_save(void)
- {
- 	int error;
- 
-@@ -433,9 +433,3 @@
- 	printk("swsusp: critical section/: done (%d pages copied)\n", nr_copy_pages );
- 	return 0;
- }
--
--
--asmlinkage int swsusp_save(void)
--{
--	return suspend_prepare_image();
--}
+On Mon, 17 Oct 2005, Linus Torvalds wrote:
+> On Mon, 17 Oct 2005, Eric Dumazet wrote:
+> > 
+> > What about call_rcu_bh() which I left unchanged ? At least one of my
+> > production machine cannot live very long unless I have maxbatch = 300, because
+> > of an insane large tcp route cache (and one of its CPU almost filled by
+> > softirq NIC processing)
+> 
+> I think we'll have to release 2.6.14 with maxbatch at the high value 
+> (10000).
 
+Btw, I'm going to apply your patch in _addition_ to the bigger maxbatch 
+value.
+
+It might help latency a bit, but more importantly, on one of my machines 
+(but only one - it probably depends on how much memory you have etc), I 
+can re-create the out-of-file-descriptors thing even with a maxbatch of a 
+million.
+
+Probably what happens is that the rcu callbacks just grow fast enough 
+without any quiescent period that the maxbatch thing just never matters: 
+we simply run out of file descriptors because we haven't even gotten 
+around to trying to free them yet.
+
+I'm compiling with your patch on that machine to verify that it does 
+actually help keep the queues down. Just doing a
+
+	while : ; do cat /proc/slabinfo | grep filp; sleep 1; done
+
+while running the test programs gives some alarming numbers as-is.
+
+Your patch keeps the numbers _much_ more stable.
+
+Regardless, keeping track of the number of rcu callback events we have 
+will almost inevitably be part of whatever future strategy we take, so 
+your patch is definitely a step in the right direction, even if we have to 
+tweak it later.
+
+			Linus

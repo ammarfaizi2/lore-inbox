@@ -1,55 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932264AbVJQKzk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932265AbVJQLAd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932264AbVJQKzk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 06:55:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbVJQKzk
+	id S932265AbVJQLAd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 07:00:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932266AbVJQLAd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 06:55:40 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:65507 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932264AbVJQKzj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 06:55:39 -0400
-Date: Mon, 17 Oct 2005 19:54:58 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Subject: Re: x86_64: 2.6.14-rc4 swiotlb broken
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       discuss@x86-64.org, tglx@linutronix.de, torvalds@osdl.org,
-       shai@scalex86.org, Andi Kleen <ak@suse.de>
-In-Reply-To: <200510171153.56063.ak@suse.de>
-References: <20051017025007.35ae8d0e.akpm@osdl.org> <200510171153.56063.ak@suse.de>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.051
-Message-Id: <20051017193904.0C96.Y-GOTO@jp.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.21.02 [ja]
+	Mon, 17 Oct 2005 07:00:33 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:13012 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932265AbVJQLAc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 07:00:32 -0400
+Date: Mon, 17 Oct 2005 13:00:06 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: zippel@linux-m68k.org, tglx@linutronix.de, george@mvista.com,
+       linux-kernel@vger.kernel.org, johnstul@us.ibm.com, paulmck@us.ibm.com,
+       hch@infradead.org, oleg@tv-sign.ru, tim.bird@am.sony.com
+Subject: Re: [PATCH]  ktimers subsystem 2.6.14-rc2-kt5
+Message-ID: <20051017110006.GA10638@elte.hu>
+References: <1129016558.1728.285.camel@tglx.tec.linutronix.de> <Pine.LNX.4.61.0510130004330.3728@scrub.home> <434DA06C.7050801@mvista.com> <Pine.LNX.4.61.0510150143500.1386@scrub.home> <1129490809.1728.874.camel@tglx.tec.linutronix.de> <Pine.LNX.4.61.0510170021050.1386@scrub.home> <20051017075917.GA4827@elte.hu> <Pine.LNX.4.61.0510171054430.1386@scrub.home> <20051017094153.GA9091@elte.hu> <20051017025657.0d2d09cc.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051017025657.0d2d09cc.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello. Ravikiran-san.
 
-> > This is an ia64 patch - what point was there in testing it on an x460?
+* Andrew Morton <akpm@osdl.org> wrote:
+
+> Ingo Molnar <mingo@elte.hu> wrote:
 > >
-> > Is something missing here?
+> > > [...] It will waste my time, I could spend on other projects and it 
+> >  > will put Andrew in the unfortunate position to decide, which patch to 
+> >  > accept. [...]
+> > 
+> >  yes, please, put Andrew (and me too) into that unfortunate position!  
+> >  Please, pretty please, get on with the patches!
 > 
-> x86-64 shares that code with ia64.
+> I'm with Roman on this one - the old "show me the code" trick which 
+> people use to quash other people's objections is rather poor form - we 
+> should simply address the objections as raised.
 > 
-> The patch is actually not quite correct - in theory node 0 could be too small 
-> to contain the full swiotlb bounce buffers.
-> 
-> The real fix would be to get rid of the pgdata lists and just walk the 
-> node_online_map on bootmem.c. The memory hotplug guys have
-> a patch pending for this.
+> That being said, I'll confess that I've largely ignored this 
+> discussion in the hope that things would get sorted out.  Seems that 
+> this won't be happening and as Roman's opinions carry weight I do 
+> intend to solicit a (brief!) summary of his objections from him when 
+> the patch comes round again.  Sorry.
 
-Yeah!
-I posted a patch for this problem to linux-mm ML. Could you try it? 
-http://marc.theaimsgroup.com/?l=linux-mm&m=112791558527522&w=2
+Fine with me. A brief summary of technical objections (without any 
+personal attacks) is all we wanted to have to begin with. "Show me the 
+code" was my last-ditch attempt to move this seemingly unmovable 
+discussion from a communication channel where the chemistry doesnt seem 
+to work out to a more objective format.
 
-2.6.14-rc4-mm1 already has merged it. ;-)
-
-Thanks.
-
--- 
-Yasunori Goto 
-
+	Ingo

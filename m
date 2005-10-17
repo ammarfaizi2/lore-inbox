@@ -1,64 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbVJQQAQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbVJQQBq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932307AbVJQQAQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 12:00:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbVJQQAP
+	id S932310AbVJQQBq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 12:01:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932313AbVJQQBq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 12:00:15 -0400
-Received: from gold.veritas.com ([143.127.12.110]:50274 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1751414AbVJQQAM (ORCPT
+	Mon, 17 Oct 2005 12:01:46 -0400
+Received: from ns1.suse.de ([195.135.220.2]:51897 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932310AbVJQQBp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 12:00:12 -0400
-Date: Mon, 17 Oct 2005 16:59:20 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Robin Holt <holt@sgi.com>
-cc: Andrew Morton <akpm@osdl.org>, Dave Hansen <haveblue@us.ibm.com>,
-       Greg KH <greg@kroah.com>, ia64 list <linux-ia64@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       hch@infradead.org, jgarzik@pobox.com,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Carsten Otte <cotte@de.ibm.com>,
-       Jack Steiner <steiner@americas.sgi.com>
-Subject: Re: [Patch 2/3] Export get_one_pte_map.
-In-Reply-To: <20051017151430.GA2564@lnx-holt.americas.sgi.com>
-Message-ID: <Pine.LNX.4.61.0510171644220.4773@goblin.wat.veritas.com>
-References: <20051014192111.GB14418@lnx-holt.americas.sgi.com>
- <20051014192225.GD14418@lnx-holt.americas.sgi.com> <20051014213038.GA7450@kroah.com>
- <20051017113131.GA30898@lnx-holt.americas.sgi.com> <1129549312.32658.32.camel@localhost>
- <20051017114730.GC30898@lnx-holt.americas.sgi.com>
- <Pine.LNX.4.61.0510171331090.2993@goblin.wat.veritas.com>
- <20051017151430.GA2564@lnx-holt.americas.sgi.com>
+	Mon, 17 Oct 2005 12:01:45 -0400
+From: Andi Kleen <ak@suse.de>
+To: Muli Ben-Yehuda <mulix@mulix.org>
+Subject: Re: x86_64: 2.6.14-rc4 swiotlb broken
+Date: Mon, 17 Oct 2005 18:02:09 +0200
+User-Agent: KMail/1.8
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Ravikiran G Thirumalai <kiran@scalex86.org>,
+       linux-kernel@vger.kernel.org, discuss@x86-64.org, tglx@linutronix.de,
+       shai@scalex86.org
+References: <20051017093654.GA7652@localhost.localdomain> <200510171740.57614.ak@suse.de> <20051017155613.GF21783@granada.merseine.nu>
+In-Reply-To: <20051017155613.GF21783@granada.merseine.nu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 17 Oct 2005 16:00:12.0334 (UTC) FILETIME=[DB24C4E0:01C5D333]
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510171802.09708.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Oct 2005, Robin Holt wrote:
-> 
-> I am currently getting pressure from my management to get something
-> checked into the tree for 2.6.15.
+On Monday 17 October 2005 17:56, Muli Ben-Yehuda wrote:
+> On Mon, Oct 17, 2005 at 05:40:56PM +0200, Andi Kleen wrote:
+> > First this problem is definitely not critical. AFAIK it only happens on
+> > scalex's unreleased machines. Intel NUMA x86 machines are really rare
+> > and on AMD it doesn't happen because the swiotlb is not used there.
+>
+> It's not used by default, but there are cases where it's used and it
+> would be a shame to release a major kernel and knowingly break
+> them. For example, any setup that used iommu_force or any non-AMD
+> x86-64 machine with more than 4GB of memory and only 32-bit capable
+> DMA devices.
 
-I'm sorry to hear that, but it's not a kernel development priority.
+... but risk breaking other stuff. Unless you can get the ARM and/or IA64 
+people to do some retesting with the proposed fixes it's quite risky.  
+Sometimes you have to make compromises before releases.
 
-And since I'm nearing completion of a task which we expect to satisfy
-what SGI's been asking for almost a year, which I had been obstructing,
-I'm disinclined to drop it now in order to help meet their latest fancy.
+> Another alternative is to temporarily
+> provide a different version of swiotlb_init() for x86-64 and IA64 -
+> I can whip up a patch if that's acceptable.
 
-> Would it be reasonable to ask
-> that the current patch be included and then I work up another patch
-> which introduces a ->nopfn type change for the -mm tree?
+I don't want that.
 
-I'm definitely not in charge here, and cannot answer that.  But I
-think it's unlikely, unless Linus and Andrew are pretty sure that
-what you have now is really the way they want to go in the long term.
+-Andi
 
-You will, as ever, be entitled to apply your patch on top of 2.6.15
-(but it may not apply without some changes).
-
-Repeating a technical question (sorry, that now seems off-topic!):
-what do you expect to happen with PROT_WRITE, MAP_PRIVATE?
-
-Hugh

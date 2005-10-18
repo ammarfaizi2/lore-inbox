@@ -1,76 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbVJRUx5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751482AbVJRUzV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932127AbVJRUx5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 16:53:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932134AbVJRUxu
+	id S1751482AbVJRUzV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 16:55:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751499AbVJRUzU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 16:53:50 -0400
-Received: from fmr20.intel.com ([134.134.136.19]:20134 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932115AbVJRUxr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 16:53:47 -0400
-Date: Tue, 18 Oct 2005 13:54:46 -0700
-From: Randy Dunlap <randy_d_dunlap@linux.intel.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, bob.picco@hp.com,
-       venki <venkatesh.pallipadi@intel.com>
-Subject: [PATCH 1/3 -mm] hpet: allow HPET FIXED_MEM32 resource type
-Message-Id: <20051018135446.04edba10.randy_d_dunlap@linux.intel.com>
-X-Mailer: Sylpheed version 2.0.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-X-Face: "}I"O`t9.W]b]8SycP0Jap#<FU!b:16h{lR\#aFEpEf\3c]wtAL|,'>)%JR<P#Yg.88}`$#
- A#bhRMP(=%<w07"0#EoCxXWD%UDdeU]>,H)Eg(FP)?S1qh0ZJRu|mz*%SKpL7rcKI3(OwmK2@uo\b2
- GB:7w&?a,*<8v[ldN`5)MXFcm'cjwRs5)ui)j
+	Tue, 18 Oct 2005 16:55:20 -0400
+Received: from main.gmane.org ([80.91.229.2]:50327 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751482AbVJRUzS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 16:55:18 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Joe Seigh <jseigh_02@xemaps.com>
+Subject: Possible killer app for user space RCU+SMR
+Date: Tue, 18 Oct 2005 16:55:13 -0400
+Message-ID: <dj3n8k$7av$1@sea.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: stenquists.hsd1.ma.comcast.net
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <randy_d_dunlap@linux.intel.com>
 
-Allow the ACPI HPET description table to use a resource type
-of FIXED_MEM32 for the HPET reource.  Use the fixed resoure
-size of 1 KB for the HPET resource as per the HPET spec.
+I've been trying to come up with a good application for user space RCU+SMR.
+This has been problematic since most apps these days are pretty bloated and
+overloaded with features, so you're talking about a huge amount of effort which
+is why I haven't done a lock-free database at this point but have been looking
+for something a little more doable.
 
-Signed-off-by: Randy Dunlap <randy_d_dunlap@linux.intel.com>
-Acked-by: Bob Picco <bob.picco@hp.com>
----
+What about nscd, the name service cache daemon?   It's possible to rewrite the
+cache data structures to be reader lock-free, put them into a shared memory
+segment, and be able to resolve lookups from cache without any syscall or ipc
+overhead.   If the lookup wasn't satisfied from cache then you would use a
+syscall to communicate with nscd.   Is this worthwhile?  As it is, does the current
+implementation of nscd provide actual performance benefits or is it just around for
+the coolness factor?
 
-Index: linux-2614-rc4-mm1/drivers/char/hpet.c
-===================================================================
---- linux-2614-rc4-mm1.orig/drivers/char/hpet.c
-+++ linux-2614-rc4-mm1/drivers/char/hpet.c
-@@ -49,6 +49,8 @@
- #define	HPET_USER_FREQ	(64)
- #define	HPET_DRIFT	(500)
- 
-+#define HPET_RANGE_SIZE		1024	/* from HPET spec */
-+
- static u32 hpet_nhpet, hpet_max_freq = HPET_USER_FREQ;
- 
- /* A lock for concurrent access by app and isr hpet activity. */
-@@ -922,6 +924,21 @@ static acpi_status hpet_resources(struct
- 		for (hpetp = hpets; hpetp; hpetp = hpetp->hp_next)
- 			if (hpetp->hp_hpet == hdp->hd_address)
- 				return -EBUSY;
-+	} else if (res->type == ACPI_RSTYPE_FIXED_MEM32) {
-+		struct acpi_resource_fixed_mem32 *fixmem32;
-+
-+		fixmem32 = &res->data.fixed_memory32;
-+		if (!fixmem32)
-+			return -EINVAL;
-+
-+		hdp->hd_phys_address = fixmem32->range_base_address;
-+		hdp->hd_address = ioremap(fixmem32->range_base_address,
-+						HPET_RANGE_SIZE);
-+
-+		for (hpetp = hpets; hpetp; hpetp = hpetp->hp_next)
-+			if (hpetp->hp_hpet == hdp->hd_address) {
-+				return -EBUSY;
-+			}
- 	} else if (res->type == ACPI_RSTYPE_EXT_IRQ) {
- 		struct acpi_resource_ext_irq *irqp;
- 		int i;
+Note this technique could be extended to allow direct reading of kernel data
+structures mapped into shared memory segments as well if anyone found a
+use for that.
+
+--
+Joe Seigh
 
 
----
+

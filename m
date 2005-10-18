@@ -1,92 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbVJRJrY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751149AbVJRKLm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750731AbVJRJrY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 05:47:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750792AbVJRJrY
+	id S1751149AbVJRKLm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 06:11:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751467AbVJRKLm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 05:47:24 -0400
-Received: from gw1.cosmosbay.com ([62.23.185.226]:30412 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S1750731AbVJRJrX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 05:47:23 -0400
-Message-ID: <4354C476.40901@cosmosbay.com>
-Date: Tue, 18 Oct 2005 11:46:30 +0200
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: fr, en
+	Tue, 18 Oct 2005 06:11:42 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:42658 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751149AbVJRKLl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 06:11:41 -0400
+Date: Tue, 18 Oct 2005 19:09:03 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+Subject: Re: [discuss] Re: x86_64: 2.6.14-rc4 swiotlb broken
+Cc: Linus Torvalds <torvalds@osdl.org>, Muli Ben-Yehuda <mulix@mulix.org>,
+       Andi Kleen <ak@suse.de>, discuss@x86-64.org,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       tglx@linutronix.de, shai@scalex86.org, clameter@engr.sgi.com,
+       muli@il.ibm.com, jdmason@us.ibm.com
+In-Reply-To: <20051018061325.GB3692@localhost.localdomain>
+References: <20051018125342.6799.Y-GOTO@jp.fujitsu.com> <20051018061325.GB3692@localhost.localdomain>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.051
+Message-Id: <20051018183627.679B.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
-To: paulmck@us.ibm.com
-CC: dipankar@in.ibm.com, Linus Torvalds <torvalds@osdl.org>,
-       Jean Delvare <khali@linux-fr.org>,
-       Serge Belyshev <belyshev@depni.sinp.msu.ru>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: VFS: file-max limit 50044 reached
-References: <Pine.LNX.4.64.0510161912050.23590@g5.osdl.org> <JTFDVq8K.1129537967.5390760.khali@localhost> <20051017084609.GA6257@in.ibm.com> <43536A6C.102@cosmosbay.com> <20051017103244.GB6257@in.ibm.com> <Pine.LNX.4.64.0510170829000.23590@g5.osdl.org> <4353CADB.8050709@cosmosbay.com> <Pine.LNX.4.64.0510170911370.23590@g5.osdl.org> <20051017162930.GC13665@in.ibm.com> <4353E6F1.8030206@cosmosbay.com> <20051017225925.GB1298@us.ibm.com>
-In-Reply-To: <20051017225925.GB1298@us.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Tue, 18 Oct 2005 11:46:32 +0200 (CEST)
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.21.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul E. McKenney a écrit :
-> 
-> 
->>+/*
->>+ *  Should we directly call rcu_do_batch() here ?
->>+ *  if (unlikely(rdp->count > 10000))
->>+ *      rcu_do_batch(rdp);
->>+ */
-> 
-> 
-> Good thing that the above is commented out!  ;-)
-> 
-> Doing this can result in self-deadlock, for example with the following:
-> 
-> 	spin_lock(&mylock);
-> 	/* do some stuff. */
-> 	call_rcu(&p->rcu_head, my_rcu_callback);
-> 	/* do some more stuff. */
-> 	spin_unlock(&mylock);
-> 
-> void my_rcu_callback(struct rcu_head *p)
-> {
-> 	spin_lock(&mylock);
-> 	/* self-deadlock via call_rcu() via rcu_do_batch()!!! */
-> 	spin_unlock(&mylock);
-> }
-> 
-> 
-> 						Thanx, Paul
 
-Thanks Paul for reminding us that call_rcu() should not ever call the callback 
-function, as very well documented in Documentation/RCU/UP.txt
-(Example 3: Death by Deadlock)
+I tested your patch, but unfortunately, it doesn't work IA64.
+alloc_bootmem_node() requires bigger area than MAX_DMA_ADDRESS.
+It is defined as 4GB for ia64. (arch/ia64/mm/init.c)
+But this patch require smaller area than 4GB. 
+So they are exclusive each other.
 
-But is the same true for call_rcu_bh() ?
+I'm convinced that a new interface like alloc_bootmem_low32() is
+necessary after all. ;-)
 
-I intentionally wrote the comment to remind readers that a low maxbatch can 
-trigger OOM in case a CPU is filled by some kind of DOS (network IRQ flood for 
-example, targeting the IP dst cache)
+Thanks.
 
-To solve this problem, may be we could add a requirement to 
-call_rcu_bh/callback functions  : If they have to lock a spinlock, only use a 
-spin_trylock() and make them returns a status (0 : sucessfull callback, 1: 
-please requeue me)
 
-As most callback functions just kfree() some memory, most of OOM would be cleared.
+> On Tue, Oct 18, 2005 at 01:28:20PM +0900, Yasunori Goto wrote:
+> > > > So, just "use NODE(0)" is not enough hack for our machine.
+> > > > If "use NODE(0)" is selected, kernel must sort pgdat link and
+> > > > node id by memory address. I think that hot add code will be a 
+> > > > bit messy instead.
+> > > 
+> > > Yasunori-san,
+> > > Does this patch work on your boxes instead? (For 2.6.14)
+> > > http://marc.theaimsgroup.com/?l=linux-kernel&m=112959469914681&w=2
+> > 
+> > Not yet. But could you change this line at least?
+> > 
+> > +	
+> > +	for_each_node(node) {
+> > +		io_tlb_start = alloc_bootmem_node(NODE_DATA(node), iotlbsz);
+> > 
+> > for_each_node() loop walks around node_possible_map which includes
+> > "offlined" node. 
+> > Please use for_each_online_node() instead. Then, I'll check it. :-)
+> 
+> Since swiotlb is is allocated even before APs are brought up, I thought,
+> if the node containing lowmem32 was not the boot node, it would not be
+> online.   But on closer look, my assumption was wrong.  Here is the patch
+> which iterates through online nodes to allocate lowmem32 bootmem for
+> swiotlb.
+> 
+> --
+> 
+> Patch to ensure low32 mem allocation for x86_64 swiotlb 
+> 
+> Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
+> 
+> Index: linux-2.6.14-rc4/arch/ia64/lib/swiotlb.c
+> ===================================================================
+> --- linux-2.6.14-rc4.orig/arch/ia64/lib/swiotlb.c	2005-10-17 13:27:35.000000000 -0700
+> +++ linux-2.6.14-rc4/arch/ia64/lib/swiotlb.c	2005-10-17 16:00:44.000000000 -0700
+> @@ -106,6 +106,8 @@
+>  __setup("swiotlb=", setup_io_tlb_npages);
+>  /* make io_tlb_overflow tunable too? */
+>  
+> +#define IS_LOWPAGES(paddr, size) ((paddr < 0xffffffff) && ((paddr+size) < 0xffffffff))
+> +
+>  /*
+>   * Statically reserve bounce buffer space and initialize bounce buffer data
+>   * structures for the software IO TLB used to implement the PCI DMA API.
+> @@ -114,17 +116,32 @@
+>  swiotlb_init_with_default_size (size_t default_size)
+>  {
+>  	unsigned long i;
+> +	unsigned long iotlbsz;
+> +	int node;
+>  
+>  	if (!io_tlb_nslabs) {
+>  		io_tlb_nslabs = (default_size >> IO_TLB_SHIFT);
+>  		io_tlb_nslabs = ALIGN(io_tlb_nslabs, IO_TLB_SEGSIZE);
+>  	}
+>  
+> +	iotlbsz = io_tlb_nslabs * (1 << IO_TLB_SHIFT);	
+> +
+>  	/*
+> -	 * Get IO TLB memory from the low pages
+> +	 * Get IO TLB memory from the 0-4G range
+>  	 */
+> -	io_tlb_start = alloc_bootmem_low_pages(io_tlb_nslabs *
+> -					       (1 << IO_TLB_SHIFT));
+> +	
+> +	for_each_online_node(node) {
+> +		io_tlb_start = alloc_bootmem_node(NODE_DATA(node), iotlbsz);
+> +		if (io_tlb_start) {
+> +			if (IS_LOWPAGES(virt_to_phys(io_tlb_start), iotlbsz))
+> +				break;
+> +			free_bootmem_node(NODE_DATA(node), 
+> +					  virt_to_phys(io_tlb_start), iotlbsz);
+> +			io_tlb_start = NULL;
+> +		}
+> +	}
+> +
+> +	
+>  	if (!io_tlb_start)
+>  		panic("Cannot allocate SWIOTLB buffer");
+>  	io_tlb_end = io_tlb_start + io_tlb_nslabs * (1 << IO_TLB_SHIFT);
 
-int my_rcu_callback(struct rcu_head *p)
-{
-	if (!spin_trylock(&mylock))
-		return 1; /* please call me later */
-	/* do something here */
-	...
-	spin_unlock(&mylock);
-	return 0;
-}
+-- 
+Yasunori Goto 
 
-(Changes to rcu_do_batch() are left as an exercice :) )
-
-Eric

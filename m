@@ -1,87 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932413AbVJRGmu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbVJRGml@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932413AbVJRGmu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 02:42:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751442AbVJRGmu
+	id S1751100AbVJRGml (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 02:42:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbVJRGml
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 02:42:50 -0400
-Received: from mail.kroah.org ([69.55.234.183]:12190 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751441AbVJRGmu (ORCPT
+	Tue, 18 Oct 2005 02:42:41 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:60591 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751100AbVJRGmk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 02:42:50 -0400
-Date: Mon, 17 Oct 2005 23:42:16 -0700
-From: Greg KH <greg@kroah.com>
-To: dtor_core@ameritech.net
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Andrew Morton <akpm@osdl.org>,
-       Brice Goglin <Brice.Goglin@ens-lyon.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc4-mm1
-Message-ID: <20051018064216.GA11484@kroah.com>
-References: <20051016154108.25735ee3.akpm@osdl.org> <43539762.2020706@ens-lyon.org> <20051017132242.2b872b08.akpm@osdl.org> <20051017212721.GA8997@midnight.suse.cz> <d120d5000510171439l556be0d7sccb7f3c0e65d07bd@mail.gmail.com> <20051017214820.GA5390@kroah.com> <d120d5000510171458y2b888f8fn13d3544778fd71b1@mail.gmail.com>
+	Tue, 18 Oct 2005 02:42:40 -0400
+Date: Tue, 18 Oct 2005 08:42:59 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       david singleton <dsingleton@mvista.com>,
+       Steven Rostedt <rostedt@goodmis.org>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Mark Knecht <markknecht@gmail.com>
+Subject: Re: 2.6.14-rc4-rt7
+Message-ID: <20051018064259.GA21236@elte.hu>
+References: <20051017160536.GA2107@elte.hu> <Pine.LNX.4.10.10510171417220.24518-101000@godzilla.mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <d120d5000510171458y2b888f8fn13d3544778fd71b1@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <Pine.LNX.4.10.10510171417220.24518-101000@godzilla.mvista.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 17, 2005 at 04:58:28PM -0500, Dmitry Torokhov wrote:
-> On 10/17/05, Greg KH <greg@kroah.com> wrote:
-> > On Mon, Oct 17, 2005 at 04:39:52PM -0500, Dmitry Torokhov wrote:
-> > > On 10/17/05, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> > > > On Mon, Oct 17, 2005 at 01:22:42PM -0700, Andrew Morton wrote:
-> > > > > Brice Goglin <Brice.Goglin@ens-lyon.org> wrote:
-> > > > > >
-> > > > > > Le 17.10.2005 00:41, Andrew Morton a ?crit :
-> > > > > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc4/2.6.14-rc4-mm1/
-> > > > > > >
-> > > > > > > - Lots of i2c, PCI and USB updates
-> > > > > > >
-> > > > > > > - Large input layer update to convert it all to dynamic input_dev allocation
-> > > > > > >
-> > > > > > > - Significant x86_64 updates
-> > > > > > >
-> > > > > > > - MD updates
-> > > > > > >
-> > > > > > > - Lots of core memory management scalability rework
-> > > > > >
-> > > > > > Hi Andrew,
-> > > > > >
-> > > > > > I got the following oops during the boot on my laptop (Compaq Evo N600c).
-> > > > > > .config is attached.
-> > > > > >
-> > > > > > Regards,
-> > > > > > Brice
-> > > >
-> > > > Where did get support for IBM TrackPoints into that kernel? It's
-> > > > certainly not in 2.6.14, and it's not in the -mm patch either ...
-> > > >
-> > >
-> > > Yes it is. We merged it at the beginning of 2.6.14.. ;)
-> > >
-> > > > That's likely the cause here, since the TP patch probably relies on
-> > > > non-dynamic allocation semantics.
-> > > >
-> > >
-> > > It was converted but I am aftraid when Greg created sub-class devices
-> > > something broke a bit. Do you see the ugly names input core prints?
-> >
-> > The "//" stuff you mean?  Did I do that?
-> >
-> 
-> Not directly. I was trying to make names look "nice" but when you
-> moved stuff around they stopped being nice ;) Although that name in
-> front of double "/" - it should not be there... it was supposed to be
-> "%s as %s/%s", somehow I screwed that up.
-> 
-> Hopefully I'll have some time tonight to investigate further.
 
-A simple:
-	cat /sys/class/input/input1/event1/name
-causes this to happen too.
+* Daniel Walker <dwalker@mvista.com> wrote:
 
-That's my fault, I'll work on fixing that.
+> I found this latency ~5 minutes after boot up, no load . It looks like 
+> vgacon_scroll() has a memset like operation which can grow.
 
-thanks,
+do you have PRINTK_IGNORE_LOGLEVEL enabled? If yes then much of the 
+printk code will run with interrupts disabled - hence non-preemptable.  
+PRINTK_IGNORE_LOGLEVEL is a debugging feature for developers. I have 
+added an extra explanation to the Kconfig, see below.
 
-greg k-h
+	Ingo
+
+Index: linux/lib/Kconfig.debug
+===================================================================
+--- linux.orig/lib/Kconfig.debug
++++ linux/lib/Kconfig.debug
+@@ -18,6 +18,11 @@ config PRINTK_IGNORE_LOGLEVEL
+ 	  distributions disable kernel log messages during
+ 	  certain phases of system startup.)
+ 
++	  NOTE: this option also makes printk non-preemptible,
++	  which might improve the output of debugging info or
++	  crash info, but it might also cause latencies if your
++	  kernel is printk-ing alot.
++
+ 	  Normally you dont need or want this option.
+ 
+ config DEBUG_KERNEL

@@ -1,82 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751206AbVJRGcM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751440AbVJRGkX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751206AbVJRGcM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 02:32:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbVJRGcM
+	id S1751440AbVJRGkX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 02:40:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbVJRGkX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 02:32:12 -0400
-Received: from waste.org ([216.27.176.166]:32738 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1751206AbVJRGcM (ORCPT
+	Tue, 18 Oct 2005 02:40:23 -0400
+Received: from styx.suse.cz ([82.119.242.94]:42720 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S1751440AbVJRGkW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 02:32:12 -0400
-Date: Mon, 17 Oct 2005 23:30:31 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: linux-kernel@vger.kernel.org, Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Esben Nielsen <simlo@phys.au.dk>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: ketchup+rt with ktimers added.
-Message-ID: <20051018063031.GR26160@waste.org>
-References: <Pine.LNX.4.58.0510170316310.5859@localhost.localdomain> <20051017213915.GN26160@waste.org> <Pine.LNX.4.58.0510180211320.13581@localhost.localdomain>
+	Tue, 18 Oct 2005 02:40:22 -0400
+Date: Tue, 18 Oct 2005 08:39:41 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: dtor_core@ameritech.net
+Cc: Andrew Morton <akpm@osdl.org>, Brice Goglin <Brice.Goglin@ens-lyon.org>,
+       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: 2.6.14-rc4-mm1
+Message-ID: <20051018063941.GA7104@midnight.suse.cz>
+References: <20051016154108.25735ee3.akpm@osdl.org> <43539762.2020706@ens-lyon.org> <20051017132242.2b872b08.akpm@osdl.org> <20051017212721.GA8997@midnight.suse.cz> <d120d5000510171439l556be0d7sccb7f3c0e65d07bd@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0510180211320.13581@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <d120d5000510171439l556be0d7sccb7f3c0e65d07bd@mail.gmail.com>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 18, 2005 at 02:20:38AM -0400, Steven Rostedt wrote:
-> 
-> On Mon, 17 Oct 2005, Matt Mackall wrote:
-> 
-> > On Mon, Oct 17, 2005 at 03:38:49AM -0400, Steven Rostedt wrote:
-> > >
-> 
+On Mon, Oct 17, 2005 at 04:39:52PM -0500, Dmitry Torokhov wrote:
+> On 10/17/05, Vojtech Pavlik <vojtech@suse.cz> wrote:
+> > On Mon, Oct 17, 2005 at 01:22:42PM -0700, Andrew Morton wrote:
+> > > Brice Goglin <Brice.Goglin@ens-lyon.org> wrote:
+> > > >
+> > > > Le 17.10.2005 00:41, Andrew Morton a écrit :
+> > > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc4/2.6.14-rc4-mm1/
+> > > > >
+> > > > > - Lots of i2c, PCI and USB updates
+> > > > >
+> > > > > - Large input layer update to convert it all to dynamic input_dev allocation
+> > > > >
+> > > > > - Significant x86_64 updates
+> > > > >
+> > > > > - MD updates
+> > > > >
+> > > > > - Lots of core memory management scalability rework
+> > > >
+> > > > Hi Andrew,
+> > > >
+> > > > I got the following oops during the boot on my laptop (Compaq Evo N600c).
+> > > > .config is attached.
+> > > >
+> > > > Regards,
+> > > > Brice
 > >
-> > Thomas has indicated that these trees might not be very long-lived. So
-> > instead, I've added the ability to make local extensions:
+> > Where did get support for IBM TrackPoints into that kernel? It's
+> > certainly not in 2.6.14, and it's not in the -mm patch either ...
 > >
-> > .ketchuprc:
-> >
-> > local_trees = {
-> >     '2.6-kt': (latest_dir,
-> >                "http://www.tglx.de/projects/ktimers/patch-%(full)s.patch",
-> >                r'patch-(2.6.*?)',
-> >                0, "Thomas Gleixner's ktimers."),
-> >     '2.6-kthrt': (latest_dir,
-> >                   "http://www.tglx.de/projects/ktimers/patch-%(full)s.patch",
-> >                   r'patch-(2.6.*?)',
-> >                   0, "Thomas Gleixner's ktimers and HRT patches.")
-> >     }
-> >
-> > $ ./ketchup -s 2.6-kt
-> > 2.6.14-rc4-kthrt3.patch
 > 
-> I did not know about this extension.  Good to know, thanks.
+> Yes it is. We merged it at the beginning of 2.6.14.. ;)
 
-Didn't exist until today, motivated entirely by your message.
+Ahh, sorry. I've seen it cause trouble so many times before I forgot we
+actually did merge it.
 
-> > > Since the base version of Michal Schmidt's ketchup-0.9+rt didn't include
-> > > Esben Nielsen's addition of handling Ingo's older kernels, I again
-> > > included it with this patch.
-> >
-> > That's been in tip for a while:
-> >
-> > http://selenic.com/repo/ketchup/
+> > That's likely the cause here, since the TP patch probably relies on
+> > non-dynamic allocation semantics.
 > >
 > 
-> I didn't know about your repo directory.  Sorry, didn't have time to look
-> too deep into this. I just did a few searches on the web and found
-> different links scattered around.  I was just interested in the RT stuff,
-> so I didn't go to deep.
+> It was converted but I am aftraid when Greg created sub-class devices
+> something broke a bit. Do you see the ugly names input core prints?
 > 
-> Actually, if you had a link to the repo from
-> http://www.selenic.com/ketchup/ I would have found it.
-
-It's here:
-
-http://www.selenic.com/ketchup/wiki/
+> --
+> Dmitry
+> 
+> 
 
 -- 
-Mathematics is the supreme nostalgia of our time.
+Vojtech Pavlik
+SuSE Labs, SuSE CR

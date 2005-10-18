@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbVJRNbj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbVJRNtB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750745AbVJRNbj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 09:31:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750746AbVJRNbi
+	id S1750722AbVJRNtB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 09:49:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbVJRNtA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 09:31:38 -0400
-Received: from ns1.mcdownloads.com ([216.239.132.98]:5563 "EHLO
-	mail.3gstech.com") by vger.kernel.org with ESMTP id S1750745AbVJRNbi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 09:31:38 -0400
-Subject: Re: ATA warnings in dmesg
-From: Aaron Gyes <floam@sh.nu>
-To: Jon Escombe <lists@dresco.co.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4354A09C.8010202@dresco.co.uk>
-References: <1129609999.10504.1.camel@localhost>
-	 <4354A09C.8010202@dresco.co.uk>
-Content-Type: text/plain
-Date: Tue, 18 Oct 2005 06:31:37 -0700
-Message-Id: <1129642297.12659.3.camel@localhost>
+	Tue, 18 Oct 2005 09:49:00 -0400
+Received: from mail6.hitachi.co.jp ([133.145.228.41]:16357 "EHLO
+	mail6.hitachi.co.jp") by vger.kernel.org with ESMTP
+	id S1750722AbVJRNs7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 09:48:59 -0400
+Date: Tue, 18 Oct 2005 22:48:23 +0900 (JST)
+Message-Id: <20051018.224823.03979969.noboru.obata.ar@hitachi.com>
+To: indou.takao@soft.fujitsu.com
+Cc: akpm@osdl.org, hyoshiok@miraclelinux.com, linux-kernel@vger.kernel.org
+Subject: Re: Linux Kernel Dump Summit 2005
+From: OBATA Noboru <noboru.obata.ar@hitachi.com>
+In-Reply-To: <C0C5D30C9A813Cindou.takao@soft.fujitsu.com>
+References: <C0C5D30C9A813Cindou.takao@soft.fujitsu.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-10-18 at 08:13 +0100, Jon Escombe wrote:
-> I don't think you need to worry. Those messages are produced from the 
-> libata passthough code, whenever sense data has been requested...
+Hi, Indoh-san,
+
+On Mon, 17 Oct 2005, Takao Indoh wrote:
 > 
-> 0xb0 looks like a SMART command, so I would guess (haven't looked at 
-> -mm) that the ata ioctl handlers have been updated to request it.
+> The 2nd issue (memory size problem) may be solved by exporting
+> diskdump's functions to kdump.
 
-That would make sense. I have a daemon running that requests the
-temperature via SMART every minute or so. Even still, this fills up my
-entire dmesg after not a very long time, can I turn these messages off
-somehow? If not, can you point me to where in the code I could kill a
-printk?
+Could you briefly explain the implementation of partial dump in
+diskdump for those who are not familiar with it?
 
-Aaron Gyes
+- Levels of partial dump (supported page categories)
+- How to indentify the category (kernel data structure used)
+
+Regards,
+
+-- 
+OBATA Noboru (noboru.obata.ar@hitachi.com)
 

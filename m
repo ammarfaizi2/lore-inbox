@@ -1,68 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932418AbVJRGxi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751445AbVJRGvu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932418AbVJRGxi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 02:53:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751447AbVJRGxi
+	id S1751445AbVJRGvu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 02:51:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751446AbVJRGvt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 02:53:38 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:30381 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751446AbVJRGxh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 02:53:37 -0400
-Date: Mon, 17 Oct 2005 23:52:11 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Horms <horms@verge.net.au>
-Cc: linux-kernel@vger.kernel.org, security@kernel.org,
-       secure-testing-team@lists.alioth.debian.org, 334113@bugs.debian.org,
-       debian-ne@durchnull.de, mckinstry@debian.org, team@security.debian.org
-Subject: Re: [Security] kernel allows loadkeys to be used by any user,
- allowing for local root compromise
-Message-Id: <20051017235211.161e8604.akpm@osdl.org>
-In-Reply-To: <20051018044146.GF23462@verge.net.au>
-References: <E1EQofT-0001WP-00@master.debian.org>
-	<20051018044146.GF23462@verge.net.au>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 18 Oct 2005 02:51:49 -0400
+Received: from smtp101.sbc.mail.re2.yahoo.com ([68.142.229.104]:32404 "HELO
+	smtp101.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1751445AbVJRGvt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 02:51:49 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: [PATCH] Input: evdev - allow querying EV_SW from compat_ioctl
+Date: Tue, 18 Oct 2005 01:51:46 -0500
+User-Agent: KMail/1.8.2
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510180151.47195.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horms <horms@verge.net.au> wrote:
->
-> drivers/char/vt_ioctl.c: vt_ioctl(): line 377
-> 
->          /*
->           * To have permissions to do most of the vt ioctls, we either
->           * have
->           * to be the owner of the tty, or have CAP_SYS_TTY_CONFIG.
->           */
->          perm = 0;
->          if (current->signal->tty == tty || capable(CAP_SYS_TTY_CONFIG))
->                  perm = 1;
-> 
-> 
->  A simple fix for this might be just checking for capable(CAP_SYS_TTY_CONFIG)
->  in do_kdgkb_ioctl(), which effects KDSKBSENT. This more restrictive
->  approach is probably appropriate for many of the other ioctls that set
->  VT parameters.
+Input: evdev - allow querying EV_SW bits from compat_ioctl
 
-I briefly discussed this with Alan and he agreed that that's a reasonable
-approach.
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
 
-I'll stick the below in -mm, see what breaks.
+ drivers/input/evdev.c |    1 +
+ 1 files changed, 1 insertion(+)
 
---- devel/drivers/char/vt_ioctl.c~setkeys-needs-root	2005-10-17 23:50:37.000000000 -0700
-+++ devel-akpm/drivers/char/vt_ioctl.c	2005-10-17 23:51:43.000000000 -0700
-@@ -192,6 +192,9 @@ do_kdgkb_ioctl(int cmd, struct kbsentry 
- 	int i, j, k;
- 	int ret;
- 
-+	if (!capable(CAP_SYS_TTY_CONFIG))
-+		return -EPERM;
-+
- 	kbs = kmalloc(sizeof(*kbs), GFP_KERNEL);
- 	if (!kbs) {
- 		ret = -ENOMEM;
-_
-
+Index: work/drivers/input/evdev.c
+===================================================================
+--- work.orig/drivers/input/evdev.c
++++ work/drivers/input/evdev.c
+@@ -566,6 +566,7 @@ static long evdev_ioctl_compat(struct fi
+ 						case EV_LED: bits = dev->ledbit; max = LED_MAX; break;
+ 						case EV_SND: bits = dev->sndbit; max = SND_MAX; break;
+ 						case EV_FF:  bits = dev->ffbit;  max = FF_MAX;  break;
++						case EV_SW:  bits = dev->swbit;  max = SW_MAX;  break;
+ 						default: return -EINVAL;
+ 					}
+ 					bit_to_user(bits, max);

@@ -1,69 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750786AbVJRJRW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbVJRJrY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750786AbVJRJRW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 05:17:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751436AbVJRJRW
+	id S1750731AbVJRJrY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 05:47:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750792AbVJRJrY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 05:17:22 -0400
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:48581 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S1750786AbVJRJRV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 05:17:21 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH 2/4] swsusp: clean up resume error path
-Date: Tue, 18 Oct 2005 11:17:26 +0200
-User-Agent: KMail/1.8.2
-Cc: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-References: <200510172336.53194.rjw@sisk.pl> <200510172350.05415.rjw@sisk.pl> <20051017234723.GB13148@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20051017234723.GB13148@atrey.karlin.mff.cuni.cz>
+	Tue, 18 Oct 2005 05:47:24 -0400
+Received: from gw1.cosmosbay.com ([62.23.185.226]:30412 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S1750731AbVJRJrX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 05:47:23 -0400
+Message-ID: <4354C476.40901@cosmosbay.com>
+Date: Tue, 18 Oct 2005 11:46:30 +0200
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510181117.27068.rjw@sisk.pl>
+To: paulmck@us.ibm.com
+CC: dipankar@in.ibm.com, Linus Torvalds <torvalds@osdl.org>,
+       Jean Delvare <khali@linux-fr.org>,
+       Serge Belyshev <belyshev@depni.sinp.msu.ru>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: VFS: file-max limit 50044 reached
+References: <Pine.LNX.4.64.0510161912050.23590@g5.osdl.org> <JTFDVq8K.1129537967.5390760.khali@localhost> <20051017084609.GA6257@in.ibm.com> <43536A6C.102@cosmosbay.com> <20051017103244.GB6257@in.ibm.com> <Pine.LNX.4.64.0510170829000.23590@g5.osdl.org> <4353CADB.8050709@cosmosbay.com> <Pine.LNX.4.64.0510170911370.23590@g5.osdl.org> <20051017162930.GC13665@in.ibm.com> <4353E6F1.8030206@cosmosbay.com> <20051017225925.GB1298@us.ibm.com>
+In-Reply-To: <20051017225925.GB1298@us.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Tue, 18 Oct 2005 11:46:32 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tuesday, 18 of October 2005 01:47, Pavel Machek wrote:
-> Hi!
+Paul E. McKenney a écrit :
 > 
-> > The following patch removes an incorrect call to restore_highmem() from
-> > the resume error path (there's no saved highmem in that case) and makes
-> > swsusp touch the softlockup watchdog if there's no error (currently it only
-> > touches the watchdog if an error occurs).
-> > 
-> > Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
-> > 
-> > Index: linux-2.6.14-rc4-mm1/kernel/power/swsusp.c
-> > ===================================================================
-> > --- linux-2.6.14-rc4-mm1.orig/kernel/power/swsusp.c	2005-10-17 23:28:34.000000000 +0200
-> > +++ linux-2.6.14-rc4-mm1/kernel/power/swsusp.c	2005-10-17 23:28:47.000000000 +0200
-> > @@ -628,7 +629,6 @@
-> >  	 */
-> >  	swsusp_free();
-> >  	restore_processor_state();
-> > -	restore_highmem();
-> >  	touch_softlockup_watchdog();
-> >  	device_power_up();
-> >  	local_irq_enable();
 > 
-> I don't like this one. restore_highmem() does freeing of allocated
-> pages. If swsusp_arch_suspend() fails in specific way, I suspect it
-> could leak highmem.
+>>+/*
+>>+ *  Should we directly call rcu_do_batch() here ?
+>>+ *  if (unlikely(rdp->count > 10000))
+>>+ *      rcu_do_batch(rdp);
+>>+ */
+> 
+> 
+> Good thing that the above is commented out!  ;-)
+> 
+> Doing this can result in self-deadlock, for example with the following:
+> 
+> 	spin_lock(&mylock);
+> 	/* do some stuff. */
+> 	call_rcu(&p->rcu_head, my_rcu_callback);
+> 	/* do some more stuff. */
+> 	spin_unlock(&mylock);
+> 
+> void my_rcu_callback(struct rcu_head *p)
+> {
+> 	spin_lock(&mylock);
+> 	/* self-deadlock via call_rcu() via rcu_do_batch()!!! */
+> 	spin_unlock(&mylock);
+> }
+> 
+> 
+> 						Thanx, Paul
 
-The pages to be freed are only allocated in suspend_prepare_image()
-(now swsusp_save()), which is on suspend, and this is the resume
-error path.
+Thanks Paul for reminding us that call_rcu() should not ever call the callback 
+function, as very well documented in Documentation/RCU/UP.txt
+(Example 3: Death by Deadlock)
 
-The boot kernel that performs the resume does not save highmem,
-so it need not and IMO it should not call restore_highmem() in the
-error path (if nothing more, it's misleading).  OTOH if the resume
-succeeds, restore_highmem() will be called from swsusp_suspend().
+But is the same true for call_rcu_bh() ?
 
-Gretings,
-Rafael
+I intentionally wrote the comment to remind readers that a low maxbatch can 
+trigger OOM in case a CPU is filled by some kind of DOS (network IRQ flood for 
+example, targeting the IP dst cache)
+
+To solve this problem, may be we could add a requirement to 
+call_rcu_bh/callback functions  : If they have to lock a spinlock, only use a 
+spin_trylock() and make them returns a status (0 : sucessfull callback, 1: 
+please requeue me)
+
+As most callback functions just kfree() some memory, most of OOM would be cleared.
+
+int my_rcu_callback(struct rcu_head *p)
+{
+	if (!spin_trylock(&mylock))
+		return 1; /* please call me later */
+	/* do something here */
+	...
+	spin_unlock(&mylock);
+	return 0;
+}
+
+(Changes to rcu_do_batch() are left as an exercice :) )
+
+Eric

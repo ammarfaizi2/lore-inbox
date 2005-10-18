@@ -1,103 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751431AbVJRBZJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932375AbVJRBbB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751431AbVJRBZJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 21:25:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751436AbVJRBZJ
+	id S932375AbVJRBbB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 21:31:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbVJRBbB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 21:25:09 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:28085 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751431AbVJRBZH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 21:25:07 -0400
-Date: Mon, 17 Oct 2005 18:24:07 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Zach Brown <zach.brown@oracle.com>
-Cc: linux-kernel@vger.kernel.org, hch@infradead.org, adilger@clusterfs.com
-Subject: Re: [RFC] page lock ordering and OCFS2
-Message-Id: <20051017182407.1f2c591a.akpm@osdl.org>
-In-Reply-To: <43544499.5010601@oracle.com>
-References: <20051017222051.GA26414@tetsuo.zabbo.net>
-	<20051017161744.7df90a67.akpm@osdl.org>
-	<43544499.5010601@oracle.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 17 Oct 2005 21:31:01 -0400
+Received: from smtp3.Stanford.EDU ([171.67.16.138]:1178 "EHLO
+	smtp3.Stanford.EDU") by vger.kernel.org with ESMTP id S932375AbVJRBbA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 21:31:00 -0400
+Subject: Re: 2.6.14-rc4-rt7
+From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: nando@ccrma.Stanford.EDU, cc@ccrma.Stanford.EDU,
+       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       david singleton <dsingleton@mvista.com>,
+       Steven Rostedt <rostedt@goodmis.org>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark Knecht <markknecht@gmail.com>
+In-Reply-To: <1129576885.4720.3.camel@cmn3.stanford.edu>
+References: <20051017160536.GA2107@elte.hu>
+	 <1129576885.4720.3.camel@cmn3.stanford.edu>
+Content-Type: text/plain
+Date: Mon, 17 Oct 2005 18:30:29 -0700
+Message-Id: <1129599029.10429.1.camel@cmn3.stanford.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zach Brown <zach.brown@oracle.com> wrote:
->
-> > So where is the lock inversion?
+On Mon, 2005-10-17 at 12:21 -0700, Fernando Lopez-Lezcano wrote:
+> On Mon, 2005-10-17 at 18:05 +0200, Ingo Molnar wrote:
+> > i have released the 2.6.14-rc4-rt7 tree, which can be downloaded from 
+> > the usual place:
 > > 
-> > Perhaps if you were to cook up one of those little threadA/threadB ascii
-> > diagrams we could see where the inversion occurs?
+> >   http://redhat.com/~mingo/realtime-preempt/
+> > 
+> > the biggest change is the merging of "ktimers next step", a'ka the 
+> > clockevents framework, from Thomas Gleixner. This is mostly a design 
+> > cleanup of the existing timekeeping, timer and HRT codebase. One 
+> > user-visible aspect is that the PIT timer is now available as a hres 
+> > source too - APIC-less systems will find this useful.
 > 
-> Yeah, let me give that a try.  I'll try to trim it down to the relevant
-> bits.  First let's start with a totally fresh node and have a read get a
-> read DLM lock and populate the page cache on this node:
-> 
->  sys_read
->    generic_file_aio_read
->      ocfs2_readpage
->        ocfs2_data_lock
->        block_read_full_page
->        ocfs2_data_unlock
-> 
-> So it was only allowed to proceed past ocfs2_data_lock() towards
-> block_read_full_page() once the DLM granted it a read lock.  As it calls
-> ocfs2_data_unlock() it only is dropping this caller's local reference on
-> the lock.  The lock still exists on that node and is still valid and
-> holding data in the page cache until it gets a network message saying
-> that another node, who is probably going to be writing, would like the
-> lock dropped.
-> 
-> DLM kernel threads respond to the network messages and truncate the page
-> cache.  While the thread is busy with this inode's lock other paths on
-> that node won't be able get locks.  Say one of those messages arrives.
-> While a local DLM thread is invalidating the page cache another user
-> thread tries to read:
-> 
-> user thread				dlm thread
-> 
-> 
-> 					kthread
-> 					...
-> 					ocfs2_data_convert_worker
+> Some feedback. It looks like the issues I was having are gone, no weird
+> key repeats or screensaver activations __plus__ no problems so far with
+> spurious warnings from Jack! Woohooo!!! (of course it may be that I
+> start getting them as soon as I press send)
 
-                                        I assume there's an ocfs2_data_lock
-                                        hereabouts?
+It took some time but I got a couple of instances of keys repeating too
+fast (it happened 3 or 4 times). Regretfully no BUG messages
+in /var/log/messages this time...
 
-> 					  truncate_inode_pages
-> sys_read
->   generic_file_aio_read
->     * gets page lock
->     ocfs2_readpage
->       ocfs2_data_lock
->         (stuck waiting for dlm)
-> 					    lock_page
-> 					      (stuck waiting for page)
-> 
-
-Why does ocfs2_readpage() need to take ocfs2_data_lock?  (Is
-ocfs2_data_lock a range-based read-lock thing, or what?)
-
-> The user task holds a page lock while waiting for the DLM to allow it to
-> proceed.  The DLM thread is preventing lock granting progress while
-> waiting for the page lock that the user task holds.
-> 
-> I don't know how far to go in explaining what leads up to laying out the
-> locking like this.  It is typical (and OCFS2 used to do this) to wait
-> for the DLM locks up in file->{read,write} and pin them for the duration
-> of the IO.  This avoids the page lock and DLM lock inversion problem,
-> but it suffers from a host of other problems -- most fatally needing
-> that vma walking to govern holding multiple DLM locks during an IO.
-
-Oh.
-
-Have you considered using invalidate_inode_pages() instead of
-truncate_inode_pages()?  If that leaves any pages behind, drop the read
-lock, sleep a bit, try again - something klunky like that might get you out
-of trouble, dunno.
+-- Fernando
 
 

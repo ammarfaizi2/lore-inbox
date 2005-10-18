@@ -1,87 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbVJRVe1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbVJRVld@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932146AbVJRVe1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 17:34:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbVJRVe1
+	id S932150AbVJRVld (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 17:41:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbVJRVlc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 17:34:27 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:41408 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932146AbVJRVe1 (ORCPT
+	Tue, 18 Oct 2005 17:41:32 -0400
+Received: from unused.mind.net ([69.9.134.98]:2967 "EHLO echo.lysdexia.org")
+	by vger.kernel.org with ESMTP id S932150AbVJRVlc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 17:34:27 -0400
-Date: Tue, 18 Oct 2005 14:34:38 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Seth, Rohit" <rohit.seth@intel.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: Handling spurious page fault for hugetlb region for
- 2.6.14-rc4-git5
-Message-Id: <20051018143438.66d360c4.akpm@osdl.org>
-In-Reply-To: <20051018141512.A26194@unix-os.sc.intel.com>
-References: <20051018141512.A26194@unix-os.sc.intel.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 18 Oct 2005 17:41:32 -0400
+Date: Tue, 18 Oct 2005 14:31:49 -0700 (PDT)
+From: William Weston <weston@lysdexia.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>, cc@ccrma.Stanford.EDU,
+       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       david singleton <dsingleton@mvista.com>,
+       Steven Rostedt <rostedt@goodmis.org>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark Knecht <markknecht@gmail.com>
+Subject: Re: 2.6.14-rc4-rt7
+In-Reply-To: <1129669474.5929.8.camel@cmn3.stanford.edu>
+Message-ID: <Pine.LNX.4.58.0510181423200.19498@echo.lysdexia.org>
+References: <20051017160536.GA2107@elte.hu>  <1129576885.4720.3.camel@cmn3.stanford.edu>
+  <1129599029.10429.1.camel@cmn3.stanford.edu>  <20051018072844.GB21915@elte.hu>
+ <1129669474.5929.8.camel@cmn3.stanford.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Seth, Rohit" <rohit.seth@intel.com> wrote:
->
-> Linus,
-> 
-> [PATCH]: Handle spurious page fault for hugetlb region
-> 
-> The hugetlb pages are currently pre-faulted.  At the time of mmap of
-> hugepages, we populate the new PTEs.  It is possible that HW has already cached
-> some of the unused PTEs internally.
+Hello,
 
-What's an "unused pte"?  One which maps a regular-sized page at the same
-virtual address?  How can such a thing come about, and why isn't it already
-a problem for regular-sized pages?  From where does the hardware prefetch
-the pte contents?
+Getting up to speed on the latest -rt changes again.  Just happened 
+to notice this warning with -rt8 and -rt9:
 
-IOW: please tell us more about this hardware pte-fetcher.
+kernel/ktimers.c: In function `check_ktimer_signal':
+kernel/ktimers.c:1209: warning: passing argument 1 of `unlock_ktimer_base' from incompatible pointer type
 
->  These stale entries never get a chance to
-> be purged in existing control flow.
+And the obvious fix:
 
-I'd have thought that invalidating those ptes at mmap()-time would be a
-more consistent approach.
+--- linux/kernel/ktimers.c.orig	2005-10-18 14:10:48.000000000 -0700
++++ linux/kernel/ktimers.c	2005-10-18 14:24:43.000000000 -0700
+@@ -1206,7 +1206,7 @@
+ 		struct ktimer_base *base = lock_ktimer_base(timer, &flags);
+ 		ktime_t now = base->get_time();
+ 
+-		unlock_ktimer_base(base, &flags);
++		unlock_ktimer_base(timer, &flags);
+ 
+ 		printk("\n");
+ 		printk("expires:   %u/%u\n",
 
-> This patch extends the check in page fault code for hugepages.  Check if
-> a faulted address falls with in size for the hugetlb file backing it.  We
-> return VM_FAULT_MINOR for these cases (assuming that the arch specific
-> page-faulting code purges the stale entry for the archs that need it).
 
-Do you have an example of the code which does this purging?
-
-> --- linux-2.6.14-rc4-git5-x86/include/linux/hugetlb.h	2005-10-18 13:14:24.879947360 -0700
-> +++ b/include/linux/hugetlb.h	2005-10-18 13:13:55.711381656 -0700
-> @@ -155,11 +155,24 @@
->  {
->  	file->f_op = &hugetlbfs_file_operations;
->  }
-> +
-> +static inline int valid_hugetlb_file_off(struct vm_area_struct *vma, 
-> +					  unsigned long address) 
-> +{
-> +	struct inode *inode = vma->vm_file->f_dentry->d_inode;
-> +	loff_t file_off = address - vma->vm_start;
-> +	
-> +	file_off += (vma->vm_pgoff << PAGE_SHIFT);
-> +	
-> +	return (file_off < inode->i_size);
-> +}
-
-I suppose we should use i_size_read() here.
-
-> +		if (valid_hugetlb_file_off(vma, address))
-> +			/* We get here only if there was a stale(zero) TLB entry 
-> +			 * (because of  HW prefetching). 
-> +			 * Low-level arch code (if needed) should have already
-> +			 * purged the stale entry as part of this fault handling.  
-> +			 * Here we just return.
-> +			 */
-
-If the low-level code has purged the stale pte then it knows what's
-happening.  Perhaps it shouldn't call into handle_mm_fault() at all?
+Cheers
+--ww

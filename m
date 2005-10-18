@@ -1,39 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750824AbVJRPug@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750857AbVJRP4c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750824AbVJRPug (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 11:50:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750825AbVJRPug
+	id S1750857AbVJRP4c (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 11:56:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750861AbVJRP4c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 11:50:36 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:55252 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750824AbVJRPug (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 11:50:36 -0400
-Date: Tue, 18 Oct 2005 08:50:18 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, discuss@x86-64.org, tglx@linutronix.de,
-       shai@scalex86.org
-Subject: Re: x86_64: 2.6.14-rc4 swiotlb broken
-In-Reply-To: <Pine.LNX.4.64.0510180845470.3369@g5.osdl.org>
-Message-ID: <Pine.LNX.4.64.0510180848540.3369@g5.osdl.org>
-References: <20051017093654.GA7652@localhost.localdomain> <200510171153.56063.ak@suse.de>
- <20051017153020.GB7652@localhost.localdomain> <200510171743.47926.ak@suse.de>
- <20051017134401.3b0d861d.akpm@osdl.org> <Pine.LNX.4.64.0510171405510.3369@g5.osdl.org>
- <20051018001620.GD8932@localhost.localdomain> <Pine.LNX.4.64.0510180845470.3369@g5.osdl.org>
+	Tue, 18 Oct 2005 11:56:32 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:44980 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S1750853AbVJRP4b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 11:56:31 -0400
+Message-ID: <43551B07.6020907@nortel.com>
+Date: Tue, 18 Oct 2005 09:55:51 -0600
+From: "Christopher Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: dipankar@in.ibm.com
+CC: Linus Torvalds <torvalds@osdl.org>, Eric Dumazet <dada1@cosmosbay.com>,
+       Jean Delvare <khali@linux-fr.org>,
+       Serge Belyshev <belyshev@depni.sinp.msu.ru>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: VFS: file-max limit 50044 reached
+References: <4353CADB.8050709@cosmosbay.com> <Pine.LNX.4.64.0510170911370.23590@g5.osdl.org> <20051017162930.GC13665@in.ibm.com> <4353E6F1.8030206@cosmosbay.com> <Pine.LNX.4.64.0510171112040.3369@g5.osdl.org> <4353F7B5.1040101@cosmosbay.com> <Pine.LNX.4.64.0510171218490.3369@g5.osdl.org> <4353FDE8.8070909@cosmosbay.com> <Pine.LNX.4.64.0510171304580.3369@g5.osdl.org> <435408AD.4060505@nortel.com> <20051017202419.GG13665@in.ibm.com>
+In-Reply-To: <20051017202419.GG13665@in.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 18 Oct 2005 15:55:54.0697 (UTC) FILETIME=[6BFE3B90:01C5D3FC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dipankar Sarma wrote:
+> On Mon, Oct 17, 2005 at 02:25:17PM -0600, Christopher Friesen wrote:
 
+>>Could this be related to the "rename14 LTP test with /tmp as tmpfs and 
+>>HIGHMEM causes OOM-killer invocation due to zone normal exhaustion" issue?
 
-On Tue, 18 Oct 2005, Linus Torvalds wrote:
-> 
-> I vote for this one, assuming everybody who can test is happy.
+> Could very well be. Chris, could you please try booting
+> with rcupdate.maxbatch=10000 and see if the problem goes away ?
 
-Of course, just after sending the patch I noticed that there was a new 
-version, even simpler. Can people test that one?
+And sure enough, that fixes it.  The dcache slab usage maxes out at 
+around 11MB rather than consuming all of zone normal.
 
-		Linus
+Is there any downside to this option?
+
+Chris

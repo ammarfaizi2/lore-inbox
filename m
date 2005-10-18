@@ -1,58 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbVJRTRm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751350AbVJRTZz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751198AbVJRTRm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 15:17:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751203AbVJRTRm
+	id S1751350AbVJRTZz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 15:25:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbVJRTZz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 15:17:42 -0400
-Received: from smtpout.mac.com ([17.250.248.97]:60140 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1751198AbVJRTRl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 15:17:41 -0400
-In-Reply-To: <43554385.6000706@comcast.net>
-References: <43553887.4020305@comcast.net> <20051018180633.GA3760@havoc.gtf.org> <43554385.6000706@comcast.net>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <7FC9027A-9939-4010-9D23-AD21AA53D7A6@mac.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
+	Tue, 18 Oct 2005 15:25:55 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:54476 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1751350AbVJRTZy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 15:25:54 -0400
+Message-ID: <43554BA5.8030200@comcast.net>
+Date: Tue, 18 Oct 2005 15:23:17 -0400
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alejandro Bonilla <abonilla@linuxwireless.org>
+CC: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
 Subject: Re: When is OSS going to go?
-Date: Tue, 18 Oct 2005 15:17:15 -0400
-To: John Richard Moser <nigelenki@comcast.net>
-X-Mailer: Apple Mail (2.734)
+References: <43553887.4020305@comcast.net> <20051018180633.GA3760@havoc.gtf.org> <43554385.6000706@comcast.net> <20051018191051.M41267@linuxwireless.org>
+In-Reply-To: <20051018191051.M41267@linuxwireless.org>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 18, 2005, at 14:48:37, John Richard Moser wrote:
-> Got a lkml.org link or a subject line I should search for?  "OSS  
-> remove"
-> "OSS sound remove" "Open sound system" all return garbage.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-http://www.zipworld.com.au/~akpm/linux/patches/stuff/top-posting.txt
-http://catb.org/~esr/jargon/html/T/top-post.html
 
-> Jeff Garzik wrote:
->> On Tue, Oct 18, 2005 at 02:01:43PM -0400, John Richard Moser wrote:
->>> The Open Sound System has been depricated. . . since. . . when  
->>> the heck?
->>> 2.4?  Is it ever going to drop off?  Are there a few cards in OSS  
->>> that
->>> don't work right in ASLA?
+
+Alejandro Bonilla wrote:
+> On Tue, 18 Oct 2005 14:48:37 -0400, John Richard Moser wrote
+> 
+>>-----BEGIN PGP SIGNED MESSAGE-----
+>>Hash: SHA1
 >>
->> Already been discussed; check the archives.
+>>Got a lkml.org link or a subject line I should search for?  "OSS remove"
+>>"OSS sound remove" "Open sound system" all return garbage.
+> 
+> 
+> Why would you want it to go away? People can decide from which one to use and
+> make Linux more flexible.
+> 
 
-I don't remember if it ever got patched, but linux/Documentation/ 
-feature-removal-schedule.txt should contain a mention of it and  
-pertinent quotes from the LKML thread.
+ever growing code base; I want it to go away for the same reason I'd
+love a binary driver model in the kernel (in fact I'm looking at getting
+fuse to supply the driver for my rootfs from initrd)
 
-Cheers,
-Kyle Moffett
+> Anyway, I think the archives say something like, it doesn't have to go away,
+> so why remove it?
+> 
+> .Alejandro
+> 
 
---
-There is no way to make Linux robust with unreliable memory  
-subsystems, sorry.  It would be like trying to make a human more  
-robust with an unreliable O2 supply. Memory just has to work.
-   -- Andi Kleen
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
 
+    Creative brains are a valuable, limited resource. They shouldn't be
+    wasted on re-inventing the wheel when there are so many fascinating
+    new problems waiting out there.
+                                                 -- Eric Steven Raymond
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
+iD8DBQFDVUukhDd4aOud5P8RArBGAJ99rqujkD+9EAS5eWOVLpdztgLuGwCfdpk4
+ucd/6eHiqJLiPjjTSTJxkHE=
+=bz62
+-----END PGP SIGNATURE-----

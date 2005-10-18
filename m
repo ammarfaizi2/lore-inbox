@@ -1,62 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbVJRTHw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751081AbVJRTJZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751156AbVJRTHw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 15:07:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbVJRTHw
+	id S1751081AbVJRTJZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 15:09:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbVJRTJZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 15:07:52 -0400
-Received: from serv01.siteground.net ([70.85.91.68]:57784 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S1751156AbVJRTHv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 15:07:51 -0400
-Date: Tue, 18 Oct 2005 12:07:45 -0700
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, discuss@x86-64.org, tglx@linutronix.de,
-       shai@scalex86.org
-Subject: Re: [discuss] Re: x86_64: 2.6.14-rc4 swiotlb broken
-Message-ID: <20051018190745.GB4251@localhost.localdomain>
-References: <20051017093654.GA7652@localhost.localdomain> <Pine.LNX.4.64.0510171405510.3369@g5.osdl.org> <20051018001620.GD8932@localhost.localdomain> <200510181023.52074.ak@suse.de>
-Mime-Version: 1.0
+	Tue, 18 Oct 2005 15:09:25 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:1967 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S1751081AbVJRTJY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 15:09:24 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200510181023.52074.ak@suse.de>
-User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Transfer-Encoding: 7bit
+Message-ID: <17237.18486.209678.977162@alkaid.it.uu.se>
+Date: Tue, 18 Oct 2005 21:08:38 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, Greg KH <greg@kroah.com>,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: usb: Patch for USBDEVFS_IOCTL from 32-bit programs
+In-Reply-To: <1129661516.2779.25.camel@laptopd505.fenrus.org>
+References: <20051017181554.77d0d45d.zaitcev@redhat.com>
+	<20051018171333.GA29504@kroah.com>
+	<20051018114933.276781da.zaitcev@redhat.com>
+	<1129661516.2779.25.camel@laptopd505.fenrus.org>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 18, 2005 at 10:23:51AM +0200, Andi Kleen wrote:
-> On Tuesday 18 October 2005 02:16, Ravikiran G Thirumalai wrote:
-> > On Mon, Oct 17, 2005 at 02:11:20PM -0700, Linus Torvalds wrote:
-> > > On Mon, 17 Oct 2005, Andrew Morton wrote:
-> > > > There seem to be a lot of proposed solutions floating about and I fear
-> > > > that different people will try to fix this in different ways.  Do we
-> > > > all agree that this patch is the correct solution to this problem, or
-> > > > is something more needed?
-> > >
-> > > I think this will fix it.
-> >
-> > I just tried Yasunori-sans patch on our x460.  It doesn't fix the problem.
-> 
-> That's surprising. Can you post the full boot log? 
+Arjan van de Ven writes:
+ > On Tue, 2005-10-18 at 11:49 -0700, Pete Zaitcev wrote:
+ > 
+ > > 
+ > > The problem here is that compat_ptr does NOT turn user data pointer
+ > > into a kernel pointer. It's still a user pointer, only sized
+ > > differently. So, when you do set_fs(KERNEL_DS), this pointer
+ > > is invalid (miraclously, it does work on AMD64, so Dell's tests
+ > > pass on their new Xeons).
+ > > 
+ > > So, you cannot simply to have a small shim. Instead, you have to allocate
+ > > the buffer, do copy_from_user(), and then call the ioctl. But then,
+ > > it would be a double-copy, when the ioctl allocates the buffer again.
+ > > 
+ > > I tweaked this in various ways, and the patch I posted looks like
+ > > the cleanest solution. But please tell me if I miss something obvious.
+ > 
+ > 
+ > there is one more option; allocate on the user stack space for a 64 bit
+ > struct, then copy_in_user() the fields to that and then pass the new
+ > pointer to the 64 bit struct to the ioctl.....
 
-I'd already posted that... Here is the link
-http://marc.theaimsgroup.com/?l=linux-kernel&m=112959469914681&w=2
+Doesn't work and it would break user-space.
+Case 1 is when the user stack pointer is at or very near the limit
+of the available address space for the user stack, and the next page
+is not available for expanding the stack.
+Case 2 is when user-space manages its own threads and stacks, using
+sigaltstack() to ensure that signal handlers execute elsewhere. Assume
+the user stack pointer is at or near the limit of the currently allocated
+stack. Having the kernel write to memory beyond the user's stack pointer
+can then easily clobber some unrelated user data structure.
 
-> The nodes should be really in order. Maybe we need to sort the SRAT first.
+So please don't do this.
 
-I don't understand this comment.  I thought Yasunori-san's patch did not
-require pgdats to be in any order..  Anywayz, the x460 nodes _are_ in proper
-order.
-
-Thanks,
-Kiran
+/Mikael

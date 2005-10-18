@@ -1,51 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932348AbVJRFd5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932359AbVJRFeU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932348AbVJRFd5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 01:33:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932359AbVJRFd4
+	id S932359AbVJRFeU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 01:34:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932373AbVJRFeT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 01:33:56 -0400
-Received: from mail.hg.com ([199.79.200.252]:4542 "EHLO mail.hg.com")
-	by vger.kernel.org with ESMTP id S932348AbVJRFd4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 01:33:56 -0400
-From: "rob" <rob@janerob.com>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>,
-       linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, jbarnes@virtuousgeek.org,
-       Jody McIntyre <scjody@modernduck.com>
-Subject: Re: ohci1394 unhandled interrupts bug in 2.6.14-rc2
-Date: Tue, 18 Oct 2005 06:32:41 +0100
-Message-Id: <20051018052149.M34048@janerob.com>
-In-Reply-To: <4353CA12.8020708@s5r6.in-berlin.de>
-References: <20051015185502.GA9940@plato.virtuousgeek.org> <43515ADA.6050102@s5r6.in-berlin.de> <20051015202944.GA10463@plato.virtuousgeek.org> <20051017005515.755decb6.akpm@osdl.org> <4353705D.6060809@s5r6.in-berlin.de> <20051017024219.08662190.akpm@osdl.org> <20051017124711.M44026@janerob.com> <4353CA12.8020708@s5r6.in-berlin.de>
-X-Mailer: Open WebMail 2.51 20050228
-X-OriginatingIP: 193.220.20.68 (rob)
+	Tue, 18 Oct 2005 01:34:19 -0400
+Received: from wproxy.gmail.com ([64.233.184.207]:41177 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932359AbVJRFeT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 01:34:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=izDjnCO0H3nqRVkBo4jNY1y4/WoE0L79q6BFLlKcH/kKF5hs99cK/icTrc2Q5aNLti6SQ/9W65MibumZvJHvCPNnqaJEcr6wg5buNKQ7oezjQ8OhybOKSK9fmxWEGDC7O+6tLUJssp4eR61c0Omj1kjgCmKzWKT9+6SkrmIbgZg=
+Message-ID: <b6fcc0a0510172234l7d1eb7d1mc130708968f76c92@mail.gmail.com>
+Date: Tue, 18 Oct 2005 09:34:18 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Subject: Re: [PATCH] fix warning and small bug in cassini driver
+Cc: Adrian Sun <asun@darksunrising.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <200510172024.53106.jesper.juhl@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=iso-8859-1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200510172024.53106.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Oct 2005 17:58:10 +0200, Stefan Richter wrote
-...
-> > Toshiba Satellite 5105-s607
-> 
-> Thanks a lot for the survey. Do they all _need_ the patch, or do 
-> some of them need it and the others are just not harmed by the patch?
+On 10/17/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+>  drivers/net/cassini.c:1930: warning: long unsigned int format, different type arg (arg 4)
 
-they all need the patch to modprobe without errors, not all had firewire
-devices to test with.
+>        u64 compwb = le64_to_cpu(cp->init_block->tx_compwb);
 
-> Does anybody know a DMI_PRODUCT_NAME of a Libretto L1? Something 
-> like PAL1060TNMM or PAL1060TNCM?
+> -               printk(KERN_DEBUG "%s: tx interrupt, status: 0x%x, %lx\n",
 
-Might try John Belmonte <john at neggie.net>, he has an L5 and runs a website
-for it.
+> +               printk(", %llx", compwb);
 
-rob.
-
-
---
-Open WebMail Project (http://openwebmail.org)
-
+You've added similar warning on alpha, sparc64, ...

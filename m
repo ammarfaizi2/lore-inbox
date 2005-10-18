@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbVJRWGg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbVJRWfG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932167AbVJRWGg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 18:06:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbVJRWGg
+	id S932178AbVJRWfG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 18:35:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbVJRWfG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 18:06:36 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:3589 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932167AbVJRWGf
+	Tue, 18 Oct 2005 18:35:06 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:29452 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932178AbVJRWfF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 18:06:35 -0400
-Message-ID: <43557201.1070902@tmr.com>
-Date: Tue, 18 Oct 2005 18:06:57 -0400
+	Tue, 18 Oct 2005 18:35:05 -0400
+Message-ID: <435578C7.1090504@tmr.com>
+Date: Tue, 18 Oct 2005 18:35:51 -0400
 From: Bill Davidsen <davidsen@tmr.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Derbey Nadia <Nadia.Derbey@bull.net>,
+To: Robert Hancock <hancockr@shaw.ca>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] - AKT project
-References: <43535245.9070807@bull.net>
-In-Reply-To: <43535245.9070807@bull.net>
+Subject: Re: Anybody know about nforce4 SATA II hot swapping + linux raid?
+References: <4UXuH-EU-31@gated-at.bofh.it> <4XLQk-6Z2-1@gated-at.bofh.it> <4XMt3-7Yt-5@gated-at.bofh.it> <4350A1C5.3080902@shaw.ca>
+In-Reply-To: <4350A1C5.3080902@shaw.ca>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Derbey Nadia wrote:
-> I'm announcing last version of the libtune API, that has been developped 
-> to unify the way developers have to access Linux kernel tunables, system 
-> information, resource consumptions.
+Robert Hancock wrote:
+> Lajber Zoltan wrote:
 > 
-> User documentation can be found at http://akt.sf.net/doc/aktapi.doc.01.html
+>> We have about 7 serverraid card from 4L to 5i. All of them is sitting on
+>> shelf. They are pain to manage, ipssend tool is weak, serverdirector
+>> complicated. And they are slow, the Fusion MPT SCSI with sw raid
+>> significant faster, as we measured with bonnie++. Even the old aic7892 is
+>> faster (these built-in scsi controllers on xseries motherboards).
 > 
-> Design documentation can be found at 
-> http://akt.sf.net/doc/aktapi.design.07.html
 > 
-> The sources can be downloaded from
-> http://sourceforge.net/project/showfiles.php?group_id=136028
+> The 6i and 7 series of cards seem to have quite a bit better relative 
+> speeds. Certainly the 4Lx cards can be outperformed in simple "hdparm" 
+> tests by a 3ware SATA controller/disks of half the price..
 > 
-> Next step of the project will consist in making the kernel able to tune 
-> the resources as it sees appropriate.
-
-The reason for having tunables is so the admin can get the behaviour 
-desired. Since the kernel can't really know which behaviour to optimize 
-this would wind up being the kernel tuning itself to your (someone's) 
-idea of better. That may be great for some newbie, but honestly the 
-default values put in by the developers are satisfactory in most cases.
-
-I hope "as it sees appropriate" isn't really what you mean...
+> Plus, software RAID can't provide good performance on many server/DB 
+> applications without risking data loss in certain cases - for such 
+> things one really wants something with a battery-backed cache on it..
+> 
+I just have a better feeling about hardware when there are dozens of 
+multi-TB servers from NY to CA. If it goes down IBM fixes it instead of 
+someone trying to get it back up at the console.
 
 -- 
     -bill davidsen (davidsen@tmr.com)

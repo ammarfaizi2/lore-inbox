@@ -1,41 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932429AbVJRIsM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751464AbVJRJAu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932429AbVJRIsM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 04:48:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932428AbVJRIsM
+	id S1751464AbVJRJAu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 05:00:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751473AbVJRJAt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 04:48:12 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:33182 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932425AbVJRIsJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 04:48:09 -0400
-Message-ID: <4354B6CD.20907@de.ibm.com>
-Date: Tue, 18 Oct 2005 10:48:13 +0200
-From: Carsten Otte <cotte@de.ibm.com>
-Reply-To: carsteno@de.ibm.com
-Organization: IBM Deutschland
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Tue, 18 Oct 2005 05:00:49 -0400
+Received: from koto.vergenet.net ([210.128.90.7]:41642 "EHLO koto.vergenet.net")
+	by vger.kernel.org with ESMTP id S1751464AbVJRJAt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 05:00:49 -0400
+Date: Tue, 18 Oct 2005 17:59:10 +0900
+From: Horms <horms@debian.org>
 To: Andrew Morton <akpm@osdl.org>
-CC: Hugh Dickins <hugh@veritas.com>, holt@sgi.com, greg@kroah.com,
-       haveblue@us.ibm.com, linux-ia64@vger.kernel.org, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, hch@infradead.org, jgarzik@pobox.com,
-       wli@holomorphy.com, nickpiggin@yahoo.com.au, steiner@americas.sgi.com,
-       mschwid2@de.ibm.com
-Subject: Re: [Patch 2/3] Export get_one_pte_map.
-References: <20051014192111.GB14418@lnx-holt.americas.sgi.com>	<20051014192225.GD14418@lnx-holt.americas.sgi.com>	<20051014213038.GA7450@kroah.com>	<20051017113131.GA30898@lnx-holt.americas.sgi.com>	<1129549312.32658.32.camel@localhost>	<20051017114730.GC30898@lnx-holt.americas.sgi.com>	<Pine.LNX.4.61.0510171331090.2993@goblin.wat.veritas.com>	<20051017151430.GA2564@lnx-holt.americas.sgi.com>	<20051017152034.GA32286@kroah.com>	<20051017155605.GB2564@lnx-holt.americas.sgi.com>	<Pine.LNX.4.61.0510171700150.4934@goblin.wat.veritas.com> <20051017135314.3a59fb17.akpm@osdl.org>
-In-Reply-To: <20051017135314.3a59fb17.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org, security@kernel.org,
+       secure-testing-team@lists.alioth.debian.org, 334113@bugs.debian.org,
+       debian-ne@durchnull.de, mckinstry@debian.org, team@security.debian.org
+Subject: Re: [Security] kernel allows loadkeys to be used by any user, allowing for local root compromise
+Message-ID: <20051018085909.GJ8830@verge.net.au>
+References: <E1EQofT-0001WP-00@master.debian.org> <20051018044146.GF23462@verge.net.au> <20051017235211.161e8604.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051017235211.161e8604.akpm@osdl.org>
+X-Cluestick: seven
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Ther are nearly 100 mm patches in -mm.  I need to do a round of discussion
-> with the originators to work out what's suitable for 2.6.15.  For "Hugh
-> stuff" I'm thinking maybe the first batch
-> (mm-hugetlb-truncation-fixes.patch to mm-m68k-kill-stram-swap.patch) and
-> not the second batch.  But we need to think about it.
-We tested Hugh's stuff that is currently in -mm, mainly from the xip
-perspecive. Seems to work fine for 390.
+On Mon, Oct 17, 2005 at 11:52:11PM -0700, Andrew Morton wrote:
+> Horms <horms@verge.net.au> wrote:
+> >
+> > drivers/char/vt_ioctl.c: vt_ioctl(): line 377
+> > 
+> >          /*
+> >           * To have permissions to do most of the vt ioctls, we either
+> >           * have
+> >           * to be the owner of the tty, or have CAP_SYS_TTY_CONFIG.
+> >           */
+> >          perm = 0;
+> >          if (current->signal->tty == tty || capable(CAP_SYS_TTY_CONFIG))
+> >                  perm = 1;
+> > 
+> > 
+> >  A simple fix for this might be just checking for capable(CAP_SYS_TTY_CONFIG)
+> >  in do_kdgkb_ioctl(), which effects KDSKBSENT. This more restrictive
+> >  approach is probably appropriate for many of the other ioctls that set
+> >  VT parameters.
+> 
+> I briefly discussed this with Alan and he agreed that that's a reasonable
+> approach.
+
+Thanks, thats pretty much what I had in mind. Though I would expect
+some minor breakage, at least for people who expect nonsetuid loadkeys
+to work. But then again, that is the whole point.
+
+> I'll stick the below in -mm, see what breaks.
+> 
+> --- devel/drivers/char/vt_ioctl.c~setkeys-needs-root	2005-10-17 23:50:37.000000000 -0700
+> +++ devel-akpm/drivers/char/vt_ioctl.c	2005-10-17 23:51:43.000000000 -0700
+> @@ -192,6 +192,9 @@ do_kdgkb_ioctl(int cmd, struct kbsentry 
+>  	int i, j, k;
+>  	int ret;
+>  
+> +	if (!capable(CAP_SYS_TTY_CONFIG))
+> +		return -EPERM;
+> +
+>  	kbs = kmalloc(sizeof(*kbs), GFP_KERNEL);
+>  	if (!kbs) {
+>  		ret = -ENOMEM;
+> _
+
+-- 
+Horms

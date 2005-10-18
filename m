@@ -1,42 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbVJRPgt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbVJRPhR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750734AbVJRPgt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 11:36:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbVJRPgt
+	id S1750817AbVJRPhR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 11:37:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbVJRPhQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 11:36:49 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:53930 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S1750734AbVJRPgt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 11:36:49 -0400
-Message-ID: <4355168A.8010507@rtr.ca>
-Date: Tue, 18 Oct 2005 11:36:42 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050923 Debian/1.7.12-0ubuntu05.04
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.14-RC2 Bug?  HiSpeed USB devices demoted to low-speed after resume
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 18 Oct 2005 11:37:16 -0400
+Received: from orion.netbank.com.br ([200.203.199.90]:50951 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id S1750810AbVJRPhN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 11:37:13 -0400
+Date: Tue, 18 Oct 2005 13:37:02 -0200
+To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>
+Cc: ahendry@tusc.com.au, eis@baty.hanse.de, linux-x25@vger.kernel.org,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH] X25: Add ITU-T facilites
+Message-ID: <20051018153702.GC23167@mandriva.com>
+Mail-Followup-To: acme@ghostprotocols.net,
+	"YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>,
+	ahendry@tusc.com.au, eis@baty.hanse.de, linux-x25@vger.kernel.org,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+References: <1129513666.3747.50.camel@localhost.localdomain> <20051017022826.GA23167@mandriva.com> <1129615767.3695.15.camel@localhost.localdomain> <20051018.152318.68554424.yoshfuji@linux-ipv6.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051018.152318.68554424.yoshfuji@linux-ipv6.org>
+X-Url: http://advogato.org/person/acme
+User-Agent: Mutt/1.5.9i
+From: acme@ghostprotocols.net (Arnaldo Carvalho de Melo)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For both suspend-to-disk ("software suspend") and suspend-to-ram,
-the 2.6.14-RC2 kernel appears to disable ehci_hcd on resume.
+Em Tue, Oct 18, 2005 at 03:23:18PM +0900, YOSHIFUJI Hideaki / ?$B5HF#1QL@ escreveu:
+> In article <1129615767.3695.15.camel@localhost.localdomain> (at Tue, 18 Oct 2005 16:09:27 +1000), Andrew Hendry <ahendry@tusc.com.au> says:
+> 
+> > +/* 
+> > +*     ITU DTE facilities
+> > +*     Only the called and calling address
+> > +*     extension are currently implemented.
+> > +*     The rest are in place to avoid the struct
+> > +*     changing size if someone needs them later
+> > ++ */
+> > +struct x25_dte_facilities {
+> > +	unsigned int    calling_len, called_len;
+> > +	char            calling_ae[20];
+> > +	char            called_ae[20];
+> > +	unsigned char   min_throughput;
+> > +	unsigned short  delay_cumul;
+> > +	unsigned short  delay_target;
+> > +	unsigned short  delay_max;
+> > +	unsigned char   expedited;
+> > +};
+> 
+> Why don't you use fixed size members?
+> And we can eliminate 8bit hole.
+> 
+> struct x25_dte_facilities {
+>      u32             calling_len
+>      u32             called_len;
 
-That is, plugging in a hi-speed Mass Storage device *after* resume
-results in these syslog messages:
+I guess the two above can be 'u8' as they refer to calling_ae and called_ae
+that at most will be '20'?
 
- >kernel: usb 3-1: new full speed USB device using uhci_hcd and address 2
- >kernel: usb 3-1: not running at top speed; connect to a high speed hub
+>      u8              calling_ae[20];
+>      u8              called_ae[20];
 
-Very odd.  The 2.6.13 kernel behaves much better, as does 2.6.14-RC2
-*before* suspending:
-
- >kernel: usb 5-5: new high speed USB device using ehci_hcd and address 3
-
-Unloading and reloading ehci_hcd restores high-speed USB operation,
-until the next suspend/resume.
-
-WTF?
+- Arnaldo

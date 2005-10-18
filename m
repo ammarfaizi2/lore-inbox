@@ -1,35 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932380AbVJRFw2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932387AbVJRFxx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932380AbVJRFw2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 01:52:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbVJRFw2
+	id S932387AbVJRFxx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 01:53:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932388AbVJRFxx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 01:52:28 -0400
-Received: from qproxy.gmail.com ([72.14.204.193]:26079 "EHLO qproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932380AbVJRFw1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 01:52:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=eskkb/E2GYSvsmc1kW4HxlfYEKqEjsCTHd3JKrEf1I2Q/8qDWfpgLKMD0033z8LhVaMBjBukk23mmTd9zqgWJ6Tfsfs1ehkrClND7J3OcPpsU6oX0O0mMwJsp4gf/CjQF7AaLDWiyWwtdGvrUbfaYzWxrbQU3aSXDe9HsCbufYs=
-Message-ID: <30b4e63b0510172252x1dfca9f2l75bb0f183aecf7bb@mail.gmail.com>
-Date: Tue, 18 Oct 2005 11:22:27 +0530
-From: Roushan Ali <roushan.ali@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: file system block size
+	Tue, 18 Oct 2005 01:53:53 -0400
+Received: from fed1rmmtao08.cox.net ([68.230.241.31]:13460 "EHLO
+	fed1rmmtao08.cox.net") by vger.kernel.org with ESMTP
+	id S932387AbVJRFxw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 01:53:52 -0400
+From: Junio C Hamano <junkio@cox.net>
+To: git@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: GIT 0.99.8e
+References: <7vachadnmy.fsf@assigned-by-dhcp.cox.net>
+Date: Mon, 17 Oct 2005 22:53:50 -0700
+In-Reply-To: <7vachadnmy.fsf@assigned-by-dhcp.cox.net> (Junio C. Hamano's
+	message of "Sat, 15 Oct 2005 22:41:41 -0700")
+Message-ID: <7v8xwrtlox.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
-         we want to write a new file system with block size more than
-4KB. Can anyone suggest us how should we proceed ?
+GIT 0.99.8e is available as usual at:
+
+    RPMs and tarball: www.kernel.org:/pub/software/scm/git/
+    Debs and tarball: www.kernel.org:/pub/software/scm/git/debian/
+
+The "master" branch has updated "git-diff-*" commands, that deal
+with pathnames with funny characters (most importantly tabs and
+newlines) in a way compatible with the proposed change to GNU
+patch, which was outlined in:
+
+    http://marc.theaimsgroup.com/?l=git&m=112927316408690&w=2
+
+When people start generating diffs with them, patches that touch
+paths that have double-quotes '"' or spaces ' ' in them need to
+be applied with the updated git-apply that knows how new
+"git-diff-*" encodes these funny pathnames.  GIT 0.99.8e
+contains the necessary backport of the git-apply changes.
+
+This will hopefully be the last 0.99.8 maintenance release.
 
 
-
-Regards,
-Roushan

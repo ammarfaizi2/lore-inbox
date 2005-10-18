@@ -1,84 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932135AbVJRV2r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbVJRVe1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932135AbVJRV2r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 17:28:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbVJRV2r
+	id S932146AbVJRVe1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 17:34:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbVJRVe1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 17:28:47 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:47817 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S932135AbVJRV2q (ORCPT
+	Tue, 18 Oct 2005 17:34:27 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:41408 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932146AbVJRVe1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 17:28:46 -0400
-Subject: Re: [discuss] Re: x86_64: 2.6.14-rc4 swiotlb broken
-From: Alex Williamson <alex.williamson@hp.com>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       discuss@x86-64.org, tglx@linutronix.de, shai@scalex86.org,
-       y-goto@jp.fujitsu.com
-In-Reply-To: <20051018195423.GA6351@localhost.localdomain>
-References: <20051017093654.GA7652@localhost.localdomain>
-	 <200510171153.56063.ak@suse.de>
-	 <20051017153020.GB7652@localhost.localdomain>
-	 <200510171743.47926.ak@suse.de> <20051017134401.3b0d861d.akpm@osdl.org>
-	 <Pine.LNX.4.64.0510171405510.3369@g5.osdl.org>
-	 <20051018001620.GD8932@localhost.localdomain>
-	 <Pine.LNX.4.64.0510180845470.3369@g5.osdl.org>
-	 <Pine.LNX.4.64.0510180848540.3369@g5.osdl.org>
-	 <20051018195423.GA6351@localhost.localdomain>
-Content-Type: text/plain
-Organization: LOSL
-Date: Tue, 18 Oct 2005 15:28:27 -0600
-Message-Id: <1129670907.17545.20.camel@lts1.fc.hp.com>
+	Tue, 18 Oct 2005 17:34:27 -0400
+Date: Tue, 18 Oct 2005 14:34:38 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Seth, Rohit" <rohit.seth@intel.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: Handling spurious page fault for hugetlb region for
+ 2.6.14-rc4-git5
+Message-Id: <20051018143438.66d360c4.akpm@osdl.org>
+In-Reply-To: <20051018141512.A26194@unix-os.sc.intel.com>
+References: <20051018141512.A26194@unix-os.sc.intel.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-10-18 at 12:54 -0700, Ravikiran G Thirumalai wrote:
-> On Tue, Oct 18, 2005 at 08:50:18AM -0700, Linus Torvalds wrote:
-> > 
-> > 
-> > On Tue, 18 Oct 2005, Linus Torvalds wrote:
-> > > 
-> > > I vote for this one, assuming everybody who can test is happy.
-> > 
-> > Of course, just after sending the patch I noticed that there was a new 
-> > version, even simpler. Can people test that one?
-> > 
+"Seth, Rohit" <rohit.seth@intel.com> wrote:
+>
+> Linus,
 > 
-> This version should work for everyone.  It falls back to the old 2.6.13
-> behaviour when it does not find suitable memory from any of the nodes.
+> [PATCH]: Handle spurious page fault for hugetlb region
 > 
-> Yasunori-san, Alex, can you confirm.  (Please use stock 2.6.14)
+> The hugetlb pages are currently pre-faulted.  At the time of mmap of
+> hugepages, we populate the new PTEs.  It is possible that HW has already cached
+> some of the unused PTEs internally.
 
-   Oops, I used 2.6.14-rc4-mm1, I'll retest.  However, this does work on
-the Superdome.  Not because of the iterating over the nodes code, but
-because of the call to alloc_bootmem_low_pages() fallback case.  Adding
-a printk(), I get this:
+What's an "unused pte"?  One which maps a regular-sized page at the same
+virtual address?  How can such a thing come about, and why isn't it already
+a problem for regular-sized pages?  From where does the hardware prefetch
+the pte contents?
 
-Node 0: 0xe000074104e6b200
-Node 1: 0xe000082080723000
-Node 2: 0xe000000101532000  *Note this is the interleaved memory node
-Placing software IO TLB between 0x4cdc000 - 0x8cdc000
+IOW: please tell us more about this hardware pte-fetcher.
 
-Looking at the memory map of the system, I see these major ranges:
+>  These stale entries never get a chance to
+> be purged in existing control flow.
 
-Node 2:
-0x00000000000 - 0x0007ffdefff (~2GB)
-0x00100000000 - 0x0017fffffff (2GB)
-0x04080000000 - 0x040f0000000 (2GB)
-Node 0:
-0x74100000000 - 0x741fbbfffff (~4GB)
-Node 1:
-0x82080000000 - 0x820fb453fff (~2GB)
+I'd have thought that invalidating those ptes at mmap()-time would be a
+more consistent approach.
 
-So, it looks like we're iterating over the nodes, but
-alloc_bootmem_node() isn't even guaranteed to try to get memory from the
-low memory on that node.  Thanks,
+> This patch extends the check in page fault code for hugepages.  Check if
+> a faulted address falls with in size for the hugetlb file backing it.  We
+> return VM_FAULT_MINOR for these cases (assuming that the arch specific
+> page-faulting code purges the stale entry for the archs that need it).
 
-	Alex
+Do you have an example of the code which does this purging?
 
+> --- linux-2.6.14-rc4-git5-x86/include/linux/hugetlb.h	2005-10-18 13:14:24.879947360 -0700
+> +++ b/include/linux/hugetlb.h	2005-10-18 13:13:55.711381656 -0700
+> @@ -155,11 +155,24 @@
+>  {
+>  	file->f_op = &hugetlbfs_file_operations;
+>  }
+> +
+> +static inline int valid_hugetlb_file_off(struct vm_area_struct *vma, 
+> +					  unsigned long address) 
+> +{
+> +	struct inode *inode = vma->vm_file->f_dentry->d_inode;
+> +	loff_t file_off = address - vma->vm_start;
+> +	
+> +	file_off += (vma->vm_pgoff << PAGE_SHIFT);
+> +	
+> +	return (file_off < inode->i_size);
+> +}
 
+I suppose we should use i_size_read() here.
 
+> +		if (valid_hugetlb_file_off(vma, address))
+> +			/* We get here only if there was a stale(zero) TLB entry 
+> +			 * (because of  HW prefetching). 
+> +			 * Low-level arch code (if needed) should have already
+> +			 * purged the stale entry as part of this fault handling.  
+> +			 * Here we just return.
+> +			 */
+
+If the low-level code has purged the stale pte then it knows what's
+happening.  Perhaps it shouldn't call into handle_mm_fault() at all?

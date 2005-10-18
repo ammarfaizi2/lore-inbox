@@ -1,66 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbVJRWEi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbVJRWGg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932162AbVJRWEi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 18:04:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932165AbVJRWEi
+	id S932167AbVJRWGg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 18:06:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbVJRWGg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 18:04:38 -0400
-Received: from atlrel8.hp.com ([156.153.255.206]:40112 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S932162AbVJRWEi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 18:04:38 -0400
-Subject: Re: [discuss] Re: x86_64: 2.6.14-rc4 swiotlb broken
-From: Alex Williamson <alex.williamson@hp.com>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       discuss@x86-64.org, tglx@linutronix.de, shai@scalex86.org,
-       y-goto@jp.fujitsu.com
-In-Reply-To: <20051018215351.GA3982@localhost.localdomain>
-References: <200510171153.56063.ak@suse.de>
-	 <20051017153020.GB7652@localhost.localdomain>
-	 <200510171743.47926.ak@suse.de> <20051017134401.3b0d861d.akpm@osdl.org>
-	 <Pine.LNX.4.64.0510171405510.3369@g5.osdl.org>
-	 <20051018001620.GD8932@localhost.localdomain>
-	 <Pine.LNX.4.64.0510180845470.3369@g5.osdl.org>
-	 <Pine.LNX.4.64.0510180848540.3369@g5.osdl.org>
-	 <20051018195423.GA6351@localhost.localdomain>
-	 <1129670907.17545.20.camel@lts1.fc.hp.com>
-	 <20051018215351.GA3982@localhost.localdomain>
-Content-Type: text/plain
-Organization: LOSL
-Date: Tue, 18 Oct 2005 16:04:00 -0600
-Message-Id: <1129673040.17545.32.camel@lts1.fc.hp.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Tue, 18 Oct 2005 18:06:36 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:3589 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932167AbVJRWGf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 18:06:35 -0400
+Message-ID: <43557201.1070902@tmr.com>
+Date: Tue, 18 Oct 2005 18:06:57 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Derbey Nadia <Nadia.Derbey@bull.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] - AKT project
+References: <43535245.9070807@bull.net>
+In-Reply-To: <43535245.9070807@bull.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-10-18 at 14:53 -0700, Ravikiran G Thirumalai wrote:
-> On Tue, Oct 18, 2005 at 03:28:27PM -0600, Alex Williamson wrote:
-> > So, it looks like we're iterating over the nodes, but
-> > alloc_bootmem_node() isn't even guaranteed to try to get memory from the
-> > low memory on that node.
+Derbey Nadia wrote:
+> I'm announcing last version of the libtune API, that has been developped 
+> to unify the way developers have to access Linux kernel tunables, system 
+> information, resource consumptions.
 > 
-> Thanks Alex. 2.6.14-rc4-mm1 already has the 
-> guarantee-dma-area-for-alloc_bootmem_low.patch by Yasunori-san.  So it is 
-> safer to confirm results on latest 2.6.14 stock.
+> User documentation can be found at http://akt.sf.net/doc/aktapi.doc.01.html
+> 
+> Design documentation can be found at 
+> http://akt.sf.net/doc/aktapi.design.07.html
+> 
+> The sources can be downloaded from
+> http://sourceforge.net/project/showfiles.php?group_id=136028
+> 
+> Next step of the project will consist in making the kernel able to tune 
+> the resources as it sees appropriate.
 
-   Ok. I'll need to build a stock tree then.
+The reason for having tunables is so the admin can get the behaviour 
+desired. Since the kernel can't really know which behaviour to optimize 
+this would wind up being the kernel tuning itself to your (someone's) 
+idea of better. That may be great for some newbie, but honestly the 
+default values put in by the developers are satisfactory in most cases.
 
-> Could it also be that Node 2 is offline when swiotlb is allocated?
-
-   Nope.  Note that Node2 is iterated in the for_each_online_node, my
-printk is within the body of the loop.  Also, the allocation it did get
-is still from Node2.  My understanding is that goal for
-alloc_bootmem_node is MAX_DMA_ADDRESS.  On ia64, that defaults to 4GB.
-So it makes sense that we're using the second region in the
-discontiguous space of that node.  This solution therefore relies on one
-of the nodes having less than 4GB of zero base memory.  That's a pretty
-weak assumption.  Thanks,
-
-	Alex
+I hope "as it sees appropriate" isn't really what you mean...
 
 -- 
-
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

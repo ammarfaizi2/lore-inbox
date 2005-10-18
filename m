@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751500AbVJRU4Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751503AbVJRU5S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751500AbVJRU4Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 16:56:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751503AbVJRU4Q
+	id S1751503AbVJRU5S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 16:57:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751505AbVJRU5S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 16:56:16 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:38042 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751500AbVJRU4O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 16:56:14 -0400
-Message-ID: <43556165.1080307@pobox.com>
-Date: Tue, 18 Oct 2005 16:56:05 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sergey Vlasov <vsu@altlinux.ru>
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       davej@redhat.com, Jesse Barnes <jbarnes@virtuousgeek.org>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Subject: Re: [PATCH] libata: fix broken Kconfig setup
-References: <20051017044606.GA1266@havoc.gtf.org>	<Pine.LNX.4.64.0510170754500.23590@g5.osdl.org>	<4353C42A.3000005@pobox.com>	<Pine.LNX.4.64.0510170848180.23590@g5.osdl.org>	<4353CF7E.1090404@pobox.com>	<Pine.LNX.4.64.0510170930420.23590@g5.osdl.org>	<4353D905.3080400@pobox.com> <20051018151526.5f4deef6.vsu@altlinux.ru>
-In-Reply-To: <20051018151526.5f4deef6.vsu@altlinux.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Tue, 18 Oct 2005 16:57:18 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:57832 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751503AbVJRU5R
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 16:57:17 -0400
+Date: Tue, 18 Oct 2005 15:57:10 -0500
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ppc64: Thermal control for SMU based machines
+Message-ID: <20051018205710.GC29826@austin.ibm.com>
+References: <1128404215.31063.32.camel@gaston> <20051011171315.2fe087e7.akpm@osdl.org> <1129076691.17365.250.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1129076691.17365.250.camel@gaston>
+User-Agent: Mutt/1.5.6+20040907i
+From: linas <linas@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sergey Vlasov wrote:
-> The IDE=y part seems to be incorrect - quirk_intel_ide_combined() is
-> needed even with modular IDE.  Without this quirk you will get one of
-> these configurations depending on the module load order:
+On Wed, Oct 12, 2005 at 10:24:51AM +1000, Benjamin Herrenschmidt was heard to remark:
+> > > +#define BUILD_SHOW_FUNC_FIX(name, data)				\
+> > > +static ssize_t show_##name(struct device *dev,                  \
+> > > +			   struct device_attribute *attr,       \
+> > > +			   char *buf)	                        \
+> > > +{								\
 > 
-> 1) ata_piix loads first - it grabs the whole controller, including the
-> PATA port; the IDE module loaded later finds nothing.
-> 
-> 2) IDE modules are loaded first - without the quirk IDE drivers will
-> grab the whole controller, including the SATA part.
-> 
-> The binding you get with builtin IDE (ata_piix/ahci for SATA, generic
-> IDE driver for PATA) would be impossible to get with modular IDE without
-> the quirk, which does not seem to be good...
+> Ahh no, the problem here is that stupid emacs is very bad with tab
+> and multi-line macros and just turns the whole thing into shit, so
+> I used spaces. Sorry, I'm not an emacs guru and don't know how to
+> work around that ...
 
-This is a reasonable point, but the rare person who runs modular IDE on 
-these PATA/SATA combined mode beasts can certainly tell the IDE driver 
-to not probe certain ports.
+Anyone who has tabstops set to 3 instead of 8 will see broken-ness for
+macros like this no matter what. Suggest that the right policy is to use
+only spaces, and neve tabs, inside of macros.
 
-	Jeff
-
-
+--linas

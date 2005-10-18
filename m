@@ -1,96 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932386AbVJRCai@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbVJRCm3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932386AbVJRCai (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 22:30:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932387AbVJRCai
+	id S932390AbVJRCm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 22:42:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932391AbVJRCm3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 22:30:38 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:30893 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932386AbVJRCah (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 22:30:37 -0400
-Date: Tue, 18 Oct 2005 11:29:18 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [discuss] Re: x86_64: 2.6.14-rc4 swiotlb broken
-Cc: Muli Ben-Yehuda <mulix@mulix.org>, Andi Kleen <ak@suse.de>,
-       discuss@x86-64.org, Ravikiran G Thirumalai <kiran@scalex86.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       tglx@linutronix.de, shai@scalex86.org, clameter@engr.sgi.com,
-       muli@il.ibm.com, jdmason@us.ibm.com
-In-Reply-To: <Pine.LNX.4.64.0510171200490.3369@g5.osdl.org>
-References: <20051017184523.GB26239@granada.merseine.nu> <Pine.LNX.4.64.0510171200490.3369@g5.osdl.org>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.051
-Message-Id: <20051018101604.6795.Y-GOTO@jp.fujitsu.com>
+	Mon, 17 Oct 2005 22:42:29 -0400
+Received: from gherkin.frus.com ([192.158.254.49]:29884 "EHLO gherkin.frus.com")
+	by vger.kernel.org with ESMTP id S932390AbVJRCm2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 22:42:28 -0400
+Subject: Re: vesafb_blank() vs. Toshiba 730XCDT notebook
+In-Reply-To: <43543D4C.3050700@gmail.com> "from Antonino A. Daplas at Oct 18,
+ 2005 08:09:48 am"
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Date: Mon, 17 Oct 2005 21:42:27 -0500 (CDT)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.21.02 [ja]
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <20051018024227.CF151DBA1@gherkin.frus.com>
+From: rct@gherkin.frus.com (Bob Tracy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello. Linus-san.
-
-> NOTE! Even if the machine has 4GB or more of memory, it's entirely likely 
-> that the quick "use NODE(0)" hack will work fine. 
+Antonino A. Daplas wrote:
+> Bob Tracy wrote:
+> > (Toshiba laptop display problem -- vesafb driver blanking).
 > 
-> Why? Because the bootmem memory should still be allocated low-to-high by 
-> default, which means that as logn as NODE(0) has _enough_ memory in the 
-> DMA range, we should be ok.
+> Can you try this patch first? 
 > 
-> So I _think_ the simple one-liner NODE(0) patch is sufficient, and should 
-> work (and is a lot more acceptable for 2.6.14 than switching the node 
-> ordering around yet again, or doing bigger surgery on the bootmem code).
+> Signed-off-by: Antonino Daplas <adaplas@pol.net>
 > 
-> So the only thing that worried me (and made me ask whether there might be 
-> machines where it doesn't work) is if some machines might have their high 
-> memory (or no memory at all) on NODE(0). It does sound unlikely, but I 
-> simple don't know what kind of strange NUMA configs there are out there.
-> 
-> And I'm definitely only interested in machines that are out there, not 
-> some theoretical issues.
+> diff --git a/drivers/video/vesafb.c b/drivers/video/vesafb.c
+> --- a/drivers/video/vesafb.c
+> +++ b/drivers/video/vesafb.c
+> @@ -96,14 +96,14 @@ static int vesafb_blank(int blank, struc
+> (...)
 
-In our making IA64 machine node 0 might not have any low-memory, and
-another node can have low-memory instead.
-
-This cause comes from hotplug whole of one node.
-For example, please imagine following case.
-
-1) In this case, firmware remembers pxm 1's node has low memory.
-
-                 node 0             node 1 
-               +--------------+  +-----------+
-               |  pxm = 1     |  | pxm = 2   |
-               |  low memory  |  |           |
-               +--------------+  +-----------+
-
-
-2) If one node is hot-added at pxm = 0 (pxm is decided from physical
-   locate by firmware.), new node will be node 2.
-
-  node 2          node 0          node 1 
-+-----------+  +--------------+  +-----------+
-| pxm = 0   |  |  pxm = 1     |  | pxm = 2   |
-|           |  |  low memory  |  |           |
-+-----------+  +--------------+  +-----------+
-
-3) If user reboots the machine, Linux decides node id from pxm's order.
-   But firmware still remembers which node has low memory.
-   So, node 0 will not have any low memory.
-
-  node 0          node 1          node 2
-+-----------+  +--------------+  +-----------+
-| pxm = 0   |  |  pxm = 1     |  | pxm = 2   |
-|           |  |  low memory  |  |           |
-+-----------+  +--------------+  +-----------+
-
-So, just "use NODE(0)" is not enough hack for our machine.
-If "use NODE(0)" is selected, kernel must sort pgdat link and
-node id by memory address. I think that hot add code will be a 
-bit messy instead.
-
-Thanks.
+That did the trick.  Thanks for the quick turnaround!
 
 -- 
-Yasunori Goto 
-
+-----------------------------------------------------------------------
+Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
+rct@frus.com
+-----------------------------------------------------------------------

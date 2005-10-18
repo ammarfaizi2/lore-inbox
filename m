@@ -1,66 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751452AbVJRH2d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbVJRHbG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751452AbVJRH2d (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 03:28:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751455AbVJRH2d
+	id S932090AbVJRHbG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 03:31:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751458AbVJRHbG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 03:28:33 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:15029 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751452AbVJRH2d (ORCPT
+	Tue, 18 Oct 2005 03:31:06 -0400
+Received: from waste.org ([216.27.176.166]:16773 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S1751456AbVJRHbE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 03:28:33 -0400
-Date: Tue, 18 Oct 2005 09:28:44 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Cc: cc@ccrma.Stanford.EDU, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>,
-       david singleton <dsingleton@mvista.com>,
-       Steven Rostedt <rostedt@goodmis.org>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark Knecht <markknecht@gmail.com>
-Subject: Re: 2.6.14-rc4-rt7
-Message-ID: <20051018072844.GB21915@elte.hu>
-References: <20051017160536.GA2107@elte.hu> <1129576885.4720.3.camel@cmn3.stanford.edu> <1129599029.10429.1.camel@cmn3.stanford.edu>
+	Tue, 18 Oct 2005 03:31:04 -0400
+Date: Tue, 18 Oct 2005 00:29:27 -0700
+From: Matt Mackall <mpm@selenic.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: linux-kernel@vger.kernel.org, Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Esben Nielsen <simlo@phys.au.dk>, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: ketchup+rt with ktimers added.
+Message-ID: <20051018072927.GU26160@waste.org>
+References: <Pine.LNX.4.58.0510170316310.5859@localhost.localdomain> <20051017213915.GN26160@waste.org> <Pine.LNX.4.58.0510180211320.13581@localhost.localdomain> <20051018063031.GR26160@waste.org> <Pine.LNX.4.58.0510180239550.13581@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1129599029.10429.1.camel@cmn3.stanford.edu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <Pine.LNX.4.58.0510180239550.13581@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
-
-> > Some feedback. It looks like the issues I was having are gone, no weird
-> > key repeats or screensaver activations __plus__ no problems so far with
-> > spurious warnings from Jack! Woohooo!!! (of course it may be that I
-> > start getting them as soon as I press send)
+On Tue, Oct 18, 2005 at 02:45:27AM -0400, Steven Rostedt wrote:
+> > > I didn't know about your repo directory.  Sorry, didn't have time to look
+> > > too deep into this. I just did a few searches on the web and found
+> > > different links scattered around.  I was just interested in the RT stuff,
+> > > so I didn't go to deep.
+> > >
+> > > Actually, if you had a link to the repo from
+> > > http://www.selenic.com/ketchup/ I would have found it.
+> >
+> > It's here:
+> >
+> > http://www.selenic.com/ketchup/wiki/
 > 
-> It took some time but I got a couple of instances of keys repeating 
-> too fast (it happened 3 or 4 times). Regretfully no BUG messages in 
-> /var/log/messages this time...
+> Ahh, I did see this. That word "Mercurial" scared me from looking further!
 
-ok, i have uploaded the -rt8 patch, which has the ktimer debugging code 
-included again. Could you give it a try and see whether there are any 
-debugging messages happening at the same time the keys repeat?
+Scared? One of the many nice features of Mercurial is you can easily
+grab a tarball of a given revision by clicking on one of the archive
+links.
 
-the debugging code checks for two things:
+http://selenic.com/repo/ketchup/?cmd=archive;node=tip;type=bz2
 
- 1) is the monotonic clock truly monotonic (ktimers rely on this). Your 
-    previous debug messages never indicated this, but it can happen on 
-    other boxes so i kept it for completeness.
+I've added this snapshot link to the wiki. An actual release should be
+appearing shortly.
 
- 2) if a timer finishes 'early' then we assume it was due to a
-    user-signal - double-check that this is in fact true. [timer
-    programming bugs can cause early returns for other reasons, which
-    can result in bogus -ERESTARTBLOCK error codes fed to userspace,
-    confusing it.]
-
-	Ingo
+-- 
+Mathematics is the supreme nostalgia of our time.

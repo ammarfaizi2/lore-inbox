@@ -1,52 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbVJRWpN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbVJRWrd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932188AbVJRWpN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 18:45:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932189AbVJRWpN
+	id S932300AbVJRWrd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 18:47:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932314AbVJRWrd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 18:45:13 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:64007 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S932188AbVJRWpM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 18:45:12 -0400
-Date: Wed, 19 Oct 2005 00:41:18 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Nick Warne <nick@linicks.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4.31] Reintroduction i386 CONFIG_DUMMY_KEYB option
-Message-ID: <20051018224118.GA12326@alpha.home.local>
-References: <Pine.LNX.4.44.0510141006280.3868-200000@website2.europe.pwc.ca> <20051018080226.GB13299@logos.cnet>
+	Tue, 18 Oct 2005 18:47:33 -0400
+Received: from serv01.siteground.net ([70.85.91.68]:64384 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S932300AbVJRWrc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 18:47:32 -0400
+Date: Tue, 18 Oct 2005 15:47:29 -0700
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Alex Williamson <alex.williamson@hp.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org, tglx@linutronix.de, shai@scalex86.org,
+       y-goto@jp.fujitsu.com
+Subject: Re: [discuss] Re: x86_64: 2.6.14-rc4 swiotlb broken
+Message-ID: <20051018224729.GA4535@localhost.localdomain>
+References: <200510171743.47926.ak@suse.de> <20051017134401.3b0d861d.akpm@osdl.org> <Pine.LNX.4.64.0510171405510.3369@g5.osdl.org> <20051018001620.GD8932@localhost.localdomain> <Pine.LNX.4.64.0510180845470.3369@g5.osdl.org> <Pine.LNX.4.64.0510180848540.3369@g5.osdl.org> <20051018195423.GA6351@localhost.localdomain> <1129670907.17545.20.camel@lts1.fc.hp.com> <20051018215351.GA3982@localhost.localdomain> <1129673040.17545.32.camel@lts1.fc.hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051018080226.GB13299@logos.cnet>
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <1129673040.17545.32.camel@lts1.fc.hp.com>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 18, 2005 at 06:02:26AM -0200, Marcelo Tosatti wrote:
-> On Fri, Oct 14, 2005 at 10:19:44AM +0100, Nick Warne wrote:
+On Tue, Oct 18, 2005 at 04:04:00PM -0600, Alex Williamson wrote:
+> On Tue, 2005-10-18 at 14:53 -0700, Ravikiran G Thirumalai wrote:
+> > On Tue, Oct 18, 2005 at 03:28:27PM -0600, Alex Williamson wrote:
+> > > So, it looks like we're iterating over the nodes, but
+> > > alloc_bootmem_node() isn't even guaranteed to try to get memory from the
+> > > low memory on that node.
 > > 
-> > >>  #ifdef CONFIG_VT
-> > >> +#ifndef CONFIG_DUMMY_KEYB
-> > 
-> > > Please could you change this to #if defined(CONFIG_VT) && 
-> > > !defined(CONFIG_DUMMY_KEYB) ?
-> > 
-> > > Marcelo, I'd like this one to be merged, as it is useful to many of us, 
-> > > and is already fixed in 2.6 (where you're not forced to have a 
-> > > keyboard).  It's not intrusive and at most a build fix. Would you please 
-> > > accept Nick's patch after the little clean-up above ?
-> > 
-> > 
-> > OK, the adjusted patch attached.  I did look at the ifdefs in that file 
-> > for a few minutes; but I see now I should have done it like this in the 
-> > first place.
+> > Thanks Alex. 2.6.14-rc4-mm1 already has the 
+> > guarantee-dma-area-for-alloc_bootmem_low.patch by Yasunori-san.  So it is 
+> > safer to confirm results on latest 2.6.14 stock.
 > 
-> Looks fine - Willy can you keep it in your tree and add it later on to the 
-> 2.4.33-pre tree?
+>    Ok. I'll need to build a stock tree then.
+> 
+> > Could it also be that Node 2 is offline when swiotlb is allocated?
+> 
+>    Nope.  Note that Node2 is iterated in the for_each_online_node, my
+> printk is within the body of the loop.  Also, the allocation it did get
+> is still from Node2.  My understanding is that goal for
+> alloc_bootmem_node is MAX_DMA_ADDRESS.  On ia64, that defaults to 4GB.
 
-OK, fine.
+Ahhh... and it is 16MB on x86_64.  alloc_bootmem_node will never work here
+for ia64 then, However, alloc_bootmem_low_pages_node will work, but then it will 
+dig into 16MB DMA area of x86_64.... arrrrgh...
 
-Willy
-
+The first cleanup post 2.6.14 should be to seperate swiotlb for ia64 and
+x86_64 IMHO. 

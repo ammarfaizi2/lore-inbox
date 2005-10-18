@@ -1,87 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751468AbVJRI05@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932393AbVJRIaG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751468AbVJRI05 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 04:26:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751469AbVJRI05
+	id S932393AbVJRIaG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 04:30:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbVJRIaF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 04:26:57 -0400
-Received: from pilet.ens-lyon.fr ([140.77.167.16]:44940 "EHLO
-	relaissmtp.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S1751468AbVJRI04 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 04:26:56 -0400
-Message-ID: <4354B1D1.4060802@ens-lyon.org>
-Date: Tue, 18 Oct 2005 10:26:57 +0200
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Dmitry Torokhov <dtor_core@ameritech.net>,
-       Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: 2.6.14-rc4-mm1
-References: <20051016154108.25735ee3.akpm@osdl.org> <43539762.2020706@ens-lyon.org> <20051017132242.2b872b08.akpm@osdl.org> <20051018065843.GB11858@kroah.com> <4354A49B.6060809@ens-lyon.org> <20051018074029.GC12406@kroah.com>
-In-Reply-To: <20051018074029.GC12406@kroah.com>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Tue, 18 Oct 2005 04:30:05 -0400
+Received: from styx.suse.cz ([82.119.242.94]:20966 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S932393AbVJRIaE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 04:30:04 -0400
+Date: Tue, 18 Oct 2005 10:30:02 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Input: evdev - allow querying EV_SW from compat_ioctl
+Message-ID: <20051018083002.GB13969@ucw.cz>
+References: <200510180151.47195.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200510180151.47195.dtor_core@ameritech.net>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le 18.10.2005 09:40, Greg KH a écrit :
-> If you disable CONFIG_PNP, does the oops go away?
+On Tue, Oct 18, 2005 at 01:51:46AM -0500, Dmitry Torokhov wrote:
+> Input: evdev - allow querying EV_SW bits from compat_ioctl
+
+Yup. Twas missing.
+
 > 
-> Also, does this oops keep you from booting?  If not, can you see what
-> the output of 'cat /proc/bus/input/devices' produces (it should show
-> what device is dying on us.)
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> ---
+> 
+>  drivers/input/evdev.c |    1 +
+>  1 files changed, 1 insertion(+)
+> 
+> Index: work/drivers/input/evdev.c
+> ===================================================================
+> --- work.orig/drivers/input/evdev.c
+> +++ work/drivers/input/evdev.c
+> @@ -566,6 +566,7 @@ static long evdev_ioctl_compat(struct fi
+>  						case EV_LED: bits = dev->ledbit; max = LED_MAX; break;
+>  						case EV_SND: bits = dev->sndbit; max = SND_MAX; break;
+>  						case EV_FF:  bits = dev->ffbit;  max = FF_MAX;  break;
+> +						case EV_SW:  bits = dev->swbit;  max = SW_MAX;  break;
+>  						default: return -EINVAL;
+>  					}
+>  					bit_to_user(bits, max);
+> 
 
-Yes disabling CONFIG_PNP makes it disappear.
-
-Here comes /proc/bus/input/devices from 2.6.14-rc4:
-
-I: Bus=0011 Vendor=0001 Product=0001 Version=ab41
-N: Name="AT Translated Set 2 keyboard"
-P: Phys=isa0060/serio0/input0
-H: Handlers=kbd event0
-B: EV=120013
-B: KEY=4 2000000 3802078 f840d001 f2ffffdf ffefffff ffffffff fffffffe
-B: MSC=10
-B: LED=7
-
-I: Bus=0011 Vendor=0002 Product=0007 Version=0000
-N: Name="SynPS/2 Synaptics TouchPad"
-P: Phys=isa0060/serio4/input0
-H: Handlers=mouse0 event1
-B: EV=b
-B: KEY=6420 0 70000 0 0 0 0 0 0 0 0
-B: ABS=11000003
-
-I: Bus=0011 Vendor=0002 Product=000a Version=0000
-N: Name="TPPS/2 IBM TrackPoint"
-P: Phys=synaptics-pt/serio0/input0
-H: Handlers=mouse1 event2
-B: EV=7
-B: KEY=70000 0 0 0 0 0 0 0 0
-B: REL=3
-
-I: Bus=0010 Vendor=001f Product=0001 Version=0100
-N: Name="PC Speaker"
-P: Phys=isa0061/input0
-H: Handlers=kbd event3
-B: EV=40001
-B: SND=6
-
-Without CONFIG_PNP, the last one disappears.
-
-In rc4-mm1, the last one is a little bit different
-(Name and Phys fields):
-
-I: Bus=0010 Vendor=001f Product=0001 Version=0100
-N: Name="isa0061/input0"
-P: Phys=
-S: Sysfs=/class/input_dev/input3
-H: Handlers=kbd event3
-B: EV=40001
-B: SND=6
-
-Brice
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

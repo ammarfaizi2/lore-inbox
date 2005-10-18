@@ -1,76 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932399AbVJRDHN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932400AbVJRDRa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932399AbVJRDHN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 23:07:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932400AbVJRDHN
+	id S932400AbVJRDRa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 23:17:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932401AbVJRDRa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 23:07:13 -0400
-Received: from hulk.hostingexpert.com ([69.57.134.39]:23118 "EHLO
-	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S932399AbVJRDHL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 23:07:11 -0400
-Message-ID: <435466E4.5020807@linuxtv.org>
-Date: Mon, 17 Oct 2005 23:07:16 -0400
-From: Michael Krufky <mkrufky@linuxtv.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
+	Mon, 17 Oct 2005 23:17:30 -0400
+Received: from ams-iport-1.cisco.com ([144.254.224.140]:17500 "EHLO
+	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S932400AbVJRDRa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 23:17:30 -0400
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH] PCI: Add pci_find_next_capability() to deal with >1
+ caps of same type
+X-Message-Flag: Warning: May contain useful information
+References: <52mzl7pwrn.fsf@cisco.com>
+	<20051018021033.GA12610@parisc-linux.org>
+From: Roland Dreier <rolandd@cisco.com>
+Date: Mon, 17 Oct 2005 20:17:15 -0700
+In-Reply-To: <20051018021033.GA12610@parisc-linux.org> (Matthew Wilcox's
+ message of "Mon, 17 Oct 2005 20:10:33 -0600")
+Message-ID: <52ek6jpl8k.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
-To: Cyber Dog <cyberdog3k@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Why is DVB stuff compiling?
-References: <cbb8f04c0510171929j3378220cp48831caa1b8d478@mail.gmail.com> <435465AC.3070506@linuxtv.org>
-In-Reply-To: <435465AC.3070506@linuxtv.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - linuxtv.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset=iso-8859-1
+X-OriginalArrivalTime: 18 Oct 2005 03:17:17.0402 (UTC) FILETIME=[719233A0:01C5D392]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Krufky wrote:
+    Matthew> I don't like having this loop duplicated.  How about the
+    Matthew> following?
 
-> Cyber Dog wrote:
->
->> #
->> # Multimedia devices
->> #
->> # CONFIG_VIDEO_DEV is not set
->>
->> #
->> # Digital Video Broadcasting Devices
->> #
->> # CONFIG_DVB is not set
->>
->> Which is what I would expect.  So why are these things compiling into
->> the kernel even if they're not selected? Or am I missing something
->> about the process?  Kernel 2.6.13.3 here.  Thanks.
->
-> If you go look, you will notice that all of those built-in.o are zero 
-> bytes large.  We've already fixed this in kernel 2.6.14 by preventing 
-> the build of these empty units with the following patch (you can 
-> safely apply it to 2.6.13.y):
+Looks good to me -- I agree with wanting only one loop, but I wasn't
+clever enough to see how to avoid the duplication.
 
+Greg, want me to send a new patch including this along with required
+the <linux/pci.h> changes again?
 
-I forgot to mention... You CAN apply the patch in my previous message if 
-it bothers you enough, but it won't have any real affect on your kernel, 
-as those built-in.o are all empty anyway.
-
->
-> Don't build empty built-in.o when DVB/V4L is not configured.
-> Thanks to Sam Ravnborg and Keith Owens.
->
-> Signed-off-by: Johannes Stezenbach <js@linuxtv.org 
-> <mailto:js@linuxtv.org>>
-
-...and I hate it when Thunderbird does stuff like this when I cut&paste 
-email addresses :-(
-
--- 
-Michael Krufky
-
+Thanks,
+  Roland

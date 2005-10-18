@@ -1,50 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbVJROOW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbVJROZT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750746AbVJROOW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 10:14:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbVJROOW
+	id S1750757AbVJROZT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 10:25:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbVJROZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 10:14:22 -0400
-Received: from zproxy.gmail.com ([64.233.162.195]:50737 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750746AbVJROOU convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 10:14:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=kwLlXBpKil3/5d1bmD3rvTWJm4gMO9KDPOG+fhzHnrmude+Etx7pQzZnOwFr6nybCXW6rqvoNu0fulBCwMLVvwOgKbqd1SJyCDk497q0eumQ+P8Mu1g1+tEDTKnDi5NSVxk/zjE+KWacIdRlfgK5MojYPS8x398oTTneHQZlOro=
-Message-ID: <7a37e95e0510180714g348a1b15s5b78bd35ca0b6410@mail.gmail.com>
-Date: Tue, 18 Oct 2005 19:44:19 +0530
-From: Deven Balani <devenbalani@gmail.com>
-To: erik@harddisk-recovery.com
-Subject: Re: Why do we need libata to access SATA host controller low level device drivers?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051018134807.GB3843@harddisk-recovery.com>
+	Tue, 18 Oct 2005 10:25:19 -0400
+Received: from mail-in-09.arcor-online.net ([151.189.21.49]:51330 "EHLO
+	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1750757AbVJROZS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 10:25:18 -0400
+From: Michael Neuffer <neuffer@neuffer.info>
+Date: Tue, 18 Oct 2005 16:30:02 +0200
+To: Andrew Morton <akpm@osdl.org>
+Cc: Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-rc4-mm1 dead in early boot
+Message-ID: <20051018143002.GA6287@neuffer.info>
+References: <20051016154108.25735ee3.akpm@osdl.org> <20051017210609.GA30116@aitel.hist.no> <20051017140906.0771f797.akpm@osdl.org> <20051017215343.GA30829@aitel.hist.no> <20051017173804.1529e3e6.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <7a37e95e0510172114p6c2da139g5266e617fd9a7163@mail.gmail.com>
-	 <20051018134807.GB3843@harddisk-recovery.com>
+In-Reply-To: <20051017173804.1529e3e6.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The most appropriate answer is: "cause you don't want to reinvent the
-> wheel". In order to get full SATA support, you only need to write a
-> host driver, libata takes care of the gory details.
-Thanks Erik for that useful suggestion.
+Quoting Andrew Morton (akpm@osdl.org):
+> Helge Hafting <helgehaf@aitel.hist.no> wrote:
+> >
+> > On Mon, Oct 17, 2005 at 02:09:06PM -0700, Andrew Morton wrote:
+> >  > Helge Hafting <helgehaf@aitel.hist.no> wrote:
+> >  > >
+> >  > > This one gets me a penguin on the framebuffer, and then dies
+> >  > > with no further textual output.  
+> >  > > numlock leds were working, and I could reboot with sysrq.
+> >  > 
+> >  > Can we get anything useful out of sysrq-p and sysrq-t?
+> >  > 
+> >  > Also, adding initcall_debug to the boot command line might help.
+> >  > 
+> >  Tried again without the framebuffer.  Still hanging, but more info:
+> > 
+> >  Last messages before getting stuck:
+> >  md autorun DONE
+> >  kjournald starting
+> >  Ext3-fs mounted fs w. ordered data mode
+> >  VFS mounted root (ext3) read-only
+> >  freeing unused kernel memory 216k freed.
+> >  warning-unable to open an initial console
+> >  kernel panic-not syncing:No init found. Try passing init= option to kernel
+> > 
+> > 
+> >  Somewhat silly. There certainly was a console (vgacon) or I wouldn't
+> >  be able to read the messages.  And if it mounted root, then there certainly
+> >  was an init to run also.
+> 
+> Can you send the .config please?
 
-> You don't want to use a 2.4 kernel on ARM, especially not when you're
-> using new hardware. 2.4 is development is dead, everybody has moved to
-> 2.6.
-Since we already have Linux Kernel 2.4 based drivers for all the other
-devices present on our ARM 920TDMI based chipset which we cannot
-change. The SATA driver which I'm going to write has to be based on
-Kernel 2.4.25. Through backported patches I have to make Kernel 2.4.25
-to support our new SATA driver and as well our existing device
-drivers.
+I see the same effect, with the only difference
+that I don't get the kernel panic line.
+For me it gets stuck after the "warning-unable to open an initial console"
 
-Please do let me now if you have any suggestions in this regard.
+I'll send you the .config in a seperate mail.
 
-Thanks:-),
-Deven
+Cheers
+   Mike

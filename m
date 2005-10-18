@@ -1,71 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbVJRSvM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751166AbVJRSvx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751132AbVJRSvM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 14:51:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbVJRSvM
+	id S1751166AbVJRSvx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 14:51:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbVJRSvx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 14:51:12 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:41180 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1751132AbVJRSvK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 14:51:10 -0400
-Message-ID: <43554385.6000706@comcast.net>
-Date: Tue, 18 Oct 2005 14:48:37 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: When is OSS going to go?
-References: <43553887.4020305@comcast.net> <20051018180633.GA3760@havoc.gtf.org>
-In-Reply-To: <20051018180633.GA3760@havoc.gtf.org>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 18 Oct 2005 14:51:53 -0400
+Received: from serv01.siteground.net ([70.85.91.68]:30691 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S1751166AbVJRSvw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 14:51:52 -0400
+Date: Tue, 18 Oct 2005 11:51:41 -0700
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Yasunori Goto <y-goto@jp.fujitsu.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Muli Ben-Yehuda <mulix@mulix.org>,
+       Andi Kleen <ak@suse.de>, discuss@x86-64.org,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       tglx@linutronix.de, shai@scalex86.org, clameter@engr.sgi.com,
+       muli@il.ibm.com, jdmason@us.ibm.com
+Subject: Re: [discuss] Re: x86_64: 2.6.14-rc4 swiotlb broken
+Message-ID: <20051018185141.GA4251@localhost.localdomain>
+References: <20051018125342.6799.Y-GOTO@jp.fujitsu.com> <20051018061325.GB3692@localhost.localdomain> <20051018183627.679B.Y-GOTO@jp.fujitsu.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051018183627.679B.Y-GOTO@jp.fujitsu.com>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, Oct 18, 2005 at 07:09:03PM +0900, Yasunori Goto wrote:
+> 
+> I tested your patch, but unfortunately, it doesn't work IA64.
+> alloc_bootmem_node() requires bigger area than MAX_DMA_ADDRESS.
+> It is defined as 4GB for ia64. (arch/ia64/mm/init.c)
+> But this patch require smaller area than 4GB. 
+> So they are exclusive each other.
 
-Got a lkml.org link or a subject line I should search for?  "OSS remove"
-"OSS sound remove" "Open sound system" all return garbage.
+No, alloc_bootmem_node should work for 4G allocations too; So my approach
+should work unless there was some other bootmem request served out of that 
+node earlier.  Btw, the default is to allocate 64MB for swiotlb.  
+Do you modify that for your boxes?  IMHO, we should stick to fixing the 
+stock kernel now for 2.6.14.  
 
-Jeff Garzik wrote:
-> On Tue, Oct 18, 2005 at 02:01:43PM -0400, John Richard Moser wrote:
-> 
->>The Open Sound System has been depricated. . . since. . . when the heck?
->> 2.4?  Is it ever going to drop off?  Are there a few cards in OSS that
->>don't work right in ASLA?
-> 
-> 
-> Already been discussed; check the archives.
-> 
-> 	Jeff
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+However, IS_LOWPAGES macro in my patch enforces that iotlb start and end 
+locations to be within 4G.  I can change that to within and upto 4G, and the 
+patch should work for you too.
 
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
-    Creative brains are a valuable, limited resource. They shouldn't be
-    wasted on re-inventing the wheel when there are so many fascinating
-    new problems waiting out there.
-                                                 -- Eric Steven Raymond
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFDVUODhDd4aOud5P8RAkYiAJ933iPiihq4P36cDYqcVBgL2n7ovACfeaI8
-aE474y7aaz/yFHrNFT4zoTU=
-=k365
------END PGP SIGNATURE-----
+Thanks,
+Kiran

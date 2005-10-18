@@ -1,117 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751415AbVJRHPj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbVJRHRw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751415AbVJRHPj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 03:15:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbVJRHPj
+	id S932415AbVJRHRw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 03:17:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbVJRHRw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 03:15:39 -0400
-Received: from HELIOUS.MIT.EDU ([18.248.3.87]:46822 "EHLO neo.rr.com")
-	by vger.kernel.org with ESMTP id S932415AbVJRHPj (ORCPT
+	Tue, 18 Oct 2005 03:17:52 -0400
+Received: from mail.kroah.org ([69.55.234.183]:52146 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751448AbVJRHRv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 03:15:39 -0400
-Date: Tue, 18 Oct 2005 03:18:22 -0400
-From: Adam Belay <ambx1@neo.rr.com>
-To: Greg KH <gregkh@suse.de>
-Cc: Kay Sievers <kay.sievers@vrfy.org>, dtor_core@ameritech.net,
-       Vojtech Pavlik <vojtech@suse.cz>, Hannes Reinecke <hare@suse.de>,
-       Patrick Mochel <mochel@digitalimplant.org>, airlied@linux.ie,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 0/8] Nesting class_device patches that actually work
-Message-ID: <20051018071822.GC32655@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>, Greg KH <gregkh@suse.de>,
-	Kay Sievers <kay.sievers@vrfy.org>, dtor_core@ameritech.net,
-	Vojtech Pavlik <vojtech@suse.cz>, Hannes Reinecke <hare@suse.de>,
-	Patrick Mochel <mochel@digitalimplant.org>, airlied@linux.ie,
-	linux-kernel@vger.kernel.org
-References: <20051013020844.GA31732@kroah.com> <20051013105826.GA11155@vrfy.org> <d120d5000510131435m7b27fe59l917ac3e11b2458c8@mail.gmail.com> <20051014084554.GA19445@vrfy.org> <d120d5000510141002v67a06900m219b47246c1d92c1@mail.gmail.com> <20051015150855.GA7625@vrfy.org> <20051017214430.GA5193@suse.de> <20051017232430.GA32655@neo.rr.com> <20051018052617.GA10263@suse.de>
+	Tue, 18 Oct 2005 03:17:51 -0400
+Date: Tue, 18 Oct 2005 00:17:12 -0700
+From: Greg KH <greg@kroah.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Andrew Morton <akpm@osdl.org>, Brice Goglin <Brice.Goglin@ens-lyon.org>,
+       linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: 2.6.14-rc4-mm1
+Message-ID: <20051018071712.GA12145@kroah.com>
+References: <20051016154108.25735ee3.akpm@osdl.org> <20051017132242.2b872b08.akpm@osdl.org> <20051018065843.GB11858@kroah.com> <200510180209.49080.dtor_core@ameritech.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051018052617.GA10263@suse.de>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <200510180209.49080.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 17, 2005 at 10:26:17PM -0700, Greg KH wrote:
-> On Mon, Oct 17, 2005 at 07:24:30PM -0400, Adam Belay wrote:
+On Tue, Oct 18, 2005 at 02:09:48AM -0500, Dmitry Torokhov wrote:
+> On Tuesday 18 October 2005 01:58, Greg KH wrote:
+> > On Mon, Oct 17, 2005 at 01:22:42PM -0700, Andrew Morton wrote:
+> > > Brice Goglin <Brice.Goglin@ens-lyon.org> wrote:
+> > > > Modules linked in: pcspkr parport_pc parport irtty_sir sir_dev irda
+> > > > crc_ccitt hw_random uhci_hcd usbcore snd_maestro3 snd_ac97_codec
+> > > > snd_ac97_bus snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd_page_alloc
+> > > > snd soundcore yenta_socket rsrc_nonstatic pcmcia_core nls_iso8859_15
+> > > > nls_cp850 vfat fat nls_base psmouse
+> > > > CPU:    0
+> > > > EIP:    0060:[<c01dda09>]    Not tainted VLI
+> > > > EFLAGS: 00010246   (2.6.14-rc4-mm1=LoulousMobile)
+> > > > EIP is at get_kobj_path_length+0x19/0x30
+> > > > eax: 00000000   ebx: 00000000   ecx: ffffffff   edx: e6efee50
+> > > > esi: 00000001   edi: 00000000   ebp: e737eec8   esp: e737eebc
+> > > > ds: 007b   es: 007b   ss: 0068
+> > > > Process sed (pid: 3258, threadinfo=e737e000 task=e7970a90)
+> > > > Stack: e6efe800 00000001 e6de4000 e737eee8 c01dda9a e6efee50 e6de42e4
+> > > > 00000286
+> > > >        e6efe800 00000001 e6de4000 e737ef24 c02a357f e6efee50 800000d0
+> > > > 0000000f
+> > > >        00000002 0000000a 00000000 e6efe800 00000000 000002e5 000002e5
+> > > > e7e9ce60
+> > > > Call Trace:
+> > > >  [<c010414b>] show_stack+0xab/0xf0
+> > > >  [<c010433f>] show_registers+0x18f/0x230
+> > > >  [<c0104592>] die+0x102/0x1c0
+> > > >  [<c035f27a>] do_page_fault+0x33a/0x66f
+> > > >  [<c0103dbb>] error_code+0x4f/0x54
+> > > >  [<c01dda9a>] kobject_get_path+0x1a/0x70
+> > > >  [<c02a357f>] input_devices_read+0x53f/0x590
+> > > >  [<c01a2e75>] proc_file_read+0x1b5/0x260
+> > > >  [<c01689f8>] vfs_read+0xa8/0x190
+> > > >  [<c0168dc7>] sys_read+0x47/0x70
+> > > >  [<c0103325>] syscall_call+0x7/0xb
+> > > > Code: f8 89 ec 5d c3 8d b6 00 00 00 00 8d bc 27 00 00 00 00 55 89 e5 8b
+> > > > 55 08 57 56 be 01 00 00 00 53 31 db 8b 3a b9 ff ff ff ff 89 d8 <f2> ae
+> > > > f7 d1 49 8b 52 24 8d 74 31 01 85 d2 75 e7 5b 89 f0 5e 5f
+> > > > <6>input: isa0061/input0//class/input_dev as input3
+> > > 
+> > > Something went wrong under input_devices_read().   Probably culprits cc'ed.
 > > 
-> > Sounds good to me.  The changes to driver model internals may be substantial.
-> > For example, because buses and classes will share more code, it's
-> > reasonable to allow drivers to bind to any "device" object, even class
-> > devices.  Of course this would be limited to classes that choose to
-> > implement driver matching etc.  We are doing this now with the pci express
-> > port driver.
+> > I know this patch doesn't have the proc path, but it does fix an easy
+> > oops that I can generate from sysfs input devices.  Can you try it out
+> > to see if it fixes your issue too?
+> >
 > 
-> That's a bus, not a class device.  Drivers bind to devices through a
-> bus.  That's why we have busses.
+> I am confused - the only thing changed is the way you create attributes,
+> not the way data is accessed. What is the difference and why does it fix
+> the OOPS? 
 
-If class devices and devices belong in the same tree, then clearly the original
-distinction is artificial.  "struct bus_type" is a class of "struct device".
-"struct class" is a class of "struct class_dev".  We now know of devices
-in between these two extremes (e.g. pci express port driver).  It's also
-possible that drivers will want to bind to class devices (e.g. a partition
-driver binding to a block device).  Isn't it fair to say that the "bus_type"
-vs. "class" distinction is also artificial?  At the very least they are
-duplicating some code.
+Because before my patch, any class_device created for the input class,
+had the name, phys, and uniq attributes created for them, including the
+"simple" class device structures event0, event1, and so on.  The kobject
+being passed back to those callback functions was not of the same type
+of object as input0, input1 and so on.  So bad things happened.
 
-> 
-> > Also, we could make driver objects a "class" and represent them in the
-> > global device tree, giving each driver instance its own unique namespace.
-> 
-> Huh?  How would you do that?  Also, we really don't have different
-> driver "instances", so trying to represent something like that in sysfs
-> would probably be more work than it's worth.
+I just moved the attribute group out of the class, and created it when
+the proper input device was registered.  Hm, forgot to uncreate the
+group too, I'll go do that now...
 
-(all in same tree)
-pci0000:00.00 <- physical device
-|
-\- e1000:0 <- driver
- |
- \- eth0 <- class device
- 
-We already informally have driver instances.  They're pointed to in
-"driver_data".
+Hope this helps,
 
-> 
-> > > Oh, one tiny problem.  "virtual devices" are not currently represented
-> > > in our device tree, but are in the class tree.  Things like the
-> > > different vc and ttys and misc devices are examples of this.  I'll just
-> > > put them on the "platform" bus if no one minds.
-> > 
-> > I think we should be trying to kill off the platform bus (it's artifical and
-> > doesn't show the real relationships between these devices).  Instead, just
-> > hang them off the root of the tree.
-> 
-> Everything that's currently a platform device go to the root?  No,
-> that's not going to happen, sorry.
-
-Not at all.  Rather, everything that's currently a platform device goes to
-where it actually belongs in the device tree.  ACPI (and other firmware)
-enumerates all of these devices.  They're generally children of LPCs and
-ISA bridges.  Making a special exception for these devices is ugly when we
-can easily represent them like every other device.  This will even be possible
-without ACPI for many of these devices if we create an "ISA" bus driver
-abstraction.
-
-The main point here is that "platform" is really a hack to represent primitive
-physical devices that don't fit well into the driver model.  There may be
-better ways of approaching this problem.
-
-> 
-> > If the device doesn't have any parents or dependencies, then that's
-> > logically where it belongs.
-> 
-> We do have a real platform "bus" that devices hang off of.  Where else
-> is that keyboard controller at :)
-
-As stated above, the keyboard actually does have a real location to hang off of.
-Nonetheless, a keyboard controller is a physical device.  It's very different
-from a "virtual device" like a tty.  Therefore, it seems unreasonable to make
-virtual devices belong to the "platform" bus.
-
-If a device doesn't have a parent device, it belongs at the root of the tree.
-That's the only obvious way to represent such a lack of dependency.  This
-applies to both class and physical devices.
-
-Thanks,
-Adam
+greg k-h

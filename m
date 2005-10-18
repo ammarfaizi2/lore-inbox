@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751426AbVJRUDi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751462AbVJRUM7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751426AbVJRUDi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 16:03:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbVJRUDi
+	id S1751462AbVJRUM7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 16:12:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751489AbVJRUM7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 16:03:38 -0400
-Received: from mail.s.netic.de ([212.9.160.11]:55559 "EHLO mail.s.netic.de")
-	by vger.kernel.org with ESMTP id S1751426AbVJRUDi (ORCPT
+	Tue, 18 Oct 2005 16:12:59 -0400
+Received: from mail.kroah.org ([69.55.234.183]:51899 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751462AbVJRUM6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 16:03:38 -0400
-From: Guido Fiala <gfiala@s.netic.de>
-To: linux-kernel@vger.kernel.org
-Subject: large files unnecessary trashing filesystem cache?
-Date: Tue, 18 Oct 2005 22:01:10 +0200
-User-Agent: KMail/1.7.2
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Tue, 18 Oct 2005 16:12:58 -0400
+Date: Tue, 18 Oct 2005 13:12:26 -0700
+From: Greg KH <greg@kroah.com>
+To: "V. Ananda Krishnan" <mansarov@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Damir Perisa <damir.perisa@solnet.ch>
+Subject: Re: 2.6.14-rc4-mm1 - drivers/serial/
+Message-ID: <20051018201226.GA31705@kroah.com>
+References: <20051016154108.25735ee3.akpm@osdl.org> <200510171229.57785.damir.perisa@solnet.ch> <4353BB87.1030006@us.ibm.com> <200510171721.26588.damir.perisa@solnet.ch> <43550078.1060105@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200510182201.11241.gfiala@s.netic.de>
+In-Reply-To: <43550078.1060105@us.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(please note, i'am not subscribed to the list, please CC me on reply)
+On Tue, Oct 18, 2005 at 09:02:32AM -0500, V. Ananda Krishnan wrote:
+> Hi all,
+> 
+>  Can some one send me pointer(s) to the recent API changes in the tty 
+> layer that has gone in to linux-2.6.14.xxx.
 
-Story:
-Once in while we have a discussion at the vdr (video disk recorder) mailing 
-list about very large files trashing the filesystems memory cache leading to 
-unnecessary delays accessing directory contents no longer cached.
+You have access to the patches as well as we do. :)
 
-This program and certainly all applications that deal with very large files 
-only read once (much larger than usual memory)  - it happens that all other 
-cached blocks of the filessystem are removed from memory solely to keep as 
-much as possible of that file in memory, which seems to be a bad strategy in 
-most situations.
+Anyway, the changes are only in the -mm tree for now, not in the
+mainline kernel.  Look at the patches there, they should be pretty
+obvious.
 
-Of course one could always implement f_advise-calls in all applications, but i 
-suggest a discussion if a maximum (configurable) in-memory-cache on a 
-per-file base should be implemented in linux/mm or where this belongs.
+thanks,
 
-My guess was, it has something to do with mm/readahead.c, a test limiting the 
-result of the function "max_sane_readahead(...) to 8 MBytes as a quick and 
-dirty test did not solve the issue, but i might have done something wrong.
-
-I've searched the archive but could not find a previous discussion - is this a 
-new idea?
-
-It would be interesting to discuss if and when this proposed feature could 
-lead to better performance or has any unwanted side effects.
-
-Thanks for ideas on that issue.
+greg k-h

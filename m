@@ -1,129 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751149AbVJRKLm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbVJRKiv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751149AbVJRKLm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 06:11:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751467AbVJRKLm
+	id S1750785AbVJRKiv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 06:38:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750829AbVJRKiv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 06:11:42 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:42658 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751149AbVJRKLl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 06:11:41 -0400
-Date: Tue, 18 Oct 2005 19:09:03 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Subject: Re: [discuss] Re: x86_64: 2.6.14-rc4 swiotlb broken
-Cc: Linus Torvalds <torvalds@osdl.org>, Muli Ben-Yehuda <mulix@mulix.org>,
-       Andi Kleen <ak@suse.de>, discuss@x86-64.org,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       tglx@linutronix.de, shai@scalex86.org, clameter@engr.sgi.com,
-       muli@il.ibm.com, jdmason@us.ibm.com
-In-Reply-To: <20051018061325.GB3692@localhost.localdomain>
-References: <20051018125342.6799.Y-GOTO@jp.fujitsu.com> <20051018061325.GB3692@localhost.localdomain>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.051
-Message-Id: <20051018183627.679B.Y-GOTO@jp.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.21.02 [ja]
+	Tue, 18 Oct 2005 06:38:51 -0400
+Received: from host-84-9-201-132.bulldogdsl.com ([84.9.201.132]:15233 "EHLO
+	aeryn.fluff.org.uk") by vger.kernel.org with ESMTP id S1750785AbVJRKiu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 06:38:50 -0400
+Date: Tue, 18 Oct 2005 11:38:39 +0100
+From: Ben Dooks <ben@fluff.org.uk>
+To: Coywolf Qi Hunt <coywolf@gmail.com>
+Cc: Ben Dooks <ben@fluff.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mark __init code noinline to stop erroneous inclusions
+Message-ID: <20051018103839.GA32720@home.fluff.org>
+References: <20051017213737.GA18686@home.fluff.org> <2cd57c900510171803i7b6ccfffwffb378b535f10558@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2cd57c900510171803i7b6ccfffwffb378b535f10558@mail.gmail.com>
+X-Disclaimer: I speak for me, myself, and the other one of me.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-I tested your patch, but unfortunately, it doesn't work IA64.
-alloc_bootmem_node() requires bigger area than MAX_DMA_ADDRESS.
-It is defined as 4GB for ia64. (arch/ia64/mm/init.c)
-But this patch require smaller area than 4GB. 
-So they are exclusive each other.
-
-I'm convinced that a new interface like alloc_bootmem_low32() is
-necessary after all. ;-)
-
-Thanks.
-
-
-> On Tue, Oct 18, 2005 at 01:28:20PM +0900, Yasunori Goto wrote:
-> > > > So, just "use NODE(0)" is not enough hack for our machine.
-> > > > If "use NODE(0)" is selected, kernel must sort pgdat link and
-> > > > node id by memory address. I think that hot add code will be a 
-> > > > bit messy instead.
-> > > 
-> > > Yasunori-san,
-> > > Does this patch work on your boxes instead? (For 2.6.14)
-> > > http://marc.theaimsgroup.com/?l=linux-kernel&m=112959469914681&w=2
-> > 
-> > Not yet. But could you change this line at least?
-> > 
-> > +	
-> > +	for_each_node(node) {
-> > +		io_tlb_start = alloc_bootmem_node(NODE_DATA(node), iotlbsz);
-> > 
-> > for_each_node() loop walks around node_possible_map which includes
-> > "offlined" node. 
-> > Please use for_each_online_node() instead. Then, I'll check it. :-)
+On Tue, Oct 18, 2005 at 09:03:20AM +0800, Coywolf Qi Hunt wrote:
+> On 10/18/05, Ben Dooks <ben@fluff.org.uk> wrote:
+> > Make __init also have the noinline attribute attached
+> > to it, to stop code marked as __init being included
+> > into non __init code. This not only wastes space, but
+> > also makes it impossible to track down any calls from
+> > non-init code as differing compilers and optimisations
+> > make differing decisions on what to inline.
 > 
-> Since swiotlb is is allocated even before APs are brought up, I thought,
-> if the node containing lowmem32 was not the boot node, it would not be
-> online.   But on closer look, my assumption was wrong.  Here is the patch
-> which iterates through online nodes to allocate lowmem32 bootmem for
-> swiotlb.
-> 
-> --
-> 
-> Patch to ensure low32 mem allocation for x86_64 swiotlb 
-> 
-> Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
-> 
-> Index: linux-2.6.14-rc4/arch/ia64/lib/swiotlb.c
-> ===================================================================
-> --- linux-2.6.14-rc4.orig/arch/ia64/lib/swiotlb.c	2005-10-17 13:27:35.000000000 -0700
-> +++ linux-2.6.14-rc4/arch/ia64/lib/swiotlb.c	2005-10-17 16:00:44.000000000 -0700
-> @@ -106,6 +106,8 @@
->  __setup("swiotlb=", setup_io_tlb_npages);
->  /* make io_tlb_overflow tunable too? */
->  
-> +#define IS_LOWPAGES(paddr, size) ((paddr < 0xffffffff) && ((paddr+size) < 0xffffffff))
-> +
->  /*
->   * Statically reserve bounce buffer space and initialize bounce buffer data
->   * structures for the software IO TLB used to implement the PCI DMA API.
-> @@ -114,17 +116,32 @@
->  swiotlb_init_with_default_size (size_t default_size)
->  {
->  	unsigned long i;
-> +	unsigned long iotlbsz;
-> +	int node;
->  
->  	if (!io_tlb_nslabs) {
->  		io_tlb_nslabs = (default_size >> IO_TLB_SHIFT);
->  		io_tlb_nslabs = ALIGN(io_tlb_nslabs, IO_TLB_SEGSIZE);
->  	}
->  
-> +	iotlbsz = io_tlb_nslabs * (1 << IO_TLB_SHIFT);	
-> +
->  	/*
-> -	 * Get IO TLB memory from the low pages
-> +	 * Get IO TLB memory from the 0-4G range
->  	 */
-> -	io_tlb_start = alloc_bootmem_low_pages(io_tlb_nslabs *
-> -					       (1 << IO_TLB_SHIFT));
-> +	
-> +	for_each_online_node(node) {
-> +		io_tlb_start = alloc_bootmem_node(NODE_DATA(node), iotlbsz);
-> +		if (io_tlb_start) {
-> +			if (IS_LOWPAGES(virt_to_phys(io_tlb_start), iotlbsz))
-> +				break;
-> +			free_bootmem_node(NODE_DATA(node), 
-> +					  virt_to_phys(io_tlb_start), iotlbsz);
-> +			io_tlb_start = NULL;
-> +		}
-> +	}
-> +
-> +	
->  	if (!io_tlb_start)
->  		panic("Cannot allocate SWIOTLB buffer");
->  	io_tlb_end = io_tlb_start + io_tlb_nslabs * (1 << IO_TLB_SHIFT);
+> I think this is overkill. __init code could be inlined into __init
+> code.  Instead we should make sure to not to call __init code from
+> non-init code `directly'.
+
+This is very difficult to detect when the compiler is inlining the
+function code. 
+ 
+> It is a gcc bug. Gcc really should respects __attribute__
+> ((__section__ (".init.text"))), and not inline the code in that
+> section.
+
+
+>From the gcc 4.0 manual,
+http://gcc.gnu.org/onlinedocs/gcc-4.0.0/gcc/Function-Attributes.html
+
+section ("section-name")
+    Normally, the compiler places the code it generates in the
+    text section. Sometimes, however, you need additional sections,
+    or you need certain particular functions to appear in special sections.
+    The section attribute specifies that a function lives in a particular
+    section.
+
+My reading of the passage is that the output code will be put in
+the specified section. It does not say wether or not the compiler
+is allowed to do any other optimisations it sees fit on the data.
+
+My belief is that the compiler should be able to do this form of
+optimisation, unless we tell it otherwise. The only harm is that
+it makes it difficult to detect errors from compilers that do not
+do it.
 
 -- 
-Yasunori Goto 
+Ben (ben@fluff.org, http://www.fluff.org/)
 
+  'a smiley only costs 4 bytes'

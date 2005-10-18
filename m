@@ -1,49 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932341AbVJRFuh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932380AbVJRFw2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932341AbVJRFuh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 01:50:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbVJRFuh
+	id S932380AbVJRFw2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 01:52:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbVJRFw2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 01:50:37 -0400
-Received: from mail.kroah.org ([69.55.234.183]:31877 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932341AbVJRFug (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 01:50:36 -0400
-Date: Mon, 17 Oct 2005 22:50:03 -0700
-From: Greg KH <greg@kroah.com>
-To: Aaron Gyes <floam@sh.nu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc4-mm1: udev/sysfs wierdness
-Message-ID: <20051018055003.GA10488@kroah.com>
-References: <1129610113.10504.4.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 18 Oct 2005 01:52:28 -0400
+Received: from qproxy.gmail.com ([72.14.204.193]:26079 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932380AbVJRFw1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 01:52:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=eskkb/E2GYSvsmc1kW4HxlfYEKqEjsCTHd3JKrEf1I2Q/8qDWfpgLKMD0033z8LhVaMBjBukk23mmTd9zqgWJ6Tfsfs1ehkrClND7J3OcPpsU6oX0O0mMwJsp4gf/CjQF7AaLDWiyWwtdGvrUbfaYzWxrbQU3aSXDe9HsCbufYs=
+Message-ID: <30b4e63b0510172252x1dfca9f2l75bb0f183aecf7bb@mail.gmail.com>
+Date: Tue, 18 Oct 2005 11:22:27 +0530
+From: Roushan Ali <roushan.ali@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: file system block size
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1129610113.10504.4.camel@localhost>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 17, 2005 at 09:35:13PM -0700, Aaron Gyes wrote:
-> For some reason this rule stopped working:
-> 
-> KERNEL=="event*", SYSFS{manufacturer}="Logitech", SYSFS{product}="USB
-> Receiver", NAME="input/mx1000", MODE="0644"
-> 
-> Did stuff in /sys/ change? Do I need to change all my rules to make up
-> for this? udevs fault? I do have the correct /dev/input/event0 node.
+Hi All,
+         we want to write a new file system with block size more than
+4KB. Can anyone suggest us how should we proceed ?
 
-You have that node?  That's a good start :)
 
-I think the "name" might have changed, it looks like I messed that up
-somehow.  What does:
-	 udevinfo -p /sys/class/input/input0/event0/ -a
 
-show (or whatever that sysfs path is.)
-
-Oops, heh, that dies on my box too.  Ok, I think that's the issue,
-sorry.  I'm working on it...
-
-thanks,
-
-greg k-h
+Regards,
+Roushan

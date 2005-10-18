@@ -1,38 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbVJRXgO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbVJRXjy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932087AbVJRXgO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 19:36:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbVJRXgO
+	id S932181AbVJRXjy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 19:39:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbVJRXjy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 19:36:14 -0400
-Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:31762 "EHLO
-	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
-	id S932087AbVJRXgO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 19:36:14 -0400
-Message-ID: <4355969C.6060803@superbug.demon.co.uk>
-Date: Wed, 19 Oct 2005 01:43:08 +0100
-From: James Courtier-Dutton <James@superbug.demon.co.uk>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051006)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: John Richard Moser <nigelenki@comcast.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: When is OSS going to go?
-References: <43553887.4020305@comcast.net>
-In-Reply-To: <43553887.4020305@comcast.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 18 Oct 2005 19:39:54 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:60578 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S932181AbVJRXjy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 19:39:54 -0400
+Date: Wed, 19 Oct 2005 01:39:34 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Simon Evans <spse@secret.org.uk>, Greg Ungerer <gerg@snapgear.com>,
+       "Steven J. Hill" <sjhill@realitydiluted.com>, source@mvista.com,
+       David Woodhouse <dwmw2@infradead.org>, jamey.hicks@hp.com,
+       Ben Dooks <ben@simtec.co.uk>, Kirk Lee <kirk@hpc.ee.ntu.edu.tw>,
+       linux-mtd@lists.infradead.org, Eric Brower <ebrower@usa.net>,
+       jzhang@ti.com, Thomas Gleixner <tglx@linutronix.de>,
+       Nicolas Pitre <nico@cam.org>
+Subject: Re: [PATCH 03/14] Big kfree NULL check cleanup - drivers/mtd
+Message-ID: <20051018233934.GD20236@wohnheim.fh-wedel.de>
+References: <200510132126.13411.jesper.juhl@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200510132126.13411.jesper.juhl@gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Richard Moser wrote:
-> The Open Sound System has been depricated. . . since. . . when the heck?
->  2.4?  Is it ever going to drop off?  Are there a few cards in OSS that
-> don't work right in ASLA?
+On Thu, 13 October 2005 21:26:12 +0200, Jesper Juhl wrote:
 > 
+> This is the drivers/mtd part of the big kfree cleanup patch.
+> 
+> Remove pointless checks for NULL prior to calling kfree() in drivers/mtd/.
+> 
+> 
+> Sorry about the long Cc: list, but I wanted to make sure I included everyone
+> who's code I've changed with this patch.
+> 
+> 
+> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+Acked-by: Jörn Engel <joern@wohnheim.fh-wedel.de>
 
-There are still a few cards, hardly any in fact, that work better in OSS 
-so why bother removing it? Maybe we should add an extra config option in 
-the kernel.
-1) Show/Hide depreciated (add this one)
-2) Show/Hide experimental (we already have this one)
+Jörn
+
+-- 
+A surrounded army must be given a way out.
+-- Sun Tzu

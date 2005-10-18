@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751087AbVJRRXU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751110AbVJRR0F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751087AbVJRRXU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 13:23:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbVJRRXU
+	id S1751110AbVJRR0F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 13:26:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751112AbVJRR0F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 13:23:20 -0400
-Received: from unknown-1-11.wrs.com ([147.11.1.11]:13514 "EHLO mail.wrs.com")
-	by vger.kernel.org with ESMTP id S1751087AbVJRRXU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 13:23:20 -0400
-Subject: OOM killer code in 2.6 kernel
-From: "Petrovic, Boban" <Boban.Petrovic@windriver.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+	Tue, 18 Oct 2005 13:26:05 -0400
+Received: from rgminet02.oracle.com ([148.87.122.31]:20136 "EHLO
+	rgminet02.oracle.com") by vger.kernel.org with ESMTP
+	id S1751110AbVJRR0E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 13:26:04 -0400
+Message-ID: <4355301F.9020003@oracle.com>
+Date: Tue, 18 Oct 2005 10:25:51 -0700
+From: Zach Brown <zach.brown@oracle.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       hch@infradead.org
+Subject: Re: [RFC] page lock ordering and OCFS2
+References: <20051017222051.GA26414@tetsuo.zabbo.net> <20051017161744.7df90a67.akpm@osdl.org> <43544499.5010601@oracle.com> <20051017182407.1f2c591a.akpm@osdl.org> <Pine.LNX.4.64.0510180916420.7514@hermes-1.csi.cam.ac.uk>
+In-Reply-To: <Pine.LNX.4.64.0510180916420.7514@hermes-1.csi.cam.ac.uk>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Date: Tue, 18 Oct 2005 13:22:53 -0400
-Message-Id: <1129656173.10335.51.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  I have stumbled upon very interesting and in other hand very hard
-problem. I am trying to integrate code which introduces process
-protection from OOM killer action in cases when there is not enough RAM
-in the system. The code works fine on architectures like ppc32, ppc64
-and arm XScale. On Intel Xeon and Pentium M architectures with disabled
-SMP and HighMem support in the kernel the code also works fine. Problem
-begins if I turn on SMP and HighMem. I am using a test case which work
-following way:  when child is forked both parent and child malloc amount
-of memory which when summed together exceed amount of memory available
-on system; parent is than protected. On the Intel architectures with SMP
-and HighMem on I experience that OOM kills many processes in addition to
-child process like sshd, portmap, bash, xinetd, etc.  Number of killed
-processes vary from one test execution to other. As, I pointed out
-earlier, the code works fine only when SMP and HighMem are off. Any
-other combination of these options still causes the problem. I am using
-heavily patched Linux 2.6.10 kernel, with Kernel preempt turned off (the
-problem occurs with vanilla 2.6.14rc2 kernel also). The targets I have
-tested so far don't use swap device, and they have RAM in amounts
-starting from 1Gb.
-  What I discovered so far is that when OOM sends SIGKILL to process,
-memory owned by process is not released as quickly as system would like.
-Processes running on other processors jump into OOM and eventually more
-processes get killed. I introduced changes to mm/page_alloc.c ->
-__alloc_pages() function which suppress more than one processor to enter
-the OOM code, and also I reduced number of OOM calls to one call per
-second for allowed processor. The idea is to give enough time to process
-marked to be killed to release pages. The change works fine for one of
-the targets but isn't working for other Intel boards.
-  I need more insight on what might cause slow releasing of pages, when
-this release occurs and which part of kernel is in charge of that.
-Please CC me with your replies.
+Anton Altaparmakov wrote:
 
-  Thanks,
-  Boban
+> What I would ask is why does the above dlm thread need to hold the 
+> data_lock duing truncate_inode_pages?
+
+I hope the mail I just sent made that a little more clear.
+
+> and repeat truncate_inode_pages, etc.  Eventually it will succeed.  And no 
+> need for nasty VFS patch you are proposing...
+
+Yeah, this also came to me this morning in the shower :)  There are some
+hard cases because these are actually read-write locks, but it might be
+doable.  We're discussing it.
+
+> no pages left, unless there is an overeager read process at work on that 
+> mapping at the same time.
+
+I fear that it'll be pretty easy to get bad capture effects, but maybe
+that's ok.  We'll see.
+
+- z

@@ -1,60 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbVJRVC5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbVJRVFG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932136AbVJRVC5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 17:02:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbVJRVC5
+	id S932141AbVJRVFG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 17:05:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbVJRVFG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 17:02:57 -0400
-Received: from xproxy.gmail.com ([66.249.82.207]:23305 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932136AbVJRVC5 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 17:02:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=iZGbhQD/2H4f/wEouUQwXGXEXR3Y9/7PVH1kwoNDcxFK0cAlcHcrMyou+KYG7wVvwijarlwpyvhPy9kw32IQxF1nExlmzYHNoo2MkYbk9XfwXDWbgin0CM917EdncGkdzqAbANqOL2mtkdv+SQdSXwf82W7X81D/XZfs91+IErM=
-Message-ID: <5bdc1c8b0510181402o2d9badb0sd18012cf7ff2a329@mail.gmail.com>
-Date: Tue, 18 Oct 2005 14:02:56 -0700
-From: Mark Knecht <markknecht@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: scsi_eh / 1394 bug - -rt7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 18 Oct 2005 17:05:06 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:5389 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932141AbVJRVFE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 17:05:04 -0400
+Date: Tue, 18 Oct 2005 22:04:55 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Greg KH <gregkh@suse.de>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Roland Dreier <rolandd@cisco.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: What is struct pci_driver.owner for?
+Message-ID: <20051018210455.GA22928@flint.arm.linux.org.uk>
+Mail-Followup-To: Greg KH <gregkh@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
+	Roland Dreier <rolandd@cisco.com>, linux-kernel@vger.kernel.org
+References: <52sluymu26.fsf@cisco.com> <435560D0.8050205@pobox.com> <20051018205908.GA32435@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20051018205908.GA32435@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-   I'm seeing this each time I plug in a 1394 hard drive:
+On Tue, Oct 18, 2005 at 01:59:08PM -0700, Greg KH wrote:
+> On Tue, Oct 18, 2005 at 04:53:36PM -0400, Jeff Garzik wrote:
+> > Roland Dreier wrote:
+> > >I just noticed that at some point, struct pci_driver grew a .owner
+> > >member.  However, only a handful of drivers set it:
+> > >
+> > >    $ grep -r -A10 pci_driver drivers/ | grep owner
+> > >    drivers/block/sx8.c-    .owner          = THIS_MODULE,
+> > >    drivers/ieee1394/pcilynx.c-     .owner =           THIS_MODULE,
+> > >    drivers/net/spider_net.c-       .owner          = THIS_MODULE,
+> > >    drivers/video/imsttfb.c-        .owner          = THIS_MODULE,
+> > >    drivers/video/kyro/fbdev.c-     .owner          = THIS_MODULE,
+> > >    drivers/video/tridentfb.c-      .owner  = THIS_MODULE,
+> > >
+> > >Should all drivers be setting .owner = THIS_MODULE?  Is this a good
+> > >kernel janitors task?
+> > 
+> > In theory its for module refcounting.  With so many PCI drivers and so 
+> > few pci_driver::owner users, it makes me wonder how needed it is.
+> 
+> It might in the future be needed for refcounting, I originally added it
+> when I thought it was needed.
 
-Attached scsi disk sdc at scsi6, channel 0, id 0, lun 0
-ieee1394: Node changed: 0-01:1023 -> 0-00:1023
-ieee1394: Node changed: 0-02:1023 -> 0-01:1023
-ieee1394: Reconnected to SBP-2 device
-ieee1394: Node 0-00:1023: Max speed [S400] - Max payload [2048]
-ieee1394: Node suspended: ID:BUS[0-00:1023]  GUID[0050c501e00b31ec]
-prev->state: 2 != TASK_RUNNING??
-scsi_eh_6/20286[CPU#0]: BUG in __schedule at kernel/sched.c:3328
+Note that both pci_driver and pci_driver.driver both have an "owner"
+field.  One should go - there's no point needlessly duplicating stuff
+like this.
 
-Call Trace:<ffffffff801322b1>{__WARN_ON+97} <ffffffff803f8870>{__schedule+608}
-       <ffffffff8013434f>{do_exit+1007}
-<ffffffff80147300>{keventd_create_kthread+0}
-       <ffffffff8010e5ed>{child_rip+15}
-<ffffffff80147300>{keventd_create_kthread+0}
-       <ffffffff801471f0>{kthread+0} <ffffffff8010e5de>{child_rip+0}
-
-ieee1394: Node resumed: ID:BUS[0-00:1023]  GUID[0050c501e00b31ec]
-ieee1394: Node changed: 0-00:1023 -> 0-01:1023
-ieee1394: Node changed: 0-01:1023 -> 0-02:1023
-ieee1394: Reconnected to SBP-2 device
-ieee1394: Node 0-01:1023: Max speed [S400] - Max payload [2048]
-scsi7 : SCSI emulation for IEEE-1394 SBP-2 Devices
-lightning linux #
-
-Note: This drive is currently partitioned using the 'Apple Partition
-Scheme' and cannot be mounted. (At least by the likes of me!!) Anyway,
-more info forthcoming if I can determine what you need.
-
-Thanks,
-Mark
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

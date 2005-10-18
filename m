@@ -1,73 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751350AbVJRTZz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750823AbVJRT3r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751350AbVJRTZz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 15:25:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbVJRTZz
+	id S1750823AbVJRT3r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 15:29:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbVJRT3r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 15:25:55 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:54476 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1751350AbVJRTZy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 15:25:54 -0400
-Message-ID: <43554BA5.8030200@comcast.net>
-Date: Tue, 18 Oct 2005 15:23:17 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
+	Tue, 18 Oct 2005 15:29:47 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:8628 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1750823AbVJRT3q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 15:29:46 -0400
+Date: Tue, 18 Oct 2005 15:29:45 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Andrew Morton <akpm@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>,
+       Linus Torvalds <torvalds@osdl.org>, Pavel Machek <pavel@ucw.cz>
+cc: Kernel development list <linux-kernel@vger.kernel.org>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>
+Subject: [PATCH] Threads shouldn't inherit PF_NOFREEZE
+Message-ID: <Pine.LNX.4.44L0.0510181515450.4518-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-To: Alejandro Bonilla <abonilla@linuxwireless.org>
-CC: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: When is OSS going to go?
-References: <43553887.4020305@comcast.net> <20051018180633.GA3760@havoc.gtf.org> <43554385.6000706@comcast.net> <20051018191051.M41267@linuxwireless.org>
-In-Reply-To: <20051018191051.M41267@linuxwireless.org>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+The PF_NOFREEZE process flag should not be inherited when a thread is 
+forked.  This patch (as585) removes the flag from the child.
+
+This problem is starting to show up more and more as drivers turn to the
+kthread API instead of using kernel_thread().  As a result, their kernel
+threads are now children of the kthread worker instead of modprobe, and
+they inherit the PF_NOFREEZE flag.  This can cause problems during system
+suspend; the kernel threads are not getting frozen as they ought to be.
+
+Alan Stern
 
 
 
-Alejandro Bonilla wrote:
-> On Tue, 18 Oct 2005 14:48:37 -0400, John Richard Moser wrote
-> 
->>-----BEGIN PGP SIGNED MESSAGE-----
->>Hash: SHA1
->>
->>Got a lkml.org link or a subject line I should search for?  "OSS remove"
->>"OSS sound remove" "Open sound system" all return garbage.
-> 
-> 
-> Why would you want it to go away? People can decide from which one to use and
-> make Linux more flexible.
-> 
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
 
-ever growing code base; I want it to go away for the same reason I'd
-love a binary driver model in the kernel (in fact I'm looking at getting
-fuse to supply the driver for my rootfs from initrd)
+---
 
-> Anyway, I think the archives say something like, it doesn't have to go away,
-> so why remove it?
-> 
-> .Alejandro
-> 
+What I said above may not be quite true.  For all I know, there may be
+threads which rely on inheriting PF_NOFREEZE from their parent.  But it
+should not be inherited by default.
 
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
+Index: usb-2.6/kernel/fork.c
+===================================================================
+--- usb-2.6.orig/kernel/fork.c
++++ usb-2.6/kernel/fork.c
+@@ -848,7 +848,7 @@ static inline void copy_flags(unsigned l
+ {
+ 	unsigned long new_flags = p->flags;
+ 
+-	new_flags &= ~PF_SUPERPRIV;
++	new_flags &= ~(PF_SUPERPRIV | PF_NOFREEZE);
+ 	new_flags |= PF_FORKNOEXEC;
+ 	if (!(clone_flags & CLONE_PTRACE))
+ 		p->ptrace = 0;
 
-    Creative brains are a valuable, limited resource. They shouldn't be
-    wasted on re-inventing the wheel when there are so many fascinating
-    new problems waiting out there.
-                                                 -- Eric Steven Raymond
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFDVUukhDd4aOud5P8RArBGAJ99rqujkD+9EAS5eWOVLpdztgLuGwCfdpk4
-ucd/6eHiqJLiPjjTSTJxkHE=
-=bz62
------END PGP SIGNATURE-----

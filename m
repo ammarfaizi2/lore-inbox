@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbVJRBDY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932318AbVJRBE1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751233AbVJRBDY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 21:03:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751275AbVJRBDX
+	id S932318AbVJRBE1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 21:04:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbVJRBE0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 21:03:23 -0400
-Received: from nproxy.gmail.com ([64.233.182.195]:41640 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751233AbVJRBDX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 21:03:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=i/YuKP8XNDTGdYgMun7cMjv+PqJAIq4CC8qBJobflIgrgvxIQTTfGE149UqIlGfXK4ThyrpnF+jO6SLm+O4U7v+O5Xd/8hh2d2bdGqC1MA+AZWL9ICzGXauX3eLgoo/XzkThIlwxYpJ3nXgn9vuIt8kLdU6v5JDO6+JjcIA3Z9Y=
-Message-ID: <2cd57c900510171803i7b6ccfffwffb378b535f10558@mail.gmail.com>
-Date: Tue, 18 Oct 2005 09:03:20 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-To: Ben Dooks <ben@fluff.org.uk>
-Subject: Re: [PATCH] mark __init code noinline to stop erroneous inclusions
+	Mon, 17 Oct 2005 21:04:26 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:41121 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S932318AbVJRBE0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Oct 2005 21:04:26 -0400
+Date: Mon, 17 Oct 2005 18:05:01 -0700
+From: Deepak Saxena <dsaxena@plexity.net>
+To: Jeff Garzik <jgarzik@pobox.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051017213737.GA18686@home.fluff.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Subject: Re: [RFC] RNG rewrite...
+Message-ID: <20051018010501.GB16005@plexity.net>
+Reply-To: dsaxena@plexity.net
+References: <20051015043120.GA5946@plexity.net> <4350DCB1.7010201@pobox.com> <20051016005341.GB5946@plexity.net> <43543455.4080206@pobox.com> <20051018010028.GA16005@plexity.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20051017213737.GA18686@home.fluff.org>
+In-Reply-To: <20051018010028.GA16005@plexity.net>
+Organization: Plexity Networks
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/18/05, Ben Dooks <ben@fluff.org.uk> wrote:
-> Make __init also have the noinline attribute attached
-> to it, to stop code marked as __init being included
-> into non __init code. This not only wastes space, but
-> also makes it impossible to track down any calls from
-> non-init code as differing compilers and optimisations
-> make differing decisions on what to inline.
+On Oct 17 2005, at 18:00, Deepak Saxena was caught saying:
+> 
+> OK...I already did most of a rewrite keeping the driver in user space
 
-I think this is overkill. __init code could be inlined into __init
-code.  Instead we should make sure to not to call __init code from
-non-init code `directly'.
+s/user/kernel/
 
-It is a gcc bug. Gcc really should respects __attribute__
-((__section__ (".init.text"))), and not inline the code in that
-section.
---
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+~Deepak
+
+-- 
+Deepak Saxena - dsaxena@plexity.net - http://www.plexity.net
+
+When law and duty are one, united by religion, you never become fully
+conscious, fully aware of yourself. You are always a little less than
+an individual. - Frank Herbert

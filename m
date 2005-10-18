@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbVJRXjy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751476AbVJRXoX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932181AbVJRXjy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 19:39:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbVJRXjy
+	id S1751476AbVJRXoX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 19:44:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbVJRXoX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 19:39:54 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:60578 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S932181AbVJRXjy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 19:39:54 -0400
-Date: Wed, 19 Oct 2005 01:39:34 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Simon Evans <spse@secret.org.uk>, Greg Ungerer <gerg@snapgear.com>,
-       "Steven J. Hill" <sjhill@realitydiluted.com>, source@mvista.com,
-       David Woodhouse <dwmw2@infradead.org>, jamey.hicks@hp.com,
-       Ben Dooks <ben@simtec.co.uk>, Kirk Lee <kirk@hpc.ee.ntu.edu.tw>,
-       linux-mtd@lists.infradead.org, Eric Brower <ebrower@usa.net>,
-       jzhang@ti.com, Thomas Gleixner <tglx@linutronix.de>,
-       Nicolas Pitre <nico@cam.org>
-Subject: Re: [PATCH 03/14] Big kfree NULL check cleanup - drivers/mtd
-Message-ID: <20051018233934.GD20236@wohnheim.fh-wedel.de>
-References: <200510132126.13411.jesper.juhl@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Tue, 18 Oct 2005 19:44:23 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4114 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751476AbVJRXoX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 19:44:23 -0400
+Date: Wed, 19 Oct 2005 01:44:22 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Arthur Othieno <a.othieno@bluewin.ch>
+Cc: Ben Dooks <ben@fluff.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] - create common header for init/main.c called init functions
+Message-ID: <20051018234422.GC3860@stusta.de>
+References: <20051014004210.GA3095@home.fluff.org> <20051018231109.GA15443@krypton>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200510132126.13411.jesper.juhl@gmail.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20051018231109.GA15443@krypton>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 October 2005 21:26:12 +0200, Jesper Juhl wrote:
+On Tue, Oct 18, 2005 at 07:11:09PM -0400, Arthur Othieno wrote:
+> On Fri, Oct 14, 2005 at 01:42:10AM +0100, Ben Dooks wrote:
+> > init/main.c calls a number of functions externally
+> > but declaring them locally. This patch creates a
+> > new header (linux/kernel_init.h) and moves all
+> > the declarations into it.
 > 
-> This is the drivers/mtd part of the big kfree cleanup patch.
-> 
-> Remove pointless checks for NULL prior to calling kfree() in drivers/mtd/.
-> 
-> 
-> Sorry about the long Cc: list, but I wanted to make sure I included everyone
-> who's code I've changed with this patch.
-> 
-> 
-> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
-Acked-by: Jörn Engel <joern@wohnheim.fh-wedel.de>
+> These functions are only referenced in init/main.c, and rightfully so.
+> In the end, this doesn't change anything much, other than maintainance
+> overhead for the new include/linux/kernel_init.h
+>...
 
-Jörn
+I disagree.
+
+Without having looked deeper at the details of this specific patch, it's 
+generally a good cleanup to move function declarations to header files.
+
+This avoids the nasty class of runtime errors we sometimes get when 
+someone changes the prototype of a function but forgets to update all 
+the prototypes floating around in .c files.
+
+cu
+Adrian
 
 -- 
-A surrounded army must be given a way out.
--- Sun Tzu
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

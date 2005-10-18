@@ -1,76 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbVJRUtY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932103AbVJRUxk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932088AbVJRUtY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 16:49:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932093AbVJRUtY
+	id S932103AbVJRUxk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 16:53:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932124AbVJRUxj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 16:49:24 -0400
-Received: from p54B055E8.dip.t-dialin.net ([84.176.85.232]:10733 "EHLO
-	ccc-offenbach.org") by vger.kernel.org with ESMTP id S932088AbVJRUtX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 16:49:23 -0400
-Date: Tue, 18 Oct 2005 22:49:19 +0200
-From: Rudolf Polzer <debian-ne@durchnull.de>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: Horms <horms@verge.net.au>, linux-kernel@vger.kernel.org,
-       334113@bugs.debian.org, Alastair McKinstry <mckinstry@debian.org>,
-       security@kernel.org, team@security.debian.org,
-       secure-testing-team@lists.alioth.debian.org
-Subject: Re: kernel allows loadkeys to be used by any user, allowing for local root compromise
-Message-ID: <20051018204919.GA21286%atfield-dt@durchnull.de>
-References: <E1EQofT-0001WP-00@master.debian.org> <20051018044146.GF23462@verge.net.au> <m37jcakhsm.fsf@defiant.localdomain> <20051018171645.GA59028%atfield-dt@durchnull.de> <m3fyqyhdm8.fsf@defiant.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <m3fyqyhdm8.fsf@defiant.localdomain>
-User-Agent: Mutt/1.5.6i
+	Tue, 18 Oct 2005 16:53:39 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:33434 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932103AbVJRUxj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 16:53:39 -0400
+Message-ID: <435560D0.8050205@pobox.com>
+Date: Tue, 18 Oct 2005 16:53:36 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Roland Dreier <rolandd@cisco.com>
+CC: linux-kernel@vger.kernel.org, Greg KH <gregkh@suse.de>
+Subject: Re: What is struct pci_driver.owner for?
+References: <52sluymu26.fsf@cisco.com>
+In-Reply-To: <52sluymu26.fsf@cisco.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Scripsis, quam aut quem »Krzysztof Halasa« appellare soleo:
-> Rudolf Polzer <debian-ne@durchnull.de> writes:
-> > That does not help against the loadkeys issue if the attacking user is still
-> > logged in on another virtual console. Even when tty1 is active, a user owning
-> > tty6 can use loadkeys.
+Roland Dreier wrote:
+> I just noticed that at some point, struct pci_driver grew a .owner
+> member.  However, only a handful of drivers set it:
 > 
-> Sure. The problem is that mappings are shared between VCs but anyway
-> it's solved by disabling user changes.
-> I don't think there is a solution here, easier than hardware reset.
-> As for "server" machines (not simple terminals), physical locking is
-> critical.
-
-Of course it is.
-
-However, pool computers like in this case are neither servers nor terminals.
-If they were terminals, we would need about 30 servers to handle the load of
-100 active students. So they are workstation installations that do most of the
-work locally.
-
-> > Well, sometimes you have problems that powercycling would "hide" so you can't
-> > track them down if you powercycle the whole computer every time.
+>     $ grep -r -A10 pci_driver drivers/ | grep owner
+>     drivers/block/sx8.c-    .owner          = THIS_MODULE,
+>     drivers/ieee1394/pcilynx.c-     .owner =           THIS_MODULE,
+>     drivers/net/spider_net.c-       .owner          = THIS_MODULE,
+>     drivers/video/imsttfb.c-        .owner          = THIS_MODULE,
+>     drivers/video/kyro/fbdev.c-     .owner          = THIS_MODULE,
+>     drivers/video/tridentfb.c-      .owner  = THIS_MODULE,
 > 
-> In security-sensitive instalation, you simply don't expose the computers
-> to non-admins.
+> Should all drivers be setting .owner = THIS_MODULE?  Is this a good
+> kernel janitors task?
 
-Well, in this case the issue is on pool computers for students. Students SHOULD
-be able to access the computers, but not as root.
+In theory its for module refcounting.  With so many PCI drivers and so 
+few pci_driver::owner users, it makes me wonder how needed it is.
 
-Currently our workaround is "only su(do) from a ssh session on a 'trusted'
-computer".
+If it is needed (I've done no analysis, even though I am sx8.c author), 
+then it should be applied uniformly.
 
-> > For using foreign languages and keyboard mappings.
-> 
-> Hope they don't change the keys in the process.
+	Jeff
 
-They HAVE to do that, this is the very point of switching the keyboard layout
-from German to US, to UK, to French or to whatever.
 
-> Anyway, most people don't need that nor they need suid-wrapper.
-
-Many people here need that, but it's ok for them if it works only in X11 (most
-of these users don't even know that text consoles exist).
-
-However, Xorg and XFree86 have about the same problem: you can remap
-Ctrl-Alt-Backspace. So it would be good if the SAK also worked there which
-would require it to set a "sane" video mode.

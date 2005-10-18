@@ -1,53 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932419AbVJRGyV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932418AbVJRGxi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932419AbVJRGyV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 02:54:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751448AbVJRGyV
+	id S932418AbVJRGxi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 02:53:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751447AbVJRGxi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 02:54:21 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:41357 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751447AbVJRGyU (ORCPT
+	Tue, 18 Oct 2005 02:53:38 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:30381 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751446AbVJRGxh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 02:54:20 -0400
-Date: Tue, 18 Oct 2005 08:54:39 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Cc: cc@ccrma.Stanford.EDU, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>,
-       david singleton <dsingleton@mvista.com>,
-       Steven Rostedt <rostedt@goodmis.org>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark Knecht <markknecht@gmail.com>
-Subject: Re: 2.6.14-rc4-rt7
-Message-ID: <20051018065439.GA21915@elte.hu>
-References: <20051017160536.GA2107@elte.hu> <1129576885.4720.3.camel@cmn3.stanford.edu> <1129599029.10429.1.camel@cmn3.stanford.edu>
+	Tue, 18 Oct 2005 02:53:37 -0400
+Date: Mon, 17 Oct 2005 23:52:11 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Horms <horms@verge.net.au>
+Cc: linux-kernel@vger.kernel.org, security@kernel.org,
+       secure-testing-team@lists.alioth.debian.org, 334113@bugs.debian.org,
+       debian-ne@durchnull.de, mckinstry@debian.org, team@security.debian.org
+Subject: Re: [Security] kernel allows loadkeys to be used by any user,
+ allowing for local root compromise
+Message-Id: <20051017235211.161e8604.akpm@osdl.org>
+In-Reply-To: <20051018044146.GF23462@verge.net.au>
+References: <E1EQofT-0001WP-00@master.debian.org>
+	<20051018044146.GF23462@verge.net.au>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1129599029.10429.1.camel@cmn3.stanford.edu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
-
-> > Some feedback. It looks like the issues I was having are gone, no weird
-> > key repeats or screensaver activations __plus__ no problems so far with
-> > spurious warnings from Jack! Woohooo!!! (of course it may be that I
-> > start getting them as soon as I press send)
+Horms <horms@verge.net.au> wrote:
+>
+> drivers/char/vt_ioctl.c: vt_ioctl(): line 377
 > 
-> It took some time but I got a couple of instances of keys repeating 
-> too fast (it happened 3 or 4 times). Regretfully no BUG messages in 
-> /var/log/messages this time...
+>          /*
+>           * To have permissions to do most of the vt ioctls, we either
+>           * have
+>           * to be the owner of the tty, or have CAP_SYS_TTY_CONFIG.
+>           */
+>          perm = 0;
+>          if (current->signal->tty == tty || capable(CAP_SYS_TTY_CONFIG))
+>                  perm = 1;
+> 
+> 
+>  A simple fix for this might be just checking for capable(CAP_SYS_TTY_CONFIG)
+>  in do_kdgkb_ioctl(), which effects KDSKBSENT. This more restrictive
+>  approach is probably appropriate for many of the other ioctls that set
+>  VT parameters.
 
-yeah, those warning messages got zapped during the merge to the latest 
-ktimers/clockevents code. Will re-add them.
+I briefly discussed this with Alan and he agreed that that's a reasonable
+approach.
 
-	Ingo
+I'll stick the below in -mm, see what breaks.
+
+--- devel/drivers/char/vt_ioctl.c~setkeys-needs-root	2005-10-17 23:50:37.000000000 -0700
++++ devel-akpm/drivers/char/vt_ioctl.c	2005-10-17 23:51:43.000000000 -0700
+@@ -192,6 +192,9 @@ do_kdgkb_ioctl(int cmd, struct kbsentry 
+ 	int i, j, k;
+ 	int ret;
+ 
++	if (!capable(CAP_SYS_TTY_CONFIG))
++		return -EPERM;
++
+ 	kbs = kmalloc(sizeof(*kbs), GFP_KERNEL);
+ 	if (!kbs) {
+ 		ret = -ENOMEM;
+_
+

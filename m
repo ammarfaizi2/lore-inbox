@@ -1,36 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750750AbVJROKu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbVJROOV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750750AbVJROKu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 10:10:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbVJROKu
+	id S1750762AbVJROOV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 10:14:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbVJROOV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 10:10:50 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:912 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750750AbVJROKt (ORCPT
+	Tue, 18 Oct 2005 10:14:21 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:47239 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750762AbVJROOU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 10:10:49 -0400
-Message-ID: <43550078.1060105@us.ibm.com>
-Date: Tue, 18 Oct 2005 09:02:32 -0500
-From: "V. Ananda Krishnan" <mansarov@us.ibm.com>
-User-Agent: Thunderbird 1.4.1 (X11/20051006)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Damir Perisa <damir.perisa@solnet.ch>
-Subject: 2.6.14-rc4-mm1 - drivers/serial/
-References: <20051016154108.25735ee3.akpm@osdl.org> <200510171229.57785.damir.perisa@solnet.ch> <4353BB87.1030006@us.ibm.com> <200510171721.26588.damir.perisa@solnet.ch>
-In-Reply-To: <200510171721.26588.damir.perisa@solnet.ch>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 18 Oct 2005 10:14:20 -0400
+Date: Wed, 19 Oct 2005 00:12:18 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Roushan Ali <roushan.ali@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: file system block size
+Message-ID: <20051019001218.B5830881@wobbly.melbourne.sgi.com>
+References: <30b4e63b0510172252x1dfca9f2l75bb0f183aecf7bb@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <30b4e63b0510172252x1dfca9f2l75bb0f183aecf7bb@mail.gmail.com>; from roushan.ali@gmail.com on Tue, Oct 18, 2005 at 11:22:27AM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Tue, Oct 18, 2005 at 11:22:27AM +0530, Roushan Ali wrote:
+> Hi All,
+>          we want to write a new file system with block size more than
+> 4KB. Can anyone suggest us how should we proceed ?
 
-  Can some one send me pointer(s) to the recent API changes in the tty 
-layer that has gone in to linux-2.6.14.xxx.  As Damir pointed out in his 
-mail yesterday, currently jsm driver is broken in 2.6.14-rc4-mm1 
-kernel.  I am trying to debug the jsm driver at my end.  Any help in 
-this is appreciated.
+With great difficulty. ;)
 
-V. Ananda Krishnan
+There is really no support for this in the generic page cache
+code in the kernel, and you'd probably need some mechanism for
+doing multi-page metadata IOs.  There's been sporadic discussion
+on fs-devel and linux-xfs in the past on this topic - you could
+search those archives for details.
+
+cheers.
+
+-- 
+Nathan

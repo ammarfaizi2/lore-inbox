@@ -1,282 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751490AbVJRXWr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751477AbVJRXWJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751490AbVJRXWr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 19:22:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751481AbVJRXWr
+	id S1751477AbVJRXWJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 19:22:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751491AbVJRXWI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 19:22:47 -0400
-Received: from mail14.bluewin.ch ([195.186.19.62]:11697 "EHLO
-	mail14.bluewin.ch") by vger.kernel.org with ESMTP id S1751490AbVJRXWq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 19:22:46 -0400
-Date: Tue, 18 Oct 2005 19:11:09 -0400
-To: Ben Dooks <ben@fluff.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] - create common header for init/main.c called init functions
-Message-ID: <20051018231109.GA15443@krypton>
-References: <20051014004210.GA3095@home.fluff.org>
+	Tue, 18 Oct 2005 19:22:08 -0400
+Received: from serv01.siteground.net ([70.85.91.68]:52186 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S1751477AbVJRXWH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 19:22:07 -0400
+Date: Tue, 18 Oct 2005 16:22:03 -0700
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Alex Williamson <alex.williamson@hp.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org, tglx@linutronix.de, shai@scalex86.org,
+       y-goto@jp.fujitsu.com
+Subject: Re: [discuss] Re: x86_64: 2.6.14-rc4 swiotlb broken
+Message-ID: <20051018232203.GB4535@localhost.localdomain>
+References: <20051017134401.3b0d861d.akpm@osdl.org> <Pine.LNX.4.64.0510171405510.3369@g5.osdl.org> <20051018001620.GD8932@localhost.localdomain> <Pine.LNX.4.64.0510180845470.3369@g5.osdl.org> <Pine.LNX.4.64.0510180848540.3369@g5.osdl.org> <20051018195423.GA6351@localhost.localdomain> <1129670907.17545.20.camel@lts1.fc.hp.com> <20051018215351.GA3982@localhost.localdomain> <1129673040.17545.32.camel@lts1.fc.hp.com> <1129675023.17545.41.camel@lts1.fc.hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051014004210.GA3095@home.fluff.org>
-User-Agent: Mutt/1.5.9i
-From: a.othieno@bluewin.ch (Arthur Othieno)
+In-Reply-To: <1129675023.17545.41.camel@lts1.fc.hp.com>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 14, 2005 at 01:42:10AM +0100, Ben Dooks wrote:
-> init/main.c calls a number of functions externally
-> but declaring them locally. This patch creates a
-> new header (linux/kernel_init.h) and moves all
-> the declarations into it.
+On Tue, Oct 18, 2005 at 04:37:03PM -0600, Alex Williamson wrote:
+> On Tue, 2005-10-18 at 16:04 -0600, Alex Williamson wrote:
+> 
+>    Nope, it breaks with a current git-2.6.14.  Here's what my extra
+> printk says:
+> 
+> Node 0: 0xe000074104e67200
+> Node 1: 0xe000082080722000
+> Node 2: 0xe000000101532000
+> Placing software IO TLB between 0x74108e68000 - 0x7410ce68000
+> 
 
-These functions are only referenced in init/main.c, and rightfully so.
-In the end, this doesn't change anything much, other than maintainance
-overhead for the new include/linux/kernel_init.h
+Hope the following works.   Using __alloc_bootmem_node now with a hard coded
+goal to avoid 16MB DMA zone.  It is ugly :( and hope it works this time
+<fingers crossed>. 
 
-But, comments within..
+--
 
-> Also removes any old init functions now done by
-> an initcall()
+Patch to ensure low32 mem allocation for x86_64 swiotlb
 
-(mca|sbus|tc)_init() removal look good.
+Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
 
-> Signed-off-by: Ben Dooks <ben-linux@fluff.org>
-
-> diff -urpN -X ../dontdiff linux-2.6.14-rc4-bjd3b/drivers/acpi/bus.c linux-2.6.14-rc4-bjd3c/drivers/acpi/bus.c
-> --- linux-2.6.14-rc4-bjd3b/drivers/acpi/bus.c	2005-10-11 10:56:31.000000000 +0100
-> +++ linux-2.6.14-rc4-bjd3c/drivers/acpi/bus.c	2005-10-14 01:32:27.000000000 +0100
-> @@ -30,6 +30,7 @@
->  #include <linux/pm.h>
->  #include <linux/device.h>
->  #include <linux/proc_fs.h>
-> +#include <linux/kernel_init.h>
-
-Unecessary, acpi_early_init() defined here.
-
->  #ifdef CONFIG_X86
->  #include <asm/mpspec.h>
->  #endif
-> diff -urpN -X ../dontdiff linux-2.6.14-rc4-bjd3b/drivers/base/init.c linux-2.6.14-rc4-bjd3c/drivers/base/init.c
-> --- linux-2.6.14-rc4-bjd3b/drivers/base/init.c	2005-10-13 15:27:05.000000000 +0100
-> +++ linux-2.6.14-rc4-bjd3c/drivers/base/init.c	2005-10-14 01:29:35.000000000 +0100
-> @@ -9,6 +9,7 @@
->  
->  #include <linux/device.h>
->  #include <linux/init.h>
-> +#include <linux/kernel_init.h>
-
-Ditto driver_init().
-
->  #include "base.h"
->  
-> diff -urpN -X ../dontdiff linux-2.6.14-rc4-bjd3b/fs/buffer.c linux-2.6.14-rc4-bjd3c/fs/buffer.c
-> --- linux-2.6.14-rc4-bjd3b/fs/buffer.c	2005-10-11 10:56:33.000000000 +0100
-> +++ linux-2.6.14-rc4-bjd3c/fs/buffer.c	2005-10-14 01:36:06.000000000 +0100
-> @@ -19,7 +19,9 @@
->   */
->  
->  #include <linux/config.h>
-> +#include <linux/init.h>
->  #include <linux/kernel.h>
-> +#include <linux/kernel_init.h>
-
-Ditto buffer_init().
-
->  #include <linux/syscalls.h>
->  #include <linux/fs.h>
->  #include <linux/mm.h>
-> diff -urpN -X ../dontdiff linux-2.6.14-rc4-bjd3b/include/linux/kernel_init.h linux-2.6.14-rc4-bjd3c/include/linux/kernel_init.h
-> --- linux-2.6.14-rc4-bjd3b/include/linux/kernel_init.h	1970-01-01 01:00:00.000000000 +0100
-> +++ linux-2.6.14-rc4-bjd3c/include/linux/kernel_init.h	2005-10-14 01:34:28.000000000 +0100
-> @@ -0,0 +1,26 @@
-
-#ifndef _LINUX_KERNEL_INIT_H
-#define _LINUX_KERNEL_INIT_H
-
-> +/* include/linux/kernel_init.h
-> + *
-> + * (C) 2005 Simtec Electronics
-> + *	Ben Dooks <ben@simtec.co.uk>
-
-A little too much, no? This is only moving existing stuff around..
-
-> + *
-> + * Initialisation function prototypes
-> +*/
-> +
-> +extern void init_IRQ(void);
-> +extern void __init fork_init(unsigned long);
-> +extern void __init signals_init(void);
-> +extern void __init buffer_init(void);
-> +extern void __init driver_init(void);
-> +extern void __init pidhash_init(void);
-> +extern void __init pidmap_init(void);
-> +extern void __init prio_tree_init(void);
-> +extern void __init populate_rootfs(void);
-> +extern void __init prepare_namespace(void);
-
-extern void foo_init(void) __init;
-
-> +
-> +extern void free_initmem(void);
-> +
-> +#ifdef	CONFIG_ACPI
-> +extern void __init acpi_early_init(void);
-> +#else
-> +static inline void acpi_early_init(void) { }
-> +#endif
-
-#endif /* _LINUX_KERNEL_INIT_H */
-
-> diff -urpN -X ../dontdiff linux-2.6.14-rc4-bjd3b/init/do_mounts.c linux-2.6.14-rc4-bjd3c/init/do_mounts.c
-> --- linux-2.6.14-rc4-bjd3b/init/do_mounts.c	2005-10-11 10:56:34.000000000 +0100
-> +++ linux-2.6.14-rc4-bjd3c/init/do_mounts.c	2005-10-14 01:31:42.000000000 +0100
-> @@ -8,6 +8,7 @@
->  #include <linux/security.h>
->  #include <linux/delay.h>
->  #include <linux/mount.h>
-> +#include <linux/kernel_init.h>
-
-Unecessary, prepare_namespace() defined here.
-
->  #include <linux/nfs_fs.h>
->  #include <linux/nfs_fs_sb.h>
-> diff -urpN -X ../dontdiff linux-2.6.14-rc4-bjd3b/init/initramfs.c linux-2.6.14-rc4-bjd3c/init/initramfs.c
-> --- linux-2.6.14-rc4-bjd3b/init/initramfs.c	2005-10-11 23:47:02.000000000 +0100
-> +++ linux-2.6.14-rc4-bjd3c/init/initramfs.c	2005-10-14 01:29:01.000000000 +0100
-> @@ -6,6 +6,7 @@
->  #include <linux/delay.h>
->  #include <linux/string.h>
->  #include <linux/syscalls.h>
-> +#include <linux/kernel_init.h>
-
-Ditto populate_rootfs().
-
->  static __initdata char *message;
->  static void __init error(char *x)
-> diff -urpN -X ../dontdiff linux-2.6.14-rc4-bjd3b/init/main.c linux-2.6.14-rc4-bjd3c/init/main.c
-> --- linux-2.6.14-rc4-bjd3b/init/main.c	2005-10-11 10:56:34.000000000 +0100
-> +++ linux-2.6.14-rc4-bjd3c/init/main.c	2005-10-14 01:35:11.000000000 +0100
-> @@ -17,6 +17,7 @@
->  #include <linux/proc_fs.h>
->  #include <linux/devfs_fs_kernel.h>
->  #include <linux/kernel.h>
-> +#include <linux/kernel_init.h>
->  #include <linux/syscalls.h>
->  #include <linux/string.h>
->  #include <linux/ctype.h>
-> @@ -47,8 +48,11 @@
->  #include <linux/rmap.h>
->  #include <linux/mempolicy.h>
->  #include <linux/key.h>
-> +#include <linux/sysctl.h>
->  #include <net/sock.h>
->  
-> +#include <linux/radix-tree.h>
-> +
-
-No need for the extra whitespace, could have as well gone right below
-<linux/sysctl.h>
-
->  #include <asm/io.h>
->  #include <asm/bugs.h>
->  #include <asm/setup.h>
-> @@ -80,30 +84,7 @@
->  
->  static int init(void *);
->  
-> -extern void init_IRQ(void);
-> -extern void fork_init(unsigned long);
-> -extern void mca_init(void);
-> -extern void sbus_init(void);
-> -extern void sysctl_init(void);
-> -extern void signals_init(void);
-> -extern void buffer_init(void);
-> -extern void pidhash_init(void);
-> -extern void pidmap_init(void);
-> -extern void prio_tree_init(void);
-> -extern void radix_tree_init(void);
-> -extern void free_initmem(void);
-> -extern void populate_rootfs(void);
-> -extern void driver_init(void);
-> -extern void prepare_namespace(void);
-> -#ifdef	CONFIG_ACPI
-> -extern void acpi_early_init(void);
-> -#else
-> -static inline void acpi_early_init(void) { }
-> -#endif
->  
-> -#ifdef CONFIG_TC
-> -extern void tc_init(void);
-> -#endif
->  
->  enum system_states system_state;
->  EXPORT_SYMBOL(system_state);
-> diff -urpN -X ../dontdiff linux-2.6.14-rc4-bjd3b/kernel/fork.c linux-2.6.14-rc4-bjd3c/kernel/fork.c
-> --- linux-2.6.14-rc4-bjd3b/kernel/fork.c	2005-10-11 10:56:34.000000000 +0100
-> +++ linux-2.6.14-rc4-bjd3c/kernel/fork.c	2005-10-14 01:18:16.000000000 +0100
-> @@ -42,6 +42,7 @@
->  #include <linux/profile.h>
->  #include <linux/rmap.h>
->  #include <linux/acct.h>
-> +#include <linux/kernel_init.h>
-
-Unecessary, fork_init() defined here.
-
->  #include <asm/pgtable.h>
->  #include <asm/pgalloc.h>
-> diff -urpN -X ../dontdiff linux-2.6.14-rc4-bjd3b/kernel/pid.c linux-2.6.14-rc4-bjd3c/kernel/pid.c
-> --- linux-2.6.14-rc4-bjd3b/kernel/pid.c	2005-06-17 20:48:29.000000000 +0100
-> +++ linux-2.6.14-rc4-bjd3c/kernel/pid.c	2005-10-14 01:24:27.000000000 +0100
-> @@ -26,6 +26,7 @@
->  #include <linux/init.h>
->  #include <linux/bootmem.h>
->  #include <linux/hash.h>
-> +#include <linux/kernel_init.h>
-
-Ditto pid(map|hash)_init().
-
->  #define pid_hashfn(nr) hash_long((unsigned long)nr, pidhash_shift)
->  static struct hlist_head *pid_hash[PIDTYPE_MAX];
-> diff -urpN -X ../dontdiff linux-2.6.14-rc4-bjd3b/kernel/signal.c linux-2.6.14-rc4-bjd3c/kernel/signal.c
-> --- linux-2.6.14-rc4-bjd3b/kernel/signal.c	2005-10-11 10:56:34.000000000 +0100
-> +++ linux-2.6.14-rc4-bjd3c/kernel/signal.c	2005-10-14 01:22:16.000000000 +0100
-> @@ -25,6 +25,7 @@
->  #include <linux/posix-timers.h>
->  #include <linux/signal.h>
->  #include <linux/audit.h>
-> +#include <linux/kernel_init.h>
-
-Ditto signals_init().
-
->  #include <asm/param.h>
->  #include <asm/uaccess.h>
->  #include <asm/unistd.h>
-> diff -urpN -X ../dontdiff linux-2.6.14-rc4-bjd3b/lib/prio_tree.c linux-2.6.14-rc4-bjd3c/lib/prio_tree.c
-> --- linux-2.6.14-rc4-bjd3b/lib/prio_tree.c	2005-06-17 20:48:29.000000000 +0100
-> +++ linux-2.6.14-rc4-bjd3c/lib/prio_tree.c	2005-10-14 01:27:04.000000000 +0100
-> @@ -14,6 +14,7 @@
->  #include <linux/init.h>
->  #include <linux/mm.h>
->  #include <linux/prio_tree.h>
-> +#include <linux/kernel_init.h>
-
-Ditto prio_tree_init().
-
->  /*
->   * A clever mix of heap and radix trees forms a radix priority search tree (PST)
-> diff -urpN -X ../dontdiff linux-2.6.14-rc4-bjd3b/lib/radix-tree.c linux-2.6.14-rc4-bjd3c/lib/radix-tree.c
-> --- linux-2.6.14-rc4-bjd3b/lib/radix-tree.c	2005-10-11 10:56:34.000000000 +0100
-> +++ linux-2.6.14-rc4-bjd3c/lib/radix-tree.c	2005-10-14 01:27:21.000000000 +0100
-> @@ -21,6 +21,7 @@
->  #include <linux/errno.h>
->  #include <linux/init.h>
->  #include <linux/kernel.h>
-> +#include <linux/kernel_init.h>
-
-Ditto radix_tree_init(), and already prototyped in include/linux/radix-tree.h:
-
->  #include <linux/module.h>
->  #include <linux/radix-tree.h>
->  #include <linux/percpu.h>
+Index: linux-2.6.14-rc4/arch/ia64/lib/swiotlb.c
+===================================================================
+--- linux-2.6.14-rc4.orig/arch/ia64/lib/swiotlb.c	2005-10-18 14:14:12.000000000 -0700
++++ linux-2.6.14-rc4/arch/ia64/lib/swiotlb.c	2005-10-18 16:09:51.000000000 -0700
+@@ -106,6 +106,8 @@
+ __setup("swiotlb=", setup_io_tlb_npages);
+ /* make io_tlb_overflow tunable too? */
+ 
++#define IS_LOWPAGES(paddr, size) ((paddr < 0xffffffff) && ((paddr+size) < 0xffffffff))
++
+ /*
+  * Statically reserve bounce buffer space and initialize bounce buffer data
+  * structures for the software IO TLB used to implement the PCI DMA API.
+@@ -114,17 +116,46 @@
+ swiotlb_init_with_default_size (size_t default_size)
+ {
+ 	unsigned long i;
++	unsigned long iotlbsz;
++	int node;
+ 
+ 	if (!io_tlb_nslabs) {
+ 		io_tlb_nslabs = (default_size >> IO_TLB_SHIFT);
+ 		io_tlb_nslabs = ALIGN(io_tlb_nslabs, IO_TLB_SEGSIZE);
+ 	}
+ 
++	iotlbsz = io_tlb_nslabs * (1 << IO_TLB_SHIFT);	
++
+ 	/*
+-	 * Get IO TLB memory from the low pages
++	 * Get IO TLB memory from the 0-4G range
+ 	 */
+-	io_tlb_start = alloc_bootmem_low_pages(io_tlb_nslabs *
+-					       (1 << IO_TLB_SHIFT));
++	
++	for_each_online_node(node) {
++		/* Ugly, hate it.  To be gone post 2.6.14 */
++		io_tlb_start = __alloc_bootmem_node(NODE_DATA(node), 
++						    iotlbsz, PAGE_SIZE, 
++						    0x1000000);
++		if (io_tlb_start) {
++			if (IS_LOWPAGES(virt_to_phys(io_tlb_start), iotlbsz))
++				break;
++			free_bootmem_node(NODE_DATA(node), 
++					  virt_to_phys(io_tlb_start), iotlbsz);
++			io_tlb_start = NULL;
++		}
++	}
++
++	/* 
++	 * FIXME: This should go away when the bootmem allocator is fixed to
++	 * guarantee lowmem32 allocations somehow, and the swiotlb mess is 
++	 * cleaned.  The alloc_bootmem_low_pages fall back is to ensure 
++         * boxes like amd64  which donot use swiotlb but still have 
++	 * swiotlb compiled in, falls back to the 2.6.13 behaviour instead
++	 * of panicking, when proper low32 pages are not available
++	 */
++	if (!io_tlb_start)
++		io_tlb_start = alloc_bootmem_low_pages(io_tlb_nslabs *
++							(1 << IO_TLB_SHIFT));
++
+ 	if (!io_tlb_start)
+ 		panic("Cannot allocate SWIOTLB buffer");
+ 	io_tlb_end = io_tlb_start + io_tlb_nslabs * (1 << IO_TLB_SHIFT);

@@ -1,55 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751496AbVJRUpE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751497AbVJRUrU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751496AbVJRUpE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 16:45:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751497AbVJRUpE
+	id S1751497AbVJRUrU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 16:47:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751498AbVJRUrU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 16:45:04 -0400
-Received: from rutherford.zen.co.uk ([212.23.3.142]:41377 "EHLO
-	rutherford.zen.co.uk") by vger.kernel.org with ESMTP
-	id S1751496AbVJRUpC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 16:45:02 -0400
-Message-ID: <43555E5E.6010008@dresco.co.uk>
-Date: Tue, 18 Oct 2005 21:43:10 +0100
-From: Jon Escombe <lists@dresco.co.uk>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Tue, 18 Oct 2005 16:47:20 -0400
+Received: from ams-iport-1.cisco.com ([144.254.224.140]:6002 "EHLO
+	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S1751497AbVJRUrU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 16:47:20 -0400
+To: linux-kernel@vger.kernel.org
+Subject: What is struct pci_driver.owner for?
+X-Message-Flag: Warning: May contain useful information
+From: Roland Dreier <rolandd@cisco.com>
+Date: Tue, 18 Oct 2005 13:47:13 -0700
+Message-ID: <52sluymu26.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
-To: Aaron Gyes <floam@sh.nu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ATA warnings in dmesg
-References: <1129609999.10504.1.camel@localhost>	 <4354A09C.8010202@dresco.co.uk> <1129642297.12659.3.camel@localhost>
-In-Reply-To: <1129642297.12659.3.camel@localhost>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Hops: 1
-X-Originating-Rutherford-IP: [82.68.23.174]
+Content-Type: text/plain; charset=iso-8859-1
+X-OriginalArrivalTime: 18 Oct 2005 20:47:14.0263 (UTC) FILETIME=[1EA05670:01C5D425]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aaron Gyes wrote:
-> On Tue, 2005-10-18 at 08:13 +0100, Jon Escombe wrote:
-> 
->>I don't think you need to worry. Those messages are produced from the 
->>libata passthough code, whenever sense data has been requested...
->>
->>0xb0 looks like a SMART command, so I would guess (haven't looked at 
->>-mm) that the ata ioctl handlers have been updated to request it.
-> 
-> 
-> That would make sense. I have a daemon running that requests the
-> temperature via SMART every minute or so. Even still, this fills up my
-> entire dmesg after not a very long time, can I turn these messages off
-> somehow? If not, can you point me to where in the code I could kill a
-> printk?
-> 
-> Aaron Gyes
+I just noticed that at some point, struct pci_driver grew a .owner
+member.  However, only a handful of drivers set it:
 
-Sure, the printk is in drivers/scsi/libata-scsi.c, right at the end of 
-ata_to_sense_error()..
+    $ grep -r -A10 pci_driver drivers/ | grep owner
+    drivers/block/sx8.c-    .owner          = THIS_MODULE,
+    drivers/ieee1394/pcilynx.c-     .owner =           THIS_MODULE,
+    drivers/net/spider_net.c-       .owner          = THIS_MODULE,
+    drivers/video/imsttfb.c-        .owner          = THIS_MODULE,
+    drivers/video/kyro/fbdev.c-     .owner          = THIS_MODULE,
+    drivers/video/tridentfb.c-      .owner  = THIS_MODULE,
 
-Regards,
-Jon.
+Should all drivers be setting .owner = THIS_MODULE?  Is this a good
+kernel janitors task?
 
-______________________________________________________________
-Email via Mailtraq4Free from Enstar (www.mailtraqdirect.co.uk)
+ - R.

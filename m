@@ -1,122 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932424AbVJRIq5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932429AbVJRIsM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932424AbVJRIq5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 04:46:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932425AbVJRIq4
+	id S932429AbVJRIsM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 04:48:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932428AbVJRIsM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 04:46:56 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:54509 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932424AbVJRIq4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 04:46:56 -0400
-Date: Tue, 18 Oct 2005 10:46:55 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Tim Bird <tim.bird@am.sony.com>, Andrew Morton <akpm@osdl.org>,
-       tglx@linutronix.de, george@mvista.com, linux-kernel@vger.kernel.org,
-       johnstul@us.ibm.com, paulmck@us.ibm.com, hch@infradead.org,
-       oleg@tv-sign.ru
-Subject: Re: [PATCH]  ktimers subsystem 2.6.14-rc2-kt5
-Message-ID: <20051018084655.GA28933@elte.hu>
-References: <Pine.LNX.4.61.0510171948040.1386@scrub.home> <4353F936.3090406@am.sony.com> <Pine.LNX.4.61.0510172138210.1386@scrub.home> <20051017201330.GB8590@elte.hu> <Pine.LNX.4.61.0510172227010.1386@scrub.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0510172227010.1386@scrub.home>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Tue, 18 Oct 2005 04:48:12 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:33182 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932425AbVJRIsJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 04:48:09 -0400
+Message-ID: <4354B6CD.20907@de.ibm.com>
+Date: Tue, 18 Oct 2005 10:48:13 +0200
+From: Carsten Otte <cotte@de.ibm.com>
+Reply-To: carsteno@de.ibm.com
+Organization: IBM Deutschland
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Hugh Dickins <hugh@veritas.com>, holt@sgi.com, greg@kroah.com,
+       haveblue@us.ibm.com, linux-ia64@vger.kernel.org, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, hch@infradead.org, jgarzik@pobox.com,
+       wli@holomorphy.com, nickpiggin@yahoo.com.au, steiner@americas.sgi.com,
+       mschwid2@de.ibm.com
+Subject: Re: [Patch 2/3] Export get_one_pte_map.
+References: <20051014192111.GB14418@lnx-holt.americas.sgi.com>	<20051014192225.GD14418@lnx-holt.americas.sgi.com>	<20051014213038.GA7450@kroah.com>	<20051017113131.GA30898@lnx-holt.americas.sgi.com>	<1129549312.32658.32.camel@localhost>	<20051017114730.GC30898@lnx-holt.americas.sgi.com>	<Pine.LNX.4.61.0510171331090.2993@goblin.wat.veritas.com>	<20051017151430.GA2564@lnx-holt.americas.sgi.com>	<20051017152034.GA32286@kroah.com>	<20051017155605.GB2564@lnx-holt.americas.sgi.com>	<Pine.LNX.4.61.0510171700150.4934@goblin.wat.veritas.com> <20051017135314.3a59fb17.akpm@osdl.org>
+In-Reply-To: <20051017135314.3a59fb17.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Roman Zippel <zippel@linux-m68k.org> wrote:
-
-> On Mon, 17 Oct 2005, Ingo Molnar wrote:
-> 
-> > why you insist on ktimers being 'process timers'?
-> 
-> Because they are optimized for process usage. OTOH kernel usage is 
-> more than just "timeouts".
-
-you have cut out the rest of what i write in the paragraph, which IMO 
-answers your question:
-
-> > They are totally separate entities, not limited to any process 
-> > notion. One of their first practical use happens to be POSIX process 
-> > timers (both itimers and ptimers) via them, but no way are ktimers 
-> > only 'process timers'. They are very generic timers, usable for any
-> > kernel purpose.
-
-so i can only repeat that ktimers is a generic timer subsystem, with a 
-focus on _actually delivering a timer event_.
-
-and no, ktimers are not "optimized for process usage" (or tied to 
-whatever other process notion, as i said before), they are optimized 
-for:
-
- - the delivery of time related events
-
-as contrasted to the timeout-API (a'ka "timer wheel") code in 
-kernel/timers.c that is optimized towards:
-
- - the fast adding/removal of timers
-
-without too much focus on robust and deterministic delivery of events.
-
-these two concepts are conflicting, and i claim that a (sane) data 
-structure that maximally fulfills both sets of requirements does not 
-exist, mathematically. (to repeat, the requirements are: 'fast 
-add/remove' and 'fast+deterministic expiry')
-
-at this point i'd really suggest for readers to lean back and think 
-about the mathematical foundations of timer data structures for a bit, 
-with a focus on the tradeoffs that the timer wheel data structure has, 
-vs. the tradeoffs of the rbtree data structure that ktimers has.
-
-My claim is that if you _know_ that a timer will expire most likely, you 
-want it to order at insertion time - i.e. you want to have a tree 
-structure. If you _know_ that a timer will most likely _not_ expire, 
-then you can avoid the tree overhead by 'delaying' the decision of 
-sorting timers, to the point in the future where we really are forced to 
-do so.
-
-The result of this mathematical paradox is that we end up with two data 
-structures: one is the timer wheel (kernel/timers.c) for 
-timeout/exception related use; the other one is ktimers 
-(kernel/ktimers.c), for expiry oriented use.
-
-> > so to answer your question: it is totally possible for a watchdog 
-> > mechanism to use ktimers. In fact it would be desirable from a 
-> > robustness POV too: 
-> 
-> "possible" and "desirable" is still different from "preferable", as 
-> they involve a higher cost.
-
-[ in my answer above you are free to substitute "preferable" with
-  "desirable" - i do mean it as it reads in plain English. ]
-
-> > e.g. we dont want a watchdog from being 
-> > overload-able via too many timeouts in the timer wheel ...
-> 
-> Please explain.
-
-e.g. on busy networked servers (i.e. ones that do have a need for 
-watchdogs) the timer wheel often includes large numbers of timeouts, 
-99.9% of which never expire. If they do expire en masse for whatever 
-reason, then we can get into overload mode: a million timers might have 
-to expire before we get to process the watchdog event and act upon it.  
-This can delay the watchdog event significantly, which delay might (or 
-might not) matter to the watchdog application.
-
-in short: the timer wheel was not designed with determinism in mind (nor 
-should 'simple timeouts' care about determinism). Watchdogs are 
-preferably (and desirably) implemented via the most deterministic timer 
-mechanism that the kernel offers: ktimers in this particular case.
-
-	Ingo
+Andrew Morton wrote:
+> Ther are nearly 100 mm patches in -mm.  I need to do a round of discussion
+> with the originators to work out what's suitable for 2.6.15.  For "Hugh
+> stuff" I'm thinking maybe the first batch
+> (mm-hugetlb-truncation-fixes.patch to mm-m68k-kill-stram-swap.patch) and
+> not the second batch.  But we need to think about it.
+We tested Hugh's stuff that is currently in -mm, mainly from the xip
+perspecive. Seems to work fine for 390.

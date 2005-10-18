@@ -1,47 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbVJRCm3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932391AbVJRCob@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932390AbVJRCm3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Oct 2005 22:42:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932391AbVJRCm3
+	id S932391AbVJRCob (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Oct 2005 22:44:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbVJRCob
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Oct 2005 22:42:29 -0400
-Received: from gherkin.frus.com ([192.158.254.49]:29884 "EHLO gherkin.frus.com")
-	by vger.kernel.org with ESMTP id S932390AbVJRCm2 (ORCPT
+	Mon, 17 Oct 2005 22:44:31 -0400
+Received: from xenotime.net ([66.160.160.81]:48343 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932391AbVJRCoa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Oct 2005 22:42:28 -0400
-Subject: Re: vesafb_blank() vs. Toshiba 730XCDT notebook
-In-Reply-To: <43543D4C.3050700@gmail.com> "from Antonino A. Daplas at Oct 18,
- 2005 08:09:48 am"
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-Date: Mon, 17 Oct 2005 21:42:27 -0500 (CDT)
-CC: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+	Mon, 17 Oct 2005 22:44:30 -0400
+Date: Mon, 17 Oct 2005 19:44:28 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/1] indirect function calls elimination in IO scheduler
+Message-Id: <20051017194428.38f0a7b1.rdunlap@xenotime.net>
+In-Reply-To: <6694B22B6436BC43B429958787E454988F5B11@mssmsx402nb>
+References: <6694B22B6436BC43B429958787E454988F5B11@mssmsx402nb>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Message-Id: <20051018024227.CF151DBA1@gherkin.frus.com>
-From: rct@gherkin.frus.com (Bob Tracy)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Antonino A. Daplas wrote:
-> Bob Tracy wrote:
-> > (Toshiba laptop display problem -- vesafb driver blanking).
-> 
-> Can you try this patch first? 
-> 
-> Signed-off-by: Antonino Daplas <adaplas@pol.net>
-> 
-> diff --git a/drivers/video/vesafb.c b/drivers/video/vesafb.c
-> --- a/drivers/video/vesafb.c
-> +++ b/drivers/video/vesafb.c
-> @@ -96,14 +96,14 @@ static int vesafb_blank(int blank, struc
-> (...)
+On Mon, 17 Oct 2005 20:12:18 +0400 Ananiev, Leonid I wrote:
 
-That did the trick.  Thanks for the quick turnaround!
+> Randy,
+> You are right. The lines is broken if I send patch outside Intel (I've
+> tried to send @mail.ru)
+> Inside Intel the lines are not broken as I see in response mails.
+> I've used 'Plain text" before but flag "Use MS Word 2003 to edit e-mail
+> massages" was not turned off.
+> Now this flag is turned off. Once more I had opened using WordPad the
+> diff-text created on Linux and have pasted it in this mail.
+> Is it OK in your mail client?
 
--- 
------------------------------------------------------------------------
-Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
-rct@frus.com
------------------------------------------------------------------------
+No:
+
+patch: **** malformed patch at line 52: *rq)
+
+Fix one, try again:
+
+patch: **** malformed patch at line 79: *rq)
+
+again:
+
+patch: **** malformed patch at line 175: *rq)
+
+again:
+patch: **** malformed patch at line 247: *cfqq)
+
+In general:  copy-paste often has problems in Linux.  I don't
+know about in Windows.
+
+In general:  you might be better off trying to use attachments.
+
+
+> But I've send long patch line to @mail.ru and I've seen the lines still
+> broken.
+> It is not permitted to use mail client other than MS Outlook in our
+> office.
+
+That needs to be fixed.  There are some decent email clients for
+Windows, like Netscape/Mozilla, Thunderbird, sylpheed (beta),
+even Eudora.
+
+> Randy writes
+> >You should also make sure that it applies cleanly
+> > to the current kernel version
+> 
+> I've applied it to linux-2.6.14-rc4
+> ----------------------------------------------------
+
+---
+~Randy

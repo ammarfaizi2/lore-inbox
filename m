@@ -1,104 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbVJRPIh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750795AbVJRPMN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750794AbVJRPIh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 11:08:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbVJRPIh
+	id S1750795AbVJRPMN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 11:12:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbVJRPMN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 11:08:37 -0400
-Received: from soundwarez.org ([217.160.171.123]:15040 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S1750794AbVJRPIh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 11:08:37 -0400
-Date: Tue, 18 Oct 2005 17:08:33 +0200
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Adam Belay <ambx1@neo.rr.com>, Greg KH <gregkh@suse.de>,
-       dtor_core@ameritech.net, Vojtech Pavlik <vojtech@suse.cz>,
-       Hannes Reinecke <hare@suse.de>,
-       Patrick Mochel <mochel@digitalimplant.org>, airlied@linux.ie,
+	Tue, 18 Oct 2005 11:12:13 -0400
+Received: from xproxy.gmail.com ([66.249.82.196]:25502 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750795AbVJRPMN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 11:12:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=BwmkawThPTR+9g/MSmUUcd2/DhrmcKklyDHQejBFNIxw24WIHiFOQd7kuTNEO2GGt8KPkuwfdHW8tEPeYYyBt3YyPRNk76kK4zNhbJNlyD24+pkmMqfnd0+aTeEuvrMheu0EksAoosmatd/xN++x8rutS0m1BGgF5K/ecd4P0SA=
+Message-ID: <b6c5339f0510180812p3ff6d0b1ia204b28c4e50186d@mail.gmail.com>
+Date: Tue, 18 Oct 2005 11:12:12 -0400
+From: Bob Copeland <email@bobcopeland.com>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: file system block size
+Cc: Roushan Ali <roushan.ali@gmail.com>, Nathan Scott <nathans@sgi.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: [patch 0/8] Nesting class_device patches that actually work
-Message-ID: <20051018150833.GA7890@vrfy.org>
-References: <20051013020844.GA31732@kroah.com> <20051013105826.GA11155@vrfy.org> <d120d5000510131435m7b27fe59l917ac3e11b2458c8@mail.gmail.com> <20051014084554.GA19445@vrfy.org> <d120d5000510141002v67a06900m219b47246c1d92c1@mail.gmail.com> <20051015150855.GA7625@vrfy.org> <20051017214430.GA5193@suse.de> <20051017232430.GA32655@neo.rr.com> <20051018052617.GA10263@suse.de> <20051018071822.GC32655@neo.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1129646212.15136.37.camel@imp.csi.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051018071822.GC32655@neo.rr.com>
-User-Agent: Mutt/1.5.9i
+References: <30b4e63b0510172252x1dfca9f2l75bb0f183aecf7bb@mail.gmail.com>
+	 <20051019001218.B5830881@wobbly.melbourne.sgi.com>
+	 <1129646212.15136.37.camel@imp.csi.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 18, 2005 at 03:18:22AM -0400, Adam Belay wrote:
-> On Mon, Oct 17, 2005 at 10:26:17PM -0700, Greg KH wrote:
-> > On Mon, Oct 17, 2005 at 07:24:30PM -0400, Adam Belay wrote:
-> > > 
-> > > Sounds good to me.  The changes to driver model internals may be substantial.
-> > > For example, because buses and classes will share more code, it's
-> > > reasonable to allow drivers to bind to any "device" object, even class
-> > > devices.  Of course this would be limited to classes that choose to
-> > > implement driver matching etc.  We are doing this now with the pci express
-> > > port driver.
-> > 
-> > That's a bus, not a class device.  Drivers bind to devices through a
-> > bus.  That's why we have busses.
-> 
-> If class devices and devices belong in the same tree, then clearly the original
-> distinction is artificial.  "struct bus_type" is a class of "struct device".
-> "struct class" is a class of "struct class_dev".  We now know of devices
-> in between these two extremes (e.g. pci express port driver).  It's also
-> possible that drivers will want to bind to class devices (e.g. a partition
-> driver binding to a block device).  Isn't it fair to say that the "bus_type"
-> vs. "class" distinction is also artificial?  At the very least they are
-> duplicating some code.
+> Indeed, it makes everything harder.  Have a look at ntfs in the kernel
+> which has to cope with file system block sizes between 512 bytes and
+> several hundred kiB (at least they are in powers of two thank
+> goodness...).  You end up not being able to use a lot of generic
+> functions as you for example need to lock multiple pages which needs to
+> be ordered correctly, etc...  If you look at the latest -mm kernel, the
+> ntfs driver there has file write(2) support for any cluster size and you
+> will see an example of the multiple page locking problem solution there.
 
-I agree and would like to see the "bus" functionality just as set of special
-methods of a unified device struture also used for class devices.
+Any chance this will make it into common code?  I also need it for my
+filesystem driver (here: http://bobcopeland.com/karma/).  So far I've
+only done read side which is not too bad, but as you say writing makes
+things complicated.
 
-> > > > Oh, one tiny problem.  "virtual devices" are not currently represented
-> > > > in our device tree, but are in the class tree.  Things like the
-> > > > different vc and ttys and misc devices are examples of this.  I'll just
-> > > > put them on the "platform" bus if no one minds.
-> > > 
-> > > I think we should be trying to kill off the platform bus (it's artifical and
-> > > doesn't show the real relationships between these devices).  Instead, just
-> > > hang them off the root of the tree.
-> > 
-> > Everything that's currently a platform device go to the root?  No,
-> > that's not going to happen, sorry.
+That, and the extent-supporting mpage_readpages would make me a happy person.
 
-But will sticking stuff like "mice" or "tty" into "platform" will really
-work? These devices belong to their own primary class like "input" or "tty" and
-they can not be part of a "bus" at the same time, right?
-
-I'm dreaming of:
-  - merging "struct device" and "struct class_device"
-
-  - provide current "bus" and "class" methodes for _all_ devices
-
-  - every current "bus", just becomes a "class" to indicate a group
-    of devices, where "input" has the same "group interface" in
-    /sys/class/ as "pci" - buses go away completely
-
-  - every device is a member of one single class, be it a pci-bus-device
-    or a virtual class
-
-  - separate strictly between hierarchy and classification, which
-    is a bit ugly sometimes cause of the flat class layout, but it
-    provides a very nice way to keep the class interface simple and
-    therefore stable, while still be able to change the device hierarchy
-
-  - /sys/devices becomes a buch of trees and some parent-less devices
-    in the root, its whole reason is just to export the device dependency
-    structure, nothing else
-
-That way the "platform bus" would be a "platform class", which will only
-contain devices which are not part of any other class. All these
-parent-less devices would live in the root of /sys/devices to reflect
-their lack of dependency.
-Things like "tty" and "mice", would be members of their natural
-class, but also live in the root of /sys/devices. That way we have the
-technically correct classifcation and hierarchy.
-
-Does that make sense?
-
-Thanks,
-Kay
+-Bob

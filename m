@@ -1,79 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751176AbVJRStl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbVJRSwU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751176AbVJRStl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 14:49:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbVJRStl
+	id S1751196AbVJRSwU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 14:52:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbVJRSwU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 14:49:41 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:11670 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751168AbVJRStk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 14:49:40 -0400
-Date: Tue, 18 Oct 2005 11:49:33 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       zaitcev@redhat.com
+	Tue, 18 Oct 2005 14:52:20 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:4268 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751196AbVJRSwS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 14:52:18 -0400
 Subject: Re: usb: Patch for USBDEVFS_IOCTL from 32-bit programs
-Message-Id: <20051018114933.276781da.zaitcev@redhat.com>
-In-Reply-To: <20051018171333.GA29504@kroah.com>
+From: Arjan van de Ven <arjan@infradead.org>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20051018114933.276781da.zaitcev@redhat.com>
 References: <20051017181554.77d0d45d.zaitcev@redhat.com>
-	<20051018171333.GA29504@kroah.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	 <20051018171333.GA29504@kroah.com>
+	 <20051018114933.276781da.zaitcev@redhat.com>
+Content-Type: text/plain
+Date: Tue, 18 Oct 2005 20:51:55 +0200
+Message-Id: <1129661516.2779.25.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Oct 2005 10:13:33 -0700, Greg KH <greg@kroah.com> wrote:
+On Tue, 2005-10-18 at 11:49 -0700, Pete Zaitcev wrote:
 
-> On Mon, Oct 17, 2005 at 06:15:54PM -0700, Pete Zaitcev wrote:
-> > I'm cross-posting to l-k because someone I know was making sounds at
-> > a notion of #ifdef CONFIG_COMPAT. But I think this solutions is superior
-> > to adding anything outside of devio.c.
 > 
-> Why not put this in fs/compat_ioctl.c where the other usbfs 32bit ioctls
-> are?
+> The problem here is that compat_ptr does NOT turn user data pointer
+> into a kernel pointer. It's still a user pointer, only sized
+> differently. So, when you do set_fs(KERNEL_DS), this pointer
+> is invalid (miraclously, it does work on AMD64, so Dell's tests
+> pass on their new Xeons).
+> 
+> So, you cannot simply to have a small shim. Instead, you have to allocate
+> the buffer, do copy_from_user(), and then call the ioctl. But then,
+> it would be a double-copy, when the ioctl allocates the buffer again.
+> 
+> I tweaked this in various ways, and the patch I posted looks like
+> the cleanest solution. But please tell me if I miss something obvious.
 
-This is what Dell people did originally. Here is their code:
 
-+static int do_usbdevfs_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
-+{
-+  struct usbdevfs_ioctl kioc;
-+  struct usbdevfs_ioctl32 __user *uioc;
-+  mm_segment_t old_fs;
-+  u32 udata;
-+  int err;
-+
-+  uioc = compat_ptr(arg);
-+  if (get_user(kioc.ifno, &uioc->ifno) ||
-+      get_user(kioc.ioctl_code, &uioc->ioctl_code) ||
-+      __get_user(udata, &uioc->data))
-+    return -EFAULT;
-+  
-+  kioc.data = compat_ptr(udata);
-+
-+  old_fs = get_fs();
-+  set_fs(KERNEL_DS);
-+  err = sys_ioctl(fd, USBDEVFS_IOCTL, (unsigned long)&kioc);
-+  set_fs(old_fs);
-+
-+  return err;
-+}
+there is one more option; allocate on the user stack space for a 64 bit
+struct, then copy_in_user() the fields to that and then pass the new
+pointer to the 64 bit struct to the ioctl.....
 
-The problem here is that compat_ptr does NOT turn user data pointer
-into a kernel pointer. It's still a user pointer, only sized
-differently. So, when you do set_fs(KERNEL_DS), this pointer
-is invalid (miraclously, it does work on AMD64, so Dell's tests
-pass on their new Xeons).
+Not saying this is better or worse than what you did, it's just another
+option.
 
-So, you cannot simply to have a small shim. Instead, you have to allocate
-the buffer, do copy_from_user(), and then call the ioctl. But then,
-it would be a double-copy, when the ioctl allocates the buffer again.
-
-I tweaked this in various ways, and the patch I posted looks like
-the cleanest solution. But please tell me if I miss something obvious.
-
--- Pete

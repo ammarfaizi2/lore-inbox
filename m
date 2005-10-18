@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751459AbVJRHrN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751460AbVJRHxs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751459AbVJRHrN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 03:47:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751461AbVJRHrN
+	id S1751460AbVJRHxs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 03:53:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751461AbVJRHxs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 03:47:13 -0400
-Received: from ip-svs-1.Informatik.Uni-Oldenburg.DE ([134.106.12.126]:56756
-	"EHLO aechz.svs.informatik.uni-oldenburg.de") by vger.kernel.org
-	with ESMTP id S1751459AbVJRHrN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 03:47:13 -0400
-Date: Tue, 18 Oct 2005 09:46:01 +0200
-From: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
-To: Rob Landley <rob@landley.net>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Documentation for ramfs, rootfs, initramfs.
-Message-ID: <20051018074601.GA2404@titan.lahn.de>
-Mail-Followup-To: Rob Landley <rob@landley.net>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200510172242.08809.rob@landley.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200510172242.08809.rob@landley.net>
-Organization: UUCP-Freunde Lahn e.V.
-User-Agent: Mutt/1.5.11
+	Tue, 18 Oct 2005 03:53:48 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:62905 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751460AbVJRHxs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 03:53:48 -0400
+Subject: Re: [PATCH] disable PREEMPT_BKL per default
+From: Arjan van de Ven <arjan@infradead.org>
+To: Olaf Hering <olh@suse.de>
+Cc: mingo@elte.hu, Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20051018074511.GA13182@suse.de>
+References: <20051016154108.25735ee3.akpm@osdl.org>
+	 <20051018074511.GA13182@suse.de>
+Content-Type: text/plain
+Date: Tue, 18 Oct 2005 09:53:30 +0200
+Message-Id: <1129622010.2779.6.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Tue, 2005-10-18 at 09:45 +0200, Olaf Hering wrote:
+> Do not enable this per default during make oldconfig.
+> 'default $foo' should not be abused like that.
 
-Non a native speaker myself, but if I remember correctly, I found the
-following issues in your nice documentation, which you might want to fix:
+afaik that was done to increase testing.
+This thing shouldn't be a config option at all in a final release imo;
+the config option as I understand it is there to be able to disable it
+during the testing phase in -mm to help diagnose otherwise unexplained
+issues.
 
-On Mon, Oct 17, 2005 at 10:42:08PM -0500, Rob Landley wrote:
-> --- old/Documentation/filesystems/ramfs-rootfs-initramfs.txt 2005-10-17 22:39:30.194448784 -0500
-> +What is ramfs?
-> +--------------
+Maybe by now it's time to remove the config option..
 
-s/cacheing/caching/
-s/soon soon/soon/
-s/was of a fixed size/was of fixed size/
-s/was a fixed size/was of fixed size/
 
-> +What is initramfs?
-> +------------------
-
-s/bringing the system the rest of the way up/bringing the system up the rest of the way/
-s/after the embedded cpio archive is extracted into it//
-s/a root partition, then exec/a root partition and execute/
-
-> +All this differs from the old initrd in several ways:
-
-s/but by default it's an empty archive./but by default is an empty archive./
-s/When switching another root device/When switching to another root device/
-
-BYtE
-Philipp
--- 
-  / /  (_)__  __ ____  __ Philipp Hahn
- / /__/ / _ \/ // /\ \/ /
-/____/_/_//_/\_,_/ /_/\_\ pmhahn@titan.lahn.de

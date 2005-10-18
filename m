@@ -1,44 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751488AbVJRX3E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751491AbVJRXde@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751488AbVJRX3E (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 19:29:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbVJRX3E
+	id S1751491AbVJRXde (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 19:33:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbVJRXde
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 19:29:04 -0400
-Received: from holomorphy.com ([66.93.40.71]:30133 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S1751488AbVJRX3C (ORCPT
+	Tue, 18 Oct 2005 19:33:34 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:19588 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751491AbVJRXdd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 19:29:02 -0400
-Date: Tue, 18 Oct 2005 16:28:24 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Robin Holt <holt@sgi.com>
-Cc: Greg KH <greg@kroah.com>, linux-ia64@vger.kernel.org, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, hch@infradead.org, jgarzik@pobox.com,
-       Dave Hansen <haveblue@us.ibm.com>,
-       Jack Steiner <steiner@americas.sgi.com>
-Subject: Re: [Patch 2/3] Export get_one_pte_map.
-Message-ID: <20051018232824.GQ29402@holomorphy.com>
-References: <20051014192111.GB14418@lnx-holt.americas.sgi.com> <20051014192225.GD14418@lnx-holt.americas.sgi.com> <20051014213038.GA7450@kroah.com> <20051017113131.GA30898@lnx-holt.americas.sgi.com>
+	Tue, 18 Oct 2005 19:33:33 -0400
+Date: Tue, 18 Oct 2005 16:32:01 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Glauber de Oliveira Costa <glommer@br.ibm.com>
+Cc: jesper.juhl@gmail.com, ext2-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       adilger@clusterfs.com, viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [PATCH] Test for sb_getblk return value
+Message-Id: <20051018163201.79730947.akpm@osdl.org>
+In-Reply-To: <200510171356.11639.glommer@br.ibm.com>
+References: <20051017132306.GA30328@br.ibm.com>
+	<9a8748490510170710s3971e0c6u2a95fa2cb6ad2c5a@mail.gmail.com>
+	<200510171356.11639.glommer@br.ibm.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051017113131.GA30898@lnx-holt.americas.sgi.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 17, 2005 at 06:31:31AM -0500, Robin Holt wrote:
-> Not sure why it would fall that way.  Looking at the directory,
-> I get:
-> [holt@lnx-holt mm]$ grep -c 'EXPORT_SYMBOL(' *.c | egrep -v ":0$"
-[...]
-> I will happily change it, but that seems inconsistent with the
-> majority of the exports from that subsystem.
+Glauber de Oliveira Costa <glommer@br.ibm.com> wrote:
+>
+> I'm resending it now with the changes you suggested. 
+> Actually, 2 copies of it follows. 
 
-I'm a bit more laissez-faire on this: I don't mind the export either
-way. That said, I'm aware that the prevailing opinion is in favor of
-EXPORT_SYMBOL_GPL().
+argh.  Please never attach multiple patches to a single email.
 
+And please always include a complete, uptodate changelog with each iteration
+of a patch.  I don't want to have to troll back through the mailing list,
+identify the initial changelog and then replay the email thread making any
+needed updates to that changelog.
 
--- wli
+Also please review section 11 of Documentation/SubmittingPatches then
+include a Signed-off-by: with your patches.
+
+> In the first one(v2), I kept the style in the changes in resize.c, as this 
+> seems to be the default way things like this are done there. In the other, 
+> (v3), I did statement checks in the way you suggested in both files.
+
+Don't worry about the surrounding style - if it's wrong, it's wrong.  Just
+stick with Documentation/CodingStyle.
+
+Do this:
+
+		if (!bh) {
+
+and not this:
+
+		if (!bh){
+
+> Also, sorry for the last mail. I got a problem with my relay, and my mail 
+> address was sent wrong before I noticed that. Mails sent to it will probably 
+> return.
+
+The change to update_backups() is wrong - it will leave a JBD transaction
+open on return.
+
+Please fix all that up and resend. 
+http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt may prove useful,
+thanks.
+

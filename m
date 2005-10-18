@@ -1,73 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932330AbVJRFN0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932348AbVJRFd5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932330AbVJRFN0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 01:13:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbVJRFN0
+	id S932348AbVJRFd5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 01:33:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932359AbVJRFd4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 01:13:26 -0400
-Received: from smtp104.sbc.mail.re2.yahoo.com ([68.142.229.101]:27765 "HELO
-	smtp104.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932330AbVJRFNZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 01:13:25 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch 0/8] Nesting class_device patches that actually work
-Date: Tue, 18 Oct 2005 00:13:17 -0500
-User-Agent: KMail/1.8.2
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Kay Sievers <kay.sievers@vrfy.org>,
-       Greg KH <gregkh@suse.de>, Hannes Reinecke <hare@suse.de>,
-       Patrick Mochel <mochel@digitalimplant.org>, airlied@linux.ie,
-       Adam Belay <ambx1@neo.rr.com>
-References: <20051013020844.GA31732@kroah.com> <20051014121423.GA21209@vrfy.org> <20051017100223.GB10522@ucw.cz>
-In-Reply-To: <20051017100223.GB10522@ucw.cz>
+	Tue, 18 Oct 2005 01:33:56 -0400
+Received: from mail.hg.com ([199.79.200.252]:4542 "EHLO mail.hg.com")
+	by vger.kernel.org with ESMTP id S932348AbVJRFd4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 01:33:56 -0400
+From: "rob" <rob@janerob.com>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, jbarnes@virtuousgeek.org,
+       Jody McIntyre <scjody@modernduck.com>
+Subject: Re: ohci1394 unhandled interrupts bug in 2.6.14-rc2
+Date: Tue, 18 Oct 2005 06:32:41 +0100
+Message-Id: <20051018052149.M34048@janerob.com>
+In-Reply-To: <4353CA12.8020708@s5r6.in-berlin.de>
+References: <20051015185502.GA9940@plato.virtuousgeek.org> <43515ADA.6050102@s5r6.in-berlin.de> <20051015202944.GA10463@plato.virtuousgeek.org> <20051017005515.755decb6.akpm@osdl.org> <4353705D.6060809@s5r6.in-berlin.de> <20051017024219.08662190.akpm@osdl.org> <20051017124711.M44026@janerob.com> <4353CA12.8020708@s5r6.in-berlin.de>
+X-Mailer: Open WebMail 2.51 20050228
+X-OriginatingIP: 193.220.20.68 (rob)
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510180013.19024.dtor_core@ameritech.net>
+	charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 17 October 2005 05:02, Vojtech Pavlik wrote:
-> On Fri, Oct 14, 2005 at 02:14:23PM +0200, Kay Sievers wrote:
+On Mon, 17 Oct 2005 17:58:10 +0200, Stefan Richter wrote
+...
+> > Toshiba Satellite 5105-s607
 > 
-> > Sorry, my previous drawing wasn't correct for the input devices.
-> > 
-> > Here is a new picture of the:
-> >   - all classes are unique and flat and will stay the same,
-> >     even when the hierarchy of the devices changes
-> >   - all hierarchy is _only_ in /sys/devices
-> >   - virtual and physical devices are both in /sys/devices
-> > proposal.
-> 
-> I like the layout.
-> 
-> I'm not completely sure whether mouse0 and event0 are the same class,
-> because they have different APIs and protocols. And I believe that class
-> is exactly that - a collection of devices where you can use the same API
-> to access them. A possibility would be to do it like this:
-> 
-> > /sys
-> > |-- class
-> > |   |-- mouse
-> > |   |   |-- mice -> ../../devices/mice
-> > |   |   |-- mouse0 -> ../../devices/platform/i8042/serio0/input0/mouse0
-> > |   |---event
-> > |   |   `-- event0 -> ../../devices/platform/i8042/serio0/input0/event0
-> > |   |-- input
-> > |   |   `-- input0 -> ../../devices/platform/i8042/serio0/input0
-> > |   `-- tty
-> > |       `-- console -> ../../devices/console
-> 
-> It might be too much work to create a new class in each of the
-> handlers, it'd be similar to harddrives and partititions having
-> different classes.
->
+> Thanks a lot for the survey. Do they all _need_ the patch, or do 
+> some of them need it and the others are just not harmed by the patch?
 
-This illustrates the problem I have with flat classification: "event" is way
-too generic name and "input_event", "input_mouse", etc. is way too ugly.
-"input/event", "input/mouse" is much better IMO.
+they all need the patch to modprobe without errors, not all had firewire
+devices to test with.
 
--- 
-Dmitry
+> Does anybody know a DMI_PRODUCT_NAME of a Libretto L1? Something 
+> like PAL1060TNMM or PAL1060TNCM?
+
+Might try John Belmonte <john at neggie.net>, he has an L5 and runs a website
+for it.
+
+rob.
+
+
+--
+Open WebMail Project (http://openwebmail.org)
+

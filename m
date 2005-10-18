@@ -1,41 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751504AbVJRVTZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932134AbVJRVXw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751504AbVJRVTZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 17:19:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbVJRVTZ
+	id S932134AbVJRVXw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 17:23:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932135AbVJRVXw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 17:19:25 -0400
-Received: from [193.22.164.111] ([193.22.164.111]:49798 "EHLO
-	vserver151.vserver151.serverflex.de") by vger.kernel.org with ESMTP
-	id S1751504AbVJRVTZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 17:19:25 -0400
-Date: Tue, 18 Oct 2005 23:19:53 +0200
-To: Horms <horms@verge.net.au>
-Cc: linux-kernel@vger.kernel.org, security@kernel.org,
-       secure-testing-team@lists.alioth.debian.org, 334113@bugs.debian.org,
-       Rudolf Polzer <debian-ne@durchnull.de>,
-       Alastair McKinstry <mckinstry@debian.org>, team@security.debian.org
-Subject: Re: [Secure-testing-team] kernel allows loadkeys to be used by any user, allowing for local root compromise
-Message-ID: <20051018211953.GA5374@informatik.uni-bremen.de>
-References: <E1EQofT-0001WP-00@master.debian.org> <20051018044146.GF23462@verge.net.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051018044146.GF23462@verge.net.au>
-User-Agent: Mutt/1.5.11
-From: Moritz Muehlenhoff <jmm@inutil.org>
-X-SA-Exim-Connect-IP: 82.83.201.0
-X-SA-Exim-Mail-From: jmm@inutil.org
-X-SA-Exim-Scanned: No (on vserver151.vserver151.serverflex.de); SAEximRunCond expanded to false
+	Tue, 18 Oct 2005 17:23:52 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:45755 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932134AbVJRVXw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 17:23:52 -0400
+Date: Tue, 18 Oct 2005 14:23:57 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: linas <linas@austin.ibm.com>
+Cc: benh@kernel.crashing.org, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ppc64: Thermal control for SMU based machines
+Message-Id: <20051018142357.7eebedfe.akpm@osdl.org>
+In-Reply-To: <20051018205710.GC29826@austin.ibm.com>
+References: <1128404215.31063.32.camel@gaston>
+	<20051011171315.2fe087e7.akpm@osdl.org>
+	<1129076691.17365.250.camel@gaston>
+	<20051018205710.GC29826@austin.ibm.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horms wrote:
-> > The non-suid command "loadkeys" can be used by any local user having
-> > console access. It does not just apply to the current virtual console
-> > but to all virtual consoles and its effect persists even after logout.
+linas <linas@austin.ibm.com> wrote:
+>
+> On Wed, Oct 12, 2005 at 10:24:51AM +1000, Benjamin Herrenschmidt was heard to remark:
+> > > > +#define BUILD_SHOW_FUNC_FIX(name, data)				\
+> > > > +static ssize_t show_##name(struct device *dev,                  \
+> > > > +			   struct device_attribute *attr,       \
+> > > > +			   char *buf)	                        \
+> > > > +{								\
+> > 
+> > Ahh no, the problem here is that stupid emacs is very bad with tab
+> > and multi-line macros and just turns the whole thing into shit, so
+> > I used spaces. Sorry, I'm not an emacs guru and don't know how to
+> > work around that ...
+> 
+> Anyone who has tabstops set to 3 instead of 8
 
-This has been assigned CAN-2005-3257.
+wtf?  Anyone who has tabstops set to three gets their kernel license revoked.
 
-Cheers,
-        Moritz
+> will see broken-ness for
+> macros like this no matter what. Suggest that the right policy is to use
+> only spaces, and neve tabs, inside of macros.
+
+It works OK for everyone else...

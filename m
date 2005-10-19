@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750952AbVJSMtr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750958AbVJSMtr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750952AbVJSMtr (ORCPT <rfc822;willy@w.ods.org>);
+	id S1750958AbVJSMtr (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 19 Oct 2005 08:49:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750936AbVJSMsd
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750924AbVJSMtA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 08:48:33 -0400
-Received: from zproxy.gmail.com ([64.233.162.201]:18986 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750937AbVJSMsZ (ORCPT
+	Wed, 19 Oct 2005 08:49:00 -0400
+Received: from zproxy.gmail.com ([64.233.162.204]:58691 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750937AbVJSMsi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 08:48:25 -0400
+	Wed, 19 Oct 2005 08:48:38 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:cc:user-agent:content-type:references:in-reply-to:subject:message-id:date;
-        b=FFWnQqYfdZ/EhoKIGlgdrxZntFiq7IaVX82UP5hHE+rsgWCB3KgO9DUigFX2SbgQ4VUwrSG4AZvii/kgDM4o4sjqqz3pEDxyHc9kw4zGAux8AHdDmQvn0DSrFhOTJdliJ98uLJQLzTs3flHZ/UABPK4IIwdaE9CXiYFEA1s9O+0=
+        b=T748UKZf+RtMxhgo0R/C5hlY0pOn4pItk/yJE47NjW/qdN2aSCeTRkSAEQ38f5WNd0VD4xT5n6Hf5xN/+YbLmzY+Ou2LUI1jXEQpe8aH2UAk5Vpr5AxMxrV/hD2uVDyzu4hz2/nPuxAtonviZ4+74DC9+7UZzF6UfJpzWanqwMc=
 From: Tejun Heo <htejun@gmail.com>
 To: axboe@suse.de, jgarzik@pobox.com, James.Bottomley@steeleye.com,
        bzolnier@gmail.com
@@ -21,172 +21,200 @@ User-Agent: lksp 0.3
 Content-Type: text/plain; charset=US-ASCII
 References: <20051019124716.EF1F6546@htj.dyndns.org>
 In-Reply-To: <20051019124716.EF1F6546@htj.dyndns.org>
-Subject: Re: [PATCH linux-2.6-block:master 07/10] blk: add FUA support to libata
-Message-ID: <20051019124716.E1B02C73@htj.dyndns.org>
-Date: Wed, 19 Oct 2005 21:48:17 +0900 (KST)
+Subject: Re: [PATCH linux-2.6-block:master 09/10] blk: add FUA support to IDE
+Message-ID: <20051019124716.8343B9D6@htj.dyndns.org>
+Date: Wed, 19 Oct 2005 21:48:27 +0900 (KST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-07_blk_libata-add-fua-support.patch
+09_blk_ide-add-fua-support.patch
 
-	Add FUA support to libata.
+	Add FUA support to IDE
 
 Signed-off-by: Tejun Heo <htejun@gmail.com>
 
- drivers/scsi/libata-core.c |   14 +++++++++-----
- drivers/scsi/libata-scsi.c |   36 +++++++++++++++++++++++++++++++++---
- include/linux/ata.h        |    4 +++-
- include/linux/libata.h     |    1 +
- 4 files changed, 46 insertions(+), 9 deletions(-)
+ drivers/ide/ide-disk.c |   57 +++++++++++++++++++++++++++++++++++++++++--------
+ include/linux/ata.h    |    1 
+ include/linux/hdreg.h  |   16 ++++++++++++-
+ include/linux/ide.h    |    3 ++
+ 4 files changed, 66 insertions(+), 11 deletions(-)
 
-Index: blk-fixes/drivers/scsi/libata-core.c
+Index: blk-fixes/drivers/ide/ide-disk.c
 ===================================================================
---- blk-fixes.orig/drivers/scsi/libata-core.c	2005-10-19 21:46:49.000000000 +0900
-+++ blk-fixes/drivers/scsi/libata-core.c	2005-10-19 21:47:14.000000000 +0900
-@@ -616,19 +616,21 @@ void ata_tf_from_fis(u8 *fis, struct ata
- }
+--- blk-fixes.orig/drivers/ide/ide-disk.c	2005-10-19 21:47:14.000000000 +0900
++++ blk-fixes/drivers/ide/ide-disk.c	2005-10-19 21:47:14.000000000 +0900
+@@ -164,13 +164,14 @@ static ide_startstop_t __ide_do_rw_disk(
+ 	ide_hwif_t *hwif	= HWIF(drive);
+ 	unsigned int dma	= drive->using_dma;
+ 	u8 lba48		= (drive->addressing == 1) ? 1 : 0;
++	int fua			= blk_fua_rq(rq);
+ 	task_ioreg_t command	= WIN_NOP;
+ 	ata_nsector_t		nsectors;
  
- /**
-- *	ata_prot_to_cmd - determine which read/write opcodes to use
-+ *	ata_prot_to_cmd - determine which read/write/fua-write opcodes to use
-  *	@protocol: ATA_PROT_xxx taskfile protocol
-  *	@lba48: true is lba48 is present
-  *
-- *	Given necessary input, determine which read/write commands
-- *	to use to transfer data.
-+ *	Given necessary input, determine which read/write/fua-write
-+ *	commands to use to transfer data.  Note that we only support
-+ *	fua-writes on DMA LBA48 protocol.  In other cases, we simply
-+ *	return 0 which is NOP.
-  *
-  *	LOCKING:
-  *	None.
-  */
- static int ata_prot_to_cmd(int protocol, int lba48)
- {
--	int rcmd = 0, wcmd = 0;
-+	int rcmd = 0, wcmd = 0, wfua = 0;
+ 	nsectors.all		= (u16) rq->nr_sectors;
  
- 	switch (protocol) {
- 	case ATA_PROT_PIO:
-@@ -645,6 +647,7 @@ static int ata_prot_to_cmd(int protocol,
- 		if (lba48) {
- 			rcmd = ATA_CMD_READ_EXT;
- 			wcmd = ATA_CMD_WRITE_EXT;
-+			wfua = ATA_CMD_WRITE_FUA_EXT;
+ 	if (hwif->no_lba48_dma && lba48 && dma) {
+-		if (block + rq->nr_sectors > 1ULL << 28)
++		if (block + rq->nr_sectors > 1ULL << 28 || fua)
+ 			dma = 0;
+ 		else
+ 			lba48 = 0;
+@@ -226,6 +227,16 @@ static ide_startstop_t __ide_do_rw_disk(
+ 			hwif->OUTB(tasklets[6], IDE_HCYL_REG);
+ 			hwif->OUTB(0x00|drive->select.all,IDE_SELECT_REG);
  		} else {
- 			rcmd = ATA_CMD_READ;
- 			wcmd = ATA_CMD_WRITE;
-@@ -655,7 +658,7 @@ static int ata_prot_to_cmd(int protocol,
- 		return -1;
- 	}
- 
--	return rcmd | (wcmd << 8);
-+	return rcmd | (wcmd << 8) | (wfua << 16);
- }
- 
- /**
-@@ -688,6 +691,7 @@ static void ata_dev_set_protocol(struct 
- 
- 	dev->read_cmd = cmd & 0xff;
- 	dev->write_cmd = (cmd >> 8) & 0xff;
-+	dev->write_fua_cmd = (cmd >> 16) & 0xff;
- }
- 
- static const char * xfer_mode_str[] = {
-Index: blk-fixes/drivers/scsi/libata-scsi.c
-===================================================================
---- blk-fixes.orig/drivers/scsi/libata-scsi.c	2005-10-19 21:46:49.000000000 +0900
-+++ blk-fixes/drivers/scsi/libata-scsi.c	2005-10-19 21:47:14.000000000 +0900
-@@ -608,12 +608,40 @@ static unsigned int ata_scsi_rw_xlat(str
- 	tf->protocol = qc->dev->xfer_protocol;
- 	tf->device |= ATA_LBA;
- 
--	if (scsicmd[0] == READ_10 || scsicmd[0] == READ_6 ||
--	    scsicmd[0] == READ_16) {
-+	switch (scsicmd[0]) {
-+	case READ_10:
-+	case READ_16:
-+		if (unlikely(scsicmd[1] & (1 << 3))) {
-+			printk(KERN_WARNING
-+			       "ata%u(%u): WARNING: FUA READ unsupported\n",
-+			       qc->ap->id, qc->dev->devno);
-+			return 1;
-+		}
-+		/* fall through */
-+	case READ_6:
- 		tf->command = qc->dev->read_cmd;
--	} else {
-+		break;
-+
-+	case WRITE_10:
-+	case WRITE_16:
-+		if (unlikely(scsicmd[1] & (1 << 3))) {
-+			if (qc->dev->write_fua_cmd == 0 || !lba48) {
-+				printk(KERN_WARNING
-+				       "ata%u(%u): WARNING: FUA WRITE "
-+				       "unsupported with the current "
-+				       "protocol/addressing\n",
-+				       qc->ap->id, qc->dev->devno);
-+				return 1;
++			if (unlikely(fua)) {
++				/*
++				 * This happens if LBA48 addressing is
++				 * turned off during operation.
++				 */
++				printk(KERN_ERR "%s: FUA write but LBA48 off\n",
++				       drive->name);
++				goto fail;
 +			}
-+			tf->command = qc->dev->write_fua_cmd;
-+			tf->flags |= ATA_TFLAG_WRITE;
-+			break;
-+		}
-+		/* fall through */
-+	case WRITE_6:
- 		tf->command = qc->dev->write_cmd;
- 		tf->flags |= ATA_TFLAG_WRITE;
-+		break;
- 	}
- 
- 	if (scsicmd[0] == READ_10 || scsicmd[0] == WRITE_10) {
-@@ -1217,10 +1245,12 @@ unsigned int ata_scsiop_mode_sense(struc
- 	if (six_byte) {
- 		output_len--;
- 		rbuf[0] = output_len;
-+		rbuf[2] |= ata_id_has_fua(args->id) ? 1 << 4 : 0;
++
+ 			hwif->OUTB(0x00, IDE_FEATURE_REG);
+ 			hwif->OUTB(nsectors.b.low, IDE_NSECTOR_REG);
+ 			hwif->OUTB(block, IDE_SECTOR_REG);
+@@ -253,9 +264,12 @@ static ide_startstop_t __ide_do_rw_disk(
+ 	if (dma) {
+ 		if (!hwif->dma_setup(drive)) {
+ 			if (rq_data_dir(rq)) {
+-				command = lba48 ? WIN_WRITEDMA_EXT : WIN_WRITEDMA;
+-				if (drive->vdma)
+-					command = lba48 ? WIN_WRITE_EXT: WIN_WRITE;
++				if (!fua) {
++					command = lba48 ? WIN_WRITEDMA_EXT : WIN_WRITEDMA;
++					if (drive->vdma)
++						command = lba48 ? WIN_WRITE_EXT: WIN_WRITE;
++				} else
++					command = ATA_CMD_WRITE_FUA_EXT;
+ 			} else {
+ 				command = lba48 ? WIN_READDMA_EXT : WIN_READDMA;
+ 				if (drive->vdma)
+@@ -284,8 +298,20 @@ static ide_startstop_t __ide_do_rw_disk(
  	} else {
- 		output_len -= 2;
- 		rbuf[0] = output_len >> 8;
- 		rbuf[1] = output_len;
-+		rbuf[3] |= ata_id_has_fua(args->id) ? 1 << 4 : 0;
+ 		if (drive->mult_count) {
+ 			hwif->data_phase = TASKFILE_MULTI_OUT;
+-			command = lba48 ? WIN_MULTWRITE_EXT : WIN_MULTWRITE;
++			if (!fua)
++				command = lba48 ? WIN_MULTWRITE_EXT : WIN_MULTWRITE;
++			else
++				command = ATA_CMD_MULT_WRITE_FUA_EXT;
+ 		} else {
++			if (unlikely(fua)) {
++				/*
++				 * This happens if multisector PIO is
++				 * turned off during operation.
++				 */
++				printk(KERN_ERR "%s: FUA write but in single "
++				       "sector PIO mode\n", drive->name);
++				goto fail;
++			}
+ 			hwif->data_phase = TASKFILE_OUT;
+ 			command = lba48 ? WIN_WRITE_EXT : WIN_WRITE;
+ 		}
+@@ -295,6 +321,10 @@ static ide_startstop_t __ide_do_rw_disk(
+ 
+ 		return pre_task_out_intr(drive, rq);
+ 	}
++
++ fail:
++	ide_end_request(drive, 0, 0);
++	return ide_stopped;
+ }
+ 
+ /*
+@@ -846,7 +876,7 @@ static void idedisk_setup (ide_drive_t *
+ {
+ 	struct hd_driveid *id = drive->id;
+ 	unsigned long long capacity;
+-	int barrier;
++	int barrier, fua;
+ 
+ 	idedisk_add_settings(drive);
+ 
+@@ -967,10 +997,19 @@ static void idedisk_setup (ide_drive_t *
+ 			barrier = 0;
  	}
  
- 	return 0;
+-	printk(KERN_INFO "%s: cache flushes %ssupported\n",
+-		drive->name, barrier ? "" : "not ");
++	fua = barrier && idedisk_supports_lba48(id) && ide_id_has_fua(id);
++	/* When using PIO, FUA needs multisector. */
++	if ((!drive->using_dma || drive->hwif->no_lba48_dma) &&
++	    drive->mult_count == 0)
++		fua = 0;
++
++	printk(KERN_INFO "%s: cache flushes %ssupported%s\n",
++	       drive->name, barrier ? "" : "not ",
++	       fua ? " w/ FUA" : "");
+ 	if (barrier) {
+-		blk_queue_ordered(drive->queue, QUEUE_ORDERED_DRAIN_FLUSH,
++		unsigned ordered = fua ? QUEUE_ORDERED_DRAIN_FUA
++				       : QUEUE_ORDERED_DRAIN_FLUSH;
++		blk_queue_ordered(drive->queue, ordered,
+ 				  idedisk_prepare_flush, GFP_KERNEL);
+ 		blk_queue_issue_flush_fn(drive->queue, idedisk_issue_flush);
+ 	} else if (!drive->wcache)
 Index: blk-fixes/include/linux/ata.h
 ===================================================================
---- blk-fixes.orig/include/linux/ata.h	2005-10-19 21:46:49.000000000 +0900
+--- blk-fixes.orig/include/linux/ata.h	2005-10-19 21:47:14.000000000 +0900
 +++ blk-fixes/include/linux/ata.h	2005-10-19 21:47:14.000000000 +0900
-@@ -124,6 +124,7 @@ enum {
- 	ATA_CMD_READ_EXT	= 0x25,
- 	ATA_CMD_WRITE		= 0xCA,
- 	ATA_CMD_WRITE_EXT	= 0x35,
-+	ATA_CMD_WRITE_FUA_EXT	= 0x3D,
- 	ATA_CMD_PIO_READ	= 0x20,
+@@ -129,6 +129,7 @@ enum {
  	ATA_CMD_PIO_READ_EXT	= 0x24,
  	ATA_CMD_PIO_WRITE	= 0x30,
-@@ -234,7 +235,8 @@ struct ata_taskfile {
- #define ata_id_is_sata(id)	((id)[93] == 0)
- #define ata_id_rahead_enabled(id) ((id)[85] & (1 << 6))
- #define ata_id_wcache_enabled(id) ((id)[85] & (1 << 5))
--#define ata_id_has_flush(id) ((id)[83] & (1 << 12))
-+#define ata_id_has_fua(id)	((id)[84] & (1 << 6))
-+#define ata_id_has_flush(id)	((id)[83] & (1 << 12))
- #define ata_id_has_flush_ext(id) ((id)[83] & (1 << 13))
- #define ata_id_has_lba48(id)	((id)[83] & (1 << 10))
- #define ata_id_has_wcache(id)	((id)[82] & (1 << 5))
-Index: blk-fixes/include/linux/libata.h
+ 	ATA_CMD_PIO_WRITE_EXT	= 0x34,
++	ATA_CMD_MULT_WRITE_FUA_EXT = 0xCE,
+ 	ATA_CMD_SET_FEATURES	= 0xEF,
+ 	ATA_CMD_PACKET		= 0xA0,
+ 	ATA_CMD_VERIFY		= 0x40,
+Index: blk-fixes/include/linux/hdreg.h
 ===================================================================
---- blk-fixes.orig/include/linux/libata.h	2005-10-19 21:46:49.000000000 +0900
-+++ blk-fixes/include/linux/libata.h	2005-10-19 21:47:14.000000000 +0900
-@@ -282,6 +282,7 @@ struct ata_device {
- 	u8			xfer_protocol;	/* taskfile xfer protocol */
- 	u8			read_cmd;	/* opcode to use on read */
- 	u8			write_cmd;	/* opcode to use on write */
-+	u8			write_fua_cmd;	/* opcode to use on FUA write */
- };
+--- blk-fixes.orig/include/linux/hdreg.h	2005-10-19 21:46:49.000000000 +0900
++++ blk-fixes/include/linux/hdreg.h	2005-10-19 21:47:14.000000000 +0900
+@@ -550,7 +550,13 @@ struct hd_driveid {
+ 					 * cmd set-feature supported extensions
+ 					 * 15:	Shall be ZERO
+ 					 * 14:	Shall be ONE
+-					 * 13:6	reserved
++					 * 13:  IDLE IMMEDIATE w/ UNLOAD FEATURE
++					 * 12:11 reserved for technical report
++					 * 10:  URG for WRITE STREAM
++					 *  9:  URG for READ STREAM
++					 *  8:  64-bit World wide name
++					 *  7:  WRITE DMA QUEUED FUA EXT
++					 *  6:  WRITE DMA/MULTIPLE FUA EXT
+ 					 *  5:	General Purpose Logging
+ 					 *  4:	Streaming Feature Set
+ 					 *  3:	Media Card Pass Through
+@@ -600,7 +606,13 @@ struct hd_driveid {
+ 					 * command set-feature default
+ 					 * 15:	Shall be ZERO
+ 					 * 14:	Shall be ONE
+-					 * 13:6	reserved
++					 * 13:  IDLE IMMEDIATE w/ UNLOAD FEATURE
++					 * 12:11 reserved for technical report
++					 * 10:  URG for WRITE STREAM
++					 *  9:  URG for READ STREAM
++					 *  8:  64-bit World wide name
++					 *  7:  WRITE DMA QUEUED FUA EXT
++					 *  6:  WRITE DMA/MULTIPLE FUA EXT
+ 					 *  5:	General Purpose Logging enabled
+ 					 *  4:	Valid CONFIGURE STREAM executed
+ 					 *  3:	Media Card Pass Through enabled
+Index: blk-fixes/include/linux/ide.h
+===================================================================
+--- blk-fixes.orig/include/linux/ide.h	2005-10-19 21:46:49.000000000 +0900
++++ blk-fixes/include/linux/ide.h	2005-10-19 21:47:14.000000000 +0900
+@@ -1497,6 +1497,9 @@ extern struct bus_type ide_bus_type;
+ /* check if CACHE FLUSH (EXT) command is supported (bits defined in ATA-6) */
+ #define ide_id_has_flush_cache(id)	((id)->cfs_enable_2 & 0x3000)
  
- struct ata_port {
++/* check if WRITE DMA FUA EXT command is supported (defined in ATA-8) */
++#define ide_id_has_fua(id)		((id)->cfsse & 0x0040)
++
+ /* some Maxtor disks have bit 13 defined incorrectly so check bit 10 too */
+ #define ide_id_has_flush_cache_ext(id)	\
+ 	(((id)->cfs_enable_2 & 0x2400) == 0x2400)
 

@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbVJSBlP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932460AbVJSBlQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932454AbVJSBlP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 21:41:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932460AbVJSBlP
+	id S932460AbVJSBlQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 21:41:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbVJSBiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 21:41:15 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:15108 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S932454AbVJSBlO (ORCPT
+	Tue, 18 Oct 2005 21:38:50 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:51376 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932438AbVJSBiq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 21:41:14 -0400
-Date: Tue, 18 Oct 2005 21:41:03 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, jgarzik@pobox.com,
+	Tue, 18 Oct 2005 21:38:46 -0400
+Message-ID: <4355A390.9090309@osdl.org>
+Date: Tue, 18 Oct 2005 18:38:24 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "John W. Linville" <linville@tuxdriver.com>
+CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, jgarzik@pobox.com,
        mlindner@syskonnect.de, rroesler@syskonnect.de
 Subject: Re: [patch 2.6.14-rc4 0/3] sk98lin: neuter and prepare for removal
-Message-ID: <20051019014101.GC6687@tuxdriver.com>
-Mail-Followup-To: Stephen Hemminger <shemminger@osdl.org>,
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-	jgarzik@pobox.com, mlindner@syskonnect.de, rroesler@syskonnect.de
-References: <10182005213059.12304@bilbo.tuxdriver.com> <4355A390.9090309@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4355A390.9090309@osdl.org>
-User-Agent: Mutt/1.4.1i
+References: <10182005213059.12304@bilbo.tuxdriver.com>
+In-Reply-To: <10182005213059.12304@bilbo.tuxdriver.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 18, 2005 at 06:38:24PM -0700, Stephen Hemminger wrote:
-> John W. Linville wrote:
-> 
-> >These patches take steps towards removing sk98lin from the upstream
-> >kernel.
-> >
-> >	-- Remove sk98lin's MODULE_DEVICE_TABLE to avoid
-> >	confusing userland tools about which driver to load;
+John W. Linville wrote:
 
-> I applaud the initiative, but this it is too premature to obsolete the 
-> existing driver. There may be lots of chip versions and other variables 
-> that make
-> the existing driver a better choice.  Maybe eepro100 is a better target
-> for removal right now.
+>These patches take steps towards removing sk98lin from the upstream
+>kernel.
+>
+>	-- Remove sk98lin's MODULE_DEVICE_TABLE to avoid
+>	confusing userland tools about which driver to load;
+>
+>	-- Mark sk98lin as Obsolete in the MAINTAINERS file; and,
+>
+>	-- Add sk98lin to the feature-removal-schedule.txt file in the
+>	Documentation directory.
+>
+>I accept the possibility that I may be jumping the gun on this.
+>However, I think it is worth opening this discussion.
+>
+>Patches to follow...
+>  
+>
+I applaud the initiative, but this it is too premature to obsolete the 
+existing driver. There may be lots of chip versions and other variables 
+that make
+the existing driver a better choice.  Maybe eepro100 is a better target
+for removal right now.
 
-That's cool...but I still think the first one (removing the
-MODULE_DEVICE_TABLE) is worthwhile.  At least that gets more testers
-for skge.
-
-What do you think?
-
-John
--- 
-John W. Linville
-linville@tuxdriver.com

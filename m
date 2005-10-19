@@ -1,117 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932487AbVJSJRP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932495AbVJSJSB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932487AbVJSJRP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 05:17:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932486AbVJSJRP
+	id S932495AbVJSJSB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 05:18:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932491AbVJSJRj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 05:17:15 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:48003 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S932487AbVJSJRO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 05:17:14 -0400
-Message-Id: <20051019091716.462195000@omelas>
-References: <20051019081906.615365000@omelas>
-Date: Wed, 19 Oct 2005 01:19:09 -0700
+	Wed, 19 Oct 2005 05:17:39 -0400
+Received: from sccrmhc14.comcast.net ([204.127.202.59]:38335 "EHLO
+	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S932488AbVJSJRT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 05:17:19 -0400
+Message-Id: <20051019081906.615365000@omelas>
+Date: Wed, 19 Oct 2005 01:19:06 -0700
 From: dsaxena@plexity.net
 To: linux-kernel@vger.kernel.org
 Cc: jgarzik@pobox.net, akpm@osdl.org, tony@atomide.com
-Subject: [patch 3/5] Intel IXP4xx driver
-Content-Disposition: inline; filename=rng/rng_ixp4xx_driver.patch
+Subject: [patch 0/5] RNG cleanup & new drivers attempt #1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-RNG driver for Intel IXP4xx NPU.
+This patch set is my first pass at adding support for some more
+RNG drivers to the kernel. My basic goal was to keep the same
+user space interface as exists, but not have to reproduce all
+the same 100 lines of user space interface code across every new
+driver (as we currently do with watchdogs...)
 
-Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
+The new code separate the HW specifc driver from the user 
+interface code and just adds a few function pointers so that
+the two can talk to each other. I opted out of using a sysfs
+class and all that complication b/c there will be one and only
+one RNG device at a time from all the HW I can see.
 
----
+I've added drivers for Intels' IXP4xx and for the TI OMAP,
+though the later has not been tested (it builds) as I don't 
+have the hardware. Same goes for x86...builds but no HW for 
+me to test locally. Freescale MPC8xxx is next but that requires 
+a bit more work.
 
-Tested and works.
+As for the discussion on moving the implementation completely
+out of the kernel, it is not completely doable. While we
+can do it for simple HW such as the IXP and X86, there are
+some cases that basically require us to have kernel code:
 
-Index: linux-2.6-rng/drivers/char/rng/ixp4xx-rng.c
-===================================================================
---- /dev/null
-+++ linux-2.6-rng/drivers/char/rng/ixp4xx-rng.c
-@@ -0,0 +1,66 @@
-+/*
-+ * drivers/char/rng/ixp4xx-rng.c
-+ *
-+ * RNG driver for Intel IXP4xx family of NPUs
-+ *
-+ * Author: Deepak Saxena <dsaxena@plexity.net>
-+ *
-+ * Copyright 2005 (c) MontaVista Software, Inc.
-+ *
-+ * This file is licensed under  the terms of the GNU General Public
-+ * License version 2. This program is licensed "as is" without any
-+ * warranty of any kind, whether express or implied.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/config.h>
-+#include <linux/types.h>
-+#include <linux/module.h>
-+#include <linux/moduleparam.h>
-+#include <linux/init.h>
-+#include <linux/bitops.h>
-+
-+#include <asm/io.h>
-+#include <asm/hardware.h>
-+
-+#include "rng.h"
-+
-+static u32* __iomem rng_base;
-+
-+static int ixp4xx_rng_data_present(void)
-+{
-+	return 1;
-+}
-+
-+static int ixp4xx_rng_data_read(u32 *buffer)
-+{
-+	*buffer = __raw_readl(rng_base);
-+
-+	return 4;
-+}
-+
-+struct rng_operations ixp4xx_rng_ops = {
-+	.data_present	= ixp4xx_rng_data_present,
-+	.data_read	= ixp4xx_rng_data_read,
-+};
-+
-+static int __init ixp4xx_rng_init(void)
-+{
-+	rng_base = (u32* __iomem) ioremap(0x70002100, 4);
-+	if (!rng_base) return -ENOMEM;
-+
-+	return register_rng(&ixp4xx_rng_ops);
-+}
-+
-+static void __exit ixp4xx_rng_exit(void)
-+{
-+	unregister_rng(&ixp4xx_rng_ops);
-+	iounmap(rng_base);
-+}
-+
-+subsys_initcall(ixp4xx_rng_init);
-+module_exit(ixp4xx_rng_exit);
-+
-+MODULE_AUTHOR("Deepak Saxena <dsaxena@plexity.net>");
-+MODULE_DESCRIPTION("H/W Random Number Generator (RNG) driver for IXP4xx");
-+MODULE_LICENSE("GPL");
-Index: linux-2.6-rng/include/asm-arm/arch-ixp4xx/ixp4xx-regs.h
-===================================================================
---- linux-2.6-rng.orig/include/asm-arm/arch-ixp4xx/ixp4xx-regs.h
-+++ linux-2.6-rng/include/asm-arm/arch-ixp4xx/ixp4xx-regs.h
-@@ -36,6 +36,8 @@
-  *
-  * 0x6000000	0x00004000	ioremap'd	QMgr
-  *
-+ * 0x7000000    0x00004000      ioremap'd       Public-Key Exchange Unit
-+ *
-  * 0xC0000000	0x00001000	0xffbfe000	PCI CFG 
-  *
-  * 0xC4000000	0x00001000	0xffbfd000	EXP CFG 
+- On systems like OMAP, we want to be able to suspend/resume
+  the RNG device and the device clocks and that needs to be done
+  from kernel space as part of the PM path.
+
+- On the MPC8xxx, the RNG is just part of a large crypto unit
+  that also does SHA-1 and MD5 along with some other operations
+  for which I'd like to see (and will probably write) a driver. The 
+  RNG commands are queued in a chain along with the other units and 
+  trying to get user space to share that queue will just be a mess.
+
+So..we might as well keep them all in the kernel instead of having 
+to know about some HW and not know about others.
+
+Some of the things on my TODO list:
+
+- Allow a fastpath where we don't even have the user space portion
+  and the HW drivers just feed the entropy pool directly. While
+  this bypasses the FIPS tests and such, there are some applications
+  where this is OK or where we really don't want the extra proccess 
+  context switching. This is specially true on ARM. I'll have to add 
+  IRQ driven support to the drivers to that, but that's trivial. There 
+  is also some HW (MPC8xxx for example) that does periodic self-tests 
+  in HW and lists itself as "FIPs-compliant" and will trigger an error if 
+  data should no longer be trusted and in that case doing a software
+  test might also be undesirable. But...we should let the user decide
+  at build time (or runtime?).
+
+- Since I'm adding IRQ support, go ahead and add poll(2) support so
+  that when we do have a user space daemon, it's not constantly
+  poking at us.
+
+~Deepak
+
+(This is my first time using the magical quilt mail scripts so apologies
+ in advance if anything breaks)
 
 --
 Deepak Saxena - dsaxena@plexity.net - http://www.plexity.net

@@ -1,106 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbVJSDNe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932254AbVJSDd2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932147AbVJSDNe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 23:13:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751495AbVJSDNe
+	id S932254AbVJSDd2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 23:33:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751501AbVJSDd2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 23:13:34 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:18643 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751481AbVJSDNd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 23:13:33 -0400
-From: Takao Indoh <indou.takao@soft.fujitsu.com>
-To: OBATA Noboru <noboru.obata.ar@hitachi.com>
-Cc: akpm@osdl.org, hyoshiok@miraclelinux.com, linux-kernel@vger.kernel.org
-Subject: Re: Linux Kernel Dump Summit 2005
-Date: Wed, 19 Oct 2005 12:17:02 +0900
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 18 Oct 2005 23:33:28 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:35773 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751495AbVJSDd1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 23:33:27 -0400
+Date: Tue, 18 Oct 2005 20:33:20 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Christopher Li <usb-devel@chrisli.org>
+Cc: greg@kroah.com, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, zaitcev@redhat.com
+Subject: Re: usb: Patch for USBDEVFS_IOCTL from 32-bit programs
+Message-Id: <20051018203320.179f4c4c.zaitcev@redhat.com>
+In-Reply-To: <20051018150533.GB21786@64m.dyndns.org>
+References: <20051017181554.77d0d45d.zaitcev@redhat.com>
+	<20051018171333.GA29504@kroah.com>
+	<20051018150533.GB21786@64m.dyndns.org>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: HidemaruMail 4.51
-In-Reply-To: <20051018.224823.03979969.noboru.obata.ar@hitachi.com>
-References: <C0C5D30C9A813Cindou.takao@soft.fujitsu.com> 
-	<20051018.224823.03979969.noboru.obata.ar@hitachi.com>
-Message-Id: <C5C5D45B9312EFindou.takao@soft.fujitsu.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 18 Oct 2005 11:05:33 -0400, Christopher Li <usb-devel@chrisli.org> wrote:
+> On Tue, Oct 18, 2005 at 10:13:33AM -0700, Greg KH wrote:
 
-On Tue, 18 Oct 2005 22:48:23 +0900 (JST), OBATA Noboru wrote:
+> I am a little nervous no check have been done to what ioctl it is
+> passing. Most of the case you don't need to convert the buffer, but
+> what if there is some ioctl need to do something special.
 
->> The 2nd issue (memory size problem) may be solved by exporting
->> diskdump's functions to kdump.
->
->Could you briefly explain the implementation of partial dump in
->diskdump for those who are not familiar with it?
->
->- Levels of partial dump (supported page categories)
->- How to indentify the category (kernel data structure used)
+You do not have to be nervous, because USB ioctls are not unstructured.
+These ioctls do not receive __user pointers, unsigned longs, or things
+freely interpreted. They are defined to receive one buffer, and they
+are not expected to perform any copy_from_user/copy_to_user.
 
-Ok.
-Partial dump of diskdump defines 5 filters.
+The struct file_operations has ioctl which looks like this:
+        int (*ioctl) (struct inode *, struct file *, unsigned int, unsigned long);
+The unsigned long here is often a pointer to user buffer.
 
-#define DUMP_EXCLUDE_CACHE 0x00000001 /* Exclude LRU & SwapCache pages*/
-#define DUMP_EXCLUDE_CLEAN 0x00000002 /* Exclude all-zero pages */
-#define DUMP_EXCLUDE_FREE  0x00000004 /* Exclude free pages */
-#define DUMP_EXCLUDE_ANON  0x00000008 /* Exclude Anon pages */
-#define DUMP_SAVE_PRIVATE  0x00000010 /* Save private pages */
+However, in USB case, struct usb_driver has ioctl like this:
+        int (*ioctl) (struct usb_interface *intf, unsigned int code, void *buf);
+The *buf is not passed from user mode. It's an honest to goodness
+kmalloc'ed buffer.
 
-You can select each filters for partialdump. (Therefore, there are 32
-levels of partial dump.)
+> On the safe side, I am expecting a big switch to list all the ioctl
+> we known can safely pass, can grow the list when needed.
 
-1) DUMP_EXCLUDE_CACHE
+>From the above it should be obvious why such checking is entirely
+unnecessary for the case of USB.
 
-This filter uses only page flags of struct page.
-If the following condition is true, the page is not dumped.
+To be sure, one can write a driver which looks _inside_ the passed
+*buf, and interpret the contents as a bunch of user pointers, in a
+misguided attempt to create a DIY s/g capability, for instance.
+If such a thing happens, we'd only have to identify the programmers
+and impale them on a pole, then feed their intestines to crows.
+That ought to take care of the problem without any checking lists.
 
-	!PageAnon(page) && (PageLRU(page) || PageSwapCache(page))
-
-2) DUMP_EXCLUDE_CLEAN
-
-If this filter is enabled, a page which is filled with zero is not
-dumped.
-
-3) DUMP_EXCLUDE_FREE
-
-If this filter is enabled, free pages are not dumped. Diskdump find free
-pages from free_list of zone->free_area.
-
-4) DUMP_EXCLUDE_ANON
-
-This filter uses only page flags of struct page.
-If the following condition is true,  the page is not dumped.
-
-	PageAnon(page)
-
-5) DUMP_SAVE_PRIVATE
-
-This filter is different from others. Even if you specified
-DUMP_EXCLUDE_CACHE, a page which has PG_private flag is dumped if this
-filter is enabled.
-
-
-
-DUMP_EXCLUDE_FREE has some risks. If this filter is enable, diskdump
-scans free page linked lists. If the list is corrupt, diskdump may hang.
-Therefore, I always use level-19 (EXCLUDE_CACHE & EXCLUDE_CLEAN &
-SAVE_PRIVATE).
-
-DUMP_EXCLUDE_CACHE reduces dump size effectively when file caches on
-memory are big. I don't use DUMP_EXCLUDE_ANON because user data(user
-stack, thread stack, mutex, etc.) is sometimes needed to investigate
-dump.
-DUMP_SAVE_PRIVATE is needed for filesystem. Filesystem (journal) uses
-PG_private pages, so these pages is necessary to investigate
-trouble of filesystem. 
-
-If there are other useful filters, please let me know.
-
-
-These filters may be able to be used for kdump, but I don't know how I
-can find the kernel structure (for example, page flag of struct page)
-when kdump dumps memory.
-
-
-Takao Indoh
+-- Pete

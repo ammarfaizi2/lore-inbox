@@ -1,52 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751530AbVJSFpu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751518AbVJSGAM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751530AbVJSFpu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 01:45:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751518AbVJSFpt
+	id S1751518AbVJSGAM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 02:00:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751534AbVJSGAM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 01:45:49 -0400
-Received: from qproxy.gmail.com ([72.14.204.203]:59067 "EHLO qproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751532AbVJSFpt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 01:45:49 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:reply-to:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
-        b=kBNx6+EcmXWhnVqzoOtfROikNPmz55xVbccjlD/viDwDWSZQNhHaDd7cu+IdkaOfPLjN4EujuUsWAqB/qfmAkjMiVwdlxHeBFhWKjRBPAQv4evC43yL/KkuGKxGBYaGC9V52JtrNLnpj+aIsogqLhd9wZBBBGhdCCIhVFd8uIw0=
-Reply-To: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: large files unnecessary trashing filesystem cache?
-Date: Wed, 19 Oct 2005 01:45:45 -0400
-User-Agent: KMail/1.8.3
-Cc: gfiala@s.netic.de, linux-kernel@vger.kernel.org
-References: <200510182201.11241.gfiala@s.netic.de> <200510182302.59604.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <20051018213721.236b2107.akpm@osdl.org>
-In-Reply-To: <20051018213721.236b2107.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 19 Oct 2005 02:00:12 -0400
+Received: from ns1.mcdownloads.com ([216.239.132.98]:54718 "EHLO
+	mail.3gstech.com") by vger.kernel.org with ESMTP id S1751518AbVJSGAK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 02:00:10 -0400
+Subject: Re: 2.6.14-rc4-mm1: udev/sysfs wierdness
+From: Aaron Gyes <floam@sh.nu>
+To: Greg KH <greg@kroah.com>
+Cc: Mathieu Segaud <matt@regala.cx>, linux-kernel@vger.kernel.org
+In-Reply-To: <20051019034427.GA15940@kroah.com>
+References: <1129610113.10504.4.camel@localhost>
+	 <20051018055003.GA10488@kroah.com> <20051018065705.GA11858@kroah.com>
+	 <87r7ajdy4v.fsf@barad-dur.minas-morgul.org>
+	 <20051019034427.GA15940@kroah.com>
+Content-Type: text/plain
+Date: Tue, 18 Oct 2005 23:00:08 -0700
+Message-Id: <1129701608.10192.1.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510190145.45911.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
-From: Andrew James Wade <andrew.j.wade@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 19 October 2005 00:37, Andrew Morton wrote:
-> Andrew James Wade <andrew.j.wade@gmail.com> wrote:
-> >
-> > Sometimes you want a single file to take up most of the memory; databases
-> >  spring to mind. Perhaps files/processes that take up a large proportion of
-> >  memory should be penalized by preferentially reclaiming their pages, but
-> >  limit the aggressiveness so that they can still take up most of the memory
-> >  if sufficiently persistent (and the rest of the system isn't thrashing).
-> 
-> Yes.  Basically any smart heuristic we apply here will have failure modes. 
-> For example, the person whose application does repeated linear reads of the
-> first 100MB of a 4G file will get very upset.
+On Tue, 2005-10-18 at 20:44 -0700, Greg KH wrote:
+> I was against my latest tree, which is on kernel.org.  Someone already
+> posted an updated patch on lkml if you can't get that second hunk to
+> apply.
 
-As will any dumb heuristic for that matter; we'd need precognition[1] to avoid
-all of them. But we can hopefully make the failure modes rarer and more
-predictable. I don't know how my proposal would fare, and as I do not have
-the code to test the matter I think I shall drop it.
+I applied that, and I still don't see the node being created. 
 
-[1] Which could, on occasion, be provided by hinting.
+Here's the udevinfo output you originally asked for:
+
+floam@agorastome ~ $ udevinfo -p /sys/class/input/event0/ -a
+
+udevinfo starts with the device the node belongs to and then walks up
+the
+device chain, to print for every device found, all possibly useful
+attributes
+in the udev key format.
+Only attributes within one device section may be used together in one
+rule,
+to match the device for which the node will be created.
+
+device '/sys/class/input/event0' has major:minor 13:64
+  looking at class device '/sys/class/input/event0':
+    KERNEL=="event0"
+    SUBSYSTEM=="input"
+    SYSFS{dev}=="13:64"
+
+

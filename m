@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750758AbVJSLXm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbVJSLbm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750758AbVJSLXm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 07:23:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750764AbVJSLXl
+	id S1750779AbVJSLbm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 07:31:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750777AbVJSLbm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 07:23:41 -0400
-Received: from mail.linicks.net ([217.204.244.146]:61970 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S1750758AbVJSLXl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 07:23:41 -0400
-From: Nick Warne <nick@linicks.net>
-To: Karel Kulhavy <clock@twibright.com>
-Subject: Re: 3c900 boot-time kernel commandline parameters in 2.4.25
-Date: Wed, 19 Oct 2005 12:23:31 +0100
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Wed, 19 Oct 2005 07:31:42 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:33939 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750772AbVJSLbl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 07:31:41 -0400
+Date: Wed, 19 Oct 2005 12:31:31 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Lee Revell <rlrevell@joe-job.com>, Mark Knecht <markknecht@gmail.com>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       rmk@arm.linux.org.uk, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, andmike@us.ibm.com,
+       linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] scsi_error thread exits in TASK_INTERRUPTIBLE state.
+Message-ID: <20051019113131.GA30553@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Lee Revell <rlrevell@joe-job.com>,
+	Mark Knecht <markknecht@gmail.com>, linux-kernel@vger.kernel.org,
+	Ingo Molnar <mingo@elte.hu>, rmk@arm.linux.org.uk,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	andmike@us.ibm.com, linux-scsi@vger.kernel.org
+References: <5bdc1c8b0510181402o2d9badb0sd18012cf7ff2a329@mail.gmail.com> <1129693423.8910.54.camel@mindpipe> <1129695564.8910.64.camel@mindpipe> <Pine.LNX.4.58.0510190300010.20634@localhost.localdomain> <Pine.LNX.4.58.0510190349590.20634@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200510191223.31751.nick@linicks.net>
+In-Reply-To: <Pine.LNX.4.58.0510190349590.20634@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> How do I tell Linux kernel 2.4.25 on boot-time kernel commandline to
-> switch my eth0
-> ~
-> to TP transceiver and 10/100 autonegotiation?
+> +	/*
+> +	 * There's a good chance that the loop will exit in the
+> +	 * TASK_INTERRUPTIBLE state.
+> +	 */
+> +	__set_current_state(TASK_RUNNING);
 
-Not really a kernel question.  Do a 'man mii-tool' or 'man ethtool'.
-
-Either of those allow NIC tweaking.
-
-I run ethtool to force 100MB FD in rc.local - you can do similar depending on 
-your style/distro.
-
-Nick
--- 
-http://sourceforge.net/projects/quake2plus
-
-"Person who say it cannot be done should not interrupt person doing it."
--Chinese Proverb
+no need to comment the obvious.
 

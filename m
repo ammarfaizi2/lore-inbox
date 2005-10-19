@@ -1,71 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751638AbVJSXqQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751634AbVJSXjf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751638AbVJSXqQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 19:46:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751640AbVJSXqQ
+	id S1751634AbVJSXjf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 19:39:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751635AbVJSXjf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 19:46:16 -0400
-Received: from fmr21.intel.com ([143.183.121.13]:23728 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1751635AbVJSXqP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 19:46:15 -0400
-Subject: Re: [PATCH]: Handling spurious page fault for hugetlb region for
-	2.6.14-rc4-git5
-From: Rohit Seth <rohit.seth@intel.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, agl@us.ibm.com
-In-Reply-To: <Pine.LNX.4.61.0510192126100.11096@goblin.wat.veritas.com>
-References: <20051018141512.A26194@unix-os.sc.intel.com>
-	 <20051018143438.66d360c4.akpm@osdl.org>
-	 <1129673824.19875.36.camel@akash.sc.intel.com>
-	 <20051018172549.7f9f31da.akpm@osdl.org>
-	 <1129692330.24309.44.camel@akash.sc.intel.com>
-	 <20051018210721.4c80a292.akpm@osdl.org>
-	 <Pine.LNX.4.61.0510191623220.7586@goblin.wat.veritas.com>
-	 <1129748733.339.90.camel@akash.sc.intel.com>
-	 <Pine.LNX.4.61.0510192049030.10794@goblin.wat.veritas.com>
-	 <20051019131907.05ea7160.akpm@osdl.org>
-	 <Pine.LNX.4.61.0510192126100.11096@goblin.wat.veritas.com>
+	Wed, 19 Oct 2005 19:39:35 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:30445 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751628AbVJSXje
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 19:39:34 -0400
+Subject: Re: 26 ways to set a device driver variable from userland
+From: Matt Helsley <matthltc@us.ibm.com>
+To: Christopher Friesen <cfriesen@nortel.com>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, Rick Niles <fniles@mitre.org>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <435691EF.8070406@nortel.com>
+References: <1129741246.25383.23.camel@gnupooh.mitre.org>
+	 <4C7CA605-435C-4B16-A3A1-44EF247BF5B0@mac.com>
+	 <435691EF.8070406@nortel.com>
 Content-Type: text/plain
-Organization: Intel 
-Date: Wed, 19 Oct 2005 16:53:15 -0700
-Message-Id: <1129765996.339.138.camel@akash.sc.intel.com>
+Date: Wed, 19 Oct 2005 16:32:41 -0700
+Message-Id: <1129764761.3282.9.camel@stark>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Oct 2005 23:45:57.0457 (UTC) FILETIME=[408FA410:01C5D507]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-10-19 at 21:28 +0100, Hugh Dickins wrote:
-> On Wed, 19 Oct 2005, Andrew Morton wrote:
-> > Hugh Dickins <hugh@veritas.com> wrote:
-> > > 
-> > >  I was forgetting that extending ftruncate wasn't supported in 2.6.14 and
-> > >  earlier, yes.  But I'm afraid the above scenario can still happen there:
-> > >  extending is done, not by ftruncate, but by (somewhere else) mmapping the
-> > >  larger size.   So your fix may still cause a tight infinite fault loop.
-> > 
-> > Will it?  Whenever we mmap a hugetlbfs file we prepopulate the entire vma
-> > with hugepages.  So I don't think there's ever any part of an address space
-> > which ia a) inside a hugepage vma and b) doesn't have a hugepage backing
-> > it.
+On Wed, 2005-10-19 at 12:35 -0600, Christopher Friesen wrote:
+> Kyle Moffett wrote:
 > 
-> The new vma, sure, will be fully populated.  But the old vma, in this
-> or some other process, which was created before the hugetlbfs file was
-> truncated down, will be left with a hole at the end.
+> >> (4) sysfs
 > 
+> > This is ideal for almost all device driver purposes.
+> 
+> The one thing that I have yet to see a good solution for is 
+> transaction-based operations, where userspace passes in something (could 
+> be a command, a new value, a query, etc.) and expects some data in return.
+> 
+> The ioctl() method is ideal for this, passing down a binary struct with 
+> a command/query member, and the driver fills in the rest of the struct 
+> based on the commnd.
+> 
+> How do you do this cleanly via sysfs?  It seems like you either double 
+> the number of syscalls (write to one file, read from another) or else 
+> you need to have sysfs files for every possible query/command, so that 
+> the input becomes implicitly encoded in the file that you are reading. 
+> This could end up creating a large number of files depending on the 
+> range of inputs.
+> 
+> Are there any other standard ways to do this?
+> 
+> Chris
 
-Excellent catch.  This broken truncation thing....
+	Perhaps a connector would be appropriate here. Userspace could send a
+netlink message to the connector with the query/command and the
+connector could respond by sending appropriate results back to
+userspace.
 
-And I don't know what the right solution should be for this scenario at
-this point for 2.6.14....may be to actually look at the HUGEPTE
-corresponding to the hugetlb faulting address or don't allow mmaps to
-grow the hugetlb file bigger (except the first mmap).  I understand that
-both of them don't sound too good...
-
-Any suggestions.
-
--rohit
+Cheers,
+	-Matt Helsley
 

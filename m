@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750832AbVJSMBr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750840AbVJSMHp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750832AbVJSMBr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 08:01:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbVJSMBq
+	id S1750840AbVJSMHp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 08:07:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbVJSMHo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 08:01:46 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:20895 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750777AbVJSMBq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 08:01:46 -0400
-Subject: Re: tty line discipline
-From: Arjan van de Ven <arjan@infradead.org>
-To: Rabih ElMasri <rabih.elmasri@infineon.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <7418fe470510190455x3bb746cax365092504e77ba3c@mail.gmail.com>
-References: <7418fe470510190455x3bb746cax365092504e77ba3c@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 19 Oct 2005 14:01:42 +0200
-Message-Id: <1129723302.2822.31.camel@laptopd505.fenrus.org>
+	Wed, 19 Oct 2005 08:07:44 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:31238 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1750777AbVJSMHo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 08:07:44 -0400
+Date: Wed, 19 Oct 2005 08:07:34 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Cc: jgarzik@pobox.com
+Subject: [patch 2.6.14-rc3] sundance: include MII address 0 in PHY probe
+Message-ID: <10192005080734.15936@bilbo.tuxdriver.com>
+In-Reply-To: <20051019120022.GA15438@tuxdriver.com>
+User-Agent: PatchPost/0.5
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-10-19 at 13:55 +0200, Rabih ElMasri wrote:
-> hi,
-> 
-> I am trying to assign a new line discipline to ttyS0 from within the
-> kernel-space.
+Include MII address 0 at the end of the PHY scan.  This covers the
+entire range of possible MII addresses.
 
-why? You don't describe what you want to solve, only how you want to do
-it... it might be entirely the wrong solution for a simple problem..
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
 
+ drivers/net/sundance.c |    9 +++++----
+ 1 files changed, 5 insertions(+), 4 deletions(-)
 
->  During the initialization of my module I do the
-> following:
-
-you forgot to attach the full source of your module or point to URL with
-that. That is basically rule nr 1 when posting about problems with
-out-of-kernel modules; how else are people supposed to help you?
-
-
+diff --git a/drivers/net/sundance.c b/drivers/net/sundance.c
+--- a/drivers/net/sundance.c
++++ b/drivers/net/sundance.c
+@@ -608,16 +608,17 @@ static int __devinit sundance_probe1 (st
+ 
+ 	np->phys[0] = 1;		/* Default setting */
+ 	np->mii_preamble_required++;
+-	for (phy = 1; phy < 32 && phy_idx < MII_CNT; phy++) {
++	for (phy = 1; phy <= 32 && phy_idx < MII_CNT; phy++) {
+ 		int mii_status = mdio_read(dev, phy, MII_BMSR);
++		int phyx = phy & 0x1f;
+ 		if (mii_status != 0xffff  &&  mii_status != 0x0000) {
+-			np->phys[phy_idx++] = phy;
+-			np->mii_if.advertising = mdio_read(dev, phy, MII_ADVERTISE);
++			np->phys[phy_idx++] = phyx;
++			np->mii_if.advertising = mdio_read(dev, phyx, MII_ADVERTISE);
+ 			if ((mii_status & 0x0040) == 0)
+ 				np->mii_preamble_required++;
+ 			printk(KERN_INFO "%s: MII PHY found at address %d, status "
+ 				   "0x%4.4x advertising %4.4x.\n",
+-				   dev->name, phy, mii_status, np->mii_if.advertising);
++				   dev->name, phyx, mii_status, np->mii_if.advertising);
+ 		}
+ 	}
+ 	np->mii_preamble_required--;

@@ -1,100 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751107AbVJSB6d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbVJSCCh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751107AbVJSB6d (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 21:58:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751469AbVJSB6d
+	id S932151AbVJSCCh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 22:02:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbVJSCCh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 21:58:33 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:1966 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751107AbVJSB6d (ORCPT
+	Tue, 18 Oct 2005 22:02:37 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:16568 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S932151AbVJSCCg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 21:58:33 -0400
-Date: Wed, 19 Oct 2005 03:58:12 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Ingo Molnar <mingo@elte.hu>
-cc: Tim Bird <tim.bird@am.sony.com>, Andrew Morton <akpm@osdl.org>,
-       tglx@linutronix.de, george@mvista.com, linux-kernel@vger.kernel.org,
-       johnstul@us.ibm.com, paulmck@us.ibm.com, hch@infradead.org,
-       oleg@tv-sign.ru
-Subject: Re: [PATCH]  ktimers subsystem 2.6.14-rc2-kt5
-In-Reply-To: <20051018084655.GA28933@elte.hu>
-Message-ID: <Pine.LNX.4.61.0510190311140.1386@scrub.home>
-References: <Pine.LNX.4.61.0510171948040.1386@scrub.home> <4353F936.3090406@am.sony.com>
- <Pine.LNX.4.61.0510172138210.1386@scrub.home> <20051017201330.GB8590@elte.hu>
- <Pine.LNX.4.61.0510172227010.1386@scrub.home> <20051018084655.GA28933@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 18 Oct 2005 22:02:36 -0400
+Subject: Re: [discuss] Re: x86_64: 2.6.14-rc4 swiotlb broken
+From: Alex Williamson <alex.williamson@hp.com>
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org, tglx@linutronix.de, shai@scalex86.org,
+       y-goto@jp.fujitsu.com
+In-Reply-To: <1129684966.17545.50.camel@lts1.fc.hp.com>
+References: <20051017134401.3b0d861d.akpm@osdl.org>
+	 <Pine.LNX.4.64.0510171405510.3369@g5.osdl.org>
+	 <20051018001620.GD8932@localhost.localdomain>
+	 <Pine.LNX.4.64.0510180845470.3369@g5.osdl.org>
+	 <Pine.LNX.4.64.0510180848540.3369@g5.osdl.org>
+	 <20051018195423.GA6351@localhost.localdomain>
+	 <1129670907.17545.20.camel@lts1.fc.hp.com>
+	 <20051018215351.GA3982@localhost.localdomain>
+	 <1129673040.17545.32.camel@lts1.fc.hp.com>
+	 <1129675023.17545.41.camel@lts1.fc.hp.com>
+	 <20051018232203.GB4535@localhost.localdomain>
+	 <1129684966.17545.50.camel@lts1.fc.hp.com>
+Content-Type: text/plain
+Organization: LOSL
+Date: Tue, 18 Oct 2005 20:02:22 -0600
+Message-Id: <1129687342.17545.57.camel@lts1.fc.hp.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tue, 18 Oct 2005, Ingo Molnar wrote:
-
-> > Because they are optimized for process usage. OTOH kernel usage is 
-> > more than just "timeouts".
+On Tue, 2005-10-18 at 19:22 -0600, Alex Williamson wrote:
+> On Tue, 2005-10-18 at 16:22 -0700, Ravikiran G Thirumalai wrote:
 > 
-> you have cut out the rest of what i write in the paragraph, which IMO 
-> answers your question:
+> > Hope the following works.   Using __alloc_bootmem_node now with a hard coded
+> > goal to avoid 16MB DMA zone.  It is ugly :( and hope it works this time
+> > <fingers crossed>. 
 > 
-> > > They are totally separate entities, not limited to any process 
-> > > notion. One of their first practical use happens to be POSIX process 
-> > > timers (both itimers and ptimers) via them, but no way are ktimers 
-> > > only 'process timers'. They are very generic timers, usable for any
-> > > kernel purpose.
-> 
-> so i can only repeat that ktimers is a generic timer subsystem, with a 
-> focus on _actually delivering a timer event_.
+>    Nope, it still gives me memory above 4GB.  If I change goal to 0x0 it
+> works.
 
-It doesn't answer it at all. The new timer system is definitively not 
-"usable for any kernel purpose", it has certain properties, which makes it 
-only applicable under certain conditions.
+   BTW, the reason 16MB fails is this test in __alloc_bootmem_core():
 
-> and no, ktimers are not "optimized for process usage" (or tied to 
-> whatever other process notion, as i said before), they are optimized 
-> for:
-> 
->  - the delivery of time related events
-> 
-> as contrasted to the timeout-API (a'ka "timer wheel") code in 
-> kernel/timers.c that is optimized towards:
-> 
->  - the fast adding/removal of timers
-> 
-> without too much focus on robust and deterministic delivery of events.
+     if (bdata->last_success >= preferred)
+            preferred = bdata->last_success;
 
-You forgot the main property of high resolution, which implies a higher 
-maintainance cost. 
-Whether the timer event is delivered or not is completely unimportant, as 
-at some point the event has to be removed anyway, so that optimizing a 
-timer for (non)delivery is complete nonsense.
+That pretty much negates most of usefulness of passing in a goal other
+than 0 or !0.  If I comment out this test, the 16MB goal works as
+expected, but I get an uninitialized timer in the sym53c8xx driver.  Not
+sure what's happening there, but apparently the test has some purpose
+other than optimization.  Thanks,
 
-> these two concepts are conflicting, and i claim that a (sane) data 
-> structure that maximally fulfills both sets of requirements does not 
-> exist, mathematically. (to repeat, the requirements are: 'fast 
-> add/remove' and 'fast+deterministic expiry')
+	Alex
 
-to repeat: low resolution/overhead vs high resolution.
-Both are hopefully deterministic (only at different resolutions) or we 
-have serious bug at hand.
 
-> > > e.g. we dont want a watchdog from being 
-> > > overload-able via too many timeouts in the timer wheel ...
-> > 
-> > Please explain.
-> 
-> e.g. on busy networked servers (i.e. ones that do have a need for 
-> watchdogs) the timer wheel often includes large numbers of timeouts, 
-> 99.9% of which never expire. If they do expire en masse for whatever 
-> reason, then we can get into overload mode: a million timers might have 
-> to expire before we get to process the watchdog event and act upon it.  
-> This can delay the watchdog event significantly, which delay might (or 
-> might not) matter to the watchdog application.
 
-I already mentioned earlier that it's possible to reduce the timer load by 
-using a watchdog timer to filter most of these events, so that you get 
-into the interesting situation that most kernel timer actually do expire 
-and suddenly you easily can have more "timers" than "timeouts".
-
-bye, Roman

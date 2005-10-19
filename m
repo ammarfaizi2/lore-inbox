@@ -1,45 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751524AbVJSFkk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751530AbVJSFpu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751524AbVJSFkk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 01:40:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751530AbVJSFkk
+	id S1751530AbVJSFpu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 01:45:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751518AbVJSFpt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 01:40:40 -0400
-Received: from tus-gate1.raytheon.com ([199.46.245.230]:16616 "EHLO
-	tus-gate1.raytheon.com") by vger.kernel.org with ESMTP
-	id S1751524AbVJSFkj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 01:40:39 -0400
-Message-ID: <4355DC52.6000202@raytheon.com>
-Date: Tue, 18 Oct 2005 22:40:34 -0700
-From: Robert Crocombe <rwcrocombe@raytheon.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050611)
-X-Accept-Language: en-us, en
+	Wed, 19 Oct 2005 01:45:49 -0400
+Received: from qproxy.gmail.com ([72.14.204.203]:59067 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751532AbVJSFpt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 01:45:49 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:reply-to:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
+        b=kBNx6+EcmXWhnVqzoOtfROikNPmz55xVbccjlD/viDwDWSZQNhHaDd7cu+IdkaOfPLjN4EujuUsWAqB/qfmAkjMiVwdlxHeBFhWKjRBPAQv4evC43yL/KkuGKxGBYaGC9V52JtrNLnpj+aIsogqLhd9wZBBBGhdCCIhVFd8uIw0=
+Reply-To: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: large files unnecessary trashing filesystem cache?
+Date: Wed, 19 Oct 2005 01:45:45 -0400
+User-Agent: KMail/1.8.3
+Cc: gfiala@s.netic.de, linux-kernel@vger.kernel.org
+References: <200510182201.11241.gfiala@s.netic.de> <200510182302.59604.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <20051018213721.236b2107.akpm@osdl.org>
+In-Reply-To: <20051018213721.236b2107.akpm@osdl.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.14-rc4-rt9: lpptest removed?
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-X-SPAM: 0.00
+Content-Disposition: inline
+Message-Id: <200510190145.45911.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+From: Andrew James Wade <andrew.j.wade@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 19 October 2005 00:37, Andrew Morton wrote:
+> Andrew James Wade <andrew.j.wade@gmail.com> wrote:
+> >
+> > Sometimes you want a single file to take up most of the memory; databases
+> >  spring to mind. Perhaps files/processes that take up a large proportion of
+> >  memory should be penalized by preferentially reclaiming their pages, but
+> >  limit the aggressiveness so that they can still take up most of the memory
+> >  if sufficiently persistent (and the rest of the system isn't thrashing).
+> 
+> Yes.  Basically any smart heuristic we apply here will have failure modes. 
+> For example, the person whose application does repeated linear reads of the
+> first 100MB of a 4G file will get very upset.
 
-When using 'make menuconfig' for 2.6.14-rc4-rt7, the option for:
+As will any dumb heuristic for that matter; we'd need precognition[1] to avoid
+all of them. But we can hopefully make the failure modes rarer and more
+predictable. I don't know how my proposal would fare, and as I do not have
+the code to test the matter I think I shall drop it.
 
-Parallel Port Based Latency Measurement Device
-
-is available (CONFIG_LPPTEST).
-
-When using 'make menuconfig' for 2.6.14-rc4-rt9, this option doesn't 
-appear to exist.  From the thread, it looks like the changes were minor, 
-so was an accident?  Although, diffing the patches, nothing leaps out at 
-me, so perhaps I'm mistaken somehow?
-
-I threw a 'CONFIG_LPPTEST=m' into the newer kernel's .config to see what 
-would happen.  No lpptest.ko was produced :(.
-
-Please 'CC': not subscribed.
-
--- 
-Robert Crocombe
-rwcrocombe@raytheon.com
+[1] Which could, on occasion, be provided by hinting.

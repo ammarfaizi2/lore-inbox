@@ -1,82 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbVJSP5l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751130AbVJSQAn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751129AbVJSP5l (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 11:57:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbVJSP5l
+	id S1751130AbVJSQAn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 12:00:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbVJSQAn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 11:57:41 -0400
-Received: from xenotime.net ([66.160.160.81]:41641 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751129AbVJSP5k (ORCPT
+	Wed, 19 Oct 2005 12:00:43 -0400
+Received: from [67.137.28.189] ([67.137.28.189]:17280 "EHLO vger.utah-nac.org")
+	by vger.kernel.org with ESMTP id S1751130AbVJSQAm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 11:57:40 -0400
-Date: Wed, 19 Oct 2005 08:57:37 -0700 (PDT)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Karel Kulhavy <clock@twibright.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 3c900 boot-time kernel commandline parameters in 2.4.25
-In-Reply-To: <20051019105239.GA9858@kestrel>
-Message-ID: <Pine.LNX.4.58.0510190838550.23358@shark.he.net>
-References: <20051019105239.GA9858@kestrel>
+	Wed, 19 Oct 2005 12:00:42 -0400
+Message-ID: <43565A8E.1060406@wolfmountaingroup.org>
+Date: Wed, 19 Oct 2005 08:39:10 -0600
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: partition types wolf mountain fs
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Oct 2005, Karel Kulhavy wrote:
 
-> How do I tell Linux kernel 2.4.25 on boot-time kernel commandline to
-> switch my eth0
-> -----------------------------------------------------------------------
->   Bus  1, device   3, function  0:
->     Ethernet controller: 3Com Corporation 3c900 Combo [Boomerang] (rev
-> 0).
->       IRQ 11.
->       Master Capable.  Latency=32.  Min Gnt=3.Max Lat=8.
->       I/O at 0xc000 [0xc03f].
-> -----------------------------------------------------------------------
->
-> to TP transceiver and 10/100 autonegotiation?
->
-> I looked into Documentation/00-INDEX and into kernel-parameters.txt and
-> found just
->
-> "        ether=          [HW,NET] Ethernet cards parameters (irq,
->                         base_io_addr, mem_start, mem_end, name.
->                         (mem_start is often overloaded to mean something
->                         different and driver-specific).
-> "
->
-> which neither doesn't answer my question neither point to any
-> documentation where my question could be answered.
+FYI.
 
-Yes, there are lots of drivers where it is necessary to look
-in the driver source file to determine actual parameter usage.
+Partition types 0x66 and 0x67 are used as follows:
 
-For the 3c59x driver, mem_start is overloaded (as in the doc above) as:
+0x66 Wolf Mountain Segment Cache Partition
+0x67 Wolf Mountain Archive Cache Partition/Routing Partition
+
+These types have been used since 1995 for this architecture.  Info 
+provided for update of partition
+utilities folks.  I note they already appear to be reserved.  I am 
+providing what they are reserved for
+in this notice.
 
 
-0x8000			debug level 7
-0x4000			debug level 2
-0x0400			enable WOL
-0x0200			full duplex
-0x0010			bus master
-0x000m			media override value, index into media_table:
 
-0: { "10baseT",   Media_10TP,0x08, XCVR_10base2, (14*HZ)/10},
-1: { "10Mbs AUI", Media_SQE, 0x20, XCVR_Default, (1*HZ)/10},
-2: { "undefined", 0,			0x80, XCVR_10baseT, 10000},
-3: { "10base2",   0,			0x10, XCVR_AUI,	(1*HZ)/10},
-4: { "100baseTX", Media_Lnk, 0x02, XCVR_100baseFx, (14*HZ)/10},
-5: { "100baseFX", Media_Lnk, 0x04, XCVR_MII,	(14*HZ)/10},
-6: { "MII",		 0,		0x41, XCVR_10baseT, 3*HZ },
-7: { "undefined", 0,			0x01, XCVR_10baseT, 10000},
-8: { "Autonegotiate", 0,		0x41, XCVR_10baseT, 3*HZ},
-9: { "MII-External",	 0,		0x41, XCVR_10baseT, 3*HZ },
-10: { "Default",	 0,		0xFF, XCVR_10baseT, 10000},
-
-so don't use 2 or 7 for the media override value.
-In your case, I guess you want mem_start=8.
-
--- 
-~Randy

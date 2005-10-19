@@ -1,69 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932442AbVJSDpd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbVJSDoW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932442AbVJSDpd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 23:45:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbVJSDpd
+	id S932395AbVJSDoW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 23:44:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932442AbVJSDoW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 23:45:33 -0400
-Received: from mail.kroah.org ([69.55.234.183]:10436 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932442AbVJSDpd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 23:45:33 -0400
-Date: Tue, 18 Oct 2005 20:44:27 -0700
-From: Greg KH <greg@kroah.com>
-To: Mathieu Segaud <matt@regala.cx>
-Cc: Aaron Gyes <floam@sh.nu>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc4-mm1: udev/sysfs wierdness
-Message-ID: <20051019034427.GA15940@kroah.com>
-References: <1129610113.10504.4.camel@localhost> <20051018055003.GA10488@kroah.com> <20051018065705.GA11858@kroah.com> <87r7ajdy4v.fsf@barad-dur.minas-morgul.org>
+	Tue, 18 Oct 2005 23:44:22 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:14723 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932395AbVJSDoW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 23:44:22 -0400
+Subject: Re: scsi_eh / 1394 bug - -rt7
+From: Lee Revell <rlrevell@joe-job.com>
+To: Mark Knecht <markknecht@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <5bdc1c8b0510181402o2d9badb0sd18012cf7ff2a329@mail.gmail.com>
+References: <5bdc1c8b0510181402o2d9badb0sd18012cf7ff2a329@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 18 Oct 2005 23:43:43 -0400
+Message-Id: <1129693423.8910.54.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87r7ajdy4v.fsf@barad-dur.minas-morgul.org>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 18, 2005 at 10:31:44AM +0200, Mathieu Segaud wrote:
-> Greg KH <greg@kroah.com> disait derni??rement que :
+On Tue, 2005-10-18 at 14:02 -0700, Mark Knecht wrote:
+> Hi,
+>    I'm seeing this each time I plug in a 1394 hard drive:
 > 
-> > On Mon, Oct 17, 2005 at 10:50:03PM -0700, Greg KH wrote:
-> >> On Mon, Oct 17, 2005 at 09:35:13PM -0700, Aaron Gyes wrote:
-> >> > For some reason this rule stopped working:
-> >> > 
-> >> > KERNEL=="event*", SYSFS{manufacturer}="Logitech", SYSFS{product}="USB
-> >> > Receiver", NAME="input/mx1000", MODE="0644"
-> >> > 
-> >> > Did stuff in /sys/ change? Do I need to change all my rules to make up
-> >> > for this? udevs fault? I do have the correct /dev/input/event0 node.
-> >> 
-> >> You have that node?  That's a good start :)
-> >> 
-> >> I think the "name" might have changed, it looks like I messed that up
-> >> somehow.  What does:
-> >> 	 udevinfo -p /sys/class/input/input0/event0/ -a
-> >> 
-> >> show (or whatever that sysfs path is.)
-> >> 
-> >> Oops, heh, that dies on my box too.  Ok, I think that's the issue,
-> >> sorry.  I'm working on it...
-> >
-> > Can you try the patch below to see if that fixes the issue?  That should
-> > keep udevinfo from dieing.
-> 
-> huh, it doesn't apply to 2.6.14-rc4-mm1....
-> for which tree is it exactly ?
-> 
-> patching file drivers/input/input.c
-> Hunk #1 succeeded at 641 (offset 119 lines).
-> Hunk #2 FAILED at 818.
-> Hunk #3 succeeded at 769 (offset 33 lines).
-> 1 out of 3 hunks FAILED -- saving rejects to file drivers/input/input.c.rej
+> Attached scsi disk sdc at scsi6, channel 0, id 0, lun 0
+> ieee1394: Node changed: 0-01:1023 -> 0-00:1023
+> ieee1394: Node changed: 0-02:1023 -> 0-01:1023
+> ieee1394: Reconnected to SBP-2 device
+> ieee1394: Node 0-00:1023: Max speed [S400] - Max payload [2048]
+> ieee1394: Node suspended: ID:BUS[0-00:1023]  GUID[0050c501e00b31ec]
+> prev->state: 2 != TASK_RUNNING??
+> scsi_eh_6/20286[CPU#0]: BUG in __schedule at kernel/sched.c:3328
 
-I was against my latest tree, which is on kernel.org.  Someone already
-posted an updated patch on lkml if you can't get that second hunk to
-apply.
+I hit this exact same bug while at a client site today, with an external
+USB drive. 
 
-thanks,
+Lee
 
-greg k-h

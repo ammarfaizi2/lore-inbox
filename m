@@ -1,342 +1,523 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750878AbVJSMfr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750918AbVJSMg6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750878AbVJSMfr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 08:35:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750866AbVJSMfq
+	id S1750918AbVJSMg6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 08:36:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750919AbVJSMg6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 08:35:46 -0400
-Received: from zproxy.gmail.com ([64.233.162.206]:484 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750871AbVJSMfb (ORCPT
+	Wed, 19 Oct 2005 08:36:58 -0400
+Received: from zproxy.gmail.com ([64.233.162.203]:40601 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750913AbVJSMg4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 08:35:31 -0400
+	Wed, 19 Oct 2005 08:36:56 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:from:to:cc:user-agent:content-type:references:in-reply-to:subject:message-id:date;
-        b=NCj35Fb0/Qwmm0znQg/sk0HxhmcIgzSIBfdhcrgwtBD77Vv/cR2YljxFJ0MfAdwwtzy3D9D3gzhxxu6jhmn9dfF0KLsc+S/fE48g2MP5lgS9O0+8zzqad+gnoShoZ4lHRp3HUyUzDncqd7ov0cXLPSqrHY0ibntduJH52IAwR1Q=
+        h=received:date:from:to:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=aShqOfPKLNvNRqr+hw281Ml64g3gY44+weUOs8wVF022u4vTLyFbh/LrgupzyfVo69fp6PiSHqdnkEwJfBIKG94kuoYsRZjlDem6DktkcVWXz3A0/FIOcdPzestuI7KP/Xu37qWC12Mn+PHjdljy4Q5j+40qyA5ngf74W7VW9Bk=
+Date: Wed, 19 Oct 2005 21:36:48 +0900
 From: Tejun Heo <htejun@gmail.com>
-To: axboe@suse.de
-Cc: linux-kernel@vger.kernel.org
-User-Agent: lksp 0.3
-Content-Type: text/plain; charset=US-ASCII
-References: <20051019123429.450E4424@htj.dyndns.org>
-In-Reply-To: <20051019123429.450E4424@htj.dyndns.org>
-Subject: Re: [PATCH linux-2.6-block:master 04/05] blk: remove last_merge handling from ioscheds
-Message-ID: <20051019123429.3444D769@htj.dyndns.org>
-Date: Wed, 19 Oct 2005 21:35:24 +0900 (KST)
+To: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: [PATCH linux-2.6-block:master] blk: reimplement elevator switch
+Message-ID: <20051019123648.GA31257@htj.dyndns.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-04_blk_generic-last_merge-handling-update-for-ioscheds.patch
+ Hello, Jens.
 
-	Remove last_merge handling from all ioscheds.  This patch
-	removes merging capability of noop iosched.
+ This patch reimplements elevator switch.  This patch assumes generic
+dispatch queue patchset is applied.
+
+ * Each request is tagged with REQ_ELVPRIV flag if it has its elevator
+   private data set.
+ * Requests which doesn't have REQ_ELVPRIV flag set never enter
+   iosched.  They are always directly back inserted to dispatch queue.
+   Of course, elevator_put_req_fn is called only for requests which
+   have its REQ_ELVPRIV set.
+ * Request queue maintains the current number of requests which have
+   its elevator data set (elevator_set_req_fn called) in
+   q->rq->elvpriv.
+ * If a request queue has QUEUE_FLAG_BYPASS set, elevator private data
+   is not allocated for new requests.
+
+ To switch to another iosched, we set QUEUE_FLAG_BYPASS and wait until
+elvpriv goes to zero; then, we attach the new iosched and clears
+QUEUE_FLAG_BYPASS.  New implementation is much simpler and main code
+paths are less cluttered, IMHO.
 
 Signed-off-by: Tejun Heo <htejun@gmail.com>
 
- as-iosched.c       |   35 ++++-------------------------------
- cfq-iosched.c      |   26 ++------------------------
- deadline-iosched.c |   30 ++----------------------------
- noop-iosched.c     |   31 -------------------------------
- 4 files changed, 8 insertions(+), 114 deletions(-)
-
-Index: blk-fixes/drivers/block/as-iosched.c
+Index: blk-fixes/drivers/block/elevator.c
 ===================================================================
---- blk-fixes.orig/drivers/block/as-iosched.c	2005-10-19 21:34:02.000000000 +0900
-+++ blk-fixes/drivers/block/as-iosched.c	2005-10-19 21:34:02.000000000 +0900
-@@ -279,14 +279,6 @@ static inline void as_del_arq_hash(struc
- 		__as_del_arq_hash(arq);
- }
- 
--static void as_remove_merge_hints(request_queue_t *q, struct as_rq *arq)
--{
--	as_del_arq_hash(arq);
--
--	if (q->last_merge == arq->request)
--		q->last_merge = NULL;
--}
--
- static void as_add_arq_hash(struct as_data *ad, struct as_rq *arq)
- {
- 	struct request *rq = arq->request;
-@@ -330,7 +322,7 @@ static struct request *as_find_arq_hash(
- 		BUG_ON(!arq->on_hash);
- 
- 		if (!rq_mergeable(__rq)) {
--			as_remove_merge_hints(ad->q, arq);
-+			as_del_arq_hash(arq);
- 			continue;
- 		}
- 
-@@ -1040,7 +1032,7 @@ static void as_remove_queued_request(req
- 		ad->next_arq[data_dir] = as_find_next_arq(ad, arq);
- 
- 	list_del_init(&arq->fifo);
--	as_remove_merge_hints(q, arq);
-+	as_del_arq_hash(arq);
- 	as_del_arq_rb(ad, arq);
- }
- 
-@@ -1351,7 +1343,7 @@ as_add_aliased_request(struct as_data *a
- 	/*
- 	 * Don't want to have to handle merges.
- 	 */
--	as_remove_merge_hints(ad->q, arq);
-+	as_del_arq_hash(arq);
- }
- 
- /*
-@@ -1392,12 +1384,8 @@ static void as_add_request(request_queue
- 		arq->expires = jiffies + ad->fifo_expire[data_dir];
- 		list_add_tail(&arq->fifo, &ad->fifo_list[data_dir]);
- 
--		if (rq_mergeable(arq->request)) {
-+		if (rq_mergeable(arq->request))
- 			as_add_arq_hash(ad, arq);
--
--			if (!ad->q->last_merge)
--				ad->q->last_merge = arq->request;
--		}
- 		as_update_arq(ad, arq); /* keep state machine up to date */
- 
- 	} else {
-@@ -1487,15 +1475,6 @@ as_merge(request_queue_t *q, struct requ
- 	int ret;
- 
- 	/*
--	 * try last_merge to avoid going to hash
--	 */
--	ret = elv_try_last_merge(q, bio);
--	if (ret != ELEVATOR_NO_MERGE) {
--		__rq = q->last_merge;
--		goto out_insert;
--	}
--
--	/*
- 	 * see if the merge hash can satisfy a back merge
- 	 */
- 	__rq = as_find_arq_hash(ad, bio->bi_sector);
-@@ -1523,9 +1502,6 @@ as_merge(request_queue_t *q, struct requ
- 
- 	return ELEVATOR_NO_MERGE;
- out:
--	if (rq_mergeable(__rq))
--		q->last_merge = __rq;
--out_insert:
- 	if (ret) {
- 		if (rq_mergeable(__rq))
- 			as_hot_arq_hash(ad, RQ_DATA(__rq));
-@@ -1572,9 +1548,6 @@ static void as_merged_request(request_qu
- 		 * behind the disk head. We currently don't bother adjusting.
- 		 */
- 	}
--
--	if (arq->on_hash)
--		q->last_merge = req;
- }
- 
- static void
-Index: blk-fixes/drivers/block/deadline-iosched.c
-===================================================================
---- blk-fixes.orig/drivers/block/deadline-iosched.c	2005-10-19 21:34:02.000000000 +0900
-+++ blk-fixes/drivers/block/deadline-iosched.c	2005-10-19 21:34:02.000000000 +0900
-@@ -112,15 +112,6 @@ static inline void deadline_del_drq_hash
- 		__deadline_del_drq_hash(drq);
- }
- 
--static void
--deadline_remove_merge_hints(request_queue_t *q, struct deadline_rq *drq)
--{
--	deadline_del_drq_hash(drq);
--
--	if (q->last_merge == drq->request)
--		q->last_merge = NULL;
--}
--
- static inline void
- deadline_add_drq_hash(struct deadline_data *dd, struct deadline_rq *drq)
- {
-@@ -299,12 +290,8 @@ deadline_add_request(struct request_queu
- 	drq->expires = jiffies + dd->fifo_expire[data_dir];
- 	list_add_tail(&drq->fifo, &dd->fifo_list[data_dir]);
- 
--	if (rq_mergeable(rq)) {
-+	if (rq_mergeable(rq))
- 		deadline_add_drq_hash(dd, drq);
--
--		if (!q->last_merge)
--			q->last_merge = rq;
--	}
- }
- 
- /*
-@@ -316,8 +303,8 @@ static void deadline_remove_request(requ
- 	struct deadline_data *dd = q->elevator->elevator_data;
- 
- 	list_del_init(&drq->fifo);
--	deadline_remove_merge_hints(q, drq);
- 	deadline_del_drq_rb(dd, drq);
-+	deadline_del_drq_hash(drq);
- }
- 
- static int
-@@ -328,15 +315,6 @@ deadline_merge(request_queue_t *q, struc
- 	int ret;
- 
- 	/*
--	 * try last_merge to avoid going to hash
--	 */
--	ret = elv_try_last_merge(q, bio);
--	if (ret != ELEVATOR_NO_MERGE) {
--		__rq = q->last_merge;
--		goto out_insert;
--	}
--
--	/*
- 	 * see if the merge hash can satisfy a back merge
- 	 */
- 	__rq = deadline_find_drq_hash(dd, bio->bi_sector);
-@@ -368,8 +346,6 @@ deadline_merge(request_queue_t *q, struc
- 
- 	return ELEVATOR_NO_MERGE;
- out:
--	q->last_merge = __rq;
--out_insert:
- 	if (ret)
- 		deadline_hot_drq_hash(dd, RQ_DATA(__rq));
- 	*req = __rq;
-@@ -394,8 +370,6 @@ static void deadline_merged_request(requ
- 		deadline_del_drq_rb(dd, drq);
- 		deadline_add_drq_rb(dd, drq);
- 	}
--
--	q->last_merge = req;
- }
- 
- static void
-Index: blk-fixes/drivers/block/noop-iosched.c
-===================================================================
---- blk-fixes.orig/drivers/block/noop-iosched.c	2005-10-19 21:34:02.000000000 +0900
-+++ blk-fixes/drivers/block/noop-iosched.c	2005-10-19 21:34:02.000000000 +0900
-@@ -7,38 +7,9 @@
- #include <linux/module.h>
+--- blk-fixes.orig/drivers/block/elevator.c	2005-10-17 03:57:33.000000000 +0900
++++ blk-fixes/drivers/block/elevator.c	2005-10-17 21:13:18.000000000 +0900
+@@ -34,6 +34,7 @@
+ #include <linux/slab.h>
  #include <linux/init.h>
+ #include <linux/compiler.h>
++#include <linux/delay.h>
  
--/*
-- * See if we can find a request that this buffer can be coalesced with.
-- */
--static int elevator_noop_merge(request_queue_t *q, struct request **req,
--			       struct bio *bio)
--{
--	int ret;
+ #include <asm/uaccess.h>
+ 
+@@ -135,13 +136,7 @@ static int elevator_attach(request_queue
+ 	memset(eq, 0, sizeof(*eq));
+ 	eq->ops = &e->ops;
+ 	eq->elevator_type = e;
 -
--	ret = elv_try_last_merge(q, bio);
--	if (ret != ELEVATOR_NO_MERGE)
--		*req = q->last_merge;
+-	INIT_LIST_HEAD(&q->queue_head);
+-	q->last_merge = NULL;
+ 	q->elevator = eq;
+-	q->last_sector = 0;
+-	q->boundary_rq = NULL;
+-	q->max_back_kb = 0;
+ 
+ 	if (eq->ops->elevator_init_fn)
+ 		ret = eq->ops->elevator_init_fn(q, eq);
+@@ -190,6 +185,12 @@ int elevator_init(request_queue_t *q, ch
+ 	struct elevator_queue *eq;
+ 	int ret = 0;
+ 
++	INIT_LIST_HEAD(&q->queue_head);
++	q->last_merge = NULL;
++	q->last_sector = 0;
++	q->boundary_rq = NULL;
++	q->max_back_kb = 0;
++
+ 	elevator_setup_default();
+ 
+ 	if (!name)
+@@ -353,23 +354,14 @@ void __elv_add_request(request_queue_t *
+ 			q->last_sector = rq_last_sector(rq);
+ 			q->boundary_rq = rq;
+ 		}
+-	}
++	} else if (!(rq->flags & REQ_ELVPRIV) && where == ELEVATOR_INSERT_SORT)
++		where = ELEVATOR_INSERT_BACK;
+ 
+ 	if (plug)
+ 		blk_plug_device(q);
+ 
+ 	rq->q = q;
+ 
+-	if (unlikely(test_bit(QUEUE_FLAG_DRAIN, &q->queue_flags))) {
+-		/*
+-		 * if drain is set, store the request "locally". when the drain
+-		 * is finished, the requests will be handed ordered to the io
+-		 * scheduler
+-		 */
+-		list_add_tail(&rq->queuelist, &q->drain_list);
+-		return;
+-	}
 -
--	return ret;
--}
--
--static void elevator_noop_merge_requests(request_queue_t *q, struct request *req,
--					 struct request *next)
--{
--	list_del_init(&next->queuelist);
--}
--
- static void elevator_noop_add_request(request_queue_t *q, struct request *rq)
+ 	switch (where) {
+ 	case ELEVATOR_INSERT_FRONT:
+ 		rq->flags |= REQ_SOFTBARRIER;
+@@ -676,25 +668,36 @@ EXPORT_SYMBOL_GPL(elv_unregister);
+  * switch to new_e io scheduler. be careful not to introduce deadlocks -
+  * we don't free the old io scheduler, before we have allocated what we
+  * need for the new one. this way we have a chance of going back to the old
+- * one, if the new one fails init for some reason. we also do an intermediate
+- * switch to noop to ensure safety with stack-allocated requests, since they
+- * don't originate from the block layer allocator. noop is safe here, because
+- * it never needs to touch the elevator itself for completion events. DRAIN
+- * flags will make sure we don't touch it for additions either.
++ * one, if the new one fails init for some reason.
+  */
+ static void elevator_switch(request_queue_t *q, struct elevator_type *new_e)
  {
- 	elv_dispatch_insert(q, rq, 0);
+-	elevator_t *e = kmalloc(sizeof(elevator_t), GFP_KERNEL);
+-	struct elevator_type *noop_elevator = NULL;
+-	elevator_t *old_elevator;
++	elevator_t *old_elevator, *e;
+ 
++	/*
++	 * Allocate new elevator
++	 */
++	e = kmalloc(sizeof(elevator_t), GFP_KERNEL);
+ 	if (!e)
+ 		goto error;
+ 
+ 	/*
+-	 * first step, drain requests from the block freelist
++	 * Turn on BYPASS and drain all requests w/ elevator private data
+ 	 */
+-	blk_wait_queue_drained(q, 0);
++	spin_lock_irq(q->queue_lock);
++
++	set_bit(QUEUE_FLAG_BYPASS, &q->queue_flags);
++
++	while (q->elevator->ops->elevator_dispatch_fn(q, 1))
++		;
++
++	while (q->rq.elvpriv) {
++		spin_unlock_irq(q->queue_lock);
++		msleep(100);
++		spin_lock_irq(q->queue_lock);
++	}
++
++	spin_unlock_irq(q->queue_lock);
+ 
+ 	/*
+ 	 * unregister old elevator data
+@@ -703,18 +706,6 @@ static void elevator_switch(request_queu
+ 	old_elevator = q->elevator;
+ 
+ 	/*
+- 	 * next step, switch to noop since it uses no private rq structures
+-	 * and doesn't allocate any memory for anything. then wait for any
+-	 * non-fs requests in-flight
+- 	 */
+-	noop_elevator = elevator_get("noop");
+-	spin_lock_irq(q->queue_lock);
+-	elevator_attach(q, noop_elevator, e);
+-	spin_unlock_irq(q->queue_lock);
+-
+-	blk_wait_queue_drained(q, 1);
 -
 -	/*
--	 * new merges must not precede this barrier
--	 */
--	if (rq->flags & REQ_HARDBARRIER)
--		q->last_merge = NULL;
--	else if (!q->last_merge)
--		q->last_merge = rq;
+ 	 * attach and start new elevator
+ 	 */
+ 	if (elevator_attach(q, new_e, e))
+@@ -724,11 +715,10 @@ static void elevator_switch(request_queu
+ 		goto fail_register;
+ 
+ 	/*
+-	 * finally exit old elevator and start queue again
++	 * finally exit old elevator and turn off BYPASS.
+ 	 */
+ 	elevator_exit(old_elevator);
+-	blk_finish_queue_drain(q);
+-	elevator_put(noop_elevator);
++	clear_bit(QUEUE_FLAG_BYPASS, &q->queue_flags);
+ 	return;
+ 
+ fail_register:
+@@ -737,13 +727,13 @@ fail_register:
+ 	 * one again (along with re-adding the sysfs dir)
+ 	 */
+ 	elevator_exit(e);
++	e = NULL;
+ fail:
+ 	q->elevator = old_elevator;
+ 	elv_register_queue(q);
+-	blk_finish_queue_drain(q);
++	clear_bit(QUEUE_FLAG_BYPASS, &q->queue_flags);
++	kfree(e);
+ error:
+-	if (noop_elevator)
+-		elevator_put(noop_elevator);
+ 	elevator_put(new_e);
+ 	printk(KERN_ERR "elevator: switch to %s failed\n",new_e->elevator_name);
  }
- 
- static int elevator_noop_dispatch(request_queue_t *q, int force)
-@@ -48,8 +19,6 @@ static int elevator_noop_dispatch(reques
- 
- static struct elevator_type elevator_noop = {
- 	.ops = {
--		.elevator_merge_fn		= elevator_noop_merge,
--		.elevator_merge_req_fn		= elevator_noop_merge_requests,
- 		.elevator_dispatch_fn		= elevator_noop_dispatch,
- 		.elevator_add_req_fn		= elevator_noop_add_request,
- 	},
-Index: blk-fixes/drivers/block/cfq-iosched.c
+Index: blk-fixes/drivers/block/ll_rw_blk.c
 ===================================================================
---- blk-fixes.orig/drivers/block/cfq-iosched.c	2005-10-19 21:34:02.000000000 +0900
-+++ blk-fixes/drivers/block/cfq-iosched.c	2005-10-19 21:34:02.000000000 +0900
-@@ -304,14 +304,6 @@ static inline void cfq_del_crq_hash(stru
- 	hlist_del_init(&crq->hash);
+--- blk-fixes.orig/drivers/block/ll_rw_blk.c	2005-10-17 03:57:33.000000000 +0900
++++ blk-fixes/drivers/block/ll_rw_blk.c	2005-10-17 21:13:18.000000000 +0900
+@@ -263,8 +263,6 @@ void blk_queue_make_request(request_queu
+ 	blk_queue_bounce_limit(q, BLK_BOUNCE_HIGH);
+ 
+ 	blk_queue_activity_fn(q, NULL, NULL);
+-
+-	INIT_LIST_HEAD(&q->drain_list);
  }
  
--static void cfq_remove_merge_hints(request_queue_t *q, struct cfq_rq *crq)
--{
--	cfq_del_crq_hash(crq);
+ EXPORT_SYMBOL(blk_queue_make_request);
+@@ -1050,6 +1048,7 @@ static char *rq_flags[] = {
+ 	"REQ_STARTED",
+ 	"REQ_DONTPREP",
+ 	"REQ_QUEUED",
++	"REQ_ELVPRIV",
+ 	"REQ_PC",
+ 	"REQ_BLOCK_PC",
+ 	"REQ_SENSE",
+@@ -1640,9 +1639,9 @@ static int blk_init_free_list(request_qu
+ 
+ 	rl->count[READ] = rl->count[WRITE] = 0;
+ 	rl->starved[READ] = rl->starved[WRITE] = 0;
++	rl->elvpriv = 0;
+ 	init_waitqueue_head(&rl->wait[READ]);
+ 	init_waitqueue_head(&rl->wait[WRITE]);
+-	init_waitqueue_head(&rl->drain);
+ 
+ 	rl->rq_pool = mempool_create_node(BLKDEV_MIN_RQ, mempool_alloc_slab,
+ 				mempool_free_slab, request_cachep, q->node);
+@@ -1785,12 +1784,14 @@ EXPORT_SYMBOL(blk_get_queue);
+ 
+ static inline void blk_free_request(request_queue_t *q, struct request *rq)
+ {
+-	elv_put_request(q, rq);
++	if (rq->flags & REQ_ELVPRIV)
++		elv_put_request(q, rq);
+ 	mempool_free(rq, q->rq.rq_pool);
+ }
+ 
+ static inline struct request *
+-blk_alloc_request(request_queue_t *q, int rw, struct bio *bio, int gfp_mask)
++blk_alloc_request(request_queue_t *q, int rw, struct bio *bio,
++		  int priv, int gfp_mask)
+ {
+ 	struct request *rq = mempool_alloc(q->rq.rq_pool, gfp_mask);
+ 
+@@ -1803,11 +1804,15 @@ blk_alloc_request(request_queue_t *q, in
+ 	 */
+ 	rq->flags = rw;
+ 
+-	if (!elv_set_request(q, rq, bio, gfp_mask))
+-		return rq;
++	if (priv) {
++		if (unlikely(elv_set_request(q, rq, bio, gfp_mask))) {
++			mempool_free(rq, q->rq.rq_pool);
++			return NULL;
++		}
++		rq->flags |= REQ_ELVPRIV;
++	}
+ 
+-	mempool_free(rq, q->rq.rq_pool);
+-	return NULL;
++	return rq;
+ }
+ 
+ /*
+@@ -1863,22 +1868,18 @@ static void __freed_request(request_queu
+  * A request has just been released.  Account for it, update the full and
+  * congestion status, wake up any waiters.   Called under q->queue_lock.
+  */
+-static void freed_request(request_queue_t *q, int rw)
++static void freed_request(request_queue_t *q, int rw, int priv)
+ {
+ 	struct request_list *rl = &q->rq;
+ 
+ 	rl->count[rw]--;
++	if (priv)
++		rl->elvpriv--;
+ 
+ 	__freed_request(q, rw);
+ 
+ 	if (unlikely(rl->starved[rw ^ 1]))
+ 		__freed_request(q, rw ^ 1);
 -
--	if (q->last_merge == crq->request)
--		q->last_merge = NULL;
+-	if (!rl->count[READ] && !rl->count[WRITE]) {
+-		smp_mb();
+-		if (unlikely(waitqueue_active(&rl->drain)))
+-			wake_up(&rl->drain);
+-	}
+ }
+ 
+ #define blkdev_free_rq(list) list_entry((list)->next, struct request, queuelist)
+@@ -1893,9 +1894,7 @@ static struct request *get_request(reque
+ 	struct request *rq = NULL;
+ 	struct request_list *rl = &q->rq;
+ 	struct io_context *ioc = current_io_context(GFP_ATOMIC);
+-
+-	if (unlikely(test_bit(QUEUE_FLAG_DRAIN, &q->queue_flags)))
+-		goto out;
++	int priv;
+ 
+ 	if (rl->count[rw]+1 >= q->nr_requests) {
+ 		/*
+@@ -1940,9 +1939,14 @@ get_rq:
+ 	rl->starved[rw] = 0;
+ 	if (rl->count[rw] >= queue_congestion_on_threshold(q))
+ 		set_queue_congested(q, rw);
++
++	priv = !test_bit(QUEUE_FLAG_BYPASS, &q->queue_flags);
++	if (priv)
++		rl->elvpriv++;
++
+ 	spin_unlock_irq(q->queue_lock);
+ 
+-	rq = blk_alloc_request(q, rw, bio, gfp_mask);
++	rq = blk_alloc_request(q, rw, bio, priv, gfp_mask);
+ 	if (!rq) {
+ 		/*
+ 		 * Allocation failed presumably due to memory. Undo anything
+@@ -1952,7 +1956,7 @@ get_rq:
+ 		 * wait queue, but this is pretty rare.
+ 		 */
+ 		spin_lock_irq(q->queue_lock);
+-		freed_request(q, rw);
++		freed_request(q, rw, priv);
+ 
+ 		/*
+ 		 * in the very unlikely event that allocation failed and no
+@@ -2468,11 +2472,12 @@ static void __blk_put_request(request_qu
+ 	 */
+ 	if (rl) {
+ 		int rw = rq_data_dir(req);
++		int priv = req->flags & REQ_ELVPRIV;
+ 
+ 		BUG_ON(!list_empty(&req->queuelist));
+ 
+ 		blk_free_request(q, req);
+-		freed_request(q, rw);
++		freed_request(q, rw, priv);
+ 	}
+ }
+ 
+@@ -2800,97 +2805,6 @@ static inline void blk_partition_remap(s
+ 	}
+ }
+ 
+-void blk_finish_queue_drain(request_queue_t *q)
+-{
+-	struct request_list *rl = &q->rq;
+-	struct request *rq;
+-	int requeued = 0;
+-
+-	spin_lock_irq(q->queue_lock);
+-	clear_bit(QUEUE_FLAG_DRAIN, &q->queue_flags);
+-
+-	while (!list_empty(&q->drain_list)) {
+-		rq = list_entry_rq(q->drain_list.next);
+-
+-		list_del_init(&rq->queuelist);
+-		elv_requeue_request(q, rq);
+-		requeued++;
+-	}
+-
+-	if (requeued)
+-		q->request_fn(q);
+-
+-	spin_unlock_irq(q->queue_lock);
+-
+-	wake_up(&rl->wait[0]);
+-	wake_up(&rl->wait[1]);
+-	wake_up(&rl->drain);
 -}
 -
- static inline void cfq_add_crq_hash(struct cfq_data *cfqd, struct cfq_rq *crq)
+-static int wait_drain(request_queue_t *q, struct request_list *rl, int dispatch)
+-{
+-	int wait = rl->count[READ] + rl->count[WRITE];
+-
+-	if (dispatch)
+-		wait += !list_empty(&q->queue_head);
+-
+-	return wait;
+-}
+-
+-/*
+- * We rely on the fact that only requests allocated through blk_alloc_request()
+- * have io scheduler private data structures associated with them. Any other
+- * type of request (allocated on stack or through kmalloc()) should not go
+- * to the io scheduler core, but be attached to the queue head instead.
+- */
+-void blk_wait_queue_drained(request_queue_t *q, int wait_dispatch)
+-{
+-	struct request_list *rl = &q->rq;
+-	DEFINE_WAIT(wait);
+-
+-	spin_lock_irq(q->queue_lock);
+-	set_bit(QUEUE_FLAG_DRAIN, &q->queue_flags);
+-
+-	while (wait_drain(q, rl, wait_dispatch)) {
+-		prepare_to_wait(&rl->drain, &wait, TASK_UNINTERRUPTIBLE);
+-
+-		if (wait_drain(q, rl, wait_dispatch)) {
+-			__generic_unplug_device(q);
+-			spin_unlock_irq(q->queue_lock);
+-			io_schedule();
+-			spin_lock_irq(q->queue_lock);
+-		}
+-
+-		finish_wait(&rl->drain, &wait);
+-	}
+-
+-	spin_unlock_irq(q->queue_lock);
+-}
+-
+-/*
+- * block waiting for the io scheduler being started again.
+- */
+-static inline void block_wait_queue_running(request_queue_t *q)
+-{
+-	DEFINE_WAIT(wait);
+-
+-	while (unlikely(test_bit(QUEUE_FLAG_DRAIN, &q->queue_flags))) {
+-		struct request_list *rl = &q->rq;
+-
+-		prepare_to_wait_exclusive(&rl->drain, &wait,
+-				TASK_UNINTERRUPTIBLE);
+-
+-		/*
+-		 * re-check the condition. avoids using prepare_to_wait()
+-		 * in the fast path (queue is running)
+-		 */
+-		if (test_bit(QUEUE_FLAG_DRAIN, &q->queue_flags))
+-			io_schedule();
+-
+-		finish_wait(&rl->drain, &wait);
+-	}
+-}
+-
+ static void handle_bad_sector(struct bio *bio)
  {
- 	const int hash_idx = CFQ_MHASH_FN(rq_hash_key(crq->request));
-@@ -672,7 +664,7 @@ static void cfq_remove_request(struct re
+ 	char b[BDEVNAME_SIZE];
+@@ -2986,8 +2900,6 @@ end_io:
+ 		if (unlikely(test_bit(QUEUE_FLAG_DEAD, &q->queue_flags)))
+ 			goto end_io;
  
- 	list_del_init(&rq->queuelist);
- 	cfq_del_crq_rb(crq);
--	cfq_remove_merge_hints(rq->q, crq);
-+	cfq_del_crq_hash(crq);
- }
- 
- static int
-@@ -682,12 +674,6 @@ cfq_merge(request_queue_t *q, struct req
- 	struct request *__rq;
- 	int ret;
- 
--	ret = elv_try_last_merge(q, bio);
--	if (ret != ELEVATOR_NO_MERGE) {
--		__rq = q->last_merge;
--		goto out_insert;
--	}
+-		block_wait_queue_running(q);
 -
- 	__rq = cfq_find_rq_hash(cfqd, bio->bi_sector);
- 	if (__rq && elv_rq_merge_ok(__rq, bio)) {
- 		ret = ELEVATOR_BACK_MERGE;
-@@ -702,8 +688,6 @@ cfq_merge(request_queue_t *q, struct req
+ 		/*
+ 		 * If this device has partitions, remap block n
+ 		 * of partition p to block n+start(p) of the disk.
+Index: blk-fixes/include/linux/blkdev.h
+===================================================================
+--- blk-fixes.orig/include/linux/blkdev.h	2005-10-17 03:57:33.000000000 +0900
++++ blk-fixes/include/linux/blkdev.h	2005-10-17 21:13:34.000000000 +0900
+@@ -107,9 +107,9 @@ typedef void (rq_end_io_fn)(struct reque
+ struct request_list {
+ 	int count[2];
+ 	int starved[2];
++	int elvpriv;
+ 	mempool_t *rq_pool;
+ 	wait_queue_head_t wait[2];
+-	wait_queue_head_t drain;
+ };
  
- 	return ELEVATOR_NO_MERGE;
- out:
--	q->last_merge = __rq;
--out_insert:
- 	*req = __rq;
- 	return ret;
- }
-@@ -722,8 +706,6 @@ static void cfq_merged_request(request_q
- 		cfq_update_next_crq(crq);
- 		cfq_reposition_crq_rb(cfqq, crq);
- 	}
+ #define BLK_MAX_CDB	16
+@@ -211,6 +211,7 @@ enum rq_flag_bits {
+ 	__REQ_STARTED,		/* drive already may have started this one */
+ 	__REQ_DONTPREP,		/* don't call prep for this one */
+ 	__REQ_QUEUED,		/* uses queueing */
++	__REQ_ELVPRIV,		/* elevator private data attached */
+ 	/*
+ 	 * for ATA/ATAPI devices
+ 	 */
+@@ -244,6 +245,7 @@ enum rq_flag_bits {
+ #define REQ_STARTED	(1 << __REQ_STARTED)
+ #define REQ_DONTPREP	(1 << __REQ_DONTPREP)
+ #define REQ_QUEUED	(1 << __REQ_QUEUED)
++#define REQ_ELVPRIV	(1 << __REQ_ELVPRIV)
+ #define REQ_PC		(1 << __REQ_PC)
+ #define REQ_BLOCK_PC	(1 << __REQ_BLOCK_PC)
+ #define REQ_SENSE	(1 << __REQ_SENSE)
+@@ -414,8 +416,6 @@ struct request_queue
+ 	unsigned int		sg_reserved_size;
+ 	int			node;
+ 
+-	struct list_head	drain_list;
 -
--	q->last_merge = req;
- }
+ 	/*
+ 	 * reserved for flush operations
+ 	 */
+@@ -443,7 +443,7 @@ enum {
+ #define QUEUE_FLAG_DEAD		5	/* queue being torn down */
+ #define QUEUE_FLAG_REENTER	6	/* Re-entrancy avoidance */
+ #define QUEUE_FLAG_PLUGGED	7	/* queue is plugged */
+-#define QUEUE_FLAG_DRAIN	8	/* draining queue for sched switch */
++#define QUEUE_FLAG_BYPASS	8	/* don't use elevator, just do FIFO */
+ #define QUEUE_FLAG_FLUSH	9	/* doing barrier flush sequence */
  
- static void
-@@ -1670,13 +1652,9 @@ static void cfq_insert_request(request_q
+ #define blk_queue_plugged(q)	test_bit(QUEUE_FLAG_PLUGGED, &(q)->queue_flags)
+@@ -655,8 +655,6 @@ extern void blk_dump_rq_flags(struct req
+ extern void generic_unplug_device(request_queue_t *);
+ extern void __generic_unplug_device(request_queue_t *);
+ extern long nr_blockdev_pages(void);
+-extern void blk_wait_queue_drained(request_queue_t *, int);
+-extern void blk_finish_queue_drain(request_queue_t *);
  
- 	list_add_tail(&rq->queuelist, &cfqq->fifo);
- 
--	if (rq_mergeable(rq)) {
-+	if (rq_mergeable(rq))
- 		cfq_add_crq_hash(cfqd, crq);
- 
--		if (!cfqd->queue->last_merge)
--			cfqd->queue->last_merge = rq;
--	}
--
- 	cfq_crq_enqueued(cfqd, cfqq, crq);
- }
- 
-
+ int blk_get_queue(request_queue_t *);
+ request_queue_t *blk_alloc_queue(int gfp_mask);

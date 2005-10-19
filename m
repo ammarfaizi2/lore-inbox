@@ -1,55 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751097AbVJSQop@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbVJSQtB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751097AbVJSQop (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 12:44:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbVJSQop
+	id S1751108AbVJSQtB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 12:49:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbVJSQtB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 12:44:45 -0400
-Received: from www.tuxrocks.com ([64.62.190.123]:29444 "EHLO tuxrocks.com")
-	by vger.kernel.org with ESMTP id S1751097AbVJSQoo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 12:44:44 -0400
-Message-ID: <435677DE.9010805@tuxrocks.com>
-Date: Wed, 19 Oct 2005 10:44:14 -0600
-From: Frank Sorenson <frank@tuxrocks.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc3 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Steven Rostedt <rostedt@goodmis.org>
-CC: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
+	Wed, 19 Oct 2005 12:49:01 -0400
+Received: from ams-iport-1.cisco.com ([144.254.224.140]:13393 "EHLO
+	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S1751108AbVJSQtA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 12:49:00 -0400
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Greg KH <gregkh@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: Ktimer / -rt9 (+custom) monotonic_clock going backwards.
-References: <Pine.LNX.4.58.0510191047270.24515@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.58.0510191047270.24515@localhost.localdomain>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Subject: Re: What is struct pci_driver.owner for?
+X-Message-Flag: Warning: May contain useful information
+References: <52sluymu26.fsf@cisco.com> <435560D0.8050205@pobox.com>
+	<20051018205908.GA32435@suse.de> <52oe5mmt65.fsf@cisco.com>
+	<4356695B.9050107@gmail.com>
+From: Roland Dreier <rolandd@cisco.com>
+Date: Wed, 19 Oct 2005 09:48:51 -0700
+In-Reply-To: <4356695B.9050107@gmail.com> (Jiri Slaby's message of "Wed, 19
+ Oct 2005 17:42:19 +0200")
+Message-ID: <52zmp5ihak.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+X-OriginalArrivalTime: 19 Oct 2005 16:48:52.0432 (UTC) FILETIME=[FC7BDD00:01C5D4CC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+    Jiri> Ok, but read Documentation/SubmittingPatches. At least
+    Jiri> Signed-off-by is missing.
 
-Steven Rostedt wrote:
-> 358.069795728 secs then later 355.981483177.  Should this ever happen?
+Thanks, but that wasn't really a patch for anyone to accept.  It was
+just a note about what I just put into my git tree, which I'll ask
+Linus to pull from directly when 2.6.15 opens.  Of course in the real
+commit message I put a nice description and Signed-off-by: line.
 
-Pretty sure that "NO" is the correct answer :)
-
-> FYI, the system is UP. And I compiled without CONFIG_KTIME_SCALAR.
-
-What sort of CPU?  Does it have frequency scaling?
-
-Frank
-- --
-Frank Sorenson - KD7TZK
-Systems Manager, Computer Science Department
-Brigham Young University
-frank@tuxrocks.com
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.7 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFDVnfeaI0dwg4A47wRAomrAKDN6y1AsA1P3jhTqBcNHmrSc18pVQCgu9Fh
-AGO6q8+agAmlP9jIDXVxgOs=
-=Nn7R
------END PGP SIGNATURE-----
+ - R.

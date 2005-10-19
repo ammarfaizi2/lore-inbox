@@ -1,65 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbVJSLUF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbVJSLXA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750708AbVJSLUF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 07:20:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750713AbVJSLUF
+	id S1750728AbVJSLXA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 07:23:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbVJSLXA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 07:20:05 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:22676 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750708AbVJSLUB (ORCPT
+	Wed, 19 Oct 2005 07:23:00 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:17836 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750728AbVJSLW7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 07:20:01 -0400
-Date: Wed, 19 Oct 2005 13:19:43 +0200
+	Wed, 19 Oct 2005 07:22:59 -0400
+Date: Wed, 19 Oct 2005 13:22:46 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: William Weston <weston@lysdexia.org>
-Cc: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>, cc@ccrma.Stanford.EDU,
-       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       david singleton <dsingleton@mvista.com>,
-       Steven Rostedt <rostedt@goodmis.org>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark Knecht <markknecht@gmail.com>
-Subject: Re: 2.6.14-rc4-rt7
-Message-ID: <20051019111943.GA31410@elte.hu>
-References: <20051017160536.GA2107@elte.hu> <1129576885.4720.3.camel@cmn3.stanford.edu> <1129599029.10429.1.camel@cmn3.stanford.edu> <20051018072844.GB21915@elte.hu> <1129669474.5929.8.camel@cmn3.stanford.edu> <Pine.LNX.4.58.0510181423200.19498@echo.lysdexia.org>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Lee Revell <rlrevell@joe-job.com>, Mark Knecht <markknecht@gmail.com>,
+       linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
+Subject: Re: scsi_eh / 1394 bug - -rt7
+Message-ID: <20051019112246.GA32378@elte.hu>
+References: <5bdc1c8b0510181402o2d9badb0sd18012cf7ff2a329@mail.gmail.com> <1129693423.8910.54.camel@mindpipe> <1129695564.8910.64.camel@mindpipe> <Pine.LNX.4.58.0510190300010.20634@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0510181423200.19498@echo.lysdexia.org>
+In-Reply-To: <Pine.LNX.4.58.0510190300010.20634@localhost.localdomain>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamScore: 0.0
 X-ELTE-SpamLevel: 
 X-ELTE-SpamCheck: no
 X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
 	0.0 AWL                    AWL: From: address is in the auto white-list
 X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* William Weston <weston@lysdexia.org> wrote:
+* Steven Rostedt <rostedt@goodmis.org> wrote:
 
-> Hello,
+> > Attached scsi removable disk sda at scsi0, channel 0, id 0, lun 0
+> > usb 2-1: USB disconnect, address 2
+> > prev->state: 2 != TASK_RUNNING??
+> > scsi_eh_0/12648[CPU#0]: BUG in __schedule at kernel/sched.c:3326
+> >  [<c01048b9>] dump_stack+0x19/0x20 (20)
+> >  [<c011e766>] __WARN_ON+0x46/0x80 (12)
+> >  [<c02c0bf7>] __schedule+0x547/0x790 (84)
+> >  [<c012057a>] do_exit+0x26a/0x430 (28)
+> >  [<c010147b>] kernel_thread_helper+0xb/0x10 (1020129312)
+> >
 > 
-> Getting up to speed on the latest -rt changes again.  Just happened to 
-> notice this warning with -rt8 and -rt9:
+> This is also a problem in the upstream kernel.  It's just that RT 
+> catches it!  Here's the patch. I'll also write one for the upstream 
+> kernel, although this patch would probably work there as well. But 
+> I'll make it official.
 > 
-> kernel/ktimers.c: In function `check_ktimer_signal': 
-> kernel/ktimers.c:1209: warning: passing argument 1 of 
-> `unlock_ktimer_base' from incompatible pointer type
+> Ingo,
 > 
-> And the obvious fix:
-> 
-> --- linux/kernel/ktimers.c.orig	2005-10-18 14:10:48.000000000 -0700
-> +++ linux/kernel/ktimers.c	2005-10-18 14:24:43.000000000 -0700
-> @@ -1206,7 +1206,7 @@
->  		struct ktimer_base *base = lock_ktimer_base(timer, &flags);
->  		ktime_t now = base->get_time();
->  
-> -		unlock_ktimer_base(base, &flags);
-> +		unlock_ktimer_base(timer, &flags);
->  
+> Here's the patch.  The problem is similar to the pcmcia bug.  It seems 
+> that the loop usually exits in the TASK_INTERRUPTIBLE state.
 
-indeed - and this could explain some of the lockups reported. I've 
-uploaded -rt10 with your fix included.
+thanks, applied and released in 2.6.14-rc4-rt10.
 
 	Ingo

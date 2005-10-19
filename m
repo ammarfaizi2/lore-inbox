@@ -1,36 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbVJSHtG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751571AbVJSHzP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750718AbVJSHtG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 03:49:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbVJSHtF
+	id S1751571AbVJSHzP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 03:55:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751568AbVJSHzP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 03:49:05 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:49684
-	"EHLO x30.random") by vger.kernel.org with ESMTP id S1750718AbVJSHtE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 03:49:04 -0400
-Date: Wed, 19 Oct 2005 09:47:57 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, mason@suse.com
-Subject: Re: [PATCH] fix nr_unused accounting, and avoid recursing in iput with I_WILL_FREE set
-Message-ID: <20051019074757.GA30541@x30.random>
-References: <20051018082609.GC15717@x30.random> <20051018171335.3b308b3e.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051018171335.3b308b3e.akpm@osdl.org>
+	Wed, 19 Oct 2005 03:55:15 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:65424 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750910AbVJSHzN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 03:55:13 -0400
+Date: Wed, 19 Oct 2005 03:54:48 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+To: Lee Revell <rlrevell@joe-job.com>
+cc: Mark Knecht <markknecht@gmail.com>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>, rmk@arm.linux.org.uk,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       andmike@us.ibm.com, linux-scsi@vger.kernel.org
+Subject: [PATCH] scsi_error thread exits in TASK_INTERRUPTIBLE state.
+In-Reply-To: <Pine.LNX.4.58.0510190300010.20634@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0510190349590.20634@localhost.localdomain>
+References: <5bdc1c8b0510181402o2d9badb0sd18012cf7ff2a329@mail.gmail.com> 
+ <1129693423.8910.54.camel@mindpipe> <1129695564.8910.64.camel@mindpipe>
+ <Pine.LNX.4.58.0510190300010.20634@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 18, 2005 at 05:13:35PM -0700, Andrew Morton wrote:
-> Well according to my assertion (below), the inode in __sync_single_inode()
-> cannot have a zero refcount, so the whole if() statement is never executed.
 
-It can, but only if it comes from I_WILL_FREE path
-(generic_forget_inode).  See the write_inode_now in
-generic_forget_inode.
+Found in the -rt patch set.  The scsi_error thread likely will be in the
+TASK_INTERRUPTIBLE state upon exit.  This patch fixes this bug.
 
-My BUG_ON already makes sure that when i_count is zero, I_WILL_FREE is
-set (I_WILL_FREE will prevent the inode to be freed by the vm as well,
-so it's ok).
+-- Steve
+
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+
+Index: linux-2.6.14-rc4/drivers/scsi/scsi_error.c
+===================================================================
+--- linux-2.6.14-rc4.orig/drivers/scsi/scsi_error.c	2005-10-19 03:37:55.000000000 -0400
++++ linux-2.6.14-rc4/drivers/scsi/scsi_error.c	2005-10-19 03:38:59.000000000 -0400
+@@ -1645,6 +1645,12 @@
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 	}
+
++	/*
++	 * There's a good chance that the loop will exit in the
++	 * TASK_INTERRUPTIBLE state.
++	 */
++	__set_current_state(TASK_RUNNING);
++
+ 	SCSI_LOG_ERROR_RECOVERY(1, printk("Error handler scsi_eh_%d"
+ 					  " exiting\n",shost->host_no));
+
+

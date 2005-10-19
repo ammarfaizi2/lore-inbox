@@ -1,22 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751356AbVJSV1u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751355AbVJSV1r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751356AbVJSV1u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 17:27:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751360AbVJSV1t
+	id S1751355AbVJSV1r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 17:27:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751356AbVJSV1r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 17:27:49 -0400
-Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:29930 "EHLO
+	Wed, 19 Oct 2005 17:27:47 -0400
+Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:30698 "EHLO
 	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1751356AbVJSV1t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 17:27:49 -0400
-From: Grant Coady <grant_lkml@dodo.com.au>
+	id S1751355AbVJSV1r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 17:27:47 -0400
+From: Grant Coady <gcoady@gmail.com>
 To: Greg KH <greg@kroah.com>
 Cc: linux-kernel@vger.kernel.org
 Subject: [PATCH] pci_ids: cleanup comments
-Date: Thu, 20 Oct 2005 07:27:41 +1000
+Date: Wed, 19 Oct 2005 15:37:18 +1000
 Organization: http://bugsplatter.mine.nu/
-Reply-To: gcoady@gmail.com
-Message-ID: <4eedl1h86sarh1i5g42o7vi21i7v1ece2m@4ax.com>
+Message-ID: <irmbl1dm869kot3sjnf4581kd723145d94@4ax.com>
 X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -24,12 +23,7 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
 
-Resend 'cos it didn't show up on lkml.  
-
-Cheers,
-Grant.
 From: Grant Coady <gcoady@gmail.com>
 
 pci_ids.h cleanup comments, convert '// style' to '/* style */' 

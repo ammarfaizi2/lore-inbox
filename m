@@ -1,81 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbVJSL6E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbVJSL75@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750827AbVJSL6E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 07:58:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750832AbVJSL6E
+	id S1750828AbVJSL75 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 07:59:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750832AbVJSL75
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 07:58:04 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:64472 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750827AbVJSL6B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 07:58:01 -0400
-Date: Wed, 19 Oct 2005 13:58:14 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Tim Bird <tim.bird@am.sony.com>, Andrew Morton <akpm@osdl.org>,
-       tglx@linutronix.de, george@mvista.com, linux-kernel@vger.kernel.org,
-       johnstul@us.ibm.com, paulmck@us.ibm.com, hch@infradead.org,
-       oleg@tv-sign.ru
-Subject: Re: [PATCH]  ktimers subsystem 2.6.14-rc2-kt5
-Message-ID: <20051019115814.GB1580@elte.hu>
-References: <Pine.LNX.4.61.0510171948040.1386@scrub.home> <4353F936.3090406@am.sony.com> <Pine.LNX.4.61.0510172138210.1386@scrub.home> <20051017201330.GB8590@elte.hu> <Pine.LNX.4.61.0510172227010.1386@scrub.home> <20051018084655.GA28933@elte.hu> <Pine.LNX.4.61.0510190311140.1386@scrub.home>
+	Wed, 19 Oct 2005 07:59:57 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:49824 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750828AbVJSL74 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 07:59:56 -0400
+Date: Wed, 19 Oct 2005 12:59:51 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Steven Rostedt <rostedt@goodmis.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Lee Revell <rlrevell@joe-job.com>, Mark Knecht <markknecht@gmail.com>,
+       linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       andmike@us.ibm.com, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] scsi_error thread exits in TASK_INTERRUPTIBLE state.
+Message-ID: <20051019115951.GA31250@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>,
+	Lee Revell <rlrevell@joe-job.com>,
+	Mark Knecht <markknecht@gmail.com>, linux-kernel@vger.kernel.org,
+	rmk@arm.linux.org.uk, Linus Torvalds <torvalds@osdl.org>,
+	Andrew Morton <akpm@osdl.org>, andmike@us.ibm.com,
+	linux-scsi@vger.kernel.org
+References: <5bdc1c8b0510181402o2d9badb0sd18012cf7ff2a329@mail.gmail.com> <1129693423.8910.54.camel@mindpipe> <1129695564.8910.64.camel@mindpipe> <Pine.LNX.4.58.0510190300010.20634@localhost.localdomain> <Pine.LNX.4.58.0510190349590.20634@localhost.localdomain> <20051019113131.GA30553@infradead.org> <Pine.LNX.4.58.0510190751070.20634@localhost.localdomain> <20051019115653.GA2127@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0510190311140.1386@scrub.home>
+In-Reply-To: <20051019115653.GA2127@elte.hu>
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Roman Zippel <zippel@linux-m68k.org> wrote:
-
-> > > > e.g. we dont want a watchdog from being 
-> > > > overload-able via too many timeouts in the timer wheel ...
-> > > 
-> > > Please explain.
-> > 
-> > e.g. on busy networked servers (i.e. ones that do have a need for 
-> > watchdogs) the timer wheel often includes large numbers of timeouts, 
-> > 99.9% of which never expire. If they do expire en masse for whatever 
-> > reason, then we can get into overload mode: a million timers might have 
-> > to expire before we get to process the watchdog event and act upon it.  
-> > This can delay the watchdog event significantly, which delay might (or 
-> > might not) matter to the watchdog application.
+On Wed, Oct 19, 2005 at 01:56:53PM +0200, Ingo Molnar wrote:
+> > So, should I resend the patch without the comment?
 > 
-> I already mentioned earlier that it's possible to reduce the timer 
-> load by using a watchdog timer to filter most of these events, so that 
-> you get into the interesting situation that most kernel timer actually 
-> do expire and suddenly you easily can have more "timers" than 
-> "timeouts".
+> i guess so. OTOH, if it was so obvious, why did it stay unfixed for so 
+> long ;-)
 
-this sentence does not parse at all, for me. Here's the effort i did 
-trying to decypher it:
+ a) the code is pretty new
+ b) this isn't a serious problem for kernels without your preempt-rt patch
 
-Firstly, you mention 'watchdog' without clarifying whether it's the 
-examplary watchdog we were talking about above, or whether it's some 
-other, new mechanism. The former makes no sense (what does the watchdog 
-timer in a random driver have to do with the millions of network timers 
-i was talking about, and how could it be used to filter anything?), the 
-later you dont explain.
-
-Secondly, the above sentence is the first time in the ktimer discussion 
-that you ever mentioned the word 'filter', and you never mentioned the 
-word 'watchdog' outside of the example we were discussing, so i'm 
-curious about the source of the above "I already mentioned earlier" 
-statement. When earlier? Which email? Frankly, the whole paragraph reads 
-as if from another planet, i see the words but the content seems totally 
-out of context and makes no sense to me.
-
-So i cannot even agree or disagree with anything you said in that 
-sentence, because the sentence simply does not parse. Please enlighten 
-me!
-
-	Ingo

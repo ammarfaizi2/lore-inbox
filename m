@@ -1,63 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbVJSAdc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751512AbVJSAk2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932369AbVJSAdc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 20:33:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932373AbVJSAdc
+	id S1751512AbVJSAk2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 20:40:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751514AbVJSAk2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 20:33:32 -0400
-Received: from xproxy.gmail.com ([66.249.82.205]:45383 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932369AbVJSAdb convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 20:33:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=eM06s1IlXHQAdor0rym3aaTP/wphKROl7IbjvJ96Yje5v/BfvOWA+M7j7HT2/C5So6tqzVO9a6hfB9Idn8eHicHZ0v3sKiMK/f/xK7SDoDGPOJRFUwX1yXKh13xB9NqrPLUALBo5p4PifBlGEjb3hr0PmWwLkRQvHcscJUgD95k=
-Message-ID: <1e62d1370510181733n131a4465j36531064551ef478@mail.gmail.com>
-Date: Wed, 19 Oct 2005 05:33:30 +0500
-From: Fawad Lateef <fawadlateef@gmail.com>
-To: Badari Pulavarty <pbadari@gmail.com>
-Subject: Re: large files unnecessary trashing filesystem cache?
-Cc: 7eggert@gmx.de, Guido Fiala <gfiala@s.netic.de>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1129676753.23632.90.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 18 Oct 2005 20:40:28 -0400
+Received: from mail.suse.de ([195.135.220.2]:60081 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751512AbVJSAk1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 20:40:27 -0400
+Date: Tue, 18 Oct 2005 20:40:18 -0400
+From: Chris Mason <mason@suse.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix nr_unused accounting, and avoid recursing in iput with I_WILL_FREE set
+Message-ID: <20051019004018.GZ1027@watt.suse.com>
+References: <20051018082609.GC15717@x30.random> <20051018171335.3b308b3e.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <4Z5WG-1iM-19@gated-at.bofh.it> <4Z6zs-27l-39@gated-at.bofh.it>
-	 <E1ERzTq-0001IA-Ba@be1.lrz>
-	 <1129676753.23632.90.camel@localhost.localdomain>
+In-Reply-To: <20051018171335.3b308b3e.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/19/05, Badari Pulavarty <pbadari@gmail.com> wrote:
-> On Tue, 2005-10-18 at 23:58 +0200, Bodo Eggert wrote:
-> > Changing a few programs will only partly cover the problems.
+On Tue, Oct 18, 2005 at 05:13:35PM -0700, Andrew Morton wrote:
+> Andrea Arcangeli <andrea@suse.de> wrote:
 > >
-> > I guess the solution would be using random cache eviction rather than
-> > a FIFO. I never took a look the cache mechanism, so I may very well be
-> > wrong here.
->
-> Read-only pages should be re-cycled really easily & quickly. I can't
-> belive read-only pages are causing you all the trouble.
->
+> > Hello,
+> > 
+> > @@ -183,6 +183,7 @@ __sync_single_inode(struct inode *inode,
+> >  			list_move(&inode->i_list, &inode_in_use);
+> >  		} else {
+> >  			list_move(&inode->i_list, &inode_unused);
+> > +			inodes_stat.nr_unused++;
+> >  		}
+> >  	}
+> >  	wake_up_inode(inode);
+> > 
+> > Are you sure the above diff is correct? It was added somewhere between
+> > 2.6.5 and 2.6.8. I think it's wrong.
+> > 
+> > The only way I can imagine the i_count to be zero in the above path, is
+> > that I_WILL_FREE is set. And if I_WILL_FREE is set, then we must not
+> > increase nr_unused. So I believe the above change is buggy and it will
+> > definitely overstate the number of unused inodes and it should be backed
+> > out.
+> 
+> Well according to my assertion (below), the inode in __sync_single_inode()
+> cannot have a zero refcount, so the whole if() statement is never executed.
 
-I don't think the file is marked read-only ... that is when it is
-accessed for reading the cache will contain the new file data and the
-previous cached data will be lost .... So how u can say that read-only
-pages or read-pages are not causing the problem ??
+generic_forget_inode->write_inode_now->__writeback_single_inode->
+__sync_single_inode
 
-And I think the large files trashing filesystem caching problem can be
-handled by the application using direct I/O or that must and might
-already be managed by the file-system it-self because I think besides
-application and file-system there isn't any thing present which can
-detect the file currently accessing is a large file (as underlying
-layer deals with blocks of data, or at block level with sectors and u
-can't say what kind of data it is) ....
+We do have I_WILL_FREE, but i_count will be zero.
 
-Is I m correct ??? or missing something ??
+> 
+> The thinking behind that increment is that __sync_single_inode() has just
+> taken a dirty, zero-refcount inode and has cleaned it.  A dirty inode
+> cannot have previously been on inode_unused, hence we now are newly moving
+> it to inode_unused.
 
+nr_unused doesn't seem to count the number of inodes on the unused list.
+It is actually counting the number of inodes whose i_count is 0.  See
+generic_forget_inode and invalidate_list to see what I mean.
 
---
-Fawad Lateef
+generic_forget_inode took care of incrementing the unused count when
+i_count went to zero. So, I don't think we need to worry about the
+unused count in __writeback_single_inode.
+
+-chris
+

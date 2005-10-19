@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751263AbVJSTwc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751270AbVJST6p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751263AbVJSTwc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 15:52:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751264AbVJSTwc
+	id S1751270AbVJST6p (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 15:58:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbVJST6p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 15:52:32 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:48038 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S1751263AbVJSTwc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 15:52:32 -0400
-Date: Wed, 19 Oct 2005 15:52:17 -0400
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to use a USB  SD/MMC card reader?
-Message-ID: <20051019195217.GA5266@csclub.uwaterloo.ca>
-References: <20051019193913.GA21749@aitel.hist.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 19 Oct 2005 15:58:45 -0400
+Received: from sccrmhc11.comcast.net ([63.240.77.81]:26769 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1751265AbVJST6o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 15:58:44 -0400
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: Daniel Drake <dsd@gentoo.org>
+Subject: Re: [PATCH] skge support for Marvell chips in Toshiba laptops
+Date: Wed, 19 Oct 2005 12:58:30 -0700
+User-Agent: KMail/1.8.91
+Cc: shemminger@osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <200510191047.53212.jbarnes@virtuousgeek.org> <4356A1F5.5010200@gentoo.org>
+In-Reply-To: <4356A1F5.5010200@gentoo.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051019193913.GA21749@aitel.hist.no>
-User-Agent: Mutt/1.5.9i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+Message-Id: <200510191258.31316.jbarnes@virtuousgeek.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 19, 2005 at 09:39:13PM +0200, Helge Hafting wrote:
-> I have an usb card reader (Apacer) in my desktop machine.
-> 
-> It has several slots for different card types. One of the slots accepts
-> the compactflash cards I use in my camera.  I can mount those and
-> copy the pictures, no problems there. (It becomes /dev/sdf)
-> 
-> Another slot accepts SD/MMC cards.  I tried inserting an MMC card,
-> but nothing seems to happen.  Using /dev/sdf doesn't work - no medium.
-> And /dev/sdg doesn't exist.  
-> 
-> I obviously have usb block devices & scsi working, or I'd be unable to use
-> the compactflash cards.  I have also enabled CONFIG_MMC for this kernel. (2.6.14-rc3)
-> 
-> Is there anything else I should do, to make the mmc slot work too?
+On Wednesday, October 19, 2005 12:43 pm, Daniel Drake wrote:
+> The device ID you added (0x4351) is already claimed by the new sky2
+> driver.
+>
+> Unless theres a mistake in sky2's device table, your laptop contains a
+> Yukon-II adapter which is incompatible with the original Yukon chips
+> (skge = Yukon, sky2 = Yukon-II).
+>
+> On the other hand, I believe Stephen could do with some extra sky2
+> testing :) You can find it in the latest -mm releases.
 
-Your adapter might use LUNs rather than IDs for each port.  By default
-(at least on most distribution compiled kernels) only LUN 0 is scanned.
-You can enable scanning all LUNs on all scsi devices, or you can
-manually run a script that scans for scsi devices on each LUN.
+Oh cool, I'll try that driver instead.  Thanks.
 
-I belive the scsi-mod option max_luns should be set to 5 or 7 or
-whatever many slots your device has, and that should hopefully make
-things appear.
-
-Len Sorensen
+Jesse

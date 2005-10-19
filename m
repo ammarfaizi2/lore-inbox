@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751252AbVJSTia@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750900AbVJSTnu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751252AbVJSTia (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 15:38:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbVJSTi3
+	id S1750900AbVJSTnu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 15:43:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbVJSTnu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 15:38:29 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:2255 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751252AbVJSTi3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 15:38:29 -0400
-Date: Wed, 19 Oct 2005 21:38:54 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Mark Knecht <markknecht@gmail.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: -rt10 build problem [WAS]Re: scsi_eh / 1394 bug - -rt7
-Message-ID: <20051019193854.GA12908@elte.hu>
-References: <5bdc1c8b0510190750s377a2696kf9c323789b392664@mail.gmail.com> <20051019145435.GA6455@elte.hu> <5bdc1c8b0510190812l6b9574cft14664fa40f1225ce@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5bdc1c8b0510190812l6b9574cft14664fa40f1225ce@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Wed, 19 Oct 2005 15:43:50 -0400
+Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:18018 "EHLO
+	mta08-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S1750880AbVJSTnt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 15:43:49 -0400
+Message-ID: <4356A1F5.5010200@gentoo.org>
+Date: Wed, 19 Oct 2005 20:43:49 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051015)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jesse Barnes <jbarnes@virtuousgeek.org>
+CC: shemminger@osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] skge support for Marvell chips in Toshiba laptops
+References: <200510191047.53212.jbarnes@virtuousgeek.org>
+In-Reply-To: <200510191047.53212.jbarnes@virtuousgeek.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Jesse,
 
-* Mark Knecht <markknecht@gmail.com> wrote:
+Jesse Barnes wrote:
+> Here's a small patch to add the PCI ID and chip type of the chip in my 
+> Toshiba laptop to the skge driver.  I haven't tested it much (just 
+> insmoded it and run ethtool against the corresponding eth1 device), but 
+> it doesn't crash my system, so unless this configuration has already 
+> been tested and is known to have problems, it might be good to add this 
+> patch.
+> 
+> I'll test some more with a real network when I get home.
 
-> Sorry. Please resend the patch as a file. My trying to copy it from 
-> GMail has apparently killed it:
+The device ID you added (0x4351) is already claimed by the new sky2 driver.
 
-just pick up -rt11.
+Unless theres a mistake in sky2's device table, your laptop contains a 
+Yukon-II adapter which is incompatible with the original Yukon chips (skge = 
+Yukon, sky2 = Yukon-II).
 
-	Ingo
+On the other hand, I believe Stephen could do with some extra sky2 testing :)
+You can find it in the latest -mm releases.
+
+Daniel

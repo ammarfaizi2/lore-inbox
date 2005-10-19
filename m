@@ -1,54 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751215AbVJSSnM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbVJSStn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751215AbVJSSnM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 14:43:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbVJSSnM
+	id S1751218AbVJSStn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 14:49:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbVJSStn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 14:43:12 -0400
-Received: from smtpout.mac.com ([17.250.248.85]:32510 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1751215AbVJSSnL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 14:43:11 -0400
-In-Reply-To: <200510191958.37542.gfiala@s.netic.de>
-References: <200510182201.11241.gfiala@s.netic.de> <1129695001.8910.57.camel@mindpipe> <200510191958.37542.gfiala@s.netic.de>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <3370794E-8B47-4342-8383-C2B0F77192B3@mac.com>
-Cc: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: large files unnecessary trashing filesystem cache?
-Date: Wed, 19 Oct 2005 14:43:06 -0400
-To: Guido Fiala <gfiala@s.netic.de>
-X-Mailer: Apple Mail (2.734)
+	Wed, 19 Oct 2005 14:49:43 -0400
+Received: from tirith.ics.muni.cz ([147.251.4.36]:28107 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1751218AbVJSStm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 14:49:42 -0400
+From: "Jiri Slaby" <xslaby@fi.muni.cz>
+Date: Wed, 19 Oct 2005 20:49:36 +0200
+In-reply-to: <43565257.6020505@ens-lyon.fr>
+To: Alexandre Buisse <alexandre.buisse@ens-lyon.fr>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Wifi oddness [Was: Re: 2.6.14-rc4-mm1]
+References: <20051016154108.25735ee3.akpm@osdl.org>
+Message-Id: <20051019184935.E8C0B22AEB2@anxur.fi.muni.cz>
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: xslaby@fi.muni.cz
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 19, 2005, at 13:58:37, Guido Fiala wrote:
-> Kernel could do the best to optimize default performance,  
-> applications that consider their own optimal behaviour should do  
-> so, all other files are kept under default heuristic policy  
-> (adaptable, configurable one)
->
-> Heuristic can be based on access statistic:
->
-> streaming/sequential can be guessed by getting exactly 100% cache  
-> hit rate (drop behind pages immediately),
+>I've been having problems with ipw2200 oopsing at modprobe since
+>2.6.14-rc2-mm1 (sorry for not reporting before). I use the ipw2200
+>included in the kernel.
 
-What about a grep through my kernel sources or other linear search  
-through a large directory tree?  That would get exactly 100% cache  
-hit rate which would cause your method to drop the pages immediately,  
-meaning that subsequent greps are equally slow.  I have enough memory  
-to hold a couple kernel trees and I want my grepping to push OO.org  
-out of RAM for a bit while I do my kernel development.
+Can you apply this and tell me what are the numbers?
 
-
-Cheers,
-Kyle Moffett
-
---
-I lost interest in "blade servers" when I found they didn't throw  
-knives at people who weren't supposed to be in your machine room.
-   -- Anthony de Boer
-
-
+--- d/net/ieee80211/ieee80211_wx.c	2005-10-19 20:40:52.000000000 +0200
++++ d/net/ieee80211/ieee80211_wx.c.new	2005-10-19 20:44:00.000000000 +0200
+@@ -152,6 +152,8 @@
+ 		iwe.u.qual.level = 0;
+ 	} else {
+ 		iwe.u.qual.level = network->stats.rssi;
++		printk(KERN_ERR "---THIS: %d, %d\n", ieee->perfect_rssi,
++			ieee->worst_rssi);
+ 		iwe.u.qual.qual =
+ 		    (100 *
+ 		     (ieee->perfect_rssi - ieee->worst_rssi) *

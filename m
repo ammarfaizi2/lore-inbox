@@ -1,61 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbVJSLXA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbVJSLXu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750728AbVJSLXA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 07:23:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbVJSLXA
+	id S1750764AbVJSLXu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 07:23:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750773AbVJSLXu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 07:23:00 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:17836 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750728AbVJSLW7 (ORCPT
+	Wed, 19 Oct 2005 07:23:50 -0400
+Received: from barad-dur.crans.org ([138.231.141.187]:37532 "EHLO
+	barad-dur.minas-morgul.org") by vger.kernel.org with ESMTP
+	id S1750766AbVJSLXt convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 07:22:59 -0400
-Date: Wed, 19 Oct 2005 13:22:46 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Lee Revell <rlrevell@joe-job.com>, Mark Knecht <markknecht@gmail.com>,
-       linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
-Subject: Re: scsi_eh / 1394 bug - -rt7
-Message-ID: <20051019112246.GA32378@elte.hu>
-References: <5bdc1c8b0510181402o2d9badb0sd18012cf7ff2a329@mail.gmail.com> <1129693423.8910.54.camel@mindpipe> <1129695564.8910.64.camel@mindpipe> <Pine.LNX.4.58.0510190300010.20634@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0510190300010.20634@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Wed, 19 Oct 2005 07:23:49 -0400
+From: "Mathieu Segaud" <matt@regala.cx>
+To: Erik Mouw <erik@harddisk-recovery.com>
+Cc: Karel Kulhavy <clock@twibright.com>, linux-kernel@vger.kernel.org
+Subject: Re: number of eth0 device
+References: <20051019103135.GA9765@kestrel>
+	<20051019104240.GC31526@harddisk-recovery.com>
+X-PGP-KeyID: 0x2E13FCA8
+X-PGP-Fingerprint: D41C FC4F 7374 D3FA A121 9182 90AC 62B0 2E13 FCA8
+Date: mer, 19 oct 2005 13:23:48 +0200
+In-Reply-To: <20051019104240.GC31526@harddisk-recovery.com> (Erik Mouw's
+	message of "Wed, 19 Oct 2005 12:42:40 +0200")
+Message-ID: <87psq1da2j.fsf@barad-dur.minas-morgul.org>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Erik Mouw <erik@harddisk-recovery.com> disait dernièrement que :
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+> On Wed, Oct 19, 2005 at 12:31:35PM +0200, Karel Kulhavy wrote:
+>> I am looking into Documentation/devices.txt in 2.4.25 and eth0 is not listed
+>> there. If I grep "eth", I get only
+>> 
+>> 38 char        Myricom PCI Myrinet board
+>> [...]
+>> "This device is used for status query, board control and "user level
+>> packet I/O."  This board is also accessible as a standard networking
+>> "eth" device.  "
+>> 
+>> and then
+>> 
+>> /dev/pethr0
+>> 
+>> Is eth0 some kind of special device that doesn't have any number
+>> assigned?
+>
+> Yes, there's no such thing as /dev/eth0, network interfaces have their
+> own namespace. Linux uses the defacto standard BSD socket interface for
+> networking, so blame the BSD people for violating the "everything is a
+> file" rule.
 
-> > Attached scsi removable disk sda at scsi0, channel 0, id 0, lun 0
-> > usb 2-1: USB disconnect, address 2
-> > prev->state: 2 != TASK_RUNNING??
-> > scsi_eh_0/12648[CPU#0]: BUG in __schedule at kernel/sched.c:3326
-> >  [<c01048b9>] dump_stack+0x19/0x20 (20)
-> >  [<c011e766>] __WARN_ON+0x46/0x80 (12)
-> >  [<c02c0bf7>] __schedule+0x547/0x790 (84)
-> >  [<c012057a>] do_exit+0x26a/0x430 (28)
-> >  [<c010147b>] kernel_thread_helper+0xb/0x10 (1020129312)
-> >
-> 
-> This is also a problem in the upstream kernel.  It's just that RT 
-> catches it!  Here's the patch. I'll also write one for the upstream 
-> kernel, although this patch would probably work there as well. But 
-> I'll make it official.
-> 
-> Ingo,
-> 
-> Here's the patch.  The problem is similar to the pcmcia bug.  It seems 
-> that the loop usually exits in the TASK_INTERRUPTIBLE state.
+well, the way NIC's behave kind of forbids this
+taken from Linux Device Drivers, 3rd Edition, page 497
+"The normal file operations (read, write, and so on) do not make sense
+when applied to network interfaces, so it is not possible to apply the
+Unix ''everything is a file'' approach to them"   
 
-thanks, applied and released in 2.6.14-rc4-rt10.
-
-	Ingo
+-- 
+Mathieu

@@ -1,44 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbVJSDoW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932172AbVJSDpY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932395AbVJSDoW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 23:44:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932442AbVJSDoW
+	id S932172AbVJSDpY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 23:45:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932442AbVJSDpY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 23:44:22 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:14723 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932395AbVJSDoW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 23:44:22 -0400
-Subject: Re: scsi_eh / 1394 bug - -rt7
-From: Lee Revell <rlrevell@joe-job.com>
-To: Mark Knecht <markknecht@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <5bdc1c8b0510181402o2d9badb0sd18012cf7ff2a329@mail.gmail.com>
-References: <5bdc1c8b0510181402o2d9badb0sd18012cf7ff2a329@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 18 Oct 2005 23:43:43 -0400
-Message-Id: <1129693423.8910.54.camel@mindpipe>
+	Tue, 18 Oct 2005 23:45:24 -0400
+Received: from mail.kroah.org ([69.55.234.183]:4292 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932172AbVJSDpX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 23:45:23 -0400
+Date: Tue, 18 Oct 2005 20:44:47 -0700
+From: Greg KH <greg@kroah.com>
+To: Brice Goglin <Brice.Goglin@ens-lyon.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Dmitry Torokhov <dtor_core@ameritech.net>,
+       Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: 2.6.14-rc4-mm1
+Message-ID: <20051019034447.GB15940@kroah.com>
+References: <20051016154108.25735ee3.akpm@osdl.org> <43539762.2020706@ens-lyon.org> <20051017132242.2b872b08.akpm@osdl.org> <20051018065843.GB11858@kroah.com> <4354A49B.6060809@ens-lyon.org> <20051018074029.GC12406@kroah.com> <4354B1D1.4060802@ens-lyon.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4354B1D1.4060802@ens-lyon.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-10-18 at 14:02 -0700, Mark Knecht wrote:
-> Hi,
->    I'm seeing this each time I plug in a 1394 hard drive:
+On Tue, Oct 18, 2005 at 10:26:57AM +0200, Brice Goglin wrote:
+> Le 18.10.2005 09:40, Greg KH a ?crit :
+> > If you disable CONFIG_PNP, does the oops go away?
+> > 
+> > Also, does this oops keep you from booting?  If not, can you see what
+> > the output of 'cat /proc/bus/input/devices' produces (it should show
+> > what device is dying on us.)
 > 
-> Attached scsi disk sdc at scsi6, channel 0, id 0, lun 0
-> ieee1394: Node changed: 0-01:1023 -> 0-00:1023
-> ieee1394: Node changed: 0-02:1023 -> 0-01:1023
-> ieee1394: Reconnected to SBP-2 device
-> ieee1394: Node 0-00:1023: Max speed [S400] - Max payload [2048]
-> ieee1394: Node suspended: ID:BUS[0-00:1023]  GUID[0050c501e00b31ec]
-> prev->state: 2 != TASK_RUNNING??
-> scsi_eh_6/20286[CPU#0]: BUG in __schedule at kernel/sched.c:3328
+> Yes disabling CONFIG_PNP makes it disappear.
 
-I hit this exact same bug while at a client site today, with an external
-USB drive. 
+Odd.  Dmitry, any ideas?
 
-Lee
+thanks,
 
+greg k-h

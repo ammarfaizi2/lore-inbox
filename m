@@ -1,49 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbVJSLAr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751573AbVJSLGy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964789AbVJSLAr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 07:00:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964790AbVJSLAr
+	id S1751573AbVJSLGy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 07:06:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751566AbVJSLGy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 07:00:47 -0400
-Received: from khc.piap.pl ([195.187.100.11]:29444 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S964789AbVJSLAr (ORCPT
+	Wed, 19 Oct 2005 07:06:54 -0400
+Received: from webmail.LF.net ([212.9.160.14]:62993 "EHLO webmail.LF.net")
+	by vger.kernel.org with ESMTP id S1750719AbVJSLGx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 07:00:47 -0400
-To: Anthony DeRobertis <anthony@derobert.net>
-Cc: unlisted-recipients:"; (no To-header on input)
-	Horms" <horms@verge.net.au>,
-       security@kernel.org, team@security.debian.org, 334113@bugs.debian.org,
-       linux-kernel@vger.kernel.org, Rudolf Polzer <debian-ne@durchnull.de>,
-       Alastair McKinstry <mckinstry@debian.org>,
-       secure-testing-team@lists.alioth.debian.org
-Illegal-Object: Syntax error in Cc: address found on vger.kernel.org:
-	Cc:	unlisted-recipients:; (no To-header on input)Horms <horms@verge.net.au>
-								     ^-missing end of address
-Illegal-Object: Syntax error in Cc: address found on vger.kernel.org:
-	Cc:	unlisted-recipients:; (no To-header on input)Horms <horms@verge.net.au>
-								     ^-missing end of address
-Subject: Re: [Secure-testing-team] Re: kernel allows loadkeys to be used by
- any user, allowing for local root compromise
-References: <E1EQofT-0001WP-00@master.debian.org>
-	<20051018044146.GF23462@verge.net.au>
-	<m37jcakhsm.fsf@defiant.localdomain> <4355C812.80103@derobert.net>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Wed, 19 Oct 2005 13:00:45 +0200
-In-Reply-To: <4355C812.80103@derobert.net> (Anthony DeRobertis's message of
- "Wed, 19 Oct 2005 00:14:10 -0400")
-Message-ID: <m3slux22le.fsf@defiant.localdomain>
+	Wed, 19 Oct 2005 07:06:53 -0400
+Message-ID: <1129720011.435628cb150f5@webmail.LF.net>
+Date: Wed, 19 Oct 2005 13:06:51 +0200
+From: gfiala@s.netic.de
+To: linux-kernel@vger.kernel.org
+Subject: Re: large files unnecessary trashing filesystem cache?
+References: <4Z5WG-1iM-19@gated-at.bofh.it> <4Z6zs-27l-39@gated-at.bofh.it>  <E1ERzTq-0001IA-Ba@be1.lrz> <1129676753.23632.90.camel@localhost.localdomain> <Pine.LNX.4.58.0510190902210.2281@be1.lrz>
+In-Reply-To: <Pine.LNX.4.58.0510190902210.2281@be1.lrz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.1
+X-Originating-IP: 170.56.58.152
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anthony DeRobertis <anthony@derobert.net> writes:
+Zitat von Bodo Eggert <7eggert@gmx.de>:
+> You can alyo cat a big file into /dev/null. I made those examples in order 
+> to demonstrate the problem with using O_DIRECT.
 
-> Well, you can configure a single vty to only allow logins from admins.
-> Then you avoid the fake login problem, but not the loadkeys problem
-> (since that affects all vtys)
+O_DIRECT has to much impact at the mentioned "vdr" due to unwanted side effects 
+either.
 
-Just a guess... Can you use loadkeys to change keys used for switching VTs?
-I would investigate switchvt (or how is it named) too.
--- 
-Krzysztof Halasa
+> 
+> OTOH, I don't realtime stuff on my computer, so I'm not really affected, 
+> but I'll try to show it anyway.
+> 
+> > > Changing a few programs will only partly cover the problems.
+> > > 
+> > > I guess the solution would be using random cache eviction rather than
+> > > a FIFO. I never took a look the cache mechanism, so I may very well be
+> > > wrong here.
+> > 
+> > Read-only pages should be re-cycled really easily & quickly. I can't
+> > belive read-only pages are causing you all the trouble.
+> 
+> Just a q&d test:
+> 
+> $ time ls -l $DIR > /dev/null
+> real    0m0.442s
+> user    0m0.008s
+> sys     0m0.024s
+> 
+> $ time ls -l $DIR > /dev/null
+> real    0m0.077s
+> user    0m0.008s
+> sys     0m0.008s
+> 
+> cat $BIGFILES_1.5GB > /Dev/null
+> 
+> $ time ls -l $DIR > /dev/null
+> real    0m0.270s
+> user    0m0.008s
+> sys     0m0.008s
+> 
+> $ time ls -l $DIR > /dev/null
+> real    0m0.078s
+> user    0m0.004s
+> sys     0m0.004s
+> 
+> 
+Thanks for pointing this out - this clearly shows the effect.
+Now consider a mildly loaded multitasking environment running X, some services, 
+window-manager, email, maybe some databases and a streaming video-application 
+at once (so does mine) - the video-file will have unwanted impact on all the 
+other applications - leading to unnecessary reloads of lots of files, inodes 
+etc.

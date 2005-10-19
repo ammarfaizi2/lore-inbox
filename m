@@ -1,63 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbVJSLXu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750758AbVJSLXm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750764AbVJSLXu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 07:23:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750773AbVJSLXu
+	id S1750758AbVJSLXm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 07:23:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750764AbVJSLXl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 07:23:50 -0400
-Received: from barad-dur.crans.org ([138.231.141.187]:37532 "EHLO
-	barad-dur.minas-morgul.org") by vger.kernel.org with ESMTP
-	id S1750766AbVJSLXt convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 07:23:49 -0400
-From: "Mathieu Segaud" <matt@regala.cx>
-To: Erik Mouw <erik@harddisk-recovery.com>
-Cc: Karel Kulhavy <clock@twibright.com>, linux-kernel@vger.kernel.org
-Subject: Re: number of eth0 device
-References: <20051019103135.GA9765@kestrel>
-	<20051019104240.GC31526@harddisk-recovery.com>
-X-PGP-KeyID: 0x2E13FCA8
-X-PGP-Fingerprint: D41C FC4F 7374 D3FA A121 9182 90AC 62B0 2E13 FCA8
-Date: mer, 19 oct 2005 13:23:48 +0200
-In-Reply-To: <20051019104240.GC31526@harddisk-recovery.com> (Erik Mouw's
-	message of "Wed, 19 Oct 2005 12:42:40 +0200")
-Message-ID: <87psq1da2j.fsf@barad-dur.minas-morgul.org>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/22.0.50 (gnu/linux)
+	Wed, 19 Oct 2005 07:23:41 -0400
+Received: from mail.linicks.net ([217.204.244.146]:61970 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S1750758AbVJSLXl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 07:23:41 -0400
+From: Nick Warne <nick@linicks.net>
+To: Karel Kulhavy <clock@twibright.com>
+Subject: Re: 3c900 boot-time kernel commandline parameters in 2.4.25
+Date: Wed, 19 Oct 2005 12:23:31 +0100
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510191223.31751.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Mouw <erik@harddisk-recovery.com> disait dernièrement que :
+> How do I tell Linux kernel 2.4.25 on boot-time kernel commandline to
+> switch my eth0
+> ~
+> to TP transceiver and 10/100 autonegotiation?
 
-> On Wed, Oct 19, 2005 at 12:31:35PM +0200, Karel Kulhavy wrote:
->> I am looking into Documentation/devices.txt in 2.4.25 and eth0 is not listed
->> there. If I grep "eth", I get only
->> 
->> 38 char        Myricom PCI Myrinet board
->> [...]
->> "This device is used for status query, board control and "user level
->> packet I/O."  This board is also accessible as a standard networking
->> "eth" device.  "
->> 
->> and then
->> 
->> /dev/pethr0
->> 
->> Is eth0 some kind of special device that doesn't have any number
->> assigned?
->
-> Yes, there's no such thing as /dev/eth0, network interfaces have their
-> own namespace. Linux uses the defacto standard BSD socket interface for
-> networking, so blame the BSD people for violating the "everything is a
-> file" rule.
+Not really a kernel question.  Do a 'man mii-tool' or 'man ethtool'.
 
-well, the way NIC's behave kind of forbids this
-taken from Linux Device Drivers, 3rd Edition, page 497
-"The normal file operations (read, write, and so on) do not make sense
-when applied to network interfaces, so it is not possible to apply the
-Unix ''everything is a file'' approach to them"   
+Either of those allow NIC tweaking.
 
+I run ethtool to force 100MB FD in rc.local - you can do similar depending on 
+your style/distro.
+
+Nick
 -- 
-Mathieu
+http://sourceforge.net/projects/quake2plus
+
+"Person who say it cannot be done should not interrupt person doing it."
+-Chinese Proverb
+

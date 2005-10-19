@@ -1,36 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbVJSQHZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751097AbVJSQop@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751138AbVJSQHZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 12:07:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbVJSQHZ
+	id S1751097AbVJSQop (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 12:44:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbVJSQop
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 12:07:25 -0400
-Received: from [67.137.28.189] ([67.137.28.189]:17536 "EHLO vger.utah-nac.org")
-	by vger.kernel.org with ESMTP id S1751138AbVJSQHZ (ORCPT
+	Wed, 19 Oct 2005 12:44:45 -0400
+Received: from www.tuxrocks.com ([64.62.190.123]:29444 "EHLO tuxrocks.com")
+	by vger.kernel.org with ESMTP id S1751097AbVJSQoo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 12:07:25 -0400
-Message-ID: <43565C1F.7000600@soleranetworks.com>
-Date: Wed, 19 Oct 2005 08:45:51 -0600
-From: "Jeff V. Merkey" <jmerkey@soleranetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+	Wed, 19 Oct 2005 12:44:44 -0400
+Message-ID: <435677DE.9010805@tuxrocks.com>
+Date: Wed, 19 Oct 2005 10:44:14 -0600
+From: Frank Sorenson <frank@tuxrocks.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc3 (X11/20050929)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: partition types dsfs forensic file system 
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Steven Rostedt <rostedt@goodmis.org>
+CC: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Ktimer / -rt9 (+custom) monotonic_clock going backwards.
+References: <Pine.LNX.4.58.0510191047270.24515@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.58.0510191047270.24515@localhost.localdomain>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-dsfs forensic file system uses the following partition types.
+Steven Rostedt wrote:
+> 358.069795728 secs then later 355.981483177.  Should this ever happen?
 
-0x97     Primary Slot Capture Partition
-0x98     Distributed Archive/Clustered Slot Store Partition
+Pretty sure that "NO" is the correct answer :)
 
-This information is provided for utilities folks who may need to 
-identify these partition types
-in existing utilities.  Data offsets are always located at the first 
-calculated cylinder boundry within
-these partition types.
+> FYI, the system is UP. And I compiled without CONFIG_KTIME_SCALAR.
 
+What sort of CPU?  Does it have frequency scaling?
+
+Frank
+- --
+Frank Sorenson - KD7TZK
+Systems Manager, Computer Science Department
+Brigham Young University
+frank@tuxrocks.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.7 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFDVnfeaI0dwg4A47wRAomrAKDN6y1AsA1P3jhTqBcNHmrSc18pVQCgu9Fh
+AGO6q8+agAmlP9jIDXVxgOs=
+=Nn7R
+-----END PGP SIGNATURE-----

@@ -1,56 +1,186 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751151AbVJSRAY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbVJSRDd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751151AbVJSRAY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 13:00:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbVJSRAX
+	id S1751155AbVJSRDd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 13:03:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751157AbVJSRDd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 13:00:23 -0400
-Received: from gold.veritas.com ([143.127.12.110]:19099 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1751151AbVJSRAX (ORCPT
+	Wed, 19 Oct 2005 13:03:33 -0400
+Received: from [85.21.88.2] ([85.21.88.2]:52123 "HELO mail.dev.rtsoft.ru")
+	by vger.kernel.org with SMTP id S1751155AbVJSRDc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 13:00:23 -0400
-Date: Wed, 19 Oct 2005 17:59:33 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Steve Youngs <steve@youngs.au.com>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.13.4 After increasing RAM, I'm getting Bad page state at
- prep_new_page
-In-Reply-To: <microsoft-free.877jc9jzwy.fsf@youngs.au.com>
-Message-ID: <Pine.LNX.4.61.0510191741350.8481@goblin.wat.veritas.com>
-References: <microsoft-free.877jc9jzwy.fsf@youngs.au.com>
+	Wed, 19 Oct 2005 13:03:32 -0400
+Message-ID: <43567C5C.4090905@ru.mvista.com>
+Date: Wed, 19 Oct 2005 21:03:24 +0400
+From: Vitaly Bordug <vbordug@ru.mvista.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 19 Oct 2005 17:00:22.0557 (UTC) FILETIME=[97D494D0:01C5D4CE]
+To: Andrew Morton <akpm@osdl.org>
+CC: Kumar Gala <galak@freescale.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] ppc32: ppc_sys fixes for 8xx and 82xx
+Content-Type: multipart/mixed;
+ boundary="------------010504050603070501020406"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 20 Oct 2005, Steve Youngs wrote:
-> 
-> A few days ago I increased my RAM from 0.5Gb to 3Gb and since then
-> I've been getting `Bad page state at prep_new_page' errors at odd
-> times.  Here is a typical backtrace from my logs:
-> 
-> Bad page state at prep_new_page (in process 'X', page c1f7bde0)
-> flags:0x80000004 mapping:00000000 mapcount:-262144 count:0
+This is a multi-part message in MIME format.
+--------------010504050603070501020406
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 7bit
 
-It does look like bad memory, the single bit 0x40000 has got cleared
-from the 0xffffffff which represents the expected mapcount 0 (for
-reasons I won't go into, physical -1 represents logical 0 there).
+This patch fixes a numbers of issues regarding to that both 8xx and 82xx
+began to use ppc_sys model:
+	- Platform is now identified by default deviceless SOC, if no
+BOARD_CHIP_NAME is specified in the bard-specific header. For the list
+of supported names refer to (arch/ppc/syslib/) mpc8xx_sys.c and
+mpc82xx_sys.c for 8xx and 82xx respectively.
+	- Fixed a bug in identification by name - if the name was not found, it
+returned -1 instead of default deviceless ppc_spec.
+	- fixed devices amount in the 8xx platform system descriptions
 
-If it were 0x800 which was cleared, I'd get excited, because that
-would fit with a report from a few months back, which really did
-not seem to be bad memory.  But 0x40000 isn't so interesting, sorry!
 
-The bad memory in question (the struct page at 0xc1f7bde0) is quite
-low down, just below 32MB.  Would I be right to guess that that you
-inserted the new cards in such a way that the low memory is new RAM?
+Signed-off-by: Vitaly Bordug <vbordug@ru.mvista.com>
+Signed-off-by: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
+-- 
+Sincerely,
+Vitaly
 
-I suggest you try taking out that lowest card, and see what happens
-then.  Sometimes the kernel these days seems to find memory problems
-that memtest86 does not (how long did you run it? overnight?).
 
-You could try sending me all your "Bad page state" messages,
-to check for correlations.
+--------------010504050603070501020406
+Content-Type: text/x-patch;
+ name="1.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="1.patch"
 
-Hugh
+diff --git a/arch/ppc/platforms/fads.h b/arch/ppc/platforms/fads.h
+--- a/arch/ppc/platforms/fads.h
++++ b/arch/ppc/platforms/fads.h
+@@ -25,6 +25,8 @@
+ 
+ #if defined(CONFIG_MPC86XADS)
+ 
++#define BOARD_CHIP_NAME "MPC86X"
++
+ /* U-Boot maps BCSR to 0xff080000 */
+ #define BCSR_ADDR		((uint)0xff080000)
+ 
+diff --git a/arch/ppc/platforms/mpc885ads.h b/arch/ppc/platforms/mpc885ads.h
+--- a/arch/ppc/platforms/mpc885ads.h
++++ b/arch/ppc/platforms/mpc885ads.h
+@@ -88,5 +88,7 @@
+ #define SICR_ENET_MASK	((uint)0x00ff0000)
+ #define SICR_ENET_CLKRT	((uint)0x002c0000)
+ 
++#define BOARD_CHIP_NAME "MPC885"
++
+ #endif /* __ASM_MPC885ADS_H__ */
+ #endif /* __KERNEL__ */
+diff --git a/arch/ppc/syslib/m8260_setup.c b/arch/ppc/syslib/m8260_setup.c
+--- a/arch/ppc/syslib/m8260_setup.c
++++ b/arch/ppc/syslib/m8260_setup.c
+@@ -62,6 +62,9 @@ m8260_setup_arch(void)
+ 	if (initrd_start)
+ 		ROOT_DEV = Root_RAM0;
+ #endif
++	
++	identify_ppc_sys_by_name_and_id(BOARD_CHIP_NAME, in_be32(CPM_MAP_ADDR + CPM_IMMR_OFFSET));
++	
+ 	m82xx_board_setup();
+ }
+ 
+diff --git a/arch/ppc/syslib/m8xx_setup.c b/arch/ppc/syslib/m8xx_setup.c
+--- a/arch/ppc/syslib/m8xx_setup.c
++++ b/arch/ppc/syslib/m8xx_setup.c
+@@ -403,7 +403,9 @@ platform_init(unsigned long r3, unsigned
+ 		*(char *)(r7+KERNELBASE) = 0;
+ 		strcpy(cmd_line, (char *)(r6+KERNELBASE));
+ 	}
+-
++	
++	identify_ppc_sys_by_name(BOARD_CHIP_NAME);
++	
+ 	ppc_md.setup_arch		= m8xx_setup_arch;
+ 	ppc_md.show_percpuinfo		= m8xx_show_percpuinfo;
+ 	ppc_md.irq_canonicalize	= NULL;
+diff --git a/arch/ppc/syslib/mpc8xx_sys.c b/arch/ppc/syslib/mpc8xx_sys.c
+--- a/arch/ppc/syslib/mpc8xx_sys.c
++++ b/arch/ppc/syslib/mpc8xx_sys.c
+@@ -24,7 +24,7 @@ struct ppc_sys_spec ppc_sys_specs[] = {
+ 		.ppc_sys_name	= "MPC86X",
+ 		.mask 		= 0xFFFFFFFF,
+ 		.value 		= 0x00000000,
+-		.num_devices	= 2,
++		.num_devices	= 7,
+ 		.device_list	= (enum ppc_sys_devices[])
+ 		{
+ 			MPC8xx_CPM_FEC1,
+@@ -40,7 +40,7 @@ struct ppc_sys_spec ppc_sys_specs[] = {
+ 		.ppc_sys_name	= "MPC885",
+ 		.mask 		= 0xFFFFFFFF,
+ 		.value 		= 0x00000000,
+-		.num_devices	= 3,
++		.num_devices	= 8,
+ 		.device_list	= (enum ppc_sys_devices[])
+ 		{
+ 			MPC8xx_CPM_FEC1,
+diff --git a/arch/ppc/syslib/ppc_sys.c b/arch/ppc/syslib/ppc_sys.c
+--- a/arch/ppc/syslib/ppc_sys.c
++++ b/arch/ppc/syslib/ppc_sys.c
+@@ -69,6 +69,9 @@ static int __init find_chip_by_name_and_
+ 			matched[j++] = i;
+ 		i++;
+ 	}
++
++	ret = i;
++
+ 	if (j != 0) {
+ 		for (i = 0; i < j; i++) {
+ 			if ((ppc_sys_specs[matched[i]].mask & id) ==
+diff --git a/include/asm-ppc/cpm2.h b/include/asm-ppc/cpm2.h
+--- a/include/asm-ppc/cpm2.h
++++ b/include/asm-ppc/cpm2.h
+@@ -1087,6 +1087,9 @@ typedef struct im_idma {
+ #define SCCR_PCIDF_MSK	0x00000078	/* PCI division factor	*/
+ #define SCCR_PCIDF_SHIFT 3
+ 
++#ifndef CPM_IMMR_OFFSET
++#define CPM_IMMR_OFFSET	0x101a8
++#endif
+ 
+ #endif /* __CPM2__ */
+ #endif /* __KERNEL__ */
+diff --git a/include/asm-ppc/mpc8260.h b/include/asm-ppc/mpc8260.h
+--- a/include/asm-ppc/mpc8260.h
++++ b/include/asm-ppc/mpc8260.h
+@@ -92,6 +92,10 @@ enum ppc_sys_devices {
+ extern unsigned char __res[];
+ #endif
+ 
++#ifndef BOARD_CHIP_NAME
++#define BOARD_CHIP_NAME ""
++#endif
++
+ #endif /* CONFIG_8260 */
+ #endif /* !__ASM_PPC_MPC8260_H__ */
+ #endif /* __KERNEL__ */
+diff --git a/include/asm-ppc/mpc8xx.h b/include/asm-ppc/mpc8xx.h
+--- a/include/asm-ppc/mpc8xx.h
++++ b/include/asm-ppc/mpc8xx.h
+@@ -113,6 +113,10 @@ enum ppc_sys_devices {
+ 	MPC8xx_CPM_USB,
+ };
+ 
++#ifndef BOARD_CHIP_NAME
++#define BOARD_CHIP_NAME ""
++#endif
++
+ #endif /* !__ASSEMBLY__ */
+ #endif /* CONFIG_8xx */
+ #endif /* __CONFIG_8xx_DEFS */
+
+
+--------------010504050603070501020406--

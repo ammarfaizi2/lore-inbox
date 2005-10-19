@@ -1,71 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbVJSPsf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751119AbVJSPsw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751113AbVJSPsf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 11:48:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbVJSPsf
+	id S1751119AbVJSPsw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 11:48:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbVJSPsw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 11:48:35 -0400
-Received: from spirit.analogic.com ([204.178.40.4]:34309 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP
-	id S1751113AbVJSPse convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 11:48:34 -0400
+	Wed, 19 Oct 2005 11:48:52 -0400
+Received: from silver.veritas.com ([143.127.12.111]:58981 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S1751120AbVJSPsv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 11:48:51 -0400
+Date: Wed, 19 Oct 2005 16:48:01 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: Rohit Seth <rohit.seth@intel.com>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, Adam Litke <agl@us.ibm.com>
+Subject: Re: [PATCH]: Handling spurious page fault for hugetlb region for
+ 2.6.14-rc4-git5
+In-Reply-To: <20051018210721.4c80a292.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0510191623220.7586@goblin.wat.veritas.com>
+References: <20051018141512.A26194@unix-os.sc.intel.com>
+ <20051018143438.66d360c4.akpm@osdl.org> <1129673824.19875.36.camel@akash.sc.intel.com>
+ <20051018172549.7f9f31da.akpm@osdl.org> <1129692330.24309.44.camel@akash.sc.intel.com>
+ <20051018210721.4c80a292.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <4ae3c140510190831j7530742aqc2b82e9e9cd6dde3@mail.gmail.com>
-References: <4ae3c140510190831j7530742aqc2b82e9e9cd6dde3@mail.gmail.com>
-X-OriginalArrivalTime: 19 Oct 2005 15:48:33.0026 (UTC) FILETIME=[8F265620:01C5D4C4]
-Content-class: urn:content-classes:message
-Subject: Re: Is ext3 flush data to disk when files are closed?
-Date: Wed, 19 Oct 2005 11:48:32 -0400
-Message-ID: <Pine.LNX.4.61.0510191141370.5007@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Is ext3 flush data to disk when files are closed?
-Thread-Index: AcXUxI9FGG3luD+4SJCydwA/ywS2nA==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Xin Zhao" <uszhaoxin@gmail.com>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 19 Oct 2005 15:48:51.0078 (UTC) FILETIME=[99E8DA60:01C5D4C4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 18 Oct 2005, Andrew Morton wrote:
+> Rohit Seth <rohit.seth@intel.com> wrote:
+> >
+> > The prefetching problem is handled OK for regular pages because we can
+> >  handle page faults corresponding to those pages.  That is currently not
+> >  true for hugepages.  Currently the kernel assumes that PAGE_FAULT
+> >  happening against a hugetlb page is caused by truncate and returns
+> >  SIGBUS.
 
-On Wed, 19 Oct 2005, Xin Zhao wrote:
+Is Rohit's intended to be a late 2.6.14 fix?  We seem to have done well
+without it for several years, and are just on the point of changing to
+prefaulting the hugetlb pages anyway, which will fix it up.
 
-> As far as I know, if an application modifies a file on an ext3 file
-> ssytem, it actually change the page cache, and the dirty pages will be
-> flushed to disk by kupdate periodically.
->
-> My question is: if a file is to be closed, but some of its data pages
-> are marked as dirty, will system block on close() and wait for dirty
-> pages being flushed to disk? If so, it seems to decrease performance
-> significantly if a lot of updates on many small files are involved.
->
-> Can someone point me to the right place to check how it works? Thanks!
->
-> Xin
+> @@ -2045,8 +2045,18 @@ int __handle_mm_fault(struct mm_struct *
+>  
+>  	inc_page_state(pgfault);
+>  
+> -	if (is_vm_hugetlb_page(vma))
+> -		return VM_FAULT_SIGBUS;	/* mapping truncation does this. */
+> +	if (unlikely(is_vm_hugetlb_page(vma))) {
+> +		if (valid_hugetlb_file_off(vma, address))
+> +			/* We get here only if there was a stale(zero) TLB entry
+> +			 * (because of  HW prefetching).
+> +			 * Low-level arch code (if needed) should have already
+> +			 * purged the stale entry as part of this fault handling.
+> +			 * Here we just return.
+> +			 */
+> +			return VM_FAULT_MINOR;
+> +		else
+> +			return VM_FAULT_SIGBUS;	/* mapping truncation does this. */
+> +	}
 
-In principle, if you open a file, write to it, close it, have
-somebody else open it, read it, close it, then delete it, it
-probably will never touch a physical disk. This is the basic
-way a VFS (virtual file system) works. The system maintains a
-RAM Disk that overflows to the physical media.
+(I'm not surprised that the low-level arch code fixes this up as part of the
+fault handling.  I am surprised that it does so only after giving the fault
+to the kernel.  Sounds like something's gone wrong.)
 
-Given that, there are various ways to provoke the system into
-writing data to the disk(s), such as executing `sync`. However,
-normally file-data are written when the kernel needs to free
-up some memory or when the disk(s) are un-mounted.
+What happens when the hugetlb file is truncated down and back up after
+the mmap?  Truncating down will remove a page from the mmap and flush TLB.
+Truncating up will let accesses to the gone page pass the valid...off test.
+But we've no support for hugetlb faulting in this version: so won't it get
+get stuck in a tight loop?
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.55 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
+If it's decided that this issue is actually an ia64 one, and does need to
+be fixed right now, then I'd have thought your idea of fixing it at the
+ia64 end better: arch/ia64/mm/fault.c already has code for discarding
+faults on speculative loads, and ia64 has an RGN_HPAGE set aside for
+hugetlb, so shouldn't it just discard speculative loads on that region?
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+Hugh

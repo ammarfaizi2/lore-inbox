@@ -1,70 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbVJSUx2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbVJSVDX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751305AbVJSUx2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 16:53:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbVJSUx2
+	id S1751344AbVJSVDX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 17:03:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751347AbVJSVDW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 16:53:28 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:37302 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751305AbVJSUx1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 16:53:27 -0400
-Date: Wed, 19 Oct 2005 13:53:23 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Rohit Seth <rohit.seth@intel.com>
-cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: Handling spurious page fault for hugetlb region for
- 2.6.14-rc4-git5
-In-Reply-To: <1129747647.339.78.camel@akash.sc.intel.com>
-Message-ID: <Pine.LNX.4.64.0510191345420.3369@g5.osdl.org>
-References: <20051018141512.A26194@unix-os.sc.intel.com> 
- <20051018143438.66d360c4.akpm@osdl.org>  <1129673824.19875.36.camel@akash.sc.intel.com>
-  <20051018172549.7f9f31da.akpm@osdl.org>  <1129692330.24309.44.camel@akash.sc.intel.com>
-  <Pine.LNX.4.61.0510191551180.7586@goblin.wat.veritas.com>
- <1129747647.339.78.camel@akash.sc.intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 19 Oct 2005 17:03:22 -0400
+Received: from [203.171.93.254] ([203.171.93.254]:21707 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S1751344AbVJSVDW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 17:03:22 -0400
+Subject: Re: [linux-pm] [PATCH] Threads shouldn't inherit PF_NOFREEZE
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Andrew Morton <akpm@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>,
+       Linus Torvalds <torvalds@osdl.org>, Pavel Machek <pavel@ucw.cz>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44L0.0510181515450.4518-100000@iolanthe.rowland.org>
+References: <Pine.LNX.4.44L0.0510181515450.4518-100000@iolanthe.rowland.org>
+Content-Type: text/plain
+Organization: Cyclades
+Message-Id: <1129755676.4577.51.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 20 Oct 2005 07:01:17 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Alan.
 
-
-On Wed, 19 Oct 2005, Rohit Seth wrote:
+On Wed, 2005-10-19 at 05:29, Alan Stern wrote:
+> The PF_NOFREEZE process flag should not be inherited when a thread is 
+> forked.  This patch (as585) removes the flag from the child.
 > 
-> IA-64 can prefetch any entry from VHPT (last level page table)
-> irrespective of its value.  You are right that i386 and x86_64 does not
-> cache !present entry.  Though OS is suppose to handle those faults if
-> happen.
+> This problem is starting to show up more and more as drivers turn to the
+> kthread API instead of using kernel_thread().  As a result, their kernel
+> threads are now children of the kthread worker instead of modprobe, and
+> they inherit the PF_NOFREEZE flag.  This can cause problems during system
+> suspend; the kernel threads are not getting frozen as they ought to be.
+> 
+> Alan Stern
 
-Well.. 
+I have this in kthread instead, so that multithreaded userspace
+processes only need to have NOFREEZE set once (before forking). Yes, I
+have one that fits this scenario - I'm working on a userspace storage
+maanger, which will setup and tear down a network connection at
+appropriate times during a suspend-to-disk cycle. The initial version is
+based on nbd and uses two threads because the one that sets up storage
+blocks in a syscall as Pavel & others have written it.
 
-The fact is, the VM layer is designed for systems that do not cache 
-not-present entries in their TLB. See for example the end of do_no_page() 
-in mm/memory.c:
+Anyway, I agree that the general need you're trying to address is real.
 
-	        /* no need to invalidate: a not-present page shouldn't be cached */
-	        update_mmu_cache(vma, address, entry);
-	        lazy_mmu_prot_update(entry);
-	        spin_unlock(&mm->page_table_lock);
-	out:
-	        return ret;
+Regards,
 
-which _allows_ for hardware that caches not-present pages, but the 
-architecture needs to catch them in the "update_mmu_cache()".
+Nigel
 
-IOW, the kernel is largely designed for present-only caching, and only has 
-explicit tlb flush macros for that case.
+> 
+> 
+> Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+> 
+> ---
+> 
+> What I said above may not be quite true.  For all I know, there may be
+> threads which rely on inheriting PF_NOFREEZE from their parent.  But it
+> should not be inherited by default.
+> 
+> Index: usb-2.6/kernel/fork.c
+> ===================================================================
+> --- usb-2.6.orig/kernel/fork.c
+> +++ usb-2.6/kernel/fork.c
+> @@ -848,7 +848,7 @@ static inline void copy_flags(unsigned l
+>  {
+>  	unsigned long new_flags = p->flags;
+>  
+> -	new_flags &= ~PF_SUPERPRIV;
+> +	new_flags &= ~(PF_SUPERPRIV | PF_NOFREEZE);
+>  	new_flags |= PF_FORKNOEXEC;
+>  	if (!(clone_flags & CLONE_PTRACE))
+>  		p->ptrace = 0;
+> 
+> 
+> ______________________________________________________________________
+> _______________________________________________
+> linux-pm mailing list
+> linux-pm@lists.osdl.org
+> https://lists.osdl.org/mailman/listinfo/linux-pm
+-- 
 
-If ia64 caches non-present TLB entries, then that would seem to be a bug 
-in the Linux ia64 port:
 
- - include/asm-ia64/pgtable.h:
-	#define update_mmu_cache(vma, address, pte) do { } while (0)
-
-(Of course, you can and maybe do handle it differently: you can also 
-decide to just take the TLB fault, and flush the TLB at fault time in your 
-handler. I don't see that either on ia64, though. Although I didn't look 
-into any of the asm code, so maybe it's hidden somewhere there).
-
-			Linus

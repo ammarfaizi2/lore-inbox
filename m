@@ -1,84 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbVJSPy2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbVJSP4V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751121AbVJSPy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 11:54:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbVJSPy2
+	id S1751125AbVJSP4V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 11:56:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbVJSP4V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 11:54:28 -0400
-Received: from smtprelay02.ispgateway.de ([80.67.18.14]:60355 "EHLO
-	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1751121AbVJSPy2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 11:54:28 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: large files unnecessary trashing filesystem cache?
-Date: Wed, 19 Oct 2005 17:54:11 +0200
-User-Agent: KMail/1.7.2
-Cc: gfiala@s.netic.de
-References: <200510182201.11241.gfiala@s.netic.de> <20051018213721.236b2107.akpm@osdl.org> <1129720232.435629a8753d3@webmail.LF.net>
-In-Reply-To: <1129720232.435629a8753d3@webmail.LF.net>
+	Wed, 19 Oct 2005 11:56:21 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:27799 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S1751125AbVJSP4V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 11:56:21 -0400
+Message-ID: <43566CA2.4090002@vc.cvut.cz>
+Date: Wed, 19 Oct 2005 17:56:18 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1962184.kT50JWrA61";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Clemens Ladisch <clemens@ladisch.de>
+CC: "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/7] more HPET fixes and enhancements
+References: <Pine.HPX.4.33n.0510191540170.2146-100000@studcom.urz.uni-halle.de>
+In-Reply-To: <Pine.HPX.4.33n.0510191540170.2146-100000@studcom.urz.uni-halle.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200510191754.17963.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1962184.kT50JWrA61
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Clemens Ladisch wrote:
+> Petr Vandrovec wrote:
+> 
+>>Clemens Ladisch wrote:
+>>
+>>>However, I've patched my kernel to initialize the HPET manually
+>>>because my BIOS doesn't bother to do it at all.  A quick Google search
+>>>shows that in most cases where the BIOS _does_ bother, the third timer
+>>>(which is the only free one after system timer and RTC have grabbed
+>>>theirs) didn't get initialized and is still set to interrupt 0 (which
+>>>isn't actually supported by most HPET hardware).
+>>>
+>>>This means that hpet.c must initialize the interrupt routing register
+>>>in this case.  I'll write a patch for this.
+>>
+>>I'm using attached diff.
+> 
+> 
+> The other changes of your patch are already in the -mm kernel.
+> 
+> 
+>>But I gave up on HPET.  On VIA periodic mode is hopelessly broken,
+> 
+> 
+> I've heard it works with timer 0, and the capability bit on timer 1 is
+> just wrong.
 
-Hi,
+Nope.  Periodic mode works (I've made my tests on timer #2), you can just
+set only period (through way which sets value according to the spec), and
+you cannot set current value (at least I do not know how).  So I can
+program VIA hardware to generate periodic interrupt, there is just
+unavoidable delay up to 5 minutes. I've worked around by setting period
+to 1 tick, so in 5 minutes value and main timer synchronize, and if
+timer is not stopped after that then it stays synchronized with main timer.
 
-On Wednesday 19 October 2005 13:10, gfiala@s.netic.de wrote:
-> Zitat von Andrew Morton <akpm@osdl.org>:
-> > So I'd also suggest a new resource limit which, if set, is copied into =
-the
-> > applications's file_structs on open().  So you then write a little wrap=
-per
-> > app which does setrlimit()+exec():
-> >=20
-> > 	limit-cache-usage -s 1000 my-fave-backup-program <args>
-> >=20
-> > Which will cause every file which my-fave-backup-program reads or write=
-s to
-> > be limited to a maximum pagecache residency of 1000 kbytes.
->=20
-> Or make it another 'ulimit' parameter...
+>>And fixing this would add at least 1.5us to the interrupt handler,
+>>and it seems quite lot to me...
+> 
+> 
+> I didn't measure how much reading the RTC registers costs us, but
+> those aren't likely to be faster.
+> 
+> I'm thinking of a different approach:  Assuming that such a big delay
+> almost never actually does happen, we run a separate watchdog timer
+> (using a kernel timer that is guaranteed to work) at a much lower
+> frequency to check whether the real timer got stuck.  This trades off
+> the HPET register read against the timer_list overhead (and that we
+> still lose _some_ interrupts when the worst case happens).
 
-Which is already there: There is an ulimit for "maximum RSS",=20
-which is at least a superset of "maximum pagecache residency".
+It would work for VMware's use of /dev/rtc if number of missed interrupts
+will be reported on next read.  Otherwise it might be a problem for
+keeping time between host and virtual machines in sync.
+								Petr
 
-This is already settable and known by many admins. But AFAIR it is not
-honoured by the kernel completely, right?
-
-But per file is a much better choice, since this would allow
-concurrent streaming. This is needed to implement timeshifting at least[1].
-
-So either I miss something or this is no proper solution yet.
-
-
-Regards
-
-Ingo Oeser
-
-[1] Which is obviously done by some kind of on-disk FIFO.
-
-
---nextPart1962184.kT50JWrA61
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDVmwpU56oYWuOrkARAp+JAJ9w6JjZdpfjnBGCMN7fUDHm+Vhm8QCfW3ss
-jtPiBgpdv6KSU3btvarf/c0=
-=72WG
------END PGP SIGNATURE-----
-
---nextPart1962184.kT50JWrA61--

@@ -1,84 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751137AbVJSPwL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbVJSPy2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751137AbVJSPwL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 11:52:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbVJSPwL
+	id S1751121AbVJSPy2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 11:54:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbVJSPy2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 11:52:11 -0400
-Received: from bno-84-242-95-19.nat.karneval.cz ([84.242.95.19]:23213 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1751137AbVJSPwK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 11:52:10 -0400
-Message-ID: <43566BB7.8050100@gmail.com>
-Date: Wed, 19 Oct 2005 17:52:23 +0200
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: cs, en-us, en
+	Wed, 19 Oct 2005 11:54:28 -0400
+Received: from smtprelay02.ispgateway.de ([80.67.18.14]:60355 "EHLO
+	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1751121AbVJSPy2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 11:54:28 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: large files unnecessary trashing filesystem cache?
+Date: Wed, 19 Oct 2005 17:54:11 +0200
+User-Agent: KMail/1.7.2
+Cc: gfiala@s.netic.de
+References: <200510182201.11241.gfiala@s.netic.de> <20051018213721.236b2107.akpm@osdl.org> <1129720232.435629a8753d3@webmail.LF.net>
+In-Reply-To: <1129720232.435629a8753d3@webmail.LF.net>
 MIME-Version: 1.0
-To: Alexandre Buisse <alexandre.buisse@ens-lyon.fr>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc4-mm1
-References: <20051016154108.25735ee3.akpm@osdl.org> <43565257.6020505@ens-lyon.fr>
-In-Reply-To: <43565257.6020505@ens-lyon.fr>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/signed;
+  boundary="nextPart1962184.kT50JWrA61";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200510191754.17963.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexandre Buisse napsal(a):
+--nextPart1962184.kT50JWrA61
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
->I've been having problems with ipw2200 oopsing at modprobe since
->2.6.14-rc2-mm1 (sorry for not reporting before). I use the ipw2200
->  
->
-2.6.14-rc2 is OK (or what was the last OK)? There are no significant
-changes in rc2-mm1.
+Hi,
 
->included in the kernel.
->
->.config is attached.
->
->Regards,
->Alexandre
->
->[   96.855956] ieee80211_crypt: registered algorithm 'NULL'
->[   96.866572] ieee80211: 802.11 data/management/control stack, git-1.1.5
->[   96.866689] ieee80211: Copyright (C) 2004-2005 Intel Corporation
-><jketreno@linux.intel.com>
->[   96.885063] ipw2200: Intel(R) PRO/Wireless 2200/2915 Network Driver,
->1.0.0
->[   96.885182] ipw2200: Copyright(c) 2003-2004 Intel Corporation
->[   96.885697] ACPI: PCI Interrupt 0000:02:02.0[A] -> Link [LNKC] -> GSI
->11 (level, low) -> IRQ 11
->[   96.885796] ipw2200: Detected Intel PRO/Wireless 2200BG Network
->Connection
->[   97.932261] eth1 (WE) : Driver using old /proc/net/wireless support,
->please fix driver !
->[   97.978805] eth1 (WE) : Driver using old /proc/net/wireless support,
->please fix driver !
->[   98.324671] divide error: 0000 [#1]
->[   98.324675] PREEMPT
->[   98.324677] last sysfs file:
->/devices/pci0000:00/0000:00:1e.0/0000:02:02.0/rf_kill
->[   98.324680] Modules linked in: ipw2200 ieee80211 ieee80211_crypt ac
->thermal battery acpi_cpufreq processor radeon snd_intel8x0
->snd_ac97_codec snd_ac97_bus
->[   98.324690] CPU:    0
->[   98.324691] EIP:    0060:[<e0d605c0>]    Not tainted VLI
->[   98.324693] EFLAGS: 00010093   (2.6.14-rc4-mm1-ubik)
->[   98.324703] EIP is at ieee80211_wx_get_scan+0x740/0x970 [ieee80211]
->[   98.324706] eax: fffad1c8   ebx: 00000000   ecx: 00052e38   edx: ffffffff
->[   98.324710] esi: 00000000   edi: fffad1c8   ebp: d9b9fe74   esp: d9b9fc88
->[   98.324712] ds: 007b   es: 007b   ss: 0068
->[   98.324715] Process iwlist (pid: 6872, threadinfo=d9b9e000 task=d8242530)
->  
->
-...oopsing at modprobe since... are you sure? This seems like an iwlist.
+On Wednesday 19 October 2005 13:10, gfiala@s.netic.de wrote:
+> Zitat von Andrew Morton <akpm@osdl.org>:
+> > So I'd also suggest a new resource limit which, if set, is copied into =
+the
+> > applications's file_structs on open().  So you then write a little wrap=
+per
+> > app which does setrlimit()+exec():
+> >=20
+> > 	limit-cache-usage -s 1000 my-fave-backup-program <args>
+> >=20
+> > Which will cause every file which my-fave-backup-program reads or write=
+s to
+> > be limited to a maximum pagecache residency of 1000 kbytes.
+>=20
+> Or make it another 'ulimit' parameter...
 
-thanks for more info,
+Which is already there: There is an ulimit for "maximum RSS",=20
+which is at least a superset of "maximum pagecache residency".
 
--- 
-Jiri Slaby         www.fi.muni.cz/~xslaby
-~\-/~      jirislaby@gmail.com      ~\-/~
-B67499670407CE62ACC8 22A032CC55C339D47A7E
+This is already settable and known by many admins. But AFAIR it is not
+honoured by the kernel completely, right?
 
+But per file is a much better choice, since this would allow
+concurrent streaming. This is needed to implement timeshifting at least[1].
+
+So either I miss something or this is no proper solution yet.
+
+
+Regards
+
+Ingo Oeser
+
+[1] Which is obviously done by some kind of on-disk FIFO.
+
+
+--nextPart1962184.kT50JWrA61
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDVmwpU56oYWuOrkARAp+JAJ9w6JjZdpfjnBGCMN7fUDHm+Vhm8QCfW3ss
+jtPiBgpdv6KSU3btvarf/c0=
+=72WG
+-----END PGP SIGNATURE-----
+
+--nextPart1962184.kT50JWrA61--

@@ -1,56 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751199AbVJSSAl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751200AbVJSSAW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751199AbVJSSAl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 14:00:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbVJSSAl
+	id S1751200AbVJSSAW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 14:00:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbVJSSAV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 14:00:41 -0400
-Received: from mail.s.netic.de ([212.9.160.11]:62729 "EHLO mail.s.netic.de")
-	by vger.kernel.org with ESMTP id S1751199AbVJSSAk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 14:00:40 -0400
-From: Guido Fiala <gfiala@s.netic.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: large files unnecessary trashing filesystem cache?
-Date: Wed, 19 Oct 2005 19:58:37 +0200
-User-Agent: KMail/1.7.2
-References: <200510182201.11241.gfiala@s.netic.de> <1129695001.8910.57.camel@mindpipe>
-In-Reply-To: <1129695001.8910.57.camel@mindpipe>
+	Wed, 19 Oct 2005 14:00:21 -0400
+Received: from mail-haw.bigfish.com ([12.129.199.61]:28502 "EHLO
+	mail2-haw-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S1751200AbVJSSAT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 14:00:19 -0400
+X-BigFish: V
+Message-ID: <435689B0.7020100@am.sony.com>
+Date: Wed, 19 Oct 2005 11:00:16 -0700
+From: Tim Bird <tim.bird@am.sony.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+To: Ingo Molnar <mingo@elte.hu>
+CC: Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
+       tglx@linutronix.de, george@mvista.com, linux-kernel@vger.kernel.org,
+       johnstul@us.ibm.com, paulmck@us.ibm.com, hch@infradead.org,
+       oleg@tv-sign.ru
+Subject: Re: kernel/timer.c design
+References: <Pine.LNX.4.61.0510171948040.1386@scrub.home> <4353F936.3090406@am.sony.com> <Pine.LNX.4.61.0510172138210.1386@scrub.home> <20051017201330.GB8590@elte.hu> <Pine.LNX.4.61.0510172227010.1386@scrub.home> <20051018084655.GA28933@elte.hu> <Pine.LNX <20051019104938.GA30185@elte.hu>
+In-Reply-To: <20051019104938.GA30185@elte.hu>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510191958.37542.gfiala@s.netic.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 19 October 2005 06:10, Lee Revell wrote:
-> On Tue, 2005-10-18 at 22:01 +0200, Guido Fiala wrote:
-> > Of course one could always implement f_advise-calls in all
-> > applications
->
-> Um, this seems like the obvious answer.  The application doing the read
-> KNOWS it's a streaming read, while the best the kernel can do is guess.
->
-> You don't really make much of a case that fadvise can't do the job.
->
+Ingo,
 
-Kernel could do the best to optimize default performance, applications that 
-consider their own optimal behaviour should do so, all other files are kept 
-under default heuristic policy (adaptable, configurable one)
+Thanks for the excellent description of the timer wheel
+implementation.
 
-Heuristic can be based on access statistic:
+Ingo Molnar wrote:
+> One cost is the burstiness of processing: a single step of cascading can 
+> take many timers to be processed (if they happen to be in that same 
+> bucket)...
 
-streaming/sequential can be guessed by getting exactly 100% cache hit rate 
-(drop behind pages immediately),
+> But there's a hidden win as well from this approach: if a timer is 
+> removed before it expires, we've saved the remaining cascading steps!  
+> This happens surprisingly often: on a busy networked server, the 
+> majority of the timers never expire, and are removed before they have to 
+> be cascaded even once.
 
-random access/repeated reads can be guessed by >100% hit rate (keep as much in 
-memory as possible).
+Unfortunately, this means that the actual costs of the wheel
+implementation vary depending on the relationship between HZ,
+the average timeout duration, and the bucket mappings (which,
+as you say, can be adjusted for size reasons.)  This is one of
+the downsides of the wheel implementation.  It's very difficult
+to tell in advance whether a particular timer load
+will cascade or not, making the costs (although bounded)
+unexpectedly variable.
 
-Less than 100% hit rate is already handled sanely i guess by reducing 
-readahead, precognition would gather access patterns (every n-th block is 
-read so readahead every n-th block, unlikely scenario i guess, but might 
-happen in databases).
+One solution (even suggested by Linus) for high resolution
+timers was to increase HZ and skip timer ticks.  Unfortunately,
+this has a dramatic affect on the cost of cascading, and on
+the maximum duration available for timers.  (By increasing
+HZ, you push more timers to higher tiers in the wheel, which
+means you potentially end up cascading them more often,
+even when they are removed before expiry.) These types
+of unexpected consequences are one good reason for avoiding
+use of the wheel for high res timers.
 
-How about backward-read-files? Others?
+=============================
+Tim Bird
+Architecture Group Chair, CE Linux Forum
+Senior Staff Engineer, Sony Electronics
+=============================
+

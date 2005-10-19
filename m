@@ -1,64 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbVJSSjk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbVJSSk0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751212AbVJSSjk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 14:39:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbVJSSjj
+	id S1751217AbVJSSk0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 14:40:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbVJSSk0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 14:39:39 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:16846 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751212AbVJSSjj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 14:39:39 -0400
-Subject: Re: Ktimer / -rt9 (+custom) monotonic_clock going backwards.
-From: john stultz <johnstul@us.ibm.com>
-To: tglx@linutronix.de
-Cc: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1129734626.19559.275.camel@tglx.tec.linutronix.de>
-References: <Pine.LNX.4.58.0510191047270.24515@localhost.localdomain>
-	 <1129734626.19559.275.camel@tglx.tec.linutronix.de>
+	Wed, 19 Oct 2005 14:40:26 -0400
+Received: from fmr21.intel.com ([143.183.121.13]:15332 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1751217AbVJSSkZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 14:40:25 -0400
+Subject: Re: [PATCH]: Handling spurious page fault for hugetlb region for
+	2.6.14-rc4-git5
+From: Rohit Seth <rohit.seth@intel.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+In-Reply-To: <Pine.LNX.4.61.0510191551180.7586@goblin.wat.veritas.com>
+References: <20051018141512.A26194@unix-os.sc.intel.com>
+	 <20051018143438.66d360c4.akpm@osdl.org>
+	 <1129673824.19875.36.camel@akash.sc.intel.com>
+	 <20051018172549.7f9f31da.akpm@osdl.org>
+	 <1129692330.24309.44.camel@akash.sc.intel.com>
+	 <Pine.LNX.4.61.0510191551180.7586@goblin.wat.veritas.com>
 Content-Type: text/plain
-Date: Wed, 19 Oct 2005 11:39:32 -0700
-Message-Id: <1129747172.27168.149.camel@cog.beaverton.ibm.com>
+Organization: Intel 
+Date: Wed, 19 Oct 2005 11:47:27 -0700
+Message-Id: <1129747647.339.78.camel@akash.sc.intel.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 19 Oct 2005 18:40:16.0990 (UTC) FILETIME=[8CCA77E0:01C5D4DC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-10-19 at 17:10 +0200, Thomas Gleixner wrote:
-> On Wed, 2005-10-19 at 10:59 -0400, Steven Rostedt wrote:
-> > Hi Thomas,
-> > 
-> > I switched my custom kernel timer to use the ktimers with the prio of -1
-> > as you mentioned to me offline.  I set up the timer to be monotonic and
-> > have a requirement that the returned time is always greater or equal to
-> > the last time returned from do_get_ktime_mono.
-> > 
-> > Now here's the results that I got between two calls of do_get_ktime_mono
-> > 
-> > 358.069795728 secs then later 355.981483177.  Should this ever happen?
+On Wed, 2005-10-19 at 16:23 +0100, Hugh Dickins wrote:
+
+> I thought that the CPU never caches !present entries in the TLB?
+> Or is that true of i386 (and x86_64), but untrue of ia64?
+
+IA-64 can prefetch any entry from VHPT (last level page table)
+irrespective of its value.  You are right that i386 and x86_64 does not
+cache !present entry.  Though OS is suppose to handle those faults if
+happen.
+
+> Or do you have some new model or errata on some CPU where it's true?
+
+No errata here.
+
+> Or, final ghastly possibility ;), am I simply altogether wrong?
 > 
-> Definitely not. monotonic time must go forwards. 
 
-Steven: What clocksource are you using? Could you send me your dmesg?
+You are asking the right questions here.
 
-
-> > I haven't look to see if this happens in vanilla -rt10 but I haven't
-> > touched your ktimer code except for my logging and the patch with the
-> > unlock_ktimer_base (since I was based off of -rt9)
+> > Meaning, unless this entry is purged or displaced, for virtual address V
 > 
-> The ktimer code itself calls the timeofday code, which provides the
-> monotonic clock. I have no idea what might go wrong. 
+> When you say "purged", is that what we elsewhere call "flushed"
+> in relation to the TLB, or something else?
 > 
-> Is this reproducible ?
 
-Last night I just caught a bug I accidentally introduced with the fixed
-interval math (oh, if only optimizations didn't dirty code so!), where
-time inconsistencies were possible when clocksources were changed. I'm
-not sure if that's the issue being seen above, but I'll wrap things up
-and send out a B8 release today if I can.
+I should use flush to be consistent.
 
-thanks
--john
+> > CPU will generate the page fault (as the P bit is not set and assuming
+> > this fault has the highest precedence).
+> > 
+> > Kernel updates the *pte so that it now maps the hugepage at virtual
+> > address V to physical address P.  
+> > 
+> > Later when the user process make a reference to V, because of stale TLB
+> > entry, the processor gets PAGE_FAULT.
+> 
+> You seem to be saying that strictly, we ought to flush TLB even when we
+> make a page present where none was before, but that the likelihood of it
+> being needed is so low, and the overhead of TLB flush so high, and the
+> existing code almost everywhere recovering safely from this condition,
+> that the most effective thing to do is just fix up the hugetlb case.
+> Is that correct?
+> 
+
+Yes.  At least for the architectures that can cache any translation in
+its TLB.  IA-64 is again a good example here.  It flushes the entry only
+at the fault time so that next time around you get the updated entry
+(for the cases where the fault happened because of any stale TLB).
+
+> > > Has this problem been observed in testing?
+> > 
+> > Yes. On IA-64.
+> 
+> But not on i386 or x86_64.
+> 
+
+No.
+
+> Same series of doubts as with !present entries in the TLB; but after
+> looking at the ia64 fault handler, that does seem to have stuff about
+> speculative loads, so I'm guessing i386 and x86_64 prefetch does not
+> cause faults (modulo errata), but ia64 does.
+> 
+
+Those speculative loads (are more of advanced loads generated by
+compiler in anticipation that they will be helpful) on IA-64 are
+different from prefetches that HW does for TLBs.
+
+HW Speculative loads never generates any fault.  
+
+Whereas prefetched TLB entries in i386, x86_64 or IA-64 can cause fault
+if they are not flushed after updates.  
+
+> Once I started to understand this thread, I thought you were quite
+> wrong to be changing hugetlb fault handling, thought I'd find several
+> other places which would need fixing too e.g. kmap_atomic, remap_pfn_range.
+> 
+> But no, I've found no others.  Either miraculously, or by good design,
+> all the kernel misfaults should be seamlessly handled by the lazy vmalloc
+> path (on i386 anyway: I don't know what happens for ia64 there), and the
+> userspace misfaults by handle_pte_fault's pte_present check.  I think.
+> 
+
+Good OS design :-)  Though on IA-64 there was recently a similar issue
+for vmalloc area that got fixed in low level arch specific code.
+
+-rohit
 

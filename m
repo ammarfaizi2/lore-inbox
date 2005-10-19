@@ -1,81 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbVJSP4V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbVJSP5l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751125AbVJSP4V (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 11:56:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbVJSP4V
+	id S1751129AbVJSP5l (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 11:57:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbVJSP5l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 11:56:21 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:27799 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S1751125AbVJSP4V (ORCPT
+	Wed, 19 Oct 2005 11:57:41 -0400
+Received: from xenotime.net ([66.160.160.81]:41641 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751129AbVJSP5k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 11:56:21 -0400
-Message-ID: <43566CA2.4090002@vc.cvut.cz>
-Date: Wed, 19 Oct 2005 17:56:18 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Wed, 19 Oct 2005 11:57:40 -0400
+Date: Wed, 19 Oct 2005 08:57:37 -0700 (PDT)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Karel Kulhavy <clock@twibright.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 3c900 boot-time kernel commandline parameters in 2.4.25
+In-Reply-To: <20051019105239.GA9858@kestrel>
+Message-ID: <Pine.LNX.4.58.0510190838550.23358@shark.he.net>
+References: <20051019105239.GA9858@kestrel>
 MIME-Version: 1.0
-To: Clemens Ladisch <clemens@ladisch.de>
-CC: "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/7] more HPET fixes and enhancements
-References: <Pine.HPX.4.33n.0510191540170.2146-100000@studcom.urz.uni-halle.de>
-In-Reply-To: <Pine.HPX.4.33n.0510191540170.2146-100000@studcom.urz.uni-halle.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Clemens Ladisch wrote:
-> Petr Vandrovec wrote:
-> 
->>Clemens Ladisch wrote:
->>
->>>However, I've patched my kernel to initialize the HPET manually
->>>because my BIOS doesn't bother to do it at all.  A quick Google search
->>>shows that in most cases where the BIOS _does_ bother, the third timer
->>>(which is the only free one after system timer and RTC have grabbed
->>>theirs) didn't get initialized and is still set to interrupt 0 (which
->>>isn't actually supported by most HPET hardware).
->>>
->>>This means that hpet.c must initialize the interrupt routing register
->>>in this case.  I'll write a patch for this.
->>
->>I'm using attached diff.
-> 
-> 
-> The other changes of your patch are already in the -mm kernel.
-> 
-> 
->>But I gave up on HPET.  On VIA periodic mode is hopelessly broken,
-> 
-> 
-> I've heard it works with timer 0, and the capability bit on timer 1 is
-> just wrong.
+On Wed, 19 Oct 2005, Karel Kulhavy wrote:
 
-Nope.  Periodic mode works (I've made my tests on timer #2), you can just
-set only period (through way which sets value according to the spec), and
-you cannot set current value (at least I do not know how).  So I can
-program VIA hardware to generate periodic interrupt, there is just
-unavoidable delay up to 5 minutes. I've worked around by setting period
-to 1 tick, so in 5 minutes value and main timer synchronize, and if
-timer is not stopped after that then it stays synchronized with main timer.
+> How do I tell Linux kernel 2.4.25 on boot-time kernel commandline to
+> switch my eth0
+> -----------------------------------------------------------------------
+>   Bus  1, device   3, function  0:
+>     Ethernet controller: 3Com Corporation 3c900 Combo [Boomerang] (rev
+> 0).
+>       IRQ 11.
+>       Master Capable.  Latency=32.  Min Gnt=3.Max Lat=8.
+>       I/O at 0xc000 [0xc03f].
+> -----------------------------------------------------------------------
+>
+> to TP transceiver and 10/100 autonegotiation?
+>
+> I looked into Documentation/00-INDEX and into kernel-parameters.txt and
+> found just
+>
+> "        ether=          [HW,NET] Ethernet cards parameters (irq,
+>                         base_io_addr, mem_start, mem_end, name.
+>                         (mem_start is often overloaded to mean something
+>                         different and driver-specific).
+> "
+>
+> which neither doesn't answer my question neither point to any
+> documentation where my question could be answered.
 
->>And fixing this would add at least 1.5us to the interrupt handler,
->>and it seems quite lot to me...
-> 
-> 
-> I didn't measure how much reading the RTC registers costs us, but
-> those aren't likely to be faster.
-> 
-> I'm thinking of a different approach:  Assuming that such a big delay
-> almost never actually does happen, we run a separate watchdog timer
-> (using a kernel timer that is guaranteed to work) at a much lower
-> frequency to check whether the real timer got stuck.  This trades off
-> the HPET register read against the timer_list overhead (and that we
-> still lose _some_ interrupts when the worst case happens).
+Yes, there are lots of drivers where it is necessary to look
+in the driver source file to determine actual parameter usage.
 
-It would work for VMware's use of /dev/rtc if number of missed interrupts
-will be reported on next read.  Otherwise it might be a problem for
-keeping time between host and virtual machines in sync.
-								Petr
+For the 3c59x driver, mem_start is overloaded (as in the doc above) as:
 
+
+0x8000			debug level 7
+0x4000			debug level 2
+0x0400			enable WOL
+0x0200			full duplex
+0x0010			bus master
+0x000m			media override value, index into media_table:
+
+0: { "10baseT",   Media_10TP,0x08, XCVR_10base2, (14*HZ)/10},
+1: { "10Mbs AUI", Media_SQE, 0x20, XCVR_Default, (1*HZ)/10},
+2: { "undefined", 0,			0x80, XCVR_10baseT, 10000},
+3: { "10base2",   0,			0x10, XCVR_AUI,	(1*HZ)/10},
+4: { "100baseTX", Media_Lnk, 0x02, XCVR_100baseFx, (14*HZ)/10},
+5: { "100baseFX", Media_Lnk, 0x04, XCVR_MII,	(14*HZ)/10},
+6: { "MII",		 0,		0x41, XCVR_10baseT, 3*HZ },
+7: { "undefined", 0,			0x01, XCVR_10baseT, 10000},
+8: { "Autonegotiate", 0,		0x41, XCVR_10baseT, 3*HZ},
+9: { "MII-External",	 0,		0x41, XCVR_10baseT, 3*HZ },
+10: { "Default",	 0,		0xFF, XCVR_10baseT, 10000},
+
+so don't use 2 or 7 for the media override value.
+In your case, I guess you want mem_start=8.
+
+-- 
+~Randy

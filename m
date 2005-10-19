@@ -1,20 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932446AbVJSBde@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932436AbVJSBiG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932446AbVJSBde (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 21:33:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932448AbVJSBde
+	id S932436AbVJSBiG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 21:38:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbVJSBhX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 21:33:34 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:4 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S932441AbVJSBd3 (ORCPT
+	Tue, 18 Oct 2005 21:37:23 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:32275 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S932435AbVJSBdJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 21:33:29 -0400
-Date: Tue, 18 Oct 2005 21:31:01 -0400
+	Tue, 18 Oct 2005 21:33:09 -0400
+Date: Tue, 18 Oct 2005 21:31:00 -0400
 From: "John W. Linville" <linville@tuxdriver.com>
 To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Cc: jgarzik@pobox.com
-Subject: [patch 2.6.14-rc3] epic100: fix counting of work_done in epic_poll
-Message-ID: <10182005213101.12633@bilbo.tuxdriver.com>
+Cc: jgarzik@pobox.com, shemminger@osdl.org, mlindner@syskonnect.de,
+       rroesler@syskonnect.de
+Subject: [patch 2.6.14-rc4 2/3] MAINTAINERS: mark the sk98lin driver as obsolete
+Message-ID: <10182005213100.12420@bilbo.tuxdriver.com>
+In-Reply-To: <10182005213100.12360@bilbo.tuxdriver.com>
 User-Agent: PatchPost/0.5
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -22,34 +24,25 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-work_done is overwritten each time through the rx_action loop in
-epic_poll.  This screws-up the NAPI accounting if the loop is executed
-more than once.
+The sk98lin and skge drivers cover the same set of hardware, and the
+skge driver enjoys community support.  This patch marks the sk98lin
+driver as obsolete.
 
 Signed-off-by: John W. Linville <linville@tuxdriver.com>
 ---
 
- drivers/net/epic100.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ MAINTAINERS |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/epic100.c b/drivers/net/epic100.c
---- a/drivers/net/epic100.c
-+++ b/drivers/net/epic100.c
-@@ -1334,7 +1334,7 @@ static void epic_rx_err(struct net_devic
- static int epic_poll(struct net_device *dev, int *budget)
- {
- 	struct epic_private *ep = dev->priv;
--	int work_done, orig_budget;
-+	int work_done = 0, orig_budget;
- 	long ioaddr = dev->base_addr;
+diff --git a/MAINTAINERS b/MAINTAINERS
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -1592,7 +1592,7 @@ M: 	mlindner@syskonnect.de
+ P:	Ralph Roesler
+ M: 	rroesler@syskonnect.de
+ W: 	http://www.syskonnect.com
+-S: 	Supported
++S: 	Obsolete
  
- 	orig_budget = (*budget > dev->quota) ? dev->quota : *budget;
-@@ -1343,7 +1343,7 @@ rx_action:
- 
- 	epic_tx(dev, ep);
- 
--	work_done = epic_rx(dev, *budget);
-+	work_done += epic_rx(dev, *budget);
- 
- 	epic_rx_err(dev, ep);
- 
+ MAESTRO PCI SOUND DRIVERS
+ P:	Zach Brown

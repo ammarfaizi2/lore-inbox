@@ -1,90 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751238AbVJSTVJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751242AbVJSTdB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751238AbVJSTVJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 15:21:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751240AbVJSTVJ
+	id S1751242AbVJSTdB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 15:33:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbVJSTdB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 15:21:09 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:37809 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751238AbVJSTVI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 15:21:08 -0400
-Date: Wed, 19 Oct 2005 21:23:18 +0200
-To: Zoltan Szecsei <zoltans@geograph.co.za>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: multiple independent keyboard kernel support
-Message-ID: <20051019192318.GA21589@aitel.hist.no>
-References: <4316E5D9.8050107@geograph.co.za> <20050911223414.GA19403@aitel.hist.no> <43566DCE.5040705@geograph.co.za>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43566DCE.5040705@geograph.co.za>
-User-Agent: Mutt/1.5.9i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+	Wed, 19 Oct 2005 15:33:01 -0400
+Received: from khc.piap.pl ([195.187.100.11]:34052 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S1751242AbVJSTdA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 15:33:00 -0400
+To: Rudolf Polzer <debian-ne@durchnull.de>
+Cc: Horms <horms@verge.net.au>, linux-kernel@vger.kernel.org,
+       334113@bugs.debian.org, Alastair McKinstry <mckinstry@debian.org>,
+       security@kernel.org, team@security.debian.org,
+       secure-testing-team@lists.alioth.debian.org
+Subject: Re: kernel allows loadkeys to be used by any user, allowing for
+ local root compromise
+References: <E1EQofT-0001WP-00@master.debian.org>
+	<20051018044146.GF23462@verge.net.au>
+	<m37jcakhsm.fsf@defiant.localdomain>
+	<20051018171645.GA59028%atfield-dt@durchnull.de>
+	<m3fyqyhdm8.fsf@defiant.localdomain>
+	<20051018204919.GA21286%atfield-dt@durchnull.de>
+	<m3oe5l21rr.fsf@defiant.localdomain>
+	<20051019132326.GA31526%atfield-dt@durchnull.de>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Wed, 19 Oct 2005 21:32:53 +0200
+In-Reply-To: <20051019132326.GA31526%atfield-dt@durchnull.de> (Rudolf
+ Polzer's message of "Wed, 19 Oct 2005 15:23:26 +0200")
+Message-ID: <m3y84pjo9m.fsf@defiant.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 19, 2005 at 06:01:18PM +0200, Zoltan Szecsei wrote:
-> Hi Helga (et al),
-> 
-> I'm just back on this issue and am trying to make changes to the basic 
-> xorg.conf without yet connecting the 2nd VGA,Kyb & mouse.
-> 
-> I thought if I set up a template for the config then it would be easier 
-> to copy & make changes for when I connect the 2nd KVM devices.
-> 
-> I'm having a problem with the "Dev Phys" option as I keep getting:
-> (EE) Generic Keyboard: cannot register with evdev brain
-> No core keyboard.
-> 
-> (man xorg.conf does not show "Dev Phys" - should it not be "Device" ??
-> 
-> The real issue is that I cannot find the keyboard device in /dev/input 
-> (Ubuntu 5.04 )
-> In /dev/input I only have 6 devices: event0, 1 and 2; mice, mouse0 and ts0
-> 
-> Are you able to tell me what parameter to put in this Option "Dev Phys" ?
-> 
-> TIA,
-> Zoltan
-> 
+Rudolf Polzer <debian-ne@durchnull.de> writes:
 
-(USe a 2.6 kernel)
-$ cat /proc/bus/input/devices
+>> Ok. So they are exposed to known attacks with quite high probability.
+>
+> Which others? Are there other places that assume only trusted users can
+> access
+> the console?
 
-On my machine:
-I: Bus=0003 Vendor=09da Product=001a Version=0001
-N: Name="A4Tech RF USB Mouse"
-P: Phys=usb-0000:00:10.2-2/input0
-H: Handlers=mouse0 event0 
-B: EV=7 
-B: KEY=ff0000 0 0 0 0 
-B: REL=303 
+Probably: BIOS booting, messing with computer cases (are the computers
+in locked room and only kbds/monitors/mouses are accessible?), sniffing
+keyboard cables (all other passwords if not root's), physical damage
+to the computer hardware (some kind of DoS).
 
-I: Bus=0011 Vendor=0001 Product=0002 Version=ab83
-N: Name="AT Raw Set 2 keyboard"
-P: Phys=isa0060/serio1/input0
-H: Handlers=kbd event1 
-B: EV=120013 
-B: KEY=402000000 3802078f840d001 f2ffffdfffefffff fffffffffffffffe 
-B: MSC=10 
-B: LED=7 
+Still, may be adequate for student room.
 
-I: Bus=0011 Vendor=0001 Product=0001 Version=ab41
-N: Name="AT Translated Set 2 keyboard"
-P: Phys=isa0060/serio0/input0
-H: Handlers=kbd event2 
-B: EV=120013 
-B: KEY=402000000 3802078f840d001 f2ffffdfffefffff fffffffffffffffe 
-B: MSC=10 
-B: LED=7 
+>> I assume that one can notice that Ctrl-Alt-Backspace doesn't work,
+>> and stop there.
+>
+> Not if a malicious X program does "chvt 1; chvt 7" when Ctrl-Alt-Backspace is
+> pressed.
 
-Look for lines saying Handlers=kbd eventX
-In the same block, you find Phys=<something>
-Copy this into xorg.conf, yielding Dev Phys=<something>
-The proc/bus/input/devices file tells you about all input devices,
-such as keyboards, mice, joysticks...  Take care not trying to
-interpret a mouse as a keyboard.. :-)
+With correct timing, possibly. Depends on how the graphics driver starts
+and switches from text mode. There might be noticeable differences.
 
+> It would require a video driver that can actually reset the video mode.
+> Framebuffer drivers usually can do that. For the standard VGA text mode, at
+> least savetextmode/restoretextmode from svgalib don't work on the graphics
+> cards I have.
 
-Helge Hafting 
+I think Xserver could terminate gracefully. But it would require changes
+to kernel SAK handling I think - not sure if it's worth it, given other
+threats.
+
+Another idea: if the machines are ACPI-enabled and have "soft-power"
+buttons, one can make use of acpid.
+-- 
+Krzysztof Halasa

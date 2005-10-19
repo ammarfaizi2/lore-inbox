@@ -1,66 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbVJSCCh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932465AbVJSCNR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932151AbVJSCCh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 22:02:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbVJSCCh
+	id S932465AbVJSCNR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 22:13:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932466AbVJSCNR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 22:02:37 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:16568 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S932151AbVJSCCg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 22:02:36 -0400
-Subject: Re: [discuss] Re: x86_64: 2.6.14-rc4 swiotlb broken
-From: Alex Williamson <alex.williamson@hp.com>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       discuss@x86-64.org, tglx@linutronix.de, shai@scalex86.org,
-       y-goto@jp.fujitsu.com
-In-Reply-To: <1129684966.17545.50.camel@lts1.fc.hp.com>
-References: <20051017134401.3b0d861d.akpm@osdl.org>
-	 <Pine.LNX.4.64.0510171405510.3369@g5.osdl.org>
-	 <20051018001620.GD8932@localhost.localdomain>
-	 <Pine.LNX.4.64.0510180845470.3369@g5.osdl.org>
-	 <Pine.LNX.4.64.0510180848540.3369@g5.osdl.org>
-	 <20051018195423.GA6351@localhost.localdomain>
-	 <1129670907.17545.20.camel@lts1.fc.hp.com>
-	 <20051018215351.GA3982@localhost.localdomain>
-	 <1129673040.17545.32.camel@lts1.fc.hp.com>
-	 <1129675023.17545.41.camel@lts1.fc.hp.com>
-	 <20051018232203.GB4535@localhost.localdomain>
-	 <1129684966.17545.50.camel@lts1.fc.hp.com>
-Content-Type: text/plain
-Organization: LOSL
-Date: Tue, 18 Oct 2005 20:02:22 -0600
-Message-Id: <1129687342.17545.57.camel@lts1.fc.hp.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 18 Oct 2005 22:13:17 -0400
+Received: from wproxy.gmail.com ([64.233.184.202]:53651 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932465AbVJSCNQ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 22:13:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=W86p7DvIdb8SCw9fsw9PmOXZkspIEA0Xc2FG3HhgOigzsD7Nz1T06KCIIlexVZMVvUwmRoM4xVjGMbUkPKxMg4wrG8MMQe+lsISWXsG3RVaT0HqMFlp7aFd5M1HTW5TWcLwliQCHJOOANWcwCPDKDkW/yb5GlbdxafApsifv+9g=
+Message-ID: <922692180510181913m3cce9b4bm8378552ec63cf08f@mail.gmail.com>
+Date: Tue, 18 Oct 2005 22:13:15 -0400
+From: Joseph Murawski <dzoster@gmail.com>
+To: "David S. Miller" <davem@davemloft.net>
+Subject: Re: Sparc64 U60: no iptables
+Cc: debian-sparc@lists.debian.org, netfilter-devel@lists.netfilter.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20051010.111611.106200571.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4349614F.1010408@frankengul.org>
+	 <20051009.202646.70198053.davem@davemloft.net>
+	 <20051010082507.GA5157@frankengul.org>
+	 <20051010.111611.106200571.davem@davemloft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-10-18 at 19:22 -0600, Alex Williamson wrote:
-> On Tue, 2005-10-18 at 16:22 -0700, Ravikiran G Thirumalai wrote:
-> 
-> > Hope the following works.   Using __alloc_bootmem_node now with a hard coded
-> > goal to avoid 16MB DMA zone.  It is ugly :( and hope it works this time
-> > <fingers crossed>. 
-> 
->    Nope, it still gives me memory above 4GB.  If I change goal to 0x0 it
-> works.
+Hello -
 
-   BTW, the reason 16MB fails is this test in __alloc_bootmem_core():
+I would like to confirm this problem and reverting the patch provided
+does fix the problem!
 
-     if (bdata->last_success >= preferred)
-            preferred = bdata->last_success;
+I have an ultra 60, dual processor.
+gentoo linux   gentoo-sources 2.6.13-gentoo-r2
 
-That pretty much negates most of usefulness of passing in a goal other
-than 0 or !0.  If I comment out this test, the 16MB goal works as
-expected, but I get an uninitialized timer in the sym53c8xx driver.  Not
-sure what's happening there, but apparently the test has some purpose
-other than optimization.  Thanks,
+Whenever i would enable the iptables modules (ip_tables)
+(ip_conntrack), execute the two commands iptables -X iptables -F and 
+Ping any address ( including the loopback address)
+i would get an oops.
 
-	Alex
+I would just like to throw out my encounter with the problem and
+confirm that the reversion of the below patch, fixes the problem and i
+am able to use iptables with an smp kernel.
+
+if i am commiting a mailing list no no by posting this please let me
+know, but i thought it would be helpful to confirm this event.
+
+Also is there a bugzilla type system for the linux kernel?
+
+Thank you all for all your work!
+
+any questions please let me know, i am also willing to report a bug
+report if there is such a system in place.
+
+--- a/net/ipv4/netfilter/ip_tables.c    2005-03-17 17:35:05 -08:00
++++ b/net/ipv4/netfilter/ip_tables.c    2005-03-17 17:35:05 -08:00
+@@ -923,7 +923,7 @@
+       }
+
+       /* And one copy for every other CPU */
+-       for (i = 1; i < NR_CPUS; i++) {
++       for (i = 1; i < num_possible_cpus(); i++) {
+               memcpy(newinfo->entries + SMP_ALIGN(newinfo->size)*i,
+                      newinfo->entries,
+                      SMP_ALIGN(newinfo->size));
+@@ -945,7 +945,7 @@
+               struct ipt_entry *table_base;
+               unsigned int i;
+
+-               for (i = 0; i < NR_CPUS; i++) {
++               for (i = 0; i < num_possible_cpus(); i++) {
+                       table_base =
+                               (void *)newinfo->entries
+                               + TABLE_OFFSET(newinfo, i);
+@@ -992,7 +992,7 @@
+       unsigned int cpu;
+       unsigned int i;
+
+-       for (cpu = 0; cpu < NR_CPUS; cpu++) {
++       for (cpu = 0; cpu < num_possible_cpus(); cpu++) {
+               i = 0;
+               IPT_ENTRY_ITERATE(t->entries + TABLE_OFFSET(t, cpu),
+                                 t->size,
+@@ -1130,7 +1130,7 @@
+               return -ENOMEM;
+
+       newinfo = vmalloc(sizeof(struct ipt_table_info)
+-                         + SMP_ALIGN(tmp.size) * NR_CPUS);
++                         + SMP_ALIGN(tmp.size) * num_possible_cpus());
+       if (!newinfo)
+               return -ENOMEM;
+
+@@ -1460,7 +1460,7 @@
+               = { 0, 0, 0, { 0 }, { 0 }, { } };
+
+       newinfo = vmalloc(sizeof(struct ipt_table_info)
+-                         + SMP_ALIGN(repl->size) * NR_CPUS);
++                         + SMP_ALIGN(repl->size) * num_possible_cpus());
+       if (!newinfo)
+               return -ENOMEM;
 
 
 
+On 10/10/05, David S. Miller <davem@davemloft.net> wrote:
+> From: seb@frankengul.org
+> Date: Mon, 10 Oct 2005 10:25:07 +0200
+>
+> > Indeed they are. Does the patch assume that cpus are numbered in a
+> > row ?
+>
+> Yes, and that assumption is incorrect.
+>
+> > Now, I reverted the patch for ip_tables.c, ip6_tables.c and ebtables.c.
+> > Everything is working ok (11h uptime).
+>
+> Right.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+
+--
+Joseph Murawski
+Hartford, CT

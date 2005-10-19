@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750840AbVJSMHp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750843AbVJSMSr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750840AbVJSMHp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 08:07:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbVJSMHo
+	id S1750843AbVJSMSr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 08:18:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750842AbVJSMSr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 08:07:44 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:31238 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1750777AbVJSMHo (ORCPT
+	Wed, 19 Oct 2005 08:18:47 -0400
+Received: from zproxy.gmail.com ([64.233.162.194]:38538 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750833AbVJSMSq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 08:07:44 -0400
-Date: Wed, 19 Oct 2005 08:07:34 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Cc: jgarzik@pobox.com
-Subject: [patch 2.6.14-rc3] sundance: include MII address 0 in PHY probe
-Message-ID: <10192005080734.15936@bilbo.tuxdriver.com>
-In-Reply-To: <20051019120022.GA15438@tuxdriver.com>
-User-Agent: PatchPost/0.5
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 19 Oct 2005 08:18:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type:content-transfer-encoding;
+        b=DeJ+RsSjNQ6+JqI+1n/2582o8Q+l2UlCg9U8l7UfiY8DrI12WHqLJA5O5Ew6Xq8p75mLFz7yBxHICEPBIUBi0pPU+0RsGsEGWtMvvhCffVtl0ADGM5i0HydYV+sIhiMzuRv2jHQxM8zJemoymtAkW/eqfIuleiLZK7WuEhnQMtw=
+Message-ID: <4356399A.9060902@gmail.com>
+Date: Wed, 19 Oct 2005 21:18:34 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>, lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH linux-2.6-block:master] overview of soon-to-be-posted patches
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Include MII address 0 at the end of the PHY scan.  This covers the
-entire range of possible MII addresses.
 
-Signed-off-by: John W. Linville <linville@tuxdriver.com>
----
+  Hello, Jens.
 
- drivers/net/sundance.c |    9 +++++----
- 1 files changed, 5 insertions(+), 4 deletions(-)
+  As requested, I've regenerated dispatch queue and ordered patchset and 
+will soon post 18 patches.  All patches are against the current master 
+of linux-2.6-block:master (3d80636a0d5f056ffc26472d05b6027a7a9f6e1c).
 
-diff --git a/drivers/net/sundance.c b/drivers/net/sundance.c
---- a/drivers/net/sundance.c
-+++ b/drivers/net/sundance.c
-@@ -608,16 +608,17 @@ static int __devinit sundance_probe1 (st
- 
- 	np->phys[0] = 1;		/* Default setting */
- 	np->mii_preamble_required++;
--	for (phy = 1; phy < 32 && phy_idx < MII_CNT; phy++) {
-+	for (phy = 1; phy <= 32 && phy_idx < MII_CNT; phy++) {
- 		int mii_status = mdio_read(dev, phy, MII_BMSR);
-+		int phyx = phy & 0x1f;
- 		if (mii_status != 0xffff  &&  mii_status != 0x0000) {
--			np->phys[phy_idx++] = phy;
--			np->mii_if.advertising = mdio_read(dev, phy, MII_ADVERTISE);
-+			np->phys[phy_idx++] = phyx;
-+			np->mii_if.advertising = mdio_read(dev, phyx, MII_ADVERTISE);
- 			if ((mii_status & 0x0040) == 0)
- 				np->mii_preamble_required++;
- 			printk(KERN_INFO "%s: MII PHY found at address %d, status "
- 				   "0x%4.4x advertising %4.4x.\n",
--				   dev->name, phy, mii_status, np->mii_if.advertising);
-+				   dev->name, phyx, mii_status, np->mii_if.advertising);
- 		}
- 	}
- 	np->mii_preamble_required--;
+patch #1	: fix-elevator_find.  remove try_module_get race in
+		  elevator_find.
+patch #2-6	: generic dispatch queue patchset.
+patch #7	: reimplement-elevator-switch.  reimplements elevator
+		  switch using generic dispatch queue.
+patch #8-17	: ordered reimplementation patchset
+
+  Patches should be applied in above order.  I proof-read changes and 
+tested things to make sure changes made to the tree since the last 
+posting doesn't break anything.  Well, it seems okay and works for me.
+
+  Thanks.
+
+-- 
+tejun

@@ -1,44 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964794AbVJSLPD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbVJSLQH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964794AbVJSLPD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 07:15:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbVJSLPD
+	id S964800AbVJSLQH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 07:16:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbVJSLQH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 07:15:03 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:50309 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964794AbVJSLPB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 07:15:01 -0400
-Date: Wed, 19 Oct 2005 13:15:27 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc4-rt6, skge vs. sk98lin
-Message-ID: <20051019111527.GB30185@elte.hu>
-References: <1129599910.5031.3.camel@cmn3.stanford.edu> <435456A1.6020208@pobox.com> <1129600953.5031.6.camel@cmn3.stanford.edu> <20051018095028.4b78dbb2@localhost.localdomain> <Pine.LNX.4.58.0510190247340.20634@localhost.localdomain>
+	Wed, 19 Oct 2005 07:16:07 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:27348 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964801AbVJSLQF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 07:16:05 -0400
+Subject: Re: Sequence of network cards
+From: Arjan van de Ven <arjan@infradead.org>
+To: Karel Kulhavy <clock@twibright.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20051019104712.GC9765@kestrel>
+References: <20051019104712.GC9765@kestrel>
+Content-Type: text/plain
+Date: Wed, 19 Oct 2005 13:15:55 +0200
+Message-Id: <1129720556.2822.25.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0510190247340.20634@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+> Is the algorithm for assignment of eth? numbers by Linux kernel
+> documented anywhere?
 
-> Like adding a spin_trylock_irqsave/spin_trylock_failed_irqrestore API?
+it's generally on a pci bus order. However... if you switch to acpi by
+going from 2.4 to 2.6, the pci bus order might change.
 
-there's spin_trylock_irqsave() already, which can be used just fine.
+The good news is that you can do a few things to mitigate this:
+1) Several distros (including Fedora Core) allow you to bind ethX
+numbers to mac addresses, eg effectively persistent binding of ethX
+numbers to specific cards
+2) you can rename ethX to ethY yourself with nameif and similar tools.
 
-but in any case, this is something for the -rt tree only, with which we 
-dont want to pester upstream ...
 
-	Ingo

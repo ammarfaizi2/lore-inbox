@@ -1,82 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751194AbVJSR6Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751199AbVJSSAl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751194AbVJSR6Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 13:58:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751199AbVJSR6Y
+	id S1751199AbVJSSAl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 14:00:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbVJSSAl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 13:58:24 -0400
-Received: from zproxy.gmail.com ([64.233.162.194]:48714 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751194AbVJSR6X convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 13:58:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=hf4tSlaia7jbnlPDTSH1ynZdHf/yILgDBxXjHc34OjCODYyYkQ5X64eXiepyDVJnY0+BNdrJ3p6k2zMLvmG30PW9JbwilRyyVl4QMjJxv547EId9udo3xgvlUfxNJv0sSFSF3OieoCW/ZTG28mbeqsXD+8os6KK25of6vkU7BDM=
-Message-ID: <908666c60510191058h6e87b9c5y@mail.gmail.com>
-Date: Wed, 19 Oct 2005 19:58:22 +0200
-From: Pierre Michon <pierre.michon@gmail.com>
-To: loic@gnu.org
-Subject: Re: freebox possible GPL violation
-Cc: Pierre Michon <pierre@no-spam.org>, linux-kernel@vger.kernel.org,
-       legal@lists.gpl-violations.org
-In-Reply-To: <17232.52887.293668.390641@allin.dachary.org>
+	Wed, 19 Oct 2005 14:00:41 -0400
+Received: from mail.s.netic.de ([212.9.160.11]:62729 "EHLO mail.s.netic.de")
+	by vger.kernel.org with ESMTP id S1751199AbVJSSAk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 14:00:40 -0400
+From: Guido Fiala <gfiala@s.netic.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: large files unnecessary trashing filesystem cache?
+Date: Wed, 19 Oct 2005 19:58:37 +0200
+User-Agent: KMail/1.7.2
+References: <200510182201.11241.gfiala@s.netic.de> <1129695001.8910.57.camel@mindpipe>
+In-Reply-To: <1129695001.8910.57.camel@mindpipe>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20051005084738.GA29944@linux.ensimag.fr>
-	 <17232.52887.293668.390641@allin.dachary.org>
+Message-Id: <200510191958.37542.gfiala@s.netic.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-2005/10/15, Loic Dachary <loic@gnu.org>:
->         I believe that a customer could ask for the corresponding sources
-> to Free if she/he got a copy of the binary out of the freebox. Does anyone
-> have such a binary ?
-But those ISP does everything in order the user couldn't touch the
-firmware because they are frightened that the user could modify it and
-does things that wasn't planed (record live tv stream for example).
-
-For that they :
-- disable all debug functions on customers boxes (serial port, jtag, ...).
-- download the firmware via encrypted protocol (https, ...)
-- check the integrity of the bootloader, firmware server, firmware.
-- encrypted all rescue firmware that could be present on user computer.
-
-So one way of recovering the firmware could be to unsold the flash
-chip and read it on another board.
-
-An other way will be to try to renable debug functions by soldering
-component on the board.
-
-But it will be very expensive and need special competences (and
-without the datasheet of the board could be very hard...).
-
-
+On Wednesday 19 October 2005 06:10, Lee Revell wrote:
+> On Tue, 2005-10-18 at 22:01 +0200, Guido Fiala wrote:
+> > Of course one could always implement f_advise-calls in all
+> > applications
 >
->  > the fimware. So we could assume that at least a mininal system (Linux
->  > kernel + some utils) is keep in rom).
+> Um, this seems like the obvious answer.  The application doing the read
+> KNOWS it's a streaming read, while the best the kernel can do is guess.
 >
->         Could someone provide a hard proof of this ?
+> You don't really make much of a case that fadvise can't do the job.
 >
-No without reading the flash chip.
 
-What I have seen for the boards like freebox in my company :
-- the bootloader try to load the firmware in flash
-- if it fails, it try to read a rescue firmware. That rescue firmware
-is minimal and will only allow to enable ADSL line and download a new
-firmware in the flash and reboot.
-- if it fails, the bootloader will try to load a encrypted firmware
-from local Ethernet LAN (bootp, ...) and reboot.
+Kernel could do the best to optimize default performance, applications that 
+consider their own optimal behaviour should do so, all other files are kept 
+under default heuristic policy (adaptable, configurable one)
 
-But there no way to know what exactly does the freebox (may be try to
-find the flash chip and its size)...
+Heuristic can be based on access statistic:
 
-Pierre
+streaming/sequential can be guessed by getting exactly 100% cache hit rate 
+(drop behind pages immediately),
 
-PS : Does we need the binary image in order to ask for the source code ?
-In this case, with Embedded devices that hide the firmware it will be
-very difficult to make GPL apply...
+random access/repeated reads can be guessed by >100% hit rate (keep as much in 
+memory as possible).
+
+Less than 100% hit rate is already handled sanely i guess by reducing 
+readahead, precognition would gather access patterns (every n-th block is 
+read so readahead every n-th block, unlikely scenario i guess, but might 
+happen in databases).
+
+How about backward-read-files? Others?

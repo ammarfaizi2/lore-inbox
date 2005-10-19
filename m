@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750871AbVJSMgT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750878AbVJSMfr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750871AbVJSMgT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 08:36:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750866AbVJSMfs
+	id S1750878AbVJSMfr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 08:35:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750866AbVJSMfq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 08:35:48 -0400
-Received: from zproxy.gmail.com ([64.233.162.201]:29973 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750882AbVJSMfi (ORCPT
+	Wed, 19 Oct 2005 08:35:46 -0400
+Received: from zproxy.gmail.com ([64.233.162.206]:484 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750871AbVJSMfb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 08:35:38 -0400
+	Wed, 19 Oct 2005 08:35:31 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:cc:user-agent:content-type:references:in-reply-to:subject:message-id:date;
-        b=jR5iX8ezNHinI3F1mX8h9/hHHhWzfTv5cmMDLiFj7sptJqaAhkwaGJx2F23odHtedbXo8t/P10/JvlvXRZWEHuld8xN+obF6Se1rV9fF+mgsILPnuyAbIM3O/wKGcTIVH+GF9VsFP1uA4pl42h9DE3oGFGtCWVoUvUDInAJXknE=
+        b=NCj35Fb0/Qwmm0znQg/sk0HxhmcIgzSIBfdhcrgwtBD77Vv/cR2YljxFJ0MfAdwwtzy3D9D3gzhxxu6jhmn9dfF0KLsc+S/fE48g2MP5lgS9O0+8zzqad+gnoShoZ4lHRp3HUyUzDncqd7ov0cXLPSqrHY0ibntduJH52IAwR1Q=
 From: Tejun Heo <htejun@gmail.com>
 To: axboe@suse.de
 Cc: linux-kernel@vger.kernel.org
@@ -20,201 +20,323 @@ User-Agent: lksp 0.3
 Content-Type: text/plain; charset=US-ASCII
 References: <20051019123429.450E4424@htj.dyndns.org>
 In-Reply-To: <20051019123429.450E4424@htj.dyndns.org>
-Subject: Re: [PATCH linux-2.6-block:master 05/05] blk: update biodoc
-Message-ID: <20051019123429.F9E7D20C@htj.dyndns.org>
-Date: Wed, 19 Oct 2005 21:35:29 +0900 (KST)
+Subject: Re: [PATCH linux-2.6-block:master 04/05] blk: remove last_merge handling from ioscheds
+Message-ID: <20051019123429.3444D769@htj.dyndns.org>
+Date: Wed, 19 Oct 2005 21:35:24 +0900 (KST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-05_blk_update-biodoc.patch
+04_blk_generic-last_merge-handling-update-for-ioscheds.patch
 
-	Updates biodoc to reflect changes in elevator API.
+	Remove last_merge handling from all ioscheds.  This patch
+	removes merging capability of noop iosched.
 
 Signed-off-by: Tejun Heo <htejun@gmail.com>
 
- biodoc.txt |  113 ++++++++++++++++++++++++++++---------------------------------
- 1 file changed, 52 insertions(+), 61 deletions(-)
+ as-iosched.c       |   35 ++++-------------------------------
+ cfq-iosched.c      |   26 ++------------------------
+ deadline-iosched.c |   30 ++----------------------------
+ noop-iosched.c     |   31 -------------------------------
+ 4 files changed, 8 insertions(+), 114 deletions(-)
 
-Index: blk-fixes/Documentation/block/biodoc.txt
+Index: blk-fixes/drivers/block/as-iosched.c
 ===================================================================
---- blk-fixes.orig/Documentation/block/biodoc.txt	2005-10-19 21:26:16.000000000 +0900
-+++ blk-fixes/Documentation/block/biodoc.txt	2005-10-19 21:34:03.000000000 +0900
-@@ -906,9 +906,20 @@ Aside:
+--- blk-fixes.orig/drivers/block/as-iosched.c	2005-10-19 21:34:02.000000000 +0900
++++ blk-fixes/drivers/block/as-iosched.c	2005-10-19 21:34:02.000000000 +0900
+@@ -279,14 +279,6 @@ static inline void as_del_arq_hash(struc
+ 		__as_del_arq_hash(arq);
+ }
  
- 
- 4. The I/O scheduler
--I/O schedulers are now per queue. They should be runtime switchable and modular
--but aren't yet. Jens has most bits to do this, but the sysfs implementation is
--missing.
-+I/O scheduler, a.k.a. elevator, is implemented in two layers.  Generic dispatch
-+queue and specific I/O schedulers.  Unless stated otherwise, elevator is used
-+to refer to both parts and I/O scheduler to specific I/O schedulers.
-+
-+Block layer implements generic dispatch queue in ll_rw_blk.c and elevator.c.
-+The generic dispatch queue is responsible for properly ordering barrier
-+requests, requeueing, handling non-fs requests and all other subtleties.
-+
-+Specific I/O schedulers are responsible for ordering normal filesystem
-+requests.  They can also choose to delay certain requests to improve
-+throughput or whatever purpose.  As the plural form indicates, there are
-+multiple I/O schedulers.  They can be built as modules but at least one should
-+be built inside the kernel.  Each queue can choose different one and can also
-+change to another one dynamically.
- 
- A block layer call to the i/o scheduler follows the convention elv_xxx(). This
- calls elevator_xxx_fn in the elevator switch (drivers/block/elevator.c). Oh,
-@@ -921,44 +932,36 @@ keeping work.
- The functions an elevator may implement are: (* are mandatory)
- elevator_merge_fn		called to query requests for merge with a bio
- 
--elevator_merge_req_fn		" " "  with another request
-+elevator_merge_req_fn		called when two requests get merged. the one
-+				which gets merged into the other one will be
-+				never seen by I/O scheduler again. IOW, after
-+				being merged, the request is gone.
- 
- elevator_merged_fn		called when a request in the scheduler has been
- 				involved in a merge. It is used in the deadline
- 				scheduler for example, to reposition the request
- 				if its sorting order has changed.
- 
--*elevator_next_req_fn		returns the next scheduled request, or NULL
--				if there are none (or none are ready).
-+elevator_dispatch_fn		fills the dispatch queue with ready requests.
-+				I/O schedulers are free to postpone requests by
-+				not filling the dispatch queue unless @force
-+				is non-zero.  Once dispatched, I/O schedulers
-+				are not allowed to manipulate the requests -
-+				they belong to generic dispatch queue.
- 
--*elevator_add_req_fn		called to add a new request into the scheduler
-+elevator_add_req_fn		called to add a new request into the scheduler
- 
- elevator_queue_empty_fn		returns true if the merge queue is empty.
- 				Drivers shouldn't use this, but rather check
- 				if elv_next_request is NULL (without losing the
- 				request if one exists!)
- 
--elevator_remove_req_fn		This is called when a driver claims ownership of
--				the target request - it now belongs to the
--				driver. It must not be modified or merged.
--				Drivers must not lose the request! A subsequent
--				call of elevator_next_req_fn must  return the
--				_next_ request.
+-static void as_remove_merge_hints(request_queue_t *q, struct as_rq *arq)
+-{
+-	as_del_arq_hash(arq);
 -
--elevator_requeue_req_fn		called to add a request to the scheduler. This
--				is used when the request has alrnadebeen
--				returned by elv_next_request, but hasn't
--				completed. If this is not implemented then
--				elevator_add_req_fn is called instead.
+-	if (q->last_merge == arq->request)
+-		q->last_merge = NULL;
+-}
 -
- elevator_former_req_fn
- elevator_latter_req_fn		These return the request before or after the
- 				one specified in disk sort order. Used by the
- 				block layer to find merge possibilities.
+ static void as_add_arq_hash(struct as_data *ad, struct as_rq *arq)
+ {
+ 	struct request *rq = arq->request;
+@@ -330,7 +322,7 @@ static struct request *as_find_arq_hash(
+ 		BUG_ON(!arq->on_hash);
  
--elevator_completed_req_fn	called when a request is completed. This might
--				come about due to being merged with another or
--				when the device completes the request.
-+elevator_completed_req_fn	called when a request is completed.
+ 		if (!rq_mergeable(__rq)) {
+-			as_remove_merge_hints(ad->q, arq);
++			as_del_arq_hash(arq);
+ 			continue;
+ 		}
  
- elevator_may_queue_fn		returns true if the scheduler wants to allow the
- 				current context to queue a new request even if
-@@ -967,13 +970,33 @@ elevator_may_queue_fn		returns true if t
+@@ -1040,7 +1032,7 @@ static void as_remove_queued_request(req
+ 		ad->next_arq[data_dir] = as_find_next_arq(ad, arq);
  
- elevator_set_req_fn
- elevator_put_req_fn		Must be used to allocate and free any elevator
--				specific storate for a request.
-+				specific storage for a request.
-+
-+elevator_activate_req_fn	Called when device driver first sees a request.
-+				I/O schedulers can use this callback to
-+				determine when actual execution of a request
-+				starts.
-+elevator_deactivate_req_fn	Called when device driver decides to delay
-+				a request by requeueing it.
+ 	list_del_init(&arq->fifo);
+-	as_remove_merge_hints(q, arq);
++	as_del_arq_hash(arq);
+ 	as_del_arq_rb(ad, arq);
+ }
  
- elevator_init_fn
- elevator_exit_fn		Allocate and free any elevator specific storage
- 				for a queue.
+@@ -1351,7 +1343,7 @@ as_add_aliased_request(struct as_data *a
+ 	/*
+ 	 * Don't want to have to handle merges.
+ 	 */
+-	as_remove_merge_hints(ad->q, arq);
++	as_del_arq_hash(arq);
+ }
  
--4.2 I/O scheduler implementation
-+4.2 Request flows seen by I/O schedulers
-+All requests seens by I/O schedulers strictly follow one of the following three
-+flows.
-+
-+ set_req_fn ->
-+
-+ i.   add_req_fn -> (merged_fn ->)* -> dispatch_fn -> activate_req_fn ->
-+      (deactivate_req_fn -> activate_req_fn ->)* -> completed_req_fn
-+ ii.  add_req_fn -> (merged_fn ->)* -> merge_req_fn
-+ iii. [none]
-+
-+ -> put_req_fn
-+
-+4.3 I/O scheduler implementation
- The generic i/o scheduler algorithm attempts to sort/merge/batch requests for
- optimal disk scan and request servicing performance (based on generic
- principles and device capabilities), optimized for:
-@@ -993,18 +1016,7 @@ request in sort order to prevent binary 
- This arrangement is not a generic block layer characteristic however, so
- elevators may implement queues as they please.
+ /*
+@@ -1392,12 +1384,8 @@ static void as_add_request(request_queue
+ 		arq->expires = jiffies + ad->fifo_expire[data_dir];
+ 		list_add_tail(&arq->fifo, &ad->fifo_list[data_dir]);
  
--ii. Last merge hint
--The last merge hint is part of the generic queue layer. I/O schedulers must do
--some management on it. For the most part, the most important thing is to make
--sure q->last_merge is cleared (set to NULL) when the request on it is no longer
--a candidate for merging (for example if it has been sent to the driver).
+-		if (rq_mergeable(arq->request)) {
++		if (rq_mergeable(arq->request))
+ 			as_add_arq_hash(ad, arq);
 -
--The last merge performed is cached as a hint for the subsequent request. If
--sequential data is being submitted, the hint is used to perform merges without
--any scanning. This is not sufficient when there are multiple processes doing
--I/O though, so a "merge hash" is used by some schedulers.
--
--iii. Merge hash
-+ii. Merge hash
- AS and deadline use a hash table indexed by the last sector of a request. This
- enables merging code to quickly look up "back merge" candidates, even when
- multiple I/O streams are being performed at once on one disk.
-@@ -1013,29 +1025,8 @@ multiple I/O streams are being performed
- are far less common than "back merges" due to the nature of most I/O patterns.
- Front merges are handled by the binary trees in AS and deadline schedulers.
+-			if (!ad->q->last_merge)
+-				ad->q->last_merge = arq->request;
+-		}
+ 		as_update_arq(ad, arq); /* keep state machine up to date */
  
--iv. Handling barrier cases
--A request with flags REQ_HARDBARRIER or REQ_SOFTBARRIER must not be ordered
--around. That is, they must be processed after all older requests, and before
--any newer ones. This includes merges!
--
--In AS and deadline schedulers, barriers have the effect of flushing the reorder
--queue. The performance cost of this will vary from nothing to a lot depending
--on i/o patterns and device characteristics. Obviously they won't improve
--performance, so their use should be kept to a minimum.
--
--v. Handling insertion position directives
--A request may be inserted with a position directive. The directives are one of
--ELEVATOR_INSERT_BACK, ELEVATOR_INSERT_FRONT, ELEVATOR_INSERT_SORT.
--
--ELEVATOR_INSERT_SORT is a general directive for non-barrier requests.
--ELEVATOR_INSERT_BACK is used to insert a barrier to the back of the queue.
--ELEVATOR_INSERT_FRONT is used to insert a barrier to the front of the queue, and
--overrides the ordering requested by any previous barriers. In practice this is
--harmless and required, because it is used for SCSI requeueing. This does not
--require flushing the reorder queue, so does not impose a performance penalty.
--
--vi. Plugging the queue to batch requests in anticipation of opportunities for
--  merge/sort optimizations
-+iii. Plugging the queue to batch requests in anticipation of opportunities for
-+     merge/sort optimizations
+ 	} else {
+@@ -1487,15 +1475,6 @@ as_merge(request_queue_t *q, struct requ
+ 	int ret;
  
- This is just the same as in 2.4 so far, though per-device unplugging
- support is anticipated for 2.5. Also with a priority-based i/o scheduler,
-@@ -1069,7 +1060,7 @@ Aside:
-   blk_kick_queue() to unplug a specific queue (right away ?)
-   or optionally, all queues, is in the plan.
+ 	/*
+-	 * try last_merge to avoid going to hash
+-	 */
+-	ret = elv_try_last_merge(q, bio);
+-	if (ret != ELEVATOR_NO_MERGE) {
+-		__rq = q->last_merge;
+-		goto out_insert;
+-	}
+-
+-	/*
+ 	 * see if the merge hash can satisfy a back merge
+ 	 */
+ 	__rq = as_find_arq_hash(ad, bio->bi_sector);
+@@ -1523,9 +1502,6 @@ as_merge(request_queue_t *q, struct requ
  
--4.3 I/O contexts
-+4.4 I/O contexts
- I/O contexts provide a dynamically allocated per process data area. They may
- be used in I/O schedulers, and in the block layer (could be used for IO statis,
- priorities for example). See *io_context in drivers/block/ll_rw_blk.c, and
+ 	return ELEVATOR_NO_MERGE;
+ out:
+-	if (rq_mergeable(__rq))
+-		q->last_merge = __rq;
+-out_insert:
+ 	if (ret) {
+ 		if (rq_mergeable(__rq))
+ 			as_hot_arq_hash(ad, RQ_DATA(__rq));
+@@ -1572,9 +1548,6 @@ static void as_merged_request(request_qu
+ 		 * behind the disk head. We currently don't bother adjusting.
+ 		 */
+ 	}
+-
+-	if (arq->on_hash)
+-		q->last_merge = req;
+ }
+ 
+ static void
+Index: blk-fixes/drivers/block/deadline-iosched.c
+===================================================================
+--- blk-fixes.orig/drivers/block/deadline-iosched.c	2005-10-19 21:34:02.000000000 +0900
++++ blk-fixes/drivers/block/deadline-iosched.c	2005-10-19 21:34:02.000000000 +0900
+@@ -112,15 +112,6 @@ static inline void deadline_del_drq_hash
+ 		__deadline_del_drq_hash(drq);
+ }
+ 
+-static void
+-deadline_remove_merge_hints(request_queue_t *q, struct deadline_rq *drq)
+-{
+-	deadline_del_drq_hash(drq);
+-
+-	if (q->last_merge == drq->request)
+-		q->last_merge = NULL;
+-}
+-
+ static inline void
+ deadline_add_drq_hash(struct deadline_data *dd, struct deadline_rq *drq)
+ {
+@@ -299,12 +290,8 @@ deadline_add_request(struct request_queu
+ 	drq->expires = jiffies + dd->fifo_expire[data_dir];
+ 	list_add_tail(&drq->fifo, &dd->fifo_list[data_dir]);
+ 
+-	if (rq_mergeable(rq)) {
++	if (rq_mergeable(rq))
+ 		deadline_add_drq_hash(dd, drq);
+-
+-		if (!q->last_merge)
+-			q->last_merge = rq;
+-	}
+ }
+ 
+ /*
+@@ -316,8 +303,8 @@ static void deadline_remove_request(requ
+ 	struct deadline_data *dd = q->elevator->elevator_data;
+ 
+ 	list_del_init(&drq->fifo);
+-	deadline_remove_merge_hints(q, drq);
+ 	deadline_del_drq_rb(dd, drq);
++	deadline_del_drq_hash(drq);
+ }
+ 
+ static int
+@@ -328,15 +315,6 @@ deadline_merge(request_queue_t *q, struc
+ 	int ret;
+ 
+ 	/*
+-	 * try last_merge to avoid going to hash
+-	 */
+-	ret = elv_try_last_merge(q, bio);
+-	if (ret != ELEVATOR_NO_MERGE) {
+-		__rq = q->last_merge;
+-		goto out_insert;
+-	}
+-
+-	/*
+ 	 * see if the merge hash can satisfy a back merge
+ 	 */
+ 	__rq = deadline_find_drq_hash(dd, bio->bi_sector);
+@@ -368,8 +346,6 @@ deadline_merge(request_queue_t *q, struc
+ 
+ 	return ELEVATOR_NO_MERGE;
+ out:
+-	q->last_merge = __rq;
+-out_insert:
+ 	if (ret)
+ 		deadline_hot_drq_hash(dd, RQ_DATA(__rq));
+ 	*req = __rq;
+@@ -394,8 +370,6 @@ static void deadline_merged_request(requ
+ 		deadline_del_drq_rb(dd, drq);
+ 		deadline_add_drq_rb(dd, drq);
+ 	}
+-
+-	q->last_merge = req;
+ }
+ 
+ static void
+Index: blk-fixes/drivers/block/noop-iosched.c
+===================================================================
+--- blk-fixes.orig/drivers/block/noop-iosched.c	2005-10-19 21:34:02.000000000 +0900
++++ blk-fixes/drivers/block/noop-iosched.c	2005-10-19 21:34:02.000000000 +0900
+@@ -7,38 +7,9 @@
+ #include <linux/module.h>
+ #include <linux/init.h>
+ 
+-/*
+- * See if we can find a request that this buffer can be coalesced with.
+- */
+-static int elevator_noop_merge(request_queue_t *q, struct request **req,
+-			       struct bio *bio)
+-{
+-	int ret;
+-
+-	ret = elv_try_last_merge(q, bio);
+-	if (ret != ELEVATOR_NO_MERGE)
+-		*req = q->last_merge;
+-
+-	return ret;
+-}
+-
+-static void elevator_noop_merge_requests(request_queue_t *q, struct request *req,
+-					 struct request *next)
+-{
+-	list_del_init(&next->queuelist);
+-}
+-
+ static void elevator_noop_add_request(request_queue_t *q, struct request *rq)
+ {
+ 	elv_dispatch_insert(q, rq, 0);
+-
+-	/*
+-	 * new merges must not precede this barrier
+-	 */
+-	if (rq->flags & REQ_HARDBARRIER)
+-		q->last_merge = NULL;
+-	else if (!q->last_merge)
+-		q->last_merge = rq;
+ }
+ 
+ static int elevator_noop_dispatch(request_queue_t *q, int force)
+@@ -48,8 +19,6 @@ static int elevator_noop_dispatch(reques
+ 
+ static struct elevator_type elevator_noop = {
+ 	.ops = {
+-		.elevator_merge_fn		= elevator_noop_merge,
+-		.elevator_merge_req_fn		= elevator_noop_merge_requests,
+ 		.elevator_dispatch_fn		= elevator_noop_dispatch,
+ 		.elevator_add_req_fn		= elevator_noop_add_request,
+ 	},
+Index: blk-fixes/drivers/block/cfq-iosched.c
+===================================================================
+--- blk-fixes.orig/drivers/block/cfq-iosched.c	2005-10-19 21:34:02.000000000 +0900
++++ blk-fixes/drivers/block/cfq-iosched.c	2005-10-19 21:34:02.000000000 +0900
+@@ -304,14 +304,6 @@ static inline void cfq_del_crq_hash(stru
+ 	hlist_del_init(&crq->hash);
+ }
+ 
+-static void cfq_remove_merge_hints(request_queue_t *q, struct cfq_rq *crq)
+-{
+-	cfq_del_crq_hash(crq);
+-
+-	if (q->last_merge == crq->request)
+-		q->last_merge = NULL;
+-}
+-
+ static inline void cfq_add_crq_hash(struct cfq_data *cfqd, struct cfq_rq *crq)
+ {
+ 	const int hash_idx = CFQ_MHASH_FN(rq_hash_key(crq->request));
+@@ -672,7 +664,7 @@ static void cfq_remove_request(struct re
+ 
+ 	list_del_init(&rq->queuelist);
+ 	cfq_del_crq_rb(crq);
+-	cfq_remove_merge_hints(rq->q, crq);
++	cfq_del_crq_hash(crq);
+ }
+ 
+ static int
+@@ -682,12 +674,6 @@ cfq_merge(request_queue_t *q, struct req
+ 	struct request *__rq;
+ 	int ret;
+ 
+-	ret = elv_try_last_merge(q, bio);
+-	if (ret != ELEVATOR_NO_MERGE) {
+-		__rq = q->last_merge;
+-		goto out_insert;
+-	}
+-
+ 	__rq = cfq_find_rq_hash(cfqd, bio->bi_sector);
+ 	if (__rq && elv_rq_merge_ok(__rq, bio)) {
+ 		ret = ELEVATOR_BACK_MERGE;
+@@ -702,8 +688,6 @@ cfq_merge(request_queue_t *q, struct req
+ 
+ 	return ELEVATOR_NO_MERGE;
+ out:
+-	q->last_merge = __rq;
+-out_insert:
+ 	*req = __rq;
+ 	return ret;
+ }
+@@ -722,8 +706,6 @@ static void cfq_merged_request(request_q
+ 		cfq_update_next_crq(crq);
+ 		cfq_reposition_crq_rb(cfqq, crq);
+ 	}
+-
+-	q->last_merge = req;
+ }
+ 
+ static void
+@@ -1670,13 +1652,9 @@ static void cfq_insert_request(request_q
+ 
+ 	list_add_tail(&rq->queuelist, &cfqq->fifo);
+ 
+-	if (rq_mergeable(rq)) {
++	if (rq_mergeable(rq))
+ 		cfq_add_crq_hash(cfqd, crq);
+ 
+-		if (!cfqd->queue->last_merge)
+-			cfqd->queue->last_merge = rq;
+-	}
+-
+ 	cfq_crq_enqueued(cfqd, cfqq, crq);
+ }
+ 
 

@@ -1,45 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751026AbVJSPAB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751014AbVJSPBK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751026AbVJSPAB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 11:00:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751039AbVJSPAB
+	id S1751014AbVJSPBK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 11:01:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751027AbVJSPBK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 11:00:01 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:36313 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751026AbVJSPAA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 11:00:00 -0400
-Date: Wed, 19 Oct 2005 10:59:45 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-To: Thomas Gleixner <tglx@linutronix.de>
-cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Ktimer / -rt9 (+custom) monotonic_clock going backwards.
-Message-ID: <Pine.LNX.4.58.0510191047270.24515@localhost.localdomain>
+	Wed, 19 Oct 2005 11:01:10 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:61346 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751014AbVJSPBI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 11:01:08 -0400
+Message-ID: <43565FB1.50301@pobox.com>
+Date: Wed, 19 Oct 2005 11:01:05 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: dsaxena@plexity.net
+CC: linux-kernel@vger.kernel.org, jgarzik@pobox.net, akpm@osdl.org,
+       tony@atomide.com
+Subject: Re: [patch 0/5] RNG cleanup & new drivers attempt #1
+References: <20051019081906.615365000@omelas>
+In-Reply-To: <20051019081906.615365000@omelas>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+dsaxena@plexity.net wrote:
+> - Allow a fastpath where we don't even have the user space portion
+>   and the HW drivers just feed the entropy pool directly. While
+>   this bypasses the FIPS tests and such, there are some applications
+>   where this is OK or where we really don't want the extra proccess 
+>   context switching. This is specially true on ARM. I'll have to add 
+>   IRQ driven support to the drivers to that, but that's trivial. There 
+>   is also some HW (MPC8xxx for example) that does periodic self-tests 
+>   in HW and lists itself as "FIPs-compliant" and will trigger an error if 
+>   data should no longer be trusted and in that case doing a software
+>   test might also be undesirable. But...we should let the user decide
+>   at build time (or runtime?).
 
-Hi Thomas,
+Not interesting in pursuing this path.  This has been discussed 
+endlessly, check the archives.
 
-I switched my custom kernel timer to use the ktimers with the prio of -1
-as you mentioned to me offline.  I set up the timer to be monotonic and
-have a requirement that the returned time is always greater or equal to
-the last time returned from do_get_ktime_mono.
+We want the FIPS tests.  Hardware (especially cheap hardware) is often 
+known to go haywire.  Trusting hardware to do the FIPS tests is pretty 
+silly, since you're trusting the piece that might go haywire to tell you 
+its OK.  RNGs have a history of suddenly providing non-random data, for 
+a variety of reasons (usually poor board wiring).
 
-Now here's the results that I got between two calls of do_get_ktime_mono
+We also want the userspace daemon because that gives the sysadmin far 
+more control over how much entropy is added to the system.  99.9% of the 
+cases in the real world, we don't want the RNG pumping entropy into the 
+pool at full speed.  That will likely pump in more data than a system 
+needs, chewing CPU.  The admin can't even kill the daemon to reclaim his 
+CPU, if its all in-kernel.
 
-358.069795728 secs then later 355.981483177.  Should this ever happen?
+It's not brain surgery, to concoct a method by which an interrupt-driven 
+device is used from userspace.
 
-I haven't look to see if this happens in vanilla -rt10 but I haven't
-touched your ktimer code except for my logging and the patch with the
-unlock_ktimer_base (since I was based off of -rt9)
+	Jeff
 
-FYI, the system is UP. And I compiled without CONFIG_KTIME_SCALAR.
-
- Thanks
-
--- Steve
 

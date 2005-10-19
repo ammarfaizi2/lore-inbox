@@ -1,177 +1,161 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbVJSRhm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751189AbVJSRr2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751187AbVJSRhm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 13:37:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751188AbVJSRhm
+	id S1751189AbVJSRr2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 13:47:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751190AbVJSRr2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 13:37:42 -0400
-Received: from mail.cnsp.com ([208.3.80.17]:55742 "EHLO mail.cnsp.com")
-	by vger.kernel.org with ESMTP id S1751187AbVJSRhl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 13:37:41 -0400
-Message-ID: <43568451.5020301@pihost.us>
-Date: Wed, 19 Oct 2005 11:37:21 -0600
-From: Anthony Martinez <pi@pihost.us>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: BUG report: mm/slab.c:2839! ; also ReiserFS NULL deref in reiserfs_free_jh
- - simultaneously.
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 19 Oct 2005 13:47:28 -0400
+Received: from lennier.cc.vt.edu ([198.82.162.213]:28901 "EHLO
+	lennier.cc.vt.edu") by vger.kernel.org with ESMTP id S1751189AbVJSRr1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 13:47:27 -0400
+In-Reply-To: <6DFB5723-0042-46FE-811F-BF372B068014@mac.com>
+References: <20051017005855.132266ac.akpm@osdl.org> <1129536482.7620.76.camel@gaston> <6DFB5723-0042-46FE-811F-BF372B068014@mac.com>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <204AB9A8-7701-402F-A6B9-DF455DAA2A3F@mac.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       LKML Kernel <linux-kernel@vger.kernel.org>
 Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [BUG] PDC20268 crashing during DMA setup on stock Debian 2.6.12-1-powerpc
+Date: Wed, 19 Oct 2005 13:48:47 -0400
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I captured this log message with a serial console this time. I still can't
-reproduce it though, which is annoying.
+Do you have any other ideas WRT this bug?  I've been browsing around  
+in the code a bit, and I plan to try diffing my 2.6.8.1 version of  
+the files against the latest Debian to see what changed, although I  
+suspect it will be a relatively fat hunk of changes.  Thanks for your  
+help!
 
-After rebooting from this one, /bin/mkdir and /bin/zsh were hosed.  Udev doesn't
-like starting up without the ability to make directories.
-
-This looks like one problem causing the other - but, I don't know enough to
-tell. Any assistance would be appreciated :)
-
-If you need any more information about this, I'm on both lkml and reiserfs-list,
-or you can email me.
-
-Thanks,
-Anthony Martinez
-
-BUG:
-------------[ cut here ]------------
-kernel BUG at mm/slab.c:2839!
-invalid operand: 0000 [#1]
-PREEMPT
-Modules linked in: rfcomm l2cap bluetooth ipt_state ip_conntrack iptable_filter
-ip_tables tun nsc_ircc lp thermal fan button processor ac battery
-hostap_crypt_wep mousedev evdev irtty_sir sir_dev irda crc_ccitt parport_pc
-parport pcspkr hostap_pci hostap snd_intel8x0m snd_intel8x0 snd_ac97_codec
-snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd soundcore snd_page_alloc
-i2c_i801 hw_random uhci_hcd usbcore e100 mii ohci1394 yenta_socket
-rsrc_nonstatic befs nls_iso8859_1 nls_cp437 sr_mod sbp2 scsi_mod ieee1394
-psmouse nvram thinkpad cpufreq_userspace speedstep_ich freq_table speedstep_lib
-CPU:    0
-EIP:    0060:[<c0138b82>]    Not tainted VLI
-EFLAGS: 00010002   (2.6.13.4-coffee)
-EIP is at cache_reap+0xba/0x182
-eax: dff6f89c   ebx: dff6f880   ecx: 00000005   edx: 00000003
-esi: c6873fc0   edi: 00000002   ebp: dff29f70   esp: dff29f60
-ds: 007b   es: 007b   ss: 0068
-Process events/0 (pid: 3, threadinfo=dff28000 task=dff52020)
-Stack: dff6f8f0 c043e9c4 00000297 c043e9c0 dff29fc0 c01256d7 00000000 c0138ac8
-       00000000 00000001 00000000 dff52148 00010000 00000000 00000000 dff52020
-       c0114b3f 00100100 00200200 ffffffff ffffffff dff28000 dff1ff60 dff6b680
-Call Trace:
- [<c0103bd1>] show_stack+0x78/0x83
- [<c0103d26>] show_registers+0x130/0x1a2
- [<c0103ee4>] die+0xcc/0x14e
- [<c0103fd4>] do_trap+0x6e/0x8a
- [<c010421f>] do_invalid_op+0x84/0x8e
- [<c010384b>] error_code+0x4f/0x54
- [<c01256d7>] worker_thread+0x178/0x20b
- [<c0128d18>] kthread+0x6d/0x9b
- [<c01012f5>] kernel_thread_helper+0x5/0xb
-Code: 00 00 00 00 e9 81 00 00 00 6b 4b 3c 05 8b 53 40 01 ca 4a 89 d0 31 d2 f7 f1
-89 c7 8b 73 1c 8d 43 1c 39 c6 74 65 83 7e 10 00 74 08 <0f> 0b 17 0b d7 1d 31 c0
-8b 16 8b 46 04 89 42 04 89 10 c7 06 00
- <6>note: events/0[3] exited with preempt_count 1
-Unable to handle kernel NULL pointer dereference at virtual address 00000001
- printing eip:
-c019bde6
-*pde = 00000000
-Oops: 0002 [#2]
-PREEMPT
-Modules linked in: rfcomm l2cap bluetooth ipt_state ip_conntrack iptable_filter
-ip_tables tun nsc_ircc lp thermal fan button processor ac battery
-hostap_crypt_wep mousedev evdev irtty_sir sir_dev irda crc_ccitt parport_pc
-parport pcspkr hostap_pci hostap snd_intel8x0m snd_intel8x0 snd_ac97_codec
-snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd soundcore snd_page_alloc
-i2c_i801 hw_random uhci_hcd usbcore e100 mii ohci1394 yenta_socket
-rsrc_nonstatic befs nls_iso8859_1 nls_cp437 sr_mod sbp2 scsi_mod ieee1394
-psmouse nvram thinkpad cpufreq_userspace speedstep_ich freq_table speedstep_lib
-CPU:    0
-EIP:    0060:[<c019bde6>]    Not tainted VLI
-EFLAGS: 00010282   (2.6.13.4-coffee)
-EIP is at reiserfs_free_jh+0x29/0x59
-eax: dcd559c4   ebx: dcd559bc   ecx: c10c9c00   edx: 00000001
-esi: c6873f60   edi: e08510d4   ebp: c2139d6c   esp: c2139d64
-ds: 007b   es: 007b   ss: 0068
-Process pdflush (pid: 16521, threadinfo=c2138000 task=c6417a20)
-Stack: c6873f60 00000000 c2139e10 c019c0b7 c6873f60 c483fadc c2139d9c c01312bd
-       dff60b88 c2139d9c c0131308 c10f0ee0 c10f0ee0 00000050 c2139dbc 00000046
-       00000000 00001000 c2139de8 c014c673 d4dc514c d4dc514c dd54ea1c dd54ea4c
-Call Trace:
- [<c0103bd1>] show_stack+0x78/0x83
- [<c0103d26>] show_registers+0x130/0x1a2
- [<c0103ee4>] die+0xcc/0x14e
- [<c01134df>] do_page_fault+0x447/0x5ca
- [<c010384b>] error_code+0x4f/0x54
- [<c019c0b7>] write_ordered_buffers+0x105/0x1fc
- [<c019c390>] flush_commit_list+0xeb/0x38f
- [<c01a015b>] do_journal_end+0x7c1/0x7e9
- [<c019f278>] journal_end_sync+0x5e/0x65
- [<c0190bc1>] reiserfs_sync_fs+0x32/0x58
- [<c0190bf4>] reiserfs_write_super+0xd/0x11
- [<c014fb1a>] sync_supers+0x79/0xf2
- [<c0136431>] wb_kupdate+0x24/0xda
- [<c0136c6e>] __pdflush+0x102/0x1cb
- [<c0136d56>] pdflush+0x1f/0x21
- [<c0128d18>] kthread+0x6d/0x9b
- [<c01012f5>] kernel_thread_helper+0x5/0xb
-Code: c9 c3 55 89 e5 56 53 8b 75 08 8b 5e 24 85 db 74 43 c7 46 24 00 00 00 00 c7
-43 04 00 00 00 00 8d 43 08 8b 4b 08 8b 50 04 89 51 04 <89> 0a 89 43 08 89 40 04
-53 e8 00 ca f9 ff a1 a4 0d 44 c0 5b 85
- Badness in do_exit at kernel/exit.c:787
- [<c0103bf2>] dump_stack+0x16/0x1a
- [<c0119d1f>] do_exit+0x3c/0x3ba
- [<c0103f66>] do_trap+0x0/0x8a
- [<c01134df>] do_page_fault+0x447/0x5ca
- [<c010384b>] error_code+0x4f/0x54
- [<c019c0b7>] write_ordered_buffers+0x105/0x1fc
- [<c019c390>] flush_commit_list+0xeb/0x38f
- [<c01a015b>] do_journal_end+0x7c1/0x7e9
- [<c019f278>] journal_end_sync+0x5e/0x65
- [<c0190bc1>] reiserfs_sync_fs+0x32/0x58
- [<c0190bf4>] reiserfs_write_super+0xd/0x11
- [<c014fb1a>] sync_supers+0x79/0xf2
- [<c0136431>] wb_kupdate+0x24/0xda
- [<c0136c6e>] __pdflush+0x102/0x1cb
- [<c0136d56>] pdflush+0x1f/0x21
- [<c0128d18>] kthread+0x6d/0x9b
- [<c01012f5>] kernel_thread_helper+0x5/0xb
-note: pdflush[16521] exited with preempt_count 1
+On Oct 17, 2005, at 10:35:07, Kyle Moffett wrote:
 
 
-ver_linux:Linux coffeehost 2.6.13.4-coffee #1 Sat Oct 15 19:22:20 MDT 2005 i686
-GNU/Linux
+> On Oct 17, 2005, at 04:08:01, Benjamin Herrenschmidt wrote:
+>
+>
+>>> I'm trying to upgrade the kernel in a Samba fileserver from a  
+>>> custom-
+>>> compiled 2.6.8.1 to a stock Debian 2.8.12-1-powerpc and running into
+>>> an issue with my Sonnet Tempo ATA/100 [The card is a rebranded
+>>> FirmTek UltraTek/100 which is _actually_ a Promise PDC20268 with  
+>>> Mac-
+>>> bootable firmware ROM].  I'm getting the following BUG() output
+>>> [NOTE: This was hand-copied from the screen after panic, so there  
+>>> may
+>>> be typos despite me being careful to avoid them]:
+>>>
+>>>
+>>
+>> What is the machine ?
+>>
+>>
+>
+> An aging PowerMac G4 400MHz [AGP graphics].
+>
+>
+>
+>>> PDC20268: IDE controller at PCI slot 0001:11:02.0
+>>> PDC20268: chipset revision 2
+>>> PDC20268: ROM enabled at 0x80090000
+>>> PDC20268: 100% native mode on irq 52
+>>> ide2: PDC20268 Bus-Master DMA disabled (BIOS)
+>>>
+>>>
+>>
+>> The above is probably the cause of your problem. That is, on one  
+>> side, the code in setup-pci.c will consider your chip has disabled  
+>> DMA (which it probably doesn't have but we'll try to figure that  
+>> out later) and on the other side, the ide core blows up when it  
+>> gets a disabled DMA ... There is something wrong here between ide/ 
+>> setup-pci.c and ide/ide-dma.c ...
+>>
+>>
+>
+> I noticed that and started browsing around in the code but I don't  
+> know it well enough to do much other than find where the log  
+> statements are printed :-D.
+>
+>
+>
+>> Now, why does it consider your stuff disabled ? Well, that is the  
+>> interesting thing ...
+>>
+>> Looking at the code, it could be ide_get_or_set_dma_base()  
+>> returning 0 though I fail to see how. It's not the pci_set_master 
+>> () call failing or we would see that printk:
+>>
+>>     printk(KERN_ERR "%s: %s error updating PCICMD\n",
+>>         hwif->name, d->name);
+>>
+>> If it was dma_base = pci_resource_start(dev, 4); then we would get  
+>> another printk as well that we didn't get ...
+>>
+>> Can you try adding printk's yourself around there to check what  
+>> exactly is going on here and why it's thinking DMA is not available ?
+>>
+>>
+>
+> Hmm, this will need to wait till thanksgiving week for me to be  
+> around the machine to run tests.
+>
+>
+>
+>> Also, send the output of lspci -vv as root for this device.
+>>
+>>
+>
+> Appended; thanks!
+>
+> Cheers,
+> Kyle Moffett
+>
+> 0001:02:02.0 Mass storage controller: Promise Technology, Inc.  
+> PDC20268 (Ultra100 TX2) (rev 02) (prog-if 85)
+>         Subsystem: Promise Technology, Inc.: Unknown device ad68
+>         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-  
+> ParErr- Stepping- SERR- FastB2B-
+>         Status: Cap+ 66MHz+ UDF- FastB2B- ParErr- DEVSEL=slow  
+> >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+>         Latency: 16 (1000ns min, 4500ns max), Cache Line Size: 0x08  
+> (32 bytes)
+>         Interrupt: pin A routed to IRQ 52
+>         Region 0: I/O ports at 1440 [size=8]
+>         Region 1: I/O ports at 1430 [size=4]
+>         Region 2: I/O ports at 1420 [size=8]
+>         Region 3: I/O ports at 1410 [size=4]
+>         Region 4: I/O ports at 1400 [size=16]
+>         Region 5: Memory at 800a0000 (32-bit, non-prefetchable)  
+> [size=64K]
+>         Expansion ROM at 80090000 [disabled] [size=64K]
+>         Capabilities: [60] Power Management version 1
+>                 Flags: PMEClk- DSI+ D1+ D2- AuxCurrent=0mA PME 
+> (D0-,D1-,D2-,D3hot-,D3cold-)
+>                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+> 00: 5a 10 68 4d 07 00 30 04 02 85 80 01 08 10 00 00
+> 10: 41 14 00 00 31 14 00 00 21 14 00 00 11 14 00 00
+> 20: 01 14 00 00 00 00 0a 80 00 00 00 00 5a 10 68 ad
+> 30: 01 00 09 80 60 00 00 00 00 00 00 00 34 01 04 12
+> 40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 60: 01 00 21 02 00 00 00 00 00 00 00 00 00 00 00 00
+> 70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>
+>
+>
+>
 
-Gnu C                  4.0.2
-Gnu make               3.80
-binutils               2.16.91
-util-linux             2.12p
-mount                  2.12p
-module-init-tools      3.2-pre9
-e2fsprogs              1.38
-reiserfsprogs          3.6.19
-reiser4progs           line
-pcmcia-cs              3.2.8
-PPP                    2.4.3
-nfs-utils              1.0.7
-Linux C Library        2.3.5
-Dynamic linker (ldd)   2.3.5
-Procps                 3.2.5
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               5.2.1
-udev                   070
-Modules Loaded         rfcomm l2cap bluetooth ipt_state ip_conntrack
-iptable_filter ip_tables tun nsc_ircc lp thermal fan button processor ac battery
-hostap_crypt_wep mousedev evdev irtty_sir sir_dev irda crc_ccitt parport_pc
-parport pcspkr hostap_pci hostap snd_intel8x0m snd_intel8x0 snd_ac97_codec
-snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd soundcore snd_page_alloc
-i2c_i801 hw_random uhci_hcd usbcore e100 mii ohci1394 yenta_socket
-rsrc_nonstatic befs nls_iso8859_1 nls_cp437 sr_mod sbp2 scsi_mod ieee1394
-psmouse nvram thinkpad cpufreq_userspace speedstep_ich freq_table speedstep_lib
 
 

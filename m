@@ -1,86 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932247AbVJSDDO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbVJSDNe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932247AbVJSDDO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 23:03:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932430AbVJSDDN
+	id S932147AbVJSDNe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 23:13:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751495AbVJSDNe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 23:03:13 -0400
-Received: from zproxy.gmail.com ([64.233.162.201]:61050 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932247AbVJSDDN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 23:03:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:reply-to:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
-        b=DpOVYgZ2ARZvTONWApO8zz41jj9yf3AH/CtpeTUchID5TqJZgVxoYX6ifreSdlu7HlEgW0b1TzM6nr8NQ6gAAafHdBI0xs3glMwwZMLvWpexalOAG1TatAoyKokZ8mFD/yNDwpOgCBAUFejeV4W2tjyNaaWwheav+DSWIEY9pL0=
-Reply-To: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com
-To: Guido Fiala <gfiala@s.netic.de>
-Subject: Re: large files unnecessary trashing filesystem cache?
-Date: Tue, 18 Oct 2005 23:02:59 -0400
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org
-References: <200510182201.11241.gfiala@s.netic.de>
-In-Reply-To: <200510182201.11241.gfiala@s.netic.de>
+	Tue, 18 Oct 2005 23:13:34 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:18643 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751481AbVJSDNd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Oct 2005 23:13:33 -0400
+From: Takao Indoh <indou.takao@soft.fujitsu.com>
+To: OBATA Noboru <noboru.obata.ar@hitachi.com>
+Cc: akpm@osdl.org, hyoshiok@miraclelinux.com, linux-kernel@vger.kernel.org
+Subject: Re: Linux Kernel Dump Summit 2005
+Date: Wed, 19 Oct 2005 12:17:02 +0900
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510182302.59604.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
-From: Andrew James Wade <andrew.j.wade@gmail.com>
+X-Mailer: HidemaruMail 4.51
+In-Reply-To: <20051018.224823.03979969.noboru.obata.ar@hitachi.com>
+References: <C0C5D30C9A813Cindou.takao@soft.fujitsu.com> 
+	<20051018.224823.03979969.noboru.obata.ar@hitachi.com>
+Message-Id: <C5C5D45B9312EFindou.takao@soft.fujitsu.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 18 October 2005 16:01, Guido Fiala wrote:
-> (please note, i'am not subscribed to the list, please CC me on reply)
-> 
-> Story:
-> Once in while we have a discussion at the vdr (video disk recorder) mailing 
-> list about very large files trashing the filesystems memory cache leading to 
-> unnecessary delays accessing directory contents no longer cached.
-> 
-> This program and certainly all applications that deal with very large files 
-> only read once (much larger than usual memory)  - it happens that all other 
-> cached blocks of the filessystem are removed from memory solely to keep as 
-> much as possible of that file in memory, which seems to be a bad strategy in 
-> most situations.
+Hi,
 
-     For this particular workload, a heuristic to detect streaming and drop
-pages a few mb back from currently accessed pages would probably work well.
-I believe the second part is already in the kernel (activated by an f-advise
- call), but the heuristic is lacking.
+On Tue, 18 Oct 2005 22:48:23 +0900 (JST), OBATA Noboru wrote:
 
-> Of course one could always implement f_advise-calls in all applications, but i 
-> suggest a discussion if a maximum (configurable) in-memory-cache on a 
-> per-file base should be implemented in linux/mm or where this belongs.
-> 
-> My guess was, it has something to do with mm/readahead.c, a test limiting the 
-> result of the function "max_sane_readahead(...) to 8 MBytes as a quick and 
-> dirty test did not solve the issue, but i might have done something wrong.
-> 
-> I've searched the archive but could not find a previous discussion - is this a 
-> new idea?
+>> The 2nd issue (memory size problem) may be solved by exporting
+>> diskdump's functions to kdump.
+>
+>Could you briefly explain the implementation of partial dump in
+>diskdump for those who are not familiar with it?
+>
+>- Levels of partial dump (supported page categories)
+>- How to indentify the category (kernel data structure used)
 
-I'd do searches on thrashing control and swap tokens. The problem with
-thrashing is similar: a process accessing large amounts of memory in a short
-period of time blowing away the caches. And the solution should be similar:
-penalize the process doing so by preferentially reclaiming it's pages. 
+Ok.
+Partial dump of diskdump defines 5 filters.
 
-> It would be interesting to discuss if and when this proposed feature could 
-> lead to better performance or has any unwanted side effects.
+#define DUMP_EXCLUDE_CACHE 0x00000001 /* Exclude LRU & SwapCache pages*/
+#define DUMP_EXCLUDE_CLEAN 0x00000002 /* Exclude all-zero pages */
+#define DUMP_EXCLUDE_FREE  0x00000004 /* Exclude free pages */
+#define DUMP_EXCLUDE_ANON  0x00000008 /* Exclude Anon pages */
+#define DUMP_SAVE_PRIVATE  0x00000010 /* Save private pages */
 
-Sometimes you want a single file to take up most of the memory; databases
-spring to mind. Perhaps files/processes that take up a large proportion of
-memory should be penalized by preferentially reclaiming their pages, but
-limit the aggressiveness so that they can still take up most of the memory
-if sufficiently persistent (and the rest of the system isn't thrashing).
+You can select each filters for partialdump. (Therefore, there are 32
+levels of partial dump.)
 
-> 
-> Thanks for ideas on that issue.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+1) DUMP_EXCLUDE_CACHE
+
+This filter uses only page flags of struct page.
+If the following condition is true, the page is not dumped.
+
+	!PageAnon(page) && (PageLRU(page) || PageSwapCache(page))
+
+2) DUMP_EXCLUDE_CLEAN
+
+If this filter is enabled, a page which is filled with zero is not
+dumped.
+
+3) DUMP_EXCLUDE_FREE
+
+If this filter is enabled, free pages are not dumped. Diskdump find free
+pages from free_list of zone->free_area.
+
+4) DUMP_EXCLUDE_ANON
+
+This filter uses only page flags of struct page.
+If the following condition is true,  the page is not dumped.
+
+	PageAnon(page)
+
+5) DUMP_SAVE_PRIVATE
+
+This filter is different from others. Even if you specified
+DUMP_EXCLUDE_CACHE, a page which has PG_private flag is dumped if this
+filter is enabled.
+
+
+
+DUMP_EXCLUDE_FREE has some risks. If this filter is enable, diskdump
+scans free page linked lists. If the list is corrupt, diskdump may hang.
+Therefore, I always use level-19 (EXCLUDE_CACHE & EXCLUDE_CLEAN &
+SAVE_PRIVATE).
+
+DUMP_EXCLUDE_CACHE reduces dump size effectively when file caches on
+memory are big. I don't use DUMP_EXCLUDE_ANON because user data(user
+stack, thread stack, mutex, etc.) is sometimes needed to investigate
+dump.
+DUMP_SAVE_PRIVATE is needed for filesystem. Filesystem (journal) uses
+PG_private pages, so these pages is necessary to investigate
+trouble of filesystem. 
+
+If there are other useful filters, please let me know.
+
+
+These filters may be able to be used for kdump, but I don't know how I
+can find the kernel structure (for example, page flag of struct page)
+when kdump dumps memory.
+
+
+Takao Indoh

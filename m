@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbVJSLzi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbVJSL47@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750809AbVJSLzi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 07:55:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750818AbVJSLzh
+	id S1750831AbVJSL47 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 07:56:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750818AbVJSL46
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 07:55:37 -0400
-Received: from wproxy.gmail.com ([64.233.184.205]:31949 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750828AbVJSLzg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 07:55:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:message-id:date:from:sender:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=Ey6N2dngaD7nu1Ezpk2kkeSOZkiZ1vrsJSKXOHoIRnEwtqb0J7ifCkjTsvC3s2Mm4dN0RHNOtd0LDoAXsuEi9GUPkwJSTwK+qwaz8tv4MmdiFcQXdPsBEWdII1y54F3ZGY70QBgk7E1g8mT7Ae8CWcU/Ajua8vDQNoQr96xkpds=
-Message-ID: <7418fe470510190455x3bb746cax365092504e77ba3c@mail.gmail.com>
-Date: Wed, 19 Oct 2005 13:55:35 +0200
-From: Rabih ElMasri <rabih.elmasri@infineon.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: tty line discipline
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 19 Oct 2005 07:56:58 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:32472 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750827AbVJSL45 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 07:56:57 -0400
+Date: Wed, 19 Oct 2005 13:56:53 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Christoph Hellwig <hch@infradead.org>, Lee Revell <rlrevell@joe-job.com>,
+       Mark Knecht <markknecht@gmail.com>, linux-kernel@vger.kernel.org,
+       rmk@arm.linux.org.uk, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, andmike@us.ibm.com,
+       linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] scsi_error thread exits in TASK_INTERRUPTIBLE state.
+Message-ID: <20051019115653.GA2127@elte.hu>
+References: <5bdc1c8b0510181402o2d9badb0sd18012cf7ff2a329@mail.gmail.com> <1129693423.8910.54.camel@mindpipe> <1129695564.8910.64.camel@mindpipe> <Pine.LNX.4.58.0510190300010.20634@localhost.localdomain> <Pine.LNX.4.58.0510190349590.20634@localhost.localdomain> <20051019113131.GA30553@infradead.org> <Pine.LNX.4.58.0510190751070.20634@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0510190751070.20634@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
 
-I am trying to assign a new line discipline to ttyS0 from within the
-kernel-space. During the initialization of my module I do the
-following:
+* Steven Rostedt <rostedt@goodmis.org> wrote:
 
-fp=filp_open(dev,O_RDWR | O_NOCTTY,0);
-tty=fp->private_data;  //the tty_struct
+> On Wed, 19 Oct 2005, Christoph Hellwig wrote:
+> 
+> > > +	/*
+> > > +	 * There's a good chance that the loop will exit in the
+> > > +	 * TASK_INTERRUPTIBLE state.
+> > > +	 */
+> > > +	__set_current_state(TASK_RUNNING);
+> >
+> > no need to comment the obvious.
+> 
+> So, should I resend the patch without the comment?
 
-then I initialize the fields of the new line discipline (ldisc). and
-assign it to the tty_struct:
+i guess so. OTOH, if it was so obvious, why did it stay unfixed for so 
+long ;-)
 
-tty->ldisc=ldisc;
-
-It works fine the first time I insert the module, but gets problems
-with tty->count if I insert it again.
-
-I tried to call the tty_ioctl function of tty_io.c (with flag
-TIOCSETD) using the corresponding field in the file structure
-(fp->f_op->ioctl(..)), but it seems to expect a call from user-space,
-and returns -EFAULT due to the get_user macro.
-
-I would really appreciate it if someone can tell me how to deal with
-this problem.
-
-Regards,
-Rabih
+	Ingo

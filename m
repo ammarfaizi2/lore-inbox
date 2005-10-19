@@ -1,73 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751512AbVJSAk2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932382AbVJSAsL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751512AbVJSAk2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 20:40:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751514AbVJSAk2
+	id S932382AbVJSAsL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 20:48:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbVJSAsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 20:40:28 -0400
-Received: from mail.suse.de ([195.135.220.2]:60081 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751512AbVJSAk1 (ORCPT
+	Tue, 18 Oct 2005 20:48:11 -0400
+Received: from packet.digeo.com ([12.110.80.53]:46278 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id S932382AbVJSAsJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 20:40:27 -0400
-Date: Tue, 18 Oct 2005 20:40:18 -0400
-From: Chris Mason <mason@suse.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix nr_unused accounting, and avoid recursing in iput with I_WILL_FREE set
-Message-ID: <20051019004018.GZ1027@watt.suse.com>
-References: <20051018082609.GC15717@x30.random> <20051018171335.3b308b3e.akpm@osdl.org>
+	Tue, 18 Oct 2005 20:48:09 -0400
+From: "Jayachandran C." <jchandra@digeo.com>
+Date: Tue, 18 Oct 2005 17:47:59 -0700
+To: rusty@rustcorp.com.au
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] kernel/module.c: removed dead code
+Message-ID: <20051019004759.GD5338@random.pao.digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051018171335.3b308b3e.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.4.1i
+X-OriginalArrivalTime: 19 Oct 2005 00:47:59.0445 (UTC) FILETIME=[C0A03050:01C5D446]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 18, 2005 at 05:13:35PM -0700, Andrew Morton wrote:
-> Andrea Arcangeli <andrea@suse.de> wrote:
-> >
-> > Hello,
-> > 
-> > @@ -183,6 +183,7 @@ __sync_single_inode(struct inode *inode,
-> >  			list_move(&inode->i_list, &inode_in_use);
-> >  		} else {
-> >  			list_move(&inode->i_list, &inode_unused);
-> > +			inodes_stat.nr_unused++;
-> >  		}
-> >  	}
-> >  	wake_up_inode(inode);
-> > 
-> > Are you sure the above diff is correct? It was added somewhere between
-> > 2.6.5 and 2.6.8. I think it's wrong.
-> > 
-> > The only way I can imagine the i_count to be zero in the above path, is
-> > that I_WILL_FREE is set. And if I_WILL_FREE is set, then we must not
-> > increase nr_unused. So I believe the above change is buggy and it will
-> > definitely overstate the number of unused inodes and it should be backed
-> > out.
-> 
-> Well according to my assertion (below), the inode in __sync_single_inode()
-> cannot have a zero refcount, so the whole if() statement is never executed.
+This patch fixes an issue reported by Coverity in kernel/module.c
 
-generic_forget_inode->write_inode_now->__writeback_single_inode->
-__sync_single_inode
+Error reported: Cannot reach this line of code "else return ptr;"
 
-We do have I_WILL_FREE, but i_count will be zero.
+Patch description:
+  This is the error path, so 'err' will be negative, the else case
+  is not required, this patch removes it.
+                                                                                                    
+Signed-off-by: Jayachandran C. <c.jayachandran at gmail.com>
+---
 
-> 
-> The thinking behind that increment is that __sync_single_inode() has just
-> taken a dirty, zero-refcount inode and has cleaned it.  A dirty inode
-> cannot have previously been on inode_unused, hence we now are newly moving
-> it to inode_unused.
+ module.c |    3 +--
+ 1 files changed, 1 insertion(+), 2 deletions(-)
 
-nr_unused doesn't seem to count the number of inodes on the unused list.
-It is actually counting the number of inodes whose i_count is 0.  See
-generic_forget_inode and invalidate_list to see what I mean.
-
-generic_forget_inode took care of incrementing the unused count when
-i_count went to zero. So, I don't think we need to worry about the
-unused count in __writeback_single_inode.
-
--chris
-
+--- linux-2.6.13-rc4-git2.clean/kernel/module.c	2005-10-13 11:42:59.000000000 -0700
++++ linux-2.6.13-rc4-git2.jc/kernel/module.c	2005-10-14 16:17:54.212548129 -0700
+@@ -1853,8 +1853,7 @@
+ 	kfree(args);
+  free_hdr:
+ 	vfree(hdr);
+-	if (err < 0) return ERR_PTR(err);
+-	else return ptr;
++	return ERR_PTR(err);
+ 
+  truncated:
+ 	printk(KERN_ERR "Module len %lu truncated\n", len);

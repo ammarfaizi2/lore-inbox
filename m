@@ -1,39 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751244AbVJSThF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751252AbVJSTia@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751244AbVJSThF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 15:37:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbVJSThF
+	id S1751252AbVJSTia (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 15:38:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbVJSTi3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 15:37:05 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:40113 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751244AbVJSThD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 15:37:03 -0400
-Date: Wed, 19 Oct 2005 21:39:13 +0200
-To: linux-kernel@vger.kernel.org
-Subject: How to use a USB  SD/MMC card reader?
-Message-ID: <20051019193913.GA21749@aitel.hist.no>
+	Wed, 19 Oct 2005 15:38:29 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:2255 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751252AbVJSTi3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 15:38:29 -0400
+Date: Wed, 19 Oct 2005 21:38:54 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark Knecht <markknecht@gmail.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>, Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: -rt10 build problem [WAS]Re: scsi_eh / 1394 bug - -rt7
+Message-ID: <20051019193854.GA12908@elte.hu>
+References: <5bdc1c8b0510190750s377a2696kf9c323789b392664@mail.gmail.com> <20051019145435.GA6455@elte.hu> <5bdc1c8b0510190812l6b9574cft14664fa40f1225ce@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+In-Reply-To: <5bdc1c8b0510190812l6b9574cft14664fa40f1225ce@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an usb card reader (Apacer) in my desktop machine.
 
-It has several slots for different card types. One of the slots accepts
-the compactflash cards I use in my camera.  I can mount those and
-copy the pictures, no problems there. (It becomes /dev/sdf)
+* Mark Knecht <markknecht@gmail.com> wrote:
 
-Another slot accepts SD/MMC cards.  I tried inserting an MMC card,
-but nothing seems to happen.  Using /dev/sdf doesn't work - no medium.
-And /dev/sdg doesn't exist.  
+> Sorry. Please resend the patch as a file. My trying to copy it from 
+> GMail has apparently killed it:
 
-I obviously have usb block devices & scsi working, or I'd be unable to use
-the compactflash cards.  I have also enabled CONFIG_MMC for this kernel. (2.6.14-rc3)
+just pick up -rt11.
 
-Is there anything else I should do, to make the mmc slot work too?
-
-Helge Hafting 
+	Ingo

@@ -1,47 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751009AbVJSOcL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751011AbVJSOdZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751009AbVJSOcL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 10:32:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751011AbVJSOcK
+	id S1751011AbVJSOdZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 10:33:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751013AbVJSOdZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 10:32:10 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:3591 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1751003AbVJSOcJ (ORCPT
+	Wed, 19 Oct 2005 10:33:25 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:5845 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751008AbVJSOdZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 10:32:09 -0400
-Date: Wed, 19 Oct 2005 10:31:57 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       john.ronciak@intel.com, ganesh.venkatesan@intel.com,
-       mallikarjuna.chilakala@intel.com
-Subject: Re: [patch 2.6.14-rc4] e1000: Driver version, white space, comments, device id & other
-Message-ID: <20051019143154.GA16830@tuxdriver.com>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-	john.ronciak@intel.com, ganesh.venkatesan@intel.com,
-	mallikarjuna.chilakala@intel.com
-References: <10182005213103.13099@bilbo.tuxdriver.com> <4355AE62.7080605@pobox.com>
+	Wed, 19 Oct 2005 10:33:25 -0400
+Subject: Re: [PATCH]: Handling spurious page fault for hugetlb region for
+	2.6.14-rc4-git5
+From: Adam Litke <agl@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Rohit Seth <rohit.seth@intel.com>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+In-Reply-To: <20051018210721.4c80a292.akpm@osdl.org>
+References: <20051018141512.A26194@unix-os.sc.intel.com>
+	 <20051018143438.66d360c4.akpm@osdl.org>
+	 <1129673824.19875.36.camel@akash.sc.intel.com>
+	 <20051018172549.7f9f31da.akpm@osdl.org>
+	 <1129692330.24309.44.camel@akash.sc.intel.com>
+	 <20051018210721.4c80a292.akpm@osdl.org>
+Content-Type: text/plain
+Organization: IBM
+Date: Wed, 19 Oct 2005 09:33:07 -0500
+Message-Id: <1129732387.8702.30.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4355AE62.7080605@pobox.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 18, 2005 at 10:24:34PM -0400, Jeff Garzik wrote:
-> John W. Linville wrote:
-> >From: Mallikarjuna R Chilakala <mallikarjuna.chilakala@intel.com>
+On Tue, 2005-10-18 at 21:07 -0700, Andrew Morton wrote:
+> Rohit Seth <rohit.seth@intel.com> wrote:
 > >
-> >Driver version, white space, comments, device id & other
+> > The prefetching problem is handled OK for regular pages because we can
+> >  handle page faults corresponding to those pages.  That is currently not
+> >  true for hugepages.  Currently the kernel assumes that PAGE_FAULT
+> >  happening against a hugetlb page is caused by truncate and returns
+> >  SIGBUS.
+> 
+> Doh.  No fault handler.  The penny finally drops.
+> 
+> Adam, I think this patch is temporary?
 
-> patch is ok, but doesn't apply to 'upstream' branch of netdev-2.6.git, 
-> which has several e1000 patches in it.
+Yeah, looks like it can be dropped now since we handle this case (in
+hugetlb_fault) as:
 
-I see...looks like some fuzz...I'll rediff and repost...
+>         size = i_size_read(mapping->host) >> HPAGE_SHIFT;
+>         if (idx >= size)
+>                 goto backout;
+> 
+>         ret = VM_FAULT_MINOR;
+>         if (!pte_none(*pte))
+>                 goto backout;
 
-John
 -- 
-John W. Linville
-linville@tuxdriver.com
+Adam Litke - (agl at us.ibm.com)
+IBM Linux Technology Center
+

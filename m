@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750821AbVJSLyn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750820AbVJSLzA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750821AbVJSLyn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 07:54:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbVJSLyn
+	id S1750820AbVJSLzA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 07:55:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750818AbVJSLzA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 07:54:43 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:4229 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750801AbVJSLym (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 07:54:42 -0400
-Date: Wed, 19 Oct 2005 12:54:35 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Christoph Hellwig <hch@infradead.org>, Lee Revell <rlrevell@joe-job.com>,
-       Mark Knecht <markknecht@gmail.com>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, rmk@arm.linux.org.uk,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       andmike@us.ibm.com, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] scsi_error thread exits in TASK_INTERRUPTIBLE state.
-Message-ID: <20051019115435.GA31007@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Lee Revell <rlrevell@joe-job.com>,
-	Mark Knecht <markknecht@gmail.com>, linux-kernel@vger.kernel.org,
-	Ingo Molnar <mingo@elte.hu>, rmk@arm.linux.org.uk,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	andmike@us.ibm.com, linux-scsi@vger.kernel.org
-References: <5bdc1c8b0510181402o2d9badb0sd18012cf7ff2a329@mail.gmail.com> <1129693423.8910.54.camel@mindpipe> <1129695564.8910.64.camel@mindpipe> <Pine.LNX.4.58.0510190300010.20634@localhost.localdomain> <Pine.LNX.4.58.0510190349590.20634@localhost.localdomain> <20051019113131.GA30553@infradead.org> <Pine.LNX.4.58.0510190751070.20634@localhost.localdomain>
+	Wed, 19 Oct 2005 07:55:00 -0400
+Received: from qproxy.gmail.com ([72.14.204.203]:28480 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750820AbVJSLy5 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 07:54:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=s8J0L4PHwUoUXJHwrO385ZINxW0oYL+dVLb8go+jIz6KmZeP6P6xZHLcWAdTlnbYVzsmaJ13To3e5C1EuvtvSztUVKZjOea3nV84QhrueOLNA2kJmoG4QQHR6LlZ0mM2QyisQtjllVQ4vYXZoAaCHCFLe37h3EJsVd0is388Bcc=
+Date: Wed, 19 Oct 2005 13:54:05 +0200
+From: Diego Calleja <diegocg@gmail.com>
+To: Subbu <subbu@sasken.com>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       subbu2k_av@yahoo.com
+Subject: Re: spec file
+Message-Id: <20051019135405.afd251b6.diegocg@gmail.com>
+In-Reply-To: <Pine.GSO.4.30.0510191330120.20601-100000@sunm21.sasken.com>
+References: <Pine.GSO.4.30.0507181124560.28721-100000@sunrnd2.sasken.com>
+	<Pine.GSO.4.30.0510191330120.20601-100000@sunm21.sasken.com>
+X-Mailer: Sylpheed version 2.1.1 (GTK+ 2.8.3; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0510190751070.20634@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 19, 2005 at 07:51:47AM -0400, Steven Rostedt wrote:
-> So, should I resend the patch without the comment?
+El Wed, 19 Oct 2005 13:33:56 +0530 (IST),
+Subbu <subbu@sasken.com> escribió:
 
-yes, please ;-)
 
+> 
+> 
+> Hi ,
+> 
+> Please help me to build an rpm
+
+
+There're a "make rpm" and "make binrpm-pkg". There's a spec
+file in scripts/package/mkspec - it should be easy to adapt it to your
+needs.

@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750994AbVJSOTz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751009AbVJSOcL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750994AbVJSOTz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 10:19:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750998AbVJSOTz
+	id S1751009AbVJSOcL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 10:32:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751011AbVJSOcK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 10:19:55 -0400
-Received: from atlrel9.hp.com ([156.153.255.214]:6546 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S1750970AbVJSOTz (ORCPT
+	Wed, 19 Oct 2005 10:32:10 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:3591 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1751003AbVJSOcJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 10:19:55 -0400
-Subject: Re: [discuss] Re: x86_64: 2.6.14-rc4 swiotlb broken
-From: Alex Williamson <alex.williamson@hp.com>
-To: Yasunori Goto <y-goto@jp.fujitsu.com>
-Cc: Ravikiran G Thirumalai <kiran@scalex86.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       discuss@x86-64.org, tglx@linutronix.de, shai@scalex86.org
-In-Reply-To: <20051019212041.6378.Y-GOTO@jp.fujitsu.com>
-References: <20051018232203.GB4535@localhost.localdomain>
-	 <1129684966.17545.50.camel@lts1.fc.hp.com>
-	 <20051019212041.6378.Y-GOTO@jp.fujitsu.com>
-Content-Type: text/plain
-Organization: LOSL
-Date: Wed, 19 Oct 2005 08:19:41 -0600
-Message-Id: <1129731581.17545.60.camel@lts1.fc.hp.com>
+	Wed, 19 Oct 2005 10:32:09 -0400
+Date: Wed, 19 Oct 2005 10:31:57 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       john.ronciak@intel.com, ganesh.venkatesan@intel.com,
+       mallikarjuna.chilakala@intel.com
+Subject: Re: [patch 2.6.14-rc4] e1000: Driver version, white space, comments, device id & other
+Message-ID: <20051019143154.GA16830@tuxdriver.com>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+	john.ronciak@intel.com, ganesh.venkatesan@intel.com,
+	mallikarjuna.chilakala@intel.com
+References: <10182005213103.13099@bilbo.tuxdriver.com> <4355AE62.7080605@pobox.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4355AE62.7080605@pobox.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-10-19 at 21:47 +0900, Yasunori Goto wrote:
-> Hmm.....
-> How is this patch? This is another way.
-> 
-> I think that true issue is there is no way for requester to
-> specify maxmum address at __alloc_bootmem_core().
-> 
-> "goal" is just to keep space lower address as much as possible.
-> and __alloc_bootmem_core() doesn't care about max address for requester.
-> I suppose it is a bit strange. The swiotlb's case is good example
-> by it.
-> 
-> So, I made a patch that __alloc_bootmem_core() cares it.
+On Tue, Oct 18, 2005 at 10:24:34PM -0400, Jeff Garzik wrote:
+> John W. Linville wrote:
+> >From: Mallikarjuna R Chilakala <mallikarjuna.chilakala@intel.com>
+> >
+> >Driver version, white space, comments, device id & other
 
-   This works on the Superdome.  The swiotlb is shown as:
+> patch is ok, but doesn't apply to 'upstream' branch of netdev-2.6.git, 
+> which has several e1000 patches in it.
 
-Placing software IO TLB between 0x4d48000 - 0x8d48000
+I see...looks like some fuzz...I'll rediff and repost...
 
-Thanks,
-
-	Alex
-
+John
+-- 
+John W. Linville
+linville@tuxdriver.com

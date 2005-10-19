@@ -1,97 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751564AbVJSHYH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbVJSHwx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751564AbVJSHYH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 03:24:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751566AbVJSHYH
+	id S1750800AbVJSHwx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 03:52:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750816AbVJSHwx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 03:24:07 -0400
-Received: from mail-in-08.arcor-online.net ([151.189.21.48]:55002 "EHLO
-	mail-in-08.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1751564AbVJSHYG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 03:24:06 -0400
-Date: Wed, 19 Oct 2005 09:23:45 +0200 (CEST)
-From: Bodo Eggert <7eggert@gmx.de>
-To: Badari Pulavarty <pbadari@gmail.com>
-cc: 7eggert@gmx.de, Guido Fiala <gfiala@s.netic.de>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: large files unnecessary trashing filesystem cache?
-In-Reply-To: <1129676753.23632.90.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0510190902210.2281@be1.lrz>
-References: <4Z5WG-1iM-19@gated-at.bofh.it> <4Z6zs-27l-39@gated-at.bofh.it>
-  <E1ERzTq-0001IA-Ba@be1.lrz> <1129676753.23632.90.camel@localhost.localdomain>
-MIME-Version: 1.0
+	Wed, 19 Oct 2005 03:52:53 -0400
+Received: from lirs02.phys.au.dk ([130.225.28.43]:31105 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S1750800AbVJSHww
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 03:52:52 -0400
+Date: Wed, 19 Oct 2005 09:52:15 +0200 (METDST)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>, dwalker@mvista.com,
+       david singleton <dsingleton@mvista.com>
+Subject: Re: 1.6ms jitter in rtc_wakeup (Re: 2.6.14-rc4-rt1)
+In-Reply-To: <Pine.OSF.4.05.10510142325150.24215-100000@da410.phys.au.dk>
+Message-Id: <Pine.OSF.4.05.10510190946360.22661-100000@da410.phys.au.dk>
+Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Oct 2005, Badari Pulavarty wrote:
+On Fri, 14 Oct 2005, Esben Nielsen wrote:
 
-> On Tue, 2005-10-18 at 23:58 +0200, Bodo Eggert wrote:
-> > Badari Pulavarty <pbadari@gmail.com> wrote:
-> > > On Tue, 2005-10-18 at 22:01 +0200, Guido Fiala wrote:
-> > 
-> > [large files trash cache]
-> > 
-> > > Is there a reason why those applications couldn't use O_DIRECT ?
-> > 
-> > The cache trashing will affect all programs handling large files:
-> > 
-> > mkisofs * > iso
-> > dd < /dev/hdx42 | gzip > imagefile
-> > perl -pe's/filenamea/filenameb/' < iso | cdrecord - # <- never tried
-> > 
+> On Fri, 14 Oct 2005, Ingo Molnar wrote:
 > 
-> Are these examples which demonstrate the thrashing problem.
-
-You can alyo cat a big file into /dev/null. I made those examples in order 
-to demonstrate the problem with using O_DIRECT.
-
-OTOH, I don't realtime stuff on my computer, so I'm not really affected, 
-but I'll try to show it anyway.
-
-> > Changing a few programs will only partly cover the problems.
 > > 
-> > I guess the solution would be using random cache eviction rather than
-> > a FIFO. I never took a look the cache mechanism, so I may very well be
-> > wrong here.
-> 
-> Read-only pages should be re-cycled really easily & quickly. I can't
-> belive read-only pages are causing you all the trouble.
+> > * Esben Nielsen <simlo@phys.au.dk> wrote:
+> > 
+> > > I set up rtc_wakeup and got a jitter up 1.6ms!
+> > > It came when I cd'en into a nfs-mount and typed ls.
+> > 
+> > >       ls-11239 0Dn..    4us : profile_hit (__schedule)
+> > >       ls-11239 0Dn.1    4us : sched_clock (__schedule)
+> > >       ls-11239 0Dn.1    5us : check_tsc_unstable (sched_clock)
+> > >       ls-11239 0Dn.1    5us : tsc_read_c3_time (sched_clock)
+> > >    IRQ 8-775   0D..2    6us : __switch_to (__schedule)
+> > >    IRQ 8-775   0D..2    7us!: __schedule <ls-11239> (75 0)
+> > >    IRQ 8-775   0...1 1594us : trace_stop_sched_switched (__schedule)
+> > >    IRQ 8-775   0D..2 1594us : trace_stop_sched_switched <IRQ 8-775> (0 0)
+> > >    IRQ 8-775   0D..2 1595us : trace_stop_sched_switched (__schedule)
+> > 
+> > ouch! This very much looks like a hardware induced latency, because the 
+> > codepath from those two __schedule points is extremely short and there 
+> > is no loop there. Have you tested this particular box before too? If 
+> > not, can you reproduce this latency with older versions of -rt too on 
+> > the same box, or is this completely new? 
+> I have been testing on this box before but never with such long latencies
+> before.
 
-Just a q&d test:
+I could not reproduce it on linux-2.6.14-rc3-rt10. The maximum meassured
+rtc_wakeup is 146us with the same config options. 
+Running linux-2.6.14-rc4-rt1 with ethernet disabled gave a maximum latency
+of 1468us while building the kernel:
 
-$ time ls -l $DIR > /dev/null
-real    0m0.442s
-user    0m0.008s
-sys     0m0.024s
+preemption latency trace v1.1.5 on 2.6.14-rc4-rt1
+--------------------------------------------------------------------
+ latency: 1468 us, #19/19, CPU#0 | (M:rt VP:0, KP:0, SP:1 HP:1)
+    -----------------
+    | task: IRQ 8-775 (uid:0 nice:-5 policy:1 rt_prio:99)
+    -----------------
 
-$ time ls -l $DIR > /dev/null
-real    0m0.077s
-user    0m0.008s
-sys     0m0.008s
+                 _------=> CPU#            
+                / _-----=> irqs-off        
+               | / _----=> need-resched    
+               || / _---=> hardirq/softirq 
+               ||| / _--=> preempt-depth   
+               |||| /                      
+               |||||     delay             
+   cmd     pid ||||| time  |   caller      
+      \   /    |||||   \   |   /           
+     cc1-8357  0D.h3    0us : __trace_start_sched_wakeup (try_to_wake_up)
+     cc1-8357  0D.h3    0us : __trace_start_sched_wakeup <IRQ 8-775> (0 0)
+     cc1-8357  0Dnh2    1us : try_to_wake_up <IRQ 8-775> (0 76)
+     cc1-8357  0Dnh1    1us : preempt_schedule (try_to_wake_up)
+     cc1-8357  0Dnh1    2us : wake_up_process (redirect_hardirq)
+     cc1-8357  0Dnh.    2us : preempt_schedule (__do_IRQ)
+     cc1-8357  0Dnh.    2us : irq_exit (do_IRQ)
+     cc1-8357  0Dn..    3us : preempt_schedule_irq (need_resched)
+     cc1-8357  0Dn..    3us : __schedule (preempt_schedule_irq)
+     cc1-8357  0Dn..    4us : profile_hit (__schedule)
+     cc1-8357  0Dn.1    4us : sched_clock (__schedule)
+     cc1-8357  0Dn.1    4us : check_tsc_unstable (sched_clock)
+   IRQ 8-775   0D..2    6us : __switch_to (__schedule)
+   IRQ 8-775   0D..2    6us!: __schedule <cc1-8357> (76 0)
+   IRQ 8-775   0...1 1467us : trace_stop_sched_switched (__schedule)
+   IRQ 8-775   0D..2 1467us : trace_stop_sched_switched <IRQ 8-775> (0 0)
+   IRQ 8-775   0D..2 1468us : trace_stop_sched_switched (__schedule)
 
-cat $BIGFILES_1.5GB > /Dev/null
+I have not yet got around to try without ACPI/APM/CPU frequency scaling.
 
-$ time ls -l $DIR > /dev/null
-real    0m0.270s
-user    0m0.008s
-sys     0m0.008s
+Esben
 
-$ time ls -l $DIR > /dev/null
-real    0m0.078s
-user    0m0.004s
-sys     0m0.004s
-
-
-
-BTW:
-I suggested the random eviction because it will evict pages from large 
-files more likely than pages from small files, but I now think it will 
-cause the evicted pages to be non-continuous, too, and thereby cause 
-rereading them to be slower. I don't know which effect would be worse.
-
--- 
-Is reading in the bathroom considered Multitasking? 

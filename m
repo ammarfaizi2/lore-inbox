@@ -1,93 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751467AbVJSEYq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbVJSEi0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751467AbVJSEYq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 00:24:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751501AbVJSEYq
+	id S1750736AbVJSEi0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 00:38:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751501AbVJSEi0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 00:24:46 -0400
-Received: from rwcrmhc14.comcast.net ([204.127.198.54]:45458 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1751467AbVJSEYp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 00:24:45 -0400
-Message-ID: <4355C9F3.40004@comcast.net>
-Date: Wed, 19 Oct 2005 00:22:11 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Phillip Susi <psusi@cfl.rr.com>
-CC: Jeff Bailey <jbailey@ubuntu.com>, linux-kernel@vger.kernel.org,
-       ubuntu-devel <ubuntu-devel@lists.ubuntu.com>
-Subject: Re: Keep initrd tasks running?
-References: <4355494C.5090707@comcast.net> <1129663759.18784.98.camel@localhost.localdomain> <4355BEF4.8000800@cfl.rr.com>
-In-Reply-To: <4355BEF4.8000800@cfl.rr.com>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=UTF-8
+	Wed, 19 Oct 2005 00:38:26 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:13287 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750736AbVJSEiZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 00:38:25 -0400
+Date: Tue, 18 Oct 2005 21:37:21 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com
+Cc: andrew.j.wade@gmail.com, gfiala@s.netic.de, linux-kernel@vger.kernel.org
+Subject: Re: large files unnecessary trashing filesystem cache?
+Message-Id: <20051018213721.236b2107.akpm@osdl.org>
+In-Reply-To: <200510182302.59604.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+References: <200510182201.11241.gfiala@s.netic.de>
+	<200510182302.59604.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Andrew James Wade <andrew.j.wade@gmail.com> wrote:
+>
+> Sometimes you want a single file to take up most of the memory; databases
+>  spring to mind. Perhaps files/processes that take up a large proportion of
+>  memory should be penalized by preferentially reclaiming their pages, but
+>  limit the aggressiveness so that they can still take up most of the memory
+>  if sufficiently persistent (and the rest of the system isn't thrashing).
+
+Yes.  Basically any smart heuristic we apply here will have failure modes. 
+For example, the person whose application does repeated linear reads of the
+first 100MB of a 4G file will get very upset.
+
+So any such change really has to be opt-in.  Yes, it can be done quite
+simply via repeated application of posix_fadvise().  But practically
+speaking, it's very hard to get upstream GPL'ed applications changed, let
+alone proprietary ones.
+
+An obvious approach would be an LD_PRELOAD thingy which modifies read() and
+write(), perhaps controlled via an environment variable.  AFAIK nobody has
+even attempted this.
+
+For a kernel-based solution you could take a look at my old 2.4-based
+O_STREAMING patch.  It works OK, but it still needs modification of each
+application (or an LD_PRELOAD hook into open()).
+
+A decent kernel implementation would be to add a max_resident_pages to
+struct file_struct and to use that to perform drop-behind within read() and
+write().  That's a bit of arithmetic and a call to
+invalidate_mapping_pages().  The userspace interface to that could be a
+linux-specific extension to posix_fadvise() or to fcntl().
+
+But that still requires that all the applications be modified.
+
+So I'd also suggest a new resource limit which, if set, is copied into the
+applications's file_structs on open().  So you then write a little wrapper
+app which does setrlimit()+exec():
+
+	limit-cache-usage -s 1000 my-fave-backup-program <args>
+
+Which will cause every file which my-fave-backup-program reads or writes to
+be limited to a maximum pagecache residency of 1000 kbytes.
+
+This facility could trivially be used for a mini-DoS: shooting down other
+people's pagecache so their apps run slowly.  But you can use fadvise() for
+that already.
 
 
+Or raise a patch against glibc's read() and write() which uses some
+environment string to control fadvise-based invalidation.  That's pretty
+simple.
 
-Phillip Susi wrote:
-> I am confused.  I thought that once the initramfs init execs the real
-> init, the initramfs is freed.  It can't be freed if there are processes
-> that still have open files there, so that would seem to prevent any
-> processes being started in the initramfs and continuing after the real
-> system is booted.
-> 
 
-AFAIK it's pivoted and then umounted, which frees it.  This doesn't mean
-it has to be freed..  . .
-
-> Jeff Bailey wrote:
-> 
->> This is much more easily supported in Breezy.  usplash is started at the
->> top of the initramfs (from the init-top hook) and lives until we start
->> gdm.
->>
->> The biggest constraint is that you don't have write access to the target
->> root filesystem (since it's mounted readonly).  However, /dev is a tmpfs
->> that is move mounted to the new root system.  If you need to have
->> sockets open or store data, you can use that.  usplash does this for its
->> socket.
->>
->> Note that the initramfs startup sequence isn't at all similar to the old
->> initrd startups.  It should be easy for you to cleanly add what you want
->> under /etc/mkinitramfs/scripts and not have to modify the
->> initramfs-tools package.  /usr/share/doc/initramfs-tools/HACKING
->> contains some starter information.
->>
->> Hope this helps!
->>
->> Tks,
->> Jeff Bailey
->>
->>
->>
->>
->>
->>  
->>
-> 
-> 
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
-    Creative brains are a valuable, limited resource. They shouldn't be
-    wasted on re-inventing the wheel when there are so many fascinating
-    new problems waiting out there.
-                                                 -- Eric Steven Raymond
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFDVcnzhDd4aOud5P8RAmk/AJ48RK9V5CrJeNXu/ORxuNa3I/+jrACeOkUl
-z2l1tNTWm6dtjysddaZ81co=
-=7GLq
------END PGP SIGNATURE-----

@@ -1,73 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751242AbVJSTdB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751244AbVJSThF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751242AbVJSTdB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 15:33:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbVJSTdB
+	id S1751244AbVJSThF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 15:37:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbVJSThF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 15:33:01 -0400
-Received: from khc.piap.pl ([195.187.100.11]:34052 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S1751242AbVJSTdA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 15:33:00 -0400
-To: Rudolf Polzer <debian-ne@durchnull.de>
-Cc: Horms <horms@verge.net.au>, linux-kernel@vger.kernel.org,
-       334113@bugs.debian.org, Alastair McKinstry <mckinstry@debian.org>,
-       security@kernel.org, team@security.debian.org,
-       secure-testing-team@lists.alioth.debian.org
-Subject: Re: kernel allows loadkeys to be used by any user, allowing for
- local root compromise
-References: <E1EQofT-0001WP-00@master.debian.org>
-	<20051018044146.GF23462@verge.net.au>
-	<m37jcakhsm.fsf@defiant.localdomain>
-	<20051018171645.GA59028%atfield-dt@durchnull.de>
-	<m3fyqyhdm8.fsf@defiant.localdomain>
-	<20051018204919.GA21286%atfield-dt@durchnull.de>
-	<m3oe5l21rr.fsf@defiant.localdomain>
-	<20051019132326.GA31526%atfield-dt@durchnull.de>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Wed, 19 Oct 2005 21:32:53 +0200
-In-Reply-To: <20051019132326.GA31526%atfield-dt@durchnull.de> (Rudolf
- Polzer's message of "Wed, 19 Oct 2005 15:23:26 +0200")
-Message-ID: <m3y84pjo9m.fsf@defiant.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Wed, 19 Oct 2005 15:37:05 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:40113 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751244AbVJSThD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 15:37:03 -0400
+Date: Wed, 19 Oct 2005 21:39:13 +0200
+To: linux-kernel@vger.kernel.org
+Subject: How to use a USB  SD/MMC card reader?
+Message-ID: <20051019193913.GA21749@aitel.hist.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rudolf Polzer <debian-ne@durchnull.de> writes:
+I have an usb card reader (Apacer) in my desktop machine.
 
->> Ok. So they are exposed to known attacks with quite high probability.
->
-> Which others? Are there other places that assume only trusted users can
-> access
-> the console?
+It has several slots for different card types. One of the slots accepts
+the compactflash cards I use in my camera.  I can mount those and
+copy the pictures, no problems there. (It becomes /dev/sdf)
 
-Probably: BIOS booting, messing with computer cases (are the computers
-in locked room and only kbds/monitors/mouses are accessible?), sniffing
-keyboard cables (all other passwords if not root's), physical damage
-to the computer hardware (some kind of DoS).
+Another slot accepts SD/MMC cards.  I tried inserting an MMC card,
+but nothing seems to happen.  Using /dev/sdf doesn't work - no medium.
+And /dev/sdg doesn't exist.  
 
-Still, may be adequate for student room.
+I obviously have usb block devices & scsi working, or I'd be unable to use
+the compactflash cards.  I have also enabled CONFIG_MMC for this kernel. (2.6.14-rc3)
 
->> I assume that one can notice that Ctrl-Alt-Backspace doesn't work,
->> and stop there.
->
-> Not if a malicious X program does "chvt 1; chvt 7" when Ctrl-Alt-Backspace is
-> pressed.
+Is there anything else I should do, to make the mmc slot work too?
 
-With correct timing, possibly. Depends on how the graphics driver starts
-and switches from text mode. There might be noticeable differences.
-
-> It would require a video driver that can actually reset the video mode.
-> Framebuffer drivers usually can do that. For the standard VGA text mode, at
-> least savetextmode/restoretextmode from svgalib don't work on the graphics
-> cards I have.
-
-I think Xserver could terminate gracefully. But it would require changes
-to kernel SAK handling I think - not sure if it's worth it, given other
-threats.
-
-Another idea: if the machines are ACPI-enabled and have "soft-power"
-buttons, one can make use of acpid.
--- 
-Krzysztof Halasa
+Helge Hafting 

@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751154AbVJSRAu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbVJSRA2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751154AbVJSRAu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 13:00:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbVJSRAt
+	id S1751153AbVJSRA2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 13:00:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbVJSRA2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 13:00:49 -0400
-Received: from smtpproxy1.mitre.org ([192.160.51.76]:16599 "EHLO
-	smtp-bedford.mitre.org") by vger.kernel.org with ESMTP
-	id S1751154AbVJSRAs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 13:00:48 -0400
-Subject: 26 ways to set a device driver variable from userland
-From: Rick Niles <fniles@mitre.org>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Wed, 19 Oct 2005 13:00:45 -0400
-Message-Id: <1129741246.25383.23.camel@gnupooh.mitre.org>
+	Wed, 19 Oct 2005 13:00:28 -0400
+Received: from mail.kroah.org ([69.55.234.183]:37594 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751153AbVJSRA1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 13:00:27 -0400
+Date: Wed, 19 Oct 2005 09:59:40 -0700
+From: Greg KH <greg@kroah.com>
+To: Kristen Accardi <kristen.c.accardi@intel.com>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, acpi-devel@lists.sourceforge.net,
+       pcihpd-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       "Shah, Rajesh" <rajesh.shah@intel.com>,
+       "Brown, Len" <len.brown@intel.com>
+Subject: Re: [ACPI] Re: [Pcihpd-discuss] RE: [patch 2/2] acpi: add ability to derive irq when doing a surpriseremoval of an adapter
+Message-ID: <20051019165940.GA2177@kroah.com>
+References: <59D45D057E9702469E5775CBB56411F190A57F@pdsmsx406> <1129053267.15526.9.camel@whizzy> <1129679877.30588.5.camel@whizzy> <200510190929.06728.bjorn.helgaas@hp.com> <1129740711.31966.21.camel@whizzy>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Oct 2005 17:00:46.0414 (UTC) FILETIME=[A60CDEE0:01C5D4CE]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1129740711.31966.21.camel@whizzy>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are so many ways to set a configuration value in a device driver. I'm wondering
-which are "recommended" methods. I'm looking for some sort of guidance when writing a
-new driver.  I kinda assume this is a FAQ, but I didn't see it anyway, maybe it should
-be added to the FAQ.
+On Wed, Oct 19, 2005 at 09:51:51AM -0700, Kristen Accardi wrote:
+> On Wed, 2005-10-19 at 09:29 -0600, Bjorn Helgaas wrote:
+> > On Tuesday 18 October 2005 5:57 pm, Kristen Accardi wrote:
+> > > For surprise hotplug removal, the interrupt pin must be guessed, as any
+> > > attempts to read it would obviously be invalid.  This patch adds a new
+> > > function to cycle through all possible pin values, and tries to either
+> > > lookup or derive the right irq to disable.
+> > 
+> > I don't really like this because it adds a new path that's only
+> > used for "surprise" removals.  So we have acpi_pci_irq_disable(),
+> > which is used for normal removals, and acpi_pci_irq_disable_nodev()
+> > for the surprise path.  That feels like a maintenance problem.
+> > 
+> > Other, non-ACPI, IRQ routing schemes should have the same problem
+> > (needing to know the interrupt pin after the device has been removed),
+> > so maybe the pin needs to be cached in the pci_dev?
+> 
+> This seems like a good idea to me, if nobody objects to adding another
+> field to pci_dev, I can change the patch to do this and resubmit. 
 
-OK there might not be 26 ways, but there's a few major ones. I'm thinking in term of
-char devices so some of these might not apply to block and network drivers.
+No objection from me.
 
-(1) ioctl, probably the oldest.
-(2) use read/write to a special configuration-only /dev file (e.g. /dev/dvb)
-(3) /proc filesystem
-(4) sysfs
-(5) module load-time command line options.
+thanks,
 
-I understand that flexibility is a good thing, but some guidance would be helpful.
-
-I sorta got the idea that /proc is "out" this year and sysfs is the "in" thing, but
-what about the others?  Would you say that (2) should be be discouraged?  Did anyone
-tell the DVB people that? Or maybe more is better, that is, a good driver should
-allow for ALL of the above! (OK, yeah that was flame bait.)  Should EVERY variable
-that can be modified by say sysfs also be settable by insmod command line?
-
-Any guidance would be greatly appreciated,
-Rick Niles.
-
-
-
-
-
-
+greg k-h

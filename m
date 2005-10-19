@@ -1,91 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751599AbVJSWRV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751595AbVJSWTs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751599AbVJSWRV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 18:17:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751595AbVJSWRV
+	id S1751595AbVJSWTs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 18:19:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751597AbVJSWTs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 18:17:21 -0400
-Received: from qproxy.gmail.com ([72.14.204.193]:50056 "EHLO qproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751594AbVJSWRT (ORCPT
+	Wed, 19 Oct 2005 18:19:48 -0400
+Received: from zproxy.gmail.com ([64.233.162.199]:16838 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751595AbVJSWTs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 18:17:19 -0400
+	Wed, 19 Oct 2005 18:19:48 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-        b=fR+mLfsd9lmZBCDXa+6Z5i+Lo3DW2i/fJjIlbsRj8jLt4hGK/c7pu1Nqu0XtRM1RBEmYk04rSGvvKhtAYCjTnXgfO+7mmTy8GbV2DNGsVSA7bH8d8th2sh2RjOBWVpi3K6oBprleGUtZAblw+X/OXG/Iufg6MZtoxbi60MFIOLw=
-Subject: Re: Is ext3 flush data to disk when files are closed?
-From: Badari Pulavarty <pbadari@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: uszhaoxin@gmail.com, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051019150940.477e2184.akpm@osdl.org>
-References: <4ae3c140510190831j7530742aqc2b82e9e9cd6dde3@mail.gmail.com>
-	 <1129737026.23632.113.camel@localhost.localdomain>
-	 <20051019130010.28693db1.akpm@osdl.org>
-	 <1129756286.8716.16.camel@localhost.localdomain>
-	 <20051019150940.477e2184.akpm@osdl.org>
-Content-Type: text/plain
-Date: Wed, 19 Oct 2005 15:16:39 -0700
-Message-Id: <1129760199.8716.36.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+        h=received:message-id:date:from:organization:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=qlWbVmQWGLheEsfP2bIVoburpmc9sXP41sgjy6BHcmEv8txRYxfwJw9lywBe+pH+zzpgnmqqJ2AR9hLf3wBEJcrB3PAFB2DtEqw6pv6KjTjBHZzc5LMdTRs9r80kRm3Qi+gUzC8kY1kyOpYx/hysep/i6z7B7SXIEVlDYcoyBRg=
+Message-ID: <4356C679.2090600@gmail.com>
+Date: Thu, 20 Oct 2005 08:19:37 +1000
+From: Grant Coady <gcoady@gmail.com>
+Organization: http://bugsplatter.mine.nu/
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Roland Dreier <rolandd@cisco.com>
+CC: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pci_ids: cleanup comments
+References: <4eedl1h86sarh1i5g42o7vi21i7v1ece2m@4ax.com> <524q7di40y.fsf@cisco.com>
+In-Reply-To: <524q7di40y.fsf@cisco.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-10-19 at 15:09 -0700, Andrew Morton wrote:
-> Badari Pulavarty <pbadari@gmail.com> wrote:
-> >
-> > On Wed, 2005-10-19 at 13:00 -0700, Andrew Morton wrote:
-> > > Badari Pulavarty <pbadari@gmail.com> wrote:
-> > > >
-> > > > On Wed, 2005-10-19 at 11:31 -0400, Xin Zhao wrote:
-> > > > > As far as I know, if an application modifies a file on an ext3 file
-> > > > > ssytem, it actually change the page cache, and the dirty pages will be
-> > > > > flushed to disk by kupdate periodically.
-> > > > > 
-> > > > > My question is: if a file is to be closed, but some of its data pages
-> > > > > are marked as dirty, will system block on close() and wait for dirty
-> > > > > pages being flushed to disk? If so, it seems to decrease performance
-> > > > > significantly if a lot of updates on many small files are involved.
-> > > > > 
-> > > > > Can someone point me to the right place to check how it works? Thanks!
-> > > > 
-> > > > On the last close() of the file, it should be flushed through ..
-> > > > 
-> > > > 	iput_final() -> generic_drop_inode() -> write_inode_now()
-> > > > 		-> __writeback_single_inode() -> __sync_single_inode()
-> > > > 			-> do_writepages()
-> > > 
-> > > The dcache's reference to the inode will prevent this from happening at
-> > > close() time.
-> > > 
-> > 
-> > I thought so too, till I wrote a kprobe/systemtap script to print 
-> > the callers of generic_forget_inode() earlier and saw that most 
-> > of my stacks are from exit() or close().
-> > 
-> >  0xffffffff801a0222 : generic_drop_inode+0x2/0x170 []
-> >  0xffffffff8019eeb0 : iput+0x50/0x90 []
-> >  0xffffffff8019c7bb : dput+0x1db/0x220 []
-> >  0xffffffff80184461 : __fput+0x171/0x1e0 []
-> >  0xffffffff801829ce : filp_close+0x6e/0x90 []
-> >  0xffffffff801388eb : put_files_struct+0x6b/0xc0 []
-> >  0xffffffff801392ef : do_exit+0x1ff/0xbb0 []
-> >  
+Roland Dreier wrote:
+> I don't think I like this.  I prefer the format
 > 
-> But generic_forget_inode usually doesn't dispose of the inode.
+> 	#define PCI_DEVICE_ID_NEC_CBUS_1	0x0001 /* PCI-Cbus Bridge */
 > 
-> 	if (!hlist_unhashed(&inode->i_hash)) {
-> 		if (!(inode->i_state & (I_DIRTY|I_LOCK)))
-> 			list_move(&inode->i_list, &inode_unused);
-> 		inodes_stat.nr_unused++;
-> 		if (!sb || (sb->s_flags & MS_ACTIVE)) {
-> 			spin_unlock(&inode_lock);
-> 			return;
-> 		}
+> to taking two lines like
+> 
+> 	/* PCI-Cbus Bridge */
+> 	#define PCI_DEVICE_ID_NEC_CBUS_1	0x0001
+> 
+> If some script can't handle the first format then I think the script
+> should be fixed.
+> 
+>  - R.
+> 
+Fair enough, glad I'm lazy, not done the whitespace cleanup :)
 
-Okay, makes sense. 
+How's this one?
 
+From: Grant Coady <gcoady@gmail.com>
+
+pci_ids.h cleanup: convert // comment to /* comment */
+
+Signed-off-by: Grant Coady <gcoady@gmail.com>
+
+---
+  pci_ids.h |    8 ++++----
+  1 files changed, 4 insertions(+), 4 deletions(-)
+
+--- linux-2.6.14-rc4-mm1a/include/linux/pci_ids.h	2005-10-17 15:14:41.000000000 +1000
++++ linux-2.6.14-rc4-mm1b/include/linux/pci_ids.h	2005-10-20 08:12:15.000000000 +1000
+@@ -448,7 +448,7 @@
+  #define PCI_DEVICE_ID_IBM_ICOM_V2_ONE_PORT_RVX_ONE_PORT_MDM	0x0251
+  #define PCI_DEVICE_ID_IBM_ICOM_FOUR_PORT_MODEL	0x252
+
+-#define PCI_VENDOR_ID_COMPEX2		0x101a // pci.ids says "AT&T GIS (NCR)"
++#define PCI_VENDOR_ID_COMPEX2		0x101a /* pci.ids says "AT&T GIS (NCR)" */
+  #define PCI_DEVICE_ID_COMPEX2_100VG	0x0005
+
+  #define PCI_VENDOR_ID_WD		0x101c
+@@ -1161,10 +1161,10 @@
+
+  #define PCI_VENDOR_ID_INIT		0x1101
+
+-#define PCI_VENDOR_ID_CREATIVE		0x1102 // duplicate: ECTIVA
++#define PCI_VENDOR_ID_CREATIVE		0x1102 /* duplicate: ECTIVA */
+  #define PCI_DEVICE_ID_CREATIVE_EMU10K1	0x0002
+
+-#define PCI_VENDOR_ID_ECTIVA		0x1102 // duplicate: CREATIVE
++#define PCI_VENDOR_ID_ECTIVA		0x1102 /* duplicate: CREATIVE */
+  #define PCI_DEVICE_ID_ECTIVA_EV1938	0x8938
+
+  #define PCI_VENDOR_ID_TTI		0x1103
+@@ -1174,7 +1174,7 @@
+  #define PCI_DEVICE_ID_TTI_HPT302	0x0006
+  #define PCI_DEVICE_ID_TTI_HPT371	0x0007
+  #define PCI_DEVICE_ID_TTI_HPT374	0x0008
+-#define PCI_DEVICE_ID_TTI_HPT372N	0x0009	// apparently a 372N variant?
++#define PCI_DEVICE_ID_TTI_HPT372N	0x0009	/* apparently a 372N variant? */
+
+  #define PCI_VENDOR_ID_VIA		0x1106
+  #define PCI_DEVICE_ID_VIA_8763_0	0x0198
+
+-- 
 Thanks,
-Badari
-
+Grant.

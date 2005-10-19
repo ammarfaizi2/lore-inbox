@@ -1,67 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbVJSC7w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932247AbVJSDDO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932435AbVJSC7w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Oct 2005 22:59:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932442AbVJSC7w
+	id S932247AbVJSDDO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Oct 2005 23:03:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932430AbVJSDDN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Oct 2005 22:59:52 -0400
-Received: from mx2.suse.de ([195.135.220.15]:23242 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932435AbVJSC7v (ORCPT
+	Tue, 18 Oct 2005 23:03:13 -0400
+Received: from zproxy.gmail.com ([64.233.162.201]:61050 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932247AbVJSDDN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Oct 2005 22:59:51 -0400
-From: Neil Brown <neilb@suse.de>
-To: stable@kernel.org, linux-kernel@vger.kernel.org,
-       linux-raid@vger.kernel.org
-Date: Wed, 19 Oct 2005 12:59:43 +1000
+	Tue, 18 Oct 2005 23:03:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:reply-to:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
+        b=DpOVYgZ2ARZvTONWApO8zz41jj9yf3AH/CtpeTUchID5TqJZgVxoYX6ifreSdlu7HlEgW0b1TzM6nr8NQ6gAAafHdBI0xs3glMwwZMLvWpexalOAG1TatAoyKokZ8mFD/yNDwpOgCBAUFejeV4W2tjyNaaWwheav+DSWIEY9pL0=
+Reply-To: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com
+To: Guido Fiala <gfiala@s.netic.de>
+Subject: Re: large files unnecessary trashing filesystem cache?
+Date: Tue, 18 Oct 2005 23:02:59 -0400
+User-Agent: KMail/1.8.3
+Cc: linux-kernel@vger.kernel.org
+References: <200510182201.11241.gfiala@s.netic.de>
+In-Reply-To: <200510182201.11241.gfiala@s.netic.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <17237.46751.709647.269732@cse.unsw.edu.au>
-Subject: [PATCH-STABLE] Fix data-corruption bug in md when delayed recovery is interrupted.
-X-Mailer: VM 7.19 under Emacs 21.4.1
-  X-face:	v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	  LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	  8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-  --text follows this line--
+Content-Disposition: inline
+Message-Id: <200510182302.59604.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+From: Andrew James Wade <andrew.j.wade@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  There is a bug in md/raid which is fixed by this patch.
-  The patch should apply to almost any 2.6 kernel.
-  A fix has already been submitted to akpm/linus for 2.6.14.
-  This patch should be included in 2.6.13.5 (if there is one).
+On Tuesday 18 October 2005 16:01, Guido Fiala wrote:
+> (please note, i'am not subscribed to the list, please CC me on reply)
+> 
+> Story:
+> Once in while we have a discussion at the vdr (video disk recorder) mailing 
+> list about very large files trashing the filesystems memory cache leading to 
+> unnecessary delays accessing directory contents no longer cached.
+> 
+> This program and certainly all applications that deal with very large files 
+> only read once (much larger than usual memory)  - it happens that all other 
+> cached blocks of the filessystem are removed from memory solely to keep as 
+> much as possible of that file in memory, which seems to be a bad strategy in 
+> most situations.
 
-  The problem occurs if:
-     two or more raid arrays share a physical device and
-     two or more of them require recovery (onto a spare) and
-     one or more is 'DELAYED' waiting for another to finish and
-     the -resync thread receives SIGKILL, as can happen during
-       shutdown (init send SIGKILL to everything) if the arrays are not
-       first stopped with 'mdadm -Ss' or 'raidstop -a'.
+     For this particular workload, a heuristic to detect streaming and drop
+pages a few mb back from currently accessed pages would probably work well.
+I believe the second part is already in the kernel (activated by an f-advise
+ call), but the heuristic is lacking.
 
-   The problem is that the recovery will appear to be complete, but no
-   data will have been copied onto the 'spare' drive that is now a
-   full part of the array.  Naturally this can result in data
-   corruption.
+> Of course one could always implement f_advise-calls in all applications, but i 
+> suggest a discussion if a maximum (configurable) in-memory-cache on a 
+> per-file base should be implemented in linux/mm or where this belongs.
+> 
+> My guess was, it has something to do with mm/readahead.c, a test limiting the 
+> result of the function "max_sane_readahead(...) to 8 MBytes as a quick and 
+> dirty test did not solve the issue, but i might have done something wrong.
+> 
+> I've searched the archive but could not find a previous discussion - is this a 
+> new idea?
 
-   To avoid this problem (until the patch is applied), do not shutdown
-   a computer will any array that reports "resync=DELAYED" in
-   /proc/mdstat - stop the array first with 'mdadm -Ss'.
+I'd do searches on thrashing control and swap tokens. The problem with
+thrashing is similar: a process accessing large amounts of memory in a short
+period of time blowing away the caches. And the solution should be similar:
+penalize the process doing so by preferentially reclaiming it's pages. 
 
-Signed-off-by: Neil Brown <neilb@suse.de>
+> It would be interesting to discuss if and when this proposed feature could 
+> lead to better performance or has any unwanted side effects.
 
-### Diffstat output
- ./drivers/md/md.c |    1 +
- 1 file changed, 1 insertion(+)
+Sometimes you want a single file to take up most of the memory; databases
+spring to mind. Perhaps files/processes that take up a large proportion of
+memory should be penalized by preferentially reclaiming their pages, but
+limit the aggressiveness so that they can still take up most of the memory
+if sufficiently persistent (and the rest of the system isn't thrashing).
 
-diff ./drivers/md/md.c~current~ ./drivers/md/md.c
---- ./drivers/md/md.c~current~	2005-10-19 12:48:59.000000000 +1000
-+++ ./drivers/md/md.c	2005-10-19 12:49:04.000000000 +1000
-@@ -3486,6 +3486,7 @@ static void md_do_sync(mddev_t *mddev)
- 	try_again:
- 		if (signal_pending(current)) {
- 			flush_signals(current);
-+			set_bit(MD_RECOVERY_INTR, &mddev->recovery);
- 			goto skip;
- 		}
- 		ITERATE_MDDEV(mddev2,tmp) {
+> 
+> Thanks for ideas on that issue.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 

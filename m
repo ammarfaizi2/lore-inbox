@@ -1,126 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbVJSEIH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750792AbVJSEOj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750727AbVJSEIH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 00:08:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbVJSEIH
+	id S1750792AbVJSEOj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 00:14:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750829AbVJSEOj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 00:08:07 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:20445 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750727AbVJSEIF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 00:08:05 -0400
-Date: Tue, 18 Oct 2005 21:07:21 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Rohit Seth <rohit.seth@intel.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       Adam Litke <agl@us.ibm.com>
-Subject: Re: [PATCH]: Handling spurious page fault for hugetlb region for
- 2.6.14-rc4-git5
-Message-Id: <20051018210721.4c80a292.akpm@osdl.org>
-In-Reply-To: <1129692330.24309.44.camel@akash.sc.intel.com>
-References: <20051018141512.A26194@unix-os.sc.intel.com>
-	<20051018143438.66d360c4.akpm@osdl.org>
-	<1129673824.19875.36.camel@akash.sc.intel.com>
-	<20051018172549.7f9f31da.akpm@osdl.org>
-	<1129692330.24309.44.camel@akash.sc.intel.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 19 Oct 2005 00:14:39 -0400
+Received: from Maxwell.derobert.net ([207.188.193.82]:61896 "EHLO
+	Maxwell.derobert.net") by vger.kernel.org with ESMTP
+	id S1750792AbVJSEOi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 00:14:38 -0400
+Message-ID: <4355C812.80103@derobert.net>
+Date: Wed, 19 Oct 2005 00:14:10 -0400
+From: Anthony DeRobertis <anthony@derobert.net>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050611)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+CC: Horms <horms@verge.net.au>, security@kernel.org, team@security.debian.org,
+       334113@bugs.debian.org, linux-kernel@vger.kernel.org,
+       Rudolf Polzer <debian-ne@durchnull.de>,
+       Alastair McKinstry <mckinstry@debian.org>,
+       secure-testing-team@lists.alioth.debian.org
+Subject: Re: [Secure-testing-team] Re: kernel allows loadkeys to be used by
+ any user, allowing for local root compromise
+References: <E1EQofT-0001WP-00@master.debian.org>	<20051018044146.GF23462@verge.net.au> <m37jcakhsm.fsf@defiant.localdomain>
+In-Reply-To: <m37jcakhsm.fsf@defiant.localdomain>
+X-Enigmail-Version: 0.91.0.0
+Face: iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAAKlBMVEVTAABbAQBsAACAAQCV
+ AAC3DwTXPhTrZiLyjiroi133tCn53UX51n/45bb7J7XrAAACZ0lEQVQ4y2WTz07bQBDGlz5BHF6g
+ cfoAxeu+QHYd7rDjwD1eK1eq7AbUU6XGVpRroTxBKE8ABs6oKr2itiHv0pldh/zpSJai/WVm55v5
+ lgVBsLufFaoT4q8GWwWBGC4VJxBsgjaXqeJRa5MEQRNBLxMupe2KvWk4ELZ5fPxVcB6GYbyHtBm/
+ J9AkkGaSf0CWRFjx3YErFRKADJIjUBIURFx2CIQEZKL1eGQ/ApyNVSJFwwOOIAWAdKBktxiKVuhB
+ G0E6VhJD8Fjxjm+XzmN59EVy7vrCzwNOhaA3RBA58cux4LlMTy9QoD9/1c7j7rBXDkHU540VSExu
+ QGLtjQRGlQzgDMPWRgIB0EouwWq6MYozr2BtU1ImOQH+P0hHmZJ1t+sggTwDSSmbq/UAAJexBQAG
+ j9ZolfRbGwD/PHjWJv1TiG2QWioFMtoCvcEzXS5dv2tdAXaLy66FrAPtgKgVrkCqrQZSvi59J3jL
+ dD690CtAaAc995mZT+faA29eH7sH7LY0mS/l/e4ijE/YQ2XAXR6LcJkSSjhhi9+GLsdQ9dbR/kPY
+ Y4vK6IwA9GufoLe6hxGbz06xX4y8L8hwzsv7irP59VPhARxyT9BRINni/psborOKcym9CgD287sl
+ kJdjDzhZGbthTzOrNaR5mXkxnGxzLjirClyf1tbUKrmE41kmIlaVEwKX2ACNmOrkGl89q+6vsFY+
+ fTSZA2RMcjh7+DWzNh8V2IIbDN4wJiezxd2VtbZE+X4w+E4zhVLZ4i+CSWFIpAPQc/2xeXVd2MmN
+ XQLnvwRH8jK/u5m+FD9w+K4WzuCs0Ab+Ad5UBbueJrnMAAAAAElFTkSuQmCC
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rohit Seth <rohit.seth@intel.com> wrote:
->
-> The prefetching problem is handled OK for regular pages because we can
->  handle page faults corresponding to those pages.  That is currently not
->  true for hugepages.  Currently the kernel assumes that PAGE_FAULT
->  happening against a hugetlb page is caused by truncate and returns
->  SIGBUS.
+Krzysztof Halasa wrote:
 
-Doh.  No fault handler.  The penny finally drops.
+> Why doesn't the intruder just simulate login process (printing "login: "
+> and "Password:")? That's known and used for ages.
 
-Adam, I think this patch is temporary?
-
-
-From: "Seth, Rohit" <rohit.seth@intel.com>
-
-We prefault hugepages at mmap() time, but hardware TLB prefetching may mean
-that the TLB has NULL pagetable entries in the places where the pagetable
-in fact has the desired virtual->physical translation.
-
-For regular pages this problem is resolved via the resulting pagefault, in
-the pagefault handler.  But hugepages don't support pagefaults - they're
-supposed to be prefaulted.
-
-So we need minimal pagefault handling for these stale hugepage TLB entries.
-
-An alternative is to invalidate the relevant TLB entries at hugepage
-mmap()-time, but this is apparently too expensive.
-
-Note: Adam Litke <agl@us.ibm.com>'s demand-paging-for-hugepages patches are
-now in -mm.  If/when these are merged up, this fix should probably be
-reverted.
-
-Signed-off-by: Rohit Seth <rohit.seth@intel.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- include/linux/hugetlb.h |   13 +++++++++++++
- mm/memory.c             |   14 ++++++++++++--
- 2 files changed, 25 insertions(+), 2 deletions(-)
-
-diff -puN include/linux/hugetlb.h~handling-spurious-page-fault-for-hugetlb-region include/linux/hugetlb.h
---- devel/include/linux/hugetlb.h~handling-spurious-page-fault-for-hugetlb-region	2005-10-18 21:04:34.000000000 -0700
-+++ devel-akpm/include/linux/hugetlb.h	2005-10-18 21:04:34.000000000 -0700
-@@ -155,11 +155,24 @@ static inline void set_file_hugepages(st
- {
- 	file->f_op = &hugetlbfs_file_operations;
- }
-+
-+static inline int valid_hugetlb_file_off(struct vm_area_struct *vma,
-+					  unsigned long address)
-+{
-+	struct inode *inode = vma->vm_file->f_dentry->d_inode;
-+	loff_t file_off = address - vma->vm_start;
-+
-+	file_off += (vma->vm_pgoff << PAGE_SHIFT);
-+
-+	return (file_off < inode->i_size);
-+}
-+
- #else /* !CONFIG_HUGETLBFS */
- 
- #define is_file_hugepages(file)		0
- #define set_file_hugepages(file)	BUG()
- #define hugetlb_zero_setup(size)	ERR_PTR(-ENOSYS)
-+#define valid_hugetlb_file_off(vma, address) 	0
- 
- #endif /* !CONFIG_HUGETLBFS */
- 
-diff -puN mm/memory.c~handling-spurious-page-fault-for-hugetlb-region mm/memory.c
---- devel/mm/memory.c~handling-spurious-page-fault-for-hugetlb-region	2005-10-18 21:04:34.000000000 -0700
-+++ devel-akpm/mm/memory.c	2005-10-18 21:04:34.000000000 -0700
-@@ -2045,8 +2045,18 @@ int __handle_mm_fault(struct mm_struct *
- 
- 	inc_page_state(pgfault);
- 
--	if (is_vm_hugetlb_page(vma))
--		return VM_FAULT_SIGBUS;	/* mapping truncation does this. */
-+	if (unlikely(is_vm_hugetlb_page(vma))) {
-+		if (valid_hugetlb_file_off(vma, address))
-+			/* We get here only if there was a stale(zero) TLB entry
-+			 * (because of  HW prefetching).
-+			 * Low-level arch code (if needed) should have already
-+			 * purged the stale entry as part of this fault handling.
-+			 * Here we just return.
-+			 */
-+			return VM_FAULT_MINOR;
-+		else
-+			return VM_FAULT_SIGBUS;	/* mapping truncation does this. */
-+	}
- 
- 	/*
- 	 * We need the page table lock to synchronize with kswapd
-_
-
+Well, you can configure a single vty to only allow logins from admins.
+Then you avoid the fake login problem, but not the loadkeys problem
+(since that affects all vtys)

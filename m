@@ -1,57 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964796AbVJSLKg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964792AbVJSLKP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964796AbVJSLKg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 07:10:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbVJSLKg
+	id S964792AbVJSLKP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 07:10:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbVJSLKP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 07:10:36 -0400
-Received: from webmail.LF.net ([212.9.160.14]:24841 "EHLO webmail.LF.net")
-	by vger.kernel.org with ESMTP id S964796AbVJSLKf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 07:10:35 -0400
-Message-ID: <1129720232.435629a8753d3@webmail.LF.net>
-Date: Wed, 19 Oct 2005 13:10:32 +0200
-From: gfiala@s.netic.de
-To: linux-kernel@vger.kernel.org
-Subject: Re: large files unnecessary trashing filesystem cache?
-References: <200510182201.11241.gfiala@s.netic.de> <200510182302.59604.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <20051018213721.236b2107.akpm@osdl.org>
-In-Reply-To: <20051018213721.236b2107.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.1
-X-Originating-IP: 170.56.58.152
+	Wed, 19 Oct 2005 07:10:15 -0400
+Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:49799 "EHLO
+	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S964792AbVJSLKN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 07:10:13 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Subject: Warning: Serious NTFS data corruption bug! + Fix! - Was: Re: ntfs
+	CFT - was: Re: 2.6.14-rc4-mm1
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Alberto Patino <pato.lukaz@gmail.com>
+Cc: ntfs-dev <linux-ntfs-dev@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <4489a22a0510181048n60ec5952i33d52c1b3527f906@mail.gmail.com>
+References: <20051016154108.25735ee3.akpm@osdl.org>
+	 <1129542967.26285.30.camel@imp.csi.cam.ac.uk>
+	 <4489a22a0510172209v322e9d9eqe90c489c66b5c83b@mail.gmail.com>
+	 <Pine.LNX.4.64.0510180859580.7514@hermes-1.csi.cam.ac.uk>
+	 <4489a22a0510181026v577f9b0ev535cf0acc74661f@mail.gmail.com>
+	 <4489a22a0510181048n60ec5952i33d52c1b3527f906@mail.gmail.com>
+Content-Type: text/plain
+Organization: Computing Service, University of Cambridge, UK
+Date: Wed, 19 Oct 2005 12:10:03 +0100
+Message-Id: <1129720203.26939.21.camel@imp.csi.cam.ac.uk>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zitat von Andrew Morton <akpm@osdl.org>:
+Hi,
 
-> An obvious approach would be an LD_PRELOAD thingy which modifies read() and
-> write(), perhaps controlled via an environment variable.  AFAIK nobody has
-> even attempted this.
+To all: There is serious data corruption issue with ntfs in
+2.6.14-rc4-mm1 (and ntfs 2.1.25 release in general, not just -mm).  Fix
+is below.  Hopefully this is the only bug!
 
-Sounds interesting.
-
-> A decent kernel implementation would be to add a max_resident_pages to
-> struct file_struct and to use that to perform drop-behind within read() and
-> write().  That's a bit of arithmetic and a call to
-> invalidate_mapping_pages().  The userspace interface to that could be a
-> linux-specific extension to posix_fadvise() or to fcntl().
-
-Would still like to have a way to configure a "default file policy/heuristics"
-for the system, just like i can choose IO-scheduler.
-
+On Tue, 2005-10-18 at 12:48 -0500, Alberto Patino wrote:
+> On 10/18/05, Alberto Patino <pato.lukaz@gmail.com> wrote:
+> > Hi Anton, not too lucky doing modifications with soffice to  word documents.
+> > Saving files is ok but when I reopen the files, the format is lost...
+> > I'll try to recover them from Word.exe
+> Anton:
+> I'm afraid I have bad news, I couldn't boot W2K, I got this message
+> translated fom spanish:
 > 
-> But that still requires that all the applications be modified.
+> STOP: C0000221 { checksum image test incorrect }
 > 
-> So I'd also suggest a new resource limit which, if set, is copied into the
-> applications's file_structs on open().  So you then write a little wrapper
-> app which does setrlimit()+exec():
-> 
-> 	limit-cache-usage -s 1000 my-fave-backup-program <args>
-> 
-> Which will cause every file which my-fave-backup-program reads or writes to
-> be limited to a maximum pagecache residency of 1000 kbytes.
+> Something weird, I edited txt file A with vim, then I edited Word File
+> B with soffice, I close it, then I reopened. I lost format so the file
+> is not legible but I can see  paragraphs from file A in file B!!!!!
 
-Or make it another 'ulimit' parameter...
+I am really sorry about this.  )-:  You should be able to hopefully fix
+windows by booting with the installation CD and going into recovery
+console and running chkdsk on the partition.  You can also try running
+ntfsfix from ntfsprogs and then booting into windows.  This may be
+sufficient to allow it to do a chkdsk on the partition before it
+crashes.
+
+I found a bug that caused corruption of the openoffice document as you
+described.  The fix is below.
+
+diff -urNp /usr/src/ntfs-2.6-devel/fs/ntfs/file.c ntfs26dev/file.c
+--- /usr/src/ntfs-2.6-devel/fs/ntfs/file.c	2005-10-11 15:00:00.000000000 +0100
++++ ntfs26dev/file.c	2005-10-19 11:50:54.859558000 +0100
+@@ -787,6 +787,7 @@ retry_remap:
+ 				vcn_len = rl[1].vcn - vcn;
+ 				lcn_block = lcn << (vol->cluster_size_bits -
+ 						blocksize_bits);
++				cdelta = 0;
+ 				/*
+ 				 * If the number of remaining clusters in the
+ 				 * @pages is smaller or equal to the number of
+
+Thank you very much for testing and I am really sorry it caused the
+corruption to your partition.  In the future I will make sure to say
+"Please only test on test partitions."...
+
+Best regards,
+
+        Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

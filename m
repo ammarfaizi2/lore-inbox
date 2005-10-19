@@ -1,123 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbVJSSk0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751215AbVJSSnM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751217AbVJSSk0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 14:40:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbVJSSk0
+	id S1751215AbVJSSnM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 14:43:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbVJSSnM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 14:40:26 -0400
-Received: from fmr21.intel.com ([143.183.121.13]:15332 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1751217AbVJSSkZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 14:40:25 -0400
-Subject: Re: [PATCH]: Handling spurious page fault for hugetlb region for
-	2.6.14-rc4-git5
-From: Rohit Seth <rohit.seth@intel.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-In-Reply-To: <Pine.LNX.4.61.0510191551180.7586@goblin.wat.veritas.com>
-References: <20051018141512.A26194@unix-os.sc.intel.com>
-	 <20051018143438.66d360c4.akpm@osdl.org>
-	 <1129673824.19875.36.camel@akash.sc.intel.com>
-	 <20051018172549.7f9f31da.akpm@osdl.org>
-	 <1129692330.24309.44.camel@akash.sc.intel.com>
-	 <Pine.LNX.4.61.0510191551180.7586@goblin.wat.veritas.com>
-Content-Type: text/plain
-Organization: Intel 
-Date: Wed, 19 Oct 2005 11:47:27 -0700
-Message-Id: <1129747647.339.78.camel@akash.sc.intel.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Wed, 19 Oct 2005 14:43:12 -0400
+Received: from smtpout.mac.com ([17.250.248.85]:32510 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1751215AbVJSSnL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 14:43:11 -0400
+In-Reply-To: <200510191958.37542.gfiala@s.netic.de>
+References: <200510182201.11241.gfiala@s.netic.de> <1129695001.8910.57.camel@mindpipe> <200510191958.37542.gfiala@s.netic.de>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <3370794E-8B47-4342-8383-C2B0F77192B3@mac.com>
+Cc: linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Oct 2005 18:40:16.0990 (UTC) FILETIME=[8CCA77E0:01C5D4DC]
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: large files unnecessary trashing filesystem cache?
+Date: Wed, 19 Oct 2005 14:43:06 -0400
+To: Guido Fiala <gfiala@s.netic.de>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-10-19 at 16:23 +0100, Hugh Dickins wrote:
+On Oct 19, 2005, at 13:58:37, Guido Fiala wrote:
+> Kernel could do the best to optimize default performance,  
+> applications that consider their own optimal behaviour should do  
+> so, all other files are kept under default heuristic policy  
+> (adaptable, configurable one)
+>
+> Heuristic can be based on access statistic:
+>
+> streaming/sequential can be guessed by getting exactly 100% cache  
+> hit rate (drop behind pages immediately),
 
-> I thought that the CPU never caches !present entries in the TLB?
-> Or is that true of i386 (and x86_64), but untrue of ia64?
+What about a grep through my kernel sources or other linear search  
+through a large directory tree?  That would get exactly 100% cache  
+hit rate which would cause your method to drop the pages immediately,  
+meaning that subsequent greps are equally slow.  I have enough memory  
+to hold a couple kernel trees and I want my grepping to push OO.org  
+out of RAM for a bit while I do my kernel development.
 
-IA-64 can prefetch any entry from VHPT (last level page table)
-irrespective of its value.  You are right that i386 and x86_64 does not
-cache !present entry.  Though OS is suppose to handle those faults if
-happen.
 
-> Or do you have some new model or errata on some CPU where it's true?
+Cheers,
+Kyle Moffett
 
-No errata here.
+--
+I lost interest in "blade servers" when I found they didn't throw  
+knives at people who weren't supposed to be in your machine room.
+   -- Anthony de Boer
 
-> Or, final ghastly possibility ;), am I simply altogether wrong?
-> 
-
-You are asking the right questions here.
-
-> > Meaning, unless this entry is purged or displaced, for virtual address V
-> 
-> When you say "purged", is that what we elsewhere call "flushed"
-> in relation to the TLB, or something else?
-> 
-
-I should use flush to be consistent.
-
-> > CPU will generate the page fault (as the P bit is not set and assuming
-> > this fault has the highest precedence).
-> > 
-> > Kernel updates the *pte so that it now maps the hugepage at virtual
-> > address V to physical address P.  
-> > 
-> > Later when the user process make a reference to V, because of stale TLB
-> > entry, the processor gets PAGE_FAULT.
-> 
-> You seem to be saying that strictly, we ought to flush TLB even when we
-> make a page present where none was before, but that the likelihood of it
-> being needed is so low, and the overhead of TLB flush so high, and the
-> existing code almost everywhere recovering safely from this condition,
-> that the most effective thing to do is just fix up the hugetlb case.
-> Is that correct?
-> 
-
-Yes.  At least for the architectures that can cache any translation in
-its TLB.  IA-64 is again a good example here.  It flushes the entry only
-at the fault time so that next time around you get the updated entry
-(for the cases where the fault happened because of any stale TLB).
-
-> > > Has this problem been observed in testing?
-> > 
-> > Yes. On IA-64.
-> 
-> But not on i386 or x86_64.
-> 
-
-No.
-
-> Same series of doubts as with !present entries in the TLB; but after
-> looking at the ia64 fault handler, that does seem to have stuff about
-> speculative loads, so I'm guessing i386 and x86_64 prefetch does not
-> cause faults (modulo errata), but ia64 does.
-> 
-
-Those speculative loads (are more of advanced loads generated by
-compiler in anticipation that they will be helpful) on IA-64 are
-different from prefetches that HW does for TLBs.
-
-HW Speculative loads never generates any fault.  
-
-Whereas prefetched TLB entries in i386, x86_64 or IA-64 can cause fault
-if they are not flushed after updates.  
-
-> Once I started to understand this thread, I thought you were quite
-> wrong to be changing hugetlb fault handling, thought I'd find several
-> other places which would need fixing too e.g. kmap_atomic, remap_pfn_range.
-> 
-> But no, I've found no others.  Either miraculously, or by good design,
-> all the kernel misfaults should be seamlessly handled by the lazy vmalloc
-> path (on i386 anyway: I don't know what happens for ia64 there), and the
-> userspace misfaults by handle_pte_fault's pte_present check.  I think.
-> 
-
-Good OS design :-)  Though on IA-64 there was recently a similar issue
-for vmalloc area that got fixed in low level arch specific code.
-
--rohit
 

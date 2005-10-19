@@ -1,80 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751119AbVJSPsw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751120AbVJSPvJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751119AbVJSPsw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 11:48:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbVJSPsw
+	id S1751120AbVJSPvJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 11:51:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbVJSPvI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 11:48:52 -0400
-Received: from silver.veritas.com ([143.127.12.111]:58981 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1751120AbVJSPsv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 11:48:51 -0400
-Date: Wed, 19 Oct 2005 16:48:01 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Rohit Seth <rohit.seth@intel.com>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, Adam Litke <agl@us.ibm.com>
-Subject: Re: [PATCH]: Handling spurious page fault for hugetlb region for
- 2.6.14-rc4-git5
-In-Reply-To: <20051018210721.4c80a292.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0510191623220.7586@goblin.wat.veritas.com>
-References: <20051018141512.A26194@unix-os.sc.intel.com>
- <20051018143438.66d360c4.akpm@osdl.org> <1129673824.19875.36.camel@akash.sc.intel.com>
- <20051018172549.7f9f31da.akpm@osdl.org> <1129692330.24309.44.camel@akash.sc.intel.com>
- <20051018210721.4c80a292.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 19 Oct 2005 15:48:51.0078 (UTC) FILETIME=[99E8DA60:01C5D4C4]
+	Wed, 19 Oct 2005 11:51:08 -0400
+Received: from qproxy.gmail.com ([72.14.204.192]:223 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751120AbVJSPvH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 11:51:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+        b=L95Ng9j860zfW7dAGeisPjAgXbuByi7Tsyavs3l2hbMvO2cEv5t09+Z412BXMior2dgpeVAPr7DqibcoP/AMABz/qsDriHOYfYcl1uyFdcN18ABEu2uHs+REmNowYMWUpKk1JeeFDZ/ygc8JR2mkIAt+TsRCDXeYutRhJqj64ww=
+Subject: Re: Is ext3 flush data to disk when files are closed?
+From: Badari Pulavarty <pbadari@gmail.com>
+To: Xin Zhao <uszhaoxin@gmail.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <4ae3c140510190831j7530742aqc2b82e9e9cd6dde3@mail.gmail.com>
+References: <4ae3c140510190831j7530742aqc2b82e9e9cd6dde3@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 19 Oct 2005 08:50:26 -0700
+Message-Id: <1129737026.23632.113.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Oct 2005, Andrew Morton wrote:
-> Rohit Seth <rohit.seth@intel.com> wrote:
-> >
-> > The prefetching problem is handled OK for regular pages because we can
-> >  handle page faults corresponding to those pages.  That is currently not
-> >  true for hugepages.  Currently the kernel assumes that PAGE_FAULT
-> >  happening against a hugetlb page is caused by truncate and returns
-> >  SIGBUS.
+On Wed, 2005-10-19 at 11:31 -0400, Xin Zhao wrote:
+> As far as I know, if an application modifies a file on an ext3 file
+> ssytem, it actually change the page cache, and the dirty pages will be
+> flushed to disk by kupdate periodically.
+> 
+> My question is: if a file is to be closed, but some of its data pages
+> are marked as dirty, will system block on close() and wait for dirty
+> pages being flushed to disk? If so, it seems to decrease performance
+> significantly if a lot of updates on many small files are involved.
+> 
+> Can someone point me to the right place to check how it works? Thanks!
 
-Is Rohit's intended to be a late 2.6.14 fix?  We seem to have done well
-without it for several years, and are just on the point of changing to
-prefaulting the hugetlb pages anyway, which will fix it up.
+On the last close() of the file, it should be flushed through ..
 
-> @@ -2045,8 +2045,18 @@ int __handle_mm_fault(struct mm_struct *
->  
->  	inc_page_state(pgfault);
->  
-> -	if (is_vm_hugetlb_page(vma))
-> -		return VM_FAULT_SIGBUS;	/* mapping truncation does this. */
-> +	if (unlikely(is_vm_hugetlb_page(vma))) {
-> +		if (valid_hugetlb_file_off(vma, address))
-> +			/* We get here only if there was a stale(zero) TLB entry
-> +			 * (because of  HW prefetching).
-> +			 * Low-level arch code (if needed) should have already
-> +			 * purged the stale entry as part of this fault handling.
-> +			 * Here we just return.
-> +			 */
-> +			return VM_FAULT_MINOR;
-> +		else
-> +			return VM_FAULT_SIGBUS;	/* mapping truncation does this. */
-> +	}
+	iput_final() -> generic_drop_inode() -> write_inode_now()
+		-> __writeback_single_inode() -> __sync_single_inode()
+			-> do_writepages()
 
-(I'm not surprised that the low-level arch code fixes this up as part of the
-fault handling.  I am surprised that it does so only after giving the fault
-to the kernel.  Sounds like something's gone wrong.)
 
-What happens when the hugetlb file is truncated down and back up after
-the mmap?  Truncating down will remove a page from the mmap and flush TLB.
-Truncating up will let accesses to the gone page pass the valid...off test.
-But we've no support for hugetlb faulting in this version: so won't it get
-get stuck in a tight loop?
+Thanks,
+Badari
 
-If it's decided that this issue is actually an ia64 one, and does need to
-be fixed right now, then I'd have thought your idea of fixing it at the
-ia64 end better: arch/ia64/mm/fault.c already has code for discarding
-faults on speculative loads, and ia64 has an RGN_HPAGE set aside for
-hugetlb, so shouldn't it just discard speculative loads on that region?
-
-Hugh

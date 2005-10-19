@@ -1,85 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750846AbVJSMan@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750884AbVJSMfq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750846AbVJSMan (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 08:30:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750856AbVJSMam
+	id S1750884AbVJSMfq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 08:35:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750888AbVJSMfn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 08:30:42 -0400
-Received: from tux06.ltc.ic.unicamp.br ([143.106.24.50]:9866 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1750845AbVJSMam (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 08:30:42 -0400
-Date: Wed, 19 Oct 2005 10:33:50 -0200
-To: Andrew Morton <akpm@osdl.org>
-Cc: jesper.juhl@gmail.com, ext2-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       adilger@clusterfs.com, viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [PATCH] Test for sb_getblk return value
-Message-ID: <20051019123350.GA25893@br.ibm.com>
-References: <20051017132306.GA30328@br.ibm.com> <9a8748490510170710s3971e0c6u2a95fa2cb6ad2c5a@mail.gmail.com> <200510171356.11639.glommer@br.ibm.com> <20051018163201.79730947.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051018163201.79730947.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
-From: glommer@br.ibm.com (Glauber de Oliveira Costa)
+	Wed, 19 Oct 2005 08:35:43 -0400
+Received: from zproxy.gmail.com ([64.233.162.206]:484 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750866AbVJSMfZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 08:35:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:cc:user-agent:content-type:references:in-reply-to:subject:message-id:date;
+        b=TM+HGNqIlU/agnVMk0anuUlwPeitKSOtXPonZmfSnuj+CNttL9thOVDPHFRYatbye3YUWd5C6Qr7aLUz45/kB82KkjD++GHe3icBid9gKi585pD0hPo7vQ/iFyZP+nGkA/T8SzBmwgXwpKXUBSksxDuUraV0jfiLOtXFGcc+aRQ=
+From: Tejun Heo <htejun@gmail.com>
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org
+User-Agent: lksp 0.3
+Content-Type: text/plain; charset=US-ASCII
+References: <20051019123429.450E4424@htj.dyndns.org>
+In-Reply-To: <20051019123429.450E4424@htj.dyndns.org>
+Subject: Re: [PATCH linux-2.6-block:master 03/05] blk: move last_merge handling into generic elevator code
+Message-ID: <20051019123429.2FBB370A@htj.dyndns.org>
+Date: Wed, 19 Oct 2005 21:35:19 +0900 (KST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+03_blk_generic-last_merge-handling.patch
 
-Thanks a lot for your patience and review. And also for the document. It
-was really helpfull. Patch follows in next mail.
+	Currently, both generic elevator code and specific ioscheds
+        participate in the management and usage of last_merge.  This
+        and the following patches move last_merge handling into
+        generic elevator code.
 
+Signed-off-by: Tejun Heo <htejun@gmail.com>
 
+ elevator.c |   43 ++++++++++++++++++-------------------------
+ 1 file changed, 18 insertions(+), 25 deletions(-)
 
-On Tue, Oct 18, 2005 at 04:32:01PM -0700, Andrew Morton wrote:
-> Glauber de Oliveira Costa <glommer@br.ibm.com> wrote:
-> >
-> > I'm resending it now with the changes you suggested. 
-> > Actually, 2 copies of it follows. 
-> 
-> argh.  Please never attach multiple patches to a single email.
-> 
-> And please always include a complete, uptodate changelog with each iteration
-> of a patch.  I don't want to have to troll back through the mailing list,
-> identify the initial changelog and then replay the email thread making any
-> needed updates to that changelog.
-> 
-> Also please review section 11 of Documentation/SubmittingPatches then
-> include a Signed-off-by: with your patches.
-> 
-> > In the first one(v2), I kept the style in the changes in resize.c, as this 
-> > seems to be the default way things like this are done there. In the other, 
-> > (v3), I did statement checks in the way you suggested in both files.
-> 
-> Don't worry about the surrounding style - if it's wrong, it's wrong.  Just
-> stick with Documentation/CodingStyle.
-> 
-> Do this:
-> 
-> 		if (!bh) {
-> 
-> and not this:
-> 
-> 		if (!bh){
-> 
-> > Also, sorry for the last mail. I got a problem with my relay, and my mail 
-> > address was sent wrong before I noticed that. Mails sent to it will probably 
-> > return.
-> 
-> The change to update_backups() is wrong - it will leave a JBD transaction
-> open on return.
-> 
-> Please fix all that up and resend. 
-> http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt may prove useful,
-> thanks.
-> 
-> 
+Index: blk-fixes/drivers/block/elevator.c
+===================================================================
+--- blk-fixes.orig/drivers/block/elevator.c	2005-10-19 21:34:02.000000000 +0900
++++ blk-fixes/drivers/block/elevator.c	2005-10-19 21:34:02.000000000 +0900
+@@ -88,15 +88,6 @@ inline int elv_try_merge(struct request 
+ }
+ EXPORT_SYMBOL(elv_try_merge);
+ 
+-inline int elv_try_last_merge(request_queue_t *q, struct bio *bio)
+-{
+-	if (q->last_merge)
+-		return elv_try_merge(q->last_merge, bio);
+-
+-	return ELEVATOR_NO_MERGE;
+-}
+-EXPORT_SYMBOL(elv_try_last_merge);
+-
+ static struct elevator_type *elevator_find(const char *name)
+ {
+ 	struct elevator_type *e = NULL;
+@@ -244,6 +235,9 @@ void elv_dispatch_insert(request_queue_t
+ 	unsigned max_back;
+ 	struct list_head *entry;
+ 
++	if (q->last_merge == rq)
++		q->last_merge = NULL;
++
+ 	if (!sort) {
+ 		/* Specific elevator is performing sort.  Step away. */
+ 		q->last_sector = rq_last_sector(rq);
+@@ -278,6 +272,15 @@ void elv_dispatch_insert(request_queue_t
+ int elv_merge(request_queue_t *q, struct request **req, struct bio *bio)
+ {
+ 	elevator_t *e = q->elevator;
++	int ret;
++
++	if (q->last_merge) {
++		ret = elv_try_merge(q->last_merge, bio);
++		if (ret != ELEVATOR_NO_MERGE) {
++			*req = q->last_merge;
++			return ret;
++		}
++	}
+ 
+ 	if (e->ops->elevator_merge_fn)
+ 		return e->ops->elevator_merge_fn(q, req, bio);
+@@ -291,6 +294,8 @@ void elv_merged_request(request_queue_t 
+ 
+ 	if (e->ops->elevator_merged_fn)
+ 		e->ops->elevator_merged_fn(q, rq);
++
++	q->last_merge = rq;
+ }
+ 
+ void elv_merge_requests(request_queue_t *q, struct request *rq,
+@@ -298,11 +303,10 @@ void elv_merge_requests(request_queue_t 
+ {
+ 	elevator_t *e = q->elevator;
+ 
+-	if (q->last_merge == next)
+-		q->last_merge = NULL;
+-
+ 	if (e->ops->elevator_merge_req_fn)
+ 		e->ops->elevator_merge_req_fn(q, rq, next);
++
++	q->last_merge = rq;
+ }
+ 
+ void elv_requeue_request(request_queue_t *q, struct request *rq)
+@@ -397,6 +401,8 @@ void __elv_add_request(request_queue_t *
+ 		BUG_ON(!blk_fs_request(rq));
+ 		rq->flags |= REQ_SORTED;
+ 		q->elevator->ops->elevator_add_req_fn(q, rq);
++		if (q->last_merge == NULL && rq_mergeable(rq))
++			q->last_merge = rq;
+ 		break;
+ 
+ 	default:
+@@ -475,9 +481,6 @@ struct request *elv_next_request(request
+ 			rq->flags |= REQ_STARTED;
+ 		}
+ 
+-		if (rq == q->last_merge)
+-			q->last_merge = NULL;
+-
+ 		if (!q->boundary_rq || q->boundary_rq == rq) {
+ 			q->last_sector = rq_last_sector(rq);
+ 			q->boundary_rq = NULL;
+@@ -531,16 +534,6 @@ void elv_dequeue_request(request_queue_t
+ 	 */
+ 	if (blk_account_rq(rq))
+ 		q->in_flight++;
+-
+-	/*
+-	 * the main clearing point for q->last_merge is on retrieval of
+-	 * request by driver (it calls elv_next_request()), but it _can_
+-	 * also happen here if a request is added to the queue but later
+-	 * deleted without ever being given to driver (merged with another
+-	 * request).
+-	 */
+-	if (rq == q->last_merge)
+-		q->last_merge = NULL;
+ }
+ 
+ int elv_queue_empty(request_queue_t *q)
 
--- 
-=====================================
-Glauber de Oliveira Costa
-IBM Linux Technology Center - Brazil
-glommer@br.ibm.com
-=====================================

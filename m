@@ -1,73 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932542AbVJTXC1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964778AbVJTXDJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932542AbVJTXC1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 19:02:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932553AbVJTXC1
+	id S964778AbVJTXDJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 19:03:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964779AbVJTXDJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 19:02:27 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:64691 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932550AbVJTXC0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 19:02:26 -0400
-Date: Thu, 20 Oct 2005 16:01:15 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: torvalds@osdl.org, arjan@infradead.org, dada1@cosmosbay.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i386 spinlocks should use the full 32 bits, not only 8
- bits
-Message-Id: <20051020160115.2b34cb8e.akpm@osdl.org>
-In-Reply-To: <20051020225347.GA29303@elte.hu>
-References: <Pine.LNX.4.64.0510110902130.14597@g5.osdl.org>
-	<434BEA0D.9010802@cosmosbay.com>
-	<20051017000343.782d46fc.akpm@osdl.org>
-	<1129533603.2907.12.camel@laptopd505.fenrus.org>
-	<20051020215047.GA24178@elte.hu>
-	<Pine.LNX.4.64.0510201455030.10477@g5.osdl.org>
-	<20051020220228.GA26247@elte.hu>
-	<Pine.LNX.4.64.0510201512480.10477@g5.osdl.org>
-	<20051020222703.GA28221@elte.hu>
-	<20051020154457.100b5565.akpm@osdl.org>
-	<20051020225347.GA29303@elte.hu>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
+	Thu, 20 Oct 2005 19:03:09 -0400
+Received: from qproxy.gmail.com ([72.14.204.201]:51683 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964778AbVJTXDH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Oct 2005 19:03:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=NTQ20Xib7UPqE3zE6K1D1g7Zlu2tMJ1ZRIbzfS/5JBJGXEkasrRnw3sFQGQKhyzgxWpfRrm+YKlSCU8yHIWc4W4LY7peqRGC4uyEeoQ5TUFA0yXRyAI13j2horup6k+fJcLeA02ecgUXGKENd5qhIGqhpWcLXteQH2Gf8EJIHCg=
+Message-ID: <d120d5000510201603n50c068dcyade2ce2cfd2311e0@mail.gmail.com>
+Date: Thu, 20 Oct 2005 18:03:06 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Jonathan Mayer <jonmayer@google.com>
+Subject: Re: [PATCH] added sysdev attribute to sysdev show/store methods - for linux-2.6.13.4
+Cc: Patrick Mochel <mochel@digitalimplant.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <4a45da430510201503v74874acoca37bba3aa5a2d07@mail.google.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4a45da430510201447r2970ea67rfac8dffe7223a68@mail.google.com>
+	 <d120d5000510201459y25a2c8e5v55bf830c445c9dbf@mail.gmail.com>
+	 <4a45da430510201503v74874acoca37bba3aa5a2d07@mail.google.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> wrote:
+On 10/20/05, Jonathan Mayer <jonmayer@google.com> wrote:
+> Surely, the organization of sysfs is logical (by grouping relating
+> things) rather than functional (by grouping things that need common
+> back-end interfaces).
 >
-> 
-> * Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > spin_lock is still uninlined.
-> 
-> yes, and that should stay so i believe, for text size reasons. The BTB 
-> should eliminate most effects of the call+ret itself.
+> Er .. no?
+>
+> In general, where can I find guidance on where to put things within
+> sysfs?  Has anybody written some kind of Plan?
+>
 
-The old
+If it is a device it goes onto corresponding bus. Platform bus is a
+kind of a kitchen sink for things that do not have a "real" bus -
+things like keyboard controller, older ISA devices, etc. Only things
+that necessary to get the box going and have to be suspended last with
+interrupts off (like IRQ controller) should be implemented as system
+devices.
 
-	lock; decb
-	js <different section>
-	...
-
-was pretty good.
-
-> > as is spin_lock_irqsave() and spin_lock_irq()
-> 
-> yes, for them the code length is even higher.
-> 
-> > uninlining spin_lock will probably increase overall text size, but 
-> > mainly in the out-of-line section.
-> 
-> you mean inlining it again? I dont think we should do it.
-> 
-> > read_lock is out-of-line.  read_unlock is inlined
-> > 
-> > write_lock is out-of-line.  write_unlock is out-of-line.
-> 
-> hm, with my patch, write_unlock should be inlined too.
-> 
-
-So it is.  foo_unlock_irq() isn't though.
+--
+Dmitry

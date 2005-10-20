@@ -1,44 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932524AbVJTU1b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932528AbVJTUjp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932524AbVJTU1b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 16:27:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932525AbVJTU1b
+	id S932528AbVJTUjp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 16:39:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbVJTUjp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 16:27:31 -0400
-Received: from xproxy.gmail.com ([66.249.82.195]:39624 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932524AbVJTU1a convert rfc822-to-8bit
+	Thu, 20 Oct 2005 16:39:45 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:56766 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932528AbVJTUjp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 16:27:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=cB5SogHYL/OLfd+rMsrG3S242jZkxTS+9RdmArixE3cwcr/BJwg9dKnRiy7hyEXkSaJ7uWCM9ABEjiXhUtER3ffBBWwzLYTak29yIUnSdoafSZr9B67wn2ukVRDH6i5+OeqCkO9q2ZnCX/6IQtQyPQNGDs+PJNsaCNk1cf8hEwA=
-Message-ID: <b6c5339f0510201327j2a9f0865o698f31e5ca0de16d@mail.gmail.com>
-Date: Thu, 20 Oct 2005 16:27:29 -0400
-From: Bob Copeland <email@bobcopeland.com>
-To: Pozsar Balazs <pozsy@uhulinux.hu>
-Subject: Re: [PATCH] fix vgacon blanking
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051020161311.GA30041@ojjektum.uhulinux.hu>
+	Thu, 20 Oct 2005 16:39:45 -0400
+Date: Thu, 20 Oct 2005 16:39:39 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Kernel development list <linux-kernel@vger.kernel.org>
+cc: Jens Axboe <axboe@suse.de>
+Subject: BUG in the block layer (partial reads not reported)
+Message-ID: <Pine.LNX.4.44L0.0510201435400.4453-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051020161311.GA30041@ojjektum.uhulinux.hu>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/20/05, Pozsar Balazs <pozsy@uhulinux.hu> wrote:
-> Hi all,
->
-> This patch fixes a long-standing vgacon bug: characters with the bright
-> bit set were left on the screen and not blacked out.
-> All I did was that I lookuped up some examples on the net about setting
-> the vga palette, and added the call missing from the linux kernel, but
-> included in all other ones. It works for me.
+The block layer does not report partial reads correctly back to userspace.
 
-Thanks for this.  Looks like the palette mask is set to something funky.  I had
-the same problem on my machine but never got annoyed enough to poke
-around in the code.
+Here's an example which I can replicate at will.  This is using the SCSI 
+cdrom driver and a disc with 326535 hardware sectors, each containing 2048 
+bytes.  The last two sectors are unreadable.
 
--Bob
+Now consider what should happen when you run
+
+	dd if=/dev/scd0 bs=2048 count=1 skip=326532
+
+One would expect to get back the contents of the last readable hardware 
+sector.
+
+Instead, what happens is this:
+
+     1. The block layer issues a read for sectors 326532-3 (i.e., a 
+	page's worth, including the sector we want and the following
+	unreadable sector).
+
+     2. The read partially succeeds, and the driver calls 
+		end_that_request_chunk(req, 1, 2048);
+	It then requeues the request, more or less by coincidence.
+
+     3. This time the request fails since it's trying to read the
+	second-to-last sector, and the driver calls
+		end_that_request_chunk(req, 1, 0);
+	I'm not sure why.
+
+     4. Then the driver does what it should have done before, and calls
+		end_that_request_chunk(req, 0, 2048);
+	This causes an I/O error message to appear in the system log.
+
+     5. The driver calls end_that_request_last(req).
+
+     6. Apparently the block layer issues its own retry at this point.
+	The driver gets another read request for sector 326533.
+
+     7. Steps 3 - 5 repeat.
+
+The end result is that dd receives no data, only an error.  This is in 
+spite of the fact that the kernel was able to read successfully all the 
+data that had been requested!
+
+Now I have only the vaguest notion of how the block layer works, and I 
+don't know where to begin solving this problem.  Any help would be 
+appreciated.
+
+Alan Stern
+

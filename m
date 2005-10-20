@@ -1,46 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932504AbVJTRiy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932503AbVJTRmL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932504AbVJTRiy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 13:38:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932505AbVJTRiy
+	id S932503AbVJTRmL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 13:42:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932506AbVJTRmL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 13:38:54 -0400
-Received: from free.mekensleep.com ([81.57.75.249]:38785 "EHLO
-	allin.dachary.org") by vger.kernel.org with ESMTP id S932504AbVJTRiy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 13:38:54 -0400
-MIME-Version: 1.0
+	Thu, 20 Oct 2005 13:42:11 -0400
+Received: from ojjektum.uhulinux.hu ([62.112.194.64]:3458 "EHLO
+	ojjektum.uhulinux.hu") by vger.kernel.org with ESMTP
+	id S932503AbVJTRmK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Oct 2005 13:42:10 -0400
+Date: Thu, 20 Oct 2005 19:42:02 +0200
+From: Pozsar Balazs <pozsy@uhulinux.hu>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix typo drivers/char/watchdog/w83627hf_wdt.c
+Message-ID: <20051020174202.GA30201@ojjektum.uhulinux.hu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17239.47055.862579.653443@allin.dachary.org>
-Date: Thu, 20 Oct 2005 17:29:19 +0200
-From: Loic Dachary <loic@gnu.org>
-To: Pierre Michon <pierre.michon@gmail.com>
-Cc: linux-kernel@vger.kernel.org, legal@lists.gpl-violations.org
-Subject: Re: freebox possible GPL violation
-In-Reply-To: Pierre Michon's message of 19 October 2005 19:58:22 +0200
-References: <20051005084738.GA29944@linux.ensimag.fr>
-	<17232.52887.293668.390641@allin.dachary.org>
-	<908666c60510191058h6e87b9c5y@mail.gmail.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-Reply-To: loic@gnu.org
+Content-Disposition: inline
+User-Agent: Mutt/1.5.7i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre Michon writes:
- > PS : Does we need the binary image in order to ask for the source code ?
- > In this case, with Embedded devices that hide the firmware it will be
- > very difficult to make GPL apply...
+The most trivial typo fix in the world.
 
-        It is not mandatory, it's just easier in this specific case.
-If we knew for sure what the firmware contains, the box would be
-enough.  But if someone is able to figure out exactly what the
-firmware contains she/he will also be able to extract a tarball in
-which case the box itself becomes useless to ask for the corresponding
-sources ;-)
+Signed-off-by: Pozsar Balazs <pozsy@uhulinux.hu>
 
-        Cheers,
+--- a/drivers/char/watchdog/w83627hf_wdt.c	2005-10-11 03:19:19.000000000 +0200
++++ b/drivers/char/watchdog/w83627hf_wdt.c	2005-10-20 19:39:01.000000000 +0200
+@@ -359,5 +359,5 @@
+ 
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("Pdraig Brady <P@draigBrady.com>");
+-MODULE_DESCRIPTION("w38627hf WDT driver");
++MODULE_DESCRIPTION("w83627hf WDT driver");
+ MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
+
 
 -- 
-Loic Dachary, 12 bd Magenta, 75010 Paris. Tel: 33 8 71 18 43 38
-http://www.fsffrance.org/   http://www.dachary.org/loic/gpg.txt
+pozsy

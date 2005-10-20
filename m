@@ -1,79 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751165AbVJTNyv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751184AbVJTODi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751165AbVJTNyv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 09:54:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751310AbVJTNyv
+	id S1751184AbVJTODi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 10:03:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751247AbVJTODi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 09:54:51 -0400
-Received: from zproxy.gmail.com ([64.233.162.205]:45554 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751165AbVJTNyu (ORCPT
+	Thu, 20 Oct 2005 10:03:38 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:2607 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751184AbVJTODh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 09:54:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=WZn9uWvMhlIUSgwgEoQRcnjOWq79qtTXIEEH2vaXKADXnIHZfH2gavhw5pxzICmavRT+9RRUOv0AzI0H/ZhQE2gxxHtaPAS2SMQnQU822rPh9WhKKUDOpjr/M6B/yepHoALKV389KH8mND7P58AKpG5QXe3xJYWvc7QH+7F2hPk=
-Date: Thu, 20 Oct 2005 22:54:43 +0900
-From: Tejun Heo <htejun@gmail.com>
-To: Jens Axboe <axboe@suse.de>
+	Thu, 20 Oct 2005 10:03:37 -0400
+Date: Thu, 20 Oct 2005 16:04:22 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Tejun Heo <htejun@gmail.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH linux-2.6-block:master] blk: reimplement elevator switch
-Message-ID: <20051020135443.GC26004@htj.dyndns.org>
-References: <20051019123648.GA31257@htj.dyndns.org> <20051020122505.GG2811@suse.de>
-MIME-Version: 1.0
+Subject: Re: [PATCH linux-2.6-block:master 01/05] blk: implement generic dispatch queue
+Message-ID: <20051020140421.GM2811@suse.de>
+References: <20051019123429.450E4424@htj.dyndns.org> <20051019123429.1D0A2F29@htj.dyndns.org> <20051020100003.GB2811@suse.de> <20051020134515.GA26004@htj.dyndns.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051020122505.GG2811@suse.de>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20051020134515.GA26004@htj.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 20, 2005 at 02:25:05PM +0200, Jens Axboe wrote:
-> On Wed, Oct 19 2005, Tejun Heo wrote:
-> >  Hello, Jens.
-> > 
-> >  This patch reimplements elevator switch.  This patch assumes generic
-> > dispatch queue patchset is applied.
-> > 
-> >  * Each request is tagged with REQ_ELVPRIV flag if it has its elevator
-> >    private data set.
-> >  * Requests which doesn't have REQ_ELVPRIV flag set never enter
-> >    iosched.  They are always directly back inserted to dispatch queue.
-> >    Of course, elevator_put_req_fn is called only for requests which
-> >    have its REQ_ELVPRIV set.
-> >  * Request queue maintains the current number of requests which have
-> >    its elevator data set (elevator_set_req_fn called) in
-> >    q->rq->elvpriv.
-> >  * If a request queue has QUEUE_FLAG_BYPASS set, elevator private data
-> >    is not allocated for new requests.
-> > 
-> >  To switch to another iosched, we set QUEUE_FLAG_BYPASS and wait until
-> > elvpriv goes to zero; then, we attach the new iosched and clears
-> > QUEUE_FLAG_BYPASS.  New implementation is much simpler and main code
-> > paths are less cluttered, IMHO.
+On Thu, Oct 20 2005, Tejun Heo wrote:
+>  Hi, Jens.
 > 
-> Wonderful! Applied as-is, I didn't make any changes to this one. I agree
-> it's much cleaner than the previous approach, both in the code and in
-> killing the request_queue and request_list members.
+> On Thu, Oct 20, 2005 at 12:00:03PM +0200, Jens Axboe wrote:
+> > On Wed, Oct 19 2005, Tejun Heo wrote:
+> > > @@ -40,6 +40,11 @@
+> > >  static DEFINE_SPINLOCK(elv_list_lock);
+> > >  static LIST_HEAD(elv_list);
+> > >  
+> > > +static inline sector_t rq_last_sector(struct request *rq)
+> > > +{
+> > > +	return rq->sector + rq->nr_sectors;
+> > > +}
+> > 
+> > Slightly misnamed, since it's really the sector after the last sector
+> > :-)
+> > 
+> > I've renamed that to rq_end_sector() instead.
 > 
-> I'm going to make a little few tweaks:
+>  Maybe rename request_queue->last_sector too?
+
+Yeah agree.
+
+> > > +/*
+> > > + * Insert rq into dispatch queue of q.  Queue lock must be held on
+> > > + * entry.  If sort != 0, rq is sort-inserted; otherwise, rq will be
+> > > + * appended to the dispatch queue.  To be used by specific elevators.
+> > > + */
+> > > +void elv_dispatch_insert(request_queue_t *q, struct request *rq, int sort)
+> > > +{
+> > > +	sector_t boundary;
+> > > +	unsigned max_back;
+> > > +	struct list_head *entry;
+> > > +
+> > > +	if (!sort) {
+> > > +		/* Specific elevator is performing sort.  Step away. */
+> > > +		q->last_sector = rq_last_sector(rq);
+> > > +		q->boundary_rq = rq;
+> > > +		list_add_tail(&rq->queuelist, &q->queue_head);
+> > > +		return;
+> > > +	}
+> > > +
+> > > +	boundary = q->last_sector;
+> > > +	max_back = q->max_back_kb * 2;
+> > > +	boundary = boundary > max_back ? boundary - max_back : 0;
+> > 
+> > This looks really strange, what are you doing with boundary here?
+> > 
 > 
-> - The naming, QUEUE_FLAG_BYPASS isn't really clear. I don't know what
->   this means without looking at specific parts of the code. Testing of
+>  Taking backward seeking into account.  I reasonsed that if specific
+> elevator chooses the next request with backward seeking,
+> elv_dispatch_insert() shouldn't change the order because that may
+> result in less efficient seek pattern.  At the second thought,
+> specific elevators always perform sorting by itself in such cases, so
+> this seems unnecessary.  I think we can strip this thing out.
 
- It means to bypass ioscheds and go directly into dispatch queue.
+It wasn't so much the actual action as the logic. You overwrite boundary
+right away and it seems really strange to complare the absolute rq
+location with the max_back_in_sectors offset?
 
->   same flag in various locations would also be preferred instead of
->   passing priv around and cluttering the function parameters, however we
->   should split the queue flags a little for this. Basically into an
->   atomic and non-atomic part. So I'll leave that alone for now.
+But lets just kill it, care to send a patch when I have pushed this
+stuff out?
 
- Hmmm...
+> > >  		if (rq == q->last_merge)
+> > >  			q->last_merge = NULL;
+> > >  
+> > > +		if (!q->boundary_rq || q->boundary_rq == rq) {
+> > > +			q->last_sector = rq_last_sector(rq);
+> > > +			q->boundary_rq = NULL;
+> > > +		}
+> > 
+> > This seems to be the only place where you clear ->boundary_rq, that
+> > can't be right. What about rq-to-rq merging, ->boundary_rq could be
+> > freed and you wont notice. Generally I don't really like keeping
+> > pointers to rqs around, it's given us problems in the past with the
+> > last_merge bits even. For now I've added a clear of this in
+> > __blk_put_request() as well.
+> 
+>  Oh, please don't do that.  Now, it's guaranteed that there are only
+> three paths a request can travel.
+> 
+>  set_req_fn ->
+> 
+>  i.   add_req_fn -> (merged_fn ->)* -> dispatch_fn -> activate_req_fn ->
+>       (deactivate_req_fn -> activate_req_fn ->)* -> completed_req_fn
+>  ii.  add_req_fn -> (merged_fn ->)* -> merge_req_fn
+>  iii. [none]
+> 
+>  -> put_req_fn
+> 
+>  These three are the only paths a request can travel.  Also note that
+> dispatched requests don't get merged.  So, after dispatched, the only
+> way out is via elevator_complete_req_fn and that's why that's the only
+> place ->boundary_rq is cleared.  I've also documented above in biodoc
+> so that we can simplify codes knowing above information.
 
-> - The msleep(100) seems a little too slow. With the switching being more
->   efficient now, in 100msecs we can complete lots of requests.
-
- Yeap, agreed.
+Ah, it's my mistake, you only set it on dispatch. I was thinking it had
+an earlier life time, so there's no bug there at all. Thanks for
+clearing that up.
 
 -- 
-tejun
+Jens Axboe
+

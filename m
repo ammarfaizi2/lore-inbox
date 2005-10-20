@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751779AbVJTHAw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751782AbVJTHUk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751779AbVJTHAw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 03:00:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751780AbVJTHAw
+	id S1751782AbVJTHUk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 03:20:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751780AbVJTHUk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 03:00:52 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:1478 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751779AbVJTHAv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 03:00:51 -0400
-Date: Thu, 20 Oct 2005 03:00:46 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Coywolf Qi Hunt <coywolf@gmail.com>, linux <linux-kernel@vger.kernel.org>
-Subject: Re: lock_kernel twice possible ?
-In-Reply-To: <4356BAAD.2010409@tmr.com>
-Message-ID: <Pine.LNX.4.58.0510200259140.27683@localhost.localdomain>
-References: <2cd57c900510150033o7bd44608vdc57cb32e335b933@mail.gmail.com> 
- <20051015073803.26937.qmail@web33311.mail.mud.yahoo.com>
- <2cd57c900510150047y4108a493k859f86bf1324468@mail.gmail.com> <4356BAAD.2010409@tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 20 Oct 2005 03:20:40 -0400
+Received: from gate.crashing.org ([63.228.1.57]:27368 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751778AbVJTHUj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Oct 2005 03:20:39 -0400
+Subject: Re: [patch 2.6.14-rc4] b44: alternate allocation option for DMA
+	descriptors
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "John W. Linville" <linville@tuxdriver.com>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, jgarzik@pobox.com,
+       pp@ee.oulu.fi
+In-Reply-To: <10182005213059.12243@bilbo.tuxdriver.com>
+References: <10182005213059.12243@bilbo.tuxdriver.com>
+Content-Type: text/plain
+Date: Thu, 20 Oct 2005 17:17:05 +1000
+Message-Id: <1129792626.7620.248.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2005-10-18 at 21:30 -0400, John W. Linville wrote:
+> This is a (final?) hack to support the odd DMA allocation requirements
+> of the b44 hardware.  The b44 hardware has a 30-bit DMA mask.  On x86,
+> anything less than a 32-bit DMA mask forces allocations into the 16MB
+> GFP_DMA range.  The memory there is somewhat limited, often resulting
+> in an inability to initialize the b44 driver.
+> 
+> This hack uses streaming DMA allocation APIs in order to provide an
+> alternative in case the GFP_DMA allocation fails.  It is somewhat ugly,
+> but not much worse than the similar existing hacks to support SKB
+> allocations in the same driver.  FWIW, I have received positive
+> feedback on this from several Fedora users.
 
-On Wed, 19 Oct 2005, Bill Davidsen wrote:
+I'm not sure what you are trying to do here ... If pci_alloc_* failed,
+you do kmalloc(...,GFP_KERNEL) which can give you memory above your DMA
+mask. Then, you use dma_map_* but that won't help much more neither.
+Unless you have an iommu (or swiotlb) _and_ that implements arbitrary
+DMA masks support (which it typically doesn't it's often 32 bits vs. 64
+bits) it won't help, you'll get into your error case.
 
->
-> ~~~~~~~
->
-> Q:  Why is top-posting evil?
->
-> A1: Because top-posters tend to leave the entirety of the email to which
->      they are replying intact, so the email gets too long.
->
-> A2: Because we prefer to use bottom-posting, and it is *extremely* hard to
->      maintain a coherently flowing email conversation when some of the
->      participants are bottom-posting and some are top-posting.
->
-> A3: backwards read don't humans because
->
+So basically, what you are doing is: if allocation fails, you try to get
+memory using GFP_KERNEL. If it happens to be in the low 2Gb of memory,
+use it, if not, drop it.
 
-A4: top-posting is for pointy haired managers.
+Did I get that right ?
 
-Sorry! ;)
+Note that the Broadcom wireless (which is currently being reverse
+engineered) seem to suffer from the same stupid DMA engine...
 
--- Steve
+Ben.
 

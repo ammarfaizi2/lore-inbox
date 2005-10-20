@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932273AbVJTPzS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932194AbVJTP43@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932273AbVJTPzS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 11:55:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932314AbVJTPzS
+	id S932194AbVJTP43 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 11:56:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932314AbVJTP43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 11:55:18 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:31457 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932273AbVJTPzQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 11:55:16 -0400
-Date: Thu, 20 Oct 2005 17:55:25 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: john stultz <johnstul@us.ibm.com>, tglx@linutronix.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: Ktimer / -rt9 (+custom) monotonic_clock going backwards.
-Message-ID: <20051020155525.GA10360@elte.hu>
-References: <1129747172.27168.149.camel@cog.beaverton.ibm.com> <Pine.LNX.4.58.0510200249080.27683@localhost.localdomain> <20051020073416.GA28581@elte.hu> <Pine.LNX.4.58.0510200340110.27683@localhost.localdomain> <20051020080107.GA31342@elte.hu> <Pine.LNX.4.58.0510200443130.27683@localhost.localdomain> <20051020085955.GB2903@elte.hu> <Pine.LNX.4.58.0510200503470.27683@localhost.localdomain> <Pine.LNX.4.58.0510200603220.27683@localhost.localdomain> <Pine.LNX.4.58.0510200605170.27683@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0510200605170.27683@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Thu, 20 Oct 2005 11:56:29 -0400
+Received: from gw1.cosmosbay.com ([62.23.185.226]:38373 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S932194AbVJTP42
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Oct 2005 11:56:28 -0400
+Message-ID: <4357BE1C.9080004@cosmosbay.com>
+Date: Thu, 20 Oct 2005 17:56:12 +0200
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Dimitri Sivanich <sivanich@sgi.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.14-rc4 latency issue with rcu_process_callbacks()/file_free_rcu()
+References: <20051020140733.GA21149@sgi.com>
+In-Reply-To: <20051020140733.GA21149@sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Thu, 20 Oct 2005 17:56:13 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Steven Rostedt <rostedt@goodmis.org> wrote:
-
-> > I just switched cycle_t to u64 and hackbench no longer makes the time go
-> > backwards.
-> >
-> > John, would this cause any problems to keep cycle_t at s64?
+Dimitri Sivanich a écrit :
+> Just bringing up a latency issue I've noticed recently.
 > 
-> I mean at u64.
+> In or around 2.6.14-rc4 some changes were made to have the call to
+> kmem_cache_free() from file_free() in the Linux kernel be deferred, running
+> as a tasklet via file_free_rcu(), rather than running kmem_cache_free()
+> right from file_free() directly.
+> 
+> I've noticed that rcu_process_callbacks() can take quite a while to run
+> now that it routinely calls file_free_rcu() to run kmem_cache_free().
+> This can make the cpu unavailable for 100's of usec on 1GHz machines, with
+> or without preemption configured on (much of this path is non-preemptible).
+> 
+> This can result in some unpredictable periods of fairly long cpu latency,
+> such as when a thread is waiting to be woken by an interrupt handler on a
+> 'now quiet' cpu.  Changing file_free() to call kmem_cache_free() directly
+> completely eliminates this unexpected latency.
 
-ugh. There's both cycles_t and cycle_t. We should unify the two and it 
-should be 64-bit. The faster systems get, the sooner the 32-bit counter 
-overflows. 64-bit systems are keeping 32-bit compatibility for quite 
-some time to come. So with an 8GHz CPU the 32-bit cycle_t would wrap in 
-like 500 msecs, way too fast to rely on ... (even with a 4GHz CPUs it's 
-only one second.)
+Well, you cannot change file_free() to call kmem_cache_free() directly, or 
+risk corruption/crash.
 
-i've made cycle_t u64 and have uploaded -rt14.
+See Documentation/RCU/UP.txt
 
-	Ingo
+Dont you notice latency issue with other RCU protected data, like dentries ?
+
+BTW a change in 2.6.14-rc5 might give different latency results.
+
+Eric

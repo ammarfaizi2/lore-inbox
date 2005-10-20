@@ -1,58 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751261AbVJVMSF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751330AbVJVNDN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751261AbVJVMSF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Oct 2005 08:18:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbVJVMSF
+	id S1751330AbVJVNDN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Oct 2005 09:03:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbVJVNDM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Oct 2005 08:18:05 -0400
-Received: from tirith.ics.muni.cz ([147.251.4.36]:18857 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1751261AbVJVMSE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Oct 2005 08:18:04 -0400
-From: "Jiri Slaby" <xslaby@fi.muni.cz>
-Date: Sat, 22 Oct 2005 14:18:03 +0200
-To: Lars Magne Ingebrigtsen <larsi@gnus.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Rocketport driver fails if more than four cards are inserted
-In-reply-to: <m34q79kc3i.fsf@quimbies.gnus.org>
-Message-Id: <20051022121802.349FE1D341E@anxur.fi.muni.cz>
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Envelope-From: xslaby@fi.muni.cz
-X-Muni-Virus-Test: Clean
+	Sat, 22 Oct 2005 09:03:12 -0400
+Received: from fox.tvcorp.co.uk ([217.150.121.3]:13542 "EHLO n-fox.mentorn.tv")
+	by vger.kernel.org with ESMTP id S1751330AbVJVNDM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Oct 2005 09:03:12 -0400
+Date: Thu, 20 Oct 2005 20:37:41 +0100
+From: no-reply@mentorn.tv
+Subject: BBC SERIES - looking for couples trying for a baby
+To: baby@mentorn.tv
+X-Originating-IP: 10.1.1.222
+X-Mailer: Usermin 1.210
+Message-Id: <1129837061.13715@mail.mentorn.tv>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="bound1129837061"
+X-TTC-MailScanner-Information: Please contact the ISP for more information
+X-TTC-MailScanner: Found to be clean
+X-TTC-MailScanner-SpamCheck: not spam, SpamAssassin (score=0, required 6)
+X-TTC-MailScanner-From: no-reply@mentorn.tv
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Inserting a fifth Rocketport card into a machines gives me the
->backtrace included below.
->
->Looking at the source, it looks like there's two problems: the
->sController array only has four entries, even though CTL_SIZE is
->eight, and some pc104 initialisation is run even though we're not
->running on a pc104 platform.  (Apparently the maximum number of
->controllers on pc104 is four.)
->
->The patch (against 2.6.13.3) included below fixes both these problems.
->The other way to fix the latter problem would be to extend the pc104
->(i.e. ISA) case to allow eight cards, but that seems somewhat less
->likely...
-[snip]
+This is a multi-part message in MIME format.
 
-They are in process of rewriting the driver (they wrote this to me on Sep 16):
+--bound1129837061
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-<cite>
-We have a driver in beta for 2.6 kernels. Eventually we do plan to update the
-main kernel with our changes, but after the driver is more stable and we have
-more time to work on it.
+PLEASE DO NOT REPLY TO THIS EMAIL ADDRESS - REPLY TO mailto:BABY@MENTORN.TV 
 
-Here is a link to the beta if you are interested
-ftp://ftp.comtrol.com/contribs/Drivers/RPort/Linux/3.02%20Beta%202.4-2.6/rocketport-linux-3.02.tgz
-</cite>
+NEW BBC SERIES 
 
-The link is the same, so there is no new version, so I don't know the state of
-the rewriting now, we'll see...
+Thinking about having a baby? 
 
-regards,
---
-Jiri Slaby         www.fi.muni.cz/~xslaby
-~\-/~      jirislaby@gmail.com      ~\-/~
-B67499670407CE62ACC8 22A032CC55C339D47A7E
+We are looking for couples to take part in a new BBC series 
+exploring the science behind getting pregnant and pregnancy.  If you 
+are thinking about trying for a baby or have already started trying 
+and would like to find out more, please call us on 0141 204 6620 or 
+e-mail: baby@mentorn.tv 
+
+PLEASE DO NOT REPLY TO THIS EMAIL ADDRESS - REPLY TO mailto:BABY@MENTORN.TV 
+
+We'd like to advise you that we got your email address from a mailing list 
+company.  Their lists are compiled from those who have agreed, when 
+visiting relevant websites, to receive contact from third parties 
+
+If you would like to be removed from our list please reply to             
+mailto:BABYLIST@mentorn.tv 
+
+--------------------------------------------------------------------- 
+This e-mail is confidential; it is for the use of the named 
+recipient(s) only.  If you have received it in error, do not copy or 
+disclose its contents, please notify us immediately and delete the e- 
+mail from your computer. 
+
+--bound1129837061--
+

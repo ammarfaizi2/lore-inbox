@@ -1,42 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbVJTNMw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbVJTNR3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932129AbVJTNMw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 09:12:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbVJTNMw
+	id S932132AbVJTNR3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 09:17:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932144AbVJTNR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 09:12:52 -0400
-Received: from xproxy.gmail.com ([66.249.82.199]:193 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932129AbVJTNMv convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 09:12:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=r4Xhtr4cgrZhyO4eF6JyX2xckMwPioVbyKbuTmEgxz6Tsq9HG3fdpEc4oiEui165LAujEP6Nc8nvfpxePM1RL/FoNDI0cf7J3MpAlyCPVj1GKK9/uxPL4IGSGo3EAcci3sBQRKsUMhbIM1yEK0wzaQYYOOHSHyNlvvnU254BTg4=
-Message-ID: <64c763540510200612s1e3aa7dvefdac28dd8d24106@mail.gmail.com>
-Date: Thu, 20 Oct 2005 18:42:50 +0530
-From: Block Device <blockdevice@gmail.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Increase priority of a workqueue thread ?
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 20 Oct 2005 09:17:29 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:26892 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932132AbVJTNR3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Oct 2005 09:17:29 -0400
+Date: Thu, 20 Oct 2005 15:18:16 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Chris Boot <bootc@bootc.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Reiser4 lockups (no oops)
+Message-ID: <20051020131815.GI2811@suse.de>
+References: <43567D80.3050304@bootc.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <43567D80.3050304@bootc.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-    I am using a custom workqueue thread in my module. How do I increase the
-priority of the workqueue threads ?
-I've seen that each workqueue contains an array of per-cpu structures
-which has a
-task_struct of the thread on a particular cpu. Since these threads are
-created from keventd
-I think they'll have the same priority as keventd.  Also the per-cpu
-structure is something which is private to the workqueue
-implementation. Directly using it (from my driver) to increase the
-priority of the workqueue doesnt seem correct to me. Is there any
-interface or standard way of changing the priority of a workqueue.
+On Wed, Oct 19 2005, Chris Boot wrote:
+> I don't get any OOPSes or BUGs or anything, not on my screen nor on my 
+> serial console (although I'm not sure I have this working right--I only 
+> seem to get kernel boot messages). Machine replies to pings but I can't 
 
-Thanks
-BD
+Easy fix for that is probably to kill klogd on the machine. Test with eg
+loading/unloading of loop, that prints a message when it loads.
+
+-- 
+Jens Axboe
+

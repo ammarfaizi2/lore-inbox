@@ -1,252 +1,299 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932551AbVJTXAh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932547AbVJTXBH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932551AbVJTXAh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 19:00:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932550AbVJTXAX
+	id S932547AbVJTXBH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 19:01:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932550AbVJTXAl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 19:00:23 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:25994 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932547AbVJTXAC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 19:00:02 -0400
-Date: Thu, 20 Oct 2005 15:59:55 -0700 (PDT)
+	Thu, 20 Oct 2005 19:00:41 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:19409 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932547AbVJTXA2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Oct 2005 19:00:28 -0400
+Date: Thu, 20 Oct 2005 15:59:40 -0700 (PDT)
 From: Christoph Lameter <clameter@sgi.com>
 To: akpm@osdl.org
 Cc: Mike Kravetz <kravetz@us.ibm.com>, linux-kernel@vger.kernel.org,
        linux-mm@kvack.org, Christoph Lameter <clameter@sgi.com>,
        Magnus Damm <magnus.damm@gmail.com>,
        Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Message-Id: <20051020225955.19761.53060.sendpatchset@schroedinger.engr.sgi.com>
+Message-Id: <20051020225940.19761.93396.sendpatchset@schroedinger.engr.sgi.com>
 In-Reply-To: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com>
 References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [PATCH 4/4] Swap migration V3: sys_migrate_pages interface
+Subject: [PATCH 1/4] Swap migration V3: LRU operations
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sys_migrate_pages implementation using swap based page migration
+Implement functions to isolate pages from the LRU and put them back later.
 
-This is the original API proposed by Ray Bryant in his posts during the
-first half of 2005 on linux-mm@kvack.org and linux-kernel@vger.kernel.org.
+>From Magnus:
 
-The intend of sys_migrate is to migrate memory of a process. A process may have
-migrated to another node. Memory was allocated optimally for the prior context.
-sys_migrate_pages allows to shift the memory to the new node.
+This patch for 2.6.14-rc4-mm1 breaks out isolate_lru_page() and
+putpack_lru_page() and makes them inline. I'd like to build my code on
+top of this patch, and I think your page eviction code could be built
+on top of this patch too - without introducing too much duplicated
+code.
 
-sys_migrate_pages is also useful if the processes available memory nodes have
-changed through cpuset operations to manually move the processes memory. Paul
-Jackson is working on an automated mechanism that will allow an automatic
-migration if the cpuset of a process is changed. However, a user may decide
-to manually control the migration.
-
-This implementation is put into the policy layer since it uses concepts and
-functions that are also needed for mbind and friends. The patch also provides
-a do_migrate_pages function that may be useful for cpusets to automatically move
-memory. sys_migrate_pages does not modify policies in contrast to Ray's implementation.
-
-The current code here is based on the swap based page migration capability and thus
-not able to preserve the physical layout relative to it containing nodeset (which
-may be a cpuset). When direct page migration becomes available then the
-implementation needs to be changed to do a isomorphic move of pages between different
-nodesets. The current implementation simply evicts all pages in source
-nodeset that are not in the target nodeset.
-
-Patch supports ia64, i386, x86_64 and ppc64. Patch not tested on ppc64.
-
+Signed-off-by: Magnus Damm <magnus.damm@gmail.com>
 Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Index: linux-2.6.14-rc4-mm1/mm/mempolicy.c
+Index: linux-2.6.14-rc4-mm1/include/linux/mm_inline.h
 ===================================================================
---- linux-2.6.14-rc4-mm1.orig/mm/mempolicy.c	2005-10-20 13:33:12.000000000 -0700
-+++ linux-2.6.14-rc4-mm1/mm/mempolicy.c	2005-10-20 14:45:45.000000000 -0700
-@@ -627,6 +627,36 @@ long do_get_mempolicy(int *policy, nodem
+--- linux-2.6.14-rc4-mm1.orig/include/linux/mm_inline.h	2005-10-10 18:19:19.000000000 -0700
++++ linux-2.6.14-rc4-mm1/include/linux/mm_inline.h	2005-10-20 10:45:40.000000000 -0700
+@@ -38,3 +38,55 @@ del_page_from_lru(struct zone *zone, str
+ 		zone->nr_inactive--;
+ 	}
+ }
++
++/*
++ * Isolate one page from the LRU lists.
++ *
++ * - zone->lru_lock must be held
++ *
++ * Result:
++ *  0 = page not on LRU list
++ *  1 = page removed from LRU list
++ * -1 = page is being freed elsewhere.
++ */
++static inline int
++__isolate_lru_page(struct zone *zone, struct page *page)
++{
++	if (TestClearPageLRU(page)) {
++		if (get_page_testone(page)) {
++			/*
++			 * It is being freed elsewhere
++			 */
++			__put_page(page);
++			SetPageLRU(page);
++			return -1;
++		} else {
++			if (PageActive(page))
++				del_page_from_active_list(zone, page);
++			else
++				del_page_from_inactive_list(zone, page);
++			return 1;
++		}
++	}
++
++	return 0;
++}
++
++/*
++ * Add isolated page back on the LRU lists
++ *
++ * - zone->lru_lock must be held
++ * - page must already be removed from other list
++ * - additional call to put_page() is needed
++ */
++static inline void
++__putback_lru_page(struct zone *zone, struct page *page)
++{
++	if (TestSetPageLRU(page))
++		BUG();
++
++	if (PageActive(page))
++		add_page_to_active_list(zone, page);
++	else
++		add_page_to_inactive_list(zone, page);
++}
+Index: linux-2.6.14-rc4-mm1/mm/vmscan.c
+===================================================================
+--- linux-2.6.14-rc4-mm1.orig/mm/vmscan.c	2005-10-17 10:24:30.000000000 -0700
++++ linux-2.6.14-rc4-mm1/mm/vmscan.c	2005-10-20 13:18:05.000000000 -0700
+@@ -573,43 +573,75 @@ keep:
+  *
+  * Appropriate locks must be held before calling this function.
+  *
++ * @zone:	The zone where lru_lock is held.
+  * @nr_to_scan:	The number of pages to look through on the list.
+  * @src:	The LRU list to pull pages off.
+  * @dst:	The temp list to put pages on to.
+- * @scanned:	The number of pages that were scanned.
+  *
+- * returns how many pages were moved onto *@dst.
++ * returns the number of pages that were scanned.
+  */
+-static int isolate_lru_pages(int nr_to_scan, struct list_head *src,
+-			     struct list_head *dst, int *scanned)
++static int isolate_lru_pages(struct zone *zone, int nr_to_scan,
++			     struct list_head *src, struct list_head *dst)
+ {
+-	int nr_taken = 0;
+ 	struct page *page;
+-	int scan = 0;
++	int scanned = 0;
++	int rc;
+ 
+-	while (scan++ < nr_to_scan && !list_empty(src)) {
++	while (scanned++ < nr_to_scan && !list_empty(src)) {
+ 		page = lru_to_page(src);
+ 		prefetchw_prev_lru_page(page, src, flags);
+ 
+-		if (!TestClearPageLRU(page))
+-			BUG();
+-		list_del(&page->lru);
+-		if (get_page_testone(page)) {
+-			/*
+-			 * It is being freed elsewhere
+-			 */
+-			__put_page(page);
+-			SetPageLRU(page);
+-			list_add(&page->lru, src);
+-			continue;
+-		} else {
++		rc = __isolate_lru_page(zone, page);
++
++		BUG_ON(rc == 0); /* PageLRU(page) must be true */
++
++		if (rc == 1)     /* Succeeded to isolate page */
+ 			list_add(&page->lru, dst);
+-			nr_taken++;
++
++		if (rc == -1) {  /* Not possible to isolate */
++			list_del(&page->lru);
++			list_add(&page->lru, src);
+ 		}
+ 	}
+ 
+-	*scanned = scan;
+-	return nr_taken;
++	return scanned;
++}
++
++static void lru_add_drain_per_cpu(void *dummy)
++{
++	lru_add_drain();
++}
++
++/*
++ * Isolate one page from the LRU lists and put it on the
++ * indicated list. Do necessary cache draining if the
++ * page is not on the LRU lists yet.
++ *
++ * Result:
++ *  0 = page not on LRU list
++ *  1 = page removed from LRU list and added to the specified list.
++ * -1 = page is being freed elsewhere.
++ */
++int isolate_lru_page(struct page *page, struct list_head *l)
++{
++	int rc = 0;
++	struct zone *zone = page_zone(page);
++
++redo:
++	spin_lock_irq(&zone->lru_lock);
++	rc = __isolate_lru_page(zone, page);
++	spin_unlock_irq(&zone->lru_lock);
++	if (rc == 0) {
++		/*
++		 * Maybe this page is still waiting for a cpu to drain it
++		 * from one of the lru lists?
++		 */
++		smp_call_function(&lru_add_drain_per_cpu, NULL, 0 , 1);
++		lru_add_drain();
++		if (PageLRU(page))
++			goto redo;
++	}
++	return rc;
  }
  
  /*
-+ * For now migrate_pages simply swaps out the pages from nodes that are in
-+ * the source set but not in the target set. In the future, we would
-+ * want a function that moves pages between the two nodesets in such
-+ * a way as to preserve the physical layout as much as possible.
+@@ -627,18 +659,15 @@ static void shrink_cache(struct zone *zo
+ 	spin_lock_irq(&zone->lru_lock);
+ 	while (max_scan > 0) {
+ 		struct page *page;
+-		int nr_taken;
+ 		int nr_scan;
+ 		int nr_freed;
+ 
+-		nr_taken = isolate_lru_pages(sc->swap_cluster_max,
+-					     &zone->inactive_list,
+-					     &page_list, &nr_scan);
+-		zone->nr_inactive -= nr_taken;
++		nr_scan = isolate_lru_pages(zone, sc->swap_cluster_max,
++					    &zone->inactive_list, &page_list);
+ 		zone->pages_scanned += nr_scan;
+ 		spin_unlock_irq(&zone->lru_lock);
+ 
+-		if (nr_taken == 0)
++		if (list_empty(&page_list))
+ 			goto done;
+ 
+ 		max_scan -= nr_scan;
+@@ -658,13 +687,9 @@ static void shrink_cache(struct zone *zo
+ 		 */
+ 		while (!list_empty(&page_list)) {
+ 			page = lru_to_page(&page_list);
+-			if (TestSetPageLRU(page))
+-				BUG();
+ 			list_del(&page->lru);
+-			if (PageActive(page))
+-				add_page_to_active_list(zone, page);
+-			else
+-				add_page_to_inactive_list(zone, page);
++			__putback_lru_page(zone, page);
++
+ 			if (!pagevec_add(&pvec, page)) {
+ 				spin_unlock_irq(&zone->lru_lock);
+ 				__pagevec_release(&pvec);
+@@ -678,6 +703,33 @@ done:
+ }
+ 
+ /*
++ * Add isolated pages on the list back to the LRU
++ * Determines the zone for each pages and takes
++ * the necessary lru lock for each page.
 + *
-+ * Returns the number of page that could not be moved.
++ * returns the number of pages put back.
 + */
-+int do_migrate_pages(struct mm_struct *mm,
-+	nodemask_t *from_nodes, nodemask_t *to_nodes, int flags)
++int putback_lru_pages(struct list_head *l)
 +{
-+	LIST_HEAD(pagelist);
++	struct page * page;
++	struct page * page2;
 +	int count = 0;
-+	nodemask_t nodes;
 +
-+	nodes_andnot(nodes, *from_nodes, *to_nodes);
-+	nodes_complement(nodes, nodes);
++	list_for_each_entry_safe(page, page2, l, lru) {
++		struct zone *zone = page_zone(page);
 +
-+	down_read(&mm->mmap_sem);
-+	check_range(mm, mm->mmap->vm_start, TASK_SIZE, &nodes,
-+			flags | MPOL_MF_DISCONTIG_OK, &pagelist);
-+	if (!list_empty(&pagelist)) {
-+		swapout_pages(&pagelist);
-+		if (!list_empty(&pagelist))
-+			count = putback_lru_pages(&pagelist);
++		list_del(&page->lru);
++		spin_lock_irq(&zone->lru_lock);
++		__putback_lru_page(zone, page);
++		spin_unlock_irq(&zone->lru_lock);
++		count++;
++		/* Undo the get from isolate_lru_page */
++		put_page(page);
 +	}
-+	up_read(&mm->mmap_sem);
 +	return count;
 +}
 +
 +/*
-  * User space interface with variable sized bitmaps for nodelists.
-  */
+  * This moves pages from the active list to the inactive list.
+  *
+  * We move them the other way if the page is referenced by one or more
+@@ -713,10 +765,9 @@ refill_inactive_zone(struct zone *zone, 
  
-@@ -720,6 +750,51 @@ asmlinkage long sys_set_mempolicy(int mo
- 	return do_set_mempolicy(mode, &nodes);
- }
+ 	lru_add_drain();
+ 	spin_lock_irq(&zone->lru_lock);
+-	pgmoved = isolate_lru_pages(nr_pages, &zone->active_list,
+-				    &l_hold, &pgscanned);
++	pgscanned = isolate_lru_pages(zone, nr_pages,
++				      &zone->active_list, &l_hold);
+ 	zone->pages_scanned += pgscanned;
+-	zone->nr_active -= pgmoved;
+ 	spin_unlock_irq(&zone->lru_lock);
  
-+/* Macro needed until Paul implements this function in kernel/cpusets.c */
-+#define cpuset_mems_allowed(task) node_online_map
-+
-+asmlinkage long sys_migrate_pages(pid_t pid, unsigned long maxnode,
-+		unsigned long __user *old_nodes,
-+		unsigned long __user *new_nodes)
-+{
-+	struct mm_struct *mm;
-+	struct task_struct *task;
-+	nodemask_t old;
-+	nodemask_t new;
-+	int err;
-+
-+	err = get_nodes(&old, old_nodes, maxnode);
-+	if (err)
-+		return err;
-+
-+	err = get_nodes(&new, new_nodes, maxnode);
-+	if (err)
-+		return err;
-+
-+	/* Find the mm_struct */
-+	read_lock(&tasklist_lock);
-+	task = pid ? find_task_by_pid(pid) : current;
-+	if (!task) {
-+		read_unlock(&tasklist_lock);
-+		return -ESRCH;
-+	}
-+	mm = get_task_mm(task);
-+	read_unlock(&tasklist_lock);
-+
-+	if (!mm)
-+		return -EINVAL;
-+
-+	/* Is the user allowed to access the target nodes? */
-+	if (!nodes_subset(new, cpuset_mems_allowed(task)))
-+		return -EPERM;
-+
-+	err = do_migrate_pages(mm, &old, &new, MPOL_MF_MOVE);
-+
-+	mmput(mm);
-+	return err;
-+}
-+
-+
- /* Retrieve NUMA policy */
- asmlinkage long sys_get_mempolicy(int __user *policy,
- 				unsigned long __user *nmask,
-Index: linux-2.6.14-rc4-mm1/kernel/sys_ni.c
+ 	/*
+Index: linux-2.6.14-rc4-mm1/include/linux/swap.h
 ===================================================================
---- linux-2.6.14-rc4-mm1.orig/kernel/sys_ni.c	2005-10-10 18:19:19.000000000 -0700
-+++ linux-2.6.14-rc4-mm1/kernel/sys_ni.c	2005-10-20 13:34:43.000000000 -0700
-@@ -82,6 +82,7 @@ cond_syscall(compat_sys_socketcall);
- cond_syscall(sys_inotify_init);
- cond_syscall(sys_inotify_add_watch);
- cond_syscall(sys_inotify_rm_watch);
-+cond_syscall(sys_migrate_pages);
+--- linux-2.6.14-rc4-mm1.orig/include/linux/swap.h	2005-10-17 10:24:16.000000000 -0700
++++ linux-2.6.14-rc4-mm1/include/linux/swap.h	2005-10-20 13:13:24.000000000 -0700
+@@ -176,6 +176,9 @@ extern int zone_reclaim(struct zone *, u
+ extern int shrink_all_memory(int);
+ extern int vm_swappiness;
  
- /* arch-specific weak syscall entries */
- cond_syscall(sys_pciconfig_read);
-Index: linux-2.6.14-rc4-mm1/arch/ia64/kernel/entry.S
-===================================================================
---- linux-2.6.14-rc4-mm1.orig/arch/ia64/kernel/entry.S	2005-10-10 18:19:19.000000000 -0700
-+++ linux-2.6.14-rc4-mm1/arch/ia64/kernel/entry.S	2005-10-20 13:34:43.000000000 -0700
-@@ -1600,5 +1600,6 @@ sys_call_table:
- 	data8 sys_inotify_init
- 	data8 sys_inotify_add_watch
- 	data8 sys_inotify_rm_watch
-+	data8 sys_migrate_pages
- 
- 	.org sys_call_table + 8*NR_syscalls	// guard against failures to increase NR_syscalls
-Index: linux-2.6.14-rc4-mm1/include/asm-ia64/unistd.h
-===================================================================
---- linux-2.6.14-rc4-mm1.orig/include/asm-ia64/unistd.h	2005-10-17 10:24:22.000000000 -0700
-+++ linux-2.6.14-rc4-mm1/include/asm-ia64/unistd.h	2005-10-20 13:34:43.000000000 -0700
-@@ -269,12 +269,12 @@
- #define __NR_inotify_init		1277
- #define __NR_inotify_add_watch		1278
- #define __NR_inotify_rm_watch		1279
--
-+#define __NR_migrate_pages		1280
- #ifdef __KERNEL__
- 
- #include <linux/config.h>
- 
--#define NR_syscalls			256 /* length of syscall table */
-+#define NR_syscalls			257 /* length of syscall table */
- 
- #define __ARCH_WANT_SYS_RT_SIGACTION
- 
-Index: linux-2.6.14-rc4-mm1/arch/ppc64/kernel/misc.S
-===================================================================
---- linux-2.6.14-rc4-mm1.orig/arch/ppc64/kernel/misc.S	2005-10-17 10:24:18.000000000 -0700
-+++ linux-2.6.14-rc4-mm1/arch/ppc64/kernel/misc.S	2005-10-20 13:34:43.000000000 -0700
-@@ -1581,3 +1581,4 @@ _GLOBAL(sys_call_table)
- 	.llong .sys_inotify_init	/* 275 */
- 	.llong .sys_inotify_add_watch
- 	.llong .sys_inotify_rm_watch
-+	.llong .sys_migrate_pages
-Index: linux-2.6.14-rc4-mm1/arch/i386/kernel/syscall_table.S
-===================================================================
---- linux-2.6.14-rc4-mm1.orig/arch/i386/kernel/syscall_table.S	2005-10-10 18:19:19.000000000 -0700
-+++ linux-2.6.14-rc4-mm1/arch/i386/kernel/syscall_table.S	2005-10-20 13:34:44.000000000 -0700
-@@ -294,3 +294,5 @@ ENTRY(sys_call_table)
- 	.long sys_inotify_init
- 	.long sys_inotify_add_watch
- 	.long sys_inotify_rm_watch
-+	.long sys_migrate_pages
++extern int isolate_lru_page(struct page *p, struct list_head *l);
++extern int putback_lru_pages(struct list_head *l);
 +
-Index: linux-2.6.14-rc4-mm1/include/asm-x86_64/unistd.h
-===================================================================
---- linux-2.6.14-rc4-mm1.orig/include/asm-x86_64/unistd.h	2005-10-17 10:24:22.000000000 -0700
-+++ linux-2.6.14-rc4-mm1/include/asm-x86_64/unistd.h	2005-10-20 13:34:44.000000000 -0700
-@@ -571,8 +571,10 @@ __SYSCALL(__NR_inotify_init, sys_inotify
- __SYSCALL(__NR_inotify_add_watch, sys_inotify_add_watch)
- #define __NR_inotify_rm_watch	255
- __SYSCALL(__NR_inotify_rm_watch, sys_inotify_rm_watch)
-+#define __NR_migrate_pages	256
-+__SYSCALL(__NR_migrate_pages, sys_migrate_pages)
- 
--#define __NR_syscall_max __NR_inotify_rm_watch
-+#define __NR_syscall_max __NR_migrate_pages
- #ifndef __NO_STUBS
- 
- /* user-visible error numbers are in the range -1 - -4095 */
-Index: linux-2.6.14-rc4-mm1/include/linux/syscalls.h
-===================================================================
---- linux-2.6.14-rc4-mm1.orig/include/linux/syscalls.h	2005-10-17 10:24:22.000000000 -0700
-+++ linux-2.6.14-rc4-mm1/include/linux/syscalls.h	2005-10-20 13:34:44.000000000 -0700
-@@ -511,5 +511,7 @@ asmlinkage long sys_ioprio_set(int which
- asmlinkage long sys_ioprio_get(int which, int who);
- asmlinkage long sys_set_mempolicy(int mode, unsigned long __user *nmask,
- 					unsigned long maxnode);
-+asmlinkage long sys_migrate_pages(pid_t pid, unsigned long maxnode,
-+			unsigned long __user *from, unsigned long __user *to);
- 
- #endif
-Index: linux-2.6.14-rc4-mm1/include/linux/mempolicy.h
-===================================================================
---- linux-2.6.14-rc4-mm1.orig/include/linux/mempolicy.h	2005-10-20 13:26:28.000000000 -0700
-+++ linux-2.6.14-rc4-mm1/include/linux/mempolicy.h	2005-10-20 13:50:00.000000000 -0700
-@@ -159,6 +159,9 @@ extern void numa_default_policy(void);
- extern void numa_policy_init(void);
- extern struct mempolicy default_policy;
- 
-+int do_migrate_pages(struct mm_struct *mm,
-+	nodemask_t *from_nodes, nodemask_t *to_nodes, int flags);
-+
- #else
- 
- struct mempolicy {};
+ #ifdef CONFIG_MMU
+ /* linux/mm/shmem.c */
+ extern int shmem_unuse(swp_entry_t entry, struct page *page);

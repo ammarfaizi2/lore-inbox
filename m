@@ -1,85 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbVJTOGt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbVJTOHx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751247AbVJTOGt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 10:06:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751494AbVJTOGt
+	id S932066AbVJTOHx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 10:07:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932075AbVJTOHw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 10:06:49 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:34097 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751247AbVJTOGs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 10:06:48 -0400
-Date: Thu, 20 Oct 2005 16:07:36 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Tejun Heo <htejun@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH linux-2.6-block:master] blk: reimplement elevator switch
-Message-ID: <20051020140735.GP2811@suse.de>
-References: <20051019123648.GA31257@htj.dyndns.org> <20051020122505.GG2811@suse.de> <20051020135443.GC26004@htj.dyndns.org>
+	Thu, 20 Oct 2005 10:07:52 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:48289 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932066AbVJTOHh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Oct 2005 10:07:37 -0400
+Date: Thu, 20 Oct 2005 09:07:33 -0500
+From: Dimitri Sivanich <sivanich@sgi.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.14-rc4 latency issue with rcu_process_callbacks()/file_free_rcu()
+Message-ID: <20051020140733.GA21149@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051020135443.GC26004@htj.dyndns.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 20 2005, Tejun Heo wrote:
-> On Thu, Oct 20, 2005 at 02:25:05PM +0200, Jens Axboe wrote:
-> > On Wed, Oct 19 2005, Tejun Heo wrote:
-> > >  Hello, Jens.
-> > > 
-> > >  This patch reimplements elevator switch.  This patch assumes generic
-> > > dispatch queue patchset is applied.
-> > > 
-> > >  * Each request is tagged with REQ_ELVPRIV flag if it has its elevator
-> > >    private data set.
-> > >  * Requests which doesn't have REQ_ELVPRIV flag set never enter
-> > >    iosched.  They are always directly back inserted to dispatch queue.
-> > >    Of course, elevator_put_req_fn is called only for requests which
-> > >    have its REQ_ELVPRIV set.
-> > >  * Request queue maintains the current number of requests which have
-> > >    its elevator data set (elevator_set_req_fn called) in
-> > >    q->rq->elvpriv.
-> > >  * If a request queue has QUEUE_FLAG_BYPASS set, elevator private data
-> > >    is not allocated for new requests.
-> > > 
-> > >  To switch to another iosched, we set QUEUE_FLAG_BYPASS and wait until
-> > > elvpriv goes to zero; then, we attach the new iosched and clears
-> > > QUEUE_FLAG_BYPASS.  New implementation is much simpler and main code
-> > > paths are less cluttered, IMHO.
-> > 
-> > Wonderful! Applied as-is, I didn't make any changes to this one. I agree
-> > it's much cleaner than the previous approach, both in the code and in
-> > killing the request_queue and request_list members.
-> > 
-> > I'm going to make a little few tweaks:
-> > 
-> > - The naming, QUEUE_FLAG_BYPASS isn't really clear. I don't know what
-> >   this means without looking at specific parts of the code. Testing of
-> 
->  It means to bypass ioscheds and go directly into dispatch queue.
+Just bringing up a latency issue I've noticed recently.
 
-Certainly :-) I renamed it to QUEUE_FLAG_ELVSWITCH for now, if another
-use comes of this we can name it something appropriately generic then.
+In or around 2.6.14-rc4 some changes were made to have the call to
+kmem_cache_free() from file_free() in the Linux kernel be deferred, running
+as a tasklet via file_free_rcu(), rather than running kmem_cache_free()
+right from file_free() directly.
 
-> >   same flag in various locations would also be preferred instead of
-> >   passing priv around and cluttering the function parameters, however we
-> >   should split the queue flags a little for this. Basically into an
-> >   atomic and non-atomic part. So I'll leave that alone for now.
-> 
->  Hmmm...
+I've noticed that rcu_process_callbacks() can take quite a while to run
+now that it routinely calls file_free_rcu() to run kmem_cache_free().
+This can make the cpu unavailable for 100's of usec on 1GHz machines, with
+or without preemption configured on (much of this path is non-preemptible).
 
-There's room for optimization there, lots of places we check queue flags
-(and set them) inside the queue lock, we don't need to use the bit
-operations for those. But we cannot safely mix them either.
+This can result in some unpredictable periods of fairly long cpu latency,
+such as when a thread is waiting to be woken by an interrupt handler on a
+'now quiet' cpu.  Changing file_free() to call kmem_cache_free() directly
+completely eliminates this unexpected latency.
 
-> > - The msleep(100) seems a little too slow. With the switching being more
-> >   efficient now, in 100msecs we can complete lots of requests.
-> 
->  Yeap, agreed.
+Here's the stack trace that illustrates what I'm talking about:
 
-Cool
+ [<a0000001001154a0>] kmem_cache_free+0x140/0x3c0
+                                sp=e00000307bc27dc0 bsp=e00000307bc21070
+ [<a000000100153950>] file_free_rcu+0x30/0x60
+                                sp=e00000307bc27dd0 bsp=e00000307bc21050
+ [<a0000001000d89c0>] __rcu_process_callbacks+0x2c0/0x5e0
+                                sp=e00000307bc27dd0 bsp=e00000307bc21010
+ [<a0000001000d8d40>] rcu_process_callbacks+0x60/0xc0
+                                sp=e00000307bc27dd0 bsp=e00000307bc20fe8
+ [<a0000001000baae0>] tasklet_action+0x2c0/0x320
+                                sp=e00000307bc27dd0 bsp=e00000307bc20f98
+ [<a0000001000ba0d0>] __do_softirq+0x130/0x240
+                                sp=e00000307bc27dd0 bsp=e00000307bc20ef8
+ [<a0000001000ba260>] do_softirq+0x80/0xe0
+                                sp=e00000307bc27dd0 bsp=e00000307bc20e98
+ [<a0000001000ba4a0>] ksoftirqd+0x140/0x1a0
+                                sp=e00000307bc27dd0 bsp=e00000307bc20e68
 
--- 
-Jens Axboe
-
+Dimitri Sivanich

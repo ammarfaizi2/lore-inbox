@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932507AbVJTRsv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932509AbVJTRw2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932507AbVJTRsv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 13:48:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932508AbVJTRsv
+	id S932509AbVJTRw2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 13:52:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932510AbVJTRw2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 13:48:51 -0400
-Received: from pilet.ens-lyon.fr ([140.77.167.16]:38825 "EHLO
-	relaissmtp.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S932507AbVJTRsu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 13:48:50 -0400
-Message-ID: <4357CA5D.9060507@ens-lyon.fr>
-Date: Thu, 20 Oct 2005 18:48:29 +0200
-From: Alexandre Buisse <alexandre.buisse@ens-lyon.fr>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050812)
+	Thu, 20 Oct 2005 13:52:28 -0400
+Received: from gate.corvil.net ([213.94.219.177]:36614 "EHLO corvil.com")
+	by vger.kernel.org with ESMTP id S932509AbVJTRw1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Oct 2005 13:52:27 -0400
+Message-ID: <4357D941.4090705@draigBrady.com>
+Date: Thu, 20 Oct 2005 18:52:01 +0100
+From: P@draigBrady.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040124
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jiri Slaby <xslaby@fi.muni.cz>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Wifi oddness [Was: Re: 2.6.14-rc4-mm1]
-References: <20051016154108.25735ee3.akpm@osdl.org> <20051019184935.E8C0B22AEB2@anxur.fi.muni.cz>
-In-Reply-To: <20051019184935.E8C0B22AEB2@anxur.fi.muni.cz>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+To: Pozsar Balazs <pozsy@uhulinux.hu>
+CC: linux-kernel@vger.kernel.org, wim@iguana.be
+Subject: Re: [PATCH] fix typo drivers/char/watchdog/w83627hf_wdt.c
+References: <20051020174202.GA30201@ojjektum.uhulinux.hu>
+In-Reply-To: <20051020174202.GA30201@ojjektum.uhulinux.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby wrote:
->>I've been having problems with ipw2200 oopsing at modprobe since
->>2.6.14-rc2-mm1 (sorry for not reporting before). I use the ipw2200
->>included in the kernel.
+Pozsar Balazs wrote:
+> The most trivial typo fix in the world.
 > 
+> Signed-off-by: Pozsar Balazs <pozsy@uhulinux.hu>
 > 
-> Can you apply this and tell me what are the numbers?
+> --- a/drivers/char/watchdog/w83627hf_wdt.c	2005-10-11 03:19:19.000000000 +0200
+> +++ b/drivers/char/watchdog/w83627hf_wdt.c	2005-10-20 19:39:01.000000000 +0200
+> @@ -359,5 +359,5 @@
+>  
+>  MODULE_LICENSE("GPL");
+>  MODULE_AUTHOR("Pdraig Brady <P@draigBrady.com>");
+> -MODULE_DESCRIPTION("w38627hf WDT driver");
+> +MODULE_DESCRIPTION("w83627hf WDT driver");
+>  MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
 
-Hi,
+Oops :)
 
-I tested with -rc4 and the problem did not appear.
-As for your patch, it just says ---THIS: 0,0 before oopsing.
+I notice also that my name has been
+mangled someplace along the line to "Pdraig".
+Ideally it's Pádraig but I'll settle for Padraig :)
+Can you send the updated patch to Wim (cc'd),
+for merging into the watchdog tree.
 
-Hope it helps.
-
-Regards,
-Alexandre
+thanks,
+Pádraig.

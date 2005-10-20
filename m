@@ -1,122 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932125AbVJTQxZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932173AbVJTQ6o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932125AbVJTQxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 12:53:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932484AbVJTQxZ
+	id S932173AbVJTQ6o (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 12:58:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932484AbVJTQ6o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 12:53:25 -0400
-Received: from mail24.sea5.speakeasy.net ([69.17.117.26]:35743 "EHLO
-	mail24.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S932125AbVJTQxY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 12:53:24 -0400
-Date: Thu, 20 Oct 2005 12:53:24 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-X-X-Sender: jmorris@excalibur.intercode
-To: Andrew Morton <akpm@osdl.org>
-cc: Stephen Smalley <sds@tycho.nsa.gov>, linux-kernel@vger.kernel.org
-Subject: [PATCH] SELinux - remove unecessary size_t checks in selinuxfs
-Message-ID: <Pine.LNX.4.63.0510201250300.3536@excalibur.intercode>
+	Thu, 20 Oct 2005 12:58:44 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:18875 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932173AbVJTQ6n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Oct 2005 12:58:43 -0400
+Date: Thu, 20 Oct 2005 12:58:29 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+To: john stultz <johnstul@us.ibm.com>
+cc: Ingo Molnar <mingo@elte.hu>, tglx@linutronix.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: Ktimer / -rt9 (+custom) monotonic_clock going backwards.
+In-Reply-To: <1129826750.27168.163.camel@cog.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.58.0510201253430.30996@localhost.localdomain>
+References: <Pine.LNX.4.58.0510191047270.24515@localhost.localdomain> 
+ <1129734626.19559.275.camel@tglx.tec.linutronix.de> 
+ <1129747172.27168.149.camel@cog.beaverton.ibm.com> 
+ <Pine.LNX.4.58.0510200249080.27683@localhost.localdomain> 
+ <20051020073416.GA28581@elte.hu>  <Pine.LNX.4.58.0510200340110.27683@localhost.localdomain>
+  <20051020080107.GA31342@elte.hu>  <Pine.LNX.4.58.0510200443130.27683@localhost.localdomain>
+  <20051020085955.GB2903@elte.hu>  <Pine.LNX.4.58.0510200503470.27683@localhost.localdomain>
+  <Pine.LNX.4.58.0510200603220.27683@localhost.localdomain> 
+ <Pine.LNX.4.58.0510200605170.27683@localhost.localdomain>
+ <1129826750.27168.163.camel@cog.beaverton.ibm.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes a bunch of unecessary checks for (size_t < 0) in 
-selinuxfs.
 
-Please apply.
+On Thu, 20 Oct 2005, john stultz wrote:
 
-Author: Davi Arnaut <davi.arnaut@gmail.com>
-Signed-off-by: James Morris <jmorris@namei.org>
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+> > >
+> > > John, would this cause any problems to keep cycle_t at s64?
+> >
+> > I mean at u64.
+>
+> Performance would be the only concern. It had been a u64 before I
+> started optimizing the code a bit.
+>
+> The real problem however was the timeofday_perioidic_hook() was being
+> starved. Since not all clocksources are 64 bits wide (although most do
+> not overflow as fast as 32bits of the TSC) I'm not sure that will always
+> solve the issue.
+>
+> Ingo: Should the periodic_hook() call be converted to using the ktimer
+> or some other interface to ensure that it will be regularly run at some
+> frequency (currently 50ms, but that can be changed)?
+>
 
+Thomas showed me a trick with the ktimers API, that I use to schedule my
+custom scheduler.  If you set periodic_hook to be called via ktimer with a
+prio of -1, it will force the timer to be run in the timer interrupt
+instead of a softirq task.
 
----
+Now the issue is the latency this would cause and to make sure that
+periodic_hook only grabs raw locks. Ingo?
 
- security/selinux/selinuxfs.c |   18 +++++++++---------
- 1 files changed, 9 insertions(+), 9 deletions(-)
+-- Steve
 
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -105,7 +105,7 @@ static ssize_t sel_write_enforce(struct
- 	ssize_t length;
- 	int new_value;
-
--	if (count < 0 || count >= PAGE_SIZE)
-+	if (count >= PAGE_SIZE)
- 		return -ENOMEM;
- 	if (*ppos != 0) {
- 		/* No partial writes. */
-@@ -155,7 +155,7 @@ static ssize_t sel_write_disable(struct
- 	int new_value;
- 	extern int selinux_disable(void);
-
--	if (count < 0 || count >= PAGE_SIZE)
-+	if (count >= PAGE_SIZE)
- 		return -ENOMEM;
- 	if (*ppos != 0) {
- 		/* No partial writes. */
-@@ -242,7 +242,7 @@ static ssize_t sel_write_load(struct fil
- 		goto out;
- 	}
-
--	if ((count < 0) || (count > 64 * 1024 * 1024)
-+	if ((count > 64 * 1024 * 1024)
- 	    || (data = vmalloc(count)) == NULL) {
- 		length = -ENOMEM;
- 		goto out;
-@@ -284,7 +284,7 @@ static ssize_t sel_write_context(struct
- 	if (length)
- 		return length;
-
--	if (count < 0 || count >= PAGE_SIZE)
-+	if (count >= PAGE_SIZE)
- 		return -ENOMEM;
- 	if (*ppos != 0) {
- 		/* No partial writes. */
-@@ -332,7 +332,7 @@ static ssize_t sel_write_checkreqprot(st
- 	if (length)
- 		return length;
-
--	if (count < 0 || count >= PAGE_SIZE)
-+	if (count >= PAGE_SIZE)
- 		return -ENOMEM;
- 	if (*ppos != 0) {
- 		/* No partial writes. */
-@@ -739,7 +739,7 @@ static ssize_t sel_read_bool(struct file
- 	if (!filep->f_op)
- 		goto out;
-
--	if (count < 0 || count > PAGE_SIZE) {
-+	if (count > PAGE_SIZE) {
- 		ret = -EINVAL;
- 		goto out;
- 	}
-@@ -800,7 +800,7 @@ static ssize_t sel_write_bool(struct fil
- 	if (!filep->f_op)
- 		goto out;
-
--	if (count < 0 || count >= PAGE_SIZE) {
-+	if (count >= PAGE_SIZE) {
- 		length = -ENOMEM;
- 		goto out;
- 	}
-@@ -858,7 +858,7 @@ static ssize_t sel_commit_bools_write(st
- 	if (!filep->f_op)
- 		goto out;
-
--	if (count < 0 || count >= PAGE_SIZE) {
-+	if (count >= PAGE_SIZE) {
- 		length = -ENOMEM;
- 		goto out;
- 	}
-@@ -1032,7 +1032,7 @@ static ssize_t sel_write_avc_cache_thres
- 	ssize_t ret;
- 	int new_value;
-
--	if (count < 0 || count >= PAGE_SIZE) {
-+	if (count >= PAGE_SIZE) {
- 		ret = -ENOMEM;
- 		goto out;
- 	}

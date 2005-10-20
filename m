@@ -1,72 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932528AbVJTUjp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932529AbVJTUou@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932528AbVJTUjp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 16:39:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbVJTUjp
+	id S932529AbVJTUou (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 16:44:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932531AbVJTUot
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 16:39:45 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:56766 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932528AbVJTUjp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 16:39:45 -0400
-Date: Thu, 20 Oct 2005 16:39:39 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Kernel development list <linux-kernel@vger.kernel.org>
-cc: Jens Axboe <axboe@suse.de>
-Subject: BUG in the block layer (partial reads not reported)
-Message-ID: <Pine.LNX.4.44L0.0510201435400.4453-100000@iolanthe.rowland.org>
+	Thu, 20 Oct 2005 16:44:49 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:1701 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S932529AbVJTUot (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Oct 2005 16:44:49 -0400
+Message-ID: <435801BF.90701@vc.cvut.cz>
+Date: Thu, 20 Oct 2005 22:44:47 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686 (x86_64); en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: cs, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc2-almost-rc3, ext3 and memory corruption
+References: <20051001030027.GA8784@vana.vc.cvut.cz> <4347F3DE.8070505@vc.cvut.cz>
+In-Reply-To: <4347F3DE.8070505@vc.cvut.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The block layer does not report partial reads correctly back to userspace.
+Petr Vandrovec wrote:
+> Petr Vandrovec wrote:
+> 
+>> Hello,
+>>   I was so happy that 2.6.13-rc3 was released that I tried to grab it,
+>> and while I was doing that, box said:
+>>
+>> Slab corruption: start=ffff8100005e5bf8, len=96
+>> Redzone: 0x5a2cf071/0x5a2cf071.
 
-Here's an example which I can replicate at will.  This is using the SCSI 
-cdrom driver and a disc with 326535 hardware sectors, each containing 2048 
-bytes.  The last two sectors are unreadable.
+> Hello,
+>   so I've enabled JBD-DEBUG, and unfortunately somebody corrupted inode 
+> instead of journal head this time :-(  But corruption looks same - 
+> somebody wrote 32bit value 1 somewhere it should not...  Does anybody 
+> have something like CONFIG_DEBUG_PAGE_ALLOC for x86-64?
+> 
+> Slab corruption: start=ffff8100005e7c00, len=976
+> Redzone: 0x5a2cf071/0x5a2cf071.
 
-Now consider what should happen when you run
+Still no clue, but somebody still writes 0x00000001 here and there around my 
+inodes :-(  This time when I was building 2.6.14-rc5 kernel...  Apparently 
+whenever my old kernel finds that it is going to be replaced it attempts to 
+boycott build of new kernel.
 
-	dd if=/dev/scd0 bs=2048 count=1 skip=326532
+Linux ppc 2.6.14-rc3-8298 #9 SMP PREEMPT Sun Oct 9 03:45:32 CEST 2005 x86_64 
+GNU/Linux
 
-One would expect to get back the contents of the last readable hardware 
-sector.
+slab error in cache_free_debugcheck(): cache `size-64': double free, or memory 
+outside object was overwritten
 
-Instead, what happens is this:
+Call Trace:<ffffffff8017230a>{cache_free_debugcheck+378} 
+<ffffffff8017376c>{kfree+220}
+        <ffffffff801aaafe>{clear_inode+174} <ffffffff801aaba8>{dispose_list+104}
+        <ffffffff801aaffa>{prune_icache+426} 
+<ffffffff801ab067>{shrink_icache_memory+23}
+        <ffffffff80176185>{shrink_slab+229} <ffffffff801776bd>{balance_pgdat+589}
+        <ffffffff80371474>{_spin_lock_irqsave+36} <ffffffff80177937>{kswapd+311}
+        <ffffffff80155070>{autoremove_wake_function+0} 
+<ffffffff80155070>{autoremove_wake_function+0}
+        <ffffffff801356dd>{schedule_tail+77} <ffffffff8010fd92>{child_rip+8}
+        <ffffffff80177800>{kswapd+0} <ffffffff8010fd8a>{child_rip+0}
 
-     1. The block layer issues a read for sectors 326532-3 (i.e., a 
-	page's worth, including the sector we want and the following
-	unreadable sector).
+ffff8100005e7c38: redzone 1: 0x170fc2a5, redzone 2: 0x1.
 
-     2. The read partially succeeds, and the driver calls 
-		end_that_request_chunk(req, 1, 2048);
-	It then requeues the request, more or less by coincidence.
+									Petr
 
-     3. This time the request fails since it's trying to read the
-	second-to-last sector, and the driver calls
-		end_that_request_chunk(req, 1, 0);
-	I'm not sure why.
+>> Box in question has single Athlon64 processor, runs SMP PREEMPT kernel
+>> with almost all debugging options set (but not CONFIG_JBD_DEBUG).  Box 
+>> has 2GB of ECC RAM.  Root filesystem is on pata disk connected to the 
+>> pata port on Promise's 20378 (using sata_promise).  Disk with git 
+>> repository is plugged to pata port on Via's VT8237.  Kernel's 
+>> configuration is at http://platan.vc.cvut.cz/vana_at_home_config.txt, 
+>> dmesg at http://platan.vc.cvut.cz/vana_at_home_dmesg.txt.
 
-     4. Then the driver does what it should have done before, and calls
-		end_that_request_chunk(req, 0, 2048);
-	This causes an I/O error message to appear in the system log.
-
-     5. The driver calls end_that_request_last(req).
-
-     6. Apparently the block layer issues its own retry at this point.
-	The driver gets another read request for sector 326533.
-
-     7. Steps 3 - 5 repeat.
-
-The end result is that dd receives no data, only an error.  This is in 
-spite of the fact that the kernel was able to read successfully all the 
-data that had been requested!
-
-Now I have only the vaguest notion of how the block layer works, and I 
-don't know where to begin solving this problem.  Any help would be 
-appreciated.
-
-Alan Stern
 

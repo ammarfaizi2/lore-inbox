@@ -1,53 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbVJTScL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbVJTShg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750741AbVJTScL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 14:32:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbVJTScK
+	id S1750763AbVJTShg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 14:37:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbVJTShg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 14:32:10 -0400
-Received: from H190.C26.B96.tor.eicat.ca ([66.96.26.190]:24192 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S1750741AbVJTScI (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Thu, 20 Oct 2005 14:32:08 -0400
-From: Nikita Danilov <nikita@clusterfs.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17239.55622.86540.438878@gargle.gargle.HOWL>
-Date: Thu, 20 Oct 2005 21:52:06 +0400
+	Thu, 20 Oct 2005 14:37:36 -0400
+Received: from ms004msg.fastwebnet.it ([213.140.2.58]:11668 "EHLO
+	ms004msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S1750763AbVJTShg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Oct 2005 14:37:36 -0400
+Date: Thu, 20 Oct 2005 20:37:24 +0200
+From: Mattia Dongili <malattia@linux.it>
 To: Chris Boot <bootc@bootc.net>
-Cc: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
 Subject: Re: Reiser4 lockups (no oops)
-Newsgroups: gmane.linux.kernel
-In-Reply-To: <4357C56B.30600@bootc.net>
-References: <43567D80.3050304@bootc.net>
-	<20051020131815.GI2811@suse.de>
-	<20051020163425.z7wygjyir8lcw0gk@horde.fusednetworks.co.uk>
-	<20051020162112.GT2811@suse.de>
-	<4357C56B.30600@bootc.net>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+Message-ID: <20051020183724.GA3999@inferi.kami.home>
+Mail-Followup-To: Chris Boot <bootc@bootc.net>, Jens Axboe <axboe@suse.de>,
+	linux-kernel@vger.kernel.org
+References: <43567D80.3050304@bootc.net> <20051020131815.GI2811@suse.de> <20051020163425.z7wygjyir8lcw0gk@horde.fusednetworks.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051020163425.z7wygjyir8lcw0gk@horde.fusednetworks.co.uk>
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.14-rc4-mm1-2 i686
+X-Editor: Vim http://www.vim.org/
+X-Disclaimer: Buh!
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Boot writes:
+On Thu, Oct 20, 2005 at 04:34:25PM +0100, Chris Boot wrote:
+> Quoting Jens Axboe <axboe@suse.de>:
+> 
+> >On Wed, Oct 19 2005, Chris Boot wrote:
+> >>I don't get any OOPSes or BUGs or anything, not on my screen nor on my
+> >>serial console (although I'm not sure I have this working right--I only
+> >>seem to get kernel boot messages). Machine replies to pings but I can't
+> >
+> >Easy fix for that is probably to kill klogd on the machine. Test with eg
+> >loading/unloading of loop, that prints a message when it loads.
+> 
+> I'd love to, but the machine is locked solid and won't turn on the display 
+> or
+> switch TTYs or anything. Anyway, I've applied reiser4-fix-livelock.patch 
+> from
+> ftp.namesys.org and so far so good (over night).
 
-[...]
+aah! nice, those also fix the apt-get freeze I've been having from some
+mm kernels ago.
 
- > Oh! Hehe, now I get you. However, I'm using metalog for logging, and 
- > modprobe loop doesn't give any output. What's interesting is that serial 
- > console logging dies long before metalog is started, just after my swap 
- > is added in fact. I'm using Gentoo.
- > 
- > Any ideas?
+I also managed to get the trace of apt-get freezing by means of Sysrq+P
+but I stupidly forgot the fs was readonly so I didn't dump dmesg :P
+I can easily reproduce it if anyone is interested.
 
-What
+> I see there's now a reiser4-fix-livelock-2.patch, anybody know the 
+> differences?
 
-cat /proc/sys/kernel/printk
+don't know, I'd try the -2 patches also, they seem a different version
+of the same fix/cleanup.
 
-shows after a boot?
-
- > 
- > Cheers,
- > Chris
-
-Nikita.
+-- 
+mattia
+:wq!

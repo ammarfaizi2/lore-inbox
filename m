@@ -1,44 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932121AbVJTNHl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbVJTNLf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932121AbVJTNHl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 09:07:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbVJTNHl
+	id S932133AbVJTNLf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 09:11:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932131AbVJTNLf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 09:07:41 -0400
-Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:50702 "EHLO
-	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
-	id S932121AbVJTNHk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 09:07:40 -0400
-Message-ID: <43579692.2080406@oxley.org>
-Date: Thu, 20 Oct 2005 14:07:30 +0100
-From: Felix Oxley <lkml@oxley.org>
-User-Agent: Thunderbird 1.4.1 (Macintosh/20051006)
-MIME-Version: 1.0
-To: webmaster@kernel.org
-CC: Michael Neuffer <neuffer@neuffer.info>, linux-kernel@vger.kernel.org,
-       ftpadmin@kernel.org
-Subject: Re: Linux v2.6.14-rc5
-References: <Pine.LNX.4.64.0510192328360.5909@g5.osdl.org> <20051020102505.GA11423@neuffer.info>
-In-Reply-To: <20051020102505.GA11423@neuffer.info>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 20 Oct 2005 09:11:35 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:26024 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932133AbVJTNLf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Oct 2005 09:11:35 -0400
+Subject: Re: Reduce idle connection timeout
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: =?ISO-8859-1?Q?M=E1rcio?= Oliveira <moliveira@rhla.com>
+Cc: kernelnewbies@nl.linux.org, linux-kernel@vger.kernel.org
+In-Reply-To: <43553205.9010006@rhla.com>
+References: <43553205.9010006@rhla.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Date: Thu, 20 Oct 2005 14:40:01 +0100
+Message-Id: <1129815601.15200.8.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Neuffer wrote:
-
+On Maw, 2005-10-18 at 15:33 -0200, Márcio Oliveira wrote:
+> Hi,
 > 
-> The sync to the public ftp.kernel.org servers is still missing.
->
+>    Anybody knows how can I reduce the idle connections (TCP, UDP, ...) 
+> timeout in Linux systems?
 
-The patch is available at ftp.kernel.org/pub/linux/kernel/v2.6/testing.
-However, www.kernel.org still shows rc4 as the latest.
-I suspect that is because the directory shown above contains these 2 files:
-
-LATEST-IS-2.6.14.rc4
-LATEST-IS-2.6.14.rc5
-
-regards,
-Felix
+TCP timeout minimums are specified in the standard and we follow them
+anyway. UDP has no "connection".
 
 

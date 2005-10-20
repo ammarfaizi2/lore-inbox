@@ -1,81 +1,187 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932529AbVJTUou@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932510AbVJTUuz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932529AbVJTUou (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 16:44:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932531AbVJTUot
+	id S932510AbVJTUuz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 16:50:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932532AbVJTUuy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 16:44:49 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:1701 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S932529AbVJTUot (ORCPT
+	Thu, 20 Oct 2005 16:50:54 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:6291 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932510AbVJTUuy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 16:44:49 -0400
-Message-ID: <435801BF.90701@vc.cvut.cz>
-Date: Thu, 20 Oct 2005 22:44:47 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686 (x86_64); en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: cs, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc2-almost-rc3, ext3 and memory corruption
-References: <20051001030027.GA8784@vana.vc.cvut.cz> <4347F3DE.8070505@vc.cvut.cz>
-In-Reply-To: <4347F3DE.8070505@vc.cvut.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 20 Oct 2005 16:50:54 -0400
+Date: Thu, 20 Oct 2005 13:50:14 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [EXPERIMENT,RFC] FAT: Add "flush" option for hotplug devices
+Message-Id: <20051020135014.2289fa01.akpm@osdl.org>
+In-Reply-To: <871x2gf8f5.fsf@devron.myhome.or.jp>
+References: <871x2gf8f5.fsf@devron.myhome.or.jp>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr Vandrovec wrote:
-> Petr Vandrovec wrote:
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
+>
+> Hi,
 > 
->> Hello,
->>   I was so happy that 2.6.13-rc3 was released that I tried to grab it,
->> and while I was doing that, box said:
->>
->> Slab corruption: start=ffff8100005e5bf8, len=96
->> Redzone: 0x5a2cf071/0x5a2cf071.
-
-> Hello,
->   so I've enabled JBD-DEBUG, and unfortunately somebody corrupted inode 
-> instead of journal head this time :-(  But corruption looks same - 
-> somebody wrote 32bit value 1 somewhere it should not...  Does anybody 
-> have something like CONFIG_DEBUG_PAGE_ALLOC for x86-64?
+> This adds new "flush" option on experiment for hotplug devices.
 > 
-> Slab corruption: start=ffff8100005e7c00, len=976
-> Redzone: 0x5a2cf071/0x5a2cf071.
+> Current implementation of "flush" option does,
+> 
+> 	- synchronizing data pages at ->release() (last close(2))
+> 	- if user's work seems to be done (fs is not active), all
+> 	  metadata syncs by pdflush()
 
-Still no clue, but somebody still writes 0x00000001 here and there around my 
-inodes :-(  This time when I was building 2.6.14-rc5 kernel...  Apparently 
-whenever my old kernel finds that it is going to be replaced it attempts to 
-boycott build of new kernel.
+Seems like a sensible thing to do.
 
-Linux ppc 2.6.14-rc3-8298 #9 SMP PREEMPT Sun Oct 9 03:45:32 CEST 2005 x86_64 
-GNU/Linux
+> This option would provide kind of sane progress, and dirty buffers is
+> flushed more frequently (if fs is not active).
 
-slab error in cache_free_debugcheck(): cache `size-64': double free, or memory 
-outside object was overwritten
+Your implementation doesn't really do this.  bdi_write_congested() only
+returns true if the device is super-busy.  To determine whether it's "not
+active" we'd need to peek at the queue's disk_stat accounting, or at the
+queue's outstanding read/write requests.  We covered this a couple of weeks
+ago in the context of Con's swap prefetch work.
 
-Call Trace:<ffffffff8017230a>{cache_free_debugcheck+378} 
-<ffffffff8017376c>{kfree+220}
-        <ffffffff801aaafe>{clear_inode+174} <ffffffff801aaba8>{dispose_list+104}
-        <ffffffff801aaffa>{prune_icache+426} 
-<ffffffff801ab067>{shrink_icache_memory+23}
-        <ffffffff80176185>{shrink_slab+229} <ffffffff801776bd>{balance_pgdat+589}
-        <ffffffff80371474>{_spin_lock_irqsave+36} <ffffffff80177937>{kswapd+311}
-        <ffffffff80155070>{autoremove_wake_function+0} 
-<ffffffff80155070>{autoremove_wake_function+0}
-        <ffffffff801356dd>{schedule_tail+77} <ffffffff8010fd92>{child_rip+8}
-        <ffffffff80177800>{kswapd+0} <ffffffff8010fd8a>{child_rip+0}
+>  This option doesn't
+> provide any robustness (robustness is provided by other options), but
+> probably the option is proper for hotplug devices.
 
-ffff8100005e7c38: redzone 1: 0x170fc2a5, redzone 2: 0x1.
+Well...  It does a full fsync_super() - that's pretty robust.
 
-									Petr
+> +EXPORT_SYMBOL(filemap_write_and_wait);
 
->> Box in question has single Athlon64 processor, runs SMP PREEMPT kernel
->> with almost all debugging options set (but not CONFIG_JBD_DEBUG).  Box 
->> has 2GB of ECC RAM.  Root filesystem is on pata disk connected to the 
->> pata port on Promise's 20378 (using sata_promise).  Disk with git 
->> repository is plugged to pata port on Via's VT8237.  Kernel's 
->> configuration is at http://platan.vc.cvut.cz/vana_at_home_config.txt, 
->> dmesg at http://platan.vc.cvut.cz/vana_at_home_dmesg.txt.
+_GPL please.
+
+> +EXPORT_SYMBOL(fsync_super);
+
+Ditto
+
+> +/*
+> + * Copyright (C) 2005, OGAWA Hirofumi
+> + * Released under GPL v2.
+> + */
+> +
+> +#include <linux/fs.h>
+> +#include <linux/blkdev.h>
+> +#include <linux/writeback.h>
+> +#include <linux/msdos_fs.h>
+> +
+> +int fat_sync_fdata(struct inode *inode, struct file *filp)
+> +{
+> +	int err = 0;
+> +
+> +	if (filp->f_mode & FMODE_WRITE) {
+> +#if 1
+> +		current->flags |= PF_SYNCWRITE;
+> +		err = filemap_write_and_wait(inode->i_mapping);
+> +		current->flags &= ~PF_SYNCWRITE;
+> +#else
+> +		down(&inode->i_sem);
+> +#if 1
+> +		err = generic_osync_inode(inode, inode->i_mapping, OSYNC_DATA);
+> +#else
+> +		err = filp->f_op->fsync(filp, filp->f_dentry, 1);
+> +#endif
+> +		up(&inode->i_sem);
+> +#endif
+> +	}
+> +	return err;
+> +}
+
+Can't we just split up do_fsync() a bit and use that?
+
+> +static void fat_pdflush_handler(unsigned long arg)
+> +{
+> +	struct super_block *sb = (struct super_block *)arg;
+> +	fsync_super(sb);
+> +}
+
+It would be nice if /proc/sys/vm/dirty_writeback_centisecs was a per-fs
+thing.   That's non-trivial.
+
+> +static void fat_flush_timer(unsigned long data)
+> +{
+> +	struct super_block *sb = (struct super_block *)data;
+> +	struct msdos_sb_info *sbi = MSDOS_SB(sb);
+> +	struct backing_dev_info *bdi = blk_get_backing_dev_info(sb->s_bdev);
+> +	unsigned long last_flush_jiff;
+> +
+> +	if (bdi_write_congested(bdi)) {
+
+As indicated above, this won't be very effective.
+
+> +		mod_timer(&sbi->flush_timer, jiffies + (HZ / 10));
+> +		return;
+> +	}
+> +
+> +	last_flush_jiff = sbi->last_flush_jiff;
+> +
+> +	if (!time_after_eq(jiffies, last_flush_jiff + (HZ / 2))) {
+> +		mod_timer(&sbi->flush_timer, last_flush_jiff + (HZ / 2));
+> +		return;
+> +	}
+
+What's the above doing?
+
+> +	if (pdflush_operation(fat_pdflush_handler, (unsigned long)sb) < 0)
+> +		mod_timer(&sbi->flush_timer, jiffies + HZ);
+> +}
+> +
+> +void __fat_mark_flush(struct super_block *sb)
+> +{
+> +	struct msdos_sb_info *sbi = MSDOS_SB(sb);
+> +
+> +	sbi->last_flush_jiff = jiffies;
+> +	/*
+> +	 * make sure by smb_wmb() that dirty buffers before here is
+> +	 * processed at the timer routine.
+> +	 */
+> +	smp_wmb();
+> +
+> +	if (!timer_pending(&sbi->flush_timer))
+> +		mod_timer(&sbi->flush_timer, jiffies + HZ);
+> +}
+> +EXPORT_SYMBOL(__fat_mark_flush);
+
+_GPL?
+
+> +void fat_flush_stop(struct super_block *sb)
+> +{
+> +	del_timer_sync(&MSDOS_SB(sb)->flush_timer);
+> +}
+
+whoops, the pdflush_operation could still be in progress.
+
+To avoid umount races I think the pdflush callback is going to need to take
+sb_lock, increment s_count, take ->s_umount, test ->s_root.  Like, for
+example, __sync_inodes.
+
+> +void fat_flush_init(struct super_block *sb)
+> +{
+> +	struct msdos_sb_info *sbi = MSDOS_SB(sb);
+> +	init_timer(&sbi->flush_timer);
+> +	sbi->flush_timer.data = (unsigned long)sb;
+> +	sbi->flush_timer.function = fat_flush_timer;
+
+-mm has setup_timer()
+
+> +
+> +static inline void fat_mark_flush(struct super_block *sb)
+> +{
+> +	if (MSDOS_SB(sb)->options.flush)
+> +		__fat_mark_flush(sb);
+> +}
+
+It'd be nice to make this a more generic thing, so other filesystems can
+use it without copying lots of code.
+
+> +		case Opt_flush:
+
+MS_FLUSH?   I added MS_DIRSYNC a few years ago - it wasn't too complex.
 
 

@@ -1,84 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751644AbVJSXzg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751646AbVJSX6g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751644AbVJSXzg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 19:55:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751645AbVJSXzg
+	id S1751646AbVJSX6g (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 19:58:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751647AbVJSX6g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 19:55:36 -0400
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:1503 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1751643AbVJSXzf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 19:55:35 -0400
-From: Grant Coady <grant_lkml@dodo.com.au>
-To: Greg KH <greg@kroah.com>
-Cc: Grant Coady <gcoady@gmail.com>, Roland Dreier <rolandd@cisco.com>,
+	Wed, 19 Oct 2005 19:58:36 -0400
+Received: from fmr22.intel.com ([143.183.121.14]:58274 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1751645AbVJSX6f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 19:58:35 -0400
+Subject: Re: [PATCH]: Handling spurious page fault for hugetlb region for
+	2.6.14-rc4-git5
+From: Rohit Seth <rohit.seth@intel.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pci_ids: cleanup comments
-Date: Thu, 20 Oct 2005 09:55:32 +1000
-Organization: http://bugsplatter.mine.nu/
-Reply-To: gcoady@gmail.com
-Message-ID: <64ndl1lf0q1o4hqh23u38i2pd4v9oam8d8@4ax.com>
-References: <4eedl1h86sarh1i5g42o7vi21i7v1ece2m@4ax.com> <524q7di40y.fsf@cisco.com> <4356C679.2090600@gmail.com> <20051019222744.GA7855@kroah.com>
-In-Reply-To: <20051019222744.GA7855@kroah.com>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <Pine.LNX.4.64.0510191345420.3369@g5.osdl.org>
+References: <20051018141512.A26194@unix-os.sc.intel.com>
+	 <20051018143438.66d360c4.akpm@osdl.org>
+	 <1129673824.19875.36.camel@akash.sc.intel.com>
+	 <20051018172549.7f9f31da.akpm@osdl.org>
+	 <1129692330.24309.44.camel@akash.sc.intel.com>
+	 <Pine.LNX.4.61.0510191551180.7586@goblin.wat.veritas.com>
+	 <1129747647.339.78.camel@akash.sc.intel.com>
+	 <Pine.LNX.4.64.0510191345420.3369@g5.osdl.org>
+Content-Type: text/plain
+Organization: Intel 
+Date: Wed, 19 Oct 2005 17:05:41 -0700
+Message-Id: <1129766741.339.141.camel@akash.sc.intel.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 19 Oct 2005 23:58:23.0383 (UTC) FILETIME=[FD2AEA70:01C5D508]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Oct 2005 15:27:44 -0700, Greg KH <greg@kroah.com> wrote:
+On Wed, 2005-10-19 at 13:53 -0700, Linus Torvalds wrote:
+> 
 
->On Thu, Oct 20, 2005 at 08:19:37AM +1000, Grant Coady wrote:
->> --- linux-2.6.14-rc4-mm1a/include/linux/pci_ids.h	2005-10-17 
->> 15:14:41.000000000 +1000
->
->Patch is linewrapped :(
->
-Oops, serves me right for changing mailer and not testing to self, sorry.
+> The fact is, the VM layer is designed for systems that do not cache 
+> not-present entries in their TLB. See for example the end of do_no_page() 
+> in mm/memory.c:
+> 
+> 	        /* no need to invalidate: a not-present page shouldn't be cached */
+> 	        update_mmu_cache(vma, address, entry);
+> 	        lazy_mmu_prot_update(entry);
+> 	        spin_unlock(&mm->page_table_lock);
+> 	out:
+> 	        return ret;
+> 
+> which _allows_ for hardware that caches not-present pages, but the 
+> architecture needs to catch them in the "update_mmu_cache()".
+> 
 
-Cheers,
-Grant
-From: Grant Coady <gcoady@gmail.com>
+I agree that one way would be to flush the TLB as part of
+update_mmu_cache.  But that would result in too many extra global
+flushes.  Instead in IA-64, we wait till fault time to do local flushes
+whenever needed.
 
-pci_ids.h cleanup: convert // comment to /* comment */
+> If ia64 caches non-present TLB entries, then that would seem to be a bug 
+> in the Linux ia64 port:
+> 
+>  - include/asm-ia64/pgtable.h:
+> 	#define update_mmu_cache(vma, address, pte) do { } while (0)
+> 
+> (Of course, you can and maybe do handle it differently: you can also 
+> decide to just take the TLB fault, and flush the TLB at fault time in your 
+> handler. I don't see that either on ia64, though. Although I didn't look 
+> into any of the asm code, so maybe it's hidden somewhere there).
+> 
 
-Signed-off-by: Grant Coady <gcoady@gmail.com>
+The low level page_not_present vector (asm code) flushes the stale entry
+that could be sitting in TLB resulting in current page fault.
 
----
- pci_ids.h |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
 
---- linux-2.6.14-rc4-mm1a/include/linux/pci_ids.h	2005-10-17 15:14:41.000000000 +1000
-+++ linux-2.6.14-rc4-mm1b/include/linux/pci_ids.h	2005-10-20 08:12:15.000000000 +1000
-@@ -448,7 +448,7 @@
- #define PCI_DEVICE_ID_IBM_ICOM_V2_ONE_PORT_RVX_ONE_PORT_MDM	0x0251
- #define PCI_DEVICE_ID_IBM_ICOM_FOUR_PORT_MODEL	0x252
- 
--#define PCI_VENDOR_ID_COMPEX2		0x101a // pci.ids says "AT&T GIS (NCR)"
-+#define PCI_VENDOR_ID_COMPEX2		0x101a /* pci.ids says "AT&T GIS (NCR)" */
- #define PCI_DEVICE_ID_COMPEX2_100VG	0x0005
- 
- #define PCI_VENDOR_ID_WD		0x101c
-@@ -1161,10 +1161,10 @@
- 
- #define PCI_VENDOR_ID_INIT		0x1101
- 
--#define PCI_VENDOR_ID_CREATIVE		0x1102 // duplicate: ECTIVA
-+#define PCI_VENDOR_ID_CREATIVE		0x1102 /* duplicate: ECTIVA */
- #define PCI_DEVICE_ID_CREATIVE_EMU10K1	0x0002
- 
--#define PCI_VENDOR_ID_ECTIVA		0x1102 // duplicate: CREATIVE
-+#define PCI_VENDOR_ID_ECTIVA		0x1102 /* duplicate: CREATIVE */
- #define PCI_DEVICE_ID_ECTIVA_EV1938	0x8938
- 
- #define PCI_VENDOR_ID_TTI		0x1103
-@@ -1174,7 +1174,7 @@
- #define PCI_DEVICE_ID_TTI_HPT302	0x0006
- #define PCI_DEVICE_ID_TTI_HPT371	0x0007
- #define PCI_DEVICE_ID_TTI_HPT374	0x0008
--#define PCI_DEVICE_ID_TTI_HPT372N	0x0009	// apparently a 372N variant?
-+#define PCI_DEVICE_ID_TTI_HPT372N	0x0009	/* apparently a 372N variant? */
- 
- #define PCI_VENDOR_ID_VIA		0x1106
- #define PCI_DEVICE_ID_VIA_8763_0	0x0198
+But anyways now there is another scenario that Hugh has pointed out in
+the last mail that needs to be taken care of too...
+
+-rohit
+

@@ -1,63 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751670AbVJTAwX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751682AbVJTBMr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751670AbVJTAwX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 20:52:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751671AbVJTAwW
+	id S1751682AbVJTBMr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 21:12:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751677AbVJTBMr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 20:52:22 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:8337 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751669AbVJTAwW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 20:52:22 -0400
-Date: Thu, 20 Oct 2005 09:51:02 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Subject: Re: [discuss] Re: x86_64: 2.6.14-rc4 swiotlb broken
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Alex Williamson <alex.williamson@hp.com>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       discuss@x86-64.org, tglx@linutronix.de, shai@scalex86.org,
-       mulix@mulix.org, jdmason@us.ibm.com
-In-Reply-To: <20051019225218.GA4684@localhost.localdomain>
-References: <Pine.LNX.4.64.0510191343590.3369@g5.osdl.org> <20051019225218.GA4684@localhost.localdomain>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.051
-Message-Id: <20051020094011.9A42.Y-GOTO@jp.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+	Wed, 19 Oct 2005 21:12:47 -0400
+Received: from [203.2.177.25] ([203.2.177.25]:25421 "EHLO pfeiffer.tusc.com.au")
+	by vger.kernel.org with ESMTP id S1751675AbVJTBMq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 21:12:46 -0400
+Subject: Re: [PATCH] X25: Add ITU-T facilites
+From: Andrew Hendry <ahendry@tusc.com.au>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: Arnaldo Carvalho de Melo <acme@ghostprotocols.net>,
+       "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>,
+       eis@baty.hanse.de, linux-x25@vger.kernel.org,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0510181144320.28065@chaos.analogic.com>
+References: <1129513666.3747.50.camel@localhost.localdomain>
+	 <20051017022826.GA23167@mandriva.com>
+	 <1129615767.3695.15.camel@localhost.localdomain>
+	 <20051018.152318.68554424.yoshfuji@linux-ipv6.org>
+	 <20051018153702.GC23167@mandriva.com>
+	 <Pine.LNX.4.61.0510181144320.28065@chaos.analogic.com>
+Content-Type: text/plain
+Message-Id: <1129770654.3574.1154.camel@localhost.localdomain>
+Mime-Version: 1.0
+Date: Thu, 20 Oct 2005 11:10:54 +1000
 Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.21.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Thanks a lot for your explanation!
-
-> On Wed, Oct 19, 2005 at 01:45:21PM -0700, Linus Torvalds wrote:
-> > ... 
-> > Can you re-post the final version as such, with explanations for the 
-> > commit messages and the sign-off, and people who have issues with it 
-> > _please_ speak up asap?
+On Wed, 2005-10-19 at 01:48, linux-os (Dick Johnson) wrote:
+> On Tue, 18 Oct 2005, Arnaldo Carvalho de Melo wrote:
 > 
-> The final version which works for everyone is from Yasunori Goto. 
+> > Em Tue, Oct 18, 2005 at 03:23:18PM +0900, YOSHIFUJI Hideaki / ?$B5HF#1QL@ escreveu:
+> >> In article <1129615767.3695.15.camel@localhost.localdomain> (at Tue, 18 Oct 2005 16:09:27 +1000), Andrew Hendry <ahendry@tusc.com.au> says:
+> >>
+> >>> +/*
+> >>> +*     ITU DTE facilities
+> >>> +*     Only the called and calling address
+> >>> +*     extension are currently implemented.
+> >>> +*     The rest are in place to avoid the struct
+> >>> +*     changing size if someone needs them later
+> >>> ++ */
+> >>> +struct x25_dte_facilities {
+> >>> +	unsigned int    calling_len, called_len;
+> >>> +	char            calling_ae[20];
+> >>> +	char            called_ae[20];
+> >>> +	unsigned char   min_throughput;
+> >>> +	unsigned short  delay_cumul;
+> >>> +	unsigned short  delay_target;
+> >>> +	unsigned short  delay_max;
+> >>> +	unsigned char   expedited;
+> >>> +};
+> >>
+> >> Why don't you use fixed size members?
+> >> And we can eliminate 8bit hole.
+> >>
+> >> struct x25_dte_facilities {
+> >>      u32             calling_len
+> >>      u32             called_len;
+> >
+> > I guess the two above can be 'u8' as they refer to calling_ae and called_ae
+> > that at most will be '20'?
+> >
+> >>      u8              calling_ae[20];
+> >>      u8              called_ae[20];
+> >
+> > - Arnaldo
 > 
-> His patch introduces a limit parameter to the core bootmem allocator;  This
-> new parameter indicates that physical memory allocated by the bootmem allocator
-> should be within the requested limit.  The patch also introduces
-> alloc_bootmem_low_pages_limit(), alloc_bootmem_node_limit,
-> alloc_bootmem_low_pages_node_limit apis, but alloc_bootmem_low_pages_limit()
-> is the only api used for swiotlb.  IMO, instead of introducing xxx_limit apis,
-> the existing alloc_bootmem_low_pages() api could instead be changed and made 
-> to pass right limit to the core allocator.  But then that would make the 
-> patch more intrusive for 2.6.14, as other  arches use alloc_bootmem_low_pages().
+> At the very least put the 32-bit in the beginning and 8-bit stuff at
+> the end so natural alignment occurs where possible.
+> 
+> Cheers,
+> Dick Johnson
+> Penguin : Linux version 2.6.13.4 on an i686 machine (5589.46 BogoMips).
+> Warning : 98.36% of all statistics are fiction.
+> .
 
-Yes. I worried a bit that I should replace all of the function or not.
-But, its impact is too risky for 2.6.14. So, I wrote the patch to avoid
-big impact as much as possible.
+Thanks everyone for the feedback, will fix up the alignment.
 
-> (So maybe that can be done post 2.6.14 if Yasunori-san is OK with that)
+A quick question on the use of u8 and u32 types in x25.h.
 
-Sure! 
+/usr/src/linux-2.6.13.4/include/linux/x25.h and 
+/usr/include/linux/x25.h
+have been identical between the kernel and glibc-kernheaders type
+packages, using u8 and u32 would require extra changes to the userspace
+version.
 
--- 
-Yasunori Goto 
+__u32 or unsigned int look to be the norm for other similar headers,
+whats the recommended type of types to be used?
+
+Thanks,
+Andrew.
 

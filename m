@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932521AbVJTVXN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932526AbVJTVSv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932521AbVJTVXN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 17:23:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932543AbVJTVXN
+	id S932526AbVJTVSv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 17:18:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932540AbVJTVSv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 17:23:13 -0400
-Received: from mail-in-08.arcor-online.net ([151.189.21.48]:57557 "EHLO
-	mail-in-08.arcor-online.net") by vger.kernel.org with ESMTP
-	id S932521AbVJTVXM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 17:23:12 -0400
-From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
-Subject: Re: [PATCH] fix vgacon blanking
-To: Pozsar Balazs <pozsy@uhulinux.hu>, linux-kernel@vger.kernel.org,
-       7eggert@gmx.de
-Reply-To: 7eggert@gmx.de
-Date: Thu, 20 Oct 2005 23:23:01 +0200
-References: <4ZLja-4gH-5@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1EShsL-0000tJ-Fr@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
+	Thu, 20 Oct 2005 17:18:51 -0400
+Received: from easyspace2.ezspl.net ([66.45.254.2]:34192 "EHLO
+	easyspace2.ezspl.net") by vger.kernel.org with ESMTP
+	id S932526AbVJTVSv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Oct 2005 17:18:51 -0400
+Subject: running linux TCP/IP stack on a real slow machine
+From: Kallol Biswas <kallol@nucleodyne.com>
+Reply-To: kallol@nucleodyne.com
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20051020135014.2289fa01.akpm@osdl.org>
+References: <871x2gf8f5.fsf@devron.myhome.or.jp>
+	 <20051020135014.2289fa01.akpm@osdl.org>
+Content-Type: text/plain
+Organization: NucleoDyne Systems Inc.
+Message-Id: <1129842512.24889.21.camel@driver>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 20 Oct 2005 14:08:32 -0700
+Content-Transfer-Encoding: 7bit
+X-Antivirus-Scanner: Clean mail though you should still use an Antivirus
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - easyspace2.ezspl.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - nucleodyne.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pozsar Balazs <pozsy@uhulinux.hu> wrote:
+I have been designing and developing IP cores for a system on chip
+project. A system emulator (RTL) has been used to validate the cores.
+The emulated system runs at several Khz (700KHz) and is real slow.
+Booting linux takes more that 40 minutes. We have a bridge for the
+ethernet interface to talk to outside network, and it does not terminate
+TCP connections.
 
-> This patch fixes a long-standing vgacon bug: characters with the bright
-> bit set were left on the screen and not blacked out.
-> All I did was that I lookuped up some examples on the net about setting
-> the vga palette, and added the call missing from the linux kernel, but
-> included in all other ones. It works for me.
+If a process running on such a system tries to talk a process that is
+running on a normal system (like a PC) over TCP/IP protocols what will
+be the issues we will find in the stack?
 
-This is strange, since according to my documentation, the value should have
-been initialized to 0xff and never been changed. Can you test setting this
-value during initialisation (around line 259, if I read correctly) instead?
-I don't know if I can test it myself soon enough.
+I have a good idea on what is going to happen. Just looking for
+comments/input.
 
-(I'm not the maintainer, I just happen to have some documentation).
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+Kallol Biswas
+

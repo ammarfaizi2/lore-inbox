@@ -1,57 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751045AbVJTKGU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbVJTKTw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751045AbVJTKGU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 06:06:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbVJTKGU
+	id S1751162AbVJTKTw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 06:19:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751203AbVJTKTw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 06:06:20 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:53233 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751045AbVJTKGT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 06:06:19 -0400
-Date: Thu, 20 Oct 2005 06:05:47 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-To: Ingo Molnar <mingo@elte.hu>
-cc: john stultz <johnstul@us.ibm.com>, tglx@linutronix.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: Ktimer / -rt9 (+custom) monotonic_clock going backwards.
-In-Reply-To: <Pine.LNX.4.58.0510200603220.27683@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0510200605170.27683@localhost.localdomain>
-References: <Pine.LNX.4.58.0510191047270.24515@localhost.localdomain>
- <1129734626.19559.275.camel@tglx.tec.linutronix.de>
- <1129747172.27168.149.camel@cog.beaverton.ibm.com>
- <Pine.LNX.4.58.0510200249080.27683@localhost.localdomain> <20051020073416.GA28581@elte.hu>
- <Pine.LNX.4.58.0510200340110.27683@localhost.localdomain> <20051020080107.GA31342@elte.hu>
- <Pine.LNX.4.58.0510200443130.27683@localhost.localdomain> <20051020085955.GB2903@elte.hu>
- <Pine.LNX.4.58.0510200503470.27683@localhost.localdomain>
- <Pine.LNX.4.58.0510200603220.27683@localhost.localdomain>
+	Thu, 20 Oct 2005 06:19:52 -0400
+Received: from mail-in-09.arcor-online.net ([151.189.21.49]:25566 "EHLO
+	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1751162AbVJTKTw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Oct 2005 06:19:52 -0400
+From: Michael Neuffer <neuffer@neuffer.info>
+Date: Thu, 20 Oct 2005 12:25:05 +0200
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.14-rc5
+Message-ID: <20051020102505.GA11423@neuffer.info>
+References: <Pine.LNX.4.64.0510192328360.5909@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0510192328360.5909@g5.osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Quoting Linus Torvalds (torvalds@osdl.org):
+> 
+> Yeah, I know I said -rc4 was going to be the last one, 
+> [...]
+> 
+> So here it is. 
 
+The sync to the public ftp.kernel.org servers is still missing.
 
-On Thu, 20 Oct 2005, Steven Rostedt wrote:
-
-> >
-> > Not anymore.
-> >
-> > include/linux/time.h:
-> >
-> > /* timeofday base types */
-> > typedef s64 nsec_t;
-> > typedef unsigned long cycle_t;
-> >
->
-> FYI,
->
-> I just switched cycle_t to u64 and hackbench no longer makes the time go
-> backwards.
->
-> John, would this cause any problems to keep cycle_t at s64?
-
-I mean at u64.
-
--- Steve
+Cheers
+   Mike
